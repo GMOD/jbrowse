@@ -18,7 +18,7 @@ div.dragWindow {
     border-width: 1px;
     border-color: gray;
     /*background: transparent;*/
-    cursor: url("img/openhand.cur"), move;
+    cursor: url("openhand.cur"), move;
 }
 
 div.pos-label {

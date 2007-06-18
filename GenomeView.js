@@ -23,9 +23,9 @@ function Animation(subject, callback, steps) {
     this.callback = callback;
 
     var myAnim = this;
-    this.animID = setInterval(function() { myAnim.animate() }, 30);
+    //this.animID = setInterval(function() { myAnim.animate() }, 30);
     this.animFunction = function() { myAnim.animate(); };
-    //setTimeout(this.animFunction, 30);
+    setTimeout(this.animFunction, 0);
 
     subject.animation = this;
 }
@@ -34,14 +34,14 @@ Animation.prototype.animate = function () {
     if (this.index < this.steps) {
         this.index += 1;
         this.step(this.index, this.steps);
-        //setTimeout(this.animFunction, 30);
+        setTimeout(this.animFunction, 30);
     } else {
         this.stop();
     }
 }
 
 Animation.prototype.stop = function() {
-    clearInterval(this.animID);
+    //clearInterval(this.animID);
     if (this.index == this.steps) this.callback(this);
     delete this.subject.animation;
 }    

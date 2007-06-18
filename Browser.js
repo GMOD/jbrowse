@@ -5,7 +5,7 @@ Browser.init = function() {
     viewElem.genomeView = gv;
     var numTracks = 4;
     var addTrack = function() {
-        new Ajax.Request("newgene.json", {
+        new Ajax.Request("gene.json", {
             method: 'get',
             onSuccess: function(transport) {
                 try {
@@ -20,7 +20,7 @@ Browser.init = function() {
                 }
             }
         });
-        new Ajax.Request("newexon.json", {
+        new Ajax.Request("exon.json", {
             method: 'get',
             onSuccess: function(transport) {
                 try {
