@@ -1,0 +1,217 @@
+html, body {
+    height: 98%;
+}
+
+button.slide {
+    width: 4em;
+}
+
+div.dragWindow {
+    position:absolute;
+    left: 2%;
+    top: 3em;
+    width: 96%;
+    height: 90%;
+    overflow: hidden;
+    z-index: 1;
+    border-style: solid;
+    border-width: 1px;
+    border-color: gray;
+    /*background: transparent;*/
+    cursor: url("img/openhand.cur"), move;
+}
+
+div.pos-label {
+    position: absolute;
+    left: 0px;
+    background-color: #ddd;
+    z-index: 100;
+}
+
+div.sequence {
+    position: absolute;
+    left: 0px;
+    font-family: monospace;
+    letter-spacing: 2px;
+    padding-left: 2px;
+    z-index: 100;
+}
+
+/*
+div.minus-feature:before {
+    content: attr(fName);
+    display: block;
+}
+
+div.plus-feature:before {
+    content: attr(fName);
+    display: inline;
+}
+*/
+
+div.plus-feature {
+    position:absolute;
+    height: 11px;
+    background-image: url('img/plus-herringbone11.png');
+    background-repeat: repeat-x;
+    cursor: pointer;
+    min-width: 1px;
+    z-index: 10;
+}
+
+div.minus-feature {
+    position:absolute;
+    height: 11px;
+    background-image: url('img/minus-herringbone11.png');
+    background-repeat: repeat-x;
+    cursor: pointer;
+    min-width: 1px;
+    z-index: 10;
+}
+
+div.plus-exon {
+    position: absolute;
+    height: 5px;
+    background-color: blue;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+div.minus-exon {
+    position: absolute;
+    height: 5px;
+    background-color: blue;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+div.dblhelix {
+    position:absolute;
+    height: 11px;
+    background-image: url('img/dblhelix-red.png');
+    background-repeat: repeat-x;
+    cursor: pointer;
+}
+
+div.helix {
+    position:absolute;
+    height: 12px;
+    background-image: url('img/helix3-green.png');
+    background-repeat: repeat-x;
+    cursor: pointer;
+}
+
+div.loops {
+    position:absolute;
+    height: 13px;
+    background-image: url('img/loops.png');
+    background-repeat: repeat-x;
+    cursor: pointer;
+}
+
+div.plus-pacman {
+    position:absolute;
+    height: 12px;
+    background-image: url('img/plus-pacman.png');
+    background-repeat: repeat-x;
+    cursor: pointer;
+}
+
+div.plus-cds1 {
+    position:absolute;
+    height: 13px;
+    background-image: url('img/plus-cds1.png');
+    background-repeat: repeat-x;
+    cursor: pointer;
+}
+
+div.plus-cds2 {
+    position:absolute;
+    height: 13px;
+    background-image: url('img/plus-cds2.png');
+    background-repeat: repeat-x;
+    cursor: pointer;
+}
+
+div.plus-cds3 {
+    position:absolute;
+    height: 13px;
+    background-image: url('img/plus-cds3.png');
+    background-repeat: repeat-x;
+    cursor: pointer;
+}
+
+div.minus-cds1 {
+    position:absolute;
+    height: 13px;
+    background-image: url('img/minus-cds1.png');
+    background-repeat: repeat-x;
+    cursor: pointer;
+}
+
+div.minus-cds2 {
+    position:absolute;
+    height: 13px;
+    background-image: url('img/minus-cds2.png');
+    background-repeat: repeat-x;
+    cursor: pointer;
+}
+
+div.minus-cds3 {
+    position:absolute;
+    height: 13px;
+    background-image: url('img/minus-cds3.png');
+    background-repeat: repeat-x;
+    min-width: 1px;
+    cursor: pointer;
+}
+
+div.topbracket {
+    position:absolute;
+    height: 8px;
+    border-style: solid solid none solid;
+/*    border-width: 2px 2px 0px 2px; */
+    border-width: 2px;
+    border-color: orange;
+/*    margin-top: 2px */
+    cursor: pointer;
+}
+
+div.bottombracket {
+    position:absolute;
+    height: 8px;
+    border-style: none solid solid solid;
+    border-width: 2px;
+    border-color: green;
+    cursor: pointer;
+}
+
+div.hourglass {
+    position:absolute;
+    height: 0px;
+    border-style: solid;
+    border-width: 8px 5px 8px 5px;
+    border-color: red white red white;
+    cursor: pointer;
+}
+
+div.ibeam {
+    position:absolute;
+    height: 2px;
+    background-color: blue;
+    border-style: solid;
+    border-width: 8px 4px 8px 4px;
+    border-color: white blue white blue;
+    cursor: pointer;
+}
+
+div.container {
+    position: absolute;
+    z-index: 0;
+}

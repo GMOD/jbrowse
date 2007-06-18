@@ -1,0 +1,33 @@
+<!DOCTYPE html 
+	  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  
+  <head>
+    <title>div genome test</title>
+    <link rel="stylesheet" type="text/css" href="genome.css"></link>
+    <script type="text/javascript" src="prototype.js"></script>
+    <script type="text/javascript" src="NCList.js"></script>
+    <script type="text/javascript" src="FeatureTrack.js"></script>
+    <script type="text/javascript" src="GenomeView.js"></script>
+    <script type="text/javascript" src="Browser.js"></script>
+  </head>
+  
+  <body onload="Browser.init()">
+    <button id="moveLeft" class="slide">&lt;&lt;</button>
+    <!--<button id="stepLeft" class="slide">&lt;</button>
+    <button id="stepRight" class="slide">&gt;</button>-->
+    <button id="moveRight" class="slide">&gt;&gt;</button>
+    &nbsp;&nbsp;&nbsp;
+    <button id="zoomIn" class="slide">+</button>
+    <button id="zoomOut" class="slide">-</button>
+    &nbsp;&nbsp;&nbsp;
+    <button id="profile" class="slide">profile</button>
+    &nbsp;&nbsp;&nbsp;
+    <span id="profTime">profile time: </span>
+
+    <div id="dragWindow" class="dragWindow">
+    </div>
+  </body>
+</html>
