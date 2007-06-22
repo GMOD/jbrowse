@@ -69,6 +69,24 @@ div.minus-feature {
     z-index: 10;
 }
 
+div.hist-feature {
+    position: absolute;
+    background-color: yellow;
+    border-color: lightblue;
+    border-style: solid;
+    border-width: 1px;
+    z-index: 10;
+}
+
+div.hist-exon {
+    position: absolute;
+    background-color: blue;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+    z-index: 10;
+}
+
 div.plus-exon {
     position: absolute;
     height: 5px;

@@ -1,5 +1,5 @@
 
-function SimpleFeatureTrack(name, featArray, className, levelHeight, refSeq) {
+function SimpleFeatureTrack(name, featArray, className, levelHeight, refSeq, histScale) {
     //className: CSS class for the features
 
     this.name = name;
@@ -10,6 +10,8 @@ function SimpleFeatureTrack(name, featArray, className, levelHeight, refSeq) {
     this.className = className;
     this.levelHeight = levelHeight;
     this.refSeq = refSeq;
+    this.histScale = histScale;
+    this.numBins = 25;
 }
 
 SimpleFeatureTrack.prototype.getFeatures = function(startBase, endBase) {
@@ -28,7 +30,40 @@ SimpleFeatureTrack.prototype.getFeatures = function(startBase, endBase) {
     return result;
 }
 
+SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase) {
+    var hist = this.features.histogram(leftBase, rightBase, this.numBins);
+    //console.log(hist);
+    var maxBin = 0;
+    for (var bin = 0; bin < this.numBins; bin++)
+	maxBin = Math.max(maxBin, hist[bin]);
+    var binDiv;
+    for (var bin = 0; bin < this.numBins; bin++) {
+        binDiv = document.createElement("div");
+	binDiv.className = "hist-" + this.className;
+        binDiv.style.cssText = 
+            "left: " + ((bin / this.numBins) * 100) + "%; "
+            + "height: " + (2 * hist[bin]) + "px;"
+	    + "bottom: 0px;"
+            + "width: " + (((1 / this.numBins) * 100) - (2 / this.numBins)) + "%;";
+        if (is_ie6) binDiv.appendChild(document.createComment());
+        block.appendChild(binDiv);
+    }
+    return 2 * maxBin;
+}
+
 SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, padding) {
+    //console.log("scale: %d, histScale: %d", scale, this.histScale);
+    if (scale < this.histScale)
+	return this.fillHist(block, leftBase, rightBase);
+    else
+	return this.fillFeatures(block, leftBlock, rightBlock, 
+				 leftBase, rightBase, scale, padding);
+}
+
+SimpleFeatureTrack.prototype.fillFeatures = function(block, 
+						     leftBlock, rightBlock,
+						     leftBase, rightBase,
+						     scale, padding) {
     //arguments:
     //block: div to be filled with info
     //leftBlock: div to the left of the block to be filled
