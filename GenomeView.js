@@ -26,63 +26,66 @@ Object.extend(Event, {
 	}
 });
 
-function Animation(subject, callback, steps) {
+function Animation(subject, callback, time) {
+    //subject: what's being animated
+    //callback: function to call at the end of the animation
+    //time: time for the animation to run
     if (subject === undefined) return;
     if ("animation" in subject) subject.animation.stop();
     this.index = 0;
-    this.steps = steps;
+    this.startTime = (new Date()).getTime();
+    this.time = time;
     this.subject = subject;
     this.callback = callback;
 
     var myAnim = this;
-    //this.animID = setInterval(function() { myAnim.animate() }, 30);
-    this.animFunction = function() { myAnim.animate(); };
-    this.animID = setTimeout(this.animFunction, 0);
+    this.animID = setInterval(function() { myAnim.animate() }, 15);
+    //this.animFunction = function() { myAnim.animate(); };
+    //this.animID = setTimeout(this.animFunction, 0);
 
     subject.animation = this;
 }
 
 Animation.prototype.animate = function () {
-    if (this.index < this.steps) {
-        this.index += 1;
-        this.step(this.index, this.steps);
-        this.animID = setTimeout(this.animFunction, 0);
-    } else {
-        this.stop();
+    if (this.finished) {
+	this.stop();
+	return;
     }
+    var elapsed = (new Date()).getTime() - this.startTime;
+    if (elapsed < this.time) {
+        this.step(elapsed / this.time);
+    } else {
+	this.step(1);
+        this.finished = true;
+    }
+    //this.animID = setTimeout(this.animFunction, 0);
 }
 
 Animation.prototype.stop = function() {
-    //clearInterval(this.animID);
-    clearTimeout(this.animID);
+    clearInterval(this.animID);
     delete this.subject.animation;
-    //if (this.index == this.steps) 
-        this.callback(this);
+    this.callback(this);
 }    
 
-function Slider(view, callback, steps, distance) {
-    Animation.call(this, view, callback, steps)
+function Slider(view, callback, time, distance) {
+    Animation.call(this, view, callback, time)
     this.slideStart = view.getX();
     this.slideDistance = distance;
-    view.showVisibleBlocks(this.slideStart - distance,
-                           this.slideStart + view.dim.width - distance);
 }
 
 Slider.prototype = new Animation();
 
-Slider.prototype.step = function(index, steps) {
-        //var x = (2 * (slideIndex / slideSteps)) - 1;
-        //    slideStart - (slideDistance * (3/4) * ((2/3) + x - ((x^3)/3)));
+Slider.prototype.step = function(pos) {
     this.subject.setX(((this.slideStart -
                         (this.slideDistance * 
                          //cos will go from 1 to -1, we want to go from 0 to 1
-                         ((-0.5 * Math.cos((index / steps) * Math.PI)) + 0.5)))
+                         ((-0.5 * Math.cos(pos * Math.PI)) + 0.5)))
                        //truncate
                        | 0) );
 }
 
-function Zoomer(scale, toScroll, callback, steps, zoomLoc) {
-    Animation.call(this, toScroll, callback, steps);
+function Zoomer(scale, toScroll, callback, time, zoomLoc) {
+    Animation.call(this, toScroll, callback, time);
     this.toZoom = toScroll.container;
     var cWidth = this.toZoom.clientWidth;
 
@@ -95,8 +98,8 @@ function Zoomer(scale, toScroll, callback, steps, zoomLoc) {
 
 Zoomer.prototype = new Animation();
 
-Zoomer.prototype.step = function(index, steps) {
-    var zoomFraction = (this.zoomingIn ? index : (steps - index)) / steps;
+Zoomer.prototype.step = function(pos) {
+    var zoomFraction = this.zoomingIn ? pos : 1 - pos;
     var x = this.subject.getX();
     var eWidth = this.subject.elem.clientWidth;
     var cWidth = this.subject.container.clientWidth;
@@ -284,9 +287,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 	var oldY = view.getY();
 	var newY = Math.min(Math.max(0, oldY - 50 * Event.wheel(e)), 
 			    view.container.clientHeight - view.dim.height);
-	//if (view.getY() != oldY) {
 	view.updatePosLabels(newY);
-	//}
 	view.setY(newY);
 	Event.stop(e);
     }
@@ -302,98 +303,29 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 
     Event.observe("moveLeft", "click", 
                   function() {
-                      if (view.animation) return;
+                      if (view.animation) view.animation.stop();
+		      var slideStart = view.getX();
+		      var distance = view.dim.width * 0.9;
+		      view.showVisibleBlocks(slideStart - distance,
+					     slideStart + view.dim.width - distance);
                       new Slider(view, afterSlide,
-                                 view.dim.width / 30, view.dim.width * 0.9);
+                                 distance * 1.5, distance);
                   });
     Event.observe("moveRight", "click",
                   function() {
-                      if (view.animation) return;
+                      if (view.animation) view.animation.stop();
+		      var slideStart = view.getX();
+		      var distance = -view.dim.width * 0.9;
+		      view.showVisibleBlocks(slideStart - distance,
+					     slideStart + view.dim.width - distance);
                       new Slider(view, afterSlide, 
-                                 view.dim.width / 30, -view.dim.width * 0.9);
+                                 distance * -1.5, distance);
                   });
-    //Event.observe("stepLeft", "click",
-    //              function() {new Slider(view, afterSlide, 20, view.dim.width * .5)});
-    //Event.observe("stepRight", "click",
-    //              function() {new Slider(view, afterSlide, 20, -view.dim.width * .5)});
 
-    var zoomSteps = 15;
-    if (is_ie) zoomSteps = 15;
-    //should these two be Zoomer state?
-    var zoomStart;
-    var zoomTrans;
-
-    var afterZoom = function(anim) {
-        //estimate the number of steps to finish the zoom in 700ms
-        zoomSteps = anim.index / (((new Date()).getTime() - zoomStart) / 700);
-        //console.log("zoomSteps: %d, anim.index: %d", zoomSteps, anim.index);
-        if (zoomSteps < 1) zoomSteps = 1;
-        //average with the current number of steps for the target zoom level
-        //(this is to reduce the effect of sporadic slowdowns due to (e.g.) GC)
-        if (view.zoomSteps[zoomTrans])
-            zoomSteps = (view.zoomSteps[zoomTrans] + zoomSteps) / 2;
-        zoomSteps = Math.round(zoomSteps);
-        if (zoomSteps > 20) zoomSteps = 20;
-        view.zoomSteps[zoomTrans] = zoomSteps;
-        view.zoomUpdate();
-        view.showDone();
-    };
-
-    var zoomIn = 
-        function(event) {
-        if (view.animation) return;
-        if (view.curZoom < (view.zoomLevels.length - 1)) {
-            view.showWait();
-            var x = view.getX();
-            for (var i = 0; i < view.stripeCount; i++) {
-                if ((((i + 1) * view.stripeWidth) < x)
-                    || ((i * view.stripeWidth) > (x + view.dim.width))) {
-                    view.container.removeChild(view.stripes[i]);
-                    view.stripes[i] = undefined;
-                }
-            }
-            var scale = view.zoomLevels[view.curZoom + 1] / view.zoomLevels[view.curZoom];
-            zoomTrans = view.curZoom + "-" + (view.curZoom + 1);
-            view.curZoom += 1;
-            view.pxPerBp = view.zoomLevels[view.curZoom];
-            view.maxLeft = view.bpToPx(view.endbp) - view.dim.width;
-            if (view.zoomSteps[zoomTrans])
-                zoomSteps = view.zoomSteps[zoomTrans];
-            zoomStart = (new Date()).getTime();
-            new Zoomer(scale, view, afterZoom, zoomSteps, 0.5);
-        }
-    }
-
+    var zoomIn = this.zoomIn.bind(this);
     Event.observe("zoomIn", "click", zoomIn);
 
-    var zoomOut = 
-        function(event) {
-        if (view.animation) return;
-        if ((view.zoomLevels.length - 1) == view.curZoom) {
-            for (var i = 0; i < view.stripeCount; i++)
-                view.stripes[i].seqNode.style.display = "none";
-        }
-        if (view.curZoom > 0) {
-            view.showWait();
-            var x = view.getX();
-            var scale = view.zoomLevels[view.curZoom - 1] / view.zoomLevels[view.curZoom];
-            var edgeDist = view.bpToPx(view.endbp) - (view.offset + x + view.dim.width);
-            //zoomLoc is a number on [0,1] that indicates
-            //the fixed point of the zoom
-            var zoomLoc = Math.max(0.5, 1 - (((edgeDist * scale) / (1 - scale)) / view.dim.width));
-            edgeDist = x + view.offset - view.bpToPx(view.startbp);
-            zoomLoc = Math.min(zoomLoc, ((edgeDist * scale) / (1 - scale)) / view.dim.width);
-            zoomTrans = view.curZoom + "-" + (view.curZoom - 1);
-            if (view.zoomSteps[zoomTrans])
-                zoomSteps = view.zoomSteps[zoomTrans];
-            view.curZoom -= 1;
-            view.pxPerBp = view.zoomLevels[view.curZoom];
-            view.minLeft = view.bpToPx(view.startbp);
-            zoomStart = (new Date()).getTime();
-            new Zoomer(scale, view, afterZoom, zoomSteps, zoomLoc);
-        }
-    }
-
+    var zoomOut = this.zoomOut.bind(this);
     Event.observe("zoomOut", "click", zoomOut);
 
     Event.observe(view.elem, "doubleclick", function (event) {console.log("doubleclick");});
@@ -404,10 +336,12 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 
     var profile = function() {
         zooms[thisZoom++]();
-        if (thisZoom < zooms.length)
+        if (thisZoom < zooms.length) {
             setTimeout(profile, 3000);
-        else
+        } else {
             $('profTime').appendChild(document.createTextNode(" " + (new Date().getTime() - startTime) / 1000));
+	    thisZoom = 0;
+	}
     }
     
     var startTime;
@@ -483,6 +417,7 @@ GenomeView.prototype.sizeInit = function() {
     while (this.pxPerBp > this.zoomLevels[this.curZoom])
         this.curZoom++;
     this.pxPerBp = this.zoomLevels[this.curZoom];
+    this.maxLeft = this.bpToPx(this.endbp) - this.dim.width;
 
     delete this.stripePercent;
     //25, 50, 100 don't work as well due to the way scrollUpdate works
@@ -530,6 +465,51 @@ GenomeView.prototype.sizeInit = function() {
     }
 }
 
+GenomeView.prototype.zoomIn = function() {
+    if (this.animation) return;
+    if (this.curZoom < (this.zoomLevels.length - 1)) {
+	this.showWait();
+	var x = this.getX();
+	for (var i = 0; i < this.stripeCount; i++) {
+	    if ((((i + 1) * this.stripeWidth) < x)
+		|| ((i * this.stripeWidth) > (x + this.dim.width))) {
+		this.container.removeChild(this.stripes[i]);
+		this.stripes[i] = undefined;
+	    }
+	}
+	var scale = this.zoomLevels[this.curZoom + 1] / this.zoomLevels[this.curZoom];
+	this.curZoom += 1;
+	this.pxPerBp = this.zoomLevels[this.curZoom];
+	this.maxLeft = this.bpToPx(this.endbp) - this.dim.width;
+	zoomStart = (new Date()).getTime();
+	new Zoomer(scale, this, this.zoomUpdate.bind(this), 700, 0.5);
+    }
+}
+
+GenomeView.prototype.zoomOut = function() {
+    if (this.animation) return;
+    if ((this.zoomLevels.length - 1) == this.curZoom) {
+	for (var i = 0; i < this.stripeCount; i++)
+	    this.stripes[i].seqNode.style.display = "none";
+    }
+    if (this.curZoom > 0) {
+	this.showWait();
+	var x = this.getX();
+	var scale = this.zoomLevels[this.curZoom - 1] / this.zoomLevels[this.curZoom];
+	var edgeDist = this.bpToPx(this.endbp) - (this.offset + x + this.dim.width);
+	//zoomLoc is a number on [0,1] that indicates
+	//the fixed point of the zoom
+	var zoomLoc = Math.max(0.5, 1 - (((edgeDist * scale) / (1 - scale)) / this.dim.width));
+	edgeDist = x + this.offset - this.bpToPx(this.startbp);
+	zoomLoc = Math.min(zoomLoc, ((edgeDist * scale) / (1 - scale)) / this.dim.width);
+	this.curZoom -= 1;
+	this.pxPerBp = this.zoomLevels[this.curZoom];
+	this.minLeft = this.bpToPx(this.startbp);
+	zoomStart = (new Date()).getTime();
+	new Zoomer(scale, this, this.zoomUpdate.bind(this), 700, zoomLoc);
+    }
+}
+
 GenomeView.prototype.zoomUpdate = function() {
     var x = this.getX();
     var eWidth = this.elem.clientWidth;
@@ -552,6 +532,7 @@ GenomeView.prototype.zoomUpdate = function() {
     this.clearStripes();
     this.makeStripes();
     this.showVisibleBlocks();
+    this.showDone();
 }    
 
 GenomeView.prototype.scrollUpdate = function() {
