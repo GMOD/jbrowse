@@ -30,7 +30,8 @@ SimpleFeatureTrack.prototype.getFeatures = function(startBase, endBase) {
     return result;
 }
 
-SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase) {
+SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
+						 stripeWidth) {
     var hist = this.features.histogram(leftBase, rightBase, this.numBins);
     //console.log(hist);
     var maxBin = 0;
@@ -44,17 +45,17 @@ SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase) {
             "left: " + ((bin / this.numBins) * 100) + "%; "
             + "height: " + (2 * hist[bin]) + "px;"
 	    + "bottom: 0px;"
-            + "width: " + (((1 / this.numBins) * 100) - (2 / this.numBins)) + "%;";
+            + "width: " + (((1 / this.numBins) * 100) - (100 / stripeWidth)) + "%;";
         if (is_ie6) binDiv.appendChild(document.createComment());
         block.appendChild(binDiv);
     }
     return 2 * maxBin;
 }
 
-SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, padding) {
+SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, padding, stripeWidth) {
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
     if (scale < this.histScale)
-	return this.fillHist(block, leftBase, rightBase);
+	return this.fillHist(block, leftBase, rightBase, stripeWidth);
     else
 	return this.fillFeatures(block, leftBlock, rightBlock, 
 				 leftBase, rightBase, scale, padding);

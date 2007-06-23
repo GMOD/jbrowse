@@ -648,7 +648,8 @@ GenomeView.prototype.fillStripe = function(stripe, leftStripe, rightStripe) {
                                                    leftBlock, rightBlock,
                                                    stripe.startBase,
                                                    stripe.startBase + Math.round(this.stripeWidth / this.pxPerBp), 
-                                                   this.pxPerBp, 5);
+                                                   this.pxPerBp, 5,
+						   this.stripeWidth);
 
         totalHeight += this.trackHeights[i] + this.trackPadding;
         blockDiv.style.height = this.trackHeights[i] + "px";
@@ -832,7 +833,8 @@ GenomeView.prototype.addTrack = function(track) {
                                       leftBlock, undefined,
                                       stripe.startBase,
                                       stripe.startBase + Math.round(this.stripeWidth / this.pxPerBp), 
-                                      this.pxPerBp, 5);
+                                      this.pxPerBp, 5,
+				      this.stripeWidth);
         leftBlock = blockDiv;
         trackHeight = Math.max(trackHeight, blockHeight);
         blockDiv.style.height = blockHeight + "px";
