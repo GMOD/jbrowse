@@ -14,6 +14,18 @@ function addCommas(nStr)
 	return x1 + x2;
 }
 
+Object.extend(Event, {
+	wheel:function (event){
+		var delta = 0;
+		if (!event) event = window.event;
+		if (event.wheelDelta) {
+			delta = event.wheelDelta/120; 
+			if (window.opera) delta = -delta;
+		} else if (event.detail) { delta = -event.detail/3;	}
+		return Math.round(delta); //Safari Round
+	}
+});
+
 function Animation(subject, callback, steps) {
     if (subject === undefined) return;
     if ("animation" in subject) subject.animation.stop();
@@ -181,14 +193,17 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
                            view.minLeft - view.offset)) + "px";
         }
         view.setY = function(y) {
-            view.container.style.top = (-Math.max(y, 0)) + "px";
+            view.container.style.top = -Math.min((y < 0 ? 0 : y),
+						 view.container.clientHeight
+						 - view.dim.height) + "px";
         }
         view.setPosition = function(pos) {
             view.container.style.left =
                 (-Math.max(Math.min(view.maxLeft - view.offset, pos.x), 
                            view.minLeft - view.offset)) + "px";
             view.container.style.top =
-                (-Math.max(pos.y, 0)) + "px";
+                (-Math.min((pos.y < 0 ? 0 : pos.y),
+			   view.container.clientHeight - view.dim.height)) + "px";
         }
     } else {
         view.getX = function() { return view.elem.scrollLeft; }
@@ -203,14 +218,17 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
                          view.minLeft - view.offset);
         }
         view.setY = function(y) {
-             view.elem.scrollTop = (y < 0 ? 0 : y);
+	    view.elem.scrollTop = Math.min((y < 0 ? 0 : y),
+					   view.container.clientHeight
+					   - view.dim.height);
         }
         view.setPosition = function(pos) {
             view.elem.scrollLeft =
                 Math.max(Math.min(view.maxLeft - view.offset, pos.x),
                          view.minLeft - view.offset);
             view.elem.scrollTop =
-                (pos.y < 0 ? 0 : pos.y);
+                Math.min((pos.y < 0 ? 0 : pos.y),
+		         view.container.clientHeight - view.dim.height);
         }
     }
 
@@ -239,15 +257,8 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
         var deltaY = Event.pointerY(event) - view.dragStartPos.y;
         view.setPosition({x: view.winStartPos.x - deltaX,
                           y: view.winStartPos.y - deltaY});
-        var newY = view.getY();
-        var stripe;
-        for (var i = 0; i < view.stripeCount; i++) {
-            stripe = view.stripes[i];
-            stripe.posLabel.style.top = newY + "px";
-            if ("seqNode" in stripe)
-                stripe.seqNode.style.top = (newY + (1.2 * view.posHeight)) + "px";
-        }
         Event.stop(event);
+	view.updatePosLabels();
         view.showVisibleBlocks();
     }
 
@@ -268,6 +279,21 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     }
 
     Event.observe(view.elem, "mousedown", view.dragStart);
+
+    view.wheelScroll = function(e) {
+	var oldY = view.getY();
+	var newY = Math.min(Math.max(0, oldY - 50 * Event.wheel(e)), 
+			    view.container.clientHeight - view.dim.height);
+	//if (view.getY() != oldY) {
+	view.updatePosLabels(newY);
+	//}
+	view.setY(newY);
+	Event.stop(e);
+    }
+
+    Event.observe(view.elem, "mousewheel", view.wheelScroll, false);
+
+    Event.observe(view.elem, "DOMMouseScroll", view.wheelScroll, false);
 
     var afterSlide = function() {
         view.scrollUpdate();
@@ -298,8 +324,8 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     var zoomTrans;
 
     var afterZoom = function(anim) {
-        //estimate the number of steps to finish the zoom in 800ms
-        zoomSteps = anim.index / (((new Date()).getTime() - zoomStart) / 800);
+        //estimate the number of steps to finish the zoom in 700ms
+        zoomSteps = anim.index / (((new Date()).getTime() - zoomStart) / 700);
         //console.log("zoomSteps: %d, anim.index: %d", zoomSteps, anim.index);
         if (zoomSteps < 1) zoomSteps = 1;
         //average with the current number of steps for the target zoom level
@@ -396,6 +422,17 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     Event.observe(window, "resize", function() { view.sizeInit(); });
 
     this.makeStripes();
+}
+
+GenomeView.prototype.updatePosLabels = function(newY) {
+    if (newY === undefined) newY = this.getY();
+    var stripe;
+    for (var i = 0; i < this.stripeCount; i++) {
+	stripe = this.stripes[i];
+	stripe.posLabel.style.top = newY + "px";
+	if ("seqNode" in stripe)
+	    stripe.seqNode.style.top = (newY + (1.2 * this.posHeight)) + "px";
+    }
 }
 
 GenomeView.prototype.showWait = function() {
@@ -739,6 +776,11 @@ GenomeView.prototype.heightUpdate = function() {
     this.container.style.height = newHeight + "px";
     for (var stripe = 0 ; stripe < this.stripes.length; stripe++)
         this.stripes[stripe].style.height = newHeight + "px";
+    var maxY = newHeight - this.dim.height;
+    if (this.getY() > maxY) {
+	this.setY(maxY);
+	this.updatePosLabels(maxY);
+    }
 }
 
 GenomeView.prototype.clearStripes = function() {
