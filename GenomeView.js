@@ -772,6 +772,7 @@ GenomeView.prototype.heightUpdate = function() {
 		curHeight =
 		    Math.max(curHeight, this.trackDivs[i].blockHeights[stripe]);
 	this.trackDivs[i].style.height = curHeight + "px";
+	this.trackDivs[i].style.top = lastTop + "px";
         lastTop += curHeight + this.trackPadding;
     }
     var newHeight = Math.max(lastTop, this.dim.height);
