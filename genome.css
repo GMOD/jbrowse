@@ -21,6 +21,28 @@ div.dragWindow {
     cursor: url("openhand.cur"), move;
 }
 
+div.block {
+    position: absolute;
+    overflow: visible;
+    top: 0px;
+    height: 100%;
+}
+
+div.track {
+    position: absolute;
+    left: 0px;
+    width: 100%;
+}
+
+div.stripe {
+    position: absolute;
+    top: 0px;
+    border-style: none none none solid;
+    border-width: 1px;
+    border-color: black;
+    overflow: visible;
+}
+
 div.pos-label {
     position: absolute;
     left: 0px;

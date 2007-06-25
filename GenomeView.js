@@ -648,7 +648,9 @@ GenomeView.prototype.fillStripe = function(stripeIndex, leftIndex, rightIndex) {
         if (leftIndex !== undefined) leftBlock = this.trackDivs[i].blocks[leftIndex];
         if (rightIndex !== undefined) rightBlock = this.trackDivs[i].blocks[rightIndex];
         var blockDiv = document.createElement("div");
-        blockDiv.style.cssText = "position: absolute; overflow: visible; top: 0px; height: 100%; left: " + (stripeIndex * this.stripePercent) + "%; width: " + this.stripePercent + "%;";
+	blockDiv.className = "block";
+        blockDiv.style.left = (stripeIndex * this.stripePercent) + "%";
+	blockDiv.style.width = this.stripePercent + "%";
         blockHeight = this.tracks[i].fillBlock(blockDiv, 
 					       leftBlock, rightBlock,
 					       stripe.startBase,
@@ -715,14 +717,13 @@ GenomeView.prototype.showVisibleBlocks = function(startX, endX) {
 
 GenomeView.prototype.makeStripe = function(startBase, startPercent) {
     var stripe = document.createElement("div");
+    stripe.className = "stripe";
     stripe.style.cssText =
-    "position: absolute; left: " + startPercent
-    + "%; top: 0px; width: " + (this.stripePercent) + "%;"
-    + "height: " + this.dim.height + "px;"
+    "left: " + startPercent
+    + "%; width: " + (this.stripePercent) + "%;"
+    + "height: " + this.dim.height + "px;";
     //+ "background-color: " + (i % 2 ? "#eee;" : "#fff;")
-    + "border-style: none none none solid; border-width: 1px; border-color: black;"
     //+ "background-color: white;"
-    + "overflow: visible;";
 
     var y = this.getY();
 
@@ -828,7 +829,7 @@ GenomeView.prototype.makeStripes = function() {
 GenomeView.prototype.addTrack = function(track) {
     var trackNum = this.tracks.length;
     var trackDiv = document.createElement("div");
-    trackDiv.style.cssText = "position: absolute; left: 0px; width: 100%";
+    trackDiv.className = "track";
     this.tracks.push(track);
     this.trackDivs.push(trackDiv);
     var trackHeight = 0;
@@ -843,7 +844,7 @@ GenomeView.prototype.addTrack = function(track) {
     for (var i = this.leftFilled; i <= this.rightFilled; i++) {
         var stripe = this.stripes[i];
         var blockDiv = document.createElement("div");
-        blockDiv.style.cssText = "position: absolute; overflow: visible; top: 0px; height: 100%;";
+        blockDiv.className = "block";
     	blockDiv.style.left = (this.stripePercent * i) + "%";
 	blockDiv.style.width = this.stripePercent + "%";
         blockHeight = track.fillBlock(blockDiv, 
