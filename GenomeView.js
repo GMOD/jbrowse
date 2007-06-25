@@ -578,9 +578,6 @@ GenomeView.prototype.scrollUpdate = function() {
             //We're not keeping this stripe around, so delete
             //the old one and create a corresponding new one.
 
-            //TODO: collect features from outgoing stripes that extend
-            //onto the current view.
-
             //delete + create
             while (newIndex < 0) newIndex += numStripes;
             while (newIndex >= numStripes) newIndex -= numStripes;
@@ -614,54 +611,6 @@ GenomeView.prototype.scrollUpdate = function() {
     this.setX(newX);
     var firstVisible = (newX / this.stripeWidth) | 0;
 
-//     if ((this.rightFilled + dStripes < 0)
-//         || (this.leftFilled + dStripes >= this.stripeCount)) {
-//         this.fillStripe(firstVisible, undefined, undefined);
-//         this.leftFilled = firstVisible;
-//         this.rightFilled = firstVisible;
-//     } else {
-//         this.leftFilled = Math.max(0, Math.min(this.stripeCount - 1,
-//                                                 this.leftFilled + dStripes));
-//         this.rightFilled = Math.max(0, Math.min(this.stripeCount - 1,
-//                                                this.rightFilled + dStripes));
-//     }
-}
-
-GenomeView.prototype.fillStripe = function(stripeIndex) {
-    //var blocks = Array(this.tracks.length);
-    //var blockHeights = Array(this.tracks.length);
-    var blockHeight;
-
-    //var totalHeight = this.topSpace();
-    var stripe = this.stripes[stripeIndex];
-
-    for (var i = 0; i < this.tracks.length; i++) {
-	this.tracks[i].showBlock(stripeIndex, stripe.startBase, stripe.endBase, this.pxPerBp);
-//         var leftBlock, rightBlock;
-//         if (leftIndex !== undefined) leftBlock = this.trackDivs[i].blocks[leftIndex];
-//         if (rightIndex !== undefined) rightBlock = this.trackDivs[i].blocks[rightIndex];
-//         var blockDiv = document.createElement("div");
-// 	blockDiv.className = "block";
-//         blockDiv.style.left = (stripeIndex * this.stripePercent) + "%";
-// 	blockDiv.style.width = this.stripePercent + "%";
-//         blockHeight = this.tracks[i].fillBlock(blockDiv, 
-// 					       leftBlock, rightBlock,
-// 					       stripe.startBase,
-// 					       stripe.startBase + Math.round(this.stripeWidth / this.pxPerBp), 
-// 					       this.pxPerBp, 5,
-// 					       this.stripeWidth);
-
-	
-//         //totalHeight += this.trackHeights[i] + this.trackPadding;
-//         //blockDiv.style.height = this.trackHeights[i] + "px";
-//         //blocks[i] = blockDiv;
-//         //stripe.appendChild(blockDiv);
-// 	this.trackDivs[i].appendChild(blockDiv);
-// 	this.trackDivs[i].blocks[stripeIndex] = blockDiv;
-// 	this.trackDivs[i].blockHeights[stripeIndex] = blockHeight;
-    }
-    //stripe.blockHeights = blockHeights;
-    //stripe.blocks = blocks;
 }
 
 GenomeView.prototype.showVisibleBlocks = function(startX, endX) {
@@ -676,77 +625,22 @@ GenomeView.prototype.showVisibleBlocks = function(startX, endX) {
     var bottom = top + this.dim.height;
 
     var track, stripe, trackTop, trackBottom, trackHeight;
+    var bpPerBlock = Math.round(this.stripeWidth / this.pxPerBp);
     for (track = 0; track < this.tracks.length; track++) {
 	trackTop = this.trackTops[track];
 	trackBottom = trackTop + this.trackHeights[track];
 	//if track is visible,
 	if ((trackBottom > top) && (trackTop < bottom)) {
-	    //track = this.tracks[track];
-	    //hide on the left
-	    //for (stripe = 0; stripe < leftVisible; stripe++)
-	    //    track.hideBlock(stripe);
-	    //fill
             trackHeight =
                 this.tracks[track].showRange(leftVisible, rightVisible,
                                              this.stripes[leftVisible].startBase,
-                                             Math.round(this.stripeWidth /
-                                                        this.pxPerBp),
+                                             bpPerBlock,
                                              this.pxPerBp);
-// 	    for (stripe = leftVisible; stripe <= rightVisible; stripe++) {
-// 		blockHeight = track.showBlock(stripe,
-// 					      this.stripes[stripe].startBase,
-// 					      this.stripes[stripe].endBase,
-// 					      this.pxPerBp);
             if (trackHeight > this.trackHeights[track])
                 this.trackHeights[track] = trackHeight;
 
-		//this.fillStripe(stripe);
-		//this.leftFilled = stripe;
-            //	    }
-	    //fill to the right
-// 	    for (stripe = (this.rightFilled + 1); stripe <= rightVisible; stripe++) {
-// 		track.showBlock(stripe,
-// 				this.stripes[stripe].startBase,
-// 				this.stripes[stripe].endBase,
-// 				this.pxPerBp);
-// 		//this.fillStripe(stripe);
-// 		//this.rightFilled = stripe;
-// 	    }
-	    //hide on the right
-// 	    for (stripe = (rightVisible + 1);
-// 		 stripe < this.stripes.length;
-// 		 stripe++)
-// 		track.hideBlock(stripe);
 	}
     }
-    //this.leftFilled = leftVisible;
-    //this.rightFilled = rightVisible;
-    //this.heightUpdate();
-        
-    //    for (var i = 0; i < this.stripeCount; i++) {
-    //        stripe = this.stripes[i];
-//         if ((!stripe.shown) && (i >= leftVisible) && (i < lastVisible)) {
-//             stripe.style.visibility="visible";
-//             stripe.shown = true;
-//         } else if ((stripe.shown) && ((i < leftVisible) || (i >= lastVisible))) {
-//             stripe.style.visibility="hidden";
-//             stripe.shown = false;
-//         }
-
-//        if ((!("blocks" in stripe)
-//            && (i >= leftVisible)
-//            && (i < lastVisible)) {
-                //stripe.blocks.each(function(block) { stripe.appendChild(block); });
-    //                for (var j = 0; j < this.tracks.length; j++) {
-    //                    this.fillStripe(stripe, j,
-    //                                    i > 0 ? this.stripes[i - 1] : undefined,
-    //                                    i < 
-//         } else if (("blocks" in stripe)
-//                    && ((i < leftVisible) 
-//                        || (i >= lastVisible))) {
-//             stripe.blocks.each(function(block) { stripe.removeChild(block); });
-//        }
-//    }
 }
 
 GenomeView.prototype.makeStripe = function(startBase, startPercent) {
@@ -803,12 +697,6 @@ GenomeView.prototype.heightUpdate = function() {
     var curHeight;
     for (var i = 0; i < this.tracks.length; i++) {
         curHeight = this.tracks[i].heightUpdate(lastTop);
-        //for (var stripe = 0 ; stripe < this.stripes.length; stripe++)
-	//    if (this.trackDivs[i].blocks[stripe])
-	//	curHeight =
-	//	    Math.max(curHeight, this.trackDivs[i].blockHeights[stripe]);
-	//this.trackDivs[i].style.height = curHeight + "px";
-	//this.trackDivs[i].style.top = lastTop + "px";
 	this.trackHeights[i] = curHeight;
 	this.trackTops[i] = lastTop;
         lastTop += curHeight + this.trackPadding;
@@ -835,23 +723,14 @@ GenomeView.prototype.clearStripes = function() {
 GenomeView.prototype.makeStripes = function() {
     var stripe;
     var x = this.getX();
-    var firstVisible = (x / this.stripeWidth) | 0;
-    //var lastVisible = Math.ceil((x + this.dim.width) / this.stripeWidth);
+    //var firstVisible = (x / this.stripeWidth) | 0;
     this.stripes = new Array(this.stripeCount);
     for (var i = 0; i < this.stripeCount; i++) {
         stripe = this.makeStripe(this.pxToBp((i * this.stripeWidth) + this.offset),
                                  i * this.stripePercent);
         this.stripes[i] = stripe;
-        //if (i >= firstVisible && i < lastVisible) {
-        //    stripe.blocks.each(function(block) { stripe.appendChild(block); });
-        //    stripe.hasBlocks = true;
-            //stripe.style.visibility="visible";
-        //}
         this.container.appendChild(stripe);
     }
-    //this.fillStripe(firstVisible);
-    //this.leftFilled = firstVisible;
-    //this.rightFilled = firstVisible;
     this.startBase = Math.round(this.pxToBp(this.offset));
     this.scrollUpdate();
     this.showVisibleBlocks();
@@ -869,16 +748,11 @@ GenomeView.prototype.addTrack = function(name, featArray,
 				       featArray, className, levelHeight, 
 				       refSeq, histScale);
     this.tracks.push(track);
-    //this.trackDivs.push(trackDiv);
-    //var trackHeight = 0;
     var totalHeight = this.topSpace();
     for (var t = 0; t < this.trackHeights.length; t++)
         totalHeight += this.trackHeights[t] + this.trackPadding;
     trackDiv.style.top = totalHeight + "px";
     this.trackTops.push(totalHeight);
-    //trackDiv.blocks = new Array(this.stripeCount);
-    //trackDiv.blockHeights = new Array(this.stripeCount);
-    //var leftBlock = undefined;
     var pos = this.getPosition();
     var bottom = pos.y + this.dim.height;
 
@@ -891,40 +765,16 @@ GenomeView.prototype.addTrack = function(name, featArray,
     var bpPerBlock = Math.round(this.stripeWidth / this.pxPerBp);
     if (totalHeight < bottom) {
 	for (var i = leftVisible; i <= rightVisible; i++) {
-	    //var stripe = this.stripes[i];
-        //var blockDiv = document.createElement("div");
-        //blockDiv.className = "block";
-    	//blockDiv.style.left = (this.stripePercent * i) + "%";
-	//blockDiv.style.width = this.stripePercent + "%";
-	//    blockHeight = track.showBlock(i, stripe.startBase, stripe.endBase, this.pxPerBp);
             trackHeight =
                 this.tracks[trackNum].showRange(leftVisible, rightVisible,
                                                 this.stripes[i].startBase,
                                                 bpPerBlock, this.pxPerBp);
-
-//         blockHeight = track.fillBlock(blockDiv, 
-//                                       leftBlock, undefined,
-//                                       stripe.startBase,
-//                                       stripe.startBase + Math.round(this.stripeWidth / this.pxPerBp), 
-//                                       this.pxPerBp, 5,
-// 				      this.stripeWidth);
-	//leftBlock = blockDiv;
-	    //trackHeight = Math.max(trackHeight, blockHeight);
-        //blockDiv.style.height = blockHeight + "px";
-	//trackDiv.appendChild(blockDiv);
-	//trackDiv.blocks[i] = blockDiv;
-	//trackDiv.blockHeights[i] = blockHeight;
-        //stripe.blocks.push(blockDiv);
-        //stripe.blockHeights.push(blockHeight);
-        //stripe.appendChild(blockDiv);
 	}
     } else {
 	trackHeight = 50;
     }
     this.trackHeights.push(trackHeight);
     trackDiv.style.height = trackHeight + "px";
-    //for (var i = this.leftFilled; i <= this.rightFilled; i++)
-    //    this.stripes[i].blocks[trackNum].style.height = trackHeight + "px";
     totalHeight += trackHeight + this.trackPadding;
     totalHeight = Math.max(totalHeight, this.dim.height);
     for (var i = 0; i < this.stripeCount; i++)

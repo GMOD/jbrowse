@@ -4,7 +4,7 @@ Browser.init = function() {
     //var refSeq = {start: 0, end: 27905053, length: function() {return this.end - this.start}};
     var refSeq = {start: -224036, end: 27905053, length: function() {return this.end - this.start}};
     var gv = new GenomeView(viewElem, 250, refSeq.start, refSeq.end, 1/50);
-    viewElem.genomeView = gv;
+    viewElem.view = gv;
     var trackNum = 0;
     gv.showWait();
     var addTrack = function() {

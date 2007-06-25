@@ -6,6 +6,8 @@ function Track(name, numBlocks, trackDiv,
     this.widthPx = widthPx;
     this.sizeInit(numBlocks, widthPct);
     this.attachSentinel = "none";
+    //if firstAttached/lastAttached are set to the attach sentinel,
+    //that means there are currently no attached blocks
     this.firstAttached = this.attachSentinel;
     this.lastAttached = this.attachSentinel;
 }
@@ -18,6 +20,8 @@ Track.prototype.initBlocks = function() {
 	this.blockAttached[i] = false;
 	this.blockHeights[i] = 0;
     }
+    this.firstAttached = this.attachSentinel;
+    this.lastAttached = this.attachSentinel;
 }
 
 Track.prototype.clear = function() {
@@ -114,8 +118,6 @@ Track.prototype.moveBlocks = function(delta) {
             //TODO: collect features from outgoing blocks that extend
             //onto the current view.
 
-            while (newIndex < 0) newIndex += this.numBlocks;
-            while (newIndex >= this.numBlocks) newIndex -= this.numBlocks;
 	    if (this.blockAttached[i]) this.div.removeChild(this.blocks[i]);
         } else {
             //move block
@@ -125,28 +127,28 @@ Track.prototype.moveBlocks = function(delta) {
 		    ((newIndex) * this.widthPct) + "%";
 	    newHeights[newIndex] = this.blockHeights[i];
 	    newAttached[newIndex] = this.blockAttached[i];
-            //alert("moving " + i + " to " + (newIndex));
-// 	    for (track = 0; track < this.trackDivs.length; track++) {
-// 		if (this.trackDivs[track].blocks[i]) {
-// 		    newTrackBlocks[track][newIndex] =
-// 			this.trackDivs[track].blocks[i];
-// 		    newTrackBlocks[track][newIndex].style.left =
-// 			((newIndex) * this.stripePercent) + "%";
-// 		    newBlockHeights[track][newIndex] =
-// 			this.trackDivs[track].blockHeights[i];
-// 		}
-// 	    }
         }
     }
     this.blocks = newBlocks;
     this.blockHeights = newHeights;
     this.blockAttached = newAttached;
+
+    if ((this.lastAttached + delta < 0)
+        || (this.firstAttached + delta >= this.numBlocks)) {
+        this.firstAttached = this.attachSentinel;
+        this.lastAttached = this.attachSentinel;
+    } else {
+        this.firstAttached = Math.max(0, Math.min(this.numBlocks - 1,
+                                                 this.firstAttached + delta));
+        this.lastAttached = Math.max(0, Math.min(this.numBlocks - 1,
+                                                  this.lastAttached + delta));
+    }
 }
 
 Track.prototype.heightUpdate = function(top) {
     var maxHeight = 0;
-    for (var i = 0; i < this.blocks.length; i++)
-	if (this.blockAttached[i] && (this.blockHeights[i] > maxHeight))
+    for (var i = this.firstAttached; i < this.lastAttached; i++)
+	if (this.blockHeights[i] > maxHeight)
 	    maxHeight = this.blockHeights[i];
     this.div.style.height = maxHeight + "px";
     this.div.style.top = top + "px";
@@ -154,27 +156,35 @@ Track.prototype.heightUpdate = function(top) {
 }
 
 Track.prototype.sizeInit = function(numBlocks, widthPct) {
-    var block, i;
+    var block, i, oldLast;
     this.numBlocks = numBlocks;
     this.widthPct = widthPct;
     if (this.blocks && (this.blocks.length > 0)) {
-        for (i = numBlocks - 1; i < this.blocks.length; i++) {
-	    block = this.blocks.pop();
-            if (block) this.div.removeChild(block);
+        for (i = numBlocks; i < this.blocks.length; i++) {
+	    block = this.blocks[i];
+            if (this.blockAttached[i]) this.div.removeChild(block);
         }
+        oldLast = this.blockAttached.length;
+        this.blocks = this.blocks.slice(0, numBlocks);
 	this.blockAttached = this.blockAttached.slice(0, numBlocks);
 	this.blockHeights = this.blockHeights.slice(0, numBlocks);
-        if (this.blocks.length != numBlocks) throw new Error("block number mismatch: should be " + numBlocks + "; blocks: " + this.blocks.toJSON());
+        for (i = oldLast; i < numBlocks; i++) {
+            this.blocks[i] = undefined;
+            this.blockAttached[i] = false;
+            this.blockHeights[i] = 0;
+        }
+        this.lastAttached = Math.min(this.lastAttached, numBlocks - 1);
+        if (this.firstAttached > this.lastAttached) {
+            //not sure if this can happen
+            this.firstAttached = this.attachSentinel;
+            this.lastAttached = this.attachSentinel;
+        }
+            
+        if (this.blocks.length != numBlocks) throw new Error("block number mismatch: should be " + numBlocks + "; blocks.length: " + this.blocks.length);
         for (i = 0; i < numBlocks; i++) {
             if (this.blocks[i]) {
                 this.blocks[i].style.left = (i * widthPct) + "%";
                 this.blocks[i].style.width = widthPct + "%";
-                //this.blocks[i].style.height = newHeight + "px";
-		//} else {
-                //this.fillBlock(i);
-		//makeStripe(this.pxToBp(i * this.stripeWidth + this.offset),
-                //                                  i * this.stripePercent);
-                //this.container.appendChild(this.blocks[i]);
             }
         }
     } else {
