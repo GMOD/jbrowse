@@ -5,6 +5,9 @@ function Track(name, numBlocks, trackDiv,
     this.widthPct = widthPct;
     this.widthPx = widthPx;
     this.sizeInit(numBlocks, widthPct);
+    this.attachSentinel = "none";
+    this.firstAttached = this.attachSentinel;
+    this.lastAttached = this.attachSentinel;
 }
 
 Track.prototype.initBlocks = function() {
@@ -24,7 +27,46 @@ Track.prototype.clear = function() {
     this.initBlocks();
 }
 
-Track.prototype.showBlock = function(blockIndex, startBase, endBase, scale) {
+Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) {
+    var firstAttached = (this.firstAttached === this.attachSentinel ? 
+                         last + 1 :
+                         this.firstAttached);
+    var lastAttached =  (this.lastAttached === this.attachSentinel ? 
+                         first - 1 :
+                         this.lastAttached);
+    //detach left blocks
+    var i, endBase;
+    var maxHeight = 0;
+    for (i = firstAttached; i < first; i++) {
+        //TODO: move features to this.blocks[first]
+        this._hideBlock(i);
+    }
+    //show blocks from first to last (inclusive)
+    for (i = first; i <= last; i++) {
+        endBase = startBase + bpPerBlock;
+        maxHeight = Math.max(maxHeight,
+                             this._showBlock(i, startBase, endBase, scale));
+        startBase = endBase;
+    }
+    //detach right blocks
+    for (i = lastAttached; i > last; i--) {
+        //TODO: move features to this.blocks[last]
+        this._hideBlock(i);
+    }
+
+    this.firstAttached = first;
+    this.lastAttached = last;
+    return maxHeight;
+}
+
+Track.prototype._hideBlock = function(blockIndex) {
+    if (this.blocks[blockIndex] && this.blockAttached[blockIndex]) {
+	this.div.removeChild(this.blocks[blockIndex]);
+	this.blockAttached[blockIndex] = false;
+    }
+}
+
+Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
     if (this.blockAttached[blockIndex]) return this.blockHeights[blockIndex];
     if (this.blocks[blockIndex]) {
 	//this.blocks[i].style.left = (blockIndex * this.widthPct) + "%";
@@ -99,13 +141,6 @@ Track.prototype.moveBlocks = function(delta) {
     this.blocks = newBlocks;
     this.blockHeights = newHeights;
     this.blockAttached = newAttached;
-}
-
-Track.prototype.hideBlock = function(blockIndex) {
-    if (this.blocks[blockIndex] && this.blockAttached[blockIndex]) {
-	this.div.removeChild(this.blocks[blockIndex]);
-	this.blockAttached[blockIndex] = false;
-    }
 }
 
 Track.prototype.heightUpdate = function(top) {
