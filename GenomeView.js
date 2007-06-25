@@ -39,9 +39,9 @@ function Animation(subject, callback, time) {
     this.callback = callback;
 
     var myAnim = this;
-    this.animID = setInterval(function() { myAnim.animate() }, 15);
+    this.animID = setInterval(function() { myAnim.animate() }, 33);
     //this.animFunction = function() { myAnim.animate(); };
-    //this.animID = setTimeout(this.animFunction, 0);
+    //this.animID = setTimeout(this.animFunction, 33);
 
     subject.animation = this;
 }
@@ -58,7 +58,7 @@ Animation.prototype.animate = function () {
 	this.step(1);
         this.finished = true;
     }
-    //this.animID = setTimeout(this.animFunction, 0);
+    //this.animID = setTimeout(this.animFunction, 33);
 }
 
 Animation.prototype.stop = function() {
@@ -309,7 +309,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 		      view.showVisibleBlocks(slideStart - distance,
 					     slideStart + view.dim.width - distance);
                       new Slider(view, afterSlide,
-                                 distance * 1.5, distance);
+                                 distance * 1.2, distance);
                   });
     Event.observe("moveRight", "click",
                   function() {
@@ -319,7 +319,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 		      view.showVisibleBlocks(slideStart - distance,
 					     slideStart + view.dim.width - distance);
                       new Slider(view, afterSlide, 
-                                 distance * -1.5, distance);
+                                 distance * -1.2, distance);
                   });
 
     var zoomIn = this.zoomIn.bind(this);

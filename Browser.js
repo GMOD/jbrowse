@@ -17,7 +17,7 @@ Browser.init = function() {
                     var featArray = eval(transport.responseText);
                     gv.addTrack(new SimpleFeatureTrack(track.label,
                                                        featArray,
-                                                       track.class,
+                                                       track.className,
                                                        track.height, undefined,
 						       4 * (featArray.length / refSeq.length())));
                     $('profTime').appendChild(document.createTextNode(" " + (new Date().getTime() - startTime) / 1000));
