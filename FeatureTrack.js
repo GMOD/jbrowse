@@ -1,8 +1,11 @@
 
-function SimpleFeatureTrack(name, featArray, className, levelHeight, refSeq, histScale) {
+function SimpleFeatureTrack(name, numBlocks, trackDiv, widthPct, widthPx,
+			    featArray, className, levelHeight, refSeq,
+			    histScale) {
     //className: CSS class for the features
 
-    this.name = name;
+    //this.name = name;
+    Track.call(this, name, numBlocks, trackDiv, widthPct, widthPx);
     this.count = featArray.length;
     this.features = new NCList(featArray, featArray[0].length);
     //this.features.sort(function(a, b) {return a.start - b.start;});
@@ -13,6 +16,8 @@ function SimpleFeatureTrack(name, featArray, className, levelHeight, refSeq, his
     this.histScale = histScale;
     this.numBins = 25;
 }
+
+SimpleFeatureTrack.prototype = new Track("", 0, undefined, 0, 0);
 
 SimpleFeatureTrack.prototype.getFeatures = function(startBase, endBase) {
     var result = Array();

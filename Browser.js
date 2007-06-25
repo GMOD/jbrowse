@@ -15,11 +15,11 @@ Browser.init = function() {
                 try {
                     var startTime = new Date().getTime();
                     var featArray = eval(transport.responseText);
-                    gv.addTrack(new SimpleFeatureTrack(track.label,
-                                                       featArray,
-                                                       track.className,
-                                                       track.height, undefined,
-						       4 * (featArray.length / refSeq.length())));
+                    gv.addTrack(track.label,
+				featArray,
+				track.className,
+				track.height, undefined,
+				4 * (featArray.length / refSeq.length()));
                     $('profTime').appendChild(document.createTextNode(" " + (new Date().getTime() - startTime) / 1000));
                     if (trackNum < trackList.length)
                         setTimeout(addTrack, 0);
