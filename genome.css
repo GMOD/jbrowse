@@ -29,9 +29,10 @@ div.block {
 }
 
 div.track {
-    position: absolute;
+    position: relative;
     left: 0px;
     width: 100%;
+    z-index: 5;
 }
 
 div.stripe {
@@ -70,6 +71,15 @@ div.plus-feature:before {
     display: inline;
 }
 */
+
+div.track-label {
+    position: absolute;
+    z-index: 20;
+    border: 2px #ddd solid;
+    color: white;
+    padding: 2px;
+    cursor: move;
+}
 
 div.plus-feature {
     position:absolute;

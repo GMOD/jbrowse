@@ -1,11 +1,12 @@
 
-function SimpleFeatureTrack(name, numBlocks, trackDiv, widthPct, widthPx,
+function SimpleFeatureTrack(name, numBlocks, trackDiv, labelDiv,
+			    widthPct, widthPx,
 			    featArray, className, levelHeight, refSeq,
 			    histScale) {
     //className: CSS class for the features
 
     //this.name = name;
-    Track.call(this, name, numBlocks, trackDiv, widthPct, widthPx);
+    Track.call(this, name, numBlocks, trackDiv, labelDiv, widthPct, widthPx);
     this.count = featArray.length;
     this.features = new NCList(featArray, featArray[0].length);
     //this.features.sort(function(a, b) {return a.start - b.start;});
@@ -49,7 +50,7 @@ SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
         binDiv.style.cssText = 
             "left: " + ((bin / this.numBins) * 100) + "%; "
             + "height: " + (2 * hist[bin]) + "px;"
-	    + "bottom: 0px;"
+	    + "bottom: 0px;"// + this.trackPadding + "px;"
             + "width: " + (((1 / this.numBins) * 100) - (100 / stripeWidth)) + "%;";
         if (is_ie6) binDiv.appendChild(document.createComment());
         block.appendChild(binDiv);
@@ -59,11 +60,14 @@ SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
 
 SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, padding, stripeWidth) {
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
-    if (scale < this.histScale)
+    if (scale < this.histScale) {
+	this.label.innerHTML = this.name + "<br>per " + Math.round((rightBase - leftBase) / this.numBins) + "bp";
 	return this.fillHist(block, leftBase, rightBase, stripeWidth);
-    else
+    } else {
+	this.label.innerHTML = this.name;
 	return this.fillFeatures(block, leftBlock, rightBlock, 
 				 leftBase, rightBase, scale, padding);
+    }
 }
 
 SimpleFeatureTrack.prototype.fillFeatures = function(block, 
