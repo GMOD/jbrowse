@@ -13,6 +13,9 @@ div.dragWindow {
     width: 96%;
     height: 90%;
     overflow: hidden;
+/*    overflow: -moz-scrollbars-vertical; */
+/*    overflow-x: hidden;
+    overflow-y: scroll; */
     z-index: 1;
     border-style: solid;
     border-width: 1px;
@@ -38,6 +41,7 @@ div.track {
 div.stripe {
     position: absolute;
     top: 0px;
+    height: 100%;
     border-style: none none none solid;
     border-width: 1px;
     border-color: black;

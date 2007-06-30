@@ -2,12 +2,11 @@ function Track(name, numBlocks, trackDiv, labelDiv,
 	       widthPct, widthPx) {
     this.div = trackDiv;
     this.label = labelDiv;
-    labelDiv.innerHTML = name;
     this.name = name;
     this.widthPct = widthPct;
     this.widthPx = widthPx;
     this.sizeInit(numBlocks, widthPct);
-    this.trackPadding = 20;
+    //this.trackPadding = 20;
 }
 
 Track.prototype.initBlocks = function() {
@@ -20,6 +19,7 @@ Track.prototype.initBlocks = function() {
     }
     this.firstAttached = null;
     this.lastAttached = null;
+    //if (this.div) this.div.style.backgroundColor = "#eee";
 }
 
 Track.prototype.clear = function() {
@@ -30,6 +30,7 @@ Track.prototype.clear = function() {
 }
 
 Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) {
+    //if (null == this.firstAttached) this.div.style.backgroundColor = "";
     var firstAttached = (null == this.firstAttached ? last + 1 : this.firstAttached);
     var lastAttached =  (null == this.lastAttached ? first - 1 : this.lastAttached);
     //detach left blocks
@@ -54,14 +55,24 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
 
     this.firstAttached = first;
     this.lastAttached = last;
-    return maxHeight + this.trackPadding;
+    return maxHeight;// + this.trackPadding;
 }
 
 Track.prototype._hideBlock = function(blockIndex) {
     if (this.blocks[blockIndex] && this.blockAttached[blockIndex]) {
 	this.div.removeChild(this.blocks[blockIndex]);
+        //this.blocks[blockIndex].style.display = "none";
 	this.blockAttached[blockIndex] = false;
     }
+}
+
+Track.prototype.hideAll = function() {
+    if (null == this.firstAttached) return;
+    for (var i = this.firstAttached; i <= this.lastAttached; i++)
+	this._hideBlock(i);
+    this.firstAttached = null;
+    this.lastAttached = null;
+    //this.div.style.backgroundColor = "#eee";
 }
 
 Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
@@ -70,6 +81,7 @@ Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
 	//this.blocks[i].style.left = (blockIndex * this.widthPct) + "%";
 	//this.blocks[i].style.width = this.widthPct + "%";
 	this.div.appendChild(this.blocks[blockIndex]);
+        //this.blocks[blockIndex].style.display = "block";
 	this.blockAttached[blockIndex] = true;
 	return this.blockHeights[blockIndex];
     }
@@ -139,7 +151,7 @@ Track.prototype.moveBlocks = function(delta) {
     }
 }
 
-Track.prototype.heightUpdate = function(top) {
+Track.prototype.heightUpdate = function() {
     var maxHeight = 0;
     for (var i = this.firstAttached; i < this.lastAttached; i++)
 	if (this.blockHeights[i] > maxHeight)

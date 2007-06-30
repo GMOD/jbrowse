@@ -5,8 +5,8 @@ function SimpleFeatureTrack(name, numBlocks, trackDiv, labelDiv,
 			    histScale) {
     //className: CSS class for the features
 
-    //this.name = name;
     Track.call(this, name, numBlocks, trackDiv, labelDiv, widthPct, widthPx);
+    labelDiv.innerHTML = name;
     this.count = featArray.length;
     this.features = new NCList(featArray, featArray[0].length);
     //this.features.sort(function(a, b) {return a.start - b.start;});
@@ -52,7 +52,7 @@ SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
             + "height: " + (2 * hist[bin]) + "px;"
 	    + "bottom: 0px;"// + this.trackPadding + "px;"
             + "width: " + (((1 / this.numBins) * 100) - (100 / stripeWidth)) + "%;";
-        if (is_ie6) binDiv.appendChild(document.createComment());
+        if (Util.is_ie6) binDiv.appendChild(document.createComment());
         block.appendChild(binDiv);
     }
     return 2 * maxBin;
@@ -122,7 +122,15 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     var maxLevel = 0;
 
     //var callback = function(event) { alert("clicked on feature " + Event.element(event).feature.ID) };
-    var callback = function(event) { alert("clicked on feature " + Object.toJSON(Event.element((event || window.event)).feature.slice(0, 4))) };
+    var callback = function(event) {
+	event = event || window.event;
+	if (event.shiftKey) return;
+	var feat = YAHOO.util.Event.getTarget((event || window.event)).feature;
+	alert("clicked on feature\nstart: " + feat[0] +
+	      ", end: " + feat[1] +
+	      ", strand: " + feat[2] +
+	      ", ID: " + feat[3]);
+    };
 
     var feature;
     var featDiv;
@@ -176,7 +184,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
             + "top: " + (level * levelHeight) + levelUnits + ";"
             //+ " width: " + (100 * ((feature.end - feature.start) / blockWidth)) + "%;";
             + " width: " + (100 * ((feature[1] - feature[0]) / blockWidth)) + "%;";
-        if (is_ie6) featDiv.appendChild(document.createComment());
+        if (Util.is_ie6) featDiv.appendChild(document.createComment());
         featDiv.feature = feature;
         featDiv.onclick = callback;
         //Event.observe measurably slower
