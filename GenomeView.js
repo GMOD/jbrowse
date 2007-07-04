@@ -320,8 +320,6 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
         if (!view.dragging) view.heightUpdate();
     };
 
-    YAHOO.util.Event.addListener(view.elem, "scroll", view.scrollHandler);
-
     var afterSlide = function() {
         view.scrollUpdate();
         //view.heightUpdate();
@@ -425,15 +423,30 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 
     this.makeStripes();
 
+    var trackDiv = document.createElement("div");
+    trackDiv.className = "track";
+    trackDiv.style.top = "0px";
+    trackDiv.style.position = "absolute";
+    trackDiv.style.zIndex = 20;
+    trackDiv.id = "static_track";
+    this.staticTrack = new StaticTrack("static_track", this.stripeCount,
+				       trackDiv, this.stripePercent,
+				       this.stripeWidth);
+    this.staticTrack.showRange(0, this.stripeCount - 1, this.stripes[0].startBase, Math.round(this.stripeWidth / this.pxPerBp), this.pxPerBp);
+    this.container.appendChild(trackDiv);
+
     this.container.style.paddingTop = this.topSpace() + "px";
 
     document.body.style.cursor = "url(\"closedhand.cur\")";
     document.body.style.cursor = "default";
+
+    YAHOO.util.Event.addListener(view.elem, "scroll", view.scrollHandler);
 }
 
 GenomeView.prototype.updatePosLabels = function(newY) {
-    return;
     if (newY === undefined) newY = this.getY();
+    this.staticTrack.div.style.top = newY + "px";
+    return;
     var stripe;
     for (var i = 0; i < this.stripeCount; i++) {
 	stripe = this.stripes[i];
@@ -644,8 +657,8 @@ GenomeView.prototype.zoomUpdate = function() {
     this.clearStripes();
     this.makeStripes();
     this.container.style.paddingTop = this.topSpace() + "px";
-    //this.showVisibleBlocks();
-    //this.heightUpdate();
+    this.showVisibleBlocks();
+    this.heightUpdate();
     YAHOO.util.Event.addListener(this.elem, "scroll", this.scrollHandler);
     this.showDone();
 }    
@@ -709,6 +722,7 @@ GenomeView.prototype.scrollUpdate = function() {
         }
     }
 
+    this.staticTrack.moveBlocks(dStripes);
     for (track = 0; track < this.tracks.length; track++)
 	this.tracks[track].moveBlocks(dStripes);
 
@@ -735,6 +749,12 @@ GenomeView.prototype.showVisibleBlocks = function(pos, startX, endX) {
     var trackTop, trackBottom, trackHeight;
     var bpPerBlock = Math.round(this.stripeWidth / this.pxPerBp);
     var trackTop = this.topSpace();
+
+    this.staticTrack.showRange(leftVisible, rightVisible,
+			       this.stripes[leftVisible].startBase,
+			       bpPerBlock,
+			       this.pxPerBp);
+
     this.trackIterate(function(track, gv) {
             trackBottom = trackTop + track.height;
             //if track is visible,
@@ -773,12 +793,12 @@ GenomeView.prototype.makeStripe = function(startBase, startPercent) {
     startBase = Math.round(startBase);
     stripe.startBase = startBase;
     stripe.endBase = stripe.startBase + Math.round(this.stripeWidth / this.pxPerBp);
-    var posLabel = document.createElement("div");
-    posLabel.className = "pos-label";
-    posLabel.appendChild(document.createTextNode(Util.addCommas(startBase)));
-    posLabel.style.top = "0px";// y + "px";
-    stripe.appendChild(posLabel);
-    stripe.posLabel = posLabel;
+//     var posLabel = document.createElement("div");
+//     posLabel.className = "pos-label";
+//     posLabel.appendChild(document.createTextNode(Util.addCommas(startBase)));
+//     posLabel.style.top = "0px";// y + "px";
+//     stripe.appendChild(posLabel);
+//     stripe.posLabel = posLabel;
 
     if ((this.zoomLevels.length - 1) == this.curZoom) {
         var seqNode = document.createElement("div");
@@ -808,7 +828,8 @@ GenomeView.prototype.topSpace = function() {
 }
 
 GenomeView.prototype.heightUpdate = function() {
-    var lastTop = this.topSpace();
+    var top = this.topSpace();
+    var lastTop = top;
     var curHeight;
     //for (var i = 0; i < this.tracks.length; i++) {
     this.trackIterate(function(track, gv) {
@@ -820,15 +841,17 @@ GenomeView.prototype.heightUpdate = function() {
             //this.trackTops[i] = lastTop;
             lastTop += curHeight + gv.trackPadding;
         });
-    var newHeight = Math.max(lastTop, this.dim.height);
-    this.container.style.height = (newHeight - this.topSpace()) + "px";
+    var newHeight = Math.max(lastTop, this.dim.height) - top;
+    var oldHeight = parseInt (this.container.style.height);
+    this.container.style.height = newHeight + "px";
+    if (newHeight < oldHeight) this.showVisibleBlocks();
     //YAHOO.log("newHeight: " + newHeight + ", container height: " + this.container.style.height + ", elem scrollheight: " + this.elem.scrollHeight);
     //for (var stripe = 0 ; stripe < this.stripes.length; stripe++)
         //this.stripes[stripe].style.height = newHeight + "px";
-    var maxY = newHeight - this.dim.height;
+    var maxY = newHeight - this.dim.height + top;
     if (this.getY() > maxY) {
-	this.setY(maxY);
 	this.updatePosLabels(maxY);
+	this.setY(maxY);
     }
 }
 
@@ -838,6 +861,7 @@ GenomeView.prototype.clearStripes = function() {
             this.container.removeChild(this.stripes[i]);
     for (var track = 0; track < this.tracks.length; track++)
 	this.tracks[track].clear();
+    this.staticTrack.clear();
 }
 
 GenomeView.prototype.makeStripes = function() {
@@ -852,9 +876,9 @@ GenomeView.prototype.makeStripes = function() {
         this.container.appendChild(stripe);
     }
     this.startBase = Math.round(this.pxToBp(this.offset));
-    this.scrollUpdate();
-    this.showVisibleBlocks();
-    this.heightUpdate();
+    //this.scrollUpdate();
+    //this.showVisibleBlocks();
+    //this.heightUpdate();
 }
 
 GenomeView.prototype.addTrack = function(name, featArray,
@@ -863,6 +887,7 @@ GenomeView.prototype.addTrack = function(name, featArray,
     var trackNum = this.tracks.length;
     var labelDiv = document.createElement("div");
     labelDiv.className = "track-label";
+    labelDiv.id = "label_" + name;
     this.trackLabels.push(labelDiv);
     var trackDiv = document.createElement("div");
     trackDiv.className = "track";
@@ -918,6 +943,94 @@ GenomeView.prototype.addTrack = function(name, featArray,
     //    this.stripes[i].style.height = totalHeight + "px";
     this.container.style.height = totalHeight + "px";
     this.container.appendChild(trackDiv);
+
+    var trackDD = new YAHOO.util.DDProxy(trackDiv, "tracks", {padding: [this.trackPadding / 2, 0, this.trackPadding / 2, 0], scroll: false});
+    trackDD.trackPadding = this.trackPadding;
+    trackDD.genomeView = this;
+    trackDD.resizeFrame = false;
+    //trackDD.setHandleElId(labelDiv.id);
+    //should factor this stuff into a DDProxy subclass
+    trackDD.startDrag = function(x, y) {
+        var gvrgn = YAHOO.util.Dom.getRegion(this.genomeView.elem);
+        this.insertPoint = document.createElement("div");
+        this.insertPoint.style.position = "absolute";
+        this.insertPoint.style.left = gvrgn.left + "px";
+        this.insertPoint.style.width = (gvrgn.right - gvrgn.left) + "px";
+        this.insertPoint.style.height = (this.trackPadding / 2) + "px";
+        this.insertPoint.style.backgroundColor = "#888";
+        this.insertPoint.style.zIndex = 900;
+        this.insertPoint.style.visibility = "hidden";
+        document.body.insertBefore(this.insertPoint, document.body.firstChild);
+        labelPos = YAHOO.util.Dom.getXY(labelDiv);
+        this.setDelta(x - labelPos[0], y - labelPos[1]);
+        YAHOO.log("x: " + x + ", y: " + y + ", labelPos[0]: " + labelPos[0] + ", labelPos[1] " + labelPos[1]);
+        //YAHOO.log(this.insertPoint.style.cssText);
+	var dragEl = this.getDragEl();
+	dragEl.innerHTML = labelDiv.innerHTML;
+	dragEl.className = labelDiv.className;
+	dragEl.style.backgroundColor = labelDiv.style.backgroundColor;
+        dragEl.style.width = "";
+	trackDiv.style.backgroundColor = "#888";
+	labelDiv.style.visibility = "hidden";
+        this.marked = trackDiv.nextSibling;
+    }
+    trackDD.onDragOver = function(e, id) {
+	var over = YAHOO.util.Dom.get(id);
+	var pt = YAHOO.util.DragDropMgr.interactionInfo.point;
+	var rgn = YAHOO.util.Dom.getRegion(over);
+	if (((pt.y - rgn.top) / (rgn.bottom - rgn.top)) < 0.5) {
+	    if (over.previousSibling !== trackDiv) {
+                this.insertPoint.style.top = (rgn.top - (this.trackPadding * 0.75)) + "px";
+                this.insertPoint.style.visibility = "visible";
+                this.marked = over;
+	    } else {
+                this.insertPoint.style.visibility = "hidden";
+                this.marked = trackDiv.nextSibling;
+            }
+	} else {
+	    if (over.nextSibling !== trackDiv) {
+                this.insertPoint.style.top = (rgn.bottom + (this.trackPadding * 0.25)) + "px";
+                this.insertPoint.style.visibility = "visible";
+                this.marked = over.nextSibling;
+	    } else {
+                this.insertPoint.style.visibility = "hidden";
+                this.marked = trackDiv.nextSibling;
+            }
+	}
+	//YAHOO.util.Dom.get(id).style.backgroundColor = "#ddd";
+	//trackDiv.style.top = "0px";
+	//trackDiv.style.left = "0px";
+    }
+
+    trackDD.endDrag = function() {
+        var srcEl = this.getEl();
+        var proxy = this.getDragEl();
+        
+        trackDiv.parentNode.insertBefore(trackDiv, this.marked);
+        this.insertPoint.parentNode.removeChild(this.insertPoint);
+
+        // Show the proxy element and animate it to the src element's location
+        YAHOO.util.Dom.setStyle(proxy, "visibility", "");
+        var a = new YAHOO.util.Motion( 
+            proxy, { 
+                points: { 
+                    to: YAHOO.util.Dom.getXY(labelDiv)
+                }
+            }, 
+            0.2, 
+            YAHOO.util.Easing.easeOut 
+        )
+        var proxyid = proxy.id;
+        var thisid = this.id;
+
+        // Hide the proxy and show the source element when finished with the animation
+        a.onComplete.subscribe(function() {
+                proxy.style.visibility = "hidden";
+                labelDiv.style.visibility = "";
+                trackDiv.style.backgroundColor = "";
+            });
+        a.animate();
+    };
 
     //var tLabel = document.createElement("div");
     //tLabel.className = "track-label";
