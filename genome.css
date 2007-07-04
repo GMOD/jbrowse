@@ -44,7 +44,7 @@ div.stripe {
     height: 100%;
     border-style: none none none solid;
     border-width: 1px;
-    border-color: black;
+    border-color: #ddd;
     overflow: visible;
 }
 
