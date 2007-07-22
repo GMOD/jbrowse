@@ -1,6 +1,6 @@
 var Browser = {};
-Browser.init = function() {
-    var viewElem = $("dragWindow");
+Browser.init = function(elemId) {
+    var viewElem = $(elemId);
     //var refSeq = {start: 0, end: 27905053, length: function() {return this.end - this.start}};
     var refSeq = {start: -224036, end: 27905053, length: function() {return this.end - this.start}};
     var gv = new GenomeView(viewElem, 250, refSeq.start, refSeq.end, 1/50);

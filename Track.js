@@ -6,6 +6,8 @@ function Track(name, numBlocks, trackDiv, labelDiv,
     this.widthPct = widthPct;
     this.widthPx = widthPx;
     this.sizeInit(numBlocks, widthPct);
+    this.labelHTML = "";
+    this.labelHeight = 0;
     //this.trackPadding = 20;
 }
 
@@ -27,6 +29,15 @@ Track.prototype.clear = function() {
 	for (var i = 0; i < this.numBlocks; i++)
 	    if (this.blockAttached[i]) this.div.removeChild(this.blocks[i]);
     this.initBlocks();
+}
+
+Track.prototype.setLabel = function(newHTML) {
+    if ((this.labelHeight == 0) && this.label)
+        this.labelHeight = this.label.offsetHeight;
+    if (this.labelHTML == newHTML) return;
+    this.labelHTML = newHTML;
+    this.label.innerHTML = newHTML;
+    this.labelHeight = this.label.offsetHeight;
 }
 
 Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) {
@@ -55,7 +66,7 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
 
     this.firstAttached = first;
     this.lastAttached = last;
-    return maxHeight;// + this.trackPadding;
+    return Math.max(maxHeight, this.labelHeight);// + this.trackPadding;
 }
 
 Track.prototype._hideBlock = function(blockIndex) {

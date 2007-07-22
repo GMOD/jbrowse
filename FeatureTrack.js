@@ -6,7 +6,6 @@ function SimpleFeatureTrack(name, numBlocks, trackDiv, labelDiv,
     //className: CSS class for the features
 
     Track.call(this, name, numBlocks, trackDiv, labelDiv, widthPct, widthPx);
-    labelDiv.innerHTML = name;
     this.count = featArray.length;
     this.features = new NCList(featArray, featArray[0].length);
     //this.features.sort(function(a, b) {return a.start - b.start;});
@@ -16,6 +15,7 @@ function SimpleFeatureTrack(name, numBlocks, trackDiv, labelDiv,
     this.refSeq = refSeq;
     this.histScale = histScale;
     this.numBins = 25;
+    this.histLabel = false;
 }
 
 SimpleFeatureTrack.prototype = new Track("", 0, undefined, 0, 0);
@@ -61,10 +61,10 @@ SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
 SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, padding, stripeWidth) {
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
     if (scale < this.histScale) {
-	this.label.innerHTML = this.name + "<br>per " + Math.round((rightBase - leftBase) / this.numBins) + "bp";
+        this.setLabel(this.name + "<br>per " + Math.round((rightBase - leftBase) / this.numBins) + "bp");
 	return this.fillHist(block, leftBase, rightBase, stripeWidth);
     } else {
-	this.label.innerHTML = this.name;
+        this.setLabel(this.name);
 	return this.fillFeatures(block, leftBlock, rightBlock, 
 				 leftBase, rightBase, scale, padding);
     }

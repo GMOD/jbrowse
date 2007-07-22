@@ -7,8 +7,8 @@
   <head>
     <title>div genome test</title>
     <link rel="stylesheet" type="text/css" href="genome.css"></link>
-    <script type="text/javascript" src="http://yui.yahooapis.com/2.2.2/build/utilities/utilities.js" ></script>
-    <script type="text/javascript" src="http://yui.yahooapis.com/2.2.2/build/logger/logger-min.js"></script> 
+    <script type="text/javascript" src="jslib/utilities.js" ></script>
+    <script type="text/javascript" src="jslib/logger-min.js"></script> 
     <script type="text/javascript" src="Util.js"></script>
     <script type="text/javascript" src="NCList.js"></script>
     <script type="text/javascript" src="Track.js"></script>
@@ -24,12 +24,6 @@
            {url: "gene.json", label: "gene2", className: "feature", height: 11},
            {url: "gene.json", label: "gene3", className: "feature", height: 11},
            {url: "gene.json", label: "gene4", className: "feature", height: 11},
-           {url: "gene.json", label: "gene5", className: "feature", height: 11},
-           {url: "gene.json", label: "gene6", className: "feature", height: 11},
-           {url: "gene.json", label: "gene7", className: "feature", height: 11},
-           {url: "gene.json", label: "gene8", className: "feature", height: 11},
-           {url: "gene.json", label: "gene9", className: "feature", height: 11}
-/*
            {url: "exon.json", label: "exon1", className: "exon", height: 9},
            {url: "gene.json", label: "gene5", className: "feature", height: 11},
            {url: "gene.json", label: "gene6", className: "feature", height: 11},
@@ -41,26 +35,25 @@
            {url: "gene.json", label: "gene11", className: "feature", height: 11},
            {url: "gene.json", label: "gene12", className: "feature", height: 11},
            {url: "exon.json", label: "exon3", className: "exon", height: 9}
-*/
           ];
     /* ]]> */
     </script>
   </head>
   
-  <body onload="Browser.init()">
-    <button id="moveLeft" class="slide">&lt;&lt;</button>
-    <!--<button id="stepLeft" class="slide">&lt;</button>
-    <button id="stepRight" class="slide">&gt;</button>-->
-    <button id="moveRight" class="slide">&gt;&gt;</button>
+  <body onload="Browser.init('genomeBrowser')">
+    <button id="moveLeft" class="nav">&lt;&lt;</button>
+    <!--<button id="stepLeft" class="nav">&lt;</button>
+    <button id="stepRight" class="nav">&gt;</button>-->
+    <button id="moveRight" class="nav">&gt;&gt;</button>
     &nbsp;&nbsp;&nbsp;
-    <button id="zoomIn" class="slide">+</button>
-    <button id="zoomOut" class="slide">-</button>
+    <button id="zoomIn" class="nav">+</button>
+    <button id="zoomOut" class="nav">-</button>
     &nbsp;&nbsp;&nbsp;
-    <button id="profile" class="slide">profile</button>
-    &nbsp;&nbsp;&nbsp;
-    <span id="profTime">profile time: </span>
+    <button id="profile" class="nav">demo</button>
+    <!--&nbsp;&nbsp;&nbsp;-->
+    <span id="profTime" style="display:none">profile time: </span>
 
-    <div id="dragWindow" class="dragWindow">
+    <div id="genomeBrowser" class="dragWindow" style="left: 2%; top: 3em; width: 96%; bottom: 20px;">
     </div>
   </body>
 </html>

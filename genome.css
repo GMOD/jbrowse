@@ -2,16 +2,12 @@ html, body {
     height: 98%;
 }
 
-button.slide {
+button.nav {
     width: 4em;
 }
 
 div.dragWindow {
     position:absolute;
-    left: 2%;
-    top: 3em;
-    width: 96%;
-    height: 90%;
     overflow: hidden;
 /*    overflow: -moz-scrollbars-vertical; */
 /*    overflow-x: hidden;
