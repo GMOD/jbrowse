@@ -40,6 +40,8 @@ Track.prototype.setLabel = function(newHTML) {
     this.labelHeight = this.label.offsetHeight;
 }
 
+Track.prototype.transfer = function() {};
+
 Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) {
     //if (null == this.firstAttached) this.div.style.backgroundColor = "";
     var firstAttached = (null == this.firstAttached ? last + 1 : this.firstAttached);
@@ -47,8 +49,9 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
     //detach left blocks
     var i, endBase;
     var maxHeight = 0;
+    var destBlock = this.blocks[first];
     for (i = firstAttached; i < first; i++) {
-        //TODO: move features to this.blocks[first]
+        this.transfer(this.blocks[i], destBlock);
         this._hideBlock(i);
     }
     //show blocks from first to last (inclusive)
@@ -59,8 +62,10 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
         startBase = endBase;
     }
     //detach right blocks
+    startBase = endBase - bpPerBlock;
+    destBlock = this.blocks[last];
     for (i = lastAttached; i > last; i--) {
-        //TODO: move features to this.blocks[last]
+        this.transfer(this.blocks[i], destBlock);
         this._hideBlock(i);
     }
 
@@ -103,6 +108,8 @@ Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
     blockDiv.className = "block";
     blockDiv.style.left = (blockIndex * this.widthPct) + "%";
     blockDiv.style.width = this.widthPct + "%";
+    blockDiv.startBase = startBase;
+    blockDiv.endBase = endBase;
     blockHeight = this.fillBlock(blockDiv, 
 				 this.blocks[blockIndex - 1],
 				 this.blocks[blockIndex + 1],
@@ -126,16 +133,32 @@ Track.prototype.moveBlocks = function(delta) {
 	newAttached[i] = false;
 	newHeights[i] = 0;
     }
+
+    var destBlock;
+    if ((this.lastAttached + delta < 0)
+        || (this.firstAttached + delta >= this.numBlocks)) {
+        this.firstAttached = null;
+        this.lastAttached = null;
+    } else {
+        this.firstAttached = Math.max(0, Math.min(this.numBlocks - 1,
+                                                 this.firstAttached + delta));
+        this.lastAttached = Math.max(0, Math.min(this.numBlocks - 1,
+                                                  this.lastAttached + delta));
+
+        if (delta < 0)
+            destBlock = newBlocks[this.firstAttached];
+        else
+            destBlock = newBlocks[this.lastAttached];
+    }
+
     for (var i = 0; i < this.numBlocks; i++) {
         var newIndex = i + delta;
         if ((newIndex < 0) || (newIndex >= this.numBlocks)) {
             //We're not keeping this block around, so delete
             //the old one.
 
-            //TODO: collect features from outgoing blocks that extend
-            //onto the current view.
-
 	    if (this.blockAttached[i]) this.div.removeChild(this.blocks[i]);
+            if (destBlock) this.transfer(this.blocks[i], destBlock);
         } else {
             //move block
             newBlocks[newIndex] = this.blocks[i];
@@ -150,16 +173,6 @@ Track.prototype.moveBlocks = function(delta) {
     this.blockHeights = newHeights;
     this.blockAttached = newAttached;
 
-    if ((this.lastAttached + delta < 0)
-        || (this.firstAttached + delta >= this.numBlocks)) {
-        this.firstAttached = null;
-        this.lastAttached = null;
-    } else {
-        this.firstAttached = Math.max(0, Math.min(this.numBlocks - 1,
-                                                 this.firstAttached + delta));
-        this.lastAttached = Math.max(0, Math.min(this.numBlocks - 1,
-                                                  this.lastAttached + delta));
-    }
 }
 
 Track.prototype.heightUpdate = function() {

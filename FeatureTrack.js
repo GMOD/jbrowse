@@ -55,6 +55,7 @@ SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
         if (Util.is_ie6) binDiv.appendChild(document.createComment());
         block.appendChild(binDiv);
     }
+    //TODO: come up with a better method for scaling than 2 px per count
     return 2 * maxBin;
 }
 
@@ -68,6 +69,39 @@ SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, 
 	return this.fillFeatures(block, leftBlock, rightBlock, 
 				 leftBase, rightBase, scale, padding);
     }
+}
+
+SimpleFeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
+    //transfer(sourceBlock, destBlock) is called when sourceBlock gets deleted.
+    //Any child features of sourceBlock that extend onto destBlock should get
+    //moved onto destBlock.
+
+    var sourceSlots;
+    if (sourceBlock.startBase < destBlock.startBase)
+	sourceSlots = sourceBlock.rightSlots;
+    else
+	sourceSlots = sourceBlock.leftSlots;
+
+    if (sourceSlots === undefined) return;
+
+    var destLeft = destBlock.startBase;
+    var destRight = destBlock.endBase;
+    var blockWidth = destRight - destLeft;
+    var sourceSlot;
+
+    for (var i = 0; i < sourceSlots.length; i++) {
+	//if the feature div in this slot is a child of sourceBlock,
+	//and if the feature overlaps destBlock,
+	//move to destBlock & re-position
+	sourceSlot = sourceSlots[i];
+	if ((sourceSlot.parentNode === sourceBlock)
+	    && (sourceSlot.feature[1] > destLeft)
+	    && (sourceSlot.feature[0] < destRight)) {
+            sourceSlot.style.left = 
+		(100 * (sourceSlot.feature[0] - destLeft) / blockWidth) + "%";
+	    destBlock.appendChild(sourceSlot);
+	}
+    }	    
 }
 
 SimpleFeatureTrack.prototype.fillFeatures = function(block, 
@@ -84,9 +118,6 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     //padding: min pixels between each feature horizontally
     //0-based
     //returns: height of the block, in pixels
-
-    //TODO: switch to Nested Containment list?
-    //var curFeats = this.getFeatures(leftBase, rightBase);
 
     var slots = [];
     var needLeftSlots = false;
@@ -142,6 +173,8 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     var className = this.className;
     var featCallback = function(feature) {
         featDiv = document.createElement("div");
+	featDiv.feature = feature;
+
         //featDiv.setAttribute("fName", feature[3]);
         switch (feature[2]) {
         case 1:
@@ -154,19 +187,19 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 
         var level;
         slotLoop: for (var j = 0; j < slots.length; j++) {
-            if (feature === slots[j]) return; //does this catch all repeats?
-            if (((slots[j][1] + basePadding) >= feature[0])
-                && ((slots[j][0] - basePadding) <= feature[1])) {
+            if (feature === slots[j].feature) return; //does this catch all repeats?
+            if (((slots[j].feature[1] + basePadding) >= feature[0])
+                && ((slots[j].feature[0] - basePadding) <= feature[1])) {
                 continue;
             } else {
-                slots[j] = feature;
+                slots[j] = featDiv;//feature;
                 level = j;
                 maxLevel = Math.max(j, maxLevel);
                 break;
             }
         }
         if (level === undefined) {
-            slots.push(feature);
+            slots.push(featDiv);//feature);
             level = slots.length - 1;
         }
         maxLevel = Math.max(level, maxLevel);
@@ -174,7 +207,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
         if (needLeftSlots) {
             if ((feature[0] - basePadding <= leftBase) 
                 && (feature[1] + basePadding >= leftBase))
-                leftSlots[level] = feature;
+                leftSlots[level] = featDiv;//feature;
         }
 
         featDiv.style.cssText = 
@@ -184,8 +217,9 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
             + "top: " + (level * levelHeight) + levelUnits + ";"
             //+ " width: " + (100 * ((feature.end - feature.start) / blockWidth)) + "%;";
             + " width: " + (100 * ((feature[1] - feature[0]) / blockWidth)) + "%;";
+
+	//ie6 doesn't respect the height style if the div is empty
         if (Util.is_ie6) featDiv.appendChild(document.createComment());
-        featDiv.feature = feature;
         featDiv.onclick = callback;
         //Event.observe measurably slower
         //TODO: handle IE leaks (
@@ -202,13 +236,15 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     //while keeping early non-edge features
     // e.g., keep features A and B but not C
     // (this is necessary when the user goes back and forth)
+    // (we keep A because we just want to truncate slots; we
+    //  keep everything down to and including B)
     //  A  --  |
     //  B    --|--
     //  C      |  --
     var tmpSlots = [];
     for (var i = slots.length - 1; i >= 0; i--) {
-        if ((slots[i][0] - basePadding <= endBase) 
-            && (slots[i][1] + basePadding >= endBase)) {
+        if ((slots[i].feature[0] - basePadding <= endBase) 
+            && (slots[i].feature[1] + basePadding >= endBase)) {
             tmpSlots = slots.slice(0, i + 1);
             break;
         }

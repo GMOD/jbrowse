@@ -5,7 +5,6 @@ function Animation(subject, callback, time) {
     if (subject === undefined) return;
     if ("animation" in subject) subject.animation.stop();
     this.index = 0;
-    this.startTime = (new Date()).getTime();
     this.time = time;
     this.subject = subject;
     this.callback = callback;
@@ -23,6 +22,9 @@ Animation.prototype.animate = function () {
 	this.stop();
 	return;
     }
+    if (!("startTime" in this))
+	this.startTime = (new Date()).getTime();
+
     var elapsed = (new Date()).getTime() - this.startTime;
     if (elapsed < this.time) {
         this.step(elapsed / this.time);
@@ -135,6 +137,8 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     this.regularStripe = stripeWidth;
     //width, in pixels, of stripes at full zoom (based on the sequence
     //character width)
+    //The number of characters per stripe is somewhat arbitrarily set
+    //at stripeWidth / 10
     this.fullZoomStripe = this.charWidth * (stripeWidth / 10);
 
     //set up size state (zoom levels, stripe percentage, etc.)
