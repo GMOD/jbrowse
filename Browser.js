@@ -8,15 +8,36 @@ Browser.init = function(elemId) {
     viewElem.view = gv;
     var trackNum = 0;
     gv.showWait();
+    gv.addTrack(new ImageTrack("Image_Test", refSeq, 1000, 
+                               [
+                                {basesPerTile: 100, height: 219, urlPrefix: "tiles/3R/Genes/100bp/"},
+                                {basesPerTile: 500, height: 219, urlPrefix: "tiles/3R/Genes/500bp/"},
+                                {basesPerTile: 1000, height: 219, urlPrefix: "tiles/3R/Genes/1kbp/"},
+                                {basesPerTile: 2000, height: 219, urlPrefix: "tiles/3R/Genes/2kbp/"},
+                                {basesPerTile: 5000, height: 219, urlPrefix: "tiles/3R/Genes/5kbp/"},
+                                {basesPerTile: 10000, height: 219, urlPrefix: "tiles/3R/Genes/10kbp/"},
+                                {basesPerTile: 40000, height: 219, urlPrefix: "tiles/3R/Genes/40kbp/"},
+                                {basesPerTile: 100000, height: 219, urlPrefix: "tiles/3R/Genes/100kbp/"},
+                                {basesPerTile: 200000, height: 259, urlPrefix: "tiles/3R/Genes/200kbp/"},
+                                {basesPerTile: 500000, height: 206, urlPrefix: "tiles/3R/Genes/500kbp/"},
+                                {basesPerTile: 1000000, height: 214, urlPrefix: "tiles/3R/Genes/1Mbp/"},
+                                {basesPerTile: 2000000, height: 214, urlPrefix: "tiles/3R/Genes/2Mbp/"},
+                                {basesPerTile: 5000000, height: 208.5, urlPrefix: "tiles/3R/Genes/5Mbp/"},
+                                {basesPerTile: 10000000, height: 208.5, urlPrefix: "tiles/3R/Genes/10Mbp/"}
+                                ]));
     var trackSuccess = function(o) {
         //try {
             var startTime = new Date().getTime();
             var featArray = eval(o.responseText);
-            gv.addTrack(o.argument.label,
-                        featArray,
-                        o.argument.className,
-                        o.argument.height, undefined,
-                        4 * (featArray.length / refSeq.length()));
+            var track = new SimpleFeatureTrack(o.argument.label, featArray,
+                                               o.argument.className,
+                                               o.argument.height, 
+                                               refSeq, 
+                                               4 * (featArray.length 
+                                                    / refSeq.length()),
+                                               5);
+            gv.addTrack(track);
+
             $('profTime').appendChild(document.createTextNode(" " + (new Date().getTime() - startTime) / 1000));
             if (trackNum < trackList.length)
                 setTimeout(addTrack, 0);

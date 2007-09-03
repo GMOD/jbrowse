@@ -1,11 +1,10 @@
 
-function SimpleFeatureTrack(name, numBlocks, trackDiv, labelDiv,
-			    widthPct, widthPx,
-			    featArray, className, levelHeight, refSeq,
-			    histScale) {
+function SimpleFeatureTrack(name, featArray, className, levelHeight, refSeq,
+			    histScale, padding) {
     //className: CSS class for the features
+    //padding: min pixels between each feature horizontally
 
-    Track.call(this, name, numBlocks, trackDiv, labelDiv, widthPct, widthPx);
+    Track.call(this, name);
     this.count = featArray.length;
     this.features = new NCList(featArray, featArray[0].length);
     //this.features.sort(function(a, b) {return a.start - b.start;});
@@ -16,9 +15,10 @@ function SimpleFeatureTrack(name, numBlocks, trackDiv, labelDiv,
     this.histScale = histScale;
     this.numBins = 25;
     this.histLabel = false;
+    this.padding = padding;
 }
 
-SimpleFeatureTrack.prototype = new Track("", 0, undefined, 0, 0);
+SimpleFeatureTrack.prototype = new Track("");
 
 SimpleFeatureTrack.prototype.getFeatures = function(startBase, endBase) {
     var result = Array();
@@ -59,7 +59,7 @@ SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
     return 2 * maxBin;
 }
 
-SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, padding, stripeWidth) {
+SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth) {
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
     if (scale < this.histScale) {
         this.setLabel(this.name + "<br>per " + Math.round((rightBase - leftBase) / this.numBins) + "bp");
@@ -67,7 +67,7 @@ SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, 
     } else {
         this.setLabel(this.name);
 	return this.fillFeatures(block, leftBlock, rightBlock, 
-				 leftBase, rightBase, scale, padding);
+				 leftBase, rightBase, scale);
     }
 }
 
@@ -75,6 +75,8 @@ SimpleFeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
     //transfer(sourceBlock, destBlock) is called when sourceBlock gets deleted.
     //Any child features of sourceBlock that extend onto destBlock should get
     //moved onto destBlock.
+
+    if (!(sourceBlock || destBlock)) return;
 
     var sourceSlots;
     if (sourceBlock.startBase < destBlock.startBase)
@@ -107,7 +109,7 @@ SimpleFeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
 SimpleFeatureTrack.prototype.fillFeatures = function(block, 
 						     leftBlock, rightBlock,
 						     leftBase, rightBase,
-						     scale, padding) {
+						     scale) {
     //arguments:
     //block: div to be filled with info
     //leftBlock: div to the left of the block to be filled
@@ -115,7 +117,6 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     //leftBase: starting base of the block
     //rightBase: ending base of the block
     //scale: pixels per base at the current zoom level
-    //padding: min pixels between each feature horizontally
     //0-based
     //returns: height of the block, in pixels
 
@@ -140,7 +141,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
         //curFeats.sort(function(a, b) {return a.start - b.start;});
     }
 
-    var basePadding = padding / scale;
+    var basePadding = this.padding / scale;
     basePadding = Math.max(1, basePadding);
 
     //var levels = Array(curFeats.length);

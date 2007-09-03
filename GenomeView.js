@@ -343,14 +343,14 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 
     YAHOO.util.Event.addListener("moveLeft", "click", function(event) {
             if (view.animation) view.animation.stop();
-            var slideStart = view.getX();
+            //var slideStart = view.getX();
             var distance = view.dim.width * 0.9;
             //distance = Math.min(view.minLeft + view.offset, distance);
 	    var pos = view.getPosition();
 	    view.trimVertical(pos.y);
-            //view.showVisibleBlocks(true, pos,
-            //                       slideStart - distance,
-            //                       slideStart + view.dim.width);
+            view.showVisibleBlocks(false, pos,
+                                   pos.x - distance,
+                                   pos.x + view.dim.width);
             YAHOO.util.Event.removeListener(view.elem, "scroll", view.scrollHandler);
             YAHOO.util.Event.stopEvent(event);
             new Slider(view, afterSlide,
@@ -358,15 +358,14 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
         });
     YAHOO.util.Event.addListener("moveRight", "click", function(event) {
             if (view.animation) view.animation.stop();
-            var slideStart = view.getX();
             var distance = -view.dim.width * 0.9;
             //distance = Math.max(this.subject.maxLeft - this.subject.offset,
             //                    distance);
 	    var pos = view.getPosition();
 	    view.trimVertical(pos.y);
-            //view.showVisibleBlocks(true, pos,
-            //                       slideStart,
-            //                       slideStart + view.dim.width - distance);
+            view.showVisibleBlocks(false, pos,
+                                   pos.x,
+                                   pos.x + view.dim.width - distance);
             YAHOO.util.Event.removeListener(view.elem, "scroll", view.scrollHandler);
             YAHOO.util.Event.stopEvent(event);
             new Slider(view, afterSlide, 
@@ -415,7 +414,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 			    view.container.clientHeight - view.dim.height);
 	view.updatePosLabels(newY);
 	view.setY(newY);
-	//view.showVisibleBlocks(true);
+	view.showVisibleBlocks(true);
 	//view.heightUpdate();
 	//view.updateTrackLabels();
 	YAHOO.util.Event.stopEvent(e);
@@ -460,9 +459,9 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     trackDiv.style.position = "absolute";
     trackDiv.style.zIndex = 20;
     trackDiv.id = "static_track";
-    this.staticTrack = new StaticTrack("static_track", this.stripeCount,
-				       trackDiv, this.stripePercent,
-				       this.stripeWidth);
+    this.staticTrack = new StaticTrack("static_track");
+    this.staticTrack.setViewInfo(this.stripeCount, trackDiv, undefined,
+                                 this.stripePercent, this.stripeWidth);
     this.staticTrack.showRange(0, this.stripeCount - 1, this.stripes[0].startBase, Math.round(this.stripeWidth / this.pxPerBp), this.pxPerBp);
     this.container.appendChild(trackDiv);
 
@@ -931,27 +930,22 @@ GenomeView.prototype.makeStripes = function() {
     //this.heightUpdate();
 }
 
-GenomeView.prototype.addTrack = function(name, featArray,
-					 className, levelHeight,
-					 refSeq, histScale) {
+GenomeView.prototype.addTrack = function(track) {
     var trackNum = this.tracks.length;
     var labelDiv = document.createElement("div");
     labelDiv.className = "track-label";
-    labelDiv.id = "label_" + name;
+    labelDiv.id = "label_" + track.name;
     this.trackLabels.push(labelDiv);
     var trackDiv = document.createElement("div");
     trackDiv.className = "track";
-    trackDiv.id = "track_" + name;
-    var track = new SimpleFeatureTrack(name, this.stripeCount,
-				       trackDiv, labelDiv,
-				       this.stripePercent, this.stripeWidth,
-				       featArray, className, levelHeight, 
-				       refSeq, histScale);
+    trackDiv.id = "track_" + track.name;
     trackDiv.track = track;
+    track.setViewInfo(this.stripeCount, trackDiv, labelDiv,
+		      this.stripePercent, this.stripeWidth);
     this.tracks.push(track);
     var totalHeight = this.topSpace();
-    this.trackIterate(function(track, gv) { 
-            totalHeight += track.height + gv.trackPadding;
+    this.trackIterate(function(mytrack, gv) { 
+            totalHeight += mytrack.height + gv.trackPadding;
         });
     //for (var t = 0; t < this.trackHeights.length; t++)
     //    totalHeight += this.trackHeights[t];

@@ -1,15 +1,17 @@
-function Track(name, numBlocks, trackDiv, labelDiv,
-	       widthPct, widthPx) {
+function Track(name) {
+    this.name = name;
+}
+
+Track.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
+                                       widthPct, widthPx) {
     this.div = trackDiv;
     this.label = labelDiv;
-    this.name = name;
     this.widthPct = widthPct;
     this.widthPx = widthPx;
     this.sizeInit(numBlocks, widthPct);
     this.labelHTML = "";
     this.labelHeight = 0;
-    //this.trackPadding = 20;
-}
+}    
 
 Track.prototype.initBlocks = function() {
     this.blocks = new Array(this.numBlocks);
@@ -43,6 +45,7 @@ Track.prototype.setLabel = function(newHTML) {
 Track.prototype.transfer = function() {};
 
 Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) {
+    if (this.blocks === undefined) return;
     //if (null == this.firstAttached) this.div.style.backgroundColor = "";
     var firstAttached = (null == this.firstAttached ? last + 1 : this.firstAttached);
     var lastAttached =  (null == this.lastAttached ? first - 1 : this.lastAttached);
@@ -115,7 +118,7 @@ Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
 				 this.blocks[blockIndex + 1],
 				 startBase,
 				 endBase, 
-				 scale, 5,
+				 scale,
 				 this.widthPx);
 
     this.blocks[blockIndex] = blockDiv;
