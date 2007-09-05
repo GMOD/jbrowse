@@ -5,7 +5,6 @@ function ImageTrack(name, refSeq, tileWidth, zoomLevels) {
     this.tileWidth = tileWidth;
     //zoomLevels: array of {basesPerTile, scale, height, urlPrefix} hashes
     this.zoomLevels = zoomLevels;
-    this.startBaseToImage = {};
     this.tileToImage = {};
     this.zoomCache = {};
 }
@@ -55,29 +54,11 @@ ImageTrack.prototype.getImages = function(zoom, startBase, endBase) {
 }
 
 ImageTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth) {
-//    var im = this.startBaseToImage[leftBase];
     var zoom = this.getZoom(scale);
-//    if (im === undefined) {
-
-//        var blockWidth = rightBase - leftBase;
-//        if (this.startBaseToImage[leftBase]) return zoom.height;
-        
-//        var im = document.createElement("img");
-//        im.src = zoom.urlPrefix + "tile" + (((leftBase - this.refSeq.start) / zoom.basesPerTile) | 0) + ".png";
-//        im.startBase = leftBase;
-//        im.baseWidth = (rightBase - leftBase) * 4;
-
-//        im.style.cssText = "left: " + (100 * ((im.startBase - leftBase) / blockWidth)) + "%; width: " + (100 * (im.baseWidth / blockWidth)) + "%; top: 0px; height: " + zoom.height + "px;";
-//        block.appendChild(im);
-//        this.startBaseToImage[leftBase] = im;
-//        this.startBaseToImage[leftBase + blockWidth] = im;
-//        this.startBaseToImage[leftBase + (2 * blockWidth)] = im;
-//        this.startBaseToImage[leftBase + (3 * blockWidth)] = im;
-//    }
-
     var blockWidth = rightBase - leftBase;
     var images = this.getImages(zoom, leftBase, rightBase);
     var im;
+
     for (var i = 0; i < images.length; i++) {
 	im = images[i];
 	if (!im.parentNode) {
@@ -89,9 +70,17 @@ ImageTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase
     return zoom.height;
 }
 
+ImageTrack.prototype.startZoom = function(destScale, destStart, destEnd) {
+    this.tileToImage = {};
+    this.getImages(this.getZoom(destScale), destStart, destEnd);
+}
+
+ImageTrack.prototype.endZoom = function(destScale, destBlockBases) {
+    Track.prototype.clear.apply(this);
+}
+
 ImageTrack.prototype.clear = function() {
     Track.prototype.clear.apply(this);
-    this.startBaseToImage = {};
     this.tileToImage = {};
 }
 

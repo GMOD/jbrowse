@@ -44,6 +44,9 @@ Track.prototype.setLabel = function(newHTML) {
 
 Track.prototype.transfer = function() {};
 
+Track.prototype.startZoom = function(destScale, destStart, destEnd) {};
+Track.prototype.endZoom = function(destScale, destBlockBases) {};
+
 Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) {
     if (this.blocks === undefined) return;
     //if (null == this.firstAttached) this.div.style.backgroundColor = "";

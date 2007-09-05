@@ -59,13 +59,22 @@ SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
     return 2 * maxBin;
 }
 
+SimpleFeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
+    if (destScale < this.histScale) {
+        this.setLabel(this.name + "<br>per " + Math.round(destBlockBases / this.numBins) + "bp");
+    } else {
+        this.setLabel(this.name);
+    }
+    this.clear();
+}
+
 SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth) {
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
     if (scale < this.histScale) {
-        this.setLabel(this.name + "<br>per " + Math.round((rightBase - leftBase) / this.numBins) + "bp");
+        //this.setLabel(this.name + "<br>per " + Math.round((rightBase - leftBase) / this.numBins) + "bp");
 	return this.fillHist(block, leftBase, rightBase, stripeWidth);
     } else {
-        this.setLabel(this.name);
+        //this.setLabel(this.name);
 	return this.fillFeatures(block, leftBlock, rightBlock, 
 				 leftBase, rightBase, scale);
     }

@@ -633,10 +633,18 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc) {
 	    }
 	}
 	var scale = this.zoomLevels[this.curZoom + 1] / this.zoomLevels[this.curZoom];
+	var centerBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.dim.width));
 	this.curZoom += 1;
 	this.pxPerBp = this.zoomLevels[this.curZoom];
 	this.maxLeft = this.bpToPx(this.endbp) - this.dim.width;
-	zoomStart = (new Date()).getTime();
+
+	for (var track = 0; track < this.tracks.length; track++)
+	    this.tracks[track].startZoom(this.pxPerBp,
+					 centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp),
+					 centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp));
+	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp)));
+
+	//zoomStart = (new Date()).getTime();
         YAHOO.util.Event.removeListener(this.elem, "scroll", this.scrollHandler);
 	new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);
     }
@@ -660,10 +668,18 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc) {
         zoomLoc = Math.max(zoomLoc, 1 - (((edgeDist * scale) / (1 - scale)) / this.dim.width));
         edgeDist = pos.x + this.offset - this.bpToPx(this.startbp);
         zoomLoc = Math.min(zoomLoc, ((edgeDist * scale) / (1 - scale)) / this.dim.width);
+	var centerBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.dim.width));
         this.curZoom -= 1;
         this.pxPerBp = this.zoomLevels[this.curZoom];
+
+	for (var track = 0; track < this.tracks.length; track++)
+	    this.tracks[track].startZoom(this.pxPerBp,
+					 centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp),
+					 centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp));
+
+	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp)));
 	this.minLeft = this.bpToPx(this.startbp);
-	zoomStart = (new Date()).getTime();
+	//zoomStart = (new Date()).getTime();
         YAHOO.util.Event.removeListener(this.elem, "scroll", this.scrollHandler);
 	new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);
     }
@@ -690,6 +706,9 @@ GenomeView.prototype.zoomUpdate = function() {
     this.setX((centerPx - this.offset) - (eWidth / 2));
     this.updateTrackLabels();
     this.clearStripes();
+    for (var track = 0; track < this.tracks.length; track++)
+	this.tracks[track].endZoom(this.pxPerBp, Math.round(this.stripeWidth / this.pxPerBp));
+    //YAHOO.log("post-zoom start base: " + this.pxToBp(this.offset + this.getX()) + ", end base: " + this.pxToBp(this.offset + this.getX() + this.dim.width));
     this.makeStripes();
     this.container.style.paddingTop = this.topSpace() + "px";
     this.containerHeight = 0;
@@ -908,8 +927,6 @@ GenomeView.prototype.clearStripes = function() {
     for (var i = 0; i < this.stripes.length; i++)
         if (this.stripes[i] !== undefined)
             this.container.removeChild(this.stripes[i]);
-    for (var track = 0; track < this.tracks.length; track++)
-	this.tracks[track].clear();
     this.staticTrack.clear();
 }
 
