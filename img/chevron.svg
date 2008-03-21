@@ -9,33 +9,36 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="360"
-   height="12"
+   height="8"
    id="svg2"
    sodipodi:version="0.32"
    inkscape:version="0.45.1"
    version="1.0"
    sodipodi:docbase="/home/mitch/sw/divbrowser/img"
    sodipodi:docname="chevron.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="/home/mitch/sw/divbrowser/img/chevron.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4" />
   <sodipodi:namedview
      id="base"
-     pagecolor="#fdff39"
+     pagecolor="#edd121"
      bordercolor="#666666"
      borderopacity="1.0"
      gridtolerance="10000"
      guidetolerance="10"
      objecttolerance="10"
-     inkscape:pageopacity="0"
+     inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="275.38134"
-     inkscape:cy="-2.7630473"
+     inkscape:zoom="2.8"
+     inkscape:cx="217.66595"
+     inkscape:cy="1.0250247"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      width="360px"
-     height="12px"
+     height="8px"
      showgrid="true"
      inkscape:grid-points="true"
      inkscape:grid-bbox="true"
@@ -63,48 +66,48 @@
        d="M -9,-16 L 366,-16"
        id="path2160" />
     <path
-       style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-       d="M 45,6 L 30,0 L 15,0 L 30,6 L 15,12 L 30,12 L 45,6 z "
+       style="fill:#b49100;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 45,4 L 30,-2 L 15,-2 L 30,4 L 15,10 L 30,10 L 45,4 z "
        id="path3138"
        sodipodi:nodetypes="ccccccc" />
     <path
-       style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-       d="M -15,0 L 0,6 L -15,12 L 0,12 L 15,6 L 0,0 L -15,0 z "
+       style="fill:#b49100;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M -15,-2 L 0,4 L -15,10 L 0,10 L 15,4 L 0,-2 L -15,-2 z "
        id="path3140" />
     <path
-       style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-       d="M 105,6 L 90,0 L 75,0 L 90,6 L 75,12 L 90,12 L 105,6 z "
+       style="fill:#b49100;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 105,4 L 90,-2 L 75,-2 L 90,4 L 75,10 L 90,10 L 105,4 z "
        id="path3143"
        sodipodi:nodetypes="ccccccc" />
     <path
-       style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-       d="M 45,0 L 60,6 L 45,12 L 60,12 L 75,6 L 60,0 L 45,0 z "
+       style="fill:#b49100;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 45,-2 L 60,4 L 45,10 L 60,10 L 75,4 L 60,-2 L 45,-2 z "
        id="path3145" />
     <path
-       style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-       d="M 105,0 L 120,6 L 105,12 L 120,12 L 135,6 L 120,0 L 105,0 z M 135,0 L 150,6 L 135,12 L 150,12 L 165,6 L 150,0 L 135,0 z M 165,0 L 180,6 L 165,12 L 180,12 L 195,6 L 180,0 L 165,0 z M 195,0 L 210,6 L 195,12 L 210,12 L 225,6 L 210,0 L 195,0 z "
+       style="fill:#b49100;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 105,-2 L 120,4 L 105,10 L 120,10 L 135,4 L 120,-2 L 105,-2 z M 135,-2 L 150,4 L 135,10 L 150,10 L 165,4 L 150,-2 L 135,-2 z M 165,-2 L 180,4 L 165,10 L 180,10 L 195,4 L 180,-2 L 165,-2 z M 195,-2 L 210,4 L 195,10 L 210,10 L 225,4 L 210,-2 L 195,-2 z "
        id="path3147" />
     <path
-       style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-       d="M 285,6 L 270,0 L 255,0 L 270,6 L 255,12 L 270,12 L 285,6 z "
+       style="fill:#b49100;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 285,4 L 270,-2 L 255,-2 L 270,4 L 255,10 L 270,10 L 285,4 z "
        id="path3156"
        sodipodi:nodetypes="ccccccc" />
     <path
-       style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-       d="M 225,0 L 240,6 L 225,12 L 240,12 L 255,6 L 240,0 L 225,0 z "
+       style="fill:#b49100;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 225,-2 L 240,4 L 225,10 L 240,10 L 255,4 L 240,-2 L 225,-2 z "
        id="path3158" />
     <path
-       style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-       d="M 345,6 L 330,0 L 315,0 L 330,6 L 315,12 L 330,12 L 345,6 z "
+       style="fill:#b49100;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 345,4 L 330,-2 L 315,-2 L 330,4 L 315,10 L 330,10 L 345,4 z "
        id="path3160"
        sodipodi:nodetypes="ccccccc" />
     <path
-       style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-       d="M 285,0 L 300,6 L 285,12 L 300,12 L 315,6 L 300,0 L 285,0 z "
+       style="fill:#b49100;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 285,-2 L 300,4 L 285,10 L 300,10 L 315,4 L 300,-2 L 285,-2 z "
        id="path3162" />
     <path
-       style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-       d="M 345,0 L 360,6 L 345,12 L 360,12 L 375,6 L 360,0 L 345,0 z M 375,0 L 390,6 L 375,12 L 390,12 L 405,6 L 390,0 L 375,0 z M 405,0 L 420,6 L 405,12 L 420,12 L 435,6 L 420,0 L 405,0 z M 435,0 L 450,6 L 435,12 L 450,12 L 465,6 L 450,0 L 435,0 z "
+       style="fill:#b49100;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 345,-2 L 360,4 L 345,10 L 360,10 L 375,4 L 360,-2 L 345,-2 z M 375,-2 L 390,4 L 375,10 L 390,10 L 405,4 L 390,-2 L 375,-2 z M 405,-2 L 420,4 L 405,10 L 420,10 L 435,4 L 420,-2 L 405,-2 z M 435,-2 L 450,4 L 435,10 L 450,10 L 465,4 L 450,-2 L 435,-2 z "
        id="path3164" />
   </g>
 </svg>

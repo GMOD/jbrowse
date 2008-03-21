@@ -3,6 +3,7 @@ function Animation(subject, callback, time) {
     //callback: function to call at the end of the animation
     //time: time for the animation to run
     if (subject === undefined) return;
+    //don't want a zoom and a slide going on at the same time
     if ("animation" in subject) subject.animation.stop();
     this.index = 0;
     this.time = time;
@@ -10,9 +11,11 @@ function Animation(subject, callback, time) {
     this.callback = callback;
 
     var myAnim = this;
-    this.animID = setInterval(function() { myAnim.animate() }, 33);
-    //this.animFunction = function() { myAnim.animate(); };
-    //this.animID = setTimeout(this.animFunction, 33);
+    //this.animID = setInterval(function() { myAnim.animate() }, 33);
+    this.animFunction = function() { myAnim.animate(); };
+    this.animID = setTimeout(this.animFunction, 33);
+
+    this.frames = 0;
 
     subject.animation = this;
 }
@@ -22,27 +25,39 @@ Animation.prototype.animate = function () {
 	this.stop();
 	return;
     }
-    if (!("startTime" in this))
-	this.startTime = (new Date()).getTime();
 
-    var elapsed = (new Date()).getTime() - this.startTime;
+    var nextTimeout = 33;
+    var elapsed = 0;
+    if (!("startTime" in this)) {
+        this.startTime = (new Date()).getTime();
+    } else {
+        elapsed = (new Date()).getTime() - this.startTime;
+        //set the next timeout to be the average of the
+        //frame times we've achieved so far.
+        //The goal is to avoid overloading the browser
+        //and getting a jerky animation.
+        nextTimeout = Math.max(33, elapsed / this.frames);
+    }
+
     if (elapsed < this.time) {
         this.step(elapsed / this.time);
+        this.frames++;
     } else {
 	this.step(1);
         this.finished = true;
+	YAHOO.log("final timeout: " + nextTimeout);
     }
-    //this.animID = setTimeout(this.animFunction, 33);
+    this.animID = setTimeout(this.animFunction, nextTimeout);
 }
 
 Animation.prototype.stop = function() {
-    clearInterval(this.animID);
+    clearTimeout(this.animID);
     delete this.subject.animation;
     this.callback(this);
 }    
 
 function Slider(view, callback, time, distance) {
-    Animation.call(this, view, callback, time)
+    Animation.call(this, view, callback, time);
     this.slideStart = view.getX();
     this.slideDistance = distance;
 }
@@ -328,7 +343,11 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     YAHOO.util.Event.addListener(view.elem, "mousedown", view.mouseDown);
     YAHOO.util.Event.addListener(view.elem, "mouseup", view.mouseup);
 
-    YAHOO.widget.Logger.enableBrowserConsole();
+    if (typeof(foo) == 'undefined') 
+        new YAHOO.widget.LogReader("myLogger");
+    else
+        YAHOO.widget.Logger.enableBrowserConsole();
+
     view.scrollHandler = function() {
         //view.showVisibleBlocks(true);
         //if (!view.dragging) view.heightUpdate();
@@ -402,9 +421,9 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
         //var zoomLoc = 0.5;
         //in firefox, e.clientX is in twips!  relative to the element that the event fired on!  it's two kinds of crazy in one.
         //zoomLoc = (((e.clientX / 15) + Position.page(Event.element(e))[0])) / view.dim.width;
-        //console.log((e.clientX / 15), Position.page(Event.element(e))[0], Position.page(view.elem)[0], view.getX(), view.dim.width);
-        //console.log("pointerX: %d, getX: %d, view.dim.width: %d, zoomLoc: %d", Event.pointerX(e), view.getX(), view.dim.width, zoomLoc);
-        //console.log("clientX: %d, element x: %d, element width: %d", e.clientX, Position.page(Event.element(e))[0], Event.element(e).clientWidth);
+        //YAHOO.log((e.clientX / 15), Position.page(Event.element(e))[0], Position.page(view.elem)[0], view.getX(), view.dim.width);
+        //YAHOO.log("pointerX: %d, getX: %d, view.dim.width: %d, zoomLoc: %d", Event.pointerX(e), view.getX(), view.dim.width, zoomLoc);
+        //YAHOO.log("clientX: %d, element x: %d, element width: %d", e.clientX, Position.page(Event.element(e))[0], Event.element(e).clientWidth);
         //if (Util.wheel(e) > 0)
         //    zoomIn(e, zoomLoc);
         //else
@@ -424,7 +443,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 
     YAHOO.util.Event.addListener(view.container, "DOMMouseScroll", view.wheelScroll, false);
 
-    YAHOO.util.Event.addListener(view.elem, "doubleclick", function (event) {console.log("doubleclick");});
+    YAHOO.util.Event.addListener(view.elem, "doubleclick", function (event) {YAHOO.log("doubleclick");});
 
     var zooms = [zoomOut, zoomOut, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomIn, zoomIn];
 
@@ -435,7 +454,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
         if (thisZoom < zooms.length) {
             setTimeout(profile, 3000);
         } else {
-            $('profTime').appendChild(document.createTextNode(" " + (new Date().getTime() - startTime) / 1000));
+            $('myLogger').appendChild(document.createTextNode(" " + (new Date().getTime() - startTime) / 1000));
 	    thisZoom = 0;
 	}
     }
@@ -972,7 +991,7 @@ GenomeView.prototype.addTrack = function(track) {
     var bottom = pos.y + this.dim.height;
 
     //var elemPos = Position.page(this.elem);
-    //console.log(elemPos);
+    //YAHOO.log(elemPos);
     //labelDiv.style.left = elemPos[0] + "px";
     //labelDiv.style.top = totalHeight - pos.y + "px";
     labelDiv.style.top = "0px";

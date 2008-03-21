@@ -21,22 +21,22 @@
     /* <![CDATA[ */
       var trackList =
           [
-           {url: "gene.json", label: "gene1", className: "feature", height: 11},
-           {url: "gene.json", label: "gene2", className: "feature", height: 11},
-           {url: "gene.json", label: "gene3", className: "feature", height: 11},
-           {url: "gene.json", label: "gene4", className: "feature", height: 11},
-           {url: "exon.json", label: "exon1", className: "exon", height: 9}
+           {type: "SimpleFeatureTrack", url: "gene.json", label: "gene1", className: "feature", height: 12},
+           {type: "SimpleFeatureTrack", url: "gene.json", label: "gene2", className: "feature2", height: 17},
+           {type: "SimpleFeatureTrack", url: "gene.json", label: "gene3", className: "feature3", height: 12},
+           {type: "SimpleFeatureTrack", url: "gene.json", label: "gene4", className: "feature4", height: 15},
+           {type: "SimpleFeatureTrack", url: "exon.json", label: "exon1", className: "exon", height: 9},
+           {type: "SimpleFeatureTrack", url: "gene.json", label: "gene5", className: "feature", height: 12},
+           {type: "SimpleFeatureTrack", url: "gene.json", label: "gene6", className: "feature2", height: 17},
+           {type: "SimpleFeatureTrack", url: "gene.json", label: "gene7", className: "feature3", height: 12},
+           {type: "SimpleFeatureTrack", url: "gene.json", label: "gene8", className: "feature4", height: 15},
+           {type: "SimpleFeatureTrack", url: "exon.json", label: "exon2", className: "exon", height: 9}
 /*
-           {url: "gene.json", label: "gene5", className: "feature", height: 11},
-           {url: "gene.json", label: "gene6", className: "feature", height: 11},
-           {url: "gene.json", label: "gene7", className: "feature", height: 11},
-           {url: "gene.json", label: "gene8", className: "feature", height: 11},
-           {url: "exon.json", label: "exon2", className: "exon", height: 9},
-           {url: "gene.json", label: "gene9", className: "feature", height: 11},
-           {url: "gene.json", label: "gene10", className: "feature", height: 11},
-           {url: "gene.json", label: "gene11", className: "feature", height: 11},
-           {url: "gene.json", label: "gene12", className: "feature", height: 11},
-           {url: "exon.json", label: "exon3", className: "exon", height: 9}
+           {type: "SimpleFeatureTrack", url: "gene.json", label: "gene9", className: "feature", height: 12},
+           {type: "SimpleFeatureTrack", url: "gene.json", label: "gene10", className: "feature2", height: 17},
+           {type: "SimpleFeatureTrack", url: "gene.json", label: "gene11", className: "feature3", height: 12},
+           {type: "SimpleFeatureTrack", url: "gene.json", label: "gene12", className: "feature4", height: 15},
+           {type: "SimpleFeatureTrack", url: "exon.json", label: "exon3", className: "exon", height: 9}
 */
           ];
     /* ]]> */
@@ -54,9 +54,9 @@
     &nbsp;&nbsp;&nbsp;
     <button id="profile" class="nav" style="display:none">demo</button>
     <!--&nbsp;&nbsp;&nbsp;-->
-    <span id="profTime" style="display:none">profile time: </span>
+    <div id="myLogger" style="display:none"></div>
 
-    <div id="genomeBrowser" class="dragWindow" style="left: 2%; top: 3em; width: 96%; bottom: 20px;">
+    <div id="genomeBrowser" class="dragWindow" style="left: 2%; top: 3em; width: 96%; height: 800px;">
     </div>
   </body>
 </html>

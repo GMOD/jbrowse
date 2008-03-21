@@ -81,30 +81,105 @@ div.track-label {
     cursor: move;
 }
 
-div.plus-feature {
+div.feature-label {
+    position: absolute;
+    font-family: monospace;
+    border: 0px;
+    margin: 0px;
+    padding: 0px;
+}
+
+div.plus-feature,
+div.minus-feature {
     position:absolute;
-    height: 11px;
-    background-image: url('img/plus-herringbone11.png');
+    height: 8px;
     background-repeat: repeat-x;
     cursor: pointer;
     min-width: 1px;
+    padding-top: 8px;
     z-index: 10;
 }
 
-div.minus-feature {
-    position:absolute;
-    height: 11px;
-    background-image: url('img/minus-herringbone11.png');
-    background-repeat: repeat-x;
-    cursor: pointer;
-    min-width: 1px;
-    z-index: 10;
-}
+div.plus-feature { background-image: url('img/plus-chevron2.png'); }
+
+div.minus-feature { background-image: url('img/minus-chevron2.png'); }
 
 div.hist-feature {
     position: absolute;
-    background-color: yellow;
+    background-color: blue;
     border-color: lightblue;
+    border-style: solid;
+    border-width: 1px;
+    z-index: 10;
+}
+
+div.plus-feature2,
+div.minus-feature2 {
+    position:absolute;
+    height: 15px;
+    background-repeat: repeat-x;
+    cursor: pointer;
+    min-width: 1px;
+    padding-top: 15px;
+    z-index: 10;
+}
+
+div.plus-feature2 { background-image: url('img/plus-herringbone16.png'); }
+
+div.minus-feature2 { background-image: url('img/minus-herringbone16.png'); }
+
+div.hist-feature2 {
+    position: absolute;
+    background-color: grey;
+    border-color: green;
+    border-style: solid;
+    border-width: 1px;
+    z-index: 10;
+}
+
+div.plus-feature3,
+div.minus-feature3 {
+    position:absolute;
+    height: 8px;
+    background-repeat: repeat-x;
+    cursor: pointer;
+    min-width: 1px;
+    padding-top: 8px;
+    z-index: 10;
+}
+
+div.plus-feature3 { background-image: url('img/plus-chevron.png'); }
+
+div.minus-feature3 { background-image: url('img/minus-chevron.png'); }
+
+div.hist-feature3 {
+    position: absolute;
+    background-color: yellow;
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    z-index: 10;
+}
+
+div.plus-feature4,
+div.minus-feature4 {
+    position:absolute;
+    height: 12px;
+    background-repeat: repeat-x;
+    cursor: pointer;
+    min-width: 1px;
+    padding-top: 12px;
+    z-index: 10;
+}
+
+div.plus-feature4 { background-image: url('img/plus-pacman.png'); }
+
+div.minus-feature4 { background-image: url('img/minus-pacman.png'); }
+
+div.hist-feature4 {
+    position: absolute;
+    background-color: yellow;
+    border-color: black;
     border-style: solid;
     border-width: 1px;
     z-index: 10;

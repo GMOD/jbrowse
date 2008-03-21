@@ -1,6 +1,6 @@
 
 function SimpleFeatureTrack(name, featArray, className, levelHeight, refSeq,
-			    histScale, padding) {
+			    histScale, labelScale, padding) {
     //className: CSS class for the features
     //padding: min pixels between each feature horizontally
 
@@ -13,12 +13,21 @@ function SimpleFeatureTrack(name, featArray, className, levelHeight, refSeq,
     this.levelHeight = levelHeight;
     this.refSeq = refSeq;
     this.histScale = histScale;
+    this.labelScale = labelScale;
     this.numBins = 25;
     this.histLabel = false;
     this.padding = padding;
 }
 
 SimpleFeatureTrack.prototype = new Track("");
+
+SimpleFeatureTrack.prototype.setViewInfo = function(numBlocks, trackDiv,
+                                                    labelDiv, widthPct,
+                                                    widthPx) {
+    Track.prototype.setViewInfo.apply(this, [numBlocks, trackDiv, labelDiv,
+                                             widthPct, widthPx]);
+    this.setLabel(this.name);
+}
 
 SimpleFeatureTrack.prototype.getFeatures = function(startBase, endBase) {
     var result = Array();
@@ -131,9 +140,25 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 
     var slots = [];
     var needLeftSlots = false;
+
+    //are we filling right-to-left (true) or left-to-right (false)?
+    //this affects how we do layout
     var goLeft = false;
 
     var tmp;
+
+    //determine dimensions of labels (height, per-character width)
+    if (!("nameHeight" in this)) {
+	var heightTest = document.createElement("div");
+	heightTest.className = "feature-label";
+	heightTest.style.height = "auto";
+	heightTest.style.visibility = "hidden";
+	heightTest.appendChild(document.createTextNode("1234567890"));
+	document.body.appendChild(heightTest);
+	this.nameHeight = heightTest.clientHeight;
+	this.nameWidth = heightTest.clientWidth / 10;
+	document.body.removeChild(heightTest);
+    }
 
     if (leftBlock !== undefined) {
         slots = leftBlock.rightSlots.concat();
@@ -149,9 +174,6 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
         needLeftSlots = true;
         //curFeats.sort(function(a, b) {return a.start - b.start;});
     }
-
-    var basePadding = this.padding / scale;
-    basePadding = Math.max(1, basePadding);
 
     //var levels = Array(curFeats.length);
 
@@ -179,8 +201,17 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     //for (var i = 0; i < curFeats.length; i++) {
     //    if (levels[i] === undefined) continue;
     //    feature = curFeats[i];
+    var glyphHeight = this.levelHeight;
     var levelHeight = this.levelHeight;
     var className = this.className;
+    var labelScale = this.labelScale;
+    var basePadding = this.padding / scale;
+    var basesPerLabelChar = this.nameWidth / scale;
+    if (scale > labelScale) {
+	levelHeight += this.nameHeight + (levelHeight >> 1);
+	//basePadding = Math.max(basePadding, 150 / scale);
+    }
+    basePadding = Math.max(1, basePadding);
     var featCallback = function(feature) {
         featDiv = document.createElement("div");
 	featDiv.feature = feature;
@@ -196,13 +227,27 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
         }
 
         var level;
+
+	var featureEnd = feature[1];
+	//featureEnd is how far right the feature extends,
+	//including its label if applicable
+	if (scale > labelScale)
+	    featureEnd = Math.max(featureEnd, 
+				  feature[0] + (feature[3].length 
+						* basesPerLabelChar));
         slotLoop: for (var j = 0; j < slots.length; j++) {
             if (feature === slots[j].feature) return; //does this catch all repeats?
-            if (((slots[j].feature[1] + basePadding) >= feature[0])
-                && ((slots[j].feature[0] - basePadding) <= feature[1])) {
+	    //otherEnd is how far right the other feature extends,
+	    //including its label if applicable
+	    var otherEnd = slots[j].feature[1];
+	    if (scale > labelScale) otherEnd = Math.max(otherEnd, slots[j].feature[0] + (slots[j].feature[3].length * basesPerLabelChar));
+
+            if (((otherEnd + basePadding) >= feature[0])
+                && ((slots[j].feature[0] - basePadding) <= featureEnd)) {
+		//this feature overlaps
                 continue;
             } else {
-                slots[j] = featDiv;//feature;
+                slots[j] = featDiv;
                 level = j;
                 maxLevel = Math.max(j, maxLevel);
                 break;
@@ -227,6 +272,16 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
             + "top: " + (level * levelHeight) + levelUnits + ";"
             //+ " width: " + (100 * ((feature.end - feature.start) / blockWidth)) + "%;";
             + " width: " + (100 * ((feature[1] - feature[0]) / blockWidth)) + "%;";
+
+        if (scale > labelScale) {
+            var labelDiv = document.createElement("div");
+            labelDiv.className = "feature-label";
+            labelDiv.appendChild(document.createTextNode(feature[3]));
+            labelDiv.style.cssText = 
+                "left: " + (100 * (feature[0] - leftBase) / blockWidth) + "%; "
+                + "top: " + ((level * levelHeight) + glyphHeight) + levelUnits + ";";
+            block.appendChild(labelDiv);
+        }
 
 	//ie6 doesn't respect the height style if the div is empty
         if (Util.is_ie6) featDiv.appendChild(document.createComment());
@@ -253,8 +308,15 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     //  C      |  --
     var tmpSlots = [];
     for (var i = slots.length - 1; i >= 0; i--) {
+	var featureEnd = slots[i].feature[1];
+	//featureEnd is how far right the feature extends,
+	//including its label if applicable
+	if (scale > labelScale)
+	    featureEnd = Math.max(featureEnd, 
+				  slots[i].feature[0] + (slots[i].feature[3].length 
+							 * basesPerLabelChar));
         if ((slots[i].feature[0] - basePadding <= endBase) 
-            && (slots[i].feature[1] + basePadding >= endBase)) {
+            && (featureEnd + basePadding >= endBase)) {
             tmpSlots = slots.slice(0, i + 1);
             break;
         }
@@ -281,7 +343,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 //         block.leftSlots = leftSlots;
     }
 
-    return ((maxLevel + 1) * this.levelHeight);
+    return ((maxLevel + 1) * levelHeight);
 }
 
 SimpleFeatureTrack.prototype.layout = function(features, levels, slots, basePadding) {
