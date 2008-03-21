@@ -36,6 +36,7 @@ ImageTrack.prototype.getZoom = function(scale) {
 ImageTrack.prototype.getImages = function(zoom, startBase, endBase) {
     var startTile = ((startBase - this.refSeq.start) / zoom.basesPerTile) | 0;
     var endTile = ((endBase - this.refSeq.start) / zoom.basesPerTile) | 0;
+    startTile = Math.max(startTile, 0);
     var result = [];
     var im;
     for (var i = startTile; i <= endTile; i++) {
