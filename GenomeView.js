@@ -303,8 +303,9 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 
     view.mouseDown = function(event) {
         if ("animation" in view) view.animation.stop();
-	if (event.shiftKey) return;
 	if (Util.isRightButton(event)) return;
+        YAHOO.util.Event.stopEvent(event);
+	if (event.shiftKey) return;
         //don't follow clicks on the scrollbar
         //if ((YAHOO.util.Event.getPageX(event) - YAHOO.util.Dom.getX(view.elem))
         //    > view.dim.width) return;
@@ -320,7 +321,6 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 	
 	document.body.style.cursor = "url(\"closedhand.cur\"), move";
 	view.elem.style.cursor = "url(\"closedhand.cur\"), move";
-        YAHOO.util.Event.stopEvent(event);
     }
 
     view.mouseup = function(event) {
