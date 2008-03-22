@@ -509,6 +509,10 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     YAHOO.util.Event.addListener(view.elem, "scroll", view.scrollHandler);
 }
 
+GenomeView.prototype.checkY = function(y) {
+    return Math.min((y < 0 ? 0 : y), this.container.clientHeight - this.dim.height);
+}
+
 GenomeView.prototype.updatePosLabels = function(newY) {
     if (newY === undefined) newY = this.getY();
     this.staticTrack.div.style.top = newY + "px";
@@ -833,10 +837,13 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 
     var top = pos.y - (this.drawMargin * this.dim.height);
     var bottom = pos.y + ((1 + this.drawMargin) * this.dim.height);
+    var middle = top + ((bottom - top) / 2);
 
     var trackTop, trackBottom, trackHeight;
     var bpPerBlock = Math.round(this.stripeWidth / this.pxPerBp);
     var trackTop = this.topSpace();
+    var oldBottom = trackTop;
+    var middleDelta;
 
     this.staticTrack.showRange(leftVisible, rightVisible,
 			       this.stripes[leftVisible].startBase,
@@ -844,6 +851,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 			       this.pxPerBp);
     this.trackIterate(function(track, gv) {
             trackBottom = trackTop + track.height;
+	    oldBottom += track.height + gv.trackPadding;
             //if track is within the draggable range,
             if ((trackBottom > top) && (trackTop < bottom)) {
 		//show blocks for the track
@@ -853,11 +861,16 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
                                     bpPerBlock,
                                     gv.pxPerBp);
 		//trackHeight = Math.max(trackHeight, track.label.offsetHeight);
-		if (updateHeight && (track.height != trackHeight)) {
-                    //YAHOO.log("updating height for track " + track.name);
-		    track.div.style.height = trackHeight + "px";
-		    track.height = trackHeight;
-		    trackBottom = trackTop + trackHeight;
+		if (updateHeight) {
+		    if ((middleDelta === undefined) && (oldBottom > middle))
+			middleDelta = trackTop - (oldBottom - track.height - gv.trackPadding);
+			
+		    if (track.height != trackHeight) {
+			//YAHOO.log("updating height for track " + track.name);
+			track.div.style.height = trackHeight + "px";
+			track.height = trackHeight;
+			trackBottom = trackTop + trackHeight;
+		    }
 		}
                 //if (trackHeight > track.height) {
 		    //YAHOO.log("increasing height for track " + track.name + " from " + track.height + " to " + trackHeight);
@@ -875,6 +888,12 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 	if (trackTop != this.containerHeight) {
 	    this.container.style.height = trackTop + "px";
 	    this.containerHeight = trackTop;
+	}
+	var y = this.getY();
+	if (y > 0) {
+	    y = this.checkY(this.getY() + middleDelta);
+	    this.updatePosLabels(y);
+	    this.setY(y);
 	}
     }
 }
