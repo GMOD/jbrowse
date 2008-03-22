@@ -51,6 +51,15 @@ div.pos-label {
     z-index: 100;
 }
 
+div.blank-block {
+    position: absolute;
+    overflow: visible;
+    top: 0px;
+    height: 100%;
+    background-color: #eee;
+    z-index: 19;
+}
+
 div.sequence {
     position: absolute;
     left: 0px;
@@ -96,7 +105,6 @@ div.minus-feature {
     background-repeat: repeat-x;
     cursor: pointer;
     min-width: 1px;
-    padding-top: 8px;
     z-index: 10;
 }
 
@@ -120,7 +128,6 @@ div.minus-feature2 {
     background-repeat: repeat-x;
     cursor: pointer;
     min-width: 1px;
-    padding-top: 15px;
     z-index: 10;
 }
 
@@ -144,7 +151,6 @@ div.minus-feature3 {
     background-repeat: repeat-x;
     cursor: pointer;
     min-width: 1px;
-    padding-top: 8px;
     z-index: 10;
 }
 
@@ -168,7 +174,6 @@ div.minus-feature4 {
     background-repeat: repeat-x;
     cursor: pointer;
     min-width: 1px;
-    padding-top: 12px;
     z-index: 10;
 }
 

@@ -94,7 +94,7 @@ SimpleFeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
     //Any child features of sourceBlock that extend onto destBlock should get
     //moved onto destBlock.
 
-    if (!(sourceBlock || destBlock)) return;
+    if (!(sourceBlock && destBlock)) return;
 
     var sourceSlots;
     if (sourceBlock.startBase < destBlock.startBase)
@@ -117,9 +117,13 @@ SimpleFeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
 	if ((sourceSlot.parentNode === sourceBlock)
 	    && (sourceSlot.feature[1] > destLeft)
 	    && (sourceSlot.feature[0] < destRight)) {
-            sourceSlot.style.left = 
-		(100 * (sourceSlot.feature[0] - destLeft) / blockWidth) + "%";
+	    var featLeft = (100 * (sourceSlot.feature[0] - destLeft) / blockWidth);
+            sourceSlot.style.left = featLeft + "%";
 	    destBlock.appendChild(sourceSlot);
+	    if ("label" in sourceSlot) {
+		sourceSlot.label.style.left = featLeft + "%";
+		destBlock.appendChild(sourceSlot.label);
+	    }
 	}
     }	    
 }
@@ -280,6 +284,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
             labelDiv.style.cssText = 
                 "left: " + (100 * (feature[0] - leftBase) / blockWidth) + "%; "
                 + "top: " + ((level * levelHeight) + glyphHeight) + levelUnits + ";";
+	    featDiv.label = labelDiv;
             block.appendChild(labelDiv);
         }
 
@@ -306,22 +311,24 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     //  A  --  |
     //  B    --|--
     //  C      |  --
-    var tmpSlots = [];
-    for (var i = slots.length - 1; i >= 0; i--) {
-	var featureEnd = slots[i].feature[1];
-	//featureEnd is how far right the feature extends,
-	//including its label if applicable
-	if (scale > labelScale)
-	    featureEnd = Math.max(featureEnd, 
-				  slots[i].feature[0] + (slots[i].feature[3].length 
-							 * basesPerLabelChar));
-        if ((slots[i].feature[0] - basePadding <= endBase) 
-            && (featureEnd + basePadding >= endBase)) {
-            tmpSlots = slots.slice(0, i + 1);
-            break;
-        }
-    }
-    slots = tmpSlots;
+//     var tmpSlots = [];
+//     for (var i = slots.length - 1; i >= 0; i--) {
+// 	var featureEnd = slots[i].feature[1];
+// 	//featureEnd is how far right the feature extends,
+// 	//including its label if applicable
+// 	if (scale > labelScale)
+// 	    featureEnd = Math.max(featureEnd, 
+// 				  slots[i].feature[0] + (slots[i].feature[3].length 
+// 							 * basesPerLabelChar));
+//         if ((slots[i].feature[0] - basePadding <= endBase) 
+//             && (featureEnd + basePadding >= endBase)) {
+//             tmpSlots = slots.slice(0, i + 1);
+//             break;
+//         }
+//     }
+//     slots = tmpSlots;
+
+    //slots = slots.slice(0, maxLevel);
 
     if (leftBlock !== undefined) {
         block.rightSlots = slots;

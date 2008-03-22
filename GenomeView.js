@@ -170,7 +170,10 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     //this prevents us from scrolling off the left end of the ref seq
     this.minLeft = this.bpToPx(this.startbp);
     //distance, in pixels, between each track
-    this.trackPadding = 20;
+    this.trackPadding = 30;
+    //extra margin to draw around the visible area, in multiples of the visible area
+    //0: draw only the visible area; 0.1: draw an extra 10% around the visible area, etc.
+    this.drawMargin = 0.2;
     this.trackHeights = [];
     this.trackTops = []
     this.trackLabels = [];
@@ -367,9 +370,9 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
             //distance = Math.min(view.minLeft + view.offset, distance);
 	    var pos = view.getPosition();
 	    view.trimVertical(pos.y);
-            view.showVisibleBlocks(false, pos,
-                                   pos.x - distance,
-                                   pos.x + view.dim.width);
+//             view.showVisibleBlocks(false, pos,
+//                                    pos.x - distance,
+//                                    pos.x + view.dim.width);
             YAHOO.util.Event.removeListener(view.elem, "scroll", view.scrollHandler);
             YAHOO.util.Event.stopEvent(event);
             new Slider(view, afterSlide,
@@ -382,9 +385,9 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
             //                    distance);
 	    var pos = view.getPosition();
 	    view.trimVertical(pos.y);
-            view.showVisibleBlocks(false, pos,
-                                   pos.x,
-                                   pos.x + view.dim.width - distance);
+//             view.showVisibleBlocks(false, pos,
+//                                    pos.x,
+//                                    pos.x + view.dim.width - distance);
             YAHOO.util.Event.removeListener(view.elem, "scroll", view.scrollHandler);
             YAHOO.util.Event.stopEvent(event);
             new Slider(view, afterSlide, 
@@ -414,6 +417,12 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 
     view.zoomCallback = function() {view.zoomUpdate()};
 
+    var wheelScrollTimeout = null;
+    var wheelScrollUpdate = function() {
+	view.showVisibleBlocks(true);
+	wheelScrollTimeout = null;
+    }
+
     view.wheelScroll = function(e) {
         //remains of an experiment with scroll wheel zooming
         //it's nice, but working around firefox bugs is tricky
@@ -433,7 +442,10 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 			    view.container.clientHeight - view.dim.height);
 	view.updatePosLabels(newY);
 	view.setY(newY);
-	view.showVisibleBlocks(true);
+	if (wheelScrollTimeout)
+	    clearTimeout(wheelScrollTimeout);
+	wheelScrollTimeout = setTimeout(wheelScrollUpdate, 100);
+	//view.showVisibleBlocks(true);
 	//view.heightUpdate();
 	//view.updateTrackLabels();
 	YAHOO.util.Event.stopEvent(e);
@@ -642,7 +654,7 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc) {
     if (this.curZoom < (this.zoomLevels.length - 1)) {
 	this.showWait();
 	var pos = this.getPosition();
-	this.showVisibleBlocks(false, pos, pos.x, pos.x + this.dim.width);
+	//this.showVisibleBlocks(false, pos, pos.x, pos.x + this.dim.width);
 	this.trimVertical(pos.y);
 	for (var i = 0; i < this.stripeCount; i++) {
 	    if ((((i + 1) * this.stripeWidth) < pos.x)
@@ -800,8 +812,6 @@ GenomeView.prototype.scrollUpdate = function() {
     for (track = 0; track < this.tracks.length; track++)
 	this.tracks[track].moveBlocks(dStripes);
 
-    //TODO: re-add features from deleted stripes
-
     this.stripes = newStripes;
     var newX = x + (dStripes * this.stripeWidth);
     this.updateTrackLabels(newX);
@@ -812,14 +822,14 @@ GenomeView.prototype.scrollUpdate = function() {
 
 GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, endX) {
     if (pos === undefined) pos = this.getPosition();
-    if (startX === undefined) startX = pos.x - this.dim.width;
-    if (endX === undefined) endX = pos.x + (2 * this.dim.width);
+    if (startX === undefined) startX = pos.x - (this.drawMargin * this.dim.width);
+    if (endX === undefined) endX = pos.x + ((1 + this.drawMargin) * this.dim.width);
     var leftVisible = Math.max(0, (startX / this.stripeWidth) | 0);
     var rightVisible = Math.min(this.stripeCount - 1,
-                               Math.ceil(endX / this.stripeWidth));
+                               (endX / this.stripeWidth) | 0);
 
-    var top = pos.y - this.dim.height;
-    var bottom = pos.y + (2 * this.dim.height);
+    var top = pos.y - (this.drawMargin * this.dim.height);
+    var bottom = pos.y + ((1 + this.drawMargin) * this.dim.height);
 
     var trackTop, trackBottom, trackHeight;
     var bpPerBlock = Math.round(this.stripeWidth / this.pxPerBp);
@@ -851,6 +861,8 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
                 //    track.div.style.height = trackHeight + "px";
                 //    track.height = trackHeight;
                 //}
+	    } else {
+		//track.hideAll();
 	    }
             trackTop = trackBottom + gv.trackPadding;
         });
@@ -1000,9 +1012,13 @@ GenomeView.prototype.addTrack = function(track) {
                                                      this.colorArray.length];
     trackDiv.appendChild(labelDiv);
 
-    var leftVisible = Math.max(0, ((pos.x - this.dim.width) / this.stripeWidth) | 0);
+//     var leftVisible = Math.max(0, ((pos.x - this.dim.width) / this.stripeWidth) | 0);
+//     var rightVisible = Math.min(this.stripeCount - 1,
+// 				Math.ceil((pos.x + (2 * this.dim.width)) 
+// 					  / this.stripeWidth));
+    var leftVisible = Math.max(0, ((pos.x) / this.stripeWidth) | 0);
     var rightVisible = Math.min(this.stripeCount - 1,
-				Math.ceil((pos.x + (2 * this.dim.width)) 
+				Math.ceil((pos.x + this.dim.width) 
 					  / this.stripeWidth));
 
     var bpPerBlock = Math.round(this.stripeWidth / this.pxPerBp);
