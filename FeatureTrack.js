@@ -114,15 +114,16 @@ SimpleFeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
 	//and if the feature overlaps destBlock,
 	//move to destBlock & re-position
 	sourceSlot = sourceSlots[i];
-	if ((sourceSlot.parentNode === sourceBlock)
-	    && (sourceSlot.feature[1] > destLeft)
-	    && (sourceSlot.feature[0] < destRight)) {
-	    var featLeft = (100 * (sourceSlot.feature[0] - destLeft) / blockWidth);
-            sourceSlot.style.left = featLeft + "%";
-	    destBlock.appendChild(sourceSlot);
-	    if ("label" in sourceSlot) {
-		sourceSlot.label.style.left = featLeft + "%";
-		destBlock.appendChild(sourceSlot.label);
+	if (sourceSlot && (sourceSlot.parentNode === sourceBlock)) {
+	    if ((sourceSlot.feature[1] > destLeft)
+		&& (sourceSlot.feature[0] < destRight)) {
+		var featLeft = (100 * (sourceSlot.feature[0] - destLeft) / blockWidth);
+		sourceSlot.style.left = featLeft + "%";
+		destBlock.appendChild(sourceSlot);
+		if ("label" in sourceSlot) {
+		    sourceSlot.label.style.left = featLeft + "%";
+		    destBlock.appendChild(sourceSlot.label);
+		}
 	    }
 	}
     }	    
@@ -143,13 +144,10 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     //returns: height of the block, in pixels
 
     var slots = [];
-    var needLeftSlots = false;
 
     //are we filling right-to-left (true) or left-to-right (false)?
     //this affects how we do layout
     var goLeft = false;
-
-    var tmp;
 
     //determine dimensions of labels (height, per-character width)
     if (!("nameHeight" in this)) {
@@ -164,31 +162,22 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	document.body.removeChild(heightTest);
     }
 
+    startSlots = new Array();
     if (leftBlock !== undefined) {
         slots = leftBlock.rightSlots.concat();
-        block.leftSlots = leftBlock.rightSlots;
-        //curFeats.sort(function(a, b) {return a.start - b.start;});
+        block.leftSlots = startSlots;
     } else if (rightBlock !== undefined) {
         slots = rightBlock.leftSlots.concat();
-        block.rightSlots = rightBlock.leftSlots;
+        block.rightSlots = startSlots;
         goLeft = true;
-        //curFeats.sort(function(a, b) {return b.end - a.end;});
-        //curFeats.sort(function(a, b) {return b[1] - a[1];});
     } else {
-        needLeftSlots = true;
-        //curFeats.sort(function(a, b) {return a.start - b.start;});
+	block.leftSlots = startSlots;
     }
 
-    //var levels = Array(curFeats.length);
-
     var levelUnits = "px";
-
     var blockWidth = rightBase - leftBase;
-
-    //var maxLevel = this.layout(curFeats, levels, slots, basePadding);
     var maxLevel = 0;
 
-    //var callback = function(event) { alert("clicked on feature " + Event.element(event).feature.ID) };
     var callback = function(event) {
 	event = event || window.event;
 	if (event.shiftKey) return;
@@ -199,26 +188,49 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	      ", ID: " + feat[3]);
     };
 
-    var feature;
     var featDiv;
     var leftSlots = new Array();
-    //for (var i = 0; i < curFeats.length; i++) {
-    //    if (levels[i] === undefined) continue;
-    //    feature = curFeats[i];
     var glyphHeight = this.levelHeight;
     var levelHeight = this.levelHeight;
     var className = this.className;
     var labelScale = this.labelScale;
-    var basePadding = this.padding / scale;
+    var basePadding = Math.max(1, this.padding / scale);
     var basesPerLabelChar = this.nameWidth / scale;
-    if (scale > labelScale) {
-	levelHeight += this.nameHeight + (levelHeight >> 1);
-	//basePadding = Math.max(basePadding, 150 / scale);
-    }
-    basePadding = Math.max(1, basePadding);
+    if (scale > labelScale) levelHeight += this.nameHeight + (levelHeight >> 1);
+
     var featCallback = function(feature) {
+        var level;
+	//featureEnd is how far right the feature extends,
+	//including its label if applicable
+	var featureEnd = feature[1];
+	if (scale > labelScale)
+	    featureEnd = Math.max(featureEnd, 
+				  feature[0] + (feature[3].length 
+						* basesPerLabelChar));
+        slotLoop: for (var j = 0; j < slots.length; j++) {
+	    if (!slots[j]) {
+		level = j;
+		break;
+	    }
+            if (feature === slots[j].feature) {
+		if (!startSlots[j]) startSlots[j] = slots[j];
+		return; //does this catch all repeats?
+	    }
+	    var otherEnd = slots[j].feature[1];
+	    if (scale > labelScale) otherEnd = Math.max(otherEnd, slots[j].feature[0] + (slots[j].feature[3].length * basesPerLabelChar));
+            if (((otherEnd + basePadding) >= feature[0])
+                && ((slots[j].feature[0] - basePadding) <= featureEnd)) {
+		//this feature overlaps
+                continue;
+            } else {
+                level = j;
+                break;
+            }
+        }
+
         featDiv = document.createElement("div");
 	featDiv.feature = feature;
+	featDiv.layoutEnd = featureEnd;
 
         //featDiv.setAttribute("fName", feature[3]);
         switch (feature[2]) {
@@ -230,44 +242,18 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
             featDiv.className = "minus-" + className; break;
         }
 
-        var level;
-
-	var featureEnd = feature[1];
-	//featureEnd is how far right the feature extends,
-	//including its label if applicable
-	if (scale > labelScale)
-	    featureEnd = Math.max(featureEnd, 
-				  feature[0] + (feature[3].length 
-						* basesPerLabelChar));
-        slotLoop: for (var j = 0; j < slots.length; j++) {
-            if (feature === slots[j].feature) return; //does this catch all repeats?
-	    //otherEnd is how far right the other feature extends,
-	    //including its label if applicable
-	    var otherEnd = slots[j].feature[1];
-	    if (scale > labelScale) otherEnd = Math.max(otherEnd, slots[j].feature[0] + (slots[j].feature[3].length * basesPerLabelChar));
-
-            if (((otherEnd + basePadding) >= feature[0])
-                && ((slots[j].feature[0] - basePadding) <= featureEnd)) {
-		//this feature overlaps
-                continue;
-            } else {
-                slots[j] = featDiv;
-                level = j;
-                maxLevel = Math.max(j, maxLevel);
-                break;
-            }
-        }
         if (level === undefined) {
-            slots.push(featDiv);//feature);
+	    //create a new slot
+            slots.push(featDiv);
             level = slots.length - 1;
-        }
+        } else {
+	    //div goes into an existing slot
+	    slots[level] = featDiv;
+	}
+
         maxLevel = Math.max(level, maxLevel);
 
-        if (needLeftSlots) {
-            if ((feature[0] - basePadding <= leftBase) 
-                && (feature[1] + basePadding >= leftBase))
-                leftSlots[level] = featDiv;//feature;
-        }
+	if (!startSlots[level]) startSlots[level] = featDiv;
 
         featDiv.style.cssText = 
             //"left: " + (100 * (feature.start - leftBase) / blockWidth) + "%; "
@@ -302,53 +288,10 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 
     this.features.iterate(startBase, endBase, featCallback);
 
-    //clear the last non-edge features out of slots
-    //while keeping early non-edge features
-    // e.g., keep features A and B but not C
-    // (this is necessary when the user goes back and forth)
-    // (we keep A because we just want to truncate slots; we
-    //  keep everything down to and including B)
-    //  A  --  |
-    //  B    --|--
-    //  C      |  --
-//     var tmpSlots = [];
-//     for (var i = slots.length - 1; i >= 0; i--) {
-// 	var featureEnd = slots[i].feature[1];
-// 	//featureEnd is how far right the feature extends,
-// 	//including its label if applicable
-// 	if (scale > labelScale)
-// 	    featureEnd = Math.max(featureEnd, 
-// 				  slots[i].feature[0] + (slots[i].feature[3].length 
-// 							 * basesPerLabelChar));
-//         if ((slots[i].feature[0] - basePadding <= endBase) 
-//             && (featureEnd + basePadding >= endBase)) {
-//             tmpSlots = slots.slice(0, i + 1);
-//             break;
-//         }
-//     }
-//     slots = tmpSlots;
-
-    //slots = slots.slice(0, maxLevel);
-
-    if (leftBlock !== undefined) {
-        block.rightSlots = slots;
-    } else if (rightBlock !== undefined) {
-        block.leftSlots = slots;
-    } else {
-        block.rightSlots = slots;
-        block.leftSlots = leftSlots;
-
-//         var leftOverlapping = [];
-//         for (var i = 0, len = curFeats.length; i < len; i++) {
-//             //if (curFeats[i].start <= leftBase)
-//             if (curFeats[i][0] <= leftBase)
-//                 leftOverlapping.push(i);
-//         }
-//         var leftSlots = Array(leftOverlapping.length);
-//         for (var i = 0; i < leftOverlapping.length; i++)
-//             leftSlots[i] = levels[leftOverlapping[i]];
-//         block.leftSlots = leftSlots;
-    }
+    if (goLeft)
+	block.leftSlots = slots;
+    else
+	block.rightSlots = slots;
 
     return ((maxLevel + 1) * levelHeight);
 }

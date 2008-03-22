@@ -107,9 +107,12 @@ Zoomer.prototype.step = function(pos) {
     this.x = newLeft;
 }
 
+var gview;
+
 function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     //all coordinates are interbase
 
+    gview = this;
 
     //measure text width for the max zoom level
     var widthTest = document.createElement("div");
@@ -438,7 +441,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
         //else
         //    zoomOut(e, zoomLoc);
 	var oldY = view.getY();
-	var newY = Math.min(Math.max(0, oldY - 50 * Util.wheel(e)), 
+	var newY = Math.min(Math.max(0, oldY - 60 * Util.wheel(e)), 
 			    view.container.clientHeight - view.dim.height);
 	view.updatePosLabels(newY);
 	view.setY(newY);
@@ -904,7 +907,8 @@ GenomeView.prototype.makeStripe = function(startBase, startPercent) {
         seqNode.appendChild(
             document.createTextNode(
                 this.getSeq(startBase, startBase + this.regularStripe / 10)));
-        seqNode.style.cssText = "top: " + (y + (1.2 * this.posHeight)) + "px;";
+        //seqNode.style.cssText = "top: " + (y + (1.2 * this.posHeight)) + "px;";
+	seqNode.style.cssText = "top: " +(1.2 * this.posHeight) + "px;";
         stripe.appendChild(seqNode);
         stripe.seqNode = seqNode;
     }
