@@ -207,14 +207,17 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	    featureEnd = Math.max(featureEnd, 
 				  feature[0] + (feature[3].length 
 						* basesPerLabelChar));
+	for (var j = 0; j < slots.length; j++) {
+	    if (!slots[j]) continue;
+            if (feature === slots[j].feature) {
+		if (!startSlots[j]) startSlots[j] = slots[j];
+		return;
+	    }
+	}
         slotLoop: for (var j = 0; j < slots.length; j++) {
 	    if (!slots[j]) {
 		level = j;
 		break;
-	    }
-            if (feature === slots[j].feature) {
-		if (!startSlots[j]) startSlots[j] = slots[j];
-		return; //does this catch all repeats?
 	    }
 	    var otherEnd = slots[j].feature[1];
 	    if (scale > labelScale) otherEnd = Math.max(otherEnd, slots[j].feature[0] + (slots[j].feature[3].length * basesPerLabelChar));

@@ -8,6 +8,14 @@ Track.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
     this.label = labelDiv;
     this.widthPct = widthPct;
     this.widthPx = widthPx;
+
+    this.leftBlank = document.createElement("div");
+    this.leftBlank.className = "blank-block";
+    this.rightBlank = document.createElement("div");
+    this.rightBlank.className = "blank-block";
+    this.div.appendChild(this.rightBlank);
+    this.div.appendChild(this.leftBlank);
+
     this.sizeInit(numBlocks, widthPct);
     this.labelHTML = "";
     this.labelHeight = 0;
@@ -17,13 +25,13 @@ Track.prototype.initBlocks = function() {
     this.blocks = new Array(this.numBlocks);
     this.blockAttached = new Array(this.numBlocks);
     this.blockHeights = new Array(this.numBlocks);
-    this.emptyBlocks = new Array(this.numBlocks);
     for (i = 0; i < this.numBlocks; i++) {
 	this.blockAttached[i] = false;
 	this.blockHeights[i] = 0;
     }
     this.firstAttached = null;
     this.lastAttached = null;
+    this._adjustBlanks();
     //if (this.div) this.div.style.backgroundColor = "#eee";
 }
 
@@ -31,8 +39,6 @@ Track.prototype.clear = function() {
     if (this.blocks)
 	for (var i = 0; i < this.numBlocks; i++)
 	    if (this.blockAttached[i]) this.div.removeChild(this.blocks[i]);
-    for (var i = 0; i < this.numBlocks; i++)
-	if (this.emptyBlocks[i]) this.div.removeChild(this.emptyBlocks[i]);
     this.initBlocks();
 }
 
@@ -86,26 +92,10 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
         this._hideBlock(i);
     }
 
-    //insert blank blocks
-    for (i = 0; i < this.numBlocks; i++) {
-	if ((i >= first) && (i <= last)) continue;
-	this._addBlank(i);
-    }
-
     this.firstAttached = first;
     this.lastAttached = last;
+    this._adjustBlanks();
     return Math.max(maxHeight, this.labelHeight);// + this.trackPadding;
-}
-
-Track.prototype._addBlank = function(blockIndex) {
-    if (!this.emptyBlocks[blockIndex]) {
-	var blankDiv = document.createElement("div");
-	blankDiv.className = "blank-block";
-	blankDiv.style.left = (blockIndex * this.widthPct) + "%";
-	blankDiv.style.width = this.widthPct + "%";
-	this.div.appendChild(blankDiv);
-	this.emptyBlocks[blockIndex] = blankDiv;
-    }
 }
 
 Track.prototype._hideBlock = function(blockIndex) {
@@ -117,25 +107,35 @@ Track.prototype._hideBlock = function(blockIndex) {
     }
 }
 
+Track.prototype._adjustBlanks = function() {
+    if ((this.firstAttached === null) 
+	|| (this.lastAttached === null)) {
+	this.leftBlank.style.left = "0px";
+	this.leftBlank.style.width = "50%";
+	this.rightBlank.style.left = "50%";
+	this.rightBlank.style.width = "50%";
+    } else {
+	this.leftBlank.style.width = (this.firstAttached * this.widthPct) + "%";
+	this.rightBlank.style.left = ((this.lastAttached + 1)
+				      * this.widthPct) + "%";
+	this.rightBlank.style.width = ((this.numBlocks - this.lastAttached - 1)
+				       * this.widthPct) + "%";
+    }
+}
+
 Track.prototype.hideAll = function() {
     if (null == this.firstAttached) return;
     for (var i = this.firstAttached; i <= this.lastAttached; i++)
 	this._hideBlock(i);
 
-    //insert blank blocks
-    for (i = 0; i < this.numBlocks; i++)
-	this._addBlank(i);
-
+    
     this.firstAttached = null;
     this.lastAttached = null;
+    this._adjustBlanks();
     //this.div.style.backgroundColor = "#eee";
 }
 
 Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
-    if (this.emptyBlocks[blockIndex]) {
-	this.div.removeChild(this.emptyBlocks[blockIndex]);
-	this.emptyBlocks[blockIndex] = null;
-    }
     if (this.blockAttached[blockIndex]) return this.blockHeights[blockIndex];
     if (this.blocks[blockIndex]) {
 	//this.blocks[i].style.left = (blockIndex * this.widthPct) + "%";
@@ -171,7 +171,6 @@ Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
 
 Track.prototype.moveBlocks = function(delta) {
     var newBlocks = new Array(this.numBlocks);
-    var newEmpty = new Array(this.numBlocks);
     var newHeights = new Array(this.numBlocks);
     var newAttached = new Array(this.numBlocks);
     for (i = 0; i < this.numBlocks; i++) {
@@ -204,17 +203,11 @@ Track.prototype.moveBlocks = function(delta) {
 
 	    if (this.blockAttached[i]) this.div.removeChild(this.blocks[i]);
             if (destBlock) this.transfer(this.blocks[i], destBlock);
-	    if (this.emptyBlocks[i]) this.div.removeChild(this.emptyBlocks[i]);
         } else {
             //move block
             newBlocks[newIndex] = this.blocks[i];
             if (newBlocks[newIndex]) 
 		newBlocks[newIndex].style.left =
-		    ((newIndex) * this.widthPct) + "%";
-
-	    newEmpty[newIndex] = this.emptyBlocks[i];
-	    if (newEmpty[newIndex])
-		newEmpty[newIndex].style.left = 
 		    ((newIndex) * this.widthPct) + "%";
 
 	    newHeights[newIndex] = this.blockHeights[i];
@@ -224,7 +217,7 @@ Track.prototype.moveBlocks = function(delta) {
     this.blocks = newBlocks;
     this.blockHeights = newHeights;
     this.blockAttached = newAttached;
-    this.emptyBlocks = newEmpty;
+    this._adjustBlanks();
 }
 
 Track.prototype.heightUpdate = function() {

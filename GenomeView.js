@@ -177,6 +177,9 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     //extra margin to draw around the visible area, in multiples of the visible area
     //0: draw only the visible area; 0.1: draw an extra 10% around the visible area, etc.
     this.drawMargin = 0.2;
+    //slide distance (pixels) * slideTimeMultiple = milliseconds for slide
+    //1=1 pixel per millisecond average slide speed, larger numbers are slower
+    this.slideTimeMultiple = 1.2;
     this.trackHeights = [];
     this.trackTops = []
     this.trackLabels = [];
@@ -379,7 +382,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
             YAHOO.util.Event.removeListener(view.elem, "scroll", view.scrollHandler);
             YAHOO.util.Event.stopEvent(event);
             new Slider(view, afterSlide,
-                       distance * 1.2, distance);
+                       distance * view.slideTimeMultiple, distance);
         });
     YAHOO.util.Event.addListener("moveRight", "click", function(event) {
             if (view.animation) view.animation.stop();
@@ -394,7 +397,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
             YAHOO.util.Event.removeListener(view.elem, "scroll", view.scrollHandler);
             YAHOO.util.Event.stopEvent(event);
             new Slider(view, afterSlide, 
-                       distance * -1.2, distance);
+                       distance * -view.slideTimeMultiple, distance);
         });
 
     function killEvent(event) {
@@ -890,7 +893,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 	    this.containerHeight = trackTop;
 	}
 	var y = this.getY();
-	if (y > 0) {
+	if ((y > 0) && (middleDelta !== undefined)) {
 	    y = this.checkY(this.getY() + middleDelta);
 	    this.updatePosLabels(y);
 	    this.setY(y);
