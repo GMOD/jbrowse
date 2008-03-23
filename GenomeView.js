@@ -179,7 +179,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     this.drawMargin = 0.2;
     //slide distance (pixels) * slideTimeMultiple = milliseconds for slide
     //1=1 pixel per millisecond average slide speed, larger numbers are slower
-    this.slideTimeMultiple = 1.2;
+    this.slideTimeMultiple = 1;
     this.trackHeights = [];
     this.trackTops = []
     this.trackLabels = [];
@@ -597,18 +597,30 @@ GenomeView.prototype.sizeInit = function() {
     var possiblePercents = [20, 10, 5, 4, 2, 1];
     for (var i = 0; i < possiblePercents.length; i++) {
         if (((100 / possiblePercents[i]) * this.stripeWidth)
-            > (this.dim.width * 5)) {
+            > (this.dim.width * 3)) {
             this.stripePercent = possiblePercents[i];
             break;
         }
     }
 
     if (this.stripePercent === undefined)
-        throw new RangeError("stripeWidth too small: " + stripeWidth + ", " + this.dim.width);
+        throw new RangeError("stripeWidth too small: " + this.stripeWidth + ", " + this.dim.width);
 
+    var oldX;
+    var oldStripeCount = this.stripeCount;
+    if (oldStripeCount) oldX = this.getX();
     this.stripeCount = Math.round(100 / this.stripePercent);
 
     this.container.style.width = (this.stripeCount * this.stripeWidth) + "px";
+
+    if (oldStripeCount && (oldStripeCount != this.stripeCount)) {
+	var delta = (Math.floor((oldStripeCount - this.stripeCount) / 2)
+		     * this.stripeWidth);
+	var newX = this.getX() - delta;
+	this.offset += delta;
+	this.updateTrackLabels(newX);
+	this.rawSetX(newX);
+    }
 
     var newHeight = parseInt(this.container.style.height);
     newHeight = (newHeight > this.dim.height ? newHeight : this.dim.height);
@@ -617,11 +629,11 @@ GenomeView.prototype.sizeInit = function() {
     this.containerHeight = newHeight;
 
     if (this.stripes) {
-        this.staticTrack.sizeInit(this.stripeCount, this.stripePercent);
+	this.staticTrack.sizeInit(this.stripeCount, this.stripePercent);
 	for (var track = 0; track < this.tracks.length; track++)
 	    this.tracks[track].sizeInit(this.stripeCount, this.stripePercent);
 
-        for (var i = this.stripeCount - 1; i < this.stripes.length; i++) {
+        for (var i = 0; i < this.stripes.length; i++) {
             if (this.stripes[i]) {
                 this.container.removeChild(this.stripes[i]);
                 this.stripes[i] = undefined;
@@ -632,7 +644,6 @@ GenomeView.prototype.sizeInit = function() {
             if (this.stripes[i]) {
                 this.stripes[i].style.left = (i * this.stripePercent) + "%";
                 this.stripes[i].style.width = this.stripePercent + "%";
-                //this.stripes[i].style.height = newHeight + "px";
             } else {
                 this.stripes[i] = this.makeStripe(this.pxToBp(i * this.stripeWidth + this.offset),
                                                   i * this.stripePercent);
@@ -640,7 +651,6 @@ GenomeView.prototype.sizeInit = function() {
             }
         }
         this.showVisibleBlocks(true);
-	//this.heightUpdate();
     }
 }
 
@@ -837,7 +847,6 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
     var leftVisible = Math.max(0, (startX / this.stripeWidth) | 0);
     var rightVisible = Math.min(this.stripeCount - 1,
                                (endX / this.stripeWidth) | 0);
-
     var top = pos.y - (this.drawMargin * this.dim.height);
     var bottom = pos.y + ((1 + this.drawMargin) * this.dim.height);
     var middle = top + ((bottom - top) / 2);
