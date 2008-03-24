@@ -49,6 +49,7 @@ div.pos-label {
     left: 0px;
     background-color: #ddd;
     z-index: 100;
+    padding: 4px;
 }
 
 div.blank-block {

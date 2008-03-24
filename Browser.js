@@ -8,7 +8,7 @@ Browser.init = function(elemId) {
     viewElem.view = gv;
     var trackNum = 0;
     gv.showWait();
-    gv.addTrack(new ImageTrack("Image_Test", refSeq, 1000, 
+    gv.addTrack(new ImageTrack("Gene_Image", refSeq, 1000, 
                                [
                                 {basesPerTile: 100, height: 68, urlPrefix: "tiles/3R/Genes/100bp/"},
                                 {basesPerTile: 200, height: 64, urlPrefix: "tiles/3R/Genes/200bp/"},

@@ -597,7 +597,7 @@ GenomeView.prototype.sizeInit = function() {
     var possiblePercents = [20, 10, 5, 4, 2, 1];
     for (var i = 0; i < possiblePercents.length; i++) {
         if (((100 / possiblePercents[i]) * this.stripeWidth)
-            > (this.dim.width * 3)) {
+            > (this.dim.width * 5)) {
             this.stripePercent = possiblePercents[i];
             break;
         }
@@ -872,40 +872,37 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
                                     gv.stripes[leftVisible].startBase,
                                     bpPerBlock,
                                     gv.pxPerBp);
-		//trackHeight = Math.max(trackHeight, track.label.offsetHeight);
 		if (updateHeight) {
 		    if ((middleDelta === undefined) && (oldBottom > middle))
 			middleDelta = trackTop - (oldBottom - track.height - gv.trackPadding);
 			
 		    if (track.height != trackHeight) {
-			//YAHOO.log("updating height for track " + track.name);
 			track.div.style.height = trackHeight + "px";
 			track.height = trackHeight;
 			trackBottom = trackTop + trackHeight;
 		    }
 		}
-                //if (trackHeight > track.height) {
-		    //YAHOO.log("increasing height for track " + track.name + " from " + track.height + " to " + trackHeight);
-                //    track.div.style.height = trackHeight + "px";
-                //    track.height = trackHeight;
-                //}
-	    } else {
-		//track.hideAll();
 	    }
             trackTop = trackBottom + gv.trackPadding;
         });
-    //if (trackTop > parseInt(this.container.style.height))
     if (updateHeight) {
 	trackTop = Math.max(trackTop - this.topSpace(), this.dim.height);
 	if (trackTop != this.containerHeight) {
 	    this.container.style.height = trackTop + "px";
 	    this.containerHeight = trackTop;
 	}
+	//keep middle track in the same vertical position,
+	//when track heights change
 	var y = this.getY();
-	if ((y > 0) && (middleDelta !== undefined)) {
-	    y = this.checkY(this.getY() + middleDelta);
-	    this.updatePosLabels(y);
-	    this.setY(y);
+	if (y > 0) {
+	    if (middleDelta !== undefined) {
+		y = this.checkY(this.getY() + middleDelta);
+		this.updatePosLabels(y);
+		this.setY(y);
+	    }
+	} else {
+	    //seems to reduce end-zoom flicker; not sure why
+	    this.setY(0);
 	}
     }
 }

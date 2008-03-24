@@ -64,18 +64,18 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
 
     var i, leftBase;
     var maxHeight = 0;
-    //fill right
-    for (i = firstAttached; i <= last; i++) {
-	leftBase = startBase + (bpPerBlock * (i - first));
-        maxHeight = Math.max(maxHeight,
-                             this._showBlock(i, leftBase,
-					     leftBase + bpPerBlock, scale));
-    }
     //fill left
-    for (i = firstAttached - 1; i >= first; i--) {
+    for (i = lastAttached; i >= first; i--) {
 	leftBase = startBase + (bpPerBlock * (i - first));
         maxHeight = Math.max(maxHeight,
                              this._showBlock(i, leftBase, 
+					     leftBase + bpPerBlock, scale));
+    }
+    //fill right
+    for (i = lastAttached + 1; i <= last; i++) {
+	leftBase = startBase + (bpPerBlock * (i - first));
+        maxHeight = Math.max(maxHeight,
+                             this._showBlock(i, leftBase,
 					     leftBase + bpPerBlock, scale));
     }
 
@@ -207,7 +207,7 @@ Track.prototype.moveBlocks = function(delta) {
             //move block
             newBlocks[newIndex] = this.blocks[i];
             if (newBlocks[newIndex]) 
-		newBlocks[newIndex].style.left =
+		newBlocks[newIndex].style.left = 
 		    ((newIndex) * this.widthPct) + "%";
 
 	    newHeights[newIndex] = this.blockHeights[i];
@@ -231,14 +231,12 @@ Track.prototype.heightUpdate = function() {
 }
 
 Track.prototype.sizeInit = function(numBlocks, widthPct) {
-    var block, i, oldLast;
+    var i, oldLast;
     this.numBlocks = numBlocks;
     this.widthPct = widthPct;
     if (this.blocks && (this.blocks.length > 0)) {
-        for (i = numBlocks; i < this.blocks.length; i++) {
-	    block = this.blocks[i];
-            if (this.blockAttached[i]) this.div.removeChild(block);
-        }
+        for (i = numBlocks; i < this.blocks.length; i++)
+            if (this.blockAttached[i]) this.div.removeChild(this.blocks[i]);
         oldLast = this.blockAttached.length;
         this.blocks = this.blocks.slice(0, numBlocks);
 	this.blockAttached = this.blockAttached.slice(0, numBlocks);
@@ -258,6 +256,7 @@ Track.prototype.sizeInit = function(numBlocks, widthPct) {
         if (this.blocks.length != numBlocks) throw new Error("block number mismatch: should be " + numBlocks + "; blocks.length: " + this.blocks.length);
         for (i = 0; i < numBlocks; i++) {
             if (this.blocks[i]) {
+		//if (!this.blocks[i].style) console.log(this.blocks);
                 this.blocks[i].style.left = (i * widthPct) + "%";
                 this.blocks[i].style.width = widthPct + "%";
             }
