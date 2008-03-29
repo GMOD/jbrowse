@@ -212,7 +212,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
         view.rawSetY = function(y) { view.container.style.top = -y; }
         view.setY = function(y) {
             view.container.style.top = -Math.min((y < 0 ? 0 : y),
-						 view.container.clientHeight
+						 view.containerHeight
 						 - view.dim.height) + "px";
         }
         view.rawSetPosition = function(pos) {
@@ -225,7 +225,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
                            view.minLeft - view.offset)) + "px";
             view.container.style.top =
                 (-Math.min((pos.y < 0 ? 0 : pos.y),
-			   view.container.clientHeight - view.dim.height)) + "px";
+			   view.containerHeight - view.dim.height)) + "px";
         }
     } else {
 	view.x = view.elem.scrollLeft;
@@ -250,7 +250,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
         view.rawSetY = function(y) { view.elem.scrollTop = y; view.y = y; }
         view.setY = function(y) {
 	    view.y = Math.min((y < 0 ? 0 : y),
-			      view.container.clientHeight
+			      view.containerHeight
 			      - view.dim.height);
 	    view.elem.scrollTop = view.y
         }
@@ -263,7 +263,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 			      view.minLeft - view.offset);
             view.elem.scrollLeft = view.x;
 	    view.y = Math.min((pos.y < 0 ? 0 : pos.y),
-			      view.container.clientHeight - view.dim.height);
+			      view.containerHeight - view.dim.height);
             view.elem.scrollTop = view.y;
         }
     }
@@ -301,7 +301,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
                 x: Math.max(Math.min(view.maxLeft - view.offset, x),
                             view.minLeft - view.offset),
                 y: Math.min((y < 0 ? 0 : y),
-                            view.container.clientHeight - view.dim.height)
+                            view.containerHeight - view.dim.height)
             };
 	view.updateTrackLabels(pos.x);
 	view.updatePosLabels(pos.y);
@@ -445,7 +445,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
         //    zoomOut(e, zoomLoc);
 	var oldY = view.getY();
 	var newY = Math.min(Math.max(0, oldY - 60 * Util.wheel(e)), 
-			    view.container.clientHeight - view.dim.height);
+			    view.containerHeight - view.dim.height);
 	view.updatePosLabels(newY);
 	view.setY(newY);
 	if (wheelScrollTimeout)
@@ -513,7 +513,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 }
 
 GenomeView.prototype.checkY = function(y) {
-    return Math.min((y < 0 ? 0 : y), this.container.clientHeight - this.dim.height);
+    return Math.min((y < 0 ? 0 : y), this.containerHeight - this.dim.height);
 }
 
 GenomeView.prototype.updatePosLabels = function(newY) {
@@ -851,54 +851,83 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
     var bottom = pos.y + ((1 + this.drawMargin) * this.dim.height);
     var middle = top + ((bottom - top) / 2);
 
-    var trackTop, trackBottom, trackHeight;
+    var trackHeight;
     var bpPerBlock = Math.round(this.stripeWidth / this.pxPerBp);
     var trackTop = this.topSpace();
-    var oldBottom = trackTop;
-    var middleDelta;
+    var trackBottom = trackTop;
+    var middleDelta = 0;
+
+    var tracks = new Array();
+    var middleIndex = -1;
+    var totalHeight = this.topSpace();
+    var i;
 
     this.staticTrack.showRange(leftVisible, rightVisible,
 			       this.stripes[leftVisible].startBase,
 			       bpPerBlock,
 			       this.pxPerBp);
     this.trackIterate(function(track, gv) {
-            trackBottom = trackTop + track.height;
-	    oldBottom += track.height + gv.trackPadding;
-            //if track is within the draggable range,
-            if ((trackBottom > top) && (trackTop < bottom)) {
-		//show blocks for the track
-                trackHeight =
-                    track.showRange(leftVisible, rightVisible,
-                                    gv.stripes[leftVisible].startBase,
-                                    bpPerBlock,
-                                    gv.pxPerBp);
-		if (updateHeight) {
-		    if ((middleDelta === undefined) && (oldBottom > middle))
-			middleDelta = trackTop - (oldBottom - track.height - gv.trackPadding);
-			
-		    if (track.height != trackHeight) {
-			track.div.style.height = trackHeight + "px";
-			track.height = trackHeight;
-			trackBottom = trackTop + trackHeight;
-		    }
-		}
+ 	    tracks.push(track);
+ 	    if (trackBottom < middle) {
+		middleIndex++;
+		trackTop = trackBottom;
+		trackBottom += track.height + gv.trackPadding;
 	    }
-            trackTop = trackBottom + gv.trackPadding;
-        });
+ 	});
+    trackBottom -= this.trackPadding;
+    //fill up from the middle
+    for (i = middleIndex - 1; i >=0; i--) {
+	if (trackBottom > top) {
+	    //show blocks for the track
+	    trackHeight =
+		tracks[i].showRange(leftVisible, rightVisible,
+				    this.stripes[leftVisible].startBase,
+				    bpPerBlock,
+				    this.pxPerBp);
+	    if (updateHeight && (tracks[i].height != trackHeight)) {
+		tracks[i].div.style.height = trackHeight + "px";
+		middleDelta += (trackHeight - tracks[i].height);
+		tracks[i].height = trackHeight;
+	    }
+	    trackBottom -= tracks[i].height + this.trackPadding;
+	}
+	totalHeight += tracks[i].height + this.trackPadding;
+    }
+    //fill down from the middle
+    for (i = middleIndex; i < tracks.length; i++) {
+	if (trackTop < bottom) {
+	    //show blocks for the track
+	    trackHeight =
+	        tracks[i].showRange(leftVisible, rightVisible,
+				    this.stripes[leftVisible].startBase,
+				    bpPerBlock,
+				    this.pxPerBp);
+	    if (updateHeight && (tracks[i].height != trackHeight)) {
+		tracks[i].div.style.height = trackHeight + "px";
+		tracks[i].height = trackHeight;
+	    }
+	    trackTop += tracks[i].height + this.trackPadding;
+	}
+	totalHeight += tracks[i].height + this.trackPadding;
+    }
+
     if (updateHeight) {
-	trackTop = Math.max(trackTop - this.topSpace(), this.dim.height);
-	if (trackTop != this.containerHeight) {
-	    this.container.style.height = trackTop + "px";
-	    this.containerHeight = trackTop;
+	totalHeight = Math.max(totalHeight, this.dim.height);
+	if (totalHeight != this.containerHeight) {
+	    this.container.style.height = totalHeight + "px";
+	    this.containerHeight = totalHeight;
 	}
 	//keep middle track in the same vertical position,
-	//when track heights change
+	//when track heights change (otherwise it's easy to lose your place)
 	var y = this.getY();
 	if (y > 0) {
-	    if (middleDelta !== undefined) {
+	    if (middleDelta) {
 		y = this.checkY(this.getY() + middleDelta);
 		this.updatePosLabels(y);
 		this.setY(y);
+		//the setY call may expose previously un-rendered blocks,
+		//so we need to do another showVisibleBlocks
+		if (Math.abs(middleDelta) > 5) this.showVisibleBlocks(updateHeight, pos, startX, endX);
 	    }
 	} else {
 	    //seems to reduce end-zoom flicker; not sure why
