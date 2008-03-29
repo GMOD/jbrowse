@@ -86,6 +86,8 @@ ImageTrack.prototype.clear = function() {
 }
 
 ImageTrack.prototype.transfer = function(sourceBlock, destBlock) {
+    if (!(sourceBlock && destBlock)) return;
+
     var children = sourceBlock.childNodes;
     var destLeft = destBlock.startBase;
     var destRight = destBlock.endBase;
