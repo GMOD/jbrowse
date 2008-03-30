@@ -5,7 +5,15 @@
 //Bioinformatics, doi:10.1093/bioinformatics/btl647
 //http://bioinformatics.oxfordjournals.org/cgi/content/abstract/btl647v1
 
-function NCList(intervals, sublistIndex) {
+function NCList() {
+}
+
+NCList.prototype.import = function(nclist, sublistIndex) {
+    this.topList = nclist;
+    this.sublistIndex = sublistIndex;
+}
+
+NCList.prototype.fill = function(intervals, sublistIndex) {
     //intervals: array of arrays of [start, end, ...]
     //sublistIndex: index into a [start, end] array for storing a sublist
     //              array. this is so you can use those arrays for something

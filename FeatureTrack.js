@@ -1,12 +1,18 @@
 
-function SimpleFeatureTrack(name, featArray, className, levelHeight, refSeq,
+function SimpleFeatureTrack(trackInfo, className, levelHeight, refSeq,
 			    histScale, labelScale, padding) {
     //className: CSS class for the features
     //padding: min pixels between each feature horizontally
 
-    Track.call(this, name);
-    this.count = featArray.length;
-    this.features = new NCList(featArray, featArray[0].length);
+    Track.call(this, trackInfo.label, trackInfo.key);
+    this.count = trackInfo.featureCount;
+    this.fields = {};
+    for (var i = 0; i < trackInfo.map.length; i++) {
+	this.fields[trackInfo.map[i]] = i;
+    }
+    this.features = new NCList();
+    //this.features.fill(featArray, featArray[0].length);
+    this.features.import(trackInfo.featureNCList, trackInfo.sublistIndex);
     //this.features.sort(function(a, b) {return a.start - b.start;});
     //this.features.sort(function(a, b) {return a[0] - b[0];});
     this.className = className;
@@ -26,7 +32,7 @@ SimpleFeatureTrack.prototype.setViewInfo = function(numBlocks, trackDiv,
                                                     widthPx) {
     Track.prototype.setViewInfo.apply(this, [numBlocks, trackDiv, labelDiv,
                                              widthPct, widthPx]);
-    this.setLabel(this.name);
+    this.setLabel(this.key);
 }
 
 SimpleFeatureTrack.prototype.getFeatures = function(startBase, endBase) {
@@ -70,9 +76,9 @@ SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
 
 SimpleFeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
     if (destScale < this.histScale) {
-        this.setLabel(this.name + "<br>per " + Math.round(destBlockBases / this.numBins) + "bp");
+        this.setLabel(this.key + "<br>per " + Math.round(destBlockBases / this.numBins) + "bp");
     } else {
-        this.setLabel(this.name);
+        this.setLabel(this.key);
     }
     this.clear();
 }
@@ -143,6 +149,8 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     //0-based
     //returns: height of the block, in pixels
 
+    var nameField = this.fields["name"];
+
     var slots = [];
 
     //are we filling right-to-left (true) or left-to-right (false)?
@@ -185,7 +193,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	alert("clicked on feature\nstart: " + feat[0] +
 	      ", end: " + feat[1] +
 	      ", strand: " + feat[2] +
-	      ", ID: " + feat[3]);
+	      ", ID: " + feat[nameField]);
     };
 
     var featDiv;
@@ -205,7 +213,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	var featureEnd = feature[1];
 	if (scale > labelScale)
 	    featureEnd = Math.max(featureEnd, 
-				  feature[0] + (feature[3].length 
+				  feature[0] + (feature[nameField].length 
 						* basesPerLabelChar));
 	for (var j = 0; j < slots.length; j++) {
 	    if (!slots[j]) continue;
@@ -220,7 +228,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 		break;
 	    }
 	    var otherEnd = slots[j].feature[1];
-	    if (scale > labelScale) otherEnd = Math.max(otherEnd, slots[j].feature[0] + (slots[j].feature[3].length * basesPerLabelChar));
+	    if (scale > labelScale) otherEnd = Math.max(otherEnd, slots[j].feature[0] + (slots[j].feature[nameField].length * basesPerLabelChar));
             if (((otherEnd + basePadding) >= feature[0])
                 && ((slots[j].feature[0] - basePadding) <= featureEnd)) {
 		//this feature overlaps
@@ -235,7 +243,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	featDiv.feature = feature;
 	featDiv.layoutEnd = featureEnd;
 
-        //featDiv.setAttribute("fName", feature[3]);
+        //featDiv.setAttribute("fName", feature[nameField]);
         switch (feature[2]) {
         case 1:
             featDiv.className = "plus-" + className; break;
@@ -269,7 +277,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
         if (scale > labelScale) {
             var labelDiv = document.createElement("div");
             labelDiv.className = "feature-label";
-            labelDiv.appendChild(document.createTextNode(feature[3]));
+            labelDiv.appendChild(document.createTextNode(feature[nameField]));
             labelDiv.style.cssText = 
                 "left: " + (100 * (feature[0] - leftBase) / blockWidth) + "%; "
                 + "top: " + ((level * levelHeight) + glyphHeight) + levelUnits + ";";

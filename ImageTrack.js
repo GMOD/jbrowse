@@ -1,5 +1,5 @@
-function ImageTrack(name, refSeq, tileWidth, zoomLevels) {
-    Track.call(this, name);
+function ImageTrack(name, key, refSeq, tileWidth, zoomLevels) {
+    Track.call(this, name, key);
     this.refSeq = refSeq
     //tileWidth: width, in pixels, of the tiles
     this.tileWidth = tileWidth;

@@ -97,6 +97,7 @@ div.feature-label {
     border: 0px;
     margin: 0px;
     padding: 0px;
+    font-size: 80%;
 }
 
 div.plus-feature,
@@ -200,17 +201,7 @@ div.hist-exon {
     z-index: 10;
 }
 
-div.plus-exon {
-    position: absolute;
-    height: 5px;
-    background-color: blue;
-    border-style: solid;
-    border-color: black;
-    border-width: 1px;
-    cursor: pointer;
-    z-index: 10;
-}
-
+div.plus-exon,
 div.minus-exon {
     position: absolute;
     height: 5px;
@@ -222,34 +213,50 @@ div.minus-exon {
     z-index: 10;
 }
 
-div.dblhelix {
+div.plus-dblhelix,
+div.minus-dblhelix {
     position:absolute;
     height: 11px;
     background-image: url('img/dblhelix-red.png');
     background-repeat: repeat-x;
+    min-width: 1px;
     cursor: pointer;
+    z-index: 10;
 }
 
-div.helix {
+div.hist-dblhelix {
+    position: absolute;
+    background-color: #fcc;
+    border-color: #daa;
+    border-style: solid;
+    border-width: 1px;
+    z-index: 10;
+}
+
+div.plus-helix,
+div.minus-helix {
     position:absolute;
     height: 12px;
     background-image: url('img/helix3-green.png');
     background-repeat: repeat-x;
+    min-width: 1px;
     cursor: pointer;
+    z-index: 10;
+}
+
+div.hist-helix {
+    position: absolute;
+    background-color: #cfc;
+    border-color: #ada;
+    border-style: solid;
+    border-width: 1px;
+    z-index: 10;
 }
 
 div.loops {
     position:absolute;
     height: 13px;
     background-image: url('img/loops.png');
-    background-repeat: repeat-x;
-    cursor: pointer;
-}
-
-div.plus-pacman {
-    position:absolute;
-    height: 12px;
-    background-image: url('img/plus-pacman.png');
     background-repeat: repeat-x;
     cursor: pointer;
 }

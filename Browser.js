@@ -8,7 +8,7 @@ Browser.init = function(elemId) {
     viewElem.view = gv;
     var trackNum = 0;
     gv.showWait();
-    gv.addTrack(new ImageTrack("Gene_Image", refSeq, 1000, 
+    gv.addTrack(new ImageTrack("Gene_Image", "Gene Image", refSeq, 1000, 
                                [
                                 {basesPerTile: 100, height: 68, urlPrefix: "tiles/3R/Genes/100bp/"},
                                 {basesPerTile: 200, height: 64, urlPrefix: "tiles/3R/Genes/200bp/"},
@@ -30,20 +30,21 @@ Browser.init = function(elemId) {
     var trackSuccess = function(o) {
         //try {
             var startTime = new Date().getTime();
-            var featArray = eval(o.responseText);
-            var track = new SimpleFeatureTrack(o.argument.label, featArray,
+            //var featArray = eval(o.responseText);
+	    var trackInfo = eval(o.responseText);
+            var track = new SimpleFeatureTrack(trackInfo,
                                                o.argument.className,
                                                o.argument.height, 
                                                refSeq, 
-                                               4 * (featArray.length 
+                                               4 * (trackInfo.featureCount 
                                                     / refSeq.length()),
                                                //100, //turn off labels
-                                               50 * (featArray.length 
+                                               50 * (trackInfo.featureCount 
                                                      / refSeq.length()),
                                                5);
             gv.addTrack(track);
 
-            $('myLogger').appendChild(document.createTextNode(" " + (new Date().getTime() - startTime) / 1000));
+            YAHOO.log((new Date().getTime() - startTime) / 1000);
             if (trackNum < trackList.length)
                 setTimeout(addTrack, 0);
             else

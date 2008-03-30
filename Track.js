@@ -1,5 +1,6 @@
-function Track(name) {
+function Track(name, key) {
     this.name = name;
+    this.key = key;
 }
 
 Track.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
