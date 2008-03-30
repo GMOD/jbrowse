@@ -9,7 +9,6 @@ package NCList;
 
 use strict;
 use warnings;
-use JSON;
 
 use constant SUBLIST => "sublist";
 
@@ -31,7 +30,8 @@ sub new {
     my $curList = [];
 
     my $self = { 'topList' => $curList,
-		 'sublistIndex' => $sublistIndex };
+		 'sublistIndex' => $sublistIndex,
+	         'count' => $#features + 1};
     bless $self, $class;
 
     push @$curList, $features[0];
