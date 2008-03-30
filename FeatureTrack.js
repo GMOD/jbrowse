@@ -1,4 +1,3 @@
-
 function SimpleFeatureTrack(trackInfo, className, refSeq,
 			    histScale, labelScale, padding) {
     //className: CSS class for the features
@@ -11,10 +10,7 @@ function SimpleFeatureTrack(trackInfo, className, refSeq,
 	this.fields[trackInfo.map[i]] = i;
     }
     this.features = new NCList();
-    //this.features.fill(featArray, featArray[0].length);
     this.features.import(trackInfo.featureNCList, trackInfo.sublistIndex);
-    //this.features.sort(function(a, b) {return a.start - b.start;});
-    //this.features.sort(function(a, b) {return a[0] - b[0];});
     this.className = className;
     this.refSeq = refSeq;
     this.histScale = histScale;
@@ -34,22 +30,6 @@ SimpleFeatureTrack.prototype.setViewInfo = function(numBlocks, trackDiv,
     this.setLabel(this.key);
 }
 
-SimpleFeatureTrack.prototype.getFeatures = function(startBase, endBase) {
-    var result = Array();
-    var f = this.features;
-    var i;
-    try {
-        for (i = 0, len = f.length; i < len; i++) {
-            //if ((f[i].end >= startBase) && (f[i].start <= endBase))
-            if ((f[i][1] >= startBase) && (f[i][0] <= endBase))
-                result.push(f[i]);
-        }
-    } catch(e) {
-        alert(e.message + "\ni: " + i + "\nf.length: " + f.length + "\n" + Object.toJSON(f[i]));
-    }
-    return result;
-}
-
 SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
 						 stripeWidth) {
     var hist = this.features.histogram(leftBase, rightBase, this.numBins);
@@ -64,7 +44,7 @@ SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
         binDiv.style.cssText = 
             "left: " + ((bin / this.numBins) * 100) + "%; "
             + "height: " + (2 * hist[bin]) + "px;"
-	    + "bottom: 0px;"// + this.trackPadding + "px;"
+	    + "bottom: 0px;"
             + "width: " + (((1 / this.numBins) * 100) - (100 / stripeWidth)) + "%;";
         if (Util.is_ie6) binDiv.appendChild(document.createComment());
         block.appendChild(binDiv);
@@ -85,10 +65,8 @@ SimpleFeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
 SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth) {
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
     if (scale < this.histScale) {
-        //this.setLabel(this.name + "<br>per " + Math.round((rightBase - leftBase) / this.numBins) + "bp");
 	return this.fillHist(block, leftBase, rightBase, stripeWidth);
     } else {
-        //this.setLabel(this.name);
 	return this.fillFeatures(block, leftBlock, rightBlock, 
 				 leftBase, rightBase, scale);
     }
@@ -257,7 +235,6 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	featDiv.feature = feature;
 	featDiv.layoutEnd = featureEnd;
 
-        //featDiv.setAttribute("fName", feature[name]);
         switch (feature[strand]) {
         case 1:
             featDiv.className = "plus-" + className; break;
@@ -281,11 +258,8 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	if (!startSlots[level]) startSlots[level] = featDiv;
 
         featDiv.style.cssText = 
-            //"left: " + (100 * (feature.start - leftBase) / blockWidth) + "%; "
             "left: " + (100 * (feature[start] - leftBase) / blockWidth) + "%; "
-        //+ "top: " + (levels[i] * this.levelHeight) + levelUnits + ";"
             + "top: " + (level * levelHeight) + levelUnits + ";"
-            //+ " width: " + (100 * ((feature.end - feature.start) / blockWidth)) + "%;";
             + " width: " + (100 * ((feature[end] - feature[start]) / blockWidth)) + "%;";
 
         if (scale > labelScale) {
@@ -319,30 +293,4 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	block.rightSlots = slots;
 
     return ((maxLevel + 1) * levelHeight);
-}
-
-SimpleFeatureTrack.prototype.layout = function(features, levels, slots, basePadding) {
-    var maxLevel = 0;
-    featLoop: for (var i = 0; i < features.length; i++) {
-        slotLoop: for (var j = 0; j < slots.length; j++) {
-            if (features[i] === slots[j]) continue featLoop;
-            //alert("i:" + i + ", j: " + j + "; " + slots[j].start + "-" + slots[j].end + ", " + features[i].start + "-" + features[i].end + ", basePadding: " + basePadding);
-            //if (((slots[j].end + basePadding) >= features[i].start)
-            //    && ((slots[j].start - basePadding) <= features[i].end)) {
-            if (((slots[j][1] + basePadding) >= features[i][0])
-                && ((slots[j][0] - basePadding) <= features[i][1])) {
-                continue slotLoop;
-            } else {
-                slots[j] = features[i];
-                levels[i] = j;
-                maxLevel = Math.max(j, maxLevel);
-                continue featLoop;
-            }
-        }
-        if (levels[i] === undefined) {
-            slots.push(features[i]);
-            levels[i] = slots.length - 1;
-        }
-    }
-    return maxLevel;
 }
