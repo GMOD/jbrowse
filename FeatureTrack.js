@@ -148,7 +148,10 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     //0-based
     //returns: height of the block, in pixels
 
-    var nameField = this.fields["name"];
+    var start = this.fields["start"];
+    var end = this.fields["end"];
+    var strand = this.fields["strand"];
+    var name = this.fields["name"];
 
     var slots = [];
 
@@ -200,10 +203,10 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	event = event || window.event;
 	if (event.shiftKey) return;
 	var feat = YAHOO.util.Event.getTarget((event || window.event)).feature;
-	alert("clicked on feature\nstart: " + feat[0] +
-	      ", end: " + feat[1] +
-	      ", strand: " + feat[2] +
-	      ", ID: " + feat[nameField]);
+	alert("clicked on feature\nstart: " + feat[start] +
+	      ", end: " + feat[end] +
+	      ", strand: " + feat[strand] +
+	      ", ID: " + feat[name]);
     };
 
     var featDiv;
@@ -220,10 +223,10 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
         var level;
 	//featureEnd is how far right the feature extends,
 	//including its label if applicable
-	var featureEnd = feature[1];
+	var featureEnd = feature[end];
 	if (scale > labelScale)
 	    featureEnd = Math.max(featureEnd, 
-				  feature[0] + (feature[nameField].length 
+				  feature[start] + (feature[name].length 
 						* basesPerLabelChar));
 	for (var j = 0; j < slots.length; j++) {
 	    if (!slots[j]) continue;
@@ -238,10 +241,10 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 		level = j;
 		break;
 	    }
-	    var otherEnd = slots[j].feature[1];
-	    if (scale > labelScale) otherEnd = Math.max(otherEnd, slots[j].feature[0] + (slots[j].feature[nameField].length * basesPerLabelChar));
-            if (((otherEnd + basePadding) >= feature[0])
-                && ((slots[j].feature[0] - basePadding) <= featureEnd)) {
+	    var otherEnd = slots[j].feature[end];
+	    if (scale > labelScale) otherEnd = Math.max(otherEnd, slots[j].feature[start] + (slots[j].feature[name].length * basesPerLabelChar));
+            if (((otherEnd + basePadding) >= feature[start])
+                && ((slots[j].feature[start] - basePadding) <= featureEnd)) {
 		//this feature overlaps
                 continue;
             } else {
@@ -254,8 +257,8 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	featDiv.feature = feature;
 	featDiv.layoutEnd = featureEnd;
 
-        //featDiv.setAttribute("fName", feature[nameField]);
-        switch (feature[2]) {
+        //featDiv.setAttribute("fName", feature[name]);
+        switch (feature[strand]) {
         case 1:
             featDiv.className = "plus-" + className; break;
         case 0:
@@ -279,18 +282,18 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 
         featDiv.style.cssText = 
             //"left: " + (100 * (feature.start - leftBase) / blockWidth) + "%; "
-            "left: " + (100 * (feature[0] - leftBase) / blockWidth) + "%; "
+            "left: " + (100 * (feature[start] - leftBase) / blockWidth) + "%; "
         //+ "top: " + (levels[i] * this.levelHeight) + levelUnits + ";"
             + "top: " + (level * levelHeight) + levelUnits + ";"
             //+ " width: " + (100 * ((feature.end - feature.start) / blockWidth)) + "%;";
-            + " width: " + (100 * ((feature[1] - feature[0]) / blockWidth)) + "%;";
+            + " width: " + (100 * ((feature[end] - feature[start]) / blockWidth)) + "%;";
 
         if (scale > labelScale) {
             var labelDiv = document.createElement("div");
             labelDiv.className = "feature-label";
-            labelDiv.appendChild(document.createTextNode(feature[nameField]));
+            labelDiv.appendChild(document.createTextNode(feature[name]));
             labelDiv.style.cssText = 
-                "left: " + (100 * (feature[0] - leftBase) / blockWidth) + "%; "
+                "left: " + (100 * (feature[start] - leftBase) / blockWidth) + "%; "
                 + "top: " + ((level * levelHeight) + glyphHeight) + levelUnits + ";";
 	    featDiv.label = labelDiv;
             block.appendChild(labelDiv);
