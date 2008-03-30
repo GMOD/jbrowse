@@ -1,5 +1,5 @@
 
-function SimpleFeatureTrack(trackInfo, className, levelHeight, refSeq,
+function SimpleFeatureTrack(trackInfo, className, refSeq,
 			    histScale, labelScale, padding) {
     //className: CSS class for the features
     //padding: min pixels between each feature horizontally
@@ -16,7 +16,6 @@ function SimpleFeatureTrack(trackInfo, className, levelHeight, refSeq,
     //this.features.sort(function(a, b) {return a.start - b.start;});
     //this.features.sort(function(a, b) {return a[0] - b[0];});
     this.className = className;
-    this.levelHeight = levelHeight;
     this.refSeq = refSeq;
     this.histScale = histScale;
     this.labelScale = labelScale;
@@ -170,6 +169,17 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	document.body.removeChild(heightTest);
     }
 
+    //determine the height of the glyph
+    if (!("glyphHeight" in this)) {
+	var heightTest = document.createElement("div");
+	heightTest.className = "plus-" + this.className;
+	heightTest.style.visibility = "hidden";
+	heightTest.appendChild(document.createComment("foo"));;
+	document.body.appendChild(heightTest);
+	this.glyphHeight = Math.round(heightTest.offsetHeight + 2);
+	document.body.removeChild(heightTest);
+    }	
+
     startSlots = new Array();
     if (leftBlock !== undefined) {
         slots = leftBlock.rightSlots.concat();
@@ -198,13 +208,13 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 
     var featDiv;
     var leftSlots = new Array();
-    var glyphHeight = this.levelHeight;
-    var levelHeight = this.levelHeight;
+    var glyphHeight = this.glyphHeight;
+    var levelHeight = this.glyphHeight;
     var className = this.className;
     var labelScale = this.labelScale;
     var basePadding = Math.max(1, this.padding / scale);
     var basesPerLabelChar = this.nameWidth / scale;
-    if (scale > labelScale) levelHeight += this.nameHeight + (levelHeight >> 1);
+    if (scale > labelScale) levelHeight += this.nameHeight + 3;
 
     var featCallback = function(feature) {
         var level;

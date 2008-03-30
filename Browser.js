@@ -34,7 +34,6 @@ Browser.init = function(elemId) {
 	    var trackInfo = eval(o.responseText);
             var track = new SimpleFeatureTrack(trackInfo,
                                                o.argument.className,
-                                               o.argument.height, 
                                                refSeq, 
                                                4 * (trackInfo.featureCount 
                                                     / refSeq.length()),
