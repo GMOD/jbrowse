@@ -214,7 +214,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     var labelScale = this.labelScale;
     var basePadding = Math.max(1, this.padding / scale);
     var basesPerLabelChar = this.nameWidth / scale;
-    if (scale > labelScale) levelHeight += this.nameHeight + 3;
+    if (scale > labelScale) levelHeight += this.nameHeight;
 
     var featCallback = function(feature) {
         var level;
@@ -229,6 +229,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	    if (!slots[j]) continue;
             if (feature === slots[j].feature) {
 		if (!startSlots[j]) startSlots[j] = slots[j];
+		maxLevel = Math.max(j, maxLevel);
 		return;
 	    }
 	}
