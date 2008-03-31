@@ -2,17 +2,18 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="360"
    height="8"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.45.1"
+   inkscape:version="0.46"
    version="1.0"
    sodipodi:docbase="/home/mitch/sw/divbrowser/img"
    sodipodi:docname="chevron2.svg"
@@ -21,20 +22,83 @@
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
-     id="defs4" />
+     id="defs4">
+    <linearGradient
+       id="linearGradient3360">
+      <stop
+         style="stop-color:#376dd9;stop-opacity:1;"
+         offset="0"
+         id="stop3362" />
+      <stop
+         style="stop-color:#376dd9;stop-opacity:0;"
+         offset="1"
+         id="stop3364" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3340">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop3342" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop3344" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3332">
+      <stop
+         style="stop-color:#2f67d7;stop-opacity:1;"
+         offset="0"
+         id="stop3334" />
+      <stop
+         id="stop3356"
+         offset="0.5"
+         style="stop-color:#2f67d7;stop-opacity:0.49803922;" />
+      <stop
+         style="stop-color:#2f67d7;stop-opacity:0;"
+         offset="1"
+         id="stop3336" />
+    </linearGradient>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 4 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="360 : 4 : 1"
+       inkscape:persp3d-origin="180 : 2.6666667 : 1"
+       id="perspective2556" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3332"
+       id="linearGradient3354"
+       x1="190"
+       y1="-29"
+       x2="190"
+       y2="-37"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3360"
+       id="linearGradient3366"
+       x1="185"
+       y1="-29"
+       x2="185"
+       y2="-41"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#9bbfff"
      bordercolor="#666666"
      borderopacity="1.0"
-     gridtolerance="10000"
+     gridtolerance="10"
      guidetolerance="10"
      objecttolerance="10"
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.2743067"
-     inkscape:cx="275.38134"
-     inkscape:cy="-2.7630473"
+     inkscape:zoom="2.06"
+     inkscape:cx="150.34007"
+     inkscape:cy="5.3257422"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      width="360px"
@@ -45,7 +109,13 @@
      inkscape:window-width="1920"
      inkscape:window-height="999"
      inkscape:window-x="0"
-     inkscape:window-y="27" />
+     inkscape:window-y="27">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2560"
+       visible="true"
+       enabled="true" />
+  </sodipodi:namedview>
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -66,48 +136,60 @@
        d="M -9,-16 L 366,-16"
        id="path2160" />
     <path
-       style="fill:#2f67d7;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#4a7eed;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 45,4 L 30,-2 L 15,-2 L 30,4 L 15,10 L 30,10 L 45,4 z "
        id="path3138"
        sodipodi:nodetypes="ccccccc" />
     <path
-       style="fill:#2f67d7;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#4a7eed;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M -15,-2 L 0,4 L -15,10 L 0,10 L 15,4 L 0,-2 L -15,-2 z "
        id="path3140" />
     <path
-       style="fill:#2f67d7;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#4a7eed;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 105,4 L 90,-2 L 75,-2 L 90,4 L 75,10 L 90,10 L 105,4 z "
        id="path3143"
        sodipodi:nodetypes="ccccccc" />
     <path
-       style="fill:#2f67d7;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#4a7eed;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 45,-2 L 60,4 L 45,10 L 60,10 L 75,4 L 60,-2 L 45,-2 z "
        id="path3145" />
     <path
-       style="fill:#2f67d7;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#4a7eed;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 105,-2 L 120,4 L 105,10 L 120,10 L 135,4 L 120,-2 L 105,-2 z M 135,-2 L 150,4 L 135,10 L 150,10 L 165,4 L 150,-2 L 135,-2 z M 165,-2 L 180,4 L 165,10 L 180,10 L 195,4 L 180,-2 L 165,-2 z M 195,-2 L 210,4 L 195,10 L 210,10 L 225,4 L 210,-2 L 195,-2 z "
        id="path3147" />
     <path
-       style="fill:#2f67d7;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#4a7eed;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 285,4 L 270,-2 L 255,-2 L 270,4 L 255,10 L 270,10 L 285,4 z "
        id="path3156"
        sodipodi:nodetypes="ccccccc" />
     <path
-       style="fill:#2f67d7;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#4a7eed;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 225,-2 L 240,4 L 225,10 L 240,10 L 255,4 L 240,-2 L 225,-2 z "
        id="path3158" />
     <path
-       style="fill:#2f67d7;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#4a7eed;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 345,4 L 330,-2 L 315,-2 L 330,4 L 315,10 L 330,10 L 345,4 z "
        id="path3160"
        sodipodi:nodetypes="ccccccc" />
     <path
-       style="fill:#2f67d7;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#4a7eed;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 285,-2 L 300,4 L 285,10 L 300,10 L 315,4 L 300,-2 L 285,-2 z "
        id="path3162" />
     <path
-       style="fill:#2f67d7;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#4a7eed;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 345,-2 L 360,4 L 345,10 L 360,10 L 375,4 L 360,-2 L 345,-2 z M 375,-2 L 390,4 L 375,10 L 390,10 L 405,4 L 390,-2 L 375,-2 z M 405,-2 L 420,4 L 405,10 L 420,10 L 435,4 L 420,-2 L 405,-2 z M 435,-2 L 450,4 L 435,10 L 450,10 L 465,4 L 450,-2 L 435,-2 z "
        id="path3164" />
+    <rect
+       style="fill:url(#linearGradient3354);fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect2558"
+       width="345"
+       height="8.0940275"
+       x="11.35324"
+       y="-37" />
+    <path
+       style="fill:url(#linearGradient3366);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 115,-39 L 130,-33 L 115,-27 L 130,-27 L 145,-33 L 130,-39 L 115,-39 z M 145,-39 C 145,-39 155,-37 160,-33 C 155,-29 145,-27 145,-27 L 160,-27 C 160,-27 170,-29 175,-33 C 170,-37 160,-39 160,-39 L 145,-39 z M 175,-39 L 190,-33 L 175,-27 L 190,-27 L 205,-33 L 190,-39 L 175,-39 z M 205,-39 L 220,-33 L 205,-27 L 220,-27 L 235,-33 L 220,-39 L 205,-39 z"
+       id="path3358"
+       sodipodi:nodetypes="cccccccccccccccccccccccccccc" />
   </g>
 </svg>
