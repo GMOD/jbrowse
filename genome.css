@@ -99,6 +99,8 @@ div.feature-label {
     /* padding: 0px 0px 2px 0px; for more space below labels */
     padding: 0px 0px 0px 0px;
     font-size: 80%;
+    white-space: nowrap;
+    background-color: #eee;
 }
 
 div.plus-feature,
@@ -195,9 +197,9 @@ div.hist-feature4 {
 
 div.hist-exon {
     position: absolute;
-    background-color: blue;
+    background-color: #4B76E8;
     border-style: solid;
-    border-color: black;
+    border-color: #00f;
     border-width: 1px;
     z-index: 10;
 }
@@ -206,9 +208,9 @@ div.plus-exon,
 div.minus-exon {
     position: absolute;
     height: 5px;
-    background-color: blue;
+    background-color: #4B76E8;
     border-style: solid;
-    border-color: black;
+    border-color: #00f;
     border-width: 1px;
     cursor: pointer;
     z-index: 10;
@@ -262,54 +264,21 @@ div.loops {
     cursor: pointer;
 }
 
-div.plus-cds1 {
+div.plus-cds1, div.plus-cds2, div.plus-cds3,
+div.minus-cds1, div.minus-cds2, div.minus-cds3 {
     position:absolute;
     height: 13px;
-    background-image: url('img/plus-cds1.png');
     background-repeat: repeat-x;
     cursor: pointer;
-}
-
-div.plus-cds2 {
-    position:absolute;
-    height: 13px;
-    background-image: url('img/plus-cds2.png');
-    background-repeat: repeat-x;
-    cursor: pointer;
-}
-
-div.plus-cds3 {
-    position:absolute;
-    height: 13px;
-    background-image: url('img/plus-cds3.png');
-    background-repeat: repeat-x;
-    cursor: pointer;
-}
-
-div.minus-cds1 {
-    position:absolute;
-    height: 13px;
-    background-image: url('img/minus-cds1.png');
-    background-repeat: repeat-x;
-    cursor: pointer;
-}
-
-div.minus-cds2 {
-    position:absolute;
-    height: 13px;
-    background-image: url('img/minus-cds2.png');
-    background-repeat: repeat-x;
-    cursor: pointer;
-}
-
-div.minus-cds3 {
-    position:absolute;
-    height: 13px;
-    background-image: url('img/minus-cds3.png');
-    background-repeat: repeat-x;
     min-width: 1px;
-    cursor: pointer;
 }
+
+div.plus-cds1 { background-image: url('img/plus-cds1.png'); }
+div.plus-cds2 { background-image: url('img/plus-cds2.png'); }
+div.plus-cds3 { background-image: url('img/plus-cds3.png'); }
+div.minus-cds1 { background-image: url('img/minus-cds1.png'); }
+div.minus-cds2 { background-image: url('img/minus-cds2.png'); }
+div.minus-cds3 { background-image: url('img/minus-cds3.png'); }
 
 div.topbracket {
     position:absolute;
@@ -331,13 +300,22 @@ div.bottombracket {
     cursor: pointer;
 }
 
-div.hourglass {
+div.hourglass,
+div.plus-hourglass,
+div.minus-hourglass {
     position:absolute;
     height: 0px;
     border-style: solid;
-    border-width: 8px 5px 8px 5px;
-    border-color: red white red white;
+    border-width: 6px 3px 6px 3px;
     cursor: pointer;
+}
+
+div.hgred {
+    border-color: #f99 white #f99 white;
+}
+
+div.hgblue {
+    border-color: #99f white #99f white;
 }
 
 div.ibeam {
