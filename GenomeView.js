@@ -492,15 +492,27 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 
     var trackDiv = document.createElement("div");
     trackDiv.className = "track";
-    trackDiv.style.top = "0px";
-    trackDiv.style.position = "absolute";
-    trackDiv.style.zIndex = 20;
+    trackDiv.style.height = this.posHeight + "px";
     trackDiv.id = "static_track";
     this.staticTrack = new StaticTrack("static_track");
     this.staticTrack.setViewInfo(this.stripeCount, trackDiv, undefined,
                                  this.stripePercent, this.stripeWidth);
     this.staticTrack.showRange(0, this.stripeCount - 1, this.stripes[0].startBase, Math.round(this.stripeWidth / this.pxPerBp), this.pxPerBp);
     this.container.appendChild(trackDiv);
+
+    YAHOO.util.Event.addListener(trackDiv, "mouseup", function(event) {
+	    if (view.dragging) return;
+	    if ("animation" in view) view.animation.stop();
+	    var zoomLoc = (YAHOO.util.Event.getPageX(event) - YAHOO.util.Dom.getX(view.elem)) / view.dim.width;
+	    if (Util.isRightButton(event)) {
+		view.zoomOut(event, zoomLoc);
+	    } else {
+		view.zoomIn(event, zoomLoc);
+	    }
+	    YAHOO.util.Event.stopEvent(event);
+	});
+    YAHOO.util.Event.addListener(trackDiv, "mousedown", killEvent);
+    YAHOO.util.Event.addListener(trackDiv, "contextmenu", killEvent);
 
     this.setX((this.container.offsetWidth / 2) - (this.dim.width / 2));
 
