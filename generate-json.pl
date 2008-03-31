@@ -11,13 +11,15 @@ use JSON;
 my ($CONF_DIR, $ref, $refid, $source, $onlyLabel);
 my $outdir = "data";
 my $getSubs = 0;
-GetOptions("c=s" => \$CONF_DIR,
-	   "l=s" => \$ref,
-	   "s=s" => \$source,
-	   "lid=s" => \$refid,
-	   "t=s" => \$onlyLabel,
-	   "o=s" => \$outdir,
-	   "sub" => \$getSubs);
+my $getPhase = 0;
+GetOptions("conf=s" => \$CONF_DIR,
+	   "ref=s" => \$ref,
+	   "src=s" => \$source,
+	   "refid=s" => \$refid,
+	   "track=s" => \$onlyLabel,
+	   "out=s" => \$outdir,
+	   "sub" => \$getSubs,
+	   "phase" => \$getPhase);
 
 my $browser = open_config($CONF_DIR);
 $browser->source($source) or die "ERROR: source $source not found (the choices are: " . join(", ", $browser->sources) . "\n";
@@ -34,7 +36,7 @@ if (defined $refid) {
 }
 
 my $segName = $seg->name;
-$segName = $seg->{'uniquename'} if (defined $seg->{'uniquename'});
+$segName = $seg->{'uniquename'} if ($seg->can('uniquename'));
 $segName =~ s/:.*$//; #get rid of coords if any
 
 mkdir($outdir) unless (-d $outdir);
@@ -53,6 +55,12 @@ my @featMap = (
 	       sub {shift->display_name},
 	      );
 my $mapHeaders = ['start', 'end', 'strand', 'id', 'name'];
+
+if ($getPhase) {
+    push @featMap, sub {shift->phase};
+    push @$mapHeaders, "phase";
+}
+
 if ($getSubs) {
     push @featMap, sub {
 	my ($feat, $flatten) = @_;

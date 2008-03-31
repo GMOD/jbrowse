@@ -130,6 +130,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     var end = this.fields["end"];
     var strand = this.fields["strand"];
     var name = this.fields["name"];
+    var phase = this.fields["phase"];
 
     var slots = [];
 
@@ -153,11 +154,13 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     //determine the height of the glyph
     if (!("glyphHeight" in this)) {
 	var heightTest = document.createElement("div");
-	heightTest.className = "plus-" + this.className;
+	//cover all the bases: stranded or not, phase or not
+	heightTest.className = this.className + " plus-" + this.className + " plus-" + this.className + "1";
 	heightTest.style.visibility = "hidden";
 	heightTest.appendChild(document.createComment("foo"));;
 	document.body.appendChild(heightTest);
 	this.glyphHeight = Math.round(heightTest.offsetHeight + 2);
+	this.padding += heightTest.offsetWidth;
 	document.body.removeChild(heightTest);
     }	
 
@@ -239,10 +242,15 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
         case 1:
             featDiv.className = "plus-" + className; break;
         case 0:
+	case null:
+	case undefined:
             featDiv.className = className; break;
         case -1:
             featDiv.className = "minus-" + className; break;
         }
+
+	if ((phase !== undefined) && (feature[phase] !== null))
+	    featDiv.className = featDiv.className + feature[phase];
 
         if (level === undefined) {
 	    //create a new slot
