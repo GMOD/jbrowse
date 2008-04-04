@@ -10,7 +10,7 @@ function SimpleFeatureTrack(trackInfo, className, refSeq,
 	this.fields[trackInfo.map[i]] = i;
     }
     this.features = new NCList();
-    this.features.import(trackInfo.featureNCList, trackInfo.sublistIndex);
+    this.features.importExisting(trackInfo.featureNCList, trackInfo.sublistIndex);
     this.className = className;
     this.refSeq = refSeq;
     this.histScale = histScale;

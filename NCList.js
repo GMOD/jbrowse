@@ -8,7 +8,7 @@
 function NCList() {
 }
 
-NCList.prototype.import = function(nclist, sublistIndex) {
+NCList.prototype.importExisting = function(nclist, sublistIndex) {
     this.topList = nclist;
     this.sublistIndex = sublistIndex;
 }
