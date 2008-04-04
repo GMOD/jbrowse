@@ -107,12 +107,8 @@ Zoomer.prototype.step = function(pos) {
     this.x = newLeft;
 }
 
-var gview;
-
 function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     //all coordinates are interbase
-
-    gview = this;
 
     //measure text width for the max zoom level
     var widthTest = document.createElement("div");
@@ -173,7 +169,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     //this prevents us from scrolling off the left end of the ref seq
     this.minLeft = this.bpToPx(this.startbp);
     //distance, in pixels, between each track
-    this.trackPadding = 30;
+    this.trackPadding = 20;
     //extra margin to draw around the visible area, in multiples of the visible area
     //0: draw only the visible area; 0.1: draw an extra 10% around the visible area, etc.
     this.drawMargin = 0.2;
@@ -187,10 +183,15 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
                       $("zoomIn"), $("zoomOut"),
                       document.body, elem];
     this.prevCursors = [];
+    //this.colorArray =
+    //    ["#000000", "#000033", "#000066", "#000099", "#0000CC", "#0000FF",
+    //     "#003300", "#003333", "#003366", "#003399", "#0033CC", "#0033FF",
+    //     "#006600", "#006633", "#006666", "#006699", "#0066CC", "#0066FF"];
+
     this.colorArray =
-        ["#000000", "#000033", "#000066", "#000099", "#0000CC", "#0000FF",
-         "#003300", "#003333", "#003366", "#003399", "#0033CC", "#0033FF",
-         "#006600", "#006633", "#006666", "#006699", "#0066CC", "#0066FF"];
+        ["#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1",
+         "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1",
+         "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1"];
 
     var view = this;
 
@@ -504,7 +505,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 	    if (view.dragging) return;
 	    if ("animation" in view) view.animation.stop();
 	    var zoomLoc = (YAHOO.util.Event.getPageX(event) - YAHOO.util.Dom.getX(view.elem)) / view.dim.width;
-	    if (Util.isRightButton(event)) {
+	    if (Util.isRightButton(event) || event.shiftKey) {
 		view.zoomOut(event, zoomLoc);
 	    } else {
 		view.zoomIn(event, zoomLoc);
@@ -513,6 +514,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 	});
     YAHOO.util.Event.addListener(trackDiv, "mousedown", killEvent);
     YAHOO.util.Event.addListener(trackDiv, "contextmenu", killEvent);
+    this.waitElems.push(trackDiv);
 
     this.setX((this.container.offsetWidth / 2) - (this.dim.width / 2));
 

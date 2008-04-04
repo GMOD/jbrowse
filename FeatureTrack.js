@@ -40,7 +40,7 @@ SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
     var binDiv;
     for (var bin = 0; bin < this.numBins; bin++) {
         binDiv = document.createElement("div");
-	binDiv.className = "hist-" + this.className;
+	binDiv.className = this.className + "-hist";;
         binDiv.style.cssText = 
             "left: " + ((bin / this.numBins) * 100) + "%; "
             + "height: " + (2 * hist[bin]) + "px;"
