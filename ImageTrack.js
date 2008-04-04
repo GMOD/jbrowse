@@ -14,7 +14,7 @@ ImageTrack.prototype = new Track("");
 ImageTrack.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
                                             widthPct, widthPx) {
     Track.prototype.setViewInfo.apply(this, [numBlocks, trackDiv, labelDiv, widthPct, widthPx]);
-    this.setLabel(this.name);
+    this.setLabel(this.key);
 }
 
 ImageTrack.prototype.getZoom = function(scale) {
