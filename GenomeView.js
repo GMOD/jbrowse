@@ -246,41 +246,68 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
         view.setX = function(x) {
 	    view.x = Math.max(Math.min(view.maxLeft - view.offset, x), 
 			      view.minLeft - view.offset);
+	    view.updateTrackLabels(view.x);
             view.elem.scrollLeft = view.x;
         }
         view.rawSetY = function(y) { view.elem.scrollTop = y; view.y = y; }
-        view.setY = function(y) {
-	    view.y = Math.min((y < 0 ? 0 : y),
-			      view.containerHeight
-			      - view.dim.height);
-	    view.elem.scrollTop = view.y
-        }
         view.rawSetPosition = function(pos) {
             view.elem.scrollLeft = pos.x; view.x = pos.x;
             view.elem.scrollTop = pos.y; view.y = pos.y;
         }
-        view.setPosition = function(pos) {
-	    view.x = Math.max(Math.min(view.maxLeft - view.offset, pos.x),
-			      view.minLeft - view.offset);
-            view.elem.scrollLeft = view.x;
-	    view.y = Math.min((pos.y < 0 ? 0 : pos.y),
-			      view.containerHeight - view.dim.height);
-            view.elem.scrollTop = view.y;
-        }
+	//for some reason, IE likes updatePosLabels to run after setting scrollTop
+	if (Util.is_ie) {
+	    view.setY = function(y) {
+		view.y = Math.min((y < 0 ? 0 : y),
+				  view.containerHeight
+				  - view.dim.height);
+		view.elem.scrollTop = view.y
+		view.updatePosLabels(view.y);
+	    }
+	    view.setPosition = function(pos) {
+		view.x = Math.max(Math.min(view.maxLeft - view.offset, pos.x),
+				  view.minLeft - view.offset);
+		view.y = Math.min((pos.y < 0 ? 0 : pos.y),
+				  view.containerHeight - view.dim.height);
+		view.updateTrackLabels(view.x);
+		view.updatePosLabels(view.y);
+
+		view.elem.scrollLeft = view.x;
+		view.elem.scrollTop = view.y;
+
+	    }
+	} else {
+	    view.setY = function(y) {
+		view.y = Math.min((y < 0 ? 0 : y),
+				  view.containerHeight
+				  - view.dim.height);
+		view.updatePosLabels(view.y);
+		view.elem.scrollTop = view.y
+	    }
+	    view.setPosition = function(pos) {
+		view.x = Math.max(Math.min(view.maxLeft - view.offset, pos.x),
+				  view.minLeft - view.offset);
+		view.y = Math.min((pos.y < 0 ? 0 : pos.y),
+				  view.containerHeight - view.dim.height);
+
+		view.updateTrackLabels(view.x);
+		view.updatePosLabels(view.y);
+
+		view.elem.scrollLeft = view.x;
+		view.elem.scrollTop = view.y;
+	    }
+	}	    
     }
 
     view.dragEnd = function(event) {
         YAHOO.util.Event.removeListener(view.elem, "mouseup", view.dragEnd);
         YAHOO.util.Event.removeListener(view.elem, "mousemove", view.dragMove);
         YAHOO.util.Event.removeListener(document.body, "mouseout", view.checkDragOut)
-        //YAHOO.util.Event.addListener(view.elem, "scroll", view.scrollHandler);
 
 	view.dragging = false;
         view.elem.style.cursor = "url(\"openhand.cur\"), move";
         document.body.style.cursor = "default";
         YAHOO.util.Event.stopEvent(event);
         view.scrollUpdate();
-        //view.heightUpdate();
 	view.showVisibleBlocks(true);
     }
 
@@ -295,20 +322,11 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     }
 
     view.dragMove = function(event) {
-        var x = view.winStartPos.x - (event.clientX - view.dragStartPos.x);
-        var y = view.winStartPos.y - (event.clientY - view.dragStartPos.y);
-
-        var pos = {
-                x: Math.max(Math.min(view.maxLeft - view.offset, x),
-                            view.minLeft - view.offset),
-                y: Math.min((y < 0 ? 0 : y),
-                            view.containerHeight - view.dim.height)
-            };
-	view.updateTrackLabels(pos.x);
-	view.updatePosLabels(pos.y);
-        view.rawSetPosition(pos);
+	view.setPosition({
+		x: view.winStartPos.x - (event.clientX - view.dragStartPos.x),
+		y: view.winStartPos.y - (event.clientY - view.dragStartPos.y)
+            });
         YAHOO.util.Event.stopEvent(event);
-        //view.showVisibleBlocks(true, pos);
     }
 
     view.mouseDown = function(event) {
@@ -316,13 +334,9 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 	if (Util.isRightButton(event)) return;
         YAHOO.util.Event.stopEvent(event);
 	if (event.shiftKey) return;
-        //don't follow clicks on the scrollbar
-        //if ((YAHOO.util.Event.getPageX(event) - YAHOO.util.Dom.getX(view.elem))
-        //    > view.dim.width) return;
 	YAHOO.util.Event.addListener(view.elem, "mouseup", view.dragEnd);
 	YAHOO.util.Event.addListener(view.elem, "mousemove", view.dragMove);
 	YAHOO.util.Event.addListener(document.body, "mouseout", view.checkDragOut);
-	//YAHOO.util.Event.removeListener(view.elem, "scroll", view.scrollHandler);
 
 	view.dragging = true;
 	view.dragStartPos = {x: event.clientX, 
@@ -353,34 +367,20 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     YAHOO.util.Event.addListener(view.elem, "mousedown", view.mouseDown);
     YAHOO.util.Event.addListener(view.elem, "mouseup", view.mouseup);
 
-    if (typeof(foo) == 'undefined') 
+    if (typeof(console) == 'undefined') 
         new YAHOO.widget.LogReader("myLogger");
     else
         YAHOO.widget.Logger.enableBrowserConsole();
 
-    view.scrollHandler = function() {
-        //view.showVisibleBlocks(true);
-        //if (!view.dragging) view.heightUpdate();
-    };
-
     var afterSlide = function() {
         view.scrollUpdate();
-        //view.heightUpdate();
 	view.showVisibleBlocks(true);
-        YAHOO.util.Event.addListener(view.elem, "scroll", view.scrollHandler);
     };
 
     YAHOO.util.Event.addListener("moveLeft", "click", function(event) {
             if (view.animation) view.animation.stop();
-            //var slideStart = view.getX();
             var distance = view.dim.width * 0.9;
-            //distance = Math.min(view.minLeft + view.offset, distance);
-	    var pos = view.getPosition();
-	    view.trimVertical(pos.y);
-//             view.showVisibleBlocks(false, pos,
-//                                    pos.x - distance,
-//                                    pos.x + view.dim.width);
-            YAHOO.util.Event.removeListener(view.elem, "scroll", view.scrollHandler);
+	    view.trimVertical();
             YAHOO.util.Event.stopEvent(event);
             new Slider(view, afterSlide,
                        distance * view.slideTimeMultiple, distance);
@@ -388,14 +388,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     YAHOO.util.Event.addListener("moveRight", "click", function(event) {
             if (view.animation) view.animation.stop();
             var distance = -view.dim.width * 0.9;
-            //distance = Math.max(this.subject.maxLeft - this.subject.offset,
-            //                    distance);
-	    var pos = view.getPosition();
-	    view.trimVertical(pos.y);
-//             view.showVisibleBlocks(false, pos,
-//                                    pos.x,
-//                                    pos.x + view.dim.width - distance);
-            YAHOO.util.Event.removeListener(view.elem, "scroll", view.scrollHandler);
+	    view.trimVertical();
             YAHOO.util.Event.stopEvent(event);
             new Slider(view, afterSlide, 
                        distance * -view.slideTimeMultiple, distance);
@@ -431,30 +424,17 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     }
 
     view.wheelScroll = function(e) {
-        //remains of an experiment with scroll wheel zooming
-        //it's nice, but working around firefox bugs is tricky
-        //var zoomLoc = (Event.pointerX(e) - view.getX()) / view.dim.width;
-        //var zoomLoc = 0.5;
-        //in firefox, e.clientX is in twips!  relative to the element that the event fired on!  it's two kinds of crazy in one.
-        //zoomLoc = (((e.clientX / 15) + Position.page(Event.element(e))[0])) / view.dim.width;
-        //YAHOO.log((e.clientX / 15), Position.page(Event.element(e))[0], Position.page(view.elem)[0], view.getX(), view.dim.width);
-        //YAHOO.log("pointerX: %d, getX: %d, view.dim.width: %d, zoomLoc: %d", Event.pointerX(e), view.getX(), view.dim.width, zoomLoc);
-        //YAHOO.log("clientX: %d, element x: %d, element width: %d", e.clientX, Position.page(Event.element(e))[0], Event.element(e).clientWidth);
-        //if (Util.wheel(e) > 0)
-        //    zoomIn(e, zoomLoc);
-        //else
-        //    zoomOut(e, zoomLoc);
 	var oldY = view.getY();
 	var newY = Math.min(Math.max(0, oldY - 60 * Util.wheel(e)), 
 			    view.containerHeight - view.dim.height);
-	view.updatePosLabels(newY);
 	view.setY(newY);
+
+	//the timeout is so that we don't have to run showVisibleBlocks
+	//for every scroll wheel click (we just wait until so many ms
+	//after the last one).
 	if (wheelScrollTimeout)
 	    clearTimeout(wheelScrollTimeout);
 	wheelScrollTimeout = setTimeout(wheelScrollUpdate, 100);
-	//view.showVisibleBlocks(true);
-	//view.heightUpdate();
-	//view.updateTrackLabels();
 	YAHOO.util.Event.stopEvent(e);
     }
 
@@ -522,8 +502,6 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 
     document.body.style.cursor = "url(\"closedhand.cur\")";
     document.body.style.cursor = "default";
-
-    YAHOO.util.Event.addListener(view.elem, "scroll", view.scrollHandler);
 }
 
 GenomeView.prototype.checkY = function(y) {
@@ -547,13 +525,6 @@ GenomeView.prototype.updateTrackLabels = function(newX) {
     if (newX === undefined) newX = this.getX();
     for (var i = 0; i < this.trackLabels.length; i++)
         this.trackLabels[i].style.left = newX + "px";
-
-//     var trackTop = this.topSpace() - this.getY();
-//     for (var i = 0; i < this.trackLabels.length; i++) {
-// 	trackTop += this.trackHeights[i] + this.trackPadding;
-// 	this.trackLabels[i].style.top = trackTop + "px";
-// 	    //Position.page(this.tracks[i].div)[1] + "px";
-//     }
 }
 
 GenomeView.prototype.showWait = function() {
@@ -688,7 +659,6 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc) {
     if (this.curZoom < (this.zoomLevels.length - 1)) {
 	this.showWait();
 	var pos = this.getPosition();
-	//this.showVisibleBlocks(false, pos, pos.x, pos.x + this.dim.width);
 	this.trimVertical(pos.y);
 	for (var i = 0; i < this.stripeCount; i++) {
 	    if ((((i + 1) * this.stripeWidth) < pos.x)
@@ -709,8 +679,6 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc) {
 					 centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp));
 	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp)));
 
-	//zoomStart = (new Date()).getTime();
-        YAHOO.util.Event.removeListener(this.elem, "scroll", this.scrollHandler);
 	new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);
     }
 }
@@ -744,8 +712,6 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc) {
 
 	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp)));
 	this.minLeft = this.bpToPx(this.startbp);
-	//zoomStart = (new Date()).getTime();
-        YAHOO.util.Event.removeListener(this.elem, "scroll", this.scrollHandler);
 	new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);
     }
 }
@@ -769,7 +735,7 @@ GenomeView.prototype.zoomUpdate = function() {
     this.maxLeft = this.bpToPx(this.endbp) - this.dim.width;
     this.minLeft = this.bpToPx(this.startbp);
     this.setX((centerPx - this.offset) - (eWidth / 2));
-    this.updateTrackLabels();
+    //this.updateTrackLabels();
     this.clearStripes();
     for (var track = 0; track < this.tracks.length; track++)
 	this.tracks[track].endZoom(this.pxPerBp, Math.round(this.stripeWidth / this.pxPerBp));
@@ -778,8 +744,6 @@ GenomeView.prototype.zoomUpdate = function() {
     this.container.style.paddingTop = this.topSpace() + "px";
     this.containerHeight = 0;
     this.showVisibleBlocks(true);
-    //this.heightUpdate();
-    YAHOO.util.Event.addListener(this.elem, "scroll", this.scrollHandler);
     this.showDone();
 }    
 
@@ -937,7 +901,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 	if (y > 0) {
 	    if (middleDelta) {
 		y = this.checkY(this.getY() + middleDelta);
-		this.updatePosLabels(y);
+		//this.updatePosLabels(y);
 		this.setY(y);
 		//the setY call may expose previously un-rendered blocks,
 		//so we need to do another showVisibleBlocks
@@ -945,7 +909,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 	    }
 	} else {
 	    //seems to reduce end-zoom flicker; not sure why
-	    this.setY(0);
+	    this.rawSetY(0);
 	}
     }
 }
@@ -965,12 +929,6 @@ GenomeView.prototype.makeStripe = function(startBase, startPercent) {
     startBase = Math.round(startBase);
     stripe.startBase = startBase;
     stripe.endBase = stripe.startBase + Math.round(this.stripeWidth / this.pxPerBp);
-//     var posLabel = document.createElement("div");
-//     posLabel.className = "pos-label";
-//     posLabel.appendChild(document.createTextNode(Util.addCommas(startBase)));
-//     posLabel.style.top = "0px";// y + "px";
-//     stripe.appendChild(posLabel);
-//     stripe.posLabel = posLabel;
 
     if ((this.zoomLevels.length - 1) == this.curZoom) {
         var seqNode = document.createElement("div");
@@ -1000,35 +958,6 @@ GenomeView.prototype.topSpace = function() {
         return 1.5 * this.posHeight;
 }
 
-GenomeView.prototype.heightUpdate = function() {
-    var top = this.topSpace();
-    var lastTop = top;
-    var curHeight;
-    //for (var i = 0; i < this.tracks.length; i++) {
-    this.trackIterate(function(track, gv) {
-            curHeight = track.heightUpdate();
-            curHeight = Math.max(curHeight, track.label.offsetHeight);
-            track.div.style.height = curHeight + "px";
-            track.height = curHeight;
-            //this.trackHeights[i] = curHeight + this.trackPadding;
-            //this.trackTops[i] = lastTop;
-            lastTop += curHeight + gv.trackPadding;
-        });
-    var newHeight = Math.max(lastTop, this.dim.height) - top;
-    var oldHeight = this.containerHeight;
-    this.container.style.height = newHeight + "px";
-    this.containerHeight = newHeight;
-    if (newHeight < oldHeight) this.showVisibleBlocks(true);
-    //YAHOO.log("newHeight: " + newHeight + ", container height: " + this.container.style.height + ", elem scrollheight: " + this.elem.scrollHeight);
-    //for (var stripe = 0 ; stripe < this.stripes.length; stripe++)
-        //this.stripes[stripe].style.height = newHeight + "px";
-    var maxY = newHeight - this.dim.height + top;
-    if (this.getY() > maxY) {
-	this.updatePosLabels(maxY);
-	this.setY(maxY);
-    }
-}
-
 GenomeView.prototype.clearStripes = function() {
     for (var i = 0; i < this.stripes.length; i++)
         if (this.stripes[i] !== undefined)
@@ -1048,9 +977,6 @@ GenomeView.prototype.makeStripes = function() {
         this.container.appendChild(stripe);
     }
     this.startBase = Math.round(this.pxToBp(this.offset));
-    //this.scrollUpdate();
-    //this.showVisibleBlocks(true);
-    //this.heightUpdate();
 }
 
 GenomeView.prototype.addTrack = function(track) {
