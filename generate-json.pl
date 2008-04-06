@@ -36,7 +36,7 @@ if (defined $refid) {
 }
 
 my $segName = $seg->name;
-$segName = $seg->{'uniquename'} if ($seg->can('uniquename'));
+$segName = $seg->uniquename if ($seg->can('uniquename'));
 $segName =~ s/:.*$//; #get rid of coords if any
 
 mkdir($outdir) unless (-d $outdir);
@@ -51,7 +51,7 @@ my @featMap = (
 	       sub {shift->start - 1},
 	       sub {int(shift->end)},
 	       sub {int(shift->strand)},
-	       sub {shift->primary_id},
+	       sub {$_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id},
 	       sub {shift->display_name},
 	      );
 my $mapHeaders = ['start', 'end', 'strand', 'id', 'name'];
