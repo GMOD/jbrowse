@@ -112,6 +112,7 @@ div.feature-label {
     font-size: 80%;
     white-space: nowrap;
     background-color: #eee;
+    cursor: pointer;
 }
 
 div.plus-feature,

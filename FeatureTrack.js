@@ -278,6 +278,8 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
                 "left: " + (100 * (feature[start] - leftBase) / blockWidth) + "%; "
                 + "top: " + ((level * levelHeight) + glyphHeight) + levelUnits + ";";
 	    featDiv.label = labelDiv;
+	    labelDiv.feature = feature;
+	    labelDiv.onclick = callback;
             block.appendChild(labelDiv);
         }
 
