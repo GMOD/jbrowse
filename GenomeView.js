@@ -333,7 +333,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
         if ("animation" in view) view.animation.stop();
 	if (Util.isRightButton(event)) return;
         YAHOO.util.Event.stopEvent(event);
-	if (event.shiftKey) return;
+	if (event.shiftKey || event.ctrlKey) return;
 	YAHOO.util.Event.addListener(view.elem, "mouseup", view.dragEnd);
 	YAHOO.util.Event.addListener(view.elem, "mousemove", view.dragMove);
 	YAHOO.util.Event.addListener(document.body, "mouseout", view.checkDragOut);
@@ -485,7 +485,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 	    if (view.dragging) return;
 	    if ("animation" in view) view.animation.stop();
 	    var zoomLoc = (YAHOO.util.Event.getPageX(event) - YAHOO.util.Dom.getX(view.elem)) / view.dim.width;
-	    if (Util.isRightButton(event) || event.shiftKey) {
+	    if (Util.isRightButton(event) || event.ctrlKey) {
 		view.zoomOut(event, zoomLoc);
 	    } else {
 		view.zoomIn(event, zoomLoc);
