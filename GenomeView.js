@@ -897,16 +897,12 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 	}
 	//keep middle track in the same vertical position,
 	//when track heights change (otherwise it's easy to lose your place)
-	var y = this.getY();
-	if (y > 0) {
-	    if (middleDelta) {
-		y = this.checkY(this.getY() + middleDelta);
-		//this.updatePosLabels(y);
-		this.setY(y);
-		//the setY call may expose previously un-rendered blocks,
-		//so we need to do another showVisibleBlocks
-		if (Math.abs(middleDelta) > 5) this.showVisibleBlocks(updateHeight, pos, startX, endX);
-	    }
+	var curY = this.getY();
+	if (curY > 0) {
+            this.setY(curY + middleDelta);
+            //the setY call may expose previously un-rendered blocks,
+            //so we need to do another showVisibleBlocks
+            if (Math.abs(middleDelta) > 5) this.showVisibleBlocks(updateHeight, pos, startX, endX);
 	} else {
 	    //seems to reduce end-zoom flicker; not sure why
 	    this.rawSetY(0);
