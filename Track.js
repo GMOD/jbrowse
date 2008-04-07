@@ -1,6 +1,8 @@
-function Track(name, key) {
+function Track(name, key, loaded, changeCallback) {
     this.name = name;
     this.key = key;
+    this.loaded = loaded;
+    this.changed = changeCallback;
 }
 
 Track.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
@@ -136,6 +138,18 @@ Track.prototype.hideAll = function() {
     //this.div.style.backgroundColor = "#eee";
 }
 
+Track.prototype.setLoaded = function() {
+    this.loaded = true;
+    this.hideAll();
+    this.changed();
+}
+
+Track.prototype._loadingBlock = function(blockDiv) {
+    blockDiv.appendChild(document.createTextNode("Loading..."));
+    blockDiv.style.backgroundColor = "#eee";
+    return 50;
+}
+
 Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
     if (this.blockAttached[blockIndex]) return this.blockHeights[blockIndex];
     if (this.blocks[blockIndex]) {
@@ -155,13 +169,17 @@ Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
     blockDiv.style.width = this.widthPct + "%";
     blockDiv.startBase = startBase;
     blockDiv.endBase = endBase;
-    blockHeight = this.fillBlock(blockDiv, 
-				 this.blocks[blockIndex - 1],
-				 this.blocks[blockIndex + 1],
-				 startBase,
-				 endBase, 
-				 scale,
-				 this.widthPx);
+    if (this.loaded) {
+	blockHeight = this.fillBlock(blockDiv, 
+				     this.blocks[blockIndex - 1],
+				     this.blocks[blockIndex + 1],
+				     startBase,
+				     endBase, 
+				     scale,
+				     this.widthPx);
+    } else {
+	blockHeight = this._loadingBlock(blockDiv);
+    }
 
     this.blocks[blockIndex] = blockDiv;
     this.blockAttached[blockIndex] = true;

@@ -1,26 +1,49 @@
-function SimpleFeatureTrack(trackInfo, className, refSeq,
-			    histScale, labelScale, padding) {
+function SimpleFeatureTrack(trackMeta, refSeq, changeCallback) {
     //className: CSS class for the features
     //padding: min pixels between each feature horizontally
 
-    Track.call(this, trackInfo.label, trackInfo.key);
-    this.count = trackInfo.featureCount;
+    Track.call(this, trackMeta.label, trackMeta.key, false, changeCallback);
+    //this.count = trackInfo.featureCount;
     this.fields = {};
-    for (var i = 0; i < trackInfo.map.length; i++) {
-	this.fields[trackInfo.map[i]] = i;
-    }
+    //for (var i = 0; i < trackInfo.map.length; i++) {
+    //	this.fields[trackInfo.map[i]] = i;
+    //}
     this.features = new NCList();
-    this.features.importExisting(trackInfo.featureNCList, trackInfo.sublistIndex);
-    this.className = className;
+    //this.features.importExisting(trackInfo.featureNCList, trackInfo.sublistIndex);
+    this.className = trackMeta.className;
     this.refSeq = refSeq;
-    this.histScale = histScale;
-    this.labelScale = labelScale;
+    //this.histScale = histScale;
+    //this.labelScale = labelScale;
+    //number of histogram bins per block
     this.numBins = 25;
     this.histLabel = false;
-    this.padding = padding;
+    this.padding = 5;
+
+    this.trackMeta = trackMeta;
+    var curTrack = this;
+    var trackSuccess = function(o) {
+	curTrack.loadSuccess(o);
+    }
+    YAHOO.util.Connect.asyncRequest("GET", trackMeta.url, {success: trackSuccess});
 }
 
 SimpleFeatureTrack.prototype = new Track("");
+
+SimpleFeatureTrack.prototype.loadSuccess = function(o) {
+    var startTime = new Date().getTime();
+    var trackInfo = eval(o.responseText);
+    this.count = trackInfo.featureCount;
+    for (var i = 0; i < trackInfo.map.length; i++) {
+	this.fields[trackInfo.map[i]] = i;
+    }
+    this.features.importExisting(trackInfo.featureNCList, trackInfo.sublistIndex);
+    this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length());
+    this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length());
+    
+    YAHOO.log((new Date().getTime() - startTime) / 1000);
+
+    this.setLoaded();
+}
 
 SimpleFeatureTrack.prototype.setViewInfo = function(numBlocks, trackDiv,
                                                     labelDiv, widthPct,

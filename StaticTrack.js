@@ -2,7 +2,7 @@
 //always stay visible at the top of the view
 
 function StaticTrack(name) {
-    Track.call(this, name);
+    Track.call(this, name, name, true, function() {});
 }
 
 StaticTrack.prototype = new Track("");

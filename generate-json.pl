@@ -10,8 +10,7 @@ use JSON;
 
 my ($CONF_DIR, $ref, $refid, $source, $onlyLabel);
 my $outdir = "data";
-my $getSubs = 0;
-my $getPhase = 0;
+my ($getSubs, $getPhase, $getType) = (0, 0, 0);
 GetOptions("conf=s" => \$CONF_DIR,
 	   "ref=s" => \$ref,
 	   "src=s" => \$source,
@@ -19,7 +18,8 @@ GetOptions("conf=s" => \$CONF_DIR,
 	   "track=s" => \$onlyLabel,
 	   "out=s" => \$outdir,
 	   "sub" => \$getSubs,
-	   "phase" => \$getPhase);
+	   "phase" => \$getPhase,
+	   "type" => \$getType);
 
 my $browser = open_config($CONF_DIR);
 $browser->source($source) or die "ERROR: source $source not found (the choices are: " . join(", ", $browser->sources) . "\n";
@@ -59,6 +59,11 @@ my $mapHeaders = ['start', 'end', 'strand', 'id', 'name'];
 if ($getPhase) {
     push @featMap, sub {shift->phase};
     push @$mapHeaders, "phase";
+}
+
+if ($getType) {
+    push @featMap, sub {shift->primary_tag};
+    push @$mapHeaders, "type";
 }
 
 if ($getSubs) {

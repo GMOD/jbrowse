@@ -6,8 +6,8 @@ Browser.init = function(elemId) {
     var gv = new GenomeView(viewElem, 250, refSeq.start, refSeq.end, 1/50);
     gv.setY(0);
     viewElem.view = gv;
-    var trackNum = 0;
-    gv.showWait();
+    //var trackNum = 0;
+    //gv.showWait();
     gv.addTrack(new ImageTrack("Gene_Image", "Gene Image", refSeq, 1000, 
                                [
                                 {basesPerTile: 100, height: 68, urlPrefix: "tiles/3R/Genes/100bp/"},
@@ -27,35 +27,41 @@ Browser.init = function(elemId) {
                                 {basesPerTile: 5000000, height: 208.5, urlPrefix: "tiles/3R/Genes/5Mbp/"},
                                 {basesPerTile: 10000000, height: 208.5, urlPrefix: "tiles/3R/Genes/10Mbp/"}
                                 ]));
-    var trackSuccess = function(o) {
-        //try {
-            var startTime = new Date().getTime();
-            //var featArray = eval(o.responseText);
-	    var trackInfo = eval(o.responseText);
-            var track = new SimpleFeatureTrack(trackInfo,
-                                               o.argument.className,
-                                               refSeq, 
-                                               4 * (trackInfo.featureCount 
-                                                    / refSeq.length()),
-                                               //100, //turn off labels
-                                               50 * (trackInfo.featureCount 
-                                                     / refSeq.length()),
-                                               5);
-            gv.addTrack(track);
+//     var trackSuccess = function(o) {
+//         //try {
+//             var startTime = new Date().getTime();
+//             //var featArray = eval(o.responseText);
+// 	    var trackInfo = eval(o.responseText);
+//             var track = new SimpleFeatureTrack(trackInfo,
+//                                                o.argument.className,
+//                                                refSeq, 
+//                                                4 * (trackInfo.featureCount 
+//                                                     / refSeq.length()),
+//                                                //100, //turn off labels
+//                                                50 * (trackInfo.featureCount 
+//                                                      / refSeq.length()),
+//                                                5);
+//             gv.addTrack(track);
 
-            YAHOO.log((new Date().getTime() - startTime) / 1000);
-            if (trackNum < trackList.length)
-                setTimeout(addTrack, 0);
-            else
-                gv.showDone();
-            //} catch (e) {
-            //alert(Util.stringify(e)); 
-            //}
-    };
+//             YAHOO.log((new Date().getTime() - startTime) / 1000);
+//             if (trackNum < trackList.length)
+//                 setTimeout(addTrack, 0);
+//             else
+//                 gv.showDone();
+//             //} catch (e) {
+//             //alert(Util.stringify(e)); 
+//             //}
+//     };
 
-    var addTrack = function() {
-        var track = trackList[trackNum++];
-        YAHOO.util.Connect.asyncRequest("GET", track.url, {success: trackSuccess, argument: track});
+//     var addTrack = function() {
+//         var track = trackList[trackNum++];
+//         YAHOO.util.Connect.asyncRequest("GET", track.url, {success: trackSuccess, argument: track});
+//     }
+//     setTimeout(addTrack, 0);
+    var changeCallback = function() {
+	gv.showVisibleBlocks(true);
     }
-    setTimeout(addTrack, 0);
+    for (var i = 0; i < trackList.length; i++) {
+	gv.addTrack(new SimpleFeatureTrack(trackList[i], refSeq, changeCallback));
+    }
 }
