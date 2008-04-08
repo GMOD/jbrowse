@@ -188,10 +188,10 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     }	
 
     startSlots = new Array();
-    if (leftBlock !== undefined) {
+    if (leftBlock && leftBlock.rightSlots) {
         slots = leftBlock.rightSlots.concat();
         block.leftSlots = startSlots;
-    } else if (rightBlock !== undefined) {
+    } else if (rightBlock && rightBlock.leftSlots) {
         slots = rightBlock.leftSlots.concat();
         block.rightSlots = startSlots;
         goLeft = true;
