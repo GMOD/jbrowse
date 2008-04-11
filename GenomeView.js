@@ -367,10 +367,12 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     YAHOO.util.Event.addListener(view.elem, "mousedown", view.mouseDown);
     YAHOO.util.Event.addListener(view.elem, "mouseup", view.mouseup);
 
-    if (typeof(console) == 'undefined') 
+    if (typeof(console) == 'undefined') {
         new YAHOO.widget.LogReader("myLogger");
-    else
+    } else {
         YAHOO.widget.Logger.enableBrowserConsole();
+	$("myLogger").style.display = "none";
+    }
 
     var afterSlide = function() {
         view.scrollUpdate();
@@ -467,7 +469,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
             setTimeout(profile, 2000);
         });
 
-    YAHOO.util.Event.addListener(window, "resize", function() { view.sizeInit(); });
+    //YAHOO.util.Event.addListener(window, "resize", function() { view.sizeInit(); });
 
     this.makeStripes();
 

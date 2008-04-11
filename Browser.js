@@ -64,4 +64,16 @@ Browser.init = function(elemId) {
     for (var i = 0; i < trackList.length; i++) {
 	gv.addTrack(new SimpleFeatureTrack(trackList[i], refSeq, changeCallback));
     }
+
+    var setBrowserSize = function() {
+	viewElem.style.width = (Util.getViewportWidth() - (2 * viewElem.offsetLeft)) + "px";
+	viewElem.style.height = (Util.getViewportHeight() - (viewElem.offsetTop + 10)) + "px";
+    };
+
+    setBrowserSize();
+    YAHOO.util.Event.addListener(window, "resize", function() {
+	    setBrowserSize();
+	    gv.sizeInit();
+	});
+
 }
