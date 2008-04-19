@@ -1,0 +1,114 @@
+<html>
+<head>
+	<title>Cometd chat / Operator Page</title>
+
+	<style type="text/css">
+		@import "chat.css";
+		@import "../../tests/css/dijitTests.css"; 
+		@import "../../themes/tundra/tundra.css";
+		@import "../../../dojox/widget/SortList/SortList.css";
+
+		html, body { margin:0; padding:0; height:100%; width:100%; overflow:hidden; } 
+
+		#status { position:absolute; top:5px; right:25px; } 
+		#mainPane { background:#fff; } 		
+	</style>
+
+	<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug:true, parseOnLoad:false"></script>
+	<script type="text/javascript" src="../../../dijit/tests/_testCommon.js"></script>
+	<script type="text/javascript" src="room.js"></script>
+	<script type="text/javascript">
+		dojo.require("dijit.Dialog"); 
+		dojo.require("dijit.layout.SplitContainer"); 		
+		dojo.require("dijit.layout.LayoutContainer");
+		dojo.require("dijit.layout.TabContainer");
+		dojo.require("dijit.layout.ContentPane"); 
+		dojo.require("dijit.form.Button");
+
+		// custom widget created for this demo: 
+		dojo.require("dojox.widget.SortList");
+		
+		dojo.require("dojo.parser");
+
+			// not for production use?	
+			//dojox.cometd.init("http://comet.sitepen.com:9000/cometd"); 
+
+			var control = {
+				_chats: [],
+				_getAlert: function(e){
+					console.log(e); 
+					if (!this._chats[(e.data.user)] && (operator != e.data.user)){
+						dojox.cometd.subscribe("/chat/demo/"+e.data.joined,this,"_privateChat");
+	
+						var tabNode = document.createElement('div');
+						tabNode.id = "chatWith" + e.data.user; 
+						var chatNode = document.createElement('div');
+						chatNode.id = e.data.user + "Widget";
+						tabNode.appendChild(chatNode);
+						var newTab = new dijit.layout.ContentPane({
+							title: e.data.user,
+							closable: true
+						},tabNode);
+						dijit.byId('tabView').addChild(newTab);
+						var chat = new dijit.demos.chat.Room({
+							roomId: e.data.joined,
+							registeredAs: operator
+						},chatNode);
+						chat.startup();
+						this._chats[(e.data.user)]=true;
+					}
+				},
+
+				_privateChat: function(e){
+					var thisChat = dijit.byId(e.data.user+"Widget") || false;
+					if (thisChat) { thisChat._chat(e); }
+				}
+			};
+
+			function registerOperator(){
+				dijit.byId('loginDialog').hide(); 
+
+			}
+
+			dojo.addOnLoad(function(){ 
+				dojo.parser.parse(dojo.body());
+				// dojox.cometd.subscribe("/chat/demo/poundDojo",control,"_getAlert");
+				var widget = dijit.byId('userList');
+				for (var i = 0; i<50; i++){
+					var node = document.createElement('li');
+					node.innerHTML = i+": list item sample";
+					widget.containerNode.appendChild(node);
+				}
+				widget.onSort();
+			});
+	</script>
+</head>
+<body>
+<div dojoType="dijit.layout.LayoutContainer" style="width:100%; height:100%;">
+	<div dojoType="dijit.layout.SplitContainer" orientation="vertical" style="height:100%" layoutAlign="client" sizerWidth="7">
+		<div dojoType="dijit.layout.SplitContainer" orientation="horizontal" sizerWidth="7" activeSizing="true" layoutAlign="top" sizeShare="80">
+			<div id="mainPane" dojoType="dijit.layout.ContentPane" title="Home" style="padding:8px;" sizeShare="80" layoutAlign="left" style="background:#fff;">
+				<h3>Dojo community chat demo</h3>
+				<h2>NON-WORKING PROTOTYPE</h2>
+
+				<button dojoType="dijit.form.Button">Login 
+					<script type="dojo/method" event="onClick">
+						console.log('foo?');
+						dijit.byId('loginDialog').show();
+					</script>
+				</button>
+
+			</div>
+			<div title="Users in #dojo" id="userList" dojoType="dojox.widget.SortList" sizeShare="20" sizeMin="15" layoutAlign="right"></div>
+		</div>
+		<div dojoType="dijit.layout.ContentPane" sizeShare="20" layoutAlign="bottom">
+				bottom. (input area)
+		</div>	
+	</div>
+</div>
+<div dojoType="dijit.Dialog" id="loginDialog" title="Select Username:">
+	Name: <input type="text" name="username" id="opName" value="" /> 
+	<input 	type="submit" value="login" onclick="registerOperator()"/>	
+</div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<html>
+<head>
+<title>Wizard Demo</title>
+
+	<script type="text/javascript" djConfig="isDebug:true,parseOnLoad:true"
+		src="../../../dojo/dojo.js"></script>
+	<script type="text/javascript" src="../../../dijit/tests/_testCommon.js"></script>
+	<script type="text/javascript" src="../Wizard.js"></script>
+
+	<script type="text/javascript">
+		dojo.require("dojox.widget.Wizard");
+	
+		function cancel() {
+			alert("Wizard Cancelled!");
+		}
+	    
+		function done() {
+			alert("Wizard Done!");
+		}
+	</script>
+
+	<style type="text/css">
+		@import "../../../dijit/themes/tundra/tundra.css";
+		@import "../../../dijit/tests/css/dijitTests.css"; 
+		@import "../Wizard/Wizard.css";
+		body {
+			font-family : sans-serif;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div style="width:800px; margin:0 auto">
+
+		<h1 class="testTitle">dojox.widget.Wizard tests</h1>
+
+		<p>This example shows a wizard with customized button labels.</p>
+
+		<div id="wizard1" dojoType="dojox.widget.WizardContainer"
+			 style="width: 640px; height: 200px;"
+			 nextButtonLabel="Go on"
+			 >
+			<div dojoType="dojox.widget.WizardPane" title="Tab 1">
+				<h1>Tab 1</h1>
+				<p>Sized content, box one</p>
+			</div>
+			<div dojoType="dojox.widget.WizardPane">
+				<h1>Tab 2</h1>
+			</div>
+			<div dojoType="dojox.widget.WizardPane" doneFunction="done">
+				<h1>Tab 3</h1>
+	
+				You won't be able to come back, but you can finish now...
+			</div>
+			<div dojoType="dojox.widget.WizardPane" canGoBack="false">
+				<h1>Tab 4</h1>
+	
+				... and now you can't go back.
+			</div>
+			<div dojoType="dojox.widget.WizardPane" doneFunction="done">
+				<h1>Tab 5</h1>
+				... and now you can finish up.
+			</div>
+		</div>
+	
+		<p>The next shows the option to hide the inactive buttons, with a smaller width...</p>
+	
+		<div id="wizard2" dojoType="dojox.widget.WizardContainer" hideDisabled="true" style="width: 50%; height: 200px;">
+			<div dojoType="dojox.widget.WizardPane">
+				<h1>Step 1 of 3</h1>
+				<p>Lorem ipsum dolor sit amet</p>
+			</div>
+			<div dojoType="dojox.widget.WizardPane">
+				<h1>Step 2 of 3</h1>
+				<p>consectetur adipisicing elit</p>
+			</div>
+			<div dojoType="dojox.widget.WizardPane">
+				<h1>Step 3 of 3</h1>
+				<p>sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
+			</div>
+		</div>
+	
+		<p>The next shows blocking moving to the next step with a JS function...</p>
+	
+		<script>
+			function checkAgreement() {
+				var frm = document.forms['acceptAgreement'];
+				var accept = frm.accept;
+				if (!accept.checked) {
+					return "You must agree to the terms before continuing.";
+				}
+			}
+		</script>
+		<div id="wizard3" dojoType="dojox.widget.WizardContainer" style="width: 600px; height: 400px; margin:0 auto;">
+			<div dojoType="dojox.widget.WizardPane" id="Agreement1" passFunction="checkAgreement">
+				<h1>Agreement Terms</h1>
+	
+				<div dojoType="dijit.layout.ContentPane" style="width:400px; border:1px solid #b7b7b7; background:#fff; padding:8px; margin:0 auto; height:200px; overflow:auto; "
+					href="../../../dojo/LICENSE"></div>
+	
+				<form action="#" name="acceptAgreement">
+					<p>
+					<input type="checkbox" name="accept" value="true"/> I accept the terms of this agreement.
+					</p>
+				</form>
+			</div>
+			<div dojoType="dojox.widget.WizardPane" canGoBack="false">
+				<h1>Complete</h1>
+				<p>The license has been accepted.</p>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>
+
+

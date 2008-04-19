@@ -45,7 +45,7 @@ Animation.prototype.animate = function () {
     } else {
 	this.step(1);
         this.finished = true;
-	YAHOO.log("final timeout: " + nextTimeout);
+	//YAHOO.log("final timeout: " + nextTimeout);
     }
     this.animID = setTimeout(this.animFunction, nextTimeout);
 }
@@ -299,14 +299,12 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     }
 
     view.dragEnd = function(event) {
-        YAHOO.util.Event.removeListener(view.elem, "mouseup", view.dragEnd);
-        YAHOO.util.Event.removeListener(view.elem, "mousemove", view.dragMove);
-        YAHOO.util.Event.removeListener(document.body, "mouseout", view.checkDragOut)
+	dojo.forEach(view.dragEventHandles, dojo.disconnect);
 
 	view.dragging = false;
         view.elem.style.cursor = "url(\"openhand.cur\"), move";
         document.body.style.cursor = "default";
-        YAHOO.util.Event.stopEvent(event);
+        dojo.stopEvent(event);
         view.scrollUpdate();
 	view.showVisibleBlocks(true);
     }
@@ -326,17 +324,20 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 		x: view.winStartPos.x - (event.clientX - view.dragStartPos.x),
 		y: view.winStartPos.y - (event.clientY - view.dragStartPos.y)
             });
-        YAHOO.util.Event.stopEvent(event);
+        dojo.stopEvent(event);
     }
 
     view.mouseDown = function(event) {
         if ("animation" in view) view.animation.stop();
 	if (Util.isRightButton(event)) return;
-        YAHOO.util.Event.stopEvent(event);
+        dojo.stopEvent(event);
 	if (event.shiftKey || event.ctrlKey) return;
-	YAHOO.util.Event.addListener(view.elem, "mouseup", view.dragEnd);
-	YAHOO.util.Event.addListener(view.elem, "mousemove", view.dragMove);
-	YAHOO.util.Event.addListener(document.body, "mouseout", view.checkDragOut);
+	view.dragEventHandles =
+	    [
+	     dojo.connect(view.elem, "mouseup", view.dragEnd),
+	     dojo.connect(view.elem, "mousemove", view.dragMove),
+	     dojo.connect(document.body, "mouseout", view.checkDragOut),
+	     ];
 
 	view.dragging = true;
 	view.dragStartPos = {x: event.clientX, 
@@ -350,72 +351,72 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     view.mouseup = function(event) {
 	if (event.shiftKey) {
             if ("animation" in view) view.animation.stop();
-	    var zoomLoc = (YAHOO.util.Event.getPageX(event) - YAHOO.util.Dom.getX(view.elem)) / view.dim.width;
+	    var zoomLoc = (event.pageX - dojo.coords(view.elem, true).x) / view.dim.width;
 	    if (Util.isRightButton(event)) {
 		view.zoomOut(event, zoomLoc);
 	    } else {
 		view.zoomIn(event, zoomLoc);
 	    }
-	    YAHOO.util.Event.stopEvent(event);
+	    dojo.stopEvent(event);
 	}
     }
 
-    YAHOO.util.Event.addListener(view.elem, "contextmenu", function(event) {
+    dojo.connect(view.elem, "contextmenu", function(event) {
 	    if (event.shiftKey)
-		YAHOO.util.Event.stopEvent(event);
+		dojo.stopEvent(event);
 	});
-    YAHOO.util.Event.addListener(view.elem, "mousedown", view.mouseDown);
-    YAHOO.util.Event.addListener(view.elem, "mouseup", view.mouseup);
+    dojo.connect(view.elem, "mousedown", view.mouseDown);
+    dojo.connect(view.elem, "mouseup", view.mouseup);
 
-    if (typeof(console) == 'undefined') {
-        new YAHOO.widget.LogReader("myLogger");
-    } else {
-        YAHOO.widget.Logger.enableBrowserConsole();
-	$("myLogger").style.display = "none";
-    }
+//     if (typeof(console) == 'undefined') {
+//         new YAHOO.widget.LogReader("myLogger");
+//     } else {
+//         YAHOO.widget.Logger.enableBrowserConsole();
+// 	$("myLogger").style.display = "none";
+//     }
 
     var afterSlide = function() {
         view.scrollUpdate();
 	view.showVisibleBlocks(true);
     };
 
-    YAHOO.util.Event.addListener("moveLeft", "click", function(event) {
+    dojo.connect(dojo.byId("moveLeft"), "click", function(event) {
             if (view.animation) view.animation.stop();
             var distance = view.dim.width * 0.9;
 	    view.trimVertical();
-            YAHOO.util.Event.stopEvent(event);
+            dojo.stopEvent(event);
             new Slider(view, afterSlide,
                        distance * view.slideTimeMultiple, distance);
         });
-    YAHOO.util.Event.addListener("moveRight", "click", function(event) {
+    dojo.connect(dojo.byId("moveRight"), "click", function(event) {
             if (view.animation) view.animation.stop();
             var distance = -view.dim.width * 0.9;
 	    view.trimVertical();
-            YAHOO.util.Event.stopEvent(event);
+            dojo.stopEvent(event);
             new Slider(view, afterSlide, 
                        distance * -view.slideTimeMultiple, distance);
         });
 
     function killEvent(event) {
-        YAHOO.util.Event.stopEvent(event);
+        dojo.stopEvent(event);
     }
 
-    YAHOO.util.Event.addListener("zoomIn", "mouseup", killEvent);
-    YAHOO.util.Event.addListener("zoomOut", "mouseup", killEvent);
-    YAHOO.util.Event.addListener("moveLeft", "mouseup", killEvent);
-    YAHOO.util.Event.addListener("moveRight", "mouseup", killEvent);
+    //dojo.connect("zoomIn", "mouseup", killEvent);
+    //dojo.connect("zoomOut", "mouseup", killEvent);
+    //dojo.connect("moveLeft", "mouseup", killEvent);
+    //dojo.connect("moveRight", "mouseup", killEvent);
 
     var zoomIn = function(event) {
         view.zoomIn();
-        if (event) YAHOO.util.Event.stopEvent(event);
+        if (event) dojo.stopEvent(event);
     };
     var zoomOut = function(event) {
         view.zoomOut();
-        if (event) YAHOO.util.Event.stopEvent(event);
+        if (event) dojo.stopEvent(event);
     };
-    YAHOO.util.Event.addListener("zoomIn", "click", zoomIn);
+    dojo.connect(dojo.byId("zoomIn"), "click", zoomIn);
 
-    YAHOO.util.Event.addListener("zoomOut", "click", zoomOut);
+    dojo.connect(dojo.byId("zoomOut"), "click", zoomOut);
 
     view.zoomCallback = function() {view.zoomUpdate()};
 
@@ -437,14 +438,14 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 	if (wheelScrollTimeout)
 	    clearTimeout(wheelScrollTimeout);
 	wheelScrollTimeout = setTimeout(wheelScrollUpdate, 100);
-	YAHOO.util.Event.stopEvent(e);
+	dojo.stopEvent(e);
     }
 
-    YAHOO.util.Event.addListener(view.container, "mousewheel", view.wheelScroll, false);
+    dojo.connect(view.container, "mousewheel", view.wheelScroll, false);
 
-    YAHOO.util.Event.addListener(view.container, "DOMMouseScroll", view.wheelScroll, false);
+    dojo.connect(view.container, "DOMMouseScroll", view.wheelScroll, false);
 
-    YAHOO.util.Event.addListener(view.elem, "doubleclick", function (event) {YAHOO.log("doubleclick");});
+    //dojo.connect(view.elem, "doubleclick", function (event) {YAHOO.log("doubleclick");});
 
     var zooms = [zoomOut, zoomOut, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomIn, zoomIn];
 
@@ -462,14 +463,14 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     
     var startTime;
 
-    YAHOO.util.Event.addListener("profile", "click", function() {
+    dojo.connect("profile", "click", function() {
             thisZoom = 0;
             startTime = new Date().getTime();
             
             setTimeout(profile, 2000);
         });
 
-    //YAHOO.util.Event.addListener(window, "resize", function() { view.sizeInit(); });
+    //dojo.connect(window, "resize", function() { view.sizeInit(); });
 
     this.makeStripes();
 
@@ -483,19 +484,19 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     this.staticTrack.showRange(0, this.stripeCount - 1, this.stripes[0].startBase, Math.round(this.stripeWidth / this.pxPerBp), this.pxPerBp);
     this.container.appendChild(trackDiv);
 
-    YAHOO.util.Event.addListener(trackDiv, "mouseup", function(event) {
+    dojo.connect(trackDiv, "mouseup", function(event) {
 	    if (view.dragging) return;
 	    if ("animation" in view) view.animation.stop();
-	    var zoomLoc = (YAHOO.util.Event.getPageX(event) - YAHOO.util.Dom.getX(view.elem)) / view.dim.width;
+	    var zoomLoc = (event.pageX - dojo.coords(view.elem, true).x) / view.dim.width;
 	    if (Util.isRightButton(event) || event.ctrlKey) {
 		view.zoomOut(event, zoomLoc);
 	    } else {
 		view.zoomIn(event, zoomLoc);
 	    }
-	    YAHOO.util.Event.stopEvent(event);
+	    dojo.stopEvent(event);
 	});
-    YAHOO.util.Event.addListener(trackDiv, "mousedown", killEvent);
-    YAHOO.util.Event.addListener(trackDiv, "contextmenu", killEvent);
+    dojo.connect(trackDiv, "mousedown", killEvent);
+    dojo.connect(trackDiv, "contextmenu", killEvent);
     this.waitElems.push(trackDiv);
 
     this.setX((this.container.offsetWidth / 2) - (this.dim.width / 2));
@@ -1041,91 +1042,91 @@ GenomeView.prototype.addTrack = function(track) {
     this.containerHeight = totalHeight - this.topSpace()
     this.container.style.height = this.containerHeight + "px";
 
-    var trackDD = new YAHOO.util.DDProxy(trackDiv, "tracks", {padding: [this.trackPadding / 2, 0, this.trackPadding / 2, 0], scroll: false});
-    trackDD.trackPadding = this.trackPadding;
-    trackDD.genomeView = this;
-    trackDD.resizeFrame = false;
-    trackDD.setHandleElId(labelDiv.id);
-    //should factor this stuff into a DDProxy subclass
-    trackDD.startDrag = function(x, y) {
-        var gvrgn = YAHOO.util.Dom.getRegion(this.genomeView.elem);
-        this.insertPoint = document.createElement("div");
-        this.insertPoint.style.position = "absolute";
-        this.insertPoint.style.left = gvrgn.left + "px";
-        this.insertPoint.style.width = (gvrgn.right - gvrgn.left) + "px";
-        this.insertPoint.style.height = (this.trackPadding / 2) + "px";
-        this.insertPoint.style.backgroundColor = "#aaa";
-        this.insertPoint.style.zIndex = 900;
-        this.insertPoint.style.visibility = "hidden";
-        document.body.insertBefore(this.insertPoint, document.body.firstChild);
-        labelPos = YAHOO.util.Dom.getXY(labelDiv);
-        this.setDelta(x - labelPos[0], y - labelPos[1]);
-	var dragEl = this.getDragEl();
-	dragEl.innerHTML = labelDiv.innerHTML;
-	dragEl.className = labelDiv.className;
-	dragEl.style.backgroundColor = labelDiv.style.backgroundColor;
-        dragEl.style.width = "";
-	//trackDiv.style.backgroundColor = "#aaa";
-	labelDiv.style.visibility = "hidden";
-        this.marked = trackDiv.nextSibling;
-    }
-    trackDD.onDragOver = function(e, id) {
-	var over = YAHOO.util.Dom.get(id);
-	var pt = YAHOO.util.DragDropMgr.interactionInfo.point;
-	var rgn = YAHOO.util.Dom.getRegion(over);
-	if (((pt.y - rgn.top) / (rgn.bottom - rgn.top)) < 0.5) {
-	    if (over.previousSibling !== trackDiv) {
-                this.insertPoint.style.top = (rgn.top - (this.trackPadding * 0.75)) + "px";
-                this.insertPoint.style.visibility = "visible";
-                this.marked = over;
-	    } else {
-                this.insertPoint.style.visibility = "hidden";
-                this.marked = trackDiv.nextSibling;
-            }
-	} else {
-	    if (over.nextSibling !== trackDiv) {
-                this.insertPoint.style.top = (rgn.bottom + (this.trackPadding * 0.25)) + "px";
-                this.insertPoint.style.visibility = "visible";
-                this.marked = over.nextSibling;
-	    } else {
-                this.insertPoint.style.visibility = "hidden";
-                this.marked = trackDiv.nextSibling;
-            }
-	}
-	//YAHOO.util.Dom.get(id).style.backgroundColor = "#ddd";
-	//trackDiv.style.top = "0px";
-	//trackDiv.style.left = "0px";
-    }
+//     var trackDD = new YAHOO.util.DDProxy(trackDiv, "tracks", {padding: [this.trackPadding / 2, 0, this.trackPadding / 2, 0], scroll: false});
+//     trackDD.trackPadding = this.trackPadding;
+//     trackDD.genomeView = this;
+//     trackDD.resizeFrame = false;
+//     trackDD.setHandleElId(labelDiv.id);
+//     //should factor this stuff into a DDProxy subclass
+//     trackDD.startDrag = function(x, y) {
+//         var gvrgn = YAHOO.util.Dom.getRegion(this.genomeView.elem);
+//         this.insertPoint = document.createElement("div");
+//         this.insertPoint.style.position = "absolute";
+//         this.insertPoint.style.left = gvrgn.left + "px";
+//         this.insertPoint.style.width = (gvrgn.right - gvrgn.left) + "px";
+//         this.insertPoint.style.height = (this.trackPadding / 2) + "px";
+//         this.insertPoint.style.backgroundColor = "#aaa";
+//         this.insertPoint.style.zIndex = 900;
+//         this.insertPoint.style.visibility = "hidden";
+//         document.body.insertBefore(this.insertPoint, document.body.firstChild);
+//         labelPos = YAHOO.util.Dom.getXY(labelDiv);
+//         this.setDelta(x - labelPos[0], y - labelPos[1]);
+// 	var dragEl = this.getDragEl();
+// 	dragEl.innerHTML = labelDiv.innerHTML;
+// 	dragEl.className = labelDiv.className;
+// 	dragEl.style.backgroundColor = labelDiv.style.backgroundColor;
+//         dragEl.style.width = "";
+// 	//trackDiv.style.backgroundColor = "#aaa";
+// 	labelDiv.style.visibility = "hidden";
+//         this.marked = trackDiv.nextSibling;
+//     }
+//     trackDD.onDragOver = function(e, id) {
+// 	var over = YAHOO.util.Dom.get(id);
+// 	var pt = YAHOO.util.DragDropMgr.interactionInfo.point;
+// 	var rgn = YAHOO.util.Dom.getRegion(over);
+// 	if (((pt.y - rgn.top) / (rgn.bottom - rgn.top)) < 0.5) {
+// 	    if (over.previousSibling !== trackDiv) {
+//                 this.insertPoint.style.top = (rgn.top - (this.trackPadding * 0.75)) + "px";
+//                 this.insertPoint.style.visibility = "visible";
+//                 this.marked = over;
+// 	    } else {
+//                 this.insertPoint.style.visibility = "hidden";
+//                 this.marked = trackDiv.nextSibling;
+//             }
+// 	} else {
+// 	    if (over.nextSibling !== trackDiv) {
+//                 this.insertPoint.style.top = (rgn.bottom + (this.trackPadding * 0.25)) + "px";
+//                 this.insertPoint.style.visibility = "visible";
+//                 this.marked = over.nextSibling;
+// 	    } else {
+//                 this.insertPoint.style.visibility = "hidden";
+//                 this.marked = trackDiv.nextSibling;
+//             }
+// 	}
+// 	//YAHOO.util.Dom.get(id).style.backgroundColor = "#ddd";
+// 	//trackDiv.style.top = "0px";
+// 	//trackDiv.style.left = "0px";
+//     }
 
-    trackDD.endDrag = function() {
-        var srcEl = this.getEl();
-        var proxy = this.getDragEl();
+//     trackDD.endDrag = function() {
+//         var srcEl = this.getEl();
+//         var proxy = this.getDragEl();
         
-        trackDiv.parentNode.insertBefore(trackDiv, this.marked);
-        this.insertPoint.parentNode.removeChild(this.insertPoint);
+//         trackDiv.parentNode.insertBefore(trackDiv, this.marked);
+//         this.insertPoint.parentNode.removeChild(this.insertPoint);
 
-        // Show the proxy element and animate it to the src element's location
-        YAHOO.util.Dom.setStyle(proxy, "visibility", "");
-        var a = new YAHOO.util.Motion( 
-            proxy, { 
-                points: { 
-                    to: YAHOO.util.Dom.getXY(labelDiv)
-                }
-            }, 
-            0.2, 
-            YAHOO.util.Easing.easeOut 
-        )
-        var proxyid = proxy.id;
-        var thisid = this.id;
+//         // Show the proxy element and animate it to the src element's location
+//         YAHOO.util.Dom.setStyle(proxy, "visibility", "");
+//         var a = new YAHOO.util.Motion( 
+//             proxy, { 
+//                 points: { 
+//                     to: YAHOO.util.Dom.getXY(labelDiv)
+//                 }
+//             }, 
+//             0.2, 
+//             YAHOO.util.Easing.easeOut 
+//         )
+//         var proxyid = proxy.id;
+//         var thisid = this.id;
 
-        // Hide the proxy and show the source element when finished with the animation
-        a.onComplete.subscribe(function() {
-                proxy.style.visibility = "hidden";
-                labelDiv.style.visibility = "";
-                //trackDiv.style.backgroundColor = "";
-            });
-        setTimeout(function() { a.animate(); }, 0);
-    };
+//         // Hide the proxy and show the source element when finished with the animation
+//         a.onComplete.subscribe(function() {
+//                 proxy.style.visibility = "hidden";
+//                 labelDiv.style.visibility = "";
+//                 //trackDiv.style.backgroundColor = "";
+//             });
+//         setTimeout(function() { a.animate(); }, 0);
+//     };
 
     //var tLabel = document.createElement("div");
     //tLabel.className = "track-label";

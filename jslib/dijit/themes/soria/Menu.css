@@ -1,0 +1,54 @@
+
+.soria .dijitMenu {
+	border: 1px solid #cbcbcb;
+	margin: 0px;
+	padding: 0px;
+	background-color: #fff;
+}
+.soria .dijitMenuItem {
+	background-color: #fff;
+	font: menu;
+	margin: 0px;
+	color: #243C5F;
+}
+.soria .dijitMenuPreviousButton, .soria .dijitMenuNextButton {
+	font-style: italic;
+}
+.soria .dijitMenuItem TD {
+	padding:1px;
+}
+.soria .dijitMenuItemHover {
+	background-color: #d9e6f9; 
+	color: #243C5F;
+}
+.soria .dijitMenuItemIcon {
+	width: 15px;
+	height: 15px;
+	
+}
+.soria .dijitMenuExpand {
+	display:none;
+}
+.soria .dijitMenuExpandEnabled {
+	
+	width:15px;
+	height:15px;
+	background:url('images/spriteRoundedIconsSmall.png') no-repeat -30px top;
+	display:block;
+}
+.dj_ie6 .soria .dijitMenuExpandEnabled {
+	background-image:url('images/spriteRoundedIconsSmall.gif');
+}
+.soria .dijitMenuExpandInner {
+	display:none;
+}
+.soria .dijitMenuSeparator {
+	background-color: #fff;
+	height: 1px;
+}
+.soria .dijitMenuSeparatorTop {
+	border-bottom: 1px solid #fff; 
+}
+.soria .dijitMenuSeparatorBottom {
+	border-top: 1px solid #8ba0bd;
+}

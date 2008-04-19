@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+		"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Editor Test2</title>
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../css/dijitTests.css";
+	</style>
+	<script type="text/javascript" src="../../../dojo/dojo.js"
+		djConfig="parseOnLoad: true, isDebug: true"></script>
+	<script type="text/javascript" src="../_testCommon.js"></script>
+
+	<script type="text/javascript">
+		dojo.require("dijit.Editor");
+		dojo.require("dijit._editor.plugins.ToggleDir");
+		dojo.require("dojo.parser");	// scan page for widgets and instantiate them
+	</script>
+<!--
+	<script type="text/javascript" src="../../_editor/plugins/ToggleDir.js"></script>
+	<script type="text/javascript" src="../../Editor.js"></script>
+	<script type="text/javascript" src="../../_editor/_Plugin.js"></script>
+-->
+</head>
+<body>
+	<div style="border: 1px dotted black;">
+		<textarea dojoType="dijit.Editor" 
+			extraPlugins="['toggleDir','|','dijit._editor.plugins.ToggleDir','|',{name:'dijit._editor.plugins.ToggleDir'}]">
+			<ol>
+				<li>the toggleDir plugin provides an extra button on the toolbar to switch text direction (BiDi) of the
+					edited document.  Useful when right-to-left languages like Hebrew and Arabic are combined with
+					left-to-right languages like English.</li>
+			</ol>
+		</textarea>
+	</div>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Chat Demo Starter</title>
+
+	<style type="text/css">
+		@import "../../dijit/tests/css/dijitTests.css";
+		@import "../themes/soria/soria.css";
+		@import "chat/chat.css";
+
+		.body { width:720px; margin:0 auto; } 
+
+		.picker {
+			margin:0 auto;
+			height:100px; 	
+		}		
+
+		.box a { color:#000; text-decoration:none; } 		
+
+		.box { 	border:1px solid #666;
+			background:#b7cdee url('../themes/soria/images/gradientTopBg.png') repeat-x top left;
+			background-position:0px -1px; 
+			padding:35px; 
+			padding-top:15px;
+			padding-bottom:15px; 
+			margin:5px; 
+			font-weight:bold;
+			-moz-border-radius:7pt; 
+			cursor:pointer;
+		}
+		.box:hover {
+			color:#fff; 
+			background-color:#54f767; 
+		}
+	</style>
+
+	<script type="text/javascript" src="../../dojo/dojo.js"
+		djConfig="isDebug: false, defaultTestTheme: 'soria'"></script>
+	<script type="text/javascript" src="../tests/_testCommon.js"></script>
+
+	<script type="text/javascript">
+		var _pass = function(/* Event */e){
+			var href = e.target.getAttribute("href")||null;
+			if(href){ window.location.href = href; }
+		}
+	
+		
+		dojo.addOnLoad(function(){
+			var links = dojo.query(".box");
+			dojo.forEach(links,function(node){
+				dojo.connect(node,"onclick","_pass");
+			});
+		});
+	</script>
+
+</head>
+<body class="soria">
+<div class="body">
+	<h1 class="testTitle">Dojo chat demo preabmle ...</h1>
+	<p>
+	There are two examples of chat, using <a 
+	href="http://cometd.org">cometd</a> as a backend and Dojo's 
+	dojox.cometd client as a transport.
+	</p>
+	<p>
+	The first, a simple public chat room, that any live participants
+	that happen to be online will be able to communicate.
+	</p>
+	<div class="dijitInline box" href="chat/community.html">Join Group Chat</div>
+	<p>The other: the example from the Dojo Book - an example of a
+	client / operator relationship, where the client chats from an
+	'existing' page, and the operator has a TabContainer view of
+	open client chats, and can communicate privately and directly 
+	to the client. The client page demonstrates how this can be used in existing
+	pages for real-time support. You will need two people for this, or you
+	are welcome to talk to yourself ...  
+	</p>
+	<div class="dijitInline">
+		<div class="dijitInline box" href="chat/client.html">Client Page</div>
+		<div class="dijitInline box" href="chat/operator.html">Operator Page</div>	
+	</div>
+	<p>the Chatroom widget source can be found <a href="chat/room.js">here</a>.</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<html>
+	<head>
+		<title>DojoX A/V QuickTime Detection Test</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<style type="text/css">
+			@import "../../../dojo/resources/dojo.css";
+			@import "../../../dijit/tests/css/dijitTests.css";
+		</style>
+		<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug: false"></script>
+		<script type="text/javascript">
+			dojo.require("dojox.av._base.quicktime");
+			dojo.connect(dojox.av.quicktime, "onInitialize", function(){
+				dojo.byId("results").innerHTML = dojo.toJson(dojox.av.quicktime.version);
+			});
+		</script>
+	</head>
+	<body>
+		<h1>DojoX A/V: QuickTime detection tests.</h1>
+		<p>
+			This page is testing the base QuickTime movie generator.  See the Firebug log for details.
+		</p>
+		<p>Installed QuickTime version: <span id="results"></span>.</p>	
+	</body>
+</html>

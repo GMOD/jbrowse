@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+	<title>RadioGroup Widget Test</title>
+
+	<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="parseOnLoad:true"></script>
+	<script type="text/javascript" src="../../../dijit/tests/_testCommon.js"></script>
+	<script type="text/javascript" src="../RadioGroup.js"></script>
+	<script language="JavaScript" type="text/javascript">
+		dojo.require("dojo.parser"); 
+		dojo.require("dijit.layout.ContentPane"); 
+	</script>
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../../dijit/themes/dijit.css";
+		@import "../../../dijit/themes/tundra/tundra.css";
+		@import "../../../dijit/tests/css/dijitTests.css";
+		@import "../resources/RadioGroup.css";
+		body { background:#a0a0a0 !important; }
+
+		.dojoPane {
+			background:#eee url('../../../util/resources/logo/positive/dojo.logo.png') no-repeat center center !important;
+		}
+		.dojoxPane {
+			background:#ededed url('../../../util/resources/logo/positive/dojox.logo.png') no-repeat center center !important;
+		}
+		.dijitPane {
+			background:#fefefe url('../../../util/resources/logo/positive/dijit.logo.png') no-repeat center center !important;
+		}
+
+	</style>
+
+</head>
+<body class="tundra">
+
+	<h1 class="testTitle">dojox.layout.RadioGroup test</h1>
+
+		
+	<div style="width:915px; margin:0 auto; height:300px;">
+		<div dojoType="dojox.layout.RadioGroup" style="width:300px; height:300px; float:left;">
+			<div dojoType="dijit.layout.ContentPane" title="Dojo" class="dojoPane" style="width:300px; height:300px; "></div>
+			<div dojoType="dijit.layout.ContentPane" title="Dijit" class="dijitPane" style="width:300px; height:300px; "></div>
+			<div dojoType="dijit.layout.ContentPane" title="Dojox" class="dojoxPane" style="width:300px; height:300px; "></div>
+		</div>
+	
+		<div dojoType="dojox.layout.RadioGroupFade" style="width:300px; height:300px; float:left">
+			<div dojoType="dijit.layout.ContentPane" title="Dojo" class="dojoPane" style="width:300px; height:300px; "></div>
+			<div dojoType="dijit.layout.ContentPane" title="Dijit" class="dijitPane" style="width:300px; height:300px; "></div>
+			<div dojoType="dijit.layout.ContentPane" title="Dojox" class="dojoxPane" style="width:300px; height:300px; "></div>
+		</div>
+	
+		<div dojoType="dojox.layout.RadioGroupSlide" style="width:300px; height:300px;">
+			<div dojoType="dijit.layout.ContentPane" title="Dojo" class="dojoPane" style="width:300px; height:300px; "></div>
+			<div dojoType="dijit.layout.ContentPane" title="Dijit" class="dijitPane" style="width:300px; height:300px; "></div>
+			<div dojoType="dijit.layout.ContentPane" title="Dojox" class="dojoxPane" style="width:300px; height:300px; "></div>
+		</div>
+	</div>
+
+</body>
+</html>

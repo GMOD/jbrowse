@@ -1,0 +1,1 @@
+({"next":"Nästa","done":"Avsluta","previous":"Föregående"})

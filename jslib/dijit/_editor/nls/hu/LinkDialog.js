@@ -1,0 +1,1 @@
+({"set":"Beállítás","text":"Szöveg:","title":"Hivatkozás URL címe","url":"URL:","urlInvalidMessage":"Érvénytelen URL cím. Adjon meg teljes URL címet, például: 'http://www.dojotoolkit.org'","insertImageTitle":"Image Properties","createLinkTitle":"Link Properties"})

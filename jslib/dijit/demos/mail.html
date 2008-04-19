@@ -1,0 +1,426 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Demo Mail Application</title>
+
+	<style type="text/css">
+		@import "../../dojo/resources/dojo.css";
+		@import "../themes/soria/soria.css";
+		@import "mail/mail.css";
+	</style>
+	<style type="text/css">
+		#inbox .dijitSplitterH { height: 5px }
+		#inbox .dijitSplitterV { width: 5px }
+	</style>
+
+	<script type="text/javascript" src="../../dojo/dojo.js"
+		djConfig="isDebug: false, parseOnLoad: true, defaultTestTheme: 'soria'"></script>
+	<script type="text/javascript" src="../tests/_testCommon.js"></script>
+	<!--
+	<script type="text/javascript" src="../dijit.js"></script>
+	<script type="text/javascript" src="../dijit-all.js" charset="utf-8"></script>
+	-->
+	<script type="text/javascript">
+		// Use profile builds, if available.  Since we use pretty much all of the widgets, just use dijit-all.
+		// A custom profile would provide some additional savings.
+		dojo.require("dijit.dijit");
+		dojo.require("dijit.dijit-all");
+
+		dojo.require("dojo.parser");
+		dojo.require("dojo.data.ItemFileWriteStore");
+
+		dojo.require("dijit.dijit");
+		dojo.require("dijit.Declaration");
+		dojo.require("dijit.form.Button");
+		dojo.require("dijit.Menu");
+		dojo.require("dijit.Tree");
+		dojo.require("dijit.Tooltip");
+		dojo.require("dijit.Dialog");
+		dojo.require("dijit.Toolbar");
+		dojo.require("dijit._Calendar");
+		dojo.require("dijit.ColorPalette");
+		dojo.require("dijit.Editor");
+		dojo.require("dijit._editor.plugins.LinkDialog");
+		dojo.require("dijit.ProgressBar");
+
+		dojo.require("dijit.form.ComboBox");
+		dojo.require("dijit.form.CheckBox");
+		dojo.require("dijit.form.FilteringSelect");
+		dojo.require("dijit.form.Textarea");
+
+		dojo.require("dijit.layout.BorderContainer");
+		dojo.require("dijit.layout.AccordionContainer");
+		dojo.require("dijit.layout.TabContainer");
+		dojo.require("dijit.layout.ContentPane");
+
+		dojo.addOnLoad(function(){
+			dijit.setWaiRole(dojo.body(), "application");
+		});
+		
+		var paneId=1;
+
+		// for "new message" tab closing
+		function testClose(pane,tab){
+		  return confirm("Are you sure you want to leave your changes?");
+		}
+
+		// fake mail download code:
+		var numMails;
+		var updateFetchStatus = function(x){
+			if (x == 0) {
+				dijit.byId('fakeFetch').update({ indeterminate: false });
+				return;
+			}
+			dijit.byId('fakeFetch').update({ progress: x });
+			if (x == numMails){
+				dojo.fadeOut({ node: 'fetchMail', duration:800,
+					// set progress back to indeterminate. we're cheating, because this
+					// doesn't actually have any data to "progress"
+					onEnd: function(){ 
+						dijit.byId('fakeFetch').update({ indeterminate: true });
+						dojo.byId('fetchMail').style.visibility='hidden'; // remove progress bar from tab order
+					}
+				}).play();
+			}
+		}
+		var fakeReport = function(percent){
+			// FIXME: can't set a label on an indeterminate progress bar
+			// like if(this.indeterminate) { return " connecting."; }
+			return dojo.string.substitute("Fetching: ${0} of ${1} messages.", [percent*this.maximum, this.maximum]);
+		}
+		var fakeDownload = function(){
+			dojo.byId('fetchMail').style.visibility='visible';
+			numMails = Math.floor(Math.random()*10)+1;
+			dijit.byId('fakeFetch').update({ maximum: numMails, progress:0 });
+			dojo.fadeIn({ node: 'fetchMail', duration:300 }).play();
+			for (var i=0; i<=numMails; i++){
+				setTimeout(function(){updateFetchStatus(i);},((i+1)*(Math.floor(Math.random()*100)+400)));
+			}
+		}
+		// fake sending dialog progress bar 
+		var stopSendBar = function(){
+			dijit.byId('fakeSend').update({indeterminate: false});
+			dijit.byId('sendDialog').hide();
+			tabs.selectedChildWidget.onClose = function(){return true;};  // don't want confirm message 
+			tabs.closeChild(tabs.selectedChildWidget);
+		}
+			 
+		var showSendBar = function(){
+			dijit.byId('fakeSend').update({ indeterminate: true });
+			dijit.byId('sendDialog').show();
+			setTimeout(function(){stopSendBar();}, 3000);
+		}
+
+	</script>
+</head>
+<body class="soria">
+	<div dojoType="dojo.data.ItemFileWriteStore" jsId="mailStore"
+		url="mail/mail.json"></div>
+
+	<!-- Inline declaration of a table widget (thanks Alex!) -->
+
+	<table dojoType="dijit.Declaration"
+		widgetClass="demo.Table" class="demoTable"
+		defaults="{ store: null, query: { query: { type: 'message' } }, columns: [ { name: 'From', attribute: 'sender' }, { name: 'Subject', attribute: 'label' }, { name: 'Sent on', attribute: 'sent',
+		format: function(v){ return dojo.date.locale.format(dojo.date.stamp.fromISOString(v), {selector: 'date'}); }
+		} ] }">
+		<thead dojoAttachPoint="head">
+			<tr dojoAttachPoint="headRow"></tr>
+		</thead>
+		<tbody dojoAttachPoint="body">
+			<tr dojoAttachPoint="row"></tr>
+		</tbody>
+
+		<script type="dojo/method">
+			dojo.forEach(this.columns, function(item, idx){
+				var icn = item.className||"";
+				// add a header for each column
+				var tth = document.createElement("th");
+				tth.innerHTML = "<span class='arrowNode'></span> "+ item.name;
+				tth.className = icn;
+				dojo.connect(tth, "onclick", dojo.hitch(this, "onSort", idx));
+				this.headRow.appendChild(tth);
+
+				// and fill in the column cell in the template row
+				this.row.appendChild(document.createElement("td"));
+				this.row.lastChild.className = icn;
+			}, this);
+			this.runQuery();
+		</script>
+		<script type="dojo/method" event="onSort" args="index">
+			var ca = this.columns[index].attribute;
+			var qs = this.query.sort;
+			// clobber an existing sort arrow
+			dojo.query("> th", this.headRow).removeClass("arrowUp").removeClass("arrowDown");
+			if(qs && qs[0].attribute == ca){
+				qs[0].descending = !qs[0].descending;
+			}else{
+				this.query.sort = [{
+					attribute: ca,
+					descending: false
+				}];
+			}
+			var th = dojo.query("> th", this.headRow)[index];
+			dojo.addClass(th, (this.query.sort[0].descending ? "arrowUp" : "arrowDown"));
+			this.runQuery();
+		</script>
+		<script type="dojo/method" event="runQuery">
+			this.query.onBegin = dojo.hitch(this, function(){ dojo.query("tr", this.body).orphan(); });
+			this.query.onItem = dojo.hitch(this, "onItem");
+			this.query.onComplete = dojo.hitch(this, function(){
+				dojo.query("tr:nth-child(odd)", this.body).addClass("oddRow");
+				dojo.query("tr:nth-child(even)", this.body).removeClass("oddRow");
+			});
+			this.store.fetch(this.query);
+		</script>
+		<script type="dojo/method" event="onItem" args="item">
+			var tr = this.row.cloneNode(true);
+			dojo.query("td", tr).forEach(function(n, i, a){
+				var tc = this.columns[i];
+				var tv = this.store.getValue(item, tc.attribute)||"";
+				if(tc.format){ tv = tc.format(tv, item, this.store); }
+				n.innerHTML = tv;
+			}, this);
+			this.body.appendChild(tr);
+			dojo.connect(tr, "onclick", this, function(){ this.onClick(item); });
+		</script>
+	</table>
+
+	<!-- Inline declaration for programmatically created "New Message" tabs -->
+	<div dojoType="dijit.Declaration"
+		widgetClass="mail.NewMessage">
+		<div dojoType="dijit.layout.BorderContainer" dojoAttachPoint="container" title="Composing..." closeable="true">
+			<div dojoType="dijit.layout.ContentPane" region="top" style="height:60px; overflow: visible; z-index: 10; color:#666;">
+				<table width="100%">
+					<tr style="padding-top:5px;">
+						<td style="padding-left:20px; padding-right: 8px; text-align:right;"><label for="${id}_to">To:</label></td>
+						<td width=100%>
+							<select dojoType="dijit.form.ComboBox" id="${id}_to" hasDownArrow="false">
+								<option></option>
+								<option>adam@yahoo.com</option>
+								<option>barry@yahoo.com</option>
+								<option>bob@yahoo.com</option>
+								<option>cal@yahoo.com</option>
+								<option>chris@yahoo.com</option>
+								<option>courtney@yahoo.com</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px; padding-right:8px; text-align:right;"><label for="${id}_subject">Subject:</label></td>
+						<td width=100%>
+							<select dojoType="dijit.form.ComboBox" id="${id}_subject" hasDownArrow="false">
+								<option></option>
+								<option>progress meeting</option>
+								<option>reports</option>
+								<option>lunch</option>
+								<option>vacation</option>
+								<option>status meeting</option>
+							</select>
+						</td>
+					</tr>
+				</table>
+				<hr noshade size="1">
+			</div>
+
+			<!-- new message part -->
+			<!-- FIXME: editor as direct widget here doesn't init -->
+			<div dojoType="dijit.layout.ContentPane" region="center" href="mail/newMail.html"></div>
+			
+			<div dojoType="dijit.layout.ContentPane" region="bottom" style="height:32px" align="center">
+				<button dojoType="dijit.form.Button" iconClass="mailIconOk"
+				>Send
+				<script type="dojo/method" event="onClick">
+					var toField = dojo.byId("${id}_to");
+					if (toField.value == ""){
+						alert("Please enter a recipient address");
+					}else{
+						showSendBar();
+					}
+				</script>
+				</button>
+				<button dojoType="dijit.form.Button" iconClass="mailIconCancel" 
+				>Cancel
+				<script type="dojo/method" event="onClick">
+					tabs.closeChild(tabs.selectedChildWidget);
+				</script>
+				</button>
+			</div>
+		</div>
+	</div>
+
+
+	<div dojoType="dijit.layout.BorderContainer" id="main">
+
+		<!-- toolbar with new mail button, etc. -->
+		<div dojoType="dijit.Toolbar" region="top" style="height:25px;">
+			<div id="getMail" dojoType="dijit.form.ComboButton"
+				iconClass="mailIconGetMail" optionsTitle="Mail Source Options">
+				<script type="dojo/method" event="onClick">
+					fakeDownload();
+				</script>
+				<span>Get Mail</span>
+				<ul dojoType="dijit.Menu">
+					<li dojoType="dijit.MenuItem" iconClass="mailIconGetMail">Yahoo</li>
+					<li dojoType="dijit.MenuItem" iconClass="mailIconGetMail">GMail</li>
+				</ul>
+			</div>
+			<span dojoType="dijit.Tooltip" connectId="getMail">Click to download new mail.</span>
+
+			<button
+				id="newMsg" dojoType="dijit.form.Button"
+				iconClass="mailIconNewMessage">
+				New Message
+				<script type="dojo/method" event="onClick">
+					/* make a new tab for composing the message */
+					var newTab = new mail.NewMessage({id: "new"+paneId  }).container;
+					dojo.mixin(newTab,
+						{
+							title: "New Message #" + paneId++,
+							closable: true,
+							onClose: testClose
+						}
+					);
+					tabs.addChild(newTab);
+					tabs.selectChild(newTab);
+				</script>
+			</button>
+			<span dojoType="dijit.Tooltip" connectId="newMsg">Click to compose new message.</span>
+
+			<button id="options" dojoType="dijit.form.Button" iconClass="mailIconOptions">
+			 &nbsp;Options	
+				<script type="dojo/method" event="onClick">
+					dijit.byId('optionsDialog').show();
+				</script>
+			</button>
+			<div dojoType="dijit.Tooltip" connectId="options">Set various options</div>
+		</div>
+		
+		<div dojoType="dijit.layout.TabContainer" id="tabs" jsId="tabs" region="center">
+			<!-- main section with tree, table, and preview -->
+			<div dojoType="dijit.layout.BorderContainer" id="inbox" title="Inbox" design="sidebar">
+				<div dojoType="dijit.layout.AccordionContainer" region="leading" minSize="20" style="width:20%;" splitter="true">
+					<div dojoType="dijit.layout.AccordionPane" title="Folders">
+						<div dojoType="dijit.Tree" id="mytree" store="mailStore"
+							childrenAttr="folders" query="{type:'folder'}" label="Folders">
+							<script type="dojo/method" event="onClick" args="item">
+								if(!item){
+									return;	// top level node in tree doesn't correspond to any item
+								}
+								/* filter the message list to messages in this folder */
+								table.query.query = {
+									type: "message",
+									folder: mailStore.getValue(item, "id")
+								};
+								table.runQuery();
+							</script>
+							<script type="dojo/method" event="getIconClass" args="item">
+								return (item && mailStore.getValue(item, "icon")) || "mailIconFolderDocuments";
+							</script>
+						</div>
+					</div>
+					<div dojoType="dijit.layout.AccordionPane" title="Address Book">
+						<span dojoType="demo.Table" store="mailStore"
+							query="{ query: { type: 'address' }, columns: [ {name: 'User name', attribute: 'label'} ], sort: [ { attribute: 'label' } ]  }"
+							id="addresses" style="width: 100%">
+							<script type="dojo/method" event="preamble">
+								this.query = { type: "address" };
+								this.columns = [
+									{
+										name: "Name",
+										attribute: "label"
+									}
+								];
+							</script>
+							<script type="dojo/method" event="onClick" args="item">
+								table.query.query.sender = mailStore.getValue(item, "sender");
+								delete table.query.query.folder;
+								table.runQuery();
+							</script>
+						</span>
+					</div>
+				</div>  <!-- end of Accordion -->
+
+				<!-- list of messages pane -->
+				<div id="listPane" dojoType="dijit.layout.ContentPane" region="top" minSize="20" style="height:134px;" splitter="true">
+					<span dojoType="demo.Table" store="mailStore"
+						query="{ query: { type: 'message' }, sort: [ { attribute: 'label' } ]  }"
+						id="foo" jsId="table" style="width: 100%">
+						<script type="dojo/method" event="onClick" args="item">
+							var sender = this.store.getValue(item, "sender");
+							var subject = this.store.getValue(item, "label");
+							var sent = dojo.date.locale.format(
+								dojo.date.stamp.fromISOString(this.store.getValue(item, "sent")),
+								{formatLength: "long", selector: "date"});
+							var text = this.store.getValue(item, "text");
+							var messageInner = "<span class='messageHeader'>From: " + sender + "<br>" +
+								"Subject: "+ subject + "<br>" +
+								"Date: " + sent + "<br><br></span>" +
+								text;
+							dijit.byId("message").setContent(messageInner);
+						</script>
+					</span>
+				</div> <!-- end of listPane -->
+
+				<!-- message preview pane -->
+				<div id="message" dojoType="dijit.layout.ContentPane" region="center" minSize="20">
+					<p>
+					This is a simple application mockup showing some of the dojo widgets:
+					</p>
+					<ul>
+					  <li>layout widgets: BorderContainer, AccordionContainer</li>
+					  <li>TooltipDialog, Tooltip</li>
+					  <li>Tree</li>
+					  <li>form widgets: Button, DropDownButton, ComboButton, FilteringSelect, ComboBox</li>
+					  <li>Editor</li>
+					</ul>
+					<p>
+					The message list above originally contains all the messages, but you can filter it
+					by clicking on items in the left Accordion.
+					Then click on the messages in the above list to display them.
+					There's no server running, so the app is just a facade and it doesn't really do anything.
+					<!-- TODO: delete button (we can delete since we are using ItemFileWriteStore -->
+					</p>
+					<p>
+					<span style="font-family: 'Comic Sans MS',Textile,cursive; color: blue; font-style: italic;">-- Bill</span>
+					</p>
+				</div> <!-- end of "message" -->
+
+			</div> <!-- end of inbox -->
+		</div> <!-- end of TabContainer -->
+
+		<div dojoType="dijit.layout.ContentPane" region="bottom" id="footer" align="left">
+			<span style="float:right;">DojoMail v1.0 (demo only)</span>
+			<div id="fetchMail" style="opacity:0;visibility:hidden">
+				<div annotate="true" id="fakeFetch" dojoType="dijit.ProgressBar" style="height:15px; width:275px;" indeterminate="true" report="fakeReport"></div>
+			</div>
+		</div> 
+	</div> <!-- end of main -->
+
+	<div dojoType="dijit.Dialog" id="optionsDialog" title="Options:">
+		<table>	
+		<tr><td style="text-align:right;"><label for="option1">Transport type:</label></td><td>
+		<select id="option1" dojoType="dijit.form.FilteringSelect">
+			<option value="pop3">POP3</option>
+			<option value="imap">IMAP</option>
+		</select></td></tr>
+		<tr><td style="text-align:right;"><label for="option2">Server:</label></td><td><input id="option2" dojoType="dijit.form.TextBox" type="text">
+		</td></tr>
+
+		<tr><td style="text-align:right;"><input type="checkbox" id="fooCB" dojoType="dijit.form.CheckBox"></td><td><label for="fooCB">Leave messages on Server</label></td></tr>
+		<tr><td style="text-align:right;"><input type="checkbox" id="fooCB2" dojoType="dijit.form.CheckBox"></td><td><label for="fooCB2">Remember Password</label></td></tr>
+
+		<tr><td colspan="2" style="text-align:center;">
+		<button dojoType="dijit.form.Button" type="submit" iconClass="mailIconOk">OK</button>
+		<button dojoType="dijit.form.Button" type="submit" iconClass="mailIconCancel">Abort</button>
+		</td></tr>
+		</table>
+	</div>
+	<div dojoType="dijit.Dialog" id="sendDialog" title="Sending Mail">
+		<div id="sendMailBar" style="text-align:center">
+			<div  id="fakeSend" dojoType="dijit.ProgressBar" style="height:15px; width:175px;" indeterminate="true" ></div>
+		</div>
+	<div>	
+</body>
+</html>

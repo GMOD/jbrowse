@@ -1,0 +1,99 @@
+.dojoxExpandoPane {
+	overflow:hidden;
+	margin-top:1px;
+	border-top:1px solid #ccc;
+	z-index:440;
+	background:#fff;
+}
+.dojoxExpandoPane .dojoxExpandoWrapper {
+	overflow:hidden;
+}
+.dojoxExpandoIcon {
+	width:14px;
+	cursor:pointer;
+	background-position:-60px 0px;
+	height:14px;
+}
+.soria .dojoxExpandoIcon {
+	background: url('../../../dijit/themes/soria/images/spriteRoundedIconsSmall.png') no-repeat center center;
+}
+.tundra .dojoxExpandoLeft .dojoxExpandoIcon,
+.nihilo .dojoxExpandoLeft .dojoxExpandoIcon {
+	
+	background: url('../../../dijit/themes/tundra/images/minusButton.gif') no-repeat;
+}
+.tundra .dojoxExpandoRight .dojoxExpandoIcon,
+.nihilo .dojoxExpandoRight .dojoxExpandoIcon {
+	
+	background: url('../../../dijit/themes/tundra/images/minusButton.gif') no-repeat;
+}
+.tundra .dojoxExpandoClosed .dojoxExpandoIcon {
+	background: url('../../../dijit/themes/tundra/images/plusButton.gif') no-repeat;
+}
+.dojoxExpandoClosed .dojoxExpandoIcon {
+	background-position: 0px 0px;
+}
+.dojoxExpandoClosed .dojoxExpandoTitleNode {
+	visibility:hidden;
+}
+.dojoxExpandoTitleNode {
+	padding-right:6px; padding-left:6px;
+}
+.dojoxExpandoClosed .dijitContentPane {
+	overflow: hidden;
+}
+.dojoxExpandoIcon .a11yNode {
+	display:none;
+	visibility:hidden;
+}
+.dojoxExpandoBottom .dojoxExpandoIcon,
+.dojoxExpandoTop .dojoxExpandoIcon,
+.dojoxExpandoLeft .dojoxExpandoIcon {
+	float:right;
+}
+.dojoxExpandoRight .dojoxExpandoIcon {
+	float:left;
+}
+.nihilo .dojoxExpandoTitle {
+	height:18px;
+	font-size:0.9em;
+	font-weight:bold;
+	padding:3px;
+	padding-top:7px;
+	padding-bottom:7px;
+	background:#fafafa url("../../../dijit/themes/nihilo/images/tabStripe.gif") repeat-x left bottom;
+	
+}
+.nihilo .dojoxExpandoTop {
+	border-bottom:1px solid #ccc;
+	border-left:1px solid #ccc;
+	border-right:1px solid #ccc; 
+}
+.soria .dojoxExpandoTop {
+	
+}
+.soria .dojoxExpandoTitle {
+	height:18px;
+	font-size:0.9em;
+	font-weight:bold;
+	padding:3px;
+	padding-top:7px;
+	padding-bottom:7px;
+	background:#f0f4fc url("../../../dijit/themes/soria/images/tabStripe.gif") repeat-x left bottom; 
+}
+.tundra .dojoxExpandoTitle {
+	font-size: 0.9em;
+	font-weight: bold;
+	padding: 3px;
+	padding-top: 7px;
+	padding-bottom: 7px;
+	background: #fafafa url("../../../dijit/themes/tundra/images/accordionItemActive.gif") repeat-x scroll left bottom;
+}
+.tundra .dojoxExpandoClosed {
+	
+	background-color: #fafafa;
+}
+.tundra .dojoxExpandoClosed .dojoxExpandoTitle {
+	background-image: none;
+	background-color: transparent;
+}

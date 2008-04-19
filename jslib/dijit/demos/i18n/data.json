@@ -1,0 +1,8646 @@
+{ "identifier": 'iso',
+  "label": 'name',
+  "items":
+[
+	{
+		"type": "language", 
+		"iso": "aa", 
+		"name": "Qafar", 
+		"countries": [
+			{
+				"_reference": "DJ"
+			}, 
+			{
+				"_reference": "ER"
+			}, 
+			{
+				"_reference": "ET"
+			}
+		], 
+		"am": "አፋርኛ", 
+		"ar": "الأفارية", 
+		"ca": "àfar", 
+		"cs": "Afarština", 
+		"da": "afar", 
+		"de": "Afar", 
+		"en": "Afar", 
+		"es": "afar", 
+		"fi": "afar", 
+		"fr": "afar", 
+		"ga": "Afar", 
+		"he": "אתיופית", 
+		"hi": "अफ़ार", 
+		"hu": "afar", 
+		"id": "Afar", 
+		"it": "afar", 
+		"ja": "アファル語", 
+		"km": "ភាសាអាហ្វារ", 
+		"ko": "아파르어", 
+		"mr": "अफार", 
+		"mt": "Afar", 
+		"nb": "afar", 
+		"nl": "Afar", 
+		"nn": "afar", 
+		"pt": "afar", 
+		"ru": "афар", 
+		"sv": "afar", 
+		"ta": "அபார்", 
+		"th": "อาฟา", 
+		"tr": "Afar", 
+		"uk": "Афарська", 
+		"zh": "阿法文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "af", 
+		"name": "Afrikaans", 
+		"countries": [
+			{
+				"_reference": "NA"
+			}, 
+			{
+				"_reference": "ZA"
+			}
+		], 
+		"af": "Afrikaans", 
+		"am": "አፍሪቃንስኛ", 
+		"ar": "الأفريقية", 
+		"bg": "Африканс", 
+		"ca": "afrikaans", 
+		"cs": "Afrikánština", 
+		"da": "afrikaans", 
+		"de": "Afrikaans", 
+		"en": "Afrikaans", 
+		"es": "afrikaans", 
+		"fi": "afrikaans", 
+		"fr": "afrikaans", 
+		"ga": "Afracáinis", 
+		"he": "אפריקנית", 
+		"hi": "अफ्रीकी", 
+		"hu": "afrikai", 
+		"id": "Afrikaans", 
+		"is": "Afríkanska", 
+		"it": "afrikaans", 
+		"ja": "アフリカーンス語", 
+		"km": "ភាសាអាហ្វ្រីកាអាន", 
+		"ko": "남아공 공용어", 
+		"mr": "अफ्रिकान्स", 
+		"mt": "Afrikans", 
+		"nb": "afrikaans", 
+		"nl": "Afrikaans", 
+		"nn": "afrikaans", 
+		"pt": "africâner", 
+		"ru": "африкаанс", 
+		"sr": "Африканерски", 
+		"sv": "afrikaans", 
+		"ta": "ஆப்ரிகன்ஸ்", 
+		"th": "แอฟริกัน", 
+		"tr": "Afrikaan Dili", 
+		"uk": "Африканс", 
+		"zh": "南非荷兰文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "am", 
+		"name": "አማርኛ", 
+		"countries": [
+			{
+				"_reference": "ET"
+			}
+		], 
+		"am": "አማርኛ", 
+		"ar": "الأمهرية", 
+		"bg": "Амхарски", 
+		"ca": "amhàric", 
+		"cs": "Amharština", 
+		"da": "amharisk", 
+		"de": "Amharisch", 
+		"en": "Amharic", 
+		"es": "amárico", 
+		"fi": "amhara", 
+		"fr": "amharique", 
+		"he": "אמהרית", 
+		"hi": "अम्हारिक्", 
+		"hu": "amhara", 
+		"id": "Amharik", 
+		"is": "Amharíska", 
+		"it": "amarico", 
+		"ja": "アムハラ語", 
+		"ko": "암하라어", 
+		"mr": "अमहारिक", 
+		"mt": "Amħariku", 
+		"nb": "amharisk", 
+		"nl": "Amhaars", 
+		"nn": "amharisk", 
+		"pt": "amárico", 
+		"ru": "амхарский", 
+		"sv": "amhariska", 
+		"ta": "அம்ஹாரிக்", 
+		"th": "อัมฮาริค", 
+		"tr": "Amharik", 
+		"uk": "Амхарік", 
+		"zh": "阿姆哈拉文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ar", 
+		"name": "العربية", 
+		"countries": [
+			{
+				"_reference": "AE"
+			}, 
+			{
+				"_reference": "BH"
+			}, 
+			{
+				"_reference": "DZ"
+			}, 
+			{
+				"_reference": "EG"
+			}, 
+			{
+				"_reference": "IQ"
+			}, 
+			{
+				"_reference": "JO"
+			}, 
+			{
+				"_reference": "KW"
+			}, 
+			{
+				"_reference": "LB"
+			}, 
+			{
+				"_reference": "LY"
+			}, 
+			{
+				"_reference": "MA"
+			}, 
+			{
+				"_reference": "OM"
+			}, 
+			{
+				"_reference": "QA"
+			}, 
+			{
+				"_reference": "SA"
+			}, 
+			{
+				"_reference": "SD"
+			}, 
+			{
+				"_reference": "SY"
+			}, 
+			{
+				"_reference": "TN"
+			}, 
+			{
+				"_reference": "YE"
+			}
+		], 
+		"am": "ዐርቢኛ", 
+		"ar": "العربية", 
+		"be": "арабскі", 
+		"bg": "Арабски", 
+		"ca": "àrab", 
+		"cs": "Arabština", 
+		"cy": "Arabeg", 
+		"da": "arabisk", 
+		"de": "Arabisch", 
+		"el": "Αραβικά", 
+		"en": "Arabic", 
+		"es": "árabe", 
+		"et": "Araabia", 
+		"fi": "arabia", 
+		"fr": "arabe", 
+		"ga": "Araibis", 
+		"he": "ערבית", 
+		"hi": "अरबी", 
+		"hr": "arapski", 
+		"hu": "arab", 
+		"id": "Arab", 
+		"is": "Arabíska", 
+		"it": "arabo", 
+		"ja": "アラビア語", 
+		"km": "ភាសាអារ៉ាប់", 
+		"ko": "아랍어", 
+		"lt": "Arabų", 
+		"lv": "arābu", 
+		"mr": "अरेबिक", 
+		"mt": "Għarbi", 
+		"nb": "arabisk", 
+		"nl": "Arabisch", 
+		"nn": "arabisk", 
+		"pl": "arabski", 
+		"ps": "عربي", 
+		"pt": "árabe", 
+		"ro": "Arabă", 
+		"ru": "арабский", 
+		"sk": "arabský", 
+		"sl": "Arabščina", 
+		"sq": "Arabisht", 
+		"sr": "Арапски", 
+		"sv": "arabiska", 
+		"ta": "அரபு", 
+		"te": "అరబిక్", 
+		"tr": "Arapça", 
+		"uk": "Арабська", 
+		"vi": "Tiếng A-rập", 
+		"zh": "阿拉伯文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "as", 
+		"name": "অসমীয়া", 
+		"countries": [
+			{
+				"_reference": "IN"
+			}
+		], 
+		"am": "አሳሜዛዊ", 
+		"ar": "الأسامية", 
+		"as": "অসমীয়া", 
+		"ca": "assamès", 
+		"cs": "Assaméština", 
+		"da": "assamesisk", 
+		"de": "Assamesisch", 
+		"en": "Assamese", 
+		"es": "asamés", 
+		"fi": "assami", 
+		"fr": "assamais", 
+		"ga": "Asaimis", 
+		"he": "אסאמית", 
+		"hi": "असामी", 
+		"hu": "asszámi", 
+		"id": "Assam", 
+		"is": "Assamska", 
+		"it": "assamese", 
+		"ja": "アッサム語", 
+		"ko": "아샘어", 
+		"mr": "असामी", 
+		"mt": "Assamese", 
+		"nb": "assamisk", 
+		"nl": "Assamees", 
+		"nn": "assamisk", 
+		"pt": "assamês", 
+		"ru": "ассамский", 
+		"sv": "assamesiska", 
+		"ta": "அஸ்ஸாமி", 
+		"th": "อัสสัมมิส", 
+		"uk": "Ассамська", 
+		"zh": "阿萨姆文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "az", 
+		"name": "azərbaycanca", 
+		"countries": [
+			{
+				"_reference": "AZ"
+			}
+		], 
+		"am": "አዜርባይጃንኛ", 
+		"ar": "الأذرية", 
+		"az": "azərbaycanca", 
+		"bg": "Азърбайджански", 
+		"ca": "àzeri", 
+		"cs": "Azerbajdžánština", 
+		"da": "aserbajdsjansk", 
+		"de": "Aserbaidschanisch", 
+		"en": "Azerbaijani", 
+		"es": "azerí", 
+		"fa": "ترکی آذربایجانی", 
+		"fi": "azeri", 
+		"fr": "azéri", 
+		"ga": "Asarbaiseáinis", 
+		"he": "אזרית", 
+		"hi": "अज़रबैंजानी", 
+		"hu": "azerbajdzsáni", 
+		"id": "Azerbaijan", 
+		"is": "Aserska", 
+		"it": "azerbaigiano", 
+		"ja": "アゼルバイジャン語", 
+		"km": "ភាសាអាហ៊្សែរបែហ្សង់", 
+		"ko": "아제르바이잔어", 
+		"mr": "अज़रबाइजानी", 
+		"mt": "Ażerbajġani", 
+		"nb": "aserbajdsjansk", 
+		"nl": "Azerbeidzjaans", 
+		"nn": "aserbajdsjansk", 
+		"pt": "azerbaijano", 
+		"ru": "азербайджанский", 
+		"sv": "azerbajdzjanska", 
+		"ta": "அசர்பாய்ஜானி", 
+		"th": "อาเซอร์ไบจานี", 
+		"tr": "Azerice", 
+		"uk": "Азербайджанська", 
+		"vi": "Tiếng Ai-déc-bai-gian", 
+		"zh": "阿塞拜疆文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "be", 
+		"name": "Беларускі", 
+		"countries": [
+			{
+				"_reference": "BY"
+			}
+		], 
+		"am": "ቤላራሻኛ", 
+		"ar": "البيلوروسية", 
+		"be": "Беларускі", 
+		"bg": "Беларуски", 
+		"ca": "bielorús", 
+		"cs": "Běloruština", 
+		"da": "hviderussisk", 
+		"de": "Weißrussisch", 
+		"el": "Λευκορωσικά", 
+		"en": "Belarusian", 
+		"es": "bielorruso", 
+		"fi": "valkovenäjä", 
+		"fr": "biélorusse", 
+		"ga": "Bealarúisis", 
+		"he": "בלארוסית", 
+		"hi": "बैलोरूशियन्", 
+		"hr": "bjeloruski", 
+		"hu": "belorusz", 
+		"id": "Belarusia", 
+		"is": "Hvítrússneska", 
+		"it": "bielorusso", 
+		"ja": "ベラルーシ語", 
+		"km": "ភាសាបេឡារុស្ស", 
+		"ko": "벨로루시어", 
+		"mr": "बैलोरुसियन", 
+		"mt": "Belarussu", 
+		"nb": "hviterussisk", 
+		"nl": "Wit-Russisch", 
+		"nn": "kviterussisk", 
+		"pt": "bielo-russo", 
+		"ru": "белорусский", 
+		"sr": "Белоруски", 
+		"sv": "vitryska", 
+		"ta": "பைலோருஷ்ன்", 
+		"th": "บายโลรัสเซีย", 
+		"tr": "Beyaz Rusça", 
+		"uk": "Білоруська", 
+		"vi": "Tiếng Bê-la-rút", 
+		"zh": "白俄罗斯文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "bg", 
+		"name": "Български", 
+		"countries": [
+			{
+				"_reference": "BG"
+			}
+		], 
+		"am": "ቡልጋሪኛ", 
+		"ar": "البلغارية", 
+		"bg": "Български", 
+		"ca": "búlgar", 
+		"cs": "Bulharština", 
+		"da": "bulgarsk", 
+		"de": "Bulgarisch", 
+		"el": "Βουλγαρικά", 
+		"en": "Bulgarian", 
+		"es": "búlgaro", 
+		"et": "Bulgaaria", 
+		"fi": "bulgaria", 
+		"fr": "bulgare", 
+		"ga": "Bulgáiris", 
+		"he": "בולגרית", 
+		"hi": "बल्गेरियन्", 
+		"hr": "bugarski", 
+		"hu": "bolgár", 
+		"id": "Bulgaria", 
+		"is": "Búlgarska", 
+		"it": "bulgaro", 
+		"ja": "ブルガリア語", 
+		"km": "ភាសាប៊ុលហ្ការី", 
+		"ko": "불가리아어", 
+		"lt": "Bulgarų", 
+		"lv": "bulgāru", 
+		"mr": "बल्गेरियन", 
+		"mt": "Bulgaru", 
+		"nb": "bulgarsk", 
+		"nl": "Bulgaars", 
+		"nn": "bulgarsk", 
+		"pl": "bułgarski", 
+		"pt": "búlgaro", 
+		"ro": "Bulgară", 
+		"ru": "болгарский", 
+		"sk": "bulharský", 
+		"sl": "Bolgarščina", 
+		"sr": "Бугарски", 
+		"sv": "bulgariska", 
+		"ta": "பல்கேரியன்", 
+		"th": "บัลแกเรีย", 
+		"tr": "Bulgarca", 
+		"uk": "Болгарська", 
+		"vi": "Tiếng Bun-ga-ri", 
+		"zh": "保加利亚文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "bn", 
+		"name": "বাংলা", 
+		"countries": [
+			{
+				"_reference": "BD"
+			}, 
+			{
+				"_reference": "IN"
+			}
+		], 
+		"am": "በንጋሊኛ", 
+		"ar": "البنغالية", 
+		"bg": "Бенгалски", 
+		"bn": "বাংলা", 
+		"ca": "bengalí", 
+		"cs": "Bengálština", 
+		"da": "bengalsk", 
+		"de": "Bengalisch", 
+		"el": "Μπενγκάλι", 
+		"en": "Bengali", 
+		"es": "bengalí", 
+		"fi": "bengali", 
+		"fr": "bengali", 
+		"ga": "Beangálais", 
+		"he": "בנגלית", 
+		"hi": "बँगाली", 
+		"hu": "bengáli", 
+		"id": "Bengal", 
+		"is": "Bengalska", 
+		"it": "bengalese", 
+		"ja": "ベンガル語", 
+		"km": "ភាសាបេន្កាលី", 
+		"ko": "벵골어", 
+		"lt": "Bengalų", 
+		"mr": "बंगाली", 
+		"mt": "Bengali", 
+		"nb": "bengali", 
+		"nl": "Bengalees", 
+		"nn": "bengali", 
+		"pl": "bengalski", 
+		"pt": "bengali", 
+		"ru": "бенгальский", 
+		"sv": "bengali", 
+		"ta": "வங்காளம்", 
+		"tr": "Bengal Dili", 
+		"uk": "Бенгальська", 
+		"zh": "孟加拉文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ca", 
+		"name": "català", 
+		"countries": [
+			{
+				"_reference": "ES"
+			}
+		], 
+		"am": "ካታላንኛ", 
+		"ar": "الكاتالوينية", 
+		"bg": "Каталонски", 
+		"ca": "català", 
+		"cs": "Katalánština", 
+		"da": "katalansk", 
+		"de": "Katalanisch", 
+		"el": "Καταλανικά", 
+		"en": "Catalan", 
+		"es": "catalán", 
+		"fi": "katalaani", 
+		"fr": "catalan", 
+		"ga": "Catalóinis", 
+		"he": "קטלונית", 
+		"hi": "कातालान", 
+		"hu": "katalán", 
+		"id": "Catalan", 
+		"is": "Katalónska", 
+		"it": "catalano", 
+		"ja": "カタロニア語", 
+		"km": "ភាសាកាតាឡាន", 
+		"ko": "카탈로니아어", 
+		"mr": "कटलन", 
+		"mt": "Katalan", 
+		"nb": "katalansk", 
+		"nl": "Catalaans", 
+		"nn": "katalansk", 
+		"pl": "kataloński", 
+		"pt": "catalão", 
+		"ru": "каталанский", 
+		"sr": "Каталонски", 
+		"sv": "katalanska", 
+		"ta": "காடலான்", 
+		"th": "แคตาแลน", 
+		"tr": "Katalan Dili", 
+		"uk": "Каталонська", 
+		"vi": "Tiếng Ca-ta-lăng", 
+		"zh": "加泰罗尼亚文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "cs", 
+		"name": "Čeština", 
+		"countries": [
+			{
+				"_reference": "CZ"
+			}
+		], 
+		"am": "ቼክኛ", 
+		"ar": "التشيكية", 
+		"bg": "Чешки", 
+		"ca": "txec", 
+		"cs": "Čeština", 
+		"da": "Tjekkisk", 
+		"de": "Tschechisch", 
+		"el": "Τσεχικά", 
+		"en": "Czech", 
+		"es": "checo", 
+		"et": "Tiehhi", 
+		"fi": "tšekki", 
+		"fr": "tchèque", 
+		"ga": "Seicis", 
+		"he": "צ׳כית", 
+		"hi": "चेक", 
+		"hr": "češki", 
+		"hu": "cseh", 
+		"id": "Ceko", 
+		"is": "Tékkneska", 
+		"it": "ceco", 
+		"ja": "チェコ語", 
+		"km": "ភាសាឆេក", 
+		"ko": "체코어", 
+		"lt": "Čekų", 
+		"lv": "čehu", 
+		"mr": "ज़ेक", 
+		"mt": "Ċek", 
+		"nb": "tsjekkisk", 
+		"nl": "Tsjechisch", 
+		"nn": "tsjekkisk", 
+		"pl": "czeski", 
+		"pt": "tcheco", 
+		"ro": "Cehă", 
+		"ru": "чешский", 
+		"sk": "český", 
+		"sl": "Češčina", 
+		"sr": "Чешки", 
+		"sv": "tjeckiska", 
+		"ta": "செக்", 
+		"tr": "Çekçe", 
+		"uk": "Чеська", 
+		"vi": "Tiếng Séc", 
+		"zh": "捷克文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "cy", 
+		"name": "Cymraeg", 
+		"countries": [
+			{
+				"_reference": "GB"
+			}
+		], 
+		"am": "ወልሽ", 
+		"ar": "الولزية", 
+		"bg": "Уелски", 
+		"ca": "gal·lès", 
+		"cs": "Velština", 
+		"cy": "Cymraeg", 
+		"da": "Walisisk", 
+		"de": "Kymrisch", 
+		"el": "Ουαλικά", 
+		"en": "Welsh", 
+		"es": "galés", 
+		"fi": "kymri", 
+		"fr": "gallois", 
+		"ga": "Breatnais", 
+		"he": "וולשית", 
+		"hi": "वेल्श", 
+		"hr": "velški", 
+		"hu": "walesi", 
+		"id": "Welsh", 
+		"is": "Velska", 
+		"it": "gallese", 
+		"ja": "ウェールズ語", 
+		"ko": "웨일스어", 
+		"mr": "वेल्ष", 
+		"mt": "Welx", 
+		"nb": "walisisk", 
+		"nl": "Welsh", 
+		"nn": "walisisk", 
+		"pl": "walijski", 
+		"pt": "galês", 
+		"ru": "валлийский", 
+		"sv": "walesiska", 
+		"ta": "வெல்ஷ்", 
+		"th": "เวลส์", 
+		"tr": "Gal Dili", 
+		"uk": "Валлійська", 
+		"zh": "威尔士文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "da", 
+		"name": "Dansk", 
+		"countries": [
+			{
+				"_reference": "DK"
+			}
+		], 
+		"am": "ዴኒሽ", 
+		"ar": "الدانماركية", 
+		"bg": "Датски", 
+		"ca": "danès", 
+		"cs": "Dánština", 
+		"da": "Dansk", 
+		"de": "Dänisch", 
+		"el": "Δανικά", 
+		"en": "Danish", 
+		"es": "danés", 
+		"et": "Taani", 
+		"fi": "tanska", 
+		"fr": "danois", 
+		"ga": "Danmhairgis", 
+		"he": "דנית", 
+		"hi": "डैनीश", 
+		"hr": "danski", 
+		"hu": "dán", 
+		"id": "Denmark", 
+		"is": "Danska", 
+		"it": "danese", 
+		"ja": "デンマーク語", 
+		"km": "ភាសាដាណឺម៉ាក", 
+		"ko": "덴마크어", 
+		"lt": "Danų", 
+		"lv": "dāņu", 
+		"mr": "डानिष", 
+		"mt": "Daniż", 
+		"nb": "dansk", 
+		"nl": "Deens", 
+		"nn": "dansk", 
+		"pl": "duński", 
+		"pt": "dinamarquês", 
+		"ro": "Daneză", 
+		"ru": "датский", 
+		"sk": "dánsky", 
+		"sl": "Danščina", 
+		"sr": "Дански", 
+		"sv": "danska", 
+		"ta": "டானிஷ்", 
+		"th": "เดนมาร์ก", 
+		"tr": "Danca", 
+		"uk": "Датська", 
+		"vi": "Tiếng Đan Mạch", 
+		"zh": "丹麦文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "de", 
+		"name": "Deutsch", 
+		"countries": [
+			{
+				"_reference": "AT"
+			}, 
+			{
+				"_reference": "BE"
+			}, 
+			{
+				"_reference": "CH"
+			}, 
+			{
+				"_reference": "DE"
+			}, 
+			{
+				"_reference": "LI"
+			}, 
+			{
+				"_reference": "LU"
+			}
+		], 
+		"am": "ጀርመን", 
+		"ar": "الألمانية", 
+		"be": "нямецкі", 
+		"bg": "Немски", 
+		"ca": "alemany", 
+		"cs": "Němčina", 
+		"cy": "Almaeneg", 
+		"da": "Tysk", 
+		"de": "Deutsch", 
+		"el": "Γερμανικά", 
+		"en": "German", 
+		"es": "alemán", 
+		"et": "Saksa", 
+		"eu": "alemanera", 
+		"fi": "saksa", 
+		"fr": "allemand", 
+		"ga": "Gearmáinis", 
+		"he": "גרמנית", 
+		"hi": "ज़र्मन", 
+		"hr": "njemački", 
+		"hu": "német", 
+		"id": "Jerman", 
+		"is": "Þýska", 
+		"it": "tedesco", 
+		"ja": "ドイツ語", 
+		"ka": "გერმანული", 
+		"km": "ភាសាអាល្លឺម៉ង់", 
+		"ko": "독일어", 
+		"ky": "немисче", 
+		"lt": "Vokiečių", 
+		"lv": "vācu", 
+		"mk": "германски", 
+		"mn": "герман", 
+		"mr": "जर्मन", 
+		"mt": "Ġermaniż", 
+		"nb": "tysk", 
+		"nl": "Duits", 
+		"nn": "tysk", 
+		"pl": "niemiecki", 
+		"ps": "الماني", 
+		"pt": "alemão", 
+		"ro": "Germană", 
+		"ru": "немецкий", 
+		"sk": "nemecký", 
+		"sl": "Nemščina", 
+		"sq": "Gjermanisht", 
+		"sr": "Немачки", 
+		"sv": "tyska", 
+		"sw": "kijerumani", 
+		"ta": "ஜெர்மன்", 
+		"te": "ఙర్మన్", 
+		"th": "เยอรมัน", 
+		"tr": "Almanca", 
+		"uk": "Німецька", 
+		"vi": "Tiếng Đức", 
+		"zh": "德文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "dv", 
+		"name": "ދިވެހިބަސް", 
+		"countries": [
+			{
+				"_reference": "MV"
+			}
+		], 
+		"ar": "المالديفية", 
+		"bg": "Дивехи", 
+		"da": "Divehi", 
+		"de": "Maledivisch", 
+		"en": "Divehi", 
+		"es": "divehi", 
+		"fi": "divehi", 
+		"fr": "maldivien", 
+		"he": "דיבהי", 
+		"id": "Divehi", 
+		"is": "Dívehí", 
+		"it": "divehi", 
+		"ja": "ディベヒ語", 
+		"ko": "디베히어", 
+		"mt": "Diveħi", 
+		"nb": "divehi", 
+		"nl": "Divehi", 
+		"nn": "divehi", 
+		"pt": "divehi", 
+		"sv": "divehi", 
+		"th": "ดิเวฮิ", 
+		"zh": "迪维希文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "dz", 
+		"name": "རྫོང་ཁ", 
+		"countries": [
+			{
+				"_reference": "BT"
+			}
+		], 
+		"am": "ድዞንግኻኛ", 
+		"ar": "الزونخاية", 
+		"ca": "bhutanès", 
+		"cs": "Bhútánština", 
+		"da": "Dzongkha", 
+		"de": "Bhutanisch", 
+		"en": "Dzongkha", 
+		"fi": "dzongkha", 
+		"fr": "dzongkha", 
+		"hi": "भुटानी", 
+		"hu": "butáni", 
+		"id": "Dzongkha", 
+		"is": "Dsongka", 
+		"it": "dzongkha", 
+		"ja": "ゾンカ語", 
+		"km": "ភាសាប៊ូតាន", 
+		"ko": "부탄어", 
+		"mr": "भूटानी", 
+		"mt": "Dżongka", 
+		"nb": "dzongkha", 
+		"nl": "Dzongkha", 
+		"nn": "dzongkha", 
+		"pt": "dzonga", 
+		"ru": "дзонг-кэ", 
+		"sv": "bhutanesiska", 
+		"ta": "புடானி", 
+		"th": "ดซองคา", 
+		"tr": "Bhutan Dili", 
+		"uk": "Дзонг-ке", 
+		"zh": "不丹文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "el", 
+		"name": "Ελληνικά", 
+		"countries": [
+			{
+				"_reference": "CY"
+			}, 
+			{
+				"_reference": "GR"
+			}
+		], 
+		"am": "ግሪክኛ", 
+		"ar": "اليونانية", 
+		"bg": "Гръцки", 
+		"ca": "grec", 
+		"cs": "Řečtina", 
+		"da": "Græsk", 
+		"de": "Griechisch", 
+		"el": "Ελληνικά", 
+		"en": "Greek", 
+		"es": "griego", 
+		"et": "Kreeka", 
+		"fi": "kreikka", 
+		"fr": "grec", 
+		"ga": "Gréigis", 
+		"he": "יוונית", 
+		"hi": "ग्रीक", 
+		"hr": "grčki", 
+		"hu": "görög", 
+		"id": "Yunani", 
+		"is": "Nýgríska (1453-)", 
+		"it": "greco", 
+		"ja": "ギリシャ語", 
+		"km": "ភាសាក្រិច", 
+		"ko": "그리스어", 
+		"lt": "Graikų", 
+		"lv": "grieķu", 
+		"mr": "ग्रीक", 
+		"mt": "Grieg", 
+		"nb": "gresk", 
+		"nl": "Grieks", 
+		"nn": "gresk", 
+		"pl": "grecki", 
+		"ps": "یوناني", 
+		"pt": "grego", 
+		"ro": "Greacă", 
+		"ru": "греческий", 
+		"sk": "grécky", 
+		"sl": "Grščina", 
+		"sr": "Грчки", 
+		"sv": "grekiska", 
+		"ta": "கிரேக்கம்", 
+		"th": "กรีก", 
+		"tr": "Yunanca", 
+		"uk": "Грецька", 
+		"vi": "Tiếng Hy Lạp", 
+		"zh": "希腊文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "en", 
+		"name": "English", 
+		"countries": [
+			{
+				"_reference": "AS"
+			}, 
+			{
+				"_reference": "AU"
+			}, 
+			{
+				"_reference": "BE"
+			}, 
+			{
+				"_reference": "BW"
+			}, 
+			{
+				"_reference": "BZ"
+			}, 
+			{
+				"_reference": "CA"
+			}, 
+			{
+				"_reference": "GB"
+			}, 
+			{
+				"_reference": "GU"
+			}, 
+			{
+				"_reference": "HK"
+			}, 
+			{
+				"_reference": "IE"
+			}, 
+			{
+				"_reference": "IN"
+			}, 
+			{
+				"_reference": "JM"
+			}, 
+			{
+				"_reference": "MH"
+			}, 
+			{
+				"_reference": "MP"
+			}, 
+			{
+				"_reference": "MT"
+			}, 
+			{
+				"_reference": "NA"
+			}, 
+			{
+				"_reference": "NZ"
+			}, 
+			{
+				"_reference": "PH"
+			}, 
+			{
+				"_reference": "PK"
+			}, 
+			{
+				"_reference": "SG"
+			}, 
+			{
+				"_reference": "TT"
+			}, 
+			{
+				"_reference": "UM"
+			}, 
+			{
+				"_reference": "US"
+			}, 
+			{
+				"_reference": "VI"
+			}, 
+			{
+				"_reference": "ZA"
+			}, 
+			{
+				"_reference": "ZW"
+			}
+		], 
+		"am": "እንግሊዝኛ", 
+		"ar": "الانجليزية", 
+		"be": "англійскі", 
+		"bg": "Английски", 
+		"ca": "anglès", 
+		"cs": "Angličtina", 
+		"cy": "Saesneg", 
+		"da": "Engelsk", 
+		"de": "Englisch", 
+		"el": "Αγγλικά", 
+		"en": "English", 
+		"es": "inglés", 
+		"et": "Inglise", 
+		"eu": "ingelera", 
+		"fi": "englanti", 
+		"fr": "anglais", 
+		"ga": "Béarla", 
+		"he": "אנגלית", 
+		"hi": "अंग्रेजी", 
+		"hr": "engleski", 
+		"hu": "angol", 
+		"id": "Inggris", 
+		"is": "Enska", 
+		"it": "inglese", 
+		"ja": "英語", 
+		"ka": "ინგლისური", 
+		"km": "ភាសាអង់គ្លេស", 
+		"ko": "영어", 
+		"ky": "англисче", 
+		"lt": "Anglų", 
+		"lv": "angļu", 
+		"mk": "англиски", 
+		"mn": "англи", 
+		"mr": "इंग्रेजी", 
+		"mt": "Ingliż", 
+		"nb": "engelsk", 
+		"nl": "Engels", 
+		"nn": "engelsk", 
+		"pl": "angielski", 
+		"ps": "انګلیسي", 
+		"pt": "inglês", 
+		"ro": "Engleză", 
+		"ru": "английский", 
+		"sk": "anglický", 
+		"sl": "Angleščina", 
+		"sq": "Anglisht", 
+		"sr": "Енглески", 
+		"sv": "engelska", 
+		"sw": "kiingereza", 
+		"ta": "ஆங்கிலம்", 
+		"te": "ఆంగ్లం", 
+		"th": "อังกฤษ", 
+		"tr": "İngilizce", 
+		"uk": "Англійська", 
+		"vi": "Tiếng Anh", 
+		"zh": "英文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "es", 
+		"name": "español", 
+		"countries": [
+			{
+				"_reference": "AR"
+			}, 
+			{
+				"_reference": "BO"
+			}, 
+			{
+				"_reference": "CL"
+			}, 
+			{
+				"_reference": "CO"
+			}, 
+			{
+				"_reference": "CR"
+			}, 
+			{
+				"_reference": "DO"
+			}, 
+			{
+				"_reference": "EC"
+			}, 
+			{
+				"_reference": "ES"
+			}, 
+			{
+				"_reference": "GT"
+			}, 
+			{
+				"_reference": "HN"
+			}, 
+			{
+				"_reference": "MX"
+			}, 
+			{
+				"_reference": "NI"
+			}, 
+			{
+				"_reference": "PA"
+			}, 
+			{
+				"_reference": "PE"
+			}, 
+			{
+				"_reference": "PR"
+			}, 
+			{
+				"_reference": "PY"
+			}, 
+			{
+				"_reference": "SV"
+			}, 
+			{
+				"_reference": "US"
+			}, 
+			{
+				"_reference": "UY"
+			}, 
+			{
+				"_reference": "VE"
+			}
+		], 
+		"af": "Spaans", 
+		"am": "ስፓኒሽ", 
+		"ar": "الأسبانية", 
+		"be": "іспанскі", 
+		"bg": "Испански", 
+		"ca": "espanyol", 
+		"cs": "Španělština", 
+		"cy": "Sbaeneg", 
+		"da": "Spansk", 
+		"de": "Spanisch", 
+		"el": "Ισπανικά", 
+		"en": "Spanish", 
+		"es": "español", 
+		"et": "Hispaania", 
+		"eu": "espainiera", 
+		"fi": "espanja", 
+		"fr": "espagnol", 
+		"ga": "Spáinnis", 
+		"he": "ספרדית", 
+		"hi": "स्पेनिश", 
+		"hr": "španjolski", 
+		"hu": "spanyol", 
+		"id": "Spanyol", 
+		"is": "Spænska", 
+		"it": "spagnolo", 
+		"ja": "スペイン語", 
+		"ka": "ესპანური", 
+		"km": "ភាសាអេស្ប៉ាញ", 
+		"ko": "스페인어", 
+		"ky": "испанча", 
+		"lt": "Ispanų", 
+		"lv": "spāņu", 
+		"mk": "шпански", 
+		"mn": "испани", 
+		"mr": "स्पानिष", 
+		"mt": "Spanjol", 
+		"nb": "spansk", 
+		"nl": "Spaans", 
+		"nn": "spansk", 
+		"pl": "hiszpański", 
+		"pt": "espanhol", 
+		"ro": "Spaniolă", 
+		"ru": "испанский", 
+		"sk": "španielsky", 
+		"sl": "Španščina", 
+		"sq": "Spanjisht", 
+		"sr": "Шпански", 
+		"sv": "spanska", 
+		"sw": "kihispania", 
+		"ta": "ஸ்பேனிஷ்", 
+		"te": "స్పానిష్", 
+		"th": "สเปน", 
+		"tr": "İspanyolca", 
+		"uk": "Іспанська", 
+		"vi": "Tiếng Tây Ban Nha", 
+		"zh": "西班牙文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "et", 
+		"name": "Eesti", 
+		"countries": [
+			{
+				"_reference": "EE"
+			}
+		], 
+		"am": "ኤስቶኒአን", 
+		"ar": "الأستونية", 
+		"bg": "Естонски", 
+		"ca": "estonià", 
+		"cs": "Estonština", 
+		"da": "Estisk", 
+		"de": "Estnisch", 
+		"el": "Εσθονικά", 
+		"en": "Estonian", 
+		"es": "estonio", 
+		"et": "Eesti", 
+		"fi": "viro", 
+		"fr": "estonien", 
+		"ga": "Eastóinis", 
+		"he": "אסטונית", 
+		"hi": "ऐस्तोनियन्", 
+		"hr": "estonijski", 
+		"hu": "észt", 
+		"id": "Estonian", 
+		"is": "Eistneska", 
+		"it": "estone", 
+		"ja": "エストニア語", 
+		"km": "ភាសាអេស្តូនី", 
+		"ko": "에스토니아어", 
+		"lt": "Estų", 
+		"lv": "igauņu", 
+		"mr": "इस्टोनियन्", 
+		"mt": "Estonjan", 
+		"nb": "estisk", 
+		"nl": "Estlands", 
+		"nn": "estisk", 
+		"pl": "estoński", 
+		"ps": "حبشي", 
+		"pt": "estoniano", 
+		"ro": "Estoniană", 
+		"ru": "эстонский", 
+		"sk": "estónsky", 
+		"sl": "Estonščina", 
+		"sr": "Естонски", 
+		"sv": "estniska", 
+		"ta": "எஸ்டோனியன்", 
+		"th": "เอสโตเนีย", 
+		"tr": "Estonya Dili", 
+		"uk": "Естонська", 
+		"vi": "Tiếng E-xtô-ni-a", 
+		"zh": "爱沙尼亚文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "eu", 
+		"name": "euskara", 
+		"countries": [
+			{
+				"_reference": "ES"
+			}
+		], 
+		"am": "ባስክኛ", 
+		"ar": "لغة الباسك", 
+		"bg": "Баски", 
+		"ca": "basc", 
+		"cs": "Baskičtina", 
+		"da": "baskisk", 
+		"de": "Baskisch", 
+		"el": "Βασκικά", 
+		"en": "Basque", 
+		"es": "vasco", 
+		"eu": "euskara", 
+		"fi": "baski", 
+		"fr": "basque", 
+		"ga": "Bascais", 
+		"he": "בסקית", 
+		"hi": "बास्क्", 
+		"hu": "baszk", 
+		"id": "Basque", 
+		"is": "Baskneska", 
+		"it": "basco", 
+		"ja": "バスク語", 
+		"km": "ភាសាបាស្កេ", 
+		"ko": "바스크어", 
+		"mr": "बास्क", 
+		"mt": "Bask", 
+		"nb": "baskisk", 
+		"nl": "Baskisch", 
+		"nn": "baskisk", 
+		"pl": "baskijski", 
+		"pt": "basco", 
+		"ru": "баскский", 
+		"sr": "Баскијски", 
+		"sv": "baskiska", 
+		"ta": "பஸ்க்", 
+		"th": "แบสก์", 
+		"tr": "Bask Dili", 
+		"uk": "Басків", 
+		"zh": "巴斯克文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "fa", 
+		"name": "فارسی", 
+		"countries": [
+			{
+				"_reference": "AF"
+			}, 
+			{
+				"_reference": "IR"
+			}
+		], 
+		"am": "ፐርሲያኛ", 
+		"ar": "الفارسية", 
+		"bg": "Персийски", 
+		"ca": "persa", 
+		"cs": "Perština", 
+		"da": "Persisk", 
+		"de": "Persisch", 
+		"el": "Περσικά", 
+		"en": "Persian", 
+		"es": "farsi", 
+		"fr": "persan", 
+		"ga": "Peirsis", 
+		"he": "פרסית", 
+		"hi": "पर्शियन्", 
+		"hr": "perzijski", 
+		"hu": "perzsa", 
+		"id": "Persia", 
+		"is": "Persneska", 
+		"it": "persiano", 
+		"ja": "ペルシア語", 
+		"ko": "이란어", 
+		"mr": "पर्षियन्", 
+		"mt": "Persjan", 
+		"nb": "persisk", 
+		"nl": "Perzisch", 
+		"nn": "persisk", 
+		"ps": "فارسي", 
+		"pt": "persa", 
+		"ru": "персидский", 
+		"sr": "Персијски", 
+		"sv": "persiska", 
+		"ta": "பர்ஸியன்", 
+		"th": "เปอร์เซีย", 
+		"tr": "Farsça", 
+		"uk": "Перська", 
+		"vi": "Tiếng Ba Tư", 
+		"zh": "波斯文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "fi", 
+		"name": "suomi", 
+		"countries": [
+			{
+				"_reference": "FI"
+			}
+		], 
+		"am": "ፊኒሽ", 
+		"ar": "الفنلندية", 
+		"bg": "Фински", 
+		"ca": "finès", 
+		"cs": "Finština", 
+		"da": "Finsk", 
+		"de": "Finnisch", 
+		"el": "Φινλανδικά", 
+		"en": "Finnish", 
+		"es": "finés", 
+		"et": "Soome", 
+		"fi": "suomi", 
+		"fr": "finnois", 
+		"ga": "Fionnlainnis", 
+		"he": "פינית", 
+		"hi": "फिनिश", 
+		"hr": "finski", 
+		"hu": "finn", 
+		"id": "Finlandia", 
+		"is": "Finnska", 
+		"it": "finlandese", 
+		"ja": "フィンランド語", 
+		"km": "ភាសាហ្វាំងឡង់", 
+		"ko": "핀란드어", 
+		"lt": "Suomių", 
+		"lv": "somu", 
+		"mr": "फिन्निष", 
+		"mt": "Finlandiż", 
+		"nb": "finsk", 
+		"nl": "Fins", 
+		"nn": "finsk", 
+		"pl": "fiński", 
+		"ps": "فینلنډي", 
+		"pt": "finlandês", 
+		"ro": "Finlandeză", 
+		"ru": "финский", 
+		"sk": "fínsky", 
+		"sl": "Finščina", 
+		"sr": "Фински", 
+		"sv": "finska", 
+		"ta": "பின்னிஷ்", 
+		"th": "ฟิน", 
+		"tr": "Fince", 
+		"uk": "Фінська", 
+		"vi": "Tiếng Phần Lan", 
+		"zh": "芬兰文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "fo", 
+		"name": "føroyskt", 
+		"countries": [
+			{
+				"_reference": "FO"
+			}
+		], 
+		"am": "ፋሮኛ", 
+		"ar": "الفارويز", 
+		"ca": "feroès", 
+		"cs": "Faerština", 
+		"da": "Færøsk", 
+		"de": "Färöisch", 
+		"en": "Faroese", 
+		"es": "feroés", 
+		"fi": "fääri", 
+		"fo": "føroyskt", 
+		"fr": "féroïen", 
+		"ga": "Faróis", 
+		"he": "פארואזית", 
+		"hi": "फिरोज़ी", 
+		"hu": "feröeri", 
+		"id": "Faro", 
+		"is": "Færeyska", 
+		"it": "faroese", 
+		"ja": "フェロー語", 
+		"ko": "페로스어", 
+		"mr": "फेरोस्", 
+		"mt": "Fawriż", 
+		"nb": "færøysk", 
+		"nl": "Faeröers", 
+		"nn": "færøysk", 
+		"pt": "feroês", 
+		"ru": "фарерский", 
+		"sv": "färöiska", 
+		"ta": "பைரோஸி", 
+		"th": "ฟาโรส", 
+		"tr": "Faroe Dili", 
+		"uk": "Фарерська", 
+		"zh": "法罗文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "fr", 
+		"name": "français", 
+		"countries": [
+			{
+				"_reference": "BE"
+			}, 
+			{
+				"_reference": "CA"
+			}, 
+			{
+				"_reference": "CH"
+			}, 
+			{
+				"_reference": "FR"
+			}, 
+			{
+				"_reference": "LU"
+			}, 
+			{
+				"_reference": "MC"
+			}
+		], 
+		"am": "ፈረንሳይኛ", 
+		"ar": "الفرنسية", 
+		"be": "французскі", 
+		"bg": "Френски", 
+		"ca": "francès", 
+		"cs": "Francouzština", 
+		"cy": "Ffrangeg", 
+		"da": "Fransk", 
+		"de": "Französisch", 
+		"el": "Γαλλικά", 
+		"en": "French", 
+		"es": "francés", 
+		"et": "Prantsuse", 
+		"eu": "frantsesera", 
+		"fi": "ranska", 
+		"fr": "français", 
+		"ga": "Fraincis", 
+		"he": "צרפתית", 
+		"hi": "फ्रेंच", 
+		"hr": "francuski", 
+		"hu": "francia", 
+		"id": "Perancis", 
+		"is": "Franska", 
+		"it": "francese", 
+		"ja": "フランス語", 
+		"ka": "ფრანგული", 
+		"km": "ភាសាបារាំង", 
+		"ko": "프랑스어", 
+		"ky": "французча", 
+		"lt": "Prancūzų", 
+		"lv": "franču", 
+		"mk": "француски", 
+		"mn": "франц", 
+		"mr": "फ्रेन्च", 
+		"mt": "Franċiż", 
+		"nb": "fransk", 
+		"nl": "Frans", 
+		"nn": "fransk", 
+		"pl": "francuski", 
+		"ps": "فرانسوي", 
+		"pt": "francês", 
+		"ro": "Franceză", 
+		"ru": "французский", 
+		"sk": "francúzsky", 
+		"sl": "Francoščina", 
+		"sq": "Frengjisht", 
+		"sr": "Француски", 
+		"sv": "franska", 
+		"sw": "kifaransa", 
+		"ta": "பிரெஞ்சு", 
+		"te": "ఫ్రెంచ్", 
+		"th": "ฝรั่งเศส", 
+		"tr": "Fransızca", 
+		"uk": "Французька", 
+		"vi": "Tiếng Pháp", 
+		"zh": "法文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ga", 
+		"name": "Gaeilge", 
+		"countries": [
+			{
+				"_reference": "IE"
+			}
+		], 
+		"am": "አይሪሽ", 
+		"ar": "الأيرلندية", 
+		"bg": "Ирландски", 
+		"ca": "irlandès", 
+		"cs": "Irština", 
+		"da": "Irsk", 
+		"de": "Irisch", 
+		"el": "Ιρλανδικά", 
+		"en": "Irish", 
+		"es": "irlandés", 
+		"fi": "iiri", 
+		"fr": "irlandais", 
+		"ga": "Gaeilge", 
+		"he": "אירית", 
+		"hi": "आईरिश", 
+		"hr": "irski", 
+		"hu": "ír", 
+		"id": "Irlandia", 
+		"is": "Írska", 
+		"it": "irlandese", 
+		"ja": "アイルランド語", 
+		"km": "ភាសាហ្កែលិគ", 
+		"ko": "아일랜드어", 
+		"mr": "ऐरिष", 
+		"mt": "Irlandiż", 
+		"nb": "irsk", 
+		"nl": "Iers", 
+		"nn": "irsk", 
+		"pt": "irlandês", 
+		"ru": "ирландский", 
+		"sr": "Ирски", 
+		"ta": "ஐரிஷ்", 
+		"th": "ไอริช", 
+		"tr": "İrlanda Dili", 
+		"uk": "Ірландська", 
+		"vi": "Tiếng Ai-len", 
+		"zh": "爱尔兰文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "gl", 
+		"name": "galego", 
+		"countries": [
+			{
+				"_reference": "ES"
+			}
+		], 
+		"am": "ጋለጋኛ", 
+		"ar": "الجاليكية", 
+		"ca": "gallec", 
+		"cs": "Haličština", 
+		"da": "Galicisk", 
+		"de": "Galizisch", 
+		"en": "Galician", 
+		"es": "gallego", 
+		"fi": "galicia", 
+		"fr": "galicien", 
+		"gl": "galego", 
+		"he": "גליציאנית", 
+		"hi": "गैलिशियन्", 
+		"hu": "galíciai", 
+		"id": "Gallegan", 
+		"is": "Gallegska", 
+		"it": "galiziano", 
+		"ja": "ガリシア語", 
+		"km": "ភាសាហ្កាលីស៉ី", 
+		"ko": "갈리시아어", 
+		"mr": "गेलीशियन", 
+		"mt": "Gallegjan", 
+		"nb": "galicisk", 
+		"nl": "Galicisch", 
+		"nn": "galicisk", 
+		"pt": "galego", 
+		"ru": "галисийский", 
+		"sv": "galiciska", 
+		"ta": "கெலிஸியன்", 
+		"th": "กะลีเชีย", 
+		"tr": "Galiçya Dili", 
+		"uk": "Галісійська", 
+		"zh": "加利西亚文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "gu", 
+		"name": "ગુજરાતી", 
+		"countries": [
+			{
+				"_reference": "IN"
+			}
+		], 
+		"am": "ጉጃርቲኛ", 
+		"ar": "الغوجاراتية", 
+		"bg": "Гуджарати", 
+		"ca": "gujarati", 
+		"cs": "Gujaratština", 
+		"da": "Gujaratisk", 
+		"de": "Gujarati", 
+		"en": "Gujarati", 
+		"es": "gujarati", 
+		"fr": "goudjrati", 
+		"ga": "Gúisearáitis", 
+		"gu": "ગુજરાતી", 
+		"he": "גוג'ראטית", 
+		"hi": "गुज़राती", 
+		"hu": "gudzsaráti", 
+		"id": "Gujarati", 
+		"is": "Gújaratí", 
+		"it": "gujarati", 
+		"ja": "グジャラート語", 
+		"km": "ភាសាហ្កុយ៉ារាទី", 
+		"ko": "구자라트어", 
+		"mr": "गुजराती", 
+		"mt": "Guġarati", 
+		"nb": "gujarati", 
+		"nl": "Gujarati", 
+		"nn": "gujarati", 
+		"pt": "guzerate", 
+		"ru": "гуджарати", 
+		"sv": "gujarati", 
+		"ta": "குஜராத்தி", 
+		"th": "กูจาราติ", 
+		"tr": "Gujarati", 
+		"uk": "Гуяраті", 
+		"zh": "古加拉提文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "gv", 
+		"name": "Gaelg", 
+		"countries": [
+			{
+				"_reference": "GB"
+			}
+		], 
+		"ar": "المنكية", 
+		"cs": "Manština", 
+		"da": "Manx", 
+		"de": "Manx", 
+		"en": "Manx", 
+		"es": "gaélico manés", 
+		"fi": "manx", 
+		"fr": "manx", 
+		"ga": "Mannainis", 
+		"gv": "Gaelg", 
+		"id": "Manx", 
+		"is": "Manx", 
+		"it": "manx", 
+		"ja": "マン島語", 
+		"ko": "맹크스어", 
+		"mt": "Manks", 
+		"nb": "manx", 
+		"nl": "Manx", 
+		"nn": "manx", 
+		"pt": "manx", 
+		"ru": "мэнский", 
+		"sv": "manx", 
+		"th": "มานซ์", 
+		"zh": "马恩岛文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "he", 
+		"name": "עברית", 
+		"countries": [
+			{
+				"_reference": "IL"
+			}
+		], 
+		"am": "ዕብራስጥ", 
+		"ar": "العبرية", 
+		"bg": "Иврит", 
+		"ca": "hebreu", 
+		"cs": "Hebrejština", 
+		"da": "Hebraisk", 
+		"de": "Hebräisch", 
+		"el": "Εβραϊκά", 
+		"en": "Hebrew", 
+		"es": "hebreo", 
+		"et": "Heebrea", 
+		"fi": "heprea", 
+		"fr": "hébreu", 
+		"ga": "Eabhrais", 
+		"he": "עברית", 
+		"hi": "हिब्रीऊ", 
+		"hr": "hebrejski", 
+		"hu": "héber", 
+		"id": "Ibrani", 
+		"is": "Hebreska", 
+		"it": "ebraico", 
+		"ja": "ヘブライ語", 
+		"km": "ភាសាហេប្រិ", 
+		"ko": "히브리어", 
+		"lt": "Hebrajų", 
+		"lv": "ivrits", 
+		"mr": "हेबृ", 
+		"mt": "Ebrajk", 
+		"nb": "hebraisk", 
+		"nl": "Hebreeuws", 
+		"nn": "hebraisk", 
+		"pl": "hebrajski", 
+		"ps": "عبري", 
+		"pt": "hebraico", 
+		"ro": "Ebraică", 
+		"ru": "иврит", 
+		"sk": "hebrejský", 
+		"sl": "Hebrejščina", 
+		"sr": "Хебрејски", 
+		"sv": "hebreiska", 
+		"ta": "ஹுப்ரு", 
+		"th": "ฮิบรู", 
+		"tr": "İbranice", 
+		"uk": "Іврит", 
+		"vi": "Tiếng Hê-brơ", 
+		"zh": "希伯来文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "hi", 
+		"name": "हिंदी", 
+		"countries": [
+			{
+				"_reference": "IN"
+			}
+		], 
+		"am": "ሐንድኛ", 
+		"ar": "الهندية", 
+		"be": "хіндзі", 
+		"bg": "Хинди", 
+		"ca": "hindi", 
+		"cs": "Hindština", 
+		"cy": "Hindi", 
+		"da": "Hindi", 
+		"de": "Hindi", 
+		"el": "Χίντι", 
+		"en": "Hindi", 
+		"es": "hindi", 
+		"fi": "hindi", 
+		"fr": "hindi", 
+		"ga": "Hiondúis", 
+		"he": "הינדית", 
+		"hi": "हिंदी", 
+		"hu": "hindi", 
+		"id": "Hindi", 
+		"is": "Hindí", 
+		"it": "hindi", 
+		"ja": "ヒンディー語", 
+		"km": "ភាសាហ៉ិនឌី", 
+		"ko": "힌디어", 
+		"lt": "Hindi", 
+		"mr": "हिन्दी", 
+		"mt": "Ħindi", 
+		"nb": "hindi", 
+		"nl": "Hindi", 
+		"nn": "hindi", 
+		"pl": "hindi", 
+		"ps": "هندي", 
+		"pt": "hindi", 
+		"ru": "хинди", 
+		"sq": "Hindi", 
+		"sr": "Хинди", 
+		"sv": "hindi", 
+		"ta": "இந்தி", 
+		"te": "హిందీ", 
+		"th": "ฮินดี", 
+		"tr": "Hint Dili", 
+		"uk": "Гінді", 
+		"vi": "Tiếng Hin-đi", 
+		"zh": "印地文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "hr", 
+		"name": "hrvatski", 
+		"countries": [
+			{
+				"_reference": "HR"
+			}
+		], 
+		"am": "ክሮሽያንኛ", 
+		"ar": "الكرواتية", 
+		"bg": "Хърватски", 
+		"ca": "croat", 
+		"cs": "Chorvatština", 
+		"da": "Kroatisk", 
+		"de": "Kroatisch", 
+		"el": "Κροατικά", 
+		"en": "Croatian", 
+		"es": "croata", 
+		"et": "Horvaadi", 
+		"fi": "kroatia", 
+		"fr": "croate", 
+		"ga": "Cróitis", 
+		"he": "קרואטית", 
+		"hi": "क्रोएशन्", 
+		"hr": "hrvatski", 
+		"hu": "horvát", 
+		"id": "Kroasia", 
+		"is": "Króatíska", 
+		"it": "croato", 
+		"ja": "クロアチア語", 
+		"ko": "크로아티아어", 
+		"lt": "Kroatų", 
+		"lv": "horvātu", 
+		"mr": "क्रोयेषियन्", 
+		"mt": "Kroat", 
+		"nb": "kroatisk", 
+		"nl": "Kroatisch", 
+		"nn": "kroatisk", 
+		"pl": "chorwacki", 
+		"pt": "croata", 
+		"ro": "Croată", 
+		"ru": "хорватский", 
+		"sk": "chorvátsky", 
+		"sl": "Hrvaščina", 
+		"sr": "Хрватски", 
+		"sv": "kroatiska", 
+		"ta": "கரோஷியன்", 
+		"th": "โครเอเทีย", 
+		"tr": "Hırvatça", 
+		"uk": "Хорватська", 
+		"vi": "Tiếng Crô-a-ti-a", 
+		"zh": "克罗地亚文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "hu", 
+		"name": "magyar", 
+		"countries": [
+			{
+				"_reference": "HU"
+			}
+		], 
+		"am": "ሀንጋሪኛ", 
+		"ar": "الهنغارية", 
+		"bg": "Унгарски", 
+		"ca": "hongarès", 
+		"cs": "Maďarština", 
+		"da": "Ungarsk", 
+		"de": "Ungarisch", 
+		"el": "Ουγγρικά", 
+		"en": "Hungarian", 
+		"es": "húngaro", 
+		"et": "Ungari", 
+		"fi": "unkari", 
+		"fr": "hongrois", 
+		"ga": "Ungáiris", 
+		"he": "הונגרית", 
+		"hi": "हंगेरी", 
+		"hr": "mađarski", 
+		"hu": "magyar", 
+		"id": "Hungaria", 
+		"is": "Ungverska", 
+		"it": "ungherese", 
+		"ja": "ハンガリー語", 
+		"km": "ភាសាហុងគ្រី", 
+		"ko": "헝가리어", 
+		"lt": "Vengrų", 
+		"lv": "ungāru", 
+		"mr": "हंगेरियन्", 
+		"mt": "Ungeriż", 
+		"nb": "ungarsk", 
+		"nl": "Hongaars", 
+		"nn": "ungarsk", 
+		"pl": "węgierski", 
+		"pt": "húngaro", 
+		"ro": "Maghiară", 
+		"ru": "венгерский", 
+		"sk": "maďarský", 
+		"sl": "Madžarščina", 
+		"sr": "Мађарски", 
+		"sv": "ungerska", 
+		"ta": "ஹங்கேரியன்", 
+		"th": "ฮังการี", 
+		"tr": "Macarca", 
+		"uk": "Угорська", 
+		"vi": "Tiếng Hung-ga-ri", 
+		"zh": "匈牙利文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "hy", 
+		"name": "Հայերէն", 
+		"countries": [
+			{
+				"_reference": "AM"
+			}
+		], 
+		"am": "አርመናዊ", 
+		"ar": "الأرمينية", 
+		"bg": "Арменски", 
+		"ca": "armeni", 
+		"cs": "Arménština", 
+		"da": "armensk", 
+		"de": "Armenisch", 
+		"el": "Αρμενικά", 
+		"en": "Armenian", 
+		"es": "armenio", 
+		"fi": "armenia", 
+		"fr": "arménien", 
+		"ga": "Airméinis", 
+		"he": "ארמנית", 
+		"hi": "अरमेनियन्", 
+		"hr": "armenski", 
+		"hu": "örmény", 
+		"hy": "Հայերէն", 
+		"id": "Armenia", 
+		"is": "Armenska", 
+		"it": "armeno", 
+		"ja": "アルメニア語", 
+		"km": "ភាសាអារមេនី", 
+		"ko": "아르메니아어", 
+		"mr": "आर्मीनियन्", 
+		"mt": "Armenjan", 
+		"nb": "armensk", 
+		"nl": "Armeens", 
+		"nn": "armensk", 
+		"ps": "ارمني", 
+		"pt": "armênio", 
+		"ru": "армянский", 
+		"sr": "Арменски", 
+		"sv": "armeniska", 
+		"ta": "ஆர்மேனியன்", 
+		"th": "อาร์มีเนีย", 
+		"tr": "Ermenice", 
+		"uk": "Вірменська", 
+		"vi": "Tiếng Ác-mê-ni", 
+		"zh": "亚美尼亚文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "id", 
+		"name": "Bahasa Indonesia", 
+		"countries": [
+			{
+				"_reference": "ID"
+			}
+		], 
+		"am": "እንዶኒሲኛ", 
+		"ar": "الأندونيسية", 
+		"bg": "Индонезийски", 
+		"ca": "indonesi", 
+		"cs": "Indonéština", 
+		"da": "Indonesisk", 
+		"de": "Indonesisch", 
+		"el": "Ινδονησιακά", 
+		"en": "Indonesian", 
+		"es": "indonesio", 
+		"fi": "indonesia", 
+		"fr": "indonésien", 
+		"ga": "Indinéisis", 
+		"he": "אינדונזית", 
+		"hi": "इन्डोनेशियन्", 
+		"hu": "indonéz", 
+		"id": "Bahasa Indonesia", 
+		"is": "Indónesíska", 
+		"it": "indonesiano", 
+		"ja": "インドネシア語", 
+		"km": "ភាសាឥណ្ឌូនេស៊ី", 
+		"ko": "인도네시아어", 
+		"mr": "इन्डोनेषियन", 
+		"mt": "Indoneżjan", 
+		"nb": "indonesisk", 
+		"nl": "Indonesisch", 
+		"nn": "indonesisk", 
+		"pt": "indonésio", 
+		"ru": "индонезийский", 
+		"sr": "Индонезијски", 
+		"sv": "indonesiska", 
+		"ta": "இந்தோனேஷியன்", 
+		"th": "อินโดนีเชีย", 
+		"tr": "Endonezya Dili", 
+		"uk": "Індонезійська", 
+		"vi": "Tiếng In-đô-nê-xia", 
+		"zh": "印度尼西亚文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "is", 
+		"name": "Íslenska", 
+		"countries": [
+			{
+				"_reference": "IS"
+			}
+		], 
+		"am": "አይስላንድኛ", 
+		"ar": "الأيسلاندية", 
+		"bg": "Исландски", 
+		"ca": "islandès", 
+		"cs": "Islandština", 
+		"da": "Islandsk", 
+		"de": "Isländisch", 
+		"el": "Ισλανδικά", 
+		"en": "Icelandic", 
+		"es": "islandés", 
+		"fi": "islanti", 
+		"fr": "islandais", 
+		"ga": "Íoslainnais", 
+		"he": "איסלנדית", 
+		"hi": "आईस्लैंडिक्", 
+		"hr": "islandski", 
+		"hu": "izlandi", 
+		"id": "Icelandic", 
+		"is": "Íslenska", 
+		"it": "islandese", 
+		"ja": "アイスランド語", 
+		"km": "ភាសាអ៉ីស្លង់", 
+		"ko": "아이슬란드어", 
+		"mr": "आईसलान्डिक", 
+		"mt": "Iżlandiż", 
+		"nb": "islandsk", 
+		"nl": "IJslands", 
+		"nn": "islandsk", 
+		"pt": "islandês", 
+		"ru": "исландский", 
+		"sr": "Исландски", 
+		"sv": "isländska", 
+		"ta": "ஐஸ்லென்டிக்", 
+		"th": "ไอซ์แลนด์ดิค", 
+		"tr": "İzlandaca", 
+		"uk": "Ісландська", 
+		"vi": "Tiếng Ai-xơ-len", 
+		"zh": "冰岛文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "it", 
+		"name": "italiano", 
+		"countries": [
+			{
+				"_reference": "CH"
+			}, 
+			{
+				"_reference": "IT"
+			}
+		], 
+		"am": "ጣሊያንኛ", 
+		"ar": "الايطالية", 
+		"be": "італьянскі", 
+		"bg": "Италиански", 
+		"ca": "italià", 
+		"cs": "Italština", 
+		"cy": "Eidaleg", 
+		"da": "Italiensk", 
+		"de": "Italienisch", 
+		"el": "Ιταλικά", 
+		"en": "Italian", 
+		"es": "italiano", 
+		"et": "Itaalia", 
+		"eu": "italiera", 
+		"fi": "italia", 
+		"fr": "italien", 
+		"ga": "Iodáilis", 
+		"he": "איטלקית", 
+		"hi": "ईटालियन्", 
+		"hr": "talijanski", 
+		"hu": "olasz", 
+		"id": "Italian", 
+		"is": "Ítalska", 
+		"it": "italiano", 
+		"ja": "イタリア語", 
+		"ka": "იტალიური", 
+		"km": "ភាសាអ៊ីតាលី", 
+		"ko": "이탈리아어", 
+		"ky": "италиянча", 
+		"lt": "Italų", 
+		"lv": "itāliešu", 
+		"mk": "италијански", 
+		"mn": "итали", 
+		"mr": "इटालियन", 
+		"mt": "Taljan", 
+		"nb": "italiensk", 
+		"nl": "Italiaans", 
+		"nn": "italiensk", 
+		"pl": "włoski", 
+		"ps": "ایټالوي", 
+		"pt": "italiano", 
+		"ro": "Italiană", 
+		"ru": "итальянский", 
+		"sk": "taliansky", 
+		"sl": "Italijanščina", 
+		"sq": "Italisht", 
+		"sr": "Италијански", 
+		"sv": "italienska", 
+		"sw": "kiitaliano", 
+		"ta": "இத்தாலியன்", 
+		"te": "ఇటాలియన్ భాష", 
+		"th": "อิตาลี", 
+		"tr": "İtalyanca", 
+		"uk": "Італійська", 
+		"vi": "Tiếng Ý", 
+		"zh": "意大利文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ja", 
+		"name": "日本語", 
+		"countries": [
+			{
+				"_reference": "JP"
+			}
+		], 
+		"am": "ጃፓንኛ", 
+		"ar": "اليابانية", 
+		"be": "японскі", 
+		"bg": "Японски", 
+		"ca": "japonès", 
+		"cs": "Japonština", 
+		"cy": "Siapaneeg", 
+		"da": "Japansk", 
+		"de": "Japanisch", 
+		"el": "Ιαπωνικά", 
+		"en": "Japanese", 
+		"es": "japonés", 
+		"et": "Jaapani", 
+		"eu": "japoniera", 
+		"fi": "japani", 
+		"fr": "japonais", 
+		"ga": "Seapáinis", 
+		"he": "יפנית", 
+		"hi": "जापानी", 
+		"hr": "japanski", 
+		"hu": "japán", 
+		"id": "Japanese", 
+		"is": "Japanska", 
+		"it": "giapponese", 
+		"ja": "日本語", 
+		"ka": "იაპონური", 
+		"km": "ភាសាជប៉ុន", 
+		"ko": "일본어", 
+		"ky": "япончо", 
+		"lt": "Japonų", 
+		"lv": "japāņu", 
+		"mk": "јапонски", 
+		"mn": "япон", 
+		"mr": "जापनीस्", 
+		"mt": "Ġappuniż", 
+		"nb": "japansk", 
+		"nl": "Japans", 
+		"nn": "japansk", 
+		"pl": "japoński", 
+		"ps": "جاپانی", 
+		"pt": "japonês", 
+		"ro": "Japoneză", 
+		"ru": "японский", 
+		"sk": "japonský", 
+		"sl": "Japonščina", 
+		"sq": "Japanisht", 
+		"sr": "Јапански", 
+		"sv": "japanska", 
+		"sw": "kijapani", 
+		"ta": "ஜப்பானீஸ்", 
+		"te": "జపాను భాష", 
+		"th": "ญี่ปุ่น", 
+		"tr": "Japonca", 
+		"uk": "Японська", 
+		"vi": "Tiếng Nhật", 
+		"zh": "日文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ka", 
+		"name": "ქართული", 
+		"countries": [
+			{
+				"_reference": "GE"
+			}
+		], 
+		"am": "ጊዮርጊያን", 
+		"ar": "الجورجية", 
+		"bg": "Грузински", 
+		"ca": "georgià", 
+		"cs": "Gruzínština", 
+		"da": "Georgisk", 
+		"de": "Georgisch", 
+		"el": "Γεωργιανά", 
+		"en": "Georgian", 
+		"es": "georgiano", 
+		"fi": "georgia", 
+		"fr": "géorgien", 
+		"ga": "Seoirsis", 
+		"he": "גרוזינית", 
+		"hi": "जॉर्जीयन्", 
+		"hu": "grúz", 
+		"id": "Georgian", 
+		"is": "Georgíska", 
+		"it": "georgiano", 
+		"ja": "グルジア語", 
+		"ka": "ქართული", 
+		"km": "ភាសាហ្សកហ្ស៉ី", 
+		"ko": "그루지야어", 
+		"mr": "जार्जियन्", 
+		"mt": "Ġorġjan", 
+		"nb": "georgisk", 
+		"nl": "Georgisch", 
+		"nn": "georgisk", 
+		"pt": "georgiano", 
+		"ru": "грузинский", 
+		"sr": "Грузијски", 
+		"sv": "georgiska", 
+		"ta": "கன்னடம்", 
+		"th": "จอร์เจียน", 
+		"tr": "Gürcüce", 
+		"uk": "Грузинська", 
+		"zh": "格鲁吉亚文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "kk", 
+		"name": "Қазақ", 
+		"countries": [
+			{
+				"_reference": "KZ"
+			}
+		], 
+		"am": "ካዛክኛ", 
+		"ar": "الكازاخستانية", 
+		"bg": "Казахски", 
+		"ca": "kazakh", 
+		"cs": "Kazachština", 
+		"da": "Kasakhisk", 
+		"de": "Kasachisch", 
+		"en": "Kazakh", 
+		"es": "kazajo", 
+		"fi": "kazakki", 
+		"fr": "kazakh", 
+		"ga": "Casachais", 
+		"he": "קזחית", 
+		"hi": "कज़ाख", 
+		"hu": "kazah", 
+		"id": "Kazakh", 
+		"is": "Kasakska", 
+		"it": "kazako", 
+		"ja": "カザフ語", 
+		"kk": "Қазақ", 
+		"km": "ភាសាកាហ្សាក់ស្តង់់", 
+		"ko": "카자흐어", 
+		"mr": "कज़क", 
+		"mt": "Każak", 
+		"nb": "kasakhisk", 
+		"nl": "Kazachs", 
+		"nn": "kasakhisk", 
+		"pt": "cazaque", 
+		"ru": "казахский", 
+		"sv": "kazakstanska", 
+		"ta": "கசாக்", 
+		"th": "คาซัค", 
+		"tr": "Kazak Dili", 
+		"uk": "Казахська", 
+		"zh": "哈萨克文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "kl", 
+		"name": "kalaallisut", 
+		"countries": [
+			{
+				"_reference": "GL"
+			}
+		], 
+		"am": "ካላሊሱትኛ", 
+		"ar": "الكالاليست", 
+		"ca": "greenlandès", 
+		"cs": "Grónština", 
+		"da": "Kalaallisut", 
+		"de": "Grönländisch", 
+		"en": "Kalaallisut", 
+		"es": "groenlandés", 
+		"fi": "kalaallisut; grönlanti", 
+		"fr": "groenlandais", 
+		"hi": "ग्रीनलैंडिक", 
+		"hu": "grönlandi", 
+		"id": "Kalaallisut", 
+		"is": "Grænlenska", 
+		"it": "kalaallisut", 
+		"ja": "グリーンランド語", 
+		"kl": "kalaallisut", 
+		"ko": "그린랜드어", 
+		"mr": "ग्रीनलान्डिक", 
+		"mt": "Kalallisut", 
+		"nl": "Kalaallisut", 
+		"nn": "kalaallisut; grønlandsk", 
+		"pt": "groenlandês", 
+		"ru": "эскимосский (гренландский)", 
+		"sv": "grönländska", 
+		"ta": "கிரின்லென்டிக்", 
+		"th": "กรีนแลนด์ดิค", 
+		"tr": "Grönland Dili", 
+		"uk": "Калааллісут", 
+		"zh": "格陵兰文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "km", 
+		"name": "ភាសាខ្មែរ", 
+		"countries": [
+			{
+				"_reference": "KH"
+			}
+		], 
+		"am": "ክመርኛ", 
+		"ar": "الخميرية", 
+		"bg": "Кхмерски", 
+		"ca": "cambodjà", 
+		"cs": "Kambodžština", 
+		"da": "Khmer", 
+		"de": "Kambodschanisch", 
+		"en": "Khmer", 
+		"es": "jemer", 
+		"fi": "khmer", 
+		"fr": "khmer", 
+		"hi": "कैम्बोडियन्", 
+		"hr": "kmerski", 
+		"hu": "kambodzsai", 
+		"id": "Khmer", 
+		"is": "Kmer", 
+		"it": "khmer", 
+		"ja": "クメール語", 
+		"km": "ភាសាខ្មែរ", 
+		"ko": "캄보디아어", 
+		"mr": "कंबोडियन", 
+		"mt": "Kmer", 
+		"nb": "khmer", 
+		"nl": "Khmer", 
+		"nn": "khmer", 
+		"pt": "cmer", 
+		"ru": "кхмерский", 
+		"sr": "Кмерски", 
+		"sv": "kambodjanska; khmeriska", 
+		"ta": "கம்போடியன்", 
+		"th": "เขมร", 
+		"tr": "Kamboçya Dili", 
+		"uk": "Кхмерська", 
+		"vi": "Tiếng Campuchia", 
+		"zh": "柬埔寨文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "kn", 
+		"name": "ಕನ್ನಡ", 
+		"countries": [
+			{
+				"_reference": "IN"
+			}
+		], 
+		"am": "ካናዳኛ", 
+		"ar": "الكانادا", 
+		"ca": "kannada", 
+		"cs": "Kannadština", 
+		"da": "Kannaresisk", 
+		"de": "Kannada", 
+		"en": "Kannada", 
+		"es": "canarés", 
+		"fi": "kannada", 
+		"fr": "kannada", 
+		"ga": "Cannadais", 
+		"hi": "कन्नड़", 
+		"hu": "kannada", 
+		"id": "Kannada", 
+		"is": "Kannada", 
+		"it": "kannada", 
+		"ja": "カンナダ語", 
+		"km": "ភាសាកិណាដា", 
+		"kn": "ಕನ್ನಡ", 
+		"ko": "카나다어", 
+		"mr": "कन्नड", 
+		"mt": "Kannada", 
+		"nb": "kannada", 
+		"nl": "Kannada", 
+		"nn": "kannada", 
+		"pt": "canarês", 
+		"ru": "каннада", 
+		"sv": "kanaresiska; kannada", 
+		"ta": "கன்னடா", 
+		"th": "กานาดา", 
+		"tr": "Kannada", 
+		"uk": "Каннада", 
+		"vi": "Tiếng Kan-na-đa", 
+		"zh": "埃纳德文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ko", 
+		"name": "한국어", 
+		"countries": [
+			{
+				"_reference": "KR"
+			}
+		], 
+		"am": "ኮሪያኛ", 
+		"ar": "الكورية", 
+		"bg": "Корейски", 
+		"ca": "coreà", 
+		"cs": "Korejština", 
+		"da": "Koreansk", 
+		"de": "Koreanisch", 
+		"el": "Κορεατικά", 
+		"en": "Korean", 
+		"es": "coreano", 
+		"et": "Korea", 
+		"fi": "korea", 
+		"fr": "coréen", 
+		"ga": "Cóiréis", 
+		"he": "קוריאנית", 
+		"hi": "कोरीयन्", 
+		"hr": "korejski", 
+		"hu": "koreai", 
+		"id": "Korea", 
+		"is": "Kóreska", 
+		"it": "coreano", 
+		"ja": "韓国語", 
+		"km": "ភាសាកូរ៉េ", 
+		"ko": "한국어", 
+		"lt": "Korėjiečių", 
+		"lv": "korejiešu", 
+		"mr": "कोरियन्", 
+		"mt": "Korejan", 
+		"nb": "koreansk", 
+		"nl": "Koreaans", 
+		"nn": "koreansk", 
+		"pl": "koreański", 
+		"pt": "coreano", 
+		"ro": "Coreeană", 
+		"ru": "корейский", 
+		"sk": "kórejský", 
+		"sl": "Korejščina", 
+		"sr": "Корејски", 
+		"sv": "koreanska", 
+		"ta": "கொரியன்", 
+		"th": "เกาหลี", 
+		"tr": "Korece", 
+		"uk": "Корейська", 
+		"vi": "Tiếng Hàn Quốc", 
+		"zh": "韩文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ku", 
+		"name": "kurdî", 
+		"countries": [
+			{
+				"_reference": "IQ"
+			}, 
+			{
+				"_reference": "IR"
+			}, 
+			{
+				"_reference": "SY"
+			}, 
+			{
+				"_reference": "TR"
+			}
+		], 
+		"am": "ኩርድሽኛ", 
+		"ar": "الكردية", 
+		"bg": "Кюрдски", 
+		"ca": "kurd", 
+		"cs": "Kurdština", 
+		"da": "Kurdisk", 
+		"de": "Kurdisch", 
+		"en": "Kurdish", 
+		"es": "kurdo", 
+		"fi": "kurdi", 
+		"fr": "kurde", 
+		"he": "כורדית", 
+		"hi": "कुरदीश", 
+		"hu": "kurd", 
+		"id": "Kurdi", 
+		"is": "Kúrdneska", 
+		"it": "curdo", 
+		"ja": "クルド語", 
+		"km": "ភាសាឃឺដ", 
+		"ko": "크르드어", 
+		"mr": "कुर्दिष", 
+		"mt": "Kurdiż", 
+		"nb": "kurdisk", 
+		"nl": "Koerdisch", 
+		"nn": "kurdisk", 
+		"ps": "کردي", 
+		"pt": "curdo", 
+		"ru": "курдский", 
+		"sr": "Курдски", 
+		"sv": "kurdiska", 
+		"ta": "குர்திஷ்", 
+		"th": "เคิด", 
+		"tr": "Kürtçe", 
+		"uk": "Курдська", 
+		"zh": "库尔德文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "kw", 
+		"name": "kernewek", 
+		"countries": [
+			{
+				"_reference": "GB"
+			}
+		], 
+		"ar": "الكورنية", 
+		"da": "Cornisk", 
+		"de": "Kornisch", 
+		"en": "Cornish", 
+		"es": "córnico", 
+		"fi": "korni", 
+		"fr": "cornique", 
+		"ga": "Cornais", 
+		"id": "Cornish", 
+		"is": "Korníska", 
+		"it": "cornico", 
+		"ja": "コーンウォール語", 
+		"ko": "콘월어", 
+		"kw": "kernewek", 
+		"mt": "Korniku", 
+		"nb": "kornisk", 
+		"nl": "Cornish", 
+		"nn": "kornisk", 
+		"pt": "córnico", 
+		"ru": "корнийский", 
+		"sv": "korniska", 
+		"th": "คอร์นิส", 
+		"zh": "凯尔特文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ky", 
+		"name": "Кыргыз", 
+		"countries": [
+			{
+				"_reference": "KG"
+			}
+		], 
+		"am": "ኪርጊዝኛ", 
+		"ar": "القيرغستانية", 
+		"bg": "Киргизски", 
+		"ca": "kirguís", 
+		"cs": "Kirgizština", 
+		"da": "Kirgisisk", 
+		"de": "Kirgisisch", 
+		"en": "Kirghiz", 
+		"es": "kirghiz", 
+		"fi": "kirgiisi", 
+		"fr": "kirghize", 
+		"ga": "Cirgeasais", 
+		"hi": "किरघिज़", 
+		"hu": "kirgiz", 
+		"id": "Kirghiz", 
+		"is": "Kirgiska", 
+		"it": "kirghiso", 
+		"ja": "キルギス語", 
+		"km": "ភាសាគៀរហ្គីស្តង់", 
+		"ko": "키르기스어", 
+		"mr": "किर्गिज़", 
+		"mt": "Kirgiż", 
+		"nb": "kirgisisk", 
+		"nl": "Kirgizisch", 
+		"nn": "kirgisisk", 
+		"pt": "quirguiz", 
+		"ru": "киргизский", 
+		"sr": "Киргиски", 
+		"sv": "kirgisiska", 
+		"ta": "கிர்கிஷ்", 
+		"th": "เคอร์กิซ", 
+		"tr": "Kırgızca", 
+		"uk": "Киргизька", 
+		"zh": "吉尔吉斯文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ln", 
+		"name": "lingála", 
+		"countries": [
+			{
+				"_reference": "CD"
+			}, 
+			{
+				"_reference": "CG"
+			}
+		], 
+		"am": "ሊንጋላኛ", 
+		"ar": "اللينجالا", 
+		"ca": "lingala", 
+		"cs": "Lingalština", 
+		"da": "Lingala", 
+		"de": "Lingala", 
+		"en": "Lingala", 
+		"es": "lingala", 
+		"fi": "lingala", 
+		"fr": "lingala", 
+		"hi": "लिंगाला", 
+		"hu": "lingala", 
+		"id": "Lingala", 
+		"is": "Lingala", 
+		"it": "lingala", 
+		"ja": "リンガラ語", 
+		"ko": "링갈라어", 
+		"mr": "लिंगाला", 
+		"mt": "Lingaljan", 
+		"nb": "lingala", 
+		"nl": "Lingala", 
+		"nn": "lingala", 
+		"pt": "lingala", 
+		"ru": "лингала", 
+		"sv": "lingala", 
+		"ta": "லிங்காலா", 
+		"th": "ลิงกาลา", 
+		"tr": "Lingala", 
+		"uk": "Лінгала", 
+		"zh": "林加拉文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "lo", 
+		"name": "ລາວ", 
+		"countries": [
+			{
+				"_reference": "LA"
+			}
+		], 
+		"am": "ላውስኛ", 
+		"ar": "اللاوية", 
+		"bg": "Лаоски", 
+		"ca": "laosià", 
+		"cs": "Laoština", 
+		"da": "Lao", 
+		"de": "Laotisch", 
+		"en": "Lao", 
+		"es": "laosiano", 
+		"fi": "lao", 
+		"fr": "lao", 
+		"ga": "Laosais", 
+		"hi": "लाओथीयन्", 
+		"hu": "laoszi", 
+		"id": "Lao", 
+		"is": "Laó", 
+		"it": "lao", 
+		"ja": "ラオ語", 
+		"km": "ភាសាឡាវ", 
+		"ko": "라오어", 
+		"mr": "लाओतियन्", 
+		"mt": "Lao", 
+		"nb": "laotisk", 
+		"nl": "Lao", 
+		"nn": "laotisk", 
+		"pt": "laosiano", 
+		"ru": "лаосский", 
+		"sv": "laotiska", 
+		"ta": "லோத்தியன்", 
+		"th": "ลาว", 
+		"tr": "Laos Dili", 
+		"uk": "Лаоська", 
+		"vi": "Tiếng Lào", 
+		"zh": "老挝文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "lt", 
+		"name": "Lietuvių", 
+		"countries": [
+			{
+				"_reference": "LT"
+			}
+		], 
+		"am": "ሊቱአኒያን", 
+		"ar": "اللتوانية", 
+		"bg": "Литовски", 
+		"ca": "lituà", 
+		"cs": "Litevština", 
+		"da": "Litauisk", 
+		"de": "Litauisch", 
+		"el": "Λιθουανικά", 
+		"en": "Lithuanian", 
+		"es": "lituano", 
+		"et": "Leedu", 
+		"fi": "liettua", 
+		"fr": "lituanien", 
+		"ga": "Liotuáinis", 
+		"he": "ליטאית", 
+		"hi": "लिथुनियन्", 
+		"hr": "litvanski", 
+		"hu": "litván", 
+		"id": "Lithuania", 
+		"is": "Litháíska", 
+		"it": "lituano", 
+		"ja": "リトアニア語", 
+		"km": "ភាសាលីទុយអានី", 
+		"ko": "리투아니아어", 
+		"lt": "Lietuvių", 
+		"lv": "lietuviešu", 
+		"mr": "लिथुआनियन्", 
+		"mt": "Litwanjan", 
+		"nb": "litauisk", 
+		"nl": "Litouws", 
+		"nn": "litauisk", 
+		"pl": "litewski", 
+		"pt": "lituano", 
+		"ro": "Lituaniană", 
+		"ru": "литовский", 
+		"sk": "litovský", 
+		"sl": "Litovščina", 
+		"sr": "Литвански", 
+		"sv": "litauiska", 
+		"ta": "லுத்தேனியன்", 
+		"th": "ลิธัวเนีย", 
+		"tr": "Litvanya Dili", 
+		"uk": "Литовська", 
+		"vi": "Tiếng Lít-va", 
+		"zh": "立陶宛文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "lv", 
+		"name": "latviešu", 
+		"countries": [
+			{
+				"_reference": "LV"
+			}
+		], 
+		"am": "ላትቪያን", 
+		"ar": "اللاتفية", 
+		"bg": "Латвийски", 
+		"ca": "letó", 
+		"cs": "Lotyština", 
+		"da": "Lettisk", 
+		"de": "Lettisch", 
+		"el": "Λετονικά", 
+		"en": "Latvian", 
+		"es": "letón", 
+		"et": "Läti", 
+		"fi": "latvia", 
+		"fr": "letton", 
+		"ga": "Laitvis", 
+		"he": "לטבית", 
+		"hi": "लाटवियन् (लेट्टीश)", 
+		"hr": "latvijski", 
+		"hu": "lett", 
+		"id": "Latvian", 
+		"is": "Lettneska", 
+		"it": "lettone", 
+		"ja": "ラトビア語", 
+		"km": "ភាសាឡាតវីយ៉ា", 
+		"ko": "라트비아어", 
+		"lt": "Latvių", 
+		"lv": "latviešu", 
+		"mr": "लाट्वियन् (लेट्टिष)", 
+		"mt": "Latvjan (Lettix)", 
+		"nb": "latvisk", 
+		"nl": "Letlands", 
+		"nn": "latvisk", 
+		"pl": "łotewski", 
+		"pt": "letão", 
+		"ro": "Letonă", 
+		"ru": "латышский", 
+		"sk": "lotyšský", 
+		"sl": "Letonščina", 
+		"sr": "Летонски", 
+		"sv": "lettiska", 
+		"ta": "லேட்வியன் (லேட்டிஷ்)", 
+		"th": "แลตเวีย (เลททิสช์)", 
+		"tr": "Letonya Dili", 
+		"uk": "Латвійська", 
+		"vi": "Tiếng Lát-vi-a", 
+		"zh": "拉脫維亞文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "mk", 
+		"name": "македонски", 
+		"countries": [
+			{
+				"_reference": "MK"
+			}
+		], 
+		"am": "ማከዶኒኛ", 
+		"ar": "المقدونية", 
+		"bg": "Македонски", 
+		"ca": "macedoni", 
+		"cs": "Makedonština", 
+		"da": "Makedonsk", 
+		"de": "Mazedonisch", 
+		"el": "Σλαβομακεδονικά", 
+		"en": "Macedonian", 
+		"es": "macedonio", 
+		"fi": "makedonia", 
+		"fr": "macédonien", 
+		"ga": "Macadóinis", 
+		"he": "מקדונית", 
+		"hi": "मैसेडोनियन्", 
+		"hr": "makedonski", 
+		"hu": "macedón", 
+		"id": "Macedonian", 
+		"is": "Makedónska", 
+		"it": "macedone", 
+		"ja": "マケドニア語", 
+		"km": "ភាសាម៉ាសេដូនី", 
+		"ko": "마케도니아어", 
+		"mk": "македонски", 
+		"mr": "मसीडोनियन्", 
+		"mt": "Maċedonjan", 
+		"nb": "makedonsk", 
+		"nl": "Macedonisch", 
+		"nn": "makedonsk", 
+		"ps": "مقدوني", 
+		"pt": "macedônio", 
+		"ru": "македонский", 
+		"sr": "Македонски", 
+		"sv": "makedonska", 
+		"ta": "மெக்கடோனியன்", 
+		"th": "แมซีโดเนีย", 
+		"tr": "Makedonca", 
+		"uk": "Македонська", 
+		"vi": "Tiếng Ma-xê-đô-ni-a", 
+		"zh": "马其顿文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ml", 
+		"name": "മലയാളം", 
+		"countries": [
+			{
+				"_reference": "IN"
+			}
+		], 
+		"am": "ማላያላምኛ", 
+		"ar": "الماليالام", 
+		"bg": "Малаялам", 
+		"ca": "malaialam", 
+		"cs": "Malabarština", 
+		"da": "Malayalam", 
+		"de": "Malayalam", 
+		"en": "Malayalam", 
+		"es": "malayalam", 
+		"fi": "malajalam", 
+		"fr": "malayalam", 
+		"ga": "Mailéalaimis", 
+		"hi": "मलयालम", 
+		"hu": "malajalam", 
+		"id": "Malayalam", 
+		"is": "Malajalam", 
+		"it": "malayalam", 
+		"ja": "マラヤーラム語", 
+		"km": "ភាសាម៉ាឡាឡាយ៉ាន", 
+		"ko": "말라얄람어", 
+		"mr": "मलियालम", 
+		"mt": "Malajalam", 
+		"nb": "malayalam", 
+		"nl": "Malayalam", 
+		"nn": "malayalam", 
+		"pt": "malaiala", 
+		"ru": "малаялам", 
+		"sv": "malayalam", 
+		"ta": "மலையாளம்", 
+		"th": "มาลายาลัม", 
+		"tr": "Malayalam", 
+		"uk": "Малайялам", 
+		"zh": "马来亚拉姆文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "mn", 
+		"name": "Монгол хэл", 
+		"countries": [
+			{
+				"_reference": "MN"
+			}
+		], 
+		"am": "ሞንጎላዊኛ", 
+		"ar": "المنغولية", 
+		"bg": "Монголски", 
+		"ca": "mongol", 
+		"cs": "Mongolština", 
+		"da": "Mongolsk", 
+		"de": "Mongolisch", 
+		"el": "Μογγολικά", 
+		"en": "Mongolian", 
+		"es": "mongol", 
+		"fi": "mongoli", 
+		"fr": "mongol", 
+		"ga": "Mongóilis", 
+		"he": "מונגולית", 
+		"hi": "मोंगोलियन", 
+		"hr": "mongolski", 
+		"hu": "mongol", 
+		"id": "Mongolian", 
+		"is": "Mongólska", 
+		"it": "mongolo", 
+		"ja": "モンゴル語", 
+		"km": "ភាសាម៉ុងហ្គោលី", 
+		"ko": "몽골어", 
+		"mr": "मंगोलियन्", 
+		"mt": "Mongoljan", 
+		"nb": "mongolsk", 
+		"nl": "Mongools", 
+		"nn": "mongolsk", 
+		"ps": "مغولي", 
+		"pt": "mongol", 
+		"ru": "монгольский", 
+		"sr": "Монголски", 
+		"sv": "mongoliska", 
+		"ta": "மங்கோலியன்", 
+		"th": "มองโกล", 
+		"tr": "Moğol Dili", 
+		"uk": "Монгольська", 
+		"vi": "Tiếng Mông Cổ", 
+		"zh": "蒙古文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "mr", 
+		"name": "मराठी", 
+		"countries": [
+			{
+				"_reference": "IN"
+			}
+		], 
+		"am": "ማራዚኛ", 
+		"ar": "الماراثى", 
+		"ca": "marathi", 
+		"cs": "Marathi", 
+		"da": "Marathisk", 
+		"de": "Marathi", 
+		"en": "Marathi", 
+		"es": "marathi", 
+		"fi": "marathi", 
+		"fr": "marathe", 
+		"ga": "Maraitis", 
+		"he": "מארתית", 
+		"hi": "मराठी", 
+		"hu": "marati", 
+		"id": "Marathi", 
+		"is": "Maratí", 
+		"it": "marathi", 
+		"ja": "マラーティー語", 
+		"km": "ភាសាម៉ារាធី", 
+		"ko": "마라티어", 
+		"mr": "मराठी", 
+		"mt": "Marati", 
+		"nb": "marathi", 
+		"nl": "Marathi", 
+		"nn": "marathi", 
+		"pt": "marata", 
+		"ru": "маратхи", 
+		"sv": "marathi", 
+		"ta": "மராத்தி", 
+		"th": "มาราที", 
+		"tr": "Marathi", 
+		"uk": "Маратхі", 
+		"zh": "马拉地文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ms", 
+		"name": "Bahasa Melayu", 
+		"countries": [
+			{
+				"_reference": "BN"
+			}, 
+			{
+				"_reference": "MY"
+			}
+		], 
+		"am": "ማላይኛ", 
+		"ar": "لغة الملايو", 
+		"bg": "Малайски", 
+		"ca": "malai", 
+		"cs": "Malajština", 
+		"da": "Malay", 
+		"de": "Malaiisch", 
+		"en": "Malay", 
+		"es": "malayo", 
+		"fi": "malaiji", 
+		"fr": "malais", 
+		"hi": "मलय", 
+		"hu": "maláj", 
+		"id": "Malay", 
+		"is": "Malaíska", 
+		"it": "malese", 
+		"ja": "マレー語", 
+		"km": "ភាសាម៉ាលេស៉ី", 
+		"ko": "말레이어", 
+		"mr": "मलय", 
+		"ms": "Bahasa Melayu", 
+		"mt": "Malajan", 
+		"nb": "malayisk", 
+		"nl": "Maleis", 
+		"nn": "malayisk", 
+		"ps": "ملایا", 
+		"pt": "malaio", 
+		"ru": "малайский", 
+		"sv": "malajiska", 
+		"ta": "மலாய்", 
+		"th": "มลายู", 
+		"tr": "Malay", 
+		"uk": "Малайська", 
+		"vi": "Tiếng Ma-lay-xi-a", 
+		"zh": "马来文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "mt", 
+		"name": "Malti", 
+		"countries": [
+			{
+				"_reference": "MT"
+			}
+		], 
+		"am": "ማልቲስኛ", 
+		"ar": "المالطية", 
+		"bg": "Малтийски", 
+		"ca": "maltès", 
+		"cs": "Maltština", 
+		"da": "Maltesisk", 
+		"de": "Maltesisch", 
+		"el": "Μαλτεζικά", 
+		"en": "Maltese", 
+		"es": "maltés", 
+		"fi": "malta", 
+		"fr": "maltais", 
+		"ga": "Maltais", 
+		"he": "מלטזית", 
+		"hi": "मालटिस्", 
+		"hr": "malteški", 
+		"hu": "máltai", 
+		"id": "Maltese", 
+		"is": "Maltneska", 
+		"it": "maltese", 
+		"ja": "マルタ語", 
+		"km": "ភាសាម៉ាល់តា", 
+		"ko": "몰타어", 
+		"mr": "मालतीस्", 
+		"mt": "Malti", 
+		"nb": "maltesisk", 
+		"nl": "Maltees", 
+		"nn": "maltesisk", 
+		"pl": "maltański", 
+		"pt": "maltês", 
+		"ru": "мальтийский", 
+		"sv": "maltesiska", 
+		"ta": "மால்டிஸ்", 
+		"th": "มอลตา", 
+		"tr": "Malta Dili", 
+		"uk": "Мальтійська", 
+		"zh": "马耳他文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "nb", 
+		"name": "bokmål", 
+		"countries": [
+			{
+				"_reference": "NO"
+			}
+		], 
+		"ar": "البوكمالية النرويجية", 
+		"da": "Norsk Bokmål", 
+		"de": "Norwegisch Bokmål", 
+		"en": "Norwegian Bokmål", 
+		"es": "bokmal noruego", 
+		"fi": "norja (bokmål)", 
+		"fr": "bokmål norvégien", 
+		"ga": "Ioruais Bokmål", 
+		"he": "נורבגית שפת הספר (בוקמול)", 
+		"id": "Norwegian Bokmål", 
+		"is": "Norskt bókmál", 
+		"ja": "ノルウェー語 (ブークモール)", 
+		"ko": "보크말 노르웨이어", 
+		"mt": "Bokmahal Norveġiż", 
+		"nb": "bokmål", 
+		"nl": "Noors - Bokmål", 
+		"nn": "bokmål", 
+		"pt": "bokmål norueguês", 
+		"ru": "норвежский", 
+		"sv": "norska (bokmål)", 
+		"th": "นอร์เวย์บอกมอล", 
+		"tr": "Norveç Kitap Dili", 
+		"zh": "挪威博克马尔文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "nl", 
+		"name": "Nederlands", 
+		"countries": [
+			{
+				"_reference": "BE"
+			}, 
+			{
+				"_reference": "NL"
+			}
+		], 
+		"am": "ደች", 
+		"ar": "الهولندية", 
+		"bg": "Холандски", 
+		"ca": "neerlandès", 
+		"da": "Hollandsk", 
+		"de": "Niederländisch", 
+		"el": "Ολλανδικά", 
+		"en": "Dutch", 
+		"et": "Hollandi", 
+		"fi": "hollanti", 
+		"fr": "néerlandais", 
+		"ga": "Ollainnais", 
+		"he": "הולנדית", 
+		"hi": "डच्", 
+		"hr": "nizozemski", 
+		"hu": "holland", 
+		"id": "Belanda", 
+		"is": "Hollenska", 
+		"it": "olandese", 
+		"ja": "オランダ語", 
+		"km": "ភាសាហុល្លង់", 
+		"ko": "네덜란드어", 
+		"lt": "Olandų", 
+		"lv": "holandiešu", 
+		"mr": "डच", 
+		"mt": "Olandiż", 
+		"nb": "nederlandsk", 
+		"nl": "Nederlands", 
+		"nn": "nederlandsk", 
+		"pl": "niderlandzki", 
+		"pt": "holandês", 
+		"ro": "Olandeză", 
+		"ru": "голландский", 
+		"sk": "holandský", 
+		"sl": "Nizozemščina", 
+		"sr": "Холандски", 
+		"ta": "டச்சு", 
+		"th": "ฮอลันดา", 
+		"tr": "Hollanda Dili", 
+		"uk": "Голландська", 
+		"vi": "Tiếng Hà Lan", 
+		"zh": "荷兰文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "nn", 
+		"name": "nynorsk", 
+		"countries": [
+			{
+				"_reference": "NO"
+			}
+		], 
+		"ar": "النينورسك النرويجي", 
+		"da": "Nynorsk", 
+		"de": "Norwegisch Nynorsk", 
+		"en": "Norwegian Nynorsk", 
+		"es": "nynorsk noruego", 
+		"fi": "norja (nynorsk)", 
+		"fr": "nynorsk norvégien", 
+		"ga": "Ioruais Nynorsk", 
+		"he": "נורבגית חדשה (נינורשק)", 
+		"id": "Norwegian Nynorsk", 
+		"is": "Nýnorska", 
+		"it": "norvegese nynorsk", 
+		"ja": "ノルウェー語 (ニーノシュク)", 
+		"ko": "뉘노르스크 노르웨이어", 
+		"mt": "Ninorsk Norveġiż", 
+		"nb": "nynorsk", 
+		"nl": "Noors - Nynorsk", 
+		"nn": "nynorsk", 
+		"pt": "nynorsk norueguês", 
+		"ru": "новонорвежский", 
+		"sv": "nynorska", 
+		"th": "นอร์เวย์ไนนอรส์ก", 
+		"tr": "Norveççe Nynorsk", 
+		"zh": "挪威尼诺斯克文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "om", 
+		"name": "Oromoo", 
+		"countries": [
+			{
+				"_reference": "ET"
+			}, 
+			{
+				"_reference": "KE"
+			}
+		], 
+		"am": "ኦሮምኛ", 
+		"ar": "الأورومو", 
+		"ca": "oromo (afan)", 
+		"cs": "Oromo (Afan)", 
+		"da": "Oromo", 
+		"de": "Oromo", 
+		"en": "Oromo", 
+		"es": "oromo", 
+		"fi": "oromo", 
+		"fr": "galla", 
+		"hi": "ओरोमो (अफ़ान)", 
+		"hu": "oromói", 
+		"id": "Oromo", 
+		"is": "Órómó", 
+		"it": "oromo", 
+		"ja": "オロモ語", 
+		"ko": "오로모어 (아판)", 
+		"mr": "ओरोमो (अफान)", 
+		"mt": "Oromo (Afan)", 
+		"nb": "oromo", 
+		"nl": "Oromo", 
+		"nn": "oromo", 
+		"om": "Oromoo", 
+		"pt": "oromo", 
+		"ru": "оромо", 
+		"sv": "oromo", 
+		"ta": "ஒரோம (அபன்)", 
+		"th": "โอโรโม (อาฟาน)", 
+		"tr": "Oromo (Afan)", 
+		"uk": "Оромо", 
+		"zh": "阿曼文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "or", 
+		"name": "ଓଡ଼ିଆ", 
+		"countries": [
+			{
+				"_reference": "IN"
+			}
+		], 
+		"am": "ኦሪያኛ", 
+		"ar": "الأورييا", 
+		"ca": "oriya", 
+		"cs": "Oriya", 
+		"da": "Oriya", 
+		"de": "Orija", 
+		"en": "Oriya", 
+		"es": "oriya", 
+		"fi": "orija", 
+		"fr": "oriya", 
+		"hi": "उड़िया", 
+		"hu": "orija", 
+		"id": "Oriya", 
+		"is": "Óría", 
+		"it": "oriya", 
+		"ja": "オリヤー語", 
+		"km": "ភាសាអូរីយ៉ា", 
+		"ko": "오리야어", 
+		"mr": "ओरिया", 
+		"mt": "Orija", 
+		"nb": "oriya", 
+		"nl": "Oriya", 
+		"nn": "oriya", 
+		"pt": "oriya", 
+		"ru": "ория", 
+		"sv": "oriya", 
+		"ta": "ஒரியா", 
+		"th": "โอริยา", 
+		"tr": "Oriya", 
+		"uk": "Орія", 
+		"zh": "欧里亚文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "pa", 
+		"name": "ਪੰਜਾਬੀ", 
+		"countries": [
+			{
+				"_reference": "IN"
+			}, 
+			{
+				"_reference": "PK"
+			}
+		], 
+		"am": "ፓንጃቢኛ", 
+		"ar": "البنجابية", 
+		"bg": "Пенджабски", 
+		"ca": "panjabi", 
+		"cs": "Paňdžábština", 
+		"da": "Punjabi", 
+		"de": "Pandschabisch", 
+		"en": "Punjabi", 
+		"es": "punjabí", 
+		"fi": "pandžabi", 
+		"fr": "pendjabi", 
+		"ga": "Puinseaibis", 
+		"hi": "पंजाबी", 
+		"hu": "pandzsábi", 
+		"id": "Punjabi", 
+		"is": "Púnjabí", 
+		"it": "punjabi", 
+		"ja": "パンジャブ語", 
+		"km": "ភាសាពូនយ៉ាប៊ី", 
+		"ko": "펀잡어", 
+		"mr": "पंजाबी", 
+		"mt": "Punġabi", 
+		"nb": "panjabi", 
+		"nl": "Punjabi", 
+		"nn": "panjabi", 
+		"pa": "ਪੰਜਾਬੀ", 
+		"pt": "panjabi", 
+		"ru": "панджаби (пенджаби)", 
+		"sv": "punjabi", 
+		"ta": "பஞ்சாபி", 
+		"th": "ปัญจาป", 
+		"tr": "Pencap Dili", 
+		"uk": "Панджабі", 
+		"zh": "旁遮普文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "pl", 
+		"name": "polski", 
+		"countries": [
+			{
+				"_reference": "PL"
+			}
+		], 
+		"am": "ፖሊሽ", 
+		"ar": "البولندية", 
+		"bg": "Полски", 
+		"ca": "polonès", 
+		"cs": "Polština", 
+		"da": "Polsk", 
+		"de": "Polnisch", 
+		"el": "Πολωνικά", 
+		"en": "Polish", 
+		"es": "polaco", 
+		"et": "Poola", 
+		"fi": "puola", 
+		"fr": "polonais", 
+		"ga": "Polainnis", 
+		"he": "פולנית", 
+		"hi": "पॉलिश", 
+		"hr": "poljski", 
+		"hu": "lengyel", 
+		"id": "Polish", 
+		"is": "Pólska", 
+		"it": "polacco", 
+		"ja": "ポーランド語", 
+		"km": "ភាសាប៉ូឡូញ", 
+		"ko": "폴란드어", 
+		"lt": "Lenkų", 
+		"lv": "poļu", 
+		"mr": "पोलिष", 
+		"mt": "Pollakk", 
+		"nb": "polsk", 
+		"nl": "Pools", 
+		"nn": "polsk", 
+		"pl": "polski", 
+		"ps": "پولنډي", 
+		"pt": "polonês", 
+		"ro": "Poloneză", 
+		"ru": "польский", 
+		"sk": "poľský", 
+		"sl": "Poljščina", 
+		"sr": "Пољски", 
+		"sv": "polska", 
+		"ta": "போலிஷ்", 
+		"th": "โปแลนด์", 
+		"tr": "Polonya Dili", 
+		"uk": "Польська", 
+		"vi": "Tiếng Ba Lan", 
+		"zh": "波兰文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ps", 
+		"name": "پښتو", 
+		"countries": [
+			{
+				"_reference": "AF"
+			}
+		], 
+		"am": "ፑሽቶኛ", 
+		"ar": "البشتونية", 
+		"bg": "Пущу", 
+		"ca": "paixto", 
+		"cs": "Pashto (Pushto)", 
+		"da": "Pashto (Pushto)", 
+		"de": "Afghanisch (Paschtu)", 
+		"es": "pashto", 
+		"fi": "paštu", 
+		"fr": "pachto", 
+		"ga": "Paisteo", 
+		"he": "פאשטו", 
+		"hi": "पॉशतो (पुशतो)", 
+		"hu": "pastu (afgán)", 
+		"id": "Pashto (Pushto)", 
+		"is": "Pastú", 
+		"it": "pashto", 
+		"ja": "パシュトゥー語", 
+		"ko": "파시토어 (푸시토)", 
+		"mr": "पष्टो (पुष्टो)", 
+		"mt": "Paxtun", 
+		"nb": "pashto", 
+		"nl": "Pashto", 
+		"nn": "pashto", 
+		"ps": "پښتو", 
+		"pt": "pashto (pushto)", 
+		"ru": "пашто (пушту)", 
+		"sv": "pashto; afghanska", 
+		"ta": "பேஷ்டோ (புஷ்டோ)", 
+		"th": "พาสช์โต (พุสช์โต)", 
+		"tr": "Peştun Dili", 
+		"uk": "Пашто", 
+		"zh": "普什图文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "pt", 
+		"name": "português", 
+		"countries": [
+			{
+				"_reference": "BR"
+			}, 
+			{
+				"_reference": "PT"
+			}
+		], 
+		"af": "Portugees", 
+		"am": "ፖርቱጋሊኛ", 
+		"ar": "البرتغالية", 
+		"be": "партугальскі", 
+		"bg": "Португалски", 
+		"ca": "portuguès", 
+		"cs": "Portugalština", 
+		"cy": "Portiwgaleg", 
+		"da": "Portugisisk", 
+		"de": "Portugiesisch", 
+		"el": "Πορτογαλικά", 
+		"en": "Portuguese", 
+		"es": "portugués", 
+		"et": "Portugali", 
+		"eu": "portugalera", 
+		"fi": "portugali", 
+		"fr": "portugais", 
+		"ga": "Portaingéilis", 
+		"he": "פורטוגזית", 
+		"hi": "पुर्तुगी", 
+		"hr": "portugalski", 
+		"hu": "portugál", 
+		"id": "Portugis", 
+		"is": "Portúgalska", 
+		"it": "portoghese", 
+		"ja": "ポルトガル語", 
+		"ka": "პორტუგალიური", 
+		"km": "ភាសាព័រទុយហ្កាល់", 
+		"ko": "포르투칼어", 
+		"ky": "португалча", 
+		"lt": "Portugalų", 
+		"lv": "portugāļu", 
+		"mk": "португалски", 
+		"mn": "португали", 
+		"mr": "पोर्चुगीस्", 
+		"mt": "Portugiż", 
+		"nb": "portugisisk", 
+		"nl": "Portugees", 
+		"nn": "portugisisk", 
+		"pl": "portugalski", 
+		"ps": "پورتګالي", 
+		"pt": "português", 
+		"ro": "Portugheză", 
+		"ru": "португальский", 
+		"sk": "portugalský", 
+		"sl": "Portugalščina", 
+		"sq": "Portugeze", 
+		"sr": "Португалски", 
+		"sv": "portugisiska", 
+		"sw": "kireno", 
+		"ta": "போர்த்துகீஸ்", 
+		"te": "పొర్చుగల్ భాష", 
+		"th": "โปรตุเกส", 
+		"tr": "Portekizce", 
+		"uk": "Португальська", 
+		"vi": "Tiếng Bồ Đào Nha", 
+		"zh": "葡萄牙文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ro", 
+		"name": "Română", 
+		"countries": [
+			{
+				"_reference": "RO"
+			}
+		], 
+		"am": "ሮማኒያን", 
+		"ar": "الرومانية", 
+		"bg": "Румънски", 
+		"ca": "romanès", 
+		"cs": "Rumunština", 
+		"da": "Rumænsk", 
+		"de": "Rumänisch", 
+		"el": "Ρουμανικά", 
+		"en": "Romanian", 
+		"es": "rumano", 
+		"et": "Rumeenia", 
+		"fi": "romania", 
+		"fr": "roumain", 
+		"ga": "Romáinis", 
+		"he": "רומנית", 
+		"hi": "रूमानीयन्", 
+		"hr": "rumunjski", 
+		"hu": "román", 
+		"id": "Romanian", 
+		"is": "Rúmenska", 
+		"it": "rumeno", 
+		"ja": "ルーマニア語", 
+		"km": "ភាសារូម៉ានី", 
+		"ko": "루마니아어", 
+		"lt": "Rumunų", 
+		"lv": "rumāņu", 
+		"mr": "रोमानियन्", 
+		"mt": "Rumen", 
+		"nb": "rumensk", 
+		"nl": "Roemeens", 
+		"nn": "rumensk", 
+		"pl": "rumuński", 
+		"pt": "romeno", 
+		"ro": "Română", 
+		"ru": "румынский", 
+		"sk": "rumunský", 
+		"sl": "Romunščina", 
+		"sr": "Румунски", 
+		"sv": "rumänska", 
+		"ta": "ரோமேனியன்", 
+		"th": "โรมัน", 
+		"tr": "Romence", 
+		"uk": "Румунська", 
+		"vi": "Tiếng Ru-ma-ni", 
+		"zh": "罗马尼亚文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ru", 
+		"name": "русский", 
+		"countries": [
+			{
+				"_reference": "RU"
+			}, 
+			{
+				"_reference": "UA"
+			}
+		], 
+		"af": "Russies", 
+		"am": "ራሽኛ", 
+		"ar": "الروسية", 
+		"be": "рускі", 
+		"bg": "Руски", 
+		"ca": "rus", 
+		"cs": "Ruština", 
+		"cy": "Rwsieg", 
+		"da": "Russisk", 
+		"de": "Russisch", 
+		"el": "Ρωσικά", 
+		"en": "Russian", 
+		"es": "ruso", 
+		"et": "Vene", 
+		"eu": "errusiera", 
+		"fi": "venäjä", 
+		"fr": "russe", 
+		"ga": "Rúisis", 
+		"he": "רוסית", 
+		"hi": "रुसी", 
+		"hr": "ruski", 
+		"hu": "orosz", 
+		"id": "Russian", 
+		"is": "Rússneska", 
+		"it": "russo", 
+		"ja": "ロシア語", 
+		"ka": "რუსული", 
+		"km": "ភាសាรัរូស្ស៉ី", 
+		"ko": "러시아어", 
+		"ky": "орусча", 
+		"lt": "Rusų", 
+		"lv": "krievu", 
+		"mk": "руски", 
+		"mn": "орос", 
+		"mr": "रष्यन्", 
+		"mt": "Russu", 
+		"nb": "russisk", 
+		"nl": "Russisch", 
+		"nn": "russisk", 
+		"pl": "rosyjski", 
+		"ps": "روسي", 
+		"pt": "russo", 
+		"ro": "Rusă", 
+		"ru": "русский", 
+		"sk": "ruský", 
+		"sl": "Ruščina", 
+		"sq": "Rusisht", 
+		"sr": "Руски", 
+		"sv": "ryska", 
+		"sw": "kirusi", 
+		"ta": "ரஷியன்", 
+		"te": "రష్యన్ భాష", 
+		"th": "รัสเซีย", 
+		"tr": "Rusça", 
+		"uk": "Російська", 
+		"vi": "Tiếng Nga", 
+		"zh": "俄文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "sa", 
+		"name": "संस्कृत", 
+		"countries": [
+			{
+				"_reference": "IN"
+			}
+		], 
+		"am": "ሳንስክሪትኛ", 
+		"ar": "السنسكريتية", 
+		"bg": "Санкскритски", 
+		"ca": "sànscrit", 
+		"cs": "Sanskrt", 
+		"da": "Sanskrit", 
+		"de": "Sanskrit", 
+		"en": "Sanskrit", 
+		"es": "sánscrito", 
+		"fi": "sanskrit", 
+		"fr": "sanskrit", 
+		"ga": "Sanscrait", 
+		"he": "סנסקרית", 
+		"hi": "संस्कृत", 
+		"hu": "szanszkrit", 
+		"id": "Sanskrit", 
+		"is": "Sanskrít", 
+		"it": "sanscrito", 
+		"ja": "サンスクリット語", 
+		"km": "ភាសាសំស្ក្រឹត", 
+		"ko": "산스크리트어", 
+		"mr": "संस्कृत", 
+		"mt": "Sanskrit", 
+		"nb": "sanskrit", 
+		"nl": "Sanskrit", 
+		"nn": "sanskrit", 
+		"ps": "سنسکریټ", 
+		"pt": "sânscrito", 
+		"ru": "санскрит", 
+		"sr": "Санскрит", 
+		"sv": "sanskrit", 
+		"ta": "சமஸ்கிருதம்", 
+		"th": "สันสกฤต", 
+		"tr": "Sanskritçe", 
+		"uk": "Санскрит", 
+		"vi": "Tiếng Phạn", 
+		"zh": "梵文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "sk", 
+		"name": "slovenský", 
+		"countries": [
+			{
+				"_reference": "SK"
+			}
+		], 
+		"am": "ስሎቫክኛ", 
+		"ar": "السلوفاكية", 
+		"bg": "Словашки", 
+		"ca": "eslovac", 
+		"cs": "Slovenština", 
+		"da": "Slovakisk", 
+		"de": "Slowakisch", 
+		"el": "Σλοβακικά", 
+		"en": "Slovak", 
+		"es": "eslovaco", 
+		"et": "Slovaki", 
+		"fi": "slovakki", 
+		"fr": "slovaque", 
+		"ga": "Slóvacais", 
+		"he": "סלובקית", 
+		"hi": "स्लोवाक्", 
+		"hr": "slovački", 
+		"hu": "szlovák", 
+		"id": "Slovak", 
+		"is": "Slóvakíska", 
+		"it": "slovacco", 
+		"ja": "スロバキア語", 
+		"km": "ភាសាស្លូវ៉ាគី", 
+		"ko": "슬로바키아어", 
+		"lt": "Slovakų", 
+		"lv": "slovāku", 
+		"mr": "स्लोवाक", 
+		"mt": "Slovakk", 
+		"nb": "slovakisk", 
+		"nl": "Slowaaks", 
+		"nn": "slovakisk", 
+		"pl": "słowacki", 
+		"pt": "eslovaco", 
+		"ro": "Slovacă", 
+		"ru": "словацкий", 
+		"sk": "slovenský", 
+		"sl": "Slovaščina", 
+		"sr": "Словачки", 
+		"sv": "slovakiska", 
+		"ta": "ஸ்லோவெக்", 
+		"th": "สโลวัค", 
+		"tr": "Slovakça", 
+		"uk": "Словацька", 
+		"vi": "Tiếng Xlô-vác", 
+		"zh": "斯洛伐克文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "sl", 
+		"name": "Slovenščina", 
+		"countries": [
+			{
+				"_reference": "SI"
+			}
+		], 
+		"am": "ስሎቪኛ", 
+		"ar": "السلوفانية", 
+		"bg": "Словенски", 
+		"ca": "eslovè", 
+		"cs": "Slovinština", 
+		"da": "Slovensk", 
+		"de": "Slowenisch", 
+		"el": "Σλοβενικά", 
+		"en": "Slovenian", 
+		"es": "esloveno", 
+		"et": "Sloveeni", 
+		"fi": "sloveeni", 
+		"fr": "slovène", 
+		"ga": "Slóvéinis", 
+		"he": "סלובנית", 
+		"hi": "स्लोवेनियन्", 
+		"hr": "slovenski", 
+		"hu": "szlovén", 
+		"id": "Slovenian", 
+		"is": "Slóvenska", 
+		"it": "sloveno", 
+		"ja": "スロベニア語", 
+		"km": "ភាសាស្លូវ៉ានី", 
+		"ko": "슬로베니아어", 
+		"lt": "Slovėnų", 
+		"lv": "slovēņu", 
+		"mr": "स्लोवेनियन्", 
+		"mt": "Sloven", 
+		"nb": "slovensk", 
+		"nl": "Sloveens", 
+		"nn": "slovensk", 
+		"pl": "słoweński", 
+		"pt": "eslovênio", 
+		"ro": "Slovenă", 
+		"ru": "словенский", 
+		"sk": "slovinský", 
+		"sl": "Slovenščina", 
+		"sr": "Словеначки", 
+		"sv": "slovenska", 
+		"ta": "ஸ்லோவினேயின்", 
+		"th": "สโลเวเนีย", 
+		"tr": "Slovence", 
+		"uk": "Словенська", 
+		"vi": "Tiếng Xlô-ven", 
+		"zh": "斯洛文尼亚文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "so", 
+		"name": "Soomaali", 
+		"countries": [
+			{
+				"_reference": "DJ"
+			}, 
+			{
+				"_reference": "ET"
+			}, 
+			{
+				"_reference": "KE"
+			}, 
+			{
+				"_reference": "SO"
+			}
+		], 
+		"am": "ሱማልኛ", 
+		"ar": "الصومالية", 
+		"bg": "Сомалийски", 
+		"ca": "somali", 
+		"cs": "Somálština", 
+		"da": "Somalisk", 
+		"de": "Somali", 
+		"en": "Somali", 
+		"es": "somalí", 
+		"fi": "somali", 
+		"fr": "somali", 
+		"ga": "Somálais", 
+		"he": "סומלית", 
+		"hi": "सोमाली", 
+		"hu": "szomáli", 
+		"id": "Somali", 
+		"is": "Sómalska", 
+		"it": "somalo", 
+		"ja": "ソマリ語", 
+		"km": "ភាសាសូម៉ាលី", 
+		"ko": "소말리아어", 
+		"mr": "सोमाली", 
+		"mt": "Somali", 
+		"nl": "Somalisch", 
+		"nn": "somali", 
+		"pt": "somali", 
+		"ru": "сомали", 
+		"so": "Soomaali", 
+		"sv": "somaliska", 
+		"ta": "சோமாலி", 
+		"th": "โซมาลี", 
+		"tr": "Somali Dili", 
+		"uk": "Сомалі", 
+		"vi": "Tiếng Xô-ma-li", 
+		"zh": "索马里文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "sq", 
+		"name": "shqipe", 
+		"countries": [
+			{
+				"_reference": "AL"
+			}
+		], 
+		"am": "ልቤኒኛ", 
+		"ar": "الألبانية", 
+		"bg": "Албански", 
+		"ca": "albanès", 
+		"cs": "Albánština", 
+		"da": "albansk", 
+		"de": "Albanisch", 
+		"el": "Αλβανικά", 
+		"en": "Albanian", 
+		"es": "albanés", 
+		"fi": "albania", 
+		"fr": "albanais", 
+		"ga": "Albáinis", 
+		"he": "אלבנית", 
+		"hi": "अल्बेनियन्", 
+		"hr": "albanski", 
+		"hu": "albán", 
+		"id": "Albanian", 
+		"is": "Albanska", 
+		"it": "albanese", 
+		"ja": "アルバニア語", 
+		"km": "ភាសាអាល់បានី", 
+		"ko": "알바니아어", 
+		"mr": "आल्बेनियन्", 
+		"mt": "Albaniż", 
+		"nb": "albansk", 
+		"nl": "Albanees", 
+		"nn": "albansk", 
+		"pt": "albanês", 
+		"ru": "албанский", 
+		"sq": "shqipe", 
+		"sr": "Албански", 
+		"sv": "albanska", 
+		"ta": "அல்பெனியன்", 
+		"th": "แอลเบเนีย", 
+		"tr": "Arnavutça", 
+		"uk": "Албанська", 
+		"vi": "Tiếng An-ba-ni", 
+		"zh": "阿尔巴尼亚文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "sr", 
+		"name": "Српски", 
+		"countries": [
+			{
+				"_reference": "BA"
+			}, 
+			{
+				"_reference": "CS"
+			}, 
+			{
+				"_reference": "YU"
+			}
+		], 
+		"am": "ሰርቢኛ", 
+		"ar": "الصربية", 
+		"bg": "Сръбски", 
+		"ca": "serbi", 
+		"cs": "Srbština", 
+		"da": "Serbisk", 
+		"de": "Serbisch", 
+		"el": "Σερβικά", 
+		"en": "Serbian", 
+		"es": "serbio", 
+		"fi": "serbia", 
+		"fr": "serbe", 
+		"ga": "Seirbis", 
+		"he": "סרבית", 
+		"hi": "सर्बियन्", 
+		"hr": "srpski", 
+		"hu": "szerb", 
+		"id": "Serbian", 
+		"is": "Serbneska", 
+		"it": "serbo", 
+		"ja": "セルビア語", 
+		"ko": "세르비아어", 
+		"mr": "सेर्बियन्", 
+		"mt": "Serb", 
+		"nb": "serbisk", 
+		"nl": "Servisch", 
+		"nn": "serbisk", 
+		"pt": "sérvio", 
+		"ru": "сербский", 
+		"sr": "Српски", 
+		"sv": "serbiska", 
+		"ta": "சர்பியன்", 
+		"th": "เซอร์เบีย", 
+		"tr": "Sırpça", 
+		"uk": "Сербська", 
+		"vi": "Tiếng Séc-bi", 
+		"zh": "塞尔维亚文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "sv", 
+		"name": "svenska", 
+		"countries": [
+			{
+				"_reference": "FI"
+			}, 
+			{
+				"_reference": "SE"
+			}
+		], 
+		"am": "ስዊድንኛ", 
+		"ar": "السويدية", 
+		"bg": "Шведски", 
+		"ca": "suec", 
+		"cs": "Švédština", 
+		"da": "Svensk", 
+		"de": "Schwedisch", 
+		"el": "Σουηδικά", 
+		"en": "Swedish", 
+		"es": "sueco", 
+		"et": "Rootsi", 
+		"fi": "ruotsi", 
+		"fr": "suédois", 
+		"ga": "Sualainnis", 
+		"he": "שוודית", 
+		"hi": "स्विडिश", 
+		"hr": "švedski", 
+		"hu": "svéd", 
+		"id": "Swedia", 
+		"is": "Sænska", 
+		"it": "svedese", 
+		"ja": "スウェーデン語", 
+		"km": "ភាសាស៊ុយអែដ", 
+		"ko": "스웨덴어", 
+		"lt": "Švedų", 
+		"lv": "zviedru", 
+		"mr": "स्वीडिष", 
+		"mt": "Svediż", 
+		"nb": "svensk", 
+		"nl": "Zweeds", 
+		"nn": "svensk", 
+		"pl": "szwedzki", 
+		"ps": "سویډنی", 
+		"pt": "sueco", 
+		"ro": "Suedeză", 
+		"ru": "шведский", 
+		"sk": "švédsky", 
+		"sl": "Švedščina", 
+		"sr": "Шведски", 
+		"sv": "svenska", 
+		"ta": "ஷீவிடிஸ்", 
+		"th": "สวีเดน", 
+		"tr": "İsveççe", 
+		"uk": "Шведська", 
+		"vi": "Tiếng Thụy Điển", 
+		"zh": "瑞典文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "sw", 
+		"name": "Kiswahili", 
+		"countries": [
+			{
+				"_reference": "KE"
+			}, 
+			{
+				"_reference": "TZ"
+			}
+		], 
+		"am": "ስዋሂሊኛ", 
+		"ar": "السواحلية", 
+		"bg": "Суахили", 
+		"ca": "swahili", 
+		"cs": "Svahilština", 
+		"da": "Swahili", 
+		"de": "Suaheli", 
+		"en": "Swahili", 
+		"es": "swahili", 
+		"fi": "swahili", 
+		"fr": "swahili", 
+		"ga": "Svahaílis", 
+		"he": "סווהילית", 
+		"hi": "स्वाहिली", 
+		"hu": "szuahéli", 
+		"id": "Swahili", 
+		"is": "Svahílí", 
+		"it": "swahili", 
+		"ja": "スワヒリ語", 
+		"km": "ភាសាស្វាហ៉ីលី", 
+		"ko": "스와힐리어", 
+		"mr": "स्वाहिली", 
+		"mt": "Swaħili", 
+		"nb": "swahili", 
+		"nl": "Swahili", 
+		"nn": "swahili", 
+		"pt": "suaíli", 
+		"ru": "суахили", 
+		"sr": "Свахили", 
+		"sv": "swahili", 
+		"sw": "Kiswahili", 
+		"ta": "சுவாஹிலி", 
+		"th": "ซวาฮิรี", 
+		"tr": "Swahili", 
+		"uk": "Суахілі", 
+		"zh": "斯瓦希里文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ta", 
+		"name": "தமிழ்", 
+		"countries": [
+			{
+				"_reference": "IN"
+			}
+		], 
+		"am": "ታሚልኛ", 
+		"ar": "التاميلية", 
+		"bg": "Тамилски", 
+		"ca": "tàmil", 
+		"cs": "Tamilština", 
+		"da": "Tamilsk", 
+		"de": "Tamilisch", 
+		"en": "Tamil", 
+		"es": "tamil", 
+		"fi": "tamil", 
+		"fr": "tamoul", 
+		"ga": "Tamailis", 
+		"he": "טמילית", 
+		"hi": "तमिल", 
+		"hu": "tamil", 
+		"id": "Tamil", 
+		"is": "Tamílska", 
+		"it": "tamil", 
+		"ja": "タミール語", 
+		"km": "ភាសាតាមីល", 
+		"ko": "타밀어", 
+		"mr": "तमिळ", 
+		"mt": "Tamil", 
+		"nb": "tamil", 
+		"nl": "Tamil", 
+		"nn": "tamil", 
+		"pt": "tâmil", 
+		"ru": "тамильский", 
+		"sv": "tamil", 
+		"ta": "தமிழ்", 
+		"th": "ทมิฬ", 
+		"tr": "Tamil", 
+		"uk": "Тамільська", 
+		"zh": "泰米尔文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "te", 
+		"name": "తెలుగు", 
+		"countries": [
+			{
+				"_reference": "IN"
+			}
+		], 
+		"am": "ተሉጉኛ", 
+		"ar": "التيلجو", 
+		"bg": "Телугу", 
+		"ca": "telugu", 
+		"cs": "Telugština", 
+		"da": "Telugu", 
+		"de": "Telugu", 
+		"en": "Telugu", 
+		"es": "telugu", 
+		"fi": "telugu", 
+		"fr": "télougou", 
+		"hi": "तेलेगु", 
+		"hu": "telugu", 
+		"id": "Telugu", 
+		"is": "Telúgú", 
+		"it": "telugu", 
+		"ja": "テルグ語", 
+		"km": "ភាសាតេលូហ្គូ", 
+		"ko": "텔루구어", 
+		"mr": "तेलंगू", 
+		"mt": "Telugu", 
+		"nb": "telugu", 
+		"nl": "Teloegoe", 
+		"nn": "telugu", 
+		"pt": "telugu", 
+		"ru": "телугу", 
+		"sv": "telugiska", 
+		"ta": "தெலுங்கு", 
+		"te": "తెలుగు", 
+		"th": "ทิลูกู", 
+		"tr": "Telugu", 
+		"uk": "Телугу", 
+		"zh": "泰卢固文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "th", 
+		"name": "ไทย", 
+		"countries": [
+			{
+				"_reference": "TH"
+			}
+		], 
+		"am": "ታይኛ", 
+		"ar": "التايلاندية", 
+		"bg": "Таи", 
+		"ca": "thai", 
+		"cs": "Thajština", 
+		"da": "Thailandsk", 
+		"de": "Thai", 
+		"el": "Ταϊλανδικά", 
+		"en": "Thai", 
+		"es": "tailandés", 
+		"fi": "thai", 
+		"fr": "thaï", 
+		"ga": "Téalainnis", 
+		"he": "תאי", 
+		"hi": "थाई", 
+		"hu": "thai", 
+		"id": "Thai", 
+		"is": "Taílenska", 
+		"it": "thai", 
+		"ja": "タイ語", 
+		"km": "ភាសាថៃ", 
+		"ko": "태국어", 
+		"lt": "Tajų", 
+		"mr": "थाई", 
+		"mt": "Tajlandiż", 
+		"nb": "thai", 
+		"nl": "Thai", 
+		"nn": "thai", 
+		"pl": "tajski", 
+		"pt": "tailandês", 
+		"ru": "тайский", 
+		"sv": "thailändska", 
+		"ta": "தாய்", 
+		"th": "ไทย", 
+		"tr": "Tay Dili", 
+		"uk": "Тайська", 
+		"vi": "Tiếng Thái", 
+		"zh": "泰文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "tr", 
+		"name": "Türkçe", 
+		"countries": [
+			{
+				"_reference": "TR"
+			}
+		], 
+		"am": "ቱርክኛ", 
+		"ar": "التركية", 
+		"bg": "Турски", 
+		"ca": "turc", 
+		"cs": "Turečtina", 
+		"da": "Tyrkisk", 
+		"de": "Türkisch", 
+		"el": "Τουρκικά", 
+		"en": "Turkish", 
+		"es": "turco", 
+		"et": "Türgi", 
+		"fa": "ترکی استانبولی", 
+		"fi": "turkki", 
+		"fr": "turc", 
+		"ga": "Tuircis", 
+		"he": "טורקית", 
+		"hi": "तुक्रीश", 
+		"hr": "turski", 
+		"hu": "török", 
+		"id": "Turkish", 
+		"is": "Tyrkneska", 
+		"it": "turco", 
+		"ja": "トルコ語", 
+		"km": "ភាសាទួរគី", 
+		"ko": "터키어", 
+		"lt": "Turkų", 
+		"lv": "turku", 
+		"mr": "तुर्किष", 
+		"mt": "Tork", 
+		"nb": "tyrkisk", 
+		"nl": "Turks", 
+		"nn": "tyrkisk", 
+		"pl": "turecki", 
+		"pt": "turco", 
+		"ro": "Turcă", 
+		"ru": "турецкий", 
+		"sk": "turecký", 
+		"sl": "Turščina", 
+		"sr": "Турски", 
+		"sv": "turkiska", 
+		"ta": "டர்கிஷ்", 
+		"th": "ตุรกี", 
+		"tr": "Türkçe", 
+		"uk": "Турецька", 
+		"vi": "Tiếng Thổ Nhĩ Kỳ", 
+		"zh": "土耳其文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "tt", 
+		"name": "Татар", 
+		"countries": [
+			{
+				"_reference": "RU"
+			}
+		], 
+		"am": "ታታርኛ", 
+		"ar": "التتارية", 
+		"bg": "Татарски", 
+		"ca": "tàtar", 
+		"cs": "Tatarština", 
+		"da": "Tatarisk", 
+		"de": "Tatarisch", 
+		"en": "Tatar", 
+		"fi": "tataari", 
+		"fr": "tatar", 
+		"ga": "Tatarais", 
+		"hi": "टाटर", 
+		"hu": "tatár", 
+		"id": "Tatar", 
+		"is": "Tatarska", 
+		"it": "tatarico", 
+		"ja": "タタール語", 
+		"km": "ភាសាតាតារ", 
+		"ko": "타타르어", 
+		"mr": "टटार", 
+		"mt": "Tatar", 
+		"nb": "tatarisk", 
+		"nl": "Tataars", 
+		"nn": "tatarisk", 
+		"ps": "تاتار", 
+		"pt": "tatar", 
+		"ru": "татарский", 
+		"sv": "tatariska", 
+		"ta": "டாடர்", 
+		"th": "ตาด", 
+		"tr": "Tatarca", 
+		"uk": "Татарська", 
+		"zh": "鞑靼文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "uk", 
+		"name": "Українська", 
+		"countries": [
+			{
+				"_reference": "UA"
+			}
+		], 
+		"am": "ዩክረኒኛ", 
+		"ar": "الأوكرانية", 
+		"bg": "Украински", 
+		"ca": "ucraïnès", 
+		"cs": "Ukrajinština", 
+		"da": "Ukrainsk", 
+		"de": "Ukrainisch", 
+		"el": "Ουκρανικά", 
+		"en": "Ukrainian", 
+		"es": "ucraniano", 
+		"fi": "ukraina", 
+		"fr": "ukrainien", 
+		"ga": "Úcráinis", 
+		"he": "אוקראינית", 
+		"hi": "यूक्रेनियन्", 
+		"hr": "ukrajinski", 
+		"hu": "ukrán", 
+		"id": "Ukrainian", 
+		"is": "Úkraínska", 
+		"it": "ucraino", 
+		"ja": "ウクライナ語", 
+		"km": "ភាសាអ៊ុយក្រែន", 
+		"ko": "우크라이나어", 
+		"mr": "युक्रेनियन्", 
+		"mt": "Ukranjan", 
+		"nb": "ukrainsk", 
+		"nl": "Oekraïens", 
+		"nn": "ukrainsk", 
+		"pt": "ucraniano", 
+		"ru": "украинский", 
+		"sr": "Украјински", 
+		"sv": "ukrainska", 
+		"ta": "உக்ரேனியன்", 
+		"th": "ยูเครน", 
+		"tr": "Ukraynaca", 
+		"uk": "Українська", 
+		"vi": "Tiếng U-crai-na", 
+		"zh": "乌克兰文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "ur", 
+		"name": "اردو", 
+		"countries": [
+			{
+				"_reference": "IN"
+			}, 
+			{
+				"_reference": "PK"
+			}
+		], 
+		"am": "ኡርዱኛ", 
+		"ar": "الأردية", 
+		"bg": "Урду", 
+		"ca": "urdú", 
+		"cs": "Urdština", 
+		"da": "Urdu", 
+		"de": "Urdu", 
+		"en": "Urdu", 
+		"es": "urdu", 
+		"fi": "urdu", 
+		"fr": "ourdou", 
+		"ga": "Urdais", 
+		"he": "אורדו", 
+		"hi": "ऊर्दु", 
+		"hu": "urdu", 
+		"id": "Urdu", 
+		"is": "Úrdú", 
+		"it": "urdu", 
+		"ja": "ウルドゥー語", 
+		"km": "ភាសាអ៊ូរ្ឌូ", 
+		"ko": "우르두어", 
+		"mr": "उर्दू", 
+		"mt": "Urdu", 
+		"nb": "urdu", 
+		"nl": "Urdu", 
+		"nn": "urdu", 
+		"pt": "urdu", 
+		"ru": "урду", 
+		"sv": "urdu", 
+		"ta": "உருது", 
+		"th": "อิรดู", 
+		"tr": "Urduca", 
+		"uk": "Урду", 
+		"ur": "اردو", 
+		"zh": "乌尔都文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "uz", 
+		"name": "Ўзбек", 
+		"countries": [
+			{
+				"_reference": "AF"
+			}, 
+			{
+				"_reference": "UZ"
+			}
+		], 
+		"am": "ኡዝበክኛ", 
+		"ar": "الاوزباكية", 
+		"bg": "Узбекски", 
+		"ca": "uzbek", 
+		"cs": "Uzbečtina", 
+		"da": "Usbekisk", 
+		"de": "Usbekisch", 
+		"en": "Uzbek", 
+		"es": "uzbeko", 
+		"fi": "uzbekki", 
+		"fr": "ouzbek", 
+		"ga": "Úisbéicis", 
+		"he": "אוזבקית", 
+		"hi": "उज़बेक्", 
+		"hu": "üzbég", 
+		"id": "Uzbek", 
+		"is": "Úsbekska", 
+		"it": "usbeco", 
+		"ja": "ウズベク語", 
+		"km": "ភាសាអ៊ូហ្សបេគីស្តង់", 
+		"ko": "우즈베크어", 
+		"mr": "उज़बेक", 
+		"mt": "Użbek", 
+		"nb": "usbekisk", 
+		"nl": "Oezbeeks", 
+		"nn": "usbekisk", 
+		"ps": "ازبکي", 
+		"pt": "usbeque", 
+		"ru": "узбекский", 
+		"sv": "uzbekiska", 
+		"ta": "உஸ்பெக்", 
+		"th": "อุสเบค", 
+		"tr": "Özbekçe", 
+		"uk": "Узбецька", 
+		"vi": "Tiếng U-dơ-bếch", 
+		"zh": "乌兹别克文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "vi", 
+		"name": "Tiếng Việt", 
+		"countries": [
+			{
+				"_reference": "VN"
+			}
+		], 
+		"am": "ቪትናምኛ", 
+		"ar": "الفيتنامية", 
+		"bg": "Виетнамски", 
+		"ca": "vietnamita", 
+		"cs": "Vietnamština", 
+		"da": "Vietnamesisk", 
+		"de": "Vietnamesisch", 
+		"el": "Βιετναμεζικά", 
+		"en": "Vietnamese", 
+		"es": "vietnamita", 
+		"fi": "vietnam", 
+		"fr": "vietnamien", 
+		"ga": "Vítneamais", 
+		"he": "ויאטנמית", 
+		"hi": "वियेतनामी", 
+		"hr": "vijetnamski", 
+		"hu": "vietnámi", 
+		"id": "Vietnamese", 
+		"is": "Víetnamska", 
+		"it": "vietnamita", 
+		"ja": "ベトナム語", 
+		"km": "ភាសាវៀតណាម", 
+		"ko": "베트남어", 
+		"mr": "वियत्नामीज़", 
+		"mt": "Vjetnamiż", 
+		"nb": "vietnamesisk", 
+		"nl": "Vietnamees", 
+		"nn": "vietnamesisk", 
+		"pt": "vietnamita", 
+		"ru": "вьетнамский", 
+		"sr": "Вијетнамски", 
+		"sv": "vietnamesiska", 
+		"ta": "வியட்நாமிஸ்", 
+		"th": "เวียดนาม", 
+		"tr": "Vietnam Dili", 
+		"uk": "Вʼєтнамська", 
+		"vi": "Tiếng Việt", 
+		"zh": "越南文"
+	}, 
+	{
+		"type": "language", 
+		"iso": "zh", 
+		"name": "中文", 
+		"countries": [
+			{
+				"_reference": "CN"
+			}, 
+			{
+				"_reference": "HK"
+			}, 
+			{
+				"_reference": "MO"
+			}, 
+			{
+				"_reference": "SG"
+			}, 
+			{
+				"_reference": "TW"
+			}
+		], 
+		"af": "Sjinees", 
+		"am": "ቻይንኛ", 
+		"ar": "الصينية", 
+		"be": "кітайскі", 
+		"bg": "Китайски", 
+		"ca": "xinés", 
+		"cs": "Čínština", 
+		"cy": "Tseineeg", 
+		"da": "Kinesisk", 
+		"de": "Chinesisch", 
+		"el": "Κινεζικά", 
+		"en": "Chinese", 
+		"es": "chino", 
+		"et": "Hiina", 
+		"eu": "txinera", 
+		"fi": "kiina", 
+		"fr": "chinois", 
+		"ga": "Sínis", 
+		"he": "סינית", 
+		"hi": "चीनी", 
+		"hr": "kineski", 
+		"hu": "kínai", 
+		"id": "Cina", 
+		"is": "Kínverska", 
+		"it": "cinese", 
+		"ja": "中国語", 
+		"ka": "ჩინური", 
+		"km": "ភាសាចិន", 
+		"ko": "중국어", 
+		"ky": "кытайча", 
+		"lt": "Kinų", 
+		"lv": "ķīniešu", 
+		"mk": "кинески", 
+		"mn": "хятад", 
+		"mr": "चिनीस्", 
+		"mt": "Ċiniż", 
+		"nb": "kinesisk", 
+		"nl": "Chinees", 
+		"nn": "kinesisk", 
+		"pl": "chiński", 
+		"ps": "چیني", 
+		"pt": "chinês", 
+		"ro": "Chineză", 
+		"ru": "китайский", 
+		"sk": "čínsky", 
+		"sl": "Kitajščina", 
+		"sq": "Kineze", 
+		"sr": "Кинески", 
+		"sv": "kinesiska", 
+		"sw": "kichina", 
+		"ta": "சீனம்", 
+		"te": "చైనా భాష", 
+		"th": "จีน", 
+		"tr": "Çince", 
+		"uk": "Китайська", 
+		"vi": "Tiếng Trung Quốc", 
+		"zh": "中文"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "aa", 
+		"country": "DJ", 
+		"iso": "aa_DJ"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "aa", 
+		"country": "ER", 
+		"iso": "aa_ER"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "aa", 
+		"country": "ET", 
+		"iso": "aa_ET"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "af", 
+		"country": "NA", 
+		"iso": "af_NA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "af", 
+		"country": "ZA", 
+		"iso": "af_ZA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ak", 
+		"country": "GH", 
+		"iso": "ak_GH"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "am", 
+		"country": "ET", 
+		"iso": "am_ET"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "AE", 
+		"iso": "ar_AE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "BH", 
+		"iso": "ar_BH"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "DZ", 
+		"iso": "ar_DZ"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "EG", 
+		"iso": "ar_EG"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "IQ", 
+		"iso": "ar_IQ"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "JO", 
+		"iso": "ar_JO"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "KW", 
+		"iso": "ar_KW"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "LB", 
+		"iso": "ar_LB"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "LY", 
+		"iso": "ar_LY"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "MA", 
+		"iso": "ar_MA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "OM", 
+		"iso": "ar_OM"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "QA", 
+		"iso": "ar_QA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "SA", 
+		"iso": "ar_SA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "SD", 
+		"iso": "ar_SD"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "SY", 
+		"iso": "ar_SY"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "TN", 
+		"iso": "ar_TN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ar", 
+		"country": "YE", 
+		"iso": "ar_YE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "as", 
+		"country": "IN", 
+		"iso": "as_IN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "az", 
+		"country": "AZ", 
+		"iso": "az_AZ"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "be", 
+		"country": "BY", 
+		"iso": "be_BY"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "bg", 
+		"country": "BG", 
+		"iso": "bg_BG"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "bn", 
+		"country": "BD", 
+		"iso": "bn_BD"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "bn", 
+		"country": "IN", 
+		"iso": "bn_IN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "bs", 
+		"country": "BA", 
+		"iso": "bs_BA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ca", 
+		"country": "ES", 
+		"iso": "ca_ES"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "cs", 
+		"country": "CZ", 
+		"iso": "cs_CZ"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "cy", 
+		"country": "GB", 
+		"iso": "cy_GB"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "da", 
+		"country": "DK", 
+		"iso": "da_DK"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "de", 
+		"country": "AT", 
+		"iso": "de_AT"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "de", 
+		"country": "BE", 
+		"iso": "de_BE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "de", 
+		"country": "CH", 
+		"iso": "de_CH"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "de", 
+		"country": "DE", 
+		"iso": "de_DE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "de", 
+		"country": "LI", 
+		"iso": "de_LI"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "de", 
+		"country": "LU", 
+		"iso": "de_LU"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "dv", 
+		"country": "MV", 
+		"iso": "dv_MV"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "dz", 
+		"country": "BT", 
+		"iso": "dz_BT"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ee", 
+		"country": "GH", 
+		"iso": "ee_GH"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ee", 
+		"country": "TG", 
+		"iso": "ee_TG"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "el", 
+		"country": "CY", 
+		"iso": "el_CY"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "el", 
+		"country": "GR", 
+		"iso": "el_GR"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "AS", 
+		"iso": "en_AS"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "AU", 
+		"iso": "en_AU"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "BE", 
+		"iso": "en_BE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "BW", 
+		"iso": "en_BW"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "BZ", 
+		"iso": "en_BZ"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "CA", 
+		"iso": "en_CA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "GB", 
+		"iso": "en_GB"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "GU", 
+		"iso": "en_GU"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "HK", 
+		"iso": "en_HK"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "IE", 
+		"iso": "en_IE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "IN", 
+		"iso": "en_IN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "JM", 
+		"iso": "en_JM"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "MH", 
+		"iso": "en_MH"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "MP", 
+		"iso": "en_MP"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "MT", 
+		"iso": "en_MT"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "NA", 
+		"iso": "en_NA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "NZ", 
+		"iso": "en_NZ"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "PH", 
+		"iso": "en_PH"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "PK", 
+		"iso": "en_PK"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "SG", 
+		"iso": "en_SG"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "TT", 
+		"iso": "en_TT"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "UM", 
+		"iso": "en_UM"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "US", 
+		"iso": "en_US"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "VI", 
+		"iso": "en_VI"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "ZA", 
+		"iso": "en_ZA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "en", 
+		"country": "ZW", 
+		"iso": "en_ZW"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "AR", 
+		"iso": "es_AR"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "BO", 
+		"iso": "es_BO"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "CL", 
+		"iso": "es_CL"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "CO", 
+		"iso": "es_CO"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "CR", 
+		"iso": "es_CR"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "DO", 
+		"iso": "es_DO"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "EC", 
+		"iso": "es_EC"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "ES", 
+		"iso": "es_ES"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "GT", 
+		"iso": "es_GT"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "HN", 
+		"iso": "es_HN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "MX", 
+		"iso": "es_MX"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "NI", 
+		"iso": "es_NI"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "PA", 
+		"iso": "es_PA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "PE", 
+		"iso": "es_PE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "PR", 
+		"iso": "es_PR"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "PY", 
+		"iso": "es_PY"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "SV", 
+		"iso": "es_SV"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "US", 
+		"iso": "es_US"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "UY", 
+		"iso": "es_UY"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "es", 
+		"country": "VE", 
+		"iso": "es_VE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "et", 
+		"country": "EE", 
+		"iso": "et_EE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "eu", 
+		"country": "ES", 
+		"iso": "eu_ES"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "fa", 
+		"country": "AF", 
+		"iso": "fa_AF"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "fa", 
+		"country": "IR", 
+		"iso": "fa_IR"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "fi", 
+		"country": "FI", 
+		"iso": "fi_FI"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "fo", 
+		"country": "FO", 
+		"iso": "fo_FO"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "fr", 
+		"country": "BE", 
+		"iso": "fr_BE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "fr", 
+		"country": "CA", 
+		"iso": "fr_CA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "fr", 
+		"country": "CH", 
+		"iso": "fr_CH"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "fr", 
+		"country": "FR", 
+		"iso": "fr_FR"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "fr", 
+		"country": "LU", 
+		"iso": "fr_LU"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "fr", 
+		"country": "MC", 
+		"iso": "fr_MC"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ga", 
+		"country": "IE", 
+		"iso": "ga_IE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "gl", 
+		"country": "ES", 
+		"iso": "gl_ES"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "gu", 
+		"country": "IN", 
+		"iso": "gu_IN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "gv", 
+		"country": "GB", 
+		"iso": "gv_GB"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ha", 
+		"country": "GH", 
+		"iso": "ha_GH"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ha", 
+		"country": "NE", 
+		"iso": "ha_NE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ha", 
+		"country": "NG", 
+		"iso": "ha_NG"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "he", 
+		"country": "IL", 
+		"iso": "he_IL"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "hi", 
+		"country": "IN", 
+		"iso": "hi_IN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "hr", 
+		"country": "HR", 
+		"iso": "hr_HR"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "hu", 
+		"country": "HU", 
+		"iso": "hu_HU"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "hy", 
+		"country": "AM", 
+		"iso": "hy_AM"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "id", 
+		"country": "ID", 
+		"iso": "id_ID"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ig", 
+		"country": "NG", 
+		"iso": "ig_NG"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "is", 
+		"country": "IS", 
+		"iso": "is_IS"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "it", 
+		"country": "CH", 
+		"iso": "it_CH"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "it", 
+		"country": "IT", 
+		"iso": "it_IT"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ja", 
+		"country": "JP", 
+		"iso": "ja_JP"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ka", 
+		"country": "GE", 
+		"iso": "ka_GE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "kk", 
+		"country": "KZ", 
+		"iso": "kk_KZ"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "kl", 
+		"country": "GL", 
+		"iso": "kl_GL"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "km", 
+		"country": "KH", 
+		"iso": "km_KH"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "kn", 
+		"country": "IN", 
+		"iso": "kn_IN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ko", 
+		"country": "KR", 
+		"iso": "ko_KR"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ku", 
+		"country": "IQ", 
+		"iso": "ku_IQ"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ku", 
+		"country": "IR", 
+		"iso": "ku_IR"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ku", 
+		"country": "SY", 
+		"iso": "ku_SY"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ku", 
+		"country": "TR", 
+		"iso": "ku_TR"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "kw", 
+		"country": "GB", 
+		"iso": "kw_GB"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ky", 
+		"country": "KG", 
+		"iso": "ky_KG"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ln", 
+		"country": "CD", 
+		"iso": "ln_CD"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ln", 
+		"country": "CG", 
+		"iso": "ln_CG"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "lo", 
+		"country": "LA", 
+		"iso": "lo_LA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "lt", 
+		"country": "LT", 
+		"iso": "lt_LT"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "lv", 
+		"country": "LV", 
+		"iso": "lv_LV"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "mk", 
+		"country": "MK", 
+		"iso": "mk_MK"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ml", 
+		"country": "IN", 
+		"iso": "ml_IN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "mn", 
+		"country": "MN", 
+		"iso": "mn_MN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "mr", 
+		"country": "IN", 
+		"iso": "mr_IN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ms", 
+		"country": "BN", 
+		"iso": "ms_BN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ms", 
+		"country": "MY", 
+		"iso": "ms_MY"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "mt", 
+		"country": "MT", 
+		"iso": "mt_MT"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "nb", 
+		"country": "NO", 
+		"iso": "nb_NO"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ne", 
+		"country": "NP", 
+		"iso": "ne_NP"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "nl", 
+		"country": "BE", 
+		"iso": "nl_BE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "nl", 
+		"country": "NL", 
+		"iso": "nl_NL"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "nn", 
+		"country": "NO", 
+		"iso": "nn_NO"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "nr", 
+		"country": "ZA", 
+		"iso": "nr_ZA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ny", 
+		"country": "MW", 
+		"iso": "ny_MW"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "om", 
+		"country": "ET", 
+		"iso": "om_ET"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "om", 
+		"country": "KE", 
+		"iso": "om_KE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "or", 
+		"country": "IN", 
+		"iso": "or_IN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "pa", 
+		"country": "IN", 
+		"iso": "pa_IN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "pa", 
+		"country": "PK", 
+		"iso": "pa_PK"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "pl", 
+		"country": "PL", 
+		"iso": "pl_PL"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ps", 
+		"country": "AF", 
+		"iso": "ps_AF"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "pt", 
+		"country": "BR", 
+		"iso": "pt_BR"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "pt", 
+		"country": "PT", 
+		"iso": "pt_PT"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ro", 
+		"country": "RO", 
+		"iso": "ro_RO"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ru", 
+		"country": "RU", 
+		"iso": "ru_RU"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ru", 
+		"country": "UA", 
+		"iso": "ru_UA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "rw", 
+		"country": "RW", 
+		"iso": "rw_RW"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "sa", 
+		"country": "IN", 
+		"iso": "sa_IN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "se", 
+		"country": "NO", 
+		"iso": "se_NO"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "sh", 
+		"country": "BA", 
+		"iso": "sh_BA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "sh", 
+		"country": "CS", 
+		"iso": "sh_CS"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "sh", 
+		"country": "YU", 
+		"iso": "sh_YU"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "sk", 
+		"country": "SK", 
+		"iso": "sk_SK"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "sl", 
+		"country": "SI", 
+		"iso": "sl_SI"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "so", 
+		"country": "DJ", 
+		"iso": "so_DJ"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "so", 
+		"country": "ET", 
+		"iso": "so_ET"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "so", 
+		"country": "KE", 
+		"iso": "so_KE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "so", 
+		"country": "SO", 
+		"iso": "so_SO"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "sq", 
+		"country": "AL", 
+		"iso": "sq_AL"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "sr", 
+		"country": "BA", 
+		"iso": "sr_BA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "sr", 
+		"country": "CS", 
+		"iso": "sr_CS"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "sr", 
+		"country": "YU", 
+		"iso": "sr_YU"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ss", 
+		"country": "ZA", 
+		"iso": "ss_ZA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "st", 
+		"country": "ZA", 
+		"iso": "st_ZA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "sv", 
+		"country": "FI", 
+		"iso": "sv_FI"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "sv", 
+		"country": "SE", 
+		"iso": "sv_SE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "sw", 
+		"country": "KE", 
+		"iso": "sw_KE"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "sw", 
+		"country": "TZ", 
+		"iso": "sw_TZ"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ta", 
+		"country": "IN", 
+		"iso": "ta_IN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "te", 
+		"country": "IN", 
+		"iso": "te_IN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "tg", 
+		"country": "TJ", 
+		"iso": "tg_TJ"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "th", 
+		"country": "TH", 
+		"iso": "th_TH"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ti", 
+		"country": "ER", 
+		"iso": "ti_ER"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ti", 
+		"country": "ET", 
+		"iso": "ti_ET"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "tn", 
+		"country": "ZA", 
+		"iso": "tn_ZA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "tr", 
+		"country": "TR", 
+		"iso": "tr_TR"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ts", 
+		"country": "ZA", 
+		"iso": "ts_ZA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "tt", 
+		"country": "RU", 
+		"iso": "tt_RU"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "uk", 
+		"country": "UA", 
+		"iso": "uk_UA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ur", 
+		"country": "IN", 
+		"iso": "ur_IN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ur", 
+		"country": "PK", 
+		"iso": "ur_PK"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "uz", 
+		"country": "AF", 
+		"iso": "uz_AF"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "uz", 
+		"country": "UZ", 
+		"iso": "uz_UZ"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "ve", 
+		"country": "ZA", 
+		"iso": "ve_ZA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "vi", 
+		"country": "VN", 
+		"iso": "vi_VN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "xh", 
+		"country": "ZA", 
+		"iso": "xh_ZA"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "yo", 
+		"country": "NG", 
+		"iso": "yo_NG"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "zh", 
+		"country": "CN", 
+		"iso": "zh_CN"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "zh", 
+		"country": "HK", 
+		"iso": "zh_HK"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "zh", 
+		"country": "MO", 
+		"iso": "zh_MO"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "zh", 
+		"country": "SG", 
+		"iso": "zh_SG"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "zh", 
+		"country": "TW", 
+		"iso": "zh_TW"
+	}, 
+	{
+		"type": "languageCountryMap", 
+		"language": "zu", 
+		"country": "ZA", 
+		"iso": "zu_ZA"
+	}, 
+	{
+		"type": "continent", 
+		"name": "Africa", 
+		"iso": "Africa"
+	}, 
+	{
+		"type": "continent", 
+		"name": "Asia", 
+		"iso": "Asia"
+	}, 
+	{
+		"type": "continent", 
+		"name": "Europe", 
+		"iso": "Europe"
+	}, 
+	{
+		"type": "continent", 
+		"name": "North America", 
+		"iso": "North America"
+	}, 
+	{
+		"type": "continent", 
+		"name": "South America", 
+		"iso": "South America"
+	}, 
+	{
+		"type": "continent", 
+		"name": "Oceania", 
+		"iso": "Oceania"
+	}, 
+	{
+		"type": "continent", 
+		"name": "Antarctica", 
+		"iso": "Antarctica"
+	}, 
+	{
+		"type": "country", 
+		"iso": "AF", 
+		"name": "Afghanistan", 
+		"href": "http://en.wikipedia.org/wiki/Afghanistan", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "fa"
+			}, 
+			{
+				"_reference": "ps"
+			}, 
+			{
+				"_reference": "uz"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AX", 
+		"name": "Åland Islands", 
+		"href": "http://en.wikipedia.org/wiki/%C3%85land", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AL", 
+		"name": "Albania", 
+		"href": "http://en.wikipedia.org/wiki/Albania", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "sq"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "DZ", 
+		"name": "Algeria", 
+		"href": "http://en.wikipedia.org/wiki/Algeria", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AS", 
+		"name": "American Samoa", 
+		"href": "http://en.wikipedia.org/wiki/American_Samoa", 
+		"continent": "Oceania", 
+		"languages": [
+			{
+				"_reference": "en"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AD", 
+		"name": "Andorra", 
+		"href": "http://en.wikipedia.org/wiki/Andorra", 
+		"continent": "Europe", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AO", 
+		"name": "Angola", 
+		"href": "http://en.wikipedia.org/wiki/Angola", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AI", 
+		"name": "Anguilla", 
+		"href": "http://en.wikipedia.org/wiki/Anguilla", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AQ", 
+		"name": "Antarctica", 
+		"href": "http://en.wikipedia.org/wiki/Antarctica", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AG", 
+		"name": "Antigua and Barbuda", 
+		"href": "http://en.wikipedia.org/wiki/Antigua_and_Barbuda", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AR", 
+		"name": "Argentina", 
+		"href": "http://en.wikipedia.org/wiki/Argentina", 
+		"continent": "South America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AM", 
+		"name": "Armenia", 
+		"href": "http://en.wikipedia.org/wiki/Armenia", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "hy"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AW", 
+		"name": "Aruba", 
+		"href": "http://en.wikipedia.org/wiki/Aruba", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AU", 
+		"name": "Australia", 
+		"href": "http://en.wikipedia.org/wiki/Australia", 
+		"continent": "Oceania", 
+		"languages": [
+			{
+				"_reference": "en"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AT", 
+		"name": "Austria", 
+		"href": "http://en.wikipedia.org/wiki/Austria", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "de"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AZ", 
+		"name": "Azerbaijan", 
+		"href": "http://en.wikipedia.org/wiki/Azerbaijan", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "az"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BS", 
+		"name": "Bahamas", 
+		"href": "http://en.wikipedia.org/wiki/The_Bahamas", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BH", 
+		"name": "Bahrain", 
+		"href": "http://en.wikipedia.org/wiki/Bahrain", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BD", 
+		"name": "Bangladesh", 
+		"href": "http://en.wikipedia.org/wiki/Bangladesh", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "bn"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BB", 
+		"name": "Barbados", 
+		"href": "http://en.wikipedia.org/wiki/Barbados", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BY", 
+		"name": "Belarus", 
+		"href": "http://en.wikipedia.org/wiki/Belarus", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "be"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BE", 
+		"name": "Belgium", 
+		"href": "http://en.wikipedia.org/wiki/Belgium", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "de"
+			}, 
+			{
+				"_reference": "en"
+			}, 
+			{
+				"_reference": "fr"
+			}, 
+			{
+				"_reference": "nl"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BZ", 
+		"name": "Belize", 
+		"href": "http://en.wikipedia.org/wiki/Belize", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "en"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BJ", 
+		"name": "Benin", 
+		"href": "http://en.wikipedia.org/wiki/Benin", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BM", 
+		"name": "Bermuda", 
+		"href": "http://en.wikipedia.org/wiki/Bermuda", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BT", 
+		"name": "Bhutan", 
+		"href": "http://en.wikipedia.org/wiki/Bhutan", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "dz"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BO", 
+		"name": "Bolivia", 
+		"href": "http://en.wikipedia.org/wiki/Bolivia", 
+		"continent": "South America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BA", 
+		"name": "Bosnia and Herzegovina", 
+		"href": "http://en.wikipedia.org/wiki/Bosnia_and_Herzegovina", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "bs"
+			}, 
+			{
+				"_reference": "sh"
+			}, 
+			{
+				"_reference": "sr"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BW", 
+		"name": "Botswana", 
+		"href": "http://en.wikipedia.org/wiki/Botswana", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "en"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BV", 
+		"name": "Bouvet Island", 
+		"href": "http://en.wikipedia.org/wiki/Bouvet_Island", 
+		"continent": "Antarctica", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BR", 
+		"name": "Brazil", 
+		"href": "http://en.wikipedia.org/wiki/Brazil", 
+		"continent": "South America", 
+		"languages": [
+			{
+				"_reference": "pt"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "IO", 
+		"name": "British Indian Ocean Territory", 
+		"href": "http://en.wikipedia.org/wiki/British_Indian_Ocean_Territory", 
+		"continent": "Asia", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BN", 
+		"name": "Brunei Darussalam", 
+		"href": "http://en.wikipedia.org/wiki/Brunei", 
+		"languages": [
+			{
+				"_reference": "ms"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BG", 
+		"name": "Bulgaria", 
+		"href": "http://en.wikipedia.org/wiki/Bulgaria", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "bg"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BF", 
+		"name": "Burkina Faso", 
+		"href": "http://en.wikipedia.org/wiki/Burkina_Faso", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "BI", 
+		"name": "Burundi", 
+		"href": "http://en.wikipedia.org/wiki/Burundi", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "KH", 
+		"name": "Cambodia", 
+		"href": "http://en.wikipedia.org/wiki/Cambodia", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "km"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CM", 
+		"name": "Cameroon", 
+		"href": "http://en.wikipedia.org/wiki/Cameroon", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CA", 
+		"name": "Canada", 
+		"href": "http://en.wikipedia.org/wiki/Canada", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "en"
+			}, 
+			{
+				"_reference": "fr"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CV", 
+		"name": "Cape Verde", 
+		"href": "http://en.wikipedia.org/wiki/Cape_Verde", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "KY", 
+		"name": "Cayman Islands", 
+		"href": "http://en.wikipedia.org/wiki/Cayman_Islands", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CF", 
+		"name": "Central African Republic", 
+		"href": "http://en.wikipedia.org/wiki/Central_African_Republic", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TD", 
+		"name": "Chad", 
+		"href": "http://en.wikipedia.org/wiki/Chad", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CL", 
+		"name": "Chile", 
+		"href": "http://en.wikipedia.org/wiki/Chile", 
+		"continent": "South America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CN", 
+		"name": "China", 
+		"continent": "Asia", 
+		"href": "http://en.wikipedia.org/wiki/People%27s_Republic_of_China", 
+		"languages": [
+			{
+				"_reference": "zh"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CX", 
+		"name": "Christmas Island", 
+		"href": "http://en.wikipedia.org/wiki/Christmas_Island", 
+		"continent": "Asia", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CC", 
+		"name": "Cocos (Keeling) Islands", 
+		"href": "http://en.wikipedia.org/wiki/Cocos_%28Keeling%29_Islands", 
+		"continent": "Asia", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CO", 
+		"name": "Colombia", 
+		"href": "http://en.wikipedia.org/wiki/Colombia", 
+		"continent": "South America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "KM", 
+		"name": "Comoros", 
+		"href": "http://en.wikipedia.org/wiki/Comoros", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CG", 
+		"name": "Congo", 
+		"href": "http://en.wikipedia.org/wiki/Republic_of_the_Congo", 
+		"languages": [
+			{
+				"_reference": "ln"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CD", 
+		"name": "Congo, Democratic Republic of the", 
+		"href": "http://en.wikipedia.org/wiki/Democratic_Republic_of_the_Congo", 
+		"languages": [
+			{
+				"_reference": "ln"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CK", 
+		"name": "Cook Islands", 
+		"href": "http://en.wikipedia.org/wiki/Cook_Islands", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CR", 
+		"name": "Costa Rica", 
+		"href": "http://en.wikipedia.org/wiki/Costa_Rica", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CI", 
+		"name": "Côte d'Ivoire", 
+		"href": "http://en.wikipedia.org/wiki/C%C3%B4te_d%27Ivoire", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "HR", 
+		"name": "Croatia", 
+		"href": "http://en.wikipedia.org/wiki/Croatia", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "hr"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CU", 
+		"name": "Cuba", 
+		"href": "http://en.wikipedia.org/wiki/Cuba", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CY", 
+		"name": "Cyprus", 
+		"href": "http://en.wikipedia.org/wiki/Cyprus", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "el"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CZ", 
+		"name": "Czech Republic", 
+		"href": "http://en.wikipedia.org/wiki/Czech_Republic", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "cs"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "DK", 
+		"name": "Denmark", 
+		"href": "http://en.wikipedia.org/wiki/Denmark", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "da"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "DJ", 
+		"name": "Djibouti", 
+		"href": "http://en.wikipedia.org/wiki/Djibouti", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "aa"
+			}, 
+			{
+				"_reference": "so"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "DM", 
+		"name": "Dominica", 
+		"href": "http://en.wikipedia.org/wiki/Dominica", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "DO", 
+		"name": "Dominican Republic", 
+		"href": "http://en.wikipedia.org/wiki/Dominican_Republic", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "EC", 
+		"name": "Ecuador", 
+		"href": "http://en.wikipedia.org/wiki/Ecuador", 
+		"continent": "South America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "EG", 
+		"name": "Egypt", 
+		"href": "http://en.wikipedia.org/wiki/Egypt", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SV", 
+		"name": "El Salvador", 
+		"href": "http://en.wikipedia.org/wiki/El_Salvador", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GQ", 
+		"name": "Equatorial Guinea", 
+		"href": "http://en.wikipedia.org/wiki/Equatorial_Guinea", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "ER", 
+		"name": "Eritrea", 
+		"href": "http://en.wikipedia.org/wiki/Eritrea", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "aa"
+			}, 
+			{
+				"_reference": "ti"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "EE", 
+		"name": "Estonia", 
+		"href": "http://en.wikipedia.org/wiki/Estonia", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "et"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "ET", 
+		"name": "Ethiopia", 
+		"href": "http://en.wikipedia.org/wiki/Ethiopia", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "aa"
+			}, 
+			{
+				"_reference": "am"
+			}, 
+			{
+				"_reference": "om"
+			}, 
+			{
+				"_reference": "so"
+			}, 
+			{
+				"_reference": "ti"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "FK", 
+		"name": "Falkland Islands (Malvinas)", 
+		"href": "http://en.wikipedia.org/wiki/Falkland_Islands", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "FO", 
+		"name": "Faroe Islands", 
+		"href": "http://en.wikipedia.org/wiki/Faroe_Islands", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "fo"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "FJ", 
+		"name": "Fiji", 
+		"href": "http://en.wikipedia.org/wiki/Fiji", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "FI", 
+		"name": "Finland", 
+		"href": "http://en.wikipedia.org/wiki/Finland", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "fi"
+			}, 
+			{
+				"_reference": "sv"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "FR", 
+		"name": "France", 
+		"href": "http://en.wikipedia.org/wiki/France", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "fr"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GF", 
+		"name": "French Guiana", 
+		"href": "http://en.wikipedia.org/wiki/French_Guiana", 
+		"continent": "South America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "PF", 
+		"name": "French Polynesia", 
+		"href": "http://en.wikipedia.org/wiki/French_Polynesia", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TF", 
+		"name": "French Southern Territories", 
+		"href": "http://en.wikipedia.org/wiki/French_Southern_and_Antarctic_Lands", 
+		"continent": "Antarctica", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GA", 
+		"name": "Gabon", 
+		"href": "http://en.wikipedia.org/wiki/Gabon", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GM", 
+		"name": "Gambia", 
+		"href": "http://en.wikipedia.org/wiki/The_Gambia", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GE", 
+		"name": "Georgia", 
+		"href": "http://en.wikipedia.org/wiki/Georgia_%28country%29", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ka"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "DE", 
+		"name": "Germany", 
+		"href": "http://en.wikipedia.org/wiki/Germany", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "de"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GH", 
+		"name": "Ghana", 
+		"href": "http://en.wikipedia.org/wiki/Ghana", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "ak"
+			}, 
+			{
+				"_reference": "ee"
+			}, 
+			{
+				"_reference": "ha"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GI", 
+		"name": "Gibraltar", 
+		"href": "http://en.wikipedia.org/wiki/Gibraltar", 
+		"continent": "Europe", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GR", 
+		"name": "Greece", 
+		"href": "http://en.wikipedia.org/wiki/Greece", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "el"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GL", 
+		"name": "Greenland", 
+		"href": "http://en.wikipedia.org/wiki/Greenland", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "kl"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GD", 
+		"name": "Grenada", 
+		"href": "http://en.wikipedia.org/wiki/Grenada", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GP", 
+		"name": "Guadeloupe", 
+		"href": "http://en.wikipedia.org/wiki/Guadeloupe", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GU", 
+		"name": "Guam", 
+		"href": "http://en.wikipedia.org/wiki/Guam", 
+		"continent": "Oceania", 
+		"languages": [
+			{
+				"_reference": "en"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GT", 
+		"name": "Guatemala", 
+		"href": "http://en.wikipedia.org/wiki/Guatemala", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GG", 
+		"name": "Guernsey", 
+		"href": "http://en.wikipedia.org/wiki/Guernsey", 
+		"continent": "Europe", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GN", 
+		"name": "Guinea", 
+		"href": "http://en.wikipedia.org/wiki/Guinea", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GW", 
+		"name": "Guinea-Bissau", 
+		"href": "http://en.wikipedia.org/wiki/Guinea-Bissau", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GY", 
+		"name": "Guyana", 
+		"href": "http://en.wikipedia.org/wiki/Guyana", 
+		"continent": "South America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "HT", 
+		"name": "Haiti", 
+		"href": "http://en.wikipedia.org/wiki/Haiti", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "HM", 
+		"name": "Heard Island and McDonald Islands", 
+		"href": "http://en.wikipedia.org/wiki/Heard_Island_and_McDonald_Islands", 
+		"continent": "Antarctica", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "VA", 
+		"name": "Holy See (Vatican City State)", 
+		"href": "http://en.wikipedia.org/wiki/Vatican_City", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "HN", 
+		"name": "Honduras", 
+		"href": "http://en.wikipedia.org/wiki/Honduras", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "HK", 
+		"name": "Hong Kong", 
+		"href": "http://en.wikipedia.org/wiki/Hong_Kong", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "en"
+			}, 
+			{
+				"_reference": "zh"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "HU", 
+		"name": "Hungary", 
+		"href": "http://en.wikipedia.org/wiki/Hungary", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "hu"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "IS", 
+		"name": "Iceland", 
+		"href": "http://en.wikipedia.org/wiki/Iceland", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "is"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "IN", 
+		"name": "India", 
+		"href": "http://en.wikipedia.org/wiki/India", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "as"
+			}, 
+			{
+				"_reference": "bn"
+			}, 
+			{
+				"_reference": "en"
+			}, 
+			{
+				"_reference": "gu"
+			}, 
+			{
+				"_reference": "hi"
+			}, 
+			{
+				"_reference": "kn"
+			}, 
+			{
+				"_reference": "ml"
+			}, 
+			{
+				"_reference": "mr"
+			}, 
+			{
+				"_reference": "or"
+			}, 
+			{
+				"_reference": "pa"
+			}, 
+			{
+				"_reference": "sa"
+			}, 
+			{
+				"_reference": "ta"
+			}, 
+			{
+				"_reference": "te"
+			}, 
+			{
+				"_reference": "ur"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "ID", 
+		"name": "Indonesia", 
+		"href": "http://en.wikipedia.org/wiki/Indonesia", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "id"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "IR", 
+		"name": "Iran, Islamic Republic of", 
+		"href": "http://en.wikipedia.org/wiki/Iran", 
+		"languages": [
+			{
+				"_reference": "fa"
+			}, 
+			{
+				"_reference": "ku"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "IQ", 
+		"name": "Iraq", 
+		"href": "http://en.wikipedia.org/wiki/Iraq", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}, 
+			{
+				"_reference": "ku"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "IE", 
+		"name": "Ireland", 
+		"href": "http://en.wikipedia.org/wiki/Republic_of_Ireland", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "en"
+			}, 
+			{
+				"_reference": "ga"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "IM", 
+		"name": "Isle of Man", 
+		"href": "http://en.wikipedia.org/wiki/Isle_of_Man", 
+		"continent": "Europe", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "IL", 
+		"name": "Israel", 
+		"href": "http://en.wikipedia.org/wiki/Israel", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "he"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "IT", 
+		"name": "Italy", 
+		"href": "http://en.wikipedia.org/wiki/Italy", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "it"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "JM", 
+		"name": "Jamaica", 
+		"href": "http://en.wikipedia.org/wiki/Jamaica", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "en"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "JP", 
+		"name": "Japan", 
+		"href": "http://en.wikipedia.org/wiki/Japan", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ja"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "JE", 
+		"name": "Jersey", 
+		"href": "http://en.wikipedia.org/wiki/Jersey", 
+		"continent": "Europe", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "JO", 
+		"name": "Jordan", 
+		"href": "http://en.wikipedia.org/wiki/Jordan", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "KZ", 
+		"name": "Kazakhstan", 
+		"href": "http://en.wikipedia.org/wiki/Kazakhstan", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "kk"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "KE", 
+		"name": "Kenya", 
+		"href": "http://en.wikipedia.org/wiki/Kenya", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "om"
+			}, 
+			{
+				"_reference": "so"
+			}, 
+			{
+				"_reference": "sw"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "KI", 
+		"name": "Kiribati", 
+		"href": "http://en.wikipedia.org/wiki/Kiribati", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "KP", 
+		"name": "Korea, Democratic People's Republic of", 
+		"href": "http://en.wikipedia.org/wiki/North_Korea", 
+		"continent": "Asia", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "KR", 
+		"name": "Korea, Republic of", 
+		"href": "http://en.wikipedia.org/wiki/South_Korea", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ko"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "KW", 
+		"name": "Kuwait", 
+		"href": "http://en.wikipedia.org/wiki/Kuwait", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "KG", 
+		"name": "Kyrgyzstan", 
+		"href": "http://en.wikipedia.org/wiki/Kyrgyzstan", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ky"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "LA", 
+		"name": "Lao People's Democratic Republic", 
+		"href": "http://en.wikipedia.org/wiki/Laos", 
+		"languages": [
+			{
+				"_reference": "lo"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "LV", 
+		"name": "Latvia", 
+		"href": "http://en.wikipedia.org/wiki/Latvia", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "lv"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "LB", 
+		"name": "Lebanon", 
+		"href": "http://en.wikipedia.org/wiki/Lebanon", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "LS", 
+		"name": "Lesotho", 
+		"href": "http://en.wikipedia.org/wiki/Lesotho", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "LR", 
+		"name": "Liberia", 
+		"href": "http://en.wikipedia.org/wiki/Liberia", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "LY", 
+		"name": "Libyan Arab Jamahiriya", 
+		"href": "http://en.wikipedia.org/wiki/Libya", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "LI", 
+		"name": "Liechtenstein", 
+		"href": "http://en.wikipedia.org/wiki/Liechtenstein", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "de"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "LT", 
+		"name": "Lithuania", 
+		"href": "http://en.wikipedia.org/wiki/Lithuania", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "lt"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "LU", 
+		"name": "Luxembourg", 
+		"href": "http://en.wikipedia.org/wiki/Luxembourg", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "de"
+			}, 
+			{
+				"_reference": "fr"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MO", 
+		"name": "Macao", 
+		"href": "http://en.wikipedia.org/wiki/Macau", 
+		"languages": [
+			{
+				"_reference": "zh"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MK", 
+		"name": "Macedonia, the former Yugoslav Republic of", 
+		"href": "http://en.wikipedia.org/wiki/Republic_of_Macedonia", 
+		"languages": [
+			{
+				"_reference": "mk"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MG", 
+		"name": "Madagascar", 
+		"href": "http://en.wikipedia.org/wiki/Madagascar", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MW", 
+		"name": "Malawi", 
+		"href": "http://en.wikipedia.org/wiki/Malawi", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "ny"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MY", 
+		"name": "Malaysia", 
+		"href": "http://en.wikipedia.org/wiki/Malaysia", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ms"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MV", 
+		"name": "Maldives", 
+		"href": "http://en.wikipedia.org/wiki/Maldives", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "dv"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "ML", 
+		"name": "Mali", 
+		"href": "http://en.wikipedia.org/wiki/Mali", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MT", 
+		"name": "Malta", 
+		"href": "http://en.wikipedia.org/wiki/Malta", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "en"
+			}, 
+			{
+				"_reference": "mt"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MH", 
+		"name": "Marshall Islands", 
+		"href": "http://en.wikipedia.org/wiki/Marshall_Islands", 
+		"continent": "Oceania", 
+		"languages": [
+			{
+				"_reference": "en"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MQ", 
+		"name": "Martinique", 
+		"href": "http://en.wikipedia.org/wiki/Martinique", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MR", 
+		"name": "Mauritania", 
+		"href": "http://en.wikipedia.org/wiki/Mauritania", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MU", 
+		"name": "Mauritius", 
+		"href": "http://en.wikipedia.org/wiki/Mauritius", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "YT", 
+		"name": "Mayotte", 
+		"href": "http://en.wikipedia.org/wiki/Mayotte", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MX", 
+		"name": "Mexico", 
+		"href": "http://en.wikipedia.org/wiki/Mexico", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "FM", 
+		"name": "Micronesia, Federated States of", 
+		"href": "http://en.wikipedia.org/wiki/Federated_States_of_Micronesia", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MD", 
+		"name": "Moldova, Republic of", 
+		"href": "http://en.wikipedia.org/wiki/Moldova", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MC", 
+		"name": "Monaco", 
+		"href": "http://en.wikipedia.org/wiki/Monaco", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "fr"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MN", 
+		"name": "Mongolia", 
+		"href": "http://en.wikipedia.org/wiki/Mongolia", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "mn"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "ME", 
+		"name": "Montenegro", 
+		"href": "http://en.wikipedia.org/wiki/Montenegro", 
+		"continent": "Europe", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MS", 
+		"name": "Montserrat", 
+		"href": "http://en.wikipedia.org/wiki/Montserrat", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MA", 
+		"name": "Morocco", 
+		"href": "http://en.wikipedia.org/wiki/Morocco", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MZ", 
+		"name": "Mozambique", 
+		"href": "http://en.wikipedia.org/wiki/Mozambique", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MM", 
+		"name": "Myanmar", 
+		"href": "http://en.wikipedia.org/wiki/Myanmar", 
+		"continent": "Asia", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "NA", 
+		"name": "Namibia", 
+		"href": "http://en.wikipedia.org/wiki/Namibia", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "af"
+			}, 
+			{
+				"_reference": "en"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "NR", 
+		"name": "Nauru", 
+		"href": "http://en.wikipedia.org/wiki/Nauru", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "NP", 
+		"name": "Nepal", 
+		"href": "http://en.wikipedia.org/wiki/Nepal", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ne"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "NL", 
+		"name": "Netherlands", 
+		"href": "http://en.wikipedia.org/wiki/Netherlands", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "nl"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AN", 
+		"name": "Netherlands Antilles", 
+		"href": "http://en.wikipedia.org/wiki/Netherlands_Antilles", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "NC", 
+		"name": "New Caledonia", 
+		"href": "http://en.wikipedia.org/wiki/New_Caledonia", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "NZ", 
+		"name": "New Zealand", 
+		"href": "http://en.wikipedia.org/wiki/New_Zealand", 
+		"continent": "Oceania", 
+		"languages": [
+			{
+				"_reference": "en"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "NI", 
+		"name": "Nicaragua", 
+		"href": "http://en.wikipedia.org/wiki/Nicaragua", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "NE", 
+		"name": "Niger", 
+		"href": "http://en.wikipedia.org/wiki/Niger", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "ha"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "NG", 
+		"name": "Nigeria", 
+		"href": "http://en.wikipedia.org/wiki/Nigeria", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "ha"
+			}, 
+			{
+				"_reference": "ig"
+			}, 
+			{
+				"_reference": "yo"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "NU", 
+		"name": "Niue", 
+		"href": "http://en.wikipedia.org/wiki/Niue", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "NF", 
+		"name": "Norfolk Island", 
+		"href": "http://en.wikipedia.org/wiki/Norfolk_Island", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "MP", 
+		"name": "Northern Mariana Islands", 
+		"href": "http://en.wikipedia.org/wiki/Northern_Mariana_Islands", 
+		"continent": "Oceania", 
+		"languages": [
+			{
+				"_reference": "en"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "NO", 
+		"name": "Norway", 
+		"href": "http://en.wikipedia.org/wiki/Norway", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "nb"
+			}, 
+			{
+				"_reference": "nn"
+			}, 
+			{
+				"_reference": "se"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "OM", 
+		"name": "Oman", 
+		"href": "http://en.wikipedia.org/wiki/Oman", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "PK", 
+		"name": "Pakistan", 
+		"href": "http://en.wikipedia.org/wiki/Pakistan", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "en"
+			}, 
+			{
+				"_reference": "pa"
+			}, 
+			{
+				"_reference": "ur"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "PW", 
+		"name": "Palau", 
+		"href": "http://en.wikipedia.org/wiki/Palau", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "PS", 
+		"name": "Palestinian Territory, Occupied", 
+		"href": "http://en.wikipedia.org/wiki/Palestinian_territories", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "PA", 
+		"name": "Panama", 
+		"href": "http://en.wikipedia.org/wiki/Panama", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "PG", 
+		"name": "Papua New Guinea", 
+		"href": "http://en.wikipedia.org/wiki/Papua_New_Guinea", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "PY", 
+		"name": "Paraguay", 
+		"href": "http://en.wikipedia.org/wiki/Paraguay", 
+		"continent": "South America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "PE", 
+		"name": "Peru", 
+		"href": "http://en.wikipedia.org/wiki/Peru", 
+		"continent": "South America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "PH", 
+		"name": "Philippines", 
+		"href": "http://en.wikipedia.org/wiki/Philippines", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "en"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "PN", 
+		"name": "Pitcairn", 
+		"href": "http://en.wikipedia.org/wiki/Pitcairn_Islands", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "PL", 
+		"name": "Poland", 
+		"href": "http://en.wikipedia.org/wiki/Poland", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "pl"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "PT", 
+		"name": "Portugal", 
+		"href": "http://en.wikipedia.org/wiki/Portugal", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "pt"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "PR", 
+		"name": "Puerto Rico", 
+		"href": "http://en.wikipedia.org/wiki/Puerto_Rico", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "QA", 
+		"name": "Qatar", 
+		"href": "http://en.wikipedia.org/wiki/Qatar", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "RE", 
+		"name": "Réunion", 
+		"href": "http://en.wikipedia.org/wiki/R%C3%A9union", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "RO", 
+		"name": "Romania", 
+		"href": "http://en.wikipedia.org/wiki/Romania", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "ro"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "RU", 
+		"name": "Russian Federation", 
+		"href": "http://en.wikipedia.org/wiki/Russia", 
+		"languages": [
+			{
+				"_reference": "ru"
+			}, 
+			{
+				"_reference": "tt"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "RW", 
+		"name": "Rwanda", 
+		"href": "http://en.wikipedia.org/wiki/Rwanda", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "rw"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SH", 
+		"name": "Saint Helena", 
+		"href": "http://en.wikipedia.org/wiki/Saint_Helena", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "KN", 
+		"name": "Saint Kitts and Nevis", 
+		"href": "http://en.wikipedia.org/wiki/Saint_Kitts_and_Nevis", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "LC", 
+		"name": "Saint Lucia", 
+		"href": "http://en.wikipedia.org/wiki/Saint_Lucia", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "PM", 
+		"name": "Saint Pierre and Miquelon", 
+		"href": "http://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "VC", 
+		"name": "Saint Vincent and the Grenadines", 
+		"href": "http://en.wikipedia.org/wiki/Saint_Vincent_and_the_Grenadines", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "WS", 
+		"name": "Samoa", 
+		"href": "http://en.wikipedia.org/wiki/Samoa", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SM", 
+		"name": "San Marino", 
+		"href": "http://en.wikipedia.org/wiki/San_Marino", 
+		"continent": "Europe", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "ST", 
+		"name": "Sao Tome and Principe", 
+		"href": "http://en.wikipedia.org/wiki/S%C3%A3o_Tom%C3%A9_and_Pr%C3%ADncipe", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SA", 
+		"name": "Saudi Arabia", 
+		"href": "http://en.wikipedia.org/wiki/Saudi_Arabia", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SN", 
+		"name": "Senegal", 
+		"href": "http://en.wikipedia.org/wiki/Senegal", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "RS", 
+		"name": "Serbia", 
+		"href": "http://en.wikipedia.org/wiki/Serbia", 
+		"continent": "Europe", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SC", 
+		"name": "Seychelles", 
+		"href": "http://en.wikipedia.org/wiki/Seychelles", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SL", 
+		"name": "Sierra Leone", 
+		"href": "http://en.wikipedia.org/wiki/Sierra_Leone", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SG", 
+		"name": "Singapore", 
+		"href": "http://en.wikipedia.org/wiki/Singapore", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "en"
+			}, 
+			{
+				"_reference": "zh"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SK", 
+		"name": "Slovakia", 
+		"href": "http://en.wikipedia.org/wiki/Slovakia", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "sk"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SI", 
+		"name": "Slovenia", 
+		"href": "http://en.wikipedia.org/wiki/Slovenia", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "sl"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SB", 
+		"name": "Solomon Islands", 
+		"href": "http://en.wikipedia.org/wiki/Solomon_Islands", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SO", 
+		"name": "Somalia", 
+		"href": "http://en.wikipedia.org/wiki/Somalia", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "so"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "ZA", 
+		"name": "South Africa", 
+		"href": "http://en.wikipedia.org/wiki/South_Africa", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "af"
+			}, 
+			{
+				"_reference": "en"
+			}, 
+			{
+				"_reference": "nr"
+			}, 
+			{
+				"_reference": "ss"
+			}, 
+			{
+				"_reference": "st"
+			}, 
+			{
+				"_reference": "tn"
+			}, 
+			{
+				"_reference": "ts"
+			}, 
+			{
+				"_reference": "ve"
+			}, 
+			{
+				"_reference": "xh"
+			}, 
+			{
+				"_reference": "zu"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GS", 
+		"name": "South Georgia and the South Sandwich Islands", 
+		"href": "http://en.wikipedia.org/wiki/South_Georgia_and_the_South_Sandwich_Islands", 
+		"continent": "Antarctica", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "ES", 
+		"name": "Spain", 
+		"href": "http://en.wikipedia.org/wiki/Spain", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "ca"
+			}, 
+			{
+				"_reference": "es"
+			}, 
+			{
+				"_reference": "eu"
+			}, 
+			{
+				"_reference": "gl"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "LK", 
+		"name": "Sri Lanka", 
+		"href": "http://en.wikipedia.org/wiki/Sri_Lanka", 
+		"continent": "Asia", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SD", 
+		"name": "Sudan", 
+		"href": "http://en.wikipedia.org/wiki/Sudan", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SR", 
+		"name": "Suriname", 
+		"href": "http://en.wikipedia.org/wiki/Suriname", 
+		"continent": "South America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SJ", 
+		"name": "Svalbard and Jan Mayen", 
+		"href": "http://en.wikipedia.org/wiki/Svalbard_and_Jan_Mayen", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SZ", 
+		"name": "Swaziland", 
+		"href": "http://en.wikipedia.org/wiki/Swaziland", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SE", 
+		"name": "Sweden", 
+		"href": "http://en.wikipedia.org/wiki/Sweden", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "sv"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "CH", 
+		"name": "Switzerland", 
+		"href": "http://en.wikipedia.org/wiki/Switzerland", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "de"
+			}, 
+			{
+				"_reference": "fr"
+			}, 
+			{
+				"_reference": "it"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "SY", 
+		"name": "Syrian Arab Republic", 
+		"href": "http://en.wikipedia.org/wiki/Syria", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}, 
+			{
+				"_reference": "ku"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TW", 
+		"name": "Taiwan, Province of China", 
+		"href": "http://en.wikipedia.org/wiki/Republic_of_China", 
+		"languages": [
+			{
+				"_reference": "zh"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TJ", 
+		"name": "Tajikistan", 
+		"href": "http://en.wikipedia.org/wiki/Tajikistan", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "tg"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TZ", 
+		"name": "Tanzania, United Republic of", 
+		"href": "http://en.wikipedia.org/wiki/Tanzania", 
+		"languages": [
+			{
+				"_reference": "sw"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TH", 
+		"name": "Thailand", 
+		"href": "http://en.wikipedia.org/wiki/Thailand", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "th"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TL", 
+		"name": "Timor-Leste", 
+		"href": "http://en.wikipedia.org/wiki/East_Timor", 
+		"continent": "Asia", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TG", 
+		"name": "Togo", 
+		"href": "http://en.wikipedia.org/wiki/Togo", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "ee"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TK", 
+		"name": "Tokelau", 
+		"href": "http://en.wikipedia.org/wiki/Tokelau", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TO", 
+		"name": "Tonga", 
+		"href": "http://en.wikipedia.org/wiki/Tonga", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TT", 
+		"name": "Trinidad and Tobago", 
+		"href": "http://en.wikipedia.org/wiki/Trinidad_and_Tobago", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "en"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TN", 
+		"name": "Tunisia", 
+		"href": "http://en.wikipedia.org/wiki/Tunisia", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TR", 
+		"name": "Turkey", 
+		"href": "http://en.wikipedia.org/wiki/Turkey", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ku"
+			}, 
+			{
+				"_reference": "tr"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TM", 
+		"name": "Turkmenistan", 
+		"href": "http://en.wikipedia.org/wiki/Turkmenistan", 
+		"continent": "Asia", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TC", 
+		"name": "Turks and Caicos Islands", 
+		"href": "http://en.wikipedia.org/wiki/Turks_and_Caicos_Islands", 
+		"continent": "North America", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "TV", 
+		"name": "Tuvalu", 
+		"href": "http://en.wikipedia.org/wiki/Tuvalu", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "UG", 
+		"name": "Uganda", 
+		"href": "http://en.wikipedia.org/wiki/Uganda", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "UA", 
+		"name": "Ukraine", 
+		"href": "http://en.wikipedia.org/wiki/Ukraine", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "ru"
+			}, 
+			{
+				"_reference": "uk"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "AE", 
+		"name": "United Arab Emirates", 
+		"href": "http://en.wikipedia.org/wiki/United_Arab_Emirates", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "GB", 
+		"name": "United Kingdom", 
+		"href": "http://en.wikipedia.org/wiki/United_Kingdom", 
+		"continent": "Europe", 
+		"languages": [
+			{
+				"_reference": "cy"
+			}, 
+			{
+				"_reference": "en"
+			}, 
+			{
+				"_reference": "gv"
+			}, 
+			{
+				"_reference": "kw"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "US", 
+		"name": "United States", 
+		"href": "http://en.wikipedia.org/wiki/United_States", 
+		"continent": "North America", 
+		"languages": [
+			{
+				"_reference": "en"
+			}, 
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "UM", 
+		"name": "United States Minor Outlying Islands", 
+		"href": "http://en.wikipedia.org/wiki/United_States_Minor_Outlying_Islands", 
+		"languages": [
+			{
+				"_reference": "en"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "UY", 
+		"name": "Uruguay", 
+		"href": "http://en.wikipedia.org/wiki/Uruguay", 
+		"continent": "South America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "UZ", 
+		"name": "Uzbekistan", 
+		"href": "http://en.wikipedia.org/wiki/Uzbekistan", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "uz"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "VU", 
+		"name": "Vanuatu", 
+		"href": "http://en.wikipedia.org/wiki/Vanuatu", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "VE", 
+		"name": "Venezuela", 
+		"href": "http://en.wikipedia.org/wiki/Venezuela", 
+		"continent": "South America", 
+		"languages": [
+			{
+				"_reference": "es"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "VN", 
+		"name": "Viet Nam", 
+		"href": "http://en.wikipedia.org/wiki/Vietnam", 
+		"languages": [
+			{
+				"_reference": "vi"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "VG", 
+		"name": "Virgin Islands, British", 
+		"href": "http://en.wikipedia.org/wiki/British_Virgin_Islands", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "VI", 
+		"name": "Virgin Islands, U.S.", 
+		"href": "http://en.wikipedia.org/wiki/United_States_Virgin_Islands", 
+		"languages": [
+			{
+				"_reference": "en"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "WF", 
+		"name": "Wallis and Futuna", 
+		"href": "http://en.wikipedia.org/wiki/Wallis_and_Futuna", 
+		"continent": "Oceania", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "EH", 
+		"name": "Western Sahara", 
+		"href": "http://en.wikipedia.org/wiki/Western_Sahara", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "YE", 
+		"name": "Yemen", 
+		"href": "http://en.wikipedia.org/wiki/Yemen", 
+		"continent": "Asia", 
+		"languages": [
+			{
+				"_reference": "ar"
+			}
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "ZM", 
+		"name": "Zambia", 
+		"href": "http://en.wikipedia.org/wiki/Zambia", 
+		"continent": "Africa", 
+		"languages": [
+		]
+	}, 
+	{
+		"type": "country", 
+		"iso": "ZW", 
+		"name": "Zimbabwe", 
+		"href": "http://en.wikipedia.org/wiki/Zimbabwe", 
+		"continent": "Africa", 
+		"languages": [
+			{
+				"_reference": "en"
+			}
+		]
+	}
+]
+}

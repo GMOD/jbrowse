@@ -1,0 +1,477 @@
+
+body, div, dl, dt, dd, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td {
+	margin: 0;
+	padding: 0;
+}
+fieldset, img {
+	border: 0 none;
+}
+address, caption, cite, code, dfn, th, var {
+	font-style: normal; 
+	font-weight: normal;
+}
+caption, th {
+	text-align: left;
+}
+q:before, q:after {
+	content:"";
+}
+abbr, acronym {
+	border:0;
+}
+body { 
+	font: 13px Myriad,Arial,Helvetica,clean,sans-serif; 
+	*font-size: small;
+	*font: x-small;
+}
+h1 {
+	font-size: 1.5em; 
+	font-weight: normal;
+	line-height: 1em; 
+	margin-top: 1em;
+	margin-bottom:0;
+}
+h2 { 
+	font-size: 1.1667em; 
+	font-weight: bold; 
+	line-height: 1.286em; 
+	margin-top: 1.929em; 
+	margin-bottom:0.643em;
+}
+h3, h4, h5, h6 {
+	font-size: 1em; 
+	font-weight: bold; 
+	line-height: 1.5em; 
+	margin-top: 1.5em; 
+	margin-bottom: 0;
+}
+p { 
+	font-size: 1em; 
+	margin-top: 1.5em; 
+	margin-bottom: 1.5em; 
+	line-height: 1.5em;
+}
+blockquote { 
+	font-size: 0.916em; 
+	margin-top: 3.272em; 
+	margin-bottom: 3.272em; 
+	line-height: 1.636em; 
+	padding: 1.636em; 
+	border-top: 1px solid #ccc; 
+	border-bottom: 1px solid #ccc;
+}
+ol li, ul li { 
+	font-size: 1em; 
+	line-height: 1.5em; 
+	margin: 0;
+}
+pre, code { 
+	font-size:115%;
+	*font-size:100%;
+	font-family: Courier, "Courier New"; 
+	background-color: #efefef; 
+	border: 1px solid #ccc;
+}
+pre { 
+	border-width: 1px 0; 
+	padding: 1.5em;
+}
+table {  font-size:100%; }
+table.dojoTabular { 
+	border-collapse: collapse; 
+	border-spacing: 0; 
+	border: 1px solid #ccc; 
+	margin: 0 1.5em;
+}
+.dojoTabular th { 
+	text-align: center; 
+	font-weight: bold;
+}
+table.dojoTabular thead, table.dojoTabular tfoot { 
+	background-color: #efefef; 
+	border: 1px solid #ccc; 
+	border-width: 1px 0; 
+}
+table.dojoTabular thead tr th,
+table.dojoTabular thead tr td,
+table.dojoTabular tbody tr td,
+table.dojoTabular tfoot tr td { 
+	padding: 0.25em 0.5em;
+}
+body {
+	background:#fff url(../../../dijit/tests/images/testsBodyBg.gif) repeat-x top left;
+	padding:2em 2em 2em 2em;
+}
+h1.testTitle {
+	font-size:2em;
+	margin:0 0 1em 0;
+}
+.plusIcon, .plusBlockIcon {
+	background-image: url(../../../dijit/tests/images/plus.gif);
+	background-repeat: no-repeat; 
+	width: 16px;
+	height: 16px;
+}
+.plusBlockIcon {
+	display: block !important;
+}
+.noteIcon {
+	background-image: url(../../../dijit/tests/images/note.gif);
+	background-repeat: no-repeat; 
+	width: 20px;
+	height: 20px;
+}
+.flatScreenIcon {
+	background-image: url(../../../dijit/tests/images/flatScreen.gif);
+	background-repeat: no-repeat; 
+	width: 32px;
+	height: 32px;
+}
+.dijitTestNodeDialog {
+	position:absolute;
+	top:5px;
+	right:5px;
+	display:block;
+	width:200px;
+	visibility:hidden;
+	background-color:#fff !important;
+	color:#000 !important; 
+	border:1px solid #000;
+	padding:5px; 
+}
+.dijitTestNodeDialog table {
+	background-color:#fff !important;
+}
+.dijitTestNodeDialog td {
+	padding:3px; 
+}
+.dijitTestNodeShowing {
+	visibility:visible; 
+}
+.customFolderOpenedIcon, .customFolderClosedIcon {
+	background-image: url(../../../dijit/tests/../demos/mail/icons.png); 
+	background-repeat: no-repeat;
+	width: 16px;
+	height: 16px;
+	text-align: center;
+	padding-right:4px;
+    background-position: -44px;
+}
+.dj_ie6 .customFolderOpenedIcon, .dj_ie6 .customFolderClosedIcon {
+	background-image: url(../../../dijit/tests/../demos/mail/icons.gif);
+}
+.customFolderClosedIcon {
+    background-position: -154px;
+}
+body .medium {
+        font-size: larger; 
+}
+.dojoxFloatingPane {
+	background-color:#fff;
+	position:relative; 
+	border: 1px solid #dedede; 
+	overflow: hidden;
+	-webkit-box-shadow: 0px 5px 10px #adadad;
+}
+.dojoxFloatingPaneFg {
+	-webkit-box-shadow: 0px 8px 20px #525252;
+}
+.dojoxFloatingPaneTitle {
+	background: #cccccc;
+	background:#fafafa repeat-x bottom left;
+	border:1px solid #bfbfbf;
+	padding:4px 4px 2px 4px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+.soria .dojoxFloatingPaneTitle {
+	background:#fff url(../../../dijit/themes/soria/images/titleBar.png) repeat-x top left;
+	border:1px solid #b1badf;
+	font-size: 0.9em;
+	font-weight: bold;
+	line-height:1.2em;
+}
+.tundra .dojoxFloatingPaneTitle {
+	background:#fafafa url(../../../dijit/themes/tundra/images/titleBarBg.gif) repeat-x bottom left;
+	border:1px solid #bfbfbf;
+	color:#000; 	
+}
+.dojoxFloatingCloseIcon {
+	background:url(../resources/icons/tabClose.png) no-repeat center center; 
+	width:16px;
+	height:16px; 
+	overflow:hidden;
+	float:right; 
+}
+.dojoxFloatingMinimizeIcon {
+	background:url(../../../dijit/themes/tundra/images/arrowDown.png) no-repeat center center; 
+	width:16px;
+	height:16px; 
+	overflow:hidden;
+	float:right; 
+}
+.soria .dojoxFloatingMinimizeIcon {
+		background:url(../../../dijit/themes/soria/images/spriteRoundedIconsSmallBl.png) no-repeat -15px top;
+}
+.floatingPaneMaximized .dojoxFloatingMaximizeIcon { display:none; }
+.dojoxFloatingMaximizeIcon {
+	background:url(../../../dijit/themes/tundra/images/arrowUp.png) no-repeat center center;
+	width:16px;
+	height:16px;
+	overflow:hidden;
+	float:right;	
+}
+.soria .dojoxFloatingMaximizeIcon {
+	background:url(../../../dijit/themes/soria/images/spriteRoundedIconsSmallBl.png) no-repeat -45px top;
+}
+.floatingPaneMaximized .dojoxFloatingRestoreIcon { display:inline; }
+.dojoxFloatingRestoreIcon {
+	background:url(../../../dijit/themes/tundra/images/arrowDown.png) no-repeat center center;
+	width:16px; height:16px;
+	overflow:hidden; 
+	float:right;
+	display:none;
+}
+.dojoxFloatingResizeHandle {
+	background:url(../resources/icons/resize.png) no-repeat bottom right;
+	position:absolute; 
+	right:0; 
+	bottom:0; 	
+	width:16px;
+	height:16px; 
+	cursor:nw-resize;
+}
+.dojoxFloatingCloseIcon {
+	width:15px;
+	height:15px; 
+	overflow:hidden;
+	float:right; 
+	cursor:pointer;
+}
+.soria .dojoxFloatingCloseIcon {
+	background:url(../../../dijit/themes/soria/images/spriteRoundedIconsSmallBl.png) no-repeat -60px top;
+}
+.tundra .dojoxFloatingCloseIcon {
+	background:url(../../../dijit/themes/tundra/images/tabClose.png) no-repeat center center; 	
+}
+.dojoxFloatingDockDefault {
+	position:absolute;
+	bottom:0px;
+	left:0px;
+	overflow:hidden; 
+	margin:0;
+	margin-bottom:3px; 
+	padding:0px; 
+	width:100%;
+	z-index:99; 
+	background:transparent;
+	
+}
+.dojoxDockList {
+	padding: 0px;
+	margin: 0px;
+}
+.dojoxDockRestoreButton {
+	background:url(../../../dijit/themes/tundra/images/arrowUp.png) no-repeat center center;
+	width:16px; height:16px;
+	overflow:hidden; 
+	float:left;
+	margin-top:2px; 
+}
+.soria .dojoxDockRestoreButton {
+	background:url(../../../dijit/themes/soria/images/spriteRoundedIconsSmallBl.png) no-repeat -45px top;
+}
+.dojoxDockTitleNode {
+	overflow:hidden;
+}
+.dojoxDock {
+	display: block;
+	border: 1px solid black;
+	position: absolute;
+	padding:0;
+	margin:0;
+	background:#fcfcfc;
+}
+.dojoxDockNode {
+	border: 1px solid #adadad;
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 3px;
+	cursor:pointer; 
+	list-style: none;
+	padding: 2px;
+	margin: 0px;
+	height: 16px;
+	width: auto;
+	float: left;
+	background: #fafafa url(../resources/images/floatTitleBarBg.gif) repeat-x bottom left;
+}
+.soria .dojoxDockNode {
+	background:#b7cdee url(../../../dijit/themes/soria/images/titleBar.png) repeat-x;
+}
+.dojoxFloatingPaneContent {
+	overflow: auto;
+	background-color: #fff; 
+	height: 100%; 
+	width:	100%; 
+}
+.dojoxFloatingPaneCanvas {
+	background-color:#fff;
+}
+.dojoxExpandoPane {
+	overflow:hidden;
+	margin-top:1px;
+	border-top:1px solid #ccc;
+	z-index:440;
+	background:#fff;
+}
+.dojoxExpandoPane .dojoxExpandoWrapper {
+	overflow:hidden;
+}
+.dojoxExpandoIcon {
+	width:14px;
+	cursor:pointer;
+	background-position:-60px 0px;
+	height:14px;
+}
+.soria .dojoxExpandoIcon {
+	background: url(../../../dijit/themes/soria/images/spriteRoundedIconsSmall.png) no-repeat center center;
+}
+.tundra .dojoxExpandoLeft .dojoxExpandoIcon,
+.nihilo .dojoxExpandoLeft .dojoxExpandoIcon {
+	
+	background: url(../../../dijit/themes/tundra/images/minusButton.gif) no-repeat;
+}
+.tundra .dojoxExpandoRight .dojoxExpandoIcon,
+.nihilo .dojoxExpandoRight .dojoxExpandoIcon {
+	
+	background: url(../../../dijit/themes/tundra/images/minusButton.gif) no-repeat;
+}
+.tundra .dojoxExpandoClosed .dojoxExpandoIcon {
+	background: url(../../../dijit/themes/tundra/images/plusButton.gif) no-repeat;
+}
+.dojoxExpandoClosed .dojoxExpandoIcon {
+	background-position: 0px 0px;
+}
+.dojoxExpandoClosed .dojoxExpandoTitleNode {
+	visibility:hidden;
+}
+.dojoxExpandoTitleNode {
+	padding-right:6px; padding-left:6px;
+}
+.dojoxExpandoClosed .dijitContentPane {
+	overflow: hidden;
+}
+.dojoxExpandoIcon .a11yNode {
+	display:none;
+	visibility:hidden;
+}
+.dojoxExpandoBottom .dojoxExpandoIcon,
+.dojoxExpandoTop .dojoxExpandoIcon,
+.dojoxExpandoLeft .dojoxExpandoIcon {
+	float:right;
+}
+.dojoxExpandoRight .dojoxExpandoIcon {
+	float:left;
+}
+.nihilo .dojoxExpandoTitle {
+	height:18px;
+	font-size:0.9em;
+	font-weight:bold;
+	padding:3px;
+	padding-top:7px;
+	padding-bottom:7px;
+	background:#fafafa url(../../../dijit/themes/nihilo/images/tabStripe.gif) repeat-x left bottom;
+	
+}
+.nihilo .dojoxExpandoTop {
+	border-bottom:1px solid #ccc;
+	border-left:1px solid #ccc;
+	border-right:1px solid #ccc; 
+}
+.soria .dojoxExpandoTop {
+	
+}
+.soria .dojoxExpandoTitle {
+	height:18px;
+	font-size:0.9em;
+	font-weight:bold;
+	padding:3px;
+	padding-top:7px;
+	padding-bottom:7px;
+	background:#f0f4fc url(../../../dijit/themes/soria/images/tabStripe.gif) repeat-x left bottom; 
+}
+.tundra .dojoxExpandoTitle {
+	font-size: 0.9em;
+	font-weight: bold;
+	padding: 3px;
+	padding-top: 7px;
+	padding-bottom: 7px;
+	background: #fafafa url(../../../dijit/themes/tundra/images/accordionItemActive.gif) repeat-x scroll left bottom;
+}
+.tundra .dojoxExpandoClosed {
+	
+	background-color: #fafafa;
+}
+.tundra .dojoxExpandoClosed .dojoxExpandoTitle {
+	background-image: none;
+	background-color: transparent;
+}
+body, html {
+	margin:0;
+	padding:0;
+	width:100%;
+	height:100%;
+	background: #fafafa;
+	overflow: hidden;
+}  
+.wrap {
+	margin: 0;
+	padding: 15px;
+}
+.wrap h3 {
+	margin-top: 5px;
+}
+#header {
+	height:32px;
+}
+.searchBar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 25px;
+	border-bottom: 1px solid #666;
+	background: #fafafa;
+}
+.searchBar p {
+	margin: 0;
+	padding: 2px; 
+}
+.searchStuff {
+	position: absolute;
+	top: 25px;
+	margin: 0 auto;
+}
+.searchStuff ul {
+	width: auto;
+	margin: 0 auto;
+	padding: 0;
+}
+div.itty {
+	font-weight: normal;
+	font: 8pt Arial,sans-serif;
+	color:#666;
+	padding:5px;
+	padding-left:10px;
+}
+div.itty:hover {
+	color:#333;
+}
+.itemType {
+	font-style:italic;
+	font-size:12pt;
+}
+#runSearchIcon {
+	border:1px solid #000;
+}

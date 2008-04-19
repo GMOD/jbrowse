@@ -1,0 +1,9 @@
+[
+{ type: "continent", name: "Africa", iso: "Africa" },
+{ type: "continent", name: "Asia", iso: "Asia" },
+{ type: "continent", name: "Europe", iso: "Europe" },
+{ type: "continent", name: "North America", iso: "North America" },
+{ type: "continent", name: "South America", iso: "South America" },
+{ type: "continent", name: "Oceania", iso: "Oceania" },
+{ type: "continent", name: "Antarctica", iso: "Antarctica" }
+]

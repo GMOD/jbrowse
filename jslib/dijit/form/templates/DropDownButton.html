@@ -1,0 +1,13 @@
+<div class="dijit dijitReset dijitLeft dijitInline"
+	dojoAttachEvent="onmouseenter:_onMouse,onmouseleave:_onMouse,onmousedown:_onMouse,onclick:_onDropDownClick,onkeydown:_onDropDownKeydown,onblur:_onDropDownBlur,onkeypress:_onKey"
+	waiRole="presentation"
+	><div class='dijitReset dijitRight' waiRole="presentation"
+	><button class="dijitReset dijitStretch dijitButtonNode dijitButtonContents" type="${type}"
+		dojoAttachPoint="focusNode,titleNode" waiRole="button" waiState="haspopup-true,labelledby-${id}_label"
+		><div class="dijitReset dijitInline ${iconClass}" dojoAttachPoint="iconNode" waiRole="presentation"></div
+		><div class="dijitReset dijitInline dijitButtonText"  dojoAttachPoint="containerNode,popupStateNode" waiRole="presentation"
+			id="${id}_label">${label}</div
+		><div class="dijitReset dijitInline dijitArrowButtonInner" waiRole="presentation">&thinsp;</div
+		><div class="dijitReset dijitInline dijitArrowButtonChar" waiRole="presentation">&#9660;</div
+	></button
+></div></div>

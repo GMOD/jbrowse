@@ -1,0 +1,40 @@
+-------------------------------------------------------------------------------
+DojoX Audio/Video
+-------------------------------------------------------------------------------
+Version 0.1
+Release date: 01/15/2008
+-------------------------------------------------------------------------------
+Project state:
+experimental
+-------------------------------------------------------------------------------
+Credits
+	Tom Trenka (ttrenka AT gmail.com)
+-------------------------------------------------------------------------------
+Project description
+
+DojoX A/V aims to bring audio and video capabilities to the Open Web, first
+by wrapping common media types (Flash and Quicktime) and then by providing
+easy to use objects to accomplish basic A/V tasks.  As of version 0.1, only
+the base is included (Flash and Quicktime embedding mechanisms); in the near
+future, usable objects will appear, both in raw programmatic form and also with
+Dijit-compatible wrappers.
+-------------------------------------------------------------------------------
+Dependencies:
+
+DojoX A/V has no dependencies outside of the Dojo Base.
+-------------------------------------------------------------------------------
+Documentation
+
+TBD.
+-------------------------------------------------------------------------------
+Installation instructions
+
+Grab the following from the Dojo SVN Repository:
+http://svn.dojotoolkit.org/var/src/dojo/dojox/trunk/av.js
+http://svn.dojotoolkit.org/var/src/dojo/dojox/trunk/av/*
+
+Install into the following directory structure:
+/dojox/av/
+
+...which should be at the same level as your Dojo checkout.
+-------------------------------------------------------------------------------

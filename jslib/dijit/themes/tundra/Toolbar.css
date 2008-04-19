@@ -1,0 +1,83 @@
+.tundra .dijitToolbar {
+	padding: 3px 0 1px 3px;	
+	border-bottom: 1px solid #ccc;
+	background:#eaeaea url("images/titleBar.png") repeat-x top left;
+}
+.tundra .dijitToolbar .dijitButtonNode {
+	background: none;
+	margin: 0px !important;
+	padding: 0px !important;	
+	border: none;
+	font-size: 12px;
+}
+.tundra .dijitToolbar .dijitButton,
+.tundra .dijitToolbar .dijitToggleButton,
+.tundra .dijitToolbar .dijitDropDownButton {
+	background: none;
+	margin: 1px;
+	padding: 0px;	
+	border: 1px solid transparent;
+}
+.tundra .dijitToolbar .dijitButtonChecked,
+.tundra .dijitToolbar .dijitToggleButtonChecked {
+	background-color:#d4dff2;
+	border:1px solid #316ac5;
+	margin: 1px !important;
+	padding: 0px !important;
+}
+.tundra .dijitToolbar .dijitButtonCheckedHover,
+.tundra .dijitToolbar .dijitToggleButtonCheckedHover
+ {
+	background-color:#abc1e5;
+	border:1px solid #316ac5;
+	margin: 1px !important;
+	padding: 0px !important;
+}
+.tundra .dijitToolbar .dijitButtonHover,
+.tundra .dijitToolbar .dijitToggleButtonHover,
+.tundra .dijitToolbar .dijitDropDownButtonHover {
+	
+	border: 1px solid #316ac5;
+	background-color:#abc1e5;
+}
+.tundra .dijitToolbar label {	
+	padding: 3px 3px 0 6px;
+}
+.dj_ie .tundra .dijitToolbar .dijitComboButton .dijitButtonContentsFocused,
+.dj_ie .tundra .dijitToolbar .dijitComboButton .dijitDownArrowButtonFocused,
+.dj_ff2 .tundra.dijitToolbar .dijitComboButton .dijitButtonContentsFocused,
+.dj_ff2 .tundra .dijitToolbar .dijitComboButton .dijitDownArrowButtonFocused {
+	border: 1px black dotted !important;	
+}
+.dj_ie6 .tundra .dijitToolbar .dijitButton,
+.dj_ie6 .tundra .dijitToolbar .dijitToggleButton,
+.dj_ie6 .tundra .dijitToolbar .dijitDropDownButton {
+	
+	margin: 2px;
+	padding: 0px 2px;
+	border: 0px;
+}
+.dj_ie6 .tundra .dijitToolbar .dijitButtonChecked,
+.dj_ie6 .tundra .dijitToolbar .dijitToggleButtonChecked,
+.dj_ie6 .tundra .dijitToolbar .dijitDropDownButtonChecked {
+	background-color:#c1d2ee;
+	border:1px solid #316ac5;
+	margin: 1px !important;
+	padding: 0px 2px !important;
+}
+.dj_ie6 .tundra .dijitToolbar .dijitButtonCheckedHover,
+.dj_ie6 .tundra .dijitToolbar .dijitToggleButtonCheckedHover,
+.dj_ie6 .tundra .dijitToolbar .dijitDropDownButtonCheckedHover {
+	background-color:#c1d2ee;
+	border:1px solid #316ac5;
+	margin: 1px !important;
+	padding: 0px 2px !important;
+}
+.dj_ie6 .tundra .dijitToolbar .dijitButtonHover,
+.dj_ie6 .tundra .dijitToolbar .dijitToggleButtonHover,
+.dj_ie6 .tundra .dijitToolbar .dijitDropDownButtonHover  {
+	background-color:#c1d2ee;
+	border:1px solid #316ac5;
+	margin: 1px !important;
+	padding: 0px 2px !important;
+}

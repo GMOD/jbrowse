@@ -1,0 +1,83 @@
+<html>
+<head>
+    <title>Cometd chat / Operator Page</title>
+    <script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug:true, parseOnLoad:false"></script>
+    <script type="text/javascript" src="room.js"></script>
+    <script type="text/javascript">
+		dojo.require("dijit.layout.TabContainer");
+		dojo.require("dijit.layout.ContentPane"); 
+		dojo.require("dojo.parser");
+			var control = {
+				_chats: {},
+				_getAlert: function(e){
+					console.log(e); 
+					if (!this._chats[(e.data.user)] && (operator != e.data.user)){
+						dojox.cometd.subscribe("/chat/demo/"+e.data.joined,this,"_privateChat");
+	
+						var tabNode = document.createElement('div');
+						tabNode.id = "chatWith" + e.data.user; 
+						var chatNode = document.createElement('div');
+						chatNode.id = e.data.user + "Widget";
+						tabNode.appendChild(chatNode);
+						var newTab = new dijit.layout.ContentPane({
+							title: e.data.user,
+							closable: true
+						},tabNode);
+						dijit.byId('tabView').addChild(newTab);
+						var chat = new dijit.demos.chat.Room({
+							roomId: e.data.joined,
+							registeredAs: operator
+						},chatNode);
+						chat.startup();
+						this._chats[(e.data.user)]=true;
+					}
+				},
+
+				_privateChat: function(e){
+					var thisChat = dijit.byId(e.data.user+"Widget") || false;
+					if (thisChat) { /* thisChat._chat(e); */}
+				}
+			};
+
+			dojo.addOnLoad(function(){ 
+				dojo.parser.parse(dojo.body());
+	
+				dojox.cometd.init("http://comet.sitepen.com:9190/cometd"); 
+				dojox.cometd.subscribe("/chat/demo",control,"_getAlert");
+
+			});
+
+			var operator; 
+			function registerOperator(){
+				operator = dojo.byId('opName').value;
+				dojo.byId('login').style.display = "none";
+				dojo.byId('status').innerHTML = "You are: <b>"+operator+"</b>"; 
+			}
+
+    </script>
+	<style type="text/css">
+		@import "chat.css";
+		@import "../../tests/css/dijitTests.css"; 
+		@import "../../themes/tundra/tundra.css";
+		#status { position:absolute; top:5px; right:25px; } 
+	</style>
+</head>
+<body class="tundra">
+
+<h1 class="testTitle">Tech Support Operator Page:</h1>
+
+<div id="tabView" dojoType="dijit.layout.TabContainer" style="width:100%; height:75%; ">
+
+	<div dojoType="dijit.layout.ContentPane" title="Home" style="padding:8px;" >
+		<h3>Welcome Operator</h3>
+		<p>It is your job to respond to incoming Support Requests. Sit here, and watch the screen.</p>
+		<p id="login">Please Login as an operator:
+		<br><br>
+		Name: <input type="text" name="username" id="opName" value="" /> <input type="submit" value="login" onclick="registerOperator()"/>	
+		</p>
+	</div><!-- home tab -->
+
+</div><!-- tabContainer -->
+<div id="status"></div>
+</body>
+</html>

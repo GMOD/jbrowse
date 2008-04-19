@@ -1,0 +1,83 @@
+.soria .dijitToolbar {
+	padding: 3px 0 1px 3px;	
+	border-bottom: 1px solid #ccc;
+	background:#eaeaea url("images/titleBar.png") repeat-x top left;
+}
+.soria .dijitToolbar .dijitButtonNode {
+	background: none;
+	margin: 0px !important;
+	padding: 0px !important;	
+	border: none;
+	font-size: 12px;
+}
+.soria .dijitToolbar .dijitButton,
+.soria .dijitToolbar .dijitToggleButton,
+.soria .dijitToolbar .dijitDropDownButton {
+	background: none;
+	margin: 1px;
+	padding: 0px;	
+	border: 1px solid transparent;
+}
+.soria .dijitToolbar .dijitButtonChecked,
+.soria .dijitToolbar .dijitToggleButtonChecked {
+	background-color:#d8e5f8;
+	border:1px solid #316ac5;
+	margin: 1px !important;
+	padding: 0px !important;
+}
+.soria .dijitToolbar .dijitButtonCheckedHover,
+.soria .dijitToolbar .dijitToggleButtonCheckedHover
+ {
+	background-color:#9abbea;
+	border:1px solid #316ac5;
+	margin: 1px !important;
+	padding: 0px !important;
+}
+.soria .dijitToolbar .dijitButtonHover,
+.soria .dijitToolbar .dijitToggleButtonHover,
+.soria .dijitToolbar .dijitDropDownButtonHover {
+	
+	border: 1px solid #316ac5;
+	background-color:#9abbea;
+}
+.soria .dijitToolbar label {	
+	padding: 3px 3px 0 6px;
+}
+.dj_ie .soria .dijitToolbar .dijitComboButton .dijitButtonContentsFocused,
+.dj_ie .soria .dijitToolbar .dijitComboButton .dijitDownArrowButtonFocused,
+.dj_ff2 .soria.dijitToolbar .dijitComboButton .dijitButtonContentsFocused,
+.dj_ff2 .soria .dijitToolbar .dijitComboButton .dijitDownArrowButtonFocused {
+	border: 1px black dotted !important;	
+}
+.dj_ie6 .soria .dijitToolbar .dijitButton,
+.dj_ie6 .soria .dijitToolbar .dijitToggleButton,
+.dj_ie6 .soria .dijitToolbar .dijitDropDownButton {
+	
+	margin: 2px;
+	padding: 0px 2px;
+	border: 0px;
+}
+.dj_ie6 .soria .dijitToolbar .dijitButtonChecked,
+.dj_ie6 .soria .dijitToolbar .dijitToggleButtonChecked,
+.dj_ie6 .soria .dijitToolbar .dijitDropDownButtonChecked {
+	background-color:#d8e5f8;
+	border:1px solid #316ac5;
+	margin: 1px !important;
+	padding: 0px 2px !important;
+}
+.dj_ie6 .soria .dijitToolbar .dijitButtonCheckedHover,
+.dj_ie6 .soria .dijitToolbar .dijitToggleButtonCheckedHover,
+.dj_ie6 .soria .dijitToolbar .dijitDropDownButtonCheckedHover {
+	background-color:#9abbea;
+	border:1px solid #316ac5;
+	margin: 1px !important;
+	padding: 0px 2px !important;
+}
+.dj_ie6 .soria .dijitToolbar .dijitButtonHover,
+.dj_ie6 .soria .dijitToolbar .dijitToggleButtonHover,
+.dj_ie6 .soria .dijitToolbar .dijitDropDownButtonHover  {
+	background-color:#9abbea;
+	border:1px solid #316ac5;
+	margin: 1px !important;
+	padding: 0px 2px !important;
+}

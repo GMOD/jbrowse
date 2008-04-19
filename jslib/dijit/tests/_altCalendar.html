@@ -1,0 +1,36 @@
+<table cellspacing="0" cellpadding="0" class="dijitCalendarContainer">
+	<thead>
+		<tr class="dijitReset dijitCalendarMonthContainer" valign="top">
+			<th><span class='dijitReset' dojoAttachPoint="decrementMonth">
+				<span class="dijitInline dijitCalendarIncrementControl dijitCalendarDecrease"><span dojoAttachPoint="decreaseArrowNode" class="dijitA11ySideArrow dijitCalendarIncrementControl dijitCalendarDecreaseInner">-</span></span>
+			</span>
+			<span class='dijitReset' dojoAttachEvent="onclick:goToToday">&#9642;</span>
+			<span class='dijitReset' dojoAttachPoint="incrementMonth">
+				<div class="dijitInline dijitCalendarIncrementControl dijitCalendarIncrease"><span dojoAttachPoint="increaseArrowNode" class="dijitA11ySideArrow dijitCalendarIncrementControl dijitCalendarIncreaseInner">+</span></div>
+			</span></th>
+			<th class='dijitReset' colspan="6">
+				<div dojoAttachPoint="monthLabelSpacer" class="dijitCalendarMonthLabelSpacer"></div>
+				<div dojoAttachPoint="monthLabelNode" class="dijitCalendarMonth"></div>
+			</th>
+		</tr>
+		<tr>
+			<th class="dijitReset dijitCalendarDayLabelTemplate"><span class="dijitCalendarDayLabel"></span></th>
+		</tr>
+	</thead>
+	<tbody dojoAttachEvent="onclick: _onDayClick" class="dijitReset dijitCalendarBodyContainer">
+		<tr class="dijitReset dijitCalendarWeekTemplate">
+			<td class="dijitReset dijitCalendarDateTemplate"><span class="dijitCalendarDateLabel"></span><span class="dijitCalendarDateDescription"></span></td>
+		</tr>
+	</tbody>
+	<tfoot class="dijitReset dijitCalendarYearContainer">
+		<tr>
+			<td class='dijitReset' valign="top" colspan="7">
+				<h3 class="dijitCalendarYearLabel">
+					<span dojoAttachPoint="previousYearLabelNode" class="dijitInline dijitCalendarPreviousYear"></span>
+					&#171;<span dojoAttachPoint="currentYearLabelNode" class="dijitInline dijitCalendarSelectedYear"></span>&#187;
+					<span dojoAttachPoint="nextYearLabelNode" class="dijitInline dijitCalendarNextYear"></span>
+				</h3>
+			</td>
+		</tr>
+	</tfoot>
+</table>	

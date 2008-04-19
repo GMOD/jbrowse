@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+		"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>Dojo Spinner Widget Test</title>
+
+		<style type="text/css">
+			@import "../../../dojo/resources/dojo.css";
+			@import "../css/dijitTests.css";
+			.dj_ie INPUT#integerspinner2 { font-family: Courier; } /* help IE with font inheritance */
+		</style>
+
+		<script type="text/javascript" src="../../../dojo/dojo.js"
+			djConfig="isDebug: true, parseOnLoad: true, extraLocale: ['de-de', 'en-us']"></script>
+		<script type="text/javascript" src="../_testCommon.js"></script>
+
+		<script type="text/javascript">
+			dojo.require("dijit.form.NumberSpinner");
+			dojo.require("dojo.parser"); // scan page for widgets
+		</script>
+	</head>
+
+	<body>
+	<h1 class="testTitle">Dijit Spinner Test</h1>
+		Try typing values, and use the up/down arrow keys and/or the arrow push
+		buttons to spin
+		<br>
+	<form id="form1" action="" name="example" method="post">
+		<h1>number spinner</h1>
+		<br>
+		initial value=900, no delta specified, no min specified, max=1550, onChange captured<br>
+		<label for="integerspinner1">Spinbox #1: </label><br>
+		<input dojoType="dijit.form.NumberSpinner"
+			onChange="dojo.byId('oc1').value=arguments[0]"
+			value="900"
+			class="medium"
+			constraints="{max:1550,places:0}"
+			name="integerspinner1"
+			id="integerspinner1">
+		onChange:<input id="oc1" disabled value="not fired yet!" autocomplete="off">
+		<br>
+		<br>
+		initial value=1000, delta=10, min=9 max=1550<br>
+		<label for="integerspinner2">Spinbox with custom styling (width=50%, 200% Courier font): </label>
+		<input dojoType="dijit.form.NumberSpinner"
+			style="font-size:200%;font-family:Courier;border:1px solid blue;width:50%;"
+			value="1000"
+			smallDelta="10"
+			constraints="{min:9,max:1550,places:0}"
+			name="integerspinner2"
+			id="integerspinner2">
+		<br>
+		<br>
+		<label for="integertextbox3">Spinner line break test: </label>initial value not specified, delta not specified, min not specified, max not specified, signed not specified, separator not specified<br>
+		[verify no line break just after this text]
+		<input dojoType="dijit.form.NumberSpinner" name="integertextbox3" id="integertextbox3">
+		[verify no line break just before this text]
+		<br>
+		<br>
+		Move the cursor left and right within the input field to see the effect on the spinner.
+		<br>
+		initial value=+1.0, delta=0.1, min=-10.9, max=155, places=1, maxLength=20<br>
+		<label for="realspinner1">Real Number Spinbox #1: </label><br>
+		<input dojoType="dijit.form.NumberSpinner"
+			value="1.0"
+			smallDelta="0.1"
+			constraints={min:-10.9,max:155,places:1,round:true}
+			maxLength="20"
+			name="realspinner1"
+			id="realspinner1">
+		<br>
+
+<script>
+		function displayData() {
+				var f = document.getElementById("form1");
+				var s = "";
+				for (var i = 0; i < f.elements.length; i++) {
+						var elem = f.elements[i];
+						if (elem.name == "button")  { continue; }
+						s += elem.name + ": " + elem.value + "\n";
+				}
+				alert(s);
+		}
+</script>
+		<div>
+			<button name="button" onclick="displayData(); return false;">view data</button>
+			<input type="submit" name="submit" />
+		</div>
+
+	</form>
+	</body>
+</html>

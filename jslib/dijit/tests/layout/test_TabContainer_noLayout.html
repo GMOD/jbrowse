@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+		"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>TabContainer doLayout=false Demo</title>
+
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../css/dijitTests.css";
+
+		body {
+			font-family : sans-serif;
+			margin:20px;
+		}
+
+		/* add padding to each contentpane inside the tab container, and scrollbar if necessary */
+		.dojoTabPane {
+			padding : 10px 10px 10px 10px;
+			overflow: auto;
+		}
+	</style>
+	
+	<script type="text/javascript" src="../../../dojo/dojo.js"
+		djConfig="isDebug: true, parseOnLoad: true"></script>
+	<script type="text/javascript" src="../_testCommon.js"></script>
+
+	<script type="text/javascript">
+		dojo.require("dijit.layout.ContentPane");
+		dojo.require("dijit.layout.TabContainer");
+		dojo.require("dijit.Tooltip");
+		dojo.require("dijit.form.Button");
+		dojo.require("dijit.layout.LinkPane");
+		dojo.require("dojo.parser");	// scan page for widgets and instantiate them
+
+		function testClose(pane,tab){
+		  return confirm("Please confirm that you want tab "+tab.title+" closed");
+		}
+	</script>
+</head>
+<body>
+
+	<h1 class="testTitle">Dijit layout.TabContainer doLayout=false tests</h1>
+
+	<p>
+	This tests tabs in doLayout=false mode, in which case the tab container's height ==
+	the height of the currently selected tab.
+	</p>
+	<p>With doLayout=false mode tabs to the left or right are not supported and tabs at the bottom are a bit buggy in FireFox.
+	</p>
+
+
+	<!-- 1ST TABCONTAINER -->
+
+	<div id="mainTabContainer" dojoType="dijit.layout.TabContainer" doLayout="false">
+	
+		<div id="tab1" dojoType="dijit.layout.ContentPane" href="tab1.html" title="Tab 1"></div>
+
+		<div id="tab2" dojoType="dijit.layout.ContentPane" href="tab2.html" refreshOnShow="true" title="Tab 2" selected="true"></div>
+
+		<div dojoType="dijit.layout.ContentPane" title="Tab 3">
+			<h1>I am tab 3</h1>
+			<p>And I was already part of the page! That's cool, no?</p>
+			<span id="foo">tooltip on this span</span>
+			<div dojoType="dijit.Tooltip" connectId="foo">I'm a tooltip!</div>
+			<button dojoType="dijit.form.Button">I'm a button </button>
+			<br>
+			<button dojoType="dijit.form.Button">So am I!</button>
+			<p>
+			Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean
+			semper sagittis velit. Cras in mi. Duis porta mauris ut ligula. Proin
+			porta rutrum lacus. Etiam consequat scelerisque quam. Nulla facilisi.
+			Maecenas luctus venenatis nulla. In sit amet dui non mi semper iaculis.
+			Sed molestie tortor at ipsum. Morbi dictum rutrum magna. Sed vitae
+			risus.
+			</p>
+			<p>Aliquam vitae enim. Duis scelerisque metus auctor est venenatis
+			imperdiet. Fusce dignissim porta augue. Nulla vestibulum. Integer lorem
+			nunc, ullamcorper a, commodo ac, malesuada sed, dolor. Aenean id mi in
+			massa bibendum suscipit. Integer eros. Nullam suscipit mauris. In
+			pellentesque. Mauris ipsum est, pharetra semper, pharetra in, viverra
+			quis, tellus. Etiam purus. Quisque egestas, tortor ac cursus lacinia,
+			felis leo adipiscing nisi, et rhoncus elit dolor eget eros. Fusce ut
+			quam. Suspendisse eleifend leo vitae ligula. Nulla facilisi. Nulla
+			rutrum, erat vitae lacinia dictum, pede purus imperdiet lacus, ut
+			semper velit ante id metus. Praesent massa dolor, porttitor sed,
+			pulvinar in, consequat ut, leo. Nullam nec est. Aenean id risus blandit
+			tortor pharetra congue. Suspendisse pulvinar.
+			</p>
+		</div>
+
+		<div dojoType="dijit.layout.TabContainer" title="Inlined Sub TabContainer">	
+			<a dojoType="dijit.layout.LinkPane" href="tab1.html">SubTab 1</a>		
+			<a dojoType="dijit.layout.LinkPane" href="tab2.html" selected="true">SubTab 2</a>
+		</div>
+
+		<a dojoType="dijit.layout.LinkPane" href="tab3.html">Sub TabContainer from href</a>	
+	</div>
+
+	<p>
+	Some text here.  This should appear directly below the TabContainer,
+	and the position will change based on the current height of the TabContainer.
+	</p>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>Dojo Globalization Hello World</title>
+
+		<script language="JavaScript" type="text/javascript">
+			// set the global locale for Dojo from the request parameter
+			var result = location.href.match(/[\?\&]locale=([^\&]+)/);
+			djConfig = {locale: result && result[1] || "en-us"}; // default locale is en-us
+	 	</script>
+
+		<script type="text/javascript" isDebug="true" src="../../dojo/dojo.js"></script>
+	
+		<style type="text/css">
+	 		@import "../../dojo/resources/dojo.css";
+			@import "../themes/tundra/tundra.css";
+			@import "../themes/tundra/tundra_rtl.css";
+
+			body {padding:1em}
+		</style>
+
+		<script language="JavaScript" type="text/javascript">
+			dojo.require("dojo.date.locale");
+			dojo.require("dojo.number");
+			dojo.require("dojo.string");
+			dojo.require("dojo.parser");
+			dojo.require("dijit.form.DateTextBox");
+
+			// load the resource bundle for HelloWorld
+			dojo.requireLocalization("dijit.demos.nihao", "helloworld");
+
+			var resourceBundle;
+
+			dojo.addOnLoad(function(){
+				// create the DateTextBox from the HTML segment with the dojoType set
+				dojo.parser.parse();
+			
+				// make current locale selected
+				dojo.byId('langList').value = dojo.locale;
+
+				// get the resource bundle object of the current global locale
+				resourceBundle = dojo.i18n.getLocalization("dijit.demos.nihao", "helloworld");
+
+				// do formatting and update the resource strings
+				dojo.byId('locale').innerHTML = resourceBundle.localeSelect;
+				dojo.byId('content').innerHTML = dojo.string.substitute(
+					resourceBundle.contentStr,
+					[dojo.date.locale.format(new Date(), {selector:'date', formatLength:'long'})]);
+				dojo.byId('date').innerHTML = resourceBundle.dateSelect;
+
+				dateChanged();
+			});
+
+			function localeChanged(){
+				open("nihao.html?locale=" + dojo.byId("langList").value, "_self");
+			}
+		
+			function dateChanged(){
+				if(resourceBundle){
+					var stamp = dijit.byId("dateBox").getValue();
+					if(stamp){
+						dojo.byId('secondsToGo').innerHTML = dojo.string.substitute(
+							resourceBundle.dateStr,
+							[dojo.number.format((stamp - new Date()) / 1000)]);
+					}
+				}
+			}
+		</script>
+	</head>
+
+	<body class="tundra">
+		<h1>Dojo Globalization Hello World</h1>
+		<p>
+			<span id="locale"></span>
+			<select id="langList" onchange="localeChanged();" >
+				<option value="en-us">en-US</option>
+				<option value="fr-fr">fr-FR</option>
+				<option value="zh-cn">zh-CN</option>
+			</select>
+		</p>		
+		<hr>
+		<p id="content"></p>			
+		<p>
+			<span id="date"></span>
+			<input id="dateBox" type="text" dojoType="dijit.form.DateTextBox" constraints="{formatLength:'long'}" onchange="dateChanged();">
+		</p>
+		<p id="secondsToGo"></p>
+	</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>dijit.layout.BorderContainer Test</title>
+
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../css/dijitTests.css";
+
+		.dijitContentPane:focus { color: cyan; font-weight: bold }
+		body { margin-left: 20px }
+
+		#mondrian .dijitSplitter { border: 0; background: black !important }
+		#mondrian .dijitSplitterH { height: 10px }
+		#mondrian .dijitSplitterV { width: 10px }
+		#mondrian .dijitSplitterThumb { display: none }
+		#mondrian .dijitSplitterActive { background-color: blue }
+		#mondrian SPAN { display: none }
+		#mondrian:hover SPAN { display: inline }
+	</style>
+	
+	<script type="text/javascript" src="../../../dojo/dojo.js"
+		djConfig="isDebug: true, parseOnLoad: true"></script>
+	<script type="text/javascript" src="../_testCommon.js"></script>
+
+	<script type="text/javascript">
+		dojo.require("dijit.layout.BorderContainer");
+		dojo.require("dijit.layout.ContentPane");
+		dojo.require("dijit.form.FilteringSelect");
+
+		function togglePanel(button, id){
+			var leftPanel = dijit.byId(id);
+			if(leftPanel){
+				dijit.byId('border1').removeChild(leftPanel);
+				leftPanel.destroy();
+				button.innerHTML='Add left panel';
+			}else{
+				var container = dijit.byId('border1');
+				var div = dojo.doc.createElement('div');
+				div.innerHTML='left';
+				container.domNode.appendChild(div);
+				leftPanel = new dijit.layout.ContentPane({id: id, region:'left', style:'background-color: #acb386; width:100px', splitter:true, minSize:50, maxSize:150}, div);
+				dijit.byId('border1').addChild(leftPanel);
+				button.innerHTML='Remove left panel';
+			}
+		}
+	</script>
+</head>
+<body>
+
+	<h2 class="testTitle">dijit.layout.BorderContainer tests</h2>
+	<p>Headline layout (default), left is constrained - min:50, max:150</p>
+
+	<div id="border1" dojoType="dijit.layout.BorderContainer"
+		style="border: 2px solid black; width: 90%; height: 300px; padding: 10px;">
+		<div dojoType="dijit.layout.ContentPane" region="top" style="background-color: #b39b86; border: 15px black solid; height: 100px;" splitter="true">
+			top bar
+		</div>
+		<div id="border1-left" dojoType="dijit.layout.ContentPane" region="left" style="background-color: #acb386; border: 10px green solid; width: 100px;" splitter="true" minSize="50" maxSize="150">
+			left
+		</div>
+		<div dojoType="dijit.layout.ContentPane" region="center" style="background-color: #f5ffbf; padding: 30px;">
+			main panel with <a href="http://www.dojotoolkit.org/">a link</a>.<br />
+			(to check we're copying children around properly).<br />
+			<select dojoType="dijit.form.FilteringSelect">
+				<option value="1">foo</option>
+				<option value="2">bar</option>
+				<option value="3">baz</option>
+			</select>
+			Here's some text that comes AFTER the combo box.
+		</div>
+		<div dojoType="dijit.layout.ContentPane" region="right" style="background-color: #acb386; width: 100px;">
+			right
+		</div>
+		<div dojoType="dijit.layout.ContentPane" region="bottom" style="background-color: #b39b86; height: 100px;" splitter="true">
+			bottom bar
+		</div>
+	</div>
+
+	<button onClick="togglePanel(this, 'border1-left')">Remove left panel</button>
+	<br />
+
+	<p>Sidebar layout, BiDi sensitive, liveSplitters: false</p>
+
+	<div dojoType="dijit.layout.BorderContainer" design="sidebar" liveSplitters="false"
+		style="border: 20px solid black; width: 90%; height: 300px; padding: 10px;">
+		<div dojoType="dijit.layout.ContentPane" region="leading" style="background-color: #acb386; width: 100px;">
+			leading
+		</div>
+		<div dojoType="dijit.layout.ContentPane" region="top" style="background-color: #b39b86; height: 100px;">
+			top bar
+		</div>
+		<div dojoType="dijit.layout.ContentPane" region="center" style="background-color: #f5ffbf; padding: 10px;">
+			main panel with <a href="http://www.dojotoolkit.org/">a link</a>.<br />
+			(to check we're copying children around properly).<br />
+			<select dojoType="dijit.form.FilteringSelect">
+				<option value="1">foo</option>
+				<option value="2">bar</option>
+				<option value="3">baz</option>
+			</select>
+			Here's some text that comes AFTER the combo box.
+		</div>
+		<div dojoType="dijit.layout.ContentPane" region="bottom" style="background-color: #b39b86; height: 100px;" splitter="true">
+			bottom bar
+		</div>
+		<div dojoType="dijit.layout.ContentPane" region="trailing" style="background-color: #acb386; width: 100px;" splitter="true">
+			trailing
+		</div>
+	</div>
+	
+	<br />
+	<p>Vertical panels only with splitters</p>
+	
+	<div dojoType="dijit.layout.BorderContainer" design="sidebar"
+		style="border: 2px solid black; width: 90%; height: 300px; padding: 10px;">
+		<div dojoType="dijit.layout.ContentPane" region="top" style="background-color: #b39b86; height: 100px;" splitter="true">
+			top bar
+		</div>
+		
+		<div dojoType="dijit.layout.ContentPane" region="center" style="background-color: #f5ffbf; padding: 10px;">
+			main panel with <a href="http://www.dojotoolkit.org/">a link</a>.<br />
+			(to check we're copying children around properly).<br />
+			<select dojoType="dijit.form.FilteringSelect">
+				<option value="1">foo</option>
+				<option value="2">bar</option>
+				<option value="3">baz</option>
+			</select>
+			Here's some text that comes AFTER the combo box.
+		</div>
+		<div dojoType="dijit.layout.ContentPane" region="bottom" style="background-color: #b39b86; height: 100px;" splitter="true">
+			bottom bar
+		</div>
+	</div>
+	
+	<br />
+	<p>More fun with layouts</p>
+	
+	<div id="mondrian" dojoType="dijit.layout.BorderContainer" design="sidebar" persist="true" style="height: 300px; width: 400px">
+		<div dojoType="dijit.layout.ContentPane" region="top" style="height: 100px" splitter="true">
+			<div dojoType="dijit.layout.BorderContainer" persist="true" style="height: 100px; width: 100%">
+				<div dojoType="dijit.layout.ContentPane" region="leading" style="width: 125px" splitter="true"><span>top a</span></div>
+				<div dojoType="dijit.layout.ContentPane" region="center" style="background-color: yellow" splitter="true"><span>top b</span></div>
+			</div>
+		</div>
+		<div dojoType="dijit.layout.ContentPane" region="bottom" style="height: 100px" splitter="true">
+			<div dojoType="dijit.layout.BorderContainer" persist="true" style="height: 100px; width: 100%">
+				<div dojoType="dijit.layout.ContentPane" region="top" style="height: 40px" splitter="true"><span>bottom c</span></div>
+				<div dojoType="dijit.layout.ContentPane" region="center"><span>bottom d</span></div>
+			</div>
+		</div>
+		<div dojoType="dijit.layout.ContentPane" region="leading" style="width: 100px" splitter="true">
+			<div dojoType="dijit.layout.BorderContainer" persist="true" style="height: 300px; width: 100%">
+				<div dojoType="dijit.layout.ContentPane" region="center"><span>leading e</span></div>
+				<div dojoType="dijit.layout.ContentPane" region="bottom" style="height: 100px; background-color: red" splitter="true"><span>leading f</span></div>
+			</div>
+		</div>
+		<div dojoType="dijit.layout.ContentPane" region="trailing" style="width: 100px" splitter="true"><span>trailing g</span></div>
+	</div>
+
+	<br />
+
+</body>
+</html>

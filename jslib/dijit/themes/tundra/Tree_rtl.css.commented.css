@@ -1,0 +1,37 @@
+
+/* Tree */
+.dijitRtl .dijitTreeContainer .dijitTreeNode {
+    background-image : url('images/i_rtl.gif');
+    background-position : top right;
+    margin-left: auto;
+    margin-right: 19px;
+}
+
+.dijitRtl .dijitTreeContainer .dijitTreeIsRoot {
+	margin-left: auto;
+    margin-right: 0;
+    background-image: none;
+}
+
+.dijitRtl .dijitTreeContainer .dijitTreeIsLast {
+    background-image: url('images/i_half_rtl.gif');
+}
+
+.dijitRtl .dijitTreeContainer .dijitTreeContent {
+    margin-left: auto;
+    margin-right: 18px;
+    padding-left: auto;
+    padding-right: 1px;   
+}
+
+.dijitRtl .dijitTreeContainer .dijitTreeExpandoOpened {
+	background-image: url('images/treeExpand_minus_rtl.gif');
+}
+
+.dijitRtl .dijitTreeContainer .dijitTreeExpandoClosed {
+	background-image: url('images/treeExpand_plus_rtl.gif');
+}
+
+.dijitRtl .dijitTreeContainer .dijitTreeExpandoLeaf {
+	background-image: url('images/treeExpand_leaf_rtl.gif');
+}

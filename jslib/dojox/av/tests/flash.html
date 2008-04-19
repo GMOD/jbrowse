@@ -1,0 +1,39 @@
+<html>
+	<head>
+		<title>DojoX A/V Flash Detection Test</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<style type="text/css">
+			@import "../../../dojo/resources/dojo.css";
+			@import "../../../dijit/tests/css/dijitTests.css";
+		</style>
+		<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug: true"></script>
+		<script type="text/javascript">
+			dojo.require("dojox.av._base.flash");
+
+			/*******************************************************************
+				A note.
+
+				You *can* dojo.require dojox.av._base.flash on the fly (i.e.
+				after load), but if you do so, you *must* give Safari and IE
+				a little bit of time before you can start using any of the 
+				methods.  Quick tests showed that 200ms is more than enough,
+				but you should test intervals at your discretion.
+			********************************************************************/
+			var testMovieUrl=dojo.moduleUrl("dojox", "av/tests/resources/hfp.swf");
+			dojo.connect(dojox.av.flash, "onInitialize", function(){
+				dojo.byId("results").innerHTML = dojo.toJson(dojox.av.flash.version);
+				dojox.av.flash.place(dojo.byId("flashHolder"), { path: testMovieUrl });
+			});
+		</script>
+	</head>
+	<body>
+		<h1>DojoX A/V: Flash detection tests.</h1>
+		<p>
+			This page is testing the base Flash movie generator.
+		</p>
+		<p>Installed Flash version: <span id="results"></span>.</p>
+		<div id="flashHolder">
+			A movie will be inserted here on load.
+		</div>
+	</body>
+</html>

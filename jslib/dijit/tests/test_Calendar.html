@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>Calendar Widget Test</title>
+		<style type="text/css">
+			@import "../../dojo/resources/dojo.css";
+			@import "css/dijitTests.css";
+		</style>
+
+		<script type="text/javascript" src="../../dojo/dojo.js"
+			djConfig="parseOnLoad: true, isDebug: true, extraLocale: ['en-us', 'ar-sy', 'es-es', 'zh-cn']"></script>
+		<script type="text/javascript" src="_testCommon.js"></script>
+
+		<script type="text/javascript">
+			dojo.require("dijit._Calendar");
+			dojo.require("dojo.date.locale");
+			dojo.require("dojo.parser"); // scan page for widgets
+
+			dojo.addOnLoad(function(){
+				//Need to declare BigCalendar here in an addOnLoad block so that it works
+				//with xdomain loading, where the dojo.require for dijit._Calendar 
+				//may load asynchronously. This also means we cannot have HTML
+				//markup in the body tag for BigCalendar, but instead inject it in this
+				//onload handler after BigCalendar is defined.
+				dojo.declare("BigCalendar", dijit._Calendar, {
+					templatePath: "../../dijit/tests/_altCalendar.html"
+				});
+				
+				var bigCalendar = dojo.byId("calendar5");
+				bigCalendar.setAttribute("dojoType", "BigCalendar");
+				dojo.parser.parse(bigCalendar.parentNode);
+			});
+
+			function myHandler(id,newValue){
+				console.debug("onChange for id = " + id + ", value: " + newValue);
+			}
+		</script>
+	</head>
+	<body>
+		<h1 class="testTitle">Dijit Calendar Test</h1>
+
+		before
+		<input id="calendar1" dojoType="dijit._Calendar" onChange="myHandler(this.id,arguments[0])" lang="en-us">
+		<input id="calendar2" dojoType="dijit._Calendar" onChange="myHandler(this.id,arguments[0])" lang="es-es">
+		<input id="calendar3" dojoType="dijit._Calendar" onChange="myHandler(this.id,arguments[0])" lang="zh-cn">
+		<input id="calendar4" dojoType="dijit._Calendar" onChange="myHandler(this.id,arguments[0])" lang="ar-sy">
+		after
+		<p>
+			<a href="#"
+			   onClick="for(var i=1; i!=5; i++){
+						var c = dijit.byId('calendar'+i);
+						c.isDisabledDate=dojo.date.locale.isWeekend;
+						c._populateGrid();
+					}
+				">disable weekends</a>
+		</p>
+
+		<p>Customized template with "today" button</p>
+		<style>
+			#calendar5 .dijitCalendarDateTemplate { height: 50px; width: 50px; border: 1px solid #ccc; vertical-align: top }
+			#calendar5 .dijitCalendarDateLabel, #calendar5 .dijitCalendarDateTemplate { text-align: inherit }
+			#calendar5 .dijitCalendarDayLabel { font-weight: bold }
+			#calendar5 .dijitCalendarSelectedYear { font-size: 1.5em }
+			#calendar5 .dijitCalendarMonth { font-family: serif; letter-spacing: 0.2em; font-size: 2em }
+		</style>
+		<script>
+			dojo.declare("BigCalendar", dijit._Calendar, {
+				templatePath: "../../dijit/tests/_altCalendar.html"
+			});
+		</script>
+		<div>
+			<!-- Parent div used so we have a handle to use for dojo.parser.parse after BigCalendar gets defined. -->
+			<!-- The input below will be replaced by BigCalendar which is defined in a dojo.addOnLoad block. -->
+			<input id="calendar5" dayWidth="abbr" value="2008-03-15">
+		</div>
+<!-- 
+		<input id="calendar5" dojoType="dijit._Calendar" dayWidth="abbr" templatePath="../dijit/tests/_altCalendar.html" value="2008-03-15">
+ -->
+	</body>
+</html>

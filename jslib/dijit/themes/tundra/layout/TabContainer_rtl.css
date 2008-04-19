@@ -1,0 +1,71 @@
+.dijitRtl .dijitTab {
+	margin-right:0;
+	margin-left:5px;		
+}
+.dijitRtl .dijitTab .dijitTabInnerDiv {
+	border-left:none;
+	border-right:1px solid #fff;
+}
+.dijitRtl .dijitTab .dijitClosable {
+	padding: 6px 10px 4px 20px;
+}
+.dijitRtl .dijitTab .closeImage {
+	position:static;
+	padding: 0px 12px 0px 0px;
+}
+.dj_gecko .dijitTab .closeImage {
+	position:relative;
+	float:none;
+	padding:0;
+}
+.dijitRtl .dijitTab .dijitClosable .closeImage {
+	right:auto;
+	left:3px;
+	background-position: left top;
+}
+.dj_ie .dijitRtl .dijitTab .dijitClosable .closeImage {
+	width:12px !important;
+}
+.dijitRtl .dijitAlignLeft .dijitTab,
+.dijitRtl .dijitAlignRight .dijitTab {
+	margin-left:0px;
+}
+.dijitRtl .dijitAlignBottom .dijitTab .dijitClosable .closeImage {
+	right:auto;
+	left:3px;
+}
+.dijitRtl .dijitAlignRight .dijitTab .dijitTabInnerDiv {
+	padding-left:10px;
+	padding-right:20px;
+}
+.dijitRtl .dijitAlignLeft .dijitTab .dijitTabInnerDiv {
+	padding-left:20px;
+	padding-right:10px;
+}
+.dj_ie .dijitRtl .dijitAlignLeft .dijitTab .dijitTabInnerDiv {
+	padding-left:19px;
+}
+.dj_gecko .dijitRtl .dijitAlignLeft .dijitTab .dijitTabInnerDiv {
+	padding-left:11px;
+}
+.dijitRtl .dijitAlignRight .dijitTab .dijitClosable .closeImage {
+	left:auto;
+	right:3px;
+}
+.dj_ie7 .dijitRtl .dijitAlignLeft .dijitTab  .dijitTabContent{
+	position:relative;
+}
+.dj_ie7 .dijitRtl .dijitAlignLeft .dijitTab .dijitClosable .closeImage{
+	position:absolute;
+	top:2px;
+	left:3px;
+}
+.dj_ie6 .dijitRtl .dijitAlignLeft .dijitTab .dijitClosable .closeImage{
+	float:left;
+}
+.dj_ie6 .dijitRtl .dijitAlignLeft .dijitTab .dijitClosable .tabLabel{
+	float:right;
+}
+.dj_ie .dijitTab .dijitTabInnerDiv{
+	width : 1%;
+}

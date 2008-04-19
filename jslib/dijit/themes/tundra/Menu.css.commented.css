@@ -1,0 +1,54 @@
+.tundra .dijitMenu {
+	border: 1px solid #7eabcd;
+	margin: 0px;
+	padding: 0px;
+}
+
+.tundra .dijitMenuItem {
+	background-color: #f7f7f7;
+	font: menu;
+	margin: 0;
+}
+.tundra .dijitMenuPreviousButton, .tundra .dijitMenuNextButton {
+	font-style: italic;
+}
+.tundra .dijitMenuItem td {
+	padding:2px;
+}
+
+.tundra .dijitMenuItemHover {
+	background-color: #60a1ea;
+	color:#fff;
+}
+
+.tundra .dijitMenuItemIcon {
+	width: 16px;
+	height: 16px;
+}
+
+.tundra .dijitMenuExpand {
+	display:none;
+}
+.tundra .dijitMenuExpandEnabled {
+	width:16px;
+	height:16px;
+	background:url('images/arrowRight.gif') no-repeat center center;
+	display:block;
+}
+
+.tundra .dijitMenuExpandInner {
+	display:none;
+}
+
+.tundra .dijitMenuSeparator {
+	background-color: #f7f7f7;
+}
+
+/* separator can be two pixels -- set border of either one to 0px to have only one */
+.tundra .dijitMenuSeparatorTop {
+	border-bottom: 1px solid #9b9b9b;
+}
+
+.tundra .dijitMenuSeparatorBottom {
+	border-top: 1px solid #e8e8e8;
+}

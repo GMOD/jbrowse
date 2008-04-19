@@ -1,0 +1,1 @@
+({"set":"設定","text":"文字：","title":"鏈結 URL","url":"URL：","urlInvalidMessage":"URL 無效。請輸入完整的 URL，例如 'http://www.dojotoolkit.org'","insertImageTitle":"Image Properties","createLinkTitle":"Link Properties"})

@@ -1,0 +1,46 @@
+.chatroom
+{
+	position:relative; 
+	height:240px; 
+	background-color: #e0e0e0;
+	border: 0px solid black; 
+}
+
+.chat
+{
+  height: 200px;
+  overflow: auto; 
+  background-color: #fff;
+  padding: 4px;
+  border: 0px solid black; 
+}
+.dijitTabContainer .chat {
+	height:auto;
+}
+
+.input {
+	position:absolute;
+	bottom:0px; 
+	display:block; 
+	padding: 4px;
+	border: 0px solid black; 
+	border-top: 1px solid black; 
+}
+
+.phrase
+{
+  width:200px;	
+  background-color:#ededed;
+}
+
+.username
+{
+  width:145px;
+  background-color: #ededed;
+}
+
+.hidden { display: none; }
+.from { font-weight: bold; }
+.alert { font-style: italic; }
+.dijitTitlePaneContentInner { padding:0px !important; } 
+

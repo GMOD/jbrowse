@@ -1,0 +1,11 @@
+<div class='dijitAccordionPane'
+	><div dojoAttachPoint='titleNode,focusNode' dojoAttachEvent='ondijitclick:_onTitleClick,onkeypress:_onTitleKeyPress,onfocus:_handleFocus,onblur:_handleFocus'
+		class='dijitAccordionTitle' wairole="tab"
+		><div class='dijitAccordionArrow' waiRole="presentation"></div
+		><div class='arrowTextUp' waiRole="presentation">&#9650;</div
+		><div class='arrowTextDown' waiRole="presentation">&#9660;</div
+		><div waiRole="presentation" dojoAttachPoint='titleTextNode' class='dijitAccordionText'>${title}</div></div
+	><div><div dojoAttachPoint='containerNode' style='overflow: hidden; height: 1px; display: none'
+		class='dijitAccordionBody' wairole="tabpanel"
+	></div></div>
+</div>

@@ -1,0 +1,1 @@
+({"set":"Imposta","text":"Testo:","title":"URL di collegamento","url":"URL:","urlInvalidMessage":"URL non valido.  Immettere un URL completo come nel seguente esempio: 'http://www.dojotoolkit.org'","insertImageTitle":"Image Properties","createLinkTitle":"Link Properties"})

@@ -1,0 +1,128 @@
+<html>
+	<head>
+	    <script type="text/javascript" 
+	        src="../../../dojo/dojo.js"
+	        djConfig="isDebug: true, parseOnLoad: true">
+	    </script>
+	    <script type="text/javascript">
+			dojo.require("doh.runner");
+	        dojo.require("dojo.parser");
+			dojo.require("dojox.form.DropDownSelect");
+			dojo.require("dijit.form.Button");
+			dojo.require("dijit.form.Form");
+			
+			var numOptions = 0;
+			var numChanges = 0;
+			
+			dojo.addOnLoad(function(){
+				dojo.connect(s1, "onChange", function(val){
+					console.log("First Select Changed to " + val);
+					numChanges++;
+				});
+				doh.register("tests",
+					[
+						function test_setValue(t){
+							t.is({s1:"VA", s2:"CA", s3:"AL", s4: "AK", s5: "move", s6:"", s7:"NY"}, form.getValues());
+							s1.setAttribute("value", "WA");
+							t.is("WA", s1.value);
+							s1.setAttribute("value", "UT");
+							t.is("TN", s1.value);
+							t.is(2, numChanges);
+						}
+					]
+				);
+				doh.run();
+			});
+		</script>
+		<style>
+			@import url(../../../dojo/resources/dojo.css);
+			@import url(../../../dijit/themes/tundra/tundra.css);
+			@import url(../resources/DropDownSelect.css);
+			@import url(../../../dijit/tests/css/dijitTests.css);
+		</style>
+		<style>
+		.ark { text-decoration: underline; }
+		</style>
+	</head>	
+	<body class="tundra">
+		<h1 class="testTitle">Test: dojox.form.DropDownSelect</h1>
+		<h2>Automated test</h2>
+		<form dojoType="dijit.form.Form" jsId="form">
+			<h4 class="testSubtitle">Setting Defaults</h4>
+			<select jsId="s1" name="s1" dojoType="dojox.form.DropDownSelect">
+				<option value="TN">Tennessee</option>
+				<option value="VA" selected="selected">Virginia</option>
+				<option value="WA">Washington</option>
+				<option value="FL">Florida</option>
+				<option value="CA">California</option>
+			</select>
+			<select jsId="s2" name="s2" value="CA" dojoType="dojox.form.DropDownSelect">
+				<option value="AL">Alabama</option>
+				<option value="AK">Alaska</option>
+				<option value="AZ">Arizona</option>
+				<option value="AR">Arkansas</option>
+				<option value="CA">California</option>
+			</select>
+			<select jsId="s3" name="s3" dojoType="dojox.form.DropDownSelect">
+				<option value="AL">Alabama</option>
+				<option value="AK">Alaska</option>
+				<option type="separator"></option>
+				<option value="AZ">Arizona</option>
+				<option value="AR">Arkansas</option>
+				<option type="separator"></option>
+				<option value="CA">California</option>
+			</select>
+		<hr>
+			<h4 class="testSubtitle">Rich Text (Need to use divs and spans - since browsers hack selects to pieces)</h4>
+			<div jsId="s4" name="s4" value="AK" dojoType="dojox.form.DropDownSelect">
+				<span value="AL"><b>Alabama</b></span>
+				<span value="AK"><font color="red">A</font><font color="orange">l</font><font color="yellow">a</font><font color="green">s</font><font color="blue">k</font><font color="purple">a</font></span>
+				<span value="AZ"><i>Arizona</i></span>
+				<span value="AR"><span class="ark">Arkansas</span></span>
+				<span value="CA"><span style="font-size:25%">C</span><span style="font-size:50%">a</span><span style="font-size:75%">l</span><span style="font-size:90%">i</span><span style="font-size:100%">f</span><span style="font-size:125%">o</span><span style="font-size:133%">r</span><span style="font-size:150%">n</span><span style="font-size:175%">i</span><span style="font-size:200%">a</span></span>
+				<span value="NM">New<br>&nbsp;&nbsp;Mexico</span>
+			</div>
+			<div jsId="s5" name="s5" value="move" dojoType="dojox.form.DropDownSelect">
+				<span value="copy"><img style="vertical-align: middle;margin-top: 1px;margin-bottom:1px;" src="../../../dijit/themes/tundra/images/dndCopy.png" /> Copy</span>
+				<span value="move"><img  style="vertical-align: middle;margin-top: 1px;margin-bottom:1px;" src="../../../dijit/themes/tundra/images/dndMove.png" /> Move</span>
+				<span value="nocopy"><img  style="vertical-align: middle;margin-top: 1px;margin-bottom:1px;" src="../../../dijit/themes/tundra/images/dndNoCopy.png" /> No Copy</span>
+				<span value="nomove"><img  style="vertical-align: middle;margin-top: 1px;margin-bottom:1px;" src="../../../dijit/themes/tundra/images/dndNoMove.png" /> No Move</span>
+			</div>
+		<hr>
+			<h4 class="testSubtitle">Empty</h4>
+			<select jsId="s6" name="s6" dojoType="dojox.form.DropDownSelect">
+			</select>
+			<hr>
+		<h4 class="testSubtitle">Single Item</h4>
+			<select jsId="s7" name="s7" dojoType="dojox.form.DropDownSelect">
+				<option value="NY">New York</option>
+			</select>
+		<hr>
+			<button dojoType="dijit.form.Button">
+				<script type="dojo/method" event="onClick">
+					console.dir(form.getValues());
+				</script>
+				Get Values
+			</button>
+			<button dojoType="dijit.form.Button">
+				<script type="dojo/method" event="onClick">
+					numOptions++;
+					s6.addOption(numOptions + "", "Option " + numOptions);
+				</script>
+				Add Option
+			</button>
+			<button dojoType="dijit.form.Button">
+				<script type="dojo/method" event="onClick">
+					s6.removeOption(0);
+				</script>
+				Remove Top Option
+			</button>
+			<button dojoType="dijit.form.Button">
+				<script type="dojo/method" event="onClick">
+					s4.setAttribute("disabled", !s4.disabled);
+				</script>
+				Toggle Disabled
+			</button>
+		</form>
+	</body>
+</html>

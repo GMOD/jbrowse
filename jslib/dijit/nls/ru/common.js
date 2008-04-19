@@ -1,0 +1,1 @@
+({"buttonCancel":"Отмена","buttonSave":"Сохранить","buttonOk":"ОК","itemClose":"Close"})

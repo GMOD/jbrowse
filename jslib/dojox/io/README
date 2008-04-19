@@ -1,0 +1,45 @@
+-------------------------------------------------------------------------------
+DojoX IO
+-------------------------------------------------------------------------------
+Version 0.3.1
+Release date: 09/06/2007
+-------------------------------------------------------------------------------
+Project state:
+experimental
+-------------------------------------------------------------------------------
+Credits
+	Bryan Forbes (bryan@reigndropsfall.net)
+-------------------------------------------------------------------------------
+Project description
+
+-------------------------------------------------------------------------------
+Dependencies:
+
+DojoX IO depends on Dojo Core and DojoX UUID's generateRandomUuid function.
+-------------------------------------------------------------------------------
+Documentation
+
+-------------------------------------------------------------------------------
+Installation instructions
+
+Grab the following from the Dojo SVN Repository:
+http://svn.dojotoolkit.org/var/src/dojo/dojox/trunk/uuid.js
+http://svn.dojotoolkit.org/var/src/dojo/dojox/trunk/uuid/*
+
+Install into the following directory structure:
+/dojox/uuid/
+
+AND
+
+Grab the following from the Dojo SVN Repository:
+http://svn.dojotoolkit.org/var/src/dojo/dojox/trunk/io/*
+
+Install into the following directory structure:
+/dojox/io/
+
+...both of which should be at the same level as your Dojo checkout.
+-------------------------------------------------------------------------------
+Additional Notes
+
+The information contained in this README does not pertain to DojoX XHR IFrame Proxy.  
+For that information see proxy/README.

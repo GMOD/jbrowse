@@ -1,0 +1,65 @@
+<!--
+This file is a demo of the JsonRestStore connected to Persevere
+-->
+<html>
+<head>
+	<title>Demo of JsonRestStore</title>
+	<style type="text/css">
+
+		@import "../../../dijit/themes/tundra/tundra.css";
+		@import "../../../dojo/resources/dojo.css";
+	</style>
+
+	<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug: true, parseOnLoad: true"></script>
+	<script type="text/javascript">
+		dojo.require("dojox.rpc.Service");
+		dojo.require("dojox.data.JsonRestStore");
+
+		function init(){
+			var persevereServices = new dojox.rpc.Service("/persevere/SMD"); // just connect to the auto-generated SMD from persevere
+			dynaStore = new dojox.data.JsonRestStore({service:persevereServices.dyna}); // and create a store for it
+
+		}
+		dojo.addOnLoad(init);
+		function invokeSearch() {
+			dynaStore.fetch({query:"0",onComplete:function(root) {
+				var name = dynaStore.getValue(root,"name");
+				alert("old name " + name);
+				dynaStore.setValue(root,"name","new name" + Math.random());
+				dynaStore.save();
+			}});
+		}
+	</script>
+</head>
+
+<body class="tundra">
+	<h1>
+		DEMO:  JsonRestStore Search
+	</h1>
+	<hr>
+	<h3>
+		Description:
+	</h3>
+	<p>
+		This simple demo shows how JsonRestStore can be used with Persevere.
+	</p>
+	<p>
+	</p>
+
+	<blockquote>
+
+	<!--
+		The store instance used by this demo.
+	-->
+	<table>
+		<tbody>
+			<tr>
+				<td>
+					<button name="search" id="searchButton" onclick="invokeSearch()">Search</button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<hr/>
+</body>
+</html>

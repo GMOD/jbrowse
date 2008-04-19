@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+	"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>Testing MultiSelect form widget | The Dojo Toolkit</title>
+
+	<link rel="stylesheet" type="text/css" media="screen"
+		href="../../../dijit/themes/tundra/tundra.css">
+
+	<style type="text/css">
+	@import "../../../dijit/tests/css/dijitTests.css";
+	#select, #select2 {
+		width:255px;
+		height:300px;
+		overflow:auto;
+	}
+	</style>
+	
+	<script type="text/javascript" djConfig="isDebug:true, parseOnLoad: true"
+		src="../../../dojo/dojo.js"></script>
+
+	<script type="text/javascript">
+		var globalVals = null;
+
+		dojo.require("dijit.form.MultiSelect");
+
+		// needed for tests:
+		dojo.require("dijit.form.Form");
+		dojo.require("dijit.form.Button");
+		dojo.require("dijit.layout.SplitContainer");
+
+		dojo.addOnLoad(function(){
+			
+			// ref a clonable node, then split it between two selects
+			var c = dojo.query(".clone")[0];
+			var l = -1;
+			opt = function(){			
+				return dojo.byId((++l%2 == 0 ? "select":"select2" ));
+			}
+			// based on the the 'dijit' object
+			for(var i in dijit){
+				var n = opt().appendChild(dojo.clone(c));
+				n.value = n.innerHTML = i;
+			}
+			
+			// turn any non-dojoType selects into widgets programatically:
+			dojo.query("select").forEach(function(n){
+				if(!dijit.byNode(n)){
+						var foo = new dijit.form.MultiSelect({
+						},n);
+				}
+			});
+			
+			// listen to the "move items" buttons
+			dojo.query("button.switch")
+				.connect("onclick",function(e){
+					switch(e.target.id.toString()){
+						case "left" : dijit.byId("select").addSelected(dijit.byId("select2")); break;
+						case "right" : dijit.byId("select2").addSelected(dijit.byId("select")); break;
+					}	
+			});
+			
+			// listen to the invert buttons
+			dojo.query("button.invert")
+				.connect("onclick",function(e){
+					switch(e.target.id.toString()){
+						case "i1" : dijit.byId("select").invertSelection(); break;
+						case "i2" : dijit.byId("select2").invertSelection(); break;
+						case "i3" : dijit.byId("select3").invertSelection(); break;
+					}
+			});
+				
+			// there is only one debug button
+			dojo.query(".debug").connect("onclick",function(e){
+				console.log('select getValue:',dijit.byId("select").getValue());
+				console.log('select2 getValue:',dijit.byId("select2").getValue());
+				console.log('select3 getValue:',dijit.byId("select3").getValue());
+			});
+				
+			// natural form reaction:
+			dojo.connect(dojo.byId("test"),"onsubmit",function(e){
+				e.preventDefault();	
+			});
+			dojo.connect(dojo.byId("formSubmit"),"onclick",function(e){
+				// see what the real form says about our widgets:
+				var vals = dojo.formToJson("test");
+				console.log(vals);
+			});
+		});
+	</script>
+</head>
+<body class="tundra" style="padding:20px">
+		
+		<h1 class="testTitle">dijit.form.MultiSelect:</h1>
+		
+		<form action="null.html" method="get" id="test">
+		
+			<select id="select" multiple="true" size="7" name="easing">
+				<option class="clone" value="dojo._defaultEasing">dojo._defaultEasing</option>
+			</select>
+		
+			<span>
+				<button class="switch" id="left">&lt;</button>
+				<button class="switch" id="right">&gt;</button>
+			</span>
+	
+			<select id="select2" multiple="true" size="7" name="second">	
+			</select>
+	
+			<br><br>
+	
+			<button class='invert' id="i1">invert first list</button>
+			<button class="invert" id="i2">invert second list</button>
+			<button id="formSubmit">Submit</button>
+
+		</form>
+
+		<button class="debug">call getValue()</button>
+
+		<h3>markup:</h3>
+
+		<select id="select3" multiple="true" name="select3"
+			dojoType="dijit.form.MultiSelect"
+			style="height:200px; width:175px; border:5px solid #ededed;">
+
+			<option value="TN" selected="true">Tennessee</option>
+			<option value="VA">Virginia</option>
+			<option value="WA">Washington</option>
+			<option value="FL">Florida</option>
+			<option value="CA">California</option>
+
+		</select>
+
+		<br><br>
+		<button class='invert' id="i3">invert markup list</button>
+		<button class='set' id="s1" onclick="dijit.byId('select3').setValue(['VA', 'WA']);">set markup list to [VA, WA]</button>
+</body>
+</html>

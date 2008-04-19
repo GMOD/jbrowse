@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+	"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>Testing SimpleTextArea | The Dojo Toolkit</title>
+
+	<link rel="stylesheet" type="text/css" media="screen"
+		href="../../../dijit/themes/tundra/tundra.css">
+
+	<style type="text/css">
+		@import "../../../dijit/tests/css/dijitTests.css";
+	</style>
+	
+	<script type="text/javascript" djConfig="isDebug:true, parseOnLoad: true"
+		src="../../../dojo/dojo.js"></script>
+
+	<script type="text/javascript">
+		dojo.require("dijit.form.SimpleTextarea");
+
+		// needed for tests
+		dojo.require("dijit.layout.BorderContainer");
+	</script>
+</head>
+
+<body class="tundra" style="padding:20px">
+		
+		<h1 class="testTitle">SimpleTextarea</h1>
+		
+		<p>
+			This is a simple text area that doesn't automatically size itself according to it's content.
+			It can be used inside layout containers.
+		</p>
+
+		<h2>Plain textarea (rows=5, cols=50)</h2>
+		<textarea dojoType="dijit.form.SimpleTextarea" name="ta2" rows=5 cols=50
+			onFocus="console.log('user focus handler')"
+			onBlur="console.log('user blur handler')"
+		>
+			shichashaw, textarea text baw.				
+		</textarea>
+
+		<h2>In a BorderContainer</h2>
+
+		<div id="container" dojoType="dijit.layout.BorderContainer" style="width:500px; height:400px; border: inset gray 3px;">
+			<textarea name="textAreaN3" dojoType="dijit.form.SimpleTextarea" region="top" splitter="true" style="height: 100px;">
+				This is just some text in the top region.
+			</textarea>
+			<textarea name="textAreaN3" dojoType="dijit.form.SimpleTextarea" region="left" splitter="true" style="width: 200px;">
+				This is just some text in the left region.
+			</textarea>
+			<textarea name="textAreaN3" dojoType="dijit.form.SimpleTextarea" region="center">
+				This is just some text in the center region.
+			</textarea>
+			<textarea name="textAreaN3" dojoType="dijit.form.SimpleTextarea" region="right" splitter="true" style="width: 200px;">
+				This is just some text in the left region.
+			</textarea>
+			<textarea name="textAreaN3" dojoType="dijit.form.SimpleTextarea" region="bottom" splitter="true" style="height: 100px;">
+				This is just some text in the left region.
+			</textarea>
+		</div>
+</body>
+</html>

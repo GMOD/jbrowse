@@ -1,0 +1,30 @@
+
+.dijitRtl .dijitTreeContainer .dijitTreeNode {
+    background-image : url('images/treeI_rtl.gif');
+    background-position : top right;
+    margin-left: auto;
+    margin-right: 19px;
+}
+.dijitRtl .dijitTreeContainer .dijitTreeIsRoot {
+	margin-left: auto;
+    margin-right: 0;
+    background-image: none;
+}
+.dijitRtl .dijitTreeContainer .dijitTreeIsLast {
+    background-image: url('images/treeI_half_rtl.gif');
+}
+.dijitRtl .dijitTreeContainer .dijitTreeContent {
+    margin-left: auto;
+    margin-right: 18px;
+    padding-left: auto;
+    padding-right: 1px;   
+}
+.dijitRtl .dijitTreeContainer .dijitTreeExpandoOpened {
+	background: url('images/spriteTree_rtl.gif') no-repeat -18px top;
+}
+.dijitRtl .dijitTreeContainer .dijitTreeExpandoClosed {
+	background-image: url('images/spriteTree_rtl.gif');
+}
+.dijitRtl .dijitTreeContainer .dijitTreeExpandoLeaf {
+	background: url('images/spriteTree_rtl.gif') no-repeat -36px top;
+}

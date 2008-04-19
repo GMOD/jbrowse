@@ -21,17 +21,17 @@ function SimpleFeatureTrack(trackMeta, refSeq, changeCallback) {
 
     this.trackMeta = trackMeta;
     var curTrack = this;
-    var trackSuccess = function(o) {
-	curTrack.loadSuccess(o);
-    }
-    YAHOO.util.Connect.asyncRequest("GET", trackMeta.url, {success: trackSuccess});
+    dojo.xhrGet({url: trackMeta.url, 
+		 handleAs: "json",
+		 load: function(o) { curTrack.loadSuccess(o); }
+	});
 }
 
 SimpleFeatureTrack.prototype = new Track("");
 
 SimpleFeatureTrack.prototype.loadSuccess = function(o) {
     var startTime = new Date().getTime();
-    var trackInfo = eval(o.responseText);
+    var trackInfo = o; //eval(o.responseText);
     this.count = trackInfo.featureCount;
     for (var i = 0; i < trackInfo.map.length; i++) {
 	this.fields[trackInfo.map[i]] = i;
@@ -40,7 +40,7 @@ SimpleFeatureTrack.prototype.loadSuccess = function(o) {
     this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length());
     this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length());
     
-    YAHOO.log((new Date().getTime() - startTime) / 1000);
+    //console.log((new Date().getTime() - startTime) / 1000);
 
     this.setLoaded();
 }
@@ -206,7 +206,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     var callback = function(event) {
 	event = event || window.event;
 	if (event.shiftKey) return;
-	var feat = YAHOO.util.Event.getTarget((event || window.event)).feature;
+	var feat = event.currentTarget.feature;
 	alert("clicked on feature\nstart: " + feat[start] +
 	      ", end: " + feat[end] +
 	      ", strand: " + feat[strand] +

@@ -1,0 +1,65 @@
+<html>
+<head>
+    <title>Sample built in tech-support demonstration | The Dojo Toolkit </title>
+    <script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug:true, parseOnLoad:false"></script>
+    <script type="text/javascript" src="room.js"></script>
+    <script type="text/javascript">
+		dojo.require("dijit.TitlePane");
+		dojo.require("dojo.parser");
+		dojo.require("dijit.form.Button"); 
+
+		// this puts our help box in the top/right corner on scroll and show
+		function _positionIt(evt){
+			if (helpNode.domNode.style.display == "block"){
+				dojo.style(helpNode.domNode,"top",(dijit.getViewport().t + 4) + "px");
+			}
+		}
+
+		var helpNode; 
+		dojo.addOnLoad(function(){ 
+			dojo.parser.parse(dojo.body()); 
+			helpNode = dijit.byId('helpPane');
+			dojo.connect(window,"onscroll","_positionIt");
+			// this is not a public cometd server :)
+			dojox.cometd.init("http://comet.sitepen.com:9190/cometd"); 
+		}); 
+
+    </script>
+	<style type="text/css">
+		@import "chat.css";
+		@import "../../themes/tundra/tundra.css";
+		@import "../../tests/css/dijitTests.css"; 
+	</style>
+</head>
+<body class="tundra">
+
+<h1 class="testTitle">I am a <i>Sample</i> page</h1>
+	<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nam facilisis enim. Pellentesque in elit et lacus euismod dignissim. Aliquam dolor pede, convallis eget, dictum a, blandit ac, urna. Pellentesque sed nunc ut justo volutpat egestas. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. In erat. Suspendisse potenti. Fusce faucibus nibh sed nisi. Phasellus faucibus, dui a cursus dapibus, mauris nulla euismod velit, a lobortis turpis arcu vel dui. Pellentesque fermentum ultrices pede. Donec auctor lectus eu arcu. Curabitur non orci eget est porta gravida. Aliquam pretium orci id nisi. Duis faucibus, mi non adipiscing venenatis, erat urna aliquet elit, eu fringilla lacus tellus quis erat. Nam tempus ornare lorem. Nullam feugiat.</p>
+
+<h3>Need help?</h3>
+<button dojoType="dijit.form.Button">
+Show / Hide Tech Support Chat 
+	<script type="dojo/method" event="onClick">
+		// simple dojo/method example. this is like doing button onClick="javascript:" but more robust
+		var anim = dojo[(helpNode.open ? "fadeOut" : "fadeIn")]({ node: helpNode.domNode, duration: 400 });
+		dojo.connect(anim,(helpNode.open ? "onEnd" : "beforeBegin"),function(){
+			dojo.style(helpNode.domNode,"display",(helpNode.open ? "none" : "block"));	
+			helpNode.toggle();
+			_positionIt();
+		});
+		anim.play(); 
+	</script>
+</button>
+
+
+	<p>Sed congue. Aenean blandit sollicitudin mi. Maecenas pellentesque. Vivamus ac urna. Nunc consequat nisi vitae quam. Suspendisse sed nunc. Proin suscipit porta magna. Duis accumsan nunc in velit. Nam et nibh. Nulla facilisi. Cras venenatis urna et magna. Aenean magna mauris, bibendum sit amet, semper quis, aliquet nec, sapien. Aliquam aliquam odio quis erat. Etiam est nisi, condimentum non, lacinia ac, vehicula laoreet, elit. Sed interdum augue sit amet quam dapibus semper. Nulla facilisi. Pellentesque lobortis erat nec quam.</p>
+	<p>Sed arcu magna, molestie at, fringilla in, sodales eu, elit. Curabitur mattis lorem et est. Quisque et tortor. Integer bibendum vulputate odio. Nam nec ipsum. Vestibulum mollis eros feugiat augue. Integer fermentum odio lobortis odio. Nullam mollis nisl non metus. Maecenas nec nunc eget pede ultrices blandit. Ut non purus ut elit convallis eleifend. Fusce tincidunt, justo quis tempus euismod, magna nulla viverra libero, sit amet lacinia odio diam id risus. Ut varius viverra turpis. Morbi urna elit, imperdiet eu, porta ac, pharetra sed, nisi. Etiam ante libero, ultrices ac, faucibus ac, cursus sodales, nisl. Praesent nisl sem, fermentum eu, consequat quis, varius interdum, nulla. Donec neque tortor, sollicitudin sed, consequat nec, facilisis sit amet, orci. Aenean ut eros sit amet ante pharetra interdum.</p>
+	<p>Fusce rutrum pede eget quam. Praesent purus. Aenean at elit in sem volutpat facilisis. Nunc est augue, commodo at, pretium a, fermentum at, quam. Nam sit amet enim. Suspendisse potenti. Cras hendrerit rhoncus justo. Integer libero. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aliquam erat volutpat. Sed adipiscing mi vel ipsum.</p>
+
+	<div title="Chat with Technical Support:" id="helpPane" dojoType="dijit.TitlePane" 
+		style="width:275px; height:400px; position:absolute; top:4px; right:4px; margin:0; padding:0; display:none;" open="false" >
+		<div dojoType="dijit.demos.chat.Room" id="chatroom" isPrivate="true"></div>
+	</div>
+
+</body>
+</html>

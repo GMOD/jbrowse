@@ -1,0 +1,125 @@
+<!--
+
+  This file is a demo of the JsonRestStore connected to CouchDB.
+
+-->
+
+<html>
+
+<head>
+
+	<title>Demo of JsonRestStore</title>
+
+	<style type="text/css">
+
+
+
+		@import "../../../dijit/themes/tundra/tundra.css";
+
+		@import "../../../dojo/resources/dojo.css";
+
+	</style>
+
+
+
+	<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug: true, parseOnLoad: true"></script>
+
+	<script type="text/javascript">
+
+		dojo.require("dojox.rpc.Service");
+		dojo.require("dojox.data.CouchDBRestStore");
+		function init(){
+			var couchSMD = dojox.data.CouchDBRestStore.generateSMD("/couchDB/");
+			var couchServices = new dojox.rpc.Service(couchSMD); // just connect to the auto-generated SMD from persevere
+			friendStore = new dojox.data.CouchDBRestStore({service:couchServices.friends}); // and create a store for it
+		}
+
+		dojo.addOnLoad(init);
+
+		function invokeSearch() {
+			friendStore.fetch({count:3,onComplete:function(friends) {
+				var firstFriend = friendStore.getValue(friends.rows,0);
+				var name = friendStore.getValue(firstFriend,"name");
+				alert("old name " + name);
+				friendStore.setValue(firstFriend,"name","new name" + Math.random());
+				var newItem = {"name":"Another friend",age:31};
+				friendStore.newItem(newItem);
+				friendStore.onSave= function() {
+					delete friendStore.onSave;
+					friendStore.setValue(newItem,"name","change after creating");
+					friendStore.save();
+				}			
+				friendStore.save();
+				
+			}});
+
+		}
+
+	</script>
+
+</head>
+
+
+
+<body class="tundra">
+
+	<h1>
+
+		DEMO:  JsonRestStore Search
+
+	</h1>
+
+	<hr>
+
+	<h3>
+
+		Description:
+
+	</h3>
+
+	<p>
+
+		This simple demo shows how JsonRestStore can be used with Persevere.
+
+	</p>
+
+	<p>
+
+	</p>
+
+
+
+	<blockquote>
+
+
+
+	<!--
+
+		The store instance used by this demo.
+
+	-->
+
+	<table>
+
+		<tbody>
+
+			<tr>
+
+				<td>
+
+					<button name="search" id="searchButton" onclick="invokeSearch()">Search</button>
+
+				</td>
+
+			</tr>
+
+		</tbody>
+
+	</table>
+
+	<hr/>
+
+</body>
+
+</html>
+

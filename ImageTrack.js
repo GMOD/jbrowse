@@ -62,7 +62,7 @@ ImageTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase
 
     for (var i = 0; i < images.length; i++) {
 	im = images[i];
-	if (!im.parentNode) {
+	if (!(im.parentNode && im.parentNode.parentNode)) {
 	    im.style.cssText = "position: absolute; left: " + (100 * ((im.startBase - leftBase) / blockWidth)) + "%; width: " + (100 * (im.baseWidth / blockWidth)) + "%; top: 0px; height: " + zoom.height + "px;";
             block.appendChild(im);
 	}

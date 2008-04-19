@@ -1,0 +1,6 @@
+.dijitRtl .dijitTitlePane .dijitClosed .dijitArrowNode {
+	background:url('images/arrowRight.png') no-repeat center center;
+}
+.dj_ie6 .dijitRtl .dijitTitlePane .dijitClosed .dijitArrowNode {
+	background-image:url('images/arrowRight.gif');
+}

@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+		"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Dijit I18N Demo</title>
+
+	<script>
+		var djConfig = {parseOnLoad: true, isDebug: true},
+			locale,
+			lang,
+			bidi;
+
+		// read in HREF arguments
+		if(window.location.href.indexOf("?") > -1){
+			var str = window.location.href.substr(window.location.href.indexOf("?")+1);
+			var ary = str.split(/&/);
+			for(var i=0; i<ary.length; i++){
+				var split = ary[i].split(/=/),
+					key = split[0],
+					value = split[1];
+				switch(key){
+					case "locale":
+						djConfig.locale = locale = value;
+						lang = locale.replace(/-.*/, "");
+						break;
+					case "dir":
+						document.getElementsByTagName("html")[0].dir = value;
+						bidi = value;
+						break;
+				}
+			}
+		}		
+	</script>
+	<style type="text/css">
+		@import "../../dojo/resources/dojo.css";
+		@import "../themes/tundra/tundra.css";
+		@import "../themes/tundra/tundra_rtl.css";
+		@import "../tests/css/dijitTests.css";
+		@import "i18n/flags.css";
+	</style>
+
+	<script type="text/javascript" src="../../dojo/dojo.js"></script>
+
+	<script language="JavaScript" type="text/javascript">
+		dojo.require("dojo.data.ItemFileReadStore");
+		dojo.require("dijit.Tree");
+		dojo.require("dijit._Calendar");
+		dojo.require("dijit.form.DateTextBox");
+		dojo.require("dijit.form.CurrencyTextBox");
+		dojo.require("dijit.form.NumberSpinner");
+		dojo.require("dijit.form.ComboBox");
+		dojo.require("dijit.Menu");
+		dojo.require("dojo.parser");
+		dojo.addOnLoad(function(){
+			dojo.byId("locale").innerHTML = locale || "default";
+			dojo.byId("dir").innerHTML = bidi || "default";
+		});
+	</script>
+
+</head>
+<body class="tundra">
+	<div dojoType="dojo.data.ItemFileReadStore" jsId="store"
+		url="i18n/data.json"></div>
+	<div dojoType="dijit.tree.ForestStoreModel" jsId="model" store="store" childrenAttrs="languages">
+		<!-- Override all the data access functions to work from the I18N data store -->
+		<script type="dojo/method" event="getChildren" args="item, onComplete">
+			switch(item.root ?  "top" : store.getValue(item, "type")){
+				case "top":
+					return store.fetch({query: {type:'continent'}, onComplete: onComplete});
+				case "continent":
+					return store.fetch({query: {continent: store.getValue(item, "iso")}, onComplete: onComplete});
+				case "country":
+					return dijit.tree.ForestStoreModel.prototype.getChildren.apply(this, arguments);
+			}
+		</script>
+		<script type="dojo/method" event="mayHaveChildren" args="item">
+			if(item.root){ return true; }	// top level
+			var type = store.getValue(item, "type");
+			return (type == "continent" || type == "country");
+		</script>
+	</div>
+
+	<h1 class="testTitle" dir="ltr">Dijit I18N Demo (locale=<span id="locale"></span>  dir=<span id="dir"></span>)</h1>
+
+	<table width="100%">
+		<tr>
+			<td width="30%" style="vertical-align: top;">
+				<div dojoType="dijit.Tree" id="mytree" model="model">
+					<!-- override functions for display of each node -->
+					<script type="dojo/method" event="getIconClass" args="item">
+						var icon =
+							(!item.root && store.getValue(item, "type") == "country") ?
+							("countryIcon country" + store.getValue(item, "iso") + "Icon") :
+							dijit.Tree.prototype.getIconClass.apply(this, arguments);
+						return icon;
+					</script>
+					<script type="dojo/method" event="getLabel" args="item">
+						if(item.root){ return "Continents"; }
+						var localizedName = lang && store.getValue(item, lang);
+						return localizedName || (store.getLabel(item) + " \u202b" + "(" + store.getIdentity(item) + ")\u202c");
+					</script>
+
+					<!-- clicking a node refreshes the page with new locale setting -->
+					<script type="dojo/method" event="onClick" args="item, node">
+						var type = store.getValue(item, "type");
+						if(type == "language"){
+							var lang = store.getIdentity(item),
+								locale = lang + "-" + store.getIdentity(node.getParent().item).toLowerCase(),
+							dir = /ar|fa|he|ps|ur|yi/i.test(lang) ? "rtl" : "ltr";
+							window.location.href = window.location.href.replace(/\?.*/, "") + "?locale=" + locale + "&dir=" + dir;
+						}else{
+							alert("Please click a language, not a country or continent.");
+						}
+					</script>
+				</div>
+			</td>
+			<td style="vertical-align: top;">
+				<p dir="ltr">
+				Use the tree to select a language or a language/country combo; the page will reload
+				in the specified locale.  Note that tree is also rerendered using the specified language for top level tree items.
+				Arabic and Hebrew display right-to-left so be sure to try those.
+				</p>
+				<input dojoType="dijit._Calendar"/>
+
+				<p>Some form controls:</p>
+
+				<label for="date">Date:</label>
+				<input id="date" dojoType="dijit.form.DateTextBox" value="2006-07-04"/>
+				<br/>
+				<label for="spinner">Number spinner:</label>
+				<input id="spinner" dojoType="dijit.form.NumberSpinner" value="123456789"/>
+				<br/>
+				<label for="currency">Currency:</label>
+				<input id="currency" type="text" name="income1" value="54775.53"
+					dojoType="dijit.form.CurrencyTextBox"
+					required="true"
+					constraints="{fractional:true}"
+					currency="USD"/>
+				<br/>
+
+				<label for="combo1">Simple Combo:</label>
+				<select id="combo1" dojoType="dijit.form.ComboBox">
+					<option>option #1</option>
+					<option>option #2</option>
+					<option>option #3</option>
+				</select>
+				<br/>
+				<label for="combo2">Combo on languages and countries:</label>
+				<input id="combo2" dojoType="dijit.form.ComboBox"
+						value=""
+						store="store"
+						searchAttr="name"
+						name="anything"/>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

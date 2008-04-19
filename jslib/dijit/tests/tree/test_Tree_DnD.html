@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Dijit Tree Test</title>
+
+	<style someProperty="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../themes/tundra/tundra.css";
+		@import "../../themes/tundra/tundra_rtl.css";
+		@import "../css/dijitTests.css";
+		@import "../dndDefault.css"; 
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../../dojo/resources/dnd.css";
+		@import "../../../dojo/tests/dnd/dndDefault.css";
+	</style>
+
+	<script someProperty="text/javascript" src="testBidi.js"></script>
+
+	<script someProperty="text/javascript" src="../../../dojo/dojo.js" 
+		djConfig="parseOnLoad: true, isDebug: true"></script>
+
+	<script language="JavaScript" someProperty="text/javascript">
+		dojo.require("dojo.data.ItemFileWriteStore");
+		dojo.require("dijit.Tree");
+		dojo.require("dijit._tree.dndSource");
+		dojo.require("dijit.Menu");
+		dojo.require("dijit.form.Button");
+		dojo.require("dojo.parser");	// scan page for widgets and instantiate them
+
+		dojo.require("dojo.dnd.common");
+		dojo.require("dojo.dnd.Source");
+
+		selected=[];
+
+		globalId=1000;
+		lastSelected=null;
+
+		dojo.addOnLoad(function(){
+	
+			//record the selection from tree 1	
+			dojo.subscribe("myTree", null, function(message){
+				if(message.event=="execute"){
+					console.log("Tree1 Select: ",dijit.byId("myTree").store.getLabel(message.item));
+					lastSelected=selected["myTree"]=message.item;					
+				}
+			});
+
+			//record the selection from tree 2	
+			dojo.subscribe("myTree2", null, function(message){
+				if(message.event=="execute"){
+					console.log("Tree2 Select: ",dijit.byId("myTree2").store.getLabel(message.item));
+					lastSelected=selected["myTree2"]=message.item;					
+				}
+			});
+
+			//connect to the add button and have it add a new container to the store as necessary
+			dojo.connect(dijit.byId("addButton"), "onClick", function(){
+				var pInfo = {
+					parent: lastSelected,		
+					attribute: "children"	
+				};
+
+				//store.newItem({name: dojo.byId('newCat').value, id:globalId++, numberOfItems:dojo.byId('numItems').value}, pInfo);
+				catStore.newItem({name: dojo.byId('newCat').value, numberOfItems:0,id:globalId++}, pInfo);
+			});
+
+			//since we don't have a server, we're going to connect to the store and do a few things the server/store combination would normal be taking care of for us
+			dojo.connect(catStore, "onNew", function(item, pInfo){
+				var p = pInfo && pInfo.item;
+				if (p) {	
+					var currentTotal = catStore.getValues(p, "numberOfItems")[0];
+					catStore.setValue(p, "numberOfItems", ++currentTotal);
+				}
+				
+			});
+		});
+
+
+		//create a custom label for tree one consisting of the label property pluss the value of the numberOfItems Column
+		function catTreeCustomLabel(item){
+			var label = catStore.getLabel(item);
+			var num = catStore.hasAttribute(item, "numberOfItems") ? catStore.getValues(item,"numberOfItems") : "?";
+			return label + ' (' + num+ ')';
+		}
+
+		//on item tree , we only want to drop on containers, or the root node itself, not on items in the containers
+		function itemTreeCheckItemAcceptance(node,source) {
+			var item = dijit.getEnclosingWidget(node).item;
+			if (item && (item.root || catStore.hasAttribute(item,"numberOfItems"))){
+				return true;
+			}
+			return false;
+		}
+
+		function dndAccept(source,nodes){
+			if (this.tree.id=="myTree"){
+				return false;
+			}
+			return true;
+		}
+
+		function getIcon(item) {
+			if (!item || catStore.hasAttribute(item, "numberOfItems")) {
+				return "myFolder";
+			} 
+			return "myItem"
+		}
+	</script>
+
+	<style>
+		.myFolder{
+			display: "block";
+			width: 16px;
+			height: 16px;
+			background: blue;
+		}
+
+		.myItem{
+			display: "block";
+			width: 16px;
+			height: 16px;
+			background: green;
+
+		}
+	</style>
+
+</head>
+<body class="tundra"> 
+	<h1 class="testTitle">Dijit Tree Test - Drag And Drop Support</h1>
+
+	<div dojoType="dojo.data.ItemFileWriteStore" jsId="catStore"
+		url="../_data/categories.json"></div>
+
+	<table width="100%" style="margin:5px solid gray" >
+
+	<tr style="width:100%">
+		<td style="width: 50%">
+			<h2>Custom</h2> 
+			<p>Should add this category to the store.  The second parameter is the value for numberOfItems.</p>
+			<div class="container">
+				<input id="newCat" type="text" value="Pottedmeat" /><input id="numItems" type="text" value="0" size="3"/><div id="addButton" dojoType="dijit.form.Button">Add Category</div>
+			</div>
+		</td>
+		<td>
+			<h2>Items: </h2>
+			<p>List of Items to be categorized<p>
+				<div dojoType="dojo.dnd.Source" jsId="c2" class="container" style="height: 100px; overflow: auto">
+				<div class="dojoDndItem" id="1001">Apple</div>
+				<div class="dojoDndItem" id="1002">Orange</div>
+				<div class="dojoDndItem" id="1003">Banana</div>
+				<div class="dojoDndItem" id="1004">Tomato</div>
+				<div class="dojoDndItem" id="1005">Pepper</div>
+				<div class="dojoDndItem" id="1006">Wheat</div>
+				<div class="dojoDndItem" id="1007">Corn</div>
+				<div class="dojoDndItem" id="1008">Spinach</div>
+				<div class="dojoDndItem" id="1009">Cucumber</div>
+				<div class="dojoDndItem" id="1010">Carrot</div>
+				<div class="dojoDndItem" id="1011">Potato</div>
+				<div class="dojoDndItem" id="1012">Grape</div>
+				<div class="dojoDndItem" id="1013">Lemon</div>
+				<div class="dojoDndItem" id="1010">Lettuce</div>
+				<div class="dojoDndItem" id="1010">Peanut</div>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<h2>Collection Count Summary</h2>
+			<p>You can't drop items onto this tree.</p>
+			<div dojoType="dijit.tree.TreeStoreModel" jsId="catModel"
+				store="catStore" query="{id: '0'}"></div>
+			<div class="container" dojoType="dijit.Tree" id="collectionsTree" model="catModel"
+				getLabel="catTreeCustomLabel"  dndController="dijit._tree.dndSource"
+				checkAcceptance="dndAccept" getIconClass="getIcon"></div>
+		</td>
+		<td>
+			<h2>Collection</h2>
+			<p>
+				Drop items onto this tree, but only onto categories; should fail to let you drop on other items.
+				Can also move items within this tree.
+			</p>
+			<div dojoType="dijit.tree.TreeStoreModel" jsId="itemModel"
+				store="catStore" query="{id: '0'}" childrenAttrs="items, children"></div>
+			<div class="container" dojoType="dijit.Tree" id="itemTree"
+				model="itemModel"
+				dndController="dijit._tree.dndSource" checkAcceptance="dndAccept" checkItemAcceptance="itemTreeCheckItemAcceptance"
+				getIconClass="getIcon"></div> 
+		</td>
+	</tr>
+	</table>
+
+	</body>
+</html>

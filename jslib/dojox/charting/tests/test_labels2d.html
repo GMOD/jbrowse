@@ -1,0 +1,90 @@
+﻿<html>
+<head>
+<title>Chart 2D</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+	@import "../../../dojo/resources/dojo.css";
+	@import "../../../dijit/tests/css/dijitTests.css";
+</style>
+<!--
+The next line should include Microsoft's Silverligth.js, if you plan to use the silverlight backend
+<script type="text/javascript" src="Silverlight.js"></script>
+-->
+<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug: true"></script>
+<script type="text/javascript" src="../../lang/functional.js"></script>
+<script type="text/javascript" src="../../lang/utils.js"></script>
+<script type="text/javascript" src="../Theme.js"></script>
+<script type="text/javascript" src="../scaler.js"></script>
+<script type="text/javascript" src="../Element.js"></script>
+<script type="text/javascript" src="../axis2d/common.js"></script>
+<script type="text/javascript" src="../axis2d/Base.js"></script>
+<script type="text/javascript" src="../axis2d/Default.js"></script>
+<script type="text/javascript" src="../plot2d/common.js"></script>
+<script type="text/javascript" src="../plot2d/Base.js"></script>
+<script type="text/javascript" src="../plot2d/Default.js"></script>
+<script type="text/javascript" src="../plot2d/Lines.js"></script>
+<script type="text/javascript" src="../plot2d/Areas.js"></script>
+<script type="text/javascript" src="../plot2d/Markers.js"></script>
+<script type="text/javascript" src="../plot2d/MarkersOnly.js"></script>
+<script type="text/javascript" src="../plot2d/Stacked.js"></script>
+<script type="text/javascript" src="../plot2d/StackedLines.js"></script>
+<script type="text/javascript" src="../plot2d/StackedAreas.js"></script>
+<script type="text/javascript" src="../plot2d/Columns.js"></script>
+<script type="text/javascript" src="../plot2d/StackedColumns.js"></script>
+<script type="text/javascript" src="../plot2d/ClusteredColumns.js"></script>
+<script type="text/javascript" src="../plot2d/Bars.js"></script>
+<script type="text/javascript" src="../plot2d/StackedBars.js"></script>
+<script type="text/javascript" src="../plot2d/ClusteredBars.js"></script>
+<script type="text/javascript" src="../plot2d/Grid.js"></script>
+<script type="text/javascript" src="../plot2d/Pie.js"></script>
+<script type="text/javascript" src="../Chart2D.js"></script>
+<script type="text/javascript">
+
+dojo.require("dojox.charting.Chart2D");
+dojo.require("dojox.charting.themes.PlotKit.blue");
+dojo.require("dojox.charting.themes.PlotKit.cyan");
+dojo.require("dojox.charting.themes.PlotKit.green");
+dojo.require("dojox.charting.themes.PlotKit.orange");
+dojo.require("dojox.charting.themes.PlotKit.purple");
+dojo.require("dojox.charting.themes.PlotKit.red");
+
+makeObjects = function(){
+	var chart1 = new dojox.charting.Chart2D("test1");
+	chart1.addAxis("x", {fixLower: "major", fixUpper: "major", includeZero: true});
+	chart1.addAxis("y", {vertical: true, fixLower: "major", fixUpper: "major", natural: true});
+	chart1.addPlot("default", {type: "Bars"});
+	chart1.addSeries("Series A", [1, 2, 3, 4, 5], {stroke: {color: "red"}, fill: "lightpink"});
+	chart1.addSeries("Series B", [5, 4, 3, 2, 1], {stroke: {color: "blue"}, fill: "lightblue"});
+	chart1.render();
+	
+	var chart2 = new dojox.charting.Chart2D("test2");
+	chart2.addAxis("x", {
+		fixLower: "major", fixUpper: "major", includeZero: true, 
+		labels: [{value: 0, text: "zero"}, {value: 2, text: "two"}, {value: 4, text: "four"}]
+	});
+	chart2.addAxis("y", {
+		vertical: true, fixLower: "major", fixUpper: "major", natural: true,
+		labels: [{value: 0, text: ""}, {value: 1, text: "Jan"}, {value: 2, text: "Feb"}, 
+			{value: 3, text: "Mar"}, {value: 4, text: "Apr"}, 
+			{value: 5, text: "May"}, {value: 6, text: "Jun"}]
+	});
+	chart2.addPlot("default", {type: "Bars"});
+	chart2.addSeries("Series A", [1, 2, 3, 4, 5], {stroke: {color: "red"}, fill: "lightpink"});
+	chart2.addSeries("Series B", [5, 4, 3, 2, 1], {stroke: {color: "blue"}, fill: "lightblue"});
+	chart2.render();
+};
+
+dojo.addOnLoad(makeObjects);
+
+</script>
+</head>
+<body>
+<h1>Chart 2D</h1>
+<!--<p><button onclick="makeObjects();">Go</button></p>-->
+<p>1: Bars, axes aligned on major ticks, no minor ticks, custom strokes and fills.</p>
+<div id="test1" style="width: 200px; height: 200px;"></div>
+<p>2: Bars, axes aligned on major ticks, no minor ticks, custom strokes and fills, custom labels.</p>
+<div id="test2" style="width: 200px; height: 200px;"></div>
+<p>That's all Folks!</p>
+</body>
+</html>

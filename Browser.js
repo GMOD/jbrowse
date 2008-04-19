@@ -71,7 +71,7 @@ Browser.init = function(elemId) {
     };
 
     setBrowserSize();
-    YAHOO.util.Event.addListener(window, "resize", function() {
+    dojo.connect(window, "resize", function() {
 	    setBrowserSize();
 	    gv.sizeInit();
 	});

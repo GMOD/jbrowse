@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Dijit Tree Programmatic Test</title>
+
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../css/dijitTests.css";
+	</style>
+
+	<script type="text/javascript" src="../../../dojo/dojo.js"
+		djConfig="parseOnLoad: false, isDebug: true"></script>
+	<script type="text/javascript" src="../_testCommon.js"></script>
+
+	<script language="JavaScript" someProperty="text/javascript">
+		dojo.require("dojo.data.ItemFileWriteStore");
+		dojo.require("dijit.Tree");
+
+		dojo.addOnLoad(function(){
+ 			var myStore = new dojo.data.ItemFileWriteStore({url:'../_data/countries.json'});
+			var myModel = new dijit.tree.ForestStoreModel({
+				store: myStore,
+				query: {type:'continent'},
+				rootId: "earth",
+				rootLabel: "Earth",
+				childrenAttrs: ["children"]
+			});
+			var tree = new dijit.Tree({
+				model: myModel
+			});
+			dojo.body().appendChild(tree.domNode);
+			tree.startup();
+		});
+	</script>
+</head>
+<body>
+        <h1 class="testTitle">Dijit Forest Store Programmatic Test</h1>
+</body>
+</html>
