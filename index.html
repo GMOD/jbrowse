@@ -6,11 +6,23 @@
   
   <head>
     <title>div genome test</title>
+    <link rel="stylesheet" type="text/css" href="jslib/dijit/themes/tundra/tundra.css"></link>
+    <link rel="stylesheet" type="text/css" href="jslib/dojo/resources/dojo.css"></link>
     <link rel="stylesheet" type="text/css" href="genome.css"></link>
+    <style type="text/css">
+      html, body { height: 100%; width: 100%; padding: 0; border: 0; }
+      #mainSplit { height: 100%; width: 100%; padding: 0; border: 0; }
+      #genomeBrowser { height: 100%; width:100%; padding: 0; border: none; }
+
+      #mainSplit .dijitSplitterH { height: 7px }
+      #mainSplit .dijitSplitterV { width: 7px }
+    </style>
+
     <script type="text/javascript">
     /* <![CDATA[ */
        	var djConfig = {
-		usePlainJson: true
+		usePlainJson: true,
+                parseOnLoad: true
 	};
     /* ]]> */
     </script>
@@ -40,25 +52,73 @@
            {type: "SimpleFeatureTrack", url: "data/3R/protein_binding_site_1.json", className: "feature5", label: "protein_binding_site", key: "protein_binding_site"},
           ];
 
-       dojo.addOnLoad(function() {Browser.init('genomeBrowser')});
+       dojo.require("dojo.parser");
+       dojo.require("dojo.dnd.Source");
+       dojo.require("dijit.layout.ContentPane");
+       dojo.require("dijit.layout.BorderContainer");
+
+       dojo.addOnLoad(function() {
+           Browser.init('genomeBrowser');
+           tracks.insertNodes(false, trackList);
+       });
+
+       var trackListCreate = function(track, hint) {
+           var labelDiv = document.createElement("div");
+           labelDiv.className = "tracklist-label";
+           labelDiv.id = dojo.dnd.getUniqueId(); //"label_" + track.name + (hint ? hint : "");
+           labelDiv.appendChild(document.createTextNode(track.key));
+           return {node: labelDiv, data: track, type: ["track"]};
+       }
     /* ]]> */
     </script>
   </head>
   
-  <body>
-    <button id="moveLeft" class="nav">&lt;&lt;</button>
-    <!--<button id="stepLeft" class="nav">&lt;</button>
-    <button id="stepRight" class="nav">&gt;</button>-->
-    <button id="moveRight" class="nav">&gt;&gt;</button>
-    &nbsp;&nbsp;&nbsp;
-    <button id="zoomIn" class="nav">+</button>
-    <button id="zoomOut" class="nav">-</button>
-    &nbsp;&nbsp;&nbsp;
-    <button id="profile" class="nav" style="display:none">demo</button>
+  <body class="tundra">
     <!--&nbsp;&nbsp;&nbsp;-->
     <!--<div id="myLogger" style="position:relative; height: 10ex; left: 2%; width: 96%; overflow: scroll"></div>-->
 
-    <div id="genomeBrowser" class="dragWindow" style="left: 2%; top: 3em; width: 96%; height: 800px;">
+    <div dojoType="dijit.layout.BorderContainer"
+         liveSplitters="false"
+         design="sidebar"
+         id="mainSplit">
+
+      <div dojoType="dijit.layout.ContentPane" region="top">
+        <div style="text-align: center; padding: 5px;">
+          <button id="moveLeft" class="nav">&lt;&lt;</button>
+          <!--<button id="stepLeft" class="nav">&lt;</button>
+              <button id="stepRight" class="nav">&gt;</button>-->
+          <button id="moveRight" class="nav">&gt;&gt;</button>
+          &nbsp;&nbsp;&nbsp;
+          <button id="zoomIn" class="nav">+</button>
+          <button id="zoomOut" class="nav">-</button>
+          &nbsp;&nbsp;&nbsp;
+          <button id="profile" class="nav" style="display:none">demo</button>
+        </div>
+      </div>
+      <div id="tracksAvail"
+           dojoType="dijit.layout.ContentPane"
+           region="leading"
+           splitter="true"
+	   style="width: 10em">
+        <div dojoType="dojo.dnd.Source"
+             jsId="tracks"
+             withHandles="false"
+	     accept="track"
+             class="container handles"
+             style="width: 100%; height: 100%;">
+        Available Tracks:<br/>
+        (Drag -> to view)
+	  <script type="dojo/method" event="creator" args="item, hint">return trackListCreate(item, hint);</script>
+	</div>
+      </div>
+
+      <div id="browserPane"
+           dojoType="dijit.layout.ContentPane"
+           region="center">
+        <div id="genomeBrowser"
+             class="dragWindow">
+        </div>
+      </div>
     </div>
   </body>
 </html>

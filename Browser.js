@@ -1,6 +1,6 @@
 var Browser = {};
 Browser.init = function(elemId) {
-    var viewElem = $(elemId);
+    var viewElem = dojo.byId(elemId);
     //var refSeq = {start: 0, end: 27905053, length: function() {return this.end - this.start}};
     var refSeq = {start: -224036, end: 27905053, length: function() {return this.end - this.start}};
     var gv = new GenomeView(viewElem, 250, refSeq.start, refSeq.end, 1/50);
@@ -58,22 +58,31 @@ Browser.init = function(elemId) {
 //         YAHOO.util.Connect.asyncRequest("GET", track.url, {success: trackSuccess, argument: track});
 //     }
 //     setTimeout(addTrack, 0);
+
+   
     var changeCallback = function() {
 	gv.showVisibleBlocks(true);
     }
-    for (var i = 0; i < trackList.length; i++) {
-	gv.addTrack(new SimpleFeatureTrack(trackList[i], refSeq, changeCallback));
+    //for (var i = 0; i < trackList.length; i++) {
+    //	gv.addTrack(new SimpleFeatureTrack(trackList[i], refSeq, changeCallback));
+    //}
+
+    var trackCreate = function(track, hint) {
+	var node;
+	if ("avatar" == hint) {
+	    //trackListCreate is defined in index.html (TODO: pull over here, or merge this stuff into index.html)
+	    return trackListCreate(track, hint);
+	} else {
+	    node = gv.addTrack(new SimpleFeatureTrack(track, refSeq, changeCallback));
+	}
+	return {node: node, data: track, type: ["track"]};
     }
+    var gvSource = new dojo.dnd.Source(gv.container, {creator: trackCreate,
+						      accept: ["track"],
+						      withHandles: true});
 
-    var setBrowserSize = function() {
-	viewElem.style.width = (Util.getViewportWidth() - (2 * viewElem.offsetLeft)) + "px";
-	viewElem.style.height = (Util.getViewportHeight() - (viewElem.offsetTop + 10)) + "px";
-    };
-
-    setBrowserSize();
-    dojo.connect(window, "resize", function() {
-	    setBrowserSize();
-	    gv.sizeInit();
+    dojo.connect(dijit.byId("browserPane"), "resize", function() {
+            gv.sizeInit();
 	});
 
 }

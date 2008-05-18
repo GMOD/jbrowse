@@ -183,15 +183,6 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
                       $("zoomIn"), $("zoomOut"),
                       document.body, elem];
     this.prevCursors = [];
-    //this.colorArray =
-    //    ["#000000", "#000033", "#000066", "#000099", "#0000CC", "#0000FF",
-    //     "#003300", "#003333", "#003366", "#003399", "#0033CC", "#0033FF",
-    //     "#006600", "#006633", "#006666", "#006699", "#0066CC", "#0066FF"];
-
-    this.colorArray =
-        ["#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1",
-         "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1",
-         "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1", "#B1C6D1"];
 
     var view = this;
 
@@ -334,8 +325,8 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 	if (event.shiftKey || event.ctrlKey) return;
 	view.dragEventHandles =
 	    [
-	     dojo.connect(view.elem, "mouseup", view.dragEnd),
-	     dojo.connect(view.elem, "mousemove", view.dragMove),
+	     dojo.connect(document.body, "mouseup", view.dragEnd),
+	     dojo.connect(document.body, "mousemove", view.dragMove),
 	     dojo.connect(document.body, "mouseout", view.checkDragOut),
 	     ];
 
@@ -847,6 +838,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 			       this.stripes[leftVisible].startBase,
 			       bpPerBlock,
 			       this.pxPerBp);
+
     this.trackIterate(function(track, gv) {
  	    tracks.push(track);
  	    if (trackBottom < middle) {
@@ -855,6 +847,8 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 		trackBottom += track.height + gv.trackPadding;
 	    }
  	});
+    if (0 == tracks.length) return;
+
     trackBottom -= this.trackPadding;
     //fill up from the middle
     for (i = middleIndex - 1; i >=0; i--) {
@@ -866,7 +860,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 				    bpPerBlock,
 				    this.pxPerBp);
 	    if (updateHeight && (tracks[i].height != trackHeight)) {
-		tracks[i].div.style.height = trackHeight + "px";
+		tracks[i].div.style.height = (trackHeight + this.trackPadding) + "px";
 		middleDelta += (trackHeight - tracks[i].height);
 		tracks[i].height = trackHeight;
 	    }
@@ -884,7 +878,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 				    bpPerBlock,
 				    this.pxPerBp);
 	    if (updateHeight && (tracks[i].height != trackHeight)) {
-		tracks[i].div.style.height = trackHeight + "px";
+		tracks[i].div.style.height = (trackHeight + this.trackPadding) + "px";
 		tracks[i].height = trackHeight;
 	    }
 	    trackTop += tracks[i].height + this.trackPadding;
@@ -981,7 +975,7 @@ GenomeView.prototype.makeStripes = function() {
 GenomeView.prototype.addTrack = function(track) {
     var trackNum = this.tracks.length;
     var labelDiv = document.createElement("div");
-    labelDiv.className = "track-label";
+    labelDiv.className = "track-label dojoDndHandle";
     labelDiv.id = "label_" + track.name;
     this.trackLabels.push(labelDiv);
     var trackDiv = document.createElement("div");
@@ -1006,10 +1000,9 @@ GenomeView.prototype.addTrack = function(track) {
     //YAHOO.log(elemPos);
     //labelDiv.style.left = elemPos[0] + "px";
     //labelDiv.style.top = totalHeight - pos.y + "px";
+    labelDiv.style.position = "absolute";
     labelDiv.style.top = "0px";
     labelDiv.style.left = pos.x + "px";
-    labelDiv.style.backgroundColor = this.colorArray[this.tracks.length %
-                                                     this.colorArray.length];
     trackDiv.appendChild(labelDiv);
 
 //     var leftVisible = Math.max(0, ((pos.x - this.dim.width) / this.stripeWidth) | 0);
@@ -1030,11 +1023,12 @@ GenomeView.prototype.addTrack = function(track) {
     //} else {
     //track.height = 50;
     //}
-    this.container.appendChild(trackDiv);
+    //this.container.appendChild(trackDiv);
+
     track.height = Math.max(track.height, labelDiv.offsetHeight);
     //this.trackHeights.push(track.height);
-    trackDiv.style.height = track.height + "px";
-    trackDiv.style.marginBottom = this.trackPadding + "px";
+    trackDiv.style.height = (track.height + this.trackPadding) + "px";
+    //trackDiv.style.marginBottom = this.trackPadding + "px";
     totalHeight += track.height + this.trackPadding;
     totalHeight = Math.max(totalHeight, this.dim.height);
     //for (var i = 0; i < this.stripeCount; i++)
@@ -1042,6 +1036,7 @@ GenomeView.prototype.addTrack = function(track) {
     this.containerHeight = totalHeight - this.topSpace()
     this.container.style.height = this.containerHeight + "px";
 
+    return trackDiv;
 //     var trackDD = new YAHOO.util.DDProxy(trackDiv, "tracks", {padding: [this.trackPadding / 2, 0, this.trackPadding / 2, 0], scroll: false});
 //     trackDD.trackPadding = this.trackPadding;
 //     trackDD.genomeView = this;

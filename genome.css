@@ -13,9 +13,9 @@ div.dragWindow {
 /*    overflow-x: hidden;
     overflow-y: scroll; */
     z-index: 1;
-    border-style: solid;
+/*    border-style: solid;
     border-width: 1px;
-    border-color: gray;
+    border-color: gray; */
     /*background: transparent;*/
     cursor: url("openhand.cur"), move;
 }
@@ -32,6 +32,22 @@ div.track {
     left: 0px;
     width: 100%;
     z-index: 5;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.track.dojoDndItemOver {
+    cursor: inherit;
+}
+
+.track.dojoDndItemBefore {
+    border-top: 3px solid black;
+    padding-top: 2px;
+}
+
+.track.dojoDndItemAfter {
+    border-bottom: 3px solid black;
+    padding-bottom: 2px;
 }
 
 div#static_track {
@@ -94,12 +110,30 @@ div.plus-feature:before {
 
 div.track-label {
     font-family: sans-serif;
-    position: absolute;
     z-index: 20;
-    border: 2px #2b434c solid;
+    background-color: #B1C6D1;
     color: #2b434c;
     padding: 2px;
     cursor: move;
+}
+
+div.tracklist-label {
+    font-family: sans-serif;
+    z-index: 20;
+    background-color: #B1C6D1;
+    color: #2b434c;
+    cursor: move;
+    padding: 5px;
+}
+
+.tracklist-label.dojoDndItemBefore {
+    border-top: 3px solid black;
+    padding-top: 2px;
+}
+
+.tracklist-label.dojoDndItemAfter {
+    border-bottom: 3px solid black;
+    padding-bottom: 2px;
 }
 
 div.feature-label {
