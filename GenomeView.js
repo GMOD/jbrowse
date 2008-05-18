@@ -475,11 +475,11 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     this.staticTrack.showRange(0, this.stripeCount - 1, this.stripes[0].startBase, Math.round(this.stripeWidth / this.pxPerBp), this.pxPerBp);
     this.container.appendChild(trackDiv);
 
-    dojo.connect(trackDiv, "mouseup", function(event) {
+    dojo.connect(trackDiv, "click", function(event) {
 	    if (view.dragging) return;
 	    if ("animation" in view) view.animation.stop();
 	    var zoomLoc = (event.pageX - dojo.coords(view.elem, true).x) / view.dim.width;
-	    if (Util.isRightButton(event) || event.ctrlKey) {
+	    if (event.ctrlKey) {
 		view.zoomOut(event, zoomLoc);
 	    } else {
 		view.zoomIn(event, zoomLoc);
@@ -487,7 +487,13 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 	    dojo.stopEvent(event);
 	});
     dojo.connect(trackDiv, "mousedown", killEvent);
-    dojo.connect(trackDiv, "contextmenu", killEvent);
+    dojo.connect(trackDiv, "contextmenu", function(event) {
+	    if (view.dragging) return;
+	    if ("animation" in view) view.animation.stop();
+	    var zoomLoc = (event.pageX - dojo.coords(view.elem, true).x) / view.dim.width;
+	    view.zoomOut(event, zoomLoc);
+	    dojo.stopEvent(event);
+	});
     this.waitElems.push(trackDiv);
 
     this.setX((this.container.offsetWidth / 2) - (this.dim.width / 2));
