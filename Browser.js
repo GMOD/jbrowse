@@ -73,7 +73,7 @@ Browser.init = function(elemId) {
 	    //trackListCreate is defined in index.html (TODO: pull over here, or merge this stuff into index.html)
 	    return trackListCreate(track, hint);
 	} else {
-	    node = gv.addTrack(new SimpleFeatureTrack(track, refSeq, changeCallback));
+	    node = gv.addTrack(new SimpleFeatureTrack(track, refSeq, changeCallback, gv.trackPadding));
 	}
 	return {node: node, data: track, type: ["track"]};
     }

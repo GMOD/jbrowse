@@ -1,4 +1,4 @@
-function SimpleFeatureTrack(trackMeta, refSeq, changeCallback) {
+function SimpleFeatureTrack(trackMeta, refSeq, changeCallback, trackPadding) {
     //className: CSS class for the features
     //padding: min pixels between each feature horizontally
 
@@ -18,6 +18,7 @@ function SimpleFeatureTrack(trackMeta, refSeq, changeCallback) {
     this.numBins = 25;
     this.histLabel = false;
     this.padding = 5;
+    this.trackPadding = trackPadding;
 
     this.trackMeta = trackMeta;
     var curTrack = this;
@@ -67,7 +68,7 @@ SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
         binDiv.style.cssText = 
             "left: " + ((bin / this.numBins) * 100) + "%; "
             + "height: " + (2 * hist[bin]) + "px;"
-	    + "bottom: 0px;"
+	    + "bottom: " + this.trackPadding + "px;"
             + "width: " + (((1 / this.numBins) * 100) - (100 / stripeWidth)) + "%;";
         if (Util.is_ie6) binDiv.appendChild(document.createComment());
         block.appendChild(binDiv);
