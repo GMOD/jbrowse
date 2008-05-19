@@ -46,6 +46,30 @@ Browser.init = function(elemId) {
     var gvSource = new dojo.dnd.Source(gv.container, {creator: trackCreate,
 						      accept: ["track"],
 						      withHandles: true});
+    dojo.subscribe("/dnd/drop", function(source,nodes,iscopy){
+	    var trackLabels = dojo.map(gv.trackList(),
+				       function(track) { return track.name; });
+	    dojo.cookie("tracks", trackLabels.join(","));
+	    gv.showVisibleBlocks();
+	});
+
+    var oldTrackList = dojo.cookie("tracks");
+    if (oldTrackList) {
+	var oldTrackNames = oldTrackList.split(",");
+	var insertList = [];
+	var availList = [];
+	dojo.forEach(trackList, function(trackInfo) {
+		var i = dojo.indexOf(oldTrackNames, trackInfo.label);
+		if (i >= 0)
+		    insertList[i] = trackInfo;
+		else
+		    availList.push(trackInfo);
+	    });
+	gvSource.insertNodes(false, insertList);
+	tracks.insertNodes(false, availList);
+    } else {
+	tracks.insertNodes(false, [trackList]);
+    }
 
     dojo.connect(dijit.byId("browserPane"), "resize", function() {
             gv.sizeInit();

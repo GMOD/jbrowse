@@ -1051,3 +1051,11 @@ GenomeView.prototype.trackIterate = function(callback) {
         if (containerChild.track) callback(containerChild.track, this);
     } while (containerChild = containerChild.nextSibling);
 }
+
+//doing this for now, rather than just returning this.tracks,
+//because the browser is currently maintaining the track ordering
+GenomeView.prototype.trackList = function(callback) {
+    var tracks = [];
+    this.trackIterate(function(track) { tracks.push(track); });
+    return tracks;
+}
