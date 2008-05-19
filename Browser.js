@@ -68,7 +68,7 @@ Browser.init = function(elemId) {
 	gvSource.insertNodes(false, insertList);
 	tracks.insertNodes(false, availList);
     } else {
-	tracks.insertNodes(false, [trackList]);
+	tracks.insertNodes(false, trackList);
     }
 
     dojo.connect(dijit.byId("browserPane"), "resize", function() {
