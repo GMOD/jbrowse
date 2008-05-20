@@ -48,7 +48,7 @@ SimpleFeatureTrack.prototype.loadSuccess = function(o) {
     this.onFeatureClick = function(event) {
 	event = event || window.event;
 	if (event.shiftKey) return;
-	var feat = event.currentTarget.feature;
+	var feat = (event.currentTarget || event.srcElement).feature;
 	alert("clicked on feature\nstart: " + feat[fields["start"]] +
 	      ", end: " + feat[fields["end"]] +
 	      ", strand: " + feat[fields["strand"]] +

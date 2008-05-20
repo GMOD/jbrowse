@@ -186,38 +186,51 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 
     var view = this;
 
-    var cssScroll = false; //Util.is_ie6;
+    var cssScroll = Util.is_ie;
 
     if (cssScroll) {
-        view.getX = function() { return -parseInt(view.container.style.left); }
-        view.getY = function() { return -parseInt(view.container.style.top); }
+        view.x = -parseInt(view.container.style.left);
+        view.y = -parseInt(view.container.style.top);
+        view.getX = function() {
+            return view.x; //-parseInt(view.container.style.left);
+        }
+        view.getY = function() {
+            return view.y; //-parseInt(view.container.style.top);
+        }
         view.getPosition = function() {
-            return {x: -parseInt(view.container.style.left),
-                    y: -parseInt(view.container.style.top)};
+	    return { x: view.x, y: view.y };
+            //return {x: -parseInt(view.container.style.left),
+            //        y: -parseInt(view.container.style.top)};
         }
-        view.rawSetX = function(x) { view.container.style.left = -x; }
+        view.rawSetX = function(x) {view.container.style.left = -x; view.x = x;}
         view.setX = function(x) {
-            view.container.style.left =
-                (-Math.max(Math.min(view.maxLeft - view.offset, x), 
-                           view.minLeft - view.offset)) + "px";
+	    view.x = Math.max(Math.min(view.maxLeft - view.offset, x), 
+                              view.minLeft - view.offset);
+	    view.updateTrackLabels(view.x);
+            view.container.style.left = -view.x + "px";
         }
-        view.rawSetY = function(y) { view.container.style.top = -y; }
+        view.rawSetY = function(y) {view.container.style.top = -y; view.y = y;}
         view.setY = function(y) {
-            view.container.style.top = -Math.min((y < 0 ? 0 : y),
-						 view.containerHeight
-						 - view.dim.height) + "px";
+            view.y = Math.min((y < 0 ? 0 : y),
+                              view.containerHeight
+                              - view.dim.height);
+            view.updatePosLabels(view.y);
+            view.container.style.top = -view.y + "px";
         }
         view.rawSetPosition = function(pos) {
             view.container.style.left = -pos.x + "px";
             view.container.style.top = -pos.y + "px";
         }
         view.setPosition = function(pos) {
-            view.container.style.left =
-                (-Math.max(Math.min(view.maxLeft - view.offset, pos.x), 
-                           view.minLeft - view.offset)) + "px";
-            view.container.style.top =
-                (-Math.min((pos.y < 0 ? 0 : pos.y),
-			   view.containerHeight - view.dim.height)) + "px";
+            view.x = Math.max(Math.min(view.maxLeft - view.offset, pos.x),
+                              view.minLeft - view.offset);
+            view.y = Math.min((pos.y < 0 ? 0 : pos.y),
+                              view.containerHeight - view.dim.height);
+            view.updateTrackLabels(view.x);
+            view.updatePosLabels(view.y);
+
+            view.container.style.left = -view.x + "px";
+            view.container.style.top = -view.y + "px";
         }
     } else {
 	view.x = view.elem.scrollLeft;
@@ -245,47 +258,25 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
             view.elem.scrollLeft = pos.x; view.x = pos.x;
             view.elem.scrollTop = pos.y; view.y = pos.y;
         }
-	//for some reason, IE likes updatePosLabels to run after setting scrollTop
-	if (Util.is_ie) {
-	    view.setY = function(y) {
-		view.y = Math.min((y < 0 ? 0 : y),
-				  view.containerHeight
-				  - view.dim.height);
-		view.elem.scrollTop = view.y
-		view.updatePosLabels(view.y);
-	    }
-	    view.setPosition = function(pos) {
-		view.x = Math.max(Math.min(view.maxLeft - view.offset, pos.x),
-				  view.minLeft - view.offset);
-		view.y = Math.min((pos.y < 0 ? 0 : pos.y),
-				  view.containerHeight - view.dim.height);
-		view.updateTrackLabels(view.x);
-		view.updatePosLabels(view.y);
 
-		view.elem.scrollLeft = view.x;
-		view.elem.scrollTop = view.y;
+        view.setY = function(y) {
+            view.y = Math.min((y < 0 ? 0 : y),
+                              view.containerHeight
+                              - view.dim.height);
+            view.updatePosLabels(view.y);
+            view.elem.scrollTop = view.y
+        }
+        view.setPosition = function(pos) {
+            view.x = Math.max(Math.min(view.maxLeft - view.offset, pos.x),
+                              view.minLeft - view.offset);
+            view.y = Math.min((pos.y < 0 ? 0 : pos.y),
+                              view.containerHeight - view.dim.height);
 
-	    }
-	} else {
-	    view.setY = function(y) {
-		view.y = Math.min((y < 0 ? 0 : y),
-				  view.containerHeight
-				  - view.dim.height);
-		view.updatePosLabels(view.y);
-		view.elem.scrollTop = view.y
-	    }
-	    view.setPosition = function(pos) {
-		view.x = Math.max(Math.min(view.maxLeft - view.offset, pos.x),
-				  view.minLeft - view.offset);
-		view.y = Math.min((pos.y < 0 ? 0 : pos.y),
-				  view.containerHeight - view.dim.height);
+            view.updateTrackLabels(view.x);
+            view.updatePosLabels(view.y);
 
-		view.updateTrackLabels(view.x);
-		view.updatePosLabels(view.y);
-
-		view.elem.scrollLeft = view.x;
-		view.elem.scrollTop = view.y;
-	    }
+            view.elem.scrollLeft = view.x;
+            view.elem.scrollTop = view.y;
 	}	    
     }
 
