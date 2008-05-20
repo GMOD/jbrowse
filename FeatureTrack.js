@@ -34,6 +34,7 @@ SimpleFeatureTrack.prototype.loadSuccess = function(o) {
     var startTime = new Date().getTime();
     var trackInfo = o; //eval(o.responseText);
     this.count = trackInfo.featureCount;
+    this.fields = {};
     for (var i = 0; i < trackInfo.map.length; i++) {
 	this.fields[trackInfo.map[i]] = i;
     }
@@ -42,6 +43,17 @@ SimpleFeatureTrack.prototype.loadSuccess = function(o) {
     this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length());
     
     //console.log((new Date().getTime() - startTime) / 1000);
+
+    var fields = this.fields;
+    this.onFeatureClick = function(event) {
+	event = event || window.event;
+	if (event.shiftKey) return;
+	var feat = event.currentTarget.feature;
+	alert("clicked on feature\nstart: " + feat[fields["start"]] +
+	      ", end: " + feat[fields["end"]] +
+	      ", strand: " + feat[fields["strand"]] +
+	      ", ID: " + feat[fields["name"]]);
+    };
 
     this.setLoaded();
 }
@@ -204,17 +216,8 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     var blockWidth = rightBase - leftBase;
     var maxLevel = 0;
 
-    var callback = function(event) {
-	event = event || window.event;
-	if (event.shiftKey) return;
-	var feat = event.currentTarget.feature;
-	alert("clicked on feature\nstart: " + feat[start] +
-	      ", end: " + feat[end] +
-	      ", strand: " + feat[strand] +
-	      ", ID: " + feat[name]);
-    };
-
     var featDiv;
+    var callback = this.onFeatureClick;
     var leftSlots = new Array();
     var glyphHeight = this.glyphHeight;
     var levelHeight = this.glyphHeight;
