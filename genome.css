@@ -112,27 +112,45 @@ div.track-label {
     font-family: sans-serif;
     z-index: 20;
     background-color: #B1C6D1;
+    border: 2px #2b434c solid;
     color: #2b434c;
     padding: 5px;
-    cursor: move;
+    cursor: pointer;
 }
 
 div.tracklist-label {
     font-family: sans-serif;
     z-index: 20;
     background-color: #B1C6D1;
+    border: 2px #2b434c solid;
     color: #2b434c;
-    cursor: move;
-    padding: 5px;
+    cursor: pointer;
+    padding: 3px;
 }
 
-.tracklist-label.dojoDndItemBefore {
-    border-top: 3px solid black;
+/* commented for now, multi-select too confusing?
+.tracklist-container.dojoDndItemSelected {
+    background: #ddf;
+}
+
+.tracklist-container.dojoDndItemAnchor {
+    background: #ddf;
+}
+*/
+
+div.tracklist-container {
+    padding: 5px;
+    margin-top: -3px;
+    margin-bottom: -3px;
+}
+
+.tracklist-container.dojoDndItemBefore {
+    border-top: 3px solid #999;
     padding-top: 2px;
 }
 
-.tracklist-label.dojoDndItemAfter {
-    border-bottom: 3px solid black;
+.tracklist-container.dojoDndItemAfter {
+    border-bottom: 3px solid #999;
     padding-bottom: 2px;
 }
 

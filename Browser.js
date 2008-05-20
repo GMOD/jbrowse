@@ -34,11 +34,19 @@ Browser.init = function(elemId, trackListId) {
     }
 
     var trackListCreate = function(track, hint) {
-	var labelDiv = document.createElement("div");
-	labelDiv.className = "tracklist-label";
-	labelDiv.id = dojo.dnd.getUniqueId(); //"label_" + track.name + (hint ? hint : "");
-	labelDiv.appendChild(document.createTextNode(track.key));
-	return {node: labelDiv, data: track, type: ["track"]};
+	var node = document.createElement("div");
+	node.className = "tracklist-label";
+	node.appendChild(document.createTextNode(track.key));
+	//in the list, wrap the list item in a container for
+	//border drag-insertion-point monkeying
+	if ("avatar" != hint) {
+	    var container = document.createElement("div");
+	    container.className = "tracklist-container";
+	    container.appendChild(node);
+	    node = container;
+	}
+	node.id = dojo.dnd.getUniqueId();
+	return {node: node, data: track, type: ["track"]};
     }
     var tracks = new dojo.dnd.Source(trackListId, {creator: trackListCreate,
 						   accept: ["track"],
@@ -61,6 +69,8 @@ Browser.init = function(elemId, trackListId) {
 				       function(track) { return track.name; });
 	    dojo.cookie("tracks", trackLabels.join(","));
 	    gv.showVisibleBlocks();
+	    //multi-select too confusing?
+	    //gvSource.selectNone();
 	});
 
     var oldTrackList = dojo.cookie("tracks");
