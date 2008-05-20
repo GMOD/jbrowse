@@ -32,8 +32,6 @@ div.track {
     left: 0px;
     width: 100%;
     z-index: 5;
-    padding-top: 5px;
-    padding-bottom: 5px;
 }
 
 .track.dojoDndItemOver {
@@ -41,13 +39,13 @@ div.track {
 }
 
 .track.dojoDndItemBefore {
-    border-top: 3px solid black;
-    padding-top: 2px;
+    border-top: 3px solid #999;
+    margin-top: -3px;
 }
 
 .track.dojoDndItemAfter {
-    border-bottom: 3px solid black;
-    padding-bottom: 2px;
+    border-bottom: 3px solid #999;
+    margin-bottom: -3px;
 }
 
 div#static_track {
