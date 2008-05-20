@@ -1,5 +1,5 @@
 var Browser = {};
-Browser.init = function(elemId) {
+Browser.init = function(elemId, trackListId) {
     var viewElem = dojo.byId(elemId);
     //var refSeq = {start: 0, end: 27905053, length: function() {return this.end - this.start}};
     var refSeq = {start: -224036, end: 27905053, length: function() {return this.end - this.start}};
@@ -33,10 +33,20 @@ Browser.init = function(elemId) {
 	gv.showVisibleBlocks(true);
     }
 
+    var trackListCreate = function(track, hint) {
+	var labelDiv = document.createElement("div");
+	labelDiv.className = "tracklist-label";
+	labelDiv.id = dojo.dnd.getUniqueId(); //"label_" + track.name + (hint ? hint : "");
+	labelDiv.appendChild(document.createTextNode(track.key));
+	return {node: labelDiv, data: track, type: ["track"]};
+    }
+    var tracks = new dojo.dnd.Source(trackListId, {creator: trackListCreate,
+						   accept: ["track"],
+						   withHandles: false});
+
     var trackCreate = function(track, hint) {
 	var node;
 	if ("avatar" == hint) {
-	    //trackListCreate is defined in index.html (TODO: pull over here, or merge this stuff into index.html)
 	    return trackListCreate(track, hint);
 	} else {
 	    node = gv.addTrack(new SimpleFeatureTrack(track, refSeq, changeCallback, gv.trackPadding));
@@ -61,6 +71,7 @@ Browser.init = function(elemId) {
 	dojo.forEach(trackList, function(trackInfo) {
 		var i = dojo.indexOf(oldTrackNames, trackInfo.label);
 		if (i >= 0)
+		    //preserve oldTrackNames ordering
 		    insertList[i] = trackInfo;
 		else
 		    availList.push(trackInfo);
