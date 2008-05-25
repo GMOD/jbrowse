@@ -3,7 +3,20 @@ Browser.init = function(elemId, trackListId) {
     var viewElem = dojo.byId(elemId);
     //var refSeq = {start: 0, end: 27905053, length: function() {return this.end - this.start}};
     var refSeq = {start: -224036, end: 27905053, length: function() {return this.end - this.start}};
-    var gv = new GenomeView(viewElem, 250, refSeq.start, refSeq.end, 1/50);
+    var zoomLevel = 1/50;
+    var zoomCookie = dojo.cookie("zoom");
+    if (zoomCookie) 
+	zoomLevel = parseFloat(zoomCookie);
+
+    var location = ((refSeq.end + refSeq.start) / 2) | 0;
+    var locCookie = dojo.cookie("location");
+    if (locCookie)
+	location = parseInt(locCookie);
+    if (isNaN(location))
+	location = ((refSeq.end + refSeq.start) / 2) | 0;
+    var gv = new GenomeView(viewElem, 250, 
+			    refSeq.start, refSeq.end,
+			    zoomLevel, location);
     gv.setY(0);
     viewElem.view = gv;
     //var trackNum = 0;
@@ -67,7 +80,7 @@ Browser.init = function(elemId, trackListId) {
     dojo.subscribe("/dnd/drop", function(source,nodes,iscopy){
 	    var trackLabels = dojo.map(gv.trackList(),
 				       function(track) { return track.name; });
-	    dojo.cookie("tracks", trackLabels.join(","));
+	    dojo.cookie("tracks", trackLabels.join(","), {expires: 60});
 	    gv.showVisibleBlocks();
 	    //multi-select too confusing?
 	    //gvSource.selectNone();

@@ -106,7 +106,7 @@ Zoomer.prototype.step = function(pos) {
     this.x = newLeft;
 }
 
-function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
+function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel, position) {
     //all coordinates are interbase
 
     //measure text width for the max zoom level
@@ -504,12 +504,12 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 	});
     this.waitElems.push(trackDiv);
 
-    this.setX((this.container.offsetWidth / 2) - (this.dim.width / 2));
-
     this.container.style.paddingTop = this.topSpace() + "px";
 
     document.body.style.cursor = "url(\"closedhand.cur\")";
     document.body.style.cursor = "default";
+
+    this.centerAtBase(position);
     this.showPosition();
 }
 
@@ -594,6 +594,8 @@ GenomeView.prototype.showPosition = function() {
     this.locationBox.value = Util.addCommas(startbp | 0)
                              + " .. "
                              + Util.addCommas(endbp | 0);
+
+    dojo.cookie("location", Math.round((startbp + endbp) / 2), {expires: 60});
 }
 
 GenomeView.prototype.checkY = function(y) {
@@ -875,6 +877,7 @@ GenomeView.prototype.zoomUpdate = function() {
     this.showVisibleBlocks(true);
     this.showDone();
     this.showPosition();
+    dojo.cookie("zoom", this.pxPerBp, {expires: 60});
 }    
 
 GenomeView.prototype.scrollUpdate = function() {
