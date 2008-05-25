@@ -755,7 +755,6 @@ GenomeView.prototype.sizeInit = function() {
     }
     
     var overviewStripePct = 100 / (refLength / overviewStripeBases);
-    console.log("bases: " + overviewStripeBases + ", stripes: " + overviewStripes + ", pct: " + overviewStripePct);
     var trackDiv = document.createElement("div");
     trackDiv.className = "track";
     trackDiv.style.height = this.overviewBox.h + "px";
