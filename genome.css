@@ -29,7 +29,7 @@ div.locationTrap {
     width: 0px;
     height: 0px;
     line-height: 0px;
-    z-index: -5;
+    z-index: -10;
 }
 
 div.locationThumb {
@@ -53,7 +53,7 @@ div#overview {
     color:#aaa;
     font-family: sans-serif;
     text-align: center;
-    z-index: -10;
+    z-index: -5;
 }
 
 div.block {
