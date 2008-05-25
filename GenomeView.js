@@ -186,7 +186,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
                       document.body, elem];
     this.prevCursors = [];
     this.locationBox = $("location");
-    this.locationBox.size = (Util.addCommas(this.endbp).length * 2) + 5;
+    this.locationBox.size = (Util.addCommas(this.endbp).length * 2) + 3;
     this.locationTrap = document.createElement("div");
     this.locationTrap.className = "locationTrap";
     this.overview.parentNode.appendChild(this.locationTrap);
@@ -731,6 +731,7 @@ GenomeView.prototype.sizeInit = function() {
         }
         this.showVisibleBlocks(true);
 	this.showLoc();
+	this.showPosition();
     }
 
     if (this.overviewLocTrack)
