@@ -111,6 +111,17 @@ div.pos-label {
     font-family: sans-serif;
 }
 
+div.overview-pos {
+    position: absolute;
+    left: 0px;
+    color: black;
+    padding: 4px;
+    font-family: sans-serif;
+    border-style: solid;
+    border-color: black;
+    border-width: 0px 0px 0px 1px;
+}
+
 div.blank-block {
     font: sans-serif;
     position: absolute;
