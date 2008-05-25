@@ -115,7 +115,7 @@ div.overview-pos {
     position: absolute;
     left: 0px;
     color: black;
-    padding: 4px;
+    padding-left: 4px;
     font-family: sans-serif;
     border-style: solid;
     border-color: black;
