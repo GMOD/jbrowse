@@ -56,6 +56,9 @@
 
        dojo.require("dojo.parser");
        dojo.require("dojo.dnd.Source");
+       dojo.require("dojo.dnd.Moveable");
+       dojo.require("dojo.dnd.Mover");
+       dojo.require("dojo.dnd.move");
        dojo.require("dijit.layout.ContentPane");
        dojo.require("dijit.layout.BorderContainer");
 
@@ -77,7 +80,8 @@
          id="mainSplit">
 
       <div dojoType="dijit.layout.ContentPane" region="top">
-        <div style="text-align: center; padding: 5px;">
+	<div id="overview" style="height: 2.2ex; font-size: 175%;">D. melanogaster 3R</div>
+        <div id="navbox" style="text-align: center; padding: 10px; z-index: 10;">
           <button id="moveLeft" class="nav">&lt;&lt;</button>
           <!--<button id="stepLeft" class="nav">&lt;</button>
               <button id="stepRight" class="nav">&gt;</button>-->
@@ -86,6 +90,7 @@
           <button id="zoomIn" class="nav">+</button>
           <button id="zoomOut" class="nav">-</button>
           &nbsp;&nbsp;&nbsp;
+	  <input id="location" type="text"></input>
           <button id="profile" class="nav" style="display:none">demo</button>
         </div>
       </div>
