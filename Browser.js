@@ -105,6 +105,12 @@ Browser.init = function(elemId, trackListId) {
 	tracks.insertNodes(false, trackList);
     }
 
+//     var overviewGeneTrack = 
+//         gv.addOverviewTrack(new SimpleFeatureTrack(trackList[0], 
+// 						   refSeq,
+// 						   function() {gv.updateOverviewHeight()},
+//  						   5));
+
     dojo.connect(dijit.byId("browserPane"), "resize", function() {
             gv.sizeInit();
 	});

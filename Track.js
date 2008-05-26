@@ -46,6 +46,8 @@ Track.prototype.clear = function() {
 }
 
 Track.prototype.setLabel = function(newHTML) {
+    if (this.label === undefined) return;
+
     if ((this.labelHeight == 0) && this.label)
         this.labelHeight = this.label.offsetHeight;
     if (this.labelHTML == newHTML) return;
@@ -98,7 +100,7 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
     this.firstAttached = first;
     this.lastAttached = last;
     this._adjustBlanks();
-    return Math.max(maxHeight, this.labelHeight);// + this.trackPadding;
+    return Math.max(maxHeight, this.labelHeight ? this.labelHeight : 0);// + this.trackPadding;
 }
 
 Track.prototype._hideBlock = function(blockIndex) {

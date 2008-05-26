@@ -477,7 +477,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel, position) {
     trackDiv.className = "track";
     trackDiv.style.height = this.posHeight + "px";
     trackDiv.id = "static_track";
-    this.staticTrack = new StaticTrack("static_track", "pos-label");
+    this.staticTrack = new StaticTrack("static_track", "pos-label", this.posHeight);
     this.staticTrack.setViewInfo(this.stripeCount, trackDiv, undefined,
                                  this.stripePercent, this.stripeWidth);
     this.staticTrack.showRange(0, this.stripeCount - 1, this.stripes[0].startBase, Math.round(this.stripeWidth / this.pxPerBp), this.pxPerBp);
@@ -505,6 +505,8 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel, position) {
     this.waitElems.push(trackDiv);
 
     this.container.style.paddingTop = this.topSpace() + "px";
+
+    this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
 
     document.body.style.cursor = "url(\"closedhand.cur\")";
     document.body.style.cursor = "default";
@@ -736,38 +738,73 @@ GenomeView.prototype.sizeInit = function() {
 	this.showPosition();
     }
 
-    if (this.overviewLocTrack)
-	this.overview.removeChild(this.overviewLocTrack.div);
-
     var refLength = this.endbp - this.startbp;
-    var posWidth = document.createElement("div");
-    posWidth.className = "overview-pos";
-    posWidth.appendChild(document.createTextNode(Util.addCommas(this.endbp)));
-    posWidth.style.visibility = "hidden";
-    this.overview.appendChild(posWidth);
-    var minStripe = posWidth.clientWidth * 1.2;
-    this.overview.removeChild(posWidth);
-    var overviewStripeBases, overviewStripes;
+    var posSize = document.createElement("div");
+    posSize.className = "overview-pos";
+    posSize.appendChild(document.createTextNode(Util.addCommas(this.endbp)));
+    posSize.style.visibility = "hidden";
+    this.overview.appendChild(posSize);
+    var minStripe = posSize.clientWidth * 1.2;
+    this.overviewPosHeight = posSize.clientHeight;
+    this.overview.removeChild(posSize);
     for (var n = 1; n < 30; n++) {
 	//http://research.att.com/~njas/sequences/A051109
-	overviewStripeBases = (Math.pow(n % 3, 2) + 1) * Math.pow(10, Math.floor(n/3));
-	overviewStripes = Math.ceil(refLength / overviewStripeBases);
-	if ((this.overviewBox.w / overviewStripes) > minStripe) break;
-	if (overviewStripes < 2) break;
+	this.overviewStripeBases = (Math.pow(n % 3, 2) + 1) * Math.pow(10, Math.floor(n/3));
+	this.overviewStripes = Math.ceil(refLength / this.overviewStripeBases);
+	if ((this.overviewBox.w / this.overviewStripes) > minStripe) break;
+	if (this.overviewStripes < 2) break;
     }
     
-    var overviewStripePct = 100 / (refLength / overviewStripeBases);
+    var overviewStripePct = 100 / (refLength / this.overviewStripeBases);
+    var overviewHeight = 0;
+    this.overviewTrackIterate(function (track, view) {
+	    track.clear();
+	    track.sizeInit(view.overviewStripes,
+			   overviewStripePct);
+	});
+    this.updateOverviewHeight();
+}
+
+GenomeView.prototype.overviewTrackIterate = function(callback) {
+    var overviewTrack = this.overview.firstChild;
+    do {
+        if (overviewTrack && overviewTrack.track)
+	    callback(overviewTrack.track, this);
+    } while (overviewTrack && (overviewTrack = overviewTrack.nextSibling));
+}
+
+GenomeView.prototype.updateOverviewHeight = function() {
+    var overviewHeight = 0;
+    this.overviewTrackIterate(function (track, view) {
+	    var height = track.showRange(0, view.overviewStripes - 1,
+					 0, view.overviewStripeBases,
+					 view.overviewBox.w / 
+					 (view.endbp - view.startbp));
+	    track.div.style.height = height + "px";
+	    overviewHeight += height;
+	});
+    this.overview.style.height = overviewHeight + "px";
+    this.overviewBox = dojo.marginBox(this.overview);
+}
+
+GenomeView.prototype.addOverviewTrack = function(track) {
+    var refLength = this.endbp - this.startbp;
+    
+    var overviewStripePct = 100 / (refLength / this.overviewStripeBases);
     var trackDiv = document.createElement("div");
     trackDiv.className = "track";
     trackDiv.style.height = this.overviewBox.h + "px";
     trackDiv.style.left = (((-this.startbp) / refLength) * this.overviewBox.w) + "px";
-    trackDiv.style.top = "0px";
-    trackDiv.id = "overview_loc_track";
-    this.overviewLocTrack = new StaticTrack("overview_loc_track", "overview-pos");
-    this.overviewLocTrack.setViewInfo(overviewStripes, trackDiv, undefined,
-				      overviewStripePct, overviewStripeBases);
-    this.overviewLocTrack.showRange(0, overviewStripes - 1, 0, overviewStripeBases, this.overviewBox.w / refLength);
+    trackDiv.id = "overviewtrack_" + track.name;
+    trackDiv.track = track;
+    track.setViewInfo(this.overviewStripes, trackDiv,
+		      undefined,
+		      overviewStripePct,
+		      this.overviewStripeBases);
     this.overview.appendChild(trackDiv);
+    this.updateOverviewHeight();
+
+    return trackDiv;
 }
 
 GenomeView.prototype.trimVertical = function(y) {
