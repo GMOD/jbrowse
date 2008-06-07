@@ -51,7 +51,9 @@
            {type: "SimpleFeatureTrack", url: "data/3R/transposable_element.json", className: "dblhelix", label: "transposon", key: "Natural transposon"},
            {type: "SimpleFeatureTrack", url: "data/3R/point_mutation.json", className: "hourglass hgblue", label: "snp", key: "Mutation: point mutation"},
            {type: "SimpleFeatureTrack", url: "data/3R/CDS.json", className: "feature3", label: "CDS", key: "CDS"},
-           {type: "SimpleFeatureTrack", url: "data/3R/protein_binding_site_1.json", className: "feature5", label: "protein_binding_site", key: "protein_binding_site"}
+           {type: "SimpleFeatureTrack", url: "data/3R/protein_binding_site_1.json", className: "feature5", label: "protein_binding_site", key: "protein_binding_site"},
+           {type: "SimpleFeatureTrack", url: "data/3R/chromosome_band.json", className: "exon", label: "chromosome_band", key: "Chromosome Band"}
+
           ];
 
        dojo.require("dojo.parser");
@@ -87,8 +89,10 @@
               <button id="stepRight" class="nav">&gt;</button>-->
           <button id="moveRight" class="nav">&gt;&gt;</button>
           &nbsp;&nbsp;&nbsp;
+          <button id="bigZoomIn" class="nav">++</button>
           <button id="zoomIn" class="nav">+</button>
           <button id="zoomOut" class="nav">-</button>
+          <button id="bigZoomOut" class="nav">--</button>
           &nbsp;&nbsp;&nbsp;
 	  <input id="location" type="text"></input>
           <button id="profile" class="nav" style="display:none">demo</button>
