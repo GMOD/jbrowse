@@ -78,10 +78,12 @@ NCList.prototype.binarySearch = function(arr, item, itemIndex) {
             low = mid;
     }
 
+    //if we're iterating rightward, return the high index;
+    //if leftward, the low index
     if (1 == itemIndex) return high; else return low;
 }
 
-//due to javascript function-call overhead, there's some copy/pase code below,
+//due to javascript function-call overhead, there's some copy/paste code below,
 //for performance.  If later profiling shows that we can get away with a cleaner
 //version using function pointers then it might be better to re-arrange this.
 
