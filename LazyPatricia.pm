@@ -68,14 +68,22 @@ sub create {
     # create one-char-per-node trie
     foreach my $key (@keys) {
         for (my $i = 1; $i <= length($key); $i++) {
-            next if substr($key, $i - 1, 1) eq $path[$i][EDGESTRING];
-            @path = @path[0..($i - 1)] if ($i < scalar(@path));
+            if ($i < scalar(@path)) {
+                # if this key shares a prefix up to $i with previous keys,
+                # go to next $i
+                next if substr($key, $i - 1, 1) eq $path[$i][EDGESTRING];
+                # if we get here, we know that this key differs from
+                # previous keys at $i, so we chop everything from $i
+                # onward from @path
+                @path = @path[0..($i - 1)];
+            }
 
+            # now we add new elements onto @path for the current key
             $curNode = [substr($key, $i - 1, 1)];
             if (scalar(@{$path[-1]}) <= SUBLIST) {
-                $path[-1][SUBLIST] = $curNode;
+                $path[-1][SUBLIST] = $curNode; # first sublist for this prefix
             } else {
-                push @{$path[-1]}, $curNode;
+                push @{$path[-1]}, $curNode; # add to existing sublists
             }
             push @path, $curNode;
         }
@@ -109,5 +117,9 @@ sub mergeNodes {
         }
     }
 }
+
+#my $trie = LazyPatricia::create({abc=>0, abcd=>1, abce=>2,abfoo=>3});
+#use JSON;
+#print JSON::to_json($trie, {pretty=>1});
 
 1;
