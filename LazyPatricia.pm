@@ -148,10 +148,13 @@ sub partition {
         }
     }
     if (($thisChunk > $threshold) && ($prefix ne "")) {
-        print STDERR "breaking out subtree for prefix $prefix\n";
-        print STDERR "  thisChunk: $thisChunk    total: $total\n";
-        $callback->($parent, $prefix, $total);
+        $callback->($parent, $prefix, $thisChunk, $total);
         $thisChunk = 0;
+
+        # prune subtree from its parent
+        $parent->[1] = $parent->[0];
+        $parent->[0] = int($total);
+        $#{$parent} = 1;
     }
     return ($total, $thisChunk);
 }
