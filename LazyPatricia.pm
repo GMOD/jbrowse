@@ -20,8 +20,8 @@
 # Each lazy node is just the edge string for the edge leading to the lazy node.
 #   when the lazy node is loaded, the string gets replaced with a loaded
 #   node array; lazy nodes and loaded nodes can be distinguished by:
-#   "string" == typeof lazy_node
-#   "object" == typeof loaded_node
+#    "string" == typeof loaded_node[0]
+#    "number" == typeof lazy_node[0]
 
 # e.g., for the mappings:
 #   abc   => 0
@@ -56,6 +56,8 @@ use constant EDGESTRING => 0;
 use constant VALUE => 1;
 use constant SUBLIST => 2;
 
+# takes: a hash reference containing the mappings to put into the trie
+# returns: trie structure described above
 sub create {
     my ($mappings) = @_;
     my $tree = [];
@@ -84,13 +86,17 @@ sub create {
                 $path[-1][SUBLIST] = $curNode; # first sublist for this prefix
             } else {
                 push @{$path[-1]}, $curNode; # add to existing sublists
+                # since the keys are sorted, this means that the sublists
+                # will also be sorted
             }
             push @path, $curNode;
         }
         $path[length($key)][VALUE] = $mappings->{$key};
     }
 
-    # merge single-child nodes to make PATRICIA trie
+    # Merge single-child nodes to make PATRICIA trie.
+    #   This might not be the fastest way to make a PATRICIA trie,
+    #   but at the moment it seems like the simplest.
     for (my $i = SUBLIST; $i < scalar(@$tree); $i++) {
         mergeNodes($tree->[$i]);
     }
@@ -117,6 +123,39 @@ sub mergeNodes {
         }
     }
 }
+
+sub partition {
+    my ($parent, $prefix, $threshold, $callback) = @_;
+
+    # $total is the number of data items in the subtree rooted at $parent
+    # $thisChunk is $total minus the number of data items that have been
+    #   split out into separate lazy-load sub-chunks.
+    my $total = 0;
+    my $thisChunk = 0;
+    $total++ if defined $parent->[VALUE];
+    $thisChunk++ if defined $parent->[VALUE];
+    for (my $i = SUBLIST; $i < scalar(@$parent); $i++) {
+        $total++ if defined $parent->[$i]->[VALUE];
+        $thisChunk++ if defined $parent->[$i]->[VALUE];
+        if (defined $parent->[$i]->[SUBLIST]) {
+            my ($subTotal, $subPartial) =
+              partition($parent->[$i],
+                        $prefix . $parent->[$i][EDGESTRING],
+                        $threshold,
+                        $callback);
+            $total += $subTotal;
+            $thisChunk += $subPartial;
+        }
+    }
+    if (($thisChunk > $threshold) && ($prefix ne "")) {
+        print STDERR "breaking out subtree for prefix $prefix\n";
+        print STDERR "  thisChunk: $thisChunk    total: $total\n";
+        $callback->($parent, $prefix, $total);
+        $thisChunk = 0;
+    }
+    return ($total, $thisChunk);
+}
+
 
 #my $trie = LazyPatricia::create({abc=>0, abcd=>1, abce=>2,abfoo=>3});
 #use JSON;
