@@ -10,7 +10,7 @@ use JSON;
 
 my ($CONF_DIR, $ref, $refid, $source, $onlyLabel);
 my $outdir = "data";
-my ($getSubs, $getPhase, $getType, $getNames) = (0, 0, 0, 0);
+my ($getSubs, $getPhase, $getType) = (0, 0, 0, 0, 0);
 GetOptions("conf=s" => \$CONF_DIR,
 	   "ref=s" => \$ref,
 	   "src=s" => \$source,
@@ -19,8 +19,7 @@ GetOptions("conf=s" => \$CONF_DIR,
 	   "out=s" => \$outdir,
 	   "sub" => \$getSubs,
 	   "phase" => \$getPhase,
-	   "type" => \$getType,
-           "names" => \$getNames);
+	   "type" => \$getType);
 
 my $browser = open_config($CONF_DIR);
 $browser->source($source) or die "ERROR: source $source not found (the choices are: " . join(", ", $browser->sources) . "\n";
@@ -98,6 +97,8 @@ foreach my $label (@track_labels) {
     print "working on track $label\n";
     my %style = $conf->style($label);
     print "style: " . Dumper(\%style);
+    my $getLabel = $style{"-autocomplete"} && ($style{"-autocomplete"} =~ /label|all/);
+    my $getAlias = $style{"-autocomplete"} && ($style{"-autocomplete"} =~ /alias|all/);
 
     my @feature_types = $conf->label2type($label, $seg->length);
     print "searching for features of type: " . join(", ", @feature_types) . "\n";
@@ -107,27 +108,43 @@ foreach my $label (@track_labels) {
 	print "got " . ($#features + 1) . " features\n";
 	next if ($#features < 0);
 
+        my $labelSub =
+          ($style{"label"} && (ref $style{"label"} eq "CODE"))
+            ? $style{"label"}
+              : sub {
+                  return $_[0]->display_name if $_[0]->can('display_name');
+                  return $_[0]->info         if $_[0]->can('info'); # deprecated
+                  return $_[0]->seq_id       if $_[0]->can('seq_id');
+                  return eval{$_[0]->primary_tag};
+              };
+
         my @nameMap = (
-	       sub {[$_[0]->display_name, $_[0]->attributes("Alias")]},
                sub {$label},
-	       sub {shift->start - 1},
-	       sub {int(shift->end)},
-               sub {$_[0]->display_name},
+               $labelSub,
                sub {$segName},
+	       sub {shift->start - 1},
+	       sub {shift->end},
 	       sub {$_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id}
               );
 
-        my @names = map {my $feat = $_; [map {$_->($feat)} @nameMap]} @features;
-
-	open NAMES, ">$outdir/$segName/$label.names"
-          or die "couldn't open name list: $!";
-        foreach my $nameinfo (@names) {
-            foreach my $alias (unique(@{$nameinfo->[0]})) {
-                print NAMES join("\t", ($alias, @{$nameinfo}[1..$#{$nameinfo}])) . "\n";
+        if ($getLabel || $getAlias) {
+            if ($getLabel && $getAlias) {
+                unshift @nameMap, sub {[unique($labelSub->($_[0]),
+                                               $_[0]->attributes("Alias"))]};
+            } elsif ($getLabel) {
+                unshift @nameMap, sub {[$labelSub->($_[0])]};
+            } elsif ($getAlias) {
+                unshift @nameMap, sub {[$_[0]->attributes("Alias")]};
             }
+
+            my @names = map {my $feat = $_; [map {$_->($feat)} @nameMap]} @features;
+
+            open NAMES, ">$outdir/$segName/$label.names"
+              or die "couldn't open name list: $!";
+            print NAMES JSON::to_json(\@names);
+            close NAMES
+              or die "couldn't close name list: $!";
         }
-        close NAMES
-          or die "couldn't close name list: $!";
 
 	print Dumper($features[0]);
 	my $sublistIndex = $#featMap + 1;

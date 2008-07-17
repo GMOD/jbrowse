@@ -31,18 +31,28 @@ sub partitionCallback {
 }
 
 my %nameHash;
-while (<>) {
-    chomp;
-    my ($name, $track, $start, $end, @fields) = split("\t");
-    if (!defined($trackHash{$track})) {
-        $trackHash{$track} = $trackNum++;
-        push @trackList, $track;
-    }
+my $OLDSEP = $/;
+undef $/;
+foreach my $infile (@ARGV) {
+    open JSON, "<$infile"
+      or die "couldn't open $infile: $!";
+    my $names = JSON::from_json(<JSON>);
+    close JSON
+      or die "couldn't close $infile: $!";
+    foreach my $nameinfo (@$names) {
+        foreach my $alias (@{$nameinfo->[0]}) {
+            my $track = $nameinfo->[1];
+            if (!defined($trackHash{$track})) {
+                $trackHash{$track} = $trackNum++;
+                push @trackList, $track;
+            }
 
-    push @{$nameHash{lc $name}}, [int($trackHash{$track}),
-                                  int($start), int($end),
-                                  @fields];
+            push @{$nameHash{lc $alias}}, [$trackHash{$track},
+                                           @{$nameinfo}[2..$#{$nameinfo}]];
+        }
+    }
 }
+$/ = $OLDSEP;
 
 my $trie = LazyPatricia::create(\%nameHash);
 $trie->[0] = \@trackList;
@@ -58,7 +68,7 @@ my $tempDir = tempdir(DIR => $parentDir);
 rename $destDir, $tempDir
   or die "couldn't rename $destDir to $tempDir: $!";
 # race condition here, probably we should only have one generate-names.pl
-# running at a time (loop the rename instead?)
+# running at a time (loop the rename instead? or version?)
 rename $outDir, $destDir
   or die "couldn't rename $outDir to $destDir: $!";
 
