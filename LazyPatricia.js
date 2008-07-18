@@ -55,7 +55,7 @@ function LazyTrie(baseURL, rootURL) {
 
     dojo.xhrGet({url: rootURL, 
 		 handleAs: "json",
-		 load: function(o) { trie.root = o; }
+		 load: function(o) { trie.root = o; trie.extra = o[0]}
 	});
 }
 
@@ -78,22 +78,15 @@ LazyTrie.prototype.pathToPrefix = function(path) {
 
 LazyTrie.prototype.valuesFromPrefix = function(query, callback) {
     var trie = this;
-    this.findNode(query, function(path) {
-            var node = trie.root
-            for (i = 0; i < path.length; i++)
-                node = node[path[i]];
+    this.findNode(query, function(prefix, node) {
             callback(trie.valuesFromNode(node));
         });
 }
 
 LazyTrie.prototype.mappingsFromPrefix = function(query, callback) {
     var trie = this;
-    this.findNode(query, function(path) {
-            var node = trie.root
-            for (i = 0; i < path.length; i++)
-                node = node[path[i]];
-            var foundPrefix = trie.pathToPrefix(path);
-            callback(trie.mappingsFromNode(foundPrefix, node));
+    this.findNode(query, function(prefix, node) {
+            callback(trie.mappingsFromNode(prefix, node));
         });
 }
 
@@ -119,7 +112,25 @@ LazyTrie.prototype.valuesFromNode = function(node) {
     return results;
 }
 
+LazyTrie.prototype.exactMatch = function(key, callback) {
+    var trie = this;
+    this.findNode(key, function(prefix, node) {
+            if ((prefix == key) && node[1]) callback(node[1]);
+        });
+}
+
 LazyTrie.prototype.findNode = function(query, callback) {
+    var trie = this;
+    this.findPath(query, function(path) {
+            var node = trie.root
+            for (i = 0; i < path.length; i++)
+                node = node[path[i]];
+            var foundPrefix = trie.pathToPrefix(path);
+            callback(foundPrefix, node);
+        });
+}
+
+LazyTrie.prototype.findPath = function(query, callback) {
     query = query.toLowerCase();
     var node = this.root;
     var qStart = 0;
@@ -139,7 +150,7 @@ LazyTrie.prototype.findNode = function(query, callback) {
                          handleAs: "json",
                          load: function(o) {
                              node[childIndex] = o;
-                             trie.findNode(query, callback);
+                             trie.findPath(query, callback);
                          }
                         });
             return;
