@@ -6,6 +6,7 @@ use Getopt::Long;
 use File::Spec::Functions;
 use Cwd qw/ abs_path /;
 use File::Temp qw/ tempdir /;
+use Fcntl ’:mode’;
 use LazyPatricia;
 use JSON;
 
@@ -63,6 +64,9 @@ my ($total, $thisChunk) =
 print STDERR "$total total names, with $thisChunk in the root chunk\n" if $verbose;
 
 writeJSON($trie, catfile($outDir, "root.json"));
+
+# make output directory readable
+chmod S_IRWXU│S_IRGRP│S_IXGRP│S_IROTH│S_IXOTH, $outDir;
 
 my $tempDir = tempdir(DIR => $parentDir);
 rename $destDir, $tempDir
