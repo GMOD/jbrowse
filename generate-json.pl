@@ -7,6 +7,8 @@ use Bio::Graphics::Browser::Util;
 use Data::Dumper;
 use NCList;
 use JSON;
+use IO::File;
+use Fcntl ":flock";
 
 my ($CONF_DIR, $ref, $refid, $source, $onlyLabel);
 my $outdir = "data";
@@ -77,10 +79,6 @@ if ($getSubs) {
     push @$mapHeaders, 'subfeatures';
 }
 
-
-#if (-e "$outdir/$segName.json") {
-#}
-
 my @track_labels;
 if (defined $onlyLabel) {
     @track_labels = ($onlyLabel);
@@ -91,6 +89,55 @@ if (defined $onlyLabel) {
 sub unique {
     my %saw;
     return (grep(!$saw{$_}++, @_));
+}
+
+sub readJSON {
+    my ($file, $default) = @_;
+    if (-s $file) {
+        my $OLDSEP = $/;
+        undef $/;
+        open JSON, "<$file"
+          or die "couldn't open $file: $!";
+        $default = JSON::from_json(<JSON>);
+        close JSON
+          or die "couldn't close $file: $!";
+        $/ = $OLDSEP;
+    }
+    return $default;
+}
+
+sub writeJSON {
+    my ($file, $toWrite) = @_;
+    open JSON, ">$file"
+      or die "couldn't open $file: $!";
+    print JSON JSON::to_json($toWrite);
+    close JSON
+      or die "couldn't close $file: $!";
+}
+
+sub modifyJSFile {
+    my ($file, $varName, $callback) = @_;
+    my ($data, $assign);
+    my $fh = new IO::File $file, O_RDWR | O_CREAT
+      or die "couldn't open $file: $!";
+    flock $fh, LOCK_EX;
+    # if the file is non-empty,
+    if (($fh->stat())[7] > 0) {
+        # get variable assignment line
+        $assign = $fh->getline();
+        # get data
+        my $jsonString = join("", $fh->getlines());
+        $data = JSON::from_json($jsonString) if (length($jsonString) > 0);
+        # prepare file for re-writing
+        $fh->seek(0, SEEK_SET);
+        $fh->truncate(0);
+    }
+    # add assignment line
+    $fh->print("$varName = \n");
+    # modify data, write back
+    $fh->print(JSON::to_json($callback->($data)));
+    $fh->close()
+      or die "couldn't close $file: $!";
 }
 
 foreach my $label (@track_labels) {
@@ -139,41 +186,53 @@ foreach my $label (@track_labels) {
 
             my @names = map {my $feat = $_; [map {$_->($feat)} @nameMap]} @features;
 
-            open NAMES, ">$outdir/$segName/$label.names"
-              or die "couldn't open name list: $!";
-            print NAMES JSON::to_json(\@names);
-            close NAMES
-              or die "couldn't close name list: $!";
+            writeJSON("$outdir/$segName/$label.names", \@names);
         }
 
 	print Dumper($features[0]);
 	my $sublistIndex = $#featMap + 1;
 	my $featList = NCList->new($sublistIndex, @features);
 	#print Dumper($featList->{'topList'});
-	open TRACK, ">$outdir/$segName/$label.json";
-	print TRACK "(" . JSON::to_json
-	  ({
-	    'label' => $label,
-	    'key' => $style{-key} || $label,
-	    'typeList' => \@feature_types,
-	    'sublistIndex' => $sublistIndex,
-	    'map' => $mapHeaders,
-	    'featureCount' => $#features + 1,
-	    'featureNCList' => $featList->flatten(@featMap)
-	   },
-	   {'pretty' => 0}
-	  ) . ")";
-	close TRACK;
+	writeJSON("$outdir/$segName/$label.json",
+                  {
+                   'label' => $label,
+                   'key' => $style{-key} || $label,
+                   'typeList' => \@feature_types,
+                   'sublistIndex' => $sublistIndex,
+                   'map' => $mapHeaders,
+                   'featureCount' => $#features + 1,
+                   'featureNCList' => $featList->flatten(@featMap)
+                  });
+
+        modifyJSFile("$outdir/trackInfo.json", "trackInfo",
+                       sub {
+                           my $segMap = shift;
+                           my $trackList = $segMap->{$segName}->{'trackList'};
+                           my $i;
+                           for ($i = 0; $i <= $#{$trackList}; $i++) {
+                               last if ($trackList->[$i]->{'label'} eq $label);
+                           }
+                           $trackList->[$i] =
+                             {
+                              'label' => $label,
+                              'key' => $style{-key} || $label,
+                              'typeList' => \@feature_types,
+                              'featureCount' => $#features + 1,
+                              'type' => "SimpleFeatureTrack",
+                              'url' => "$outdir/$segName/$label.json",
+                              'className' => $style{-class}
+                             };
+                           $segMap->{$segName} =
+                             {
+                              "start"     => $seg->start - 1,
+                              "end"       => $seg->end,
+                              "length"    => $seg->length,
+                              "name"      => $segName,
+                              "trackList" => $trackList
+                             };
+                           return $segMap;
+                       });
     } else {
 	print "no features found\n";
     }
 }
-
-open REFJSON, ">$outdir/$segName.json";
-print REFJSON JSON::to_json({
-			     "start", $seg->start - 1,
-			     "end", $seg->end,
-			     "length", $seg->length,
-			     "name", $segName
-			    });
-close REFJSON

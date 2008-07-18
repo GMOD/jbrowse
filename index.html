@@ -30,32 +30,17 @@
 
     <script type="text/javascript" src="Util.js"></script>
     <script type="text/javascript" src="NCList.js"></script>
+    <script type="text/javascript" src="LazyPatricia.js"></script>
     <script type="text/javascript" src="Track.js"></script>
     <script type="text/javascript" src="FeatureTrack.js"></script>
     <script type="text/javascript" src="StaticTrack.js"></script>
     <script type="text/javascript" src="ImageTrack.js"></script>
     <script type="text/javascript" src="GenomeView.js"></script>
     <script type="text/javascript" src="Browser.js"></script>
+    <script type="text/javascript" src="data/trackInfo.js"></script>
+
     <script type="text/javascript">
     /* <![CDATA[ */
-      var trackList =
-          [
-           {type: "SimpleFeatureTrack", url: "data/3R/gene.json", className: "feature2", label: "gene", key: "Gene Span"},
-           {type: "SimpleFeatureTrack", url: "data/3R/mRNA.json", className: "feature", label: "mRNA", key: "mRNA"},
-           {type: "SimpleFeatureTrack", url: "data/3R/mRNA_subs.json", className: "feature4", label: "mRNA_subs", key: "mRNA with subfeatures"},
-           {type: "SimpleFeatureTrack", url: "data/3R/oligo.json", className: "feature4", label: "oligo", key: "Oligonucleotides"},
-           {type: "SimpleFeatureTrack", url: "data/3R/Exons.json", className: "exon", label: "Exons", key: "Exons"},
-           {type: "SimpleFeatureTrack", url: "data/3R/noncodingRNA.json", className: "feature3", label: "ncRNA", key: "Non coding RNA"},
-           {type: "SimpleFeatureTrack", url: "data/3R/tRNA.json", className: "helix", label: "tRNA", key: "tRNA"},
-           {type: "SimpleFeatureTrack", url: "data/3R/transposable_element_insertion_site.json", className: "hourglass hgred", label: "transposon_insertion_site", key: "Transgene insertion site"},
-           {type: "SimpleFeatureTrack", url: "data/3R/transposable_element.json", className: "dblhelix", label: "transposon", key: "Natural transposon"},
-           {type: "SimpleFeatureTrack", url: "data/3R/point_mutation.json", className: "hourglass hgblue", label: "snp", key: "Mutation: point mutation"},
-           {type: "SimpleFeatureTrack", url: "data/3R/CDS.json", className: "feature3", label: "CDS", key: "CDS"},
-           {type: "SimpleFeatureTrack", url: "data/3R/protein_binding_site_1.json", className: "feature5", label: "protein_binding_site", key: "protein_binding_site"},
-           {type: "SimpleFeatureTrack", url: "data/3R/chromosome_band.json", className: "exon", label: "chromosome_band", key: "Chromosome Band"}
-
-          ];
-
        dojo.require("dojo.parser");
        dojo.require("dojo.dnd.Source");
        dojo.require("dojo.dnd.Moveable");

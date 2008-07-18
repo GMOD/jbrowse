@@ -1,12 +1,14 @@
 var Browser = {};
 Browser.init = function(elemId, trackListId) {
     var viewElem = dojo.byId(elemId);
-    //var refSeq = {start: 0, end: 27905053, length: function() {return this.end - this.start}};
-    var refSeq = {start: -224036, end: 27905053, length: function() {return this.end - this.start}};
-    var zoomLevel = 1/50;
+    var refSeq = trackInfo["3R"];
+    var trackList = refSeq["trackList"];
+    var zoomLevel = 1/200;
     var zoomCookie = dojo.cookie("zoom");
     if (zoomCookie) 
 	zoomLevel = parseFloat(zoomCookie);
+    if (isNaN(zoomLevel))
+	zoomLevel = 1/200;
 
     var location = ((refSeq.end + refSeq.start) / 2) | 0;
     var locCookie = dojo.cookie("location");
@@ -99,17 +101,19 @@ Browser.init = function(elemId, trackListId) {
 		else
 		    availList.push(trackInfo);
 	    });
-	gvSource.insertNodes(false, insertList);
-	tracks.insertNodes(false, availList);
+	gvSource.insertNodes(false, dojo.filter(insertList, function(x) {return x}));
+	tracks.insertNodes(false, dojo.filter(availList, function(x) {return x}));
     } else {
 	tracks.insertNodes(false, trackList);
     }
 
-//     var overviewGeneTrack = 
-//         gv.addOverviewTrack(new SimpleFeatureTrack(trackList[0], 
-// 						   refSeq,
-// 						   function() {gv.updateOverviewHeight()},
-//  						   5));
+//     gv.addOverviewTrack(new SimpleFeatureTrack(trackList[0], 
+// 					       refSeq,
+// 					       function() {
+// 						   gv.updateOverviewHeight();
+// 						   dijit.byId("mainSplit").resize();
+// 					       },
+// 					       0));
 
     dojo.connect(dijit.byId("browserPane"), "resize", function() {
             gv.sizeInit();

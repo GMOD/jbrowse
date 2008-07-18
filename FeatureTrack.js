@@ -39,8 +39,8 @@ SimpleFeatureTrack.prototype.loadSuccess = function(o) {
 	this.fields[trackInfo.map[i]] = i;
     }
     this.features.importExisting(trackInfo.featureNCList, trackInfo.sublistIndex);
-    this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length());
-    this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length());
+    this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length);
+    this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length);
     
     //console.log((new Date().getTime() - startTime) / 1000);
 
