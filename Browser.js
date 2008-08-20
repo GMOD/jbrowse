@@ -165,11 +165,12 @@ var Browser = function(containerID, trackData) {
                 tracks.insertNodes(false, trackList);
             }
 
-            dojo.connect(browserPane, "resize", function() {
+            dojo.connect(browserWidget, "resize", function() {
                     gv.sizeInit();
 
                     brwsr.view.locationTrapHeight = dojo.marginBox(navbox).h;
-                    console.log("navbox margin: " + dojo.marginBox(navbox));
+                    gv.showFine();
+                    gv.showCoarse();
                 });
             brwsr.view.locationTrapHeight = dojo.marginBox(navbox).h;
 
