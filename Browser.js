@@ -1,28 +1,309 @@
-var Browser = {};
-Browser.init = function(elemId, trackListId) {
-    var viewElem = dojo.byId(elemId);
-    var refSeq = trackInfo["3R"];
-    var trackList = refSeq["trackList"];
-    var zoomLevel = 1/200;
-    var zoomCookie = dojo.cookie("zoom");
-    if (zoomCookie) 
-	zoomLevel = parseFloat(zoomCookie);
-    if (isNaN(zoomLevel))
-	zoomLevel = 1/200;
+var Browser = function(containerID, trackData) {
+    dojo.require("dojo.dnd.Source");
+    dojo.require("dojo.dnd.Moveable");
+    dojo.require("dojo.dnd.Mover");
+    dojo.require("dojo.dnd.move");
+    dojo.require("dijit.layout.ContentPane");
+    dojo.require("dijit.layout.BorderContainer");
 
-    var location = ((refSeq.end + refSeq.start) / 2) | 0;
-    var locCookie = dojo.cookie("location");
-    if (locCookie)
-	location = parseInt(locCookie);
-    if (isNaN(location))
-	location = ((refSeq.end + refSeq.start) / 2) | 0;
-    var gv = new GenomeView(viewElem, 250, 
-			    refSeq.start, refSeq.end,
-			    zoomLevel, location);
-    gv.setY(0);
-    viewElem.view = gv;
-    //var trackNum = 0;
-    //gv.showWait();
+    var brwsr = this;
+    dojo.addOnLoad(function() {
+            dojo.addClass(document.body, "tundra");
+            var container = dojo.byId(containerID);
+            container.genomeBrowser = brwsr;
+            var containerWidget = new dijit.layout.BorderContainer({
+                    liveSplitters: false,
+                    design: "sidebar"
+                }, container);
+            var topPane = document.createElement("div");
+            container.appendChild(topPane);
+            var contentWidget = new dijit.layout.ContentPane({region: "top"}, topPane);
+            var overview = document.createElement("div");
+            overview.className = "overview";
+            overview.id = "overview";
+            topPane.appendChild(overview);
+            var navbox = brwsr.createNavBox(topPane);
+
+            var leftPane = document.createElement("div");
+            leftPane.style.cssText="width: 10em";
+            container.appendChild(leftPane);
+            var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, leftPane);
+            var trackListDiv = document.createElement("div");
+            trackListDiv.id = "tracksAvail";
+            trackListDiv.className = "container handles";
+            trackListDiv.style.cssText = "width: 100%; height: 100%;";
+            trackListDiv.innerHTML = "Available Tracks:<br/>(Drag <img src=\"img/right_arrow.png\"/> to view)<br/><br/>";
+            leftPane.appendChild(trackListDiv);
+            var browserPane = document.createElement("div");
+            container.appendChild(browserPane);
+            var browserWidget = new dijit.layout.ContentPane({region: "center"}, browserPane);
+            var viewElem = document.createElement("div");
+            viewElem.className = "dragWindow";
+            viewElem.style.cssText = "height: 100%; width:100%; padding: 0; border: none;";
+            browserPane.appendChild(viewElem);
+
+            brwsr.locationTrap = document.createElement("div");
+            brwsr.locationTrap.className = "locationTrap";
+            topPane.appendChild(brwsr.locationTrap);
+            topPane.style.overflow="hidden";
+
+            containerWidget.startup();
+
+            var refSeq = trackData["3R"];
+            var trackList = refSeq["trackList"];
+            var zoomLevel = 1/200;
+            var zoomCookie = dojo.cookie("zoom");
+            if (zoomCookie) 
+                zoomLevel = parseFloat(zoomCookie);
+            if (isNaN(zoomLevel))
+                zoomLevel = 1/200;
+
+            var refCookie = dojo.cookie("refseq");
+            refs = [];
+            //sort ref sequences more or less how people expect
+            for (var refseq in trackData) refs.push(refseq);
+            refs.sort(function(a, b) {
+                    aNum=String(a).match(/^[0-9]+/);
+                    bNum=String(b).match(/^[0-9]+/);
+                    if (aNum && !bNum) return -1;
+                    if (!aNum && bNum) return 1;
+                    if (aNum && bNum && (aNum[0] != bNum[0]))
+                        return aNum[0] - bNum[0];
+                    if (a < b)
+                        return -1;
+                    else if (a == b)
+                        return 0;
+                    else
+                        return 1;
+                });
+
+            for (var i = 0; i < refs.length; i++)
+                brwsr.chromList.add(new Option(refs[i], refs[i], false, 
+                                              String(refs[i]) == refCookie), 
+                                   null);
+
+            // dojo.connect(brwsr.chromList, "onchange", function(event) {
+            //         dojo.forEach(brwsr.viewElem.childNodes, fuction(node) {
+            //                 node.parentNode.removeChild(node);
+            //             });
+            //         brwsr.view
+
+            var location = ((refSeq.end + refSeq.start) / 2) | 0;
+            var locCookie = dojo.cookie("location");
+            if (locCookie)
+                location = parseInt(locCookie);
+            if (isNaN(location))
+                location = ((refSeq.end + refSeq.start) / 2) | 0;
+            var gv = new GenomeView(viewElem, 250, 
+                                    refSeq.start, refSeq.end,
+                                    zoomLevel, location);
+            brwsr.view = gv;
+            brwsr.viewElem = viewElem;
+            gv.setY(0);
+            viewElem.view = gv;
+
+            var changeCallback = function() {
+                gv.showVisibleBlocks(true);
+            }
+
+            var trackListCreate = function(track, hint) {
+                var node = document.createElement("div");
+                node.className = "tracklist-label";
+                node.appendChild(document.createTextNode(track.key));
+                //in the list, wrap the list item in a container for
+                //border drag-insertion-point monkeying
+                if ("avatar" != hint) {
+                    var container = document.createElement("div");
+                    container.className = "tracklist-container";
+                    container.appendChild(node);
+                    node = container;
+                }
+                node.id = dojo.dnd.getUniqueId();
+                return {node: node, data: track, type: ["track"]};
+            }
+            var tracks = new dojo.dnd.Source(trackListDiv, {creator: trackListCreate,
+                                                            accept: ["track"],
+                                                            withHandles: false});
+
+            var trackCreate = function(track, hint) {
+                var node;
+                if ("avatar" == hint) {
+                    return trackListCreate(track, hint);
+                } else {
+                    node = gv.addTrack(new SimpleFeatureTrack(track, refSeq, changeCallback, gv.trackPadding));
+                }
+                return {node: node, data: track, type: ["track"]};
+            }
+            var gvSource = new dojo.dnd.Source(gv.container, {creator: trackCreate,
+                                                              accept: ["track"],
+                                                              withHandles: true});
+            dojo.subscribe("/dnd/drop", function(source,nodes,iscopy){
+                    var trackLabels = dojo.map(gv.trackList(),
+                                               function(track) { return track.name; });
+                    dojo.cookie("tracks", trackLabels.join(","), {expires: 60});
+                    gv.showVisibleBlocks();
+                    //multi-select too confusing?
+                    //gvSource.selectNone();
+                });
+
+            var oldTrackList = dojo.cookie("tracks");
+            if (oldTrackList) {
+                var oldTrackNames = oldTrackList.split(",");
+                var insertList = [];
+                var availList = [];
+                dojo.forEach(trackList, function(track) {
+                        var i = dojo.indexOf(oldTrackNames, track.label);
+                        if (i >= 0)
+                            //preserve oldTrackNames ordering
+                            insertList[i] = track;
+                        else
+                            availList.push(track);
+                    });
+                gvSource.insertNodes(false, dojo.filter(insertList, function(x) {return x}));
+                tracks.insertNodes(false, dojo.filter(availList, function(x) {return x}));
+            } else {
+                tracks.insertNodes(false, trackList);
+            }
+
+            dojo.connect(browserPane, "resize", function() {
+                    gv.sizeInit();
+
+                    brwsr.view.locationTrapHeight = dojo.marginBox(navbox).h;
+                    console.log("navbox margin: " + dojo.marginBox(navbox));
+                });
+            brwsr.view.locationTrapHeight = dojo.marginBox(navbox).h;
+
+            dojo.connect(gv, "fineMove", function(startbp, endbp) {
+                    var length = brwsr.view.endbp - brwsr.view.startbp;
+                    var trapLeft = Math.round((((startbp - brwsr.view.startbp) / length)
+                                               * brwsr.view.overviewBox.w) + brwsr.view.overviewBox.l);
+                    var trapRight = Math.round((((endbp - brwsr.view.startbp) / length)
+                                                * brwsr.view.overviewBox.w) + brwsr.view.overviewBox.l);
+                    var locationTrapStyle =
+                        "top: " + brwsr.view.overviewBox.t + "px;"
+                        + "height: " + brwsr.view.overviewBox.h + "px;"
+                        + "left: " + brwsr.view.overviewBox.l + "px;"
+                        + "width: " + (trapRight - trapLeft) + "px;"
+                        + "border-width: " + "0px "
+                        + (brwsr.view.overviewBox.w - trapRight) + "px "
+                        + brwsr.view.locationTrapHeight + "px " + trapLeft + "px;";
+                    brwsr.locationTrap.style.cssText = locationTrapStyle;
+                });
+
+            dojo.connect(gv, "coarseMove", function(startbp, endbp) {
+                    var length = brwsr.view.endbp - brwsr.view.startbp;
+                    var trapLeft = Math.round((((startbp - brwsr.view.startbp) / length)
+                                               * brwsr.view.overviewBox.w) + brwsr.view.overviewBox.l);
+                    var trapRight = Math.round((((endbp - brwsr.view.startbp) / length)
+                                                * brwsr.view.overviewBox.w) + brwsr.view.overviewBox.l);
+
+                    brwsr.view.locationThumb.style.cssText =
+                        "height: " + (brwsr.view.overviewBox.h - 4) + "px; "
+                        + "left: " + trapLeft + "px; "
+                        + "width: " + (trapRight - trapLeft) + "px;"
+                        + "z-index: 20";
+
+                    brwsr.location.value = Util.addCommas(startbp | 0)
+                        + " .. "
+                        + Util.addCommas(endbp | 0);
+                    
+                    dojo.cookie("location", Math.round((startbp + endbp) / 2), {expires: 60});
+                });
+            gv.showFine();
+            gv.showCoarse();
+
+        });
+}
+
+Browser.prototype.createNavBox = function(parent) {
+    var brwsr = this;
+    var navbox = document.createElement("div");
+    navbox.id = "navbox";
+    parent.appendChild(navbox);
+    navbox.style.cssText = "text-align: center; padding: 10px; z-index: 10;";
+
+    var moveLeft = document.createElement("button");
+    moveLeft.appendChild(document.createTextNode("<<"));
+    moveLeft.id = "moveLeft";
+    moveLeft.className = "nav";
+    dojo.connect(moveLeft, "click", function(event) {
+            dojo.stopEvent(event);
+            brwsr.view.slide(0.9)
+        });
+    navbox.appendChild(moveLeft);
+
+    var moveRight = document.createElement("button");
+    moveRight.appendChild(document.createTextNode(">>"));
+    moveRight.id="moveRight";
+    moveRight.className = "nav";
+    dojo.connect(moveRight, "click", function(event) {
+            dojo.stopEvent(event);
+            brwsr.view.slide(-0.9)
+        });
+    navbox.appendChild(moveRight);
+
+    navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
+
+    var bigZoomIn = document.createElement("button");
+    bigZoomIn.appendChild(document.createTextNode("++"));
+    bigZoomIn.id="bigZoomIn";
+    bigZoomIn.className = "nav";
+    dojo.connect(bigZoomIn, "click", function(event) {
+            dojo.stopEvent(event);
+            brwsr.view.zoomIn(undefined, undefined, 2);
+        });
+    navbox.appendChild(bigZoomIn);
+
+    var zoomIn = document.createElement("button");
+    zoomIn.appendChild(document.createTextNode("+"));
+    zoomIn.id="zoomIn";
+    zoomIn.className = "nav";
+    dojo.connect(zoomIn, "click", function(event) {
+            dojo.stopEvent(event);
+            brwsr.view.zoomIn();
+        });
+    navbox.appendChild(zoomIn);
+
+    var zoomOut = document.createElement("button");
+    zoomOut.appendChild(document.createTextNode("-"));
+    zoomOut.id="zoomOut";
+    zoomOut.className = "nav";
+    dojo.connect(zoomOut, "click", function(event) {
+            dojo.stopEvent(event);
+            brwsr.view.zoomOut();
+        });
+    navbox.appendChild(zoomOut);
+
+    var bigZoomOut = document.createElement("button");
+    bigZoomOut.appendChild(document.createTextNode("--"));
+    bigZoomOut.id="bigZoomOut";
+    bigZoomOut.className = "nav";
+    navbox.appendChild(bigZoomOut);
+    dojo.connect(bigZoomOut, "click", function(event) {
+            dojo.stopEvent(event);
+            brwsr.view.zoomOut(undefined, undefined, 2);
+        });
+
+    navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
+    this.chromList = document.createElement("select");
+    this.chromList.id="chrom";
+    navbox.appendChild(this.chromList);
+    this.location = document.createElement("input");
+    this.location.size=27;
+    this.location.type="text";
+    this.location.id="location";
+    navbox.appendChild(this.location);
+
+    return navbox;
+}
+
+//     gv.addOverviewTrack(new SimpleFeatureTrack(trackList[0], 
+// 					       refSeq,
+// 					       function() {
+// 						   gv.updateOverviewHeight();
+// 						   dijit.byId("mainSplit").resize();
+// 					       },
+// 					       0));
 //     gv.addTrack(new ImageTrack("Gene_Image", "Gene Image", refSeq, 1000, 
 //                                [
 //                                 {basesPerTile: 100, height: 68, urlPrefix: "tiles/3R/Genes/100bp/"},
@@ -42,81 +323,3 @@ Browser.init = function(elemId, trackListId) {
 //                                 {basesPerTile: 5000000, height: 208.5, urlPrefix: "tiles/3R/Genes/5Mbp/"},
 //                                 {basesPerTile: 10000000, height: 208.5, urlPrefix: "tiles/3R/Genes/10Mbp/"}
 //                                 ]));
-
-   
-    var changeCallback = function() {
-	gv.showVisibleBlocks(true);
-    }
-
-    var trackListCreate = function(track, hint) {
-	var node = document.createElement("div");
-	node.className = "tracklist-label";
-	node.appendChild(document.createTextNode(track.key));
-	//in the list, wrap the list item in a container for
-	//border drag-insertion-point monkeying
-	if ("avatar" != hint) {
-	    var container = document.createElement("div");
-	    container.className = "tracklist-container";
-	    container.appendChild(node);
-	    node = container;
-	}
-	node.id = dojo.dnd.getUniqueId();
-	return {node: node, data: track, type: ["track"]};
-    }
-    var tracks = new dojo.dnd.Source(trackListId, {creator: trackListCreate,
-						   accept: ["track"],
-						   withHandles: false});
-
-    var trackCreate = function(track, hint) {
-	var node;
-	if ("avatar" == hint) {
-	    return trackListCreate(track, hint);
-	} else {
-	    node = gv.addTrack(new SimpleFeatureTrack(track, refSeq, changeCallback, gv.trackPadding));
-	}
-	return {node: node, data: track, type: ["track"]};
-    }
-    var gvSource = new dojo.dnd.Source(gv.container, {creator: trackCreate,
-						      accept: ["track"],
-						      withHandles: true});
-    dojo.subscribe("/dnd/drop", function(source,nodes,iscopy){
-	    var trackLabels = dojo.map(gv.trackList(),
-				       function(track) { return track.name; });
-	    dojo.cookie("tracks", trackLabels.join(","), {expires: 60});
-	    gv.showVisibleBlocks();
-	    //multi-select too confusing?
-	    //gvSource.selectNone();
-	});
-
-    var oldTrackList = dojo.cookie("tracks");
-    if (oldTrackList) {
-	var oldTrackNames = oldTrackList.split(",");
-	var insertList = [];
-	var availList = [];
-	dojo.forEach(trackList, function(trackInfo) {
-		var i = dojo.indexOf(oldTrackNames, trackInfo.label);
-		if (i >= 0)
-		    //preserve oldTrackNames ordering
-		    insertList[i] = trackInfo;
-		else
-		    availList.push(trackInfo);
-	    });
-	gvSource.insertNodes(false, dojo.filter(insertList, function(x) {return x}));
-	tracks.insertNodes(false, dojo.filter(availList, function(x) {return x}));
-    } else {
-	tracks.insertNodes(false, trackList);
-    }
-
-//     gv.addOverviewTrack(new SimpleFeatureTrack(trackList[0], 
-// 					       refSeq,
-// 					       function() {
-// 						   gv.updateOverviewHeight();
-// 						   dijit.byId("mainSplit").resize();
-// 					       },
-// 					       0));
-
-    dojo.connect(dijit.byId("browserPane"), "resize", function() {
-            gv.sizeInit();
-	});
-
-}

@@ -155,6 +155,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel, position) {
     this.fullZoomStripe = this.charWidth * (stripeWidth / 10);
 
     this.overview = $("overview");
+    this.overviewBox = dojo.marginBox(this.overview);
 
     //set up size state (zoom levels, stripe percentage, etc.)
     this.sizeInit();
@@ -187,10 +188,6 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel, position) {
     this.prevCursors = [];
     this.locationBox = $("location");
     this.locationBox.size = (Util.addCommas(this.endbp).length * 2) + 3;
-    this.locationTrap = document.createElement("div");
-    this.locationTrap.className = "locationTrap";
-    this.overview.parentNode.appendChild(this.locationTrap);
-    this.overview.parentNode.style.overflow="hidden";
     this.locationThumb = document.createElement("div");
     this.locationThumb.className = "locationThumb";
     this.overview.appendChild(this.locationThumb);
@@ -264,7 +261,8 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel, position) {
 	    view.x = Math.max(Math.min(view.maxLeft - view.offset, x), 
 			      view.minLeft - view.offset);
 	    view.updateTrackLabels(view.x);
-	    view.showLoc();
+	    view.showFine();
+
             view.elem.scrollLeft = view.x;
         }
         view.rawSetY = function(y) { view.elem.scrollTop = y; view.y = y; }
@@ -288,7 +286,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel, position) {
 
             view.updateTrackLabels(view.x);
             view.updatePosLabels(view.y);
-	    view.showLoc();
+	    view.showFine();
 
             view.elem.scrollLeft = view.x;
             view.elem.scrollTop = view.y;
@@ -302,7 +300,8 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel, position) {
         view.elem.style.cursor = "url(\"openhand.cur\"), move";
         document.body.style.cursor = "default";
         dojo.stopEvent(event);
-	view.showPosition();
+	view.showCoarse();
+
         view.scrollUpdate();
 	view.showVisibleBlocks(true);
     }
@@ -366,69 +365,11 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel, position) {
     dojo.connect(view.elem, "mousedown", view.mouseDown);
     dojo.connect(view.elem, "mouseup", view.mouseup);
 
-//     if (typeof(console) == 'undefined') {
-//         new YAHOO.widget.LogReader("myLogger");
-//     } else {
-//         YAHOO.widget.Logger.enableBrowserConsole();
-// 	$("myLogger").style.display = "none";
-//     }
-
     view.afterSlide = function() {
-	view.showPosition();
+	view.showCoarse();
         view.scrollUpdate();
 	view.showVisibleBlocks(true);
     };
-
-    dojo.connect(dojo.byId("moveLeft"), "click", function(event) {
-            if (view.animation) view.animation.stop();
-            var distance = view.dim.width * 0.9;
-	    view.trimVertical();
-            dojo.stopEvent(event);
-            new Slider(view, view.afterSlide,
-                       distance * view.slideTimeMultiple + 200, distance);
-        });
-    dojo.connect(dojo.byId("moveRight"), "click", function(event) {
-            if (view.animation) view.animation.stop();
-            var distance = -view.dim.width * 0.9;
-	    view.trimVertical();
-            dojo.stopEvent(event);
-            new Slider(view, view.afterSlide, 
-                       distance * -view.slideTimeMultiple + 200, distance);
-        });
-
-    function killEvent(event) {
-        dojo.stopEvent(event);
-    }
-
-    //dojo.connect("zoomIn", "mouseup", killEvent);
-    //dojo.connect("zoomOut", "mouseup", killEvent);
-    //dojo.connect("moveLeft", "mouseup", killEvent);
-    //dojo.connect("moveRight", "mouseup", killEvent);
-
-    var zoomIn = function(event) {
-        view.zoomIn();
-        if (event) dojo.stopEvent(event);
-    };
-    var zoomOut = function(event) {
-        view.zoomOut();
-        if (event) dojo.stopEvent(event);
-    };
-    dojo.connect(dojo.byId("zoomIn"), "click", zoomIn);
-
-    dojo.connect(dojo.byId("zoomOut"), "click", zoomOut);
-
-    var bigZoomIn = function(event) {
-	view.zoomIn(undefined, undefined, 2);
-        if (event) dojo.stopEvent(event);
-    };
-    var bigZoomOut = function(event) {
-        view.zoomOut(undefined, undefined, 2);
-        if (event) dojo.stopEvent(event);
-    };
-    dojo.connect(dojo.byId("bigZoomIn"), "click", bigZoomIn);
-
-    dojo.connect(dojo.byId("bigZoomOut"), "click", bigZoomOut);
-
 
     view.zoomCallback = function() {view.zoomUpdate()};
 
@@ -457,33 +398,6 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel, position) {
 
     dojo.connect(view.container, "DOMMouseScroll", view.wheelScroll, false);
 
-    //dojo.connect(view.elem, "doubleclick", function (event) {YAHOO.log("doubleclick");});
-
-    var zooms = [zoomOut, zoomOut, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomOut, zoomIn, zoomIn, zoomIn];
-
-    var thisZoom;
-
-    var profile = function() {
-        zooms[thisZoom++]();
-        if (thisZoom < zooms.length) {
-            setTimeout(profile, 3000);
-        } else {
-            $('myLogger').appendChild(document.createTextNode(" " + (new Date().getTime() - startTime) / 1000));
-	    thisZoom = 0;
-	}
-    }
-    
-    var startTime;
-
-    dojo.connect("profile", "click", function() {
-            thisZoom = 0;
-            startTime = new Date().getTime();
-            
-            setTimeout(profile, 2000);
-        });
-
-    //dojo.connect(window, "resize", function() { view.sizeInit(); });
-
     this.makeStripes();
 
     var trackDiv = document.createElement("div");
@@ -507,7 +421,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel, position) {
 	    }
 	    dojo.stopEvent(event);
 	});
-    dojo.connect(trackDiv, "mousedown", killEvent);
+    dojo.connect(trackDiv, "mousedown", function(event) {dojo.stopEvent(event)});
     dojo.connect(trackDiv, "contextmenu", function(event) {
 	    if (view.dragging) return;
 	    if ("animation" in view) view.animation.stop();
@@ -525,7 +439,18 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel, position) {
     document.body.style.cursor = "default";
 
     this.centerAtBase(position);
-    this.showPosition();
+    this.showFine();
+    this.showCoarse();
+}
+
+/* moves the view distance times the width of the view */
+GenomeView.prototype.slide = function(distance) {
+    if (this.animation) this.animation.stop();
+    this.trimVertical();
+    new Slider(this,
+               this.afterSlide,
+               Math.abs(distance) * this.dim.width * this.slideTimeMultiple + 200,
+               distance * this.dim.width);
 }
 
 GenomeView.prototype.centerAtBase = function(base, instantly) {
@@ -540,7 +465,7 @@ GenomeView.prototype.centerAtBase = function(base, instantly) {
 	this.trackIterate(function(track) { track.clear(); });
 	this.makeStripes();
 	this.showVisibleBlocks(true);
-	this.showPosition();
+        this.showCoarse();
     } else {
 	var startbp = (this.x + this.offset) / this.pxPerBp;
 	var halfWidth = (this.dim.width / this.pxPerBp) / 2;
@@ -562,55 +487,23 @@ GenomeView.prototype.centerAtBase = function(base, instantly) {
     }
 }
 
-GenomeView.prototype.showLoc = function() {
-    var startbp = (this.x + this.offset) / this.pxPerBp;
-    var endbp = startbp + (this.dim.width / this.pxPerBp);
-
-    var length = this.endbp - this.startbp;
-    var trapLeft = Math.round((((startbp - this.startbp) / length)
-			       * this.overviewBox.w) + this.overviewBox.l);
-    var trapRight = Math.round((((endbp - this.startbp) / length)
-				* this.overviewBox.w) + this.overviewBox.l);
-    var locationTrapStyle =
-    "top: " + this.overviewBox.t + "px;"
-    + "height: " + this.overviewBox.h + "px;"
-    + "left: " + this.overviewBox.l + "px;"
-    + "width: " + (trapRight - trapLeft) + "px;"
-    + "border-width: " + "0px "
-    + (this.overviewBox.w - trapRight) + "px "
-    + this.locationTrapHeight + "px " + trapLeft + "px;";
-
-    this.locationTrap.style.cssText = locationTrapStyle;
+GenomeView.prototype.showFine = function() {
+    this.fineMove((this.x + this.offset) / this.pxPerBp,
+                  (this.x + this.offset + this.dim.width) / this.pxPerBp);
 }
+GenomeView.prototype.showCoarse = function() {
+    this.coarseMove((this.x + this.offset) / this.pxPerBp,
+                    (this.x + this.offset + this.dim.width) / this.pxPerBp);
+}
+
+GenomeView.prototype.fineMove = function() {}
+GenomeView.prototype.coarseMove = function() {}
 
 GenomeView.prototype.thumbMoved = function(mover) {
     var pxLeft = parseInt(this.locationThumb.style.left);
     var pxWidth = parseInt(this.locationThumb.style.width);
     var pxCenter = pxLeft + (pxWidth / 2);
     this.centerAtBase(((pxCenter / this.overviewBox.w) * (this.endbp - this.startbp)) + this.startbp);
-}
-
-GenomeView.prototype.showPosition = function() {
-    var startbp = (this.x + this.offset) / this.pxPerBp;
-    var endbp = startbp + (this.dim.width / this.pxPerBp);
-
-    var length = this.endbp - this.startbp;
-    var trapLeft = Math.round((((startbp - this.startbp) / length)
-			       * this.overviewBox.w) + this.overviewBox.l);
-    var trapRight = Math.round((((endbp - this.startbp) / length)
-				* this.overviewBox.w) + this.overviewBox.l);
-
-    this.locationThumb.style.cssText =
-    "height: " + (this.overviewBox.h - 4) + "px; "
-    + "left: " + trapLeft + "px; "
-    + "width: " + (trapRight - trapLeft) + "px;"
-    + "z-index: 20";
-
-    this.locationBox.value = Util.addCommas(startbp | 0)
-                             + " .. "
-                             + Util.addCommas(endbp | 0);
-
-    dojo.cookie("location", Math.round((startbp + endbp) / 2), {expires: 60});
 }
 
 GenomeView.prototype.checkY = function(y) {
@@ -665,9 +558,6 @@ GenomeView.prototype.bpToPx = function(bp) {
 GenomeView.prototype.sizeInit = function() {
     this.dim = {width: this.elem.clientWidth, 
                 height: this.elem.clientHeight};//Element.getDimensions(elem);
-
-    this.locationTrapHeight = dojo.marginBox("navbox").h;
-    this.overviewBox = dojo.marginBox(this.overview);
 
     //scale values, in pixels per bp, for all zoom levels
     this.zoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, this.charWidth];
@@ -747,8 +637,8 @@ GenomeView.prototype.sizeInit = function() {
             }
         }
         this.showVisibleBlocks(true);
-	this.showLoc();
-	this.showPosition();
+	this.showFine();
+        this.showCoarse();
     }
 
     var refLength = this.endbp - this.startbp;
@@ -931,7 +821,7 @@ GenomeView.prototype.zoomUpdate = function() {
     this.containerHeight = 0;
     this.showVisibleBlocks(true);
     this.showDone();
-    this.showPosition();
+    this.showCoarse();
     dojo.cookie("zoom", this.pxPerBp, {expires: 60});
 }    
 
