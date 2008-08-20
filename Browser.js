@@ -1,3 +1,8 @@
+var djConfig = {
+    usePlainJson: true,
+    parseOnLoad: true
+};
+
 var Browser = function(containerID, trackData) {
     dojo.require("dojo.dnd.Source");
     dojo.require("dojo.dnd.Moveable");
@@ -9,14 +14,14 @@ var Browser = function(containerID, trackData) {
     var brwsr = this;
     dojo.addOnLoad(function() {
             dojo.addClass(document.body, "tundra");
-            var container = dojo.byId(containerID);
-            container.genomeBrowser = brwsr;
+            brwsr.container = dojo.byId(containerID);
+            brwsr.container.genomeBrowser = brwsr;
             var containerWidget = new dijit.layout.BorderContainer({
                     liveSplitters: false,
                     design: "sidebar"
-                }, container);
+                }, brwsr.container);
             var topPane = document.createElement("div");
-            container.appendChild(topPane);
+            brwsr.container.appendChild(topPane);
             var contentWidget = new dijit.layout.ContentPane({region: "top"}, topPane);
             var overview = document.createElement("div");
             overview.className = "overview";
@@ -26,7 +31,7 @@ var Browser = function(containerID, trackData) {
 
             var leftPane = document.createElement("div");
             leftPane.style.cssText="width: 10em";
-            container.appendChild(leftPane);
+            brwsr.container.appendChild(leftPane);
             var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, leftPane);
             var trackListDiv = document.createElement("div");
             trackListDiv.id = "tracksAvail";
@@ -34,13 +39,10 @@ var Browser = function(containerID, trackData) {
             trackListDiv.style.cssText = "width: 100%; height: 100%;";
             trackListDiv.innerHTML = "Available Tracks:<br/>(Drag <img src=\"img/right_arrow.png\"/> to view)<br/><br/>";
             leftPane.appendChild(trackListDiv);
-            var browserPane = document.createElement("div");
-            container.appendChild(browserPane);
-            var browserWidget = new dijit.layout.ContentPane({region: "center"}, browserPane);
             var viewElem = document.createElement("div");
+            brwsr.container.appendChild(viewElem);
+            var browserWidget = new dijit.layout.ContentPane({region: "center"}, viewElem);
             viewElem.className = "dragWindow";
-            viewElem.style.cssText = "height: 100%; width:100%; padding: 0; border: none;";
-            browserPane.appendChild(viewElem);
 
             brwsr.locationTrap = document.createElement("div");
             brwsr.locationTrap.className = "locationTrap";
@@ -52,13 +54,13 @@ var Browser = function(containerID, trackData) {
             var refSeq = trackData["3R"];
             var trackList = refSeq["trackList"];
             var zoomLevel = 1/200;
-            var zoomCookie = dojo.cookie("zoom");
+            var zoomCookie = dojo.cookie(containerID + "-zoom");
             if (zoomCookie) 
                 zoomLevel = parseFloat(zoomCookie);
             if (isNaN(zoomLevel))
                 zoomLevel = 1/200;
 
-            var refCookie = dojo.cookie("refseq");
+            var refCookie = dojo.cookie(containerID + "-refseq");
             refs = [];
             //sort ref sequences more or less how people expect
             for (var refseq in trackData) refs.push(refseq);
@@ -89,7 +91,7 @@ var Browser = function(containerID, trackData) {
             //         brwsr.view
 
             var location = ((refSeq.end + refSeq.start) / 2) | 0;
-            var locCookie = dojo.cookie("location");
+            var locCookie = dojo.cookie(containerID + "-location");
             if (locCookie)
                 location = parseInt(locCookie);
             if (isNaN(location))
@@ -140,13 +142,13 @@ var Browser = function(containerID, trackData) {
             dojo.subscribe("/dnd/drop", function(source,nodes,iscopy){
                     var trackLabels = dojo.map(gv.trackList(),
                                                function(track) { return track.name; });
-                    dojo.cookie("tracks", trackLabels.join(","), {expires: 60});
+                    dojo.cookie(containerID + "-tracks", trackLabels.join(","), {expires: 60});
                     gv.showVisibleBlocks();
                     //multi-select too confusing?
                     //gvSource.selectNone();
                 });
 
-            var oldTrackList = dojo.cookie("tracks");
+            var oldTrackList = dojo.cookie(containerID + "-tracks");
             if (oldTrackList) {
                 var oldTrackNames = oldTrackList.split(",");
                 var insertList = [];
@@ -174,46 +176,54 @@ var Browser = function(containerID, trackData) {
                 });
             brwsr.view.locationTrapHeight = dojo.marginBox(navbox).h;
 
-            dojo.connect(gv, "fineMove", function(startbp, endbp) {
-                    var length = brwsr.view.endbp - brwsr.view.startbp;
-                    var trapLeft = Math.round((((startbp - brwsr.view.startbp) / length)
-                                               * brwsr.view.overviewBox.w) + brwsr.view.overviewBox.l);
-                    var trapRight = Math.round((((endbp - brwsr.view.startbp) / length)
-                                                * brwsr.view.overviewBox.w) + brwsr.view.overviewBox.l);
-                    var locationTrapStyle =
-                        "top: " + brwsr.view.overviewBox.t + "px;"
-                        + "height: " + brwsr.view.overviewBox.h + "px;"
-                        + "left: " + brwsr.view.overviewBox.l + "px;"
-                        + "width: " + (trapRight - trapLeft) + "px;"
-                        + "border-width: " + "0px "
-                        + (brwsr.view.overviewBox.w - trapRight) + "px "
-                        + brwsr.view.locationTrapHeight + "px " + trapLeft + "px;";
-                    brwsr.locationTrap.style.cssText = locationTrapStyle;
-                });
-
-            dojo.connect(gv, "coarseMove", function(startbp, endbp) {
-                    var length = brwsr.view.endbp - brwsr.view.startbp;
-                    var trapLeft = Math.round((((startbp - brwsr.view.startbp) / length)
-                                               * brwsr.view.overviewBox.w) + brwsr.view.overviewBox.l);
-                    var trapRight = Math.round((((endbp - brwsr.view.startbp) / length)
-                                                * brwsr.view.overviewBox.w) + brwsr.view.overviewBox.l);
-
-                    brwsr.view.locationThumb.style.cssText =
-                        "height: " + (brwsr.view.overviewBox.h - 4) + "px; "
-                        + "left: " + trapLeft + "px; "
-                        + "width: " + (trapRight - trapLeft) + "px;"
-                        + "z-index: 20";
-
-                    brwsr.location.value = Util.addCommas(startbp | 0)
-                        + " .. "
-                        + Util.addCommas(endbp | 0);
-                    
-                    dojo.cookie("location", Math.round((startbp + endbp) / 2), {expires: 60});
-                });
+            dojo.connect(gv, "onFineMove", brwsr, "onFineMove");
+            dojo.connect(gv, "onCoarseMove", brwsr, "onCoarseMove");
             gv.showFine();
             gv.showCoarse();
-
+            
+            dojo.connect(gv, "zoomUpdate", function() {
+                    dojo.cookie(containerID + "-zoom",
+                                this.pxPerBp, {expires: 60});
+                });
         });
+}
+
+Browser.prototype.onFineMove = function(startbp, endbp) {
+    var length = this.view.endbp - this.view.startbp;
+    var trapLeft = Math.round((((startbp - this.view.startbp) / length)
+                               * this.view.overviewBox.w) + this.view.overviewBox.l);
+    var trapRight = Math.round((((endbp - this.view.startbp) / length)
+                                * this.view.overviewBox.w) + this.view.overviewBox.l);
+    var locationTrapStyle =
+    "top: " + this.view.overviewBox.t + "px;"
+    + "height: " + this.view.overviewBox.h + "px;"
+    + "left: " + this.view.overviewBox.l + "px;"
+    + "width: " + (trapRight - trapLeft) + "px;"
+    + "border-width: " + "0px "
+    + (this.view.overviewBox.w - trapRight) + "px "
+    + this.view.locationTrapHeight + "px " + trapLeft + "px;";
+
+    this.locationTrap.style.cssText = locationTrapStyle;
+}
+
+Browser.prototype.onCoarseMove = function(startbp, endbp) {
+    var length = this.view.endbp - this.view.startbp;
+    var trapLeft = Math.round((((startbp - this.view.startbp) / length)
+                               * this.view.overviewBox.w) + this.view.overviewBox.l);
+    var trapRight = Math.round((((endbp - this.view.startbp) / length)
+                                * this.view.overviewBox.w) + this.view.overviewBox.l);
+
+    this.view.locationThumb.style.cssText =
+    "height: " + (this.view.overviewBox.h - 4) + "px; "
+    + "left: " + trapLeft + "px; "
+    + "width: " + (trapRight - trapLeft) + "px;"
+    + "z-index: 20";
+
+    this.location.value = Util.addCommas(startbp | 0)
+    + " .. "
+    + Util.addCommas(endbp | 0);
+                    
+    dojo.cookie(this.container.id + "-location", Math.round((startbp + endbp) / 2), {expires: 60});
 }
 
 Browser.prototype.createNavBox = function(parent) {

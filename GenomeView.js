@@ -488,16 +488,16 @@ GenomeView.prototype.centerAtBase = function(base, instantly) {
 }
 
 GenomeView.prototype.showFine = function() {
-    this.fineMove((this.x + this.offset) / this.pxPerBp,
-                  (this.x + this.offset + this.dim.width) / this.pxPerBp);
-}
-GenomeView.prototype.showCoarse = function() {
-    this.coarseMove((this.x + this.offset) / this.pxPerBp,
+    this.onFineMove((this.x + this.offset) / this.pxPerBp,
                     (this.x + this.offset + this.dim.width) / this.pxPerBp);
 }
+GenomeView.prototype.showCoarse = function() {
+    this.onCoarseMove((this.x + this.offset) / this.pxPerBp,
+                      (this.x + this.offset + this.dim.width) / this.pxPerBp);
+}
 
-GenomeView.prototype.fineMove = function() {}
-GenomeView.prototype.coarseMove = function() {}
+GenomeView.prototype.onFineMove = function() {}
+GenomeView.prototype.onCoarseMove = function() {}
 
 GenomeView.prototype.thumbMoved = function(mover) {
     var pxLeft = parseInt(this.locationThumb.style.left);
@@ -822,7 +822,6 @@ GenomeView.prototype.zoomUpdate = function() {
     this.showVisibleBlocks(true);
     this.showDone();
     this.showCoarse();
-    dojo.cookie("zoom", this.pxPerBp, {expires: 60});
 }    
 
 GenomeView.prototype.scrollUpdate = function() {
