@@ -183,7 +183,7 @@ var Browser = function(containerID, trackData) {
             
             dojo.connect(gv, "zoomUpdate", function() {
                     dojo.cookie(containerID + "-zoom",
-                                this.pxPerBp, {expires: 60});
+                                brwsr.view.pxPerBp, {expires: 60});
                 });
         });
 }
