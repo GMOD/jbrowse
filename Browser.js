@@ -11,7 +11,9 @@ var Browser = function(containerID, trackData) {
     dojo.require("dijit.layout.ContentPane");
     dojo.require("dijit.layout.BorderContainer");
 
+    this.deferredFunctions = [];
     var brwsr = this;
+    brwsr.isInitialized = false;
     dojo.addOnLoad(function() {
             dojo.addClass(document.body, "tundra");
             brwsr.container = dojo.byId(containerID);
@@ -29,8 +31,6 @@ var Browser = function(containerID, trackData) {
             topPane.appendChild(overview);
             var navbox = brwsr.createNavBox(topPane);
 
-            var trackListDiv = brwsr.createTrackList(brwsr.container);
-
             var viewElem = document.createElement("div");
             brwsr.container.appendChild(viewElem);
             var browserWidget = new dijit.layout.ContentPane({region: "center"}, viewElem);
@@ -41,10 +41,8 @@ var Browser = function(containerID, trackData) {
             topPane.appendChild(brwsr.locationTrap);
             topPane.style.overflow="hidden";
 
-            containerWidget.startup();
-
-            var refSeq = trackData["3R"];
-            var trackList = refSeq["trackList"];
+            brwsr.refSeq = trackData["3R"];
+            var trackList = brwsr.refSeq["trackList"];
             var zoomLevel = 1/200;
             var zoomCookie = dojo.cookie(containerID + "-zoom");
             if (zoomCookie) 
@@ -55,7 +53,7 @@ var Browser = function(containerID, trackData) {
             var refCookie = dojo.cookie(containerID + "-refseq");
             refs = [];
             //sort ref sequences more or less how people expect
-            for (var refseq in trackData) refs.push(refseq);
+            for (var refname in trackData) refs.push(refname);
             refs.sort(function(a, b) {
                     aNum=String(a).match(/^[0-9]+/);
                     bNum=String(b).match(/^[0-9]+/);
@@ -71,10 +69,10 @@ var Browser = function(containerID, trackData) {
                         return 1;
                 });
 
-            for (var i = 0; i < refs.length; i++)
-                brwsr.chromList.add(new Option(refs[i], refs[i], false, 
-                                              String(refs[i]) == refCookie), 
-                                   null);
+            // for (var i = 0; i < refs.length; i++)
+            //     brwsr.chromList.add(new Option(refs[i], refs[i], false, 
+            //                                   String(refs[i]) == refCookie), 
+            //                        null);
 
             // dojo.connect(brwsr.chromList, "onchange", function(event) {
             //         dojo.forEach(brwsr.viewElem.childNodes, fuction(node) {
@@ -82,82 +80,19 @@ var Browser = function(containerID, trackData) {
             //             });
             //         brwsr.view
 
-            var location = ((refSeq.end + refSeq.start) / 2) | 0;
+            var location = ((brwsr.refSeq.end + brwsr.refSeq.start) / 2) | 0;
             var locCookie = dojo.cookie(containerID + "-location");
             if (locCookie)
                 location = parseInt(locCookie);
             if (isNaN(location))
-                location = ((refSeq.end + refSeq.start) / 2) | 0;
+                location = ((brwsr.refSeq.end + brwsr.refSeq.start) / 2) | 0;
             var gv = new GenomeView(viewElem, 250, 
-                                    refSeq.start, refSeq.end,
+                                    brwsr.refSeq.start, brwsr.refSeq.end,
                                     zoomLevel, location);
             brwsr.view = gv;
             brwsr.viewElem = viewElem;
             gv.setY(0);
             viewElem.view = gv;
-
-            var changeCallback = function() {
-                gv.showVisibleBlocks(true);
-            }
-
-            var trackListCreate = function(track, hint) {
-                var node = document.createElement("div");
-                node.className = "tracklist-label";
-                node.appendChild(document.createTextNode(track.key));
-                //in the list, wrap the list item in a container for
-                //border drag-insertion-point monkeying
-                if ("avatar" != hint) {
-                    var container = document.createElement("div");
-                    container.className = "tracklist-container";
-                    container.appendChild(node);
-                    node = container;
-                }
-                node.id = dojo.dnd.getUniqueId();
-                return {node: node, data: track, type: ["track"]};
-            }
-            var tracks = new dojo.dnd.Source(trackListDiv, {creator: trackListCreate,
-                                                            accept: ["track"],
-                                                            withHandles: false});
-
-            var trackCreate = function(track, hint) {
-                var node;
-                if ("avatar" == hint) {
-                    return trackListCreate(track, hint);
-                } else {
-                    node = gv.addTrack(new SimpleFeatureTrack(track, refSeq, changeCallback, gv.trackPadding));
-                }
-                return {node: node, data: track, type: ["track"]};
-            }
-            var gvSource = new dojo.dnd.Source(gv.container, {creator: trackCreate,
-                                                              accept: ["track"],
-                                                              withHandles: true});
-            dojo.subscribe("/dnd/drop", function(source,nodes,iscopy){
-                    var trackLabels = dojo.map(gv.trackList(),
-                                               function(track) { return track.name; });
-                    dojo.cookie(containerID + "-tracks", trackLabels.join(","), {expires: 60});
-                    gv.showVisibleBlocks();
-                    //multi-select too confusing?
-                    //gvSource.selectNone();
-                });
-
-            var oldTrackList = dojo.cookie(containerID + "-tracks");
-            if (oldTrackList) {
-                var oldTrackNames = oldTrackList.split(",");
-                var insertList = [];
-                var availList = [];
-                dojo.forEach(trackList, function(track) {
-                        var i = dojo.indexOf(oldTrackNames, track.label);
-                        if (i >= 0)
-                            //preserve oldTrackNames ordering
-                            insertList[i] = track;
-                        else
-                            availList.push(track);
-                    });
-                gvSource.insertNodes(false, dojo.filter(insertList, function(x) {return x}));
-                tracks.insertNodes(false, dojo.filter(availList, function(x) {return x}));
-            } else {
-                tracks.insertNodes(false, trackList);
-            }
 
             dojo.connect(browserWidget, "resize", function() {
                     gv.sizeInit();
@@ -177,6 +112,17 @@ var Browser = function(containerID, trackData) {
                     dojo.cookie(containerID + "-zoom",
                                 brwsr.view.pxPerBp, {expires: 60});
                 });
+
+            var trackListDiv = brwsr.createTrackList(brwsr.container, trackList);
+            containerWidget.startup();
+
+	    brwsr.isInitialized = true;
+	    //if someone calls methods on this browser object
+	    //before it's fully initialized, then we defer
+	    //those functions until now
+	    for (var i = 0; i < brwsr.deferredFunctions.length; i++)
+		brwsr.deferredFunctions[i]();
+	    brwsr.deferredFunctions = [];
         });
 }
 
@@ -198,7 +144,7 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
     this.locationTrap.style.cssText = locationTrapStyle;
 }
 
-Browser.prototype.createTrackList = function(parent) {
+Browser.prototype.createTrackList = function(parent, trackList) {
     var leftPane = document.createElement("div");
     leftPane.style.cssText="width: 10em";
     parent.appendChild(leftPane);
@@ -209,8 +155,94 @@ Browser.prototype.createTrackList = function(parent) {
     trackListDiv.style.cssText = "width: 100%; height: 100%;";
     trackListDiv.innerHTML = "Available Tracks:<br/>(Drag <img src=\"img/right_arrow.png\"/> to view)<br/><br/>";
     leftPane.appendChild(trackListDiv);
+
+    var brwsr = this;
+
+    var changeCallback = function() {
+        brwsr.view.showVisibleBlocks(true);
+    }
+
+    var trackListCreate = function(track, hint) {
+        var node = document.createElement("div");
+        node.className = "tracklist-label";
+        node.appendChild(document.createTextNode(track.key));
+        //in the list, wrap the list item in a container for
+        //border drag-insertion-point monkeying
+        if ("avatar" != hint) {
+            var container = document.createElement("div");
+            container.className = "tracklist-container";
+            container.appendChild(node);
+            node = container;
+        }
+        node.id = dojo.dnd.getUniqueId();
+        return {node: node, data: track, type: ["track"]};
+    }
+    this.trackListWidget = new dojo.dnd.Source(trackListDiv,
+                                               {creator: trackListCreate,
+						accept: ["track"],
+						withHandles: false});
+
+    var trackCreate = function(track, hint) {
+        var node;
+        if ("avatar" == hint) {
+            return trackListCreate(track, hint);
+        } else {
+            node = brwsr.view.addTrack(new SimpleFeatureTrack(track, brwsr.refSeq, changeCallback, brwsr.view.trackPadding));
+        }
+        return {node: node, data: track, type: ["track"]};
+    }
+    this.viewDndWidget = new dojo.dnd.Source(this.view.container, 
+                                       {
+                                           creator: trackCreate,
+                                           accept: ["track"],
+                                           withHandles: true
+                                       });
+    dojo.subscribe("/dnd/drop", function(source,nodes,iscopy){
+            var trackLabels = dojo.map(brwsr.view.trackList(),
+                                       function(track) { return track.name; });
+            dojo.cookie(brwsr.container.id + "-tracks",
+                        trackLabels.join(","),
+                        {expires: 60});
+            brwsr.view.showVisibleBlocks();
+            //multi-select too confusing?
+            //brwsr.viewDndWidget.selectNone();
+        });
+
+    this.trackListWidget.insertNodes(false, trackList);
+    var oldTrackList = dojo.cookie(this.container.id + "-tracks");
+    if (oldTrackList) this.showTracks(oldTrackList);
+
     return trackListDiv;
 }
+
+Browser.prototype.showTracks = function(trackNameList) {
+    if (!this.isInitialized) {
+        var brwsr = this;
+        this.deferredFunctions.push(function() { 
+                brwsr.showTracks(trackNameList);
+                    });
+	return;
+    }
+        
+    var trackNames = trackNameList.split(",");
+    var removeFromList = [];
+    var brwsr = this;
+    for (var n = 0; n < trackNames.length; n++) {
+        this.trackListWidget.forInItems(function(obj, id, map) {
+                if (trackNames[n] == obj.data.label) {
+                    brwsr.viewDndWidget.insertNodes(false, [obj.data]);
+                    removeFromList.push(id);
+                }
+            });
+    }
+    var movedNode;
+    for (var i = 0; i < removeFromList.length; i++) {
+        this.trackListWidget.delItem(removeFromList[i]);
+        movedNode = dojo.byId(removeFromList[i]);
+        movedNode.parentNode.removeChild(movedNode);
+    }
+}
+
 Browser.prototype.onCoarseMove = function(startbp, endbp) {
     var length = this.view.endbp - this.view.startbp;
     var trapLeft = Math.round((((startbp - this.view.startbp) / length)
@@ -314,13 +346,13 @@ Browser.prototype.createNavBox = function(parent) {
 }
 
 //     gv.addOverviewTrack(new SimpleFeatureTrack(trackList[0], 
-// 					       refSeq,
+// 					       brwsr.refSeq,
 // 					       function() {
 // 						   gv.updateOverviewHeight();
 // 						   dijit.byId("mainSplit").resize();
 // 					       },
 // 					       0));
-//     gv.addTrack(new ImageTrack("Gene_Image", "Gene Image", refSeq, 1000, 
+//     gv.addTrack(new ImageTrack("Gene_Image", "Gene Image", brwsr.refSeq, 1000, 
 //                                [
 //                                 {basesPerTile: 100, height: 68, urlPrefix: "tiles/3R/Genes/100bp/"},
 //                                 {basesPerTile: 200, height: 64, urlPrefix: "tiles/3R/Genes/200bp/"},
