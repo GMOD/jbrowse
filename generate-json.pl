@@ -201,10 +201,12 @@ foreach my $label (@track_labels) {
                    'sublistIndex' => $sublistIndex,
                    'map' => $mapHeaders,
                    'featureCount' => $#features + 1,
+		   'type' => "SimpleFeatureTrack",
+		   'className' => $style{-class} || "feature",
                    'featureNCList' => $featList->flatten(@featMap)
                   });
 
-        modifyJSFile("$outdir/trackInfo.json", "trackInfo",
+        modifyJSFile("$outdir/trackInfo.js", "trackInfo",
                        sub {
                            my $segMap = shift;
                            my $trackList = $segMap->{$segName}->{'trackList'};
@@ -216,11 +218,7 @@ foreach my $label (@track_labels) {
                              {
                               'label' => $label,
                               'key' => $style{-key} || $label,
-                              'typeList' => \@feature_types,
-                              'featureCount' => $#features + 1,
-                              'type' => "SimpleFeatureTrack",
                               'url' => "$outdir/$segName/$label.json",
-                              'className' => $style{-class}
                              };
                            $segMap->{$segName} =
                              {

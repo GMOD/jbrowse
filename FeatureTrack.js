@@ -1,19 +1,18 @@
 function SimpleFeatureTrack(trackMeta, refSeq, changeCallback, trackPadding) {
-    //className: CSS class for the features
-    //padding: min pixels between each feature horizontally
+    //trackMeta: object with:
+    //            key:   display text track name
+    //            label: internal track name (no spaces, odd characters)
+    //            url:   URL of the track's JSON file
+    //refSeq: object with:
+    //         start: refseq start
+    //         end:   refseq end
+    //changeCallback: function to call once JSON is loaded
+    //trackPadding: distance in px between tracks
 
     Track.call(this, trackMeta.label, trackMeta.key, false, changeCallback);
-    //this.count = trackInfo.featureCount;
     this.fields = {};
-    //for (var i = 0; i < trackInfo.map.length; i++) {
-    //	this.fields[trackInfo.map[i]] = i;
-    //}
     this.features = new NCList();
-    //this.features.importExisting(trackInfo.featureNCList, trackInfo.sublistIndex);
-    this.className = trackMeta.className;
     this.refSeq = refSeq;
-    //this.histScale = histScale;
-    //this.labelScale = labelScale;
     //number of histogram bins per block
     this.numBins = 25;
     this.histLabel = false;
@@ -32,7 +31,7 @@ SimpleFeatureTrack.prototype = new Track("");
 
 SimpleFeatureTrack.prototype.loadSuccess = function(o) {
     var startTime = new Date().getTime();
-    var trackInfo = o; //eval(o.responseText);
+    var trackInfo = o;
     this.count = trackInfo.featureCount;
     this.fields = {};
     for (var i = 0; i < trackInfo.map.length; i++) {
@@ -41,6 +40,7 @@ SimpleFeatureTrack.prototype.loadSuccess = function(o) {
     this.features.importExisting(trackInfo.featureNCList, trackInfo.sublistIndex);
     this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length);
     this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length);
+    this.className = trackInfo.className;
     
     //console.log((new Date().getTime() - startTime) / 1000);
 
