@@ -106,7 +106,7 @@ Zoomer.prototype.step = function(pos) {
     this.x = newLeft;
 }
 
-function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel, position) {
+function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     //all coordinates are interbase
 
     //measure text width for the max zoom level
@@ -438,7 +438,6 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel, position) {
     document.body.style.cursor = "url(\"closedhand.cur\")";
     document.body.style.cursor = "default";
 
-    this.centerAtBase(position);
     this.showFine();
     this.showCoarse();
 }

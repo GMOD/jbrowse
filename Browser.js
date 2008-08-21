@@ -36,6 +36,13 @@ var Browser = function(containerID, trackData) {
             var browserWidget = new dijit.layout.ContentPane({region: "center"}, viewElem);
             viewElem.className = "dragWindow";
 
+            var location;
+            var locCookie = dojo.cookie(containerID + "-location");
+            if (locCookie)
+                location = parseInt(locCookie);
+            if (isNaN(location))
+                location = ((brwsr.refSeq.end + brwsr.refSeq.start) / 2) | 0;
+
             brwsr.locationTrap = document.createElement("div");
             brwsr.locationTrap.className = "locationTrap";
             topPane.appendChild(brwsr.locationTrap);
@@ -80,15 +87,9 @@ var Browser = function(containerID, trackData) {
             //             });
             //         brwsr.view
 
-            var location = ((brwsr.refSeq.end + brwsr.refSeq.start) / 2) | 0;
-            var locCookie = dojo.cookie(containerID + "-location");
-            if (locCookie)
-                location = parseInt(locCookie);
-            if (isNaN(location))
-                location = ((brwsr.refSeq.end + brwsr.refSeq.start) / 2) | 0;
             var gv = new GenomeView(viewElem, 250, 
                                     brwsr.refSeq.start, brwsr.refSeq.end,
-                                    zoomLevel, location);
+                                    zoomLevel);
             brwsr.view = gv;
             brwsr.viewElem = viewElem;
             gv.setY(0);
@@ -115,6 +116,8 @@ var Browser = function(containerID, trackData) {
 
             var trackListDiv = brwsr.createTrackList(brwsr.container, trackList);
             containerWidget.startup();
+
+	    brwsr.view.centerAtBase(location, true);
 
 	    brwsr.isInitialized = true;
 	    //if someone calls methods on this browser object
