@@ -29,16 +29,8 @@ var Browser = function(containerID, trackData) {
             topPane.appendChild(overview);
             var navbox = brwsr.createNavBox(topPane);
 
-            var leftPane = document.createElement("div");
-            leftPane.style.cssText="width: 10em";
-            brwsr.container.appendChild(leftPane);
-            var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, leftPane);
-            var trackListDiv = document.createElement("div");
-            trackListDiv.id = "tracksAvail";
-            trackListDiv.className = "container handles";
-            trackListDiv.style.cssText = "width: 100%; height: 100%;";
-            trackListDiv.innerHTML = "Available Tracks:<br/>(Drag <img src=\"img/right_arrow.png\"/> to view)<br/><br/>";
-            leftPane.appendChild(trackListDiv);
+            var trackListDiv = brwsr.createTrackList(brwsr.container);
+
             var viewElem = document.createElement("div");
             brwsr.container.appendChild(viewElem);
             var browserWidget = new dijit.layout.ContentPane({region: "center"}, viewElem);
@@ -206,6 +198,19 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
     this.locationTrap.style.cssText = locationTrapStyle;
 }
 
+Browser.prototype.createTrackList = function(parent) {
+    var leftPane = document.createElement("div");
+    leftPane.style.cssText="width: 10em";
+    parent.appendChild(leftPane);
+    var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, leftPane);
+    var trackListDiv = document.createElement("div");
+    trackListDiv.id = "tracksAvail";
+    trackListDiv.className = "container handles";
+    trackListDiv.style.cssText = "width: 100%; height: 100%;";
+    trackListDiv.innerHTML = "Available Tracks:<br/>(Drag <img src=\"img/right_arrow.png\"/> to view)<br/><br/>";
+    leftPane.appendChild(trackListDiv);
+    return trackListDiv;
+}
 Browser.prototype.onCoarseMove = function(startbp, endbp) {
     var length = this.view.endbp - this.view.startbp;
     var trapLeft = Math.round((((startbp - this.view.startbp) / length)
