@@ -1,6 +1,5 @@
 var djConfig = {
-    usePlainJson: true,
-    parseOnLoad: true
+    usePlainJson: true
 };
 
 var Browser = function(containerID, trackData) {
@@ -36,13 +35,6 @@ var Browser = function(containerID, trackData) {
             var browserWidget = new dijit.layout.ContentPane({region: "center"}, viewElem);
             viewElem.className = "dragWindow";
 
-            var location;
-            var locCookie = dojo.cookie(containerID + "-location");
-            if (locCookie)
-                location = parseInt(locCookie);
-            if (isNaN(location))
-                location = ((brwsr.refSeq.end + brwsr.refSeq.start) / 2) | 0;
-
             brwsr.locationTrap = document.createElement("div");
             brwsr.locationTrap.className = "locationTrap";
             topPane.appendChild(brwsr.locationTrap);
@@ -76,16 +68,21 @@ var Browser = function(containerID, trackData) {
                         return 1;
                 });
 
-            // for (var i = 0; i < refs.length; i++)
-            //     brwsr.chromList.add(new Option(refs[i], refs[i], false, 
-            //                                   String(refs[i]) == refCookie), 
-            //                        null);
+            for (var i = 0; i < refs.length; i++)
+                brwsr.chromList.options[i] = new Option(refs[i], refs[i]);
 
             // dojo.connect(brwsr.chromList, "onchange", function(event) {
             //         dojo.forEach(brwsr.viewElem.childNodes, fuction(node) {
             //                 node.parentNode.removeChild(node);
             //             });
             //         brwsr.view
+
+            var location;
+            var locCookie = dojo.cookie(containerID + "-location");
+            if (locCookie)
+                location = parseInt(locCookie);
+            if (isNaN(location))
+                location = ((brwsr.refSeq.end + brwsr.refSeq.start) / 2) | 0;
 
             var gv = new GenomeView(viewElem, 250, 
                                     brwsr.refSeq.start, brwsr.refSeq.end,
