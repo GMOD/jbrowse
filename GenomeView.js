@@ -442,7 +442,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     this.showCoarse();
 }
 
-/* moves the view distance times the width of the view */
+/* moves the view by (distance times the width of the view) pixels */
 GenomeView.prototype.slide = function(distance) {
     if (this.animation) this.animation.stop();
     this.trimVertical();
