@@ -217,6 +217,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
 	    view.x = Math.max(Math.min(view.maxLeft - view.offset, x), 
                               view.minLeft - view.offset);
 	    view.updateTrackLabels(view.x);
+	    view.showFine();
             view.container.style.left = -view.x + "px";
         }
         view.rawSetY = function(y) {view.container.style.top = -y; view.y = y;}
@@ -238,6 +239,7 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
                               view.containerHeight - view.dim.height);
             view.updateTrackLabels(view.x);
             view.updatePosLabels(view.y);
+	    view.showFine();
 
             view.container.style.left = -view.x + "px";
             view.container.style.top = -view.y + "px";
