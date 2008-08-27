@@ -746,7 +746,6 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
     if (zoomLoc === undefined) zoomLoc = 0.5;
     if (steps === undefined) steps = 1;
     steps = Math.min(steps, (this.zoomLevels.length - 1) - this.curZoom);
-    console.log("steps: " + steps + ", curZoom: " + this.curZoom + ", zoomLevels.length: " + this.zoomLevels.length);
     if (0 == steps) return;
 
     this.showWait();
