@@ -40,8 +40,6 @@ var Browser = function(containerID, trackData) {
             topPane.appendChild(brwsr.locationTrap);
             topPane.style.overflow="hidden";
 
-            brwsr.refSeq = trackData["3R"];
-            var trackList = brwsr.refSeq["trackList"];
             var zoomLevel = 1/200;
             var zoomCookie = dojo.cookie(containerID + "-zoom");
             if (zoomCookie) 
@@ -71,11 +69,25 @@ var Browser = function(containerID, trackData) {
             for (var i = 0; i < refs.length; i++)
                 brwsr.chromList.options[i] = new Option(refs[i], refs[i]);
 
-            // dojo.connect(brwsr.chromList, "onchange", function(event) {
-            //         dojo.forEach(brwsr.viewElem.childNodes, fuction(node) {
-            //                 node.parentNode.removeChild(node);
-            //             });
-            //         brwsr.view
+            brwsr.refSeq = trackData[refs[0]];
+            var trackList = brwsr.refSeq["trackList"];
+            brwsr.chromList.selectedIndex = 0;
+            dojo.connect(brwsr.chromList, "onchange", function(event) {
+                    var curTracks = dojo.map(brwsr.view.trackList(),
+                                             function(track) {return track.name;});
+                    var selected = brwsr.chromList.selectedIndex;
+                    brwsr.refSeq = trackData[refs[selected]];
+                    trackList = brwsr.refSeq["trackList"];
+                    brwsr.view.setRefseq(trackData[refs[selected]]);
+                    brwsr.trackListWidget.forInItems(function(obj, id, map) {
+                            var node = dojo.byId(id);
+                            node.parentNode.removeChild(node);
+                        });
+                    brwsr.trackListWidget.clearItems();
+                    brwsr.trackListWidget.insertNodes(false, trackList);
+
+                    brwsr.showTracks(curTracks.join(","));
+                        });
 
             var location;
             var locCookie = dojo.cookie(containerID + "-location");
@@ -84,9 +96,7 @@ var Browser = function(containerID, trackData) {
             if (isNaN(location))
                 location = ((brwsr.refSeq.end + brwsr.refSeq.start) / 2) | 0;
 
-            var gv = new GenomeView(viewElem, 250, 
-                                    brwsr.refSeq.start, brwsr.refSeq.end,
-                                    zoomLevel);
+            var gv = new GenomeView(viewElem, 250, brwsr.refSeq, zoomLevel);
             brwsr.view = gv;
             brwsr.viewElem = viewElem;
             gv.setY(0);
@@ -127,10 +137,10 @@ var Browser = function(containerID, trackData) {
 }
 
 Browser.prototype.onFineMove = function(startbp, endbp) {
-    var length = this.view.endbp - this.view.startbp;
-    var trapLeft = Math.round((((startbp - this.view.startbp) / length)
+    var length = this.view.ref.end - this.view.ref.start;
+    var trapLeft = Math.round((((startbp - this.view.ref.start) / length)
                                * this.view.overviewBox.w) + this.view.overviewBox.l);
-    var trapRight = Math.round((((endbp - this.view.startbp) / length)
+    var trapRight = Math.round((((endbp - this.view.ref.start) / length)
                                 * this.view.overviewBox.w) + this.view.overviewBox.l);
     var locationTrapStyle =
     "top: " + this.view.overviewBox.t + "px;"
@@ -244,10 +254,10 @@ Browser.prototype.showTracks = function(trackNameList) {
 }
 
 Browser.prototype.onCoarseMove = function(startbp, endbp) {
-    var length = this.view.endbp - this.view.startbp;
-    var trapLeft = Math.round((((startbp - this.view.startbp) / length)
+    var length = this.view.ref.end - this.view.ref.start;
+    var trapLeft = Math.round((((startbp - this.view.ref.start) / length)
                                * this.view.overviewBox.w) + this.view.overviewBox.l);
-    var trapRight = Math.round((((endbp - this.view.startbp) / length)
+    var trapRight = Math.round((((endbp - this.view.ref.start) / length)
                                 * this.view.overviewBox.w) + this.view.overviewBox.l);
 
     this.view.locationThumb.style.cssText =

@@ -106,7 +106,7 @@ Zoomer.prototype.step = function(pos) {
     this.x = newLeft;
 }
 
-function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
+function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     //all coordinates are interbase
 
     //measure text width for the max zoom level
@@ -128,10 +128,8 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     this.posHeight = heightTest.clientHeight;
     elem.removeChild(heightTest);
 
-    //starting bp of the reference sequence
-    this.startbp = startbp;
-    //ending bp of the reference sequence
-    this.endbp = endbp;
+    //the reference sequence
+    this.ref = refseq;
     //current scale, in pixels per bp
     this.pxPerBp = zoomLevel;
     //width, in pixels, of the vertical stripes
@@ -167,10 +165,10 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
     this.offset = 0;
     //largest value for the sum of this.offset and this.getX()
     //this prevents us from scrolling off the right end of the ref seq
-    this.maxLeft = this.bpToPx(this.endbp) - this.dim.width;
+    this.maxLeft = this.bpToPx(this.ref.end) - this.dim.width;
     //smallest value for the sum of this.offset and this.getX()
     //this prevents us from scrolling off the left end of the ref seq
-    this.minLeft = this.bpToPx(this.startbp);
+    this.minLeft = this.bpToPx(this.ref.start);
     //distance, in pixels, between each track
     this.trackPadding = 20;
     //extra margin to draw around the visible area, in multiples of the visible area
@@ -186,8 +184,6 @@ function GenomeView(elem, stripeWidth, startbp, endbp, zoomLevel) {
                       $("zoomIn"), $("zoomOut"),
                       document.body, elem];
     this.prevCursors = [];
-    this.locationBox = $("location");
-    this.locationBox.size = (Util.addCommas(this.endbp).length * 2) + 3;
     this.locationThumb = document.createElement("div");
     this.locationThumb.className = "locationThumb";
     this.overview.appendChild(this.locationThumb);
@@ -454,8 +450,28 @@ GenomeView.prototype.slide = function(distance) {
                distance * this.dim.width);
 }
 
+GenomeView.prototype.setRefseq = function(refseq) {
+    this.ref = refseq;
+    var tracks = this.trackList();
+    var trackDivs = []
+    var getDivs = function(track) {
+        trackDivs.push(track.div);
+    };
+    this.trackIterate(getDivs)
+    dojo.forEach(trackDivs, function(div) {div.parentNode.removeChild(div);});
+    trackDivs = [];
+    this.overviewTrackIterate(getDivs);
+    dojo.forEach(trackDivs, function(div) {div.parentNode.removeChild(div);});
+    this.staticTrack.clear();
+    this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
+    this.clearStripes();
+    this.makeStripes();
+    this.sizeInit();
+    this.showVisibleBlocks(true);
+}
+
 GenomeView.prototype.centerAtBase = function(base, instantly) {
-    base = Math.min(Math.max(base, this.startbp), this.endbp);
+    base = Math.min(Math.max(base, this.ref.start), this.ref.end);
     if (instantly) {
 	var pxDist = base * this.pxPerBp;
 	var containerWidth = this.stripeCount * this.stripeWidth;
@@ -504,7 +520,7 @@ GenomeView.prototype.thumbMoved = function(mover) {
     var pxLeft = parseInt(this.locationThumb.style.left);
     var pxWidth = parseInt(this.locationThumb.style.width);
     var pxCenter = pxLeft + (pxWidth / 2);
-    this.centerAtBase(((pxCenter / this.overviewBox.w) * (this.endbp - this.startbp)) + this.startbp);
+    this.centerAtBase(((pxCenter / this.overviewBox.w) * (this.ref.end - this.ref.start)) + this.ref.start);
 }
 
 GenomeView.prototype.checkY = function(y) {
@@ -548,12 +564,12 @@ GenomeView.prototype.showDone = function() {
 
 GenomeView.prototype.pxToBp = function(pixels) {
     return pixels / this.pxPerBp;
-    //return (pixels / this.pxPerBp) + this.startbp;
+    //return (pixels / this.pxPerBp) + this.ref.start;
 }
 
 GenomeView.prototype.bpToPx = function(bp) {
     return bp * this.pxPerBp;
-    //return (bp - this.startbp) * this.pxPerBp;
+    //return (bp - this.ref.start) * this.pxPerBp;
 }
 
 GenomeView.prototype.sizeInit = function() {
@@ -563,11 +579,11 @@ GenomeView.prototype.sizeInit = function() {
     //scale values, in pixels per bp, for all zoom levels
     this.zoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, this.charWidth];
     //make sure we don't zoom out too far
-    while (((this.endbp - this.startbp) * this.zoomLevels[0]) 
+    while (((this.ref.end - this.ref.start) * this.zoomLevels[0]) 
            < this.dim.width) {
         this.zoomLevels.shift();
     }
-    this.zoomLevels.unshift(this.dim.width / (this.endbp - this.startbp));
+    this.zoomLevels.unshift(this.dim.width / (this.ref.end - this.ref.start));
 
     //width, in pixels, of stripes at min zoom (so the view covers
     //the whole ref seq)
@@ -577,13 +593,13 @@ GenomeView.prototype.sizeInit = function() {
     while (this.pxPerBp > this.zoomLevels[this.curZoom])
         this.curZoom++;
     this.pxPerBp = this.zoomLevels[this.curZoom];
-    this.maxLeft = this.bpToPx(this.endbp) - this.dim.width;
+    this.maxLeft = this.bpToPx(this.ref.end) - this.dim.width;
 
     delete this.stripePercent;
     //25, 50, 100 don't work as well due to the way scrollUpdate works
     var possiblePercents = [20, 10, 5, 4, 2, 1];
     for (var i = 0; i < possiblePercents.length; i++) {
-        if (((100 / possiblePercents[i]) * this.stripeWidth)
+        if (((100 / possiblePercents[i]) * this.regularStripe)
             > (this.dim.width * 12)) {
             this.stripePercent = possiblePercents[i];
             break;
@@ -642,10 +658,10 @@ GenomeView.prototype.sizeInit = function() {
         this.showCoarse();
     }
 
-    var refLength = this.endbp - this.startbp;
+    var refLength = this.ref.end - this.ref.start;
     var posSize = document.createElement("div");
     posSize.className = "overview-pos";
-    posSize.appendChild(document.createTextNode(Util.addCommas(this.endbp)));
+    posSize.appendChild(document.createTextNode(Util.addCommas(this.ref.end)));
     posSize.style.visibility = "hidden";
     this.overview.appendChild(posSize);
     var minStripe = posSize.clientWidth * 1.2;
@@ -683,7 +699,7 @@ GenomeView.prototype.updateOverviewHeight = function() {
 	    var height = track.showRange(0, view.overviewStripes - 1,
 					 0, view.overviewStripeBases,
 					 view.overviewBox.w / 
-					 (view.endbp - view.startbp));
+					 (view.ref.end - view.ref.start));
 	    track.div.style.height = height + "px";
 	    overviewHeight += height;
 	});
@@ -692,13 +708,13 @@ GenomeView.prototype.updateOverviewHeight = function() {
 }
 
 GenomeView.prototype.addOverviewTrack = function(track) {
-    var refLength = this.endbp - this.startbp;
+    var refLength = this.ref.end - this.ref.start;
     
     var overviewStripePct = 100 / (refLength / this.overviewStripeBases);
     var trackDiv = document.createElement("div");
     trackDiv.className = "track";
     trackDiv.style.height = this.overviewBox.h + "px";
-    trackDiv.style.left = (((-this.startbp) / refLength) * this.overviewBox.w) + "px";
+    trackDiv.style.left = (((-this.ref.start) / refLength) * this.overviewBox.w) + "px";
     trackDiv.id = "overviewtrack_" + track.name;
     trackDiv.track = track;
     track.setViewInfo(this.overviewStripes, trackDiv,
@@ -729,7 +745,8 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
     if (this.animation) return;
     if (zoomLoc === undefined) zoomLoc = 0.5;
     if (steps === undefined) steps = 1;
-    steps = Math.min(steps, this.zoomLevels.length - this.curZoom);
+    steps = Math.min(steps, (this.zoomLevels.length - 1) - this.curZoom);
+    console.log("steps: " + steps + ", curZoom: " + this.curZoom + ", zoomLevels.length: " + this.zoomLevels.length);
     if (0 == steps) return;
 
     this.showWait();
@@ -747,7 +764,7 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
     var centerBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.dim.width));
     this.curZoom += steps;
     this.pxPerBp = this.zoomLevels[this.curZoom];
-    this.maxLeft = this.bpToPx(this.endbp) - this.dim.width;
+    this.maxLeft = this.bpToPx(this.ref.end) - this.dim.width;
 
     for (var track = 0; track < this.tracks.length; track++)
 	this.tracks[track].startZoom(this.pxPerBp,
@@ -773,11 +790,11 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
     this.trimVertical(pos.y);
     if (zoomLoc === undefined) zoomLoc = 0.5;
     var scale = this.zoomLevels[this.curZoom - steps] / this.zoomLevels[this.curZoom];
-    var edgeDist = this.bpToPx(this.endbp) - (this.offset + pos.x + this.dim.width);
+    var edgeDist = this.bpToPx(this.ref.end) - (this.offset + pos.x + this.dim.width);
         //zoomLoc is a number on [0,1] that indicates
         //the fixed point of the zoom
     zoomLoc = Math.max(zoomLoc, 1 - (((edgeDist * scale) / (1 - scale)) / this.dim.width));
-    edgeDist = pos.x + this.offset - this.bpToPx(this.startbp);
+    edgeDist = pos.x + this.offset - this.bpToPx(this.ref.start);
     zoomLoc = Math.min(zoomLoc, ((edgeDist * scale) / (1 - scale)) / this.dim.width);
     var centerBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.dim.width));
     this.curZoom -= steps;
@@ -789,7 +806,7 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
 				     centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp));
 
 	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp)));
-    this.minLeft = this.bpToPx(this.startbp);
+    this.minLeft = this.bpToPx(this.ref.start);
     new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);
 }
 
@@ -808,9 +825,9 @@ GenomeView.prototype.zoomUpdate = function() {
     var centerStripe = Math.round(centerPx / this.stripeWidth);
     var firstStripe = (centerStripe - ((this.stripeCount) / 2)) | 0;
     this.offset = firstStripe * this.stripeWidth;
-    this.maxOffset = this.bpToPx(this.endbp) - this.stripeCount * this.stripeWidth;
-    this.maxLeft = this.bpToPx(this.endbp) - this.dim.width;
-    this.minLeft = this.bpToPx(this.startbp);
+    this.maxOffset = this.bpToPx(this.ref.end) - this.stripeCount * this.stripeWidth;
+    this.maxLeft = this.bpToPx(this.ref.end) - this.dim.width;
+    this.minLeft = this.bpToPx(this.ref.start);
     this.setX((centerPx - this.offset) - (eWidth / 2));
     //this.updateTrackLabels();
     this.clearStripes();
