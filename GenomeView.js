@@ -473,8 +473,6 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
 	this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
 	this.sizeInit();
 	for (var i = this.zoomLevels.length - 1; i >= 0; i--) {
-	    console.log(startbp + " .. " + endbp + "     width at zoom " + i + ": " + ((endbp - startbp) * this.zoomLevels[i]) + "; this.dim.width: " + this.dim.width);
-
 	    if (((endbp - startbp) * this.zoomLevels[i])
 		<= (this.dim.width + 1)) {
 		if (i != this.curZoom) {
@@ -482,7 +480,6 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
                     this.pxPerBp = this.zoomLevels[i];
 		    this.showWait();
 		    this.zoomUpdate();
-		    console.log("zoomUpdated. maxLeft: " + this.maxLeft + ", minLeft: " + this.minLeft);
 		} else {
 		    this.clearStripes();
 		    this.maxLeft = this.bpToPx(this.ref.end) - this.dim.width;
@@ -495,7 +492,6 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
 	}
     } else {
 	for (var i = this.zoomLevels.length - 1; i >= 0; i--) {
-	    console.log(startbp + " .. " + endbp + "     width at zoom " + i + ": " + ((endbp - startbp) * this.zoomLevels[i]) + "; this.dim.width: " + this.dim.width);
 	    if (((endbp - startbp) * this.zoomLevels[i])
 		<= (this.dim.width + 1)) {
 		if (i != this.curZoom) {
@@ -503,7 +499,6 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
                     this.pxPerBp = this.zoomLevels[i];
 		    this.showWait();
 		    this.zoomUpdate();
-		    console.log("zoomUpdated. maxLeft: " + this.maxLeft + ", minLeft: " + this.minLeft);
 		}
 		break;
 	    }
