@@ -450,24 +450,66 @@ GenomeView.prototype.slide = function(distance) {
                distance * this.dim.width);
 }
 
-GenomeView.prototype.setRefseq = function(refseq) {
-    this.ref = refseq;
-    var tracks = this.trackList();
-    var trackDivs = []
-    var getDivs = function(track) {
-        trackDivs.push(track.div);
-    };
-    this.trackIterate(getDivs)
-    dojo.forEach(trackDivs, function(div) {div.parentNode.removeChild(div);});
-    trackDivs = [];
-    this.overviewTrackIterate(getDivs);
-    dojo.forEach(trackDivs, function(div) {div.parentNode.removeChild(div);});
-    this.staticTrack.clear();
-    this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
-    this.clearStripes();
-    this.makeStripes();
-    this.sizeInit();
-    this.showVisibleBlocks(true);
+GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
+    if (startbp === undefined) startbp = this.minVisible();
+    if (endbp === undefined) endbp = this.maxVisible();
+    if ((startbp < refseq.start) || (startbp > refseq.end))
+        startbp = refseq.start;
+    if ((endbp < refseq.start) || (endbp > refseq.end))
+        endbp = refseq.end;
+
+    if (this.ref != refseq) {
+	this.ref = refseq;
+	var tracks = this.trackList();
+	var trackDivs = []
+	var getDivs = function(track) {
+	    trackDivs.push(track.div);
+	};
+	this.trackIterate(getDivs)
+	dojo.forEach(trackDivs, function(div) {div.parentNode.removeChild(div);});
+	trackDivs = [];
+	this.overviewTrackIterate(getDivs);
+	dojo.forEach(trackDivs, function(div) {div.parentNode.removeChild(div);});
+	this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
+	this.sizeInit();
+	for (var i = this.zoomLevels.length - 1; i >= 0; i--) {
+	    console.log(startbp + " .. " + endbp + "     width at zoom " + i + ": " + ((endbp - startbp) * this.zoomLevels[i]) + "; this.dim.width: " + this.dim.width);
+
+	    if (((endbp - startbp) * this.zoomLevels[i])
+		<= (this.dim.width + 1)) {
+		if (i != this.curZoom) {
+		    this.curZoom = i;
+                    this.pxPerBp = this.zoomLevels[i];
+		    this.showWait();
+		    this.zoomUpdate();
+		    console.log("zoomUpdated. maxLeft: " + this.maxLeft + ", minLeft: " + this.minLeft);
+		} else {
+		    this.clearStripes();
+		    this.maxLeft = this.bpToPx(this.ref.end) - this.dim.width;
+		    this.minLeft = this.bpToPx(this.ref.start);
+		    console.log("maxLeft: " + this.maxLeft + ", minLeft: " + this.minLeft);
+		    this.makeStripes();
+		}		
+		break;
+	    }
+	}
+    } else {
+	for (var i = this.zoomLevels.length - 1; i >= 0; i--) {
+	    console.log(startbp + " .. " + endbp + "     width at zoom " + i + ": " + ((endbp - startbp) * this.zoomLevels[i]) + "; this.dim.width: " + this.dim.width);
+	    if (((endbp - startbp) * this.zoomLevels[i])
+		<= (this.dim.width + 1)) {
+		if (i != this.curZoom) {
+		    this.curZoom = i;
+                    this.pxPerBp = this.zoomLevels[i];
+		    this.showWait();
+		    this.zoomUpdate();
+		    console.log("zoomUpdated. maxLeft: " + this.maxLeft + ", minLeft: " + this.minLeft);
+		}
+		break;
+	    }
+	}
+    }
+    this.centerAtBase((startbp + endbp) / 2, true);
 }
 
 GenomeView.prototype.centerAtBase = function(base, instantly) {
@@ -502,6 +544,14 @@ GenomeView.prototype.centerAtBase = function(base, instantly) {
 	    this.centerAtBase(base, true);
 	}
     }
+}
+
+GenomeView.prototype.minVisible = function() {
+    return (this.x + this.offset) / this.pxPerBp;
+}
+
+GenomeView.prototype.maxVisible = function() {
+    return (this.x + this.offset + this.dim.width) / this.pxPerBp;
 }
 
 GenomeView.prototype.showFine = function() {
@@ -575,6 +625,7 @@ GenomeView.prototype.bpToPx = function(bp) {
 GenomeView.prototype.sizeInit = function() {
     this.dim = {width: this.elem.clientWidth, 
                 height: this.elem.clientHeight};//Element.getDimensions(elem);
+    this.overviewBox = dojo.marginBox(this.overview);
 
     //scale values, in pixels per bp, for all zoom levels
     this.zoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, this.charWidth];

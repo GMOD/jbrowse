@@ -78,7 +78,7 @@ var Browser = function(containerID, trackData) {
                     var selected = brwsr.chromList.selectedIndex;
                     brwsr.refSeq = trackData[refs[selected]];
                     trackList = brwsr.refSeq["trackList"];
-                    brwsr.view.setRefseq(trackData[refs[selected]]);
+                    brwsr.view.setLocation(trackData[refs[selected]]);
                     brwsr.trackListWidget.forInItems(function(obj, id, map) {
                             var node = dojo.byId(id);
                             node.parentNode.removeChild(node);
