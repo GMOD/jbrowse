@@ -477,8 +477,6 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
 		<= (this.dim.width + 1)) {
 		if (i != this.curZoom) {
 		    this.curZoom = i;
-                    //this.pxPerBp = this.zoomLevels[i];
-		    this.showWait();
 		    this.instantZoomUpdate();
 		} else {
 		    this.clearStripes();
@@ -495,8 +493,6 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
 		<= (this.dim.width + 1)) {
 		if (i != this.curZoom) {
 		    this.curZoom = i;
-                    //this.pxPerBp = this.zoomLevels[i];
-		    this.showWait();
 		    this.instantZoomUpdate();
 		}
 		break;

@@ -206,7 +206,7 @@ div.feature-label {
     margin: -2px 0px 0px 0px;
     /* padding: 0px 0px 2px 0px; for more space below labels */
     padding: 0px 0px 0px 0px;
-    font-size: 80%;
+    /* font-size: 80%; */
     white-space: nowrap;
     background-color: #eee;
     cursor: pointer;

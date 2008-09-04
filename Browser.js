@@ -124,14 +124,25 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
                                * this.view.overviewBox.w) + this.view.overviewBox.l);
     var trapRight = Math.round((((endbp - this.view.ref.start) / length)
                                 * this.view.overviewBox.w) + this.view.overviewBox.l);
-    var locationTrapStyle =
-    "top: " + this.view.overviewBox.t + "px;"
-    + "height: " + this.view.overviewBox.h + "px;"
-    + "left: " + this.view.overviewBox.l + "px;"
-    + "width: " + (trapRight - trapLeft) + "px;"
-    + "border-width: " + "0px "
-    + (this.view.overviewBox.w - trapRight) + "px "
-    + this.view.locationTrapHeight + "px " + trapLeft + "px;";
+    var locationTrapStyle;
+    if (dojo.isIE) {
+        //IE apparently doesn't like borders thicker than 1024px
+        locationTrapStyle =
+            "top: " + this.view.overviewBox.t + "px;"
+            + "height: " + this.view.overviewBox.h + "px;"
+            + "left: " + trapLeft + "px;"
+            + "width: " + (trapRight - trapLeft) + "px;"
+            + "border-width: 0px";
+    } else {
+        locationTrapStyle =
+        "top: " + this.view.overviewBox.t + "px;"
+        + "height: " + this.view.overviewBox.h + "px;"
+        + "left: " + this.view.overviewBox.l + "px;"
+        + "width: " + (trapRight - trapLeft) + "px;"
+        + "border-width: " + "0px "
+        + (this.view.overviewBox.w - trapRight) + "px "
+        + this.view.locationTrapHeight + "px " + trapLeft + "px;";
+    }
 
     this.locationTrap.style.cssText = locationTrapStyle;
 }
@@ -320,7 +331,8 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     dojo.cookie(this.container.id + "-location",
                 dojo.toJson(oldLocMap),
                 {expires: 60});
-    console.log("setting location cookie: " + dojo.toJson(oldLocMap));
+
+    document.title = this.refSeq.name + ":" + locString;
 }
 
 Browser.prototype.createNavBox = function(parent) {
