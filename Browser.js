@@ -40,14 +40,7 @@ var Browser = function(containerID, trackData) {
             topPane.appendChild(brwsr.locationTrap);
             topPane.style.overflow="hidden";
 
-            var zoomLevel = 1/200;
-            var zoomCookie = dojo.cookie(containerID + "-zoom");
-            if (zoomCookie) 
-                zoomLevel = parseFloat(zoomCookie);
-            if (isNaN(zoomLevel))
-                zoomLevel = 1/200;
-
-            var refCookie = dojo.cookie(containerID + "-refseq");
+            brwsr.allRefs = trackData;
             refs = [];
             //sort ref sequences more or less how people expect
             for (var refname in trackData) refs.push(refname);
@@ -66,40 +59,37 @@ var Browser = function(containerID, trackData) {
                         return 1;
                 });
 
-            for (var i = 0; i < refs.length; i++)
+            var refCookie = dojo.cookie(containerID + "-refseq");
+            brwsr.refSeq = brwsr.allRefs[refs[0]];
+            for (var i = 0; i < refs.length; i++) {
                 brwsr.chromList.options[i] = new Option(refs[i], refs[i]);
+                if (refs[i].toUpperCase() == String(refCookie).toUpperCase()) {
+                    brwsr.refSeq = brwsr.allRefs[refs[i]];
+                    brwsr.chromList.selectedIndex = i;
+                }
+            }
 
-            brwsr.refSeq = trackData[refs[0]];
-            var trackList = brwsr.refSeq["trackList"];
-            brwsr.chromList.selectedIndex = 0;
+            var oldLocMap = dojo.fromJson(dojo.cookie(brwsr.container.id + "-location")) || {};
+            var basePos = (oldLocMap[brwsr.refSeq.name]
+                           || (brwsr.refSeq.start + ".." + brwsr.refSeq.end));
+            brwsr.navigateTo(brwsr.refSeq.name + ":" + basePos);
+
             dojo.connect(brwsr.chromList, "onchange", function(event) {
-                    var curTracks = dojo.map(brwsr.view.trackList(),
-                                             function(track) {return track.name;});
-                    var selected = brwsr.chromList.selectedIndex;
-                    brwsr.refSeq = trackData[refs[selected]];
-                    trackList = brwsr.refSeq["trackList"];
-                    brwsr.view.setLocation(trackData[refs[selected]]);
-                    brwsr.trackListWidget.forInItems(function(obj, id, map) {
-                            var node = dojo.byId(id);
-                            node.parentNode.removeChild(node);
-                        });
-                    brwsr.trackListWidget.clearItems();
-                    brwsr.trackListWidget.insertNodes(false, trackList);
+                    var oldLocMap = dojo.fromJson(dojo.cookie(brwsr.container.id + "-location")) || {};
+                    var newRef = brwsr.allRefs[brwsr.chromList.options[brwsr.chromList.selectedIndex].value];
 
-                    brwsr.showTracks(curTracks.join(","));
+                    if (oldLocMap[newRef.name])
+                        brwsr.navigateTo(newRef.name + ":"
+                                         + oldLocMap[newRef.name]);
+                    else
+                        brwsr.navigateTo(newRef.name + ":"
+                                         + newRef.start + ".." + newRef.end);
                         });
 
-            var location;
-            var locCookie = dojo.cookie(containerID + "-location");
-            if (locCookie)
-                location = parseInt(locCookie);
-            if (isNaN(location))
-                location = ((brwsr.refSeq.end + brwsr.refSeq.start) / 2) | 0;
-
-            var gv = new GenomeView(viewElem, 250, brwsr.refSeq, zoomLevel);
+            var gv = new GenomeView(viewElem, 250, brwsr.refSeq, 1/200);
             brwsr.view = gv;
             brwsr.viewElem = viewElem;
-            gv.setY(0);
+            //gv.setY(0);
             viewElem.view = gv;
 
             dojo.connect(browserWidget, "resize", function() {
@@ -113,18 +103,10 @@ var Browser = function(containerID, trackData) {
 
             dojo.connect(gv, "onFineMove", brwsr, "onFineMove");
             dojo.connect(gv, "onCoarseMove", brwsr, "onCoarseMove");
-            gv.showFine();
-            gv.showCoarse();
             
-            dojo.connect(gv, "zoomUpdate", function() {
-                    dojo.cookie(containerID + "-zoom",
-                                brwsr.view.pxPerBp, {expires: 60});
-                });
-
-            var trackListDiv = brwsr.createTrackList(brwsr.container, trackList);
+            var trackListDiv = brwsr.createTrackList(brwsr.container,
+                                                     brwsr.refSeq.trackList);
             containerWidget.startup();
-
-	    brwsr.view.centerAtBase(location, true);
 
 	    brwsr.isInitialized = true;
 	    //if someone calls methods on this browser object
@@ -225,6 +207,70 @@ Browser.prototype.createTrackList = function(parent, trackList) {
     return trackListDiv;
 }
 
+Browser.prototype.navigateTo = function(loc) {
+    if (!this.isInitialized) {
+        var brwsr = this;
+        this.deferredFunctions.push(function() { 
+                brwsr.navigateTo(loc);
+                    });
+	return;
+    }
+
+    matches = String(loc).match(/^((\s*(chr)?(.*)\s*:)?\s*(-?[0-9,.]*[0-9])\s*(\.\.|-|\s+))?\s*(-?[0-9,.]+)\s*$/);
+    //matches potentially contains location components:
+    //matches[4] = chromosome (optional, with any leading "chr" stripped)
+    //matches[5] = start base (optional)
+    //matches[7] = end base (or center base, if it's the only one)
+    if (matches[4]) {
+        var refName;
+        for (ref in this.allRefs)
+            if (matches[4].toUpperCase() == ref.toUpperCase())
+                refName = ref;
+        if (refName) {
+            dojo.cookie(this.container.id + "-refseq", refName, {expires: 60});
+            if (refName == this.refSeq.name) {
+                //go to given start, end on current refSeq
+                this.view.setLocation(this.refSeq,
+                                      parseInt(matches[5].replace(/[,.]/g, "")),
+                                      parseInt(matches[7].replace(/[,.]/g, "")));
+            } else {
+                var curTracks = dojo.map(this.view.trackList(),
+                                         function(track) {return track.name;});
+                for (var i = 0; i < this.chromList.options.length; i++)
+                    if (this.chromList.options[i].text == refName)
+                        this.chromList.selectedIndex = i;
+                this.refSeq = this.allRefs[refName];
+                //go to given refseq, start, end
+                this.view.setLocation(this.refSeq,
+                                      parseInt(matches[5].replace(/[,.]/g, "")),
+                                      parseInt(matches[7].replace(/[,.]/g, "")));
+                this.trackListWidget.forInItems(function(obj, id, map) {
+                        var node = dojo.byId(id);
+                        node.parentNode.removeChild(node);
+                    });
+                this.trackListWidget.clearItems();
+                this.trackListWidget.insertNodes(false, 
+                                                 this.refSeq.trackList);
+
+                this.showTracks(curTracks.join(","));
+            }
+            return;
+        }
+    } else if (matches[5]) {
+        //go to start, end on this refseq
+        this.view.setLocation(this.refSeq,
+                              parseInt(matches[5].replace(/[,.]/g, "")),
+                              parseInt(matches[7].replace(/[,.]/g, "")));
+        return;
+    } else if (matches[7]) {
+        //center at given base
+        this.view.centerAtBase(parseInt(matches[7].replace(/[,.]/g, "")));
+        return;
+    }
+    //if we get here, we didn't match any expected location
+    //TODO: use name search here
+}
+
 Browser.prototype.showTracks = function(trackNameList) {
     if (!this.isInitialized) {
         var brwsr = this;
@@ -266,11 +312,15 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     + "width: " + (trapRight - trapLeft) + "px;"
     + "z-index: 20";
 
-    this.location.value = Util.addCommas(startbp | 0)
-    + " .. "
-    + Util.addCommas(endbp | 0);
-                    
-    dojo.cookie(this.container.id + "-location", Math.round((startbp + endbp) / 2), {expires: 60});
+    var locString = Util.addCommas(startbp | 0) + " .. " + Util.addCommas(endbp | 0);
+    this.location.value = locString;
+    var oldLocMap = dojo.fromJson(dojo.cookie(this.container.id + "-location"));
+    if ((typeof oldLocMap) != "object") oldLocMap = {};
+    oldLocMap[this.refSeq.name] = locString;
+    dojo.cookie(this.container.id + "-location",
+                dojo.toJson(oldLocMap),
+                {expires: 60});
+    console.log("setting location cookie: " + dojo.toJson(oldLocMap));
 }
 
 Browser.prototype.createNavBox = function(parent) {
@@ -350,7 +400,25 @@ Browser.prototype.createNavBox = function(parent) {
     this.location.size=27;
     this.location.type="text";
     this.location.id="location";
+    dojo.connect(this.location, "keypress", function(event) {
+            brwsr.goButton.disabled = false;
+        });
+    dojo.connect(this.location, "keyup", function(event) {
+            if (event.keyCode == dojo.keys.ENTER) {
+                brwsr.navigateTo(brwsr.location.value);
+                brwsr.goButton.disabled = true;
+            }
+        });
     navbox.appendChild(this.location);
+
+    this.goButton = document.createElement("button");
+    this.goButton.appendChild(document.createTextNode("Go"));
+    this.goButton.disabled = true;
+    dojo.connect(this.goButton, "click", function(event) {
+            brwsr.navigateTo(brwsr.location.value);
+            brwsr.goButton.disabled = true;
+        });
+    navbox.appendChild(this.goButton);
 
     return navbox;
 }
