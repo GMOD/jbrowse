@@ -484,7 +484,6 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
 		    this.clearStripes();
 		    this.maxLeft = this.bpToPx(this.ref.end) - this.dim.width;
 		    this.minLeft = this.bpToPx(this.ref.start);
-		    console.log("maxLeft: " + this.maxLeft + ", minLeft: " + this.minLeft);
 		    this.makeStripes();
 		}		
 		break;
