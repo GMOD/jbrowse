@@ -232,7 +232,7 @@ Browser.prototype.navigateTo = function(loc) {
     //matches[4] = chromosome (optional, with any leading "chr" stripped)
     //matches[5] = start base (optional)
     //matches[7] = end base (or center base, if it's the only one)
-    if (matches[4]) {
+    if (matches && matches[4]) {
         var refName;
         for (ref in this.allRefs)
             if (matches[4].toUpperCase() == ref.toUpperCase())
@@ -245,6 +245,7 @@ Browser.prototype.navigateTo = function(loc) {
                                       parseInt(matches[5].replace(/[,.]/g, "")),
                                       parseInt(matches[7].replace(/[,.]/g, "")));
             } else {
+                //new refseq, record open tracks and re-open on new refseq
                 var curTracks = dojo.map(this.view.trackList(),
                                          function(track) {return track.name;});
                 for (var i = 0; i < this.chromList.options.length; i++)
