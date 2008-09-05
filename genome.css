@@ -10,15 +10,8 @@ button.nav {
 div.dragWindow {
     position:absolute;
     overflow: hidden;
-/*    overflow: -moz-scrollbars-vertical; */
-/*    overflow-x: hidden;
-    overflow-y: scroll; */
     z-index: 1;
-/*    border-style: solid;
-    border-width: 1px;
-    border-color: gray; */
-    /*background: transparent;*/
-    cursor: url("openhand.cur"), move;
+    cursor: url("openhand.cur");
 }
 
 div.locationTrap {
@@ -38,11 +31,11 @@ div.locationThumb {
     /* if you change this from 2px, change GenomeView.showTrap */
     border: 2px solid red;
     margin: 0px -2px 0px -2px;
-    cursor: url("openhand.cur"), move;
+    cursor: url("openhand.cur");
 }
 
 div.locationThumb.dojoMoveItem {
-    cursor: url("closedhand.cur"), move;
+    cursor: url("closedhand.cur");
 }
 
 div.overview {
