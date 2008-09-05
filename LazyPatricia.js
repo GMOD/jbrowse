@@ -115,7 +115,8 @@ LazyTrie.prototype.valuesFromNode = function(node) {
 LazyTrie.prototype.exactMatch = function(key, callback) {
     var trie = this;
     this.findNode(key, function(prefix, node) {
-            if ((prefix == key) && node[1]) callback(node[1]);
+            if ((prefix.toLowerCase() == key.toLowerCase()) && node[1])
+		callback(node[1]);
         });
 }
 

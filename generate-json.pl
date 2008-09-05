@@ -169,8 +169,8 @@ foreach my $label (@track_labels) {
                sub {$label},
                $labelSub,
                sub {$segName},
-	       sub {shift->start - 1},
-	       sub {shift->end},
+	       sub {int(shift->start) - 1},
+	       sub {int(shift->end)},
 	       sub {$_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id}
               );
 

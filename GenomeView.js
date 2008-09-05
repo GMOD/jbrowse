@@ -450,6 +450,9 @@ GenomeView.prototype.slide = function(distance) {
                distance * this.dim.width);
 }
 
+GenomeView.prototype.highlightRegions = function(regionList) {
+}
+
 GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
     if (startbp === undefined) startbp = this.minVisible();
     if (endbp === undefined) endbp = this.maxVisible();

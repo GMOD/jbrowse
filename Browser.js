@@ -2,7 +2,7 @@ var djConfig = {
     usePlainJson: true
 };
 
-var Browser = function(containerID, trackData) {
+var Browser = function(containerID, trackData, nameRoot) {
     dojo.require("dojo.dnd.Source");
     dojo.require("dojo.dnd.Moveable");
     dojo.require("dojo.dnd.Mover");
@@ -11,6 +11,8 @@ var Browser = function(containerID, trackData) {
     dojo.require("dijit.layout.BorderContainer");
 
     this.deferredFunctions = [];
+    this.names = new LazyTrie(nameRoot + "/lazy-",
+			      nameRoot + "/root.json");
     var brwsr = this;
     brwsr.isInitialized = false;
     dojo.addOnLoad(function() {
@@ -227,60 +229,89 @@ Browser.prototype.navigateTo = function(loc) {
 	return;
     }
 
+    loc = dojo.trim(loc);
     matches = String(loc).match(/^((\s*(chr)?(.*)\s*:)?\s*(-?[0-9,.]*[0-9])\s*(\.\.|-|\s+))?\s*(-?[0-9,.]+)\s*$/);
     //matches potentially contains location components:
     //matches[4] = chromosome (optional, with any leading "chr" stripped)
     //matches[5] = start base (optional)
     //matches[7] = end base (or center base, if it's the only one)
-    if (matches && matches[4]) {
-        var refName;
-        for (ref in this.allRefs)
-            if (matches[4].toUpperCase() == ref.toUpperCase())
-                refName = ref;
-        if (refName) {
-            dojo.cookie(this.container.id + "-refseq", refName, {expires: 60});
-            if (refName == this.refSeq.name) {
-                //go to given start, end on current refSeq
-                this.view.setLocation(this.refSeq,
-                                      parseInt(matches[5].replace(/[,.]/g, "")),
-                                      parseInt(matches[7].replace(/[,.]/g, "")));
-            } else {
-                //new refseq, record open tracks and re-open on new refseq
-                var curTracks = dojo.map(this.view.trackList(),
-                                         function(track) {return track.name;});
-                for (var i = 0; i < this.chromList.options.length; i++)
-                    if (this.chromList.options[i].text == refName)
-                        this.chromList.selectedIndex = i;
-                this.refSeq = this.allRefs[refName];
-                //go to given refseq, start, end
-                this.view.setLocation(this.refSeq,
-                                      parseInt(matches[5].replace(/[,.]/g, "")),
-                                      parseInt(matches[7].replace(/[,.]/g, "")));
-                this.trackListWidget.forInItems(function(obj, id, map) {
-                        var node = dojo.byId(id);
-                        node.parentNode.removeChild(node);
-                    });
-                this.trackListWidget.clearItems();
-                this.trackListWidget.insertNodes(false, 
-                                                 this.refSeq.trackList);
+    if (matches) {
+	if (matches[4]) {
+	    var refName;
+	    for (ref in this.allRefs)
+		if (matches[4].toUpperCase() == ref.toUpperCase())
+		    refName = ref;
+	    if (refName) {
+		dojo.cookie(this.container.id + "-refseq", refName, {expires: 60});
+		if (refName == this.refSeq.name) {
+		    //go to given start, end on current refSeq
+		    this.view.setLocation(this.refSeq,
+					  parseInt(matches[5].replace(/[,.]/g, "")),
+					  parseInt(matches[7].replace(/[,.]/g, "")));
+		} else {
+		    //new refseq, record open tracks and re-open on new refseq
+		    var curTracks = dojo.map(this.view.trackList(),
+					     function(track) {return track.name;});
+		    for (var i = 0; i < this.chromList.options.length; i++)
+			if (this.chromList.options[i].text == refName)
+			    this.chromList.selectedIndex = i;
+		    this.refSeq = this.allRefs[refName];
+		    //go to given refseq, start, end
+		    this.view.setLocation(this.refSeq,
+					  parseInt(matches[5].replace(/[,.]/g, "")),
+					  parseInt(matches[7].replace(/[,.]/g, "")));
+		    this.trackListWidget.forInItems(function(obj, id, map) {
+			    var node = dojo.byId(id);
+			    node.parentNode.removeChild(node);
+			});
+		    this.trackListWidget.clearItems();
+		    this.trackListWidget.insertNodes(false, 
+						     this.refSeq.trackList);
 
-                this.showTracks(curTracks.join(","));
-            }
-            return;
-        }
-    } else if (matches[5]) {
-        //go to start, end on this refseq
-        this.view.setLocation(this.refSeq,
-                              parseInt(matches[5].replace(/[,.]/g, "")),
-                              parseInt(matches[7].replace(/[,.]/g, "")));
-        return;
-    } else if (matches[7]) {
-        //center at given base
-        this.view.centerAtBase(parseInt(matches[7].replace(/[,.]/g, "")));
-        return;
+		    this.showTracks(curTracks.join(","));
+		}
+		return;
+	    }
+	} else if (matches[5]) {
+	    //go to start, end on this refseq
+	    this.view.setLocation(this.refSeq,
+				  parseInt(matches[5].replace(/[,.]/g, "")),
+				  parseInt(matches[7].replace(/[,.]/g, "")));
+	    return;
+	} else if (matches[7]) {
+	    //center at given base
+	    this.view.centerAtBase(parseInt(matches[7].replace(/[,.]/g, "")));
+	    return;
+	}
     }
-    //if we get here, we didn't match any expected location
-    //TODO: use name search here
+    //if we get here, we didn't match any expected location format
+
+    var brwsr = this;
+    this.names.exactMatch(loc, function(nameMatches) {
+	    var goingTo;
+	    //first check for exact case match
+	    for (var i = 0; i < nameMatches.length; i++) {
+		if (nameMatches[i][1] == loc)
+		    goingTo = nameMatches[i];
+	    }
+	    //if no exact case match, try a case-insentitive match
+            if (!goingTo) {
+                for (var i = 0; i < nameMatches.length; i++) {
+                    if (nameMatches[i][1].toLowerCase() == loc.toLowerCase()) 
+                        goingTo = nameMatches[i];
+                }
+            }
+            //else just pick a match
+	    if (!goingTo) goingTo = nameMatches[0];
+	    var startbp = goingTo[3];
+	    var endbp = goingTo[4];
+	    var flank = Math.round((endbp - startbp) * .2);
+	    //go to location, with some flanking region
+	    brwsr.navigateTo(goingTo[2]
+			     + ":" + (startbp - flank)
+			     + ".." + (endbp + flank));
+	    brwsr.showTracks(brwsr.names.extra[nameMatches[0][0]]);
+	});		    
 }
 
 Browser.prototype.showTracks = function(trackNameList) {
@@ -413,13 +444,12 @@ Browser.prototype.createNavBox = function(parent) {
     this.location.size=27;
     this.location.type="text";
     this.location.id="location";
-    dojo.connect(this.location, "keypress", function(event) {
-            brwsr.goButton.disabled = false;
-        });
     dojo.connect(this.location, "keyup", function(event) {
             if (event.keyCode == dojo.keys.ENTER) {
                 brwsr.navigateTo(brwsr.location.value);
                 brwsr.goButton.disabled = true;
+            } else {
+                brwsr.goButton.disabled = false;
             }
         });
     navbox.appendChild(this.location);

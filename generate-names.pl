@@ -6,7 +6,7 @@ use Getopt::Long;
 use File::Spec::Functions;
 use Cwd qw/ abs_path /;
 use File::Temp qw/ tempdir /;
-use Fcntl ’:mode’;
+use Fcntl ':mode';
 use LazyPatricia;
 use JSON;
 
@@ -14,7 +14,7 @@ my %trackHash;
 my @trackList;
 
 my ($destDir, $rootFile);
-my $thresh = 500;
+my $thresh = 200;
 my $verbose = 0;
 GetOptions("dir=s" => \$destDir,
            "thresh=i" => \$thresh,
@@ -66,7 +66,7 @@ print STDERR "$total total names, with $thisChunk in the root chunk\n" if $verbo
 writeJSON($trie, catfile($outDir, "root.json"));
 
 # make output directory readable
-chmod S_IRWXU│S_IRGRP│S_IXGRP│S_IROTH│S_IXOTH, $outDir;
+chmod S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH, $outDir;
 
 my $tempDir = tempdir(DIR => $parentDir);
 rename $destDir, $tempDir
