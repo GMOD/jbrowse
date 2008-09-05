@@ -69,3 +69,15 @@ Util.getViewportHeight = function() {
   }
   return height;
 };
+
+Util.findNearest = function(numArray, num) {
+    var minIndex = 0;
+    var min = Math.abs(num - numArray[0]);
+    for (var i = 0; i < numArray.length; i++) {
+        if (Math.abs(num - numArray[i]) < min) {
+            minIndex = i;
+            min = Math.abs(num - numArray[0]);
+        }
+    }
+    return minIndex;
+}
