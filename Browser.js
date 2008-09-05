@@ -357,6 +357,7 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
 
     var locString = Util.addCommas(Math.round(startbp)) + " .. " + Util.addCommas(Math.round(endbp));
     this.location.value = locString;
+    this.goButton.disabled = true;
     var oldLocMap = dojo.fromJson(dojo.cookie(this.container.id + "-location"));
     if ((typeof oldLocMap) != "object") oldLocMap = {};
     oldLocMap[this.refSeq.name] = locString;
