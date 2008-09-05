@@ -474,6 +474,7 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
 	this.overviewTrackIterate(getDivs);
 	dojo.forEach(trackDivs, function(div) {div.parentNode.removeChild(div);});
 	this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
+        this.sizeInit();
     }
     this.pxPerBp = Math.min(this.dim.width / (endbp - startbp), this.charWidth);
     this.curZoom = Util.findNearest(this.zoomLevels, this.pxPerBp);
