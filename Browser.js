@@ -2,7 +2,7 @@ var djConfig = {
     usePlainJson: true
 };
 
-var Browser = function(containerID, trackData, nameRoot) {
+var Browser = function(containerID, trackData, dataRoot) {
     dojo.require("dojo.dnd.Source");
     dojo.require("dojo.dnd.Moveable");
     dojo.require("dojo.dnd.Mover");
@@ -11,8 +11,10 @@ var Browser = function(containerID, trackData, nameRoot) {
     dojo.require("dijit.layout.BorderContainer");
 
     this.deferredFunctions = [];
-    this.names = new LazyTrie(nameRoot + "/lazy-",
-			      nameRoot + "/root.json");
+    this.dataRoot = dataRoot;
+    if (!dataRoot) dataRoot = "";
+    this.names = new LazyTrie(dataRoot + "names/lazy-",
+			      dataRoot + "names/root.json");
     var brwsr = this;
     brwsr.isInitialized = false;
     dojo.addOnLoad(function() {
@@ -192,7 +194,7 @@ Browser.prototype.createTrackList = function(parent, trackList) {
         if ("avatar" == hint) {
             return trackListCreate(track, hint);
         } else {
-            node = brwsr.view.addTrack(new SimpleFeatureTrack(track, brwsr.refSeq, changeCallback, brwsr.view.trackPadding));
+            node = brwsr.view.addTrack(new SimpleFeatureTrack(track, brwsr.refSeq, changeCallback, brwsr.view.trackPadding, brwsr.dataRoot));
         }
         return {node: node, data: track, type: ["track"]};
     }
@@ -230,7 +232,7 @@ Browser.prototype.navigateTo = function(loc) {
     }
 
     loc = dojo.trim(loc);
-    matches = String(loc).match(/^((\s*(chr)?(.*)\s*:)?\s*(-?[0-9,.]*[0-9])\s*(\.\.|-|\s+))?\s*(-?[0-9,.]+)\s*$/);
+    matches = String(loc).match(/^(((chr)?(\S*)\s*:)?\s*(-?[0-9,.]*[0-9])\s*(\.\.|-|\s+))?\s*(-?[0-9,.]+)$/i);
     //matches potentially contains location components:
     //matches[4] = chromosome (optional, with any leading "chr" stripped)
     //matches[5] = start base (optional)

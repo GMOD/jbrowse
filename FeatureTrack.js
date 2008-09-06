@@ -1,4 +1,4 @@
-function SimpleFeatureTrack(trackMeta, refSeq, changeCallback, trackPadding) {
+function SimpleFeatureTrack(trackMeta, refSeq, changeCallback, trackPadding, baseUrl) {
     //trackMeta: object with:
     //            key:   display text track name
     //            label: internal track name (no spaces, odd characters)
@@ -13,6 +13,7 @@ function SimpleFeatureTrack(trackMeta, refSeq, changeCallback, trackPadding) {
     this.fields = {};
     this.features = new NCList();
     this.refSeq = refSeq;
+    this.baseUrl = baseUrl;
     //number of histogram bins per block
     this.numBins = 25;
     this.histLabel = false;
@@ -21,7 +22,7 @@ function SimpleFeatureTrack(trackMeta, refSeq, changeCallback, trackPadding) {
 
     this.trackMeta = trackMeta;
     var curTrack = this;
-    dojo.xhrGet({url: trackMeta.url, 
+    dojo.xhrGet({url: (baseUrl ? baseUrl : "") + trackMeta.url, 
 		 handleAs: "json",
 		 load: function(o) { curTrack.loadSuccess(o); }
 	});
