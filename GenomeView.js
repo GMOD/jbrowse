@@ -1005,6 +1005,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 	totalHeight += tracks[i].height + this.trackPadding;
     }
     //fill down from the middle
+    middleIndex = Math.max(middleIndex, 0);
     for (i = middleIndex; i < tracks.length; i++) {
 	if (trackTop < bottom) {
 	    //show blocks for the track
