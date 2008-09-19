@@ -69,15 +69,20 @@ writeJSON($trie, catfile($outDir, "root.json"));
 chmod S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH, $outDir;
 
 my $tempDir = tempdir(DIR => $parentDir);
-rename $destDir, $tempDir
-  or die "couldn't rename $destDir to $tempDir: $!";
+if (-e $destDir) {
+    rename $destDir, $tempDir
+      or die "couldn't rename $destDir to $tempDir: $!";
+}
 # race condition here, probably we should only have one generate-names.pl
 # running at a time (loop the rename instead? or version?)
 rename $outDir, $destDir
   or die "couldn't rename $outDir to $destDir: $!";
 
-unlink glob(catfile($tempDir, "*"))
-  or die "couldn't unlink name files: $!";
+my @nameFiles = glob(catfile($tempDir, "*"));
+if (@nameFiles) {
+    unlink @nameFiles
+      or die "couldn't unlink name files: $!";
+}
 rmdir $tempDir
   or die "couldn't remove $tempDir: $!";
 
