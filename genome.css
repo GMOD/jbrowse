@@ -341,6 +341,27 @@ div.minus-exon {
     z-index: 10;
 }
 
+div.est-hist {
+    position: absolute;
+    background-color: #ED9185;
+    border-style: solid;
+    border-color: #c33;
+    border-width: 1px;
+    z-index: 10;
+}
+
+div.plus-est,
+div.minus-est {
+    position: absolute;
+    height: 5px;
+    background-color: #ED9185;
+    border-style: solid;
+    border-color: #c33;
+    border-width: 1px;
+    cursor: pointer;
+    z-index: 10;
+}
+
 div.plus-dblhelix,
 div.minus-dblhelix {
     position:absolute;
@@ -389,8 +410,8 @@ div.loops {
     cursor: pointer;
 }
 
-div.plus-cds1, div.plus-cds2, div.plus-cds3,
-div.minus-cds1, div.minus-cds2, div.minus-cds3 {
+div.plus-cds0, div.plus-cds1, div.plus-cds2,
+div.minus-cds0, div.minus-cds1, div.minus-cds2 {
     position:absolute;
     height: 13px;
     background-repeat: repeat-x;
@@ -398,12 +419,12 @@ div.minus-cds1, div.minus-cds2, div.minus-cds3 {
     min-width: 1px;
 }
 
+div.plus-cds0 { background-image: url('img/plus-cds0.png'); }
 div.plus-cds1 { background-image: url('img/plus-cds1.png'); }
 div.plus-cds2 { background-image: url('img/plus-cds2.png'); }
-div.plus-cds3 { background-image: url('img/plus-cds3.png'); }
+div.minus-cds0 { background-image: url('img/minus-cds0.png'); }
 div.minus-cds1 { background-image: url('img/minus-cds1.png'); }
 div.minus-cds2 { background-image: url('img/minus-cds2.png'); }
-div.minus-cds3 { background-image: url('img/minus-cds3.png'); }
 
 div.cds-hist {
     position: absolute;

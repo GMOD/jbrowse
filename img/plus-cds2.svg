@@ -15,9 +15,9 @@
    inkscape:version="0.45"
    version="1.0"
    sodipodi:docbase="/home/mitch/sw/newclient"
-   sodipodi:docname="plus-cds1.svg"
+   sodipodi:docname="plus-cds2.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/mitch/sw/newclient/plus-cds1.png"
+   inkscape:export-filename="/home/mitch/sw/newclient/plus-cds2.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
    sodipodi:modified="true">
@@ -80,7 +80,7 @@
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="19.500333"
-     inkscape:cx="21.666497"
+     inkscape:cx="22.333165"
      inkscape:cy="5.4959095"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -191,7 +191,7 @@
        id="path11978" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#818181;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M -3.1247353e-09,9.51288 L 299.99488,9.51288"
+       d="M -0.5,5.5 L 300.5205,5.5"
        id="path11893"
        sodipodi:nodetypes="cc" />
     <path
@@ -200,8 +200,8 @@
        id="path11895"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#0000ff;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M -0.5,5.5 L 300.00768,5.5"
+       style="fill:none;fill-rule:evenodd;stroke:#00008b;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -0.5,9.5 L 300.46921,9.5"
        id="path11897"
        sodipodi:nodetypes="cc" />
   </g>
