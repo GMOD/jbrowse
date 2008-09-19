@@ -12,16 +12,12 @@ use Fcntl ":flock";
 
 my ($CONF_DIR, $ref, $refid, $source, $onlyLabel);
 my $outdir = "data";
-my ($getSubs, $getPhase, $getType) = (0, 0, 0, 0, 0);
 GetOptions("conf=s" => \$CONF_DIR,
 	   "ref=s" => \$ref,
 	   "src=s" => \$source,
 	   "refid=s" => \$refid,
 	   "track=s" => \$onlyLabel,
-	   "out=s" => \$outdir,
-	   "sub" => \$getSubs,
-	   "phase" => \$getPhase,
-	   "type" => \$getType);
+	   "out=s" => \$outdir);
 
 my $browser = open_config($CONF_DIR);
 $browser->source($source) or die "ERROR: source $source not found (the choices are: " . join(", ", $browser->sources) . "\n";
@@ -56,28 +52,7 @@ my @featMap = (
 	       sub {$_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id},
 	       sub {shift->display_name},
 	      );
-my $mapHeaders = ['start', 'end', 'strand', 'id', 'name'];
-
-if ($getPhase) {
-    push @featMap, sub {shift->phase};
-    push @$mapHeaders, "phase";
-}
-
-if ($getType) {
-    push @featMap, sub {shift->primary_tag};
-    push @$mapHeaders, "type";
-}
-
-if ($getSubs) {
-    push @featMap, sub {
-	my ($feat, $flatten) = @_;
-	my @subfeat = $feat->sub_SeqFeature;
-	#print Dumper(@subfeat) if @subfeat;
-	return &$flatten(@subfeat) if (@subfeat);
-	return undef;
-    };
-    push @$mapHeaders, 'subfeatures';
-}
+my @mapHeaders = ('start', 'end', 'strand', 'id', 'name');
 
 my @track_labels;
 if (defined $onlyLabel) {
@@ -142,10 +117,33 @@ sub modifyJSFile {
 
 foreach my $label (@track_labels) {
     print "working on track $label\n";
-    my %style = $conf->style($label);
+    my %style = ($conf->style("TRACK DEFAULTS"), $conf->style($label));
     print "style: " . Dumper(\%style);
     my $getLabel = $style{"-autocomplete"} && ($style{"-autocomplete"} =~ /label|all/);
     my $getAlias = $style{"-autocomplete"} && ($style{"-autocomplete"} =~ /alias|all/);
+    my @curFeatMap = @featMap;
+    my @curMapHeaders = @mapHeaders;
+
+    if ($style{"-phase"}) {
+        push @curFeatMap, sub {shift->phase};
+        push @curMapHeaders, "phase";
+    }
+
+    if ($style{"-type"}) {
+        push @curFeatMap, sub {shift->primary_tag};
+        push @mapHeaders, "type";
+    }
+
+    if ($style{"-subfeatures"}) {
+        push @curFeatMap, sub {
+            my ($feat, $flatten) = @_;
+            my @subfeat = $feat->sub_SeqFeature;
+            #print Dumper(@subfeat) if @subfeat;
+            return &$flatten(@subfeat) if (@subfeat);
+            return undef;
+        };
+        push @curMapHeaders, 'subfeatures';
+    }
 
     my @feature_types = $conf->label2type($label, $seg->length);
     print "searching for features of type: " . join(", ", @feature_types) . "\n";
@@ -156,8 +154,8 @@ foreach my $label (@track_labels) {
 	next if ($#features < 0);
 
         my $labelSub =
-          ($style{"label"} && (ref $style{"label"} eq "CODE"))
-            ? $style{"label"}
+          ($style{"-label"} && (ref $style{"-label"} eq "CODE"))
+            ? $style{"-label"}
               : sub {
                   return $_[0]->display_name if $_[0]->can('display_name');
                   return $_[0]->info         if $_[0]->can('info'); # deprecated
@@ -190,7 +188,8 @@ foreach my $label (@track_labels) {
         }
 
 	print Dumper($features[0]);
-	my $sublistIndex = $#featMap + 1;
+
+	my $sublistIndex = $#curFeatMap + 1;
 	my $featList = NCList->new($sublistIndex, @features);
 	#print Dumper($featList->{'topList'});
 	writeJSON("$outdir/$segName/$label.json",
@@ -199,11 +198,11 @@ foreach my $label (@track_labels) {
                    'key' => $style{-key} || $label,
                    'typeList' => \@feature_types,
                    'sublistIndex' => $sublistIndex,
-                   'map' => $mapHeaders,
+                   'map' => \@curMapHeaders,
                    'featureCount' => $#features + 1,
 		   'type' => "SimpleFeatureTrack",
 		   'className' => $style{-class} || "feature",
-                   'featureNCList' => $featList->flatten(@featMap)
+                   'featureNCList' => $featList->flatten(@curFeatMap)
                   });
 
         modifyJSFile("$outdir/trackInfo.js", "trackInfo",
