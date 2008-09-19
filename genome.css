@@ -16,8 +16,8 @@ div.dragWindow {
 
 div.locationTrap {
     position: absolute;
-    background-color: #bcd;
-    border-color: white white #bcd white;
+    background-color: #A8CBFF;
+    border-color: white white #A8CBFF white;
     border-style: solid;
     width: 0px;
     height: 0px;
@@ -149,7 +149,7 @@ div.plus-feature:before {
 div.track-label {
     font-family: sans-serif;
     z-index: 20;
-    background-color: #B1C6D1;
+    background-color: #A8CBFF;
     border: 2px #2b434c solid;
     color: #2b434c;
     padding: 5px;
@@ -159,7 +159,7 @@ div.track-label {
 div.tracklist-label {
     font-family: sans-serif;
     z-index: 20;
-    background-color: #B1C6D1;
+    background-color: #A8CBFF;
     border: 2px #2b434c solid;
     color: #2b434c;
     cursor: pointer;
