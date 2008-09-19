@@ -10,14 +10,15 @@ use JSON;
 use IO::File;
 use Fcntl ":flock";
 
-my ($CONF_DIR, $ref, $refid, $source, $onlyLabel);
+my ($CONF_DIR, $ref, $refid, $source, $onlyLabel, $verbose);
 my $outdir = "data";
 GetOptions("conf=s" => \$CONF_DIR,
 	   "ref=s" => \$ref,
 	   "src=s" => \$source,
 	   "refid=s" => \$refid,
 	   "track=s" => \$onlyLabel,
-	   "out=s" => \$outdir);
+	   "out=s" => \$outdir,
+           "v+" => \$verbose);
 
 my $browser = open_config($CONF_DIR);
 $browser->source($source) or die "ERROR: source $source not found (the choices are: " . join(", ", $browser->sources) . "\n";
@@ -50,9 +51,15 @@ my @featMap = (
 	       sub {int(shift->end)},
 	       sub {int(shift->strand)},
 	       sub {$_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id},
-	       sub {shift->display_name},
 	      );
-my @mapHeaders = ('start', 'end', 'strand', 'id', 'name');
+my @mapHeaders = ('start', 'end', 'strand', 'id');
+
+sub featureLabelSub {
+    return $_[0]->display_name if $_[0]->can('display_name');
+    return $_[0]->info         if $_[0]->can('info'); # deprecated
+    return $_[0]->seq_id       if $_[0]->can('seq_id');
+    return eval{$_[0]->primary_tag};
+}
 
 my @track_labels;
 if (defined $onlyLabel) {
@@ -115,14 +122,27 @@ sub modifyJSFile {
       or die "couldn't close $file: $!";
 }
 
+my %builtinDefaults =
+  (
+   "-label"        => \&featureLabelSub,
+   "-autocomplete" => "none",
+   "-class"        => "feature"
+  );
+
 foreach my $label (@track_labels) {
     print "working on track $label\n";
-    my %style = ($conf->style("TRACK DEFAULTS"), $conf->style($label));
-    print "style: " . Dumper(\%style);
-    my $getLabel = $style{"-autocomplete"} && ($style{"-autocomplete"} =~ /label|all/);
-    my $getAlias = $style{"-autocomplete"} && ($style{"-autocomplete"} =~ /alias|all/);
+    my %style = (%builtinDefaults,
+                 $conf->style("TRACK DEFAULTS"),
+                 $conf->style($label));
+    print "style: " . Dumper(\%style) if ($verbose);
+
+    my $getLabel = ($style{"-autocomplete"} =~ /label|all/);
+    my $getAlias = ($style{"-autocomplete"} =~ /alias|all/);
     my @curFeatMap = @featMap;
     my @curMapHeaders = @mapHeaders;
+
+    push @curFeatMap, $style{"-label"};
+    push @curMapHeaders, "name";
 
     if ($style{"-phase"}) {
         push @curFeatMap, sub {shift->phase};
@@ -138,46 +158,36 @@ foreach my $label (@track_labels) {
         push @curFeatMap, sub {
             my ($feat, $flatten) = @_;
             my @subfeat = $feat->sub_SeqFeature;
-            #print Dumper(@subfeat) if @subfeat;
             return &$flatten(@subfeat) if (@subfeat);
             return undef;
         };
         push @curMapHeaders, 'subfeatures';
     }
 
+    my @nameMap =
+      (
+       sub {$label},
+       $style{"-label"},
+       sub {$segName},
+       sub {int(shift->start) - 1},
+       sub {int(shift->end)},
+       sub {$_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id}
+      );
+
     my @feature_types = $conf->label2type($label, $seg->length);
-    print "searching for features of type: " . join(", ", @feature_types) . "\n";
+    print "searching for features of type: " . join(", ", @feature_types) . "\n" if ($verbose);
     if ($#feature_types >= 0) {
 	my @features = $seg->features(-type => \@feature_types);
 
-	print "got " . ($#features + 1) . " features\n";
+	print "got " . ($#features + 1) . " features for $label\n";
 	next if ($#features < 0);
-
-        my $labelSub =
-          ($style{"-label"} && (ref $style{"-label"} eq "CODE"))
-            ? $style{"-label"}
-              : sub {
-                  return $_[0]->display_name if $_[0]->can('display_name');
-                  return $_[0]->info         if $_[0]->can('info'); # deprecated
-                  return $_[0]->seq_id       if $_[0]->can('seq_id');
-                  return eval{$_[0]->primary_tag};
-              };
-
-        my @nameMap = (
-               sub {$label},
-               $labelSub,
-               sub {$segName},
-	       sub {int(shift->start) - 1},
-	       sub {int(shift->end)},
-	       sub {$_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id}
-              );
 
         if ($getLabel || $getAlias) {
             if ($getLabel && $getAlias) {
-                unshift @nameMap, sub {[unique($labelSub->($_[0]),
+                unshift @nameMap, sub {[unique($style{"-label"}->($_[0]),
                                                $_[0]->attributes("Alias"))]};
             } elsif ($getLabel) {
-                unshift @nameMap, sub {[$labelSub->($_[0])]};
+                unshift @nameMap, sub {[$style{"-label"}->($_[0])]};
             } elsif ($getAlias) {
                 unshift @nameMap, sub {[$_[0]->attributes("Alias")]};
             }
@@ -187,7 +197,7 @@ foreach my $label (@track_labels) {
             writeJSON("$outdir/$segName/$label.names", \@names);
         }
 
-	print Dumper($features[0]);
+	print Dumper($features[0]) if ($verbose);
 
 	my $sublistIndex = $#curFeatMap + 1;
 	my $featList = NCList->new($sublistIndex, @features);
@@ -230,6 +240,6 @@ foreach my $label (@track_labels) {
                            return $segMap;
                        });
     } else {
-	print "no features found\n";
+	print "no features found for $label\n";
     }
 }
