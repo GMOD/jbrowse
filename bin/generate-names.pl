@@ -2,6 +2,10 @@
 
 use strict;
 use warnings;
+
+use FindBin qw($Bin);
+use lib "$Bin/../lib";
+
 use Getopt::Long;
 use File::Spec::Functions;
 use Cwd qw/ abs_path /;
