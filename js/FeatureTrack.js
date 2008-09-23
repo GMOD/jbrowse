@@ -1,4 +1,4 @@
-function SimpleFeatureTrack(trackMeta, refSeq, changeCallback, trackPadding, baseUrl) {
+function SimpleFeatureTrack(trackMeta, refSeq, browserParams) {
     //trackMeta: object with:
     //            key:   display text track name
     //            label: internal track name (no spaces, odd characters)
@@ -6,23 +6,26 @@ function SimpleFeatureTrack(trackMeta, refSeq, changeCallback, trackPadding, bas
     //refSeq: object with:
     //         start: refseq start
     //         end:   refseq end
-    //changeCallback: function to call once JSON is loaded
-    //trackPadding: distance in px between tracks
+    //browserParams: object with:
+    //                changeCallback: function to call once JSON is loaded
+    //                trackPadding: distance in px between tracks
+    //                baseUrl: base URL for the URL in trackMeta
 
-    Track.call(this, trackMeta.label, trackMeta.key, false, changeCallback);
+    Track.call(this, trackMeta.label, trackMeta.key,
+               false, browserParams.changeCallback);
     this.fields = {};
     this.features = new NCList();
     this.refSeq = refSeq;
-    this.baseUrl = baseUrl;
+    this.baseUrl = browserParams.baseUrl;
     //number of histogram bins per block
     this.numBins = 25;
     this.histLabel = false;
     this.padding = 5;
-    this.trackPadding = trackPadding;
+    this.trackPadding = browserParams.trackPadding;
 
     this.trackMeta = trackMeta;
     var curTrack = this;
-    dojo.xhrGet({url: (baseUrl ? baseUrl : "") + trackMeta.url, 
+    dojo.xhrGet({url: (browserParams.baseUrl ? browserParams.baseUrl : "") + trackMeta.url, 
 		 handleAs: "json",
 		 load: function(o) { curTrack.loadSuccess(o); }
 	});

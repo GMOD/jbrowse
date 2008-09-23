@@ -194,7 +194,8 @@ Browser.prototype.createTrackList = function(parent, trackList) {
         if ("avatar" == hint) {
             return trackListCreate(track, hint);
         } else {
-            node = brwsr.view.addTrack(new SimpleFeatureTrack(track, brwsr.refSeq, changeCallback, brwsr.view.trackPadding, brwsr.dataRoot));
+            var klass = eval(track.type);
+            node = brwsr.view.addTrack(new klass(track, brwsr.refSeq, {changeCallback: changeCallback, trackPadding: brwsr.view.trackPadding, baseUrl: brwsr.dataRoot}));
         }
         return {node: node, data: track, type: ["track"]};
     }
@@ -232,6 +233,7 @@ Browser.prototype.navigateTo = function(loc) {
     }
 
     loc = dojo.trim(loc);
+    //                             (  chromosome   )    (    start      )   (  sep     )     (    end   )
     matches = String(loc).match(/^(((chr)?(\S*)\s*:)?\s*(-?[0-9,.]*[0-9])\s*(\.\.|-|\s+))?\s*(-?[0-9,.]+)$/i);
     //matches potentially contains location components:
     //matches[4] = chromosome (optional, with any leading "chr" stripped)

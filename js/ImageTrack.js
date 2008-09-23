@@ -1,10 +1,11 @@
-function ImageTrack(name, key, refSeq, tileWidth, zoomLevels) {
-    Track.call(this, name, key, true, function() {});
+function ImageTrack(trackMeta, refSeq, browserParams) {
+    Track.call(this, trackMeta.label, trackMeta.key,
+               true, browserParams.changeCallback);
     this.refSeq = refSeq
     //tileWidth: width, in pixels, of the tiles
-    this.tileWidth = tileWidth;
+    this.tileWidth = trackMeta.tileWidth;
     //zoomLevels: array of {basesPerTile, scale, height, urlPrefix} hashes
-    this.zoomLevels = zoomLevels;
+    this.zoomLevels = trackMeta.zoomLevels;
     this.tileToImage = {};
     this.zoomCache = {};
 }
