@@ -229,7 +229,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     var labelScale = this.labelScale;
     var basePadding = Math.max(1, this.padding / scale);
     var basesPerLabelChar = this.nameWidth / scale;
-    if (scale > labelScale) levelHeight += this.nameHeight;
+    if (name && (scale > labelScale)) levelHeight += this.nameHeight;
 
     var featCallback = function(feature) {
         var level;
@@ -238,8 +238,9 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	var featureEnd = feature[end];
 	if (scale > labelScale)
 	    featureEnd = Math.max(featureEnd, 
-				  feature[start] + (feature[name].length 
-						* basesPerLabelChar));
+				  feature[start] + (((name && feature[name])
+						     ? feature[name].length : 0)
+						    * basesPerLabelChar));
 	for (var j = 0; j < slots.length; j++) {
 	    if (!slots[j]) continue;
             if (feature === slots[j].feature) {
@@ -254,7 +255,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 		break;
 	    }
 	    var otherEnd = slots[j].feature[end];
-	    if (scale > labelScale) otherEnd = Math.max(otherEnd, slots[j].feature[start] + (slots[j].feature[name].length * basesPerLabelChar));
+	    if ((scale > labelScale) && name && feature[name]) otherEnd = Math.max(otherEnd, slots[j].feature[start] + (slots[j].feature[name].length * basesPerLabelChar));
             if (((otherEnd + basePadding) >= feature[start])
                 && ((slots[j].feature[start] - basePadding) <= featureEnd)) {
 		//this feature overlaps
@@ -301,7 +302,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
             + "top: " + (level * levelHeight) + levelUnits + ";"
             + " width: " + (100 * ((feature[end] - feature[start]) / blockWidth)) + "%;";
 
-        if (scale > labelScale) {
+        if ((scale > labelScale) && name && feature[name]) {
             var labelDiv = document.createElement("div");
             labelDiv.className = "feature-label";
             labelDiv.appendChild(document.createTextNode(feature[name]));

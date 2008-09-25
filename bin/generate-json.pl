@@ -9,10 +9,7 @@ use lib "$Bin/../lib";
 use Getopt::Long;
 use Bio::Graphics::Browser::Util;
 use Data::Dumper;
-use NCList;
-use JSON;
-use IO::File;
-use Fcntl ":flock";
+use JsonGenerator;
 
 my ($CONF_DIR, $ref, $refid, $source, $onlyLabel, $verbose);
 my $outdir = "data";
@@ -45,26 +42,6 @@ $segName =~ s/:.*$//; #get rid of coords if any
 mkdir($outdir) unless (-d $outdir);
 mkdir("$outdir/$segName") unless (-d "$outdir/$segName");
 
-#in JSON, features are represented by arrays (we could use
-#hashes, but then we'd have e.g. "start" and "end" in the JSON
-#for every feature, which would take up too much space/bandwidth)
-#@featMap maps from feature objects to arrays
-$Data::Dumper::Maxdepth = 2;
-my @featMap = (
-	       sub {shift->start - 1},
-	       sub {int(shift->end)},
-	       sub {int(shift->strand)},
-	       sub {$_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id},
-	      );
-my @mapHeaders = ('start', 'end', 'strand', 'id');
-
-sub featureLabelSub {
-    return $_[0]->display_name if $_[0]->can('display_name');
-    return $_[0]->info         if $_[0]->can('info'); # deprecated
-    return $_[0]->seq_id       if $_[0]->can('seq_id');
-    return eval{$_[0]->primary_tag};
-}
-
 my @track_labels;
 if (defined $onlyLabel) {
     @track_labels = ($onlyLabel);
@@ -77,106 +54,11 @@ sub unique {
     return (grep(!$saw{$_}++, @_));
 }
 
-sub readJSON {
-    my ($file, $default) = @_;
-    if (-s $file) {
-        my $OLDSEP = $/;
-        undef $/;
-        open JSON, "<$file"
-          or die "couldn't open $file: $!";
-        $default = JSON::from_json(<JSON>);
-        close JSON
-          or die "couldn't close $file: $!";
-        $/ = $OLDSEP;
-    }
-    return $default;
-}
-
-sub writeJSON {
-    my ($file, $toWrite) = @_;
-    open JSON, ">$file"
-      or die "couldn't open $file: $!";
-    print JSON JSON::to_json($toWrite);
-    close JSON
-      or die "couldn't close $file: $!";
-}
-
-sub modifyJSFile {
-    my ($file, $varName, $callback) = @_;
-    my ($data, $assign);
-    my $fh = new IO::File $file, O_RDWR | O_CREAT
-      or die "couldn't open $file: $!";
-    flock $fh, LOCK_EX;
-    # if the file is non-empty,
-    if (($fh->stat())[7] > 0) {
-        # get variable assignment line
-        $assign = $fh->getline();
-        # get data
-        my $jsonString = join("", $fh->getlines());
-        $data = JSON::from_json($jsonString) if (length($jsonString) > 0);
-        # prepare file for re-writing
-        $fh->seek(0, SEEK_SET);
-        $fh->truncate(0);
-    }
-    # add assignment line
-    $fh->print("$varName = \n");
-    # modify data, write back
-    $fh->print(JSON::to_json($callback->($data)));
-    $fh->close()
-      or die "couldn't close $file: $!";
-}
-
-my %builtinDefaults =
-  (
-   "-label"        => \&featureLabelSub,
-   "-autocomplete" => "none",
-   "-class"        => "feature"
-  );
-
 foreach my $label (@track_labels) {
     print "working on track $label\n";
-    my %style = (%builtinDefaults,
-                 $conf->style("TRACK DEFAULTS"),
+    my %style = ($conf->style("TRACK DEFAULTS"),
                  $conf->style($label));
     print "style: " . Dumper(\%style) if ($verbose);
-
-    my $getLabel = ($style{"-autocomplete"} =~ /label|all/);
-    my $getAlias = ($style{"-autocomplete"} =~ /alias|all/);
-    my @curFeatMap = @featMap;
-    my @curMapHeaders = @mapHeaders;
-
-    push @curFeatMap, $style{"-label"};
-    push @curMapHeaders, "name";
-
-    if ($style{"-phase"}) {
-        push @curFeatMap, sub {shift->phase};
-        push @curMapHeaders, "phase";
-    }
-
-    if ($style{"-type"}) {
-        push @curFeatMap, sub {shift->primary_tag};
-        push @mapHeaders, "type";
-    }
-
-    if ($style{"-subfeatures"}) {
-        push @curFeatMap, sub {
-            my ($feat, $flatten) = @_;
-            my @subfeat = $feat->sub_SeqFeature;
-            return &$flatten(@subfeat) if (@subfeat);
-            return undef;
-        };
-        push @curMapHeaders, 'subfeatures';
-    }
-
-    my @nameMap =
-      (
-       sub {$label},
-       $style{"-label"},
-       sub {$segName},
-       sub {int(shift->start) - 1},
-       sub {int(shift->end)},
-       sub {$_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id}
-      );
 
     my @feature_types = $conf->label2type($label, $seg->length);
     print "searching for features of type: " . join(", ", @feature_types) . "\n" if ($verbose);
@@ -186,63 +68,41 @@ foreach my $label (@track_labels) {
 	print "got " . ($#features + 1) . " features for $label\n";
 	next if ($#features < 0);
 
-        if ($getLabel || $getAlias) {
-            if ($getLabel && $getAlias) {
-                unshift @nameMap, sub {[unique($style{"-label"}->($_[0]),
-                                               $_[0]->attributes("Alias"))]};
-            } elsif ($getLabel) {
-                unshift @nameMap, sub {[$style{"-label"}->($_[0])]};
-            } elsif ($getAlias) {
-                unshift @nameMap, sub {[$_[0]->attributes("Alias")]};
-            }
-
-            my @names = map {my $feat = $_; [map {$_->($feat)} @nameMap]} @features;
-
-            writeJSON("$outdir/$segName/$label.names", \@names);
-        }
+	JsonGenerator::generateTrack(
+				     $label, $segName,
+				     "$outdir/$segName/$label.json",
+				     "$outdir/$segName/$label.names",
+				     \@features, \%style,
+				     [], []
+				    );
 
 	print Dumper($features[0]) if ($verbose);
 
-	my $sublistIndex = $#curFeatMap + 1;
-	my $featList = NCList->new($sublistIndex, @features);
-	#print Dumper($featList->{'topList'});
-	writeJSON("$outdir/$segName/$label.json",
-                  {
-                   'label' => $label,
-                   'key' => $style{-key} || $label,
-                   'typeList' => \@feature_types,
-                   'sublistIndex' => $sublistIndex,
-                   'map' => \@curMapHeaders,
-                   'featureCount' => $#features + 1,
-		   'type' => "SimpleFeatureTrack",
-		   'className' => $style{-class} || "feature",
-                   'featureNCList' => $featList->flatten(@curFeatMap)
-                  });
-
-        modifyJSFile("$outdir/trackInfo.js", "trackInfo",
-                       sub {
-                           my $segMap = shift;
-                           my $trackList = $segMap->{$segName}->{'trackList'};
-                           my $i;
-                           for ($i = 0; $i <= $#{$trackList}; $i++) {
-                               last if ($trackList->[$i]->{'label'} eq $label);
-                           }
-                           $trackList->[$i] =
-                             {
-                              'label' => $label,
-                              'key' => $style{-key} || $label,
-                              'url' => "$outdir/$segName/$label.json",
-                             };
-                           $segMap->{$segName} =
-                             {
-                              "start"     => $seg->start - 1,
-                              "end"       => $seg->end,
-                              "length"    => $seg->length,
-                              "name"      => $segName,
-                              "trackList" => $trackList
-                             };
-                           return $segMap;
-                       });
+	JsonGenerator::modifyJSFile("$outdir/trackInfo.js", "trackInfo",
+		 sub {
+		     my $segMap = shift;
+		     my $trackList = $segMap->{$segName}->{'trackList'};
+		     my $i;
+		     for ($i = 0; $i <= $#{$trackList}; $i++) {
+			 last if ($trackList->[$i]->{'label'} eq $label);
+		     }
+		     $trackList->[$i] =
+		       {
+			'label' => $label,
+			'key' => $style{-key} || $label,
+			'url' => "$outdir/$seq/$label.json",
+			'type' => "SimpleFeatureTrack",
+		       };
+		     $segMap->{$segName} =
+		       {
+			"start"     => $seg->start - 1,
+			"end"       => $seg->end,
+			"length"    => $seg->length,
+			"name"      => $segName,
+			"trackList" => $trackList
+		       };
+		     return $segMap;
+		 });
     } else {
 	print "no features found for $label\n";
     }
