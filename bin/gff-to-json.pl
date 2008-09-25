@@ -25,6 +25,20 @@ GetOptions("gff=s" => \$path,
 	   "subs" => \$getSubs,
 	   "featlabel" => \$getLabel);
 
+if (!defined($path)) {
+    print <<USAGE;
+USAGE: $0 --gff <gff file> [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssclass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--type] [--phase] [--subs] [--featlabel]
+
+    --out: defaults to "data"
+    --cssclass: defaults to "feature"
+    --autocomplete: make these features searchable by their "label", by their "alias"es, both ("all"), or "none".
+    --type: include the type of the features in the json
+    --phase: include the phase of the features in the json
+    --subs:  include subfeatures in the json
+    --featlabel: include a label for the features in the json
+USAGE
+}
+
 # hackily get list of refseqs
 # seriously, why doesn't Bio::DB::SeqFeature::Store::memory implement seq_ids()?
 open GFF, "<$path"
