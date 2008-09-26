@@ -1,16 +1,26 @@
 function ImageTrack(trackMeta, refSeq, browserParams) {
     Track.call(this, trackMeta.label, trackMeta.key,
-               true, browserParams.changeCallback);
+               false, browserParams.changeCallback);
     this.refSeq = refSeq
-    //tileWidth: width, in pixels, of the tiles
-    this.tileWidth = trackMeta.tileWidth;
-    //zoomLevels: array of {basesPerTile, scale, height, urlPrefix} hashes
-    this.zoomLevels = trackMeta.zoomLevels;
     this.tileToImage = {};
     this.zoomCache = {};
+    this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "");
+    var curTrack = this;
+    dojo.xhrGet({url: this.baseUrl + trackMeta.url, 
+		 handleAs: "json",
+		 load: function(o) { curTrack.loadSuccess(o); }
+	});
 }
 
 ImageTrack.prototype = new Track("");
+
+ImageTrack.prototype.loadSuccess = function(o) {
+    //tileWidth: width, in pixels, of the tiles
+    this.tileWidth = o.tileWidth;
+    //zoomLevels: array of {basesPerTile, scale, height, urlPrefix} hashes
+    this.zoomLevels = o.zoomLevels;
+    this.setLoaded();
+}
 
 ImageTrack.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
                                             widthPct, widthPx) {
@@ -44,7 +54,9 @@ ImageTrack.prototype.getImages = function(zoom, startBase, endBase) {
 	im = this.tileToImage[i];
 	if (!im) {
 	    im = document.createElement("img");
-            im.src = zoom.urlPrefix + "tile" + i + ".png";
+            //prepend this.baseUrl if zoom.urlPrefix is relative
+            im.src = (zoom.urlPrefix.match(/^(([^/]+:)|\/)/) ? "" : this.baseUrl)
+                     + zoom.urlPrefix + "tile" + i + ".png";
 	    im.startBase = (i * zoom.basesPerTile) + this.refSeq.start;
 	    im.baseWidth = zoom.basesPerTile;
 	    im.tileNum = i;
