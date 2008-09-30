@@ -34,9 +34,7 @@ var Browser = function(containerID, refSeqs, trackData, dataRoot) {
             topPane.appendChild(overview);
             //try to come up with a good estimate of how big the location box
             //actually has to be
-            var maxBase = 0;
-            for (var refname in trackData)
-                maxBase = Math.max(maxBase, trackData[refname].end);
+            var maxBase = refSeqs.reduce(function(a,b) {return a.end > b.end ? a : b}).end;
             var navbox = brwsr.createNavBox(topPane, (2 * (String(maxBase).length + (((String(maxBase).length / 3) | 0) / 2))) + 2);
 
             var viewElem = document.createElement("div");
