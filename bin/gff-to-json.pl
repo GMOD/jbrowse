@@ -39,18 +39,9 @@ USAGE: $0 --gff <gff file> [--out <output directory>] --tracklabel <track identi
 USAGE
 }
 
-# hackily get list of refseqs
-# seriously, why doesn't Bio::DB::SeqFeature::Store::memory implement seq_ids()?
-open GFF, "<$path"
-  or die "couldn't open $path: $!";
-my %refseqs;
-while (<GFF>) {
-  next if /^#/;
-  /^(.*?)\t/;
-  $refseqs{$1} = 1;
-}
-close GFF
-  or die "couldn't close $path: $!";
+my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.json", [])};
+
+die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
 
 sub gffLabelSub {
     return $_[0]->display_name if ($_[0]->can('display_name') && defined($_[0]->display_name));
@@ -64,35 +55,35 @@ sub gffLabelSub {
 my $db = Bio::DB::SeqFeature::Store->new(-adaptor => 'memory',
 					 -dsn     => $path);
 
-foreach my $seq (keys %refseqs) {
-    print "working on seq $seq\n";
+foreach my $seqInfo (@refSeqs) {
+    my $seqName = $seqInfo->{"name"};
+    print "\nworking on seq $seqName\n";
 
-    my @features = $db->features("-seqid" => $seq);
+    my @features = $db->features("-seqid" => $seqName);
 
     print "got $#features features\n";
 
     if (!defined($trackLabel)) { $trackLabel = $features[0]->primary_tag };
-    if (!defined($key)) { $key = $trackLabel };
 
     my %style = ("-autocomplete" => $autocomplete,
 		 "-type"         => $getType,
 		 "-phase"        => $getPhase,
 		 "-subfeatures"  => $getSubs,
 		 "-class"        => $cssClass,
-		 "-label"        => $getLabel ? \&gffLabelSub : 0);
+		 "-label"        => $getLabel ? \&gffLabelSub : 0,
+                 "-key"          => defined($key) ? $key : $trackLabel);
 
     JsonGenerator::generateTrack(
-				 $trackLabel, $seq,
-				 "$outdir/$seq/$trackLabel.json",
-				 "$outdir/$seq/$trackLabel.names",
+				 $trackLabel, $seqName,
+				 "$outdir/$seqName/$trackLabel.json",
+				 "$outdir/$seqName/$trackLabel.names",
 				 \@features, \%style,
 				 [], []
 				);
 
     JsonGenerator::modifyJSFile("$outdir/trackInfo.js", "trackInfo",
 		 sub {
-		     my $segMap = shift;
-		     my $trackList = $segMap->{$seq}->{'trackList'};
+		     my $trackList = shift;
 		     my $i;
 		     for ($i = 0; $i <= $#{$trackList}; $i++) {
 			 last if ($trackList->[$i]->{'label'} eq $trackLabel);
@@ -100,19 +91,10 @@ foreach my $seq (keys %refseqs) {
 		     $trackList->[$i] =
 		       {
 			'label' => $trackLabel,
-			'key' => $key,
-			'url' => "$outdir/$seq/$trackLabel.json",
+			'key' => $style{-key},
+			'url' => "$outdir/{refseq}/$trackLabel.json",
 			'type' => "SimpleFeatureTrack",
 		       };
-# 		     $segMap->{$segName} =
-# 		       {
-# 			"start"     => $seg->start - 1,
-# 			"end"       => $seg->end,
-# 			"length"    => $seg->length,
-# 			"name"      => $segName,
-# 			"trackList" => $trackList
-# 		       };
-		     return $segMap;
+		     return $trackList;
 		 });
-
 }

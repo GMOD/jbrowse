@@ -1,4 +1,4 @@
-function ImageTrack(trackMeta, refSeq, browserParams) {
+function ImageTrack(trackMeta, url, refSeq, browserParams) {
     Track.call(this, trackMeta.label, trackMeta.key,
                false, browserParams.changeCallback);
     this.refSeq = refSeq
@@ -6,7 +6,7 @@ function ImageTrack(trackMeta, refSeq, browserParams) {
     this.zoomCache = {};
     this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "");
     var curTrack = this;
-    dojo.xhrGet({url: this.baseUrl + trackMeta.url, 
+    dojo.xhrGet({url: this.baseUrl + url, 
 		 handleAs: "json",
 		 load: function(o) { curTrack.loadSuccess(o); }
 	});

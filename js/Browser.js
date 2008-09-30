@@ -2,7 +2,7 @@ var djConfig = {
     usePlainJson: true
 };
 
-var Browser = function(containerID, trackData, dataRoot) {
+var Browser = function(containerID, refSeqs, trackData, dataRoot) {
     dojo.require("dojo.dnd.Source");
     dojo.require("dojo.dnd.Moveable");
     dojo.require("dojo.dnd.Mover");
@@ -32,7 +32,12 @@ var Browser = function(containerID, trackData, dataRoot) {
             overview.className = "overview";
             overview.id = "overview";
             topPane.appendChild(overview);
-            var navbox = brwsr.createNavBox(topPane);
+            //try to come up with a good estimate of how big the location box
+            //actually has to be
+            var maxBase = 0;
+            for (var refname in trackData)
+                maxBase = Math.max(maxBase, trackData[refname].end);
+            var navbox = brwsr.createNavBox(topPane, (2 * (String(maxBase).length + (((String(maxBase).length / 3) | 0) / 2))) + 2);
 
             var viewElem = document.createElement("div");
             brwsr.container.appendChild(viewElem);
@@ -44,31 +49,17 @@ var Browser = function(containerID, trackData, dataRoot) {
             topPane.appendChild(brwsr.locationTrap);
             topPane.style.overflow="hidden";
 
-            brwsr.allRefs = trackData;
-            refs = [];
-            //sort ref sequences more or less how people expect
-            for (var refname in trackData) refs.push(refname);
-            refs.sort(function(a, b) {
-                    aNum=String(a).match(/^[0-9]+/);
-                    bNum=String(b).match(/^[0-9]+/);
-                    if (aNum && !bNum) return -1;
-                    if (!aNum && bNum) return 1;
-                    if (aNum && bNum && (aNum[0] != bNum[0]))
-                        return aNum[0] - bNum[0];
-                    if (a < b)
-                        return -1;
-                    else if (a == b)
-                        return 0;
-                    else
-                        return 1;
-                });
+            brwsr.allRefs = {};
+            for (var i = 0; i < refSeqs.length; i++)
+                brwsr.allRefs[refSeqs[i].name] = refSeqs[i];
 
             var refCookie = dojo.cookie(containerID + "-refseq");
-            brwsr.refSeq = brwsr.allRefs[refs[0]];
-            for (var i = 0; i < refs.length; i++) {
-                brwsr.chromList.options[i] = new Option(refs[i], refs[i]);
-                if (refs[i].toUpperCase() == String(refCookie).toUpperCase()) {
-                    brwsr.refSeq = brwsr.allRefs[refs[i]];
+            brwsr.refSeq = brwsr.allRefs[0];
+            for (var i = 0; i < refSeqs.length; i++) {
+                brwsr.chromList.options[i] = new Option(refSeqs[i].name,
+                                                        refSeqs[i].name);
+                if (refSeqs[i].name.toUpperCase() == String(refCookie).toUpperCase()) {
+                    brwsr.refSeq = brwsr.allRefs[refSeqs[i].name];
                     brwsr.chromList.selectedIndex = i;
                 }
             }
@@ -109,7 +100,7 @@ var Browser = function(containerID, trackData, dataRoot) {
             dojo.connect(gv, "onCoarseMove", brwsr, "onCoarseMove");
             
             var trackListDiv = brwsr.createTrackList(brwsr.container,
-                                                     brwsr.refSeq.trackList);
+                                                     trackData);
             containerWidget.startup();
 
 	    brwsr.isInitialized = true;
@@ -194,8 +185,10 @@ Browser.prototype.createTrackList = function(parent, trackList) {
         if ("avatar" == hint) {
             return trackListCreate(track, hint);
         } else {
+            var replaceData = {refseq: brwsr.refSeq.name};
+            var url = track.url.replace(/\{([^}]+)\}/g, function(match, group) {return replaceData[group];});
             var klass = eval(track.type);
-            node = brwsr.view.addTrack(new klass(track, brwsr.refSeq, {changeCallback: changeCallback, trackPadding: brwsr.view.trackPadding, baseUrl: brwsr.dataRoot}));
+            node = brwsr.view.addTrack(new klass(track, url, brwsr.refSeq, {changeCallback: changeCallback, trackPadding: brwsr.view.trackPadding, baseUrl: brwsr.dataRoot}));
         }
         return {node: node, data: track, type: ["track"]};
     }
@@ -254,8 +247,11 @@ Browser.prototype.navigateTo = function(loc) {
 					  parseInt(matches[7].replace(/[,.]/g, "")));
 		} else {
 		    //new refseq, record open tracks and re-open on new refseq
-		    var curTracks = dojo.map(this.view.trackList(),
-					     function(track) {return track.name;});
+                    var curTracks = [];
+                    this.viewDndWidget.forInItems(function(obj, id, map) {
+                            curTracks.push(obj.data);
+                        });
+
 		    for (var i = 0; i < this.chromList.options.length; i++)
 			if (this.chromList.options[i].text == refName)
 			    this.chromList.selectedIndex = i;
@@ -264,15 +260,8 @@ Browser.prototype.navigateTo = function(loc) {
 		    this.view.setLocation(this.refSeq,
 					  parseInt(matches[5].replace(/[,.]/g, "")),
 					  parseInt(matches[7].replace(/[,.]/g, "")));
-		    this.trackListWidget.forInItems(function(obj, id, map) {
-			    var node = dojo.byId(id);
-			    node.parentNode.removeChild(node);
-			});
-		    this.trackListWidget.clearItems();
-		    this.trackListWidget.insertNodes(false, 
-						     this.refSeq.trackList);
 
-		    this.showTracks(curTracks.join(","));
+                    this.viewDndWidget.insertNodes(false, curTracks);
 		}
 		return;
 	    }
@@ -372,7 +361,7 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     document.title = this.refSeq.name + ":" + locString;
 }
 
-Browser.prototype.createNavBox = function(parent) {
+Browser.prototype.createNavBox = function(parent, locLength) {
     var brwsr = this;
     var navbox = document.createElement("div");
     navbox.id = "navbox";
@@ -446,7 +435,7 @@ Browser.prototype.createNavBox = function(parent) {
     this.chromList.id="chrom";
     navbox.appendChild(this.chromList);
     this.location = document.createElement("input");
-    this.location.size=27;
+    this.location.size=locLength;
     this.location.type="text";
     this.location.id="location";
     dojo.connect(this.location, "keyup", function(event) {

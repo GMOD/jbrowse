@@ -1,8 +1,8 @@
-function SimpleFeatureTrack(trackMeta, refSeq, browserParams) {
+function SimpleFeatureTrack(trackMeta, url, refSeq, browserParams) {
     //trackMeta: object with:
     //            key:   display text track name
     //            label: internal track name (no spaces, odd characters)
-    //            url:   URL of the track's JSON file
+    //url: URL of the track's JSON file
     //refSeq: object with:
     //         start: refseq start
     //         end:   refseq end
@@ -16,7 +16,7 @@ function SimpleFeatureTrack(trackMeta, refSeq, browserParams) {
     this.fields = {};
     this.features = new NCList();
     this.refSeq = refSeq;
-    this.baseUrl = browserParams.baseUrl;
+    this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "");
     //number of histogram bins per block
     this.numBins = 25;
     this.histLabel = false;
@@ -25,7 +25,7 @@ function SimpleFeatureTrack(trackMeta, refSeq, browserParams) {
 
     this.trackMeta = trackMeta;
     var curTrack = this;
-    dojo.xhrGet({url: (browserParams.baseUrl ? browserParams.baseUrl : "") + trackMeta.url, 
+    dojo.xhrGet({url: curTrack.baseUrl + url, 
 		 handleAs: "json",
 		 load: function(o) { curTrack.loadSuccess(o); }
 	});

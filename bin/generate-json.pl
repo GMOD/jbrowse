@@ -26,84 +26,78 @@ $browser->source($source) or die "ERROR: source $source not found (the choices a
 
 my $conf = $browser->config;
 my $db = open_database($browser);
-my $seg;
+my @segs;
 if (defined $refid) {
-    $seg = $db->segment(-db_id => $refid);
+    push @segs, $db->segment(-db_id => $refid);
 } elsif (defined $ref) {
-    $seg = $db->segment(-name => $ref);
+    push @segs, $db->segment(-name => $ref);
 } else {
-    die "need a reference sequence name or ID";
+    foreach my $segInfo (@{JsonGenerator::readJSON("$outdir/refSeqs.json", [])}) {
+        if (defined($segInfo->{"id"})) {
+            push @segs, $db->segment(-db_id => $segInfo->{"id"});
+        } else {
+            push @segs, $db->segment(-name => $segInfo->{"name"});
+        }
+    }
 }
-
-my $segName = $seg->name;
-$segName = $seg->uniquename if ($seg->can('uniquename'));
-$segName =~ s/:.*$//; #get rid of coords if any
 
 mkdir($outdir) unless (-d $outdir);
-mkdir("$outdir/$segName") unless (-d "$outdir/$segName");
 
-my @track_labels;
-if (defined $onlyLabel) {
-    @track_labels = ($onlyLabel);
-} else {
-    @track_labels = $browser->labels;
-}
+foreach my $seg (@segs) {
+    my $segName = $seg->name;
+    $segName = $seg->{'uniquename'} if $seg->{'uniquename'};
+    $segName =~ s/:.*$//; #get rid of coords if any
+    print "\nworking on refseq $segName\n";
 
-sub unique {
-    my %saw;
-    return (grep(!$saw{$_}++, @_));
-}
+    mkdir("$outdir/$segName") unless (-d "$outdir/$segName");
 
-foreach my $label (@track_labels) {
-    print "working on track $label\n";
-    my %style = ($conf->style("TRACK DEFAULTS"),
-                 $conf->style($label));
-    print "style: " . Dumper(\%style) if ($verbose);
+    my @track_labels;
+    if (defined $onlyLabel) {
+        @track_labels = ($onlyLabel);
+    } else {
+        @track_labels = $browser->labels;
+    }
 
-    my @feature_types = $conf->label2type($label, $seg->length);
-    print "searching for features of type: " . join(", ", @feature_types) . "\n" if ($verbose);
-    if ($#feature_types >= 0) {
-	my @features = $seg->features(-type => \@feature_types);
+    foreach my $trackLabel (@track_labels) {
+        print "working on track $trackLabel\n";
+        my %style = ("-key" => $trackLabel,
+                     $conf->style("TRACK DEFAULTS"),
+                     $conf->style($trackLabel));
+        print "style: " . Dumper(\%style) if ($verbose);
 
-	print "got " . ($#features + 1) . " features for $label\n";
-	next if ($#features < 0);
+        my @feature_types = $conf->label2type($trackLabel, $seg->length);
+        print "searching for features of type: " . join(", ", @feature_types) . "\n" if ($verbose);
+        if ($#feature_types >= 0) {
+            my @features = $seg->features(-type => \@feature_types);
 
-	JsonGenerator::generateTrack(
-				     $label, $segName,
-				     "$outdir/$segName/$label.json",
-				     "$outdir/$segName/$label.names",
-				     \@features, \%style,
-				     [], []
-				    );
+            print "got " . ($#features + 1) . " features for $trackLabel\n";
 
-	print Dumper($features[0]) if ($verbose);
+            JsonGenerator::generateTrack(
+                $trackLabel, $segName,
+                "$outdir/$segName/$trackLabel.json",
+                "$outdir/$segName/$trackLabel.names",
+                \@features, \%style,
+                [], []
+                );
 
-	JsonGenerator::modifyJSFile("$outdir/trackInfo.js", "trackInfo",
+            print Dumper($features[0]) if ($verbose && ($#features >= 0));
+
+            JsonGenerator::modifyJSFile("$outdir/trackInfo.js", "trackInfo",
 		 sub {
-		     my $segMap = shift;
-		     my $trackList = $segMap->{$segName}->{'trackList'};
+		     my $trackList = shift;
 		     my $i;
 		     for ($i = 0; $i <= $#{$trackList}; $i++) {
-			 last if ($trackList->[$i]->{'label'} eq $label);
+			 last if ($trackList->[$i]->{'label'} eq $trackLabel);
 		     }
 		     $trackList->[$i] =
 		       {
-			'label' => $label,
-			'key' => $style{-key} || $label,
-			'url' => "$outdir/$seq/$label.json",
+			'label' => $trackLabel,
+			'key' => $style{-key},
+			'url' => "$outdir/{refseq}/$trackLabel.json",
 			'type' => "SimpleFeatureTrack",
 		       };
-		     $segMap->{$segName} =
-		       {
-			"start"     => $seg->start - 1,
-			"end"       => $seg->end,
-			"length"    => $seg->length,
-			"name"      => $segName,
-			"trackList" => $trackList
-		       };
-		     return $segMap;
+		     return $trackList;
 		 });
-    } else {
-	print "no features found for $label\n";
+        }
     }
 }

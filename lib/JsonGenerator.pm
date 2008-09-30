@@ -35,16 +35,22 @@ my %builtinDefaults =
    "-class"        => "feature"
   );
 
+sub unique {
+    my %saw;
+    return (grep(!$saw{$_}++, @_));
+}
+
 sub readJSON {
     my ($file, $default) = @_;
     if (-s $file) {
         my $OLDSEP = $/;
         undef $/;
-        open JSON, "<$file"
-          or die "couldn't open $file: $!";
-        $default = JSON::from_json(<JSON>);
-        close JSON
-          or die "couldn't close $file: $!";
+        my $fh = new IO::File $file, O_RDONLY
+            or die "couldn't open $file: $!";
+        flock $fh, LOCK_SH;
+        $default = JSON::from_json(<$fh>);
+        $fh->close()
+            or die "couldn't close $file: $!";
         $/ = $OLDSEP;
     }
     return $default;
@@ -52,10 +58,13 @@ sub readJSON {
 
 sub writeJSON {
     my ($file, $toWrite) = @_;
-    open JSON, ">$file"
+    my $fh = new IO::File $file, O_WRONLY | O_CREAT
       or die "couldn't open $file: $!";
-    print JSON JSON::to_json($toWrite);
-    close JSON
+    flock $fh, LOCK_EX;
+    $fh->seek(0, SEEK_SET);
+    $fh->truncate(0);
+    $fh->print(JSON::to_json($toWrite, {pretty => 0}));
+    $fh->close()
       or die "couldn't close $file: $!";
 }
 
@@ -79,7 +88,7 @@ sub modifyJSFile {
     # add assignment line
     $fh->print("$varName = \n");
     # modify data, write back
-    $fh->print(JSON::to_json($callback->($data)));
+    $fh->print(JSON::to_json($callback->($data), {pretty => 1}));
     $fh->close()
       or die "couldn't close $file: $!";
 }
@@ -88,7 +97,8 @@ sub generateTrack {
     my ($label, $segName, $outFile, $nameFile,
 	$features, $setStyle, $extraMap, $extraHeaders) = @_;
 
-    my %style = (%builtinDefaults,
+    my %style = ("-key" => $label,
+                 %builtinDefaults,
 		 %$setStyle);
 
     my $getLabel = ($style{"-autocomplete"} =~ /label|all/);
@@ -153,12 +163,12 @@ sub generateTrack {
     writeJSON($outFile,
 	      {
 	       'label' => $label,
-	       'key' => $style{-key} || $label,
+	       'key' => $style{-key},
 	       'sublistIndex' => $sublistIndex,
 	       'map' => \@curMapHeaders,
 	       'featureCount' => $#{$features} + 1,
 	       'type' => "SimpleFeatureTrack",
-	       'className' => $style{-class} || "feature",
+	       'className' => $style{-class},
 	       'featureNCList' => $featList->flatten(@curFeatMap)
 	      });
 }

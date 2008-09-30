@@ -24,11 +24,12 @@
     <script type="text/javascript" src="js/StaticTrack.js"></script>
     <script type="text/javascript" src="js/ImageTrack.js"></script>
     <script type="text/javascript" src="js/GenomeView.js"></script>
+    <script type="text/javascript" src="data/refSeqs.js"></script>
     <script type="text/javascript" src="data/trackInfo.js"></script>
 
     <script type="text/javascript">
     /* <![CDATA[ */
-           var b = new Browser("GenomeBrowser", trackInfo);
+           var b = new Browser("GenomeBrowser", refSeqs, trackInfo);
            b.showTracks("gene,mRNA,noncodingRNA");
     /* ]]> */
     </script>
