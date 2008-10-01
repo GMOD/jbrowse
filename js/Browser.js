@@ -52,7 +52,7 @@ var Browser = function(containerID, refSeqs, trackData, dataRoot) {
                 brwsr.allRefs[refSeqs[i].name] = refSeqs[i];
 
             var refCookie = dojo.cookie(containerID + "-refseq");
-            brwsr.refSeq = brwsr.allRefs[0];
+            brwsr.refSeq = refSeqs[0];
             for (var i = 0; i < refSeqs.length; i++) {
                 brwsr.chromList.options[i] = new Option(refSeqs[i].name,
                                                         refSeqs[i].name);
@@ -64,7 +64,10 @@ var Browser = function(containerID, refSeqs, trackData, dataRoot) {
 
             var oldLocMap = dojo.fromJson(dojo.cookie(brwsr.container.id + "-location")) || {};
             var basePos = (oldLocMap[brwsr.refSeq.name]
-                           || (brwsr.refSeq.start + ".." + brwsr.refSeq.end));
+                           || ((((brwsr.refSeq.start + brwsr.refSeq.end) * 0.4) | 0)
+                               + " .. "
+                               + (((brwsr.refSeq.start + brwsr.refSeq.end) * 0.6) | 0)));
+
             brwsr.navigateTo(brwsr.refSeq.name + ":" + basePos);
 
             dojo.connect(brwsr.chromList, "onchange", function(event) {
@@ -76,7 +79,9 @@ var Browser = function(containerID, refSeqs, trackData, dataRoot) {
                                          + oldLocMap[newRef.name]);
                     else
                         brwsr.navigateTo(newRef.name + ":"
-                                         + newRef.start + ".." + newRef.end);
+                                         + (((newRef.start + newRef.end) * 0.4) | 0)
+                                         + " .. "
+                                         + (((newRef.start + newRef.end) * 0.6) | 0));
                         });
 
             var gv = new GenomeView(viewElem, 250, brwsr.refSeq, 1/200);
