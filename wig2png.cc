@@ -357,6 +357,9 @@ public:
                 if (line.length() > 0) processLine(line);
             }
             wig.close();
+            //finish off last tile
+            for (int i = 0; i < renderers_.size(); i++)
+              renderers_[i]->renderTile();
         }  else {
             cerr << "Unable to open file " << filename << endl;
             exit(1);
