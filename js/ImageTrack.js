@@ -56,8 +56,9 @@ ImageTrack.prototype.getImages = function(zoom, startBase, endBase) {
 	    im = document.createElement("img");
             //prepend this.baseUrl if zoom.urlPrefix is relative
             im.src = (zoom.urlPrefix.match(/^(([^/]+:)|\/)/) ? "" : this.baseUrl)
-                     + zoom.urlPrefix + "tile" + i + ".png";
-	    im.startBase = (i * zoom.basesPerTile) + this.refSeq.start;
+                     + zoom.urlPrefix + i + ".png";
+            //TODO: need image coord systems that don't start at 0?
+	    im.startBase = (i * zoom.basesPerTile); // + this.refSeq.start;
 	    im.baseWidth = zoom.basesPerTile;
 	    im.tileNum = i;
 	    this.tileToImage[i] = im;
