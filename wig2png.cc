@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -20,8 +21,8 @@ using namespace std;
 
 #define MAX_PATH_LEN 2048
 
-//this comes from when this used to be in C
-//TODO: rewrite with exceptions?
+//this part comes from when this program used to be in C
+//TODO: rewrite with exceptions?  make write_png_file into a method of WiggleRenderer?
 void abort_(const char * s, ...)
 {
     va_list args;
@@ -108,12 +109,13 @@ public:
           tileWidthBases_(pixelBases * tileWidthPixels),
           tileWidthPixels_(tileWidthPixels),
           tileHeight_(tileHeight),
-          baseDir_(baseDir) {
+          baseDir_(baseDir),
+          tileDir_(baseDir) {
     }
 
     void addValue(int base, float value) {
         //cerr << "zoom " << pixelBases_ << " addValue: base: " << base << ", value: " << value <<endl;
-        if (base > ((curTile_ + 1) * tileWidthBases_)) {
+        if ((long)base > ((long)(curTile_ + 1) * (long)tileWidthBases_)) {
             renderTile();
             curTile_ = base / tileWidthBases_;
             newTile();
@@ -125,10 +127,7 @@ public:
     void renderTile() {
         //cerr << "rendering" << endl;
         stringstream s;
-        s << baseDir_ << "/" 
-          << chrom_ << "/" 
-          << pixelBases_ << "/"
-          << curTile_ << ".png";
+        s << tileDir(chrom_) << curTile_ << ".png";
         drawTile(s.str());
     }
 
@@ -147,18 +146,25 @@ public:
         chrom_ = chrom;
         curTile_ = base / tileWidthBases_;
 
-        stringstream s;
-        s << baseDir_ << "/" 
-          << chrom_ << "/" 
-          << pixelBases_ << "/";
-
-        if (-1 == mkdir(s.str().c_str(), 0777)) {
+        if (-1 == mkdir(tileDir(chrom).c_str(), 0777)) {
             if (EEXIST != errno) {
-                cerr << "failed to make directory" << s.str() << endl;
+                cerr << "failed to make directory" << tileDir(chrom) << endl;
                 exit(1);
             }
         }
-    }    
+    }
+
+    string tileDir(string chrom) {
+        stringstream s;
+        s << baseDir_ << "/" 
+          << chrom << "/" 
+          << pixelBases_ << "/";
+        return s.str();
+    }
+
+    int getTileBases() const {
+        return tileWidthBases_;
+    }
 
     //render the current tile to file
     virtual void drawTile(string pngFile) = 0;
@@ -175,6 +181,7 @@ protected:
     int tileHeight_;
     int curTile_;
     string baseDir_;
+    string tileDir_;
     string chrom_;
 };
 
@@ -208,7 +215,8 @@ public:
     }
   
     void processValue(int base, float value) {
-        int x = (int) (((base % tileWidthBases_) / (double) tileWidthBases_) * tileWidthPixels_);
+        int x = (((long)(base % tileWidthBases_) * (long)tileWidthPixels_)
+                 / tileWidthBases_);
         sumVals_[x] += value;
         valsPerPx_[x] += 1;
     }
@@ -239,9 +247,9 @@ public:
                 continue;
             }
 
-            meany = tileHeight_ 
-                - (int)((
-                         (sumVals_[x] / (float)valsPerPx_[x]) * scale)
+            meany = 
+                tileHeight_ 
+                - (int)(((sumVals_[x] / (float)valsPerPx_[x]) * scale)
                         + globalMin_);
 
             //cerr << "min: " << min << ", max: " << max << ", mean: " << mean << ", tileHeight_: " << tileHeight_ << endl;
@@ -280,8 +288,17 @@ public:
         renderers_.push_back(r);
     }
 
+    WiggleTileRenderer* getRenderer(int index) {
+        return renderers_[index];
+    }
+    
+    int rendererCount() {
+        return renderers_.size();
+    }
+
     void newSection(string chrom, string start, string step, string span) {
         chrom_ = chrom;
+        allChroms_.insert(chrom);
         if(!from_string<int>(curBase_, start, dec)) {
             cerr << "wig parsing failed on start \"" << start << "\"" << endl;
             exit(1);
@@ -366,6 +383,10 @@ public:
         }
     }
 
+    set<string> getChroms() {
+        return allChroms_;
+    }
+
 private:
     vector<WiggleTileRenderer*> renderers_;
 
@@ -373,27 +394,28 @@ private:
     int step_;
     int span_;
     string chrom_;
+    set<string> allChroms_;
 };
 
 
 int main(int argc, char **argv){
-    if (argc != 7)
-        abort_("Usage: %s <input file> <output dir> <width> <height> <bg red>,<bg green>,<bg blue> <fg red>,<fg green>,<fg blue>", argv[0]);
+    if (argc != 8)
+        abort_("Usage: %s <input file> <output dir> <json dir> <width> <height> <bg red>,<bg green>,<bg blue> <fg red>,<fg green>,<fg blue>", argv[0]);
 
     png_color bg = {
-        atoi(strtok(argv[5], ",")), 
-        atoi(strtok(NULL, ",")), 
-        atoi(strtok(NULL, ","))
-    };
-
-    png_color fg = {
         atoi(strtok(argv[6], ",")), 
         atoi(strtok(NULL, ",")), 
         atoi(strtok(NULL, ","))
     };
 
-    int width = atoi(argv[3]);
-    int height = atoi(argv[4]);
+    png_color fg = {
+        atoi(strtok(argv[7], ",")), 
+        atoi(strtok(NULL, ",")), 
+        atoi(strtok(NULL, ","))
+    };
+
+    int width = atoi(argv[4]);
+    int height = atoi(argv[5]);
     string baseDir(argv[2]);
 
     float max = 1.0f;
@@ -412,6 +434,35 @@ int main(int argc, char **argv){
     }
 
     p.processWiggle(argv[1]);
+
+    set<string> chroms = p.getChroms();
+    set<string>::iterator chrom;
+    WiggleTileRenderer* r;
+    for (chrom = chroms.begin(); chrom != chroms.end(); chrom++) {
+        string jsonPath = string(argv[3]) + "/" + *chrom + ".json";
+        ofstream json(jsonPath.c_str());
+        if (json.is_open()) {
+            json << "{" << endl;
+            json << "   \"zoomLevels\" : [" << endl;
+            for (int i = 0; i < p.rendererCount(); i++) {
+                r = p.getRenderer(i);
+                json << "      {" << endl
+                     << "         \"urlPrefix\" : \""
+                     << r->tileDir(*chrom) << "\"," << endl
+                     << "         \"height\" : "
+                     << height << "," << endl
+                     << "         \"basesPerTile\" : "
+                     << r->getTileBases() << "," << endl
+                     << "      }," << endl;
+            }
+            json << "   ]," << endl
+                 << "   \"tileWidth\" : " << width << "," << endl
+                 << "}";
+        } else {
+            cerr << "failed to open json file" << endl;
+            exit(1);
+        }
+    }
 
     return 0;
 }
