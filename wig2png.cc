@@ -142,16 +142,18 @@ public:
                 || (curTile_ != base / tileWidthBases_))) {
             renderTile();
             newTile();
-        } 
-        chrom_ = chrom;
-        curTile_ = base / tileWidthBases_;
+        }
 
-        if (-1 == mkdir(tileDir(chrom).c_str(), 0777)) {
+        //if this is a new chrom, make a directory for it
+        if ((chrom != chrom_) && (-1 == mkdir(tileDir(chrom).c_str(), 0777))) {
             if (EEXIST != errno) {
-                cerr << "failed to make directory" << tileDir(chrom) << endl;
+                cerr << "failed to make directory " << tileDir(chrom) << endl;
                 exit(1);
             }
         }
+
+        chrom_ = chrom;
+        curTile_ = base / tileWidthBases_;
     }
 
     string tileDir(string chrom) {
@@ -274,6 +276,14 @@ private:
     png_bytep * buf_;
 };
 
+enum WiggleFormat {
+  FIXED,
+  VARIABLE,
+  BED
+};
+
+class ParseFailure {};
+
 class WiggleParser {
 public:
 
@@ -281,7 +291,8 @@ public:
           curBase_(numeric_limits<int>::min()),
           step_(1),
           span_(1),
-          chrom_("") {
+          chrom_(""),
+          format_(BED) {
     }
 
     void addRenderer(WiggleTileRenderer* r) {
@@ -296,21 +307,24 @@ public:
         return renderers_.size();
     }
 
-    void newSection(string chrom, string start, string step, string span) {
+    void variableSection(string chrom, string span) {
         chrom_ = chrom;
         allChroms_.insert(chrom);
-        if(!from_string<int>(curBase_, start, dec)) {
-            cerr << "wig parsing failed on start \"" << start << "\"" << endl;
-            exit(1);
-        }
-        if(!from_string<int>(step_, step, dec)) {
-            cerr << "wig parsing failed on step \"" << step << "\"" << endl;
-            exit(1);
-        }
-        if(!from_string<int>(span_, span, dec)) {
-            cerr << "wig parsing failed on span \"" << span << "\"" << endl;
-            exit(1);
-        }
+        format_ = VARIABLE;
+
+        if(!from_string<int>(span_, span, dec)) throw ParseFailure();
+        for (int i = 0; i < renderers_.size(); i++)
+            renderers_[i]->newSection(chrom_, curBase_);
+    }
+
+    void fixedSection(string chrom, string start, string step, string span) {
+        chrom_ = chrom;
+        allChroms_.insert(chrom);
+        format_ = FIXED;
+
+        if(!from_string<int>(curBase_, start, dec)) throw ParseFailure();
+        if(!from_string<int>(step_,    step,  dec)) throw ParseFailure();
+        if(!from_string<int>(span_,    span,  dec)) throw ParseFailure();
 
         for (int i = 0; i < renderers_.size(); i++)
             renderers_[i]->newSection(chrom_, curBase_);
@@ -326,37 +340,63 @@ public:
         }
     }
 
-    void processLine(string line) {
+    void processLine(string line, int lineNum) {
         string word;
         float sample;
         stringstream ss(line);
         map<string,string> params;
-        ss >> word;
-        if ("fixedStep" == word) {
-            //defaults
-            params["span"] = "1";
-            handleParams(ss, params);
-
-            newSection(params["chrom"],
-                       params["start"],
-                       params["step"],
-                       params["span"]);
-        } else if ("variableStep" == word) {
-            cerr << "variableStep not yet implemented";
-            exit(1);
-        } else {
-            if(from_string<float>(sample, word, dec)) {
-                if (1 == span_) {
-                    addValue(curBase_, sample);
-                } else {
-                    for (int i = 0; i < span_; i++)
-                        addValue(curBase_ + i, sample);
-                }
-                curBase_ += step_;
+        try {
+            ss >> word;
+            if ("fixedStep" == word) {
+                //defaults
+                params["span"] = "1";
+                handleParams(ss, params);
+                fixedSection(params["chrom"],
+                             params["start"],
+                             params["step"],
+                             params["span"]);
+            } else if ("variableStep" == word) {
+                //defaults
+                params["span"] = "1";
+                handleParams(ss, params);
+                variableSection(params["chrom"],
+                                params["span"]);
             } else {
-                cerr << "wig parsing failed on: \"" << line << "\"" << endl;
-                exit(1);
+                switch (format_) {
+                case FIXED:
+                    if(from_string<float>(sample, word, dec)) {
+                        for (int i = 0; i < span_; i++)
+                            //wiggle fixed and variable formats are 1-based
+                            addValue(curBase_ + i - 1, sample);
+                        curBase_ += step_;
+                    } else {
+                        throw ParseFailure();
+                    }
+                    break;
+                case VARIABLE:
+                    if(from_string<int>(curBase_, word, dec)) {
+                        ss >> word;
+                        if(from_string<float>(sample, word, dec)) {
+                            for (int i = 0; i < span_; i++)
+                                //wiggle fixed and variable formats are 1-based
+                                addValue(curBase_ + i - 1, sample);
+                        } else {
+                            throw ParseFailure();
+                        }
+                    } else {
+                        throw ParseFailure();
+                    }
+                    break;
+                case BED:
+                    cerr << "bed format wiggle file parsing not yet implemented" << endl;
+                    exit(1);
+                    break;
+                }
             }
+        } catch (ParseFailure) {
+            cerr << "wig parsing failed on: \""
+                 << line << "\" (line " << lineNum << ")" << endl;
+            exit(1);
         }
     }
 
@@ -367,11 +407,13 @@ public:
 
     void processWiggle(const char* filename) {
         string line;
+        int lineNum = 1;
         ifstream wig(filename);
         if (wig.is_open()) {
             while (! wig.eof() ) {
                 getline (wig,line);
-                if (line.length() > 0) processLine(line);
+                if (line.length() > 0) processLine(line, lineNum);
+                lineNum++;
             }
             wig.close();
             //finish off last tile
@@ -390,6 +432,7 @@ public:
 private:
     vector<WiggleTileRenderer*> renderers_;
 
+    WiggleFormat format_;
     int curBase_;
     int step_;
     int span_;
@@ -399,24 +442,24 @@ private:
 
 
 int main(int argc, char **argv){
-    if (argc != 8)
-        abort_("Usage: %s <input file> <output dir> <json dir> <width> <height> <bg red>,<bg green>,<bg blue> <fg red>,<fg green>,<fg blue>", argv[0]);
+    if (argc != 9)
+        abort_("Usage: %s <input file> <output dir> <json dir> <track label> <width> <height> <bg red>,<bg green>,<bg blue> <fg red>,<fg green>,<fg blue>", argv[0]);
 
     png_color bg = {
-        atoi(strtok(argv[6], ",")), 
-        atoi(strtok(NULL, ",")), 
-        atoi(strtok(NULL, ","))
-    };
-
-    png_color fg = {
         atoi(strtok(argv[7], ",")), 
         atoi(strtok(NULL, ",")), 
         atoi(strtok(NULL, ","))
     };
 
-    int width = atoi(argv[4]);
-    int height = atoi(argv[5]);
-    string baseDir(argv[2]);
+    png_color fg = {
+        atoi(strtok(argv[8], ",")), 
+        atoi(strtok(NULL, ",")), 
+        atoi(strtok(NULL, ","))
+    };
+
+    int width = atoi(argv[5]);
+    int height = atoi(argv[6]);
+    string baseDir(string(argv[2]) + "/" + string(argv[4]));
 
     float max = 1.0f;
     float min = 0.0f;
@@ -439,7 +482,10 @@ int main(int argc, char **argv){
     set<string>::iterator chrom;
     WiggleTileRenderer* r;
     for (chrom = chroms.begin(); chrom != chroms.end(); chrom++) {
-        string jsonPath = string(argv[3]) + "/" + *chrom + ".json";
+        string jsonPath =
+            string(argv[3]) + "/" 
+            + *chrom + "/" + 
+            string(argv[4]) + ".json";
         ofstream json(jsonPath.c_str());
         if (json.is_open()) {
             json << "{" << endl;
@@ -452,11 +498,11 @@ int main(int argc, char **argv){
                      << "         \"height\" : "
                      << height << "," << endl
                      << "         \"basesPerTile\" : "
-                     << r->getTileBases() << "," << endl
+                     << r->getTileBases() << endl
                      << "      }," << endl;
             }
             json << "   ]," << endl
-                 << "   \"tileWidth\" : " << width << "," << endl
+                 << "   \"tileWidth\" : " << width << endl
                  << "}";
         } else {
             cerr << "failed to open json file" << endl;
