@@ -498,12 +498,16 @@ int main(int argc, char **argv){
                      << "         \"height\" : "
                      << height << "," << endl
                      << "         \"basesPerTile\" : "
-                     << r->getTileBases() << endl
-                     << "      }," << endl;
+                     << r->getTileBases() << endl;
+
+                if (i < p.rendererCount() - 1)
+                    json << "      }," << endl;
+                else
+                    json << "      }" << endl;
             }
             json << "   ]," << endl
                  << "   \"tileWidth\" : " << width << endl
-                 << "}";
+                 << "}" << endl;
         } else {
             cerr << "failed to open json file" << endl;
             exit(1);
