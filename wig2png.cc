@@ -253,6 +253,8 @@ public:
                 tileHeight_ 
                 - (int)(((sumVals_[x] / (float)valsPerPx_[x]) * scale)
                         + globalMin_);
+            meany = (meany < 0) ? 0 : meany;
+            meany = (meany >= tileHeight_) ? tileHeight_ - 1 : meany;
 
             //cerr << "min: " << min << ", max: " << max << ", mean: " << mean << ", tileHeight_: " << tileHeight_ << endl;
 
