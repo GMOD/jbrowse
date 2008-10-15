@@ -1047,12 +1047,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 GenomeView.prototype.makeStripe = function(startBase, startPercent) {
     var stripe = document.createElement("div");
     stripe.className = "stripe";
-    stripe.style.cssText =
-    "left: " + startPercent
-    + "%; width: 0px;";// + (this.stripePercent) + "%;";
-    //+ "height: " + this.dim.height + "px;";
-    //+ "background-color: " + (i % 2 ? "#eee;" : "#fff;")
-    //+ "background-color: white;"
+    stripe.style.cssText = "left: " + startPercent + "%;";
 
     var y = this.getY();
 

@@ -93,6 +93,8 @@ div.stripe {
     border-width: 1px;
     border-color: #ddd;
     overflow: visible;
+    z-index: 1;
+    width: 0px;
 }
 
 div.pos-label {
