@@ -1049,7 +1049,7 @@ GenomeView.prototype.makeStripe = function(startBase, startPercent) {
     stripe.className = "stripe";
     stripe.style.cssText =
     "left: " + startPercent
-    + "%; width: " + (this.stripePercent) + "%;";
+    + "%; width: 0px;";// + (this.stripePercent) + "%;";
     //+ "height: " + this.dim.height + "px;";
     //+ "background-color: " + (i % 2 ? "#eee;" : "#fff;")
     //+ "background-color: white;"
