@@ -25,7 +25,6 @@ ImageTrack.prototype.loadSuccess = function(o) {
 ImageTrack.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
                                             widthPct, widthPx) {
     Track.prototype.setViewInfo.apply(this, [numBlocks, trackDiv, labelDiv, widthPct, widthPx]);
-    trackDiv.style.zIndex = 0;
     this.setLabel(this.key);
 }
 
