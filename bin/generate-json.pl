@@ -32,7 +32,7 @@ if (defined $refid) {
 } elsif (defined $ref) {
     push @segs, $db->segment(-name => $ref);
 } else {
-    foreach my $segInfo (@{JsonGenerator::readJSON("$outdir/refSeqs.json", [])}) {
+    foreach my $segInfo (@{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)}) {
         if (defined($segInfo->{"id"})) {
             push @segs, $db->segment(-db_id => $segInfo->{"id"});
         } else {
@@ -74,8 +74,9 @@ foreach my $seg (@segs) {
 
             JsonGenerator::generateTrack(
                 $trackLabel, $segName,
-                "$outdir/$segName/$trackLabel.json",
-                "$outdir/$segName/$trackLabel.names",
+                "$outdir/$segName/$trackLabel",
+                10000,
+                #"$outdir/$segName/$trackLabel.names",
                 \@features, \%style,
                 [], []
                 );
@@ -93,7 +94,7 @@ foreach my $seg (@segs) {
 		       {
 			'label' => $trackLabel,
 			'key' => $style{-key},
-			'url' => "$outdir/{refseq}/$trackLabel.json",
+			'url' => "$outdir/{refseq}/$trackLabel/trackData.json",
 			'type' => "SimpleFeatureTrack",
 		       };
 		     return $trackList;

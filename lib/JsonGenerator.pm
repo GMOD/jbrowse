@@ -12,14 +12,17 @@ use Fcntl ":flock";
 #hashes, but then we'd have e.g. "start" and "end" in the JSON
 #for every feature, which would take up too much space/bandwidth)
 #@featMap maps from feature objects to arrays
-$Data::Dumper::Maxdepth = 2;
 my @featMap = (
 	       sub {shift->start - 1},
 	       sub {int(shift->end)},
 	       sub {int(shift->strand)},
-	       sub {$_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id},
+	       \&featureIdSub,
 	      );
 my @mapHeaders = ('start', 'end', 'strand', 'id');
+
+sub featureIdSub {
+    return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
+}
 
 sub featureLabelSub {
     return $_[0]->display_name if $_[0]->can('display_name');
@@ -41,13 +44,15 @@ sub unique {
 }
 
 sub readJSON {
-    my ($file, $default) = @_;
+    my ($file, $default, $skipAssign) = @_;
     if (-s $file) {
         my $OLDSEP = $/;
-        undef $/;
         my $fh = new IO::File $file, O_RDONLY
             or die "couldn't open $file: $!";
         flock $fh, LOCK_SH;
+        # optionally skip variable assignment line
+        $fh->getline() if $skipAssign;
+        undef $/;
         $default = JSON::from_json(<$fh>);
         $fh->close()
             or die "couldn't close $file: $!";
@@ -57,13 +62,13 @@ sub readJSON {
 }
 
 sub writeJSON {
-    my ($file, $toWrite) = @_;
+    my ($file, $toWrite, $opts) = @_;
     my $fh = new IO::File $file, O_WRONLY | O_CREAT
       or die "couldn't open $file: $!";
     flock $fh, LOCK_EX;
     $fh->seek(0, SEEK_SET);
     $fh->truncate(0);
-    $fh->print(JSON::to_json($toWrite, {pretty => 0}));
+    $fh->print(JSON::to_json($toWrite, $opts));
     $fh->close()
       or die "couldn't close $file: $!";
 }
@@ -94,8 +99,10 @@ sub modifyJSFile {
 }
 
 sub generateTrack {
-    my ($label, $segName, $outFile, $nameFile,
+    my ($label, $segName, $outDir, $featureLimit,
 	$features, $setStyle, $extraMap, $extraHeaders) = @_;
+
+    mkdir($outDir) unless (-d $outDir);
 
     my %style = ("-key" => $label,
                  %builtinDefaults,
@@ -122,12 +129,29 @@ sub generateTrack {
         push @mapHeaders, "type";
     }
 
+    my @allSubfeatures;
+    # %seenSubfeatures is so that shared subfeatures don't end up
+    # in @allSubfeatures more than once
+    my %seenSubfeatures;
+
     if ($style{"-subfeatures"}) {
         push @curFeatMap, sub {
             my ($feat, $flatten) = @_;
-            my @subfeat = $feat->sub_SeqFeature;
-            return &$flatten(@subfeat) if (@subfeat);
-            return undef;
+            my @subFeatures = $feat->sub_SeqFeature;
+            return undef unless (@subFeatures);
+
+            my @subfeatIndices;
+            foreach my $subFeature (@subFeatures) {
+                my $subId = featureIdSub($subFeature);
+                my $subIndex = $seenSubfeatures{$subId};
+                if (!defined($subIndex)) {
+                    push @allSubfeatures, $subFeature;
+                    $subIndex = $#allSubfeatures;
+                    $seenSubfeatures{$subId} = $subIndex;
+                }
+                push @subfeatIndices, $subIndex;
+            }
+            return \@subfeatIndices;
         };
         push @curMapHeaders, 'subfeatures';
     }
@@ -154,13 +178,46 @@ sub generateTrack {
 
 	my @names = map {my $feat = $_; [map {$_->($feat)} @nameMap]} @$features;
 
-	writeJSON($nameFile, \@names);
+	writeJSON("$outDir/names.json", \@names, {pretty => 0});
     }
 
     my $sublistIndex = $#curFeatMap + 1;
     my $featList = NCList->new($sublistIndex, @$features);
+    my $flatFeatures = $featList->flatten(@curFeatMap);
+    my $subfeatMap = [];
+
+    if ($style{"-subfeatures"} && (@allSubfeatures)) {
+        my @subfeatMap = (@featMap, sub {shift->primary_tag});
+        my @subfeatHeaders = (@mapHeaders, "type");
+        #flatten subfeatures
+        my $flatSubs = [
+                        map {
+                            my $feat = $_;
+                            [map {&$_($feat)} @subfeatMap];
+                        } @allSubfeatures
+                       ];
+
+        #chunk subfeatures
+        my $firstIndex = 0;
+        my $subFile = 1;
+        while ($firstIndex < $#$flatSubs) {
+            my $lastIndex = $firstIndex + $featureLimit - 1;
+            $lastIndex = $#$flatSubs if $lastIndex > $#$flatSubs;
+            print STDERR "firstIndex: $firstIndex, lastIndex: $lastIndex, featureLimit: $featureLimit: length of flatSubs: " . ($#$flatSubs + 1) . "\n";
+            writeJSON("$outDir/subfeatures-$subFile.json",
+                      [@{$flatSubs}[$firstIndex..$lastIndex]],
+                      {pretty => 0});
+            push @$subfeatMap, [int($firstIndex), int($lastIndex),
+                                "$outDir/subfeatures-$subFile.json"];
+            $subFile++;
+            $firstIndex = $lastIndex + 1;
+        }
+    }
+
+    #use Data::Dumper;
+    #$Data::Dumper::Maxdepth = 2;
     #print Dumper($featList->{'topList'});
-    writeJSON($outFile,
+    writeJSON("$outDir/trackData.json",
 	      {
 	       'label' => $label,
 	       'key' => $style{-key},
@@ -169,8 +226,10 @@ sub generateTrack {
 	       'featureCount' => $#{$features} + 1,
 	       'type' => "SimpleFeatureTrack",
 	       'className' => $style{-class},
-	       'featureNCList' => $featList->flatten(@curFeatMap)
-	      });
+	       'featureNCList' => $flatFeatures,
+               'subfeatureMap' => $subfeatMap
+	      },
+              {pretty => 0});
 }
 
 1;

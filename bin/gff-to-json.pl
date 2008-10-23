@@ -39,7 +39,7 @@ USAGE: $0 --gff <gff file> [--out <output directory>] --tracklabel <track identi
 USAGE
 }
 
-my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.json", [])};
+my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
 
 die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
 
@@ -75,8 +75,9 @@ foreach my $seqInfo (@refSeqs) {
 
     JsonGenerator::generateTrack(
 				 $trackLabel, $seqName,
-				 "$outdir/$seqName/$trackLabel.json",
-				 "$outdir/$seqName/$trackLabel.names",
+				 "$outdir/$seqName/$trackLabel/",
+                                 10000,
+				 #"$outdir/$seqName/$trackLabel.names",
 				 \@features, \%style,
 				 [], []
 				);
@@ -92,7 +93,7 @@ foreach my $seqInfo (@refSeqs) {
 		       {
 			'label' => $trackLabel,
 			'key' => $style{-key},
-			'url' => "$outdir/{refseq}/$trackLabel.json",
+			'url' => "$outdir/{refseq}/$trackLabel/trackData.json",
 			'type' => "SimpleFeatureTrack",
 		       };
 		     return $trackList;
