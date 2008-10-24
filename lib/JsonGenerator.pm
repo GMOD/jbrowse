@@ -184,11 +184,11 @@ sub generateTrack {
     my $sublistIndex = $#curFeatMap + 1;
     my $featList = NCList->new($sublistIndex, @$features);
     my $flatFeatures = $featList->flatten(@curFeatMap);
-    my $subfeatMap = [];
+    my $rangeMap = [];
+    my @subfeatMap = (@featMap, sub {shift->primary_tag});
+    my @subfeatHeaders = (@mapHeaders, "type");
 
     if ($style{"-subfeatures"} && (@allSubfeatures)) {
-        my @subfeatMap = (@featMap, sub {shift->primary_tag});
-        my @subfeatHeaders = (@mapHeaders, "type");
         #flatten subfeatures
         my $flatSubs = [
                         map {
@@ -203,12 +203,12 @@ sub generateTrack {
         while ($firstIndex < $#$flatSubs) {
             my $lastIndex = $firstIndex + $featureLimit - 1;
             $lastIndex = $#$flatSubs if $lastIndex > $#$flatSubs;
-            print STDERR "firstIndex: $firstIndex, lastIndex: $lastIndex, featureLimit: $featureLimit: length of flatSubs: " . ($#$flatSubs + 1) . "\n";
             writeJSON("$outDir/subfeatures-$subFile.json",
                       [@{$flatSubs}[$firstIndex..$lastIndex]],
                       {pretty => 0});
-            push @$subfeatMap, [int($firstIndex), int($lastIndex),
-                                "$outDir/subfeatures-$subFile.json"];
+            push @$rangeMap, {start => int($firstIndex),
+                              end   => int($lastIndex),
+                              url   => "$outDir/subfeatures-$subFile.json"};
             $subFile++;
             $firstIndex = $lastIndex + 1;
         }
@@ -222,12 +222,13 @@ sub generateTrack {
 	       'label' => $label,
 	       'key' => $style{-key},
 	       'sublistIndex' => $sublistIndex,
-	       'map' => \@curMapHeaders,
+	       'headers' => \@curMapHeaders,
 	       'featureCount' => $#{$features} + 1,
 	       'type' => "SimpleFeatureTrack",
 	       'className' => $style{-class},
 	       'featureNCList' => $flatFeatures,
-               'subfeatureMap' => $subfeatMap
+               'rangeMap' => $rangeMap,
+               'subfeatureHeaders' => \@subfeatHeaders
 	      },
               {pretty => 0});
 }

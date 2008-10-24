@@ -7,6 +7,11 @@ button.nav {
     z-index: 10;
 }
 
+div.container {
+    position: absolute;
+    z-index: 0;
+}
+
 div.dragWindow {
     position:absolute;
     overflow: hidden;
@@ -499,7 +504,50 @@ div.ibeam {
     cursor: pointer;
 }
 
-div.container {
+div.transcript-hist {
     position: absolute;
-    z-index: 0;
+    background-color: #ddd;
+    border-color: #FF9185;
+    border-style: solid;
+    border-width: 1px;
+    z-index: 10;
+}
+
+div.plus-transcript,
+div.minus-transcript {
+    position: absolute;
+    height: 8px;
+    background-color: #ddd;
+/*    border-style: solid;
+    border-color: #00f;
+    border-width: 1px;*/
+    cursor: pointer;
+    z-index: 6;
+}
+
+div.plus-transcript-exon,
+div.minus-transcript-exon {
+    position: absolute;
+    height: 4px;
+    border-width: 2px 0px 3px 0px;
+    border-style: solid;
+    border-color: white;
+    background-color: #FF9185;
+/*    border-style: solid;
+    border-color: #00f;
+    border-width: 1px;*/
+    cursor: pointer;
+    z-index: 8;
+}
+
+div.plus-transcript-CDS,
+div.minus-transcript-CDS {
+    position: absolute;
+    height: 8px;
+    background-color: #E7796D;
+/*    border-style: solid;
+    border-color: #00f;
+    border-width: 1px;*/
+    cursor: pointer;
+    z-index: 10;
 }

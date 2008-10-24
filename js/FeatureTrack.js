@@ -38,12 +38,18 @@ SimpleFeatureTrack.prototype.loadSuccess = function(o) {
     var trackInfo = o;
     this.count = trackInfo.featureCount;
     this.fields = {};
-    for (var i = 0; i < trackInfo.map.length; i++) {
-	this.fields[trackInfo.map[i]] = i;
+    for (var i = 0; i < trackInfo.headers.length; i++) {
+	this.fields[trackInfo.headers[i]] = i;
+    }
+    this.subFields = {};
+    for (var i = 0; i < trackInfo.subfeatureHeaders.length; i++) {
+	this.subFields[trackInfo.subfeatureHeaders[i]] = i;
     }
     this.features.importExisting(trackInfo.featureNCList, trackInfo.sublistIndex);
+    this.rangeMap = o.rangeMap;
     this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length);
     this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length);
+    this.subfeatureScale = 50 * (trackInfo.featureCount / this.refSeq.length);
     this.className = trackInfo.className;
     
     //console.log((new Date().getTime() - startTime) / 1000);
@@ -60,7 +66,7 @@ SimpleFeatureTrack.prototype.loadSuccess = function(o) {
     };
 
     this.setLoaded();
-}
+};
 
 SimpleFeatureTrack.prototype.setViewInfo = function(numBlocks, trackDiv,
                                                     labelDiv, widthPct,
@@ -68,7 +74,7 @@ SimpleFeatureTrack.prototype.setViewInfo = function(numBlocks, trackDiv,
     Track.prototype.setViewInfo.apply(this, [numBlocks, trackDiv, labelDiv,
                                              widthPct, widthPx]);
     this.setLabel(this.key);
-}
+};
 
 SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
 						 stripeWidth) {
@@ -100,7 +106,7 @@ SimpleFeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
         this.setLabel(this.key);
     }
     this.clear();
-}
+};
 
 SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth) {
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
@@ -110,7 +116,7 @@ SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, 
 	return this.fillFeatures(block, leftBlock, rightBlock, 
 				 leftBase, rightBase, scale);
     }
-}
+};
 
 SimpleFeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
     //transfer(sourceBlock, destBlock) is called when sourceBlock gets deleted.
@@ -150,7 +156,7 @@ SimpleFeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
 	    }
 	}
     }	    
-}
+};
 
 SimpleFeatureTrack.prototype.fillFeatures = function(block, 
 						     leftBlock, rightBlock,
@@ -171,6 +177,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     var strand = this.fields["strand"];
     var name = this.fields["name"];
     var phase = this.fields["phase"];
+    var subfeatures = this.fields["subfeatures"];
 
     var slots = [];
 
@@ -220,6 +227,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     var blockWidth = rightBase - leftBase;
     var maxLevel = 0;
 
+    var curTrack = this;
     var featDiv;
     var callback = this.onFeatureClick;
     var leftSlots = new Array();
@@ -227,6 +235,7 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     var levelHeight = this.glyphHeight;
     var className = this.className;
     var labelScale = this.labelScale;
+    var subfeatureScale = this.subfeatureScale;
     var basePadding = Math.max(1, this.padding / scale);
     var basesPerLabelChar = this.nameWidth / scale;
     if (name && (scale > labelScale)) levelHeight += this.nameHeight;
@@ -314,6 +323,13 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	    labelDiv.onclick = callback;
             block.appendChild(labelDiv);
         }
+        
+        if (subfeatures
+            && (scale > subfeatureScale)
+            && feature[subfeatures]
+            && feature[subfeatures].length > 0) {
+            curTrack.handleSubfeatures(feature, featDiv, feature[subfeatures]);
+        }
 
 	//ie6 doesn't respect the height style if the div is empty
         if (Util.is_ie6) featDiv.appendChild(document.createComment());
@@ -335,4 +351,80 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
 	block.rightSlots = slots;
 
     return ((maxLevel + 1) * levelHeight);
-}
+};
+
+SimpleFeatureTrack.prototype.handleSubfeatures = function(feature,
+                                                          featDiv,
+                                                          subIndices) {
+    // for each subfeature index,
+    SUBFEATURE: for (var i = 0; i < subIndices.length; i++) {
+        // look through this.rangeMap for the
+        // range containing this subfeature index
+        for (var j = 0; j < this.rangeMap.length; j++) {
+            if (subIndices[i] >= this.rangeMap[j].start
+                && subIndices[i] <= this.rangeMap[j].end) {
+                // we've found the right range, check to see if it's loaded
+                if ("data" in this.rangeMap[j]) {
+                    // it's loaded, render it
+                    this.renderSubfeature(feature, 
+                                          featDiv,
+                                          this.rangeMap[j].data[subIndices[i]
+                                                                - this.rangeMap[j].start]);
+                } else {
+                    // it's not loaded, load it
+                    this.fetchSubfeatures(feature, featDiv,
+                                          this.rangeMap[j], subIndices[i]);
+                }
+                continue SUBFEATURE;
+            }
+        }
+    }
+};
+
+SimpleFeatureTrack.prototype.fetchSubfeatures = function(feature,
+                                                         featDiv,
+                                                         range,
+                                                         index) {
+    // check if we've started loading the range already
+    if ("toRender" in range) {
+        // we're already working on it, just queue this subfeature index
+        // for rendering
+        range.toRender.push({feature: feature, featDiv: featDiv, index: index});
+    } else {
+        var curTrack = this;
+        range.toRender = [{feature: feature, featDiv: featDiv, index: index}];
+        //console.log("fetching " + this.baseUrl + range.url + " for index " + index);
+        dojo.xhrGet({
+            url: this.baseUrl + range.url,
+            handleAs: "json",
+            load: function(data) {
+                range.data = data;
+                // console.log("rendering indices: " + dojo.toJson(dojo.map(range.toRender, function(a) {return a.index})) + " in range " + range.start + ".." + range.end);
+                // render all the queued indices
+                for (var i = 0; i < range.toRender.length; i++) {
+                    curTrack.renderSubfeature(range.toRender[i].feature, 
+                                              range.toRender[i].featDiv,
+                                              data[range.toRender[i].index
+                                                   - range.start]);
+                }
+                range.toRender = "done";
+            }
+        });
+    }
+};
+
+SimpleFeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature) {
+    if ("intron" == subfeature[this.subFields["type"]]) return;
+    var featStart = feature[this.fields["start"]];
+    var subStart = subfeature[this.subFields["start"]];
+    var subEnd = subfeature[this.subFields["end"]];
+    var featLength = feature[this.fields["end"]] - featStart;
+    subDiv = document.createElement("div");
+    subDiv.className = "plus-transcript-" + subfeature[this.subFields["type"]];
+    subDiv.style.cssText = 
+        "left: " + (100 * ((subStart - featStart) / featLength)) + "%;"
+        + "top: 0px;"
+        + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
+    featDiv.appendChild(subDiv)
+
+};
