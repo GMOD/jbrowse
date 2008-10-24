@@ -49,7 +49,7 @@ SimpleFeatureTrack.prototype.loadSuccess = function(o) {
     this.rangeMap = o.rangeMap;
     this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length);
     this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length);
-    this.subfeatureScale = 50 * (trackInfo.featureCount / this.refSeq.length);
+    this.subfeatureScale = 80 * (trackInfo.featureCount / this.refSeq.length);
     this.className = trackInfo.className;
     
     //console.log((new Date().getTime() - startTime) / 1000);
