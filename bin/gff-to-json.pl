@@ -76,7 +76,7 @@ foreach my $seqInfo (@refSeqs) {
     JsonGenerator::generateTrack(
 				 $trackLabel, $seqName,
 				 "$outdir/$seqName/$trackLabel/",
-                                 10000,
+                                 5000,
 				 #"$outdir/$seqName/$trackLabel.names",
 				 \@features, \%style,
 				 [], []

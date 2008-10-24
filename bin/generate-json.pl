@@ -75,7 +75,7 @@ foreach my $seg (@segs) {
             JsonGenerator::generateTrack(
                 $trackLabel, $segName,
                 "$outdir/$segName/$trackLabel",
-                10000,
+                5000,
                 #"$outdir/$segName/$trackLabel.names",
                 \@features, \%style,
                 [], []
