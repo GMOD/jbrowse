@@ -15,6 +15,7 @@ var Browser = function(containerID, refSeqs, trackData, dataRoot) {
     if (!dataRoot) dataRoot = "";
     this.names = new LazyTrie(dataRoot + "names/lazy-",
 			      dataRoot + "names/root.json");
+    this.tracks = [];
     var brwsr = this;
     brwsr.isInitialized = false;
     dojo.addOnLoad(function() {
@@ -166,7 +167,7 @@ Browser.prototype.createTrackList = function(parent, trackList) {
     var trackListCreate = function(track, hint) {
         var node = document.createElement("div");
         node.className = "tracklist-label";
-        node.appendChild(document.createTextNode(track.key));
+        node.innerHTML = track.key;
         //in the list, wrap the list item in a container for
         //border drag-insertion-point monkeying
         if ("avatar" != hint) {
@@ -217,6 +218,22 @@ Browser.prototype.createTrackList = function(parent, trackList) {
     if (oldTrackList) this.showTracks(oldTrackList);
 
     return trackListDiv;
+}
+
+Browser.prototype.addTracks = function(trackList, show) {
+    if (!this.isInitialized) {
+        var brwsr = this;
+        this.deferredFunctions.push(function() { 
+                brwsr.addTracks(trackList, show);
+                    });
+	return;
+    }
+
+    this.tracks.concat(trackList);
+    if (show || (show === undefined)) {
+        this.showTracks(dojo.map(trackList, 
+                                 function(t) {return t.label}).join(","));
+    }
 }
 
 Browser.prototype.navigateTo = function(loc) {
@@ -462,30 +479,3 @@ Browser.prototype.createNavBox = function(parent, locLength) {
 
     return navbox;
 }
-
-//     gv.addOverviewTrack(new SimpleFeatureTrack(trackList[0], 
-// 					       brwsr.refSeq,
-// 					       function() {
-// 						   gv.updateOverviewHeight();
-// 						   dijit.byId("mainSplit").resize();
-// 					       },
-// 					       0));
-//     gv.addTrack(new ImageTrack("Gene_Image", "Gene Image", brwsr.refSeq, 1000, 
-//                                [
-//                                 {basesPerTile: 100, height: 68, urlPrefix: "tiles/3R/Genes/100bp/"},
-//                                 {basesPerTile: 200, height: 64, urlPrefix: "tiles/3R/Genes/200bp/"},
-//                                 {basesPerTile: 500, height: 68, urlPrefix: "tiles/3R/Genes/500bp/"},
-//                                 {basesPerTile: 1000, height: 68, urlPrefix: "tiles/3R/Genes/1kbp/"},
-//                                 {basesPerTile: 2000, height: 68, urlPrefix: "tiles/3R/Genes/2kbp/"},
-//                                 {basesPerTile: 5000, height: 68, urlPrefix: "tiles/3R/Genes/5kbp/"},
-//                                 {basesPerTile: 10000, height: 80, urlPrefix: "tiles/3R/Genes/10kbp/"},
-//                                 {basesPerTile: 20000, height: 100, urlPrefix: "tiles/3R/Genes/20kbp/"},
-//                                 {basesPerTile: 50000, height: 140, urlPrefix: "tiles/3R/Genes/50kbp/"},
-//                                 {basesPerTile: 100000, height: 180, urlPrefix: "tiles/3R/Genes/100kbp/"},
-//                                 {basesPerTile: 200000, height: 240, urlPrefix: "tiles/3R/Genes/200kbp/"},
-//                                 {basesPerTile: 500000, height: 47, urlPrefix: "tiles/3R/Genes/500kbp/"},
-//                                 {basesPerTile: 1000000, height: 55, urlPrefix: "tiles/3R/Genes/1Mbp/"},
-//                                 {basesPerTile: 2000000, height: 71, urlPrefix: "tiles/3R/Genes/2Mbp/"},
-//                                 {basesPerTile: 5000000, height: 208.5, urlPrefix: "tiles/3R/Genes/5Mbp/"},
-//                                 {basesPerTile: 10000000, height: 208.5, urlPrefix: "tiles/3R/Genes/10Mbp/"}
-//                                 ]));
