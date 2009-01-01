@@ -415,6 +415,8 @@ SimpleFeatureTrack.prototype.fetchSubfeatures = function(feature,
 
 SimpleFeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature) {
     if ("intron" == subfeature[this.subFields["type"]]) return;
+    if ("exon" == subfeature[this.subFields["type"]]) return;
+    if ("protein" == subfeature[this.subFields["type"]]) return;
     var featStart = feature[this.fields["start"]];
     var subStart = subfeature[this.subFields["start"]];
     var subEnd = subfeature[this.subFields["end"]];
