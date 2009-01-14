@@ -172,3 +172,16 @@ NCList.prototype.histHelper = function(arr, from, to, result, numBins, binWidth)
         i++;
     }
 }
+
+/*
+
+Copyright (c) 2007-2009 The Evolutionary Software Foundation
+
+Created by Mitchell Skinner <mitch_skinner@berkeley.edu>
+
+This package and its accompanying libraries are free software; you can
+redistribute it and/or modify it under the terms of the LGPL (either
+version 2.1, or at your option, any later version) or the Artistic
+License 2.0.  Refer to LICENSE for the full license text.
+
+*/

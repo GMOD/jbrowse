@@ -96,3 +96,16 @@ die "found no ref seqs" if ($#refSeqs < 0);
 JsonGenerator::modifyJSFile("$outDir/refSeqs.js", "refSeqs",
                             sub { return \@refSeqs});
 #JsonGenerator::writeJSON("$outDir/refSeqs.json", \@refSeqs);
+
+=head1 AUTHOR
+
+Mitchell Skinner E<lt>mitch_skinner@berkeley.eduE<gt>
+
+Copyright (c) 2007-2009 The Evolutionary Software Foundation
+
+This package and its accompanying libraries are free software; you can
+redistribute it and/or modify it under the terms of the LGPL (either
+version 2.1, or at your option, any later version) or the Artistic
+License 2.0.  Refer to LICENSE for the full license text.
+
+=cut
