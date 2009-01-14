@@ -11,21 +11,26 @@ use Bio::Graphics::Browser::Util;
 use Data::Dumper;
 use JsonGenerator;
 
-my ($CONF_DIR, $ref, $refid, $source, $onlyLabel, $verbose);
+my ($confFile, $ref, $refid, $onlyLabel, $verbose);
 my $outdir = "data";
-GetOptions("conf=s" => \$CONF_DIR,
+GetOptions("conf=s" => \$confFile,
 	   "ref=s" => \$ref,
-	   "src=s" => \$source,
 	   "refid=s" => \$refid,
 	   "track=s" => \$onlyLabel,
 	   "out=s" => \$outdir,
            "v+" => \$verbose);
 
-my $browser = open_config($CONF_DIR);
-$browser->source($source) or die "ERROR: source $source not found (the choices are: " . join(", ", $browser->sources) . "\n";
+my $config = JsonGenerator::readJSON($confFile, undef, 1);
 
-my $conf = $browser->config;
-my $db = open_database($browser);
+my $db = eval {$adaptor->new(@argv)} or warn $@;
+die "Could not open database: $@" unless $db;
+
+if (my $refclass = $config->{'reference class')) {
+    eval {$db->default_class($refclass)};
+}
+$db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
+$db->absolute(1)               if $db->can('absolute');
+
 my @segs;
 if (defined $refid) {
     push @segs, $db->segment(-db_id => $refid);
