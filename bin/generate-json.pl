@@ -22,10 +22,12 @@ GetOptions("conf=s" => \$confFile,
 
 my $config = JsonGenerator::readJSON($confFile, undef, 1);
 
-my $db = eval {$adaptor->new(@argv)} or warn $@;
+eval "require $config->{db_adaptor}; 1" or die $@;
+
+my $db = eval {$config->{db_adaptor}->new(%{$config->{db_args}})} or warn $@;
 die "Could not open database: $@" unless $db;
 
-if (my $refclass = $config->{'reference class')) {
+if (my $refclass = $config->{'reference class'}) {
     eval {$db->default_class($refclass)};
 }
 $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
@@ -60,22 +62,23 @@ foreach my $seg (@segs) {
     if (defined $onlyLabel) {
         @track_labels = ($onlyLabel);
     } else {
-        @track_labels = $browser->labels;
+        @track_labels = keys %{$config->{tracks}};
     }
 
     foreach my $trackLabel (@track_labels) {
         print "working on track $trackLabel\n";
-        my %style = ("-key" => $trackLabel,
-                     $conf->style("TRACK DEFAULTS"),
-                     $conf->style($trackLabel));
+        my %style = ("key" => $trackLabel,
+                     %{$config->{"TRACK DEFAULTS"}},
+                     %{$config->{tracks}->{$trackLabel}});
         print "style: " . Dumper(\%style) if ($verbose);
 
-        my @feature_types = $conf->label2type($trackLabel, $seg->length);
+        my @feature_types = @{$config->{tracks}->{$trackLabel}->{feature}};
         print "searching for features of type: " . join(", ", @feature_types) . "\n" if ($verbose);
         if ($#feature_types >= 0) {
             my @features = $seg->features(-type => \@feature_types);
 
             print "got " . ($#features + 1) . " features for $trackLabel\n";
+            next unless @features > 0;
 
             JsonGenerator::generateTrack(
                 $trackLabel, $segName,
@@ -98,7 +101,7 @@ foreach my $seg (@segs) {
 		     $trackList->[$i] =
 		       {
 			'label' => $trackLabel,
-			'key' => $style{-key},
+			'key' => $style{"key"},
 			'url' => "$outdir/{refseq}/$trackLabel/trackData.json",
 			'type' => "SimpleFeatureTrack",
 		       };

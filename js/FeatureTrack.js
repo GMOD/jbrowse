@@ -51,6 +51,7 @@ SimpleFeatureTrack.prototype.loadSuccess = function(o) {
     this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length);
     this.subfeatureScale = 80 * (trackInfo.featureCount / this.refSeq.length);
     this.className = trackInfo.className;
+    this.subfeatureClasses = trackInfo.subfeatureClasses;
     
     //console.log((new Date().getTime() - startTime) / 1000);
 
@@ -414,15 +415,22 @@ SimpleFeatureTrack.prototype.fetchSubfeatures = function(feature,
 };
 
 SimpleFeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature) {
-    if ("intron" == subfeature[this.subFields["type"]]) return;
-    if ("exon" == subfeature[this.subFields["type"]]) return;
-    if ("protein" == subfeature[this.subFields["type"]]) return;
     var featStart = feature[this.fields["start"]];
     var subStart = subfeature[this.subFields["start"]];
     var subEnd = subfeature[this.subFields["end"]];
     var featLength = feature[this.fields["end"]] - featStart;
+    var className = this.subfeatureClasses[subfeature[this.subFields["type"]]];
     subDiv = document.createElement("div");
-    subDiv.className = "plus-transcript-" + subfeature[this.subFields["type"]];
+    switch (subfeature[this.subFields["strand"]]) {
+    case 1:
+        subDiv.className = "plus-" + className; break;
+    case 0:
+    case null:
+    case undefined:
+        subDiv.className = className; break;
+    case -1:
+        subDiv.className = "minus-" + className; break;
+    }
     subDiv.style.cssText = 
         "left: " + (100 * ((subStart - featStart) / featLength)) + "%;"
         + "top: 0px;"

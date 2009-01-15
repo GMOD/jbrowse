@@ -33,9 +33,9 @@ sub featureLabelSub {
 
 my %builtinDefaults =
   (
-   "-label"        => \&featureLabelSub,
-   "-autocomplete" => "none",
-   "-class"        => "feature"
+   "label"        => \&featureLabelSub,
+   "autocomplete" => "none",
+   "class"        => "feature"
   );
 
 sub unique {
@@ -104,27 +104,27 @@ sub generateTrack {
 
     mkdir($outDir) unless (-d $outDir);
 
-    my %style = ("-key" => $label,
+    my %style = ("key" => $label,
                  %builtinDefaults,
 		 %$setStyle);
 
-    my $getLabel = ($style{"-autocomplete"} =~ /label|all/);
-    my $getAlias = ($style{"-autocomplete"} =~ /alias|all/);
+    my $getLabel = ($style{"autocomplete"} =~ /label|all/);
+    my $getAlias = ($style{"autocomplete"} =~ /alias|all/);
 
     my @curFeatMap = (@featMap, @$extraMap);
     my @curMapHeaders = (@mapHeaders, @$extraHeaders);
 
-    if ($style{"-label"}) {
-	push @curFeatMap, $style{"-label"};
+    if ($style{"label"}) {
+	push @curFeatMap, $style{"label"};
 	push @curMapHeaders, "name";
     }
 
-    if ($style{"-phase"}) {
+    if ($style{"phase"}) {
         push @curFeatMap, sub {shift->phase};
         push @curMapHeaders, "phase";
     }
 
-    if ($style{"-type"}) {
+    if ($style{"type"}) {
         push @curFeatMap, sub {shift->primary_tag};
         push @mapHeaders, "type";
     }
@@ -133,15 +133,19 @@ sub generateTrack {
     # %seenSubfeatures is so that shared subfeatures don't end up
     # in @allSubfeatures more than once
     my %seenSubfeatures;
-
-    if ($style{"-subfeatures"}) {
+    if ($style{"subfeatures"}) {
         push @curFeatMap, sub {
             my ($feat, $flatten) = @_;
             my @subFeatures = $feat->sub_SeqFeature;
             return undef unless (@subFeatures);
 
+            my $sfClasses = $style{"subfeature_classes"};
             my @subfeatIndices;
             foreach my $subFeature (@subFeatures) {
+                #filter out subfeatures we don't care about
+                #print "type: " . $subFeature->primary_tag . " (" . $sfClasses->{$subFeature->primary_tag} . ")\n";
+                next unless
+                  $sfClasses && $sfClasses->{$subFeature->primary_tag};
                 my $subId = featureIdSub($subFeature);
                 my $subIndex = $seenSubfeatures{$subId};
                 if (!defined($subIndex)) {
@@ -159,7 +163,7 @@ sub generateTrack {
     my @nameMap =
       (
        sub {$label},
-       $style{"-label"},
+       $style{"label"},
        sub {$segName},
        sub {int(shift->start) - 1},
        sub {int(shift->end)},
@@ -168,10 +172,10 @@ sub generateTrack {
 
     if ($getLabel || $getAlias) {
 	if ($getLabel && $getAlias) {
-	    unshift @nameMap, sub {[unique($style{"-label"}->($_[0]),
+	    unshift @nameMap, sub {[unique($style{"label"}->($_[0]),
 					   $_[0]->attributes("Alias"))]};
 	} elsif ($getLabel) {
-	    unshift @nameMap, sub {[$style{"-label"}->($_[0])]};
+	    unshift @nameMap, sub {[$style{"label"}->($_[0])]};
 	} elsif ($getAlias) {
 	    unshift @nameMap, sub {[$_[0]->attributes("Alias")]};
 	}
@@ -188,7 +192,7 @@ sub generateTrack {
     my @subfeatMap = (@featMap, sub {shift->primary_tag});
     my @subfeatHeaders = (@mapHeaders, "type");
 
-    if ($style{"-subfeatures"} && (@allSubfeatures)) {
+    if ($style{"subfeatures"} && (@allSubfeatures)) {
         #flatten subfeatures
         my $flatSubs = [
                         map {
@@ -220,12 +224,13 @@ sub generateTrack {
     writeJSON("$outDir/trackData.json",
 	      {
 	       'label' => $label,
-	       'key' => $style{-key},
+	       'key' => $style{"key"},
 	       'sublistIndex' => $sublistIndex,
 	       'headers' => \@curMapHeaders,
 	       'featureCount' => $#{$features} + 1,
 	       'type' => "SimpleFeatureTrack",
-	       'className' => $style{-class},
+	       'className' => $style{"class"},
+               'subfeatureClasses' => $style{"subfeature_classes"},
 	       'featureNCList' => $flatFeatures,
                'rangeMap' => $rangeMap,
                'subfeatureHeaders' => \@subfeatHeaders

@@ -31,7 +31,7 @@ USAGE: $0 --gff <gff file> [--out <output directory>] --tracklabel <track identi
 
     --out: defaults to "data"
     --cssclass: defaults to "feature"
-    --autocomplete: make these features searchable by their "label", by their "alias"es, both ("all"), or "none".
+    --autocomplete: make these features searchable by their "label", by their "alias"es, both ("all"), or "none" (default).
     --type: include the type of the features in the json
     --phase: include the phase of the features in the json
     --subs:  include subfeatures in the json
@@ -65,13 +65,13 @@ foreach my $seqInfo (@refSeqs) {
 
     if (!defined($trackLabel)) { $trackLabel = $features[0]->primary_tag };
 
-    my %style = ("-autocomplete" => $autocomplete,
-		 "-type"         => $getType,
-		 "-phase"        => $getPhase,
-		 "-subfeatures"  => $getSubs,
-		 "-class"        => $cssClass,
-		 "-label"        => $getLabel ? \&gffLabelSub : 0,
-                 "-key"          => defined($key) ? $key : $trackLabel);
+    my %style = ("autocomplete" => $autocomplete,
+		 "type"         => $getType,
+		 "phase"        => $getPhase,
+		 "subfeatures"  => $getSubs,
+		 "class"        => $cssClass,
+		 "label"        => $getLabel ? \&gffLabelSub : 0,
+                 "key"          => defined($key) ? $key : $trackLabel);
 
     JsonGenerator::generateTrack(
 				 $trackLabel, $seqName,
@@ -92,7 +92,7 @@ foreach my $seqInfo (@refSeqs) {
 		     $trackList->[$i] =
 		       {
 			'label' => $trackLabel,
-			'key' => $style{-key},
+			'key' => $style{"key"},
 			'url' => "$outdir/{refseq}/$trackLabel/trackData.json",
 			'type' => "SimpleFeatureTrack",
 		       };
