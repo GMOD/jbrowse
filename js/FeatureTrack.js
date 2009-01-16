@@ -1,4 +1,4 @@
-function SimpleFeatureTrack(trackMeta, url, refSeq, browserParams) {
+function FeatureTrack(trackMeta, url, refSeq, browserParams) {
     //trackMeta: object with:
     //            key:   display text track name
     //            label: internal track name (no spaces, odd characters)
@@ -31,9 +31,9 @@ function SimpleFeatureTrack(trackMeta, url, refSeq, browserParams) {
 	});
 }
 
-SimpleFeatureTrack.prototype = new Track("");
+FeatureTrack.prototype = new Track("");
 
-SimpleFeatureTrack.prototype.loadSuccess = function(o) {
+FeatureTrack.prototype.loadSuccess = function(o) {
     var startTime = new Date().getTime();
     var trackInfo = o;
     this.count = trackInfo.featureCount;
@@ -69,16 +69,16 @@ SimpleFeatureTrack.prototype.loadSuccess = function(o) {
     this.setLoaded();
 };
 
-SimpleFeatureTrack.prototype.setViewInfo = function(numBlocks, trackDiv,
-                                                    labelDiv, widthPct,
-                                                    widthPx) {
+FeatureTrack.prototype.setViewInfo = function(numBlocks, trackDiv,
+                                              labelDiv, widthPct,
+                                              widthPx) {
     Track.prototype.setViewInfo.apply(this, [numBlocks, trackDiv, labelDiv,
                                              widthPct, widthPx]);
     this.setLabel(this.key);
 };
 
-SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
-						 stripeWidth) {
+FeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
+                                           stripeWidth) {
     var hist = this.features.histogram(leftBase, rightBase, this.numBins);
     //console.log(hist);
     var maxBin = 0;
@@ -100,7 +100,7 @@ SimpleFeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
     return 2 * maxBin;
 }
 
-SimpleFeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
+FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
     if (destScale < this.histScale) {
         this.setLabel(this.key + "<br>per " + Math.round(destBlockBases / this.numBins) + "bp");
     } else {
@@ -109,7 +109,7 @@ SimpleFeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
     this.clear();
 };
 
-SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth) {
+FeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth) {
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
     if (scale < this.histScale) {
 	return this.fillHist(block, leftBase, rightBase, stripeWidth);
@@ -119,7 +119,7 @@ SimpleFeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, 
     }
 };
 
-SimpleFeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
+FeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
     //transfer(sourceBlock, destBlock) is called when sourceBlock gets deleted.
     //Any child features of sourceBlock that extend onto destBlock should get
     //moved onto destBlock.
@@ -159,10 +159,10 @@ SimpleFeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
     }	    
 };
 
-SimpleFeatureTrack.prototype.fillFeatures = function(block, 
-						     leftBlock, rightBlock,
-						     leftBase, rightBase,
-						     scale) {
+FeatureTrack.prototype.fillFeatures = function(block, 
+                                               leftBlock, rightBlock,
+                                               leftBase, rightBase,
+                                               scale) {
     //arguments:
     //block: div to be filled with info
     //leftBlock: div to the left of the block to be filled
@@ -354,9 +354,9 @@ SimpleFeatureTrack.prototype.fillFeatures = function(block,
     return ((maxLevel + 1) * levelHeight);
 };
 
-SimpleFeatureTrack.prototype.handleSubfeatures = function(feature,
-                                                          featDiv,
-                                                          subIndices) {
+FeatureTrack.prototype.handleSubfeatures = function(feature,
+                                                    featDiv,
+                                                    subIndices) {
     // for each subfeature index,
     SUBFEATURE: for (var i = 0; i < subIndices.length; i++) {
         // look through this.rangeMap for the
@@ -382,10 +382,10 @@ SimpleFeatureTrack.prototype.handleSubfeatures = function(feature,
     }
 };
 
-SimpleFeatureTrack.prototype.fetchSubfeatures = function(feature,
-                                                         featDiv,
-                                                         range,
-                                                         index) {
+FeatureTrack.prototype.fetchSubfeatures = function(feature,
+                                                   featDiv,
+                                                   range,
+                                                   index) {
     // check if we've started loading the range already
     if ("toRender" in range) {
         // we're already working on it, just queue this subfeature index
@@ -414,7 +414,7 @@ SimpleFeatureTrack.prototype.fetchSubfeatures = function(feature,
     }
 };
 
-SimpleFeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature) {
+FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature) {
     var featStart = feature[this.fields["start"]];
     var subStart = subfeature[this.subFields["start"]];
     var subEnd = subfeature[this.subFields["end"]];

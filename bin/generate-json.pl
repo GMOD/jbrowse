@@ -103,7 +103,7 @@ foreach my $seg (@segs) {
 			'label' => $trackLabel,
 			'key' => $style{"key"},
 			'url' => "$outdir/{refseq}/$trackLabel/trackData.json",
-			'type' => "SimpleFeatureTrack",
+			'type' => "FeatureTrack",
 		       };
 		     return $trackList;
 		 });

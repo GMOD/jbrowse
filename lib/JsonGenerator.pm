@@ -228,7 +228,7 @@ sub generateTrack {
 	       'sublistIndex' => $sublistIndex,
 	       'headers' => \@curMapHeaders,
 	       'featureCount' => $#{$features} + 1,
-	       'type' => "SimpleFeatureTrack",
+	       'type' => "FeatureTrack",
 	       'className' => $style{"class"},
                'subfeatureClasses' => $style{"subfeature_classes"},
 	       'featureNCList' => $flatFeatures,
