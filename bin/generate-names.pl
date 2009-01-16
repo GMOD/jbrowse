@@ -17,7 +17,7 @@ use JSON;
 my %trackHash;
 my @trackList;
 
-my ($destDir, $rootFile);
+my $destDir = "names";
 my $thresh = 200;
 my $verbose = 0;
 GetOptions("dir=s" => \$destDir,
