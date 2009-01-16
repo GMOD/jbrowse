@@ -58,33 +58,32 @@ foreach my $seg (@segs) {
 
     mkdir("$outdir/$segName") unless (-d "$outdir/$segName");
 
-    my @track_labels;
+    my @tracks;
     if (defined $onlyLabel) {
-        @track_labels = ($onlyLabel);
+        @tracks = grep { $_->{"track"} == $onlyLabel } @{$config->{tracks}};
     } else {
-        @track_labels = keys %{$config->{tracks}};
+        @tracks = @{$config->{tracks}};
     }
 
-    foreach my $trackLabel (@track_labels) {
-        print "working on track $trackLabel\n";
-        my %style = ("key" => $trackLabel,
+    foreach my $track (@tracks) {
+        print "working on track " . $track->{"track"} . "\n";
+        my %style = ("key" => $track->{"track"},
                      %{$config->{"TRACK DEFAULTS"}},
-                     %{$config->{tracks}->{$trackLabel}});
+                     %{$track});
         print "style: " . Dumper(\%style) if ($verbose);
 
-        my @feature_types = @{$config->{tracks}->{$trackLabel}->{feature}};
+        my @feature_types = @{$track->{"feature"}};
         print "searching for features of type: " . join(", ", @feature_types) . "\n" if ($verbose);
         if ($#feature_types >= 0) {
             my @features = $seg->features(-type => \@feature_types);
 
-            print "got " . ($#features + 1) . " features for $trackLabel\n";
-            next unless @features > 0;
+            print "got " . ($#features + 1) . " features for " . $track->{"track"} . "\n";
+            next unless $#features >= 0;
 
             JsonGenerator::generateTrack(
-                $trackLabel, $segName,
-                "$outdir/$segName/$trackLabel",
+                $track->{"track"}, $segName,
+                "$outdir/$segName/" . $track->{"track"},
                 5000,
-                #"$outdir/$segName/$trackLabel.names",
                 \@features, \%style,
                 [], []
                 );
@@ -96,13 +95,15 @@ foreach my $seg (@segs) {
 		     my $trackList = shift;
 		     my $i;
 		     for ($i = 0; $i <= $#{$trackList}; $i++) {
-			 last if ($trackList->[$i]->{'label'} eq $trackLabel);
+			 last if ($trackList->[$i]->{'label'} eq $track->{"track"});
 		     }
 		     $trackList->[$i] =
 		       {
-			'label' => $trackLabel,
+			'label' => $track->{"track"},
 			'key' => $style{"key"},
-			'url' => "$outdir/{refseq}/$trackLabel/trackData.json",
+			'url' => "$outdir/{refseq}/"
+                                 . $track->{"track"}
+                                 . "/trackData.json",
 			'type' => "FeatureTrack",
 		       };
 		     return $trackList;
