@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <limits>
 using namespace std;
 
 #define PNG_DEBUG 3
