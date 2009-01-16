@@ -7,24 +7,22 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
 use Getopt::Long;
-use Bio::Graphics::Browser::Util;
 use JsonGenerator;
 
-my ($conf, $source, $gff, $refs, $refids);
+my ($confFile, $gff, $refs, $refids);
 my $outDir = "data";
 GetOptions("out=s" => \$outDir,
-           "conf=s" => \$conf,
-           "src=s" => \$source,
+           "conf=s" => \$confFile,
            "gff=s" => \$gff,
 	   "refs=s" => \$refs,
            "refids=s" => \$refids);
 
-if (!(defined($gff) || defined($conf))) {
+if (!(defined($gff) || defined($confFile))) {
     print <<HELP;
 USAGE:
        $0 [--out <output directory>] --gff <gff file describing refseqs>
    OR:
-       $0 [--out <output directory>] --conf <GBrowse config dir> --src <GBrowse config source> --refs <list of refseq names> --refids <list of refseq IDs>
+       $0 [--out <output directory>] --conf <JBrowse config file> --refs <list of refseq names> --refids <list of refseq IDs>
     <output directory>: defaults to "data"
 
     you can use a GFF file to describe the reference sequences, or you can use a GBrowse config file and a list of refseq names or a list of refseq IDs.  If you use a GFF file, it should contain ##sequence-region lines as described in the GFF specs.  If you use a GBrowse config file, you can either provide a (comma-separated) list of refseq names, or (if the names aren't globally unique) a list of refseq IDs.
@@ -60,10 +58,20 @@ if (defined($gff)) {
     }
     close GFF
       or die "couldn't close GFF file $gff: $!";
-} elsif (defined($conf)) {
-    my $browser = open_config($conf);
-    $browser->source($source) or die "ERROR: source $source not found (the choices are: " . join(", ", $browser->sources) . "\n";
-    my $db = open_database($browser);
+} elsif (defined($confFile)) {
+    my $config = JsonGenerator::readJSON($confFile, undef, 1);
+
+    eval "require $config->{db_adaptor}; 1" or die $@;
+
+    my $db = eval {$config->{db_adaptor}->new(%{$config->{db_args}})}
+        or warn $@;
+    die "Could not open database: $@" unless $db;
+
+    if (my $refclass = $config->{'reference class'}) {
+        eval {$db->default_class($refclass)};
+    }
+    $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
+    $db->absolute(1)               if $db->can('absolute');
 
     if (defined($refids)) {
         foreach my $refid (split ",", $refids) {

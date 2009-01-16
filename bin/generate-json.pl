@@ -7,7 +7,6 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
 use Getopt::Long;
-use Bio::Graphics::Browser::Util;
 use Data::Dumper;
 use JsonGenerator;
 
