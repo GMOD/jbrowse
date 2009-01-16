@@ -59,7 +59,7 @@ foreach my $seg (@segs) {
 
     my @tracks;
     if (defined $onlyLabel) {
-        @tracks = grep { $_->{"track"} == $onlyLabel } @{$config->{tracks}};
+        @tracks = grep { $_->{"track"} eq $onlyLabel } @{$config->{tracks}};
     } else {
         @tracks = @{$config->{tracks}};
     }
