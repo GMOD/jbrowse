@@ -116,7 +116,8 @@ public:
 
     void addValue(int base, float value) {
         //cerr << "zoom " << pixelBases_ << " addValue: base: " << base << ", value: " << value <<endl;
-        if ((long)base > ((long)(curTile_ + 1) * (long)tileWidthBases_)) {
+        if ((long long)base > 
+            ((long long)(curTile_ + 1) * (long long)tileWidthBases_)) {
             renderTile();
             curTile_ = base / tileWidthBases_;
             newTile();
@@ -218,8 +219,10 @@ public:
     }
   
     void processValue(int base, float value) {
-        int x = (((long)(base % tileWidthBases_) * (long)tileWidthPixels_)
-                 / tileWidthBases_);
+        //x is the x-pixel in the current tile onto which the given base falls.
+        int x = (((long long)(base % tileWidthBases_)
+                  * (long long)tileWidthPixels_)
+                 / (long long)tileWidthBases_);
         sumVals_[x] += value;
         valsPerPx_[x] += 1;
     }
