@@ -115,7 +115,7 @@ var Browser = function(containerID, refSeqs, trackData, dataRoot) {
 		brwsr.deferredFunctions[i]();
 	    brwsr.deferredFunctions = [];
         });
-}
+};
 
 Browser.prototype.onFineMove = function(startbp, endbp) {
     var length = this.view.ref.end - this.view.ref.start;
@@ -134,17 +134,17 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
             + "border-width: 0px";
     } else {
         locationTrapStyle =
-        "top: " + this.view.overviewBox.t + "px;"
-        + "height: " + this.view.overviewBox.h + "px;"
-        + "left: " + this.view.overviewBox.l + "px;"
-        + "width: " + (trapRight - trapLeft) + "px;"
-        + "border-width: " + "0px "
-        + (this.view.overviewBox.w - trapRight) + "px "
-        + this.view.locationTrapHeight + "px " + trapLeft + "px;";
+            "top: " + this.view.overviewBox.t + "px;"
+            + "height: " + this.view.overviewBox.h + "px;"
+            + "left: " + this.view.overviewBox.l + "px;"
+            + "width: " + (trapRight - trapLeft) + "px;"
+            + "border-width: " + "0px "
+            + (this.view.overviewBox.w - trapRight) + "px "
+            + this.view.locationTrapHeight + "px " + trapLeft + "px;";
     }
 
     this.locationTrap.style.cssText = locationTrapStyle;
-}
+};
 
 Browser.prototype.createTrackList = function(parent, trackList) {
     var leftPane = document.createElement("div");
@@ -162,7 +162,7 @@ Browser.prototype.createTrackList = function(parent, trackList) {
 
     var changeCallback = function() {
         brwsr.view.showVisibleBlocks(true);
-    }
+    };
 
     var trackListCreate = function(track, hint) {
         var node = document.createElement("div");
@@ -178,7 +178,7 @@ Browser.prototype.createTrackList = function(parent, trackList) {
         }
         node.id = dojo.dnd.getUniqueId();
         return {node: node, data: track, type: ["track"]};
-    }
+    };
     this.trackListWidget = new dojo.dnd.Source(trackListDiv,
                                                {creator: trackListCreate,
 						accept: ["track"],
@@ -195,7 +195,7 @@ Browser.prototype.createTrackList = function(parent, trackList) {
             node = brwsr.view.addTrack(new klass(track, url, brwsr.refSeq, {changeCallback: changeCallback, trackPadding: brwsr.view.trackPadding, baseUrl: brwsr.dataRoot}));
         }
         return {node: node, data: track, type: ["track"]};
-    }
+    };
     this.viewDndWidget = new dojo.dnd.Source(this.view.container,
                                        {
                                            creator: trackCreate,
@@ -218,30 +218,28 @@ Browser.prototype.createTrackList = function(parent, trackList) {
     if (oldTrackList) this.showTracks(oldTrackList);
 
     return trackListDiv;
-}
+};
 
 Browser.prototype.addTracks = function(trackList, show) {
     if (!this.isInitialized) {
         var brwsr = this;
-        this.deferredFunctions.push(function() {
-                brwsr.addTracks(trackList, show);
-                    });
+        this.deferredFunctions.push(
+            function() {brwsr.addTracks(trackList, show); }
+        );
 	return;
     }
 
     this.tracks.concat(trackList);
     if (show || (show === undefined)) {
         this.showTracks(dojo.map(trackList,
-                                 function(t) {return t.label}).join(","));
+                                 function(t) {return t.label;}).join(","));
     }
-}
+};
 
 Browser.prototype.navigateTo = function(loc) {
     if (!this.isInitialized) {
         var brwsr = this;
-        this.deferredFunctions.push(function() {
-                brwsr.navigateTo(loc);
-                    });
+        this.deferredFunctions.push(function() { brwsr.navigateTo(loc); });
 	return;
     }
 
@@ -325,14 +323,14 @@ Browser.prototype.navigateTo = function(loc) {
 			     + ".." + (endbp + flank));
 	    brwsr.showTracks(brwsr.names.extra[nameMatches[0][0]]);
 	});
-}
+};
 
 Browser.prototype.showTracks = function(trackNameList) {
     if (!this.isInitialized) {
         var brwsr = this;
-        this.deferredFunctions.push(function() {
-                brwsr.showTracks(trackNameList);
-                    });
+        this.deferredFunctions.push(
+            function() { brwsr.showTracks(trackNameList); }
+        );
 	return;
     }
 
@@ -353,7 +351,7 @@ Browser.prototype.showTracks = function(trackNameList) {
         movedNode = dojo.byId(removeFromList[i]);
         movedNode.parentNode.removeChild(movedNode);
     }
-}
+};
 
 Browser.prototype.onCoarseMove = function(startbp, endbp) {
     var length = this.view.ref.end - this.view.ref.start;
@@ -382,7 +380,7 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
                 {expires: 60});
 
     document.title = this.refSeq.name + ":" + locString;
-}
+};
 
 Browser.prototype.createNavBox = function(parent, locLength) {
     var brwsr = this;
@@ -395,20 +393,22 @@ Browser.prototype.createNavBox = function(parent, locLength) {
     moveLeft.appendChild(document.createTextNode("<<"));
     moveLeft.id = "moveLeft";
     moveLeft.className = "nav";
-    dojo.connect(moveLeft, "click", function(event) {
-            dojo.stopEvent(event);
-            brwsr.view.slide(0.9)
-        });
+    dojo.connect(moveLeft, "click",
+                 function(event) {
+                     dojo.stopEvent(event);
+                     brwsr.view.slide(0.9);
+                 });
     navbox.appendChild(moveLeft);
 
     var moveRight = document.createElement("button");
     moveRight.appendChild(document.createTextNode(">>"));
     moveRight.id="moveRight";
     moveRight.className = "nav";
-    dojo.connect(moveRight, "click", function(event) {
-            dojo.stopEvent(event);
-            brwsr.view.slide(-0.9)
-        });
+    dojo.connect(moveRight, "click",
+                 function(event) {
+                     dojo.stopEvent(event);
+                     brwsr.view.slide(-0.9);
+                 });
     navbox.appendChild(moveRight);
 
     navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
@@ -417,30 +417,33 @@ Browser.prototype.createNavBox = function(parent, locLength) {
     bigZoomIn.appendChild(document.createTextNode("++"));
     bigZoomIn.id="bigZoomIn";
     bigZoomIn.className = "nav";
-    dojo.connect(bigZoomIn, "click", function(event) {
-            dojo.stopEvent(event);
-            brwsr.view.zoomIn(undefined, undefined, 2);
-        });
+    dojo.connect(bigZoomIn, "click",
+                 function(event) {
+                     dojo.stopEvent(event);
+                     brwsr.view.zoomIn(undefined, undefined, 2);
+                 });
     navbox.appendChild(bigZoomIn);
 
     var zoomIn = document.createElement("button");
     zoomIn.appendChild(document.createTextNode("+"));
     zoomIn.id="zoomIn";
     zoomIn.className = "nav";
-    dojo.connect(zoomIn, "click", function(event) {
-            dojo.stopEvent(event);
-            brwsr.view.zoomIn();
-        });
+    dojo.connect(zoomIn, "click",
+                 function(event) {
+                     dojo.stopEvent(event);
+                     brwsr.view.zoomIn();
+                 });
     navbox.appendChild(zoomIn);
 
     var zoomOut = document.createElement("button");
     zoomOut.appendChild(document.createTextNode("-"));
     zoomOut.id="zoomOut";
     zoomOut.className = "nav";
-    dojo.connect(zoomOut, "click", function(event) {
-            dojo.stopEvent(event);
-            brwsr.view.zoomOut();
-        });
+    dojo.connect(zoomOut, "click",
+                 function(event) {
+                     dojo.stopEvent(event);
+                     brwsr.view.zoomOut();
+                 });
     navbox.appendChild(zoomOut);
 
     var bigZoomOut = document.createElement("button");
@@ -448,10 +451,11 @@ Browser.prototype.createNavBox = function(parent, locLength) {
     bigZoomOut.id="bigZoomOut";
     bigZoomOut.className = "nav";
     navbox.appendChild(bigZoomOut);
-    dojo.connect(bigZoomOut, "click", function(event) {
-            dojo.stopEvent(event);
-            brwsr.view.zoomOut(undefined, undefined, 2);
-        });
+    dojo.connect(bigZoomOut, "click",
+                 function(event) {
+                     dojo.stopEvent(event);
+                     brwsr.view.zoomOut(undefined, undefined, 2);
+                 });
 
     navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
     this.chromList = document.createElement("select");
@@ -481,7 +485,7 @@ Browser.prototype.createNavBox = function(parent, locLength) {
     navbox.appendChild(this.goButton);
 
     return navbox;
-}
+};
 
 /*
 
