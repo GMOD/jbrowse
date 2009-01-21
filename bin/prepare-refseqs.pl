@@ -25,7 +25,7 @@ USAGE:
        $0 [--out <output directory>] --conf <JBrowse config file> --refs <list of refseq names> --refids <list of refseq IDs>
     <output directory>: defaults to "data"
 
-    you can use a GFF file to describe the reference sequences, or you can use a GBrowse config file and a list of refseq names or a list of refseq IDs.  If you use a GFF file, it should contain ##sequence-region lines as described in the GFF specs.  If you use a GBrowse config file, you can either provide a (comma-separated) list of refseq names, or (if the names aren't globally unique) a list of refseq IDs.
+    you can use a GFF file to describe the reference sequences, or you can use a JBrowse config file and a list of refseq names or a list of refseq IDs.  If you use a GFF file, it should contain ##sequence-region lines as described in the GFF specs.  If you use a JBrowse config file, you can either provide a (comma-separated) list of refseq names, or (if the names aren't globally unique) a list of refseq IDs.
 HELP
 exit;
 }
