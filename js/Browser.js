@@ -35,7 +35,7 @@ var Browser = function(containerID, refSeqs, trackData, dataRoot) {
             topPane.appendChild(overview);
             //try to come up with a good estimate of how big the location box
             //actually has to be
-            var maxBase = refSeqs.reduce(function(a,b) {return a.end > b.end ? a : b}).end;
+            var maxBase = refSeqs.reduce(function(a,b) {return a.end > b.end ? a : b;}).end;
             var navbox = brwsr.createNavBox(topPane, (2 * (String(maxBase).length + (((String(maxBase).length / 3) | 0) / 2))) + 2);
 
             var viewElem = document.createElement("div");
@@ -62,14 +62,6 @@ var Browser = function(containerID, refSeqs, trackData, dataRoot) {
                     brwsr.chromList.selectedIndex = i;
                 }
             }
-
-            var oldLocMap = dojo.fromJson(dojo.cookie(brwsr.container.id + "-location")) || {};
-            var basePos = (oldLocMap[brwsr.refSeq.name]
-                           || ((((brwsr.refSeq.start + brwsr.refSeq.end) * 0.4) | 0)
-                               + " .. "
-                               + (((brwsr.refSeq.start + brwsr.refSeq.end) * 0.6) | 0)));
-
-            brwsr.navigateTo(brwsr.refSeq.name + ":" + basePos);
 
             dojo.connect(brwsr.chromList, "onchange", function(event) {
                     var oldLocMap = dojo.fromJson(dojo.cookie(brwsr.container.id + "-location")) || {};
@@ -102,12 +94,20 @@ var Browser = function(containerID, refSeqs, trackData, dataRoot) {
 
             dojo.connect(gv, "onFineMove", brwsr, "onFineMove");
             dojo.connect(gv, "onCoarseMove", brwsr, "onCoarseMove");
-            
+
             var trackListDiv = brwsr.createTrackList(brwsr.container,
                                                      trackData);
             containerWidget.startup();
 
 	    brwsr.isInitialized = true;
+
+            var oldLocMap = dojo.fromJson(dojo.cookie(brwsr.container.id + "-location")) || {};
+            var basePos = (oldLocMap[brwsr.refSeq.name]
+                           || ((((brwsr.refSeq.start + brwsr.refSeq.end) * 0.4) | 0)
+                               + " .. "
+                               + (((brwsr.refSeq.start + brwsr.refSeq.end) * 0.6) | 0)));
+            brwsr.navigateTo(brwsr.refSeq.name + ":" + basePos);
+
 	    //if someone calls methods on this browser object
 	    //before it's fully initialized, then we defer
 	    //those functions until now
@@ -196,7 +196,7 @@ Browser.prototype.createTrackList = function(parent, trackList) {
         }
         return {node: node, data: track, type: ["track"]};
     }
-    this.viewDndWidget = new dojo.dnd.Source(this.view.container, 
+    this.viewDndWidget = new dojo.dnd.Source(this.view.container,
                                        {
                                            creator: trackCreate,
                                            accept: ["track"],
@@ -223,7 +223,7 @@ Browser.prototype.createTrackList = function(parent, trackList) {
 Browser.prototype.addTracks = function(trackList, show) {
     if (!this.isInitialized) {
         var brwsr = this;
-        this.deferredFunctions.push(function() { 
+        this.deferredFunctions.push(function() {
                 brwsr.addTracks(trackList, show);
                     });
 	return;
@@ -231,7 +231,7 @@ Browser.prototype.addTracks = function(trackList, show) {
 
     this.tracks.concat(trackList);
     if (show || (show === undefined)) {
-        this.showTracks(dojo.map(trackList, 
+        this.showTracks(dojo.map(trackList,
                                  function(t) {return t.label}).join(","));
     }
 }
@@ -239,7 +239,7 @@ Browser.prototype.addTracks = function(trackList, show) {
 Browser.prototype.navigateTo = function(loc) {
     if (!this.isInitialized) {
         var brwsr = this;
-        this.deferredFunctions.push(function() { 
+        this.deferredFunctions.push(function() {
                 brwsr.navigateTo(loc);
                     });
 	return;
@@ -310,7 +310,7 @@ Browser.prototype.navigateTo = function(loc) {
 	    //if no exact case match, try a case-insentitive match
             if (!goingTo) {
                 for (var i = 0; i < nameMatches.length; i++) {
-                    if (nameMatches[i][1].toLowerCase() == loc.toLowerCase()) 
+                    if (nameMatches[i][1].toLowerCase() == loc.toLowerCase())
                         goingTo = nameMatches[i];
                 }
             }
@@ -324,18 +324,18 @@ Browser.prototype.navigateTo = function(loc) {
 			     + ":" + (startbp - flank)
 			     + ".." + (endbp + flank));
 	    brwsr.showTracks(brwsr.names.extra[nameMatches[0][0]]);
-	});		    
+	});
 }
 
 Browser.prototype.showTracks = function(trackNameList) {
     if (!this.isInitialized) {
         var brwsr = this;
-        this.deferredFunctions.push(function() { 
+        this.deferredFunctions.push(function() {
                 brwsr.showTracks(trackNameList);
                     });
 	return;
     }
-        
+
     var trackNames = trackNameList.split(",");
     var removeFromList = [];
     var brwsr = this;
@@ -368,6 +368,9 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     + "width: " + (trapRight - trapLeft) + "px;"
     + "z-index: 20";
 
+    //since this method gets triggered by the initial GenomeView.sizeInit,
+    //we don't want to save whatever location we happen to start at
+    if (! this.isInitialized) return;
     var locString = Util.addCommas(Math.round(startbp)) + " .. " + Util.addCommas(Math.round(endbp));
     this.location.value = locString;
     this.goButton.disabled = true;
