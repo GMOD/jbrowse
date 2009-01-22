@@ -85,8 +85,7 @@ div.track {
 div#static_track {
     top: 0px;
     position: absolute;
-    cursor: pointer;
-    background-color: #f5f5f5;
+    background-color: #f0f0f0;
     z-index: 20;
 }
 
