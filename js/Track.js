@@ -28,7 +28,7 @@ Track.prototype.initBlocks = function() {
     this.blocks = new Array(this.numBlocks);
     this.blockAttached = new Array(this.numBlocks);
     this.blockHeights = new Array(this.numBlocks);
-    for (i = 0; i < this.numBlocks; i++) {
+    for (var i = 0; i < this.numBlocks; i++) {
 	this.blockAttached[i] = false;
 	this.blockHeights[i] = 0;
     }
@@ -194,6 +194,7 @@ Track.prototype.moveBlocks = function(delta) {
     var newBlocks = new Array(this.numBlocks);
     var newHeights = new Array(this.numBlocks);
     var newAttached = new Array(this.numBlocks);
+    var i;
     for (i = 0; i < this.numBlocks; i++) {
 	newAttached[i] = false;
 	newHeights[i] = 0;
@@ -216,7 +217,7 @@ Track.prototype.moveBlocks = function(delta) {
             destBlock = newBlocks[this.lastAttached];
     }
 
-    for (var i = 0; i < this.numBlocks; i++) {
+    for (i = 0; i < this.numBlocks; i++) {
         var newIndex = i + delta;
         if ((newIndex < 0) || (newIndex >= this.numBlocks)) {
             //We're not keeping this block around, so delete
