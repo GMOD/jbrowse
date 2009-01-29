@@ -22,7 +22,7 @@ Track.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
     this.sizeInit(numBlocks, widthPct);
     this.labelHTML = "";
     this.labelHeight = 0;
-}    
+};
 
 Track.prototype.initBlocks = function() {
     this.blocks = new Array(this.numBlocks);
@@ -36,14 +36,14 @@ Track.prototype.initBlocks = function() {
     this.lastAttached = null;
     this._adjustBlanks();
     //if (this.div) this.div.style.backgroundColor = "#eee";
-}
+};
 
 Track.prototype.clear = function() {
     if (this.blocks)
 	for (var i = 0; i < this.numBlocks; i++)
 	    if (this.blockAttached[i]) this.div.removeChild(this.blocks[i]);
     this.initBlocks();
-}
+};
 
 Track.prototype.setLabel = function(newHTML) {
     if (this.label === undefined) return;
@@ -54,7 +54,7 @@ Track.prototype.setLabel = function(newHTML) {
     this.labelHTML = newHTML;
     this.label.innerHTML = newHTML;
     this.labelHeight = this.label.offsetHeight;
-}
+};
 
 Track.prototype.transfer = function() {};
 
@@ -62,7 +62,7 @@ Track.prototype.startZoom = function(destScale, destStart, destEnd) {};
 Track.prototype.endZoom = function(destScale, destBlockBases) {};
 
 Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) {
-    if (this.blocks === undefined) return;
+    if (this.blocks === undefined) return 0;
     //if (null == this.firstAttached) this.div.style.backgroundColor = "";
     var firstAttached = (null == this.firstAttached ? last + 1 : this.firstAttached);
     var lastAttached =  (null == this.lastAttached ? first - 1 : this.lastAttached);
@@ -73,7 +73,7 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
     for (i = lastAttached; i >= first; i--) {
 	leftBase = startBase + (bpPerBlock * (i - first));
         maxHeight = Math.max(maxHeight,
-                             this._showBlock(i, leftBase, 
+                             this._showBlock(i, leftBase,
 					     leftBase + bpPerBlock, scale));
     }
     //fill right
@@ -101,7 +101,7 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
     this.lastAttached = last;
     this._adjustBlanks();
     return Math.max(maxHeight, this.labelHeight ? this.labelHeight : 0);// + this.trackPadding;
-}
+};
 
 Track.prototype._hideBlock = function(blockIndex) {
     if (this.blocks[blockIndex] && this.blockAttached[blockIndex]) {
@@ -110,10 +110,10 @@ Track.prototype._hideBlock = function(blockIndex) {
         //this.blocks[blockIndex].style.display = "none";
 	this.blockAttached[blockIndex] = false;
     }
-}
+};
 
 Track.prototype._adjustBlanks = function() {
-    if ((this.firstAttached === null) 
+    if ((this.firstAttached === null)
 	|| (this.lastAttached === null)) {
 	this.leftBlank.style.left = "0px";
 	this.leftBlank.style.width = "50%";
@@ -126,31 +126,31 @@ Track.prototype._adjustBlanks = function() {
 	this.rightBlank.style.width = ((this.numBlocks - this.lastAttached - 1)
 				       * this.widthPct) + "%";
     }
-}
+};
 
 Track.prototype.hideAll = function() {
     if (null == this.firstAttached) return;
     for (var i = this.firstAttached; i <= this.lastAttached; i++)
 	this._hideBlock(i);
 
-    
+
     this.firstAttached = null;
     this.lastAttached = null;
     this._adjustBlanks();
     //this.div.style.backgroundColor = "#eee";
-}
+};
 
 Track.prototype.setLoaded = function() {
     this.loaded = true;
     this.hideAll();
     this.changed();
-}
+};
 
 Track.prototype._loadingBlock = function(blockDiv) {
     blockDiv.appendChild(document.createTextNode("Loading..."));
     blockDiv.style.backgroundColor = "#eee";
     return 50;
-}
+};
 
 Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
     if (this.blockAttached[blockIndex]) return this.blockHeights[blockIndex];
@@ -172,11 +172,11 @@ Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
     blockDiv.startBase = startBase;
     blockDiv.endBase = endBase;
     if (this.loaded) {
-	blockHeight = this.fillBlock(blockDiv, 
+	blockHeight = this.fillBlock(blockDiv,
 				     this.blocks[blockIndex - 1],
 				     this.blocks[blockIndex + 1],
 				     startBase,
-				     endBase, 
+				     endBase,
 				     scale,
 				     this.widthPx);
     } else {
@@ -188,7 +188,7 @@ Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
     this.blockHeights[blockIndex] = blockHeight;
     this.div.appendChild(blockDiv);
     return blockHeight;
-}
+};
 
 Track.prototype.moveBlocks = function(delta) {
     var newBlocks = new Array(this.numBlocks);
@@ -227,8 +227,8 @@ Track.prototype.moveBlocks = function(delta) {
         } else {
             //move block
             newBlocks[newIndex] = this.blocks[i];
-            if (newBlocks[newIndex]) 
-		newBlocks[newIndex].style.left = 
+            if (newBlocks[newIndex])
+		newBlocks[newIndex].style.left =
 		    ((newIndex) * this.widthPct) + "%";
 
 	    newHeights[newIndex] = this.blockHeights[i];
@@ -239,7 +239,7 @@ Track.prototype.moveBlocks = function(delta) {
     this.blockHeights = newHeights;
     this.blockAttached = newAttached;
     this._adjustBlanks();
-}
+};
 
 Track.prototype.heightUpdate = function() {
     var maxHeight = 0;
@@ -249,7 +249,7 @@ Track.prototype.heightUpdate = function() {
     //this.div.style.height = (maxHeight + this.trackPadding) + "px";
     //this.div.style.top = top + "px";
     return maxHeight;// + this.trackPadding;
-}
+};
 
 Track.prototype.sizeInit = function(numBlocks, widthPct) {
     var i, oldLast;
@@ -273,7 +273,7 @@ Track.prototype.sizeInit = function(numBlocks, widthPct) {
             this.firstAttached = null;
             this.lastAttached = null;
         }
-            
+
         if (this.blocks.length != numBlocks) throw new Error("block number mismatch: should be " + numBlocks + "; blocks.length: " + this.blocks.length);
         for (i = 0; i < numBlocks; i++) {
             if (this.blocks[i]) {
@@ -285,7 +285,7 @@ Track.prototype.sizeInit = function(numBlocks, widthPct) {
     } else {
 	this.initBlocks();
     }
-}
+};
 
 /*
 
