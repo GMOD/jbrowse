@@ -1,12 +1,12 @@
 function ImageTrack(trackMeta, url, refSeq, browserParams) {
     Track.call(this, trackMeta.label, trackMeta.key,
                false, browserParams.changeCallback);
-    this.refSeq = refSeq
+    this.refSeq = refSeq;
     this.tileToImage = {};
     this.zoomCache = {};
     this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "");
     var curTrack = this;
-    dojo.xhrGet({url: this.baseUrl + url, 
+    dojo.xhrGet({url: this.baseUrl + url,
 		 handleAs: "json",
 		 load: function(o) { curTrack.loadSuccess(o); }
 	});
@@ -20,13 +20,13 @@ ImageTrack.prototype.loadSuccess = function(o) {
     //zoomLevels: array of {basesPerTile, scale, height, urlPrefix} hashes
     this.zoomLevels = o.zoomLevels;
     this.setLoaded();
-}
+};
 
 ImageTrack.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
                                             widthPct, widthPx) {
     Track.prototype.setViewInfo.apply(this, [numBlocks, trackDiv, labelDiv, widthPct, widthPx]);
     this.setLabel(this.key);
-}
+};
 
 ImageTrack.prototype.getZoom = function(scale) {
     var result = this.zoomCache[scale];
@@ -42,7 +42,7 @@ ImageTrack.prototype.getZoom = function(scale) {
 
     this.zoomCache[scale] = result;
     return result;
-}
+};
 
 ImageTrack.prototype.getImages = function(zoom, startBase, endBase) {
     //var startTile = ((startBase - this.refSeq.start) / zoom.basesPerTile) | 0;
@@ -68,7 +68,7 @@ ImageTrack.prototype.getImages = function(zoom, startBase, endBase) {
 	result.push(im);
     }
     return result;
-}
+};
 
 ImageTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth) {
     var zoom = this.getZoom(scale);
@@ -85,21 +85,21 @@ ImageTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase
     }
 
     return zoom.height;
-}
+};
 
 ImageTrack.prototype.startZoom = function(destScale, destStart, destEnd) {
     this.tileToImage = {};
     this.getImages(this.getZoom(destScale), destStart, destEnd);
-}
+};
 
 ImageTrack.prototype.endZoom = function(destScale, destBlockBases) {
     Track.prototype.clear.apply(this);
-}
+};
 
 ImageTrack.prototype.clear = function() {
     Track.prototype.clear.apply(this);
     this.tileToImage = {};
-}
+};
 
 ImageTrack.prototype.transfer = function(sourceBlock, destBlock) {
     if (!(sourceBlock && destBlock)) return;
@@ -122,7 +122,7 @@ ImageTrack.prototype.transfer = function(sourceBlock, destBlock) {
 	    }
 	}
     }
-}
+};
 
 /*
 
