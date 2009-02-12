@@ -463,6 +463,10 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
     }
     this.pxPerBp = Math.min(this.dim.width / (endbp - startbp), this.charWidth);
     this.curZoom = Util.findNearest(this.zoomLevels, this.pxPerBp);
+    if (Math.abs(this.pxPerBp - this.zoomLevels[this.zoomLevels.length - 1]) < 0.2) {
+        console.log("nudging zoom level from %d to %d", this.pxPerBp, this.zoomLevels[this.zoomLevels.length - 1]);
+        this.pxPerBp = this.zoomLevels[this.zoomLevels.length - 1];
+    }
     this.stripeWidth = (this.stripeWidthForZoom(this.curZoom) / this.zoomLevels[this.curZoom]) * this.pxPerBp;
     this.instantZoomUpdate();
 
