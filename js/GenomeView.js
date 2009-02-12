@@ -464,6 +464,11 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
     this.pxPerBp = Math.min(this.dim.width / (endbp - startbp), this.charWidth);
     this.curZoom = Util.findNearest(this.zoomLevels, this.pxPerBp);
     if (Math.abs(this.pxPerBp - this.zoomLevels[this.zoomLevels.length - 1]) < 0.2) {
+        //the cookie-saved location is in round bases, so if the saved
+        //location was at the highest zoom level, the new zoom level probably
+        //won't be exactly at the highest zoom (which is necessary to trigger
+        //the sequence track), so we nudge the zoom level to be exactly at
+        //the highest level if it's close
         console.log("nudging zoom level from %d to %d", this.pxPerBp, this.zoomLevels[this.zoomLevels.length - 1]);
         this.pxPerBp = this.zoomLevels[this.zoomLevels.length - 1];
     }
