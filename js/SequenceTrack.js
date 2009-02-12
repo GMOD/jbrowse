@@ -108,7 +108,7 @@ SequenceTrack.prototype.getRange = function(start, end, callback) {
             };
             this.chunks[i] = chunk;
             dojo.xhrGet({
-                            url: this.baseUrl + "/" + i + ".txt",
+                            url: this.baseUrl + i + ".txt",
                             load: function (response) {
                                 var ci;
                                 chunk.sequence = response;

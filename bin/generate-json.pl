@@ -18,6 +18,7 @@ GetOptions("conf=s" => \$confFile,
 	   "track=s" => \$onlyLabel,
 	   "out=s" => \$outdir,
            "v+" => \$verbose);
+my $trackDir = "$outdir/tracks";
 
 my $config = JsonGenerator::readJSON($confFile, undef, 1);
 
@@ -48,6 +49,7 @@ if (defined $refid) {
 }
 
 mkdir($outdir) unless (-d $outdir);
+mkdir($trackDir) unless (-d $trackDir);
 
 foreach my $seg (@segs) {
     my $segName = $seg->name;
@@ -55,7 +57,7 @@ foreach my $seg (@segs) {
     $segName =~ s/:.*$//; #get rid of coords if any
     print "\nworking on refseq $segName\n";
 
-    mkdir("$outdir/$segName") unless (-d "$outdir/$segName");
+    mkdir("$trackDir/$segName") unless (-d "$trackDir/$segName");
 
     my @tracks;
     if (defined $onlyLabel) {
@@ -81,7 +83,7 @@ foreach my $seg (@segs) {
 
             JsonGenerator::generateTrack(
                 $track->{"track"}, $segName,
-                "$outdir/$segName/" . $track->{"track"},
+                "$trackDir/$segName/" . $track->{"track"},
                 5000,
                 \@features, \%style,
                 [], []
@@ -100,7 +102,7 @@ foreach my $seg (@segs) {
 		       {
 			'label' => $track->{"track"},
 			'key' => $style{"key"},
-			'url' => "$outdir/{refseq}/"
+			'url' => "$trackDir/{refseq}/"
                                  . $track->{"track"}
                                  . "/trackData.json",
 			'type' => "FeatureTrack",

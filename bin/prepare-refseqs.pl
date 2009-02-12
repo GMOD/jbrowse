@@ -11,9 +11,9 @@ use Getopt::Long;
 use JsonGenerator;
 
 my $chunkSize = 20000;
-my ($confFile, $noSeq, $gff, $refs, $refids);
+my ($confFile, $noSeq, $seqDir, $gff, $refs, $refids);
 my $outDir = "data";
-my $seqDir = "seq";
+my $seqTrackName = "DNA";
 GetOptions("out=s" => \$outDir,
            "conf=s" => \$confFile,
            "noseq" => \$noSeq,
@@ -21,6 +21,7 @@ GetOptions("out=s" => \$outDir,
            "gff=s" => \$gff,
 	   "refs=s" => \$refs,
            "refids=s" => \$refids);
+$seqDir = "$outDir/seq" unless defined $seqDir;
 
 if (!(defined($gff) || defined($confFile))) {
     print <<HELP;
@@ -29,7 +30,7 @@ USAGE:
    OR:
        $0 [--out <output directory>] [--noseq] [--seqdir <sequence data directory>] --conf <JBrowse config file> --refs <list of refseq names> --refids <list of refseq IDs>
     <output directory>: defaults to "data"
-    <sequence data directory>: chunks of sequence go here; defaults to "seq"
+    <sequence data directory>: chunks of sequence go here; defaults to "<output directory>/seq"
 
     --noseq: do not prepare sequence data for the client.
 
@@ -168,7 +169,28 @@ die "found no ref seqs" if ($#refSeqs < 0);
 
 JsonGenerator::modifyJSFile("$outDir/refSeqs.js", "refSeqs",
                             sub { return \@refSeqs});
-#JsonGenerator::writeJSON("$outDir/refSeqs.json", \@refSeqs);
+
+unless ($noSeq) {
+    JsonGenerator::modifyJSFile("$outDir/trackInfo.js", "trackInfo",
+                                sub {
+                                    my $trackList = shift;
+                                    my $i;
+                                    for ($i = 0; $i <= $#{$trackList}; $i++) {
+                                        last if ($trackList->[$i]->{'label'}
+                                                 eq
+                                                 $seqTrackName);
+                                    }
+                                    $trackList->[$i] =
+                                      {
+                                       'label' => $seqTrackName,
+                                       'key' => $seqTrackName,
+                                       'url' => "$seqDir/{refseq}/",
+                                       'type' => "SequenceTrack",
+                                       'args' => {'chunkSize' => $chunkSize}
+                                      };
+                                    return $trackList;
+                            });
+}
 
 =head1 AUTHOR
 
