@@ -6,7 +6,7 @@ function Track(name, key, loaded, changeCallback) {
 }
 
 Track.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
-                                       widthPct, widthPx) {
+                                       widthPct, widthPx, scale) {
     this.div = trackDiv;
     this.label = labelDiv;
     this.widthPct = widthPct;

@@ -17,7 +17,7 @@ my $seqDir = "seq";
 GetOptions("out=s" => \$outDir,
            "conf=s" => \$confFile,
            "noseq" => \$noSeq,
-           "seqdir" => \$seqDir,
+           "seqdir=s" => \$seqDir,
            "gff=s" => \$gff,
 	   "refs=s" => \$refs,
            "refids=s" => \$refids);
@@ -140,6 +140,7 @@ sub exportSeqChunks {
 
     mkdir($dir) unless (-d $dir);
     $start = 1 if ($start < 1);
+    $db->absolute(1)               if $db->can('absolute');
 
     my $chunkStart = $start;
     while ($chunkStart <= $end) {

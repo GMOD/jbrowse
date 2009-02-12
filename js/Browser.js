@@ -192,7 +192,15 @@ Browser.prototype.createTrackList = function(parent, trackList) {
             var replaceData = {refseq: brwsr.refSeq.name};
             var url = track.url.replace(/\{([^}]+)\}/g, function(match, group) {return replaceData[group];});
             var klass = eval(track.type);
-            node = brwsr.view.addTrack(new klass(track, url, brwsr.refSeq, {changeCallback: changeCallback, trackPadding: brwsr.view.trackPadding, baseUrl: brwsr.dataRoot}));
+            var newTrack = new klass(track, url, brwsr.refSeq,
+                                     {
+                                         changeCallback: changeCallback,
+                                         trackPadding: brwsr.view.trackPadding,
+                                         baseUrl: brwsr.dataRoot,
+                                         charWidth: brwsr.view.charWidth,
+                                         seqHeight: brwsr.view.seqHeight
+                                     });
+            node = brwsr.view.addTrack(newTrack);
         }
         return {node: node, data: track, type: ["track"]};
     };

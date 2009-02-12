@@ -23,8 +23,9 @@ ImageTrack.prototype.loadSuccess = function(o) {
 };
 
 ImageTrack.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
-                                            widthPct, widthPx) {
-    Track.prototype.setViewInfo.apply(this, [numBlocks, trackDiv, labelDiv, widthPct, widthPx]);
+                                            widthPct, widthPx, scale) {
+    Track.prototype.setViewInfo.apply(this, [numBlocks, trackDiv, labelDiv,
+                                             widthPct, widthPx, scale]);
     this.setLabel(this.key);
 };
 

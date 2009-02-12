@@ -25,7 +25,7 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
 
     this.trackMeta = trackMeta;
     var curTrack = this;
-    dojo.xhrGet({url: curTrack.baseUrl + url, 
+    dojo.xhrGet({url: curTrack.baseUrl + url,
 		 handleAs: "json",
 		 load: function(o) { curTrack.loadSuccess(o); }
 	});
@@ -52,7 +52,7 @@ FeatureTrack.prototype.loadSuccess = function(o) {
     this.subfeatureScale = 80 * (trackInfo.featureCount / this.refSeq.length);
     this.className = trackInfo.className;
     this.subfeatureClasses = trackInfo.subfeatureClasses;
-    
+
     //console.log((new Date().getTime() - startTime) / 1000);
 
     var fields = this.fields;
@@ -71,9 +71,9 @@ FeatureTrack.prototype.loadSuccess = function(o) {
 
 FeatureTrack.prototype.setViewInfo = function(numBlocks, trackDiv,
                                               labelDiv, widthPct,
-                                              widthPx) {
+                                              widthPx, scale) {
     Track.prototype.setViewInfo.apply(this, [numBlocks, trackDiv, labelDiv,
-                                             widthPct, widthPx]);
+                                             widthPct, widthPx, scale]);
     this.setLabel(this.key);
 };
 
@@ -88,7 +88,7 @@ FeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
     for (var bin = 0; bin < this.numBins; bin++) {
         binDiv = document.createElement("div");
 	binDiv.className = this.className + "-hist";;
-        binDiv.style.cssText = 
+        binDiv.style.cssText =
             "left: " + ((bin / this.numBins) * 100) + "%; "
             + "height: " + (2 * hist[bin]) + "px;"
 	    + "bottom: " + this.trackPadding + "px;"
@@ -114,7 +114,7 @@ FeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBa
     if (scale < this.histScale) {
 	return this.fillHist(block, leftBase, rightBase, stripeWidth);
     } else {
-	return this.fillFeatures(block, leftBlock, rightBlock, 
+	return this.fillFeatures(block, leftBlock, rightBlock,
 				 leftBase, rightBase, scale);
     }
 };
@@ -156,10 +156,10 @@ FeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
 		}
 	    }
 	}
-    }	    
+    }
 };
 
-FeatureTrack.prototype.fillFeatures = function(block, 
+FeatureTrack.prototype.fillFeatures = function(block,
                                                leftBlock, rightBlock,
                                                leftBase, rightBase,
                                                scale) {
@@ -210,7 +210,7 @@ FeatureTrack.prototype.fillFeatures = function(block,
 	this.glyphHeight = Math.round(heightTest.offsetHeight + 2);
 	this.padding += heightTest.offsetWidth;
 	document.body.removeChild(heightTest);
-    }	
+    }
 
     startSlots = new Array();
     if (leftBlock && leftBlock.rightSlots) {
@@ -247,7 +247,7 @@ FeatureTrack.prototype.fillFeatures = function(block,
 	//including its label if applicable
 	var featureEnd = feature[end];
 	if (scale > labelScale)
-	    featureEnd = Math.max(featureEnd, 
+	    featureEnd = Math.max(featureEnd,
 				  feature[start] + (((name && feature[name])
 						     ? feature[name].length : 0)
 						    * basesPerLabelChar));
@@ -307,7 +307,7 @@ FeatureTrack.prototype.fillFeatures = function(block,
 
 	if (!startSlots[level]) startSlots[level] = featDiv;
 
-        featDiv.style.cssText = 
+        featDiv.style.cssText =
             "left: " + (100 * (feature[start] - leftBase) / blockWidth) + "%; "
             + "top: " + (level * levelHeight) + levelUnits + ";"
             + " width: " + (100 * ((feature[end] - feature[start]) / blockWidth)) + "%;";
@@ -316,7 +316,7 @@ FeatureTrack.prototype.fillFeatures = function(block,
             var labelDiv = document.createElement("div");
             labelDiv.className = "feature-label";
             labelDiv.appendChild(document.createTextNode(feature[name]));
-            labelDiv.style.cssText = 
+            labelDiv.style.cssText =
                 "left: " + (100 * (feature[start] - leftBase) / blockWidth) + "%; "
                 + "top: " + ((level * levelHeight) + glyphHeight) + levelUnits + ";";
 	    featDiv.label = labelDiv;
@@ -324,7 +324,7 @@ FeatureTrack.prototype.fillFeatures = function(block,
 	    labelDiv.onclick = callback;
             block.appendChild(labelDiv);
         }
-        
+
         if (subfeatures
             && (scale > subfeatureScale)
             && feature[subfeatures]
@@ -367,7 +367,7 @@ FeatureTrack.prototype.handleSubfeatures = function(feature,
                 // we've found the right range, check to see if it's loaded
                 if ("data" in this.rangeMap[j]) {
                     // it's loaded, render it
-                    this.renderSubfeature(feature, 
+                    this.renderSubfeature(feature,
                                           featDiv,
                                           this.rangeMap[j].data[subIndices[i]
                                                                 - this.rangeMap[j].start]);
@@ -403,7 +403,7 @@ FeatureTrack.prototype.fetchSubfeatures = function(feature,
                 // console.log("rendering indices: " + dojo.toJson(dojo.map(range.toRender, function(a) {return a.index})) + " in range " + range.start + ".." + range.end);
                 // render all the queued indices
                 for (var i = 0; i < range.toRender.length; i++) {
-                    curTrack.renderSubfeature(range.toRender[i].feature, 
+                    curTrack.renderSubfeature(range.toRender[i].feature,
                                               range.toRender[i].featDiv,
                                               data[range.toRender[i].index
                                                    - range.start]);
@@ -431,7 +431,7 @@ FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature)
     case -1:
         subDiv.className = "minus-" + className; break;
     }
-    subDiv.style.cssText = 
+    subDiv.style.cssText =
         "left: " + (100 * ((subStart - featStart) / featLength)) + "%;"
         + "top: 0px;"
         + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
