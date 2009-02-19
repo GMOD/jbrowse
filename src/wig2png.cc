@@ -98,6 +98,20 @@ bool from_string(T& t,
   return !(iss >> f >> t).fail();
 }
 
+string ensure_path(vector<string> pathelems) {
+    string path;
+    struct stat st;
+    for (int i = 0; i < pathelems.size(); i++) {
+        path += pathelems[i] + "/";
+        if (!((stat(path.c_str(), &st) == 0) && S_ISDIR(st.st_mode))) {
+            if (-1 == mkdir(path.c_str(), 0777)) {
+               cerr << "failed to make directory " << path  << " (error " << errno << ")" << endl;
+               exit(1);
+            }
+        }
+    }
+    return path;
+}
 
 class WiggleTileRenderer {
 
@@ -129,7 +143,7 @@ public:
     void renderTile() {
         //cerr << "rendering" << endl;
         stringstream s;
-        s << tileDir(chrom_) << curTile_ << ".png";
+        s << tileDir_ << curTile_ << ".png";
         drawTile(s.str());
     }
 
@@ -147,23 +161,24 @@ public:
         }
 
         //if this is a new chrom, make a directory for it
-        if ((chrom != chrom_) && (-1 == mkdir(tileDir(chrom).c_str(), 0777))) {
-            if (EEXIST != errno) {
-                cerr << "failed to make directory " << tileDir(chrom) << endl;
-                exit(1);
-            }
+        if (chrom != chrom_) {
+            stringstream s;
+            string scale;
+
+            s << pixelBases_;
+            scale = s.str();
+
+            const string path[] = {baseDir_, chrom, scale};
+            tileDir_ = ensure_path(vector<string>(path, path + sizeof(path)/sizeof(*path)));
+            chromDirs_[chrom] = tileDir_;
         }
 
         chrom_ = chrom;
         curTile_ = base / tileWidthBases_;
     }
 
-    string tileDir(string chrom) {
-        stringstream s;
-        s << baseDir_ << "/" 
-          << chrom << "/" 
-          << pixelBases_ << "/";
-        return s.str();
+    string chromDir(string chrom) {
+        return chromDirs_[chrom];
     }
 
     int getTileBases() const {
@@ -187,6 +202,7 @@ protected:
     string baseDir_;
     string tileDir_;
     string chrom_;
+    map<string, string> chromDirs_;
 };
 
 class MeanRenderer : public WiggleTileRenderer {
@@ -465,15 +481,18 @@ int main(int argc, char **argv){
 
     int width = atoi(argv[5]);
     int height = atoi(argv[6]);
-    string baseDir(string(argv[2]) + "/" + string(argv[4]));
+    vector<string> basePath;
+    basePath.push_back(string(argv[2]));
+    basePath.push_back(string(argv[4]));
+    string baseDir = ensure_path(basePath);
 
     float max = 1.0f;
     float min = 0.0f;
 
     //bases per pixel
-    int zooms[] = {1, 2, 5, 10, 20, 50, 100, 200, 500, 1000,
+    const int zooms[] = {1, 2, 5, 10, 20, 50, 100, 200, 500, 1000,
                    2000, 5000, 10000, 20000, 50000, 100000};
-    int num_zooms=16;
+    int num_zooms=sizeof(zooms)/sizeof(*zooms);
 
     WiggleParser p;
 
@@ -486,13 +505,14 @@ int main(int argc, char **argv){
 
     set<string> chroms = p.getChroms();
     set<string>::iterator chrom;
+    vector<string> jsonDir;
+    jsonDir.push_back(string(argv[3]));
     WiggleTileRenderer* r;
     for (chrom = chroms.begin(); chrom != chroms.end(); chrom++) {
-        string jsonPath =
-            string(argv[3]) + "/" 
-            + *chrom + "/" + 
-            string(argv[4]) + ".json";
+        jsonDir.push_back(*chrom);
+        string jsonPath = ensure_path(jsonDir) + string(argv[4]) + ".json";
         ofstream json(jsonPath.c_str());
+        jsonDir.pop_back();
         if (json.is_open()) {
             json << "{" << endl;
             json << "   \"zoomLevels\" : [" << endl;
@@ -500,7 +520,7 @@ int main(int argc, char **argv){
                 r = p.getRenderer(i);
                 json << "      {" << endl
                      << "         \"urlPrefix\" : \""
-                     << r->tileDir(*chrom) << "\"," << endl
+                     << r->chromDir(*chrom) << "\"," << endl
                      << "         \"height\" : "
                      << height << "," << endl
                      << "         \"basesPerTile\" : "
@@ -515,7 +535,7 @@ int main(int argc, char **argv){
                  << "   \"tileWidth\" : " << width << endl
                  << "}" << endl;
         } else {
-            cerr << "failed to open json file" << endl;
+            cerr << "failed to open json file \"" << jsonPath << "\"" << endl;
             exit(1);
         }
     }
