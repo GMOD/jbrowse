@@ -24,6 +24,7 @@ GetOptions("gff=s" => \$path,
 	   "phase" => \$getPhase,
 	   "subs" => \$getSubs,
 	   "featlabel" => \$getLabel);
+my $trackDir = "$outdir/tracks";
 
 if (!defined($path)) {
     print <<USAGE;
@@ -55,9 +56,13 @@ sub gffLabelSub {
 my $db = Bio::DB::SeqFeature::Store->new(-adaptor => 'memory',
 					 -dsn     => $path);
 
+mkdir($outdir) unless (-d $outdir);
+mkdir($trackDir) unless (-d $trackDir);
+
 foreach my $seqInfo (@refSeqs) {
     my $seqName = $seqInfo->{"name"};
     print "\nworking on seq $seqName\n";
+    mkdir("$trackDir/$seqName") unless (-d "$trackDir/$seqName");
 
     my @features = $db->features("-seqid" => $seqName);
 
@@ -75,9 +80,8 @@ foreach my $seqInfo (@refSeqs) {
 
     JsonGenerator::generateTrack(
 				 $trackLabel, $seqName,
-				 "$outdir/$seqName/$trackLabel/",
+				 "$trackDir/$seqName/$trackLabel/",
                                  5000,
-				 #"$outdir/$seqName/$trackLabel.names",
 				 \@features, \%style,
 				 [], []
 				);
@@ -93,7 +97,7 @@ foreach my $seqInfo (@refSeqs) {
 		       {
 			'label' => $trackLabel,
 			'key' => $style{"key"},
-			'url' => "$outdir/{refseq}/$trackLabel/trackData.json",
+			'url' => "$trackDir/{refseq}/$trackLabel/trackData.json",
 			'type' => "FeatureTrack",
 		       };
 		     return $trackList;
