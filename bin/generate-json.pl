@@ -20,7 +20,7 @@ GetOptions("conf=s" => \$confFile,
            "v+" => \$verbose);
 my $trackDir = "$outdir/tracks";
 
-my $config = JsonGenerator::readJSON($confFile, undef, 1);
+my $config = JsonGenerator::readJSON($confFile);
 
 eval "require $config->{db_adaptor}; 1" or die $@;
 

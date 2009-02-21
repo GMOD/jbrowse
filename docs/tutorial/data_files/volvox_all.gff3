@@ -245,7 +245,3 @@ ctgA	est	EST_match	1150	1500	.	+	.	ID=Match5;Name=agt767.5;Target=agt767.5 1 351
 ctgA	est	EST_match	5000	5500	.	+	.	ID=Match5;Name=agt767.5;Target=agt767.5 352 852
 ctgA	est	EST_match	7000	7200	.	+	.	ID=Match5;Name=agt767.5;Target=agt767.5 853 1153
 ctgA	est	EST_match	8000	9000	.	-	.	ID=Match6;Name=agt767.3;Target=agt767.3 1 1001
-
-
-ctgA	.	microarray_oligo	1	50000	.	.	.	Name=example;wigfile=/var/www/gbrowse/databases/volvox/track001.ctgA.1202327456.wig
-ctgA	example	read	44401	45925	.	+	.	Name=trace;trace=volvox_trace.scf

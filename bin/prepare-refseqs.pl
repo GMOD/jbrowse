@@ -75,7 +75,7 @@ if (defined($gff)) {
     close GFF
       or die "couldn't close GFF file $gff: $!";
 } elsif (defined($confFile)) {
-    my $config = JsonGenerator::readJSON($confFile, undef, 1);
+    my $config = JsonGenerator::readJSON($confFile);
 
     eval "require $config->{db_adaptor}; 1" or die $@;
 
