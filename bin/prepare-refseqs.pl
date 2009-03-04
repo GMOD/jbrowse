@@ -9,9 +9,10 @@ use lib "$Bin/../lib";
 use POSIX;
 use Getopt::Long;
 use JsonGenerator;
+use FastaDatabase;
 
 my $chunkSize = 20000;
-my ($confFile, $noSeq, $seqDir, $gff, $refs, $refids);
+my ($confFile, $noSeq, $seqDir, $gff, $fasta, $refs, $refids);
 my $outDir = "data";
 my $seqTrackName = "DNA";
 GetOptions("out=s" => \$outDir,
@@ -19,28 +20,37 @@ GetOptions("out=s" => \$outDir,
            "noseq" => \$noSeq,
            "seqdir=s" => \$seqDir,
            "gff=s" => \$gff,
+           "fasta=s" => \$fasta,
 	   "refs=s" => \$refs,
            "refids=s" => \$refids);
 $seqDir = "$outDir/seq" unless defined $seqDir;
 
-if (!(defined($gff) || defined($confFile))) {
+if (!(defined($gff) || defined($confFile) || defined($fasta))) {
     print <<HELP;
 USAGE:
-       $0 [--out <output directory>] --gff <gff file describing refseqs>
+       $0 [--out <output directory>]
+          --gff <gff file describing refseqs>
    OR:
-       $0 [--out <output directory>] [--noseq] [--seqdir <sequence data directory>] --conf <JBrowse config file> --refs <list of refseq names> --refids <list of refseq IDs>
+       $0 [--out <output directory>]
+          [--noseq] [--seqdir <sequence data directory>]
+          [--conf <JBrowse config file> | --fasta <FASTA file>]
+          [--refs <list of refseq names> | --refids <list of refseq IDs>]
     <output directory>: defaults to "data"
     <sequence data directory>: chunks of sequence go here; defaults to "<output directory>/seq"
+    <list of refseq IDs>: defaults to all IDs in database
 
     --noseq: do not prepare sequence data for the client.
 
-    You can use a GFF file to describe the reference sequences, or
-    you can use a JBrowse config file and a list of refseq names
+    You can use a GFF file to describe the reference sequences; or
+    you can use a JBrowse config file (pointing to a BioPerl database)
+    or a FASTA file, together with a list of refseq names
     or a list of refseq IDs.  If you use a GFF file, it should
     contain ##sequence-region lines as described in the GFF specs.
-    If you use a JBrowse config file, you can either provide a
-    (comma-separated) list of refseq names, or (if the names
-    aren't globally unique) a list of refseq IDs.
+    If you use a JBrowse config file or FASTA file, you can either
+    provide a (comma-separated) list of refseq names, or
+    (if the names aren't globally unique) a list of refseq IDs;
+    or you can omit the list of refseqs, in which case every sequence
+    in the database will be used.
 HELP
 exit;
 }
@@ -74,19 +84,32 @@ if (defined($gff)) {
     }
     close GFF
       or die "couldn't close GFF file $gff: $!";
-} elsif (defined($confFile)) {
-    my $config = JsonGenerator::readJSON($confFile);
 
-    eval "require $config->{db_adaptor}; 1" or die $@;
+} elsif (defined($fasta) || defined($confFile)) {
+    my $db;
 
-    my $db = eval {$config->{db_adaptor}->new(%{$config->{db_args}})}
-        or warn $@;
-    die "Could not open database: $@" unless $db;
+    if (defined($fasta)) {
+        $db = FastaDatabase->from_fasta ($fasta);
 
-    if (my $refclass = $config->{'reference class'}) {
-        eval {$db->default_class($refclass)};
+    } elsif (defined($confFile)) {
+        my $config = JsonGenerator::readJSON($confFile);
+
+        eval "require $config->{db_adaptor}; 1" or die $@;
+
+        $db = eval {$config->{db_adaptor}->new(%{$config->{db_args}})}
+          or warn $@;
+
+        die "Could not open database: $@" unless $db;
+
+        if (my $refclass = $config->{'reference class'}) {
+            eval {$db->default_class($refclass)};
+        }
+        $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
     }
-    $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
+
+    if (!defined($refs) && !defined($refids)) {
+        $refids = join (",", $db->seq_ids);
+    }
 
     if (defined($refids)) {
         foreach my $refid (split ",", $refids) {
