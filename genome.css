@@ -33,7 +33,7 @@ div.locationTrap {
 div.locationThumb {
     position: absolute;
     top: 0px;
-    /* if you change this from 2px, change GenomeView.showTrap */
+    /* if you change this border from 2px, change GenomeView.showTrap */
     border: 2px solid red;
     margin: 0px -2px 0px -2px;
     cursor: url("openhand.cur");
