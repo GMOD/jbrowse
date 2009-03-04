@@ -26,22 +26,18 @@ Track.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
 
 Track.prototype.initBlocks = function() {
     this.blocks = new Array(this.numBlocks);
-    this.blockAttached = new Array(this.numBlocks);
     this.blockHeights = new Array(this.numBlocks);
-    for (var i = 0; i < this.numBlocks; i++) {
-	this.blockAttached[i] = false;
-	this.blockHeights[i] = 0;
-    }
+    for (var i = 0; i < this.numBlocks; i++) this.blockHeights[i] = 0;
     this.firstAttached = null;
     this.lastAttached = null;
     this._adjustBlanks();
-    //if (this.div) this.div.style.backgroundColor = "#eee";
 };
 
 Track.prototype.clear = function() {
-    if (this.blocks)
-	for (var i = 0; i < this.numBlocks; i++)
-	    if (this.blockAttached[i]) this.div.removeChild(this.blocks[i]);
+    if (this.blocks) {
+        for (var i = 0; i < this.numBlocks; i++)
+            this._hideBlock(i);
+    }
     this.initBlocks();
 };
 
@@ -63,25 +59,24 @@ Track.prototype.endZoom = function(destScale, destBlockBases) {};
 
 Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) {
     if (this.blocks === undefined) return 0;
-    //if (null == this.firstAttached) this.div.style.backgroundColor = "";
     var firstAttached = (null == this.firstAttached ? last + 1 : this.firstAttached);
     var lastAttached =  (null == this.lastAttached ? first - 1 : this.lastAttached);
 
     var i, leftBase;
     var maxHeight = 0;
-    //fill left
+    //fill left, including existing blocks (to get their heights)
     for (i = lastAttached; i >= first; i--) {
-	leftBase = startBase + (bpPerBlock * (i - first));
+        leftBase = startBase + (bpPerBlock * (i - first));
         maxHeight = Math.max(maxHeight,
                              this._showBlock(i, leftBase,
-					     leftBase + bpPerBlock, scale));
+                                             leftBase + bpPerBlock, scale));
     }
     //fill right
     for (i = lastAttached + 1; i <= last; i++) {
-	leftBase = startBase + (bpPerBlock * (i - first));
+        leftBase = startBase + (bpPerBlock * (i - first));
         maxHeight = Math.max(maxHeight,
                              this._showBlock(i, leftBase,
-					     leftBase + bpPerBlock, scale));
+                                             leftBase + bpPerBlock, scale));
     }
 
     //detach left blocks
@@ -100,38 +95,38 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
     this.firstAttached = first;
     this.lastAttached = last;
     this._adjustBlanks();
-    return Math.max(maxHeight, this.labelHeight ? this.labelHeight : 0);// + this.trackPadding;
+
+    return Math.max(maxHeight, this.labelHeight ? this.labelHeight : 0);
 };
 
 Track.prototype._hideBlock = function(blockIndex) {
-    if (this.blocks[blockIndex] && this.blockAttached[blockIndex]) {
-	this.div.removeChild(this.blocks[blockIndex]);
-	this.blocks[blockIndex] = undefined;
-        //this.blocks[blockIndex].style.display = "none";
-	this.blockAttached[blockIndex] = false;
+    if (this.blocks[blockIndex]) {
+        this.div.removeChild(this.blocks[blockIndex]);
+        this.blocks[blockIndex] = undefined;
+        this.blockHeights[blockIndex] = 0;
     }
 };
 
 Track.prototype._adjustBlanks = function() {
     if ((this.firstAttached === null)
-	|| (this.lastAttached === null)) {
-	this.leftBlank.style.left = "0px";
-	this.leftBlank.style.width = "50%";
-	this.rightBlank.style.left = "50%";
-	this.rightBlank.style.width = "50%";
+        || (this.lastAttached === null)) {
+        this.leftBlank.style.left = "0px";
+        this.leftBlank.style.width = "50%";
+        this.rightBlank.style.left = "50%";
+        this.rightBlank.style.width = "50%";
     } else {
-	this.leftBlank.style.width = (this.firstAttached * this.widthPct) + "%";
-	this.rightBlank.style.left = ((this.lastAttached + 1)
-				      * this.widthPct) + "%";
-	this.rightBlank.style.width = ((this.numBlocks - this.lastAttached - 1)
-				       * this.widthPct) + "%";
+        this.leftBlank.style.width = (this.firstAttached * this.widthPct) + "%";
+        this.rightBlank.style.left = ((this.lastAttached + 1)
+                                      * this.widthPct) + "%";
+        this.rightBlank.style.width = ((this.numBlocks - this.lastAttached - 1)
+                                       * this.widthPct) + "%";
     }
 };
 
 Track.prototype.hideAll = function() {
     if (null == this.firstAttached) return;
     for (var i = this.firstAttached; i <= this.lastAttached; i++)
-	this._hideBlock(i);
+        this._hideBlock(i);
 
 
     this.firstAttached = null;
@@ -153,15 +148,7 @@ Track.prototype._loadingBlock = function(blockDiv) {
 };
 
 Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
-    if (this.blockAttached[blockIndex]) return this.blockHeights[blockIndex];
-    if (this.blocks[blockIndex]) {
-	//this.blocks[i].style.left = (blockIndex * this.widthPct) + "%";
-	//this.blocks[i].style.width = this.widthPct + "%";
-	this.div.appendChild(this.blocks[blockIndex]);
-        //this.blocks[blockIndex].style.display = "block";
-	this.blockAttached[blockIndex] = true;
-	return this.blockHeights[blockIndex];
-    }
+    if (this.blocks[blockIndex]) return this.blockHeights[blockIndex];
 
     var blockHeight;
 
@@ -172,19 +159,18 @@ Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
     blockDiv.startBase = startBase;
     blockDiv.endBase = endBase;
     if (this.loaded) {
-	blockHeight = this.fillBlock(blockDiv,
-				     this.blocks[blockIndex - 1],
-				     this.blocks[blockIndex + 1],
-				     startBase,
-				     endBase,
-				     scale,
-				     this.widthPx);
+        blockHeight = this.fillBlock(blockDiv,
+                                     this.blocks[blockIndex - 1],
+                                     this.blocks[blockIndex + 1],
+                                     startBase,
+                                     endBase,
+                                     scale,
+                                     this.widthPx);
     } else {
-	blockHeight = this._loadingBlock(blockDiv);
+        blockHeight = this._loadingBlock(blockDiv);
     }
 
     this.blocks[blockIndex] = blockDiv;
-    this.blockAttached[blockIndex] = true;
     this.blockHeights[blockIndex] = blockHeight;
     this.div.appendChild(blockDiv);
     return blockHeight;
@@ -193,12 +179,9 @@ Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
 Track.prototype.moveBlocks = function(delta) {
     var newBlocks = new Array(this.numBlocks);
     var newHeights = new Array(this.numBlocks);
-    var newAttached = new Array(this.numBlocks);
     var i;
-    for (i = 0; i < this.numBlocks; i++) {
-	newAttached[i] = false;
-	newHeights[i] = 0;
-    }
+    for (i = 0; i < this.numBlocks; i++)
+        newHeights[i] = 0;
 
     var destBlock;
     if ((this.lastAttached + delta < 0)
@@ -223,33 +206,29 @@ Track.prototype.moveBlocks = function(delta) {
             //We're not keeping this block around, so delete
             //the old one.
 
-	    if (this.blockAttached[i]) this.div.removeChild(this.blocks[i]);
             if (destBlock) this.transfer(this.blocks[i], destBlock);
+            this._hideBlock(i);
         } else {
             //move block
             newBlocks[newIndex] = this.blocks[i];
             if (newBlocks[newIndex])
-		newBlocks[newIndex].style.left =
-		    ((newIndex) * this.widthPct) + "%";
+                newBlocks[newIndex].style.left =
+                    ((newIndex) * this.widthPct) + "%";
 
-	    newHeights[newIndex] = this.blockHeights[i];
-	    newAttached[newIndex] = this.blockAttached[i];
+            newHeights[newIndex] = this.blockHeights[i];
         }
     }
     this.blocks = newBlocks;
     this.blockHeights = newHeights;
-    this.blockAttached = newAttached;
     this._adjustBlanks();
 };
 
 Track.prototype.heightUpdate = function() {
     var maxHeight = 0;
     for (var i = this.firstAttached; i < this.lastAttached; i++)
-	if (this.blockHeights[i] > maxHeight)
-	    maxHeight = this.blockHeights[i];
-    //this.div.style.height = (maxHeight + this.trackPadding) + "px";
-    //this.div.style.top = top + "px";
-    return maxHeight;// + this.trackPadding;
+        if (this.blockHeights[i] > maxHeight)
+            maxHeight = this.blockHeights[i];
+    return maxHeight;
 };
 
 Track.prototype.sizeInit = function(numBlocks, widthPct) {
@@ -257,15 +236,15 @@ Track.prototype.sizeInit = function(numBlocks, widthPct) {
     this.numBlocks = numBlocks;
     this.widthPct = widthPct;
     if (this.blocks && (this.blocks.length > 0)) {
+        //if we're shrinking, clear out the end blocks
         for (i = numBlocks; i < this.blocks.length; i++)
-            if (this.blockAttached[i]) this.div.removeChild(this.blocks[i]);
-        oldLast = this.blockAttached.length;
-        this.blocks = this.blocks.slice(0, numBlocks);
-	this.blockAttached = this.blockAttached.slice(0, numBlocks);
-	this.blockHeights = this.blockHeights.slice(0, numBlocks);
+            this._hideBlock(i);
+        oldLast = this.blocks.length;
+        this.blocks.length = numBlocks;
+        this.blockHeights.length = numBlocks;
+        //if we're expanding, set new blocks to be not there
         for (i = oldLast; i < numBlocks; i++) {
             this.blocks[i] = undefined;
-            this.blockAttached[i] = false;
             this.blockHeights[i] = 0;
         }
         this.lastAttached = Math.min(this.lastAttached, numBlocks - 1);
@@ -278,13 +257,13 @@ Track.prototype.sizeInit = function(numBlocks, widthPct) {
         if (this.blocks.length != numBlocks) throw new Error("block number mismatch: should be " + numBlocks + "; blocks.length: " + this.blocks.length);
         for (i = 0; i < numBlocks; i++) {
             if (this.blocks[i]) {
-		//if (!this.blocks[i].style) console.log(this.blocks);
+                //if (!this.blocks[i].style) console.log(this.blocks);
                 this.blocks[i].style.left = (i * widthPct) + "%";
                 this.blocks[i].style.width = widthPct + "%";
             }
         }
     } else {
-	this.initBlocks();
+        this.initBlocks();
     }
 };
 
