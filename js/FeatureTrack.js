@@ -98,7 +98,7 @@ FeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
     }
     //TODO: come up with a better method for scaling than 2 px per count
     return 2 * maxBin;
-}
+};
 
 FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
     if (destScale < this.histScale) {
@@ -149,6 +149,7 @@ FeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
 		&& (sourceSlot.feature[0] < destRight)) {
 		var featLeft = (100 * (sourceSlot.feature[0] - destLeft) / blockWidth);
 		sourceSlot.style.left = featLeft + "%";
+                sourceBlock.removeChild(sourceSlot);
 		destBlock.appendChild(sourceSlot);
 		if ("label" in sourceSlot) {
 		    sourceSlot.label.style.left = featLeft + "%";
@@ -339,7 +340,7 @@ FeatureTrack.prototype.fillFeatures = function(block,
         //TODO: handle IE leaks (
         //Event.observe(featDiv, "click", callback);
         block.appendChild(featDiv);
-    }
+    };
 
     var startBase = goLeft ? rightBase : leftBase;
     var endBase = goLeft ? leftBase : rightBase;
@@ -395,12 +396,9 @@ FeatureTrack.prototype.fetchSubfeatures = function(feature,
         var curTrack = this;
         range.toRender = [{feature: feature, featDiv: featDiv, index: index}];
         //console.log("fetching " + this.baseUrl + range.url + " for index " + index);
-        dojo.xhrGet({
-            url: this.baseUrl + range.url,
-            handleAs: "json",
-            load: function(data) {
+        var gotSubs = function(data) {
                 range.data = data;
-                // console.log("rendering indices: " + dojo.toJson(dojo.map(range.toRender, function(a) {return a.index})) + " in range " + range.start + ".." + range.end);
+                //console.log("rendering indices: " + dojo.toJson(dojo.map(range.toRender, function(a) {return a.index;})) + " in range " + range.start + ".." + range.end);
                 // render all the queued indices
                 for (var i = 0; i < range.toRender.length; i++) {
                     curTrack.renderSubfeature(range.toRender[i].feature,
@@ -409,7 +407,12 @@ FeatureTrack.prototype.fetchSubfeatures = function(feature,
                                                    - range.start]);
                 }
                 range.toRender = "done";
-            }
+        };
+
+        dojo.xhrGet({
+            url: this.baseUrl + range.url,
+            handleAs: "json",
+            load: gotSubs
         });
     }
 };
@@ -435,8 +438,7 @@ FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature)
         "left: " + (100 * ((subStart - featStart) / featLength)) + "%;"
         + "top: 0px;"
         + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
-    featDiv.appendChild(subDiv)
-
+    featDiv.appendChild(subDiv);
 };
 
 /*
