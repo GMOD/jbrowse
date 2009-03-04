@@ -1,1 +1,0 @@
-({"iframeTitle1":"oblast úprav","iframeTitle2":"rámec oblasti úprav"})

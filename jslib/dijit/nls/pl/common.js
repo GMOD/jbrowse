@@ -1,1 +1,0 @@
-({"buttonCancel":"Anuluj","buttonSave":"Zapisz","buttonOk":"OK","itemClose":"Close"})

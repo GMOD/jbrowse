@@ -1,7 +1,3 @@
-var djConfig = {
-    usePlainJson: true
-};
-
 var Browser = function(containerID, refSeqs, trackData, dataRoot) {
     dojo.require("dojo.dnd.Source");
     dojo.require("dojo.dnd.Moveable");
