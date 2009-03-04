@@ -14,7 +14,8 @@ var Browser = function(containerID, refSeqs, trackData, dataRoot) {
     this.tracks = [];
     var brwsr = this;
     brwsr.isInitialized = false;
-    dojo.addOnLoad(function() {
+    dojo.addOnLoad(
+        function() {
             dojo.addClass(document.body, "tundra");
             brwsr.container = dojo.byId(containerID);
             brwsr.container.genomeBrowser = brwsr;
@@ -43,6 +44,7 @@ var Browser = function(containerID, refSeqs, trackData, dataRoot) {
             brwsr.locationTrap.className = "locationTrap";
             topPane.appendChild(brwsr.locationTrap);
             topPane.style.overflow="hidden";
+            topPane.style.padding="0px";
 
             brwsr.allRefs = {};
             for (var i = 0; i < refSeqs.length; i++)
