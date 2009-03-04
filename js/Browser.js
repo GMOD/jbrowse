@@ -20,9 +20,10 @@ var Browser = function(containerID, refSeqs, trackData, dataRoot) {
             brwsr.container = dojo.byId(containerID);
             brwsr.container.genomeBrowser = brwsr;
             var containerWidget = new dijit.layout.BorderContainer({
-                    liveSplitters: false,
-                    design: "sidebar"
-                }, brwsr.container);
+                liveSplitters: false,
+                design: "sidebar",
+                gutters: false
+            }, brwsr.container);
             var topPane = document.createElement("div");
             brwsr.container.appendChild(topPane);
             var contentWidget = new dijit.layout.ContentPane({region: "top"}, topPane);
@@ -44,7 +45,6 @@ var Browser = function(containerID, refSeqs, trackData, dataRoot) {
             brwsr.locationTrap.className = "locationTrap";
             topPane.appendChild(brwsr.locationTrap);
             topPane.style.overflow="hidden";
-            topPane.style.padding="0px";
 
             brwsr.allRefs = {};
             for (var i = 0; i < refSeqs.length; i++)
