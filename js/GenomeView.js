@@ -332,7 +332,15 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     };
 
     view.mouseDown = function(event) {
-        if ("animation" in view) view.animation.stop();
+        if ("animation" in view) {
+            if (view.animation instanceof Zoomer) {
+                dojo.stopEvent(event);
+                return;
+
+            } else {
+                view.animation.stop();
+            }
+        }
 	if (Util.isRightButton(event)) return;
         dojo.stopEvent(event);
 	if (event.shiftKey || event.ctrlKey) return;
