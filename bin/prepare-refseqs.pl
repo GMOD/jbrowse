@@ -91,6 +91,10 @@ if (defined($gff)) {
     if (defined($fasta)) {
         $db = FastaDatabase->from_fasta ($fasta);
 
+        if (!defined($refs) && !defined($refids)) {
+            $refids = join (",", $db->seq_ids);
+        }
+
     } elsif (defined($confFile)) {
         my $config = JsonGenerator::readJSON($confFile);
 
@@ -105,10 +109,6 @@ if (defined($gff)) {
             eval {$db->default_class($refclass)};
         }
         $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
-    }
-
-    if (!defined($refs) && !defined($refids)) {
-        $refids = join (",", $db->seq_ids);
     }
 
     if (defined($refids)) {
