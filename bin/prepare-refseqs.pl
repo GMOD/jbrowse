@@ -28,14 +28,22 @@ $seqDir = "$outDir/seq" unless defined $seqDir;
 if (!(defined($gff) || defined($confFile) || defined($fasta))) {
     print <<HELP;
 USAGE:
-       $0 [--out <output directory>]
-          --gff <gff file describing refseqs>
+       $0 --gff <GFF file>
+          [--out <output directory>]
+          
    OR:
-       $0 [--out <output directory>]
-          [--noseq] [--seqdir <sequence data directory>]
-          [--conf <JBrowse config file> | --fasta <FASTA file>]
+       $0 --fasta <FASTA file>
+          [--out <output directory>]
+          [--seqdir <sequence data directory>]
+          [--noseq]
+          [--refs <list of refseq names>]
+   OR:
+       $0 --conf <JBrowse config file>
+          [--out <output directory>]
+          [--seqdir <sequence data directory>]
+          [--noseq]
           [--refs <list of refseq names> | --refids <list of refseq IDs>]
-    <output directory>: defaults to "data"
+    <output directory>: defaults to "$outDir"
     <sequence data directory>: chunks of sequence go here; defaults to "<output directory>/seq"
     <list of refseq IDs>: defaults to all IDs in database
 
@@ -49,8 +57,8 @@ USAGE:
     If you use a JBrowse config file or FASTA file, you can either
     provide a (comma-separated) list of refseq names, or
     (if the names aren't globally unique) a list of refseq IDs;
-    or you can omit the list of refseqs, in which case every sequence
-    in the database will be used.
+    or (for FASTA files only) you can omit the list of refseqs,
+    in which case every sequence in the database will be used.
 HELP
 exit;
 }
@@ -91,8 +99,10 @@ if (defined($gff)) {
     if (defined($fasta)) {
         $db = FastaDatabase->from_fasta ($fasta);
 
+        die "IDs not implemented for FASTA database" if defined($refids);
+
         if (!defined($refs) && !defined($refids)) {
-            $refids = join (",", $db->seq_ids);
+            $refs = join (",", $db->seq_ids);
         }
 
     } elsif (defined($confFile)) {
