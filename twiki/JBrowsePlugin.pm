@@ -680,7 +680,7 @@ sub _makeJBrowse {
 	    # parent process; do nothing
 	} else {
 	    # child process; start a make job
-	    exec "cd $pubDir; make -f $makefile @makeArgs";
+	    exec "cd $pubDir; make -f $makefile @makeArgs >& make.out";
 	}
     }
 }
