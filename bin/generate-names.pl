@@ -24,6 +24,15 @@ GetOptions("dir=s" => \$destDir,
            "thresh=i" => \$thresh,
            "verbose+" => \$verbose);
 
+if (!@ARGV) {
+    die <<USAGE;
+USAGE: $0 [--dir <output directory>] [--thresh <n>] [--verbose] <JSON file(s)>
+
+    --dir: defaults to "$destDir"
+
+USAGE
+}
+
 my $parentDir = abs_path(catdir($destDir, updir()));
 my $outDir = tempdir(DIR => $parentDir);
 my $trackNum = 0;

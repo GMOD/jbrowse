@@ -1,0 +1,119 @@
+# Variables
+
+# Cloned jbrowse repository:
+JROOT = /usr/local/jbrowse
+JBIN  = $(JROOT)/bin
+
+# JBrowse programs
+PREPARE_REFSEQS = perl $(JBIN)/prepare-refseqs.pl
+BIODB_TO_JSON   = perl $(JBIN)/biodb-to-json.pl
+GFF_TO_JSON     = perl $(JBIN)/gff-to-json.pl
+GENERATE_NAMES  = perl $(JBIN)/generate-names.pl
+
+# Current working directory (cwd):
+# FASTA file of reference sequences in cwd
+REFSEQS = refseqs.fasta
+
+# all other FASTA files in cwd
+ALLFASTA  = $(filter-out $(REFSEQS),$(wildcard *.fasta) $(wildcard *.fa))
+
+# all GFF files in cwd
+ALLGFF    = $(wildcard *.gff)
+
+# name of JBrowse config file in cwd
+CONFIG = config.js
+
+# JBrowse target files
+CHUNKS = data/refSeqs.js
+NAMES  = names/root.json
+
+# wildcard for JBrowse-generated JSON track files under cwd (input to generate-names)
+TRACK_JSON_FILES = $(wildcard data/tracks/*/*/trackData.json)
+
+# proxy targets directory: touching "$(PROCESSED)/X" indicates successful processing of file "X"
+PROCESSED = processed
+
+# staging directory
+STAGED = staged
+
+# name of staged GFF file
+STAGED_GFF = staged.gff
+
+# proxy targets for complete processing of GFF files into JBrowse tracks
+TRACKS = $(addprefix $(PROCESSED)/,$(ALLGFF))
+
+# target directories
+DIRS = $(PROCESSED) $(STAGED) $(dir $(CHUNKS) $(NAMES))
+
+
+
+# Rules
+
+# names don't seem to be working right now... is TRACK_JSON_FILES the right input to generate-names?
+#all: $(NAMES)
+all: $(TRACKS)
+
+clean:
+	rm -rf $(DIRS)
+
+# names
+$(NAMES): $(TRACKS) $(DIRS)
+	echo $(ALLGFF)
+	$(GENERATE_NAMES) $(TRACK_JSON_FILES)
+
+# directories
+# one-off dirs
+$(DIRS):
+	mkdir $@
+
+# aggregated reference sequences
+# DO NOT OVERWRITE $(REFSEQS) if it already exists!
+$(REFSEQS): $(ALLFASTA)
+	 test -e $(REFSEQS) || (cat $(ALLFASTA) >$@)
+
+# sequence chunking for client
+$(CHUNKS): $(DIRS) $(REFSEQS)
+	$(PREPARE_REFSEQS) --fasta $(REFSEQS)
+
+# staging directories for GFF, FASTA & JBrowse config files
+$(STAGED)/%: $(DIRS) %.gff
+	test -d $@ || mkdir $@
+
+# staged GFF
+$(STAGED)/%/$(STAGED_GFF): $(STAGED)/% %.gff
+	ln -sf $(CURDIR)/$*.gff $(STAGED)/$*/$*.gff
+
+# staged FASTA
+$(STAGED)/%/$(REFSEQS): $(STAGED)/% $(REFSEQS)
+	ln -sf $(CURDIR)/$(REFSEQS) $(STAGED)/$*/$(REFSEQS)
+
+# staged JBrowse config file
+$(STAGED)/%/$(CONFIG): $(DIRS) $(CHUNKS) $(STAGED)/% $(STAGED)/%/$(STAGED_GFF) $(CONFIG)
+	echo '{' >$@
+	echo '  "description": "$* tracks",' >>$@
+	echo '  "db_adaptor": "Bio::DB::SeqFeature::Store",' >>$@
+	echo '  "db_args": { "-adaptor": "memory",' >>$@
+	echo '               "-dir": "$(STAGED)/$*" },' >>$@
+	echo '  "TRACK DEFAULTS": {' >>$@
+	echo '    "class": "feature",' >>$@
+	echo '    "autocomplete": "all"' >>$@
+	echo '  },' >>$@
+	echo '  "tracks": [' >>$@
+	cat $(CONFIG) | perl -pe 's/"track"\s*:\s*"([^"]*)"/"track": "$*_$$1"/g;s/"key"\s*:\s*"([^"]*)"/"key": "$* $$1"/g' >>$@
+	echo '  ]' >>$@
+	echo '}' >>$@
+
+# two ways of making GFF files into JSON: with & without config file
+# JBrowse config file + GFF -> Bio::DB -> JSON
+$(PROCESSED)/%.gff: $(CHUNKS) $(STAGED)/%/$(STAGED_GFF) $(STAGED)/%/$(CONFIG) %.gff $(CONFIG)
+	$(BIODB_TO_JSON) --conf $(STAGED)/$*/$(CONFIG)
+	touch $@
+
+# fallback (no config file): GFF -> JSON
+$(PROCESSED)/%.gff: $(CHUNKS) $(STAGED)/%/$(STAGED_GFF) %.gff
+	$(GFF_TO_JSON) --gff $*.gff --key $*
+	touch $@
+
+
+# don't delete intermediate files
+.SECONDARY:

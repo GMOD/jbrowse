@@ -28,37 +28,35 @@ $seqDir = "$outDir/seq" unless defined $seqDir;
 if (!(defined($gff) || defined($confFile) || defined($fasta))) {
     print <<HELP;
 USAGE:
-       $0 --gff <GFF file>
-          [--out <output directory>]
-          
+       $0 --gff <GFF file>  [options]
    OR:
-       $0 --fasta <FASTA file>
-          [--out <output directory>]
-          [--seqdir <sequence data directory>]
-          [--noseq]
-          [--refs <list of refseq names>]
+       $0 --fasta <FASTA file>  [options]
    OR:
-       $0 --conf <JBrowse config file>
+       $0 --conf <JBrowse config file>  [options]
+
+      Options:
           [--out <output directory>]
           [--seqdir <sequence data directory>]
           [--noseq]
           [--refs <list of refseq names> | --refids <list of refseq IDs>]
-    <output directory>: defaults to "$outDir"
-    <sequence data directory>: chunks of sequence go here; defaults to "<output directory>/seq"
-    <list of refseq IDs>: defaults to all IDs in database
 
-    --noseq: do not prepare sequence data for the client.
+    <output directory>: defaults to "$outDir"
+    <sequence data directory>: chunks of sequence go here;
+                               defaults to "<output directory>/seq"
+    --noseq: do not prepare sequence data for the client
 
     You can use a GFF file to describe the reference sequences; or
     you can use a JBrowse config file (pointing to a BioPerl database)
     or a FASTA file, together with a list of refseq names
     or a list of refseq IDs.  If you use a GFF file, it should
     contain ##sequence-region lines as described in the GFF specs.
+
     If you use a JBrowse config file or FASTA file, you can either
     provide a (comma-separated) list of refseq names, or
     (if the names aren't globally unique) a list of refseq IDs;
     or (for FASTA files only) you can omit the list of refseqs,
     in which case every sequence in the database will be used.
+
 HELP
 exit;
 }

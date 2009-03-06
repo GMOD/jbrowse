@@ -1,0 +1,151 @@
+%META:TOPICINFO{author="IanHolmes" date="1236314678" format="1.1" reprev="1.2" version="1.2"}%
+---+!! %TOPIC%
+
+_JBrowse genome browser plugin._
+
+%TOC%
+
+---++ Syntax Rules
+
+#StandardAttrs Write =%<nop>JBROWSE{ _attributes_ }%= anywhere in a TWiki topic to instantiate a browser.
+   * The following standard attributes are recognized 
+| *Name* | *Description* |
+| =showTracks= | default: %<nop>JBSHOW%  |
+| =navigateTo= | default: %<nop>JBNAVIGATE% |
+
+---++ 
+
+---++ 
+---++ Examples
+
+The general idea behind TWiki.JBrowsePlugin is that a snippet of TWiki syntax, like this...
+
+%<nop>JBROWSE%
+
+...auto-expands into a jbrowse instance (see http://jbrowse.org/)
+
+---++ Plugin Settings
+
+Plugin settings are stored as preferences variables. To reference a plugin setting write *%<plugin>_<setting>%*, i.e. *%NEWPLUGIN_SHORTDESCRIPTION%*
+
+   * One line description, is shown in the %TWIKIWEB%.TextFormattingRules topic: 
+      * Set SHORTDESCRIPTION = _JBrowse genome browser plugin_                                
+
+   * Debug plugin: (See output in =data/debug.txt=) 
+      * Set DEBUG = 0                                 
+
+---++ Plugin Installation Instructions
+
+__Note:__ You do not need to install anything on the browser to use this plugin. The following instructions are for the administrator who installs the plugin on the TWiki server.
+
+   * Install JBrowse in /usr/local/jbrowse and TWiki in /usr/local/twiki (or edit Makefiles accordingly)
+   * cd into /usr/local/jbrowse/twiki and type 'make install'
+   * The following files will be added: 
+| *File:* | *Description:* |
+| ==data/TWiki/%TOPIC%.txt== | Plugin topic |
+| ==lib/TWiki/Plugins/%TOPIC%.pm== | Plugin Perl module |
+| ==lib/TWiki/Plugins/%TOPIC%/== | Plugin directory |
+| ==lib/TWiki/Plugins/%TOPIC%/Makefile.jbrowse== | Plugin makefile |
+   * Configure the Plugin: 
+      * TWiki 4.0 and up: Run the [[%SCRIPTURL%/configure%SCRIPTSUFFIX%][configure]] script to enable the Plugin 
+      * Change the Plugin settings as needed 
+   * Test if the installation was successful:
+      1 attach a FASTA file and a GFF file (with matching sequence names)
+      1 edit the text of the page to include the string %<nop>JBROWSE%
+      1 you should see a JBrowse browser embedded in the page; the GFF file should show up as a track
+      1 attach a JBrowse config file snippet, named config.js, to set the track styles; e.g.
+<pre>
+    {
+      "track": "ExampleFeatures",
+      "key": "Example Features",
+      "feature": ["remark"],
+      "autocomplete": "all",
+      "class": "feature2"
+    },
+    {
+      "track": "NameTest",
+      "feature": ["protein_coding_primary_transcript", "polypeptide"],
+      "class": "feature2",
+      "key": "Name test track"
+    },
+    {
+      "track": "Motifs",
+      "feature": ["polypeptide_domain"],
+      "class": "feature3",
+      "description": 1,
+      "key": "Example motifs"
+    },
+    {
+      "track": "Alignments",
+      "feature": ["match"],
+      "class": "feature4",
+      "key": "Example alignments",
+      "category": "Alignments"
+    },
+    {
+      "track": "Genes",
+      "feature": ["gene"],
+      "class": "feature5",
+      "key": "Protein-coding genes"
+    },
+    {
+      "track": "ReadingFrame",
+      "feature": ["mRNA"],
+      "class": "dblhelix",
+      "key": "Frame usage",
+      "category": "Genes"
+    },
+    {
+      "track": "CDS",
+      "feature": ["CDS:predicted", "mRNA:exonerate"],
+      "class": "cds",
+      "phase": 1,
+      "key": "Predicted genes",
+      "category": "Genes"
+    },
+    {
+      "track": "Transcript",
+      "feature": ["mRNA:exonerate"],
+      "description": 1,
+      "class": "transcript",
+      "subfeature_classes": {
+        "CDS": "transcript-CDS",
+        "five_prime_UTR": "transcript-five_prime_UTR",
+        "three_prime_UTR": "transcript-three_prime_UTR"
+      },
+      "key": "Exonerate predictions",
+      "category": "Genes"
+    },
+    {
+      "track": "Clones",
+      "feature": ["BAC"],
+      "class": "exon",
+      "description": 1,
+      "key": "Fingerprinted BACs"
+    },
+    {
+      "track": "EST",
+      "feature": ["EST_match:est"],
+      "class": "est",
+      "key": "ESTs"
+    }
+</pre>
+
+---++ Plugin Info
+
+|  Plugin Author: | TWiki:Main.IanHolmes |
+|  Copyright: | © 2007, TWiki:Main.IanHolmes |
+|  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
+|  Plugin Version: | 21 Jul 2008 (V1.000) |
+|  Change History: | <!-- versions below in reverse order --> |
+|  21 Jul 2008: | Initial version |
+|  TWiki Dependency: | $TWiki::Plugins::VERSION 1.1 |
+|  CPAN Dependencies: | none |
+|  Other Dependencies: | none |
+|  Perl Version: | 5.005 |
+|  [[TWiki:Plugins/Benchmark][Benchmarks]]: | %TWIKIWEB%.GoodStyle nn%, %TWIKIWEB%.FormattedSearch nn%, %TOPIC% nn% |
+|  Plugin Home: | http://TWiki.org/cgi-bin/view/Plugins/%TOPIC% |
+|  Feedback: | http://TWiki.org/cgi-bin/view/Plugins/%TOPIC%Dev |
+|  Appraisal: | http://TWiki.org/cgi-bin/view/Plugins/%TOPIC%Appraisal |
+
+__Related Topics:__ %TWIKIWEB%.TWikiPlugins, %TWIKIWEB%.DeveloperDocumentationCategory, %TWIKIWEB%.AdminDocumentationCategory, %TWIKIWEB%.TWikiPreferences
