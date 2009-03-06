@@ -672,7 +672,7 @@ sub _makeJBrowse {
     my $pubDir =
 	join '/', TWiki::Func::getPubUrlPath(), $web, $topic;
 
-    my $makefile = TWiki::getTWikiLibDir() . '/Makefile.jbrowse';
+    my $makefile = TWiki::getTWikiLibDir() . '/TWiki/Plugins/JBrowsePlugin/Makefile.jbrowse';
 
     my $childPid = fork();
     if (defined $childPid) {
