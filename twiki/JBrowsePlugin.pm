@@ -670,7 +670,7 @@ sub _makeJBrowse {
     my ($web, $topic, @makeArgs) = @_;
 
     my $pubDir =
-	join '/', TWiki::Func::getPubUrlPath(), $web, $topic;
+	join '/', TWiki::Func::getPubDir(), $web, $topic;
 
     my $makefile = TWiki::getTWikiLibDir() . '/TWiki/Plugins/JBrowsePlugin/Makefile.jbrowse';
 
