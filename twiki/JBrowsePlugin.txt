@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="IanHolmes" date="1236315679" format="1.1" reprev="1.2" version="1.2"}%
+%META:TOPICINFO{author="IanHolmes" date="1236315702" format="1.1" reprev="1.2" version="1.2"}%
 ---+!! %TOPIC%
 
 _JBrowse genome browser plugin._
@@ -13,9 +13,6 @@ _JBrowse genome browser plugin._
 | =showTracks= | default: %<nop>JBSHOW%  |
 | =navigateTo= | default: %<nop>JBNAVIGATE% |
 
----++ 
-
----++ 
 ---++ Examples
 
 See http://jbrowse.org/
