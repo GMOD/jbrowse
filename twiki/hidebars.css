@@ -1,0 +1,26 @@
+/* copy the styles from viewtopbar.pattern.tmpl */
+#patternTopBar,
+#patternClearHeaderCenter,
+#patternClearHeaderLeft,
+#patternClearHeaderRight,
+#patternTopBarContentsOuter {
+	height:0;
+}
+#patternTopBar,
+#patternTopBarContents {
+	display:hidden;
+}
+/* move the left bar contents down to show the logo */
+#patternLeftBarContents {
+	margin-top:64px; /* top bar height */
+}
+#patternOuter {
+	margin-left:0;
+}
+#patternLeftBar {
+	display:none;
+}
+/* for the content left margin use a bit smaller margin */
+#patternMainContents {
+	padding-left:2em; /*S6*/
+}
