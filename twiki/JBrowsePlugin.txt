@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="IanHolmes" date="1236315404" format="1.1" reprev="1.2" version="1.2"}%
+%META:TOPICINFO{author="IanHolmes" date="1236315522" format="1.1" reprev="1.2" version="1.2"}%
 ---+!! %TOPIC%
 
 _JBrowse genome browser plugin._
@@ -41,7 +41,7 @@ __Note:__ You do not need to install anything on the browser to use this plugin.
    * Install packages in the following places (or edit Makefiles in =jbrowse/twiki= accordingly):
       1 JBrowse in =/usr/local/jbrowse=
       1 TWiki in =/usr/local/twiki=
-      1 Bioperl anywhere =PERL5LIB= can find it
+      1 <nop>CPAN modules required by JBrowse (Bioperl, <nop>JSON) ...these can go anywhere =PERL5LIB= can find them
    * Type =cd /usr/local/jbrowse/twiki; make install=
    * The following files will be softlinked into TWiki:
 | *File:* | *Description:* |
