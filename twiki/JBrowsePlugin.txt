@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="IanHolmes" date="1236315522" format="1.1" reprev="1.2" version="1.2"}%
+%META:TOPICINFO{author="IanHolmes" date="1236315679" format="1.1" reprev="1.2" version="1.2"}%
 ---+!! %TOPIC%
 
 _JBrowse genome browser plugin._
@@ -18,11 +18,7 @@ _JBrowse genome browser plugin._
 ---++ 
 ---++ Examples
 
-The general idea behind TWiki.JBrowsePlugin is that a snippet of TWiki syntax, like this...
-
-%<nop>JBROWSE%
-
-...auto-expands into a jbrowse instance (see http://jbrowse.org/)
+See http://jbrowse.org/
 
 ---++ Plugin Settings
 
