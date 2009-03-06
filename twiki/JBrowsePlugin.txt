@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="IanHolmes" date="1236314985" format="1.1" reprev="1.2" version="1.2"}%
+%META:TOPICINFO{author="IanHolmes" date="1236315227" format="1.1" reprev="1.2" version="1.2"}%
 ---+!! %TOPIC%
 
 _JBrowse genome browser plugin._
@@ -38,9 +38,12 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 
 __Note:__ You do not need to install anything on the browser to use this plugin. The following instructions are for the administrator who installs the plugin on the TWiki server.
 
-   * Install JBrowse in /usr/local/jbrowse and TWiki in /usr/local/twiki (or edit Makefiles accordingly)
+   * Install packages in the following places (or edit Makefiles accordingly)...
+      1 JBrowse in /usr/local/jbrowse
+      1 TWiki in /usr/local/twiki
+      1 Bioperl anywhere PERL5LIB can find it
    * cd into /usr/local/jbrowse/twiki and type 'make install'
-   * The following files will be added: 
+   * The following files will be copied into TWiki:
 | *File:* | *Description:* |
 | ==data/TWiki/%TOPIC%.txt== | Plugin topic |
 | ==lib/TWiki/Plugins/%TOPIC%.pm== | Plugin Perl module |
