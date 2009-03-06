@@ -5,8 +5,9 @@ FastaDatabase.pm
 
 =head1 SYNOPSIS
 
-Simple Perl module to wrap a FASTA sequence database with functionality
-resembling the BioPerl object, Bio::DB::SeqFeature::Store.
+Lightweight module to wrap a FASTA sequence database with
+stripped-down, feature-free versions of BioPerl's
+Bio::DB::SeqFeature::Store methods for returning subsequences.
 
 =head1 EXAMPLES
 

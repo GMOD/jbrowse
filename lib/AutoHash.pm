@@ -25,7 +25,12 @@ Simple Perl module wrapping a hashref with AUTOLOAD-ed accessors.
 =head1 GENERAL USAGE
 
 An AutoHash object is a blessed hash reference.
-Member functions (with the exception of 'new') will be automatically interpreted as accessors for hash elements.
+
+Its only inbuilt method is the constructor, 'new'.
+
+All other methods will be automatically interpreted as hash element accessors for the eponymous tag.
+
+If the method is called with an argument, it's a setter; otherwise, it's a getter.
 
 =head1 METHODS
 
