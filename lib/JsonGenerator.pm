@@ -40,7 +40,7 @@ my %builtinDefaults =
 
 sub unique {
     my %saw;
-    return (grep(!$saw{$_}++, @_));
+    return (grep(defined($_) && !$saw{$_}++, @_));
 }
 
 sub readJSON {
