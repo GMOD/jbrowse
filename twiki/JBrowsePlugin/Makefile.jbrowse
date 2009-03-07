@@ -108,7 +108,7 @@ $(PROCESSED)/%.gff: $(CHUNKS) $(STAGE)/%/$(STAGED_GFF) $(STAGE)/%/$(CONFIG) %.gf
 
 # fallback (no config file): GFF -> JSON
 $(PROCESSED)/%.gff: $(CHUNKS) $(STAGE)/%/$(STAGED_GFF) %.gff
-	$(GFF_TO_JSON) --gff $*.gff --key $* --autocomplete all
+	$(GFF_TO_JSON) --gff $*.gff --key $* --autocomplete all --featlabel
 	touch $@
 
 
