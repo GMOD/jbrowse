@@ -331,7 +331,7 @@ sub _handleJBrowse {
 
     <script type="text/javascript">
     /* <![CDATA[ */
-           var b = new Browser("GenomeBrowser", refSeqs, trackInfo, "$jbDataRoot/");
+           var b = new Browser("GenomeBrowser", refSeqs, trackInfo, "$jbRoot/");
 JBCODE
 
 		 $jbCode .= "           b.showTracks(\"$showTracks\");\n" if defined $showTracks;
