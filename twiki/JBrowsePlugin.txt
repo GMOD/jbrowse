@@ -19,7 +19,7 @@ See http://jbrowse.org/
 
 ---++ Plugin Settings
 
-Plugin settings are stored as preferences variables. To reference a plugin setting write *%<plugin>_<setting>%*, i.e. *%JBROWSEPLUGIN_SHORTDESCRIPTION%*
+Plugin settings are stored as preferences variables. To reference a plugin setting write *%<nop>JBROWSEPLUGIN_setting%*, e.g. %<nop>JBROWSEPLUGIN_SHORTDESCRIPTION% = %JBROWSEPLUGIN_SHORTDESCRIPTION%
 
    * One line description, is shown in the %TWIKIWEB%.TextFormattingRules topic: 
       * Set SHORTDESCRIPTION = _JBrowse genome browser plugin_                                
