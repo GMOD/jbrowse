@@ -10,9 +10,10 @@ use Getopt::Long;
 use Bio::DB::SeqFeature::Store;
 use JsonGenerator;
 
-my ($path, $trackLabel, $key, $cssClass);
+my ($path, $trackLabel, $key);
 my $autocomplete = "none";
 my $outdir = "data";
+my $cssClass = "feature";
 my ($getType, $getPhase, $getSubs, $getLabel) = (0, 0, 0, 0);
 GetOptions("gff=s" => \$path,
 	   "out=s" => \$outdir,
