@@ -3,6 +3,7 @@
 # Cloned jbrowse repository:
 JROOT = /usr/local/jbrowse
 JBIN  = $(JROOT)/bin
+JIMG  = $(JROOT)/img
 
 # JBrowse programs
 PREPARE_REFSEQS = perl $(JBIN)/prepare-refseqs.pl
@@ -22,6 +23,9 @@ ALL_GFF    = $(wildcard *.gff)
 
 # name of JBrowse config file in cwd
 CONFIG = config.js
+
+# JBrowse img directory -- will be a symlink to $(JIMG)
+IMG = img
 
 # JBrowse target files
 CHUNKS = data/refSeqs.js
@@ -43,7 +47,7 @@ STAGED_GFF = staged.gff
 TRACKS = $(addprefix $(PROCESSED)/,$(ALL_GFF))
 
 # target directories
-DIRS = $(PROCESSED) $(STAGE) $(dir $(CHUNKS) $(PATRICIA))
+DIRS = $(PROCESSED) $(STAGE) $(IMG) $(dir $(CHUNKS) $(PATRICIA))
 
 
 
@@ -62,6 +66,9 @@ $(PATRICIA): $(DIRS) $(TRACKS)
 # one-off dirs
 $(DIRS):
 	mkdir $@
+
+$(IMG):
+	ln -sf $(JIMG) $(IMG)
 
 # aggregated reference sequences
 # DO NOT OVERWRITE $(REFSEQS) if it already exists!
