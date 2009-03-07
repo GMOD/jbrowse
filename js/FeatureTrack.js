@@ -266,7 +266,14 @@ FeatureTrack.prototype.fillFeatures = function(block,
 		break;
 	    }
 	    var otherEnd = slots[j].feature[end];
-	    if ((scale > labelScale) && name && feature[name]) otherEnd = Math.max(otherEnd, slots[j].feature[start] + (slots[j].feature[name].length * basesPerLabelChar));
+	    if ((scale > labelScale)
+                && name
+                && feature[name]
+                && slots[j].feature[name])
+                otherEnd = Math.max(otherEnd,
+                                    slots[j].feature[start]
+                                    + (slots[j].feature[name].length
+                                       * basesPerLabelChar));
             if (((otherEnd + basePadding) >= feature[start])
                 && ((slots[j].feature[start] - basePadding) <= featureEnd)) {
 		//this feature overlaps
