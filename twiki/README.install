@@ -5,7 +5,6 @@ Quick installation guide:
 
    1. Install TWiki in /usr/local/twiki
      - Include /usr/local/twiki/twiki_httpd.conf in main httpd.conf
-     - Edit twiki_httpd.conf to add "Options FollowSymLinks" to the <Directory> block for /usr/local/twiki/pub, otherwise some images will not display correctly
    2. Install JBrowse in /usr/local/jbrowse
      - Ensure relevant CPAN modules installed (Bioperl, JSON)
      - Add an Alias to httpd.conf (or twiki_httpd.conf), pointing http://yoursite.com/jbrowse to /usr/local/jbrowse

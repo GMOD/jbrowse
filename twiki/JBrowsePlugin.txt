@@ -48,7 +48,6 @@ __Note:__ You do not need to install anything on the browser to use this plugin.
    * Configure the Plugin: 
       * TWiki 4.0 and up: Run the [[%SCRIPTURL%/configure%SCRIPTSUFFIX%][configure]] script to enable the Plugin 
       * Change the Plugin settings as needed 
-   * Edit =twiki_httpd.conf= to add =FollowSymLinks= to the =Options= for the =twiki/pub= directory, otherwise some images will not display correctly.
    * Test if the installation was successful:
       1 attach a FASTA file and a GFF file (with matching sequence names)
       1 edit the text of the page to include the string %<nop>JBROWSE%
