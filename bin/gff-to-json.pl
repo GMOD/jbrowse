@@ -31,7 +31,7 @@ if (!defined($path)) {
     print <<USAGE;
 USAGE: $0 --gff <gff file> [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssclass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--type] [--phase] [--subs] [--featlabel]
 
-    --out: defaults to "datq"
+    --out: defaults to "data"
     --cssclass: defaults to "feature"
     --autocomplete: make these features searchable by their "label", by their "alias"es, both ("all"), or "none" (default).
     --type: include the type of the features in the json
