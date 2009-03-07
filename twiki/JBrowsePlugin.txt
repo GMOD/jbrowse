@@ -35,7 +35,7 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 __Note:__ You do not need to install anything on the browser to use this plugin. The following instructions are for the administrator who installs the plugin on the TWiki server.
 
    * Install packages in the following places (or edit Makefiles in =jbrowse/twiki= accordingly):
-      1 JBrowse in =/usr/local/jbrowse=
+      1 JBrowse in =/usr/local/jbrowse= (ensure that your webserver points URLs beginning with =/jbrowse/= to this location)
       1 TWiki in =/usr/local/twiki=
       1 <nop>CPAN modules required by JBrowse (Bioperl, <nop>JSON) ...these can go anywhere =PERL5LIB= can find them
    * Type =cd /usr/local/jbrowse/twiki; make install=
