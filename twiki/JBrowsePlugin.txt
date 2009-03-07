@@ -10,8 +10,8 @@ _JBrowse genome browser plugin._
 #StandardAttrs Write =%<nop>JBROWSE%= or =%<nop>JBROWSE{ _attributes_ }%= anywhere in a TWiki topic to embed a JBrowse genome browser for attached GFF and FASTA files.
    * The following standard attributes are recognized 
 | *Name* | *Description* |
-| =showTracks= | default: %<nop>JBSHOW%  |
-| =navigateTo= | default: %<nop>JBNAVIGATE% |
+| =showTracks= | default: %<nop>JBROWSEPLUGIN_SHOW%  |
+| =navigateTo= | default: %<nop>JBROWSEPLUGIN_NAVIGATE% |
 
 ---++ Examples
 
@@ -19,13 +19,16 @@ See http://jbrowse.org/
 
 ---++ Plugin Settings
 
-Plugin settings are stored as preferences variables. To reference a plugin setting write *%<plugin>_<setting>%*, i.e. *%NEWPLUGIN_SHORTDESCRIPTION%*
+Plugin settings are stored as preferences variables. To reference a plugin setting write *%<plugin>_<setting>%*, i.e. *%JBROWSEPLUGIN_SHORTDESCRIPTION%*
 
    * One line description, is shown in the %TWIKIWEB%.TextFormattingRules topic: 
       * Set SHORTDESCRIPTION = _JBrowse genome browser plugin_                                
 
    * Debug plugin: (See output in =data/debug.txt=) 
       * Set DEBUG = 0                                 
+
+   * Root URL for JBrowse installation 
+      * Set ROOT = /jbrowse
 
 ---++ Plugin Installation Instructions
 

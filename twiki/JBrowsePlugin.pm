@@ -294,12 +294,12 @@ sub _handleJBrowse {
       || $topic;
 
   my $navigateTo = $attrs->remove( 'navigateTo' )
-      || TWiki::Func::getPreferencesValue ('JBNAVIGATE', $web);
+      || TWiki::Func::getPreferencesValue ('${pluginName}_NAVIGATE', $web);
 
   my $showTracks = $attrs->remove( 'showTracks' )
-      || TWiki::Func::getPreferencesValue ('JBSHOW', $web);
+      || TWiki::Func::getPreferencesValue ('${pluginName}_SHOW', $web);
 
-  my $jbRoot = TWiki::Func::getPreferencesValue ('JBROOT', $web)
+  my $jbRoot = TWiki::Func::getPreferencesValue ("${pluginName}_ROOT", $web)
       || '/jbrowse';
 
   my $jbDataRoot = join '/', TWiki::Func::getPubUrlPath(), $web, $topic;
