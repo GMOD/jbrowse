@@ -294,12 +294,12 @@ sub _handleJBrowse {
       || $topic;
 
   my $navigateTo = $attrs->remove( 'navigateTo' )
-      || TWiki::Func::getPreferencesValue ('JBNAVIGATE', $web);
+      || TWiki::Func::getPreferencesValue ('${pluginName}_NAVIGATE', $web);
 
   my $showTracks = $attrs->remove( 'showTracks' )
-      || TWiki::Func::getPreferencesValue ('JBSHOW', $web);
+      || TWiki::Func::getPreferencesValue ('${pluginName}_SHOW', $web);
 
-  my $jbRoot = TWiki::Func::getPreferencesValue ('JBROOT', $web)
+  my $jbRoot = TWiki::Func::getPreferencesValue ("${pluginName}_ROOT", $web)
       || '/jbrowse';
 
   my $jbDataRoot = join '/', TWiki::Func::getPubUrlPath(), $web, $topic;
@@ -331,7 +331,7 @@ sub _handleJBrowse {
 
     <script type="text/javascript">
     /* <![CDATA[ */
-           var b = new Browser("GenomeBrowser", refSeqs, trackInfo, "$jbDataRoot/");
+           var b = new Browser("GenomeBrowser", refSeqs, trackInfo, "$jbDataRoot/", "$jbRoot/");
 JBCODE
 
 		 $jbCode .= "           b.showTracks(\"$showTracks\");\n" if defined $showTracks;
@@ -670,9 +670,9 @@ sub _makeJBrowse {
     my ($web, $topic, @makeArgs) = @_;
 
     my $pubDir =
-	join '/', TWiki::Func::getPubUrlPath(), $web, $topic;
+	join '/', TWiki::Func::getPubDir(), $web, $topic;
 
-    my $makefile = TWiki::getTWikiLibDir() . '/Makefile.jbrowse';
+    my $makefile = TWiki::getTWikiLibDir() . '/TWiki/Plugins/JBrowsePlugin/Makefile.jbrowse';
 
     my $childPid = fork();
     if (defined $childPid) {
@@ -680,7 +680,7 @@ sub _makeJBrowse {
 	    # parent process; do nothing
 	} else {
 	    # child process; start a make job
-	    exec "cd $pubDir; make -f $makefile @makeArgs";
+	    exec "cd $pubDir; make -f $makefile @makeArgs >& make.out";
 	}
     }
 }

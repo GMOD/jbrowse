@@ -7,11 +7,11 @@ _JBrowse genome browser plugin._
 
 ---++ Syntax Rules
 
-#StandardAttrs Write =%<nop>JBROWSE%= or =%<nop>JBROWSE{ _attributes_ }%= anywhere in a TWiki topic to embed a JBrowse genome browser for attached GFF and FASTA files.
+#StandardAttrs Write =%<nop>JBROWSE%= or =%<nop>JBROWSE{ _attributes_ }%= anywhere in a TWiki topic to embed a [[http://jbrowse.org/][JBrowse]] genome browser for attached [[http://biowiki.org/GffFormat][GFF]] and [[http://biowiki.org/FastaFormat][FASTA]] files.
    * The following standard attributes are recognized 
 | *Name* | *Description* |
-| =showTracks= | default: %<nop>JBSHOW%  |
-| =navigateTo= | default: %<nop>JBNAVIGATE% |
+| =showTracks= | default: %<nop>JBROWSEPLUGIN_SHOW%  |
+| =navigateTo= | default: %<nop>JBROWSEPLUGIN_NAVIGATE% |
 
 ---++ Examples
 
@@ -19,7 +19,7 @@ See http://jbrowse.org/
 
 ---++ Plugin Settings
 
-Plugin settings are stored as preferences variables. To reference a plugin setting write *%<plugin>_<setting>%*, i.e. *%NEWPLUGIN_SHORTDESCRIPTION%*
+Plugin settings are stored as preferences variables. To reference a plugin setting write *%<nop>JBROWSEPLUGIN_setting%*, e.g. %<nop>JBROWSEPLUGIN_SHORTDESCRIPTION% = %JBROWSEPLUGIN_SHORTDESCRIPTION%
 
    * One line description, is shown in the %TWIKIWEB%.TextFormattingRules topic: 
       * Set SHORTDESCRIPTION = _JBrowse genome browser plugin_                                
@@ -27,12 +27,15 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
    * Debug plugin: (See output in =data/debug.txt=) 
       * Set DEBUG = 0                                 
 
+   * Root URL for JBrowse installation 
+      * Set ROOT = /jbrowse
+
 ---++ Plugin Installation Instructions
 
 __Note:__ You do not need to install anything on the browser to use this plugin. The following instructions are for the administrator who installs the plugin on the TWiki server.
 
    * Install packages in the following places (or edit Makefiles in =jbrowse/twiki= accordingly):
-      1 JBrowse in =/usr/local/jbrowse=
+      1 JBrowse in =/usr/local/jbrowse= (ensure that your webserver points URLs beginning with =/jbrowse/= to this location)
       1 TWiki in =/usr/local/twiki=
       1 <nop>CPAN modules required by JBrowse (Bioperl, <nop>JSON) ...these can go anywhere =PERL5LIB= can find them
    * Type =cd /usr/local/jbrowse/twiki; make install=

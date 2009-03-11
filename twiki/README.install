@@ -1,0 +1,23 @@
+JBrowsePlugin for TWiki
+-----------------------
+
+Quick installation guide:
+
+   1. Install TWiki in /usr/local/twiki
+     - Include /usr/local/twiki/twiki_httpd.conf in main httpd.conf
+   2. Install JBrowse in /usr/local/jbrowse
+     - Ensure relevant CPAN modules installed (Bioperl, JSON)
+     - Add an Alias to httpd.conf (or twiki_httpd.conf), pointing http://yoursite.com/jbrowse to /usr/local/jbrowse
+     - You may also need a <Directory> block for /usr/local/jbrowse, setting "allow from all" or similar
+   3. Type 'cd /usr/local/jbrowse/twiki; make install'
+
+To hide the top & left bars in TWiki, point the USERSTYLEURL
+to the file 'hidebars.css' in this directory; e.g. attach this
+file to a page and then add the following text to the page:
+
+   * Set USERSTYLEURL = %ATTACHURL%/hidebars.css
+
+The file 'config.js' is an example of the kind of JBrowse
+configuration file that you can attach to a page to control
+the track rendering. It corresponds to the track descriptions
+part of a complete JBrowse config file.
