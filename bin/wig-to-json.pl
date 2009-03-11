@@ -21,7 +21,9 @@ my $tileWidth = 4000;
 my $trackHeight = 100;
 
 my $wig2png = "$Bin/wig2png";
-
+unless (-x $wig2png) {
+    die "Can't find binary executable $wig2png (try typing 'make' in jbrowse root directory?)";
+}
 
 my $usage = <<USAGE;
  USAGE: $0 --wig <wiggle file> [--tile <tiles directory>] [--out <JSON directory>] [--tracklabel <track identifier>] [--key <human-readable track name>] [--bgcolor <R,G,B>] [--fgcolor <R,G,B>] [--width <tile width>] [--height <tile height>]
