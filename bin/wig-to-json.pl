@@ -12,12 +12,12 @@ use JsonGenerator;
 
 my ($path, $trackLabel, $key, $cssClass);
 my $autocomplete = "none";
-my $tiledir = "tiles";
 my $outdir = "data";
+my $tiledir = "$outdir/tiles";
 my ($getType, $getPhase, $getSubs, $getLabel) = (0, 0, 0, 0);
-my $fgColor = "0,0,0";
+my $fgColor = "105,155,111";
 my $bgColor = "255,255,255";
-my $tileWidth = 4000;
+my $tileWidth = 2000;
 my $trackHeight = 100;
 
 my $wig2png = "$Bin/wig2png";
@@ -62,7 +62,7 @@ mkdir($outdir) unless (-d $outdir);
 mkdir($tiledir) unless (-d $tiledir);
 mkdir($tilesubdir) unless (-d $tilesubdir);
 
-system "$wig2png $path $tiledir $outdir $trackLabel $tileWidth $trackHeight $bgColor $fgColor";
+system "$wig2png $path $tiledir $outdir/tracks $trackLabel $tileWidth $trackHeight $bgColor $fgColor";
 
 foreach my $seqInfo (@refSeqs) {
     my $seqName = $seqInfo->{"name"};
@@ -80,7 +80,7 @@ foreach my $seqInfo (@refSeqs) {
 		       {
 			'label' => $trackLabel,
 			'key' => defined($key) ? $key : $trackLabel,
-			'url' => "$outdir/{refseq}/$trackLabel.json",
+			'url' => "$outdir/tracks/{refseq}/$trackLabel.json",
 			'type' => "ImageTrack",
 		       };
 		     return $trackList;
