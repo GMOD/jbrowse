@@ -195,7 +195,7 @@ div.tracklist-container {
     padding-bottom: 2px;
 }
 
-div.feature-label {
+.feature-label {
     position: absolute;
     font-family: monospace;
     border: 0px;
@@ -205,11 +205,12 @@ div.feature-label {
     /* font-size: 80%; */
     white-space: nowrap;
     background-color: #eee;
+    z-index: 10;
     cursor: pointer;
 }
 
-div.plus-feature,
-div.minus-feature {
+.plus-feature,
+.minus-feature {
     position:absolute;
     height: 8px;
     background-repeat: repeat-x;
@@ -218,9 +219,9 @@ div.minus-feature {
     z-index: 10;
 }
 
-div.plus-feature { background-image: url('img/plus-chevron3.png'); }
+.plus-feature { background-image: url('img/plus-chevron3.png'); }
 
-div.minus-feature { background-image: url('img/minus-chevron3.png'); }
+.minus-feature { background-image: url('img/minus-chevron3.png'); }
 
 div.feature-hist {
     position: absolute;
@@ -231,8 +232,8 @@ div.feature-hist {
     z-index: 10;
 }
 
-div.plus-feature2,
-div.minus-feature2 {
+.plus-feature2,
+.minus-feature2 {
     position:absolute;
     height: 15px;
     background-repeat: repeat-x;
@@ -241,9 +242,9 @@ div.minus-feature2 {
     z-index: 10;
 }
 
-div.plus-feature2 { background-image: url('img/plus-herringbone16.png'); }
+.plus-feature2 { background-image: url('img/plus-herringbone16.png'); }
 
-div.minus-feature2 { background-image: url('img/minus-herringbone16.png'); }
+.minus-feature2 { background-image: url('img/minus-herringbone16.png'); }
 
 div.feature2-hist {
     position: absolute;
@@ -254,8 +255,8 @@ div.feature2-hist {
     z-index: 10;
 }
 
-div.plus-feature3,
-div.minus-feature3 {
+.plus-feature3,
+.minus-feature3 {
     position:absolute;
     height: 8px;
     background-repeat: repeat-x;
@@ -264,9 +265,9 @@ div.minus-feature3 {
     z-index: 10;
 }
 
-div.plus-feature3 { background-image: url('img/plus-chevron.png'); }
+.plus-feature3 { background-image: url('img/plus-chevron.png'); }
 
-div.minus-feature3 { background-image: url('img/minus-chevron.png'); }
+.minus-feature3 { background-image: url('img/minus-chevron.png'); }
 
 div.feature3-hist {
     position: absolute;
@@ -277,8 +278,8 @@ div.feature3-hist {
     z-index: 10;
 }
 
-div.plus-feature4,
-div.minus-feature4 {
+.plus-feature4,
+.minus-feature4 {
     position:absolute;
     height: 12px;
     background-repeat: repeat-x;
@@ -287,9 +288,9 @@ div.minus-feature4 {
     z-index: 10;
 }
 
-div.plus-feature4 { background-image: url('img/plus-pacman.png'); }
+.plus-feature4 { background-image: url('img/plus-pacman.png'); }
 
-div.minus-feature4 { background-image: url('img/minus-pacman.png'); }
+.minus-feature4 { background-image: url('img/minus-pacman.png'); }
 
 div.feature4-hist {
     position: absolute;
@@ -300,8 +301,8 @@ div.feature4-hist {
     z-index: 10;
 }
 
-div.plus-feature5,
-div.minus-feature5 {
+.plus-feature5,
+.minus-feature5 {
     position:absolute;
     height: 8px;
     background-repeat: repeat-x;
@@ -310,9 +311,9 @@ div.minus-feature5 {
     z-index: 10;
 }
 
-div.plus-feature5 { background-image: url('img/plus-chevron2.png'); }
+.plus-feature5 { background-image: url('img/plus-chevron2.png'); }
 
-div.minus-feature5 { background-image: url('img/minus-chevron2.png'); }
+.minus-feature5 { background-image: url('img/minus-chevron2.png'); }
 
 div.feature-hist {
     position: absolute;
@@ -332,8 +333,8 @@ div.exon-hist {
     z-index: 10;
 }
 
-div.plus-exon,
-div.minus-exon {
+.plus-exon,
+.minus-exon {
     position: absolute;
     height: 5px;
     background-color: #4B76E8;
@@ -353,8 +354,8 @@ div.est-hist {
     z-index: 10;
 }
 
-div.plus-est,
-div.minus-est {
+.plus-est,
+.minus-est {
     position: absolute;
     height: 5px;
     background-color: #ED9185;
@@ -365,8 +366,8 @@ div.minus-est {
     z-index: 10;
 }
 
-div.plus-dblhelix,
-div.minus-dblhelix {
+.plus-dblhelix,
+.minus-dblhelix {
     position:absolute;
     height: 11px;
     background-image: url('img/dblhelix-red.png');
@@ -385,8 +386,8 @@ div.dblhelix-hist {
     z-index: 10;
 }
 
-div.plus-helix,
-div.minus-helix {
+.plus-helix,
+.minus-helix {
     position:absolute;
     height: 12px;
     background-image: url('img/helix3-green.png');
@@ -405,7 +406,7 @@ div.helix-hist {
     z-index: 10;
 }
 
-div.loops {
+.loops {
     position:absolute;
     height: 13px;
     background-image: url('img/loops.png');
@@ -413,8 +414,8 @@ div.loops {
     cursor: pointer;
 }
 
-div.plus-cds0, div.plus-cds1, div.plus-cds2,
-div.minus-cds0, div.minus-cds1, div.minus-cds2 {
+.plus-cds0, .plus-cds1, .plus-cds2,
+.minus-cds0, .minus-cds1, .minus-cds2 {
     position:absolute;
     height: 13px;
     background-repeat: repeat-x;
@@ -422,12 +423,12 @@ div.minus-cds0, div.minus-cds1, div.minus-cds2 {
     min-width: 1px;
 }
 
-div.plus-cds0 { background-image: url('img/plus-cds0.png'); }
-div.plus-cds1 { background-image: url('img/plus-cds1.png'); }
-div.plus-cds2 { background-image: url('img/plus-cds2.png'); }
-div.minus-cds0 { background-image: url('img/minus-cds0.png'); }
-div.minus-cds1 { background-image: url('img/minus-cds1.png'); }
-div.minus-cds2 { background-image: url('img/minus-cds2.png'); }
+.plus-cds0 { background-image: url('img/plus-cds0.png'); }
+.plus-cds1 { background-image: url('img/plus-cds1.png'); }
+.plus-cds2 { background-image: url('img/plus-cds2.png'); }
+.minus-cds0 { background-image: url('img/minus-cds0.png'); }
+.minus-cds1 { background-image: url('img/minus-cds1.png'); }
+.minus-cds2 { background-image: url('img/minus-cds2.png'); }
 
 div.cds-hist {
     position: absolute;
@@ -438,7 +439,7 @@ div.cds-hist {
     z-index: 10;
 }
 
-div.topbracket {
+.topbracket {
     position:absolute;
     height: 8px;
     border-style: solid solid none solid;
@@ -449,7 +450,7 @@ div.topbracket {
     cursor: pointer;
 }
 
-div.bottombracket {
+.bottombracket {
     position:absolute;
     height: 8px;
     border-style: none solid solid solid;
@@ -458,9 +459,9 @@ div.bottombracket {
     cursor: pointer;
 }
 
-div.hourglass,
-div.plus-hourglass,
-div.minus-hourglass {
+.hourglass,
+.plus-hourglass,
+.minus-hourglass {
     position:absolute;
     height: 0px;
     border-style: solid;
@@ -468,7 +469,7 @@ div.minus-hourglass {
     cursor: pointer;
 }
 
-div.hgred {
+.hgred {
     border-color: #f99 white #f99 white;
 }
 div.hgred-hist {
@@ -480,7 +481,7 @@ div.hgred-hist {
     z-index: 10;
 }
 
-div.hgblue {
+.hgblue {
     border-color: #99f white #99f white;
 }
 div.hgblue-hist {
@@ -492,7 +493,7 @@ div.hgblue-hist {
     z-index: 10;
 }
 
-div.ibeam {
+.ibeam {
     position:absolute;
     height: 2px;
     background-color: blue;
@@ -511,8 +512,8 @@ div.transcript-hist {
     z-index: 10;
 }
 
-div.plus-transcript,
-div.minus-transcript {
+.plus-transcript,
+.minus-transcript {
     position: absolute;
     height: 12px;
     background-image: url('img/transcript.png');
@@ -525,8 +526,8 @@ div.minus-transcript {
     min-width: 1px;
 }
 
-div.plus-transcript-CDS,
-div.minus-transcript-CDS {
+.plus-transcript-CDS,
+.minus-transcript-CDS {
     position: absolute;
     height: 12px;
     background-image: url('img/cds.png');
@@ -542,10 +543,10 @@ div.minus-transcript-CDS {
     min-width: 1px;
 }
 
-div.plus-transcript-five_prime_UTR,
-div.minus-transcript-five_prime_UTR,
-div.plus-transcript-three_prime_UTR,
-div.minus-transcript-three_prime_UTR {
+.plus-transcript-five_prime_UTR,
+.minus-transcript-five_prime_UTR,
+.plus-transcript-three_prime_UTR,
+.minus-transcript-three_prime_UTR {
     position: absolute;
     height: 12px;
     background-image: url('img/utr.png');

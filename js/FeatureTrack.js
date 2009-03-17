@@ -33,9 +33,8 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
 
 FeatureTrack.prototype = new Track("");
 
-FeatureTrack.prototype.loadSuccess = function(o) {
+FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     var startTime = new Date().getTime();
-    var trackInfo = o;
     this.count = trackInfo.featureCount;
     this.fields = {};
     for (var i = 0; i < trackInfo.headers.length; i++) {
@@ -46,25 +45,28 @@ FeatureTrack.prototype.loadSuccess = function(o) {
 	this.subFields[trackInfo.subfeatureHeaders[i]] = i;
     }
     this.features.importExisting(trackInfo.featureNCList, trackInfo.sublistIndex);
-    this.rangeMap = o.rangeMap;
+    this.rangeMap = trackInfo.rangeMap;
     this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length);
     this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length);
     this.subfeatureScale = 80 * (trackInfo.featureCount / this.refSeq.length);
     this.className = trackInfo.className;
     this.subfeatureClasses = trackInfo.subfeatureClasses;
+    this.urlTemplate = trackInfo.urlTemplate;
 
     //console.log((new Date().getTime() - startTime) / 1000);
 
     var fields = this.fields;
-    this.onFeatureClick = function(event) {
-	event = event || window.event;
-	if (event.shiftKey) return;
-	var feat = (event.currentTarget || event.srcElement).feature;
-	alert("clicked on feature\nstart: " + feat[fields["start"]] +
-	      ", end: " + feat[fields["end"]] +
-	      ", strand: " + feat[fields["strand"]] +
-	      ", ID: " + feat[fields["name"]]);
-    };
+    if (! trackInfo.urlTemplate) {
+        this.onFeatureClick = function(event) {
+            event = event || window.event;
+	    if (event.shiftKey) return;
+	    var feat = (event.currentTarget || event.srcElement).feature;
+	    alert("clicked on feature\nstart: " + feat[fields["start"]] +
+	          ", end: " + feat[fields["end"]] +
+	          ", strand: " + feat[fields["strand"]] +
+	          ", ID: " + feat[fields["name"]]);
+        };
+    }
 
     this.setLoaded();
 };
@@ -284,7 +286,13 @@ FeatureTrack.prototype.fillFeatures = function(block,
             }
         }
 
-        featDiv = document.createElement("div");
+        if (curTrack.urlTemplate) {
+            featDiv = document.createElement("a");
+            featDiv.href = curTrack.urlTemplate.replace(/\{([^}]+)\}/g, function(match, group) {return feature[curTrack.fields[group]];});
+            featDiv.target = "_new";
+        } else {
+            featDiv = document.createElement("div");
+        }
 	featDiv.feature = feature;
 	featDiv.layoutEnd = featureEnd;
 
@@ -321,7 +329,16 @@ FeatureTrack.prototype.fillFeatures = function(block,
             + " width: " + (100 * ((feature[end] - feature[start]) / blockWidth)) + "%;";
 
         if ((scale > labelScale) && name && feature[name]) {
-            var labelDiv = document.createElement("div");
+            var labelDiv;
+            if (curTrack.urlTemplate) {
+                labelDiv = document.createElement("a");
+                labelDiv.href = featDiv.href;
+                labelDiv.target = featDiv.target;
+            } else {
+                labelDiv = document.createElement("div");
+	        labelDiv.onclick = callback;
+            }
+
             labelDiv.className = "feature-label";
             labelDiv.appendChild(document.createTextNode(feature[name]));
             labelDiv.style.cssText =
@@ -329,7 +346,6 @@ FeatureTrack.prototype.fillFeatures = function(block,
                 + "top: " + ((level * levelHeight) + glyphHeight) + levelUnits + ";";
 	    featDiv.label = labelDiv;
 	    labelDiv.feature = feature;
-	    labelDiv.onclick = callback;
             block.appendChild(labelDiv);
         }
 

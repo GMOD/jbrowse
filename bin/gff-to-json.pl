@@ -10,7 +10,7 @@ use Getopt::Long;
 use Bio::DB::SeqFeature::Store;
 use JsonGenerator;
 
-my ($path, $trackLabel, $key);
+my ($path, $trackLabel, $key, $urlTemplate);
 my $autocomplete = "none";
 my $outdir = "data";
 my $cssClass = "feature";
@@ -24,12 +24,13 @@ GetOptions("gff=s" => \$path,
 	   "type" => \$getType,
 	   "phase" => \$getPhase,
 	   "subs" => \$getSubs,
-	   "featlabel" => \$getLabel);
+	   "featlabel" => \$getLabel,
+           "urltemplate" => \$urlTemplate);
 my $trackDir = "$outdir/tracks";
 
 if (!defined($path)) {
     print <<USAGE;
-USAGE: $0 --gff <gff file> [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssclass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--type] [--phase] [--subs] [--featlabel]
+USAGE: $0 --gff <gff file> [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssclass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--type] [--phase] [--subs] [--featlabel] [--urltemplate "http://example.com/idlookup?id={id}"]
 
     --out: defaults to "data"
     --cssclass: defaults to "feature"
@@ -38,6 +39,7 @@ USAGE: $0 --gff <gff file> [--out <output directory>] --tracklabel <track identi
     --phase: include the phase of the features in the json
     --subs:  include subfeatures in the json
     --featlabel: include a label for the features in the json
+    --urltemplate: template for a URL that clicking on a feature will navigate to
 USAGE
 }
 
@@ -77,7 +79,8 @@ foreach my $seqInfo (@refSeqs) {
 		 "subfeatures"  => $getSubs,
 		 "class"        => $cssClass,
 		 "label"        => $getLabel ? \&gffLabelSub : 0,
-                 "key"          => defined($key) ? $key : $trackLabel);
+                 "key"          => defined($key) ? $key : $trackLabel,
+                 "urlTemplate"  => $urlTemplate);
 
     JsonGenerator::generateTrack(
 				 $trackLabel, $seqName,

@@ -98,6 +98,21 @@ sub modifyJSFile {
       or die "couldn't close $file: $!";
 }
 
+# turn perl subs from the config file into callable functions
+sub evalSubStrings {
+    my $hashref = shift;
+    foreach my $key (keys %{$hashref}) {
+        next if ("CODE" eq (ref $hashref->{$key}));
+
+        if ("HASH" eq (ref $hashref->{$key})) {
+            evalSubStrings($hashref->{$key});
+        } else {
+            $hashref->{$key} = eval($hashref->{$key})
+              if ($hashref->{$key} =~ /^\s*sub\s*{.*}\s*$/);
+        }
+    }
+}
+
 sub generateTrack {
     my ($label, $segName, $outDir, $featureLimit,
 	$features, $setStyle, $extraMap, $extraHeaders) = @_;
@@ -107,6 +122,8 @@ sub generateTrack {
     my %style = ("key" => $label,
                  %builtinDefaults,
 		 %$setStyle);
+
+    evalSubStrings(\%style);
 
     my $getLabel = ($style{"autocomplete"} =~ /label|all/);
     my $getAlias = ($style{"autocomplete"} =~ /alias|all/);
@@ -126,7 +143,14 @@ sub generateTrack {
 
     if ($style{"type"}) {
         push @curFeatMap, sub {shift->primary_tag};
-        push @mapHeaders, "type";
+        push @curMapHeaders, "type";
+    }
+
+    if ($style{"extraData"}) {
+        foreach my $extraName (keys %{$style{"extraData"}}) {
+            push @curMapHeaders, $extraName;
+            push @curFeatMap, $style{"extraData"}->{$extraName};
+        }
     }
 
     my @allSubfeatures;
@@ -221,20 +245,23 @@ sub generateTrack {
     #use Data::Dumper;
     #$Data::Dumper::Maxdepth = 2;
     #print Dumper($featList->{'topList'});
+    my $trackData = {
+                     'label' => $label,
+                     'key' => $style{"key"},
+                     'sublistIndex' => $sublistIndex,
+                     'headers' => \@curMapHeaders,
+                     'featureCount' => $#{$features} + 1,
+                     'type' => "FeatureTrack",
+                     'className' => $style{"class"},
+                     'subfeatureClasses' => $style{"subfeature_classes"},
+                     'featureNCList' => $flatFeatures,
+                     'rangeMap' => $rangeMap,
+                     'subfeatureHeaders' => \@subfeatHeaders
+                    };
+    $trackData->{"urlTemplate"} = $style{"urlTemplate"}
+      if defined($style{"urlTemplate"});
     writeJSON("$outDir/trackData.json",
-	      {
-	       'label' => $label,
-	       'key' => $style{"key"},
-	       'sublistIndex' => $sublistIndex,
-	       'headers' => \@curMapHeaders,
-	       'featureCount' => $#{$features} + 1,
-	       'type' => "FeatureTrack",
-	       'className' => $style{"class"},
-               'subfeatureClasses' => $style{"subfeature_classes"},
-	       'featureNCList' => $flatFeatures,
-               'rangeMap' => $rangeMap,
-               'subfeatureHeaders' => \@subfeatHeaders
-	      },
+              $trackData,
               {pretty => 0});
 }
 
