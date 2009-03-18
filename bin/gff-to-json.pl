@@ -69,7 +69,8 @@ foreach my $seqInfo (@refSeqs) {
 
     my @features = $db->features("-seqid" => $seqName);
 
-    print "got $#features features\n";
+    print "got ", @features+0, " features\n";
+    next unless @features;
 
     if (!defined($trackLabel)) { $trackLabel = $features[0]->primary_tag };
 

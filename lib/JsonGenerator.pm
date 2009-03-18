@@ -108,7 +108,7 @@ sub evalSubStrings {
             evalSubStrings($hashref->{$key});
         } else {
             $hashref->{$key} = eval($hashref->{$key})
-              if ($hashref->{$key} =~ /^\s*sub\s*{.*}\s*$/);
+              if (defined($hashref->{$key}) && $hashref->{$key} =~ /^\s*sub\s*{.*}\s*$/);
         }
     }
 }
