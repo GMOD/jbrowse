@@ -383,6 +383,8 @@ public:
                 handleParams(ss, params);
                 variableSection(params["chrom"],
                                 params["span"]);
+            } else if ("track" == word) {
+                cerr << "ignoring " << line << endl;
             } else {
                 switch (format_) {
                 case FIXED:
@@ -409,10 +411,41 @@ public:
                         throw ParseFailure();
                     }
                     break;
-                case BED:
-                    cerr << "bed format wiggle file parsing not yet implemented" << endl;
-                    exit(1);
+                case BED: {
+                    bool ok = true;
+                    int startBase, endBase;
+                    float value;
+                    chrom_ = word;
+                    allChroms_.insert(chrom_);
+                    if (ok) {
+                        ss >> word;
+                        ok = from_string<int>(startBase, word, dec);
+                    }
+                    if (ok) {
+                        ss >> word;
+                        ok = from_string<int>(endBase, word, dec);
+                    }
+                    if (ok) {
+                        ss >> word;
+                        ok = from_string<float>(value, word, dec);
+                    }
+                    if (!ok)
+                        throw ParseFailure();
+
+                    for (int i = 0; i < renderers_.size(); i++)
+                        renderers_[i]->newSection(chrom_, startBase);
+
+                    for (int i = startBase; i < endBase; i++) {
+                        //wiggle bed format is 0-based
+                        addValue(i, sample);
+                    }
+
+                    //curBase is 1-based, endBase is 0-based half-open,
+                    //we want curBase to be equivalent to endBase in
+                    //1-based coords, because the span doesn't include endBase.
+                    curBase_ = endBase + 1;
                     break;
+                }
                 }
             }
         } catch (ParseFailure) {

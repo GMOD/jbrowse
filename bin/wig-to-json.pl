@@ -7,6 +7,7 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
 use Getopt::Long;
+use File::Basename;
 use Bio::DB::SeqFeature::Store;
 use JsonGenerator;
 
@@ -55,12 +56,13 @@ if (!defined($path)) {
 my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
 die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
 
-$trackLabel = $path unless defined $trackLabel;
+$trackLabel = basename($path) unless defined $trackLabel;
 my $tilesubdir = "$tiledir/$trackLabel";
 
 mkdir($outdir) unless (-d $outdir);
 mkdir($tiledir) unless (-d $tiledir);
 mkdir($tilesubdir) unless (-d $tilesubdir);
+mkdir("$outdir/tracks") unless (-d "$outdir/tracks");
 
 system "$wig2png $path $tiledir $outdir/tracks $trackLabel $tileWidth $trackHeight $bgColor $fgColor";
 
