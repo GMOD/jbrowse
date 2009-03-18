@@ -459,13 +459,27 @@ div.cds-hist {
     cursor: pointer;
 }
 
-.hourglass,
-.plus-hourglass,
-.minus-hourglass {
+.hourglass {
     position:absolute;
     height: 0px;
     border-style: solid;
     border-width: 6px 3px 6px 3px;
+    cursor: pointer;
+}
+
+.plus-triangle {
+    position:absolute;
+    height: 0px;
+    border-style: solid;
+    border-width: 6px 3px 0px 3px;
+    cursor: pointer;
+}
+
+.minus-triangle {
+    position:absolute;
+    height: 0px;
+    border-style: solid;
+    border-width: 0px 3px 6px 3px;
     cursor: pointer;
 }
 
