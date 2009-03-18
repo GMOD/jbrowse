@@ -63,6 +63,7 @@
       "feature": ["mRNA:exonerate"],
       "description": 1,
       "class": "transcript",
+      "subfeatures": true,
       "subfeature_classes": {
         "CDS": "transcript-CDS",
         "five_prime_UTR": "transcript-five_prime_UTR",
