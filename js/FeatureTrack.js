@@ -51,6 +51,7 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     this.subfeatureScale = 80 * (trackInfo.featureCount / this.refSeq.length);
     this.className = trackInfo.className;
     this.subfeatureClasses = trackInfo.subfeatureClasses;
+    this.arrowheadClass = trackInfo.arrowheadClass;
     this.urlTemplate = trackInfo.urlTemplate;
 
     if (trackInfo.clientConfig) {
@@ -213,16 +214,30 @@ FeatureTrack.prototype.fillFeatures = function(block,
 
     //determine the height of the glyph
     if (!("glyphHeight" in this)) {
+        var glyphBox;
 	var heightTest = document.createElement("div");
 	//cover all the bases: stranded or not, phase or not
 	heightTest.className = this.className + " plus-" + this.className + " plus-" + this.className + "1";
 	heightTest.style.visibility = "hidden";
-	heightTest.appendChild(document.createComment("foo"));
+	if (Util.is_ie6) heightTest.appendChild(document.createComment("foo"));
 	document.body.appendChild(heightTest);
-        var glyphBox = dojo.marginBox(heightTest);
+        glyphBox = dojo.marginBox(heightTest);
 	this.glyphHeight = Math.round(glyphBox.h + 2);
 	this.padding += glyphBox.w;
 	document.body.removeChild(heightTest);
+
+        //determine the width of the arrowhead, if any
+        if (this.arrowheadClass) {
+            var ah = document.createElement("div");
+            ah.className = "plus-" + this.arrowheadClass;
+            if (Util.is_ie6) ah.appendChild(document.createComment("foo"));
+            document.body.appendChild(ah);
+            glyphBox = dojo.marginBox(ah);
+            this.plusArrowWidth = glyphBox.w;
+            ah.className = "minus-" + this.arrowheadClass;
+            glyphBox = dojo.marginBox(ah);
+            this.minusArrowWidth = glyphBox.w;
+        }
     }
 
     startSlots = new Array();
@@ -256,9 +271,19 @@ FeatureTrack.prototype.fillFeatures = function(block,
 
     var featCallback = function(feature) {
         var level;
-	//featureEnd is how far right the feature extends,
-	//including its label if applicable
+        //featureStart and featureEnd indicate how far left or right
+        //the feature extends in bp space, including labels
+        //and arrowheads if applicable
 	var featureEnd = feature[end];
+        var featureStart = feature[start];
+        if (curTrack.arrowheadClass) {
+            switch (feature[strand]) {
+            case 1:
+                featureEnd   += (curTrack.plusArrowWidth / scale); break;
+            case -1:
+                featureStart -= (curTrack.minusArrowWidth / scale); break;
+            }
+        }
 	if (scale > labelScale)
 	    featureEnd = Math.max(featureEnd,
 				  feature[start] + (((name && feature[name])
@@ -278,6 +303,16 @@ FeatureTrack.prototype.fillFeatures = function(block,
 		break;
 	    }
 	    var otherEnd = slots[j].feature[end];
+            var otherStart = slots[j].feature[start];
+            if (curTrack.arrowheadClass) {
+                switch (feature[strand]) {
+                case 1:
+                    otherEnd   += (curTrack.plusArrowWidth / scale); break;
+                case -1:
+                    otherStart -= (curTrack.minusArrowWidth / scale); break;
+                }
+            }
+
 	    if ((scale > labelScale)
                 && name
                 && feature[name]
@@ -286,8 +321,8 @@ FeatureTrack.prototype.fillFeatures = function(block,
                                     slots[j].feature[start]
                                     + (slots[j].feature[name].length
                                        * basesPerLabelChar));
-            if (((otherEnd + basePadding) >= feature[start])
-                && ((slots[j].feature[start] - basePadding) <= featureEnd)) {
+            if (((otherEnd + basePadding) >= featureStart)
+                && ((otherStart - basePadding) <= featureEnd)) {
 		//this feature overlaps
                 continue;
             } else {
@@ -337,6 +372,23 @@ FeatureTrack.prototype.fillFeatures = function(block,
             "left: " + (100 * (feature[start] - leftBase) / blockWidth) + "%; "
             + "top: " + (level * levelHeight) + levelUnits + ";"
             + " width: " + (100 * ((feature[end] - feature[start]) / blockWidth)) + "%;";
+
+        if (curTrack.arrowheadClass) {
+            var ah = document.createElement("div");
+            switch (feature[strand]) {
+            case 1:
+                ah.className = "plus-" + curTrack.arrowheadClass;
+                ah.style.cssText = "left: 100%; top: 0px;";
+                featDiv.appendChild(ah);
+                break;
+            case -1:
+                ah.className = "minus-" + curTrack.arrowheadClass;
+                ah.style.cssText = "left: " + (-curTrack.minusArrowWidth)
+                                       + "px; top: 0px;";
+                featDiv.appendChild(ah);
+                break;
+            }
+        }
 
         if ((scale > labelScale) && name && feature[name]) {
             var labelDiv;

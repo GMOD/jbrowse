@@ -538,6 +538,26 @@ div.transcript-hist {
     cursor: pointer;
 }
 
+.plus-transcript-arrowhead {
+    position: absolute;
+    height: 0px;
+    width: 0px;
+    margin-top: -4px;
+    border-style: solid;
+    border-color: white white white #999;
+    border-width: 6px 0px 6px 10px;
+}
+
+.minus-transcript-arrowhead {
+    position: absolute;
+    height: 0px;
+    width: 0px;
+    margin-top: -4px;
+    border-style: solid;
+    border-color: white #999 white white;
+    border-width: 6px 10px 6px 0px;
+}
+
 .plus-transcript-CDS,
 .minus-transcript-CDS {
     position: absolute;
