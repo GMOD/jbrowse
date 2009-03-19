@@ -254,6 +254,7 @@ sub generateTrack {
                      'type' => "FeatureTrack",
                      'className' => $style{"class"},
                      'subfeatureClasses' => $style{"subfeature_classes"},
+                     'clientConfig' => $style{"clientConfig"},
                      'featureNCList' => $flatFeatures,
                      'rangeMap' => $rangeMap,
                      'subfeatureHeaders' => \@subfeatHeaders

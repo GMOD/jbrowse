@@ -529,21 +529,20 @@ div.transcript-hist {
 .plus-transcript,
 .minus-transcript {
     position: absolute;
-    height: 12px;
-    background-image: url('img/transcript.png');
-/*  background-color: #ddd;
-    border-style: solid;
-    border-color: #00f;
-    border-width: 1px;*/
-    cursor: pointer;
+    height: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    background-color: #999;
     z-index: 6;
     min-width: 1px;
+    cursor: pointer;
 }
 
 .plus-transcript-CDS,
 .minus-transcript-CDS {
     position: absolute;
     height: 12px;
+    margin-top: -4px;
     background-image: url('img/cds.png');
 /*  border-width: 2px 0px 3px 0px;
     border-style: solid;
@@ -562,13 +561,65 @@ div.transcript-hist {
 .plus-transcript-three_prime_UTR,
 .minus-transcript-three_prime_UTR {
     position: absolute;
-    height: 12px;
-    background-image: url('img/utr.png');
-/*  background-color: #E7796D;
+    height: 4px;
+    margin-top: -2px;
+    background-color: #B66;
     border-style: solid;
-    border-color: #00f;
-    border-width: 1px;*/
-    cursor: pointer;
+    border-color: #D88;
+    border-width: 2px 0px 2px 0px;
     z-index: 8;
     min-width: 1px;
+    cursor: pointer;
+}
+
+.generic_parent,
+.plus-generic_parent,
+.minus-generic_parent {
+    position: absolute;
+    height: 4px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    background-color: #AAA;
+    z-index: 6;
+    min-width: 1px;
+    cursor: pointer;
+}
+
+div.generic_parent-hist {
+    position: absolute;
+    background-color: #ddd;
+    border-color: #555;
+    border-style: solid;
+    border-width: 1px;
+    z-index: 10;
+}
+
+.match_part,
+.plus-match_part,
+.minus-match_part {
+    position: absolute;
+    height: 4px;
+    margin-top: -2px;
+    background-color: #66B;
+    border-style: solid;
+    border-color: #88D;
+    border-width: 2px 0px 2px 0px;
+    z-index: 8;
+    min-width: 1px;
+    cursor: pointer;
+}
+
+.generic_part_a,
+.plus-generic_part_a,
+.minus-generic_part_a {
+    position: absolute;
+    height: 4px;
+    margin-top: -2px;
+    background-color: #6B6;
+    border-style: solid;
+    border-color: #8D8;
+    border-width: 2px 0px 2px 0px;
+    z-index: 8;
+    min-width: 1px;
+    cursor: pointer;
 }

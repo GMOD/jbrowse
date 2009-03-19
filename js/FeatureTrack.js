@@ -53,6 +53,15 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     this.subfeatureClasses = trackInfo.subfeatureClasses;
     this.urlTemplate = trackInfo.urlTemplate;
 
+    if (trackInfo.clientConfig) {
+        var cc = trackInfo.clientConfig;
+        var density = trackInfo.featureCount / this.refSeq.length;
+        this.histScale = (cc.histScale ? cc.histScale : 4) * density;
+        this.labelScale = (cc.labelScale ? cc.labelScale : 50) * density;
+        this.subfeatureScale = (cc.subfeatureScale ? cc.subfeatureScale : 80)
+                                   * density;
+    }
+
     //console.log((new Date().getTime() - startTime) / 1000);
 
     var fields = this.fields;
@@ -208,10 +217,11 @@ FeatureTrack.prototype.fillFeatures = function(block,
 	//cover all the bases: stranded or not, phase or not
 	heightTest.className = this.className + " plus-" + this.className + " plus-" + this.className + "1";
 	heightTest.style.visibility = "hidden";
-	heightTest.appendChild(document.createComment("foo"));;
+	heightTest.appendChild(document.createComment("foo"));
 	document.body.appendChild(heightTest);
-	this.glyphHeight = Math.round(heightTest.offsetHeight + 2);
-	this.padding += heightTest.offsetWidth;
+        var glyphBox = dojo.marginBox(heightTest);
+	this.glyphHeight = Math.round(glyphBox.h + 2);
+	this.padding += glyphBox.w;
 	document.body.removeChild(heightTest);
     }
 
@@ -236,7 +246,7 @@ FeatureTrack.prototype.fillFeatures = function(block,
     var callback = this.onFeatureClick;
     var leftSlots = new Array();
     var glyphHeight = this.glyphHeight;
-    var levelHeight = this.glyphHeight;
+    var levelHeight = this.glyphHeight + 2;
     var className = this.className;
     var labelScale = this.labelScale;
     var subfeatureScale = this.subfeatureScale;
