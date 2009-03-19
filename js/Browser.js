@@ -378,6 +378,7 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     var locString = Util.addCommas(Math.round(startbp)) + " .. " + Util.addCommas(Math.round(endbp));
     this.location.value = locString;
     this.goButton.disabled = true;
+    this.location.blur();
     var oldLocMap = dojo.fromJson(dojo.cookie(this.container.id + "-location"));
     if ((typeof oldLocMap) != "object") oldLocMap = {};
     oldLocMap[this.refSeq.name] = locString;
@@ -474,11 +475,15 @@ Browser.prototype.createNavBox = function(parent, locLength) {
     dojo.connect(this.location, "keyup", function(event) {
             if (event.keyCode == dojo.keys.ENTER) {
                 brwsr.navigateTo(brwsr.location.value);
+                brwsr.location.blur();
                 brwsr.goButton.disabled = true;
             } else {
                 brwsr.goButton.disabled = false;
             }
         });
+    dojo.connect(this.location, "focus", function(event) {
+                     brwsr.location.select();
+                 });
     navbox.appendChild(this.location);
 
     this.goButton = document.createElement("button");
@@ -486,6 +491,7 @@ Browser.prototype.createNavBox = function(parent, locLength) {
     this.goButton.disabled = true;
     dojo.connect(this.goButton, "click", function(event) {
             brwsr.navigateTo(brwsr.location.value);
+            brwsr.location.blur();
             brwsr.goButton.disabled = true;
         });
     navbox.appendChild(this.goButton);
