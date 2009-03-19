@@ -237,6 +237,7 @@ FeatureTrack.prototype.fillFeatures = function(block,
             ah.className = "minus-" + this.arrowheadClass;
             glyphBox = dojo.marginBox(ah);
             this.minusArrowWidth = glyphBox.w;
+            document.body.removeChild(ah);
         }
     }
 
@@ -420,7 +421,7 @@ FeatureTrack.prototype.fillFeatures = function(block,
 
 	//ie6 doesn't respect the height style if the div is empty
         if (Util.is_ie6) featDiv.appendChild(document.createComment());
-        featDiv.onclick = callback;
+        if (!curTrack.urlTemplate) featDiv.onclick = callback;
         //Event.observe measurably slower
         //TODO: handle IE leaks (
         //Event.observe(featDiv, "click", callback);
