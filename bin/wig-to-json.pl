@@ -20,6 +20,8 @@ my $fgColor = "105,155,111";
 my $bgColor = "255,255,255";
 my $tileWidth = 2000;
 my $trackHeight = 100;
+my $min = "";
+my $max = "";
 
 my $wig2png = "$Bin/wig2png";
 unless (-x $wig2png) {
@@ -27,7 +29,7 @@ unless (-x $wig2png) {
 }
 
 my $usage = <<USAGE;
- USAGE: $0 --wig <wiggle file> [--tile <tiles directory>] [--out <JSON directory>] [--tracklabel <track identifier>] [--key <human-readable track name>] [--bgcolor <R,G,B>] [--fgcolor <R,G,B>] [--width <tile width>] [--height <tile height>]
+ USAGE: $0 --wig <wiggle file> [--tile <tiles directory>] [--out <JSON directory>] [--tracklabel <track identifier>] [--key <human-readable track name>] [--bgcolor <R,G,B>] [--fgcolor <R,G,B>] [--width <tile width>] [--height <tile height>] [--min <min> --max <max>]
 
     --tile: defaults to "$tiledir"
     --out: defaults to "$outdir"
@@ -37,6 +39,10 @@ my $usage = <<USAGE;
     --fgcolor: defaults to "$fgColor"
     --width: defaults to $tileWidth
     --height: defaults to $trackHeight
+    --min: lowest value in wig file
+    --max: highest value in wig file
+        if min and max are not supplied, an extra pass through
+        the wig file will be made to determine them
 USAGE
 
 GetOptions("wig=s" => \$path,
@@ -47,7 +53,9 @@ GetOptions("wig=s" => \$path,
 	   "bgcolor=s" => \$bgColor,
 	   "fgcolor=s" => \$fgColor,
 	   "width=s" => \$tileWidth,
-	   "height=s" => \$trackHeight);
+	   "height=s" => \$trackHeight,
+           "min=f" => \$min,
+           "max=f" => \$max);
 
 if (!defined($path)) {
     die $usage;
@@ -64,7 +72,7 @@ mkdir($tiledir) unless (-d $tiledir);
 mkdir($tilesubdir) unless (-d $tilesubdir);
 mkdir("$outdir/tracks") unless (-d "$outdir/tracks");
 
-system "$wig2png $path $tiledir $outdir/tracks $trackLabel $tileWidth $trackHeight $bgColor $fgColor";
+system "$wig2png $path $tiledir $outdir/tracks $trackLabel $tileWidth $trackHeight $bgColor $fgColor $min $max";
 
 foreach my $seqInfo (@refSeqs) {
     my $seqName = $seqInfo->{"name"};

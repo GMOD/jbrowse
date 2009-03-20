@@ -528,8 +528,10 @@ private:
 };
 
 int main(int argc, char **argv){
-    if (argc != 9)
-        abort_("Usage: %s <input file> <output dir> <json dir> <track label> <width> <height> <bg red>,<bg green>,<bg blue> <fg red>,<fg green>,<fg blue>", argv[0]);
+    if (argc < 9) {
+        cerr << "Usage: " << argv[0] << "<input file> <output dir> <json dir> <track label> <width> <height> <bg red>,<bg green>,<bg blue> <fg red>,<fg green>,<fg blue> [<min> <max>]" << endl;
+        exit(1);
+    }
 
     png_color bg = {
         atoi(strtok(argv[7], ",")), 
@@ -550,11 +552,22 @@ int main(int argc, char **argv){
     basePath.push_back(string(argv[4]));
     string baseDir = ensure_path(basePath);
 
-    WiggleRangeParser rp;
-    rp.processWiggle(argv[1]);
+    float max = 1.0f;
+    float min = 0.0f;
+    if (argc > 9) {
+        if (! (from_string<float>(min, argv[9], dec)
+               &&
+               from_string<float>(max, argv[10], dec))) {
+            cerr << "couldn't parse min and max arguments: " << argv[9] << " " << argv[10] << endl;
+            exit(1);
+        }
+    } else {
+        WiggleRangeParser rp;
+        rp.processWiggle(argv[1]);
 
-    float max = rp.getMax();
-    float min = rp.getMin();
+        max = rp.getMax();
+        min = rp.getMin();
+    }
 
     //bases per pixel
     const int zooms[] = {1, 2, 5, 10, 20, 50, 100, 200, 500, 1000,
