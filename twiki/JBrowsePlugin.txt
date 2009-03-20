@@ -3,6 +3,8 @@
 
 _JBrowse genome browser plugin._
 
+Illustrates a [[%PUBURL%/TWiki/JBrowsePlugin/Makefile][Makefile]]-driven approach to a [[http://jbrowse.org][JBrowse]] genome browser plugin.
+
 %TOC%
 
 ---++ Syntax Rules
