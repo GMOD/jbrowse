@@ -5,3 +5,4 @@ TWIKI = /usr/local/twiki
 install:
 	ln -sf $(CURDIR)/JBrowsePlugin.pm $(CURDIR)/JBrowsePlugin $(TWIKI)/lib/TWiki/Plugins/
 	ln -sf $(CURDIR)/JBrowsePlugin.txt $(TWIKI)/data/TWiki/
+	ln -sf $(CURDIR)/JBrowsePlugin/Makefile.jbrowse $(TWIKI)/pub/TWiki/JBrowsePlugin/Makefile
