@@ -55,11 +55,11 @@ A JBrowse config file starts out just like a GBrowse config file, with a slightl
 <tr><td>autocomplete</td><td>If you want to be able to search for the features in this track, set this to one of the following strings:<ul><li><span class="code">label</span><br>to search on the feature label</li><li><span class="code">alias</span><br>to search on the feature aliases</li><li><span class="code">all</span><br>to search on both labels and aliases</td><td>string</td></tr>
 <tr><td>class</td><td>The CSS class for the feature.  Look in <a href="../featureglyphs.html">the feature glyph list</a>for the available options.</td><td>string</td></tr>
 <tr><td>category</td><td>The category this track is in, for grouping the tracks together</td><td>string</td></tr>
-<tr><td>urlTemplate</td></tr>
-<tr><td>extraData</td></tr>
-<tr><td>subfeatureClasses</td></tr>
-<tr><td>arrowheadClass</td></tr>
-<tr><td>clientConfig</td></tr>
+<tr><td>urlTemplate</td><td>Template for a URL to visit if the user clicks on a feature in this track</td><td>string</td></tr>
+<tr><td>extraData</td><td>Extra per-feature information to send to the client; useful in the urlTemplate</td><td>dictionary of header -&gt; perl sub</td></tr>
+<tr><td>subfeatureClasses</td><td>Specifies what CSS class to apply to what type of subfeature</td><td>dictionary of type -&gt; CSS class</td></tr>
+<tr><td>arrowheadClass</td><td>CSS class for arrowheads</td><td>string</td></tr>
+<tr><td>clientConfig</td><td>settings to control the behavior of the client for this track, mainly zoom thresholds for when to display more information</td><td>dictionary</td></tr>
 </table>
 
 </body>
