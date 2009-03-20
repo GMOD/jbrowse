@@ -526,6 +526,7 @@ div.transcript-hist {
     z-index: 10;
 }
 
+.transcript,
 .plus-transcript,
 .minus-transcript {
     position: absolute;
