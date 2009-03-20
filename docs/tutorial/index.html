@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+  <head><title>JBrowse getting started guide</title></head>
+  <style type="text/css">
+      <!--
+         table { 
+           border: 1px solid #777;
+           border-collapse: collapse;
+         }
+         td { border: 1px solid #777; }
+         th { border: 1px solid #777; }
+         pre { background-color: #ddd; }
+         span.code { font-family: monospace; font-weight: bold; }
+      -->
+  </style>
+<body>
+blah blah blah<br>
+
+<h3>The Config File</h3>
+
+<p>A JBrowse config file exists to tell the JBrowse tools about a database and the tracks within the database.
+If all of your data is in flat files, and your feature flat files (BED, GFF) are separated so that there's only one file per track, you don't need a config file.
+However, a config file is a convenient way to specify the details of how JBrowse should treat a track, so you may want to use a config file anyway, especially if you expect to import new versions of your data on an ongoing basis.</p>
+
+<p>The syntax of the config file is <a href="http://json.org">JSON</a>.
+It was originally the GBrowse config file syntax, but JBrowse really needed multiple levels of nesting and an array syntax, so it's JSON.
+However, it does contain some of the same settings as the GBrowse config file, especially at the beginning.
+A JBrowse config file starts out just like a GBrowse config file, with a slightly different syntax:</p>
+<pre>
+{
+  "description": "Volvox Example Database",
+  "db_adaptor": "Bio::DB::SeqFeature::Store",
+  "db_args": { "-adaptor": "memory",
+               "-dir": "docs/tutorial/data_files" },
+</pre>
+
+<p>The root level of the config file:<p>
+<table>
+<tr><th>key</th><th>value</th><th>type</th></tr>
+<tr><td>description</td><td>Brief description of the data source</td><td>string</td></tr>
+<tr><td>db_adaptor</td><td>Perl class that implements Bio::DasI.<br>Common ones include <ul><li>Bio::DB::SeqFetaure::Store</li><li>Bio::DB::GFF</li><li>Bio::DB::Das::Chado</li></ul></td><td>string</td></tr>
+<tr><td>db_args</td><td>arguments to the constructor for the specified db_adaptor</td><td>dictionary of key-value pairs</td></tr>
+<tr><td>TRACK DEFAULTS</td><td>default track settings</td><td>track settings dictionary</td></tr>
+<tr><td>tracks</td><td>settings for all the tracks</td><td>array of track settings dictionaries</td></tr>
+</table>
+<br>
+<p>The meat of the configuration file consists of the <b>per-track settings:</b></p>
+<table>
+<tr><th>key</th><th>value</th><th>type</th></tr>
+<tr><td>track</td><td>track identifier used by the software.<br>It's more convenient if this doesn't have any weird characters or spaces in it</td><td>string</td></tr>
+<tr><td>key</td><td>Human-readable label for the track</td><td>string</td></tr>
+<tr><td>feature</td><td>List of feature types to put into the track</td><td>array of strings</td></tr>
+<tr><td>autocomplete</td><td>If you want to be able to search for the features in this track, set this to one of the following strings:<ul><li><span class="code">label</span><br>to search on the feature label</li><li><span class="code">alias</span><br>to search on the feature aliases</li><li><span class="code">all</span><br>to search on both labels and aliases</td><td>string</td></tr>
+<tr><td>class</td><td>The CSS class for the feature.  Look in <a href="../featureglyphs.html">the feature glyph list</a>for the available options.</td><td>string</td></tr>
+<tr><td>category</td><td>The category this track is in, for grouping the tracks together</td><td>string</td></tr>
+<tr><td>urlTemplate</td><td>Template for a URL to visit if the user clicks on a feature in this track</td><td>string</td></tr>
+<tr><td>extraData</td><td>Extra per-feature information to send to the client; useful in the urlTemplate</td><td>dictionary of header -&gt; perl sub</td></tr>
+<tr><td>subfeatureClasses</td><td>Specifies what CSS class to apply to what type of subfeature</td><td>dictionary of type -&gt; CSS class</td></tr>
+<tr><td>arrowheadClass</td><td>CSS class for arrowheads</td><td>string</td></tr>
+<tr><td>clientConfig</td><td>settings to control the behavior of the client for this track, mainly zoom thresholds for when to display more information</td><td>dictionary</td></tr>
+</table>
+
+</body>
+</html>
