@@ -20,6 +20,23 @@ GetOptions("conf=s" => \$confFile,
            "v+" => \$verbose);
 my $trackDir = "$outdir/tracks";
 
+if (!defined($confFile)) {
+    print <<HELP;
+USAGE: $0 --conf <conf file> [--ref <ref seq names> | --refid <ref seq ids>] [--track <track name>] [--out <output directory>]
+
+    <conf file>: path to the configuration file
+    <ref seq names>: comma-separated list of reference sequence names
+        $0 will process features on these ref seqs
+        default: all of the ref seqs that prepare-refseqs.pl has seen
+    <ref seq ids>: comma-separated list of reference sequence ids
+        $0 will process features on these ref seqs
+        default: all of the ref seqs that prepare-refseqs.pl has seen
+    <output directory>: directory where output should go
+        default: $outdir
+HELP
+exit;
+}
+
 my $config = JsonGenerator::readJSON($confFile);
 
 eval "require $config->{db_adaptor}; 1" or die $@;
