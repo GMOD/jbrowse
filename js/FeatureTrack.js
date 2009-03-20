@@ -520,6 +520,7 @@ FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature)
     case -1:
         subDiv.className = "minus-" + className; break;
     }
+    if (Util.is_ie6) subDiv.appendChild(document.createComment());
     subDiv.style.cssText =
         "left: " + (100 * ((subStart - featStart) / featLength)) + "%;"
         + "top: 0px;"

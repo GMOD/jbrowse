@@ -260,7 +260,8 @@ public:
         int bitdepth = 1;
 
         int x, y;
-        float scale = ((float)tileHeight_) * (globalMax_ - globalMin_);
+        //scale: pixels per unit (whatever units from wig file)
+        float scale = ((float)tileHeight_) / (globalMax_ - globalMin_);
         int meany;
         for (x = 0; x < tileWidthPixels_; x++) {
             if (0 == valsPerPx_[x]) {
@@ -271,8 +272,8 @@ public:
 
             meany = 
                 tileHeight_ 
-                - (int)(((sumVals_[x] / (float)valsPerPx_[x]) * scale)
-                        + globalMin_);
+                - (int)((((sumVals_[x] / (float)valsPerPx_[x]) - globalMin_)
+                         * scale));
             meany = (meany < 0) ? 0 : meany;
             meany = (meany >= tileHeight_) ? tileHeight_ - 1 : meany;
 
@@ -335,8 +336,6 @@ public:
         format_ = VARIABLE;
 
         if(!from_string<int>(span_, span, dec)) throw ParseFailure();
-        for (int i = 0; i < renderers_.size(); i++)
-            renderers_[i]->newSection(chrom_, curBase_);
     }
 
     void fixedSection(string chrom, string start, string step, string span) {
@@ -348,8 +347,7 @@ public:
         if(!from_string<int>(step_,    step,  dec)) throw ParseFailure();
         if(!from_string<int>(span_,    span,  dec)) throw ParseFailure();
 
-        for (int i = 0; i < renderers_.size(); i++)
-            renderers_[i]->newSection(chrom_, curBase_);
+        newSection(chrom_, curBase_);
     }
 
     void handleParams(stringstream& ss, map<string,string>& params) {
@@ -383,8 +381,10 @@ public:
                 handleParams(ss, params);
                 variableSection(params["chrom"],
                                 params["span"]);
+                newsection_done_ = false;
             } else if ("track" == word) {
-                cerr << "ignoring " << line << endl;
+                cerr << "ignoring " << line 
+                     << " (line " << lineNum << ")" << endl;
             } else {
                 switch (format_) {
                 case FIXED:
@@ -399,6 +399,13 @@ public:
                     break;
                 case VARIABLE:
                     if(from_string<int>(curBase_, word, dec)) {
+                        //after a variable section is declared,
+                        //we don't know the first base of the new section
+                        //until we hit the first data line.
+                        if (!newsection_done_) {
+                            newSection(chrom_, curBase_);
+                            newsection_done_ = true;
+                        }
                         ss >> word;
                         if(from_string<float>(sample, word, dec)) {
                             for (int i = 0; i < span_; i++)
@@ -432,8 +439,7 @@ public:
                     if (!ok)
                         throw ParseFailure();
 
-                    for (int i = 0; i < renderers_.size(); i++)
-                        renderers_[i]->newSection(chrom_, startBase);
+                    newSection(chrom_, startBase);
 
                     for (int i = startBase; i < endBase; i++) {
                         //wiggle bed format is 0-based
@@ -455,7 +461,12 @@ public:
         }
     }
 
-    void addValue(int base, float value) {
+    void newSection(const string& chrom, int base) {
+        for (int i = 0; i < renderers_.size(); i++)
+            renderers_[i]->newSection(chrom_, base);
+    }
+
+    virtual void addValue(int base, float value) {
         for (int i = 0; i < renderers_.size(); i++)
             renderers_[i]->addValue(base, value);
     }
@@ -493,12 +504,34 @@ private:
     int span_;
     string chrom_;
     set<string> allChroms_;
+    bool newsection_done_;
 };
 
+class WiggleRangeParser : public WiggleParser {
+public:
+    WiggleRangeParser() :
+        max_(-numeric_limits<float>::max()),
+        min_(numeric_limits<float>::max()) {
+    }
+
+    void addValue(int base, float value) {
+        max_ = (value > max_) ? value : max_;
+        min_ = (value < min_) ? value : min_;
+    }
+
+    float getMax() { return max_; }
+    float getMin() { return min_; }
+
+private:
+    float max_;
+    float min_;
+};
 
 int main(int argc, char **argv){
-    if (argc != 9)
-        abort_("Usage: %s <input file> <output dir> <json dir> <track label> <width> <height> <bg red>,<bg green>,<bg blue> <fg red>,<fg green>,<fg blue>", argv[0]);
+    if (argc < 9) {
+        cerr << "Usage: " << argv[0] << "<input file> <output dir> <json dir> <track label> <width> <height> <bg red>,<bg green>,<bg blue> <fg red>,<fg green>,<fg blue> [<min> <max>]" << endl;
+        exit(1);
+    }
 
     png_color bg = {
         atoi(strtok(argv[7], ",")), 
@@ -521,6 +554,20 @@ int main(int argc, char **argv){
 
     float max = 1.0f;
     float min = 0.0f;
+    if (argc > 9) {
+        if (! (from_string<float>(min, argv[9], dec)
+               &&
+               from_string<float>(max, argv[10], dec))) {
+            cerr << "couldn't parse min and max arguments: " << argv[9] << " " << argv[10] << endl;
+            exit(1);
+        }
+    } else {
+        WiggleRangeParser rp;
+        rp.processWiggle(argv[1]);
+
+        max = rp.getMax();
+        min = rp.getMin();
+    }
 
     //bases per pixel
     const int zooms[] = {1, 2, 5, 10, 20, 50, 100, 200, 500, 1000,

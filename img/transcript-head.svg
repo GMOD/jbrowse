@@ -76,15 +76,15 @@
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="31.678384"
-     inkscape:cx="3.1605725"
+     inkscape:cx="0.43000393"
      inkscape:cy="6.0360619"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:window-width="1914"
-     inkscape:window-height="967"
+     inkscape:window-height="966"
      inkscape:window-x="0"
-     inkscape:window-y="24">
+     inkscape:window-y="38">
     <inkscape:grid
        type="xygrid"
        id="grid3781"
@@ -107,9 +107,13 @@
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:#6f6f6f;fill-rule:evenodd;stroke:#6f6f6f;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:none;fill-opacity:1"
-       d="M -2,6 L 4,6 L 4,10 L 10,6 L 4,2 L 4,6"
+       style="fill:none;fill-rule:evenodd;stroke:#6f6f6f;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#TriangleOutM);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -14,3 L -6,3"
        id="path3727"
-       sodipodi:nodetypes="cccccc" />
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:#999999;fill-rule:evenodd;stroke:#999999;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       d="M 0,1 L 10,6 L 0,11 L 0,1 z"
+       id="path2391" />
   </g>
 </svg>

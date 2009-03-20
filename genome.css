@@ -526,6 +526,7 @@ div.transcript-hist {
     z-index: 10;
 }
 
+.transcript,
 .plus-transcript,
 .minus-transcript {
     position: absolute;
@@ -540,22 +541,34 @@ div.transcript-hist {
 
 .plus-transcript-arrowhead {
     position: absolute;
+/*  border stuff seems slow
     height: 0px;
     width: 0px;
     margin-top: -4px;
     border-style: solid;
     border-color: white white white #999;
-    border-width: 6px 0px 6px 10px;
+    border-width: 6px 0px 6px 10px; */
+    margin-top: -4px;
+    width: 12px;
+    height: 12px;
+    background-image: url('img/plus-transcript-head.png');
+    background-repeat: no-repeat;
 }
 
 .minus-transcript-arrowhead {
     position: absolute;
+/*  border stuff seems slow
     height: 0px;
     width: 0px;
     margin-top: -4px;
     border-style: solid;
     border-color: white #999 white white;
-    border-width: 6px 10px 6px 0px;
+    border-width: 6px 10px 6px 0px; */
+    margin-top: -4px;
+    width: 12px;
+    height: 12px;
+    background-image: url('img/minus-transcript-head.png');
+    background-repeat: no-repeat;
 }
 
 .plus-transcript-CDS,
@@ -564,6 +577,7 @@ div.transcript-hist {
     height: 12px;
     margin-top: -4px;
     background-image: url('img/cds.png');
+    background-repeat: repeat-x;
 /*  border-width: 2px 0px 3px 0px;
     border-style: solid;
     border-color: white;
