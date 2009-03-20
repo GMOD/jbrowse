@@ -15,7 +15,9 @@ _JBrowse genome browser plugin._
 
 ---++ Examples
 
-See http://jbrowse.org/
+For examples and more information, see:
+   * http://biowiki.org/view/JBrowse/TWikiPlugin
+   * http://jbrowse.org/
 
 ---++ Plugin Settings
 
