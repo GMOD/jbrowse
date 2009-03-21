@@ -44,7 +44,7 @@ NAMES = data/tracks/*/*/names.json
 PROCESSED = processed
 
 # staging directory
-STAGE = staged
+STAGE = stage
 
 # name of staged GFF file
 STAGED_GFF = staged.gff
@@ -87,8 +87,9 @@ $(STAGE)/%: $(DIRS) %.gff
 	test -d $@ || mkdir $@
 
 # staged GFF
+# adds fake "##sequence-region" lines to the GFF, to work around certain weird upstream bugs with Bio::DB::SeqFeature::Store
 $(STAGE)/%/$(STAGED_GFF): $(STAGE)/% %.gff
-	ln -sf $(CURDIR)/$*.gff $(STAGE)/$*/$*.gff
+	cat $*.gff | perl -e '@in=<>;for(@in){@f=split/\t/;if(@f==9){$$len{$$f[0]}=$$f[4] if $$f[4]>$$len{$$f[0]}}}print"##gff-version 3\n",map("##sequence-region $$_ 1 $$len{$$_}\n",keys%len),@in' >$@
 
 # staged FASTA
 $(STAGE)/%/$(REFSEQS): $(STAGE)/% $(REFSEQS)
@@ -129,6 +130,9 @@ $(PROCESSED)/%.wig: $(CHUNKS) %.wig
 # BED -> GFF
 %.gff: %.bed
 	cat $< | perl -ane 'print join ("\t", $$F[0], "bed2gff", "feature", $$F[1]+1, $$F[2]+1, ".", ".", ".", ""), "\n" if @F >= 3' >$@
+
+# just do BED -> GFF
+bed2gff: $(ALL_BED2GFF)
 
 # don't delete intermediate files
 .SECONDARY:
