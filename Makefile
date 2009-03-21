@@ -1,7 +1,18 @@
-default: bin/wig2png
+JROOT = $(CURDIR)
+JBROWSE_MAKEFILE = $(JROOT)/twiki/JBrowsePlugin/Makefile.jbrowse
+GCC_ARGS =
+
+default: binaries
+
+all: binaries jbrowse
+
+jbrowse reference-sequences track-info name-index jbrowse-clean bed2gff:
+	make -f $(JBROWSE_MAKEFILE) JROOT=$(JROOT) $@
+
+binaries: bin/wig2png
 
 bin/wig2png: src/wig2png.cc
-	g++ -O3 -lpng -o bin/wig2png $<
+	g++ $(GCC_ARGS) -O3 -lpng -o bin/wig2png $<
 
 .PHONY: clean
 

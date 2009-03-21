@@ -680,6 +680,8 @@ sub _makeJBrowse {
 	    # parent process; do nothing
 	} else {
 	    # child process; start a make job
+	    # To override default JROOT, add something like this...
+	    # push @makeArgs, "JROOT=" . $path_to_jbrowse;
 	    exec "cd $pubDir; make -f $makefile @makeArgs >& make.out";
 	}
     }
