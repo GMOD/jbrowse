@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+  <head><title>JBrowse feature glyphs</title></head>
+  <link rel="stylesheet" type="text/css" href="../genome.css"></link>
+  <style type="text/css">
+    table { 
+      border: 1px solid #777;
+      border-collapse: collapse;
+    }
+
+    td { border: 1px solid #777; padding: 5px; }
+
+    th { border: 1px solid #777; }
+
+    div.ex {
+      position: static;
+      width: 5em;
+      margin-left: 1em;
+      margin-right: 1em;
+
+      display:-moz-inline-stack;/*Firefox need this to simulate display:inline-block*/
+      display:inline-block; /*IE does not apply this to Block Element, and Firefox does not render this, too*/
+      _overflow:hidden;/*fix IE6 to expanded content*/
+      zoom:1;/*trigger hasLayout*/
+      *display:inline;/*once hasLayout is true, set display:inline to block element will make display:inline behave like display:inline-block*/
+    }
+
+</style>
+  <body>
+    <h3>JBrowse feature glyphs</h3>
+    <p>Here are some of the feature glyphs built into JBrowse.  These are what you specify for the --cssclass option to gff-to-json.pl, or for the &quot;class&quot; value or &quot;subfeatureClasses&quot; map in the config file.  You can also easily add your own; look in the <a href="../genome.css">genome.css</a> file for examples.</p>
+
+    <b>Simple features:</b><br>
+    <table>
+      <tr><th>class name</th><th>how it looks</th></tr>
+
+      <tr><td>feature  </td><td><div class="ex plus-feature"></div></td></tr>
+      <tr><td>feature2 </td><td><div class="ex plus-feature2"></div></td></tr>
+      <tr><td>feature3 </td><td><div class="ex plus-feature3"></div></td></tr>
+      <tr><td>feature4 </td><td><div class="ex plus-feature4"></div></td></tr>
+      <tr><td>feature5 </td><td><div class="ex plus-feature5"></div></td></tr>
+      <tr><td>exon     </td><td><div class="ex plus-exon"></div></td></tr>
+      <tr><td>cds      </td><td><div class="ex minus-cds2"></div></td></tr>
+      <tr><td>dblhelix </td><td><div class="ex plus-dblhelix"></div></td></tr>
+      <tr><td>triangle hgred </td><td><div class="ex plus-triangle hgred" style="width: 0px;"></div><div class="ex minus-triangle hgred" style="width: 0px;"></div></td></tr>
+      <tr><td>triangle hgblue </td><td><div class="ex plus-triangle hgblue" style="width: 0px;"></div><div class="ex minus-triangle hgblue" style="width: 0px;"></div></td></tr>
+    </table>
+    <br><br>
+    <b>Compound Features:</b><br>
+    <table>
+      <tr><th>config</th><th>how it looks</th></tr>
+
+      <tr><td>class: transcript<!--<br>arrowheadClass: transcript-arrowhead--> </td><td><div class="ex minus-transcript"><div class="minus-transcript-arrowhead" style="right: 0px;"></div></div></td></tr>
+
+    </table>
+  </body>
+</html>
