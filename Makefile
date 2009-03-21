@@ -9,7 +9,8 @@ default: binaries
 
 all: binaries jbrowse
 
-jbrowse reference-sequences track-info name-index jbrowse-clean bed2gff:
+DELEGATED_PHONIES = jbrowse reference-sequences track-info name-index jbrowse-clean bed2gff
+$(DELEGATED_PHONIES):
 	make -f $(JBROWSE_MAKEFILE) JROOT=$(JROOT) $@
 
 binaries: bin/wig2png
@@ -17,7 +18,9 @@ binaries: bin/wig2png
 bin/wig2png: src/wig2png.cc
 	g++ $(GCC_ARGS) -O3 -lpng -o bin/wig2png $<
 
-.PHONY: clean
-
 clean:
 	rm bin/wig2png
+
+.PHONY: clean default binaries $(DELEGATED_PHONIES)
+
+.SECONDARY:

@@ -61,7 +61,10 @@ DIRS = $(PROCESSED) $(STAGE) $(dir $(CHUNKS) $(PATRICIA))
 
 
 
-# Public rules
+# Public phony targets
+PHONIES = all clean jbrowse jbrowse-clean reference-sequences track-info name-index bed2gff
+.PHONY: $(PHONIES)
+
 all: jbrowse
 
 jbrowse: reference-sequences track-info name-index
