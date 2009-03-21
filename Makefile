@@ -1,6 +1,9 @@
 JROOT = $(CURDIR)
 JBROWSE_MAKEFILE = $(JROOT)/twiki/JBrowsePlugin/Makefile.jbrowse
-GCC_ARGS =
+
+GCC_INC_ARGS =
+GCC_LIB_ARGS =
+GCC_ARGS = $(GCC_LIB_ARGS) $(GCC_INC_ARGS)
 
 default: binaries
 
