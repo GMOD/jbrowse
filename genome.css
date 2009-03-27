@@ -2,9 +2,16 @@ html, body {
     height: 98%;
 }
 
-button.nav {
-    width: 4em;
+.nav {
+    vertical-align: middle;
     z-index: 10;
+}
+
+input.icon {
+    display: -moz-inline-stack;
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
 }
 
 div.container {

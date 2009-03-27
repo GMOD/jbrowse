@@ -183,6 +183,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     this.trackLabels = [];
     this.waitElems = [$("moveLeft"), $("moveRight"),
                       $("zoomIn"), $("zoomOut"),
+                      $("bigZoomIn"), $("bigZoomOut"),
                       document.body, elem];
     this.prevCursors = [];
     this.locationThumb = document.createElement("div");

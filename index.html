@@ -31,7 +31,11 @@
 
     <script type="text/javascript">
     /* <![CDATA[ */
-           var b = new Browser("GenomeBrowser", refSeqs, trackInfo);
+           var b = new Browser({
+                                   containerID: "GenomeBrowser",
+                                   refSeqs: refSeqs,
+                                   trackData: trackInfo
+                               });
            b.showTracks("DNA,gene,mRNA,noncodingRNA");
     /* ]]> */
     </script>
