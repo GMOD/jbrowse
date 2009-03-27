@@ -490,6 +490,14 @@ div.cds-hist {
     cursor: pointer;
 }
 
+.triangle {
+    position:absolute;
+    height: 0px;
+    border-style: solid;
+    border-width: 6px 0px 0px 0px;
+    cursor: pointer;
+}
+
 .hgred {
     border-color: #f99 white #f99 white;
 }
