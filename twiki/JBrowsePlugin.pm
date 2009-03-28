@@ -96,6 +96,12 @@ $NO_PREFS_IN_TOPIC = 0;
 # Name of this Plugin, only used in this module
 $pluginName = 'JBrowsePlugin';
 
+# Variables specific to this plugin
+my $MakefilePath = '/TWiki/Plugins/JBrowsePlugin/Makefile.jbrowse';
+my $MakefileOutput = 'make.out';
+my $DiagnosticOutput = 'diagnostics.txt';
+my $MakefileDepRegexp = '^config\.js|.*\.(gff|gff3|fa|fasta|wig|bed)$';
+
 =pod
 
 ---++ initPlugin($topic, $web, $user, $installWeb) -> $boolean
@@ -303,6 +309,37 @@ sub _handleJBrowse {
       || '/jbrowse';
 
   my $jbDataRoot = join '/', TWiki::Func::getPubUrlPath(), $web, $topic;
+  my $jbDataPath = join '/', TWiki::Func::getPubDir(), $web, $topic;
+
+  my @makeLinks;
+  if (-e "$jbDataPath/$MakefileOutput") {
+      push @makeLinks, "<a href=\"$jbDataRoot/$MakefileOutput\" onClick=\"return jbrowseTWikiPopup(this, 'Makefile transcript')\">here</a> for output of last 'make'";
+  }
+  if (-e "$jbDataPath/$DiagnosticOutput") {
+      push @makeLinks, "<a href=\"$jbDataRoot/$DiagnosticOutput\" onClick=\"return jbrowseTWikiPopup(this, 'Diagnostic information')\">here</a> for a list of attachments that were recognized by JBrowse";
+  }
+
+  my $makeLink = "";
+  if (@makeLinks) {
+      $makeLink = <<JBCODE;
+<script type="text/javascript">
+<!--
+function jbrowseTWikiPopup(mylink, windowname)
+{
+if (! window.focus)return true;
+var href;
+if (typeof(mylink) == 'string')
+   href=mylink;
+else
+   href=mylink.href;
+window.open(href, windowname, 'width=400,height=200,scrollbars=yes,resizable=yes');
+return false;
+}
+//-->
+</script>
+JBCODE
+      $makeLink .= "<small> (Click " . join (" or ", @makeLinks) . ") </small>";
+  }
 
   my $jbCode = <<JBCODE;
     <link rel="stylesheet" type="text/css" href="$jbRoot/jslib/dijit/themes/tundra/tundra.css"></link>
@@ -329,6 +366,7 @@ sub _handleJBrowse {
     <script type="text/javascript" src="$jbDataRoot/data/refSeqs.js"></script>
     <script type="text/javascript" src="$jbDataRoot/data/trackInfo.js"></script>
 
+    $makeLink
     <script type="text/javascript">
     /* <![CDATA[ */
            var b = new Browser({
@@ -584,6 +622,11 @@ sub DISABLE_afterSaveHandler {
     TWiki::Func::writeDebug( "- ${pluginName}::afterSaveHandler( $_[2].$_[1] )" ) if $debug;
 }
 
+# test whether a filename is "magic" (GFF, FASTA, Wiggle, config)
+sub is_magic {
+    return $_[0] =~ /$MakefileDepRegexp/;
+}
+
 =pod
 
 ---++ afterRenameHandler( $oldWeb, $oldTopic, $oldAttachment, $newWeb, $newTopic, $newAttachment )
@@ -605,11 +648,10 @@ sub afterRenameHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $oldWeb, $oldTopic, $oldAttachment, $newWeb, $newTopic, $newAttachment ) = @_;
 
-    if ($_[5] =~ /\.(gff|fa|fasta)$/) {
+    if (is_magic ($_[5])) {
 	# die here? renaming is currently awkward (requires "make clean") -- maybe just prohibit it for now?
-	_makeJBrowse ($_[0], $_[1], "clean");
-	_makeJBrowse ($_[0], $_[1], "all");
-	_makeJBrowse ($_[3], $_[4], "all");
+	_makeJBrowse ($_[0], $_[1], "jbrowse-clean jbrowse");
+	_makeJBrowse ($_[3], $_[4], "jbrowse");
     }
 
     TWiki::Func::writeDebug( "- ${pluginName}::afterRenameHandler( " .
@@ -663,10 +705,10 @@ will include at least the following attributes:
 sub afterAttachmentSaveHandler {
     my( $attrHashRef, $topic, $web ) = @_;
 
-    # for more efficient make (w/fewer race conditions), could do "make processed/$attrHashRef->{attachment}" instead of "make all"
+    # for more efficient make (w/fewer race conditions), could do "make processed/$attrHashRef->{attachment}" instead of "make jbrowse"
     # however, making everything is cleaner and probably more robust overall
     # (should ideally also run a cron job to do "make clean" every now and then)
-    _makeJBrowse ($web, $topic, "all");
+    _makeJBrowse ($web, $topic, "jbrowse");
 
     TWiki::Func::writeDebug( "- ${pluginName}::afterAttachmentSaveHandler( $_[2].$_[1] )" ) if $debug;
 
@@ -678,7 +720,7 @@ sub _makeJBrowse {
     my $pubDir =
 	join '/', TWiki::Func::getPubDir(), $web, $topic;
 
-    my $makefile = TWiki::getTWikiLibDir() . '/TWiki/Plugins/JBrowsePlugin/Makefile.jbrowse';
+    my $makefile = TWiki::getTWikiLibDir() . $MakefilePath;
 
     my $childPid = fork();
     if (defined $childPid) {
@@ -688,7 +730,7 @@ sub _makeJBrowse {
 	    # child process; start a make job
 	    # To override default JROOT, add something like this...
 	    # push @makeArgs, "JROOT=" . $path_to_jbrowse;
-	    exec "cd $pubDir; make -f $makefile @makeArgs >& make.out";
+	    exec "cd $pubDir; make -f $makefile @makeArgs >& $MakefileOutput";
 	}
     }
 }
