@@ -503,18 +503,16 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     this.location.size=locLength;
     this.location.type="text";
     this.location.id="location";
-    dojo.connect(this.location, "keyup", function(event) {
+    dojo.connect(this.location, "keydown", function(event) {
             if (event.keyCode == dojo.keys.ENTER) {
                 brwsr.navigateTo(brwsr.location.value);
-                brwsr.location.blur();
+                //brwsr.location.blur();
                 brwsr.goButton.disabled = true;
+                dojo.stopEvent(event);
             } else {
                 brwsr.goButton.disabled = false;
             }
         });
-    dojo.connect(this.location, "focus", function(event) {
-                     brwsr.location.select();
-                 });
     navbox.appendChild(this.location);
 
     this.goButton = document.createElement("button");
@@ -522,8 +520,9 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     this.goButton.disabled = true;
     dojo.connect(this.goButton, "click", function(event) {
             brwsr.navigateTo(brwsr.location.value);
-            brwsr.location.blur();
+            //brwsr.location.blur();
             brwsr.goButton.disabled = true;
+            dojo.stopEvent(event);
         });
     navbox.appendChild(this.goButton);
 
