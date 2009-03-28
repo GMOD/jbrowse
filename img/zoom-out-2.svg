@@ -16,7 +16,7 @@
    version="1.0"
    sodipodi:docname="zoom-out-2.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/mitch/Desktop/jbrowse-images/zoom-out-2.png"
+   inkscape:export-filename="/home/mitch/sw/jbrowse/img/zoom-out-2.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -40,15 +40,15 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="9.190375"
-     inkscape:cx="6.5461506"
+     inkscape:cx="9.303728"
      inkscape:cy="25.718307"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="969"
+     inkscape:window-width="1440"
+     inkscape:window-height="820"
      inkscape:window-x="0"
-     inkscape:window-y="38" />
+     inkscape:window-y="27" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -66,7 +66,7 @@
      id="layer1">
     <path
        sodipodi:type="arc"
-       style="fill:#ffffff;fill-opacity:1;stroke:#916e51;stroke-width:3;stroke-miterlimit:15.19999980999999956;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:1;stroke:#796657;stroke-width:3;stroke-miterlimit:15.19999980999999956;stroke-dasharray:none;stroke-opacity:1"
        id="path2385"
        sodipodi:cx="13.352273"
        sodipodi:cy="13.806818"
@@ -75,11 +75,11 @@
        d="M 21.306818,13.806818 A 7.9545455,7.9545455 0 1 1 5.3977275,13.806818 A 7.9545455,7.9545455 0 1 1 21.306818,13.806818 z"
        transform="matrix(1.4146307,0,0,1.4146307,-2.1842992,-2.9409493)" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#916e51;stroke-width:4.24399999999999977;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;fill-rule:evenodd;stroke:#796657;stroke-width:4.24399999999999977;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 25.947561,25.030156 L 35.793712,34.876308"
        id="path3157" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#916e51;stroke-width:2.82926130000000020;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;fill-rule:evenodd;stroke:#796657;stroke-width:2.82926130000000020;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 10.25171,16.152472 L 23.197269,16.152472"
        id="path3159" />
   </g>

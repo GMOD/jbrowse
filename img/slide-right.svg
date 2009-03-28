@@ -16,7 +16,7 @@
    version="1.0"
    sodipodi:docname="slide-right.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/mitch/Desktop/jbrowse-images/slide-right.png"
+   inkscape:export-filename="/home/mitch/sw/jbrowse/img/slide-right.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -53,15 +53,15 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="3.78"
-     inkscape:cx="5.0429628"
+     inkscape:cx="4.6336574"
      inkscape:cy="21.51317"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="969"
+     inkscape:window-width="1440"
+     inkscape:window-height="820"
      inkscape:window-x="0"
-     inkscape:window-y="38">
+     inkscape:window-y="27">
     <inkscape:grid
        type="xygrid"
        id="grid2460"
@@ -102,7 +102,7 @@
        d="M -43.679778,11.714299 L -43.679778,-1.2312583"
        id="path3161" />
     <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:#916e51;stroke-width:2;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:1;stroke:#796657;stroke-width:2;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect8631"
        width="46"
        height="26"
@@ -111,12 +111,12 @@
        ry="13"
        rx="15" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#916e51;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;fill-rule:evenodd;stroke:#796657;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 31,27 L 46,20 L 31,13"
        id="path9154"
        sodipodi:nodetypes="ccc" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#916e51;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;fill-rule:evenodd;stroke:#796657;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 45,20 L 14,20"
        id="path9156"
        sodipodi:nodetypes="cc" />
