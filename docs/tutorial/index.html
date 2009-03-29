@@ -3,64 +3,121 @@
 
 <html>
   <head><title>JBrowse getting started guide</title></head>
-  <style type="text/css">
-      <!--
-         table { 
-           border: 1px solid #777;
-           border-collapse: collapse;
-         }
-         td { border: 1px solid #777; }
-         th { border: 1px solid #777; }
-         pre { background-color: #ddd; }
-         span.code { font-family: monospace; font-weight: bold; }
-      -->
-  </style>
-<body>
-blah blah blah<br>
-
-<h3>The Config File</h3>
-
-<p>A JBrowse config file exists to tell the JBrowse tools about a database and the tracks within the database.
-If all of your data is in flat files, and your feature flat files (BED, GFF) are separated so that there's only one file per track, you don't need a config file.
-However, a config file is a convenient way to specify the details of how JBrowse should treat a track, so you may want to use a config file anyway, especially if you expect to import new versions of your data on an ongoing basis.</p>
-
-<p>The syntax of the config file is <a href="http://json.org">JSON</a>.
-It was originally the GBrowse config file syntax, but JBrowse really needed multiple levels of nesting and an array syntax, so it's JSON.
-However, it does contain some of the same settings as the GBrowse config file, especially at the beginning.
-A JBrowse config file starts out just like a GBrowse config file, with a slightly different syntax:</p>
-<pre>
-{
-  "description": "Volvox Example Database",
-  "db_adaptor": "Bio::DB::SeqFeature::Store",
-  "db_args": { "-adaptor": "memory",
-               "-dir": "docs/tutorial/data_files" },
-</pre>
-
-<p>The root level of the config file:<p>
-<table>
-<tr><th>key</th><th>value</th><th>type</th></tr>
-<tr><td>description</td><td>Brief description of the data source</td><td>string</td></tr>
-<tr><td>db_adaptor</td><td>Perl class that implements Bio::DasI.<br>Common ones include <ul><li>Bio::DB::SeqFetaure::Store</li><li>Bio::DB::GFF</li><li>Bio::DB::Das::Chado</li></ul></td><td>string</td></tr>
-<tr><td>db_args</td><td>arguments to the constructor for the specified db_adaptor</td><td>dictionary of key-value pairs</td></tr>
-<tr><td>TRACK DEFAULTS</td><td>default track settings</td><td>track settings dictionary</td></tr>
-<tr><td>tracks</td><td>settings for all the tracks</td><td>array of track settings dictionaries</td></tr>
-</table>
-<br>
-<p>The meat of the configuration file consists of the <b>per-track settings:</b></p>
-<table>
-<tr><th>key</th><th>value</th><th>type</th></tr>
-<tr><td>track</td><td>track identifier used by the software.<br>It's more convenient if this doesn't have any weird characters or spaces in it</td><td>string</td></tr>
-<tr><td>key</td><td>Human-readable label for the track</td><td>string</td></tr>
-<tr><td>feature</td><td>List of feature types to put into the track</td><td>array of strings</td></tr>
-<tr><td>autocomplete</td><td>If you want to be able to search for the features in this track, set this to one of the following strings:<ul><li><span class="code">label</span><br>to search on the feature label</li><li><span class="code">alias</span><br>to search on the feature aliases</li><li><span class="code">all</span><br>to search on both labels and aliases</td><td>string</td></tr>
-<tr><td>class</td><td>The CSS class for the feature.  Look in <a href="../featureglyphs.html">the feature glyph list</a>for the available options.</td><td>string</td></tr>
-<tr><td>category</td><td>The category this track is in, for grouping the tracks together</td><td>string</td></tr>
-<tr><td>urlTemplate</td><td>Template for a URL to visit if the user clicks on a feature in this track</td><td>string</td></tr>
-<tr><td>extraData</td><td>Extra per-feature information to send to the client; useful in the urlTemplate</td><td>dictionary of header -&gt; perl sub</td></tr>
-<tr><td>subfeatureClasses</td><td>Specifies what CSS class to apply to what type of subfeature</td><td>dictionary of type -&gt; CSS class</td></tr>
-<tr><td>arrowheadClass</td><td>CSS class for arrowheads</td><td>string</td></tr>
-<tr><td>clientConfig</td><td>settings to control the behavior of the client for this track, mainly zoom thresholds for when to display more information</td><td>dictionary</td></tr>
-</table>
-
-</body>
+  <link rel="stylesheet" type="text/css" href="../docs.css"></link>
+  <body>
+    <div class="container">
+      <h2>Getting Started With JBrowse</h2>
+      <p>This page should be enough to get you started.  If you run into trouble, please <a href="https://lists.sourceforge.net/lists/listinfo/gmod-ajax">join the mailing list</a> and ask us about it.</p>
+      <p>
+        <h4>Contents:</h4>
+        <ul>
+          <li><a href="#Prerequisites">Prerequisites</a></li>
+          <li><a href="#Download_install">Download/install</a></li>
+          <li><a href="#Reference_Sequences">Reference Sequences</a></li>
+          <li><a href="#Features">Features</a></li>
+          <li><a href="#Names">Names</a></li>
+          <li><a href="#Quantitative_tracks">Quantitative tracks</a></li>
+        </ul>
+      </p>
+      
+      <a name="Prerequisites" id="Prerequisites"></a>
+      <h3>Prerequisites</h3>
+      <span class="sidebar">
+        Alternatively, you can skip installing JBrowse and its prerequisites by launching a machine image using <a href="http://aws.amazon.com/ec2/">Amazon.com's EC2 service</a>.  We've prepared an image for use with EC2.  For more information, see <a href="http://biowiki.org/view/JBrowse/AmazonMachineImage">our wiki page</a>.
+      </span>
+      <p>
+        From CPAN:
+        <ul>
+          <li class="code">BioPerl 1.6</li>
+          <li class="code">JSON</li>
+          <li><span class="code">JSON::XS</span> <i>(optional, for speed)</i></li>
+        </ul>
+      </p>
+      
+      <a name="Download_install" id="Download_install"></a>
+      <h3>Download/install</h3>
+      <p>
+        <a href="http://github.com/jbrowse/jbrowse/tree/master">Get JBrowse from GitHub</a> (click on the "download" button)
+      </p>
+      <p>
+        Then unzip/untar JBrowse in a directory that's served by apache (e.g., <span class="code">/var/www/html/</span>)
+      </p>
+      
+      <a name="Reference_Sequences" id="Reference_Sequences"></a>
+      <h3>Reference Sequences</h3>
+      <p>
+        Tell JBrowse about your reference sequences with <span class="code">bin/prepare-refseqs.pl</span>
+      </p>
+      <p>
+        (it's convenient to run the JBrowse scripts from within the JBrowse root directory)
+        <pre>$ bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa</pre>
+      </p>
+      
+      <a name="Features" id="Features"></a>
+      <h3>Features</h3>
+      <p>
+        Tell JBrowse about your features with <span class="code">bin/biodb-to-json.pl</span>:
+      </p>
+      <pre>$ bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json</pre>
+      <p>
+        For more information about the configuration file, see <a href="../config.html">docs/config.html</a>.
+      </p>
+      <p>
+        You can also use <span class="code">bin/gff-to-json.pl</span> to prepare GFF files for use with JBrowse.  If all of your features are in GFF files, and you have one GFF file per track, then <span class="code">bin/gff-to-json.pl</span> may be all you need.  On the other hand, you may find it more convenient to specify all the track details once in a configuration file and use <span class="code">bin/biodb-to-json.pl</span> instead.
+      </p>
+      <p>
+        If you run <span class="code">bin/gff-to-json.pl</span> without any arguments, it'll show you a list of its command line arguments.  Most of those arguments correspond to track settings in the config file, so see <a href="../config.html#track_settings">the track settings section in the config file documentation</a> for more details.
+      </p>
+      <a name="Names" id="Names"></a>
+      <h3>Names</h3>
+      <p>
+        To enable JBrowse to search on name and/or ID, run <span class="code">bin/generate-names.pl</span> to collect the names/IDs from each track into one big dictionary:
+      </p>
+      <pre>$ bin/generate-names.pl -v data/tracks/*/*/names.json</pre>
+      <p>
+        You need to run <span class="code">bin/generate-names.pl</span> again every time you add new features to JBrowse.
+      </p>
+      
+      <h4>And that's all, for basic usage.</h4>
+      
+      <a name="Quantitative_tracks" id="Quantitative_tracks"></a>
+      <h3>Quantitative tracks</h3>
+      <p>
+        If you want to browse quantitative ("wiggle") tracks in JBrowse, you need to do a bit more work.
+      </p>
+      <p>
+        Prerequisites:
+        <ul>
+          <li>libpng</li>
+        </ul>
+      </p>
+      <p>
+        Compile the wiggle-processing program by running <span class="code">make</span> in the JBrowse root directory
+        <pre>$ make
+g++   -O3 -lpng -o bin/wig2png src/wig2png.cc
+$</pre>
+      </p>
+      <div class="specific">
+        <i>System-specific:</i>
+        <ul>
+          <li>
+            Apple OS X:<br>
+            <p>You need libpng and a C++ compiler; you can get these from <a href="http://www.macports.org/">MacPorts</a> or <a href="http://www.finkproject.org/">Fink</a>.</p>
+            <p>Once you have those installed, you need to compile the JBrowse wiggle-processing program.  JBrowse includes a makefile to do this, but you may need to add the paths for libpng and png.h to your compiler's library and include paths. e.g.:</p>
+            <pre>$ make GCC_LIB_ARGS=-L/opt/local/lib GCC_INC_ARGS=-I/opt/local/include</pre>
+            <p>libpng might be somewhere other than <span class="code">/opt/local</span>, like <span class="code">/usr/X11R6</span> for example.  To find where libpng is, try <span class="code">locate libpng</span></p>
+          </li>
+          <br>
+          <li>
+            Red Hat/CentOS/Fedora:<br>
+            install the <span class="code">libpng</span> and <span class="code">libpng-devel</span> packages.  (The rest should just work)
+          </li>
+          <br>
+          <li>
+            Ubuntu:<br>
+            install the <span class="code">libpng12</span> and <span class="code">libpng12-dev</span> packages.  (The rest should just work)
+        </ul>
+      </div>
+    </div>
+  </body>
 </html>

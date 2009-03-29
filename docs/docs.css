@@ -1,0 +1,41 @@
+table { 
+    border: 1px solid #777;
+    border-collapse: collapse;
+}
+
+td { border: 1px solid #777; }
+
+th { border: 1px solid #777; }
+
+pre {
+    background-color: #ddd;
+    overflow; auto;
+}
+
+.code { font-family: monospace; font-weight: bold; }
+
+pre { overflow: auto; }
+
+div.container { 
+    padding-left: 4em; 
+    padding-right: 4em;
+    max-width: 45em;
+}
+
+h2, h3 { margin-left: -2em; }
+
+span.sidebar {
+    background-color:#EEEEEE;
+    /* border-color:#FFCC99;
+       border-style:none none none solid; */
+    float:right;
+    font-weight:normal;
+    margin:2px 0 2px 1em;
+    max-width:30%;
+    padding:5px 2px 5px 0.5em;
+}
+
+.specific {
+    background-color: #DDDDFF;
+    margin-left: 2em;
+}
