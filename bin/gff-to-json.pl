@@ -41,6 +41,7 @@ USAGE: $0 --gff <gff file> [--out <output directory>] --tracklabel <track identi
     --featlabel: include a label for the features in the json
     --urltemplate: template for a URL that clicking on a feature will navigate to
 USAGE
+exit(1);
 }
 
 my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
