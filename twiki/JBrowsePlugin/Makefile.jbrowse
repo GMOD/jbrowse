@@ -16,12 +16,12 @@ DIAGNOSTICS = diagnostics.txt
 
 # Public phony targets
 # NB 'diagnostics' is NOT a phony target; this ensures it is rebuilt every time 'make' is run
-PHONIES = all clean
+PHONIES = all clean diagnostics-clean
 .PHONY: $(PHONIES)
 
 all: jbrowse diagnostics
 
-clean: jbrowse-clean
+clean: jbrowse-clean diagnostics-clean
 
 
 # Private rules
@@ -35,3 +35,6 @@ diagnostics:
 	echo GFF3 files: $(ALL_GFF3) >> $(DIAGNOSTICS)
 	echo WIG files: $(ALL_WIG) >> $(DIAGNOSTICS)
 	test -e $(CONFIG) && (echo Config files: $(CONFIG) >> $(DIAGNOSTICS)) || eval
+
+diagnostics-clean:
+	rm $(DIAGNOSTICS)
