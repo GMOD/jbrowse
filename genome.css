@@ -605,6 +605,8 @@ div.transcript-hist {
     min-width: 1px;
 }
 
+.plus-transcript-UTR, 
+.minus-transcript-UTR,
 .plus-transcript-five_prime_UTR,
 .minus-transcript-five_prime_UTR,
 .plus-transcript-three_prime_UTR,

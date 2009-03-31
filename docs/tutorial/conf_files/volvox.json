@@ -66,9 +66,9 @@
       "subfeatures": true,
       "subfeature_classes": {
         "CDS": "transcript-CDS",
-        "five_prime_UTR": "transcript-five_prime_UTR",
-        "three_prime_UTR": "transcript-three_prime_UTR"
+        "UTR": "transcript-UTR"
       },
+      "arrowheadClass": "transcript-arrowhead",
       "key": "Exonerate predictions",
       "category": "Genes"
     },
