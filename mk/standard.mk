@@ -150,13 +150,13 @@ $(STAGE)/%/$(CONFIG): $(DIRS) $(CHUNKS) $(STAGE)/% $(STAGE)/%/$(STAGED_GFF) $(CO
 # two ways of making GFF files into JSON: with & without config file
 # JBrowse config file + GFF -> Bio::DB -> JSON
 $(PROCESSED)/%.gff: $(CHUNKS) $(STAGE)/%/$(STAGED_GFF) $(STAGE)/%/$(CONFIG) %.gff $(CONFIG)
-	$(BIODB_TO_JSON) --conf $(STAGE)/$*/$(CONFIG)
+	$(BIODB_TO_JSON) --conf $(STAGE)/$*/$(CONFIG) | tee $*.log
 	touch $@
 
 # fallback (no config file): GFF -> JSON
 # (it should not be necessary to include $(STAGED_GFF) in the deps list for this rule, but make seems to get confused otherwise)
 $(PROCESSED)/%.gff: $(CHUNKS) $(STAGE)/%/$(STAGED_GFF) %.gff
-	$(GFF_TO_JSON) --gff $*.gff --key $* --autocomplete all --featlabel
+	$(GFF_TO_JSON) --gff $*.gff --key $* --autocomplete all --featlabel | tee $*.log
 	touch $@
 
 # WIG -> JSON
