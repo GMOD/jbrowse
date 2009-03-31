@@ -1,9 +1,24 @@
+# "Standard rules" for building jbrowse tracks.
+# Intended as an example of how to use the scripts, and also, how to automate their use.
+
+# Primary targets:
+# jbrowse  -- build tracks from { *.fa, *.fasta, *.gff, *.gff3, *.bed, *.wig, config.js }
+#  reference-sequences  -- build reference sequences from { *.fa, *.fasta }
+#  track-info  -- build track info from { *.gff, *.gff3, *.bed, *.wig, config.js } + reference sequences
+#  name-index  -- build name index from track info
+# jbrowse-clean  -- remove jbrowse track directories
+# bed2gff  -- convert all BED files into GFF files, using a simple rule
+
+
 # Variables
 
 # Default path to cloned jbrowse repository
 # Edit the following line to reflect your jbrowse root path:
 # (Can also override with 'make JROOT=...' on command line)
-JROOT = /usr/local/jbrowse
+ifndef JROOT
+JROOT = $(dir $(MAKEFILE_LIST))..
+# JROOT = /usr/local/jbrowse
+endif
 
 # Path to Perl scripts
 JBIN  = $(JROOT)/bin
@@ -59,9 +74,6 @@ STAGE = stage
 # name of staged GFF file
 STAGED_GFF = staged.gff
 
-# file containing diagnostic info
-DIAGNOSTICS = diagnostics.txt
-
 # proxy targets for complete processing of BED, GFF and WIG files into JBrowse tracks
 TRACKS = $(addprefix $(PROCESSED)/,$(ALL_BED2GFF) $(ALL_GFF3GFF) $(ALL_GFF) $(ALL_WIG))
 
@@ -71,13 +83,10 @@ DIRS = $(PROCESSED) $(STAGE) $(dir $(CHUNKS) $(PATRICIA))
 
 
 # Public phony targets
-# NB 'diagnostics' is NOT a phony target; this ensures it is rebuilt every time 'make' is run
-PHONIES = all clean jbrowse jbrowse-clean reference-sequences track-info name-index bed2gff
+PHONIES = jbrowse jbrowse-clean reference-sequences track-info name-index bed2gff
 .PHONY: $(PHONIES)
 
-all: jbrowse
-
-jbrowse: reference-sequences track-info name-index diagnostics
+jbrowse: reference-sequences track-info name-index
 
 reference-sequences: $(CHUNKS)
 
@@ -85,25 +94,12 @@ track-info: $(TRACKS)
 
 name-index: $(PATRICIA)
 
-jbrowse-clean: clean
-
-clean:
+jbrowse-clean:
 	rm -rf $(DIRS)
 
 bed2gff: $(ALL_BED2GFF)
 
 # Private rules
-
-# diagnostics
-diagnostics:
-	echo DIAGNOSTIC INFORMATION > $(DIAGNOSTICS)
-	echo The following files were recognized: >> $(DIAGNOSTICS)
-	echo FASTA files: $(ALL_FASTA) >> $(DIAGNOSTICS)
-	echo BED files: $(ALL_BED) >> $(DIAGNOSTICS)
-	echo GFF files: $(ALL_GFF) >> $(DIAGNOSTICS)
-	echo GFF3 files: $(ALL_GFF3) >> $(DIAGNOSTICS)
-	echo WIG files: $(ALL_WIG) >> $(DIAGNOSTICS)
-	test -e $(CONFIG) && (echo Config files: $(CONFIG) >> $(DIAGNOSTICS)) || eval
 
 # names
 $(PATRICIA): $(DIRS) $(TRACKS)
