@@ -182,7 +182,8 @@ $(PROCESSED)/%.wig: $(CHUNKS) %.wig
 # diagnostics
 diagnostics:
 	echo "<html><head><title>DIAGNOSTIC INFORMATION</title><body>" > $(DIAGNOSTICS)
-	echo "<h1>Build log <p>Date: " `date` >> $(DIAGNOSTICS)
+	echo "<h1>Build log</h1>" >> $(DIAGNOSTICS)
+	echo "<p>Date: " `date` >> $(DIAGNOSTICS)
 	echo "<p>The following files were processed:" >> $(DIAGNOSTICS)
 	echo "<h2>FASTA files</h2>" $(foreach file,$(ALL_FASTA),'<p><a href="$(file)">$(file)</a>') >> $(DIAGNOSTICS)
 	echo "<h2>BED files</h2>" $(foreach file,$(ALL_BED),'<p><a href="$(subst $(suffix $(file)),.log,$(file))">$(file)</a>') >> $(DIAGNOSTICS)
