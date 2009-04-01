@@ -191,7 +191,7 @@ diagnostics:
 	echo "<h2>WIG files</h2>" $(foreach file,$(ALL_WIG),'<p><a href="$(file)">$(file)</a>') >> $(DIAGNOSTICS)
 	echo "<h2>Config files</h2>" >> $(DIAGNOSTICS)
 	test -e $(CONFIG) && (echo '<p><a href="$(CONFIG)">$(CONFIG)</a>' >> $(DIAGNOSTICS)) || eval
-	echo "</body></html>" > $(DIAGNOSTICS)
+	echo "</body></html>" >> $(DIAGNOSTICS)
 
 diagnostics-clean:
 	rm $(DIAGNOSTICS)
