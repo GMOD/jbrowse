@@ -70,6 +70,9 @@ require TWiki::Plugins; # For the API version
 # *must* exist in this package.
 use vars qw( $VERSION $RELEASE $SHORTDESCRIPTION $debug $pluginName $NO_PREFS_IN_TOPIC );
 
+# For the "last build..." string, we want nicely-formatted times
+use POSIX qw(strftime);
+
 # This should always be $Rev: 15942 (22 Jan 2008) $ so that TWiki can determine the checked-in
 # status of the plugin. It is used by the build automation tools, so
 # you should leave it alone.
