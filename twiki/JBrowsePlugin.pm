@@ -313,10 +313,12 @@ sub _handleJBrowse {
 
   my @makeLinks;
   if (-e "$jbDataPath/$MakefileOutput") {
-      push @makeLinks, "<a href=\"$jbDataRoot/$MakefileOutput\" onClick=\"return jbrowseTWikiPopup(this, 'Makefile transcript')\">here</a> for output of last 'make'";
+      my $mtime = stat("$jbDataPath/$MakefileOutput")[9];
+      my $mtime_string = strftime "%a %b %e %H:%M:%S %Y", localtime($mtime);
+      push @makeLinks, "last build $mtime_string", "<a href=\"$jbDataRoot/$MakefileOutput\" onClick=\"return jbrowseTWikiPopup(this, 'Makefile transcript')\">transcript</a>";
   }
   if (-e "$jbDataPath/$DiagnosticOutput") {
-      push @makeLinks, "<a href=\"$jbDataRoot/$DiagnosticOutput\" onClick=\"return jbrowseTWikiPopup(this, 'Diagnostic information')\">here</a> for a list of attachments that were recognized by JBrowse";
+      push @makeLinks, "<a href=\"$jbDataRoot/$DiagnosticOutput\" onClick=\"return jbrowseTWikiPopup(this, 'Diagnostic information')\">diagnostic information</a>";
   }
 
   my $makeLink = "";
@@ -338,7 +340,7 @@ return false;
 //-->
 </script>
 JBCODE
-      $makeLink .= "<small> (Click " . join (" or ", @makeLinks) . ") </small>";
+      $makeLink .= "<small> ( " . join ("; ", @makeLinks) . ") </small>";
   }
 
   my $jbCode = <<JBCODE;
