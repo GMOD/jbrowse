@@ -99,7 +99,7 @@ $pluginName = 'JBrowsePlugin';
 # Variables specific to this plugin
 my $MakefilePath = '/TWiki/Plugins/JBrowsePlugin/Makefile.jbrowse';
 my $MakefileOutput = 'make.out';
-my $DiagnosticOutput = 'diagnostics.txt';
+my $DiagnosticOutput = 'diagnostics.html';
 my $MakefileDepRegexp = '^config\.js|.*\.(gff|gff3|fa|fasta|wig|bed)$';
 
 =pod
