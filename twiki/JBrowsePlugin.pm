@@ -656,8 +656,8 @@ sub afterRenameHandler {
 
     if (is_magic ($_[5])) {
 	# die here? renaming is currently awkward (requires "make clean") -- maybe just prohibit it for now?
-	_makeJBrowse ($_[0], $_[1], "jbrowse-clean jbrowse");
-	_makeJBrowse ($_[3], $_[4], "jbrowse");
+	_makeJBrowse ($_[0], $_[1], "jbrowse-clean jbrowse diagnostics");
+	_makeJBrowse ($_[3], $_[4], "jbrowse diagnostics");
     }
 
     TWiki::Func::writeDebug( "- ${pluginName}::afterRenameHandler( " .
@@ -714,7 +714,7 @@ sub afterAttachmentSaveHandler {
     # for more efficient make (w/fewer race conditions), could do "make processed/$attrHashRef->{attachment}" instead of "make jbrowse"
     # however, making everything is cleaner and probably more robust overall
     # (should ideally also run a cron job to do "make clean" every now and then)
-    _makeJBrowse ($web, $topic, "jbrowse");
+    _makeJBrowse ($web, $topic, "jbrowse diagnostics");
 
     TWiki::Func::writeDebug( "- ${pluginName}::afterAttachmentSaveHandler( $_[2].$_[1] )" ) if $debug;
 
