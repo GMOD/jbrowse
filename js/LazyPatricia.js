@@ -11,7 +11,7 @@
     edge strings from that node up to the root.
     Nodes also have zero or one data items.
   Leaves have zero or one data items.
- 
+
   Each loaded node is an array.
     element 0 is the edge string;
     element 1 is the data item, or null if there is none;
@@ -53,10 +53,17 @@ function LazyTrie(baseURL, rootURL) {
     this.baseURL = baseURL;
     var trie = this;
 
-    dojo.xhrGet({url: rootURL, 
-		 handleAs: "json",
-		 load: function(o) { trie.root = o; trie.extra = o[0]}
-	});
+    dojo.xhrGet({url: rootURL,
+                 handleAs: "json",
+                 load: function(o) {
+                     trie.root = o;
+                     trie.extra = o[0];
+                     if (trie.deferred) {
+                         trie.deferred.callee.apply(trie, trie.deferred);
+                         delete trie.deferred;
+                     }
+                 }
+        });
 }
 
 LazyTrie.prototype.pathToPrefix = function(path) {
@@ -74,21 +81,21 @@ LazyTrie.prototype.pathToPrefix = function(path) {
         node = node[path[i]];
     }
     return result;
-}
+};
 
 LazyTrie.prototype.valuesFromPrefix = function(query, callback) {
     var trie = this;
     this.findNode(query, function(prefix, node) {
             callback(trie.valuesFromNode(node));
         });
-}
+};
 
 LazyTrie.prototype.mappingsFromPrefix = function(query, callback) {
     var trie = this;
     this.findNode(query, function(prefix, node) {
             callback(trie.mappingsFromNode(prefix, node));
         });
-}
+};
 
 LazyTrie.prototype.mappingsFromNode = function(prefix, node) {
     var results = [];
@@ -101,7 +108,7 @@ LazyTrie.prototype.mappingsFromNode = function(prefix, node) {
         }
     }
     return results;
-}
+};
 
 LazyTrie.prototype.valuesFromNode = function(node) {
     var results = [];
@@ -110,28 +117,32 @@ LazyTrie.prototype.valuesFromNode = function(node) {
     for (var i = 2; i < node.length; i++)
         results = results.concat(this.valuesFromNode(node[i]));
     return results;
-}
+};
 
 LazyTrie.prototype.exactMatch = function(key, callback) {
     var trie = this;
     this.findNode(key, function(prefix, node) {
             if ((prefix.toLowerCase() == key.toLowerCase()) && node[1])
-		callback(node[1]);
+                callback(node[1]);
         });
-}
+};
 
 LazyTrie.prototype.findNode = function(query, callback) {
     var trie = this;
     this.findPath(query, function(path) {
-            var node = trie.root
-            for (i = 0; i < path.length; i++)
-                node = node[path[i]];
-            var foundPrefix = trie.pathToPrefix(path);
-            callback(foundPrefix, node);
-        });
-}
+        var node = trie.root;
+        for (i = 0; i < path.length; i++)
+            node = node[path[i]];
+        var foundPrefix = trie.pathToPrefix(path);
+        callback(foundPrefix, node);
+    });
+};
 
 LazyTrie.prototype.findPath = function(query, callback) {
+    if (!this.root) {
+        this.deferred = arguments;
+        return;
+    }
     query = query.toLowerCase();
     var node = this.root;
     var qStart = 0;
@@ -163,7 +174,7 @@ LazyTrie.prototype.findPath = function(query, callback) {
         // relevant part of the query string, then there's no
         // match
         if (query.substr(qStart, node[0].length)
-            != node[0].substr(0, Math.min(node[0].length, 
+            != node[0].substr(0, Math.min(node[0].length,
                                           query.length - qStart)))
             return;
 
@@ -175,9 +186,7 @@ LazyTrie.prototype.findPath = function(query, callback) {
             return;
         }
     }
-
-    return null;
-}
+};
 
 LazyTrie.prototype.binarySearch = function(a, firstChar) {
     var low = 2; // skip edge string (in 0) and data item (in 1)
@@ -204,7 +213,7 @@ LazyTrie.prototype.binarySearch = function(a, firstChar) {
     }
 
     return -(low + 1);  // key not found.
-}
+};
 
 /*
 
