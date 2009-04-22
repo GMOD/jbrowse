@@ -1,14 +1,15 @@
-include mk/binaries.mk
+GCC_INC_ARGS =
+GCC_LIB_ARGS =
+GCC_ARGS = $(GCC_LIB_ARGS) $(GCC_INC_ARGS)
 
-JROOT = $(CURDIR)
-include mk/standard.mk
+all: bin/wig2png
 
-default: binaries
+clean:
+	rm bin/wig2png
 
-all: binaries jbrowse
+bin/wig2png: src/wig2png.cc
+	g++ $(GCC_ARGS) -O3 -lpng -o bin/wig2png $<
 
-clean: binaries-clean jbrowse-clean
-
-.PHONY: default all clean
+.PHONY: all clean
 
 .SECONDARY:

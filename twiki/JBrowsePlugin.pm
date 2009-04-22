@@ -70,6 +70,9 @@ require TWiki::Plugins; # For the API version
 # *must* exist in this package.
 use vars qw( $VERSION $RELEASE $SHORTDESCRIPTION $debug $pluginName $NO_PREFS_IN_TOPIC );
 
+# For the "last build..." string, we want nicely-formatted times
+use POSIX qw(strftime);
+
 # This should always be $Rev: 15942 (22 Jan 2008) $ so that TWiki can determine the checked-in
 # status of the plugin. It is used by the build automation tools, so
 # you should leave it alone.
@@ -99,7 +102,7 @@ $pluginName = 'JBrowsePlugin';
 # Variables specific to this plugin
 my $MakefilePath = '/TWiki/Plugins/JBrowsePlugin/Makefile.jbrowse';
 my $MakefileOutput = 'make.out';
-my $DiagnosticOutput = 'diagnostics.txt';
+my $DiagnosticOutput = 'diagnostics.html';
 my $MakefileDepRegexp = '^config\.js|.*\.(gff|gff3|fa|fasta|wig|bed)$';
 
 =pod
@@ -313,10 +316,13 @@ sub _handleJBrowse {
 
   my @makeLinks;
   if (-e "$jbDataPath/$MakefileOutput") {
-      push @makeLinks, "<a href=\"$jbDataRoot/$MakefileOutput\" onClick=\"return jbrowseTWikiPopup(this, 'Makefile transcript')\">here</a> for output of last 'make'";
+      my @mstat = stat("$jbDataPath/$MakefileOutput");
+      my $mtime = $mstat[9];
+      my $mtime_string = strftime ("%a %b %e %H:%M:%S %Y", localtime($mtime));
+      push @makeLinks, "last JBrowse build $mtime_string", "<a href=\"$jbDataRoot/$MakefileOutput\" onClick=\"return jbrowseTWikiPopup(this, 'Makefile transcript')\">transcript</a>";
   }
   if (-e "$jbDataPath/$DiagnosticOutput") {
-      push @makeLinks, "<a href=\"$jbDataRoot/$DiagnosticOutput\" onClick=\"return jbrowseTWikiPopup(this, 'Diagnostic information')\">here</a> for a list of attachments that were recognized by JBrowse";
+      push @makeLinks, "<a href=\"$jbDataRoot/$DiagnosticOutput\" onClick=\"return jbrowseTWikiPopup(this, 'Diagnostic information')\">diagnostic information</a>";
   }
 
   my $makeLink = "";
@@ -338,7 +344,7 @@ return false;
 //-->
 </script>
 JBCODE
-      $makeLink .= "<small> (Click " . join (" or ", @makeLinks) . ") </small>";
+      $makeLink .= "<small> (" . join ("; ", @makeLinks) . ") </small>";
   }
 
   my $jbCode = <<JBCODE;
@@ -650,8 +656,8 @@ sub afterRenameHandler {
 
     if (is_magic ($_[5])) {
 	# die here? renaming is currently awkward (requires "make clean") -- maybe just prohibit it for now?
-	_makeJBrowse ($_[0], $_[1], "jbrowse-clean jbrowse");
-	_makeJBrowse ($_[3], $_[4], "jbrowse");
+	_makeJBrowse ($_[0], $_[1], "jbrowse-clean jbrowse diagnostics");
+	_makeJBrowse ($_[3], $_[4], "jbrowse diagnostics");
     }
 
     TWiki::Func::writeDebug( "- ${pluginName}::afterRenameHandler( " .
@@ -708,7 +714,7 @@ sub afterAttachmentSaveHandler {
     # for more efficient make (w/fewer race conditions), could do "make processed/$attrHashRef->{attachment}" instead of "make jbrowse"
     # however, making everything is cleaner and probably more robust overall
     # (should ideally also run a cron job to do "make clean" every now and then)
-    _makeJBrowse ($web, $topic, "jbrowse");
+    _makeJBrowse ($web, $topic, "jbrowse diagnostics");
 
     TWiki::Func::writeDebug( "- ${pluginName}::afterAttachmentSaveHandler( $_[2].$_[1] )" ) if $debug;
 
