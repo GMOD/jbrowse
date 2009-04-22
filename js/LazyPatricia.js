@@ -56,6 +56,10 @@ function LazyTrie(baseURL, rootURL) {
     dojo.xhrGet({url: rootURL,
                  handleAs: "json",
                  load: function(o) {
+                     if (!o) {
+                         console.log("failed to load trie");
+                         return;
+                     }
                      trie.root = o;
                      trie.extra = o[0];
                      if (trie.deferred) {
