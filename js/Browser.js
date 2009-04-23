@@ -30,6 +30,7 @@ var Browser = function(params) {
     brwsr.isInitialized = false;
     dojo.addOnLoad(
         function() {
+            //set up top nav/overview pane and main GenomeView pane
             dojo.addClass(document.body, "tundra");
             brwsr.container = dojo.byId(params.containerID);
             brwsr.container.genomeBrowser = brwsr;
@@ -57,11 +58,13 @@ var Browser = function(params) {
             var contentWidget = new dijit.layout.ContentPane({region: "top"}, topPane);
             var browserWidget = new dijit.layout.ContentPane({region: "center"}, viewElem);
 
+            //create location trapezoid
             brwsr.locationTrap = document.createElement("div");
             brwsr.locationTrap.className = "locationTrap";
             topPane.appendChild(brwsr.locationTrap);
             topPane.style.overflow="hidden";
 
+            //set up ref seqs
             brwsr.allRefs = {};
             for (var i = 0; i < refSeqs.length; i++)
                 brwsr.allRefs[refSeqs[i].name] = refSeqs[i];
@@ -91,6 +94,7 @@ var Browser = function(params) {
                                          + (((newRef.start + newRef.end) * 0.6) | 0));
                         });
 
+            //hook up GenomeView
             var gv = new GenomeView(viewElem, 250, brwsr.refSeq, 1/200);
             brwsr.view = gv;
             brwsr.viewElem = viewElem;
@@ -109,11 +113,13 @@ var Browser = function(params) {
             dojo.connect(gv, "onFineMove", brwsr, "onFineMove");
             dojo.connect(gv, "onCoarseMove", brwsr, "onCoarseMove");
 
+            //set up track list
             var trackListDiv = brwsr.createTrackList(brwsr.container, params);
             containerWidget.startup();
 
 	    brwsr.isInitialized = true;
 
+            //set initial location
             var oldLocMap = dojo.fromJson(dojo.cookie(brwsr.container.id + "-location")) || {};
             var basePos = (oldLocMap[brwsr.refSeq.name]
                            || ((((brwsr.refSeq.start + brwsr.refSeq.end) * 0.4) | 0)
@@ -268,25 +274,32 @@ Browser.prototype.navigateTo = function(loc) {
     }
 
     loc = dojo.trim(loc);
-    //                             (  chromosome   )    (    start      )   (  sep     )     (    end   )
-    matches = String(loc).match(/^(((chr)?(\S*)\s*:)?\s*(-?[0-9,.]*[0-9])\s*(\.\.|-|\s+))?\s*(-?[0-9,.]+)$/i);
+    //                                (chromosome)    (    start      )   (  sep     )     (    end   )
+    var matches = String(loc).match(/^(((\S*)\s*:)?\s*(-?[0-9,.]*[0-9])\s*(\.\.|-|\s+))?\s*(-?[0-9,.]+)$/i);
     //matches potentially contains location components:
-    //matches[4] = chromosome (optional, with any leading "chr" stripped)
-    //matches[5] = start base (optional)
-    //matches[7] = end base (or center base, if it's the only one)
+    //matches[3] = chromosome (optional)
+    //matches[4] = start base (optional)
+    //matches[6] = end base (or center base, if it's the only one)
     if (matches) {
-	if (matches[4]) {
+	if (matches[3]) {
 	    var refName;
-	    for (ref in this.allRefs)
-		if (matches[4].toUpperCase() == ref.toUpperCase())
+	    for (ref in this.allRefs) {
+		if ((matches[3].toUpperCase() == ref.toUpperCase())
+                    ||
+                    ("CHR" + matches[3].toUpperCase() == ref.toUpperCase())
+                    ||
+                    (matches[3].toUpperCase() == "CHR" + ref.toUpperCase())) {
+
 		    refName = ref;
+                }
+            }
 	    if (refName) {
 		dojo.cookie(this.container.id + "-refseq", refName, {expires: 60});
 		if (refName == this.refSeq.name) {
 		    //go to given start, end on current refSeq
 		    this.view.setLocation(this.refSeq,
-					  parseInt(matches[5].replace(/[,.]/g, "")),
-					  parseInt(matches[7].replace(/[,.]/g, "")));
+					  parseInt(matches[4].replace(/[,.]/g, "")),
+					  parseInt(matches[6].replace(/[,.]/g, "")));
 		} else {
 		    //new refseq, record open tracks and re-open on new refseq
                     var curTracks = [];
@@ -300,22 +313,22 @@ Browser.prototype.navigateTo = function(loc) {
 		    this.refSeq = this.allRefs[refName];
 		    //go to given refseq, start, end
 		    this.view.setLocation(this.refSeq,
-					  parseInt(matches[5].replace(/[,.]/g, "")),
-					  parseInt(matches[7].replace(/[,.]/g, "")));
+					  parseInt(matches[4].replace(/[,.]/g, "")),
+					  parseInt(matches[6].replace(/[,.]/g, "")));
 
                     this.viewDndWidget.insertNodes(false, curTracks);
 		}
 		return;
 	    }
-	} else if (matches[5]) {
+	} else if (matches[4]) {
 	    //go to start, end on this refseq
 	    this.view.setLocation(this.refSeq,
-				  parseInt(matches[5].replace(/[,.]/g, "")),
-				  parseInt(matches[7].replace(/[,.]/g, "")));
+				  parseInt(matches[4].replace(/[,.]/g, "")),
+				  parseInt(matches[6].replace(/[,.]/g, "")));
 	    return;
-	} else if (matches[7]) {
+	} else if (matches[6]) {
 	    //center at given base
-	    this.view.centerAtBase(parseInt(matches[7].replace(/[,.]/g, "")));
+	    this.view.centerAtBase(parseInt(matches[6].replace(/[,.]/g, "")));
 	    return;
 	}
     }
