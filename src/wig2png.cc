@@ -262,7 +262,12 @@ public:
         int x, y;
         //scale: pixels per unit (whatever units from wig file)
         float scale = ((float)tileHeight_) / (globalMax_ - globalMin_);
-        int meany;
+        //zeroy: if globalMin_ is negative, we want to plot positive and
+        //negative bars so that they go from zeroy to the plot point
+        //(zeroy is in screen (y increases down) coordinates)
+        int zeroy = tileHeight_;
+        if (globalMin_ < 0) zeroy = (int)(globalMax_ * scale);
+        int meany, ystart, yend;
         for (x = 0; x < tileWidthPixels_; x++) {
             if (0 == valsPerPx_[x]) {
                 for (y = 0; y < tileHeight_; y++)
@@ -277,11 +282,17 @@ public:
             meany = (meany < 0) ? 0 : meany;
             meany = (meany >= tileHeight_) ? tileHeight_ - 1 : meany;
 
+            if (meany < zeroy) {
+              ystart = meany; yend = zeroy;
+            } else {
+              ystart = zeroy; yend = meany;
+            }
+
             //cerr << "min: " << min << ", max: " << max << ", mean: " << mean << ", tileHeight_: " << tileHeight_ << endl;
 
-            for (y = 0; y < meany; y++)
+            for (y = 0; y < tileHeight_; y++)
                 buf_[y][x] = bgIndex;
-            for (y = meany; y < tileHeight_; y++)
+            for (y = ystart; y < yend; y++)
                 buf_[y][x] = fgIndex;
         }
 
