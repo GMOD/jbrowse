@@ -15,6 +15,7 @@
 #include <fstream>
 #include <sstream>
 #include <limits>
+#include <algorithm>
 using namespace std;
 
 #define PNG_DEBUG 3
@@ -282,11 +283,8 @@ public:
             meany = (meany < 0) ? 0 : meany;
             meany = (meany >= tileHeight_) ? tileHeight_ - 1 : meany;
 
-            if (meany < zeroy) {
-              ystart = meany; yend = zeroy;
-            } else {
-              ystart = zeroy; yend = meany;
-            }
+            ystart = min(meany, zeroy);
+            yend = max(meany, zeroy);
 
             //cerr << "min: " << min << ", max: " << max << ", mean: " << mean << ", tileHeight_: " << tileHeight_ << endl;
 
@@ -526,8 +524,8 @@ public:
     }
 
     void addValue(int base, float value) {
-        max_ = (value > max_) ? value : max_;
-        min_ = (value < min_) ? value : min_;
+        max_ = max(value, max_);
+        min_ = min(value, min_);
     }
 
     float getMax() { return max_; }
