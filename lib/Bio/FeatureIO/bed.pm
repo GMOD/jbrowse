@@ -34,6 +34,17 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
+=head2 Support 
+ 
+Please direct usage questions or support issues to the mailing list:
+  
+L<bioperl-l@bioperl.org>
+  
+rather than to the module maintainer directly. Many experienced and 
+reponsive experts will be able look at the problem and quickly 
+address it. Please include a thorough description of the problem 
+with code and data examples if at all possible.
+
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
@@ -69,6 +80,7 @@ use Bio::SeqFeature::Annotated;
 use Bio::Annotation::SimpleValue;
 use Bio::OntologyIO;
 use Scalar::Util qw(looks_like_number);
+use List::Util qw(min max);
 
 =head2 _initialize
 
@@ -85,7 +97,10 @@ use Scalar::Util qw(looks_like_number);
                          features should be used when rendering them.
                          the higher the score the darker the color.
                          defaults to 0 (false)
-
+           -block_type   feature type of subfeature blocks.
+                         defaults to "exon"
+           -thick_type   feature type of thick subfeature blocks
+                         defaults to "CDS"
 
 
 =cut
@@ -98,6 +113,8 @@ sub _initialize {
   $self->name($arg{-name} || scalar(localtime()));
   $self->description($arg{-description} || scalar(localtime()));
   $self->use_score($arg{-use_score} || 0);
+  $self->block_type($arg{-block_type} || "exon");
+  $self->thick_type($arg{-thick_type} || "CDS");
 
   $self->_print(sprintf('track name="%s" description="%s" useScore=%d',
                         $self->name,
@@ -163,6 +180,43 @@ sub description{
     return $self->{'description'};
 }
 
+=head2 block_type
+
+ Title   : block_type
+ Usage   : $obj->block_type($newval)
+ Function: feature type for subfeature blocks
+ Example : $obj->block_type("exon")
+ Returns : value of block_type (a string)
+ Args    : on set, new value (a string or undef, optional)
+
+
+=cut
+
+sub block_type {
+    my $self = shift;
+
+    return $self->{'block_type'} = shift if @_;
+    return $self->{'block_type'};
+}
+
+=head2 thick_type
+
+ Title   : thick_type
+ Usage   : $obj->thick_type($newval)
+ Function: feature type for thick subfeature blocks
+ Example : $obj->thick_type("CDS")
+ Returns : value of thick_type (a string)
+ Args    : on set, new value (a string or undef, optional)
+
+
+=cut
+
+sub thick_type {
+    my $self = shift;
+
+    return $self->{'thick_type'} = shift if @_;
+    return $self->{'thick_type'};
+}
 
 sub write_feature {
   my($self,$feature) = @_;
@@ -194,40 +248,111 @@ sub write_feature {
 
   my $score = $feature->score || 0;
   my $strand = $feature->strand == 0 ? '-' : '+'; #default to +
-  my $thick_start = '';  #not implemented, used for CDS
-  my $thick_end = '';    #not implemented, used for CDS
-  my $reserved = 0;
-  my $block_count = '';  #not implemented, used for sub features
-  my $block_sizes = '';  #not implemented, used for sub features
-  my $block_starts = ''; #not implemented, used for sub features
 
-  $self->_print(join("\t",($chrom,$chrom_start,$chrom_end,$name,$score,$strand,$thick_start,$thick_end,$reserved,$block_count,$block_sizes, $block_starts))."\n");
-  $self->write_feature($_) foreach $feature->get_SeqFeatures();
+  my @bedline = ($chrom,$chrom_start,$chrom_end,$name,$score,$strand);
+
+  my @subfeatures;
+  if (@subfeatures = $feature->get_SeqFeatures()) {
+    my @block_features = grep { $_->primary_tag eq $self->block_type } @subfeatures;
+    my @thick_features = grep { $_->primary_tag eq $self->thick_type } @subfeatures;
+    if (@thick_features) {
+      #thick start
+      push @bedline, min(map { $_->start } @thick_features);
+      #thick end
+      push @bedline, max(map { $_->end } @thick_features) + 1;
+    } else {
+      push @bedline, $feature->start;
+      push @bedline, $feature->end;
+    }
+
+    if (@block_features) {
+      #item RGB
+      push @bedline, 0;
+      #block count
+      push @bedline, $#block_features + 1;
+      #block sizes
+      push @bedline,
+        join(",", map { $_->end - $_->start + 1 } @block_features) . ",";
+      #block starts
+      push @bedline,
+        join(",", map { $_->start - $feature->start } @block_features) . ",";
+    }
+  }
+
+  $self->_print(join("\t", @bedline)."\n");
 }
 
 sub next_feature {
   my $self = shift;
   my $line = $self->_readline || return;
-  
-  my ($seq_id, $start, $end, $name, $score, $strand) = split(/\s+/, $line);
+
+  my ($seq_id, $start, $end, $name, $score, $strand,
+      $thick_start, $thick_end, $item_rgb, $block_count,
+      $block_sizes, $block_starts) = split(/\s+/, $line);
   $strand ||= '+';
-  
+
   unless (looks_like_number($start) && looks_like_number($end)) {
     # skip what is probably a header line
     return $self->next_feature;
   }
-  
+
   my $feature = Bio::SeqFeature::Annotated->new(-start  => $start, # start is 0 based
                                                 -end    => --$end, # end is not part of the feature
-                                                $score  ? (-score  => $score) : (),
+                                                defined($score)  ? (-score  => $score) : (),
                                                 $strand ? (-strand => $strand eq '+' ? 1 : -1) : ());
-  
+
   $feature->seq_id($seq_id);
   if ($name) {
     my $sv = Bio::Annotation::SimpleValue->new(-tagname => 'Name', -value => $name);
     $feature->annotation->add_Annotation($sv);
   }
-  
+
+  if (defined($thick_start)) {
+    my $parent_strand = $strand ? ($strand eq '+' ? 1 : -1) : 0;
+
+    if ($block_count > 0) {
+      my @length_list = split(",", $block_sizes);
+      my @offset_list = split(",", $block_starts);
+
+      if (($block_count != ($#length_list + 1))
+          || ($block_count != ($#offset_list + 1)) ) {
+          warn "expected $block_count blocks, got " . ($#length_list + 1) . " lengths and " . ($#offset_list + 1) . " offsets for feature " . ($name ? $name : "$seq_id:$start..$end");
+      } else {
+        for (my $i = 0; $i < $block_count; $i++) {
+          #block start and end, in absolute (sequence rather than feature)
+          #coords.  These are still in interbase.
+          my $abs_block_start = $start + $offset_list[$i];
+          my $abs_block_end = $abs_block_start + $length_list[$i];
+
+          $feature->add_SeqFeature(
+              Bio::SeqFeature::Generic->new(
+                  -start => $abs_block_start,
+                  -end => $abs_block_end - 1,
+                  -strand => $parent_strand,
+                  -primary_tag => $self->block_type) );
+
+          #add a thick subfeature if this block overlaps the thick zone
+          if (($abs_block_start < $thick_end)
+              && ($abs_block_end > $thick_start)) {
+            $feature->add_SeqFeature(
+                Bio::SeqFeature::Generic->new(
+                    -start => max($thick_start, $abs_block_start),
+                    -end => min($thick_end - 1, $abs_block_end - 1),
+                    -strand => $parent_strand,
+                    -primary_tag => $self->thick_type) );
+          }
+        }
+      }
+    } else {
+      $feature->add_SeqFeature(
+          Bio::SeqFeature::Generic->new(
+              -start => $thick_start,
+              -end => $thick_end - 1,
+              -strand => $parent_strand,
+              -primary_tag => $self->thick_type) );
+    }
+  }
+
   return $feature;
 }
 
