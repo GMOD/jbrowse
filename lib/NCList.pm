@@ -10,18 +10,30 @@ package NCList;
 use strict;
 use warnings;
 
-use constant SUBLIST => "sublist";
+=head2 new
 
+ Title   : new
+ Usage   : NCList->new($startIndex, $endIndex, $sublistIndex, $featList)
+ Function: create an NCList
+ Example : 
+ Returns : an NCList object
+ Args    : $featList is a reference to an array of arrays;
+           each of the inner arrays represents an interval with the start
+           at $startIndex and the end at $endIndex.  $sublistIndex should
+           be an array position that's otherwise unused.
+
+
+=cut
 sub new {
-    my ($class, $sublistIndex, @features) = @_;
+    my ($class, $start, $end, $sublistIndex, $featList) = @_;
 
-    @features = sort {
-	if ($a->start != $b->start) {
-	    $a->start - $b->start;
+    my @features = sort {
+	if ($a->[$start] != $b->[$start]) {
+	    $a->[$start] - $b->[$start];
 	} else {
-	    $b->end - $a->end;
+	    $b->[$end] - $a->[$end];
 	}
-    } @features;
+    } @$featList;
 
     #@sublistStack is a list of all the currently relevant sublists
     #(one for each level of nesting)
@@ -40,25 +52,32 @@ sub new {
 
     for ($i = 1; $i <= $#features; $i++) {
 	#if this interval is contained in the previous interval,
-	if ($features[$i]->end < $features[$i - 1]->end) {
+	if ($features[$i]->[$end] < $features[$i - 1]->[$end]) {
 	    #create a new sublist starting with this interval
 	    push @sublistStack, $curList;
 	    $curList = [$features[$i]];
-	    $features[$i - 1]->{SUBLIST} = $curList;
+	    $features[$i - 1]->[$sublistIndex] = $curList;
 	} else {
 	    #find the right sublist for this interval
 	    while (1) {
+                #if we're at the top level list,
 		if ($#sublistStack < 0) {
+                    #just add the current feature
 		    push @$curList, $features[$i];
 		    last;
 		} else {
 		    $topSublist = $sublistStack[$#sublistStack];
-		    if ($topSublist->[$#{$topSublist}]->end > $features[$i]->end) {
-			#curList is the first (deepest) sublist that
-			#the current feature fits into
+                    #if the last interval in the top sublist ends
+                    #after the end of the current interval,
+		    if ($topSublist->[$#{$topSublist}]->[$end] 
+                        > $features[$i]->[$end]) {
+			#then curList is the first (deepest) sublist
+                        #that the current feature fits into, and
+                        #we add the current feature to curList
 			push @$curList, $features[$i];
 			last;
 		    } else {
+                        #move on to the next shallower sublist
 			$curList = pop @sublistStack;
 		    }
 		}
@@ -69,25 +88,8 @@ sub new {
     return $self;
 }
 
-sub flattenList {
-    my ($self, $map, $list) = @_;
-    return [map {$self->flattenFeat($map, $_)} @$list];
-}
-
-sub flattenFeat {
-    my ($self, $map, $feat) = @_;
-    my $flatten = sub {$self->flattenList($map, \@_)};
-    my $result = [map {&$_($feat, $flatten)} @$map];
-    if (defined ($feat->{SUBLIST})) {
-	$result->[$self->{'sublistIndex'}] =
-	  $self->flattenList($map, $feat->{SUBLIST});
-    }
-    return $result;
-}
-
-sub flatten {
-    my ($self, @map) = @_;
-    return $self->flattenList(\@map, $self->{'topList'});
+sub nestedList {
+    return shift->{topList};
 }
 
 1;

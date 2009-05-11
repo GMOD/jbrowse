@@ -19,6 +19,9 @@ my @featMap = (
 	       \&featureIdSub,
 	      );
 my @mapHeaders = ('start', 'end', 'strand', 'id');
+#positions of "start" and "end" in @mapHeaders (for NCList)
+my $startIndex = 0;
+my $endIndex = 1;
 
 sub featureIdSub {
     return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
@@ -160,7 +163,7 @@ sub generateTrack {
     if ($style{"subfeatures"}) {
         push @curFeatMap, sub {
             my ($feat, $flatten) = @_;
-            my @subFeatures = $feat->sub_SeqFeature;
+            my @subFeatures = $feat->get_SeqFeatures;
             return undef unless (@subFeatures);
 
             my $sfClasses = $style{"subfeature_classes"};
@@ -210,8 +213,13 @@ sub generateTrack {
     }
 
     my $sublistIndex = $#curFeatMap + 1;
-    my $featList = NCList->new($sublistIndex, @$features);
-    my $flatFeatures = $featList->flatten(@curFeatMap);
+    my @flatFeatures = map {
+        my $feat = $_;
+        [map {&$_($feat)} @curFeatMap]
+    } @$features;
+
+    my $featList = NCList->new($startIndex, $endIndex,
+                               $sublistIndex, \@flatFeatures);
     my $rangeMap = [];
     my @subfeatMap = (@featMap, sub {shift->primary_tag});
     my @subfeatHeaders = (@mapHeaders, "type");
@@ -256,7 +264,7 @@ sub generateTrack {
                      'subfeatureClasses' => $style{"subfeature_classes"},
                      'arrowheadClass' => $style{"arrowheadClass"},
                      'clientConfig' => $style{"clientConfig"},
-                     'featureNCList' => $flatFeatures,
+                     'featureNCList' => $featList->nestedList,
                      'rangeMap' => $rangeMap,
                      'subfeatureHeaders' => \@subfeatHeaders
                     };
