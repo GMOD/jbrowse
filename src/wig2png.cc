@@ -266,7 +266,7 @@ public:
         //zeroy: if globalMin_ is negative, we want to plot positive and
         //negative bars so that they go from zeroy to the plot point
         //(zeroy is in screen (y increases down) coordinates)
-        int zeroy = tileHeight_;
+        int zeroy = tileHeight_ - 1;
         if (globalMin_ < 0) zeroy = (int)(globalMax_ * scale);
         int meany, ystart, yend;
         for (x = 0; x < tileWidthPixels_; x++) {
@@ -280,8 +280,8 @@ public:
                 tileHeight_ 
                 - (int)((((sumVals_[x] / (float)valsPerPx_[x]) - globalMin_)
                          * scale));
-            meany = (meany < 0) ? 0 : meany;
-            meany = (meany >= tileHeight_) ? tileHeight_ - 1 : meany;
+            meany = max(0, meany);
+            meany = min(tileHeight_ - 1, meany);
 
             ystart = min(meany, zeroy);
             yend = max(meany, zeroy);
@@ -430,7 +430,6 @@ public:
                 case BED: {
                     bool ok = true;
                     int startBase, endBase;
-                    float value;
                     chrom_ = word;
                     allChroms_.insert(chrom_);
                     if (ok) {
@@ -443,7 +442,7 @@ public:
                     }
                     if (ok) {
                         ss >> word;
-                        ok = from_string<float>(value, word, dec);
+                        ok = from_string<float>(sample, word, dec);
                     }
                     if (!ok)
                         throw ParseFailure();
