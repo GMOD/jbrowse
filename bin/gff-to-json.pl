@@ -84,13 +84,11 @@ foreach my $seqInfo (@refSeqs) {
                  "key"          => defined($key) ? $key : $trackLabel,
                  "urlTemplate"  => $urlTemplate);
 
-    JsonGenerator::generateTrack(
-				 $trackLabel, $seqName,
-				 "$trackDir/$seqName/$trackLabel/",
-                                 5000,
-				 \@features, \%style,
-				 [], []
-				);
+    my $jsonGen = JsonGenerator->new($trackLabel, $seqName, \%style, [], []);
+
+    $jsonGen->addFeature($_) foreach (@features);
+
+    $jsonGen->generateTrack("$trackDir/$seqName/$trackLabel/", 5000);
 
     JsonGenerator::modifyJSFile("$outdir/trackInfo.js", "trackInfo",
 		 sub {

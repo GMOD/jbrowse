@@ -98,13 +98,21 @@ foreach my $seg (@segs) {
             print "got " . ($#features + 1) . " features for " . $track->{"track"} . "\n";
             next unless $#features >= 0;
 
-            JsonGenerator::generateTrack(
-                $track->{"track"}, $segName,
-                "$trackDir/$segName/" . $track->{"track"},
-                5000,
-                \@features, \%style,
-                [], []
-                );
+            my $jsonGen = JsonGenerator->new($track->{"track"}, $segName,
+                                             \%style, [], []);
+
+            $jsonGen->addFeature($_) foreach (@features);
+
+            $jsonGen->generateTrack("$trackDir/$segName/" . $track->{"track"},
+                                    5000);
+
+            # JsonGenerator::generateTrack(
+            #     $track->{"track"}, $segName,
+            #     "$trackDir/$segName/" . $track->{"track"},
+            #     5000,
+            #     \@features, \%style,
+            #     [], []
+            #     );
 
             print Dumper($features[0]) if ($verbose && ($#features >= 0));
 
