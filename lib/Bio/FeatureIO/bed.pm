@@ -305,6 +305,7 @@ sub next_feature {
   if ($name) {
     my $sv = Bio::Annotation::SimpleValue->new(-tagname => 'Name', -value => $name);
     $feature->annotation->add_Annotation($sv);
+    $feature->name($name);
   }
 
   if (defined($thick_start)) {
