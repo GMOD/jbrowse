@@ -31,7 +31,7 @@ JBIN  = $(JROOT)/bin
 # JBrowse Perl scripts
 PREPARE_REFSEQS = perl $(JBIN)/prepare-refseqs.pl
 BIODB_TO_JSON   = perl $(JBIN)/biodb-to-json.pl
-GFF_TO_JSON     = perl $(JBIN)/gff-to-json.pl
+FLATFILE_TO_JSON     = perl $(JBIN)/flatfile-to-json.pl
 WIG_TO_JSON     = perl $(JBIN)/wig-to-json.pl
 GENERATE_NAMES  = perl $(JBIN)/generate-names.pl
 
@@ -164,7 +164,7 @@ $(PROCESSED)/%.gff: $(CHUNKS) $(STAGE)/%/$(STAGED_GFF) $(STAGE)/%/$(CONFIG) %.gf
 # fallback (no config file): GFF -> JSON
 # (it should not be necessary to include $(STAGED_GFF) in the deps list for this rule, but make seems to get confused otherwise)
 $(PROCESSED)/%.gff: $(CHUNKS) $(STAGE)/%/$(STAGED_GFF) %.gff
-	$(GFF_TO_JSON) --gff $*.gff --key $* --autocomplete all --featlabel | tee $*.log
+	$(FLATFILE_TO_JSON) --gff $*.gff --tracklabel $* --key $* --autocomplete all --getLabel | tee $*.log
 	touch $@
 
 # WIG -> JSON

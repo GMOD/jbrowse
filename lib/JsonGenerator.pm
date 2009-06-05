@@ -117,7 +117,9 @@ sub evalSubStrings {
 }
 
 sub new {
-    my ($class, $label, $segName, $setStyle, $extraMap, $extraHeaders) = @_;
+    my ($class, $label, $segName, $setStyle,
+        $extraMap, $extraHeaders,
+        $autoshareSubs) = @_;
 
     my %style = ("key" => $label,
                  %builtinDefaults,
@@ -162,6 +164,16 @@ sub new {
 
     my @allSubfeatures;
     $self->{allSubfeatures} = \@allSubfeatures;
+    my $subfeatId = \&featureIdSub;
+    if ($autoshareSubs) {
+        $subfeatId = sub {
+            my $feat = shift;
+            return $feat->primary_tag 
+                . "|" . $feat->start 
+                . "|" . $feat->end 
+                . "|" . $feat->strand;
+        }
+    }
     # %seenSubfeatures is so that shared subfeatures don't end up
     # in @{$self->{allSubfeatures}} more than once
     my %seenSubfeatures;
@@ -178,7 +190,7 @@ sub new {
                 #print "type: " . $subFeature->primary_tag . " (" . $sfClasses->{$subFeature->primary_tag} . ")\n";
                 next unless
                   $sfClasses && $sfClasses->{$subFeature->primary_tag};
-                my $subId = featureIdSub($subFeature);
+                my $subId = $subfeatId->($subFeature);
                 my $subIndex = $seenSubfeatures{$subId};
                 if (!defined($subIndex)) {
                     push @allSubfeatures, [map {&$_($subFeature)} @subfeatMap];
@@ -234,6 +246,11 @@ sub addFeature {
     }
 
     push @{$self->{features}}, [map {&$_($feature)} @{$self->{curFeatMap}}]
+}
+
+sub hasFeatures {
+    my ($self) = @_;
+    return $#{$self->{features}} >= 0;
 }
 
 sub generateTrack {
