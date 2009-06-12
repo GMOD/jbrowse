@@ -97,8 +97,8 @@ use List::Util qw(min max);
                          features should be used when rendering them.
                          the higher the score the darker the color.
                          defaults to 0 (false)
-           -block_type   feature type of subfeature blocks.
-                         defaults to "exon"
+           -thin_type    feature type of thin subfeature blocks.
+                         defaults to "UTR"
            -thick_type   feature type of thick subfeature blocks
                          defaults to "CDS"
 
@@ -113,7 +113,7 @@ sub _initialize {
   $self->name($arg{-name} || scalar(localtime()));
   $self->description($arg{-description} || scalar(localtime()));
   $self->use_score($arg{-use_score} || 0);
-  $self->block_type($arg{-block_type} || "exon");
+  $self->thin_type($arg{-thin_type} || "UTR");
   $self->thick_type($arg{-thick_type} || "CDS");
 
   $self->_print(sprintf('track name="%s" description="%s" useScore=%d',
@@ -180,23 +180,23 @@ sub description{
     return $self->{'description'};
 }
 
-=head2 block_type
+=head2 thin_type
 
- Title   : block_type
- Usage   : $obj->block_type($newval)
+ Title   : thin_type
+ Usage   : $obj->thin_type($newval)
  Function: feature type for subfeature blocks
- Example : $obj->block_type("exon")
- Returns : value of block_type (a string)
+ Example : $obj->thin_type("UTR")
+ Returns : value of thin_type (a string)
  Args    : on set, new value (a string or undef, optional)
 
 
 =cut
 
-sub block_type {
+sub thin_type {
     my $self = shift;
 
-    return $self->{'block_type'} = shift if @_;
-    return $self->{'block_type'};
+    return $self->{'thin_type'} = shift if @_;
+    return $self->{'thin_type'};
 }
 
 =head2 thick_type
@@ -253,7 +253,7 @@ sub write_feature {
 
   my @subfeatures;
   if (@subfeatures = $feature->get_SeqFeatures()) {
-    my @block_features = grep { $_->primary_tag eq $self->block_type } @subfeatures;
+    my @thin_features = grep { $_->primary_tag eq $self->thin_type } @subfeatures;
     my @thick_features = grep { $_->primary_tag eq $self->thick_type } @subfeatures;
     if (@thick_features) {
       #thick start
@@ -264,7 +264,7 @@ sub write_feature {
       push @bedline, $feature->start;
       push @bedline, $feature->end;
     }
-
+    my @block_features = sort {$a->start <=> $b->start} (@thin_features, @thick_features);
     if (@block_features) {
       #item RGB
       push @bedline, 0;
@@ -298,7 +298,7 @@ sub next_feature {
 
   my $feature = Bio::SeqFeature::Annotated->new(-start  => $start, # start is 0 based
                                                 -end    => --$end, # end is not part of the feature
-                                                defined($score)  ? (-score  => $score) : (),
+                                                ($score ne "")  ? (-score  => $score) : (),
                                                 $strand ? (-strand => $strand eq '+' ? 1 : -1) : ());
 
   $feature->seq_id($seq_id);
@@ -308,7 +308,7 @@ sub next_feature {
     $feature->name($name);
   }
 
-  if (defined($thick_start)) {
+  if (defined($thick_start) && $thick_start ne "") {
     my $parent_strand = $strand ? ($strand eq '+' ? 1 : -1) : 0;
 
     if ($block_count > 0) {
@@ -325,12 +325,15 @@ sub next_feature {
           my $abs_block_start = $start + $offset_list[$i];
           my $abs_block_end = $abs_block_start + $length_list[$i];
 
-          $feature->add_SeqFeature(
-              Bio::SeqFeature::Generic->new(
-                  -start => $abs_block_start,
-                  -end => $abs_block_end - 1,
-                  -strand => $parent_strand,
-                  -primary_tag => $self->block_type) );
+          #add a thin subfeature if this block extends left of the thick zone
+          if ($abs_block_start < $thick_start) {
+            $feature->add_SeqFeature(
+                Bio::SeqFeature::Generic->new(
+                    -start => $abs_block_start,
+                    -end => min($thick_start - 1, $abs_block_end - 1),
+                    -strand => $parent_strand,
+                    -primary_tag => $self->thin_type) );
+          }
 
           #add a thick subfeature if this block overlaps the thick zone
           if (($abs_block_start < $thick_end)
@@ -341,6 +344,16 @@ sub next_feature {
                     -end => min($thick_end - 1, $abs_block_end - 1),
                     -strand => $parent_strand,
                     -primary_tag => $self->thick_type) );
+          }
+
+          #add a thin subfeature if this block extends right of the thick zone
+          if ($abs_block_end > $thick_end) {
+            $feature->add_SeqFeature(
+                Bio::SeqFeature::Generic->new(
+                    -start => max($abs_block_start, $thick_end),
+                    -end => $abs_block_end - 1,
+                    -strand => $parent_strand,
+                    -primary_tag => $self->thin_type) );
           }
         }
       }
