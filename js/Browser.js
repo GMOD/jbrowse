@@ -397,7 +397,9 @@ Browser.prototype.navigateTo = function(loc) {
 
 /**
  * load and display the given tracks
- * @param trackNameList list of names, each of which should correspond to the "label" element of the track information dictionaries
+ * @param trackNameList {String} comma-delimited string containing track names,
+ * each of which should correspond to the "label" element of the track
+ * information dictionaries
  */
 Browser.prototype.showTracks = function(trackNameList) {
     if (!this.isInitialized) {
