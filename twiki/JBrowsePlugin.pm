@@ -309,7 +309,7 @@ sub _handleJBrowse {
       || TWiki::Func::getPreferencesValue ('${pluginName}_SHOW', $web);
 
   if (defined $showTracks) {
-      $showTracks =~ s/ +, +/,/g;  # strip whitespace around commas
+      $showTracks =~ s/ *, */,/g;  # strip whitespace around commas
       $showTracks =~ s/ /_/g;  # remaining whitespace gets turned into underscores in the label field
   }
 
