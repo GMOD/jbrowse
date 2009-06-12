@@ -310,7 +310,6 @@ sub _handleJBrowse {
 
   $showTracks =~ s/ +, +/,/g;  # strip whitespace around commas
   $showTracks =~ s/ /_/g;  # remaining whitespace gets turned into underscores in the label field
-  my @showTracks = defined($showTracks) ? split(/,/,$showTracks) : ();
 
   my $jbRoot = TWiki::Func::getPreferencesValue ("${pluginName}_ROOT", $web)
       || '/jbrowse';
@@ -388,7 +387,7 @@ JBCODE
                                });
 JBCODE
 
-		 $jbCode .= "           b.showTracks(" . join (",", map ("\"$_\"", @showTracks)) . ");\n" if @showTracks;
+		 $jbCode .= "           b.showTracks(\"$showTracks\");\n" if @showTracks;
 		 $jbCode .= "           b.navigateTo(\"$navigateTo\");\n" if defined $navigateTo;
 
     $jbCode .= <<JBCODE;
