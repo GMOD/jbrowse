@@ -312,8 +312,8 @@ sub _handleJBrowse {
   my $jbRoot = TWiki::Func::getPreferencesValue ("${pluginName}_ROOT", $web)
       || '/jbrowse';
 
-  my $jbDataRoot = join '/', TWiki::Func::getPubUrlPath(), $web, $topic;
-  my $jbDataPath = join '/', TWiki::Func::getPubDir(), $web, $topic;
+  my $jbDataRoot = join '/', TWiki::Func::getPubUrlPath(), $web, $jbTopic;
+  my $jbDataPath = join '/', TWiki::Func::getPubDir(), $web, $jbTopic;
 
   my @makeLinks;
   if (-e "$jbDataPath/$MakefileOutput") {
