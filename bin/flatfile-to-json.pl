@@ -15,7 +15,9 @@ use JSON;
 
 my ($gff, $gff2, $bed,
     $trackLabel, $key,
-    $urlTemplate, $subfeatureClasses, $arrowheadClass, $types);
+    $urlTemplate, $subfeatureClasses, $arrowheadClass, $clientConfig, 
+    $thinType, $thickType,
+    $types);
 my $autocomplete = "none";
 my $outdir = "data";
 my $cssClass = "feature";
@@ -35,12 +37,15 @@ GetOptions("gff=s" => \$gff,
            "urltemplate=s" => \$urlTemplate,
            "arrowheadClass=s" => \$arrowheadClass,
            "subfeatureClasses=s" => \$subfeatureClasses,
+           "clientConfig=s" => \$clientConfig,
+           "thinType=s" => \$thinType,
+           "thicktype=s" => \$thickType,
            "type=s@" => \$types);
 my $trackDir = "$outdir/tracks";
 
 if (!(defined($gff) || defined($gff2) || defined($bed))) {
     print <<USAGE;
-USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file>] [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssclass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--type] [--phase] [--subs] [--featlabel] [--urltemplate "http://example.com/idlookup?id={id}"] [--subfeatureClasses <JSON-syntax subfeature class map>]
+USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file>] [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssclass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--getType] [--getPhase] [--getSubs] [--getLabel] [--urltemplate "http://example.com/idlookup?id={id}"] [--subfeatureClasses <JSON-syntax subfeature class map>] [--clientConfig <JSON-syntax extra configuration for FeatureTrack>]
 
     --out: defaults to "data"
     --cssclass: defaults to "feature"
@@ -51,8 +56,10 @@ USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file>] [--out <ou
     --getLabel: include a label for the features in the json
     --urltemplate: template for a URL that clicking on a feature will navigate to
     --arrowheadClass: CSS class for arrowheads
-    --subfeatureClasses: CSS classes for each subfeature type, in JSON syntax.
+    --subfeatureClasses: CSS classes for each subfeature type, in JSON syntax
         e.g. '{"CDS": "transcript-CDS", "exon": "transcript-exon"}'
+    --clientConfig: extra configuration for the client, in JSON syntax
+        e.g. '{"css": "background-color: black;", "histScale": 5}'
     --type: only process features of the given type
 USAGE
 exit(1);
@@ -81,7 +88,9 @@ if ($gff) {
     $db = Bio::DB::GFF->new(-adaptor => 'memory',
                             -gff => $gff2);
 } elsif ($bed) {
-    $stream = Bio::FeatureIO->new(-format => 'bed', -file => $bed);
+    $stream = Bio::FeatureIO->new(-format => 'bed', -file => $bed,
+                                  ($thinType ? ("-thin_type" => $thinType) : ()),
+                                  ($thickType ? ("-thick_type" => $thickType) : ()) );
     $streaming = 1;
     $labelSub = sub {
         #label sub for features returned by Bio::FeatureIO::bed
@@ -102,10 +111,14 @@ my %style = ("autocomplete" => $autocomplete,
              "label"        => $getLabel ? $labelSub : 0,
              "key"          => defined($key) ? $key : $trackLabel,
              "urlTemplate"  => $urlTemplate,
-             "arrowheadClass" => $arrowheadClass);
+             "arrowheadClass" => $arrowheadClass,
+             "clientConfig" => $clientConfig);
 
 $style{subfeature_classes} = JSON::from_json($subfeatureClasses)
     if defined($subfeatureClasses);
+
+$style{clientConfig} = JSON::from_json($clientConfig)
+    if defined($clientConfig);
 
 my %perChromGens;
 foreach my $seqInfo (@refSeqs) {
@@ -125,21 +138,17 @@ if ($streaming) {
         next unless $jsonGen;
 
         $jsonGen->addFeature($feat);
-
-        #use Data::Dumper;
-        #print Dumper($feat);
-        #die;
     }
 }
 
 foreach my $seqInfo (@refSeqs) {
     my $seqName = $seqInfo->{"name"};
-    print "\nworking on seq $seqName\n";
     mkdir("$trackDir/$seqName") unless (-d "$trackDir/$seqName");
 
     my $jsonGen = $perChromGens{$seqName};
- 
+
     unless ($streaming) {
+        print "\nworking on seq $seqName\n";
         my $segment = $db->segment("-name" => $seqName);
         my @queryArgs;
         if (defined($types)) {
@@ -147,14 +156,14 @@ foreach my $seqInfo (@refSeqs) {
         }
 
         my @features = $segment->features(@queryArgs);
-        print "got ", @features+0, " features\n";
 
-        #if (!defined($trackLabel)) { $trackLabel = $features[0]->primary_tag };
         $jsonGen->addFeature($_) foreach (@features);
     }
+    next if $jsonGen->featureCount == 0;
 
-    $jsonGen->generateTrack("$trackDir/$seqName/$trackLabel/", 5000)
-        if $jsonGen->hasFeatures;
+    print $seqName . "\t" . $jsonGen->featureCount . "\n";
+
+    $jsonGen->generateTrack("$trackDir/$seqName/$trackLabel/", 5000);
 }
 
 JsonGenerator::modifyJSFile("$outdir/trackInfo.js", "trackInfo",
