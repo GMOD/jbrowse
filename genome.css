@@ -216,6 +216,20 @@ div.tracklist-container {
     cursor: pointer;
 }
 
+.basic,
+.plus-basic,
+.minus-basic {
+    position: absolute;
+    cursor: pointer;
+    z-index: 10;
+    min-width: 1px;
+}
+
+div.basic-hist {
+    position: absolute;
+    z-index: 10;
+}
+
 .plus-feature,
 .minus-feature {
     position:absolute;
