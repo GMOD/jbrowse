@@ -308,11 +308,16 @@ sub _handleJBrowse {
   my $showTracks = $attrs->remove( 'showTracks' )
       || TWiki::Func::getPreferencesValue ('${pluginName}_SHOW', $web);
 
+  if (defined $showTracks) {
+      $showTracks =~ s/ *, */,/g;  # strip whitespace around commas
+      $showTracks =~ s/ /_/g;  # remaining whitespace gets turned into underscores in the label field
+  }
+
   my $jbRoot = TWiki::Func::getPreferencesValue ("${pluginName}_ROOT", $web)
       || '/jbrowse';
 
-  my $jbDataRoot = join '/', TWiki::Func::getPubUrlPath(), $web, $topic;
-  my $jbDataPath = join '/', TWiki::Func::getPubDir(), $web, $topic;
+  my $jbDataRoot = join '/', TWiki::Func::getPubUrlPath(), $web, $jbTopic;
+  my $jbDataPath = join '/', TWiki::Func::getPubDir(), $web, $jbTopic;
 
   my @makeLinks;
   if (-e "$jbDataPath/$MakefileOutput") {
