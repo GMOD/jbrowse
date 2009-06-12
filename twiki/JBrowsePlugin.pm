@@ -308,8 +308,10 @@ sub _handleJBrowse {
   my $showTracks = $attrs->remove( 'showTracks' )
       || TWiki::Func::getPreferencesValue ('${pluginName}_SHOW', $web);
 
-  $showTracks =~ s/ +, +/,/g;  # strip whitespace around commas
-  $showTracks =~ s/ /_/g;  # remaining whitespace gets turned into underscores in the label field
+  if (defined $showTracks) {
+      $showTracks =~ s/ +, +/,/g;  # strip whitespace around commas
+      $showTracks =~ s/ /_/g;  # remaining whitespace gets turned into underscores in the label field
+  }
 
   my $jbRoot = TWiki::Func::getPreferencesValue ("${pluginName}_ROOT", $web)
       || '/jbrowse';
@@ -387,7 +389,7 @@ JBCODE
                                });
 JBCODE
 
-		 $jbCode .= "           b.showTracks(\"$showTracks\");\n" if @showTracks;
+		 $jbCode .= "           b.showTracks(\"$showTracks\");\n" if defined $showTracks;
 		 $jbCode .= "           b.navigateTo(\"$navigateTo\");\n" if defined $navigateTo;
 
     $jbCode .= <<JBCODE;
