@@ -25,9 +25,12 @@ If no JBrowse config file is attached to the topic, the "label" element for each
 If a JBrowse config file is attached to the topic, then that config file includes a list of tracks
 (see [[#ExampleConfigFile][example config file]], below);
 the "label" elements then take the form "X_Y", where X is the track filename and Y is the "track" field in the config file.
+(Note that the "track" field in the config file is <b>not</b> necessarily the track name that is displayed on screen; that is determined by the "key" field.
+For documentation of the config file syntax, see [[http://jbrowse.org/code/jbrowse-master/docs/config.html][here]].)
 Spaces can be used in place of underscores, so "X Y" is equally valid as a track label in this case.
 The list of track labels is passed to the =showTracks= method in the =Browser.js= class, as documented
 [[http://jbrowse.org/docs/jbrowse-jsdoc/Browser.html#showTracks][here]].
+
 
 The =navigateTo= field should be a location string, as might be typed into the navigation text box on the JBrowse page.
 This field is passed directly to the =navigateTo= method in the =Browser.js= class, as documented
@@ -79,6 +82,7 @@ __Note:__ You do not need to install anything on the browser to use this plugin.
       1 you should see a JBrowse browser embedded in the page; the GFF file should show up as a track
       1 attach a JBrowse config file snippet, named config.js, to set the track styles; e.g.
 #ExampleConfigFile
+(see [[http://jbrowse.org/code/jbrowse-master/docs/config.html][here]] for documentation of the config file syntax)
 <pre>
     {
       "track": "ExampleFeatures",
