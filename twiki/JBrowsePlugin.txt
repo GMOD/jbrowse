@@ -160,7 +160,7 @@ __Note:__ You do not need to install anything on the browser to use this plugin.
 </pre>
 See [[http://jbrowse.org/code/jbrowse-master/docs/config.html][here]] for documentation of the config file syntax.
 Note that the TWiki plugin expects only the track list portion of the config file,
-_excluding_ the enclosing ="tracks" : { ... }=,
+_excluding_ the enclosing ="tracks" : [ ... ]=,
 and also excluding the other fields such as ="TRACK DEFAULTS"= or the fields describing the database adapter.
 
 ---++ Plugin Info
