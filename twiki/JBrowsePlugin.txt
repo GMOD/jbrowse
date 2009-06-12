@@ -82,7 +82,6 @@ __Note:__ You do not need to install anything on the browser to use this plugin.
       1 you should see a JBrowse browser embedded in the page; the GFF file should show up as a track
       1 attach a JBrowse config file snippet, named config.js, to set the track styles; e.g.
 #ExampleConfigFile
-(see [[http://jbrowse.org/code/jbrowse-master/docs/config.html][here]] for documentation of the config file syntax)
 <pre>
     {
       "track": "ExampleFeatures",
@@ -159,6 +158,7 @@ __Note:__ You do not need to install anything on the browser to use this plugin.
       "key": "ESTs"
     }
 </pre>
+See [[http://jbrowse.org/code/jbrowse-master/docs/config.html][here]] for documentation of the config file syntax.
 
 ---++ Plugin Info
 
