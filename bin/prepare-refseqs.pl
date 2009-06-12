@@ -199,7 +199,23 @@ sub exportSeqChunks {
 die "found no ref seqs" if ($#refSeqs < 0);
 
 JsonGenerator::modifyJSFile("$outDir/refSeqs.js", "refSeqs",
-                            sub { return \@refSeqs});
+                            sub {
+                                #add new ref seqs while keeping the order
+                                #of the existing ref seqs
+                                my $old = shift;
+                                my %refs;
+                                $refs{$_->{name}} = $_ foreach (@refSeqs);
+                                for (my $i = 0; $i <= $#{$old}; $i++) {
+                                    $old->[$i] = delete $refs{$old->[$i]->{name}}
+                                      if $refs{$old->[$i]->{name}};
+
+                                }
+                                foreach my $newRef (@refSeqs) {
+                                    push @{$old}, $newRef
+                                      if $refs{$newRef->{name}};
+                                }
+                                return $old;
+                            });
 
 unless ($noSeq) {
     JsonGenerator::modifyJSFile("$outDir/trackInfo.js", "trackInfo",
