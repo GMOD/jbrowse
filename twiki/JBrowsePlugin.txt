@@ -10,7 +10,7 @@ Illustrates a [[%PUBURL%/TWiki/JBrowsePlugin/Makefile][Makefile]]-driven approac
 ---++ Syntax Rules
 
 #StandardAttrs Write =%<nop>JBROWSE%= or =%<nop>JBROWSE{ _attributes_ }%= anywhere in a TWiki topic to embed a [[http://jbrowse.org/][JBrowse]] genome browser for attached [[http://biowiki.org/BedFormat][BED]], [[http://biowiki.org/GffFormat][GFF]], [[http://biowiki.org/FastaFormat][FASTA]] or [[http://biowiki.org/WigFormat][Wiggle]] files.
-   * Attached file types are recognized by their suffix: =.fasta= (or =.fa=), =.bed=, =.gff=, =.gff3=, =.wig=
+   * Attached file types are recognized by their filename suffix: =.fasta= (or =.fa=), =.bed=, =.gff=, =.gff3=, =.wig=
    * A JBrowse configuration file snippet can also be attached, with special filename =config.js=. An example is shown [[#ExampleConfigFile][below]]
    * The following standard attributes to the =%<nop>JBROWSE%= macro are recognized
 | *Name* | *Description* |
