@@ -25,6 +25,7 @@ If no JBrowse config file is attached to the topic, the "label" element for each
 If a JBrowse config file is attached to the topic, then that config file includes a list of tracks
 (see [[#ExampleConfigFile][example config file]], below);
 the "label" elements then take the form "X_Y", where X is the track filename and Y is the "track" field in the config file.
+Spaces can be used in place of underscores, so "X Y" is equally valid as a track label in this case.
 The list of track labels is converted (by the plugin) to a list and passed to the =showTracks= method in the =Browser.js= class, as documented
 [[http://jbrowse.org/docs/jbrowse-jsdoc/Browser.html#showTracks][here]].
 
