@@ -20,9 +20,12 @@ The =topic= field can be used to display tracks attached to another topic, rathe
 In combination with the =showTracks= and =navigateTo= fields, described below,
 this allows users to create a page that is deep-linked to a particular location in the genome.
 
-The =showTracks= field should be a comma-separated list of track names, each of which should correspond to the "label" element of the track information dictionaries
-(if no JBrowse config-file snippet is attached to the topic, the "label" element just corresponds to the track name).
-This list is converted (by the plugin) to a list and passed to the =showTracks= method in the =Browser.js= class, as documented
+The =showTracks= field should be a comma-separated list of track names, each of which should correspond to the "label" element of the track information dictionaries.
+If no JBrowse config file is attached to the topic, the "label" element for each attached track file is just the filename.
+If a JBrowse config file is attached to the topic, then that config file includes a list of tracks
+(see [[#ExampleConfigFile][example config file]], below);
+the "label" elements then take the form "X_Y", where X is the track filename and Y is the "track" field in the config file.
+The list of track labels is converted (by the plugin) to a list and passed to the =showTracks= method in the =Browser.js= class, as documented
 [[http://jbrowse.org/docs/jbrowse-jsdoc/Browser.html#showTracks][here]].
 
 The =navigateTo= field should be a location string, as might be typed into the navigation text box on the JBrowse page.
@@ -74,6 +77,7 @@ __Note:__ You do not need to install anything on the browser to use this plugin.
       1 edit the text of the page to include the string %<nop>JBROWSE%
       1 you should see a JBrowse browser embedded in the page; the GFF file should show up as a track
       1 attach a JBrowse config file snippet, named config.js, to set the track styles; e.g.
+#ExampleConfigFile
 <pre>
     {
       "track": "ExampleFeatures",
