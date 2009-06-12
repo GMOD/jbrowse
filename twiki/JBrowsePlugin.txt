@@ -22,7 +22,7 @@ this allows users to create a page that is deep-linked to a particular location 
 
 The =showTracks= field should be a comma-separated list of track names, each of which should correspond to the "label" element of the track information dictionaries
 (if no JBrowse config-file snippet is attached to the topic, the "label" element just corresponds to the track name).
-This list is converted (by the plugin) to a <nop>JavaScript array and passed to the =showTracks= method in the =Browser.js= class, as documented
+This list is converted (by the plugin) to a list and passed to the =showTracks= method in the =Browser.js= class, as documented
 [[http://jbrowse.org/docs/jbrowse-jsdoc/Browser.html#showTracks][here]].
 
 The =navigateTo= field should be a location string, as might be typed into the navigation text box on the JBrowse page.
