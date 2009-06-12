@@ -1,3 +1,15 @@
+/**
+ * Construct a new Browser object.
+ * @class This class is the main interface between JBrowse and embedders
+ * @constructor
+ * @param params a dictionary with the following keys:<br>
+ * containerID: ID of the HTML element that contains the browser<br>
+ * refSeqs: list of reference sequence information items (usually from refSeqs.js)<br>
+ * trackData: list of track data items (usually from trackInfo.js)<br>
+ * dataRoot: (optional) URL prefix for the data directory<br>
+ * browserRoot: (optional) URL prefix for the browser code
+ */
+
 var Browser = function(params) {
     //params: {
     //           containerID: ID of the element that contains the browser
@@ -136,6 +148,9 @@ var Browser = function(params) {
         });
 };
 
+/**
+ * @private
+ */
 Browser.prototype.onFineMove = function(startbp, endbp) {
     var length = this.view.ref.end - this.view.ref.start;
     var trapLeft = Math.round((((startbp - this.view.ref.start) / length)
@@ -165,6 +180,9 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
     this.locationTrap.style.cssText = locationTrapStyle;
 };
 
+/**
+ * @private
+ */
 Browser.prototype.createTrackList = function(parent, params) {
     var leftPane = document.createElement("div");
     leftPane.style.cssText="width: 10em";
@@ -250,7 +268,14 @@ Browser.prototype.createTrackList = function(parent, params) {
     return trackListDiv;
 };
 
-Browser.prototype.addTracks = function(trackList, show) {
+/**
+ * add new tracks to the track list
+ * @param trackList list of track information items
+ * @param replace true if this list of tracks should replace any existing
+ * tracks, false to merge with the existing list of tracks
+ */
+
+Browser.prototype.addTracks = function(trackList, replace) {
     if (!this.isInitialized) {
         var brwsr = this;
         this.deferredFunctions.push(
@@ -266,6 +291,14 @@ Browser.prototype.addTracks = function(trackList, show) {
     }
 };
 
+/**
+ * navigate to a given location
+ * @param loc can be either:<br>
+ * &lt;chromosome&gt;:&lt;start&gt; .. &lt;end&gt;<br>
+ * &lt;start&gt; .. &lt;end&gt;<br>
+ * &lt;center base&gt;<br>
+ * &lt;feature name/ID&gt;
+ */
 Browser.prototype.navigateTo = function(loc) {
     if (!this.isInitialized) {
         var brwsr = this;
@@ -362,6 +395,10 @@ Browser.prototype.navigateTo = function(loc) {
 	});
 };
 
+/**
+ * load and display the given tracks
+ * @param trackNameList list of names, each of which should correspond to the "label" element of the track information dictionaries
+ */
 Browser.prototype.showTracks = function(trackNameList) {
     if (!this.isInitialized) {
         var brwsr = this;
@@ -390,6 +427,9 @@ Browser.prototype.showTracks = function(trackNameList) {
     }
 };
 
+/**
+ * @private
+ */
 Browser.prototype.onCoarseMove = function(startbp, endbp) {
     var length = this.view.ref.end - this.view.ref.start;
     var trapLeft = Math.round((((startbp - this.view.ref.start) / length)
@@ -420,6 +460,9 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     document.title = this.refSeq.name + ":" + locString;
 };
 
+/**
+ * @private
+ */
 Browser.prototype.createNavBox = function(parent, locLength, params) {
     var brwsr = this;
     var navbox = document.createElement("div");
