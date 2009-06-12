@@ -9,8 +9,10 @@ Illustrates a [[%PUBURL%/TWiki/JBrowsePlugin/Makefile][Makefile]]-driven approac
 
 ---++ Syntax Rules
 
-#StandardAttrs Write =%<nop>JBROWSE%= or =%<nop>JBROWSE{ _attributes_ }%= anywhere in a TWiki topic to embed a [[http://jbrowse.org/][JBrowse]] genome browser for attached [[http://biowiki.org/GffFormat][GFF]] and [[http://biowiki.org/FastaFormat][FASTA]] files.
-   * The following standard attributes are recognized 
+#StandardAttrs Write =%<nop>JBROWSE%= or =%<nop>JBROWSE{ _attributes_ }%= anywhere in a TWiki topic to embed a [[http://jbrowse.org/][JBrowse]] genome browser for attached [[http://biowiki.org/BedFormat][BED]], [[http://biowiki.org/GffFormat][GFF]], [[http://biowiki.org/FastaFormat][FASTA]] or [[http://biowiki.org/WigFormat][Wiggle]] files.
+      * Attached file types are recognized by their suffix: =.fasta= (or =.fa=), =.bed=, =.gff=, =.gff3=, =.wig=
+      * A JBrowse configuration file snippet can also be attached, with special filename =config.js=. An example is shown [[#ExampleConfigFile][below]]
+   * The following standard attributes to the =%<nop>JBROWSE%= macro are recognized
 | *Name* | *Description* |
 | =topic= | default: the current topic |
 | =showTracks= | default: %<nop>JBROWSEPLUGIN_SHOW%  |
@@ -78,9 +80,9 @@ __Note:__ You do not need to install anything on the browser to use this plugin.
       * Change the Plugin settings as needed 
    * Test if the installation was successful:
       1 attach a FASTA file and a GFF file (with matching sequence names)
-      1 edit the text of the page to include the string %<nop>JBROWSE%
+      1 edit the text of the page to include the string =%<nop>JBROWSE%=
       1 you should see a JBrowse browser embedded in the page; the GFF file should show up as a track
-      1 attach a JBrowse config file snippet, named config.js, to set the track styles; e.g.
+      1 attach a JBrowse config file snippet, named =config.js=, to set the track styles; e.g.
 #ExampleConfigFile
 <pre>
     {
