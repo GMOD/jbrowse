@@ -385,7 +385,7 @@ JBCODE
                                });
 JBCODE
 
-		 $jbCode .= "           b.showTracks([" . join (",", map ("\"$_\"", @showTracks)) . "]);\n" if @showTracks;
+		 $jbCode .= "           b.showTracks(" . join (",", map ("\"$_\"", @showTracks)) . ");\n" if @showTracks;
 		 $jbCode .= "           b.navigateTo(\"$navigateTo\");\n" if defined $navigateTo;
 
     $jbCode .= <<JBCODE;
