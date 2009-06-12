@@ -248,6 +248,11 @@ sub addFeature {
     push @{$self->{features}}, [map {&$_($feature)} @{$self->{curFeatMap}}]
 }
 
+sub featureCount {
+    my ($self) = @_;
+    return $#{$self->{features}} + 1;
+}
+
 sub hasFeatures {
     my ($self) = @_;
     return $#{$self->{features}} >= 0;
@@ -305,7 +310,7 @@ sub generateTrack {
       if defined($self->{style}->{urlTemplate});
     writeJSON("$outDir/trackData.json",
               $trackData,
-              {pretty => 0});
+              {pretty => 0, max_depth => 2048});
 }
 
 1;
