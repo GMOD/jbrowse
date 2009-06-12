@@ -61,6 +61,9 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
         this.labelScale = (cc.labelScale ? cc.labelScale : 50) * density;
         this.subfeatureScale = (cc.subfeatureScale ? cc.subfeatureScale : 80)
                                    * density;
+        if (cc.featureCss) this.featureCss = cc.featureCss;
+        if (cc.histCss) this.histCss = cc.histCss;
+        if (cc.featureCallback) this.featureCallback = cc.featureCallback;
     }
 
     //console.log((new Date().getTime() - startTime) / 1000);
@@ -109,7 +112,8 @@ FeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
             "left: " + ((bin / this.numBins) * 100) + "%; "
             + "height: " + (2 * hist[bin]) + "px;"
 	    + "bottom: " + this.trackPadding + "px;"
-            + "width: " + (((1 / this.numBins) * 100) - (100 / stripeWidth)) + "%;";
+            + "width: " + (((1 / this.numBins) * 100) - (100 / stripeWidth)) + "%;"
+            + (this.histCss ? this.histCss : "");
         if (Util.is_ie6) binDiv.appendChild(document.createComment());
         block.appendChild(binDiv);
     }
@@ -223,6 +227,7 @@ FeatureTrack.prototype.fillFeatures = function(block,
 	var heightTest = document.createElement("div");
 	//cover all the bases: stranded or not, phase or not
 	heightTest.className = this.className + " plus-" + this.className + " plus-" + this.className + "1";
+        if (this.featureCss) heightTest.style.cssText = this.featureCss;
 	heightTest.style.visibility = "hidden";
 	if (Util.is_ie6) heightTest.appendChild(document.createComment("foo"));
 	document.body.appendChild(heightTest);
@@ -246,7 +251,7 @@ FeatureTrack.prototype.fillFeatures = function(block,
         }
     }
 
-    startSlots = new Array();
+    var startSlots = new Array();
     if (leftBlock && leftBlock.rightSlots) {
         slots = leftBlock.rightSlots.concat();
         block.leftSlots = startSlots;
@@ -377,7 +382,11 @@ FeatureTrack.prototype.fillFeatures = function(block,
         featDiv.style.cssText =
             "left: " + (100 * (feature[start] - leftBase) / blockWidth) + "%; "
             + "top: " + (level * levelHeight) + levelUnits + ";"
-            + " width: " + (100 * ((feature[end] - feature[start]) / blockWidth)) + "%;";
+            + " width: " + (100 * ((feature[end] - feature[start]) / blockWidth)) + "%;"
+            + (curTrack.featureCss ? curTrack.featureCss : "");
+
+        if (curTrack.featureCallback)
+            curTrack.featureCallback(feature, curTrack.fields, featDiv);
 
         if (curTrack.arrowheadClass) {
             var ah = document.createElement("div");
@@ -514,7 +523,7 @@ FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature)
     var subEnd = subfeature[this.subFields["end"]];
     var featLength = feature[this.fields["end"]] - featStart;
     var className = this.subfeatureClasses[subfeature[this.subFields["type"]]];
-    subDiv = document.createElement("div");
+    var subDiv = document.createElement("div");
     switch (subfeature[this.subFields["strand"]]) {
     case 1:
         subDiv.className = "plus-" + className; break;
