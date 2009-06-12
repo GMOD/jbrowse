@@ -12,14 +12,31 @@ Illustrates a [[%PUBURL%/TWiki/JBrowsePlugin/Makefile][Makefile]]-driven approac
 #StandardAttrs Write =%<nop>JBROWSE%= or =%<nop>JBROWSE{ _attributes_ }%= anywhere in a TWiki topic to embed a [[http://jbrowse.org/][JBrowse]] genome browser for attached [[http://biowiki.org/GffFormat][GFF]] and [[http://biowiki.org/FastaFormat][FASTA]] files.
    * The following standard attributes are recognized 
 | *Name* | *Description* |
+| =topic= | default: the current topic |
 | =showTracks= | default: %<nop>JBROWSEPLUGIN_SHOW%  |
 | =navigateTo= | default: %<nop>JBROWSEPLUGIN_NAVIGATE% |
+
+The =topic= field can be used to display tracks attached to another topic, rather than the current topic.
+In combination with the =showTracks= and =navigateTo= fields, described below,
+this allows users to create a page that is deep-linked to a particular location in the genome.
+
+The =showTracks= field should be a comma-separated list of track names, each of which should correspond to the "label" element of the track information dictionaries
+(if no JBrowse config-file snippet is attached to the topic, the "label" element just corresponds to the track name).
+This list is converted (by the plugin) to a <nop>JavaScript array and passed to the =showTracks= method in the =Browser.js= class, as documented
+[[http://jbrowse.org/docs/jbrowse-jsdoc/Browser.html#showTracks][here]].
+
+The =navigateTo= field should be a location string, as might be typed into the navigation text box on the JBrowse page.
+This field is passed directly to the =navigateTo= method in the =Browser.js= class, as documented
+[[http://jbrowse.org/docs/jbrowse-jsdoc/Browser.html#navigateTo][here]].
+Valid formats for the location string are described at that link.
+
 
 ---++ Examples
 
 For examples and more information, see:
    * http://biowiki.org/view/JBrowse/TWikiPlugin
    * http://jbrowse.org/
+      * http://jbrowse.org/docs/jbrowse-jsdoc/
 
 ---++ Plugin Settings
 

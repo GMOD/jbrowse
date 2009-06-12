@@ -307,6 +307,7 @@ sub _handleJBrowse {
 
   my $showTracks = $attrs->remove( 'showTracks' )
       || TWiki::Func::getPreferencesValue ('${pluginName}_SHOW', $web);
+  my @showTracks = defined($showTracks) ? split(/,/,$showTracks) : ();
 
   my $jbRoot = TWiki::Func::getPreferencesValue ("${pluginName}_ROOT", $web)
       || '/jbrowse';
@@ -384,7 +385,7 @@ JBCODE
                                });
 JBCODE
 
-		 $jbCode .= "           b.showTracks(\"$showTracks\");\n" if defined $showTracks;
+		 $jbCode .= "           b.showTracks([" . join (",", map ("\"$_\"", @showTracks)) . "]);\n" if @showTracks;
 		 $jbCode .= "           b.navigateTo(\"$navigateTo\");\n" if defined $navigateTo;
 
     $jbCode .= <<JBCODE;
