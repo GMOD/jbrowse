@@ -157,10 +157,10 @@ sub initPlugin {
 #    my $setting = $TWiki::cfg{Plugins}{JBrowsePlugin}{ExampleSetting} || 0;
     $debug = $TWiki::cfg{Plugins}{JBrowsePlugin}{Debug} || 0;
 
-    # register the _EXAMPLETAG function to handle %EXAMPLETAG{...}%
-    # This will be called whenever %EXAMPLETAG% or %EXAMPLETAG{...}% is
+    # register the _JBROWSE function to handle %JBROWSE{...}%
+    # This will be called whenever %JBROWSE% or %JBROWSE{...}% is
     # seen in the topic text.
-#    TWiki::Func::registerTagHandler( 'EXAMPLETAG', \&_EXAMPLETAG );
+    TWiki::Func::registerTagHandler( 'JBROWSE', \&_JBROWSE );
 
     # Allow a sub to be called from the REST interface 
     # using the provided alias
@@ -281,31 +281,32 @@ handler. Use the =$meta= object.
 
 =cut
 
-sub commonTagsHandler {
+sub DISABLE_commonTagsHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $text, $topic, $web, $meta ) = @_;
 
   return unless
     $_[0] =~ m/%(JBROWSE)({.*?})?%/;
 
-  $_[0] =~ s/\%JBROWSE%/_handleJBrowse("",@_[1,2])/eg;
-  $_[0] =~ s/\%JBROWSE{(.*)}%/_handleJBrowse($1,@_[1,2])/eg;
+  $_[0] =~ s/\%JBROWSE%/_JBROWSE("",@_[1,2])/eg;
+  $_[0] =~ s/\%JBROWSE{(.*)}%/_JBROWSE($1,@_[1,2])/eg;
 
 #    TWiki::Func::writeDebug( "- ${pluginName}::commonTagsHandler( $_[2].$_[1] )" ) if $debug;
 }
 
 # expand a %JBROWSE{...}% tag
-sub _handleJBrowse {
-  my ( $attributes, $topic, $web ) = @_;
-  my $attrs = new TWiki::Attrs( $attributes, 1 );
+sub _JBROWSE {
+  my($session, $attrs, $theTopic, $theWeb) = @_;
 
   my $jbTopic = $attrs->remove( 'topic' )
       || $topic;
 
-  my $navigateTo = $attrs->remove( 'navigateTo' )
+  my $navigateTo = $session->cgiQuery->param( 'loc' )
+      || $attrs->remove( 'navigateTo' )
       || TWiki::Func::getPreferencesValue ('${pluginName}_NAVIGATE', $web);
 
-  my $showTracks = $attrs->remove( 'showTracks' )
+  my $showTracks = $session->cgiQuery->param( 'tracks' )
+      || $attrs->remove( 'showTracks' )
       || TWiki::Func::getPreferencesValue ('${pluginName}_SHOW', $web);
 
   if (defined $showTracks) {
@@ -353,6 +354,7 @@ JBCODE
   }
 
   my $editUrl = "$TWiki::cfg{ScriptUrlPath}/edit/$web/$jbTopic";
+  my $viewUrl = "$TWiki::cfg{ScriptUrlPath}/view/$web/$topic";
   my $bookmarkOrigin = "Bookmarked%20from%20";
   $bookmarkOrigin .= "$jbTopic%20via%20" if $jbTopic ne $topic;
   $bookmarkOrigin .= $topic;
@@ -385,15 +387,14 @@ JBCODE
     $makeLink
     <script type="text/javascript">
     /* <![CDATA[ */
-           var b = new Browser({
-                                   containerID: "GenomeBrowser",
-                                   refSeqs: refSeqs,
-                                   trackData: trackInfo,
-                                   dataRoot: "$jbDataRoot/",
-                                   browserRoot: "$jbRoot/"
-                               });
+		 function makeBookmarkLink() {
+		     jbrowseTrackList = b.trackList();
+		     jbrowseLocation = b.location();
+		     bookmarkURL = '$viewUrl?tracks=' . escape(jbrowseTrackList) . '&loc=' . escape(jbrowseLocation);
+		     window.open(bookmarkURL);
+		 }
 
-		 function makeBookmark() {
+		 function makeBookmarkPage() {
 		     bookmarkDate = new Date();
 		     bookmarkTime = bookmarkDate.getTime();
 		     jbrowseTrackList = b.trackList();
@@ -401,6 +402,14 @@ JBCODE
 		     bookmarkURL = '$editUrl' + bookmarkTime + '?&text=($bookmarkOrigin)%0D%0D%25JBROWSE%7Btopic=%22$jbTopic%22%20showTracks=%22' + jbrowseTrackList + '%22%20navigateTo=%22' + jbrowseLocation + '%22%7D%25&topicparent=$topic';
 		     window.open(bookmarkURL);
 		 }
+
+           var b = new Browser({
+                                   containerID: "GenomeBrowser",
+                                   refSeqs: refSeqs,
+                                   trackData: trackInfo,
+                                   dataRoot: "$jbDataRoot/",
+                                   browserRoot: "$jbRoot/"
+                               });
 
 JBCODE
 
@@ -414,7 +423,7 @@ JBCODE
     <div id="GenomeBrowser" style="height: 40em; width: 100%; padding: 0; border: 0;"></div>
 
     <p />
-    <a href="javascript:makeBookmark()">Bookmark this location with a new wiki page</a>
+    <a href="javascript:makeBookmarkLink()">Permalink</a> /  <a href="javascript:makeBookmarkPage()">page</a> for this location
 
 JBCODE
 
