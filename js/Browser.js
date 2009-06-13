@@ -443,7 +443,7 @@ Browser.prototype.showTracks = function(trackNameList) {
  * @return {String} string representation of the current location<br>
  * (suitable for passing to navigateTo)
  */
-Browser.prototype.location = function() {
+Browser.prototype.visibleRegion = function() {
     return this.view.ref.name + ":" + Math.round(this.view.minVisible()) + ".." + Math.round(this.view.maxVisible());
 };
 
@@ -451,7 +451,7 @@ Browser.prototype.location = function() {
  * @return {String} containing comma-separated list of currently-viewed tracks<br>
  * (suitable for passing to showTracks)
  */
-Browser.prototype.trackList = function() {
+Browser.prototype.visibleTracks = function() {
     var trackLabels = dojo.map(this.view.trackList(),
                                function(track) { return track.name; });
     return trackLabels.join(",");
