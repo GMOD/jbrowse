@@ -387,6 +387,14 @@ JBCODE
     $makeLink
     <script type="text/javascript">
     /* <![CDATA[ */
+           var b = new Browser({
+                                   containerID: "GenomeBrowser",
+                                   refSeqs: refSeqs,
+                                   trackData: trackInfo,
+                                   dataRoot: "$jbDataRoot/",
+                                   browserRoot: "$jbRoot/"
+                               });
+
 		 function makeBookmarkLink() {
 		     jbrowseTrackList = b.trackList();
 		     jbrowseLocation = b.location();
@@ -402,14 +410,6 @@ JBCODE
 		     bookmarkURL = '$editUrl' + bookmarkTime + '?&text=($bookmarkOrigin)%0D%0D%25JBROWSE%7Btopic=%22$jbTopic%22%20showTracks=%22' + jbrowseTrackList + '%22%20navigateTo=%22' + jbrowseLocation + '%22%7D%25&topicparent=$topic';
 		     window.open(bookmarkURL);
 		 }
-
-           var b = new Browser({
-                                   containerID: "GenomeBrowser",
-                                   refSeqs: refSeqs,
-                                   trackData: trackInfo,
-                                   dataRoot: "$jbDataRoot/",
-                                   browserRoot: "$jbRoot/"
-                               });
 
 JBCODE
 
