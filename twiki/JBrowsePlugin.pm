@@ -352,7 +352,9 @@ JBCODE
       $makeLink .= "<small> (" . join ("; ", @makeLinks) . ") </small>";
   }
 
-  my $editUrl = "$TWiki::cfg{ScriptUrlPath}/edit/$web/$topic";
+  my $editUrl = "$TWiki::cfg{ScriptUrlPath}/edit/$web/$jbTopic";
+  my $bookmarkOrigin = "Bookmarked%20from%20$topic";
+  $bookmarkOrigin .= "%20via%20$jbTopic" if $jbTopic ne $topic;
 
   my $jbCode = <<JBCODE;
     <link rel="stylesheet" type="text/css" href="$jbRoot/jslib/dijit/themes/tundra/tundra.css"></link>
@@ -395,7 +397,7 @@ JBCODE
 		     bookmarkTime = bookmarkDate.getTime();
 		     jbrowseTrackList = b.trackList();
 		     jbrowseLocation = b.location();
-		     bookmarkURL = '$editUrl' + bookmarkTime + '?&text=(Bookmarked%20from%20$jbTopic)%0D%0D%25JBROWSE%7Btopic=%22$jbTopic%22%20showTracks=%22' + jbrowseTrackList + '%22%20navigateTo=%22' + jbrowseLocation + '%22%7D%25&topicparent=$topic';
+		     bookmarkURL = '$editUrl' + bookmarkTime + '?&text=($bookmarkOrigin)%0D%0D%25JBROWSE%7Btopic=%22$jbTopic%22%20showTracks=%22' + jbrowseTrackList + '%22%20navigateTo=%22' + jbrowseLocation + '%22%7D%25&topicparent=$topic';
 		     window.open(bookmarkURL);
 		 }
 
