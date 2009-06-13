@@ -396,17 +396,17 @@ JBCODE
                                });
 
 		 function makeBookmarkLink() {
-		     jbrowseTrackList = b.trackList();
-		     jbrowseLocation = b.location();
-		     bookmarkURL = '$viewUrl?tracks=' . escape(jbrowseTrackList) . '&loc=' . escape(jbrowseLocation);
+		     jbrowseTrackList = b.visibleTracks();
+		     jbrowseLocation = b.visibleRegion();
+		     bookmarkURL = '$viewUrl?tracks=' + escape(jbrowseTrackList) + '&loc=' + escape(jbrowseLocation);
 		     window.open(bookmarkURL);
 		 }
 
 		 function makeBookmarkPage() {
 		     bookmarkDate = new Date();
 		     bookmarkTime = bookmarkDate.getTime();
-		     jbrowseTrackList = b.trackList();
-		     jbrowseLocation = b.location();
+		     jbrowseTrackList = b.visibleTracks();
+		     jbrowseLocation = b.visibleRegion();
 		     bookmarkURL = '$editUrl' + bookmarkTime + '?&text=($bookmarkOrigin)%0D%0D%25JBROWSE%7Btopic=%22$jbTopic%22%20showTracks=%22' + jbrowseTrackList + '%22%20navigateTo=%22' + jbrowseLocation + '%22%7D%25&topicparent=$topic';
 		     window.open(bookmarkURL);
 		 }
