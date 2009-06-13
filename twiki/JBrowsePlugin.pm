@@ -353,7 +353,6 @@ JBCODE
   }
 
   my $editUrl = "$TWiki::cfg{ScriptUrlPath}/edit/$web/$topic";
-  my $userInfo = $TWiki::wikiusername;
 
   my $jbCode = <<JBCODE;
     <link rel="stylesheet" type="text/css" href="$jbRoot/jslib/dijit/themes/tundra/tundra.css"></link>
@@ -396,7 +395,7 @@ JBCODE
 		     bookmarkTime = bookmarkDate.getTime();
 		     jbrowseTrackList = b.trackList();
 		     jbrowseLocation = b.location();
-		     bookmarkURL = '$editUrl' + bookmarkTime + '?text=%25JBROWSE%7BshowTracks=%22' + jbrowseTrackList + '%22%20navigateTo=%22' + jbrowseLocation + '%22%7D%25%0D%0DBookmarked%20by%20' + escape('$userInfo') + '%20at%20' + escape(bookmarkDate);
+		     bookmarkURL = '$editUrl' + bookmarkTime + '?text=%25JBROWSE%7BshowTracks=%22' + jbrowseTrackList + '%22%20navigateTo=%22' + jbrowseLocation + '%22%7D%25%0D%0D';
 		     window.open(bookmarkURL);
 		 }
 
