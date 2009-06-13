@@ -301,11 +301,11 @@ sub _JBROWSE {
   my $jbTopic = $attrs->remove( 'topic' )
       || $topic;
 
-  my $navigateTo = $session->cgiQuery->param( 'loc' )
+  my $navigateTo = $session->{'cgiQuery'}->param( 'loc' )
       || $attrs->remove( 'navigateTo' )
       || TWiki::Func::getPreferencesValue ('${pluginName}_NAVIGATE', $web);
 
-  my $showTracks = $session->cgiQuery->param( 'tracks' )
+  my $showTracks = $session->{'cgiQuery'}->param( 'tracks' )
       || $attrs->remove( 'showTracks' )
       || TWiki::Func::getPreferencesValue ('${pluginName}_SHOW', $web);
 
