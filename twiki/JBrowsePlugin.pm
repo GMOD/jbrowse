@@ -395,7 +395,7 @@ JBCODE
 		     bookmarkTime = bookmarkDate.getTime();
 		     jbrowseTrackList = b.trackList();
 		     jbrowseLocation = b.location();
-		     bookmarkURL = '$editUrl' + bookmarkTime + '?&text=%25JBROWSE%7Btopic=%22$jbTopic%22%20showTracks=%22' + jbrowseTrackList + '%22%20navigateTo=%22' + jbrowseLocation + '%22%7D%25%0D%0D(Bookmarked%20from%20$jbTopic)&topicparent=$topic';
+		     bookmarkURL = '$editUrl' + bookmarkTime + '?&text=(Bookmarked%20from%20$jbTopic)%0D%0D%25JBROWSE%7Btopic=%22$jbTopic%22%20showTracks=%22' + jbrowseTrackList + '%22%20navigateTo=%22' + jbrowseLocation + '%22%7D%25&topicparent=$topic';
 		     window.open(bookmarkURL);
 		 }
 
