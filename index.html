@@ -31,12 +31,15 @@
 
     <script type="text/javascript">
     /* <![CDATA[ */
+           var queryParams = dojo.queryToObject(window.location.search.slice(1));
            var b = new Browser({
                                    containerID: "GenomeBrowser",
                                    refSeqs: refSeqs,
-                                   trackData: trackInfo
+                                   trackData: trackInfo,
+                                   defaultTracks: "DNA,gene,mRNA,noncodingRNA",
+                                   location: queryParams.loc,
+                                   tracks: queryParams.tracks
                                });
-           b.showTracks("DNA,gene,mRNA,noncodingRNA");
     /* ]]> */
     </script>
   </head>

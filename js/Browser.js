@@ -7,17 +7,14 @@
  * refSeqs: list of reference sequence information items (usually from refSeqs.js)<br>
  * trackData: list of track data items (usually from trackInfo.js)<br>
  * dataRoot: (optional) URL prefix for the data directory<br>
- * browserRoot: (optional) URL prefix for the browser code
+ * browserRoot: (optional) URL prefix for the browser code<br>
+ * tracks: (optional) comma-delimited string containing initial list of tracks to view
+ * location: (optional) string describing the initial location
+ * defaultTracks: (optional) comma-delimited string containing initial list of tracks to view if there are no cookies and no "tracks" parameter
+ * defaultLocation: (optional) string describing the initial location if there are no cookies and no "location" parameter
  */
 
 var Browser = function(params) {
-    //params: {
-    //           containerID: ID of the element that contains the browser
-    //           refSeqs: <refseq list>,
-    //           trackData: <track list>,
-    //           dataRoot: <data root>,
-    //           browserRoot: <browser root>
-    //         }
     dojo.require("dojo.dnd.Source");
     dojo.require("dojo.dnd.Moveable");
     dojo.require("dojo.dnd.Mover");
@@ -133,15 +130,23 @@ var Browser = function(params) {
 
             //set initial location
             var oldLocMap = dojo.fromJson(dojo.cookie(brwsr.container.id + "-location")) || {};
-            var basePos = (oldLocMap[brwsr.refSeq.name]
-                           || ((((brwsr.refSeq.start + brwsr.refSeq.end) * 0.4) | 0)
-                               + " .. "
-                               + (((brwsr.refSeq.start + brwsr.refSeq.end) * 0.6) | 0)));
-            var queryParams = dojo.queryToObject(window.location.search.slice(1));
-            if (queryParams.loc) {
-                brwsr.navigateTo(queryParams.loc);
+
+            if (params.location) {
+                brwsr.navigateTo(params.location);
+            } else if (oldLocMap[brwsr.refSeq.name]) {
+                brwsr.navigateTo(brwsr.refSeq.name
+                                 + ":"
+                                 + oldLocMap[brwsr.refSeq.name]);
+            } else if (params.defaultLocation){
+                brwsr.navigateTo(params.defaultLocation);
             } else {
-                brwsr.navigateTo(brwsr.refSeq.name + ":" + basePos);
+                brwsr.navigateTo(brwsr.refSeq.name
+                                 + ":"
+                                 + ((((brwsr.refSeq.start + brwsr.refSeq.end)
+                                      * 0.4) | 0)
+                                    + " .. "
+                                    + (((brwsr.refSeq.start + brwsr.refSeq.end)
+                                        * 0.6) | 0)));
             }
 
 	    //if someone calls methods on this browser object
@@ -268,11 +273,12 @@ Browser.prototype.createTrackList = function(parent, params) {
 
     this.trackListWidget.insertNodes(false, params.trackData);
     var oldTrackList = dojo.cookie(this.container.id + "-tracks");
-    var queryParams = dojo.queryToObject(window.location.search.slice(1));
-    if (queryParams.tracks) {
-        this.showTracks(queryParams.tracks);
-    } else {
-        if (oldTrackList) this.showTracks(oldTrackList);
+    if (params.tracks) {
+        this.showTracks(params.tracks);
+    } else if (oldTrackList) {
+        this.showTracks(oldTrackList);
+    } else if (params.defaultTracks) {
+        this.showTracks(params.defaultTracks);
     }
 
     return trackListDiv;
