@@ -353,7 +353,7 @@ JBCODE
   }
 
   my $editUrl = "$TWiki::cfg{ScriptUrlPath}/edit/$web/$topic";
-  my $userInfo = TWiki::USERINFO();
+  my $userInfo = $TWiki::wikiusername;
 
   my $jbCode = <<JBCODE;
     <link rel="stylesheet" type="text/css" href="$jbRoot/jslib/dijit/themes/tundra/tundra.css"></link>
