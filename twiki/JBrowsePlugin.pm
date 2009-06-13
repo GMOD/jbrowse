@@ -352,6 +352,11 @@ JBCODE
       $makeLink .= "<small> (" . join ("; ", @makeLinks) . ") </small>";
   }
 
+  my $editUrl = "$TWiki::cfg{ScriptUrlPath}/edit/$web/$jbTopic";
+  my $bookmarkOrigin = "Bookmarked%20from%20";
+  $bookmarkOrigin .= "$jbTopic%20via%20" if $jbTopic ne $topic;
+  $bookmarkOrigin .= $topic;
+
   my $jbCode = <<JBCODE;
     <link rel="stylesheet" type="text/css" href="$jbRoot/jslib/dijit/themes/tundra/tundra.css"></link>
     <link rel="stylesheet" type="text/css" href="$jbRoot/jslib/dojo/resources/dojo.css"></link>
@@ -387,6 +392,16 @@ JBCODE
                                    dataRoot: "$jbDataRoot/",
                                    browserRoot: "$jbRoot/"
                                });
+
+		 function makeBookmark() {
+		     bookmarkDate = new Date();
+		     bookmarkTime = bookmarkDate.getTime();
+		     jbrowseTrackList = b.trackList();
+		     jbrowseLocation = b.location();
+		     bookmarkURL = '$editUrl' + bookmarkTime + '?&text=($bookmarkOrigin)%0D%0D%25JBROWSE%7Btopic=%22$jbTopic%22%20showTracks=%22' + jbrowseTrackList + '%22%20navigateTo=%22' + jbrowseLocation + '%22%7D%25&topicparent=$topic';
+		     window.open(bookmarkURL);
+		 }
+
 JBCODE
 
 		 $jbCode .= "           b.showTracks(\"$showTracks\");\n" if defined $showTracks;
@@ -397,6 +412,10 @@ JBCODE
     </script>
 
     <div id="GenomeBrowser" style="height: 40em; width: 100%; padding: 0; border: 0;"></div>
+
+    <p />
+    <a href="javascript:makeBookmark()">Bookmark this location with a new wiki page</a>
+
 JBCODE
 
   return $jbCode;
