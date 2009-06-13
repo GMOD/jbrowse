@@ -352,7 +352,7 @@ JBCODE
       $makeLink .= "<small> (" . join ("; ", @makeLinks) . ") </small>";
   }
 
-  my $editUrl = $TWiki::cfg{ScriptUrlPath}/edit/$web/$topic;
+  my $editUrl = "$TWiki::cfg{ScriptUrlPath}/edit/$web/$topic";
   my $userInfo = TWiki::USERINFO();
 
   my $jbCode = <<JBCODE;
