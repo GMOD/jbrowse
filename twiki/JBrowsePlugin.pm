@@ -353,8 +353,9 @@ JBCODE
   }
 
   my $editUrl = "$TWiki::cfg{ScriptUrlPath}/edit/$web/$jbTopic";
-  my $bookmarkOrigin = "Bookmarked%20from%20$topic";
-  $bookmarkOrigin .= "%20via%20$jbTopic" if $jbTopic ne $topic;
+  my $bookmarkOrigin = "Bookmarked%20from%20";
+  $bookmarkOrigin .= "$jbTopic%20via%20" if $jbTopic ne $topic;
+  $bookmarkOrigin .= $topic;
 
   my $jbCode = <<JBCODE;
     <link rel="stylesheet" type="text/css" href="$jbRoot/jslib/dijit/themes/tundra/tundra.css"></link>
