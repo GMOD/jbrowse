@@ -398,7 +398,7 @@ JBCODE
 		 function makeBookmarkLink() {
 		     jbrowseTrackList = b.trackList();
 		     jbrowseLocation = b.location();
-		     bookmarkURL = '$viewUrl?tracks=' . escape(jbrowseTrackList) . '&loc=' . escape(jbrowseLocation);
+		     bookmarkURL = '$viewUrl?tracks=' + escape(jbrowseTrackList) + '&loc=' + escape(jbrowseLocation);
 		     window.open(bookmarkURL);
 		 }
 
