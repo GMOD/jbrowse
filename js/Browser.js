@@ -430,6 +430,24 @@ Browser.prototype.showTracks = function(trackNameList) {
 };
 
 /**
+ * @return {String} string representation of the current location<br>
+ * (suitable for passing to navigateTo)
+ */
+Browser.prototype.location = function() {
+    return this.view.ref.name + ":" + Math.round(this.view.minVisible()) + ".." + Math.round(this.view.maxVisible());
+};
+
+/**
+ * @return {String} containing comma-separated list of currently-viewed tracks<br>
+ * (suitable for passing to showTracks)
+ */
+Browser.prototype.trackList = function() {
+    var trackLabels = dojo.map(this.view.trackList(),
+                               function(track) { return track.name; });
+    return trackLabels.join(",");
+};
+
+/**
  * @private
  */
 Browser.prototype.onCoarseMove = function(startbp, endbp) {
@@ -449,9 +467,9 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     //we don't want to save whatever location we happen to start at
     if (! this.isInitialized) return;
     var locString = Util.addCommas(Math.round(startbp)) + " .. " + Util.addCommas(Math.round(endbp));
-    this.location.value = locString;
+    this.locationBox.value = locString;
     this.goButton.disabled = true;
-    this.location.blur();
+    this.locationBox.blur();
     var oldLocMap = dojo.fromJson(dojo.cookie(this.container.id + "-location"));
     if ((typeof oldLocMap) != "object") oldLocMap = {};
     oldLocMap[this.refSeq.name] = locString;
@@ -557,28 +575,28 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     this.chromList = document.createElement("select");
     this.chromList.id="chrom";
     navbox.appendChild(this.chromList);
-    this.location = document.createElement("input");
-    this.location.size=locLength;
-    this.location.type="text";
-    this.location.id="location";
-    dojo.connect(this.location, "keydown", function(event) {
+    this.locationBox = document.createElement("input");
+    this.locationBox.size=locLength;
+    this.locationBox.type="text";
+    this.locationBox.id="location";
+    dojo.connect(this.locationBox, "keydown", function(event) {
             if (event.keyCode == dojo.keys.ENTER) {
-                brwsr.navigateTo(brwsr.location.value);
-                //brwsr.location.blur();
+                brwsr.navigateTo(brwsr.locationBox.value);
+                //brwsr.locationBox.blur();
                 brwsr.goButton.disabled = true;
                 dojo.stopEvent(event);
             } else {
                 brwsr.goButton.disabled = false;
             }
         });
-    navbox.appendChild(this.location);
+    navbox.appendChild(this.locationBox);
 
     this.goButton = document.createElement("button");
     this.goButton.appendChild(document.createTextNode("Go"));
     this.goButton.disabled = true;
     dojo.connect(this.goButton, "click", function(event) {
-            brwsr.navigateTo(brwsr.location.value);
-            //brwsr.location.blur();
+            brwsr.navigateTo(brwsr.locationBox.value);
+            //brwsr.locationBox.blur();
             brwsr.goButton.disabled = true;
             dojo.stopEvent(event);
         });
