@@ -296,7 +296,7 @@ sub DISABLE_commonTagsHandler {
 
 # expand a %JBROWSE{...}% tag
 sub _JBROWSE {
-  my($session, $attrs, $theTopic, $theWeb) = @_;
+  my($session, $attrs, $topic, $web) = @_;
 
   my $jbTopic = $attrs->remove( 'topic' )
       || $topic;
