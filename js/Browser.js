@@ -137,7 +137,12 @@ var Browser = function(params) {
                            || ((((brwsr.refSeq.start + brwsr.refSeq.end) * 0.4) | 0)
                                + " .. "
                                + (((brwsr.refSeq.start + brwsr.refSeq.end) * 0.6) | 0)));
-            brwsr.navigateTo(brwsr.refSeq.name + ":" + basePos);
+            var queryParams = dojo.queryToObject(window.location.search.slice(1));
+            if (queryParams.loc) {
+                brwsr.navigateTo(queryParams.loc);
+            } else {
+                brwsr.navigateTo(brwsr.refSeq.name + ":" + basePos);
+            }
 
 	    //if someone calls methods on this browser object
 	    //before it's fully initialized, then we defer
@@ -263,7 +268,12 @@ Browser.prototype.createTrackList = function(parent, params) {
 
     this.trackListWidget.insertNodes(false, params.trackData);
     var oldTrackList = dojo.cookie(this.container.id + "-tracks");
-    if (oldTrackList) this.showTracks(oldTrackList);
+    var queryParams = dojo.queryToObject(window.location.search.slice(1));
+    if (queryParams.tracks) {
+        this.showTracks(queryParams.tracks);
+    } else {
+        if (oldTrackList) this.showTracks(oldTrackList);
+    }
 
     return trackListDiv;
 };
