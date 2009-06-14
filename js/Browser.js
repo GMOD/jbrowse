@@ -3,15 +3,17 @@
  * @class This class is the main interface between JBrowse and embedders
  * @constructor
  * @param params a dictionary with the following keys:<br>
- * containerID: ID of the HTML element that contains the browser<br>
- * refSeqs: list of reference sequence information items (usually from refSeqs.js)<br>
- * trackData: list of track data items (usually from trackInfo.js)<br>
- * dataRoot: (optional) URL prefix for the data directory<br>
- * browserRoot: (optional) URL prefix for the browser code<br>
- * tracks: (optional) comma-delimited string containing initial list of tracks to view
- * location: (optional) string describing the initial location
- * defaultTracks: (optional) comma-delimited string containing initial list of tracks to view if there are no cookies and no "tracks" parameter
- * defaultLocation: (optional) string describing the initial location if there are no cookies and no "location" parameter
+ * <ul>
+ * <li><code>containerID</code> - ID of the HTML element that contains the browser</li>
+ * <li><code>refSeqs</code> - list of reference sequence information items (usually from refSeqs.js)</li>
+ * <li><code>trackData</code> - list of track data items (usually from trackInfo.js)</li>
+ * <li><code>dataRoot</code> - (optional) URL prefix for the data directory</li>
+ * <li><code>browserRoot</code> - (optional) URL prefix for the browser code</li>
+ * <li><code>tracks</code> - (optional) comma-delimited string containing initial list of tracks to view</li>
+ * <li><code>location</code> - (optional) string describing the initial location</li>
+ * <li><code>defaultTracks</code> - (optional) comma-delimited string containing initial list of tracks to view if there are no cookies and no "tracks" parameter</li>
+ * <li><code>defaultLocation</code> - (optional) string describing the initial location if there are no cookies and no "location" parameter</li>
+ * </ul>
  */
 
 var Browser = function(params) {
@@ -285,6 +287,7 @@ Browser.prototype.createTrackList = function(parent, params) {
 };
 
 /**
+ * @private
  * add new tracks to the track list
  * @param trackList list of track information items
  * @param replace true if this list of tracks should replace any existing
@@ -446,7 +449,7 @@ Browser.prototype.showTracks = function(trackNameList) {
 };
 
 /**
- * @return {String} string representation of the current location<br>
+ * @returns {String} string representation of the current location<br>
  * (suitable for passing to navigateTo)
  */
 Browser.prototype.visibleRegion = function() {
@@ -454,7 +457,7 @@ Browser.prototype.visibleRegion = function() {
 };
 
 /**
- * @return {String} containing comma-separated list of currently-viewed tracks<br>
+ * @returns {String} containing comma-separated list of currently-viewed tracks<br>
  * (suitable for passing to showTracks)
  */
 Browser.prototype.visibleTracks = function() {
