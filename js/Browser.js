@@ -312,6 +312,10 @@ Browser.prototype.addTracks = function(trackList, replace) {
 
 /**
  * navigate to a given location
+ * @example
+ * gb=dojo.byId("GenomeBrowser").genomeBrowser
+ * gb.navigateTo("ctgA:100..200")
+ * gb.navigateTo("f14")
  * @param loc can be either:<br>
  * &lt;chromosome&gt;:&lt;start&gt; .. &lt;end&gt;<br>
  * &lt;start&gt; .. &lt;end&gt;<br>
@@ -416,6 +420,9 @@ Browser.prototype.navigateTo = function(loc) {
 
 /**
  * load and display the given tracks
+ * @example
+ * gb=dojo.byId("GenomeBrowser").genomeBrowser
+ * gb.showTracks("DNA,gene,mRNA,noncodingRNA")
  * @param trackNameList {String} comma-delimited string containing track names,
  * each of which should correspond to the "label" element of the track
  * information dictionaries
