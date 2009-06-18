@@ -265,6 +265,8 @@ sub generateTrack {
     my ($self, $outDir, $subfeatureLimit, $featureLimit) = @_;
 
     mkdir($outDir) unless (-d $outDir);
+    unlink (glob "$outDir/lazyfeatures*");
+    unlink (glob "$outDir/subfeatures*");
     writeJSON("$outDir/names.json", $self->{names}, {pretty => 0})
         if ($self->{getLabel} || $self->{getAlias});
 
@@ -301,7 +303,7 @@ sub generateTrack {
                 $sortedFeatures[$chunkLast][$endIndex] + 1;
             #print STDERR "(bases " . $fakeFeature->[$startIndex] . " - " . $fakeFeature->[$endIndex] . ")\n";
             $fakeFeature->[$lazyIndex] = {
-                'path' => "$outDir/lazyFeature-" . $chunkFirst . ".json",
+                'path' => "$outDir/lazyfeatures-" . $chunkFirst . ".json",
                 'state' => "lazy"
             };
             push @fakeFeatures, $fakeFeature;
