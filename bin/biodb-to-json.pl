@@ -104,7 +104,7 @@ foreach my $seg (@segs) {
             $jsonGen->addFeature($_) foreach (@features);
 
             $jsonGen->generateTrack("$trackDir/$segName/" . $track->{"track"},
-                                    5000);
+                                    1000, 1000);
 
             # JsonGenerator::generateTrack(
             #     $track->{"track"}, $segName,

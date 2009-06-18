@@ -18,10 +18,13 @@ my @featMap = (
 	       sub {int(shift->strand)},
 	       \&featureIdSub,
 	      );
+
 my @mapHeaders = ('start', 'end', 'strand', 'id');
 #positions of "start" and "end" in @mapHeaders (for NCList)
 my $startIndex = 0;
 my $endIndex = 1;
+#position of the lazy subfeature file name in the fake feature.
+my $lazyIndex = 2;
 
 sub featureIdSub {
     return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
@@ -259,23 +262,85 @@ sub hasFeatures {
 }
 
 sub generateTrack {
-    my ($self, $outDir, $featureLimit) = @_;
+    my ($self, $outDir, $subfeatureLimit, $featureLimit) = @_;
 
     mkdir($outDir) unless (-d $outDir);
     writeJSON("$outDir/names.json", $self->{names}, {pretty => 0})
         if ($self->{getLabel} || $self->{getAlias});
 
-    my $featList = NCList->new($startIndex, $endIndex,
-                               $self->{sublistIndex}, $self->{features});
-    my $rangeMap = [];
+    #note: not the same sort as the NCList sort
+    #(this one sorts ascending on end as well as start)
+    my @sortedFeatures = sort {
+	if ($a->[$startIndex] != $b->[$startIndex]) {
+	    $a->[$startIndex] - $b->[$startIndex];
+	} else {
+	    $a->[$endIndex] - $b->[$endIndex];
+	}
+    } @{$self->{features}};
 
+    #add fake features for chunking
+    my @fakeFeatures;
+    if (($#sortedFeatures / $featureLimit) > 1.5) {
+        #make it so that the chunks are roughly the same size
+        $featureLimit = int((($#sortedFeatures + 1)
+                              / int((($#sortedFeatures + 1)
+                                      / $featureLimit) + .5)) + 1);
+        #print STDERR "adjusted featureLimit: $featureLimit\n";
+        for (my $chunkFirst = 0;
+             $chunkFirst < $#sortedFeatures;
+             $chunkFirst += $featureLimit) {
+
+            my $chunkLast = $chunkFirst + $featureLimit - 1;
+            $chunkLast = $chunkLast > $#sortedFeatures ?
+                $#sortedFeatures : $chunkLast;
+            #print STDERR "$chunkFirst - $chunkLast\n";
+            my $fakeFeature = [];
+            $fakeFeature->[$startIndex] =
+                $sortedFeatures[$chunkFirst][$startIndex];
+            $fakeFeature->[$endIndex] =
+                $sortedFeatures[$chunkLast][$endIndex] + 1;
+            #print STDERR "(bases " . $fakeFeature->[$startIndex] . " - " . $fakeFeature->[$endIndex] . ")\n";
+            $fakeFeature->[$lazyIndex] = {
+                'path' => "$outDir/lazyFeature-" . $chunkFirst . ".json",
+                'state' => "lazy"
+            };
+            push @fakeFeatures, $fakeFeature;
+        }
+    }
+
+    push @sortedFeatures, @fakeFeatures;
+
+    my $featList = NCList->new($startIndex, $endIndex,
+                               $self->{sublistIndex}, \@sortedFeatures);
+
+    #strip out subtrees (have to do this before we start writing out
+    # subtrees in case one subtree is within another subtree)
+    my %subTrees;
+    foreach my $fake (@fakeFeatures) {
+        if (!defined($fake->[$self->{sublistIndex}])) {
+            warn "feature chunk " . $fake->[$startIndex] . " .. " . $fake->[$endIndex] . " ended up empty (that's OK, just sub-optimal)\n";
+            $fake->[$lazyIndex]->{state} = "loaded";
+        } else {
+            $subTrees{$fake->[$lazyIndex]->{path}} =
+                $fake->[$self->{sublistIndex}];
+            $fake->[$self->{sublistIndex}] = undef;
+        }
+    }
+
+    foreach my $path (keys %subTrees) {
+        writeJSON($path,
+                  $subTrees{$path},
+                  {pretty => 0});
+    }
+
+    my $rangeMap = [];
     if ($self->{style}->{subfeatures} && (@{$self->{allSubfeatures}})) {
         #chunk subfeatures
         my $firstIndex = 0;
         my $subFile = 1;
         while ($firstIndex < $#{$self->{allSubfeatures}}) {
-            my $lastIndex = $firstIndex + $featureLimit - 1;
-            $lastIndex = $#{$self->{allSubfeatures}} 
+            my $lastIndex = $firstIndex + $subfeatureLimit - 1;
+            $lastIndex = $#{$self->{allSubfeatures}}
               if $lastIndex > $#{$self->{allSubfeatures}};
             writeJSON("$outDir/subfeatures-$subFile.json",
                       [@{$self->{allSubfeatures}}[$firstIndex..$lastIndex]],
@@ -295,6 +360,7 @@ sub generateTrack {
                      'label' => $self->{label},
                      'key' => $self->{style}->{key},
                      'sublistIndex' => $self->{sublistIndex},
+                     'lazyIndex' => $lazyIndex,
                      'headers' => $self->{curMapHeaders},
                      'featureCount' => $#{$self->{features}} + 1,
                      'type' => "FeatureTrack",

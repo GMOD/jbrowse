@@ -8,10 +8,13 @@
 function NCList() {
 }
 
-NCList.prototype.importExisting = function(nclist, sublistIndex) {
+NCList.prototype.importExisting = function(nclist, sublistIndex,
+                                           lazyIndex, baseURL) {
     this.topList = nclist;
     this.sublistIndex = sublistIndex;
-}
+    this.lazyIndex = lazyIndex;
+    this.baseURL = baseURL;
+};
 
 NCList.prototype.fill = function(intervals, sublistIndex) {
     //intervals: array of arrays of [start, end, ...]
@@ -24,7 +27,7 @@ NCList.prototype.fill = function(intervals, sublistIndex) {
     this.sublistIndex = sublistIndex;
     var myIntervals = intervals;//.concat();
     //sort by OL
-    myIntervals.sort(function(a, b) { 
+    myIntervals.sort(function(a, b) {
         if (a[0] != b[0])
             return a[0] - b[0];
         else
@@ -63,7 +66,7 @@ NCList.prototype.fill = function(intervals, sublistIndex) {
             }
         }
     }
-}
+};
 
 NCList.prototype.binarySearch = function(arr, item, itemIndex) {
     var low = -1;
@@ -81,7 +84,7 @@ NCList.prototype.binarySearch = function(arr, item, itemIndex) {
     //if we're iterating rightward, return the high index;
     //if leftward, the low index
     if (1 == itemIndex) return high; else return low;
-}
+};
 
 //due to javascript function-call overhead, there's some copy/paste code below,
 //for performance.  If later profiling shows that we can get away with a cleaner
@@ -90,16 +93,56 @@ NCList.prototype.binarySearch = function(arr, item, itemIndex) {
 NCList.prototype.iterHelper = function(arr, from, to, fun, inc, searchIndex, testIndex) {
     var len = arr.length;
     var i = this.binarySearch(arr, from, searchIndex);
-    while ((i < len) 
+    while ((i < len)
            && (i >= 0)
-           && ((inc * arr[i][testIndex]) < (inc * to))) {
-        fun(arr[i]);
+           && ((inc * arr[i][testIndex]) < (inc * to)) ) {
+
+        if ("object" == typeof arr[i][this.lazyIndex]) {
+            var ncl = this;
+            // lazy node
+            if ("loading" == arr[i][this.lazyIndex].state) {
+                //node is currently loading, just add ourselves
+                //as a callback
+                arr[i][this.lazyIndex].callbacks.push(function(o) {
+                    ncl.iterHelper(o, from, to, fun, inc,
+                                   searchIndex, testIndex);
+                    });
+                return;
+            } else if ("lazy" == arr[i][this.lazyIndex].state) {
+                //node hasn't been loaded, start loading
+                arr[i][this.lazyIndex].state = "loading";
+                arr[i][this.lazyIndex].callbacks = [];
+                dojo.xhrGet({url: this.baseURL + arr[i][this.lazyIndex].path,
+                             handleAs: "json",
+                             load: function(lazyFeat, lazyObj, sublistIndex) {
+                                 return function(o) {
+                                     lazyObj.state = "loaded";
+                                     lazyFeat[sublistIndex] = o;
+                                     ncl.iterHelper(o, from, to, fun, inc,
+                                                    searchIndex, testIndex);
+                                     for (var c = 0;
+                                          c < lazyObj.callbacks.length;
+                                          c++)
+                                         lazyObj.callbacks[c](o);
+                                 };
+                             }(arr[i], arr[i][this.lazyIndex], this.sublistIndex)
+                            });
+                return;
+            } else if ("loaded" == arr[i][this.lazyIndex].state) {
+                //just continue below
+            } else {
+                console.log("unknown lazy type: " + arr[i]);
+            }
+        } else {
+            fun(arr[i]);
+        }
+
         if (arr[i][this.sublistIndex] !== undefined)
             this.iterHelper(arr[i][this.sublistIndex], from, to,
                             fun, inc, searchIndex, testIndex);
         i += inc;
     }
-}    
+};
 
 NCList.prototype.iterate = function(from, to, fun) {
     //calls the given function for all of the intervals that overlap
@@ -113,7 +156,7 @@ NCList.prototype.iterate = function(from, to, fun) {
     //testIndex: test on start or end
     var testIndex = (from > to) ? 1 : 0;
     this.iterHelper(this.topList, from, to, fun, inc, searchIndex, testIndex);
-}
+};
 
 NCList.prototype.overlaps = function(from, to) {
     //returns an array of all of the intervals that overlap
@@ -131,13 +174,13 @@ NCList.prototype.overlaps = function(from, to) {
     this.overlapHelper(this.topList, from, to, result,
 		       inc, searchIndex, testIndex);
     return result;
-}
+};
 
 NCList.prototype.overlapHelper = function(arr, from, to, result,
 					  inc, searchIndex, testIndex) {
     var len = arr.length;
     var i = this.binarySearch(arr, from, searchIndex);
-    while ((i < len) 
+    while ((i < len)
            && (i >= 0)
            && ((inc * arr[i][testIndex]) < (inc * to))) {
 	result.push(arr[i]);
@@ -146,7 +189,7 @@ NCList.prototype.overlapHelper = function(arr, from, to, result,
 			       result, inc, searchIndex, testIndex);
         i += inc;
     }
-}    
+};
 
 NCList.prototype.histogram = function(from, to, numBins) {
     //returns a histogram of the feature density in the given interval
@@ -155,13 +198,13 @@ NCList.prototype.histogram = function(from, to, numBins) {
     for (var i = 0; i < numBins; i++) result[i] = 0;
     this.histHelper(this.topList, from, to, result, numBins, (to - from) / numBins);
     return result;
-}
+};
 
 NCList.prototype.histHelper = function(arr, from, to, result, numBins, binWidth) {
     var len = arr.length;
     var i = this.binarySearch(arr, from, 1);
     var firstBin, lastBin;
-    while ((i < len) 
+    while ((i < len)
            && (i >= 0)
            && (arr[i][0] < to)) {
 	firstBin = Math.max(0, ((arr[i][0] - from) / binWidth) | 0);
@@ -171,7 +214,7 @@ NCList.prototype.histHelper = function(arr, from, to, result, numBins, binWidth)
             this.histHelper(arr[i][this.sublistIndex], from, to, result, numBins, binWidth);
         i++;
     }
-}
+};
 
 /*
 

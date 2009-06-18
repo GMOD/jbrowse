@@ -44,7 +44,10 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     for (var i = 0; i < trackInfo.subfeatureHeaders.length; i++) {
 	this.subFields[trackInfo.subfeatureHeaders[i]] = i;
     }
-    this.features.importExisting(trackInfo.featureNCList, trackInfo.sublistIndex);
+    this.features.importExisting(trackInfo.featureNCList,
+                                 trackInfo.sublistIndex,
+                                 trackInfo.lazyIndex,
+                                 this.baseUrl);
     this.rangeMap = trackInfo.rangeMap;
     this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length);
     this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length);
