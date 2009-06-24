@@ -24,6 +24,8 @@ div.container {
 
 h2, h3 { margin-left: -2em; }
 
+h4 { margin-left: -1em; }
+
 span.sidebar {
     background-color:#EEEEEE;
     /* border-color:#FFCC99;

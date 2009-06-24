@@ -65,10 +65,7 @@ CONFIG = config.js
 
 # JBrowse target files
 CHUNKS = data/refSeqs.js
-PATRICIA  = names/root.json
-
-# wildcard expression for generated files of feature names
-NAMES = data/tracks/*/*/names.json
+PATRICIA  = data/names/root.json
 
 # proxy targets directory: touching "$(PROCESSED)/X" indicates successful processing of file "X"
 PROCESSED = processed
@@ -111,7 +108,7 @@ bed2gff: $(ALL_BED2GFF)
 
 # names
 $(PATRICIA): $(DIRS) $(TRACKS)
-	$(GENERATE_NAMES) $(NAMES)
+	$(GENERATE_NAMES)
 
 # directories
 # one-off dirs

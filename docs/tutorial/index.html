@@ -56,24 +56,27 @@
       <a name="Features" id="Features"></a>
       <h3>Features</h3>
       <p>
-        Tell JBrowse about your features with <span class="code">bin/biodb-to-json.pl</span>:
+        There are two options for telling JBrowse about your feature data: if you have a genomic annotation database such as <a href="http://gmod.org/wiki/Chado">chado</a>, <a href="http://www.bioperl.org/wiki/Module:Bio::DB::SeqFeature::Store">Bio::DB::SeqFeature::Store</a>, or <a href="http://www.bioperl.org/wiki/Module:Bio::DB::GFF">Bio::DB::GFF</a>, then you can use JBrowse's <span class="code"><a href="#biodb-to-json.pl">biodb-to-json.pl</a></span>.  On the other hand, if you mainly deal with flat files like GFF or BED, it may be more convenient to use JBrowse's <span class="code"><a href="#flatfile-to-json.pl">flatfile-to-json.pl</a></span>.
+      </p>
+      <a name="biodb-to-json.pl" id="biodb-to-json.pl"><h4><span class="code">biodb-to-json.pl</span> -</h4></a>
+      <p>
+        You use <span class="code">bin/biodb-to-json.pl</span> with a configuration file <a href="../config.html">(documented here)</a>.
       </p>
       <pre>$ bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json</pre>
+      <a name="flatfile-to-json.pl" id="flatfile-to-json.pl"><h4><span class="code">bin/flatfile-to-json.pl</span> -</h4></a>
       <p>
-        For more information about the configuration file, see <a href="../config.html">docs/config.html</a>.
-      </p>
-      <p>
-        You can also use <span class="code">bin/gff-to-json.pl</span> to prepare GFF files for use with JBrowse.  If all of your features are in GFF files, and you have one GFF file per track, then <span class="code">bin/gff-to-json.pl</span> may be all you need.  On the other hand, you may find it more convenient to specify all the track details once in a configuration file and use <span class="code">bin/biodb-to-json.pl</span> instead.
-      </p>
-      <p>
-        If you run <span class="code">bin/gff-to-json.pl</span> without any arguments, it'll show you a list of its command line arguments.  Most of those arguments correspond to track settings in the config file, so see <a href="../config-desc.html#track_settings">the track settings section in the config file documentation</a> for more details.
+        <span class="code">bin/flatfile-to-json.pl</span> doesn't use a configuration file; instead, per-track settings are given as command-line arguments.  Run <span class="code">bin/flatfile-to-json.pl</span> without any arguments to see a description of the available settings.  Most of them correspond to track settings in the config file, so see <a href="../config-desc.html#track_settings">the track settings section in the config file documentation</a> for more details.
       </p>
       <a name="Names" id="Names"></a>
       <h3>Names</h3>
       <p>
-        To enable JBrowse to search on name and/or ID, run <span class="code">bin/generate-names.pl</span> to collect the names/IDs from each track into one big dictionary:
+        To enable users to search using feature names or IDs, you have to do two things:
+        <ol>
+          <li>specify autocomplete for the tracks whose features you want to be searchable (see <a href="../config-desc.html#track_settings">the track settings section in the config file documentation</a> for details about the autocomplete setting).  When you do this, a file with a list of names and locations will be generated for each track that has the autocomplete setting.</li>
+          <li>run <span class="code">bin/generate-names.pl</span> to collect those per-track files together into the structure that JBrowse uses to search</li>
+        </ol>
       </p>
-      <pre>$ bin/generate-names.pl -v data/tracks/*/*/names.json</pre>
+      <pre>$ bin/generate-names.pl -v</pre>
       <p>
         You need to run <span class="code">bin/generate-names.pl</span> again every time you add new features to JBrowse.
       </p>

@@ -1,5 +1,8 @@
 package JsonGenerator;
 
+use base 'Exporter';
+our @EXPORT_OK = qw/ readJSON writeJSON modifyJSFile /;
+
 use strict;
 use warnings;
 
