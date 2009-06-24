@@ -72,7 +72,7 @@
       <p>
         To enable users to search using feature names or IDs, you have to do two things:
         <ol>
-          <li>specify autocomplete for the tracks whose features you want to be searchable (see <a href="../config-desc.html#track_settings">the track settings section in the config file documentation</a> for details about the autocomplete setting).  When you do this, a file with a list of names and locations will be generated for each track that has the autocomplete setting.</li>
+          <li>specify <span class="code">autocomplete</span> for the tracks whose features you want to be searchable (see <a href="../config-desc.html#track_settings">the track settings section in the config file documentation</a> for details about the <span class="code">autocomplete</span> setting).  When you do this, a file with a list of names and locations will be generated for each track that has the <span class="code">autocomplete</span> setting.</li>
           <li>run <span class="code">bin/generate-names.pl</span> to collect those per-track files together into the structure that JBrowse uses to search</li>
         </ol>
       </p>
@@ -107,7 +107,7 @@ $</pre>
           <li>
             Apple OS X:<br>
             <p>You need libpng and a C++ compiler; you can get these from <a href="http://www.macports.org/">MacPorts</a> or <a href="http://www.finkproject.org/">Fink</a>.</p>
-            <p>Once you have those installed, you need to compile the JBrowse wiggle-processing program.  JBrowse includes a makefile to do this, but you may need to add the paths for libpng and png.h to your compiler's library and include paths. e.g.:</p>
+            <p>Once you have those installed, you need to compile the JBrowse wiggle-processing program.  JBrowse includes a makefile to do this, but you may need to add the paths for libpng and png.h to your compiler's library and include paths. For example, if libpng is in /opt/local, you can run make like this:</p>
             <pre>$ make GCC_LIB_ARGS=-L/opt/local/lib GCC_INC_ARGS=-I/opt/local/include</pre>
             <p>libpng might be somewhere other than <span class="code">/opt/local</span>, like <span class="code">/usr/X11R6</span> for example.  To find where libpng is, try <span class="code">locate libpng</span></p>
           </li>
