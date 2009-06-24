@@ -1,1 +1,1 @@
-/usr/local/jbrowse/twiki/JBrowsePlugin/Makefile.jbrowse
+Makefile.jbrowse
