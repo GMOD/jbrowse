@@ -137,7 +137,7 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, inc, searchIndex, tes
             fun(arr[i]);
         }
 
-        if (arr[i][this.sublistIndex] !== undefined)
+        if (arr[i][this.sublistIndex])
             this.iterHelper(arr[i][this.sublistIndex], from, to,
                             fun, inc, searchIndex, testIndex);
         i += inc;
