@@ -161,7 +161,7 @@ sub partition {
 
 
 #my $trie = LazyPatricia::create({abc=>0, abcd=>1, abce=>2,abfoo=>3});
-#use JSON;
+#use JSON 2;
 #print JSON::to_json($trie, {pretty=>1});
 
 1;

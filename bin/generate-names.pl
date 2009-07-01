@@ -12,7 +12,7 @@ use IO::File;
 use Fcntl ":flock";
 use LazyPatricia;
 use JsonGenerator qw/ readJSON writeJSON /;
-use JSON;
+use JSON 2;
 
 my %trackHash;
 my @tracksWithNames;

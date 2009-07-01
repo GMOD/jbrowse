@@ -11,7 +11,7 @@ use Bio::DB::SeqFeature::Store;
 use Bio::DB::GFF;
 use Bio::FeatureIO;
 use JsonGenerator;
-use JSON;
+use JSON 2;
 
 my ($gff, $gff2, $bed,
     $trackLabel, $key,
