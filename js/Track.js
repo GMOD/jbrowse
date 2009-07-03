@@ -5,8 +5,14 @@ function Track(name, key, loaded, changeCallback) {
     this.changed = changeCallback;
 }
 
-Track.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
+Track.prototype.setViewInfo = function(genomeView, numBlocks,
+                                       trackDiv, labelDiv,
                                        widthPct, widthPx, scale) {
+    var trackName = this.name;
+    this.heightUpdate = function(height) {
+        genomeView.trackHeightUpdate(trackName, height);
+    };
+    this.view = genomeView;
     this.div = trackDiv;
     this.label = labelDiv;
     this.widthPct = widthPct;
@@ -26,8 +32,8 @@ Track.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
 
 Track.prototype.initBlocks = function() {
     this.blocks = new Array(this.numBlocks);
-    this.blockHeights = new Array(this.numBlocks);
-    for (var i = 0; i < this.numBlocks; i++) this.blockHeights[i] = 0;
+    //this.blockHeights = new Array(this.numBlocks);
+    //for (var i = 0; i < this.numBlocks; i++) this.blockHeights[i] = 0;
     this.firstAttached = null;
     this.lastAttached = null;
     this._adjustBlanks();
@@ -67,16 +73,12 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
     //fill left, including existing blocks (to get their heights)
     for (i = lastAttached; i >= first; i--) {
         leftBase = startBase + (bpPerBlock * (i - first));
-        maxHeight = Math.max(maxHeight,
-                             this._showBlock(i, leftBase,
-                                             leftBase + bpPerBlock, scale));
+        this._showBlock(i, leftBase, leftBase + bpPerBlock, scale);
     }
     //fill right
     for (i = lastAttached + 1; i <= last; i++) {
         leftBase = startBase + (bpPerBlock * (i - first));
-        maxHeight = Math.max(maxHeight,
-                             this._showBlock(i, leftBase,
-                                             leftBase + bpPerBlock, scale));
+        this._showBlock(i, leftBase, leftBase + bpPerBlock, scale);
     }
 
     //detach left blocks
@@ -95,15 +97,13 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
     this.firstAttached = first;
     this.lastAttached = last;
     this._adjustBlanks();
-
-    return Math.max(maxHeight, this.labelHeight ? this.labelHeight : 0);
 };
 
 Track.prototype._hideBlock = function(blockIndex) {
     if (this.blocks[blockIndex]) {
         this.div.removeChild(this.blocks[blockIndex]);
         this.blocks[blockIndex] = undefined;
-        this.blockHeights[blockIndex] = 0;
+        //this.blockHeights[blockIndex] = 0;
     }
 };
 
@@ -148,7 +148,7 @@ Track.prototype._loadingBlock = function(blockDiv) {
 };
 
 Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
-    if (this.blocks[blockIndex]) return this.blockHeights[blockIndex];
+    if (this.blocks[blockIndex]) return; // this.blockHeights[blockIndex];
 
     var blockHeight;
 
@@ -159,21 +159,20 @@ Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
     blockDiv.startBase = startBase;
     blockDiv.endBase = endBase;
     if (this.loaded) {
-        blockHeight = this.fillBlock(blockDiv,
-                                     this.blocks[blockIndex - 1],
-                                     this.blocks[blockIndex + 1],
-                                     startBase,
-                                     endBase,
-                                     scale,
-                                     this.widthPx);
+        this.fillBlock(blockDiv,
+                       this.blocks[blockIndex - 1],
+                       this.blocks[blockIndex + 1],
+                       startBase,
+                       endBase,
+                       scale,
+                       this.widthPx);
     } else {
-        blockHeight = this._loadingBlock(blockDiv);
+         this._loadingBlock(blockDiv);
     }
 
     this.blocks[blockIndex] = blockDiv;
-    this.blockHeights[blockIndex] = blockHeight;
+    //this.blockHeights[blockIndex] = blockHeight;
     this.div.appendChild(blockDiv);
-    return blockHeight;
 };
 
 Track.prototype.moveBlocks = function(delta) {
@@ -215,14 +214,15 @@ Track.prototype.moveBlocks = function(delta) {
                 newBlocks[newIndex].style.left =
                     ((newIndex) * this.widthPct) + "%";
 
-            newHeights[newIndex] = this.blockHeights[i];
+            //newHeights[newIndex] = this.blockHeights[i];
         }
     }
     this.blocks = newBlocks;
-    this.blockHeights = newHeights;
+    //this.blockHeights = newHeights;
     this._adjustBlanks();
 };
 
+/*
 Track.prototype.heightUpdate = function() {
     var maxHeight = 0;
     for (var i = this.firstAttached; i < this.lastAttached; i++)
@@ -230,6 +230,7 @@ Track.prototype.heightUpdate = function() {
             maxHeight = this.blockHeights[i];
     return maxHeight;
 };
+*/
 
 Track.prototype.sizeInit = function(numBlocks, widthPct) {
     var i, oldLast;
@@ -241,11 +242,11 @@ Track.prototype.sizeInit = function(numBlocks, widthPct) {
             this._hideBlock(i);
         oldLast = this.blocks.length;
         this.blocks.length = numBlocks;
-        this.blockHeights.length = numBlocks;
+        //this.blockHeights.length = numBlocks;
         //if we're expanding, set new blocks to be not there
         for (i = oldLast; i < numBlocks; i++) {
             this.blocks[i] = undefined;
-            this.blockHeights[i] = 0;
+            //this.blockHeights[i] = 0;
         }
         this.lastAttached = Math.min(this.lastAttached, numBlocks - 1);
         if (this.firstAttached > this.lastAttached) {

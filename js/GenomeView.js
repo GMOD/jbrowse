@@ -415,7 +415,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     trackDiv.style.height = this.posHeight + "px";
     trackDiv.id = "static_track";
     this.staticTrack = new StaticTrack("static_track", "pos-label", this.posHeight);
-    this.staticTrack.setViewInfo(this.stripeCount, trackDiv, undefined,
+    this.staticTrack.setViewInfo(this, this.stripeCount, trackDiv, undefined,
                                  this.stripePercent, this.stripeWidth,
                                  this.pxPerBp);
     this.staticTrack.showRange(0, this.stripeCount - 1, this.stripes[0].startBase, Math.round(this.stripeWidth / this.pxPerBp), this.pxPerBp);
@@ -457,7 +457,6 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
 
     if (this.ref != refseq) {
 	this.ref = refseq;
-	var tracks = this.trackList();
 	var trackDivs = [];
 	var getDivs = function(track) {
 	    trackDivs.push(track.div);
@@ -761,7 +760,7 @@ GenomeView.prototype.addOverviewTrack = function(track) {
     trackDiv.style.left = (((-this.ref.start) / refLength) * this.overviewBox.w) + "px";
     trackDiv.id = "overviewtrack_" + track.name;
     trackDiv.track = track;
-    track.setViewInfo(this.overviewStripes, trackDiv,
+    track.setViewInfo(this, this.overviewStripes, trackDiv,
 		      undefined,
 		      overviewStripePct,
 		      this.overviewStripeBases,
@@ -777,13 +776,15 @@ GenomeView.prototype.trimVertical = function(y) {
     var trackBottom;
     var trackTop = this.topSpace;
     var bottom = y + this.dim.height;
-    this.trackIterate(function(track, gv) {
-            trackBottom = trackTop + track.height;
-            if (!((trackBottom > y) && (trackTop < bottom))) {
-		track.hideAll();
-	    }
-            trackTop = trackBottom + gv.trackPadding;
-        });
+    for (var i = 0; i < this.tracks.length; i++) {
+        trackBottom = trackTop + this.trackHeights[i];
+        if (!((trackBottom > y) && (trackTop < bottom))) {
+            this.tracks[i].hideAll();
+	}
+        trackTop = trackBottom + this.trackPadding;
+    }
+    //this.trackIterate(function(track, gv) {
+    //    });
 };
 
 GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
@@ -952,6 +953,24 @@ GenomeView.prototype.scrollUpdate = function() {
 
 };
 
+GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
+    var y = this.getY();
+    var track = this.trackIndices[trackName];
+    if (height > this.trackHeights[track]) {
+        this.trackHeights[track] = height;
+        this.tracks[track].div.style.height =
+            (height + this.trackPadding) + "px";
+        var nextTop = this.trackTops[track] + height + this.trackPadding;
+        for (var i = track + 1; i < this.tracks.length; i++) {
+            this.trackTops[i] = nextTop;
+            this.tracks[i].div.style.top = nextTop + "px";
+            nextTop += this.trackHeights[i] + this.trackPadding;
+       }
+       this.containerHeight = nextTop - this.trackPadding;
+       this.container.style.height = this.containerHeight + "px";
+    }
+};
+
 GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, endX) {
     if (pos === undefined) pos = this.getPosition();
     if (startX === undefined) startX = pos.x - (this.drawMargin * this.dim.width);
@@ -978,7 +997,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 			       this.stripes[leftVisible].startBase,
 			       bpPerBlock,
 			       this.pxPerBp);
-
+/*
     this.trackIterate(function(track, gv) {
  	    tracks.push(track);
  	    if (trackBottom < middle) {
@@ -988,7 +1007,16 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 	    }
  	});
     if (0 == tracks.length) return;
+*/
+    for (i = 0; i < this.tracks.length; i++) {
+        this.trackHeights[i] = 0;
+        this.tracks[i].showRange(leftVisible, rightVisible,
+                                 this.stripes[leftVisible].startBase,
+	                         bpPerBlock,
+			         this.pxPerBp);
+    }
 
+    /*
     trackBottom -= this.trackPadding;
     //fill up from the middle
     for (i = middleIndex - 1; i >=0; i--) {
@@ -1046,6 +1074,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 	    this.rawSetY(0);
 	}
     }
+*/
 };
 
 GenomeView.prototype.makeStripe = function(startBase, startPercent) {
@@ -1089,10 +1118,10 @@ GenomeView.prototype.addTrack = function(track) {
     trackDiv.className = "track";
     trackDiv.id = "track_" + track.name;
     trackDiv.track = track;
-    track.setViewInfo(this.stripeCount, trackDiv, labelDiv,
+    track.setViewInfo(this, this.stripeCount, trackDiv, labelDiv,
 		      this.stripePercent, this.stripeWidth,
                       this.pxPerBp);
-    this.tracks.push(track);
+    //this.tracks.push(track);
     var totalHeight = this.topSpace;
     this.trackIterate(function(mytrack, gv) {
             totalHeight += mytrack.height + gv.trackPadding;
@@ -1123,21 +1152,15 @@ GenomeView.prototype.addTrack = function(track) {
 					  / this.stripeWidth));
 
     var bpPerBlock = Math.round(this.stripeWidth / this.pxPerBp);
-    //if (totalHeight < bottom) {
-        track.height =
-            track.showRange(leftVisible, rightVisible,
-                            this.stripes[leftVisible].startBase,
-                            bpPerBlock, this.pxPerBp);
-    //} else {
-    //track.height = 50;
-    //}
-    //this.container.appendChild(trackDiv);
+    var trackHeight = labelDiv.offsetHeight;
 
-    track.height = Math.max(track.height, labelDiv.offsetHeight);
-    //this.trackHeights.push(track.height);
-    trackDiv.style.height = (track.height + this.trackPadding) + "px";
+    this.trackHeights.push(trackHeight);
+
+    trackDiv.style.height = (trackHeight + this.trackPadding) + "px";
+    trackDiv.style.top = this.trackTops[trackNum] + "px";
+
     //trackDiv.style.marginBottom = this.trackPadding + "px";
-    totalHeight += track.height + this.trackPadding;
+    totalHeight += trackHeight + this.trackPadding;
     totalHeight = Math.max(totalHeight, this.dim.height);
     //for (var i = 0; i < this.stripeCount; i++)
     //    this.stripes[i].style.height = totalHeight + "px";
@@ -1154,12 +1177,23 @@ GenomeView.prototype.trackIterate = function(callback) {
     } while (containerChild = containerChild.nextSibling);
 };
 
-//doing this for now, rather than just returning this.tracks,
-//because the browser is currently maintaining the track ordering
-GenomeView.prototype.trackList = function(callback) {
+/* this function must be called whenever tracks in the GenomeView
+ * are added, removed, or reordered
+ */
+GenomeView.prototype.updateTrackList = function() {
     var tracks = [];
     this.trackIterate(function(track) { tracks.push(track); });
-    return tracks;
+    this.tracks = tracks;
+    this.trackIndices = {};
+    for (var i = 0; i < tracks.length; i++) {
+        this.trackIndices[tracks[i].name] = i;
+    }
+    var nextTop = this.topSpace + this.trackPadding;
+    for (var i = 0; i < this.tracks.length; i++) {
+        this.trackTops[i] = nextTop;
+        this.tracks[i].div.style.top = nextTop + "px";
+        nextTop += this.trackHeights[i] + this.trackPadding;
+    }
 };
 
 /*

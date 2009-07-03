@@ -69,7 +69,7 @@ div.block {
 }
 
 div.track {
-    position: relative;
+    position: absolute;
     left: 0px;
     width: 100%;
     z-index: 5;

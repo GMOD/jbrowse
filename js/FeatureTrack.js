@@ -92,10 +92,11 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     this.setLoaded();
 };
 
-FeatureTrack.prototype.setViewInfo = function(numBlocks, trackDiv,
-                                              labelDiv, widthPct,
-                                              widthPx, scale) {
-    Track.prototype.setViewInfo.apply(this, [numBlocks, trackDiv, labelDiv,
+FeatureTrack.prototype.setViewInfo = function(genomeView, numBlocks,
+                                              trackDiv, labelDiv,
+                                              widthPct, widthPx, scale) {
+    Track.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
+                                             trackDiv, labelDiv,
                                              widthPct, widthPx, scale]);
     this.setLabel(this.key);
 };
@@ -136,10 +137,10 @@ FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
 FeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth) {
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
     if (scale < this.histScale) {
-	return this.fillHist(block, leftBase, rightBase, stripeWidth);
+	this.fillHist(block, leftBase, rightBase, stripeWidth);
     } else {
-	return this.fillFeatures(block, leftBlock, rightBlock,
-				 leftBase, rightBase, scale);
+	this.fillFeatures(block, leftBlock, rightBlock,
+                          leftBase, rightBase, scale);
     }
 };
 
@@ -308,7 +309,7 @@ FeatureTrack.prototype.fillFeatures = function(block,
             if (feature === slots[j].feature) {
 		if (!startSlots[j]) startSlots[j] = slots[j];
 		maxLevel = Math.max(j, maxLevel);
-		return;
+                return ((maxLevel + 1) * levelHeight);
 	    }
 	}
         slotLoop: for (var j = 0; j < slots.length; j++) {
@@ -443,19 +444,22 @@ FeatureTrack.prototype.fillFeatures = function(block,
         //TODO: handle IE leaks (
         //Event.observe(featDiv, "click", callback);
         block.appendChild(featDiv);
+        return ((maxLevel + 1) * levelHeight);
     };
 
     var startBase = goLeft ? rightBase : leftBase;
     var endBase = goLeft ? leftBase : rightBase;
 
-    this.features.iterate(startBase, endBase, featCallback);
+    this.features.iterate(startBase, endBase, featCallback,
+                          function () {
+                              curTrack.heightUpdate(((maxLevel + 1)
+                                                     * levelHeight));
+                          });
 
     if (goLeft)
 	block.leftSlots = slots;
     else
 	block.rightSlots = slots;
-
-    return ((maxLevel + 1) * levelHeight);
 };
 
 FeatureTrack.prototype.handleSubfeatures = function(feature,

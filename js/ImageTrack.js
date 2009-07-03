@@ -22,9 +22,11 @@ ImageTrack.prototype.loadSuccess = function(o) {
     this.setLoaded();
 };
 
-ImageTrack.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
+ImageTrack.prototype.setViewInfo = function(genomeView, numBlocks,
+                                            trackDiv, labelDiv,
                                             widthPct, widthPx, scale) {
-    Track.prototype.setViewInfo.apply(this, [numBlocks, trackDiv, labelDiv,
+    Track.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
+                                             trackDiv, labelDiv,
                                              widthPct, widthPx, scale]);
     this.setLabel(this.key);
 };

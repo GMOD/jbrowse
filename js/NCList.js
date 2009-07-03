@@ -90,7 +90,8 @@ NCList.prototype.binarySearch = function(arr, item, itemIndex) {
 //for performance.  If later profiling shows that we can get away with a cleaner
 //version using function pointers then it might be better to re-arrange this.
 
-NCList.prototype.iterHelper = function(arr, from, to, fun, inc, searchIndex, testIndex) {
+NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
+                                       inc, searchIndex, testIndex) {
     var len = arr.length;
     var i = this.binarySearch(arr, from, searchIndex);
     while ((i < len)
@@ -103,30 +104,41 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, inc, searchIndex, tes
             if ("loading" == arr[i][this.lazyIndex].state) {
                 //node is currently loading, just add ourselves
                 //as a callback
-                arr[i][this.lazyIndex].callbacks.push(function(o) {
-                    ncl.iterHelper(o, from, to, fun, inc,
-                                   searchIndex, testIndex);
+                finish.inc();
+                arr[i][this.lazyIndex].callbacks.push(
+                    function(o) {
+                        ncl.iterHelper(o, from, to, fun, finish, inc,
+                                       searchIndex, testIndex);
+                        finish.dec();
                     });
                 return;
             } else if ("lazy" == arr[i][this.lazyIndex].state) {
                 //node hasn't been loaded, start loading
                 arr[i][this.lazyIndex].state = "loading";
                 arr[i][this.lazyIndex].callbacks = [];
-                dojo.xhrGet({url: this.baseURL + arr[i][this.lazyIndex].path,
-                             handleAs: "json",
-                             load: function(lazyFeat, lazyObj, sublistIndex) {
-                                 return function(o) {
-                                     lazyObj.state = "loaded";
-                                     lazyFeat[sublistIndex] = o;
-                                     ncl.iterHelper(o, from, to, fun, inc,
-                                                    searchIndex, testIndex);
-                                     for (var c = 0;
-                                          c < lazyObj.callbacks.length;
-                                          c++)
-                                         lazyObj.callbacks[c](o);
-                                 };
-                             }(arr[i], arr[i][this.lazyIndex], this.sublistIndex)
-                            });
+                finish.inc();
+                dojo.xhrGet(
+                    {
+                        url: this.baseURL + arr[i][this.lazyIndex].path,
+                        handleAs: "json",
+                        load: function(lazyFeat, lazyObj, sublistIndex) {
+                            return function(o) {
+                                lazyObj.state = "loaded";
+                                lazyFeat[sublistIndex] = o;
+                                ncl.iterHelper(o, from, to,
+                                               fun, finish, inc,
+                                               searchIndex, testIndex);
+                                for (var c = 0;
+                                     c < lazyObj.callbacks.length;
+                                     c++)
+                                     lazyObj.callbacks[c](o);
+                                finish.dec();
+                            };
+                        }(arr[i], arr[i][this.lazyIndex], this.sublistIndex),
+                        error: function() {
+                            finish.dec();
+                        }
+                    });
                 return;
             } else if ("loaded" == arr[i][this.lazyIndex].state) {
                 //just continue below
@@ -139,14 +151,14 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, inc, searchIndex, tes
 
         if (arr[i][this.sublistIndex])
             this.iterHelper(arr[i][this.sublistIndex], from, to,
-                            fun, inc, searchIndex, testIndex);
+                            fun, finish, inc, searchIndex, testIndex);
         i += inc;
     }
 };
 
-NCList.prototype.iterate = function(from, to, fun) {
-    //calls the given function for all of the intervals that overlap
-    //the given interval.
+NCList.prototype.iterate = function(from, to, fun, postFun) {
+    // calls the given function with an array containing all the
+    // intervals that overlap the given interval
     //if from <= to, iterates left-to-right, otherwise iterates right-to-left
 
     //inc: iterate leftward or rightward
@@ -155,7 +167,10 @@ NCList.prototype.iterate = function(from, to, fun) {
     var searchIndex = (from > to) ? 0 : 1;
     //testIndex: test on start or end
     var testIndex = (from > to) ? 1 : 0;
-    this.iterHelper(this.topList, from, to, fun, inc, searchIndex, testIndex);
+    var finish = new Finisher(postFun);
+    this.iterHelper(this.topList, from, to, fun, finish,
+                    inc, searchIndex, testIndex);
+    finish.finish();
 };
 
 NCList.prototype.overlaps = function(from, to) {
@@ -214,6 +229,24 @@ NCList.prototype.histHelper = function(arr, from, to, result, numBins, binWidth)
             this.histHelper(arr[i][this.sublistIndex], from, to, result, numBins, binWidth);
         i++;
     }
+};
+
+function Finisher(fun) {
+    this.fun = fun;
+    this.count = 0;
+}
+
+Finisher.prototype.inc = function() {
+    this.count++;
+};
+
+Finisher.prototype.dec = function() {
+    this.count--;
+    this.finish();
+};
+
+Finisher.prototype.finish = function() {
+    if (this.count <= 0) this.fun();
 };
 
 /*

@@ -44,10 +44,11 @@ SequenceTrack.prototype.endZoom = function(destScale, destBlockBases) {
     Track.prototype.clear.apply(this);
 };
 
-SequenceTrack.prototype.setViewInfo = function(numBlocks, trackDiv,
-                                               labelDiv, widthPct,
-                                               widthPx, scale) {
-    Track.prototype.setViewInfo.apply(this, [numBlocks, trackDiv, labelDiv,
+SequenceTrack.prototype.setViewInfo = function(genomeView, numBlocks,
+                                               trackDiv, labelDiv,
+                                               widthPct, widthPx, scale) {
+    Track.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
+                                             trackDiv, labelDiv,
                                              widthPct, widthPx, scale]);
     if (scale == this.browserParams.charWidth) {
         trackDiv.style.display = "block";
