@@ -4,17 +4,15 @@ use strict;
 use warnings;
 
 use FindBin qw($Bin);
-use lib "$Bin/../lib";
+use File::Spec::Functions;
+use lib catdir($Bin, updir(), "lib");
 
 use Getopt::Long;
-use File::Spec::Functions;
-use Cwd qw/ abs_path /;
-use File::Temp qw/ tempdir /;
 use IO::File;
 use Fcntl ":flock";
 use LazyPatricia;
 use JsonGenerator qw/ readJSON writeJSON /;
-use JSON;
+use JSON 2;
 
 my %trackHash;
 my @tracksWithNames;
@@ -27,6 +25,16 @@ GetOptions("dir=s" => \$outDir,
            "thresh=i" => \$thresh,
            "verbose+" => \$verbose,
            "help" => \$help);
+
+unless (-d $outDir) {
+    die <<OUTDIR;
+Can't find directory "$outDir".
+Run this program from a different working directory,
+or specify the location of the output directory with
+the --dir command line option.
+OUTDIR
+}
+
 my $nameDir = catdir($outDir, "names");
 mkdir($nameDir) unless (-d $nameDir);
 
