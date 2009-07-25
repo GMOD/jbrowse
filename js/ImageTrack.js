@@ -22,10 +22,10 @@ ImageTrack.prototype.loadSuccess = function(o) {
     this.setLoaded();
 };
 
-ImageTrack.prototype.setViewInfo = function(genomeView, numBlocks,
+ImageTrack.prototype.setViewInfo = function(heightUpdate, numBlocks,
                                             trackDiv, labelDiv,
                                             widthPct, widthPx, scale) {
-    Track.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
+    Track.prototype.setViewInfo.apply(this, [heightUpdate, numBlocks,
                                              trackDiv, labelDiv,
                                              widthPct, widthPx, scale]);
     this.setLabel(this.key);
@@ -73,7 +73,10 @@ ImageTrack.prototype.getImages = function(zoom, startBase, endBase) {
     return result;
 };
 
-ImageTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth) {
+ImageTrack.prototype.fillBlock = function(blockIndex, block,
+                                          leftBlock, rightBlock,
+                                          leftBase, rightBase,
+                                          scale, stripeWidth) {
     var zoom = this.getZoom(scale);
     var blockWidth = rightBase - leftBase;
     var images = this.getImages(zoom, leftBase, rightBase);
@@ -87,7 +90,7 @@ ImageTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase
 	}
     }
 
-    return zoom.height;
+    this.heightUpdate(zoom.height, blockIndex);
 };
 
 ImageTrack.prototype.startZoom = function(destScale, destStart, destEnd) {

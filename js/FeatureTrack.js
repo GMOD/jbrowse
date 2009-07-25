@@ -101,7 +101,8 @@ FeatureTrack.prototype.setViewInfo = function(genomeView, numBlocks,
     this.setLabel(this.key);
 };
 
-FeatureTrack.prototype.fillHist = function(block, leftBase, rightBase,
+FeatureTrack.prototype.fillHist = function(blockIndex, block,
+                                           leftBase, rightBase,
                                            stripeWidth) {
     var hist = this.features.histogram(leftBase, rightBase, this.numBins);
     //console.log(hist);
@@ -134,12 +135,15 @@ FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
     this.clear();
 };
 
-FeatureTrack.prototype.fillBlock = function(block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth) {
+FeatureTrack.prototype.fillBlock = function(blockIndex, block,
+                                            leftBlock, rightBlock,
+                                            leftBase, rightBase,
+                                            scale, stripeWidth) {
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
     if (scale < this.histScale) {
-	this.fillHist(block, leftBase, rightBase, stripeWidth);
+	this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth);
     } else {
-	this.fillFeatures(block, leftBlock, rightBlock,
+	this.fillFeatures(blockIndex, block, leftBlock, rightBlock,
                           leftBase, rightBase, scale);
     }
 };
@@ -185,7 +189,7 @@ FeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
     }
 };
 
-FeatureTrack.prototype.fillFeatures = function(block,
+FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
                                                leftBlock, rightBlock,
                                                leftBase, rightBase,
                                                scale) {
@@ -309,7 +313,7 @@ FeatureTrack.prototype.fillFeatures = function(block,
             if (feature === slots[j].feature) {
 		if (!startSlots[j]) startSlots[j] = slots[j];
 		maxLevel = Math.max(j, maxLevel);
-                return ((maxLevel + 1) * levelHeight);
+                return;
 	    }
 	}
         slotLoop: for (var j = 0; j < slots.length; j++) {
@@ -444,22 +448,23 @@ FeatureTrack.prototype.fillFeatures = function(block,
         //TODO: handle IE leaks (
         //Event.observe(featDiv, "click", callback);
         block.appendChild(featDiv);
-        return ((maxLevel + 1) * levelHeight);
+        return;
     };
 
     var startBase = goLeft ? rightBase : leftBase;
     var endBase = goLeft ? leftBase : rightBase;
 
-    this.features.iterate(startBase, endBase, featCallback,
-                          function () {
-                              curTrack.heightUpdate(((maxLevel + 1)
-                                                     * levelHeight));
-                          });
-
     if (goLeft)
 	block.leftSlots = slots;
     else
 	block.rightSlots = slots;
+
+    this.features.iterate(startBase, endBase, featCallback,
+                          function () {
+                              curTrack.heightUpdate(((maxLevel + 1)
+                                                     * levelHeight),
+                                                    blockIndex);
+                          });
 };
 
 FeatureTrack.prototype.handleSubfeatures = function(feature,

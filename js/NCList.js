@@ -102,8 +102,6 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
             var ncl = this;
             // lazy node
             if ("loading" == arr[i][this.lazyIndex].state) {
-                //node is currently loading, just add ourselves
-                //as a callback
                 finish.inc();
                 arr[i][this.lazyIndex].callbacks.push(
                     function(o) {
@@ -157,7 +155,7 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
 };
 
 NCList.prototype.iterate = function(from, to, fun, postFun) {
-    // calls the given function with an array containing all the
+    // calls the given function once for each of the
     // intervals that overlap the given interval
     //if from <= to, iterates left-to-right, otherwise iterates right-to-left
 

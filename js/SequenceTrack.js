@@ -60,7 +60,8 @@ SequenceTrack.prototype.setViewInfo = function(genomeView, numBlocks,
     this.setLabel(this.key);
 };
 
-SequenceTrack.prototype.fillBlock = function(block, leftBlock, rightBlock,
+SequenceTrack.prototype.fillBlock = function(blockIndex, block,
+                                             leftBlock, rightBlock,
                                              leftBase, rightBase,
                                              scale, stripeWidth) {
     if (this.shown) {
@@ -73,9 +74,9 @@ SequenceTrack.prototype.fillBlock = function(block, leftBlock, rightBlock,
 	                  seqNode.style.cssText = "top: 0px;";
                           block.appendChild(seqNode);
                       });
-        return this.browserParams.seqHeight;
-    } else {
-        return 0;
+        this.heightUpdate(this.browserParams.seqHeight, blockIndex);
+    //} else {
+    //    return 0;
     }
 };
 
