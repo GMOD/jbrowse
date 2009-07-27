@@ -19,6 +19,8 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
     this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "");
     //number of histogram bins per block
     this.numBins = 25;
+    //height of histogram blocks, in pixels per count
+    this.histHeight = 2;
     this.histLabel = false;
     this.padding = 5;
     this.trackPadding = browserParams.trackPadding;
@@ -104,26 +106,29 @@ FeatureTrack.prototype.setViewInfo = function(genomeView, numBlocks,
 FeatureTrack.prototype.fillHist = function(blockIndex, block,
                                            leftBase, rightBase,
                                            stripeWidth) {
-    var hist = this.features.histogram(leftBase, rightBase, this.numBins);
-    //console.log(hist);
-    var maxBin = 0;
-    for (var bin = 0; bin < this.numBins; bin++)
-	maxBin = Math.max(maxBin, hist[bin]);
-    var binDiv;
-    for (var bin = 0; bin < this.numBins; bin++) {
-        binDiv = document.createElement("div");
-	binDiv.className = this.className + "-hist";;
-        binDiv.style.cssText =
-            "left: " + ((bin / this.numBins) * 100) + "%; "
-            + "height: " + (2 * hist[bin]) + "px;"
-	    + "bottom: " + this.trackPadding + "px;"
-            + "width: " + (((1 / this.numBins) * 100) - (100 / stripeWidth)) + "%;"
-            + (this.histCss ? this.histCss : "");
-        if (Util.is_ie6) binDiv.appendChild(document.createComment());
-        block.appendChild(binDiv);
-    }
-    //TODO: come up with a better method for scaling than 2 px per count
-    return 2 * maxBin;
+    var track = this;
+    var makeHistBlock = function(hist) {
+        var maxBin = 0;
+        for (var bin = 0; bin < track.numBins; bin++)
+            maxBin = Math.max(maxBin, hist[bin]);
+        var binDiv;
+        for (var bin = 0; bin < track.numBins; bin++) {
+            binDiv = document.createElement("div");
+	    binDiv.className = track.className + "-hist";;
+            binDiv.style.cssText =
+                "left: " + ((bin / track.numBins) * 100) + "%; "
+                + "height: " + (2 * hist[bin]) + "px;"
+                + "bottom: " + track.trackPadding + "px;"
+                + "width: " + (((1 / track.numBins) * 100) - (100 / stripeWidth)) + "%;"
+                + (track.histCss ? track.histCss : "");
+            if (Util.is_ie6) binDiv.appendChild(document.createComment());
+            block.appendChild(binDiv);
+        }
+
+        track.heightUpdate(track.histHeight * maxBin, blockIndex);
+    };
+    var hist = this.features.histogram(leftBase, rightBase, this.numBins,
+                                       makeHistBlock);
 };
 
 FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {

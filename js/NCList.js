@@ -171,62 +171,27 @@ NCList.prototype.iterate = function(from, to, fun, postFun) {
     finish.finish();
 };
 
-NCList.prototype.overlaps = function(from, to) {
-    //returns an array of all of the intervals that overlap
-    //the given interval.
-    //if from <= to, result is sorted left-to-right (on start),
-    //otherwise right-to-left (on end)
-
-    //inc: iterate leftward or rightward
-    var inc = (from > to) ? -1 : 1;
-    //searchIndex: search on start or end
-    var searchIndex = (from > to) ? 0 : 1;
-    //testIndex: test on start or end
-    var testIndex = (from > to) ? 1 : 0;
-    var result = [];
-    this.overlapHelper(this.topList, from, to, result,
-		       inc, searchIndex, testIndex);
-    return result;
-};
-
-NCList.prototype.overlapHelper = function(arr, from, to, result,
-					  inc, searchIndex, testIndex) {
-    var len = arr.length;
-    var i = this.binarySearch(arr, from, searchIndex);
-    while ((i < len)
-           && (i >= 0)
-           && ((inc * arr[i][testIndex]) < (inc * to))) {
-	result.push(arr[i]);
-        if (arr[i][this.sublistIndex] !== undefined)
-            this.overlapHelper(arr[i][this.sublistIndex], from, to,
-			       result, inc, searchIndex, testIndex);
-        i += inc;
-    }
-};
-
-NCList.prototype.histogram = function(from, to, numBins) {
-    //returns a histogram of the feature density in the given interval
+NCList.prototype.histogram = function(from, to, numBins, callback) {
+    //calls callback with a histogram of the feature density
+    //in the given interval
 
     var result = new Array(numBins);
+    var binWidth = (to - from) / numBins;
     for (var i = 0; i < numBins; i++) result[i] = 0;
-    this.histHelper(this.topList, from, to, result, numBins, (to - from) / numBins);
-    return result;
-};
-
-NCList.prototype.histHelper = function(arr, from, to, result, numBins, binWidth) {
-    var len = arr.length;
-    var i = this.binarySearch(arr, from, 1);
-    var firstBin, lastBin;
-    while ((i < len)
-           && (i >= 0)
-           && (arr[i][0] < to)) {
-	firstBin = Math.max(0, ((arr[i][0] - from) / binWidth) | 0);
-	lastBin = Math.min(numBins, ((arr[i][1] - from) / binWidth) | 0);
-	for (var bin = firstBin; bin <= lastBin; bin++) result[bin]++;
-        if (arr[i][this.sublistIndex] !== undefined)
-            this.histHelper(arr[i][this.sublistIndex], from, to, result, numBins, binWidth);
-        i++;
-    }
+    //this.histHelper(this.topList, from, to, result, numBins, (to - from) / numBins);
+    this.iterate(from, to,
+                 function(feat) {
+	             var firstBin =
+                         Math.max(0, ((feat[0] - from) / binWidth) | 0);
+                     var lastBin =
+                         Math.min(numBins, ((feat[1] - from) / binWidth) | 0);
+	             for (var bin = firstBin; bin <= lastBin; bin++)
+                         result[bin]++;
+                 },
+                 function() {
+                     callback(result);
+                 }
+                 );
 };
 
 function Finisher(fun) {
