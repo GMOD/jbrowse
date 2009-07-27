@@ -962,29 +962,27 @@ GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
     if (! trackName in this.trackIndices) return;
     var track = this.trackIndices[trackName];
     if (Math.abs(height - this.trackHeights[track]) < 1) return;
-    //if (height > this.trackHeights[track]) {
-        //console.log("trackHeightUpdate: " + trackName + " " + this.trackHeights[track] + " -> " + height);
-        // if the bottom of this track is a above the halfway point,
-        // and we're not all the way at the top,
-        if ((((this.trackTops[track] + this.trackHeights[track]) - y) <  (this.dim.height / 2))
-            && (y > 0) ) {
-            // scroll so that lower tracks stay in place on screen
-            this.setY(y + (height - this.trackHeights[track]));
-            //console.log("track " + trackName + ": " + this.trackHeights[track] + " -> " + height + "; y: " + y + " -> " + this.getY());
-        }
-        this.trackHeights[track] = height;
-        this.tracks[track].div.style.height =
-            (height + this.trackPadding) + "px";
-        var nextTop = this.trackTops[track] + height + this.trackPadding;
-        for (var i = track + 1; i < this.tracks.length; i++) {
-            this.trackTops[i] = nextTop;
-            this.tracks[i].div.style.top = nextTop + "px";
-            nextTop += this.trackHeights[i] + this.trackPadding;
-        }
-        this.containerHeight = Math.max(nextTop - this.trackPadding,
-                                        this.dim.height);
-        this.container.style.height = this.containerHeight + "px";
-    //}
+
+    //console.log("trackHeightUpdate: " + trackName + " " + this.trackHeights[track] + " -> " + height);
+    // if the bottom of this track is a above the halfway point,
+    // and we're not all the way at the top,
+    if ((((this.trackTops[track] + this.trackHeights[track]) - y) <  (this.dim.height / 2))
+        && (y > 0) ) {
+        // scroll so that lower tracks stay in place on screen
+        this.setY(y + (height - this.trackHeights[track]));
+        //console.log("track " + trackName + ": " + this.trackHeights[track] + " -> " + height + "; y: " + y + " -> " + this.getY());
+    }
+    this.trackHeights[track] = height;
+    this.tracks[track].div.style.height = (height + this.trackPadding) + "px";
+    var nextTop = this.trackTops[track] + height + this.trackPadding;
+    for (var i = track + 1; i < this.tracks.length; i++) {
+        this.trackTops[i] = nextTop;
+        this.tracks[i].div.style.top = nextTop + "px";
+        nextTop += this.trackHeights[i] + this.trackPadding;
+    }
+    this.containerHeight = Math.max(nextTop - this.trackPadding,
+                                    this.dim.height);
+    this.container.style.height = this.containerHeight + "px";
 };
 
 GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, endX) {
@@ -994,103 +992,20 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
     var leftVisible = Math.max(0, (startX / this.stripeWidth) | 0);
     var rightVisible = Math.min(this.stripeCount - 1,
                                (endX / this.stripeWidth) | 0);
-    var top = pos.y - (this.drawMargin * this.dim.height);
-    var bottom = pos.y + ((1 + this.drawMargin) * this.dim.height);
-    var middle = (top + bottom) / 2;
 
-    var trackHeight;
     var bpPerBlock = Math.round(this.stripeWidth / this.pxPerBp);
-    var trackTop = this.topSpace;
-    var trackBottom = trackTop;
-    var middleDelta = 0;
-
-    var tracks = new Array();
-    var middleIndex = -1;
-    var totalHeight = this.topSpace;
-    var i;
 
     this.staticTrack.showRange(leftVisible, rightVisible,
 			       this.stripes[leftVisible].startBase,
 			       bpPerBlock,
 			       this.pxPerBp);
-/*
-    this.trackIterate(function(track, gv) {
- 	    tracks.push(track);
- 	    if (trackBottom < middle) {
-		middleIndex++;
-		trackTop = trackBottom;
-		trackBottom += track.height + gv.trackPadding;
-	    }
- 	});
-    if (0 == tracks.length) return;
-*/
-    for (i = 0; i < this.tracks.length; i++) {
-        //this.trackHeights[i] = 0;
+
+    for (var i = 0; i < this.tracks.length; i++) {
         this.tracks[i].showRange(leftVisible, rightVisible,
                                  this.stripes[leftVisible].startBase,
 	                         bpPerBlock,
 			         this.pxPerBp);
     }
-
-    /*
-    trackBottom -= this.trackPadding;
-    //fill up from the middle
-    for (i = middleIndex - 1; i >=0; i--) {
-	if (trackBottom > top) {
-	    //show blocks for the track
-	    trackHeight =
-		tracks[i].showRange(leftVisible, rightVisible,
-				    this.stripes[leftVisible].startBase,
-				    bpPerBlock,
-				    this.pxPerBp);
-	    if (updateHeight && (tracks[i].height != trackHeight)) {
-		tracks[i].div.style.height = (trackHeight + this.trackPadding) + "px";
-		middleDelta += (trackHeight - tracks[i].height);
-		tracks[i].height = trackHeight;
-	    }
-	    trackBottom -= tracks[i].height + this.trackPadding;
-	}
-	totalHeight += tracks[i].height + this.trackPadding;
-    }
-    //fill down from the middle
-    middleIndex = Math.max(middleIndex, 0);
-    for (i = middleIndex; i < tracks.length; i++) {
-	if (trackTop < bottom) {
-	    //show blocks for the track
-	    trackHeight =
-	        tracks[i].showRange(leftVisible, rightVisible,
-				    this.stripes[leftVisible].startBase,
-				    bpPerBlock,
-				    this.pxPerBp);
-	    if (updateHeight && (tracks[i].height != trackHeight)) {
-		tracks[i].div.style.height = (trackHeight + this.trackPadding) + "px";
-		tracks[i].height = trackHeight;
-	    }
-	    trackTop += tracks[i].height + this.trackPadding;
-	}
-	totalHeight += tracks[i].height + this.trackPadding;
-    }
-
-    if (updateHeight) {
-	totalHeight = Math.max(totalHeight, this.dim.height);
-	if (totalHeight != this.containerHeight) {
-	    this.container.style.height = totalHeight + "px";
-	    this.containerHeight = totalHeight;
-	}
-	//keep middle track in the same vertical position,
-	//when track heights change (otherwise it's easy to lose your place)
-	var curY = this.getY();
-	if (curY > 0) {
-            this.setY(curY + middleDelta);
-            //the setY call may expose previously un-rendered blocks,
-            //so we need to do another showVisibleBlocks
-            if (Math.abs(middleDelta) > 5) this.showVisibleBlocks(updateHeight, pos, startX, endX);
-	} else {
-	    //seems to reduce end-zoom flicker; not sure why
-	    this.rawSetY(0);
-	}
-    }
-*/
 };
 
 GenomeView.prototype.makeStripe = function(startBase, startPercent) {
@@ -1142,57 +1057,10 @@ GenomeView.prototype.addTrack = function(track) {
 		      this.stripePercent, this.stripeWidth,
                       this.pxPerBp);
 
-    /*
-    //this.tracks.push(track);
-    var totalHeight = this.topSpace;
-    this.trackIterate(function(mytrack, gv) {
-            totalHeight += mytrack.height + gv.trackPadding;
-        });
-    //for (var t = 0; t < this.trackHeights.length; t++)
-    //    totalHeight += this.trackHeights[t];
-    //trackDiv.style.top = totalHeight + "px";
-    this.trackTops.push(totalHeight);
-    var pos = this.getPosition();
-    var bottom = pos.y + this.dim.height;
-     */
-
-    //var elemPos = Position.page(this.elem);
-    //YAHOO.log(elemPos);
-    //labelDiv.style.left = elemPos[0] + "px";
-    //labelDiv.style.top = totalHeight - pos.y + "px";
     labelDiv.style.position = "absolute";
     labelDiv.style.top = "0px";
     labelDiv.style.left = this.getX() + "px";
     trackDiv.appendChild(labelDiv);
-
-//     var leftVisible = Math.max(0, ((pos.x - this.dim.width) / this.stripeWidth) | 0);
-//     var rightVisible = Math.min(this.stripeCount - 1,
-// 				Math.ceil((pos.x + (2 * this.dim.width))
-// 					  / this.stripeWidth));
-
-    /*
-    var leftVisible = Math.max(0, ((pos.x) / this.stripeWidth) | 0);
-    var rightVisible = Math.min(this.stripeCount - 1,
-				Math.ceil((pos.x + this.dim.width)
-					  / this.stripeWidth));
-
-    var bpPerBlock = Math.round(this.stripeWidth / this.pxPerBp);
-    var trackHeight = labelDiv.offsetHeight;
-
-    this.trackHeights.push(trackHeight);
-
-    trackDiv.style.height = (trackHeight + this.trackPadding) + "px";
-    trackDiv.style.top = this.trackTops[trackNum] + "px";
-
-    //trackDiv.style.marginBottom = this.trackPadding + "px";
-    totalHeight += trackHeight + this.trackPadding;
-    totalHeight = Math.max(totalHeight, this.dim.height);
-    //for (var i = 0; i < this.stripeCount; i++)
-    //    this.stripes[i].style.height = totalHeight + "px";
-    this.containerHeight = totalHeight - this.topSpace;
-    this.container.style.height = this.containerHeight + "px";
-
-     */
 
     this.showVisibleBlocks(true);
     return trackDiv;
