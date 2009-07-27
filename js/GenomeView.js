@@ -966,7 +966,8 @@ GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
     //console.log("trackHeightUpdate: " + trackName + " " + this.trackHeights[track] + " -> " + height);
     // if the bottom of this track is a above the halfway point,
     // and we're not all the way at the top,
-    if ((((this.trackTops[track] + this.trackHeights[track]) - y) <  (this.dim.height / 2))
+    if ((((this.trackTops[track] + this.trackHeights[track]) - y)
+         <  (this.dim.height / 2))
         && (y > 0) ) {
         // scroll so that lower tracks stay in place on screen
         this.setY(y + (height - this.trackHeights[track]));
@@ -981,7 +982,7 @@ GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
         nextTop += this.trackHeights[i] + this.trackPadding;
     }
     this.containerHeight = Math.max(nextTop - this.trackPadding,
-                                    this.dim.height);
+                                    this.getY() + this.dim.height);
     this.container.style.height = this.containerHeight + "px";
 };
 
