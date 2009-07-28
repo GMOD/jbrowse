@@ -109,7 +109,6 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
                                        searchIndex, testIndex);
                         finish.dec();
                     });
-                return;
             } else if ("lazy" == arr[i][this.lazyIndex].state) {
                 //node hasn't been loaded, start loading
                 arr[i][this.lazyIndex].state = "loading";
@@ -137,7 +136,6 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
                             finish.dec();
                         }
                     });
-                return;
             } else if ("loaded" == arr[i][this.lazyIndex].state) {
                 //just continue below
             } else {
