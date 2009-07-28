@@ -4,6 +4,7 @@ function Track(name, key, loaded, changeCallback) {
     this.loaded = loaded;
     this.changed = changeCallback;
     this.height = 0;
+    this.shown = true;
 }
 
 Track.prototype.setViewInfo = function(heightUpdate, numBlocks,
@@ -11,7 +12,8 @@ Track.prototype.setViewInfo = function(heightUpdate, numBlocks,
                                        widthPct, widthPx, scale) {
     var track = this;
     this.heightUpdate = function(height, blockIndex) {
-        track.blockHeights[blockIndex] = height;
+        if (blockIndex !== undefined) track.blockHeights[blockIndex] = height;
+
         track.height = Math.max(track.height, height);
         if (!track.inShowRange) {
             heightUpdate(Math.max(track.labelHeight, track.height));
@@ -32,6 +34,20 @@ Track.prototype.setViewInfo = function(heightUpdate, numBlocks,
     this.sizeInit(numBlocks, widthPct);
     this.labelHTML = "";
     this.labelHeight = 0;
+};
+
+Track.prototype.hide = function() {
+    if (this.shown) {
+        this.div.style.display = "none";
+        this.shown = false;
+    }
+};
+
+Track.prototype.show = function() {
+    if (!this.shown) {
+        this.div.style.display = "block";
+        this.shown = true;
+    }
 };
 
 Track.prototype.initBlocks = function() {

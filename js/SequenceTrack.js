@@ -24,23 +24,17 @@ function SequenceTrack(trackMeta, url, refSeq, browserParams) {
     this.chunks = [];
     this.chunkSize = trackMeta.args.chunkSize;
     this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "") + url;
-    this.shown = false;
 }
 
 SequenceTrack.prototype = new Track("");
 
 SequenceTrack.prototype.startZoom = function(destScale, destStart, destEnd) {
-    if (this.shown) {
-        this.div.style.display = "none";
-        this.shown = false;
-    }
+    this.hide();
+    this.heightUpdate(0);
 };
 
 SequenceTrack.prototype.endZoom = function(destScale, destBlockBases) {
-    if (destScale == this.browserParams.charWidth) {
-        this.div.style.display = "block";
-        this.shown = true;
-    }
+    if (destScale == this.browserParams.charWidth) this.show();
     Track.prototype.clear.apply(this);
 };
 
@@ -51,11 +45,9 @@ SequenceTrack.prototype.setViewInfo = function(genomeView, numBlocks,
                                              trackDiv, labelDiv,
                                              widthPct, widthPx, scale]);
     if (scale == this.browserParams.charWidth) {
-        trackDiv.style.display = "block";
-        this.shown = true;
+        this.show();
     } else {
-        trackDiv.style.display = "none";
-        this.shown = false;
+        this.hide();
     }
     this.setLabel(this.key);
 };
@@ -75,8 +67,8 @@ SequenceTrack.prototype.fillBlock = function(blockIndex, block,
                           block.appendChild(seqNode);
                       });
         this.heightUpdate(this.browserParams.seqHeight, blockIndex);
-    //} else {
-    //    return 0;
+    } else {
+        this.heightUpdate(0, blockIndex);
     }
 };
 

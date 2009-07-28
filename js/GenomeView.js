@@ -781,11 +781,13 @@ GenomeView.prototype.trimVertical = function(y) {
     var trackTop = this.topSpace;
     var bottom = y + this.dim.height;
     for (var i = 0; i < this.tracks.length; i++) {
-        trackBottom = trackTop + this.trackHeights[i];
-        if (!((trackBottom > y) && (trackTop < bottom))) {
-            this.tracks[i].hideAll();
-	}
-        trackTop = trackBottom + this.trackPadding;
+        if (this.tracks[i].shown) {
+            trackBottom = trackTop + this.trackHeights[i];
+            if (!((trackBottom > y) && (trackTop < bottom))) {
+                this.tracks[i].hideAll();
+            }
+            trackTop = trackBottom + this.trackPadding;
+        }
     }
     //this.trackIterate(function(track, gv) {
     //    });
@@ -880,7 +882,6 @@ GenomeView.prototype.zoomUpdate = function() {
     //YAHOO.log("post-zoom start base: " + this.pxToBp(this.offset + this.getX()) + ", end base: " + this.pxToBp(this.offset + this.getX() + this.dim.width));
     this.makeStripes();
     this.container.style.paddingTop = this.topSpace + "px";
-    this.containerHeight = 0;
     this.showVisibleBlocks(true);
     this.showDone();
     this.showCoarse();
@@ -975,11 +976,13 @@ GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
     }
     this.trackHeights[track] = height;
     this.tracks[track].div.style.height = (height + this.trackPadding) + "px";
-    var nextTop = this.trackTops[track] + height + this.trackPadding;
+    var nextTop = this.trackTops[track];
+    if (this.tracks[track].shown) nextTop += height + this.trackPadding;
     for (var i = track + 1; i < this.tracks.length; i++) {
         this.trackTops[i] = nextTop;
         this.tracks[i].div.style.top = nextTop + "px";
-        nextTop += this.trackHeights[i] + this.trackPadding;
+        if (this.tracks[i].shown)
+            nextTop += this.trackHeights[i] + this.trackPadding;
     }
     this.containerHeight = Math.max(nextTop - this.trackPadding,
                                     this.getY() + this.dim.height);
@@ -1085,11 +1088,12 @@ GenomeView.prototype.updateTrackList = function() {
     for (var i = 0; i < tracks.length; i++) {
         this.trackIndices[tracks[i].name] = i;
     }
-    var nextTop = this.topSpace + this.trackPadding;
+    var nextTop = this.topSpace;
     for (var i = 0; i < this.tracks.length; i++) {
         this.trackTops[i] = nextTop;
         this.tracks[i].div.style.top = nextTop + "px";
-        nextTop += this.trackHeights[i] + this.trackPadding;
+        if (this.tracks[i].shown)
+            nextTop += this.trackHeights[i] + this.trackPadding;
     }
 };
 
