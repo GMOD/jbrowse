@@ -91,6 +91,8 @@ if (defined($gff)) {
     close GFF
       or die "couldn't close GFF file $gff: $!";
 
+    die "found no sequence-region lines in GFF file" if ($#refSeqs < 0);
+
 } elsif (defined($fasta) || defined($confFile)) {
     my $db;
 
@@ -102,6 +104,8 @@ if (defined($gff)) {
         if (!defined($refs) && !defined($refids)) {
             $refs = join (",", $db->seq_ids);
         }
+
+        die "found no sequences in FASTA file" if ("" eq $refs);
 
     } elsif (defined($confFile)) {
         my $config = JsonGenerator::readJSON($confFile);
@@ -118,6 +122,9 @@ if (defined($gff)) {
         }
         $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
     }
+
+    die "please specify which sequences to process using the --refs or --refids command line parameters\n"
+      unless (defined($refids) || defined($refs));
 
     if (defined($refids)) {
         foreach my $refid (split ",", $refids) {
