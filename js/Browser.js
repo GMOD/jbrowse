@@ -263,16 +263,10 @@ Browser.prototype.createTrackList = function(parent, params) {
                                            withHandles: true
                                        });
     dojo.subscribe("/dnd/drop", function(source,nodes,iscopy){
-            brwsr.view.updateTrackList();
-            var trackLabels = dojo.map(brwsr.view.tracks,
-                                       function(track) { return track.name; });
-            dojo.cookie(brwsr.container.id + "-tracks",
-                        trackLabels.join(","),
-                        {expires: 60});
-            brwsr.view.showVisibleBlocks();
-            //multi-select too confusing?
-            //brwsr.viewDndWidget.selectNone();
-        });
+                       brwsr.onVisibleTracksChanged();
+                       //multi-select too confusing?
+                       //brwsr.viewDndWidget.selectNone();
+                   });
 
     this.trackListWidget.insertNodes(false, params.trackData);
     var oldTrackList = dojo.cookie(this.container.id + "-tracks");
@@ -285,6 +279,19 @@ Browser.prototype.createTrackList = function(parent, params) {
     }
 
     return trackListDiv;
+};
+
+/**
+ * @private
+ */
+Browser.prototype.onVisibleTracksChanged = function() {
+    this.view.updateTrackList();
+    var trackLabels = dojo.map(this.view.tracks,
+                               function(track) { return track.name; });
+    dojo.cookie(this.container.id + "-tracks",
+                trackLabels.join(","),
+                {expires: 60});
+    this.view.showVisibleBlocks();
 };
 
 /**
@@ -454,7 +461,7 @@ Browser.prototype.showTracks = function(trackNameList) {
         movedNode = dojo.byId(removeFromList[i]);
         movedNode.parentNode.removeChild(movedNode);
     }
-    this.view.updateTrackList();
+    this.onVisibleTracksChanged();
 };
 
 /**
@@ -518,6 +525,20 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     navbox.id = "navbox";
     parent.appendChild(navbox);
     navbox.style.cssText = "text-align: center; padding: 2px; z-index: 10;";
+
+    if (params.bookmark) {
+        this.link = document.createElement("a");
+        this.link.appendChild(document.createTextNode("Link"));
+        this.link.href = window.location.href;
+        dojo.connect(this, "onCoarseMove", function() {
+                         brwsr.link.href = params.bookmark(brwsr);
+                     });
+        dojo.connect(this, "onVisibleTracksChanged", function() {
+                         brwsr.link.href = params.bookmark(brwsr);
+                     });
+        this.link.style.cssText = "float: right; clear";
+        navbox.appendChild(this.link);
+    }
 
     var moveLeft = document.createElement("input");
     moveLeft.type = "image";

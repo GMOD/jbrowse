@@ -32,13 +32,21 @@
     <script type="text/javascript">
     /* <![CDATA[ */
            var queryParams = dojo.queryToObject(window.location.search.slice(1));
+           var bookmarkCallback = function(brwsr) {
+               return window.location.protocol
+                      + "//" + window.location.host
+                      + window.location.pathname
+                      + "?loc=" + brwsr.visibleRegion()
+                      + "&tracks=" + brwsr.visibleTracks();
+           }
            var b = new Browser({
                                    containerID: "GenomeBrowser",
                                    refSeqs: refSeqs,
                                    trackData: trackInfo,
                                    defaultTracks: "DNA,gene,mRNA,noncodingRNA",
                                    location: queryParams.loc,
-                                   tracks: queryParams.tracks
+                                   tracks: queryParams.tracks,
+                                   bookmark: bookmarkCallback
                                });
     /* ]]> */
     </script>
