@@ -58,6 +58,8 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     this.subfeatureClasses = trackInfo.subfeatureClasses;
     this.arrowheadClass = trackInfo.arrowheadClass;
     this.urlTemplate = trackInfo.urlTemplate;
+    this.histogram = trackInfo.histogram;
+    this.histBinBases = trackInfo.histBinBases;
 
     if (trackInfo.clientConfig) {
         var cc = trackInfo.clientConfig;
@@ -127,8 +129,33 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
 
         track.heightUpdate(track.histHeight * maxBin, blockIndex);
     };
-    var hist = this.features.histogram(leftBase, rightBase, this.numBins,
-                                       makeHistBlock);
+
+    // bases in each histogram bin that we're currently rendering
+    var bpPerBin = (rightBase - leftBase) / this.numBins;
+    // number of bins in the server-supplied histogram for each current bin
+    var binCount = bpPerBin / this.histBinBases;
+    // if the server-supplied histogram fits neatly into our current histogram,
+    if ((binCount > .9)
+        &&
+        (Math.abs(binCount - Math.round(binCount)) < .0001)) {
+        // we can use the server-supplied counts
+        var firstServerBin = Math.floor(leftBase / this.histBinBases);
+        binCount = Math.round(binCount);
+        var hist = [];
+        for (var bin = 0; bin < this.numBins; bin++) {
+            hist[bin] = 0;
+            for (var serverBin = 0; serverBin < binCount; serverBin++) {
+                hist[bin] += this.histogram[firstServerBin
+                                            + (bin * binCount)
+                                            + serverBin];
+            }
+        }
+        makeHistBlock(hist);
+    } else {
+        // make our own counts
+        this.features.histogram(leftBase, rightBase,
+                                this.numBins, makeHistBlock);
+    }
 };
 
 FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {

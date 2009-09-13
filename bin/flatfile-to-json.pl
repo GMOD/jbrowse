@@ -167,7 +167,7 @@ foreach my $seqInfo (@refSeqs) {
 
     print $seqName . "\t" . $jsonGen->featureCount . "\n";
 
-    $jsonGen->generateTrack("$trackDir/$seqName/$trackLabel/", 5000);
+    $jsonGen->generateTrack("$trackDir/$seqName/$trackLabel/", 1000, 500, $seqInfo->{"start"}, $seqInfo->{"end"});
 }
 
 JsonGenerator::modifyJSFile("$outdir/trackInfo.js", "trackInfo",

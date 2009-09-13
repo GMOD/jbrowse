@@ -10,6 +10,7 @@ use NCList;
 use JSON 2;
 use IO::File;
 use Fcntl ":flock";
+use POSIX qw(ceil floor);
 
 #in JSON, features are represented by arrays (we could use
 #hashes, but then we'd have e.g. "start" and "end" in the JSON
@@ -265,7 +266,8 @@ sub hasFeatures {
 }
 
 sub generateTrack {
-    my ($self, $outDir, $subfeatureLimit, $featureLimit) = @_;
+    my ($self, $outDir, $subfeatureLimit, $featureLimit,
+        $refStart, $refEnd) = @_;
 
     mkdir($outDir) unless (-d $outDir);
     unlink (glob "$outDir/lazyfeatures*");
@@ -273,15 +275,25 @@ sub generateTrack {
     writeJSON("$outDir/names.json", $self->{names}, {pretty => 0})
         if ($self->{getLabel} || $self->{getAlias});
 
-    #note: not the same sort as the NCList sort
-    #(this one sorts ascending on end as well as start)
     my @sortedFeatures = sort {
 	if ($a->[$startIndex] != $b->[$startIndex]) {
 	    $a->[$startIndex] - $b->[$startIndex];
 	} else {
-	    $a->[$endIndex] - $b->[$endIndex];
+	    $b->[$endIndex] - $a->[$endIndex];
 	}
     } @{$self->{features}};
+
+    my $histBinBases = 1000;
+    my @histogram = ((0) x ceil($refEnd / $histBinBases));
+    foreach my $feat (@sortedFeatures) {
+        my $firstBin = int($feat->[$startIndex] / $histBinBases);
+        $firstBin = 0 if ($firstBin < 0);
+        my $lastBin = int($feat->[$endIndex] / $histBinBases);
+        next if ($lastBin < 0);
+        for (my $bin = $firstBin; $bin <= $lastBin; $bin++) {
+            $histogram[$bin]++;
+        }
+    }
 
     #add fake features for chunking
     my @fakeFeatures;
@@ -302,8 +314,12 @@ sub generateTrack {
             my $fakeFeature = [];
             $fakeFeature->[$startIndex] =
                 $sortedFeatures[$chunkFirst][$startIndex];
-            $fakeFeature->[$endIndex] =
-                $sortedFeatures[$chunkLast][$endIndex] + 1;
+            my $maxEnd = 0;
+            for (my $i = $chunkFirst; $i <= $chunkLast; $i++) {
+                $maxEnd = $sortedFeatures[$i][$endIndex]
+                    if $sortedFeatures[$i][$endIndex] > $maxEnd;
+            }
+            $fakeFeature->[$endIndex] = $maxEnd + 1;
             #print STDERR "(bases " . $fakeFeature->[$startIndex] . " - " . $fakeFeature->[$endIndex] . ")\n";
             $fakeFeature->[$lazyIndex] = {
                 'path' => "$outDir/lazyfeatures-" . $chunkFirst . ".json",
@@ -375,7 +391,9 @@ sub generateTrack {
                      'clientConfig' => $self->{style}->{clientConfig},
                      'featureNCList' => $featList->nestedList,
                      'rangeMap' => $rangeMap,
-                     'subfeatureHeaders' => $self->{subfeatHeaders}
+                     'subfeatureHeaders' => $self->{subfeatHeaders},
+                     'histogram' => \@histogram,
+                     'histBinBases' => $histBinBases
                     };
     $trackData->{urlTemplate} = $self->{style}->{urlTemplate}
       if defined($self->{style}->{urlTemplate});
