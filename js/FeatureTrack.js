@@ -111,10 +111,15 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
     var track = this;
     var makeHistBlock = function(hist) {
         var maxBin = 0;
-        for (var bin = 0; bin < track.numBins; bin++)
-            maxBin = Math.max(maxBin, hist[bin]);
+        for (var bin = 0; bin < track.numBins; bin++) {
+            if (typeof hist[bin] == 'number' && isFinite(hist[bin])) {
+                maxBin = Math.max(maxBin, hist[bin]);
+            }
+        }
         var binDiv;
         for (var bin = 0; bin < track.numBins; bin++) {
+            if (!(typeof hist[bin] == 'number' && isFinite(hist[bin])))
+                continue;
             binDiv = document.createElement("div");
 	    binDiv.className = track.className + "-hist";;
             binDiv.style.cssText =
