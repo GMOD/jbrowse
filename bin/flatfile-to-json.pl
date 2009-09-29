@@ -43,7 +43,11 @@ GetOptions("gff=s" => \$gff,
            "type=s@" => \$types);
 my $trackDir = "$outdir/tracks";
 
-if (!(defined($gff) || defined($gff2) || defined($bed))) {
+if (!(defined($gff) || defined($gff2) || defined($bed)) || !defined($trackLabel)) {
+    print "The --tracklabel parameter is required\n"
+        unless defined($trackLabel);
+    print "You must supply either a --gff, -gff2, or --bed parameter\n"
+        unless (defined($gff) || defined($gff2) || defined($bed));
     print <<USAGE;
 USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file>] [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssclass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--getType] [--getPhase] [--getSubs] [--getLabel] [--urltemplate "http://example.com/idlookup?id={id}"] [--subfeatureClasses <JSON-syntax subfeature class map>] [--clientConfig <JSON-syntax extra configuration for FeatureTrack>]
 
