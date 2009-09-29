@@ -24,11 +24,7 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
     this.trackPadding = browserParams.trackPadding;
 
     this.trackMeta = trackMeta;
-    var curTrack = this;
-    dojo.xhrGet({url: curTrack.baseUrl + url,
-		 handleAs: "json",
-		 load: function(o) { curTrack.loadSuccess(o); }
-	});
+    this.load(this.baseUrl + url);
 }
 
 FeatureTrack.prototype = new Track("");

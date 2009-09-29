@@ -3,7 +3,22 @@ function Track(name, key, loaded, changeCallback) {
     this.key = key;
     this.loaded = loaded;
     this.changed = changeCallback;
+    this.empty = false;
 }
+
+Track.prototype.load = function(url) {
+    var curTrack = this;
+    dojo.xhrGet({url: url,
+                 handleAs: "json",
+                 load: function(o) { curTrack.loadSuccess(o); },
+                 error: function(o) { curTrack.loadFail(o); }
+	        });
+};
+
+Track.prototype.loadFail = function(error) {
+    this.empty = true;
+    this.setLoaded();
+};
 
 Track.prototype.setViewInfo = function(numBlocks, trackDiv, labelDiv,
                                        widthPct, widthPx, scale) {
@@ -44,8 +59,6 @@ Track.prototype.clear = function() {
 Track.prototype.setLabel = function(newHTML) {
     if (this.label === undefined) return;
 
-    if ((this.labelHeight == 0) && this.label)
-        this.labelHeight = this.label.offsetHeight;
     if (this.labelHTML == newHTML) return;
     this.labelHTML = newHTML;
     this.label.innerHTML = newHTML;
@@ -59,6 +72,12 @@ Track.prototype.endZoom = function(destScale, destBlockBases) {};
 
 Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) {
     if (this.blocks === undefined) return 0;
+
+    // this might make more sense in setViewInfo, but the label element
+    // isn't in the DOM tree yet at that point
+    if ((this.labelHeight == 0) && this.label)
+        this.labelHeight = this.label.offsetHeight;
+
     var firstAttached = (null == this.firstAttached ? last + 1 : this.firstAttached);
     var lastAttached =  (null == this.lastAttached ? first - 1 : this.lastAttached);
 
@@ -149,6 +168,7 @@ Track.prototype._loadingBlock = function(blockDiv) {
 
 Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
     if (this.blocks[blockIndex]) return this.blockHeights[blockIndex];
+    if (this.empty) return this.labelHeight;
 
     var blockHeight;
 
