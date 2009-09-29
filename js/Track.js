@@ -5,7 +5,22 @@ function Track(name, key, loaded, changeCallback) {
     this.changed = changeCallback;
     this.height = 0;
     this.shown = true;
+    this.empty = false;
 }
+
+Track.prototype.load = function(url) {
+    var curTrack = this;
+    dojo.xhrGet({url: url,
+                 handleAs: "json",
+                 load: function(o) { curTrack.loadSuccess(o); },
+                 error: function(o) { curTrack.loadFail(o); }
+	        });
+};
+
+Track.prototype.loadFail = function(error) {
+    this.empty = true;
+    this.setLoaded();
+};
 
 Track.prototype.setViewInfo = function(heightUpdate, numBlocks,
                                        trackDiv, labelDiv,
@@ -70,8 +85,6 @@ Track.prototype.clear = function() {
 Track.prototype.setLabel = function(newHTML) {
     if (this.label === undefined) return;
 
-    if ((this.labelHeight == 0) && this.label)
-        this.labelHeight = this.label.offsetHeight;
     if (this.labelHTML == newHTML) return;
     this.labelHTML = newHTML;
     this.label.innerHTML = newHTML;
@@ -85,8 +98,15 @@ Track.prototype.endZoom = function(destScale, destBlockBases) {};
 
 Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) {
     if (this.blocks === undefined) return 0;
+
+    // this might make more sense in setViewInfo, but the label element
+    // isn't in the DOM tree yet at that point
+    if ((this.labelHeight == 0) && this.label)
+        this.labelHeight = this.label.offsetHeight;
+
     this.inShowRange = true;
     this.height = this.labelHeight;
+
     var firstAttached = (null == this.firstAttached ? last + 1 : this.firstAttached);
     var lastAttached =  (null == this.lastAttached ? first - 1 : this.lastAttached);
 
@@ -176,6 +196,10 @@ Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
         this.heightUpdate(this.blockHeights[blockIndex], blockIndex);
         return;
     }
+    if (this.empty) {
+        this.heightUpdate(this.labelHeight, blockIndex);
+        return;
+    }
 
     var blockDiv = document.createElement("div");
     blockDiv.className = "block";
@@ -197,7 +221,6 @@ Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
     }
 
     this.blocks[blockIndex] = blockDiv;
-    //this.blockHeights[blockIndex] = blockHeight;
     this.div.appendChild(blockDiv);
 };
 

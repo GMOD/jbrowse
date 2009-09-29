@@ -5,11 +5,7 @@ function ImageTrack(trackMeta, url, refSeq, browserParams) {
     this.tileToImage = {};
     this.zoomCache = {};
     this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "");
-    var curTrack = this;
-    dojo.xhrGet({url: this.baseUrl + url,
-		 handleAs: "json",
-		 load: function(o) { curTrack.loadSuccess(o); }
-	});
+    this.load(this.baseUrl + url);
 }
 
 ImageTrack.prototype = new Track("");
