@@ -90,6 +90,7 @@ ImageTrack.prototype.fillBlock = function(blockIndex, block,
 };
 
 ImageTrack.prototype.startZoom = function(destScale, destStart, destEnd) {
+    if (this.empty) return;
     this.tileToImage = {};
     this.getImages(this.getZoom(destScale), destStart, destEnd);
 };
