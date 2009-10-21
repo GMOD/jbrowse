@@ -149,19 +149,14 @@ foreach my $seqInfo (@refSeqs) {
 
     unless ($streaming) {
         print "\nworking on seq $seqName\n";
-        my $segment = $db->segment("-name" => $seqName);
-        if ($segment) {
-            my @queryArgs;
-            if (defined($types)) {
-                @queryArgs = ("-types" => $types);
-            }
-
-            my @features = $segment->features(@queryArgs);
-
-            $jsonGen->addFeature($_) foreach (@features);
-        } else {
-            print "Didn't find a segment with name $seqName\n";
+        my @queryArgs = (-seq_id => $seqName);
+        if (defined($types)) {
+            @queryArgs = (@queryArgs, "-types" => $types);
         }
+
+        my @features = $db->features(@queryArgs);
+
+        $jsonGen->addFeature($_) foreach (@features);
     }
     next if $jsonGen->featureCount == 0;
 
