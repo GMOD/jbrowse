@@ -79,6 +79,11 @@ my $labelSub = sub {
     #return eval{$_[0]->primary_tag};
 };
 
+my $idSub = sub {
+    return $_[0]->load_id if ($_[0]->can('load_id') && defined($_[0]->load_id));
+    return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
+};
+
 my $streaming = 0;
 my ($db, $stream);
 if ($gff) {
@@ -109,6 +114,7 @@ my %style = ("autocomplete" => $autocomplete,
              "subfeatures"  => $getSubs,
              "class"        => $cssClass,
              "label"        => $getLabel ? $labelSub : 0,
+             "idSub"        => $idSub,
              "key"          => defined($key) ? $key : $trackLabel,
              "urlTemplate"  => $urlTemplate,
              "arrowheadClass" => $arrowheadClass,

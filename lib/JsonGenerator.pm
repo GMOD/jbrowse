@@ -19,16 +19,11 @@ my @featMap = (
 	       sub {shift->start - 1},
 	       sub {int(shift->end)},
 	       sub {int(shift->strand)},
-	       \&featureIdSub,
 	      );
-my @mapHeaders = ('start', 'end', 'strand', 'id');
+my @mapHeaders = ('start', 'end', 'strand');
 #positions of "start" and "end" in @mapHeaders (for NCList)
 my $startIndex = 0;
 my $endIndex = 1;
-
-sub featureIdSub {
-    return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
-}
 
 sub featureLabelSub {
     return $_[0]->display_name if $_[0]->can('display_name');
@@ -137,8 +132,12 @@ sub new {
     $self->{getLabel} = ($style{autocomplete} =~ /label|all/);
     $self->{getAlias} = ($style{autocomplete} =~ /alias|all/);
 
-    my @curFeatMap = (@featMap, @$extraMap);
-    my @curMapHeaders = (@mapHeaders, @$extraHeaders);
+    my $idSub = $style{idSub} || sub  {
+        return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
+    };
+
+    my @curFeatMap = (@featMap, $idSub, @$extraMap);
+    my @curMapHeaders = (@mapHeaders, "id", @$extraHeaders);
 
     if ($style{label}) {
 	push @curFeatMap, $style{label};
@@ -167,7 +166,9 @@ sub new {
 
     my @allSubfeatures;
     $self->{allSubfeatures} = \@allSubfeatures;
-    my $subfeatId = \&featureIdSub;
+    my $subfeatId = $style{idSub} || sub {
+        return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
+    };
     if ($autoshareSubs) {
         $subfeatId = sub {
             my $feat = shift;
