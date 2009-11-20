@@ -13,7 +13,13 @@ use Bio::FeatureIO;
 use JsonGenerator;
 use JSON 2;
 
-my ($gff, $gff2, $bed,
+my $hasSamTools = 1;
+eval { require Bio::DB::Sam; };
+if ($@) {
+    $hasSamTools = 0;
+}
+
+my ($gff, $gff2, $bed, $bam,
     $trackLabel, $key,
     $urlTemplate, $subfeatureClasses, $arrowheadClass, $clientConfig, 
     $thinType, $thickType,
@@ -25,6 +31,7 @@ my ($getType, $getPhase, $getSubs, $getLabel) = (0, 0, 0, 0);
 GetOptions("gff=s" => \$gff,
            "gff2=s" => \$gff2,
            "bed=s" => \$bed,
+           "bam=s" => \$bam,
 	   "out=s" => \$outdir,
 	   "tracklabel=s" => \$trackLabel,
 	   "key=s" => \$key,
@@ -43,13 +50,13 @@ GetOptions("gff=s" => \$gff,
            "type=s@" => \$types);
 my $trackDir = "$outdir/tracks";
 
-if (!(defined($gff) || defined($gff2) || defined($bed)) || !defined($trackLabel)) {
+if (!(defined($gff) || defined($gff2) || defined($bed) || defined($bam)) || !defined($trackLabel)) {
     print "The --tracklabel parameter is required\n"
         unless defined($trackLabel);
-    print "You must supply either a --gff, -gff2, or --bed parameter\n"
-        unless (defined($gff) || defined($gff2) || defined($bed));
+    print "You must supply either a --gff, -gff2, --bed, or --bam parameter\n"
+        unless (defined($gff) || defined($gff2) || defined($bed) || defined($bam));
     print <<USAGE;
-USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file>] [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssclass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--getType] [--getPhase] [--getSubs] [--getLabel] [--urltemplate "http://example.com/idlookup?id={id}"] [--subfeatureClasses <JSON-syntax subfeature class map>] [--clientConfig <JSON-syntax extra configuration for FeatureTrack>]
+USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file> | --bam <bam file>] [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssclass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--getType] [--getPhase] [--getSubs] [--getLabel] [--urltemplate "http://example.com/idlookup?id={id}"] [--subfeatureClasses <JSON-syntax subfeature class map>] [--clientConfig <JSON-syntax extra configuration for FeatureTrack>]
 
     --out: defaults to "data"
     --cssclass: defaults to "feature"
@@ -89,6 +96,7 @@ my $idSub = sub {
 };
 
 my $streaming = 0;
+my $shareSubs = 0;
 my ($db, $stream);
 if ($gff) {
     $db = Bio::DB::SeqFeature::Store->new(-adaptor => 'memory',
@@ -101,12 +109,18 @@ if ($gff) {
                                   ($thinType ? ("-thin_type" => $thinType) : ()),
                                   ($thickType ? ("-thick_type" => $thickType) : ()) );
     $streaming = 1;
+    $shareSubs = 1;
     $labelSub = sub {
         #label sub for features returned by Bio::FeatureIO::bed
         return $_[0]->name;
     };
+} elsif ($bam){
+    if (! $hasSamTools) {
+        die "install Bio::DB::Sam in order to use BAM files";
+    }
+    $db = Bio::DB::Sam->new('-bam' => $bam);
 } else {
-    die "please specify -gff, -gff2, or -bed";
+    die "please specify -gff, -gff2, -bed or -bam";
 }
 
 mkdir($outdir) unless (-d $outdir);
@@ -135,7 +149,7 @@ foreach my $seqInfo (@refSeqs) {
     $perChromGens{$seqInfo->{"name"}} = JsonGenerator->new($trackLabel,
                                                            $seqInfo->{"name"},
                                                            \%style, [], [],
-                                                           $streaming);
+                                                           $shareSubs);
 }
 
 if ($streaming) {
