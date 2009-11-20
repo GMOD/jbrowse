@@ -85,7 +85,8 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
 	    alert("clicked on feature\nstart: " + feat[fields["start"]] +
 	          ", end: " + feat[fields["end"]] +
 	          ", strand: " + feat[fields["strand"]] +
-	          ", ID: " + feat[fields["name"]]);
+	          ", label: " + feat[fields["name"]] +
+	          ", ID: " + feat[fields["id"]]);
         };
     }
 

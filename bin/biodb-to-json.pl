@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 
 use strict;
 use warnings;
@@ -50,28 +50,21 @@ if (my $refclass = $config->{'reference class'}) {
 $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
 $db->absolute(1)               if $db->can('absolute');
 
-my @segs;
+my @segNames;
 if (defined $refid) {
-    push @segs, $db->segment(-db_id => $refid);
+    push @segNames, $db->segment(-db_id => $refid)->name;
 } elsif (defined $ref) {
-    push @segs, $db->segment(-name => $ref);
+    push @segNames, $ref;
 } else {
     foreach my $segInfo (@{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)}) {
-        if (defined($segInfo->{"id"})) {
-            push @segs, $db->segment(-db_id => $segInfo->{"id"});
-        } else {
-            push @segs, $db->segment(-name => $segInfo->{"name"});
-        }
+        push @segNames, $segInfo->{name};
     }
 }
 
 mkdir($outdir) unless (-d $outdir);
 mkdir($trackDir) unless (-d $trackDir);
 
-foreach my $seg (@segs) {
-    my $segName = $seg->name;
-    $segName = $seg->{'uniquename'} if $seg->{'uniquename'};
-    $segName =~ s/:.*$//; #get rid of coords if any
+foreach my $segName (@segNames) {
     print "\nworking on refseq $segName\n";
 
     mkdir("$trackDir/$segName") unless (-d "$trackDir/$segName");
@@ -93,7 +86,8 @@ foreach my $seg (@segs) {
         my @feature_types = @{$track->{"feature"}};
         print "searching for features of type: " . join(", ", @feature_types) . "\n" if ($verbose);
         if ($#feature_types >= 0) {
-            my @features = $seg->features(-type => \@feature_types);
+            my @features = $db->features(-seq_id => $segName,
+                                         -type   => \@feature_types);
 
             print "got " . ($#features + 1) . " features for " . $track->{"track"} . "\n";
             next unless $#features >= 0;
@@ -105,14 +99,6 @@ foreach my $seg (@segs) {
 
             $jsonGen->generateTrack("$trackDir/$segName/" . $track->{"track"},
                                     1000, 500, $seg->start - 1, $seg->end);
-
-            # JsonGenerator::generateTrack(
-            #     $track->{"track"}, $segName,
-            #     "$trackDir/$segName/" . $track->{"track"},
-            #     5000,
-            #     \@features, \%style,
-            #     [], []
-            #     );
 
             print Dumper($features[0]) if ($verbose && ($#features >= 0));
 
