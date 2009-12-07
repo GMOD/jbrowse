@@ -171,6 +171,7 @@ if ($streaming) {
     }
 }
 
+my $totalMatches = 0;
 foreach my $seqInfo (@refSeqs) {
     my $seqName = $seqInfo->{"name"};
     mkdir("$trackDir/$seqName") unless (-d "$trackDir/$seqName");
@@ -179,7 +180,7 @@ foreach my $seqInfo (@refSeqs) {
 
     unless ($streaming) {
         print "\nworking on seq $seqName\n";
-        my @queryArgs = (-seq_id => $seqName);
+        my @queryArgs = ("-seq_id" => $seqName);
         if (defined($types)) {
             @queryArgs = (@queryArgs, "-types" => $types);
         }
@@ -192,7 +193,9 @@ foreach my $seqInfo (@refSeqs) {
             $jsonGen->addFeature($_) foreach (@features);
         }
     }
+    
     next if $jsonGen->featureCount == 0;
+    $totalMatches += $jsonGen->featureCount;
 
     print $seqName . "\t" . $jsonGen->featureCount . "\n";
 
@@ -216,6 +219,12 @@ foreach my $seqInfo (@refSeqs) {
         });
 
     delete $perChromGens{$seqName};
+}
+
+# If no features are found, check for mistakes in user input
+if(!$totalMatches && defined($types)) {
+    print STDERR "No matches found for types\n";
+    exit(1);
 }
 
 =head1 AUTHOR
