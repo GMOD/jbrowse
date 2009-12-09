@@ -354,6 +354,7 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
 
     var curTrack = this;
     var featDiv;
+    var urlValid = true;
     var callback = this.onFeatureClick;
     var leftSlots = new Array();
     var glyphHeight = this.glyphHeight;
@@ -402,9 +403,24 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
                                    levelHeight);
 
         if (curTrack.urlTemplate) {
-            featDiv = document.createElement("a");
-            featDiv.href = curTrack.urlTemplate.replace(/\{([^}]+)\}/g, function(match, group) {return feature[curTrack.fields[group]];});
-            featDiv.target = "_new";
+            var href = curTrack.urlTemplate.replace(/\{([^}]+)\}/g,
+                function(match, group) {
+                    if(feature[curTrack.fields[group]] != undefined)
+                        return feature[curTrack.fields[group]];
+                    else
+                        urlValid = false;
+                    return 0;
+                });
+            if(urlValid)
+            {
+                featDiv = document.createElement("a");
+                featDiv.href = href;
+                featDiv.target = "_new";
+            }
+            else
+            {
+                featDiv = document.createElement("div");
+            }
         } else {
             featDiv = document.createElement("div");
         }
@@ -455,7 +471,7 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
 
         if ((scale > labelScale) && name && feature[name]) {
             var labelDiv;
-            if (curTrack.urlTemplate) {
+            if (curTrack.urlTemplate && urlValid) {
                 labelDiv = document.createElement("a");
                 labelDiv.href = featDiv.href;
                 labelDiv.target = featDiv.target;
