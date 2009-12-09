@@ -21,7 +21,7 @@ if ($@) {
 
 my ($gff, $gff2, $bed, $bam,
     $trackLabel, $key,
-    $urlTemplate, $subfeatureClasses, $arrowheadClass, $clientConfig, 
+    $urlTemplate, $subfeatureClasses, $arrowheadClass, $clientConfig, $extraData,
     $thinType, $thickType,
     $types);
 my $autocomplete = "none";
@@ -43,6 +43,7 @@ GetOptions("gff=s" => \$gff,
 	   "getSubs" => \$getSubs,
 	   "getLabel" => \$getLabel,
            "urltemplate=s" => \$urlTemplate,
+           "extraData=s" => \$extraData,
            "arrowheadClass=s" => \$arrowheadClass,
            "subfeatureClasses=s" => \$subfeatureClasses,
            "clientConfig=s" => \$clientConfig,
@@ -61,7 +62,7 @@ if (!(defined($gff) || defined($gff2) || defined($bed) || defined($bam)) || !def
     print "You must supply either a --gff, -gff2, --bed, or --bam parameter\n"
         unless (defined($gff) || defined($gff2) || defined($bed) || defined($bam));
     print <<USAGE;
-USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file> | --bam <bam file>] [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssclass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--getType] [--getPhase] [--getSubs] [--getLabel] [--urltemplate "http://example.com/idlookup?id={id}"] [--subfeatureClasses <JSON-syntax subfeature class map>] [--clientConfig <JSON-syntax extra configuration for FeatureTrack>]
+USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file> | --bam <bam file>] [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssclass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--getType] [--getPhase] [--getSubs] [--getLabel] [--urltemplate "http://example.com/idlookup?id={id}"] [--extraData <attribute>] [--subfeatureClasses <JSON-syntax subfeature class map>] [--clientConfig <JSON-syntax extra configuration for FeatureTrack>]
 
     --out: defaults to "data"
     --cssclass: defaults to "feature"
@@ -78,6 +79,8 @@ USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file> | --bam <ba
         e.g. '{"css": "background-color: black;", "histScale": 5}'
     --type: only process features of the given type
     --nclChunk: NCList chunk size; if you get "json text or perl structure exceeds maximum nesting level" errors, try setting this lower (default: $nclChunk)
+    --extraData: a map of feature attribute names to perl subs that extract information from the feature object
+        e.g. '{"protein_id" : "sub {shift->attributes(\"protein_id\");} "}'
 USAGE
 exit(1);
 }
@@ -150,6 +153,9 @@ $style{subfeature_classes} = JSON::from_json($subfeatureClasses)
 
 $style{clientConfig} = JSON::from_json($clientConfig)
     if defined($clientConfig);
+    
+$style{extraData} = JSON::from_json($extraData)
+    if defined($extraData);
 
 my %perChromGens;
 foreach my $seqInfo (@refSeqs) {
