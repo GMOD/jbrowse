@@ -153,7 +153,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     //at stripeWidth / 10
     this.fullZoomStripe = this.charWidth * (stripeWidth / 10);
 
-    this.overview = $("overview");
+    this.overview = dojo.byId("overview");
     this.overviewBox = dojo.marginBox(this.overview);
 
     //set up size state (zoom levels, stripe percentage, etc.)
@@ -181,9 +181,9 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     this.trackHeights = [];
     this.trackTops = [];
     this.trackLabels = [];
-    this.waitElems = [$("moveLeft"), $("moveRight"),
-                      $("zoomIn"), $("zoomOut"),
-                      $("bigZoomIn"), $("bigZoomOut"),
+    this.waitElems = [dojo.byId("moveLeft"), dojo.byId("moveRight"),
+                      dojo.byId("zoomIn"), dojo.byId("zoomOut"),
+                      dojo.byId("bigZoomIn"), dojo.byId("bigZoomOut"),
                       document.body, elem];
     this.prevCursors = [];
     this.locationThumb = document.createElement("div");
