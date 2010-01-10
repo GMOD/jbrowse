@@ -127,12 +127,14 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
     var destBlock = this.blocks[first];
     for (i = firstAttached; i < first; i++) {
         this.transfer(this.blocks[i], destBlock);
+        this.cleanupBlock(this.blocks[i]);
         this._hideBlock(i);
     }
     //detach right blocks
     destBlock = this.blocks[last];
     for (i = lastAttached; i > last; i--) {
         this.transfer(this.blocks[i], destBlock);
+        this.cleanupBlock(this.blocks[i]);
         this._hideBlock(i);
     }
 
@@ -142,6 +144,8 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
     this.inShowRange = false;
     this.heightUpdate(this.height);
 };
+
+Track.prototype.cleanupBlock = function() {};
 
 Track.prototype._hideBlock = function(blockIndex) {
     if (this.blocks[blockIndex]) {

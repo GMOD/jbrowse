@@ -182,6 +182,10 @@ FeatureTrack.prototype.fillBlock = function(blockIndex, block,
     }
 };
 
+FeatureTrack.prototype.cleanupBlock = function(block) {
+    if (block && block.featureLayout) block.featureLayout.cleanup();
+};
+
 FeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
     //transfer(sourceBlock, destBlock) is called when sourceBlock gets deleted.
     //Any child features of sourceBlock that extend onto destBlock should get
@@ -244,11 +248,21 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
     var phase = this.fields["phase"];
     var subfeatures = this.fields["subfeatures"];
 
-    var slots = [];
+    var layouter = new Layout(leftBase, rightBase, 2);
+    block.featureLayout = layouter;
+    block.featureNodes = [];
 
     //are we filling right-to-left (true) or left-to-right (false)?
-    //this affects how we do layout
     var goLeft = false;
+    if (leftBlock && leftBlock.featureLayout) {
+        leftBlock.featureLayout.setRightLayout(layouter);
+        layouter.setLeftLayout(leftBlock.featureLayout);
+    }
+    if (rightBlock && rightBlock.featureLayout) {
+        rightBlock.featureLayout.setLeftLayout(layouter);
+        layouter.setRightLayout(rightBlock.featureLayout);
+        goLeft = true;
+    }
 
     //determine dimensions of labels (height, per-character width)
     if (!("nameHeight" in this)) {
@@ -293,18 +307,6 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
         }
     }
 
-    var startSlots = new Array();
-    if (leftBlock && leftBlock.rightSlots) {
-        slots = leftBlock.rightSlots.concat();
-        block.leftSlots = startSlots;
-    } else if (rightBlock && rightBlock.leftSlots) {
-        slots = rightBlock.leftSlots.concat();
-        block.rightSlots = startSlots;
-        goLeft = true;
-    } else {
-	block.leftSlots = startSlots;
-    }
-
     var levelUnits = "px";
     var blockWidth = rightBase - leftBase;
     var maxLevel = 0;
@@ -322,8 +324,12 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
     var basesPerLabelChar = this.nameWidth / scale;
     if (name && (scale > labelScale)) levelHeight += this.nameHeight;
 
-    var featCallback = function(feature) {
+    var featCallback = function(feature, path) {
         var level;
+        //uniqueId is a stringification of the path in the NCList where
+        //the feature lives; it's unique across the top-level NCList
+        //(the top-level NCList covers a track/chromosome combination)
+        var uniqueId = path.join(",");
         //featureStart and featureEnd indicate how far left or right
         //the feature extends in bp space, including labels
         //and arrowheads if applicable
@@ -342,47 +348,16 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
 				  feature[start] + (((name && feature[name])
 						     ? feature[name].length : 0)
 						    * basesPerLabelChar));
-	for (var j = 0; j < slots.length; j++) {
-	    if (!slots[j]) continue;
-            if (feature === slots[j].feature) {
-		if (!startSlots[j]) startSlots[j] = slots[j];
-		maxLevel = Math.max(j, maxLevel);
-                return;
-	    }
-	}
-        slotLoop: for (var j = 0; j < slots.length; j++) {
-	    if (!slots[j]) {
-		level = j;
-		break;
-	    }
-	    var otherEnd = slots[j].feature[end];
-            var otherStart = slots[j].feature[start];
-            if (curTrack.arrowheadClass) {
-                switch (feature[strand]) {
-                case 1:
-                    otherEnd   += (curTrack.plusArrowWidth / scale); break;
-                case -1:
-                    otherStart -= (curTrack.minusArrowWidth / scale); break;
-                }
-            }
 
-	    if ((scale > labelScale)
-                && name
-                && feature[name]
-                && slots[j].feature[name])
-                otherEnd = Math.max(otherEnd,
-                                    slots[j].feature[start]
-                                    + (slots[j].feature[name].length
-                                       * basesPerLabelChar));
-            if (((otherEnd + basePadding) >= featureStart)
-                && ((otherStart - basePadding) <= featureEnd)) {
-		//this feature overlaps
-                continue;
-            } else {
-                level = j;
-                break;
-            }
+        if (layouter.hasSeen(uniqueId)) {
+            //console.log("this layouter has seen " + uniqueId);
+            return;
         }
+
+        var top = layouter.addRect(uniqueId,
+                                   featureStart,
+                                   featureEnd + basePadding,
+                                   levelHeight);
 
         if (curTrack.urlTemplate) {
             featDiv = document.createElement("a");
@@ -408,22 +383,9 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
 	if ((phase !== undefined) && (feature[phase] !== null))
 	    featDiv.className = featDiv.className + feature[phase];
 
-        if (level === undefined) {
-	    //create a new slot
-            slots.push(featDiv);
-            level = slots.length - 1;
-        } else {
-	    //div goes into an existing slot
-	    slots[level] = featDiv;
-	}
-
-        maxLevel = Math.max(level, maxLevel);
-
-	if (!startSlots[level]) startSlots[level] = featDiv;
-
         featDiv.style.cssText =
             "left: " + (100 * (feature[start] - leftBase) / blockWidth) + "%; "
-            + "top: " + (level * levelHeight) + levelUnits + ";"
+            + "top: " + top + levelUnits + ";"
             + " width: " + (100 * ((feature[end] - feature[start]) / blockWidth)) + "%;"
             + (curTrack.featureCss ? curTrack.featureCss : "");
 
@@ -462,7 +424,7 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
             labelDiv.appendChild(document.createTextNode(feature[name]));
             labelDiv.style.cssText =
                 "left: " + (100 * (feature[start] - leftBase) / blockWidth) + "%; "
-                + "top: " + ((level * levelHeight) + glyphHeight) + levelUnits + ";";
+                + "top: " + (top + glyphHeight) + levelUnits + ";";
 	    featDiv.label = labelDiv;
 	    labelDiv.feature = feature;
             block.appendChild(labelDiv);
@@ -488,15 +450,11 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
     var startBase = goLeft ? rightBase : leftBase;
     var endBase = goLeft ? leftBase : rightBase;
 
-    if (goLeft)
-	block.leftSlots = slots;
-    else
-	block.rightSlots = slots;
 
     this.features.iterate(startBase, endBase, featCallback,
                           function () {
-                              curTrack.heightUpdate(((maxLevel + 1)
-                                                     * levelHeight),
+                              curTrack.heightUpdate(layouter.totalHeight
+                                                    + levelHeight,
                                                     blockIndex);
                           });
 };
@@ -590,7 +548,7 @@ FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature)
 
 /*
 
-Copyright (c) 2007-2009 The Evolutionary Software Foundation
+Copyright (c) 2007-2010 The Evolutionary Software Foundation
 
 Created by Mitchell Skinner <mitch_skinner@berkeley.edu>
 
