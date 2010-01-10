@@ -86,10 +86,6 @@ NCList.prototype.binarySearch = function(arr, item, itemIndex) {
     if (1 == itemIndex) return high; else return low;
 };
 
-//due to javascript function-call overhead, there's some copy/paste code below,
-//for performance.  If later profiling shows that we can get away with a cleaner
-//version using function pointers then it might be better to re-arrange this.
-
 NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
                                        inc, searchIndex, testIndex) {
     var len = arr.length;
