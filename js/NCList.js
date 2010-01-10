@@ -87,7 +87,7 @@ NCList.prototype.binarySearch = function(arr, item, itemIndex) {
 };
 
 NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
-                                       inc, searchIndex, testIndex) {
+                                       inc, searchIndex, testIndex, path) {
     var len = arr.length;
     var i = this.binarySearch(arr, from, searchIndex);
     while ((i < len)
@@ -102,7 +102,7 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
                 arr[i][this.lazyIndex].callbacks.push(
                     function(o) {
                         ncl.iterHelper(o, from, to, fun, finish, inc,
-                                       searchIndex, testIndex);
+                                       searchIndex, testIndex, path.concat(i));
                         finish.dec();
                     });
             } else if ("lazy" == arr[i][this.lazyIndex].state) {
@@ -120,7 +120,8 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
                                 lazyFeat[sublistIndex] = o;
                                 ncl.iterHelper(o, from, to,
                                                fun, finish, inc,
-                                               searchIndex, testIndex);
+                                               searchIndex, testIndex,
+                                               path.concat(i));
                                 for (var c = 0;
                                      c < lazyObj.callbacks.length;
                                      c++)
@@ -138,12 +139,13 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
                 console.log("unknown lazy type: " + arr[i]);
             }
         } else {
-            fun(arr[i]);
+            fun(arr[i], path.concat(i));
         }
 
         if (arr[i][this.sublistIndex])
             this.iterHelper(arr[i][this.sublistIndex], from, to,
-                            fun, finish, inc, searchIndex, testIndex);
+                            fun, finish, inc, searchIndex, testIndex,
+                            path.concat(i));
         i += inc;
     }
 };
@@ -161,7 +163,7 @@ NCList.prototype.iterate = function(from, to, fun, postFun) {
     var testIndex = (from > to) ? 1 : 0;
     var finish = new Finisher(postFun);
     this.iterHelper(this.topList, from, to, fun, finish,
-                    inc, searchIndex, testIndex);
+                    inc, searchIndex, testIndex, []);
     finish.finish();
 };
 
