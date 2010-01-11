@@ -5,7 +5,9 @@
  * This code does a lot of linear searching; n should be low enough that
  * it's not a problem but if it turns out to be, some of it can be changed to
  * binary searching without too much work.  Another possibility is to merge
- * contour spans and give up some packing closeness in exchange for speed.
+ * contour spans and give up some packing closeness in exchange for speed
+ * (the code already merges spans that have the same x-coord and are vertically
+ * contiguous).
  */
 
 function Contour(top) {
@@ -22,11 +24,20 @@ function Contour(top) {
      * The contour is the union of the rectangles ending on the right side
      * at those lines, and extending leftward toward negative infinity.
      *
+     * <=======================|
+     * <=======================|
+     * <==========|
+     * <=================|
+     * <=================|
+     * <=================|
+     *
+     * x -->
+     *
      * As we add new vertical spans, the contour expands, either downward
-     * or in the direction of increasing x
+     * or in the direction of increasing x.
      */
     // takes: top, a number indicating where the first span of the contour
-    // will go, should be non-negative
+    // will go
     if (top === undefined) top = 0;
 
     // spans is an array of {top, x, height} objects representing
@@ -38,8 +49,8 @@ function Contour(top) {
 // finds a space in the contour into which the given span fits
 // (i.e., the given span has higher x than the contour over its vertical span)
 // returns an ojbect {above, count}; above is the index of the last span above
-// the given span, count is the number of spans being replaced by the given
-// span
+// where the given span will fit, count is the number of spans being
+// replaced by the given span
 Contour.prototype.getFit = function(x, height) {
     var aboveBottom, curSpan;
     // slide down the contour
@@ -60,7 +71,7 @@ Contour.prototype.getFit = function(x, height) {
             if ((curSpan.x <= x) &&
                 ((aboveBottom + height) < (curSpan.top + curSpan.height))) {
                 // the given span partially covers curSpan, and
-                // will overlap it
+                // will overlap it, so we keep curSpan
                 return {above: above, count: count - 1};
             }
         }
@@ -75,12 +86,25 @@ Contour.prototype.getFit = function(x, height) {
 // add the given span to this contour where it fits, as given
 // by getFit
 Contour.prototype.insertFit = function(fit, x, top, height) {
-    this.spans.splice(fit.above + 1, fit.count,
-                      {
-                          top: top,
-                          x: x,
-                          height: height
-                      });
+    // if the previous span and the current span have the same x-coord,
+    // and are vertically contiguous, merge them.
+    var prevSpan = this.spans[fit.above];
+    if ((Math.abs(prevSpan.x - x) < 1)
+        && (Math.abs((prevSpan.top + prevSpan.height) - top) < 1) ) {
+        prevSpan.height = (top + height) - prevSpan.top;
+        // a bit of slop here is conservative if we take the max
+        // (means things might get laid out slightly farther apart
+        // than they would otherwise)
+        prevSpan.x = Math.max(prevSpan.x, x);
+        this.spans.splice(fit.above + 1, fit.count);
+    } else {
+        this.spans.splice(fit.above + 1, fit.count,
+                          {
+                              top: top,
+                              x: x,
+                              height: height
+                          });
+    }
 };
 
 // add the given span to this contour at the given location, if
@@ -136,12 +160,22 @@ Contour.prototype.unionWith = function(x, top, height) {
         }
     }
 
-    this.spans.splice(startIndex, (endIndex - startIndex),
-                      {
-                          top: top,
-                          x: x,
-                          height: height
-                      });
+    // if the previous span and the current span have the same x-coord,
+    // and are vertically contiguous, merge them.
+    var prevSpan = this.spans[startIndex - 1];
+    if (((prevSpan.x - x) < 1)
+        && (((prevSpan.top + prevSpan.height) - top) < 1) ) {
+        prevSpan.height = (top + height) - prevSpan.top;
+        prevSpan.x = Math.max(prevSpan.x, x);
+        this.spans.splice(startIndex, endIndex - startIndex);
+    } else {
+        this.spans.splice(startIndex, endIndex - startIndex,
+                          {
+                              top: top,
+                              x: x,
+                              height: height
+                          });
+    }
 };
 
 // returns the top of the to-be-added span that fits into "fit"
@@ -150,30 +184,27 @@ Contour.prototype.getNextTop = function(fit) {
     return this.spans[fit.above].top + this.spans[fit.above].height;
 };
 
-function Layout(leftBound, rightBound, vPadding) {
+function Layout(leftBound, rightBound) {
     this.leftBound = leftBound;
     this.rightBound = rightBound;
     // a Layout contains a left contour and a right contour;
     // the area between the contours is allocated, and the
     // area outside the contours is free.
-    this.leftContour = new Contour(-vPadding);
-    this.rightContour = new Contour(-vPadding);
+    this.leftContour = new Contour();
+    this.rightContour = new Contour();
     this.seen = {};
     this.leftOverlaps = [];
     this.rightOverlaps = [];
-    this.vPadding = vPadding;
-    this.fuzz = 0.1;
     this.totalHeight = 0;
 }
 
 Layout.prototype.addRect = function(id, left, right, height) {
-    if (height < this.fuzz) throw "HeightError";
     if (this.seen[id] !== undefined) return this.seen[id];
     // for each contour, we test the fit on the near side of the given rect,
     var leftFit = this.leftContour.getFit(this.rightBound - right,
-                                           height + this.vPadding);
+                                          height);
     var rightFit = this.rightContour.getFit(left - this.leftBound,
-                                             height + this.vPadding);
+                                            height);
     var leftTop = this.leftContour.getNextTop(leftFit);
     var rightTop = this.rightContour.getNextTop(rightFit);
 
@@ -183,12 +214,12 @@ Layout.prototype.addRect = function(id, left, right, height) {
     // (we want to make sure the near side fits, but we want to extend
     //  the contour to cover the far side)
     if (leftTop < rightTop) {
-        top = leftTop + this.vPadding;
+        top = leftTop;
         this.leftContour.insertFit(leftFit, this.rightBound - left,
                                    top, height);
         this.rightContour.unionWith(right - this.leftBound, top, height);
     } else {
-        top = rightTop + this.vPadding;
+        top = rightTop;
         this.rightContour.insertFit(rightFit, right - this.leftBound,
                                     top, height);
         this.leftContour.unionWith(this.rightBound - left, top, height);
