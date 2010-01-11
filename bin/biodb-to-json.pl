@@ -50,21 +50,23 @@ if (my $refclass = $config->{'reference class'}) {
 $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
 $db->absolute(1)               if $db->can('absolute');
 
-my @segNames;
+my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
+
 if (defined $refid) {
-    push @segNames, $db->segment(-db_id => $refid)->name;
+    @refSeqs = grep { $_->{id} eq $refid } @refSeqs;
+    die "Didn't find a refseq with ID $refid (have you run prepare-refseqs.pl to supply information about your reference sequences?)" if $#refSeqs < 0;
 } elsif (defined $ref) {
-    push @segNames, $ref;
-} else {
-    foreach my $segInfo (@{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)}) {
-        push @segNames, $segInfo->{name};
-    }
+    @refSeqs = grep { $_->{name} eq $ref } @refSeqs;
+    die "Didn't find a refseq with name $ref (have you run prepare-refseqs.pl to supply information about your reference sequences?)" if $#refSeqs < 0;
 }
+
+die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
 
 mkdir($outdir) unless (-d $outdir);
 mkdir($trackDir) unless (-d $trackDir);
 
-foreach my $segName (@segNames) {
+foreach my $seg (@refSeqs) {
+    my $segName = $seg->{name};
     print "\nworking on refseq $segName\n";
 
     mkdir("$trackDir/$segName") unless (-d "$trackDir/$segName");
@@ -98,7 +100,7 @@ foreach my $segName (@segNames) {
             $jsonGen->addFeature($_) foreach (@features);
 
             $jsonGen->generateTrack("$trackDir/$segName/" . $track->{"track"},
-                                    1000, 500, $seg->start - 1, $seg->end);
+                                    1000, 500, $seg->{start}, $seg->{end});
 
             print Dumper($features[0]) if ($verbose && ($#features >= 0));
 
