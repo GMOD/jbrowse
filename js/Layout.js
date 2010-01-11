@@ -110,52 +110,40 @@ Contour.prototype.insertFit = function(fit, x, top, height) {
 // add the given span to this contour at the given location, if
 // it would extend the contour
 Contour.prototype.unionWith = function(x, top, height) {
-    var curTop, curBottom, startIndex;
+    var startBottom, startIndex, endIndex, startSpan, endSpan;
     var bottom = top + height;
-    for (startIndex = 0; startIndex < this.spans.length; startIndex++) {
-        curTop = this.spans[startIndex].top;
-        curBottom = curTop + this.spans[startIndex].height;
-        // if this span is entirely above the given span, go to the next span
-        if (curBottom <= top) continue;
-        // if we get here, then curBottom > top.  If curTop is also above
-        // the bottom of the given span,
-        if (curTop < bottom) {
-            // then the given span overlaps this.spans[i] vertically.
-
-            // then, if the given span has higher x, we've found where
-            // to insert the given span
-            if (x > this.spans[startIndex].x) break;
+    START: for (startIndex = 0; startIndex < this.spans.length; startIndex++) {
+        startSpan = this.spans[startIndex];
+        startBottom = startSpan.top + startSpan.height;
+        if (startSpan.top > top) {
+            // the given span extends above an existing span
+            endIndex = startIndex;
+            break START;
         }
-        // if we've gone past the given span without breaking out of the loop,
-        // then the given span is submerged and we can just return
-        if (curTop >= bottom) return;
-
-        // if the current span covers the end of the given span
-        // and we haven't already broken out of the loop, the
-        // given span is submerged and we can just return
-        if (curBottom >= bottom) return;
-    }
-    // if we go off the end of the list of spans, then the given span
-    // would extend the bottom of the contour
-
-    var endIndex;
-    for (endIndex = startIndex + 1; endIndex < this.spans.length; endIndex++) {
-        curTop = this.spans[endIndex].top;
-        // if the top of the current span is below the bottom of the given span,
-        if (curTop >= bottom) {
-            // then we want to keep the current span
-            break;
-        }
-        curBottom = curTop + this.spans[endIndex].height;
-        // if the current span overlaps the given span,
-        if ((curBottom > top) && (curTop < bottom)) {
-            // if the current span is contained by the given span,
-            if ((curBottom <= bottom) && (this.spans[endIndex.x] < x)) {
-                // the given span will replace the current span
+        if (startBottom > top) {
+            if (startSpan.x >= x) {
+                var covered = startBottom - top;
+                // we don't have to worry about the covered area any more
+                top += covered;
+                height -= covered;
+                // if we've eaten up the whole span, then it's submerged
+                // and we don't have to do anything
+                if (top >= bottom) return;
                 continue;
             } else {
-                // keep the current span
-                break;
+                // find the first span not covered by the given span
+                for (endIndex = startIndex;
+                     endIndex < this.spans.length;
+                     endIndex++) {
+                    endSpan = this.spans[endIndex];
+                    // if endSpan extends below or to the right
+                    // of the given span, then we need to keep it
+                    if (((endSpan.top + endSpan.height) > bottom)
+                        || endSpan.x > x) {
+                        break START;
+                    }
+                }
+                break START;
             }
         }
     }
