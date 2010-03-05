@@ -100,11 +100,14 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
             if ("loading" == arr[i][this.lazyIndex].state) {
                 finish.inc();
                 arr[i][this.lazyIndex].callbacks.push(
-                    function(o) {
-                        ncl.iterHelper(o, from, to, fun, finish, inc,
-                                       searchIndex, testIndex, path.concat(i));
-                        finish.dec();
-                    });
+                    function(parentIndex) {
+                        return function(o) {
+                            ncl.iterHelper(o, from, to, fun, finish, inc,
+                                           searchIndex, testIndex,
+                                           path.concat(parentIndex));
+                            finish.dec();
+                        };
+                    }(i));
             } else if ("lazy" == arr[i][this.lazyIndex].state) {
                 //node hasn't been loaded, start loading
                 arr[i][this.lazyIndex].state = "loading";
@@ -114,21 +117,22 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
                     {
                         url: this.baseURL + arr[i][this.lazyIndex].path,
                         handleAs: "json",
-                        load: function(lazyFeat, lazyObj, sublistIndex) {
+                        load: function(lazyFeat, lazyObj,
+                                       sublistIndex, parentIndex) {
                             return function(o) {
                                 lazyObj.state = "loaded";
                                 lazyFeat[sublistIndex] = o;
                                 ncl.iterHelper(o, from, to,
                                                fun, finish, inc,
                                                searchIndex, testIndex,
-                                               path.concat(i));
+                                               path.concat(parentIndex));
                                 for (var c = 0;
                                      c < lazyObj.callbacks.length;
                                      c++)
                                      lazyObj.callbacks[c](o);
                                 finish.dec();
                             };
-                        }(arr[i], arr[i][this.lazyIndex], this.sublistIndex),
+                        }(arr[i], arr[i][this.lazyIndex], this.sublistIndex, i),
                         error: function() {
                             finish.dec();
                         }
