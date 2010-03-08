@@ -192,38 +192,36 @@ FeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
     //moved onto destBlock.
 
     if (!(sourceBlock && destBlock)) return;
-
-    var sourceSlots;
-    if (sourceBlock.startBase < destBlock.startBase)
-	sourceSlots = sourceBlock.rightSlots;
-    else
-	sourceSlots = sourceBlock.leftSlots;
-
-    if (sourceSlots === undefined) return;
+    if (!sourceBlock.featureLayout) return;
 
     var destLeft = destBlock.startBase;
     var destRight = destBlock.endBase;
     var blockWidth = destRight - destLeft;
     var sourceSlot;
 
-    for (var i = 0; i < sourceSlots.length; i++) {
-	//if the feature div in this slot is a child of sourceBlock,
-	//and if the feature overlaps destBlock,
+    var overlaps = (sourceBlock.startBase < destBlock.startBase)
+                       ? sourceBlock.featureLayout.rightOverlaps
+                       : sourceBlock.featureLayout.leftOverlaps;
+
+    for (var i = 0; i < overlaps.length; i++) {
+	//if the feature overlaps destBlock,
 	//move to destBlock & re-position
-	sourceSlot = sourceSlots[i];
-	if (sourceSlot && (sourceSlot.parentNode === sourceBlock)) {
+	sourceSlot = sourceBlock.featureNodes[overlaps[i].id];
+	if (sourceSlot && sourceSlot.feature) {
 	    if ((sourceSlot.feature[1] > destLeft)
 		&& (sourceSlot.feature[0] < destRight)) {
+                sourceBlock.removeChild(sourceSlot);
 		var featLeft = (100 * (sourceSlot.feature[0] - destLeft) / blockWidth);
 		sourceSlot.style.left = featLeft + "%";
-                sourceBlock.removeChild(sourceSlot);
 		destBlock.appendChild(sourceSlot);
+                destBlock.featureNodes[overlaps[i].id] = sourceSlot;
+                delete sourceBlock.featureNodes[overlaps[i].id];
 		if ("label" in sourceSlot) {
 		    sourceSlot.label.style.left = featLeft + "%";
 		    destBlock.appendChild(sourceSlot.label);
 		}
-	    }
-	}
+            }
+        }
     }
 };
 
@@ -248,9 +246,10 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
     var phase = this.fields["phase"];
     var subfeatures = this.fields["subfeatures"];
 
-    var layouter = new Layout(leftBase, rightBase, 2);
+    var layouter = new Layout(leftBase, rightBase);
     block.featureLayout = layouter;
-    block.featureNodes = [];
+    block.featureNodes = {};
+    block.style.backgroundColor = "#ddd";
 
     //are we filling right-to-left (true) or left-to-right (false)?
     var goLeft = false;
@@ -343,12 +342,13 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
                 featureStart -= (curTrack.minusArrowWidth / scale); break;
             }
         }
-	if (scale > labelScale)
+        if (scale > labelScale)
 	    featureEnd = Math.max(featureEnd,
 				  feature[start] + (((name && feature[name])
 						     ? feature[name].length : 0)
 						    * basesPerLabelChar));
 
+        //console.log("ID " + uniqueId + (layouter.hasSeen(uniqueId) ? " (seen)" : " (new)"));
         if (layouter.hasSeen(uniqueId)) {
             //console.log("this layouter has seen " + uniqueId);
             return;
@@ -366,8 +366,10 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
         } else {
             featDiv = document.createElement("div");
         }
-	featDiv.feature = feature;
-	featDiv.layoutEnd = featureEnd;
+        featDiv.feature = feature;
+        featDiv.layoutEnd = featureEnd;
+
+        block.featureNodes[uniqueId] = featDiv;
 
         switch (feature[strand]) {
         case 1:
@@ -453,6 +455,7 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
 
     this.features.iterate(startBase, endBase, featCallback,
                           function () {
+                              block.style.backgroundColor = "";
                               curTrack.heightUpdate(layouter.totalHeight
                                                     + levelHeight,
                                                     blockIndex);

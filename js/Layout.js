@@ -51,10 +51,18 @@ function Contour(top) {
 // returns an ojbect {above, count}; above is the index of the last span above
 // where the given span will fit, count is the number of spans being
 // replaced by the given span
-Contour.prototype.getFit = function(x, height) {
+Contour.prototype.getFit = function(x, height, minTop) {
     var aboveBottom, curSpan;
+    var above = 0;
+    if (minTop) {
+        // set above = (index of the first span that starts below minTop)
+        for (; this.spans[above].top < minTop; above++) {
+            if (above >= (this.spans.length - 1))
+                return {above: this.spans.length - 1, count: 0};
+        }
+    }
     // slide down the contour
-    ABOVE: for (var above = 0; above < this.spans.length; above++) {
+    ABOVE: for (; above < this.spans.length; above++) {
         aboveBottom = this.spans[above].top + this.spans[above].height;
         for (var count = 1; above + count < this.spans.length; count++) {
             curSpan = this.spans[above + count];
@@ -121,6 +129,7 @@ Contour.prototype.unionWith = function(x, top, height) {
             break START;
         }
         if (startBottom > top) {
+            // if startSpan covers (at least some of) the given span,
             if (startSpan.x >= x) {
                 var covered = startBottom - top;
                 // we don't have to worry about the covered area any more
@@ -151,8 +160,8 @@ Contour.prototype.unionWith = function(x, top, height) {
     // if the previous span and the current span have the same x-coord,
     // and are vertically contiguous, merge them.
     var prevSpan = this.spans[startIndex - 1];
-    if (((prevSpan.x - x) < 1)
-        && (((prevSpan.top + prevSpan.height) - top) < 1) ) {
+    if ((Math.abs(prevSpan.x - x) < 1)
+        && (Math.abs((prevSpan.top + prevSpan.height) - top) < 1) ) {
         prevSpan.height = (top + height) - prevSpan.top;
         prevSpan.x = Math.max(prevSpan.x, x);
         this.spans.splice(startIndex, endIndex - startIndex);
@@ -189,43 +198,98 @@ function Layout(leftBound, rightBound) {
 Layout.prototype.addRect = function(id, left, right, height) {
     if (this.seen[id] !== undefined) return this.seen[id];
     // for each contour, we test the fit on the near side of the given rect,
-    var leftFit = this.leftContour.getFit(this.rightBound - right,
-                                          height);
-    var rightFit = this.rightContour.getFit(left - this.leftBound,
-                                            height);
-    var leftTop = this.leftContour.getNextTop(leftFit);
-    var rightTop = this.rightContour.getNextTop(rightFit);
+    var leftFit = this.tryLeftFit(left, right, height, 0);
+    var rightFit = this.tryRightFit(left, right, height, 0);
 
     var top;
 
     // and insert the far side from the side we tested
     // (we want to make sure the near side fits, but we want to extend
     //  the contour to cover the far side)
-    if (leftTop < rightTop) {
-        top = leftTop;
-        this.leftContour.insertFit(leftFit, this.rightBound - left,
+    if (leftFit.top < rightFit.top) {
+        top = leftFit.top;
+        this.leftContour.insertFit(leftFit.fit, this.rightBound - left,
                                    top, height);
         this.rightContour.unionWith(right - this.leftBound, top, height);
     } else {
-        top = rightTop;
-        this.rightContour.insertFit(rightFit, right - this.leftBound,
+        top = rightFit.top;
+        this.rightContour.insertFit(rightFit.fit, right - this.leftBound,
                                     top, height);
         this.leftContour.unionWith(this.rightBound - left, top, height);
     }
 
     var existing = {id: id, left: left, right: right,
                     top: top, height: height};
+    this.seen[id] = top;
     if (left < this.leftBound) {
         this.leftOverlaps.push(existing);
-        if (this.leftLayout) this.leftLayout.addFromRight(existing);
+        if (this.leftLayout) this.leftLayout.addExisting(existing);
     }
     if (right > this.rightBound) {
         this.rightOverlaps.push(existing);
-        if (this.rightLayout) this.rightLayout.addFromLeft(existing);
+        if (this.rightLayout) this.rightLayout.addExisting(existing);
     }
     this.seen[id] = top;
     this.totalHeight = Math.max(this.totalHeight, top + height);
     return top;
+};
+
+// this method is called by the block to the left to see if a given fit works
+// in this layout
+// takes: proposed rectangle
+// returns: {top: value that makes the rectangle fit in this layout,
+//           fit: "fit" for passing to insertFit}
+Layout.prototype.tryLeftFit = function(left, right, height, top) {
+    var fit, nextFit;
+    var curTop = top;
+    while (true) {
+        // check if the rectangle fits at curTop
+        fit = this.leftContour.getFit(this.rightBound - right, height, curTop);
+        curTop = Math.max(this.leftContour.getNextTop(fit), curTop);
+        // if the rectangle extends onto the next block to the right;
+        if (this.rightLayout && (right >= this.rightBound)) {
+            // check if the rectangle fits into that block at this position
+            nextFit = this.rightLayout.tryLeftFit(left, right, height, curTop);
+            // if not, nextTop will be the next y-value where the rectangle
+            // fits into that block
+            if (nextFit.top > curTop) {
+                // in that case, try again to see if that y-value works
+                curTop = nextFit.top;
+                continue;
+            }
+        }
+        break;
+    }
+    return {top: curTop, fit: fit};
+};
+
+// this method is called by the block to the right to see if a given fit works
+// in this layout
+// takes: proposed rectangle
+// returns: {top: value that makes the rectangle fit in this layout,
+//           fit: "fit" for passing to insertFit}
+Layout.prototype.tryRightFit = function(left, right, height, top) {
+    var fit, nextFit;
+    var curTop = top;
+    while (true) {
+        // check if the rectangle fits at curTop
+        fit = this.rightContour.getFit(left - this.leftBound, height, curTop);
+        curTop = Math.max(this.rightContour.getNextTop(fit), curTop);
+        // if the rectangle extends onto the next block to the left;
+        if (this.leftLayout && (left <= this.leftBound)) {
+            // check if the rectangle fits into that block at this position
+            nextFit = this.leftLayout.tryRightFit(left, right, height, curTop);
+            // if not, nextTop will be the next y-value where the rectangle
+            // fits into that block
+            if (nextFit.top > curTop) {
+                // in that case, try again to see if that y-value works
+                curTop = nextFit.top;
+                continue;
+            }
+        }
+        break;
+    }
+    return {top: curTop, fit: fit};
 };
 
 Layout.prototype.hasSeen = function(id) {
@@ -234,14 +298,14 @@ Layout.prototype.hasSeen = function(id) {
 
 Layout.prototype.setLeftLayout = function(left) {
     for (var i = 0; i < this.leftOverlaps.length; i++) {
-        left.addFromRight(this.leftOverlaps[i]);
+        left.addExisting(this.leftOverlaps[i]);
     }
     this.leftLayout = left;
 };
 
 Layout.prototype.setRightLayout = function(right) {
     for (var i = 0; i < this.rightOverlaps.length; i++) {
-        right.addFromLeft(this.rightOverlaps[i]);
+        right.addExisting(this.rightOverlaps[i]);
     }
     this.rightLayout = right;
 };
@@ -251,28 +315,26 @@ Layout.prototype.cleanup = function() {
     this.rightLayout = undefined;
 };
 
-Layout.prototype.addFromRight = function(existing) {
-    this.addExisting(existing);
-    if (this.leftLayout && (this.leftLayout.rightBound > existing.left))
-        this.leftLayout.addFromRight(existing);
-};
-
-Layout.prototype.addFromLeft = function(existing) {
-    this.addExisting(existing);
-    if (this.rightLayout && (this.rightLayout.leftBound < existing.right))
-        this.rightLayout.addFromLeft(existing);
-};
-
 //expects an {id, left, right, height, top} object
 Layout.prototype.addExisting = function(existing) {
     if (this.seen[existing.id] !== undefined) return;
+    this.seen[existing.id] = existing.top;
+
+    if (existing.left <= this.leftBound) {
+        this.leftOverlaps.push(existing);
+        if (this.leftLayout) this.leftLayout.addExisting(existing);
+    }
+    if (existing.right >= this.rightBound) {
+        this.rightOverlaps.push(existing);
+        if (this.rightLayout) this.rightLayout.addExisting(existing);
+    }
+
     this.leftContour.unionWith(this.rightBound - existing.left,
                                existing.top,
                                existing.height);
     this.rightContour.unionWith(existing.right - this.leftBound,
                                 existing.top,
                                 existing.height);
-    this.seen[existing.id] = existing.top;
 };
 
 /*
