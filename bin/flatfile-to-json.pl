@@ -178,15 +178,21 @@ foreach my $seqInfo (@refSeqs) {
             @queryArgs = (@queryArgs, "-types" => $types);
         }
 
-        my @features = $db->features(@queryArgs);
+        if ($bam) {
+            $db->fetch($seqName, sub {$jsonGen->addFeature($_[0])});
+        } else {
+            my @features = $db->features(@queryArgs);
 
-        $jsonGen->addFeature($_) foreach (@features);
+            $jsonGen->addFeature($_) foreach (@features);
+        }
     }
     next if $jsonGen->featureCount == 0;
 
     print $seqName . "\t" . $jsonGen->featureCount . "\n";
 
     $jsonGen->generateTrack("$trackDir/$seqName/$trackLabel/", 1000, 500, $seqInfo->{"start"}, $seqInfo->{"end"});
+
+    delete $perChromGens{$seqName};
 }
 
 JsonGenerator::modifyJSFile("$outdir/trackInfo.js", "trackInfo",
