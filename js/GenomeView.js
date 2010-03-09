@@ -1084,10 +1084,19 @@ GenomeView.prototype.updateTrackList = function() {
     var tracks = [];
     this.trackIterate(function(track) { tracks.push(track); });
     this.tracks = tracks;
-    this.trackIndices = {};
+    var newIndices = {};
+    var newHeights = new Array(this.tracks.length);
     for (var i = 0; i < tracks.length; i++) {
+        newIndices[tracks[i].name] = i;
+        if (tracks[i].name in this.trackIndices) {
+            newHeights[i] = this.trackHeights[this.trackIndices[tracks[i].name]];
+        } else {
+            newHeights[i] = 0;
+        }
         this.trackIndices[tracks[i].name] = i;
     }
+    this.trackIndices = newIndices;
+    this.trackHeights = newHeights;
     var nextTop = this.topSpace;
     for (var i = 0; i < this.tracks.length; i++) {
         this.trackTops[i] = nextTop;
