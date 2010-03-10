@@ -456,8 +456,7 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
     this.features.iterate(startBase, endBase, featCallback,
                           function () {
                               block.style.backgroundColor = "";
-                              curTrack.heightUpdate(layouter.totalHeight
-                                                    + levelHeight,
+                              curTrack.heightUpdate(layouter.totalHeight,
                                                     blockIndex);
                           });
 };

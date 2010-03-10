@@ -320,6 +320,9 @@ Layout.prototype.addExisting = function(existing) {
     if (this.seen[existing.id] !== undefined) return;
     this.seen[existing.id] = existing.top;
 
+    this.totalHeight =
+        Math.max(this.totalHeight, existing.top + existing.height);
+
     if (existing.left <= this.leftBound) {
         this.leftOverlaps.push(existing);
         if (this.leftLayout) this.leftLayout.addExisting(existing);
