@@ -27,6 +27,10 @@ Track.prototype.setViewInfo = function(heightUpdate, numBlocks,
                                        widthPct, widthPx, scale) {
     var track = this;
     this.heightUpdate = function(height, blockIndex) {
+        if (!this.shown) {
+            heightUpdate(0);
+            return;
+        }
         if (blockIndex !== undefined) track.blockHeights[blockIndex] = height;
 
         track.height = Math.max(track.height, height);
