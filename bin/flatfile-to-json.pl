@@ -27,6 +27,7 @@ my ($gff, $gff2, $bed, $bam,
 my $autocomplete = "none";
 my $outdir = "data";
 my $cssClass = "feature";
+my $nclChunk = 1000;
 my ($getType, $getPhase, $getSubs, $getLabel) = (0, 0, 0, 0);
 GetOptions("gff=s" => \$gff,
            "gff2=s" => \$gff2,
@@ -47,7 +48,8 @@ GetOptions("gff=s" => \$gff,
            "clientConfig=s" => \$clientConfig,
            "thinType=s" => \$thinType,
            "thicktype=s" => \$thickType,
-           "type=s@" => \$types);
+           "type=s@" => \$types,
+           "nclChunk=i" => \$nclChunk);
 my $trackDir = "$outdir/tracks";
 
 if (!(defined($gff) || defined($gff2) || defined($bed) || defined($bam)) || !defined($trackLabel)) {
@@ -72,6 +74,7 @@ USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file> | --bam <ba
     --clientConfig: extra configuration for the client, in JSON syntax
         e.g. '{"css": "background-color: black;", "histScale": 5}'
     --type: only process features of the given type
+    --nclChunk: NCList chunk size; if you get "json text or perl structure exceeds maximum nesting level" errors, try setting this lower (default: $nclChunk)
 USAGE
 exit(1);
 }
@@ -190,7 +193,7 @@ foreach my $seqInfo (@refSeqs) {
 
     print $seqName . "\t" . $jsonGen->featureCount . "\n";
 
-    $jsonGen->generateTrack("$trackDir/$seqName/$trackLabel/", 1000, 500, $seqInfo->{"start"}, $seqInfo->{"end"});
+    $jsonGen->generateTrack("$trackDir/$seqName/$trackLabel/", 1000, $nclChunk, $seqInfo->{"start"}, $seqInfo->{"end"});
 
     delete $perChromGens{$seqName};
 }
