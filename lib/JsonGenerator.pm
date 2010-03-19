@@ -67,12 +67,44 @@ sub readJSON {
 
 sub writeJSON {
     my ($file, $toWrite, $opts) = @_;
+
+    # create JSON object
+    my $json = new JSON;
+    # set opts
+    if (defined($opts) and ref($opts) eq 'HASH') {
+        for my $method (keys %$opts) {
+            $json->$method( $opts->{$method} );
+        }
+    }
+
+    # check depth
+    my $depth = findDepth($toWrite);
+    my $maxDepth = $json->get_max_depth;
+    if ($depth >= $maxDepth) {
+	my @deepPath = @{deepestPath($toWrite)};
+	my $warning = "WARNING: found deep path (depth = " . $depth . ", max depth allowed = " . $maxDepth . ")\n";
+	warn $warning;
+	for my $n (0..$#deepPath) {
+	    my $elem = $deepPath[$n];
+	    my $type = ref($elem);
+	    if ($type eq 'HASH') {
+		warn $n, ": { ", join(", ", map("$_ => $$elem{$_}", keys %$elem)), " }\n";
+	    } elsif ($type eq 'ARRAY') {
+		warn $n, ": [ ", join(", ", map(defined($_) ? $_ : "undef", @$elem)), " ]\n";
+	    } else {
+		warn $n, ": ", $elem, "\n";
+	    }
+	}
+	warn $warning;  # repeat the warning after printing the trace
+    }
+
+    # write
     my $fh = new IO::File $file, O_WRONLY | O_CREAT
       or die "couldn't open $file: $!";
     flock $fh, LOCK_EX;
     $fh->seek(0, SEEK_SET);
     $fh->truncate(0);
-    $fh->print(JSON::to_json($toWrite, $opts));
+    $fh->print($json->encode($toWrite));
     $fh->close()
       or die "couldn't close $file: $!";
 }
@@ -400,6 +432,58 @@ sub generateTrack {
     writeJSON("$outDir/trackData.json",
               $trackData,
               {pretty => 0, max_depth => 2048});
+}
+
+# findDepth returns the depth of the deepest element(s) in the structure
+sub findDepth {
+    my ($obj) = @_;
+    my $depth = 0;
+
+    my $type = ref($obj);
+    if($type eq 'HASH'){
+	for my $child (values %$obj) {
+	    my $childDepth = findDepth($child);
+	    if ($childDepth > $depth) {
+		$depth = $childDepth;
+	    }
+	}
+    }
+    elsif($type eq 'ARRAY'){
+	for my $child (@$obj) {
+	    my $childDepth = findDepth($child);
+	    if ($childDepth > $depth) {
+		$depth = $childDepth;
+	    }
+	}
+    }
+
+    return $depth + 1;
+}
+
+# deepestPath returns the path to (one of) the deepest element(s) in the structure
+sub deepestPath {
+    my ($obj) = @_;
+    my $trace = [];
+
+    my $type = ref($obj);
+    if($type eq 'HASH'){
+	for my $child (values %$obj) {
+	    my $childTrace = deepestPath($child);
+	    if (@$childTrace > @$trace) {
+		$trace = $childTrace;
+	    }
+	}
+    }
+    elsif($type eq 'ARRAY'){
+	for my $child (@$obj) {
+	    my $childTrace = deepestPath($child);
+	    if (@$childTrace > @$trace) {
+		$trace = $childTrace;
+	    }
+	}
+    }
+
+    return [$obj, @$trace];
 }
 
 1;
