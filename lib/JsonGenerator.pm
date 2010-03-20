@@ -437,50 +437,58 @@ sub generateTrack {
 # findDepth returns the depth of the deepest element(s) in the structure
 sub findDepth {
     my ($obj) = @_;
-    my $depth = 0;
+    my ($depth, $childArray, $childIndex);
+    my @stack;
 
+  FD_NEW_OBJ:
     my $type = ref($obj);
-    if($type eq 'HASH'){
-	for my $child (values %$obj) {
-	    my $childDepth = findDepth($child);
-	    if ($childDepth > $depth) {
-		$depth = $childDepth;
-	    }
+    $childArray = $type eq 'HASH' ? [values %$obj] : ($type eq 'ARRAY' ? $obj : []);
+    $depth = 0;
+    $childIndex = 0;
+  FD_CHILD_LOOP:
+    if ($childIndex < @$childArray) {
+	push @stack, [$depth, $childArray, $childIndex];
+	$obj = $childArray->[$childIndex];
+	goto FD_NEW_OBJ;
+    } elsif (@stack) {
+	my $childDepth = $depth + 1;
+	my $vars = pop @stack;
+	($depth, $childArray, $childIndex) = @$vars;
+	if ($childDepth > $depth) {
+	    $depth = $childDepth;
 	}
-    }
-    elsif($type eq 'ARRAY'){
-	for my $child (@$obj) {
-	    my $childDepth = findDepth($child);
-	    if ($childDepth > $depth) {
-		$depth = $childDepth;
-	    }
-	}
+	++$childIndex;
+	goto FD_CHILD_LOOP;
     }
 
     return $depth + 1;
 }
 
-# deepestPath returns the path to (one of) the deepest element(s) in the structure
+# deepestPath returns the path to (the first of) the deepest element(s) in the structure
 sub deepestPath {
     my ($obj) = @_;
-    my $trace = [];
+    my ($trace, $childArray, $childIndex);
+    my @stack;
 
+  DP_NEW_OBJ:
     my $type = ref($obj);
-    if($type eq 'HASH'){
-	for my $child (values %$obj) {
-	    my $childTrace = deepestPath($child);
-	    if (@$childTrace > @$trace) {
-		$trace = $childTrace;
-	    }
+    $childArray = $type eq 'HASH' ? [values %$obj] : ($type eq 'ARRAY' ? $obj : []);
+    $trace = [];
+    $childIndex = 0;
+  DP_CHILD_LOOP:
+    if ($childIndex < @$childArray) {
+	push @stack, [$obj, $trace, $childArray, $childIndex];
+	$obj = $childArray->[$childIndex];
+	goto DP_NEW_OBJ;
+    } elsif (@stack) {
+	my $childTrace = [$obj, @$trace];
+	my $vars = pop @stack;
+	($obj, $trace, $childArray, $childIndex) = @$vars;
+	if (@$childTrace > @$trace) {
+	    $trace = $childTrace;
 	}
-    }
-    elsif($type eq 'ARRAY'){
-	for my $child (@$obj) {
-	    my $childTrace = deepestPath($child);
-	    if (@$childTrace > @$trace) {
-		$trace = $childTrace;
-	    }
-	}
+	++$childIndex;
+	goto DP_CHILD_LOOP;
     }
 
     return [$obj, @$trace];
