@@ -436,7 +436,7 @@ sub generateTrack {
 
 # findDepth returns the depth of the deepest element(s) in the structure
 # the code is the iterative form of findDepth($obj) = 1 + max(map(findDepth($_), childArray($obj)))
-# where childArray($obj) = values(%$obj) [for a hash] or @$obj (for an array)
+# where childArray($obj) = values(%$obj) [for a hash] or @$obj [for an array]
 sub findDepth {
     my ($obj) = @_;
     my ($depth, $childArray, $childIndex);
@@ -468,7 +468,7 @@ sub findDepth {
 
 # deepestPath returns the path to (the first of) the deepest element(s) in the structure
 # the code is the iterative form of deepestPath($obj) = ($obj, longest(map(deepestPath($_), childArray($obj))))
-# where childArray($obj) = values(%$obj) [for a hash] or @$obj (for an array)
+# where childArray($obj) = values(%$obj) [for a hash] or @$obj [for an array]
 # and longest(@x1, @x2, ... @xn) returns the longest of the given arrays (or the first such, in the event of a tie)
 sub deepestPath {
     my ($obj) = @_;
