@@ -11,6 +11,7 @@ use JSON 2;
 use IO::File;
 use Fcntl ":flock";
 use POSIX qw(ceil floor);
+use constant MAX_JSON_DEPTH => 2048;
 
 #in JSON, features are represented by arrays (we could use
 #hashes, but then we'd have e.g. "start" and "end" in the JSON
@@ -304,7 +305,7 @@ sub generateTrack {
     mkdir($outDir) unless (-d $outDir);
     unlink (glob "$outDir/lazyfeatures*");
     unlink (glob "$outDir/subfeatures*");
-    writeJSON("$outDir/names.json", $self->{names}, {pretty => 0})
+    writeJSON("$outDir/names.json", $self->{names}, {pretty => 0, max_depth => MAX_JSON_DEPTH})
         if ($self->{getLabel} || $self->{getAlias});
 
     my @sortedFeatures = sort {
@@ -383,7 +384,7 @@ sub generateTrack {
     foreach my $path (keys %subTrees) {
         writeJSON($path,
                   $subTrees{$path},
-                  {pretty => 0});
+                  {pretty => 0, max_depth => MAX_JSON_DEPTH});
     }
 
     my $rangeMap = [];
@@ -431,7 +432,7 @@ sub generateTrack {
       if defined($self->{style}->{urlTemplate});
     writeJSON("$outDir/trackData.json",
               $trackData,
-              {pretty => 0, max_depth => 2048});
+              {pretty => 0, max_depth => MAX_JSON_DEPTH});
 }
 
 # findDepth returns the depth of the deepest element(s) in the structure
