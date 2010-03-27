@@ -328,6 +328,23 @@ sub generateTrack {
         }
     }
 
+    my $histChunkSize = 10_000;
+    my $chunks = chunkArray(\@histogram, $histChunkSize);
+    for (my $i = 0; $i <= $#{$chunks}; $i++) {
+        writeJSON("$outDir/hist-$histBinBases-$i.json",
+                  $chunks->[$i],
+                  {pretty => 0});
+    }
+    my $histArrayParams =
+        {
+            length => $#histogram + 1,
+            urlTemplate => "$outDir/hist-$histBinBases-{chunk}.json",
+            chunkSize => $histChunkSize
+        };
+
+    undef $chunks;
+    undef @histogram;
+
     #add fake features for chunking
     my @fakeFeatures;
     if (($#sortedFeatures / $featureLimit) > 1.5) {
@@ -378,6 +395,7 @@ sub generateTrack {
             $subTrees{$fake->[$lazyIndex]->{path}} =
                 $fake->[$self->{sublistIndex}];
             $fake->[$self->{sublistIndex}] = undef;
+            trimArray($fake);
         }
     }
 
@@ -387,24 +405,21 @@ sub generateTrack {
                   {pretty => 0, max_depth => MAX_JSON_DEPTH});
     }
 
-    my $rangeMap = [];
+    my $subfeatureArrayParams;
     if ($self->{style}->{subfeatures} && (@{$self->{allSubfeatures}})) {
         #chunk subfeatures
-        my $firstIndex = 0;
-        my $subFile = 1;
-        while ($firstIndex < $#{$self->{allSubfeatures}}) {
-            my $lastIndex = $firstIndex + $subfeatureLimit - 1;
-            $lastIndex = $#{$self->{allSubfeatures}}
-              if $lastIndex > $#{$self->{allSubfeatures}};
-            writeJSON("$outDir/subfeatures-$subFile.json",
-                      [@{$self->{allSubfeatures}}[$firstIndex..$lastIndex]],
+        my $chunks = chunkArray($self->{allSubfeatures}, $subfeatureLimit);
+        for (my $i = 0; $i <= $#{$chunks}; $i++) {
+            writeJSON("$outDir/subfeatures-$i.json",
+                      $chunks->[$i],
                       {pretty => 0});
-            push @$rangeMap, {start => int($firstIndex),
-                              end   => int($lastIndex),
-                              url   => "$outDir/subfeatures-$subFile.json"};
-            $subFile++;
-            $firstIndex = $lastIndex + 1;
         }
+        $subfeatureArrayParams =
+            {
+                length => $#{$self->{allSubfeatures}} + 1,
+                urlTemplate => "$outDir/subfeatures-{chunk}.json",
+                chunkSize => $subfeatureLimit
+            };
     }
 
     #use Data::Dumper;
@@ -419,13 +434,21 @@ sub generateTrack {
                      'featureCount' => $#{$self->{features}} + 1,
                      'type' => "FeatureTrack",
                      'className' => $self->{style}->{class},
-                     'subfeatureClasses' => $self->{style}->{subfeature_classes},
                      'arrowheadClass' => $self->{style}->{arrowheadClass},
                      'clientConfig' => $self->{style}->{clientConfig},
                      'featureNCList' => $featList->nestedList,
-                     'rangeMap' => $rangeMap,
-                     'subfeatureHeaders' => $self->{subfeatHeaders},
-                     'histogram' => \@histogram,
+                     ($self->{style}->{subfeatures}
+                          ?
+                          (
+                              'subfeatureArray' => $subfeatureArrayParams,
+                              'subfeatureHeaders' => $self->{subfeatHeaders},
+                              'subfeatureClasses' =>
+                                  $self->{style}->{subfeature_classes},
+                          )
+                              :
+                                  ()
+                      ),
+                     'histArray' => $histArrayParams,
                      'histBinBases' => $histBinBases
                     };
     $trackData->{urlTemplate} = $self->{style}->{urlTemplate}
@@ -433,6 +456,24 @@ sub generateTrack {
     writeJSON("$outDir/trackData.json",
               $trackData,
               {pretty => 0, max_depth => MAX_JSON_DEPTH});
+}
+
+sub trimArray {
+    my $arr = shift;
+    while (!defined($arr->[-1])) pop @$arr;
+}
+
+sub chunkArray {
+    my ($bigArray, $chunkSize) = @_;
+
+    my @result;
+    for (my $start = 0; $start <= $#{$bigArray}; $start += $chunkSize) {
+        my $lastIndex = $start + $chunkSize;
+        $lastIndex = $#{$bigArray} if $lastIndex > $#{$bigArray};
+
+        push @result, [@{$bigArray}[$start..$lastIndex]]
+    }
+    return \@result;
 }
 
 # findDepth returns the depth of the deepest element(s) in the structure

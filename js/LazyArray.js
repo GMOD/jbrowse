@@ -35,7 +35,7 @@ function LazyArray(lazyArrayParams) {
  * @param param (optional) callback will get this as its last parameter
  */
 LazyArray.prototype.index = function(i, callback, param) {
-    this.range(i, i, callback, param);
+    this.range(i, i, callback, undefined, param);
 };
 
 /**
@@ -43,14 +43,18 @@ LazyArray.prototype.index = function(i, callback, param) {
  * @param start index of first element to call the callback on
  * @param end index of last element to call the callback on
  * @param callback callback, gets called with (i, value, param)
+ * @param postFun (optional) callback that gets called when <code>callback</code> has been run on every element in the range
  * @param param (optional) callback will get this as its last parameter
  */
-LazyArray.prototype.range = function(start, end, callback, param) {
+LazyArray.prototype.range = function(start, end, callback, postFun, param) {
     start = Math.max(0, start);
     end = Math.min(end, this.length - 1);
 
     var firstChunk = Math.floor(start / this.chunkSize);
     var lastChunk = Math.floor(end / this.chunkSize);
+
+    if (postFun === undefined) postFun = function() {};
+    var finish = new Finisher(postFun);
 
     for (var chunk = firstChunk; chunk <= lastChunk; chunk++) {
         if (this.chunks[chunk]) {
@@ -61,9 +65,11 @@ LazyArray.prototype.range = function(start, end, callback, param) {
                 start: start,
                 end: end,
                 callback: callback,
-                param: param
+                param: param,
+                finish: finish
             };
 
+            finish.inc();
             if (this.toProcess[chunk]) {
                 // chunk is currently being loaded
                 this.toProcess[chunk].push(toProcessInfo);
@@ -71,15 +77,18 @@ LazyArray.prototype.range = function(start, end, callback, param) {
                 // start loading chunk
                 this.toProcess[chunk] = [toProcessInfo];
                 var url = this.urlTemplate.replace(/\{chunk\}/g, chunk);
+                var thisObj = this;
                 dojo.xhrGet(
                     {
                         url: url,
                         handleAs: "json",
-                        load: this._makeLoadFun(chunk)
+                        load: this._makeLoadFun(chunk),
+                        error: function() { finish.dec(); }
                     });
             }
         }
     }
+    finish.finish();
 };
 
 LazyArray.prototype._makeLoadFun = function(chunk) {
@@ -94,6 +103,7 @@ LazyArray.prototype._makeLoadFun = function(chunk) {
                                   chunk,
                                   toProcess[i].callback,
                                   toProcess[i].param);
+            toProcess[i].finish.dec();
         }
     };
 };

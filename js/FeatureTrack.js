@@ -27,6 +27,11 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
 
     this.trackMeta = trackMeta;
     this.load(this.baseUrl + url);
+
+    var thisObj = this;
+    this.subfeatureCallback = function(i, val, param) {
+        thisObj.renderSubfeature(param.feature, param.featDiv, val);
+    };
 }
 
 FeatureTrack.prototype = new Track("");
@@ -39,14 +44,18 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
 	this.fields[trackInfo.headers[i]] = i;
     }
     this.subFields = {};
-    for (var i = 0; i < trackInfo.subfeatureHeaders.length; i++) {
-	this.subFields[trackInfo.subfeatureHeaders[i]] = i;
+    if (trackInfo.subfeatureHeaders) {
+        for (var i = 0; i < trackInfo.subfeatureHeaders.length; i++) {
+            this.subFields[trackInfo.subfeatureHeaders[i]] = i;
+        }
     }
     this.features.importExisting(trackInfo.featureNCList,
                                  trackInfo.sublistIndex,
                                  trackInfo.lazyIndex,
                                  this.baseUrl);
-    this.rangeMap = trackInfo.rangeMap;
+    if (trackInfo.subfeatureArray)
+        this.subfeatureArray = new LazyArray(trackInfo.subfeatureArray);
+
     this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length);
     this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length);
     this.subfeatureScale = 80 * (trackInfo.featureCount / this.refSeq.length);
@@ -54,7 +63,7 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     this.subfeatureClasses = trackInfo.subfeatureClasses;
     this.arrowheadClass = trackInfo.arrowheadClass;
     this.urlTemplate = trackInfo.urlTemplate;
-    this.histogram = trackInfo.histogram;
+    this.histArray = new LazyArray(trackInfo.histArray);
     this.histBinBases = trackInfo.histBinBases;
 
     if (trackInfo.clientConfig) {
@@ -143,16 +152,20 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
         // we can use the server-supplied counts
         var firstServerBin = Math.floor(leftBase / this.histBinBases);
         binCount = Math.round(binCount);
-        var hist = [];
-        for (var bin = 0; bin < this.numBins; bin++) {
-            hist[bin] = 0;
-            for (var serverBin = 0; serverBin < binCount; serverBin++) {
-                hist[bin] += this.histogram[firstServerBin
-                                            + (bin * binCount)
-                                            + serverBin];
+        var histogram = [];
+        for (var bin = 0; bin < this.numBins; bin++)
+            histogram[bin] = 0;
+
+        this.histArray.range(
+            firstServerBin,
+            firstServerBin + (binCount * this.numBins),
+            function(i, val) {
+                histogram[Math.round((i - firstServerBin) / binCount)] += val;
+            },
+            function() {
+                makeHistBlock(histogram);
             }
-        }
-        makeHistBlock(hist);
+        );
     } else {
         // make our own counts
         this.features.histogram(leftBase, rightBase,
@@ -237,7 +250,6 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
     //rightBase: ending base of the block
     //scale: pixels per base at the current zoom level
     //0-based
-    //returns: height of the block, in pixels
 
     var start = this.fields["start"];
     var end = this.fields["end"];
@@ -436,7 +448,17 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
             && (scale > subfeatureScale)
             && feature[subfeatures]
             && feature[subfeatures].length > 0) {
-            curTrack.handleSubfeatures(feature, featDiv, feature[subfeatures]);
+
+            var featParam = {
+                feature: feature,
+                featDiv: featDiv
+            };
+
+            for (var i = 0; i < feature[subfeatures].length; i++) {
+                curTrack.subfeatureArray.index(feature[subfeatures][i],
+                                               curTrack.subfeatureCallback,
+                                               featParam);
+            }
         }
 
 	//ie6 doesn't respect the height style if the div is empty
@@ -459,68 +481,6 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
                               curTrack.heightUpdate(layouter.totalHeight,
                                                     blockIndex);
                           });
-};
-
-FeatureTrack.prototype.handleSubfeatures = function(feature,
-                                                    featDiv,
-                                                    subIndices) {
-    // for each subfeature index,
-    SUBFEATURE: for (var i = 0; i < subIndices.length; i++) {
-        // look through this.rangeMap for the
-        // range containing this subfeature index
-        for (var j = 0; j < this.rangeMap.length; j++) {
-            if (subIndices[i] >= this.rangeMap[j].start
-                && subIndices[i] <= this.rangeMap[j].end) {
-                // we've found the right range, check to see if it's loaded
-                if ("data" in this.rangeMap[j]) {
-                    // it's loaded, render it
-                    this.renderSubfeature(feature,
-                                          featDiv,
-                                          this.rangeMap[j].data[subIndices[i]
-                                                                - this.rangeMap[j].start]);
-                } else {
-                    // it's not loaded, load it
-                    this.fetchSubfeatures(feature, featDiv,
-                                          this.rangeMap[j], subIndices[i]);
-                }
-                continue SUBFEATURE;
-            }
-        }
-    }
-};
-
-FeatureTrack.prototype.fetchSubfeatures = function(feature,
-                                                   featDiv,
-                                                   range,
-                                                   index) {
-    // check if we've started loading the range already
-    if ("toRender" in range) {
-        // we're already working on it, just queue this subfeature index
-        // for rendering
-        range.toRender.push({feature: feature, featDiv: featDiv, index: index});
-    } else {
-        var curTrack = this;
-        range.toRender = [{feature: feature, featDiv: featDiv, index: index}];
-        //console.log("fetching " + this.baseUrl + range.url + " for index " + index);
-        var gotSubs = function(data) {
-                range.data = data;
-                //console.log("rendering indices: " + dojo.toJson(dojo.map(range.toRender, function(a) {return a.index;})) + " in range " + range.start + ".." + range.end);
-                // render all the queued indices
-                for (var i = 0; i < range.toRender.length; i++) {
-                    curTrack.renderSubfeature(range.toRender[i].feature,
-                                              range.toRender[i].featDiv,
-                                              data[range.toRender[i].index
-                                                   - range.start]);
-                }
-                range.toRender = "done";
-        };
-
-        dojo.xhrGet({
-            url: this.baseUrl + range.url,
-            handleAs: "json",
-            load: gotSubs
-        });
-    }
 };
 
 FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature) {

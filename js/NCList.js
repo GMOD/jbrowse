@@ -194,24 +194,6 @@ NCList.prototype.histogram = function(from, to, numBins, callback) {
                  );
 };
 
-function Finisher(fun) {
-    this.fun = fun;
-    this.count = 0;
-}
-
-Finisher.prototype.inc = function() {
-    this.count++;
-};
-
-Finisher.prototype.dec = function() {
-    this.count--;
-    this.finish();
-};
-
-Finisher.prototype.finish = function() {
-    if (this.count <= 0) this.fun();
-};
-
 /*
 
 Copyright (c) 2007-2009 The Evolutionary Software Foundation
