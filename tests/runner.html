@@ -1,0 +1,31 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>JBrowse Jasmine Test Runner</title>
+</head>
+<script type="text/javascript" src="jasmine/lib/jasmine-0.10.2.js"></script>
+<script type="text/javascript" src="jasmine/lib/TrivialReporter.js"></script>
+<script type="text/javascript" src="jasmine/lib/consolex.js"></script>
+<link rel="stylesheet" type="text/css" href="jasmine/lib/jasmine.css">
+
+<script type="text/javascript" src="../jslib/dojo/dojo.js" djConfig="isDebug: false"></script>
+<script type="text/javascript" src="../jslib/dojo/jbrowse_dojo.js" ></script>
+<script type="text/javascript" src="../js/LazyArray.js"></script>
+
+<script type="text/javascript">
+  jasmine.include('LazyArray-test.js', true);
+</script>
+
+<body>
+
+<script type="text/javascript">
+  var jasmineEnv = jasmine.getEnv();
+  jasmineEnv.reporter = new jasmine.TrivialReporter();
+  jasmineEnv.execute();
+</script>
+
+</body>
+</html>
+
+

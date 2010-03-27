@@ -106,7 +106,7 @@ LazyArray.prototype._processChunk = function(start, end, chunk,
     var chunkStart = start - firstIndex;
     var chunkEnd = end - firstIndex;
     chunkStart = Math.max(0, chunkStart);
-    chunkEnd = Math.min(end, this.chunkSize - 1);
+    chunkEnd = Math.min(chunkEnd, this.chunkSize - 1);
 
     for (var i = chunkStart; i <= chunkEnd; i++) {
         callback(i + firstIndex, this.chunks[chunk][i], param);
