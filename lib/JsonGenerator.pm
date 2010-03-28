@@ -350,6 +350,48 @@ sub generateTrack {
         }
     }
 
+    my $histChunkSize = 10_000;
+    my $chunks = chunkArray(\@histogram, $histChunkSize);
+    for (my $i = 0; $i <= $#{$chunks}; $i++) {
+        writeJSON("$outDir/hist-$histBinBases-$i.json",
+                  $chunks->[$i],
+                  {pretty => 0});
+    }
+    my $histogramMeta =
+        [{
+            basesPerBin => $histBinBases,
+            arrayParams => {
+                length => $#histogram + 1,
+                urlTemplate => "$outDir/hist-$histBinBases-{chunk}.json",
+                chunkSize => $histChunkSize
+            }
+        }];
+
+    # Generate more zoomed-out histograms so that the client doesn't
+    # have to load all of the histogram data when there's a lot of it.
+    # Each successive histogram is 100-fold coarser than the previous one.
+    my $curHist = \@histogram;
+    my $curBases = $histBinBases;
+    while ($#{$curHist} >= $histChunkSize) {
+        $curHist = aggSumArray($curHist, 100);
+        $curBases = $curBases * 100;
+        my $chunks = chunkArray($curHist, $histChunkSize);
+        for (my $i = 0; $i <= $#{$chunks}; $i++) {
+            writeJSON("$outDir/hist-$curBases-$i.json",
+                      $chunks->[$i],
+                      {pretty => 0});
+        }
+        push @$histogramMeta,
+            {
+                basesPerBin => $curBases,
+                arrayParams => {
+                    length => $#{$curHist} + 1,
+                    urlTemplate => "$outDir/hist-$curBases-{chunk}.json",
+                    chunkSize => $histChunkSize
+                }
+            };
+    }
+
     my @histStats;
     push @histStats, {'bases' => $histBinBases,
                        arrayStats(\@histogram)};
@@ -359,20 +401,6 @@ sub generateTrack {
         push @histStats, {'bases' => $histBinBases * $multiple,
                           arrayStats($aggregated)};
     }
-
-    my $histChunkSize = 10_000;
-    my $chunks = chunkArray(\@histogram, $histChunkSize);
-    for (my $i = 0; $i <= $#{$chunks}; $i++) {
-        writeJSON("$outDir/hist-$histBinBases-$i.json",
-                  $chunks->[$i],
-                  {pretty => 0});
-    }
-    my $histArrayParams =
-        {
-            length => $#histogram + 1,
-            urlTemplate => "$outDir/hist-$histBinBases-{chunk}.json",
-            chunkSize => $histChunkSize
-        };
 
     undef $chunks;
     undef @histogram;
@@ -487,8 +515,7 @@ sub generateTrack {
                              :
                                  ()
                      ),
-                     'histArray' => $histArrayParams,
-                     'histBinBases' => $histBinBases,
+                     'histogramMeta' => $histogramMeta,
                      'histStats' => \@histStats
                     };
     $trackData->{urlTemplate} = $self->{style}->{urlTemplate}
@@ -508,8 +535,9 @@ sub arrayStats {
     my $max = max(@$arr);
     my $sum = sum(@$arr);
     my $mean = $sum / ($#{$arr} + 1);
-    my $var = sum(map {($_ - $mean) ** 2} @$arr) / ($#{$arr} + 1);
-    return ('max' => $max, 'sum' => $sum, 'mean' => $mean, 'var', $var);
+    #my $var = sum(map {($_ - $mean) ** 2} @$arr) / ($#{$arr} + 1);
+    #return ('max' => $max, 'sum' => $sum, 'mean' => $mean, 'var' => $var);
+    return ('max' => $max, 'mean' => $mean);
 }
 
 sub aggSumArray {

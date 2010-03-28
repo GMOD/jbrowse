@@ -62,7 +62,11 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     this.subfeatureClasses = trackInfo.subfeatureClasses;
     this.arrowheadClass = trackInfo.arrowheadClass;
     this.urlTemplate = trackInfo.urlTemplate;
-    this.histArray = new LazyArray(trackInfo.histArray);
+    this.histogramMeta = trackInfo.histogramMeta;
+    for (var i = 0; i < this.histogramMeta.length; i++) {
+        this.histogramMeta[i].lazyArray =
+            new LazyArray(this.histogramMeta[i].arrayParams);
+    }
     this.histStats = trackInfo.histStats;
     this.histBinBases = trackInfo.histBinBases;
 
@@ -157,20 +161,27 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
                            blockIndex);
     };
 
+    var histogramMeta;
+    for (var i = 0; i < this.histogramMeta.length; i++) {
+        if (bpPerBin >= this.histogramMeta[i].basesPerBin)
+            histogramMeta = this.histogramMeta[i];
+    }
     // number of bins in the server-supplied histogram for each current bin
-    var binCount = bpPerBin / this.histBinBases;
+    var binCount = bpPerBin / histogramMeta.basesPerBin;
     // if the server-supplied histogram fits neatly into our current histogram,
-    if ((binCount > .9)
+    if (histogramMeta
+        &&
+        (binCount > .9)
         &&
         (Math.abs(binCount - Math.round(binCount)) < .0001)) {
         // we can use the server-supplied counts
-        var firstServerBin = Math.floor(leftBase / this.histBinBases);
+        var firstServerBin = Math.floor(leftBase / histogramMeta.basesPerBin);
         binCount = Math.round(binCount);
         var histogram = [];
         for (var bin = 0; bin < this.numBins; bin++)
             histogram[bin] = 0;
 
-        this.histArray.range(
+        histogramMeta.lazyArray.range(
             firstServerBin,
             firstServerBin + (binCount * this.numBins),
             function(i, val) {
