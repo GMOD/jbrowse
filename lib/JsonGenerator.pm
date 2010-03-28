@@ -11,7 +11,12 @@ use JSON 2;
 use IO::File;
 use Fcntl ":flock";
 use POSIX qw(ceil floor);
+use List::Util qw(min max sum reduce);
 use constant MAX_JSON_DEPTH => 2048;
+
+#this series of numbers is used in JBrowse for zoom level relationships
+my @multiples = (2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000,
+                 10_000, 20_000, 50_000, 100_000, 200_000, 500_000, 1_000_000);
 
 #in JSON, features are represented by arrays (we could use
 #hashes, but then we'd have e.g. "start" and "end" in the JSON
@@ -311,6 +316,7 @@ sub generateTrack {
         $refStart, $refEnd) = @_;
 
     mkdir($outDir) unless (-d $outDir);
+    unlink (glob "$outDir/hist*");
     unlink (glob "$outDir/lazyfeatures*");
     unlink (glob "$outDir/subfeatures*");
     writeJSON("$outDir/names.json", $self->{names}, {pretty => 0, max_depth => MAX_JSON_DEPTH})
@@ -324,7 +330,15 @@ sub generateTrack {
 	}
     } @{$self->{features}};
 
-    my $histBinBases = 1000;
+    my $featureCount = $#sortedFeatures + 1;
+    # approximate the number of bases per histogram bin at the zoom level where
+    # FeatureTrack.js switches to histogram view
+    my $histBinThresh = ($refEnd * 2.5) / $featureCount;
+    my $histBinBases = 0;
+    foreach my $multiple (@multiples) {
+        $histBinBases = $multiple;
+        last if $multiple > $histBinThresh;
+    }
     my @histogram = ((0) x ceil($refEnd / $histBinBases));
     foreach my $feat (@sortedFeatures) {
         my $firstBin = int($feat->[$startIndex] / $histBinBases);
@@ -334,6 +348,16 @@ sub generateTrack {
         for (my $bin = $firstBin; $bin <= $lastBin; $bin++) {
             $histogram[$bin]++;
         }
+    }
+
+    my @histStats;
+    push @histStats, {'bases' => $histBinBases,
+                       arrayStats(\@histogram)};
+    foreach my $multiple (@multiples) {
+        last if ($histBinBases * $multiple) > $refEnd;
+        my $aggregated = aggSumArray(\@histogram, $multiple);
+        push @histStats, {'bases' => $histBinBases * $multiple,
+                          arrayStats($aggregated)};
     }
 
     my $histChunkSize = 10_000;
@@ -464,7 +488,8 @@ sub generateTrack {
                                  ()
                      ),
                      'histArray' => $histArrayParams,
-                     'histBinBases' => $histBinBases
+                     'histBinBases' => $histBinBases,
+                     'histStats' => \@histStats
                     };
     $trackData->{urlTemplate} = $self->{style}->{urlTemplate}
       if defined($self->{style}->{urlTemplate});
@@ -476,6 +501,31 @@ sub generateTrack {
 sub trimArray {
     my $arr = shift;
     pop @$arr until defined($arr->[-1]);
+}
+
+sub arrayStats {
+    my $arr = shift;
+    my $max = max(@$arr);
+    my $sum = sum(@$arr);
+    my $mean = $sum / ($#{$arr} + 1);
+    my $var = sum(map {($_ - $mean) ** 2} @$arr) / ($#{$arr} + 1);
+    return ('max' => $max, 'sum' => $sum, 'mean' => $mean, 'var', $var);
+}
+
+sub aggSumArray {
+    my ($bigArray, $count) = @_;
+
+    my @result;
+    my $curSum = $bigArray->[0];
+    for (my $i = 1; $i <= $#{$bigArray}; $i++) {
+        if (0 == ($i % $count)) {
+            push @result, $curSum;
+            $curSum = 0;
+        }
+        $curSum += $bigArray->[$i];
+    }
+    push @result, $curSum;
+    return \@result;
 }
 
 sub chunkArray {

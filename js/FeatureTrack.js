@@ -19,8 +19,6 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
     this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "");
     //number of histogram bins per block
     this.numBins = 25;
-    //height of histogram blocks, in pixels per count
-    this.histHeight = 2;
     this.histLabel = false;
     this.padding = 5;
     this.trackPadding = browserParams.trackPadding;
@@ -65,6 +63,7 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     this.arrowheadClass = trackInfo.arrowheadClass;
     this.urlTemplate = trackInfo.urlTemplate;
     this.histArray = new LazyArray(trackInfo.histArray);
+    this.histStats = trackInfo.histStats;
     this.histBinBases = trackInfo.histBinBases;
 
     if (trackInfo.clientConfig) {
@@ -115,6 +114,19 @@ FeatureTrack.prototype.setViewInfo = function(genomeView, numBlocks,
 FeatureTrack.prototype.fillHist = function(blockIndex, block,
                                            leftBase, rightBase,
                                            stripeWidth) {
+    // bases in each histogram bin that we're currently rendering
+    var bpPerBin = (rightBase - leftBase) / this.numBins;
+    var pxPerCount = 2;
+    var logScale = false;
+    for (var i = 0; i < this.histStats.length; i++) {
+        if (this.histStats[i].bases >= bpPerBin) {
+            logScale = ((this.histStats[i].mean / this.histStats[i].max) < .01);
+            pxPerCount = 100 / (logScale
+                                ? Math.log(this.histStats[i].max)
+                                : this.histStats[i].max);
+            break;
+        }
+    }
     var track = this;
     var makeHistBlock = function(hist) {
         var maxBin = 0;
@@ -131,7 +143,9 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
 	    binDiv.className = track.className + "-hist";;
             binDiv.style.cssText =
                 "left: " + ((bin / track.numBins) * 100) + "%; "
-                + "height: " + (2 * hist[bin]) + "px;"
+                + "height: "
+                + (pxPerCount * (logScale ? Math.log(hist[bin]) : hist[bin]))
+                + "px;"
                 + "bottom: " + track.trackPadding + "px;"
                 + "width: " + (((1 / track.numBins) * 100) - (100 / stripeWidth)) + "%;"
                 + (track.histCss ? track.histCss : "");
@@ -139,11 +153,10 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
             block.appendChild(binDiv);
         }
 
-        track.heightUpdate(track.histHeight * maxBin, blockIndex);
+        track.heightUpdate(pxPerCount * (logScale ? Math.log(maxBin) : maxBin),
+                           blockIndex);
     };
 
-    // bases in each histogram bin that we're currently rendering
-    var bpPerBin = (rightBase - leftBase) / this.numBins;
     // number of bins in the server-supplied histogram for each current bin
     var binCount = bpPerBin / this.histBinBases;
     // if the server-supplied histogram fits neatly into our current histogram,
