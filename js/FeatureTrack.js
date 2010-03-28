@@ -161,7 +161,7 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
                            blockIndex);
     };
 
-    var histogramMeta;
+    var histogramMeta = this.histogramMeta[0];
     for (var i = 0; i < this.histogramMeta.length; i++) {
         if (bpPerBin >= this.histogramMeta[i].basesPerBin)
             histogramMeta = this.histogramMeta[i];
@@ -169,9 +169,7 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
     // number of bins in the server-supplied histogram for each current bin
     var binCount = bpPerBin / histogramMeta.basesPerBin;
     // if the server-supplied histogram fits neatly into our current histogram,
-    if (histogramMeta
-        &&
-        (binCount > .9)
+    if ((binCount > .9)
         &&
         (Math.abs(binCount - Math.round(binCount)) < .0001)) {
         // we can use the server-supplied counts
