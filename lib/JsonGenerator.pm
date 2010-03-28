@@ -172,8 +172,16 @@ sub new {
         return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
     };
 
-    my @curFeatMap = (@featMap, $idSub, @$extraMap);
-    my @curMapHeaders = (@mapHeaders, "id", @$extraHeaders);
+    my @curFeatMap = @featMap;
+    my @curMapHeaders = @mapHeaders;
+
+    unless ($style{noId}) {
+        push @curFeatMap, $idSub;
+        push @curMapHeaders, "id";
+    }
+
+    @curFeatMap = (@curFeatMap, @$extraMap);
+    @curMapHeaders = (@curMapHeaders, @$extraHeaders);
 
     if ($style{label}) {
 	push @curFeatMap, $style{label};
@@ -372,8 +380,7 @@ sub generateTrack {
             $fakeFeature->[$endIndex] = $maxEnd + 1;
             #print STDERR "(bases " . $fakeFeature->[$startIndex] . " - " . $fakeFeature->[$endIndex] . ")\n";
             $fakeFeature->[$lazyIndex] = {
-                'path' => "$outDir/lazyfeatures-" . $chunkFirst . ".json",
-                'state' => "lazy"
+                'chunk' => $chunkFirst
             };
             push @fakeFeatures, $fakeFeature;
         }
@@ -392,16 +399,20 @@ sub generateTrack {
             warn "feature chunk " . $fake->[$startIndex] . " .. " . $fake->[$endIndex] . " ended up empty (that's OK, just sub-optimal)\n";
             $fake->[$lazyIndex]->{state} = "loaded";
         } else {
-            $subTrees{$fake->[$lazyIndex]->{path}} =
+            $subTrees{$fake->[$lazyIndex]->{chunk}} =
                 $fake->[$self->{sublistIndex}];
             $fake->[$self->{sublistIndex}] = undef;
             trimArray($fake);
         }
     }
 
-    foreach my $path (keys %subTrees) {
+    my $lazyfeatureUrlTemplate = "$outDir/lazyfeatures-{chunk}.json";
+
+    foreach my $chunk (keys %subTrees) {
+        my $path = $lazyfeatureUrlTemplate;
+        $path =~ s/\{chunk\}/$chunk/g;
         writeJSON($path,
-                  $subTrees{$path},
+                  $subTrees{$chunk},
                   {pretty => 0, max_depth => MAX_JSON_DEPTH});
     }
 
@@ -437,17 +448,21 @@ sub generateTrack {
                      'arrowheadClass' => $self->{style}->{arrowheadClass},
                      'clientConfig' => $self->{style}->{clientConfig},
                      'featureNCList' => $featList->nestedList,
-                     ($self->{style}->{subfeatures}
-                          ?
-                          (
-                              'subfeatureArray' => $subfeatureArrayParams,
-                              'subfeatureHeaders' => $self->{subfeatHeaders},
-                              'subfeatureClasses' =>
-                                  $self->{style}->{subfeature_classes},
-                          )
-                              :
-                                  ()
-                      ),
+                     'lazyfeatureUrlTemplate' => $lazyfeatureUrlTemplate,
+                     (
+                         $self->{style}->{subfeatures}
+                             ?
+                                 (
+                                     'subfeatureArray' =>
+                                         $subfeatureArrayParams,
+                                     'subfeatureHeaders' =>
+                                         $self->{subfeatHeaders},
+                                     'subfeatureClasses' =>
+                                         $self->{style}->{subfeature_classes},
+                                 )
+                             :
+                                 ()
+                     ),
                      'histArray' => $histArrayParams,
                      'histBinBases' => $histBinBases
                     };
@@ -460,7 +475,7 @@ sub generateTrack {
 
 sub trimArray {
     my $arr = shift;
-    while (!defined($arr->[-1])) pop @$arr;
+    pop @$arr until defined($arr->[-1]);
 }
 
 sub chunkArray {

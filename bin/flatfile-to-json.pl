@@ -141,6 +141,10 @@ my %style = ("autocomplete" => $autocomplete,
              "arrowheadClass" => $arrowheadClass,
              "clientConfig" => $clientConfig);
 
+if ($bam) {
+    $style{noId} = 1;
+}
+
 $style{subfeature_classes} = JSON::from_json($subfeatureClasses)
     if defined($subfeatureClasses);
 

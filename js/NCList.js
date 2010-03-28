@@ -9,11 +9,13 @@ function NCList() {
 }
 
 NCList.prototype.importExisting = function(nclist, sublistIndex,
-                                           lazyIndex, baseURL) {
+                                           lazyIndex, baseURL,
+                                           lazyUrlTemplate) {
     this.topList = nclist;
     this.sublistIndex = sublistIndex;
     this.lazyIndex = lazyIndex;
     this.baseURL = baseURL;
+    this.lazyUrlTemplate = lazyUrlTemplate;
 };
 
 NCList.prototype.fill = function(intervals, sublistIndex) {
@@ -97,25 +99,39 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
         if ("object" == typeof arr[i][this.lazyIndex]) {
             var ncl = this;
             // lazy node
-            if ("loading" == arr[i][this.lazyIndex].state) {
-                finish.inc();
-                arr[i][this.lazyIndex].callbacks.push(
-                    function(parentIndex) {
-                        return function(o) {
-                            ncl.iterHelper(o, from, to, fun, finish, inc,
-                                           searchIndex, testIndex,
-                                           path.concat(parentIndex));
-                            finish.dec();
-                        };
-                    }(i));
-            } else if ("lazy" == arr[i][this.lazyIndex].state) {
-                //node hasn't been loaded, start loading
+            if (arr[i][this.lazyIndex].state) {
+                if ("loading" == arr[i][this.lazyIndex].state) {
+                    // node is currenly loading; finish this query once it
+                    // has been loaded
+                    finish.inc();
+                    arr[i][this.lazyIndex].callbacks.push(
+                        function(parentIndex) {
+                            return function(o) {
+                                ncl.iterHelper(o, from, to, fun, finish, inc,
+                                               searchIndex, testIndex,
+                                               path.concat(parentIndex));
+                                finish.dec();
+                            };
+                        }(i)
+                    );
+                } else if ("loaded" == arr[i][this.lazyIndex].state) {
+                    // just continue below
+                } else {
+                    console.log("unknown lazy type: " + arr[i]);
+                }
+            } else {
+                // no "state" property means this node hasn't been loaded,
+                // start loading
                 arr[i][this.lazyIndex].state = "loading";
                 arr[i][this.lazyIndex].callbacks = [];
                 finish.inc();
                 dojo.xhrGet(
                     {
-                        url: this.baseURL + arr[i][this.lazyIndex].path,
+                        url: this.baseURL +
+                            this.lazyUrlTemplate.replace(
+                                /\{chunk\}/g,
+                                arr[i][this.lazyIndex].chunk
+                            ),
                         handleAs: "json",
                         load: function(lazyFeat, lazyObj,
                                        sublistIndex, parentIndex) {
@@ -137,10 +153,6 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
                             finish.dec();
                         }
                     });
-            } else if ("loaded" == arr[i][this.lazyIndex].state) {
-                //just continue below
-            } else {
-                console.log("unknown lazy type: " + arr[i]);
             }
         } else {
             fun(arr[i], path.concat(i));

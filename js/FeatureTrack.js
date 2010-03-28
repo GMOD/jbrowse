@@ -52,7 +52,8 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     this.features.importExisting(trackInfo.featureNCList,
                                  trackInfo.sublistIndex,
                                  trackInfo.lazyIndex,
-                                 this.baseUrl);
+                                 this.baseUrl,
+                                 trackInfo.lazyfeatureUrlTemplate);
     if (trackInfo.subfeatureArray)
         this.subfeatureArray = new LazyArray(trackInfo.subfeatureArray);
 
