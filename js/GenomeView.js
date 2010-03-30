@@ -13,7 +13,7 @@ function Animation(subject, callback, time) {
     var myAnim = this;
     //this.animID = setInterval(function() { myAnim.animate() }, 33);
     this.animFunction = function() { myAnim.animate(); };
-    this.animID = setTimeout(this.animFunction, 33);
+    this.animID = setTimeout(this.animFunction, 33);   // 33=magic? IH
 
     this.frames = 0;
 
@@ -26,7 +26,7 @@ Animation.prototype.animate = function () {
 	return;
     }
 
-    var nextTimeout = 33;
+    var nextTimeout = 33;   // number 33 appears repeatedly w/o justification or explanation. Sparkly magic.... IH
     var elapsed = 0;
     if (!("startTime" in this)) {
         this.startTime = (new Date()).getTime();
@@ -123,10 +123,10 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     var heightTest = document.createElement("div");
     heightTest.className = "pos-label";
     heightTest.style.visibility = "hidden";
-    heightTest.appendChild(document.createTextNode("42"));
+    heightTest.appendChild(document.createTextNode("42"));   // 42=magic? Well OK, fair enough - IH
     elem.appendChild(heightTest);
     this.posHeight = heightTest.clientHeight;
-    this.topSpace = 1.5 * this.posHeight;
+    this.topSpace = 1.5 * this.posHeight;   // 1.5=magic? IH
     elem.removeChild(heightTest);
 
     //the reference sequence
@@ -392,7 +392,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 
     view.wheelScroll = function(e) {
 	var oldY = view.getY();
-	var newY = Math.min(Math.max(0, oldY - 60 * Util.wheel(e)),
+	var newY = Math.min(Math.max(0, oldY - 60 * Util.wheel(e)),   // 60=magic? IH
 			    view.containerHeight - view.dim.height);
 	view.setY(newY);
 
@@ -401,7 +401,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 	//after the last one).
 	if (wheelScrollTimeout)
 	    clearTimeout(wheelScrollTimeout);
-	wheelScrollTimeout = setTimeout(wheelScrollUpdate, 100);
+	wheelScrollTimeout = setTimeout(wheelScrollUpdate, 100);  // 100=magic? IH
 	dojo.stopEvent(e);
     };
 
@@ -441,7 +441,7 @@ GenomeView.prototype.slide = function(distance) {
     this.trimVertical();
     new Slider(this,
                this.afterSlide,
-               Math.abs(distance) * this.dim.width * this.slideTimeMultiple + 200,
+               Math.abs(distance) * this.dim.width * this.slideTimeMultiple + 200,  // 200=magic? IH
                distance * this.dim.width);
 };
 
@@ -472,7 +472,7 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
     }
     this.pxPerBp = Math.min(this.dim.width / (endbp - startbp), this.charWidth);
     this.curZoom = Util.findNearest(this.zoomLevels, this.pxPerBp);
-    if (Math.abs(this.pxPerBp - this.zoomLevels[this.zoomLevels.length - 1]) < 0.2) {
+    if (Math.abs(this.pxPerBp - this.zoomLevels[this.zoomLevels.length - 1]) < 0.2) {   // 0.2=magic? IH
         //the cookie-saved location is in round bases, so if the saved
         //location was at the highest zoom level, the new zoom level probably
         //won't be exactly at the highest zoom (which is necessary to trigger
@@ -531,7 +531,7 @@ GenomeView.prototype.centerAtBase = function(base, instantly) {
             var distance = (center - base) * this.pxPerBp;
 	    this.trimVertical();
             new Slider(this, this.afterSlide,
-                       Math.abs(distance) * this.slideTimeMultiple + 200,
+                       Math.abs(distance) * this.slideTimeMultiple + 200,  // 200=magic? IH
 		       distance);
 	} else {
 	    //we're moving far away, move instantly
@@ -578,7 +578,7 @@ GenomeView.prototype.updatePosLabels = function(newY) {
 	stripe = this.stripes[i];
 	stripe.posLabel.style.top = newY + "px";
 	if ("seqNode" in stripe)
-	    stripe.seqNode.style.top = (newY + (1.2 * this.posHeight)) + "px";
+	    stripe.seqNode.style.top = (newY + (1.2 * this.posHeight)) + "px";  // 1.2=magic? IH
     }
 };
 
@@ -642,15 +642,19 @@ GenomeView.prototype.sizeInit = function() {
     //25, 50, 100 don't work as well due to the way scrollUpdate works
     var possiblePercents = [20, 10, 5, 4, 2, 1];
     for (var i = 0; i < possiblePercents.length; i++) {
-        if (((100 / possiblePercents[i]) * this.regularStripe)
-            > (this.dim.width * 12)) {
+        if (((100 / possiblePercents[i]) * this.stripeWidth)   // replaced this.regularStripe -> this.stripeWidth - IH, 3/30/2010
+            > (this.dim.width * 12)) {  // Where does the magic 12 come from? IH
             this.stripePercent = possiblePercents[i];
             break;
         }
     }
 
-    if (this.stripePercent === undefined)
-        throw new RangeError("stripeWidth too small: " + this.stripeWidth + ", " + this.dim.width);
+    if (this.stripePercent === undefined) {
+//        throw new RangeError("stripeWidth too small: " + this.stripeWidth + ", " + this.dim.width);
+	// replaced above exception by the following quick hack to fix reported wide-display issues - IH, 3/30/2010
+	console.warn("stripeWidth too small: " + this.stripeWidth + ", " + this.dim.width);
+	this.stripePercent = 1;
+    }
 
     var oldX;
     var oldStripeCount = this.stripeCount;
@@ -708,11 +712,12 @@ GenomeView.prototype.sizeInit = function() {
     posSize.appendChild(document.createTextNode(Util.addCommas(this.ref.end)));
     posSize.style.visibility = "hidden";
     this.overview.appendChild(posSize);
-    var minStripe = posSize.clientWidth * 1.2;
+    var minStripe = posSize.clientWidth * 1.2;  // magic -IH
     this.overviewPosHeight = posSize.clientHeight;
     this.overview.removeChild(posSize);
     for (var n = 1; n < 30; n++) {
 	//http://research.att.com/~njas/sequences/A051109
+	// the page at this link appears to be a formula for Polish banknote denominations in the 1990's, which is a definite improvement on "magic", but still somewhat obscure - IH
 	this.overviewStripeBases = (Math.pow(n % 3, 2) + 1) * Math.pow(10, Math.floor(n/3));
 	this.overviewStripes = Math.ceil(refLength / this.overviewStripeBases);
 	if ((this.overviewBox.w / this.overviewStripes) > minStripe) break;
@@ -823,7 +828,7 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
 				     centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp));
 	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp)));
 
-    new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);
+    new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);   // 700=magic? IH
 };
 
 GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
@@ -859,7 +864,7 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
 
 	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp)));
     this.minLeft = this.pxPerBp * this.ref.start;
-    new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);
+    new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);  // 700=magic? IH
 };
 
 GenomeView.prototype.zoomUpdate = function() {
