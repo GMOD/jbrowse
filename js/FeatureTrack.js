@@ -124,6 +124,7 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
     var logScale = false;
     for (var i = 0; i < this.histStats.length; i++) {
         if (this.histStats[i].bases >= bpPerBin) {
+            //console.log("bpPerBin: " + bpPerBin + ", histStats bases: " + this.histStats[i].bases + ", mean/max: " + (this.histStats[i].mean / this.histStats[i].max));
             logScale = ((this.histStats[i].mean / this.histStats[i].max) < .01);
             pxPerCount = 100 / (logScale
                                 ? Math.log(this.histStats[i].max)

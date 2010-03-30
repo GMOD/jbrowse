@@ -535,8 +535,10 @@ sub arrayStats {
     my $max = max(@$arr);
     my $sum = sum(@$arr);
     my $mean = $sum / ($#{$arr} + 1);
-    #my $var = sum(map {($_ - $mean) ** 2} @$arr) / ($#{$arr} + 1);
-    #return ('max' => $max, 'sum' => $sum, 'mean' => $mean, 'var' => $var);
+#    my $var = sum(map {($_ - $mean) ** 2} @$arr) / ($#{$arr} + 1);
+#    return ('max' => $max, 'sum' => $sum,
+#            'mean' => $mean, 'var' => $var,
+#            'stddev' => sqrt($var));
     return ('max' => $max, 'mean' => $mean);
 }
 
