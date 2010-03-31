@@ -13,7 +13,8 @@ function Animation(subject, callback, time) {
     var myAnim = this;
     //this.animID = setInterval(function() { myAnim.animate() }, 33);
     this.animFunction = function() { myAnim.animate(); };
-    this.animID = setTimeout(this.animFunction, 33);   // 33=magic? IH
+    // number of milliseconds between frames (e.g., 33ms at 30fps)
+    this.animID = setTimeout(this.animFunction, 33);
 
     this.frames = 0;
 
@@ -26,7 +27,8 @@ Animation.prototype.animate = function () {
 	return;
     }
 
-    var nextTimeout = 33;   // number 33 appears repeatedly w/o justification or explanation. Sparkly magic.... IH
+    // number of milliseconds between frames (e.g., 33ms at 30fps)
+    var nextTimeout = 33;
     var elapsed = 0;
     if (!("startTime" in this)) {
         this.startTime = (new Date()).getTime();
@@ -120,13 +122,17 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     this.seqHeight = widthTest.clientHeight;
     elem.removeChild(widthTest);
 
+    // measure the height of some arbitrary text in whatever font this
+    // shows up in (set by an external CSS file)
     var heightTest = document.createElement("div");
     heightTest.className = "pos-label";
     heightTest.style.visibility = "hidden";
-    heightTest.appendChild(document.createTextNode("42"));   // 42=magic? Well OK, fair enough - IH
+    heightTest.appendChild(document.createTextNode("42"));
     elem.appendChild(heightTest);
     this.posHeight = heightTest.clientHeight;
-    this.topSpace = 1.5 * this.posHeight;   // 1.5=magic? IH
+    // Add an arbitrary 50% padding between the position labels and the
+    // topmost track
+    this.topSpace = 1.5 * this.posHeight;
     elem.removeChild(heightTest);
 
     //the reference sequence
@@ -392,7 +398,8 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 
     view.wheelScroll = function(e) {
 	var oldY = view.getY();
-	var newY = Math.min(Math.max(0, oldY - 60 * Util.wheel(e)),   // 60=magic? IH
+        // arbitrary 60 pixel vertical movement per scroll wheel event
+	var newY = Math.min(Math.max(0, oldY - 60 * Util.wheel(e)),
 			    view.containerHeight - view.dim.height);
 	view.setY(newY);
 
@@ -401,7 +408,10 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 	//after the last one).
 	if (wheelScrollTimeout)
 	    clearTimeout(wheelScrollTimeout);
-	wheelScrollTimeout = setTimeout(wheelScrollUpdate, 100);  // 100=magic? IH
+        // 100 milliseconds since the last scroll event is an arbitrary
+        // cutoff for deciding when the user is done scrolling
+        // (set by a bit of experimentation)
+	wheelScrollTimeout = setTimeout(wheelScrollUpdate, 100);
 	dojo.stopEvent(e);
     };
 
@@ -439,9 +449,12 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 GenomeView.prototype.slide = function(distance) {
     if (this.animation) this.animation.stop();
     this.trimVertical();
+    // slide for an amount of time that's a function of the distance being
+    // traveled plus an arbitrary extra 200 milliseconds so that
+    // short slides aren't too fast (200 chosen by experimentation)
     new Slider(this,
                this.afterSlide,
-               Math.abs(distance) * this.dim.width * this.slideTimeMultiple + 200,  // 200=magic? IH
+               Math.abs(distance) * this.dim.width * this.slideTimeMultiple + 200,
                distance * this.dim.width);
 };
 
@@ -472,12 +485,14 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
     }
     this.pxPerBp = Math.min(this.dim.width / (endbp - startbp), this.charWidth);
     this.curZoom = Util.findNearest(this.zoomLevels, this.pxPerBp);
-    if (Math.abs(this.pxPerBp - this.zoomLevels[this.zoomLevels.length - 1]) < 0.2) {   // 0.2=magic? IH
+    if (Math.abs(this.pxPerBp - this.zoomLevels[this.zoomLevels.length - 1]) < 0.2) {
         //the cookie-saved location is in round bases, so if the saved
         //location was at the highest zoom level, the new zoom level probably
         //won't be exactly at the highest zoom (which is necessary to trigger
         //the sequence track), so we nudge the zoom level to be exactly at
-        //the highest level if it's close
+        //the highest level if it's close.
+        //Exactly how close is arbitrary; 0.2 was chosen to be close
+        //enough that people wouldn't notice if we fudged that much.
         console.log("nudging zoom level from %d to %d", this.pxPerBp, this.zoomLevels[this.zoomLevels.length - 1]);
         this.pxPerBp = this.zoomLevels[this.zoomLevels.length - 1];
     }
@@ -530,8 +545,12 @@ GenomeView.prototype.centerAtBase = function(base, instantly) {
             if (this.animation) this.animation.stop();
             var distance = (center - base) * this.pxPerBp;
 	    this.trimVertical();
+            // slide for an amount of time that's a function of the
+            // distance being traveled plus an arbitrary extra 200
+            // milliseconds so that short slides aren't too fast
+            // (200 chosen by experimentation)
             new Slider(this, this.afterSlide,
-                       Math.abs(distance) * this.slideTimeMultiple + 200,  // 200=magic? IH
+                       Math.abs(distance) * this.slideTimeMultiple + 200,
 		       distance);
 	} else {
 	    //we're moving far away, move instantly
@@ -577,8 +596,6 @@ GenomeView.prototype.updatePosLabels = function(newY) {
     for (var i = 0; i < this.stripeCount; i++) {
 	stripe = this.stripes[i];
 	stripe.posLabel.style.top = newY + "px";
-	if ("seqNode" in stripe)
-	    stripe.seqNode.style.top = (newY + (1.2 * this.posHeight)) + "px";  // 1.2=magic? IH
     }
 };
 
@@ -642,8 +659,22 @@ GenomeView.prototype.sizeInit = function() {
     //25, 50, 100 don't work as well due to the way scrollUpdate works
     var possiblePercents = [20, 10, 5, 4, 2, 1];
     for (var i = 0; i < possiblePercents.length; i++) {
+        // we'll have (100 / possiblePercents[i]) stripes.
+        // multiplying that number of stripes by the stripe width
+        // gives us the total width of the "container" div.
+        // (or what that width would be if we used possiblePercents[i]
+        // as our stripePercent)
+        // That width should be wide enough to make sure that the transition
+        // to the next zoom level (which will be as much as 5x narrower)
+        // doesn't make the container div bump into the edge of its
+        // parent element, taking into account the fact that the container
+        // won't always be perfectly centered (it may be as much as 1/2
+        // stripe width off center)
+        // 12 was semi-arbitrarily chosen as a multiplier that was large enough
+        // to make sure that the container doesn't hit the edge of its parent
+        // during zoom transitions.
         if (((100 / possiblePercents[i]) * this.stripeWidth)   // replaced this.regularStripe -> this.stripeWidth - IH, 3/30/2010
-            > (this.dim.width * 12)) {  // Where does the magic 12 come from? IH
+            > (this.dim.width * 12)) {
             this.stripePercent = possiblePercents[i];
             break;
         }
@@ -712,12 +743,18 @@ GenomeView.prototype.sizeInit = function() {
     posSize.appendChild(document.createTextNode(Util.addCommas(this.ref.end)));
     posSize.style.visibility = "hidden";
     this.overview.appendChild(posSize);
-    var minStripe = posSize.clientWidth * 1.2;  // magic -IH
+    // we want the stripes to be at least as wide as the position labels,
+    // plus an arbitrary 20% padding so it's clear which grid line
+    // a position label corresponds to.
+    var minStripe = posSize.clientWidth * 1.2;
     this.overviewPosHeight = posSize.clientHeight;
     this.overview.removeChild(posSize);
     for (var n = 1; n < 30; n++) {
 	//http://research.att.com/~njas/sequences/A051109
-	// the page at this link appears to be a formula for Polish banknote denominations in the 1990's, which is a definite improvement on "magic", but still somewhat obscure - IH
+        // JBrowse uses this sequence (1, 2, 5, 10, 20, 50, 100, 200, 500...)
+        // as its set of zoom levels.  That gives nice round numbers for
+        // bases per block, and it gives zoom transitions that feel about the
+        // right size to me. -MS
 	this.overviewStripeBases = (Math.pow(n % 3, 2) + 1) * Math.pow(10, Math.floor(n/3));
 	this.overviewStripes = Math.ceil(refLength / this.overviewStripeBases);
 	if ((this.overviewBox.w / this.overviewStripes) > minStripe) break;
@@ -828,16 +865,14 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
 				     centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp));
 	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp)));
 
-    new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);   // 700=magic? IH
+    // Zooms take an arbitrary 700 milliseconds, which feels about right
+    // to me, although if the zooms were smoother they could probably
+    // get faster without becoming off-putting. -MS
+    new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);
 };
 
 GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
     if (this.animation) return;
-    if ((this.zoomLevels.length - 1) == this.curZoom) {
-	for (var i = 0; i < this.stripeCount; i++)
-	    if (this.stripes[i].seqNode)
-                this.stripes[i].seqNode.style.display = "none";
-    }
     if (steps === undefined) steps = 1;
     steps = Math.min(steps, this.curZoom);
     if (0 == steps) return;
@@ -864,7 +899,11 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
 
 	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp)));
     this.minLeft = this.pxPerBp * this.ref.start;
-    new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);  // 700=magic? IH
+
+    // Zooms take an arbitrary 700 milliseconds, which feels about right
+    // to me, although if the zooms were smoother they could probably
+    // get faster without becoming off-putting. -MS
+    new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);
 };
 
 GenomeView.prototype.zoomUpdate = function() {
