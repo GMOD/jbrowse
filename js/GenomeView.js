@@ -47,7 +47,7 @@ Animation.prototype.animate = function () {
     } else {
 	this.step(1);
         this.finished = true;
-	//YAHOO.log("final timeout: " + nextTimeout);
+	//console.log("final timeout: " + nextTimeout);
     }
     this.animID = setTimeout(this.animFunction, nextTimeout);
 };
@@ -82,30 +82,35 @@ function Zoomer(scale, toScroll, callback, time, zoomLoc) {
     this.toZoom = toScroll.container;
     var cWidth = this.toZoom.clientWidth;
 
-    this.zero = cWidth * Math.min(1, scale);
-    this.one = cWidth * Math.max(1, scale);
-    this.mult = this.one - this.zero;
+    this.initialWidth = cWidth;
+
+    // the container width when zoomFraction is 0
+    this.width0 = cWidth * Math.min(1, scale);
+    // the container width when zoomFraction is 1
+    var width1 = cWidth * Math.max(1, scale);
+    this.distance = width1 - this.width0;
     this.zoomingIn = scale > 1;
-    this.zoomLoc = zoomLoc;
-    //keep our own version of x that won't get rounded
-    this.x = this.subject.getX();
+    //this.zoomLoc = zoomLoc;
+    this.center =
+        (toScroll.getX() + (toScroll.elem.clientWidth * zoomLoc))
+        / toScroll.container.clientWidth;
+
+    // initialX and initialLeft can differ when we're scrolling
+    // using scrollTop and scrollLeft
+    this.initialX = this.subject.getX();
+    this.initialLeft = parseInt(this.toZoom.style.left);
 };
 
 Zoomer.prototype = new Animation();
 
 Zoomer.prototype.step = function(pos) {
     var zoomFraction = this.zoomingIn ? pos : 1 - pos;
-    var eWidth = this.subject.elem.clientWidth;
-    var center =
-        (this.x + (eWidth * this.zoomLoc)) / this.subject.container.clientWidth;
-    var newWidth = ((zoomFraction * zoomFraction) * this.mult) + this.zero;
-    var newLeft = (center * newWidth) - (eWidth * this.zoomLoc);
-    newLeft = Math.min(newLeft, newWidth - eWidth);
-    this.subject.offset += this.x - newLeft;
+    var newWidth =
+        ((zoomFraction * zoomFraction) * this.distance) + this.width0;
+    var newLeft = (this.center * this.initialWidth) - (this.center * newWidth);
     this.toZoom.style.width = newWidth + "px";
-    this.subject.updateTrackLabels(newLeft | 0);
-    this.subject.rawSetX(newLeft);
-    this.x = newLeft;
+    this.toZoom.style.left = (this.initialLeft + newLeft) + "px";
+    this.subject.updateTrackLabels(this.initialX - newLeft);
 };
 
 function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
@@ -201,7 +206,8 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 
     var view = this;
 
-    var cssScroll = Util.is_ie;
+    // firefox scrolling behavior changed between 3.5 and 3.6
+    var cssScroll = dojo.isIE || (dojo.isFF && (dojo.isFF >= 3.6));
 
     if (cssScroll) {
         view.x = -parseInt(view.container.style.left);
@@ -218,7 +224,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
             //        y: -parseInt(view.container.style.top)};
         };
         view.rawSetX = function(x) {
-            view.container.style.left = -x; view.x = x;
+            view.container.style.left = -x + "px"; view.x = x;
         };
         view.setX = function(x) {
 	    view.x = Math.max(Math.min(view.maxLeft - view.offset, x),
@@ -228,7 +234,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
             view.container.style.left = -view.x + "px";
         };
         view.rawSetY = function(y) {
-            view.container.style.top = -y; view.y = y;
+            view.container.style.top = -y + "px"; view.y = y;
         };
         view.setY = function(y) {
             view.y = Math.min((y < 0 ? 0 : y),
@@ -664,17 +670,16 @@ GenomeView.prototype.sizeInit = function() {
         // gives us the total width of the "container" div.
         // (or what that width would be if we used possiblePercents[i]
         // as our stripePercent)
-        // That width should be wide enough to make sure that the transition
-        // to the next zoom level (which will be as much as 5x narrower)
-        // doesn't make the container div bump into the edge of its
-        // parent element, taking into account the fact that the container
-        // won't always be perfectly centered (it may be as much as 1/2
-        // stripe width off center)
-        // 12 was semi-arbitrarily chosen as a multiplier that was large enough
-        // to make sure that the container doesn't hit the edge of its parent
-        // during zoom transitions.
-        if (((100 / possiblePercents[i]) * this.stripeWidth)   // replaced this.regularStripe -> this.stripeWidth - IH, 3/30/2010
-            > (this.dim.width * 12)) {
+        // That width should be wide enough to make sure that the user can
+        // scroll at least one page-width in either direction without making
+        // the container div bump into the edge of its parent element, taking
+        // into account the fact that the container won't always be perfectly
+        // centered (it may be as much as 1/2 stripe width off center)
+        // So, (this.dim.width * 3) gives one screen-width on either side,
+        // and we add a regularStripe width to handle the slightly off-center
+        // cases.
+        if (((100 / possiblePercents[i]) * this.regularStripe)
+            > ((this.dim.width * 3) + this.regularStripe)) {
             this.stripePercent = possiblePercents[i];
             break;
         }
@@ -854,21 +859,26 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
     }
 
     var scale = this.zoomLevels[this.curZoom + steps] / this.pxPerBp;
-    var centerBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.dim.width));
+    var fixedBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.dim.width));
     this.curZoom += steps;
     this.pxPerBp = this.zoomLevels[this.curZoom];
     this.maxLeft = (this.pxPerBp * this.ref.end) - this.dim.width;
 
     for (var track = 0; track < this.tracks.length; track++)
 	this.tracks[track].startZoom(this.pxPerBp,
-				     centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp),
-				     centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp));
+				     fixedBp - ((zoomLoc * this.dim.width)
+                                                / this.pxPerBp),
+				     fixedBp + (((1 - zoomLoc) * this.dim.width)
+                                                / this.pxPerBp));
 	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp)));
 
+    var thisObj = this;
     // Zooms take an arbitrary 700 milliseconds, which feels about right
     // to me, although if the zooms were smoother they could probably
     // get faster without becoming off-putting. -MS
-    new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);
+    new Zoomer(scale, this,
+               function() {thisObj.zoomUpdate(zoomLoc, fixedBp);},
+               700, zoomLoc);
 };
 
 GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
@@ -888,28 +898,32 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
     zoomLoc = Math.max(zoomLoc, 1 - (((edgeDist * scale) / (1 - scale)) / this.dim.width));
     edgeDist = pos.x + this.offset - this.bpToPx(this.ref.start);
     zoomLoc = Math.min(zoomLoc, ((edgeDist * scale) / (1 - scale)) / this.dim.width);
-    var centerBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.dim.width));
+    var fixedBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.dim.width));
     this.curZoom -= steps;
     this.pxPerBp = this.zoomLevels[this.curZoom];
 
     for (var track = 0; track < this.tracks.length; track++)
 	this.tracks[track].startZoom(this.pxPerBp,
-				     centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp),
-				     centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp));
+				     fixedBp - ((zoomLoc * this.dim.width)
+                                                / this.pxPerBp),
+				     fixedBp + (((1 - zoomLoc) * this.dim.width)
+                                                / this.pxPerBp));
 
 	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp)));
     this.minLeft = this.pxPerBp * this.ref.start;
 
+    var thisObj = this;
     // Zooms take an arbitrary 700 milliseconds, which feels about right
     // to me, although if the zooms were smoother they could probably
     // get faster without becoming off-putting. -MS
-    new Zoomer(scale, this, this.zoomCallback, 700, zoomLoc);
+    new Zoomer(scale, this,
+               function() {thisObj.zoomUpdate(zoomLoc, fixedBp);},
+               700, zoomLoc);
 };
 
-GenomeView.prototype.zoomUpdate = function() {
-    var x = this.getX();
+GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {
     var eWidth = this.elem.clientWidth;
-    var centerPx = ((eWidth / 2) + x + this.bpToPx(this.startBase));
+    var centerPx = this.bpToPx(fixedBp) - (zoomLoc * eWidth) + (eWidth / 2);
     this.stripeWidth = this.stripeWidthForZoom(this.curZoom);
     this.container.style.width = (this.stripeCount * this.stripeWidth) + "px";
     var centerStripe = Math.round(centerPx / this.stripeWidth);
@@ -918,6 +932,7 @@ GenomeView.prototype.zoomUpdate = function() {
     this.maxOffset = this.bpToPx(this.ref.end) - this.stripeCount * this.stripeWidth;
     this.maxLeft = this.bpToPx(this.ref.end) - this.dim.width;
     this.minLeft = this.bpToPx(this.ref.start);
+    this.container.style.left = "0px";
     this.setX((centerPx - this.offset) - (eWidth / 2));
     //this.updateTrackLabels();
     this.clearStripes();
@@ -925,7 +940,6 @@ GenomeView.prototype.zoomUpdate = function() {
 	this.tracks[track].endZoom(this.pxPerBp, Math.round(this.stripeWidth / this.pxPerBp));
     //YAHOO.log("post-zoom start base: " + this.pxToBp(this.offset + this.getX()) + ", end base: " + this.pxToBp(this.offset + this.getX() + this.dim.width));
     this.makeStripes();
-    this.container.style.paddingTop = this.topSpace + "px";
     this.showVisibleBlocks(true);
     this.showDone();
     this.showCoarse();
