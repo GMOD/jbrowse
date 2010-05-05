@@ -1,10 +1,10 @@
 BINDIR = bin
 SRCDIR = src
 
-CXX = g++
-CXXFLAGS = -I/usr/X11/include -include $(SRCDIR)/config.h
-LDFLAGS = -L/usr/X11/lib
-LIBS = -lpng 
+CXX = @CXX@
+CXXFLAGS = @CXXFLAGS@ -include $(SRCDIR)/config.h
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
 CXXARGS = $(CXXFLAGS) $(LDFLAGS) $(LIBS)
 
 TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse

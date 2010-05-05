@@ -16,6 +16,10 @@
 #include <sstream>
 #include <limits>
 #include <algorithm>
+
+#include "opts_list.h"
+#include "macros.h"
+
 using namespace std;
 
 #define PNG_DEBUG 3
@@ -537,7 +541,7 @@ private:
 
 int main(int argc, char **argv){
     if (argc < 9) {
-        cerr << "Usage: " << argv[0] << "<input file> <output dir> <json dir> <track label> <width> <height> <bg red>,<bg green>,<bg blue> <fg red>,<fg green>,<fg blue> [<min> <max>]" << endl;
+        cerr << "Usage: " << argv[0] << " <input file> <output dir> <json dir> <track label> <width> <height> <bg red>,<bg green>,<bg blue> <fg red>,<fg green>,<fg blue> [<min> <max>]" << endl;
         exit(1);
     }
 
