@@ -7,18 +7,21 @@ LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 CXXARGS = $(CXXFLAGS) $(LDFLAGS) $(LIBS)
 
+WIG2PNG_TARGET = $(BINDIR)/wig2png
+WIG2PNG_SRCFILES = $(SRCDIR)/wig2png.cc $(SRCDIR)/opts_list.cc
+
 TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
 
-all: $(BINDIR)/wig2png
+all: $(WIG2PNG_TARGET)
 
 clean:
-	rm $(BINDIR)/wig2png
+	rm $(WIG2PNG_TARGET)
 
 jbrowse: all
 	$(MAKE) -f $(TWIKI_PLUGIN_MAKEFILE) all
 
-$(BINDIR)/wig2png: $(SRCDIR)/wig2png.cc
-	$(CXX) $(CXXARGS) -o $@ $<
+$(WIG2PNG_TARGET): $(WIG2PNG_SRCFILES)
+	$(CXX) $(CXXARGS) -o $@ $(WIG2PNG_SRCFILES)
 
 .PHONY: all clean jbrowse
 

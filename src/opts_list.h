@@ -3,11 +3,13 @@
 
 #include <math.h>
 #include <iostream>
+#include <sstream>
 #include <set>
 #include <map>
 #include <list>
-#include <exception>
 #include <string>
+#include <vector>
+#include <exception>
 
 using namespace std;
 
@@ -20,15 +22,14 @@ struct Opts_list {
     string temp;  // temporary variable used by what() method
     string info;  // used to hold the error message
 
+  public:
     Syntax_exception (const Opts_list& opts, const char* msg) :
       exception(), opts(opts), info(msg)
     { }
 
-    Syntax_exception (const Opts_list& opts, const char* msg1, const char* msg2) :
-      exception(), opts(opts), info(msg1)
-    {
-      info.append(msg2);
-    }
+    Syntax_exception (const Opts_list& opts, const string& msg) :
+      exception(), opts(opts), info(msg)
+    { }
 
     virtual ~Syntax_exception() throw ()
     { }
@@ -125,6 +126,10 @@ struct Opts_list {
   int    next_int();
   char*  next_string();
 
+  // Perl-style split & join
+  static vector<string> split (const string& s, const char* split_chars = " \t\n", int max_fields = 0, bool skip_empty_fields = true);
+  static string join (const vector<string>& v, const char* separator = " ");
+
   // help text accessors
   virtual string short_help() const;  // prints program_name/short_description/syntax, short_help_text
   virtual string help() const;  // prints program_name/short_description/syntax, options_help_text
@@ -134,10 +139,31 @@ struct Opts_list {
   static bool display_version (Opts_list* ol);
 };
 
-// build macros
-#define SET_VERSION_INFO(OPTS) (OPTS).version_info.clear(); (OPTS).version_info << PACKAGE_NAME << " version " << PACKAGE_VERSION << " compiled " << __DATE__ << " " << __TIME__ << "\n";
+// to_string and from_string
 
-#define INIT_CONSTRUCTED_OPTS_LIST(OPTS,ARGS,SYNTAX,SHORTDESC) OPTS.short_description = (SHORTDESC); OPTS.syntax = (SYNTAX); OPTS.expect_args = (ARGS); SET_VERSION_INFO(OPTS); Rnd::add_opts(OPTS); OPTS.newline(); Log_stream::add_opts(OPTS);
+template< class T>
+inline std::string to_string( const T & Value)
+{
+  std::stringstream oss;
+  oss << Value;
+  return oss.str();
+}
+
+template <class T>
+inline bool from_string(T& t, 
+			const std::string& s, 
+			std::ios_base& (*f)(std::ios_base&))
+{
+  std::istringstream iss(s);
+  return !(iss >> f >> t).fail();
+}
+
+
+
+// build macros
+#define SET_VERSION_INFO(OPTS) (OPTS).version_info.clear(); (OPTS).version_info = (OPTS).version_info + PACKAGE_NAME + " version " + PACKAGE_VERSION + " compiled " + __DATE__ + " " + __TIME__ + "\n";
+
+#define INIT_CONSTRUCTED_OPTS_LIST(OPTS,ARGS,SYNTAX,SHORTDESC) OPTS.short_description = (SHORTDESC); OPTS.syntax = (SYNTAX); OPTS.expect_args = (ARGS); SET_VERSION_INFO(OPTS); OPTS.newline();
 
 #define INIT_TYPED_OPTS_LIST(OPTS_TYPE,OPTS,ARGC,ARGV,ARGS,SYNTAX,SHORTDESC) OPTS_TYPE OPTS(ARGC,ARGV); INIT_CONSTRUCTED_OPTS_LIST(OPTS,ARGS,SYNTAX,SHORTDESC)
 
