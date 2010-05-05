@@ -415,7 +415,7 @@ Opts_list::Parse_status Opts_list::parse_opt (const string& opt)
   return UNPARSED;
 }
 
-vector<string> Opts_list::split (const string& s, const char* split_chars, int max_fields, bool skip_empty_fields)
+vector<string> split (const string& s, const char* split_chars, int max_fields, bool skip_empty_fields)
 {
   vector<string> result;
   string::const_iterator line_start = s.begin();
@@ -430,7 +430,7 @@ vector<string> Opts_list::split (const string& s, const char* split_chars, int m
   return result;
 }
 
-string Opts_list::join (const vector<string>& v, const char* sep)
+string join (const vector<string>& v, const char* sep)
 {
   string result;
   for (unsigned int i = 0; i+1 < v.size(); i++)

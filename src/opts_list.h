@@ -126,10 +126,6 @@ struct Opts_list {
   int    next_int();
   char*  next_string();
 
-  // Perl-style split & join
-  static vector<string> split (const string& s, const char* split_chars = " \t\n", int max_fields = 0, bool skip_empty_fields = true);
-  static string join (const vector<string>& v, const char* separator = " ");
-
   // help text accessors
   virtual string short_help() const;  // prints program_name/short_description/syntax, short_help_text
   virtual string help() const;  // prints program_name/short_description/syntax, options_help_text
@@ -138,6 +134,12 @@ struct Opts_list {
   static bool display_help (Opts_list* ol);
   static bool display_version (Opts_list* ol);
 };
+
+
+// Perl-style split & join
+vector<string> split (const string& s, const char* split_chars = " \t\n", int max_fields = 0, bool skip_empty_fields = true);
+
+string join (const vector<string>& v, const char* separator = " ");
 
 // to_string and from_string
 
