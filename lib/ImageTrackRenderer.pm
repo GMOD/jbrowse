@@ -16,18 +16,15 @@ use strict;
 use warnings;
 use vars '@ISA';
 
+use POSIX qw (ceil);
+
 use base 'Exporter';
 use base 'AutoHash';
 
-our @EXPORT_OK = qw (new);
+our @EXPORT_OK = qw (new render);
 
-use Getopt::Long;
-use File::Basename;
-use Carp;
-
-use Bio::DB::SeqFeature::Store;
 use JsonGenerator;
-
+use TrackImage;
 
 =head2 new
 
@@ -37,7 +34,23 @@ Creates a new ImageTrackRenderer object.
 
 %args is a key-value hash with the following keys:
 
-datadir, tiledir, tilewidth, trackheight, tracklabel, key
+=over 2
+
+=item B<datadir>: root directory for all generated files. defaults to "data"
+
+=item B<tiledir>: subdirectory of datadir corresponding to image files. defaults to "tiles"
+
+=item B<tilewidth>: width of tiles in pixels. default is 2000 (you should not need to change this)
+
+=item B<trackheight>: height of track in pixels. default is 100
+
+=item B<tracklabel>: the track label. defaults to "track"
+
+=item B<key>: the key. defaults to whatever 'tracklabel' is
+
+=item B<drawsub>: reference to a subroutine taking two arguments ($im,$seqInfo) where $im is a TrackImage and $seqInfo is a reference to the sequence info hash (keys include "length" and "name"). This subroutine will be called for every refseq.
+
+=back
 
 =cut
 
@@ -48,10 +61,12 @@ sub new {
 		 'trackdir' => "tracks",  # probably best not to modify this
 		 'refseqsfile' => 'refSeqs.js',  # probably best not to modify this
 		 'trackinfofile' => 'trackInfo.js',  # probably best not to modify this
+		 'zooms' => [ 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000 ],  # probably best not to modify this
 		 'tilewidth' => 2000,
 		 'trackheight' => 100,
 		 'tracklabel' => "track",
 		 'key' => undef,
+		 'drawsub' => sub { my ($im, $seqInfo) = @_; warn "Dummy render method called for ", $seqInfo->{"name"}, " at zoom ", $im->basesPerPixel, "\n"  }
     };
     while (my ($arg, $val) = each %args) {
 	if (exists $self->{$arg}) {
@@ -65,9 +80,11 @@ sub new {
 }
 
 # a few helper methods
-sub tilepath { my ($self) = @_; return $self->datadir . '/' . $self->tiledir }
-sub tilesubdir { my ($self) = @_; return $self->tilepath . '/' . $self->tracklabel }
-sub seqsubdir { my ($self, $seqname) = @_; return $self->tilesudbir . '/' . $seqname }
+sub tileroot { my ($self) = @_; return $self->datadir . '/' . $self->tiledir }
+sub tracksubdir { my ($self) = @_; return $self->tileroot . '/' . $self->tracklabel }
+sub seqsubdir { my ($self, $seqname) = @_; return $self->tracksubdir . '/' . $seqname }
+sub zoomsubdir { my ($self, $seqname, $zoom) = @_; return $self->seqsubdir($seqname) . '/' . $zoom }
+sub tilefile { my ($self, $seqname, $zoom, $tile) = @_; return $self->zoomsubdir($seqname,$zoom) . "/$tile.png"; }
 sub trackpath { my ($self) = @_; return $self->datadir . '/' . $self->trackdir }
 sub refseqspath { my ($self) = @_; return $self->datadir . '/' . $self->refseqsfile }
 sub trackinfopath { my ($self) = @_; return $self->datadir . '/' . $self->trackinfofile }
@@ -75,18 +92,66 @@ sub trackinfopath { my ($self) = @_; return $self->datadir . '/' . $self->tracki
 sub refseqs { my ($self) = @_; return @{JsonGenerator::readJSON($self->refseqspath, [], 1)} }
 sub mkdir { my ($self, @paths) = @_; for my $path (@paths) { mkdir $path unless -d $path } }
 
-# render method (unfinished)
+=head2 drawzoom
+
+    $renderer->drawzoom($im,$seqInfo);
+
+Calls the supplied C<drawsub> coderef with the specified arguments.
+
+You should not call this method directly (it is called by C<render>), but you can override it in a subclass instead of placing a coderef in C<drawsub>, if you choose.
+
+=cut
+
+sub drawzoom {
+    my ($self, $im, $seqInfo) = @_;
+    &{$self->drawsub} ($im, $seqInfo);
+}
+
+=head2 render
+
+    $renderer->render;
+
+Calls the supplied C<drawsub> coderef (via the C<drawzoom> method, which can also be overridden) for all sequences and all zoomlevels,
+then adds the track to the data/trackInfo.js file.
+
+=cut
+
 sub render {
     my ($self) = @_;
     my @refSeqs = $self->refseqs;
     die "No reference sequences" if $#refSeqs < 0;
 
-    $self->mkdir($self->datadir, $self->tilepath, $self->tilesubdir, $self->trackpath);
+    $self->mkdir($self->datadir, $self->tileroot, $self->tracksubdir, $self->trackpath);
 
     foreach my $seqInfo (@refSeqs) {
 	my $seqName = $seqInfo->{"name"};
-	print "\nworking on seq $seqName\n";
+	warn "\nworking on seq $seqName\n";
 	$self->mkdir($self->seqsubdir($seqName));
+
+	my $seqlen = $seqInfo->{"length"};
+	for my $basesPerPixel (@{$self->zooms}) {
+	    warn "\nworking on seq $seqName, bases per pixel $basesPerPixel\n";
+	    # create virtual image
+	    my $im = TrackImage->new ('-width' => ceil($seqlen/$basesPerPixel),
+				      '-height' => $self->trackheight,
+				      '-tile_width_hint' => $self->tilewidth,
+				      '-bases_per_pixel' => $basesPerPixel);
+
+	    # call drawsub coderef
+	    $self->drawzoom ($im, $seqInfo);
+
+	    # break into tiles
+	    $self->mkdir ($self->zoomsubdir($seqName,$basesPerPixel));
+	    my $tile = 0;
+	    for (my $x = 0; $x < $im->width; $x += $self->tilewidth) {
+		local *TILE;
+		my $tilefile = $self->tilefile ($seqName, $basesPerPixel, $tile);
+		open TILE, ">$tilefile" or die "Couldn't open $tilefile : $!";
+		print TILE $im->renderTile($x,0,$self->tilewidth,$self->trackheight)->png;
+		close TILE or die "Couldn't close $tilefile : $!";
+		++$tile;
+	    }
+	}
 
 	JsonGenerator::modifyJSFile($self->trackinfopath, "trackInfo",
 				    sub {
@@ -110,6 +175,7 @@ sub render {
 =head1 AUTHORS
 
 Mitchell Skinner E<lt>mitch_skinner@berkeley.eduE<gt>
+
 Ian Holmes E<lt>ihh@berkeley.eduE<gt>
 
 Copyright (c) 2007-2009 The Evolutionary Software Foundation
@@ -120,3 +186,5 @@ version 2.1, or at your option, any later version) or the Artistic
 License 2.0.  Refer to LICENSE for the full license text.
 
 =cut
+
+1;

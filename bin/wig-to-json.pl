@@ -100,6 +100,7 @@ foreach my $seqInfo (@refSeqs) {
 =head1 AUTHORS
 
 Mitchell Skinner E<lt>mitch_skinner@berkeley.eduE<gt>
+
 Ian Holmes E<lt>ihh@berkeley.eduE<gt>
 
 Copyright (c) 2007-2009 The Evolutionary Software Foundation
