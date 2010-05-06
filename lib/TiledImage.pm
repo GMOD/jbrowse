@@ -117,7 +117,7 @@ my %intercept =
 
     );
 
-@globalPrimNames = qw(colorAllocate setBrush rgb);
+@globalPrimNames = qw(colorAllocate rgb setBrush setThickness);
 
 # List of unimplemented functions:-- these will throw an error if called
 # (all others are silently passed to a dummy GD object)

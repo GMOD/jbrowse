@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use POSIX qw (abs);
+use POSIX qw (abs ceil);
 
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
@@ -21,9 +21,10 @@ my $fgColor = "0,255,0";
 my $bgColor = "255,255,255";
 my $tileWidth = 2000;
 my $trackHeight = 100;
+my $thickness = 2;
 
 my $usage = <<USAGE;
- USAGE: $0 --gff <GFF file> [--tile <tiles directory>] [--out <JSON directory>] [--tracklabel <track identifier>] [--key <human-readable track name>] [--bgcolor <R,G,B>] [--fgcolor <R,G,B>] [--width <tile width>] [--height <tile height>]
+ USAGE: $0 --gff <GFF file> [--tile <tiles directory>] [--out <JSON directory>] [--tracklabel <track identifier>] [--key <human-readable track name>] [--bgcolor <R,G,B>] [--fgcolor <R,G,B>] [--thickness <line thickness> [--width <tile width>] [--height <tile height>]
 
     --tile: defaults to "$tiledir"
     --out: defaults to "$outdir"
@@ -31,6 +32,7 @@ my $usage = <<USAGE;
     --key: defaults to track label
     --bgcolor: defaults to "$bgColor"
     --fgcolor: defaults to "$fgColor"
+    --thickness: defaults to $thickness
     --width: defaults to $tileWidth
     --height: defaults to $trackHeight
         if min and max are not supplied, an extra pass through
@@ -45,11 +47,11 @@ GetOptions("gff=s" => \$path,
 	   "bgcolor=s" => \$bgColor,
 	   "fgcolor=s" => \$fgColor,
 	   "width=s" => \$tileWidth,
-	   "height=s" => \$trackHeight);
+	   "height=s" => \$trackHeight,
+	   "thickness=s" => \$thickness);
 
 if (!defined($path)) {
-    $path = "-";
-    warn "[waiting for GFF on standard input]\n";
+    die $usage;
 }
 
 if (!defined($trackLabel)) {
@@ -108,13 +110,14 @@ my $renderer = ImageTrackRenderer->new ("datadir" => $outdir,
 					    for my $rgb (@rgb) {
 						push @color, $im->colorAllocate (@$rgb);
 					    }
+					    $im->setThickness ($thickness);
 					    for my $gff (@{$gff{$seqname}}) {
 						my $start = $im->base_xpos ($gff->[0]) + $im->pixels_per_base / 2;
 						my $end = $im->base_xpos ($gff->[1]) + $im->pixels_per_base / 2;
 						my $arcMidX = ($start + $end) / 2;
-						my $arcWidth = ($end - $start) / 2;
-						my $arcHeight = $trackHeight * ($gff->[1] - $gff->[0]) / $maxlen;
-						warn "Drawing arc from $start to $end, height $arcHeight";
+						my $arcWidth = $end - $start;
+						my $arcHeight = 2 * $trackHeight * ($gff->[1] - $gff->[0]) / $maxlen;
+						# warn "Drawing arc from $start to $end, height $arcHeight";
 						$im->arc ($arcMidX, 0, $arcWidth, $arcHeight, 0, 180, $color[$gff->[2]]);
 					    }
 					});

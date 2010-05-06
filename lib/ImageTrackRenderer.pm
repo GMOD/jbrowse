@@ -84,8 +84,9 @@ sub tileroot { my ($self) = @_; return $self->datadir . '/' . $self->tiledir }
 sub tracksubdir { my ($self) = @_; return $self->tileroot . '/' . $self->tracklabel }
 sub seqsubdir { my ($self, $seqname) = @_; return $self->tracksubdir . '/' . $seqname }
 sub zoomsubdir { my ($self, $seqname, $zoom) = @_; return $self->seqsubdir($seqname) . '/' . $zoom }
-sub tilefile { my ($self, $seqname, $zoom, $tile) = @_; return $self->zoomsubdir($seqname,$zoom) . "/$tile.png"; }
+sub tilefile { my ($self, $seqname, $zoom, $tile) = @_; return $self->zoomsubdir($seqname,$zoom) . "/$tile.png" }
 sub trackpath { my ($self) = @_; return $self->datadir . '/' . $self->trackdir }
+sub trackfile { my ($self, $seqname) = @_; return $self->trackpath . '/' . $seqname . '/' . $self->tracklabel . ".json" }
 sub refseqspath { my ($self) = @_; return $self->datadir . '/' . $self->refseqsfile }
 sub trackinfopath { my ($self) = @_; return $self->datadir . '/' . $self->trackinfofile }
 
@@ -125,12 +126,18 @@ sub render {
 
     foreach my $seqInfo (@refSeqs) {
 	my $seqName = $seqInfo->{"name"};
-	warn "\nworking on seq $seqName\n";
+	warn "starting seq $seqName\n";
 	$self->mkdir($self->seqsubdir($seqName));
 
+	my $trackfile = $self->trackfile($seqName);
+	local *TRACKFILE;
+	open TRACKFILE, ">$trackfile" or die "Couldn't open $trackfile : $!";
+	print TRACKFILE "{\n \"zoomLevels\" : [";
+
 	my $seqlen = $seqInfo->{"length"};
-	for my $basesPerPixel (@{$self->zooms}) {
-	    warn "\nworking on seq $seqName, bases per pixel $basesPerPixel\n";
+	for my $z (0..$#{$self->zooms}) {
+	    my $basesPerPixel = $self->zooms->[$z];
+	    warn "working on seq $seqName, bases per pixel $basesPerPixel\n";
 	    # create virtual image
 	    my $im = TrackImage->new ('-width' => ceil($seqlen/$basesPerPixel),
 				      '-height' => $self->trackheight,
@@ -151,7 +158,22 @@ sub render {
 		close TILE or die "Couldn't close $tilefile : $!";
 		++$tile;
 	    }
+
+	    # describe zoomlevel
+	    print TRACKFILE
+		($z > 0 ? "," : ""),
+		"\n  {\n",
+		"   \"urlPrefix\" : \"", $self->zoomsubdir($seqName,$basesPerPixel), "/\",\n",
+		"   \"height\" : ", $self->trackheight, ",\n",
+		"   \"basesPerTile\" : ", $basesPerPixel * $self->tilewidth, "\n",
+		"  }";
 	}
+
+	print TRACKFILE
+	    "\n ],\n",
+	    " \"tileWidth\" : ", $self->tilewidth,
+	    "\n}\n";
+	close TRACKFILE or die "Couldn't close $trackfile : $!";
 
 	JsonGenerator::modifyJSFile($self->trackinfopath, "trackInfo",
 				    sub {
@@ -164,7 +186,7 @@ sub render {
 					{
 					    'label' => $self->tracklabel,
 					    'key' => defined($self->key) ? $self->key : $self->tracklabel,
-					    'url' => $self->trackpath . "/{refseq}/" . $self->tracklabel . ".json",
+					    'url' => $self->trackfile("{refseq}"),
 					    'type' => "ImageTrack",
 					};
 					return $trackList;

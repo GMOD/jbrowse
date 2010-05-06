@@ -75,6 +75,6 @@ Return the x-coordinate of the leftmost pixel of base $baseIndex (one-based).
 
 sub base_xpos {
     my ($self, $baseIndex) = @_;
-    return $self->pixels_per_base * ($baseIndex - 1);
+    return $self->pixels_per_base * $baseIndex;   # seems like this should be $baseIndex-1, but empirically that's off-by-one...
 }
 
