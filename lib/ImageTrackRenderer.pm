@@ -16,14 +16,10 @@ use strict;
 use warnings;
 use vars '@ISA';
 
-use Exporter;
-use AutoHash;
-@ISA = qw (Exporter AutoHash);
-@EXPORT = qw (new AUTOLOAD);
-@EXPORT_OK = @EXPORT;
+use base 'Exporter';
+use base 'AutoHash';
 
-use FindBin qw($Bin);
-use lib "$Bin/../lib";
+our @EXPORT_OK = qw (new);
 
 use Getopt::Long;
 use File::Basename;
@@ -55,7 +51,7 @@ sub new {
 		 'tilewidth' => 2000,
 		 'trackheight' => 100,
 		 'tracklabel' => "track",
-		 'key' => "track",
+		 'key' => undef,
     };
     while (my ($arg, $val) = each %args) {
 	if (exists $self->{$arg}) {
@@ -69,42 +65,46 @@ sub new {
 }
 
 # a few helper methods
-sub tilepath { return $self->datadir . '/' . $self->tiledir }
-sub tilesubdir { return $self->tilepath . '/' . $self->tracklabel }
-sub seqsubdir { my $seqname = shift; return $self->tilesudbir . '/' . $seqname }
-sub trackpath { return $self->datadir . '/' . $self->trackdir }
-sub refseqspath { return $self->datadir . '/' . $self->refseqsfile }
-sub trackinfopath { return $self->datadir . '/' . $self->trackinfofile }
+sub tilepath { my ($self) = @_; return $self->datadir . '/' . $self->tiledir }
+sub tilesubdir { my ($self) = @_; return $self->tilepath . '/' . $self->tracklabel }
+sub seqsubdir { my ($self, $seqname) = @_; return $self->tilesudbir . '/' . $seqname }
+sub trackpath { my ($self) = @_; return $self->datadir . '/' . $self->trackdir }
+sub refseqspath { my ($self) = @_; return $self->datadir . '/' . $self->refseqsfile }
+sub trackinfopath { my ($self) = @_; return $self->datadir . '/' . $self->trackinfofile }
 
-sub refseqs { return @{JsonGenerator::readJSON($self->refseqspath, [], 1)} }
-sub mkdir { for my $path (@_) { mkdir $path unless -d $path } }
+sub refseqs { my ($self) = @_; return @{JsonGenerator::readJSON($self->refseqspath, [], 1)} }
+sub mkdir { my ($self, @paths) = @_; for my $path (@paths) { mkdir $path unless -d $path } }
 
-my @refSeqs = $self->refseqs;
-die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
+# render method (unfinished)
+sub render {
+    my ($self) = @_;
+    my @refSeqs = $self->refseqs;
+    die "No reference sequences" if $#refSeqs < 0;
 
-$self->mkdir($self->datadir, $self->tilepath, $self->tilesubdir, $self->trackpath);
+    $self->mkdir($self->datadir, $self->tilepath, $self->tilesubdir, $self->trackpath);
 
-foreach my $seqInfo (@refSeqs) {
-    my $seqName = $seqInfo->{"name"};
-    print "\nworking on seq $seqName\n";
-    $self->mkdir($self->seqsubdir($seqName));
+    foreach my $seqInfo (@refSeqs) {
+	my $seqName = $seqInfo->{"name"};
+	print "\nworking on seq $seqName\n";
+	$self->mkdir($self->seqsubdir($seqName));
 
-    JsonGenerator::modifyJSFile($self->trackinfopath, "trackInfo",
-		 sub {
-		     my $trackList = shift;
-		     my $i;
-		     for ($i = 0; $i <= $#{$trackList}; $i++) {
-			 last if ($trackList->[$i]->{'label'} eq $trackLabel);
-		     }
-		     $trackList->[$i] =
-		       {
-			'label' => $trackLabel,
-			'key' => defined($key) ? $key : $trackLabel,
-			'url' => $self->trackpath . "/{refseq}/$trackLabel.json",
-			'type' => "ImageTrack",
-		       };
-		     return $trackList;
-		 });
+	JsonGenerator::modifyJSFile($self->trackinfopath, "trackInfo",
+				    sub {
+					my $trackList = shift;
+					my $i;
+					for ($i = 0; $i <= $#{$trackList}; $i++) {
+					    last if ($trackList->[$i]->{'label'} eq $self->tracklabel);
+					}
+					$trackList->[$i] =
+					{
+					    'label' => $self->tracklabel,
+					    'key' => defined($self->key) ? $self->key : $self->tracklabel,
+					    'url' => $self->trackpath . "/{refseq}/" . $self->tracklabel . ".json",
+					    'type' => "ImageTrack",
+					};
+					return $trackList;
+				    });
+    }
 }
 
 =head1 AUTHORS
