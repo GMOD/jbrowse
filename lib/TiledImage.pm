@@ -3,9 +3,9 @@ package TiledImage;
 use GD::Image;
 use Data::Dumper;
 use Carp;
-use MemoryPrimStorage;
-# "use DBPrimStorage" commented out because it is imported lazily via an "eval" statement below
-# use DBPrimStorage;
+use TiledImage::MemoryPrimStorage;
+# "use TiledImage::DBPrimStorage" commented out because it is imported lazily via an "eval" statement below
+# use TiledImage::DBPrimStorage;
 
 # Global table of TiledImage's for cleanup
 my %tiledImageCleanup;
@@ -313,7 +313,7 @@ sub new {
 
     my $primstorage;
     if ($args{'-primdb'}) {
-	eval "use DBPrimStorage";   # import DBPrimStorage here, rather than at top of file, so TiledImage.pm will still work even if DBI.pm is unavailable
+	eval "use TiledImage::DBPrimStorage";   # import DBPrimStorage here, rather than at top of file, so TiledImage.pm will still work even if DBI.pm is unavailable
 	$primstorage = DBPrimStorage->new(
             -primdb => $args{'-primdb'},
 	    -tiledimage_name => $args{'-tiledimage_name'},

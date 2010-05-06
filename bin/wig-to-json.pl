@@ -12,10 +12,8 @@ use Bio::DB::SeqFeature::Store;
 use JsonGenerator;
 
 my ($path, $trackLabel, $key, $cssClass);
-my $autocomplete = "none";
 my $outdir = "data";
 my $tiledir = "$outdir/tiles";
-my ($getType, $getPhase, $getSubs, $getLabel) = (0, 0, 0, 0);
 my $fgColor = "105,155,111";
 my $bgColor = "255,255,255";
 my $tileWidth = 2000;

@@ -1,12 +1,10 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl -w
 
-use BatchTiledImage;
-use GD::Image;
+use TiledImage;
 
 # create a new image
-my $im = new BatchTiledImage('-width'=>100,'-height'=>100);
+my $im = new TiledImage('-width'=>100,'-height'=>100);
 $im->verbose(2);
-#my $im = new GD::Image(100,100);
 
 # allocate some colors
 my $white = $im->colorAllocate(255,255,255);
