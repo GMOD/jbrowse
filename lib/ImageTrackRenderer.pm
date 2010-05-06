@@ -82,7 +82,7 @@ sub mkdir { for my $path (@_) { mkdir $path unless -d $path } }
 my @refSeqs = $self->refseqs;
 die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
 
-$self->mkdir($datadir, $self->tilepath, $self->tilesubdir, $self->trackpath);
+$self->mkdir($self->datadir, $self->tilepath, $self->tilesubdir, $self->trackpath);
 
 foreach my $seqInfo (@refSeqs) {
     my $seqName = $seqInfo->{"name"};
