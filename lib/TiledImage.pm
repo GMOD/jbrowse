@@ -1,5 +1,73 @@
 package TiledImage;
 
+=head1 NAME
+
+TiledImage.pm - Perl module to provide a GD-like interface for rendering large images then breaking them into tiles.
+
+=head1 SYNOPSIS
+
+      # create a new image
+      my $im = new TiledImage('-width'=>100,'-height'=>100);
+      $im->verbose(2);
+      
+      # allocate some colors
+      my $white = $im->colorAllocate(255,255,255);
+      my $black = $im->colorAllocate(0,0,0);
+      my $red = $im->colorAllocate(255,0,0);
+      my $blue = $im->colorAllocate(0,0,255);
+      
+      # make the background transparent and interlaced
+      $im->transparent($white);
+      $im->interlaced('true');
+      
+      # Put a black frame around the picture
+      $im->rectangle(0,0,99,99,$black);
+      
+      # Draw a blue oval
+      $im->arc(50,50,95,75,0,360,$blue);
+      
+      # draw a polygon
+      my $poly = GD::Polygon->new;
+      $poly->addPt(15,15);
+      $poly->addPt(85,15);
+      $poly->addPt(50,85);
+      $im->filledPolygon ($poly, $red);
+      
+      # draw strings
+      $im->string(GD::gdLargeFont, 10, 10, "hi world", $blue);
+      
+      # create a dummy brush image & call setBrush() & copy() to test image storage
+      my $dummyBrush = new GD::Image (20,20);
+      my $white2 = $dummyBrush->colorAllocate(255,255,255);
+      my $black2 = $dummyBrush->colorAllocate(0,0,0);
+      my $red2 = $dummyBrush->colorAllocate(255,0,0);
+      my $blue2 = $dummyBrush->colorAllocate(0,0,255);
+      $dummyBrush->transparent($white2);
+      $dummyBrush->interlaced('true');
+      $dummyBrush->filledRectangle(4,4,16,16,$black2);
+      $dummyBrush->arc(10,10,8,8,0,360,$blue2);
+      
+      $im->setBrush ($dummyBrush);
+      $im->line (40, 30, 90, 80, GD::gdBrushed);   # libgd bug: lines are clipped
+      $im->copy ($dummyBrush, 75, 40, 0, 0, 20, 20);
+      
+      # render and save four tiles
+      my ($tileWidth, $tileHeight) = (50, 50);
+      for ($x = 0; $x < $im->width; $x += $tileWidth) {
+          for ($y = 0; $y < $im->height; $y += $tileHeight) {
+              my $tile = $im->renderTile ($x, $y, $tileWidth, $tileHeight);
+              my $file = "TILE.$x.$y.png";
+              open TILE, ">$file" or die "Couldn't write $file: $!";
+              print TILE $tile->png;
+              close TILE or die "Couldn't close $file: $!";
+              warn "Wrote tile to $file";
+          }
+      }
+
+=head1 METHODS
+
+=cut
+
 use GD::Image;
 use Data::Dumper;
 use Carp;
@@ -285,13 +353,49 @@ sub finish {
 #    $self->gdtile->disconnect if $self->gdtile;  #  just in case we didn't close the database connection using finish() 
 #}
 
+
 # Public methods.
+
+=head2 new
+
+    my $tiledImage = new TiledImage (%args);
+
+Creates a new TiledImage object.
+
+%args is a key-value hash with the following keys:
+
+=over 2
+
+=item B<-width>: image width in pixels
+
+=item B<-height>: image height in pixels
+
+=item B<-tile_width_hint>: for optimal performance, set this equal to the tile width
+
+=item B<-verbose>: print lots of debugging information
+
+=item B<link>: flag indicating whether to use filesystem links to repeat identical tiles. True by default; set to zero to disable this feature
+
+=item B<-primdb>: use a database to cache GD primitives, rather than storing them in memory (see TiledImage/gdtile.sql for SQL commands to create the database)
+
+=item B<-tiledimage_name>: unique identifier for this TiledImage. mandatory if B<-primdb> is used
+
+=item B<-persistent>: when used with B<-primdb>, do not delete primitives from database after rendering tiles
+
+=back
+
+=cut
+
 # Constructor
 sub new {
     my ($class, %args) = @_;
     my %allowed_args = map {$_ => 1} qw (-primdb -tiledimage_name -width -height -persistent -verbose -tile_width_hint);
     my @required_args;
-    push @required_args, qw (-tiledimage_name) if exists $args{'-primdb'};
+    if (exists $args{'-primdb'}) {
+	push @required_args, '-tiledimage_name';
+    } else {
+	$allowed_args{'-tiledimage_name'} = 1;
+    }
 
     foreach my $arg (keys %args) {
       unless ($allowed_args{$arg}) {
@@ -355,6 +459,14 @@ sub new {
     return $self;
 }
 
+=head2 renderTile
+
+    my $gdImage = $tiledImage->renderTile ($xmin, $ymin, $width, $height);
+
+Returns the specified area as a GD::Image object.
+
+=cut
+
 # renderTile:--
 # method to render a tile of given dimensions.
 sub renderTile {
@@ -400,6 +512,14 @@ sub renderTile {
     return $im;
 }
 
+=head2 cleanup
+
+    $tiledImage->cleanup();
+
+Call this after rendering all tiles, to allow the TiledImage object to perform cleanup operations (e.g. removing primitives from the database).
+
+=cut
+
 sub cleanup {
     my $self = shift;
 
@@ -415,6 +535,111 @@ sub cleanup {
     # drop from cleanup list
     delete $tiledImageCleanup{$self} if exists $tiledImageCleanup{$self};
 }
+
+
+
+=head2 Intercepted GD::Image methods
+
+The following methods of B<GD::Image> methods have analogous implementations in TiledImage:
+
+=over 2
+
+=item setPixel
+
+=item line
+
+=item dashedLine
+
+=item rectangle
+
+=item filledRectangle
+
+=item polygon
+
+=item openPolygon
+
+=item unclosedPolygon
+
+=item filledPolygon
+
+=item fillPoly
+
+=item ellipse
+
+=item filledEllipse
+
+=item arc
+
+=item filledArc
+
+=item copy
+
+=item copyMerge
+
+=item copyMergeGray
+
+=item copyResized
+
+=item copyResampled
+
+=item copyRotated
+
+=item string
+
+=item stringUp
+
+=item char
+
+=item charUp
+
+=item stringFT
+
+=item stringFTcircle
+
+=item colorAllocate
+
+=item rgb
+
+=item setBrush
+
+=item setThickness
+
+=back
+
+=head2 Unimplemented GD::Image methods
+
+The following GD::Image methods are B<not> implemented by TiledImage:
+
+=over
+
+=item copyRotate90
+
+=item copyRotate180
+
+=item copyRotate270
+			    
+=item copyFlipHorizontal
+
+=item copyFlipVertical
+
+=item copyTranspose
+			     
+=item copyReverseTranspose
+
+=item rotate180
+			    
+=item flipHorizontal
+
+=item flipVertical
+			    
+=item fill
+
+=item fillToBorder
+
+=back
+
+=cut
+
 
 # THERE IS CLEARLY A PROBLEM WITH THESE SIGNAL HANDLERS, SO I'M TAKING THEM
 # OUT AND PLACING THE HANDLER IN 'generate_tiles.pl' - it will be the
@@ -450,6 +675,25 @@ sub cleanup {
 #    global_cleanup();
 #    &$oldSigKill() if defined $oldSigKill;
 #};
+
+
+=head1 AUTHORS
+
+Andrew Uzilov E<lt>andrew.uzilov@gmail.comE<gt>
+
+Mitchell Skinner E<lt>mitch_skinner@berkeley.eduE<gt>
+
+Ian Holmes E<lt>ihh@berkeley.eduE<gt>
+
+Copyright (c) 2007-2010 The Evolutionary Software Foundation
+
+This package and its accompanying libraries are free software; you can
+redistribute it and/or modify it under the terms of the LGPL (either
+version 2.1, or at your option, any later version) or the Artistic
+License 2.0.  Refer to LICENSE for the full license text.
+
+=cut
+
 
 # End of package
 1;

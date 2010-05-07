@@ -26,6 +26,9 @@ our @EXPORT_OK = qw (new render);
 use JsonGenerator;
 use TrackImage;
 
+# "use Digest::MD5 qw(md5_hex)" commented out because it is imported lazily via an "eval" statement below
+# use Digest::MD5 qw(md5_hex);
+
 =head2 new
 
     my $renderer = ImageTrackRenderer->new(%args);
@@ -50,6 +53,8 @@ Creates a new ImageTrackRenderer object.
 
 =item B<drawsub>: reference to a subroutine taking two arguments ($im,$seqInfo) where $im is a TrackImage and $seqInfo is a reference to the sequence info hash (keys include "length" and "name"). This subroutine will be called for every refseq.
 
+=item B<link>: flag indicating whether to use filesystem links to repeat identical tiles. True by default; set to zero to disable this feature
+
 =back
 
 =cut
@@ -66,6 +71,7 @@ sub new {
 		 'trackheight' => 100,
 		 'tracklabel' => "track",
 		 'key' => undef,
+		 'link' => 1,
 		 'drawsub' => sub { my ($im, $seqInfo) = @_; warn "Dummy render method called for ", $seqInfo->{"name"}, " at zoom ", $im->basesPerPixel, "\n"  }
     };
     while (my ($arg, $val) = each %args) {
@@ -76,6 +82,7 @@ sub new {
 	}
     }
     bless $self, $class;
+    eval "use Digest::MD5 qw(md5_hex)" if $self->link;
     return $self;
 }
 
@@ -93,21 +100,6 @@ sub trackinfopath { my ($self) = @_; return $self->datadir . '/' . $self->tracki
 sub refseqs { my ($self) = @_; return @{JsonGenerator::readJSON($self->refseqspath, [], 1)} }
 sub mkdir { my ($self, @paths) = @_; for my $path (@paths) { mkdir $path unless -d $path } }
 
-=head2 drawzoom
-
-    $renderer->drawzoom($im,$seqInfo);
-
-Calls the supplied C<drawsub> coderef with the specified arguments.
-
-You should not call this method directly (it is called by C<render>), but you can override it in a subclass instead of placing a coderef in C<drawsub>, if you choose.
-
-=cut
-
-sub drawzoom {
-    my ($self, $im, $seqInfo) = @_;
-    &{$self->drawsub} ($im, $seqInfo);
-}
-
 =head2 render
 
     $renderer->render;
@@ -124,22 +116,25 @@ sub render {
 
     $self->mkdir($self->datadir, $self->tileroot, $self->tracksubdir, $self->trackpath);
 
+    my %md5_to_path;
     foreach my $seqInfo (@refSeqs) {
 	my $seqName = $seqInfo->{"name"};
+	my $seqLen = $seqInfo->{"length"};
 	warn "starting seq $seqName\n";
 	$self->mkdir($self->seqsubdir($seqName));
 
+	# open track description file
 	my $trackfile = $self->trackfile($seqName);
 	local *TRACKFILE;
 	open TRACKFILE, ">$trackfile" or die "Couldn't open $trackfile : $!";
 	print TRACKFILE "{\n \"zoomLevels\" : [";
 
-	my $seqlen = $seqInfo->{"length"};
+	# loop over zoom levels
 	for my $z (0..$#{$self->zooms}) {
 	    my $basesPerPixel = $self->zooms->[$z];
 	    warn "working on seq $seqName, bases per pixel $basesPerPixel\n";
 	    # create virtual image
-	    my $im = TrackImage->new ('-width' => ceil($seqlen/$basesPerPixel),
+	    my $im = TrackImage->new ('-width' => ceil($seqLen/$basesPerPixel),
 				      '-height' => $self->trackheight,
 				      '-tile_width_hint' => $self->tilewidth,
 				      '-bases_per_pixel' => $basesPerPixel);
@@ -152,10 +147,33 @@ sub render {
 	    my $tile = 0;
 	    for (my $x = 0; $x < $im->width; $x += $self->tilewidth) {
 		local *TILE;
+		my $gdIm = $im->renderTile($x,0,$self->tilewidth,$self->trackheight);
+		my $png = $gdIm->png;
 		my $tilefile = $self->tilefile ($seqName, $basesPerPixel, $tile);
-		open TILE, ">$tilefile" or die "Couldn't open $tilefile : $!";
-		print TILE $im->renderTile($x,0,$self->tilewidth,$self->trackheight)->png;
-		close TILE or die "Couldn't close $tilefile : $!";
+		my $writefile = 1;
+		if ($self->link) {
+		    my $md5 = md5_hex ($png);
+		    if (exists $md5_to_path{$md5}) {
+			my $oldtilefile = $md5_to_path{$md5};
+			if (-f $tilefile) {
+			    unlink $tilefile or die "Couldn't remove existing file $tilefile : $!";
+			}
+			# warn "Tile $tilefile identical to $oldtilefile, creating a hard link\n";
+			if (link $oldtilefile, $tilefile) {
+			    $writefile = 0;
+			} else {
+			    die "Couldn't link $oldtilefile to $tilefile : $!";
+			}
+		    } else {
+			$md5_to_path{$md5} = $tilefile;
+		    }
+		}
+		if ($writefile) {
+		    open TILE, ">$tilefile" or die "Couldn't open $tilefile : $!";
+		    binmode TILE;
+		    print TILE $png;
+		    close TILE or die "Couldn't close $tilefile : $!";
+		}
 		++$tile;
 	    }
 
@@ -169,12 +187,17 @@ sub render {
 		"  }";
 	}
 
+	# end of track description file
 	print TRACKFILE
 	    "\n ],\n",
 	    " \"tileWidth\" : ", $self->tilewidth,
 	    "\n}\n";
 	close TRACKFILE or die "Couldn't close $trackfile : $!";
 
+	# allow the TiledImage to clean up
+	$im->cleanup();
+
+	# write to track list
 	JsonGenerator::modifyJSFile($self->trackinfopath, "trackInfo",
 				    sub {
 					my $trackList = shift;
@@ -194,13 +217,36 @@ sub render {
     }
 }
 
+=head2 drawzoom
+
+    $im = new TiledImage ('-width'=>..., '-height'=>...);
+    $seqInfo = { "name" => ...,
+                 "length" => ...,
+                 ... };
+    $renderer->drawzoom($im,$seqInfo);
+
+Calls the supplied C<drawsub> coderef with the specified arguments.
+
+You should not call this method directly (it is called by C<render>), but you can override it in a subclass instead of placing a coderef in C<drawsub>, if you choose.
+
+The default implementation just passes the arguments to C<drawsub>, like so:
+
+    &{$renderer->drawsub}($im,$seqInfo)
+
+=cut
+
+sub drawzoom {
+    my ($self, $im, $seqInfo) = @_;
+    &{$self->drawsub} ($im, $seqInfo);
+}
+
 =head1 AUTHORS
 
 Mitchell Skinner E<lt>mitch_skinner@berkeley.eduE<gt>
 
 Ian Holmes E<lt>ihh@berkeley.eduE<gt>
 
-Copyright (c) 2007-2009 The Evolutionary Software Foundation
+Copyright (c) 2007-2010 The Evolutionary Software Foundation
 
 This package and its accompanying libraries are free software; you can
 redistribute it and/or modify it under the terms of the LGPL (either

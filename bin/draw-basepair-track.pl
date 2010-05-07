@@ -22,21 +22,21 @@ my $bgColor = "255,255,255";
 my $tileWidth = 2000;
 my $trackHeight = 100;
 my $thickness = 2;
+my $nolinks = 0;
 
 my $usage = <<USAGE;
- USAGE: $0 --gff <GFF file> [--tile <tiles directory>] [--out <JSON directory>] [--tracklabel <track identifier>] [--key <human-readable track name>] [--bgcolor <R,G,B>] [--fgcolor <R,G,B>] [--thickness <line thickness> [--width <tile width>] [--height <tile height>]
+ USAGE: $0 -gff <GFF file> [-tile <tiles directory>] [-out <JSON directory>] [-tracklabel <track identifier>] [-key <human-readable track name>] [-bgcolor <R,G,B>] [-fgcolor <R,G,B>] [-thickness <line thickness> [-width <tile width>] [-height <tile height>] [-nolinks]
 
-    --tile: defaults to "$tiledir"
-    --out: defaults to "$outdir"
-    --tracklabel: defaults to wiggle filename
-    --key: defaults to track label
-    --bgcolor: defaults to "$bgColor"
-    --fgcolor: defaults to "$fgColor"
-    --thickness: defaults to $thickness
-    --width: defaults to $tileWidth
-    --height: defaults to $trackHeight
-        if min and max are not supplied, an extra pass through
-        the wig file will be made to determine them
+    -tile: defaults to "$tiledir"
+    -out: defaults to "$outdir"
+    -tracklabel: defaults to wiggle filename
+    -key: defaults to track label
+    -bgcolor: defaults to "$bgColor"
+    -fgcolor: defaults to "$fgColor"
+    -thickness: defaults to $thickness
+    -width: defaults to $tileWidth
+    -height: defaults to $trackHeight
+    -nolinks: prevents use of filesystem links to compress duplicate tiles
 USAGE
 
 GetOptions("gff=s" => \$path,
@@ -48,7 +48,8 @@ GetOptions("gff=s" => \$path,
 	   "fgcolor=s" => \$fgColor,
 	   "width=s" => \$tileWidth,
 	   "height=s" => \$trackHeight,
-	   "thickness=s" => \$thickness);
+	   "thickness=s" => \$thickness,
+	   "nolinks" => \$nolinks);
 
 if (!defined($path)) {
     die $usage;
@@ -103,6 +104,7 @@ my $renderer = ImageTrackRenderer->new ("datadir" => $outdir,
 					"trackheight" => $trackHeight,
 					"tracklabel" => $trackLabel,
 					"key" => $key,
+					"link" => !$nolinks,
 					"drawsub" => sub {
 					    my ($im, $seqInfo) = @_;
 					    my $seqname = $seqInfo->{"name"};

@@ -8,6 +8,8 @@ TrackImage.pm
 
 Perl module to provide a GD-like interface for rendering a JBrowse track at a particular zoom level.
 
+See TiledImage.pm for inherited methods.
+
 =head1 METHODS
 
 =cut
@@ -75,6 +77,25 @@ Return the x-coordinate of the leftmost pixel of base $baseIndex (one-based).
 
 sub base_xpos {
     my ($self, $baseIndex) = @_;
-    return $self->pixels_per_base * $baseIndex;   # seems like this should be $baseIndex-1, but empirically that's off-by-one...
+    return $self->pixels_per_base * ($baseIndex - 1);
 }
 
+
+=head1 AUTHORS
+
+Mitchell Skinner E<lt>mitch_skinner@berkeley.eduE<gt>
+
+Ian Holmes E<lt>ihh@berkeley.eduE<gt>
+
+Copyright (c) 2007-2010 The Evolutionary Software Foundation
+
+This package and its accompanying libraries are free software; you can
+redistribute it and/or modify it under the terms of the LGPL (either
+version 2.1, or at your option, any later version) or the Artistic
+License 2.0.  Refer to LICENSE for the full license text.
+
+=cut
+
+
+# end of package
+1;
