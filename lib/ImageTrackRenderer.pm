@@ -185,6 +185,9 @@ sub render {
 		"   \"height\" : ", $self->trackheight, ",\n",
 		"   \"basesPerTile\" : ", $basesPerPixel * $self->tilewidth, "\n",
 		"  }";
+
+	    # allow the TiledImage to clean up
+	    $im->cleanup();
 	}
 
 	# end of track description file
@@ -193,9 +196,6 @@ sub render {
 	    " \"tileWidth\" : ", $self->tilewidth,
 	    "\n}\n";
 	close TRACKFILE or die "Couldn't close $trackfile : $!";
-
-	# allow the TiledImage to clean up
-	$im->cleanup();
 
 	# write to track list
 	JsonGenerator::modifyJSFile($self->trackinfopath, "trackInfo",
