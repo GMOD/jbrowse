@@ -71,7 +71,7 @@ sub new {
 		 'trackheight' => 100,
 		 'tracklabel' => "track",
 		 'key' => undef,
-		 'link' => 1,
+		 'link' => 1,  # true if we make filesystem hardlinks between MD5-identical tile images
 		 'drawsub' => sub { my ($im, $seqInfo) = @_; warn "Dummy render method called for ", $seqInfo->{"name"}, " at zoom ", $im->basesPerPixel, "\n"  }
     };
     while (my ($arg, $val) = each %args) {
@@ -82,6 +82,7 @@ sub new {
 	}
     }
     bless $self, $class;
+    # lazily import the md5_hex function if we're to use MD5 identity-linking
     eval "use Digest::MD5 qw(md5_hex)" if $self->link;
     return $self;
 }
@@ -150,8 +151,10 @@ sub render {
 		my $gdIm = $im->renderTile($x,0,$self->tilewidth,$self->trackheight);
 		my $png = $gdIm->png;
 		my $tilefile = $self->tilefile ($seqName, $basesPerPixel, $tile);
+		# we will write the tile file if the MD5 hash is unique, or if we don't create hardlinks between MD5-identical files
 		my $writefile = 1;
-		if ($self->link) {
+		if ($self->link) {  # do we make hardlinks?
+		    # compute the hash of the image; if we've seen it before, make a hardlink instead of writing the file.
 		    my $md5 = md5_hex ($png);
 		    if (exists $md5_to_path{$md5}) {
 			my $oldtilefile = $md5_to_path{$md5};
@@ -168,12 +171,14 @@ sub render {
 			$md5_to_path{$md5} = $tilefile;
 		    }
 		}
+		# write the file, if we still need to.
 		if ($writefile) {
 		    open TILE, ">$tilefile" or die "Couldn't open $tilefile : $!";
 		    binmode TILE;
 		    print TILE $png;
 		    close TILE or die "Couldn't close $tilefile : $!";
 		}
+		# increment the tile count.
 		++$tile;
 	    }
 
