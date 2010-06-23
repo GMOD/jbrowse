@@ -1,4 +1,7 @@
 #include <ctype.h>
+#include <cstring>
+#include <cstdlib>
+#include <cstdio>
 #include "opts_list.h"
 #include "macros.h"
 
