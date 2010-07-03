@@ -96,14 +96,13 @@ div#static_track {
     z-index: 20;
 }
 
-div.stripe {
+div.gridline {
     position: absolute;
     top: 0px;
     height: 100%;
     border-style: none none none solid;
     border-width: 1px;
     border-color: #ddd;
-    overflow: visible;
 }
 
 div.pos-label {
