@@ -76,7 +76,7 @@ Util.findNearest = function(numArray, num) {
     for (var i = 0; i < numArray.length; i++) {
         if (Math.abs(num - numArray[i]) < min) {
             minIndex = i;
-            min = Math.abs(num - numArray[0]);
+            min = Math.abs(num - numArray[i]);
         }
     }
     return minIndex;
