@@ -110,6 +110,7 @@ Zoomer.prototype.step = function(pos) {
     var newLeft = (this.center * this.initialWidth) - (this.center * newWidth);
     this.toZoom.style.width = newWidth + "px";
     this.toZoom.style.left = (this.initialLeft + newLeft) + "px";
+    var forceRedraw = this.toZoom.offsetTop;
     this.subject.updateTrackLabels(this.initialX - newLeft);
 };
 
@@ -494,16 +495,14 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
 
     if (this.ref != refseq) {
 	this.ref = refseq;
-	var trackDivs = [];
-	//var getDivs = function(track) {
-	//    trackDivs.push(track.div);
-	//};
-	//this.trackIterate(getDivs);
-	//dojo.forEach(trackDivs, function(div) {div.parentNode.removeChild(div);});
-        this.trackIterate(function(track) { track.clear(); });
-	//trackDivs = [];
-	this.overviewTrackIterate(getDivs);
-	dojo.forEach(trackDivs, function(div) {div.parentNode.removeChild(div);});
+	var removeTrack = function(track) {
+            if (track.div && track.div.parentNode)
+                track.div.parentNode.removeChild(track.div);
+	};
+	dojo.forEach(this.tracks, removeTrack);
+        dojo.forEach(this.uiTracks, function(track) { track.clear(); });
+	this.overviewTrackIterate(removeTrack);
+
 	this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
         this.sizeInit();
     }
@@ -542,7 +541,8 @@ GenomeView.prototype.instantZoomUpdate = function() {
     this.maxLeft = this.bpToPx(this.ref.end) - this.dim.width;
     this.minLeft = this.bpToPx(this.ref.start);
     this.container.style.paddingTop = this.topSpace + "px";
-    this.containerHeight = 0;
+    this.setY(0);
+    this.containerHeight = this.topSpace;
 };
 
 GenomeView.prototype.centerAtBase = function(base, instantly) {
@@ -991,8 +991,7 @@ GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
         if (this.tracks[i].shown)
             nextTop += this.trackHeights[i] + this.trackPadding;
     }
-    this.containerHeight = Math.max(nextTop - this.trackPadding,
-                                    this.getY() + this.dim.height);
+    this.containerHeight = Math.max(nextTop, this.getY() + this.dim.height);
     this.container.style.height = this.containerHeight + "px";
 };
 

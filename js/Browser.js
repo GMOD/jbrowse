@@ -381,6 +381,7 @@ Browser.prototype.navigateTo = function(loc) {
 					  parseInt(matches[6].replace(/[,.]/g, "")));
 
                     this.viewDndWidget.insertNodes(false, curTracks);
+                    this.onVisibleTracksChanged();
 		}
 		return;
 	    }
