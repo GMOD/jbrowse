@@ -79,7 +79,7 @@ Slider.prototype.step = function(pos) {
 
 function Zoomer(scale, toScroll, callback, time, zoomLoc) {
     Animation.call(this, toScroll, callback, time);
-    this.toZoom = toScroll.container;
+    this.toZoom = toScroll.zoomContainer;
     var cWidth = this.toZoom.clientWidth;
 
     this.initialWidth = cWidth;
@@ -93,7 +93,7 @@ function Zoomer(scale, toScroll, callback, time, zoomLoc) {
     //this.zoomLoc = zoomLoc;
     this.center =
         (toScroll.getX() + (toScroll.elem.clientWidth * zoomLoc))
-        / toScroll.container.clientWidth;
+        / toScroll.scrollContainer.clientWidth;
 
     // initialX and initialLeft can differ when we're scrolling
     // using scrollTop and scrollLeft
@@ -150,12 +150,24 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     //the page element that the GenomeView lives in
     this.elem = elem;
 
-    this.container = document.createElement("div");
-    this.container.id = "container";
-    this.container.style.cssText =
-        "background-color: white;" +
+    // the scrollContainer is the element that changes position
+    // when the user scrolls
+    this.scrollContainer = document.createElement("div");
+    this.scrollContainer.id = "container";
+    this.scrollContainer.style.cssText =
+        "background-color: #eee;" +
         "position: absolute; left: 0px; top: 0px;";
-    elem.appendChild(this.container);
+    elem.appendChild(this.scrollContainer);
+
+    // we have a separate zoomContainer as a child of the scrollContainer.
+    // they used to be the same element, but making zoomContainer separate
+    // enables it to be narrower than this.elem.
+    this.zoomContainer = document.createElement("div");
+    this.zoomContainer.id = "zoomContainer";
+    this.zoomContainer.style.cssText =
+        "background-color: white;" +
+        "position: absolute; left: 0px; top: 0px; height: 100%;";
+    this.scrollContainer.appendChild(this.zoomContainer);
 
     //width, in pixels of the "regular" (not min or max zoom) stripe
     this.regularStripe = stripeWidth;
@@ -210,42 +222,42 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     var cssScroll = dojo.isIE;
 
     if (cssScroll) {
-        view.x = -parseInt(view.container.style.left);
-        view.y = -parseInt(view.container.style.top);
+        view.x = -parseInt(view.scrollContainer.style.left);
+        view.y = -parseInt(view.scrollContainer.style.top);
         view.getX = function() {
-            return view.x; //-parseInt(view.container.style.left);
+            return view.x; //-parseInt(view.scrollContainer.style.left);
         };
         view.getY = function() {
-            return view.y; //-parseInt(view.container.style.top);
+            return view.y; //-parseInt(view.scrollContainer.style.top);
         };
         view.getPosition = function() {
 	    return { x: view.x, y: view.y };
-            //return {x: -parseInt(view.container.style.left),
-            //        y: -parseInt(view.container.style.top)};
+            //return {x: -parseInt(view.scrollContainer.style.left),
+            //        y: -parseInt(view.scrollContainer.style.top)};
         };
         view.rawSetX = function(x) {
-            view.container.style.left = -x + "px"; view.x = x;
+            view.scrollContainer.style.left = -x + "px"; view.x = x;
         };
         view.setX = function(x) {
 	    view.x = Math.max(Math.min(view.maxLeft - view.offset, x),
                               view.minLeft - view.offset);
 	    view.updateTrackLabels(view.x);
 	    view.showFine();
-            view.container.style.left = -view.x + "px";
+            view.scrollContainer.style.left = -view.x + "px";
         };
         view.rawSetY = function(y) {
-            view.container.style.top = -y + "px"; view.y = y;
+            view.scrollContainer.style.top = -y + "px"; view.y = y;
         };
         view.setY = function(y) {
             view.y = Math.min((y < 0 ? 0 : y),
                               view.containerHeight
                               - view.dim.height);
             view.updatePosLabels(view.y);
-            view.container.style.top = -view.y + "px";
+            view.scrollContainer.style.top = -view.y + "px";
         };
         view.rawSetPosition = function(pos) {
-            view.container.style.left = -pos.x + "px";
-            view.container.style.top = -pos.y + "px";
+            view.scrollContainer.style.left = -pos.x + "px";
+            view.scrollContainer.style.top = -pos.y + "px";
         };
         view.setPosition = function(pos) {
             view.x = Math.max(Math.min(view.maxLeft - view.offset, pos.x),
@@ -256,8 +268,8 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
             view.updatePosLabels(view.y);
 	    view.showFine();
 
-            view.container.style.left = -view.x + "px";
-            view.container.style.top = -view.y + "px";
+            view.scrollContainer.style.left = -view.x + "px";
+            view.scrollContainer.style.top = -view.y + "px";
         };
     } else {
 	view.x = view.elem.scrollLeft;
@@ -421,11 +433,11 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 	dojo.stopEvent(e);
     };
 
-    dojo.connect(view.container, "mousewheel", view.wheelScroll, false);
+    dojo.connect(view.scrollContainer, "mousewheel",
+                 view.wheelScroll, false);
 
-    dojo.connect(view.container, "DOMMouseScroll", view.wheelScroll, false);
-
-    //this.makeStripes();
+    dojo.connect(view.scrollContainer, "DOMMouseScroll",
+                 view.wheelScroll, false);
 
     var trackDiv = document.createElement("div");
     trackDiv.className = "track";
@@ -435,7 +447,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     this.staticTrack.setViewInfo(function(height) {}, this.stripeCount,
                                  trackDiv, undefined, this.stripePercent,
                                  this.stripeWidth, this.pxPerBp);
-    this.container.appendChild(trackDiv);
+    this.zoomContainer.appendChild(trackDiv);
     this.waitElems.push(trackDiv);
 
     var gridTrackDiv = document.createElement("div");
@@ -446,7 +458,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     gridTrack.setViewInfo(function(height) {}, this.stripeCount,
                           gridTrackDiv, undefined, this.stripePercent,
                           this.stripeWidth, this.pxPerBp);
-    this.container.appendChild(gridTrackDiv);
+    this.zoomContainer.appendChild(gridTrackDiv);
 
     this.uiTracks = [this.staticTrack, gridTrack];
     this.haveBlocks = true;
@@ -458,7 +470,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
                         this.pxPerBp);
     }, this);
 
-    this.container.style.paddingTop = this.topSpace + "px";
+    this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
     this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
 
@@ -505,6 +517,8 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
 
 	this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
         this.sizeInit();
+        this.setY(0);
+        this.containerHeight = this.topSpace;
     }
     this.pxPerBp = Math.min(this.dim.width / (endbp - startbp), this.charWidth);
     this.curZoom = Util.findNearest(this.zoomLevels, this.pxPerBp);
@@ -536,13 +550,14 @@ GenomeView.prototype.stripeWidthForZoom = function(zoomLevel) {
 };
 
 GenomeView.prototype.instantZoomUpdate = function() {
-    this.container.style.width = (this.stripeCount * this.stripeWidth) + "px";
-    this.maxOffset = this.bpToPx(this.ref.end) - this.stripeCount * this.stripeWidth;
+    this.scrollContainer.style.width =
+        (this.stripeCount * this.stripeWidth) + "px";
+    this.zoomContainer.style.width =
+        (this.stripeCount * this.stripeWidth) + "px";
+    this.maxOffset =
+        this.bpToPx(this.ref.end) - this.stripeCount * this.stripeWidth;
     this.maxLeft = this.bpToPx(this.ref.end) - this.dim.width;
     this.minLeft = this.bpToPx(this.ref.start);
-    this.container.style.paddingTop = this.topSpace + "px";
-    this.setY(0);
-    this.containerHeight = this.topSpace;
 };
 
 GenomeView.prototype.centerAtBase = function(base, instantly) {
@@ -707,7 +722,10 @@ GenomeView.prototype.sizeInit = function() {
     if (oldStripeCount) oldX = this.getX();
     this.stripeCount = Math.round(100 / this.stripePercent);
 
-    this.container.style.width = (this.stripeCount * this.stripeWidth) + "px";
+    this.scrollContainer.style.width =
+        (this.stripeCount * this.stripeWidth) + "px";
+    this.zoomContainer.style.width =
+        (this.stripeCount * this.stripeWidth) + "px";
 
     if (oldStripeCount && (oldStripeCount != this.stripeCount)) {
 	var delta = (Math.floor((oldStripeCount - this.stripeCount) / 2)
@@ -718,10 +736,10 @@ GenomeView.prototype.sizeInit = function() {
 	this.rawSetX(newX);
     }
 
-    var newHeight = parseInt(this.container.style.height);
+    var newHeight = parseInt(this.scrollContainer.style.height);
     newHeight = (newHeight > this.dim.height ? newHeight : this.dim.height);
 
-    this.container.style.height = newHeight + "px";
+    this.scrollContainer.style.height = newHeight + "px";
     this.containerHeight = newHeight;
 
     if (this.haveBlocks) {
@@ -909,14 +927,17 @@ GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {
     var eWidth = this.elem.clientWidth;
     var centerPx = this.bpToPx(fixedBp) - (zoomLoc * eWidth) + (eWidth / 2);
     this.stripeWidth = this.stripeWidthForZoom(this.curZoom);
-    this.container.style.width = (this.stripeCount * this.stripeWidth) + "px";
+    this.scrollContainer.style.width =
+        (this.stripeCount * this.stripeWidth) + "px";
+    this.zoomContainer.style.width =
+        (this.stripeCount * this.stripeWidth) + "px";
     var centerStripe = Math.round(centerPx / this.stripeWidth);
     var firstStripe = (centerStripe - ((this.stripeCount) / 2)) | 0;
     this.offset = firstStripe * this.stripeWidth;
     this.maxOffset = this.bpToPx(this.ref.end) - this.stripeCount * this.stripeWidth;
     this.maxLeft = this.bpToPx(this.ref.end) - this.dim.width;
     this.minLeft = this.bpToPx(this.ref.start);
-    this.container.style.left = "0px";
+    this.zoomContainer.style.left = "0px";
     this.setX((centerPx - this.offset) - (eWidth / 2));
     //this.updateTrackLabels();
     dojo.forEach(this.uiTracks, function(track) { track.clear(); });
@@ -935,7 +956,7 @@ GenomeView.prototype.scrollUpdate = function() {
     var cWidth = numStripes * this.stripeWidth;
     var eWidth = this.dim.width;
     //dx: horizontal distance between the centers of
-    //this.container and this.elem
+    //this.scrollContainer and this.elem
     var dx = (cWidth / 2) - ((eWidth / 2) + x);
     //If dx is negative, we add stripes on the right, if positive,
     //add on the left.
@@ -992,7 +1013,7 @@ GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
             nextTop += this.trackHeights[i] + this.trackPadding;
     }
     this.containerHeight = Math.max(nextTop, this.getY() + this.dim.height);
-    this.container.style.height = this.containerHeight + "px";
+    this.scrollContainer.style.height = this.containerHeight + "px";
 };
 
 GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, endX) {
@@ -1055,7 +1076,7 @@ GenomeView.prototype.updateTrackList = function() {
     var tracks = [];
     // after a track has been dragged, the DOM is the only place
     // that knows the new ordering
-    var containerChild = this.container.firstChild;
+    var containerChild = this.zoomContainer.firstChild;
     do {
         // this test excludes UI tracks, whose divs don't have a track property
         if (containerChild.track) tracks.push(containerChild.track);

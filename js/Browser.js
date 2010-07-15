@@ -256,7 +256,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         }
         return {node: node, data: track, type: ["track"]};
     };
-    this.viewDndWidget = new dojo.dnd.Source(this.view.container,
+    this.viewDndWidget = new dojo.dnd.Source(this.view.zoomContainer,
                                        {
                                            creator: trackCreate,
                                            accept: ["track"],
