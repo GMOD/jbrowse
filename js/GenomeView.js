@@ -683,7 +683,6 @@ GenomeView.prototype.sizeInit = function() {
     this.curZoom = 0;
     while (this.pxPerBp > this.zoomLevels[this.curZoom])
         this.curZoom++;
-    this.pxPerBp = this.zoomLevels[this.curZoom];
     this.maxLeft = this.bpToPx(this.ref.end) - this.dim.width;
 
     delete this.stripePercent;
@@ -747,7 +746,6 @@ GenomeView.prototype.sizeInit = function() {
                               track.sizeInit(view.stripeCount,
                                              view.stripePercent);
                           });
-        this.startBase = Math.round(this.pxToBp(this.offset));
         this.showVisibleBlocks(true);
 	this.showFine();
         this.showCoarse();
@@ -969,14 +967,9 @@ GenomeView.prototype.scrollUpdate = function() {
     var changedStripes = Math.abs(dStripes);
 
     var newOffset = this.offset - (dStripes * this.stripeWidth);
-    //newOffset = Math.min(this.maxOffset, newOffset)
-    //newOffset = Math.max(0, newOffset);
-
-    dStripes = ((this.offset - newOffset) / this.stripeWidth) | 0;
 
     if (this.offset == newOffset) return;
     this.offset = newOffset;
-    this.startBase = Math.round(this.pxToBp(this.offset));
 
     this.trackIterate(function(track) { track.moveBlocks(dStripes); });
 
