@@ -11,7 +11,6 @@ function Animation(subject, callback, time) {
     this.callback = callback;
 
     var myAnim = this;
-    //this.animID = setInterval(function() { myAnim.animate() }, 33);
     this.animFunction = function() { myAnim.animate(); };
     // number of milliseconds between frames (e.g., 33ms at 30fps)
     this.animID = setTimeout(this.animFunction, 33);
@@ -225,15 +224,13 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
         view.x = -parseInt(view.scrollContainer.style.left);
         view.y = -parseInt(view.scrollContainer.style.top);
         view.getX = function() {
-            return view.x; //-parseInt(view.scrollContainer.style.left);
+            return view.x;
         };
         view.getY = function() {
-            return view.y; //-parseInt(view.scrollContainer.style.top);
+            return view.y;
         };
         view.getPosition = function() {
 	    return { x: view.x, y: view.y };
-            //return {x: -parseInt(view.scrollContainer.style.left),
-            //        y: -parseInt(view.scrollContainer.style.top)};
         };
         view.rawSetX = function(x) {
             view.scrollContainer.style.left = -x + "px"; view.x = x;
@@ -275,15 +272,13 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 	view.x = view.elem.scrollLeft;
 	view.y = view.elem.scrollTop;
         view.getX = function() {
-	    return view.x; //view.elem.scrollLeft;
+	    return view.x;
 	};
         view.getY = function() {
-	    return view.y; //view.elem.scrollTop;
+	    return view.y;
 	};
         view.getPosition = function() {
 	    return { x: view.x, y: view.y };
-            //return {x: view.elem.scrollLeft,
-            //        y: view.elem.scrollTop};
         };
         view.rawSetX = function(x) {
             view.elem.scrollLeft = x; view.x = x;
@@ -654,17 +649,15 @@ GenomeView.prototype.showDone = function() {
 
 GenomeView.prototype.pxToBp = function(pixels) {
     return pixels / this.pxPerBp;
-    //return (pixels / this.pxPerBp) + this.ref.start;
 };
 
 GenomeView.prototype.bpToPx = function(bp) {
     return bp * this.pxPerBp;
-    //return (bp - this.ref.start) * this.pxPerBp;
 };
 
 GenomeView.prototype.sizeInit = function() {
     this.dim = {width: this.elem.clientWidth,
-                height: this.elem.clientHeight};//Element.getDimensions(elem);
+                height: this.elem.clientHeight};
     this.overviewBox = dojo.marginBox(this.overview);
 
     //scale values, in pixels per bp, for all zoom levels
@@ -710,8 +703,6 @@ GenomeView.prototype.sizeInit = function() {
     }
 
     if (this.stripePercent === undefined) {
-//        throw new RangeError("stripeWidth too small: " + this.stripeWidth + ", " + this.dim.width);
-	// replaced above exception by the following quick hack to fix reported wide-display issues - IH, 3/30/2010
 	console.warn("stripeWidth too small: " + this.stripeWidth + ", " + this.dim.width);
 	this.stripePercent = 1;
     }
@@ -937,12 +928,10 @@ GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {
     this.minLeft = this.bpToPx(this.ref.start);
     this.zoomContainer.style.left = "0px";
     this.setX((centerPx - this.offset) - (eWidth / 2));
-    //this.updateTrackLabels();
     dojo.forEach(this.uiTracks, function(track) { track.clear(); });
     for (var track = 0; track < this.tracks.length; track++)
 	this.tracks[track].endZoom(this.pxPerBp, Math.round(this.stripeWidth / this.pxPerBp));
     //YAHOO.log("post-zoom start base: " + this.pxToBp(this.offset + this.getX()) + ", end base: " + this.pxToBp(this.offset + this.getX() + this.dim.width));
-    //this.makeStripes();
     this.showVisibleBlocks(true);
     this.showDone();
     this.showCoarse();
