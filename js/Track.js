@@ -293,36 +293,8 @@ Track.prototype.sizeInit = function(numBlocks, widthPct) {
     var i, oldLast;
     this.numBlocks = numBlocks;
     this.widthPct = widthPct;
-    if (this.blocks && (this.blocks.length > 0)) {
-        //if we're shrinking, clear out the end blocks
-        for (i = numBlocks; i < this.blocks.length; i++)
-            this._hideBlock(i);
-        oldLast = this.blocks.length;
-        this.blocks.length = numBlocks;
-        this.blockHeights.length = numBlocks;
-        //if we're expanding, set new blocks to be not there
-        for (i = oldLast; i < numBlocks; i++) {
-            this.blocks[i] = undefined;
-            this.blockHeights[i] = 0;
-        }
-        this.lastAttached = Math.min(this.lastAttached, numBlocks - 1);
-        if (this.firstAttached > this.lastAttached) {
-            //not sure if this can happen
-            this.firstAttached = null;
-            this.lastAttached = null;
-        }
-
-        if (this.blocks.length != numBlocks) throw new Error("block number mismatch: should be " + numBlocks + "; blocks.length: " + this.blocks.length);
-        for (i = 0; i < numBlocks; i++) {
-            if (this.blocks[i]) {
-                //if (!this.blocks[i].style) console.log(this.blocks);
-                this.blocks[i].style.left = (i * widthPct) + "%";
-                this.blocks[i].style.width = widthPct + "%";
-            }
-        }
-    } else {
-        this.initBlocks();
-    }
+    if (this.blocks && (this.blocks.length > 0)) this.clear();
+    this.initBlocks();
 };
 
 /*
