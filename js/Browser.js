@@ -203,7 +203,8 @@ Browser.prototype.createTrackList = function(parent, params) {
     var trackListDiv = document.createElement("div");
     trackListDiv.id = "tracksAvail";
     trackListDiv.className = "container handles";
-    trackListDiv.style.cssText = "width: 100%; height: 100%;";
+    trackListDiv.style.cssText =
+        "width: 100%; height: 100%; overflow-x: hidden; overflow-y: auto;";
     trackListDiv.innerHTML =
         "Available Tracks:<br/>(Drag <img src=\""
         + (params.browserRoot ? params.browserRoot : "")
