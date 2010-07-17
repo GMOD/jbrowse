@@ -116,6 +116,7 @@ var Browser = function(params) {
                     gv.sizeInit();
 
                     brwsr.view.locationTrapHeight = dojo.marginBox(navbox).h;
+                    gv.showVisibleBlocks();
                     gv.showFine();
                     gv.showCoarse();
                 });
