@@ -179,11 +179,13 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     this.overview = $("overview");
     this.overviewBox = dojo.marginBox(this.overview);
 
+    this.tracks = [];
+    this.uiTracks = [];
+    this.trackIndices = {};
+
     //set up size state (zoom levels, stripe percentage, etc.)
     this.sizeInit();
 
-    this.tracks = [];
-    this.trackIndices = {};
     //distance, in pixels, from the beginning of the reference sequence
     //to the beginning of the first active stripe
     //  should always be a multiple of stripeWidth
@@ -456,7 +458,6 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     this.zoomContainer.appendChild(gridTrackDiv);
 
     this.uiTracks = [this.staticTrack, gridTrack];
-    this.haveBlocks = true;
 
     dojo.forEach(this.uiTracks, function(track) {
         track.showRange(0, this.stripeCount - 1,
@@ -717,30 +718,27 @@ GenomeView.prototype.sizeInit = function() {
     this.zoomContainer.style.width =
         (this.stripeCount * this.stripeWidth) + "px";
 
+    var blockDelta = undefined;
     if (oldStripeCount && (oldStripeCount != this.stripeCount)) {
-	var delta = (Math.floor((oldStripeCount - this.stripeCount) / 2)
-		     * this.stripeWidth);
-	var newX = this.getX() - delta;
-	this.offset += delta;
-	this.updateTrackLabels(newX);
-	this.rawSetX(newX);
+        blockDelta = Math.floor((oldStripeCount - this.stripeCount) / 2);
+        var delta = (blockDelta * this.stripeWidth);
+        var newX = this.getX() - delta;
+        this.offset += delta;
+        this.updateTrackLabels(newX);
+        this.rawSetX(newX);
     }
+
+    this.trackIterate(function(track, view) {
+                          track.sizeInit(view.stripeCount,
+                                         view.stripePercent,
+                                         blockDelta);
+                      });
 
     var newHeight = parseInt(this.scrollContainer.style.height);
     newHeight = (newHeight > this.dim.height ? newHeight : this.dim.height);
 
     this.scrollContainer.style.height = newHeight + "px";
     this.containerHeight = newHeight;
-
-    if (this.haveBlocks) {
-        this.trackIterate(function(track, view) {
-                              track.sizeInit(view.stripeCount,
-                                             view.stripePercent);
-                          });
-        this.showVisibleBlocks(true);
-	this.showFine();
-        this.showCoarse();
-    }
 
     var refLength = this.ref.end - this.ref.start;
     var posSize = document.createElement("div");
