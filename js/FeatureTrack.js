@@ -162,11 +162,17 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
                            blockIndex);
     };
 
+    // The histogramMeta array describes multiple levels of histogram detail,
+    // going from the finest (smallest number of bases per bin) to the
+    // coarsest (largest number of bases per bin).
+    // We want to use coarsest histogramMeta that's at least as fine as the
+    // one we're currently rendering.
     var histogramMeta = this.histogramMeta[0];
     for (var i = 0; i < this.histogramMeta.length; i++) {
         if (bpPerBin >= this.histogramMeta[i].basesPerBin)
             histogramMeta = this.histogramMeta[i];
     }
+
     // number of bins in the server-supplied histogram for each current bin
     var binCount = bpPerBin / histogramMeta.basesPerBin;
     // if the server-supplied histogram fits neatly into our current histogram,
@@ -184,7 +190,7 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
             firstServerBin,
             firstServerBin + (binCount * this.numBins),
             function(i, val) {
-                histogram[Math.round((i - firstServerBin) / binCount)] += val;
+                histogram[Math.floor((i - firstServerBin) / binCount)] += val;
             },
             function() {
                 makeHistBlock(histogram);
