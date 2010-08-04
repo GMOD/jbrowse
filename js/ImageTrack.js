@@ -9,7 +9,8 @@ function ImageTrack(trackMeta, url, refSeq, browserParams) {
 
     this.imgErrorHandler = function(ev) {
         var img = ev.target || ev.srcElement;
-        img.src="";
+        img.style.display = "none";
+        dojo.stopEvent(ev);
     };
 }
 
@@ -60,7 +61,7 @@ ImageTrack.prototype.getImages = function(zoom, startBase, endBase) {
 	im = this.tileToImage[i];
 	if (!im) {
 	    im = document.createElement("img");
-            im.onerror = this.imgErrorHandler;
+            dojo.connect(im, "onerror", this.imgErrorHandler);
             //prepend this.baseUrl if zoom.urlPrefix is relative
             im.src = (zoom.urlPrefix.match(/^(([^/]+:)|\/)/) ? "" : this.baseUrl)
                      + zoom.urlPrefix + i + ".png";
@@ -87,7 +88,11 @@ ImageTrack.prototype.fillBlock = function(blockIndex, block,
     for (var i = 0; i < images.length; i++) {
 	im = images[i];
 	if (!(im.parentNode && im.parentNode.parentNode)) {
-	    im.style.cssText = "position: absolute; left: " + (100 * ((im.startBase - leftBase) / blockWidth)) + "%; width: " + (100 * (im.baseWidth / blockWidth)) + "%; top: 0px; height: " + zoom.height + "px;";
+            im.style.position = "absolute";
+            im.style.left = (100 * ((im.startBase - leftBase) / blockWidth)) + "%";
+            im.style.width = (100 * (im.baseWidth / blockWidth)) + "%";
+            im.style.top = "0px";
+            im.style.height = zoom.height + "px";
             block.appendChild(im);
 	}
     }
