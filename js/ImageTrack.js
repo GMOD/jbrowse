@@ -6,6 +6,11 @@ function ImageTrack(trackMeta, url, refSeq, browserParams) {
     this.zoomCache = {};
     this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "");
     this.load(this.baseUrl + url);
+
+    this.imgErrorHandler = function(ev) {
+        var img = ev.target || ev.srcElement;
+        img.src="";
+    };
 }
 
 ImageTrack.prototype = new Track("");
@@ -55,6 +60,7 @@ ImageTrack.prototype.getImages = function(zoom, startBase, endBase) {
 	im = this.tileToImage[i];
 	if (!im) {
 	    im = document.createElement("img");
+            im.onerror = this.imgErrorHandler;
             //prepend this.baseUrl if zoom.urlPrefix is relative
             im.src = (zoom.urlPrefix.match(/^(([^/]+:)|\/)/) ? "" : this.baseUrl)
                      + zoom.urlPrefix + i + ".png";
