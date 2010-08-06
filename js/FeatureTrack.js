@@ -354,7 +354,6 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
 
     var curTrack = this;
     var featDiv;
-    var urlValid = true;
     var callback = this.onFeatureClick;
     var leftSlots = new Array();
     var glyphHeight = this.glyphHeight;
@@ -402,6 +401,7 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
                                    featureEnd + basePadding,
                                    levelHeight);
 
+        var urlValid = true;
         if (curTrack.urlTemplate) {
             var href = curTrack.urlTemplate.replace(/\{([^}]+)\}/g,
                 function(match, group) {
@@ -411,14 +411,11 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
                         urlValid = false;
                     return 0;
                 });
-            if(urlValid)
-            {
+            if(urlValid) {
                 featDiv = document.createElement("a");
                 featDiv.href = href;
                 featDiv.target = "_new";
-            }
-            else
-            {
+            } else {
                 featDiv = document.createElement("div");
             }
         } else {
