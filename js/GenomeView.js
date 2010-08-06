@@ -240,6 +240,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
         view.setX = function(x) {
 	    view.x = Math.max(Math.min(view.maxLeft - view.offset, x),
                               view.minLeft - view.offset);
+            view.x = Math.round(view.x);
 	    view.updateTrackLabels(view.x);
 	    view.showFine();
             view.scrollContainer.style.left = -view.x + "px";
@@ -251,6 +252,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
             view.y = Math.min((y < 0 ? 0 : y),
                               view.containerHeight
                               - view.dim.height);
+            view.y = Math.round(view.y);
             view.updatePosLabels(view.y);
             view.scrollContainer.style.top = -view.y + "px";
         };
@@ -263,6 +265,9 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
                               view.minLeft - view.offset);
             view.y = Math.min((pos.y < 0 ? 0 : pos.y),
                               view.containerHeight - view.dim.height);
+            view.x = Math.round(view.x);
+            view.y = Math.round(view.y);
+
             view.updateTrackLabels(view.x);
             view.updatePosLabels(view.y);
 	    view.showFine();
@@ -288,6 +293,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
         view.setX = function(x) {
 	    view.x = Math.max(Math.min(view.maxLeft - view.offset, x),
 			      view.minLeft - view.offset);
+            view.x = Math.round(view.x);
 	    view.updateTrackLabels(view.x);
 	    view.showFine();
 
@@ -305,6 +311,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
             view.y = Math.min((y < 0 ? 0 : y),
                               view.containerHeight
                               - view.dim.height);
+            view.y = Math.round(view.y);
             view.updatePosLabels(view.y);
             view.elem.scrollTop = view.y;
         };
@@ -313,6 +320,8 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
                               view.minLeft - view.offset);
             view.y = Math.min((pos.y < 0 ? 0 : pos.y),
                               view.containerHeight - view.dim.height);
+            view.x = Math.round(view.x);
+            view.y = Math.round(view.y);
 
             view.updateTrackLabels(view.x);
             view.updatePosLabels(view.y);
