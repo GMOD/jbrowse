@@ -1,16 +1,5 @@
 var Util = {};
 
-function $(element) {
-  if (arguments.length > 1) {
-    for (var i = 0, elements = [], length = arguments.length; i < length; i++)
-      elements.push($(arguments[i]));
-    return elements;
-  }
-  if (typeof element == 'string')
-    element = document.getElementById(element);
-  return element;
-}
-
 Util.is_ie = navigator.appVersion.indexOf('MSIE') >= 0;
 Util.is_ie6 = navigator.appVersion.indexOf('MSIE 6') >= 0;
 Util.addCommas = function(nStr)

@@ -176,7 +176,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     //at stripeWidth / 10
     this.fullZoomStripe = this.charWidth * (stripeWidth / 10);
 
-    this.overview = $("overview");
+    this.overview = dojo.byId("overview");
     this.overviewBox = dojo.marginBox(this.overview);
 
     this.tracks = [];
@@ -207,9 +207,9 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     this.trackHeights = [];
     this.trackTops = [];
     this.trackLabels = [];
-    this.waitElems = [$("moveLeft"), $("moveRight"),
-                      $("zoomIn"), $("zoomOut"),
-                      $("bigZoomIn"), $("bigZoomOut"),
+    this.waitElems = [dojo.byId("moveLeft"), dojo.byId("moveRight"),
+                      dojo.byId("zoomIn"), dojo.byId("zoomOut"),
+                      dojo.byId("bigZoomIn"), dojo.byId("bigZoomOut"),
                       document.body, elem];
     this.prevCursors = [];
     this.locationThumb = document.createElement("div");
@@ -684,7 +684,7 @@ GenomeView.prototype.sizeInit = function() {
     var possiblePercents = [20, 10, 5, 4, 2, 1];
     for (var i = 0; i < possiblePercents.length; i++) {
         // we'll have (100 / possiblePercents[i]) stripes.
-        // multiplying that number of stripes by the stripe width
+        // multiplying that number of stripes by the minimum stripe width
         // gives us the total width of the "container" div.
         // (or what that width would be if we used possiblePercents[i]
         // as our stripePercent)
@@ -696,7 +696,11 @@ GenomeView.prototype.sizeInit = function() {
         // So, (this.dim.width * 3) gives one screen-width on either side,
         // and we add a regularStripe width to handle the slightly off-center
         // cases.
-        if (((100 / possiblePercents[i]) * this.regularStripe)
+        // The minimum stripe width is going to be halfway between
+        // "canonical" zoom levels; the widest distance between those
+        // zoom levels is 2.5-fold, so halfway between them is 0.7 times
+        // the stripe width at the higher zoom level
+        if (((100 / possiblePercents[i]) * (this.regularStripe * 0.7))
             > ((this.dim.width * 3) + this.regularStripe)) {
             this.stripePercent = possiblePercents[i];
             break;

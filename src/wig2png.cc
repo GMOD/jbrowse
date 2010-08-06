@@ -13,9 +13,11 @@
 #include <set>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <limits>
 #include <algorithm>
+
+#include "opts_list.h"
+
 using namespace std;
 
 #define PNG_DEBUG 3
@@ -88,15 +90,6 @@ void write_png_file(const char* file_name, int width, int height, png_bytep imgb
         abort_("failed to close file %s: %d", file_name, errno);
 
     return;
-}
-
-template <class T>
-bool from_string(T& t, 
-                 const std::string& s, 
-                 std::ios_base& (*f)(std::ios_base&))
-{
-  std::istringstream iss(s);
-  return !(iss >> f >> t).fail();
 }
 
 string ensure_path(vector<string> pathelems) {
@@ -536,42 +529,66 @@ private:
 };
 
 int main(int argc, char **argv){
-    if (argc < 9) {
-        cerr << "Usage: " << argv[0] << "<input file> <output dir> <json dir> <track label> <width> <height> <bg red>,<bg green>,<bg blue> <fg red>,<fg green>,<fg blue> [<min> <max>]" << endl;
-        exit(1);
-    }
+  
+  INIT_OPTS_LIST (opts, argc, argv, 1, "[options] <input file>", "create a JBrowse quantitative track, broken into tile images, from a WIG file");
+
+  string pngdiropt = "data/tiles";
+  string jsondiropt = "data/tracks";
+  string tracklabel = "wigtrack";
+  int width = 2000;
+  int height = 100;
+  string fgopt = "105,155,111";
+  string bgopt = "255,255,255";
+  string minopt, maxopt;
+
+  opts.add ("pd -png-dir", pngdiropt, "PNG output directory");
+  opts.add ("jd -json-dir", jsondiropt, "JSON output directory");
+  opts.add ("tl -track-label", tracklabel, "track label");
+  opts.add ("tw -tile-width", width, "tile width in pixels");
+  opts.add ("th -track-height", height, "track height in pixels");
+  opts.add ("fg -foreground-color", fgopt, "foreground R,G,B color");
+  opts.add ("bg -background-color", bgopt, "background R,G,B color");
+  opts.add ("min -min-value", minopt, "minimum value to show (default is minimum value in WIG file)", false);
+  opts.add ("max -max-value", maxopt, "maximum value to show (default is maximum value in WIG file)", false);
+
+  try {
+    opts.parse();
+  } catch (Opts_list::Syntax_exception e) {
+    cerr << opts.short_help() << e.what();
+    exit(1);
+  }
+
+  string wig_filename = opts.args[0];
 
     png_color bg = {
-        atoi(strtok(argv[7], ",")), 
-        atoi(strtok(NULL, ",")), 
-        atoi(strtok(NULL, ","))
+      atoi(strtok((char*) bgopt.c_str(), ",")),   // cast away const
+      atoi(strtok(NULL, ",")), 
+      atoi(strtok(NULL, ","))
     };
 
     png_color fg = {
-        atoi(strtok(argv[8], ",")), 
-        atoi(strtok(NULL, ",")), 
-        atoi(strtok(NULL, ","))
+      atoi(strtok((char*) fgopt.c_str(), ",")),   // cast away const
+      atoi(strtok(NULL, ",")), 
+      atoi(strtok(NULL, ","))
     };
 
-    int width = atoi(argv[5]);
-    int height = atoi(argv[6]);
     vector<string> basePath;
-    basePath.push_back(string(argv[2]));
-    basePath.push_back(string(argv[4]));
+    basePath.push_back(pngdiropt);
+    basePath.push_back(tracklabel);
     string baseDir = ensure_path(basePath);
 
     float max = 1.0f;
     float min = 0.0f;
-    if (argc > 9) {
-        if (! (from_string<float>(min, argv[9], dec)
+    if (!minopt.empty()) {
+        if (! (from_string<float>(min, minopt, dec)
                &&
-               from_string<float>(max, argv[10], dec))) {
-            cerr << "couldn't parse min and max arguments: " << argv[9] << " " << argv[10] << endl;
+               from_string<float>(max, maxopt, dec))) {
+            cerr << "couldn't parse min and max arguments: " << minopt << " " << maxopt << endl;
             exit(1);
         }
     } else {
         WiggleRangeParser rp;
-        rp.processWiggle(argv[1]);
+        rp.processWiggle(wig_filename.c_str());
 
         max = rp.getMax();
         min = rp.getMin();
@@ -589,16 +606,16 @@ int main(int argc, char **argv){
                                        bg, fg, max, min));
     }
 
-    p.processWiggle(argv[1]);
+    p.processWiggle(wig_filename.c_str());
 
     set<string> chroms = p.getChroms();
     set<string>::iterator chrom;
     vector<string> jsonDir;
-    jsonDir.push_back(string(argv[3]));
+    jsonDir.push_back(jsondiropt);
     WiggleTileRenderer* r;
     for (chrom = chroms.begin(); chrom != chroms.end(); chrom++) {
         jsonDir.push_back(*chrom);
-        string jsonPath = ensure_path(jsonDir) + string(argv[4]) + ".json";
+        string jsonPath = ensure_path(jsonDir) + tracklabel + ".json";
         ofstream json(jsonPath.c_str());
         jsonDir.pop_back();
         if (json.is_open()) {

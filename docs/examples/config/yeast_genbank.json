@@ -1,0 +1,74 @@
+{
+  "description": "S. cerevisiae Chromosome 1",
+  "db_adaptor": "Bio::DB::SeqFeature::Store",
+  "db_args": { "-adaptor": "memory",
+               "-dsn": "NC_001133.gbk.gff" },
+
+  "TRACK DEFAULTS": {
+    "class": "feature",
+    "autocomplete": "all"
+  },
+
+  "tracks": [
+    {
+      "track": "repeat_region",
+      "key": "Repeat Region",
+      "feature": ["repeat_region"],
+      "class": "feature"
+    },
+    {
+      "track": "gene",
+      "feature": ["gene"],
+      "class": "feature2",
+      "key": "Gene"
+    },
+    {
+      "track": "origin_of_replication",
+      "feature": ["origin_of_replication"],
+      "class": "dblhelix",
+      "key": "Origin of Replication"
+    },
+    {
+      "track": "mRNA",
+      "feature": ["mRNA"],
+      "class": "transcript",
+      "subfeatures": true,
+      "subfeature_classes": {
+        "CDS": "transcript-CDS",
+        "UTR": "transcript-UTR"
+      },
+      "arrowheadClass": "transcript-arrowhead",
+      "key": "mRNA"
+    },
+    {
+      "track": "long_terminal_repeat",
+      "feature": ["long_terminal_repeat"],
+      "class": "feature5",
+      "key": "Long Terminal Repeat"
+    },
+    {
+      "track": "ncRNA",
+      "feature": ["ncRNA"],
+      "class": "feature3",
+      "key": "ncRNA"
+    },
+    {
+      "track": "pseudogene",
+      "feature": ["pseudogene"],
+      "class": "feature",
+      "key": "Pseudogene"
+    },
+    {
+      "track": "region",
+      "feature": ["region"],
+      "class": "feature5",
+      "key": "Region"
+    },
+    {
+      "track": "tRNA",
+      "feature": ["tRNA"],
+      "class": "feature3",
+      "key": "tRNA"
+    }
+  ]
+}

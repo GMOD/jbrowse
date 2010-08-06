@@ -12,10 +12,8 @@ use Bio::DB::SeqFeature::Store;
 use JsonGenerator;
 
 my ($path, $trackLabel, $key, $cssClass);
-my $autocomplete = "none";
 my $outdir = "data";
 my $tiledir = "$outdir/tiles";
-my ($getType, $getPhase, $getSubs, $getLabel) = (0, 0, 0, 0);
 my $fgColor = "105,155,111";
 my $bgColor = "255,255,255";
 my $tileWidth = 2000;
@@ -72,7 +70,9 @@ mkdir($tiledir) unless (-d $tiledir);
 mkdir($tilesubdir) unless (-d $tilesubdir);
 mkdir("$outdir/tracks") unless (-d "$outdir/tracks");
 
-system "$wig2png $path $tiledir $outdir/tracks $trackLabel $tileWidth $trackHeight $bgColor $fgColor $min $max";
+my $minopt = length($min) ? "--min-value $min" : "";
+my $maxopt = length($max) ? "--max-value $max" : "";
+system "$wig2png $path --png-dir $tiledir --json-dir $outdir/tracks --track-label $trackLabel --tile-width $tileWidth --track-height $trackHeight --background-color $bgColor --foreground-color $fgColor $minopt $maxopt";
 
 foreach my $seqInfo (@refSeqs) {
     my $seqName = $seqInfo->{"name"};
@@ -100,6 +100,7 @@ foreach my $seqInfo (@refSeqs) {
 =head1 AUTHORS
 
 Mitchell Skinner E<lt>mitch_skinner@berkeley.eduE<gt>
+
 Ian Holmes E<lt>ihh@berkeley.eduE<gt>
 
 Copyright (c) 2007-2009 The Evolutionary Software Foundation
