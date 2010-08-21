@@ -265,9 +265,11 @@ FeatureTrack.prototype.transfer = function(sourceBlock, destBlock, scale,
                 sourceBlock.removeChild(sourceSlot);
                 delete sourceBlock.featureNodes[overlaps[i].id];
 
-                this.renderFeature(sourceSlot.feature, overlaps[i].id,
+                var featDiv =
+                    this.renderFeature(sourceSlot.feature, overlaps[i].id,
                                    destBlock, scale,
                                    containerStart, containerEnd);
+                destBlock.appendChild(featDiv);
             }
         }
     }
@@ -322,8 +324,10 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
             //console.log("this layouter has seen " + uniqueId);
             return;
         }
-        curTrack.renderFeature(feature, uniqueId, block, scale,
-                               containerStart, containerEnd);
+        var featDiv =
+            curTrack.renderFeature(feature, uniqueId, block, scale,
+                                   containerStart, containerEnd);
+        block.appendChild(featDiv);
     };
 
     var startBase = goLeft ? rightBase : leftBase;
@@ -404,7 +408,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     if (scale > this.labelScale) {
 	featureEnd = Math.max(featureEnd,
                               feature[fields["start"]]
-                              + (((name && feature[fields["name"]])
+                              + (((fields["name"] && feature[fields["name"]])
 				  ? feature[fields["name"]].length : 0)
 				 * (this.nameWidth / scale)));
     }
@@ -422,25 +426,14 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
                                           levelHeight);
 
     var featDiv;
-    var urlValid = true;
-    if (this.urlTemplate) {
-        var href = this.urlTemplate.replace(/\{([^}]+)\}/g,
-        function(match, group) {
-            if(feature[fields[group]] != undefined)
-                return feature[fields[group]];
-            else
-                urlValid = false;
-            return 0;
-        });
-        if(urlValid) {
-            featDiv = document.createElement("a");
-            featDiv.href = href;
-            featDiv.target = "_new";
-        } else {
-            featDiv = document.createElement("div");
-        }
+    var featUrl = this.featureUrl(feature);
+    if (featUrl) {
+        featDiv = document.createElement("a");
+        featDiv.href = featUrl;
+        featDiv.target = "_new";
     } else {
         featDiv = document.createElement("div");
+        featDiv.onclick = this.onFeatureClick;
     }
     featDiv.feature = feature;
     featDiv.layoutEnd = featureEnd;
@@ -458,8 +451,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
         featDiv.className = "minus-" + this.className; break;
     }
 
-    if ((fields["phase"] !== undefined)
-        && (feature[fields["phase"]] !== null))
+    if ((fields["phase"] !== undefined) && (feature[fields["phase"]] !== null))
         featDiv.className = featDiv.className + feature[fields["phase"]];
 
     // Since some browsers don't deal well with the situation where
@@ -503,9 +495,9 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
         && feature[fields["name"]]) {
 
         var labelDiv;
-        if (this.urlTemplate && urlValid) {
+        if (featUrl) {
             labelDiv = document.createElement("a");
-            labelDiv.href = featDiv.href;
+            labelDiv.href = featUrl;
             labelDiv.target = featDiv.target;
         } else {
             labelDiv = document.createElement("div");
@@ -545,9 +537,25 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
 
     //ie6 doesn't respect the height style if the div is empty
     if (Util.is_ie6) featDiv.appendChild(document.createComment());
-    if (!this.urlTemplate) featDiv.onclick = this.onFeatureClick;
     //TODO: handle event-handler-related IE leaks
-    block.appendChild(featDiv);
+    return featDiv;
+};
+
+FeatureTrack.prototype.featureUrl = function(feature) {
+    var urlValid = true;
+    var fields = this.fields;
+    if (this.urlTemplate) {
+        var href = this.urlTemplate.replace(/\{([^}]+)\}/g,
+        function(match, group) {
+            if(feature[fields[group]] != undefined)
+                return feature[fields[group]];
+            else
+                urlValid = false;
+            return 0;
+        });
+        if(urlValid) return href;
+    }
+    return undefined;
 };
 
 FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
