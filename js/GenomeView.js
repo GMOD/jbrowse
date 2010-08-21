@@ -1021,10 +1021,16 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 
     var startBase = Math.round(this.pxToBp((leftVisible * this.stripeWidth)
                                            + this.offset));
+    var containerStart = Math.round(this.pxToBp(this.offset));
+    var containerEnd =
+        Math.round(this.pxToBp(this.offset
+                               + (this.stripeCount * this.stripeWidth)));
+
     this.trackIterate(function(track, view) {
                           track.showRange(leftVisible, rightVisible,
                                           startBase, bpPerBlock,
-                                          view.pxPerBp);
+                                          view.pxPerBp,
+                                          containerStart, containerEnd);
                       });
 };
 

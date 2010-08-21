@@ -28,7 +28,8 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
 
     var thisObj = this;
     this.subfeatureCallback = function(i, val, param) {
-        thisObj.renderSubfeature(param.feature, param.featDiv, val);
+        thisObj.renderSubfeature(param.feature, param.featDiv, val,
+                                 param.displayStart, param.displayEnd);
     };
 }
 
@@ -215,13 +216,16 @@ FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
 FeatureTrack.prototype.fillBlock = function(blockIndex, block,
                                             leftBlock, rightBlock,
                                             leftBase, rightBase,
-                                            scale, stripeWidth) {
+                                            scale, stripeWidth,
+                                            containerStart, containerEnd) {
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
     if (scale < this.histScale) {
-	this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth);
+	this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
+                      containerStart, containerEnd);
     } else {
 	this.fillFeatures(blockIndex, block, leftBlock, rightBlock,
-                          leftBase, rightBase, scale);
+                          leftBase, rightBase, scale,
+                          containerStart, containerEnd);
     }
 };
 
@@ -229,7 +233,8 @@ FeatureTrack.prototype.cleanupBlock = function(block) {
     if (block && block.featureLayout) block.featureLayout.cleanup();
 };
 
-FeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
+FeatureTrack.prototype.transfer = function(sourceBlock, destBlock, scale,
+                                           containerStart, containerEnd) {
     //transfer(sourceBlock, destBlock) is called when sourceBlock gets deleted.
     //Any child features of sourceBlock that extend onto destBlock should get
     //moved onto destBlock.
@@ -250,19 +255,19 @@ FeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
 	//if the feature overlaps destBlock,
 	//move to destBlock & re-position
 	sourceSlot = sourceBlock.featureNodes[overlaps[i].id];
+	if (sourceSlot && ("label" in sourceSlot)) {
+            sourceSlot.label.parentNode.removeChild(sourceSlot.label);
+	}
 	if (sourceSlot && sourceSlot.feature) {
-	    if ((sourceSlot.feature[1] > destLeft)
-		&& (sourceSlot.feature[0] < destRight)) {
+	    if ((sourceSlot.feature[this.fields["end"]] > destLeft)
+		&& (sourceSlot.feature[this.fields["start"]] < destRight)) {
+
                 sourceBlock.removeChild(sourceSlot);
-		var featLeft = (100 * (sourceSlot.feature[0] - destLeft) / blockWidth);
-		sourceSlot.style.left = featLeft + "%";
-		destBlock.appendChild(sourceSlot);
-                destBlock.featureNodes[overlaps[i].id] = sourceSlot;
                 delete sourceBlock.featureNodes[overlaps[i].id];
-		if ("label" in sourceSlot) {
-		    sourceSlot.label.style.left = featLeft + "%";
-		    destBlock.appendChild(sourceSlot.label);
-		}
+
+                this.renderFeature(sourceSlot.feature, overlaps[i].id,
+                                   destBlock, scale,
+                                   containerStart, containerEnd);
             }
         }
     }
@@ -270,8 +275,8 @@ FeatureTrack.prototype.transfer = function(sourceBlock, destBlock) {
 
 FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
                                                leftBlock, rightBlock,
-                                               leftBase, rightBase,
-                                               scale) {
+                                               leftBase, rightBase, scale,
+                                               containerStart, containerEnd) {
     //arguments:
     //block: div to be filled with info
     //leftBlock: div to the left of the block to be filled
@@ -279,14 +284,9 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
     //leftBase: starting base of the block
     //rightBase: ending base of the block
     //scale: pixels per base at the current zoom level
+    //containerStart: don't make HTML elements extend further left than this
+    //containerEnd: don't make HTML elements extend further right than this
     //0-based
-
-    var start = this.fields["start"];
-    var end = this.fields["end"];
-    var strand = this.fields["strand"];
-    var name = this.fields["name"];
-    var phase = this.fields["phase"];
-    var subfeatures = this.fields["subfeatures"];
 
     var layouter = new Layout(leftBase, rightBase);
     block.featureLayout = layouter;
@@ -305,213 +305,25 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
         goLeft = true;
     }
 
-    //determine dimensions of labels (height, per-character width)
-    if (!("nameHeight" in this)) {
-	var heightTest = document.createElement("div");
-	heightTest.className = "feature-label";
-	heightTest.style.height = "auto";
-	heightTest.style.visibility = "hidden";
-	heightTest.appendChild(document.createTextNode("1234567890"));
-	document.body.appendChild(heightTest);
-	this.nameHeight = heightTest.clientHeight;
-	this.nameWidth = heightTest.clientWidth / 10;
-	document.body.removeChild(heightTest);
+    //determine the glyph height, arrowhead width, label text dimensions, etc.
+    if (!this.haveMeasurements) {
+        this.measureStyles();
+        this.haveMeasurements = true;
     }
-
-    //determine the height of the glyph
-    if (!("glyphHeight" in this)) {
-        var glyphBox;
-	var heightTest = document.createElement("div");
-	//cover all the bases: stranded or not, phase or not
-	heightTest.className = this.className + " plus-" + this.className + " plus-" + this.className + "1";
-        if (this.featureCss) heightTest.style.cssText = this.featureCss;
-	heightTest.style.visibility = "hidden";
-	if (Util.is_ie6) heightTest.appendChild(document.createComment("foo"));
-	document.body.appendChild(heightTest);
-        glyphBox = dojo.marginBox(heightTest);
-	this.glyphHeight = Math.round(glyphBox.h + 2);
-	this.padding += glyphBox.w;
-	document.body.removeChild(heightTest);
-
-        //determine the width of the arrowhead, if any
-        if (this.arrowheadClass) {
-            var ah = document.createElement("div");
-            ah.className = "plus-" + this.arrowheadClass;
-            if (Util.is_ie6) ah.appendChild(document.createComment("foo"));
-            document.body.appendChild(ah);
-            glyphBox = dojo.marginBox(ah);
-            this.plusArrowWidth = glyphBox.w;
-            ah.className = "minus-" + this.arrowheadClass;
-            glyphBox = dojo.marginBox(ah);
-            this.minusArrowWidth = glyphBox.w;
-            document.body.removeChild(ah);
-        }
-    }
-
-    var levelUnits = "px";
-    var blockWidth = rightBase - leftBase;
-    var maxLevel = 0;
 
     var curTrack = this;
-    var featDiv;
-    var callback = this.onFeatureClick;
-    var leftSlots = new Array();
-    var glyphHeight = this.glyphHeight;
-    var levelHeight = this.glyphHeight + 2;
-    var className = this.className;
-    var labelScale = this.labelScale;
-    var subfeatureScale = this.subfeatureScale;
-    var basePadding = Math.max(1, this.padding / scale);
-    var basesPerLabelChar = this.nameWidth / scale;
-    if (name && (scale > labelScale)) levelHeight += this.nameHeight;
-
     var featCallback = function(feature, path) {
-        var level;
         //uniqueId is a stringification of the path in the NCList where
         //the feature lives; it's unique across the top-level NCList
         //(the top-level NCList covers a track/chromosome combination)
         var uniqueId = path.join(",");
-        //featureStart and featureEnd indicate how far left or right
-        //the feature extends in bp space, including labels
-        //and arrowheads if applicable
-	var featureEnd = feature[end];
-        var featureStart = feature[start];
-        if (curTrack.arrowheadClass) {
-            switch (feature[strand]) {
-            case 1:
-                featureEnd   += (curTrack.plusArrowWidth / scale); break;
-            case -1:
-                featureStart -= (curTrack.minusArrowWidth / scale); break;
-            }
-        }
-        if (scale > labelScale)
-	    featureEnd = Math.max(featureEnd,
-				  feature[start] + (((name && feature[name])
-						     ? feature[name].length : 0)
-						    * basesPerLabelChar));
-
         //console.log("ID " + uniqueId + (layouter.hasSeen(uniqueId) ? " (seen)" : " (new)"));
         if (layouter.hasSeen(uniqueId)) {
             //console.log("this layouter has seen " + uniqueId);
             return;
         }
-
-        var top = layouter.addRect(uniqueId,
-                                   featureStart,
-                                   featureEnd + basePadding,
-                                   levelHeight);
-
-        var urlValid = true;
-        if (curTrack.urlTemplate) {
-            var href = curTrack.urlTemplate.replace(/\{([^}]+)\}/g,
-                function(match, group) {
-                    if(feature[curTrack.fields[group]] != undefined)
-                        return feature[curTrack.fields[group]];
-                    else
-                        urlValid = false;
-                    return 0;
-                });
-            if(urlValid) {
-                featDiv = document.createElement("a");
-                featDiv.href = href;
-                featDiv.target = "_new";
-            } else {
-                featDiv = document.createElement("div");
-            }
-        } else {
-            featDiv = document.createElement("div");
-        }
-        featDiv.feature = feature;
-        featDiv.layoutEnd = featureEnd;
-
-        block.featureNodes[uniqueId] = featDiv;
-
-        switch (feature[strand]) {
-        case 1:
-            featDiv.className = "plus-" + className; break;
-        case 0:
-	case null:
-	case undefined:
-            featDiv.className = className; break;
-        case -1:
-            featDiv.className = "minus-" + className; break;
-        }
-
-	if ((phase !== undefined) && (feature[phase] !== null))
-	    featDiv.className = featDiv.className + feature[phase];
-
-        featDiv.style.cssText =
-            "left: " + (100 * (feature[start] - leftBase) / blockWidth) + "%; "
-            + "top: " + top + levelUnits + ";"
-            + " width: " + (100 * ((feature[end] - feature[start]) / blockWidth)) + "%;"
-            + (curTrack.featureCss ? curTrack.featureCss : "");
-
-        if (curTrack.featureCallback)
-            curTrack.featureCallback(feature, curTrack.fields, featDiv);
-
-        if (curTrack.arrowheadClass) {
-            var ah = document.createElement("div");
-            switch (feature[strand]) {
-            case 1:
-                ah.className = "plus-" + curTrack.arrowheadClass;
-                ah.style.cssText = "left: 100%; top: 0px;";
-                featDiv.appendChild(ah);
-                break;
-            case -1:
-                ah.className = "minus-" + curTrack.arrowheadClass;
-                ah.style.cssText = "left: " + (-curTrack.minusArrowWidth)
-                                       + "px; top: 0px;";
-                featDiv.appendChild(ah);
-                break;
-            }
-        }
-
-        if ((scale > labelScale) && name && feature[name]) {
-            var labelDiv;
-            if (curTrack.urlTemplate && urlValid) {
-                labelDiv = document.createElement("a");
-                labelDiv.href = featDiv.href;
-                labelDiv.target = featDiv.target;
-            } else {
-                labelDiv = document.createElement("div");
-	        labelDiv.onclick = callback;
-            }
-
-            labelDiv.className = "feature-label";
-            labelDiv.appendChild(document.createTextNode(feature[name]));
-            labelDiv.style.cssText =
-                "left: " + (100 * (feature[start] - leftBase) / blockWidth) + "%; "
-                + "top: " + (top + glyphHeight) + levelUnits + ";";
-	    featDiv.label = labelDiv;
-	    labelDiv.feature = feature;
-            block.appendChild(labelDiv);
-        }
-
-        if (subfeatures
-            && (scale > subfeatureScale)
-            && feature[subfeatures]
-            && feature[subfeatures].length > 0) {
-
-            var featParam = {
-                feature: feature,
-                featDiv: featDiv
-            };
-
-            for (var i = 0; i < feature[subfeatures].length; i++) {
-                curTrack.subfeatureArray.index(feature[subfeatures][i],
-                                               curTrack.subfeatureCallback,
-                                               featParam);
-            }
-        }
-
-	//ie6 doesn't respect the height style if the div is empty
-        if (Util.is_ie6) featDiv.appendChild(document.createComment());
-        if (!curTrack.urlTemplate) featDiv.onclick = callback;
-        //Event.observe measurably slower
-        //TODO: handle IE leaks (
-        //Event.observe(featDiv, "click", callback);
-        block.appendChild(featDiv);
-        return;
+        curTrack.renderFeature(feature, uniqueId, block, scale,
+                               containerStart, containerEnd);
     };
 
     var startBase = goLeft ? rightBase : leftBase;
@@ -526,13 +338,231 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
                           });
 };
 
-FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature) {
-    var featStart = feature[this.fields["start"]];
+FeatureTrack.prototype.measureStyles = function() {
+    //determine dimensions of labels (height, per-character width)
+    var heightTest = document.createElement("div");
+    heightTest.className = "feature-label";
+    heightTest.style.height = "auto";
+    heightTest.style.visibility = "hidden";
+    heightTest.appendChild(document.createTextNode("1234567890"));
+    document.body.appendChild(heightTest);
+    this.nameHeight = heightTest.clientHeight;
+    this.nameWidth = heightTest.clientWidth / 10;
+    document.body.removeChild(heightTest);
+
+    //measure the height of glyphs
+    var glyphBox;
+    heightTest = document.createElement("div");
+    //cover all the bases: stranded or not, phase or not
+    heightTest.className =
+        this.className
+        + " plus-" + this.className
+        + " plus-" + this.className + "1";
+    if (this.featureCss) heightTest.style.cssText = this.featureCss;
+    heightTest.style.visibility = "hidden";
+    if (Util.is_ie6) heightTest.appendChild(document.createComment("foo"));
+    document.body.appendChild(heightTest);
+    glyphBox = dojo.marginBox(heightTest);
+    this.glyphHeight = Math.round(glyphBox.h + 2);
+    this.padding += glyphBox.w;
+    document.body.removeChild(heightTest);
+
+    //determine the width of the arrowhead, if any
+    if (this.arrowheadClass) {
+        var ah = document.createElement("div");
+        ah.className = "plus-" + this.arrowheadClass;
+        if (Util.is_ie6) ah.appendChild(document.createComment("foo"));
+        document.body.appendChild(ah);
+        glyphBox = dojo.marginBox(ah);
+        this.plusArrowWidth = glyphBox.w;
+        ah.className = "minus-" + this.arrowheadClass;
+        glyphBox = dojo.marginBox(ah);
+        this.minusArrowWidth = glyphBox.w;
+        document.body.removeChild(ah);
+    }
+};
+
+FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
+                                                containerStart, containerEnd) {
+    var fields = this.fields;
+    //featureStart and featureEnd indicate how far left or right
+    //the feature extends in bp space, including labels
+    //and arrowheads if applicable
+    var featureEnd = feature[fields["end"]];
+    var featureStart = feature[fields["start"]];
+    if (this.arrowheadClass) {
+        switch (feature[fields["strand"]]) {
+        case 1:
+            featureEnd   += (this.plusArrowWidth / scale); break;
+        case -1:
+            featureStart -= (this.minusArrowWidth / scale); break;
+        }
+    }
+
+    // if the label extends beyond the feature, use the
+    // label end position as the end position for layout
+    if (scale > this.labelScale) {
+	featureEnd = Math.max(featureEnd,
+                              feature[fields["start"]]
+                              + (((name && feature[fields["name"]])
+				  ? feature[fields["name"]].length : 0)
+				 * (this.nameWidth / scale)));
+    }
+    featureEnd += Math.max(1, this.padding / scale);
+
+    var levelHeight =
+        this.glyphHeight + 2 +
+        (
+            (fields["name"] && (scale > this.labelScale)) ? this.nameHeight : 0
+        );
+
+    var top = block.featureLayout.addRect(uniqueId,
+                                          featureStart,
+                                          featureEnd,
+                                          levelHeight);
+
+    var featDiv;
+    var urlValid = true;
+    if (this.urlTemplate) {
+        var href = this.urlTemplate.replace(/\{([^}]+)\}/g,
+        function(match, group) {
+            if(feature[fields[group]] != undefined)
+                return feature[fields[group]];
+            else
+                urlValid = false;
+            return 0;
+        });
+        if(urlValid) {
+            featDiv = document.createElement("a");
+            featDiv.href = href;
+            featDiv.target = "_new";
+        } else {
+            featDiv = document.createElement("div");
+        }
+    } else {
+        featDiv = document.createElement("div");
+    }
+    featDiv.feature = feature;
+    featDiv.layoutEnd = featureEnd;
+
+    block.featureNodes[uniqueId] = featDiv;
+
+    switch (feature[fields["strand"]]) {
+    case 1:
+        featDiv.className = "plus-" + this.className; break;
+    case 0:
+    case null:
+    case undefined:
+        featDiv.className = this.className; break;
+    case -1:
+        featDiv.className = "minus-" + this.className; break;
+    }
+
+    if ((fields["phase"] !== undefined)
+        && (feature[fields["phase"]] !== null))
+        featDiv.className = featDiv.className + feature[fields["phase"]];
+
+    // Since some browsers don't deal well with the situation where
+    // the feature goes way, way offscreen, we truncate the feature
+    // to exist betwen containerStart and containerEnd.
+    // To make sure the truncated end of the feature never gets shown,
+    // we'll destroy and re-create the feature (with updated truncated
+    // boundaries) in the transfer method.
+    var displayStart = Math.max(feature[fields["start"]],
+                                containerStart);
+    var displayEnd = Math.min(feature[fields["end"]],
+                              containerEnd);
+    var blockWidth = block.endBase - block.startBase;
+    featDiv.style.cssText =
+        "left:" + (100 * (displayStart - block.startBase) / blockWidth) + "%;"
+        + "top:" + top + "px;"
+        + " width:" + (100 * ((displayEnd - displayStart) / blockWidth)) + "%;"
+        + (this.featureCss ? this.featureCss : "");
+
+    if (this.featureCallback) this.featureCallback(feature, fields, featDiv);
+
+    if (this.arrowheadClass) {
+        var ah = document.createElement("div");
+        switch (feature[fields["strand"]]) {
+        case 1:
+            ah.className = "plus-" + this.arrowheadClass;
+            ah.style.cssText = "left: 100%; top: 0px;";
+            featDiv.appendChild(ah);
+            break;
+        case -1:
+            ah.className = "minus-" + this.arrowheadClass;
+            ah.style.cssText =
+                "left: " + (-this.minusArrowWidth) + "px; top: 0px;";
+            featDiv.appendChild(ah);
+            break;
+        }
+    }
+
+    if ((scale > this.labelScale)
+        && fields["name"]
+        && feature[fields["name"]]) {
+
+        var labelDiv;
+        if (this.urlTemplate && urlValid) {
+            labelDiv = document.createElement("a");
+            labelDiv.href = featDiv.href;
+            labelDiv.target = featDiv.target;
+        } else {
+            labelDiv = document.createElement("div");
+	    labelDiv.onclick = this.onFeatureClick;
+        }
+
+        labelDiv.className = "feature-label";
+        labelDiv.appendChild(document.createTextNode(feature[fields["name"]]));
+        labelDiv.style.cssText =
+            "left: "
+            + (100 * (feature[fields["start"]] - block.startBase) / blockWidth)
+            + "%; "
+            + "top: " + (top + this.glyphHeight) + "px;";
+	featDiv.label = labelDiv;
+        labelDiv.feature = feature;
+        block.appendChild(labelDiv);
+    }
+
+    if (fields["subfeatures"]
+        && (scale > this.subfeatureScale)
+        && feature[fields["subfeatures"]]
+        && feature[fields["subfeatures"]].length > 0) {
+
+        var featParam = {
+            feature: feature,
+            featDiv: featDiv,
+            displayStart: displayStart,
+            displayEnd: displayEnd
+        };
+
+        for (var i = 0; i < feature[fields["subfeatures"]].length; i++) {
+            this.subfeatureArray.index(feature[fields["subfeatures"]][i],
+                                       this.subfeatureCallback,
+                                       featParam);
+        }
+    }
+
+    //ie6 doesn't respect the height style if the div is empty
+    if (Util.is_ie6) featDiv.appendChild(document.createComment());
+    if (!this.urlTemplate) featDiv.onclick = this.onFeatureClick;
+    //TODO: handle event-handler-related IE leaks
+    block.appendChild(featDiv);
+};
+
+FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
+                                                   displayStart, displayEnd) {
+    //var featStart = feature[this.fields["start"]];
     var subStart = subfeature[this.subFields["start"]];
     var subEnd = subfeature[this.subFields["end"]];
-    var featLength = feature[this.fields["end"]] - featStart;
+    var featLength = displayEnd - displayStart; //feature[this.fields["end"]] - featStart;
     var className = this.subfeatureClasses[subfeature[this.subFields["type"]]];
     var subDiv = document.createElement("div");
+
+    // if the feature has been truncated to where it doesn't cover
+    // this subfeature anymore, just skip this subfeature
+    if ((subEnd <= displayStart) || (subStart >= displayEnd)) return;
+
     switch (subfeature[this.subFields["strand"]]) {
     case 1:
         subDiv.className = "plus-" + className; break;
@@ -545,7 +575,7 @@ FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature)
     }
     if (Util.is_ie6) subDiv.appendChild(document.createComment());
     subDiv.style.cssText =
-        "left: " + (100 * ((subStart - featStart) / featLength)) + "%;"
+        "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
         + "top: 0px;"
         + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
     featDiv.appendChild(subDiv);

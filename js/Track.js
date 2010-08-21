@@ -100,7 +100,8 @@ Track.prototype.transfer = function() {};
 Track.prototype.startZoom = function(destScale, destStart, destEnd) {};
 Track.prototype.endZoom = function(destScale, destBlockBases) {};
 
-Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) {
+Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale,
+                                     containerStart, containerEnd) {
     if (this.blocks === undefined) return 0;
 
     // this might make more sense in setViewInfo, but the label element
@@ -119,25 +120,29 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale) 
     //fill left, including existing blocks (to get their heights)
     for (i = lastAttached; i >= first; i--) {
         leftBase = startBase + (bpPerBlock * (i - first));
-        this._showBlock(i, leftBase, leftBase + bpPerBlock, scale);
+        this._showBlock(i, leftBase, leftBase + bpPerBlock, scale,
+                        containerStart, containerEnd);
     }
     //fill right
     for (i = lastAttached + 1; i <= last; i++) {
         leftBase = startBase + (bpPerBlock * (i - first));
-        this._showBlock(i, leftBase, leftBase + bpPerBlock, scale);
+        this._showBlock(i, leftBase, leftBase + bpPerBlock, scale,
+                        containerStart, containerEnd);
     }
 
     //detach left blocks
     var destBlock = this.blocks[first];
     for (i = firstAttached; i < first; i++) {
-        this.transfer(this.blocks[i], destBlock);
+        this.transfer(this.blocks[i], destBlock, scale,
+                      containerStart, containerEnd);
         this.cleanupBlock(this.blocks[i]);
         this._hideBlock(i);
     }
     //detach right blocks
     destBlock = this.blocks[last];
     for (i = lastAttached; i > last; i--) {
-        this.transfer(this.blocks[i], destBlock);
+        this.transfer(this.blocks[i], destBlock, scale,
+                      containerStart, containerEnd);
         this.cleanupBlock(this.blocks[i]);
         this._hideBlock(i);
     }
@@ -199,7 +204,8 @@ Track.prototype._loadingBlock = function(blockDiv) {
     return 50;
 };
 
-Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
+Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale,
+                                      containerStart, containerEnd) {
     if (this.blocks[blockIndex]) {
         this.heightUpdate(this.blockHeights[blockIndex], blockIndex);
         return;
@@ -223,7 +229,9 @@ Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale) {
                        startBase,
                        endBase,
                        scale,
-                       this.widthPx);
+                       this.widthPx,
+                       containerStart,
+                       containerEnd);
     } else {
          this._loadingBlock(blockDiv);
     }

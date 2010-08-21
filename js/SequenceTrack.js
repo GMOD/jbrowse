@@ -55,7 +55,8 @@ SequenceTrack.prototype.setViewInfo = function(genomeView, numBlocks,
 SequenceTrack.prototype.fillBlock = function(blockIndex, block,
                                              leftBlock, rightBlock,
                                              leftBase, rightBase,
-                                             scale, stripeWidth) {
+                                             scale, stripeWidth,
+                                             containerStart, containerEnd) {
     if (this.shown) {
         this.getRange(leftBase, rightBase,
                       function(start, end, seq) {

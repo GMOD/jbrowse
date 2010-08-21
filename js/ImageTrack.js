@@ -79,7 +79,8 @@ ImageTrack.prototype.getImages = function(zoom, startBase, endBase) {
 ImageTrack.prototype.fillBlock = function(blockIndex, block,
                                           leftBlock, rightBlock,
                                           leftBase, rightBase,
-                                          scale, stripeWidth) {
+                                          scale, stripeWidth,
+                                          containerStart, containerEnd) {
     var zoom = this.getZoom(scale);
     var blockWidth = rightBase - leftBase;
     var images = this.getImages(zoom, leftBase, rightBase);
@@ -115,7 +116,8 @@ ImageTrack.prototype.clear = function() {
     this.tileToImage = {};
 };
 
-ImageTrack.prototype.transfer = function(sourceBlock, destBlock) {
+ImageTrack.prototype.transfer = function(sourceBlock, destBlock, scale,
+                                         containerStart, containerEnd) {
     if (!(sourceBlock && destBlock)) return;
 
     var children = sourceBlock.childNodes;
