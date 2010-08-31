@@ -101,7 +101,6 @@ my $idSub = sub {
 };
 
 my $streaming = 0;
-my $shareSubs = 0;
 my ($db, $stream);
 if ($gff) {
     $db = Bio::DB::SeqFeature::Store->new(-adaptor => 'memory',
@@ -114,7 +113,6 @@ if ($gff) {
                                   ($thinType ? ("-thin_type" => $thinType) : ()),
                                   ($thickType ? ("-thick_type" => $thickType) : ()) );
     $streaming = 1;
-    $shareSubs = 1;
     $labelSub = sub {
         #label sub for features returned by Bio::FeatureIO::bed
         return $_[0]->name;
@@ -161,8 +159,7 @@ my %perChromGens;
 foreach my $seqInfo (@refSeqs) {
     $perChromGens{$seqInfo->{"name"}} = JsonGenerator->new($trackLabel,
                                                            $seqInfo->{"name"},
-                                                           \%style, [], [],
-                                                           $shareSubs);
+                                                           \%style, [], []);
 }
 
 if ($streaming) {
