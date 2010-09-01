@@ -45,7 +45,8 @@ my %builtinDefaults =
   (
    "label"        => \&featureLabelSub,
    "autocomplete" => "none",
-   "class"        => "feature"
+   "class"        => "feature",
+   "shareSubfeatures" => 1
   );
 
 sub unique {
@@ -236,17 +237,18 @@ sub new {
                 #print "type: " . $subFeature->primary_tag . " (" . $sfClasses->{$subFeature->primary_tag} . ")\n";
                 next unless
                   $sfClasses && $sfClasses->{$subFeature->primary_tag};
-                my $subId = $subfeatId->($subFeature);
-                my $subIndex;
-                if (defined($subId)) {
-                    $subIndex = $seenSubfeatures{$subId};
-                } else {
-                    $subIndex = undef;
+                my $subId = undef;
+                my $subIndex = undef;
+                if ($style{shareSubfeatures}) {
+                    my $subId = $subfeatId->($subFeature);
+                    if (defined($subId)) {
+                        $subIndex = $seenSubfeatures{$subId};
+                    }
                 }
                 if (!defined($subIndex)) {
                     push @allSubfeatures, [map {&$_($subFeature)} @subfeatMap];
                     $subIndex = $#allSubfeatures;
-                    $seenSubfeatures{$subId} = $subIndex;
+                    $seenSubfeatures{$subId} = $subIndex if (defined($subId));
                 }
                 push @subfeatIndices, $subIndex;
             }
@@ -291,6 +293,8 @@ sub new {
 
 sub addFeature {
     my ($self, $feature) = @_;
+
+    return unless defined($feature->start);
 
     if ($self->{getLabel} || $self->{getAlias}) {
         push @{$self->{names}}, [map {$_->($feature)} @{$self->{nameMap}}];
