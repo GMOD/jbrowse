@@ -157,7 +157,8 @@ sub evalSubStrings {
 
 sub new {
     my ($class, $label, $segName, $setStyle,
-        $extraMap, $extraHeaders) = @_;
+        $extraMap, $extraHeaders,
+        $autoshareSubs) = @_;
 
     my %style = ("key" => $label,
                  %builtinDefaults,
@@ -215,11 +216,17 @@ sub new {
     my @allSubfeatures;
     $self->{allSubfeatures} = \@allSubfeatures;
     my $subfeatId = $style{idSub} || sub {
-        return
-            $_[0]->can('primary_id') ?
-                $_[0]->primary_id :
-                    ($_[0]->can('id') ? $_[0]->id : undef);
+        return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
     };
+    if ($autoshareSubs) {
+        $subfeatId = sub {
+            my $feat = shift;
+            return $feat->primary_tag 
+                . "|" . $feat->start 
+                . "|" . $feat->end 
+                . "|" . $feat->strand;
+        }
+    }
     # %seenSubfeatures is so that shared subfeatures don't end up
     # in @{$self->{allSubfeatures}} more than once
     my %seenSubfeatures;
@@ -237,12 +244,7 @@ sub new {
                 next unless
                   $sfClasses && $sfClasses->{$subFeature->primary_tag};
                 my $subId = $subfeatId->($subFeature);
-                my $subIndex;
-                if (defined($subId)) {
-                    $subIndex = $seenSubfeatures{$subId};
-                } else {
-                    $subIndex = undef;
-                }
+                my $subIndex = $seenSubfeatures{$subId};
                 if (!defined($subIndex)) {
                     push @allSubfeatures, [map {&$_($subFeature)} @subfeatMap];
                     $subIndex = $#allSubfeatures;
