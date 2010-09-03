@@ -14,22 +14,21 @@ use JsonGenerator;
 use JSON 2;
 
 my $hasSamTools = 1;
-eval { require Bio::DB::Sam; require StreamingPairMatcher; };
+eval { require Bio::DB::Sam; };
 if ($@) {
     $hasSamTools = 0;
 }
 
 my ($gff, $gff2, $bed, $bam,
     $trackLabel, $key,
-    $urlTemplate, $subfeatureClasses, $arrowheadClass,
-    $clientConfig, $extraData,
+    $urlTemplate, $subfeatureClasses, $arrowheadClass, $clientConfig, $extraData,
     $thinType, $thickType,
     $types);
 my $autocomplete = "none";
 my $outdir = "data";
 my $cssClass = "feature";
 my $nclChunk = 1000;
-my ($getType, $getPhase, $getSubs, $getLabel, $paired) = (0, 0, 0, 0, 0);
+my ($getType, $getPhase, $getSubs, $getLabel) = (0, 0, 0, 0);
 GetOptions("gff=s" => \$gff,
            "gff2=s" => \$gff2,
            "bed=s" => \$bed,
@@ -39,7 +38,6 @@ GetOptions("gff=s" => \$gff,
 	   "key=s" => \$key,
 	   "cssclass=s" => \$cssClass,
 	   "autocomplete=s" => \$autocomplete,
-           "paired" => \$paired,
 	   "getType" => \$getType,
 	   "getPhase" => \$getPhase,
 	   "getSubs" => \$getSubs,
@@ -69,7 +67,6 @@ USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file> | --bam <ba
     --out: defaults to "data"
     --cssclass: defaults to "feature"
     --autocomplete: make these features searchable by their "label", by their "alias"es, both ("all"), or "none" (default).
-    --paired: match up read pairs in BAM files
     --getType: include the type of the features in the json
     --getPhase: include the phase of the features in the json
     --getSubs:  include subfeatures in the json
@@ -129,8 +126,6 @@ if ($gff) {
     die "please specify -gff, -gff2, -bed or -bam";
 }
 
-$getSubs = 1 if ($paired);
-
 mkdir($outdir) unless (-d $outdir);
 mkdir($trackDir) unless (-d $trackDir);
 
@@ -149,11 +144,6 @@ my %style = ("autocomplete" => $autocomplete,
 
 if ($bam) {
     $style{noId} = 1;
-    $style{shareSubfeatures} = 0;
-}
-
-if ($bed) {
-    $style{shareSubfeatures} = 0;
 }
 
 $style{subfeature_classes} = JSON::from_json($subfeatureClasses)
@@ -199,13 +189,7 @@ foreach my $seqInfo (@refSeqs) {
         }
 
         if ($bam) {
-            my $finalCallback = sub {$jsonGen->addFeature($_[0])};
-            my $readCallback = $finalCallback;
-            if ($paired) {
-                my $matcher = StreamingPairMatcher->new($finalCallback);
-                $readCallback = sub {$matcher->addRead($_[0])};
-            }
-            $db->fetch($seqName, $readCallback);
+            $db->fetch($seqName, sub {$jsonGen->addFeature($_[0])});
         } else {
             my @features = $db->features(@queryArgs);
 
