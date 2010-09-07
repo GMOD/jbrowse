@@ -259,7 +259,7 @@ FeatureTrack.prototype.transfer = function(sourceBlock, destBlock, scale,
             sourceSlot.label.parentNode.removeChild(sourceSlot.label);
 	}
 	if (sourceSlot && sourceSlot.feature) {
-	    if ((sourceSlot.feature[this.fields["end"]] > destLeft)
+	    if ((sourceSlot.layoutEnd > destLeft)
 		&& (sourceSlot.feature[this.fields["start"]] < destRight)) {
 
                 sourceBlock.removeChild(sourceSlot);
