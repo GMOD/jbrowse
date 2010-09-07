@@ -154,7 +154,6 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     this.scrollContainer = document.createElement("div");
     this.scrollContainer.id = "container";
     this.scrollContainer.style.cssText =
-        "background-color: #eee;" +
         "position: absolute; left: 0px; top: 0px;";
     elem.appendChild(this.scrollContainer);
 
@@ -164,7 +163,6 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     this.zoomContainer = document.createElement("div");
     this.zoomContainer.id = "zoomContainer";
     this.zoomContainer.style.cssText =
-        "background-color: white;" +
         "position: absolute; left: 0px; top: 0px; height: 100%;";
     this.scrollContainer.appendChild(this.zoomContainer);
 
