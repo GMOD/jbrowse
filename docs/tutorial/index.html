@@ -67,6 +67,12 @@
       <p>
         <span class="code">bin/flatfile-to-json.pl</span> doesn't use a configuration file; instead, per-track settings are given as command-line arguments.  Run <span class="code">bin/flatfile-to-json.pl</span> without any arguments to see a description of the available settings.  Most of them correspond to track settings in the config file, so see <a href="../config-desc.html#track_settings">the track settings section in the config file documentation</a> for more details.
       </p>
+      <a name="Next-gen reads" id="Next-gen"></a>
+      <h3>Next-gen reads</h3>
+      <p>
+        If you have data in the BAM format, you can import it into a JBrowse instance using the flatfile-to-json.pl program.  Here is one example of a command that does that, using the included data:
+      </p>
+      <pre>bin/flatfile-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Simulated next-gen reads" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}'</pre>
       <a name="Names" id="Names"></a>
       <h3>Names</h3>
       <p>
