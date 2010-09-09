@@ -102,10 +102,9 @@
         </ul>
       </p>
       <p>
-        Compile the wiggle-processing program by running <span class="code">make</span> in the JBrowse root directory
-        <pre>$ make
-g++   -O3 -lpng -o bin/wig2png src/wig2png.cc
-$</pre>
+        Compile the wiggle-processing program by running <span class="code">configure</span> and then <span class="code">make</span> in the JBrowse root directory
+        <pre>$ ./configure
+$ make</pre>
       </p>
       <div class="specific">
         <i>System-specific:</i>
@@ -113,9 +112,9 @@ $</pre>
           <li>
             Apple OS X:<br>
             <p>You need libpng and a C++ compiler; you can get these from <a href="http://www.macports.org/">MacPorts</a> or <a href="http://www.finkproject.org/">Fink</a>.</p>
-            <p>Once you have those installed, you need to compile the JBrowse wiggle-processing program.  JBrowse includes a makefile to do this, but you may need to add the paths for libpng and png.h to your compiler's library and include paths. For example, if libpng is in /opt/local, you can run make like this:</p>
-            <pre>$ make GCC_LIB_ARGS=-L/opt/local/lib GCC_INC_ARGS=-I/opt/local/include</pre>
-            <p>libpng might be somewhere other than <span class="code">/opt/local</span>, like <span class="code">/usr/X11R6</span> for example.  To find where libpng is, try <span class="code">locate libpng</span></p>
+            <p>Once you have those installed, you need to compile the JBrowse wiggle-processing program.  JBrowse includes a makefile to do this, but you may need to add the paths for <span class="code">libpng</span> and <span class="code">png.h</span> to your compiler's library and include paths. For example, if libpng is in <span class="code">/usr/X11</span>, you can run <span class="code">configure</span> like this:</p>
+            <pre>$ ./configure CXXFLAGS=-I/usr/X11/include LDFLAGS=-L/usr/X11/lib</pre>
+            <p>Depending on which OS X you have (and whether you're using MacPorts/fink/etc.), libpng might be somewhere other than <span class="code">/usr/X11</span>, like <span class="code">/opt/local</span> for example.  To find where libpng is, try <span class="code">locate libpng</span></p>
           </li>
           <br>
           <li>
