@@ -124,7 +124,7 @@ public:
 
     void addValue(int base, float value) {
         //cerr << "zoom " << pixelBases_ << " addValue: base: " << base << ", value: " << value <<endl;
-        if ((long long)base > 
+        if ((long long)base >=
             ((long long)(curTile_ + 1) * (long long)tileWidthBases_)) {
             renderTile();
             curTile_ = base / tileWidthBases_;
