@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 #include <map>
 #include <set>
 #include <iostream>
@@ -114,6 +115,8 @@ public:
     WiggleTileRenderer(int pixelBases, int tileWidthPixels, int tileHeight,
                        string baseDir)
         : curTile_(numeric_limits<int>::min()),
+	  curStart_(0),
+	  curEnd_(numeric_limits<int>::min()),
           pixelBases_(pixelBases),
           tileWidthBases_(pixelBases * tileWidthPixels),
           tileWidthPixels_(tileWidthPixels),
@@ -123,22 +126,36 @@ public:
     }
 
     void addValue(int base, float value) {
-        //cerr << "zoom " << pixelBases_ << " addValue: base: " << base << ", value: " << value <<endl;
-        if ((long long)base >=
-            ((long long)(curTile_ + 1) * (long long)tileWidthBases_)) {
-            renderTile();
-            curTile_ = base / tileWidthBases_;
-            newTile();
-        }
-
+      //cerr << "zoom " << pixelBases_ << " addValue: base: " << base << ", value: " << value <<endl;
+        curEnd_ = max(curEnd_, base);
         processValue(base, value);
     }
   
     void renderTile() {
-        //cerr << "rendering" << endl;
+      //cerr << "rendering tile " << curTile_ << endl;
         stringstream s;
         s << tileDir_ << curTile_ << ".png";
         drawTile(s.str());
+    }
+
+    void flushTilesBefore(int base) {
+      // flush tiles up to, but not including, base #base
+      if (curTile_ != numeric_limits<int>::min())
+	while (curTile_ < base / tileWidthBases_) {
+	  renderTile();
+	  curTile_++;
+	  curStart_ += tileWidthBases_;
+        }
+      curTile_ = base / tileWidthBases_;
+      curStart_ = (long long)curTile_ * (long long)tileWidthBases_;
+    }
+
+    void flushAllTiles() {
+      // render previous tiles
+      flushTilesBefore(curEnd_);
+      // render last tile
+      if (curEnd_ >= curStart_)
+	renderTile();
     }
 
     void newSection(const string chrom, const int base) {
@@ -150,8 +167,7 @@ public:
         if ((curTile_ != numeric_limits<int>::min())
             && ((chrom != chrom_)
                 || (curTile_ != base / tileWidthBases_))) {
-            renderTile();
-            newTile();
+	  flushAllTiles();
         }
 
         //if this is a new chrom, make a directory for it
@@ -179,10 +195,8 @@ public:
         return tileWidthBases_;
     }
 
-    //render the current tile to file
+    //render the current tile to file, and erase its info from private buffers in subclass
     virtual void drawTile(string pngFile) = 0;
-    //initialize data (e.g., set counts/sums to zero)
-    virtual void newTile() = 0;
     //handle sample
     virtual void processValue(int base, float value) = 0;
 
@@ -192,7 +206,9 @@ protected:
     int tileWidthBases_;
     int tileWidthPixels_;
     int tileHeight_;
-    int curTile_;
+    int curTile_;  // index of next tile to render, or numeric_limits<int>::min() if no information has been added
+    int curStart_;  // first base of the next tile
+    int curEnd_;  // last base for which information has been added, or numeric_limits<int>::min() if no info added
     string baseDir_;
     string tileDir_;
     string chrom_;
@@ -213,10 +229,9 @@ public:
         fgColor_(fgColor),
         globalMax_(globalMax),
         globalMin_(globalMin),
-        sumVals_(tileWidthPixels),
-        valsPerPx_(tileWidthPixels)
+        sumVals_(),
+        valsPerPx_()
     {
-        newTile();
         buf_ = new png_bytep[tileHeight];
         for (int y = 0; y < tileHeight; y++) 
             buf_[y] = new png_byte[tileWidthPixels];
@@ -230,24 +245,32 @@ public:
   
     void processValue(int base, float value) {
         //x is the x-pixel in the current tile onto which the given base falls.
-        int x = (((long long)(base % tileWidthBases_)
-                  * (long long)tileWidthPixels_)
-                 / (long long)tileWidthBases_);
+        int x = ((((long long)base - (long long)curStart_)
+	  	* (long long)tileWidthPixels_)
+	         / (long long)tileWidthBases_);
+	extendTileTo(x);
         sumVals_[x] += value;
         valsPerPx_[x] += 1;
+
+        //cerr << "mean["<<x<<"]="<<sumVals_[x]<<"/"<<valsPerPx_[x] << endl;
     }
-  
-    void newTile() {
-        int i;
-        for (i = 0; i < tileWidthPixels_; i++) {
-            //maxVals_[i] = 0.0f;
-            //minVals_[i] = numeric_limits<float>::max();
-            sumVals_[i] = 0.0f;
-            valsPerPx_[i] = 0;
-        }
+
+    void extendTileTo(int pixel) {
+      if (pixel >= 0)
+	if ((size_t)pixel >= sumVals_.size()) {
+	  sumVals_.insert (sumVals_.end(), (size_t)pixel + 1 - sumVals_.size(), 0.0f);
+	  valsPerPx_.insert (valsPerPx_.end(), (size_t)pixel + 1 - valsPerPx_.size(), 0);
+	}
+    }
+
+    void eraseTileTo(int pixel) {
+        sumVals_.erase (sumVals_.begin(), sumVals_.begin() + pixel);
+        valsPerPx_.erase (valsPerPx_.begin(), valsPerPx_.begin() + pixel);
     }
 
     void drawTile(string pngFile) {
+        extendTileTo (tileWidthPixels_ - 1);
+
         png_color palette[] = {bgColor_, fgColor_};
         png_byte bgIndex = 0, fgIndex = 1;
         int num_colors = 2;
@@ -279,7 +302,7 @@ public:
             ystart = min(meany, zeroy);
             yend = max(meany, zeroy);
 
-            //cerr << "min: " << min << ", max: " << max << ", mean: " << mean << ", tileHeight_: " << tileHeight_ << endl;
+            //cerr << "x="<<x<<" sumVals="<<sumVals_[x]<<" valsPerPx="<<valsPerPx_[x]<<" meany="<<meany << endl;
 
             for (y = 0; y < tileHeight_; y++)
                 buf_[y][x] = bgIndex;
@@ -288,16 +311,22 @@ public:
         }
 
         write_png_file(pngFile.c_str(), tileWidthPixels_, tileHeight_, buf_, palette, num_colors, bitdepth);
+
+	// erase tile data from buffers
+        eraseTileTo(tileWidthPixels_ - 1);
     }
 
 private:
+  // colors
     png_color bgColor_;
     png_color fgColor_;
-    vector<float> sumVals_;
-    vector<int> valsPerPx_;
+  // moment buffer
+    deque<float> sumVals_;
+    deque<int> valsPerPx_;
+  // global bounds
     float globalMax_;
     float globalMin_;
-
+  // image buffer
     png_bytep * buf_;
 };
 
@@ -391,6 +420,7 @@ public:
                 switch (format_) {
                 case FIXED:
                     if(from_string<float>(sample, word, dec)) {
+			flushTilesBefore(curBase_);
                         for (int i = 0; i < span_; i++)
                             //wiggle fixed and variable formats are 1-based
                             addValue(curBase_ + i - 1, sample);
@@ -410,6 +440,7 @@ public:
                         }
                         ss >> word;
                         if(from_string<float>(sample, word, dec)) {
+  			    flushTilesBefore(curBase_);
                             for (int i = 0; i < span_; i++)
                                 //wiggle fixed and variable formats are 1-based
                                 addValue(curBase_ + i - 1, sample);
@@ -444,6 +475,7 @@ public:
 
                     for (int i = startBase; i < endBase; i++) {
                         //wiggle bed format is 0-based
+		        flushTilesBefore(i);
                         addValue(i, sample);
                     }
 
@@ -472,6 +504,11 @@ public:
             renderers_[i]->addValue(base, value);
     }
 
+    virtual void flushTilesBefore(int base) {
+        for (int i = 0; i < renderers_.size(); i++)
+            renderers_[i]->flushTilesBefore(base);
+    }
+
     void processWiggle(const char* filename) {
         string line;
         int lineNum = 1;
@@ -485,7 +522,7 @@ public:
             wig.close();
             //finish off last tile
             for (int i = 0; i < renderers_.size(); i++)
-              renderers_[i]->renderTile();
+              renderers_[i]->flushAllTiles();
         }  else {
             cerr << "Unable to open file " << filename << endl;
             exit(1);
