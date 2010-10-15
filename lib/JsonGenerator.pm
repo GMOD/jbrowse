@@ -18,33 +18,13 @@ use constant MAX_JSON_DEPTH => 2048;
 my @multiples = (2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000,
                  10_000, 20_000, 50_000, 100_000, 200_000, 500_000, 1_000_000);
 
-#in JSON, features are represented by arrays (we could use
-#hashes, but then we'd have e.g. "start" and "end" in the JSON
-#for every feature, which would take up too much space/bandwidth)
-#@featMap maps from feature objects to arrays
-my @featMap = (
-	       sub {shift->start - 1},
-	       sub {int(shift->end)},
-	       sub {int(shift->strand)},
-	      );
-my @mapHeaders = ('start', 'end', 'strand');
-#positions of "start" and "end" in @mapHeaders (for NCList)
 my $startIndex = 0;
 my $endIndex = 1;
 #position of the lazy subfeature file name in the fake feature.
 my $lazyIndex = 2;
 
-sub featureLabelSub {
-    return $_[0]->display_name if $_[0]->can('display_name');
-    return $_[0]->info         if $_[0]->can('info'); # deprecated
-    return $_[0]->seq_id       if $_[0]->can('seq_id');
-    return eval{$_[0]->primary_tag};
-}
-
 my %builtinDefaults =
   (
-   "label"        => \&featureLabelSub,
-   "autocomplete" => "none",
    "class"        => "feature"
   );
 
@@ -140,6 +120,21 @@ sub modifyJSFile {
       or die "couldn't close $file: $!";
 }
 
+sub writeTrackEntry {
+    my ($file, $entry) = @_;
+    modifyJSFile($file, "trackInfo",
+        sub {
+            my $origTrackList = shift;
+            my @trackList = grep { exists($_->{'label'}) } @$origTrackList;
+            my $i;
+            for ($i = 0; $i <= $#trackList; $i++) {
+                last if ($trackList[$i]->{'label'} eq $entry->{'label'});
+            }
+            $trackList[$i] = $entry;
+            return \@trackList;
+        });
+}
+
 # turn perl subs from the config file into callable functions
 sub evalSubStrings {
     my $hashref = shift;
@@ -156,9 +151,7 @@ sub evalSubStrings {
 }
 
 sub new {
-    my ($class, $label, $segName, $setStyle,
-        $extraMap, $extraHeaders,
-        $autoshareSubs) = @_;
+    my ($class, $label, $segName, $setStyle, $headers, $subfeatHeaders) = @_;
 
     my %style = ("key" => $label,
                  %builtinDefaults,
@@ -170,121 +163,11 @@ sub new {
 
     $self->{style} = \%style;
     $self->{label} = $label;
-    $self->{getLabel} = ($style{autocomplete} =~ /label|all/);
-    $self->{getAlias} = ($style{autocomplete} =~ /alias|all/);
 
-    my $idSub = $style{idSub} || sub  {
-        return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
-    };
+    $self->{sublistIndex} = $#{$headers} + 1;
 
-    my @curFeatMap = @featMap;
-    my @curMapHeaders = @mapHeaders;
-
-    unless ($style{noId}) {
-        push @curFeatMap, $idSub;
-        push @curMapHeaders, "id";
-    }
-
-    @curFeatMap = (@curFeatMap, @$extraMap);
-    @curMapHeaders = (@curMapHeaders, @$extraHeaders);
-
-    if ($style{label}) {
-	push @curFeatMap, $style{label};
-	push @curMapHeaders, "name";
-    }
-
-    if ($style{phase}) {
-        push @curFeatMap, sub {shift->phase};
-        push @curMapHeaders, "phase";
-    }
-
-    if ($style{type}) {
-        push @curFeatMap, sub {shift->primary_tag};
-        push @curMapHeaders, "type";
-    }
-
-    if ($style{extraData}) {
-        foreach my $extraName (keys %{$style{extraData}}) {
-            push @curMapHeaders, $extraName;
-            push @curFeatMap, $style{extraData}->{$extraName};
-        }
-    }
-
-    my @subfeatMap = (@featMap, sub {shift->primary_tag});
-    my @subfeatHeaders = (@mapHeaders, "type");
-
-    my @allSubfeatures;
-    $self->{allSubfeatures} = \@allSubfeatures;
-    my $subfeatId = $style{idSub} || sub {
-        return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
-    };
-    if ($autoshareSubs) {
-        $subfeatId = sub {
-            my $feat = shift;
-            return $feat->primary_tag 
-                . "|" . $feat->start 
-                . "|" . $feat->end 
-                . "|" . $feat->strand;
-        }
-    }
-    # %seenSubfeatures is so that shared subfeatures don't end up
-    # in @{$self->{allSubfeatures}} more than once
-    my %seenSubfeatures;
-    if ($style{subfeatures}) {
-        push @curFeatMap, sub {
-            my ($feat, $flatten) = @_;
-            my @subFeatures = $feat->get_SeqFeatures;
-            return undef unless (@subFeatures);
-
-            my $sfClasses = $style{subfeature_classes};
-            my @subfeatIndices;
-            foreach my $subFeature (@subFeatures) {
-                #filter out subfeatures we don't care about
-                #print "type: " . $subFeature->primary_tag . " (" . $sfClasses->{$subFeature->primary_tag} . ")\n";
-                next unless
-                  $sfClasses && $sfClasses->{$subFeature->primary_tag};
-                my $subId = $subfeatId->($subFeature);
-                my $subIndex = $seenSubfeatures{$subId};
-                if (!defined($subIndex)) {
-                    push @allSubfeatures, [map {&$_($subFeature)} @subfeatMap];
-                    $subIndex = $#allSubfeatures;
-                    $seenSubfeatures{$subId} = $subIndex;
-                }
-                push @subfeatIndices, $subIndex;
-            }
-            return \@subfeatIndices;
-        };
-        push @curMapHeaders, 'subfeatures';
-    }
-
-    my @nameMap =
-      (
-       sub {$label},
-       $style{label},
-       sub {$segName},
-       sub {int(shift->start) - 1},
-       sub {int(shift->end)},
-       sub {$_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id}
-      );
-
-    if ($self->{getLabel} || $self->{getAlias}) {
-	if ($self->{getLabel} && $self->{getAlias}) {
-	    unshift @nameMap, sub {[unique($style{label}->($_[0]),
-					   $_[0]->attributes("Alias"))]};
-	} elsif ($self->{getLabel}) {
-	    unshift @nameMap, sub {[$style{label}->($_[0])]};
-	} elsif ($self->{getAlias}) {
-	    unshift @nameMap, sub {[$_[0]->attributes("Alias")]};
-	}
-    }
-
-    $self->{sublistIndex} = $#curFeatMap + 1;
-
-    $self->{nameMap} = \@nameMap;
-    $self->{curFeatMap} = \@curFeatMap;
-    $self->{curMapHeaders} = \@curMapHeaders;
-    $self->{subfeatMap} = \@subfeatMap;
-    $self->{subfeatHeaders} = \@subfeatHeaders;
+    $self->{curMapHeaders} = $headers;
+    $self->{subfeatHeaders} = $subfeatHeaders;
     $self->{features} = [];
     $self->{names} = [];
 
@@ -294,13 +177,19 @@ sub new {
 sub addFeature {
     my ($self, $feature) = @_;
 
-    return unless defined($feature->start);
+    # return unless defined($feature->start);
 
-    if ($self->{getLabel} || $self->{getAlias}) {
-        push @{$self->{names}}, [map {$_->($feature)} @{$self->{nameMap}}];
-    }
+    # if ($self->{getLabel} || $self->{getAlias}) {
+    #     push @{$self->{names}}, [map {$_->($feature)} @{$self->{nameMap}}];
+    # }
 
-    push @{$self->{features}}, [map {&$_($feature)} @{$self->{curFeatMap}}]
+    # push @{$self->{features}}, [map {&$_($feature)} @{$self->{curFeatMap}}]
+    push @{$self->{features}}, $feature;
+}
+
+sub addName {
+    my ($self, $name) = @_;
+    push @{$self->{names}}, $name;
 }
 
 sub featureCount {
@@ -314,15 +203,15 @@ sub hasFeatures {
 }
 
 sub generateTrack {
-    my ($self, $outDir, $subfeatureLimit, $featureLimit,
+    my ($self, $outDir, $featureLimit,
         $refStart, $refEnd) = @_;
 
     mkdir($outDir) unless (-d $outDir);
     unlink (glob "$outDir/hist*");
     unlink (glob "$outDir/lazyfeatures*");
-    unlink (glob "$outDir/subfeatures*");
+    #unlink (glob "$outDir/subfeatures*");
     writeJSON("$outDir/names.json", $self->{names}, {pretty => 0, max_depth => MAX_JSON_DEPTH})
-        if ($self->{getLabel} || $self->{getAlias});
+        if ($#{$self->{names}} >= 0);
 
     my @sortedFeatures = sort {
 	if ($a->[$startIndex] != $b->[$startIndex]) {
@@ -434,7 +323,7 @@ sub generateTrack {
             $fakeFeature->[$endIndex] = $maxEnd + 1;
             #print STDERR "(bases " . $fakeFeature->[$startIndex] . " - " . $fakeFeature->[$endIndex] . ")\n";
             $fakeFeature->[$lazyIndex] = {
-                'chunk' => $chunkFirst
+                'chunk' => ($#fakeFeatures + 2)
             };
             push @fakeFeatures, $fakeFeature;
         }
@@ -470,23 +359,6 @@ sub generateTrack {
                   {pretty => 0, max_depth => MAX_JSON_DEPTH});
     }
 
-    my $subfeatureArrayParams;
-    if ($self->{style}->{subfeatures} && (@{$self->{allSubfeatures}})) {
-        #chunk subfeatures
-        my $chunks = chunkArray($self->{allSubfeatures}, $subfeatureLimit);
-        for (my $i = 0; $i <= $#{$chunks}; $i++) {
-            writeJSON("$outDir/subfeatures-$i.json",
-                      $chunks->[$i],
-                      {pretty => 0});
-        }
-        $subfeatureArrayParams =
-            {
-                length => $#{$self->{allSubfeatures}} + 1,
-                urlTemplate => "$outDir/subfeatures-{chunk}.json",
-                chunkSize => $subfeatureLimit
-            };
-    }
-
     #use Data::Dumper;
     #$Data::Dumper::Maxdepth = 2;
     #print Dumper($featList->{'topList'});
@@ -499,24 +371,12 @@ sub generateTrack {
                      'featureCount' => $#{$self->{features}} + 1,
                      'type' => "FeatureTrack",
                      'className' => $self->{style}->{class},
+                     'subfeatureClasses' => $self->{style}->{subfeature_classes},
+                     'subfeatureHeaders' => $self->{style}->{subfeatureHeaders},
                      'arrowheadClass' => $self->{style}->{arrowheadClass},
                      'clientConfig' => $self->{style}->{clientConfig},
                      'featureNCList' => $featList->nestedList,
                      'lazyfeatureUrlTemplate' => $lazyfeatureUrlTemplate,
-                     (
-                         $self->{style}->{subfeatures}
-                             ?
-                                 (
-                                     'subfeatureArray' =>
-                                         $subfeatureArrayParams,
-                                     'subfeatureHeaders' =>
-                                         $self->{subfeatHeaders},
-                                     'subfeatureClasses' =>
-                                         $self->{style}->{subfeature_classes},
-                                 )
-                             :
-                                 ()
-                     ),
                      'histogramMeta' => $histogramMeta,
                      'histStats' => \@histStats
                     };

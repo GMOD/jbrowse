@@ -27,10 +27,6 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
     this.load(this.baseUrl + url);
 
     var thisObj = this;
-    this.subfeatureCallback = function(i, val, param) {
-        thisObj.renderSubfeature(param.feature, param.featDiv, val,
-                                 param.displayStart, param.displayEnd);
-    };
 }
 
 FeatureTrack.prototype = new Track("");
@@ -80,7 +76,13 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
                                    * density;
         if (cc.featureCss) this.featureCss = cc.featureCss;
         if (cc.histCss) this.histCss = cc.histCss;
-        if (cc.featureCallback) this.featureCallback = cc.featureCallback;
+        if (cc.featureCallback) {
+            try {
+                this.featureCallback = eval("(" + cc.featureCallback + ")");
+            } catch (e) {
+                console.log("eval failed for featureCallback on track " + this.name + ": " + cc.featureCallback);
+            }
+        }
     }
 
     //console.log((new Date().getTime() - startTime) / 1000);
@@ -521,17 +523,10 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
         && feature[fields["subfeatures"]]
         && feature[fields["subfeatures"]].length > 0) {
 
-        var featParam = {
-            feature: feature,
-            featDiv: featDiv,
-            displayStart: displayStart,
-            displayEnd: displayEnd
-        };
-
         for (var i = 0; i < feature[fields["subfeatures"]].length; i++) {
-            this.subfeatureArray.index(feature[fields["subfeatures"]][i],
-                                       this.subfeatureCallback,
-                                       featParam);
+            this.renderSubfeature(feature, featDiv,
+                                  feature[fields["subfeatures"]][i],
+                                  displayStart, displayEnd);
         }
     }
 
@@ -560,32 +555,38 @@ FeatureTrack.prototype.featureUrl = function(feature) {
 
 FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
                                                    displayStart, displayEnd) {
-    //var featStart = feature[this.fields["start"]];
     var subStart = subfeature[this.subFields["start"]];
     var subEnd = subfeature[this.subFields["end"]];
-    var featLength = displayEnd - displayStart; //feature[this.fields["end"]] - featStart;
-    var className = this.subfeatureClasses[subfeature[this.subFields["type"]]];
+    var featLength = displayEnd - displayStart;
+
     var subDiv = document.createElement("div");
+
+    if (this.subfeatureClasses) {
+        var className = this.subfeatureClasses[subfeature[this.subFields["type"]]];
+        switch (subfeature[this.subFields["strand"]]) {
+        case 1:
+            subDiv.className = "plus-" + className; break;
+        case 0:
+        case null:
+        case undefined:
+            subDiv.className = className; break;
+        case -1:
+            subDiv.className = "minus-" + className; break;
+        }
+
+    }
 
     // if the feature has been truncated to where it doesn't cover
     // this subfeature anymore, just skip this subfeature
     if ((subEnd <= displayStart) || (subStart >= displayEnd)) return;
 
-    switch (subfeature[this.subFields["strand"]]) {
-    case 1:
-        subDiv.className = "plus-" + className; break;
-    case 0:
-    case null:
-    case undefined:
-        subDiv.className = className; break;
-    case -1:
-        subDiv.className = "minus-" + className; break;
-    }
     if (Util.is_ie6) subDiv.appendChild(document.createComment());
     subDiv.style.cssText =
         "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
         + "top: 0px;"
         + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
+    if (this.featureCallback)
+        this.featureCallback(subfeature, this.subFields, subDiv);
     featDiv.appendChild(subDiv);
 };
 
