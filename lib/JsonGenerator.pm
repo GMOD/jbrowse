@@ -64,25 +64,25 @@ sub writeJSON {
     }
 
     # check depth
-    my $depth = findDepth($toWrite);
-    my $maxDepth = $json->get_max_depth;
-    if ($depth >= $maxDepth) {
-	my @deepPath = @{deepestPath($toWrite)};
-	my $warning = "WARNING: found deep path (depth = " . $depth . ", max depth allowed = " . $maxDepth . ")\n";
-	warn $warning;
-	for my $n (0..$#deepPath) {
-	    my $elem = $deepPath[$n];
-	    my $type = ref($elem);
-	    if ($type eq 'HASH') {
-		warn $n, ": { ", join(", ", map("$_ => $$elem{$_}", keys %$elem)), " }\n";
-	    } elsif ($type eq 'ARRAY') {
-		warn $n, ": [ ", join(", ", map(defined($_) ? $_ : "undef", @$elem)), " ]\n";
-	    } else {
-		warn $n, ": ", $elem, "\n";
-	    }
-	}
-	warn $warning;  # repeat the warning after printing the trace
-    }
+    #my $depth = findDepth($toWrite);
+    #my $maxDepth = $json->get_max_depth;
+    # if ($depth >= $maxDepth) {
+    #     my @deepPath = @{deepestPath($toWrite)};
+    #     my $warning = "WARNING: found deep path (depth = " . $depth . ", max depth allowed = " . $maxDepth . ")\n";
+    #     warn $warning;
+    #     for my $n (0..$#deepPath) {
+    #         my $elem = $deepPath[$n];
+    #         my $type = ref($elem);
+    #         if ($type eq 'HASH') {
+    #     	warn $n, ": { ", join(", ", map("$_ => $$elem{$_}", keys %$elem)), " }\n";
+    #         } elsif ($type eq 'ARRAY') {
+    #     	warn $n, ": [ ", join(", ", map(defined($_) ? $_ : "undef", @$elem)), " ]\n";
+    #         } else {
+    #     	warn $n, ": ", $elem, "\n";
+    #         }
+    #     }
+    #     warn $warning;  # repeat the warning after printing the trace
+    # }
 
     # write
     my $fh = new IO::File $file, O_WRONLY | O_CREAT
