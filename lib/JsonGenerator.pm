@@ -12,6 +12,7 @@ use IO::File;
 use Fcntl ":flock";
 use POSIX qw(ceil floor);
 use List::Util qw(min max sum reduce);
+use PerlIO::gzip;
 use constant MAX_JSON_DEPTH => 2048;
 
 #this series of numbers is used in JBrowse for zoom level relationships
@@ -34,11 +35,12 @@ sub unique {
 }
 
 sub readJSON {
-    my ($file, $default, $skipAssign) = @_;
+    my ($file, $default, $skipAssign, $compress) = @_;
     if (-s $file) {
         my $OLDSEP = $/;
         my $fh = new IO::File $file, O_RDONLY
             or die "couldn't open $file: $!";
+        binmode($fh, ":gzip") if $compress;
         flock $fh, LOCK_SH;
         # optionally skip variable assignment line
         $fh->getline() if $skipAssign;
@@ -52,7 +54,7 @@ sub readJSON {
 }
 
 sub writeJSON {
-    my ($file, $toWrite, $opts) = @_;
+    my ($file, $toWrite, $opts, $compress) = @_;
 
     # create JSON object
     my $json = new JSON;
@@ -90,6 +92,10 @@ sub writeJSON {
     flock $fh, LOCK_EX;
     $fh->seek(0, SEEK_SET);
     $fh->truncate(0);
+    if ($compress) {
+        binmode($fh, ":gzip")
+            or die "couldn't set binmode: $!";
+    }
     $fh->print($json->encode($toWrite));
     $fh->close()
       or die "couldn't close $file: $!";
@@ -165,6 +171,7 @@ sub new {
     $self->{label} = $label;
 
     $self->{sublistIndex} = $#{$headers} + 1;
+    $self->{sublistIndex} += 1 if ($self->{sublistIndex} == $lazyIndex);
 
     $self->{curMapHeaders} = $headers;
     $self->{subfeatHeaders} = $subfeatHeaders;
@@ -172,6 +179,7 @@ sub new {
     $self->{names} = [];
 
     bless $self, $class;
+    return $self;
 }
 
 sub addFeature {
@@ -204,24 +212,27 @@ sub hasFeatures {
 
 sub generateTrack {
     my ($self, $outDir, $featureLimit,
-        $refStart, $refEnd) = @_;
+        $refStart, $refEnd, $compress) = @_;
+
+    my $ext = ($compress ? "jsonz" : "json");
 
     mkdir($outDir) unless (-d $outDir);
     unlink (glob "$outDir/hist*");
     unlink (glob "$outDir/lazyfeatures*");
     #unlink (glob "$outDir/subfeatures*");
-    writeJSON("$outDir/names.json", $self->{names}, {pretty => 0, max_depth => MAX_JSON_DEPTH})
+    writeJSON("$outDir/names.json", $self->{names}, {pretty => 0, max_depth => MAX_JSON_DEPTH}, 0)
         if ($#{$self->{names}} >= 0);
 
-    my @sortedFeatures = sort {
-	if ($a->[$startIndex] != $b->[$startIndex]) {
-	    $a->[$startIndex] - $b->[$startIndex];
-	} else {
-	    $b->[$endIndex] - $a->[$endIndex];
-	}
-    } @{$self->{features}};
+    # my @sortedFeatures = sort {
+    #     if ($a->[$startIndex] != $b->[$startIndex]) {
+    #         $a->[$startIndex] - $b->[$startIndex];
+    #     } else {
+    #         $b->[$endIndex] - $a->[$endIndex];
+    #     }
+    # } @{$self->{features}};
+    my $features = $self->{features};
 
-    my $featureCount = $#sortedFeatures + 1;
+    my $featureCount = $#{$features} + 1;
     # approximate the number of bases per histogram bin at the zoom level where
     # FeatureTrack.js switches to histogram view
     my $histBinThresh = ($refEnd * 2.5) / $featureCount;
@@ -231,7 +242,7 @@ sub generateTrack {
         last if $multiple > $histBinThresh;
     }
     my @histogram = ((0) x ceil($refEnd / $histBinBases));
-    foreach my $feat (@sortedFeatures) {
+    foreach my $feat (@{$features}) {
         my $firstBin = int($feat->[$startIndex] / $histBinBases);
         $firstBin = 0 if ($firstBin < 0);
         my $lastBin = int($feat->[$endIndex] / $histBinBases);
@@ -244,16 +255,17 @@ sub generateTrack {
     my $histChunkSize = 10_000;
     my $chunks = chunkArray(\@histogram, $histChunkSize);
     for (my $i = 0; $i <= $#{$chunks}; $i++) {
-        writeJSON("$outDir/hist-$histBinBases-$i.json",
+        writeJSON("$outDir/hist-$histBinBases-$i.$ext",
                   $chunks->[$i],
-                  {pretty => 0});
+                  {pretty => 0},
+                  $compress);
     }
     my $histogramMeta =
         [{
             basesPerBin => $histBinBases,
             arrayParams => {
                 length => $#histogram + 1,
-                urlTemplate => "$outDir/hist-$histBinBases-{chunk}.json",
+                urlTemplate => "$outDir/hist-$histBinBases-{chunk}.$ext",
                 chunkSize => $histChunkSize
             }
         }];
@@ -268,16 +280,17 @@ sub generateTrack {
         $curBases = $curBases * 100;
         my $chunks = chunkArray($curHist, $histChunkSize);
         for (my $i = 0; $i <= $#{$chunks}; $i++) {
-            writeJSON("$outDir/hist-$curBases-$i.json",
+            writeJSON("$outDir/hist-$curBases-$i.$ext",
                       $chunks->[$i],
-                      {pretty => 0});
+                      {pretty => 0},
+                      $compress);
         }
         push @$histogramMeta,
             {
                 basesPerBin => $curBases,
                 arrayParams => {
                     length => $#{$curHist} + 1,
-                    urlTemplate => "$outDir/hist-$curBases-{chunk}.json",
+                    urlTemplate => "$outDir/hist-$curBases-{chunk}.$ext",
                     chunkSize => $histChunkSize
                 }
             };
@@ -298,27 +311,27 @@ sub generateTrack {
 
     #add fake features for chunking
     my @fakeFeatures;
-    if (($#sortedFeatures / $featureLimit) > 1.5) {
+    if (($#{$features} / $featureLimit) > 1.5) {
         #make it so that the chunks are roughly the same size
-        $featureLimit = int((($#sortedFeatures + 1)
-                              / int((($#sortedFeatures + 1)
+        $featureLimit = int((($#{$features} + 1)
+                              / int((($#{$features} + 1)
                                       / $featureLimit) + .5)) + 1);
         #print STDERR "adjusted featureLimit: $featureLimit\n";
         for (my $chunkFirst = 0;
-             $chunkFirst < $#sortedFeatures;
+             $chunkFirst < $#{$features};
              $chunkFirst += $featureLimit) {
 
             my $chunkLast = $chunkFirst + $featureLimit - 1;
-            $chunkLast = $chunkLast > $#sortedFeatures ?
-                $#sortedFeatures : $chunkLast;
+            $chunkLast = $chunkLast > $#{$features} ?
+                $#{$features} : $chunkLast;
             #print STDERR "$chunkFirst - $chunkLast\n";
             my $fakeFeature = [];
             $fakeFeature->[$startIndex] =
-                $sortedFeatures[$chunkFirst][$startIndex];
+                $features->[$chunkFirst][$startIndex];
             my $maxEnd = 0;
             for (my $i = $chunkFirst; $i <= $chunkLast; $i++) {
-                $maxEnd = $sortedFeatures[$i][$endIndex]
-                    if $sortedFeatures[$i][$endIndex] > $maxEnd;
+                $maxEnd = $features->[$i][$endIndex]
+                    if $features->[$i][$endIndex] > $maxEnd;
             }
             $fakeFeature->[$endIndex] = $maxEnd + 1;
             #print STDERR "(bases " . $fakeFeature->[$startIndex] . " - " . $fakeFeature->[$endIndex] . ")\n";
@@ -329,7 +342,15 @@ sub generateTrack {
         }
     }
 
-    push @sortedFeatures, @fakeFeatures;
+    push @{$features}, @fakeFeatures;
+
+    my @sortedFeatures = sort {
+        if ($a->[$startIndex] != $b->[$startIndex]) {
+            $a->[$startIndex] - $b->[$startIndex];
+        } else {
+            $b->[$endIndex] - $a->[$endIndex];
+        }
+    } @{$features};
 
     my $featList = NCList->new($startIndex, $endIndex,
                                $self->{sublistIndex}, \@sortedFeatures);
@@ -349,14 +370,15 @@ sub generateTrack {
         }
     }
 
-    my $lazyfeatureUrlTemplate = "$outDir/lazyfeatures-{chunk}.json";
+    my $lazyfeatureUrlTemplate = "$outDir/lazyfeatures-{chunk}.$ext";
 
     foreach my $chunk (keys %subTrees) {
         my $path = $lazyfeatureUrlTemplate;
         $path =~ s/\{chunk\}/$chunk/g;
         writeJSON($path,
                   $subTrees{$chunk},
-                  {pretty => 0, max_depth => MAX_JSON_DEPTH});
+                  {pretty => 0, max_depth => MAX_JSON_DEPTH},
+                  $compress);
     }
 
     #use Data::Dumper;
@@ -368,7 +390,7 @@ sub generateTrack {
                      'sublistIndex' => $self->{sublistIndex},
                      'lazyIndex' => $lazyIndex,
                      'headers' => $self->{curMapHeaders},
-                     'featureCount' => $#{$self->{features}} + 1,
+                     'featureCount' => $featureCount,
                      'type' => "FeatureTrack",
                      'className' => $self->{style}->{class},
                      'subfeatureClasses' => $self->{style}->{subfeature_classes},
@@ -382,9 +404,10 @@ sub generateTrack {
                     };
     $trackData->{urlTemplate} = $self->{style}->{urlTemplate}
       if defined($self->{style}->{urlTemplate});
-    writeJSON("$outDir/trackData.json",
+    writeJSON("$outDir/trackData.$ext",
               $trackData,
-              {pretty => 0, max_depth => MAX_JSON_DEPTH});
+              {pretty => 0, max_depth => MAX_JSON_DEPTH},
+              $compress);
 }
 
 sub trimArray {

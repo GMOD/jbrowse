@@ -25,15 +25,15 @@ use warnings;
 
 =cut
 sub new {
-    my ($class, $start, $end, $sublistIndex, $featList) = @_;
+    my ($class, $start, $end, $sublistIndex, $features) = @_;
 
-    my @features = sort {
-	if ($a->[$start] != $b->[$start]) {
-	    $a->[$start] - $b->[$start];
-	} else {
-	    $b->[$end] - $a->[$end];
-	}
-    } @$featList;
+    # my @features = sort {
+    #     if ($a->[$start] != $b->[$start]) {
+    #         $a->[$start] - $b->[$start];
+    #     } else {
+    #         $b->[$end] - $a->[$end];
+    #     }
+    # } @$featList;
 
     #@sublistStack is a list of all the currently relevant sublists
     #(one for each level of nesting)
@@ -43,38 +43,50 @@ sub new {
 
     my $self = { 'topList' => $curList,
 		 'sublistIndex' => $sublistIndex,
-	         'count' => $#features + 1};
+	         'count' => $#{$features} + 1};
     bless $self, $class;
 
-    push @$curList, $features[0];
+    push @$curList, $features->[0];
 
     my ($topSublist, $i);
+    my $lastStart = $features->[0]->[$start];
+    my $lastEnd = $features->[0]->[$end];
 
-    for ($i = 1; $i <= $#features; $i++) {
+    for ($i = 1; $i <= $#{$features}; $i++) {
+        die "input not sorted: got start $lastStart before " . $features->[$i]->[$start]
+            if $lastStart > $features->[$i]->[$start];
+        die "input not sorted: got $lastStart .. $lastEnd before " . $features->[$i]->[$start] . " .. " . $features->[$i]->[$end]
+            if (($lastStart == $features->[$i]->[$start])
+                &&
+                ($lastEnd < $features->[$i]->[$end]));
+
+        $lastStart = $features->[$i]->[$start];
+        $lastEnd = $features->[$i]->[$end];
+
 	#if this interval is contained in the previous interval,
-	if ($features[$i]->[$end] < $features[$i - 1]->[$end]) {
+	if ($features->[$i]->[$end] < $features->[$i - 1]->[$end]) {
 	    #create a new sublist starting with this interval
 	    push @sublistStack, $curList;
-	    $curList = [$features[$i]];
-	    $features[$i - 1]->[$sublistIndex] = $curList;
+	    $curList = [$features->[$i]];
+	    $features->[$i - 1]->[$sublistIndex] = $curList;
 	} else {
 	    #find the right sublist for this interval
 	    while (1) {
                 #if we're at the top level list,
 		if ($#sublistStack < 0) {
                     #just add the current feature
-		    push @$curList, $features[$i];
+		    push @$curList, $features->[$i];
 		    last;
 		} else {
 		    $topSublist = $sublistStack[$#sublistStack];
                     #if the last interval in the top sublist ends
                     #after the end of the current interval,
 		    if ($topSublist->[$#{$topSublist}]->[$end] 
-                        > $features[$i]->[$end]) {
+                        > $features->[$i]->[$end]) {
 			#then curList is the first (deepest) sublist
                         #that the current feature fits into, and
                         #we add the current feature to curList
-			push @$curList, $features[$i];
+			push @$curList, $features->[$i];
 			last;
 		    } else {
                         #move on to the next shallower sublist

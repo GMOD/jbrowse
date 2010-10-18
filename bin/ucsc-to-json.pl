@@ -6,17 +6,21 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
-use IO::Uncompress::Gunzip qw($GunzipError);
+#use IO::Uncompress::Gunzip qw($GunzipError);
+use PerlIO::gzip;
 use Getopt::Long;
 use List::Util qw(min max);
 use JSON 2;
 use JsonGenerator;
+use ExternalSorter;
 
 my $trackdb = "trackDb";
-my ($indir, $tracks, $arrowheadClass, $subfeatureClasses, $clientConfig, $db);
+my ($indir, $tracks, $arrowheadClass, $subfeatureClasses, $clientConfig, $db,
+    $compress);
 my $outdir = "data";
 my $cssClass = "basic";
 my $nclChunk = 500;
+my $sortMem = 1024 * 1024 * 512;
 GetOptions("in=s" => \$indir,
            "out=s" => \$outdir,
            "track=s@" => \$tracks,
@@ -24,7 +28,9 @@ GetOptions("in=s" => \$indir,
            "arrowheadClass=s", \$arrowheadClass,
            "subfeatureClasses=s", \$subfeatureClasses,
            "clientConfig=s", \$clientConfig,
-           "nclChunk=i" => \$nclChunk);
+           "nclChunk=i" => \$nclChunk,
+           "compress" => \$compress,
+           "sortMem=i" =>\$sortMem);
 
 die "please specify the directory with the database dumps using the --in parameter"
     unless defined($indir);
@@ -33,7 +39,10 @@ my $trackDir = "$outdir/tracks";
 mkdir($outdir) unless (-d $outdir);
 mkdir($trackDir) unless (-d $trackDir);
 
-my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
+my %refSeqs =
+    map {
+        $_->{name} => $_
+    } @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
 
 # the jbrowse NCList code requires that "start" and "end" be
 # the first and second fields in the array; @defaultHeaders and @srcMap
@@ -125,47 +134,66 @@ ENDJS
         };
     }
 
-    my %perChromGens;
-    foreach my $ref (@refSeqs) {
-        mkdir("$trackDir/" . $ref->{name})
-            unless (-d "$trackDir/" . $ref->{name});
-        $perChromGens{$ref->{name}} = JsonGenerator->new($trackSettings{track},
-                                                         $ref->{name},
-                                                         \%style, $headers);
-    }
-
     my @nameList;
     my $chromCol = $fields{chrom};
+    my $startCol = $fields{txStart} || $fields{chromStart};
+    my $endCol = $fields{txEnd} || $fields{chromEnd};
     my $nameCol = $fields{name};
-    for_columns("$indir/" . $track->{tableName},
-                sub {
-                    my $jsonRow = $converter->($_[0], \%fields, $type);
-                    my $jsonGen = $perChromGens{$_[0]->[$chromCol]};
-                    if (defined $jsonGen) {
-                        $jsonGen->addFeature($jsonRow);
-                        if (defined $nameCol) {
-                            $jsonGen->addName([$trackSettings{track},
-                                               $_[0]->[$nameCol],
-                                               $_[0]->[$chromCol],
-                                               $jsonRow->[0],
-                                               $jsonRow->[1],
-                                               $_[0]->[$nameCol]]);
-                        }
-                    }
-                });
+    my $compare = sub ($$) {
+        $_[0]->[$chromCol] cmp $_[1]->[$chromCol]
+            ||
+        $_[0]->[$startCol] <=> $_[1]->[$startCol]
+            ||
+        $_[1]->[$endCol] <=> $_[0]->[$endCol]
+    };
 
-    foreach my $ref (@refSeqs) {
-        mkdir("$trackDir/" . $ref->{name})
-            unless (-d "$trackDir/" . $ref->{name});
-        my $jsonGen = $perChromGens{$ref->{name}};
-        if ($jsonGen->hasFeatures) {
-            $jsonGen->generateTrack("$trackDir/"
-                                        . $ref->{name} . "/" 
-                                            . $trackSettings{track},
-                                    $nclChunk, $ref->{start}, $ref->{end});
+    my $sorter = ExternalSorter->new($compare, $sortMem);
+    for_columns("$indir/" . $track->{tableName},
+                sub { $sorter->add($_[0]) } );
+    $sorter->finish();
+
+    my $curChrom;
+    my $jsonGen;
+    while (1) {
+        my $row = $sorter->get();
+        if ((!defined($row))
+                || (!defined($curChrom))
+                    || ($curChrom ne $row->[$chromCol])) {
+            if ($jsonGen && $jsonGen->hasFeatures && $refSeqs{$curChrom}) {
+                print STDERR "working on $curChrom\n";
+                $jsonGen->generateTrack("$trackDir/"
+                                            . $curChrom . "/"
+                                                . $trackSettings{track},
+                                        $nclChunk,
+                                        $refSeqs{$curChrom}->{start},
+                                        $refSeqs{$curChrom}->{end},
+                                        $compress);
+            }
+
+            if (defined($row)) {
+                $curChrom = $row->[$chromCol];
+                mkdir("$trackDir/" . $curChrom)
+                    unless (-d "$trackDir/" . $curChrom);
+                $jsonGen = JsonGenerator->new($trackSettings{track},
+                                              $curChrom,
+                                              \%style, $headers);
+            } else {
+                last;
+            }
+        }
+        my $jsonRow = $converter->($row, \%fields, $type);
+        $jsonGen->addFeature($jsonRow);
+        if (defined $nameCol) {
+            $jsonGen->addName([$trackSettings{track},
+                               $_[0]->[$nameCol],
+                               $_[0]->[$chromCol],
+                               $jsonRow->[0],
+                               $jsonRow->[1],
+                               $_[0]->[$nameCol]]);
         }
     }
 
+    my $ext = ($compress ? "jsonz" : "json");
     JsonGenerator::modifyJSFile("$outdir/trackInfo.js", "trackInfo",
         sub {
             my $origTrackList = shift;
@@ -180,7 +208,7 @@ ENDJS
                     'key' => $style{"key"},
                     'url' => "$trackDir/{refseq}/"
                         . $trackSettings{track}
-                            . "/trackData.json",
+                            . "/trackData.$ext",
                     'type' => "FeatureTrack",
                 };
             return \@trackList;
@@ -417,19 +445,21 @@ sub name2column_map {
 sub for_columns {
     my ($table, $func) = @_;
 
-    my $gzip = new IO::Uncompress::Gunzip "$table.txt.gz"
-        or die "gunzip failed: $GunzipError\n";
+    # my $gzip = new IO::Uncompress::Gunzip "$table.txt.gz"
+    #     or die "gunzip failed: $GunzipError\n";
+    my $gzip;
+    open $gzip, "<:gzip", "$table.txt.gz"
+        or die "failed to open $table.txt.gz: $!\n";
 
     my $lines = 0;
     my $row = "";
-    while (my $line = $gzip->getline()) {
-	chomp $line;
-	if ($line =~ /\\$/) {
-	    chop $line;
-	    $row .= "$line\n";
+    while (<$gzip>) {
+	chomp;
+	if (/\\$/) {
+	    chop;
+	    $row .= "$_\n";
 	} else {
-            chomp $line;
-	    $row .= $line;
+	    $row .= $_;
 	    my @data = split /\t/, $row; # deal with escaped tabs in data?  what are the escaping rules?
 	    &$func (\@data);
 	    $row = "";
@@ -437,5 +467,5 @@ sub for_columns {
 	if (++$lines % 50000 == 0) { warn "(processed $lines lines)\n" }
     }
     $gzip->close()
-        or die "couldn't close gunzip: $GunzipError\n";
+        or die "couldn't close $table.txt.gz: $!\n";
 }
