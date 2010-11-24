@@ -184,8 +184,9 @@ ENDJS
         my $jsonRow = $converter->($row, \%fields, $type);
         $jsonGen->addFeature($jsonRow);
         if (defined $nameCol) {
-            $jsonGen->addName([$trackSettings{track},
-                               $_[0]->[$nameCol],
+            $jsonGen->addName([[$_[0]->[$nameCol]],
+                               $trackSettings{track},
+                               [$_[0]->[$nameCol],
                                $_[0]->[$chromCol],
                                $jsonRow->[0],
                                $jsonRow->[1],
