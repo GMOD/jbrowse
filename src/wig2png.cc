@@ -569,7 +569,7 @@ int main(int argc, char **argv){
   
   INIT_OPTS_LIST (opts, argc, argv, 1, "[options] <input file>", "create a JBrowse quantitative track, broken into tile images, from a WIG file");
 
-  string pngdiropt = "data/tiles";
+  string pngrelopt = "tiles";
   string jsondiropt = "data/tracks";
   string tracklabel = "wigtrack";
   int width = 2000;
@@ -578,7 +578,7 @@ int main(int argc, char **argv){
   string bgopt = "255,255,255";
   string minopt, maxopt;
 
-  opts.add ("pd -png-dir", pngdiropt, "PNG output directory");
+  opts.add ("pd -png-dir", pngrelopt, "PNG output directory, relative to the data directory");
   opts.add ("jd -json-dir", jsondiropt, "JSON output directory");
   opts.add ("tl -track-label", tracklabel, "track label");
   opts.add ("tw -tile-width", width, "tile width in pixels");
@@ -610,7 +610,7 @@ int main(int argc, char **argv){
     };
 
     vector<string> basePath;
-    basePath.push_back(pngdiropt);
+    basePath.push_back(pngrelopt);
     basePath.push_back(tracklabel);
     string baseDir = ensure_path(basePath);
 

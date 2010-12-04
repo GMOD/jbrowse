@@ -12,18 +12,19 @@ use JsonGenerator;
 use FastaDatabase;
 
 my $chunkSize = 20000;
-my ($confFile, $noSeq, $seqDir, $gff, $fasta, $refs, $refids);
+my ($confFile, $noSeq, $gff, $fasta, $refs, $refids);
 my $outDir = "data";
 my $seqTrackName = "DNA";
 GetOptions("out=s" => \$outDir,
            "conf=s" => \$confFile,
            "noseq" => \$noSeq,
-           "seqdir=s" => \$seqDir,
            "gff=s" => \$gff,
            "fasta=s" => \$fasta,
 	   "refs=s" => \$refs,
            "refids=s" => \$refids);
-$seqDir = "$outDir/seq" unless defined $seqDir;
+# $seqRel is the path relative to $outDir
+my $seqRel = "seq";
+my $seqDir = "$outDir/$seqRel";
 
 if (!(defined($gff) || defined($confFile) || defined($fasta))) {
     print <<HELP;
@@ -165,7 +166,7 @@ if (defined($gff)) {
                 exportSeqChunks($refDir, $chunkSize, $db,
                                 [-name => $ref],
                                 $seg->start, $seg->end);
-                $refInfo->{"seqDir"} = $refDir;
+                $refInfo->{"seqDir"} = $seqRel . "/" . $refInfo->{"name"};
                 $refInfo->{"seqChunkSize"} = $chunkSize;
             }
 
@@ -238,7 +239,7 @@ unless ($noSeq) {
                                       {
                                        'label' => $seqTrackName,
                                        'key' => $seqTrackName,
-                                       'url' => "$seqDir/{refseq}/",
+                                       'url' => "$seqRel/{refseq}/",
                                        'type' => "SequenceTrack",
                                        'args' => {'chunkSize' => $chunkSize}
                                       };

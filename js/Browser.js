@@ -34,8 +34,8 @@ var Browser = function(params) {
     else
         dataRoot = "";
 
-    this.names = new LazyTrie(dataRoot + "data/names/lazy-",
-			      dataRoot + "data/names/root.json");
+    this.names = new LazyTrie(dataRoot + "/names/lazy-",
+			      dataRoot + "/names/root.json");
     this.tracks = [];
     var brwsr = this;
     brwsr.isInitialized = false;

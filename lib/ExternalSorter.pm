@@ -83,7 +83,7 @@ sub flush {
 
     # each segment must have at least one element
     return if ($#sorted < 0);
-    die "ExternalSorter is already finished"
+    croak "ExternalSorter is already finished"
         if $self->{finished};
 
     my $fh = File::Temp->new($self->{tmpDir} ? (DIR => $self->{tmpDir}) : (),

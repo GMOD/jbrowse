@@ -13,7 +13,7 @@ use JsonGenerator;
 
 my ($path, $trackLabel, $key, $cssClass);
 my $outdir = "data";
-my $tiledir = "$outdir/tiles";
+my $tileRel = "tiles";
 my $fgColor = "105,155,111";
 my $bgColor = "255,255,255";
 my $tileWidth = 2000;
@@ -29,8 +29,9 @@ unless (-x $wig2png) {
 my $usage = <<USAGE;
  USAGE: $0 --wig <wiggle file> [--tile <tiles directory>] [--out <JSON directory>] [--tracklabel <track identifier>] [--key <human-readable track name>] [--bgcolor <R,G,B>] [--fgcolor <R,G,B>] [--width <tile width>] [--height <tile height>] [--min <min> --max <max>]
 
-    --tile: defaults to "$tiledir"
-    --out: defaults to "$outdir"
+    --out: directory where the output will go (defaults to "$outdir")
+    --tile: directory within the --out directory where tiles are stored
+            (defaults to "$tileRel")
     --tracklabel: defaults to wiggle filename
     --key: defaults to track label
     --bgcolor: defaults to "$bgColor"
@@ -44,7 +45,7 @@ my $usage = <<USAGE;
 USAGE
 
 GetOptions("wig=s" => \$path,
-	   "tile=s" => \$tiledir,
+	   "tile=s" => \$tileRel,
 	   "out=s" => \$outdir,
 	   "tracklabel=s" => \$trackLabel,
 	   "key=s" => \$key,
@@ -59,20 +60,23 @@ if (!defined($path)) {
     die $usage;
 }
 
+my $trackRel = "tracks";
+my $trackDir = "$outdir/$trackRel";
+
 my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
 die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
 
 $trackLabel = basename($path) unless defined $trackLabel;
-my $tilesubdir = "$tiledir/$trackLabel";
+my $tilesubdir = "$outdir/$tileRel/$trackLabel";
 
 mkdir($outdir) unless (-d $outdir);
-mkdir($tiledir) unless (-d $tiledir);
+mkdir("$outdir/$tileRel") unless (-d "$outdir/$tileRel");
 mkdir($tilesubdir) unless (-d $tilesubdir);
-mkdir("$outdir/tracks") unless (-d "$outdir/tracks");
+mkdir($trackDir) unless (-d $trackDir);
 
 my $minopt = length($min) ? "--min-value $min" : "";
 my $maxopt = length($max) ? "--max-value $max" : "";
-system "$wig2png $path --png-dir $tiledir --json-dir $outdir/tracks --track-label $trackLabel --tile-width $tileWidth --track-height $trackHeight --background-color $bgColor --foreground-color $fgColor $minopt $maxopt";
+system "$wig2png $path --png-dir \"$tileRel\" --json-dir \"$trackDir\" --track-label \"$trackLabel\" --tile-width $tileWidth --track-height $trackHeight --background-color $bgColor --foreground-color $fgColor $minopt $maxopt";
 
 foreach my $seqInfo (@refSeqs) {
     my $seqName = $seqInfo->{"name"};
@@ -90,7 +94,7 @@ foreach my $seqInfo (@refSeqs) {
 		       {
 			'label' => $trackLabel,
 			'key' => defined($key) ? $key : $trackLabel,
-			'url' => "$outdir/tracks/{refseq}/$trackLabel.json",
+			'url' => "$trackRel/{refseq}/$trackLabel.json",
 			'type' => "ImageTrack",
 		       };
 		     return $trackList;

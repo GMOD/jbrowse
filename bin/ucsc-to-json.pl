@@ -16,10 +16,9 @@ use ExternalSorter;
 
 my $trackdb = "trackDb";
 my ($indir, $tracks, $arrowheadClass, $subfeatureClasses, $clientConfig, $db,
-    $compress);
+    $nclChunk, $compress);
 my $outdir = "data";
 my $cssClass = "basic";
-my $nclChunk = 500;
 my $sortMem = 1024 * 1024 * 512;
 GetOptions("in=s" => \$indir,
            "out=s" => \$outdir,
@@ -35,7 +34,16 @@ GetOptions("in=s" => \$indir,
 die "please specify the directory with the database dumps using the --in parameter"
     unless defined($indir);
 
-my $trackDir = "$outdir/tracks";
+if (!defined($nclChunk)) {
+    # default chunk size is 50KiB
+    $nclChunk = 50000;
+    # $nclChunk is the uncompressed size, so we can make it bigger if
+    # we're compressing
+    $nclChunk *= 2 if $compress;
+}
+
+my $trackRel = "tracks";
+my $trackDir = "$outdir/$trackRel";
 mkdir($outdir) unless (-d $outdir);
 mkdir($trackDir) unless (-d $trackDir);
 
@@ -161,22 +169,22 @@ ENDJS
                     || ($curChrom ne $row->[$chromCol])) {
             if ($jsonGen && $jsonGen->hasFeatures && $refSeqs{$curChrom}) {
                 print STDERR "working on $curChrom\n";
-                $jsonGen->generateTrack("$trackDir/"
-                                            . $curChrom . "/"
-                                                . $trackSettings{track},
-                                        $nclChunk,
-                                        $refSeqs{$curChrom}->{start},
-                                        $refSeqs{$curChrom}->{end},
-                                        $compress);
+                $jsonGen->generateTrack();
             }
 
             if (defined($row)) {
                 $curChrom = $row->[$chromCol];
                 mkdir("$trackDir/" . $curChrom)
                     unless (-d "$trackDir/" . $curChrom);
-                $jsonGen = JsonGenerator->new($trackSettings{track},
+                $jsonGen = JsonGenerator->new("$trackDir/$curChrom/"
+                                              . $trackSettings{track},
+                                              $trackRel, $nclChunk,
+                                              $compress, $trackSettings{track},
                                               $curChrom,
-                                              \%style, $headers);
+                                              $refSeqs{$curChrom}->{start},
+                                              $refSeqs{$curChrom}->{end},
+                                              \%style, $headers,
+                                              \@subfeatHeaders);
             } else {
                 last;
             }
@@ -186,7 +194,7 @@ ENDJS
         if (defined $nameCol) {
             $jsonGen->addName([[$_[0]->[$nameCol]],
                                $trackSettings{track},
-                               [$_[0]->[$nameCol],
+                               $_[0]->[$nameCol],
                                $_[0]->[$chromCol],
                                $jsonRow->[0],
                                $jsonRow->[1],
@@ -207,7 +215,7 @@ ENDJS
                 {
                     'label' => $trackSettings{track},
                     'key' => $style{"key"},
-                    'url' => "$trackDir/{refseq}/"
+                    'url' => "$trackRel/{refseq}/"
                         . $trackSettings{track}
                             . "/trackData.$ext",
                     'type' => "FeatureTrack",
