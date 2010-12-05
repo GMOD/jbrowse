@@ -10,6 +10,7 @@ package NCList;
 use strict;
 use warnings;
 use Carp;
+use List::Util qw(max);
 
 =head2 new
 

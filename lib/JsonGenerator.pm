@@ -17,7 +17,7 @@ use PerlIO::gzip;
 use constant MAX_JSON_DEPTH => 2048;
 
 #this series of numbers is used in JBrowse for zoom level relationships
-my @multiples = (2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000,
+my @multiples = (1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000,
                  10_000, 20_000, 50_000, 100_000, 200_000, 500_000, 1_000_000);
 
 my $startIndex = 0;
@@ -187,7 +187,13 @@ sub new {
     # arbitrarily set the bin size of the the finest-grained histogram 
     # to one data point per 10 bases
     $self->{histBinBases} = 10;
-    $self->{hist} = [(0) x ceil($refEnd / $self->{histBinBases})];
+    $self->{hists} = [];
+
+    for (my $i = 0; $i <= $#multiples; $i++) {
+        my $binBases = $self->{histBinBases} * $multiples[$i];
+        $self->{hists}->[$i] = [(0) x ceil($refEnd / $binBases)];
+        last if $binBases > $self->{refEnd};
+    }
 
     mkdir($outDir) unless (-d $outDir);
     unlink (glob $outDir . "/hist*");
@@ -197,7 +203,7 @@ sub new {
 
     my $output = sub {
         my ($toWrite, $chunkId) = @_;
-
+        print STDERR "writing chunk $chunkId\n";
         (my $path = $lazyPathTemplate) =~ s/\{chunk\}/$chunkId/g;
         writeJSON($path,
                   $toWrite,
@@ -210,7 +216,7 @@ sub new {
     $self->{features} = LazyNCList->new($startIndex, $endIndex,
                                         $self->{sublistIndex},
                                         $lazyIndex,
-                                        sub { length(JSON::to_json($_->[0])) },
+                                        sub { length(JSON::to_json($_[0])) },
                                         $output,
                                         $chunkBytes);
 
@@ -231,14 +237,19 @@ sub addFeature {
     $self->{features}->addSorted($feature);
     $self->{count}++;
 
-    my $histogram = $self->{hist};
+    my $histograms = $self->{hists};
 
-    my $firstBin = int($feature->[$startIndex] / $self->{histBinBases});
-    $firstBin = 0 if ($firstBin < 0);
-    my $lastBin = int($feature->[$endIndex] / $self->{histBinBases});
-    return if ($lastBin < 0);
-    for (my $bin = $firstBin; $bin <= $lastBin; $bin++) {
-        $histogram->[$bin] += 1;
+    for (my $i = 0; $i <= $#multiples; $i++) {
+        my $binBases = $self->{histBinBases} * $multiples[$i];
+        last if $binBases > $self->{refEnd};
+
+        my $firstBin = int($feature->[$startIndex] / $binBases);
+        $firstBin = 0 if ($firstBin < 0);
+        my $lastBin = int($feature->[$endIndex] / $binBases);
+        return if ($lastBin < 0);
+        for (my $bin = $firstBin; $bin <= $lastBin; $bin++) {
+            $histograms->[$i]->[$bin] += 1;
+        }
     }
 }
 
@@ -318,49 +329,59 @@ sub generateTrack {
 
     # approximate the number of bases per histogram bin at the zoom level where
     # FeatureTrack.js switches to histogram view, by default
-    my $histBinThresh = ($refEnd * 2.5) / $self->{count};
+    my $histBinThresh = ($self->{refEnd} * 2.5) / $self->{count};
+
+    # find multiple of base hist bin size that's just over $histBinThresh
     my $i;
-    for ($i = 0; $i <= $#multiples; $i++) {
-        last if ($self->{histBinBases} * $multiple) > $histBinThresh;
+    for ($i = 1; $i <= $#multiples; $i++) {
+        last if ($self->{histBinBases} * $multiples[$i]) > $histBinThresh;
     }
-    $self->{hist} = aggSumArray($self->{hist}, $multiples[$i - 1]);
 
     my @histogramMeta;
     # Generate more zoomed-out histograms so that the client doesn't
     # have to load all of the histogram data when there's a lot of it.
-    # Each successive histogram is 100-fold coarser than the previous one.
-    my $curHist = $self->{hist};
-    my $curBases = $self->{histBinBases};
-    while ($#{$curHist} >= $histChunkSize) {
+    # Each successive histogram is 100-fold coarser (6 spots later
+    # in @multiples) than the previous one.
+    for (my $j = $i - 1; $j <= $#multiples; $j += 6) {
+        my $curHist = $self->{hists}->[$j];
+        my $histBases = $self->{histBinBases} * $multiples[$j];
+
         my $chunks = chunkArray($curHist, $histChunkSize);
         for (my $i = 0; $i <= $#{$chunks}; $i++) {
-            writeJSON($self->{outDir} . "/hist-$curBases-$i.$ext",
+            writeJSON($self->{outDir} . "/hist-$histBases-$i.$ext",
                       $chunks->[$i],
                       {pretty => 0},
                       $self->{compress});
         }
         push @histogramMeta,
             {
-                basesPerBin => $curBases,
+                basesPerBin => $histBases,
                 arrayParams => {
                     length => $#{$curHist} + 1,
                     urlTemplate => $self->{outRel}
-                                   . "/hist-$curBases-{chunk}.$ext",
+                                   . "/hist-$histBases-{chunk}.$ext",
                     chunkSize => $histChunkSize
                 }
             };
-        $curHist = aggSumArray($curHist, 100);
-        $curBases = $curBases * 100;
-    }
+        # $curHist = aggSumArray($curHist, 100);
+        # $curBases = $curBases * 100;
+        last if ($#{$curHist} < $histChunkSize);
+    } # while ($#{$curHist} >= $histChunkSize);
 
     my @histStats;
-    push @histStats, {'bases' => $self->{histBinBases},
-                       arrayStats($self->{hist})};
-    foreach my $multiple (@multiples) {
-        last if ($self->{histBinBases} * $multiple) > $self->{refEnd};
-        my $aggregated = aggSumArray($self->{hist}, $multiple);
-        push @histStats, {'bases' => $self->{histBinBases} * $multiple,
-                          arrayStats($aggregated)};
+    # push @histStats, {'bases' => $self->{histBinBases},
+    #                    arrayStats($self->{hist})};
+    for (my $j = $i - 1; $j <= $#multiples; $j++) {
+        my $binBases = $self->{histBinBases} * $multiples[$j];
+
+    # foreach my $multiple (@multiples) {
+    #     last if ($self->{histBinBases} * $multiple) > $self->{refEnd};
+    #     my $aggregated = aggSumArray($self->{hist}, $multiple);
+        # push @histStats, {'bases' => $self->{histBinBases} * $multiple,
+        #                   arrayStats($aggregated)};
+        push @histStats, {'bases' => $binBases,
+                          arrayStats($self->{hists}->[$j])};
+        last if $binBases > $self->{refEnd};
     }
 
     # undef $chunks;
