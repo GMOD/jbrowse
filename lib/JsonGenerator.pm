@@ -189,6 +189,7 @@ sub new {
     $self->{histBinBases} = 10;
     $self->{hists} = [];
 
+    # initialize histogram arrays to all zeroes
     for (my $i = 0; $i <= $#multiples; $i++) {
         my $binBases = $self->{histBinBases} * $multiples[$i];
         $self->{hists}->[$i] = [(0) x ceil($refEnd / $binBases)];
@@ -198,6 +199,8 @@ sub new {
     mkdir($outDir) unless (-d $outDir);
     unlink (glob $outDir . "/hist*");
     unlink (glob $outDir . "/lazyfeatures*");
+    unlink $outDir . "/names.json";
+    unlink $outDir . "/trackData.json";
 
     my $lazyPathTemplate = "$outDir/lazyfeatures-{chunk}." . $self->{ext};
 
@@ -227,13 +230,6 @@ sub new {
 sub addFeature {
     my ($self, $feature) = @_;
 
-    # return unless defined($feature->start);
-
-    # if ($self->{getLabel} || $self->{getAlias}) {
-    #     push @{$self->{names}}, [map {$_->($feature)} @{$self->{nameMap}}];
-    # }
-
-    # push @{$self->{features}}, [map {&$_($feature)} @{$self->{curFeatMap}}]
     $self->{features}->addSorted($feature);
     $self->{count}++;
 
@@ -275,57 +271,12 @@ sub generateTrack {
 
     my $ext = $self->{ext};
 
-    #unlink (glob "$outDir/subfeatures*");
     writeJSON($self->{outDir} . "/names.json", $self->{names}, {pretty => 0, max_depth => MAX_JSON_DEPTH}, 0)
         if ($#{$self->{names}} >= 0);
 
-    # my @sortedFeatures = sort {
-    #     if ($a->[$startIndex] != $b->[$startIndex]) {
-    #         $a->[$startIndex] - $b->[$startIndex];
-    #     } else {
-    #         $b->[$endIndex] - $a->[$endIndex];
-    #     }
-    # } @{$self->{features}};
     my $features = $self->{features};
 
-    #my $featureCount = $#{$features} + 1;
-    # approximate the number of bases per histogram bin at the zoom level where
-    # FeatureTrack.js switches to histogram view
-    # my $histBinThresh = ($refEnd * 2.5) / $featureCount;
-    # my $histBinBases = 0;
-    # foreach my $multiple (@multiples) {
-    #     $histBinBases = $multiple;
-    #     last if $multiple > $histBinThresh;
-    # }
-    # my @histogram = ((0) x ceil($refEnd / $histBinBases));
-    # foreach my $feat (@{$features}) {
-    #     my $firstBin = int($feat->[$startIndex] / $histBinBases);
-    #     $firstBin = 0 if ($firstBin < 0);
-    #     my $lastBin = int($feat->[$endIndex] / $histBinBases);
-    #     next if ($lastBin < 0);
-    #     for (my $bin = $firstBin; $bin <= $lastBin; $bin++) {
-    #         $histogram[$bin]++;
-    #     }
-    # }
-
     my $histChunkSize = 10_000;
-    # my $chunks = chunkArray(\@histogram, $histChunkSize);
-    # for (my $i = 0; $i <= $#{$chunks}; $i++) {
-    #     writeJSON($self->{outDir} . "/hist-$histBinBases-$i.$ext",
-    #               $chunks->[$i],
-    #               {pretty => 0},
-    #               $self->{compress});
-    # }
-    # my $histogramMeta =
-    #     [{
-    #         basesPerBin => $histBinBases,
-    #         arrayParams => {
-    #             length => $#histogram + 1,
-    #             urlTemplate => $self->{outRel}
-    #                            . "/hist-$histBinBases-{chunk}.$ext",
-    #             chunkSize => $histChunkSize
-    #         }
-    #     }];
 
     # approximate the number of bases per histogram bin at the zoom level where
     # FeatureTrack.js switches to histogram view, by default
@@ -362,107 +313,17 @@ sub generateTrack {
                     chunkSize => $histChunkSize
                 }
             };
-        # $curHist = aggSumArray($curHist, 100);
-        # $curBases = $curBases * 100;
         last if ($#{$curHist} < $histChunkSize);
-    } # while ($#{$curHist} >= $histChunkSize);
+    }
 
     my @histStats;
-    # push @histStats, {'bases' => $self->{histBinBases},
-    #                    arrayStats($self->{hist})};
     for (my $j = $i - 1; $j <= $#multiples; $j++) {
         my $binBases = $self->{histBinBases} * $multiples[$j];
-
-    # foreach my $multiple (@multiples) {
-    #     last if ($self->{histBinBases} * $multiple) > $self->{refEnd};
-    #     my $aggregated = aggSumArray($self->{hist}, $multiple);
-        # push @histStats, {'bases' => $self->{histBinBases} * $multiple,
-        #                   arrayStats($aggregated)};
         push @histStats, {'bases' => $binBases,
                           arrayStats($self->{hists}->[$j])};
         last if $binBases > $self->{refEnd};
     }
 
-    # undef $chunks;
-    # undef @histogram;
-
-    # #add fake features for chunking
-    # my @fakeFeatures;
-    # if (($#{$features} / $featureLimit) > 1.5) {
-    #     #make it so that the chunks are roughly the same size
-    #     $featureLimit = int((($#{$features} + 1)
-    #                           / int((($#{$features} + 1)
-    #                                   / $featureLimit) + .5)) + 1);
-    #     #print STDERR "adjusted featureLimit: $featureLimit\n";
-    #     for (my $chunkFirst = 0;
-    #          $chunkFirst < $#{$features};
-    #          $chunkFirst += $featureLimit) {
-
-    #         my $chunkLast = $chunkFirst + $featureLimit - 1;
-    #         $chunkLast = $chunkLast > $#{$features} ?
-    #             $#{$features} : $chunkLast;
-    #         #print STDERR "$chunkFirst - $chunkLast\n";
-    #         my $fakeFeature = [];
-    #         $fakeFeature->[$startIndex] =
-    #             $features->[$chunkFirst][$startIndex];
-    #         my $maxEnd = 0;
-    #         for (my $i = $chunkFirst; $i <= $chunkLast; $i++) {
-    #             $maxEnd = $features->[$i][$endIndex]
-    #                 if $features->[$i][$endIndex] > $maxEnd;
-    #         }
-    #         $fakeFeature->[$endIndex] = $maxEnd + 1;
-    #         #print STDERR "(bases " . $fakeFeature->[$startIndex] . " - " . $fakeFeature->[$endIndex] . ")\n";
-    #         $fakeFeature->[$lazyIndex] = {
-    #             'chunk' => ($#fakeFeatures + 2)
-    #         };
-    #         push @fakeFeatures, $fakeFeature;
-    #     }
-    # }
-
-    # push @{$features}, @fakeFeatures;
-
-    # my @sortedFeatures = sort {
-    #     if ($a->[$startIndex] != $b->[$startIndex]) {
-    #         $a->[$startIndex] - $b->[$startIndex];
-    #     } else {
-    #         $b->[$endIndex] - $a->[$endIndex];
-    #     }
-    # } @{$features};
-
-    # my $featList = NCList->new($startIndex, $endIndex,
-    #                            $self->{sublistIndex}, \@sortedFeatures);
-
-    #strip out subtrees (have to do this before we start writing out
-    # subtrees in case one subtree is within another subtree)
-    # my %subTrees;
-    # foreach my $fake (@fakeFeatures) {
-    #     if (!defined($fake->[$self->{sublistIndex}])) {
-    #         warn "feature chunk " . $fake->[$startIndex] . " .. " . $fake->[$endIndex] . " ended up empty (that's OK, just sub-optimal)\n";
-    #         $fake->[$lazyIndex]->{state} = "loaded";
-    #     } else {
-    #         $subTrees{$fake->[$lazyIndex]->{chunk}} =
-    #             $fake->[$self->{sublistIndex}];
-    #         $fake->[$self->{sublistIndex}] = undef;
-    #         trimArray($fake);
-    #     }
-    # }
-
-    #my $lazyfeatureUrlTemplate = "$outDir/lazyfeatures-{chunk}.$ext";
-
-    # foreach my $chunk (keys %subTrees) {
-    #     my $path = $lazyfeatureUrlTemplate;
-    #     $path =~ s/\{chunk\}/$chunk/g;
-    #     writeJSON($path,
-    #               $subTrees{$chunk},
-    #               {pretty => 0, max_depth => MAX_JSON_DEPTH},
-    #               $compress);
-    # }
-
-
-
-    #use Data::Dumper;
-    #$Data::Dumper::Maxdepth = 2;
-    #print Dumper($featList->{'topList'});
     my $trackData = {
                      'label' =>
                          $self->{label},
