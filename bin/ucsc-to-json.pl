@@ -174,6 +174,7 @@ ENDJS
 
             if (defined($row)) {
                 $curChrom = $row->[$chromCol];
+                next unless defined($refSeqs{$curChrom});
                 mkdir("$trackDir/" . $curChrom)
                     unless (-d "$trackDir/" . $curChrom);
                 $jsonGen = JsonGenerator->new("$trackDir/$curChrom/"
@@ -189,6 +190,7 @@ ENDJS
                 last;
             }
         }
+        next unless defined($refSeqs{$curChrom});
         my $jsonRow = $converter->($row, \%fields, $type);
         $jsonGen->addFeature($jsonRow);
         if (defined $nameCol) {

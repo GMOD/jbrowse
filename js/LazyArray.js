@@ -15,10 +15,11 @@
  * <li><code>chunkSize</code> - the size of each array chunk</li>
  * </ul>
  */
-function LazyArray(lazyArrayParams) {
+function LazyArray(lazyArrayParams, baseUrl) {
     this.urlTemplate = lazyArrayParams.urlTemplate;
     this.chunkSize = lazyArrayParams.chunkSize;
     this.length = lazyArrayParams.length;
+    this.baseUrl = (baseUrl === undefined ? "" : baseUrl);
     // Once a range gets loaded, it goes into the "chunks" array.
     // this.chunks[n] contains data for indices in the range
     // [n * chunkSize, Math.min(length - 1, (n * (chunkSize + 1)) - 1)]
@@ -80,7 +81,7 @@ LazyArray.prototype.range = function(start, end, callback, postFun, param) {
                 var thisObj = this;
                 dojo.xhrGet(
                     {
-                        url: url,
+                        url: this.baseUrl + url,
                         handleAs: "json",
                         load: this._makeLoadFun(chunk),
                         error: function() { finish.dec(); }

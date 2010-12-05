@@ -192,7 +192,7 @@ sub new {
     for (my $i = 0; $i <= $#multiples; $i++) {
         my $binBases = $self->{histBinBases} * $multiples[$i];
         $self->{hists}->[$i] = [(0) x ceil($refEnd / $binBases)];
-        last if $binBases > $self->{refEnd};
+        last if $binBases > $refEnd;
     }
 
     mkdir($outDir) unless (-d $outDir);
@@ -340,9 +340,9 @@ sub generateTrack {
     my @histogramMeta;
     # Generate more zoomed-out histograms so that the client doesn't
     # have to load all of the histogram data when there's a lot of it.
-    # Each successive histogram is 100-fold coarser (6 spots later
+    # Each successive histogram is 10-fold coarser (3 spots later
     # in @multiples) than the previous one.
-    for (my $j = $i - 1; $j <= $#multiples; $j += 6) {
+    for (my $j = $i - 1; $j <= $#multiples; $j += 3) {
         my $curHist = $self->{hists}->[$j];
         my $histBases = $self->{histBinBases} * $multiples[$j];
 
@@ -358,8 +358,7 @@ sub generateTrack {
                 basesPerBin => $histBases,
                 arrayParams => {
                     length => $#{$curHist} + 1,
-                    urlTemplate => $self->{outRel}
-                                   . "/hist-$histBases-{chunk}.$ext",
+                    urlTemplate => "hist-$histBases-{chunk}.$ext",
                     chunkSize => $histChunkSize
                 }
             };
@@ -490,9 +489,9 @@ sub generateTrack {
                      'clientConfig' =>
                          $self->{style}->{clientConfig},
                      'featureNCList' =>
-                         $self->{features}->nestedList,
+                         $self->{features}->topLevelList,
                      'lazyfeatureUrlTemplate' =>
-                         $self->{outRel} . "/lazyfeatures-{chunk}.$ext",
+                         "lazyfeatures-{chunk}.$ext",
                      'histogramMeta' =>
                          \@histogramMeta,
                      'histStats' =>

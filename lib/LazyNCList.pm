@@ -66,6 +66,7 @@ sub addSorted {
     for (my $level = 0; $level <= $#{$self->{partialStack}}; $level++) {
         my $featSize = $self->{measure}->($feat);
         $chunkSizes->[$level] += $featSize;
+        #print STDERR "chunksize at $level is now " . $chunkSizes->[$level] . "; (next chunk is " . $self->{chunkNum} . ")\n";
 
         # If this partial chunk is full,
         if ($chunkSizes->[$level] > $self->{sizeThresh}) {
@@ -87,7 +88,6 @@ sub addSorted {
             $lazyFeat->[$start] = $newNcl->minStart;
             $lazyFeat->[$end] = $newNcl->maxEnd;
             $lazyFeat->[$self->{lazyIndex}] = {"chunk" => $newNcl->ID};
-            $self->{chunkNum} += 1;
 
             # if there is a previous NCL at this level, and
             # if the new lazy feature is within the previous NCL,
@@ -129,8 +129,9 @@ sub addSorted {
 sub finish {
     my ($self) = @_;
     # see also: the addSorted method
+    my $level;
 
-    for (my $level = 0; $level < $#{$self->{partialStack}}; $level++) {
+    for ($level = 0; $level < $#{$self->{partialStack}}; $level++) {
         my $newNcl = NCList->new($self->{startIndex},
                                  $self->{endIndex},
                                  $self->{sublistIndex});
@@ -171,6 +172,17 @@ sub finish {
         $self->{output}->($self->{nclStack}->[$level]->nestedList,
                           $self->{nclStack}->[$level]->ID);
     }
+
+    # make sure there's a top-level NCL
+    $level = $#{$self->{partialStack}};
+    my $newNcl = NCList->new($self->{startIndex},
+                             $self->{endIndex},
+                             $self->{sublistIndex});
+    $newNcl->ID($self->{chunkNum});
+    $self->{chunkNum} += 1;
+    $newNcl->addFeatures($self->{partialStack}->[$level]);
+    print STDERR "top level NCL has " . scalar(@{$self->{partialStack}->[$level]}) . " features\n";
+    $self->{nclStack}->[$level] = $newNcl;
 }
 
 sub topLevelList {

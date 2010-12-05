@@ -17,6 +17,8 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
     this.features = new NCList();
     this.refSeq = refSeq;
     this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "");
+    this.url = url;
+    this.trackBaseUrl = (this.baseUrl + url).match(/^.+\//);
     //number of histogram bins per block
     this.numBins = 25;
     this.histLabel = false;
@@ -47,10 +49,11 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     this.features.importExisting(trackInfo.featureNCList,
                                  trackInfo.sublistIndex,
                                  trackInfo.lazyIndex,
-                                 this.baseUrl,
+                                 this.trackBaseUrl,
                                  trackInfo.lazyfeatureUrlTemplate);
     if (trackInfo.subfeatureArray)
-        this.subfeatureArray = new LazyArray(trackInfo.subfeatureArray);
+        this.subfeatureArray = new LazyArray(trackInfo.subfeatureArray,
+                                             this.trackBaseUrl);
 
     this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length);
     this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length);
@@ -62,7 +65,7 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     this.histogramMeta = trackInfo.histogramMeta;
     for (var i = 0; i < this.histogramMeta.length; i++) {
         this.histogramMeta[i].lazyArray =
-            new LazyArray(this.histogramMeta[i].arrayParams);
+            new LazyArray(this.histogramMeta[i].arrayParams, this.trackBaseUrl);
     }
     this.histStats = trackInfo.histStats;
     this.histBinBases = trackInfo.histBinBases;
