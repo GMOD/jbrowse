@@ -88,7 +88,7 @@ sub addFeatures {
 
     for (my $i = 0; $i <= $#{$features}; $i++) {
         croak "input not sorted: got \n" . Dumper($lastAdded) . "\nbefore\n" . Dumper($features->[$i]) . "\n"
-            if ((lastAdded->[$start] > $features->[$i]->[$start])
+            if (($lastAdded->[$start] > $features->[$i]->[$start])
                 || (($lastAdded->[$start] == $features->[$i]->[$start])
                     &&
                     ($lastAdded->[$end] < $features->[$i]->[$end])) );
