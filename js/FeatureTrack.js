@@ -173,6 +173,11 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
     // coarsest (largest number of bases per bin).
     // We want to use coarsest histogramMeta that's at least as fine as the
     // one we're currently rendering.
+    // TODO: take into account that the histogramMeta chosen here might not
+    // fit neatly into the current histogram (e.g., if the current histogram
+    // is at 50,000 bases/bin, and we have server histograms at 20,000
+    // and 2,000 bases/bin, then we should choose the 2,000 histogramMeta
+    // rather than the 20,000)
     var histogramMeta = this.histogramMeta[0];
     for (var i = 0; i < this.histogramMeta.length; i++) {
         if (bpPerBin >= this.histogramMeta[i].basesPerBin)
@@ -196,6 +201,9 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
             firstServerBin,
             firstServerBin + (binCount * this.numBins),
             function(i, val) {
+                // this will count features that span the boundaries of
+                // the original histogram multiple times, so it's not
+                // perfectly quantitative.  Hopefully it's still useful, though.
                 histogram[Math.floor((i - firstServerBin) / binCount)] += val;
             },
             function() {

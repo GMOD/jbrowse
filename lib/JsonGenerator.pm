@@ -204,6 +204,7 @@ sub new {
 
     my $lazyPathTemplate = "$outDir/lazyfeatures-{chunk}." . $self->{ext};
 
+    # $output writes out the feature JSON chunk file
     my $output = sub {
         my ($toWrite, $chunkId) = @_;
         print STDERR "writing chunk $chunkId\n";
@@ -213,13 +214,19 @@ sub new {
                   {pretty => 0, max_depth => MAX_JSON_DEPTH},
                   $compress);
     };
-        
+
+    # $measure measures the size of the feature in the final JSON
+    my $measure = sub {
+        # add 1 for the comma between features
+        # (ignoring, for now, the extra characters for sublist brackets)
+        return length(JSON::to_json($_[0])) + 1;
+    };
 
     $self->{sublistIndex} += 1 if ($self->{sublistIndex} == $lazyIndex);
     $self->{features} = LazyNCList->new($startIndex, $endIndex,
                                         $self->{sublistIndex},
                                         $lazyIndex,
-                                        sub { length(JSON::to_json($_[0])) },
+                                        $measure,
                                         $output,
                                         $chunkBytes);
 

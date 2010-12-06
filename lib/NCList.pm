@@ -11,6 +11,7 @@ use strict;
 use warnings;
 use Carp;
 use List::Util qw(max);
+use Data::Dumper;
 
 =head2 new
 
@@ -86,12 +87,11 @@ sub addFeatures {
     }
 
     for (my $i = 0; $i <= $#{$features}; $i++) {
-        die "input not sorted: got start $lastAdded->[$start] before " . $features->[$i]->[$start]
-            if $lastAdded->[$start] > $features->[$i]->[$start];
-        die "input not sorted: got $lastAdded->[$start] .. $lastAdded->[$end] before " . $features->[$i]->[$start] . " .. " . $features->[$i]->[$end]
-            if (($lastAdded->[$start] == $features->[$i]->[$start])
-                &&
-                ($lastAdded->[$end] < $features->[$i]->[$end]));
+        croak "input not sorted: got \n" . Dumper($lastAdded) . "\nbefore\n" . Dumper($features->[$i]) . "\n"
+            if ((lastAdded->[$start] > $features->[$i]->[$start])
+                || (($lastAdded->[$start] == $features->[$i]->[$start])
+                    &&
+                    ($lastAdded->[$end] < $features->[$i]->[$end])) );
 
         $maxEnd = max($maxEnd, $features->[$i]->[$end]);
 

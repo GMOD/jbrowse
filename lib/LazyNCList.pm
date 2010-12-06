@@ -115,7 +115,6 @@ sub addSorted {
                     # the new lazy feat
                     push @{$self->{partialStack}}, [];
                     push @$chunkSizes, 0;
-                    #push @{$self->{nclStack}}, [];
                 }
             }
         } else {
@@ -167,10 +166,6 @@ sub finish {
         # (the loop ends one level before the highest level, so there
         # will always be at least one higher level)
         push @{$self->{partialStack}->[$level + 1]}, $lazyFeat;
-
-        
-        $self->{output}->($self->{nclStack}->[$level]->nestedList,
-                          $self->{nclStack}->[$level]->ID);
     }
 
     # make sure there's a top-level NCL
