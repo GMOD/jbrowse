@@ -39,7 +39,7 @@ if (!defined($nclChunk)) {
     $nclChunk = 50000;
     # $nclChunk is the uncompressed size, so we can make it bigger if
     # we're compressing
-    $nclChunk *= 2 if $compress;
+    $nclChunk *= 4 if $compress;
 }
 
 my $trackRel = "tracks";
