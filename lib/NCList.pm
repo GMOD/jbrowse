@@ -104,6 +104,7 @@ sub addFeatures {
 
     $self->{curList} = $curList;
     $self->{maxEnd} = $maxEnd;
+    $self->{lastAdded} = $lastAdded;
 }
 
 sub _addSingle {

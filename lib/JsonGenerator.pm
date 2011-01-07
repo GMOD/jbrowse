@@ -207,7 +207,7 @@ sub new {
     # $output writes out the feature JSON chunk file
     my $output = sub {
         my ($toWrite, $chunkId) = @_;
-        print STDERR "writing chunk $chunkId\n";
+        #print STDERR "writing chunk $chunkId\n";
         (my $path = $lazyPathTemplate) =~ s/\{chunk\}/$chunkId/g;
         writeJSON($path,
                   $toWrite,

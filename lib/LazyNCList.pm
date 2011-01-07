@@ -20,6 +20,7 @@ sub new {
                  'chunkNum' => 0,
                  'nclStack' => [[]],
                  'partialStack' => [[]],
+                 'precedingFeats' => [],
                  'sizeThresh' => $sizeThresh,
                  'sameStart' => 0 };
     bless $self, $class;
@@ -68,22 +69,20 @@ sub addSorted {
         $chunkSizes->[$level] += $featSize;
         #print STDERR "chunksize at $level is now " . $chunkSizes->[$level] . "; (next chunk is " . $self->{chunkNum} . ")\n";
 
-        my $prevNclAtLevel = $self->{nclStack}->[$level]->[-1];
-        #my $prevFeat = $self->{prevFeats}->
+        # $precedingFeat is the last feature at this level
+        # before the start of the current chunk
+        my $precedingFeat = $self->{precedingFeats}->[$level];
 
         # If:
         #   * this partial chunk is full, or
-        #   * this chunk starts at the same place as the previous chunk
-        #     and this feature would extend this chunk beyond the
-        #     previous chunk, or
         #   * this chunk starts at the same place as the feature
         #     immediately before it, and this feature would extend this chunk
         #     beyond that feature
         if (($chunkSizes->[$level] > $self->{sizeThresh})
-            || (defined($prevNclAtLevel)
-                && ($prevNclAtLevel->minStart
+            || (defined($precedingFeat)
+                && ($precedingFeat->[$start]
                     == $self->{partialStack}->[$level]->[0]->[$start])
-                && ($prevNclAtLevel->maxEnd < $feat->[$end]) ) ){
+                && ($precedingFeat->[$end] < $feat->[$end]) ) ){
             # then we're finished with the current "partial" chunk (i.e.,
             # it's now a "complete" chunk rather than a partial one), so
             # create a new NCList to hold all the features in this chunk.
@@ -93,6 +92,11 @@ sub addSorted {
             $newNcl->ID($self->{chunkNum});
             $self->{chunkNum} += 1;
             $newNcl->addFeatures($self->{partialStack}->[$level]);
+
+            # set the previous feature at this level to the last feature in
+            # the partialstack for this level
+            $self->{precedingFeats}->[$level] =
+                $self->{partialStack}->[$level]->[-1];
 
             # start a new partial chunk with the current feature
             $self->{partialStack}->[$level] = [$feat];
@@ -104,34 +108,20 @@ sub addSorted {
             $lazyFeat->[$end] = $newNcl->maxEnd;
             $lazyFeat->[$self->{lazyIndex}] = {"chunk" => $newNcl->ID};
 
-            # # if there is a previous NCL at this level, and
-            # # if the new lazy feature is within the previous NCL,
-            # if (defined($self->{nclStack}->[$level])
-            #     && $self->{nclStack}->[$level]->maxEnd > $newNcl->maxEnd) {
-            #     # add it there
-            #     $self->{nclStack}->[$level]->addFeatures([$lazyFeat]);
-            #     last;
-            # } else {
-            #     # otherwise, write out the previous NCL, if it exists
-            #     if (defined($self->{nclStack}->[$level])) {
-            #         $self->{output}->($self->{nclStack}->[$level]->nestedList,
-            #                           $self->{nclStack}->[$level]->ID);
-            #     }
-            #     # and store the new NCL in its place
-            #     $self->{nclStack}->[$level] = $newNcl;
-
             $feat = findContainingNcl($self->{nclStack}->[$level],
                                       $self->{output},
                                       $newNcl,
                                       $lazyFeat);
-            # if $feat isn't defined, then $lazyFeat was swallowed up by 
-            # something in $self->{nclStack}->[$level], so we don't have
-            # to proceed to higher levels of the NCL stack
+
+            # If $lazyFeat was contained in a feature in
+            # $self->{nclStack}->[$level], then findContainingNcl will place
+            # $lazyFeat within that container feature and return undef.
+            # That means we don't have to proceed to higher levels of the
+            # NCL stack to try and find a place to stick $feat.
             last unless defined($feat);
 
-                # and proceed to pass the new lazy feat up to the
-                # higher levels of the stack
-                #$feat = $lazyFeat;
+            # if $feat is defined, though, then we do have to keep going to
+            # find a place for $feat
 
             # if we're already at the highest level,
             if ($level == $#{$self->{partialStack}}) {
@@ -165,15 +155,15 @@ sub findContainingNcl {
     my ($ncls, $output, $newNcl, $lazyFeat) = @_;
     while ($#{$ncls} >= 0) {
         my $existingNcl = $ncls->[-1];
-        print STDERR "comparing existing NCL " . $existingNcl->ID . " on [" . $existingNcl->minStart . ", " . $existingNcl->maxEnd . ") to new NCL " . $newNcl->ID . " on [" . $newNcl->minStart . ", " . $newNcl->maxEnd . ")\n";
+        #print STDERR "comparing existing NCL " . $existingNcl->ID . " on [" . $existingNcl->minStart . ", " . $existingNcl->maxEnd . ") to new NCL " . $newNcl->ID . " on [" . $newNcl->minStart . ", " . $newNcl->maxEnd . ")\n";
         # if the new NCL is contained within this existing NCL,
         if ($newNcl->maxEnd < $existingNcl->maxEnd) {
             # add the lazy feat to the existing NCL,
-            use Data::Dumper;
-            print STDERR "adding " . Dumper($lazyFeat) . " to NCL " . $existingNcl->ID . " on [" . $existingNcl->minStart . ", " . $existingNcl->maxEnd . ")\n";
+            #use Data::Dumper;
+            #print STDERR "adding " . Dumper($lazyFeat) . " to NCL " . $existingNcl->ID . " on [" . $existingNcl->minStart . ", " . $existingNcl->maxEnd . ")\n";
             $existingNcl->addFeatures([$lazyFeat]);
             # and add the new NCL to the stack
-            print STDERR "adding " . $newNcl->ID . " on [" . $newNcl->minStart . ", " . $newNcl->maxEnd . ") to ncl stack\n";
+            #print STDERR "adding " . $newNcl->ID . " on [" . $newNcl->minStart . ", " . $newNcl->maxEnd . ") to ncl stack\n";
             push @$ncls, $newNcl;
             # and we're done
             return;
@@ -184,7 +174,7 @@ sub findContainingNcl {
             pop @$ncls;
         }
     }
-    print STDERR "adding " . $newNcl->ID . " on [" . $newNcl->minStart . ", " . $newNcl->maxEnd . ") to ncl stack\n";
+    #print STDERR "adding " . $newNcl->ID . " on [" . $newNcl->minStart . ", " . $newNcl->maxEnd . ") to ncl stack\n";
     push @$ncls, $newNcl;
     return $lazyFeat;
 }
@@ -207,23 +197,6 @@ sub finish {
         $lazyFeat->[$self->{startIndex}] = $newNcl->minStart;
         $lazyFeat->[$self->{endIndex}] = $newNcl->maxEnd;
         $lazyFeat->[$self->{lazyIndex}] = {"chunk" => $newNcl->ID};
-
-        # # if there is a previous NCL at this level, and
-        # # if the new lazy feature is within the previous NCL,
-        # if (defined($self->{nclStack}->[$level])
-        #     && $self->{nclStack}->[$level]->maxEnd > $newNcl->maxEnd) {
-        #     # add it there
-        #     $self->{nclStack}->[$level]->addFeatures([$lazyFeat]);
-        # }
-
-        # # write out the new NCL
-        # $self->{output}->($newNcl->nestedList, $newNcl->ID);
-
-        # #write out the previous NCL, if it exists
-        # if (defined($self->{nclStack}->[$level])) {
-        #     $self->{output}->($self->{nclStack}->[$level]->nestedList,
-        #                       $self->{nclStack}->[$level]->ID);
-        # }
 
         $lazyFeat = findContainingNcl($self->{nclStack}->[$level],
                                       $self->{output},
@@ -251,7 +224,7 @@ sub finish {
     $newNcl->ID($self->{chunkNum});
     $self->{chunkNum} += 1;
     $newNcl->addFeatures($self->{partialStack}->[$level]);
-    print STDERR "top level NCL has " . scalar(@{$self->{partialStack}->[$level]}) . " features\n";
+    #print STDERR "top level NCL has " . scalar(@{$self->{partialStack}->[$level]}) . " features\n";
     $self->{nclStack}->[$level] = $newNcl;
 }
 
