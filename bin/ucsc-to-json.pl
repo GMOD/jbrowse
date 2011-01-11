@@ -81,13 +81,14 @@ my %skipFields = ("bin" => 1,
 
 my %defaultStyle = ("class" => $cssClass);
 
-foreach my $shortLabel (@$tracks) {
+foreach my $tableName (@$tracks) {
     my %trackdbCols = name2column_map($indir . "/" . $trackdb);
-    my $shortLabelCol = $trackdbCols{shortLabel};
+    my $tableNameCol = $trackdbCols{tableName};
     my $trackRows = selectall($indir . "/" . $trackdb,
-                              sub { $_[0]->[$shortLabelCol] eq $shortLabel });
+                              sub { $_[0]->[$tableNameCol] eq $tableName });
     my $track = arrayref2hash($trackRows->[0], \%trackdbCols);
-    my %trackSettings = (map {split(" ", $_, 2)} split("\n", $track->{settings}));
+    my @settingList = split("\n", $track->{settings});
+    my %trackSettings = map {split(" ", $_, 2)} @settingList;
     $defaultStyle{subfeature_classes} = JSON::from_json($subfeatureClasses)
         if defined($subfeatureClasses);
     $defaultStyle{arrowheadClass} = $arrowheadClass if defined($arrowheadClass);
@@ -100,7 +101,7 @@ foreach my $shortLabel (@$tracks) {
 
     my %style = (
         %defaultStyle,
-        "key" => $trackSettings{shortLabel}
+        "key" => $track->{shortLabel}
     );
 
     my %fields = name2column_map($indir . "/" . $track->{tableName});
@@ -178,9 +179,9 @@ ENDJS
                 mkdir("$trackDir/" . $curChrom)
                     unless (-d "$trackDir/" . $curChrom);
                 $jsonGen = JsonGenerator->new("$trackDir/$curChrom/"
-                                              . $trackSettings{track},
+                                              . $tableName,
                                               $trackRel, $nclChunk,
-                                              $compress, $trackSettings{track},
+                                              $compress, $tableName,
                                               $curChrom,
                                               $refSeqs{$curChrom}->{start},
                                               $refSeqs{$curChrom}->{end},
@@ -195,7 +196,7 @@ ENDJS
         $jsonGen->addFeature($jsonRow);
         if (defined $nameCol) {
             $jsonGen->addName([[$_[0]->[$nameCol]],
-                               $trackSettings{track},
+                               $tableName,
                                $_[0]->[$nameCol],
                                $_[0]->[$chromCol],
                                $jsonRow->[0],
@@ -211,14 +212,14 @@ ENDJS
             my @trackList = grep { exists($_->{'label'}) } @$origTrackList;
             my $i;
             for ($i = 0; $i <= $#trackList; $i++) {
-                last if ($trackList[$i]->{'label'} eq $trackSettings{track});
+                last if ($trackList[$i]->{'label'} eq $tableName);
             }
             $trackList[$i] =
                 {
-                    'label' => $trackSettings{track},
+                    'label' => $tableName,
                     'key' => $style{"key"},
                     'url' => "$trackRel/{refseq}/"
-                        . $trackSettings{track}
+                        . $tableName
                             . "/trackData.$ext",
                     'type' => "FeatureTrack",
                 };
@@ -363,7 +364,7 @@ sub makeSubfeatures {
 
     my $parent_strand = $strand ? ($strand eq '+' ? 1 : -1) : 0;
 
-    if ($block_count > 0) {
+    if (defined($block_count) && ($block_count > 0)) {
         if (($block_count != ($#$length_list + 1))
                 || ($block_count != ($#$offset_list + 1)) ) {
             warn "expected $block_count blocks, got " . ($#$length_list + 1) . " lengths and " . ($#$offset_list + 1) . " offsets for feature at $start .. $end";
@@ -467,15 +468,18 @@ sub for_columns {
     while (<$gzip>) {
 	chomp;
 	if (/\\$/) {
+            # unescape newline
 	    chop;
 	    $row .= "$_\n";
 	} else {
 	    $row .= $_;
-	    my @data = split /\t/, $row; # deal with escaped tabs in data?  what are the escaping rules?
+            
+	    my @data = split /(?<!\\)\t/, $row; # split on unescaped tabs
+            map { s/\\\t/\t/g } @data; # unescape escaped tabs
 	    &$func (\@data);
 	    $row = "";
 	}
-	if (++$lines % 50000 == 0) { warn "(processed $lines lines)\n" }
+	if (++$lines % 100000 == 0) { warn "(processed $lines lines)\n" }
     }
     $gzip->close()
         or die "couldn't close $table.txt.gz: $!\n";
