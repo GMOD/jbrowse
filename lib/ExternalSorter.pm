@@ -59,6 +59,8 @@ sub finish {
                 my $zip;
                 open $zip, "<:gzip", $_
                     or croak "couldn't open $_: $!\n";
+                unlink $_
+                    or croak "couldn't unlink $_: $!\n";
                 $zip;
             }  @{$self->{segments}};
         my $readSegments =
