@@ -89,7 +89,8 @@ sub flush {
         if $self->{finished};
 
     my $fh = File::Temp->new($self->{tmpDir} ? (DIR => $self->{tmpDir}) : (),
-                             UNLINK => 0)
+                             UNLINK => 0,
+                             TEMPLATE => 'sort-XXXXXXXXXX')
         or croak "couldn't open temp file: $!\n";
     my $fn = $fh->filename;
     $fh->close()
