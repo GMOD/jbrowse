@@ -206,25 +206,15 @@ ENDJS
     }
 
     my $ext = ($compress ? "jsonz" : "json");
-    JsonGenerator::modifyJSFile("$outdir/trackInfo.js", "trackInfo",
-        sub {
-            my $origTrackList = shift;
-            my @trackList = grep { exists($_->{'label'}) } @$origTrackList;
-            my $i;
-            for ($i = 0; $i <= $#trackList; $i++) {
-                last if ($trackList[$i]->{'label'} eq $tableName);
-            }
-            $trackList[$i] =
-                {
-                    'label' => $tableName,
-                    'key' => $style{"key"},
-                    'url' => "$trackRel/{refseq}/"
-                        . $tableName
-                            . "/trackData.$ext",
-                    'type' => "FeatureTrack",
-                };
-            return \@trackList;
-        });
+    JsonGenerator::writeTrackEntry("$outdir/trackInfo.js",
+                                   {
+                                       'label' => $tableName,
+                                       'key' => $style{"key"},
+                                       'url' => "$trackRel/{refseq}/"
+                                           . $tableName
+                                           . "/trackData.$ext",
+                                           'type' => "FeatureTrack",
+                                   });
 }
 
 sub calcSizes {
