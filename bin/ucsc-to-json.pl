@@ -143,7 +143,6 @@ ENDJS
         };
     }
 
-    my @nameList;
     my $chromCol = $fields{chrom};
     my $startCol = $fields{txStart} || $fields{chromStart};
     my $endCol = $fields{txEnd} || $fields{chromEnd};
@@ -163,6 +162,7 @@ ENDJS
 
     my $curChrom;
     my $jsonGen;
+    my @nameList;
     while (1) {
         my $row = $sorter->get();
         if ((!defined($row))
@@ -170,7 +170,7 @@ ENDJS
                     || ($curChrom ne $row->[$chromCol])) {
             if ($jsonGen && $jsonGen->hasFeatures && $refSeqs{$curChrom}) {
                 print STDERR "working on $curChrom\n";
-                $jsonGen->generateTrack();
+                $jsonGen->generateTrack(\@nameList);
             }
 
             if (defined($row)) {
@@ -187,6 +187,7 @@ ENDJS
                                               $refSeqs{$curChrom}->{end},
                                               \%style, $headers,
                                               \@subfeatHeaders);
+                @nameList = ();
             } else {
                 last;
             }
@@ -195,13 +196,13 @@ ENDJS
         my $jsonRow = $converter->($row, \%fields, $type);
         $jsonGen->addFeature($jsonRow);
         if (defined $nameCol) {
-            $jsonGen->addName([[$_[0]->[$nameCol]],
-                               $tableName,
-                               $_[0]->[$nameCol],
-                               $_[0]->[$chromCol],
-                               $jsonRow->[0],
-                               $jsonRow->[1],
-                               $_[0]->[$nameCol]]);
+            push @nameList, [ [$_[0]->[$nameCol]],
+                              $tableName,
+                              $_[0]->[$nameCol],
+                              $_[0]->[$chromCol],
+                              $jsonRow->[0],
+                              $jsonRow->[1],
+                              $_[0]->[$nameCol] ];
         }
     }
 
