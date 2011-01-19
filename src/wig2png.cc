@@ -187,6 +187,10 @@ public:
         curTile_ = base / tileWidthBases_;
     }
 
+    int pixelBases() {
+        return pixelBases_;
+    }
+
     string chromDir(string chrom) {
         return chromDirs_[chrom];
     }
@@ -569,6 +573,7 @@ int main(int argc, char **argv){
   
   INIT_OPTS_LIST (opts, argc, argv, 1, "[options] <input file>", "create a JBrowse quantitative track, broken into tile images, from a WIG file");
 
+  string outdiropt = "data";
   string pngrelopt = "tiles";
   string jsondiropt = "data/tracks";
   string tracklabel = "wigtrack";
@@ -578,6 +583,8 @@ int main(int argc, char **argv){
   string bgopt = "255,255,255";
   string minopt, maxopt;
 
+
+  opts.add ("od -outdir", outdiropt, "the data directory");
   opts.add ("pd -png-dir", pngrelopt, "PNG output directory, relative to the data directory");
   opts.add ("jd -json-dir", jsondiropt, "JSON output directory");
   opts.add ("tl -track-label", tracklabel, "track label");
@@ -610,6 +617,7 @@ int main(int argc, char **argv){
     };
 
     vector<string> basePath;
+    basePath.push_back(outdiropt);
     basePath.push_back(pngrelopt);
     basePath.push_back(tracklabel);
     string baseDir = ensure_path(basePath);
@@ -662,7 +670,7 @@ int main(int argc, char **argv){
                 r = p.getRenderer(i);
                 json << "      {" << endl
                      << "         \"urlPrefix\" : \""
-                     << r->chromDir(*chrom) << "\"," << endl
+                     << pngrelopt << "/" << tracklabel << "/" << *chrom << "/" << r->pixelBases() << "/\"," << endl
                      << "         \"height\" : "
                      << height << "," << endl
                      << "         \"basesPerTile\" : "

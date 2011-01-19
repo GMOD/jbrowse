@@ -76,7 +76,7 @@ mkdir($trackDir) unless (-d $trackDir);
 
 my $minopt = length($min) ? "--min-value $min" : "";
 my $maxopt = length($max) ? "--max-value $max" : "";
-system "$wig2png $path --png-dir \"$tileRel\" --json-dir \"$trackDir\" --track-label \"$trackLabel\" --tile-width $tileWidth --track-height $trackHeight --background-color $bgColor --foreground-color $fgColor $minopt $maxopt";
+system "$wig2png $path --outdir \"$outdir\" --png-dir \"$tileRel\" --json-dir \"$trackDir\" --track-label \"$trackLabel\" --tile-width $tileWidth --track-height $trackHeight --background-color $bgColor --foreground-color $fgColor $minopt $maxopt";
 
 foreach my $seqInfo (@refSeqs) {
     my $seqName = $seqInfo->{"name"};
