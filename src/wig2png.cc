@@ -93,11 +93,15 @@ void write_png_file(const char* file_name, int width, int height, png_bytep imgb
     return;
 }
 
-string ensure_path(vector<string> pathelems) {
+string ensurePath(string basePath, vector<string> pathElems) {
+    // if basePath is non-empty, it must already exist
     string path;
+    string relPath;
+    if (basePath.length() > 0) path += basePath + "/";
     struct stat st;
-    for (int i = 0; i < pathelems.size(); i++) {
-        path += pathelems[i] + "/";
+    for (int i = 0; i < pathElems.size(); i++) {
+        path += pathElems[i] + "/";
+        relPath += pathElems[i] + "/";
         if (!((stat(path.c_str(), &st) == 0) && S_ISDIR(st.st_mode))) {
             if (-1 == mkdir(path.c_str(), 0777)) {
                cerr << "failed to make directory " << path  << " (error " << errno << ")" << endl;
@@ -105,7 +109,8 @@ string ensure_path(vector<string> pathelems) {
             }
         }
     }
-    return path;
+    // leave trailing slash off of the return value
+    return relPath.substr(0, relPath.size() - 1);
 }
 
 class WiggleTileRenderer {
@@ -113,7 +118,7 @@ class WiggleTileRenderer {
 public:
 
     WiggleTileRenderer(int pixelBases, int tileWidthPixels, int tileHeight,
-                       string baseDir)
+                       string baseDir, string relDir)
         : curTile_(numeric_limits<int>::min()),
 	  curStart_(0),
 	  curEnd_(numeric_limits<int>::min()),
@@ -122,7 +127,8 @@ public:
           tileWidthPixels_(tileWidthPixels),
           tileHeight_(tileHeight),
           baseDir_(baseDir),
-          tileDir_(baseDir) {
+          relDir_(relDir),
+          tileRel_(baseDir) {
     }
 
     void addValue(int base, float value) {
@@ -134,7 +140,7 @@ public:
     void renderTile() {
       //cerr << "rendering tile " << curTile_ << endl;
         stringstream s;
-        s << tileDir_ << curTile_ << ".png";
+        s << baseDir_ << "/" << tileRel_ << "/" << curTile_ << ".png";
         drawTile(s.str());
     }
 
@@ -178,21 +184,17 @@ public:
             s << pixelBases_;
             scale = s.str();
 
-            const string path[] = {baseDir_, chrom, scale};
-            tileDir_ = ensure_path(vector<string>(path, path + sizeof(path)/sizeof(*path)));
-            chromDirs_[chrom] = tileDir_;
+            const string path[] = {relDir_, chrom, scale};
+            tileRel_ = ensurePath(baseDir_, vector<string>(path, path + sizeof(path)/sizeof(*path)));
+            chromRels_[chrom] = tileRel_;
         }
 
         chrom_ = chrom;
         curTile_ = base / tileWidthBases_;
     }
 
-    int pixelBases() {
-        return pixelBases_;
-    }
-
-    string chromDir(string chrom) {
-        return chromDirs_[chrom];
+    string chromRel(string chrom) {
+        return chromRels_[chrom];
     }
 
     int getTileBases() const {
@@ -214,9 +216,10 @@ protected:
     int curStart_;  // first base of the next tile
     int curEnd_;  // last base for which information has been added, or numeric_limits<int>::min() if no info added
     string baseDir_;
-    string tileDir_;
+    string relDir_;
+    string tileRel_;
     string chrom_;
-    map<string, string> chromDirs_;
+    map<string, string> chromRels_;
 };
 
 class MeanRenderer : public WiggleTileRenderer {
@@ -224,11 +227,11 @@ class MeanRenderer : public WiggleTileRenderer {
 public:
 
     MeanRenderer(int tileWidthBases, int tileWidthPixels,
-                 int tileHeight, string baseDir,
+                 int tileHeight, string baseDir, string relDir,
                  png_color bgColor, png_color fgColor,
                  float globalMax, float globalMin) :
         WiggleTileRenderer(tileWidthBases, tileWidthPixels,
-                           tileHeight, baseDir),
+                           tileHeight, baseDir, relDir),
         bgColor_(bgColor),
         fgColor_(fgColor),
         globalMax_(globalMax),
@@ -616,11 +619,11 @@ int main(int argc, char **argv){
       atoi(strtok(NULL, ","))
     };
 
-    vector<string> basePath;
-    basePath.push_back(outdiropt);
-    basePath.push_back(pngrelopt);
-    basePath.push_back(tracklabel);
-    string baseDir = ensure_path(basePath);
+    vector<string> relPath;
+    //basePath.push_back(outdiropt);
+    relPath.push_back(pngrelopt);
+    relPath.push_back(tracklabel);
+    string relDir = ensurePath(outdiropt, relPath);
 
     float max = 1.0f;
     float min = 0.0f;
@@ -647,7 +650,8 @@ int main(int argc, char **argv){
     WiggleParser p;
 
     for (int i = 0; i < num_zooms; i++) {
-        p.addRenderer(new MeanRenderer(zooms[i], width, height, baseDir,
+        p.addRenderer(new MeanRenderer(zooms[i], width, height,
+                                       outdiropt, relDir,
                                        bg, fg, max, min));
     }
 
@@ -660,7 +664,7 @@ int main(int argc, char **argv){
     WiggleTileRenderer* r;
     for (chrom = chroms.begin(); chrom != chroms.end(); chrom++) {
         jsonDir.push_back(*chrom);
-        string jsonPath = ensure_path(jsonDir) + tracklabel + ".json";
+        string jsonPath = ensurePath("", jsonDir) + "/" + tracklabel + ".json";
         ofstream json(jsonPath.c_str());
         jsonDir.pop_back();
         if (json.is_open()) {
@@ -670,7 +674,7 @@ int main(int argc, char **argv){
                 r = p.getRenderer(i);
                 json << "      {" << endl
                      << "         \"urlPrefix\" : \""
-                     << pngrelopt << "/" << tracklabel << "/" << *chrom << "/" << r->pixelBases() << "/\"," << endl
+                     << r->chromRel(*chrom) << "/\"," << endl
                      << "         \"height\" : "
                      << height << "," << endl
                      << "         \"basesPerTile\" : "
