@@ -165,6 +165,12 @@ ENDJS
     my @nameList;
     while (1) {
         my $row = $sorter->get();
+
+        # Features come out of the sorter in order (by $compare), so
+        # to have one JsonGenerator for each refseq, we need to create
+        # a new JsonGenerator at the beginning (!defined($curChrom)) and at
+        # every refseq transition ($curChrom ne $row->[$chromCol]) thereafter.
+        # We also need to finish the last refseq at the end (!defined($row)).
         if ((!defined($row))
                 || (!defined($curChrom))
                     || ($curChrom ne $row->[$chromCol])) {
