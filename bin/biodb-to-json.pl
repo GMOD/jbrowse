@@ -9,20 +9,25 @@ use lib "$Bin/../lib";
 use Getopt::Long;
 use Data::Dumper;
 use JsonGenerator;
+use BioperlFlattener;
+use ExternalSorter;
 
-my ($confFile, $ref, $refid, $onlyLabel, $verbose);
+my ($confFile, $ref, $refid, $onlyLabel, $verbose, $nclChunk, $compress);
 my $outdir = "data";
+my $sortMem = 1024 * 1024 * 512;
 GetOptions("conf=s" => \$confFile,
 	   "ref=s" => \$ref,
 	   "refid=s" => \$refid,
 	   "track=s" => \$onlyLabel,
 	   "out=s" => \$outdir,
-           "v+" => \$verbose);
-my $trackDir = "$outdir/tracks";
+           "v+" => \$verbose,
+           "nclChunk=i" => \$nclChunk,
+           "compress" => \$compress,
+           "sortMem=i" =>\$sortMem);
 
 if (!defined($confFile)) {
     print <<HELP;
-USAGE: $0 --conf <conf file> [--ref <ref seq names> | --refid <ref seq ids>] [--track <track name>] [--out <output directory>]
+USAGE: $0 --conf <conf file> [--ref <ref seq names> | --refid <ref seq ids>] [--track <track name>] [--out <output directory>] [--compress]
 
     <conf file>: path to the configuration file
     <ref seq names>: comma-separated list of reference sequence names
@@ -33,9 +38,23 @@ USAGE: $0 --conf <conf file> [--ref <ref seq names> | --refid <ref seq ids>] [--
         default: all of the ref seqs that prepare-refseqs.pl has seen
     <output directory>: directory where output should go
         default: $outdir
+    --compress: compress the output (requires some web server configuration)
 HELP
 exit;
 }
+
+if (!defined($nclChunk)) {
+    # default chunk size is 50KiB
+    $nclChunk = 50000;
+    # $nclChunk is the uncompressed size, so we can make it bigger if
+    # we're compressing
+    $nclChunk *= 4 if $compress;
+}
+
+my $trackRel = "tracks";
+my $trackDir = "$outdir/$trackRel";
+mkdir($outdir) unless (-d $outdir);
+mkdir($trackDir) unless (-d $trackDir);
 
 my $config = JsonGenerator::readJSON($confFile);
 
@@ -62,9 +81,6 @@ if (defined $refid) {
 
 die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
 
-mkdir($outdir) unless (-d $outdir);
-mkdir($trackDir) unless (-d $trackDir);
-
 foreach my $seg (@refSeqs) {
     my $segName = $seg->{name};
     print "\nworking on refseq $segName\n";
@@ -88,42 +104,74 @@ foreach my $seg (@refSeqs) {
         my @feature_types = @{$track->{"feature"}};
         print "searching for features of type: " . join(", ", @feature_types) . "\n" if ($verbose);
         if ($#feature_types >= 0) {
-            my @features = $db->features(-seq_id => $segName,
-                                         -type   => \@feature_types);
+#            my @features = $db->features(-seq_id => $segName,
+#                                         -type   => \@feature_types);
 
-            print "got " . ($#features + 1) . " features for " . $track->{"track"} . "\n";
-            next unless $#features >= 0;
+            my $iterator = $db->get_seq_stream(-seq_id => $segName,
+                                               -type   => \@feature_types);
+            my $flattener = BioperlFlattener->new($track->{"track"},
+                                                  $segName,
+                                                  \%style, [], []);
+            my $fields = indexHash($flattener->featureHeaders);
+            my $startCol = $fields->{"start"};
+            my $endCol = $fields->{"end"};
 
-            my $jsonGen = JsonGenerator->new($track->{"track"}, $segName,
-                                             \%style, [], []);
+            my $sorter = ExternalSorter->new(
+                sub ($$) {
+                        $_[0]->[$startCol] <=> $_[1]->[$startCol]
+                        ||
+                        $_[1]->[$endCol] <=> $_[0]->[$endCol];
+                }, $sortMem);
 
-            $jsonGen->addFeature($_) foreach (@features);
+            my $featureCount = 0;
+            while (my $feature = $iterator->next_seq) {
+                $sorter->add($flattener->flatten($feature));
+                $featureCount++;
+            }
+            $sorter->finish();
 
-            $jsonGen->generateTrack("$trackDir/$segName/" . $track->{"track"},
-                                    1000, 500, $seg->{start}, $seg->{end});
+            print "got $featureCount features for " . $track->{"track"} . "\n";
+            next unless $featureCount > 0;
 
-            print Dumper($features[0]) if ($verbose && ($#features >= 0));
+            my $jsonGen = JsonGenerator->new("$trackDir/$segName/"
+                                                 . $track->{"track"},
+                                             $trackRel, $nclChunk,
+                                             $compress, $track->{"track"},
+                                             $seg->{name},
+                                             $seg->{start},
+                                             $seg->{end},
+                                             \%style,
+                                             $flattener->featureHeaders,
+                                             $flattener->subfeatureHeaders
+                                         );
 
-            JsonGenerator::modifyJSFile("$outdir/trackInfo.js", "trackInfo",
-		 sub {
-		     my $trackList = shift;
-		     my $i;
-		     for ($i = 0; $i <= $#{$trackList}; $i++) {
-			 last if ($trackList->[$i]->{'label'} eq $track->{"track"});
-		     }
-		     $trackList->[$i] =
-		       {
-			'label' => $track->{"track"},
-			'key' => $style{"key"},
-			'url' => "$trackDir/{refseq}/"
-                                 . $track->{"track"}
-                                 . "/trackData.json",
-			'type' => "FeatureTrack",
-		       };
-		     return $trackList;
-		 });
+            while (my $row = $sorter->get()) {
+                $jsonGen->addFeature($row);
+            }
+
+            $jsonGen->generateTrack($flattener->names);
+
+            my $ext = ($compress ? "jsonz" : "json");
+            JsonGenerator::writeTrackEntry("$outdir/trackInfo.js",
+                                           {
+                                               'label' => $track->{"track"},
+                                               'key' => $style{"key"},
+                                               'url' => "$trackRel/{refseq}/"
+                                                   . $track->{"track"}
+                                                       . "/trackData.$ext",
+                                               'type' => "FeatureTrack",
+                                           });
         }
     }
+}
+
+sub indexHash {
+    my ($list) = @_;
+    my %result;
+    for (my $i = 0; $i <= $#{$list}; $i++) {
+        $result{$list->[$i]} = $i;
+    }
+    return \%result;
 }
 
 =head1 AUTHOR

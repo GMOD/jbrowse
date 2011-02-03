@@ -30,11 +30,6 @@ my %builtinDefaults =
    "class"        => "feature"
   );
 
-sub unique {
-    my %saw;
-    return (grep(defined($_) && !$saw{$_}++, @_));
-}
-
 sub readJSON {
     my ($file, $default, $skipAssign, $compress) = @_;
     if (-s $file) {
