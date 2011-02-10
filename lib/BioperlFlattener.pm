@@ -36,7 +36,7 @@ my %builtinDefaults =
 
 sub new {
     my ($class, $label, $segName, $setStyle,
-        $extraMap, $extraHeaders) = @_;
+        $extraMap, $extraHeaders, $nameCallback) = @_;
 
     my %style = ("key" => $label,
                  %builtinDefaults,
@@ -91,23 +91,6 @@ sub new {
     my @subfeatMap = (@featMap, sub {shift->primary_tag});
     my @subfeatHeaders = (@mapHeaders, "type");
 
-    #my @allSubfeatures;
-    #$self->{allSubfeatures} = \@allSubfeatures;
-    #my $subfeatId = $style{idSub} || sub {
-    #    return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
-    #};
-    #if ($autoshareSubs) {
-    #    $subfeatId = sub {
-    #        my $feat = shift;
-    #        return $feat->primary_tag 
-    #            . "|" . $feat->start 
-    #            . "|" . $feat->end 
-    #            . "|" . $feat->strand;
-    #    }
-    #}
-    # %seenSubfeatures is so that shared subfeatures don't end up
-    # in @{$self->{allSubfeatures}} more than once
-    my %seenSubfeatures;
     if ($style{subfeatures}) {
         push @curFeatMap, sub {
             my ($feat, $flatten) = @_;
@@ -118,21 +101,8 @@ sub new {
             my $sfClasses = $style{subfeature_classes};
             my @subfeatIndices;
             foreach my $subFeature (@subFeatures) {
-                #filter out subfeatures we don't care about
-                #print "type: " . $subFeature->primary_tag . " (" . $sfClasses->{$subFeature->primary_tag} . ")\n";
-                #next unless
-                #  $sfClasses && $sfClasses->{$subFeature->primary_tag};
-                #my $subId = $subfeatId->($subFeature);
-                #my $subIndex = $seenSubfeatures{$subId};
-                #if (!defined($subIndex)) {
-                #    push @allSubfeatures, [map {&$_($subFeature)} @subfeatMap];
                 push @flattened, [map {&$_($subFeature)} @subfeatMap];
-                #    $subIndex = $#allSubfeatures;
-                #    $seenSubfeatures{$subId} = $subIndex;
-                #}
-                #push @subfeatIndices, $subIndex;
             }
-            #return \@subfeatIndices;
             return \@flattened;
         };
         push @curMapHeaders, 'subfeatures';
@@ -167,7 +137,7 @@ sub new {
     $self->{subfeatMap} = \@subfeatMap;
     $self->{subfeatHeaders} = \@subfeatHeaders;
     $self->{features} = [];
-    $self->{names} = [];
+    $self->{nameCallback} = $nameCallback;
 
     bless $self, $class;
 }
@@ -176,7 +146,7 @@ sub flatten {
     my ($self, $feature) = @_;
 
     if ($self->{getLabel} || $self->{getAlias}) {
-        push @{$self->{names}}, [map {$_->($feature)} @{$self->{nameMap}}];
+        $self->{nameCallback}->([map {$_->($feature)} @{$self->{nameMap}}]);
     }
 
     return [map {&$_($feature)} @{$self->{curFeatMap}}];
@@ -192,9 +162,12 @@ sub subfeatureHeaders {
     return $self->{subfeatHeaders};
 }
 
-sub names {
-    my ($self) = @_;
-    return $self->{names};
+sub startIndex {
+    return $startIndex;
+}
+
+sub endIndex {
+    return $endIndex;
 }
 
 sub unique {

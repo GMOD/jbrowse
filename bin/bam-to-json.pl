@@ -64,7 +64,7 @@ foreach my $seqInfo (@refSeqs) {
     if (defined($tid)) {
         my $jsonGen = JsonGenerator->new("$trackDir/" . $seqInfo->{name}
                                          . "/" . $trackLabel,
-                                         $trackRel, $nclChunk,
+                                         $nclChunk,
                                          $compress, $trackLabel,
                                          $seqInfo->{name},
                                          $seqInfo->{start},

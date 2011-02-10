@@ -153,7 +153,7 @@ sub evalSubStrings {
 }
 
 sub new {
-    my ($class, $outDir, $outRel, $chunkBytes, $compress, $label, $segName,
+    my ($class, $outDir, $chunkBytes, $compress, $label, $segName,
         $refStart, $refEnd, $setStyle, $headers, $subfeatHeaders) = @_;
 
     my %style = ("key" => $label,
@@ -166,7 +166,6 @@ sub new {
         style          => \%style,
         label          => $label,
         outDir         => $outDir,
-        outRel         => $outRel,
         chunkBytes     => $chunkBytes,
         compress       => $compress,
         sublistIndex   => $#{$headers} + 1,
@@ -267,14 +266,14 @@ sub hasFeatures {
 }
 
 sub generateTrack {
-    my ($self, $names) = @_;
+    my ($self) = @_;
 
     $self->{features}->finish();
 
     my $ext = $self->{ext};
 
-    writeJSON($self->{outDir} . "/names.json", $names, {pretty => 0, max_depth => MAX_JSON_DEPTH}, 0)
-        if (defined($names) && ($#$names >= 0));
+    writeJSON($self->{outDir} . "/names.json", $self->{names}, {pretty => 0, max_depth => MAX_JSON_DEPTH}, 0)
+        if ($#{$self->{names}} >= 0);
 
     my $features = $self->{features};
 

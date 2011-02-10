@@ -162,7 +162,6 @@ ENDJS
 
     my $curChrom;
     my $jsonGen;
-    my @nameList;
     while (1) {
         my $row = $sorter->get();
 
@@ -176,7 +175,7 @@ ENDJS
                     || ($curChrom ne $row->[$chromCol])) {
             if ($jsonGen && $jsonGen->hasFeatures && $refSeqs{$curChrom}) {
                 print STDERR "working on $curChrom\n";
-                $jsonGen->generateTrack(\@nameList);
+                $jsonGen->generateTrack();
             }
 
             if (defined($row)) {
@@ -186,14 +185,13 @@ ENDJS
                     unless (-d "$trackDir/" . $curChrom);
                 $jsonGen = JsonGenerator->new("$trackDir/$curChrom/"
                                               . $tableName,
-                                              $trackRel, $nclChunk,
+                                              $nclChunk,
                                               $compress, $tableName,
                                               $curChrom,
                                               $refSeqs{$curChrom}->{start},
                                               $refSeqs{$curChrom}->{end},
                                               \%style, $headers,
                                               \@subfeatHeaders);
-                @nameList = ();
             } else {
                 last;
             }
@@ -202,13 +200,13 @@ ENDJS
         my $jsonRow = $converter->($row, \%fields, $type);
         $jsonGen->addFeature($jsonRow);
         if (defined $nameCol) {
-            push @nameList, [ [$_[0]->[$nameCol]],
-                              $tableName,
-                              $_[0]->[$nameCol],
-                              $_[0]->[$chromCol],
-                              $jsonRow->[0],
-                              $jsonRow->[1],
-                              $_[0]->[$nameCol] ];
+            $jsonGen->addName([ [$_[0]->[$nameCol]],
+                                $tableName,
+                                $_[0]->[$nameCol],
+                                $_[0]->[$chromCol],
+                                $jsonRow->[0],
+                                $jsonRow->[1],
+                                $_[0]->[$nameCol] ]);
         }
     }
 

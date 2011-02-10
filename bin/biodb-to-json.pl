@@ -106,15 +106,17 @@ foreach my $seg (@refSeqs) {
         if ($#feature_types >= 0) {
 #            my @features = $db->features(-seq_id => $segName,
 #                                         -type   => \@feature_types);
+            my $jsongen;
 
+            my $nameCallback = sub { $jsongen->addName($_[0]) };
             my $iterator = $db->get_seq_stream(-seq_id => $segName,
                                                -type   => \@feature_types);
             my $flattener = BioperlFlattener->new($track->{"track"},
                                                   $segName,
-                                                  \%style, [], []);
-            my $fields = indexHash($flattener->featureHeaders);
-            my $startCol = $fields->{"start"};
-            my $endCol = $fields->{"end"};
+                                                  \%style, [], [],
+                                                  $nameCallback);
+            my $startCol = BioperlFlattener->startIndex;
+            my $endCol = BioperlFlattener->endIndex;
 
             my $sorter = ExternalSorter->new(
                 sub ($$) {
@@ -133,23 +135,23 @@ foreach my $seg (@refSeqs) {
             print "got $featureCount features for " . $track->{"track"} . "\n";
             next unless $featureCount > 0;
 
-            my $jsonGen = JsonGenerator->new("$trackDir/$segName/"
-                                                 . $track->{"track"},
-                                             $trackRel, $nclChunk,
-                                             $compress, $track->{"track"},
-                                             $seg->{name},
-                                             $seg->{start},
-                                             $seg->{end},
-                                             \%style,
-                                             $flattener->featureHeaders,
-                                             $flattener->subfeatureHeaders
-                                         );
+            $jsonGen = JsonGenerator->new("$trackDir/$segName/"
+                                              . $track->{"track"},
+                                          $nclChunk,
+                                          $compress, $track->{"track"},
+                                          $seg->{name},
+                                          $seg->{start},
+                                          $seg->{end},
+                                          \%style,
+                                          $flattener->featureHeaders,
+                                          $flattener->subfeatureHeaders
+                                      );
 
             while (my $row = $sorter->get()) {
                 $jsonGen->addFeature($row);
             }
 
-            $jsonGen->generateTrack($flattener->names);
+            $jsonGen->generateTrack();
 
             my $ext = ($compress ? "jsonz" : "json");
             JsonGenerator::writeTrackEntry("$outdir/trackInfo.js",
@@ -163,15 +165,6 @@ foreach my $seg (@refSeqs) {
                                            });
         }
     }
-}
-
-sub indexHash {
-    my ($list) = @_;
-    my %result;
-    for (my $i = 0; $i <= $#{$list}; $i++) {
-        $result{$list->[$i]} = $i;
-    }
-    return \%result;
 }
 
 =head1 AUTHOR

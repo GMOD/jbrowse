@@ -11,24 +11,19 @@ use Bio::DB::SeqFeature::Store;
 use Bio::DB::GFF;
 use Bio::FeatureIO;
 use JsonGenerator;
+use BioperlFlattener;
+use ExternalSorter;
 use JSON 2;
 
-my $hasSamTools = 1;
-eval { require Bio::DB::Sam; };
-if ($@) {
-    $hasSamTools = 0;
-}
-
-my ($gff, $gff2, $bed, $bam,
-    $trackLabel, $key,
-    $urlTemplate, $subfeatureClasses, $arrowheadClass, $clientConfig, $extraData,
-    $thinType, $thickType,
-    $types);
+my ($gff, $gff2, $bed, $bam, $trackLabel, $key,
+    $urlTemplate, $subfeatureClasses, $arrowheadClass,
+    $clientConfig, $extraData, $thinType, $thickType,
+    $types, $nclChunk);
 my $autocomplete = "none";
 my $outdir = "data";
 my $cssClass = "feature";
-my $nclChunk = 1000;
-my ($getType, $getPhase, $getSubs, $getLabel) = (0, 0, 0, 0);
+my ($getType, $getPhase, $getSubs, $getLabel, $compress) = (0, 0, 0, 0, 0);
+my $sortMem = 1024 * 1024 * 512;
 GetOptions("gff=s" => \$gff,
            "gff2=s" => \$gff2,
            "bed=s" => \$bed,
@@ -50,11 +45,17 @@ GetOptions("gff=s" => \$gff,
            "thinType=s" => \$thinType,
            "thicktype=s" => \$thickType,
            "type=s@" => \$types,
-           "nclChunk=i" => \$nclChunk);
-my $trackDir = "$outdir/tracks";
+           "nclChunk=i" => \$nclChunk,
+           "compress" => \$compress);
+# parent path of track-related dirs, relative to $outdir
+my $trackRel = "tracks";
 
-my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
-die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
+my %refSeqs =
+    map {
+        $_->{name} => $_
+    } @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
+
+die "run prepare-refseqs.pl first to supply information about your reference sequences" unless (scalar keys %refSeqs);
 
 if (!(defined($gff) || defined($gff2) || defined($bed) || defined($bam)) || !defined($trackLabel)) {
     print "The --tracklabel parameter is required\n"
@@ -62,7 +63,7 @@ if (!(defined($gff) || defined($gff2) || defined($bed) || defined($bam)) || !def
     print "You must supply either a --gff, -gff2, --bed, or --bam parameter\n"
         unless (defined($gff) || defined($gff2) || defined($bed) || defined($bam));
     print <<USAGE;
-USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file> | --bam <bam file>] [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssclass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--getType] [--getPhase] [--getSubs] [--getLabel] [--urltemplate "http://example.com/idlookup?id={id}"] [--extraData <attribute>] [--subfeatureClasses <JSON-syntax subfeature class map>] [--clientConfig <JSON-syntax extra configuration for FeatureTrack>]
+USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file>] [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssclass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--getType] [--getPhase] [--getSubs] [--getLabel] [--urltemplate "http://example.com/idlookup?id={id}"] [--extraData <attribute>] [--subfeatureClasses <JSON-syntax subfeature class map>] [--clientConfig <JSON-syntax extra configuration for FeatureTrack>]
 
     --out: defaults to "data"
     --cssclass: defaults to "feature"
@@ -81,8 +82,17 @@ USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file> | --bam <ba
     --nclChunk: NCList chunk size; if you get "json text or perl structure exceeds maximum nesting level" errors, try setting this lower (default: $nclChunk)
     --extraData: a map of feature attribute names to perl subs that extract information from the feature object
         e.g. '{"protein_id" : "sub {shift->attributes(\"protein_id\");} "}'
+    --compress: compress the output (requires some web server configuration)
 USAGE
 exit(1);
+}
+
+if (!defined($nclChunk)) {
+    # default chunk size is 50KiB
+    $nclChunk = 50000;
+    # $nclChunk is the uncompressed size, so we can make it bigger if
+    # we're compressing
+    $nclChunk *= 4 if $compress;
 }
 
 #default label-extracting function, for GFF
@@ -101,7 +111,6 @@ my $idSub = sub {
 };
 
 my $streaming = 0;
-my $shareSubs = 0;
 my ($db, $stream);
 if ($gff) {
     $db = Bio::DB::SeqFeature::Store->new(-adaptor => 'memory',
@@ -114,22 +123,18 @@ if ($gff) {
                                   ($thinType ? ("-thin_type" => $thinType) : ()),
                                   ($thickType ? ("-thick_type" => $thickType) : ()) );
     $streaming = 1;
-    $shareSubs = 1;
     $labelSub = sub {
         #label sub for features returned by Bio::FeatureIO::bed
         return $_[0]->name;
     };
 } elsif ($bam){
-    if (! $hasSamTools) {
-        die "install Bio::DB::Sam in order to use BAM files";
-    }
-    $db = Bio::DB::Sam->new('-bam' => $bam);
+    die "BAM support has been moved to a separate program: bam-to-json.pl";
 } else {
-    die "please specify -gff, -gff2, -bed or -bam";
+    die "please specify -gff, -gff2, or -bed";
 }
 
 mkdir($outdir) unless (-d $outdir);
-mkdir($trackDir) unless (-d $trackDir);
+mkdir("$outdir/$trackRel") unless (-d "$outdir/$trackRel");
 
 my %style = ("autocomplete" => $autocomplete,
              "type"         => $getType,
@@ -157,75 +162,86 @@ $style{clientConfig} = JSON::from_json($clientConfig)
 $style{extraData} = JSON::from_json($extraData)
     if defined($extraData);
 
-my %perChromGens;
-foreach my $seqInfo (@refSeqs) {
-    $perChromGens{$seqInfo->{"name"}} = JsonGenerator->new($trackLabel,
-                                                           $seqInfo->{"name"},
-                                                           \%style, [], [],
-                                                           $shareSubs);
-}
+my $sorter = ExternalSorter->new(
+    sub ($$) {
+        $_[0]->seq_id cmp $_[1]->seq_id
+            ||
+        $_[0]->start <=> $_[1]->start
+            ||
+        $_[1]->end <=> $_[0]->end;
+    }, $sortMem);
 
 if ($streaming) {
-    my $jsonGen;
     while (my $feat = $stream->next_feature()) {
-        $jsonGen = $perChromGens{$feat->seq_id};
+        $sorter->add($feat);
+    }
+} else {
+    my @queryArgs;
+    if (defined($types)) {
+        @queryArgs = ("-type" => $types);
+    }
 
-        #ignore feature unless we already know about its ref seq
-        next unless $jsonGen;
-
-        $jsonGen->addFeature($feat);
+    my $iterator = $db->get_seq_stream(@queryArgs);
+    while (my $feature = $iterator->next_seq) {
+        $sorter->add($feature);
     }
 }
+$sorter->finish();
 
+my $curChrom;
+my $jsonGen;
+my $flattener;
 my $totalMatches = 0;
-foreach my $seqInfo (@refSeqs) {
-    my $seqName = $seqInfo->{"name"};
-    mkdir("$trackDir/$seqName") unless (-d "$trackDir/$seqName");
 
-    my $jsonGen = $perChromGens{$seqName};
+while (1) {
+    my $feat = $sorter->get();
 
-    unless ($streaming) {
-        print "\nworking on seq $seqName\n";
-        my @queryArgs = ("-seq_id" => $seqName);
-        if (defined($types)) {
-            @queryArgs = (@queryArgs, "-types" => $types);
+    if ((!defined($feat))
+        || (!defined($curChrom))
+        || ($curChrom ne $feat->seq_id)) {
+
+        if ($jsonGen && $jsonGen->hasFeatures && $refSeqs{$curChrom}) {
+            print $curChrom . "\t" . $jsonGen->featureCount . "\n";
+            $jsonGen->generateTrack();
         }
 
-        if ($bam) {
-            $db->fetch($seqName, sub {$jsonGen->addFeature($_[0])});
+        if (defined($feat)) {
+            $curChrom = $feat->seq_id;
+            next unless defined($refSeqs{$curChrom});
+            mkdir("$outdir/$trackRel/$curChrom")
+                unless (-d "$outdir/$trackRel/$curChrom");
+            my $nameCallback = sub { $jsonGen->addName($_[0]) };
+            $flattener = BioperlFlattener->new($trackLabel,
+                                               $curChrom,
+                                               \%style, [], [],
+                                               $nameCallback);
+            $jsonGen = JsonGenerator->new("$outdir/$trackRel/$curChrom/$trackLabel",
+                                          $nclChunk,
+                                          $compress, $trackLabel,
+                                          $curChrom,
+                                          $refSeqs{$curChrom}->{start},
+                                          $refSeqs{$curChrom}->{end},
+                                          \%style, $flattener->featureHeaders,
+                                          $flattener->subfeatureHeaders);
         } else {
-            my @features = $db->features(@queryArgs);
-
-            $jsonGen->addFeature($_) foreach (@features);
+            last;
         }
     }
-    
-    next if $jsonGen->featureCount == 0;
-    $totalMatches += $jsonGen->featureCount;
-
-    print $seqName . "\t" . $jsonGen->featureCount . "\n";
-
-    $jsonGen->generateTrack("$trackDir/$seqName/$trackLabel/", 1000, $nclChunk, $seqInfo->{"start"}, $seqInfo->{"end"});
-    
-    JsonGenerator::modifyJSFile("$outdir/trackInfo.js", "trackInfo",
-        sub {
-            my $trackList = shift;
-            my $i;
-            for ($i = 0; $i <= $#{$trackList}; $i++) {
-                last if ($trackList->[$i]->{'label'} eq $trackLabel);
-            }
-            $trackList->[$i] =
-            {
-                'label' => $trackLabel,
-                'key' => $style{"key"},
-                'url' => "$trackDir/{refseq}/$trackLabel/trackData.json",
-                'type' => "FeatureTrack",
-            };
-            return $trackList;
-        });
-
-    delete $perChromGens{$seqName};
+    next unless defined($refSeqs{$curChrom});
+    $totalMatches++;
+    $jsonGen->addFeature($flattener->flatten($feat));
 }
+
+my $ext = ($compress ? "jsonz" : "json");
+JsonGenerator::writeTrackEntry("$outdir/trackInfo.js",
+                               {
+                                   'label' => $trackLabel,
+                                   'key' => $style{"key"},
+                                   'url' => "$trackRel/{refseq}/"
+                                       . $trackLabel
+                                       . "/trackData.$ext",
+                                       'type' => "FeatureTrack",
+                               });
 
 # If no features are found, check for mistakes in user input
 if(!$totalMatches && defined($types)) {
