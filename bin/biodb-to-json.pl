@@ -104,17 +104,27 @@ foreach my $seg (@refSeqs) {
         my @feature_types = @{$track->{"feature"}};
         print "searching for features of type: " . join(", ", @feature_types) . "\n" if ($verbose);
         if ($#feature_types >= 0) {
-#            my @features = $db->features(-seq_id => $segName,
-#                                         -type   => \@feature_types);
-            my $jsongen;
+            my $jsonGen;
 
-            my $nameCallback = sub { $jsongen->addName($_[0]) };
+            my $nameCallback = sub { $jsonGen->addName($_[0]) };
             my $iterator = $db->get_seq_stream(-seq_id => $segName,
                                                -type   => \@feature_types);
             my $flattener = BioperlFlattener->new($track->{"track"},
                                                   $segName,
                                                   \%style, [], [],
                                                   $nameCallback);
+            $jsonGen = JsonGenerator->new("$trackDir/$segName/"
+                                              . $track->{"track"},
+                                          $nclChunk,
+                                          $compress, $track->{"track"},
+                                          $seg->{name},
+                                          $seg->{start},
+                                          $seg->{end},
+                                          \%style,
+                                          $flattener->featureHeaders,
+                                          $flattener->subfeatureHeaders
+                                      );
+
             my $startCol = BioperlFlattener->startIndex;
             my $endCol = BioperlFlattener->endIndex;
 
@@ -134,18 +144,6 @@ foreach my $seg (@refSeqs) {
 
             print "got $featureCount features for " . $track->{"track"} . "\n";
             next unless $featureCount > 0;
-
-            $jsonGen = JsonGenerator->new("$trackDir/$segName/"
-                                              . $track->{"track"},
-                                          $nclChunk,
-                                          $compress, $track->{"track"},
-                                          $seg->{name},
-                                          $seg->{start},
-                                          $seg->{end},
-                                          \%style,
-                                          $flattener->featureHeaders,
-                                          $flattener->subfeatureHeaders
-                                      );
 
             while (my $row = $sorter->get()) {
                 $jsonGen->addFeature($row);
