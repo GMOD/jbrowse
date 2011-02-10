@@ -13,9 +13,10 @@ use JSON 2;
 use Bio::DB::Sam;
 
 
-my ($tracks, $arrowheadClass, $subfeatureClasses, $clientConfig, $bamFile,
-    $trackLabel, $key, $nclChunk, $compress);
-my $cssClass = "basic";
+my ($tracks, $cssClass, $arrowheadClass, $subfeatureClasses, $clientConfig,
+    $bamFile, $trackLabel, $key, $nclChunk, $compress);
+my $defaultClass = "basic";
+$cssClass = $defaultClass;
 my $outdir = "data";
 GetOptions("out=s" => \$outdir,
 	   "tracklabel=s" => \$trackLabel,
@@ -55,6 +56,15 @@ my %style = ("class" => $cssClass,
 
 $style{clientConfig} = JSON::from_json($clientConfig)
     if (defined($clientConfig));
+
+if ($cssClass eq $defaultClass) {
+    $style{clientConfig}->{featureCss} = "background-color: #668; height: 8px;"
+        unless defined($style{clientConfig}->{featureCss});
+    $style{clientConfig}->{histCss} = "background-color: #88F"
+        unless defined($style{clientConfig}->{histCss});
+    $style{clientConfig}->{histScale} = 2
+        unless defined($style{clientConfig}->{histScale});
+}
 
 foreach my $seqInfo (@refSeqs) {
     my ($tid, $start, $end) = $hdr->parse_region($seqInfo->{name});
