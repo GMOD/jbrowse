@@ -345,7 +345,7 @@ sub generateTrack {
                      'subfeatureClasses' =>
                          $self->{style}->{subfeature_classes},
                      'subfeatureHeaders' =>
-                         $self->{style}->{subfeatureHeaders},
+                         $self->{subfeatHeaders},
                      'arrowheadClass' =>
                          $self->{style}->{arrowheadClass},
                      'clientConfig' =>
