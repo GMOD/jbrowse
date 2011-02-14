@@ -43,7 +43,7 @@ USAGE: $0 --in <database dump dir> [--out <output directory] [--track <table nam
     --subfeatureClasses: CSS classes for each subfeature type, in JSON syntax
         e.g. '{"CDS": "transcript-CDS", "exon": "transcript-exon"}'
     --clientConfig: extra configuration for the client, in JSON syntax
-        e.g. '{"css": "background-color: black;", "histScale": 5}'
+        e.g. '{"featureCss": "background-color: #668; height: 8px;", "histScale": 2}'
     --nclChunk: size of the individual NCL chunks
     --compress: compress the output (requires some web server configuration)
     --sortMem: the amount of memory in bytes to use for sorting

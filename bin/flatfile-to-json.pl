@@ -78,7 +78,7 @@ USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file>] [--out <ou
     --subfeatureClasses: CSS classes for each subfeature type, in JSON syntax
         e.g. '{"CDS": "transcript-CDS", "exon": "transcript-exon"}'
     --clientConfig: extra configuration for the client, in JSON syntax
-        e.g. '{"css": "background-color: black;", "histScale": 5}'
+        e.g. '{"featureCss": "background-color: #668; height: 8px;", "histScale": 2}'
     --type: only process features of the given type
     --nclChunk: NCList chunk size; if you get "json text or perl structure exceeds maximum nesting level" errors, try setting this lower (default: $nclChunk)
     --extraData: a map of feature attribute names to perl subs that extract information from the feature object

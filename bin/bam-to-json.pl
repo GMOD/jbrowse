@@ -35,7 +35,7 @@ USAGE: $0 --bam <bam file> [--out <output directory] [--tracklabel <track identi
     --out: defaults to "data"
     --cssclass: defaults to "basic"
     --clientConfig: extra configuration for the client, in JSON syntax
-        e.g. '{"featureCss": "background-color: #668; height: 8px;", "histScale": 2}'
+        e.g. '{"featureCss": "background-color: #668; height: 8px;", "histScale": 5}'
     --nclChunk: size of the individual NCL chunks
     --compress: compress the output (requires some web server configuration)
 HELP
