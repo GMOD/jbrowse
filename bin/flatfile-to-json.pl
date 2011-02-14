@@ -31,7 +31,7 @@ GetOptions("gff=s" => \$gff,
 	   "out=s" => \$outdir,
 	   "tracklabel=s" => \$trackLabel,
 	   "key=s" => \$key,
-	   "cssclass=s" => \$cssClass,
+	   "cssClass=s" => \$cssClass,
 	   "autocomplete=s" => \$autocomplete,
 	   "getType" => \$getType,
 	   "getPhase" => \$getPhase,
@@ -46,7 +46,8 @@ GetOptions("gff=s" => \$gff,
            "thicktype=s" => \$thickType,
            "type=s@" => \$types,
            "nclChunk=i" => \$nclChunk,
-           "compress" => \$compress);
+           "compress" => \$compress,
+           "sortMem=i" =>\$sortMem);
 # parent path of track-related dirs, relative to $outdir
 my $trackRel = "tracks";
 
@@ -63,10 +64,10 @@ if (!(defined($gff) || defined($gff2) || defined($bed) || defined($bam)) || !def
     print "You must supply either a --gff, -gff2, --bed, or --bam parameter\n"
         unless (defined($gff) || defined($gff2) || defined($bed) || defined($bam));
     print <<USAGE;
-USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file>] [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssclass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--getType] [--getPhase] [--getSubs] [--getLabel] [--urltemplate "http://example.com/idlookup?id={id}"] [--extraData <attribute>] [--subfeatureClasses <JSON-syntax subfeature class map>] [--clientConfig <JSON-syntax extra configuration for FeatureTrack>]
+USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file>] [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssClass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--getType] [--getPhase] [--getSubs] [--getLabel] [--urltemplate "http://example.com/idlookup?id={id}"] [--extraData <attribute>] [--subfeatureClasses <JSON-syntax subfeature class map>] [--clientConfig <JSON-syntax extra configuration for FeatureTrack>]
 
     --out: defaults to "data"
-    --cssclass: defaults to "feature"
+    --cssClass: defaults to "feature"
     --autocomplete: make these features searchable by their "label", by their "alias"es, both ("all"), or "none" (default).
     --getType: include the type of the features in the json
     --getPhase: include the phase of the features in the json
@@ -83,6 +84,7 @@ USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file>] [--out <ou
     --extraData: a map of feature attribute names to perl subs that extract information from the feature object
         e.g. '{"protein_id" : "sub {shift->attributes(\"protein_id\");} "}'
     --compress: compress the output (requires some web server configuration)
+    --sortMem: the amount of memory in bytes to use for sorting
 USAGE
 exit(1);
 }

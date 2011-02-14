@@ -31,8 +31,26 @@ GetOptions("in=s" => \$indir,
            "compress" => \$compress,
            "sortMem=i" =>\$sortMem);
 
-die "please specify the directory with the database dumps using the --in parameter"
-    unless defined($indir);
+if (!defined($indir)) {
+    print <<HELP;
+USAGE: $0 --in <database dump dir> [--out <output directory] [--track <table name>] [--cssClass <class>] [--arrowheadClass <class>] [--subfeatureClasses <subfeature class map>] [--clientConfig <JSON client config>] [--nclChunk <NCL chunk size in bytes>] [--compress] [--sortMem <sort memory size>]
+
+    --in: directory containing the UCSC database dump (lots of .txt.gz and .sql files)
+    --out: defaults to "data"
+    --track: name of the database table, e.g., "knownGene"
+    --cssClass: defaults to "basic"
+    --arrowheadClass: CSS class for arrowheads, e.g., "transcript-arrowhead"
+    --subfeatureClasses: CSS classes for each subfeature type, in JSON syntax
+        e.g. '{"CDS": "transcript-CDS", "exon": "transcript-exon"}'
+    --clientConfig: extra configuration for the client, in JSON syntax
+        e.g. '{"css": "background-color: black;", "histScale": 5}'
+    --nclChunk: size of the individual NCL chunks
+    --compress: compress the output (requires some web server configuration)
+    --sortMem: the amount of memory in bytes to use for sorting
+HELP
+
+    exit(1);
+}
 
 if (!defined($nclChunk)) {
     # default chunk size is 50KiB
@@ -53,7 +71,7 @@ my %refSeqs =
     } @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
 
 # the jbrowse NCList code requires that "start" and "end" be
-# the first and second fields in the array; @defaultHeaders and @srcMap
+# the first and second fields in the array; @defaultHeaders and %typeMaps
 # are used to take the fields from the database and put them
 # into the order specified by @defaultHeaders
 

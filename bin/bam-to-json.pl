@@ -27,6 +27,22 @@ GetOptions("out=s" => \$outdir,
            "nclChunk=i" => \$nclChunk,
            "compress" => \$compress);
 
+if (!defined($bamFile)) {
+    print <<HELP;
+USAGE: $0 --bam <bam file> [--out <output directory] [--tracklabel <track identifier>] [--key <human-readable track name>] [--cssClass <class>] [--clientConfig <JSON client config>] [--nclChunk <NCL chunk size in bytes>] [--compress]
+
+    --bam: bam file name
+    --out: defaults to "data"
+    --cssclass: defaults to "basic"
+    --clientConfig: extra configuration for the client, in JSON syntax
+        e.g. '{"featureCss": "background-color: #668; height: 8px;", "histScale": 2}'
+    --nclChunk: size of the individual NCL chunks
+    --compress: compress the output (requires some web server configuration)
+HELP
+
+    exit(1);
+}
+
 if (!defined($nclChunk)) {
     # default chunk size is 50KiB
     $nclChunk = 50000;
