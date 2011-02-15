@@ -1,0 +1,79 @@
+<!DOCTYPE html 
+	  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  
+  <head>
+    <title>JBrowse</title>
+
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <link rel="stylesheet" type="text/css" href="jslib/dijit/themes/tundra/tundra.css"></link>
+    <link rel="stylesheet" type="text/css" href="jslib/dojo/resources/dojo.css"></link>
+    <link rel="stylesheet" type="text/css" href="genome.css"></link>
+    <style type="text/css">
+      html, body {
+          height: 100%; width: 100%; padding: 0; border: 0; font-size: 9px;
+      }
+      .icon.nav {
+          height: 30px !important;
+      }
+
+      input.nav {
+          font-size: 9px !important;
+      }
+
+    </style>
+
+    <script type="text/javascript" src="jslib/dojo/dojo.js" djConfig="isDebug: false"></script>
+    <script type="text/javascript" src="jslib/dojo/jbrowse_dojo.js" ></script>
+
+    <script type="text/javascript" src="js/Browser.js"></script>
+    <script type="text/javascript" src="js/Util.js"></script>
+    <script type="text/javascript" src="js/NCList.js"></script>
+    <script type="text/javascript" src="js/LazyPatricia.js"></script>
+    <script type="text/javascript" src="js/LazyArray.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script>
+    <script type="text/javascript" src="js/SequenceTrack.js"></script>
+    <script type="text/javascript" src="js/Layout.js"></script>
+    <script type="text/javascript" src="js/FeatureTrack.js"></script>
+    <script type="text/javascript" src="js/UITracks.js"></script>
+    <script type="text/javascript" src="js/ImageTrack.js"></script>
+    <script type="text/javascript" src="js/GenomeView.js"></script>
+    <script type="text/javascript" src="data/refSeqs.js"></script>
+    <script type="text/javascript" src="data/trackInfo.js"></script>
+
+    <script type="text/javascript" src="js/touchJBrowse.js"></script>
+
+    <script type="text/javascript">
+    /* <![CDATA[ */
+           var queryParams = dojo.queryToObject(window.location.search.slice(1));
+           var bookmarkCallback = function(brwsr) {
+               return window.location.protocol
+                      + "//" + window.location.host
+                      + window.location.pathname
+                      + "?loc=" + brwsr.visibleRegion()
+                      + "&tracks=" + brwsr.visibleTracks();
+           }
+           var b = new Browser({
+                                   containerID: "GenomeBrowser",
+                                   refSeqs: refSeqs,
+                                   trackData: trackInfo,
+                                   defaultTracks: "DNA,gene,mRNA,noncodingRNA",
+                                   location: queryParams.loc,
+                                   tracks: queryParams.tracks,
+                                   bookmark: bookmarkCallback
+                               });
+
+           /* set up touchJBrowse.js */
+           b.deferredFunctions.push(function() { load(); });
+    /* ]]> */
+    </script>
+  </head>
+  
+  <body>
+    <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
+  </body>
+</html>
