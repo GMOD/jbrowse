@@ -8,7 +8,6 @@ use lib "$Bin/../lib";
 
 use Getopt::Long;
 use File::Basename;
-use Bio::DB::SeqFeature::Store;
 use JsonGenerator;
 
 my ($path, $trackLabel, $key, $cssClass);
