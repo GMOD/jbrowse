@@ -248,6 +248,7 @@ sub addFeature {
     $self->{count}++;
 
     my $histograms = $self->{hists};
+    my $curHist;
 
     for (my $i = 0; $i <= $#multiples; $i++) {
         my $binBases = $self->{histBinBases} * $multiples[$i];
@@ -257,8 +258,9 @@ sub addFeature {
         $firstBin = 0 if ($firstBin < 0);
         my $lastBin = int($feature->[$endIndex] / $binBases);
         return if ($lastBin < 0);
+        $curHist = $histograms->[$i];
         for (my $bin = $firstBin; $bin <= $lastBin; $bin++) {
-            $histograms->[$i]->[$bin] += 1;
+            $curHist->[$bin] += 1;
         }
     }
 }

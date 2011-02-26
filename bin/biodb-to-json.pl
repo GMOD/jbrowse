@@ -128,7 +128,7 @@ foreach my $seg (@refSeqs) {
                 }, $sortMem);
 
             my $featureCount = 0;
-            while (my $feature = $iterator->next_seq) {
+            while (defined(my $feature = $iterator->next_seq)) {
                 $sorter->add($flattener->flatten($feature));
                 $featureCount++;
             }
