@@ -11,6 +11,7 @@ use Data::Dumper;
 use JsonGenerator;
 use BioperlFlattener;
 use ExternalSorter;
+use NameHandler;
 
 my ($confFile, $ref, $refid, $onlyLabel, $verbose, $nclChunk, $compress);
 my $outdir = "data";
