@@ -112,7 +112,7 @@ sub new {
       (
        sub {$label},
        $style{label},
-       sub {$_[0]->seq_id->can('value') ? $_[0]->seq_id->value : $_[0]->seq_id},
+       sub {ref($_[0]->seq_id) ? $_[0]->seq_id->value : $_[0]->seq_id},
        sub {int(shift->start) - 1},
        sub {int(shift->end)},
        sub {$_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id}

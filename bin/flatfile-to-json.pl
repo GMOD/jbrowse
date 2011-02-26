@@ -186,7 +186,7 @@ my %featureCounts;
 if ($streaming) {
     while (my $feat = $stream->next_feature()) {
         my $chrom =
-            $feat->seq_id->can('value') ? $feat->seq_id->value : $feat->seq_id;
+            ref($_[0]->seq_id) ? $_[0]->seq_id->value : $_[0]->seq_id;
         $featureCounts{$chrom} += 1;
         $sorter->add([$chrom, $flattener->flatten($feat)]);
     }
@@ -199,7 +199,7 @@ if ($streaming) {
     my $iterator = $db->get_seq_stream(@queryArgs);
     while (my $feat = $iterator->next_seq) {
         my $chrom =
-            $feat->seq_id->can('value') ? $feat->seq_id->value : $feat->seq_id;
+            ref($_[0]->seq_id) ? $_[0]->seq_id->value : $_[0]->seq_id;
         $featureCounts{$chrom} += 1;
         $sorter->add([$chrom, $flattener->flatten($feat)]);
     }
