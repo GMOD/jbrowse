@@ -154,7 +154,8 @@ sub evalSubStrings {
 
 sub new {
     my ($class, $outDir, $chunkBytes, $compress, $label, $segName,
-        $refStart, $refEnd, $setStyle, $headers, $subfeatHeaders) = @_;
+        $refStart, $refEnd, $setStyle, $headers, $subfeatHeaders,
+        $featureCount) = @_;
 
     my %style = ("key" => $label,
                  %builtinDefaults,
@@ -171,19 +172,32 @@ sub new {
         sublistIndex   => $#{$headers} + 1,
         curMapHeaders  => $headers,
         subfeatHeaders => $subfeatHeaders,
-        names          => [],
         ext            => ($compress ? "jsonz" : "json"),
         refStart       => $refStart,
         refEnd         => $refEnd,
         count          => 0
     };
 
-    # arbitrarily set the bin size of the the finest-grained histogram 
-    # to one data point per 10 bases
-    $self->{histBinBases} = 10;
-    $self->{hists} = [];
+    # $featureCount is an optional parameter; if we don't know it,
+    # then arbitrarily estimate that there's 0.25 features per base
+    # (0.25 features/base is pretty dense, which gives us
+    # a relatively high-resolution histogram; we can always throw
+    # away the higher-resolution histogram data later, so a dense
+    # estimate is conservative.  A dense estimate does cost more RAM, though)
+    $featureCount = $refEnd * 0.25 unless defined($featureCount);
+
+    # $histBinThresh is the approximate the number of bases per
+    # histogram bin at the zoom level where FeatureTrack.js switches
+    # to the histogram view by default
+    my $histBinThresh = ($refEnd * 2.5) / $featureCount;
+    $self->{histBinBases} = $multiples[0];
+    foreach my $multiple (@multiples) {
+        $self->{histBinBases} = $multiple;
+        last if $multiple > $histBinThresh;
+    }
 
     # initialize histogram arrays to all zeroes
+    $self->{hists} = [];
     for (my $i = 0; $i <= $#multiples; $i++) {
         my $binBases = $self->{histBinBases} * $multiples[$i];
         $self->{hists}->[$i] = [(0) x ceil($refEnd / $binBases)];
@@ -193,7 +207,6 @@ sub new {
     mkdir($outDir) unless (-d $outDir);
     unlink (glob $outDir . "/hist*");
     unlink (glob $outDir . "/lazyfeatures*");
-    unlink $outDir . "/names.json";
     unlink $outDir . "/trackData.json";
 
     my $lazyPathTemplate = "$outDir/lazyfeatures-{chunk}." . $self->{ext};
@@ -250,11 +263,6 @@ sub addFeature {
     }
 }
 
-sub addName {
-    my ($self, $name) = @_;
-    push @{$self->{names}}, $name;
-}
-
 sub featureCount {
     my ($self) = @_;
     return $self->{count};
@@ -272,8 +280,8 @@ sub generateTrack {
 
     my $ext = $self->{ext};
 
-    writeJSON($self->{outDir} . "/names.json", $self->{names}, {pretty => 0, max_depth => MAX_JSON_DEPTH}, 0)
-        if ($#{$self->{names}} >= 0);
+    # writeJSON($self->{outDir} . "/names.json", $self->{names}, {pretty => 0, max_depth => MAX_JSON_DEPTH}, 0)
+    #     if ($#{$self->{names}} >= 0);
 
     my $features = $self->{features};
 

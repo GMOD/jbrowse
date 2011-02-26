@@ -12,6 +12,7 @@ use Getopt::Long;
 use List::Util qw(min max);
 use JSON 2;
 use JsonGenerator;
+use NameHandler;
 use ExternalSorter;
 
 my $trackdb = "trackDb";
@@ -173,13 +174,18 @@ ENDJS
         $_[1]->[$endCol] <=> $_[0]->[$endCol]
     };
 
+    my %chromCounts;
     my $sorter = ExternalSorter->new($compare, $sortMem);
     for_columns("$indir/" . $track->{tableName},
-                sub { $sorter->add($_[0]) } );
+                sub { 
+                    $chromCounts{$_[0]->[$chromCol]} += 1;
+                    $sorter->add($_[0]);
+                } );
     $sorter->finish();
 
     my $curChrom;
     my $jsonGen;
+    my $nameHandler;
     while (1) {
         my $row = $sorter->get();
 
@@ -193,6 +199,7 @@ ENDJS
                     || ($curChrom ne $row->[$chromCol])) {
             if ($jsonGen && $jsonGen->hasFeatures && $refSeqs{$curChrom}) {
                 print STDERR "working on $curChrom\n";
+                $nameHandler->finish();
                 $jsonGen->generateTrack();
             }
 
@@ -201,6 +208,9 @@ ENDJS
                 next unless defined($refSeqs{$curChrom});
                 mkdir("$trackDir/" . $curChrom)
                     unless (-d "$trackDir/" . $curChrom);
+                my $trackDirForChrom = 
+                    sub { "$trackDir/" . $_[0] . "/" . $tableName; };
+                $nameHandler = NameHandler->new($trackDirForChrom);
                 $jsonGen = JsonGenerator->new("$trackDir/$curChrom/"
                                               . $tableName,
                                               $nclChunk,
@@ -209,7 +219,8 @@ ENDJS
                                               $refSeqs{$curChrom}->{start},
                                               $refSeqs{$curChrom}->{end},
                                               \%style, $headers,
-                                              \@subfeatHeaders);
+                                              \@subfeatHeaders,
+                                              $chromCounts{$curChrom});
             } else {
                 last;
             }
@@ -218,13 +229,13 @@ ENDJS
         my $jsonRow = $converter->($row, \%fields, $type);
         $jsonGen->addFeature($jsonRow);
         if (defined $nameCol) {
-            $jsonGen->addName([ [$_[0]->[$nameCol]],
-                                $tableName,
-                                $_[0]->[$nameCol],
-                                $_[0]->[$chromCol],
-                                $jsonRow->[0],
-                                $jsonRow->[1],
-                                $_[0]->[$nameCol] ]);
+            $nameHandler->addName([ [$row->[$nameCol]],
+                                    $tableName,
+                                    $row->[$nameCol],
+                                    $row->[$chromCol],
+                                    $jsonRow->[0],
+                                    $jsonRow->[1],
+                                    $row->[$nameCol] ]);
         }
     }
 

@@ -13,6 +13,7 @@ use Bio::FeatureIO;
 use JsonGenerator;
 use BioperlFlattener;
 use ExternalSorter;
+use NameHandler;
 use JSON 2;
 
 my ($gff, $gff2, $bed, $bam, $trackLabel, $key,
@@ -61,7 +62,7 @@ die "run prepare-refseqs.pl first to supply information about your reference seq
 if (!(defined($gff) || defined($gff2) || defined($bed) || defined($bam)) || !defined($trackLabel)) {
     print "The --tracklabel parameter is required\n"
         unless defined($trackLabel);
-    print "You must supply either a --gff, -gff2, --bed, or --bam parameter\n"
+    print "You must supply either a --gff, -gff2, or --bed parameter\n"
         unless (defined($gff) || defined($gff2) || defined($bed) || defined($bam));
     print <<USAGE;
 USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file>] [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssClass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--getType] [--getPhase] [--getSubs] [--getLabel] [--urltemplate "http://example.com/idlookup?id={id}"] [--extraData <attribute>] [--subfeatureClasses <JSON-syntax subfeature class map>] [--clientConfig <JSON-syntax extra configuration for FeatureTrack>]
@@ -151,10 +152,6 @@ my %style = ("autocomplete" => $autocomplete,
              "arrowheadClass" => $arrowheadClass,
              "clientConfig" => $clientConfig);
 
-if ($bam) {
-    $style{noId} = 1;
-}
-
 $style{subfeature_classes} = JSON::from_json($subfeatureClasses)
     if defined($subfeatureClasses);
 
@@ -164,18 +161,34 @@ $style{clientConfig} = JSON::from_json($clientConfig)
 $style{extraData} = JSON::from_json($extraData)
     if defined($extraData);
 
+my $trackDirForChrom = sub { "$outdir/$trackRel/" . $_[0] . "/$trackLabel"; };
+my $nameHandler = NameHandler->new($trackDirForChrom);
+my $nameCallback = sub { $nameHandler->addName($_[0]) };
+my $flattener = BioperlFlattener->new($trackLabel,
+                                      \%style, [], [],
+                                      $nameCallback);
+
+my $startIndex = BioperlFlattener->startIndex;
+my $endIndex = BioperlFlattener->endIndex;
+
+# The ExternalSorter will get [chrom, [start, end, ...]] arrays
 my $sorter = ExternalSorter->new(
     sub ($$) {
-        $_[0]->seq_id cmp $_[1]->seq_id
+        $_[0]->[0] cmp $_[1]->[0]
             ||
-        $_[0]->start <=> $_[1]->start
+        $_[0]->[1]->[$startIndex] <=> $_[1]->[1]->[$startIndex]
             ||
-        $_[1]->end <=> $_[0]->end;
+        $_[1]->[1]->[$endIndex] <=> $_[0]->[1]->[$endIndex];
     }, $sortMem);
+
+my %featureCounts;
 
 if ($streaming) {
     while (my $feat = $stream->next_feature()) {
-        $sorter->add($feat);
+        my $chrom =
+            $feat->seq_id->can('value') ? $feat->seq_id->value : $feat->seq_id;
+        $featureCounts{$chrom} += 1;
+        $sorter->add([$chrom, $flattener->flatten($feat)]);
     }
 } else {
     my @queryArgs;
@@ -184,15 +197,18 @@ if ($streaming) {
     }
 
     my $iterator = $db->get_seq_stream(@queryArgs);
-    while (my $feature = $iterator->next_seq) {
-        $sorter->add($feature);
+    while (my $feat = $iterator->next_seq) {
+        my $chrom =
+            $feat->seq_id->can('value') ? $feat->seq_id->value : $feat->seq_id;
+        $featureCounts{$chrom} += 1;
+        $sorter->add([$chrom, $flattener->flatten($feat)]);
     }
 }
 $sorter->finish();
+$nameHandler->finish();
 
 my $curChrom;
 my $jsonGen;
-my $flattener;
 my $totalMatches = 0;
 
 while (1) {
@@ -200,7 +216,7 @@ while (1) {
 
     if ((!defined($feat))
         || (!defined($curChrom))
-        || ($curChrom ne $feat->seq_id)) {
+        || ($curChrom ne $feat->[0])) {
 
         if ($jsonGen && $jsonGen->hasFeatures && $refSeqs{$curChrom}) {
             print $curChrom . "\t" . $jsonGen->featureCount . "\n";
@@ -208,15 +224,10 @@ while (1) {
         }
 
         if (defined($feat)) {
-            $curChrom = $feat->seq_id;
+            $curChrom = $feat->[0];
             next unless defined($refSeqs{$curChrom});
             mkdir("$outdir/$trackRel/$curChrom")
                 unless (-d "$outdir/$trackRel/$curChrom");
-            my $nameCallback = sub { $jsonGen->addName($_[0]) };
-            $flattener = BioperlFlattener->new($trackLabel,
-                                               $curChrom,
-                                               \%style, [], [],
-                                               $nameCallback);
             $jsonGen = JsonGenerator->new("$outdir/$trackRel/$curChrom/$trackLabel",
                                           $nclChunk,
                                           $compress, $trackLabel,
@@ -224,14 +235,15 @@ while (1) {
                                           $refSeqs{$curChrom}->{start},
                                           $refSeqs{$curChrom}->{end},
                                           \%style, $flattener->featureHeaders,
-                                          $flattener->subfeatureHeaders);
+                                          $flattener->subfeatureHeaders,
+                                          $featureCounts{$curChrom});
         } else {
             last;
         }
     }
     next unless defined($refSeqs{$curChrom});
     $totalMatches++;
-    $jsonGen->addFeature($flattener->flatten($feat));
+    $jsonGen->addFeature($feat->[1]);
 }
 
 my $ext = ($compress ? "jsonz" : "json");
