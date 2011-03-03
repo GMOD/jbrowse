@@ -494,10 +494,10 @@ public:
 
                     newSection(chrom_, startBase);
 
+		    flushTilesBefore(startBase + 1);
                     for (int i = startBase; i < endBase; i++) {
                         //wiggle bed format is 0-based
 		      //cerr << "BED: ";
-		        flushTilesBefore(i);
                         addValue(i, sample);
                     }
 
