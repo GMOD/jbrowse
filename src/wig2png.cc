@@ -139,13 +139,15 @@ public:
     }
   
     void renderTile() {
-        //cerr << "rendering tile " << curTile_ << endl;
+      //cerr << "rendering tile " << curTile_ << " chrom " << chrom_ << " pixelBases " << pixelBases_ << endl;
         stringstream s;
         s << baseDir_ << "/" << tileRel_ << "/" << curTile_ << ".png";
         drawTile(s.str());
     }
 
     void flushTilesBefore(int base) {
+      //cerr << "flushTilesBefore " << base << " chrom " << chrom_ << " pixelBases " << pixelBases_ << endl;
+
         // flush tiles up to, but not including, base #base
         if (curTile_ != numeric_limits<int>::min())
             while (curTile_ < base / tileWidthBases_) {
@@ -158,11 +160,14 @@ public:
     }
 
     void flushAllTiles() {
+      //cerr << "flushAllTiles\n";
         // render previous tiles
         flushTilesBefore(curEnd_);
         // render last tile
         if (curEnd_ >= curStart_)
             renderTile();
+	// reset curTile_ and curEnd_ to indicate that there is now no pending data
+	curTile_ = curEnd_ = numeric_limits<int>::min();
     }
 
     void newSection(const string chrom, const int base) {
@@ -434,6 +439,7 @@ public:
                 switch (format_) {
                 case FIXED:
                     if(from_string<float>(sample, word, dec)) {
+		      //cerr << "FIXED: ";
 			flushTilesBefore(curBase_);
                         for (int i = 0; i < span_; i++)
                             //wiggle fixed and variable formats are 1-based
@@ -454,6 +460,7 @@ public:
                         }
                         ss >> word;
                         if(from_string<float>(sample, word, dec)) {
+			  //cerr << "VARIABLE: ";
   			    flushTilesBefore(curBase_);
                             for (int i = 0; i < span_; i++)
                                 //wiggle fixed and variable formats are 1-based
@@ -489,6 +496,7 @@ public:
 
                     for (int i = startBase; i < endBase; i++) {
                         //wiggle bed format is 0-based
+		      //cerr << "BED: ";
 		        flushTilesBefore(i);
                         addValue(i, sample);
                     }
@@ -497,6 +505,7 @@ public:
                     //we want curBase to be equivalent to endBase in
                     //1-based coords, because the span doesn't include endBase.
                     curBase_ = endBase + 1;
+                    //cerr << "parsed line\t" << line << "\n";
                     break;
                 }
                 }
