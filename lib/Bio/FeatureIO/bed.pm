@@ -296,8 +296,8 @@ sub next_feature {
     return $self->next_feature;
   }
 
-  my $feature = Bio::SeqFeature::Annotated->new(-start  => $start, # start is 0 based
-                                                -end    => --$end, # end is not part of the feature
+  my $feature = Bio::SeqFeature::Annotated->new(-start  => $start + 1, # start is 0 based
+                                                -end    => $end, # end is not part of the feature
                                                 ($score ne "")  ? (-score  => $score) : (),
                                                 $strand ? (-strand => $strand eq '+' ? 1 : -1) : ());
 
@@ -329,8 +329,8 @@ sub next_feature {
           if ($abs_block_start < $thick_start) {
             $feature->add_SeqFeature(
                 Bio::SeqFeature::Generic->new(
-                    -start => $abs_block_start,
-                    -end => min($thick_start - 1, $abs_block_end - 1),
+                    -start => $abs_block_start + 1,
+                    -end => min($thick_start, $abs_block_end),
                     -strand => $parent_strand,
                     -primary_tag => $self->thin_type) );
           }
@@ -340,8 +340,8 @@ sub next_feature {
               && ($abs_block_end > $thick_start)) {
             $feature->add_SeqFeature(
                 Bio::SeqFeature::Generic->new(
-                    -start => max($thick_start, $abs_block_start),
-                    -end => min($thick_end - 1, $abs_block_end - 1),
+                    -start => max($thick_start, $abs_block_start) + 1,
+                    -end => min($thick_end, $abs_block_end),
                     -strand => $parent_strand,
                     -primary_tag => $self->thick_type) );
           }
@@ -350,8 +350,8 @@ sub next_feature {
           if ($abs_block_end > $thick_end) {
             $feature->add_SeqFeature(
                 Bio::SeqFeature::Generic->new(
-                    -start => max($abs_block_start, $thick_end),
-                    -end => $abs_block_end - 1,
+                    -start => max($abs_block_start, $thick_end) + 1,
+                    -end => $abs_block_end,
                     -strand => $parent_strand,
                     -primary_tag => $self->thin_type) );
           }
@@ -360,8 +360,8 @@ sub next_feature {
     } else {
       $feature->add_SeqFeature(
           Bio::SeqFeature::Generic->new(
-              -start => $thick_start,
-              -end => $thick_end - 1,
+              -start => $thick_start + 1,
+              -end => $thick_end,
               -strand => $parent_strand,
               -primary_tag => $self->thick_type) );
     }
