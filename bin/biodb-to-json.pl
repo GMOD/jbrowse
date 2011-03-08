@@ -110,7 +110,10 @@ foreach my $seg (@refSeqs) {
             my $trackDirForChrom = 
                 sub { "$trackDir/" . $_[0] . "/" . $track->{"track"}; };
             my $nameHandler = NameHandler->new($trackDirForChrom);
-            my $nameCallback = sub { $nameHandler->addName($_[0]) };
+            my $nameCallback = sub {
+                $_[0]->[$NameHandler::chromIndex] = $segName;
+                $nameHandler->addName($_[0]);
+            };
             my $iterator = $db->get_seq_stream(-seq_id => $segName,
                                                -type   => \@feature_types);
             my $flattener = BioperlFlattener->new($track->{"track"},

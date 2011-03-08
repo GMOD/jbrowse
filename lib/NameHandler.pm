@@ -9,7 +9,7 @@ use JSON 2;
 
 # index of the refseq name in the name array
 # TODO: find a central place to put this knowledge
-my $chromIndex = 3;
+our $chromIndex = 3;
 
 my $nameFile = "names.json";
 
