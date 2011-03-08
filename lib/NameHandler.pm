@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Carp;
 use Fcntl;
-use File::Path qw(make_path);
+use File::Path;
 use JSON 2;
 
 # index of the refseq name in the name array
@@ -47,7 +47,7 @@ sub addName {
 sub newChrom {
     my ($self, $chrom) = @_;
     my $chromDir = $self->{trackDirForChrom}->($chrom);
-    make_path($chromDir) unless (-d $chromDir);
+    mkpath($chromDir) unless (-d $chromDir);
     unlink "$chromDir/$nameFile";
 
     my $fh = new IO::File "$chromDir/$nameFile", O_WRONLY | O_CREAT | O_EXCL
