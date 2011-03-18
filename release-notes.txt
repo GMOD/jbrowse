@@ -1,3 +1,17 @@
+version 1.2.1, March 2011
+
+Fixed bugs in release 1.2:
+
+- problems with BED handling reported by Gregg Helt and Brenton Graveley
+
+- performance regression reported by Chris Childers
+
+- incorrect handling of names in ucsc-to-json.pl
+
+- wig2png slowdown reported by Brenton Graveley
+
+========================================================
+
 version 1.2, Febrary 2011
 
 These notes document changes since release 1.1 in September 2010.
