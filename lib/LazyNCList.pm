@@ -21,8 +21,7 @@ sub new {
                  'nclStack' => [[]],
                  'partialStack' => [[]],
                  'precedingFeats' => [],
-                 'sizeThresh' => $sizeThresh,
-                 'sameStart' => 0 };
+                 'sizeThresh' => $sizeThresh};
     bless $self, $class;
 
     return $self;
