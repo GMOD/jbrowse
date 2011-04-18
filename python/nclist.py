@@ -5,6 +5,8 @@
 #Bioinformatics, doi:10.1093/bioinformatics/btl647
 #http://bioinformatics.oxfordjournals.org/cgi/content/abstract/btl647v1
 
+from itertools import repeat
+
 class NCList:
     def __init__(self, startIndex, endIndex, sublistIndex):
         self.startIndex = startIndex
@@ -23,9 +25,9 @@ class NCList:
         start = self.startIndex
         end = self.endIndex
         
-        if (self.lastAdded is not None):
+        if self.lastAdded is None:
             self.lastAdded = features[0]
-            features = features[1:]
+            del(features[0])
             self.minStart = self.lastAdded[start]
             self.maxEnd = self.lastAdded[end]
             self.curList.append(self.lastAdded)
@@ -52,6 +54,8 @@ class NCList:
             # create a new sublist starting with this interval
             sublistStack.append(curList)
             curList = [feat]
+            if sublistIndex <= len(lastAdded):
+                lastAdded += repeat(None, sublistIndex - len(lastAdded) + 1)
             lastAdded[sublistIndex] = curList
         else:
             # find the right sublist for this interval
@@ -189,9 +193,10 @@ class LazyNCList:
 
             newNcl = self.makeNcl(level)
             lazyFeat = self.makeLazyFeat(newNcl)
+            # if lazyFeat doesn't get consumed by findContainingNcl, it'll be
+            # added to the next highest level on the next loop iteration
             lazyFeat = level.findContainingNcl(self.output, newNcl, lazyFeat)
-            # if lazyFeat wasn't consumed by findContainingNcl, it'll be added
-            # to the next highest level on the next loop iteration
+
             for ncl in level.ncls:
                 self.output(ncl.nestedList, ncl.ID)
 
