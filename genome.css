@@ -693,5 +693,6 @@ div.generic_parent-hist {
 .details-rubber-highlight {
     border: 1px solid black;
     background: #8087ff;
-    opacity: 0.3;
+    filter: alpha(opacity=30); /* IE */
+    opacity: 0.3;              /* standard */
 }
