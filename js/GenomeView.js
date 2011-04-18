@@ -361,6 +361,51 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
         dojo.stopEvent(event);
     };
 
+    view.hideRubberHighlight = function( start, end ) {
+        if( view.rubberHighlight ) {
+            view.rubberHighlight.style.visibility = 'hidden';
+        }
+    };
+    view.setRubberHighlight = function( start, end ) {
+        if( ! view.rubberHighlight ) {
+            h = view.rubberHighlight = document.createElement("div");
+            h.className = 'details-rubber-highlight';
+            //h.style.opacity = '50%';
+            h.style.background = 'purple';
+            h.style.position = 'absolute';
+            h.style.height = '100%';
+            view.scrollContainer.appendChild(h);
+        }
+        h = view.rubberHighlight;
+        h.style.visibility  = 'visible';
+        h.style.left   = view.winStartPos.x + Math.min(start.x,end.x) - dojo.coords(view.elem, true).x + 'px'
+        h.style.width  = Math.abs(end.x-start.x) + 'px';
+        //console.log({ left: h.style.left, end: end.x });
+    };
+    view.rubberEnd = function(event) {
+	dojo.forEach(view.dragEventHandles, dojo.disconnect);
+	view.rubberbanding = false;
+        dojo.stopEvent(event);
+        view.hideRubberHighlight();
+        view.elem.style.cursor = "url(\"openhand.cur\"), move";
+        document.body.style.cursor = "default";
+        console.log( 'end of rubber' );
+    };
+    view.rubberMove = function(event) {
+        view.setRubberHighlight( view.rubberbandStartPos, { x: event.clientX, y: event.clientY } );
+    };
+    view.rubberOut = function(event) {
+        if (!(event.relatedTarget || event.toElement)
+            || (htmlNode === (event.relatedTarget || event.toElement))
+            || (bodyNode === (event.relatedTarget || event.toElement))) {
+            dojo.forEach(view.dragEventHandles, dojo.disconnect);
+            view.rubberbanding = false;
+            dojo.stopEvent(event);
+            view.hideRubberHighlight();
+        }
+    };
+
+
     view.mouseDown = function(event) {
         if ("animation" in view) {
             if (view.animation instanceof Zoomer) {
@@ -373,21 +418,36 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
         }
 	if (Util.isRightButton(event)) return;
         dojo.stopEvent(event);
-	if (event.shiftKey || event.ctrlKey) return;
-	view.dragEventHandles =
-	    [
-	     dojo.connect(document.body, "mouseup", view.dragEnd),
-	     dojo.connect(document.body, "mousemove", view.dragMove),
-	     dojo.connect(document.body, "mouseout", view.checkDragOut)
-	     ];
 
-	view.dragging = true;
-	view.dragStartPos = {x: event.clientX,
-			     y: event.clientY};
-	view.winStartPos = view.getPosition();
+	if (event.shiftKey || event.ctrlKey) {
+            view.dragEventHandles =
+                [
+                 dojo.connect(document.body, "mouseup",   view.rubberEnd ),
+                 dojo.connect(document.body, "mousemove", view.rubberMove),
+                 dojo.connect(document.body, "mouseout",  view.rubberOut )
+                 ];
 
-	document.body.style.cursor = "url(\"closedhand.cur\"), move";
-	view.elem.style.cursor = "url(\"closedhand.cur\"), move";
+            view.rubberbanding = true;
+            view.rubberbandStartPos = {x: event.clientX,
+                                       y: event.clientY};
+            view.winStartPos = view.getPosition();
+            document.body.style.cursor = "text";
+            view.elem.style.cursor     = "text";
+        } else {
+            view.dragEventHandles =
+	        [
+                 dojo.connect(document.body, "mouseup", view.dragEnd),
+                 dojo.connect(document.body, "mousemove", view.dragMove),
+                 dojo.connect(document.body, "mouseout", view.checkDragOut)
+                ];
+
+            view.dragging = true;
+            view.dragStartPos = {x: event.clientX,
+                                 y: event.clientY};
+            view.winStartPos = view.getPosition();
+            document.body.style.cursor = "url(\"closedhand.cur\"), move";
+            view.elem.style.cursor     = "url(\"closedhand.cur\"), move";
+        }
     };
 
     dojo.connect(view.elem, "mousedown", view.mouseDown);
