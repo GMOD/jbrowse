@@ -366,6 +366,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
             view.rubberHighlight.style.visibility = 'hidden';
         }
     };
+    // draws the rubber-banding highlight region from start.x to end.x
     view.setRubberHighlight = function( start, end ) {
         if( ! view.rubberHighlight ) {
             h = view.rubberHighlight = document.createElement("div");
@@ -387,9 +388,13 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 	view.rubberbanding = false;
         dojo.stopEvent(event);
         view.hideRubberHighlight();
+        var start = view.rubberbandStartPos;
+        var end   = { x: event.clientX, y: event.clientY };
+        var h_start_bp = view.absXtoBp( Math.min(start.x,end.x) );
+        var h_end_bp   = view.absXtoBp( Math.max(start.x,end.x) );
         view.elem.style.cursor = "url(\"openhand.cur\"), move";
         document.body.style.cursor = "default";
-        console.log( 'end of rubber' );
+        view.setLocation( view.ref, h_start_bp, h_end_bp );
     };
     view.rubberMove = function(event) {
         view.setRubberHighlight( view.rubberbandStartPos, { x: event.clientX, y: event.clientY } );
@@ -717,6 +722,11 @@ GenomeView.prototype.showDone = function() {
 
 GenomeView.prototype.pxToBp = function(pixels) {
     return pixels / this.pxPerBp;
+};
+
+// convert absolute pixels X position to base pair position on the current reference sequence
+GenomeView.prototype.absXtoBp = function(pixels) {
+    return this.pxToBp( this.getPosition().x + this.offset - dojo.coords(this.elem, true).x + pixels );
 };
 
 GenomeView.prototype.bpToPx = function(bp) {
