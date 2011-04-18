@@ -689,3 +689,9 @@ div.generic_parent-hist {
     min-width: 1px;
     cursor: pointer;
 }
+
+.details-rubber-highlight {
+    border: 1px solid black;
+    background: #8087ff;
+    opacity: 0.3;
+}
