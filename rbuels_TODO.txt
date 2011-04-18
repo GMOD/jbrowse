@@ -80,5 +80,27 @@
 14. Move the jbrowse repo to be under the GMOD org,
     http://github.com/gmod
 
+15. Browser JS class should be renamed to JBrowse or JBrowse.Browser
+    to avoid collisions.  This might be rather disruptive, but is very
+    much for the best.  And the faster it's done, the better.  Like
+    ripping off a band-aid.
+
+# feature density histograms are very nice
+
+16. Need support for zooming from mouse-wheel events.  Unmodified
+    mouse wheel event is scrolling up/down through tracks, which is
+    probably best, but maybe Shift-MouseWheel should zoom.
+
+17. Default zoom effect speed is a bit slow, might want to speed it up
+    a bit.
+
+18. Need a 'Region' pane like GBrowse 2.x.
+
+19. Need GBrowse-like rubberbanding.
+
+20. --autocomplete option to flatfile-to-json needs input validation.
+    Does not die on an invalid value.
+
+
 
 
