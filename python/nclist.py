@@ -5,13 +5,11 @@
 #Bioinformatics, doi:10.1093/bioinformatics/btl647
 #http://bioinformatics.oxfordjournals.org/cgi/content/abstract/btl647v1
 
-from itertools import repeat
-
 class NCList:
-    def __init__(self, startIndex, endIndex, sublistIndex):
-        self.startIndex = startIndex
-        self.endIndex = endIndex
-        self.sublistIndex = sublistIndex
+    def __init__(self, start, end, addSublist):
+        self.start = start
+        self.end = end
+        self.addSublist = addSublist
         self.sublistStack = []
         self.count = 0
         self.lastAdded = None
@@ -22,41 +20,39 @@ class NCList:
         self.ID = None
 
     def addFeatures(self, features):
-        start = self.startIndex
-        end = self.endIndex
+        start = self.start
+        end = self.end
         
         if self.lastAdded is None:
             self.lastAdded = features[0]
             del(features[0])
-            self.minStart = self.lastAdded[start]
-            self.maxEnd = self.lastAdded[end]
+            self.minStart = start(self.lastAdded)
+            self.maxEnd = end(self.lastAdded)
             self.curList.append(self.lastAdded)
 
         for feat in features:
             # check if the input is sorted by the NCList sort
             # (increasing on start, decreasing on end)
-            if ( (self.lastAdded[start] > feat[start])
-                 or ( (self.lastAdded[start] == feat[start])
+            if ( (start(self.lastAdded) > start(feat))
+                 or ( (start(self.lastAdded) == start(feat))
                       and
-                      (self.lastAdded[end] < feat[end]) ) ):
+                      (end(self.lastAdded) < end(feat)) ) ):
                 raise InputNotSortedError
 
-            self.maxEnd = max(self.maxEnd, feat[end])
+            self.maxEnd = max(self.maxEnd, end(feat))
             self.curList = self._addSingle(feat, self.lastAdded,
                                            self.sublistStack, self.curList,
-                                           end, self.sublistIndex)
+                                           end, self.addSublist)
             self.lastAdded = feat
 
     def _addSingle(self, feat, lastAdded, sublistStack,
-                   curList, end, sublistIndex):
+                   curList, end, addSublist):
         # if this interval is contained in the previous interval,
-        if (feat[end] < lastAdded[end]):
+        if end(feat) < end(lastAdded):
             # create a new sublist starting with this interval
             sublistStack.append(curList)
             curList = [feat]
-            if sublistIndex <= len(lastAdded):
-                lastAdded += repeat(None, sublistIndex - len(lastAdded) + 1)
-            lastAdded[sublistIndex] = curList
+            addSublist(lastAdded, curList)
         else:
             # find the right sublist for this interval
             while True:
@@ -86,12 +82,12 @@ class NCList:
 
 
 class LazyNCList:
-    def __init__(self, start, end, sublistIndex, lazyIndex,
+    def __init__(self, start, end, addSublist, makeLazy,
                  measure, output, sizeThresh):
-        self.startIndex = start
-        self.endIndex = end
-        self.sublistIndex = sublistIndex
-        self.lazyIndex = lazyIndex
+        self.start = start
+        self.end = end
+        self.addSublist = addSublist
+        self.makeLazy = makeLazy
         self.measure = measure
         self.output = output
         self.sizeThresh = sizeThresh
@@ -103,14 +99,14 @@ class LazyNCList:
         return self.topList
 
     def addSorted(self, feat):
-        start = self.startIndex
-        end = self.endIndex
+        start = self.start
+        end = self.end
 
         if self.lastAdded is not None:
-            if self.lastAdded[start] > feat[start]:
+            if start(self.lastAdded) > start(feat):
                 raise InputNotSortedError
-            if ( (self.lastAdded[start] == feat[start])
-                 and (self.lastAdded[end] < feat[end]) ):
+            if ( (start(self.lastAdded) == start(feat))
+                 and (end(self.lastAdded) < end(feat)) ):
                 raise InputNotSortedError
 
         self.lastAdded = feat
@@ -128,9 +124,9 @@ class LazyNCList:
             #     chunk beyond that feature
             if ( (level.chunkSize > self.sizeThresh)
                  or ( (level.precedingFeat is not None)
-                      and ( level.precedingFeat[start]
-                            == level.current[0][start] )
-                      and ( level.precedingFeat[end] < feat[end] ) ) ):
+                      and ( start(level.precedingFeat)
+                            == start(level.current[0]) )
+                      and ( end(level.precedingFeat) < end(feat) ) ) ):
                 # then we're finished with the current "partial" chunk (i.e.,
                 # it's now a "complete" chunk rather than a partial one), so
                 # create a new NCList to hold all the features in this chunk.
@@ -145,7 +141,8 @@ class LazyNCList:
                 level.chunkSize = featSize
 
                 # create a lazy ("fake") feature to represent this chunk
-                lazyFeat = self.makeLazyFeat(newNcl)
+                lazyFeat = self.makeLazy(newNcl.minStart, newNcl.maxEnd,
+                                         newNcl.ID)
 
                 feat = level.findContainingNcl(self.output, newNcl, lazyFeat)
 
@@ -179,12 +176,6 @@ class LazyNCList:
         result.addFeatures(level.current)
         return result
 
-    def makeLazyFeat(self, newNcl):
-        result = []
-        result[self.startIndex] = newNcl.minStart
-        result[self.endIndex] = newNcl.maxEnd
-        result[self.lazyIndex] = { chunk: newNcl.ID }
-
     def finish(self):
         lazyFeat = None
         for level in self.levels[0:len(self.levels) - 1]:
@@ -192,7 +183,7 @@ class LazyNCList:
                 level.current.append(lazyFeat)
 
             newNcl = self.makeNcl(level)
-            lazyFeat = self.makeLazyFeat(newNcl)
+            lazyFeat = self.makeLazy(newNcl.minStart, newNcl.maxEnd, newNcl.ID)
             # if lazyFeat doesn't get consumed by findContainingNcl, it'll be
             # added to the next highest level on the next loop iteration
             lazyFeat = level.findContainingNcl(self.output, newNcl, lazyFeat)
@@ -241,7 +232,7 @@ class LazyLevel:
                 # add the lazy feat to the existing NCL
                 existingNcl.addFeatures([lazyFeat])
                 # and add the new NCL to the stack
-                self.ncls.append(lazyFeat)
+                self.ncls.append(newNcl)
                 # and we're done
                 return
             else:
