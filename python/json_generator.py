@@ -9,7 +9,7 @@ from array_repr import ArrayRepr
 from nclist import LazyNCList
 
 class JsonIntervalWriter:
-    def __init__(self, store, chunkBytes, pathTempl, urlTempl
+    def __init__(self, store, chunkBytes, pathTempl, urlTempl,
                  featureProto, classes):
         self.store = store
         self.chunkBytes = chunkBytes
@@ -32,16 +32,16 @@ class JsonIntervalWriter:
             # (ignoring, for now, the extra characters for sublist brackets)
             return len(jenc.encode(obj)) + 1
 
-        lazyClass = len(classes)
+        self.lazyClass = len(classes)
         classes = classes + ["Start", "End", "Chunk"]
         attrs = ArrayRepr(classes)
         def makeLazy(start, end, chunkId):
-            return [lazyClass, start, end, chunkId]
+            return [self.lazyClass, start, end, chunkId]
         start = attrs.makeFastGetter("Start")
         end = attrs.makeFastGetter("End")
         self.features = LazyNCList(start,
                                    end,
-                                   attrs.makeSetter("Sublist")
+                                   attrs.makeSetter("Sublist"),
                                    makeLazy,
                                    measure,
                                    output,
@@ -54,6 +54,7 @@ class JsonIntervalWriter:
         self.features.finish()
         return {
             'classes': self.classes,
+            'lazyClass': self.lazyClass,
             'nclist': self.features.topLevel,
             'prototype': self.featureProto,
             'urlTemplate': self.urlTempl
@@ -62,7 +63,7 @@ class JsonIntervalWriter:
 class JsonHistWriter:
     #this series of numbers is used in JBrowse for zoom level relationships
     multiples = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000,
-                 10_000, 20_000, 50_000, 100_000, 200_000, 500_000, 1_000_000];
+                 10000, 20000, 50000, 100000, 200000, 500000, 1000000];
     histChunkSize = 10000
 
     def __init__(self, store, refEnd, classes, featureCount = None):
@@ -152,7 +153,7 @@ class JsonHistWriter:
                     'arrayParams': {
                         'length': len(curHist),
                         'urlTemplate':
-                            "hist-%i-%i.%s" % (histBases, chunk, self.ext)
+                            "hist-%i-%i.%s" % (histBases, chunk, self.ext),
                         'chunkSize': histChunkSize
                     }
                 }
@@ -204,7 +205,7 @@ class JsonGenerator:
         # relative to the directory containing the "trackData.json" file
         lazyUrlTemplate = "lazyfeatures-{chunk}" + self.ext
         self.intervalWriter = JsonIntervalWriter(self.store, chunkBytes,
-                                                 lazyPathTempl, lazyUrlTempl
+                                                 lazyPathTempl, lazyUrlTempl,
                                                  featureProto, classes)
 
         self.histWriter = JsonHistWriter(store, refEnd, classes, featureCount)
@@ -222,7 +223,7 @@ class JsonGenerator:
     def hasFeatures(self):
         return self.count > 0
 
-    def generateTrack:
+    def generateTrack(self):
         ivalData = self.intervalWriter.finish()
         histData = self.histWriter.finish()
         
