@@ -54,9 +54,9 @@ class JsonIntervalWriter:
         self.features.finish()
         return {
             'classes': self.classes,
-            'featureNCList': self.features.topLevel,
-            'featureProto': self.featureProto,
-            'lazyfeatureUrlTemplate': self.urlTempl
+            'nclist': self.features.topLevel,
+            'prototype': self.featureProto,
+            'urlTemplate': self.urlTempl
         }
 
 class JsonHistWriter:
@@ -167,8 +167,8 @@ class JsonHistWriter:
                                         float(len(self.hists[j])) ) })
 
         return {
-            'histogramMeta': histogramMeta,
-            'histogramStats': histStats
+            'meta': histogramMeta,
+            'stats': histStats
         }
 
 
@@ -230,7 +230,7 @@ class JsonGenerator:
             os.path.append(self.outDir, "trackData." + self.ext),
             {
                 'featureCount': self.count,
-                'intervalData': ivalData,
-                'histData': histData
+                'intervals': ivalData,
+                'histograms': histData
             }
         )
