@@ -37,8 +37,8 @@ class JsonIntervalWriter:
         attrs = ArrayRepr(classes)
         def makeLazy(start, end, chunkId):
             return [lazyClass, start, end, chunkId]
-        self.start = attrs.makeFastGetter("Start")
-        self.end = attrs.makeFastGetter("End")
+        start = attrs.makeFastGetter("Start")
+        end = attrs.makeFastGetter("End")
         self.features = LazyNCList(start,
                                    end,
                                    attrs.makeSetter("Sublist")
