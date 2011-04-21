@@ -6,22 +6,71 @@ import math
 import shutil
 
 from array_repr import ArrayRepr
+from nclist import LazyNCList
 
-class JsonGenerator:
+class JsonIntervalWriter:
+    def __init__(self, store, chunkBytes, pathTempl, urlTempl
+                 featureProto, classes):
+        self.store = store
+        self.chunkBytes = chunkBytes
+        self.featureProto = featureProto
+        self.classes = classes
+        self.pathTempl = pathTempl
+        self.urlTempl = urlTempl
+        self.count = 0
+
+        # output writes out the given data for the given chunk to the
+        # appropriate file
+        def output(toWrite, chunkId):
+            path = re.sub("\{chunk\}", str(chunkId), self.pathTempl)
+            self.store.put(path, toWrite)
+
+        jenc = json.JSONEncoder(separators=(',', ':'))
+        # measure returns the size of the given object, encoded as JSON
+        def measure(obj):
+            # add 1 for the comma between features
+            # (ignoring, for now, the extra characters for sublist brackets)
+            return len(jenc.encode(obj)) + 1
+
+        lazyClass = len(classes)
+        classes = classes + ["Start", "End", "Chunk"]
+        attrs = ArrayRepr(classes)
+        def makeLazy(start, end, chunkId):
+            return [lazyClass, start, end, chunkId]
+        self.start = attrs.makeFastGetter("Start")
+        self.end = attrs.makeFastGetter("End")
+        self.features = LazyNCList(start,
+                                   end,
+                                   attrs.makeSetter("Sublist")
+                                   makeLazy,
+                                   measure,
+                                   output,
+                                   chunkBytes)
+
+    def addSorted(self, feat):
+        self.features.addSorted(feat)
+
+    def finish(self):
+        self.features.finish()
+        return {
+            'classes': self.classes,
+            'featureNCList': self.features.topLevel,
+            'featureProto': self.featureProto,
+            'lazyfeatureUrlTemplate': self.urlTempl
+        }
+
+class JsonHistWriter:
     #this series of numbers is used in JBrowse for zoom level relationships
     multiples = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000,
                  10_000, 20_000, 50_000, 100_000, 200_000, 500_000, 1_000_000];
     histChunkSize = 10000
 
-    def __init__(outDir, chunkBytes, compress, label, featureProto,
-                 refStart, refEnd, classes, featureCount = None):
-        self.outDir = outDir
-        self.chunkBytes = chunkBytes
-        self.compress = compress
-        self.label = label
-        self.featureProto = featureProto
-        self.refStart = refStart
+    def __init__(self, store, refEnd, classes, featureCount = None):
+        self.store = store
         self.refEnd = refEnd
+        attrs = ArrayRepr(classes)
+        self.start = self.attrs.makeFastGetter("Start")
+        self.end = self.attrs.makeFastGetter("End")
         self.ext = "jsonz" if compress else "json"
         self.count = 0
 
@@ -55,44 +104,8 @@ class JsonGenerator:
             if (binBases * 100) > refEnd:
                 break
 
-        if os.path.exists(outDir):
-            shutil.rmtree(outDir)
-        os.makedirs(outDir)
-
-        lazyPathTemplate = os.path.append(outDir,
-                                          "lazyfeatures-{chunk}." + self.ext)
-        self.jenc = json.JSONEncoder(separators=(',', ':'))
-        # output writes out the given data for the given chunk to the
-        # appropriate file
-        def output(toWrite, chunkId):
-            path = re.sub("\{chunk\}", str(chunkId), lazyPathTemplate)
-            self.writeJSON(path, self.jenc.encode(toWrite))
-
-        # measure returns the size of the given object, encoded as JSON
-        def measure(obj):
-            # add 1 for the comma between features
-            # (ignoring, for now, the extra characters for sublist brackets)
-            return len(self.jenc.encode(obj)) + 1
-
-        lazyClass = len(classes)
-        classes = classes + ["Start", "End", "Chunk"]
-        self.attrs = ArrayRepr(classes)
-        def makeLazy(start, end, chunkId):
-            return [lazyClass, start, end, chunkId]
-        self.start = self.attrs.makeFastGetter("Start")
-        self.end = self.attrs.makeFastGetter("End")
-        self.features = LazyNCList(self.start,
-                                   self.end,
-                                   self.attrs.makeSetter("Sublist")
-                                   makeLazy,
-                                   measure,
-                                   output,
-                                   chunkBytes)
-
-    def addSorted(self, feat):
-        self.features.addSorted(feat)
+    def addFeature(self, feat):
         self.count += 1
-
         startBase = max(0, min(self.start(feat), self.refEnd))
         endBase = min(self.end(feat), self.refEnd)
         if endBase < 0:
@@ -107,17 +120,7 @@ class JsonGenerator:
             for j in xrange(firstBin, lastBin + 1):
                 curHist[j] += 1
 
-    @property
-    def featureCount(self):
-        return self.count
-
-    @property
-    def hasFeatures(self):
-        return self.count > 0
-
-    def generateTrack:
-        self.features.finish()
-
+    def finish(self):
         # approximate the number of bases per histogram bin at the zoom
         # level where FeatureTrack.js switches to histogram view, by default
         histBinThresh = (self.refEnd * 2.5) / float(self.count);
@@ -128,7 +131,6 @@ class JsonGenerator:
                 break
 
         histogramMeta = []
-        jenc = json.JSONEncoder(separators=(',', ':'))
         # Generate more zoomed-out histograms so that the client doesn't
         # have to load all of the histogram data when there's a lot of it.
         for j in xrange(i - 1, len(self.hists)):
@@ -140,7 +142,7 @@ class JsonGenerator:
                 path = os.path.append(self.outDir,
                                       "hist-%i-%i.%s" %
                                       (histBases, chunk, self.ext) )
-                self.writeJSON(path,
+                self.store.put(path,
                                curHist[(chunk * histChunkSize)
                                        : ((chunk + 1) * histChunkSize) - 1] )
 
@@ -164,26 +166,71 @@ class JsonGenerator:
                               'mean': ( sum(self.hists[j]) /
                                         float(len(self.hists[j])) ) })
 
-        trackData = 
+        return {
+            'histogramMeta': histogramMeta,
+            'histogramStats': histStats
+        }
 
-        writeJSON(
-            os.path.append(self.outDir, "trackData." + self.ext),
-            {
-                #'label': self.label,
-                'classes': self.classes,
-                'featureCount': self.count,
-                'featureNCList': self.features.topLevel,
-                'featureProto': self.featureProto,
-                'lazyfeatureUrlTemplate': "lazyfeatures-{chunk}" + self.ext,
-                'histogramMeta': histogramMeta,
-                'histogramStats': histStats
-            }
-        )
-            
-    def writeJSON(self, path, data):
+
+class JsonFileStorage:
+    def __init__(self, outDir, compress):
+        self.outDir = outDir
+        if os.path.exists(outDir):
+            shutil.rmtree(outDir)
+        os.makedirs(outDir)
+
+    def put(self, path, obj):
         if self.compress:
             fh = GzipFile(path, "w")
         else:
             fh = open(path, "w")
-        fh.write(data)
-        fh.close()
+        json.dump(data, fh, check_circular = False, separators = (',', ':'))
+        fh.close()        
+
+class JsonGenerator:
+    def __init__(self, outDir, chunkBytes, compress,
+                 refEnd, classes, featureProto = None, featureCount = None):
+        self.store = JsonFileStorage(outDir, compress)
+        self.outDir = outDir
+        self.chunkBytes = chunkBytes
+        self.featureProto = featureProto
+        self.refEnd = refEnd
+        self.ext = "jsonz" if compress else "json"
+        self.count = 0
+
+        lazyPathTemplate = os.path.append(outDir,
+                                          "lazyfeatures-{chunk}." + self.ext)
+        # the client code interprets this template as being
+        # relative to the directory containing the "trackData.json" file
+        lazyUrlTemplate = "lazyfeatures-{chunk}" + self.ext
+        self.intervalWriter = JsonIntervalWriter(self.store, chunkBytes,
+                                                 lazyPathTempl, lazyUrlTempl
+                                                 featureProto, classes)
+
+        self.histWriter = JsonHistWriter(store, refEnd, classes, featureCount)
+
+    def addSorted(self, feat):
+        self.count += 1
+        self.intervalWriter.addSorted(feat)
+        self.histWriter.addFeature(feat)
+
+    @property
+    def featureCount(self):
+        return self.count
+
+    @property
+    def hasFeatures(self):
+        return self.count > 0
+
+    def generateTrack:
+        ivalData = self.intervalWriter.finish()
+        histData = self.histWriter.finish()
+        
+        self.store.write(
+            os.path.append(self.outDir, "trackData." + self.ext),
+            {
+                'featureCount': self.count,
+                'intervalData': ivalData,
+                'histData': histData
+            }
+        )
