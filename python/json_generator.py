@@ -50,7 +50,8 @@ class JsonGenerator:
         for multiple in multiples:
             binBases = self.histBinBases * multiple
             self.hists.append(array('l', itertools.repeat(0, \
-                              int(math.ceil(refEnd / float(binBases))))))
+                              int(math.ceil(refEnd / float(binBases))))) )
+            # somewhat arbitrarily cut off the histograms at 100 bins
             if (binBases * 100) > refEnd:
                 break
 
@@ -69,13 +70,15 @@ class JsonGenerator:
 
         # measure returns the size of the given object, encoded as JSON
         def measure(obj):
-            return len(self.jenc.encode(obj))
+            # add 1 for the comma between features
+            # (ignoring, for now, the extra characters for sublist brackets)
+            return len(self.jenc.encode(obj)) + 1
 
         lazyClass = len(classes)
         classes = classes + ["Start", "End", "Chunk"]
         self.attrs = ArrayRepr(classes)
         def makeLazy(start, end, chunkId):
-            return [start, end, chunkId]
+            return [lazyClass, start, end, chunkId]
         self.start = self.attrs.makeFastGetter("Start")
         self.end = self.attrs.makeFastGetter("End")
         self.features = LazyNCList(self.start,
@@ -95,9 +98,9 @@ class JsonGenerator:
         if endBase < 0:
             return
 
-        for i in xrange(0, len(histograms) - 1):
+        for i in xrange(0, len(self.hists) - 1):
             binBases = self.histBinBases * multiples[i]
-            curHist = histograms[i]
+            curHist = self.hists[i]
 
             firstBin = startBase / binBases
             lastBin = int(math.ceil(startBase / float(binBases)))
@@ -128,9 +131,7 @@ class JsonGenerator:
         jenc = json.JSONEncoder(separators=(',', ':'))
         # Generate more zoomed-out histograms so that the client doesn't
         # have to load all of the histogram data when there's a lot of it.
-        for j in xrange(i - 1, len(multiples)):
-            if j >= len(self.hists):
-                break
+        for j in xrange(i - 1, len(self.hists)):
             curHist = self.hists[j]
             histBases = self.histBinBases * multiples[j]
 
@@ -156,9 +157,7 @@ class JsonGenerator:
             );
 
         histStats = []
-        for j in xrange(i - 1, len(multiples)):
-            if j >= len(self.hists):
-                break
+        for j in xrange(i - 1, len(self.hists)):
             binBases = self.histBinBases * multiples[j]
             histStats.append({'bases': binBases,
                               'max': max(self.hists[j]),
