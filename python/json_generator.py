@@ -34,7 +34,7 @@ class JsonIntervalWriter:
             return len(jenc.encode(obj)) + 1
 
         self.lazyClass = len(classes)
-        classes = classes.append(["Start", "End", "Chunk"])
+        classes.append(["Start", "End", "Chunk"])
         attrs = ArrayRepr(classes)
         if len(isArrayAttr) < len(classes):
             isArrayAttr += [None] * (len(classes) - len(isArrayAttr))
@@ -181,6 +181,7 @@ class JsonHistWriter:
 class JsonFileStorage:
     def __init__(self, outDir, compress):
         self.outDir = outDir
+        self.compress = compress
         if os.path.exists(outDir):
             shutil.rmtree(outDir)
         os.makedirs(outDir)
@@ -190,7 +191,7 @@ class JsonFileStorage:
             fh = GzipFile(path, "w")
         else:
             fh = open(path, "w")
-        json.dump(data, fh, check_circular = False, separators = (',', ':'))
+        json.dump(obj, fh, check_circular = False, separators = (',', ':'))
         fh.close()        
 
 class JsonGenerator:
@@ -208,9 +209,9 @@ class JsonGenerator:
 
         lazyPathTempl = os.path.join(outDir,
                                      "lazyfeatures-{chunk}." + self.ext)
-        # the client code interprets this template as being
+        # the client code interprets this URL template as being
         # relative to the directory containing the "trackData.json" file
-        lazyUrlTempl = "lazyfeatures-{chunk}" + self.ext
+        lazyUrlTempl = "lazyfeatures-{chunk}." + self.ext
         self.intervalWriter = JsonIntervalWriter(self.store, chunkBytes,
                                                  lazyPathTempl, lazyUrlTempl,
                                                  featureProtos, classes,
@@ -243,7 +244,7 @@ class JsonGenerator:
         if self.writeHists:
             trackData['histograms'] = self.histWriter.finish()
 
-        self.store.write(
+        self.store.put(
             os.path.join(self.outDir, "trackData." + self.ext),
             trackData
         )

@@ -1,8 +1,8 @@
 import os
-
 from json_generator import JsonGenerator
 
 def dbImport(conn, query, chroms, outDir, chunkBytes=100000, compress=True):
+    query += " order by Start asc, End desc"
     for chrom in chroms:
         cur = conn.cursor()
         cur.execute(query, (chrom,))
@@ -12,7 +12,7 @@ def dbImport(conn, query, chroms, outDir, chunkBytes=100000, compress=True):
                                 classes, isArrayAttr=[],
                                 featureProtos=[{'Chrom': chrom}])
         for row in cur:
-            jsongen.addSorted(row)
+            jsongen.addSorted((0,) + row)
 
         jsongen.generateTrack()
         

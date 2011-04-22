@@ -94,6 +94,7 @@ class LazyNCList:
         self.topList = []
         self.levels = [LazyLevel()]
         self.chunkNum = 0
+        self.lastAdded = None
 
     def nestedList(self):
         return self.topList
@@ -110,8 +111,6 @@ class LazyNCList:
                 raise InputNotSortedError
 
         self.lastAdded = feat
-
-        chunkSizes = self.chunkSizes
 
         for level in self.levels:
             featSize = self.measure(feat)
@@ -170,8 +169,8 @@ class LazyNCList:
         self.levels.append(newToplevel)
 
     def makeNcl(self, level):
-        result = NCList(self.startIndex, self.endIndex, self.sublistIndex)
-        result.ID(self.chunkNum)
+        result = NCList(self.start, self.end, self.addSublist)
+        result.ID = self.chunkNum
         self.chunkNum += 1
         result.addFeatures(level.current)
         return result
@@ -197,7 +196,7 @@ class LazyNCList:
             level.current.append(lazyFeat)
 
         newNcl = self.makeNcl(level)
-        self.topLevel = newNcl
+        self.topLevel = newNcl.nestedList
 
 
 class InputNotSortedError(Exception):
