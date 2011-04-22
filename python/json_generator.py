@@ -10,14 +10,14 @@ from nclist import LazyNCList
 
 class JsonIntervalWriter:
     def __init__(self, store, chunkBytes, pathTempl, urlTempl,
-                 featureProto, classes):
+                 featureProtos, classes, isArrayAttr):
         self.store = store
         self.chunkBytes = chunkBytes
-        self.featureProto = featureProto
+        self.featureProtos = featureProtos
         self.classes = classes
+        self.isArrayAttr = isArrayAttr
         self.pathTempl = pathTempl
         self.urlTempl = urlTempl
-        self.count = 0
 
         # output writes out the given data for the given chunk to the
         # appropriate file
@@ -33,8 +33,10 @@ class JsonIntervalWriter:
             return len(jenc.encode(obj)) + 1
 
         self.lazyClass = len(classes)
-        classes = classes + ["Start", "End", "Chunk"]
+        classes = classes.append(["Start", "End", "Chunk"])
         attrs = ArrayRepr(classes)
+        if len(isArrayAttr) < len(classes):
+            isArrayAttr += [None] * (len(classes) - len(isArrayAttr))
         def makeLazy(start, end, chunkId):
             return [self.lazyClass, start, end, chunkId]
         start = attrs.makeFastGetter("Start")
@@ -54,9 +56,10 @@ class JsonIntervalWriter:
         self.features.finish()
         return {
             'classes': self.classes,
+            'isArrayAttr': self.isArrayAttr,
             'lazyClass': self.lazyClass,
             'nclist': self.features.topLevel,
-            'prototype': self.featureProto,
+            'prototypes': self.featureProtos,
             'urlTemplate': self.urlTempl
         }
 
@@ -189,13 +192,15 @@ class JsonFileStorage:
         fh.close()        
 
 class JsonGenerator:
-    def __init__(self, outDir, chunkBytes, compress,
-                 refEnd, classes, featureProto = None, featureCount = None):
+    def __init__(self, outDir, chunkBytes, compress, classes, isArrayAttr = [],
+                 refEnd = None, writeHists = False, featureProtos = None,
+                 featureCount = None):
         self.store = JsonFileStorage(outDir, compress)
         self.outDir = outDir
         self.chunkBytes = chunkBytes
         self.featureProto = featureProto
         self.refEnd = refEnd
+        self.writeHists = writeHists
         self.ext = "jsonz" if compress else "json"
         self.count = 0
 
@@ -206,14 +211,18 @@ class JsonGenerator:
         lazyUrlTemplate = "lazyfeatures-{chunk}" + self.ext
         self.intervalWriter = JsonIntervalWriter(self.store, chunkBytes,
                                                  lazyPathTempl, lazyUrlTempl,
-                                                 featureProto, classes)
-
-        self.histWriter = JsonHistWriter(store, refEnd, classes, featureCount)
+                                                 featureProto, classes,
+                                                 isArrayAttr)
+        if writeHists:
+            assert((refEnd is not None) and (refEnd > 0))
+            self.histWriter = JsonHistWriter(store, refEnd,
+                                             classes, featureCount)
 
     def addSorted(self, feat):
         self.count += 1
         self.intervalWriter.addSorted(feat)
-        self.histWriter.addFeature(feat)
+        if self.writeHists:
+            self.histWriter.addFeature(feat)
 
     @property
     def featureCount(self):
@@ -224,14 +233,15 @@ class JsonGenerator:
         return self.count > 0
 
     def generateTrack(self):
-        ivalData = self.intervalWriter.finish()
-        histData = self.histWriter.finish()
-        
+        trackData = {
+            'featureCount': self.count,
+            'intervals': self.intervalWriter.finish(),
+        }
+
+        if self.writeHists:
+            trackData['histograms'] = self.histWriter.finish()
+
         self.store.write(
             os.path.append(self.outDir, "trackData." + self.ext),
-            {
-                'featureCount': self.count,
-                'intervals': ivalData,
-                'histograms': histData
-            }
+            trackData
         )
