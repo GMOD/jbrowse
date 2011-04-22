@@ -3,6 +3,7 @@ from gzip import GzipFile
 import itertools
 import json
 import math
+import os
 import shutil
 
 from array_repr import ArrayRepr
@@ -37,6 +38,7 @@ class JsonIntervalWriter:
         attrs = ArrayRepr(classes)
         if len(isArrayAttr) < len(classes):
             isArrayAttr += [None] * (len(classes) - len(isArrayAttr))
+        isArrayAttr[self.lazyClass] = {'Sublist': True}
         def makeLazy(start, end, chunkId):
             return [self.lazyClass, start, end, chunkId]
         start = attrs.makeFastGetter("Start")
@@ -143,9 +145,9 @@ class JsonHistWriter:
 
             chunkCount = int(math.ceil(len(curHist) / float(histChunkSize)))
             for chunk in xrange(0, chunkCount + 1):
-                path = os.path.append(self.outDir,
-                                      "hist-%i-%i.%s" %
-                                      (histBases, chunk, self.ext) )
+                path = os.path.join(self.outDir,
+                                    "hist-%i-%i.%s" %
+                                    (histBases, chunk, self.ext) )
                 self.store.put(path,
                                curHist[(chunk * histChunkSize)
                                        : ((chunk + 1) * histChunkSize) - 1] )
@@ -198,20 +200,20 @@ class JsonGenerator:
         self.store = JsonFileStorage(outDir, compress)
         self.outDir = outDir
         self.chunkBytes = chunkBytes
-        self.featureProto = featureProto
+        self.featureProtos = featureProtos
         self.refEnd = refEnd
         self.writeHists = writeHists
         self.ext = "jsonz" if compress else "json"
         self.count = 0
 
-        lazyPathTemplate = os.path.append(outDir,
-                                          "lazyfeatures-{chunk}." + self.ext)
+        lazyPathTempl = os.path.join(outDir,
+                                     "lazyfeatures-{chunk}." + self.ext)
         # the client code interprets this template as being
         # relative to the directory containing the "trackData.json" file
-        lazyUrlTemplate = "lazyfeatures-{chunk}" + self.ext
+        lazyUrlTempl = "lazyfeatures-{chunk}" + self.ext
         self.intervalWriter = JsonIntervalWriter(self.store, chunkBytes,
                                                  lazyPathTempl, lazyUrlTempl,
-                                                 featureProto, classes,
+                                                 featureProtos, classes,
                                                  isArrayAttr)
         if writeHists:
             assert((refEnd is not None) and (refEnd > 0))
@@ -242,6 +244,6 @@ class JsonGenerator:
             trackData['histograms'] = self.histWriter.finish()
 
         self.store.write(
-            os.path.append(self.outDir, "trackData." + self.ext),
+            os.path.join(self.outDir, "trackData." + self.ext),
             trackData
         )
