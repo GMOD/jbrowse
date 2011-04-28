@@ -25,7 +25,7 @@ class NCList:
         
         if self.lastAdded is None:
             self.lastAdded = features[0]
-            del(features[0])
+            features = features[1:]
             self.minStart = start(self.lastAdded)
             self.maxEnd = end(self.lastAdded)
             self.curList.append(self.lastAdded)
@@ -64,7 +64,7 @@ class NCList:
                 else:
                     # if the last interval in the last sublist in sublistStack
                     # ends after the end of the current interval,
-                    if sublistStack[-1][-1][end] > feat[end]:
+                    if end(sublistStack[-1][-1]) > end(feat):
                         # then curList is the first(deepest) sublist
                         # that the current feature fits into, and
                         # we add the current feature to curList
@@ -92,7 +92,7 @@ class LazyNCList:
         self.output = output
         self.sizeThresh = sizeThresh
         self.topList = []
-        self.levels = [LazyLevel()]
+        self.levels = []
         self.chunkNum = 0
         self.lastAdded = None
 
@@ -109,11 +109,10 @@ class LazyNCList:
             if ( (start(self.lastAdded) == start(feat))
                  and (end(self.lastAdded) < end(feat)) ):
                 raise InputNotSortedError
-
         self.lastAdded = feat
 
+        featSize = self.measure(feat)
         for level in self.levels:
-            featSize = self.measure(feat)
             level.chunkSize += featSize
 
             # If:
@@ -136,8 +135,9 @@ class LazyNCList:
                 level.precedingFeat = level.current[-1]
 
                 # start a new partial chunk with the current feature
-                level.current = [feat]
-                level.chunkSize = featSize
+                level.reset(feat, featSize)
+                #level.current = [feat]
+                #level.chunkSize = featSize
 
                 # create a lazy ("fake") feature to represent this chunk
                 lazyFeat = self.makeLazy(newNcl.minStart, newNcl.maxEnd,
@@ -145,16 +145,17 @@ class LazyNCList:
 
                 feat = level.findContainingNcl(self.output, newNcl, lazyFeat)
 
-                # If $lazyFeat was contained in a feature in
+                # If lazyFeat was contained in a feature in
                 # level.ncls, then findContainingNcl will place lazyFeat
-                # within that container feature and return undef.
+                # within that container feature and return None.
                 # That means we don't have to proceed to higher levels of the
-                # NCL stack to try and find a place to stick $feat.
+                # NCL stack to try and find a place to stick feat.
                 if feat is None:
                     return
 
-                # if $feat is defined, though, then we do have to keep going to
-                # find a place for $feat
+                # if feat is defined, though, then we do have to keep going to
+                # find a place for feat
+                featSize = self.measure(feat)
 
             else:
                 # we're still filling up the partial chunk at this level, so
@@ -164,8 +165,8 @@ class LazyNCList:
 
         # if we get through all the levels and still have a feature to place,
         # we create a new highest level and put the feature there
-        newToplevel = LazyLevel()
-        newToplevel.current.append(feat)
+        newToplevel = LazyLevel(feat, featSize)
+        #newToplevel.current.append(feat)
         self.levels.append(newToplevel)
 
     def makeNcl(self, level):
@@ -204,11 +205,15 @@ class InputNotSortedError(Exception):
 
 
 class LazyLevel:
-    def __init__(self):
+    def __init__(self, firstFeat, firstSize):
         self.precedingFeat = None
-        self.current = []
-        self.chunkSize = 0
+        self.current = [firstFeat]
+        self.chunkSize = firstSize
         self.ncls = []
+
+    def reset(self, feat, size):
+        self.current = [feat]
+        self.chunkSize = size
 
     def findContainingNcl(self, output, newNcl, lazyFeat):
         """

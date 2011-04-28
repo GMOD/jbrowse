@@ -4,6 +4,7 @@ import itertools
 import json
 import math
 import os
+import re
 import shutil
 
 from array_repr import ArrayRepr
@@ -23,7 +24,7 @@ class JsonIntervalWriter:
         # output writes out the given data for the given chunk to the
         # appropriate file
         def output(toWrite, chunkId):
-            path = re.sub("\{chunk\}", str(chunkId), self.pathTempl)
+            path = re.sub("\{Chunk\}", str(chunkId), self.pathTempl)
             self.store.put(path, toWrite)
 
         jenc = json.JSONEncoder(separators=(',', ':'))
@@ -208,10 +209,10 @@ class JsonGenerator:
         self.count = 0
 
         lazyPathTempl = os.path.join(outDir,
-                                     "lazyfeatures-{chunk}." + self.ext)
+                                     "lazyfeatures-{Chunk}." + self.ext)
         # the client code interprets this URL template as being
         # relative to the directory containing the "trackData.json" file
-        lazyUrlTempl = "lazyfeatures-{chunk}." + self.ext
+        lazyUrlTempl = "lazyfeatures-{Chunk}." + self.ext
         self.intervalWriter = JsonIntervalWriter(self.store, chunkBytes,
                                                  lazyPathTempl, lazyUrlTempl,
                                                  featureProtos, classes,

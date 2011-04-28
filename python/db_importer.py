@@ -12,7 +12,7 @@ def dbImport(conn, query, chroms, outDir, chunkBytes=100000, compress=True):
                                 classes, isArrayAttr=[],
                                 featureProtos=[{'Chrom': chrom}])
         for row in cur:
-            jsongen.addSorted((0,) + row)
+            jsongen.addSorted([0] + list(row))
 
         jsongen.generateTrack()
         
