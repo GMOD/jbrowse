@@ -11,20 +11,19 @@ from array_repr import ArrayRepr
 from nclist import LazyNCList
 
 class JsonIntervalWriter:
-    def __init__(self, store, chunkBytes, pathTempl, urlTempl,
+    def __init__(self, store, chunkBytes, lazyTempl,
                  featureProtos, classes, isArrayAttr):
         self.store = store
         self.chunkBytes = chunkBytes
         self.featureProtos = featureProtos
         self.classes = classes
         self.isArrayAttr = isArrayAttr
-        self.pathTempl = pathTempl
-        self.urlTempl = urlTempl
+        self.lazyTempl = lazyTempl
 
         # output writes out the given data for the given chunk to the
         # appropriate file
         def output(toWrite, chunkId):
-            path = re.sub("\{Chunk\}", str(chunkId), self.pathTempl)
+            path = re.sub("\{Chunk\}", str(chunkId), self.lazyTempl)
             self.store.put(path, toWrite)
 
         jenc = json.JSONEncoder(separators=(',', ':'))
@@ -63,7 +62,7 @@ class JsonIntervalWriter:
             'lazyClass': self.lazyClass,
             'nclist': self.features.topLevel,
             'prototypes': self.featureProtos,
-            'urlTemplate': self.urlTempl
+            'urlTemplate': self.lazyTempl
         }
 
 class JsonHistWriter:
@@ -75,10 +74,9 @@ class JsonHistWriter:
     def __init__(self, store, refEnd, classes, featureCount = None):
         self.store = store
         self.refEnd = refEnd
-        attrs = ArrayRepr(classes)
+        self.attrs = ArrayRepr(classes)
         self.start = self.attrs.makeFastGetter("Start")
         self.end = self.attrs.makeFastGetter("End")
-        self.ext = "jsonz" if compress else "json"
         self.count = 0
 
         # featureCount is an optional parameter; if we don't know
@@ -96,17 +94,17 @@ class JsonHistWriter:
         # histogram bin at the zoom level where FeatureTrack.js switches
         # to the histogram view by default
         histBinThresh = (refEnd * 2.5) / featureCount
-        for multiple in multiples:
+        for multiple in self.multiples:
             self.histBinBases = multiple
             if multiple > histBinThresh:
                 break
 
         # initialize histogram arrays to all zeroes
         self.hists = []
-        for multiple in multiples:
+        for multiple in self.multiples:
             binBases = self.histBinBases * multiple
             self.hists.append(array('l', itertools.repeat(0, \
-                              int(math.ceil(refEnd / float(binBases))))) )
+                              int(math.ceil(refEnd / float(binBases))) + 1)) )
             # somewhat arbitrarily cut off the histograms at 100 bins
             if (binBases * 100) > refEnd:
                 break
@@ -119,7 +117,7 @@ class JsonHistWriter:
             return
 
         for i in xrange(0, len(self.hists) - 1):
-            binBases = self.histBinBases * multiples[i]
+            binBases = self.histBinBases * self.multiples[i]
             curHist = self.hists[i]
 
             firstBin = startBase / binBases
@@ -133,8 +131,8 @@ class JsonHistWriter:
         histBinThresh = (self.refEnd * 2.5) / float(self.count);
 
         # find multiple of base hist bin size that's just over histBinThresh
-        for i in xrange(1, len(multiples)):
-            if (self.histBinBases * multiples[i]) > histBinThresh:
+        for i in xrange(1, len(self.multiples)):
+            if (self.histBinBases * self.multiples[i]) > histBinThresh:
                 break
 
         histogramMeta = []
@@ -142,16 +140,17 @@ class JsonHistWriter:
         # have to load all of the histogram data when there's a lot of it.
         for j in xrange(i - 1, len(self.hists)):
             curHist = self.hists[j]
-            histBases = self.histBinBases * multiples[j]
+            histBases = self.histBinBases * self.multiples[j]
 
-            chunkCount = int(math.ceil(len(curHist) / float(histChunkSize)))
+            chunkCount = int(math.ceil(len(curHist)
+                                       / float(self.histChunkSize)))
             for chunk in xrange(0, chunkCount + 1):
-                path = os.path.join(self.outDir,
-                                    "hist-%i-%i.%s" %
-                                    (histBases, chunk, self.ext) )
+                path = os.path.join("hist-%i-%i.%s" %
+                                    (histBases, chunk, self.store.ext) )
                 self.store.put(path,
-                               curHist[(chunk * histChunkSize)
-                                       : ((chunk + 1) * histChunkSize) - 1] )
+                               list(curHist[(chunk * self.histChunkSize)
+                                            : ((chunk + 1)
+                                               * self.histChunkSize) - 1] ) )
 
             histogramMeta.append(
                 {
@@ -159,15 +158,16 @@ class JsonHistWriter:
                     'arrayParams': {
                         'length': len(curHist),
                         'urlTemplate':
-                            "hist-%i-%i.%s" % (histBases, chunk, self.ext),
-                        'chunkSize': histChunkSize
+                            "hist-%i-%i.%s" % (histBases, chunk,
+                                               self.store.ext),
+                        'chunkSize': self.histChunkSize
                     }
                 }
             );
 
         histStats = []
         for j in xrange(i - 1, len(self.hists)):
-            binBases = self.histBinBases * multiples[j]
+            binBases = self.histBinBases * self.multiples[j]
             histStats.append({'bases': binBases,
                               'max': max(self.hists[j]),
                               'mean': ( sum(self.hists[j]) /
@@ -182,6 +182,7 @@ class JsonHistWriter:
 class JsonFileStorage:
     def __init__(self, outDir, compress):
         self.outDir = outDir
+        self.ext = "jsonz" if compress else "json"
         self.compress = compress
         if os.path.exists(outDir):
             shutil.rmtree(outDir)
@@ -189,9 +190,9 @@ class JsonFileStorage:
 
     def put(self, path, obj):
         if self.compress:
-            fh = GzipFile(path, "w")
+            fh = GzipFile(os.path.join(self.outDir, path), "w")
         else:
-            fh = open(path, "w")
+            fh = open(os.path.join(self.outDir, path), "w")
         json.dump(obj, fh, check_circular = False, separators = (',', ':'))
         fh.close()        
 
@@ -205,21 +206,18 @@ class JsonGenerator:
         self.featureProtos = featureProtos
         self.refEnd = refEnd
         self.writeHists = writeHists
-        self.ext = "jsonz" if compress else "json"
         self.count = 0
 
-        lazyPathTempl = os.path.join(outDir,
-                                     "lazyfeatures-{Chunk}." + self.ext)
         # the client code interprets this URL template as being
         # relative to the directory containing the "trackData.json" file
-        lazyUrlTempl = "lazyfeatures-{Chunk}." + self.ext
+        lazyTempl = "lazyfeatures-{Chunk}." + self.store.ext
         self.intervalWriter = JsonIntervalWriter(self.store, chunkBytes,
-                                                 lazyPathTempl, lazyUrlTempl,
+                                                 lazyTempl,
                                                  featureProtos, classes,
                                                  isArrayAttr)
         if writeHists:
             assert((refEnd is not None) and (refEnd > 0))
-            self.histWriter = JsonHistWriter(store, refEnd,
+            self.histWriter = JsonHistWriter(self.store, refEnd,
                                              classes, featureCount)
 
     def addSorted(self, feat):
@@ -246,6 +244,6 @@ class JsonGenerator:
             trackData['histograms'] = self.histWriter.finish()
 
         self.store.put(
-            os.path.join(self.outDir, "trackData." + self.ext),
+            os.path.join("trackData." + self.store.ext),
             trackData
         )
