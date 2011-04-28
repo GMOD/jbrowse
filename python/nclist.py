@@ -118,16 +118,16 @@ class LazyNCList:
             # If:
             #   * this partial chunk is full, or
             #   * this chunk starts at the same place as the feature
-            #     immediately before it, and this feature would extend this
-            #     chunk beyond that feature, while remaining within the
-            #     previous nclist (otherwise we'd be trying to add a lazy
-            #     feature to the previous ncl that doesn't follow the nclist
-            #     ordering constraint), or
-            #   * this feature starts at the same place as the previous
-            #     nclist and would extend this chunk beyond that previous
-            #     nclist (otherwise we'd be try to add a lazy feat
-            #     to a higher-level ncl that doesn't follow the nclist
-            #     ordering constraint)
+            #     immediately before it, and this feature would extend
+            #     this chunk beyond that feature, while remaining
+            #     within the previous nclist (otherwise we'd try to
+            #     add a lazy feature to the previous ncl that doesn't
+            #     follow the nclist ordering constraint), or
+            #   * this chunk starts at the same place as the previous
+            #     nclist and this feature would extend this chunk
+            #     beyond that previous nclist (otherwise we'd try to
+            #     add a lazy feat to a higher-level ncl that doesn't
+            #     follow the nclist ordering constraint)
             if ( (level.chunkSize > self.sizeThresh)
                  or ( (level.prevFeat is not None)
                       and (start(level.prevFeat) == start(level.current[0]))
@@ -137,14 +137,8 @@ class LazyNCList:
                       # calls level.findContainingNcl
                       and (level.ncls[-1].maxEnd >= end(feat)) )
                  or ( (len(level.ncls) > 0)
-                      and (level.ncls[-1].minStart == start(feat))
+                      and (level.ncls[-1].minStart == start(level.current[0]))
                       and (level.ncls[-1].maxEnd < end(feat)) ) ):
-                if (level.chunkSize <= self.sizeThresh):
-                    print "prevFeat: " + str(level.prevFeat)
-                    print "current[0]: " + str(level.current[0])
-                    print "feat: " + str(feat)
-                    if len(level.ncls) > 0:
-                        print "level.ncls[-1]:" + str([level.ncls[-1].minStart, level.ncls[-1].maxEnd])
                 # then we're finished with the current "partial" chunk (i.e.,
                 # it's now a "complete" chunk rather than a partial one), so
                 # create a new NCList to hold all the features in this chunk.
