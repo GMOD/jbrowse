@@ -115,6 +115,72 @@ if (!Array.prototype.reduce)
   };
 }
 
+if (!Array.prototype.map)
+{
+  Array.prototype.map = function(fun /*, thisp */)
+  {
+    "use strict";
+
+    if (this === void 0 || this === null)
+      throw new TypeError();
+
+    var t = Object(this);
+    var len = t.length >>> 0;
+    if (typeof fun !== "function")
+      throw new TypeError();
+
+    var res = new Array(len);
+    var thisp = arguments[1];
+    for (var i = 0; i < len; i++)
+    {
+      if (i in t)
+        res[i] = fun.call(thisp, t[i], i, t);
+    }
+
+    return res;
+  };
+}
+
+if (!Array.prototype.indexOf)
+{
+  Array.prototype.indexOf = function(searchElement /*, fromIndex */)
+  {
+    "use strict";
+
+    if (this === void 0 || this === null)
+      throw new TypeError();
+
+    var t = Object(this);
+    var len = t.length >>> 0;
+    if (len === 0)
+      return -1;
+
+    var n = 0;
+    if (arguments.length > 0)
+    {
+      n = Number(arguments[1]);
+      if (n !== n) // shortcut for verifying if it's NaN
+        n = 0;
+      else if (n !== 0 && n !== (1 / 0) && n !== -(1 / 0))
+        n = (n > 0 || -1) * Math.floor(Math.abs(n));
+    }
+
+    if (n >= len)
+      return -1;
+
+    var k = n >= 0
+          ? n
+          : Math.max(len - Math.abs(n), 0);
+
+    for (; k < len; k++)
+    {
+      if (k in t && t[k] === searchElement)
+        return k;
+    }
+    return -1;
+  };
+}
+
 function Finisher(fun) {
     this.fun = fun;
     this.count = 0;
@@ -131,6 +197,154 @@ Finisher.prototype.dec = function() {
 
 Finisher.prototype.finish = function() {
     if (this.count <= 0) this.fun();
+};
+
+
+/*
+    class for operating on indexed representations of objects
+
+    For example, if we have a lot of objects with similar attributes, e.g.:
+        [
+            {start: 1, end: 2, strand: -1},
+            {start: 5, end: 6, strand: 1},
+            ...
+        ]
+    we can represent them more compactly (e.g., in JSON) something like this:
+        class = ["start", "end", "strand"]
+        [
+            [1, 2, -1],
+            [5, 6, 1],
+            ...
+        ]
+
+    If we want to represent a few different kinds of objects in our big list,
+    we can have multiple "class" arrays, and tag each object to identify
+    which "class" array describes it.
+
+    For example, if we have a lot of instances of a few types of objects,
+    like this:
+        [
+            {start: 1, end: 2, strand: 1, id: 1},
+            {start: 5, end: 6, strand: 1, id: 2},
+            ...
+            {start: 10, end: 20, chunk: 1},
+            {start: 30, end: 40, chunk: 2},
+            ...
+        ]
+    We could use the first array position to indicate the "class" for the
+    object, like this:
+        classes = [["start", "end", "strand", "id"], ["start", "end", "chunk"]]
+        [
+            [0, 1, 2, 1, 1],
+            [0, 5, 6, 1, 2],
+            ...
+            [1, 10, 20, 1],
+            [1, 30, 40, 1]
+        ]
+    Also, if we occasionally want to add an ad-hoc attribute, we could just
+    stick an optional dictionary onto the end:
+        classes = [["start", "end", "strand", "id"], ["start", "end", "chunk"]]
+        [
+            [0, 1, 2, 1, 1],
+            [0, 5, 6, 1, 2, {foo: 1}]
+        ]
+    That's what this class facilitates.
+    """
+        
+
+*/
+function ArrayRepr (classes) {
+    this.classes = classes;
+    this.fields = [];
+    for (var cl = 0; cl < classes.length; cl++) {
+        this.fields[cl] = {};
+        for (var f = 0; f < classes[cl].length; f++) {
+            this.fields[cl][classes[cl[f]]] = f + 1;
+        }
+    }
+}
+
+ArrayRepr.prototype.attrIndices = function(attr) {
+    return this.classes.map(
+        function(x) {
+            var i = x.indexOf(attr);
+            return i >= 0 ? i + 1 : undefined;
+        }
+    );
+};
+
+ArrayRepr.prototype.get = function(obj, attr) {
+    if (attr in this.fields[obj[0]]) {
+        return obj[this.fields[obj[0]][attr]];
+    } else {
+        var adhocIndex = len(self.classes[obj[0]]) + 1;
+        if ((adhocIndex >= obj.length) || (not(attr in obj[adhocIndex])))
+            return undefined;
+        return obj[adhocIndex][attr];
+    }
+};
+
+ArrayRepr.prototype.fastGet = function(obj, attr) {
+    // can be used only if attr is guaranteed to be in
+    // the "classes" array for this object
+    return obj[self.fields[obj[0]][attr]];
+};
+
+ArrayRepr.prototype.set = function(obj, attr, val) {
+    if (attr in this.fields[obj[0]]) {
+        obj[this.fields[obj[0]][attr]] = val;
+    } else {
+        var adhocIndex = len(self.classes[obj[0]]) + 1;
+        if (adhocIndex >= obj.length)
+            obj[adhocIndex] = {};
+        obj[adhocIndex][attr] = val;
+    }
+};
+
+ArrayRepr.prototype.fastSet = function(obj, attr, val) {
+    // can be used only if attr is guaranteed to be in
+    // the "classes" array for this object
+    obj[this.fields[obj[0]][attr]] = val;
+};
+
+ArrayRepr.prototype.makeSetter = function(attr) {
+    var self = this;
+    return function(obj, val) { self.set(obj, attr, val); };
+};
+
+ArrayRepr.prototype.makeGetter = function(attr) {
+    var self = this;
+    return function(obj) { self.get(obj, attr); };
+};
+
+ArrayRepr.prototype.makeFastSetter = function(attr) {
+    // can be used only if attr is guaranteed to be in
+    // the "classes" array for this object
+    var indices = this.attrIndices(attr);
+    return function(obj, val) {
+        if (indices[obj[0]] !== undefined)
+            obj[indices[obj[0]]] = val;
+    };
+};
+
+ArrayRepr.prototype.makeFastGetter = function(attr) {
+    // can be used only if attr is guaranteed to be in
+    // the "classes" array for this object
+    var indices = this.attrIndices(attr);
+    return function(obj) {
+        if (indices[obj[0]] !== undefined)
+            return obj[indices[obj[0]]];
+        else
+            return undefined;
+    };
+};
+
+ArrayRepr.prototype.construct = function(self, obj, klass) {
+    var result = new Array(self.classes[klass].length);
+    for (var attr in obj) {
+        this.set(result, attr, obj[attr]);
+    }
+    return result;
 };
 
 /*
