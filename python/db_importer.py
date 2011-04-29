@@ -17,7 +17,7 @@ def dbImport(conn, table, query, endCol, chromCol, outDir,
         classes = [[f[0] for f in cur.description]]
         jsongen = JsonGenerator(os.path.join(outDir, chrom),
                                 chunkBytes, compress,
-                                classes, isArrayAttr=[],
+                                classes, isArrayAttr=[{}],
                                 refEnd = refEnd, writeHists = True,
                                 featureProtos = [{'Chrom': chrom}],
                                 featureCount = count)

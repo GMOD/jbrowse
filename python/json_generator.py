@@ -10,6 +10,7 @@ import shutil
 from array_repr import ArrayRepr
 from nclist import LazyNCList
 
+
 class JsonIntervalWriter:
     def __init__(self, store, chunkBytes, lazyTempl,
                  featureProtos, classes, isArrayAttr):
@@ -64,6 +65,7 @@ class JsonIntervalWriter:
             'prototypes': self.featureProtos,
             'urlTemplate': self.lazyTempl
         }
+
 
 class JsonHistWriter:
     #this series of numbers is used in JBrowse for zoom level relationships
@@ -194,7 +196,8 @@ class JsonFileStorage:
         else:
             fh = open(os.path.join(self.outDir, path), "w")
         json.dump(obj, fh, check_circular = False, separators = (',', ':'))
-        fh.close()        
+        fh.close()
+
 
 class JsonGenerator:
     def __init__(self, outDir, chunkBytes, compress, classes, isArrayAttr = [],
@@ -238,6 +241,7 @@ class JsonGenerator:
         trackData = {
             'featureCount': self.count,
             'intervals': self.intervalWriter.finish(),
+            'formatVersion': 1
         }
 
         if self.writeHists:
