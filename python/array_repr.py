@@ -59,7 +59,7 @@ class ArrayRepr:
         return [(l.index(attr) + 1 if (attr in l) else None)
                 for l in self.classes]
 
-    def getAttr(self, obj, attr):
+    def get(self, obj, attr):
         if attr in self.fields[obj[0]]:
             return obj[self.fields[obj[0]][attr]]
         else:
@@ -76,13 +76,14 @@ class ArrayRepr:
         """
         return obj[self.fields[obj[0]][attr]]
 
-    def setAttr(self, obj, attr, val):
+    def set(self, obj, attr, val):
         if attr in self.fields[obj[0]]:
             obj[self.fields[obj[0]][attr]] = val
         else:
             adhocIndex = len(self.classes[obj[0]]) + 1
             if adhocIndex >= len(obj):
-                obj += [{}]
+                obj += ([None] * (len(self.classes[obj[0]]) - len(obj) + 2))
+                obj[adhocIndex] = {}
             obj[adhocIndex][attr] = val
 
     def fastSet(self, obj, attr, val):
@@ -93,10 +94,10 @@ class ArrayRepr:
         obj[self.fields[obj[0]][attr]] = val
     
     def makeSetter(self, attr):
-        return lambda obj, val: self.setAttr(obj, attr, val)
+        return lambda obj, val: self.set(obj, attr, val)
 
     def makeGetter(self, attr):
-        return lambda obj: self.getAttr(obj, attr)
+        return lambda obj: self.get(obj, attr)
 
     def makeFastSetter(self, attr):
         """
@@ -126,7 +127,6 @@ class ArrayRepr:
 
     def construct(self, dct, klass):
         result = [klass] + ([None] * (len(self.classes[klass])))
-        print result
         for attr in dct:
-            self.setAttr(result, attr, dct[attr])
+            self.set(result, attr, dct[attr])
         return result
