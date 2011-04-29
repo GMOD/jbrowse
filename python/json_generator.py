@@ -160,7 +160,7 @@ class JsonHistWriter:
                     'arrayParams': {
                         'length': len(curHist),
                         'urlTemplate':
-                            "hist-%i-%i.%s" % (histBases, chunk,
+                            "hist-%i-{chunk}.%s" % (histBases, chunk,
                                                self.store.ext),
                         'chunkSize': self.histChunkSize
                     }
