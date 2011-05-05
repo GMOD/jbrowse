@@ -14,13 +14,13 @@ def dbImport(conn, table, query, endCol, chromCol, outDir,
     chromList = cur.fetchall()
     for (chrom, refEnd, count) in chromList:
         cur = conn.execute(query, (chrom,))
-        classes = [[f[0] for f in cur.description]]
-        jsongen = JsonGenerator(os.path.join(outDir, chrom),
-                                chunkBytes, compress,
-                                classes, isArrayAttr=[{}],
-                                refEnd = refEnd, writeHists = True,
-                                featureProtos = [{'Chrom': chrom}],
-                                featureCount = count)
+        classes = [{
+            'attributes': [f[0] for f in cur.description],
+            'prototype': {'Chrom': chrom}
+            }]
+        jsongen = JsonGenerator(os.path.join(outDir, chrom), chunkBytes,
+                                compress, classes, refEnd = refEnd,
+                                writeHists = True, featureCount = count)
         for row in cur:
             jsongen.addSorted([0] + list(row))
 

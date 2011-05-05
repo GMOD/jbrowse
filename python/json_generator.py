@@ -12,14 +12,11 @@ from nclist import LazyNCList
 
 
 class JsonIntervalWriter:
-    def __init__(self, store, chunkBytes, lazyTempl,
-                 featureProtos, classes, isArrayAttr):
+    def __init__(self, store, chunkBytes, lazyTempl, classes):
         self.store = store
         self.chunkBytes = chunkBytes
-        self.featureProtos = featureProtos
-        self.classes = classes
-        self.isArrayAttr = isArrayAttr
         self.lazyTempl = lazyTempl
+        self.classes = classes
 
         # output writes out the given data for the given chunk to the
         # appropriate file
@@ -35,11 +32,11 @@ class JsonIntervalWriter:
             return len(jenc.encode(obj)) + 1
 
         self.lazyClass = len(classes)
-        classes.append(["Start", "End", "Chunk"])
+        classes.append({
+            'attributes': ['Start', 'End', 'Chunk'],
+            'isArrayAttr': {'Sublist': True}
+            });
         attrs = ArrayRepr(classes)
-        if len(isArrayAttr) < len(classes):
-            isArrayAttr += [None] * (len(classes) - len(isArrayAttr))
-        isArrayAttr[self.lazyClass] = {'Sublist': True}
         def makeLazy(start, end, chunkId):
             return [self.lazyClass, start, end, chunkId]
         start = attrs.makeFastGetter("Start")
@@ -59,10 +56,8 @@ class JsonIntervalWriter:
         self.features.finish()
         return {
             'classes': self.classes,
-            'isArrayAttr': self.isArrayAttr,
             'lazyClass': self.lazyClass,
             'nclist': self.features.topLevel,
-            'prototypes': self.featureProtos,
             'urlTemplate': self.lazyTempl
         }
 
@@ -160,8 +155,7 @@ class JsonHistWriter:
                     'arrayParams': {
                         'length': len(curHist),
                         'urlTemplate':
-                            "hist-%i-{chunk}.%s" % (histBases, chunk,
-                                               self.store.ext),
+                            "hist-%i-{Chunk}.%s" % (histBases, self.store.ext),
                         'chunkSize': self.histChunkSize
                     }
                 }
@@ -200,13 +194,11 @@ class JsonFileStorage:
 
 
 class JsonGenerator:
-    def __init__(self, outDir, chunkBytes, compress, classes, isArrayAttr = [],
-                 refEnd = None, writeHists = False, featureProtos = None,
-                 featureCount = None):
+    def __init__(self, outDir, chunkBytes, compress, classes,
+                 refEnd = None, writeHists = False, featureCount = None):
         self.store = JsonFileStorage(outDir, compress)
         self.outDir = outDir
         self.chunkBytes = chunkBytes
-        self.featureProtos = featureProtos
         self.refEnd = refEnd
         self.writeHists = writeHists
         self.count = 0
@@ -215,9 +207,7 @@ class JsonGenerator:
         # relative to the directory containing the "trackData.json" file
         lazyTempl = "lazyfeatures-{Chunk}." + self.store.ext
         self.intervalWriter = JsonIntervalWriter(self.store, chunkBytes,
-                                                 lazyTempl,
-                                                 featureProtos, classes,
-                                                 isArrayAttr)
+                                                 lazyTempl, classes)
         if writeHists:
             assert((refEnd is not None) and (refEnd > 0))
             self.histWriter = JsonHistWriter(self.store, refEnd,

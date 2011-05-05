@@ -47,23 +47,36 @@ class ArrayRepr:
             [0, 1, 2, 1, 1],
             [0, 5, 6, 1, 2, {foo: 1}]
         ]
+
+    Given that individual objects are being represented by arrays, generic
+    code needs some way to differentiate arrays that are meant to be objects
+    from arrays that are actually meant to be arrays.
+    So for each class, we include a dict with <attribute name>: true mappings
+    for each attribute that is meant to be an array, something like this:
+
+        classes=[
+            {'attributes': ['Start', 'End', 'Subfeatures'],
+             'isArrayAttr': {Subfeatures: true}}
+            ]
     That's what this class facilitates.
     """
         
     def __init__(self, classes):
         self.classes = classes
-        self.fields = [(dict((v, k + 1) for k, v in enumerate(c)))
+        self.fields = [(dict((v, k + 1) for k, v in enumerate(c['attributes'])))
                        for c in classes]
 
     def attrIndices(self, attr):
-        return [(l.index(attr) + 1 if (attr in l) else None)
+        return [(l['attributes'].index(attr) + 1
+                 if (attr in l['attributes'])
+                 else None)
                 for l in self.classes]
 
     def get(self, obj, attr):
         if attr in self.fields[obj[0]]:
             return obj[self.fields[obj[0]][attr]]
         else:
-            adhocIndex = len(self.classes[obj[0]]) + 1
+            adhocIndex = len(self.classes[obj[0]]['attributes']) + 1
             if ( (adhocIndex >= len(obj))
                 or (not (attr in obj[adhocIndex])) ):
                 return None # should this be raise KeyError instead?
@@ -80,9 +93,10 @@ class ArrayRepr:
         if attr in self.fields[obj[0]]:
             obj[self.fields[obj[0]][attr]] = val
         else:
-            adhocIndex = len(self.classes[obj[0]]) + 1
+            adhocIndex = len(self.classes[obj[0]]['attributes']) + 1
             if adhocIndex >= len(obj):
-                obj += ([None] * (len(self.classes[obj[0]]) - len(obj) + 2))
+                obj += ([None] * (len(self.classes[obj[0]]['attributes'])
+                                  - len(obj) + 2))
                 obj[adhocIndex] = {}
             obj[adhocIndex][attr] = val
 
@@ -126,7 +140,7 @@ class ArrayRepr:
         return getter
 
     def construct(self, dct, klass):
-        result = [klass] + ([None] * (len(self.classes[klass])))
+        result = [klass] + ([None] * (len(self.classes[klass]['attributes'])))
         for attr in dct:
             self.set(result, attr, dct[attr])
         return result
