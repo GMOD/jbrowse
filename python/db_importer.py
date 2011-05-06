@@ -3,9 +3,9 @@ from json_generator import JsonGenerator
 
 # example call:
 # snpQuery = 'select chromStart as Start, chromEnd as End, name as Name, transcript, frame, alleleCount, funcCodes, alleles, codons, peptides'
-# db_importer.dbImport(conn, "snp132CodingDbSnp", snpQuery, "chromEnd", "chrom", "../data/tracks/snp132CodingDbSnp")
-def dbImport(conn, table, query, endCol, chromCol, outDir,
-             chunkBytes=200000, compress=True):
+# db_importer.dbImport(conn, "snp132CodingDbSnp", snpQuery, "chromEnd", "chrom", "../data/", "snp132CodingDbSnp")
+def dbImport(conn, table, query, endCol, chromCol, dataDir,
+             trackLabel, chunkBytes=200000, compress=True):
     query += " from %s where %s=? order by Start asc, End desc" \
              % (table, chromCol)
     cur = conn.execute("""
@@ -18,12 +18,17 @@ def dbImport(conn, table, query, endCol, chromCol, outDir,
             'attributes': [f[0] for f in cur.description],
             'prototype': {'Chrom': chrom}
             }]
-        jsongen = JsonGenerator(os.path.join(outDir, chrom), chunkBytes,
+        jsongen = JsonGenerator(dataDir, trackLabel, chrom, chunkBytes,
                                 compress, classes, refEnd = refEnd,
                                 writeHists = True, featureCount = count)
         for row in cur:
             jsongen.addSorted([0] + list(row))
 
         jsongen.generateTrack()
+    jsongen.writeTrackEntry(trackLabel, {
+        'style': {
+            'className': 'feature2'
+            }
+        })
         
         

@@ -1,5 +1,6 @@
 from array import array
 from gzip import GzipFile
+import fcntl
 import itertools
 import json
 import math
@@ -194,10 +195,14 @@ class JsonFileStorage:
 
 
 class JsonGenerator:
-    def __init__(self, outDir, chunkBytes, compress, classes,
-                 refEnd = None, writeHists = False, featureCount = None):
-        self.store = JsonFileStorage(outDir, compress)
-        self.outDir = outDir
+    def __init__(self, dataDir, trackLabel, refName, chunkBytes, compress,
+                 classes, refEnd = None, writeHists = False,
+                 featureCount = None):
+        self.dataDir = dataDir
+        self.outDir = os.path.join(dataDir, "tracks", trackLabel, refName)
+        self.store = JsonFileStorage(self.outDir, compress)
+        self.trackLabel = trackLabel
+        self.refName = refName
         self.chunkBytes = chunkBytes
         self.refEnd = refEnd
         self.writeHists = writeHists
@@ -241,3 +246,40 @@ class JsonGenerator:
             os.path.join("trackData." + self.store.ext),
             trackData
         )
+
+    def modifyJsonFile(self, file, callback):
+        fh = open(file, "a+")
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        data = None
+        if os.fstat(fh.fileno()).st_size > 0:
+            jsonString = fh.read()
+            if len(jsonString) > 0:
+                data = json.loads(jsonString)
+            fh.seek(0, os.SEEK_SET)
+            fh.truncate(0)
+        json.dump(callback(data), fh, indent = 2);
+        fh.close()
+
+    def writeTrackEntry(self, trackLabel, trackConfig):
+        listFile = os.path.join(self.dataDir, "trackList.json")
+        trackConfig['urlTemplate'] = "tracks/%s/{refseq}/trackData.%s" % \
+                                     (trackLabel, self.store.ext)
+        def cb(trackData):
+            if trackData is None:
+                trackData = {
+                    'formatVersion': 1,
+                    'defaults': None,
+                    'tracks': []
+                    }
+            trackIndex = 0
+            trackList = trackData['tracks']
+            for (i, v) in enumerate(trackList):
+                if v.label == trackLabel:
+                    trackIndex = i
+                    break
+            if len(trackList) <= trackIndex:
+                trackList += ([None] * (trackIndex - len(trackList) + 1))
+            trackList[trackIndex] = trackConfig
+            return trackData
+
+        self.modifyJsonFile(listFile, cb)
