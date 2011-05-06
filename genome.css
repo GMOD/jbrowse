@@ -689,3 +689,10 @@ div.generic_parent-hist {
     min-width: 1px;
     cursor: pointer;
 }
+
+.details-rubber-highlight {
+    border: 1px solid black;
+    background: #8087ff;
+    filter: alpha(opacity=30); /* IE */
+    opacity: 0.3;              /* standard */
+}
