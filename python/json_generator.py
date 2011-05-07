@@ -196,12 +196,13 @@ class JsonFileStorage:
 
 class JsonGenerator:
     def __init__(self, dataDir, trackLabel, refName, chunkBytes, compress,
-                 classes, refEnd = None, writeHists = False,
+                 classes, key = None, refEnd = None, writeHists = False,
                  featureCount = None):
         self.dataDir = dataDir
         self.outDir = os.path.join(dataDir, "tracks", trackLabel, refName)
         self.store = JsonFileStorage(self.outDir, compress)
         self.trackLabel = trackLabel
+        self.key = key if (key is not None) else trackLabel
         self.refName = refName
         self.chunkBytes = chunkBytes
         self.refEnd = refEnd
@@ -260,10 +261,10 @@ class JsonGenerator:
         json.dump(callback(data), fh, indent = 2);
         fh.close()
 
-    def writeTrackEntry(self, trackLabel, trackConfig):
+    def writeTrackEntry(self, trackType, trackConfig, trackMeta = None):
         listFile = os.path.join(self.dataDir, "trackList.json")
         trackConfig['urlTemplate'] = "tracks/%s/{refseq}/trackData.%s" % \
-                                     (trackLabel, self.store.ext)
+                                     (self.trackLabel, self.store.ext)
         def cb(trackData):
             if trackData is None:
                 trackData = {
@@ -274,12 +275,18 @@ class JsonGenerator:
             trackIndex = 0
             trackList = trackData['tracks']
             for (i, v) in enumerate(trackList):
-                if v.label == trackLabel:
+                if v.label == self.trackLabel:
                     trackIndex = i
                     break
             if len(trackList) <= trackIndex:
                 trackList += ([None] * (trackIndex - len(trackList) + 1))
-            trackList[trackIndex] = trackConfig
+            trackList[trackIndex] = {
+                'label': self.trackLabel,
+                'key': self.key,
+                'type': trackType,
+                'meta': trackMeta,
+                'config': trackConfig
+                }
             return trackData
 
         self.modifyJsonFile(listFile, cb)
