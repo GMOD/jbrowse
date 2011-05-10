@@ -134,12 +134,13 @@ Util.maybeLoad = function (url, stateObj, successCallback, errorCallback) {
  * updates a with values from b, recursively
  */
 Util.deepUpdate = function(a, b) {
-    if ("object" == typeof a) {
-        for (var prop in b) {
-            if (prop in a)
-                Util.deepUpdate(a[prop], b[prop]);
-            else
-                a[prop] = b[prop];
+    for (var prop in b) {
+        if ((prop in a)
+            && ("object" == typeof b[prop])
+            && ("object" == typeof a[prop]) ) {
+            Util.deepUpdate(a[prop], b[prop]);
+        } else {
+            a[prop] = b[prop];
         }
     }
 };
