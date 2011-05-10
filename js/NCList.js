@@ -230,7 +230,7 @@ NCList.prototype.histogram = function(from, to, numBins, callback) {
     this.iterate(from, to,
                  function(feat) {
 	             var firstBin =
-                         Math.max(0, ((start(feat - from) / binWidth) | 0));
+                         Math.max(0, ((start(feat) - from) / binWidth) | 0);
                      var lastBin =
                          Math.min(numBins, ((end(feat) - from) / binWidth) | 0);
 	             for (var bin = firstBin; bin <= lastBin; bin++)
