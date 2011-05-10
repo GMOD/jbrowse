@@ -151,13 +151,14 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
     var bpPerBin = (rightBase - leftBase) / this.numBins;
     var pxPerCount = 2;
     var logScale = false;
-    for (var i = 0; i < this.histStats.length; i++) {
-        if (this.histStats[i].bases >= bpPerBin) {
+    var stats = this.histograms.stats;
+    for (var i = 0; i < stats.length; i++) {
+        if (stats[i].bases >= bpPerBin) {
             //console.log("bpPerBin: " + bpPerBin + ", histStats bases: " + this.histStats[i].bases + ", mean/max: " + (this.histStats[i].mean / this.histStats[i].max));
-            logScale = ((this.histStats[i].mean / this.histStats[i].max) < .01);
-            pxPerCount = 100 / (logScale
-                                ? Math.log(this.histStats[i].max)
-                                : this.histStats[i].max);
+            logScale = ((stats[i].mean / stats[i].max) < .01);
+            pxPerCount = 100 / (logScale ?
+                                Math.log(stats[i].max) :
+                                stats[i].max);
             break;
         }
     }
@@ -174,7 +175,7 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
             if (!(typeof hist[bin] == 'number' && isFinite(hist[bin])))
                 continue;
             binDiv = document.createElement("div");
-	    binDiv.className = track.className + "-hist";;
+	    binDiv.className = track.config.style.className + "-hist";;
             binDiv.style.cssText =
                 "left: " + ((bin / track.numBins) * 100) + "%; "
                 + "height: "
@@ -201,10 +202,10 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
     // is at 50,000 bases/bin, and we have server histograms at 20,000
     // and 2,000 bases/bin, then we should choose the 2,000 histogramMeta
     // rather than the 20,000)
-    var histogramMeta = this.histogramMeta[0];
-    for (var i = 0; i < this.histogramMeta.length; i++) {
-        if (bpPerBin >= this.histogramMeta[i].basesPerBin)
-            histogramMeta = this.histogramMeta[i];
+    var histogramMeta = this.histograms.meta[0];
+    for (var i = 0; i < this.histograms.meta.length; i++) {
+        if (bpPerBin >= this.histograms.meta[i].basesPerBin)
+            histogramMeta = this.histograms.meta[i];
     }
 
     // number of bins in the server-supplied histogram for each current bin
