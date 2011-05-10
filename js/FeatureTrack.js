@@ -183,7 +183,8 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
                 + "px;"
                 + "bottom: " + track.trackPadding + "px;"
                 + "width: " + (((1 / track.numBins) * 100) - (100 / stripeWidth)) + "%;"
-                + (track.histCss ? track.histCss : "");
+                + (track.config.style.histCss ?
+                   track.config.style.histCss : "");
             if (Util.is_ie6) binDiv.appendChild(document.createComment());
             block.appendChild(binDiv);
         }
