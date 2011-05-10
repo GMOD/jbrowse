@@ -48,7 +48,7 @@ var Browser = function(params) {
             //try to come up with a good estimate of how big the location box
             //actually has to be
             var maxBase = 100000000;
-            var navbox = brwsr.createNavBox(topPane, (2 * (String(maxBase).length + (((String(maxBase).length / 3) | 0) / 2))) + 2, params);
+            brwsr.navbox = brwsr.createNavBox(topPane, (2 * (String(maxBase).length + (((String(maxBase).length / 3) | 0) / 2))) + 2, params);
 
             var viewElem = document.createElement("div");
             brwsr.viewElem = viewElem;
@@ -154,7 +154,7 @@ Browser.prototype.addRefseqs = function(refSeqs) {
     this.resizeCallback = function() {
         gv.sizeInit();
 
-        brwsr.view.locationTrapHeight = dojo.marginBox(navbox).h;
+        brwsr.view.locationTrapHeight = dojo.marginBox(brwsr.navbox).h;
         gv.showVisibleBlocks();
         gv.showFine();
         gv.showCoarse();
