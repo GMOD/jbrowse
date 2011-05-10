@@ -130,6 +130,20 @@ Util.maybeLoad = function (url, stateObj, successCallback, errorCallback) {
     }
 };
 
+/**
+ * updates a with values from b, recursively
+ */
+Util.deepUpdate = function(a, b) {
+    if ("object" == typeof a) {
+        for (var prop in b) {
+            if (prop in a)
+                Util.deepUpdate(a[prop], b[prop]);
+            else
+                a[prop] = b[prop];
+        }
+    }
+};
+
 // from http://bugs.dojotoolkit.org/ticket/5794
 Util.resolveUrl = function(baseUrl, relativeUrl) {
     // summary:
