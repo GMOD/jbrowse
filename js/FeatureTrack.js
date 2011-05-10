@@ -399,8 +399,8 @@ FeatureTrack.prototype.measureStyles = function() {
         this.config.style.className
         + " plus-" + this.config.style.className
         + " plus-" + this.config.style.className + "1";
-    if (this.featureCss) heightTest.style.cssText =
-        this.config.style.featureCss;
+    if (this.config.style.featureCss)
+        heightTest.style.cssText = this.config.style.featureCss;
     heightTest.style.visibility = "hidden";
     if (Util.is_ie6) heightTest.appendChild(document.createComment("foo"));
     document.body.appendChild(heightTest);
