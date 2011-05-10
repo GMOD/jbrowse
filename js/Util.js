@@ -13,7 +13,7 @@ Util.addCommas = function(nStr)
 		x1 = x1.replace(rgx, '$1' + ',' + '$2');
 	}
 	return x1 + x2;
-}
+};
 
 Util.wheel = function(event){
     var delta = 0;
@@ -23,13 +23,13 @@ Util.wheel = function(event){
         if (window.opera) delta = -delta;
     } else if (event.detail) { delta = -event.detail/3;	}
     return Math.round(delta); //Safari Round
-}
+};
 
 Util.isRightButton = function(e) {
     if (!e) var e = window.event;
     if (e.which) return e.which == 3;
     else if (e.button) return e.button == 2;
-}
+};
 
 Util.getViewportWidth = function() {
   var width = 0;
@@ -69,7 +69,7 @@ Util.findNearest = function(numArray, num) {
         }
     }
     return minIndex;
-}
+};
 
 /**
  * replace variables in a template string with values
