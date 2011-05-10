@@ -360,16 +360,20 @@ function ArrayRepr (classes) {
     this.fields = [];
     for (var cl = 0; cl < classes.length; cl++) {
         this.fields[cl] = {};
-        for (var f = 0; f < classes[cl].length; f++) {
-            this.fields[cl][classes[cl[f]]] = f + 1;
+        for (var f = 0; f < classes[cl].attributes.length; f++) {
+            this.fields[cl][classes[cl].attributes[f]] = f + 1;
         }
+        if (classes[cl].proto === undefined)
+            classes[cl].proto = {};
+        if (classes[cl].isArrayAttr === undefined)
+            classes[cl].isArrayAttr = {};
     }
 }
 
 ArrayRepr.prototype.attrIndices = function(attr) {
     return this.classes.map(
         function(x) {
-            var i = x.indexOf(attr);
+            var i = x.attributes.indexOf(attr);
             return i >= 0 ? i + 1 : undefined;
         }
     );
@@ -379,7 +383,7 @@ ArrayRepr.prototype.get = function(obj, attr) {
     if (attr in this.fields[obj[0]]) {
         return obj[this.fields[obj[0]][attr]];
     } else {
-        var adhocIndex = self.classes[obj[0]].attributes.length + 1;
+        var adhocIndex = this.classes[obj[0]].attributes.length + 1;
         if ((adhocIndex >= obj.length) || (not(attr in obj[adhocIndex]))) {
             if (attr in this.classes[obj[0]].proto)
                 return this.classes[obj[0]].proto[attr];
