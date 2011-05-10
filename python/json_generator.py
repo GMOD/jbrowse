@@ -251,6 +251,7 @@ class JsonGenerator:
     def modifyJsonFile(self, file, callback):
         fh = open(file, "a+")
         fcntl.flock(fh, fcntl.LOCK_EX)
+        fh.seek(0, os.SEEK_SET)
         data = None
         if os.fstat(fh.fileno()).st_size > 0:
             jsonString = fh.read()
@@ -272,14 +273,17 @@ class JsonGenerator:
                     'defaults': None,
                     'tracks': []
                     }
-            trackIndex = 0
+            # want to add this track entry to the "tracks" list,
+            # replacing any existing entry with the same label,
+            # and preserving the original ordering
+            trackIndex = None
             trackList = trackData['tracks']
             for (i, v) in enumerate(trackList):
-                if v.label == self.trackLabel:
+                if v['label'] == self.trackLabel:
                     trackIndex = i
-                    break
-            if len(trackList) <= trackIndex:
-                trackList += ([None] * (trackIndex - len(trackList) + 1))
+            if trackIndex is None:
+                trackIndex = len(trackList)
+                trackList.append(None)
             trackList[trackIndex] = {
                 'label': self.trackLabel,
                 'key': self.key,
