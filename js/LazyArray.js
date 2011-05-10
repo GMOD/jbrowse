@@ -81,7 +81,7 @@ LazyArray.prototype.range = function(start, end, callback, postFun, param) {
                 var thisObj = this;
                 dojo.xhrGet(
                     {
-                        url: this.baseUrl + url,
+                        url: Util.resolveUrl(this.baseUrl, url),
                         handleAs: "json",
                         load: this._makeLoadFun(chunk),
                         error: function() { finish.dec(); }

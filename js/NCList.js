@@ -89,7 +89,7 @@ NCList.prototype.binarySearch = function(arr, item, getter) {
 
     //if we're iterating rightward, return the high index;
     //if leftward, the low index
-    if (1 == itemIndex) return high; else return low;
+    if (getter === this.end) return high; else return low;
 };
 
 NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
@@ -210,7 +210,7 @@ NCList.prototype.iterate = function(from, to, fun, postFun) {
     //searchGet: search on start or end
     var searchGet = (from > to) ? this.start : this.end;
     //testGet: test on start or end
-    var testIndex = (from > to) ? this.end : this.start;
+    var testGet = (from > to) ? this.end : this.start;
     var finish = new Finisher(postFun);
     this.iterHelper(this.topList, from, to, fun, finish,
                     inc, searchGet, testGet, [0]);
