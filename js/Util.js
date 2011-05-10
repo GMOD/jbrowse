@@ -71,6 +71,89 @@ Util.findNearest = function(numArray, num) {
     return minIndex;
 }
 
+/**
+ * replace variables in a template string with values
+ * @param template String with variable names in curly brackets
+ *                 e.g., "http://foo/{bar}?arg={baz}
+ * @param fillWith object with attribute-value mappings
+ *                 e.g., {'bar': 'someurl', 'baz': 'valueforbaz'}
+ * @returns the template string with variables in fillWith replaced
+ *                 e.g., 'htp://foo/someurl?arg=valueforbaz'
+ */
+Util.fillTemplate = function(template, fillWith) {
+    return template.replace(/\{([^}]+)\}/g,
+                            function(match, group) {
+                                if (fillWith[group] !== undefined)
+                                    return fillWith[group];
+                                else
+                                    return "{" + group + "}";
+                            });
+};
+
+/**
+ * function to load a specified resource only once
+ * @param url URL to get
+ * @param stateObj object that stores the state of the load
+ * @param successCalback function to call on a successful load
+ * @param errorCallback function to call on an unsuccessful load
+ */
+Util.maybeLoad = function (url, stateObj, successCallback, errorCallback) {
+    if (stateObj.state) {
+        if ("loaded" == stateObj.state) {
+            successCallback(stateObj.data);
+        } else if ("error" == stateObj.state) {
+            errorCallback();
+        } else if ("loading" == stateObj.state) {
+            stateObj.successCallbacks.push(successCallback);
+            if (errorCallback) stateObj.errorCallbacks.push(errorCallback);
+        }
+    } else {
+        stateObj.state = "loading";
+        stateObj.successCallbacks = [successCallback];
+        stateObj.errorCallbacks = [errorCallback];
+        dojo.xhrGet(
+            {
+                url: url,
+                handleAs: "json",
+                load: function(o) {
+                    stateObj.state = "loaded";
+                    stateObj.data = o;
+                    var cbs = stateObj.successCallbacks;
+                    for (var c = 0; c < cbs.length; c++) cbs[c](o);
+                },
+                error: function() {
+                    stateObj.state = "error";
+                    var cbs = stateObj.errorCallbacks;
+                    for (var c = 0; c < cbs.length; c++) cbs[c]();
+                }
+            });
+    }
+};
+
+// from http://bugs.dojotoolkit.org/ticket/5794
+Util.resolveUrl = function(baseUrl, relativeUrl) {
+    // summary:
+    // This takes a base url and a relative url and resolves the target url.
+    // For example:
+    // resolveUrl("http://www.domain.com/path1/path2","../path3") ->"http://www.domain.com/path1/path3"
+    //
+    if (relativeUrl.match(/\w+:\/\//))
+	return relativeUrl;
+    if (relativeUrl.charAt(0)=='/') {
+	baseUrl = baseUrl.match(/.*\/\/[^\/]*/);
+	return (baseUrl ? baseUrl[0] : '') + relativeUrl;
+    }
+    //TODO: handle protocol relative urls:  ://www.domain.com
+    baseUrl = baseUrl.substring(0,baseUrl.length - baseUrl.match(/[^\/]*$/)[0].length);// clean off the trailing path
+    if (relativeUrl == '.')
+	return baseUrl;
+    while (relativeUrl.substring(0,3) == '../') {
+	baseUrl = baseUrl.substring(0,baseUrl.length - baseUrl.match(/[^\/]*\/$/)[0].length);
+	relativeUrl = relativeUrl.substring(3);
+    }
+    return baseUrl + relativeUrl;
+};
+
 if (!Array.prototype.reduce)
 {
   Array.prototype.reduce = function(fun /*, initial*/)

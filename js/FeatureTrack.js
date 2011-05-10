@@ -1,9 +1,9 @@
-function FeatureTrack(trackMeta, url, refSeq, browserParams) {
+function FeatureTrack(trackMeta, refSeq, browserParams) {
     //trackMeta: object with:
     //            key:   display text track name
     //            label: internal track name (no spaces, odd characters)
-    //url: URL of the track's JSON file
     //refSeq: object with:
+    //         name:  refseq name
     //         start: refseq start
     //         end:   refseq end
     //browserParams: object with:
@@ -16,9 +16,8 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
     this.fields = {};
     this.features = new NCList();
     this.refSeq = refSeq;
-    this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "");
-    this.url = url;
-    this.trackBaseUrl = (this.baseUrl + url).match(/^.+\//);
+    this.url = Util.fillTemplate(trackMeta.config.urlTemplate,
+                                 {'refseq': refSeq.name});
     //number of histogram bins per block
     this.numBins = 25;
     this.histLabel = false;
@@ -26,35 +25,33 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
     this.trackPadding = browserParams.trackPadding;
 
     this.trackMeta = trackMeta;
-    this.load(this.baseUrl + url);
-
-    var thisObj = this;
+    this.config = trackMeta.config;
+    this.load(Util.resolveUrl(trackMeta.sourceUrl, this.url));
 }
 
 FeatureTrack.prototype = new Track("");
 
-FeatureTrack.prototype.loadSuccess = function(trackInfo) {
+FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
     var startTime = new Date().getTime();
     this.count = trackInfo.featureCount;
-    this.fields = {};
-    for (var i = 0; i < trackInfo.headers.length; i++) {
-	this.fields[trackInfo.headers[i]] = i;
-    }
-    this.subFields = {};
-    if (trackInfo.subfeatureHeaders) {
-        for (var i = 0; i < trackInfo.subfeatureHeaders.length; i++) {
-            this.subFields[trackInfo.subfeatureHeaders[i]] = i;
-        }
-    }
-    this.features.importExisting(trackInfo.featureNCList,
-                                 trackInfo.sublistIndex,
-                                 trackInfo.lazyIndex,
-                                 this.trackBaseUrl,
-                                 trackInfo.lazyfeatureUrlTemplate);
-    if (trackInfo.subfeatureArray)
-        this.subfeatureArray = new LazyArray(trackInfo.subfeatureArray,
-                                             this.trackBaseUrl);
+    
+    this.attrs = new ArrayRepr(trackInfo.intervals.classes);
+    this.features.importExisting(trackInfo.intervals.nclist,
+                                 this.attrs,
+                                 url,
+                                 trackInfo.intervals.urlTemplate,
+                                 trackInfo.intervals.lazyClass);
 
+    var defaultConfig = {
+        style: {
+            className: "feature2"
+        },
+        scaleThresh: {
+            hist: 4,
+            label: 50,
+            subfeature: 80
+        }
+    };
     this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length);
     this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length);
     this.subfeatureScale = 80 * (trackInfo.featureCount / this.refSeq.length);

@@ -2,12 +2,11 @@
  * Construct a new Browser object.
  * @class This class is the main interface between JBrowse and embedders
  * @constructor
- * @param params a dictionary with the following keys:<br>
+ * @param params an object with the following properties:<br>
  * <ul>
  * <li><code>containerID</code> - ID of the HTML element that contains the browser</li>
- * <li><code>refSeqs</code> - list of reference sequence information items (usually from refSeqs.js)</li>
- * <li><code>trackData</code> - list of track data items (usually from trackInfo.js)</li>
- * <li><code>dataRoot</code> - (optional) URL prefix for the data directory</li>
+ * <li><code>refSeqs</code> - object with "url" property that is the URL to list of reference sequence information items</li>
+ * <li><code>tracklists</code> - list of objects with "url" property that points to a track list JSON file</li>
  * <li><code>browserRoot</code> - (optional) URL prefix for the browser code</li>
  * <li><code>tracks</code> - (optional) comma-delimited string containing initial list of tracks to view</li>
  * <li><code>location</code> - (optional) string describing the initial location</li>
@@ -24,20 +23,14 @@ var Browser = function(params) {
     dojo.require("dijit.layout.ContentPane");
     dojo.require("dijit.layout.BorderContainer");
 
-    var refSeqs = params.refSeqs;
-    var trackData = params.trackData;
-    this.deferredFunctions = [];
-    this.dataRoot = params.dataRoot;
-    var dataRoot;
-    if ("dataRoot" in params)
-        dataRoot = params.dataRoot;
-    else
-        dataRoot = "";
-
-    this.names = new LazyTrie(dataRoot + "/names/lazy-",
-			      dataRoot + "/names/root.json");
-    this.tracks = [];
+    this.params = params;
     var brwsr = this;
+
+    this.deferredFunctions = [];
+
+    if (params.nameUrl)
+        this.names = new LazyTrie(params.nameUrl, "lazy-{Chunk}.json");
+    this.tracks = [];
     brwsr.isInitialized = false;
     dojo.addOnLoad(
         function() {
@@ -54,20 +47,23 @@ var Browser = function(params) {
             topPane.appendChild(overview);
             //try to come up with a good estimate of how big the location box
             //actually has to be
-            var maxBase = refSeqs.reduce(function(a,b) {return a.end > b.end ? a : b;}).end;
+            var maxBase = 100000000;
             var navbox = brwsr.createNavBox(topPane, (2 * (String(maxBase).length + (((String(maxBase).length / 3) | 0) / 2))) + 2, params);
 
             var viewElem = document.createElement("div");
+            brwsr.viewElem = viewElem;
             brwsr.container.appendChild(viewElem);
             viewElem.className = "dragWindow";
 
-            var containerWidget = new dijit.layout.BorderContainer({
+            brwsr.containerWidget = new dijit.layout.BorderContainer({
                 liveSplitters: false,
                 design: "sidebar",
                 gutters: false
             }, brwsr.container);
-            var contentWidget = new dijit.layout.ContentPane({region: "top"}, topPane);
-            var browserWidget = new dijit.layout.ContentPane({region: "center"}, viewElem);
+            var contentWidget =
+                new dijit.layout.ContentPane({region: "top"}, topPane);
+            brwsr.browserWidget =
+                new dijit.layout.ContentPane({region: "center"}, viewElem);
 
             //create location trapezoid
             brwsr.locationTrap = document.createElement("div");
@@ -75,90 +71,142 @@ var Browser = function(params) {
             topPane.appendChild(brwsr.locationTrap);
             topPane.style.overflow="hidden";
 
-            //set up ref seqs
-            brwsr.allRefs = {};
-            for (var i = 0; i < refSeqs.length; i++)
-                brwsr.allRefs[refSeqs[i].name] = refSeqs[i];
-
-            var refCookie = dojo.cookie(params.containerID + "-refseq");
-            brwsr.refSeq = refSeqs[0];
-            for (var i = 0; i < refSeqs.length; i++) {
-                brwsr.chromList.options[i] = new Option(refSeqs[i].name,
-                                                        refSeqs[i].name);
-                if (refSeqs[i].name.toUpperCase() == String(refCookie).toUpperCase()) {
-                    brwsr.refSeq = brwsr.allRefs[refSeqs[i].name];
-                    brwsr.chromList.selectedIndex = i;
-                }
+            var cookieTracks = dojo.cookie(brwsr.container.id + "-tracks");
+            if (params.tracks) {
+                brwsr.origTracklist = params.tracks;
+            } else if (cookieTracks) {
+                brwsr.origTracklist = cookieTracks;
+            } else if (params.defaultTracks) {
+                brwsr.origTracklist = params.defaultTracks;
             }
 
-            dojo.connect(brwsr.chromList, "onchange", function(event) {
-                    var oldLocMap = dojo.fromJson(dojo.cookie(brwsr.container.id + "-location")) || {};
-                    var newRef = brwsr.allRefs[brwsr.chromList.options[brwsr.chromList.selectedIndex].value];
+            Util.maybeLoad(params.refSeqs.url, params.refSeqs,
+                           function(o) {
+                               brwsr.addRefseqs(o);
+                           });
 
-                    if (oldLocMap[newRef.name])
-                        brwsr.navigateTo(newRef.name + ":"
-                                         + oldLocMap[newRef.name]);
-                    else
-                        brwsr.navigateTo(newRef.name + ":"
-                                         + (((newRef.start + newRef.end) * 0.4) | 0)
-                                         + " .. "
-                                         + (((newRef.start + newRef.end) * 0.6) | 0));
-                        });
-
-            //hook up GenomeView
-            var gv = new GenomeView(viewElem, 250, brwsr.refSeq, 1/200);
-            brwsr.view = gv;
-            brwsr.viewElem = viewElem;
-            //gv.setY(0);
-            viewElem.view = gv;
-
-            dojo.connect(browserWidget, "resize", function() {
-                    gv.sizeInit();
-
-                    brwsr.view.locationTrapHeight = dojo.marginBox(navbox).h;
-                    gv.showVisibleBlocks();
-                    gv.showFine();
-                    gv.showCoarse();
-                });
-            brwsr.view.locationTrapHeight = dojo.marginBox(navbox).h;
-
-            dojo.connect(gv, "onFineMove", brwsr, "onFineMove");
-            dojo.connect(gv, "onCoarseMove", brwsr, "onCoarseMove");
-
-            //set up track list
-            var trackListDiv = brwsr.createTrackList(brwsr.container, params);
-            containerWidget.startup();
-
-	    brwsr.isInitialized = true;
-
-            //set initial location
-            var oldLocMap = dojo.fromJson(dojo.cookie(brwsr.container.id + "-location")) || {};
-
-            if (params.location) {
-                brwsr.navigateTo(params.location);
-            } else if (oldLocMap[brwsr.refSeq.name]) {
-                brwsr.navigateTo(brwsr.refSeq.name
-                                 + ":"
-                                 + oldLocMap[brwsr.refSeq.name]);
-            } else if (params.defaultLocation){
-                brwsr.navigateTo(params.defaultLocation);
-            } else {
-                brwsr.navigateTo(brwsr.refSeq.name
-                                 + ":"
-                                 + ((((brwsr.refSeq.start + brwsr.refSeq.end)
-                                      * 0.4) | 0)
-                                    + " .. "
-                                    + (((brwsr.refSeq.start + brwsr.refSeq.end)
-                                        * 0.6) | 0)));
+            for (var i = 0; i < params.tracklists.length; i++) {
+                (function(tracklist) {
+                     Util.maybeLoad(tracklist.url,
+                                    tracklist,
+                                    function(o) {
+                                        brwsr.addDeferred(
+                                            function() {
+                                                brwsr.addTracklist(tracklist.url, o);
+                                            });
+                                    });
+                 })(params.tracklists[i]);
             }
-
-	    //if someone calls methods on this browser object
-	    //before it's fully initialized, then we defer
-	    //those functions until now
-	    for (var i = 0; i < brwsr.deferredFunctions.length; i++)
-		brwsr.deferredFunctions[i]();
-	    brwsr.deferredFunctions = [];
         });
+};
+
+/**
+ * Add a function to be executed once JBrowse is initialized
+ * @param f function to be executed
+ */
+Browser.prototype.addDeferred = function(f) {
+    if (this.isInitialized)
+        f();
+    else
+        this.deferredFunctions.push(f);
+};
+
+Browser.prototype.addTracklist = function(url, trackList) {
+    if (1 == trackList.formatVersion) {
+        for (var i = 0; i < trackList.tracks.length; i++)
+            trackList.tracks[i].sourceUrl = url;
+        this.trackListWidget.insertNodes(false, trackList.tracks);
+        this.showTracks(this.origTracklist);
+    } else {
+        throw "track list format " + trackList.formatVersion + " not supported";
+    }
+};
+
+Browser.prototype.addRefseqs = function(refSeqs) {
+    //currently only meant to be called once
+
+    this.allRefs = {};
+    for (var i = 0; i < refSeqs.length; i++)
+        this.allRefs[refSeqs[i].name] = refSeqs[i];
+
+    var refCookie = dojo.cookie(this.params.containerID + "-refseq");
+    this.refSeq = refSeqs[0];
+    for (var i = 0; i < refSeqs.length; i++) {
+        this.chromList.options[i] = new Option(refSeqs[i].name,
+                                               refSeqs[i].name);
+        if (refSeqs[i].name.toUpperCase() == String(refCookie).toUpperCase()) {
+            this.refSeq = this.allRefs[refSeqs[i].name];
+            this.chromList.selectedIndex = i;
+        }
+    }
+
+    //hook up GenomeView
+    var gv = new GenomeView(this.viewElem, 250, this.refSeq, 1/200);
+    this.view = gv;
+    //gv.setY(0);
+    this.viewElem.view = gv;
+
+    //set up track list
+    var trackListDiv = this.createTrackList(this.container, this.params);
+    this.containerWidget.startup();
+
+    var brwsr = this;
+    this.resizeCallback = function() {
+        gv.sizeInit();
+
+        brwsr.view.locationTrapHeight = dojo.marginBox(navbox).h;
+        gv.showVisibleBlocks();
+        gv.showFine();
+        gv.showCoarse();
+    };
+    dojo.connect(this.browserWidget, "resize", this.resizeCallback);
+    this.resizeCallback();
+
+    dojo.connect(gv, "onFineMove", brwsr, "onFineMove");
+    dojo.connect(gv, "onCoarseMove", brwsr, "onCoarseMove");
+
+    //set initial location
+    var oldLocMap = dojo.fromJson(dojo.cookie(brwsr.container.id + "-location")) || {};
+    if (this.params.location) {
+        this.navigateTo(this.params.location);
+    } else if (oldLocMap[this.refSeq.name]) {
+        this.navigateTo(this.refSeq.name
+                         + ":"
+                         + oldLocMap[this.refSeq.name]);
+    } else if (this.params.defaultLocation){
+        this.navigateTo(this.params.defaultLocation);
+    } else {
+        this.navigateTo(this.refSeq.name
+                         + ":"
+                         + ((((this.refSeq.start + this.refSeq.end)
+                              * 0.4) | 0)
+                            + " .. "
+                            + (((this.refSeq.start + this.refSeq.end)
+                                * 0.6) | 0)));
+    }
+
+    dojo.connect(this.chromList, "onchange", function(event) {
+        var oldLocMap = dojo.fromJson(dojo.cookie(brwsr.container.id + "-location")) || {};
+        var newRef = brwsr.allRefs[brwsr.chromList.options[brwsr.chromList.selectedIndex].value];
+
+        if (oldLocMap[newRef.name])
+            brwsr.navigateTo(newRef.name + ":"
+                             + oldLocMap[newRef.name]);
+        else
+            brwsr.navigateTo(newRef.name + ":"
+                             + (((newRef.start + newRef.end) * 0.4) | 0)
+                             + " .. "
+                             + (((newRef.start + newRef.end) * 0.6) | 0));
+    });
+
+    this.isInitialized = true;
+
+    //if someone calls methods on this browser object
+    //before it's fully initialized, then we defer
+    //those functions until now
+    for (var i = 0; i < brwsr.deferredFunctions.length; i++)
+	brwsr.deferredFunctions[i]();
+    brwsr.deferredFunctions = [];
 };
 
 /**
@@ -243,14 +291,11 @@ Browser.prototype.createTrackList = function(parent, params) {
         if ("avatar" == hint) {
             return trackListCreate(track, hint);
         } else {
-            var replaceData = {refseq: brwsr.refSeq.name};
-            var url = track.url.replace(/\{([^}]+)\}/g, function(match, group) {return replaceData[group];});
             var klass = eval(track.type);
-            var newTrack = new klass(track, url, brwsr.refSeq,
+            var newTrack = new klass(track, brwsr.refSeq,
                                      {
                                          changeCallback: changeCallback,
                                          trackPadding: brwsr.view.trackPadding,
-                                         baseUrl: brwsr.dataRoot,
                                          charWidth: brwsr.view.charWidth,
                                          seqHeight: brwsr.view.seqHeight
                                      });
@@ -270,16 +315,6 @@ Browser.prototype.createTrackList = function(parent, params) {
                        //brwsr.viewDndWidget.selectNone();
                    });
 
-    this.trackListWidget.insertNodes(false, params.trackData);
-    var oldTrackList = dojo.cookie(this.container.id + "-tracks");
-    if (params.tracks) {
-        this.showTracks(params.tracks);
-    } else if (oldTrackList) {
-        this.showTracks(oldTrackList);
-    } else if (params.defaultTracks) {
-        this.showTracks(params.defaultTracks);
-    }
-
     return trackListDiv;
 };
 
@@ -294,30 +329,6 @@ Browser.prototype.onVisibleTracksChanged = function() {
                 trackLabels.join(","),
                 {expires: 60});
     this.view.showVisibleBlocks();
-};
-
-/**
- * @private
- * add new tracks to the track list
- * @param trackList list of track information items
- * @param replace true if this list of tracks should replace any existing
- * tracks, false to merge with the existing list of tracks
- */
-
-Browser.prototype.addTracks = function(trackList, replace) {
-    if (!this.isInitialized) {
-        var brwsr = this;
-        this.deferredFunctions.push(
-            function() {brwsr.addTracks(trackList, show); }
-        );
-	return;
-    }
-
-    this.tracks.concat(trackList);
-    if (show || (show === undefined)) {
-        this.showTracks(dojo.map(trackList,
-                                 function(t) {return t.label;}).join(","));
-    }
 };
 
 /**

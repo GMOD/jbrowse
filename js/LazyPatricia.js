@@ -49,8 +49,9 @@
   fast lookups.
  */
 
-function LazyTrie(baseURL, rootURL) {
-    this.baseURL = baseURL;
+function LazyTrie(rootURL, chunkTempl) {
+    this.rootURL = rootURL;
+    this.chunkTempl = chunkTempl;
     var trie = this;
 
     dojo.xhrGet({url: rootURL,
@@ -69,6 +70,11 @@ function LazyTrie(baseURL, rootURL) {
                  }
         });
 }
+
+LazyTrie.prototype.chunkUrl = function(prefix) {
+    var chunkUrl = this.chunkTempl.replace("\{Chunk\}", prefix);
+    return Util.resolveUrl(this.rootUrl, chunkUrl);
+};
 
 LazyTrie.prototype.pathToPrefix = function(path) {
     var node = this.root;
@@ -162,7 +168,7 @@ LazyTrie.prototype.findPath = function(query, callback) {
         if ("number" == typeof node[childIndex][0]) {
             // lazy node
             var trie = this;
-            dojo.xhrGet({url: this.baseURL + this.pathToPrefix(path) + ".json",
+            dojo.xhrGet({url: this.chunkUrl(this.pathToPrefix(path)),
                          handleAs: "json",
                          load: function(o) {
                              node[childIndex] = o;

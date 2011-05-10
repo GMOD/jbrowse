@@ -33,9 +33,6 @@
     <script type="text/javascript" src="js/GenomeView.js"></script>
 <!-- js_source_files -->
 
-    <script type="text/javascript" src="data/refSeqs.js"></script>
-    <script type="text/javascript" src="data/trackInfo.js"></script>
-
     <script type="text/javascript">
     /* <![CDATA[ */
            var queryParams = dojo.queryToObject(window.location.search.slice(1));
@@ -48,13 +45,15 @@
            }
            var b = new Browser({
                                    containerID: "GenomeBrowser",
-                                   refSeqs: refSeqs,
-                                   trackData: trackInfo,
+                                   refSeqs: {url: "data/refSeqs.json"},
+                                   tracklists: [
+                                       {url: "data/trackList.json"}
+                                   ],
+                                   nameUrl: "data/names/root.json",
                                    defaultTracks: "DNA,gene,mRNA,noncodingRNA",
                                    location: queryParams.loc,
                                    tracks: queryParams.tracks,
                                    bookmark: bookmarkCallback,
-                                   dataRoot: "data/"
                                });
     /* ]]> */
     </script>
