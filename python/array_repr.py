@@ -71,7 +71,9 @@ class ArrayRepr:
         
     def __init__(self, classes):
         self.classes = classes
-        self.fields = [(dict((v, k + 1) for k, v in enumerate(c['attributes'])))
+        self.fields = [(dict((v, k + 1)
+                             for k, v
+                             in enumerate(c['attributes'])) )
                        for c in classes]
 
     def attrIndices(self, attr):
