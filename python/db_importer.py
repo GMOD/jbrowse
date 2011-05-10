@@ -5,7 +5,9 @@ from json_generator import JsonGenerator
 # snpQuery = 'select chromStart as Start, chromEnd as End, name as Name, transcript, frame, alleleCount, funcCodes, alleles, codons, peptides'
 # db_importer.dbImport(conn, "snp132CodingDbSnp", snpQuery, "chromEnd", "chrom", "../data/", "snp132CodingDbSnp")
 def dbImport(conn, table, query, endCol, chromCol, dataDir,
-             trackLabel, key = None, chunkBytes = 200000, compress = True):
+             trackLabel, key = None, chunkBytes = 200000,
+             compress = True,
+             config = {'style': {'className': 'feature2'}}):
     query += " from %s where %s=? order by Start asc, End desc" \
              % (table, chromCol)
     cur = conn.execute("""
@@ -25,10 +27,6 @@ def dbImport(conn, table, query, endCol, chromCol, dataDir,
             jsongen.addSorted([0] + list(row))
 
         jsongen.generateTrack()
-    jsongen.writeTrackEntry('FeatureTrack', {
-        'style': {
-            'className': 'feature2'
-            }
-        })
+    jsongen.writeTrackEntry('FeatureTrack', config)
         
         
