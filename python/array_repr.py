@@ -52,12 +52,20 @@ class ArrayRepr:
     code needs some way to differentiate arrays that are meant to be objects
     from arrays that are actually meant to be arrays.
     So for each class, we include a dict with <attribute name>: true mappings
-    for each attribute that is meant to be an array, something like this:
+    for each attribute that is meant to be an array.
+
+    Also, in cases where some attribute values are the same for all objects
+    in a particular set, it may be convenient to define a "prototype"
+    with default values for all objects in the set
+
+    In the end, we get something like this:
 
         classes=[
             {'attributes': ['Start', 'End', 'Subfeatures'],
+             'proto': {'Chrom': 'chr1'},
              'isArrayAttr': {Subfeatures: true}}
             ]
+
     That's what this class facilitates.
     """
         
@@ -79,7 +87,9 @@ class ArrayRepr:
             adhocIndex = len(self.classes[obj[0]]['attributes']) + 1
             if ( (adhocIndex >= len(obj))
                 or (not (attr in obj[adhocIndex])) ):
-                return None # should this be raise KeyError instead?
+                if (attr in self.classes[obj[0]].proto):
+                    return self.classes[obj[0]].proto[attr]
+                return None 
             return obj[adhocIndex][attr]
 
     def fastGet(self, obj, attr):

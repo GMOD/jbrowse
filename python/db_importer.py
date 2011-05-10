@@ -16,7 +16,7 @@ def dbImport(conn, table, query, endCol, chromCol, dataDir,
         cur = conn.execute(query, (chrom,))
         classes = [{
             'attributes': [f[0] for f in cur.description],
-            'prototype': {'Chrom': chrom}
+            'proto': {'Chrom': chrom}
             }]
         jsongen = JsonGenerator(dataDir, trackLabel, chrom, chunkBytes,
                                 compress, classes, refEnd = refEnd,

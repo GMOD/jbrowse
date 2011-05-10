@@ -331,6 +331,25 @@ Finisher.prototype.finish = function() {
             [0, 1, 2, 1, 1],
             [0, 5, 6, 1, 2, {foo: 1}]
         ]
+
+    Given that individual objects are being represented by arrays, generic
+    code needs some way to differentiate arrays that are meant to be objects
+    from arrays that are actually meant to be arrays.
+    So for each class, we include a dict with <attribute name>: true mappings
+    for each attribute that is meant to be an array.
+
+    Also, in cases where some attribute values are the same for all objects
+    in a particular set, it may be convenient to define a "prototype"
+    with default values for all objects in the set
+
+    In the end, we get something like this:
+
+        classes=[
+            {'attributes': ['Start', 'End', 'Subfeatures'],
+             'proto': {'Chrom': 'chr1'},
+             'isArrayAttr': {Subfeatures: true}}
+            ]
+
     That's what this class facilitates.
     """
         
@@ -360,9 +379,12 @@ ArrayRepr.prototype.get = function(obj, attr) {
     if (attr in this.fields[obj[0]]) {
         return obj[this.fields[obj[0]][attr]];
     } else {
-        var adhocIndex = len(self.classes[obj[0]]) + 1;
-        if ((adhocIndex >= obj.length) || (not(attr in obj[adhocIndex])))
+        var adhocIndex = self.classes[obj[0]].attributes.length + 1;
+        if ((adhocIndex >= obj.length) || (not(attr in obj[adhocIndex]))) {
+            if (attr in this.classes[obj[0]].proto)
+                return this.classes[obj[0]].proto[attr];
             return undefined;
+        }
         return obj[adhocIndex][attr];
     }
 };
