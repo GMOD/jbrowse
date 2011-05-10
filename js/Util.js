@@ -399,7 +399,7 @@ ArrayRepr.prototype.get = function(obj, attr) {
         return obj[this.fields[obj[0]][attr]];
     } else {
         var adhocIndex = this.classes[obj[0]].attributes.length + 1;
-        if ((adhocIndex >= obj.length) || (not(attr in obj[adhocIndex]))) {
+        if ((adhocIndex >= obj.length) || (!(attr in obj[adhocIndex]))) {
             if (attr in this.classes[obj[0]].proto)
                 return this.classes[obj[0]].proto[attr];
             return undefined;
@@ -418,7 +418,7 @@ ArrayRepr.prototype.set = function(obj, attr, val) {
     if (attr in this.fields[obj[0]]) {
         obj[this.fields[obj[0]][attr]] = val;
     } else {
-        var adhocIndex = len(self.classes[obj[0]]) + 1;
+        var adhocIndex = self.classes[obj[0]].length + 1;
         if (adhocIndex >= obj.length)
             obj[adhocIndex] = {};
         obj[adhocIndex][attr] = val;
@@ -438,7 +438,7 @@ ArrayRepr.prototype.makeSetter = function(attr) {
 
 ArrayRepr.prototype.makeGetter = function(attr) {
     var self = this;
-    return function(obj) { self.get(obj, attr); };
+    return function(obj) { return self.get(obj, attr); };
 };
 
 ArrayRepr.prototype.makeFastSetter = function(attr) {
