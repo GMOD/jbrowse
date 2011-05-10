@@ -87,8 +87,9 @@ class ArrayRepr:
             adhocIndex = len(self.classes[obj[0]]['attributes']) + 1
             if ( (adhocIndex >= len(obj))
                 or (not (attr in obj[adhocIndex])) ):
-                if (attr in self.classes[obj[0]].proto):
-                    return self.classes[obj[0]].proto[attr]
+                if (('proto' in self.classes[obj[0]])
+                    and (attr in self.classes[obj[0]]['proto']) ):
+                    return self.classes[obj[0]]['proto'][attr]
                 return None 
             return obj[adhocIndex][attr]
 
