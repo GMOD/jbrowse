@@ -93,7 +93,7 @@ class LazyNCList:
         self.sizeThresh = sizeThresh
         self.topList = []
         self.levels = []
-        self.chunkNum = 0
+        self.chunkNum = 1 # chunk 0 is the root chunk
         self.lastAdded = None
 
     def nestedList(self):
