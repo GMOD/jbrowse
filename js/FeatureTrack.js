@@ -505,8 +505,6 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
         + " width:" + (100 * ((displayEnd - displayStart) / blockWidth)) + "%;"
         + (this.config.style.featureCss ? this.config.style.featureCss : "");
 
-    //if (this.featureCallback) this.featureCallback(feature, fields, featDiv);
-
     if (this.config.style.arrowheadClass) {
         var ah = document.createElement("div");
         switch (strand) {

@@ -128,65 +128,6 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
                                finish.dec();
                            }
                           );
-
-            // // lazy node
-            // if (chunk) {
-            //     if ("loading" == chunk.state) {
-            //         // node is currenly loading; finish this query once it
-            //         // has been loaded
-            //         finish.inc();
-            //         chunk.callbacks.push(
-            //             function(parentIndex) {
-            //                 return function(o) {
-            //                     ncl.iterHelper(o, from, to, fun, finish, inc,
-            //                                    searchGet, testGet,
-            //                                    [chunkNum]);
-            //                     finish.dec();
-            //                 };
-            //             }(i)
-            //         );
-            //     } else if ("loaded" == chunk.state) {
-            //         this.iterHelper(chunk.sublist, from, to, fun, finish,
-            //                         inc, searchGet, testGet, [chunkNum]);
-            //     } else {
-            //         console.log("unknown lazy type: " + arr[i]);
-            //     }
-            // } else {
-            //     // if the chunk doesn't already exist in this.lazyChunks,
-            //     // that means this node hasn't been loaded, so start loading
-            //     chunk = {
-            //         state: "loading",
-            //         callbacks: []
-            //     };
-            //     this.lazyChunks[chunkNum] = chunk;
-            //     finish.inc();
-            //     dojo.xhrGet(
-            //         {
-            //             url: this.baseURL +
-            //                 this.lazyUrlTemplate.replace(
-            //                         /\{Chunk\}/g, chunkNum
-            //                 ),
-            //             handleAs: "json",
-            //             load: function(myChunk, parentIndex) {
-            //                 return function(o) {
-            //                     myChunk.state = "loaded";
-            //                     myChunk.sublist = o;
-            //                     ncl.iterHelper(o, from, to,
-            //                                    fun, finish, inc,
-            //                                    searchGet, testGet,
-            //                                    [chunkNum]);
-            //                     for (var c = 0;
-            //                          c < lazyObj.callbacks.length;
-            //                          c++)
-            //                          myChunk.callbacks[c](o);
-            //                     finish.dec();
-            //                 };
-            //             }(chunk, i),
-            //             error: function() {
-            //                 finish.dec();
-            //             }
-            //         });
-            // }
         } else {
             fun(arr[i], path.concat(i));
         }
@@ -226,7 +167,6 @@ NCList.prototype.histogram = function(from, to, numBins, callback) {
     var start = this.start;
     var end = this.end;
     for (var i = 0; i < numBins; i++) result[i] = 0;
-    //this.histHelper(this.topList, from, to, result, numBins, (to - from) / numBins);
     this.iterate(from, to,
                  function(feat) {
 	             var firstBin =
