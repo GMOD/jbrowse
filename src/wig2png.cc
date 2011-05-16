@@ -635,9 +635,11 @@ int main(int argc, char **argv){
         atoi(strtok(NULL, ","))
     };
 
-    ensurePath("", outdiropt)
+    vector<string> outdirPath;
+    outdirPath.push_back(outdiropt);
+    ensurePath("", outdirPath);
+
     vector<string> relPath;
-    //basePath.push_back(outdiropt);
     relPath.push_back(pngrelopt);
     relPath.push_back(tracklabel);
     string relDir = ensurePath(outdiropt, relPath);
