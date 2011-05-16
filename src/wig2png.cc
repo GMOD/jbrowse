@@ -635,6 +635,7 @@ int main(int argc, char **argv){
         atoi(strtok(NULL, ","))
     };
 
+    ensurePath("", outdiropt)
     vector<string> relPath;
     //basePath.push_back(outdiropt);
     relPath.push_back(pngrelopt);
