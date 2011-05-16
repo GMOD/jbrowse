@@ -6,7 +6,6 @@ import pysam
 
 from json_generator import JsonGenerator, writeTrackEntry
 
-import os
 modPath = os.path.abspath(__file__)
 wig2png = os.path.join(os.path.split(os.path.split(modPath)[0])[0],
                        "bin", "wig2png")
@@ -30,7 +29,9 @@ def bamCoverageImport(bamPath, dataDir, trackLabel, key = None,
     wigFile.flush()
     os.fsync(wigFile.fileno())
 
-    wig2pngArgs = [wig2png, "--outdir", dataDir, "--track-label", trackLabel,
+    wig2pngArgs = [wig2png, "--outdir", dataDir,
+                   "--json-dir", os.path.join(dataDir, "tracks"),
+                   "--track-label", trackLabel,
                    wigFile.name]
     retcode = subprocess.check_call(wig2pngArgs)
     wigFile.close()
