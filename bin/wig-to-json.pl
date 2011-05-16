@@ -93,7 +93,7 @@ foreach my $seqInfo (@refSeqs) {
 		       {
 			'label' => $trackLabel,
 			'key' => defined($key) ? $key : $trackLabel,
-			'url' => "$trackRel/{refseq}/$trackLabel.json",
+			'url' => "$trackRel/$trackLabel/{refseq}.json",
 			'type' => "ImageTrack",
 		       };
 		     return $trackList;

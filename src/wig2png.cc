@@ -680,8 +680,8 @@ int main(int argc, char **argv){
     jsonDir.push_back(jsondiropt);
     WiggleTileRenderer* r;
     for (chrom = chroms.begin(); chrom != chroms.end(); chrom++) {
-        jsonDir.push_back(*chrom);
-        string jsonPath = ensurePath("", jsonDir) + "/" + tracklabel + ".json";
+        jsonDir.push_back(tracklabel);
+        string jsonPath = ensurePath("", jsonDir) + "/" + *chrom + ".json";
         ofstream json(jsonPath.c_str());
         jsonDir.pop_back();
         if (json.is_open()) {
