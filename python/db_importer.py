@@ -1,5 +1,5 @@
 import os
-from json_generator import JsonGenerator
+from json_generator import JsonGenerator, writeTrackEntry
 
 # example call:
 # snpQuery = 'select chromStart as Start, chromEnd as End, name as Name, transcript, frame, alleleCount, funcCodes, alleles, codons, peptides from snp132CodingDbSnp where chrom=%s'
@@ -25,6 +25,9 @@ def dbImport(cur, table, query, endCol, chromCol, dataDir,
             jsongen.addSorted([0] + list(row))
 
         jsongen.generateTrack()
-    jsongen.writeTrackEntry('FeatureTrack', config)
+    config['urlTemplate'] = jsongen.urlTemplate
+    writeTrackEntry(dataDir, 'FeatureTrack', trackLabel,
+                    key if key is not None else trackLabel,
+                    config)
         
         

@@ -185,11 +185,14 @@ class JsonFileStorage:
             shutil.rmtree(outDir)
         os.makedirs(outDir)
 
+    def fullPath(self, path):
+        return os.path.join(self.outDir, path)
+    
     def put(self, path, obj):
         if self.compress:
-            fh = GzipFile(os.path.join(self.outDir, path), "w")
+            fh = GzipFile(self.fullPath(path), "w")
         else:
-            fh = open(os.path.join(self.outDir, path), "w")
+            fh = open(self.fullPath(path), "w")
         json.dump(obj, fh, check_circular = False, separators = (',', ':'))
         fh.close()
 
@@ -201,6 +204,8 @@ class JsonGenerator:
         self.dataDir = dataDir
         self.outDir = os.path.join(dataDir, "tracks", trackLabel, refName)
         self.store = JsonFileStorage(self.outDir, compress)
+        self.urlTemplate = "tracks/%s/{refseq}/trackData.%s" % \
+                           (trackLabel, self.store.ext)
         self.trackLabel = trackLabel
         self.key = key if (key is not None) else trackLabel
         self.refName = refName
@@ -243,54 +248,51 @@ class JsonGenerator:
         if self.writeHists:
             trackData['histograms'] = self.histWriter.finish()
 
-        self.store.put(
-            os.path.join("trackData." + self.store.ext),
-            trackData
-        )
+        self.store.put("trackData." + self.store.ext, trackData)
 
-    def modifyJsonFile(self, file, callback):
-        fh = open(file, "a+")
-        fcntl.flock(fh, fcntl.LOCK_EX)
+def modifyJsonFile(file, callback):
+    fh = open(file, "a+")
+    fcntl.flock(fh, fcntl.LOCK_EX)
+    fh.seek(0, os.SEEK_SET)
+    data = None
+    if os.fstat(fh.fileno()).st_size > 0:
+        jsonString = fh.read()
+        if len(jsonString) > 0:
+            data = json.loads(jsonString)
         fh.seek(0, os.SEEK_SET)
-        data = None
-        if os.fstat(fh.fileno()).st_size > 0:
-            jsonString = fh.read()
-            if len(jsonString) > 0:
-                data = json.loads(jsonString)
-            fh.seek(0, os.SEEK_SET)
-            fh.truncate(0)
-        json.dump(callback(data), fh, indent = 2);
-        fh.close()
+        fh.truncate(0)
+    json.dump(callback(data), fh, indent = 2);
+    fh.close()
 
-    def writeTrackEntry(self, trackType, trackConfig, trackMeta = None):
-        listFile = os.path.join(self.dataDir, "trackList.json")
-        trackConfig['urlTemplate'] = "tracks/%s/{refseq}/trackData.%s" % \
-                                     (self.trackLabel, self.store.ext)
-        def cb(trackData):
-            if trackData is None:
-                trackData = {
-                    'formatVersion': 1,
-                    'defaults': None,
-                    'tracks': []
-                    }
-            # want to add this track entry to the "tracks" list,
-            # replacing any existing entry with the same label,
-            # and preserving the original ordering
-            trackIndex = None
-            trackList = trackData['tracks']
-            for (i, v) in enumerate(trackList):
-                if v['label'] == self.trackLabel:
-                    trackIndex = i
-            if trackIndex is None:
-                trackIndex = len(trackList)
-                trackList.append(None)
-            trackList[trackIndex] = {
-                'label': self.trackLabel,
-                'key': self.key,
-                'type': trackType,
-                'meta': trackMeta,
-                'config': trackConfig
+def writeTrackEntry(dataDir, trackType, trackLabel, trackKey,
+                    trackConfig, trackMeta = None,
+                    trackListFile = "trackList.json"):
+    listFile = os.path.join(dataDir, trackListFile)
+    def cb(trackData):
+        if trackData is None:
+            trackData = {
+                'formatVersion': 1,
+                'defaults': None,
+                'tracks': []
                 }
-            return trackData
+        # want to add this track entry to the "tracks" list,
+        # replacing any existing entry with the same label,
+        # and preserving the original ordering
+        trackIndex = None
+        trackList = trackData['tracks']
+        for (i, v) in enumerate(trackList):
+            if v['label'] == trackLabel:
+                trackIndex = i
+        if trackIndex is None:
+            trackIndex = len(trackList)
+            trackList.append(None)
+        trackList[trackIndex] = {
+            'label': trackLabel,
+            'key': trackKey,
+            'type': trackType,
+            'meta': trackMeta,
+            'config': trackConfig
+            }
+        return trackData
 
-        self.modifyJsonFile(listFile, cb)
+    modifyJsonFile(listFile, cb)
