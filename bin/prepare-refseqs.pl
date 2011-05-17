@@ -206,42 +206,54 @@ sub exportSeqChunks {
 
 die "found no ref seqs" if ($#refSeqs < 0);
 
-JsonGenerator::modifyJSFile("$outDir/refSeqs.js", "refSeqs",
-                            sub {
-                                #add new ref seqs while keeping the order
-                                #of the existing ref seqs
-                                my $old = shift;
-                                my %refs;
-                                $refs{$_->{name}} = $_ foreach (@refSeqs);
-                                for (my $i = 0; $i <= $#{$old}; $i++) {
-                                    $old->[$i] = delete $refs{$old->[$i]->{name}}
-                                      if $refs{$old->[$i]->{name}};
+JsonGenerator::modifyJsonFile("$outDir/refSeqs.json",
+                              sub {
+                                  #add new ref seqs while keeping the order
+                                  #of the existing ref seqs
+                                  my $old = shift;
+                                  my %refs;
+                                  $refs{$_->{name}} = $_ foreach (@refSeqs);
+                                  for (my $i = 0; $i <= $#{$old}; $i++) {
+                                      $old->[$i] =
+                                        delete $refs{$old->[$i]->{name}}
+                                        if $refs{$old->[$i]->{name}};
 
-                                }
-                                foreach my $newRef (@refSeqs) {
-                                    push @{$old}, $newRef
-                                      if $refs{$newRef->{name}};
-                                }
-                                return $old;
-                            });
+                                  }
+                                  foreach my $newRef (@refSeqs) {
+                                      push @{$old}, $newRef
+                                        if $refs{$newRef->{name}};
+                                  }
+                                  return $old;
+                              });
 
 unless ($noSeq) {
-    JsonGenerator::modifyJSFile("$outDir/trackInfo.js", "trackInfo",
-                                sub {
-                                    my $trackList = shift;
-                                    my $i;
-                                    for ($i = 0; $i <= $#{$trackList}; $i++) {
-                                        last if ($trackList->[$i]->{'label'}
-                                                 eq
-                                                 $seqTrackName);
-                                    }
-                                    $trackList->[$i] =
+    JsonGenerator::modifyJsonFile("$outDir/trackList.json",
+                                  sub {
+                                      my $trackList = shift;
+                                      unless (defined($trackList)) {
+                                          $trackList =
+                                            {
+                                             'formatVersion' => 1,
+                                             'tracks' => []
+                                            };
+                                      }
+                                      my $tracks = $trackList->{'tracks'};
+                                      my $i;
+                                      for ($i = 0; $i <= $#{$tracks}; $i++) {
+                                          last if ($tracks->[$i]->{'label'}
+                                                   eq
+                                                   $seqTrackName);
+                                      }
+                                    $tracks->[$i] =
                                       {
                                        'label' => $seqTrackName,
                                        'key' => $seqTrackName,
-                                       'url' => "$seqRel/{refseq}/",
                                        'type' => "SequenceTrack",
-                                       'args' => {'chunkSize' => $chunkSize}
+                                       'config' =>
+                                       {
+                                        'chunkSize' => $chunkSize,
+                                        'urlTemplate' => "$seqRel/{refseq}/",
+                                       }
                                       };
                                     return $trackList;
                             });
