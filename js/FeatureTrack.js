@@ -97,10 +97,12 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
             this.wrapHandler(this.evalHook(this.config.hooks.events[event]));
     }
 
-    this.histograms = trackInfo.histograms;
-    for (var i = 0; i < this.histograms.meta.length; i++) {
-        this.histograms.meta[i].lazyArray =
-            new LazyArray(this.histograms.meta[i].arrayParams, url);
+    if (trackInfo.histograms) {
+        this.histograms = trackInfo.histograms;
+        for (var i = 0; i < this.histograms.meta.length; i++) {
+            this.histograms.meta[i].lazyArray =
+                new LazyArray(this.histograms.meta[i].arrayParams, url);
+        }
     }
 
     this.setLoaded();
@@ -257,7 +259,8 @@ FeatureTrack.prototype.fillBlock = function(blockIndex, block,
                                             scale, stripeWidth,
                                             containerStart, containerEnd) {
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
-    if (scale < (this.density * this.config.scaleThresh.hist)) {
+    if (this.histograms &&
+        (scale < (this.density * this.config.scaleThresh.hist)) ) {
 	this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
                       containerStart, containerEnd);
     } else {
