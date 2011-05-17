@@ -119,7 +119,7 @@ class WiggleTileRenderer {
 public:
 
     WiggleTileRenderer(int pixelBases, int tileWidthPixels, int tileHeight,
-                       string baseDir, string relDir)
+                       string baseDir)
         : curTile_(numeric_limits<int>::min()),
 	  curStart_(0),
 	  curEnd_(numeric_limits<int>::min()),
@@ -128,7 +128,6 @@ public:
           tileWidthPixels_(tileWidthPixels),
           tileHeight_(tileHeight),
           baseDir_(baseDir),
-          relDir_(relDir),
           tileRel_(baseDir) {
     }
 
@@ -184,23 +183,18 @@ public:
 
         //if this is a new chrom, make a directory for it
         if (chrom != chrom_) {
-            stringstream s;
-            string scale;
-
-            s << pixelBases_;
-            scale = s.str();
-
-            const string path[] = {relDir_, chrom, scale};
+            const string path[] = {chrom, scale()};
             tileRel_ = ensurePath(baseDir_, vector<string>(path, path + sizeof(path)/sizeof(*path)));
-            chromRels_[chrom] = tileRel_;
         }
 
         chrom_ = chrom;
         curTile_ = base / tileWidthBases_;
     }
 
-    string chromRel(string chrom) {
-        return chromRels_[chrom];
+    string scale() {
+        stringstream s;
+        s << pixelBases_;
+        return s.str();
     }
 
     int getTileBases() const {
@@ -228,10 +222,8 @@ protected:
     // or numeric_limits<int>::min() if no info added
     int curEnd_;
     string baseDir_;
-    string relDir_;
     string tileRel_;
     string chrom_;
-    map<string, string> chromRels_;
 };
 
 class MeanRenderer : public WiggleTileRenderer {
@@ -239,11 +231,11 @@ class MeanRenderer : public WiggleTileRenderer {
 public:
 
     MeanRenderer(int tileWidthBases, int tileWidthPixels,
-                 int tileHeight, string baseDir, string relDir,
+                 int tileHeight, string baseDir,
                  png_color bgColor, png_color fgColor,
                  float globalMax, float globalMin) :
         WiggleTileRenderer(tileWidthBases, tileWidthPixels,
-                           tileHeight, baseDir, relDir),
+                           tileHeight, baseDir),
         bgColor_(bgColor),
         fgColor_(fgColor),
         globalMax_(globalMax),
@@ -592,10 +584,7 @@ int main(int argc, char **argv){
   
     INIT_OPTS_LIST (opts, argc, argv, 1, "[options] <input file>", "create a JBrowse quantitative track, broken into tile images, from a WIG file");
 
-    string outdiropt = "data";
-    string pngrelopt = "tiles";
-    string jsondiropt = "data/tracks";
-    string tracklabel = "wigtrack";
+    string outdiropt = "";
     int width = 2000;
     int height = 100;
     string fgopt = "105,155,111";
@@ -603,10 +592,7 @@ int main(int argc, char **argv){
     string minopt, maxopt;
 
 
-    opts.add ("od -outdir", outdiropt, "the data directory");
-    opts.add ("pd -png-dir", pngrelopt, "PNG output directory, relative to the data directory");
-    opts.add ("jd -json-dir", jsondiropt, "JSON output directory");
-    opts.add ("tl -track-label", tracklabel, "track label");
+    opts.add ("od -outdir", outdiropt, "the directory for this track");
     opts.add ("tw -tile-width", width, "tile width in pixels");
     opts.add ("th -track-height", height, "track height in pixels");
     opts.add ("fg -foreground-color", fgopt, "foreground R,G,B color");
@@ -639,11 +625,6 @@ int main(int argc, char **argv){
     outdirPath.push_back(outdiropt);
     ensurePath("", outdirPath);
 
-    vector<string> relPath;
-    relPath.push_back(pngrelopt);
-    relPath.push_back(tracklabel);
-    string relDir = ensurePath(outdiropt, relPath);
-
     float max = 1.0f;
     float min = 0.0f;
     if (!minopt.empty()) {
@@ -671,7 +652,7 @@ int main(int argc, char **argv){
 
     for (int i = 0; i < num_zooms; i++) {
         p.addRenderer(new MeanRenderer(zooms[i], width, height,
-                                       outdiropt, relDir,
+                                       outdiropt,
                                        bg, fg, max, min));
     }
 
@@ -679,14 +660,10 @@ int main(int argc, char **argv){
 
     set<string> chroms = p.getChroms();
     set<string>::iterator chrom;
-    vector<string> jsonDir;
-    jsonDir.push_back(jsondiropt);
     WiggleTileRenderer* r;
     for (chrom = chroms.begin(); chrom != chroms.end(); chrom++) {
-        jsonDir.push_back(tracklabel);
-        string jsonPath = ensurePath("", jsonDir) + "/" + *chrom + ".json";
+        string jsonPath = outdiropt + "/" + *chrom + "/trackData.json";
         ofstream json(jsonPath.c_str());
-        jsonDir.pop_back();
         if (json.is_open()) {
             json << "{" << endl;
             json << "   \"zoomLevels\" : [" << endl;
@@ -694,7 +671,7 @@ int main(int argc, char **argv){
                 r = p.getRenderer(i);
                 json << "      {" << endl
                      << "         \"urlPrefix\" : \""
-                     << r->chromRel(*chrom) << "/\"," << endl
+                     << r->scale() << "/\"," << endl
                      << "         \"height\" : "
                      << height << "," << endl
                      << "         \"basesPerTile\" : "

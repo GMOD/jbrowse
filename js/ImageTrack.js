@@ -1,11 +1,13 @@
-function ImageTrack(trackMeta, url, refSeq, browserParams) {
+function ImageTrack(trackMeta, refSeq, browserParams) {
     Track.call(this, trackMeta.label, trackMeta.key,
                false, browserParams.changeCallback);
     this.refSeq = refSeq;
     this.tileToImage = {};
     this.zoomCache = {};
-    this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "");
-    this.load(this.baseUrl + url);
+    this.url = Util.resolveUrl(trackMeta.sourceUrl,
+                               Util.fillTemplate(trackMeta.config.urlTemplate,
+                                                 {'refseq': refSeq.name}) );
+    this.load(this.url);
 
     this.imgErrorHandler = function(ev) {
         var img = ev.target || ev.srcElement;
@@ -62,10 +64,7 @@ ImageTrack.prototype.getImages = function(zoom, startBase, endBase) {
 	if (!im) {
 	    im = document.createElement("img");
             dojo.connect(im, "onerror", this.imgErrorHandler);
-            //prepend this.baseUrl if zoom.urlPrefix is relative
-            var absUrl = new RegExp("^(([^/]+:)|\/)");
-            im.src = (zoom.urlPrefix.match(absUrl) ? "" : this.baseUrl)
-                     + zoom.urlPrefix + i + ".png";
+            im.src = Util.resolveUrl(this.url, zoom.urlPrefix + i + ".png");
             //TODO: need image coord systems that don't start at 0?
 	    im.startBase = (i * zoom.basesPerTile); // + this.refSeq.start;
 	    im.baseWidth = zoom.basesPerTile;

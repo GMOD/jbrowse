@@ -28,15 +28,15 @@ def bamCoverageImport(bamPath, dataDir, trackLabel, key = None,
 
     wigFile.flush()
     os.fsync(wigFile.fileno())
+    outDir = os.path.join(dataDir, "tracks", trackLabel)
+    if not os.path.exists(outDir):
+        os.makedirs(outDir)
 
-    wig2pngArgs = [wig2png, "--outdir", dataDir,
-                   "--json-dir", os.path.join(dataDir, "tracks"),
-                   "--track-label", trackLabel,
-                   wigFile.name]
+    wig2pngArgs = [wig2png, "--outdir", outDir, wigFile.name]
     retcode = subprocess.check_call(wig2pngArgs)
     wigFile.close()
 
-    config['urlTemplate'] = "tracks/%s/{refseq}.json" % trackLabel
+    config['urlTemplate'] = "tracks/%s/{refseq}/trackData.json" % trackLabel
     writeTrackEntry(dataDir, 'ImageTrack', trackLabel,
                     key if key is not None else trackLabel,
                     config)
