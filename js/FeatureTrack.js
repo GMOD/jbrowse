@@ -68,14 +68,14 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
                     featDiv = document.createElement("div");
                 }
                 return featDiv;
-            },
-            events: {
             }
+        },
+        events: {
         }
     };
 
     if (! this.config.linkTemplate) {
-        defaultConfig.hooks.events.click =
+        defaultConfig.events.click =
             function(track, elem, feat, attrs, event) {
 	        alert("clicked on feature\n" +
                       "start: " + attrs.get(feat, "Start") +
@@ -90,11 +90,12 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
     this.config = defaultConfig;
 
     this.config.hooks.create = this.evalHook(this.config.hooks.create);
+    this.config.hooks.modify = this.evalHook(this.config.hooks.modify);
 
     this.eventHandlers = {};
-    for (var event in this.config.hooks.events) {
+    for (var event in this.config.events) {
         this.eventHandlers[event] =
-            this.wrapHandler(this.evalHook(this.config.hooks.events[event]));
+            this.wrapHandler(this.evalHook(this.config.events[event]));
     }
 
     if (trackInfo.histograms) {
@@ -560,6 +561,10 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
                                   subfeatures[i],
                                   displayStart, displayEnd);
         }
+    }
+
+    if (this.config.hooks.modify) {
+        this.config.hooks.modify(this, feature, this.attrs, featDiv);
     }
 
     //ie6 doesn't respect the height style if the div is empty
