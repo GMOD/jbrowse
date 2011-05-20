@@ -1,6 +1,7 @@
 import os
 import subprocess
 import tempfile
+import urllib
 
 import pysam
 
@@ -16,30 +17,51 @@ class BamNotSortedError:
 def bamCoverageImport(bamPath, dataDir, trackLabel, key = None,
                       config = {}):
     bamFile = pysam.Samfile(bamPath, 'rb')
-    wigFile = tempfile.NamedTemporaryFile(mode = "w", suffix = '.wig',
-                                          prefix = "wig-cov-", delete = True)
+    plusWig = tempfile.NamedTemporaryFile(mode = "w", suffix = '.wig',
+                                          prefix = "wig-cov-",
+                                          delete = True)
+    minusWig = tempfile.NamedTemporaryFile(mode = "w", suffix = '.wig',
+                                           prefix = "wig-cov-",
+                                           delete = True)
+
     # get the list of reference seq metadata
     refs = bamFile.header['SQ']
     for ref in refs:
-        wigFile.write("variableStep  chrom=%s\n" % (ref['SN'],))
+        plusWig.write("variableStep  chrom=%s\n" % (ref['SN'],))
+        minusWig.write("variableStep  chrom=%s\n" % (ref['SN'],))
         for pileupCol in bamFile.pileup(ref['SN']):
+            minusReads = sum(1 if rd.alignment.is_reverse else 0
+                             for rd in pileupCol.pileups)
+            plusReads = pileupCol.n - minusReads
             # wiggle is 1-based, pysam is 0-based
-            wigFile.write('%s %s\n' % (pileupCol.pos + 1, pileupCol.n))
+            plusWig.write('%s %d\n' % (pileupCol.pos + 1, plusReads))
+            minusWig.write('%s %d\n' % (pileupCol.pos + 1, -minusReads)) 
 
-    wigFile.flush()
-    os.fsync(wigFile.fileno())
-    outDir = os.path.join(dataDir, "tracks", trackLabel)
-    if not os.path.exists(outDir):
-        os.makedirs(outDir)
+    
+    for (strand, wigFile, color) in [("+", plusWig, "121,199,76"),
+                                     ("-", minusWig, "74,131,237")]:
+        wigFile.flush()
+        os.fsync(wigFile.fileno())
 
-    wig2pngArgs = [wig2png, "--outdir", outDir, wigFile.name]
-    retcode = subprocess.check_call(wig2pngArgs)
-    wigFile.close()
+        outDir = os.path.join(dataDir, "tracks", trackLabel + "_" + strand)
+        if not os.path.exists(outDir):
+            os.makedirs(outDir)
 
-    config['urlTemplate'] = "tracks/%s/{refseq}/trackData.json" % trackLabel
-    writeTrackEntry(dataDir, 'ImageTrack', trackLabel,
-                    key if key is not None else trackLabel,
-                    config)
+        wig2pngArgs = [wig2png,
+                       "--outdir", outDir,
+                       "--foreground-color", color,
+                       wigFile.name]
+        retcode = subprocess.check_call(wig2pngArgs)
+        wigFile.close()
+
+        config['urlTemplate'] = ("tracks/%s/{refseq}/trackData.json"
+                                 % urllib.quote(trackLabel + "_" + strand))
+        writeTrackEntry(dataDir, 'ImageTrack', trackLabel + "_" + strand,
+                        key + " " + strand
+                        if key is not None
+                        else trackLabel + "_" + strand,
+                        config)
+
 
 def bamImport(path, dataDir, trackLabel, key = None, chunkBytes = 200000,
               compress = True, config = None):
