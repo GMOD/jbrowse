@@ -126,7 +126,7 @@ var Browser = function(params) {
             dojo.connect(gv, "onCoarseMove", brwsr, "onCoarseMove");
 
             //set up track list
-            var trackListDiv = brwsr.createTrackList(brwsr.container, params);
+            brwsr.createTrackList(brwsr.container, params);
             containerWidget.startup();
 
 	    brwsr.isInitialized = true;
@@ -197,20 +197,30 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
  * @private
  */
 Browser.prototype.createTrackList = function(parent, params) {
+    dojo.require("dojo.data.ItemFileWriteStore");
+    dojo.require("dijit.tree.ForestStoreModel");
+    dojo.require("dijit.tree.dndSource");
+    dojo.require("dojo.cache");
+    dojo.require("dijit.Tree");
+    dojo.require("dijit.form.TextBox");
+
     var leftPane = document.createElement("div");
     leftPane.style.cssText="width: 10em";
     parent.appendChild(leftPane);
     var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, leftPane);
-    var trackListDiv = document.createElement("div");
-    trackListDiv.id = "tracksAvail";
-    trackListDiv.className = "container handles";
-    trackListDiv.style.cssText =
-        "width: 100%; height: 100%; overflow-x: hidden; overflow-y: auto;";
-    trackListDiv.innerHTML =
+
+    var dragMessage = document.createElement("div");
+    dragMessage.innerHTML =
         "Available Tracks:<br/>(Drag <img src=\""
         + (params.browserRoot ? params.browserRoot : "")
         + "img/right_arrow.png\"/> to view)<br/><br/>";
-    leftPane.appendChild(trackListDiv);
+    leftPane.appendChild(dragMessage);
+
+    var treeSection = document.createElement("div");
+    treeSection.id = "treeList";
+    treeSection.style.cssText =
+        "width: 100%; height: 100%; overflow-x: hidden; overflow-y: auto;";
+    leftPane.appendChild(treeSection);
 
     var brwsr = this;
 
@@ -219,6 +229,13 @@ Browser.prototype.createTrackList = function(parent, params) {
     };
 
     var trackListCreate = function(track, hint) {
+        if(track != '[object Object]') {
+            track = {'url' : String(store.getValue(track.item, 'url')),
+                     'label' : track.label,
+                     'key' : track.label,
+                     'args_chunkSize': String(store.getValue(track.item, 'args_chunkSize')),
+                     'type' : String(store.getValue(track.item, 'type'))};
+        }
         var node = document.createElement("div");
         node.className = "tracklist-label";
         node.innerHTML = track.key;
@@ -233,16 +250,68 @@ Browser.prototype.createTrackList = function(parent, params) {
         node.id = dojo.dnd.getUniqueId();
         return {node: node, data: track, type: ["track"]};
     };
-    this.trackListWidget = new dojo.dnd.Source(trackListDiv,
-                                               {creator: trackListCreate,
-						accept: ["track"],
-						withHandles: false});
+
+    var DropFromOutside = function(source, nodes, copy) {
+        var oldCreator = this._normalizedCreator;
+        // transferring nodes from the source to the target
+        if(this.creator){
+            // use defined creator
+            this._normalizedCreator = function(node, hint){
+                return oldCreator.call(this, source.getItem(node.id).data, hint);
+            };
+        }else{
+            // we have no creator defined => move/clone nodes
+            if(copy){
+                // clone nodes
+                this._normalizedCreator = function(node, hint){
+                    var t = source.getItem(node.id);
+                    var n = node.cloneNode(true);
+                    n.id = dojo.dnd.getUniqueId();
+                    return {node: n, data: t.data, type: t.type};
+                };
+            }else{
+                // move nodes
+                this._normalizedCreator = function(node, hint){
+                    var t = source.getItem(node.id);
+                    source.delItem(node.id);
+                    return {node: node, data: t.data, type: t.type};
+                };
+            }
+        }
+        this.selectNone();
+        if(!copy && !this.creator){
+            source.selectNone();
+        }
+        this.insertNodes(true, nodes, this.before, this.current);
+        if(!copy && this.creator && (source instanceof dojo.dnd.Source)){
+            source.deleteSelectedNodes();
+        }
+        if(!copy && this.creator && source instanceof dijit.tree.dndSource) {
+            var node = nodes[0];
+            var sourceItem = source.getItem(node.id);
+            var childItem = sourceItem.data.item;
+            var oldParentItem = sourceItem.data.getParent().item;
+            var tree = source.tree;
+            var targetWidget = source.targetAnchor;
+            var newParentItem = (targetWidget && targetWidget.item) || tree.item;
+            var model = tree.model;
+            model.pasteItem(childItem, oldParentItem, newParentItem, false, -1);
+        }
+        this._normalizedCreator = oldCreator;
+    };
 
     var trackCreate = function(track, hint) {
         var node;
         if ("avatar" == hint) {
             return trackListCreate(track, hint);
         } else {
+            if(track != '[object Object]') {
+                track = {'url' : String(store.getValue(track.item, 'url')),
+                         'label' : track.label,
+                         'key' : track.label,
+                         'args_chunkSize': String(store.getValue(track.item, 'args_chunkSize')),
+                         'type' : String(store.getValue(track.item, 'type'))};
+            }
             var replaceData = {refseq: brwsr.refSeq.name};
             var url = track.url.replace(/\{([^}]+)\}/g, function(match, group) {return replaceData[group];});
             var klass = eval(track.type);
@@ -258,19 +327,89 @@ Browser.prototype.createTrackList = function(parent, params) {
         }
         return {node: node, data: track, type: ["track"]};
     };
+
+    var checkFolderDragAccept = function(source, nodes) {
+        if(source instanceof dojo.dnd.Source){
+            return true;
+        }
+        if(store._getItemByIdentity(nodes[0].children[0].children[2].children[1].innerHTML).type != "TrackGroup") {
+            return true;
+        }
+        return false;
+    };
+
     this.viewDndWidget = new dojo.dnd.Source(this.view.zoomContainer,
                                        {
                                            creator: trackCreate,
-                                           accept: ["track"],
+                                           onDropExternal: DropFromOutside,
+                                           checkAcceptance: checkFolderDragAccept,
+                                           accept: ["treeNode"],
                                            withHandles: true
                                        });
+
+    var externalSourceCreator = function(nodes, target, source) {
+        return dojo.map(nodes, function(node){
+            var dataObj = brwsr.viewDndWidget.getItem(node.id);
+            brwsr.viewDndWidget.delItem(node.id);
+            node.parentNode.removeChild(node);
+            brwsr.onVisibleTracksChanged();
+            return {
+                'key' : node.id,
+                'label' : dataObj.data.label, 
+                'type' : dataObj.data.type,
+                'url' : dataObj.data.url,
+                'args_chunkSize': dataObj.data.args_chunkSize
+            };
+        });
+    };
+
+    var nodePlacementAcceptance = function(target, source, position) {
+        if((store._getItemByIdentity(target.childNodes[2].childNodes[2].innerHTML).type == "TrackGroup") && (position == 'over')) {
+            return true;
+        }
+        if((store._getItemByIdentity(target.childNodes[2].childNodes[2].innerHTML).type != "TrackGroup") && ((position == 'before') || (position == 'after'))) {
+            return true;
+        }
+        return false;
+    };
+
+    var store = new dojo.data.ItemFileWriteStore({
+        data: {
+                identifier: 'key',
+                label: 'label',
+                items: params.trackData
+              }
+    });
+
+    this.store = store;
+    store.save();
+
+    var treeModel = new dijit.tree.ForestStoreModel({
+        store: store,
+        query: {
+            "type": "TrackGroup"
+        },
+        childrenAttrs: ["children"]
+    });
+
+    var tree = new dijit.Tree({
+        dragThreshold: 0,
+        model: treeModel,
+        dndController: "dijit.tree.dndSource",
+        showRoot: false,
+        itemCreator: externalSourceCreator,
+        checkItemAcceptance: nodePlacementAcceptance
+    },
+    "treeList");
+
+    this.tree = tree;
+
     dojo.subscribe("/dnd/drop", function(source,nodes,iscopy){
                        brwsr.onVisibleTracksChanged();
                        //multi-select too confusing?
                        //brwsr.viewDndWidget.selectNone();
                    });
 
-    this.trackListWidget.insertNodes(false, params.trackData);
     var oldTrackList = dojo.cookie(this.container.id + "-tracks");
     if (params.tracks) {
         this.showTracks(params.tracks);
@@ -279,8 +418,6 @@ Browser.prototype.createTrackList = function(parent, params) {
     } else if (params.defaultTracks) {
         this.showTracks(params.defaultTracks);
     }
-
-    return trackListDiv;
 };
 
 /**
@@ -448,23 +585,40 @@ Browser.prototype.showTracks = function(trackNameList) {
     }
 
     var trackNames = trackNameList.split(",");
-    var removeFromList = [];
+    var trackInput = [];
     var brwsr = this;
+    var store = this.store;
+    var tree = this.tree;
+
+
     for (var n = 0; n < trackNames.length; n++) {
-        this.trackListWidget.forInItems(function(obj, id, map) {
-                if (trackNames[n] == obj.data.label) {
-                    brwsr.viewDndWidget.insertNodes(false, [obj.data]);
-                    removeFromList.push(id);
-                }
-            });
+        function fetchFailed(error, request) {
+            alert("lookup failed");
+            alert(error);
+        }
+    
+        function gotItems(items, request) {
+            var i;
+            for(i = 0; i < items.length; i++) {
+                var dataObj = {'url' : items[i].url[0],
+                               'label' : items[i].label[0],
+                               'type' : items[i].type[0],
+                               'key' : items[i].label[0],
+                               'args_chunkSize': (items[i].args_chunkSize? items[i].args_chunkSize[0] :  2000)};
+        var node = brwsr.viewDndWidget.getAllNodes()[0]? brwsr.viewDndWidget.getAllNodes()[0] : null;
+                brwsr.viewDndWidget.insertNodes(true, [dataObj], false, node);
+                store.deleteItem(items[i]);
+            }
+            brwsr.onVisibleTracksChanged();
+        }
+
+        store.fetch({
+            query: { "name" : trackNames[n]},
+            queryOptions : { "ignoreCase" : true },
+            onComplete: gotItems,
+            onError: fetchFailed
+        });
     }
-    var movedNode;
-    for (var i = 0; i < removeFromList.length; i++) {
-        this.trackListWidget.delItem(removeFromList[i]);
-        movedNode = dojo.byId(removeFromList[i]);
-        movedNode.parentNode.removeChild(movedNode);
-    }
-    this.onVisibleTracksChanged();
 };
 
 /**
