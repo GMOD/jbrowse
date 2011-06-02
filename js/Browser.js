@@ -613,7 +613,7 @@ Browser.prototype.showTracks = function(trackNameList) {
         }
 
         store.fetch({
-            query: { "name" : trackNames[n]},
+            query: { "label" : trackNames[n]},
             queryOptions : { "ignoreCase" : true },
             onComplete: gotItems,
             onError: fetchFailed
