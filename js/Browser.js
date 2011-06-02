@@ -606,7 +606,7 @@ Browser.prototype.showTracks = function(trackNameList) {
                                'key' : items[i].label[0],
                                'args_chunkSize': (items[i].args_chunkSize? items[i].args_chunkSize[0] :  2000)};
         var node = brwsr.viewDndWidget.getAllNodes()[0]? brwsr.viewDndWidget.getAllNodes()[0] : null;
-                brwsr.viewDndWidget.insertNodes(true, [dataObj]);
+                brwsr.viewDndWidget.insertNodes(false, [dataObj]);
                 store.deleteItem(items[i]);
             }
             brwsr.onVisibleTracksChanged();
