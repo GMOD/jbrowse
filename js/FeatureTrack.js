@@ -439,8 +439,10 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     if (this.arrowheadClass) {
         switch (this.attrs.get(feature, "Strand")) {
         case 1:
+        case '+':
             featureEnd   += (this.plusArrowWidth / scale); break;
         case -1:
+        case '-':
             featureStart -= (this.minusArrowWidth / scale); break;
         }
     }
