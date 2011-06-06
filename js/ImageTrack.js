@@ -10,7 +10,7 @@ function ImageTrack(trackMeta, refSeq, browserParams) {
     this.load(this.url);
 
     this.imgErrorHandler = function(ev) {
-        var img = ev.target || ev.srcElement;
+        var img = ev.currentTarget || ev.srcElement;
         img.style.display = "none";
         dojo.stopEvent(ev);
     };
@@ -21,17 +21,20 @@ ImageTrack.prototype = new Track("");
 ImageTrack.prototype.loadSuccess = function(o) {
     //tileWidth: width, in pixels, of the tiles
     this.tileWidth = o.tileWidth;
-    //zoomLevels: array of {basesPerTile, scale, height, urlPrefix} hashes
+    this.align = o.align;
+    //zoomLevels: array of {basesPerTile, urlPrefix} hashes
     this.zoomLevels = o.zoomLevels;
     this.setLoaded();
 };
 
 ImageTrack.prototype.setViewInfo = function(heightUpdate, numBlocks,
                                             trackDiv, labelDiv,
-                                            widthPct, widthPx, scale) {
+                                            widthPct, widthPx, scale,
+                                            trackPadding) {
     Track.prototype.setViewInfo.apply(this, [heightUpdate, numBlocks,
                                              trackDiv, labelDiv,
-                                             widthPct, widthPx, scale]);
+                                             widthPct, widthPx, scale,
+                                             trackPadding]);
     this.setLabel(this.key);
 };
 
@@ -86,19 +89,36 @@ ImageTrack.prototype.fillBlock = function(blockIndex, block,
     var images = this.getImages(zoom, leftBase, rightBase);
     var im;
 
+    var self = this;
+    var makeLoadHandler = function(img, bi) {
+        return function() {
+            img.style.height = img.height + "px";
+            img.style.width = (100 * (img.baseWidth / blockWidth)) + "%";
+            self.heightUpdate(img.height, bi);
+        };
+    };
+
     for (var i = 0; i < images.length; i++) {
 	im = images[i];
 	if (!(im.parentNode && im.parentNode.parentNode)) {
             im.style.position = "absolute";
             im.style.left = (100 * ((im.startBase - leftBase) / blockWidth)) + "%";
-            im.style.width = (100 * (im.baseWidth / blockWidth)) + "%";
-            im.style.top = "0px";
-            im.style.height = zoom.height + "px";
+            switch (self.align) {
+            case "top":
+                im.style.top = "0px";
+                break;
+            case "bottom":
+                im.style.bottom = this.trackPadding + "px";
+                break;
+            }
             block.appendChild(im);
 	}
+        if (im.complete) {
+            makeLoadHandler(im, blockIndex)();
+        } else {
+            dojo.connect(im, "onload", makeLoadHandler(im, blockIndex));
+        }
     }
-
-    this.heightUpdate(zoom.height, blockIndex);
 };
 
 ImageTrack.prototype.startZoom = function(destScale, destStart, destEnd) {

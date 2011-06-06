@@ -140,10 +140,12 @@ FeatureTrack.prototype.wrapHandler = function(handler) {
 
 FeatureTrack.prototype.setViewInfo = function(genomeView, numBlocks,
                                               trackDiv, labelDiv,
-                                              widthPct, widthPx, scale) {
+                                              widthPct, widthPx, scale,
+                                              trackPadding) {
     Track.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
                                              trackDiv, labelDiv,
-                                             widthPct, widthPx, scale]);
+                                             widthPct, widthPx, scale,
+                                             trackPadding]);
     this.setLabel(this.key);
 };
 

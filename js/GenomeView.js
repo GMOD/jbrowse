@@ -450,7 +450,8 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     this.staticTrack = new StaticTrack("static_track", "pos-label", this.posHeight);
     this.staticTrack.setViewInfo(function(height) {}, this.stripeCount,
                                  trackDiv, undefined, this.stripePercent,
-                                 this.stripeWidth, this.pxPerBp);
+                                 this.stripeWidth, this.pxPerBp,
+                                 this.trackPadding);
     this.zoomContainer.appendChild(trackDiv);
     this.waitElems.push(trackDiv);
 
@@ -461,7 +462,8 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     var gridTrack = new GridTrack("gridtrack");
     gridTrack.setViewInfo(function(height) {}, this.stripeCount,
                           gridTrackDiv, undefined, this.stripePercent,
-                          this.stripeWidth, this.pxPerBp);
+                          this.stripeWidth, this.pxPerBp,
+                          this.trackPadding);
     this.zoomContainer.appendChild(gridTrackDiv);
 
     this.uiTracks = [this.staticTrack, gridTrack];
@@ -824,7 +826,8 @@ GenomeView.prototype.addOverviewTrack = function(track) {
 		      undefined,
 		      overviewStripePct,
 		      this.overviewStripeBases,
-                      this.pxPerBp);
+                      this.pxPerBp,
+                      this.trackPadding);
     this.overview.appendChild(trackDiv);
     this.updateOverviewHeight();
 
@@ -1048,7 +1051,7 @@ GenomeView.prototype.addTrack = function(track) {
     };
     track.setViewInfo(heightUpdate, this.stripeCount, trackDiv, labelDiv,
 		      this.stripePercent, this.stripeWidth,
-                      this.pxPerBp);
+                      this.pxPerBp, this.trackPadding);
 
     labelDiv.style.position = "absolute";
     labelDiv.style.top = "0px";

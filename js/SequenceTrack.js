@@ -40,10 +40,12 @@ SequenceTrack.prototype.endZoom = function(destScale, destBlockBases) {
 
 SequenceTrack.prototype.setViewInfo = function(genomeView, numBlocks,
                                                trackDiv, labelDiv,
-                                               widthPct, widthPx, scale) {
+                                               widthPct, widthPx, scale,
+                                               trackPadding) {
     Track.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
                                              trackDiv, labelDiv,
-                                             widthPct, widthPx, scale]);
+                                             widthPct, widthPx, scale,
+                                             trackPadding]);
     if (scale == this.browserParams.charWidth) {
         this.show();
     } else {
