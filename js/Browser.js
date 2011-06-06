@@ -232,13 +232,13 @@ Browser.prototype.createTrackList = function(parent, params) {
         if(track != '[object Object]') {
             track = {'url' : String(store.getValue(track.item, 'url')),
                      'label' : track.label,
-                     'key' : track.label,
+                     'key' : track.key,
                      'args_chunkSize': String(store.getValue(track.item, 'args_chunkSize')),
                      'type' : String(store.getValue(track.item, 'type'))};
         }
         var node = document.createElement("div");
         node.className = "tracklist-label";
-        node.innerHTML = track.key;
+        node.innerHTML = track.label;
         //in the list, wrap the list item in a container for
         //border drag-insertion-point monkeying
         if ("avatar" != hint) {
@@ -332,7 +332,11 @@ Browser.prototype.createTrackList = function(parent, params) {
         if(source instanceof dojo.dnd.Source){
             return true;
         }
-        if(store._getItemByIdentity(nodes[0].children[0].children[2].children[1].innerHTML).type != "TrackGroup") {
+        var item = dijit.getEnclosingWidget(nodes[0]).item;
+        if(item == null) {
+            return true;
+        }
+        if(item.type != "TrackGroup") {
             return true;
         }
         return false;
@@ -364,10 +368,14 @@ Browser.prototype.createTrackList = function(parent, params) {
     };
 
     var nodePlacementAcceptance = function(target, source, position) {
-        if((store._getItemByIdentity(target.childNodes[2].childNodes[2].innerHTML).type == "TrackGroup") && (position == 'over')) {
+        var item = dijit.getEnclosingWidget(target).item;
+        if(item == null) {
+            return false;
+        }
+        if((item.type[0] == "TrackGroup") && (position == 'over')) {
             return true;
         }
-        if((store._getItemByIdentity(target.childNodes[2].childNodes[2].innerHTML).type != "TrackGroup") && ((position == 'before') || (position == 'after'))) {
+        if((item.type[0] != "TrackGroup") && ((position == 'before') || (position == 'after'))) {
             return true;
         }
         return false;
@@ -398,6 +406,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         dndController: "dijit.tree.dndSource",
         showRoot: false,
         itemCreator: externalSourceCreator,
+        betweenThreshold: 5,
         checkItemAcceptance: nodePlacementAcceptance
     },
     "treeList");
@@ -603,9 +612,9 @@ Browser.prototype.showTracks = function(trackNameList) {
                 var dataObj = {'url' : items[i].url[0],
                                'label' : items[i].label[0],
                                'type' : items[i].type[0],
-                               'key' : items[i].label[0],
+                               'key' : items[i].key[0],
                                'args_chunkSize': (items[i].args_chunkSize? items[i].args_chunkSize[0] :  2000)};
-        var node = brwsr.viewDndWidget.getAllNodes()[0]? brwsr.viewDndWidget.getAllNodes()[0] : null;
+                var node = brwsr.viewDndWidget.getAllNodes()[0]? brwsr.viewDndWidget.getAllNodes()[0] : null;
                 brwsr.viewDndWidget.insertNodes(false, [dataObj]);
                 store.deleteItem(items[i]);
             }
