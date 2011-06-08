@@ -141,7 +141,8 @@ Browser.prototype.addRefseqs = function(refSeqs) {
     }
 
     //hook up GenomeView
-    var gv = new GenomeView(this.viewElem, 250, this.refSeq, 1/200);
+    var gv = new GenomeView(this.viewElem, 250, this.refSeq, 1/200,
+                            this.params.browserRoot);
     this.view = gv;
     //gv.setY(0);
     this.viewElem.view = gv;

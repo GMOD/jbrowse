@@ -113,7 +113,7 @@ Zoomer.prototype.step = function(pos) {
     this.subject.updateTrackLabels(this.initialX - newLeft);
 };
 
-function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
+function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     //all coordinates are interbase
 
     //measure text width for the max zoom level
@@ -144,6 +144,8 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     this.ref = refseq;
     //current scale, in pixels per bp
     this.pxPerBp = zoomLevel;
+    //path prefix for static assets (e.g., cursors)
+    this.browserRoot = browserRoot ? browserRoot : "";
     //width, in pixels, of the vertical stripes
     this.stripeWidth = stripeWidth;
     //the page element that the GenomeView lives in
@@ -334,7 +336,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 	dojo.forEach(view.dragEventHandles, dojo.disconnect);
 
 	view.dragging = false;
-        view.elem.style.cursor = "url(\"openhand.cur\"), move";
+        view.elem.style.cursor = "url(\"" + view.browserRoot + "openhand.cur\")";
         document.body.style.cursor = "default";
         dojo.stopEvent(event);
 	view.showCoarse();
@@ -386,8 +388,8 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 			     y: event.clientY};
 	view.winStartPos = view.getPosition();
 
-	document.body.style.cursor = "url(\"closedhand.cur\"), move";
-	view.elem.style.cursor = "url(\"closedhand.cur\"), move";
+	document.body.style.cursor = "url(\"" + view.browserRoot + "closedhand.cur\")";
+	view.elem.style.cursor = "url(\"" + view.browserRoot + "closedhand.cur\")";
     };
 
     dojo.connect(view.elem, "mousedown", view.mouseDown);
@@ -479,7 +481,6 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 
     this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
 
-    document.body.style.cursor = "url(\"closedhand.cur\")";
     document.body.style.cursor = "default";
 
     this.showFine();
