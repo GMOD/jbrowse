@@ -2,6 +2,7 @@ function ImageTrack(trackMeta, refSeq, browserParams) {
     Track.call(this, trackMeta.label, trackMeta.key,
                false, browserParams.changeCallback);
     this.refSeq = refSeq;
+    this.trackPadding = browserParams.trackPadding;
     this.tileToImage = {};
     this.zoomCache = {};
     this.url = Util.resolveUrl(trackMeta.sourceUrl,
@@ -29,12 +30,10 @@ ImageTrack.prototype.loadSuccess = function(o) {
 
 ImageTrack.prototype.setViewInfo = function(heightUpdate, numBlocks,
                                             trackDiv, labelDiv,
-                                            widthPct, widthPx, scale,
-                                            trackPadding) {
+                                            widthPct, widthPx, scale) {
     Track.prototype.setViewInfo.apply(this, [heightUpdate, numBlocks,
                                              trackDiv, labelDiv,
-                                             widthPct, widthPx, scale,
-                                             trackPadding]);
+                                             widthPct, widthPx, scale]);
     this.setLabel(this.key);
 };
 

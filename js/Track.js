@@ -24,8 +24,7 @@ Track.prototype.loadFail = function(error) {
 
 Track.prototype.setViewInfo = function(heightUpdate, numBlocks,
                                        trackDiv, labelDiv,
-                                       widthPct, widthPx, scale,
-                                       trackPadding) {
+                                       widthPct, widthPx, scale) {
     var track = this;
     this.heightUpdate = function(height, blockIndex) {
         if (!this.shown) {
@@ -43,7 +42,6 @@ Track.prototype.setViewInfo = function(heightUpdate, numBlocks,
     this.label = labelDiv;
     this.widthPct = widthPct;
     this.widthPx = widthPx;
-    this.trackPadding = trackPadding;
 
     this.leftBlank = document.createElement("div");
     this.leftBlank.className = "blank-block";
