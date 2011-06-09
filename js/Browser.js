@@ -203,6 +203,7 @@ Browser.prototype.createTrackList = function(parent, params) {
     dojo.require("dojo.cache");
     dojo.require("dijit.Tree");
     dojo.require("dijit.form.TextBox");
+    dojo.require("dijit.form.Button");
 
     var leftPane = document.createElement("div");
     leftPane.style.cssText="width: 10em";
