@@ -91,8 +91,11 @@ Track.prototype.setLabel = function(newHTML) {
 
     if (this.labelHTML == newHTML) return;
     this.labelHTML = newHTML;
-    this.label.innerHTML = newHTML;
+    var labelText = document.createElement("span");
+    labelText.style.cssText = "display: inline; vertical-align: middle;";
+    this.label.appendChild(labelText);
     this.labelHeight = this.label.offsetHeight;
+    this.deleteButtonContainer = labelText;
 };
 
 Track.prototype.transfer = function() {};
