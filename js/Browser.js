@@ -252,6 +252,30 @@ Browser.prototype.createTrackList = function(parent, params) {
     };
 
     var DropFromOutside = function(source, nodes, copy) {
+        var reviewed_nodes = [];
+        var j = 0;
+        for(var i = 0; i < nodes.length; i++) {
+            if(source.getItem(nodes[i].id).data.item.type[0] == 'TrackGroup') {
+                tree._expandNode(source.getItem(nodes[i].id).data);
+                var children = source.getItem(nodes[i].id).data.getChildren();
+                for(var n = 0; n < children.length; n++) {
+                    var child = children[n];
+                    if((child.domNode.style.display != "none")&&(child.item.type[0] != 'TrackGroup')) {
+                        var selectedNodes = source.getSelectedTreeNodes();
+                        selectedNodes.push(child);
+                        source.setSelection(selectedNodes);
+                        reviewed_nodes[j] = child.domNode;
+                        j++;
+                    }
+                }
+            }
+            else if(nodes[i].style.display != "none") {
+                reviewed_nodes[j] = nodes[i];
+                j++;
+            }
+        }
+        nodes = reviewed_nodes;
+
         var oldCreator = this._normalizedCreator;
         // transferring nodes from the source to the target
         if(this.creator){
@@ -287,15 +311,9 @@ Browser.prototype.createTrackList = function(parent, params) {
             source.deleteSelectedNodes();
         }
         if(!copy && this.creator && source instanceof dijit.tree.dndSource) {
-            var node = nodes[0];
-            var sourceItem = source.getItem(node.id);
-            var childItem = sourceItem.data.item;
-            var oldParentItem = sourceItem.data.getParent().item;
-            var tree = source.tree;
-            var targetWidget = source.targetAnchor;
-            var newParentItem = (targetWidget && targetWidget.item) || tree.item;
-            var model = tree.model;
-            model.pasteItem(childItem, oldParentItem, newParentItem, false, -1);
+            for(var i = 0; i < nodes.length; i++) {
+                nodes[i].style.cssText = "display: none";
+            }
         }
         this._normalizedCreator = oldCreator;
     };
@@ -324,29 +342,27 @@ Browser.prototype.createTrackList = function(parent, params) {
                                          seqHeight: brwsr.view.seqHeight
                                      });
             node = brwsr.view.addTrack(newTrack);
+            var btn = new dijit.form.Button(
+                            { label: "close" , 
+                              showLabel: false,
+                              iconClass: "dijitTabCloseButton",
+                              onClick: function() {
+                                  brwsr.viewDndWidget.delItem(node.id);
+                                  node.parentNode.removeChild(node);
+                                  brwsr.onVisibleTracksChanged();
+                                  var map = brwsr.mapLabelToNode(dijit.getEnclosingWidget(dojo.byId("dijit__TreeNode_0")).getChildren(), {});
+                                  map[track.label].style.cssText = "display: block";
+                            }});
+            btn.domNode.firstChild.style.cssText = 'background: none; border-style: none; border-width: 0px; padding: 0em;';
+            newTrack.label.insertBefore(btn.domNode, newTrack.deleteButtonContainer);
         }
         return {node: node, data: track, type: ["track"]};
-    };
-
-    var checkFolderDragAccept = function(source, nodes) {
-        if(source instanceof dojo.dnd.Source){
-            return true;
-        }
-        var item = dijit.getEnclosingWidget(nodes[0]).item;
-        if(item == null) {
-            return true;
-        }
-        if(item.type != "TrackGroup") {
-            return true;
-        }
-        return false;
     };
 
     this.viewDndWidget = new dojo.dnd.Source(this.view.zoomContainer,
                                        {
                                            creator: trackCreate,
                                            onDropExternal: DropFromOutside,
-                                           checkAcceptance: checkFolderDragAccept,
                                            accept: ["treeNode"],
                                            withHandles: true
                                        });
@@ -369,14 +385,32 @@ Browser.prototype.createTrackList = function(parent, params) {
 
     var nodePlacementAcceptance = function(target, source, position) {
         var item = dijit.getEnclosingWidget(target).item;
+        var target_group = dijit.getEnclosingWidget(target).getParent().item.label? dijit.getEnclosingWidget(target).getParent().item.label[0] : undefined;
+        var source_group, source_node;
+        if(source instanceof dojo.dnd.Source) {
+             return false;
+             source_node = brwsr.viewDndWidget.getItem(source.getSelectedNodes()[0].id);
+             source_group = source_node.data.group;
+        }
+        else if(source instanceof dijit.tree.dndSource){
+             source_node = source.getSelectedTreeNodes()[0].item;
+             source_group = source.getSelectedTreeNodes()[0].getParent().item.label? source.getSelectedTreeNodes()[0].getParent().item.label[0] : undefined;
+        }
+        
         if(item == null) {
+            console.log("the target is undefined");
             return false;
         }
-        if((item.type[0] == "TrackGroup") && (position == 'over')) {
-            return true;
-        }
-        if((item.type[0] != "TrackGroup") && ((position == 'before') || (position == 'after'))) {
-            return true;
+        if(source_node != undefined) {
+            if((source_node.type[0] == "TrackGroup") && ((position == 'before' || (position == 'after')))) {
+                return true;
+            }
+            if((item.type[0] == "TrackGroup") && (position == 'over') && (source_group == item.label[0])) {
+                return true;
+            } 
+            if(((position == 'before') || (position == 'after')) && (source_group == target_group)) {
+                return true;
+            }
         }
         return false;
     };
@@ -392,10 +426,10 @@ Browser.prototype.createTrackList = function(parent, params) {
     this.store = store;
     store.save();
 
-    var treeModel = new dijit.tree.ForestStoreModel({
+    var treeModel = new dijit.tree.TreeStoreModel({
         store: store,
         query: {
-            "type": "TrackGroup"
+            "label": "ROOT"
         },
         childrenAttrs: ["children"]
     });
@@ -407,6 +441,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         showRoot: false,
         itemCreator: externalSourceCreator,
         betweenThreshold: 5,
+        openOnDblClick: true,
         checkItemAcceptance: nodePlacementAcceptance
     },
     "treeList");
@@ -428,6 +463,16 @@ Browser.prototype.createTrackList = function(parent, params) {
         this.showTracks(params.defaultTracks);
     }
 };
+
+Browser.prototype.showTrackListNode = function(label) {
+        var map = brwsr.mapLabelToNode(dijit.getEnclosingWidget(dojo.byId("dijit__TreeNode_0")).getChildren(), {});
+        map[label].style.cssText = "display: none";
+}
+
+Browser.prototype.hideTrackListNode = function(label) {
+        var map = brwsr.mapLabelToNode(dijit.getEnclosingWidget(dojo.byId("dijit__TreeNode_0")).getChildren(), {});
+        map[label].style.cssText = "display: block";
+}
 
 /**
  * @private
@@ -575,6 +620,16 @@ Browser.prototype.navigateTo = function(loc) {
 	});
 };
 
+Browser.prototype.mapLabelToNode = function(tree, map) {
+    for( var i = 0; i < tree.length; i++) {
+        map[tree[i].label] = tree[i].domNode;
+        if(tree[i].getChildren()[0] != undefined) {
+            this.mapLabelToNode(tree[i].getChildren(), map);
+        }
+    } 
+    return map;
+}
+
 /**
  * load and display the given tracks
  * @example
@@ -599,8 +654,12 @@ Browser.prototype.showTracks = function(trackNameList) {
     var store = this.store;
     var tree = this.tree;
 
+    var map = brwsr.mapLabelToNode(dijit.getEnclosingWidget(dojo.byId("dijit__TreeNode_0")).getChildren(), {});
 
     for (var n = 0; n < trackNames.length; n++) {
+        if(map[trackNames[n]]) {
+            map[trackNames[n]].style.cssText = "display: none";
+        } 
         function fetchFailed(error, request) {
             alert("lookup failed");
             alert(error);
@@ -616,7 +675,6 @@ Browser.prototype.showTracks = function(trackNameList) {
                                'args_chunkSize': (items[i].args_chunkSize? items[i].args_chunkSize[0] :  2000)};
                 var node = brwsr.viewDndWidget.getAllNodes()[0]? brwsr.viewDndWidget.getAllNodes()[0] : null;
                 brwsr.viewDndWidget.insertNodes(false, [dataObj]);
-                store.deleteItem(items[i]);
             }
             brwsr.onVisibleTracksChanged();
         }
