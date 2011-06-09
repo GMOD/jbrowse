@@ -16,7 +16,7 @@ GetOptions("conf=s" => \$confFile,
            "out=s" => $outdir);
 
 my %categories;
-my @rootChildren = ();
+my @rootChildren = ('Favourites');
 
 my $trackRel = "tracks";
 my $trackDir = "$outdir/$trackRel";
@@ -77,6 +77,13 @@ foreach my $category (keys %categories) {
     push @rootChildren, $category;
 }
 
+JsonGenerator::writeTrackEntry("$outdir/trackInfo.js",
+                               {
+                                   'label' => 'Favourites',
+                                   'key' => 'Favourites',
+                                   'type' => 'Favourites',
+                               });
+
 my @children_ref = ();
 foreach my $child (@rootChildren) {
     push @children_ref, { '_reference' => $child};
@@ -88,5 +95,4 @@ JsonGenerator::writeTrackEntry("$outdir/trackInfo.js",
                                    'type' => 'ROOT',
                                    'children' => \@children_ref
                                });
-
 
