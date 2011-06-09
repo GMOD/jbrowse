@@ -206,9 +206,21 @@ Browser.prototype.createTrackList = function(parent, params) {
     dojo.require("dijit.form.Button");
 
     var leftPane = document.createElement("div");
-    leftPane.style.cssText="width: 10em";
+    leftPane.style.cssText="width: 20em; overflow: auto;";
     parent.appendChild(leftPane);
     var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, leftPane);
+
+    var searchMessage = document.createElement("div");
+    searchMessage.innerHTML = "Enter text to search track list:";
+    leftPane.appendChild(searchMessage);
+
+    var searchBox = document.createElement("input");
+    searchBox.id = "search";
+    leftPane.appendChild(searchBox);
+
+    var searchClearBtn = new dijit.form.Button({ label: "clear"});
+    searchClearBtn.domNode.style.cssText = 'display: inline';
+    leftPane.appendChild(searchClearBtn.domNode);
 
     var dragMessage = document.createElement("div");
     dragMessage.innerHTML =
@@ -463,6 +475,57 @@ Browser.prototype.createTrackList = function(parent, params) {
     } else if (params.defaultTracks) {
         this.showTracks(params.defaultTracks);
     }
+
+    var treeSearch = new dijit.form.TextBox({
+        name: "search",
+        value: ""
+    },
+    "search");
+
+    function searchTrackList(searchTerm) {
+        var map = brwsr.mapLabelToNode(dijit.getEnclosingWidget(dojo.byId("dijit__TreeNode_0")).getChildren(), {});
+
+        var MovedTrackList = dojo.cookie(brwsr.container.id + "-tracks").split(",");
+        var toDelete = {};
+        var idx;
+        for(idx = 0; idx < MovedTrackList.length; idx++) {
+                toDelete[MovedTrackList[idx]] = true;
+        }
+
+        function fetchFailed(error, request) {
+            alert("lookup failed");
+            alert(error);
+        };
+
+        function gotItems(items, request) {
+            var i;
+            var pattern = new RegExp("");
+            pattern = new RegExp(searchTerm.toLowerCase());
+            for(i = 0; i < items.length; i++) {
+                if(map[items[i].label]) {
+                    if(toDelete[String(items[i].label)] || (!pattern.test(String(items[i].label).toLowerCase()) && String(items[i].type) != 'TrackGroup')) {
+                        map[items[i].label].style.cssText = "display: none";
+                    }
+                    else {
+                        map[items[i].label].style.cssText = "display: block";
+                    }
+               }
+            }
+        };
+
+        store.fetch({
+            onComplete: gotItems,
+            onError: fetchFailed
+        });
+    }
+    dojo.connect(treeSearch, "onKeyUp", function() {
+        var searchTerm = treeSearch.attr("value");
+        searchTrackList(searchTerm);
+    });
+    dojo.connect(searchClearBtn, "onClick", function() {
+        searchTrackList("");
+        treeSearch.attr("value", "");
+    });
 };
 
 Browser.prototype.showTrackListNode = function(label) {
