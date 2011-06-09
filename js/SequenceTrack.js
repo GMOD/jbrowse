@@ -48,6 +48,7 @@ SequenceTrack.prototype.setViewInfo = function(genomeView, numBlocks,
         this.show();
     } else {
         this.hide();
+        this.heightUpdate(0);
     }
     this.setLabel(this.key);
 };
@@ -57,6 +58,12 @@ SequenceTrack.prototype.fillBlock = function(blockIndex, block,
                                              leftBase, rightBase,
                                              scale, stripeWidth,
                                              containerStart, containerEnd) {
+    if (scale == this.browserParams.charWidth) {
+        this.show();
+    } else {
+        this.hide();
+        this.heightUpdate(0);
+    }
     if (this.shown) {
         this.getRange(leftBase, rightBase,
                       function(start, end, seq) {
