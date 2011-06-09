@@ -402,8 +402,6 @@ Browser.prototype.createTrackList = function(parent, params) {
         var source_group, source_node;
         if(source instanceof dojo.dnd.Source) {
              return false;
-             source_node = brwsr.viewDndWidget.getItem(source.getSelectedNodes()[0].id);
-             source_group = source_node.data.group;
         }
         else if(source instanceof dijit.tree.dndSource){
              source_node = source.getSelectedTreeNodes()[0].item;
@@ -489,7 +487,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         var toDelete = {};
         var idx;
         for(idx = 0; idx < MovedTrackList.length; idx++) {
-                toDelete[MovedTrackList[idx]] = true;
+            toDelete[MovedTrackList[idx]] = true;
         }
 
         function fetchFailed(error, request) {
@@ -723,7 +721,7 @@ Browser.prototype.showTracks = function(trackNameList) {
     for (var n = 0; n < trackNames.length; n++) {
         if(map[trackNames[n]]) {
             map[trackNames[n]].style.cssText = "display: none";
-        } 
+        }
         function fetchFailed(error, request) {
             alert("lookup failed");
             alert(error);
@@ -737,7 +735,6 @@ Browser.prototype.showTracks = function(trackNameList) {
                                'type' : items[i].type[0],
                                'key' : items[i].key[0],
                                'args_chunkSize': (items[i].args_chunkSize? items[i].args_chunkSize[0] :  2000)};
-                var node = brwsr.viewDndWidget.getAllNodes()[0]? brwsr.viewDndWidget.getAllNodes()[0] : null;
                 brwsr.viewDndWidget.insertNodes(false, [dataObj]);
             }
             brwsr.onVisibleTracksChanged();
