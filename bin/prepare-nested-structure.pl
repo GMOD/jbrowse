@@ -16,6 +16,7 @@ GetOptions("conf=s" => \$confFile,
            "out=s" => $outdir);
 
 my %categories;
+my @rootChildren = ();
 
 my $trackRel = "tracks";
 my $trackDir = "$outdir/$trackRel";
@@ -46,11 +47,16 @@ foreach my $seg (@refSeqs) {
     my @tracks = @{$config->{tracks}};
 
     foreach my $track (@tracks) {
-        if($categories{$track->{"category"}}) {
-            push @{$categories{$track->{"category"}}}, $track->{"track"};
+        if($track->{"category"}) {
+            if($categories{$track->{"category"}}) {
+                push @{$categories{$track->{"category"}}}, $track->{"track"};
+            }
+            else {
+                $categories{$track->{"category"}} = [$track->{"track"}];
+            }
         }
         else {
-            $categories{$track->{"category"}} = [$track->{"track"}];
+            push @rootChildren, $track->{"track"};
         }
     }
 }
@@ -58,10 +64,9 @@ foreach my $seg (@refSeqs) {
 
 foreach my $category (keys %categories) {
     my @children_ref = ();
-    foreach my $track (@{ $categories{$category}}) {
+    foreach my $track (@{ $categories{$category} }) {
         push @children_ref, { '_reference' => $track};
     }
-    $category .= "_Group";
     JsonGenerator::writeTrackEntry("$outdir/trackInfo.js",
                                    {
                                        'label' => $category,
@@ -69,4 +74,19 @@ foreach my $category (keys %categories) {
                                        'type' => "TrackGroup",
                                        'children' => \@children_ref
                                    });
+    push @rootChildren, $category;
 }
+
+my @children_ref = ();
+foreach my $child (@rootChildren) {
+    push @children_ref, { '_reference' => $child};
+}
+JsonGenerator::writeTrackEntry("$outdir/trackInfo.js",
+                               {
+                                   'label' => 'ROOT',
+                                   'key' => 'ROOT',
+                                   'type' => 'ROOT',
+                                   'children' => \@children_ref
+                               });
+
+
