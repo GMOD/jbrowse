@@ -16,6 +16,8 @@
  * </ul>
  */
 
+var disabledColor = "#DDDDDD";
+
 var Browser = function(params) {
     dojo.require("dojo.dnd.Source");
     dojo.require("dojo.dnd.Moveable");
@@ -222,6 +224,9 @@ Browser.prototype.createTrackList = function(parent, params) {
     searchClearBtn.domNode.style.cssText = 'display: inline';
     leftPane.appendChild(searchClearBtn.domNode);
 
+    var treeResetBtn = new dijit.form.Button({ label: "reset track list"});
+    leftPane.appendChild(treeResetBtn.domNode);
+
     var dragMessage = document.createElement("div");
     dragMessage.innerHTML =
         "Available Tracks:<br/>(Drag <img src=\""
@@ -265,27 +270,43 @@ Browser.prototype.createTrackList = function(parent, params) {
     };
 
     var DropFromOutside = function(source, nodes, copy) {
+       function getChildrenRecursive(node){
+            if(source.getItem(node.id).data.item.type[0] == 'TrackGroup') {
+                var result = [];
+                var i = 0;
+                tree._expandNode(source.getItem(node.id).data);
+                var children = source.getItem(node.id).data.getChildren();
+                for(var n = 0; n < children.length; n++) {
+                    var child = children[n];
+                    var selectedNodes = source.getSelectedTreeNodes();
+                    selectedNodes.push(child);
+                    source.setSelection(selectedNodes);
+                    if((child.domNode.style.display != "none")&&(child.item.type[0] != 'TrackGroup')
+                        &&((!child.domNode.firstChild.childNodes[2].childNodes[2].style.backgroundColor)
+                            ||(child.domNode.firstChild.childNodes[2].childNodes[2].style.backgroundColor == 'transparent'))) {
+                        result[i] = child.domNode;
+                        i++;
+                    }
+                    else if(child.item.type[0] == 'TrackGroup') {
+                        var nodesChildren = getChildrenRecursive(child.domNode);
+                        result = result.concat(nodesChildren);
+                        i += nodesChildren.length;
+
+                    }
+                }
+                return result;
+            }
+            else if((node.style.display != "none")
+                    &&((!node.firstChild.childNodes[2].childNodes[2].style.backgroundColor)
+                       ||(!node.firstChild.childNodes[2].childNodes[2].style.backgroundColor == 'transparent'))) {
+                return [node];
+            }
+            return [];
+        }
         var reviewed_nodes = [];
         var j = 0;
         for(var i = 0; i < nodes.length; i++) {
-            if(source.getItem(nodes[i].id).data.item.type[0] == 'TrackGroup') {
-                tree._expandNode(source.getItem(nodes[i].id).data);
-                var children = source.getItem(nodes[i].id).data.getChildren();
-                for(var n = 0; n < children.length; n++) {
-                    var child = children[n];
-                    if((child.domNode.style.display != "none")&&(child.item.type[0] != 'TrackGroup')) {
-                        var selectedNodes = source.getSelectedTreeNodes();
-                        selectedNodes.push(child);
-                        source.setSelection(selectedNodes);
-                        reviewed_nodes[j] = child.domNode;
-                        j++;
-                    }
-                }
-            }
-            else if(nodes[i].style.display != "none") {
-                reviewed_nodes[j] = nodes[i];
-                j++;
-            }
+            reviewed_nodes = reviewed_nodes.concat(getChildrenRecursive(nodes[i]));
         }
         nodes = reviewed_nodes;
 
@@ -325,7 +346,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         }
         if(!copy && this.creator && source instanceof dijit.tree.dndSource) {
             for(var i = 0; i < nodes.length; i++) {
-                nodes[i].style.cssText = "display: none";
+                nodes[i].firstChild.childNodes[2].childNodes[2].style.cssText = "background-color: "+disabledColor;
             }
         }
         this._normalizedCreator = oldCreator;
@@ -363,8 +384,8 @@ Browser.prototype.createTrackList = function(parent, params) {
                                   brwsr.viewDndWidget.delItem(node.id);
                                   node.parentNode.removeChild(node);
                                   brwsr.onVisibleTracksChanged();
-                                  var map = brwsr.mapLabelToNode(dijit.getEnclosingWidget(dojo.byId("dijit__TreeNode_0")).getChildren(), {});
-                                  map[track.label].style.cssText = "display: block";
+                                  var map = brwsr.mapLabelToNode(tree._itemNodesMap.ROOT[0].getChildren(), {});
+                                  map[track.label].firstChild.childNodes[2].childNodes[2].style.backgroundColor = "";
                             }});
             btn.domNode.firstChild.style.cssText = 'background: none; border-style: none; border-width: 0px; padding: 0em;';
             newTrack.label.insertBefore(btn.domNode, newTrack.deleteButtonContainer);
@@ -404,29 +425,42 @@ Browser.prototype.createTrackList = function(parent, params) {
              return false;
         }
         else if(source instanceof dijit.tree.dndSource){
-             source_node = source.getSelectedTreeNodes()[0].item;
-             source_group = source.getSelectedTreeNodes()[0].getParent().item.label? source.getSelectedTreeNodes()[0].getParent().item.label[0] : undefined;
-        }
-        
-        if(item == null) {
-            console.log("the target is undefined");
-            return false;
-        }
-        if(source_node != undefined) {
-            if((source_node.type[0] == "TrackGroup") && ((position == 'before' || (position == 'after')))) {
-                return true;
-            }
-            if((item.type[0] == "TrackGroup") && (position == 'over') && (source_group == item.label[0])) {
-                return true;
-            } 
-            if(((position == 'before') || (position == 'after')) && (source_group == target_group)) {
-                return true;
-            }
+             if((item.type[0] == "TrackGroup") && (position == 'over')) {
+                 return true;
+             }
+             if((item.type[0] != "TrackGroup") && ((position == 'before' || (position == 'after')))) {
+                 return true;
+             }
         }
         return false;
     };
 
+    function deepCopy(trackData){
+        if(typeof trackData == 'object') {
+            if(trackData instanceof Array) {
+                var newArray = [];
+                for(var i = 0; i < trackData.length; i++) {
+                    newArray[i] = deepCopy(trackData[i]);
+                }
+                return newArray;
+            }
+            else {
+                var newObj = {}
+                for(var propertyName in trackData) {
+                    newObj[propertyName] = deepCopy(trackData[propertyName]);
+                }
+                return newObj;
+            }
+        }
+        else {
+            return trackData;
+        }
+    }
+
+    var originalTrackData = deepCopy(params.trackData);
+
     var store = new dojo.data.ItemFileWriteStore({
+        clearOnClose: true,
         data: {
                 identifier: 'key',
                 label: 'label',
@@ -481,7 +515,7 @@ Browser.prototype.createTrackList = function(parent, params) {
     "search");
 
     function searchTrackList(searchTerm) {
-        var map = brwsr.mapLabelToNode(dijit.getEnclosingWidget(dojo.byId("dijit__TreeNode_0")).getChildren(), {});
+        var map = brwsr.mapLabelToNode(tree._itemNodesMap.ROOT[0].getChildren(), {});
 
         var MovedTrackList = dojo.cookie(brwsr.container.id + "-tracks").split(",");
         var toDelete = {};
@@ -496,18 +530,70 @@ Browser.prototype.createTrackList = function(parent, params) {
         };
 
         function gotItems(items, request) {
+            function numEnabledChildrenNodes(item){
+                if(item.type[0] == 'TrackGroup') {
+                    var result = 0;
+                    var i = 0;
+                    var children = item.children;
+                    for(var n = 0; n < children.length; n++) {
+                        var child = map[children[n].label];
+                        if((child.style.display != "none")&&(children[n].type[0] != 'TrackGroup')) {
+                            result += 1;
+                        }
+                        else if(children[n].type[0] == 'TrackGroup') {
+                            result = result + numEnabledChildrenNodes(children[n]);
+                        }
+                    }
+                    return result;
+                }
+                return 0;
+            }
+
             var i;
             var pattern = new RegExp("");
             pattern = new RegExp(searchTerm.toLowerCase());
             for(i = 0; i < items.length; i++) {
                 if(map[items[i].label]) {
-                    if(toDelete[String(items[i].label)] || (!pattern.test(String(items[i].label).toLowerCase()) && String(items[i].type) != 'TrackGroup')) {
-                        map[items[i].label].style.cssText = "display: none";
+                    var node = map[items[i].label];
+                    if(String(items[i].type) == 'TrackGroup') {
+                        node.style.cssText = "display: block";
+                    }
+                    if((!pattern.test(String(items[i].label).toLowerCase()) && String(items[i].type) != 'TrackGroup')) {
+                        node.style.cssText = "display: none";
                     }
                     else {
-                        map[items[i].label].style.cssText = "display: block";
+                        node.style.cssText = "display: block";
+                        if(pattern.test(String(items[i].label).toLowerCase()) && (searchTerm != "")) {
+                            var beginningPat = new RegExp( ".*"+searchTerm.toLowerCase());
+                            var beginningText = String(beginningPat.exec(String(items[i].label).toLowerCase()));
+                            beginningText = String(items[i].label).substring(0, beginningText.length - searchTerm.length);
+                            var beginning = document.createElement("span");
+                            beginning.innerHTML = beginningText;
+
+                            var endingText = String(items[i].label).substring(searchTerm.length+beginningText.length);
+                            var end = document.createElement("span");
+                            end.innerHTML = endingText;
+
+                            var highlight = document.createElement("b");
+                            highlight.innerHTML= String(items[i].label).substring(beginningText.length, beginningText.length+searchTerm.length);
+
+                            node.firstChild.childNodes[2].childNodes[2].innerHTML = "";
+                            node.firstChild.childNodes[2].childNodes[2].appendChild(beginning);
+                            node.firstChild.childNodes[2].childNodes[2].appendChild(highlight);
+                            node.firstChild.childNodes[2].childNodes[2].appendChild(end);
+                        }
+                        else {
+                            node.firstChild.childNodes[2].childNodes[2].innerHTML = items[i].label;
+                        }
                     }
-               }
+                }
+            }
+            for(i = 0; i < items.length; i++) {
+                if(map[items[i].label] && String(items[i].type) == 'TrackGroup' && !pattern.test(String(items[i].label).toLowerCase())) {
+                    if(numEnabledChildrenNodes(items[i]) == 0) {
+                        map[items[i].label].style.cssText = "display: none";
+                    }
+                }
             }
         };
 
@@ -524,15 +610,75 @@ Browser.prototype.createTrackList = function(parent, params) {
         searchTrackList("");
         treeSearch.attr("value", "");
     });
+    dojo.connect(treeResetBtn, "onClick", function() {
+        tree.destroyRecursive();
+        treeModel.destroy();
+        store.revert();
+        store.close();
+
+        var data = deepCopy(originalTrackData);
+
+        store.data = {
+                identifier: 'key',
+                label: 'label',
+                items: data
+              };
+
+        treeModel = new dijit.tree.TreeStoreModel({
+            store: store,
+            query: {
+                "label": "ROOT"
+            },
+            childrenAttrs: ["children"]
+        });
+
+        treeSection = document.createElement("div");
+        treeSection.id = "treeList";
+        treeSection.style.cssText =
+            "width: 100%; height: 100%; overflow-x: hidden; overflow-y: auto;";
+        leftPane.appendChild(treeSection);
+
+        tree = new dijit.Tree({
+            dragThreshold: 0,
+            model: treeModel,
+            dndController: "dijit.tree.dndSource",
+            showRoot: false,
+            itemCreator: externalSourceCreator,
+            betweenThreshold: 5,
+            openOnDblClick: true,
+            autoExpand: true,
+            checkItemAcceptance: nodePlacementAcceptance
+        },
+        "treeList");
+        var trackNames;
+        var oldTrackList = dojo.cookie(brwsr.container.id + "-tracks");
+        if (params.tracks) {
+            trackNames = params.tracks;
+        } else if (oldTrackList) {
+            trackNames = oldTrackList;
+        } else if (params.defaultTracks) {
+            trackNames = params.defaultTracks;
+        }
+
+        var map = brwsr.mapLabelToNode(tree._itemNodesMap.ROOT[0].getChildren(), {});
+
+        trackNames = trackNames.split(",");
+        for (var n = 0; n < trackNames.length; n++) {
+            if(map[trackNames[n]]) {
+                //map[trackNames[n]].style.cssText = "display: none";
+                map[trackNames[n]].firstChild.childNodes[2].childNodes[2].style.cssText = "background-color: "+disabledColor;
+            }
+        }
+    });
 };
 
 Browser.prototype.showTrackListNode = function(label) {
-        var map = brwsr.mapLabelToNode(dijit.getEnclosingWidget(dojo.byId("dijit__TreeNode_0")).getChildren(), {});
+        var map = brwsr.mapLabelToNode(tree._itemNodesMap.ROOT[0].getChildren(), {});
         map[label].style.cssText = "display: none";
 }
 
 Browser.prototype.hideTrackListNode = function(label) {
-        var map = brwsr.mapLabelToNode(dijit.getEnclosingWidget(dojo.byId("dijit__TreeNode_0")).getChildren(), {});
+        var map = brwsr.mapLabelToNode(tree._itemNodesMap.ROOT[0].getChildren(), {});
         map[label].style.cssText = "display: block";
 }
 
@@ -684,9 +830,16 @@ Browser.prototype.navigateTo = function(loc) {
 
 Browser.prototype.mapLabelToNode = function(tree, map) {
     for( var i = 0; i < tree.length; i++) {
+        var open = tree[i].isExpanded;
+        if(tree[i].isExpandable) {
+            this.tree._expandNode(tree[i]);
+        }
         map[tree[i].label] = tree[i].domNode;
         if(tree[i].getChildren()[0] != undefined) {
             this.mapLabelToNode(tree[i].getChildren(), map);
+        }
+        if(!open) {
+            this.tree._collapseNode(tree[i]);
         }
     } 
     return map;
@@ -720,7 +873,7 @@ Browser.prototype.showTracks = function(trackNameList) {
 
     for (var n = 0; n < trackNames.length; n++) {
         if(map[trackNames[n]]) {
-            map[trackNames[n]].style.cssText = "display: none";
+            map[trackNames[n]].firstChild.childNodes[2].childNodes[2].style.cssText = "background-color: "+disabledColor;
         }
         function fetchFailed(error, request) {
             alert("lookup failed");
