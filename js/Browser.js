@@ -207,8 +207,10 @@ Browser.prototype.createTrackList = function(parent, params) {
     dojo.require("dijit.form.TextBox");
     dojo.require("dijit.form.Button");
 
+    //create the html objects for the track list section
+
     var leftPane = document.createElement("div");
-    leftPane.style.cssText="width: 16em; overflow: auto;";
+    leftPane.style.cssText="width: 17em; overflow: auto;";
     parent.appendChild(leftPane);
     var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, leftPane);
 
@@ -283,7 +285,7 @@ Browser.prototype.createTrackList = function(parent, params) {
                     source.setSelection(selectedNodes);
                     if((child.domNode.style.display != "none")&&(child.item.type[0] != 'TrackGroup')
                         &&((!child.domNode.firstChild.childNodes[2].childNodes[1].style.color)
-                            ||(child.domNode.firstChild.childNodes[2].childNodes[1].style.color != disabledColor))) {
+                            ||(child.domNode.firstChild.childNodes[2].childNodes[1].style.color == ""))) {
                         result[i] = child.domNode;
                         i++;
                     }
@@ -297,7 +299,7 @@ Browser.prototype.createTrackList = function(parent, params) {
             }
             else if((node.style.display != "none")
                     &&((!node.firstChild.childNodes[2].childNodes[1].style.color)
-                       ||(node.firstChild.childNodes[2].childNodes[1].style.color != disabledColor))) {
+                       ||(node.firstChild.childNodes[2].childNodes[1].style.color == ""))) {
                 return [node];
             }
             return [];
@@ -416,18 +418,122 @@ Browser.prototype.createTrackList = function(parent, params) {
         });
     };
 
+    var dropOnTrackList = function(source, nodes, copy) {
+        if(source instanceof dojo.dnd.Source) {
+            for(var i = 0; i < nodes.length; i++) {
+                var node = nodes[i];
+                var dataObj = brwsr.viewDndWidget.getItem(node.id);
+                brwsr.viewDndWidget.delItem(node.id);
+                node.parentNode.removeChild(node);
+                brwsr.onVisibleTracksChanged();
+
+                var mapHTMLNode = brwsr.mapLabelToNode(brwsr.tree._itemNodesMap.ROOT[0].getChildren(), {});
+                mapHTMLNode[dataObj.data.label].firstChild.childNodes[2].childNodes[1].style.color = "";
+
+                var mapWidget = brwsr.mapLabelToWidget(brwsr.tree._itemNodesMap.ROOT[0].getChildren(), {});
+                var sourceItem = mapWidget[dataObj.data.label];
+                var childItem = sourceItem.item;
+                var oldParentItem = sourceItem.getParent().item;
+                var target = this.targetAnchor;
+                var model = this.tree.model;
+                var newParentItem = (target && target.item) || tree.item;
+                var insertIndex;
+                if(this.dropPosition == "Before" || this.dropPosition == "After"){
+                    newParentItem = (target.getParent() && target.getParent().item) || tree.item;
+                    // Compute the insert index for reordering
+                    insertIndex = target.getIndexInParent();
+                    if(this.dropPosition == "After"){
+                        insertIndex = target.getIndexInParent() + 1;
+                    }
+                }else{
+                    newParentItem = (target && target.item) || tree.item;
+                }
+
+                brwsr.treeModel.pasteItem(childItem, oldParentItem, newParentItem, false, insertIndex); 
+            }
+        }
+        if((source instanceof dijit.tree.dndSource) && (this.containerState == "Over")){
+            var tree = this.tree,
+            model = tree.model,
+            target = this.targetAnchor,
+            requeryRoot = false;    // set to true iff top level items change
+
+            this.isDragging = false;
+
+            // Computif(this.containerState == "Over"){
+            var newParentItem;
+            var insertIndex;
+            newParentItem = (target && target.item) || tree.item;
+            if(this.dropPosition == "Before" || this.dropPosition == "After"){
+                newParentItem = (target.getParent() && target.getParent().item) || tree.item;
+                // Compute the insert index for reordering
+                insertIndex = target.getIndexInParent();
+                if(this.dropPosition == "After"){
+                    insertIndex = target.getIndexInParent() + 1;
+                }
+            }else{
+                newParentItem = (target && target.item) || tree.item;
+            }
+
+            // If necessary, use this variable to hold array of hashes to pass to model.newItem()
+            // (one entry in the array for each dragged node).
+            var newItemsParams;
+
+            dojo.forEach(nodes, function(node, idx){
+                // dojo.dnd.Item representing the thing being dropped.
+                // Don't confuse the use of item here (meaning a DnD item) with the
+                // uses below where item means dojo.data item.
+                var sourceItem = source.getItem(node.id);
+
+                // Information that's available if the source is another Tree
+                // (possibly but not necessarily this tree, possibly but not
+                // necessarily the same model as this Tree)
+                if(dojo.indexOf(sourceItem.type, "treeNode") != -1){
+                    var childTreeNode = sourceItem.data,
+                    childItem = childTreeNode.item,
+                    oldParentItem = childTreeNode.getParent().item;
+                }
+
+                if(source == this){
+                    // This is a node from my own tree, and we are moving it, not copying.
+                    // Remove item from old parent's children attribute.
+
+                    if(typeof insertIndex == "number"){
+                        if(newParentItem == oldParentItem && childTreeNode.getIndexInParent() < insertIndex){
+                            insertIndex -= 1;
+                        }
+                    }
+                    model.pasteItem(childItem, oldParentItem, newParentItem, copy, insertIndex);
+                }else if(model.isItem(childItem)){
+                    // Item from same model
+                    // (maybe we should only do this branch if the source is a tree?)
+                    model.pasteItem(childItem, oldParentItem, newParentItem, copy, insertIndex);
+                }else{
+                    // Get the hash to pass to model.newItem().  A single call to
+                    // itemCreator() returns an array of hashes, one for each drag source node.
+                    if(!newItemsParams){
+                        newItemsParams = this.itemCreator(nodes, target.rowNode, source);
+                    }
+
+                    // Create new item in the tree, based on the drag source.
+                    model.newItem(newItemsParams[idx], newParentItem, insertIndex);
+                }
+            }, this);
+
+            // Expand the target node (if it's currently collapsed) so the user can see
+            // where their node was dropped.   In particular since that node is still selected.
+            this.tree._expandNode(target);
+        }
+        this.onDndCancel();
+    };
+
     var nodePlacementAcceptance = function(target, source, position) {
         var item = dijit.getEnclosingWidget(target).item;
-        if(source instanceof dojo.dnd.Source) {
-             return false;
+        if((item.type[0] == "TrackGroup") && (position == 'over')) {
+            return true;
         }
-        else if(source instanceof dijit.tree.dndSource){
-             if((item.type[0] == "TrackGroup") && (position == 'over')) {
-                 return true;
-             }
-             if((position == 'before') || (position == 'after')) {
-                 return true;
-             }
+        if((position == 'before') || (position == 'after')) {
+            return true;
         }
         return false;
     };
@@ -453,6 +559,8 @@ Browser.prototype.createTrackList = function(parent, params) {
             return trackData;
         }
     }
+
+    // create the track list tree structure
 
     var originalTrackData = deepCopy(params.trackData);
 
@@ -484,6 +592,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         dndController: "dijit.tree.dndSource",
         showRoot: false,
         itemCreator: externalSourceCreator,
+        onDndDrop: dropOnTrackList,
         betweenThreshold: 5,
         openOnDblClick: true,
         checkItemAcceptance: nodePlacementAcceptance
@@ -493,12 +602,12 @@ Browser.prototype.createTrackList = function(parent, params) {
     this.tree = tree;
 
     dojo.subscribe("/dnd/drop", function(source,nodes,iscopy){
+    //whenever a track is moved reset cookie values
                        brwsr.onVisibleTracksChanged();
                        brwsr.onTrackListOrderingChanged();
-                       //multi-select too confusing?
-                       //brwsr.viewDndWidget.selectNone();
                    });
 
+    // display given tracks and disable in the track list
     var oldTrackList = dojo.cookie(this.container.id + "-tracks");
     if (params.tracks) {
         this.showTracks(params.tracks);
@@ -508,9 +617,10 @@ Browser.prototype.createTrackList = function(parent, params) {
         this.showTracks(params.defaultTracks);
     }
 
-    var oldTrackListOrder = dojo.fromJson(dojo.cookie(this.container.id + "-ordering"));
+    // reorder track list
+    var oldTrackListOrder = dojo.cookie(this.container.id + "-ordering");
     if(oldTrackListOrder) {
-        this.reorderTracks(oldTrackListOrder, dijit.getEnclosingWidget(dojo.byId("dijit__TreeNode_0")).item);
+        this.reorderTracks(oldTrackListOrder);
     }
 
     var treeSearch = new dijit.form.TextBox({
@@ -522,13 +632,6 @@ Browser.prototype.createTrackList = function(parent, params) {
     function searchTrackList(searchTerm) {
         var map = brwsr.mapLabelToNode(tree._itemNodesMap.ROOT[0].getChildren(), {});
 
-        var MovedTrackList = dojo.cookie(brwsr.container.id + "-tracks").split(",");
-        var toDelete = {};
-        var idx;
-        for(idx = 0; idx < MovedTrackList.length; idx++) {
-            toDelete[MovedTrackList[idx]] = true;
-        }
-
         function fetchFailed(error, request) {
             alert("lookup failed");
             alert(error);
@@ -536,7 +639,8 @@ Browser.prototype.createTrackList = function(parent, params) {
 
         function gotItems(items, request) {
 
-            function numEnabledChildrenNodes(item){
+            // returns the number of visible children of a node
+            function numVisibleChildrenNodes(item){
                 if(item.type[0] == 'TrackGroup') {
                     var result = 0;
                     var i = 0;
@@ -548,7 +652,7 @@ Browser.prototype.createTrackList = function(parent, params) {
                             result += 1;
                         }
                         else if(children[n].type[0] == 'TrackGroup') {
-                            result = result + numEnabledChildrenNodes(children[n]);
+                            result = result + numVisibleChildrenNodes(children[n]);
                         }
                     }
                     return result;
@@ -566,11 +670,15 @@ Browser.prototype.createTrackList = function(parent, params) {
                         node.style.cssText = "display: block";
                     }
                     if((!pattern.test(String(items[i].label).toLowerCase()) && String(items[i].type) != 'TrackGroup')) {
+                        // hide the none if it doesn't match
                         node.style.cssText = "display: none";
                     }
                     else {
+                        // show the node if it matches
                         node.style.cssText = "display: block";
                         if(pattern.test(String(items[i].label).toLowerCase()) && (searchTerm != "")) {
+                            // highlight the matching part of the track name
+
                             var beginningPat = new RegExp( ".*"+searchTerm.toLowerCase());
                             var beginningText = String(beginningPat.exec(String(items[i].label).toLowerCase()));
                             beginningText = String(items[i].label).substring(0, beginningText.length - searchTerm.length);
@@ -590,14 +698,16 @@ Browser.prototype.createTrackList = function(parent, params) {
                             node.firstChild.childNodes[2].childNodes[1].appendChild(end);
                         }
                         else {
+                            // if the search term is the empty string return the track name to not being highlighted
                             node.firstChild.childNodes[2].childNodes[1].innerHTML = items[i].label;
                         }
                     }
                 }
             }
             for(i = 0; i < items.length; i++) {
+                // hide the TrackGroup if it contains no matching tracks and it doesn't match
                 if(map[items[i].label] && String(items[i].type) == 'TrackGroup' && !pattern.test(String(items[i].label).toLowerCase())) {
-                    if(numEnabledChildrenNodes(items[i]) == 0) {
+                    if(numVisibleChildrenNodes(items[i]) == 0) {
                         map[items[i].label].style.cssText = "display: none";
                     }
                 }
@@ -618,11 +728,13 @@ Browser.prototype.createTrackList = function(parent, params) {
         treeSearch.attr("value", "");
     });
     dojo.connect(treeResetBtn, "onClick", function() {
+        //detroy current tree, model and store data
         tree.destroyRecursive();
         treeModel.destroy();
         store.revert();
         store.close();
 
+        // create new tree, model, and store data
         var data = deepCopy(originalTrackData);
 
         store.data = {
@@ -658,6 +770,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         },
         "treeList");
 
+        // load tracks to the display and disable the track in the track list
         var trackNames;
         var oldTrackList = dojo.cookie(brwsr.container.id + "-tracks");
         if (params.tracks) {
@@ -676,16 +789,26 @@ Browser.prototype.createTrackList = function(parent, params) {
                 map[trackNames[n]].firstChild.childNodes[2].childNodes[1].style.cssText = "color: "+disabledColor;
             }
         }
+
+        // record new track list ordering
         brwsr.onTrackListOrderingChanged();
     });
 };
 
-Browser.prototype.showTrackListNode = function(label) {
+/**
+ * hides the track in the track list
+ * @param label corresponds to the "label" element of the track information dictionaries
+ */
+Browser.prototype.hideTrackListNode = function(label) {
         var map = brwsr.mapLabelToNode(tree._itemNodesMap.ROOT[0].getChildren(), {});
         map[label].style.cssText = "display: none";
 }
 
-Browser.prototype.hideTrackListNode = function(label) {
+/**
+ * shows the track in the track list
+ * @param label corresponds to the "label" element of the track information dictionaries
+ */
+Browser.prototype.showTrackListNode = function(label) {
         var map = brwsr.mapLabelToNode(tree._itemNodesMap.ROOT[0].getChildren(), {});
         map[label].style.cssText = "display: block";
 }
@@ -703,13 +826,19 @@ Browser.prototype.onVisibleTracksChanged = function() {
     this.view.showVisibleBlocks();
 };
 
+/**
+ * @private
+ */
 Browser.prototype.onTrackListOrderingChanged = function() {
     dojo.cookie(this.container.id+ "-ordering",
-                dojo.toJson(this.makeTrackListOrderingText(this.tree._itemNodesMap.ROOT[0].getChildren())),
+                dojo.toJson(this.makeTrackListOrdering(this.tree._itemNodesMap.ROOT[0].getChildren())),
                 {expires: 60});
 }
 
-Browser.prototype.makeTrackListOrderingText = function(nodes) {
+/**
+ * @private
+ */
+Browser.prototype.makeTrackListOrdering = function(nodes) {
     var ordering = [];
 
     var j = 0;
@@ -717,7 +846,7 @@ Browser.prototype.makeTrackListOrderingText = function(nodes) {
         ordering[j] = nodes[i].label;
         j++;
         if(nodes[i].isExpandable) {
-            ordering[j] = this.makeTrackListOrderingText(nodes[i].getChildren());
+            ordering[j] = this.makeTrackListOrdering(nodes[i].getChildren());
             j++;
         }
     }
@@ -731,7 +860,6 @@ Browser.prototype.makeTrackListOrderingText = function(nodes) {
  * @param replace true if this list of tracks should replace any existing
  * tracks, false to merge with the existing list of tracks
  */
-
 Browser.prototype.addTracks = function(trackList, replace) {
     if (!this.isInitialized) {
         var brwsr = this;
@@ -857,45 +985,79 @@ Browser.prototype.navigateTo = function(loc) {
 	});
 };
 
-Browser.prototype.mapLabelToNode = function(tree, map) {
-    for( var i = 0; i < tree.length; i++) {
-        var open = tree[i].isExpanded;
-        if(tree[i].isExpandable) {
-            this.tree._expandNode(tree[i]);
+/**
+ * @private
+ */
+Browser.prototype.mapLabelToNode = function(treeRoot, map) {
+    for( var i = 0; i < treeRoot.length; i++) {
+        var node = treeRoot[i];
+        // expand the node so the children are available
+        var open = node.isExpanded;
+        if(node.isExpandable) {
+            this.tree._expandNode(node);
         }
-        map[tree[i].label] = tree[i].domNode;
-        if(tree[i].getChildren()[0] != undefined) {
-            this.mapLabelToNode(tree[i].getChildren(), map);
+        // map the html node to the label and recurse if needed
+        map[node.label] = node.domNode;
+        if(node.getChildren()[0] != undefined) {
+            this.mapLabelToNode(node.getChildren(), map);
         }
+        // close the node up if originally closed
         if(!open) {
-            this.tree._collapseNode(tree[i]);
+            this.tree._collapseNode(node);
         }
     } 
     return map;
 }
 
-Browser.prototype.mapLabelToWidget = function(tree, map) {
-    for( var i = 0; i < tree.length; i++) {
-        var open = tree[i].isExpanded;
-        if(tree[i].isExpandable) {
-            this.tree._expandNode(tree[i]);
+/**
+ * @private
+ */
+Browser.prototype.mapLabelToWidget = function(treeRoot, map) {
+    for( var i = 0; i < treeRoot.length; i++) {
+        var node = treeRoot[i];
+        // expand the node so the children are available
+        var open = node.isExpanded;
+        if(node.isExpandable) {
+            this.tree._expandNode(node);
         }
-        map[tree[i].label] = tree[i];
-        if(tree[i].getChildren()[0] != undefined) {
-            this.mapLabelToWidget(tree[i].getChildren(), map);
+        // map the node's widget to the label and recurse if needed
+        map[node.label] = node;
+        if(node.getChildren()[0] != undefined) {
+            this.mapLabelToWidget(node.getChildren(), map);
         }
+        // close the node up if originally closed
         if(!open) {
-            this.tree._collapseNode(tree[i]);
+            this.tree._collapseNode(node);
         }
     }
     return map;
 }
 
-Browser.prototype.reorderTracks = function(trackOrder, newParent) {
+/**
+ * reorder the given tracks in the specified json format
+ * gb=dojo.byId("GenomeBrowser").genomeBrowser
+ * gb.showTracks("[grouping1,[DNA,gene],grouping2,[mRNA, noncodingRNA]]")
+ * @param trackOrderList {String} json array string containing track names,
+ * each of which should correspond to the "label" element of the track
+ * information dictionaries, if a element is a folder the following element is a 
+ * json array of the same format as trackOrderList
+ */
+Browser.prototype.reorderTracks = function(trackOrderList) {
+    var oldTrackListOrder = dojo.fromJson(trackOrderList);
+    if(oldTrackListOrder) {
+        //start reorder on the root of the tree
+        this.reorderSection(oldTrackListOrder, dijit.getEnclosingWidget(dojo.byId("dijit__TreeNode_0")).item);
+    }
+}
+
+/**
+ * @private
+ */
+Browser.prototype.reorderSection = function(trackOrder, newParent) {
     if (!this.isInitialized) {
         var brwsr = this;
         this.deferredFunctions.push(
-            function() { brwsr.reorderTracks(trackOrder, newParent); }
+            function() { brwsr.reorderSection(trackOrder, newParent); }
         );
         return;
     }
@@ -903,11 +1065,13 @@ Browser.prototype.reorderTracks = function(trackOrder, newParent) {
     var map = this.mapLabelToWidget(dijit.getEnclosingWidget(dojo.byId("dijit__TreeNode_0")).getChildren(), {});
 
     for(var i = 0; i < trackOrder.length; i++) {
+        // get arguments and move the node to the specified order
         var sourceItem = map[trackOrder[i]];
         var childItem = sourceItem.item;
         var insertIdx = i;
         if(typeof trackOrder[i+1] == "object") {
-            this.reorderTracks(trackOrder[i+1], childItem);
+            // TrackGroup/array of label next so recurse on group
+            this.reorderSection(trackOrder[i+1], childItem);
             i++;
         }
         var oldParentItem = sourceItem.getParent().item;
