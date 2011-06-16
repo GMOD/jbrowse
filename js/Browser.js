@@ -16,7 +16,7 @@
  * </ul>
  */
 
-var disabledColor = "#DDDDDD";
+var disabledColor = "#9E9E9E";
 
 var Browser = function(params) {
     dojo.require("dojo.dnd.Source");
@@ -208,7 +208,7 @@ Browser.prototype.createTrackList = function(parent, params) {
     dojo.require("dijit.form.Button");
 
     var leftPane = document.createElement("div");
-    leftPane.style.cssText="width: 20em; overflow: auto;";
+    leftPane.style.cssText="width: 16em; overflow: auto;";
     parent.appendChild(leftPane);
     var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, leftPane);
 
@@ -220,7 +220,7 @@ Browser.prototype.createTrackList = function(parent, params) {
     searchBox.id = "search";
     leftPane.appendChild(searchBox);
 
-    var searchClearBtn = new dijit.form.Button({ label: "clear"});
+    var searchClearBtn = new dijit.form.Button({ label: "clear search"});
     searchClearBtn.domNode.style.cssText = 'display: inline';
     leftPane.appendChild(searchClearBtn.domNode);
 
@@ -270,7 +270,7 @@ Browser.prototype.createTrackList = function(parent, params) {
     };
 
     var DropFromOutside = function(source, nodes, copy) {
-       function getChildrenRecursive(node){
+        function getChildrenRecursive(node){
             if(source.getItem(node.id).data.item.type[0] == 'TrackGroup') {
                 var result = [];
                 var i = 0;
@@ -282,8 +282,8 @@ Browser.prototype.createTrackList = function(parent, params) {
                     selectedNodes.push(child);
                     source.setSelection(selectedNodes);
                     if((child.domNode.style.display != "none")&&(child.item.type[0] != 'TrackGroup')
-                        &&((!child.domNode.firstChild.childNodes[2].childNodes[2].style.backgroundColor)
-                            ||(child.domNode.firstChild.childNodes[2].childNodes[2].style.backgroundColor == 'transparent'))) {
+                        &&((!child.domNode.firstChild.childNodes[2].childNodes[1].style.color)
+                            ||(child.domNode.firstChild.childNodes[2].childNodes[1].style.color != disabledColor))) {
                         result[i] = child.domNode;
                         i++;
                     }
@@ -291,14 +291,13 @@ Browser.prototype.createTrackList = function(parent, params) {
                         var nodesChildren = getChildrenRecursive(child.domNode);
                         result = result.concat(nodesChildren);
                         i += nodesChildren.length;
-
                     }
                 }
                 return result;
             }
             else if((node.style.display != "none")
-                    &&((!node.firstChild.childNodes[2].childNodes[2].style.backgroundColor)
-                       ||(!node.firstChild.childNodes[2].childNodes[2].style.backgroundColor == 'transparent'))) {
+                    &&((!node.firstChild.childNodes[2].childNodes[1].style.color)
+                       ||(node.firstChild.childNodes[2].childNodes[1].style.color != disabledColor))) {
                 return [node];
             }
             return [];
@@ -346,7 +345,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         }
         if(!copy && this.creator && source instanceof dijit.tree.dndSource) {
             for(var i = 0; i < nodes.length; i++) {
-                nodes[i].firstChild.childNodes[2].childNodes[2].style.cssText = "background-color: "+disabledColor;
+                nodes[i].firstChild.childNodes[2].childNodes[1].style.cssText = "color: "+disabledColor;
             }
         }
         this._normalizedCreator = oldCreator;
@@ -385,7 +384,7 @@ Browser.prototype.createTrackList = function(parent, params) {
                                   node.parentNode.removeChild(node);
                                   brwsr.onVisibleTracksChanged();
                                   var map = brwsr.mapLabelToNode(tree._itemNodesMap.ROOT[0].getChildren(), {});
-                                  map[track.label].firstChild.childNodes[2].childNodes[2].style.backgroundColor = "";
+                                  map[track.label].firstChild.childNodes[2].childNodes[1].style.color = "";
                             }});
             btn.domNode.firstChild.style.cssText = 'background: none; border-style: none; border-width: 0px; padding: 0em;';
             newTrack.label.insertBefore(btn.domNode, newTrack.deleteButtonContainer);
@@ -419,8 +418,6 @@ Browser.prototype.createTrackList = function(parent, params) {
 
     var nodePlacementAcceptance = function(target, source, position) {
         var item = dijit.getEnclosingWidget(target).item;
-        var target_group = dijit.getEnclosingWidget(target).getParent().item.label? dijit.getEnclosingWidget(target).getParent().item.label[0] : undefined;
-        var source_group, source_node;
         if(source instanceof dojo.dnd.Source) {
              return false;
         }
@@ -428,7 +425,7 @@ Browser.prototype.createTrackList = function(parent, params) {
              if((item.type[0] == "TrackGroup") && (position == 'over')) {
                  return true;
              }
-             if((item.type[0] != "TrackGroup") && ((position == 'before' || (position == 'after')))) {
+             if((position == 'before') || (position == 'after')) {
                  return true;
              }
         }
@@ -479,6 +476,8 @@ Browser.prototype.createTrackList = function(parent, params) {
         childrenAttrs: ["children"]
     });
 
+    this.treeModel = treeModel;
+
     var tree = new dijit.Tree({
         dragThreshold: 0,
         model: treeModel,
@@ -495,6 +494,7 @@ Browser.prototype.createTrackList = function(parent, params) {
 
     dojo.subscribe("/dnd/drop", function(source,nodes,iscopy){
                        brwsr.onVisibleTracksChanged();
+                       brwsr.onTrackListOrderingChanged();
                        //multi-select too confusing?
                        //brwsr.viewDndWidget.selectNone();
                    });
@@ -506,6 +506,11 @@ Browser.prototype.createTrackList = function(parent, params) {
         this.showTracks(oldTrackList);
     } else if (params.defaultTracks) {
         this.showTracks(params.defaultTracks);
+    }
+
+    var oldTrackListOrder = dojo.fromJson(dojo.cookie(this.container.id + "-ordering"));
+    if(oldTrackListOrder) {
+        this.reorderTracks(oldTrackListOrder, dijit.getEnclosingWidget(dojo.byId("dijit__TreeNode_0")).item);
     }
 
     var treeSearch = new dijit.form.TextBox({
@@ -530,11 +535,13 @@ Browser.prototype.createTrackList = function(parent, params) {
         };
 
         function gotItems(items, request) {
+
             function numEnabledChildrenNodes(item){
                 if(item.type[0] == 'TrackGroup') {
                     var result = 0;
                     var i = 0;
                     var children = item.children;
+                    if(!children) return 0;
                     for(var n = 0; n < children.length; n++) {
                         var child = map[children[n].label];
                         if((child.style.display != "none")&&(children[n].type[0] != 'TrackGroup')) {
@@ -577,13 +584,13 @@ Browser.prototype.createTrackList = function(parent, params) {
                             var highlight = document.createElement("b");
                             highlight.innerHTML= String(items[i].label).substring(beginningText.length, beginningText.length+searchTerm.length);
 
-                            node.firstChild.childNodes[2].childNodes[2].innerHTML = "";
-                            node.firstChild.childNodes[2].childNodes[2].appendChild(beginning);
-                            node.firstChild.childNodes[2].childNodes[2].appendChild(highlight);
-                            node.firstChild.childNodes[2].childNodes[2].appendChild(end);
+                            node.firstChild.childNodes[2].childNodes[1].innerHTML = "";
+                            node.firstChild.childNodes[2].childNodes[1].appendChild(beginning);
+                            node.firstChild.childNodes[2].childNodes[1].appendChild(highlight);
+                            node.firstChild.childNodes[2].childNodes[1].appendChild(end);
                         }
                         else {
-                            node.firstChild.childNodes[2].childNodes[2].innerHTML = items[i].label;
+                            node.firstChild.childNodes[2].childNodes[1].innerHTML = items[i].label;
                         }
                     }
                 }
@@ -650,6 +657,7 @@ Browser.prototype.createTrackList = function(parent, params) {
             checkItemAcceptance: nodePlacementAcceptance
         },
         "treeList");
+
         var trackNames;
         var oldTrackList = dojo.cookie(brwsr.container.id + "-tracks");
         if (params.tracks) {
@@ -665,10 +673,10 @@ Browser.prototype.createTrackList = function(parent, params) {
         trackNames = trackNames.split(",");
         for (var n = 0; n < trackNames.length; n++) {
             if(map[trackNames[n]]) {
-                //map[trackNames[n]].style.cssText = "display: none";
-                map[trackNames[n]].firstChild.childNodes[2].childNodes[2].style.cssText = "background-color: "+disabledColor;
+                map[trackNames[n]].firstChild.childNodes[2].childNodes[1].style.cssText = "color: "+disabledColor;
             }
         }
+        brwsr.onTrackListOrderingChanged();
     });
 };
 
@@ -694,6 +702,27 @@ Browser.prototype.onVisibleTracksChanged = function() {
                 {expires: 60});
     this.view.showVisibleBlocks();
 };
+
+Browser.prototype.onTrackListOrderingChanged = function() {
+    dojo.cookie(this.container.id+ "-ordering",
+                dojo.toJson(this.makeTrackListOrderingText(this.tree._itemNodesMap.ROOT[0].getChildren())),
+                {expires: 60});
+}
+
+Browser.prototype.makeTrackListOrderingText = function(nodes) {
+    var ordering = [];
+
+    var j = 0;
+    for(var i = 0; i < nodes.length; i++) {
+        ordering[j] = nodes[i].label;
+        j++;
+        if(nodes[i].isExpandable) {
+            ordering[j] = this.makeTrackListOrderingText(nodes[i].getChildren());
+            j++;
+        }
+    }
+    return ordering;
+}
 
 /**
  * @private
@@ -845,6 +874,48 @@ Browser.prototype.mapLabelToNode = function(tree, map) {
     return map;
 }
 
+Browser.prototype.mapLabelToWidget = function(tree, map) {
+    for( var i = 0; i < tree.length; i++) {
+        var open = tree[i].isExpanded;
+        if(tree[i].isExpandable) {
+            this.tree._expandNode(tree[i]);
+        }
+        map[tree[i].label] = tree[i];
+        if(tree[i].getChildren()[0] != undefined) {
+            this.mapLabelToWidget(tree[i].getChildren(), map);
+        }
+        if(!open) {
+            this.tree._collapseNode(tree[i]);
+        }
+    }
+    return map;
+}
+
+Browser.prototype.reorderTracks = function(trackOrder, newParent) {
+    if (!this.isInitialized) {
+        var brwsr = this;
+        this.deferredFunctions.push(
+            function() { brwsr.reorderTracks(trackOrder, newParent); }
+        );
+        return;
+    }
+
+    var map = this.mapLabelToWidget(dijit.getEnclosingWidget(dojo.byId("dijit__TreeNode_0")).getChildren(), {});
+
+    for(var i = 0; i < trackOrder.length; i++) {
+        var sourceItem = map[trackOrder[i]];
+        var childItem = sourceItem.item;
+        var insertIdx = i;
+        if(typeof trackOrder[i+1] == "object") {
+            this.reorderTracks(trackOrder[i+1], childItem);
+            i++;
+        }
+        var oldParentItem = sourceItem.getParent().item;
+        var newParentItem = newParent;
+        this.treeModel.pasteItem(childItem, oldParentItem, newParentItem, false, insertIdx);
+    }
+}
+
 /**
  * load and display the given tracks
  * @example
@@ -873,7 +944,7 @@ Browser.prototype.showTracks = function(trackNameList) {
 
     for (var n = 0; n < trackNames.length; n++) {
         if(map[trackNames[n]]) {
-            map[trackNames[n]].firstChild.childNodes[2].childNodes[2].style.cssText = "background-color: "+disabledColor;
+            map[trackNames[n]].firstChild.childNodes[2].childNodes[1].style.cssText = "color: "+disabledColor;
         }
         function fetchFailed(error, request) {
             alert("lookup failed");
