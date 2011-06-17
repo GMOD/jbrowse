@@ -93,6 +93,7 @@ Track.prototype.setLabel = function(newHTML) {
     this.labelHTML = newHTML;
     var labelText = document.createElement("span");
     labelText.style.cssText = "display: inline; vertical-align: middle;";
+    labelText.innerHTML = newHTML;
     this.label.appendChild(labelText);
     this.labelHeight = this.label.offsetHeight;
     this.deleteButtonContainer = labelText;
