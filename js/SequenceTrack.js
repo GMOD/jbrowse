@@ -22,7 +22,7 @@ function SequenceTrack(trackMeta, url, refSeq, browserParams) {
     this.trackMeta = trackMeta;
     this.setLoaded();
     this.chunks = [];
-    this.chunkSize = trackMeta.args.chunkSize;
+    this.chunkSize = trackMeta.args_chunkSize;
     this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "") + url;
 }
 
