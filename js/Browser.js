@@ -349,6 +349,7 @@ Browser.prototype.createTrackList = function(parent, params) {
             for(var i = 0; i < nodes.length; i++) {
                 nodes[i].firstChild.childNodes[2].childNodes[1].style.cssText = "color: "+disabledColor;
             }
+            this.selectNone();
         }
         this._normalizedCreator = oldCreator;
     };
@@ -436,17 +437,17 @@ Browser.prototype.createTrackList = function(parent, params) {
                 var oldParentItem = sourceItem.getParent().item;
                 var target = this.targetAnchor;
                 var model = this.tree.model;
-                var newParentItem = (target && target.item) || tree.item;
+                var newParentItem = (target && target.item) || this.tree.item;
                 var insertIndex;
                 if(this.dropPosition == "Before" || this.dropPosition == "After"){
-                    newParentItem = (target.getParent() && target.getParent().item) || tree.item;
+                    newParentItem = (target.getParent() && target.getParent().item) || this.tree.item;
                     // Compute the insert index for reordering
                     insertIndex = target.getIndexInParent();
                     if(this.dropPosition == "After"){
                         insertIndex = target.getIndexInParent() + 1;
                     }
                 }else{
-                    newParentItem = (target && target.item) || tree.item;
+                    newParentItem = (target && target.item) || this.tree.item;
                 }
 
                 brwsr.treeModel.pasteItem(childItem, oldParentItem, newParentItem, false, insertIndex); 
@@ -763,12 +764,16 @@ Browser.prototype.createTrackList = function(parent, params) {
             dndController: "dijit.tree.dndSource",
             showRoot: false,
             itemCreator: externalSourceCreator,
+            onDndDrop: dropOnTrackList,
             betweenThreshold: 5,
             openOnDblClick: true,
-            autoExpand: true,
             checkItemAcceptance: nodePlacementAcceptance
         },
         "treeList");
+
+        store.save();
+        brwsr.tree = tree;
+        brwsr.treeModel = brwsr.treeModel;
 
         // load tracks to the display and disable the track in the track list
         var trackNames;
@@ -1121,7 +1126,7 @@ Browser.prototype.showTracks = function(trackNameList) {
                 var dataObj = {'url' : items[i].url[0],
                                'label' : items[i].label[0],
                                'type' : items[i].type[0],
-                               'key' : items[i].key[0],
+                               'key' : items[i].label[0],
                                'args_chunkSize': (items[i].args_chunkSize? items[i].args_chunkSize[0] :  2000)};
                 brwsr.viewDndWidget.insertNodes(false, [dataObj]);
             }
