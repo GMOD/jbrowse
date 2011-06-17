@@ -159,7 +159,7 @@ div.track-label {
     font-family: sans-serif;
     z-index: 20;
     background-color: #BDD7FF;
-    border: 2px #2b434c solid;
+    border: 0.5px #2b434c solid;
     color: #2b434c;
     padding: 2px;
     cursor: pointer;
