@@ -420,7 +420,7 @@ Browser.prototype.createTrackList = function(parent, params) {
     };
 
     var dropOnTrackList = function(source, nodes, copy) {
-        if(source instanceof dojo.dnd.Source) {
+        if((source instanceof dojo.dnd.Source)&& this.targetAnchor) {
             for(var i = 0; i < nodes.length; i++) {
                 var node = nodes[i];
                 var dataObj = brwsr.viewDndWidget.getItem(node.id);
