@@ -19,9 +19,11 @@ def delimImport(file, skipLines, colNames, dataDir, trackLabel,
         item[endIndex]  = int(item[endIndex])
 
     def nclCmp(a, b):
-        if a[startIndex] == b[startIndex]:
-            return b[endIndex] - a[endIndex]
-        return a[startIndex] - b[startIndex]
+        if a[chromIndex] != b[chromIndex]:
+            return cmp(a[chromIndex], b[chromIndex]) 
+        if a[startIndex] != b[startIndex]:
+            return a[startIndex] - b[startIndex]
+        return b[endIndex] - a[endIndex]
 
     data.sort(nclCmp)
 
