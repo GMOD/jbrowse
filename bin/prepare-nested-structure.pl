@@ -16,6 +16,8 @@ GetOptions("conf=s" => \$confFile,
            "out=s" => $outdir);
 
 my %categories;
+my @seqTracks;
+my %definedTracks;
 my @rootChildren = ('Favourites');
 
 my $trackRel = "tracks";
@@ -35,32 +37,55 @@ $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
 $db->absolute(1)               if $db->can('absolute');
 
 my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
-
 die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
+my @trackInfo = @{JsonGenerator::readJSON("$outdir/trackInfo.js", [], 1)};
+die "run biodb-to-json.pl first to supply information about your track sequences" if $#trackInfo < 0;
 
-foreach my $seg (@refSeqs) {
-    my $segName = $seg->{name};
-    print "\nworking on refseq $segName\n";
-
-    mkdir("$trackDir/$segName") unless (-d "$trackDir/$segName");
-
-    my @tracks = @{$config->{tracks}};
-
-    foreach my $track (@tracks) {
-        if($track->{"category"}) {
-            if($categories{$track->{"category"}}) {
-                push @{$categories{$track->{"category"}}}, $track->{"track"};
-            }
-            else {
-                $categories{$track->{"category"}} = [$track->{"track"}];
-            }
+foreach my $track (@trackInfo) {
+    if($track->{"type"} eq "SequenceTrack") {
+        if($categories{'SequenceTrack'}) {
+            push @{$categories{'SequenceTrack'}}, $track->{"key"};
         }
         else {
-            push @rootChildren, $track->{"track"};
+            $categories{'SequenceTrack'} = [$track->{"key"}];
         }
+        $definedTracks{$track->{"key"}} = 2;
+    }
+    else {
+        $definedTracks{$track->{"key"}} = 1;
     }
 }
 
+$definedTracks{'ROOT'} = 3;
+$definedTracks{'General'} = 3;
+$definedTracks{'Favourites'} = 3;
+
+
+my @tracks = @{$config->{tracks}};
+
+foreach my $track (@tracks) {
+    my $group;
+    if(! $track->{"category"}) {
+        $group = "General";
+    }
+    else {
+        $group = $track->{"category"};
+    }
+
+    if(!$definedTracks{$track->{"track"}}) {
+        warn "track " . $track->{"track"} . " is not defined in trackInfo.js";
+    }
+    elsif($definedTracks{$track->{"track"}} == 2) {
+        warn "track " . $track->{"track"} . " is duplicated";
+    }
+    if($categories{$group}) {
+        push @{$categories{$group}}, $track->{"track"};
+    }
+    else {
+        $categories{$group} = [$track->{"track"}];
+    }
+    $definedTracks{$track->{"track"}} = 2;
+} 
 
 foreach my $category (keys %categories) {
     my @children_ref = ();
@@ -75,13 +100,18 @@ foreach my $category (keys %categories) {
                                        'children' => \@children_ref
                                    });
     push @rootChildren, $category;
+    $definedTracks{$category} = 3;
+}
+
+foreach my $track (keys %definedTracks) {
+    if($definedTracks{$track} == 1) {  warn "track ". $track . " is not in a category"; }
 }
 
 JsonGenerator::writeTrackEntry("$outdir/trackInfo.js",
                                {
                                    'label' => 'Favourites',
                                    'key' => 'Favourites',
-                                   'type' => 'Favourites',
+                                   'type' => 'TrackGroup',
                                });
 
 my @children_ref = ();
