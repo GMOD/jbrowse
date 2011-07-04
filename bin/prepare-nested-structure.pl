@@ -19,22 +19,12 @@ my %categories;
 my @seqTracks;
 my %definedTracks;
 my @rootChildren = ('Favourites');
+my %seq;
 
 my $trackRel = "tracks";
 my $trackDir = "$outdir/$trackRel";
 mkdir($outdir) unless (-d $outdir);
 mkdir($trackDir) unless (-d $trackDir);
-
-my $config = JsonGenerator::readJSON($confFile);
-
-eval "require $config->{db_adaptor}; 1" or die $@;
-
-
-my $db = eval {$config->{db_adaptor}->new(%{$config->{db_args}})} or warn $@;
-die "Could not open database: $@" unless $db;
-
-$db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
-$db->absolute(1)               if $db->can('absolute');
 
 my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
 die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
@@ -50,6 +40,7 @@ foreach my $track (@trackInfo) {
             $categories{'SequenceTrack'} = [$track->{"key"}];
         }
         $definedTracks{$track->{"key"}} = 2;
+        $seq{$track->{"key"}} = 1;
     }
     else {
         $definedTracks{$track->{"key"}} = 1;
@@ -60,9 +51,20 @@ $definedTracks{'ROOT'} = 3;
 $definedTracks{'General'} = 3;
 $definedTracks{'Favourites'} = 3;
 
+if($confFile) {
+
+my $config = JsonGenerator::readJSON($confFile);
+
+eval "require $config->{db_adaptor}; 1" or die $@;
+
+
+my $db = eval {$config->{db_adaptor}->new(%{$config->{db_args}})} or warn $@;
+die "Could not open database: $@" unless $db;
+
+$db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
+$db->absolute(1)               if $db->can('absolute');
 
 my @tracks = @{$config->{tracks}};
-
 foreach my $track (@tracks) {
     my $group;
     if(! $track->{"category"}) {
@@ -85,7 +87,22 @@ foreach my $track (@tracks) {
         $categories{$group} = [$track->{"track"}];
     }
     $definedTracks{$track->{"track"}} = 2;
-} 
+}
+}
+else {
+foreach my $track (@trackInfo) {
+    my $group = "General";
+if(!$seq{$track->{"key"}}) {
+    if($categories{$group}) {
+        push @{$categories{$group}}, $track->{"key"};
+    }
+    else {
+        $categories{$group} = [$track->{"key"}];
+    }
+}
+    $definedTracks{$track->{"key"}} = 2;
+}
+}
 
 foreach my $category (keys %categories) {
     my @children_ref = ();
