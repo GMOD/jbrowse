@@ -2,6 +2,10 @@ html, body {
     height: 98%;
 }
 
+div {
+    font-family: "sans-serif";
+}
+
 .nav {
     vertical-align: middle;
     z-index: 10;
@@ -158,11 +162,15 @@ div.plus-feature:before {
 div.track-label {
     font-family: sans-serif;
     z-index: 20;
-    background-color: #BDD7FF;
-    border: 0.5px #2b434c solid;
+    background-color: rgba(255,255,255,0.75);
     color: #2b434c;
     padding: 2px;
     cursor: pointer;
+}
+
+div.track-label:hover {
+    background-color: #BDD7FF;
+    border: 0.5px #2b434c solid;
 }
 
 div.tracklist-label {
