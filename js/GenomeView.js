@@ -372,6 +372,14 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
             }
         }
 	if (Util.isRightButton(event)) return;
+
+        if(event.clientY < parseInt(dojo.byId('static_track').style.height) + parseInt(dojo.byId('dijit_layout_ContentPane_1').style.top)) {
+        dojo.byId('bandZoom').style.display = "block";
+        dojo.byId('dynamicZoom').style.left = event.clientX -parseInt(dojo.byId('dijit_layout_ContentPane_0').style.left) + "px";
+        dojo.byId('dynamicZoomStart').style.left = event.clientX -parseInt(dojo.byId('dijit_layout_ContentPane_0').style.left) + "px";
+        view.zoomMover.onMoveStart( new dojo.dnd.Mover(view.zoomMover.node, event, view.zoomMover));
+        return;
+        }
         dojo.stopEvent(event);
 	if (event.shiftKey || event.ctrlKey) return;
 	view.dragEventHandles =
@@ -475,6 +483,9 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 
     this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
+    if(refseq.centromere != undefined) {
+        this.ci = new ChromIdeogram(refseq);
+    }
     this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
 
     document.body.style.cursor = "url(\"closedhand.cur\")";
@@ -482,6 +493,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 
     this.showFine();
     this.showCoarse();
+            //elem.appendChild(MoveTest);
 }
 
 /* moves the view by (distance times the width of the view) pixels */
@@ -500,6 +512,12 @@ GenomeView.prototype.slide = function(distance) {
 GenomeView.prototype.highlightRegions = function(regionList) {
 };
 
+GenomeView.prototype.resetChromBands = function() {
+    if(this.ref.centromere != undefined) {
+    this.ci.resetBands();
+    }
+}
+
 GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
     if (startbp === undefined) startbp = this.minVisible();
     if (endbp === undefined) endbp = this.maxVisible();
@@ -510,18 +528,21 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
 
     if (this.ref != refseq) {
 	this.ref = refseq;
+        if(this.ci != null) this.ci.clear();
 	var removeTrack = function(track) {
             if (track.div && track.div.parentNode)
                 track.div.parentNode.removeChild(track.div);
 	};
 	dojo.forEach(this.tracks, removeTrack);
         dojo.forEach(this.uiTracks, function(track) { track.clear(); });
-	this.overviewTrackIterate(removeTrack);
+	this.overviewTrackIterate2(removeTrack);
 
+        if(refseq.centromere != undefined) this.ci = new ChromIdeogram(refseq);
 	this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
         this.sizeInit();
         this.setY(0);
         this.containerHeight = this.topSpace;
+
     }
     this.pxPerBp = Math.min(this.dim.width / (endbp - startbp), this.charWidth);
     this.curZoom = Util.findNearest(this.zoomLevels, this.pxPerBp);
@@ -537,8 +558,13 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
         this.pxPerBp = this.zoomLevels[this.zoomLevels.length - 1];
     }
     this.stripeWidth = (this.stripeWidthForZoom(this.curZoom) / this.zoomLevels[this.curZoom]) * this.pxPerBp;
-    this.instantZoomUpdate();
 
+    dojo.forEach(this.uiTracks, function(track) { track.clear(); });
+    for (var track = 0; track < this.tracks.length; track++) {
+	this.tracks[track].startZoom(this.pxPerBp, startbp, endbp);
+	this.tracks[track].endZoom(this.pxPerBp, Math.round(this.stripeWidth / this.pxPerBp));
+    }
+    this.instantZoomUpdate();
     this.centerAtBase((startbp + endbp) / 2, true);
 };
 
@@ -777,7 +803,7 @@ GenomeView.prototype.sizeInit = function() {
 
     var overviewStripePct = 100 / (refLength / this.overviewStripeBases);
     var overviewHeight = 0;
-    this.overviewTrackIterate(function (track, view) {
+    this.overviewTrackIterate2(function (track, view) {
 	    track.clear();
 	    track.sizeInit(view.overviewStripes,
 			   overviewStripePct);
@@ -789,11 +815,19 @@ GenomeView.prototype.sizeInit = function() {
     this.updateOverviewHeight();
 };
 
+GenomeView.prototype.overviewTrackIterate2 = function(callback) {
+    var overviewTrack = this.overview.firstChild;
+    do {
+        if (overviewTrack && overviewTrack.track && overviewTrack.id != 'chromosome_representation')
+	    callback(overviewTrack.track, this);
+    } while (overviewTrack && (overviewTrack = overviewTrack.nextSibling));
+};
+
 GenomeView.prototype.overviewTrackIterate = function(callback) {
     var overviewTrack = this.overview.firstChild;
     do {
         if (overviewTrack && overviewTrack.track)
-	    callback(overviewTrack.track, this);
+            callback(overviewTrack.track, this);
     } while (overviewTrack && (overviewTrack = overviewTrack.nextSibling));
 };
 
