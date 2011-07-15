@@ -4,6 +4,13 @@
   "db_args": { "-adaptor": "memory",
                "-dir": "docs/tutorial/data_files" },
 
+  "facets": [ { "field": "feature", "label": "Feature"},
+              { "field": "category", "label": "Category"},
+              { "field": "class", "label": "Class"}],
+
+  "extra_track_info": [ { "field_label": "feature", "field_name": "feature"},
+                        { "field_label": "category", "field_name": "category"}],
+
   "TRACK DEFAULTS": {
     "class": "feature",
     "autocomplete": "all"
@@ -35,7 +42,7 @@
       "feature": ["match"],
       "class": "feature4",
       "key": "Example alignments",
-      "category": "Alignments"
+      "category": "AlignmentsGroup"
     },
     {
       "track": "Genes",
@@ -48,7 +55,7 @@
       "feature": ["mRNA"],
       "class": "dblhelix",
       "key": "Frame usage",
-      "category": "Genes"
+      "category": "GenesGroup"
     },
     {
       "track": "CDS",
@@ -56,7 +63,7 @@
       "class": "cds",
       "phase": 1,
       "key": "Predicted genes",
-      "category": "Genes"
+      "category": "GenesGroup"
     },
     {
       "track": "Transcript",
@@ -70,7 +77,7 @@
       },
       "arrowheadClass": "transcript-arrowhead",
       "key": "Exonerate predictions",
-      "category": "Genes"
+      "category": "GenesGroup"
     },
     {
       "track": "Clones",
