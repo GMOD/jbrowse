@@ -38,7 +38,7 @@ var Browser = function(params) {
 
     this.names = new LazyTrie(dataRoot + "/names/lazy-",
 			      dataRoot + "/names/root.json");
-    this.tracks = [];
+    this.tracks = [] ;
     var brwsr = this;
     brwsr.isInitialized = false;
     dojo.addOnLoad(
@@ -79,8 +79,9 @@ var Browser = function(params) {
 
             //set up ref seqs
             brwsr.allRefs = {};
-            for (var i = 0; i < refSeqs.length; i++)
+            for (var i = 0; i < refSeqs.length; i++) {
                 brwsr.allRefs[refSeqs[i].name] = refSeqs[i];
+            }
 
             var refCookie = dojo.cookie(params.containerID + "-refseq");
             brwsr.refSeq = refSeqs[0];
@@ -114,14 +115,17 @@ var Browser = function(params) {
             //gv.setY(0);
             viewElem.view = gv;
 
-            dojo.connect(browserWidget, "resize", function() {
+            dojo.connect(browserWidget, "resize", function() { //viewResizeTest();});
+
                     gv.sizeInit();
 
                     brwsr.view.locationTrapHeight = dojo.marginBox(navbox).h;
                     gv.showVisibleBlocks();
                     gv.showFine();
                     gv.showCoarse();
+                    gv.resetChromBands();
                 });
+
             brwsr.view.locationTrapHeight = dojo.marginBox(navbox).h;
 
             dojo.connect(gv, "onFineMove", brwsr, "onFineMove");
@@ -154,19 +158,179 @@ var Browser = function(params) {
                                         * 0.6) | 0)));
             }
 
+            brwsr.createRubberBandZoom(topPane, gv);
+            brwsr.createHighLevelRubberBandZoom(brwsr.refSeq);
+
 	    //if someone calls methods on this browser object
 	    //before it's fully initialized, then we defer
 	    //those functions until now
 	    for (var i = 0; i < brwsr.deferredFunctions.length; i++)
 		brwsr.deferredFunctions[i]();
 	    brwsr.deferredFunctions = [];
+
         });
 };
+
+
+Browser.prototype.createRubberBandZoom = function(topPane, gv) {
+    brwsr = this;
+
+    var bandZoom = document.createElement("div");
+    bandZoom.id = 'bandZoom';
+    bandZoom.style.cssText = "height: 700px; display: none;"; 
+    topPane.appendChild(bandZoom);
+
+    var dynamicZoomStart = document.createElement("div");
+    dynamicZoomStart.id = 'dynamicZoomStart';
+    dynamicZoomStart.style.cssText = "height: 700px; "+
+                                     "width: 2px; "+
+                                     "background: red; "+
+                                     "position: absolute; "+
+                                     "z-index: 1000; "+
+                                     "margin: 0px -2px 0px -2px;";
+    bandZoom.appendChild(dynamicZoomStart);
+
+    this.dynamicZoom = document.createElement("div");
+    this.dynamicZoom.id = 'dynamicZoom';
+    this.dynamicZoom.style.cssText = "height: 700px; "+
+                                     "width: 2px; "+
+                                     "background: red; "+
+                                     "position: absolute; "+
+                                     "z-index: 1000; "+
+                                     "margin: 0px -2px 0px -2px;";
+    bandZoom.appendChild(this.dynamicZoom);
+    this.zoomMover = new dojo.dnd.move.parentConstrainedMoveable(this.dynamicZoom, {area: "margin", within: true});
+    this.view.zoomMover = this.zoomMover;
+
+    var selectedArea = document.createElement("div");
+    selectedArea.id = 'selectedArea';
+    selectedArea.style.cssText = "height: 700px; "+
+                                 "background-color: rgba(255, 0, 0, 0.2); "+
+                                 "position: absolute; "+
+                                 "z-index: 1000;";
+
+    bandZoom.appendChild(selectedArea);
+
+    dojo.connect(this.zoomMover, "onMove", function(mover, leftTop) {
+        var leftSide = parseInt(dojo.byId('dynamicZoomStart').style.left);
+        var rightSide = leftTop.l;
+        if(rightSide < leftSide) {
+            var temp = rightSide;
+            rightSide = leftSide;
+            leftSide = temp;
+        } 
+        dojo.byId('selectedArea').style.width = rightSide - leftSide + "px";
+        dojo.byId('selectedArea').style.left = leftSide + "px";
+    });
+
+    dojo.connect(this.zoomMover, "onMoveStop", function() { 
+        dojo.byId('bandZoom').style.display = "none";
+        dojo.byId('selectedArea').style.width = "0px";
+        var start = Math.round(gv.minVisible()+ parseInt(dojo.byId('dynamicZoomStart').style.left) / parseInt(dojo.byId('dijit_layout_ContentPane_1').style.width) * (gv.maxVisible()-gv.minVisible()));
+        var end = Math.round(gv.minVisible()+ parseInt(dojo.byId('dynamicZoom').style.left) / parseInt(dojo.byId('dijit_layout_ContentPane_1').style.width) * (gv.maxVisible()-gv.minVisible()));
+        if(end < start) {
+            var temp = end;
+            end = start;
+            start = temp;
+        }
+        if(start != end) brwsr.navigateTo(start+".."+end);
+    });
+};
+
+Browser.prototype.createHighLevelRubberBandZoom = function(refseq) {
+    brwsr = this;
+    var overview = dojo.byId('overview');
+
+    var dynamicZoomHighStart = document.createElement("div");
+    dynamicZoomHighStart.id = 'dynamicZoomHighStart';
+    dynamicZoomHighStart.style.cssText = "top: 0px; "+
+                                         "height: "+brwsr.view.overviewBox.h+"px; "+
+                                         "width: 2px; "+
+                                         "background: red; "+
+                                         "position: absolute; "+
+                                         "z-index: 1000; "+
+                                         "margin: 0px -2px 0px -2px;";
+    dynamicZoomHighStart.style.display = "none";
+    overview.appendChild(dynamicZoomHighStart);
+
+    this.dynamicZoomHigh = document.createElement("div");
+    this.dynamicZoomHigh.id = 'dynamicZoomHigh';
+    this.dynamicZoomHigh.style.cssText = "top: 0px; "+
+                                         "height: "+brwsr.view.overviewBox.h+"px; "+
+                                         "width: 2px; "+
+                                         "background: red; "+
+                                         "position: absolute; "+
+                                         "z-index: 1000; "+
+                                         "margin: 0px -2px 0px -2px;";
+    this.dynamicZoomHigh.style.display = "none";
+    overview.appendChild(this.dynamicZoomHigh);
+    this.zoomMoverHigh = new dojo.dnd.move.parentConstrainedMoveable(this.dynamicZoomHigh, {area: "margin", within: true});
+
+    var selectedAreaHigh = document.createElement("div");
+    selectedAreaHigh.id = 'selectedAreaHigh';
+    selectedAreaHigh.style.cssText = "top: 0px; "+
+                                     "height: "+brwsr.view.overviewBox.h+"px; "+
+                                     "background-color: rgba(255, 0, 0, 0.2); "+
+                                     "position: absolute; "+
+                                     "z-index: 1000;";
+    overview.appendChild(selectedAreaHigh);
+
+    brwsr.zoomMoverHigh = this.zoomMoverHigh;
+
+    dojo.connect(overview, "mousedown", function(event) {
+        var startingPt = event.clientX -parseInt(dojo.byId('dijit_layout_ContentPane_0').style.left);
+        var locationThumb = dojo.byId('overview').firstChild;
+        if(startingPt > parseInt(locationThumb.style.left) 
+            && startingPt < (parseInt(locationThumb.style.left) + parseInt(locationThumb.style.width))) 
+                return;
+        dojo.byId('dynamicZoomHighStart').style.display = "block";
+        dojo.byId('dynamicZoomHigh').style.display = "block";
+        dojo.byId('selectedAreaHigh').style.display = "block";
+        dojo.byId('dynamicZoomHigh').style.left = startingPt + "px";
+        dojo.byId('dynamicZoomHighStart').style.left = startingPt + "px";
+        brwsr.zoomMoverHigh.onMoveStart( new dojo.dnd.Mover(brwsr.zoomMoverHigh.node, event, brwsr.zoomMoverHigh));
+    });
+
+    dojo.connect(this.zoomMoverHigh, "onMove", function(mover, leftTop) { 
+        var leftSide = parseInt(dojo.byId('dynamicZoomHighStart').style.left);
+        var rightSide = leftTop.l;
+        if(rightSide < leftSide) {
+            var temp = rightSide;
+            rightSide = leftSide;
+            leftSide = temp;
+        }
+        dojo.byId('selectedAreaHigh').style.width = rightSide - leftSide + "px";
+        dojo.byId('selectedAreaHigh').style.left = leftSide + "px";
+    });
+
+    dojo.connect(this.zoomMoverHigh, "onMoveStop", function() {
+        var start = Math.round(parseInt(dojo.byId('dynamicZoomHighStart').style.left) / parseInt(dojo.byId('dijit_layout_ContentPane_0').style.width) * refseq.length);
+        var end = Math.round(parseInt(dojo.byId('dynamicZoomHigh').style.left) / parseInt(dojo.byId('dijit_layout_ContentPane_0').style.width) * refseq.length);
+        dojo.byId('dynamicZoomHighStart').style.display = "none";
+        dojo.byId('dynamicZoomHigh').style.display = "none";
+        dojo.byId('selectedAreaHigh').style.display = "none";
+        dojo.byId('selectedAreaHigh').style.width = "0px";
+        if(end < start) {
+            var temp = end;
+            end = start;
+            start = temp;
+        }
+        if(start != end) brwsr.navigateTo(start+".."+end);
+    });
+
+};
+
 
 /**
  * @private
  */
 Browser.prototype.onFineMove = function(startbp, endbp) {
+
+    if(endbp > this.view.ref.end) {
+        // stops the location trap from going off the end of the page
+        endbp = this.view.ref.end;
+    }
+
     var length = this.view.ref.end - this.view.ref.start;
     var trapLeft = Math.round((((startbp - this.view.ref.start) / length)
                                * this.view.overviewBox.w) + this.view.overviewBox.l);
@@ -183,7 +347,7 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
             + "border-width: 0px";
     } else {
         locationTrapStyle =
-            "top: " + this.view.overviewBox.t + "px;"
+            "top: " + (this.view.overviewBox.t)+ "px;"
             + "height: " + this.view.overviewBox.h + "px;"
             + "left: " + this.view.overviewBox.l + "px;"
             + "width: " + (trapRight - trapLeft) + "px;"
@@ -207,12 +371,12 @@ Browser.prototype.createTrackList = function(parent, params) {
     dojo.require("dijit.form.TextBox");
     dojo.require("dijit.form.Button");
     dojo.require("dijit.layout.TabContainer");
-    dojo.require("dijit.layout.ContentPane");
+//    dojo.require("dijit.layout.ContentPane");
 
     // create track list tabs
 
     var parentLeftPane = document.createElement("div");
-    parentLeftPane.style.cssText="width: 240px; overflow: auto;";
+    parentLeftPane.style.cssText="width: 240px; height: 100%; overflow: visible;";
     parent.appendChild(parentLeftPane);
     var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, parentLeftPane);
 
@@ -221,7 +385,6 @@ Browser.prototype.createTrackList = function(parent, params) {
     parentLeftPane.appendChild(tabCon);
 
     var tc = new dijit.layout.TabContainer({
-        refreshOnShow: true,
         tabPosition: "left-h"
     }, "browseTab");
 
@@ -230,7 +393,7 @@ Browser.prototype.createTrackList = function(parent, params) {
     var cp1 = new dijit.layout.ContentPane({ title: "Drag Tracks"}, leftPane);
     tc.addChild(cp1);
 
-    var resizeTab = function(newSize) {
+    /*var resizeTab = function(newSize) {
         var rightSize = (screen.width-newSize-5)+"px";
         var overLeft = (newSize + 5) + "px";
         newSize = newSize+"px";
@@ -241,18 +404,51 @@ Browser.prototype.createTrackList = function(parent, params) {
         dojo.byId("dijit_layout_ContentPane_2_splitter").style["left"] = newSize; 
         leftWidget.domNode.style.width = newSize;
         leftWidget.resize();
-    }; 
+    };*/ 
 
     var faceted = document.createElement("div");
     var cp2 = new dijit.layout.ContentPane({ title: "Faceted Browsing", 
                                              onShow: function() { 
                                                  window.frames["browsing_window"].start_faceted_browsing(dojo.cookie(brwsr.container.id + "-tracks"));
+                                           //      dojo.byId("chromosome_representation").style.display = "none";
+                                           //      brwsr.ci.height = 0;
                                                  resizeTab(540);
                                              },
                                              onHide: function() { resizeTab(240)}
                                            }, faceted);
     tc.addChild(cp2);
     tc.startup();
+
+    var resizeTab = function(newSize) {
+        dojo.byId("dijit_layout_ContentPane_2").style.overflow = "hidden";
+        dojo.byId("dijit_layout_ContentPane_2").style.width = newSize + "px";
+        dijit.getEnclosingWidget(dojo.byId("dijit_layout_ContentPane_2")).resize();
+        var rightSize = (screen.width- newSize -5);
+        var overLeft = (newSize + 5);
+        dojo.animateProperty({
+            node: dojo.byId("dijit_layout_ContentPane_2"),
+            properties: { width: { end: newSize, start: 20 }}
+        }).play();
+        dojo.animateProperty({
+            node: dojo.byId("dijit_layout_ContentPane_2_splitter"),
+            properties: { left: newSize}
+        }).play();
+        dojo.animateProperty({
+            node: dojo.byId("dijit_layout_ContentPane_0"),
+            properties: { left: overLeft,
+                          width: rightSize}
+        }).play();
+        dojo.byId("dijit_layout_ContentPane_0").style.width = rightSize + "px";
+        dijit.getEnclosingWidget(dojo.byId("dijit_layout_ContentPane_0")).resize();
+        dojo.animateProperty({
+            node: dojo.byId("dijit_layout_ContentPane_1"),
+            properties: { left: overLeft,
+                          width: rightSize}
+        }).play();
+        dojo.byId("dijit_layout_ContentPane_1").style.width = rightSize + "px";
+        dijit.getEnclosingWidget(dojo.byId("dijit_layout_ContentPane_1")).resize();
+        setTimeout('dojo.byId("dijit_layout_ContentPane_2").style.overflow = "visible"',500);
+    }
 
     var facetedIframe = document.createElement("iframe");
     facetedIframe.src = "faceted_browsing.html"; 
@@ -290,7 +486,7 @@ Browser.prototype.createTrackList = function(parent, params) {
     var treeSection = document.createElement("div");
     treeSection.id = "treeList";
     treeSection.style.cssText =
-        "width: 100%; height: 100%; overflow-x: visible; overflow-y: auto;";
+        "width: 100%; height: 100%; overflow: visible;";
 
     leftPane.appendChild(treeSection);
 
@@ -1068,9 +1264,10 @@ Browser.prototype.navigateTo = function(loc) {
 		    this.view.setLocation(this.refSeq,
 					  parseInt(matches[4].replace(/[,.]/g, "")),
 					  parseInt(matches[6].replace(/[,.]/g, "")));
-
                     this.viewDndWidget.insertNodes(false, curTracks);
                     this.onVisibleTracksChanged();
+
+                    dijit.getEnclosingWidget(dojo.byId("GenomeBrowser")).resize();
 		}
 		return;
 	    }
@@ -1300,7 +1497,7 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     "height: " + (this.view.overviewBox.h - 4) + "px; "
     + "left: " + trapLeft + "px; "
     + "width: " + (trapRight - trapLeft) + "px;"
-    + "z-index: 20";
+    + "z-index: 20;";
 
     //since this method gets triggered by the initial GenomeView.sizeInit,
     //we don't want to save whatever location we happen to start at
