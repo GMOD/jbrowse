@@ -86,17 +86,23 @@ Track.prototype.clear = function() {
     this.initBlocks();
 };
 
+
 Track.prototype.setLabel = function(newHTML) {
     if (this.label === undefined) return;
 
     if (this.labelHTML == newHTML) return;
     this.labelHTML = newHTML;
-    var labelText = document.createElement("span");
-    labelText.style.cssText = "display: inline; vertical-align: middle;";
-    labelText.innerHTML = newHTML;
-    this.label.appendChild(labelText);
-    this.labelHeight = this.label.offsetHeight;
-    this.deleteButtonContainer = labelText;
+    if(this.label.children.length < 2) {
+        var labelText = document.createElement("span");
+        labelText.style.cssText = "display: inline; vertical-align: middle;";
+        labelText.innerHTML = newHTML;
+        this.label.appendChild(labelText);
+        this.labelHeight = this.label.offsetHeight;
+        this.deleteButtonContainer = labelText;
+    } 
+    else {
+        this.label.children[1].innerHTML = newHTML;
+    }
 };
 
 Track.prototype.transfer = function() {};
