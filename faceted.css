@@ -16,10 +16,6 @@ div.submission {
     overflow: auto;
 }
 
-div.submission:hover div.extra_data {
-    display: block;
-}
-
 div.status {
     font-weight: bold;
     text-align: center;
