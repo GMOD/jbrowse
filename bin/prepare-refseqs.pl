@@ -174,9 +174,9 @@ if (defined($gff)) {
             my $chrom_display = "";
             if(!$refInfo->{"centromere"} || !$refInfo->{"chromBands"}) {
                 print "Do you want a chromosome ideogram displayed for ",$refInfo->{"name"},"?\n";
-                my $chrom_display = <STDIN>;
+                $chrom_display = <STDIN>;
             }
-            if($chrom_display =~ /yes/ || $chrom_display =~ /\s*y\s*/) {
+            if($chrom_display =~ /yes/i || $chrom_display =~ /\s*y\s*/i) {
                 if(!$refInfo->{"centromere"}) {
                     $refInfo->{"centromere"} = getCentromere($refInfo->{"name"});
                 }
