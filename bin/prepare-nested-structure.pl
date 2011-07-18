@@ -53,55 +53,54 @@ $definedTracks{'Favourites'} = 3;
 
 if($confFile) {
 
-my $config = JsonGenerator::readJSON($confFile);
+    my $config = JsonGenerator::readJSON($confFile);
 
-eval "require $config->{db_adaptor}; 1" or die $@;
+    eval "require $config->{db_adaptor}; 1" or die $@;
 
+    my $db = eval {$config->{db_adaptor}->new(%{$config->{db_args}})} or warn $@;
+    die "Could not open database: $@" unless $db;
 
-my $db = eval {$config->{db_adaptor}->new(%{$config->{db_args}})} or warn $@;
-die "Could not open database: $@" unless $db;
+    $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
+    $db->absolute(1)               if $db->can('absolute');
 
-$db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
-$db->absolute(1)               if $db->can('absolute');
+    my @tracks = @{$config->{tracks}};
+    foreach my $track (@tracks) {
+        my $group;
+        if(! $track->{"category"}) {
+            $group = "General";
+        }
+        else {
+            $group = $track->{"category"};
+        }
 
-my @tracks = @{$config->{tracks}};
-foreach my $track (@tracks) {
-    my $group;
-    if(! $track->{"category"}) {
-        $group = "General";
+        if(!$definedTracks{$track->{"key"}}) {
+            warn "track " . $track->{"key"} . " is not defined in trackInfo.js";
+        }
+        elsif($definedTracks{$track->{"key"}} == 2) {
+            warn "track " . $track->{"key"} . " is duplicated";
+        }
+        if($categories{$group}) {
+            push @{$categories{$group}}, $track->{"key"};
+        }
+        else {
+           $categories{$group} = [$track->{"key"}];
+        }
+        $definedTracks{$track->{"key"}} = 2;
     }
-    else {
-        $group = $track->{"category"};
-    }
-
-    if(!$definedTracks{$track->{"track"}}) {
-        warn "track " . $track->{"track"} . " is not defined in trackInfo.js";
-    }
-    elsif($definedTracks{$track->{"track"}} == 2) {
-        warn "track " . $track->{"track"} . " is duplicated";
-    }
-    if($categories{$group}) {
-        push @{$categories{$group}}, $track->{"track"};
-    }
-    else {
-        $categories{$group} = [$track->{"track"}];
-    }
-    $definedTracks{$track->{"track"}} = 2;
-}
 }
 else {
-foreach my $track (@trackInfo) {
-    my $group = "General";
-if(!$seq{$track->{"key"}}) {
-    if($categories{$group}) {
-        push @{$categories{$group}}, $track->{"key"};
+    foreach my $track (@trackInfo) {
+        my $group = "General";
+        if(!$seq{$track->{"key"}}) {
+            if($categories{$group}) {
+                push @{$categories{$group}}, $track->{"key"};
+            }
+            else {
+                $categories{$group} = [$track->{"key"}];
+            }
+        }
+        $definedTracks{$track->{"key"}} = 2;
     }
-    else {
-        $categories{$group} = [$track->{"key"}];
-    }
-}
-    $definedTracks{$track->{"key"}} = 2;
-}
 }
 
 foreach my $category (keys %categories) {
