@@ -374,11 +374,11 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 	if (Util.isRightButton(event)) return;
 
         if(event.clientY < parseInt(dojo.byId('static_track').style.height) + parseInt(dojo.byId('dijit_layout_ContentPane_1').style.top)) {
-        dojo.byId('bandZoom').style.display = "block";
-        dojo.byId('dynamicZoom').style.left = event.clientX -parseInt(dojo.byId('dijit_layout_ContentPane_0').style.left) + "px";
-        dojo.byId('dynamicZoomStart').style.left = event.clientX -parseInt(dojo.byId('dijit_layout_ContentPane_0').style.left) + "px";
-        view.zoomMover.onMoveStart( new dojo.dnd.Mover(view.zoomMover.node, event, view.zoomMover));
-        return;
+            dojo.byId('bandZoom').style.display = "block";
+            dojo.byId('dynamicZoom').style.left = event.clientX -parseInt(dojo.byId('dijit_layout_ContentPane_0').style.left) + "px";
+            dojo.byId('dynamicZoomStart').style.left = event.clientX -parseInt(dojo.byId('dijit_layout_ContentPane_0').style.left) + "px";
+            view.zoomMover.onMoveStart( new dojo.dnd.Mover(view.zoomMover.node, event, view.zoomMover));
+            return;
         }
         dojo.stopEvent(event);
 	if (event.shiftKey || event.ctrlKey) return;

@@ -18,10 +18,16 @@ function ChromIdeogram(refSeq) {
 
 
 ChromIdeogram.prototype.drawChromosome = function(elem, refSeq, trackData) {
-    this.height = 20;
+    this.height = 40;
 
     this.Bands = {};
     this.bandCount = 0;
+
+    var chrName = document.createElement("div");
+    this.chrNameHeight = 20;
+    chrName.style.cssText = "color: black; text-align: left; height: "+this.chrNameHeight+"px;";
+    chrName.innerHTML = refSeq.name;
+    elem.appendChild(chrName);
 
     var chr1 = document.createElement("div");
     var chr2;
@@ -110,7 +116,7 @@ ChromIdeogram.prototype.setBandCss = function(band, pos, size, background) {
             var crossSec = 2 * Math.sqrt( (radius* radius) - ((radius - leftPx - widthPx) * (radius - leftPx - widthPx)));
             if(crossSec > 15) crossSec = 15;
             band.style.height = crossSec + "px";
-            band.style.top = (15 - crossSec) /2 + 5 + "px";
+            band.style.top = (15 - crossSec) /2 + 5 + this.chrNameHeight + "px";
         }
     }
     if((leftPx >= centromerePx) && (leftPx < centromerePx + curvePt)) {
@@ -120,7 +126,7 @@ ChromIdeogram.prototype.setBandCss = function(band, pos, size, background) {
 	    var crossSec = 2 * Math.sqrt( (radius* radius) - ((radius + centromerePx - leftPx - widthPx) * (radius + centromerePx - leftPx - widthPx)));
             if(crossSec > 15) crossSec = 15;
             band.style.height = crossSec + "px";
-            band.style.top = (15 - crossSec) /2 + 5 + "px";
+            band.style.top = (15 - crossSec) /2 + 5 + this.chrNameHeight + "px";
         }
     }
     if((widthPx + leftPx <= centromerePx+1) && (widthPx + leftPx > centromerePx - curvePt)) {
@@ -130,7 +136,7 @@ ChromIdeogram.prototype.setBandCss = function(band, pos, size, background) {
             var crossSec = 2 * Math.sqrt( (radius* radius) - ((radius - centromerePx + leftPx) * (radius - centromerePx + leftPx)));
             if(crossSec > 15) crossSec = 15;
             band.style.height = crossSec + "px";
-            band.style.top = (15 - crossSec) /2 + 5 + "px";
+            band.style.top = (15 - crossSec) /2 + 5 + this.chrNameHeight + "px";
         }
     }
     if(widthPx + leftPx > divSize - curvePt) {
@@ -140,7 +146,7 @@ ChromIdeogram.prototype.setBandCss = function(band, pos, size, background) {
             var crossSec = 2 * Math.sqrt( (radius* radius) - ((radius - divSize + leftPx) * (radius - divSize + leftPx)));
             if(crossSec > 15) crossSec = 15;
             band.style.height = crossSec + "px";
-            band.style.top = (15 - crossSec) /2 + 5 + "px";
+            band.style.top = (15 - crossSec) /2 + 5 + this.chrNameHeight + "px";
         }
     }
 

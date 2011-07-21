@@ -16,8 +16,6 @@
  * </ul>
  */
 
-var disabledColor = "#9E9E9E";
-
 var Browser = function(params) {
     dojo.require("dojo.dnd.Source");
     dojo.require("dojo.dnd.Moveable");
@@ -25,6 +23,8 @@ var Browser = function(params) {
     dojo.require("dojo.dnd.move");
     dojo.require("dijit.layout.ContentPane");
     dojo.require("dijit.layout.BorderContainer");
+
+    this.disabledColor = '#9E9E9E';
 
     var refSeqs = params.refSeqs;
     var trackData = params.trackData;
@@ -116,7 +116,6 @@ var Browser = function(params) {
             viewElem.view = gv;
 
             dojo.connect(browserWidget, "resize", function() { //viewResizeTest();});
-
                     gv.sizeInit();
 
                     brwsr.view.locationTrapHeight = dojo.marginBox(navbox).h;
@@ -171,46 +170,43 @@ var Browser = function(params) {
         });
 };
 
-
+/*
+ * Creates the rubber band zoom over for the track display area. 
+ * Initiated by clicking on the grey distance bar at the top of the display area.
+ */
 Browser.prototype.createRubberBandZoom = function(topPane, gv) {
     brwsr = this;
 
+    // creates the transparent track area that covers that displayed tracks when zooming
     var bandZoom = document.createElement("div");
     bandZoom.id = 'bandZoom';
-    bandZoom.style.cssText = "height: 700px; display: none;"; 
+    bandZoom.style.cssText = "height: "+screen.height+"px; display: none;"; 
     topPane.appendChild(bandZoom);
 
+    // creates the line representing the end of the zoom that doesn't move
     var dynamicZoomStart = document.createElement("div");
     dynamicZoomStart.id = 'dynamicZoomStart';
-    dynamicZoomStart.style.cssText = "height: 700px; "+
-                                     "width: 2px; "+
-                                     "background: red; "+
-                                     "position: absolute; "+
-                                     "z-index: 1000; "+
-                                     "margin: 0px -2px 0px -2px;";
+    dynamicZoomStart.style.height = screen.height+"px";
+    dynamicZoomStart.className = "dynamicZoomLine";
     bandZoom.appendChild(dynamicZoomStart);
 
+    // creates the line representing the end of the zoom that moves
     this.dynamicZoom = document.createElement("div");
     this.dynamicZoom.id = 'dynamicZoom';
-    this.dynamicZoom.style.cssText = "height: 700px; "+
-                                     "width: 2px; "+
-                                     "background: red; "+
-                                     "position: absolute; "+
-                                     "z-index: 1000; "+
-                                     "margin: 0px -2px 0px -2px;";
+    this.dynamicZoom.style.height = screen.height+"px";
+    this.dynamicZoom.className = "dynamicZoomLine";
     bandZoom.appendChild(this.dynamicZoom);
     this.zoomMover = new dojo.dnd.move.parentConstrainedMoveable(this.dynamicZoom, {area: "margin", within: true});
     this.view.zoomMover = this.zoomMover;
 
+    // creates the transparent red box that covers the area the will be zoomed to
     var selectedArea = document.createElement("div");
     selectedArea.id = 'selectedArea';
-    selectedArea.style.cssText = "height: 700px; "+
-                                 "background-color: rgba(255, 0, 0, 0.2); "+
-                                 "position: absolute; "+
-                                 "z-index: 1000;";
-
+    selectedArea.style.cssText = "height: "+screen.height+"px";
+    selectedArea.className = "dynamicZoomArea";
     bandZoom.appendChild(selectedArea);
 
+    // expand the area selected when the end of the zoom is moved
     dojo.connect(this.zoomMover, "onMove", function(mover, leftTop) {
         var leftSide = parseInt(dojo.byId('dynamicZoomStart').style.left);
         var rightSide = leftTop.l;
@@ -223,6 +219,7 @@ Browser.prototype.createRubberBandZoom = function(topPane, gv) {
         dojo.byId('selectedArea').style.left = leftSide + "px";
     });
 
+    // zoom to the selected area when mouse released
     dojo.connect(this.zoomMover, "onMoveStop", function() { 
         dojo.byId('bandZoom').style.display = "none";
         dojo.byId('selectedArea').style.width = "0px";
@@ -237,46 +234,40 @@ Browser.prototype.createRubberBandZoom = function(topPane, gv) {
     });
 };
 
+/*
+ * creates the rubber band zoom over the overview tracks at the top of the page
+ */
 Browser.prototype.createHighLevelRubberBandZoom = function(refseq) {
     brwsr = this;
     var overview = dojo.byId('overview');
+    var height = parseInt(overview.style.height) + 10; //brwsr.view.overviewBox.h;
 
+    // creates the line representing the end of the zoom that doesn't move
     var dynamicZoomHighStart = document.createElement("div");
     dynamicZoomHighStart.id = 'dynamicZoomHighStart';
-    dynamicZoomHighStart.style.cssText = "top: 0px; "+
-                                         "height: "+brwsr.view.overviewBox.h+"px; "+
-                                         "width: 2px; "+
-                                         "background: red; "+
-                                         "position: absolute; "+
-                                         "z-index: 1000; "+
-                                         "margin: 0px -2px 0px -2px;";
+    dynamicZoomHighStart.style.cssText = "top: 0px; height: "+height+"px";
+    dynamicZoomHighStart.className = "dynamicZoomLine";
     dynamicZoomHighStart.style.display = "none";
     overview.appendChild(dynamicZoomHighStart);
 
+    // creates the line representing the end of the zoom that moves
     this.dynamicZoomHigh = document.createElement("div");
     this.dynamicZoomHigh.id = 'dynamicZoomHigh';
-    this.dynamicZoomHigh.style.cssText = "top: 0px; "+
-                                         "height: "+brwsr.view.overviewBox.h+"px; "+
-                                         "width: 2px; "+
-                                         "background: red; "+
-                                         "position: absolute; "+
-                                         "z-index: 1000; "+
-                                         "margin: 0px -2px 0px -2px;";
+    this.dynamicZoomHigh.style.cssText = "top: 0px; height: "+height+"px";
+    this.dynamicZoomHigh.className = "dynamicZoomLine";
     this.dynamicZoomHigh.style.display = "none";
     overview.appendChild(this.dynamicZoomHigh);
     this.zoomMoverHigh = new dojo.dnd.move.parentConstrainedMoveable(this.dynamicZoomHigh, {area: "margin", within: true});
-
-    var selectedAreaHigh = document.createElement("div");
-    selectedAreaHigh.id = 'selectedAreaHigh';
-    selectedAreaHigh.style.cssText = "top: 0px; "+
-                                     "height: "+brwsr.view.overviewBox.h+"px; "+
-                                     "background-color: rgba(255, 0, 0, 0.2); "+
-                                     "position: absolute; "+
-                                     "z-index: 1000;";
-    overview.appendChild(selectedAreaHigh);
-
     brwsr.zoomMoverHigh = this.zoomMoverHigh;
 
+    // creates the transparent red box that covers the area the will be zoomed to
+    var selectedAreaHigh = document.createElement("div");
+    selectedAreaHigh.id = 'selectedAreaHigh';
+    selectedAreaHigh.style.cssText = "top: 0px; height: "+height+"px";
+    selectedAreaHigh.className = "dynamicZoomArea";
+    overview.appendChild(selectedAreaHigh);
+
+    // start the zoom and make the zoom elements visible
     dojo.connect(overview, "mousedown", function(event) {
         var startingPt = event.clientX -parseInt(dojo.byId('dijit_layout_ContentPane_0').style.left);
         var locationThumb = dojo.byId('overview').firstChild;
@@ -291,6 +282,7 @@ Browser.prototype.createHighLevelRubberBandZoom = function(refseq) {
         brwsr.zoomMoverHigh.onMoveStart( new dojo.dnd.Mover(brwsr.zoomMoverHigh.node, event, brwsr.zoomMoverHigh));
     });
 
+    // expand the area selected when the end of the zoom is moved
     dojo.connect(this.zoomMoverHigh, "onMove", function(mover, leftTop) { 
         var leftSide = parseInt(dojo.byId('dynamicZoomHighStart').style.left);
         var rightSide = leftTop.l;
@@ -303,6 +295,7 @@ Browser.prototype.createHighLevelRubberBandZoom = function(refseq) {
         dojo.byId('selectedAreaHigh').style.left = leftSide + "px";
     });
 
+    // zoom to the selected area when mouse released
     dojo.connect(this.zoomMoverHigh, "onMoveStop", function() {
         var start = Math.round(parseInt(dojo.byId('dynamicZoomHighStart').style.left) / parseInt(dojo.byId('dijit_layout_ContentPane_0').style.width) * refseq.length);
         var end = Math.round(parseInt(dojo.byId('dynamicZoomHigh').style.left) / parseInt(dojo.byId('dijit_layout_ContentPane_0').style.width) * refseq.length);
@@ -370,64 +363,132 @@ Browser.prototype.createTrackList = function(parent, params) {
     dojo.require("dijit.Tree");
     dojo.require("dijit.form.TextBox");
     dojo.require("dijit.form.Button");
-    dojo.require("dijit.layout.TabContainer");
-//    dojo.require("dijit.layout.ContentPane");
 
-    // create track list tabs
+    // tab section creation
 
     var parentLeftPane = document.createElement("div");
-    parentLeftPane.style.cssText="width: 240px; height: 100%; overflow: visible;";
+    parentLeftPane.style.cssText="width: 22px; height: 100%; overflow: visible;";
     parent.appendChild(parentLeftPane);
+
     var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, parentLeftPane);
 
+    // the container for the main panel of the tabs
     var tabCon = document.createElement("div");
     tabCon.id = "browseTab";
-    parentLeftPane.appendChild(tabCon);
+    tabCon.style.cssText = "height: 100%; padding-left: 22px;";
 
-    var tc = new dijit.layout.TabContainer({
-        tabPosition: "left-h"
-    }, "browseTab");
-
-
+    // the main panel for the track dragging tab
     var leftPane = document.createElement("div");
-    var cp1 = new dijit.layout.ContentPane({ title: "Drag Tracks"}, leftPane);
-    tc.addChild(cp1);
+    leftPane.style.cssText = "display: none; overflow: auto; height: 100%;";
+    leftPane.id = "DragTracks";
 
-    /*var resizeTab = function(newSize) {
-        var rightSize = (screen.width-newSize-5)+"px";
-        var overLeft = (newSize + 5) + "px";
-        newSize = newSize+"px";
-        dojo.byId("dijit_layout_ContentPane_0").style["width"] = rightSize;
-        dojo.byId("dijit_layout_ContentPane_0").style["left"] = overLeft;
-        dojo.byId("dijit_layout_ContentPane_1").style["width"] = rightSize;
-        dojo.byId("dijit_layout_ContentPane_1").style["left"] = overLeft;
-        dojo.byId("dijit_layout_ContentPane_2_splitter").style["left"] = newSize; 
-        leftWidget.domNode.style.width = newSize;
-        leftWidget.resize();
-    };*/ 
+    // the element to mark the position of the tab   
+    var leftPaneTabPos = document.createElement("div");
+    leftPaneTabPos.id = "leftPaneTab";
+    leftPaneTabPos.className = "tabContainer";
+    leftPaneTabPos.style.left = "0%";
+    parentLeftPane.appendChild(leftPaneTabPos);
 
+    // the track drag tab, first one down
+    var leftPaneTab = document.createElement("div");
+    leftPaneTab.className = "browsingTab";
+    leftPaneTab.style.top = "62px";
+    leftPaneTab.innerHTML = "Drag Tracks";
+    leftPaneTabPos.appendChild(leftPaneTab);
+
+    // the main panel for the faceted browsing tab
     var faceted = document.createElement("div");
-    var cp2 = new dijit.layout.ContentPane({ title: "Faceted Browsing", 
-                                             onShow: function() { 
-                                                 window.frames["browsing_window"].start_faceted_browsing(dojo.cookie(brwsr.container.id + "-tracks"));
-                                           //      dojo.byId("chromosome_representation").style.display = "none";
-                                           //      brwsr.ci.height = 0;
-                                                 resizeTab(540);
-                                             },
-                                             onHide: function() { resizeTab(240)}
-                                           }, faceted);
-    tc.addChild(cp2);
-    tc.startup();
+    faceted.style.cssText = "display:none; height: 100%;";
+    faceted.id = "FacetedBrowsing";
 
+    // faceted browisng page runs from an iframe
+    var facetedIframe = document.createElement("iframe");
+    facetedIframe.src = "faceted_browsing.html"; 
+    facetedIframe.setAttribute("name","browsing_window");
+    facetedIframe.setAttribute("frameborder","0");
+    facetedIframe.height = "100%";
+    facetedIframe.width = "100%";
+    facetedIframe.innerHTML = "<p> Your your browser does not support iframes.</p>";
+    faceted.appendChild(facetedIframe); 
+    
+    // the element to mark the position of the tab   
+    var facetedTabPos = document.createElement("div");
+    facetedTabPos.id = "facetedTab";
+    facetedTabPos.className = "tabContainer";
+    facetedTabPos.style.left = "0%";
+    parentLeftPane.appendChild(facetedTabPos);
+
+    // the faceted browsing tab, second one down
+    var facetedTab = document.createElement("div");
+    facetedTab.className = "browsingTab";
+    facetedTab.style.top = "198px";
+    facetedTab.innerHTML = "Faceted Browsing";
+    facetedTabPos.appendChild(facetedTab);
+
+    // line representing the folder edge of the hidden tab
+    var line = document.createElement("div");
+    line.style.cssText = "background: #BBBBBB; width: 3px; top: 2px; height: 100%; position: absolute;";
+    parentLeftPane.appendChild(line);
+
+    parentLeftPane.appendChild(tabCon);
+    tabCon.appendChild(leftPane);
+    tabCon.appendChild(faceted);
+
+    // both tabs start out closed
+    var open1 = false;
+    var open2 = false;
+
+    // open/ close the tab on click
+    dojo.connect(leftPaneTab, "onclick", function() {
+        resizeTab(0);
+        faceted.style.display = "none";
+        if(open1) {
+            LeftPaneTabPos.style.left = "0%";
+            leftPane.style.display = "none";
+            open1 = false;
+        }
+        else {
+            facetedTabPos.style.left = "0%";
+            leftPaneTabPos.style.left = "100%";
+            resizeTab(240);
+            leftPane.style.display = "";
+            open1 = true;
+            open2 = false;
+        }
+       dojo.byId("dijit_layout_ContentPane_1").style.top = dojo.marginBox(dojo.byId("navbox")).h + parseInt(dojo.byId("overview").style.height) + 10 + "px";
+    }); 
+    dojo.connect(facetedTab, "onclick", function() {
+       resizeTab(0); 
+       leftPane.style.display = "none";
+       if(open2) {
+            facetedTabPos.style.left = "0%";
+            faceted.style.display = "none";
+            open2 = false;
+        }
+        else {
+            window.frames["browsing_window"].start_faceted_browsing(dojo.cookie(brwsr.container.id + "-tracks"));
+            leftPaneTabPos.style.left = "0%";
+            facetedTabPos.style.left = "100%";
+            resizeTab(530);
+            faceted.style.display = "";
+            open2 = true;
+            open1 = false;
+       }
+       dojo.byId("dijit_layout_ContentPane_1").style.top = dojo.marginBox(dojo.byId("navbox")).h + parseInt(dojo.byId("overview").style.height) + 10 + "px";
+    }); 
+
+    // resize the elements of the page when a tab is opened/closed
+    // newSize is the size of the tab
     var resizeTab = function(newSize) {
-        dojo.byId("dijit_layout_ContentPane_2").style.overflow = "hidden";
+        dojo.byId("dijit_layout_ContentPane_2_splitter").style.cssText = "margin-right: 22px; background: #BBBBBB;"+dojo.byId("dijit_layout_ContentPane_2_splitter").style.cssText;
+        dojo.byId("dijit_layout_ContentPane_2_splitter").style.display = "none";
         dojo.byId("dijit_layout_ContentPane_2").style.width = newSize + "px";
         dijit.getEnclosingWidget(dojo.byId("dijit_layout_ContentPane_2")).resize();
-        var rightSize = (screen.width- newSize -5);
-        var overLeft = (newSize + 5);
+        var rightSize = (document.width - newSize -5 - 22);
+        var overLeft = (newSize + 5 + 22);
         dojo.animateProperty({
             node: dojo.byId("dijit_layout_ContentPane_2"),
-            properties: { width: { end: newSize, start: 20 }}
+            properties: { width:{ end: newSize, start: 20 }}
         }).play();
         dojo.animateProperty({
             node: dojo.byId("dijit_layout_ContentPane_2_splitter"),
@@ -447,18 +508,9 @@ Browser.prototype.createTrackList = function(parent, params) {
         }).play();
         dojo.byId("dijit_layout_ContentPane_1").style.width = rightSize + "px";
         dijit.getEnclosingWidget(dojo.byId("dijit_layout_ContentPane_1")).resize();
-        setTimeout('dojo.byId("dijit_layout_ContentPane_2").style.overflow = "visible"',500);
+        setTimeout('dojo.byId("dijit_layout_ContentPane_2_splitter").style.display = ""',500);
     }
 
-    var facetedIframe = document.createElement("iframe");
-    facetedIframe.src = "faceted_browsing.html"; 
-    facetedIframe.setAttribute("name","browsing_window");
-    facetedIframe.setAttribute("frameborder","0");
-    facetedIframe.height = "100%";
-    facetedIframe.width = "100%";
-    facetedIframe.innerHTML = "<p> Your your browser does not support iframes.</p>";
-    faceted.appendChild(facetedIframe);
-    
     //create the html objects for the track list section within Drag Tracks tab
 
     var searchMessage = document.createElement("div");
@@ -595,7 +647,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         }
         if(this.creator && source instanceof dijit.tree.dndSource) {
             for(var i = 0; i < nodes.length; i++) {
-                nodes[i].firstChild.childNodes[2].childNodes[1].style.cssText = "color: "+disabledColor;
+                nodes[i].firstChild.childNodes[2].childNodes[1].style.cssText = "color: "+ brwsr.disabledColor;
             }
             this.selectNone();
         }
@@ -1045,7 +1097,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         trackNames = trackNames.split(",");
         for (var n = 0; n < trackNames.length; n++) {
             if(map[trackNames[n]]) {
-                map[trackNames[n]].firstChild.childNodes[2].childNodes[1].style.cssText = "color: "+disabledColor;
+                map[trackNames[n]].firstChild.childNodes[2].childNodes[1].style.cssText = "color: " + brwsr.disabledColor;
             }
         }
 
@@ -1250,6 +1302,9 @@ Browser.prototype.navigateTo = function(loc) {
 					  parseInt(matches[4].replace(/[,.]/g, "")),
 					  parseInt(matches[6].replace(/[,.]/g, "")));
 		} else {
+                    /*dojo.byId("overview").removeChild(dojo.byId('dynamicZoomHighStart'));
+                    dojo.byId("overview").removeChild(dojo.byId('dynamicZoomHigh'));
+                    dojo.byId("overview").removeChild(dojo.byId('selectedAreaHigh'));*/
 		    //new refseq, record open tracks and re-open on new refseq
                     var curTracks = [];
                     this.viewDndWidget.forInItems(function(obj, id, map) {
@@ -1268,6 +1323,13 @@ Browser.prototype.navigateTo = function(loc) {
                     this.onVisibleTracksChanged();
 
                     dijit.getEnclosingWidget(dojo.byId("GenomeBrowser")).resize();
+                    
+                    //this.createHighLevelRubberBandZoom(this.refSeq);
+
+                    dojo.byId('dynamicZoomHighStart').style.height = parseInt(dojo.byId('overview').style.height) + 10 + "px";
+                    dojo.byId('dynamicZoomHigh').style.height = parseInt(dojo.byId('overview').style.height) + 10 + "px";
+                    dojo.byId('selectedAreaHigh').style.height = parseInt(dojo.byId('overview').style.height) + 10 + "px";
+                    dojo.byId('overviewtrack_overview_loc_track').style.height = '10px';
 		}
 		return;
 	    }
@@ -1436,7 +1498,7 @@ Browser.prototype.showTracks = function(trackNameList) {
 
     for (var n = 0; n < trackNames.length; n++) {
         if(map[trackNames[n]]) {
-            map[trackNames[n]].firstChild.childNodes[2].childNodes[1].style.cssText = "color: "+disabledColor;
+            map[trackNames[n]].firstChild.childNodes[2].childNodes[1].style.cssText = "color: " + brwsr.disabledColor;
         }
         function fetchFailed(error, request) {
             alert("lookup failed");

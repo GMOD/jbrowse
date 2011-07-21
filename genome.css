@@ -170,7 +170,7 @@ div.track-label {
 
 div.track-label:hover {
     background-color: #BDD7FF;
-    border: 0.5px #2b434c solid;
+    border: 1px #2b434c solid;
 }
 
 div.tracklist-label {
@@ -704,7 +704,7 @@ div.chr {
     background-color: #2B434C;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
-    border-radius: 10px;
+    border-radius: 10px 10px 10px 10px ;
 }
 
 div.chrBorder {
@@ -713,10 +713,47 @@ div.chrBorder {
     border: 1px solid #2B434C;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
-    border-radius: 10px;
+    border-radius: 10px 10px 10px 10px;
     position: relative;
     padding: -1px;
     left:-1px;
     top:-1px;
     z-index:1;
+}
+
+div.browsingTab {
+    -moz-border-radius: 8px 8px 0px 0px;
+    -webkit-border-radius: 8px 8px 0px 0px;
+    border-radius: 8px 8px 0px 0px;
+    -moz-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+    background: #2B434C;
+    border: 1px solid #BBBBBB;
+    color: white;
+    height: 18px;
+    left: -58px;
+    position: absolute;
+    text-align: center;
+    width: 140px;
+}
+
+div.dynamicZoomLine {
+    width: 2px;
+    background: red;
+    position: absolute;
+    z-index: 20;
+    margin: 0px -2px 0px -2px;
+}
+
+div.dynamicZoomArea {
+    background-color: rgba(255, 0, 0, 0.2);
+    position: absolute;
+    z-index: 20;
+}
+
+div.tabContainer {
+    position: absolute;
+    width: 18px;
+    height: 140px;
 }
