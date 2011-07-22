@@ -59,7 +59,9 @@
         (JBrowse generates files with links that are relative to the directory where index.html is located, so you should run the JBrowse scripts from that directory)
         <pre>$ bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa</pre>
       </p>
-      
+      <p>
+         This script will also ask questions to set up the chromsome representation if you want one.
+      </p>
       <a name="Features" id="Features"></a>
       <h3>Features</h3>
       <p>
@@ -84,14 +86,14 @@
       <a name="Track_list_structure" id="Track_list_structure"></a>
       <h3>Track list structure</h3>
       <p>
-
+        This script sets up the drag and drop track list tab based on the category that the track is in within the config file.
       </p>
       <pre>$ bin/prepare-nested-structure.pl --conf docs/tutorial/conf_files/volvox.json</pre> 
 
       <a name="Faceted_Browsing" id="Faceted_Browsing"></a>
       <h3>Faceted Browsing</h3>
       <p>
-
+        This script setups up the faceted browsing tab using the "facets" and "extra_track_info" data in the config file. If the config file is not specified the script guesses are which faceted browsing fields would be useful.
       </p>
       <pre>$ bin/setup-faceted-browsing.pl --conf docs/tutorial/conf_files/volvox.json</pre>
 

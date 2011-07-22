@@ -732,10 +732,11 @@ div.browsingTab {
     border: 1px solid #BBBBBB;
     color: white;
     height: 18px;
-    left: -58px;
+    left: -60px;
     position: absolute;
     text-align: center;
     width: 140px;
+    top: 60px;
 }
 
 div.dynamicZoomLine {

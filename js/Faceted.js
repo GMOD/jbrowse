@@ -1,6 +1,9 @@
 var SelectedItems = new Hash();
 var selected_tracks_shown = false;
 
+/**
+ * sets the displayed tracks as selected tracks in the faceted browsing
+ */
 function start_faceted_browsing (currentSelection) {
     SelectedItems = new Hash();
     if(currentSelection) {
@@ -35,20 +38,20 @@ function start_faceted_browsing (currentSelection) {
     });
 }
 
+/**
+ * sets the text at the top of the faceted browsing page
+ */
 function selected_tracks_text_none (){
     $('selection_count').innerHTML='no tracks selected';
 }
 function selected_tracks_text_hidden (selected){
-    //$('selection_count').innerHTML   = selected.size()+' tracks selected';
     $('selection_count').innerHTML  = ' <a href="javascript:clear_all()">clear selected tracks</a>';
-    //$('selection_count').innerHTML  += ' [<a href="javascript:show_track_names()">show selected track names</a>]';
 }
 function selected_tracks_text_shown (selected) {
-    //$('selection_count').innerHTML   = selected.size()+' tracks selected';
     $('selection_count').innerHTML  = ' <a href="javascript:clear_all()">clear selected tracks</a>';
-    //$('selection_count').innerHTML  += ' [<a href="javascript:hide_track_names()">hide selected track names</a>]';
-    //$('selection_count').innerHTML  += '<br/> Selected tracks: '+ selected.join(", ");
 }
+
+/*
 
 function hide_track_names() {
     var selected = SelectedItems.keys();
@@ -69,7 +72,11 @@ function show_track_names() {
     }
     selected_tracks_shown = true;
 }
+*/
 
+/**
+ * Unselects all tracks/ removes all tracks from the display
+ */
 function clear_all () {
     SelectedItems = new Hash();
     var divs = $$('.submission');
@@ -87,25 +94,23 @@ function clear_all () {
     parent.b.removeAllTracks();
 }
 
+/**
+ * add the selected tracks to the displayed tracks 
+ */
 function load_tracks () {
     var selected = SelectedItems.keys();
     parent.b.removeAllTracks();
     parent.b.showTracks(selected.join(","));
-
-    /*if (selected.size() > 0) {
-        b.hideAllTrackList();
-        for(var i = 0; i < selected.size(); i++) {
-            b.showTrackListNode(selected[i]);
-        }
-    } else {
-      b.showAllTrackList();
-    }*/
 }
-     
+
+/**
+ * sets the color of the track in faceted browsing based 
+ * on whether it is selected when it appears
+ */   
 function hilight_items (d) {
     var divs = $$('.submission');
     if(d) {
-    var id = d.getAttribute('ex:itemid');
+        var id = d.getAttribute('ex:itemid');
         if (SelectedItems.get(id)) {
             d.addClassName('selected');
             d.select('input')[0].checked=1;
@@ -116,10 +121,47 @@ function hilight_items (d) {
     }
 }
 
-function toggle_track (container) {
+/**
+ * expands the track node to show information about the track
+ */
+function show_more_info (arrow) {
+    var container = arrow.ancestors().find(
+    function(el) { return el.hasClassName('submission')});
+
     var id = container.getAttribute('ex:itemid');
-        
-    turn_on = !container.hasClassName('selected');
+    var children = container.children;
+    arrow.style.display = "none";
+    for(var i = 3; i < children.length; i++) {
+        children[i].style.display = "block";
+    }
+}
+
+/**
+ * collapses the track node to hide the information about the track
+ */
+function hide_more_info (arrow) {
+    var container = arrow.ancestors().find(
+    function(el) { return el.hasClassName('submission')});
+
+    var id = container.getAttribute('ex:itemid');
+    var children = container.children;
+    children[2].style.display = "";
+    for(var i = 3; i < children.length; i++) {
+        children[i].style.display = "none";
+    }
+}
+
+/**
+ * select/ unselect the track
+ */
+function toggle_track (checkbox, turn_on) {
+    var container = checkbox.ancestors().find(
+    function(el) { return el.hasClassName('submission')});
+
+    var id = container.getAttribute('ex:itemid');
+
+    if(turn_on == null)        
+        turn_on = !container.hasClassName('selected');
 
     if (turn_on) {
         container.addClassName('selected');
@@ -143,4 +185,3 @@ function toggle_track (container) {
         selected_tracks_text_none();
     }
 }
-

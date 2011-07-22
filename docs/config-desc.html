@@ -8,8 +8,10 @@
     <div class="container">
       <h3>The Config File</h3>
       
-      <p>A JBrowse config file exists to tell the JBrowse tools about a database and the tracks within the database.
-        You don't need a config file if all of your data is in flat files, and your feature flat files (BED, GFF) are separated so that there's only one file per track.
+      <p>A JBrowse config file exists to tell the JBrowse tools about a database and the tracks within the database. 
+        The config file also specifies the hierarchial structure of the track list and the format of faceted browsing of tracks. 
+        Without specifying a conf file all tracks will be grouped under a general category in the track list.
+        You don't need a config file if all of your data is in flat files, and your feature flat files (BED, GFF) are separated so that there's only one file per track. 
         However, a config file is a convenient way to specify the details of how JBrowse should treat a track, so you may want to use a config file anyway, especially if you expect to process new versions of your data on an ongoing basis.</p>
       
       <p>The syntax of the config file is <a href="http://json.org">JSON</a>.
@@ -24,20 +26,22 @@
           <tr><td>description</td><td>Brief description of the data source</td><td>string</td></tr>
           <tr><td>db_adaptor</td><td>Perl class that implements Bio::DasI.<br>Common ones include <ul><li>Bio::DB::SeqFeature::Store</li><li>Bio::DB::GFF</li><li>Bio::DB::Das::Chado</li></ul></td><td>string</td></tr>
           <tr><td>db_args</td><td>arguments to the constructor for the specified db_adaptor</td><td>dictionary of key-value pairs</td></tr>
+          <tr><td>facets</td><td>list of facets for faceted browsing of tracks. field must match the key in the tracks configuration information.</td><td>array of dictionaries with field and label keys</td></tr>
+          <tr><td>extra_track_info</td><td>list of information fields that are displayed about a track in faceted browsing. field__name must match the key in the tracks configuration information</td><td>array of dictionaries with field_label and field_name keys</td></tr>
           <tr><td>TRACK DEFAULTS</td><td>default track settings</td><td>track settings dictionary</td></tr>
           <tr><td>tracks</td><td>settings for all the tracks</td><td>array of track settings dictionaries</td></tr>
         </table>
       </p>
 
       <a name="track_settings" id="track_settings"></a>
-      <p>The meat of the configuration file consists of the <b>per-track settings:</b><table>
+      <p>The meat of the configuration file consists of the <b>per-track settings:</b><br/><br/> Any info specified here can be used within faceted browsing. Specify the value of facets you wish to search by within this section.<table>
           <tr><th>key</th><th>value</th><th>type</th></tr>
           <tr><td>track</td><td>track identifier used by the software.<br>It's more convenient if this doesn't have any weird characters or spaces in it</td><td>string</td></tr>
           <tr><td>key</td><td>Human-readable label for the track</td><td>string</td></tr>
           <tr><td>feature</td><td>List of feature types to put into the track</td><td>array of strings</td></tr>
           <tr><td>autocomplete</td><td>If you want to be able to search for the features in this track, set this to one of the following strings:<ul><li><span class="code">label</span><br>to search on the feature label</li><li><span class="code">alias</span><br>to search on the feature aliases</li><li><span class="code">all</span><br>to search on both labels and aliases</ul></td><td>string</td></tr>
           <tr><td>class</td><td>The CSS class for the feature.  Look in <a href="featureglyphs.html">the feature glyph list</a> for the available options.</td><td>string</td></tr>
-          <tr><td>category</td><td>The category this track is in, for grouping the tracks together</td><td>string</td></tr>
+          <tr><td>category</td><td>The category this track is in, for grouping the tracks together in the track list. If not specified the track will be put in a general category.</td><td>string</td></tr>
           <tr><td>urlTemplate</td><td>Template for a URL to visit if the user clicks on a feature in this track</td><td>string</td></tr>
           <tr><td>extraData</td><td>Extra per-feature information to send to the client; useful in the urlTemplate</td><td>dictionary of header -&gt; perl sub</td></tr>
           <tr><td>subfeatureClasses</td><td>Specifies what CSS class to apply to what type of subfeature</td><td>dictionary of type -&gt; CSS class</td></tr>

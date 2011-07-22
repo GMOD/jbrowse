@@ -387,12 +387,12 @@ Browser.prototype.createTrackList = function(parent, params) {
     leftPaneTabPos.id = "leftPaneTab";
     leftPaneTabPos.className = "tabContainer";
     leftPaneTabPos.style.left = "0%";
+    leftPaneTabPos.style.top = "2px";
     parentLeftPane.appendChild(leftPaneTabPos);
 
     // the track drag tab, first one down
     var leftPaneTab = document.createElement("div");
     leftPaneTab.className = "browsingTab";
-    leftPaneTab.style.top = "62px";
     leftPaneTab.innerHTML = "Drag Tracks";
     leftPaneTabPos.appendChild(leftPaneTab);
 
@@ -416,12 +416,12 @@ Browser.prototype.createTrackList = function(parent, params) {
     facetedTabPos.id = "facetedTab";
     facetedTabPos.className = "tabContainer";
     facetedTabPos.style.left = "0%";
+    facetedTabPos.style.top = "138px";
     parentLeftPane.appendChild(facetedTabPos);
 
     // the faceted browsing tab, second one down
     var facetedTab = document.createElement("div");
     facetedTab.className = "browsingTab";
-    facetedTab.style.top = "198px";
     facetedTab.innerHTML = "Faceted Browsing";
     facetedTabPos.appendChild(facetedTab);
 
@@ -438,12 +438,12 @@ Browser.prototype.createTrackList = function(parent, params) {
     var open1 = false;
     var open2 = false;
 
-    // open/ close the tab on click
+    // open/ close the tabs on click
     dojo.connect(leftPaneTab, "onclick", function() {
         resizeTab(0);
         faceted.style.display = "none";
         if(open1) {
-            LeftPaneTabPos.style.left = "0%";
+            leftPaneTabPos.style.left = "0%";
             leftPane.style.display = "none";
             open1 = false;
         }
@@ -455,12 +455,12 @@ Browser.prototype.createTrackList = function(parent, params) {
             open1 = true;
             open2 = false;
         }
-       dojo.byId("dijit_layout_ContentPane_1").style.top = dojo.marginBox(dojo.byId("navbox")).h + parseInt(dojo.byId("overview").style.height) + 10 + "px";
+        dojo.byId("dijit_layout_ContentPane_1").style.top = dojo.marginBox(dojo.byId("navbox")).h + parseInt(dojo.byId("overview").style.height) + 10 + "px";
     }); 
     dojo.connect(facetedTab, "onclick", function() {
-       resizeTab(0); 
-       leftPane.style.display = "none";
-       if(open2) {
+        resizeTab(0); 
+        leftPane.style.display = "none";
+        if(open2) {
             facetedTabPos.style.left = "0%";
             faceted.style.display = "none";
             open2 = false;
@@ -473,14 +473,14 @@ Browser.prototype.createTrackList = function(parent, params) {
             faceted.style.display = "";
             open2 = true;
             open1 = false;
-       }
-       dojo.byId("dijit_layout_ContentPane_1").style.top = dojo.marginBox(dojo.byId("navbox")).h + parseInt(dojo.byId("overview").style.height) + 10 + "px";
+        }
+        dojo.byId("dijit_layout_ContentPane_1").style.top = dojo.marginBox(dojo.byId("navbox")).h + parseInt(dojo.byId("overview").style.height) + 10 + "px";
     }); 
 
     // resize the elements of the page when a tab is opened/closed
     // newSize is the size of the tab
     var resizeTab = function(newSize) {
-        dojo.byId("dijit_layout_ContentPane_2_splitter").style.cssText = "margin-right: 22px; background: #BBBBBB;"+dojo.byId("dijit_layout_ContentPane_2_splitter").style.cssText;
+        dojo.byId("dijit_layout_ContentPane_2_splitter").style.cssText = "margin-right: 22px; background: #BBBBBB; width: 2px; "+dojo.byId("dijit_layout_ContentPane_2_splitter").style.cssText;
         dojo.byId("dijit_layout_ContentPane_2_splitter").style.display = "none";
         dojo.byId("dijit_layout_ContentPane_2").style.width = newSize + "px";
         dijit.getEnclosingWidget(dojo.byId("dijit_layout_ContentPane_2")).resize();
@@ -525,7 +525,7 @@ Browser.prototype.createTrackList = function(parent, params) {
     searchClearBtn.domNode.style.cssText = 'display: inline';
     leftPane.appendChild(searchClearBtn.domNode);
 
-    var treeResetBtn = new dijit.form.Button({ label: "reset track list"});
+    var treeResetBtn = new dijit.form.Button({ label: "reset list order"});
     leftPane.appendChild(treeResetBtn.domNode);
 
     var dragMessage = document.createElement("div");
@@ -1034,6 +1034,9 @@ Browser.prototype.createTrackList = function(parent, params) {
         treeSearch.attr("value", "");
     });
     dojo.connect(treeResetBtn, "onClick", function() {
+        // clear any search value
+        treeSearch.attr("value", "");
+
         //detroy current tree, model and store data
         tree.destroyRecursive();
         treeModel.destroy();
@@ -1124,13 +1127,19 @@ Browser.prototype.showTrackListNode = function(label) {
     map[label].style.cssText = "display: block";
 }
 
+/**
+ * removes all the tracks from the display area
+ */
 Browser.prototype.removeAllTracks = function() {
     this.viewDndWidget.selectAll();
     this.viewDndWidget.deleteSelectedNodes();
     this.blackAll(this.tree._itemNodesMap.ROOT[0].getChildren());
 }
 
-Browser.prototype.blackAll = function(treeRoot, display) {
+/**
+ * makes the text for all children of treeRoot to the default text color, black (which means it is not in the track display)
+ */
+Browser.prototype.blackAll = function(treeRoot) {
     for( var i = 0; i < treeRoot.length; i++) {
         var node = treeRoot[i];
         // expand the node so the children are available
@@ -1169,6 +1178,10 @@ Browser.prototype.showAllTrackList = function() {
     this.changeDisplayAll(this.tree._itemNodesMap.ROOT[0].getChildren(), "display: block");
     
 }
+
+/**
+ * makes the text css for all children of treeRoot to display
+ */
 Browser.prototype.changeDisplayAll = function(treeRoot, display) {
     for( var i = 0; i < treeRoot.length; i++) {
         var node = treeRoot[i];
