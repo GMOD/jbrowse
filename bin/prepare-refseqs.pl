@@ -178,7 +178,7 @@ if (defined($gff)) {
             }
             if($chrom_display =~ /^(\w*\s+)*y(es)?\W/i) {
                 if(!$refInfo->{"centromere"}) {
-                    $refInfo->{"centromere"} = getCentromere($refInfo->{"name"});
+                    $refInfo->{"centromere"} = getCentromere($refInfo->{"name"}, $refInfo->{"length"});
                 }
                 if(!$refInfo->{"chromBands"}) {
                     $refInfo->{"chromBands"} = getChromBands($refInfo->{"name"});
@@ -244,9 +244,9 @@ sub getChromBands {
 }
 
 sub getCentromere {
-    my ($name) = @_;
+    my ($name, $length) = @_;
 
-    print "What is the centromere coordinate for $name? Enter 0 for no centromere\n";
+    print "What is the centromere coordinate for $name? \nEnter 0 for no centromere\nNote: The length of the $name is $length\n";
     my $centro = <STDIN>;
     $centro =~ /(\d+)/;
     return int $1;
