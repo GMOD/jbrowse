@@ -51,29 +51,6 @@ function selected_tracks_text_shown (selected) {
     $('selection_count').innerHTML  = ' <a href="javascript:clear_all()">clear selected tracks</a>';
 }
 
-/*
-
-function hide_track_names() {
-    var selected = SelectedItems.keys();
-    if (selected.size() > 0) {
-        selected_tracks_text_hidden(selected);
-    } else {
-        selected_tracks_text_none();
-    }
-    selected_tracks_shown = false;
-}
-
-function show_track_names() {
-    var selected = SelectedItems.keys();
-    if (selected.size() > 0) {
-        selected_tracks_text_shown(selected);
-    } else {
-        selected_tracks_text_none();
-    }
-    selected_tracks_shown = true;
-}
-*/
-
 /**
  * Unselects all tracks/ removes all tracks from the display
  */

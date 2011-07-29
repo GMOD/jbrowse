@@ -76,7 +76,7 @@ div.track {
     position: absolute;
     left: 0px;
     width: 100%;
-    z-index: 5;
+/*    z-index: 5;*/
 }
 
 .track.dojoDndItemOver {
@@ -162,7 +162,7 @@ div.plus-feature:before {
 div.track-label {
     font-family: sans-serif;
     z-index: 20;
-    background-color: rgba(255,255,255,0.75);
+    background-color: rgba(255,255,255,0.8);
     color: #2b434c;
     padding: 2px;
     cursor: pointer;
@@ -213,7 +213,7 @@ div.tracklist-container {
     position: absolute;
     font-family: monospace;
     border: 0px;
-    margin: -2px 0px 0px 0px;
+/*    margin: -2px 0px 0px 0px;*/
     /* padding: 0px 0px 2px 0px; for more space below labels */
     padding: 0px 0px 0px 0px;
     /* font-size: 80%; */
@@ -566,18 +566,23 @@ div.transcript-hist {
 .plus-transcript,
 .minus-transcript {
     position: absolute;
-    height: 4px;
+    /*height: 4px;
     margin-top: 4px;
     margin-bottom: 4px;
-    background-color: #999;
+    background-color: #999;*/
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
+
+    background-color: grey;
+    height: 2px;
+    margin-bottom: 5px;
+    margin-top: 5px;
 }
 
 .plus-transcript-arrowhead {
     position: absolute;
-/*  border stuff seems slow
+/*    border stuff seems slow
     height: 0px;
     width: 0px;
     margin-top: -4px;
@@ -589,6 +594,13 @@ div.transcript-hist {
     height: 12px;
     background-image: url('img/plus-transcript-head.png');
     background-repeat: no-repeat;
+
+    height: 0px;
+    width: 0px;
+    margin-top: -7px;
+    border-style: solid;
+    border-color: transparent transparent transparent grey;
+    border-width: 8px 0px 8px 10px;
 }
 
 .minus-transcript-arrowhead {
@@ -624,6 +636,10 @@ div.transcript-hist {
     cursor: pointer;
     z-index: 10;
     min-width: 1px;
+
+    background: skyBlue;
+    border: 1px solid grey;
+    margin-top: -6px;
 }
 
 .plus-transcript-exon,
@@ -644,6 +660,11 @@ div.transcript-hist {
     z-index: 8;
     min-width: 1px;
     cursor: pointer;
+
+    background-color: grey;
+    border: 1px solid grey;
+    height: 12px;
+    margin-top: -6px;
 }
 
 .generic_parent,
@@ -728,9 +749,10 @@ div.browsingTab {
     -moz-transform: rotate(90deg);
     -webkit-transform: rotate(90deg);
     filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
-    background: #2B434C;
-    border: 1px solid #BBBBBB;
-    color: white;
+    background: white;
+    border-color: #BBBBBB #BBBBBB white;
+    border-style: solid solid none;
+    border-width: 2px 1px medium;
     height: 18px;
     left: -60px;
     position: absolute;
@@ -758,3 +780,66 @@ div.tabContainer {
     width: 18px;
     height: 140px;
 }
+
+ul, li {  
+    margin: 0; 
+    padding:0;
+    background: white; 
+}
+
+li {
+    list-style-type: none;
+}
+
+ul.pmenu {
+    position: absolute;
+    margin: 0;
+    padding: 1px;
+    list-style: none;
+    width: 150px;
+    border: 1px solid #ccc;
+    background: white;
+    z-index: 10;
+}
+
+ul.pmenu li {
+    position: relative;
+}
+
+ul.pmenu li ul {
+    position: absolute;
+    left: 150px;
+    top: 0;
+    display: none;
+    z-index: 10;
+}
+
+/* Styles for Menu Items */
+ul.pmenu li a {
+         display: block;
+         text-decoration: none;
+         color: black;
+         padding: 2px 5px 2px 20px;
+}
+
+ul.pmenu li a:hover {
+    background:#335EA8;
+    color:white;
+}
+
+ul.pmenu li a.parent {
+    background:url('drop_down_triangle.gif') no-repeat 140px 4px; 
+}
+ul.pmenu li a.parent:hover {
+    background:#335EA8 url('drop_down_triangle_hover.gif') no-repeat 140px 4px;
+}
+
+/* IE \*/
+* html ul.pmenu li { float: left; height: 1%; }
+* html ul.pmenu li a { height: 1%; }
+* html ul.pmenu li ul {left:147px;}
+/* End */
+
+ul.pmenu li:hover ul, ul.pmenu li.over ul { display: block; } /* The magic */
+ul.pmenu li ul{left:150px;}
+
