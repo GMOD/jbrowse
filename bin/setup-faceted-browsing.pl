@@ -60,8 +60,7 @@ foreach my $track (@tracks) {
     }
 
     if($confFile) {
-        $track->{'label'} = $track->{'key'};
-        delete $track->{'key'};
+        $track->{'label'} = $track->{'track'};
     }
 
     if($confFile || ($track->{'type'} ne 'TrackGroup' && $track->{'type'} ne 'ROOT')) {

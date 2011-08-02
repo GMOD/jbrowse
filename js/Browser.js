@@ -662,7 +662,7 @@ Browser.prototype.createTrackList = function(parent, params) {
     facetedIframe.setAttribute("frameborder","0");
     facetedIframe.height = "100%";
     facetedIframe.width = "100%";
-    facetedIframe.innerHTML = "<p> Your your browser does not support iframes.</p>";
+    facetedIframe.innerHTML = "<p> Your browser does not support iframes.</p>";
     faceted.appendChild(facetedIframe); 
     
     // the element to mark the position of the tab   
@@ -750,7 +750,7 @@ Browser.prototype.createTrackList = function(parent, params) {
             open2 = false;
         }
         else {
-            window.frames["browsing_window"].start_faceted_browsing(dojo.cookie(brwsr.container.id + "-tracks"));
+            if(window.frames["browsing_window"].start_faceted_browsing) window.frames["browsing_window"].start_faceted_browsing(dojo.cookie(brwsr.container.id + "-tracks"));
             leftPaneTabPos.style.left = "0%";
             customTrackTabPos.style.left = "0%";
             facetedTabPos.style.left = "100%";
@@ -998,7 +998,7 @@ Browser.prototype.createTrackList = function(parent, params) {
                                   brwsr.onVisibleTracksChanged();
                                   var map = brwsr.mapLabelToNode(tree._itemNodesMap.ROOT[0].getChildren(), {});
                                   map[track.label].firstChild.childNodes[2].childNodes[1].style.color = "";
-                                  window.frames["browsing_window"].start_faceted_browsing(dojo.cookie(brwsr.container.id + "-tracks"));
+                                  if(window.frames["browsing_window"].start_faceted_browsing) window.frames["browsing_window"].start_faceted_browsing(dojo.cookie(brwsr.container.id + "-tracks"));
                                   if(brwsr.trackCurrentlyCustomized == track.label) {
                                       window.brwsr.fillCustomizeTrackTab();
                                   }
