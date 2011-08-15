@@ -16,6 +16,12 @@
  * </ul>
  */
 
+var faceted_on = true;
+var track_customization_hidden = false;
+var track_customization_on = true;
+var elastic_zoom_high_on = true;
+var elastic_zoom_on = true;
+
 var Browser = function(params) {
     dojo.require("dojo.dnd.Source");
     dojo.require("dojo.dnd.Moveable");
@@ -26,6 +32,22 @@ var Browser = function(params) {
 
     this.disabledColor = '#9E9E9E';
     this.trackClass = {};
+
+    var flags = params.conf['flags'];
+    this.popUpUrl = params.conf['popUpUrl'];
+
+    if(flags) {
+        if(flags['facetedOff']) faceted_on = false;
+        if(flags['trackCustomizationOff']) track_customization_on = false;
+        if(flags['trackCustomizationHidden']) track_customization_hidden = true;
+        if(flags['elasticZoomsOff']) {
+            elastic_zoom_high_on = false; 
+            elastic_zoom_on = false;
+        }
+        if(flags['elasticZoomTopOff']) elastic_zoom_high_on = false;
+        if(flags['elasticZoomMainOff']) elastic_zoom_on = false;
+        if(!track_customization_on) track_customization_hidden = true;
+    }
 
     var refSeqs = params.refSeqs;
     var trackData = params.trackData;
@@ -110,7 +132,7 @@ var Browser = function(params) {
                         });
 
             //hook up GenomeView
-            var gv = new GenomeView(viewElem, 250, brwsr.refSeq, 1/200);
+            var gv = new GenomeView(viewElem, 250, brwsr.refSeq, 1/200, params.overviewTrackData);
             brwsr.view = gv;
             brwsr.viewElem = viewElem;
             //gv.setY(0);
@@ -158,8 +180,8 @@ var Browser = function(params) {
                                         * 0.6) | 0)));
             }
 
-            brwsr.createRubberBandZoom(topPane, gv);
-            brwsr.createHighLevelRubberBandZoom(brwsr.refSeq);
+            if(elastic_zoom_on) brwsr.createRubberBandZoom(topPane, gv);
+            if(elastic_zoom_high_on) brwsr.createHighLevelRubberBandZoom(brwsr.refSeq);
 
 	    //if someone calls methods on this browser object
 	    //before it's fully initialized, then we defer
@@ -181,7 +203,7 @@ Browser.prototype.createRubberBandZoom = function(topPane, gv) {
     // creates the transparent track area that covers that displayed tracks when zooming
     var bandZoom = document.createElement("div");
     bandZoom.id = 'bandZoom';
-    bandZoom.style.cssText = "height: "+screen.height+"px; display: none;"; 
+    bandZoom.style.cssText = "height: "+screen.height+"px; display: none; cursor: default;"; 
     topPane.appendChild(bandZoom);
 
     // creates the line representing the end of the zoom that doesn't move
@@ -368,11 +390,21 @@ Browser.prototype.fillCustomizeTrackTab = function(track, trackClass) {
         var plus = "";
         if(trackClass) {
             previewTrack.className = trackClass;
-            previewTrack.style.cssText = "margin-top: 10px; margin-bottom: 10px; position: relative; left: 10%; width: 80%;";
+            previewTrack.style.cssText = "margin-top: 10px; "+
+                                         "margin-bottom: 10px; "+
+                                         "position: relative; "+
+                                         "left: 10%; "+
+                                         "width: 80%;";
             plus = (trackClass.substring(0,5) == "plus-");
         }
         else {
-            previewTrack.style.cssText = "margin-top: 10px; margin-bottom: 10px; height: 8px; position: relative; left: 10%; width: 80%; border: 1px solid black;";
+            previewTrack.style.cssText = "margin-top: 10px; "+
+                                         "margin-bottom: 10px; "+
+                                         "height: 8px; "+
+                                         "position: relative; "+
+                                         "left: 10%; "+
+                                         "width: 80%; "+
+                                         "border: 1px solid black;";
         }
         customTrack.appendChild(previewTrack);
 
@@ -380,6 +412,89 @@ Browser.prototype.fillCustomizeTrackTab = function(track, trackClass) {
         customTrack.appendChild(applyChangesBtn.domNode);
         applyChangesBtn.domNode.style.cssText = "margin: 10px;";
 
+        if(track_customization_hidden) {
+            var cancelBtn = new dijit.form.Button({ label: "cancel"});
+            customTrack.appendChild(cancelBtn.domNode);
+            cancelBtn.domNode.style.cssText = "display: inline-block; margin: 10px 2px;";
+            dojo.connect(cancelBtn, "onClick", function() {
+                window.brwsr.fillCustomizeTrackTab();
+            });
+        }
+
+        // retrieving css values to fill the drop downs with
+
+        // get the possible class names for css already in use
+        var trackName = String(track);
+        trackName = trackName.replace(/ /g, "-");
+        var oldHeight;
+        var oldBackgroundColor;
+        var oldBackgroundImage;
+        var oldBorderColor;
+        var oldBorderWidth;
+        var plusMinusClassText;
+        var minusPlusClassText;
+        var trackClassName;
+        var plus = (trackClass.substring(0,5) == "plus-");
+        if(plus) {
+            plusMinusClassText = "."+trackClass+", .minus-"+trackClass.substring(5);
+            minusPlusClassText = ".minus-"+trackClass.substring(5)+", ."+trackClass;
+            trackClassName = trackClass.substring(5);
+        }
+        else {
+            plusMinusClassText = ".plus-"+trackClass.substring(6)+", ."+trackClass;
+            minusPlusClassText = "."+trackClass+", .plus-"+trackClass.substring(6);
+            trackClassName = trackClass.substring(6);
+        }
+
+        // get the prevous css values from the style sheet
+
+        if(!document.styleSheets[2]['cssRules']) document.styleSheets[2]['cssRules'] = document.styleSheets[2]['rules'];
+        for( var i = 0; i < document.styleSheets[2]['cssRules'].length; i++) {
+
+            // getting css info about the track in IE
+            if(((document.styleSheets[2]['cssRules'][i].selectorText == ".minus-"+trackClassName) 
+                    || (document.styleSheets[2]['cssRules'][i].selectorText == ".plus-"+trackClassName)) 
+                    && (document.styleSheets[2]['cssRules'][i].style.height)){
+                oldHeight = document.styleSheets[2]['cssRules'][i].style.height;
+                if(document.styleSheets[2]['cssRules'][i].style.border) {
+                    oldBorderWidth = document.styleSheets[2]['cssRules'][i].style.borderWidth;
+                    oldBorderColor = document.styleSheets[2]['cssRules'][i].style.borderColor;
+                }
+                if(document.styleSheets[2]['cssRules'][i].style.backgroundColor) {
+                    oldBackgroundColor  = document.styleSheets[2]['cssRules'][i].style.backgroundColor;
+                }
+            }
+
+            // getting the background Image info if there is on
+            if((document.styleSheets[2]['cssRules'][i].selectorText == ".plus-"+trackClassName)) {
+                oldBackgroundImage = document.styleSheets[2]['cssRules'][i].style.backgroundImage;
+            }
+            if((document.styleSheets[2]['cssRules'][i].selectorText == ".minus-"+trackClassName)) {
+                oldBackgroundImage = document.styleSheets[2]['cssRules'][i].style.backgroundImage;
+            }
+
+            // getting css info for track in browsers not IE
+            if((document.styleSheets[2]['cssRules'][i].selectorText == minusPlusClassText) 
+              || (document.styleSheets[2]['cssRules'][i].selectorText == plusMinusClassText)) {
+                oldHeight = document.styleSheets[2]['cssRules'][i].style.height;
+                if(document.styleSheets[2]['cssRules'][i].style.border) {
+                    oldBorderWidth = document.styleSheets[2]['cssRules'][i].style.borderWidth;
+                    oldBorderColor = document.styleSheets[2]['cssRules'][i].style.borderColor;
+                }
+                oldBackgroundColor = document.styleSheets[2]['cssRules'][i].style.backgroundColor;
+            }
+        }
+
+        if(oldBackgroundImage) {
+            if(oldBackgroundImage.substring(4,5) == '"') {
+                oldBackgroundImage = oldBackgroundImage.substring(5, oldBackgroundImage.length - 2);
+            }
+            else {
+                oldBackgroundImage = oldBackgroundImage.substring(4, oldBackgroundImage.length - 1);
+            }
+        }
+
+        // height drop down
         var changeHeight = document.createElement("div");
         changeHeight.style.cssText = "margin: 10px;";
         changeHeight.innerHTML = "height: ";
@@ -388,7 +503,8 @@ Browser.prototype.fillCustomizeTrackTab = function(track, trackClass) {
         changeHeight.appendChild(heightSelect);
         var defaultHeightOption = document.createElement("option");
         defaultHeightOption.value = "";
-        defaultHeightOption.innerHTML = "select new height";
+        defaultHeightOption.innerHTML = oldHeight + " (default)";
+        if(!oldHeight) defaultHeightOption.innerHTML = "select height";
         heightSelect.appendChild(defaultHeightOption);
         for(var i = 1; i <= 40; i++) {
             var heightOption = document.createElement("option");
@@ -400,19 +516,19 @@ Browser.prototype.fillCustomizeTrackTab = function(track, trackClass) {
             previewTrack.style.height = heightSelect.options[heightSelect.selectedIndex].value;
         });
 
+        // rectangle fill color drop down
         var changeFillColor = document.createElement("div");
         changeFillColor.style.cssText = "margin: 10px;";
-        changeFillColor.innerHTML = "fill color: ";
+        changeFillColor.innerHTML = "rectangle fill color: ";
         customTrack.appendChild(changeFillColor);
         var colorSelect = document.createElement("select");
         changeFillColor.appendChild(colorSelect);
         var defaultColorOption = document.createElement("option");
         defaultColorOption.value = "";
-        defaultColorOption.innerHTML = "select new fill color";
+        defaultColorOption.innerHTML = oldBackgroundColor + " (default)";
+        if(!oldBackgroundColor) defaultColorOption.innerHTML = "none (default)";
+        if(!oldBackgroundColor && oldBackgroundImage) defaultColorOption.innerHTML = "(not being used)";
         colorSelect.appendChild(defaultColorOption);
-        //var colorOptions = ["transparent","rgb(204,0,0)","rgb(251,148,11)","rgb(255,255,0)","rgb(0,204,0)","rgb(3, 192,198)","rgb(0,0,255)","rgb(118,44,167)","rgb(255,152,191)","rgb(255,255,255)","rgb(153,153,153)","rgb(0,0,0)","rgb(136,84,24)"];
-//        var colorOptions = ["#151B8D","#15317E","#342D7E","#2554C7","#25587E","#38ACEC","#3090C7","#1589FF","#157DEC","#1569C7","#4863A0","#52F3FF","#00FFFF","#57FEFF","#50EBEC","#4EE2EC","#43C6DB","#8EEBEC","#617C58","#306754","#387C44","#4E9258","#347235","#347C2C","#437C17","#348017","#4AA02C","#41A317","#4AA02C","#4CC417","#6CC417","#52D017","#4CC552","#54C571","#57E964","#5EFB6E","#64E986","#F433FF","#E238EC","#C031C7","#B048B5","#D462FF","#6A287E","#8E35EF","#893BFF","#7F38EC","#6C2DC7","#461B7E","#571B7e","#7D1B7E","#842DCE","#8B31C7","#A23BEC","#B041FF","#7E587E","#F6358A","#F660AB","#F665AB","#E45E9D","#FAAFBE","#FBBBB9","#E7A1B0","#FAAFBA","#F9A7B0","#FCDFFF","#FDEEF4","#F9B7FF","#FF0000","#F62217","#E41B17","#F62817","#E42217","#C11B17","#7E2217","#C24641","#FFFF00","#FFFC17","#FFF380","#EDE275","#FDD017","#EAC117","#ECD872","#FFF8C6","#FBB117","#E8A317","#F87431","#E66C2C","#F88017","#F87217","#E56717","#C35617","#97694F","#8E6B23","#9C661F","#AA6600","#AA5303","#7B3F00","#8B4500","#734A12","#8B5A00","#2B1B17","#302217","#302226","#342826","#34282C","#382D2C","#000000","#3b3131","#595454","#5C5858","#5F5A59","#625D5D","#646060","#666362","#736F6E"];
-//        var colorOptions = ["ALICEBLUE","ANTIQUEWHITE","AQUA","AQUAMARINE","AZURE","BEIGE","BISQUE","BLACK","BLANCHEDALMOND","BLUE","BLUEVIOLET","BROWN","BURLYWOOD","CADETBLUE","CHARTREUSE","CHOCOLATE","CORAL","CORNFLOWERBLUE","CORNSILK","CRIMSON","CYAN","DARKBLUE","DARKCYAN","DARKGOLDENROD","DARKGRAY","DARKGREEN","DARKKHAKI","DARKMAGENTA","DARKOLIVEGREEN","DARKORANGE","DARKORCHID","DARKRED","DARKSALMON","DARKSEAGREEN","DARKSLATEBLUE","DARKSLATEGRAY","DARKTURQUOISE","DARKVIOLET","DEEPPINK","DEEPSKYBLUE","DIMGRAY","DODGERBLUE","FIREBRICK","FLORALWHITE","FORESTGREEN","FUCHSIA","GAINSBORO","GHOSTWHITE","GOLD","GOLDENROD","GRAY","GREEN","GREENYELLOW","HONEYDEW","HOTPINK","INDIANRED","INDIGO","IVORY","KHAKI","LAVENDER","LAVENDERBLUSH","LAWNGREEN","LEMONCHIFFON","LIGHTBLUE","LIGHTCORAL","LIGHTCYAN","LIGHTGOLDENRODYELLOW","LIGHTGREEN","LIGHTGREY","LIGHTPINK","LIGHTSALMON","LIGHTSEAGREEN","LIGHTSKYBLUE","LIGHTSLATEGRAY","LIGHTSTEELBLUE","LIGHTYELLOW","LIME","LIMEGREEN","LINEN","MAGENTA","MAROON","MEDIUMAQUAMARINE","MEDIUMBLUE","MEDIUMORCHID","MEDIUMPURPLE","MEDIUMSEAGREEN","MEDIUMSLATEBLUE","MEDIUMSPRINGGREEN","MEDIUMTURQUOISE","MEDIUMVIOLETRED","MIDNIGHTBLUE","MINTCREAM","MISTYROSE","MOCCASIN","NAVAJOWHITE","NAVY","OLDLACE","OLIVE","OLIVEDRAB","ORANGE","ORANGERED","ORCHID","PALEGOLDENROD","PALEGREEN","PALETURQUOISE","PALEVIOLETRED","PAPAYAWHIP","PEACHPUFF","PERU","PINK","PLUM","POWDERBLUE","PURPLE","RED","ROSYBROWN","ROYALBLUE","SADDLEBROWN","SALMON","SANDYBROWN","SEAGREEN","SEASHELL","SIENNA","SILVER","SKYBLUE","SLATEBLUE","SLATEGRAY","SNOW","SPRINGGREEN","STEELBLUE","TAN","TEAL","THISTLE","TOMATO","TURQUOISE","VIOLET","WHEAT","WHITE","WHITESMOKE","YELLOW","YELLOWGREEN"];
         var colorOptions = ["aliceblue","antiquewhite","aqua","aquamarine","azure","beige","bisque","black","blanchedalmond","blue","blueviolet","brown","burlywood","cadetblue","chartreuse","chocolate","coral","cornflowerblue","cornsilk","crimson","cyan","darkblue","darkcyan","darkgoldenrod","darkgray","darkgreen","darkgrey","darkkhaki","darkmagenta","darkolivegreen","darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategray","darkslategrey","darkturquoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","fuchsia","gainsboro","ghostwhite","gold","goldenrod","gray","green","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavender","lavenderblush","lawngreen","lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategray","lightslategrey","lightsteelblue","lightyellow","lime","limegreen","linen","magenta","maroon","mediumaquamarine","mediumblue","mediumorchid","mediumpurple","mediumseagreen","mediumslateblue","mediumspringgreen","mediumturquoise","mediumvioletred","midnightblue","mintcream","mistyrose","moccasin","navajowhite","navy","oldlace","olive","olivedrab","orange","orangered","orchid","palegoldenrod","palegreen","paleturquoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","purple","red","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","silver","skyblue","slateblue","slategray","slategrey","snow","springgreen","steelblue","tan","teal","thistle","tomato","turquoise","violet","wheat","white","whitesmoke","yellow","yellowgreen"];
         for(var i = 0; i < colorOptions.length; i++) {
             var colorOption = document.createElement("option");
@@ -425,17 +541,22 @@ Browser.prototype.fillCustomizeTrackTab = function(track, trackClass) {
             //colorSelect.style.cssText = "background: "+colorSelect.options[colorSelect.selectedIndex].value+";";
             previewTrack.style.background = colorSelect.options[colorSelect.selectedIndex].value;
             imageSelect.selectedIndex = 0;
+            imageSelect.options[0].innerHTML = "(not being used)";
+            colorSelect.options[0].innerHTML = oldBackgroundColor + " (default)";
         });
 
+        // track image drop down
         var changeTrackImage = document.createElement("div");
         changeTrackImage.style.cssText = "margin: 10px;";
-        changeTrackImage.innerHTML = "track image: ";
+        changeTrackImage.innerHTML = "OR <br/><br/>track image: ";
         customTrack.appendChild(changeTrackImage);
         var imageSelect = document.createElement("select");
         changeTrackImage.appendChild(imageSelect);
         var defaultImageOption = document.createElement("option");
         defaultImageOption.value = "";
-        defaultImageOption.innerHTML = "select new track image";
+        defaultImageOption.innerHTML = oldBackgroundImage + " (default)";
+        if(!oldBackgroundImage) defaultImageOption.innerHTML = "none (default)";
+        if(!oldBackgroundImage && oldBackgroundColor) defaultImageOption.innerHTML = "(not being used)";
         imageSelect.appendChild(defaultImageOption);
         if(trackClass) {
             var directionalImageOptions = ["chevron","chevron3","herringbone13","herringbone14","chevron2","herringbone10","herringbone16","herringbone11","herringbone12","pacman","cds0","cds1","cds2"];
@@ -462,8 +583,11 @@ Browser.prototype.fillCustomizeTrackTab = function(track, trackClass) {
             previewTrack.style.background = imageSelect.options[imageSelect.selectedIndex].value;
             previewTrack.style.backgroundRepeat = "repeat-x";
             colorSelect.selectedIndex = 0;
+            colorSelect.options[0].innerHTML = "(not being used)";
+            imageSelect.options[0].innerHTML = oldBackgroundImage + " (default)";
         });
 
+        // border color drop down
         var changeBorderColor = document.createElement("div");
         changeBorderColor.style.cssText = "margin: 10px;";
         changeBorderColor.innerHTML = "border color: ";
@@ -471,29 +595,36 @@ Browser.prototype.fillCustomizeTrackTab = function(track, trackClass) {
         var colorBorderSelect = document.createElement("select");
         changeBorderColor.appendChild(colorBorderSelect);
         var defaultColorBorderOption = document.createElement("option");
-        defaultColorBorderOption.value = "";
-        defaultColorBorderOption.innerHTML = "select new border color";
+        defaultColorBorderOption.value = ""; 
+        defaultColorBorderOption.innerHTML = oldBorderColor + " (default)";
+        if(!oldBorderColor) defaultColorBorderOption.innerHTML = "none (default)";
         colorBorderSelect.appendChild(defaultColorBorderOption);
-        for(var i = 0; i < colorOptions.length; i++) {
+        var colorBorderOptions = ["aliceblue","antiquewhite","aqua","aquamarine","azure","beige","bisque","black","blanchedalmond","blue","blueviolet","brown","burlywood","cadetblue","chartreuse","chocolate","coral","cornflowerblue","cornsilk","crimson","cyan","darkblue","darkcyan","darkgoldenrod","darkgray","darkgreen","darkgrey","darkkhaki","darkmagenta","darkolivegreen","darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategray","darkslategrey","darkturquoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","fuchsia","gainsboro","ghostwhite","gold","goldenrod","gray","green","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavender","lavenderblush","lawngreen","lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategray","lightslategrey","lightsteelblue","lightyellow","lime","limegreen","linen","magenta","maroon","mediumaquamarine","mediumblue","mediumorchid","mediumpurple","mediumseagreen","mediumslateblue","mediumspringgreen","mediumturquoise","mediumvioletred","midnightblue","mintcream","mistyrose","moccasin","navajowhite","navy","oldlace","olive","olivedrab","orange","orangered","orchid","palegoldenrod","palegreen","paleturquoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","purple","red","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","silver","skyblue","slateblue","slategray","slategrey","snow","springgreen","steelblue","tan","teal","thistle","tomato","turquoise","violet","wheat","white","whitesmoke","yellow","yellowgreen"];
+        for(var i = 0; i < colorBorderOptions.length; i++) {
             var colorBorderOption = document.createElement("option");
-            colorBorderOption.value = colorOptions[i];
-            colorBorderOption.innerHTML = colorOptions[i];
-            colorBorderOption.style.cssText = "background: "+colorOptions[i]+";";
+            colorBorderOption.value = colorBorderOptions[i];
+            colorBorderOption.innerHTML = colorBorderOptions[i];
+            colorBorderOption.style.cssText = "background: "+colorBorderOptions[i]+";";
             colorBorderSelect.appendChild(colorBorderOption);
         }
         dojo.connect(colorBorderSelect, "onchange", function(event) {
-            previewTrack.style.border = previewTrack.style.borderWidth+" solid "+ colorBorderSelect.options[colorBorderSelect.selectedIndex].value;
+            var weight = previewTrack.style.borderWidth;
+            if(!weight) weight = "0px";
+            previewTrack.style.border = weight+" solid "+ colorBorderSelect.options[colorBorderSelect.selectedIndex].value;
+            previewTrack.style.borderWidth  = weight;
         });
 
+        // border width drop down
         var changeBorderWidth = document.createElement("div");
         changeBorderWidth.style.cssText = "margin: 10px;";
-        changeBorderWidth.innerHTML = "border color: ";
+        changeBorderWidth.innerHTML = "border width: ";
         customTrack.appendChild(changeBorderWidth);
         var borderWidthSelect = document.createElement("select");
         changeBorderWidth.appendChild(borderWidthSelect);
         var defaultBorderWidthOption = document.createElement("option");
         defaultBorderWidthOption.value = "";
-        defaultBorderWidthOption.innerHTML = "select new border width";
+        defaultBorderWidthOption.innerHTML = oldBorderWidth + " (default)";
+        if(!oldBorderWidth) defaultBorderWidthOption.innerHTML = "none (default)";
         borderWidthSelect.appendChild(defaultBorderWidthOption);
         for(var i = 0; i <= 6; i++) {
             var borderWidthOption = document.createElement("option");
@@ -502,8 +633,13 @@ Browser.prototype.fillCustomizeTrackTab = function(track, trackClass) {
             borderWidthSelect.appendChild(borderWidthOption);
         }
         dojo.connect(borderWidthSelect, "onchange", function(event) {
-            previewTrack.style.border = borderWidthSelect.options[borderWidthSelect.selectedIndex].value+" solid "+ previewTrack.style.borderColor;
+            var color = previewTrack.style.borderColor;
+            if(!color) color = "transparent";
+            previewTrack.style.border = borderWidthSelect.options[borderWidthSelect.selectedIndex].value+" solid "+ color;
         });
+
+        // setting track to the new css 
+
         dojo.connect(applyChangesBtn, "onClick", function() {
                 var newCssText = "position: absolute; cursor: pointer; min-width: 1px; z-index: 10;";
                 var background;
@@ -511,20 +647,30 @@ Browser.prototype.fillCustomizeTrackTab = function(track, trackClass) {
                 var border;
                 var newCssTextMinus;
                 var newCssTextPlus;
+
+                // get the new css values from the preview
                 if(previewTrack.style.height) {
                     height = "height: "+previewTrack.style.height+";";
                 }
-                if(previewTrack.style.backgroundImage && previewTrack.style.backgroundImage != 'none') {
+                if(previewTrack.style.backgroundImage && previewTrack.style.backgroundImage != 'none' && previewTrack.style.backgroundImage != "initial") {
                     var backImage = previewTrack.style.backgroundImage;
-                    if(backImage.substring(0,14) == 'url("img/plus-') {
-                        backImage = backImage.substring(14);
-                        newCssTextMinus = "background: url(\"img/minus-"+backImage+" repeat-x scroll 0 0 transparent;";
-                        newCssTextPlus = "background: url(\"img/plus-"+backImage+" repeat-x scroll 0 0 transparent;";
+                    var patternPlus = new RegExp('plus-[^\\.]*\\..*$');
+                    var patternMinus = new RegExp('minus-[^\\.]*\\..*$');
+                    if(patternPlus.test(backImage)) {
+                        var patternBegin = new RegExp('^.*plus');
+                        var endUrl = String(patternPlus.exec(backImage)).substring(5);
+                        var startUrl = String(patternBegin.exec(backImage));
+                        startUrl = startUrl.substring(0, startUrl.length - 4);
+                        newCssTextMinus = "background: "+ startUrl +"minus-"+endUrl+" repeat-x scroll 0 0 transparent;";
+                        newCssTextPlus = "background: "+ startUrl +"plus-"+endUrl+" repeat-x scroll 0 0 transparent;";
                     }
-                    else if(backImage.substring(0,15) == 'url("img/minus-') {
-                        backImage = backImage.substring(15);
-                        newCssTextMinus = "background: url(\"img/minus-"+backImage+" repeat-x scroll 0 0 transparent;";
-                        newCssTextPlus = "background: url(\"img/plus-"+backImage+" repeat-x scroll 0 0 transparent;";
+                    else if(patternMinus.test(backImage)) {
+                        var patternBegin = new RegExp('^.*minus');
+                        var endUrl = String(patternMinus.exec(backImage)).substring(6);
+                        var startUrl = String(patternBegin.exec(backImage));
+                        startUrl = startUrl.substring(0, startUrl.length - 5);
+                        newCssTextMinus = "background: "+ startUrl +"minus-"+endUrl+" repeat-x scroll 0 0 transparent;";
+                        newCssTextPlus = "background: "+ startUrl +"plus-"+endUrl+" repeat-x scroll 0 0 transparent;";
                     }
                     else {
                         background = "background: "+backImage+" repeat-x scroll 0 0 transparent;";
@@ -533,12 +679,15 @@ Browser.prototype.fillCustomizeTrackTab = function(track, trackClass) {
                 else if(previewTrack.style.background) {
                     background = "background: "+previewTrack.style.background+";";
                 }
-                    console.log(previewTrack.style.border);
                 if(previewTrack.style.border) {
                     border = "border: "+previewTrack.style.border+";";
                 }
+
+                // get the possible class names for css already in use
                 var trackName = String(track);
-                trackName = trackName.replace(/ /g, "_");
+                trackName = trackName.replace(/ /g, "-");
+                trackName = trackName.replace(/'/g, "");
+                trackName = trackName.replace(/\./g, "");
                 var cssText = "";
                 var cssTextMinus = "";
                 var cssTextPlus = "";
@@ -557,38 +706,81 @@ Browser.prototype.fillCustomizeTrackTab = function(track, trackClass) {
                     trackClassName = trackClass.substring(6);
                 }
                 var num = window.brwsr.trackClass[track]? (parseInt(window.brwsr.trackClass[track])+1): 0;
+
+                // get the prevous css values from the style sheet
+
+                if(!document.styleSheets[2]['cssRules']) document.styleSheets[2]['cssRules'] = document.styleSheets[2]['rules'];
                 for( var i = 0; i < document.styleSheets[2]['cssRules'].length; i++) {
+
+                    // getting css info about the track in IE
+                    if(((document.styleSheets[2]['cssRules'][i].selectorText == ".minus-"+trackClassName) 
+                            || (document.styleSheets[2]['cssRules'][i].selectorText == ".plus-"+trackClassName)) 
+                            && (document.styleSheets[2]['cssRules'][i].style.height)){
+                        if(!height) height = "height: "+ document.styleSheets[2]['cssRules'][i].style.height+";";
+                        if(document.styleSheets[2]['cssRules'][i].style.border && !border) border = "border: "+ document.styleSheets[2]['cssRules'][i].style.border+";";
+                        if(document.styleSheets[2]['cssRules'][i].style.backgroundColor && (!background) && (!newCssTextPlus)) {
+                            cssText = "background: "+ document.styleSheets[2]['cssRules'][i].style.background+";";
+                            if(!document.styleSheets[2]['cssRules'][i].style.background) cssText = "background: "+ document.styleSheets[2]['cssRules'][i].style.backgroundColor+";";
+                        }
+                    }
+
+                    // getting the background Image info if there is on
                     if((!newCssTextPlus) && (!background) && (document.styleSheets[2]['cssRules'][i].selectorText == ".plus-"+trackClassName)) {
-                        newCssTextPlus = "background: "+document.styleSheets[2]['cssRules'][i].style.backgroundImage+" repeat-x scroll 0 0 transparent;";
+                        if (document.styleSheets[2]['cssRules'][i].style.backgroundImage && (document.styleSheets[2]['cssRules'][i].style.backgroundImage != 'none')) {
+                            newCssTextPlus = "background: "+document.styleSheets[2]['cssRules'][i].style.backgroundImage+" repeat-x scroll 0 0 transparent;";
+                        }
                     }
                     if(!newCssTextMinus && !background && (document.styleSheets[2]['cssRules'][i].selectorText == ".minus-"+trackClassName)) {
-                        newCssTextMinus = "background: "+document.styleSheets[2]['cssRules'][i].style.backgroundImage+" repeat-x scroll 0 0 transparent;";
-                        //cssTextMinus = document.styleSheets[2]['cssRules'][i].style.cssText;
+                        if (document.styleSheets[2]['cssRules'][i].style.backgroundImage && (document.styleSheets[2]['cssRules'][i].style.backgroundImage != 'none')) {
+                            newCssTextMinus = "background: "+document.styleSheets[2]['cssRules'][i].style.backgroundImage+" repeat-x scroll 0 0 transparent;";
+                        }
                     }
+
+                    // getting css info for track in browsers not IE
                     if(document.styleSheets[2]['cssRules'][i].selectorText == minusPlusClassText) {
                         if(!height) height = "height: "+ document.styleSheets[2]['cssRules'][i].style.height+";";
                         if(!border) border = "border: "+ document.styleSheets[2]['cssRules'][i].style.border+";";
-                        if(!background && !newCssTextPlus) cssText = "background: "+ document.styleSheets[2]['cssRules'][i].style.background+";";
+                        if((!background) && (!newCssTextPlus)) {
+                            cssText = "background: "+ document.styleSheets[2]['cssRules'][i].style.background+";";
+                            if(!document.styleSheets[2]['cssRules'][i].style.background) cssText = "background: "+ document.styleSheets[2]['cssRules'][i].style.backgroundColor+";";
+                        }
                     }
                     if(document.styleSheets[2]['cssRules'][i].selectorText == plusMinusClassText) {
                         if(!height) height = "height: "+ document.styleSheets[2]['cssRules'][i].style.height+";";
                         if(!border) border = "border: "+ document.styleSheets[2]['cssRules'][i].style.border+";";
-                        if(!background && !newCssTextPlus) cssText = "background: "+ document.styleSheets[2]['cssRules'][i].style.background+";";
-
-                        //cssText = document.styleSheets[2]['cssRules'][i].style.cssText;
+                        if((!background) && (!newCssTextPlus)) {
+                            cssText = "background: "+ document.styleSheets[2]['cssRules'][i].style.background+";";
+                            if(!document.styleSheets[2]['cssRules'][i].style.background) cssText = "background: "+ document.styleSheets[2]['cssRules'][i].style.backgroundColor+";";
+                        }
                     }
                 }
+
+                //Update the track look by adding new css rules
+
                 var prefix = plus? ".plus-": ".minus-";
                 if(newCssTextPlus) {
-                    document.styleSheets[2].insertRule(".plus-"+num+trackName+' { '+newCssTextPlus+'}', document.styleSheets[2]['cssRules'].length);
-                    document.styleSheets[2].insertRule(".minus-"+num+trackName+' { '+newCssTextMinus+'}', document.styleSheets[2]['cssRules'].length);
+                    if (document.styleSheets[2].insertRule) {
+                        document.styleSheets[2].insertRule(".plus-"+num+trackName+' { '+newCssTextPlus+'}', document.styleSheets[2]['cssRules'].length);
+                        document.styleSheets[2].insertRule(".minus-"+num+trackName+' { '+newCssTextMinus+'}', document.styleSheets[2]['cssRules'].length);
+                    }
+                    if (document.styleSheets[2].addRule) {
+                        //Adding the CSS Rules in IE
+                        document.styleSheets[2].addRule(".plus-"+num+trackName, newCssTextPlus);
+                        document.styleSheets[2].addRule(".minus-"+num+trackName, newCssTextMinus);
+                    }
                 }
-                /*else {
-                    document.styleSheets[2].insertRule(".plus-"+num+trackName+' { '+cssTextPlus+'}', document.styleSheets[2]['cssRules'].length);
-                    document.styleSheets[2].insertRule(".minus-"+num+trackName+' { '+cssTextMinus+'}', document.styleSheets[2]['cssRules'].length);
-                }*/
-                if(!background) background = cssText;
-                document.styleSheets[2].insertRule('.plus-'+num+trackName+', .minus-'+num+trackName+' { '+newCssText+' '+height+' '+border+' '+background+'}', document.styleSheets[2]['cssRules'].length);
+                else if(!background) {
+                    background = cssText;
+                }
+
+                if (document.styleSheets[2].insertRule)  document.styleSheets[2].insertRule('.plus-'+num+trackName+', .minus-'+num+trackName+' { '+newCssText+' '+height+' '+border+' '+background+'}', document.styleSheets[2]['cssRules'].length);
+
+                // Adding the rule in IE
+                if(!border) border = '';
+                if(!background) background = '';
+                if (document.styleSheets[2].addRule)  document.styleSheets[2].addRule('.plus-'+num+trackName+', .minus-'+num+trackName, newCssText+height+border+background);
+
+                // reload the track to update the css
                 window.brwsr.trackClass[track] = num+trackName;
                 var insertAfterNode = dojo.byId("track_"+track).previousSibling;
                 dijit.getEnclosingWidget(dojo.byId("label_"+track).firstChild).onClick();
@@ -597,7 +789,7 @@ Browser.prototype.fillCustomizeTrackTab = function(track, trackClass) {
         this.trackCurrentlyCustomized = track;
     }
     else {
-        //this.openCustomizeTrackTab(true);
+        this.openCustomizeTrackTab(true);
         var message = document.createElement("div");
         message.style.cssText = "margin: 10px; text-align: center; width: 80%;";
         message.innerHTML = 'Select a track to customize by right clicking on its image and selecting "Customize Track".';
@@ -650,58 +842,72 @@ Browser.prototype.createTrackList = function(parent, params) {
     leftPaneTab.innerHTML = "Select Tracks";
     leftPaneTabPos.appendChild(leftPaneTab);
 
-    // the main panel for the faceted browsing tab
-    var faceted = document.createElement("div");
-    faceted.style.cssText = "display:none; height: 100%;";
-    faceted.id = "FacetedBrowsing";
+    var faceted;
+    var facetedIframe;
+    var facetedTabPos;
+    var facetedTab;
+    if(faceted_on) {
+        // the main panel for the faceted browsing tab
+        faceted = document.createElement("div");
+        faceted.style.cssText = "display:none; height: 100%;";
+        faceted.id = "FacetedBrowsing";
 
-    // faceted browisng page runs from an iframe
-    var facetedIframe = document.createElement("iframe");
-    facetedIframe.src = "faceted_browsing.html"; 
-    facetedIframe.setAttribute("name","browsing_window");
-    facetedIframe.setAttribute("frameborder","0");
-    facetedIframe.height = "100%";
-    facetedIframe.width = "100%";
-    facetedIframe.innerHTML = "<p> Your browser does not support iframes.</p>";
-    faceted.appendChild(facetedIframe); 
+        // faceted browisng page runs from an iframe
+        facetedIframe = document.createElement("iframe");
+        facetedIframe.src = "faceted_browsing.html"; 
+        facetedIframe.setAttribute("name","browsing_window");
+        facetedIframe.setAttribute("frameborder","0");
+        facetedIframe.height = "100%";
+        facetedIframe.width = "100%";
+        faceted.appendChild(facetedIframe); 
     
-    // the element to mark the position of the tab   
-    var facetedTabPos = document.createElement("div");
-    facetedTabPos.id = "facetedTab";
-    facetedTabPos.className = "tabContainer";
-    facetedTabPos.style.left = "0%";
-    facetedTabPos.style.top = "138px";
-    parentLeftPane.appendChild(facetedTabPos);
+        // the element to mark the position of the tab   
+        facetedTabPos = document.createElement("div");
+        facetedTabPos.id = "facetedTab";
+        facetedTabPos.className = "tabContainer";
+        facetedTabPos.style.left = "0%";
+        facetedTabPos.style.top = "138px";
+        parentLeftPane.appendChild(facetedTabPos);
+        if(!faceted_on) facetedTabPos.style.display = "none";
 
-    // the faceted browsing tab, second one down
-    var facetedTab = document.createElement("div");
-    facetedTab.className = "browsingTab";
-    facetedTab.innerHTML = "Find Tracks";
-    facetedTabPos.appendChild(facetedTab);
+        // the faceted browsing tab, second one down
+        facetedTab = document.createElement("div");
+        facetedTab.className = "browsingTab";
+        facetedTab.innerHTML = "Find Tracks";
+        facetedTabPos.appendChild(facetedTab);
+    }
 
-    // the main panel for the custom Tracks tab
     var customTrack = document.createElement("div");
-    customTrack.style.cssText = "display: none; overflow: auto; height: 100%;";
-    customTrack.id = "CustomizeTrack";
-    this.customTrack = customTrack;
     var message = document.createElement("div");
-    message.style.cssText = "margin: 10px; text-align: center; width: 80%;";
-    message.innerHTML = 'Select a track to customize by right clicking on its image and selecting "Customize Track".';
-    customTrack.appendChild(message);
+    if(track_customization_on) {
+        // the main panel for the custom Tracks tab
+        customTrack.style.cssText = "display: none; overflow: auto; height: 100%;";
+        customTrack.id = "CustomizeTrack";
+        message.style.cssText = "margin: 10px; text-align: center; width: 80%;";
+        message.innerHTML = 'Select a track to customize by right clicking on its image and selecting "Customize Track".';
+        customTrack.appendChild(message);
+    }
+    this.customTrack = customTrack;
 
-    // the element to mark the position of the tab   
-    var customTrackTabPos = document.createElement("div");
-    customTrackTabPos.id = "customTrackTab";
-    customTrackTabPos.className = "tabContainer";
-    customTrackTabPos.style.left = "0%";
-    customTrackTabPos.style.top = "274px";
-    parentLeftPane.appendChild(customTrackTabPos);
+    var customTrackTabPos;
+    var customTrackTab;
+    if(!track_customization_hidden) {
+        // the element to mark the position of the tab   
+        customTrackTabPos = document.createElement("div");
+        customTrackTabPos.id = "customTrackTab";
+        customTrackTabPos.className = "tabContainer";
+        customTrackTabPos.style.left = "0%";
+        customTrackTabPos.style.top = "274px";
+        if(!faceted_on) customTrackTabPos.style.top = "138px";
+        parentLeftPane.appendChild(customTrackTabPos);
+        if(track_customization_hidden) customTrackTabPos.style.display = "none";
 
-    // the cutsomize track tab, first one down
-    var customTrackTab = document.createElement("div");
-    customTrackTab.className = "browsingTab";
-    customTrackTab.innerHTML = "Customize Track";
-    customTrackTabPos.appendChild(customTrackTab);
+        // the cutsomize track tab, first one down
+        customTrackTab = document.createElement("div");
+        customTrackTab.className = "browsingTab";
+        customTrackTab.innerHTML = "Customize Track";
+        customTrackTabPos.appendChild(customTrackTab);
+    }
 
     // line representing the folder edge of the hidden tab
     var line = document.createElement("div");
@@ -710,7 +916,7 @@ Browser.prototype.createTrackList = function(parent, params) {
 
     parentLeftPane.appendChild(tabCon);
     tabCon.appendChild(leftPane);
-    tabCon.appendChild(faceted);
+    if(faceted_on) tabCon.appendChild(faceted);
     tabCon.appendChild(customTrack);
 
     // both tabs start out closed
@@ -721,16 +927,16 @@ Browser.prototype.createTrackList = function(parent, params) {
     // open/ close the tabs on click
     dojo.connect(leftPaneTab, "onclick", function() {
         resizeTab(0);
-        faceted.style.display = "none";
-        customTrack.style.display = "none";
+        if(faceted_on) faceted.style.display = "none";
+        if(track_customization_on) customTrack.style.display = "none";
         if(open1) {
             leftPaneTabPos.style.left = "0%";
             leftPane.style.display = "none";
             open1 = false;
         }
         else {
-            facetedTabPos.style.left = "0%";
-            customTrackTabPos.style.left = "0%";
+            if(faceted_on) facetedTabPos.style.left = "0%";
+            if(!track_customization_hidden) customTrackTabPos.style.left = "0%";
             leftPaneTabPos.style.left = "100%";
             resizeTab(240);
             leftPane.style.display = "";
@@ -740,42 +946,44 @@ Browser.prototype.createTrackList = function(parent, params) {
         }
         dojo.byId("dijit_layout_ContentPane_1").style.top = dojo.marginBox(dojo.byId("navbox")).h + parseInt(dojo.byId("overview").style.height) + 10 + "px";
     }); 
-    dojo.connect(facetedTab, "onclick", function() {
-        resizeTab(0); 
-        leftPane.style.display = "none";
-        customTrack.style.display = "none";
-        if(open2) {
-            facetedTabPos.style.left = "0%";
-            faceted.style.display = "none";
-            open2 = false;
-        }
-        else {
-            if(window.frames["browsing_window"].start_faceted_browsing) window.frames["browsing_window"].start_faceted_browsing(dojo.cookie(brwsr.container.id + "-tracks"));
-            leftPaneTabPos.style.left = "0%";
-            customTrackTabPos.style.left = "0%";
-            facetedTabPos.style.left = "100%";
-            resizeTab(530);
-            faceted.style.display = "";
-            open2 = true;
-            open1 = false;
-	    open3 = false;
-        }
-        dojo.byId("dijit_layout_ContentPane_1").style.top = dojo.marginBox(dojo.byId("navbox")).h + parseInt(dojo.byId("overview").style.height) + 10 + "px";
-    }); 
+    if(faceted_on) {
+        dojo.connect(facetedTab, "onclick", function() {
+            resizeTab(0); 
+            leftPane.style.display = "none";
+            if(track_customization_on) customTrack.style.display = "none";
+            if(open2) {
+                facetedTabPos.style.left = "0%";
+                faceted.style.display = "none";
+                open2 = false;
+            }
+            else {
+                if(window.frames["browsing_window"].start_faceted_browsing) window.frames["browsing_window"].start_faceted_browsing(dojo.cookie(brwsr.container.id + "-tracks"));
+                leftPaneTabPos.style.left = "0%";
+                if(!track_customization_hidden) customTrackTabPos.style.left = "0%";
+                facetedTabPos.style.left = "100%";
+                resizeTab(530);
+                faceted.style.display = "";
+                open2 = true;
+                open1 = false;
+                open3 = false;
+            }
+            dojo.byId("dijit_layout_ContentPane_1").style.top = dojo.marginBox(dojo.byId("navbox")).h + parseInt(dojo.byId("overview").style.height) + 10 + "px";
+        }); 
+    }
 
     var openCustomizeTrackTab = function(tabOpen) {
         resizeTab(0);
-        faceted.style.display = "none";
+        if(faceted_on) faceted.style.display = "none";
         leftPane.style.display = "none";
         if(tabOpen) {
-            customTrackTabPos.style.left = "0%";
+            if(!track_customization_hidden) customTrackTabPos.style.left = "0%";
             customTrack.style.display = "none";
             open3 = false;
         }
         else {
-            facetedTabPos.style.left = "0%";
+            if(faceted_on) facetedTabPos.style.left = "0%";
             leftPaneTabPos.style.left = "0%";
-            customTrackTabPos.style.left = "100%";
+            if(!track_customization_hidden) customTrackTabPos.style.left = "100%";
             resizeTab(300);
             customTrack.style.display = "";
             open1 = false;
@@ -784,7 +992,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         }
         dojo.byId("dijit_layout_ContentPane_1").style.top = dojo.marginBox(dojo.byId("navbox")).h + parseInt(dojo.byId("overview").style.height) + 10 + "px";
     };
-    dojo.connect(customTrackTab, "onclick", function() { openCustomizeTrackTab(open3);});
+    if(!track_customization_hidden) dojo.connect(customTrackTab, "onclick", function() { openCustomizeTrackTab(open3); });
     this.openCustomizeTrackTab = openCustomizeTrackTab;
 
     // resize the elements of the page when a tab is opened/closed
@@ -794,6 +1002,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         dojo.byId("dijit_layout_ContentPane_2_splitter").style.display = "none";
         dojo.byId("dijit_layout_ContentPane_2").style.width = newSize + "px";
         dijit.getEnclosingWidget(dojo.byId("dijit_layout_ContentPane_2")).resize();
+        if(!document.width) document.width = document.body.clientWidth;
         var rightSize = (document.width - newSize -5 - 22);
         var overLeft = (newSize + 5 + 22);
         dojo.animateProperty({
@@ -821,29 +1030,32 @@ Browser.prototype.createTrackList = function(parent, params) {
         setTimeout('dojo.byId("dijit_layout_ContentPane_2_splitter").style.display = ""',500);
     }
 
-    //create the html objects for the track list section within Drag Tracks tab
+    // set up the  Select Tracks tab
 
     var searchMessage = document.createElement("div");
     searchMessage.innerHTML = "Enter text to search track list:";
+    searchMessage.style.cssText = "margin: 5px 0px;";
     leftPane.appendChild(searchMessage);
 
     var searchBox = document.createElement("input");
+    searchBox.style.cssText = "margin: 5px 0px;";
     searchBox.id = "search";
     leftPane.appendChild(searchBox);
 
     var searchClearBtn = new dijit.form.Button({ label: "clear search"});
-    searchClearBtn.domNode.style.cssText = 'display: inline';
+    searchClearBtn.domNode.style.cssText = 'margin: 5px 0px;';
     leftPane.appendChild(searchClearBtn.domNode);
 
     var treeResetBtn = new dijit.form.Button({ label: "reset list order"});
-    leftPane.appendChild(treeResetBtn.domNode);
+    treeResetBtn.domNode.style.cssText = "margin: 5px 0px;";
 
     var dragMessage = document.createElement("div");
     dragMessage.innerHTML =
-        "Available Tracks:<br/>(Drag <img src=\""
+        "<br/>Available Tracks:<br/>(Drag <img src=\""
         + (params.browserRoot ? params.browserRoot : "")
         + "img/right_arrow.png\"/> to view)<br/><br/>";
     leftPane.appendChild(dragMessage);
+    leftPane.appendChild(treeResetBtn.domNode);
 
     var treeSection = document.createElement("div");
     treeSection.id = "treeList";
@@ -998,8 +1210,8 @@ Browser.prototype.createTrackList = function(parent, params) {
                                   brwsr.onVisibleTracksChanged();
                                   var map = brwsr.mapLabelToNode(tree._itemNodesMap.ROOT[0].getChildren(), {});
                                   map[track.label].firstChild.childNodes[2].childNodes[1].style.color = "";
-                                  if(window.frames["browsing_window"].start_faceted_browsing) window.frames["browsing_window"].start_faceted_browsing(dojo.cookie(brwsr.container.id + "-tracks"));
-                                  if(brwsr.trackCurrentlyCustomized == track.label) {
+                                  if(window.frames["browsing_window"] && window.frames["browsing_window"].start_faceted_browsing) window.frames["browsing_window"].start_faceted_browsing(dojo.cookie(brwsr.container.id + "-tracks"));
+                                  if(track_customization_on && (brwsr.trackCurrentlyCustomized == track.label)) {
                                       window.brwsr.fillCustomizeTrackTab();
                                   }
                             }});
@@ -1042,7 +1254,7 @@ Browser.prototype.createTrackList = function(parent, params) {
                 node.parentNode.removeChild(node);
                 brwsr.onVisibleTracksChanged();
 
-                if(brwsr.trackCurrentlyCustomized == dataObj.data.label) {
+                if(track_customization_on && (brwsr.trackCurrentlyCustomized == dataObj.data.label)) {
                     window.brwsr.fillCustomizeTrackTab();
                 }
 
@@ -1191,7 +1403,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         clearOnClose: true,
         data: {
                 identifier: 'key',
-                label: 'label',
+                label: 'key', //'label',
                 items: params.trackData
               }
     });
@@ -1451,6 +1663,7 @@ Browser.prototype.removeAllTracks = function() {
     this.viewDndWidget.selectAll();
     this.viewDndWidget.deleteSelectedNodes();
     this.blackAll(this.tree._itemNodesMap.ROOT[0].getChildren());
+    this.onVisibleTracksChanged();
 }
 
 /**
@@ -1656,9 +1869,11 @@ Browser.prototype.navigateTo = function(loc) {
                     
                     //this.createHighLevelRubberBandZoom(this.refSeq);
 
-                    dojo.byId('dynamicZoomHighStart').style.height = parseInt(dojo.byId('overview').style.height) + 10 + "px";
-                    dojo.byId('dynamicZoomHigh').style.height = parseInt(dojo.byId('overview').style.height) + 10 + "px";
-                    dojo.byId('selectedAreaHigh').style.height = parseInt(dojo.byId('overview').style.height) + 10 + "px";
+                    if(elastic_zoom_high_on) {
+                        dojo.byId('dynamicZoomHighStart').style.height = parseInt(dojo.byId('overview').style.height) + 10 + "px";
+                        dojo.byId('dynamicZoomHigh').style.height = parseInt(dojo.byId('overview').style.height) + 10 + "px";
+                        dojo.byId('selectedAreaHigh').style.height = parseInt(dojo.byId('overview').style.height) + 10 + "px";
+                    }
                     dojo.byId('overviewtrack_overview_loc_track').style.height = '10px';
 		}
 		return;

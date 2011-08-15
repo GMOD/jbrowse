@@ -26,26 +26,11 @@
             </td>
             <td id="middle_column" width="80%">
                 <div class="status" id="selection_count">no tracks selected</div>
-	        <div ex:role="view" ex:viewClass="Thumbnail" id="filter_results" ex:showAll="false" ex:abbreviatedCount="5"></div>
-                <div ex:role="lens" ex:onshow="hilight_items(this)" class="submission" style="display:none">
-                    <div class="select-track">
-                        <div>
-	                    <label>
-                                Select track<input type="checkbox" ex:onClick-subcontent="toggle_track(this)"/>
-                            </label>
-                        </div>
-	            </div> 
+	        <div ex:role="viewPanel" ex:viewClass="Thumbnail" id="filter_results" ex:showAll="false" ex:abbreviatedCount="15"></div>
+                <div ex:role="lens" ex:onshow="hilight_items(this)" class="submission" style="display:none" ex:onClick-subcontent="toggle_track(this)">
                     <div class="name">
                         <span  ex:content=".label" class="field-label"></span><br>
                     </div>
-                    <div style="text-align: center; padding: 5px;" ex:onClick-subcontent="show_more_info(this)" ><img src="jslib/dijit/themes/tundra/images/smallArrowDown.png"></div>
-                    <TMPL_LOOP NAME=TRACK_INFO_FIELDS><div class="extra_data">
-                        <span class="field-label"><TMPL_VAR NAME=FIELD_LABEL>: </span>
-                        <span ex:if-exists=".<TMPL_VAR NAME=FIELD_NAME>">
-                            <span ex:content=".<TMPL_VAR NAME=FIELD_NAME>"></span>
-                        </span>
-                    </div></TMPL_LOOP>
-                    <div style="text-align: center; display: none; padding: 5px;" ex:onClick-subcontent="hide_more_info(this)" ><img src="jslib/dijit/themes/tundra/images/smallArrowUp"></div>
                 </div>
             </td>
         </tr>

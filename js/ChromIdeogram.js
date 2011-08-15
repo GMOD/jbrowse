@@ -1,21 +1,40 @@
+ChromIdeogram.height = 40;
 /**
  * for creating a chromosome representation in the track location overview bar 
  */
-function ChromIdeogram(refSeq) {
+function ChromIdeogram(refSeq, url) {
+    this.baseUrl = window.b.dataRoot ? window.b.dataRoot : "";
+    this.url = url;
+    this.trackBaseUrl = (this.baseUrl + url).match(/^.+\//);
+
     var overview = dojo.byId('overview');
-    var elem  = dojo.byId('chromosome_representation');
-    if(!elem) {
-        elem = document.createElement('div');
-        overview.appendChild(elem);
-        elem.id = 'chromosome_representation';
-    }
+    this.clear();
+
+    var elem = document.createElement('div');
+    overview.appendChild(elem);
+    elem.id = 'chromosome_representation';
     elem.style.width = "100%";
     elem.track = this;
     elem.innerHTML = '';
     this.div = elem;
     var trackData = refSeq.chromBands;
-    this.clear();
-    this.drawChromosome(elem, refSeq, trackData);
+    var onLoad = this.drawChromosome;
+    var chrom = this;
+    dojo.xhrGet({ url: "data/" + url,
+                  handleAs: "json",
+                  load: function(data) { 
+                            chrom.drawChromosome(elem, refSeq, data);
+                            dijit.getEnclosingWidget(dojo.byId("GenomeBrowser")).resize();
+                            dojo.byId("dijit_layout_ContentPane_1").style.top = dojo.marginBox(dojo.byId("navbox")).h + parseInt(dojo.byId("overview").style.height) + 10 + "px";
+
+                            if(elastic_zoom_high_on) {
+                                dojo.byId('dynamicZoomHighStart').style.height = parseInt(dojo.byId('overview').style.height) + 10 + "px";
+                                dojo.byId('dynamicZoomHigh').style.height = parseInt(dojo.byId('overview').style.height) + 10 + "px";
+                                dojo.byId('selectedAreaHigh').style.height = parseInt(dojo.byId('overview').style.height) + 10 + "px";
+                            }
+                            dojo.byId('overviewtrack_overview_loc_track').style.height = '10px'; 
+                  }
+                });
 }
 
 ChromIdeogram.prototype.drawChromosome = function(elem, refSeq, trackData) {
@@ -27,10 +46,10 @@ ChromIdeogram.prototype.drawChromosome = function(elem, refSeq, trackData) {
     // put in the label for the chromosome
     var chrName = document.createElement("div");
     this.chrNameHeight = 20;
-    chrName.style.cssText = "color: black; text-align: left; height: "+this.chrNameHeight+"px;";
+    chrName.style.cssText = "color: black; text-align: left; height: "+this.chrNameHeight+"px; width: 75px;";
     chrName.innerHTML = refSeq.name;
     elem.appendChild(chrName);
-
+    
     // create the part of the chromosome before the centromere
     var chr1 = document.createElement("div");
     var chr2;
@@ -41,7 +60,7 @@ ChromIdeogram.prototype.drawChromosome = function(elem, refSeq, trackData) {
     // if the centromere is between 0 and the end of the chromsome
     var length = refSeq.length;
     this.length = length;
-    this.centromere = refSeq.centromere;
+    this.centromere = trackData.centromere;
     if(this.centromere > 0 && this.centromere < this.length) {
         chr1.style.width = this.centromere/length * 100 + "%";
         chr2 = document.createElement("div");
@@ -55,9 +74,10 @@ ChromIdeogram.prototype.drawChromosome = function(elem, refSeq, trackData) {
     }
 
     // create the chromsome bands
+    trackData = trackData.chromBands;
     for(var i = 0; i < trackData.length; i++) {
-        var start = trackData[i][0];
-        var bandLength = trackData[i][1];
+        var start = trackData[i]['loc'];
+        var bandLength = trackData[i]['length'];
         if(start <= 0) start = 1;
 
         if(start < this.centromere) {
@@ -188,6 +208,14 @@ ChromIdeogram.prototype.resetBandCss = function(band) {
 }
 
 ChromIdeogram.prototype.clear = function() {
-    this.div.innerHTML = '';
+    if(this.div) {
+        this.div.innerHTML = '';
+        dojo.byId("overview").removeChild(this.div);
+    }
+    this.Bands = {};
+    this.bandCount = 0;
     this.height = 0;
+    dijit.getEnclosingWidget(dojo.byId("GenomeBrowser")).resize();
+    dojo.byId("dijit_layout_ContentPane_1").style.top = dojo.marginBox(dojo.byId("navbox")).h + parseInt(dojo.byId("overview").style.height) + 10 + "px";
+
 }

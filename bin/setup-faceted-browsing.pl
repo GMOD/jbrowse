@@ -104,7 +104,6 @@ if(!@facetes || !@track_fields) {
 my $template = HTML::Template->new(filename => 'faceted_browsing.tmpl');
 
 $template->param( BROWSING_FACETES => \@facetes);
-$template->param( TRACK_INFO_FIELDS => \@track_fields);
 
 open(my $out_file, ">faceted_browsing.html");
 print $out_file $template->output;

@@ -9,6 +9,9 @@
     <link rel="stylesheet" type="text/css" href="jslib/dijit/themes/tundra/tundra.css"></link>
     <link rel="stylesheet" type="text/css" href="jslib/dojo/resources/dojo.css"></link>
     <link rel="stylesheet" type="text/css" href="genome.css"></link>
+    <!--[if IE]>
+        <link rel="stylesheet" type="text/css" href="iegenome.css"></link>
+    <![endif]-->
     <style type="text/css">
       html, body { height: 100%; width: 100%; padding: 0; border: 0; }
     </style>
@@ -38,6 +41,8 @@
 
     <script type="text/javascript" src="data/refSeqs.js"></script>
     <script type="text/javascript" src="data/trackInfo.js"></script>
+    <script type="text/javascript" src="data/overviewTrackInfo.js"></script>
+    <script type="text/javascript" src="conf.js"></script>
     <script type="text/javascript">
     /* <![CDATA[ */
 	   var queryParams = dojo.queryToObject(window.location.search.slice(1));
@@ -52,11 +57,13 @@
                                    containerID: "GenomeBrowser",
                                    refSeqs: refSeqs,
                                    trackData: trackInfo,
+                                   overviewTrackData: overviewTrackInfo,
                                    defaultTracks: "DNA,gene,mRNA,noncodingRNA",
                                    location: queryParams.loc,
                                    tracks: queryParams.tracks,
                                    bookmark: bookmarkCallback,
-                                   dataRoot: "data/"
+                                   dataRoot: "data/",
+                                   conf: conf
                                });
     /* ]]> */
     </script>

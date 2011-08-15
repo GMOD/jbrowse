@@ -170,21 +170,6 @@ if (defined($gff)) {
                 $refInfo->{"seqChunkSize"} = $chunkSize;
             }
 
-
-            my $chrom_display = "";
-            if(!$refInfo->{"centromere"} || !$refInfo->{"chromBands"}) {
-                print "Do you want a chromosome ideogram displayed for ",$refInfo->{"name"},"?\n";
-                $chrom_display = <STDIN>;
-            }
-            if($chrom_display =~ /^(\w*\s+)*y(es)?\W/i) {
-                if(!$refInfo->{"centromere"}) {
-                    $refInfo->{"centromere"} = getCentromere($refInfo->{"name"}, $refInfo->{"length"});
-                }
-                if(!$refInfo->{"chromBands"}) {
-                    $refInfo->{"chromBands"} = getChromBands($refInfo->{"name"});
-                }
-            }
-
             push @refSeqs, $refInfo;
         }
     }
@@ -217,39 +202,6 @@ sub exportSeqChunks {
         close CHUNK
           or die "couldn't open $path.txt: $!";
     }
-}
-
-sub getChromBands {
-    my ($name) = @_;
-
-    my @bands = ();
-
-    print "How many bands does $name have?\n";
-    my $num_bands = <STDIN>;
-    $num_bands =~ /(\d+)/;
-    $num_bands = int $num_bands;
- 
-    for(my $i = 1; $i <= $num_bands; $i++) {
-        print "What is the start postion of band $i?\n";
-        my $pos = <STDIN>;
-        $pos =~ /(\d+)/;
-        $pos = int $pos;
-        print "What is the length of band $i?\n";
-        my $len = <STDIN>;
-        $len =~ /(\d+)/;
-        $len = int $len;
-        push @bands, [$pos, $len];
-    }
-    return \@bands;
-}
-
-sub getCentromere {
-    my ($name, $length) = @_;
-
-    print "What is the centromere coordinate for $name? \nEnter 0 for no centromere\nNote: The length of the $name is $length\n";
-    my $centro = <STDIN>;
-    $centro =~ /(\d+)/;
-    return int $1;
 }
 
 die "found no ref seqs" if ($#refSeqs < 0);
@@ -294,6 +246,8 @@ unless ($noSeq) {
                                     return $trackList;
                             });
 }
+
+JsonGenerator::modifyJSFile("$outDir/overviewTrackInfo.js", "overviewTrackInfo", sub { return []; }); 
 
 =head1 AUTHOR
 

@@ -113,7 +113,7 @@ Zoomer.prototype.step = function(pos) {
     this.subject.updateTrackLabels(this.initialX - newLeft);
 };
 
-function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
+function GenomeView(elem, stripeWidth, refseq, zoomLevel, overviewTrackData) {
     //all coordinates are interbase
 
     //measure text width for the max zoom level
@@ -373,7 +373,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
         }
 	if (Util.isRightButton(event)) return;
 
-        if(event.clientY < parseInt(dojo.byId('static_track').style.height) + parseInt(dojo.byId('dijit_layout_ContentPane_1').style.top)) {
+        if (elastic_zoom_on && (event.clientY < parseInt(dojo.byId('static_track').style.height) + parseInt(dojo.byId('dijit_layout_ContentPane_1').style.top))) {
             dojo.byId('bandZoom').style.display = "block";
             dojo.byId('dynamicZoom').style.left = event.clientX -parseInt(dojo.byId('dijit_layout_ContentPane_0').style.left) + "px";
             dojo.byId('dynamicZoomStart').style.left = event.clientX -parseInt(dojo.byId('dijit_layout_ContentPane_0').style.left) + "px";
@@ -483,9 +483,15 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
 
     this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
-    if(refseq.centromere != undefined) {
-        this.ci = new ChromIdeogram(refseq);
+    this.ci = [];
+    for(var i = 0; i < overviewTrackData.length; i++) {
+        var track = overviewTrackData[i];
+        var url = track.url.replace(/\{([^}]+)\}/g, refseq.name);
+        var klass = eval(track.type);
+        this.ci[i] = new klass(refseq,url);
     }
+    this.overviewTrackData = overviewTrackData;
+
     this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
 
     document.body.style.cursor = "url(\"closedhand.cur\")";
@@ -513,8 +519,8 @@ GenomeView.prototype.highlightRegions = function(regionList) {
 };
 
 GenomeView.prototype.resetChromBands = function() {
-    if(this.ref.centromere != undefined) {
-    this.ci.resetBands();
+    for(var i = 0; i < this.ci.length; i++) {
+        this.ci[i].resetBands();
     }
 }
 
@@ -528,7 +534,12 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
 
     if (this.ref != refseq) {
 	this.ref = refseq;
-        if(this.ci != null) this.ci.clear();
+
+        for(var i = 0; i < this.ci.length; i++) {
+            this.ci[i].clear();
+        }
+        this.ci = [];
+
 	var removeTrack = function(track) {
             if (track.div && track.div.parentNode)
                 track.div.parentNode.removeChild(track.div);
@@ -537,7 +548,14 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
         dojo.forEach(this.uiTracks, function(track) { track.clear(); });
 	this.overviewTrackIterate2(removeTrack);
 
-        if(refseq.centromere != undefined) this.ci = new ChromIdeogram(refseq);
+        var overviewTrackData = this.overviewTrackData;
+        for(var i = 0; i < overviewTrackData.length; i++) {
+            var track = overviewTrackData[i];
+            var url = track.url.replace(/\{([^}]+)\}/g, refseq.name);
+            var klass = eval(track.type);
+            this.ci[i] = new klass(refseq, url);
+        }
+
 	this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
         this.sizeInit();
         this.setY(0);

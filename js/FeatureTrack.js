@@ -60,10 +60,9 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length);
     this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length);
     this.subfeatureScale = 80 * (trackInfo.featureCount / this.refSeq.length);
-    if(window.brwsr.trackClass[this.name]) {
-        this.className = window.brwsr.trackClass[this.name];
-    } else {
-        this.className = trackInfo.className;
+    this.className = trackInfo.className;
+    if(window.b.trackClass[this.name]) {
+        this.className = window.b.trackClass[this.name];
     }
     this.subfeatureClasses = trackInfo.subfeatureClasses;
     this.arrowheadClass = trackInfo.arrowheadClass;
@@ -118,6 +117,7 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
         var track = this;
 
         this.onFeatureRightClick = function(event) {
+            if(!event) event = window.event;
             var trackClass = this.className;
             var trackdiv = this.parentNode.parentNode;
             if(trackpopupmenu) {
@@ -127,16 +127,20 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
             var menu = document.createElement("div");
             trackpopupmenu = menu;
             this.parentNode.appendChild(menu);
+            if(!event.layerY) event.layerY = event.offsetY;
+            if(!event.layerX) event.layerX = event.offsetX;
+            var topPlacement = (event.layerY + parseInt(this.style.top));
+            var leftPlacement = (event.layerX + parseInt(this.style.left) * parseInt(this.parentNode.style.width) / 10000 * parseInt(dojo.byId('zoomContainer').style.width));
             menu.style.cssText = "position: absolute; "+
                                  "width: 10px; "+
                                  "height: 10px; "+
-                                 "top: "+ (event.layerY + parseInt(this.style.top)) +"px; "+
-                                 "left: "+ (event.layerX + parseInt(this.style.left) * parseInt(this.parentNode.style.width) / 10000 * parseInt(dojo.byId('zoomContainer').style.width)) +"px; "+
+                                 "top: "+ topPlacement +"px; "+
+                                 "left: "+ leftPlacement +"px; "+
                                  "z-index: 10000;";
-            if(event.pageY > document.height - 73) {
+            if(event.clientY > document.height - 73) {
                 menu.style.top = parseInt(menu.style.top) - 73 + "px";
             }
-            if(event.pageX > document.width - 154) {
+            if(event.clientX > document.width - 154) {
                 menu.style.left = parseInt(menu.style.left) - 154 + "px";
             }
             var popupmenu = document.createElement("ul");
@@ -193,14 +197,16 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
                 window.brwsr.displayTrack(featureTrack.name, false, insertAfterNode);
             };
 
-                var list2 = document.createElement("li");
-                popupmenu.appendChild(list2);
+                if(track_customization_on) {
+                    var list2 = document.createElement("li");
+                    popupmenu.appendChild(list2);
 
-                var item2 = document.createElement("a");
-                item2.innerHTML = "Customize Track";
-                item2.classsName = "parent";
-                list2.appendChild(item2);
-                item2.onclick = function(event) { callFillCustomTrackTab();};
+                    var item2 = document.createElement("a");
+                    item2.innerHTML = "Customize Track";
+                    item2.classsName = "parent";
+                    list2.appendChild(item2);
+                    item2.onclick = function(event) { callFillCustomTrackTab();};
+                }
 
                 var list3 = document.createElement("li");
                 popupmenu.appendChild(list3);
@@ -214,13 +220,43 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
                 var list4 = document.createElement("li");
                 popupmenu.appendChild(list4);
 
-                var item4 = document.createElement("a");
+/*                var item4 = document.createElement("a");
                 item4.innerHTML = "Information";
                 item4.classsName = "parent";
                 list4.appendChild(item4);
                 item4.href = "http://www.google.com";
                 item4.target = "_blank";
                 //item4.onclick = function(event) { track.onClick();};
+*/
+            event = event || window.event;
+            var elem = (event.currentTarget || event.srcElement);
+            //depending on bubbling, we might get the subfeature here
+            //instead of the parent feature
+            if (!elem.feature) elem = elem.parentElement;
+            if (!elem.feature) return; //shouldn't happen; just bail if it does
+            var feat = elem.feature;
+
+            var xmlhttp;
+            if(window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+                xmlhttp = new XMLHttpRequest();
+            }
+            else { // code for IE6, IE5
+                xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange=function() {
+                if (xmlhttp.readyState==4 && xmlhttp.status==200){
+                   list4.innerHTML = xmlhttp.responseText;
+                }
+            }
+            xmlhttp.open("GET", window.b.popUpUrl + 
+                                "?start=" + feat[fields["start"]] +
+                                "&end=" + feat[fields["end"]] +
+                                "&strand=" + feat[fields["strand"]] +
+                                "&label=" + feat[fields["name"]] +
+                                "&id=" + feat[fields["id"]]+
+                                "&track_name="+featureTrack.name, true);
+
+            xmlhttp.send();
 
             /*var items = ["Change track height", "Change track color"];
             var itemoptions = [["height","5px","8px","10px","15px"], ["background","blue","purple","red","green", "yellow"]];

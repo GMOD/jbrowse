@@ -25,30 +25,29 @@ function start_faceted_browsing (currentSelection) {
     } else {
         selected_tracks_text_none();
     }
-    var divs = $$('.submission');
-    divs.each (function (d) {
+    var divs = document.getElementById('middle_column').children[1].children[0].children[1].children[1].children[0].children;
+    for(var i = 0; i < divs.length; i++) {
+        var d = divs[i].children[0];
         var id = d.getAttribute('ex:itemid');
         if (SelectedItems.get(id)) {
             d.addClassName('selected');
-            d.select('input')[0].checked=1;
         } else {
             d.removeClassName('selected');
-            d.select('input')[0].checked=0;
         }
-    });
+    }
 }
 
 /**
  * sets the text at the top of the faceted browsing page
  */
 function selected_tracks_text_none (){
-    $('selection_count').innerHTML='no tracks selected';
+    $('selection_count').innerHTML='no tracks selected. <br/><br/>Click on the track name below to display/hide the track.';
 }
 function selected_tracks_text_hidden (selected){
-    $('selection_count').innerHTML  = ' <a href="javascript:clear_all()">clear selected tracks</a>';
+    $('selection_count').innerHTML  = ' <a href="javascript:clear_all()">clear selected tracks</a><br/><br/>Click on the track name below to display/hide the track.';
 }
 function selected_tracks_text_shown (selected) {
-    $('selection_count').innerHTML  = ' <a href="javascript:clear_all()">clear selected tracks</a>';
+    $('selection_count').innerHTML  = ' <a href="javascript:clear_all()">clear selected tracks</a><br/><br/>Click on the track name below to display/hide the track.';
 }
 
 /**
@@ -61,13 +60,12 @@ function clear_all () {
         var id = d.getAttribute('ex:itemid');
         if (SelectedItems.get(id)) {
             d.addClassName('selected');
-            d.select('input')[0].checked=1;
         } else {
             d.removeClassName('selected');
-            d.select('input')[0].checked=0;
         }
     });
-    $('selection_count').innerHTML = 'no tracks selected';
+    selected_tracks_text_none();
+    //$('selection_count').innerHTML = 'no tracks selected';
     parent.b.removeAllTracks();
 }
 
@@ -85,15 +83,13 @@ function load_tracks () {
  * on whether it is selected when it appears
  */   
 function hilight_items (d) {
-    var divs = $$('.submission');
+    //var divs = $$('.submission');
     if(d) {
         var id = d.getAttribute('ex:itemid');
         if (SelectedItems.get(id)) {
             d.addClassName('selected');
-            d.select('input')[0].checked=1;
         } else {
             d.removeClassName('selected');
-            d.select('input')[0].checked=0;
         }
     }
 }
@@ -131,23 +127,18 @@ function hide_more_info (arrow) {
 /**
  * select/ unselect the track
  */
-function toggle_track (checkbox, turn_on) {
-    var container = checkbox.ancestors().find(
-    function(el) { return el.hasClassName('submission')});
+function toggle_track (container) {
 
     var id = container.getAttribute('ex:itemid');
 
-    if(turn_on == null)        
-        turn_on = !container.hasClassName('selected');
+    var turn_on = !container.hasClassName('selected');
 
     if (turn_on) {
         container.addClassName('selected');
         SelectedItems.set(id,1);
-        container.select('input')[0].checked=1;
         parent.b.showTracks(id);
     } else {
         container.removeClassName('selected');
-        container.select('input')[0].checked=0;
         SelectedItems.unset(id);
         parent.dijit.getEnclosingWidget(parent.dojo.byId("label_"+id).firstChild).onClick();
     }

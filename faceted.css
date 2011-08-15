@@ -8,10 +8,7 @@ td {
 div.submission {
     float: left;
     width: 200px;
-    border: 1px solid #BCB79E;
-    background: #E2EBFE;
-    padding: 1em;
-    margin: 0.5em;
+    margin: 2px 20px;
     text-align: left;
     overflow: auto;
 }
@@ -31,31 +28,22 @@ div.exhibit-facet-value-selected {
     font-weight: bold;
 }
 
-div.name {
-    font-weight: bold;
-    font-size: 110%;
-}
-
 div.extra_data {
     display: none;
     color: #2B434C;
 }
 
 .submission {
-    border: 1px solid #ddd;
     font-size: 9pt;
+    cursor: default;
 }
 .organism {
     font-style: italic;
 }
 .condition {
 }
-.field-label {
-    font-weight: bold;
-    color: #2B434C;
-}
 div.selected {
-    background-color: wheat;
+    color: grey;
 }
 div.select-track {
     text-align: right;
