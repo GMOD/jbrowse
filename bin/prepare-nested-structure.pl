@@ -73,33 +73,36 @@ if($confFile) {
             $group = $track->{"category"};
         }
 
-        if(!$definedTracks{$track->{"key"}}) {
-            warn "track " . $track->{"key"} . " is not defined in trackInfo.js";
+        my $ref = $track->{"track"};
+
+        if(!$definedTracks{$ref}) {
+            warn "track " . $ref . " is not defined in trackInfo.js";
         }
-        elsif($definedTracks{$track->{"key"}} == 2) {
-            warn "track " . $track->{"key"} . " is duplicated";
+        elsif($definedTracks{$ref} == 2) {
+            warn "track " . $ref . " is duplicated";
         }
         if($categories{$group}) {
-            push @{$categories{$group}}, $track->{"key"};
+            push @{$categories{$group}}, $ref;
         }
         else {
-           $categories{$group} = [$track->{"key"}];
+           $categories{$group} = [$ref];
         }
-        $definedTracks{$track->{"key"}} = 2;
+        $definedTracks{$ref} = 2;
     }
 }
 else {
     foreach my $track (@trackInfo) {
         my $group = "General";
-        if(!$seq{$track->{"key"}}) {
+        my $ref = $track->{"key"};
+        if((!$seq{$ref}) && ($track->{"type"} ne "TrackGroup") && ($track->{"type"} ne "ROOT")) {
             if($categories{$group}) {
-                push @{$categories{$group}}, $track->{"key"};
+                push @{$categories{$group}}, $ref;
             }
             else {
-                $categories{$group} = [$track->{"key"}];
+                $categories{$group} = [$ref];
             }
         }
-        $definedTracks{$track->{"key"}} = 2;
+        $definedTracks{$ref} = 2;
     }
 }
 

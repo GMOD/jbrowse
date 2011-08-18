@@ -1403,7 +1403,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         clearOnClose: true,
         data: {
                 identifier: 'key',
-                label: 'key', //'label',
+                label: 'label',
                 items: params.trackData
               }
     });

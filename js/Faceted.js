@@ -7,15 +7,18 @@ var selected_tracks_shown = false;
 function start_faceted_browsing (currentSelection) {
     SelectedItems = new Hash();
     if(currentSelection) {
+        console.log(currentSelection);
         currentSelection = String(currentSelection).split(",");
         for( var i = 0; i < currentSelection.length; i++) {
             SelectedItems.set(currentSelection[i],1);
+            console.log(currentSelection[i]);
         }
         var selected = SelectedItems.keys();
-        }
+    }
     else {
         var selected = [];
     }
+    console.log(selected);
     if (selected.size() > 0) {
         if(selected_tracks_shown) {
             selected_tracks_text_shown(selected);
@@ -25,9 +28,23 @@ function start_faceted_browsing (currentSelection) {
     } else {
         selected_tracks_text_none();
     }
-    var divs = document.getElementById('middle_column').children[1].children[0].children[1].children[1].children[0].children;
-    for(var i = 0; i < divs.length; i++) {
-        var d = divs[i].children[0];
+
+    var divs = $$('.submission');
+    divs.each (function (d) {
+        var id = d.getAttribute('ex:itemid');
+        console.log(id);
+        console.log(SelectedItems.get(id));
+        if (SelectedItems.get(id)) {
+            d.addClassName('selected');
+        } else {
+            d.removeClassName('selected');
+        }
+    });
+
+    // For IE
+    var divs2 = document.getElementById('middle_column').children[1].children[0].children[1].children[1].children[0].children;
+    for(var i = 0; i < divs2.length; i++) {
+        var d = divs2[i].children[0];
         var id = d.getAttribute('ex:itemid');
         if (SelectedItems.get(id)) {
             d.addClassName('selected');
