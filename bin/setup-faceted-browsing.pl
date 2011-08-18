@@ -28,8 +28,6 @@ if($confFile) {
 
     my $config = JsonGenerator::readJSON($confFile);
 
-    eval "require $config->{db_adaptor}; 1" or die $@;
-
     @tracks = @{$config->{tracks}};
 
     if($config->{facets}) {
