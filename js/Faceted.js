@@ -7,18 +7,16 @@ var selected_tracks_shown = false;
 function start_faceted_browsing (currentSelection) {
     SelectedItems = new Hash();
     if(currentSelection) {
-        console.log(currentSelection);
         currentSelection = String(currentSelection).split(",");
         for( var i = 0; i < currentSelection.length; i++) {
             SelectedItems.set(currentSelection[i],1);
-            console.log(currentSelection[i]);
         }
         var selected = SelectedItems.keys();
     }
     else {
         var selected = [];
     }
-    console.log(selected);
+
     if (selected.size() > 0) {
         if(selected_tracks_shown) {
             selected_tracks_text_shown(selected);
@@ -32,8 +30,6 @@ function start_faceted_browsing (currentSelection) {
     var divs = $$('.submission');
     divs.each (function (d) {
         var id = d.getAttribute('ex:itemid');
-        console.log(id);
-        console.log(SelectedItems.get(id));
         if (SelectedItems.get(id)) {
             d.addClassName('selected');
         } else {

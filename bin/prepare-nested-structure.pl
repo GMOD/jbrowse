@@ -32,19 +32,19 @@ my @trackInfo = @{JsonGenerator::readJSON("$outdir/trackInfo.js", [], 1)};
 die "run biodb-to-json.pl first to supply information about your track sequences" if $#trackInfo < 0;
 
 foreach my $track (@trackInfo) {
-    if($track->{"type"} eq "SequenceTrack") {
-        if($categories{'SequenceTrack'}) {
-            push @{$categories{'SequenceTrack'}}, $track->{"key"};
-        }
-        else {
-            $categories{'SequenceTrack'} = [$track->{"key"}];
-        }
-        $definedTracks{$track->{"key"}} = 2;
-        $seq{$track->{"key"}} = 1;
-    }
-    else {
+#    if($track->{"type"} eq "SequenceTrack") {
+#        if($categories{'SequenceTrack'}) {
+#            push @{$categories{'SequenceTrack'}}, $track->{"key"};
+#        }
+#        else {
+#            $categories{'SequenceTrack'} = [$track->{"key"}];
+#        }
+#        $definedTracks{$track->{"key"}} = 2;
+#        $seq{$track->{"key"}} = 1;
+#    }
+#    else {
         $definedTracks{$track->{"key"}} = 1;
-    }
+#    }
 }
 
 $definedTracks{'ROOT'} = 3;
@@ -54,14 +54,6 @@ $definedTracks{'Favourites'} = 3;
 if($confFile) {
 
     my $config = JsonGenerator::readJSON($confFile);
-
-    eval "require $config->{db_adaptor}; 1" or die $@;
-
-    my $db = eval {$config->{db_adaptor}->new(%{$config->{db_args}})} or warn $@;
-    die "Could not open database: $@" unless $db;
-
-    $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
-    $db->absolute(1)               if $db->can('absolute');
 
     my @tracks = @{$config->{tracks}};
     foreach my $track (@tracks) {
