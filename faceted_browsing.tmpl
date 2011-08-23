@@ -22,7 +22,7 @@
     <table width="100%">
         <tr valign="top">
             <td width="20%">
-                <TMPL_LOOP NAME=BROWSING_FACETES><div ex:role="facet" ex:expression=".<TMPL_VAR NAME=FIELD>" ex:facetLabel="<TMPL_VAR NAME=LABEL>"></div></TMPL_LOOP>
+                <TMPL_LOOP NAME=BROWSING_FACETES><div ex:role="facet" ex:collapsible="true" ex:expression=".<TMPL_VAR NAME=FIELD>" ex:facetLabel="<TMPL_VAR NAME=LABEL>"></div></TMPL_LOOP>
             </td>
             <td id="middle_column" width="80%">
                 <div class="status" id="selection_count">no tracks selected</div>
