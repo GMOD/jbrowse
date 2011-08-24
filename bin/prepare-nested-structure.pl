@@ -32,25 +32,14 @@ my @trackInfo = @{JsonGenerator::readJSON("$outdir/trackInfo.js", [], 1)};
 die "run biodb-to-json.pl first to supply information about your track sequences" if $#trackInfo < 0;
 
 foreach my $track (@trackInfo) {
-#    if($track->{"type"} eq "SequenceTrack") {
-#        if($categories{'SequenceTrack'}) {
-#            push @{$categories{'SequenceTrack'}}, $track->{"key"};
-#        }
-#        else {
-#            $categories{'SequenceTrack'} = [$track->{"key"}];
-#        }
-#        $definedTracks{$track->{"key"}} = 2;
-#        $seq{$track->{"key"}} = 1;
-#    }
-#    else {
-        $definedTracks{$track->{"key"}} = 1;
-#    }
+    $definedTracks{$track->{"key"}} = 1;
 }
 
 $definedTracks{'ROOT'} = 3;
 $definedTracks{'General'} = 3;
 $definedTracks{'Favourites'} = 3;
 
+my @top_categories = ();
 if($confFile) {
 
     my $config = JsonGenerator::readJSON($confFile);
@@ -60,19 +49,24 @@ if($confFile) {
         my $group;
         if(! $track->{"category"}) {
             $group = "General";
+            @rootChildren = ('Favourites', 'General');
         }
         else {
             $group = $track->{"category"};
         }
 
         my $ref = $track->{"track"};
+        if(! defined $track->{"type"}) {
+            $track->{"type"} = " ";
+        }
 
-        if(!$definedTracks{$ref}) {
+        if(!$definedTracks{$ref} && ($track->{"type"} ne "TrackGroup")) {
             warn "track " . $ref . " is not defined in trackInfo.js";
         }
-        elsif($definedTracks{$ref} == 2) {
+        elsif(($track->{"type"} ne "TrackGroup") && ($definedTracks{$ref} == 2)) {
             warn "track " . $ref . " is duplicated";
         }
+
         if($categories{$group}) {
             push @{$categories{$group}}, $ref;
         }
@@ -80,6 +74,10 @@ if($confFile) {
            $categories{$group} = [$ref];
         }
         $definedTracks{$ref} = 2;
+    }
+
+    if(defined $config->{"top_categories"}) {
+        @top_categories = @{$config->{top_categories}};
     }
 }
 else {
@@ -96,6 +94,7 @@ else {
         }
         $definedTracks{$ref} = 2;
     }
+    @top_categories = ('General');
 }
 
 foreach my $category (keys %categories) {
@@ -110,9 +109,11 @@ foreach my $category (keys %categories) {
                                        'type' => "TrackGroup",
                                        'children' => \@children_ref
                                    });
-    push @rootChildren, $category;
+    #push @rootChildren, $category;
     $definedTracks{$category} = 3;
 }
+
+push @rootChildren, @top_categories;
 
 foreach my $track (keys %definedTracks) {
     if($definedTracks{$track} == 1) {  warn "track ". $track . " is not in a category"; }
