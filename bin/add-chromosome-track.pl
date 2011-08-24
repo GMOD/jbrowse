@@ -23,24 +23,44 @@ mkdir($outdir) unless (-d $outdir);
 my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
 die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
 
+my $conf = JsonGenerator::readJSON($confFile);
+
 foreach my $refInfo (@refSeqs) {
-            print "Do you want a chromosome ideogram displayed for ",$refInfo->{"name"},"?\n";
-            my $chrom_display = <STDIN>;
+    if($confFile) {
+        if(my $chrom_data = $conf->{$refInfo->{'name'}}) {
+            mkdir("$outdir/$trackRel/".$refInfo->{"name"}."/$track_label")
+            unless (-d "$outdir/$trackRel/".$refInfo->{'name'}."/$track_label");
+            open(my $out, ">$outdir/$trackRel/".$refInfo->{'name'}."/$track_label/trackData.json") || warn "trackData.json didn't open";
+            print $out '{ "centromere": '.$chrom_data->{"centromere"} . ",";
+            print $out '  "chromBands": [';
+            my $chromBands = $chrom_data->{"chromBands"};
+            foreach my $band (@{$chromBands}) {
+                print $out '{ "loc":'.$band->{"loc"}.', "length": '.$band->{"length"}.'},';
+            }
+            print $out "]}";
+            close($out);
+        }        
+    }
+    else {
+        print "Do you want a chromosome ideogram displayed for ",$refInfo->{"name"},"?\n";
+        my $chrom_display = <STDIN>;
 
-            if($chrom_display =~ /^(\w*\s+)*y(es)?\W/i) {
-                mkdir("$outdir/$trackRel/".$refInfo->{"name"}."/$track_label")
-                    unless (-d "$outdir/$trackRel/".$refInfo->{'name'}."/$track_label");
+        if($chrom_display =~ /^(\w*\s+)*y(es)?\W/i) {
+            mkdir("$outdir/$trackRel/".$refInfo->{"name"}."/$track_label")
+            unless (-d "$outdir/$trackRel/".$refInfo->{'name'}."/$track_label");
 
-                open(my $out, ">$outdir/$trackRel/".$refInfo->{'name'}."/$track_label/trackData.json") || warn "trackData.json didn't open";
-                print $out '{ "centromere": '.getCentromere($refInfo->{"name"}, $refInfo->{"length"}) . ",\n";
-                print $out '  "chromBands": ['."\n";
-                my $chromBands = getChromBands($refInfo->{"name"});
-                foreach my $band (@{$chromBands}) {
-                    print $out '{ "loc":'.$band->[0].', "length": '.$band->[1].'},';
-                }
-                print $out "]}";
-
-                JsonGenerator::modifyJSFile("$outdir/overviewTrackInfo.js", "overviewTrackInfo",
+            open(my $out, ">$outdir/$trackRel/".$refInfo->{'name'}."/$track_label/trackData.json") || warn "trackData.json didn't open";
+            print $out '{ "centromere": '.getCentromere($refInfo->{"name"}, $refInfo->{"length"}) . ",";
+            print $out '  "chromBands": [';
+            my $chromBands = getChromBands($refInfo->{"name"});
+            foreach my $band (@{$chromBands}) {
+                print $out '{ "loc":'.$band->[0].', "length": '.$band->[1].'},';
+            }
+            print $out "]}";
+            close($out);
+        }
+    }
+    JsonGenerator::modifyJSFile("$outdir/overviewTrackInfo.js", "overviewTrackInfo",
                                 sub {
                                     my $trackList = shift;
                                     my $i;
@@ -57,11 +77,6 @@ foreach my $refInfo (@refSeqs) {
                                       };
                                     return $trackList;
                             });
-#                JsonGenerator::writeTrackEntry("$outdir/overviewTrackInfo.js", {
-#                                                   'type' => 'ChromIdeogram',
-#                                                   'url' => "$trackRel/{refseq}/$track_label/trackData.json"
-#                                               });
-            }
 }
 
 sub getChromBands {
