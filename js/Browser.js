@@ -21,6 +21,7 @@ var track_customization_hidden = false;
 var track_customization_on = true;
 var elastic_zoom_high_on = true;
 var elastic_zoom_on = true;
+var right_click_popup_on = true;
 
 var Browser = function(params) {
     dojo.require("dojo.dnd.Source");
@@ -38,6 +39,7 @@ var Browser = function(params) {
 
     if(flags) {
         if(flags['facetedOff']) faceted_on = false;
+        if(flags['rightClickPopUpOff']) right_click_popup_on = false;
         if(flags['trackCustomizationOff']) track_customization_on = false;
         if(flags['trackCustomizationHidden']) track_customization_hidden = true;
         if(flags['elasticZoomsOff']) {

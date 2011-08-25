@@ -61,7 +61,7 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length);
     this.subfeatureScale = 80 * (trackInfo.featureCount / this.refSeq.length);
     this.className = trackInfo.className;
-    if(window.b.trackClass[this.name]) {
+    if(track_customization_on && window.b.trackClass[this.name]) {
         this.className = window.b.trackClass[this.name];
     }
     this.subfeatureClasses = trackInfo.subfeatureClasses;
@@ -152,82 +152,29 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
                 window.brwsr.fillCustomizeTrackTab(featureTrack.name, trackClass);
             };
 
-            var customTrack = function(newCssText) {
-                var trackName = String(featureTrack.name);
-                trackName = trackName.replace(/ /g,"_");
-                var cssText;
-                var cssTextMinus;
-                var cssTextPlus;
-                var plusMinusClassText;
-                var minusPlusClassText;
-                var trackClassName;
-                var plus = (trackClass.substring(0,5) == "plus-");
-                if(plus) {
-                    plusMinusClassText = "."+trackClass+", .minus-"+trackClass.substring(5);
-                    minusPlusClassText = ".minus-"+trackClass.substring(5)+", ."+trackClass;
-                    trackClassName = trackClass.substring(5);
-                }
-                else {
-                    plusMinusClassText = ".plus-"+trackClass.substring(6)+", ."+trackClass;
-                    minusPlusClassText = "."+trackClass+", .plus-"+trackClass.substring(6);
-                    trackClassName = trackClass.substring(6);
-                }
-                var num = window.brwsr.trackClass[featureTrack.name]? (parseInt(window.brwsr.trackClass[featureTrack.name])+1): 0;
-                for( var i = 0; i < document.styleSheets[2]['cssRules'].length; i++) {
-                    if(document.styleSheets[2]['cssRules'][i].selectorText == ".plus-"+trackClassName) {
-                        cssTextPlus = document.styleSheets[2]['cssRules'][i].style.cssText;
-                    }
-                    if(document.styleSheets[2]['cssRules'][i].selectorText == ".minus-"+trackClassName) {
-                        cssTextMinus = document.styleSheets[2]['cssRules'][i].style.cssText;
-                    }
-                    if(document.styleSheets[2]['cssRules'][i].selectorText == minusPlusClassText) {
-                        cssText = document.styleSheets[2]['cssRules'][i].style.cssText;
-                    }
-                    if(document.styleSheets[2]['cssRules'][i].selectorText == plusMinusClassText) {
-                        cssText = document.styleSheets[2]['cssRules'][i].style.cssText;
-                    }
-                }
-                document.styleSheets[2].insertRule('.plus-'+num+trackName+', .minus-'+num+trackName+' { '+cssText+' '+newCssText+'}', document.styleSheets[2].length);
-                var prefix = plus? ".plus-": ".minus-";
-                document.styleSheets[2].insertRule(".plus-"+num+trackName+' { '+cssTextPlus+';}', document.styleSheets[2].length);
-                document.styleSheets[2].insertRule(".minus-"+num+trackName+' { '+cssTextMinus+';}', document.styleSheets[2].length);
-                window.brwsr.trackClass[featureTrack.name] = num+trackName; 
-                var insertAfterNode = trackdiv.previousSibling;
-                dijit.getEnclosingWidget(dojo.byId("label_"+featureTrack.name).firstChild).onClick();
-                window.brwsr.displayTrack(featureTrack.name, false, insertAfterNode);
-            };
+            if(track_customization_on) {
+                var listCustomTrack = document.createElement("li");
+                popupmenu.appendChild(listCustomTrack);
 
-                if(track_customization_on) {
-                    var list2 = document.createElement("li");
-                    popupmenu.appendChild(list2);
+                var itemCustomTrack = document.createElement("a");
+                itemCustomTrack.innerHTML = "Customize Track";
+                itemCustomTrack.classsName = "parent";
+                listCustomTrack.appendChild(itemCustomTrack);
+                itemCustomTrack.onclick = function(event) { callFillCustomTrackTab();};
+            }
 
-                    var item2 = document.createElement("a");
-                    item2.innerHTML = "Customize Track";
-                    item2.classsName = "parent";
-                    list2.appendChild(item2);
-                    item2.onclick = function(event) { callFillCustomTrackTab();};
-                }
+            var listClose = document.createElement("li");
+            popupmenu.appendChild(listClose);
 
-                var list3 = document.createElement("li");
-                popupmenu.appendChild(list3);
+            var itemClose = document.createElement("a");
+            itemClose.innerHTML = "Close Track";
+            itemClose.classsName = "parent";
+            listClose.appendChild(itemClose);
+            itemClose.onclick = function(event) { dijit.getEnclosingWidget(dojo.byId("label_"+featureTrack.name).firstChild).onClick();};
 
-                var item3 = document.createElement("a");
-                item3.innerHTML = "Close Track";
-                item3.classsName = "parent";
-                list3.appendChild(item3);
-                item3.onclick = function(event) { dijit.getEnclosingWidget(dojo.byId("label_"+featureTrack.name).firstChild).onClick();};
+            var listAdminsOptions = document.createElement("li");
+            popupmenu.appendChild(listAdminsOptions);
 
-                var list4 = document.createElement("li");
-                popupmenu.appendChild(list4);
-
-/*                var item4 = document.createElement("a");
-                item4.innerHTML = "Information";
-                item4.classsName = "parent";
-                list4.appendChild(item4);
-                item4.href = "http://www.google.com";
-                item4.target = "_blank";
-                //item4.onclick = function(event) { track.onClick();};
-*/
             event = event || window.event;
             var elem = (event.currentTarget || event.srcElement);
             //depending on bubbling, we might get the subfeature here
@@ -245,7 +192,7 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
             }
             xmlhttp.onreadystatechange=function() {
                 if (xmlhttp.readyState==4 && xmlhttp.status==200){
-                   list4.innerHTML = xmlhttp.responseText;
+                   listAdminsOptions.innerHTML = xmlhttp.responseText;
                 }
             }
             xmlhttp.open("GET", window.b.popUpUrl + 
@@ -258,40 +205,6 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
 
             xmlhttp.send();
 
-            /*var items = ["Change track height", "Change track color"];
-            var itemoptions = [["height","5px","8px","10px","15px"], ["background","blue","purple","red","green", "yellow"]];
-
-            for(var x = 0; x < items.length; x++ ) {
-                var list = document.createElement("li");
-                popupmenu.appendChild(list);
-
-                var item = document.createElement("a");
-                item.innerHTML = items[x];
-                item.classsName = "parent";
-                list.appendChild(item);
-
-                var optionList = document.createElement("ul");
-                list.appendChild(optionList);
-
-                var options = itemoptions[x];
-                var attribute = options[0];
-                for(var n = 1; n < options.length; n++) {
-                    var link = document.createElement("a");
-                    var attr = document.createElement("div");
-                    attr.style.cssText = "display: none";
-                    attr.innerHTML = attribute;
-                    var val = document.createElement("div");
-                    val.style.cssText = "display: none";
-                    val.innerHTML = options[n];
-                    link.onclick = function(event) {customTrack(this.children[0].innerHTML+": "+ this.children[1].innerHTML+";"); };
-                    link.innerHTML = options[n];
-                    link.appendChild(attr);
-                    link.appendChild(val);
-                    var node = document.createElement("li");
-                    optionList.appendChild(node);
-                    node.appendChild(link);
-                }
-            }*/
             dojo.stopEvent(event);
         };
         document.body.onclick = function(event) {
@@ -640,7 +553,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     } else {
         featDiv = document.createElement("div");
         featDiv.onclick = this.onFeatureClick;
-        featDiv.oncontextmenu = this.onFeatureRightClick;
+        if(right_click_popup_on) featDiv.oncontextmenu = this.onFeatureRightClick;
     }
     featDiv.feature = feature;
     featDiv.layoutEnd = featureEnd;
