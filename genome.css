@@ -568,18 +568,13 @@ div.transcript-hist {
 .plus-transcript,
 .minus-transcript {
     position: absolute;
-    /*height: 4px;
+    height: 4px;
     margin-top: 4px;
     margin-bottom: 4px;
-    background-color: #999;*/
+    background-color: #999;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
-
-    background-color: grey;
-    height: 2px;
-    margin-bottom: 5px;
-    margin-top: 5px;
 }
 
 .plus-transcript-arrowhead {
@@ -596,13 +591,6 @@ div.transcript-hist {
     height: 12px;
     background-image: url('img/plus-transcript-head.png');
     background-repeat: no-repeat;
-
-    height: 0px;
-    width: 0px;
-    margin-top: -7px;
-    border-style: solid;
-    border-color: transparent transparent transparent grey;
-    border-width: 8px 0px 8px 10px;
 }
 
 .minus-transcript-arrowhead {
@@ -638,10 +626,6 @@ div.transcript-hist {
     cursor: pointer;
     z-index: 10;
     min-width: 1px;
-
-    background: skyBlue;
-    border: 1px solid grey;
-    margin-top: -6px;
 }
 
 .plus-transcript-exon,
@@ -662,11 +646,6 @@ div.transcript-hist {
     z-index: 8;
     min-width: 1px;
     cursor: pointer;
-
-    background-color: grey;
-    border: 1px solid grey;
-    height: 12px;
-    margin-top: -6px;
 }
 
 .generic_parent,
