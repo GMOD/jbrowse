@@ -98,7 +98,7 @@ class ArrayRepr:
     def fastGet(self, obj, attr):
         """
         this method can be used if the attribute is guaranteed to be in
-        the classes array for the object
+        the attributes array for the object's class
         """
         return obj[self.fields[obj[0]][attr]]
 
@@ -116,7 +116,7 @@ class ArrayRepr:
     def fastSet(self, obj, attr, val):
         """
         this method can be used if the attribute is guaranteed to be in
-        the classes array for the object
+        the attributes array for the object's class
         """
         obj[self.fields[obj[0]][attr]] = val
     
@@ -129,7 +129,7 @@ class ArrayRepr:
     def makeFastSetter(self, attr):
         """
         this method can be used if the attribute is guaranteed to be in
-        the classes array for the object
+        the attributes array for the object's class
         """
         indices = self.attrIndices(attr)
         def setter(obj, val):
@@ -142,7 +142,7 @@ class ArrayRepr:
     def makeFastGetter(self, attr):
         """
         this method can be used if the attribute is guaranteed to be in
-        the classes array for the object
+        the attributes array for the object's class
         """
         indices = self.attrIndices(attr)
         def getter(obj):
