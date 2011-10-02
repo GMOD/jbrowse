@@ -2,6 +2,7 @@ package LazyNCList;
 
 use strict;
 use warnings;
+use List::Util qw(max);
 
 =head2 new
 
@@ -33,16 +34,19 @@ sub new {
     my ($class, $start, $end, $setSublist, $makeLazy,
         $measure, $output, $sizeThresh) = @_;
 
-    my $self = { 'start' => $start,
-                 'end' => $end,
-		 'setSublist' => $setSublist,
-                 'makeLazy' => $makeLazy,
-                 'measure' => $measure,
-                 'output' => $output,
-                 'sizeThresh' => $sizeThresh,
-                 'chunkNum' => 1,
-                 'chunkSizes' => [],
-                 'partialStack' => []};
+    my $self = { start => $start,
+                 end => $end,
+		 setSublist => $setSublist,
+                 makeLazy => $makeLazy,
+                 measure => $measure,
+                 output => $output,
+                 sizeThresh => $sizeThresh,
+                 count => 0,
+                 minStart => undef,
+                 maxEnd => undef,
+                 chunkNum => 1,
+                 chunkSizes => [],
+                 partialStack => []};
     bless $self, $class;
 
     $self->addNewLevel();
@@ -65,6 +69,7 @@ sub new {
 sub addSorted {
     my ($self, $feat) = @_;
 
+    $self->{count} += 1;
     my $lastAdded = $self->{lastAdded};
     my $start = $self->{start};
     my $end = $self->{end};
@@ -84,6 +89,10 @@ sub addSorted {
                         if (($start->($lastAdded) == $start($feat))
                                 &&
                                     ($end->($lastAdded) < $end->($feat)));
+    } else {
+        # LazyNCList requires sorted input, so the start of the first feat
+        # is the minStart
+        $self->{minStart} = $start->($feat);
     }
 
     $self->{lastAdded} = $feat;
@@ -139,6 +148,11 @@ sub finishChunk {
     $self->{chunkNum} += 1;
     $self->{output}->($newNcl->nestedList, $chunkId);
 
+    $self->{maxEnd} = $newNcl->maxEnd unless defined($self->{maxEnd});
+    $self->{maxEnd} = max($self->{maxEnd}, $newNcl->maxEnd);
+
+    $self->{maxEnd} = $newNcl->maxEnd unless defined($self->{maxEnd});
+    $self->{maxEnd} = max($self->{maxEnd}, $newNcl->maxEnd);
     # return the lazy ("fake") feature representing this chunk
     return $self->{makeLazy}->($newNcl->minStart, $newNcl->maxEnd, $chunkId);
 }
@@ -174,6 +188,18 @@ sub finish {
                              $self->{partialStack}->[$level]);
     #print STDERR "top level NCL has " . scalar(@{$self->{partialStack}->[$level]}) . " features\n";
     $self->{topLevelList} = $newNcl->nestedList;
+}
+
+sub count {
+    return shift->{count};
+}
+
+sub maxEnd {
+    return shift->{maxEnd};
+}
+
+sub minStart {
+    return shift->{minStart};
 }
 
 sub topLevelList {
