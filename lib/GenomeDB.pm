@@ -2,197 +2,131 @@ package GenomeDB;
 
 use strict;
 use warnings;
+use Path::Spec;
+
+use FeatureTrack;
+use JsonFileStorage;
+
+my $defaultTracklist = {
+                        formatVersion => 1,
+                        tracks => []
+                       };
 
 sub new {
     my ($class, $dataDir) = @_;
 
     my $self = {
-                dataDir => $dataDir
+                dataDir => $dataDir,
+                rootStore => JsonFileStorage->new($dataDir, 0, {pretty => 1}),
+                trackDirTempl => Path::Spec->join($self->{dataDir}, "tracks",
+                                                  "{tracklabel}", "{refseq}"),
+                trackUrlTempl => Path::Spec->join("tracks",
+                                                  "{tracklabel}", "{refseq}")
                };
     bless $self, $class;
 
     return $self;
 }
 
-sub startLoad {
-    my ($self, $trackLabel, $refName, $chunkBytes,
-        $compress, $classes) = @_;
-
-    return TrackLoad->new($self, $trackLabel, $refName,
-                          $chunkBytes, $compress, $classes);
-}
-
-sub finishLoad {
-    my ($self, $trackLoad) = @_;
-    my $trackData = {
-                     featureCount => $self->{count},
-                     intervals => $trackLoad->intervalStore->descriptor(),
-                     histograms => $self->writeHistograms($trackLoad),
-                     formatVersion => 1
-                    };
-}
-
-sub writeHistograms {
-    my ($self, $trackLoad) = @_;
-    #this series of numbers is used in JBrowse for zoom level relationships
-    my @multiples = (1, 2, 5, 10, 20, 50, 100, 200, 500,
-                     1000, 2000, 5000, 10_000, 20_000, 50_000,
-                     100_000, 200_000, 500_000, 1_000_000);
-    my $histChunkSize = 10_000;
-
-    my $attrs = ArrayRepr($trackLoad->classes);
-    my $getStart = $attrs->makeFastGetter("Start");
-    my $getEnd = $attrs->makeFastGetter("End");
-
-    my $jsonStore = $trackLoad->jsonStore;
-    my $ivalStore = $trackLoad->intervalStore;
-    my $refEnd = $ivalStore->maxEnd;
-    my $featureCount = $ivalStore->count;
-
-    # $histBinThresh is the approximate the number of bases per
-    # histogram bin at the zoom level where FeatureTrack.js switches
-    # to the histogram view by default
-    my $histBinThresh = ($refEnd * 2.5) / $featureCount;
-
-    my $histBinBases = $multiples[0];
-    foreach my $multiple (@multiples) {
-        $histBinBases = $multiple;
-        last if $multiple > $histBinThresh;
-    }
-
-    # initialize histogram arrays to all zeroes
-    my @histograms;
-    for (my $i = 0; $i <= $#multiples; $i++) {
-        my $binBases = $histBinBases * $multiples[$i];
-        $histograms[$i] = [(0) x ceil($refEnd / $binBases)];
-        # somewhat arbitrarily cut off the histograms at 100 bins
-        last if $binBases * 100 > $refEnd;
-    }
-
-    sub processFeat {
-        my ($feature) = @_;
-        my $curHist;
-        my $start = max(0, min($getStart->($feature), $refEnd));
-        my $end = min($getEnd->($feature->[$endIndex]), $refEnd);
-        return if ($end < 0);
-
-        for (my $i = 0; $i <= $#multiples; $i++) {
-            my $binBases = $histBinBases * $multiples[$i];
-            $curHist = $histograms[$i];
-            last unless defined($curHist);
-
-            my $firstBin = int($start / $binBases);
-            my $lastBin = int($end / $binBases);
-            for (my $bin = $firstBin; $bin <= $lastBin; $bin++) {
-                $curHist->[$bin] += 1;
-            }
-        }
-    }
-
-    $ivalStore->overlapCallback($ivalStore->minStart, $ivalStore->maxEnd,
-                                $processFeat);
-
-    # find multiple of base hist bin size that's just over $histBinThresh
-    my $i;
-    for ($i = 1; $i <= $#multiples; $i++) {
-        last if ($self->{histBinBases} * $multiples[$i]) > $histBinThresh;
-    }
-
-    my @histogramMeta;
-    for (my $j = $i - 1; $j <= $#multiples; $j += 1) {
-        my $curHist = $self->{hists}->[$j];
-        last unless defined($curHist);
-        my $histBases = $self->{histBinBases} * $multiples[$j];
-
-        my $chunks = chunkArray($curHist, $histChunkSize);
-        for (my $i = 0; $i <= $#{$chunks}; $i++) {
-            $jsonStore->put($self->{outDir}
-                            . "/hist-$histBases-$i."
-                            . $jsonStore->ext,
-                            $chunks->[$i]);
-        }
-        push @histogramMeta,
-            {
-                basesPerBin => $histBases,
-                arrayParams => {
-                    length => $#{$curHist} + 1,
-                    urlTemplate => "hist-$histBases-{Chunk}." . $jsonStore->ext,
-                    chunkSize => $histChunkSize
-                }
-            };
-    }
-
-    my @histStats;
-    for (my $j = $i - 1; $j <= $#multiples; $j++) {
-        last unless defined($self->{hists}->[$j]);
-        my $binBases = $self->{histBinBases} * $multiples[$j];
-        push @histStats, {'bases' => $binBases,
-                          arrayStats($self->{hists}->[$j])};
-    }
-
-    return { meta => histogramMeta,
-             stats => histStats };
-}
-
-
-
-package TrackLoad;
-
-sub new {
-    my ($class, $db, $trackLabel, $refName, $chunkBytes,
-        $compress, $classes) = @_;
-
-    my $outDir = Path::Spec->join($self->{dataDir}, "tracks",
-                                  $trackLabel, $refName);
-    # the client code interprets the lazy URL template
-    # as being relative to the directory containing
-    # the "trackData.json" file
-    my $lazyTemplate => "lf-{Chunk}." . $store->ext,
-    my $jsonStore = JsonFileStorage($outDir, $compress);
-    my $intervalStore =
-      IntervalStore->new({store => $jsonStore,
-                          classes => $classes,
-                          urlTemplate => $lazyTemplate});
-
-    my $measure = sub { return $jsonStore->encodedSize($_[0]) + 1; };
-    $intervalStore->startLoad($measure, $chunkBytes);
-
-    my $self => {
-                 db => $db,
-                 outDir => $outDir,
-                 jsonStore => $jsonStore,
-                 classes => $classes,
-                 intervalStore => $intervalStore,
-                 urlTemplate =>
-                     "tracks/$trackLabel/{refseq}/trackData." . $store->ext,
-                 lazyTemplate => $lazyTemplate
-                };
-
-    bless $self, $class;
-    return $self;
-}
-
-sub addSorted {
-    my ($self, $feat) = @_;
-    $self->{intervalStore}->addSorted($feat);
-}
-
-sub intervalStore {
-    return shift->{intervalStore};
-}
-
-sub jsonStore {
-    return shift->{jsonStore};
-}
-
-sub classes {
-    return shift->{classes};
-}
-
-sub finish {
+sub trackListPath {
     my ($self) = @_;
-    $self->{intervalStore}->finishLoad();
-    $self->{db}->finishLoad($self);
+    return File::Spec->join($self->{dataDir}, "trackList.json");
 }
+
+sub writeTrackEntry {
+    my ($self, $track) = @_;
+
+    my $setTrackEntry = sub {
+        my ($trackData) = @_;
+        unless defined($trackData) {
+            $trackData = $defaultTracklist;
+        }
+        # we want to add this track entry to the "tracks" list,
+        # replacing any existing entry with the same label,
+        # and preserving the original ordering
+        my $trackIndex;
+        my $trackList = trackData->{tracks};
+        foreach my $index (0..$#{$trackList}) {
+            $trackIndex = $index
+              if ($trackList->[$index]->{label} eq $track->label);
+        }
+        $trackIndex = len(trackList) unless defined($trackIndex);
+
+        $trackList->[$trackIndex] = {
+                                     label => $track->label,
+                                     key => $track->key,
+                                     type => $track->type,
+                                     config => $track->config
+                                    };
+        return trackData;
+    };
+
+    $self->{rootStore}->modify($self->trackListPath, $setTrackEntry);
+}
+
+sub createFeatureTrack {
+    my ($self, $trackLabel, $config, $key) = @_;
+    (my $urlTempl = $self->{trackUrlTempl}) =~ s/\{tracklabel\}/$trackLabel/g;
+    $config->{urlTemplate} = $urlTempl;
+    return FeatureTrack->new($self->trackDir($trackLabel),
+                             $trackLabel, $config, $key);
+}
+
+sub getTrack {
+    my ($self, $trackLabel) = @_;
+
+    my $trackList = $self->{rootStore}->get($self->trackListPath,
+                                            $defaultTracklist);
+    my @selected = grep { $_->{label} eq $trackLabel } @{$trackData->{tracks}};
+
+    return undef
+      if ($#selected < 0);
+    # this should never happen
+    die "multiple tracks labeled $trackLabel"
+      if $#selected > 0;
+    my $trackDesc = $selected[0];
+    if ($trackDesc->{type} eq "FeatureTrack") {
+        return FeatureTrack->new($self->trackDir($trackLabel),
+                                 $trackDesc->{label},
+                                 $trackDesc->{config},
+                                 $trackDesc->{key});
+    }
+    die "track type \"" . $trackDesc->{type} . "\" not implemented";
+}
+
+sub trackDir {
+    my ($self, $trackLabel) = @_;
+    (my $result = $self->{trackDirTempl}) =~ s/\{tracklabel\}/$trackLabel/g;
+    return $result;
+}
+
+# sub startLoad {
+#     my ($self, $track, $refName, $chunkBytes,
+#         $compress, $classes) = @_;
+
+#                  urlTemplate =>
+#                      "tracks/$trackLabel/{refseq}/trackData." . $store->ext,
+#     my $outDir = Path::Spec->join($self->{dataDir}, "tracks",
+#                                   $trackLabel, $refName);
+#     return TrackLoad->new($self, $outDir, $chunkBytes, $compress, $classes);
+# }
+
+#sub finishLoad {
+#    my ($self, $trackLoad) = @_;
+#}
+
 
 1;
+
+=head1 AUTHOR
+
+Mitchell Skinner E<lt>jbrowse@arctur.usE<gt>
+
+Copyright (c) 2007-2011 The Evolutionary Software Foundation
+
+This package and its accompanying libraries are free software; you can
+redistribute it and/or modify it under the terms of the LGPL (either
+version 2.1, or at your option, any later version) or the Artistic
+License 2.0.  Refer to LICENSE for the full license text.
+
+=cut

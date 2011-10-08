@@ -11,7 +11,7 @@ IntervalStore - manages a set of intervals (genomic features)
 =head1 SYNOPSIS
 
 my $js = JsonStore->new($pathTempl, $compress);
-my $is = IntervalStore->new({store => $js, classes => {attributes => ["Start", "End", "Strand"]}, chunkUrl => "tracks/foo/chr4/lf-{Chunk}.jsonz");
+my $is = IntervalStore->new({store => $js, classes => {attributes => ["Start", "End", "Strand"]}, urlTemplate => "lf-{Chunk}.jsonz");
 my $chunkBytes = 80_000;
 $is->startLoad($chunkBytes);
 $is->addSorted([10, 100, -1])
@@ -31,7 +31,6 @@ $is->overlap(60, 85)
  Usage   : IntervalStore->new(
                store => $js,
                classes => {attributes => ["Start", "End", "Strand"]},
-               chunkUrl => "tracks/foo/chr4/lf-{Chunk}.jsonz"
            )
  Function: create an IntervalStore
  Returns : an IntervalStore object
@@ -40,8 +39,9 @@ $is->overlap(60, 85)
                   feature data
            classes: describes the feature arrays; will be used to construct
                     an ArrayRepr
-           chunkUrl (optional): template for URls where chunks of feature data
-                                will be stored
+           urlTemplate (optional): template for URLs where chunks of feature
+                                   data will be stored.  This is relative to
+                                   the directory with the "trackData.json" file
            lazyClass (optional): index in classes->{attributes} array for
                                  the class indicating a lazy feature
            nclist (optional): the root of the nclist
@@ -62,12 +62,14 @@ sub new {
                 store => $args->{store},
                 classes => $args->{classes},
                 lazyClass => $args->{lazyClass},
-                urlTemplate => $args->{urlTemplate},
+                urlTemplate => $args->{urlTemplate} || ("lf-{Chunk}" 
+                                                        . $args->{store}->ext),
                 attrs => ArrayRepr($args->{classes}),
                 nclist => $args->{nclist},
                 count => $args->{count},
                 minStart => $args->{minStart},
-                maxEnd => $args->{maxEnd}
+                maxEnd => $args->{maxEnd},
+                loadedChunks => {}
                };
 
     bless $self, $class;
@@ -118,13 +120,35 @@ sub addSorted {
 sub finishLoad {
     my ($self) = @_;
     $self->{lazyNCList}->finish();
-    $self->{nclist} = $self->{lazyNCList}->topLevelList();
-    $self->{count} = $self->{lazyNCList}->count;
+    $self->{nclist} = $self->lazyNCList->topLevelList();
+    $self->{count} = $self->lazyNCList->count;
 }
 
-sub lazyNCList {
-    return shift->{lazyNCList};
+sub overlapCallback {
+    my ($self, $start, $end, $cb) = @_;
+    my $loadChunk = sub {
+        my ($chunkId) = @_;
+        my $chunk = $self->{loadedChunks}->{$chunkId};
+        if (defined($chunk)) {
+            return $chunk;
+        } else {
+            (my $path = $self->{urlTemplate}) =~ s/\{Chunk\}/$chunkId/g;
+            $chunk = $self->{store}->get($path);
+            # TODO limit the number of chunks that we keep in memory
+            $self->{loadedChunks}->{$chunkId} = $chunk;
+            return $chunk;
+        }
+    };
+    $self->lazyNCList->overlapCallback($start, $end, $loadChunk, $cb);
 }
+
+sub lazyNCList { return shift->{lazyNCList}; }
+
+sub count { return shift->{count}; }
+
+sub store { return shift->{store}; }
+
+sub classes { return shift->{classes}; }
 
 =head2 descriptor
 
@@ -143,8 +167,23 @@ sub descriptor {
             lazyClass => $self->{lazyClass},
             nclist => $self->{nclist},
             urlTemplate => $self->{urlTemplate},
-            count => $self->{count}
+            count => $self->{count},
+            minStart => $self->{minStart},
+            maxEnd => $self->{maxEnd}
            };
 }
 
 1;
+
+=head1 AUTHOR
+
+Mitchell Skinner E<lt>jbrowse@arctur.usE<gt>
+
+Copyright (c) 2007-2011 The Evolutionary Software Foundation
+
+This package and its accompanying libraries are free software; you can
+redistribute it and/or modify it under the terms of the LGPL (either
+version 2.1, or at your option, any later version) or the Artistic
+License 2.0.  Refer to LICENSE for the full license text.
+
+=cut

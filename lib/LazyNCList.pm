@@ -2,22 +2,17 @@ package LazyNCList;
 
 use strict;
 use warnings;
+use Carp;
 use List::Util qw(max);
 
 =head2 new
 
  Title   : new
- Usage   : LazyNCList->new($start, $end, $setSublist, $makeLazy,
+ Usage   : LazyNCList->new($attrs, $makeLazy,
                            $measure, $output, $sizeThresh
  Function: create an LazyNCList
  Returns : an LazyNCList object
- Args    : $start is a reference to a sub that, given an arrayref representing
-              an interval, returns the start position of the interval
-           $end is a reference to a sub that, given an arrayref representing
-              an interval, returns the end position of the interval
-           $setSublist is a reference to a sub that, given an arrayref
-              representing an interval, and a sublist reference, sets the
-              "Sublist" attribute on the array to the sublist.
+ Args    : $attrs is a reference to an ArrayRepr instance
            $makeLazy is a reference to a sub taking the arguments
               (start, end, ID), which returns a "lazy feature" with the
               given attributes
@@ -31,12 +26,12 @@ use List::Util qw(max);
 =cut
 
 sub new {
-    my ($class, $start, $end, $setSublist, $makeLazy,
+    my ($class, $attrs, $makeLazy,
         $measure, $output, $sizeThresh) = @_;
 
-    my $self = { start => $start,
-                 end => $end,
-		 setSublist => $setSublist,
+    my $self = { start => $attrs->makeFastGetter("Start"),
+                 end => $attrs->makeFastGetter("End"),
+                 setSublist => $attrs->makeSetter("Sublist"),
                  makeLazy => $makeLazy,
                  measure => $measure,
                  output => $output,
@@ -101,6 +96,9 @@ sub addSorted {
 
     for (my $level = 0; $level <= $#{$self->{partialStack}}; $level++) {
         my $featSize = $self->{measure}->($feat);
+        # due to NCList nesting, among other things, it's hard to be exactly
+        # precise about the size of the JSON serialization, but this will get
+        # us pretty close.
         $chunkSizes->[$level] += $featSize;
         #print STDERR "chunksize at $level is now " . $chunkSizes->[$level] . "; (next chunk is " . $self->{chunkNum} . ")\n";
 
@@ -190,27 +188,89 @@ sub finish {
     $self->{topLevelList} = $newNcl->nestedList;
 }
 
-sub count {
-    return shift->{count};
+sub binarySearch {
+    my ($arr, $item, $getter) = @_;
+
+    my $low = -1;
+    my $high = $#{$arr} + 1;
+    my $mid;
+
+    while ($high - $low > 1) {
+        $mid = int(($low + $high) / 2);
+        if ($getter->($arr->[$mid]) > $item) {
+            $high = $mid;
+        } else {
+            $low = $mid;
+        }
+    }
+
+    # if we're iterating rightward, return the high index;
+    # if leftward, the low index
+    if ($getter == $self->{end}) return $high; else return $low;
+};
+
+sub iterHelper {
+    my ($self, $arr, $from, $to, $fun, $loadChunk,
+        $inc, $searchGet, $testGet, $path) {
+    my $len = $#{$arr} + 1;
+    my $i = binarySearch($arr, $from, $searchGet);
+    my $getChunk = $self->{attrs}->makeGetter("Chunk");
+    my $getSublist = $self->{attrs}->makeGetter("Sublist");
+
+    while (($i < $len)
+           && ($i >= 0)
+           && (($inc * $testGet->($arr->[$i])) < ($inc * $to)) ) {
+
+        if ($arr[$i][0] == $self->{lazyClass}) {
+            my $chunkNum = $getChunk->($arr[$i]);
+            my $chunk = $loadChunk->($chunkNum);
+            $self->iterHelper($chunk, $from, $to, $fun, $loadChunk,
+                              $inc, $searchGet, $testGet, [$chunkNum]);
+        } else {
+            $fun->($arr[$i], [@$path, $i]);
+        }
+
+        my $sublist = $getSublist->($arr->[$i]);
+        if (defined($sublist)) {
+            $self->iterHelper($sublist, $from, $to, $fun, $loadChunk,
+                              $inc, $searchGet, $testGet, [@$path, $i]);
+        }
+        $i += $inc;
+    }
 }
 
-sub maxEnd {
-    return shift->{maxEnd};
+sub overlapCallback {
+    my ($self, $from, $to, $loadChunk, $fun) = @_;
+    # calls the given function once for each of the
+    # intervals that overlap the given interval
+    # if from <= to, iterates left-to-right, otherwise iterates right-to-left
+
+    croak "LazyNCList not loaded" unless defined($self->{topLevelList});
+
+    # inc: iterate leftward or rightward
+    my $inc = ($from > to) ? -1 : 1;
+    # searchGet: search on start or end
+    my $searchGet = ($from > $to) ? $self->{start} : $self->{end};
+    # testGet: test on start or end
+    my $testGet = ($from > $to) ? $self->{end} : $self->{start};
+    # treats the root chunk as number 0
+    $self->iterHelper($self->{topLevelList}, $from, $to, $fun, $loadChunk,
+                      $inc, $searchGet, $testGet, [0]);
 }
 
-sub minStart {
-    return shift->{minStart};
-}
+sub count { return shift->{count}; }
 
-sub topLevelList {
-    return shift->{topLevelList};
-}
+sub maxEnd { return shift->{maxEnd}; }
+
+sub minStart { return shift->{minStart}; }
+
+sub topLevelList { return shift->{topLevelList}; }
 
 1;
 
 =head1 AUTHOR
 
-Mitchell Skinner E<lt>mitch_skinner@berkeley.eduE<gt>
+Mitchell Skinner E<lt>jbrowse@arctur.usE<gt>
 
 Copyright (c) 2007-2011 The Evolutionary Software Foundation
 

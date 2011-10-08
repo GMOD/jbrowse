@@ -29,8 +29,7 @@ sub new {
                };
     bless $self, $class;
 
-    remove_tree $outDir if (-d $outDir);
-    make_path $outDir;
+    make_path $outDir unless (-d $outDir);
 
     return $self;
 }
