@@ -6,12 +6,11 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
-#use IO::Uncompress::Gunzip qw($GunzipError);
 use PerlIO::gzip;
 use Getopt::Long;
 use List::Util qw(min max);
 use JSON 2;
-use JsonGenerator;
+use GenomeDB;
 use NameHandler;
 use ExternalSorter;
 
@@ -66,17 +65,17 @@ my $trackDir = "$outdir/$trackRel";
 mkdir($outdir) unless (-d $outdir);
 mkdir($trackDir) unless (-d $trackDir);
 
-my %refSeqs =
-    map {
-        $_->{name} => $_
-    } @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
+# my %refSeqs =
+#     map {
+#         $_->{name} => $_
+#     } @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
 
 # the jbrowse NCList code requires that "start" and "end" be
 # the first and second fields in the array; @defaultHeaders and %typeMaps
 # are used to take the fields from the database and put them
 # into the order specified by @defaultHeaders
 
-my @defaultHeaders = ("start", "end", "strand", "name", "score", "itemRgb");
+my @defaultHeaders = ("Start", "End", "Strand", "Name", "Score", "itemRgb");
 my %typeMaps =
     (
         "genePred" =>
@@ -85,7 +84,7 @@ my %typeMaps =
             ["chromStart", "chromEnd", "strand", "name", "score", "itemRgb"]
         );
 
-my @subfeatHeaders = ("start", "end", "strand", "type");
+my @subfeatHeaders = ("Start", "End", "Strand", "Type");
 
 my %skipFields = ("bin" => 1,
                   "chrom" => 1,
@@ -184,7 +183,14 @@ ENDJS
     $sorter->finish();
 
     my $curChrom;
-    my $jsonGen;
+    my $gdb = GenomeDB->new($outdir);
+    my $track = $gdb->getTrack($tableName);
+    unless (defined($track)) {
+        $track = $gdb->createFeatureTrack($tableName,
+                                          {compress => $compress},
+                                          $track->{shortLabel});
+    }
+    my $istore;
     my $nameHandler;
     while (1) {
         my $row = $sorter->get();
@@ -197,37 +203,39 @@ ENDJS
         if ((!defined($row))
                 || (!defined($curChrom))
                     || ($curChrom ne $row->[$chromCol])) {
-            if ($jsonGen && $jsonGen->hasFeatures && $refSeqs{$curChrom}) {
+            if ($istore && $istore->hasIntervals) {
                 print STDERR "working on $curChrom\n";
                 $nameHandler->finish();
-                $jsonGen->generateTrack();
+                $track->finishLoad($istore);
             }
 
             if (defined($row)) {
                 $curChrom = $row->[$chromCol];
-                next unless defined($refSeqs{$curChrom});
-                mkdir("$trackDir/" . $curChrom)
-                    unless (-d "$trackDir/" . $curChrom);
-                my $trackDirForChrom = 
-                    sub { "$trackDir/" . $_[0] . "/" . $tableName; };
+                # next unless defined($refSeqs{$curChrom});
+                # mkdir("$trackDir/" . $curChrom)
+                #     unless (-d "$trackDir/" . $curChrom);
+                # my $trackDirForChrom = 
+                #     sub { "$trackDir/" . $tableName . "/" . $_[0]; };
                 $nameHandler = NameHandler->new($trackDirForChrom);
-                $jsonGen = JsonGenerator->new("$trackDir/$curChrom/"
-                                              . $tableName,
-                                              $nclChunk,
-                                              $compress, $tableName,
-                                              $curChrom,
-                                              $refSeqs{$curChrom}->{start},
-                                              $refSeqs{$curChrom}->{end},
-                                              \%style, $headers,
-                                              \@subfeatHeaders,
-                                              $chromCounts{$curChrom});
+                $istore = $track->startLoad($curChrom, $nclChunk,
+                                            [$headers, \@subfeatHeaders]);
+                # $jsonGen = JsonGenerator->new("$trackDir/$curChrom/"
+                #                               . $tableName,
+                #                               $nclChunk,
+                #                               $compress, $tableName,
+                #                               $curChrom,
+                #                               $refSeqs{$curChrom}->{start},
+                #                               $refSeqs{$curChrom}->{end},
+                #                               \%style, $headers,
+                #                               \@subfeatHeaders,
+                #                               $chromCounts{$curChrom});
             } else {
                 last;
             }
         }
-        next unless defined($refSeqs{$curChrom});
+        # next unless defined($refSeqs{$curChrom});
         my $jsonRow = $converter->($row, \%fields, $type);
-        $jsonGen->addFeature($jsonRow);
+        $istore->addSorted($jsonRow);
         if (defined $nameCol) {
             $nameHandler->addName([ [$row->[$nameCol]],
                                     $tableName,
@@ -239,16 +247,17 @@ ENDJS
         }
     }
 
-    my $ext = ($compress ? "jsonz" : "json");
-    JsonGenerator::writeTrackEntry("$outdir/trackInfo.js",
-                                   {
-                                       'label' => $tableName,
-                                       'key' => $style{"key"},
-                                       'url' => "$trackRel/{refseq}/"
-                                           . $tableName
-                                           . "/trackData.$ext",
-                                           'type' => "FeatureTrack",
-                                   });
+    # my $ext = ($compress ? "jsonz" : "json");
+    $gdb->writeTrackEntry($track);
+        # "$outdir/trackInfo.js",
+        #                            {
+        #                                'label' => $tableName,
+        #                                'key' => $style{"key"},
+        #                                'url' => "$trackRel/{refseq}/"
+        #                                    . $tableName
+        #                                    . "/trackData.$ext",
+        #                                    'type' => "FeatureTrack",
+        #                            });
 }
 
 sub calcSizes {
@@ -314,19 +323,21 @@ sub makeConverter {
     }
 
     my $destIndices = indexHash(@headers);
-    my $strandIndex = $destIndices->{strand};
+    my $strandIndex = $destIndices->{Strand} + 1;
+    my $startIndex = $destIndices->{Start} + 1;
+    my $endIndex = $destIndices->{End} + 1;
 
     my $extraProcessing;
     my $subfeatures;
     if (exists($fields{thickStart})) {
-        push @headers, "subfeatures";
-        my $subIndex = $#headers;
+        push @headers, "Subfeatures";
+        my $subIndex = $#headers + 1;
         $subfeatures = 1;
         $extraProcessing = sub {
             my ($dest, $src) = @_;
             $dest->[$subIndex] =
                 makeSubfeatures(maybeIndex($dest, $strandIndex),
-                                $dest->[0], $dest->[1],
+                                $dest->[$startIndex], $dest->[$endIndex],
                                 maybeIndex($src, $fields{blockCount}),
                                 splitNums($src, $fields{chromStarts}),
                                 splitNums($src, $fields{blockSizes}),
@@ -335,16 +346,16 @@ sub makeConverter {
                                 "thin", "thick");
         }
     } elsif (exists($fields{cdsStart})) {
-        push @headers, "subfeatures";
-        my $subIndex = $#headers;
+        push @headers, "Subfeatures";
+        my $subIndex = $#headers + 1;
         $subfeatures = 1;
         $extraProcessing = sub {
             my ($dest, $src) = @_;
             $dest->[$subIndex] =
                 makeSubfeatures(maybeIndex($dest, $strandIndex),
-                                $dest->[0], $dest->[1],
+                                $dest->[$startIndex], $dest->[$endIndex],
                                 maybeIndex($src, $fields{exonCount}),
-                                abs2rel($dest->[0], splitNums($src, $fields{exonStarts})),
+                                abs2rel($dest->[$startIndex], splitNums($src, $fields{exonStarts})),
                                 calcSizes(splitNums($src, $fields{exonStarts}),
                                           splitNums($src, $fields{exonEnds})),
                                 maybeIndex($src, $fields{cdsStart}),
@@ -358,11 +369,13 @@ sub makeConverter {
 
     my $converter = sub {
         my ($row) = @_;
-        # copy fields that we're keeping into the array that we're keeping
-        my $result = [@{$row}[@indexMap]];
+        # Copy fields that we're keeping into the array that we're keeping.
+        # The 0 is because the top-level features use the 0th class in the
+        # "classes" array.
+        my $result = [(0, @{$row}[@indexMap])];
         # make sure start/end are numeric
-        $result->[0] = int($result->[0]);
-        $result->[1] = int($result->[1]);
+        $result->[$startIndex] = int($result->[$startIndex]);
+        $result->[$endIndex] = int($result->[$endIndex]);
         if (defined $strandIndex) {
             $result->[$strandIndex] =
                 defined($result->[$strandIndex]) ?
@@ -402,7 +415,10 @@ sub makeSubfeatures {
                 #add a thin subfeature if this block extends
                 # left of the thick zone
                 if ($abs_block_start < $thick_start) {
-                    push @subfeatures, [$abs_block_start,
+                    # the 1 is because the subfeatures will use the 1st
+                    # index in the "classes" array
+                    push @subfeatures, [1,
+                                        $abs_block_start,
                                         min($thick_start, $abs_block_end),
                                         $parent_strand,
                                         $thin_type];
@@ -411,7 +427,10 @@ sub makeSubfeatures {
                 #add a thick subfeature if this block overlaps the thick zone
                 if (($abs_block_start < $thick_end)
                         && ($abs_block_end > $thick_start)) {
-                    push @subfeatures, [max($thick_start, $abs_block_start),
+                    # the 1 is because the subfeatures will use the 1st
+                    # index in the "classes" array
+                    push @subfeatures, [1,
+                                        max($thick_start, $abs_block_start),
                                         min($thick_end, $abs_block_end),
                                         $parent_strand,
                                         $thick_type];
@@ -420,7 +439,10 @@ sub makeSubfeatures {
                 #add a thin subfeature if this block extends
                 #right of the thick zone
                 if ($abs_block_end > $thick_end) {
-                    push @subfeatures, [max($abs_block_start, $thick_end),
+                    # the 1 is because the subfeatures will use the 1st
+                    # index in the "classes" array
+                    push @subfeatures, [1,
+                                        max($abs_block_start, $thick_end),
                                         $abs_block_end,
                                         $parent_strand,
                                         $thin_type];
@@ -428,7 +450,10 @@ sub makeSubfeatures {
             }
         }
     } else {
-        push @subfeatures, [$thick_start,
+        # the 1 is because the subfeatures will use the 1st
+        # index in the "classes" array
+        push @subfeatures, [1,
+                            $thick_start,
                             $thick_end,
                             $parent_strand,
                             $thick_type];

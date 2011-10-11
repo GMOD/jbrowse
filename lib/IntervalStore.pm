@@ -66,21 +66,44 @@ sub new {
                                                         . $args->{store}->ext),
                 attrs => ArrayRepr($args->{classes}),
                 nclist => $args->{nclist},
-                count => $args->{count},
                 minStart => $args->{minStart},
                 maxEnd => $args->{maxEnd},
                 loadedChunks => {}
                };
+
+    if (defined($args->{nclist})) {
+        # we're already loaded
+        $self->{lazyNCList} = 
+          LazyNCList->importExisting($self->{attrs},
+                                     $self->{count},
+                                     $self->{minStart},
+                                     $self->{maxEnd},
+                                     sub { $self->loadChunk($self, @_); },
+                                     $self->{nclist} );
 
     bless $self, $class;
 
     return $self;
 }
 
+sub _loadChunk {
+    my ($self, $chunkId) = @_;
+    my $chunk = $self->{loadedChunks}->{$chunkId};
+    if (defined($chunk)) {
+        return $chunk;
+    } else {
+        (my $path = $self->{urlTemplate}) =~ s/\{Chunk\}/$chunkId/g;
+        $chunk = $self->{store}->get($path);
+        # TODO limit the number of chunks that we keep in memory
+        $self->{loadedChunks}->{$chunkId} = $chunk;
+        return $chunk;
+    }
+}
+
 sub startLoad {
     my ($self, $measure, $chunkBytes) = @_;
 
-    if (defined($self->{lazyClass})) {
+    if (defined($self->{nclist})) {
         confess "loading into an already-loaded IntervalStore";
     } else {
         # add a new class for "fake" features
@@ -106,6 +129,7 @@ sub startLoad {
                           $end,
                           $self->{attrs}->makeSetter("Sublist"),
                           $makeLazy,
+                          sub { $self->loadChunk($self, @_); },
                           $measure,
                           $output,
                           $chunkBytes);
@@ -121,30 +145,18 @@ sub finishLoad {
     my ($self) = @_;
     $self->{lazyNCList}->finish();
     $self->{nclist} = $self->lazyNCList->topLevelList();
-    $self->{count} = $self->lazyNCList->count;
 }
 
 sub overlapCallback {
     my ($self, $start, $end, $cb) = @_;
-    my $loadChunk = sub {
-        my ($chunkId) = @_;
-        my $chunk = $self->{loadedChunks}->{$chunkId};
-        if (defined($chunk)) {
-            return $chunk;
-        } else {
-            (my $path = $self->{urlTemplate}) =~ s/\{Chunk\}/$chunkId/g;
-            $chunk = $self->{store}->get($path);
-            # TODO limit the number of chunks that we keep in memory
-            $self->{loadedChunks}->{$chunkId} = $chunk;
-            return $chunk;
-        }
-    };
-    $self->lazyNCList->overlapCallback($start, $end, $loadChunk, $cb);
+    $self->lazyNCList->overlapCallback($start, $end, $cb);
 }
 
 sub lazyNCList { return shift->{lazyNCList}; }
 
-sub count { return shift->{count}; }
+sub count { return shift->{lazyNCList}->count; }
+
+sub hasIntervals { return shift->count > 0; }
 
 sub store { return shift->{store}; }
 

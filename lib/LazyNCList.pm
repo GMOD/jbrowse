@@ -26,13 +26,14 @@ use List::Util qw(max);
 =cut
 
 sub new {
-    my ($class, $attrs, $makeLazy,
+    my ($class, $attrs, $makeLazy, $loadChunk,
         $measure, $output, $sizeThresh) = @_;
 
     my $self = { start => $attrs->makeFastGetter("Start"),
                  end => $attrs->makeFastGetter("End"),
                  setSublist => $attrs->makeSetter("Sublist"),
                  makeLazy => $makeLazy,
+                 loadChunk => $loadChunk,
                  measure => $measure,
                  output => $output,
                  sizeThresh => $sizeThresh,
@@ -41,7 +42,25 @@ sub new {
                  maxEnd => undef,
                  chunkNum => 1,
                  chunkSizes => [],
-                 partialStack => []};
+                 partialStack => [] };
+    bless $self, $class;
+
+    $self->addNewLevel();
+
+    return $self;
+}
+
+sub importExisting {
+    my ($class, $attrs, $count, $minStart,
+        $maxEnd, $loadChunk, $toplevelList) = @_;
+
+    my $self = { start => $attrs->makeFastGetter("Start"),
+                 end => $attrs->makeFastGetter("End"),
+                 count => $count,
+                 minStart => $minStart,
+                 maxEnd => $maxEnd,
+                 loadChunk => $loadChunk,
+                 topLevelList => $topLevelList };
     bless $self, $class;
 
     $self->addNewLevel();
@@ -210,8 +229,8 @@ sub binarySearch {
 };
 
 sub iterHelper {
-    my ($self, $arr, $from, $to, $fun, $loadChunk,
-        $inc, $searchGet, $testGet, $path) {
+    my ($self, $arr, $from, $to, $fun, $inc,
+        $searchGet, $testGet, $path) {
     my $len = $#{$arr} + 1;
     my $i = binarySearch($arr, $from, $searchGet);
     my $getChunk = $self->{attrs}->makeGetter("Chunk");
@@ -223,24 +242,24 @@ sub iterHelper {
 
         if ($arr[$i][0] == $self->{lazyClass}) {
             my $chunkNum = $getChunk->($arr[$i]);
-            my $chunk = $loadChunk->($chunkNum);
-            $self->iterHelper($chunk, $from, $to, $fun, $loadChunk,
-                              $inc, $searchGet, $testGet, [$chunkNum]);
+            my $chunk = $self->{loadChunk}->($chunkNum);
+            $self->iterHelper($chunk, $from, $to, $fun, $inc,
+                              $searchGet, $testGet, [$chunkNum]);
         } else {
             $fun->($arr[$i], [@$path, $i]);
         }
 
         my $sublist = $getSublist->($arr->[$i]);
         if (defined($sublist)) {
-            $self->iterHelper($sublist, $from, $to, $fun, $loadChunk,
-                              $inc, $searchGet, $testGet, [@$path, $i]);
+            $self->iterHelper($sublist, $from, $to, $fun, $inc,
+                              $searchGet, $testGet, [@$path, $i]);
         }
         $i += $inc;
     }
 }
 
 sub overlapCallback {
-    my ($self, $from, $to, $loadChunk, $fun) = @_;
+    my ($self, $from, $to, $fun) = @_;
     # calls the given function once for each of the
     # intervals that overlap the given interval
     # if from <= to, iterates left-to-right, otherwise iterates right-to-left
@@ -254,7 +273,7 @@ sub overlapCallback {
     # testGet: test on start or end
     my $testGet = ($from > $to) ? $self->{end} : $self->{start};
     # treats the root chunk as number 0
-    $self->iterHelper($self->{topLevelList}, $from, $to, $fun, $loadChunk,
+    $self->iterHelper($self->{topLevelList}, $from, $to, $fun,
                       $inc, $searchGet, $testGet, [0]);
 }
 
