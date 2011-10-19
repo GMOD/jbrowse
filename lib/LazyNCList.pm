@@ -52,7 +52,7 @@ sub new {
 
 sub importExisting {
     my ($class, $attrs, $count, $minStart,
-        $maxEnd, $loadChunk, $toplevelList) = @_;
+        $maxEnd, $loadChunk, $topLevelList) = @_;
 
     my $self = { start => $attrs->makeFastGetter("Start"),
                  end => $attrs->makeFastGetter("End"),
@@ -100,7 +100,7 @@ sub addSorted {
             . $start->($lastAdded) . " .. " . $end->($lastAdded)
                 . " before "
                     . $start->($feat) . " .. " . $end->($feat)
-                        if (($start->($lastAdded) == $start($feat))
+                        if (($start->($lastAdded) == $start->($feat))
                                 &&
                                     ($end->($lastAdded) < $end->($feat)));
     } else {
@@ -208,7 +208,7 @@ sub finish {
 }
 
 sub binarySearch {
-    my ($arr, $item, $getter) = @_;
+    my ($self, $arr, $item, $getter) = @_;
 
     my $low = -1;
     my $high = $#{$arr} + 1;
@@ -225,14 +225,14 @@ sub binarySearch {
 
     # if we're iterating rightward, return the high index;
     # if leftward, the low index
-    if ($getter == $self->{end}) return $high; else return $low;
+    if ($getter == $self->{end}) { return $high } else { return $low };
 };
 
 sub iterHelper {
     my ($self, $arr, $from, $to, $fun, $inc,
-        $searchGet, $testGet, $path) {
+        $searchGet, $testGet, $path) = @_;
     my $len = $#{$arr} + 1;
-    my $i = binarySearch($arr, $from, $searchGet);
+    my $i = $self->binarySearch($arr, $from, $searchGet);
     my $getChunk = $self->{attrs}->makeGetter("Chunk");
     my $getSublist = $self->{attrs}->makeGetter("Sublist");
 
@@ -240,13 +240,13 @@ sub iterHelper {
            && ($i >= 0)
            && (($inc * $testGet->($arr->[$i])) < ($inc * $to)) ) {
 
-        if ($arr[$i][0] == $self->{lazyClass}) {
-            my $chunkNum = $getChunk->($arr[$i]);
+        if ($arr->[$i][0] == $self->{lazyClass}) {
+            my $chunkNum = $getChunk->($arr->[$i]);
             my $chunk = $self->{loadChunk}->($chunkNum);
             $self->iterHelper($chunk, $from, $to, $fun, $inc,
                               $searchGet, $testGet, [$chunkNum]);
         } else {
-            $fun->($arr[$i], [@$path, $i]);
+            $fun->($arr->[$i], [@$path, $i]);
         }
 
         my $sublist = $getSublist->($arr->[$i]);
@@ -267,7 +267,7 @@ sub overlapCallback {
     croak "LazyNCList not loaded" unless defined($self->{topLevelList});
 
     # inc: iterate leftward or rightward
-    my $inc = ($from > to) ? -1 : 1;
+    my $inc = ($from > $to) ? -1 : 1;
     # searchGet: search on start or end
     my $searchGet = ($from > $to) ? $self->{start} : $self->{end};
     # testGet: test on start or end

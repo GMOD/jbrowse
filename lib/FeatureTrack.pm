@@ -104,11 +104,11 @@ sub writeHistograms {
         last if $binBases * 100 > $refEnd;
     }
 
-    sub processFeat {
+    my $processFeat = sub {
         my ($feature) = @_;
         my $curHist;
         my $start = max(0, min($getStart->($feature), $refEnd));
-        my $end = min($getEnd->($feature->[$endIndex]), $refEnd);
+        my $end = min($getEnd->($getEnd->($feature)), $refEnd);
         return if ($end < 0);
 
         for (my $i = 0; $i <= $#multiples; $i++) {
@@ -122,7 +122,7 @@ sub writeHistograms {
                 $curHist->[$bin] += 1;
             }
         }
-    }
+    };
 
     $ivalStore->overlapCallback($ivalStore->minStart, $ivalStore->maxEnd,
                                 $processFeat);
@@ -165,8 +165,8 @@ sub writeHistograms {
                           arrayStats($self->{hists}->[$j])};
     }
 
-    return { meta => histogramMeta,
-             stats => histStats };
+    return { meta => \@histogramMeta,
+             stats => \@histStats };
 }
 
 1;

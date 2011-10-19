@@ -56,7 +56,7 @@ $is->overlap(60, 85)
 =cut
 
 sub new {
-    my ($class, %args) = @_;
+    my ($class, $args) = @_;
 
     my $self = {
                 store => $args->{store},
@@ -80,6 +80,7 @@ sub new {
                                      $self->{maxEnd},
                                      sub { $self->loadChunk($self, @_); },
                                      $self->{nclist} );
+    }
 
     bless $self, $class;
 
@@ -108,8 +109,8 @@ sub startLoad {
     } else {
         # add a new class for "fake" features
         push @{$self->{classes}}, {
-                                   'attributes': ['Start', 'End', 'Chunk'],
-                                   'isArrayAttr': {'Sublist': True}
+                                   'attributes' => ['Start', 'End', 'Chunk'],
+                                   'isArrayAttr' => {'Sublist' => 1}
                                   };
         $self->{lazyClass} = $#{$self->{classes}};
         my $makeLazy = sub {

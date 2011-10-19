@@ -2,7 +2,7 @@ package GenomeDB;
 
 use strict;
 use warnings;
-use Path::Spec;
+use File::Spec;
 
 use FeatureTrack;
 use JsonFileStorage;
@@ -18,9 +18,9 @@ sub new {
     my $self = {
                 dataDir => $dataDir,
                 rootStore => JsonFileStorage->new($dataDir, 0, {pretty => 1}),
-                trackDirTempl => Path::Spec->join($self->{dataDir}, "tracks",
+                trackDirTempl => File::Spec->join($dataDir, "tracks",
                                                   "{tracklabel}", "{refseq}"),
-                trackUrlTempl => Path::Spec->join("tracks",
+                trackUrlTempl => File::Spec->join("tracks",
                                                   "{tracklabel}", "{refseq}")
                };
     bless $self, $class;
@@ -38,19 +38,19 @@ sub writeTrackEntry {
 
     my $setTrackEntry = sub {
         my ($trackData) = @_;
-        unless defined($trackData) {
+        unless (defined($trackData)) {
             $trackData = $defaultTracklist;
         }
         # we want to add this track entry to the "tracks" list,
         # replacing any existing entry with the same label,
         # and preserving the original ordering
         my $trackIndex;
-        my $trackList = trackData->{tracks};
+        my $trackList = $trackData->{tracks};
         foreach my $index (0..$#{$trackList}) {
             $trackIndex = $index
               if ($trackList->[$index]->{label} eq $track->label);
         }
-        $trackIndex = len(trackList) unless defined($trackIndex);
+        $trackIndex = ($#{$trackList} + 1) unless defined($trackIndex);
 
         $trackList->[$trackIndex] = {
                                      label => $track->label,
@@ -58,7 +58,7 @@ sub writeTrackEntry {
                                      type => $track->type,
                                      config => $track->config
                                     };
-        return trackData;
+        return $trackData;
     };
 
     $self->{rootStore}->modify($self->trackListPath, $setTrackEntry);
@@ -77,7 +77,7 @@ sub getTrack {
 
     my $trackList = $self->{rootStore}->get($self->trackListPath,
                                             $defaultTracklist);
-    my @selected = grep { $_->{label} eq $trackLabel } @{$trackData->{tracks}};
+    my @selected = grep { $_->{label} eq $trackLabel } @{$trackList->{tracks}};
 
     return undef
       if ($#selected < 0);
@@ -106,7 +106,7 @@ sub trackDir {
 
 #                  urlTemplate =>
 #                      "tracks/$trackLabel/{refseq}/trackData." . $store->ext,
-#     my $outDir = Path::Spec->join($self->{dataDir}, "tracks",
+#     my $outDir = File::Spec->join($self->{dataDir}, "tracks",
 #                                   $trackLabel, $refName);
 #     return TrackLoad->new($self, $outDir, $chunkBytes, $compress, $classes);
 # }

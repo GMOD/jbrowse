@@ -44,12 +44,12 @@ sub ext {
 }
 
 sub encodedSize {
-    my ($self, $obj) = @_
+    my ($self, $obj) = @_;
     return length($self->{json}->encode($obj));
 }
 
 sub put {
-    my ($self, $path, $obj) = @_;
+    my ($self, $path, $toWrite) = @_;
 
     my $file = $self->fullPath($path);
     my $fh = new IO::File $file, O_WRONLY | O_CREAT
@@ -61,13 +61,14 @@ sub put {
         binmode($fh, ":gzip")
             or die "couldn't set binmode: $!";
     }
-    $fh->print($self->{json}->encode($toWrite));
+    $fh->print($self->{json}->encode($toWrite))
+      or die "couldn't write to $file: $!";
     $fh->close()
       or die "couldn't close $file: $!";
 }
 
 sub get {
-    my ($path, $default) = @_;
+    my ($self, $path, $default) = @_;
 
     my $file = $self->fullPath($path);
     if (-s $file) {
