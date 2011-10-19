@@ -65,11 +65,6 @@ my $trackDir = "$outdir/$trackRel";
 mkdir($outdir) unless (-d $outdir);
 mkdir($trackDir) unless (-d $trackDir);
 
-# my %refSeqs =
-#     map {
-#         $_->{name} => $_
-#     } @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
-
 # the jbrowse NCList code requires that "start" and "end" be
 # the first and second fields in the array; @defaultHeaders and %typeMaps
 # are used to take the fields from the database and put them
@@ -95,70 +90,79 @@ my %skipFields = ("bin" => 1,
                   "exonEnds" => 1,
                   "blockCount" => 1,
                   "blockSizes" => 1,
-                  "blockStarts" => 1);
-
-my %defaultStyle = ("class" => $cssClass);
+                  "blockStarts" => 1,
+                  "thickStart" => 1,
+                  "chromStarts" => 1,
+                  "thickEnd" => 1);
 
 foreach my $tableName (@$tracks) {
     my %trackdbCols = name2column_map($indir . "/" . $trackdb);
     my $tableNameCol = $trackdbCols{tableName};
     my $trackRows = selectall($indir . "/" . $trackdb,
                               sub { $_[0]->[$tableNameCol] eq $tableName });
-    my $track = arrayref2hash($trackRows->[0], \%trackdbCols);
-    my @settingList = split("\n", $track->{settings});
+    my $trackMeta = arrayref2hash($trackRows->[0], \%trackdbCols);
+    my @settingList = split("\n", $trackMeta->{settings});
     my %trackSettings = map {split(" ", $_, 2)} @settingList;
-    $defaultStyle{subfeature_classes} = JSON::from_json($subfeatureClasses)
-        if defined($subfeatureClasses);
-    $defaultStyle{arrowheadClass} = $arrowheadClass if defined($arrowheadClass);
-    $defaultStyle{clientConfig} = JSON::from_json($clientConfig)
-        if defined($clientConfig);
 
-    my @types = split(" ", $track->{type});
+    my @types = split(" ", $trackMeta->{type});
     my $type = $types[0];
     die "type $type not implemented" unless exists($typeMaps{$type});
 
-    my %style = (
-        %defaultStyle,
-        "key" => $track->{shortLabel}
-    );
-
-    my %fields = name2column_map($indir . "/" . $track->{tableName});
+    my %fields = name2column_map($indir . "/" . $trackMeta->{tableName});
 
     my ($converter, $headers, $subfeatures) = makeConverter(\%fields, $type);
 
     my $color = sprintf("#%02x%02x%02x",
-                        $track->{colorR},
-                        $track->{colorG},
-                        $track->{colorB});
+                        $trackMeta->{colorR},
+                        $trackMeta->{colorG},
+                        $trackMeta->{colorB});
+
+    my $trackConfig =
+      {
+       compress => $compress,
+       style => {
+                 "className" => $cssClass,
+                 "featureCss" => "background-color: $color; height: 8px;",
+                 "histCss" => "background-color: $color;"
+                }
+      };
+
+    $trackConfig->{style}->{subfeatureClasses} =
+       JSON::from_json($subfeatureClasses)
+       if defined($subfeatureClasses);
+    $trackConfig->{style}->{arrowheadClass} = $arrowheadClass
+      if defined($arrowheadClass);
+    $trackConfig->{style} = {
+                             %{$trackConfig->{style}},
+                             # TODO: break out legacy combined config
+                             JSON::from_json($clientConfig)
+                            }
+        if defined($clientConfig);
 
     if ($subfeatures) {
-        $style{subfeatureHeaders} = \@subfeatHeaders;
-        $style{class} = "generic_parent";
-        $style{clientConfig}->{featureCallback} = <<ENDJS;
-function(feat, fields, div) {
-    if (fields.type) {
-        div.className = "basic";
-        switch (feat[fields.type]) {
+        $trackConfig->{style}->{className} = "generic_parent";
+        $trackConfig->{style}->{histCss} = "background-color: $color;";
+        $trackConfig->{hooks}->{modify} = <<ENDJS;
+function(track, feat, attrs, elem) {
+    var fType = attrs.get(feat, "Type");
+    if (fType) {
+        elem.className = "basic";
+        switch (fType]) {
         case "CDS":
         case "thick":
-            div.style.height = "10px";
-            div.style.marginTop = "-3px";
+            elem.style.height = "10px";
+            elem.style.marginTop = "-3px";
             break;
         case "UTR":
         case "thin":
-            div.style.height = "6px";
-            div.style.marginTop = "-1px";
+            elem.style.height = "6px";
+            elem.style.marginTop = "-1px";
             break;
         }
-        div.style.backgroundColor = "$color";
+        elem.style.backgroundColor = "$color";
     }
 }
 ENDJS
-    } else {
-        $style{clientConfig} = {
-            "featureCss" => "background-color: $color; height: 8px;",
-            "histCss" => "background-color: $color;"
-        };
     }
 
     my $chromCol = $fields{chrom};
@@ -175,7 +179,7 @@ ENDJS
 
     my %chromCounts;
     my $sorter = ExternalSorter->new($compare, $sortMem);
-    for_columns("$indir/" . $track->{tableName},
+    for_columns("$indir/" . $trackMeta->{tableName},
                 sub { 
                     $chromCounts{$_[0]->[$chromCol]} += 1;
                     $sorter->add($_[0]);
@@ -187,7 +191,7 @@ ENDJS
     my $track = $gdb->getTrack($tableName);
     unless (defined($track)) {
         $track = $gdb->createFeatureTrack($tableName,
-                                          {compress => $compress},
+                                          $trackConfig,
                                           $track->{shortLabel});
     }
     my $istore;
@@ -214,11 +218,18 @@ ENDJS
                 # next unless defined($refSeqs{$curChrom});
                 # mkdir("$trackDir/" . $curChrom)
                 #     unless (-d "$trackDir/" . $curChrom);
-                # my $trackDirForChrom = 
-                #     sub { "$trackDir/" . $tableName . "/" . $_[0]; };
+                my $trackDirForChrom = 
+                    sub { "$trackDir/" . $tableName . "/" . $_[0]; };
                 $nameHandler = NameHandler->new($trackDirForChrom);
                 $istore = $track->startLoad($curChrom, $nclChunk,
-                                            [$headers, \@subfeatHeaders]);
+                                            [{
+					      attributes => $headers,
+					      isArrayAttr => {Subfeatures => 1}
+					     },
+					     {
+					      attributes => \@subfeatHeaders,
+					      isArrayAttr => {}
+					     } ] );
                 # $jsonGen = JsonGenerator->new("$trackDir/$curChrom/"
                 #                               . $tableName,
                 #                               $nclChunk,
@@ -323,7 +334,8 @@ sub makeConverter {
     }
 
     my $destIndices = indexHash(@headers);
-    my $strandIndex = $destIndices->{Strand} + 1;
+    my $strandIndex =
+      defined($destIndices->{Strand}) ? $destIndices->{Strand} + 1 : undef;
     my $startIndex = $destIndices->{Start} + 1;
     my $endIndex = $destIndices->{End} + 1;
 

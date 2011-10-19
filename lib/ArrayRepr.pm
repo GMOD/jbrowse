@@ -3,8 +3,6 @@ package ArrayRepr;
 use strict;
 use warnings;
 
-#import List::Util qw(first);
-
 =head1 DESCRIPTION
 
     The ArrayRepr class is for operating on indexed representations of objects.
@@ -86,7 +84,7 @@ sub new {
         $fields[$cl] = {};
         my $atts = $classes->[$cl]->{'attributes'};
         for (my $f = 0; $f <= $#{$atts}; $f++) {
-            $fields[$cl][$atts->[$f]] = $f + 1;
+            $fields[$cl]->{$atts->[$f]} = $f + 1;
         }
     }
     my $self = {
@@ -107,11 +105,11 @@ sub get {
     my ($self, $obj, $attr) = @_;
     my $fields = $self->{'fields'}->[$obj->[0]];
     if (defined($fields) && defined($fields->{$attr})) {
-        return obj[$fields->{$attr}];
+        return $obj->[$fields->{$attr}];
     } else {
         my $cls = $self->{'classes'}->[$obj->[0]];
         return unless defined($cls);
-        my $adhocIndex = $#{$cls->{'attributes'}} + 1;
+        my $adhocIndex = $#{$cls->{'attributes'}} + 2;
         if (($adhocIndex > $#{$obj})
             or (not defined($obj->[$adhocIndex]->{$attr})) ) {
             if (defined($cls->{'proto'})
@@ -135,11 +133,11 @@ sub set {
     my ($self, $obj, $attr, $val) = @_;
     my $fields = $self->{'fields'}->[$obj->[0]];
     if (defined($fields) && defined($fields->{$attr})) {
-        $obj[$fields->{$attr}] = $val;
+        $obj->[$fields->{$attr}] = $val;
     } else {
         my $cls = $self->{'classes'}->[$obj->[0]];
         return unless defined($cls);
-        my $adhocIndex = $#{$cls->{'attributes'}} + 1;
+        my $adhocIndex = $#{$cls->{'attributes'}} + 2;
         if ($adhocIndex > $#{$obj}) {
             $obj->[$adhocIndex] = {}
         }
@@ -186,12 +184,14 @@ sub makeFastSetter {
 }
 
 sub makeFastGetter {
-    my ($self, $attr) = $_;
-    my @indices = $self->attrIndices($attr);
+    # this method can be used if the attribute is guaranteed to be in
+    # the attributes array for the object's class
+    my ($self, $attr) = (@_);
+    my $indices = $self->attrIndices($attr);
     return sub {
         my ($obj) = @_;
-        if (defined($indices[$obj->[0]])) {
-            return $obj->[$indices[$obj->[0]]];
+        if (defined($indices->[$obj->[0]])) {
+            return $obj->[$indices->[$obj->[0]]];
         } else {
             # report error?
             return undef;
@@ -207,3 +207,5 @@ sub construct {
     }
     return $result;
 }
+
+1;

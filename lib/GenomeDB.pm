@@ -12,25 +12,21 @@ my $defaultTracklist = {
                         tracks => []
                        };
 
+my $trackListPath = "trackList.json";
+my @trackDirHeirarchy = ("tracks", "{tracklabel}", "{refseq}");
+
 sub new {
     my ($class, $dataDir) = @_;
 
     my $self = {
                 dataDir => $dataDir,
                 rootStore => JsonFileStorage->new($dataDir, 0, {pretty => 1}),
-                trackDirTempl => File::Spec->join($dataDir, "tracks",
-                                                  "{tracklabel}", "{refseq}"),
-                trackUrlTempl => File::Spec->join("tracks",
-                                                  "{tracklabel}", "{refseq}")
+                trackDirTempl => File::Spec->join($dataDir, @trackDirHeirarchy),
+                trackUrlTempl => join("/", @trackDirHeirarchy)
                };
     bless $self, $class;
 
     return $self;
-}
-
-sub trackListPath {
-    my ($self) = @_;
-    return File::Spec->join($self->{dataDir}, "trackList.json");
 }
 
 sub writeTrackEntry {
@@ -61,21 +57,20 @@ sub writeTrackEntry {
         return $trackData;
     };
 
-    $self->{rootStore}->modify($self->trackListPath, $setTrackEntry);
+    $self->{rootStore}->modify($trackListPath, $setTrackEntry);
 }
 
 sub createFeatureTrack {
     my ($self, $trackLabel, $config, $key) = @_;
-    (my $urlTempl = $self->{trackUrlTempl}) =~ s/\{tracklabel\}/$trackLabel/g;
-    $config->{urlTemplate} = $urlTempl;
-    return FeatureTrack->new($self->trackDir($trackLabel),
+    (my $baseUrl = $self->{trackUrlTempl}) =~ s/\{tracklabel\}/$trackLabel/g;
+    return FeatureTrack->new($self->trackDir($trackLabel), $baseUrl,
                              $trackLabel, $config, $key);
 }
 
 sub getTrack {
     my ($self, $trackLabel) = @_;
 
-    my $trackList = $self->{rootStore}->get($self->trackListPath,
+    my $trackList = $self->{rootStore}->get($trackListPath,
                                             $defaultTracklist);
     my @selected = grep { $_->{label} eq $trackLabel } @{$trackList->{tracks}};
 
@@ -86,7 +81,10 @@ sub getTrack {
       if $#selected > 0;
     my $trackDesc = $selected[0];
     if ($trackDesc->{type} eq "FeatureTrack") {
+	(my $baseUrl = $self->{trackUrlTempl}) =~
+            s/\{tracklabel\}/$trackLabel/g;
         return FeatureTrack->new($self->trackDir($trackLabel),
+				 $baseUrl,
                                  $trackDesc->{label},
                                  $trackDesc->{config},
                                  $trackDesc->{key});
@@ -99,22 +97,6 @@ sub trackDir {
     (my $result = $self->{trackDirTempl}) =~ s/\{tracklabel\}/$trackLabel/g;
     return $result;
 }
-
-# sub startLoad {
-#     my ($self, $track, $refName, $chunkBytes,
-#         $compress, $classes) = @_;
-
-#                  urlTemplate =>
-#                      "tracks/$trackLabel/{refseq}/trackData." . $store->ext,
-#     my $outDir = File::Spec->join($self->{dataDir}, "tracks",
-#                                   $trackLabel, $refName);
-#     return TrackLoad->new($self, $outDir, $chunkBytes, $compress, $classes);
-# }
-
-#sub finishLoad {
-#    my ($self, $trackLoad) = @_;
-#}
-
 
 1;
 

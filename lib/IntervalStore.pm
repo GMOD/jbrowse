@@ -4,6 +4,9 @@ use strict;
 use warnings;
 use Carp;
 
+use ArrayRepr;
+use LazyNCList;
+
 =head1 NAME
 
 IntervalStore - manages a set of intervals (genomic features)
@@ -64,7 +67,7 @@ sub new {
                 lazyClass => $args->{lazyClass},
                 urlTemplate => $args->{urlTemplate} || ("lf-{Chunk}" 
                                                         . $args->{store}->ext),
-                attrs => ArrayRepr($args->{classes}),
+                attrs => ArrayRepr->new($args->{classes}),
                 nclist => $args->{nclist},
                 minStart => $args->{minStart},
                 maxEnd => $args->{maxEnd},
@@ -75,6 +78,7 @@ sub new {
         # we're already loaded
         $self->{lazyNCList} = 
           LazyNCList->importExisting($self->{attrs},
+				     $self->{lazyClass},
                                      $self->{count},
                                      $self->{minStart},
                                      $self->{maxEnd},
@@ -122,15 +126,12 @@ sub startLoad {
             (my $path = $self->{urlTemplate}) =~ s/\{Chunk\}/$chunkId/g;
             $self->{store}->put($path, $toStore);
         };
-        $self->{attrs} = ArrayRepr->($self->{classes});
-        my $start = $self->{attrs}->makeFastGetter("Start");
-        my $end = $self->{attrs}->makeFastGetter("End");
+        $self->{attrs} = ArrayRepr->new($self->{classes});
         $self->{lazyNCList} =
-          LazyNCList->new($start,
-                          $end,
-                          $self->{attrs}->makeSetter("Sublist"),
+          LazyNCList->new($self->{attrs},
+			  $self->{lazyClass},
                           $makeLazy,
-                          sub { $self->loadChunk($self, @_); },
+                          sub { $self->_loadChunk($self, @_); },
                           $measure,
                           $output,
                           $chunkBytes);

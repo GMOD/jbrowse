@@ -4,12 +4,14 @@ use strict;
 use warnings;
 use File::Path qw(remove_tree);
 use File::Spec;
+use List::Util qw(min max);
+use POSIX qw (ceil);
 
 use IntervalStore;
 use JsonFileStorage;
 
 sub new {
-    my ($class, $trackDirTemplate, $label, $config, $key) = @_;
+    my ($class, $trackDirTemplate, $baseUrl, $label, $config, $key) = @_;
 
     $config->{compress} = $config->{compress} || 0;
     my $self = {
@@ -20,6 +22,8 @@ sub new {
                                                     ".jsonz" : ".json"),
                 config => $config
                };
+    $config->{urlTemplate} = $baseUrl . "/" . $self->{trackDataFilename}
+      unless defined($config->{urlTemplate});
     bless $self, $class;
 
     return $self;
@@ -46,7 +50,7 @@ sub startLoad {
     (my $outDir = $self->{trackDirTemplate}) =~ s/\{refseq\}/$refSeq/g;
     remove_tree($outDir) if (-d $outDir);
 
-    my $jsonStore = JsonFileStorage($outDir, $self->config->{compress});
+    my $jsonStore = JsonFileStorage->new($outDir, $self->config->{compress});
     my $intervalStore = IntervalStore->new({store => $jsonStore,
                                             classes => $classes });
 
@@ -76,12 +80,12 @@ sub writeHistograms {
                      100_000, 200_000, 500_000, 1_000_000);
     my $histChunkSize = 10_000;
 
-    my $attrs = ArrayRepr($ivalStore->classes);
+    my $attrs = ArrayRepr->new($ivalStore->classes);
     my $getStart = $attrs->makeFastGetter("Start");
     my $getEnd = $attrs->makeFastGetter("End");
 
     my $jsonStore = $ivalStore->store;
-    my $refEnd = $ivalStore->maxEnd;
+    my $refEnd = $ivalStore->lazyNCList->maxEnd;
     my $featureCount = $ivalStore->count;
 
     # $histBinThresh is the approximate the number of bases per
@@ -108,7 +112,7 @@ sub writeHistograms {
         my ($feature) = @_;
         my $curHist;
         my $start = max(0, min($getStart->($feature), $refEnd));
-        my $end = min($getEnd->($getEnd->($feature)), $refEnd);
+        my $end = min($getEnd->($feature), $refEnd);
         return if ($end < 0);
 
         for (my $i = 0; $i <= $#multiples; $i++) {
@@ -124,26 +128,25 @@ sub writeHistograms {
         }
     };
 
-    $ivalStore->overlapCallback($ivalStore->minStart, $ivalStore->maxEnd,
+    $ivalStore->overlapCallback($ivalStore->lazyNCList->minStart,
+				$ivalStore->lazyNCList->maxEnd,
                                 $processFeat);
 
     # find multiple of base hist bin size that's just over $histBinThresh
     my $i;
     for ($i = 1; $i <= $#multiples; $i++) {
-        last if ($self->{histBinBases} * $multiples[$i]) > $histBinThresh;
+        last if ($histBinBases * $multiples[$i]) > $histBinThresh;
     }
 
     my @histogramMeta;
     for (my $j = $i - 1; $j <= $#multiples; $j += 1) {
-        my $curHist = $self->{hists}->[$j];
+        my $curHist = $histograms[$j];
         last unless defined($curHist);
-        my $histBases = $self->{histBinBases} * $multiples[$j];
+        my $histBases = $histBinBases * $multiples[$j];
 
         my $chunks = chunkArray($curHist, $histChunkSize);
         for (my $i = 0; $i <= $#{$chunks}; $i++) {
-            $jsonStore->put($self->{outDir}
-                            . "/hist-$histBases-$i."
-                            . $jsonStore->ext,
+            $jsonStore->put("hist-$histBases-$i" . $jsonStore->ext,
                             $chunks->[$i]);
         }
         push @histogramMeta,
@@ -151,7 +154,7 @@ sub writeHistograms {
                 basesPerBin => $histBases,
                 arrayParams => {
                     length => $#{$curHist} + 1,
-                    urlTemplate => "hist-$histBases-{Chunk}." . $jsonStore->ext,
+                    urlTemplate => "hist-$histBases-{Chunk}" . $jsonStore->ext,
                     chunkSize => $histChunkSize
                 }
             };
@@ -160,13 +163,26 @@ sub writeHistograms {
     my @histStats;
     for (my $j = $i - 1; $j <= $#multiples; $j++) {
         last unless defined($self->{hists}->[$j]);
-        my $binBases = $self->{histBinBases} * $multiples[$j];
+        my $binBases = $histBinBases * $multiples[$j];
         push @histStats, {'bases' => $binBases,
-                          arrayStats($self->{hists}->[$j])};
+                          arrayStats($histograms[$j])};
     }
 
     return { meta => \@histogramMeta,
              stats => \@histStats };
+}
+
+sub chunkArray {
+    my ($bigArray, $chunkSize) = @_;
+
+    my @result;
+    for (my $start = 0; $start <= $#{$bigArray}; $start += $chunkSize) {
+        my $lastIndex = $start + $chunkSize;
+        $lastIndex = $#{$bigArray} if $lastIndex > $#{$bigArray};
+
+        push @result, [@{$bigArray}[$start..$lastIndex]];
+    }
+    return \@result;
 }
 
 1;

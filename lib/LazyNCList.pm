@@ -5,6 +5,8 @@ use warnings;
 use Carp;
 use List::Util qw(max);
 
+use NCList;
+
 =head2 new
 
  Title   : new
@@ -26,12 +28,14 @@ use List::Util qw(max);
 =cut
 
 sub new {
-    my ($class, $attrs, $makeLazy, $loadChunk,
+    my ($class, $attrs, $lazyClass, $makeLazy, $loadChunk,
         $measure, $output, $sizeThresh) = @_;
 
-    my $self = { start => $attrs->makeFastGetter("Start"),
+    my $self = { attrs => $attrs,
+	         start => $attrs->makeFastGetter("Start"),
                  end => $attrs->makeFastGetter("End"),
                  setSublist => $attrs->makeSetter("Sublist"),
+		 lazyClass => $lazyClass,
                  makeLazy => $makeLazy,
                  loadChunk => $loadChunk,
                  measure => $measure,
@@ -51,10 +55,12 @@ sub new {
 }
 
 sub importExisting {
-    my ($class, $attrs, $count, $minStart,
+    my ($class, $attrs, $lazyClass, $count, $minStart,
         $maxEnd, $loadChunk, $topLevelList) = @_;
 
-    my $self = { start => $attrs->makeFastGetter("Start"),
+    my $self = { attrs => $attrs,
+		 lazyClass => $lazyClass,
+		 start => $attrs->makeFastGetter("Start"),
                  end => $attrs->makeFastGetter("End"),
                  count => $count,
                  minStart => $minStart,
@@ -168,8 +174,6 @@ sub finishChunk {
     $self->{maxEnd} = $newNcl->maxEnd unless defined($self->{maxEnd});
     $self->{maxEnd} = max($self->{maxEnd}, $newNcl->maxEnd);
 
-    $self->{maxEnd} = $newNcl->maxEnd unless defined($self->{maxEnd});
-    $self->{maxEnd} = max($self->{maxEnd}, $newNcl->maxEnd);
     # return the lazy ("fake") feature representing this chunk
     return $self->{makeLazy}->($newNcl->minStart, $newNcl->maxEnd, $chunkId);
 }
@@ -203,6 +207,8 @@ sub finish {
                              $self->{end},
                              $self->{setSublist},
                              $self->{partialStack}->[$level]);
+    $self->{maxEnd} = $newNcl->maxEnd unless defined($self->{maxEnd});
+    $self->{maxEnd} = max($self->{maxEnd}, $newNcl->maxEnd);
     #print STDERR "top level NCL has " . scalar(@{$self->{partialStack}->[$level]}) . " features\n";
     $self->{topLevelList} = $newNcl->nestedList;
 }
