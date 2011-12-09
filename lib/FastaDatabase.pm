@@ -54,30 +54,32 @@ Creates a new FastaDatabase object, reading sequences from a FASTA file.
 =cut
 
 sub from_fasta {
-    my ($class, $filename) = @_;
+    my ($class, @files ) = @_;
 
     my $seqdata = {};
 
-    my $sep = $/;
-    local *FILE;
-    open FILE, "<$filename" or die "Couldn't open '$filename': $!";
+    for my $filename ( @files ) {
+        my $sep = $/;
+        local *FILE;
+        open FILE, "<$filename" or die "Couldn't open '$filename': $!";
 
-    $/ = ">";
-    my $dummy = <FILE>;
-    my $name;
-    while (($/ = "\n", $name = <FILE>)[1]) {
-	chomp $name;
-	$name =~ s/^\s*(\S+).*$/$1/;  # throw away description metadata after name
-	$/ = ">";
-	my $seq = <FILE>;
-	chomp $seq;
-	$/ = $sep;
-	$seq =~ s/\s//g;
-	$seqdata->{$name} = $seq;
+        $/ = ">";
+        my $dummy = <FILE>;
+        my $name;
+        while (($/ = "\n", $name = <FILE>)[1]) {
+            chomp $name;
+            $name =~ s/^\s*(\S+).*$/$1/; # throw away description metadata after name
+            $/ = ">";
+            my $seq = <FILE>;
+            chomp $seq;
+            $/ = $sep;
+            $seq =~ s/\s//g;
+            $seqdata->{$name} = $seq;
+        }
+
+        close FILE;
+        $/ = $sep;
     }
-
-    close FILE;
-    $/ = $sep;
 
     my $self = $class->new ('seqdata' => $seqdata);
     return $self;

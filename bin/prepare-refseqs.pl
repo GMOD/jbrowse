@@ -12,26 +12,26 @@ use JsonGenerator;
 use FastaDatabase;
 
 my $chunkSize = 20000;
-my ($confFile, $noSeq, $gff, $fasta, $refs, $refids);
+my ($confFile, $noSeq, $gff, @fasta, $refs, $refids);
 my $outDir = "data";
 my $seqTrackName = "DNA";
 GetOptions("out=s" => \$outDir,
            "conf=s" => \$confFile,
            "noseq" => \$noSeq,
            "gff=s" => \$gff,
-           "fasta=s" => \$fasta,
+           "fasta=s" => \@fasta,
 	   "refs=s" => \$refs,
            "refids=s" => \$refids);
 # $seqRel is the path relative to $outDir
 my $seqRel = "seq";
 my $seqDir = "$outDir/$seqRel";
 
-if (!(defined($gff) || defined($confFile) || defined($fasta))) {
+unless ( defined $gff || defined $confFile || @fasta ) {
     print <<HELP;
 USAGE:
        $0 --gff <GFF file>  [options]
    OR:
-       $0 --fasta <FASTA file>  [options]
+       $0 --fasta <FASTA file> --fasta <another FASTA file>  [options]
    OR:
        $0 --conf <JBrowse config file>  [options]
 
@@ -94,11 +94,11 @@ if (defined($gff)) {
 
     die "found no sequence-region lines in GFF file" if ($#refSeqs < 0);
 
-} elsif (defined($fasta) || defined($confFile)) {
+} elsif ( @fasta || defined($confFile)) {
     my $db;
 
-    if (defined($fasta)) {
-        $db = FastaDatabase->from_fasta ($fasta);
+    if ( @fasta ) {
+        $db = FastaDatabase->from_fasta( @fasta );
 
         die "IDs not implemented for FASTA database" if defined($refids);
 
