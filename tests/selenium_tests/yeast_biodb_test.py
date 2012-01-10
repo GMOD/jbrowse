@@ -95,4 +95,5 @@ def format_yeast():
     call( "prepare-refseqs.pl --fasta ../raw/yeast_scaffolds/chr1.fa --fasta ../raw/yeast_scaffolds/chr2.fa  --out yeast/", shell=True )
     call( "biodb-to-json.pl --conf ../raw/yeast.json --out yeast/", shell=True )
     call( "generate-names.pl --dir yeast/", shell=True )
+    call( "prepare-nested-structure.pl --out yeast/", shell=True )
     os.chdir('../..')
