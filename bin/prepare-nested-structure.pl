@@ -13,7 +13,7 @@ use Data::Dumper;
 my $confFile;
 my $outdir = "data";
 GetOptions("conf=s" => \$confFile,
-           "out=s" => $outdir);
+           "out=s" => \$outdir);
 
 my %categories;
 my @seqTracks;
