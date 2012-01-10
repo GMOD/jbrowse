@@ -4,3 +4,4 @@ tiles
 names
 *.index
 bin/wig2png
+*.pyc
