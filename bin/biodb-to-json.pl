@@ -162,8 +162,8 @@ foreach my $seg (@refSeqs) {
             my $ext = ($compress ? "jsonz" : "json");
             JsonGenerator::writeTrackEntry("$outdir/trackInfo.js",
                                            {
-                                               'label' => $track->{"key"},
-                                               'key' => $style{"track"},
+                                               'label' => $track->{"track"},
+                                               'key' => $style{"key"},
                                                'url' => "$trackRel/{refseq}/"
                                                    . $track->{"track"}
                                                        . "/trackData.$ext",
