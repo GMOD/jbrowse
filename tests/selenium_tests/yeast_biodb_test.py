@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from subprocess import check_call as call
@@ -20,6 +21,44 @@ def test_yeast():
     # do a test where we search for a certain gene using the search box
     search_yal024c(browser)
 
+    assert_no_js_errors(browser)
+
+    # test scrolling, make sure we get no js errors
+    scroll(browser)
+
+    browser.close()
+    pass;
+
+def scroll(browser):
+    move_right_button = browser.find_element_by_id('moveRight')
+    move_right_button.click()
+    time.sleep(0.5)
+    move_left_button = browser.find_element_by_id('moveLeft')
+    move_left_button.click()
+    # TODO: check the outcome of this
+    time.sleep(0.5)
+
+    assert_no_js_errors(browser)
+
+    action_chains = ActionChains(browser)
+    # scroll back and forth with the mouse
+    action_chains \
+       .move_to_element( move_right_button ) \
+       .move_by_offset( 0, 300 ) \
+       .click_and_hold( None ) \
+       .move_by_offset( 500, 0 ) \
+       .release( None ) \
+       .move_by_offset( -100,100 ) \
+       .click_and_hold( None ) \
+       .move_by_offset( -600, 0 ) \
+       .release( None ) \
+       .perform()
+
+    assert_no_js_errors(browser)
+
+def assert_no_js_errors(browser):
+    assert browser.find_element_by_xpath('/html/body').get_attribute('JSError') == None
+
 def search_yal024c(browser):
 
     # check that a YAL024C feature label is not yet in the DOM
@@ -34,15 +73,13 @@ def search_yal024c(browser):
     qbox = browser.find_element_by_id("location")
     qbox.clear()
     qbox.send_keys( "YAL024C" + Keys.RETURN )
+    time.sleep( 0.2 )
 
     # test that YAL024C appeared in the DOM (TODO: check that it's
     # actually centered in the window), and that the protein-coding
     # genes track is now selected
     label = assert_element( browser, yal024_xpath )
     assert label.text == 'YAL024C';
-
-    browser.close()
-    pass;
 
 def assert_element( browser, xpathExpression ):
     try:
