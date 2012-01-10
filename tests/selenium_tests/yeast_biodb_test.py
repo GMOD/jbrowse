@@ -14,9 +14,10 @@ def test_yeast():
     # check a good browser title
     assert "chrI" in browser.title
 
-    # check that we have the appropriate tracks
-    genes_track = assert_element( browser, '//div[@class="tracklist-label"]' )
-    assert genes_track.text == 'Protein-coding genes', "first track was called %s instead of %s" % (first_track.text, 'Protein-coding genes')
+    assert_element( browser, '//div[@class="browsingTab"]' ).click()
+    time.sleep(1)
+
+    assert_no_js_errors(browser)
 
     # do a test where we search for a certain gene using the search box
     search_yal024c(browser)
