@@ -1,0 +1,100 @@
+<!DOCTYPE html
+	  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<!-- This HTML file is for use by the JBrowse integration tests only. -->
+
+  <head>
+    <title>JBrowse</title>
+    <link rel="stylesheet" type="text/css" href="jslib/dijit/themes/tundra/tundra.css"></link>
+    <link rel="stylesheet" type="text/css" href="jslib/dojo/resources/dojo.css"></link>
+    <link rel="stylesheet" type="text/css" href="genome.css"></link>
+    <!--[if IE]>
+        <link rel="stylesheet" type="text/css" href="iegenome.css"></link>
+    <![endif]-->
+    <style type="text/css">
+      html, body { height: 100%; width: 100%; padding: 0; border: 0; }
+    </style>
+
+    <script type="text/javascript">
+        window.onerror=function(msg){
+            document.html.body.attr("JSError",msg);
+        }
+    </script>
+
+    <script type="text/javascript" src="jquery.js"></script>
+
+    <script type="text/javascript" src="jslib/dojo/dojo.js" djConfig="isDebug: false"></script>
+    <script type="text/javascript" src="jslib/dojo/jbrowse_dojo.js" ></script>
+
+<!-- js_source_files -->
+<!-- the files between the "js_source_files" comments get replaced
+     when the JS gets minified (see the minification rule in the Makefile) -->
+    <script type="text/javascript" src="js/Browser.js"></script>
+    <script type="text/javascript" src="js/Util.js"></script>
+    <script type="text/javascript" src="js/NCList.js"></script>
+    <script type="text/javascript" src="js/LazyPatricia.js"></script>
+    <script type="text/javascript" src="js/LazyArray.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script>
+    <script type="text/javascript" src="js/SequenceTrack.js"></script>
+    <script type="text/javascript" src="js/Layout.js"></script>
+    <script type="text/javascript" src="js/FeatureTrack.js"></script>
+    <script type="text/javascript" src="js/UITracks.js"></script>
+    <script type="text/javascript" src="js/ImageTrack.js"></script>
+    <script type="text/javascript" src="js/GenomeView.js"></script>
+    <script type="text/javascript" src="js/ChromIdeogram.js"></script>
+<!-- js_source_files -->
+
+  </head>
+  
+  <body>
+    <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
+    <script type="text/javascript">
+    /* <![CDATA[ */
+           var queryParams = dojo.queryToObject(window.location.search.slice(1));
+
+           // load the proper refSeqs and trackInfo based on the data path passed as a query arg
+           var dataRoot = queryParams.data || 'data';
+           if( ! dataRoot.match(/\/$/) ) dataRoot = dataRoot + '/';
+
+           var conf_url = queryParams.conf || 'conf.js';
+           dojo.forEach( [ dataRoot + 'refSeqs.js',
+                           dataRoot + 'trackInfo.js',
+                           dataRoot + 'overviewTrackInfo.js',
+                           conf_url
+                         ],
+                         function(file) {
+                             dojo.xhrGet({
+                                 url: file,
+                                 handleAs: 'javascript',
+                                 sync: true
+                             })
+                         }
+           );
+
+           var bookmarkCallback = function(brwsr) {
+               return window.location.protocol
+                      + "//" + window.location.host
+                      + window.location.pathname
+                      + "?loc=" + brwsr.visibleRegion()
+                      + "&tracks=" + brwsr.visibleTracks();
+           }
+           var b = new Browser({
+                                   containerID: "GenomeBrowser",
+                                   refSeqs: refSeqs,
+                                   trackData: trackInfo,
+                                   overviewTrackData: overviewTrackInfo,
+                                   defaultTracks: "DNA,gene,mRNA,noncodingRNA",
+                                   location: queryParams.loc,
+                                   tracks: queryParams.tracks,
+                                   bookmark: bookmarkCallback,
+                                   dataRoot: dataRoot,
+                                   conf: conf
+                               });
+    /* ]]> */
+    </script>
+
+  </body>
+</html>
