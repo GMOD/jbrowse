@@ -3,7 +3,6 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from subprocess import check_call as call
 import os
-import shutil
 import time
 
 def test_yeast():
@@ -60,33 +59,3 @@ def format_yeast():
     call( "biodb-to-json.pl --conf ../raw/yeast.json --out yeast/", shell=True )
     call( "generate-names.pl --dir yeast/", shell=True )
     os.chdir('../..')
-
-
-# $ENV{PATH} = "../../bin:$ENV{PATH}";
-
-# chdir 'sample_data/json';
-
-# system 'rm -rf yeast/';
-# system qw( prepare-refseqs.pl
-#            --fasta ../raw/yeast_scaffolds/chr1.fa
-#            --fasta ../raw/yeast_scaffolds/chr2.fa
-#            --out yeast/
-#          );
-# system qw(
-#          );
-
-# # system qw( flatfile-to-json.pl
-# #            --gff ../raw/yeast_chr1+2/yeast_chr1+2.gff3
-# #            --tracklabel Genes
-# #            --cssClass feature5
-# #            --type gene
-# #            --
-# #            --out yeast/
-# #          );
-# #	flatfile-to-json.pl --gff ../raw/yeast_chr1+2/yeast_chr1+2.gff3 --autocomplete all --tracklabel Genes --getSubs --type gene --getLabel --urltemplate 'http://example.com/foo/genes/{id}' --out yeast/;
-# #	flatfile-to-json.pl --gff ../raw/yeast_chr1+2/yeast_chr1+2.gff3 --autocomplete all --tracklabel Repeats --getSubs --type repeat_region --getLabel --urltemplate 'http://example.com/foo/repeats/{id}' --out yeast/;
-
-# system qw( generate-names.pl --dir yeast/ );
-
-# ok 1;
-# done_testing;
