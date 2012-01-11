@@ -57,12 +57,12 @@
 
            // load the proper refSeqs and trackInfo based on the data path passed as a query arg
            var dataRoot = queryParams.data || 'data';
-           if( ! dataRoot.match(/\/$/) ) dataRoot = dataRoot + '/';
+           dataRoot.replace(/\/+$/,""); //trim off any trailing slashes
 
            var conf_url = queryParams.conf || 'conf.js';
-           dojo.forEach( [ dataRoot + 'refSeqs.js',
-                           dataRoot + 'trackInfo.js',
-                           dataRoot + 'overviewTrackInfo.js',
+           dojo.forEach( [ dataRoot + '/refSeqs.js',
+                           dataRoot + '/trackInfo.js',
+                           dataRoot + '/overviewTrackInfo.js',
                            conf_url
                          ],
                          function(file) {

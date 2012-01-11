@@ -54,12 +54,10 @@ var Browser = function(params) {
     var refSeqs = params.refSeqs;
     var trackData = params.trackData;
     this.deferredFunctions = [];
-    this.dataRoot = params.dataRoot;
-    var dataRoot;
-    if ("dataRoot" in params)
-        dataRoot = params.dataRoot;
-    else
-        dataRoot = "";
+    var dataRoot = params.dataRoot || "";
+    //no trailing slashes on dataRoot
+    dataRoot.replace(/\/+$/,"");
+    this.dataRoot = dataRoot;
 
     this.names = new LazyTrie(dataRoot + "/names/lazy-",
 			      dataRoot + "/names/root.json");
@@ -856,7 +854,7 @@ Browser.prototype.createTrackList = function(parent, params) {
 
         // faceted browisng page runs from an iframe
         facetedIframe = document.createElement("iframe");
-        facetedIframe.src = "faceted_browsing.html"; 
+        facetedIframe.src = dataRoot + "/faceted_browsing.html"; 
         facetedIframe.setAttribute("name","browsing_window");
         facetedIframe.setAttribute("frameborder","0");
         facetedIframe.height = "100%";
@@ -1197,7 +1195,7 @@ Browser.prototype.createTrackList = function(parent, params) {
                                      {
                                          changeCallback: changeCallback,
                                          trackPadding: brwsr.view.trackPadding,
-                                         baseUrl: brwsr.dataRoot,
+                                         baseUrl: brwsr.dataRoot + "/",
                                          charWidth: brwsr.view.charWidth,
                                          seqHeight: brwsr.view.seqHeight
                                      });
