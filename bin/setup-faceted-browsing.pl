@@ -14,7 +14,7 @@ use HTML::Template;
 my $confFile;
 my $outdir = "data";
 GetOptions("conf=s" => \$confFile,
-           "out=s" => $outdir);
+           "out=s" => \$outdir);
 
 my %possible_track_info = ();
 my %possible_track_info_options = ();
@@ -101,7 +101,7 @@ if(!@facetes || !@track_fields) {
 
 my $template = HTML::Template->new(filename => 'faceted_browsing.tmpl');
 
-$template->param( BROWSING_FACETES => \@facetes);
+$template->param( BROWSING_FACETES => \@facetes, JSON_PATH => "$outdir/faceted_browsing.json" );
 
 open(my $out_file, ">faceted_browsing.html");
 print $out_file $template->output;
