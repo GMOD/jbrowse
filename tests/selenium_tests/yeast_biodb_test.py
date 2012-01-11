@@ -17,8 +17,9 @@ def test_yeast():
     tabs = browser.find_elements_by_xpath( '//div[@class="browsingTab"]' )
     for t in tabs:
         t.click()
-        time.sleep(0.5)
+        time.sleep(1)
         t.click()
+        time.sleep(0.5)
 
     assert_no_js_errors(browser)
 
