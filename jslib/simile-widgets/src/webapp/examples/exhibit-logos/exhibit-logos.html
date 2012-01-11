@@ -1,0 +1,131 @@
+<html>
+  <head>
+    <title>SIMILE Widgets | Exhibit | Examples | Logos</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+    
+    <link href="logos.js" type="application/json" rel="exhibit/data" />
+
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/exhibit-api.js -->
+    <script src="../../api/exhibit-api.js"></script>
+    <style>
+        #exhibit-view-panel h1 {
+            padding:    2em 0 1em 0;
+            margin:     0;
+            background: none;
+            border:     none;
+        }
+                
+        div.logo-thumbnail {
+            float:      left;
+            width:      15em;
+            height:     5em;
+            padding:    1em;
+            text-align: center;
+        }
+        button.exhibit-copyButton {
+            display: none;
+        }
+        div.color-textbox {
+            margin:      1em;
+        }
+        div.color-textbox input {
+            font-family: monospace;
+        }
+    </style>
+    <style id="light-dark">
+        .light {
+            background: black;
+            color:      white;
+        }
+        .dark {
+            background: white;
+            color:      black;
+        }
+    </style>
+    <script>
+        var thumbnailLensSelector = function(itemID, database) {
+            var s = database.getObject(itemID, "light-dark");
+            return document.getElementById(s == "light" ? "light-template" : "dark-template");
+        };
+        function setColor(foreground, background) {
+            if (background == "custom") {
+                var s = document.getElementById(foreground + "-color").value;
+                background = s;
+            }
+            
+            var styleSheet = document.styleSheets[document.styleSheets.length - 1];
+            var rules = SimileAjax.Platform.browser.isIE ? styleSheet.rules : styleSheet.cssRules;
+            try {
+                rules[foreground == "light" ? 0 : 1].style.backgroundColor = background;
+            } catch (e) {}
+        };
+    </script>
+  </head> 
+  <body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Examples: Logos</span></li>
+    </ul>
+    <div id="header">
+      <h1>Exhibit Logos</h1>
+    </div>
+    <div id="content">
+        <table width="100%" class="spaced-table">
+            <tr>
+                <td width="25%">
+                    <div ex:role="facet" ex:expression=".light-dark" ex:facetLabel="Light/Dark Logos" ex:height="4em"></div>
+                    <hr/>
+                
+                    <p>If your web page's background is neither black nor white, you
+                        can set the background colors here to match your web page's background.
+                    </p>
+                    <form id="dark-background-form">
+                        <p><b>Dark logos' background:</b></p>
+                        <input type="radio" name="dark-background" value="white" checked="true" onclick="setColor('dark', 'white');">White</input><br/>
+                        <input type="radio" name="dark-background" value="custom" onclick="setColor('dark', 'custom');">Custom</input><br/>
+                        <div class="color-textbox"><input type="text" value="#ffffff" id="dark-color" 
+                            onkeyup="document.getElementsByName('dark-background')[1].checked = true; setColor('dark', 'custom');" /></div>
+                    </form>
+                    <form id="light-background-form">
+                        <p><b>Light logos' background:</b></p>
+                        <input type="radio" name="light-background" value="black" checked="true" onclick="setColor('light', 'black');">Black</input><br/>
+                        <input type="radio" name="light-background" value="custom" onclick="setColor('light', 'custom');">Custom</input><br/>
+                        <div class="color-textbox"><input type="text" value="#000000" id="light-color" 
+                            onkeyup="document.getElementsByName('light-background')[1].checked = true; setColor('light', 'custom');" /></div>
+                    </form>
+                    <hr/>
+                
+                    <p>To insert an Exhibit logo into your web page, use this code but change the color:
+<pre>&lt;center ex:role="logo" 
+  ex:color="SlateBlue"&gt;
+&lt;/center&gt;</pre>
+                        You should see something like this:
+                    </p>
+                    <center ex:role="logo" ex:color="SlateBlue"></center>
+                </td>
+                <td id="exhibit-view-panel">
+                    <div ex:role="view"
+                        ex:viewClass="Thumbnail"
+                        ex:showAll="true"
+                        ex:orders=".light-dark"
+                        ex:possibleOrders=".label, .light-dark"
+                        ex:lensSelector="thumbnailLensSelector">
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <div class="logo-thumbnail light" id="light-template" style="display: none">
+            <div class="logo-image"><img ex:src-content=".url" /></div>
+            <div ex:content=".label" class="color-name"></div>
+            <div ex:content=".foreground" class="color-code"></div>
+        </div>
+        <div class="logo-thumbnail dark" id="dark-template" style="display: none">
+            <div class="logo-image"><img ex:src-content=".url" /></div>
+            <div ex:content=".label" class="color-name"></div>
+            <div ex:content=".foreground" class="color-code"></div>
+        </div>
+      </table>
+    </div>
+  </body>
+</html>

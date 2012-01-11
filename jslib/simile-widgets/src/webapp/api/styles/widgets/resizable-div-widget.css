@@ -1,0 +1,10 @@
+/*==================================================
+ * Resizable Div Widget styles
+ *==================================================
+ */
+div.exhibit-resizableDivWidget-resizer {
+    text-align:     center;
+    cursor:         s-resize;
+    height:         15px;
+    clear:          both;
+}

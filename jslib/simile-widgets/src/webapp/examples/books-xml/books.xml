@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<state>
+  <library>
+    <name>Public Library</name>
+    <book>
+      <title>The Best Book Ever</title>
+      <copyright>1990</copyright>
+      <copyright>1992</copyright>
+      <copyright>1998</copyright>
+      <author>
+        <name>Billy Jones</name>
+        <other_novels>
+          <book>
+            <title language="English">Haystack: The Story</title>
+            <copyright>2001</copyright>
+          </book>
+        </other_novels>
+      </author>
+      <copyright>1999</copyright>
+    </book>
+    <book>
+      <title language="English">Surely You're Joking, Mr. Feynman!</title>
+      <author>
+        <name>Richard Feynman</name>
+        <other_novels>
+          <book>
+            <title>Months That Start With "Feb"</title>
+            <copyright>2007</copyright>
+          </book>
+        </other_novels>
+      </author>
+      <copyright>1985</copyright>
+    </book>
+  </library>
+  <library>
+    <name>Barker</name>
+  </library>
+</state>

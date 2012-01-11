@@ -1,0 +1,32 @@
+div.exhibit-lens {
+    border:         1px solid #aaa;
+    margin-bottom:  1em;
+}
+
+div.exhibit-lens-title {
+    font-weight:    bold;
+    background:     #eee;
+    padding:        2px;
+}
+
+.exhibit-lens-copyButton {
+    float:  right;
+}
+
+div.exhibit-lens-body {
+	padding: 0.3em;
+}
+
+table.exhibit-lens-properties {
+}
+
+tr.exhibit-lens-property {
+}
+
+td.exhibit-lens-property-name {
+	color: #888;
+}
+
+td.exhibit-lens-property-values {
+}
+

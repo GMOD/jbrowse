@@ -1,0 +1,719 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="generator" content="JsDoc Toolkit 1.0">
+	<title>JsDoc: SimileAjax.Graphics</title>
+	<link rel=stylesheet href="default.css" type="text/css" media=screen>
+</head>
+
+<body>
+	<div class="content">
+		<div class="docs">
+		
+			<div class="sectionHead">Library: SimileAjax.Graphics</div>
+			<div class="section overview">
+				<div class="itemTitle">
+					Overview
+				</div>
+				<div>	
+					<div class="desc">Graphics utility functions and constants</div>
+					<div class="itemTags">
+					
+					</div>
+				</div>
+			</div>
+			
+			<div class="sectionHead">Constructors</div>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<div class="sectionHead">Functions</div>
+			
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Graphics.createTranslucentImage"></a>
+					
+					
+					SimileAjax.Graphics.createTranslucentImage(<span class="signature">url, verticalAlign</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Creates a DOM element for an <code>img</code> tag using the URL given. This
+is a convenience method that automatically includes the necessary CSS to
+allow for translucency, even on IE.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							String
+						</td>
+						<td>
+							url
+						</td>
+						<td>
+							the URL to the image
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							String
+						</td>
+						<td>
+							verticalAlign
+						</td>
+						<td>
+							the CSS value for the image's vertical-align
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Element
+						</td>
+						<td>
+							a DOM element containing the <code>img</code> tag
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Graphics.createTranslucentImageHTML"></a>
+					
+					
+					SimileAjax.Graphics.createTranslucentImageHTML(<span class="signature">url, verticalAlign</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Creates an HTML string for an <code>img</code> tag using the URL given.
+This is a convenience method that automatically includes the necessary CSS
+to allow for translucency, even on IE.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							String
+						</td>
+						<td>
+							url
+						</td>
+						<td>
+							the URL to the image
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							String
+						</td>
+						<td>
+							verticalAlign
+						</td>
+						<td>
+							the CSS value for the image's vertical-align
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							String
+						</td>
+						<td>
+							a string containing the <code>img</code> tag
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Graphics.setOpacity"></a>
+					
+					
+					SimileAjax.Graphics.setOpacity(<span class="signature">elmt, opacity</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Sets the opacity on the given DOM element.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Element
+						</td>
+						<td>
+							elmt
+						</td>
+						<td>
+							the DOM element to set the opacity on
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							opacity
+						</td>
+						<td>
+							an integer from 0 to 100 specifying the opacity
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Graphics.createBubbleForPoint"></a>
+					
+					
+					SimileAjax.Graphics.createBubbleForPoint(<span class="signature">pageX, pageY, contentWidth, contentHeight, orientation</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Creates a nice, rounded bubble popup with the given page coordinates and
+content dimensions.  The bubble will point to the location on the page
+as described by pageX and pageY.  All measurements should be given in
+pixels.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							pageX
+						</td>
+						<td>
+							the x coordinate of the point to point to
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							pageY
+						</td>
+						<td>
+							the y coordinate of the point to point to
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							contentWidth
+						</td>
+						<td>
+							the width of the content box in the bubble
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							contentHeight
+						</td>
+						<td>
+							the height of the content box in the bubble
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							String
+						</td>
+						<td>
+							orientation
+						</td>
+						<td>
+							a string ("top", "bottom", "left", or "right")
+  that describes the orientation of the arrow on the bubble
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Element
+						</td>
+						<td>
+							a DOM element for the newly created bubble
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Graphics.createMessageBubble"></a>
+					
+					
+					SimileAjax.Graphics.createMessageBubble(<span class="signature">doc, an</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Creates a floating, rounded message bubble in the center of the window for
+displaying modal information, e.g. "Loading..."</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Document
+						</td>
+						<td>
+							doc
+						</td>
+						<td>
+							the root document for the page to render on
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Object
+						</td>
+						<td>
+							an
+						</td>
+						<td>
+							object with two properties, contentDiv and containerDiv,
+  consisting of the newly created DOM elements
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Graphics.createAnimation"></a>
+					
+					
+					SimileAjax.Graphics.createAnimation(<span class="signature">f, from, to, duration, cont</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Creates an animation for a function, and an interval of values.  The word
+"animation" here is used in the sense of repeatedly calling a function with
+a current value from within an interval, and a delta value.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Function
+						</td>
+						<td>
+							f
+						</td>
+						<td>
+							a function to be called every 50 milliseconds throughout
+  the animation duration, of the form f(current, delta), where current is
+  the current value within the range and delta is the current change.
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							from
+						</td>
+						<td>
+							a starting value
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							to
+						</td>
+						<td>
+							an ending value
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							duration
+						</td>
+						<td>
+							the duration of the animation in milliseconds
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Function
+						</td>
+						<td>
+							cont
+						</td>
+						<td>
+							an optional function that is called at the end of
+  the animation, i.e. a continuation.
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							SimileAjax.Graphics._Animation
+						</td>
+						<td>
+							a new animation object
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Graphics._Animation.run"></a>
+					
+						<i><a href="#SimileAjax.Graphics._Animation" class="type">SimileAjax.Graphics._Animation.</a></i>run(<span class="signature"></span>)
+					
+					
+				</div>
+				
+				
+					<div class="desc">Runs this animation.</div>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Graphics._Animation.step"></a>
+					
+						<i><a href="#SimileAjax.Graphics._Animation" class="type">SimileAjax.Graphics._Animation.</a></i>step(<span class="signature"></span>)
+					
+					
+				</div>
+				
+				
+					<div class="desc">Increments this animation by one step, and then continues the animation with
+<code>run()</code>.</div>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Graphics.createStructuredDataCopyButton"></a>
+					
+					
+					SimileAjax.Graphics.createStructuredDataCopyButton(<span class="signature">image, width, height, createDataFunction</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Creates a button and textarea for displaying structured data and copying it
+to the clipboard.  The data is dynamically generated by the given 
+createDataFunction parameter.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							String
+						</td>
+						<td>
+							image
+						</td>
+						<td>
+							an image URL to use as the background for the 
+  generated box
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							width
+						</td>
+						<td>
+							the width in pixels of the generated box
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							height
+						</td>
+						<td>
+							the height in pixels of the generated box
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Function
+						</td>
+						<td>
+							createDataFunction
+						</td>
+						<td>
+							a function that is called with no
+  arguments to generate the structured data
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							
+						</td>
+						<td>
+							a new DOM element
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="sectionHead">Objects</div>
+			
+			
+			<div class="section object">
+				<div class="itemTitle">
+					<a name="SimileAjax.Graphics.pngIsTranslucent"></a>
+					
+					<span class="type">Boolean</span>
+					
+					
+					
+						SimileAjax.Graphics.pngIsTranslucent
+					
+				</div>
+				
+				
+					<div class="desc">A boolean value indicating whether PNG translucency is supported on the
+user's browser or not.</div>
+				
+				
+				
+			</div>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		</div>
+	</div>
+	<div class="finePrint">
+	Generated by <a href="http://jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> on Tue, 07 Aug 2007 20:53:48 GMT
+	</div>
+</body>
+</html>

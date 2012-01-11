@@ -1,0 +1,450 @@
+<html>
+  <head>
+    <title>SIMILE Widgets | Exhibit | Examples | Exhibits on Parade</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+    
+    <link rel='stylesheet' href='exhibits.css' type='text/css'></link>    
+      
+    <link rel="exhibit/data" type="application/jsonp"
+      href="http://spreadsheets.google.com/feeds/list/o02715122730018153756.6384702511379608279/od6/public/basic?alt=json-in-script"
+      ex:converter="googleSpreadsheets" />
+               
+    <link rel="exhibit/data" type="application/jsonp"
+      href="http://spreadsheets.google.com/feeds/list/o02715122730018153756.1407896790048767226/od6/public/basic?alt=json-in-script"
+      ex:converter="googleSpreadsheets" />
+      
+    <link rel="exhibit/output" ex:spreadsheetKey="pHCVS1LwNriX6_ETTq9qJEw"></link>
+    
+    <link href="exhibits.js" type="application/json" rel="exhibit/data"></link>
+    
+    <script>      
+         var rowStyler = function(item, db, tr) {
+            try {
+               tr.setAttribute('purpose', db.getObject(item, 'purpose'));
+               tr.style.fontSize = 'smaller';
+            } catch(e) {}
+         }
+         
+         var removeNullEmails = function(div) {
+            try {
+               var links = div.getElementsByTagName('a');
+               for (var i = 0; i < links.length; i++) { 
+                   href = links[i].getAttribute("href");
+                   if (href == "mailto:null") { 
+                      links[i].removeAttribute('href');
+                   }
+               }
+            } catch(e) {}
+         }
+    </script>
+
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/exhibit-api.js -->
+    <script src="../../api/exhibit-api.js"></script>
+
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/extensions/curate/curate-extension.js -->
+    <script src="../../api/extensions/curate/curate-extension.js" type='text/javascript'></script>
+
+    <script>
+         Exhibit.Functions["monthsOld"] = {
+               f: function(args) {
+                   var set = new Exhibit.Set();
+                    
+                   args[0].forEachValue(function(v) {
+                      try {
+                         var then = SimileAjax.DateTime.parseIso8601DateTime(v);
+                         var now = new Date();
+
+                         var diff = (now.getFullYear() - then.getFullYear()) * 12;
+                         diff += now.getMonth() - then.getMonth();
+                        
+                         if (diff <= 0) { diff = 1 };
+
+                         set.add(diff);
+                      } catch(e) {} // ignore errors
+                   });
+                   return new Exhibit.Expression._Collection(set, "number");
+               }
+           };
+    </script>
+   </head>
+
+   <body>
+      <div class="header">
+         
+         <h2 class="headerTitle">
+            Exhibits On Parade: An exhibit of exhibits
+         </h2>
+         
+         <div class="description">
+            <p>
+               This is a list of published <a href="http://code.google.com/p/simile-widgets/">exhibits</a> 
+            out there in the world. We record a description of the exhibit, the author, and a 
+            few statistics about what's in it.</p>
+         
+            
+            <p>
+               This page showcases a new feature that lets exhibit 
+            authors create data entry forms in their exhibits, for visitors to submit new
+            items with. When items are created, they're saved to a Google Spreadsheet 
+            owned by the author. These new items can either be included in the exhibit
+            automatically, or individually approved by the author.</p>
+            
+            <p>
+               Want to make an editable exhibit like this?
+               I'm currently doing a study on integrating item submission forms 
+               into existing exhibits, and would love
+               to help users add this feature to their own exhibit. 
+               <a href="mailto:sbostler@gmail.com">Contact me if you'd like 
+               to be involved!</a> 
+               The first ten participants will be given a $20 Amazon gift
+               certificate as thanks :)
+            </p>
+
+         </div>
+         
+         <div class="creator">
+            <a ex:role="item-creator" ex:itemType="exhibit" 
+               ex:automaticallySubmit="true"
+               ex:submissionMessage="Thanks for submitting your exhibit! We will look at it soon."
+               ex:cancelButtonText="Cancel"
+               ex:createButtonText="Submit Exhibit"
+               >
+                &rarr; Add your own exhibit
+
+               <div ex:role="edit-lens" style="display: none">
+                  <div class="title">
+                       <span>Add your Exhibit!</span>
+                   </div>
+
+                   <div class="item-entry-field">
+
+                      <div class="field-label">Exhibit name <b>*</b></div>
+                      <span class="field"><input ex:edit="label"></input></span>
+                   </div>
+
+                   <div class="item-entry-field">
+                      <div class="field-label">Exhibit URL <b>*</b></div>
+                      <span class="field"><input ex:edit="url"></input></span>
+
+                   </div>
+
+                   <div class="item-entry-field">
+                      <div class="field-label">Your name <b>*</b></div>
+                      <span class="field"><input ex:edit="author"></input></span>
+                   </div>
+
+                   <div class="item-entry-field">
+                      <div class="field-label">Your email <b>*</b></div>
+
+                      <span class="field"><input ex:edit="authorEmail"></input></span>
+                   </div>
+
+                   <div class="item-entry-field">
+                     <b>*</b>: these are the important ones.
+                   </div>
+
+                   <div class="item-entry-field">
+                      <div class="field-label">Your country</div>
+
+                      <span class="field"><input ex:edit="country"></input></span>
+                   </div>
+
+                   <div class="item-entry-field">
+                      <div class="field-label">Language of the exhibit</div>
+                      <span class="field"><input ex:edit="language"></input></span>
+                   </div>
+
+                   <p></p>
+
+                   <div class="item-entry-field">
+                      <div class="field-label">Brief description of your exhibit</div>
+                      <span class="field"><textarea ex:edit="description"></textarea></span>
+                   </div>
+
+                   <div class="item-entry-field">
+                     <div class="field-label">When was your exhibit created?</br>(YYYY-MM format please, i.e. 2008-08 for August 2008.)</div>
+
+                     <span class="field"><input ex:edit="createdOn"></input></span>
+                   </div>
+
+                   <div class="item-entry-field">
+                     <div class="field-label">What purpose does your exhibit serve? (academic, personal, business, other)</div>
+                     <span class="field"><input ex:edit="purpose"></input></span>
+                   </div>
+
+                   <div class="item-entry-field">
+
+                      <div class="field-label">What feature would you most like added to Exhibit?</div>
+                      <span class="field"><textarea ex:edit="desiredFeature"></textarea></span>
+                   </div>
+
+                   <div class="item-entry-field"></div>
+
+                   <div class="item-entry-field">
+                      <div class="field-label">How many types are in your exhibit?</div>
+
+                      <input ex:edit="typeCount"></input>
+                   </div>
+
+                   <div class="item-entry-field">
+                      <div class="field-label">How many items are in your exhibit?</div>
+                      <input ex:edit="itemCount"></input>
+                   </div>
+
+                   <div class="item-entry-field">
+
+                      <div class="field-label">How many properties are in your exhibit?</div>
+                      <input ex:edit="propertyCount"></input>
+                   </div>
+
+                   <div class="item-entry-field">
+                      <div class="field-label">How many views are in your exhibit?</div>
+                      <input ex:edit="viewCount"></input>
+                   </div>
+
+                   <div class="item-entry-field">
+                      <div class="field-label">How many facets are in your exhibit?</div>
+                      <input ex:edit="facetCount"></input>
+                   </div>
+
+                   <div class="item-entry-field"></div>
+
+                   <div class="item-entry-field">
+                      <div class="field-label">What are the important types in your exhibit? <br>(Please seperate them with semicolons)</div>
+
+                      <input ex:edit="types"></input>
+                   </div>
+
+                   <div class="item-entry-field">
+                      <div class="field-label">What are the important properties in your exhibit? <br>(Please seperate them with semicolons)</div>
+                      <input ex:edit="properties"></input>
+                   </div>
+
+               </div>
+
+            </a>
+         </div>
+         
+         
+      </div>
+      
+      <table class="mainTable">
+         <tr valign="top">
+
+         <td class="column3">
+            
+            <div class="colorKey">
+               <h3>Type of Exhibit</h3>
+
+               <span purpose="personal" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Personal &nbsp;
+               <span purpose="academic" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Academic &nbsp;
+               <span purpose="business" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Business &nbsp;
+               <span purpose="other">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Other &nbsp;
+            </div>
+
+            
+            <p></p>
+            
+            <div ex:role="viewPanel" class="viewContainer">
+            <div ex:role="view" ex:label="Exhibits" 
+               ex:formats="date { template : 'MMM \'yy' }" 
+               ex:orders=".addedOn" ex:directions="descending">
+               
+               <div ex:role="lens" style="padding: 0.5em" style="display: none" 
+                  ex:purpose-content=".purpose"
+                  ex:onshow="removeNullEmails(this)"
+                  >
+
+                  <div>
+                     <a class="itemHeader" ex:href-content=".url" ex:content=".label" target="_blank"></a> <br />
+                     <span ex:if-exists=".author"> by <a ex:href-subcontent="mailto:{{.authorEmail}}" ex:content=".author"></a>,</span>
+                     <span ex:if-exists=".addedOn">added <span ex:content=".addedOn"></span></span>
+                  </div>
+
+                  <div>
+                     <span ex:if-exists=".createdOn">created <span ex:content=".createdOn"></span></span>
+                  </div>
+
+                  <span ex:if-exists=".createdOn">
+                  </span>
+
+                  <p></p>
+                  
+
+                  <div class="entry-header">
+                     <span ex:content=".description"></span>
+                  </div>
+                  
+                  <p></p>
+                  
+                  <div style="color: dimgray">
+                  <div><b>Info:</b></div>
+
+                  <div class="entry-header">
+                     <span ex:if-exists=".country"><span ex:content=".country"></span>,</span>
+                     in <span ex:content=".language"></span>,
+                     <span ex:if-exists=".purpose"><span ex:content=".purpose"></span></span>
+                  </div>
+
+
+                  <div class="entry-header">
+                     <span ex:if-exists=".typeCount"><span ex:content=".typeCount"></span> types, </span>
+
+                     <span ex:if-exists=".itemCount"><span ex:content=".itemCount"></span> items, </span>
+                     <span ex:if-exists=".propertyCount"><span ex:content=".propertyCount"></span> properties, </span>
+                     <span ex:if-exists=".viewCount"><span ex:content=".viewCount"></span> views, </span>
+                     <span ex:if-exists=".facetCount"><span ex:content=".facetCount"></span> facets</span>
+                  </div>
+
+                  <p></p>
+
+                  <div class="entry-header" ex:if-exists=".types">
+                     <span><b>Important types:</b></span>
+                     <span ex:content=".types"></span>
+                  </div>
+
+                  <div class="entry-header" ex:if-exists=".properties">
+                     <span><b>Important properties:</b></span>
+
+                     <span ex:content=".properties"></span>
+                  </div>
+
+                  <p></p>
+
+
+                  <div class="entry-header" ex:if-exists=".desiredFeature">
+                     <div><b>Most desired Exhibit feature:</b></div>
+                     <span ex:content=".desiredFeature"></span>
+                  </div>
+
+                  </div>
+
+               </div>
+            </div>
+            
+            <div ex:role="view" ex:viewClass="Tabular" ex:label="Table" class="itemTable"
+               ex:columns=".label, .author, .country, .language, .addedOn, .createdOn, .typeCount, .propertyCount, .itemCount, .viewCount, .facetCount"
+               ex:columnLabels="title, author, country, language, added, created, # types, # properties, # items, # views, # facets"
+               ex:cellSpacing="1"
+               ex:rowStyler="rowStyler"
+               ex:columnFormats="text,text,text,text,date { template : 'MMM \'yy' },date { template : 'MMM \'yy' },text,text,text,text,"
+               
+            ></div>               
+            </div>
+         </td>
+         
+         <td class="column1">
+            
+            <div ex:role="facet" 
+               ex:expression="monthsOld(.createdOn)" 
+               ex:facetClass="NumericRange"
+               ex:facetLabel="months old"
+               ex:interval="6"
+               ex:height="8em">
+            </div>
+
+            <div ex:role="facet" 
+               ex:expression=".country" 
+               ex:facetLabel="country" 
+               ex:height="8em">
+            </div>
+
+            <div ex:role="facet" 
+               ex:expression=".language" 
+               ex:facetLabel="language"
+               ex:height="8em">
+            </div>
+            
+            <div ex:role="facet" 
+               ex:expression=".purpose" 
+               ex:facetLabel="purpose"
+               ex:height="8em">
+            </div>
+            
+         </td>
+         
+         <td class="column2">
+
+            
+            <!-- <div ex:role="facet" 
+               ex:facetClass="Slider" 
+               ex:horizontal="true" 
+               ex:expression=".typeCount" 
+               ex:facetLabel="# of types" 
+               ></div> -->
+            
+            <div ex:role="facet" 
+               ex:expression=".typeCount"
+               ex:facetClass="NumericRange"
+               ex:facetLabel="# of types"
+               ex:interval="5"
+               ex:height="8em">
+            </div>
+
+            <!-- <div ex:role="facet" 
+               ex:facetClass="Slider" 
+               ex:horizontal="true" 
+               ex:expression=".itemCount" 
+               ex:facetLabel="# of items" 
+               ></div> -->
+
+            <div ex:role="facet" 
+               ex:expression=".itemCount"
+               ex:facetClass="NumericRange"
+               ex:facetLabel="# of items"
+               ex:interval="5"
+               ex:height="8em">
+            </div>
+            
+            <!-- <div ex:role="facet" 
+               ex:facetClass="Slider" 
+               ex:horizontal="true" 
+               ex:expression=".propertyCount" 
+               ex:facetLabel="# of properties" 
+               ></div> -->
+
+            <div ex:role="facet" 
+                           ex:expression=".propertyCount"
+                           ex:facetClass="NumericRange"
+                           ex:facetLabel="# of properties"
+                           ex:interval="5"
+                           ex:height="8em">
+                        </div>
+
+            <!-- <div ex:role="facet" 
+               ex:facetClass="Slider" 
+               ex:horizontal="true" 
+               ex:expression=".viewCount" 
+               ex:facetLabel="# of views" 
+               ></div> -->
+
+            <div ex:role="facet" 
+               ex:expression=".viewCount"
+               ex:facetClass="NumericRange"
+               ex:facetLabel="# of views"
+               ex:interval="5"
+               ex:height="8em">
+            </div>
+            
+            <!-- <div ex:role="facet" 
+               ex:facetClass="Slider" 
+               ex:horizontal="true" 
+               ex:expression=".facetCount" 
+               ex:facetLabel="# of facets" 
+               ></div> -->
+
+            <div ex:role="facet" 
+               ex:expression=".facetCount"
+               ex:facetClass="NumericRange"
+               ex:facetLabel="# of facets"
+               ex:interval="5"
+               ex:height="8em">
+            </div>
+         
+         </td>
+         
+         </tr>
+      </table>      
+
+   </body>
+</html>

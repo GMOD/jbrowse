@@ -1,0 +1,142 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    
+    <title>SIMILE Widgets | Exhibit | Examples | Mushrooms</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+    
+    <link href="shrooms.json" rel="exhibit/data" type="application/json" />
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/exhibit-api.js -->
+    <script src="../../api/exhibit-api.js"></script>
+    <style>
+        #main-layout {
+            height:     100%;
+        }
+
+        #left-column {
+            padding:    1em;
+            width:      20em;
+            min-width:  20em !important;
+            background: #eee;
+        }
+
+        #main-column {
+            padding:    2em;
+            vertical-align: top;
+        }
+        
+        div.thumbnail-lens {
+            width: 400px;
+            height: 300px;
+            overflow: hidden;
+            margin-right: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+        }
+        
+        div.exhibit-flowingFacet {
+            margin-top: 10px;
+            padding:    10px;
+            background: white;
+        }
+        h3 { margin-top: 0px;}
+        
+        img.small-photo {
+            width: 150px;
+        }
+    </style>
+  </head>
+  <body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Examples: Mushrooms</span></li>
+    </ul>
+
+    <div ex:role="collection" ex:itemTypes="Mushroom"></div>
+
+    <table border="0" cellpadding="0" cellspacing="0" id="main-layout" width="100%">
+      <tr>
+        <td id="left-column">
+
+          <div id="the-facets2">
+            <div ex:facetclass="TextSearch" ex:facetlabel="Search" ex:role="facet" id="facet1211341960513"></div>
+            <div ex:expression=".capshape" 
+                ex:facetclass="Image" 
+                ex:facetLabel="Cap Shape"
+                ex:image=".depiction"
+                ex:overlayCounts="false" 
+                ex:tooltip="value" 
+                ex:height="122px" 
+                ex:scroll="false"
+                ex:role="facet" id="facet1211341972384"></div>
+            <div ex:expression=".ecologicaltype" 
+                ex:facetclass="Image" 
+                ex:facetLabel="Ecological Type"
+                ex:image=".depiction" 
+                ex:tooltip="value" 
+                ex:height="122px"
+                ex:scroll="false" 
+                ex:role="facet" id="facet1211341986916"></div>
+            <div ex:expression=".howedible" 
+                ex:facetclass="Image" 
+                ex:facetLabel="How Edible?"
+                ex:image=".depiction" 
+                ex:tooltip="value" 
+                ex:height="122px"
+                ex:scroll="false" 
+                ex:role="facet" id="facet1211341998714"></div>
+            <div ex:expression=".hymeniumtype" 
+                ex:facetclass="Image" 
+                ex:facetLabel="Hymenium Type"
+                ex:image=".depiction" 
+                ex:tooltip="value" 
+                ex:height="122px"
+                ex:scroll="false" 
+                ex:role="facet" id="facet1211342009292"></div>
+            <div ex:expression=".sporeprintcolor" 
+                ex:facetclass="Image" 
+                ex:facetLabel="Spore Print Color"
+                ex:image=".depiction" 
+                ex:tooltip="value" 
+                ex:height="122px"
+                ex:scroll="false" 
+                ex:role="facet" id="facet1211342014964"></div>
+            <div ex:expression=".stipecharacter" 
+                ex:facetclass="Image" 
+                ex:facetLabel="Stipe Character"
+                ex:image=".depiction" 
+                ex:tooltip="value" 
+                ex:height="122px"
+                ex:scroll="false" 
+                ex:role="facet" id="facet1211342042260"></div>
+          </div>
+          <div style="margin-top: 20px">
+            Data for this exhibit came first from <a href="http://dbpedia.org/About">DBpedia</a> by <a href="dbpedia_query_fungi.sparql">SPARQL query</a>.  That data served as input for a <a href="download_mushrooms.rb">ruby scraper</a> to collect the URIs of the images on Wikipedia.  The attribute images were then <a href="facets.n3">hand edited in N3</a>, concatenated with <a href="http://www.w3.org/2000/10/swap/doc/cwm">cwm</a>, and passed through <a href="http://simile.mit.edu/babel/">Babel</a> to provide Exhibit json.
+          </div>
+        </td>
+        <td id="main-column">
+          <h1 id="the-title">Mushrooms</h1>
+          <div ex:role="lens" class="thumbnail-lens" ex:itemTypes="Mushroom">
+            <table cellspacing="10">
+              <tr><td><a ex:href-content=".wikipage" target="_blank"><img class="small-photo" ex:src-content=".depiction"></img></a></td><td>
+                <h3 ex:content=".name"></h3>
+                <table>
+                  <tr><td ex:content=".stipecharacter"><img ex:src-content=".depiction"></img></td><td><span class="bold">stipe character</span>: <span ex:content=".stipecharacter"></span></td></tr>
+                  <tr><td ex:content=".hymeniumtype"><img ex:src-content=".depiction"></img></td><td><span class="bold">hymenium type</span>: <span ex:content=".hymeniumtype"></span></div></td></tr>
+                  <tr><td ex:content=".sporeprintcolor"><img ex:src-content=".depiction"></img></td><td><span class="bold">spore print color</span>: <span ex:content=".sporeprintcolor"></span></div></td></tr>
+                  <tr><td ex:content=".ecologicaltype"><img ex:src-content=".depiction"></img></td><td><span class="bold">ecological type</span>: <span ex:content=".ecologicaltype"></span></div></td></tr>
+                  <tr><td ex:content=".capshape"><img ex:src-content=".depiction"></img></td><td><span class="bold">cap shape</span>: <span ex:content=".capshape"></span></div></td></tr>
+                  <tr><td ex:content=".howedible"><img ex:src-content=".depiction"></img></td><td><span class="bold">how edible?</span>: <span ex:content=".howedible"></span></div></td></tr>
+                </table>
+              </td></tr>
+            </table>
+          </div>
+          <div id="the-views"><div ex:role="view" ex:viewclass="Thumbnail" id="view1211341960556"></div></div>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

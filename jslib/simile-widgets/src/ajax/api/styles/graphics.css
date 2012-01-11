@@ -1,0 +1,171 @@
+div.simileAjax-bubble-container {
+    margin:     0px;
+    padding:    0px;
+    border:     none;
+    position:   absolute;
+    z-index:    1000;
+}
+
+div.simileAjax-bubble-innerContainer {
+    margin:     0px;
+    padding:    0px;
+    border:     none;
+    position:   relative;
+    width:      100%;
+    height:     100%;
+    overflow:   visible;
+}
+
+div.simileAjax-bubble-contentContainer {
+    margin:     0px;
+    padding:    0px;
+    border:     none;
+    position:   absolute;
+    left:       0px;
+    top:        0px;
+    width:      100%;
+    height:     100%;
+    overflow:   auto;
+    background: white;
+}
+
+div.simileAjax-bubble-border-left {
+    position:   absolute;
+    left:       -50px;
+    top:        0px;
+    width:      50px;
+    height:     100%;
+}
+div.simileAjax-bubble-border-left-pngTranslucent {
+    background: url(../images/bubble-left.png) top right repeat-y;
+}
+
+div.simileAjax-bubble-border-right {
+    position:   absolute;
+    right:      -50px;
+    top:        0px;
+    width:      50px;
+    height:     100%;
+}
+.simileAjax-bubble-border-right-pngTranslucent {
+    background: url(../images/bubble-right.png) top left repeat-y;
+}
+
+div.simileAjax-bubble-border-top {
+    position:   absolute;
+    top:        -50px;
+    left:       0px;
+    width:      100%;
+    height:     50px;
+}
+.simileAjax-bubble-border-top-pngTranslucent {
+    background: url(../images/bubble-top.png) bottom left repeat-x;
+}
+
+div.simileAjax-bubble-border-bottom {
+    position:   absolute;
+    bottom:     -50px;
+    left:       0px;
+    width:      100%;
+    height:     50px;
+}
+.simileAjax-bubble-border-bottom-pngTranslucent {
+    background: url(../images/bubble-bottom.png) top left repeat-x;
+}
+
+div.simileAjax-bubble-border-top-left {
+    position:   absolute;
+    top:        -50px;
+    left:       -50px;
+    width:      50px;
+    height:     50px;
+}
+.simileAjax-bubble-border-top-left-pngTranslucent {
+    background: url(../images/bubble-top-left.png) bottom right no-repeat;
+}
+
+div.simileAjax-bubble-border-top-right {
+    position:   absolute;
+    top:        -50px;
+    right:      -50px;
+    width:      50px;
+    height:     50px;
+}
+.simileAjax-bubble-border-top-right-pngTranslucent {
+    background: url(../images/bubble-top-right.png) bottom left no-repeat;
+}
+
+div.simileAjax-bubble-border-bottom-left {
+    position:   absolute;
+    bottom:     -50px;
+    left:       -50px;
+    width:      50px;
+    height:     50px;
+}
+.simileAjax-bubble-border-bottom-left-pngTranslucent {
+    background: url(../images/bubble-bottom-left.png) top right no-repeat;
+}
+
+div.simileAjax-bubble-border-bottom-right {
+    position:   absolute;
+    bottom:     -50px;
+    right:      -50px;
+    width:      50px;
+    height:     50px;
+}
+.simileAjax-bubble-border-bottom-right-pngTranslucent {
+    background: url(../images/bubble-bottom-right.png) top left no-repeat;
+}
+
+div.simileAjax-bubble-arrow-point-left {
+    position:   absolute;
+    left:       -100px;
+    width:      100px;
+    height:     49px;
+}
+.simileAjax-bubble-arrow-point-left-pngTranslucent {
+    background: url(../images/bubble-arrow-point-left.png) center right no-repeat;
+}
+
+div.simileAjax-bubble-arrow-point-right {
+    position:   absolute;
+    right:      -100px;
+    width:      100px;
+    height:     49px;
+}
+.simileAjax-bubble-arrow-point-right-pngTranslucent {
+    background: url(../images/bubble-arrow-point-right.png) center left no-repeat;
+}
+
+div.simileAjax-bubble-arrow-point-up {
+    position:   absolute;
+    top:        -100px;
+    width:      49px;
+    height:     100px;
+}
+.simileAjax-bubble-arrow-point-up-pngTranslucent {
+    background: url(../images/bubble-arrow-point-up.png) bottom center no-repeat;
+}
+
+div.simileAjax-bubble-arrow-point-down {
+    position:   absolute;
+    bottom:     -100px;
+    width:      49px;
+    height:     100px;
+}
+.simileAjax-bubble-arrow-point-down-pngTranslucent {
+    background: url(../images/bubble-arrow-point-down.png) bottom center no-repeat;
+}
+
+
+div.simileAjax-bubble-close {
+    position:   absolute;
+    right:      -10px;
+    top:        -12px;
+    width:      16px;
+    height:     16px;
+    cursor:     pointer;
+}
+.simileAjax-bubble-close-pngTranslucent {
+    background: url(../images/close-button.png) no-repeat;
+}

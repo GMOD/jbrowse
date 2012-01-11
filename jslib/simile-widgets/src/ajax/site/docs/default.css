@@ -1,0 +1,116 @@
+body,a
+{
+	color: #000;
+	font: 12px verdana;
+}
+
+ul
+{
+	list-style-type: none;
+	margin-left: 10px;
+	padding-left: 10px;
+}
+
+.content { }
+.docs { }
+.signature { font-weight: normal; }
+.code {
+	font: 11px monaco,monospace;
+	padding: 4px;
+	margin-left: 18px;
+	border: 1px dashed #ccc;
+}
+
+.itemTitle
+{
+	font-size: 12px;
+	font-weight: bold;
+	height: 16px;
+}
+
+.item { }
+
+.sectionHead
+{
+	font-size: 18px;
+	font-weight: bold;
+	background-color: #C0C1DE;
+	color: #fff;
+	margin-top: 18px;
+	padding: 2px 4px 2px 4px;
+}
+
+.section
+{
+	padding: 8px;
+	border: 1px #8A92BC solid;
+	margin: 4px;
+}
+
+.detailHead
+{
+	border-bottom: 1px #8FB685 dotted;
+	font-size: 12px;
+	font-weight: bold;
+	color: #798E73;
+	margin-top: 18px;
+}
+
+.desc { padding: 8px; }
+
+.fileHead
+{
+	background-image: url(file.gif);
+	background-repeat: no-repeat;
+	padding-left: 20px;
+	font-weight: bold;
+	font-size: 14px;
+	line-height: 20px;
+}
+
+.overview .itemTitle
+{
+	background-image: url(overview.gif);
+	background-repeat: no-repeat;
+	padding-left: 20px;
+}
+
+.constructor .itemTitle
+{
+	background-image: url(constructor.gif);
+	background-repeat: no-repeat;
+	padding-left: 20px;
+}
+
+.function .itemTitle
+{
+	background-image: url(function.gif);
+	background-repeat: no-repeat;
+	padding-left: 20px;
+}
+
+.object .itemTitle
+{
+	background-image: url(object.gif);
+	background-repeat: no-repeat;
+	padding-left: 20px;
+}
+
+.type
+{
+	font-style: italic;
+	color: #999;
+	font-weight: normal;
+}
+
+.itemTitle a.type { font-weight: bold; }
+
+.finePrint
+{
+	color: #878787;
+	font-family: verdana;
+	font-size: 10px;
+	text-align: right;
+}
+
+.params td { padding-right: 10px; }

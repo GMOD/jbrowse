@@ -1,0 +1,107 @@
+﻿<html>
+  <head>
+    <title>SIMILE Widgets | Exhibit | Examples | Temperaturer i Sverige (temperatur.nu)</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+
+    <!-- data links -->
+    <link rel="exhibit/data" type="application/jsonp"
+        href="http://www.editgrid.com/user/ecmanaut/sverige-geografi.exhibit.jsonp"
+        ex:converter="geoconv" jsonp-callback="editgridCallback" />
+
+    <link rel="exhibit/data" type="application/jsonp"
+        href="http://www.temperatur.nu/api/platser" 
+        ex:converter="tnuconv" />
+
+    <!-- stylesheets -->
+    <link rel='stylesheet' href='styles.css' type='text/css' />
+
+    <!-- scripts -->
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/exhibit-api.js -->
+    <script src="../../api/exhibit-api.js"></script>
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/extensions/map/map-extension.js -->
+    <script type="text/javascript" src="../../api/extensions/map/map-extension.js?gmapkey=ABQIAAAA5JLLfCE9c7HAtg25QM2KCRRyiP6mHEsQpwvxB19-hS9Kgd8RYhSXEtJVAXDUCZPqwtZZi7-HUYUYrw"></script>
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/extensions/chart/chart-extension.js -->
+    <script type="text/javascript" src="../../api/extensions/chart/chart-extension.js"></script>
+    
+    <script type="text/javascript" src="converters.js" charset="utf-8"></script>
+  </head>
+
+  <body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Examples: Temperaturer i Sverige (temperatur.nu)</span></li>
+    </ul>
+    
+    <div ex:role="collection" ex:itemTypes="Plats"></div>
+    <table id="frame">
+        <tr>
+            <td id="content">
+                <h1>Temperaturer i Sverige (<a href="http://temperatur.nu/">temperatur.nu</a>)</h1>
+                
+                <p>Adapted from <a href="http://ecmanaut.blogspot.com/">Johan Sundström</a>'s
+                    <a href="http://exhibit.ecmanaut.googlepages.com/temperatur.nu.html">Temperaturer i Sverige exhibit</a>.
+                </p>
+                
+                <div ex:role="coder" ex:coderClass="ColorGradient" id="temperature-colors" 
+                    ex:gradientPoints="5, #000088; 15, #ffffff; 20, #ff0000">
+                </div>
+                
+                <div ex:role="viewPanel">
+                    <div ex:role="view"
+                        ex:viewClass="Map"
+                        ex:label="Karta"
+                        ex:lat=".lat"
+                        ex:lng=".lon"
+                        ex:_colorKey=".temp"
+                        ex:_colorCoder="temperature-colors"
+                        ex:shapeAlpha="1"
+                        ex:size="large"
+                        ex:center="61, 13"
+                        ex:zoom="4"
+                        ex:mapHeight="600">
+                        
+                        <div class="map-lens" ex:role="exhibit-lens" style="display: none;">
+                            <div><span ex:if-exists=".temp"><span ex:content=".temp"></span>°C i</span>
+                                <span ex:content=".label"></span>
+                            </div>
+                            <div>(<span ex:content=".kommun"></span>, <span ex:content=".län"></span>)</div>
+                            <div>Mättillfälle: <span ex:content=".time"></span></div>
+                        </div>
+                    </div>
+                    <div ex:role="view"
+                        ex:label="Latitud / Temperatur"
+                        ex:viewClass="ScatterPlot"
+                        ex:x=".temp"
+                        ex:y=".lat"
+                        ex:xLabel="Temperatur&nbsp;(°C)"
+                        ex:yLabel="Latitud&nbsp;(°)"
+                        ex:yAxisMin="55"
+                        ex:colorKey=".landsdel">
+                    </div>
+                    <div ex:role="view"
+                        ex:viewClass="Tabular"
+                        ex:label="Tabell"
+                        ex:columns=".temp, .ort, .stadsdel, .kommun, .län, .time"
+                        ex:columnLabels="°C, Ort, Stadsdel, Kommun, Län, Mättillfälle"
+                        ex:columnFormats="number, list, list, list, list, list"
+                        ex:sortColumn="0"
+                        ex:sortAscending="false">
+                    </div>
+                </div>
+            </td>
+            <td id="sidebar">
+                <div ex:role="exhibit-facet" ex:expression=".landsdel" ex:facetLabel="Landsdel" id="landsdel-facet"></div>
+                <div ex:role="exhibit-facet" ex:expression=".landskap" ex:facetLabel="Landskap"></div>
+                <div ex:role="exhibit-facet" ex:expression=".kommun" ex:facetLabel="Kommu"></div>
+                <div ex:role="exhibit-facet" ex:expression=".ok" ex:facetLabel="Ok" id="ok-facet"></div>
+                
+                <div id="bg-credits">Foto:&nbsp;<a href="http://flickr.com/photos/weston/2715655/">Weston Renoud</a></div>
+                <div ex:role="exhibit-logo" ex:color="Snow" style="text-align: right;"></div>
+            </td>
+        </tr>
+    </table>
+  </body>
+</html>

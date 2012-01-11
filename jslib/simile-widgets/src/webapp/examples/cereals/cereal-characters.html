@@ -1,0 +1,117 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>SIMILE Widgets | Exhibit | Examples | Topher's Breakfast Cereal Character Guide</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+    
+    <link href="cereal-characters.js" type="application/json" rel="exhibit/data" />
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/exhibit-api.js -->
+    <script src="../../api/exhibit-api.js"></script>
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/extensions/time/time-extension.js -->
+    <script src="../../api/extensions/time/time-extension.js" type="text/javascript"></script>
+    
+    <script src="copyright.js" type="text/javascript"></script>
+    <link rel='stylesheet' href='styles.css' type='text/css' />
+  </head>
+  <body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Examples: Topher's Breakfast Cereal Character Guide</span></li>
+    </ul>
+    <table id="header">
+        <tr valign="middle">
+            <td><img src="banner.png" style="float: left; margin-right: 2em;"/></td>
+            <td>
+                <p>Please refer to 
+                    <a href="http://www.lavasurfer.com/cereal-guide.html" target="_blank">Topher's original site</a>
+                    for copyright information. We are grateful to Topher for letting us host this data on our site.
+                </p>
+                <p>Here is the <a href="cereal-characters.js" target="_blank">Exhibit JSON data file</a>.
+                </p>
+            </td>
+        </tr>
+    </table>
+    <div id="body">
+        <div style="width: 100%">
+            <table cellpadding="0" cellspacing="10" border="0" id="exhibit" width="100%">
+                <tr>
+                    <td width="15%">
+                        <b>Search</b>
+                        <div ex:role="facet" ex:facetClass="TextSearch"></div>
+                        <hr/>
+                        <div ex:role="facet" ex:expression=".brand" ex:facetLabel="Brands" ex:height="15em"></div>
+                        <div ex:role="facet" ex:expression=".decade" ex:facetLabel="Decades" ex:height="20em"></div>
+                    </td>
+                    <td>
+  
+                        <div ex:role="coder" ex:coderClass="Icon" id="icons">
+                            <span ex:icon="http://www.wybron.com/sml/general_mills.png">General Mills</span>
+                            <span ex:icon="http://www.wybron.com/sml/kellogs.png">Kellog's</span>
+                            <span ex:icon="http://www.wybron.com/sml/nabisco.png">Nabisco</span>
+                            <span ex:icon="http://www.wybron.com/sml/nestle.png">Nestle</span>
+                            <span ex:icon="http://www.wybron.com/sml/post.png">Post</span>
+                            <span ex:icon="http://www.wybron.com/sml/quaker.png">Quaker Oats</span>
+                            <span ex:icon="http://www.wybron.com/sml/ralston.png">Ralston</span>
+                        </div>
+                  
+                        <div ex:role="viewPanel">
+                            <div ex:role="lens" class="item" style="display: none;">
+                                <table cellspacing="5">
+                                    <tr>
+                                        <td style="position: relative"><div class="itemThumbnail-blocker"></div><img ex:src-content=".image" /></td>
+                                        <td>
+                                            <h1><span ex:content=".label" /></h1>
+                                            <h2><span ex:content=".brand"></span> <span ex:content=".cereal"></span></h2>
+                                            <p ex:content=".text"></p>
+                                            <center><a ex:href-content=".url" target="new">More...</a></center>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div role="view" 
+                                ex:viewClass="Thumbnail"
+                                ex:showAll="true"
+                                ex:columnCount="4"
+                                ex:paginate="true"
+                                ex:possibleOrders=".brand, .decade, .form, .country">
+                          
+                                <table ex:role="lens" class="itemThumbnail" style="display: none;">
+                                    <tr>
+                                        <td valign="bottom" class="itemThumbnail-thumbnailContainer">
+                                            <div style="position: relative"><div class="itemThumbnail-blocker"></div><img ex:src-content=".thumbnail" /></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="itemThumbnail-caption"><span ex:content="value" /></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div ex:role="view" 
+                                ex:viewClass="Timeline"
+                                ex:start=".decade"
+                                ex:colorKey=".brand"
+                                 ex:iconKey=".brand"
+                                 ex:iconCoder="icons"
+                                ex:topBandUnit="year"
+                                ex:topBandPixelsPerUnit="50"
+                                ex:bottomBandUnit="decade"
+                                ex:bottomBandPixelsPerUnit="50"
+                                ex:bubbleWidth="400"
+                                ex:bubbleHeight="250">
+                            </div>
+                        </div>
+                    </td>
+                    <td width="15%">
+                        <div ex:role="facet" ex:expression=".country" ex:facetLabel="Countries" ex:height="15em"></div>
+                        <div ex:role="facet" ex:expression=".form" ex:facetLabel="Forms" ex:height="20em"></div>
+                        <center ex:role="logo"></center>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+  </body>
+</html>

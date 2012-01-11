@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>SIMILE Widgets | Exhibit | Examples | Election 08</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+    
+    <link rel="exhibit/data" href="us-state-borders-coarse.json" />
+    <link rel="exhibit/data" href="vote-for.json" />
+    
+    <script src="../../api/exhibit-api.js"></script>
+    <script src="../../api/extensions/map/map-extension.js"></script>
+    
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0;
+            font-family: Arial, Helvetica; font-size: 10pt; 
+        }
+        table { font-size: 100%; }
+        #header {
+            padding: 1em;
+            font-size: 200%;
+            background: #ccc;
+            font-weight: bold;
+        }
+        #content {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Election 08</span></li>
+    </ul>
+    
+    <div id="content">
+        <h1>Election 08</h1>
+        
+        <div ex:role="lens" style="display: none;">
+            <div><b ex:content=".label"></b></div>
+        </div>
+        <table width="100%" cellspacing="15"><tr valign="top">
+            <td>
+                <div ex:role="coder" ex:coderClass="Color" id="vote-for-colors"> 
+                    <span ex:color="#aa0000">McCain</span> 
+                    <span ex:color="#0000aa">Obama</span>
+                    <span ex:color="#cccccc">Tossup</span>
+                    <span ex:color="#ff4444">Leaning McCain</span>
+                    <span ex:color="#4444ff">Leaning Obama</span>
+                    <span ex:color="black">Unknown</span>
+                </div> 
+                <div ex:role="view" 
+                    ex:viewClass="Map"
+                    ex:polygon=".border"
+                    ex:latlngPairSeparator="|"
+                    ex:colorKey=".vote-for"
+                    ex:colorCoder="vote-for-colors"
+                    ex:zoom="4"
+                    ex:mapHeight="600"
+                    ex:center="36.498367,-94.618156"
+                    ex:opacity="0.7"
+                    ex:borderColor="white"
+                    ex:borderWidth="3"
+                    ex:borderOpacity="1">
+                </div>
+            </td>
+            <td width="20%">
+                <div ex:role="facet" ex:expression=".vote-for" ex:scroll="false"></div>
+            </td>
+        </tr></table>
+    </div>
+</body>
+</html>

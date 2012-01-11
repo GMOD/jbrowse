@@ -1,0 +1,81 @@
+<html>
+  <head>
+    <title>SIMILE Widgets | Exhibit | Examples | Medieval Mediterranean</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+    
+    <link rel="exhibit/data" href="medieval-mediterranean.js" />
+    
+    <script src="../../api/exhibit-api.js"></script>
+    <script src="../../api/extensions/map/map-extension.js"></script>
+    
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0;
+            font-family: Arial, Helvetica; font-size: 10pt; 
+        }
+        table { font-size: 100%; }
+        #header {
+            padding: 1em;
+            font-size: 200%;
+            background: #ccc;
+            font-weight: bold;
+        }
+        #content {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+  <body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Medieval Mediterranean</span></li>
+    </ul>
+    
+    <div id="content">
+        <h1>Medieval Mediterranean</h1>
+        
+        <div ex:role="lens" style="display: none;">
+            <h2 ex:content=".label"></h2>
+            <table><tr valign="top">
+                <td><img ex:src-content=".Image" /></td>
+                <td>
+                    <div>Century: <span ex:content=".Century"></span></div>
+                    <div>Building: <span ex:content=".Building+Name"></span></div>
+                    <div>Author: <span ex:content=".Author"></span></div>
+                    <div>Medium: <span ex:content=".Medium"></span></div>
+                    <div>Title: <span ex:content=".Title"></span></div>
+                    <div>City: <span ex:content=".City"></span></div>
+                </td>
+            </tr></table>
+        </div>
+        
+        <table width="100%" cellspacing="0" cellpadding="0"><tr valign="top">
+            <td>
+                <div ex:role="view" 
+                    id="the-map"
+                    ex:viewClass="Map"
+                    ex:center="43.76852162810477,11.252446174621582"
+                    ex:zoom="15"
+                    ex:latlng=".latlng"
+                    ex:polyline=".polyline"
+                    ex:mapHeight="600"
+                    ex:borderWidth="7"
+                    ex:borderOpacity="1"
+                    ex:overviewControl="true"
+                    ex:size="large"
+                    >
+                </div>
+            </td>
+            <td width="20%" style="padding-left: 20px;">
+                <div ex:role="facet" ex:expression=".Century" ex:scroll="false"></div>
+                <div ex:role="facet" ex:expression=".City" ex:scroll="false"></div>
+                <div ex:role="facet" ex:expression=".Medium" ex:scroll="false"></div>
+                <div ex:role="facet" ex:expression=".Author" ex:scroll="false"></div>
+            </td>
+        </tr></table>
+    </div>
+</body>
+</html>

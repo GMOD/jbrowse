@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <title>SIMILE Widgets | Exhibit | Examples | CIA World Factbook - People</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+
+    <link href="countries.js" type="application/json" rel="exhibit/data" />
+    <link href="people.js" type="application/json" rel="exhibit/data" />
+    <link href="government.js" type="application/json" rel="exhibit/data" />
+
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/exhibit-api.js -->
+    <script src="../../api/exhibit-api.js"></script>
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/extensions/chart/chart-extension.js -->
+    <script src="../../api/extensions/chart/chart-extension.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Examples: CIA World Factbook - People</span></li>
+    </ul>
+    <div id="header">
+      <h1>CIA World Factbook - People</h1>
+    </div>
+    <div id="content"><div style="width: 100%;">
+        <table width="100%" class="spaced-table">
+            <tr>
+                <td width="20%">
+                    <div ex:role="facet" 
+                        ex:expression=".speaks" 
+                        ex:facetLabel="Languages"
+                        ex:height="40em"></div>
+                </td>
+                <td>
+                    <div ex:role="viewPanel">
+                        <div ex:role="view"
+                           ex:viewClass="Exhibit.ScatterPlotView"
+                           ex:label="Birthrate vs. Deathrate"
+                           ex:x=".birthrate"
+                           ex:xLabel="Birthrate"
+                           ex:y=".deathrate"
+                           ex:yLabel="Deathrate">
+                        </div>
+                        <div ex:role="view"
+                           ex:viewClass="Exhibit.BarChartView"
+                           ex:label="Populations"
+                           ex:x=".population"
+                           ex:xLabel="Population"
+                           ex:y="value"
+                           ex:yLabel="Country Name"
+                           ex:xAxisType="log">
+                        </div>
+                    </div>
+                </td>
+                <td width="20%">
+                    <div ex:role="facet" 
+                        ex:expression=".member-of" 
+                        ex:facetLabel="Members Of" 
+                        ex:height="10em"></div>
+                    <div ex:role="facet" ex:facetClass="Exhibit.NumericRangeFacet" 
+                        ex:expression=".population" 
+                        ex:interval="10000000" 
+                        ex:facetLabel="Population" 
+                        ex:height="20em"></div>
+                </td>
+            </tr>
+        </table>
+    </div></div>
+  </body>
+</html>

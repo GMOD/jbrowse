@@ -1,0 +1,14 @@
+div.exhibit-legendWidget {
+    margin:         1em 0;
+    text-align:     center;
+    line-height:    2em;
+}
+div.exhibit-legendWidget-entry {
+}
+span.exhibit-legendWidget-entry-title {
+    font-weight: bold;
+}
+span.exhibit-legendWidget-entry-swatch {
+    border:     1px solid #888;
+    padding:    0px 3px;
+}

@@ -1,0 +1,643 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="generator" content="JsDoc Toolkit 1.0">
+	<title>JsDoc: data-structure.js</title>
+	<link rel=stylesheet href="default.css" type="text/css" media=screen>
+</head>
+
+<body>
+	<div class="content">
+		<div class="docs">
+		
+			<div class="sectionHead">Library: data-structure.js</div>
+			<div class="section overview">
+				<div class="itemTitle">
+					Overview
+				</div>
+				<div>	
+					<div class="desc">No overview provided.</div>
+					<div class="itemTags">
+					
+					</div>
+				</div>
+			</div>
+			
+			<div class="sectionHead">Constructors</div>
+			
+			
+			<div class="section constructor">
+				<div class="itemTitle">
+					<a name="SimileAjax.Set"></a>
+					
+					
+					SimileAjax.Set(<span class="signature">a</span>)
+					
+				</div>
+				
+				
+					<div class="desc">A basic set (in the mathematical sense) data structure</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Array or SimileAjax.Set
+						</td>
+						<td>
+							a
+						</td>
+						<td>
+							an initial collection
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">methods</div>
+				
+					<ul class="details">
+						<li><a href="#SimileAjax.Set.add">add</a></li>
+					</ul>
+				
+					<ul class="details">
+						<li><a href="#SimileAjax.Set.addSet">addSet</a></li>
+					</ul>
+				
+					<ul class="details">
+						<li><a href="#SimileAjax.Set.remove">remove</a></li>
+					</ul>
+				
+					<ul class="details">
+						<li><a href="#SimileAjax.Set.removeSet">removeSet</a></li>
+					</ul>
+				
+					<ul class="details">
+						<li><a href="#SimileAjax.Set.retainSet">retainSet</a></li>
+					</ul>
+				
+					<ul class="details">
+						<li><a href="#SimileAjax.Set.contains">contains</a></li>
+					</ul>
+				
+					<ul class="details">
+						<li><a href="#SimileAjax.Set.size">size</a></li>
+					</ul>
+				
+					<ul class="details">
+						<li><a href="#SimileAjax.Set.toArray">toArray</a></li>
+					</ul>
+				
+					<ul class="details">
+						<li><a href="#SimileAjax.Set.visit">visit</a></li>
+					</ul>
+				
+				
+				
+				
+				
+				
+			</div>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<div class="section constructor">
+				<div class="itemTitle">
+					<a name="SimileAjax.SortedArray"></a>
+					
+					
+					SimileAjax.SortedArray(<span class="signature">compare, initialArray</span>)
+					
+				</div>
+				
+				
+					<div class="desc">A sorted array data structure</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							
+						</td>
+						<td>
+							compare
+						</td>
+						<td>
+							
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							
+						</td>
+						<td>
+							initialArray
+						</td>
+						<td>
+							
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="sectionHead">Functions</div>
+			
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Set.add"></a>
+					
+						<i><a href="#SimileAjax.Set" class="type">SimileAjax.Set.</a></i>add(<span class="signature">o</span>)
+					
+					
+				</div>
+				
+				
+					<div class="desc">Adds the given object to this set, assuming there it does not already exist</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Object
+						</td>
+						<td>
+							o
+						</td>
+						<td>
+							the object to add
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Boolean
+						</td>
+						<td>
+							true if the object was added, false if not
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Set.addSet"></a>
+					
+						<i><a href="#SimileAjax.Set" class="type">SimileAjax.Set.</a></i>addSet(<span class="signature">set</span>)
+					
+					
+				</div>
+				
+				
+					<div class="desc">Adds each element in the given set to this set</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							SimileAjax.Set
+						</td>
+						<td>
+							set
+						</td>
+						<td>
+							the set of elements to add
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Set.remove"></a>
+					
+						<i><a href="#SimileAjax.Set" class="type">SimileAjax.Set.</a></i>remove(<span class="signature">o</span>)
+					
+					
+				</div>
+				
+				
+					<div class="desc">Removes the given element from this set</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Object
+						</td>
+						<td>
+							o
+						</td>
+						<td>
+							the object to remove
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Boolean
+						</td>
+						<td>
+							true if the object was successfully removed,
+  false otherwise
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Set.removeSet"></a>
+					
+						<i><a href="#SimileAjax.Set" class="type">SimileAjax.Set.</a></i>removeSet(<span class="signature">set</span>)
+					
+					
+				</div>
+				
+				
+					<div class="desc">Removes the elements in this set that correspond to the elements in the
+given set</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							SimileAjax.Set
+						</td>
+						<td>
+							set
+						</td>
+						<td>
+							the set of elements to remove
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Set.retainSet"></a>
+					
+						<i><a href="#SimileAjax.Set" class="type">SimileAjax.Set.</a></i>retainSet(<span class="signature">set</span>)
+					
+					
+				</div>
+				
+				
+					<div class="desc">Removes all elements in this set that are not present in the given set, i.e.
+modifies this set to the intersection of the two sets</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							SimileAjax.Set
+						</td>
+						<td>
+							set
+						</td>
+						<td>
+							the set to intersect
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Set.contains"></a>
+					
+						<i><a href="#SimileAjax.Set" class="type">SimileAjax.Set.</a></i>contains(<span class="signature">o</span>)
+					
+					
+				</div>
+				
+				
+					<div class="desc">Returns whether or not the given element exists in this set</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							SimileAjax.Set
+						</td>
+						<td>
+							o
+						</td>
+						<td>
+							the object to test for
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Boolean
+						</td>
+						<td>
+							true if the object is present, false otherwise
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Set.size"></a>
+					
+						<i><a href="#SimileAjax.Set" class="type">SimileAjax.Set.</a></i>size(<span class="signature"></span>)
+					
+					
+				</div>
+				
+				
+					<div class="desc">Returns the number of elements in this set</div>
+				
+				
+				
+				
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							the number of elements in this set
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Set.toArray"></a>
+					
+						<i><a href="#SimileAjax.Set" class="type">SimileAjax.Set.</a></i>toArray(<span class="signature"></span>)
+					
+					
+				</div>
+				
+				
+					<div class="desc">Returns the elements of this set as an array</div>
+				
+				
+				
+				
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Array
+						</td>
+						<td>
+							a new array containing the elements of this set
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.Set.visit"></a>
+					
+						<i><a href="#SimileAjax.Set" class="type">SimileAjax.Set.</a></i>visit(<span class="signature">f</span>)
+					
+					
+				</div>
+				
+				
+					<div class="desc">Iterates through the elements of this set, order unspecified, executing the
+given function on each element until the function returns true</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Function
+						</td>
+						<td>
+							f
+						</td>
+						<td>
+							a function of form f(element)
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				
+				
+			</div>
+			
+			
+			
+			
+			
+			<div class="sectionHead">Objects</div>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		</div>
+	</div>
+	<div class="finePrint">
+	Generated by <a href="http://jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> on Tue, 07 Aug 2007 20:53:47 GMT
+	</div>
+</body>
+</html>

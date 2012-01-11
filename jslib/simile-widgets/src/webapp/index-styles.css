@@ -1,0 +1,49 @@
+p.blurb {
+    font-size: 150%; 
+    color: #888; 
+    width: 30em
+}
+.blurb em {
+    font-weight: bold;
+}
+
+#carousel {
+    border: 1px solid #ddd;
+    height: 280px;
+    background: url(images/gradient-background.png) repeat-x bottom left;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 48px;
+}
+#carousel-message {
+    position:   absolute; 
+    left:       0px; 
+    width:      100%; 
+    bottom:     0px; 
+    height:     1.5em; 
+    text-align: center;
+}
+#carousel-content {
+    position:   absolute; 
+    left:       0px; 
+    top: 0px;
+}
+#scroll-left {
+    display:    none;
+    position:   absolute; 
+    left:       0px; 
+    top:        100px;
+    cursor:     pointer;
+}
+#scroll-right {
+    position:   absolute; 
+    right:      0px; 
+    top:        100px;
+    cursor:     pointer;
+}
+
+img.example-screenshot {
+    margin:     0px 20px;
+    cursor:     pointer;
+    border:     none;
+}

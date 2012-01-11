@@ -1,0 +1,104 @@
+/*==================================================
+ * Common styles for views
+ *==================================================
+ */
+div.exhibit-views-unplottableMessage {
+    padding:        1em;
+    text-align:     center;
+}
+.exhibit-views-unplottableCount {
+    font-weight: bold;
+}
+.exhibit-views-totalCount {
+}
+
+div.exhibit-views-bubbleWithItems {
+}
+
+div.exhibit-collectionView {
+}
+
+div.exhibit-collectionView-header {
+}
+span.exhibit-collectionView-header-count {
+    font-size:      200%;
+}
+span.exhibit-collectionView-header-types {
+    padding-left:   0.5em;
+}
+span.exhibit-collectionView-header-details {
+    padding-left:   0.5em;
+    color:          #888;
+}
+div.exhibit-collectionView-header-sortControls {
+    text-align:     center;
+    margin:         1em 0;
+}
+.exhibit-collectionView-header-groupControls {
+    cursor: pointer;
+}
+.exhibit-collectionView-header-duplicateControls {
+    cursor: pointer;
+}
+
+div.exhibit-collectionView-body {
+}
+
+div.exhibit-collectionView-group {
+}
+
+span.exhibit-collectionView-group-count {
+}
+
+div.exhibit-collectionView-group-content {
+    margin-left: 1em;
+}
+
+div.exhibit-collectionView-group h1 {
+    font-size:      150%;
+    margin:         1em 0;
+}
+
+div.exhibit-collectionView-group h2 {
+    font-size:      120%;
+    margin:         0.5em 0;
+}
+
+.exhibit-collectionView-group h3 {
+}
+
+div.exhibit-collectionView-footer {
+    clear:      both;
+    text-align: center;
+    margin:     2em 0;
+}
+
+div.exhibit-collectionView-pagingControls {
+    margin: 1em 0;
+    text-align: center;
+}
+
+.exhibit-collectionView-pagingControls-currentPage {
+    padding: 0px 0.5em;
+    font-weight: bold;
+}
+
+.exhibit-collectionView-pagingControls-page {
+    padding: 0px 0.5em;
+}
+
+ul.exhibit-collectionView-pagingControls {
+    clear: both;
+    margin: 2em 0;
+    text-align: center;
+}
+ul.exhibit-collectionView-pagingControls li {
+    list-style-type: none;
+    display: inline;
+}
+ul.exhibit-collectionView-pagingControls li a {
+    border: 1px solid #90C2E1;
+    background: #DFEDF7;
+    padding: 2px 5px;
+    text-decoration: none;
+}

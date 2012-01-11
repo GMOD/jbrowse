@@ -1,0 +1,200 @@
+{
+	"items" : [
+		{
+			"id" :  "Utah",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "South Dakota",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "Texas",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "New York",
+			"vote-for" :   "Obama"
+		},
+		{
+			"id" :  "Indiana",
+			"vote-for" :   "Tossup"
+		},
+		{
+			"id" :  "North Dakota",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "Mississippi",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "Oklahoma",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "South Carolina",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "Pennsylvania",
+			"vote-for" :   "Leaning Obama"
+		},
+		{
+			"id" :  "Virginia",
+			"vote-for" :   "Leaning Obama"
+		},
+		{
+			"id" :  "Michigan",
+			"vote-for" :   "Obama"
+		},
+		{
+			"id" :  "Oregon",
+			"vote-for" :   "Obama"
+		},
+		{
+			"id" :  "North Carolina",
+			"vote-for" :   "Tossup"
+		},
+		{
+			"id" :  "New Hampshire",
+			"vote-for" :   "Leaning Obama"
+		},
+		{
+			"id" :  "Ohio",
+			"vote-for" :   "Tossup"
+		},
+		{
+			"id" :  "New Mexico",
+			"vote-for" :   "Leaning Obama"
+		},
+		{
+			"id" :  "Georgia",
+			"vote-for" :   "Leaning McCain"
+		},
+		{
+			"id" :  "Nevada",
+			"vote-for" :   "Tossup"
+		},
+		{
+			"id" :  "Florida",
+			"vote-for" :   "Tossup"
+		},
+		{
+			"id" :  "Kentucky",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "Puerto Rico",
+			"vote-for" :   "Unknown"
+		},
+		{
+			"id" :  "Illinois",
+			"vote-for" :   "Obama"
+		},
+		{
+			"id" :  "Missouri",
+			"vote-for" :   "Tossup"
+		},
+		{
+			"id" :  "Vermont",
+			"vote-for" :   "Obama"
+		},
+		{
+			"id" :  "Idaho",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "Wyoming",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "Montana",
+			"vote-for" :   "Leaning McCain"
+		},
+		{
+			"id" :  "West Virginia",
+			"vote-for" :   "Leaning McCain"
+		},
+		{
+			"id" :  "Massachusetts",
+			"vote-for" :   "Obama"
+		},
+		{
+			"id" :  "Minnesota",
+			"vote-for" :   "Leaning Obama"
+		},
+		{
+			"id" :  "Maine",
+			"vote-for" :   "Obama"
+		},
+		{
+			"id" :  "Nebraska",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "Connecticut",
+			"vote-for" :   "Obama"
+		},
+		{
+			"id" :  "Arkansas",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "Delaware",
+			"vote-for" :   "Obama"
+		},
+		{
+			"id" :  "Tennessee",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "New Jersey",
+			"vote-for" :   "Obama"
+		},
+		{
+			"id" :  "Maryland",
+			"vote-for" :   "Obama"
+		},
+		{
+			"id" :  "Wisconsin",
+			"vote-for" :   "Leaning Obama"
+		},
+		{
+			"id" :  "Colorado",
+			"vote-for" :   "Leaning Obama"
+		},
+		{
+			"id" :  "Rhode Island",
+			"vote-for" :   "Obama"
+		},
+		{
+			"id" :  "Alabama",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "Arizona",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "Kansas",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "Louisiana",
+			"vote-for" :   "McCain"
+		},
+		{
+			"id" :  "Iowa",
+			"vote-for" :   "Leaning Obama"
+		},
+		{
+			"id" :  "Washington",
+			"vote-for" :   "Leaning Obama"
+		},
+		{
+			"id" :  "California",
+			"vote-for" :   "Obama"
+		}
+	]
+}

@@ -1,0 +1,42 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/"
+	xmlns="http://usefulinc.com/ns/doap#">
+	<Project>
+	<name xml:lang="en-US" rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Exhibit</name>
+	<homepage rdf:resource="http://simile.mit.edu/exhibit/" />
+	<created>2006-12-02</created>
+	<shortdesc xml:lang="en-US" rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Exhibit is a client-side structured data publishing engine.</shortdesc>
+	<description xml:lang="en-US" rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Exhibit is a client-side structured data publishing engine.</description>
+
+	<mailing-list rdf:resource="http://simile.mit.edu/mail.html" />
+
+	<maintainer>
+		<foaf:Person>
+			<foaf:name xml:lang="en-US" rdf:datatype="http://www.w3.org/2001/XMLSchema#string">David Huynh</foaf:name>
+			<foaf:homepage rdf:resource="http://people.csail.mit.edu/dfhuynh/" />
+			<foaf:mbox rdf:resource="mailto:dfhuynh@mit.edu" />
+		</foaf:Person>
+	</maintainer>
+
+	<!-- currently supported versions -->
+	<release>
+		<Version>
+			<created>2006-12-02</created>
+			<revision>1.0</revision>
+		</Version>
+	</release>
+
+	<license rdf:resource="http://usefulinc.com/doap/licenses/bsd" />
+
+	<repository>
+		<SVNRepository>
+			<location rdf:resource="http://simile.mit.edu/repository/exhibit/" />
+			<browse rdf:resource="http://simile.mit.edu/viewsvn/exhibit/" />
+		</SVNRepository>
+	</repository>
+
+	<wiki rdf:resource="http://simile.mit.edu/wiki/" />
+	<bug-database rdf:resource="http://simile.mit.edu/issues/" />
+	<programming-language xml:lang="en-US" rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Javascript</programming-language>
+</Project>
+</rdf:RDF>

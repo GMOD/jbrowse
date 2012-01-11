@@ -1,0 +1,1112 @@
+{
+	"items" :      [
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Umbonate_cap_icon.svg/30px-Umbonate_cap_icon.svg.png",
+			"label" :     "umbonate",
+			"type" :      "capshape",
+			"uri" :       "http://dbpedia.org/resource/umbonate"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Parasitic_ecology_icon.png/30px-Parasitic_ecology_icon.png",
+			"label" :     "parasitic",
+			"type" :      "ecologicaltype",
+			"uri" :       "http://dbpedia.org/resource/parasitic"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Mycorrhizal_ecology_icon.png/30px-Mycorrhizal_ecology_icon.png",
+			"label" :     "mycorrhizal",
+			"type" :      "ecologicaltype",
+			"uri" :       "http://dbpedia.org/resource/mycorrhizal"
+		},
+		{
+			"name" :            "Hypholoma fasciculare",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Hypholoma_fasciculare",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Hypholoma_fasciculare_040926w.jpg/220px-Hypholoma_fasciculare_040926w.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "convex",
+			"label" :           "Hypholoma_fasciculare",
+			"howedible" :       "poisonous",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Hypholoma_fasciculare"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Tan_spore_print_icon.png/30px-Tan_spore_print_icon.png",
+			"label" :     "tan",
+			"type" :      "sporeprintcolor",
+			"uri" :       "http://dbpedia.org/resource/tan"
+		},
+		{
+			"name" :            "Tricholoma argyraceum",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Tricholoma_argyraceum",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : [
+				"cream",
+				"white"
+			],
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Tricholoma_scalpuratum_20061014wb.jpg/250px-Tricholoma_scalpuratum_20061014wb.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        [
+				"convex",
+				"flat"
+			],
+			"label" :           "Tricholoma_argyraceum",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Tricholoma_argyraceum"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Teeth_icon.png/30px-Teeth_icon.png",
+			"label" :     "teeth",
+			"type" :      "hymeniumtype",
+			"uri" :       "http://dbpedia.org/resource/teeth"
+		},
+		{
+			"name" :            "Sulphur Shelf",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Laetiporus",
+			"hymeniumtype" :    "pores",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Laetiporus_sulphureus_big.jpg/210px-Laetiporus_sulphureus_big.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        [
+				"no",
+				"offset"
+			],
+			"label" :           "Laetiporus",
+			"howedible" :       [
+				"caution",
+				"edible"
+			],
+			"wikipage" :        "http://en.wikipedia.org/wiki/Laetiporus"
+		},
+		{
+			"name" :            "Russula ochroleuca",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Russula_ochroleuca",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Russula_ochroleuca_ch%C3%A2taigne.JPG/250px-Russula_ochroleuca_ch%C3%A2taigne.JPG",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        "convex",
+			"label" :           "Russula_ochroleuca",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Russula_ochroleuca"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Ring_stipe_icon.png/30px-Ring_stipe_icon.png",
+			"label" :     "ring",
+			"type" :      "stipecharacter",
+			"uri" :       "http://dbpedia.org/resource/ring"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Ring_and_volva_stipe_icon.png/30px-Ring_and_volva_stipe_icon.png",
+			"label" :     "ring and volva",
+			"type" :      "stipecharacter",
+			"uri" :       "http://dbpedia.org/resource/ring"
+		},
+		{
+			"name" :            "Amanita muscaria",
+			"stipecharacter" :  "ring and volva",
+			"uri" :             "http://dbpedia.org/resource/Amanita_muscaria",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Amanita_muscaria_americana.jpg/180px-Amanita_muscaria_americana.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        [
+				"convex",
+				"flat"
+			],
+			"label" :           "Amanita_muscaria",
+			"howedible" :       [
+				"poisonous",
+				"psychoactive"
+			],
+			"wikipage" :        "http://en.wikipedia.org/wiki/Amanita_muscaria"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Conical_cap_icon.svg/30px-Conical_cap_icon.svg.png",
+			"label" :     "conical",
+			"type" :      "capshape",
+			"uri" :       "http://dbpedia.org/resource/conical"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Offset_cap_icon.png/30px-Offset_cap_icon.png",
+			"label" :     "offset",
+			"type" :      "capshape",
+			"uri" :       "http://dbpedia.org/resource/offset"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Edible_toxicity_icon.png/30px-Edible_toxicity_icon.png",
+			"label" :     "edible",
+			"type" :      "howedible",
+			"uri" :       "http://dbpedia.org/resource/edible"
+		},
+		{
+			"name" :            "Matsutake",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Matsutake",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Matsutake.jpg/180px-Matsutake.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        "convex",
+			"label" :           "Matsutake",
+			"howedible" :       "choice",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Matsutake"
+		},
+		{
+			"name" :            "Pluteus cervinus",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Pluteus_cervinus",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "salmon",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/en/thumb/c/c1/Pluteus_cervinus_spores.jpg/250px-Pluteus_cervinus_spores.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        [
+				"flat",
+				"umbonate"
+			],
+			"label" :           "Pluteus_cervinus",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Pluteus_cervinus"
+		},
+		{
+			"name" :            "Psilocybe caerulipes",
+			"stipecharacter" :  "cortina",
+			"uri" :             "http://dbpedia.org/resource/Psilocybe_caerulipes",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : [
+				"blackish-brown",
+				"purple"
+			],
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/en/thumb/2/2a/Psilocybe_caerulipes_range_map.jpg/240px-Psilocybe_caerulipes_range_map.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        [
+				"conical",
+				"convex"
+			],
+			"label" :           "Psilocybe_caerulipes",
+			"howedible" :       "psychoactive",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Psilocybe_caerulipes"
+		},
+		{
+			"name" :            "Giant puffball",
+			"stipecharacter" :  "NA",
+			"uri" :             "http://dbpedia.org/resource/Giant_puffball",
+			"hymeniumtype" :    "gleba",
+			"sporeprintcolor" : "brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/en/thumb/2/2f/Giant_Puffball.jpg/200px-Giant_Puffball.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        "no",
+			"label" :           "Giant_puffball",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Giant_puffball"
+		},
+		{
+			"name" :            "Strobilomyces",
+			"stipecharacter" :  [
+				"bare",
+				"ring"
+			],
+			"uri" :             "http://dbpedia.org/resource/Strobilomyces",
+			"hymeniumtype" :    "pores",
+			"sporeprintcolor" : [
+				"black",
+				"brown"
+			],
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Strobilomyces_strobilaceus.jpg/240px-Strobilomyces_strobilaceus.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        "convex",
+			"label" :           "Strobilomyces",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Strobilomyces"
+		},
+		{
+			"name" :            "Armillaria",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Honey_fungus",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Armillaria_mellea_041031w.jpg/180px-Armillaria_mellea_041031w.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "parasitic",
+			"capshape" :        "convex",
+			"label" :           "Honey_fungus",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Honey_fungus"
+		},
+		{
+			"name" :            "Russula amethystina",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Russula_amethystina",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Russula_amethystina.jpg/180px-Russula_amethystina.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        "flat",
+			"label" :           "Russula_amethystina",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Russula_amethystina"
+		},
+		{
+			"name" :            "Tricholoma sulphureum",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Tricholoma_sulphureum",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Tricholoma_sulphureum_031123w.jpg/250px-Tricholoma_sulphureum_031123w.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        "convex",
+			"label" :           "Tricholoma_sulphureum",
+			"howedible" :       "inedible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Tricholoma_sulphureum"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Psychoactive_toxicity_icon.png/30px-Psychoactive_toxicity_icon.png",
+			"label" :     "psychoactive",
+			"type" :      "howedible",
+			"uri" :       "http://dbpedia.org/resource/psychoactive"
+		},
+		{
+			"name" :            [
+				"Flammulina",
+				"Flammulina velutipes"
+			],
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Enokitake",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/1/18/EnokitakeJapaneseMushroom.jpg/250px-EnokitakeJapaneseMushroom.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "convex",
+			"label" :           "Enokitake",
+			"howedible" :       "choice",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Enokitake"
+		},
+		{
+			"name" :            "Agaricus arvensis",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Agaricus_arvensis",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Horse_mushroom_%28Agaricus_arvensis%29.jpg/200px-Horse_mushroom_%28Agaricus_arvensis%29.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "convex",
+			"label" :           "Agaricus_arvensis",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Agaricus_arvensis"
+		},
+		{
+			"name" :            "Agaricus subrufescens",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Agaricus_subrufescens",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Agaricus_subrufescens.jpg/280px-Agaricus_subrufescens.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "convex",
+			"label" :           "Agaricus_subrufescens",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Agaricus_subrufescens"
+		},
+		{
+			"name" :            "Marasmius",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Marasmius",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Marasmius_oreades_garden_050829B.JPG/200px-Marasmius_oreades_garden_050829B.JPG",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "convex",
+			"label" :           "Marasmius",
+			"howedible" :       "unknown",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Marasmius"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Brown_spore_print_icon.png/30px-Brown_spore_print_icon.png",
+			"label" :     "brown",
+			"type" :      "sporeprintcolor",
+			"uri" :       "http://dbpedia.org/resource/brown"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Reddish-brown_spore_print_icon.png/30px-Reddish-brown_spore_print_icon.png",
+			"label" :     "reddish brown",
+			"type" :      "sporeprintcolor",
+			"uri" :       "http://dbpedia.org/resource/brown"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Black_spore_print_icon.png/30px-Black_spore_print_icon.png",
+			"label" :     "black",
+			"type" :      "sporeprintcolor",
+			"uri" :       "http://dbpedia.org/resource/black"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Cortina_stipe_icon.png/30px-Cortina_stipe_icon.png",
+			"label" :     "cortina",
+			"type" :      "stipecharacter",
+			"uri" :       "http://dbpedia.org/resource/cortina"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Choice_toxicity_icon.png/30px-Choice_toxicity_icon.png",
+			"label" :     "choice",
+			"type" :      "howedible",
+			"uri" :       "http://dbpedia.org/resource/choice"
+		},
+		{
+			"name" :            "Lycoperdon perlatum",
+			"stipecharacter" :  "NA",
+			"uri" :             "http://dbpedia.org/resource/Lycoperdon_perlatum",
+			"hymeniumtype" :    "gleba",
+			"sporeprintcolor" : "olive",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Single_lycoperdon_perlatum.jpg/200px-Single_lycoperdon_perlatum.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "no",
+			"label" :           "Lycoperdon_perlatum",
+			"howedible" :       "choice",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Lycoperdon_perlatum"
+		},
+		{
+			"label" : "Flammulina",
+			"type" :  "name",
+			"uri" :   "http://dbpedia.org/resource/Flammulina"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Gleba_icon.png/30px-Gleba_icon.png",
+			"label" :     "gleba",
+			"type" :      "hymeniumtype",
+			"uri" :       "http://dbpedia.org/resource/gleba"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Blackish-brown_spore_print_icon.png/30px-Blackish-brown_spore_print_icon.png",
+			"label" :     "blackish-brown",
+			"type" :      "sporeprintcolor",
+			"uri" :       "http://dbpedia.org/resource/blackish-brown"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Bare_stipe_icon.png/30px-Bare_stipe_icon.png",
+			"label" :     "bare",
+			"type" :      "stipecharacter",
+			"uri" :       "http://dbpedia.org/resource/bare"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Ridges_icon.png/30px-Ridges_icon.png",
+			"label" :     "ridges",
+			"type" :      "hymeniumtype",
+			"uri" :       "http://dbpedia.org/resource/ridges"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Convex_cap_icon.svg/30px-Convex_cap_icon.svg.png",
+			"label" :     "convex",
+			"type" :      "capshape",
+			"uri" :       "http://dbpedia.org/resource/convex"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Gills_icon.png/30px-Gills_icon.png",
+			"label" :     "gills",
+			"type" :      "hymeniumtype",
+			"uri" :       "http://dbpedia.org/resource/gills"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Smooth_icon.png/30px-Smooth_icon.png",
+			"label" :     "smooth",
+			"type" :      "hymeniumtype",
+			"uri" :       "http://dbpedia.org/resource/smooth"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Reddish-brown_spore_print_icon.png/30px-Reddish-brown_spore_print_icon.png",
+			"label" :     "reddish-brown",
+			"type" :      "sporeprintcolor",
+			"uri" :       "http://dbpedia.org/resource/reddish-brown"
+		},
+		{
+			"name" :            "Pseudohydnum gelatinosum",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Pseudohydnum_gelatinosum",
+			"hymeniumtype" :    "teeth",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Pseudohydnum_gelatinosum.jpg/180px-Pseudohydnum_gelatinosum.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "depressed",
+			"label" :           "Pseudohydnum_gelatinosum",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Pseudohydnum_gelatinosum"
+		},
+		{
+			"name" :            "Beefsteak fungus",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Fistulina_hepatica",
+			"hymeniumtype" :    "pores",
+			"sporeprintcolor" : "pink",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Fistulina_hepatica.jpg/200px-Fistulina_hepatica.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "parasitic",
+			"capshape" :        "flat",
+			"label" :           "Fistulina_hepatica",
+			"howedible" :       "choice",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Fistulina_hepatica"
+		},
+		{
+			"name" :            "Lactarius controversus",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Lactarius_controversus",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Lactarius_controversus.jpg/200px-Lactarius_controversus.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        "depressed",
+			"label" :           "Lactarius_controversus",
+			"howedible" :       "inedible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Lactarius_controversus"
+		},
+		{
+			"name" :            "Psilocybe cyanescens",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Psilocybe_cyanescens",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : [
+				"blackish-brown",
+				"purple"
+			],
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/en/thumb/1/17/Psilocybe_cyanescens_range-map.png/240px-Psilocybe_cyanescens_range-map.png",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "flat",
+			"label" :           "Psilocybe_cyanescens",
+			"howedible" :       "psychoactive",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Psilocybe_cyanescens"
+		},
+		{
+			"label" : "Armillaria",
+			"type" :  "name",
+			"uri" :   "http://dbpedia.org/resource/Armillaria"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Salmon_spore_print_icon.png/30px-Salmon_spore_print_icon.png",
+			"label" :     "salmon",
+			"type" :      "sporeprintcolor",
+			"uri" :       "http://dbpedia.org/resource/salmon"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Pores_icon.png/30px-Pores_icon.png",
+			"label" :     "pores",
+			"type" :      "hymeniumtype",
+			"uri" :       "http://dbpedia.org/resource/pores"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Diamond-caution.svg/30px-Diamond-caution.svg.png",
+			"label" :     "caution",
+			"type" :      "howedible",
+			"uri" :       "http://dbpedia.org/resource/caution"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Unknown_toxicity_icon.png/30px-Unknown_toxicity_icon.png",
+			"label" :     "unknown",
+			"type" :      "howedible",
+			"uri" :       "http://dbpedia.org/resource/unknown"
+		},
+		{
+			"name" :            "Gemmed mushroom",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Amanita_gemmata",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/20060909_Amanita_gemmata_young.jpg/180px-20060909_Amanita_gemmata_young.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        "flat",
+			"label" :           "Amanita_gemmata",
+			"howedible" :       "poisonous",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Amanita_gemmata"
+		},
+		{
+			"name" :            "Cloud ear fungus",
+			"stipecharacter" :  "NA",
+			"uri" :             "http://dbpedia.org/resource/Cloud_ear_fungus",
+			"hymeniumtype" :    "smooth",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Auricularia_polytricha.jpg/200px-Auricularia_polytricha.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "no",
+			"label" :           "Cloud_ear_fungus",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Cloud_ear_fungus"
+		},
+		{
+			"name" :            "Agaricus campestris",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Agaricus_campestris",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Agaricus_campestris.jpg/180px-Agaricus_campestris.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        [
+				"convex",
+				"flat"
+			],
+			"label" :           "Agaricus_campestris",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Agaricus_campestris"
+		},
+		{
+			"name" :            "Conocybe albipes",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Conocybe_albipes",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : [
+				"brown",
+				"reddish-brown"
+			],
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Conocybe_lactea.jpg/260px-Conocybe_lactea.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "conical",
+			"label" :           "Conocybe_albipes",
+			"howedible" :       "inedible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Conocybe_albipes"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/White_spore_print_icon.png/30px-White_spore_print_icon.png",
+			"label" :     "white",
+			"type" :      "sporeprintcolor",
+			"uri" :       "http://dbpedia.org/resource/white"
+		},
+		{
+			"name" :            "Lactarius deliciosus",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Lactarius_deliciosus",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "tan",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Rovellons.jpg/180px-Rovellons.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        "depressed",
+			"label" :           "Lactarius_deliciosus",
+			"howedible" :       "choice",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Lactarius_deliciosus"
+		},
+		{
+			"name" :            "Calvatia",
+			"stipecharacter" :  "NA",
+			"uri" :             "http://dbpedia.org/resource/Calvatia",
+			"hymeniumtype" :    "smooth",
+			"sporeprintcolor" : "olive",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Calvatia_excipuliformis.jpg/240px-Calvatia_excipuliformis.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        "no",
+			"label" :           "Calvatia",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Calvatia"
+		},
+		{
+			"name" :            "Kuehneromyces mutabilis",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Kuehneromyces_mutabilis",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Stockschwaemmchen.jpg/180px-Stockschwaemmchen.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "convex",
+			"label" :           "Kuehneromyces_mutabilis",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Kuehneromyces_mutabilis"
+		},
+		{
+			"name" :            "Gymnopilus sapineus",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Gymnopilus_sapineus",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "reddish-brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/en/thumb/3/3b/Gymnopilus.sapineus.ddrex.jpg/250px-Gymnopilus.sapineus.ddrex.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "convex",
+			"label" :           "Gymnopilus_sapineus",
+			"howedible" :       "psychoactive",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Gymnopilus_sapineus"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/No_cap_icon.svg/30px-No_cap_icon.svg.png",
+			"label" :     "no",
+			"type" :      "capshape",
+			"uri" :       "http://dbpedia.org/resource/no"
+		},
+		{
+			"name" :            "Psilocybe aucklandii",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Psilocybe_aucklandii",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "purple brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Psilocybe.aucklandii.2.jpg/180px-Psilocybe.aucklandii.2.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        [
+				"conical",
+				"umbonate"
+			],
+			"label" :           "Psilocybe_aucklandii",
+			"howedible" :       "psychoactive",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Psilocybe_aucklandii"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Poisonous_toxicity_icon.png/30px-Poisonous_toxicity_icon.png",
+			"label" :     "poisonous",
+			"type" :      "howedible",
+			"uri" :       "http://dbpedia.org/resource/poisonous"
+		},
+		{
+			"name" :            "Gymnopilus purpuratus",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Gymnopilus_purpuratus",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "orange",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/en/thumb/a/a2/Gymnopilus.australian.02.jpg/250px-Gymnopilus.australian.02.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "convex",
+			"label" :           "Gymnopilus_purpuratus",
+			"howedible" :       "psychoactive",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Gymnopilus_purpuratus"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Infundibuliform_cap_icon.svg/30px-Infundibuliform_cap_icon.svg.png",
+			"label" :     "infundibuliform",
+			"type" :      "capshape",
+			"uri" :       "http://dbpedia.org/resource/infundibuliform"
+		},
+		{
+			"name" :            "Inocybe hystrix",
+			"stipecharacter" :  [ "bare" , "cortina" ],
+			"uri" :             "http://dbpedia.org/resource/Inocybe_hystrix",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Inocybe_hystrix.jpg/220px-Inocybe_hystrix.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        [
+				"convex",
+				"flat"
+			],
+			"label" :           "Inocybe_hystrix",
+			"howedible" :       "poisonous",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Inocybe_hystrix"
+		},
+		{
+			"name" :            "Russula cyanoxantha",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Russula_cyanoxantha",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Russula_cyanoxantha.JPG/180px-Russula_cyanoxantha.JPG",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        [
+				"convex",
+				"flat"
+			],
+			"label" :           "Russula_cyanoxantha",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Russula_cyanoxantha"
+		},
+		{
+			"name" :            "Amanita citrina",
+			"stipecharacter" :  "ring and volva",
+			"uri" :             "http://dbpedia.org/resource/Amanita_citrina",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Amanite_citrine-400.jpg/180px-Amanite_citrine-400.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        "flat",
+			"label" :           "Amanita_citrina",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Amanita_citrina"
+		},
+		{
+			"name" :            "Craterellus",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Craterellus",
+			"hymeniumtype" :    "ridges",
+			"sporeprintcolor" : [
+				"cream",
+				"salmon"
+			],
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Craterellus_cornucopioides_JPG1.jpg/200px-Craterellus_cornucopioides_JPG1.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "infundibuliform",
+			"label" :           "Craterellus",
+			"howedible" :       "choice",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Craterellus"
+		},
+		{
+			"name" :            "Gymnopilus luteofolius",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Gymnopilus_luteofolius",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "reddish-brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/en/thumb/b/b2/Gymnopilus_luteofolius.jpg/250px-Gymnopilus_luteofolius.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "convex",
+			"label" :           "Gymnopilus_luteofolius",
+			"howedible" :       "psychoactive",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Gymnopilus_luteofolius"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/NA_stipe_icon.png/30px-NA_stipe_icon.png",
+			"label" :     "NA",
+			"type" :      "stipecharacter",
+			"uri" :       "http://dbpedia.org/resource/NA"
+		},
+		{
+			"name" :            "Death cap",
+			"stipecharacter" :  "ring and volva",
+			"uri" :             "http://dbpedia.org/resource/Amanita_phalloides",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Amanita_phallo%C3%AFdes.jpg/180px-Amanita_phallo%C3%AFdes.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        [
+				"convex",
+				"flat"
+			],
+			"label" :           "Amanita_phalloides",
+			"howedible" :       "deadly",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Amanita_phalloides"
+		},
+		{
+			"name" :            "Green Dermocybe",
+			"stipecharacter" :  "cortina",
+			"uri" :             "http://dbpedia.org/resource/Dermocybe_austroveneta",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/en/thumb/5/5c/Dermocybe_austroveneta.jpg/200px-Dermocybe_austroveneta.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        "convex",
+			"label" :           "Dermocybe_austroveneta",
+			"howedible" :       "unknown",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Dermocybe_austroveneta"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Flat_cap_icon.svg/30px-Flat_cap_icon.svg.png",
+			"label" :     "flat",
+			"type" :      "capshape",
+			"uri" :       "http://dbpedia.org/resource/flat"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Purple_spore_print_icon.png/30px-Purple_spore_print_icon.png",
+			"label" :     "purple",
+			"type" :      "sporeprintcolor",
+			"uri" :       "http://dbpedia.org/resource/purple"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Cream_spore_print_icon.png/30px-Cream_spore_print_icon.png",
+			"label" :     "cream",
+			"type" :      "sporeprintcolor",
+			"uri" :       "http://dbpedia.org/resource/cream"
+		},
+		{
+			"name" :            "Psilocybe australiana",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Psilocybe_australiana",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "purple brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/en/thumb/5/51/Paustraliana2.jpg/200px-Paustraliana2.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        [
+				"convex",
+				"flat"
+			],
+			"label" :           "Psilocybe_australiana",
+			"howedible" :       "psychoactive",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Psilocybe_australiana"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Hazard_T.svg/30px-Hazard_T.svg.png",
+			"label" :     "deadly",
+			"type" :      "howedible",
+			"uri" :       "http://dbpedia.org/resource/deadly"
+		},
+		{
+			"name" :            "Gymnopilus junonius",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Gymnopilus_junonius",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "reddish brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Gymnopilus_spectabilis.jpg/250px-Gymnopilus_spectabilis.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "convex",
+			"label" :           "Gymnopilus_junonius",
+			"howedible" :       [
+				"inedible",
+				"psychoactive"
+			],
+			"wikipage" :        "http://en.wikipedia.org/wiki/Gymnopilus_junonius"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Inedible_toxicity_icon.png/30px-Inedible_toxicity_icon.png",
+			"label" :     "inedible",
+			"type" :      "howedible",
+			"uri" :       "http://dbpedia.org/resource/inedible"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Olive_spore_print_icon.png/30px-Olive_spore_print_icon.png",
+			"label" :     "olive",
+			"type" :      "sporeprintcolor",
+			"uri" :       "http://dbpedia.org/resource/olive"
+		},
+		{
+			"name" :            "Galerina",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Galerina",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "reddish brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Galerina_marginata.jpg/180px-Galerina_marginata.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "convex",
+			"label" :           "Galerina",
+			"howedible" :       "deadly",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Galerina"
+		},
+		{
+			"name" :            "Russula virescens",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Russula_virescens",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "white",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Russula_virescens.jpg/200px-Russula_virescens.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "mycorrhizal",
+			"capshape" :        "convex",
+			"label" :           "Russula_virescens",
+			"howedible" :       "edible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Russula_virescens"
+		},
+		{
+			"name" :            "Conocybe filaris",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Conocybe_filaris",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : [
+				"brown",
+				"reddish brown"
+			],
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/en/thumb/8/8f/Conocybe_filaris.jpg/260px-Conocybe_filaris.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        [
+				"conical",
+				"flat"
+			],
+			"label" :           "Conocybe_filaris",
+			"howedible" :       "deadly",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Conocybe_filaris"
+		},
+		{
+			"name" :            "Psilocybe cubensis",
+			"stipecharacter" :  "ring",
+			"uri" :             "http://dbpedia.org/resource/Psilocybe_cubensis",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "purple",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Psilocybe-cubensis-range-map.png/300px-Psilocybe-cubensis-range-map.png",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        [
+				"convex",
+				"flat"
+			],
+			"label" :           "Psilocybe_cubensis",
+			"howedible" :       "psychoactive",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Psilocybe_cubensis"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Pink_spore_print_icon.png/30px-Pink_spore_print_icon.png",
+			"label" :     "pink",
+			"type" :      "sporeprintcolor",
+			"uri" :       "http://dbpedia.org/resource/pink"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Saprotrophic_ecology_icon.png/30px-Saprotrophic_ecology_icon.png",
+			"label" :     "saprotrophic",
+			"type" :      "ecologicaltype",
+			"uri" :       "http://dbpedia.org/resource/saprotrophic"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Depressed_cap_icon.svg/30px-Depressed_cap_icon.svg.png",
+			"label" :     "depressed",
+			"type" :      "capshape",
+			"uri" :       "http://dbpedia.org/resource/depressed"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Salmon_spore_print_icon.png/30px-Salmon_spore_print_icon.png",
+			"label" :     "orange",
+			"type" :      "sporeprintcolor",
+			"uri" :       "http://dbpedia.org/resource/orange"
+		},
+		{
+			"name" :            "Psilocybe atlantis",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Psilocybe_atlantis",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "purple brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Psilocybe_atlantis_range.png/100px-Psilocybe_atlantis_range.png",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        [
+				"conical",
+				"convex"
+			],
+			"label" :           "Psilocybe_atlantis",
+			"howedible" :       "psychoactive",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Psilocybe_atlantis"
+		},
+		{
+			"name" :            "Velvet roll-rim",
+			"stipecharacter" :  "bare",
+			"uri" :             "http://dbpedia.org/resource/Tapinella_atrotomentosa",
+			"hymeniumtype" :    "gills",
+			"sporeprintcolor" : "brown",
+			"depiction" :       "http://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Samtfusskrempling.jpg/180px-Samtfusskrempling.jpg",
+			"type" :            "Mushroom",
+			"ecologicaltype" :  "saprotrophic",
+			"capshape" :        "depressed",
+			"label" :           "Tapinella_atrotomentosa",
+			"howedible" :       "inedible",
+			"wikipage" :        "http://en.wikipedia.org/wiki/Tapinella_atrotomentosa"
+		},
+		{
+			"depiction" : "http://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Reddish-brown_spore_print_icon.png/30px-Reddish-brown_spore_print_icon.png",
+			"label" :     "purple brown",
+			"type" :      "sporeprintcolor",
+			"uri" :       "http://dbpedia.org/resource/Purple-brown"
+		}
+	],
+	"types" :      {
+		"howedible" :       {
+			"uri" : "http://dbpedia.org/property/howedible"
+		},
+		"hymeniumtype" :    {
+			"uri" : "http://dbpedia.org/property/hymeniumtype"
+		},
+		"name" :            {
+			"uri" : "http://dbpedia.org/property/name"
+		},
+		"stipecharacter" :  {
+			"uri" : "http://dbpedia.org/property/stipecharacter"
+		},
+		"sporeprintcolor" : {
+			"uri" : "http://dbpedia.org/property/sporeprintcolor"
+		},
+		"capshape" :        {
+			"uri" : "http://dbpedia.org/property/capshape"
+		},
+		"Mushroom" :        {
+			"uri" : "http://dbpedia.org/resource/Mushroom",
+			"pluralLabel": "Mushrooms"
+		},
+		"ecologicaltype" :  {
+			"uri" : "http://dbpedia.org/property/ecologicaltype"
+		}
+	},
+	"properties" : {
+		"references" :     {
+			"uri" :       "http://purl.org/dc/terms/references",
+			"valueType" : "item"
+		},
+		"derivedBy" :      {
+			"uri" : "http://facade.mit.edu/pim#derivedBy"
+		},
+		"isFormatOf" :     {
+			"uri" :       "http://purl.org/dc/terms/isFormatOf",
+			"valueType" : "item"
+		},
+		"type" :           {
+			"uri" : "http://purl.org/dc/elements/1.1/type"
+		},
+		"isOrganizedBy" :  {
+			"uri" :       "http://facade.mit.edu/pim#isOrganizedBy",
+			"valueType" : "item"
+		},
+		"hasThumbnail" :   {
+			"uri" :       "http://facade.mit.edu/pim#hasThumbnail",
+			"valueType" : "item"
+		},
+		"recipient" :      {
+			"uri" : "http://facade.mit.edu/pim#recipient"
+		},
+		"creator" :        {
+			"uri" : "http://purl.org/dc/elements/1.1/creator"
+		},
+		"hasDiscipline" :  {
+			"uri" : "http://facade.mit.edu/pim#hasDiscipline"
+		},
+		"hasPart" :        {
+			"uri" :       "http://purl.org/dc/terms/hasPart",
+			"valueType" : "item"
+		},
+		"hasFileFormat" :  {
+			"uri" : "http://facade.mit.edu/pim#hasFileFormat"
+		},
+		"formatCategory" : {
+			"uri" :       "http://facade.mit.edu/pim#formatCategory",
+			"valueType" : "item"
+		},
+		"hasFile" :        {
+			"uri" :       "http://facade.mit.edu/pim#hasFile",
+			"valueType" : "item"
+		},
+		"description" :    {
+			"uri" : "http://purl.org/dc/elements/1.1/description"
+		},
+		"hasPhase" :       {
+			"uri" : "http://facade.mit.edu/pim#hasPhase"
+		},
+		"organizedVia" :   {
+			"uri" :       "http://facade.mit.edu/pim#organizedVia",
+			"valueType" : "item"
+		},
+		"date" :           {
+			"uri" : "http://purl.org/dc/elements/1.1/date"
+		},
+		"isPartOf" :       {
+			"uri" : "http://purl.org/dc/terms/isPartOf"
+		},
+		"designs" :        {
+			"uri" :       "http://facade.mit.edu/pim#designs",
+			"valueType" : "item"
+		},
+		"title" :          {
+			"uri" : "http://purl.org/dc/elements/1.1/title"
+		}
+	}
+	}

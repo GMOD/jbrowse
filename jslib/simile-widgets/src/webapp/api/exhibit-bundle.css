@@ -1,0 +1,785 @@
+/*==================================================
+ * Browse Panel styles
+ *==================================================
+ */
+div.exhibit-browsePanel {
+}
+
+div.exhibit-browsePanel-notConfigureMessage {
+    border:     1px solid #604800;
+    padding:    1em;
+    background: #FFFFE0;
+    text-align: center;
+}
+
+div.exhibit-browsePanel-logoContainer {
+    text-align: center;
+    margin:     1em;
+    clear:      both;
+}
+
+/*==================================================
+ * Exhibit styles
+ *
+ * Note that almost all CSS code is in themes.
+ *==================================================
+ */
+.exhibit-ui-protection div {
+    margin:     0;
+    padding:    0;
+}
+.exhibit-ui-protection table {
+	font-size: 100%;
+}
+.exhibit-ui-protection tr {
+	vertical-align: top;
+}
+a img {
+    border: none;
+}
+
+a.exhibit-action, 
+a.exhibit-action:link, 
+a.exhibit-action:active, 
+a.exhibit-action:visited {
+	text-decoration:    none;
+	border-bottom:      1px dotted;
+	cursor:             pointer;
+}
+a.exhibit-action:hover {
+	border-bottom:  1px solid;
+	cursor:         pointer;
+}
+
+a.exhibit-action-disabled, 
+a.exhibit-action-disabled:link, 
+a.exhibit-action-disabled:active, 
+a.exhibit-action-disabled:visited {
+	text-decoration:    none;
+	border-bottom:      1px dotted;
+	cursor:             pointer;
+    opacity:            0.5;
+}
+a.exhibit-action-disabled:hover {
+	border-bottom:  1px solid;
+	cursor:         pointer;
+}
+
+a.exhibit-item, 
+a.exhibit-item:link, 
+a.exhibit-item:active, 
+a.exhibit-item:visited {
+	text-decoration:    none;
+	border-bottom:      1px dotted red;
+	cursor:             pointer;
+}
+a.exhibit-item:hover {
+	border-bottom:  1px solid;
+	cursor:         pointer;
+}
+
+span.exhibit-value {
+}
+
+/*
+ *  Menu Popup
+ */
+div.exhibit-menu-popup {
+    position:       absolute;
+    width:          15em;
+    z-index:        1000;
+    background:     #FFFFE0;
+    border:         1px solid #aaa;
+}
+
+a.exhibit-menu-item {
+    text-decoration:    none;
+}
+
+a.exhibit-menu-item > div {
+    padding:            2px 2px 2px 20px;
+    text-indent:        -18px;
+}
+
+a:hover.exhibit-menu-item > div {
+    background:         #DFDFC8;
+}
+
+a.exhibit-menu-item div img {
+    vertical-align:     middle;
+    margin-right:       2px;
+}
+
+div.exhibit-menu-section {
+    padding:            2px;
+    font-weight:        bold;
+}
+
+/*
+ *  Copy Button and Dialog Box
+ */
+button.exhibit-copyButton, button.exhibit-button {
+    border: 1px dashed;
+    cursor: pointer;
+    margin: 2px;
+}
+button:hover.exhibit-copyButton, button.exhibit-button:hover {
+    background: white;
+    border:     1px dashed blue;
+    color:      blue;
+    cursor:     pointer;
+}
+
+div.exhibit-copyDialog {
+    position:       absolute;
+    z-index:        1000;
+    background:     #B2E8FF;
+    border:         1px solid #aaa;
+    padding:        2em;
+    left:           25%;
+    right:          25%;
+}
+
+div.exhibit-copyDialog textarea {
+    width:          100%;
+    font-size:      90%;
+    color:          #888;
+}
+
+div.exhibit-copyDialog button {
+    float:          right;
+}
+
+/*
+ *  Focus Dialog Box
+ */
+div.exhibit-focusDialog {
+    position:       absolute;
+    z-index:        1000;
+    background:     #B2E8FF;
+    border:         1px solid #aaa;
+    padding:        2em;
+    left:           25%;
+    right:          25%;
+}
+
+div.exhibit-focusDialog-lensContainer {
+}
+
+div.exhibit-focusDialog-controls {
+    margin:         1em;
+    text-align:     center;
+}
+
+/*
+ *  Busy indicator
+ */
+.exhibit-busyIndicator {
+    position:   absolute;
+    left:       35%;
+    width:      30%;
+    z-index:    1000;
+}
+.exhibit-busyIndicator-content {
+    font-size:      120%;
+    font-weight:    bold;
+    text-align:     center;
+}
+.exhibit-busyIndicator-content img {
+    vertical-align: middle;
+}
+div.exhibit-lens {
+    border:         1px solid #aaa;
+    margin-bottom:  1em;
+}
+
+div.exhibit-lens-title {
+    font-weight:    bold;
+    background:     #eee;
+    padding:        2px;
+}
+
+.exhibit-lens-copyButton {
+    float:  right;
+}
+
+div.exhibit-lens-body {
+	padding: 0.3em;
+}
+
+table.exhibit-lens-properties {
+}
+
+tr.exhibit-lens-property {
+}
+
+td.exhibit-lens-property-name {
+	color: #888;
+}
+
+td.exhibit-lens-property-values {
+}
+
+/*==================================================
+ * Facet box
+ *==================================================
+ */
+div.exhibit-facet {
+    position:   relative;
+}
+
+div.exhibit-facet-header {
+    padding:        2px;
+}
+div.exhibit-facet-header-filterControl {
+    float:          right;
+    width:          2em;
+    display:        none;
+    cursor:         pointer;
+}
+div.exhibit-facet-header-filterControl img {
+    vertical-align: text-bottom;
+}
+
+img.exhibit-facet-header-collapse { 
+    border: 1px;
+    cursor: pointer;
+    padding-right: 3px;
+}
+
+span.exhibit-facet-header-title {
+    font-weight:    bold;
+}
+span.exhibit-facet-header-detail {
+    color:          #888;
+    padding-left:   0.5em;
+}
+    
+div.exhibit-facet-body-frame {
+    clear:          both;
+}
+
+div.exhibit-facet-body {
+    border:         1px solid #ddd;
+    height:         10em;
+    overflow:       auto;
+}
+
+/*==================================================
+ * Facet value
+ *==================================================
+ */
+
+div.exhibit-facet-value {
+    cursor:         pointer;
+    padding:        2px 0px;
+    clear:          both;
+}
+div.exhibit-facet-value-selected {
+    font-weight:    bold;
+}
+
+div.exhibit-facet-value-count {
+    float:          left;
+    width:          2em;
+    text-align:     right;
+    color:          #aaa;
+}
+
+div.exhibit-facet-value-inner {
+    padding-left:   2.5em;
+}
+
+a.exhibit-facet-value-link {
+    text-decoration: none;
+}
+a.exhibit-facet-value-link:hover {
+    text-decoration: underline;
+}
+
+div.exhibit-facet-value-checkbox {
+    float:          right;
+}
+
+span.exhibit-facet-value-missingThisField {
+    color:          #888;
+}
+
+/*==================================================
+ * Flowing facet box
+ *==================================================
+ */
+div.exhibit-flowingFacet {
+    clear:          both;
+}
+
+div.exhibit-flowingFacet-header {
+    padding:        2px 0px;
+}
+
+span.exhibit-flowingFacet-header-title {
+    font-weight:    bold;
+}
+    
+div.exhibit-flowingFacet-body {
+}
+
+/*==================================================
+ * Flowing facet value
+ *==================================================
+ */
+
+div.exhibit-flowingFacet-value {
+    cursor:         pointer;
+    clear:          both;
+    position:       relative;
+    margin-left:    20px;
+}
+
+a.exhibit-flowingFacet-value-link {
+    text-decoration: none;
+}
+a.exhibit-flowingFacet-value-link:hover {
+    text-decoration: underline;
+}
+
+div.exhibit-flowingFacet-value-selected {
+    font-weight:    bold;
+}
+
+span.exhibit-flowingFacet-value-count {
+    color:          #aaa;
+}
+
+div.exhibit-flowingFacet-value-checkbox {
+    position:       absolute;
+    left:           -20px;
+    padding:        0;
+    margin:         0;
+}
+
+/*==================================================
+ * Text search facet
+ *==================================================
+ */
+div.exhibit-text-facet {
+}
+
+div.exhibit-text-facet input {
+    width: 100%;
+}
+
+/*==================================================
+ * Cloud facet
+ *==================================================
+ */
+div.exhibit-cloudFacet {
+    clear:          both;
+}
+
+div.exhibit-cloudFacet-header {
+    padding:        2px 0px;
+}
+
+span.exhibit-cloudFacet-header-title {
+    font-weight:    bold;
+}
+
+div.exhibit-cloudFacet-body {
+    padding:    0.5em;
+    border:     1px solid #aaa;
+}
+
+span.exhibit-cloudFacet-value {
+    cursor: pointer;
+}
+
+span.exhibit-cloudFacet-value-selected {
+    text-decoration: underline;
+    background:      yellow;
+}
+
+/*==================================================
+ * Hierarchical facet
+ *==================================================
+ */
+ 
+a.exhibit-facet-value-children-toggle {
+    padding: 0px 5px;
+}
+a.exhibit-facet-value-children-toggle:hover {
+    background: #eee;
+}
+
+a.exhibit-flowingFacet-value-children-toggle {
+    padding: 0px 5px;
+}
+a.exhibit-flowingFacet-value-children-toggle:hover {
+    background: #eee;
+}
+
+div.exhibit-flowingFacet-childrenContainer {
+}
+
+div.exhibit-facet-childrenContainer {
+    padding-left: 16px;
+}
+
+/*==================================================
+ * Slider facet
+ *==================================================
+ */
+
+div.exhibit-slider { 
+    font-size: 0; /* IE sucks */
+    padding-left: 10px;
+}
+
+div.exhibit-slider-bar { 
+    background: #000;
+    margin: 5px 0 15px 0;
+    position: relative;
+}
+
+div.exhibit-slider-bar2 { 
+    background: #eee;
+    line-height: 0;
+    margin: 15px 10px 10px 5px;
+    height: 150px;
+    width: 20px;
+    position: relative;
+}
+
+div.exhibit-slider-handle { 
+    cursor: pointer;
+    float: left;
+    height: 19px;
+    left: 0px;
+    position: absolute;
+    top: 0px;
+    width: 12px;
+    z-index: 1;
+}
+
+div.exhibit-slider-histogram {
+    background: #eee;
+}
+
+div.exhibit-slider-handle2 { 
+    cursor: pointer;
+    float: left;
+    height: 12px;
+    left: 0px;
+    position: absolute;
+    top: 0px;
+    width: 19px;
+    z-index: 1;
+}
+
+div.exhibit-slider-histogram div { 
+    background: #999;
+}
+
+div.exhibit-slider-display {
+    font-size: 16px;
+}
+
+.exhibit-slider-display input { 
+    background: #eee;
+    font-size: 10px;
+    width: 40px;
+}
+
+/*==================================================
+ * Image facet
+ *==================================================
+ */
+.inline-block {
+	display:    -moz-inline-box;
+	display:    inline-block;
+}
+
+.exhibit-imageFacet-value, .exhibit-imageFacet-value div, .exhibit-imageFacet-value img {
+	margin: 0px;
+	padding: 0px;
+}
+
+.exhibit-imageFacet-value div.wrapper {
+	margin:     3px;
+	padding:    6px;
+	padding-bottom: 10px;
+	text-align: right;
+    vertical-align: bottom;
+    cursor:     pointer;
+	position: relative;
+}
+
+.exhibit-imageFacet-value .countDiv div.text {
+	position: absolute;
+	bottom: .1em;
+	left: .3em;
+}
+.exhibit-imageFacet-value .countDiv {
+	position: absolute;
+	border: 1px solid black;
+	bottom: 0px;
+	right: 5px;
+	width: 2em;
+	height: 2em;
+	font-size: 6pt;
+}
+
+div.countBackground { /* this class makes a window partially transparent */
+	background-color: #FF9000;
+	clear: both;
+	width: 100%;
+	height: 100%;
+    opacity: .5;               /* Standard style for transparency */
+    -moz-opacity: .5;          /* Transparency for older Mozillas */
+    filter: alpha(opacity=50);  /* Transparency for IE */
+}
+
+
+.exhibit-imageFacet-value-selected img {
+	background: #fcc;
+}
+
+ .exhibit-imageFacet-value-selected {
+	background: #fcc;
+}
+/*==================================================
+ * Common styles for views
+ *==================================================
+ */
+div.exhibit-views-unplottableMessage {
+    padding:        1em;
+    text-align:     center;
+}
+.exhibit-views-unplottableCount {
+    font-weight: bold;
+}
+.exhibit-views-totalCount {
+}
+
+div.exhibit-views-bubbleWithItems {
+}
+
+div.exhibit-collectionView {
+}
+
+div.exhibit-collectionView-header {
+}
+span.exhibit-collectionView-header-count {
+    font-size:      200%;
+}
+span.exhibit-collectionView-header-types {
+    padding-left:   0.5em;
+}
+span.exhibit-collectionView-header-details {
+    padding-left:   0.5em;
+    color:          #888;
+}
+div.exhibit-collectionView-header-sortControls {
+    text-align:     center;
+    margin:         1em 0;
+}
+.exhibit-collectionView-header-groupControls {
+    cursor: pointer;
+}
+.exhibit-collectionView-header-duplicateControls {
+    cursor: pointer;
+}
+
+div.exhibit-collectionView-body {
+}
+
+div.exhibit-collectionView-group {
+}
+
+span.exhibit-collectionView-group-count {
+}
+
+div.exhibit-collectionView-group-content {
+    margin-left: 1em;
+}
+
+div.exhibit-collectionView-group h1 {
+    font-size:      150%;
+    margin:         1em 0;
+}
+
+div.exhibit-collectionView-group h2 {
+    font-size:      120%;
+    margin:         0.5em 0;
+}
+
+.exhibit-collectionView-group h3 {
+}
+
+div.exhibit-collectionView-footer {
+    clear:      both;
+    text-align: center;
+    margin:     2em 0;
+}
+
+div.exhibit-collectionView-pagingControls {
+    margin: 1em 0;
+    text-align: center;
+}
+
+.exhibit-collectionView-pagingControls-currentPage {
+    padding: 0px 0.5em;
+    font-weight: bold;
+}
+
+.exhibit-collectionView-pagingControls-page {
+    padding: 0px 0.5em;
+}
+
+ul.exhibit-collectionView-pagingControls {
+    clear: both;
+    margin: 2em 0;
+    text-align: center;
+}
+ul.exhibit-collectionView-pagingControls li {
+    list-style-type: none;
+    display: inline;
+}
+ul.exhibit-collectionView-pagingControls li a {
+    border: 1px solid #90C2E1;
+    background: #DFEDF7;
+    padding: 2px 5px;
+    text-decoration: none;
+}
+table.exhibit-tabularView-body {
+    width: 100%;
+}
+
+.exhibit-tabularView-columnHeader {
+    cursor:         pointer;
+    white-space:    pre;
+}
+
+.exhibit-tabularView-columnHeader-sorted {
+    cursor:         pointer;
+    white-space:    pre;
+}
+
+div.exhibit-tabularView-pagingControls {
+    margin: 1em 0;
+    text-align: center;
+}
+
+.exhibit-tabularView-pagingControls-currentPage {
+    padding: 0px 0.5em;
+    font-weight: bold;
+}
+
+.exhibit-tabularView-pagingControls-page {
+    padding: 0px 0.5em;
+}
+
+div.exhibit-thumbnailView-group {
+    clear: both;
+}
+
+div.exhibit-thumbnailView-body {
+}
+
+div.exhibit-thumbnailView-itemContainer {
+    float:      left;
+}
+
+div.exhibit-thumbnailView-itemContainer-IE {
+    float:      left;
+}table.exhibit-tileView-body {
+    width: 100%;
+}
+
+.exhibit-tileView-body > tbody > tr > td:first-child {
+    width:      3em;
+    text-align: right;
+    color:      #aaa
+}
+
+td.exhibit-tileView-itemIndex {
+}/*==================================================
+ * View Panel styles
+ *==================================================
+ */
+div.exhibit-viewPanel {
+}
+
+div.exhibit-viewPanel-viewSelection {
+    text-align: center;
+}
+
+span.exhibit-viewPanel-viewSelection-view {
+    text-transform: uppercase;
+    cursor:         pointer;
+}
+
+span.exhibit-viewPanel-viewSelection-selectedView {
+    text-transform: uppercase;
+    font-weight:    bold;
+    border-bottom:  3px solid red;
+}
+
+div.exhibit-viewPanel-viewContainer {
+}
+
+/*==================================================
+ * Collection Summary Widget styles
+ *==================================================
+ */
+div.exhibit-collectionSummaryWidget {
+}
+span.exhibit-collectionSummaryWidget-count {
+    font-size:      200%;
+}
+span.exhibit-collectionSummaryWidget-results {
+}
+div.exhibit-legendWidget {
+    margin:         1em 0;
+    text-align:     center;
+    line-height:    2em;
+}
+div.exhibit-legendWidget-entry {
+}
+span.exhibit-legendWidget-entry-title {
+    font-weight: bold;
+}
+span.exhibit-legendWidget-entry-swatch {
+    border:     1px solid #888;
+    padding:    0px 3px;
+}
+.exhibit-optionWidget {
+    cursor:     pointer;
+}
+
+.exhibit-optionWidget img {
+    vertical-align: middle;
+}
+/*==================================================
+ * Resizable Div Widget styles
+ *==================================================
+ */
+div.exhibit-resizableDivWidget-resizer {
+    text-align:     center;
+    cursor:         s-resize;
+    height:         15px;
+    clear:          both;
+}
+div.exhibit-toolboxWidget-popup {
+    position:       absolute;
+    border:         1px solid #ccc;
+    background:     white;
+    padding:        3px;
+    text-align:     right;
+    z-index:        1000;
+}
+
+img.exhibit-toolboxWidget-button {
+    cursor: pointer;
+    margin: 0px 1px;
+}

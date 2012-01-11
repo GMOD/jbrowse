@@ -1,0 +1,25 @@
+/*==================================================
+ * View Panel styles
+ *==================================================
+ */
+div.exhibit-viewPanel {
+}
+
+div.exhibit-viewPanel-viewSelection {
+    text-align: center;
+}
+
+span.exhibit-viewPanel-viewSelection-view {
+    text-transform: uppercase;
+    cursor:         pointer;
+}
+
+span.exhibit-viewPanel-viewSelection-selectedView {
+    text-transform: uppercase;
+    font-weight:    bold;
+    border-bottom:  3px solid red;
+}
+
+div.exhibit-viewPanel-viewContainer {
+}
+

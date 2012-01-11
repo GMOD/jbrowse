@@ -1,0 +1,811 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="generator" content="JsDoc Toolkit 1.0">
+	<title>JsDoc: SimileAjax.DateTime</title>
+	<link rel=stylesheet href="default.css" type="text/css" media=screen>
+</head>
+
+<body>
+	<div class="content">
+		<div class="docs">
+		
+			<div class="sectionHead">Library: SimileAjax.DateTime</div>
+			<div class="section overview">
+				<div class="itemTitle">
+					Overview
+				</div>
+				<div>	
+					<div class="desc">A collection of date/time utility functions</div>
+					<div class="itemTags">
+					
+					</div>
+				</div>
+			</div>
+			
+			<div class="sectionHead">Constructors</div>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<div class="sectionHead">Functions</div>
+			
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.DateTime.setIso8601Date"></a>
+					
+					
+					SimileAjax.DateTime.setIso8601Date(<span class="signature">dateObject, string</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Takes a date object and a string containing an ISO 8601 date and sets the
+the date using information parsed from the string.  Note that this method
+does not parse any time information.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Date
+						</td>
+						<td>
+							dateObject
+						</td>
+						<td>
+							the date object to modify
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							String
+						</td>
+						<td>
+							string
+						</td>
+						<td>
+							an ISO 8601 string to parse
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Date
+						</td>
+						<td>
+							the modified date object
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.DateTime.setIso8601Time"></a>
+					
+					
+					SimileAjax.DateTime.setIso8601Time(<span class="signature">dateObject, string</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Takes a date object and a string containing an ISO 8601 time and sets the
+the time using information parsed from the string.  Note that this method
+does not parse any date information.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Date
+						</td>
+						<td>
+							dateObject
+						</td>
+						<td>
+							the date object to modify
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							String
+						</td>
+						<td>
+							string
+						</td>
+						<td>
+							an ISO 8601 string to parse
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Date
+						</td>
+						<td>
+							the modified date object
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.DateTime.setIso8601"></a>
+					
+					
+					SimileAjax.DateTime.setIso8601(<span class="signature">dateObject, string</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Takes a date object and a string containing an ISO 8601 date and time and 
+sets the date object using information parsed from the string.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Date
+						</td>
+						<td>
+							dateObject
+						</td>
+						<td>
+							the date object to modify
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							String
+						</td>
+						<td>
+							string
+						</td>
+						<td>
+							an ISO 8601 string to parse
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Date
+						</td>
+						<td>
+							the modified date object
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.DateTime.parseIso8601DateTime"></a>
+					
+					
+					SimileAjax.DateTime.parseIso8601DateTime(<span class="signature">string</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Takes a string containing an ISO 8601 date and returns a newly instantiated
+date object with the parsed date and time information from the string.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							String
+						</td>
+						<td>
+							string
+						</td>
+						<td>
+							an ISO 8601 string to parse
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Date
+						</td>
+						<td>
+							a new date object created from the string
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.DateTime.parseGregorianDateTime"></a>
+					
+					
+					SimileAjax.DateTime.parseGregorianDateTime(<span class="signature">o</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Takes a string containing a Gregorian date and time and returns a newly
+instantiated date object with the parsed date and time information from the
+string.  If the param is actually an instance of Date instead of a string, 
+simply returns the given date instead.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Object
+						</td>
+						<td>
+							o
+						</td>
+						<td>
+							an object, to either return or parse as a string
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Date
+						</td>
+						<td>
+							the date object
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.DateTime.roundDownToInterval"></a>
+					
+					
+					SimileAjax.DateTime.roundDownToInterval(<span class="signature">date, intervalUnit, timeZone, multiple, firstDayOfWeek</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Rounds date objects down to the nearest interval or multiple of an interval.
+This method modifies the given date object, converting it to the given
+timezone if specified.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Date
+						</td>
+						<td>
+							date
+						</td>
+						<td>
+							the date object to round
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							intervalUnit
+						</td>
+						<td>
+							a constant, integer index specifying an 
+  interval, e.g. SimileAjax.DateTime.HOUR
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							timeZone
+						</td>
+						<td>
+							a timezone shift, given in hours
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							multiple
+						</td>
+						<td>
+							a multiple of the interval to round by
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							firstDayOfWeek
+						</td>
+						<td>
+							an integer specifying the first day of the
+  week, 0 corresponds to Sunday, 1 to Monday, etc.
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.DateTime.roundUpToInterval"></a>
+					
+					
+					SimileAjax.DateTime.roundUpToInterval(<span class="signature">date, intervalUnit, timeZone, multiple, firstDayOfWeek</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Rounds date objects up to the nearest interval or multiple of an interval.
+This method modifies the given date object, converting it to the given
+timezone if specified.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Date
+						</td>
+						<td>
+							date
+						</td>
+						<td>
+							the date object to round
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							intervalUnit
+						</td>
+						<td>
+							a constant, integer index specifying an 
+  interval, e.g. SimileAjax.DateTime.HOUR
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							timeZone
+						</td>
+						<td>
+							a timezone shift, given in hours
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							multiple
+						</td>
+						<td>
+							a multiple of the interval to round by
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							firstDayOfWeek
+						</td>
+						<td>
+							an integer specifying the first day of the
+  week, 0 corresponds to Sunday, 1 to Monday, etc.
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.DateTime.incrementByInterval"></a>
+					
+					
+					SimileAjax.DateTime.incrementByInterval(<span class="signature">date, intervalUnit</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Increments a date object by a specified interval.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Date
+						</td>
+						<td>
+							date
+						</td>
+						<td>
+							the date object to increment
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							intervalUnit
+						</td>
+						<td>
+							a constant, integer index specifying an 
+  interval, e.g. SimileAjax.DateTime.HOUR
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.DateTime.removeTimeZoneOffset"></a>
+					
+					
+					SimileAjax.DateTime.removeTimeZoneOffset(<span class="signature">date, timeZone</span>)
+					
+				</div>
+				
+				
+					<div class="desc">Returns a new date object with the given time offset removed.</div>
+				
+				
+				
+				
+				
+				<div class="detailHead">parameters</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Date
+						</td>
+						<td>
+							date
+						</td>
+						<td>
+							the starting date
+						</td> 
+					</tr>
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							timeZone
+						</td>
+						<td>
+							a timezone specified in an hour offset to remove
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Date
+						</td>
+						<td>
+							a new date object with the offset removed
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="section function">
+				<div class="itemTitle">
+					<a name="SimileAjax.DateTime.getTimezone"></a>
+					
+					
+					SimileAjax.DateTime.getTimezone(<span class="signature"></span>)
+					
+				</div>
+				
+				
+					<div class="desc">Returns the timezone offset of the user's browser.</div>
+				
+				
+				
+				
+				
+				
+				
+				<div class="detailHead">returns</div>
+				<table class="params">
+				
+					<tr>
+						<td class="type">
+							Number
+						</td>
+						<td>
+							the timezone offset in the user's locale in hours
+						</td> 
+					</tr>
+				
+				</table>
+				
+				
+				
+			</div>
+			
+			
+			
+			<div class="sectionHead">Objects</div>
+			
+			
+			<div class="section object">
+				<div class="itemTitle">
+					<a name="SimileAjax.DateTime.gregorianUnitLengths"></a>
+					
+					<span class="type">Array</span>
+					
+					
+					
+						SimileAjax.DateTime.gregorianUnitLengths
+					
+				</div>
+				
+				
+					<div class="desc">An array of unit lengths, expressed in milliseconds, of various lengths of
+time.  The array indices are predefined and stored as properties of the
+SimileAjax.DateTime object, e.g. SimileAjax.DateTime.YEAR.</div>
+				
+				
+				
+			</div>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<div class="section object">
+				<div class="itemTitle">
+					<a name="SimileAjax.DateTime.timezoneOffset"></a>
+					
+					<span class="type">Number</span>
+					
+					
+					
+						SimileAjax.DateTime.timezoneOffset
+					
+				</div>
+				
+				
+					<div class="desc">The timezone offset in minutes in the user's browser.</div>
+				
+				
+				
+			</div>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		</div>
+	</div>
+	<div class="finePrint">
+	Generated by <a href="http://jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> on Tue, 07 Aug 2007 20:53:47 GMT
+	</div>
+</body>
+</html>

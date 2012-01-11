@@ -1,0 +1,12 @@
+table.exhibit-tileView-body {
+    width: 100%;
+}
+
+.exhibit-tileView-body > tbody > tr > td:first-child {
+    width:      3em;
+    text-align: right;
+    color:      #aaa
+}
+
+td.exhibit-tileView-itemIndex {
+}

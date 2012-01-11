@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <title>SIMILE Widgets | Exhibit | Examples | Boston Red Sox vs. New York Yankees</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+    
+    <link href="data.json" type="application/json" rel="exhibit/data" />
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/exhibit-api.js -->
+    <script src="../../api/exhibit-api.js"></script>
+
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/extensions/timeplot/timeplot-extension.js -->
+    <script src="../../api/extensions/timeplot/timeplot-extension.js"></script>
+
+    <script type="text/javascript">
+      var timeGeometer = function(grid) {
+          return new Timeplot.DefaultTimeGeometry({
+              gridColor: grid,
+              axisLabelsPlacement: "top"
+          });
+      };
+
+      var valueGeometer = function(grid) {
+          return new Timeplot.DefaultValueGeometry({
+              gridColor: grid,
+              axisLabelsPlacement: "left",
+              gridType: "short",
+              min: 0.225,
+              max: 0.775
+          });
+      };
+    </script>
+
+    <style>
+        .exhibit-facet-body { background: #fff; }
+        #subject-colors { display: none; }
+        a { color: #555555; }
+    </style>
+  </head>
+
+  <body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Examples: Boston Red Sox vs. New York Yankees</span></li>
+    </ul>
+    
+    <div ex:role="exhibit-collection" ex:itemTypes="Season"></div>
+    <div ex:role="coder" ex:coderClass="Color" id="subject-colors">
+        <span ex:color="#DD2233">Red Sox</span>
+        <span ex:color="#000000">Yankees</span>
+    </div>
+    <table width="100%" cellpadding="20" cellspacing="0"><tr valign="top">
+        <td width="20%" style="background: #fff url(wood.png);">
+            <p><img src="bos.png" alt="Boston Red Sox" style="width: 80px; height: 79px;" /> vs. <img src="nyy.png" alt="New York Yankees" style="width: 80px; height: 79px;" /></p>
+	    <p>Statistics of seasonal winning percentage records of the <a href="http://en.wikipedia.org/wiki/List_of_Boston_Red_Sox_seasons">Boston Red Sox</a> and the <a href="http://en.wikipedia.org/wiki/New_York_Yankees_seasons">New York Yankees</a> since the first World Series of 1903.</p>
+            <div ex:role="facet" ex:expression=".year" ex:facetLabel="Year" ex:height="8em" ex:facetClass="NumericRange" ex:interval="10"></div>
+            <div ex:role="facet" ex:expression=".year.strike" ex:facetLabel="Strike Season" ex:height="3.5em"></div>
+            <div ex:role="facet" ex:expression=".subject" ex:facetLabel="Team" ex:height="3.5em"></div>
+            <div ex:role="facet" ex:expression=".wonWorldSeries" ex:facetLabel="World Series Winner" ex:height="3.5em"></div>
+            <center ex:role="logo" ex:color="Red"></center>
+        </td>
+        <td style="background: url(fenway.jpg) bottom left no-repeat;">
+            <div ex:role="view"
+                ex:viewClass="Timeplot"
+                ex:label="Winning Percentage"
+                ex:seriesConnector=".subject"
+                ex:pointTime=".year"
+                ex:pointValue=".winningPercentage"
+                ex:timeplotHeight="300"
+                ex:gridColor="#666666"
+                ex:timeGeometry="timeGeometer"
+                ex:valueGeometry="valueGeometer"
+                ex:colorKey=".subject"
+                ex:colorCoder="subject-colors"
+                >
+                </div>
+        </td>
+    </tr></table>
+  </body>
+</html>

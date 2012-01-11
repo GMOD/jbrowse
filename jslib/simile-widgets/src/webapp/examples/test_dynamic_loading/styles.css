@@ -1,0 +1,101 @@
+body {
+    color:          #222;
+    background-color: #fff;
+}
+
+#frame {
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+    border-collapse: collapse;
+}
+
+#frame tr {
+    vertical-align: top;
+}
+            
+#content {
+    width: 80%;
+    padding: 1em;
+    background-color: #D8DADE;
+}
+
+#content h1 {
+    color: #523015;
+    border-bottom: 1px solid #cc0000;
+}
+
+#sidebar {
+    width: 15%;
+    white-space: nowrap;
+    background-color: #fff;
+    background-image: url(images/whitehouse.jpg);
+    background-position: bottom right;
+    background-repeat: no-repeat;
+    border-left: 1px solid #ccc;
+    padding: 1em;
+}
+
+#view-panel {
+    margin-top: 3em;
+}
+
+#view-panel table {
+    border-spacing: 0px;
+    border-collapse: collapse;
+}
+
+#view-panel h1 {
+    border: none;
+    font-size: 120%;
+}
+
+#view-panel h1 {
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 1em 0;
+}
+
+#view-panel h2 {
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0.5em;
+}
+
+.item {
+    border: 1px solid #aaa;
+    padding: 0.3em;
+}
+
+div.thumbnail {
+    border:     1px solid #aaa;
+    padding:    1em;
+    margin:     1em;
+    width:      100px;
+    height:     130px;
+    text-align: center;
+}
+
+div.map-lens {
+    width:      200px;
+    height:     200px;
+    text-align: center;
+}
+
+div.thumbnail div {
+    height:     100px;
+    overflow:   hidden;
+}        
+
+div.exhibit-facet-body {
+    background-color: #E3E6EC;
+    border: 1px solid #B8B8BB;
+}
+
+div.exhibit-facet-header {
+    color: #523015;
+    background-color: white;
+}

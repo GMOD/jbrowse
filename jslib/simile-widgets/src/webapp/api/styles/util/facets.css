@@ -1,0 +1,327 @@
+/*==================================================
+ * Facet box
+ *==================================================
+ */
+div.exhibit-facet {
+    position:   relative;
+}
+
+div.exhibit-facet-header {
+    padding:        2px;
+}
+div.exhibit-facet-header-filterControl {
+    float:          right;
+    width:          2em;
+    display:        none;
+    cursor:         pointer;
+}
+div.exhibit-facet-header-filterControl img {
+    vertical-align: text-bottom;
+}
+
+img.exhibit-facet-header-collapse { 
+    border: 1px;
+    cursor: pointer;
+    padding-right: 3px;
+}
+
+span.exhibit-facet-header-title {
+    font-weight:    bold;
+}
+span.exhibit-facet-header-detail {
+    color:          #888;
+    padding-left:   0.5em;
+}
+    
+div.exhibit-facet-body-frame {
+    clear:          both;
+}
+
+div.exhibit-facet-body {
+    border:         1px solid #ddd;
+    height:         10em;
+    overflow:       auto;
+}
+
+/*==================================================
+ * Facet value
+ *==================================================
+ */
+
+div.exhibit-facet-value {
+    cursor:         pointer;
+    padding:        2px 0px;
+    clear:          both;
+}
+div.exhibit-facet-value-selected {
+    font-weight:    bold;
+}
+
+div.exhibit-facet-value-count {
+    float:          left;
+    width:          2em;
+    text-align:     right;
+    color:          #aaa;
+}
+
+div.exhibit-facet-value-inner {
+    padding-left:   2.5em;
+}
+
+a.exhibit-facet-value-link {
+    text-decoration: none;
+}
+a.exhibit-facet-value-link:hover {
+    text-decoration: underline;
+}
+
+div.exhibit-facet-value-checkbox {
+    float:          right;
+}
+
+span.exhibit-facet-value-missingThisField {
+    color:          #888;
+}
+
+/*==================================================
+ * Flowing facet box
+ *==================================================
+ */
+div.exhibit-flowingFacet {
+    clear:          both;
+}
+
+div.exhibit-flowingFacet-header {
+    padding:        2px 0px;
+}
+
+span.exhibit-flowingFacet-header-title {
+    font-weight:    bold;
+}
+    
+div.exhibit-flowingFacet-body {
+}
+
+/*==================================================
+ * Flowing facet value
+ *==================================================
+ */
+
+div.exhibit-flowingFacet-value {
+    cursor:         pointer;
+    clear:          both;
+    position:       relative;
+    margin-left:    20px;
+}
+
+a.exhibit-flowingFacet-value-link {
+    text-decoration: none;
+}
+a.exhibit-flowingFacet-value-link:hover {
+    text-decoration: underline;
+}
+
+div.exhibit-flowingFacet-value-selected {
+    font-weight:    bold;
+}
+
+span.exhibit-flowingFacet-value-count {
+    color:          #aaa;
+}
+
+div.exhibit-flowingFacet-value-checkbox {
+    position:       absolute;
+    left:           -20px;
+    padding:        0;
+    margin:         0;
+}
+
+/*==================================================
+ * Text search facet
+ *==================================================
+ */
+div.exhibit-text-facet {
+}
+
+div.exhibit-text-facet input {
+    width: 100%;
+}
+
+/*==================================================
+ * Cloud facet
+ *==================================================
+ */
+div.exhibit-cloudFacet {
+    clear:          both;
+}
+
+div.exhibit-cloudFacet-header {
+    padding:        2px 0px;
+}
+
+span.exhibit-cloudFacet-header-title {
+    font-weight:    bold;
+}
+
+div.exhibit-cloudFacet-body {
+    padding:    0.5em;
+    border:     1px solid #aaa;
+}
+
+span.exhibit-cloudFacet-value {
+    cursor: pointer;
+}
+
+span.exhibit-cloudFacet-value-selected {
+    text-decoration: underline;
+    background:      yellow;
+}
+
+/*==================================================
+ * Hierarchical facet
+ *==================================================
+ */
+ 
+a.exhibit-facet-value-children-toggle {
+    padding: 0px 5px;
+}
+a.exhibit-facet-value-children-toggle:hover {
+    background: #eee;
+}
+
+a.exhibit-flowingFacet-value-children-toggle {
+    padding: 0px 5px;
+}
+a.exhibit-flowingFacet-value-children-toggle:hover {
+    background: #eee;
+}
+
+div.exhibit-flowingFacet-childrenContainer {
+}
+
+div.exhibit-facet-childrenContainer {
+    padding-left: 16px;
+}
+
+/*==================================================
+ * Slider facet
+ *==================================================
+ */
+
+div.exhibit-slider { 
+    font-size: 0; /* IE sucks */
+    padding-left: 10px;
+}
+
+div.exhibit-slider-bar { 
+    background: #000;
+    margin: 5px 0 15px 0;
+    position: relative;
+}
+
+div.exhibit-slider-bar2 { 
+    background: #eee;
+    line-height: 0;
+    margin: 15px 10px 10px 5px;
+    height: 150px;
+    width: 20px;
+    position: relative;
+}
+
+div.exhibit-slider-handle { 
+    cursor: pointer;
+    float: left;
+    height: 19px;
+    left: 0px;
+    position: absolute;
+    top: 0px;
+    width: 12px;
+    z-index: 1;
+}
+
+div.exhibit-slider-histogram {
+    background: #eee;
+}
+
+div.exhibit-slider-handle2 { 
+    cursor: pointer;
+    float: left;
+    height: 12px;
+    left: 0px;
+    position: absolute;
+    top: 0px;
+    width: 19px;
+    z-index: 1;
+}
+
+div.exhibit-slider-histogram div { 
+    background: #999;
+}
+
+div.exhibit-slider-display {
+    font-size: 16px;
+}
+
+.exhibit-slider-display input { 
+    background: #eee;
+    font-size: 10px;
+    width: 40px;
+}
+
+/*==================================================
+ * Image facet
+ *==================================================
+ */
+.inline-block {
+	display:    -moz-inline-box;
+	display:    inline-block;
+}
+
+.exhibit-imageFacet-value, .exhibit-imageFacet-value div, .exhibit-imageFacet-value img {
+	margin: 0px;
+	padding: 0px;
+}
+
+.exhibit-imageFacet-value div.wrapper {
+	margin:     3px;
+	padding:    6px;
+	padding-bottom: 10px;
+	text-align: right;
+    vertical-align: bottom;
+    cursor:     pointer;
+	position: relative;
+}
+
+.exhibit-imageFacet-value .countDiv div.text {
+	position: absolute;
+	bottom: .1em;
+	left: .3em;
+}
+.exhibit-imageFacet-value .countDiv {
+	position: absolute;
+	border: 1px solid black;
+	bottom: 0px;
+	right: 5px;
+	width: 2em;
+	height: 2em;
+	font-size: 6pt;
+}
+
+div.countBackground { /* this class makes a window partially transparent */
+	background-color: #FF9000;
+	clear: both;
+	width: 100%;
+	height: 100%;
+    opacity: .5;               /* Standard style for transparency */
+    -moz-opacity: .5;          /* Transparency for older Mozillas */
+    filter: alpha(opacity=50);  /* Transparency for IE */
+}
+
+
+.exhibit-imageFacet-value-selected img {
+	background: #fcc;
+}
+
+ .exhibit-imageFacet-value-selected {
+	background: #fcc;
+}

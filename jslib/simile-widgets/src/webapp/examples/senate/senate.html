@@ -1,0 +1,102 @@
+<html>
+  <head>
+    <title>SIMILE Widgets | Exhibit | Examples | Senate</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+    
+    <link href="senate-committees.js" type="application/json" rel="exhibit/data" />
+    <link href="senate-bills.js" type="application/json" rel="exhibit/data" />
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/exhibit-api.js -->
+    <script src="../../api/exhibit-api.js"></script>
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/extensions/map/map-extension.js -->
+    <script src="../../api/extensions/map/map-extension.js?gmapkey=ABQIAAAA5JLLfCE9c7HAtg25QM2KCRRyiP6mHEsQpwvxB19-hS9Kgd8RYhSXEtJVAXDUCZPqwtZZi7-HUYUYrw"></script>
+    
+    <script type="text/javascript">
+        var rowStyler = function(item, database, tr) {
+            var party = database.getObject(item, "party");
+            var color = "white";
+            switch (party) {
+            case "D":              color = "#AAAAFF"; break;
+            case "R":              color = "#FFAAAA"; break;
+            }
+            tr.style.background = color;
+        };
+    </script>
+    <link rel='stylesheet' href='styles.css' type='text/css' />
+  </head>
+
+  <body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Examples: Senate</span></li>
+    </ul>
+    
+    <div ex:role="exhibit-collection" ex:itemTypes="Senator"></div>
+    <table id="frame">
+        <tr>
+            <td id="content">
+              <div id="title-area">
+                <h1>Recent United States Senate Bills</h1>
+                <p>A continually evolving look at what legislation is passing through Senate committees and thus which states' constituents end up having a preliminary say.  Yesterday's new legislation is presented, unless the Senate was in recess.  Powered by <a href="http://simile.mit.edu/exhibit/">Exhibit</a> and <a href="http://simile.mit.edu/crowbar/">Crowbar</a>.</p>
+                </div>
+                <div id="content-area">
+                    <div class="item" ex:role="exhibit-lens" ex:itemTypes="Senator" style="display: none">
+                        <a ex:href-content=".homepage"><span ex:content=".label"></span> (<span ex:content=".party"></span>-<span ex:content=".state"></span>)</a>
+                        <div>Committees: <span ex:content=".committeeMember.label"></span></div>
+                        <div>Bills (yesterday): <span ex:content="!sponsor.description"></span></div>
+                    </div>
+                    <div class="item" ex:role="exhibit-lens" ex:itemTypes="Bill" style="display: none">
+                        <p><span ex:content=".description"></span></p>
+                        <p>Referred to: <span ex:content=".inCommittee"></span></p>
+                        <p>Sponsored by <span ex:content=".sponsor"></span>; <span ex:content=".cosponsor"></span></p>
+                        <p><a ex:href-content=".billHomepage">Read the bill</a></p>
+                    </div>
+                    <div ex:role="coder" ex:coderClass="Color" id="party-colors" style="display: none">
+                        <span ex:color="#AAAAFF">D</span>
+                        <span ex:color="#FFAAAA">R</span>
+                    </div>
+                    
+                    <div ex:role="exhibit-viewPanel">
+                        <div ex:role="exhibit-view"
+                            ex:viewClass="Exhibit.TabularView"
+                            ex:label="Table"
+                            ex:columns=".label, .party, .state, .committeeMember.label, !sponsor, !cosponsor"
+                            ex:columnLabels="name, party, state, member of, sponsored, cosponsored"
+                            ex:columnFormats="list, list, list, list"
+                            ex:sortColumn="4"
+                            ex:sortAscending="false"
+                            ex:rowStyler="rowStyler"
+                            ></div>
+                        <div ex:role="exhibit-view"
+                            ex:viewClass="Exhibit.MapView"
+                            ex:label="Map"
+                            ex:latlng=".stateLatLng"
+                            ex:colorKey=".party"
+                            ex:colorCoder="party-colors"
+                            ex:center="38.479394673276445, -95.361328125"
+                            ex:zoom="3"
+                            >
+                            <div class="map-lens" ex:role="exhibit-lens" style="display: none">
+                                <p><a ex:href-content=".homepage"><span ex:content=".label"></span>, (<span ex:content=".party"></span>-<span ex:content=".state"></span>)</a></p>
+                                <p><span ex:content=".committeeMember.label"></span></p>
+                                <div ex:if-exists="!sponsor"><p>Sponsoring <span ex:content="!sponsor"></span>: <span ex:content="!sponsor.description"></span></p></div>
+                                <div ex:if-exists="!sponsor.cosponsor"><p>Cosponsors: <span ex:content="!sponsor.cosponsor"></span></p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td id="sidebar">
+                <div ex:role="exhibit-facet" ex:expression="!sponsor" ex:facetLabel="Sponsoring" id="sponsors-facet"></div>
+                <div ex:role="exhibit-facet" ex:expression="!cosponsor" ex:facetLabel="Co-Sponsoring" id="cosponsors-facet"></div>
+                <div ex:role="exhibit-facet" ex:expression="!hasMember!inCommittee" ex:facetLabel="On Bill Committee" id="bill-committee-facet"></div>
+                <div ex:role="exhibit-facet" ex:expression=".state" ex:facetLabel="State" id="represents-facet"></div>
+                <div ex:role="exhibit-facet" ex:expression=".party" ex:facetLabel="Party" id="party-facet"></div>
+                <div ex:role="exhibit-facet" ex:expression=".committeeMember" ex:facetLabel="On Committee" id="committee-facet"></div>
+            </td>
+        </tr>
+    </table>
+  </body>
+</html>

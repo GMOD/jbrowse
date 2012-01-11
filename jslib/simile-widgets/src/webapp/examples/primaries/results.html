@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>SIMILE Widgets | Exhibit | Examples | 2008 Democratic Primary Results</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+
+    <link href="results.js" type="application/json" rel="exhibit/data" />
+
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/exhibit-api.js -->
+    <script src="../../api/exhibit-api.js"></script>
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/extensions/calendar/calendar-extension.js -->
+    <script src="../../api/extensions/calendar/calendar-extension.js"></script>
+  </head> 
+  <body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Examples: 2008 Democratic Primary Results</span></li>
+    </ul>
+    
+    <div id="header">
+      <h1>2008 Democratic Primary Results</h1>
+    </div>
+    
+    <div id="content">
+        <div ex:role="collection" ex:itemTypes="Contest"></div>
+        <table width="100%" cellpadding="10">
+          <tr>
+            <td> 
+	      <div ex:role="viewPanel">
+		<div ex:role="view"
+                     ex:viewClass="Tabular"
+                     ex:label="Details"
+                     ex:columns=".label, .Date, concat(.Clinton+Popular, ' / ', .Clinton+Delegates), concat(.Obama+Popular, ' / ', .Obama+Delegates), concat(.Votes, ' / ', .Pledged+Delegates)"
+                     ex:columnLabels="State, Date, Clinton (Popular / Delegates), Obama (Popular / Delegates), Total (Popular / Delegates)"
+                     ex:formats="date { mode: medium; show: date }, number { decimal-digits: 0 }, item {title: .Name }"
+                     ex:sortColumn="1">
+		</div>
+	      </div>
+            </td>
+            <td width="220">
+              <div ex:role="facet" ex:beginDate=".Date" ex:facetLabel="Primary/Caucus Date" ex:displayDate="2008-01-30" ex:facetClass="DatePicker"></div>
+              <div ex:role="facet" ex:expression=".Winner" ex:facetLabel="Winner"></div>
+            </td>
+          </tr>
+        </table>
+    </div>
+  </body>
+</html>

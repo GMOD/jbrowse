@@ -1,0 +1,1910 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns='http://www.w3.org/2005/Atom' xmlns:app='http://purl.org/atom/app#' xmlns:media='http://search.yahoo.com/mrss/' xmlns:openSearch='http://a9.com/-/spec/opensearchrss/1.0/' xmlns:gd='http://schemas.google.com/g/2005' xmlns:yt='http://gdata.youtube.com/schemas/2007'>
+  <id>http://gdata.youtube.com/feeds/api/standardfeeds/top_rated
+  </id>
+  <updated>2011-12-27T13:32:09.410-08:00
+  </updated>
+  <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+  <title type='text'>Top Rated
+  </title>
+  <logo>http://www.youtube.com/img/pic_youtubelogo_123x63.gif
+  </logo>
+  <link rel='alternate' type='text/html' href='https://www.youtube.com/browse?s=tr'/>
+  <link rel='http://schemas.google.com/g/2005#feed' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated'/>
+  <link rel='http://schemas.google.com/g/2005#batch' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/batch'/>
+  <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated?start-index=1&amp;max-results=25'/>
+  <link rel='next' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated?start-index=26&amp;max-results=25'/>
+  <author>
+    <name>YouTube
+    </name>
+    <uri>http://www.youtube.com/
+    </uri>
+  </author>
+  <generator version='2.1' uri='http://gdata.youtube.com'>YouTube data API
+  </generator>
+  <openSearch:totalResults>99
+  </openSearch:totalResults>
+  <openSearch:startIndex>1
+  </openSearch:startIndex>
+  <openSearch:itemsPerPage>25
+  </openSearch:itemsPerPage>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/KQ6zr6kCPj8
+    </id>
+    <published>2011-03-09T05:30:54.000Z
+    </published>
+    <updated>2011-12-27T21:33:32.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by the content owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='LMFAO'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Party'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Rock'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Anthem'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Pop'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Shots'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='goonrock'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Lauren'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Bennett'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Redfoo'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='SkyBlu'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='new'/>
+    <title type='text'>LMFAO - Party Rock Anthem ft. Lauren Bennett, GoonRock
+    </title>
+    <content type='text'>Buy now http://glnk.it/6t
+
+    Music video by LMFAO performing Party Rock Anthem featuring Lauren Bennett and GoonRock. (c) 2011 Interscope
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=KQ6zr6kCPj8&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/KQ6zr6kCPj8/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/KQ6zr6kCPj8/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/KQ6zr6kCPj8'/>
+    <author>
+      <name>LMFAOVEVO
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/lmfaovevo
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/KQ6zr6kCPj8/comments' countHint='556217'/>
+    </gd:comments>
+    <yt:hd/>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/KQ6zr6kCPj8?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='376' yt:format='5'/>
+      <media:description type='plain'>Buy now http://glnk.it/6t
+
+      Music video by LMFAO performing Party Rock Anthem featuring Lauren Bennett and GoonRock. (c) 2011 Interscope
+      </media:description>
+      <media:keywords>LMFAO, Party, Rock, Anthem, Pop, Shots, video, goonrock, Lauren, Bennett, Redfoo, SkyBlu, new
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=KQ6zr6kCPj8&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/KQ6zr6kCPj8/0.jpg' height='360' width='480' time='00:03:08'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/KQ6zr6kCPj8/1.jpg' height='90' width='120' time='00:01:34'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/KQ6zr6kCPj8/2.jpg' height='90' width='120' time='00:03:08'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/KQ6zr6kCPj8/3.jpg' height='90' width='120' time='00:04:42'/>
+      <media:title type='plain'>LMFAO - Party Rock Anthem ft. Lauren Bennett, GoonRock
+      </media:title>
+      <yt:duration seconds='376'/>
+    </media:group>
+    <gd:rating average='4.8724895' max='5' min='1' numRaters='1185793' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='926055' viewCount='330619748'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/kffacxfA7G4
+    </id>
+    <published>2010-02-19T08:11:38.000Z
+    </published>
+    <updated>2011-12-27T21:33:09.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by the content owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Justin'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Bieber'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Island'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Def'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Jam'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Pop'/>
+    <title type='text'>Justin Bieber - Baby ft. Ludacris
+    </title>
+    <content type='text'>Music video by Justin Bieber performing Baby.
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=kffacxfA7G4&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/kffacxfA7G4/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/kffacxfA7G4/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/kffacxfA7G4'/>
+    <author>
+      <name>JustinBieberVEVO
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/justinbiebervevo
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/kffacxfA7G4/comments' countHint='7083315'/>
+    </gd:comments>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/kffacxfA7G4?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='225' yt:format='5'/>
+      <media:description type='plain'>Music video by Justin Bieber performing Baby.
+      </media:description>
+      <media:keywords>Justin, Bieber, Island, Def, Jam, Pop
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=kffacxfA7G4&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/kffacxfA7G4/0.jpg' height='360' width='480' time='00:01:52.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/kffacxfA7G4/1.jpg' height='90' width='120' time='00:00:56.250'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/kffacxfA7G4/2.jpg' height='90' width='120' time='00:01:52.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/kffacxfA7G4/3.jpg' height='90' width='120' time='00:02:48.750'/>
+      <media:title type='plain'>Justin Bieber - Baby ft. Ludacris
+      </media:title>
+      <yt:duration seconds='225'/>
+    </media:group>
+    <gd:rating average='2.3101826' max='5' min='1' numRaters='3162962' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='215378' viewCount='675428876'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/j5-yKhDd64s
+    </id>
+    <published>2010-06-05T04:41:59.000Z
+    </published>
+    <updated>2011-12-27T21:33:42.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by the content owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Eminem'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Not'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Afraid'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Aftermath'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Hip'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Hop'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='New'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Song'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Recovery'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Relapse'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Em'/>
+    <title type='text'>Eminem - Not Afraid
+    </title>
+    <content type='text'>Music video by Eminem performing Not Afraid. (C) 2010 Aftermath Records
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=j5-yKhDd64s&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/j5-yKhDd64s/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/j5-yKhDd64s/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/j5-yKhDd64s'/>
+    <author>
+      <name>EminemVEVO
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/eminemvevo
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/j5-yKhDd64s/comments' countHint='1143223'/>
+    </gd:comments>
+    <yt:hd/>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/j5-yKhDd64s?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='259' yt:format='5'/>
+      <media:description type='plain'>Music video by Eminem performing Not Afraid. (C) 2010 Aftermath Records
+      </media:description>
+      <media:keywords>Eminem, Not, Afraid, Aftermath, Hip, Hop, New, Song, Recovery, Relapse, Em
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=j5-yKhDd64s&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/j5-yKhDd64s/0.jpg' height='360' width='480' time='00:02:09.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/j5-yKhDd64s/1.jpg' height='90' width='120' time='00:01:04.750'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/j5-yKhDd64s/2.jpg' height='90' width='120' time='00:02:09.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/j5-yKhDd64s/3.jpg' height='90' width='120' time='00:03:14.250'/>
+      <media:title type='plain'>Eminem - Not Afraid
+      </media:title>
+      <yt:duration seconds='259'/>
+    </media:group>
+    <gd:rating average='4.899202' max='5' min='1' numRaters='991080' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='701127' viewCount='301218735'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/uelHwf8o7_U
+    </id>
+    <published>2010-08-05T18:30:09.000Z
+    </published>
+    <updated>2011-12-27T21:32:33.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by the content owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Love'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='The'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Way'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='You'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Lie'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Eminem'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Rihanna'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Recovery'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Megan'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Fox'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Dominic'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Monaghan'/>
+    <title type='text'>Eminem - Love The Way You Lie ft. Rihanna
+    </title>
+    <content type='text'>Music video by Eminem performing Love The Way You Lie. © 2010 Aftermath Records
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=uelHwf8o7_U&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/uelHwf8o7_U/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/uelHwf8o7_U/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/uelHwf8o7_U'/>
+    <author>
+      <name>EminemVEVO
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/eminemvevo
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/uelHwf8o7_U/comments' countHint='613322'/>
+    </gd:comments>
+    <yt:hd/>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/uelHwf8o7_U?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='267' yt:format='5'/>
+      <media:description type='plain'>Music video by Eminem performing Love The Way You Lie. © 2010 Aftermath Records
+      </media:description>
+      <media:keywords>Love, The, Way, You, Lie, Eminem, Rihanna, Recovery, Megan, Fox, Dominic, Monaghan
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=uelHwf8o7_U&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/uelHwf8o7_U/0.jpg' height='360' width='480' time='00:02:13.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/uelHwf8o7_U/1.jpg' height='90' width='120' time='00:01:06.750'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/uelHwf8o7_U/2.jpg' height='90' width='120' time='00:02:13.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/uelHwf8o7_U/3.jpg' height='90' width='120' time='00:03:20.250'/>
+      <media:title type='plain'>Eminem - Love The Way You Lie ft. Rihanna
+      </media:title>
+      <yt:duration seconds='267'/>
+    </media:group>
+    <gd:rating average='4.8786592' max='5' min='1' numRaters='947167' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='940199' viewCount='413586456'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/fLexgOxsZu0
+    </id>
+    <published>2011-04-15T22:03:14.000Z
+    </published>
+    <updated>2011-12-27T21:33:09.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by its owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='bruno'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='mars'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='the'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='lazy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='song'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='doo'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='wops'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='hooligans'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='elektra'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='poreotics'/>
+    <title type='text'>Bruno Mars - The Lazy Song [Official Video]
+    </title>
+    <content type='text'>© 2011 WMG
+    
+    Directed by Bruno Mars and Cameron Duddy
+    
+    http://www.brunomars.com
+    http://www.elektra.com
+    
+    Choreographed and Performed by Poreotics:
+    http://www.poreotics.com
+    
+    "Comic Chimp Mask used by permission of Easter Unlimited,Inc./FunWorld Div. All Rights Reserved. Copyright 2009."
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=fLexgOxsZu0&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/fLexgOxsZu0/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/fLexgOxsZu0/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/fLexgOxsZu0'/>
+    <author>
+      <name>ElektraRecords
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/elektrarecords
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/fLexgOxsZu0/comments' countHint='425724'/>
+    </gd:comments>
+    <yt:hd/>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/fLexgOxsZu0?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='209' yt:format='5'/>
+      <media:description type='plain'>© 2011 WMG
+      
+      Directed by Bruno Mars and Cameron Duddy
+      
+      http://www.brunomars.com
+      http://www.elektra.com
+      
+      Choreographed and Performed by Poreotics:
+      http://www.poreotics.com
+      
+      "Comic Chimp Mask used by permission of Easter Unlimited,Inc./FunWorld Div. All Rights Reserved. Copyright 2009."
+      </media:description>
+      <media:keywords>bruno, mars, the, lazy, song, music, doo, wops, hooligans, elektra, poreotics
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=fLexgOxsZu0&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/fLexgOxsZu0/0.jpg' height='360' width='480' time='00:01:44.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/fLexgOxsZu0/1.jpg' height='90' width='120' time='00:00:52.250'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/fLexgOxsZu0/2.jpg' height='90' width='120' time='00:01:44.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/fLexgOxsZu0/3.jpg' height='90' width='120' time='00:02:36.750'/>
+      <media:title type='plain'>Bruno Mars - The Lazy Song [Official Video]
+      </media:title>
+      <yt:duration seconds='209'/>
+    </media:group>
+    <gd:rating average='4.8519874' max='5' min='1' numRaters='900923' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='568837' viewCount='251563530'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/t4H_Zoh7G5A
+    </id>
+    <published>2011-03-04T01:13:27.000Z
+    </published>
+    <updated>2011-12-27T21:33:46.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by the content owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Jennifer'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Lopez'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='On'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='The'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Floor'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Pop'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Pitbull'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='American'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Idol'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='JLo'/>
+    <title type='text'>Jennifer Lopez - On The Floor ft. Pitbull
+    </title>
+    <content type='text'>Music video by Jennifer Lopez performing On The Floor feat. Pitbull. © 2011 Island Records
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=t4H_Zoh7G5A&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/t4H_Zoh7G5A/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/t4H_Zoh7G5A/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/t4H_Zoh7G5A'/>
+    <author>
+      <name>JenniferLopezVEVO
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/jenniferlopezvevo
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/t4H_Zoh7G5A/comments' countHint='416950'/>
+    </gd:comments>
+    <yt:hd/>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/t4H_Zoh7G5A?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='267' yt:format='5'/>
+      <media:description type='plain'>Music video by Jennifer Lopez performing On The Floor feat. Pitbull. © 2011 Island Records
+      </media:description>
+      <media:keywords>Jennifer, Lopez, On, The, Floor, Pop, Pitbull, American, Idol, JLo
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=t4H_Zoh7G5A&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/t4H_Zoh7G5A/0.jpg' height='360' width='480' time='00:02:13.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/t4H_Zoh7G5A/1.jpg' height='90' width='120' time='00:01:06.750'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/t4H_Zoh7G5A/2.jpg' height='90' width='120' time='00:02:13.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/t4H_Zoh7G5A/3.jpg' height='90' width='120' time='00:03:20.250'/>
+      <media:title type='plain'>Jennifer Lopez - On The Floor ft. Pitbull
+      </media:title>
+      <yt:duration seconds='267'/>
+    </media:group>
+    <gd:rating average='4.7127476' max='5' min='1' numRaters='911978' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='762305' viewCount='457339521'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/_OBlgSz8sSM
+    </id>
+    <published>2007-05-22T20:29:24.000Z
+    </published>
+    <updated>2011-12-27T21:33:24.000Z
+    </updated>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Comedy' label='Comedy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Charlie'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='bit'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='me'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Charlie bit me'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='baby'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='my'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='finger'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='bite'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='cute'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='babies'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='funny'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='boys'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Harry'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='laughing'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Laugh'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='most'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='viewed'/>
+    <title type='text'>Charlie bit my finger - again !
+    </title>
+    <content type='text'>Even had I thought of trying to get my boys to do this I probably couldn't have. Neither were coerced into any of this and neither were hurt (for very long anyway).  This was just one of those moments when I had the video camera out because the boys were being fun and they provided something really very funny.
+    
+    FAQ Harry is 7 1/2, Charlie is 5, Jasper is nearly 3
+    (May 2011)
+    
+    Harry and Charlie Blogging - Charlie Bit My Finger Again!
+    http://harryandcharlie.blogspot.com/
+    
+    Twitter
+    http://twitter.com/harryandcharlie
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=_OBlgSz8sSM&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/_OBlgSz8sSM/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/_OBlgSz8sSM/related'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#mobile' type='text/html' href='https://m.youtube.com/details?v=_OBlgSz8sSM'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/_OBlgSz8sSM'/>
+    <author>
+      <name>HDCYT
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/hdcyt
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/_OBlgSz8sSM/comments' countHint='644113'/>
+    </gd:comments>
+    <yt:location>London,UK
+    </yt:location>
+    <media:group>
+      <media:category label='Comedy' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Comedy
+      </media:category>
+      <media:content url='https://www.youtube.com/v/_OBlgSz8sSM?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='56' yt:format='5'/>
+      <media:content url='rtsp://v6.cache3.c.youtube.com/CiQLENy73wIaGwkjsfwsgWXg_BMYDSANFEgGUghzdGFuZGFyZAw=/0/0/0/video.3gp' type='video/3gpp' medium='video' expression='full' duration='56' yt:format='1'/>
+      <media:content url='rtsp://v2.cache1.c.youtube.com/CiQLENy73wIaGwkjsfwsgWXg_BMYESARFEgGUghzdGFuZGFyZAw=/0/0/0/video.3gp' type='video/3gpp' medium='video' expression='full' duration='56' yt:format='6'/>
+      <media:description type='plain'>Even had I thought of trying to get my boys to do this I probably couldn't have. Neither were coerced into any of this and neither were hurt (for very long anyway).  This was just one of those moments when I had the video camera out because the boys were being fun and they provided something really very funny.
+      
+      FAQ Harry is 7 1/2, Charlie is 5, Jasper is nearly 3
+      (May 2011)
+      
+      Harry and Charlie Blogging - Charlie Bit My Finger Again!
+      http://harryandcharlie.blogspot.com/
+      
+      Twitter
+      http://twitter.com/harryandcharlie
+      </media:description>
+      <media:keywords>Charlie, bit, me, Charlie bit me, baby, my, finger, bite, cute, babies, funny, boys, Harry, laughing, Laugh, most, viewed
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=_OBlgSz8sSM&amp;feature=youtube_gdata_player'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/_OBlgSz8sSM/0.jpg' height='360' width='480' time='00:00:28'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/_OBlgSz8sSM/1.jpg' height='90' width='120' time='00:00:14'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/_OBlgSz8sSM/2.jpg' height='90' width='120' time='00:00:28'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/_OBlgSz8sSM/3.jpg' height='90' width='120' time='00:00:42'/>
+      <media:title type='plain'>Charlie bit my finger - again !
+      </media:title>
+      <yt:duration seconds='56'/>
+    </media:group>
+    <gd:rating average='4.5323024' max='5' min='1' numRaters='939229' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:recorded>2007-03-19
+    </yt:recorded>
+    <yt:statistics favoriteCount='1053338' viewCount='397136684'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/rYEDA3JcQqw
+    </id>
+    <published>2010-11-30T23:16:19.000Z
+    </published>
+    <updated>2011-12-27T21:33:27.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by its owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Adele'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Rolling'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='In'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='The'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Deep'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='XL'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Recordings/Columbia'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Pop'/>
+    <title type='text'>Adele - Rolling In The Deep
+    </title>
+    <content type='text'>Music video by Adele performing Rolling In The Deep. (C) 2010 XL Recordings Ltd.
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=rYEDA3JcQqw&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/rYEDA3JcQqw/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/rYEDA3JcQqw/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/rYEDA3JcQqw'/>
+    <author>
+      <name>AdeleVEVO
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/adelevevo
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/rYEDA3JcQqw/comments' countHint='281542'/>
+    </gd:comments>
+    <yt:hd/>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/rYEDA3JcQqw?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='234' yt:format='5'/>
+      <media:description type='plain'>Music video by Adele performing Rolling In The Deep. (C) 2010 XL Recordings Ltd.
+      </media:description>
+      <media:keywords>Adele, Rolling, In, The, Deep, XL, Recordings/Columbia, Pop
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=rYEDA3JcQqw&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/rYEDA3JcQqw/0.jpg' height='360' width='480' time='00:01:57'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/rYEDA3JcQqw/1.jpg' height='90' width='120' time='00:00:58.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/rYEDA3JcQqw/2.jpg' height='90' width='120' time='00:01:57'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/rYEDA3JcQqw/3.jpg' height='90' width='120' time='00:02:55.500'/>
+      <media:title type='plain'>Adele - Rolling In The Deep
+      </media:title>
+      <yt:duration seconds='234'/>
+    </media:group>
+    <gd:rating average='4.925905' max='5' min='1' numRaters='835930' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='735784' viewCount='188164923'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/dMH0bHeiRNg
+    </id>
+    <published>2006-04-06T21:30:53.000Z
+    </published>
+    <updated>2011-12-27T21:33:46.000Z
+    </updated>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Comedy' label='Comedy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Dancing'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='comedy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='speaking'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='speaker'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='motivational speaker'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Funny'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Training'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Success'/>
+    <title type='text'>Evolution of Dance - By Judson Laipply
+    </title>
+    <content type='text'>For more visit http://www.mightaswelldance.com
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=dMH0bHeiRNg&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/dMH0bHeiRNg/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/dMH0bHeiRNg/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/dMH0bHeiRNg'/>
+    <author>
+      <name>judsonlaipply
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/judsonlaipply
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/dMH0bHeiRNg/comments' countHint='548401'/>
+    </gd:comments>
+    <media:group>
+      <media:category label='Comedy' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Comedy
+      </media:category>
+      <media:content url='https://www.youtube.com/v/dMH0bHeiRNg?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='360' yt:format='5'/>
+      <media:content url='rtsp://v5.cache7.c.youtube.com/CiQLENy73wIaGwnYRKJ3bPTBdBMYDSANFEgGUghzdGFuZGFyZAw=/0/0/0/video.3gp' type='video/3gpp' medium='video' expression='full' duration='360' yt:format='1'/>
+      <media:content url='rtsp://v3.cache8.c.youtube.com/CiQLENy73wIaGwnYRKJ3bPTBdBMYESARFEgGUghzdGFuZGFyZAw=/0/0/0/video.3gp' type='video/3gpp' medium='video' expression='full' duration='360' yt:format='6'/>
+      <media:description type='plain'>For more visit http://www.mightaswelldance.com
+      </media:description>
+      <media:keywords>Dancing, comedy, speaking, speaker, motivational speaker, Funny, Training, Success
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=dMH0bHeiRNg&amp;feature=youtube_gdata_player'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/dMH0bHeiRNg/0.jpg' height='360' width='480' time='00:03:00'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/dMH0bHeiRNg/1.jpg' height='90' width='120' time='00:01:30'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/dMH0bHeiRNg/2.jpg' height='90' width='120' time='00:03:00'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/dMH0bHeiRNg/3.jpg' height='90' width='120' time='00:04:30'/>
+      <media:title type='plain'>Evolution of Dance - By Judson Laipply
+      </media:title>
+      <yt:duration seconds='360'/>
+    </media:group>
+    <gd:rating average='4.690661' max='5' min='1' numRaters='878838' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='1089693' viewCount='186021252'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/lQlIhraqL7o
+    </id>
+    <published>2010-12-19T04:25:10.000Z
+    </published>
+    <updated>2011-12-27T21:33:19.000Z
+    </updated>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Comedy' label='Comedy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='lonely'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='island'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='jorma'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='andy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='akiva'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='akon'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='jessica'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='alba'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='blake'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='lively'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='john'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='mcenroe'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='itunes'/>
+    <title type='text'>I Just Had Sex (feat. Akon)
+    </title>
+    <content type='text'>Buy at iTunes: http://goo.gl/zv4o9. New album on sale now! http://www.turtleneckandchain.com
+    
+    T-shirts! http://www.thelonelyisland.com/store
+    
+    The first single of The Lonely Island's 2nd album!!! 
+    Featuring Akon, Jessica Alba, Blake Lively and John McEnroe!
+    The Lonely Island is Andy Samberg, Akiva Schaffer &amp; Jorma Taccone.
+    
+    Twitter: @thelonelyisland
+    </content>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.in-response-to' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/tLPZmPaHme0'/>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=lQlIhraqL7o&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/lQlIhraqL7o/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/lQlIhraqL7o/related'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#mobile' type='text/html' href='https://m.youtube.com/details?v=lQlIhraqL7o'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/lQlIhraqL7o'/>
+    <author>
+      <name>thelonelyisland
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/thelonelyisland
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/lQlIhraqL7o/comments' countHint='388794'/>
+    </gd:comments>
+    <yt:hd/>
+    <yt:location>New York, NY
+    </yt:location>
+    <media:group>
+      <media:category label='Comedy' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Comedy
+      </media:category>
+      <media:content url='https://www.youtube.com/v/lQlIhraqL7o?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='176' yt:format='5'/>
+      <media:content url='rtsp://v4.cache6.c.youtube.com/CiQLENy73wIaGwm6L6q2hkgJlRMYDSANFEgGUghzdGFuZGFyZAw=/0/0/0/video.3gp' type='video/3gpp' medium='video' expression='full' duration='176' yt:format='1'/>
+      <media:content url='rtsp://v5.cache2.c.youtube.com/CiQLENy73wIaGwm6L6q2hkgJlRMYESARFEgGUghzdGFuZGFyZAw=/0/0/0/video.3gp' type='video/3gpp' medium='video' expression='full' duration='176' yt:format='6'/>
+      <media:description type='plain'>Buy at iTunes: http://goo.gl/zv4o9. New album on sale now! http://www.turtleneckandchain.com
+      
+      T-shirts! http://www.thelonelyisland.com/store
+      
+      The first single of The Lonely Island's 2nd album!!! 
+      Featuring Akon, Jessica Alba, Blake Lively and John McEnroe!
+      The Lonely Island is Andy Samberg, Akiva Schaffer &amp; Jorma Taccone.
+      
+      Twitter: @thelonelyisland
+      </media:description>
+      <media:keywords>lonely, island, jorma, andy, akiva, akon, jessica, alba, blake, lively, john, mcenroe, itunes
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=lQlIhraqL7o&amp;feature=youtube_gdata_player'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/lQlIhraqL7o/0.jpg' height='360' width='480' time='00:01:28'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/lQlIhraqL7o/1.jpg' height='90' width='120' time='00:00:44'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/lQlIhraqL7o/2.jpg' height='90' width='120' time='00:01:28'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/lQlIhraqL7o/3.jpg' height='90' width='120' time='00:02:12'/>
+      <media:title type='plain'>I Just Had Sex (feat. Akon)
+      </media:title>
+      <yt:duration seconds='176'/>
+    </media:group>
+    <gd:rating average='4.8595104' max='5' min='1' numRaters='706771' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:recorded>2010-12-14
+    </yt:recorded>
+    <yt:statistics favoriteCount='611251' viewCount='145088613'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/hMtZfW2z9dw
+    </id>
+    <published>2010-07-31T13:02:02.000Z
+    </published>
+    <updated>2011-12-27T21:32:38.000Z
+    </updated>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Shows' label='Shows'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Woman'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='wakes'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='up'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='to'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='find'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='intruder'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='in'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='her'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='bed'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='song'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='auto'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='tune'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='the'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='news'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='evan'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='gregory'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='brothers'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='antoine'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='dodson'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='huntsville'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='alabama'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='AL'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='WAFF'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='so'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='dumb'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='for'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='real'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='homeboy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='climbin'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='your'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='windows'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='snatchin'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='people'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='hide'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='kids'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='wife'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='husband'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='run'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='and'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='tell'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='that'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='remix'/>
+    <title type='text'>BED INTRUDER SONG!!! (now on iTunes)
+    </title>
+    <content type='text'>Single on iTunes: http://itunes.apple.com/us/album/bed-intruder-song/id386478006
+    Tribute Album: http://itunes.apple.com/us/album/official-bed-intruder-tribute/id449636007
+
+    Antoine's shirts: http://www.districtlines.com/Antoine-Dodson
+
+    After Antoine Dodson, a young hero from Huntsville, AL, saves his sister from an attack, he sings an important message both to his community and to the attacker himself. Evan Gregory then proceeds to play a heartfelt cover of the resulting song.
+
+    Follow the Gregory Brothers for more remixes/songifications:
+
+    http://www.youtube.com/autotunethenews
+    http://www.twitter.com/autotunethenews
+    http://www.facebook.com/gregorybrothers
+
+    Original Video: http://www.youtube.com/watch?v=ua-OqYZC1DA
+
+    Chords:
+
+    chorus-
+    gm  cm   dm   4x
+
+    bridge-
+
+    Eb  dm  cm  gm
+    Eb  dm  cm  F  dm  F
+
+    Lyrics:
+
+    he's climbin in your windows
+    he's snatchin your people up
+    tryna rape em so y'all need to
+    hide your kids, hide your wife
+    hide your kids, hide your wife
+    hide your kids, hide your wife
+    and hide your husband
+    cuz they're rapin errbody out here
+    you don't have to come and confess
+    we're lookin for you
+    we gon find you
+    we gon find you
+    so you can run and tell that,
+    run and tell that
+    run and tell that, homeboy
+    home, home, homeboy
+
+    we got your t-shirt
+    you done left fingerprints and all
+    you are so dumb
+    you are really dumb--for real
+    the man got away leaving behind evidence
+    i was attacked by some idiot in the projects
+    so dumb, so dumb, so dumb, so
+
+    chorus
+    </content>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.in-response-to' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/zjYSERaXEGI'/>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=hMtZfW2z9dw&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/hMtZfW2z9dw/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/hMtZfW2z9dw/related'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#mobile' type='text/html' href='https://m.youtube.com/details?v=hMtZfW2z9dw'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/hMtZfW2z9dw'/>
+    <author>
+      <name>schmoyoho
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/schmoyoho
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/hMtZfW2z9dw/comments' countHint='223067'/>
+    </gd:comments>
+    <yt:hd/>
+    <yt:location>11211
+    </yt:location>
+    <media:group>
+      <media:category label='Shows' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Shows
+      </media:category>
+      <media:content url='https://www.youtube.com/v/hMtZfW2z9dw?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='128' yt:format='5'/>
+      <media:content url='rtsp://v3.cache8.c.youtube.com/CiQLENy73wIaGwnc9bNtfVnLhBMYDSANFEgGUghzdGFuZGFyZAw=/0/0/0/video.3gp' type='video/3gpp' medium='video' expression='full' duration='128' yt:format='1'/>
+      <media:content url='rtsp://v4.cache3.c.youtube.com/CiQLENy73wIaGwnc9bNtfVnLhBMYESARFEgGUghzdGFuZGFyZAw=/0/0/0/video.3gp' type='video/3gpp' medium='video' expression='full' duration='128' yt:format='6'/>
+      <media:description type='plain'>Single on iTunes: http://itunes.apple.com/us/album/bed-intruder-song/id386478006
+      Tribute Album: http://itunes.apple.com/us/album/official-bed-intruder-tribute/id449636007
+
+      Antoine's shirts: http://www.districtlines.com/Antoine-Dodson
+
+      After Antoine Dodson, a young hero from Huntsville, AL, saves his sister from an attack, he sings an important message both to his community and to the attacker himself. Evan Gregory then proceeds to play a heartfelt cover of the resulting song.
+
+      Follow the Gregory Brothers for more remixes/songifications:
+
+      http://www.youtube.com/autotunethenews
+      http://www.twitter.com/autotunethenews
+      http://www.facebook.com/gregorybrothers
+
+      Original Video: http://www.youtube.com/watch?v=ua-OqYZC1DA
+
+      Chords:
+
+      chorus-
+      gm  cm   dm   4x
+
+      bridge-
+
+      Eb  dm  cm  gm
+      Eb  dm  cm  F  dm  F
+
+      Lyrics:
+
+      he's climbin in your windows
+      he's snatchin your people up
+      tryna rape em so y'all need to
+      hide your kids, hide your wife
+      hide your kids, hide your wife
+      hide your kids, hide your wife
+      and hide your husband
+      cuz they're rapin errbody out here
+      you don't have to come and confess
+      we're lookin for you
+      we gon find you
+      we gon find you
+      so you can run and tell that,
+      run and tell that
+      run and tell that, homeboy
+      home, home, homeboy
+
+      we got your t-shirt
+      you done left fingerprints and all
+      you are so dumb
+      you are really dumb--for real
+      the man got away leaving behind evidence
+      i was attacked by some idiot in the projects
+      so dumb, so dumb, so dumb, so
+
+      chorus
+      </media:description>
+      <media:keywords>Woman, wakes, up, to, find, intruder, in, her, bed, song, auto, tune, the, news, evan, gregory, brothers, antoine, dodson, huntsville, alabama, AL, WAFF, so, dumb, for, real, homeboy, climbin, your, windows, snatchin, people, hide, kids, wife, husband, run, and, tell, that, remix
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=hMtZfW2z9dw&amp;feature=youtube_gdata_player'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/hMtZfW2z9dw/0.jpg' height='360' width='480' time='00:01:04'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/hMtZfW2z9dw/1.jpg' height='90' width='120' time='00:00:32'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/hMtZfW2z9dw/2.jpg' height='90' width='120' time='00:01:04'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/hMtZfW2z9dw/3.jpg' height='90' width='120' time='00:01:36'/>
+      <media:title type='plain'>BED INTRUDER SONG!!! (now on iTunes)
+      </media:title>
+      <yt:duration seconds='128'/>
+    </media:group>
+    <gd:rating average='4.9089394' max='5' min='1' numRaters='634379' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='416819' viewCount='95468337'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/QGJuMBdaqIw
+    </id>
+    <published>2010-10-28T19:08:32.000Z
+    </published>
+    <updated>2011-12-27T21:33:43.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by the content owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Katy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Perry'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Firework'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='EMI'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Pop'/>
+    <title type='text'>Katy Perry - Firework
+    </title>
+    <content type='text'>Official music video for Katy Perry's "Firework" off her album 'Teenage Dream'.  Director: Dave Meyers.  Producers: Robert Bray &amp; Danny Lockwood.
+    
+    Get 'Teenage Dream' here: http://bit.ly/kpTDdelEX (explicit) http://bit.ly/kpTDdel (clean)
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=QGJuMBdaqIw&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/QGJuMBdaqIw/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/QGJuMBdaqIw/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/QGJuMBdaqIw'/>
+    <author>
+      <name>KatyPerryVEVO
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/katyperryvevo
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/QGJuMBdaqIw/comments' countHint='658105'/>
+    </gd:comments>
+    <yt:hd/>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/QGJuMBdaqIw?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='234' yt:format='5'/>
+      <media:description type='plain'>Official music video for Katy Perry's "Firework" off her album 'Teenage Dream'.  Director: Dave Meyers.  Producers: Robert Bray &amp; Danny Lockwood.
+      
+      Get 'Teenage Dream' here: http://bit.ly/kpTDdelEX (explicit) http://bit.ly/kpTDdel (clean)
+      </media:description>
+      <media:keywords>Katy, Perry, Firework, EMI, Pop
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=QGJuMBdaqIw&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/QGJuMBdaqIw/0.jpg' height='360' width='480' time='00:01:57'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/QGJuMBdaqIw/1.jpg' height='90' width='120' time='00:00:58.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/QGJuMBdaqIw/2.jpg' height='90' width='120' time='00:01:57'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/QGJuMBdaqIw/3.jpg' height='90' width='120' time='00:02:55.500'/>
+      <media:title type='plain'>Katy Perry - Firework
+      </media:title>
+      <yt:duration seconds='234'/>
+    </media:group>
+    <gd:rating average='4.7687073' max='5' min='1' numRaters='646233' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='605751' viewCount='257347171'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/SR6iYWJxHqs
+    </id>
+    <published>2010-11-22T16:48:50.000Z
+    </published>
+    <updated>2011-12-27T21:33:24.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by its owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='bruno'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='mars'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='grenade'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='official'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='just'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='the'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='way'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='you'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='are'/>
+    <title type='text'>Bruno Mars - Grenade [Official Music Video]
+    </title>
+    <content type='text'>© 2010 WMG. http://www.brunomars.com Directed by Nabil. 
+    
+    "Today, I get to share with you the visual companion piece to my new single, 'Grenade.' The song is about loving someone so deeply, and the pain of knowing that the person you love does not feel the same. The actions in this video serve as a metaphor, and should not be taken literally. I am aware of the power of visual media, and I encourage everyone who watches this video to understand that it is an artistic interpretation of the song, and not something to imitate." -- Bruno Mars
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=SR6iYWJxHqs&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/SR6iYWJxHqs/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/SR6iYWJxHqs/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/SR6iYWJxHqs'/>
+    <author>
+      <name>ElektraRecords
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/elektrarecords
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/SR6iYWJxHqs/comments' countHint='337583'/>
+    </gd:comments>
+    <yt:hd/>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/SR6iYWJxHqs?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='250' yt:format='5'/>
+      <media:description type='plain'>© 2010 WMG. http://www.brunomars.com Directed by Nabil. 
+      
+      "Today, I get to share with you the visual companion piece to my new single, 'Grenade.' The song is about loving someone so deeply, and the pain of knowing that the person you love does not feel the same. The actions in this video serve as a metaphor, and should not be taken literally. I am aware of the power of visual media, and I encourage everyone who watches this video to understand that it is an artistic interpretation of the song, and not something to imitate." -- Bruno Mars
+      </media:description>
+      <media:keywords>bruno, mars, grenade, music, video, official, just, the, way, you, are
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=SR6iYWJxHqs&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/SR6iYWJxHqs/0.jpg' height='360' width='480' time='00:02:05'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/SR6iYWJxHqs/1.jpg' height='90' width='120' time='00:01:02.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/SR6iYWJxHqs/2.jpg' height='90' width='120' time='00:02:05'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/SR6iYWJxHqs/3.jpg' height='90' width='120' time='00:03:07.500'/>
+      <media:title type='plain'>Bruno Mars - Grenade [Official Music Video]
+      </media:title>
+      <yt:duration seconds='250'/>
+    </media:group>
+    <gd:rating average='4.8750253' max='5' min='1' numRaters='626527' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='597981' viewCount='229157785'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/4pXfHLUlZf4
+    </id>
+    <published>2008-12-07T05:19:15.000Z
+    </published>
+    <updated>2011-12-27T21:33:20.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by its owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Comedy' label='Comedy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Andy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Samberg'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Akiva'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Schaffer'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Jorma'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Taccone'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Incredibad'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Lonely'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Island'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='SNL'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Digital'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Short'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Saturday'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Night'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Live'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Molly'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Sims'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Jamie'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Lynn'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Sigler'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Justin'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Timberlake'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Comedy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Video'/>
+    <title type='text'>Jizz In My Pants
+    </title>
+    <content type='text'>http://Itunes.com/thelonelyisland
+    
+    The first single from The Lonely Island's debut album "INCREDIBAD". In stores 02/10/2009.
+    
+    Video features guest appearances by Molly Sims, Jamie Lynn Sigler, and Justin Timberlake.
+    
+    The Lonely Island is Andy Samberg, Akiva Schaffer and Jorma Taccone.
+    
+    (Directed by Kiv)
+    
+    
+    Copyright - Universal Republic
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=4pXfHLUlZf4&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/4pXfHLUlZf4/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/4pXfHLUlZf4/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/4pXfHLUlZf4'/>
+    <author>
+      <name>thelonelyisland
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/thelonelyisland
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/4pXfHLUlZf4/comments' countHint='400341'/>
+    </gd:comments>
+    <yt:hd/>
+    <yt:location>new york, ny
+    </yt:location>
+    <media:group>
+      <media:category label='Comedy' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Comedy
+      </media:category>
+      <media:content url='https://www.youtube.com/v/4pXfHLUlZf4?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='153' yt:format='5'/>
+      <media:description type='plain'>http://Itunes.com/thelonelyisland
+      
+      The first single from The Lonely Island's debut album "INCREDIBAD". In stores 02/10/2009.
+      
+      Video features guest appearances by Molly Sims, Jamie Lynn Sigler, and Justin Timberlake.
+      
+      The Lonely Island is Andy Samberg, Akiva Schaffer and Jorma Taccone.
+      
+      (Directed by Kiv)
+      
+      
+      Copyright - Universal Republic
+      </media:description>
+      <media:keywords>Andy, Samberg, Akiva, Schaffer, Jorma, Taccone, Incredibad, Lonely, Island, SNL, Digital, Short, Saturday, Night, Live, Molly, Sims, Jamie, Lynn, Sigler, Justin, Timberlake, Comedy, Music, Video
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=4pXfHLUlZf4&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/4pXfHLUlZf4/0.jpg' height='360' width='480' time='00:01:16.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/4pXfHLUlZf4/1.jpg' height='90' width='120' time='00:00:38.250'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/4pXfHLUlZf4/2.jpg' height='90' width='120' time='00:01:16.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/4pXfHLUlZf4/3.jpg' height='90' width='120' time='00:01:54.750'/>
+      <media:title type='plain'>Jizz In My Pants
+      </media:title>
+      <yt:duration seconds='153'/>
+    </media:group>
+    <gd:rating average='4.838638' max='5' min='1' numRaters='574143' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='808332' viewCount='114166681'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/qrO4YZeyl0I
+    </id>
+    <published>2009-11-24T07:45:26.000Z
+    </published>
+    <updated>2011-12-27T21:33:37.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by the content owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Lady'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Gaga'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Pop'/>
+    <title type='text'>Lady Gaga - Bad Romance
+    </title>
+    <content type='text'>Music video by Lady Gaga performing Bad Romance. (C) 2009 Interscope Records
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=qrO4YZeyl0I&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/qrO4YZeyl0I/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/qrO4YZeyl0I/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/qrO4YZeyl0I'/>
+    <author>
+      <name>LadyGagaVEVO
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/ladygagavevo
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/qrO4YZeyl0I/comments' countHint='1158558'/>
+    </gd:comments>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/qrO4YZeyl0I?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='308' yt:format='5'/>
+      <media:description type='plain'>Music video by Lady Gaga performing Bad Romance. (C) 2009 Interscope Records
+      </media:description>
+      <media:keywords>Lady, Gaga, Pop
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=qrO4YZeyl0I&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/qrO4YZeyl0I/0.jpg' height='360' width='480' time='00:02:34'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/qrO4YZeyl0I/1.jpg' height='90' width='120' time='00:01:17'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/qrO4YZeyl0I/2.jpg' height='90' width='120' time='00:02:34'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/qrO4YZeyl0I/3.jpg' height='90' width='120' time='00:03:51'/>
+      <media:title type='plain'>Lady Gaga - Bad Romance
+      </media:title>
+      <yt:duration seconds='308'/>
+    </media:group>
+    <gd:rating average='4.3041224' max='5' min='1' numRaters='656426' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='631662' viewCount='434177941'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/Tx1XIm6q4r4
+    </id>
+    <published>2007-03-24T06:32:49.000Z
+    </published>
+    <updated>2011-12-27T21:32:36.000Z
+    </updated>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Comedy' label='Comedy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='harry'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='potter'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='puppet'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='pals'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='snape'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='ron'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='hermione'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='dumbledore'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='voldemort'/>
+    <title type='text'>Potter Puppet Pals: The Mysterious Ticking Noise
+    </title>
+    <content type='text'>http://www.potterpuppetpals.com
+    Snape hears a strange ticking sound. Love ensues.
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=Tx1XIm6q4r4&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/Tx1XIm6q4r4/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/Tx1XIm6q4r4/related'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#mobile' type='text/html' href='https://m.youtube.com/details?v=Tx1XIm6q4r4'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/Tx1XIm6q4r4'/>
+    <author>
+      <name>NeilCicierega
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/neilcicierega
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/Tx1XIm6q4r4/comments' countHint='270934'/>
+    </gd:comments>
+    <media:group>
+      <media:category label='Comedy' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Comedy
+      </media:category>
+      <media:content url='https://www.youtube.com/v/Tx1XIm6q4r4?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='126' yt:format='5'/>
+      <media:content url='rtsp://v1.cache2.c.youtube.com/CiQLENy73wIaGwm-4qpuIlcdTxMYDSANFEgGUghzdGFuZGFyZAw=/0/0/0/video.3gp' type='video/3gpp' medium='video' expression='full' duration='126' yt:format='1'/>
+      <media:content url='rtsp://v3.cache4.c.youtube.com/CiQLENy73wIaGwm-4qpuIlcdTxMYESARFEgGUghzdGFuZGFyZAw=/0/0/0/video.3gp' type='video/3gpp' medium='video' expression='full' duration='126' yt:format='6'/>
+      <media:description type='plain'>http://www.potterpuppetpals.com
+      Snape hears a strange ticking sound. Love ensues.
+      </media:description>
+      <media:keywords>harry, potter, puppet, pals, snape, ron, hermione, dumbledore, voldemort
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=Tx1XIm6q4r4&amp;feature=youtube_gdata_player'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/Tx1XIm6q4r4/0.jpg' height='360' width='480' time='00:01:03'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/Tx1XIm6q4r4/1.jpg' height='90' width='120' time='00:00:31.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/Tx1XIm6q4r4/2.jpg' height='90' width='120' time='00:01:03'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/Tx1XIm6q4r4/3.jpg' height='90' width='120' time='00:01:34.500'/>
+      <media:title type='plain'>Potter Puppet Pals: The Mysterious Ticking Noise
+      </media:title>
+      <yt:duration seconds='126'/>
+    </media:group>
+    <gd:rating average='4.845109' max='5' min='1' numRaters='558941' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='782659' viewCount='116980283'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/LUjn3RpkcKY
+    </id>
+    <published>2011-10-18T17:25:56.000Z
+    </published>
+    <updated>2011-12-27T21:33:09.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by the content owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Justin'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Bieber'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Mistletoe'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Island'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Records'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Holiday'/>
+    <title type='text'>Justin Bieber - Mistletoe
+    </title>
+    <content type='text'>Buy on iTunes - http://idj.to/qQNYau
+
+    Music video by Justin Bieber performing Mistletoe. (C) 2011 The Island Def Jam Music Group
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=LUjn3RpkcKY&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/LUjn3RpkcKY/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/LUjn3RpkcKY/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/LUjn3RpkcKY'/>
+    <author>
+      <name>JustinBieberVEVO
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/justinbiebervevo
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/LUjn3RpkcKY/comments' countHint='480608'/>
+    </gd:comments>
+    <yt:hd/>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/LUjn3RpkcKY?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='191' yt:format='5'/>
+      <media:description type='plain'>Buy on iTunes - http://idj.to/qQNYau
+
+      Music video by Justin Bieber performing Mistletoe. (C) 2011 The Island Def Jam Music Group
+      </media:description>
+      <media:keywords>Justin, Bieber, Mistletoe, Island, Records, Holiday
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=LUjn3RpkcKY&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/LUjn3RpkcKY/0.jpg' height='360' width='480' time='00:01:35.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/LUjn3RpkcKY/1.jpg' height='90' width='120' time='00:00:47.750'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/LUjn3RpkcKY/2.jpg' height='90' width='120' time='00:01:35.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/LUjn3RpkcKY/3.jpg' height='90' width='120' time='00:02:23.250'/>
+      <media:title type='plain'>Justin Bieber - Mistletoe
+      </media:title>
+      <yt:duration seconds='191'/>
+    </media:group>
+    <gd:rating average='4.107479' max='5' min='1' numRaters='685546' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='236646' viewCount='81006769'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/KlyXNRrsk4A
+    </id>
+    <published>2011-06-10T14:37:22.000Z
+    </published>
+    <updated>2011-12-27T21:33:08.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by the content owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Katy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Perry'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Last'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Friday'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Night'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='TGIF'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='official'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Teenage'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Dream'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Kathy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Beth'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Terry'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Rebecca'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Black'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Darren'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Criss'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Kevin'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='McHale'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Hanson'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Kenny'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Debbie'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Gibson'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Corey'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Feldman'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Aaron'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Christopherson'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Everett'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='McDonald'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Uncle'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Steve'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Johnson'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Brad'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Kirk'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Tiffany'/>
+    <title type='text'>Katy Perry - Last Friday Night (T.G.I.F.)
+    </title>
+    <content type='text'>You're invited to the party of the year!  Find out what happened to Kathy Beth Terry in the official music video for Katy Perry's "Last Friday Night (T.G.I.F.)" featuring Rebecca Black, Darren Criss, Kevin McHale, Hanson, Kenny G, Debbie Gibson and Corey Feldman!
+    Get to know Kathy Beth Terry on Twitter and Facebook even more at:
+    http://www.facebook.com/kathybethterry
+    http://www.twitter.com/kathybethterry
+    http://www.kathybethterry.com
+    Buy "Last Friday Night (T.G.I.F.)" from Katy Perry's album 'Teenage Dream' on iTunes here: http://itunes.com/katyperry
+
+    Music video by Katy Perry performing Last Friday Night (T.G.I.F.). Producer: John Winter. Production Company: Rockhard Films. Director: Marc Klasfeld &amp; Da...
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=KlyXNRrsk4A&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/KlyXNRrsk4A/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/KlyXNRrsk4A/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/KlyXNRrsk4A'/>
+    <author>
+      <name>KatyPerryVEVO
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/katyperryvevo
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/KlyXNRrsk4A/comments' countHint='402174'/>
+    </gd:comments>
+    <yt:hd/>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/KlyXNRrsk4A?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='491' yt:format='5'/>
+      <media:description type='plain'>You're invited to the party of the year!  Find out what happened to Kathy Beth Terry in the official music video for Katy Perry's "Last Friday Night (T.G.I.F.)" featuring Rebecca Black, Darren Criss, Kevin McHale, Hanson, Kenny G, Debbie Gibson and Corey Feldman!
+      Get to know Kathy Beth Terry on Twitter and Facebook even more at:
+      http://www.facebook.com/kathybethterry
+      http://www.twitter.com/kathybethterry
+      http://www.kathybethterry.com
+      Buy "Last Friday Night (T.G.I.F.)" from Katy Perry's album 'Teenage Dream' on iTunes here: http://itunes.com/katyperry
+
+      Music video by Katy Perry performing Last Friday Night (T.G.I.F.). Producer: John Winter. Production Company: Rockhard Films. Director: Marc Klasfeld &amp; Da...
+      </media:description>
+      <media:keywords>Katy, Perry, Last, Friday, Night, TGIF, official, music, video, Teenage, Dream, Kathy, Beth, Terry, Rebecca, Black, Darren, Criss, Kevin, McHale, Hanson, Kenny, Debbie, Gibson, Corey, Feldman, Aaron, Christopherson, Everett, McDonald, Uncle, Steve, Johnson, Brad, Kirk, Tiffany
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=KlyXNRrsk4A&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/KlyXNRrsk4A/0.jpg' height='360' width='480' time='00:04:05.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/KlyXNRrsk4A/1.jpg' height='90' width='120' time='00:02:02.750'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/KlyXNRrsk4A/2.jpg' height='90' width='120' time='00:04:05.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/KlyXNRrsk4A/3.jpg' height='90' width='120' time='00:06:08.250'/>
+      <media:title type='plain'>Katy Perry - Last Friday Night (T.G.I.F.)
+      </media:title>
+      <yt:duration seconds='491'/>
+    </media:group>
+    <gd:rating average='4.7420464' max='5' min='1' numRaters='567048' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='357331' viewCount='145365841'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/4JipHEz53sU
+    </id>
+    <published>2011-05-05T17:13:13.000Z
+    </published>
+    <updated>2011-12-27T21:32:39.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by the content owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Nicki'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Minaj'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Super'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Bass'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Cash'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Money'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Records/Universal'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Records'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Rap/Hip-Hop'/>
+    <title type='text'>Nicki Minaj - Super Bass
+    </title>
+    <content type='text'>Music video by Nicki Minaj performing Super Bass. © 2011 Cash Money Records Inc., Manufactured and Marketed by Universal Records, a Division of UMG Recordings, Inc.
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=4JipHEz53sU&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/4JipHEz53sU/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/4JipHEz53sU/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/4JipHEz53sU'/>
+    <author>
+      <name>NickiMinajAtVEVO
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/nickiminajatvevo
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/4JipHEz53sU/comments' countHint='470949'/>
+    </gd:comments>
+    <yt:hd/>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/4JipHEz53sU?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='219' yt:format='5'/>
+      <media:description type='plain'>Music video by Nicki Minaj performing Super Bass. © 2011 Cash Money Records Inc., Manufactured and Marketed by Universal Records, a Division of UMG Recordings, Inc.
+      </media:description>
+      <media:keywords>Nicki, Minaj, Super, Bass, Cash, Money, Records/Universal, Records, Rap/Hip-Hop
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=4JipHEz53sU&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/4JipHEz53sU/0.jpg' height='360' width='480' time='00:01:49.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/4JipHEz53sU/1.jpg' height='90' width='120' time='00:00:54.750'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/4JipHEz53sU/2.jpg' height='90' width='120' time='00:01:49.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/4JipHEz53sU/3.jpg' height='90' width='120' time='00:02:44.250'/>
+      <media:title type='plain'>Nicki Minaj - Super Bass
+      </media:title>
+      <yt:duration seconds='219'/>
+    </media:group>
+    <gd:rating average='4.4565177' max='5' min='1' numRaters='611869' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='458037' viewCount='207120413'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/QH2-TGUlwu4
+    </id>
+    <published>2011-04-06T03:21:59.000Z
+    </published>
+    <updated>2011-12-27T21:33:56.000Z
+    </updated>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Comedy' label='Comedy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='cat'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='flying through space'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='annoying'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='amazing'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='nyan'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='rainbows'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='pop tart'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='everything is gonna happy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='dance music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='gif'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='animated'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='hatsune miku'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='lolcomics'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='UTAU'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='meow'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='桃音モモ'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='momone momo'/>
+    <title type='text'>Nyan Cat [original]
+    </title>
+    <content type='text'>for PJ. 
+    
+    
+    gif by prguitarman http://www.prguitarman.com/index.php?id=348
+    song by daniwell-P/Momone Momo UTAU http://momolabo.lolipop.jp/nyancatsong/Nyan/
+    ***used with permission; I own neither***
+    
+    prguitarman is selling t shirts and jewelry and an iPhone game: 
+    http://www.levelupstudios.com/pop-tart-cat
+    http://www.heychickadee.com/collections/christorres
+    http://itunes.apple.com/app/nyan-cat/id432805198?mt=8
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=QH2-TGUlwu4&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/QH2-TGUlwu4/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/QH2-TGUlwu4/related'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#mobile' type='text/html' href='https://m.youtube.com/details?v=QH2-TGUlwu4'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/QH2-TGUlwu4'/>
+    <author>
+      <name>saraj00n
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/saraj00n
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/QH2-TGUlwu4/comments' countHint='512439'/>
+    </gd:comments>
+    <media:group>
+      <media:category label='Comedy' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Comedy
+      </media:category>
+      <media:content url='https://www.youtube.com/v/QH2-TGUlwu4?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='217' yt:format='5'/>
+      <media:content url='rtsp://v2.cache8.c.youtube.com/CiQLENy73wIaGwnuwiVlTL59QBMYDSANFEgGUghzdGFuZGFyZAw=/0/0/0/video.3gp' type='video/3gpp' medium='video' expression='full' duration='217' yt:format='1'/>
+      <media:content url='rtsp://v6.cache4.c.youtube.com/CiQLENy73wIaGwnuwiVlTL59QBMYESARFEgGUghzdGFuZGFyZAw=/0/0/0/video.3gp' type='video/3gpp' medium='video' expression='full' duration='217' yt:format='6'/>
+      <media:description type='plain'>for PJ. 
+      
+      
+      gif by prguitarman http://www.prguitarman.com/index.php?id=348
+      song by daniwell-P/Momone Momo UTAU http://momolabo.lolipop.jp/nyancatsong/Nyan/
+      ***used with permission; I own neither***
+      
+      prguitarman is selling t shirts and jewelry and an iPhone game: 
+      http://www.levelupstudios.com/pop-tart-cat
+      http://www.heychickadee.com/collections/christorres
+      http://itunes.apple.com/app/nyan-cat/id432805198?mt=8
+      </media:description>
+      <media:keywords>cat, flying through space, annoying, amazing, nyan, rainbows, pop tart, everything is gonna happy, dance music, gif, animated, hatsune miku, lolcomics, UTAU, meow, 桃音モモ, momone momo
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=QH2-TGUlwu4&amp;feature=youtube_gdata_player'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/QH2-TGUlwu4/0.jpg' height='360' width='480' time='00:01:48.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/QH2-TGUlwu4/1.jpg' height='90' width='120' time='00:00:54.250'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/QH2-TGUlwu4/2.jpg' height='90' width='120' time='00:01:48.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/QH2-TGUlwu4/3.jpg' height='90' width='120' time='00:02:42.750'/>
+      <media:title type='plain'>Nyan Cat [original]
+      </media:title>
+      <yt:duration seconds='217'/>
+    </media:group>
+    <gd:rating average='4.7671947' max='5' min='1' numRaters='557410' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='292106' viewCount='55406329'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/t5Sd5c4o9UM
+    </id>
+    <published>2011-03-31T01:44:40.000Z
+    </published>
+    <updated>2011-12-27T21:30:35.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by the content owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Katy'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Perry'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='ET'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='E.T.'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Kanye'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='West'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Teenage'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Dream'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Official'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='VEVO'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Alien'/>
+    <title type='text'>Katy Perry - E.T. ft. Kanye West
+    </title>
+    <content type='text'>Get "E.T." featuring Kanye West on iTunes here: http://goo.gl/W4q1o 
+    Get Katy Perry's latest album, 'Teenage Dream' here: http://bit.ly/kpTDdelEX (explicit) 
+    http://bit.ly/kpTDdel (clean)
+
+    Music video by Katy Perry feat. Kanye West performing E.T.
+    Director: Floria Sigismondi
+    Producers: Natasha Alexsa Garcia, Danny Lockwood, Kelly Norris Sarno
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=t5Sd5c4o9UM&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/t5Sd5c4o9UM/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/t5Sd5c4o9UM/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/t5Sd5c4o9UM'/>
+    <author>
+      <name>KatyPerryVEVO
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/katyperryvevo
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/t5Sd5c4o9UM/comments' countHint='428372'/>
+    </gd:comments>
+    <yt:hd/>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/t5Sd5c4o9UM?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='309' yt:format='5'/>
+      <media:description type='plain'>Get "E.T." featuring Kanye West on iTunes here: http://goo.gl/W4q1o 
+      Get Katy Perry's latest album, 'Teenage Dream' here: http://bit.ly/kpTDdelEX (explicit) 
+      http://bit.ly/kpTDdel (clean)
+
+      Music video by Katy Perry feat. Kanye West performing E.T.
+      Director: Floria Sigismondi
+      Producers: Natasha Alexsa Garcia, Danny Lockwood, Kelly Norris Sarno
+      </media:description>
+      <media:keywords>Katy, Perry, ET, E.T., Kanye, West, Teenage, Dream, Official, VEVO, Alien
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=t5Sd5c4o9UM&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='allow'>BD BE BF BG BA BB WF BN BO BH BI BJ BT JM BV BW WS BR BS BY BZ RU RW LT RE LU LR RO LS GW GU GT GS GR GQ GP JP GY GF GE GD GB GA GN GM KW GI GH OM JO HR HT HU HK HN HM KR AD PR PW PT KN PY AI PA PF PG PE PK PH PN PL PM ZM EH EE EG ZA EC AL AO KZ ET ZW KY ES ER MD MG MA MC UZ LV ML MO MN MH US MU MT MW MV MQ MP MS MR UG MY MX AT FR AW FI FJ FK FM FO NI NL NO NA VU NC NE NF NG NZ NP NR NU CK CI CH CO CN CM CL CC CA CG CF CD CZ CY CX CR KP CV CU SZ SY KE SR KI KH SV KM ST SK SJ SI SH SO SN SM SL SC SB SA SG SE SD DO DM DJ DK YE DZ UY YT UM LB LC LA TV TW TT TR LK LI TN TO TL TM TJ TK TH TF TG TD TC LY VC AE VE AG VG IQ VI IS IR AM IT VN AN AQ AS AR AU IL IO IN TZ AZ IE ID UA QA MZ
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/t5Sd5c4o9UM/0.jpg' height='360' width='480' time='00:02:34.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/t5Sd5c4o9UM/1.jpg' height='90' width='120' time='00:01:17.250'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/t5Sd5c4o9UM/2.jpg' height='90' width='120' time='00:02:34.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/t5Sd5c4o9UM/3.jpg' height='90' width='120' time='00:03:51.750'/>
+      <media:title type='plain'>Katy Perry - E.T. ft. Kanye West
+      </media:title>
+      <yt:duration seconds='309'/>
+    </media:group>
+    <gd:rating average='4.5937343' max='5' min='1' numRaters='579222' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='426792' viewCount='151933089'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/_Z5-P9v3F8w
+    </id>
+    <published>2010-05-27T22:07:29.000Z
+    </published>
+    <updated>2011-12-27T21:30:34.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by the content owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Justin'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Bieber'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Never'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Say'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Island'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Records'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Pop'/>
+    <title type='text'>Justin Bieber - Never Say Never ft. Jaden Smith
+    </title>
+    <content type='text'>Music video by Justin Bieber performing Never Say Never. (C) 2010 The Island Def Jam Music Group
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=_Z5-P9v3F8w&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/_Z5-P9v3F8w/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/_Z5-P9v3F8w/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/_Z5-P9v3F8w'/>
+    <author>
+      <name>JustinBieberVEVO
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/justinbiebervevo
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/_Z5-P9v3F8w/comments' countHint='553652'/>
+    </gd:comments>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/_Z5-P9v3F8w?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='230' yt:format='5'/>
+      <media:description type='plain'>Music video by Justin Bieber performing Never Say Never. (C) 2010 The Island Def Jam Music Group
+      </media:description>
+      <media:keywords>Justin, Bieber, Never, Say, Island, Records, Pop
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=_Z5-P9v3F8w&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/_Z5-P9v3F8w/0.jpg' height='360' width='480' time='00:01:55'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/_Z5-P9v3F8w/1.jpg' height='90' width='120' time='00:00:57.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/_Z5-P9v3F8w/2.jpg' height='90' width='120' time='00:01:55'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/_Z5-P9v3F8w/3.jpg' height='90' width='120' time='00:02:52.500'/>
+      <media:title type='plain'>Justin Bieber - Never Say Never ft. Jaden Smith
+      </media:title>
+      <yt:duration seconds='230'/>
+    </media:group>
+    <gd:rating average='3.807103' max='5' min='1' numRaters='724189' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='352039' viewCount='286387746'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/LjhCEhWiKXk
+    </id>
+    <published>2010-09-08T21:07:11.000Z
+    </published>
+    <updated>2011-12-27T21:33:14.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by its owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Bruno'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Mars'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Just'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='The'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Way'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='You'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Are'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Elektra'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Records'/>
+    <title type='text'>Bruno Mars - Just The Way You Are [Official Video]
+    </title>
+    <content type='text'>Website: http://www.brunomars.com Directed by Ethan Lader / Inspired by the artwork of Erika Iris Simmons.
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=LjhCEhWiKXk&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/LjhCEhWiKXk/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/LjhCEhWiKXk/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/LjhCEhWiKXk'/>
+    <author>
+      <name>ElektraRecords
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/elektrarecords
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/LjhCEhWiKXk/comments' countHint='189811'/>
+    </gd:comments>
+    <yt:hd/>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/LjhCEhWiKXk?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='242' yt:format='5'/>
+      <media:description type='plain'>Website: http://www.brunomars.com Directed by Ethan Lader / Inspired by the artwork of Erika Iris Simmons.
+      </media:description>
+      <media:keywords>Bruno, Mars, Just, The, Way, You, Are, Elektra, Records
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=LjhCEhWiKXk&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='deny'>DE
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/LjhCEhWiKXk/0.jpg' height='360' width='480' time='00:02:01'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/LjhCEhWiKXk/1.jpg' height='90' width='120' time='00:01:00.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/LjhCEhWiKXk/2.jpg' height='90' width='120' time='00:02:01'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/LjhCEhWiKXk/3.jpg' height='90' width='120' time='00:03:01.500'/>
+      <media:title type='plain'>Bruno Mars - Just The Way You Are [Official Video]
+      </media:title>
+      <yt:duration seconds='242'/>
+    </media:group>
+    <gd:rating average='4.9203734' max='5' min='1' numRaters='515758' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='573111' viewCount='208731731'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/1uwOL4rB-go
+    </id>
+    <published>2007-09-29T17:04:02.000Z
+    </published>
+    <updated>2011-12-27T21:30:13.000Z
+    </updated>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Entertainment' label='Entertainment'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Jeff'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Dunham'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Achmed'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='the'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Dead'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Terrorist'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Peanut'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Walter'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Jose'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Jalapeno'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='DVD'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Spark'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='of'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Insanity'/>
+    <title type='text'>Jeff Dunham - Achmed the Dead Terrorist
+    </title>
+    <content type='text'>http://www.amazon.com/gp/product/B000S6LS66?ie=UTF8&amp;tag=jeffduncom-20&amp;linkCode=as2&amp;camp=1789&amp;creative=9325&amp;creativeASIN=B000S6LS66
+    </content>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.in-response-to' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/hso4pRNTywY'/>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=1uwOL4rB-go&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/1uwOL4rB-go/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/1uwOL4rB-go/related'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#mobile' type='text/html' href='https://m.youtube.com/details?v=1uwOL4rB-go'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/1uwOL4rB-go'/>
+    <author>
+      <name>KrowBatellio
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/krowbatellio
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/1uwOL4rB-go/comments' countHint='216023'/>
+    </gd:comments>
+    <media:group>
+      <media:category label='Entertainment' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Entertainment
+      </media:category>
+      <media:content url='https://www.youtube.com/v/1uwOL4rB-go?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='648' yt:format='5'/>
+      <media:content url='rtsp://v7.cache2.c.youtube.com/CiQLENy73wIaGwkK-sGKLw7s1hMYDSANFEgGUghzdGFuZGFyZAw=/0/0/0/video.3gp' type='video/3gpp' medium='video' expression='full' duration='648' yt:format='1'/>
+      <media:content url='rtsp://v4.cache1.c.youtube.com/CiQLENy73wIaGwkK-sGKLw7s1hMYESARFEgGUghzdGFuZGFyZAw=/0/0/0/video.3gp' type='video/3gpp' medium='video' expression='full' duration='648' yt:format='6'/>
+      <media:description type='plain'>http://www.amazon.com/gp/product/B000S6LS66?ie=UTF8&amp;tag=jeffduncom-20&amp;linkCode=as2&amp;camp=1789&amp;creative=9325&amp;creativeASIN=B000S6LS66
+      </media:description>
+      <media:keywords>Jeff, Dunham, Achmed, the, Dead, Terrorist, Peanut, Walter, Jose, Jalapeno, DVD, Spark, of, Insanity
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=1uwOL4rB-go&amp;feature=youtube_gdata_player'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/1uwOL4rB-go/0.jpg' height='360' width='480' time='00:05:24'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/1uwOL4rB-go/1.jpg' height='90' width='120' time='00:02:42'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/1uwOL4rB-go/2.jpg' height='90' width='120' time='00:05:24'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/1uwOL4rB-go/3.jpg' height='90' width='120' time='00:08:06'/>
+      <media:title type='plain'>Jeff Dunham - Achmed the Dead Terrorist
+      </media:title>
+      <yt:duration seconds='648'/>
+    </media:group>
+    <gd:rating average='4.817757' max='5' min='1' numRaters='510451' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='829653' viewCount='144122785'/>
+  </entry>
+  <entry>
+    <id>http://gdata.youtube.com/feeds/api/videos/SmM0653YvXU
+    </id>
+    <published>2011-07-20T22:27:11.000Z
+    </published>
+    <updated>2011-12-27T21:32:34.000Z
+    </updated>
+    <app:control>
+      <yt:state name='restricted' reasonCode='limitedSyndication'>Syndication of this video was restricted by its owner.
+      </yt:state>
+    </app:control>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://gdata.youtube.com/schemas/2007#video'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/categories.cat' term='Music' label='Music'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Pitbull'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Featuring'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Marc'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Anthony'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Rain'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Over'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Me'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Mr.305/Polo'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Grounds'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Music/J'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Records'/>
+    <category scheme='http://gdata.youtube.com/schemas/2007/keywords.cat' term='Pop'/>
+    <title type='text'>Pitbull - Rain Over Me ft. Marc Anthony
+    </title>
+    <content type='text'>Music video by Pitbull Featuring Marc Anthony performing Rain Over Me. (C) 2011 J Records, a unit of Sony Music Entertainment
+    </content>
+    <link rel='alternate' type='text/html' href='https://www.youtube.com/watch?v=SmM0653YvXU&amp;feature=youtube_gdata'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.responses' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/SmM0653YvXU/responses'/>
+    <link rel='http://gdata.youtube.com/schemas/2007#video.related' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/videos/SmM0653YvXU/related'/>
+    <link rel='self' type='application/atom+xml' href='https://gdata.youtube.com/feeds/api/standardfeeds/top_rated/v/SmM0653YvXU'/>
+    <author>
+      <name>PitbullVEVO
+      </name>
+      <uri>https://gdata.youtube.com/feeds/api/users/pitbullvevo
+      </uri>
+    </author>
+    <gd:comments>
+      <gd:feedLink href='https://gdata.youtube.com/feeds/api/videos/SmM0653YvXU/comments' countHint='142285'/>
+    </gd:comments>
+    <yt:hd/>
+    <media:group>
+      <media:category label='Music' scheme='http://gdata.youtube.com/schemas/2007/categories.cat'>Music
+      </media:category>
+      <media:content url='https://www.youtube.com/v/SmM0653YvXU?version=3&amp;f=standard&amp;app=youtube_gdata' type='application/x-shockwave-flash' medium='video' isDefault='true' expression='full' duration='234' yt:format='5'/>
+      <media:description type='plain'>Music video by Pitbull Featuring Marc Anthony performing Rain Over Me. (C) 2011 J Records, a unit of Sony Music Entertainment
+      </media:description>
+      <media:keywords>Pitbull, Featuring, Marc, Anthony, Rain, Over, Me, Mr.305/Polo, Grounds, Music/J, Records, Pop
+      </media:keywords>
+      <media:player url='https://www.youtube.com/watch?v=SmM0653YvXU&amp;feature=youtube_gdata_player'/>
+      <media:restriction type='country' relationship='allow'>BD BE BF BG BA BB WF BM BN BO BH BI BJ BT JM BW WS BR BS BY BZ RU RW RS LT RE LU LR RO LS GW GU GT GR GQ GP JP GY GF GE GD GB GA GN GM GL KW GI GH OM JO HR HT HU HK HN LV AD PR PS PW PT KN PY AI PA PF PG PE PK PH PN PL PM ZM EH EE EG ZA EC AL AO KZ ET ZW KY ES ER ME MD MG MA MC UZ MM ML MO MN MH MK MU MT MW MV MQ MP MS MR UG MY MX VU FR AF FI FJ FK FM FO NI NL NO NA NC NE NG NZ NP NR NU CK CI CH CO CN CM CL CA CG CF CD CZ CY CR KP CV CU SZ SY KG KE SR KI KH SV KM ST SK KR SI SH SO SN SM SL SC SB SA SG SE SD DO DM DJ DK YE AT DZ US UY YT LB LC LA TV TW TT TR LK LI TN TO TL TM TJ TK TH TF TG TD TC LY VA VC AE VE AG VG IQ IS IR AM IT VN AN AQ AR AU IL IO IN TZ AZ IE ID UA QA MZ
+      </media:restriction>
+      <media:thumbnail url='http://i.ytimg.com/vi/SmM0653YvXU/0.jpg' height='360' width='480' time='00:01:57'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/SmM0653YvXU/1.jpg' height='90' width='120' time='00:00:58.500'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/SmM0653YvXU/2.jpg' height='90' width='120' time='00:01:57'/>
+      <media:thumbnail url='http://i.ytimg.com/vi/SmM0653YvXU/3.jpg' height='90' width='120' time='00:02:55.500'/>
+      <media:title type='plain'>Pitbull - Rain Over Me ft. Marc Anthony
+      </media:title>
+      <yt:duration seconds='234'/>
+    </media:group>
+    <gd:rating average='4.856748' max='5' min='1' numRaters='504845' rel='http://schemas.google.com/g/2005#overall'/>
+    <yt:statistics favoriteCount='432560' viewCount='197816185'/>
+  </entry>
+</feed>

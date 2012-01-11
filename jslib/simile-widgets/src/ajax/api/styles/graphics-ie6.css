@@ -1,0 +1,77 @@
+.simileAjax-bubble-border-left-pngNotTranslucent {
+    filter: expression(
+        "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + SimileAjax.urlPrefix + "images/bubble-left.png', sizingMethod='crop')"
+    );
+}
+
+.simileAjax-bubble-border-right-pngNotTranslucent {
+    filter: expression(
+        "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + SimileAjax.urlPrefix + "images/bubble-right.png', sizingMethod='crop')"
+    );
+}
+
+.simileAjax-bubble-border-top-pngNotTranslucent {
+    filter: expression(
+        "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + SimileAjax.urlPrefix + "images/bubble-top.png', sizingMethod='crop')"
+    );
+}
+
+.simileAjax-bubble-border-bottom-pngNotTranslucent {
+    filter: expression(
+        "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + SimileAjax.urlPrefix + "images/bubble-bottom.png', sizingMethod='crop')"
+    );
+}
+
+.simileAjax-bubble-border-top-left-pngNotTranslucent {
+    filter: expression(
+        "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + SimileAjax.urlPrefix + "images/bubble-top-left.png', sizingMethod='crop')"
+    );
+}
+
+.simileAjax-bubble-border-top-right-pngNotTranslucent {
+    filter: expression(
+        "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + SimileAjax.urlPrefix + "images/bubble-top-right.png', sizingMethod='crop')"
+    );
+}
+
+.simileAjax-bubble-border-bottom-left-pngNotTranslucent {
+    filter: expression(
+        "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + SimileAjax.urlPrefix + "images/bubble-bottom-left.png', sizingMethod='crop')"
+    );
+}
+
+.simileAjax-bubble-border-bottom-right-pngNotTranslucent {
+    filter: expression(
+        "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + SimileAjax.urlPrefix + "images/bubble-bottom-right.png', sizingMethod='crop')"
+    );
+}
+
+.simileAjax-bubble-arrow-point-left-pngNotTranslucent {
+    filter: expression(
+        "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + SimileAjax.urlPrefix + "images/bubble-arrow-point-left.png', sizingMethod='crop')"
+    );
+}
+
+.simileAjax-bubble-arrow-point-right-pngNotTranslucent {
+    filter: expression(
+        "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + SimileAjax.urlPrefix + "images/bubble-arrow-point-right.png', sizingMethod='crop')"
+    );
+}
+
+.simileAjax-bubble-arrow-point-up-pngNotTranslucent {
+    filter: expression(
+        "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + SimileAjax.urlPrefix + "images/bubble-arrow-point-up.png', sizingMethod='crop')"
+    );
+}
+
+.simileAjax-bubble-arrow-point-down-pngNotTranslucent {
+    filter: expression(
+        "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + SimileAjax.urlPrefix + "images/bubble-arrow-point-down.png', sizingMethod='crop')"
+    );
+}
+
+.simileAjax-bubble-close-pngNotTranslucent {
+    filter: expression(
+        "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + SimileAjax.urlPrefix + "images/close-button.png', sizingMethod='crop')"
+    );
+}

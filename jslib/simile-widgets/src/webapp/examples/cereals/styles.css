@@ -1,0 +1,73 @@
+body {
+    font-family:    Trebuchet MS, Helvetica, Arial, sans serif;
+    font-size:      10pt;
+    margin:         0;
+    padding:        0;
+}
+table {
+    font-size: 100%;
+}
+tr {
+    vertical-align: top;
+}
+
+#header {
+    padding:    20px;
+}
+#body {
+    margin: 1em;
+    clear:  both;
+}
+
+.exhibit-thumbnailView-group h1 {
+    font-size:      120%;
+    margin:         1em 0;
+    color:          #7D2E1C;
+}
+.exhibit-thumbnailView-group h2 {
+    font-size:      100%;
+    font-weight:    bold;
+    margin:         0.5em 0;
+}
+
+.exhibit-facet-body {
+    background: #E6E5FE;
+}
+
+.item h1 {
+    font-size:      120%;
+    margin:         1em 0;
+    color:          #7D2E1C;
+}
+.item h2 {
+    font-size:      100%;
+    font-weight:    bold;
+    margin:         0.5em 0;
+}
+
+button.exhibit-copyButton {
+    display:    none;
+}
+
+table.itemThumbnail {
+    margin:     0.5em; 
+    padding:    0.5em;
+    width:      120px; 
+}
+td.itemThumbnail-thumbnailContainer {
+    overflow:   hidden; 
+    height:     100px; 
+    text-align: center;
+}
+td.itemThumbnail-caption {
+    height:     4em; 
+    text-align: center;
+}
+div.itemThumbnail-blocker {
+    position:   absolute; 
+    width:      100%; 
+    height:     100%; 
+    top:        0px; 
+    left:       0px; 
+    z-index:    1000;
+}

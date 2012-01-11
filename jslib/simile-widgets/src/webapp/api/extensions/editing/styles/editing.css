@@ -1,0 +1,43 @@
+span.item-edit-button {
+    background: #FFFFE0;
+    border: 1px solid;
+    font-weight: normal;
+    padding-left: 2px;
+    padding-right: 2px;
+    margin: 2px;
+    cursor: pointer;
+}
+.shown {
+    display: inline;
+}
+
+img.shown {
+    cursor: pointer;
+}
+
+.not-shown {
+    display: none;
+}
+
+input.editable-exhibit-value {
+    border-style: solid;
+    margin: 0px;
+    padding: 0px;
+}
+
+span.editable-exhibit-value:hover {
+    background: #FFFFE0;
+}
+
+span.modified-exhibit-value {
+    background: #FFFFE0;
+}
+
+span.editing-parent {
+    display: block;
+    background: #835560;
+    border-width: 1;
+    border-style: solid;
+    padding: 5;
+    margin: 3 0;
+}"" 

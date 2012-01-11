@@ -1,0 +1,113 @@
+table.exhibit-month-header {
+  margin: 0px 0px 0px 0px;
+  width: 100%;
+  font-weight: bold;
+  background-color: #EAEAEA;
+  color: #666666;
+  border-collapse: separate;
+}
+
+table.exhibit-month-header td.previous-month {
+  height: 22px;
+  background: #EAEAEA url(images/month-header-left.gif) no-repeat top left;
+  padding-left: 5px;
+}
+
+table.exhibit-month-header td.next-month {
+  height: 22px;
+  background: #EAEAEA url(images/month-header-right.gif) no-repeat top right;
+  padding-right: 5px;
+}
+
+table.exhibit-month-header td {
+  padding: 3px;
+  text-align: center;
+}
+
+table.exhibit-month-header td a {
+  color: #053265;
+}
+ 
+
+table.exhibit-date-picker {
+  border-collapse: collapse;
+  width: 100%; 
+  color: #666666;
+  cursor: pointer;
+  margin: 0px;
+}
+
+table.exhibit-date-picker tbody {
+  border: none;
+}
+
+table.exhibit-date-picker td {
+  text-align: center;
+  padding: 0px;
+}
+
+table.exhibit-date-picker a {
+  text-decoration: none;
+}
+
+table.exhibit-date-picker td.exhibit-week-selector {
+  text-align: right;
+  width: 10px;
+  height: 24px;
+  padding: 0px;
+}
+
+table.exhibit-date-picker td.exhibit-week-selector a {
+  background: transparent url(images/week-selector.gif) no-repeat top right;
+  display: block; 
+  font-size: 1px;
+  color: transparent;
+  height: 23px;
+  width: 10px;
+}
+
+table.exhibit-date-picker td.exhibit-week-selector a:hover,
+table.exhibit-date-picker td.exhibit-week-selector a.selected {
+  background: transparent url(images/week-selector-active.gif) no-repeat top right;
+}
+
+table.exhibit-date-picker td.day-header {
+  color: #666666;
+  background: none;
+}
+
+table.exhibit-date-picker td.day {
+  border: solid 1px #E1E1E1; 
+}
+
+table.exhibit-date-picker td.previousMonth, 
+table.exhibit-date-picker td.nextMonth {
+  color: #D9D9D9;
+}
+
+table.exhibit-date-picker td.weekend {
+  background-color: #E8EEF7;
+}
+
+table.exhibit-date-picker td.selected {
+  background-color: #4F75A0;
+}
+
+table.exhibit-date-picker td.has-items {
+  background-image: url(images/day-with-items-bkgrd.gif);
+  background-repeat: no-repeat;
+  background-position: top right;
+}
+
+table.exhibit-date-picker td.selected {
+  color: #FFFFFF;
+}
+
+table.exhibit-date-picker td.highlight {
+  color: #666666;
+  background-color: #FFFFCC;
+}
+
+div.exhibit-date-picker-text {
+  text-align: center;
+}

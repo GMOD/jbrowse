@@ -1,0 +1,184 @@
+div.exhibit-barChartView-plotContainer {
+    position: relative;
+}
+div.exhibit-barChartView-bar {
+
+}
+div.exhibit-barChartView-xAxisLabel {
+    font-family:    sans-serif;
+    font-size:      80%;
+    padding:        2px;
+    position:       absolute;
+    width:          5em;
+    color:          #888;
+}
+div.exhibit-barChartView-xAxisName {
+    position:       absolute;
+    top:            1em;
+    height:         1em;
+    left:           0px;
+    right:          0px;
+    text-align:     right;
+    font-weight:    bold;
+}
+
+div.exhibit-barChartView-yAxis {
+    position:   absolute; 
+    left:       0px;
+    width:      5em;
+    top:        0px;
+    bottom:     2em;
+}
+div.exhibit-barChartView-yAxis-ie {
+    position:       absolute; 
+    height:         100%;
+    padding-bottom: 2em;
+    width:          5em;
+}
+div.exhibit-barChartView-yAxisLabel {
+    font-family:    sans-serif;
+    font-size:      80%;
+    padding:        2px;
+    position:       absolute;
+    width:          5em;
+    color:          #888;
+    text-align:     right;
+}
+div.exhibit-barChartView-yAxisName {
+    position:       absolute;
+    top:            0;
+    height:         1em;
+    left:           0px;
+    width:          5em;
+    font-weight:    bold;
+    text-align:     right;
+}
+div.exhibit-barChartView-gridLine {
+    position:   absolute; 
+    background: white;
+    overflow:   hidden;
+}
+div.exhibit-barChartView-canvasFrame {
+    position:       absolute;
+    left:           5em;
+    right:          0px;
+    top:            1em;
+    bottom:         2em;
+}
+div.exhibit-barChartView-canvasFrame-ie {
+    position:       absolute;
+    height:         100%;
+    padding-bottom: 2em;
+    padding-left:   5em;
+    padding-top:    1em;
+}
+
+div.exhibit-barChartView-canvas {
+    position:   relative; 
+    background: #ddd;
+}
+div.exhibit-barChartView-point {
+    position:   absolute;
+    cursor:     pointer;
+    overflow:   hidden;
+}
+div.exhibit-pivotTableView-tableContainer {
+}
+
+div.exhibit-pivotTableView-resizer {
+    text-align:     center;
+    cursor:         n-resize;
+    height:         10px;
+}
+div.exhibit-pivotTableView-mappableDetails {
+    padding:        1em;
+    text-align:     center;
+}
+div.exhibit-scatterPlotView-plotContainer {
+    position: relative;
+}
+div.exhibit-scatterPlotView-xAxis {
+    position:   absolute; 
+    height:     2em;
+    bottom:     0px;
+    left:       5em;
+    right:      0px;
+}
+div.exhibit-scatterPlotView-xAxisLabel {
+    font-family:    sans-serif;
+    font-size:      80%;
+    padding:        2px;
+    position:       absolute;
+    width:          5em;
+    color:          #888;
+}
+div.exhibit-scatterPlotView-xAxisName {
+    position:       absolute;
+    top:            1em;
+    height:         1em;
+    left:           0px;
+    right:          0px;
+    text-align:     right;
+    font-weight:    bold;
+}
+
+div.exhibit-scatterPlotView-yAxis {
+    position:   absolute; 
+    left:       0px;
+    width:      5em;
+    top:        0px;
+    bottom:     2em;
+}
+div.exhibit-scatterPlotView-yAxis-ie {
+    position:       absolute; 
+    height:         100%;
+    padding-bottom: 2em;
+    width:          5em;
+}
+div.exhibit-scatterPlotView-yAxisLabel {
+    font-family:    sans-serif;
+    font-size:      80%;
+    padding:        2px;
+    position:       absolute;
+    width:          5em;
+    color:          #888;
+    text-align:     right;
+}
+div.exhibit-scatterPlotView-yAxisName {
+    position:       absolute;
+    top:            0;
+    height:         1em;
+    left:           0px;
+    width:          5em;
+    font-weight:    bold;
+    text-align:     right;
+}
+div.exhibit-scatterPlotView-gridLine {
+    position:   absolute; 
+    background: white;
+    overflow:   hidden;
+}
+div.exhibit-scatterPlotView-canvasFrame {
+    position:       absolute;
+    left:           5em;
+    right:          0px;
+    top:            1em;
+    bottom:         2em;
+}
+div.exhibit-scatterPlotView-canvasFrame-ie {
+    position:       absolute;
+    height:         100%;
+    padding-bottom: 2em;
+    padding-left:   5em;
+    padding-top:    1em;
+}
+
+div.exhibit-scatterPlotView-canvas {
+    position:   relative; 
+    background: #ddd;
+}
+div.exhibit-scatterPlotView-point {
+    position:   absolute;
+    cursor:     pointer;
+    overflow:   hidden;
+}

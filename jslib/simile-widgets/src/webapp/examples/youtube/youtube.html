@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link ex:itemTags="entry,category,media:player,media:thumbnail,author" ex:labelProperties="title,term,url,url,uri" ex:parentRelations=",,playURL,thumbnail,author" type="application/xml" rel="exhibit/data" 
+	  href="top_rated.xml"
+	  />
+
+    <script src="../../api/exhibit-api.js?bundle=false" type="text/javascript"></script>
+    <script src="../../api/extensions/time/time-extension.js" type="text/javascript"></script>
+
+    <title>Youtube: Rendered from XML Data</title>
+  </head>
+
+  <body>
+    <H1>Youtube: Rendered from XML Data</H1>
+
+    This page demonstrates the XML importer.  The link in the head applies three tags.  
+<ul>
+<li> ex:itemTags specifies which tags in the XML document should be taken as the (roots of) items.  The tags are assumed to name the types of the items.
+<li> ex:labelProperties specifies, for each item type, the property of that item that should be used as the label for the item (its value is copied to the label property
+<li> ex:parentRelations is used if one item Y may be a descendant of another item X in the XML; it specifies, for each type, the name a the relation that should be used to connect the parent to its descendant in the generated data.
+</ul>
+
+    <script ex:role="data" type="application/json">
+      {
+         properties: {
+            published: {
+               valueType:"date"
+            }
+         },
+         types: {
+            entry: {
+               label: "Video",
+               pluralLabel: "Videos"
+            }
+         }
+      }
+
+    </script>
+
+    <div ex:role="collection" ex:itemTypes="entry"></div>
+    
+    <table>
+      <tr>
+	<td width="80%">
+	  <div ex:role="viewPanel">
+	    <div ex:role="view" ex:viewClass="Thumbnail" ex:label="List">
+    <div ex:role="lens" style="width: 400px">
+      <h3><span ex:content=".title"></span></h3>
+      <table>
+	<tr>
+	  <td width=160>
+	    <a  ex:href-content=".playURL"> 
+	      <img ex:src-content=".thumbnail" width="150">	  
+	    </a>
+	    <div>Author: <a ex:href-content=".author.uri"><span ex:content=".author.name"></span></a></div>
+	    <div>Length: <span ex:content=".seconds"></span> seconds</div>
+	  </td>
+	  <td width=240>
+	    <div>Description:</div>
+	    <div ex:content=".content" style="height: 200px; overflow: auto"></div>
+	  </td>
+	</tr>
+      </table>
+    </div>
+
+	    </div>
+	    <div ex:role="view" ex:viewClass="Timeline" ex:start=".published">
+	          <div ex:role="lens" style="width: 400px">
+      <h3><span ex:content=".title"></span></h3>
+      <table>
+	<tr>
+	  <td width=160>
+	    <a  ex:href-content=".playURL"> 
+	      <img ex:src-content=".thumbnail" width="150">	  
+	    </a>
+	    <div>Author: <a ex:href-content=".author.uri"><span ex:content=".author.name"></span></a></div>
+	    <div>Length: <span ex:content=".seconds"></span> seconds</div>
+	  </td>
+	  <td width=240>
+	    <div>Description:</div>
+	    <div ex:content=".content" style="height: 200px; overflow: auto"></div>
+	  </td>
+	</tr>
+      </table>
+    </div>
+
+	    </div>
+	    <div ex:role="view" ex:label="Raw Data"></div>
+	  </div>
+	  </td>
+	<td width="200px" style="vertical-align: top">
+	  <div ex:role="facet" ex:expression=".category"></div>
+	  <div ex:role="facet" ex:expression=".duration" ex:facetClass="Slider"></div>
+	  </td>
+    </div>
+  </body>
+</html>

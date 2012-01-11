@@ -1,0 +1,146 @@
+body {
+    position: relative;
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+}
+
+.header {
+    margin: 0px;
+    padding: 2em;
+    padding-bottom: 1em;
+    padding-top: 0.1em;
+    background-color: #EEE;
+    border-bottom: 1px solid #333333;
+}
+
+
+.description {
+    width: 75%;
+}
+
+.creator {
+    font-size: x-large;
+    padding-top: 1em;
+}
+
+.colorKey {
+    text-align: center;
+    padding: 0.5em;
+}
+
+[purpose] {
+    background-color: #C7D8E2;
+}
+
+[purpose=personal], [purpose=Personal] {
+    background-color: #E7E085;
+}
+
+[purpose=academic], [purpose=Academic] {
+    background-color: #C2E0C3;
+}
+
+[purpose=business], [purpose=Business] {
+    background-color: #D5A5A5;
+}
+
+.viewContainer {
+}
+
+.exhibit-tileView-body {
+    list-style: none;
+}
+
+.exhibit-focusDialog div.exhibit-lens {
+    border: 0px;
+}
+
+.div.exhibit-lens {
+    border: 1px solid #333;
+}
+
+
+.mainTable {
+    vertical-align: top;
+    border-collapse: collapse;
+    height: 100%;
+}
+
+.column1 {
+    padding-left: 2em;
+    padding-right: 1em;
+    width: 12em;
+}
+
+.column2 {
+    padding-right: 1.5em;
+    min-width: 12em;
+}
+
+.column3 {
+    padding: 0em 2em 2em 2em;
+}
+
+.column1, .column2 {
+    padding-top: 1.5em;
+    font-size: 80%;
+}
+
+.viewContainer {
+    padding-top: 2em;
+}
+
+.exhibit-facet-body {
+    background-color: white;
+}
+
+.editTable {
+    padding-top: 1em;
+}
+
+.editTable .label {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.exhibit-ui-protection .title {
+    font-size: 130%;
+    text-align: center;
+}
+
+.exhibit-ui-protection div.item-entry-field {
+    padding: 1em 0.5em 0 0.5em;
+}
+
+.exhibit-ui-protection div.item-entry-field .field-label {
+    font-size: 105%;
+}
+
+.exhibit-ui-protection div.item-entry-field .field {
+    padding-left: 0em;
+}
+
+.exhibit-ui-protection div.item-entry-field input {
+    font-size: 105%;
+    width: 15em;
+}
+
+.exhibit-ui-protection div.item-entry-field textarea {
+    font-size: 105%;
+    width: 20em;
+    height: 7em;
+}
+
+.exhibit-tileView-body li {
+    padding-bottom: 1em;
+}
+
+.entry-header {
+    padding-bottom: 0.0em;
+}
+
+.itemHeader {
+    font-size: large;
+}

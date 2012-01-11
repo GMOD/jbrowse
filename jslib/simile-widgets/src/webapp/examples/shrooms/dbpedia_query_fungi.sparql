@@ -1,0 +1,26 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+PREFIX foaf: <http://xmlns.com/foaf/0.1/> 
+PREFIX dc: <http://purl.org/dc/elements/1.1/> 
+PREFIX : <http://dbpedia.org/resource/> 
+PREFIX dbpedia2: <http://dbpedia.org/property/> 
+PREFIX dbpedia: <http://dbpedia.org/> 
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT ?fungi ?name ?hymeniumtype ?wikipage ?capshape ?howedible ?sporeprintcolor ?ecologicaltype ?stipecharacter 
+WHERE { 
+     ?fungi dbpedia2:name ?name .
+     ?fungi dbpedia2:hymeniumtype ?hymeniumtype .
+     ?fungi dbpedia2:capshape ?capshape .
+     ?fungi dbpedia2:howedible ?howedible .
+     ?fungi dbpedia2:sporeprintcolor ?sporeprintcolor .
+     ?fungi foaf:page ?wikipage .
+     ?fungi dbpedia2:ecologicaltype ?ecologicaltype .
+     ?fungi dbpedia2:stipecharacter ?stipecharacter .
+     ?fungi dbpedia2:regnum <http://dbpedia.org/resource/Fungus> .
+
+}
+ORDER BY ?name 
+

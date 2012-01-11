@@ -1,0 +1,11 @@
+/*==================================================
+ * Collection Summary Widget styles
+ *==================================================
+ */
+div.exhibit-collectionSummaryWidget {
+}
+span.exhibit-collectionSummaryWidget-count {
+    font-size:      200%;
+}
+span.exhibit-collectionSummaryWidget-results {
+}

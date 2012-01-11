@@ -1,0 +1,60 @@
+body {
+    margin:         0px;
+    padding:        0px;
+    font-family:    "georgia", "times", "times new roman", serif;
+    color:          #222;
+    background-color: #fff;
+    font-size:      10pt;
+    quotes:         "\201C" "\201E" "\2018" "\2019";
+}
+table {
+    font-size: 100%;
+}
+td {
+    vertical-align: top;
+}
+
+#frame {
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+    border-collapse: collapse;
+}
+
+#frame tr {
+    vertical-align: top;
+}
+            
+#main-content {
+    width:              70%;
+    padding:            2em;
+    background-color:   #DFFFFF;
+}
+
+#content h1 {
+    color: #523015;
+    border-bottom: 1px solid #cc0000;
+}
+
+#sidebar {
+    width:                  25%;
+    white-space:            nowrap;
+    background-color:       #C0B7B7;
+    border-left:            1px solid #ccc;
+    padding:                1em;
+}
+
+div.map-lens {
+    padding: 1em;
+}
+
+div.exhibit-facet-body {
+    background-color: white;
+    border:           none;
+}
+
+div.exhibit-facet-header {
+    color:      white;
+    background: none
+}

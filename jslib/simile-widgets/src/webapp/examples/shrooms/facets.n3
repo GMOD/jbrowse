@@ -1,0 +1,51 @@
+@prefix : <http://dbpedia.org/resource/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/>  .
+
+:bare foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Bare_stipe_icon.png/30px-Bare_stipe_icon.png> .
+:cortina foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Cortina_stipe_icon.png/30px-Cortina_stipe_icon.png> .
+:NA foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/NA_stipe_icon.png/30px-NA_stipe_icon.png> .
+:ring foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Ring_stipe_icon.png/30px-Ring_stipe_icon.png> .
+:pores foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Pores_icon.png/30px-Pores_icon.png> .
+
+:smooth foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Smooth_icon.png/30px-Smooth_icon.png> .
+:teeth foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Teeth_icon.png/30px-Teeth_icon.png> .
+:ridges foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Ridges_icon.png/30px-Ridges_icon.png> .
+:gleba foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Gleba_icon.png/30px-Gleba_icon.png> .
+:gills foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Gills_icon.png/30px-Gills_icon.png> .
+
+:inedible foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Inedible_toxicity_icon.png/30px-Inedible_toxicity_icon.png> .
+:caution foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Diamond-caution.svg/30px-Diamond-caution.svg.png> .
+:psychoactive foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Psychoactive_toxicity_icon.png/30px-Psychoactive_toxicity_icon.png> .
+:choice foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Choice_toxicity_icon.png/30px-Choice_toxicity_icon.png> .
+:poisonous foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Poisonous_toxicity_icon.png/30px-Poisonous_toxicity_icon.png> .
+:deadly foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Hazard_T.svg/30px-Hazard_T.svg.png> .
+:unknown foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Unknown_toxicity_icon.png/30px-Unknown_toxicity_icon.png> .
+:edible foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Edible_toxicity_icon.png/30px-Edible_toxicity_icon.png> .
+
+:mycorrhizal foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Mycorrhizal_ecology_icon.png/30px-Mycorrhizal_ecology_icon.png> .
+:saprotrophic foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Saprotrophic_ecology_icon.png/30px-Saprotrophic_ecology_icon.png> .
+:sapprophytic foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Saprotrophic_ecology_icon.png/30px-Saprotrophic_ecology_icon.png> .
+:saprophytic foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Saprotrophic_ecology_icon.png/30px-Saprotrophic_ecology_icon.png> .
+:parasitic foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Parasitic_ecology_icon.png/30px-Parasitic_ecology_icon.png> .
+:conical foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Conical_cap_icon.svg/30px-Conical_cap_icon.svg.png> .
+:depressed foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Depressed_cap_icon.svg/30px-Depressed_cap_icon.svg.png> .
+:no foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/No_cap_icon.svg/30px-No_cap_icon.svg.png> .
+:umbonate foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Umbonate_cap_icon.svg/30px-Umbonate_cap_icon.svg.png> .
+
+:flat foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Flat_cap_icon.svg/30px-Flat_cap_icon.svg.png> .
+:convex foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Convex_cap_icon.svg/30px-Convex_cap_icon.svg.png> .
+:offset foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Offset_cap_icon.png/30px-Offset_cap_icon.png> .
+:infundibuliform foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Infundibuliform_cap_icon.svg/30px-Infundibuliform_cap_icon.svg.png> .
+:blackish-brown foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Blackish-brown_spore_print_icon.png/30px-Blackish-brown_spore_print_icon.png> .
+:tan foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Tan_spore_print_icon.png/30px-Tan_spore_print_icon.png> .
+:black foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Black_spore_print_icon.png/30px-Black_spore_print_icon.png> .
+:cream foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Cream_spore_print_icon.png/30px-Cream_spore_print_icon.png> .
+:white foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/White_spore_print_icon.png/30px-White_spore_print_icon.png> .
+:pink foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Pink_spore_print_icon.png/30px-Pink_spore_print_icon.png> .
+:brown foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Brown_spore_print_icon.png/30px-Brown_spore_print_icon.png> .
+:Purple-brown foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Reddish-brown_spore_print_icon.png/30px-Reddish-brown_spore_print_icon.png> .
+:olive foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Olive_spore_print_icon.png/30px-Olive_spore_print_icon.png> .
+:salmon foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Salmon_spore_print_icon.png/30px-Salmon_spore_print_icon.png> .
+:orange foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Salmon_spore_print_icon.png/30px-Salmon_spore_print_icon.png> .
+:reddish-brown foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Reddish-brown_spore_print_icon.png/30px-Reddish-brown_spore_print_icon.png> .
+:purple foaf:depiction <http://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Purple_spore_print_icon.png/30px-Purple_spore_print_icon.png> .

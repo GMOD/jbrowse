@@ -1,0 +1,74 @@
+body {
+	padding: 0;
+	margin: 0;
+	font-family: "Palatino";
+}
+
+#frame {
+	border: 0;
+	padding: 0;
+	margin: 0;
+}
+
+#frame tbody {
+	padding: 0;
+	margin: 0;
+}
+
+#sidebar {
+	vertical-align: top;
+	width: 20%;
+	white-space: nowrap;
+	background: #fff url('rotunda.jpg') top right no-repeat fixed;
+	border-left: 1px solid #ccc;
+	font-size: 0.8em;
+	padding: 0;
+}
+
+h1 {
+	padding: 0 0 0.5em;
+	margin: 0;
+}
+
+#title-area p {
+	padding: 0 3em;
+	margin: 1em 0;
+	line-height: 1.3em;
+}
+
+#title-area {
+	margin-bottom: 20px;
+	border-bottom: 1px solid #ccc;
+}
+
+.exhibit-facet {
+	width: 95%;
+	margin: 10px 2.5% 0;
+}
+
+#content {
+	font-size: 0.9em;
+	vertical-align: top;
+	padding: 10px;
+	background: #fed;
+}
+
+div.exhibit-facet-body {
+	background: #eee;
+}
+
+#committee-facet div.exhibit-facet-body {
+	height: 37em;
+}
+
+#sponsors-facet div.exhibit-facet-body,
+#cosponsors-facet div.exhibit-facet-body,
+#bill-committee-facet div.exhibit-facet-body,
+#represents-facet div.exhibit-facet-body,
+#party-facet div.exhibit-facet-body {
+	height: 6em;
+}
+
+.exhibit-facet-header {
+	background: #eee;
+}

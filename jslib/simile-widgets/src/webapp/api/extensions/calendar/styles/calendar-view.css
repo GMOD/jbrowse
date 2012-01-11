@@ -1,0 +1,72 @@
+.exhibit-ui-protection div.exhibit-calendar {
+  padding-top: 20px;
+}
+
+.exhibit-ui-protection div.exhibit-calendar table.exhibit-view-month {
+  table-layout:fixed;
+}
+
+.exhibit-calendar table.exhibit-view-month-header td.current-month { 
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center;
+}
+
+.exhibit-calendar td {
+  padding: 0px;
+}
+
+.exhibit-calendar td.day-header {
+  text-align: center;
+  background-color: #333333;
+  color: #FFFFFF;
+}
+
+.exhibit-calendar td.weekend {
+  background-color: #F5F5F5;
+}
+
+.exhibit-calendar td.day {
+  width: 14.2857143%;
+  vertical-align: top;
+  height: 100px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.exhibit-calendar td.day a {
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.exhibit-calendar td.day span {
+  display: block;
+}
+
+.exhibit-calendar td.day span.calendar-date-title {
+  text-align: right;
+  background: #CCCCCC;
+  border-bottom: solid 1px #666666;
+}
+
+.exhibit-calendar td.day span.event-title {
+  cursor: pointer;
+}
+
+.exhibit-calendar td.previous-month span,
+.exhibit-calendar td.next-month {
+  color: #CCCCCC;
+}
+
+.exhibit-calendar td.previous-month span.calendar-date-title, 
+.exhibit-calendar td.next-month span.calendar-date-title {
+  background: #DDDDDD;
+  color: #666666;
+}
+
+div.event-list-header {
+  font-weight: bold;
+  background: #EEEEEE;
+  padding: 2px;
+}

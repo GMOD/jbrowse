@@ -1,0 +1,118 @@
+<html>
+<head>
+    <title>SIMILE | Exhibit | Presidents</title>
+    
+    <link href="schema.js" type="application/json" rel="exhibit/data" />
+    <link href="presidents.js" type="application/json" rel="exhibit/data" />
+    
+    <!-- key for the simile web site -->
+    <!--script src="http://static.simile.mit.edu/exhibit/api/exhibit-api.js?views=map,timeline" type="text/javascript"></script-->
+
+    <!-- key for 127.0.0.1 -->
+    <script src="../../../api/exhibit-api.js?bundle=false&views=map,timeline" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        var rowStyler = function(item, database, tr) {
+            var party = database.getObject(item, "party");
+            var color = "white";
+            switch (party) {
+            case "Federalist":              color = "#E7E7AD"; break;
+            case "Democratic-Republican":   color = "#FFDFAD"; break;
+            case "Democratic":              color = "#DEEFFF"; break;
+            case "Whig":                    color = "#FFFFCE"; break;
+            case "Republican":              color = "#FFE3E7"; break;
+            }
+            tr.style.background = color;
+        };
+    </script>
+    <link rel='stylesheet' href='styles.css' type='text/css' />
+</head>
+
+<body>
+    <div ex:role="collection" ex:itemTypes="President"></div>
+    
+    <table id="frame">
+        <tr>
+            <td id="content">
+                <h1>US Presidents</h1>
+                <p>Here is the <a href="presidents.js" target="_blank">Exhibit JSON data file</a>.
+                
+                <div ex:role="coder" ex:coderClass="Color" id="party-colors">
+                    <span ex:color="red">Republican</span>
+                    <span ex:color="blue">Democratic</span>
+                    
+                    <span ex:case="others"  ex:color="#aaa">Other parties</span>
+                    <span ex:case="mixed"   ex:color="#eee">Many parties</span>
+                    <span ex:case="missing" ex:color="#444">No party</span>
+                </div>
+                
+                <div id="exhibit-view-panel" ex:role="viewPanel">
+                    <div class="item" ex:role="lens" style="display: none;">
+                        <table cellpadding="10" width="100%">
+                            <tr>
+                                <td width="1"><img ex:src-content=".imageURL" /></td>
+                                <td>
+                                    <a ex:href-content=".url"><span ex:content=".label" /></a>
+                                    <div>Terms: <span ex:content=".term"></span>, <span ex:content=".party"></span></div>
+                                    <div>Religions: <span ex:content=".religion"></span></div>
+                                    <div>Birth: <span ex:content=".birth"></span>, <span ex:content=".birthPlace"></span></div>
+                                    <div ex:if-exists=".death">Death: <span ex:content=".death"></span>, <span ex:content=".deathPlace"></span></div>
+                                    <div ex:control="item-link"></div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+					<div ex:role="view"
+                        ex:viewClass="VEMap"
+                        ex:label="Birth Places"
+                        ex:latlng=".birthLatLng"
+                        ex:colorKey=".party"
+                        ex:colorCoder="party-colors"
+                        ex:center="38.479394673276445, -95.361328125"
+                        ex:zoom="4"
+                        ex:bubbleWidth="200"
+                        ex:bubbleHeight="200"
+                        ex:icon=".imageURL"
+                        ex:iconScale="0.7"
+                        ex:iconOffsetY="5"
+                        ex:bodyWidth="60"
+                        ex:bodyHeight="60"
+                        >
+                        <div class="map-lens" ex:role="lens" style="display: none;">
+                            <div><img ex:src-content=".imageURL" /></div>
+                            <span ex:content=".label"></span><br/>
+                            <span ex:content=".birthPlace"></span>, <span ex:content=".birth"></span>
+                        </div>
+                    </div>
+					<div ex:role="view"
+                        ex:viewClass="VEMap"
+                        ex:label="Death Places"
+                        ex:latlng=".deathLatLng"
+						ex:colorKey=".party"
+                        ex:colorCoder="party-colors"
+						ex:center="38.479394673276445, -95.361328125"
+                        ex:zoom="4"
+                        ex:bubbleWidth="200"
+                        ex:bubbleHeight="200"
+                        >
+                        <div class="map-lens" ex:role="lens" style="display: none;">
+                            <div><img ex:src-content=".imageURL" /></div>
+                            <span ex:content=".label"></span><br/>
+                            <span ex:content=".deathPlace"></span>, <span ex:content=".death"></span>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td id="sidebar">
+                <div id="exhibit-browse-panel">
+                    <div ex:role="facet" ex:expression=".religion" ex:facetLabel="Religions"></div>
+                    <div ex:role="facet" ex:expression=".party" ex:facetLabel="Political Parties"></div>
+                    <div ex:role="facet" ex:expression=".dieInOffice" ex:facetLabel="Died In Office"></div>
+                    <center ex:role="logo" ex:color="DeepSkyBlue"></center>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

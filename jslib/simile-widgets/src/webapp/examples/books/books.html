@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>SIMILE Widgets | Exhibit | Examples | Book Collection</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+    <link rel='stylesheet' href='books.css' type='text/css'></link>    
+    
+    <link rel="exhibit/data" type="application/jsonp" 
+      href="http://spreadsheets.google.com/feeds/list/o02715122730018153756.8827825092244578369/od6/public/basic?alt=json-in-script"
+      ex:converter="googleSpreadsheets" />
+      
+    <link href="books.js" type="application/json" rel="exhibit/data"></link>
+    <link rel="exhibit/output" ex:spreadsheetKey="pHCVS1LwNriVBoIRKJryCeg" ex:worksheetIndex="1"></link>
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/exhibit-api.js -->
+    <script src="../../api/exhibit-api.js"></script>
+
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/extensions/curate/curate-extension.js -->
+    <script src="../../api/extensions/curate/curate-extension.js" type='text/javascript'></script>
+  </head>
+
+  <body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Examples: Book Collection</span></li>
+    </ul>
+    
+    <div id="header">
+      <h1>Book Collection</h1>
+    </div>
+    
+    <div id="content">
+      <table class="columnTable">
+          <tr>
+              <td class="column">
+                  <div class="pageSidebar">
+                      <div ex:role="facet" 
+                         ex:expression=".owner" 
+                         ex:facetLabel="owner" 
+                         ex:height="5em">
+                      </div>
+                      <div ex:role="facet" 
+                         ex:expression=".availability" 
+                         ex:facetLabel="is availabile" 
+                         ex:height="5em">
+                      </div>
+                      <div ex:role="facet" 
+                         ex:expression=".year" 
+                         ex:facetClass="NumericRange"
+                         ex:facetLabel="year written"
+                         ex:height="5em"
+                         >
+                      </div>
+                    
+                      <div ex:role="facet" 
+                         ex:expression=".modified" 
+                         ex:facetLabel="was modified"
+                         ex:height="4em"
+                         >
+                      </div>
+                    
+                      <div class="addItemBox">
+                          <a ex:role="item-creator" ex:itemType="book">Add New Book</a>
+                      </div>
+                    
+                      <div class="scraperBox">
+                          <a ex:role="scraper" ex:scraperInput="scraper-input" ex:itemType="book">Scrape Book From URL:</a>
+                          <input id="scraper-input"></input>
+                      </div>
+                  </div>
+              </td>
+              <td class="column">
+                  <div ex:role="view" class="bookContainer">
+                  </div>
+              </td>
+              <td class="column" width="20%">
+                  <div class="changesContainer">
+                      <span class="header">changes</span>
+                      <div ex:role="change-list" class="changes" ex:placeholderText=""></div>
+                  </div>
+                  <span class="header">submission info</span>
+                  <table class="property-box">
+                      <tr>
+                          <td><label>email:</label></td>
+                          <td><input ex:role="submission-property" ex:propertyName="submitteremail"></input></td>
+                      </tr>
+                      <tr>
+                          <td><label>comment:</label></td>
+                          <td><input ex:role="submission-property" ex:propertyName="submittercomment"></input></td>
+                      </tr>
+                  </table>
+                  <div class="submit-box">
+                      <input type="button" ex:role="submission-button" value="Submit Changes" />
+                  </div>
+              </td>  
+          </tr>
+      </table>
+    
+      <div ex:role="lens" ex:itemTypes="book" class="book" style="display: none">
+          <span class="bookTitle" ex:content=".label"></span>
+          <p><div>
+                  <span>Written by</span>
+                  <span ex:content=".author"></span>
+                  <span>in</span>
+                  <span ex:content=".year"></span>
+              </div>
+              <div>
+                  <span>Belongs to</span>
+                  <span ex:content=".owner" style="text-decoration: underline;"></span>
+                  <span>and is currently</span>
+                  <span ex:availability-content=".availability">
+                      <span ex:content=".availability" style="text-decoration: underline;"></span>
+                  </span>
+          </div></p>
+          <p><div ex:content=".description"></div></p>
+          <a class="editLink" ex:control="start-editing">edit</a>
+      </div>
+    
+      <div ex:role="edit-lens" ex:itemTypes="book" class="book" style="display: none">
+          <span class="bookTitle">
+              <span>Editing</span>
+              <span ex:content=".label"></span> 
+          </span>
+          <table class="editTable">
+              <tr>
+                  <td class="label">label</td>
+                  <td><input ex:edit="label"></input></td>
+              </tr>
+              <tr>
+                  <td class="label">author</td>
+                  <td><input ex:edit="author"></input></td>
+              </tr>
+              <tr>
+                  <td class="label">year</td>
+                  <td><input ex:edit="year"></input></td>
+              </tr>
+              <tr>
+                  <td class="label">owner</td>
+                  <td><input ex:edit="owner"></input></td>
+              </tr>
+              <tr>
+                  <td class="label">availability</td>
+                  <td>
+                      <select ex:edit="availability" ex:options=".availability">
+                          <option>available</option>
+                          <option>unavailable</option>
+                      </select>
+                  </td>
+              </tr>
+              <tr>
+                  <td class="label">description</td>
+                  <td><textarea ex:edit="description"></textarea></td>
+              </tr>
+          </table>
+          <div class="editLink">
+              <a ex:control="remove-item">delete</a>
+              <a ex:control="stop-editing">back</a>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>

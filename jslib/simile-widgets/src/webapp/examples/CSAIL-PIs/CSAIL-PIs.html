@@ -1,0 +1,90 @@
+<html>
+  <head>
+    <title>SIMILE Widgets | Exhibit | Examples | MIT CSAIL Faculty</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+
+    <link href="people.js" type="application/json" rel="exhibit/data" />
+
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/exhibit-api.js -->
+    <script src="../../api/exhibit-api.js"></script>
+
+    <style>
+        #title-area {
+            padding:        1em 2em;
+            background:     #BCB79E;
+        }
+        #content-area {
+            padding:        2em;
+        }
+        
+        span.exhibit-collectionView-group-count {
+            color:       #ccc;
+            font-weight: normal;
+        }
+        div.exhibit-facet-value-selected {
+            background:  none;
+            font-weight: bold;
+        }
+        
+        div.person-thumbnail {
+            float:      left;
+            width:      150px;
+            height:     200px;
+            border:     1px solid #BCB79E;
+            background: #F0FFF0;
+            padding:    1em;
+            margin:     0.5em;
+            text-align: center;
+        }
+        .name {
+            font-weight: bold;
+        }
+    </style>
+  </head> 
+  <body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Examples: MIT CSAIL Faculty</span></li>
+    </ul>
+    
+    <div id="title-area">
+        <h1>CSAIL Principal Investigators</h1>
+        <p>The original data comes from <a href="http://www.csail.mit.edu/biographies/PI/biolist.php">this page</a>.
+            Here is the <a href="people.js" target="_blank">Exhibit JSON data file</a>.
+        </p>
+    </div>
+    <div id="content-area">
+        <table width="100%">
+            <tr>
+                <td id="left-column" width="20%">
+                    <div ex:role="facet" ex:expression=".group" ex:facetLabel="Group" id="group-facet" ex:height="100em"></div>
+                </td>
+                <td id="middle-column">
+                    <div ex:role="viewPanel" style="padding: 1em 0.5in;">
+                        <div ex:role="view"
+                            ex:viewClass="Thumbnail"
+                            ex:showAll="true"
+                            ex:orders=".label"
+                            ex:possibleOrders=".label, .tower, .last-name, .group, .floor">
+                            <div ex:role="lens" class="person-thumbnail" style="display: none;">
+                                <div><a ex:href-content=".url" target="_blank"><img ex:src-content=".photo" /></a></div>
+                                <div class="name"><span ex:content=".label"></span></div>
+                                <div class="office">Office: <span ex:content=".office"></span></div>
+                                <div class="phone">Phone: <span ex:content=".phone"></span></div>
+                                <div class="email"><a ex:href-subcontent="mailto:{{.email}}" ex:content=".email"></a></div>
+                                <div><a ex:href-content=".url" target="_blank">more...</a></div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td id="right-column" width="15%">
+                    <div ex:role="facet" ex:expression=".position" ex:facetLabel="Positions" id="position-facet" ex:height="20em"></div>
+                    <div ex:role="facet" ex:expression=".tower" ex:facetLabel="Stata Towers" id="tower-facet" ex:height="7em"></div>
+                    <div ex:role="facet" ex:expression=".floor" ex:facetLabel="Office Floors" id="floor-facet" ex:height="15em"></div>
+                    <center ex:role="logo"></center>
+                </td>
+            </tr>
+        </table>
+    </div>
+  </body>

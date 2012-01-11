@@ -1,0 +1,198 @@
+<html>
+  <head>
+    <title>SIMILE Widgets | Exhibit | Examples | U.S. Presidents</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+    <link rel='stylesheet' href='styles.css' type='text/css' />
+  </head>
+  <body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Examples: Dynamic Loading</span></li>
+    </ul>
+    
+    <div ex:role="collection" ex:itemTypes="President"></div>
+    <table id="frame">
+        <tr>
+            <td id="sidebar">
+                <h1>Examples:<br/>Dynamic Loading</h1>
+                
+                <button id="create-button" onclick="startLoading();">Create</button>
+                
+                <div id="exhibit-browse-panel" style="display: none;">
+                    <b>Search:</b>
+                    <div ex:role="facet" ex:facetClass="TextSearch"></div>
+                    <hr/>
+                    <div ex:role="facet" ex:expression=".religion" ex:facetLabel="Religions" ex:height="20em"></div>
+                    <div ex:role="facet" ex:expression=".party" ex:facetLabel="Political Parties" ex:height="10em" ex:colorCoder="party-colors"></div>
+                    <div ex:role="facet" ex:expression=".dieInOffice" ex:facetLabel="Died In Office" ex:height="4em"></div>
+                    <center ex:role="logo" ex:color="DeepSkyBlue"></center>
+                </div>
+            </td>
+            <td id="content">
+                <div ex:role="coder" ex:coderClass="Color" id="party-colors" style="display: none;">
+                    <span ex:color="red">Republican</span>
+                    <span ex:color="blue">Democratic</span>
+                    
+                    <span ex:case="others"  ex:color="#aaa">Other parties</span>
+                    <span ex:case="mixed"   ex:color="#eee">Many parties</span>
+                    <span ex:case="missing" ex:color="#444">No party</span>
+                </div>
+                
+                <div class="item" ex:role="lens" style="display: none;">
+                    <table cellpadding="10" width="100%">
+                        <tr>
+                            <td width="1"><img ex:src-content=".imageURL" /></td>
+                            <td>
+                                <a ex:href-content=".url"><span ex:content=".label" /></a>
+                                <div>Terms: <span ex:content=".term"></span>, <span ex:content=".party"></span></div>
+                                <div>Religions: <span ex:content=".religion"></span></div>
+                                <div>Birth: <span ex:content=".birth"></span>, <span ex:content=".birthPlace"></span></div>
+                                <div ex:if-exists=".death">Death: <span ex:content=".death"></span>, <span ex:content=".deathPlace"></span></div>
+                                <div ex:control="item-link"></div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div ex:role="coordinator" id="president"></div>
+                
+                <div id="views" style="display: none;">
+                    <div ex:role="view"
+                        ex:viewClass="Timeline"
+                        ex:label="Terms"
+                        ex:proxy=".presidency"
+                        ex:start=".inDate"
+                        ex:end=".outDate"
+                        ex:colorKey=".party"
+                        ex:colorCoder="party-colors"
+                        ex:bubbleWidth="320"
+                        ex:topBandPixelsPerUnit="400"
+                        ex:selectCoordinator="president"
+                        ex:showSummary="false"
+                        ex:timelineHeight="170"
+                        >
+                    </div>
+                    
+                    <div ex:role="viewPanel">
+                        <div class="map-lens" ex:role="lens" style="display: none;">
+                            <div><img ex:src-content=".imageURL" /></div>
+                            <span ex:content=".label"></span><br/>
+                            <span ex:content=".birthPlace"></span>, <span ex:content=".birth"></span>
+                        </div>
+                        <div ex:role="view"
+                            ex:viewClass="Map"
+                            ex:label="Birth Places with Photos"
+                            ex:latlng=".birthLatLng"
+                            ex:center="38.479394673276445, -115.361328125"
+                            ex:zoom="3"
+                            ex:bubbleWidth="200"
+                            ex:icon=".imageURL"
+                            ex:shapeWidth="60"
+                            ex:shapeHeight="60"
+                            ex:selectCoordinator="president"
+                            >
+                        </div>
+                        <div ex:role="view"
+                            ex:viewClass="Map"
+                            ex:label="Death Places (by Party)"
+                            ex:latlng=".deathLatLng"
+                            ex:center="38.479394673276445, -95.361328125"
+                            ex:zoom="4"
+                            ex:bubbleWidth="200"
+                            ex:colorKey=".party"
+                            ex:colorCoder="party-colors"
+                            ex:selectCoordinator="president"
+                            >
+                        </div>
+                        <div ex:role="view"
+                            ex:viewClass="Tabular"
+                            ex:label="Details"
+                            ex:columns=".term, .label, .party, .presidency.inDate, .presidency.outDate, add(foreach(.presidency, date-range(.inDate, default(.outDate, today()), 'day'))), .birth, .death"
+                            ex:columnLabels="term, name, party, took office, left office, days in office, age of ascension, age"
+                            ex:formats="date { mode: medium; show: date }"
+                            ex:sortColumn="3"
+                            ex:sortAscending="false"
+                            >
+                            <table style="display: none;">
+                                <tr ex:background-style-content="if(exists(.death), '#ccc', 'white')">
+                                    <td><span ex:content=".term"></span></td>
+                                    <td><b ex:content=".label"></b><br/><img ex:src-content=".imageURL" /></td>
+                                    <td><span ex:content=".party"></span></td>
+                                    <td><span ex:content=".presidency.inDate"></span></td>
+                                    <td><span ex:content=".presidency.outDate"></span></td>
+                                    <td><span ex:content="add(foreach(.presidency, date-range(.inDate, default(.outDate, now()), 'day')))"></span></td>
+                                    <td><span ex:content="foreach(.presidency, date-range(!presidency.birth, .inDate, 'year')))"></span></td>
+                                    <td><span ex:content="date-range(.birth, default(.death, now()), 'year')))"></span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+    
+    <script src="create.js" type="text/javascript"></script>
+    <script>
+      function includeScript(url) {
+        var script = document.createElement("script");
+        script.src = url;
+        script.type = "text/javascript";
+        document.getElementsByTagName("head")[0].appendChild(script);
+      }
+      
+      function startLoading() {
+        document.getElementById("create-button").style.display = "none";
+        
+        /*
+         *  Google APIs (GMaps) need to be loaded first and loaded by their own
+         *  loading mechanism.
+         */
+        var key = "ABQIAAAA5JLLfCE9c7HAtg25QM2KCRRyiP6mHEsQpwvxB19-hS9Kgd8RYhSXEtJVAXDUCZPqwtZZi7-HUYUYrw";
+        includeScript("http://www.google.com/jsapi?key=" + key + "&callback=loadMapAPI");
+      }
+      
+      function loadMapAPI() {
+        google.load("maps", "2", { callback: "loadSimileWidgets" });
+      }
+      
+      function loadSimileWidgets() {
+        /*
+          Replace these relative URLs with absolute URLs
+          http://api.simile-widgets.org/ajax/[version]/
+          http://api.simile-widgets.org/timeline/[version]/
+          http://api.simile-widgets.org/exhibit/[version]/
+        */
+        window.SimileAjax_urlPrefix = "http://trunk.simile-widgets.org/ajax/api/";
+        window.Timeline_urlPrefix = "http://trunk.simile-widgets.org/timeline/api/";
+        window.Exhibit_urlPrefix = "../../api/";
+        window.Exhibit_parameters = "?autoCreate=false";
+        
+        window.Exhibit_TimeExtension_urlPrefix = Exhibit_urlPrefix + "extensions/time/";
+        window.Exhibit_MapExtension_urlPrefix = Exhibit_urlPrefix + "extensions/map/";
+      
+        /*
+         *  These scripts will get loaded asynchronously sequentially by loader.js.
+         *  Then SimileWidgets_onLoad is invoked;
+         */
+        SimileWidgets_scripts = [
+          SimileAjax_urlPrefix + "compilations/simile-ajax-compilation.js",
+          Timeline_urlPrefix + "compilations/timeline-en-compilation.js",
+          Exhibit_urlPrefix + "compilations/exhibit-en-compilation.js",
+          Exhibit_urlPrefix + "compilations/time-extension-en-compilation.js",
+          Exhibit_urlPrefix + "compilations/map-extension-en-compilation.js"
+        ];
+        SimileWidgets_styles = [
+          SimileAjax_urlPrefix + "compilations/simile-ajax-compilation.css",
+          Timeline_urlPrefix + "compilations/timeline-en-compilation.css",
+          Exhibit_urlPrefix + "compilations/exhibit-en-compilation.css",
+          Exhibit_urlPrefix + "compilations/time-extension-en-compilation.css",
+          Exhibit_urlPrefix + "compilations/map-extension-en-compilation.css"
+        ];
+        window.SimileWidgets_onLoad = createExhibit;
+        
+        includeScript(SimileAjax_urlPrefix + "loader.js");
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <title>SIMILE Widgets | Exhibit | Examples | Freebase Albums</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+    
+    <script>
+        var thePolicesAlbumsQuery = [{
+            type: "/music/album",
+            artist: "The Police",
+            name: null,
+            release_date: null,
+            "/common/topic/image": { id: null, limit: 1 }
+        }];
+    </script>
+    <link ex:query="thePolicesAlbumsQuery" type="application/freebase" rel="exhibit/data"></link>    
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/exhibit-api.js -->
+    <script src="../../api/exhibit-api.js"></script>
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/extensions/freebase/freebase-extension.js -->
+    <script src="../../api/extensions/freebase/freebase-extension.js"></script>
+    
+    <style> 
+        .album { border: 1px solid #ccc; padding: 0.25em; width: 300px;}
+        div.exhibit-thumbnailView-itemContainer { padding: 0.25em; margin: 0.25em;}
+    </style>
+  </head>
+  <body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Examples: Freebase Albums</span></li>
+    </ul>
+    <div id="header">
+      <h1>Freebase Albums</h1>
+    </div>
+    <div id="content">
+      <div ex:role="viewPanel">
+          <div ex:role="view" ex:viewClass="Thumbnail" ></div>
+          </div>
+      </div>
+      
+      <table ex:role="lens" class="album" style="display: none;"><tr>
+          <td><img height="150px" width="150px" ex:src-content=".image" /></td>
+          <td>
+                  <div ex:content=".label"></div>
+                  <div ex:content=".release_date"></div>
+          </td>
+      </tr></table>
+    </div>
+  </body>
+</html>

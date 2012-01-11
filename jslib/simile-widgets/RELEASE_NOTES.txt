@@ -1,0 +1,62 @@
+RELEASE_NOTES.txt
+
+Ongoing
+
+- Fixed bug in "or" function.
+- Added the "compilations" to the build process in order to support dynamic loading.
+- Added an example to illustrate dynamic loading.
+- Implemented paging in Tile, Thumbnail, and Tabular views. New settings include: 
+  paginate = true or false; default is false
+  pageSize = items per page; default is 20
+  page = starting page index, from 0
+  pageWindow = number of pages before and after current page to show 
+    if the current page is far from the first page and/or the last page;
+    default is 2
+- Support columnCount setting for thumbnail view.
+- Added support for polygons and polylines in map view, and added an example called 
+  polymap to illustrate these features.
+- Added scrollWheelZoom setting for map view.
+- Compilations don't seem to be a good thing so they are removed for the time being.
+  We might experiment with a server-side solution instead.
+
+Version 2.2.0 -- March 10, 2009
+
+- Fixed bug in database.getAllItems() that causes 4 function members of Array 
+  to be counted in the returned set.
+  
+- Fixed bug in lens template generator that caused a TBODY to be returned if
+  the template starts with a TR root node. This previously caused the rowStyler
+  function in any tabular view that includes a row template to get a TBODY
+  instead of a TR. 
+  
+- Added localization files for locale "nl", contributed by Marko.
+
+- Moved extensions directory inside api directory.
+
+- Fixed bug where hierarchical facet breaks when the result set is empty.
+
+- Linked to api.simile-widgets.org/ajax/2.2.1/.
+
+- Upgraded Timeline to 2.3.1.
+
+- Updated presidents example to include Obama. Added a few computed columns to the table view.
+  Removed extraneous files.
+  
+- Linked timeplot extension to timeplot 1.1 on api.simile-widgets.org. Also bundled the extension.
+
+- Linked to http://service.simile-widgets.org/ for painter and babel services.
+
+
+Version 2.1.0 -- November 16, 2008
+
+- Fixed bug on IE 8 caused by element.getAttribute() as used in Exhibit.getAttribute() 
+  returning an empty string rather than null as in previous versions of IE. This
+  bug caused all exhibits using Exhibit 2.0 to break on IE 8.
+
+- Switched over to using SimileAjax 2.1.0.
+  
+- Switched over to using Timeline 2.2.0.
+
+- Performance enhancements related to collapsed facet calculation (by eob).
+
+- Curate extension (by sbostler).

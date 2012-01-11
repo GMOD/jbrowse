@@ -1,0 +1,105 @@
+.columnTable .column {
+    vertical-align: top;
+}
+
+.column:first-child {
+    width: 20%;
+}
+
+.pageSidebar {
+    font-size: 80%;
+    margin: 2em 0.5em 2em 0em;
+}
+
+.addItemBox {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.scraperBox {
+    margin-top: 1em;
+}
+
+.scraperBox input {
+    margin-top: 0.25em;
+}
+
+.bookContainer {
+    margin-left: 0.5em;
+}
+
+.exhibit-tileView-body {
+    list-style: none;
+}
+
+.book {
+    position: relative;
+    margin: 1em;
+    padding: 0.5em;
+    border: 1px solid #333;
+}
+
+.exhibit-focusDialog .book {
+    border: 0px;
+    margin: 0em;
+}
+
+.book .editTable {
+    margin: 1em;
+    border-spacing: 0.5em;
+}
+
+.book .label {
+    min-width: 4em;
+}
+
+.editLink {
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    font-size: 80%;
+}
+
+.editLink :first-child {
+    margin-right: 0.5em;
+}
+
+.bookTitle { font-size:1.5em; }
+
+span[availability="available"] {
+    background-color: #22FF55;
+    padding: 0.1em;
+}
+
+span[availability="unavailable"] {
+    background-color: #FF8888;
+    padding: 0.1em;
+}
+
+.changesContainer {
+    margin-top: 2em;
+}
+
+.infoBox {
+    width: 100%;
+    padding: 0.5em;
+    border: 1px solid #DDDDDD;
+}
+
+.header {
+    font-size: 80%;
+    font-weight: bold;
+    margin-top: 0.5em;
+}
+
+.changes, .property-box {
+    font-size: 80%;
+    border: 1px solid #DDDDDD;
+    padding: 0.5em;
+    margin-bottom: 1em;
+}
+
+.submit-box {
+    margin-right: 1em;
+    text-align: right;
+}

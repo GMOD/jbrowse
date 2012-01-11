@@ -1,0 +1,18 @@
+label	url:url	image:url	City	Region	latlng	Winners:number	Runner-up:number	ChampionshipSeasons
+Juventus	http://www.juventus.com/	images/juve.png	Turin	Piedmont	"45.070, 7.687"	27	20	1905; 1925/26; 1930/31; 1931/32; 1932/33; 1933/34; 1934/35; 1949/50; 1951/52; 1957/58; 1959/60; 1960/61; 1966/67; 1971/72; 1972/73; 1974/75; 1976/77; 1977/78; 1980/81; 1981/82; 1983/84; 1985/86; 1994/95; 1996/97; 1997/98; 2001/02; 2002/03
+Milan	http://www.acmilan.com	images/milan.png	Milan	Lombardy	"45.464, 9.188"	17	14	1901; 1906; 1907; 1950/51; 1954/55; 1956/57; 1958/59; 1961/62; 1967/68; 1978/79; 1987/88; 1991/92; 1992/93; 1993/94; 1995/96; 1998/99; 2003/04
+Inter	http://www.inter.it/aas/hp?L=en	images/inter.png	Milan	Lombardy	"45.463, 9.187"	17	13	1909/10; 1919/20; 1929/30; 1937/38; 1939/40; 1952/53; 1953/54; 1962/63; 1964/65; 1965/66; 1970/71; 1979/80; 1988/89; 2005/06; 2006/07; 2007/08; 2008/09
+Genoa	http://www.genoacfc.it/index.php	images/genoa.png	Genoa	Liguria	"44.4065, 8.9335"	9	4	1898; 1899; 1900; 1902; 1903; 1904; 1914/15; 1922/23; 1923/24
+Torino	http://www.torinofc.it/index.php	images/torino.png	Turin	Piedmont	"45.071, 7.686"	7	7	1927/28; 1942/43; 1945/46; 1946/47; 1947/48; 1948/49; 1975/76
+Bologna	http://www.bolognafc.it/	images/bologna.png	Bologna	Emilia Romagna	"44.4942191, 11.3464815"	7	4	1924/25; 1928/29; 1935/36; 1936/37; 1938/39; 1940/41; 1963/64
+Pro Vercelli	http://www.provercelli.it/	images/vercelli.png	Vercelli	Piedmont	"45.3210612, 8.4263931"	7	1	1908; 1909; 1910/11; 1911/12; 1912/13; 1920/21; 1921/22 (CCI)
+Roma	http://www.asroma.it/	images/roma.png	Rome	Lazio	"41.89, 12.48"	3	11	1941/42; 1982/83; 2000/01
+Lazio	http://www.sslazio.it/cms/view	images/lazio.png	Rome	Lazio	"41.90, 12.475"	2	6	1973/74; 1999/2000
+Fiorentina	http://it.violachannel.tv/	images/fiorentina.png	Florence	Tuscany	"43.7687324, 11.2569013"	2	5	1955/56; 1968/69
+Napoli	http://www.sscnapoli.it/client/render.aspx	images/napoli.png	Naples	Campania	"40.8400969, 14.2516357"	2	4	1986/87; 1989/90
+Cagliari	http://www.cagliaricalcio.net/	images/cagliari.png	Cagliari	Sardinia	"39.2154, 9.1092"	1	1	1969/70
+Casale	http://www.casalecalcio.it/	images/casale.png	Casale Monferrato	Piedmont	"45.1371, 8.4508"	1	0	1913/14
+Novese	http://www.usnovese.it/	images/novese.png	Novi Ligure	Piedmont	"44.7617, 8.7861"	1	0	1921/22 (FIGC)
+Sampdoria	http://www.sampdoria.it/	images/sampdoria.png	Genoa	Liguria	"44.407, 8.934"	1	0	1990/91
+Hellas Verona	http://www.hellasverona.it/	images/verona.png	Verona	Veneto	"45.4383, 10.9917"	1	0	1984/85
+Spezia	http://www.acspezia.com/home.html	images/spezia.png	La Spezia	Liguria	"44.2447, 9.7678"	1	0	1994

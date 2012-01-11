@@ -1,0 +1,170 @@
+/*==================================================
+ * Exhibit styles
+ *
+ * Note that almost all CSS code is in themes.
+ *==================================================
+ */
+.exhibit-ui-protection div {
+    margin:     0;
+    padding:    0;
+}
+.exhibit-ui-protection table {
+	font-size: 100%;
+}
+.exhibit-ui-protection tr {
+	vertical-align: top;
+}
+a img {
+    border: none;
+}
+
+a.exhibit-action, 
+a.exhibit-action:link, 
+a.exhibit-action:active, 
+a.exhibit-action:visited {
+	text-decoration:    none;
+	border-bottom:      1px dotted;
+	cursor:             pointer;
+}
+a.exhibit-action:hover {
+	border-bottom:  1px solid;
+	cursor:         pointer;
+}
+
+a.exhibit-action-disabled, 
+a.exhibit-action-disabled:link, 
+a.exhibit-action-disabled:active, 
+a.exhibit-action-disabled:visited {
+	text-decoration:    none;
+	border-bottom:      1px dotted;
+	cursor:             pointer;
+    opacity:            0.5;
+}
+a.exhibit-action-disabled:hover {
+	border-bottom:  1px solid;
+	cursor:         pointer;
+}
+
+a.exhibit-item, 
+a.exhibit-item:link, 
+a.exhibit-item:active, 
+a.exhibit-item:visited {
+	text-decoration:    none;
+	border-bottom:      1px dotted red;
+	cursor:             pointer;
+}
+a.exhibit-item:hover {
+	border-bottom:  1px solid;
+	cursor:         pointer;
+}
+
+span.exhibit-value {
+}
+
+/*
+ *  Menu Popup
+ */
+div.exhibit-menu-popup {
+    position:       absolute;
+    width:          15em;
+    z-index:        1000;
+    background:     #FFFFE0;
+    border:         1px solid #aaa;
+}
+
+a.exhibit-menu-item {
+    text-decoration:    none;
+}
+
+a.exhibit-menu-item > div {
+    padding:            2px 2px 2px 20px;
+    text-indent:        -18px;
+}
+
+a:hover.exhibit-menu-item > div {
+    background:         #DFDFC8;
+}
+
+a.exhibit-menu-item div img {
+    vertical-align:     middle;
+    margin-right:       2px;
+}
+
+div.exhibit-menu-section {
+    padding:            2px;
+    font-weight:        bold;
+}
+
+/*
+ *  Copy Button and Dialog Box
+ */
+button.exhibit-copyButton, button.exhibit-button {
+    border: 1px dashed;
+    cursor: pointer;
+    margin: 2px;
+}
+button:hover.exhibit-copyButton, button.exhibit-button:hover {
+    background: white;
+    border:     1px dashed blue;
+    color:      blue;
+    cursor:     pointer;
+}
+
+div.exhibit-copyDialog {
+    position:       absolute;
+    z-index:        1000;
+    background:     #B2E8FF;
+    border:         1px solid #aaa;
+    padding:        2em;
+    left:           25%;
+    right:          25%;
+}
+
+div.exhibit-copyDialog textarea {
+    width:          100%;
+    font-size:      90%;
+    color:          #888;
+}
+
+div.exhibit-copyDialog button {
+    float:          right;
+}
+
+/*
+ *  Focus Dialog Box
+ */
+div.exhibit-focusDialog {
+    position:       absolute;
+    z-index:        1000;
+    background:     #B2E8FF;
+    border:         1px solid #aaa;
+    padding:        2em;
+    left:           25%;
+    right:          25%;
+}
+
+div.exhibit-focusDialog-lensContainer {
+}
+
+div.exhibit-focusDialog-controls {
+    margin:         1em;
+    text-align:     center;
+}
+
+/*
+ *  Busy indicator
+ */
+.exhibit-busyIndicator {
+    position:   absolute;
+    left:       35%;
+    width:      30%;
+    z-index:    1000;
+}
+.exhibit-busyIndicator-content {
+    font-size:      120%;
+    font-weight:    bold;
+    text-align:     center;
+}
+.exhibit-busyIndicator-content img {
+    vertical-align: middle;
+}

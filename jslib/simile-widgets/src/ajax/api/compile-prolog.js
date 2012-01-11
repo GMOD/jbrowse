@@ -1,0 +1,1 @@
+window.SimileAjax_isCompiled = true;

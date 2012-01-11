@@ -1,0 +1,13 @@
+div.exhibit-toolboxWidget-popup {
+    position:       absolute;
+    border:         1px solid #ccc;
+    background:     white;
+    padding:        3px;
+    text-align:     right;
+    z-index:        1000;
+}
+
+img.exhibit-toolboxWidget-button {
+    cursor: pointer;
+    margin: 0px 1px;
+}

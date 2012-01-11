@@ -1,0 +1,14 @@
+div.exhibit-thumbnailView-group {
+    clear: both;
+}
+
+div.exhibit-thumbnailView-body {
+}
+
+div.exhibit-thumbnailView-itemContainer {
+    float:      left;
+}
+
+div.exhibit-thumbnailView-itemContainer-IE {
+    float:      left;
+}

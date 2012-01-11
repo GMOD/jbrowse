@@ -1,0 +1,40 @@
+@import url(http://simile.mit.edu/exhibit/examples/presidents/styles.css);
+
+#ok-facet .exhibit-facet-body {
+    height:3em;
+}
+
+#landsdel-facet div.exhibit-facet-body {
+    height:4.5em;
+}
+
+#sidebar {
+    width: 20%;
+    padding: 1em;
+    background-image: url("http://exhibit.ecmanaut.googlepages.com/temperatur.nu.snowy-trees.jpg");
+}
+
+#bg-credits {
+    color:snow;
+    white-space:pre;
+    text-align:right;
+    margin:7px;
+}
+
+#bg-credits a {
+    color:#24F;
+    text-decoration:none;
+}
+
+div.map-lens {
+  height:50px;
+  width:250px;
+}
+
+div.exhibit-scatterPlotView-legend table,
+div.exhibit-mapView-legend table { width:100%; }
+
+div.exhibit-scatterPlotView-legendBlock-entry { float:left; width:9em; }
+div.exhibit-mapView-legendBlock-entry { float:left; width:4.5em; }
+div.exhibit-scatterPlotView-legendBlock-entry:last-child,
+div.exhibit-mapView-legendBlock-entry:last-child { display:none; }

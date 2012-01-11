@@ -1,0 +1,59 @@
+.exhibitDataEditBar {
+	margin: 0.5em 0em !important;
+}
+
+/*
+ * Buttons
+ */
+/*.exhibitDataEditButton { display: Inline-Block; }*/
+.exhibitDataEditButton div {
+	padding: 0.25em 0.5em;
+	border-top: 1px #eeeeee Solid;
+	border-left: 1px #aaaaaa Solid;
+	border-right: 1px #aaaaaa Solid;
+	border-bottom: 1px #999999 Solid;
+	text-decoration: None;
+	
+	-moz-box-shadow: 0px 0px 5px #888888;
+	-webkit-box-shadow: 0px 0px 5px #888888;
+	box-shadow: 0px 0px 5px #888888;
+}
+.exhibitDataEditButton a:link div ,
+.exhibitDataEditButton a:active  div ,
+.exhibitDataEditButton a:visited  div {
+	color: #444444;
+	background-color: #cccccc;
+}
+.exhibitDataEditButton a:hover  div {
+	color: #000000;
+	background-color: #dddddd;
+}
+.exhibitDataEditButton #editorToggleSymbol { color: White; }
+.exhibitDataEditButton #editorToggleSymbol .on { background-color: Green; }
+.exhibitDataEditButton #editorToggleSymbol .off { background-color: #888888; }
+
+/*
+ * Components
+ */
+.exhibitDataEditTextField ,
+.exhibitDataEditTextAreaField , 
+.exhibitDataEditEnumField ,
+.exhibitDataEditListField ,
+.exhibitDataEditNumberField ,
+.exhibitDataEditTickListField {
+	background-color: #dddddd;
+}
+.exhibitDataEditTextAreaField {
+	resize: None;  /* Stop Chrome putting resizer in corner. */
+	overflow: Hidden;  /* Get round IE's love of scrollbars. */
+}
+.exhibitDataEditTickListField {
+	border-style: Inset;  border-color: #ece9d8;  border-width: 2px;
+}
+
+/*
+ * Errors and stuff
+ */
+#exhibitDataEditError {
+	color: Red;
+}

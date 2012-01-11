@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link href="schema.js" type="application/json" rel="exhibit/data"  />
+<link ex:itemTags="book,author" ex:labelProperties="title,name" ex:parentRelations="wrote,author" href="books.xml" type="application/xml" rel="exhibit/data" />
+
+<script src="../../api/exhibit-api.js" type="text/javascript"></script>
+
+<title>Books: Rendered from XML Data</title>
+</head>
+
+<body>
+
+<div id='header'>
+	<h1>Books: Rendered from XML Data</h1>
+</div>
+
+Note this example uses peculiar XML that defeats the importer: books are both parents and children of authors.  Two different relationships are defined---author and wrote---that should be inverses of one another, but there is no way to express that.
+
+<table>
+<tr>
+<td>
+    <div ex:role="viewPanel">
+        <div ex:role="view">
+            <table cellpadding="5px" border="thin solid black" ex:role="lens">
+                <tr>
+                    <td>Item Type</td>
+                    <td>Label</td>
+                    <td>Book Title</td>
+		    <td>Author</td>
+                    <td>Name</td>
+		    <td>Language</td>
+		    <td>Other Novels</td>
+                    <td>Copyright</td>
+                </tr>
+                <tr>
+                    <td ex:content='.type'></td>
+                    <td ex:content='.label'></td>
+                    <td ex:content='.title'></td>
+		    <td ex:content='.author'></td>
+                    <td ex:content='.name'></td>
+                    <td ex:content='.language'></td>
+		    <td ex:content='.wrote'></td>
+                    <td ex:content='.copyright'></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</td>
+<td>
+    <div ex:role='facet' ex:expression=".title"></div>
+    <div ex:role='facet' ex:expression=".copyright"></div>
+</td>
+</tr>
+</table>
+    
+</body>
+</html>

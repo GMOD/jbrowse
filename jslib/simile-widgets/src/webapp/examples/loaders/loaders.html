@@ -1,0 +1,170 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>
+Data Import Test
+</title>
+<link rel="exhibit/data" href="#json" type="application/json"/>
+<link rel="exhibit/data" href="#xml" type="application/xml" ex:itemTags="item" ex:itemTypes="example"/>
+</head>
+<body>
+<script>
+function putScript(l) {
+   var s = document.createElement("script");
+   s.src=l;
+   document.getElementsByTagName("head")[0].appendChild(s);
+}
+putScript("http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js")
+putScript("http://trunk.simile-widgets.org/ajax/api/ajax-api.js");
+putScript("../../api/exhibit-api.js");
+</script>
+
+<H1>Exhibit Data Loading Demonstration</H1>
+<table>
+<tr>
+<td  style="vertical-align:top">
+This file exists to test various data loading functionalities in
+exhibit.  As well as experimenting with loading exhibit from the document body instead of the head.  The table on the right should have no blank entries aside from "should be blank".  A blank entry means something didn't load.
+<p>
+The page exercises both the inline data functionality (triggered by a
+ex:role=data tag in a body element, along with an ex:type to specify
+the data type) and links to data (described by link[rel=exhibit/data]
+elements in the head and a[rel="exhibit/data"] elements in the body).
+It involves data in json, xml, html table, and csv formats.
+
+<h2>In-page Data</h2>
+Links can include a fragment identifier at the end
+(http://example.com/#fragment/) that refers to a particular named tag
+in the linked fetched document---the meaning is that the data is not
+the entire document, but only the contents of the fragment.  This is
+currently meaningful only if the url points to an html document;
+however, the contents of the fragment can be the various types exhibit
+understands---xml, tsv/csv, tml, json, etc.  The anchor functionality
+is used in this document, referring to data inside the #json, #xml,
+#csv and #html anchors on this page.
+<p>
+Data that
+you link to elsewhere needs to be accessible by client-side
+scripts---this may be blocked by XSS access restrictions.
+<p>
+How you embed data depends on the type.  html (table) data can safely be placed inside any element, as can xml data though it won't validate.  Other data needs to be protected from the html parser; one way to do this is to use a script tag, giving a type <em>distinct</em> from text/javascript so it knows it isn't an executable script.  See the "inline json data" or "inline csv" examples here.
+
+<h2>In-body Scripts and Links</h2> 
+
+For cases where you cannot modify the head of your html document,
+Exhibit can be used entirely from the body.  As this example
+demonstrates, a couple of lines of javascript in the body serve to
+include the Exhibit library.  Also, links to data can be specified
+using anchor tags (&lt;a&gt;) in the body in place of the usual link
+tags in the head.  This page's body contains anchor-tag links to #html
+and #csv (which happen to be anchors in this page, but could equally
+well be links to other urls).
+
+<td width="500px">
+<div ex:role="viewPanel">
+<div ex:role="view" ex:viewClass="Tabular" ex:columns=".type,.label,.syntax,.getter,.loc"></div>
+<div ex:role="view" ex:label="Raw"></div>
+</div>
+</tr>
+</table>
+
+<script ex:role="data" type="application/json">
+{items: [
+{label: "inline JSON data", type: "example"},
+{label: "link to XML data", type: "example"},
+{label: "link to JSON data", type: "example"},
+{label: "link to CSV", type: "example"},
+{label: "link to HTML table", type: "example"},
+{label: "inline JSON data", type: "example"},
+{label: "inline XML data", type: "example"},
+{label: "inline HTML table", type: "example"},
+{label: "should be blank"}
+]
+}
+</script>
+
+
+<a rel="exhibit/data" href="#csv" type="text/csv" ex:properties="label,type,syntax,getter,loc"></a>
+
+<a rel="exhibit/data" href="#html" type="text/html" ex:itemType="example" ex:headerRow="true"></a>
+
+<script ex:role="data" type="application/json">
+{items: [
+{label: "inline JSON data",
+type: "example",
+syntax: "json",
+getter: "inline",
+loc: "body"}
+]
+}
+</script>
+
+<script id="json" type="application/json">
+{items: [
+{label: "link to JSON data",
+type: "example",
+syntax: "json",
+getter: "link",
+loc: "head"}
+]
+}
+</script>
+
+<script ex:role="data" ex:type="text/csv" type="text/csv">
+label,type,syntax,getter,loc
+"inline CSV",example,"csv",inline,body
+</script>
+
+<script id="csv" type="text/tsv">
+"link to CSV",example,"csv",link,body
+</script>
+
+
+<div ex:role="data" ex:type="application/xml" ex:itemTags="item" ex:itemTypes="example">
+<xml>
+<item>
+<label>inline XML data</label>
+<syntax>XML</syntax>
+<getter>inline</getter>
+<loc>body</loc>
+</item>
+</xml>
+</div>
+
+<div id="xml" style="display:none">
+<xml>
+<item>
+<label>link to XML data</label>
+<syntax>XML</syntax>
+<getter>link</getter>
+<loc>head</loc>
+</item>
+</xml>
+</div>
+
+<table ex:role="data" ex:type="text/html" id="test2" ex:itemType="example" ex:headerRow="true">
+<col ex:property="label"></col>
+<col ex:property="syntax" ex:hrefProperty="link"></col>
+<col ex:property="getter"></col>
+<col ex:property="loc"></col>
+<tbody>
+<tr><th>title</th><th>title2</th><th>title3</th></tr>
+<tr><td>inline HTML table</td><td><a href="mylink">html</a></td><td>inline</td><td>body</td></tr>
+</tbody>
+
+</table>
+
+<table id="html"  style="display:none">
+<col ex:property="label"></col>
+<col ex:property="syntax" ex:hrefProperty="link"></col>
+<col ex:property="getter"></col>
+<col ex:property="loc"></col>
+<tbody>
+<tr><th>title</th><th>title2</th><th>title3</th></tr>
+<tr><td>link to HTML table</td><td><a href="mylink">html</a></td><td>link</td><td>body</td></tr>
+</tbody>
+</table>
+
+</body>
+</html>
+

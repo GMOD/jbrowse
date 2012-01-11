@@ -1,0 +1,1 @@
+window.Exhibit_ChartExtension_isCompiled = true;

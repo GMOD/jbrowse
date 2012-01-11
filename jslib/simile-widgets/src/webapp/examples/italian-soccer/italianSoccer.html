@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+ <head>
+    <title>Italian Soccer - Serie A Champions</title>
+  
+   <link href="italianSoccer.txt" type="text/tsv" rel="exhibit/data" ex:properties="label,url:url,image:url,City,Region,latlng,Winners:number,Runner-up:number,ChampionshipSeasons" ex:hasColumnTitles="true"/>
+
+    <script src="../../api/exhibit-api.js"></script>
+    <script src="../../api/extensions/map/map-extension.js"></script>
+ 		
+
+</head>
+<body>
+	<h1 align="center">Italian Soccer - Serie A Champions</h1>
+	
+	<div ex:role="lens" style="display: none" class="lens-wrapper">
+		<div align="center"><a ex:content=".label" ex:href-content=".url"><img ex:src-content=".image"></a></div>
+		<div class="details">
+			<div align="center" style="font-weight: bold" ex:content=".label"></div>
+			<div align = "center" style="font-weight: italic; color: #888">
+				<span ex:content=".City"></span>, <span ex:content=".Region"></span>
+			</div>
+		</div>
+	</div>
+	
+	
+	<table width="100%">
+        <tr valign="top">
+            <td width="20%">
+				<div ex:role="facet"  ex:facetClass="TextSearch"></div>
+				<br>
+				<div ex:role="facet" ex:expression=".Winners" ex:facetClass="Slider" ex:horizontal="true" ex:precision="1" ex:histogram="false" ex:facetLabel="# of Championships Won"></div>
+
+				<br>
+				<div ex:role="facet" ex:expression=".label" ex:facetLabel="Teams" ex:scroll="false"></div>
+				
+
+            </td>
+            <td ex:role="viewPanel" align="center">
+				<div ex:role="view"
+				   ex:viewClass="Map"
+				     ex:shapeWidth="50"
+				     ex:shapeHeight="50"
+				     ex:pinHeight="10"
+				     ex:iconFit="larger"
+				     ex:color="#FFFFFF"
+				   ex:latlng=".latlng"
+				   ex:center = "42,12.5"
+				   ex:zoom = "5"
+				   ex:icon=".image"
+				   ex:bubblewidth = "150">
+       			</div>
+				<div ex:role="view" ex:viewClass="Thumbnail" ex:showAll="true">
+					<div ex:role="lens" class="thumbnail-lens">
+						<table cellpadding="1" cellspacing="1" align="center">
+							<tr class="thumbnail" align="center"><td style="height: 225px; width: 200px"><a ex:href-content=".url"><img ex:src-content=".image"></a></td></tr>
+							<tr class="thumbnail"><td align="center" style="font-weight: bold" ex:content=".label"></td></tr>
+							<tr class="thumbnail"><td align="center" style="font-weight: italic; color: #888" ex:content=".City"></td></tr>
+							<tr class="thumbnail"><td  align="center" style="font-weight: italic; color: #888" ex:content=".Region"></td></tr>
+							<br/>
+					
+						</table>
+					</div>
+				</div>
+				<div ex:role="view" 
+					ex:viewClass="Tabular" 
+					ex:columns=".label, .City, .Region, .Winners, .ChampionshipSeasons"
+					ex:columnLabels="Team, City, Region, Number of Championships Won, Championship Seasons"
+					ex:columnFormats="text, text, text, number, list"
+					style= align="center">
+				</div>  
+            </td>
+			<td width="20%">
+				<div ex:role="facet" ex:expression=".City" ex:scroll="false"></div>
+				<br>
+				<div ex:role="facet" ex:expression=".Region" ex:scroll="false"></div>
+			</td>
+        </tr>
+    </table>
+
+</body>
+</html>
+

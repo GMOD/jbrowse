@@ -1,0 +1,24 @@
+.change-label {
+    font-weight: bold;
+}
+
+.property-change {
+    margin-left: 1.5em;
+    font-size: 90%;
+}
+
+.property-name, .old-value, .new-value {
+    text-decoration: underline;
+}.scraperBox .buttonContainer {
+    text-align: right;
+    margin-top: 1em;
+    margin-right: 10%;
+}
+
+.scraperBox table {
+    margin: 0px auto;
+}
+
+.scraperBox table td:first-child {
+    padding-right: 1em;
+}

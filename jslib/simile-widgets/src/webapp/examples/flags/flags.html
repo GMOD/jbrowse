@@ -1,0 +1,71 @@
+﻿<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>SIMILE Widgets | Exhibit | Examples | Flags of the World</title>
+    <link rel='stylesheet' href='http://www.simile-widgets.org/styles/common.css' type='text/css' />
+    
+    <link href="data.json" type="application/json" rel="exhibit/data" />
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/2.2.0/exhibit-api.js -->
+    <script src="../../api/exhibit-api.js"></script>
+    
+    <!-- Replace the URL here with http://api.simile-widgets.org/exhibit/latest/extensions/map/map-extension.js -->
+    <script src="../../api/extensions/map/map-extension.js?gmapkey=ABQIAAAA5JLLfCE9c7HAtg25QM2KCRRyiP6mHEsQpwvxB19-hS9Kgd8RYhSXEtJVAXDUCZPqwtZZi7-HUYUYrw"></script>
+
+    <style>
+        div.map-lens { padding: 1em; }
+        a { color: #533421; }
+        div.flag-container {
+            width:      200px;
+            height:     180px;
+        }
+        .flag-container img {
+            border:     1px solid #ccc;
+        }
+    </style>
+  </head>
+
+  <body>
+    <ul id="path">
+      <li><a href="/">SIMILE Widgets</a></li>
+      <li><a href="/exhibit/">Exhibit</a></li>
+      <li><span>Examples: Flags of the World</span></li>
+    </ul>
+    <table width="100%" cellpadding="20" cellspacing="0"><tr valign="top">
+        <td width="20%" style="background: #DE8D57">
+            <h1>Flags of the World</h1>
+            <p>Adapted from <a href="http://ecmanaut.blogspot.com/">Johan Sundström</a>'s
+                <a href="http://ecmanaut.googlecode.com/svn/trunk/exhibits/flags.html">flags of the world exhibit</a>,
+                with images from <a href="http://www.famfamfam.com/lab/icons/flags/">famfamfam.com</a>.
+                Here is the <a href="data.json" target="_blank">Exhibit JSON data file</a>.
+            </p>
+            <p>Using <a href="http://simile.mit.edu/exhibit/">Exhibit</a>, you can make this map
+                with just the few simple files you see in <a href="./">this directory</a>.
+                Could you have built the same map with as little effort using anything else?
+            </p>
+            <center ex:role="logo" ex:color="BlanchedAlmond"></center>
+        </td>
+        <td>
+            <div ex:role="view"
+                ex:viewClass="Map"
+                ex:latlng=".latlng"
+                ex:oldicon="concat('http://simile.mit.edu/repository/exhibit/branches/2.0/src/webapp/site/examples/flags/images/', .code, '.png')"
+                ex:icon="concat('images/', .code, '.png')"
+                ex:iconFit="none"
+                ex:shape="square"
+                ex:shapeWidth="30"
+                ex:shapeHeight="25"
+                ex:mapHeight="600"
+                >
+                <div ex:role="lens" style="display: none;" class="map-lens">
+                    <div class="flag-container">
+                        <img ex:src-subcontent="http://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Flag_of_{{.label}}.svg/200px-Flag_of_{{.label}}.svg.png" />
+                    </div>
+                    <div><b ex:content=".label"></b> [<span ex:content=".code"></span>]</div>
+                    <div>(Image from Wikipedia)</div>
+                </div>
+            </div>
+        </td>
+    </tr></table>
+  </body>
+</html>

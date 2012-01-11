@@ -1,0 +1,12 @@
+div.exhibit-pivotTableView-tableContainer {
+}
+
+div.exhibit-pivotTableView-resizer {
+    text-align:     center;
+    cursor:         n-resize;
+    height:         10px;
+}
+div.exhibit-pivotTableView-mappableDetails {
+    padding:        1em;
+    text-align:     center;
+}
