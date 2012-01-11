@@ -14,8 +14,11 @@ def test_yeast():
     # check a good browser title
     assert "chrI" in browser.title
 
-    assert_element( browser, '//div[@class="browsingTab"]' ).click()
-    time.sleep(1)
+    tabs = browser.find_elements_by_xpath( '//div[@class="browsingTab"]' )
+    for t in tabs:
+        t.click()
+        time.sleep(0.5)
+        t.click()
 
     assert_no_js_errors(browser)
 
@@ -44,15 +47,14 @@ def scroll(browser):
     action_chains = ActionChains(browser)
     # scroll back and forth with the mouse
     action_chains \
-       .click( assert_element(browser, '//div[@class="browsingTab"]' ) ) \
        .move_to_element( move_right_button ) \
        .move_by_offset( 0, 300 ) \
        .click_and_hold( None ) \
-       .move_by_offset( 500, 0 ) \
+       .move_by_offset( 300, 0 ) \
        .release( None ) \
        .move_by_offset( -100,100 ) \
        .click_and_hold( None ) \
-       .move_by_offset( -400, 0 ) \
+       .move_by_offset( -300, 0 ) \
        .release( None ) \
        .perform()
 
@@ -98,4 +100,5 @@ def format_yeast():
     call( "biodb-to-json.pl --conf ../raw/yeast.json --out yeast/", shell=True )
     call( "generate-names.pl --dir yeast/", shell=True )
     call( "prepare-nested-structure.pl --out yeast/", shell=True )
+    call( "setup-faceted-browsing.pl --out yeast/", shell=True )
     os.chdir('../..')
