@@ -1,0 +1,8 @@
+contig1	Contig	scaffold	1	793	.	.	.	Name=contig1
+contig1	POPA	SNP	44	44	8	.	.	ID=snp.POPA.contig1.44.AA;Name=AA
+contig1	POPA	SNP	44	44	4	.	.	ID=snp.POPA.contig1.44.AG;Name=AG
+contig1	POPB	SNP	44	44	1	.	.	ID=snp.POPB.contig1.44.AA;Name=AA
+contig1	POPB	SNP	44	44	4	.	.	ID=snp.POPB.contig1.44.AG;Name=AG
+contig1	POPB	SNP	44	44	5	.	.	ID=snp.POPB.contig1.44.NN;Name=NN
+contig1	POPC	SNP	44	44	3	.	.	ID=snp.POPC.contig1.44.AA;Name=AA
+contig1	POPC	SNP	44	44	2	.	.	ID=snp.POPC.contig1.44.AG;Name=AG

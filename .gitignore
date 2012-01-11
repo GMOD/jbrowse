@@ -1,8 +1,7 @@
 *~
-data
 \#*\#
 tiles
 names
 *.index
 bin/wig2png
-python/*.pyc
+*.pyc
