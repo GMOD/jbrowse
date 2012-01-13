@@ -16,7 +16,6 @@ GetOptions("conf=s" => \$confFile,
            "out=s" => \$outdir);
 
 my %categories;
-my @seqTracks;
 my %definedTracks;
 my @rootChildren = ('Favourites');
 my %seq;
@@ -28,6 +27,7 @@ mkdir($trackDir) unless (-d $trackDir);
 
 my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
 die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
+
 my @trackInfo = @{JsonGenerator::readJSON("$outdir/trackInfo.js", [], 1)};
 die "run biodb-to-json.pl first to supply information about your track sequences" if $#trackInfo < 0;
 
