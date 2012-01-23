@@ -23,7 +23,7 @@
       "category": "Genes"
     },
     {
-      "track": "Transcript",
+      "track": "transcript_with_no_features",
       "feature": ["mRNA"],
       "description": 1,
       "class": "transcript",
@@ -33,7 +33,7 @@
         "UTR": "transcript-UTR"
       },
       "arrowheadClass": "transcript-arrowhead",
-      "key": "Exonerate predictions",
+      "key": "Exonerate predictions (misconfigured for test, and with a long description)",
       "category": "Genes"
     }
   ]
