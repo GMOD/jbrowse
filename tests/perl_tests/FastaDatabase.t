@@ -14,8 +14,11 @@ is_deeply( $seq_ids,
          )
   or diag explain $seq_ids;
 
-is( $db->segment('chrII',2000,2100)->seq->seq,
-    'GCATTGGTACTGGCATTAGTGTTGGAGTTGGTACTTTCAGTGGTAGTCGCACTAGTCCTGACGTTGATGCTGGCAGTGGTAGTAGCATTAGTGCTGGAGTT',
-    'fetched a sequence OK' );
+{ my $seq = $db->segment('chrII',2000,2100)->seq->seq;
+  is( length $seq, 101, 'sequence is the right length' );
+  is( $seq,
+      'GCATTGGTACTGGCATTAGTGTTGGAGTTGGTACTTTCAGTGGTAGTCGCACTAGTCCTGACGTTGATGCTGGCAGTGGTAGTAGCATTAGTGCTGGAGTT',
+      'fetched a sequence OK' );
+}
 
 done_testing;
