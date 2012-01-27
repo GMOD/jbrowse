@@ -53,6 +53,7 @@ my %WriteMakefileArgs = (
     'GD::Image' => '0',
     'Getopt::Long' => '0',
     'Heap::Simple' => '0',
+    'Heap::Simple::XS' => '0',
     'IO::File' => '0',
     'JSON' => '2',
     'List::Util' => '0',
