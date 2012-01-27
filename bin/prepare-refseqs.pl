@@ -35,7 +35,7 @@ USAGE:
    OR:
        $0 --conf <JBrowse config file>  [options]
 
-      Options:
+   Options:
           [--out <output directory>]
           [--seqdir <sequence data directory>]
           [--noseq]
@@ -45,6 +45,11 @@ USAGE:
     <sequence data directory>: chunks of sequence go here;
                                defaults to "<output directory>/seq"
     --noseq: do not prepare sequence data for the client
+
+   Note:
+
+    This tool can read fasta files compressed with gzip, if they end
+    in .gz or .gzip.
 
     You can use a GFF file to describe the reference sequences; or
     you can use a JBrowse config file (pointing to a BioPerl database)
