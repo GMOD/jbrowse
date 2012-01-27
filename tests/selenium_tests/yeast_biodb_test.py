@@ -112,6 +112,6 @@ def assert_elements( browser, xpathExpression ):
 
 def format_yeast():
     call( "rm -rf sample_data/json/yeast/", shell=True )
-    call( "bin/prepare-refseqs.pl --fasta sample_data/raw/yeast_scaffolds/chr1.fa --fasta sample_data/raw/yeast_scaffolds/chr2.fa  --out sample_data/json/yeast/", shell=True )
+    call( "bin/prepare-refseqs.pl --fasta sample_data/raw/yeast_scaffolds/chr1.fa.gz --fasta sample_data/raw/yeast_scaffolds/chr2.fa.gzip  --out sample_data/json/yeast/", shell=True )
     call( "bin/biodb-to-json.pl --conf sample_data/raw/yeast.json --out sample_data/json/yeast/", shell=True )
     call( "bin/generate-names.pl --dir sample_data/json/yeast/", shell=True )
