@@ -1,7 +1,7 @@
 package JsonGenerator;
 
 use base 'Exporter';
-our @EXPORT_OK = qw/ readJSON writeJSON modifyJSFile /;
+our @EXPORT_OK = qw/ readJSON writeJSON modifyJsonFile /;
 
 use strict;
 use warnings;
@@ -120,7 +120,7 @@ sub modifyJsonFile {
 
 sub writeTrackEntry {
     my ($file, $entry) = @_;
-    modifyJSFile($file, "trackInfo",
+    modifyJsonFile($file, "trackInfo",
         sub {
             my $origTrackList = shift;
             my @trackList = grep { exists($_->{'label'}) } @$origTrackList;

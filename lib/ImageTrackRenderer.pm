@@ -205,7 +205,7 @@ sub render {
 	close TRACKFILE or die "Couldn't close $trackfile : $!";
 
 	# write to track list
-	JsonGenerator::modifyJSFile($self->trackinfopath, "trackInfo",
+	JsonGenerator::modifyJsonFile($self->trackinfopath, "trackInfo",
 				    sub {
 					my $trackList = shift;
 					my $i;
