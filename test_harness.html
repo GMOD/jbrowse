@@ -67,13 +67,16 @@
            }
            var b = new Browser({
                                    containerID: "GenomeBrowser",
-                                   refSeqs: refSeqs,
+                                   refSeqs: {url: dataRoot + '/refSeqs.json'},
                                    trackData: trackInfo,
+                                   tracklists: [
+                                       {url: dataRoot + "/trackList.json"}
+                                   ],
+                                   nameUrl: dataRoot + "/names/root.json",
                                    defaultTracks: "DNA,gene,mRNA,noncodingRNA",
                                    location: queryParams.loc,
                                    tracks: queryParams.tracks,
                                    bookmark: bookmarkCallback,
-                                   dataRoot: dataRoot + '/'
                                });
     /* ]]> */
     </script>
