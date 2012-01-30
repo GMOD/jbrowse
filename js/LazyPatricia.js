@@ -73,7 +73,7 @@ function LazyTrie(rootURL, chunkTempl) {
 
 LazyTrie.prototype.chunkUrl = function(prefix) {
     var chunkUrl = this.chunkTempl.replace("\{Chunk\}", prefix);
-    return Util.resolveUrl(this.rootUrl, chunkUrl);
+    return Util.resolveUrl(this.rootURL, chunkUrl);
 };
 
 LazyTrie.prototype.pathToPrefix = function(path) {

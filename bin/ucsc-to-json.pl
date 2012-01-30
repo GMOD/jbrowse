@@ -252,8 +252,8 @@ ENDJS
                                     $tableName,
                                     $row->[$nameCol],
                                     $row->[$chromCol],
-                                    $jsonRow->[0],
                                     $jsonRow->[1],
+                                    $jsonRow->[2],
                                     $row->[$nameCol] ]);
         }
     }

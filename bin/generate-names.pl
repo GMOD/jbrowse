@@ -58,8 +58,10 @@ sub partitionCallback {
         if $verbose;
 }
 
-my @refSeqs = @{readJSON(catfile($outDir, "refSeqs.js"), [], 1)};
-my @tracks = @{readJSON(catfile($outDir, "trackInfo.js"), [], 1)};
+my @refSeqs = @{readJSON(catfile($outDir, "refSeqs.json"), [], 1)};
+my $trackList = readJSON(catfile($outDir, "trackList.json"),
+                           {"tracks" => []}, 1);
+my @tracks = @{$trackList->{tracks}};
 
 # open the root file; we lock this file while we're
 # reading the name lists, deleting all the old lazy-*
@@ -78,8 +80,8 @@ foreach my $ref (@refSeqs) {
     foreach my $track (@tracks) {
         my $infile = catfile($outDir,
                              "tracks",
-                             $ref->{name},
                              $track->{label},
+                             $ref->{name},
                              "names.json");
         next unless -e $infile;
         open JSON, "<$infile"

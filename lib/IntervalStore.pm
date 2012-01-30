@@ -78,12 +78,12 @@ sub new {
         # we're already loaded
         $self->{lazyNCList} = 
           LazyNCList->importExisting($self->{attrs},
-				     $self->{lazyClass},
-                                     $self->{count},
-                                     $self->{minStart},
-                                     $self->{maxEnd},
+				     $args->{lazyClass},
+                                     $args->{count},
+                                     $args->{minStart},
+                                     $args->{maxEnd},
                                      sub { $self->loadChunk($self, @_); },
-                                     $self->{nclist} );
+                                     $args->{nclist} );
     }
 
     bless $self, $class;
@@ -181,9 +181,9 @@ sub descriptor {
             lazyClass => $self->{lazyClass},
             nclist => $self->{nclist},
             urlTemplate => $self->{urlTemplate},
-            count => $self->{count},
-            minStart => $self->{minStart},
-            maxEnd => $self->{maxEnd}
+            count => $self->count,
+            minStart => $self->lazyNCList->minStart,
+            maxEnd => $self->lazyNCList->maxEnd
            };
 }
 
