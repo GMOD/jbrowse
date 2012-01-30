@@ -9,7 +9,7 @@ import time
 def test_yeast():
     format_yeast()
     browser = webdriver.Firefox() # Get local session of firefox
-    browser.get("file://%s/test_harness.html?data=sample_data/json/yeast" % os.getcwd() ) # Load page
+    browser.get("file://%s/index.html?data=sample_data/json/yeast" % os.getcwd() ) # Load page
 
     # check a good browser title
     assert "chrI" in browser.title

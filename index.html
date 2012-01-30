@@ -1,17 +1,14 @@
-<!DOCTYPE html 
+<!DOCTYPE html
 	  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-  
+
   <head>
     <title>JBrowse</title>
     <link rel="stylesheet" type="text/css" href="jslib/dijit/themes/tundra/tundra.css"></link>
     <link rel="stylesheet" type="text/css" href="jslib/dojo/resources/dojo.css"></link>
     <link rel="stylesheet" type="text/css" href="genome.css"></link>
-    <style type="text/css">
-      html, body { height: 100%; width: 100%; padding: 0; border: 0; }
-    </style>
 
     <script type="text/javascript" src="jslib/dojo/dojo.js" djConfig="isDebug: false"></script>
     <script type="text/javascript" src="jslib/dojo/jbrowse_dojo.js" ></script>
@@ -31,6 +28,14 @@
     <script type="text/javascript" src="js/UITracks.js"></script>
     <script type="text/javascript" src="js/ImageTrack.js"></script>
     <script type="text/javascript" src="js/GenomeView.js"></script>
+    <script type="text/javascript" src="js/touchJBrowse.js"></script>
+
+    <script type="text/javascript">
+        window.onerror=function(msg){
+            document.html.body.setAttribute("JSError",msg);
+        }
+    </script>
+
 <!-- js_source_files -->
 
     <script type="text/javascript">
@@ -43,18 +48,22 @@
                       + "?loc=" + brwsr.visibleRegion()
                       + "&tracks=" + brwsr.visibleTracks();
            }
+
+           var dataRoot = queryParams.data || 'data';
            var b = new Browser({
                                    containerID: "GenomeBrowser",
-                                   refSeqs: {url: "data/refSeqs.json"},
+                                   refSeqs: {url: dataRoot + "/refSeqs.json"},
                                    tracklists: [
-                                       {url: "data/trackList.json"}
+                                       {url: dataRoot + "/trackList.json"}
                                    ],
-                                   nameUrl: "data/names/root.json",
+                                   nameUrl: dataRoot + "/names/root.json",
                                    defaultTracks: "DNA,gene,mRNA,noncodingRNA",
                                    location: queryParams.loc,
                                    tracks: queryParams.tracks,
                                    bookmark: bookmarkCallback,
                                });
+           b.deferredFunctions.push(function() { loadTouch(); });
+
     /* ]]> */
     </script>
   </head>

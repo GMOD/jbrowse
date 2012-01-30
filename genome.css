@@ -1,5 +1,9 @@
 html, body {
-    height: 98%;
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    font-size: 9px;
 }
 
 .nav {
@@ -688,4 +692,11 @@ div.generic_parent-hist {
     z-index: 8;
     min-width: 1px;
     cursor: pointer;
+}
+
+.icon.nav {
+    height: 30px !important;
+}
+input.nav {
+    font-size: 9px !important;
 }
