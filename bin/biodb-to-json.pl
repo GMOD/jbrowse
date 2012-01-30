@@ -70,7 +70,7 @@ if (my $refclass = $config->{'reference class'}) {
 $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
 $db->absolute(1)               if $db->can('absolute');
 
-my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
+my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.json", [], 1)};
 
 if (defined $refid) {
     @refSeqs = grep { $_->{id} eq $refid } @refSeqs;
@@ -160,7 +160,7 @@ foreach my $seg (@refSeqs) {
             $jsonGen->generateTrack();
 
             my $ext = ($compress ? "jsonz" : "json");
-            JsonGenerator::writeTrackEntry("$outdir/trackInfo.js",
+            JsonGenerator::writeTrackEntry("$outdir/trackInfo.json",
                                            {
                                                'label' => $track->{"track"},
                                                'key' => $style{"key"},

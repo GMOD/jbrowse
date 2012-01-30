@@ -64,8 +64,8 @@ sub new {
     my $self = { 'datadir' => "data",
 		 'tiledir' => "tiles",
 		 'trackdir' => "tracks",  # probably best not to modify this
-		 'refseqsfile' => 'refSeqs.js',  # probably best not to modify this
-		 'trackinfofile' => 'trackInfo.js',  # probably best not to modify this
+		 'refseqsfile' => 'refSeqs.json',  # probably best not to modify this
+		 'trackinfofile' => 'trackInfo.json',  # probably best not to modify this
 		 'zooms' => [ 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000 ],  # probably best not to modify this
 		 'tilewidth' => 2000,
 		 'trackheight' => 100,
@@ -106,7 +106,7 @@ sub mkdir { my ($self, @paths) = @_; for my $path (@paths) { mkdir $path unless 
     $renderer->render;
 
 Calls the supplied C<drawsub> coderef (via the C<drawzoom> method, which can also be overridden) for all sequences and all zoomlevels,
-then adds the track to the data/trackInfo.js file.
+then adds the track to the data/trackInfo.json file.
 
 =cut
 

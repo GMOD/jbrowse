@@ -56,7 +56,7 @@ my $trackDir = "$outdir/$trackRel";
 mkdir($outdir) unless (-d $outdir);
 mkdir($trackDir) unless (-d $trackDir);
 
-my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
+my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.json", [], 1)};
 
 my $bam = Bio::DB::Bam->open($bamFile);
 my $hdr = $bam->header();
@@ -110,7 +110,7 @@ foreach my $seqInfo (@refSeqs) {
 
 my $ext = ($compress ? "jsonz" : "json");
 JsonGenerator::writeTrackEntry(
-    "$outdir/trackInfo.js",
+    "$outdir/trackInfo.json",
     {
         'label' => $trackLabel,
         'key' => $key,

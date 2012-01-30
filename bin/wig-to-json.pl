@@ -62,7 +62,7 @@ if (!defined($path)) {
 my $trackRel = "tracks";
 my $trackDir = "$outdir/$trackRel";
 
-my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
+my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.json", [], 1)};
 die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
 
 $trackLabel = basename($path) unless defined $trackLabel;
@@ -82,7 +82,7 @@ foreach my $seqInfo (@refSeqs) {
     print "\nworking on seq $seqName\n";
     mkdir("$tilesubdir/$seqName") unless (-d "$tilesubdir/$seqName");
 
-    JsonGenerator::modifyJSFile("$outdir/trackInfo.js", "trackInfo",
+    JsonGenerator::modifyJSFile("$outdir/trackInfo.json", "trackInfo",
 		 sub {
 		     my $trackList = shift;
 		     my $i;

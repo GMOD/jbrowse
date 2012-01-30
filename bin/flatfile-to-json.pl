@@ -55,7 +55,7 @@ my $trackRel = "tracks";
 my %refSeqs =
     map {
         $_->{name} => $_
-    } @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
+    } @{JsonGenerator::readJSON("$outdir/refSeqs.json", [], 1)};
 
 die "run prepare-refseqs.pl first to supply information about your reference sequences" unless (scalar keys %refSeqs);
 
@@ -247,7 +247,7 @@ while (1) {
 }
 
 my $ext = ($compress ? "jsonz" : "json");
-JsonGenerator::writeTrackEntry("$outdir/trackInfo.js",
+JsonGenerator::writeTrackEntry("$outdir/trackInfo.json",
                                {
                                    'label' => $trackLabel,
                                    'key' => $style{"key"},

@@ -260,7 +260,7 @@ ENDJS
 
     # my $ext = ($compress ? "jsonz" : "json");
     $gdb->writeTrackEntry($track);
-        # "$outdir/trackInfo.js",
+        # "$outdir/trackInfo.json",
         #                            {
         #                                'label' => $tableName,
         #                                'key' => $style{"key"},

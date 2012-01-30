@@ -50,7 +50,7 @@
 
            // load the proper refSeqs and trackInfo based on the data path passed as a query arg
            var dataRoot = queryParams.data || 'data';
-           dojo.forEach( ['refSeqs.js','trackInfo.js'], function(file) {
+           dojo.forEach( ['refSeqs.json','trackInfo.json'], function(file) {
                dojo.xhrGet({
                               url: dataRoot + '/' + file,
                               handleAs: 'javascript',
