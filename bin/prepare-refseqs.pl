@@ -10,6 +10,7 @@ use POSIX;
 use Getopt::Long;
 use JsonGenerator;
 use FastaDatabase;
+use File::Spec::Functions qw/ catfile catdir /;
 
 my $chunkSize = 20000;
 my ($confFile, $noSeq, $gff, @fasta, $refs, $refids);
@@ -24,7 +25,7 @@ GetOptions("out=s" => \$outDir,
            "refids=s" => \$refids);
 # $seqRel is the path relative to $outDir
 my $seqRel = "seq";
-my $seqDir = "$outDir/$seqRel";
+my $seqDir = catdir( $outDir, $seqRel );
 
 unless ( defined $gff || defined $confFile || @fasta ) {
     print <<HELP;
@@ -69,7 +70,6 @@ my @refSeqs;
 
 sub refName {
     my $seg = shift;
-    use Data::Dumper;
     my $segName = $seg->name;
     $segName = $seg->{'uniquename'} if $seg->{'uniquename'};
     $segName =~ s/:.*$//; #get rid of coords if any
@@ -139,7 +139,7 @@ if (defined($gff)) {
             };
 
             unless ($noSeq) {
-                my $refDir = $seqDir . "/" . $refInfo->{"name"};
+                my $refDir = catdir($seqDir,$refInfo->{name});
                 exportSeqChunks($refDir, $chunkSize, $db,
                                 [-db_id => $refid],
                                 $seg->start, $seg->end);
@@ -154,6 +154,7 @@ if (defined($gff)) {
     if (defined($refs)) {
         foreach my $ref (split ",", $refs) {
             my $seg = $db->segment(-name => $ref);
+
             my $refInfo =  {
                 name => refName($seg),
                 start => $seg->start - 1,
@@ -162,11 +163,11 @@ if (defined($gff)) {
             };
 
             unless ($noSeq) {
-                my $refDir = $seqDir . "/" . $refInfo->{"name"};
+                my $refDir = catdir( $seqDir, $refInfo->{"name"} );
                 exportSeqChunks($refDir, $chunkSize, $db,
                                 [-name => $ref],
                                 $seg->start, $seg->end);
-                $refInfo->{"seqDir"} = $seqRel . "/" . $refInfo->{"name"};
+                $refInfo->{"seqDir"} = catdir( $seqRel, $refInfo->{"name"} );
                 $refInfo->{"seqChunkSize"} = $chunkSize;
             }
 
@@ -178,35 +179,34 @@ if (defined($gff)) {
 sub exportSeqChunks {
     my ($dir, $len, $db, $segDef, $start, $end) = @_;
 
-    mkdir($dir) unless (-d $dir);
-    $start = 1 if ($start < 1);
-    $db->absolute(1)               if $db->can('absolute');
+    mkdir $dir unless -d $dir;
+    $start = 1 if $start < 1;
+    $db->absolute( 1 ) if $db->can('absolute');
 
     my $chunkStart = $start;
-    while ($chunkStart <= $end) {
+    while ( $chunkStart <= $end ) {
         my $chunkEnd = $chunkStart + $len - 1;
-        my $chunkNum = floor(($chunkStart - 1) / $chunkSize);
-        my $path = "$dir/$chunkNum.txt";
-        my $seg = $db->segment(@$segDef,
-                               -start => $chunkStart,
-                               -end => $chunkEnd,
-                               -absolute => 1);
-        die "requested $chunkStart .. $chunkEnd; got " . $seg->start . " .. " . $seg->end if ($seg->start != $chunkStart);
+        my $chunkNum = floor( ($chunkStart - 1) / $chunkSize );
+        my $seg = $db->segment( @$segDef,
+                                -start    => $chunkStart,
+                                -end      => $chunkEnd,
+                                -absolute => 1,
+                              );
+        $seg->start == $chunkStart
+          or die "requested $chunkStart .. $chunkEnd; got " . $seg->start . " .. " . $seg->end;
+
         $chunkStart = $chunkEnd + 1;
-        next unless ($seg && $seg->seq && $seg->seq->seq);
+        next unless $seg && $seg->seq && $seg->seq->seq;
 
-
-        open CHUNK, ">$path"
-          or die "couldn't open $path: $!";
-        print CHUNK $seg->seq->seq;
-        close CHUNK
-          or die "couldn't open $path.txt: $!";
+        my $path = File::Spec->catfile( "$dir", "$chunkNum.txt" );
+        open my $chunkfile, '>', $path or die "$! writing $path";
+        $chunkfile->print( $seg->seq->seq );
     }
 }
 
 die "found no ref seqs" if ($#refSeqs < 0);
 
-JsonGenerator::modifyJsonFile("$outDir/refSeqs.json",
+JsonGenerator::modifyJsonFile( catfile( $outDir, 'refSeqs.json' ),
                               sub {
                                   #add new ref seqs while keeping the order
                                   #of the existing ref seqs
@@ -227,7 +227,7 @@ JsonGenerator::modifyJsonFile("$outDir/refSeqs.json",
                               });
 
 unless ($noSeq) {
-    JsonGenerator::modifyJsonFile("$outDir/trackList.json",
+    JsonGenerator::modifyJsonFile( catfile( $outDir, "trackList.json" ),
                                   sub {
                                       my $trackList = shift;
                                       unless (defined($trackList)) {
