@@ -5,3 +5,4 @@ names
 *.index
 bin/wig2png
 *.pyc
+Makefile

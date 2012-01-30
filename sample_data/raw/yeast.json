@@ -3,7 +3,7 @@
   "db_adaptor": "Bio::DB::SeqFeature::Store",
   "db_args": {
       "-adaptor": "memory",
-      "-dir": "../raw/yeast_chr1+2"
+      "-dir": "sample_data/raw/yeast_chr1+2"
   },
   "TRACK DEFAULTS": {
     "class": "feature",
@@ -23,7 +23,7 @@
       "category": "Genes"
     },
     {
-      "track": "Transcript",
+      "track": "transcript_with_no_features",
       "feature": ["mRNA"],
       "description": 1,
       "class": "transcript",
@@ -33,7 +33,7 @@
         "UTR": "transcript-UTR"
       },
       "arrowheadClass": "transcript-arrowhead",
-      "key": "Exonerate predictions",
+      "key": "Exonerate predictions (misconfigured for test, and with a long description)",
       "category": "Genes"
     }
   ]

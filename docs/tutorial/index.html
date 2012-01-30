@@ -42,7 +42,7 @@
       <a name="Download_install" id="Download_install"></a>
       <h3>Download/install</h3>
       <p>
-        <a href="http://github.com/jbrowse/jbrowse/tree/master">Get JBrowse from GitHub</a> (click on the "download" button)
+        <a href="http://github.com/GMOD/jbrowse/tree/master">Get JBrowse from GitHub</a> (click on the "ZIP" button to download a .zip file)
       </p>
       <p>
         Then unzip/untar JBrowse in a directory that's served by apache (e.g., <span class="code">/var/www/html/</span>)
@@ -77,7 +77,7 @@
       <p>
         If you have data in the BAM format, you can import it into a JBrowse instance using the flatfile-to-json.pl program.  Here is one example of a command that does that, using the included data:
       </p>
-      <pre>bin/flatfile-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Simulated next-gen reads" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}'</pre>
+      <pre>bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Simulated next-gen reads" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}'</pre>
       <a name="Names" id="Names"></a>
       <h3>Names</h3>
       <p>
