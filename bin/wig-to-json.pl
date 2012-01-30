@@ -82,7 +82,7 @@ foreach my $seqInfo (@refSeqs) {
     print "\nworking on seq $seqName\n";
     mkdir("$tilesubdir/$seqName") unless (-d "$tilesubdir/$seqName");
 
-    JsonGenerator::modifyJsonFile("$outdir/trackInfo.json", "trackInfo",
+    JsonGenerator::modifyJsonFile("$outdir/trackInfo.json",
 		 sub {
 		     my $trackList = shift;
 		     my $i;

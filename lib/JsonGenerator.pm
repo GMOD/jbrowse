@@ -120,7 +120,7 @@ sub modifyJsonFile {
 
 sub writeTrackEntry {
     my ($file, $entry) = @_;
-    modifyJsonFile($file, "trackInfo",
+    modifyJsonFile($file,
         sub {
             my $origTrackList = shift;
             my @trackList = grep { exists($_->{'label'}) } @$origTrackList;
