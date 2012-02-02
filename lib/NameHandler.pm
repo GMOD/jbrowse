@@ -2,9 +2,12 @@ package NameHandler;
 
 use strict;
 use warnings;
+
 use Carp;
 use Fcntl;
 use File::Path;
+use IO::File;
+
 use JSON 2;
 
 # index of the refseq name in the name array
