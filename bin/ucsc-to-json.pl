@@ -1,9 +1,92 @@
 #!/usr/bin/env perl
 
+=head1 NAME
+
+ucsc-to-json.pl - format JBrowse JSON from a UCSC database dump
+
+=head1 USAGE
+
+  ucsc-to-json.pl                                    \
+      --in <database dump dir>                       \
+      [ --out <output directory> ]                   \
+      [ --track <table name> ]                       \
+      [ --cssClass <class> ]                         \
+      [ --arrowheadClass <class> ]                   \
+      [ --subfeatureClasses <subfeature class map> ] \
+      [ --clientConfig <JSON client config> ]        \
+      [ --nclChunk <NCL chunk size in bytes> ]       \
+      [ --compress ]                                 \
+      [ --sortMem <sort memory size> ]
+
+=head1 OPTIONS
+
+=over 4
+
+=item --in <dir>
+
+directory containing the UCSC database dump (lots of .txt.gz and .sql files)
+
+=item --out <dir>
+
+output directory for JSON, defaults to "data/"
+
+=item --track 'trackName'
+
+name of the database table, e.g., "knownGene"
+
+=item --cssClass 'classname'
+
+CSS class to use for features in this track, defaults to "basic"
+
+=item --arrowheadClass 'classname'
+
+CSS class for arrowheads, e.g., "transcript-arrowhead"
+
+=item --subfeatureClasses '{ JSON }'
+
+CSS classes for each subfeature type, in JSON syntax, e.g.
+
+  '{"CDS": "transcript-CDS", "exon": "transcript-exon"}'
+
+=item --clientConfig '{ JSON }'
+
+extra configuration for the client, in JSON syntax, e.g.
+
+  '{"featureCss": "background-color: #668; height: 8px;", "histScale": 2}'
+
+=item --nclChunk <size in bp>
+
+Size of the individual Nested Containment List chunks. Default 50,000
+bp.
+
+=item --compress
+
+If passed, compress the output with gzip, making .jsonz files.  This
+can save a lot of disk space on the server, but serving these files to
+JBrowse requires some web server configuration.
+
+=item --sortMem <bytes>
+
+The amount of RAM in bytes to use for sorting.
+
+=back
+
+=head1 EXAMPLE
+
+  # format the 'knownGene' track from an hg19 dump from UCSC
+  ucsc-to-json.pl --in path/to/hg19/database/ --track 'knownGene'             \
+      --cssclass transcript                                                   \
+      --subfeatureClasses '{"CDS":"transcript-CDS", "UTR": "transcript-UTR"}' \
+      --arrowheadClass transcript-arrowhead
+
+=cut
+
 use strict;
 use warnings;
 
 use FindBin qw($Bin);
+use Pod::Usage;
+
 use lib "$Bin/../lib";
 
 use PerlIO::gzip;
@@ -20,37 +103,23 @@ my ($indir, $tracks, $arrowheadClass, $subfeatureClasses, $clientConfig, $db,
 my $outdir = "data";
 my $cssClass = "basic";
 my $sortMem = 1024 * 1024 * 512;
-GetOptions("in=s" => \$indir,
-           "out=s" => \$outdir,
-           "track=s@" => \$tracks,
-           "cssClass=s", \$cssClass,
-           "arrowheadClass=s", \$arrowheadClass,
-           "subfeatureClasses=s", \$subfeatureClasses,
-           "clientConfig=s", \$clientConfig,
-           "nclChunk=i" => \$nclChunk,
-           "compress" => \$compress,
-           "sortMem=i" =>\$sortMem);
+my $help;
+GetOptions(
+    "in=s"                => \$indir,
+    "out=s"               => \$outdir,
+    "track=s@"            => \$tracks,
+    "cssClass=s"          => \$cssClass,
+    "arrowheadClass=s"    => \$arrowheadClass,
+    "subfeatureClasses=s" => \$subfeatureClasses,
+    "clientConfig=s"      => \$clientConfig,
+    "nclChunk=i"          => \$nclChunk,
+    "compress"            => \$compress,
+    "sortMem=i"           => \$sortMem,
+    "help|?|h"            => \$help,
+) or pod2usage();
 
-if (!defined($indir)) {
-    print <<HELP;
-USAGE: $0 --in <database dump dir> [--out <output directory] [--track <table name>] [--cssClass <class>] [--arrowheadClass <class>] [--subfeatureClasses <subfeature class map>] [--clientConfig <JSON client config>] [--nclChunk <NCL chunk size in bytes>] [--compress] [--sortMem <sort memory size>]
-
-    --in: directory containing the UCSC database dump (lots of .txt.gz and .sql files)
-    --out: defaults to "data"
-    --track: name of the database table, e.g., "knownGene"
-    --cssClass: defaults to "basic"
-    --arrowheadClass: CSS class for arrowheads, e.g., "transcript-arrowhead"
-    --subfeatureClasses: CSS classes for each subfeature type, in JSON syntax
-        e.g. '{"CDS": "transcript-CDS", "exon": "transcript-exon"}'
-    --clientConfig: extra configuration for the client, in JSON syntax
-        e.g. '{"featureCss": "background-color: #668; height: 8px;", "histScale": 2}'
-    --nclChunk: size of the individual NCL chunks
-    --compress: compress the output (requires some web server configuration)
-    --sortMem: the amount of memory in bytes to use for sorting
-HELP
-
-    exit(1);
-}
+pod2usage( -verbose => 2 ) if $help;
+pod2usage() unless defined $indir;
 
 if (!defined($nclChunk)) {
     # default chunk size is 50KiB
