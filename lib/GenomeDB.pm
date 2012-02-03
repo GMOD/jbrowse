@@ -1,3 +1,30 @@
+=head1 NAME
+
+GenomeDB - central "handle" for a directory tree of JBrowse JSON data
+
+=head1 SYNOPSIS
+
+    my $gdb = GenomeDB->new( '/path/to/data/dir' );
+
+    my $track = $gdb->getTrack($tableName);
+    #returns an object for the track, e.g. a FeatureTrack
+
+    unless( defined $track ) {
+        $track = $gdb->createFeatureTrack( $tableName,
+                                           $trackConfig,
+                                           $track->{shortLabel} );
+    }
+
+=head1 DESCRIPTION
+
+Central "handle" on a directory tree of JBrowse JSON data, containing
+accessors for accessing the tracks and (soon) reference sequences it
+contains.
+
+=head1 METHODS
+
+=cut
+
 package GenomeDB;
 
 use strict;
@@ -15,6 +42,12 @@ my $defaultTracklist = {
 my $trackListPath = "trackList.json";
 my @trackDirHeirarchy = ("tracks", "{tracklabel}", "{refseq}");
 
+=head2 new( '/path/to/data/dir' )
+
+Create a new handle for a data dir.
+
+=cut
+
 sub new {
     my ($class, $dataDir) = @_;
 
@@ -28,6 +61,12 @@ sub new {
 
     return $self;
 }
+
+=head2 writeTrackEntry( $track_object )
+
+Record an entry for a new track in the data dir.
+
+=cut
 
 sub writeTrackEntry {
     my ($self, $track) = @_;
@@ -60,12 +99,25 @@ sub writeTrackEntry {
     $self->{rootStore}->modify($trackListPath, $setTrackEntry);
 }
 
+=head2 createFeatureTrack( $label, \%config, $key )
+
+Create a new FeatureTrack object in this data dir with the given
+label, config, and key.
+
+=cut
+
 sub createFeatureTrack {
     my ($self, $trackLabel, $config, $key) = @_;
     (my $baseUrl = $self->{trackUrlTempl}) =~ s/\{tracklabel\}/$trackLabel/g;
     return FeatureTrack->new($self->trackDir($trackLabel), $baseUrl,
                              $trackLabel, $config, $key);
 }
+
+=head2 getTrack( $trackLabel )
+
+Get a track object (FeatureTrack or otherwise) from the GenomeDB.
+
+=cut
 
 sub getTrack {
     my ($self, $trackLabel) = @_;
@@ -92,6 +144,8 @@ sub getTrack {
     die "track type \"" . $trackDesc->{type} . "\" not implemented";
 }
 
+# private method
+# Get the data subdirectory for a given track, using its label.
 sub trackDir {
     my ($self, $trackLabel) = @_;
     (my $result = $self->{trackDirTempl}) =~ s/\{tracklabel\}/$trackLabel/g;
