@@ -29,7 +29,7 @@ defined in it.
 
 =item --help | -? | -h
 
-Display a help screen.
+Display an extended help screen.
 
 =item --conf <conf file>
 
@@ -85,7 +85,7 @@ GetOptions("conf=s" => \$confFile,
 ) or pod2usage();
 
 pod2usage( -verbose => 2 ) if $help;
-pod2usage() unless defined $confFile;
+pod2usage( 'must provide a --conf argument' ) unless defined $confFile;
 
 if (!defined($nclChunk)) {
     # default chunk size is 50KiB
