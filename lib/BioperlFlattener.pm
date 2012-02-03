@@ -1,3 +1,26 @@
+=head1 NAME
+
+BioperlFlattener - configurably transform BioPerl feature objects to arrayrefs
+
+=head1 SYNOPSIS
+
+  my $flattener = BioperlFlattener->new(
+                      $track->{"track"},
+                      \%style,
+                      [],
+                      [],
+                      $nameCallback,
+                    );
+
+  my $startCol = BioperlFlattener->startIndex;
+  my $endCol = BioperlFlattener->endIndex;
+
+  my $arrayref = $flattener->flatten($feature);
+
+=head1 METHODS
+
+=cut
+
 package BioperlFlattener;
 
 use strict;
@@ -33,6 +56,10 @@ my %builtinDefaults =
    "autocomplete" => "none",
    "class"        => "feature"
   );
+
+=head1 new( $trackLabel, \%setStyle, \@extraMap, \@extraHeaders, \&nameCallback )
+
+=cut
 
 sub new {
     my ($class, $label, $setStyle,
@@ -142,6 +169,10 @@ sub new {
     bless $self, $class;
 }
 
+=head1 flatten( $feature_object )
+
+=cut
+
 sub flatten {
     my ($self, $feature) = @_;
 
@@ -152,19 +183,36 @@ sub flatten {
     return [map {&$_($feature)} @{$self->{curFeatMap}}];
 }
 
+=head1 featureHeaders()
+
+=cut
+
 sub featureHeaders {
     my ($self) = @_;
     return $self->{curMapHeaders};
 }
+
+
+=head1 subfeatureHeaders()
+
+=cut
 
 sub subfeatureHeaders {
     my ($self) = @_;
     return $self->{subfeatHeaders};
 }
 
+=head1 startIndex()
+
+=cut
+
 sub startIndex {
     return $startIndex;
 }
+
+=head1 endIndex
+
+=cut
 
 sub endIndex {
     return $endIndex;
