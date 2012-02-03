@@ -99,21 +99,21 @@ my $trackDir = "$outdir/$trackRel";
 mkdir($outdir) unless (-d $outdir);
 mkdir($trackDir) unless (-d $trackDir);
 
+# read our conf file
 my $config = JsonGenerator::readJSON($confFile);
 
+# open and configure the db defined in the config file
 eval "require $config->{db_adaptor}; 1" or die $@;
-
 my $db = eval {$config->{db_adaptor}->new(%{$config->{db_args}})} or warn $@;
 die "Could not open database: $@" unless $db;
-
 if (my $refclass = $config->{'reference class'}) {
     eval {$db->default_class($refclass)};
 }
 $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
 $db->absolute(1)               if $db->can('absolute');
 
+# determine which reference sequences we'll be operating on
 my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.json", [], 1)};
-
 if (defined $refid) {
     @refSeqs = grep { $_->{id} eq $refid } @refSeqs;
     die "Didn't find a refseq with ID $refid (have you run prepare-refseqs.pl to supply information about your reference sequences?)" if $#refSeqs < 0;
@@ -130,6 +130,7 @@ foreach my $seg (@refSeqs) {
 
     mkdir("$trackDir/$segName") unless (-d "$trackDir/$segName");
 
+    # get the list of tracks we'll be operating on
     my @tracks;
     if (defined $onlyLabel) {
         @tracks = grep { $_->{"track"} eq $onlyLabel } @{$config->{tracks}};
@@ -139,6 +140,7 @@ foreach my $seg (@refSeqs) {
 
     foreach my $track (@tracks) {
         print "working on track " . $track->{"track"} . "\n";
+
         my %style = ("key" => $track->{"track"},
                      %{$config->{"TRACK DEFAULTS"}},
                      %{$track});
@@ -149,6 +151,8 @@ foreach my $seg (@refSeqs) {
         if ($#feature_types >= 0) {
             my $jsonGen;
 
+            # set up a namehandler and a callback that calls it to
+            # index our feature names
             my $trackDirForChrom = 
                 sub { "$trackDir/" . $_[0] . "/" . $track->{"track"}; };
             my $nameHandler = NameHandler->new($trackDirForChrom);
@@ -156,15 +160,21 @@ foreach my $seg (@refSeqs) {
                 $_[0]->[$NameHandler::chromIndex] = $segName;
                 $nameHandler->addName($_[0]);
             };
+
+            # get the stream of the right features from the Bio::DB
             my $iterator = $db->get_seq_stream(-seq_id => $segName,
                                                -type   => \@feature_types);
+
+
+            # make the flattener, which converts bioperl features to arrayrefs
             my $flattener = BioperlFlattener->new($track->{"track"},
                                                   \%style, [], [],
                                                   $nameCallback);
-
             my $startCol = BioperlFlattener->startIndex;
             my $endCol = BioperlFlattener->endIndex;
 
+            # make a sorting object, incrementally sorts the
+            # features according to the passed callback
             my $sorter = ExternalSorter->new(
                 sub ($$) {
                         $_[0]->[$startCol] <=> $_[1]->[$startCol]
@@ -172,6 +182,7 @@ foreach my $seg (@refSeqs) {
                         $_[1]->[$endCol] <=> $_[0]->[$endCol];
                 }, $sortMem);
 
+            # go through the features and put them in the sorter
             my $featureCount = 0;
             while (defined(my $feature = $iterator->next_seq)) {
                 $sorter->add($flattener->flatten($feature));
@@ -183,6 +194,7 @@ foreach my $seg (@refSeqs) {
             print "got $featureCount features for " . $track->{"track"} . "\n";
             next unless $featureCount > 0;
 
+            # open the json directory for the track
             $jsonGen = JsonGenerator->new("$trackDir/$segName/"
                                               . $track->{"track"},
                                           $nclChunk,
@@ -196,11 +208,14 @@ foreach my $seg (@refSeqs) {
                                           $featureCount
                                       );
 
+            # iterate through the sorted features in the sorter and
+            # write them out
             while (my $row = $sorter->get()) {
                 $jsonGen->addFeature($row);
             }
             $jsonGen->generateTrack();
 
+            # finally, write the entry in the track list for the track we just made
             my $ext = ($compress ? "jsonz" : "json");
             JsonGenerator::writeTrackEntry("$outdir/trackInfo.json",
                                            {
