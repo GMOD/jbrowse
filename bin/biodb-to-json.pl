@@ -1,5 +1,51 @@
 #!/usr/bin/env perl
 
+=head1 NAME
+
+biodb-to-json.pl - format JBrowse JSON as described in a configuration file
+
+=head1 SYNOPSIS
+
+  # format the example volvox track data
+  bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json
+
+=head1 DESCRIPTION
+
+Reads a configuration file, in a format currently documented in
+docs/config.html, and formats JBrowse JSON from the data sources
+defined in it.
+
+=head1 USAGE
+
+  bin/biodb-to-json.pl --conf <conf file> [--ref <ref seq names> | --refid <ref seq ids>] [--track <track name>] [--out <output directory>] [--compress]
+
+=head2 OPTIONS
+
+=over 4
+
+=item --conf <conf file>
+
+Required. Path to the configuration file to read.  File must be in JSON format.
+
+=item --ref <ref seq names> | --refid <ref seq ids>
+
+Optional.  Comma-separated list of either reference sequence names or
+reference sequence ids for which to process data.
+
+By default, processes all data.
+
+=item --out <output directory>
+
+Directory where output should go.  Default: data/
+
+=item --compress
+
+If passed, compress the output with gzip (requires some web server configuration to serve properly).
+
+=back
+
+=cut
+
 use strict;
 use warnings;
 
