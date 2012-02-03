@@ -35,10 +35,9 @@ Display an extended help screen.
 
 Required. Path to the configuration file to read.  File must be in JSON format.
 
-=item --ref <ref seq names> | --refid <ref seq ids>
+=item --ref <ref seq name> | --refid <ref seq id>
 
-Optional.  Comma-separated list of either reference sequence names or
-reference sequence ids for which to process data.
+Optional.  Single reference sequence name or id for which to process data.
 
 By default, processes all data.
 
