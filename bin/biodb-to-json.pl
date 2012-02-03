@@ -4,11 +4,6 @@
 
 biodb-to-json.pl - format JBrowse JSON as described in a configuration file
 
-=head1 SYNOPSIS
-
-  # format the example volvox track data
-  bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json
-
 =head1 DESCRIPTION
 
 Reads a configuration file, in a format currently documented in
@@ -17,11 +12,24 @@ defined in it.
 
 =head1 USAGE
 
-  bin/biodb-to-json.pl --conf <conf file> [--ref <ref seq names> | --refid <ref seq ids>] [--track <track name>] [--out <output directory>] [--compress]
+  bin/biodb-to-json.pl                               \
+    --conf <conf file>                               \
+    [--ref <ref seq names> | --refid <ref seq ids>]  \
+    [--track <track name>]                           \
+    [--out <output directory>]                       \
+    [--compress]
+
+
+  # format the example volvox track data
+  bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json
 
 =head2 OPTIONS
 
 =over 4
+
+=item --help | -? | -h
+
+Display a help screen.
 
 =item --conf <conf file>
 
@@ -50,6 +58,7 @@ use strict;
 use warnings;
 
 use FindBin qw($Bin);
+use Pod::Usage;
 use lib "$Bin/../lib";
 
 use Getopt::Long;
@@ -62,6 +71,7 @@ use NameHandler;
 my ($confFile, $ref, $refid, $onlyLabel, $verbose, $nclChunk, $compress);
 my $outdir = "data";
 my $sortMem = 1024 * 1024 * 512;
+my $help;
 GetOptions("conf=s" => \$confFile,
 	   "ref=s" => \$ref,
 	   "refid=s" => \$refid,
@@ -70,25 +80,12 @@ GetOptions("conf=s" => \$confFile,
            "v+" => \$verbose,
            "nclChunk=i" => \$nclChunk,
            "compress" => \$compress,
-           "sortMem=i" =>\$sortMem);
+           "sortMem=i" =>\$sortMem,
+           "help|?|h" => \$help,
+) or pod2usage();
 
-if (!defined($confFile)) {
-    print <<HELP;
-USAGE: $0 --conf <conf file> [--ref <ref seq names> | --refid <ref seq ids>] [--track <track name>] [--out <output directory>] [--compress]
-
-    <conf file>: path to the configuration file
-    <ref seq names>: comma-separated list of reference sequence names
-        $0 will process features on these ref seqs
-        default: all of the ref seqs that prepare-refseqs.pl has seen
-    <ref seq ids>: comma-separated list of reference sequence ids
-        $0 will process features on these ref seqs
-        default: all of the ref seqs that prepare-refseqs.pl has seen
-    <output directory>: directory where output should go
-        default: $outdir
-    --compress: compress the output (requires some web server configuration)
-HELP
-exit;
-}
+pod2usage( -verbose => 2 ) if $help;
+pod2usage() unless defined $confFile;
 
 if (!defined($nclChunk)) {
     # default chunk size is 50KiB
