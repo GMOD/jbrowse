@@ -47,12 +47,10 @@ Make a new sorter using the given comparison function, using at most
 $ramInBytes bytes of RAM.  Optionally, can also pass $tmpDir, a path
 to the temporary directory to use for intermediate files.
 
+The comparison function must have a ($$) prototype.
+
 =cut
 
-# the comparison function must have an ($$) prototype
-# $ram is the amount of RAM to use before writing to disk (i.e., the size
-#     of each external sort segment)
-# tmpDir is an (optional) directory in which to create the temporary files
 sub new {
     my ($class, $compare, $ram, $tmpDir) = @_;
     my $self = {
