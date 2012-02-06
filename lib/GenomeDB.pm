@@ -10,7 +10,7 @@ GenomeDB - central "handle" for a directory tree of JBrowse JSON data
     #returns an object for the track, e.g. a FeatureTrack
 
     unless( defined $track ) {
-        $track = $gdb->createFeatureTrack( $tableName,
+        $track = $gdb->createFeatureTrack( $trackLabel,
                                            $trackConfig,
                                            $track->{shortLabel} );
     }
