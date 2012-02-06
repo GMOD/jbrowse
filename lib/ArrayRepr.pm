@@ -8,13 +8,17 @@ use warnings;
     The ArrayRepr class is for operating on indexed representations of objects.
 
     For example, if we have a lot of objects with similar attributes, e.g.:
+
         [
             {start: 1, end: 2, strand: -1},
             {start: 5, end: 6, strand: 1},
             ...
         ]
+
     we can represent them more compactly (e.g., in JSON) something like this:
+
         class = ["start", "end", "strand"]
+
         [
             [1, 2, -1],
             [5, 6, 1],
@@ -27,6 +31,7 @@ use warnings;
 
     For example, if we have a lot of instances of a few types of objects,
     like this:
+
         [
             {start: 1, end: 2, strand: 1, id: 1},
             {start: 5, end: 6, strand: 1, id: 2},
@@ -35,9 +40,12 @@ use warnings;
             {start: 30, end: 40, chunk: 2},
             ...
         ]
+
     We could use the first array position to indicate the "class" for the
     object, like this:
+
         classes = [["start", "end", "strand", "id"], ["start", "end", "chunk"]]
+
         [
             [0, 1, 2, 1, 1],
             [0, 5, 6, 1, 2],
@@ -45,9 +53,12 @@ use warnings;
             [1, 10, 20, 1],
             [1, 30, 40, 1]
         ]
+
     Also, if we occasionally want to add an ad-hoc attribute, we could just
     stick an optional dictionary onto the end:
+
         classes = [["start", "end", "strand", "id"], ["start", "end", "chunk"]]
+
         [
             [0, 1, 2, 1, 1],
             [0, 5, 6, 1, 2, {foo: 1}]
@@ -60,16 +71,17 @@ use warnings;
     for each attribute that is meant to be an array.
 
     Also, in cases where some attribute values are the same for all objects
-    in a particular set, it may be convenient to define a "prototype"
+    in a particular set, it may be convenient to define a prototype ("proto")
     with default values for all objects in the set
 
     In the end, we get something like this:
 
-        classes=[
-            {'attributes': ['Start', 'End', 'Subfeatures'],
-             'proto': {'Chrom': 'chr1'},
-             'isArrayAttr': {Subfeatures: true}}
-            ]
+        classes = [
+            { "attributes"  : [ "Start", "End", "Subfeatures" ],
+              "proto"       : { "Chrom"       : "chr1"   },
+              "isArrayAttr" : { "Subfeatures" : true     }
+            }
+        ]
 
     That's what this class facilitates.
 
