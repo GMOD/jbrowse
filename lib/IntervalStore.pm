@@ -16,9 +16,11 @@ IntervalStore - manages a set of intervals (genomic features)
   my $js = JsonStore->new($pathTempl, $compress);
   my $is = IntervalStore->new({
                store   => $js,
-               classes => {
-                   attributes => ["Start", "End", "Strand"],
-               },
+               classes => [
+                   {
+                     attributes => ["Start", "End", "Strand"],
+                   },
+               ],
                urlTemplate => "lf-{Chunk}.jsonz",
            );
   my $chunkBytes = 80_000;
