@@ -92,13 +92,11 @@ sub new {
 
     # fields is an array of (map from attribute name to attribute index)
     my @fields;
-    for (my $cl = 0; $cl <= $#{$classes}; $cl++) {
-        $fields[$cl] = {};
-        my $atts = $classes->[$cl]->{'attributes'};
-        for (my $f = 0; $f <= $#{$atts}; $f++) {
-            $fields[$cl]->{$atts->[$f]} = $f + 1;
-        }
+    for my $attributes ( map $_->{attributes}, @$classes ) {
+        my $field_index = 0;
+        push @fields, { map { $_ => $field_index++ } @$attributes };
     }
+
     my $self = {
         'classes' => $classes,
         'fields' => \@fields
@@ -184,11 +182,11 @@ sub makeFastSetter {
     # this method can be used if the attribute is guaranteed to be in
     # the attributes array for the object's class
     my ($self, $attr) = @_;
-    my @indices = $self->attrIndices($attr);
+    my $indices = $self->attrIndices($attr);
     return sub {
         my ($obj, $val) = @_;
-        if (defined($indices[$obj->[0]])) {
-            $obj->[$indices[$obj->[0]]] = $val;
+        if (defined($indices->[$obj->[0]])) {
+            $obj->[$indices->[$obj->[0]]] = $val;
         } else {
             # report error?
         }
