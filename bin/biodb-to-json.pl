@@ -62,10 +62,11 @@ use lib "$Bin/../lib";
 
 use Getopt::Long;
 use Data::Dumper;
-use JsonGenerator;
+use GenomeDB;
 use BioperlFlattener;
 use ExternalSorter;
 use NameHandler;
+
 
 my ($confFile, $ref, $refid, $onlyLabel, $verbose, $nclChunk, $compress);
 my $outdir = "data";
@@ -124,109 +125,109 @@ if (defined $refid) {
 
 die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
 
+my $gdb = GenomeDB->new( $outdir );
+
 foreach my $seg (@refSeqs) {
     my $segName = $seg->{name};
     print "\nworking on refseq $segName\n";
 
-    mkdir("$trackDir/$segName") unless (-d "$trackDir/$segName");
-
     # get the list of tracks we'll be operating on
-    my @tracks;
-    if (defined $onlyLabel) {
-        @tracks = grep { $_->{"track"} eq $onlyLabel } @{$config->{tracks}};
-    } else {
-        @tracks = @{$config->{tracks}};
-    }
+    my @tracks = defined $onlyLabel
+                   ? grep { $_->{"track"} eq $onlyLabel } @{$config->{tracks}}
+                   : @{$config->{tracks}};
 
-    foreach my $track (@tracks) {
-        print "working on track " . $track->{"track"} . "\n";
+    foreach my $trackCfg (@tracks) {
+        my $trackLabel = $trackCfg->{'track'};
+        print "working on track $trackLabel\n";
 
-        my %style = ("key" => $track->{"track"},
-                     %{$config->{"TRACK DEFAULTS"}},
-                     %{$track});
-        print "style: " . Dumper(\%style) if ($verbose);
+        my %mergedTrackCfg = (
+            %{$config->{"TRACK DEFAULTS"}},
+            "key" => $trackLabel,
+            %$trackCfg,
+            compress => $compress,
+            );
+        print "mergedTrackCfg: " . Dumper(\%mergedTrackCfg) if $verbose;
 
-        my @feature_types = @{$track->{"feature"}};
-        print "searching for features of type: " . join(", ", @feature_types) . "\n" if ($verbose);
-        if ($#feature_types >= 0) {
-            my $jsonGen;
+        my $track = $gdb->getTrack( $trackLabel )
+                 || $gdb->createFeatureTrack( $trackLabel,
+                                              \%mergedTrackCfg,
+                                              $mergedTrackCfg{key},
+                                             );
 
-            # set up a namehandler and a callback that calls it to
-            # index our feature names
-            my $trackDirForChrom = 
-                sub { "$trackDir/" . $_[0] . "/" . $track->{"track"}; };
-            my $nameHandler = NameHandler->new($trackDirForChrom);
-            my $nameCallback = sub {
-                $_[0]->[$NameHandler::chromIndex] = $segName;
-                $nameHandler->addName($_[0]);
-            };
+        my @feature_types = @{$trackCfg->{"feature"}};
+        next unless @feature_types;
 
-            # get the stream of the right features from the Bio::DB
-            my $iterator = $db->get_seq_stream(-seq_id => $segName,
-                                               -type   => \@feature_types);
+        print "searching for features of type: " . join(", ", @feature_types) . "\n" if $verbose;
 
+        # make the flattener, which converts bioperl features to arrayrefs
+        my $flattener = BioperlFlattener->new(
+                            $trackCfg->{"track"},
+                            \%mergedTrackCfg,
+                            [],
+                            [],
+                            sub {
+                                $_[0]->[$NameHandler::chromIndex] = $segName;
+                                $track->nameHandler->addName($_[0]);
+                            },
+                        );
 
-            # make the flattener, which converts bioperl features to arrayrefs
-            my $flattener = BioperlFlattener->new($track->{"track"},
-                                                  \%style, [], [],
-                                                  $nameCallback);
+        # make a sorting object, incrementally sorts the
+        # features according to the passed callback
+        my $sorter =  do {
             my $startCol = BioperlFlattener->startIndex;
-            my $endCol = BioperlFlattener->endIndex;
-
-            # make a sorting object, incrementally sorts the
-            # features according to the passed callback
-            my $sorter = ExternalSorter->new(
+            my $endCol   = BioperlFlattener->endIndex;
+            ExternalSorter->new(
                 sub ($$) {
-                        $_[0]->[$startCol] <=> $_[1]->[$startCol]
-                        ||
-                        $_[1]->[$endCol] <=> $_[0]->[$endCol];
-                }, $sortMem);
+                    $_[0]->[$startCol] <=> $_[1]->[$startCol]
+                  ||
+                    $_[1]->[$endCol]   <=> $_[0]->[$endCol]
+                },
+                $sortMem
+            );
+        };
 
-            # go through the features and put them in the sorter
-            my $featureCount = 0;
-            while (defined(my $feature = $iterator->next_seq)) {
-                $sorter->add($flattener->flatten($feature));
-                $featureCount++;
-            }
-            $sorter->finish();
-            $nameHandler->finish();
+        # get the stream of the right features from the Bio::DB
+        my $iterator = $db->get_seq_stream(-seq_id => $segName,
+                                           -type   => \@feature_types);
 
-            print "got $featureCount features for " . $track->{"track"} . "\n";
-            next unless $featureCount > 0;
-
-            # open the json directory for the track
-            $jsonGen = JsonGenerator->new("$trackDir/$segName/"
-                                              . $track->{"track"},
-                                          $nclChunk,
-                                          $compress, $track->{"track"},
-                                          $seg->{name},
-                                          $seg->{start},
-                                          $seg->{end},
-                                          \%style,
-                                          $flattener->featureHeaders,
-                                          $flattener->subfeatureHeaders,
-                                          $featureCount
-                                      );
-
-            # iterate through the sorted features in the sorter and
-            # write them out
-            while (my $row = $sorter->get()) {
-                $jsonGen->addFeature($row);
-            }
-            $jsonGen->generateTrack();
-
-            # finally, write the entry in the track list for the track we just made
-            my $ext = ($compress ? "jsonz" : "json");
-            JsonGenerator::writeTrackEntry("$outdir/trackInfo.json",
-                                           {
-                                               'label' => $track->{"track"},
-                                               'key' => $style{"key"},
-                                               'url' => "$trackRel/{refseq}/"
-                                                   . $track->{"track"}
-                                                       . "/trackData.$ext",
-                                               'type' => "FeatureTrack",
-                                           });
+        # go through the features and put them in the sorter
+        my $featureCount = 0;
+        while( my $feature = $iterator->next_seq ) {
+            my $row = $flattener->flatten( $feature );
+            $sorter->add( $row );
+            $featureCount++;
         }
+        $sorter->finish();
+
+        print "got $featureCount features for $trackCfg->{track}\n";
+        next unless $featureCount > 0;
+
+        # start loading the track
+        my $intervalStore = $track->startLoad(
+                                 $segName,
+                                 $nclChunk,
+                                 [ {
+                                     attributes  => $flattener->featureHeaders,
+                                     isArrayAttr => { Subfeatures => 1 },
+                                   },
+                                   {
+                                     attributes  => $flattener->subfeatureHeaders,
+                                     isArrayAttr => {},
+                                   },
+                                 ],
+                                );
+
+        # iterate through the sorted features in the sorter and
+        # write them out
+        while( my $row = $sorter->get ) {
+            $intervalStore->addSorted( $row );
+        }
+
+        $track->finishLoad( $intervalStore );
+
+        # finally, write the entry in the track list for the track we
+        # just made
+        $gdb->writeTrackEntry( $track );
     }
 }
 

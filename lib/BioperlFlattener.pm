@@ -36,12 +36,13 @@ my @featMap = (
 	       sub {int(shift->end)},
 	       sub {int(shift->strand)},
 	      );
-my @mapHeaders = ('start', 'end', 'strand');
+
+my @mapHeaders = ( 'class','start', 'end', 'strand');
 #positions of "start" and "end" in @mapHeaders (for NCList)
-my $startIndex = 0;
-my $endIndex = 1;
+my $startIndex = 1;
+my $endIndex   = 2;
 #position of the lazy subfeature file name in the fake feature.
-my $lazyIndex = 2;
+my $lazyIndex = 3;
 
 sub featureLabelSub {
     return $_[0]->display_name if $_[0]->can('display_name');
@@ -115,7 +116,7 @@ sub new {
         }
     }
 
-    my @subfeatMap = (@featMap, sub {shift->primary_tag});
+    my @subfeatMap = ( sub {1}, @featMap, sub {shift->primary_tag});
     my @subfeatHeaders = (@mapHeaders, "type");
 
     if ($style{subfeatures}) {
@@ -128,7 +129,7 @@ sub new {
             my $sfClasses = $style{subfeature_classes};
             my @subfeatIndices;
             foreach my $subFeature (@subFeatures) {
-                push @flattened, [map {&$_($subFeature)} @subfeatMap];
+                push @flattened, [ map $_->($subFeature), @subfeatMap ];
             }
             return \@flattened;
         };
@@ -158,6 +159,8 @@ sub new {
 
     $self->{sublistIndex} = $#curFeatMap + 1;
 
+    $_ = ucfirst for @curMapHeaders, @subfeatHeaders;
+
     $self->{nameMap} = \@nameMap;
     $self->{curFeatMap} = \@curFeatMap;
     $self->{curMapHeaders} = \@curMapHeaders;
@@ -169,18 +172,21 @@ sub new {
     bless $self, $class;
 }
 
-=head1 flatten( $feature_object )
+=head1 flatten( $feature_object, $class_index )
+
+Flatten a Bio::SeqFeatureI object into an arrayref.  Takes an optional
+C<$class_index> for the L<ArrayRepr> class.
 
 =cut
 
 sub flatten {
-    my ($self, $feature) = @_;
+    my ( $self, $feature, $class_index ) = @_;
 
     if ($self->{getLabel} || $self->{getAlias}) {
-        $self->{nameCallback}->([map {$_->($feature)} @{$self->{nameMap}}]);
+        $self->{nameCallback}->([ map $_->($feature), @{$self->{nameMap}} ]);
     }
 
-    return [map {&$_($feature)} @{$self->{curFeatMap}}];
+    return [ $class_index || 0, map $_->($feature), @{$self->{curFeatMap}} ];
 }
 
 =head1 featureHeaders()

@@ -121,3 +121,5 @@ sub finish {
             or die "couldn't close file for $chrom: $!";
     }
 }
+
+sub DESTROY { shift->finish }
