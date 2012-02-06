@@ -1,3 +1,11 @@
+=head1 NAME
+
+FeatureTrack - a track containing "regular" interval features
+
+=head1 METHODS
+
+=cut
+
 package FeatureTrack;
 
 use strict;
@@ -34,14 +42,15 @@ sub key { return shift->{key}; }
 sub type { return "FeatureTrack"; }
 sub config { return shift->{config}; }
 
-=head2 startLoad
+=head2 startLoad( $refSeqName, $chunkBytes, \@classes )
 
- Title   : startLoad
- Usage   : $ivalStore = $featureTrack->startLoad("chr4");
-           $ivalStore->addSorted($feat1);
- Function: starts loading for a given refseq
- Returns : an IntervalStore object
- Args    : refSeq: the name of the reference sequence that's about to get loaded
+Starts loading for a given refseq.  Takes the name of the reference
+seq, the number of bytes in a chunk, and an arrayref containing 
+
+Example:
+
+  $ivalStore = $featureTrack->startLoad("chr4");
+  $ivalStore->addSorted($feat1);
 
 =cut
 sub startLoad {
@@ -71,6 +80,22 @@ sub finishLoad {
                     };
     $ivalStore->store->put($self->{trackDataFilename}, $trackData);
 }
+
+=head2 nameHandler
+
+Return a NameHandler object configured to generate name files for this track.
+
+=cut
+
+sub nameHandler {
+    my ( $self ) = @_;
+    return $self->{nameHandler} ||= do {
+        require NameHandler;
+        (my $trackdir = $self->{trackDirTemplate}) =~ s/\{refseq\}/'$_[0]'/eg;
+        NameHandler->new( eval qq|sub { "$trackdir" }| );
+    };
+}
+
 
 sub writeHistograms {
     my ($self, $ivalStore) = @_;
