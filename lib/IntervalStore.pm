@@ -13,20 +13,25 @@ IntervalStore - manages a set of intervals (genomic features)
 
 =head1 SYNOPSIS
 
-my $js = JsonStore->new($pathTempl, $compress);
-my $is = IntervalStore->new({store => $js, classes => {attributes => ["Start", "End", "Strand"]}, urlTemplate => "lf-{Chunk}.jsonz");
-my $chunkBytes = 80_000;
-$is->startLoad($chunkBytes);
-$is->addSorted([10, 100, -1])
-$is->addSorted([50, 80, 1])
-$is->addSorted([90, 150, -1])
-$is->finishLoad();
+  my $js = JsonStore->new($pathTempl, $compress);
+  my $is = IntervalStore->new({
+               store   => $js,
+               classes => {
+                   attributes => ["Start", "End", "Strand"],
+               },
+               urlTemplate => "lf-{Chunk}.jsonz",
+           );
+  my $chunkBytes = 80_000;
+  $is->startLoad($chunkBytes);
+  $is->addSorted([10, 100, -1])
+  $is->addSorted([50, 80, 1])
+  $is->addSorted([90, 150, -1])
+  $is->finishLoad();
+  $is->overlap(60, 85)
 
-$is->overlap(60, 85)
+  => ([10, 100, -1], [50, 80, 1])
 
-=> ([10, 100, -1], [50, 80, 1])
-
-=cut
+=head1 METHODS
 
 =head2 new
 
