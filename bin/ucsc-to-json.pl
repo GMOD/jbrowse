@@ -69,6 +69,14 @@ JBrowse requires some web server configuration.
 
 The amount of RAM in bytes to use for sorting.
 
+=item --help | -h
+
+Display a help screen.
+
+=item --quiet | -q
+
+Do not print progress messages.
+
 =back
 
 =head1 EXAMPLE
@@ -104,6 +112,7 @@ my $outdir = "data";
 my $cssClass = "basic";
 my $sortMem = 1024 * 1024 * 512;
 my $help;
+my $quiet;
 GetOptions(
     "in=s"                => \$indir,
     "out=s"               => \$outdir,
@@ -116,6 +125,7 @@ GetOptions(
     "compress"            => \$compress,
     "sortMem=i"           => \$sortMem,
     "help|?|h"            => \$help,
+    "q|quiet"             => \$quiet,
 ) or pod2usage();
 
 pod2usage( -verbose => 2 ) if $help;
@@ -277,7 +287,7 @@ ENDJS
                 || (!defined($curChrom))
                     || ($curChrom ne $row->[$chromCol])) {
             if ($istore && $istore->hasIntervals) {
-                print STDERR "working on $curChrom\n";
+                print STDERR "working on $curChrom\n" unless $quiet;
                 $nameHandler->finish();
                 $track->finishLoad($istore);
             }
