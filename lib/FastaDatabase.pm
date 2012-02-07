@@ -67,7 +67,7 @@ sub from_fasta {
         local $/ = "\n>";
         while( my $entry = <$fh> ) {
 	    my ( $name, $seq ) = split "\n", $entry, 2;
-	    ($name) = $name =~ /^\s*>\s*(\S+)/;
+	    ($name) = $name =~ /^\s*>?\s*(\S+)/;
             $seq =~ s/\s//g;
             $seqdata->{$name} = $seq;
         }
