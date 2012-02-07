@@ -93,7 +93,7 @@ sub new {
     # fields is an array of (map from attribute name to attribute index)
     my @fields;
     for my $attributes ( map $_->{attributes}, @$classes ) {
-        my $field_index = 0;
+        my $field_index = 1;
         push @fields, { map { $_ => $field_index++ } @$attributes };
     }
 
