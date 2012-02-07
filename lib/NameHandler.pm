@@ -116,9 +116,11 @@ sub finish {
     my ($self) = @_;
     foreach my $chrom (keys %{$self->{nameFiles}}) {
         my $fh = $self->{nameFiles}->{$chrom};
-        $fh->print("]");
-        $fh->close()
-            or die "couldn't close file for $chrom: $!";
+        if( $fh && $fh->opened ) {
+            $fh->print("]");
+            $fh->close()
+              or die "couldn't close file for $chrom: $!";
+        }
     }
 }
 
