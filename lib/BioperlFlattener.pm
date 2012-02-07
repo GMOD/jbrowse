@@ -37,7 +37,7 @@ my @featMap = (
 	       sub {int(shift->strand)},
 	      );
 
-my @mapHeaders = ( 'class','start', 'end', 'strand');
+my @mapHeaders = ( 'start', 'end', 'strand');
 #positions of "start" and "end" in @mapHeaders (for NCList)
 my $startIndex = 1;
 my $endIndex   = 2;
