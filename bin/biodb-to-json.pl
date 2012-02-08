@@ -101,6 +101,7 @@ mkdir($outdir) unless (-d $outdir);
 mkdir($trackDir) unless (-d $trackDir);
 
 # read our conf file
+die "conf file '$confFile' not found or not readable" unless -r $confFile;
 my $config = JsonGenerator::readJSON($confFile);
 
 # open and configure the db defined in the config file
