@@ -9,7 +9,7 @@ import time
 def test_volvox():
     format_volvox()
     browser = webdriver.Firefox() # Get local session of firefox
-    browser.get("file://%s/test_harness.html?data=sample_data/json/volvox" % os.getcwd() ) # Load page
+    browser.get("file://%s/index.html?data=sample_data/json/volvox" % os.getcwd() ) # Load page
 
     # check a good browser title
     assert "ctgA" in browser.title, "browser title is actually %s" % browser.title
