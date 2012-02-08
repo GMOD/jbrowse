@@ -112,6 +112,10 @@ sub _loadChunk {
     }
 }
 
+=head2 startLoad( $measure, $chunkBytes )
+
+=cut
+
 sub startLoad {
     my ($self, $measure, $chunkBytes) = @_;
 
@@ -145,10 +149,18 @@ sub startLoad {
     }
 }
 
+=head2 addSorted( \@feature )
+
+=cut
+
 sub addSorted {
     my ($self, $feat) = @_;
     $self->{lazyNCList}->addSorted($feat);
 }
+
+=head2 finishLoad()
+
+=cut
 
 sub finishLoad {
     my ($self) = @_;
@@ -156,20 +168,25 @@ sub finishLoad {
     $self->{nclist} = $self->lazyNCList->topLevelList();
 }
 
+=head2 overlapCallback( $from, $to, \&func )
+
+Calls the given function once for each of the intervals that overlap
+the given interval if C<<$from <= $to>>, iterates left-to-right, otherwise
+iterates right-to-left.
+
+=cut
+
 sub overlapCallback {
     my ($self, $start, $end, $cb) = @_;
     $self->lazyNCList->overlapCallback($start, $end, $cb);
 }
 
-sub lazyNCList { return shift->{lazyNCList}; }
 
-sub count { return shift->{lazyNCList}->count; }
-
-sub hasIntervals { return shift->count > 0; }
-
-sub store { return shift->{store}; }
-
-sub classes { return shift->{classes}; }
+sub lazyNCList   { shift->{lazyNCList}        }
+sub count        { shift->{lazyNCList}->count }
+sub hasIntervals { shift->count > 0           }
+sub store        { shift->{store}             }
+sub classes      { shift->{classes}           }
 
 =head2 descriptor
 
@@ -181,6 +198,7 @@ sub classes { return shift->{classes}; }
            The return value can be passed to the constructor later.
 
 =cut
+
 sub descriptor {
     my ($self) = @_;
     return {
