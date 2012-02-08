@@ -86,6 +86,7 @@ sub importExisting {
  Args    : $feat is the feature to be added;
 
 =cut
+
 sub addSorted {
     my ($self, $feat) = @_;
 
@@ -188,6 +189,7 @@ sub finishChunk {
  Returns : nothing
 
 =cut
+
 sub finish {
     my ($self) = @_;
     my $level;
@@ -264,11 +266,16 @@ sub iterHelper {
     }
 }
 
+=head2 overlapCallback( $from, $to, \&func )
+
+Calls the given function once for each of the intervals that overlap
+the given interval if C<<$from <= $to>>, iterates left-to-right, otherwise
+iterates right-to-left.
+
+=cut
+
 sub overlapCallback {
     my ($self, $from, $to, $fun) = @_;
-    # calls the given function once for each of the
-    # intervals that overlap the given interval
-    # if from <= to, iterates left-to-right, otherwise iterates right-to-left
 
     croak "LazyNCList not loaded" unless defined($self->{topLevelList});
 
