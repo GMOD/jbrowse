@@ -3,6 +3,7 @@ from selenium.webdriver import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from subprocess import check_call as call
+from selenium.webdriver.support.ui import Select
 import os
 import time
 
@@ -10,6 +11,10 @@ def test_volvox():
     format_volvox()
     browser = webdriver.Firefox() # Get local session of firefox
     browser.get("file://%s/index.html?data=sample_data/json/volvox" % os.getcwd() ) # Load page
+
+    # select "ctgA from the dropdown
+    refseq_selector = Select(browser.find_element_by_id('chrom'))
+    refseq_selector.select_by_value('ctgA')
 
     # check a good browser title
     assert "ctgA" in browser.title, "browser title is actually %s" % browser.title
