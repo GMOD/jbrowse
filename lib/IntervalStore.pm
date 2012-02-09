@@ -142,7 +142,7 @@ sub startLoad {
           LazyNCList->new($self->{attrs},
 			  $self->{lazyClass},
                           $makeLazy,
-                          sub { $self->_loadChunk($self, @_); },
+                          sub { $self->_loadChunk( @_); },
                           $measure,
                           $output,
                           $chunkBytes);
