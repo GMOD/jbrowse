@@ -8,3 +8,4 @@ names
 bin/wig2png
 *.pyc
 Makefile
+/sample_data/json
