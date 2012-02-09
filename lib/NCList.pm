@@ -30,6 +30,7 @@ use List::Util qw(max);
               on the array to the sublist.
 
 =cut
+
 sub new {
     my ($class, $start, $end, $setSublist, $featList) = @_;
 

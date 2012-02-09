@@ -10,14 +10,17 @@ use NCList;
 =head2 new
 
  Title   : new
- Usage   : LazyNCList->new($attrs, $makeLazy,
+ Usage   : LazyNCList->new($attrs, $lazyClass, $makeLazy,
                            $measure, $output, $sizeThresh
  Function: create an LazyNCList
  Returns : an LazyNCList object
  Args    : $attrs is a reference to an ArrayRepr instance
+           $lazyClass is the class number to be used for 'lazy'
+              NCLists, which are references to sub-lists,
            $makeLazy is a reference to a sub taking the arguments
               (start, end, ID), which returns a "lazy feature" with the
               given attributes
+           $loadChunk is a subroutine that takes a chunk ID number and returns the contents of that chunk (
            $measure is a reference to a sub that takes a feature to be
               output, and returns the number of bytes that feature will
               take up in the output
@@ -82,7 +85,7 @@ sub importExisting {
            features passed to this method are accumulated into "chunks";
            once a chunk grows to sizeThresh, the chunk is output.
            The features given to addSorted must be sorted by the NCList sort.
- Returns : an NCList object
+ Returns : nothing meaningful
  Args    : $feat is the feature to be added;
 
 =cut
