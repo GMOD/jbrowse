@@ -65,8 +65,6 @@ use Data::Dumper;
 use GenomeDB;
 use BioperlFlattener;
 use ExternalSorter;
-use NameHandler;
-
 
 my ($confFile, $ref, $refid, $onlyLabel, $verbose, $nclChunk, $compress);
 my $outdir = "data";
@@ -159,6 +157,10 @@ foreach my $seg (@refSeqs) {
         next unless @feature_types;
 
         print "searching for features of type: " . join(", ", @feature_types) . "\n" if $verbose;
+        # get the stream of the right features from the Bio::DB
+        my $iterator = $db->get_seq_stream( -seq_id => $segName,
+                                            -type   => \@feature_types);
+
 
         # make the flattener, which converts bioperl features to arrayrefs
         my $flattener = BioperlFlattener->new(
@@ -166,11 +168,23 @@ foreach my $seg (@refSeqs) {
                             \%mergedTrackCfg,
                             [],
                             [],
-                            sub {
-                                $_[0]->[$NameHandler::chromIndex] = $segName;
-                                $track->nameHandler->addName($_[0]);
-                            },
                         );
+
+        # start loading the track
+        $track->startLoad(
+             $segName,
+             $nclChunk,
+             [ {
+                 attributes  => $flattener->featureHeaders,
+                 isArrayAttr => { Subfeatures => 1 },
+               },
+               {
+                 attributes  => $flattener->subfeatureHeaders,
+                 isArrayAttr => {},
+               },
+             ],
+            );
+
 
         # make a sorting object, incrementally sorts the
         # features according to the passed callback
@@ -187,14 +201,18 @@ foreach my $seg (@refSeqs) {
             );
         };
 
-        # get the stream of the right features from the Bio::DB
-        my $iterator = $db->get_seq_stream(-seq_id => $segName,
-                                           -type   => \@feature_types);
-
         # go through the features and put them in the sorter
         my $featureCount = 0;
         while( my $feature = $iterator->next_seq ) {
-            my $row = $flattener->flatten( $feature );
+
+            # load the feature's name record into the track
+            if( my $namerec = $flattener->flatten_to_name( $feature, $segName ) ) {
+                $track->nameHandler->addName( $namerec );
+            }
+
+            # load the flattened feature itself into the sorted, so we
+            # can load the actual feature data in sorted order below
+            my $row = $flattener->flatten_to_feature( $feature );
             $sorter->add( $row );
             $featureCount++;
         }
@@ -203,28 +221,11 @@ foreach my $seg (@refSeqs) {
         print "got $featureCount features for $trackCfg->{track}\n";
         next unless $featureCount > 0;
 
-        # start loading the track
-        my $intervalStore = $track->startLoad(
-                                 $segName,
-                                 $nclChunk,
-                                 [ {
-                                     attributes  => $flattener->featureHeaders,
-                                     isArrayAttr => { Subfeatures => 1 },
-                                   },
-                                   {
-                                     attributes  => $flattener->subfeatureHeaders,
-                                     isArrayAttr => {},
-                                   },
-                                 ],
-                                );
-
         # iterate through the sorted features in the sorter and
         # write them out
         while( my $row = $sorter->get ) {
-            $intervalStore->addSorted( $row );
+            $track->addSorted( $row );
         }
-
-        $track->finishLoad( $intervalStore );
 
         # finally, write the entry in the track list for the track we
         # just made
