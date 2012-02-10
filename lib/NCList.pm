@@ -48,20 +48,21 @@ sub new {
     #$curlist is the currently active sublist
     my $curList = [];
 
-    my $self = { 'topList' => $curList,
+    my $self = { 'topList'    => $curList,
 		 'setSublist' => $setSublist,
-	         'count' => $#features + 1,
-                 'minStart' => $start->($features[0])};
+	         'count'      => scalar( @features ),
+               };
     bless $self, $class;
 
-    my $maxEnd = $end->($features[0]);
+    if( @features ) {
+        @{$self}{'minStart','maxEnd'} = ( $start->($features[0]), $end->($features[0]) );
+        push @$curList, $features[0];
+    }
 
-    push @$curList, $features[0];
-
-    my ($topSublist, $i);
-
-    for ($i = 1; $i <= $#features; $i++) {
-        $maxEnd = max($maxEnd, $end->($features[$i]));
+    my $maxEnd = $self->{maxEnd};
+    my $topSublist;
+    for (my $i = 1; $i < @features; $i++) {
+        $maxEnd = max( $maxEnd, $end->( $features[$i] ));
 	#if this interval is contained in the previous interval,
 	if ($end->($features[$i]) < $end->($features[$i - 1])) {
 	    #create a new sublist starting with this interval
@@ -95,8 +96,6 @@ sub new {
 	    }
 	}
     }
-
-    $self->{maxEnd} = $maxEnd;
 
     return $self;
 }
