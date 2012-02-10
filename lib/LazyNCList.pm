@@ -212,8 +212,7 @@ sub finish {
                              $self->{end},
                              $self->{setSublist},
                              $self->{partialStack}->[$level]);
-    $self->{maxEnd} = $newNcl->maxEnd unless defined($self->{maxEnd});
-    $self->{maxEnd} = max($self->{maxEnd}, $newNcl->maxEnd);
+    $self->{maxEnd} = max( grep defined, $self->{maxEnd}, $newNcl->maxEnd );
     #print STDERR "top level NCL has " . scalar(@{$self->{partialStack}->[$level]}) . " features\n";
     $self->{topLevelList} = $newNcl->nestedList;
 }
@@ -281,6 +280,8 @@ sub overlapCallback {
     my ($self, $from, $to, $fun) = @_;
 
     croak "LazyNCList not loaded" unless defined($self->{topLevelList});
+
+    return unless $self->count;
 
     # inc: iterate leftward or rightward
     my $inc = ($from > $to) ? -1 : 1;

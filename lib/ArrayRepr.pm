@@ -200,7 +200,7 @@ sub makeFastGetter {
     my $indices = $self->attrIndices($attr);
     return sub {
         my ($obj) = @_;
-        if (defined($indices->[$obj->[0]])) {
+        if ( defined $obj && defined $obj->[0] && defined $indices->[ $obj->[0] ] ) {
             return $obj->[$indices->[$obj->[0]]];
         } else {
             # report error?

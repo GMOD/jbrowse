@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use File::Path qw(remove_tree);
 use File::Spec;
-use List::Util qw(min max);
+use List::Util qw( min max first );
 use POSIX qw (ceil);
 
 use IntervalStore;
@@ -146,23 +146,18 @@ sub writeHistograms {
     my $getEnd = $attrs->makeFastGetter("End");
 
     my $jsonStore = $ivalStore->store;
-    my $refEnd = $ivalStore->lazyNCList->maxEnd;
+    my $refEnd = $ivalStore->lazyNCList->maxEnd || 0;
     my $featureCount = $ivalStore->count;
 
     # $histBinThresh is the approximate the number of bases per
     # histogram bin at the zoom level where FeatureTrack.js switches
     # to the histogram view by default
-    my $histBinThresh = ($refEnd * 2.5) / $featureCount;
-
-    my $histBinBases = $multiples[0];
-    foreach my $multiple (@multiples) {
-        $histBinBases = $multiple;
-        last if $multiple > $histBinThresh;
-    }
+    my $histBinThresh = $featureCount ? ($refEnd * 2.5) / $featureCount : 999_999_999_999;
+    my $histBinBases  = ( first { $_ > $histBinThresh } @multiples ) || $multiples[-1];
 
     # initialize histogram arrays to all zeroes
     my @histograms;
-    for (my $i = 0; $i <= $#multiples; $i++) {
+    for (my $i = 0; $i < @multiples; $i++) {
         my $binBases = $histBinBases * $multiples[$i];
         $histograms[$i] = [(0) x ceil($refEnd / $binBases)];
         # somewhat arbitrarily cut off the histograms at 100 bins

@@ -51,15 +51,14 @@ sub new {
     my $self = { 'topList'    => $curList,
 		 'setSublist' => $setSublist,
 	         'count'      => scalar( @features ),
+                 'minStart'   => ( @features ? $start->($features[0]) : undef ),
                };
     bless $self, $class;
 
-    if( @features ) {
-        @{$self}{'minStart','maxEnd'} = ( $start->($features[0]), $end->($features[0]) );
-        push @$curList, $features[0];
-    }
+    push @$curList, $features[0] if @features;
 
-    my $maxEnd = $self->{maxEnd};
+    my $maxEnd = @features ? $end->($features[0]) : undef;
+
     my $topSublist;
     for (my $i = 1; $i < @features; $i++) {
         $maxEnd = max( $maxEnd, $end->( $features[$i] ));
@@ -96,6 +95,8 @@ sub new {
 	    }
 	}
     }
+
+    $self->{maxEnd} = $maxEnd;
 
     return $self;
 }
