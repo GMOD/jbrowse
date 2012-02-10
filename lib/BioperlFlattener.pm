@@ -9,7 +9,6 @@ BioperlFlattener - configurably transform BioPerl feature objects to arrayrefs
                       \%style,
                       [],
                       [],
-                      $nameCallback,
                     );
 
   my $startCol = BioperlFlattener->startIndex;
@@ -26,6 +25,7 @@ package BioperlFlattener;
 use strict;
 use warnings;
 use JsonGenerator;
+use NameHandler;
 
 #in JSON, features are represented by arrays (we could use
 #hashes, but then we'd have e.g. "start" and "end" in the JSON
@@ -58,13 +58,13 @@ my %builtinDefaults =
    "class"        => "feature"
   );
 
-=head1 new( $trackLabel, \%setStyle, \@extraMap, \@extraHeaders, \&nameCallback )
+=head2 new( $trackLabel, \%setStyle, \@extraMap, \@extraHeaders )
 
 =cut
 
 sub new {
     my ($class, $label, $setStyle,
-        $extraMap, $extraHeaders, $nameCallback) = @_;
+        $extraMap, $extraHeaders ) = @_;
 
     my %style = ("key" => $label,
                  %builtinDefaults,
@@ -167,29 +167,49 @@ sub new {
     $self->{subfeatMap} = \@subfeatMap;
     $self->{subfeatHeaders} = \@subfeatHeaders;
     $self->{features} = [];
-    $self->{nameCallback} = $nameCallback;
 
     bless $self, $class;
 }
 
-=head1 flatten( $feature_object, $class_index )
+=head2 flatten_to_feature( $feature_object, $class_index )
 
-Flatten a Bio::SeqFeatureI object into an arrayref.  Takes an optional
-C<$class_index> for the L<ArrayRepr> class.
+Flatten a Bio::SeqFeatureI object into an arrayref representing the
+feature.  Takes an optional C<$class_index> for the L<ArrayRepr>
+class.
 
 =cut
 
-sub flatten {
+sub flatten_to_feature {
     my ( $self, $feature, $class_index ) = @_;
-
-    if ($self->{getLabel} || $self->{getAlias}) {
-        $self->{nameCallback}->([ map $_->($feature), @{$self->{nameMap}} ]);
-    }
-
-    return [ $class_index || 0, map $_->($feature), @{$self->{curFeatMap}} ];
+    [ $class_index || 0, map $_->($feature), @{$self->{curFeatMap}} ];
 }
 
-=head1 featureHeaders()
+=head2 flatten_to_name( $feature_object, $refseq_name )
+
+If appropriate for this track, flatten the feature to an arrayref
+suitable for passing to a L<NameHandler>.
+
+Optionally takes a $refseq_name, the name of the reference sequence
+for this feature.
+
+Returns nothing if name-handling is not selected for this track (based
+on the configuration passed when this flattener object was created).
+
+=cut
+
+sub flatten_to_name {
+    my ( $self, $feature, $segName ) = @_;
+
+    return unless $self->{getLabel} || $self->{getAlias};
+
+    my @namerec = map $_->($feature), @{$self->{nameMap}};
+    $namerec[ $NameHandler::chromIndex ] = $segName if defined $segName;
+
+    return \@namerec;
+}
+
+
+=head2 featureHeaders()
 
 =cut
 
@@ -199,7 +219,7 @@ sub featureHeaders {
 }
 
 
-=head1 subfeatureHeaders()
+=head2 subfeatureHeaders()
 
 =cut
 
@@ -208,7 +228,7 @@ sub subfeatureHeaders {
     return $self->{subfeatHeaders};
 }
 
-=head1 startIndex()
+=head2 startIndex()
 
 =cut
 
@@ -216,7 +236,7 @@ sub startIndex {
     return $startIndex;
 }
 
-=head1 endIndex
+=head2 endIndex
 
 =cut
 
