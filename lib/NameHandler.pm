@@ -27,7 +27,6 @@ use strict;
 use warnings;
 
 use Carp;
-use Fcntl;
 use File::Path;
 use IO::File;
 
@@ -68,41 +67,39 @@ BioperlFlattener.
 
 sub addName {
     my ($self, $nameArr) = @_;
+
     my $chrom = $nameArr->[$chromIndex];
+
     unless (defined($chrom)) {
         carp "chrom not defined in " . JSON::to_json($nameArr) . "\n";
     }
-    my $nameFile = $self->{nameFiles}->{$chrom};
 
-    if (defined($nameFile)) {
+    my $nameFile = $self->{nameFiles}->{$chrom};
+    if ( defined $nameFile ) {
         $nameFile->print(",");
     } else {
-        $nameFile = $self->newChrom($chrom);
-        $self->{nameFiles}->{$chrom} = $nameFile;
+        $self->{nameFiles}->{$chrom} =
+            $nameFile                = $self->_newChrom($chrom);
     }
 
-    $nameFile->print(JSON::to_json($nameArr, {pretty => 0}))
+    $nameFile->print( JSON::to_json($nameArr, {pretty => 0}) )
         or die "couldn't write to file for $chrom: $!";
 }
 
-=head1 newChrom( $refSeqName )
 
-Given the name of the reference sequence, returns a filehandle to the
-proper name index file.  Makes a new directory to hold the file if
-necessary.
-
-=cut
-
-sub newChrom {
+# Given the name of the reference sequence, opens and returns a filehandle to the
+# proper name index file.  Makes a new directory to hold the file if
+# necessary.
+sub _newChrom {
     my ($self, $chrom) = @_;
+
     my $chromDir = $self->{trackDirForChrom}->($chrom);
-    mkpath($chromDir) unless (-d $chromDir);
-    unlink "$chromDir/$nameFile";
+    mkpath( $chromDir ) unless -e $chromDir;
 
-    my $fh = new IO::File "$chromDir/$nameFile", O_WRONLY | O_CREAT | O_EXCL
-        or die "couldn't open $chromDir/$nameFile: $!";
+    my $namefile = "$chromDir/$nameFile";
 
-    $fh->print("[");
+    my $fh = IO::File->new( $namefile, '>' ) or die "$! writing $namefile";
+    $fh->print( "[" );
     return $fh;
 }
 
@@ -118,8 +115,7 @@ sub finish {
         my $fh = $self->{nameFiles}->{$chrom};
         if( $fh && $fh->opened ) {
             $fh->print("]");
-            $fh->close()
-              or die "couldn't close file for $chrom: $!";
+            $fh->close or die "$! closing names file for ref seq $chrom";
         }
     }
 }
