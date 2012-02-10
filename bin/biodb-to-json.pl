@@ -31,6 +31,10 @@ defined in it.
 
 Display an extended help screen.
 
+=item --quiet | -q
+
+Quiet.  Don't print progress messages.
+
 =item --conf <conf file>
 
 Required. Path to the configuration file to read.  File must be in JSON format.
@@ -69,7 +73,7 @@ use ExternalSorter;
 my ($confFile, $ref, $refid, $onlyLabel, $verbose, $nclChunk, $compress);
 my $outdir = "data";
 my $sortMem = 1024 * 1024 * 512;
-my $help;
+my $help; my $quiet;
 GetOptions("conf=s" => \$confFile,
 	   "ref=s" => \$ref,
 	   "refid=s" => \$refid,
@@ -80,6 +84,7 @@ GetOptions("conf=s" => \$confFile,
            "compress" => \$compress,
            "sortMem=i" =>\$sortMem,
            "help|?|h" => \$help,
+           "quiet|q" => \$quiet,
 ) or pod2usage();
 
 pod2usage( -verbose => 2 ) if $help;
@@ -128,7 +133,7 @@ my $gdb = GenomeDB->new( $outdir );
 
 foreach my $seg (@refSeqs) {
     my $segName = $seg->{name};
-    print "\nworking on refseq $segName\n";
+    print "\nworking on refseq $segName\n" unless $quiet;
 
     # get the list of tracks we'll be operating on
     my @tracks = defined $onlyLabel
@@ -137,7 +142,7 @@ foreach my $seg (@refSeqs) {
 
     foreach my $trackCfg (@tracks) {
         my $trackLabel = $trackCfg->{'track'};
-        print "working on track $trackLabel\n";
+        print "working on track $trackLabel\n" unless $quiet;
 
         my %mergedTrackCfg = (
             %{$config->{"TRACK DEFAULTS"}},
@@ -145,7 +150,7 @@ foreach my $seg (@refSeqs) {
             %$trackCfg,
             compress => $compress,
             );
-        print "mergedTrackCfg: " . Dumper(\%mergedTrackCfg) if $verbose;
+        print "mergedTrackCfg: " . Dumper(\%mergedTrackCfg) if $verbose && !$quiet;
 
         my $track = $gdb->getTrack( $trackLabel )
                  || $gdb->createFeatureTrack( $trackLabel,
@@ -156,7 +161,7 @@ foreach my $seg (@refSeqs) {
         my @feature_types = @{$trackCfg->{"feature"}};
         next unless @feature_types;
 
-        print "searching for features of type: " . join(", ", @feature_types) . "\n" if $verbose;
+        print "searching for features of type: " . join(", ", @feature_types) . "\n" if $verbose && !$quiet;
         # get the stream of the right features from the Bio::DB
         my $iterator = $db->get_seq_stream( -seq_id => $segName,
                                             -type   => \@feature_types);
@@ -218,7 +223,7 @@ foreach my $seg (@refSeqs) {
         }
         $sorter->finish();
 
-        print "got $featureCount features for $trackCfg->{track}\n";
+        print "got $featureCount features for $trackCfg->{track}\n" unless $quiet;
         next unless $featureCount > 0;
 
         # iterate through the sorted features in the sorter and

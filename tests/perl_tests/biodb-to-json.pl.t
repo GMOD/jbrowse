@@ -16,7 +16,7 @@ dircopy( 'tests/data/volvox_formatted_refseqs', $tempdir );
 
 diag "writing output to $tempdir";
 system $^X, 'bin/biodb-to-json.pl', (
-    #'-q',
+    '--quiet',
     '--conf'  => 'sample_data/raw/volvox.json',
     '--out'   => "$tempdir",
   );
