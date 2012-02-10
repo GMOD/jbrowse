@@ -15,7 +15,7 @@ def test_yeast():
     assert "chrI" in browser.title
 
     # check that we have the appropriate tracks
-    genes_tracks = assert_elements( browser, '//div[@class="tracklist-label"]' )
+    genes_tracks = assert_elements( browser, '//div[@class="tracklist-label"][contains(.,"coding")]' )
     assert len(genes_tracks) == 1, 'actually found %d genes tracks' % len(genes_tracks)
     assert genes_tracks[0].text == 'Protein-coding genes', "first track was called %s instead of %s" % (genes_tracks[0].text, 'Protein-coding genes')
 
