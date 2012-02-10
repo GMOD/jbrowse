@@ -17,6 +17,7 @@ use POSIX qw (ceil);
 
 use IntervalStore;
 use JsonFileStorage;
+use NameHandler;
 
 sub new {
     my ($class, $trackDirTemplate, $baseUrl, $label, $config, $key) = @_;
@@ -45,14 +46,16 @@ sub config { return shift->{config}; }
 =head2 startLoad( $refSeqName, $chunkBytes, \@classes )
 
 Starts loading for a given refseq.  Takes the name of the reference
-seq, the number of bytes in a chunk, and an arrayref containing 
+seq, the number of bytes in a chunk, and an arrayref containing the
+L<ArrayRepr> definitions for each feature class.
 
 Example:
 
-  $ivalStore = $featureTrack->startLoad("chr4");
-  $ivalStore->addSorted($feat1);
+  $featureTrack->startLoad("chr4");
+  $featuretrack->addSorted( $_ ) for @sorted_features;
 
 =cut
+
 sub startLoad {
     my ($self, $refSeq, $chunkBytes, $classes) = @_;
 
@@ -60,40 +63,73 @@ sub startLoad {
     remove_tree($outDir) if (-d $outDir);
 
     my $jsonStore = JsonFileStorage->new($outDir, $self->config->{compress});
-    my $intervalStore = IntervalStore->new({store => $jsonStore,
-                                            classes => $classes });
+    $self->_make_nameHandler;
+    my $intervalStore = $self->{intervalStore} =
+        IntervalStore->new({store => $jsonStore,
+                            classes => $classes });
 
     # add 1 for the comma between features in the JSON arrays
     my $measure = sub { return $jsonStore->encodedSize($_[0]) + 1; };
     $intervalStore->startLoad($measure, $chunkBytes);
-    return $intervalStore;
+
+    $self->{loading} = 1;
+
+    return;
 }
 
-sub finishLoad {
-    my ($self, $ivalStore) = @_;
-    $ivalStore->finishLoad();
-    my $trackData = {
-                     featureCount => $ivalStore->count,
-                     intervals => $ivalStore->descriptor,
-                     histograms => $self->writeHistograms($ivalStore),
-                     formatVersion => 1
-                    };
-    $ivalStore->store->put($self->{trackDataFilename}, $trackData);
-}
+sub _intervalStore { $_[0]->{intervalStore} }
 
-=head2 nameHandler
+=head2 addSorted( $feature )
 
-Return a NameHandler object configured to generate name files for this track.
+Add a feature to this feature track.  Features must be passed to this
+in sorted order.
 
 =cut
 
-sub nameHandler {
+sub addSorted { shift->_intervalStore->addSorted( @_ ) }
+
+=head2 finishLoad()
+
+Finish loading this track, if it is loading.
+
+=cut
+
+sub finishLoad {
     my ( $self ) = @_;
-    return $self->{nameHandler} ||= do {
-        require NameHandler;
-        (my $trackdir = $self->{trackDirTemplate}) =~ s/\{refseq\}/'$_[0]'/eg;
-        NameHandler->new( eval qq|sub { "$trackdir" }| );
-    };
+
+    return unless $self->{loading};
+
+    my $ivalStore = $self->_intervalStore;
+    $ivalStore->finishLoad;
+
+    my $trackData = {
+        featureCount => $ivalStore->count,
+        intervals => $ivalStore->descriptor,
+        histograms => $self->writeHistograms($ivalStore),
+        formatVersion => 1
+        };
+
+    $ivalStore->store->put($self->{trackDataFilename}, $trackData);
+
+    $self->{loading} = 0;
+
+    return;
+}
+
+sub DESTROY { $_[0]->finishLoad }
+
+=head2 nameHandler
+
+Return a NameHandler object configured to generate name files for this
+track.  Not available until startLoad() is called.
+
+=cut
+
+sub nameHandler { $_[0]->{nameHandler} }
+sub _make_nameHandler {
+    my ( $self ) = @_;
+    (my $trackdir = $self->{trackDirTemplate}) =~ s/\{refseq\}/'$_[0]'/eg;
+    $self->{nameHandler} = NameHandler->new( eval qq|sub { "$trackdir" }| );
 }
 
 
