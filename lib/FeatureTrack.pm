@@ -2,6 +2,11 @@
 
 FeatureTrack - a track containing "regular" interval features
 
+=head1 DESCRIPTION
+
+WARNING: currently only works for *loading* feature data.  Other
+operations on the feature data are not supported by this module.
+
 =head1 METHODS
 
 =cut
@@ -87,6 +92,14 @@ in sorted order.
 =cut
 
 sub addSorted { shift->_intervalStore->addSorted( @_ ) }
+
+=head2 hasFeatures
+
+Returns true if this track has features in it.
+
+=cut
+
+sub hasFeatures { $_[0]->_intervalStore && $_[0]->_intervalStore->hasIntervals }
 
 =head2 finishLoad()
 
