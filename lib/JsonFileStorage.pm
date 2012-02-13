@@ -1,3 +1,13 @@
+=head1 NAME
+
+JsonFileStorage - manage a directory structure of .json or .jsonz files
+
+=head1 SYNOPSIS
+
+=head1 METHODS
+
+=cut
+
 package JsonFileStorage;
 
 use strict;
@@ -8,6 +18,16 @@ use JSON 2;
 use IO::File;
 use Fcntl ":flock";
 use PerlIO::gzip;
+
+=head2 new( $outDir, $compress, \%opts )
+
+Constructor.  Takes the directory to work with, boolean flag of
+whether to compress the results, and an optional hashref of other
+options as:
+
+  # TODO: document options hashref
+
+=cut
 
 sub new {
     my ($class, $outDir, $compress, $opts) = @_;
@@ -34,19 +54,42 @@ sub new {
     return $self;
 }
 
+=head2 fullPath( 'path/to/file.json' )
+
+Get the full path to the given filename in the output directory.  Just
+calls File::Spec->join with the C<<$outDir>> that was set at
+construction.
+
+=cut
+
 sub fullPath {
     my ($self, $path) = @_;
     return File::Spec->join($self->{outDir}, $path);
 }
 
+=head2 ext
+
+Accessor for the file extension currently in use for the files in this
+storage directory.  Usually either '.json' or '.jsonz'.
+
+=cut
+
 sub ext {
     return shift->{ext};
 }
+
+=head2 encodedSize
+
+=cut
 
 sub encodedSize {
     my ($self, $obj) = @_;
     return length($self->{json}->encode($obj));
 }
+
+=head2 put
+
+=cut
 
 sub put {
     my ($self, $path, $toWrite) = @_;
@@ -67,6 +110,10 @@ sub put {
       or die "couldn't close $file: $!";
 }
 
+=head2 get
+
+=cut
+
 sub get {
     my ($self, $path, $default) = @_;
 
@@ -86,6 +133,10 @@ sub get {
     }
     return $default;
 }
+
+=head2 modify
+
+=cut
 
 sub modify {
     my ($self, $path, $callback) = @_;
