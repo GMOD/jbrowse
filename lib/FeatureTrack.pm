@@ -114,6 +114,7 @@ sub finishLoad {
 
     my $ivalStore = $self->_intervalStore;
     $ivalStore->finishLoad;
+    $self->nameHandler->finish;
 
     my $trackData = {
         featureCount => $ivalStore->count,
