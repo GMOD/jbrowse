@@ -273,7 +273,6 @@ ENDJS
                                           $trackConfig,
                                           $track->{shortLabel});
     }
-    my $istore;
     my $nameHandler;
     while (1) {
         my $row = $sorter->get();
@@ -283,57 +282,47 @@ ENDJS
         # a new JsonGenerator at the beginning (!defined($curChrom)) and at
         # every refseq transition ($curChrom ne $row->[$chromCol]) thereafter.
         # We also need to finish the last refseq at the end (!defined($row)).
-        if ((!defined($row))
-                || (!defined($curChrom))
-                    || ($curChrom ne $row->[$chromCol])) {
-            if ($istore && $istore->hasIntervals) {
+        if ( !defined $row
+             || !defined $curChrom
+             || $curChrom ne $row->[$chromCol]
+           ) {
+            if ( $track->hasFeatures ) {
                 print STDERR "working on $curChrom\n" unless $quiet;
-                $nameHandler->finish();
-                $track->finishLoad($istore);
+                $track->finishLoad;
             }
 
-            if (defined($row)) {
+            if( defined $row ) {
                 $curChrom = $row->[$chromCol];
-                # next unless defined($refSeqs{$curChrom});
-                # mkdir("$trackDir/" . $curChrom)
-                #     unless (-d "$trackDir/" . $curChrom);
-                my $trackDirForChrom = 
-                    sub { "$trackDir/" . $tableName . "/" . $_[0]; };
-                $nameHandler = NameHandler->new($trackDirForChrom);
-                $istore = $track->startLoad($curChrom, $nclChunk,
-                                            [{
-					      attributes => $headers,
-					      isArrayAttr => {Subfeatures => 1}
-					     },
-					     {
-					      attributes => \@subfeatHeaders,
-					      isArrayAttr => {}
-					     } ] );
-                # $jsonGen = JsonGenerator->new("$trackDir/$curChrom/"
-                #                               . $tableName,
-                #                               $nclChunk,
-                #                               $compress, $tableName,
-                #                               $curChrom,
-                #                               $refSeqs{$curChrom}->{start},
-                #                               $refSeqs{$curChrom}->{end},
-                #                               \%style, $headers,
-                #                               \@subfeatHeaders,
-                #                               $chromCounts{$curChrom});
+                $track->startLoad($curChrom, $nclChunk,
+                                  [
+                                   {
+                                      attributes => $headers,
+                                      isArrayAttr => {Subfeatures => 1}
+                                   },
+                                   {
+                                       attributes => \@subfeatHeaders,
+                                       isArrayAttr => {}
+                                   },
+                                  ],
+                                 );
             } else {
                 last;
             }
         }
         # next unless defined($refSeqs{$curChrom});
         my $jsonRow = $converter->($row, \%fields, $type);
-        $istore->addSorted($jsonRow);
+        $track->addSorted($jsonRow);
         if (defined $nameCol) {
-            $nameHandler->addName([ [$row->[$nameCol]],
-                                    $tableName,
-                                    $row->[$nameCol],
-                                    $row->[$chromCol],
-                                    $jsonRow->[1],
-                                    $jsonRow->[2],
-                                    $row->[$nameCol] ]);
+            $track->nameHandler->addName(
+                [ [$row->[$nameCol]],
+                  $tableName,
+                  $row->[$nameCol],
+                  $row->[$chromCol],
+                  $jsonRow->[1],
+                  $jsonRow->[2],
+                  $row->[$nameCol],
+                ]
+            );
         }
     }
 
