@@ -2,13 +2,19 @@ use strict;
 use warnings;
 
 use Test::More;
+use File::Spec;
 use File::Temp;
 
-my $tempdir = File::Temp->newdir;
+use File::Next;
+
+use JsonFileStorage;
+
+my $tempdir = File::Temp->newdir( CLEANUP => 1 );
 
 diag "writing output to $tempdir";
 system $^X, 'bin/ucsc-to-json.pl', (
     '-q',
+    '--compress',
     '--in'    => 'tests/data/hg19/database/',
     '--out'   => "$tempdir",
     '--track' => 'knownGene',
@@ -18,4 +24,29 @@ system $^X, 'bin/ucsc-to-json.pl', (
   );
 ok( ! $?, 'ucsc-to-json.pl ran ok' );
 
+is_deeply(
+    slurp_tree( $tempdir ),
+    slurp_tree( 'tests/data/hg19_formatted/' ),
+    'ucsc_to_json.pl made the right output',
+  );
+
+
+# make sure it has the right output
 done_testing;
+
+# churlishly slurp the entire contents of a file tree into a single
+# hashref by relative file name
+sub slurp_tree {
+    my ( $dir ) = @_;
+
+    my %data;
+
+    my $storage = JsonFileStorage->new( $dir, 'compress' );
+    my $output_files_iter = File::Next::files( $dir );
+    while( my $file = $output_files_iter->() ) {
+        my $rel = File::Spec->abs2rel( $file, $dir );
+        $data{ $rel } = $storage->get( $rel );
+    }
+
+    return \%data;
+}
