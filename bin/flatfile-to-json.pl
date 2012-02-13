@@ -1,5 +1,160 @@
 #!/usr/bin/env perl
 
+=head1 NAME
+
+flatfile-to-json.pl - format data into JBrowse JSON format from an annotation file
+
+=head1 USAGE
+
+  flatfile-to-json.pl                                                         \
+      ( --gff <GFF3 file> | --gff2 <GFF2 file> | --bed <BED file> )           \
+      --tracklabel <track identifier>                                         \
+      [ --out <output directory> ]                                            \
+      [ --key <human-readable track name> ]                                   \
+      [ --cssClass <CSS class name for displaying features> ]                 \
+      [ --autocomplete <none|label|alias|all> ]                               \
+      [ --getType ]                                                           \
+      [ --getPhase ]                                                          \
+      [ --getSubs ]                                                           \
+      [ --getLabel ]                                                          \
+      [ --urltemplate "http://example.com/idlookup?id={id}" ]                 \
+      [ --extraData <attribute> ]                                             \
+      [ --arrowheadClass <CSS class> ]                                        \
+      [ --subfeatureClasses '{ JSON-format subfeature class map }' ]          \
+      [ --clientConfig '{ JSON-format extra configuration for this track }' ] \
+      [ --thinType <BAM -thin_type> ]                                         \
+      [ --thicktype <BAM -thick_type>]                                        \
+      [ --type <feature types to process> ]                                   \
+      [ --nclChunk <chunk size for generated NCLs> ]                          \
+      [ --compress ]                                                          \
+      [ --sortMem <memory in bytes to use for sorting> ]                      \
+
+=head1 ARGUMENTS
+
+=head2 REQUIRED
+
+=over 4
+
+=item --gff <GFF3 file>
+
+=item --gff2 <GFF2 file>
+
+=item --bed <BED file>
+
+Process a GFF3, GFF2, or BED-format file containing annotation data.
+
+=item --tracklabel <track identifier>
+
+Unique identifier for this track.
+
+=back
+
+=head1 OPTIONAL
+
+=over 4
+
+=item --help | -h
+
+Display an extended help screen.
+
+=item --key '<text>'
+
+Human-readable track name.
+
+=item --out <output directory>
+
+Output directory to write to.  Defaults to "data/".
+
+=item --cssClass <CSS class name for displaying features>
+
+CSS class for features.  Defaults to "feature".
+
+=item --autocomplete <none|label|alias|all>
+
+Make these features searchable by their C<label>, by their C<alias>es,
+both (C<all>), or C<none>.  Defaults to C<none>.
+
+=item --getType
+
+Include the type of the features in the JSON.
+
+=item --getPhase
+
+Include the phase of the features in the JSON.
+
+=item --getSubs
+
+Include subfeatures in the JSON.
+
+=item --getLabel
+
+Include a label for the features in the JSON.
+
+=item --urltemplate "http://example.com/idlookup?id={id}"
+
+Template for a URL to be visited when features are clicked on.
+
+=item --extraData <attribute>
+
+A map of feature attribute names to perl subs that extract information
+from the feature object.  Example:
+
+  --extraData '{"protein_id" : "sub {shift->attributes(\"protein_id\");} "}'
+
+=item --arrowheadClass <CSS class>
+
+CSS class for arrowheads.
+
+=item --subfeatureClasses '{ JSON-format subfeature class map }'
+
+CSS classes for each subfeature type, in JSON syntax.  Example:
+
+  --subfeatureClasses '{"CDS": "transcript-CDS", "exon": "transcript-exon"}'
+
+=item --clientConfig '{ JSON-format extra configuration for this track }'
+
+Extra configuration for the client, in JSON syntax.  Example:
+
+  --clientConfig '{"featureCss": "background-color: #668; height: 8px;", "histScale": 2}'
+
+=item --type <feature types to process>
+
+Only process features of the given type.
+
+=item --nclChunk <chunk size for generated NCLs>
+
+NCList chunk size; if you get "json text or perl structure exceeds
+maximum nesting level" errors, try setting this lower (default:
+50,000).
+
+=item --compress
+
+Compress the output, making .jsonz (gzipped) JSON files.  This can
+save a lot of disk space, but note that web servers require some
+additional configuration to serve these correctly.
+
+=item --sortMem <bytes>
+
+Bytes of RAM to use for sorting features.  Default 512MB.
+
+=back
+
+=head2 BED-SPECIFIC
+
+=over 4
+
+=item --thinType <type>
+
+=item --thickType <type>
+
+Correspond to C<<-thin_type>> and C<<-thick_type>> in
+L<Bio::FeatureIO::bed>.  Do C<<perldoc Bio::FeatureIO::bed>> for
+details.
+
+=back
+
+=cut
+
 use strict;
 use warnings;
 
@@ -7,9 +162,12 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
 use Getopt::Long;
+use Pod::Usage;
+
 use Bio::DB::SeqFeature::Store;
 use Bio::DB::GFF;
 use Bio::FeatureIO;
+
 use JsonGenerator;
 use BioperlFlattener;
 use ExternalSorter;
@@ -25,7 +183,8 @@ my $outdir = "data";
 my $cssClass = "feature";
 my ($getType, $getPhase, $getSubs, $getLabel, $compress) = (0, 0, 0, 0, 0);
 my $sortMem = 1024 * 1024 * 512;
-GetOptions("gff=s" => \$gff,
+my $help;
+ GetOptions("gff=s" => \$gff,
            "gff2=s" => \$gff2,
            "bed=s" => \$bed,
            "bam=s" => \$bam,
@@ -44,11 +203,16 @@ GetOptions("gff=s" => \$gff,
            "subfeatureClasses=s" => \$subfeatureClasses,
            "clientConfig=s" => \$clientConfig,
            "thinType=s" => \$thinType,
-           "thicktype=s" => \$thickType,
+           "thickType=s" => \$thickType,
            "type=s@" => \$types,
            "nclChunk=i" => \$nclChunk,
            "compress" => \$compress,
-           "sortMem=i" =>\$sortMem);
+           "sortMem=i" =>\$sortMem,
+           "help|h" => \$help,
+  );
+
+pod2usage( -verbose => 2 ) if $help;
+
 # parent path of track-related dirs, relative to $outdir
 my $trackRel = "tracks";
 
@@ -59,36 +223,9 @@ my %refSeqs =
 
 die "run prepare-refseqs.pl first to supply information about your reference sequences" unless (scalar keys %refSeqs);
 
-if (!(defined($gff) || defined($gff2) || defined($bed) || defined($bam)) || !defined($trackLabel)) {
-    print "The --tracklabel parameter is required\n"
-        unless defined($trackLabel);
-    print "You must supply either a --gff, -gff2, or --bed parameter\n"
-        unless (defined($gff) || defined($gff2) || defined($bed) || defined($bam));
-    print <<USAGE;
-USAGE: $0 [--gff <gff3 file> | --gff2 <gff2 file> | --bed <bed file>] [--out <output directory>] --tracklabel <track identifier> --key <human-readable track name> [--cssClass <CSS class for displaying features>] [--autocomplete none|label|alias|all] [--getType] [--getPhase] [--getSubs] [--getLabel] [--urltemplate "http://example.com/idlookup?id={id}"] [--extraData <attribute>] [--subfeatureClasses <JSON-syntax subfeature class map>] [--clientConfig <JSON-syntax extra configuration for FeatureTrack>]
-
-    --out: defaults to "data"
-    --cssClass: defaults to "feature"
-    --autocomplete: make these features searchable by their "label", by their "alias"es, both ("all"), or "none" (default).
-    --getType: include the type of the features in the json
-    --getPhase: include the phase of the features in the json
-    --getSubs:  include subfeatures in the json
-    --getLabel: include a label for the features in the json
-    --urltemplate: template for a URL that clicking on a feature will navigate to
-    --arrowheadClass: CSS class for arrowheads
-    --subfeatureClasses: CSS classes for each subfeature type, in JSON syntax
-        e.g. '{"CDS": "transcript-CDS", "exon": "transcript-exon"}'
-    --clientConfig: extra configuration for the client, in JSON syntax
-        e.g. '{"featureCss": "background-color: #668; height: 8px;", "histScale": 2}'
-    --type: only process features of the given type
-    --nclChunk: NCList chunk size; if you get "json text or perl structure exceeds maximum nesting level" errors, try setting this lower (default: $nclChunk)
-    --extraData: a map of feature attribute names to perl subs that extract information from the feature object
-        e.g. '{"protein_id" : "sub {shift->attributes(\"protein_id\");} "}'
-    --compress: compress the output (requires some web server configuration)
-    --sortMem: the amount of memory in bytes to use for sorting
-USAGE
-exit(1);
-}
+pod2usage( "Must provide a --tracklabel parameter." ) unless defined $trackLabel;
+pod2usage( "You must supply either a --gff, -gff2, or --bed parameter." )
+  unless defined $gff || defined $gff2 || defined $bed || defined $bam;
 
 if (!defined($nclChunk)) {
     # default chunk size is 50KiB
