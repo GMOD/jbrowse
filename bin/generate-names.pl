@@ -1,18 +1,56 @@
 #!/usr/bin/env perl
 
+=head1 NAME
+
+generate-names.pl - generate a global index of feature names
+
+=head1 USAGE
+
+  generate-names.pl                        \
+      [ --dir <output directory> ]         \
+      [ --thresh <threshold> ]             \
+      [ --verbose ]
+
+=head1 OPTIONS
+
+=over 4
+
+=item --dir <directory>
+
+Data directory to process.  Default 'data/'.
+
+=item --thresh <threshold>
+
+Optional threshold for .  Default 200.
+
+=item --verbose
+
+Print more progress messages.
+
+=item --help | -h
+
+Print a usage message.
+
+=back
+
+=cut
+
 use strict;
 use warnings;
 
+use Fcntl ":flock";
 use FindBin qw($Bin);
 use File::Spec::Functions;
-use lib catdir($Bin, updir(), "lib");
-
 use Getopt::Long;
 use IO::File;
-use Fcntl ":flock";
+use Pod::Usage;
+
+use JSON 2;
+
+use lib catdir($Bin, updir(), "lib");
+
 use LazyPatricia;
 use JsonGenerator qw/ readJSON writeJSON /;
-use JSON 2;
 
 my %trackHash;
 my @tracksWithNames;
@@ -24,7 +62,9 @@ my $help;
 GetOptions("dir=s" => \$outDir,
            "thresh=i" => \$thresh,
            "verbose+" => \$verbose,
-           "help" => \$help);
+           "help" => \$help) or pod2usage();
+
+pod2usage( -verbose => 2 ) if $help;
 
 unless (-d $outDir) {
     die <<OUTDIR;
@@ -37,15 +77,6 @@ OUTDIR
 
 my $nameDir = catdir($outDir, "names");
 mkdir($nameDir) unless (-d $nameDir);
-
-if ($help) {
-    die <<USAGE;
-USAGE: $0 [--dir <output directory>] [--thresh <n>] [--verbose]
-
-    --dir: defaults to "$outDir"
-
-USAGE
-}
 
 sub partitionCallback {
     my ($subtreeRoot, $prefix, $thisChunk, $total) = @_;
