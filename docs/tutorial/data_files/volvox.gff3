@@ -194,9 +194,10 @@ ctgA	example	match	48169	48453	.	-	.	Name=seg15
 ctgA	predicted	CDS	10000	11500	.	+	0	Name=Apple1
 
 # multi-exon gene - several linked CDSs
-ctgA	predicted	CDS	13000	13800	.	+	0	ID=cds-Apple2;Name=Apple2
-ctgA	predicted	CDS	15000	15500	.	+	1	ID=cds-Apple2;Name=Apple2
-ctgA	predicted	CDS	17000	17200	.	+	2	ID=cds-Apple2;Name=Apple2
+ctgA	predicted	mRNA	13000	17200	.	+	0	ID=cds-Apple2;Name=Apple2
+ctgA	predicted	CDS	13000	13800	.	+	0	Parent=cds-Apple2
+ctgA	predicted	CDS	15000	15500	.	+	1	Parent=cds-Apple2
+ctgA	predicted	CDS	17000	17200	.	+	2	Parent=cds-Apple2
 
 ctgA	exonerate	mRNA	17400	23000	.	+	.	ID=rna-Apple3;Name=Apple3;Note=Predicted
 ctgA	exonerate	UTR	17400	17999	.	+	.	Parent=rna-Apple3
@@ -233,15 +234,24 @@ ctgA	example	BAC	1000	20000	.	.	.	ID=b101.2;Name=b101.2;Note=Fingerprinted BAC w
 ctgA	example	clone_start	1000	1500	.	+	.	Parent=b101.2
 ctgA	example	clone_end	19500	20000	.	-	.	Parent=b101.2
 
-ctgA	est	EST_match	1050	1500	.	+	.	ID=Match1;Name=agt830.5;Target=agt830.5 1 451
-ctgA	est	EST_match	3000	3202	.	+	.	ID=Match1;Name=agt830.5;Target=agt830.5 452 654
-ctgA	est	EST_match	5410	5500	.	-	.	ID=Match2;Name=agt830.3;Target=agt830.3 505 595
-ctgA	est	EST_match	7000	7503	.	-	.	ID=Match2;Name=agt830.3;Target=agt830.3 1 504 
-ctgA	est	EST_match	1050	1500	.	+	.	ID=Match3;Name=agt221.5;Target=agt221.5 1 451
-ctgA	est	EST_match	5000	5500	.	+	.	ID=Match3;Name=agt221.5;Target=agt221.5 452 952
-ctgA	est	EST_match	7000	7300	.	+	.	ID=Match3;Name=agt221.5;Target=agt221.5 953 1253
+ctgA	est	EST_match	1050	3202	.	+	.	ID=Match1;Name=agt830.5;Target=agt830.5 1 654
+ctgA	est	match_part	1050	1500	.	+	.	Parent=Match1;Name=agt830.5;Target=agt830.5 1 451
+ctgA	est	match_part	3000	3202	.	+	.	Parent=Match1;Name=agt830.5;Target=agt830.5 452 654
+
+ctgA	est	EST_match	5410	7503	.	-	.	ID=Match2;Name=agt830.3;Target=agt830.3 1 595
+ctgA	est	match_part	5410	5500	.	-	.	Parent=Match2;Name=agt830.3;Target=agt830.3 505 595
+ctgA	est	match_part	7000	7503	.	-	.	Parent=Match2;Name=agt830.3;Target=agt830.3 1 504
+
+ctgA	est	EST_match	1050	7300	.	+	.	ID=Match3;Name=agt221.5;Target=agt221.5 1 1253
+ctgA	est	match_part	1050	1500	.	+	.	Parent=Match3;Name=agt221.5;Target=agt221.5 1 451
+ctgA	est	match_part	5000	5500	.	+	.	Parent=Match3;Name=agt221.5;Target=agt221.5 452 952
+ctgA	est	match_part	7000	7300	.	+	.	Parent=Match3;Name=agt221.5;Target=agt221.5 953 1253
+
 ctgA	est	EST_match	7500	8000	.	-	.	ID=Match4;Name=agt221.3;Target=agt221.3 1 501
-ctgA	est	EST_match	1150	1500	.	+	.	ID=Match5;Name=agt767.5;Target=agt767.5 1 351
-ctgA	est	EST_match	5000	5500	.	+	.	ID=Match5;Name=agt767.5;Target=agt767.5 352 852
-ctgA	est	EST_match	7000	7200	.	+	.	ID=Match5;Name=agt767.5;Target=agt767.5 853 1153
+
+ctgA	est	EST_match	1150	7200	.	+	.	ID=Match5;Name=agt767.5;Target=agt767.5 1 1153
+ctgA	est	match_part	1150	1500	.	+	.	Parent=Match5;Name=agt767.5;Target=agt767.5 1 351
+ctgA	est	match_part	5000	5500	.	+	.	Parent=Match5;Name=agt767.5;Target=agt767.5 352 852
+ctgA	est	match_part	7000	7200	.	+	.	Parent=Match5;Name=agt767.5;Target=agt767.5 853 1153
+
 ctgA	est	EST_match	8000	9000	.	-	.	ID=Match6;Name=agt767.3;Target=agt767.3 1 1001
