@@ -174,6 +174,7 @@ my ($gff, $bed, $bam, $trackLabel, $key,
     $urlTemplate, $subfeatureClasses, $arrowheadClass,
     $clientConfig, $extraData, $thinType, $thickType,
     $types, $nclChunk);
+$types = [];
 my $autocomplete = "none";
 my $outdir = "data";
 my $cssClass = "feature";
@@ -190,7 +191,7 @@ my $help;
 	   "autocomplete=s" => \$autocomplete,
 	   "getType" => \$getType,
 	   "getPhase" => \$getPhase,
-	   "getSubs" => \$getSubs,
+	   "getSubs|getSubfeatures" => \$getSubs,
 	   "getLabel" => \$getLabel,
            "urltemplate=s" => \$urlTemplate,
            "extraData=s" => \$extraData,
@@ -205,6 +206,7 @@ my $help;
            "sortMem=i" =>\$sortMem,
            "help|h" => \$help,
   );
+@$types = split /,/, join( ',', @$types);
 
 pod2usage( -verbose => 2 ) if $help;
 
@@ -273,7 +275,7 @@ mkdir($outdir) unless (-d $outdir);
 mkdir("$outdir/$trackRel") unless (-d "$outdir/$trackRel");
 
 my %style = ("autocomplete" => $autocomplete,
-             "type"         => $getType || @{$types||[]} ? 1 : 0,
+             "type"         => $getType || @$types ? 1 : 0,
              "phase"        => $getPhase,
              "subfeatures"  => $getSubs,
              "class"        => $cssClass,
@@ -334,19 +336,31 @@ my @arrayrepr_classes = (
 my $filter = do {
     my @filters;
 
-    # add a filter on type
-    if( my %types = map { $_ => 1 } @{$types||[]} ) {
+    # add a filter for type:source if --type was specified
+    if( $types && @$types ) {
+        my @type_regexes = map {
+            my $t = $_;
+            $t .= ":.*" unless $t =~ /:/;
+            qr/^$t$/
+        } @$types;
         my $feature_representation = ArrayRepr->new( \@arrayrepr_classes );
-        my $type_getter = $feature_representation->makeFastGetter('Type');
+        my $type_getter   = $feature_representation->makeFastGetter('Type');
+        my $source_getter = $feature_representation->makeFastGetter('Source');
         push @filters, sub {
-                 my $type = $type_getter->( $_[0][1] );
-                 return defined $type && $types{ $type };
+                 my $type = $type_getter->( $_[0][1] )
+                   or return 0;
+                 my $source = $source_getter->( $_[0][1] ) || 'undefined';
+                 my $t_s = "$type:$source";
+                 for( @type_regexes ) {
+                     return 1 if $t_s =~ $_;
+                 }
+                 return 0;
              };
     }
 
     sub {
         for (@filters) {
-            return 0 unless $_->( $_[0] );
+            return 0 unless $_->( @_ );
         }
         return 1;
     }

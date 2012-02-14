@@ -32,12 +32,13 @@ use NameHandler;
 #for every feature, which would take up too much space/bandwidth)
 #@featMap maps from feature objects to arrays
 my @featMap = (
-	       sub {shift->start - 1},
-	       sub {int(shift->end)},
-	       sub {int(shift->strand)},
+	       sub {$_[0]->start - 1},
+	       sub {int($_[0]->end)},
+	       sub {int($_[0]->strand)},
+               sub {$_[0]->source_tag},
 	      );
 
-my @mapHeaders = ( 'start', 'end', 'strand');
+my @mapHeaders = ( 'start', 'end', 'strand','source');
 #positions of "start" and "end" in @mapHeaders (for NCList)
 my $startIndex = 1;
 my $endIndex   = 2;
