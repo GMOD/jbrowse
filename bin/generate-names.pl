@@ -21,7 +21,8 @@ Data directory to process.  Default 'data/'.
 
 =item --thresh <threshold>
 
-Optional threshold for .  Default 200.
+Optional LazyPatricia chunking threshold.  Default 200.  See
+L<LazyPatricia> for details.
 
 =item --verbose
 
