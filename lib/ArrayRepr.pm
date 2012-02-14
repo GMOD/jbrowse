@@ -2,6 +2,7 @@ package ArrayRepr;
 
 use strict;
 use warnings;
+use Carp;
 
 =head1 DESCRIPTION
 
@@ -198,6 +199,7 @@ sub makeFastGetter {
     # the attributes array for the object's class
     my ($self, $attr) = (@_);
     my $indices = $self->attrIndices($attr);
+    croak "no attribute '$attr' found in representation" unless grep defined, @$indices;
     return sub {
         my ($obj) = @_;
         if ( defined $obj && defined $obj->[0] && defined $indices->[ $obj->[0] ] ) {

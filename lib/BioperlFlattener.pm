@@ -181,7 +181,7 @@ class.
 
 sub flatten_to_feature {
     my ( $self, $feature, $class_index ) = @_;
-    [ $class_index || 0, map $_->($feature), @{$self->{curFeatMap}} ];
+    [ $class_index || 0, map scalar($_->($feature)), @{$self->{curFeatMap}} ];
 }
 
 =head2 flatten_to_name( $feature_object, $refseq_name )

@@ -273,7 +273,7 @@ mkdir($outdir) unless (-d $outdir);
 mkdir("$outdir/$trackRel") unless (-d "$outdir/$trackRel");
 
 my %style = ("autocomplete" => $autocomplete,
-             "type"         => $getType,
+             "type"         => $getType || @{$types||[]} ? 1 : 0,
              "phase"        => $getPhase,
              "subfeatures"  => $getSubs,
              "class"        => $cssClass,
@@ -319,17 +319,50 @@ my $sorter = ExternalSorter->new(
     $sortMem
 );
 
+my @arrayrepr_classes = (
+    {
+        attributes  => $flattener->featureHeaders,
+        isArrayAttr => { Subfeatures => 1 },
+    },
+    {
+        attributes  => $flattener->subfeatureHeaders,
+        isArrayAttr => {},
+    },
+  );
+
+# build a filtering subroutine for the features
+my $filter = do {
+    my @filters;
+
+    # add a filter on type
+    if( my %types = map { $_ => 1 } @{$types||[]} ) {
+        my $feature_representation = ArrayRepr->new( \@arrayrepr_classes );
+        my $type_getter = $feature_representation->makeFastGetter('Type');
+        push @filters, sub {
+                 my $type = $type_getter->( $_[0][1] );
+                 return defined $type && $types{ $type };
+             };
+    }
+
+    sub {
+        for (@filters) {
+            return 0 unless $_->( $_[0] );
+        }
+        return 1;
+    }
+};
+
 my %featureCounts;
 while (my $feat = $stream->next_feature()) {
     my $chrom = ref $feat->seq_id ? $feat->seq_id->value : $feat->seq_id;
     $featureCounts{$chrom} += 1;
-    $sorter->add( [
-                     $chrom,
-                     $flattener->flatten_to_feature( $feat ),
-                     $flattener->flatten_to_name( $feat, $chrom ),
-                  ]
-                );
 
+    my $row = [ $chrom,
+                $flattener->flatten_to_feature( $feat ),
+                $flattener->flatten_to_name( $feat, $chrom ),
+              ];
+    next unless $filter->($row);
+    $sorter->add( $row );
 }
 $sorter->finish();
 
@@ -353,15 +386,7 @@ while( my $feat = $sorter->get ) {
         $track->finishLoad; #< does nothing if no load happening
         $track->startLoad( $curChrom,
                            $nclChunk,
-                           [ {
-                               attributes  => $flattener->featureHeaders,
-                               isArrayAttr => { Subfeatures => 1 },
-                             },
-                             {
-                                 attributes  => $flattener->subfeatureHeaders,
-                                 isArrayAttr => {},
-                             },
-                           ],
+                           \@arrayrepr_classes,
                          );
     }
     $totalMatches++;
@@ -377,7 +402,7 @@ $gdb->writeTrackEntry( $track );
 
 # If no features are found, check for mistakes in user input
 if( !$totalMatches && defined $types ) {
-    die "No matches found for $types\n";
+    warn "WARNING: No matching features found for @$types\n";
 }
 
 =head1 AUTHOR
