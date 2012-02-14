@@ -130,7 +130,7 @@ sub new {
             my $sfClasses = $style{subfeature_classes};
             my @subfeatIndices;
             foreach my $subFeature (@subFeatures) {
-                push @flattened, [ map $_->($subFeature), @subfeatMap ];
+                push @flattened, [ map scalar($_->($subFeature)), @subfeatMap ];
             }
             return \@flattened;
         };
@@ -203,7 +203,7 @@ sub flatten_to_name {
 
     return unless $self->{getLabel} || $self->{getAlias};
 
-    my @namerec = map $_->($feature), @{$self->{nameMap}};
+    my @namerec = map scalar($_->($feature)), @{$self->{nameMap}};
     $namerec[ $NameHandler::chromIndex ] = $segName if defined $segName;
 
     return \@namerec;
