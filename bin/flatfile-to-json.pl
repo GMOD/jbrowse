@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+use Carp::Always;
 
 =head1 NAME
 
@@ -7,7 +8,7 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
 =head1 USAGE
 
   flatfile-to-json.pl                                                         \
-      ( --gff <GFF3 file> | --gff2 <GFF2 file> | --bed <BED file> )           \
+      ( --gff <GFF3 file> | --bed <BED file> )                                \
       --trackLabel <track identifier>                                         \
       [ --out <output directory> ]                                            \
       [ --key <human-readable track name> ]                                   \
@@ -37,11 +38,9 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
 
 =item --gff <GFF3 file>
 
-=item --gff2 <GFF2 file>
-
 =item --bed <BED file>
 
-Process a GFF3, GFF2, or BED-format file containing annotation data.
+Process a GFF3 or BED-format file containing annotation data.
 
 =item --trackLabel <track identifier>
 
@@ -164,17 +163,14 @@ use lib "$Bin/../lib";
 use Getopt::Long;
 use Pod::Usage;
 
-use Bio::DB::SeqFeature::Store;
-use Bio::DB::GFF;
 use Bio::FeatureIO;
 
-use JsonGenerator;
+use GenomeDB;
 use BioperlFlattener;
 use ExternalSorter;
-use NameHandler;
 use JSON 2;
 
-my ($gff, $gff2, $bed, $bam, $trackLabel, $key,
+my ($gff, $bed, $bam, $trackLabel, $key,
     $urlTemplate, $subfeatureClasses, $arrowheadClass,
     $clientConfig, $extraData, $thinType, $thickType,
     $types, $nclChunk);
@@ -185,7 +181,6 @@ my ($getType, $getPhase, $getSubs, $getLabel, $compress) = (0, 0, 0, 0, 0);
 my $sortMem = 1024 * 1024 * 512;
 my $help;
  GetOptions("gff=s" => \$gff,
-           "gff2=s" => \$gff2,
            "bed=s" => \$bed,
            "bam=s" => \$bam,
 	   "out=s" => \$outdir,
@@ -224,8 +219,10 @@ my %refSeqs =
 die "run prepare-refseqs.pl first to supply information about your reference sequences" unless (scalar keys %refSeqs);
 
 pod2usage( "Must provide a --tracklabel parameter." ) unless defined $trackLabel;
-pod2usage( "You must supply either a --gff, -gff2, or --bed parameter." )
-  unless defined $gff || defined $gff2 || defined $bed || defined $bam;
+pod2usage( "You must supply either a --gff or --bed parameter." )
+  unless defined $gff || defined $bed || defined $bam;
+
+$bam and die "BAM support has been moved to a separate program: bam-to-json.pl\n";
 
 if (!defined($nclChunk)) {
     # default chunk size is 50KiB
@@ -250,27 +247,26 @@ my $idSub = sub {
     return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
 };
 
-my $streaming = 0;
-my ($db, $stream);
+my $stream;
 if ($gff) {
-    $db = Bio::DB::SeqFeature::Store->new(-adaptor => 'memory',
-                                          -dsn     => $gff);
-} elsif ($gff2) {
-    $db = Bio::DB::GFF->new(-adaptor => 'memory',
-                            -gff => $gff2);
+    $stream = Bio::FeatureIO->new(
+        -format  => 'gff',
+        -version => '3',
+        -file    => $gff,
+       );
 } elsif ($bed) {
-    $stream = Bio::FeatureIO->new(-format => 'bed', -file => $bed,
-                                  ($thinType ? ("-thin_type" => $thinType) : ()),
-                                  ($thickType ? ("-thick_type" => $thickType) : ()) );
-    $streaming = 1;
+    $stream = Bio::FeatureIO->new(
+        -format => 'bed',
+        -file   => $bed,
+        ($thinType ? ("-thin_type" => $thinType) : ()),
+        ($thickType ? ("-thick_type" => $thickType) : ()),
+       );
     $labelSub = sub {
         #label sub for features returned by Bio::FeatureIO::bed
         return $_[0]->name;
     };
-} elsif ($bam){
-    die "BAM support has been moved to a separate program: bam-to-json.pl";
 } else {
-    die "please specify -gff, -gff2, or -bed";
+    die "Please specify --gff or --bed.\n";
 }
 
 mkdir($outdir) unless (-d $outdir);
@@ -281,10 +277,8 @@ my %style = ("autocomplete" => $autocomplete,
              "phase"        => $getPhase,
              "subfeatures"  => $getSubs,
              "class"        => $cssClass,
-             "label"        => ($getLabel || ($autocomplete ne "none")) ?
-                                $labelSub : 0,
-             "idSub"        => $idSub,
              "key"          => defined($key) ? $key : $trackLabel,
+             'compress'     => $compress,
              "urlTemplate"  => $urlTemplate,
              "arrowheadClass" => $arrowheadClass,
              "clientConfig" => $clientConfig);
@@ -294,110 +288,96 @@ $style{subfeature_classes} = JSON::from_json($subfeatureClasses)
 
 $style{clientConfig} = JSON::from_json($clientConfig)
     if defined($clientConfig);
-    
+
 $style{extraData} = JSON::from_json($extraData)
     if defined($extraData);
 
-my $trackDirForChrom = sub { "$outdir/$trackRel/" . $_[0] . "/$trackLabel"; };
-my $nameHandler = NameHandler->new($trackDirForChrom);
-my $nameCallback = sub { $nameHandler->addName($_[0]) };
-my $flattener = BioperlFlattener->new($trackLabel,
-                                      \%style, [], [],
-                                      $nameCallback);
+my $flattener = BioperlFlattener->new(
+    $trackLabel,
+    {
+        "idSub"  => $idSub,
+        "label"  => ($getLabel || ($autocomplete ne "none"))
+                       ? $labelSub : 0,
+        %style,
+    },
+    [], [] );
 
-my $startIndex = BioperlFlattener->startIndex;
-my $endIndex = BioperlFlattener->endIndex;
-
-# The ExternalSorter will get [chrom, [start, end, ...]] arrays
+# The ExternalSorter will get [chrom, [start, end, ...]] arrays from
+# the flattener
 my $sorter = ExternalSorter->new(
-    sub ($$) {
-        $_[0]->[0] cmp $_[1]->[0]
-            ||
-        $_[0]->[1]->[$startIndex] <=> $_[1]->[1]->[$startIndex]
-            ||
-        $_[1]->[1]->[$endIndex] <=> $_[0]->[1]->[$endIndex];
-    }, $sortMem);
+    do {
+        my $startIndex = BioperlFlattener->startIndex;
+        my $endIndex = BioperlFlattener->endIndex;
+        sub ($$) {
+            $_[0]->[0] cmp $_[1]->[0]
+                ||
+            $_[0]->[1]->[$startIndex] <=> $_[1]->[1]->[$startIndex]
+                ||
+            $_[1]->[1]->[$endIndex] <=> $_[0]->[1]->[$endIndex];
+        }
+    },
+    $sortMem
+);
 
 my %featureCounts;
+while (my $feat = $stream->next_feature()) {
+    my $chrom = ref $feat->seq_id ? $feat->seq_id->value : $feat->seq_id;
+    $featureCounts{$chrom} += 1;
+    $sorter->add( [
+                     $chrom,
+                     $flattener->flatten_to_feature( $feat ),
+                     $flattener->flatten_to_name( $feat, $chrom ),
+                  ]
+                );
 
-if ($streaming) {
-    while (my $feat = $stream->next_feature()) {
-        my $chrom =
-            ref($feat->seq_id) ? $feat->seq_id->value : $feat->seq_id;
-        $featureCounts{$chrom} += 1;
-        $sorter->add([$chrom, $flattener->flatten($feat)]);
-    }
-} else {
-    my @queryArgs;
-    if (defined($types)) {
-        @queryArgs = ("-type" => $types);
-    }
-
-    my $iterator = $db->get_seq_stream(@queryArgs);
-    while (my $feat = $iterator->next_seq) {
-        my $chrom =
-            ref($feat->seq_id) ? $feat->seq_id->value : $feat->seq_id;
-        $featureCounts{$chrom} += 1;
-        $sorter->add([$chrom, $flattener->flatten($feat)]);
-    }
 }
 $sorter->finish();
-$nameHandler->finish();
 
-my $curChrom;
-my $jsonGen;
+################################
+
+my $gdb = GenomeDB->new( $outdir );
+my $track = $gdb->getTrack( $trackLabel )
+            || $gdb->createFeatureTrack( $trackLabel,
+                                         \%style,
+                                         $style{key},
+                                       );
+
+my $curChrom = 'NONE YET';
 my $totalMatches = 0;
+while( my $feat = $sorter->get ) {
 
-while (1) {
-    my $feat = $sorter->get();
+    next unless $refSeqs{ $feat->[0] }; # skip features we have no ref seq for
 
-    if ((!defined($feat))
-        || (!defined($curChrom))
-        || ($curChrom ne $feat->[0])) {
-
-        if ($jsonGen && $jsonGen->hasFeatures && $refSeqs{$curChrom}) {
-            print $curChrom . "\t" . $jsonGen->featureCount . "\n";
-            $jsonGen->generateTrack();
-        }
-
-        if (defined($feat)) {
-            $curChrom = $feat->[0];
-            next unless defined($refSeqs{$curChrom});
-            mkdir("$outdir/$trackRel/$curChrom")
-                unless (-d "$outdir/$trackRel/$curChrom");
-            $jsonGen = JsonGenerator->new("$outdir/$trackRel/$curChrom/$trackLabel",
-                                          $nclChunk,
-                                          $compress, $trackLabel,
-                                          $curChrom,
-                                          $refSeqs{$curChrom}->{start},
-                                          $refSeqs{$curChrom}->{end},
-                                          \%style, $flattener->featureHeaders,
-                                          $flattener->subfeatureHeaders,
-                                          $featureCounts{$curChrom});
-        } else {
-            last;
-        }
+    unless( $curChrom eq $feat->[0] ) {
+        $curChrom = $feat->[0];
+        $track->finishLoad; #< does nothing if no load happening
+        $track->startLoad( $curChrom,
+                           $nclChunk,
+                           [ {
+                               attributes  => $flattener->featureHeaders,
+                               isArrayAttr => { Subfeatures => 1 },
+                             },
+                             {
+                                 attributes  => $flattener->subfeatureHeaders,
+                                 isArrayAttr => {},
+                             },
+                           ],
+                         );
     }
-    next unless defined($refSeqs{$curChrom});
     $totalMatches++;
-    $jsonGen->addFeature($feat->[1]);
+    $track->addSorted( $feat->[1] );
+
+    # load the feature's name record into the track if necessary
+    if( my $namerec = $feat->[2] ) {
+        $track->nameHandler->addName( $namerec );
+    }
 }
 
-my $ext = ($compress ? "jsonz" : "json");
-JsonGenerator::writeTrackEntry("$outdir/trackInfo.json",
-                               {
-                                   'label' => $trackLabel,
-                                   'key' => $style{"key"},
-                                   'url' => "$trackRel/{refseq}/"
-                                       . $trackLabel
-                                       . "/trackData.$ext",
-                                       'type' => "FeatureTrack",
-                               });
+$gdb->writeTrackEntry( $track );
 
 # If no features are found, check for mistakes in user input
-if(!$totalMatches && defined($types)) {
-    print STDERR "No matches found for types\n";
-    exit(1);
+if( !$totalMatches && defined $types ) {
+    die "No matches found for $types\n";
 }
 
 =head1 AUTHOR

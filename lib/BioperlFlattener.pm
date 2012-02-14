@@ -149,11 +149,11 @@ sub new {
     if ($self->{getLabel} || $self->{getAlias}) {
 	if ($self->{getLabel} && $self->{getAlias}) {
 	    unshift @nameMap, sub {[unique($style{label}->($_[0]),
-					   $_[0]->attributes("Alias"))]};
+					   $_[0]->get_tag_values("Alias"))]};
 	} elsif ($self->{getLabel}) {
 	    unshift @nameMap, sub {[$style{label}->($_[0])]};
 	} elsif ($self->{getAlias}) {
-	    unshift @nameMap, sub {[$_[0]->attributes("Alias")]};
+	    unshift @nameMap, sub {[$_[0]->get_tag_values("Alias")]};
 	}
     }
 
