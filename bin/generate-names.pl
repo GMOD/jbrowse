@@ -7,7 +7,7 @@ generate-names.pl - generate a global index of feature names
 =head1 USAGE
 
   generate-names.pl                        \
-      [ --dir <output directory> ]         \
+      [ --out <output directory> ]         \
       [ --thresh <threshold> ]             \
       [ --verbose ]
 
@@ -15,7 +15,7 @@ generate-names.pl - generate a global index of feature names
 
 =over 4
 
-=item --dir <directory>
+=item --out <directory>
 
 Data directory to process.  Default 'data/'.
 
@@ -59,7 +59,7 @@ my $outDir = "data";
 my $thresh = 200;
 my $verbose = 0;
 my $help;
-GetOptions("dir=s" => \$outDir,
+GetOptions("dir|out=s" => \$outDir,
            "thresh=i" => \$thresh,
            "verbose+" => \$verbose,
            "help" => \$help) or pod2usage();

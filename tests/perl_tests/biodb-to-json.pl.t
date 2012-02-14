@@ -41,4 +41,14 @@ is_deeply( $names_output,
            'got the right names output'
            ) or diag explain $names_output;
 
+system $^X, 'bin/generate-names.pl', (
+    '--dir'   => "$tempdir",
+  );
+ok( ! $?, 'generate-names.pl ran ok' );
+
+system $^X, 'bin/generate-names.pl', (
+    '--out'   => "$tempdir",
+  );
+ok( ! $?, 'generate-names.pl also ran ok with the --out option' );
+
 done_testing;
