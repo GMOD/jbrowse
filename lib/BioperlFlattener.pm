@@ -14,7 +14,7 @@ BioperlFlattener - configurably transform BioPerl feature objects to arrayrefs
   my $startCol = BioperlFlattener->startIndex;
   my $endCol = BioperlFlattener->endIndex;
 
-  my $arrayref = $flattener->flatten($feature);
+  my $arrayref = $flattener->flatten_to_feature($feature);
 
 =head1 METHODS
 
