@@ -8,7 +8,7 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
 
   flatfile-to-json.pl                                                         \
       ( --gff <GFF3 file> | --gff2 <GFF2 file> | --bed <BED file> )           \
-      --tracklabel <track identifier>                                         \
+      --trackLabel <track identifier>                                         \
       [ --out <output directory> ]                                            \
       [ --key <human-readable track name> ]                                   \
       [ --cssClass <CSS class name for displaying features> ]                 \
@@ -43,7 +43,7 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
 
 Process a GFF3, GFF2, or BED-format file containing annotation data.
 
-=item --tracklabel <track identifier>
+=item --trackLabel <track identifier>
 
 Unique identifier for this track.
 
@@ -189,7 +189,7 @@ my $help;
            "bed=s" => \$bed,
            "bam=s" => \$bam,
 	   "out=s" => \$outdir,
-	   "tracklabel=s" => \$trackLabel,
+	   "tracklabel|trackLabel=s" => \$trackLabel,
 	   "key=s" => \$key,
 	   "cssClass=s" => \$cssClass,
 	   "autocomplete=s" => \$autocomplete,
