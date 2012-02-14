@@ -251,13 +251,14 @@ my $idSub = sub {
 
 my $stream;
 if ($gff) {
-    $stream = Bio::FeatureIO->new(
+    my $io = Bio::FeatureIO->new(
         -format  => 'gff',
         -version => '3',
         -file    => $gff,
        );
+    $stream = sub { $io->next_feature_group };
 } elsif ($bed) {
-    $stream = Bio::FeatureIO->new(
+    my $io = Bio::FeatureIO->new(
         -format => 'bed',
         -file   => $bed,
         ($thinType ? ("-thin_type" => $thinType) : ()),
@@ -267,6 +268,7 @@ if ($gff) {
         #label sub for features returned by Bio::FeatureIO::bed
         return $_[0]->name;
     };
+    $stream = sub { $io->next_feature };
 } else {
     die "Please specify --gff or --bed.\n";
 }
@@ -367,16 +369,18 @@ my $filter = do {
 };
 
 my %featureCounts;
-while (my $feat = $stream->next_feature()) {
-    my $chrom = ref $feat->seq_id ? $feat->seq_id->value : $feat->seq_id;
-    $featureCounts{$chrom} += 1;
+while ( my @feats = $stream->() ) {
+    for my $feat ( @feats ) {
+        my $chrom = ref $feat->seq_id ? $feat->seq_id->value : $feat->seq_id;
+        $featureCounts{$chrom} += 1;
 
-    my $row = [ $chrom,
-                $flattener->flatten_to_feature( $feat ),
-                $flattener->flatten_to_name( $feat, $chrom ),
-              ];
-    next unless $filter->($row);
-    $sorter->add( $row );
+        my $row = [ $chrom,
+                    $flattener->flatten_to_feature( $feat ),
+                    $flattener->flatten_to_name( $feat, $chrom ),
+                    ];
+        next unless $filter->($row);
+        $sorter->add( $row );
+    }
 }
 $sorter->finish();
 

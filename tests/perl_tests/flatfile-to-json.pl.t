@@ -30,7 +30,7 @@ system $^X, 'bin/flatfile-to-json.pl', (
     '--gff' => 'sample_data/raw/volvox/volvox.gff3',
     '--trackLabel' => 'CDS',
     '--key' => 'Predicted genes',
-    '--type' => 'CDS:predicted,mRNA:exonerate',
+    '--type' => 'CDS:predicted,mRNA:exonerate,mRNA:predicted',
     '--autocomplete' => 'all',
     '--cssClass' => 'cds',
     '--getPhase',
@@ -59,8 +59,11 @@ is_deeply( $names_output->[3],
            ) or diag explain $names_output;
 
 my $cds_trackdata = $read_json->(qw( tracks CDS ctgA trackData.json ));
-is( $cds_trackdata->{featureCount}, 5, 'got right feature count' ) or diag explain $cds_trackdata;
-is_deeply( $cds_trackdata->{intervals}{nclist}[4][9], [], 'exonerate mRNA has its subfeatures' ) or diag explain $cds_trackdata;
+is( $cds_trackdata->{featureCount}, 3, 'got right feature count' ) or diag explain $cds_trackdata;
+is( ref $cds_trackdata->{intervals}{nclist}[2][9], 'ARRAY', 'exonerate mRNA has its subfeatures' )
+   or diag explain $cds_trackdata;
+is( scalar @{$cds_trackdata->{intervals}{nclist}[2][9]}, 5, 'exonerate mRNA has 5 subfeatures' );
+
 
 #system "find $tempdir";
 
