@@ -35,7 +35,7 @@ is_deeply( $names_output,
                    'ctgA',
                    '17399',
                    '23000',
-                   '54'
+                   '191'
                ]
            ],
            'got the right names output'
