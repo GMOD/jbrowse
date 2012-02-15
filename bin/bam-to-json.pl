@@ -9,7 +9,7 @@ bam-to-json.pl - format data from a BAM file for display by JBrowse
   bam-to-json.pl                               \
       --bam <bam file>                         \
       [ --out <output directory> ]             \
-      [ --tracklabel <track identifier> ]      \
+      [ --trackLabel <track identifier> ]      \
       [ --key <human-readable track name> ]    \
       [ --cssClass <class> ]                   \
       [ --clientConfig '{ JSON }' ]            \
@@ -27,6 +27,10 @@ Display an extended help screen.
 =item --bam <file>
 
 Required.  BAM file to read and format.
+
+=item --trackLabel <track identifier>
+
+Unique identifier for this track.  Required.
 
 =item --out <directory>
 
@@ -77,7 +81,7 @@ $cssClass = $defaultClass;
 my $outdir = "data";
 my $help;
 GetOptions("out=s" => \$outdir,
-	   "tracklabel=s" => \$trackLabel,
+	   "tracklabel|trackLabel=s" => \$trackLabel,
 	   "key=s" => \$key,
            "bam=s" => \$bamFile,
            "cssClass=s", \$cssClass,
@@ -89,6 +93,7 @@ GetOptions("out=s" => \$outdir,
 
 pod2usage( -verbose => 2 ) if $help;
 pod2usage( 'Must pass a --bam argument.' ) unless defined $bamFile;
+pod2usage( 'Must pass a --trackLabel argument.' ) unless defined $trackLabel;
 
 if (!defined($nclChunk)) {
     # default chunk size is 50KiB

@@ -44,7 +44,7 @@ Process a GFF3 or BED-format file containing annotation data.
 
 =item --trackLabel <track identifier>
 
-Unique identifier for this track.
+Unique identifier for this track.  Required.
 
 =back
 
