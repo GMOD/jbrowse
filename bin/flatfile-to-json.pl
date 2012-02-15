@@ -210,9 +210,6 @@ my $help;
 
 pod2usage( -verbose => 2 ) if $help;
 
-# parent path of track-related dirs, relative to $outdir
-my $trackRel = "tracks";
-
 my %refSeqs =
     map {
         $_->{name} => $_
@@ -272,9 +269,6 @@ if ($gff) {
 } else {
     die "Please specify --gff or --bed.\n";
 }
-
-mkdir($outdir) unless (-d $outdir);
-mkdir("$outdir/$trackRel") unless (-d "$outdir/$trackRel");
 
 my %style = ("autocomplete" => $autocomplete,
              "type"         => $getType || @$types ? 1 : 0,

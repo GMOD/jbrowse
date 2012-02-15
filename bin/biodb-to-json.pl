@@ -98,11 +98,6 @@ if (!defined($nclChunk)) {
     $nclChunk *= 4 if $compress;
 }
 
-my $trackRel = "tracks";
-my $trackDir = "$outdir/$trackRel";
-mkdir($outdir) unless (-d $outdir);
-mkdir($trackDir) unless (-d $trackDir);
-
 # read our conf file
 die "conf file '$confFile' not found or not readable" unless -r $confFile;
 my $config = JsonGenerator::readJSON($confFile);

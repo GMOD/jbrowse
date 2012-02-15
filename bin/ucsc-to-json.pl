@@ -139,11 +139,6 @@ if (!defined($nclChunk)) {
     $nclChunk *= 4 if $compress;
 }
 
-my $trackRel = "tracks";
-my $trackDir = "$outdir/$trackRel";
-mkdir($outdir) unless (-d $outdir);
-mkdir($trackDir) unless (-d $trackDir);
-
 # the jbrowse NCList code requires that "start" and "end" be
 # the first and second fields in the array; @defaultHeaders and %typeMaps
 # are used to take the fields from the database and put them
@@ -326,17 +321,7 @@ ENDJS
         }
     }
 
-    # my $ext = ($compress ? "jsonz" : "json");
     $gdb->writeTrackEntry($track);
-        # "$outdir/trackInfo.json",
-        #                            {
-        #                                'label' => $tableName,
-        #                                'key' => $style{"key"},
-        #                                'url' => "$trackRel/{refseq}/"
-        #                                    . $tableName
-        #                                    . "/trackData.$ext",
-        #                                    'type' => "FeatureTrack",
-        #                            });
 }
 
 sub calcSizes {
