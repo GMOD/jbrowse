@@ -71,7 +71,7 @@ use JSON 2;
 use Bio::DB::Sam;
 
 use lib "$Bin/../lib";
-use JsonGenerator;
+use GenomeDB;
 use NCLSorter;
 
 my ($tracks, $cssClass, $arrowheadClass, $subfeatureClasses, $clientConfig,
@@ -95,7 +95,7 @@ pod2usage( -verbose => 2 ) if $help;
 pod2usage( 'Must pass a --bam argument.' ) unless defined $bamFile;
 pod2usage( 'Must pass a --trackLabel argument.' ) unless defined $trackLabel;
 
-if (!defined($nclChunk)) {
+unless( defined $nclChunk ) {
     # default chunk size is 50KiB
     $nclChunk = 50000;
     # $nclChunk is the uncompressed size, so we can make it bigger if
@@ -103,78 +103,95 @@ if (!defined($nclChunk)) {
     $nclChunk *= 4 if $compress;
 }
 
-my $trackRel = "tracks";
-my $trackDir = "$outdir/$trackRel";
-mkdir($outdir) unless (-d $outdir);
-mkdir($trackDir) unless (-d $trackDir);
+my @refSeqs = @{JSON::from_json( slurp("$outdir/refSeqs.json") || '[]' )}
+  or die "Run prepare-refseqs.pl to define reference sequences before running this script.\n";
 
-my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.json", [], 1)};
-
-my $bam = Bio::DB::Bam->open($bamFile);
-my $hdr = $bam->header();
-# open the bam index, creating it if necessary
-my $index = Bio::DB::Bam->index($bamFile, 1);
-
-my @bamHeaders = ("start", "end", "strand");
-my $startIndex = 0;
-my $endIndex = 1;
-
-my %style = ("class" => $cssClass,
-             "key" => $key);
+my %style = (
+    "class"  => $cssClass,
+    "key"    => $key || $trackLabel,
+    compress => $compress,
+   );
 
 $style{clientConfig} = JSON::from_json($clientConfig)
-    if (defined($clientConfig));
+    if defined $clientConfig;
 
-if ($cssClass eq $defaultClass) {
+if( $cssClass eq $defaultClass ) {
     $style{clientConfig}->{featureCss} = "background-color: #668; height: 8px;"
-        unless defined($style{clientConfig}->{featureCss});
+        unless defined $style{clientConfig}->{featureCss};
     $style{clientConfig}->{histCss} = "background-color: #88F"
-        unless defined($style{clientConfig}->{histCss});
+        unless defined $style{clientConfig}->{histCss};
     $style{clientConfig}->{histScale} = 2
-        unless defined($style{clientConfig}->{histScale});
+        unless defined $style{clientConfig}->{histScale};
 }
+
+my $bam = Bio::DB::Bam->open( $bamFile );
+# open the bam index, creating it if necessary
+my $index = Bio::DB::Bam->index( $bamFile, 1 );
+my $hdr = $bam->header;
+
+
+my $gdb = GenomeDB->new( $outdir );
+my $track = $gdb->getTrack( $trackLabel )
+            || $gdb->createFeatureTrack( $trackLabel,
+                                         \%style,
+                                         $style{key},
+                                       );
+my %refseqs_in_bam;
+$refseqs_in_bam{$_} = 1 for @{$hdr->target_name || []};
 
 foreach my $seqInfo (@refSeqs) {
-    my ($tid, $start, $end) = $hdr->parse_region($seqInfo->{name});
-    mkdir("$trackDir/" . $seqInfo->{name})
-        unless (-d "$trackDir/" . $seqInfo->{name});
+    my $refseq_name = $seqInfo->{name};
 
-    if (defined($tid)) {
-        my $jsonGen = JsonGenerator->new("$trackDir/" . $seqInfo->{name}
-                                         . "/" . $trackLabel,
-                                         $nclChunk,
-                                         $compress, $trackLabel,
-                                         $seqInfo->{name},
-                                         $seqInfo->{start},
-                                         $seqInfo->{end},
-                                         \%style, \@bamHeaders);
+    # Don't try parse_region for a ref seq that's not in there,
+    # samtools returns plausible-looking garbage in this case.
+    # perhaps coincidentally, samtools has no tests.  Could the
+    # bugginess and the lack of tests be ... *related* to each other
+    # in some way?  I would probably try to fix this bug in samtools
+    # if it was not in svn, and had some tests.  As it is, it's way
+    # easier for me to just code around it and write a snarky,
+    # sarcastic, unhelpful comment. --rob
+    next unless $refseqs_in_bam{$refseq_name};
 
-        my $sorter = NCLSorter->new(sub { $jsonGen->addFeature($_[0]) },
-                                    $startIndex, $endIndex);
+    my ($tid, $start, $end) = $hdr->parse_region( $refseq_name );
+    next unless defined $tid;
 
-        $index->fetch($bam, $tid, $start, $end,
-                      sub { $sorter->addSorted(align2array($_[0])) });
-        $sorter->flush();
+    $track->startLoad( $refseq_name,
+                       $nclChunk,
+                       [
+                           {
+                               attributes  => [qw[ Start End Strand ]],
+                               isArrayAttr => { },
+                           },
+                       ],
+                     );
 
-        $jsonGen->generateTrack();
-    }
+    my $sorter = NCLSorter->new( 1, 2, sub { $track->addSorted( $_[0]) } );
+    #$sorter->addSorted( [ 0, 23, 345, 1 ] );
+    $index->fetch( $bam, $tid, $start, $end,
+                   sub { $sorter->addSorted( align2array( $_[0] )) }
+                  );
+    $sorter->flush;
+    $track->finishLoad;
 }
 
-my $ext = ($compress ? "jsonz" : "json");
-JsonGenerator::writeTrackEntry(
-    "$outdir/trackInfo.json",
-    {
-        'label' => $trackLabel,
-        'key' => $key,
-        'url' => "$trackRel/{refseq}/" . $trackLabel . "/trackData.$ext",
-        'type' => "FeatureTrack",
-    }
-);
+$gdb->writeTrackEntry( $track );
 
+exit;
+
+############################
 
 sub align2array {
     my $align = shift;
-    return [$align->pos,
-            $align->calend + 1,
-            $align->reversed ? -1 : 1];
+
+    return [ 0,
+             $align->pos,
+             $align->calend + 1,
+             $align->reversed ? -1 : 1
+           ];
+}
+
+sub slurp {
+    open my $f, '<', $_[0] or die "$! reading $_[0]";
+    local $/;
+    return <$f>;
 }
