@@ -16,7 +16,7 @@ my $tempdir = File::Temp->newdir;
 
 my ( $stdout, $stderr ) = capture {
     system $^X, 'bin/prepare-refseqs.pl', (
-        '--conf' => 'docs/examples/config/yeast_genbank.json',
+        '--conf' => 'sample_data/raw/yeast_genbank.json',
         '--refs' => 'DOES NOT EXIST',
         '--out'  => $tempdir,
         );
@@ -24,10 +24,9 @@ my ( $stdout, $stderr ) = capture {
 ok( ! $?, 'script succeeded for nonexistent ref' );
 like( $stderr, qr/DOES NOT EXIST.+not found/i, 'warning message looks right' );
 
-$tempdir = File::Temp->newdir;
-
-
 ## check basic formatting of volvox sequence
+
+$tempdir = File::Temp->newdir;
 
 system $^X, 'bin/prepare-refseqs.pl', (
     #'--refs'  => 'ctgA',
@@ -44,6 +43,7 @@ is_deeply( $output,
 ;
 
 ## check genbank formatting
+
 $tempdir = File::Temp->newdir;
 
 system $^X, 'bin/prepare-refseqs.pl', (

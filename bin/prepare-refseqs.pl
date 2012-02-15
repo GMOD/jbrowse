@@ -150,10 +150,15 @@ if (defined($gff)) {
 
     if (defined($refs)) {
         foreach my $ref (split ",", $refs) {
-            my $seg = $db->segment(-name => $ref);
-            unless( $seg ) {
+
+            my ($seg) = my @segments = $db->segment(-name => $ref);
+
+            if(! @segments ) {
                 warn "WARNING: Reference sequence '$ref' not found in input.\n";
                 next;
+            }
+            elsif( @segments > 1 ) {
+                warn "WARNING: multiple matches for '$ref' found in input, using only the first one.\n";
             }
 
             my $refInfo =  {
@@ -258,11 +263,15 @@ sub exportSeqChunks {
     while ( $chunkStart <= $end ) {
         my $chunkEnd = $chunkStart + $len - 1;
         my $chunkNum = floor( ($chunkStart - 1) / $chunkSize );
-        my $seg = $db->segment( @$segDef,
-                                -start    => $chunkStart,
-                                -end      => $chunkEnd,
-                                -absolute => 1,
-                              );
+        my ($seg) = $db->segment( @$segDef,
+                                  -start    => $chunkStart,
+                                  -end      => $chunkEnd,
+                                  -absolute => 1,
+                                );
+        unless( $seg ) {
+            die "Seq export query failed, please inform the developers of this error"
+        }
+
         $seg->start == $chunkStart
           or die "requested $chunkStart .. $chunkEnd; got " . $seg->start . " .. " . $seg->end;
 
