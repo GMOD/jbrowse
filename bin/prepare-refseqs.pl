@@ -45,6 +45,8 @@ Do not write out the actual sequence bases, just the sequence metadata.
 
 Output only sequences with the given names or (database-dependent) IDs.
 
+=back
+
 =cut
 
 use strict;
