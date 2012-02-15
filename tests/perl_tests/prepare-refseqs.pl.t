@@ -12,6 +12,8 @@ use FileSlurping 'slurp_tree';
 
 my $tempdir = File::Temp->newdir;
 
+## check behavior for missing ref seqs
+
 my ( $stdout, $stderr ) = capture {
     system $^X, 'bin/prepare-refseqs.pl', (
         '--conf' => 'docs/examples/config/yeast_genbank.json',
@@ -19,12 +21,13 @@ my ( $stdout, $stderr ) = capture {
         '--out'  => $tempdir,
         );
 };
-#print $stdout;
-#print STDERR $stderr;
 ok( ! $?, 'script succeeded for nonexistent ref' );
 like( $stderr, qr/DOES NOT EXIST.+not found/i, 'warning message looks right' );
 
 $tempdir = File::Temp->newdir;
+
+
+## check basic formatting of volvox sequence
 
 system $^X, 'bin/prepare-refseqs.pl', (
     #'--refs'  => 'ctgA',
@@ -40,4 +43,16 @@ is_deeply( $output,
 #    or diag explain $output
 ;
 
+## check genbank formatting
+$tempdir = File::Temp->newdir;
+
+system $^X, 'bin/prepare-refseqs.pl', (
+    '--refs'  => 'NC_001133',
+    '--conf' => 'sample_data/raw/yeast_genbank.json',
+    '--out'   => $tempdir,
+   );
+
+ok( !$?, 'yeast genbank formatting ran OK' );
+
 done_testing;
+
