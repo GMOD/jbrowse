@@ -28,7 +28,7 @@ L<LazyPatricia> for details.
 
 Print more progress messages.
 
-=item --help | -h
+=item --help | -h | -?
 
 Print a usage message.
 
@@ -63,7 +63,7 @@ my $help;
 GetOptions("dir|out=s" => \$outDir,
            "thresh=i" => \$thresh,
            "verbose+" => \$verbose,
-           "help" => \$help) or pod2usage();
+           "help|h|?" => \$help) or pod2usage();
 
 pod2usage( -verbose => 2 ) if $help;
 

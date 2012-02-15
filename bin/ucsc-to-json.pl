@@ -69,7 +69,7 @@ JBrowse requires some web server configuration.
 
 The amount of RAM in bytes to use for sorting.
 
-=item --help | -h
+=item --help | -h | -?
 
 Display a help screen.
 

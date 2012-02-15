@@ -52,7 +52,7 @@ Unique identifier for this track.
 
 =over 4
 
-=item --help | -h
+=item --help | -h | -?
 
 Display an extended help screen.
 
@@ -204,7 +204,7 @@ my $help;
            "nclChunk=i" => \$nclChunk,
            "compress" => \$compress,
            "sortMem=i" =>\$sortMem,
-           "help|h" => \$help,
+           "help|h|?" => \$help,
   );
 @$types = split /,/, join( ',', @$types);
 
