@@ -1,23 +1,81 @@
 #!/usr/bin/env perl
 
+=head1 NAME
+
+bam-to-json.pl - format data from a BAM file for display by JBrowse
+
+=head1 USAGE
+
+  bam-to-json.pl                               \
+      --bam <bam file>                         \
+      [ --out <output directory> ]             \
+      [ --tracklabel <track identifier> ]      \
+      [ --key <human-readable track name> ]    \
+      [ --cssClass <class> ]                   \
+      [ --clientConfig '{ JSON }' ]            \
+      [ --nclChunk <NCL chunk size in bytes> ] \
+      [ --compress]
+
+=head1 OPTIONS
+
+=over 4
+
+=item --help | -h | -?
+
+Display an extended help screen.
+
+=item --bam <file>
+
+Required.  BAM file to read and format.
+
+=item --out <directory>
+
+Output directory to write to.  Defaults to C<data/>.
+
+=item --cssClass <class_name>
+
+CSS class name for the resulting features.  Defaults to C<basic>.
+
+=item --clientConfig '{ JSON configuration }'
+
+Extra configuration for the client, in JSON syntax.  Example:
+
+  --clientConfig '{"featureCss": "background-color: #668; height: 8px;", "histScale": 5}'
+
+=item --nclChunk <bytes>
+
+Size of the individual Nested Containment List chunks.  Default
+
+=item --compress
+
+If passed, compress the output .json file to gzip-compressed .jsonz.
+Note that some additional web server configuration is required to
+serve these correctly.
+
+=back
+
+=cut
+
 use strict;
 use warnings;
 
 use FindBin qw($Bin);
-use lib "$Bin/../lib";
-
+use Pod::Usage;
 use Getopt::Long;
-use JsonGenerator;
-use NCLSorter;
+
 use JSON 2;
 use Bio::DB::Sam;
 
+use lib "$Bin/../lib";
+use JsonGenerator;
+use NCLSorter;
 
 my ($tracks, $cssClass, $arrowheadClass, $subfeatureClasses, $clientConfig,
     $bamFile, $trackLabel, $key, $nclChunk, $compress);
 my $defaultClass = "basic";
 $cssClass = $defaultClass;
 my $outdir = "data";
+my $help;
 GetOptions("out=s" => \$outdir,
 	   "tracklabel=s" => \$trackLabel,
 	   "key=s" => \$key,
@@ -25,23 +83,12 @@ GetOptions("out=s" => \$outdir,
            "cssClass=s", \$cssClass,
            "clientConfig=s", \$clientConfig,
            "nclChunk=i" => \$nclChunk,
-           "compress" => \$compress);
+           "compress" => \$compress,
+           "help|h|?" => \$help,
+) or pod2usage();
 
-if (!defined($bamFile)) {
-    print <<HELP;
-USAGE: $0 --bam <bam file> [--out <output directory] [--tracklabel <track identifier>] [--key <human-readable track name>] [--cssClass <class>] [--clientConfig <JSON client config>] [--nclChunk <NCL chunk size in bytes>] [--compress]
-
-    --bam: bam file name
-    --out: defaults to "data"
-    --cssclass: defaults to "basic"
-    --clientConfig: extra configuration for the client, in JSON syntax
-        e.g. '{"featureCss": "background-color: #668; height: 8px;", "histScale": 5}'
-    --nclChunk: size of the individual NCL chunks
-    --compress: compress the output (requires some web server configuration)
-HELP
-
-    exit(1);
-}
+pod2usage( -verbose => 2 ) if $help;
+pod2usage( 'Must pass a --bam argument.' ) unless defined $bamFile;
 
 if (!defined($nclChunk)) {
     # default chunk size is 50KiB
