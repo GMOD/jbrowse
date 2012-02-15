@@ -1,72 +1,87 @@
 #!/usr/bin/env perl
 
+=head1 NAME
+
+prepare-refseqs.pl - format reference sequences for use by JBrowse
+
+=head1 USAGE
+
+       prepare-refseqs.pl --gff <GFF file>  [options]
+   # OR:
+       prepare-refseqs.pl --fasta <file1> --fasta <file2>  [options]
+   # OR:
+       prepare-refseqs.pl --conf <JBrowse config file>  [options]
+
+=head1 DESCRIPTION
+
+This tool can read fasta files compressed with gzip, if they end in
+.gz or .gzip.
+
+You can use a GFF file to describe the reference sequences; or you can
+use a JBrowse config file (pointing to a BioPerl database) or a FASTA
+file, together with a list of refseq names or a list of refseq IDs.
+If you use a GFF file, it should contain ##sequence-region lines as
+described in the GFF specs.
+
+If you use a JBrowse config file or FASTA file, you can either provide
+a (comma-separated) list of refseq names, or (if the names aren't
+globally unique) a list of refseq IDs; or (for FASTA files only) you
+can omit the list of refseqs, in which case every sequence in the
+database will be used.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --out <output directory>
+
+Optional directory to write to.  Defaults to data/.
+
+=item --noseq
+
+Do not write out the actual sequence bases, just the sequence metadata.
+
+=item --refs <list of refseq names> | --refids <list of refseq IDs>
+
+Output only sequences with the given names or (database-dependent) IDs.
+
+=cut
+
 use strict;
 use warnings;
 
+use File::Spec::Functions qw/ catfile catdir /;
 use FindBin qw($Bin);
-use lib "$Bin/../lib";
-
+use Pod::Usage;
 use POSIX;
 use Getopt::Long;
+
+use lib "$Bin/../lib";
+
 use JsonGenerator;
 use FastaDatabase;
-use File::Spec::Functions qw/ catfile catdir /;
 
 my $chunkSize = 20000;
 my ($confFile, $noSeq, $gff, @fasta, $refs, $refids);
 my $outDir = "data";
 my $seqTrackName = "DNA";
+my $help;
 GetOptions("out=s" => \$outDir,
            "conf=s" => \$confFile,
            "noseq" => \$noSeq,
            "gff=s" => \$gff,
            "fasta=s" => \@fasta,
 	   "refs=s" => \$refs,
-           "refids=s" => \$refids);
+           "refids=s" => \$refids,
+           "help|h|?" => \$help,
+           ) or pod2usage();
+pod2usage( -verbose => 2 ) if $help;
+pod2usage( 'must provide either a --fasta, --gff, or --conf option' )
+    unless defined $gff || defined $confFile || @fasta;
+
 # $seqRel is the path relative to $outDir
 my $seqRel = "seq";
 my $seqDir = catdir( $outDir, $seqRel );
-
-unless ( defined $gff || defined $confFile || @fasta ) {
-    print <<HELP;
-USAGE:
-       $0 --gff <GFF file>  [options]
-   OR:
-       $0 --fasta <FASTA file> --fasta <another FASTA file>  [options]
-   OR:
-       $0 --conf <JBrowse config file>  [options]
-
-   Options:
-          [--out <output directory>]
-          [--seqdir <sequence data directory>]
-          [--noseq]
-          [--refs <list of refseq names> | --refids <list of refseq IDs>]
-
-    <output directory>: defaults to "$outDir"
-    <sequence data directory>: chunks of sequence go here;
-                               defaults to "<output directory>/seq"
-    --noseq: do not prepare sequence data for the client
-
-   Note:
-
-    This tool can read fasta files compressed with gzip, if they end
-    in .gz or .gzip.
-
-    You can use a GFF file to describe the reference sequences; or
-    you can use a JBrowse config file (pointing to a BioPerl database)
-    or a FASTA file, together with a list of refseq names
-    or a list of refseq IDs.  If you use a GFF file, it should
-    contain ##sequence-region lines as described in the GFF specs.
-
-    If you use a JBrowse config file or FASTA file, you can either
-    provide a (comma-separated) list of refseq names, or
-    (if the names aren't globally unique) a list of refseq IDs;
-    or (for FASTA files only) you can omit the list of refseqs,
-    in which case every sequence in the database will be used.
-
-HELP
-exit;
-}
 
 mkdir($outDir) unless (-d $outDir);
 mkdir($seqDir) unless $noSeq || (-d $seqDir);
