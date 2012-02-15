@@ -5,13 +5,13 @@ use Test::More;
 use File::Spec;
 use File::Temp;
 
-use File::Next;
+use lib 'tests/perl_tests/lib';
 
-use JsonFileStorage;
+use FileSlurping 'slurp_tree';
 
 my $tempdir = File::Temp->newdir( CLEANUP => 1 );
-
 diag "writing output to $tempdir";
+
 system $^X, 'bin/ucsc-to-json.pl', (
     '-q',
     '--compress',
@@ -34,19 +34,3 @@ is_deeply(
 # make sure it has the right output
 done_testing;
 
-# churlishly slurp the entire contents of a file tree into a single
-# hashref by relative file name
-sub slurp_tree {
-    my ( $dir ) = @_;
-
-    my %data;
-
-    my $storage = JsonFileStorage->new( $dir, 'compress' );
-    my $output_files_iter = File::Next::files( $dir );
-    while( my $file = $output_files_iter->() ) {
-        my $rel = File::Spec->abs2rel( $file, $dir );
-        $data{ $rel } = $storage->get( $rel );
-    }
-
-    return \%data;
-}
