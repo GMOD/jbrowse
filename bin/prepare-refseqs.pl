@@ -73,14 +73,6 @@ mkdir($seqDir) unless $noSeq || (-d $seqDir);
 
 my @refSeqs;
 
-sub refName {
-    my $seg = shift;
-    my $segName = $seg->name;
-    $segName = $seg->{'uniquename'} if $seg->{'uniquename'};
-    $segName =~ s/:.*$//; #get rid of coords if any
-    return $segName;
-}
-
 if (defined($gff)) {
     open GFF, "<$gff"
       or die "couldn't open GFF file $gff: $!";
@@ -159,6 +151,10 @@ if (defined($gff)) {
     if (defined($refs)) {
         foreach my $ref (split ",", $refs) {
             my $seg = $db->segment(-name => $ref);
+            unless( $seg ) {
+                warn "WARNING: Reference sequence '$ref' not found in input.\n";
+                next;
+            }
 
             my $refInfo =  {
                 name => refName($seg),
@@ -181,35 +177,10 @@ if (defined($gff)) {
     }
 }
 
-sub exportSeqChunks {
-    my ($dir, $len, $db, $segDef, $start, $end) = @_;
-
-    mkdir $dir unless -d $dir;
-    $start = 1 if $start < 1;
-    $db->absolute( 1 ) if $db->can('absolute');
-
-    my $chunkStart = $start;
-    while ( $chunkStart <= $end ) {
-        my $chunkEnd = $chunkStart + $len - 1;
-        my $chunkNum = floor( ($chunkStart - 1) / $chunkSize );
-        my $seg = $db->segment( @$segDef,
-                                -start    => $chunkStart,
-                                -end      => $chunkEnd,
-                                -absolute => 1,
-                              );
-        $seg->start == $chunkStart
-          or die "requested $chunkStart .. $chunkEnd; got " . $seg->start . " .. " . $seg->end;
-
-        $chunkStart = $chunkEnd + 1;
-        next unless $seg && $seg->seq && $seg->seq->seq;
-
-        my $path = File::Spec->catfile( "$dir", "$chunkNum.txt" );
-        open my $chunkfile, '>', $path or die "$! writing $path";
-        $chunkfile->print( $seg->seq->seq );
-    }
+unless( @refSeqs ) {
+    warn "No reference sequences found, exiting.\n";
+    exit;
 }
-
-die "found no ref seqs" if ($#refSeqs < 0);
 
 JsonGenerator::modifyJsonFile( catfile( $outDir, 'refSeqs.json' ),
                               sub {
@@ -262,6 +233,46 @@ unless ($noSeq) {
                                       };
                                     return $trackList;
                             });
+}
+
+exit;
+
+###########################
+
+sub refName {
+    my $seg = shift;
+    my $segName = $seg->name;
+    $segName = $seg->{'uniquename'} if $seg->{'uniquename'};
+    $segName =~ s/:.*$//; #get rid of coords if any
+    return $segName;
+}
+
+sub exportSeqChunks {
+    my ($dir, $len, $db, $segDef, $start, $end) = @_;
+
+    mkdir $dir unless -d $dir;
+    $start = 1 if $start < 1;
+    $db->absolute( 1 ) if $db->can('absolute');
+
+    my $chunkStart = $start;
+    while ( $chunkStart <= $end ) {
+        my $chunkEnd = $chunkStart + $len - 1;
+        my $chunkNum = floor( ($chunkStart - 1) / $chunkSize );
+        my $seg = $db->segment( @$segDef,
+                                -start    => $chunkStart,
+                                -end      => $chunkEnd,
+                                -absolute => 1,
+                              );
+        $seg->start == $chunkStart
+          or die "requested $chunkStart .. $chunkEnd; got " . $seg->start . " .. " . $seg->end;
+
+        $chunkStart = $chunkEnd + 1;
+        next unless $seg && $seg->seq && $seg->seq->seq;
+
+        my $path = File::Spec->catfile( "$dir", "$chunkNum.txt" );
+        open my $chunkfile, '>', $path or die "$! writing $path";
+        $chunkfile->print( $seg->seq->seq );
+    }
 }
 
 =head1 AUTHOR
