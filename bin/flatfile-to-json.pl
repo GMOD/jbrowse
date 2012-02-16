@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-use Carp::Always;
 
 =head1 NAME
 
