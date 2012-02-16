@@ -425,8 +425,8 @@ public:
                                 params["span"]);
                 newsection_done_ = false;
             } else if ("track" == word) {
-                cerr << "ignoring " << line 
-                     << " (line " << lineNum << ")" << endl;
+                // cerr << "ignoring " << line 
+                //      << " (line " << lineNum << ")" << endl;
             } else {
                 switch (format_) {
                 case FIXED:
