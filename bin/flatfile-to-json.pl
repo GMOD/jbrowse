@@ -19,7 +19,6 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
       [ --getSubs ]                                                           \
       [ --getLabel ]                                                          \
       [ --urltemplate "http://example.com/idlookup?id={id}" ]                 \
-      [ --extraData <attribute> ]                                             \
       [ --arrowheadClass <CSS class> ]                                        \
       [ --subfeatureClasses '{ JSON-format subfeature class map }' ]          \
       [ --clientConfig '{ JSON-format extra configuration for this track }' ] \
@@ -93,13 +92,6 @@ Include a label for the features in the JSON.
 
 Template for a URL to be visited when features are clicked on.
 
-=item --extraData <attribute>
-
-A map of feature attribute names to perl subs that extract information
-from the feature object.  Example:
-
-  --extraData '{"protein_id" : "sub {shift->attributes(\"protein_id\");} "}'
-
 =item --arrowheadClass <CSS class>
 
 CSS class for arrowheads.
@@ -172,7 +164,7 @@ use JSON 2;
 
 my ($gff, $bed, $bam, $trackLabel, $key,
     $urlTemplate, $subfeatureClasses, $arrowheadClass,
-    $clientConfig, $extraData, $thinType, $thickType,
+    $clientConfig, $thinType, $thickType,
     $types, $nclChunk);
 $types = [];
 my $autocomplete = "none";
@@ -194,7 +186,6 @@ my $help;
 	   "getSubs|getSubfeatures" => \$getSubs,
 	   "getLabel" => \$getLabel,
            "urltemplate=s" => \$urlTemplate,
-           "extraData=s" => \$extraData,
            "arrowheadClass=s" => \$arrowheadClass,
            "subfeatureClasses=s" => \$subfeatureClasses,
            "clientConfig=s" => \$clientConfig,
@@ -286,9 +277,6 @@ $style{subfeature_classes} = JSON::from_json($subfeatureClasses)
 
 $style{clientConfig} = JSON::from_json($clientConfig)
     if defined($clientConfig);
-
-$style{extraData} = JSON::from_json($extraData)
-    if defined($extraData);
 
 my $flattener = BioperlFlattener->new(
     $trackLabel,
