@@ -31,7 +31,6 @@ use strict;
 use warnings;
 use File::Spec;
 
-use FeatureTrack;
 use JsonFileStorage;
 
 my $defaultTracklist = {
@@ -107,10 +106,28 @@ label, config, and key.
 =cut
 
 sub createFeatureTrack {
-    my ($self, $trackLabel, $config, $key) = @_;
+    my $self = shift;
+    $self->_create_track( FeatureTrack => @_ );
+}
+
+=head2 createImageTrack( $label, \%config, $key )
+
+Create a new ImageTrack object in this data dir with the given
+label, config, and key.
+
+=cut
+
+sub createImageTrack {
+    my $self = shift;
+    $self->_create_track( ImageTrack => @_ );
+}
+
+sub _create_track {
+    my ($self, $class, $trackLabel, $config, $key) = @_;
+    eval "require $class"; die $@ if $@;
     (my $baseUrl = $self->{trackUrlTempl}) =~ s/\{tracklabel\}/$trackLabel/g;
-    return FeatureTrack->new($self->trackDir($trackLabel), $baseUrl,
-                             $trackLabel, $config, $key);
+    return $class->new( $self->trackDir($trackLabel), $baseUrl,
+                        $trackLabel, $config, $key);
 }
 
 =head2 getTrack( $trackLabel )
@@ -124,24 +141,26 @@ sub getTrack {
 
     my $trackList = $self->{rootStore}->get($trackListPath,
                                             $defaultTracklist);
-    my @selected = grep { $_->{label} eq $trackLabel } @{$trackList->{tracks}};
+    my ( $trackDesc ) = my @selected =
+        grep { $_->{label} eq $trackLabel } @{$trackList->{tracks}};
 
-    return undef
-      if ($#selected < 0);
+    return undef unless @selected;
+
     # this should never happen
-    die "multiple tracks labeled $trackLabel"
-      if $#selected > 0;
-    my $trackDesc = $selected[0];
-    if ($trackDesc->{type} eq "FeatureTrack") {
-	(my $baseUrl = $self->{trackUrlTempl}) =~
-            s/\{tracklabel\}/$trackLabel/g;
-        return FeatureTrack->new($self->trackDir($trackLabel),
-				 $baseUrl,
-                                 $trackDesc->{label},
-                                 $trackDesc->{config},
-                                 $trackDesc->{key});
-    }
-    die "track type \"" . $trackDesc->{type} . "\" not implemented";
+    die "multiple tracks labeled $trackLabel" if @selected > 1;
+
+    ( my $type = $trackDesc->{type} ) =~ s/\W//g;
+
+    eval "require $type"; die $@ if $@;
+
+    (my $baseUrl = $self->{trackUrlTempl}) =~ s/\{tracklabel\}/$trackLabel/g;
+
+    return $type->new( $self->trackDir($trackLabel),
+                       $baseUrl,
+                       $trackDesc->{label},
+                       $trackDesc->{config},
+                       $trackDesc->{key},
+                     );
 }
 
 # private method
