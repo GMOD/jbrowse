@@ -149,13 +149,14 @@ use strict;
 use warnings;
 
 use FindBin qw($Bin);
-use lib "$Bin/../lib";
 
 use Getopt::Long;
 use Pod::Usage;
 
 use Bio::FeatureIO;
 
+use lib "$Bin/../lib";
+use ArrayRepr;
 use GenomeDB;
 use BioperlFlattener;
 use ExternalSorter;
