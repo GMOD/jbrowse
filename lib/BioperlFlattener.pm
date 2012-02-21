@@ -97,7 +97,8 @@ sub new {
     @curMapHeaders = (@curMapHeaders, @$extraHeaders);
 
     if ($style{label}) {
-	push @curFeatMap, $style{label};
+        $style{label} = \&defaultLabelSub unless ref $style{label} eq 'CODE';
+        push @curFeatMap, $style{label};
 	push @curMapHeaders, "name";
     }
 
@@ -156,7 +157,7 @@ sub new {
 
     if ($self->{getLabel} || $self->{getAlias}) {
 	if ($self->{getLabel} && $self->{getAlias}) {
-	    unshift @nameMap, sub {[unique($style{label}->($_[0]),
+	    unshift @nameMap, sub {[unique( ($style{label} || \&defaultLabelSub)->($_[0]),
 					   $_[0]->get_tag_values("Alias"))]};
 	} elsif ($self->{getLabel}) {
 	    unshift @nameMap, sub {[$style{label}->($_[0])]};
@@ -256,5 +257,29 @@ sub unique {
     my %saw;
     return (grep(defined($_) && !$saw{$_}++, @_));
 }
+
+
+###################
+
+sub defaultLabelSub {
+    my ( $f ) = @_;
+    if( $f->can('display_name') and defined( my $dn = $f->display_name )) {
+        return $dn
+    }
+    elsif( $f->can('get_tag_values') ) {
+        my $n = eval { ($f->get_tag_values('Name'))[0] };
+        return $n if defined $n;
+
+        my $a = eval { ($f->get_tag_values('Alias'))[0] };
+        return $a if defined $a;
+    }
+    elsif( $f->can('attributes') ) {
+	return $f->attributes('load_id') if defined $f->attributes('load_id');
+	return $f->attributes('Name')    if defined $f->attributes('Name');
+	return $f->attributes('Alias')   if defined $f->attributes('Alias');
+    }
+    return;
+}
+
 
 1;

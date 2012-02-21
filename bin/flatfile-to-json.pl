@@ -222,22 +222,13 @@ if (!defined($nclChunk)) {
     $nclChunk *= 4 if $compress;
 }
 
-#default label-extracting function, for GFF
-my $labelSub = sub {
-    return $_[0]->display_name if ($_[0]->can('display_name') && defined($_[0]->display_name));
-    if ($_[0]->can('attributes')) {
-	return $_[0]->attributes('load_id') if $_[0]->attributes('load_id');
-	return $_[0]->attributes('Alias') if $_[0]->attributes('Alias');
-    }
-    #return eval{$_[0]->primary_tag};
-};
-
 my $idSub = sub {
-    return $_[0]->load_id if ($_[0]->can('load_id') && defined($_[0]->load_id));
+    return $_[0]->load_id if $_[0]->can('load_id') && defined $_[0]->load_id;
     return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
 };
 
 my $stream;
+my $labelStyle = 1;
 if ($gff) {
     my $io = Bio::FeatureIO->new(
         -format  => 'gff',
@@ -252,7 +243,7 @@ if ($gff) {
         ($thinType ? ("-thin_type" => $thinType) : ()),
         ($thickType ? ("-thick_type" => $thickType) : ()),
        );
-    $labelSub = sub {
+    $labelStyle = sub {
         #label sub for features returned by Bio::FeatureIO::bed
         return $_[0]->name;
     };
@@ -283,7 +274,7 @@ my $flattener = BioperlFlattener->new(
     {
         "idSub"  => $idSub,
         "label"  => ($getLabel || ($autocomplete ne "none"))
-                       ? $labelSub : 0,
+                       ? $labelStyle : 0,
         %style,
     },
     [], [] );
@@ -315,6 +306,9 @@ my @arrayrepr_classes = (
         isArrayAttr => {},
     },
   );
+
+use Data::Dump;
+ddx( \@arrayrepr_classes );
 
 # build a filtering subroutine for the features
 my $filter = do {
