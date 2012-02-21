@@ -492,7 +492,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
 
     var phase = this.attrs.get(feature, "Phase");
     if ((phase !== null) && (phase !== undefined))
-        featDiv.className = featDiv.className + phase;
+        featDiv.className = featDiv.className + " " + featDiv.className + "_phase" + phase;
 
     // Since some browsers don't deal well with the situation where
     // the feature goes way, way offscreen, we truncate the feature
