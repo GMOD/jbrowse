@@ -81,7 +81,8 @@ sub new {
     $self->{getAlias} = ($style{autocomplete} =~ /alias|all/);
 
     my $idSub = $style{idSub} || sub  {
-        return $_[0]->can('primary_id') ? $_[0]->primary_id : $_[0]->id;
+        my ( $f ) = @_;
+        return eval { $f->load_id } || eval { $f->primary_id } || eval { $f->id };
     };
 
     my @curFeatMap = @featMap;
@@ -101,7 +102,13 @@ sub new {
     }
 
     if ($style{phase}) {
-        push @curFeatMap, sub {shift->phase};
+        push @curFeatMap, sub {
+            no warnings qw/ numeric uninitialized /;
+            my $p = shift->phase;
+            $p += 0;
+            return undef unless $p == 0 || $p == 1 || $p == 2;
+            return $p;
+        };
         push @curMapHeaders, "phase";
     }
 
