@@ -40,6 +40,8 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
 
 Process a GFF3 or BED-format file containing annotation data.
 
+NOTE: This script does not support GFF version 2 or GTF (GFF 2.5) input.
+
 =item --trackLabel <track identifier>
 
 Unique identifier for this track.  Required.
