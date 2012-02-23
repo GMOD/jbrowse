@@ -106,23 +106,20 @@ unless( defined $nclChunk ) {
 my @refSeqs = @{JSON::from_json( slurp("$outdir/refSeqs.json") || '[]' )}
   or die "Run prepare-refseqs.pl to define reference sequences before running this script.\n";
 
-my %style = (
-    "class"  => $cssClass,
+my %config = (
+    style => { className => $cssClass },
     "key"    => $key || $trackLabel,
     compress => $compress,
    );
 
-$style{clientConfig} = JSON::from_json($clientConfig)
-    if defined $clientConfig;
-
 if( $cssClass eq $defaultClass ) {
-    $style{clientConfig}->{featureCss} = "background-color: #668; height: 8px;"
-        unless defined $style{clientConfig}->{featureCss};
-    $style{clientConfig}->{histCss} = "background-color: #88F"
-        unless defined $style{clientConfig}->{histCss};
-    $style{clientConfig}->{histScale} = 2
-        unless defined $style{clientConfig}->{histScale};
+    $config{style}->{featureCss} = "background-color: #668; height: 8px;";
+    $config{style}->{histCss} = "background-color: #88F";
+    $config{style}->{histScale} = 2;
 }
+
+$config{style} = { %{ $config{style} || {} }, %{ JSON::from_json($clientConfig) || {} } }
+    if defined $clientConfig;
 
 my $bam = Bio::DB::Bam->open( $bamFile );
 # open the bam index, creating it if necessary
@@ -133,8 +130,8 @@ my $hdr = $bam->header;
 my $gdb = GenomeDB->new( $outdir );
 my $track = $gdb->getTrack( $trackLabel )
             || $gdb->createFeatureTrack( $trackLabel,
-                                         \%style,
-                                         $style{key},
+                                         \%config,
+                                         $config{key},
                                        );
 my %refseqs_in_bam;
 $refseqs_in_bam{$_} = 1 for @{$hdr->target_name || []};
