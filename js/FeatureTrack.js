@@ -415,7 +415,7 @@ FeatureTrack.prototype.measureStyles = function() {
     document.body.removeChild(heightTest);
 
     //determine the width of the arrowhead, if any
-    if (this.config.stylearrowheadClass) {
+    if (this.config.style.arrowheadClass) {
         var ah = document.createElement("div");
         ah.className = "plus-" + this.config.style.arrowheadClass;
         if (Util.is_ie6) ah.appendChild(document.createComment("foo"));
