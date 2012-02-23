@@ -15,7 +15,10 @@ use warnings;
 use base 'Exporter';
 our @EXPORT_OK = qw( slurp_tree slurp );
 
+use File::Spec;
+
 use File::Next;
+use JSON 2 ();
 
 use JsonFileStorage;
 
@@ -48,17 +51,30 @@ sub slurp_tree {
 
 =head2 slurp
 
-Slurp a single file and return it.
+Slurp a single file and return it.  Uncompresses .jsonz and .gz files,
+and decodes the JSON in .json and .jsonz files.
 
 Because adding a dep on L<File::Slurp> for this is silly.
 
 =cut
 
 sub slurp {
-    open my $f, '<', $_[0] or die "$! reading $_[0]";
-    local $/;
-    <$f>
-}
+    if( @_ > 1 ) {
+        @_ = ( File::Spec->catfile( @_ ) );
+    }
 
+    my $gzip = $_[0] =~ m!\.(gz|jsonz)$! ? ':gzip' : '';
+    my $contents = do {
+        open my $f, "<$gzip", $_[0] or die "$! reading $_[0]";
+        local $/;
+        <$f>;
+    };
+
+    if( $_[0] =~ /\.jsonz?$/ ) {
+        $contents = JSON::from_json( $contents );
+    }
+
+    return $contents;
+}
 
 1;
