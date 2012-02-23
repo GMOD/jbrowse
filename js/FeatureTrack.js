@@ -301,8 +301,8 @@ FeatureTrack.prototype.transfer = function(sourceBlock, destBlock, scale,
             sourceSlot.label.parentNode.removeChild(sourceSlot.label);
 	}
 	if (sourceSlot && sourceSlot.feature) {
-	    if ((sourceSlot.layoutEnd > destLeft)
-		&& (sourceSlot.feature[this.fields["start"]] < destRight)) {
+	    if ( sourceSlot.layoutEnd > destLeft
+		 && this.attrs.get(sourceSlot.feature, "Start") < destRight ) {
 
                 sourceBlock.removeChild(sourceSlot);
                 delete sourceBlock.featureNodes[overlaps[i].id];
