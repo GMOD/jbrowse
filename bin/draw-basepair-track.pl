@@ -1,18 +1,83 @@
 #!/usr/bin/env perl
 
+=head1 NAME
+
+draw-basepair-track.pl - make a track that draws semicircular diagrams of DNA base pairing
+
+=head1 USAGE
+
+    bin/draw-basepair-track.pl              \
+        --gff <GFF file>                     \
+        [--out <JSON directory>]             \
+        [--tracklabel <track identifier>]    \
+        [--key <human-readable track name>]  \
+        [--bgcolor <R,G,B>]                  \
+        [--fgcolor <R,G,B>]                  \
+        [--thickness <line thickness> ]      \
+        [--width <tile width>]               \
+        [--height <tile height>]             \
+        [--nolinks]
+
+=head1 OPTIONS
+
+=over 4
+
+=item --out <val>
+
+Data directory to write to.  Defaults to C<data/>.
+
+=item --trackLabel <val>
+
+Unique name for the track.  Defaults to the wiggle filename.
+
+=item --key <val>
+
+Human-readable name for the track.  Defaults to be the same as the
+C<--trackLabel>.
+
+=item --bgcolor <R,G,B>
+
+Background color for the image track.  Defaults to C<255,255,255>,
+which is white.
+
+=item --fgcolor <R,G,B>
+
+Foreground color for the track, i.e. the color of the lines that are
+drawn.  Defaults to C<0,255,0>, which is bright green.
+
+=item --thickness <pixels>
+
+Thickness in pixels of the drawn lines.  Defaults to 2.
+
+=item --width <pixels>
+
+Width in pixels of each image tile.  Defaults to 2000.
+
+=item --height <pixels>
+
+Height in pixels of the image track.  Defaults to 100.
+
+=item --nolinks
+
+If passed, do not use filesystem hardlinks to compress duplicate
+tiles.
+
+=back
+
+=cut
+
 use strict;
 use warnings;
 
 use POSIX qw (abs ceil);
 
 use FindBin qw($Bin);
-use lib "$Bin/../lib";
-
-use Getopt::Long;
 use File::Basename;
+use Getopt::Long;
+use Pod::Usage;
 
+use lib "$Bin/../lib";
 use ImageTrackRenderer;
-
 
 my ($path, $trackLabel, $key, $cssClass);
 my $outdir = "data";
@@ -23,37 +88,24 @@ my $tileWidth = 2000;
 my $trackHeight = 100;
 my $thickness = 2;
 my $nolinks = 0;
+my $help;
 
-my $usage = <<USAGE;
- USAGE: $0 -gff <GFF file> [-tile <tiles directory>] [-out <JSON directory>] [-tracklabel <track identifier>] [-key <human-readable track name>] [-bgcolor <R,G,B>] [-fgcolor <R,G,B>] [-thickness <line thickness> [-width <tile width>] [-height <tile height>] [-nolinks]
+GetOptions( "gff=s"        => \$path,
+	    "tile=s"       => \$tiledir,
+	    "out=s"        => \$outdir,
+	    "tracklabel|trackLabel=s" => \$trackLabel,
+	    "key=s"        => \$key,
+	    "bgcolor=s"    => \$bgColor,
+	    "fgcolor=s"    => \$fgColor,
+	    "width=s"      => \$tileWidth,
+	    "height=s"     => \$trackHeight,
+	    "thickness=s"  => \$thickness,
+	    "nolinks"      => \$nolinks,
+            "help|h|?"     => \$help,
+) or pod2usage();
 
-    -tile: defaults to "$tiledir"
-    -out: defaults to "$outdir"
-    -tracklabel: defaults to wiggle filename
-    -key: defaults to track label
-    -bgcolor: defaults to "$bgColor"
-    -fgcolor: defaults to "$fgColor"
-    -thickness: defaults to $thickness
-    -width: defaults to $tileWidth
-    -height: defaults to $trackHeight
-    -nolinks: prevents use of filesystem links to compress duplicate tiles
-USAGE
-
-GetOptions("gff=s" => \$path,
-	   "tile=s" => \$tiledir,
-	   "out=s" => \$outdir,
-	   "tracklabel=s" => \$trackLabel,
-	   "key=s" => \$key,
-	   "bgcolor=s" => \$bgColor,
-	   "fgcolor=s" => \$fgColor,
-	   "width=s" => \$tileWidth,
-	   "height=s" => \$trackHeight,
-	   "thickness=s" => \$thickness,
-	   "nolinks" => \$nolinks);
-
-if (!defined($path)) {
-    die $usage;
-}
+pod2usage( -verbose => 2 ) if $help;
+pod2usage( 'must provide a --gff file' ) unless defined $path;
 
 if (!defined($trackLabel)) {
     $trackLabel = $path;
