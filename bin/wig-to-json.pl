@@ -137,14 +137,13 @@ my $urlTemplate = "tracks/$trackLabel/{refseq}/trackData.json";
 my $gdb = GenomeDB->new( $outdir );
 
 my %style = (
-    "class"          => $cssClass,
     "key"            => defined($key) ? $key : $trackLabel,
     "urlTemplate"    => $urlTemplate,
-    "clientConfig"   => $clientConfig,
+    style => {
+        %{ $clientConfig || {} },
+        "className"  => $cssClass || 'image',
+    },
 );
-
-$style{clientConfig} = JSON::from_json($clientConfig)
-    if defined($clientConfig);
 
 my $track = $gdb->getTrack( $trackLabel )
    || $gdb->createImageTrack( $trackLabel,
