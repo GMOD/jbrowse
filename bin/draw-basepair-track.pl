@@ -6,7 +6,7 @@ draw-basepair-track.pl - make a track that draws semicircular diagrams of DNA ba
 
 =head1 USAGE
 
-    bin/draw-basepair-track.pl              \
+    bin/draw-basepair-track.pl               \
         --gff <GFF file>                     \
         [--out <JSON directory>]             \
         [--tracklabel <track identifier>]    \
@@ -74,24 +74,24 @@ use POSIX qw (abs ceil);
 use FindBin qw($Bin);
 use File::Basename;
 use Getopt::Long;
+use List::Util 'max';
 use Pod::Usage;
 
 use lib "$Bin/../lib";
 use ImageTrackRenderer;
 
 my ($path, $trackLabel, $key, $cssClass);
-my $outdir = "data";
-my $tiledir = "tiles";
-my $fgColor = "0,255,0";
-my $bgColor = "255,255,255";
-my $tileWidth = 2000;
+my $outdir      = "data";
+my $tiledir     = "tiles";
+my $fgColor     = "0,255,0";
+my $bgColor     = "255,255,255";
+my $tileWidth   = 2000;
 my $trackHeight = 100;
-my $thickness = 2;
-my $nolinks = 0;
+my $thickness   = 2;
+my $nolinks     = 0;
 my $help;
 
 GetOptions( "gff=s"        => \$path,
-	    "tile=s"       => \$tiledir,
 	    "out=s"        => \$outdir,
 	    "tracklabel|trackLabel=s" => \$trackLabel,
 	    "key=s"        => \$key,
@@ -107,7 +107,7 @@ GetOptions( "gff=s"        => \$path,
 pod2usage( -verbose => 2 ) if $help;
 pod2usage( 'must provide a --gff file' ) unless defined $path;
 
-if (!defined($trackLabel)) {
+unless( defined $trackLabel ) {
     $trackLabel = $path;
     $trackLabel =~ s/\//_/g;   # get rid of directory separators
 }
@@ -116,65 +116,59 @@ if (!defined($trackLabel)) {
 my @fg = split (/,/, $fgColor);
 my @bg = split (/,/, $bgColor);
 
-my $range = max (map(abs($fg[$_] - $bg[$_]), 0..2));
-my @rgb;
-for my $n (0..$range) {
-    push @rgb, [map ($bg[$_] + ($fg[$_]-$bg[$_])*$n/$range, 0..2)];
-}
+# make ( [R,G,B], [R,G,B], ... ) color triplets for each color index
+# that interpolate between the foreground and background colors
+my $range = max map abs($fg[$_] - $bg[$_]), 0..2;
+my @rgb = map {
+    my $n = $_;
+    [ map {
+        $bg[$_] + $n/$range * ( $fg[$_] - $bg[$_] )
+      } 0..2
+    ]
+} 0..$range;
 
-# load GFF describing basepair locations & intensities; sort by seqname
-my %gff;
-local *GFF;
-open GFF, "<$path" or die "Couldn't open $path : $!";
-my ($maxscore, $minscore, $maxlen);
-while (my $gffLine = <GFF>) {
-    next if $gffLine =~ /^\s*\#/;
-    next unless $gffLine =~ /\S/;
-    my ($seqname, $source, $feature, $start, $end, $score, $strand, $frame, $group) = split /\t/, $gffLine, 9;
-    next if grep (!defined(), $seqname, $start, $end, $score);
-    $gff{$seqname} = [] unless exists $gff{$seqname};
-    push @{$gff{$seqname}}, [$start, $end, $score];
-    if ($score =~ /\d/) {
-	$maxscore = $score if !defined($maxscore) || $score > $maxscore;
-	$minscore = $score if !defined($minscore) || $score < $minscore;
-    }
-    my $len = $end - $start;
-    $maxlen = $len if !defined($maxlen) || $len > $maxlen;
-}
-close GFF;
+my ( $gff, $maxscore, $minscore, $maxlen ) = read_gff( $path );
 
-# convert GFF scores into color indices, then sort each sequence's GFF features by increasing color index
-while (my ($seqname, $gffArray) = each %gff) {
-    @$gffArray = map ([$_->[0], $_->[1], $_->[2]=~/\d/ ? int (.5 + $range * ($_->[2] - $minscore) / ($maxscore - $minscore)) : $range], @$gffArray);
-    @$gffArray = sort { $a->[2] <=> $b->[2] } @$gffArray;
+# convert GFF scores into color indices, then sort each sequence's GFF
+# features by increasing color index
+while (my ($seqname, $gffArray) = each %$gff) {
+    @$gffArray =
+        sort { $a->[2] <=> $b->[2] }
+        map  [ $_->[0],
+               $_->[1],
+               $_->[2] =~ /\d/ ? int( 0.5 + $range * ($_->[2] - $minscore) / ($maxscore - $minscore) )
+                               : $range
+             ],
+        @$gffArray;
 }
 
 # create the renderer
-my $renderer = ImageTrackRenderer->new ("datadir" => $outdir,
-					"tiledir" => $tiledir,
-					"tilewidth" => $tileWidth,
-					"trackheight" => $trackHeight,
-					"tracklabel" => $trackLabel,
-					"key" => $key,
-					"link" => !$nolinks,
-					"drawsub" => sub {
-					    my ($im, $seqInfo) = @_;
-					    my $seqname = $seqInfo->{"name"};
-					    my @color;
-					    for my $rgb (@rgb) {
-						push @color, $im->colorAllocate (@$rgb);
-					    }
-					    $im->setThickness ($thickness);
-					    for my $gff (@{$gff{$seqname}}) {
-						my $start = $im->base_xpos ($gff->[0]) + $im->pixels_per_base / 2;
-						my $end = $im->base_xpos ($gff->[1]) + $im->pixels_per_base / 2;
-						my $arcMidX = ($start + $end) / 2;
-						my $arcWidth = $end - $start;
-						my $arcHeight = 2 * $trackHeight * ($gff->[1] - $gff->[0]) / $maxlen;
-						# warn "Drawing arc from $start to $end, height $arcHeight";
-						$im->arc ($arcMidX, 0, $arcWidth, $arcHeight, 0, 180, $color[$gff->[2]]);
-					    }
-					});
+my $renderer = ImageTrackRenderer->new(
+    "datadir"     => $outdir,
+    "tiledir"     => $tiledir,
+    "tilewidth"   => $tileWidth,
+    "trackheight" => $trackHeight,
+    "tracklabel"  => $trackLabel,
+    "key"         => $key,
+    "link"        => !$nolinks,
+    "drawsub"     => sub {
+        my ($im, $seqInfo) = @_;
+        my $seqname = $seqInfo->{"name"};
+        my @color;
+        for my $rgb (@rgb) {
+            push @color, $im->colorAllocate (@$rgb);
+        }
+        $im->setThickness ($thickness);
+        for my $gff (@{ $gff->{$seqname} || [] }) {
+            my $start = $im->base_xpos ($gff->[0]) + $im->pixels_per_base / 2;
+            my $end = $im->base_xpos ($gff->[1]) + $im->pixels_per_base / 2;
+            my $arcMidX = ($start + $end) / 2;
+            my $arcWidth = $end - $start;
+            my $arcHeight = 2 * $trackHeight * ($gff->[1] - $gff->[0]) / $maxlen;
+            # warn "Drawing arc from $start to $end, height $arcHeight";
+            $im->arc ($arcMidX, 0, $arcWidth, $arcHeight, 0, 180, $color[$gff->[2]]);
+        }
+    });
 
 # run the renderer
 $renderer->render;
@@ -182,11 +176,26 @@ $renderer->render;
 # all done
 exit;
 
+#############################
 
-sub max {
-    my ($x, @y) = @_;
-    foreach my $y (@y) {
-	$x = $y if $y > $x;
+# load GFF describing basepair locations & intensities; sort by seqname
+sub read_gff {
+    my %gff;
+    open my $gff, "<", $path or die "$! reading $path";
+    my ($maxscore, $minscore, $maxlen);
+    while (my $gffLine = <$gff>) {
+        next if $gffLine =~ /^\s*\#/;
+        next unless $gffLine =~ /\S/;
+        my ($seqname, $source, $feature, $start, $end, $score, $strand, $frame, $group) = split /\t/, $gffLine, 9;
+        next if grep (!defined(), $seqname, $start, $end, $score);
+        $gff{$seqname} = [] unless exists $gff{$seqname};
+        push @{$gff{$seqname}}, [$start, $end, $score];
+        if ($score =~ /\d/) {
+            $maxscore = $score if !defined($maxscore) || $score > $maxscore;
+            $minscore = $score if !defined($minscore) || $score < $minscore;
+        }
+        my $len = $end - $start;
+        $maxlen = $len if !defined($maxlen) || $len > $maxlen;
     }
-    return $x;
+    return ( \%gff,$maxscore, $minscore, $maxlen );
 }
