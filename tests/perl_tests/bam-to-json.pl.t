@@ -18,6 +18,7 @@ system $^X, 'bin/bam-to-json.pl', (
     '--out'        => $tempdir,
     '--bam'        => 'sample_data/raw/volvox/volvox-sorted.bam',
     '--trackLabel' => 'TestBAM',
+    '--clientConfig' => '{ "foobee": 1 }',
 );
 
 ok( !$?, 'script ran ok' );
@@ -32,6 +33,10 @@ is( ref(  $out->{ catfile(qw( tracks TestBAM ctgA lf-4.json  )) } ),
     'ARRAY',
     'BAM! got some features up in there',
   );
+
+is( $out->{'trackList.json'}{tracks}[1]{config}{style}{foobee}, 1, 'got some style' );
+is( $out->{'trackList.json'}{tracks}[1]{config}{style}{className}, 'basic', 'got default CSS class' );
+
 
 #system "find $tempdir";
 
