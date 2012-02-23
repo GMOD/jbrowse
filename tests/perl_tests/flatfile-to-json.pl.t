@@ -21,6 +21,7 @@ system $^X, 'bin/flatfile-to-json.pl', (
     '--key' => 'Example Features',
     '--autocomplete' => 'all',
     '--cssClass' => 'feature2',
+    '--clientConfig' =>  '{"featureCss": "height: 8px;", "histScale": 2}',
     );
 
 ok( ! $?, 'flatfile-to-json.pl ran ok on the volvox bed' );
@@ -64,6 +65,13 @@ is( ref $cds_trackdata->{intervals}{nclist}[2][9], 'ARRAY', 'exonerate mRNA has 
    or diag explain $cds_trackdata;
 is( scalar @{$cds_trackdata->{intervals}{nclist}[2][9]}, 5, 'exonerate mRNA has 5 subfeatures' );
 
+is_deeply( $read_json->('trackList.json')->{tracks}[1]{config}{style},
+           { featureCss => 'height: 8px;',
+             histScale => 2,
+             className => 'feature2',
+           },
+           '--clientConfig option seems to work'
+         ) or diag explain $read_json->('trackList.json');
 
 #system "find $tempdir";
 
