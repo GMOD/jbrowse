@@ -2,11 +2,39 @@ package ImageTrackRenderer;
 
 =head1 NAME
 
-ImageTrackRenderer.pm
+ImageTrackRenderer - render JBrowse image tracks using a chromosome-sized virtual GD canvas.
 
 =head1 SYNOPSIS
 
-Perl module to render JBrowse image tracks using a chromosome-sized virtual GD canvas.
+   my $renderer = ImageTrackRenderer->new(
+       "datadir"     => $outdir,
+       "tiledir"     => $tiledir,
+       "tilewidth"   => $tileWidth,
+       "trackheight" => $trackHeight,
+       "tracklabel"  => $trackLabel,
+       "key"         => $key,
+       "link"        => !$nolinks,
+       "drawsub"     => sub {
+           my ($im, $seqInfo) = @_;
+           my $seqname = $seqInfo->{"name"};
+           my @color;
+           for my $rgb (@rgb) {
+               push @color, $im->colorAllocate (@$rgb);
+           }
+           $im->setThickness ($thickness);
+           for my $gff (@{$gff{$seqname}}) {
+               my $start = $im->base_xpos ($gff->[0]) + $im->pixels_per_base / 2;
+               my $end = $im->base_xpos ($gff->[1]) + $im->pixels_per_base / 2;
+               my $arcMidX = ($start + $end) / 2;
+               my $arcWidth = $end - $start;
+               my $arcHeight = 2 * $trackHeight * ($gff->[1] - $gff->[0]) / $maxlen;
+               # warn "Drawing arc from $start to $end, height $arcHeight";
+               $im->arc ($arcMidX, 0, $arcWidth, $arcHeight, 0, 180, $color[$gff->[2]]);
+           }
+       });
+
+   # run the renderer
+   $renderer->render;
 
 =head1 METHODS
 
