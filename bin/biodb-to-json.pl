@@ -135,22 +135,24 @@ foreach my $seg (@refSeqs) {
                    ? grep { $_->{"track"} eq $onlyLabel } @{$config->{tracks}}
                    : @{$config->{tracks}};
 
-    foreach my $trackCfg (@tracks) {
+    foreach my $trackCfg ( @tracks ) {
         my $trackLabel = $trackCfg->{'track'};
         print "working on track $trackLabel\n" unless $quiet;
 
-        my %mergedTrackCfg = (
-            %{$config->{"TRACK DEFAULTS"}},
-            "key" => $trackLabel,
-            %$trackCfg,
-            compress => $compress,
-            );
-        print "mergedTrackCfg: " . Dumper(\%mergedTrackCfg) if $verbose && !$quiet;
+        my $mergedTrackCfg = assemble_track_config(
+                                 $config,
+                                 { key      => $trackLabel,
+                                   %$trackCfg,
+                                   compress => $compress,
+                                 },
+                             );
+
+        print "mergedTrackCfg: " . Dumper( $mergedTrackCfg ) if $verbose && !$quiet;
 
         my $track = $gdb->getTrack( $trackLabel )
                  || $gdb->createFeatureTrack( $trackLabel,
-                                              \%mergedTrackCfg,
-                                              $mergedTrackCfg{key},
+                                              $mergedTrackCfg,
+                                              $mergedTrackCfg->{key},
                                              );
 
         my @feature_types = @{$trackCfg->{"feature"}};
@@ -165,7 +167,7 @@ foreach my $seg (@refSeqs) {
         # make the flattener, which converts bioperl features to arrayrefs
         my $flattener = BioperlFlattener->new(
                             $trackCfg->{"track"},
-                            \%mergedTrackCfg,
+                            $mergedTrackCfg,
                             [],
                             [],
                         );
@@ -233,15 +235,43 @@ foreach my $seg (@refSeqs) {
     }
 }
 
-=head1 AUTHOR
+exit;
 
-Mitchell Skinner E<lt>mitch_skinner@berkeley.eduE<gt>
+#############
 
-Copyright (c) 2007-2009 The Evolutionary Software Foundation
+sub assemble_track_config {
+    my ( $global_config, $track_config ) = @_;
 
-This package and its accompanying libraries are free software; you can
-redistribute it and/or modify it under the terms of the LGPL (either
-version 2.1, or at your option, any later version) or the Artistic
-License 2.0.  Refer to LICENSE for the full license text.
+    # merge the config
+    my %cfg = (
+        %{$config->{"TRACK DEFAULTS"}},
+        %$track_config
+        );
 
-=cut
+    # rename some of the config variables
+    my %renamed_keys = qw(
+        class   className
+        subfeature_classes subfeatureClasses
+    );
+    for ( keys %cfg ) {
+        if( my $new_keyname = $renamed_keys{ $_ } ) {
+            $cfg{ $new_keyname } = delete $cfg{ $_ };
+        }
+    }
+
+    # move some of the config variables to a nested 'style' hash
+    my %style_keys = map { $_ => 1 } qw(
+        subfeatureClasses
+        arrowheadClass
+        className
+        histCss
+        featureCss
+    );
+    for ( keys %cfg ) {
+        if( $style_keys{$_} ) {
+            $cfg{style}{$_} = delete $cfg{$_};
+        }
+    }
+
+    return \%cfg;
+}

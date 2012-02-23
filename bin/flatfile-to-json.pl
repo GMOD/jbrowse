@@ -254,22 +254,28 @@ if ($gff) {
     die "Please specify --gff or --bed.\n";
 }
 
-my %style = ("autocomplete" => $autocomplete,
-             "type"         => $getType || @$types ? 1 : 0,
-             "phase"        => $getPhase,
-             "subfeatures"  => $getSubs,
-             "class"        => $cssClass,
-             "key"          => defined($key) ? $key : $trackLabel,
-             'compress'     => $compress,
-             "urlTemplate"  => $urlTemplate,
-             "arrowheadClass" => $arrowheadClass,
-             "clientConfig" => $clientConfig);
+$clientConfig = JSON::from_json( $clientConfig )
+    if defined $clientConfig;
 
-$style{subfeature_classes} = JSON::from_json($subfeatureClasses)
-    if defined($subfeatureClasses);
+$subfeatureClasses = JSON::from_json($subfeatureClasses)
+    if defined $subfeatureClasses;
 
-$style{clientConfig} = JSON::from_json($clientConfig)
-    if defined($clientConfig);
+my %config = (
+    autocomplete => $autocomplete,
+    type         => $getType || @$types ? 1 : 0,
+    phase        => $getPhase,
+    subfeatures  => $getSubs,
+    style          => {
+        %{ $clientConfig || {} },
+        className      => $cssClass,
+        ( $arrowheadClass    ? ( arrowheadClass    => $arrowheadClass       ) : () ),
+        ( $subfeatureClasses ? ( subfeatureClasses => $subfeatureClasses ) : () ),
+    },
+    key          => defined($key) ? $key : $trackLabel,
+    compress     => $compress,
+    urlTemplate  => $urlTemplate,
+ );
+
 
 my $flattener = BioperlFlattener->new(
     $trackLabel,
@@ -277,7 +283,7 @@ my $flattener = BioperlFlattener->new(
         "idSub"  => $idSub,
         "label"  => ($getLabel || ($autocomplete ne "none"))
                        ? $labelStyle : 0,
-        %style,
+        %config,
     },
     [], [] );
 
@@ -367,8 +373,8 @@ $sorter->finish();
 my $gdb = GenomeDB->new( $outdir );
 my $track = $gdb->getTrack( $trackLabel )
             || $gdb->createFeatureTrack( $trackLabel,
-                                         \%style,
-                                         $style{key},
+                                         \%config,
+                                         $config{key},
                                        );
 
 my $curChrom = 'NONE YET';
