@@ -10,7 +10,8 @@ use File::Copy::Recursive 'dircopy';
 use lib 'tests/perl_tests/lib';
 use FileSlurping 'slurp';
 
-my $tempdir = File::Temp->newdir;
+my $tempdir   = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
+diag "using temp dir $tempdir";
 dircopy( 'tests/data/volvox_formatted_refseqs', $tempdir );
 
 system $^X, 'bin/wig-to-json.pl', (
