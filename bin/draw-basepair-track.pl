@@ -6,17 +6,17 @@ draw-basepair-track.pl - make a track that draws semicircular diagrams of DNA ba
 
 =head1 USAGE
 
-    bin/draw-basepair-track.pl               \
-        --gff <GFF file>                     \
-        [--out <JSON directory>]             \
-        [--tracklabel <track identifier>]    \
-        [--key <human-readable track name>]  \
-        [--bgcolor <R,G,B>]                  \
-        [--fgcolor <R,G,B>]                  \
-        [--thickness <line thickness> ]      \
-        [--width <tile width>]               \
-        [--height <tile height>]             \
-        [--nolinks]
+    bin/draw-basepair-track.pl                \
+        --gff <GFF file>                      \
+        [ --out <JSON directory> ]            \
+        [ --tracklabel <track identifier> ]   \
+        [ --key <human-readable track name> ] \
+        [ --bgcolor <R,G,B> ]                 \
+        [ --fgcolor <R,G,B> ]                 \
+        [ --thickness <line thickness> ]      \
+        [ --width <tile width> ]              \
+        [ --height <tile height> ]            \
+        [ --nolinks ]
 
 =head1 OPTIONS
 
