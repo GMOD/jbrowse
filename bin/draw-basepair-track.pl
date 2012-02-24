@@ -145,7 +145,6 @@ while (my ($seqname, $gffArray) = each %$gff) {
 # create the renderer
 my $renderer = ImageTrackRenderer->new(
     "datadir"     => $outdir,
-    "tiledir"     => $tiledir,
     "tilewidth"   => $tileWidth,
     "trackheight" => $trackHeight,
     "tracklabel"  => $trackLabel,
