@@ -1,0 +1,14 @@
+{
+   "tracks" : [
+      {
+         "config" : {
+            "chunkSize" : 20000,
+            "urlTemplate" : "seq/{refseq}/"
+         },
+         "type" : "SequenceTrack",
+         "label" : "DNA",
+         "key" : "DNA"
+      }
+   ],
+   "formatVersion" : 1
+}
