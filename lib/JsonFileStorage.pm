@@ -4,6 +4,17 @@ JsonFileStorage - manage a directory structure of .json or .jsonz files
 
 =head1 SYNOPSIS
 
+    my $storage = JsonFileStorage->new( $outDir, $self->config->{compress} );
+    $storage->put( 'relative/path/to/file.jsonz', \%data );
+    my $data = $storage->get( 'relative/path/to/file.jsonz' );
+
+    $storage->modify( 'relative/path/to/file.jsonz',
+                      sub {
+                         my $json_data = shift;
+                         # do something with the data
+                         return $json_data;
+                      })
+
 =head1 METHODS
 
 =cut
