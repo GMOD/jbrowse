@@ -336,7 +336,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
 	dojo.forEach(view.dragEventHandles, dojo.disconnect);
 
 	view.dragging = false;
-        view.elem.style.cursor = "url(\"" + view.browserRoot + "openhand.cur\")";
+        view.elem.style.cursor = "url(\"" + view.browserRoot + "img/openhand.cur\")";
         document.body.style.cursor = "default";
         dojo.stopEvent(event);
 	view.showCoarse();
@@ -388,8 +388,8 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
 			     y: event.clientY};
 	view.winStartPos = view.getPosition();
 
-	document.body.style.cursor = "url(\"" + view.browserRoot + "closedhand.cur\")";
-	view.elem.style.cursor = "url(\"" + view.browserRoot + "closedhand.cur\")";
+	document.body.style.cursor = "url(\"" + view.browserRoot + "img/closedhand.cur\")";
+	view.elem.style.cursor = "url(\"" + view.browserRoot + "img/closedhand.cur\")";
     };
 
     dojo.connect(view.elem, "mousedown", view.mouseDown);

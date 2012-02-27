@@ -27,7 +27,7 @@ div.dragWindow {
     position:absolute;
     overflow: hidden;
     z-index: 1;
-    cursor: url("openhand.cur");
+    cursor: url("img/openhand.cur");
 }
 
 div.locationTrap {
@@ -47,11 +47,11 @@ div.locationThumb {
     /* if you change this border from 2px, change GenomeView.showTrap */
     border: 2px solid red;
     margin: 0px -2px 0px -2px;
-    cursor: url("openhand.cur");
+    cursor: url("img/openhand.cur");
 }
 
 div.locationThumb.dojoMoveItem {
-    cursor: url("closedhand.cur");
+    cursor: url("img/closedhand.cur");
 }
 
 div.overview {
