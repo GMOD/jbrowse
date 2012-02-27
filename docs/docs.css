@@ -24,10 +24,6 @@ div.container {
     max-width: 45em;
 }
 
-h2, h3 { margin-left: -2em; }
-
-h4 { margin-left: -1em; }
-
 span.sidebar {
     background-color:#EEEEEE;
     /* border-color:#FFCC99;
@@ -39,7 +35,9 @@ span.sidebar {
     padding:5px 2px 5px 0.5em;
 }
 
-.specific {
+.system-specific {
     background-color: #DDDDFF;
-    margin-left: 2em;
+    padding: 0.5em;
 }
+
+dt { font-weight: bold }
