@@ -315,9 +315,6 @@ my @arrayrepr_classes = (
     },
   );
 
-use Data::Dump;
-ddx( \@arrayrepr_classes );
-
 # build a filtering subroutine for the features
 my $filter = do {
     my @filters;
