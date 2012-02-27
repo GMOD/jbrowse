@@ -277,7 +277,7 @@ sub write_trackfile {
                 map {
                     my $basesPerPixel = $_;
                     {
-                        'urlPrefix' => $self->zoomsubdir( $seqName, $basesPerPixel ),
+                        'urlPrefix' => "$basesPerPixel/",
                         'height' => $self->trackheight,
                         'basesPerTile' => $basesPerPixel * $self->tilewidth,
                     }

@@ -32,7 +32,11 @@ for my $args ( @testargs ) {
     #system "find $tempdir -type f";
 
     ok( scalar glob("$tempdir/tracks/foo/mahoney/*/*.png"), 'made some pngs' );
-    ok( -f catfile( $tempdir, qw( tracks foo mahoney trackData.json ) ), 'made trackData' );
+    my $trackdata_filename = catfile( $tempdir, qw( tracks foo mahoney trackData.json ));
+    ok( -f $trackdata_filename , 'made trackData' );
+    my $trackdata = slurp( $trackdata_filename );
+    is( $trackdata->{zoomLevels}[0]{urlPrefix}, '1/', 'got right urlprefix in track data' );
+
     my $tracklist = slurp( $tempdir, qw( trackList.json ) );
     is_deeply(
         $tracklist,
