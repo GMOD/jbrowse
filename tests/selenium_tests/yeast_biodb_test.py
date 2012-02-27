@@ -9,13 +9,13 @@ import time
 def test_yeast():
     format_yeast()
     browser = webdriver.Firefox() # Get local session of firefox
-    browser.get("file://%s/test_harness.html?data=sample_data/json/yeast" % os.getcwd() ) # Load page
+    browser.get("file://%s/index.html?data=sample_data/json/yeast" % os.getcwd() ) # Load page
 
     # check a good browser title
     assert "chrI" in browser.title
 
     # check that we have the appropriate tracks
-    genes_tracks = assert_elements( browser, '//div[@class="tracklist-label"]' )
+    genes_tracks = assert_elements( browser, '//div[@class="tracklist-label"][contains(.,"coding")]' )
     assert len(genes_tracks) == 1, 'actually found %d genes tracks' % len(genes_tracks)
     assert genes_tracks[0].text == 'Protein-coding genes', "first track was called %s instead of %s" % (genes_tracks[0].text, 'Protein-coding genes')
 

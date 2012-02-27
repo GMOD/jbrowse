@@ -1,104 +1,171 @@
 #!/usr/bin/env perl
 
+=head1 NAME
+
+wig-to-json.pl - format graph images of Wiggle (.wig) data for use by JBrowse
+
+=head1 USAGE
+
+  wig-to-json.pl                              \
+      --wig <wiggle file>                     \
+      [ --out <JSON directory> ]              \
+      [ --tracklabel <track identifier> ]     \
+      [ --key <human-readable track name> ]   \
+      [ --bgcolor <R,G,B> ]                   \
+      [ --fgcolor <R,G,B> ]                   \
+      [ --width <tile width> ]                \
+      [ --height <tile height> ]              \
+      [ --min <min> ]                         \
+      [ --max <max> ]                         \
+      [ --clientConfig '{ JSON-format extra configuration for this track }' ]
+
+=head1 OPTIONS
+
+=over 4
+
+=item --wig <file>
+
+Required.  Wiggle file to process.
+
+=item --out <dir>
+
+Directory where the output will go.  Defaults to "data/".
+
+=item --trackLabel <label>
+
+Unique label for the track.  Defaults to wiggle filename.
+
+=item --key <key>
+
+Human-readable name for the track.  Defaults to the same value as the
+--trackLabel.
+
+=item --bgcolor <red>,<green>,<blue>
+
+RGB color of wiggle track background, in the form of three
+comma-separated numbers giving red, green, and blue color values
+respectively, in the range 0-255.  Defaults to '255,255,255', which is
+white.
+
+Example:
+
+  --bgcolor 255,255,255
+
+=item --fgcolor <red>,<green>,<blue>
+
+RGB color of wiggle track foreground (i.e. data graph).  Same format
+as C<--bgcolor>, defaults to '105,155,111', which is sea green.
+
+=item --width <num pixels>
+
+Width of each image tile in pixels.  Defaults to 2000.
+
+=item --height <num pixels>
+
+Height of each image tile in pixels.  Defaults to 100.
+
+=item --min <number>
+
+=item --max <number>
+
+Lowest and highest values in wig file.  If either are not supplied,
+they will be calculated automatically, which takes a bit of extra
+time.
+
+=item --clientConfig '{ JSON-format extra configuration for this track }'
+
+Extra configuration for the client, in JSON syntax.  Example:
+
+  --clientConfig '{"featureCss": "background-color: #668; height: 8px;", "histScale": 2}'
+
+=back
+
+=cut
+
 use strict;
 use warnings;
 
+use File::Basename;
 use FindBin qw($Bin);
+use Getopt::Long;
+use Pod::Usage;
+use JSON 2;
+
 use lib "$Bin/../lib";
 
-use Getopt::Long;
-use File::Basename;
-use JsonGenerator;
+use GenomeDB;
 
 my ($path, $trackLabel, $key, $cssClass);
 my $outdir = "data";
-my $tileRel = "tiles";
 my $fgColor = "105,155,111";
 my $bgColor = "255,255,255";
 my $tileWidth = 2000;
 my $trackHeight = 100;
 my $min = "";
 my $max = "";
+my $clientConfig;
 
 my $wig2png = "$Bin/wig2png";
-unless (-x $wig2png) {
-    die "Can't find binary executable $wig2png (try typing 'make' in jbrowse root directory?)";
+unless( -x $wig2png ) {
+    die "Can't find binary executable $wig2png, did you compile it? (Hint: try typing './configure && make' in jbrowse root directory)\n";
 }
 
-my $usage = <<USAGE;
- USAGE: $0 --wig <wiggle file> [--tile <tiles directory>] [--out <JSON directory>] [--tracklabel <track identifier>] [--key <human-readable track name>] [--bgcolor <R,G,B>] [--fgcolor <R,G,B>] [--width <tile width>] [--height <tile height>] [--min <min> --max <max>]
+my $help;
+GetOptions("wig=s"                   => \$path,
+	   "out=s"                   => \$outdir,
+	   "tracklabel|trackLabel=s" => \$trackLabel,
+	   "key=s"                   => \$key,
+	   "bgcolor=s"               => \$bgColor,
+	   "fgcolor=s"               => \$fgColor,
+	   "width=s"                 => \$tileWidth,
+	   "height=s"                => \$trackHeight,
+           "min=f"                   => \$min,
+           "max=f"                   => \$max,
+           "help|h|?"                => \$help,
+           "clientConfig=s"          => \$clientConfig,
+) or pod2usage();
 
-    --out: directory where the output will go (defaults to "$outdir")
-    --tile: directory within the --out directory where tiles are stored
-            (defaults to "$tileRel")
-    --tracklabel: defaults to wiggle filename
-    --key: defaults to track label
-    --bgcolor: defaults to "$bgColor"
-    --fgcolor: defaults to "$fgColor"
-    --width: defaults to $tileWidth
-    --height: defaults to $trackHeight
-    --min: lowest value in wig file
-    --max: highest value in wig file
-        if min and max are not supplied, an extra pass through
-        the wig file will be made to determine them
-USAGE
+pod2usage( -verbose => 2 ) if $help;
+pod2usage( 'Must provide a --wig argument.' ) unless defined $path;
 
-GetOptions("wig=s" => \$path,
-	   "tile=s" => \$tileRel,
-	   "out=s" => \$outdir,
-	   "tracklabel=s" => \$trackLabel,
-	   "key=s" => \$key,
-	   "bgcolor=s" => \$bgColor,
-	   "fgcolor=s" => \$fgColor,
-	   "width=s" => \$tileWidth,
-	   "height=s" => \$trackHeight,
-           "min=f" => \$min,
-           "max=f" => \$max);
+my @refSeqs = @{ JSON::from_json(do{ open my $f, '<', "$outdir/refSeqs.json"; local $/; <$f>}) || [] }
+   or die "Run prepare-refseqs.pl first to supply information about your reference sequences.\n";
 
-if (!defined($path)) {
-    die $usage;
-}
+$trackLabel = basename( $path ) unless defined $trackLabel;
+my $urlTemplate = "tracks/$trackLabel/{refseq}/trackData.json";
 
-my $trackRel = "tracks";
-my $trackDir = "$outdir/$trackRel";
+my $gdb = GenomeDB->new( $outdir );
 
-my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.js", [], 1)};
-die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
+my %style = (
+    "key"            => defined($key) ? $key : $trackLabel,
+    "urlTemplate"    => $urlTemplate,
+    style => {
+        %{ $clientConfig || {} },
+        "className"  => $cssClass || 'image',
+    },
+);
 
-$trackLabel = basename($path) unless defined $trackLabel;
-my $tilesubdir = "$outdir/$tileRel/$trackLabel";
+my $track = $gdb->getTrack( $trackLabel )
+   || $gdb->createImageTrack( $trackLabel,
+                              \%style,
+                              $style{key},
+                            );
+$track->startLoad;
 
-mkdir($outdir) unless (-d $outdir);
-mkdir("$outdir/$tileRel") unless (-d "$outdir/$tileRel");
-mkdir($tilesubdir) unless (-d $tilesubdir);
-mkdir($trackDir) unless (-d $trackDir);
+system $wig2png, (
+    $path,
+    '--outdir'           => $track->outDir,
+    '--tile-width'       => $tileWidth,
+    '--track-height'     => $trackHeight,
+    '--background-color' => $bgColor,
+    '--foreground-color' => $fgColor,
+    ( defined $min ? ("--min-value" => $min ) : () ),
+    ( defined $max ? ("--max-value" => $max ) : () ),
+  ) and die "Failed to run wig2png: $?\n";
 
-my $minopt = length($min) ? "--min-value $min" : "";
-my $maxopt = length($max) ? "--max-value $max" : "";
-system "$wig2png $path --outdir \"$outdir\" --png-dir \"$tileRel\" --json-dir \"$trackDir\" --track-label \"$trackLabel\" --tile-width $tileWidth --track-height $trackHeight --background-color $bgColor --foreground-color $fgColor $minopt $maxopt";
+$track->finishLoad;
 
-foreach my $seqInfo (@refSeqs) {
-    my $seqName = $seqInfo->{"name"};
-    print "\nworking on seq $seqName\n";
-    mkdir("$tilesubdir/$seqName") unless (-d "$tilesubdir/$seqName");
-
-    JsonGenerator::modifyJSFile("$outdir/trackInfo.js", "trackInfo",
-		 sub {
-		     my $trackList = shift;
-		     my $i;
-		     for ($i = 0; $i <= $#{$trackList}; $i++) {
-			 last if ($trackList->[$i]->{'label'} eq $trackLabel);
-		     }
-		     $trackList->[$i] =
-		       {
-			'label' => $trackLabel,
-			'key' => defined($key) ? $key : $trackLabel,
-			'url' => "$trackRel/{refseq}/$trackLabel.json",
-			'type' => "ImageTrack",
-		       };
-		     return $trackList;
-		 });
-}
+$gdb->writeTrackEntry( $track );
 
 =head1 AUTHORS
 

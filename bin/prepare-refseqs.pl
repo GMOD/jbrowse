@@ -1,13 +1,65 @@
 #!/usr/bin/env perl
 
+=head1 NAME
+
+prepare-refseqs.pl - format reference sequences for use by JBrowse
+
+=head1 USAGE
+
+       prepare-refseqs.pl --gff <GFF file>  [options]
+   # OR:
+       prepare-refseqs.pl --fasta <file1> --fasta <file2>  [options]
+   # OR:
+       prepare-refseqs.pl --conf <JBrowse config file>  [options]
+
+=head1 DESCRIPTION
+
+This tool can read fasta files compressed with gzip, if they end in
+.gz or .gzip.
+
+You can use a GFF file to describe the reference sequences; or you can
+use a JBrowse config file (pointing to a BioPerl database) or a FASTA
+file, together with a list of refseq names or a list of refseq IDs.
+If you use a GFF file, it should contain ##sequence-region lines as
+described in the GFF specs.
+
+If you use a JBrowse config file or FASTA file, you can either provide
+a (comma-separated) list of refseq names, or (if the names aren't
+globally unique) a list of refseq IDs; or (for FASTA files only) you
+can omit the list of refseqs, in which case every sequence in the
+database will be used.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --out <output directory>
+
+Optional directory to write to.  Defaults to data/.
+
+=item --noseq
+
+Do not write out the actual sequence bases, just the sequence metadata.
+
+=item --refs <list of refseq names> | --refids <list of refseq IDs>
+
+Output only sequences with the given names or (database-dependent) IDs.
+
+=back
+
+=cut
+
 use strict;
 use warnings;
 
+use File::Spec::Functions qw/ catfile catdir /;
 use FindBin qw($Bin);
-use lib "$Bin/../lib";
-
+use Pod::Usage;
 use POSIX;
 use Getopt::Long;
+
+use lib "$Bin/../lib";
+
 use JsonGenerator;
 use FastaDatabase;
 
@@ -15,71 +67,28 @@ my $chunkSize = 20000;
 my ($confFile, $noSeq, $gff, @fasta, $refs, $refids);
 my $outDir = "data";
 my $seqTrackName = "DNA";
+my $help;
 GetOptions("out=s" => \$outDir,
            "conf=s" => \$confFile,
            "noseq" => \$noSeq,
            "gff=s" => \$gff,
            "fasta=s" => \@fasta,
 	   "refs=s" => \$refs,
-           "refids=s" => \$refids);
+           "refids=s" => \$refids,
+           "help|h|?" => \$help,
+           ) or pod2usage();
+pod2usage( -verbose => 2 ) if $help;
+pod2usage( 'must provide either a --fasta, --gff, or --conf option' )
+    unless defined $gff || defined $confFile || @fasta;
+
 # $seqRel is the path relative to $outDir
 my $seqRel = "seq";
-my $seqDir = "$outDir/$seqRel";
-
-unless ( defined $gff || defined $confFile || @fasta ) {
-    print <<HELP;
-USAGE:
-       $0 --gff <GFF file>  [options]
-   OR:
-       $0 --fasta <FASTA file> --fasta <another FASTA file>  [options]
-   OR:
-       $0 --conf <JBrowse config file>  [options]
-
-   Options:
-          [--out <output directory>]
-          [--seqdir <sequence data directory>]
-          [--noseq]
-          [--refs <list of refseq names> | --refids <list of refseq IDs>]
-
-    <output directory>: defaults to "$outDir"
-    <sequence data directory>: chunks of sequence go here;
-                               defaults to "<output directory>/seq"
-    --noseq: do not prepare sequence data for the client
-
-   Note:
-
-    This tool can read fasta files compressed with gzip, if they end
-    in .gz or .gzip.
-
-    You can use a GFF file to describe the reference sequences; or
-    you can use a JBrowse config file (pointing to a BioPerl database)
-    or a FASTA file, together with a list of refseq names
-    or a list of refseq IDs.  If you use a GFF file, it should
-    contain ##sequence-region lines as described in the GFF specs.
-
-    If you use a JBrowse config file or FASTA file, you can either
-    provide a (comma-separated) list of refseq names, or
-    (if the names aren't globally unique) a list of refseq IDs;
-    or (for FASTA files only) you can omit the list of refseqs,
-    in which case every sequence in the database will be used.
-
-HELP
-exit;
-}
+my $seqDir = catdir( $outDir, $seqRel );
 
 mkdir($outDir) unless (-d $outDir);
 mkdir($seqDir) unless $noSeq || (-d $seqDir);
 
 my @refSeqs;
-
-sub refName {
-    my $seg = shift;
-    use Data::Dumper;
-    my $segName = $seg->name;
-    $segName = $seg->{'uniquename'} if $seg->{'uniquename'};
-    $segName =~ s/:.*$//; #get rid of coords if any
-    return $segName;
-}
 
 if (defined($gff)) {
     open GFF, "<$gff"
@@ -144,7 +153,7 @@ if (defined($gff)) {
             };
 
             unless ($noSeq) {
-                my $refDir = $seqDir . "/" . $refInfo->{"name"};
+                my $refDir = catdir($seqDir,$refInfo->{name});
                 exportSeqChunks($refDir, $chunkSize, $db,
                                 [-db_id => $refid],
                                 $seg->start, $seg->end);
@@ -158,7 +167,17 @@ if (defined($gff)) {
 
     if (defined($refs)) {
         foreach my $ref (split ",", $refs) {
-            my $seg = $db->segment(-name => $ref);
+
+            my ($seg) = my @segments = $db->segment(-name => $ref);
+
+            if(! @segments ) {
+                warn "WARNING: Reference sequence '$ref' not found in input.\n";
+                next;
+            }
+            elsif( @segments > 1 ) {
+                warn "WARNING: multiple matches for '$ref' found in input, using only the first one.\n";
+            }
+
             my $refInfo =  {
                 name => refName($seg),
                 start => $seg->start - 1,
@@ -167,11 +186,11 @@ if (defined($gff)) {
             };
 
             unless ($noSeq) {
-                my $refDir = $seqDir . "/" . $refInfo->{"name"};
+                my $refDir = catdir( $seqDir, $refInfo->{"name"} );
                 exportSeqChunks($refDir, $chunkSize, $db,
                                 [-name => $ref],
                                 $seg->start, $seg->end);
-                $refInfo->{"seqDir"} = $seqRel . "/" . $refInfo->{"name"};
+                $refInfo->{"seqDir"} = catdir( $seqRel, $refInfo->{"name"} );
                 $refInfo->{"seqChunkSize"} = $chunkSize;
             }
 
@@ -180,76 +199,106 @@ if (defined($gff)) {
     }
 }
 
-sub exportSeqChunks {
-    my ($dir, $len, $db, $segDef, $start, $end) = @_;
-
-    mkdir($dir) unless (-d $dir);
-    $start = 1 if ($start < 1);
-    $db->absolute(1)               if $db->can('absolute');
-
-    my $chunkStart = $start;
-    while ($chunkStart <= $end) {
-        my $chunkEnd = $chunkStart + $len - 1;
-        my $chunkNum = floor(($chunkStart - 1) / $chunkSize);
-        my $path = "$dir/$chunkNum.txt";
-        my $seg = $db->segment(@$segDef,
-                               -start => $chunkStart,
-                               -end => $chunkEnd,
-                               -absolute => 1);
-        die "requested $chunkStart .. $chunkEnd; got " . $seg->start . " .. " . $seg->end if ($seg->start != $chunkStart);
-        $chunkStart = $chunkEnd + 1;
-        next unless ($seg && $seg->seq && $seg->seq->seq);
-
-
-        open CHUNK, ">$path"
-          or die "couldn't open $path: $!";
-        print CHUNK $seg->seq->seq;
-        close CHUNK
-          or die "couldn't open $path.txt: $!";
-    }
+unless( @refSeqs ) {
+    warn "No reference sequences found, exiting.\n";
+    exit;
 }
 
-die "found no ref seqs" if ($#refSeqs < 0);
+JsonGenerator::modifyJsonFile( catfile( $outDir, 'refSeqs.json' ),
+                              sub {
+                                  #add new ref seqs while keeping the order
+                                  #of the existing ref seqs
+                                  my $old = shift;
+                                  my %refs;
+                                  $refs{$_->{name}} = $_ foreach (@refSeqs);
+                                  for (my $i = 0; $i <= $#{$old}; $i++) {
+                                      $old->[$i] =
+                                        delete $refs{$old->[$i]->{name}}
+                                        if $refs{$old->[$i]->{name}};
 
-JsonGenerator::modifyJSFile("$outDir/refSeqs.js", "refSeqs",
-                            sub {
-                                #add new ref seqs while keeping the order
-                                #of the existing ref seqs
-                                my $old = shift;
-                                my %refs;
-                                $refs{$_->{name}} = $_ foreach (@refSeqs);
-                                for (my $i = 0; $i <= $#{$old}; $i++) {
-                                    $old->[$i] = delete $refs{$old->[$i]->{name}}
-                                      if $refs{$old->[$i]->{name}};
-
-                                }
-                                foreach my $newRef (@refSeqs) {
-                                    push @{$old}, $newRef
-                                      if $refs{$newRef->{name}};
-                                }
-                                return $old;
-                            });
+                                  }
+                                  foreach my $newRef (@refSeqs) {
+                                      push @{$old}, $newRef
+                                        if $refs{$newRef->{name}};
+                                  }
+                                  return $old;
+                              });
 
 unless ($noSeq) {
-    JsonGenerator::modifyJSFile("$outDir/trackInfo.js", "trackInfo",
-                                sub {
-                                    my $trackList = shift;
-                                    my $i;
-                                    for ($i = 0; $i <= $#{$trackList}; $i++) {
-                                        last if ($trackList->[$i]->{'label'}
-                                                 eq
-                                                 $seqTrackName);
-                                    }
-                                    $trackList->[$i] =
+    JsonGenerator::modifyJsonFile( catfile( $outDir, "trackList.json" ),
+                                  sub {
+                                      my $trackList = shift;
+                                      unless (defined($trackList)) {
+                                          $trackList =
+                                            {
+                                             'formatVersion' => 1,
+                                             'tracks' => []
+                                            };
+                                      }
+                                      my $tracks = $trackList->{'tracks'};
+                                      my $i;
+                                      for ($i = 0; $i <= $#{$tracks}; $i++) {
+                                          last if ($tracks->[$i]->{'label'}
+                                                   eq
+                                                   $seqTrackName);
+                                      }
+                                    $tracks->[$i] =
                                       {
                                        'label' => $seqTrackName,
                                        'key' => $seqTrackName,
-                                       'url' => "$seqRel/{refseq}/",
                                        'type' => "SequenceTrack",
-                                       'args' => {'chunkSize' => $chunkSize}
+                                       'config' =>
+                                       {
+                                        'chunkSize' => $chunkSize,
+                                        'urlTemplate' => "$seqRel/{refseq}/",
+                                       }
                                       };
                                     return $trackList;
                             });
+}
+
+exit;
+
+###########################
+
+sub refName {
+    my $seg = shift;
+    my $segName = $seg->name;
+    $segName = $seg->{'uniquename'} if $seg->{'uniquename'};
+    $segName =~ s/:.*$//; #get rid of coords if any
+    return $segName;
+}
+
+sub exportSeqChunks {
+    my ($dir, $len, $db, $segDef, $start, $end) = @_;
+
+    mkdir $dir unless -d $dir;
+    $start = 1 if $start < 1;
+    $db->absolute( 1 ) if $db->can('absolute');
+
+    my $chunkStart = $start;
+    while ( $chunkStart <= $end ) {
+        my $chunkEnd = $chunkStart + $len - 1;
+        my $chunkNum = floor( ($chunkStart - 1) / $chunkSize );
+        my ($seg) = $db->segment( @$segDef,
+                                  -start    => $chunkStart,
+                                  -end      => $chunkEnd,
+                                  -absolute => 1,
+                                );
+        unless( $seg ) {
+            die "Seq export query failed, please inform the developers of this error"
+        }
+
+        $seg->start == $chunkStart
+          or die "requested $chunkStart .. $chunkEnd; got " . $seg->start . " .. " . $seg->end;
+
+        $chunkStart = $chunkEnd + 1;
+        next unless $seg && $seg->seq && $seg->seq->seq;
+
+        my $path = File::Spec->catfile( "$dir", "$chunkNum.txt" );
+        open my $chunkfile, '>', $path or die "$! writing $path";
+        $chunkfile->print( $seg->seq->seq );
+    }
 }
 
 =head1 AUTHOR

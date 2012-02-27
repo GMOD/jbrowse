@@ -1,10 +1,9 @@
-function SequenceTrack(trackMeta, url, refSeq, browserParams) {
+function SequenceTrack(trackMeta, refSeq, browserParams) {
     //trackMeta: object with:
     //  key:   display text track name
     //  label: internal track name (no spaces or odd characters)
-    //  className: CSS class for sequence
-    //  args: object with:
-    //    seqDir: directory in which to find the sequence chunks
+    //  config: object with:
+    //    urlTemplate: url of directory in which to find the sequence chunks
     //    chunkSize: size of sequence chunks, in characters
     //refSeq: object with:
     //  start: refseq start
@@ -12,7 +11,6 @@ function SequenceTrack(trackMeta, url, refSeq, browserParams) {
     //browserParams: object with:
     //  changeCallback: function to call once JSON is loaded
     //  trackPadding: distance in px between tracks
-    //  baseUrl: base URL for the URL in trackMeta
     //  charWidth: width, in pixels, of sequence base characters
     //  seqHeight: height, in pixels, of sequence elements
 
@@ -22,8 +20,10 @@ function SequenceTrack(trackMeta, url, refSeq, browserParams) {
     this.trackMeta = trackMeta;
     this.setLoaded();
     this.chunks = [];
-    this.chunkSize = trackMeta.args.chunkSize;
-    this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "") + url;
+    this.chunkSize = trackMeta.config.chunkSize;
+    this.url = Util.resolveUrl(trackMeta.sourceUrl,
+                               Util.fillTemplate(trackMeta.config.urlTemplate,
+                                                 {'refseq': refSeq.name}) );
 }
 
 SequenceTrack.prototype = new Track("");
@@ -48,6 +48,7 @@ SequenceTrack.prototype.setViewInfo = function(genomeView, numBlocks,
         this.show();
     } else {
         this.hide();
+        this.heightUpdate(0);
     }
     this.setLabel(this.key);
 };
@@ -57,6 +58,12 @@ SequenceTrack.prototype.fillBlock = function(blockIndex, block,
                                              leftBase, rightBase,
                                              scale, stripeWidth,
                                              containerStart, containerEnd) {
+    if (scale == this.browserParams.charWidth) {
+        this.show();
+    } else {
+        this.hide();
+        this.heightUpdate(0);
+    }
     if (this.shown) {
         this.getRange(leftBase, rightBase,
                       function(start, end, seq) {
@@ -103,7 +110,7 @@ SequenceTrack.prototype.getRange = function(start, end, callback) {
             };
             this.chunks[i] = chunk;
             dojo.xhrGet({
-                            url: this.baseUrl + i + ".txt",
+                            url: this.url + i + ".txt",
                             load: function (response) {
                                 var ci;
                                 chunk.sequence = response;

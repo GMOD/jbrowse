@@ -64,7 +64,7 @@ ALL_WIG    = $(wildcard *.wig)
 CONFIG = config.js
 
 # JBrowse target files
-CHUNKS = data/refSeqs.js
+CHUNKS = data/refSeqs.json
 PATRICIA  = data/names/root.json
 
 # proxy targets directory: touching "$(PROCESSED)/X" indicates successful processing of file "X"

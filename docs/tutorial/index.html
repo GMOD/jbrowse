@@ -26,58 +26,85 @@
         Alternatively, you can skip installing JBrowse and its prerequisites by launching a machine image using <a href="http://aws.amazon.com/ec2/">Amazon.com's EC2 service</a>.  We've prepared an image for use with EC2.  For more information, see <a href="http://biowiki.org/view/JBrowse/AmazonMachineImage">our wiki page</a>.
       </span>
       <p>
-        From CPAN:
-        <ul>
-          <li><span class="code">BioPerl</span> <i>(version 1.6)</i></li>
-          <li><span class="code">JSON</span> <i>(version 2)</i></li>
-          <li><span class="code">JSON::XS</span> <i>(optional, for speed)</i></li>
-          <li><span class="code">Heap::Simple</span></li>
-          <li><span class="code">Heap::Simple::Perl</span></li>
-          <li><span class="code">Heap::Simple::XS</span></li>
-          <li><span class="code">PerlIO::gzip</span></li>
-          <li><span class="code">Devel::Size</span></li>
-        </ul>
+        The server-side scripts for formatting data have some Perl module prerequisites from CPAN.  If you have a working internet connection, these can be installed by the command:
+       <div class="code">bin/cpanm --installdeps .</div>
       </p>
-      
+
       <a name="Download_install" id="Download_install"></a>
       <h3>Download/install</h3>
       <p>
-        <a href="http://github.com/GMOD/jbrowse/tree/master">Get JBrowse from GitHub</a> (click on the "ZIP" button to download a .zip file)
+        <a href="http://jbrowse.org/?page_id=36">Get JBrowse from JBrowse.org</a>.
       </p>
       <p>
-        Then unzip/untar JBrowse in a directory that's served by apache (e.g., <span class="code">/var/www/html/</span>)
+
+        Then extract JBrowse into a directory that's served by your
+        web server (e.g. <span class="code">/var/www/html/</span>),
+        and change into this directory.
+
+        For example:
+
+        <div class="code">
+          cd /var/www<br />
+          unzip jbrowse-1.2.1.zip<br />
+          cd jbrowse-1.2.1
+        </div>
+
+        JBrowse generates files with links that are relative to the
+        main JBrowse directory (where index.html is located), so you
+        should run all scripts from this directory.
       </p>
-      
+
       <a name="Reference_Sequences" id="Reference_Sequences"></a>
       <h3>Reference Sequences</h3>
       <p>
         Tell JBrowse about your reference sequences with <span class="code">bin/prepare-refseqs.pl</span>
       </p>
       <p>
-        (JBrowse generates files with links that are relative to the directory where index.html is located, so you should run the JBrowse scripts from that directory)
-        <pre>$ bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa</pre>
+        <div class="code">bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa</div>
       </p>
       
       <a name="Features" id="Features"></a>
       <h3>Features</h3>
       <p>
-        There are two options for telling JBrowse about your feature data: if you have a genomic annotation database such as <a href="http://gmod.org/wiki/Chado">chado</a>, <a href="http://www.bioperl.org/wiki/Module:Bio::DB::SeqFeature::Store">Bio::DB::SeqFeature::Store</a>, or <a href="http://www.bioperl.org/wiki/Module:Bio::DB::GFF">Bio::DB::GFF</a>, then you can use JBrowse's <span class="code"><a href="#biodb-to-json.pl">biodb-to-json.pl</a></span>.  On the other hand, if you mainly deal with flat files like GFF or BED, it may be more convenient to use JBrowse's <span class="code"><a href="#flatfile-to-json.pl">flatfile-to-json.pl</a></span>.
+        There are two options for loading your feature data into JBrowse.
       </p>
-      <a name="biodb-to-json.pl" id="biodb-to-json.pl"><h4><span class="code">biodb-to-json.pl</span> -</h4></a>
-      <p>
-        You use <span class="code">bin/biodb-to-json.pl</span> with a configuration file <a href="../config.html">(documented here)</a>.
-      </p>
-      <pre>$ bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json</pre>
-      <a name="flatfile-to-json.pl" id="flatfile-to-json.pl"><h4><span class="code">bin/flatfile-to-json.pl</span> -</h4></a>
-      <p>
-        <span class="code">bin/flatfile-to-json.pl</span> doesn't use a configuration file; instead, per-track settings are given as command-line arguments.  Run <span class="code">bin/flatfile-to-json.pl</span> without any arguments to see a description of the available settings.  Most of them correspond to track settings in the config file, so see <a href="../config-desc.html#track_settings">the track settings section in the config file documentation</a> for more details.
-      </p>
+      <dl>
+
+        <dt class="code"><a name="biodb-to-json.pl" id="biodb-to-json.pl">biodb-to-json.pl</a></dt>
+        <dd>If you have a genomic annotation database such as <a href="http://gmod.org/wiki/Chado">chado</a>, <a href="http://www.bioperl.org/wiki/Module:Bio::DB::SeqFeature::Store">Bio::DB::SeqFeature::Store</a>, or <a href="http://www.bioperl.org/wiki/Module:Bio::DB::GFF">Bio::DB::GFF</a>, then you can use JBrowse's <span class="code"><a href="#biodb-to-json.pl">biodb-to-json.pl</a></span>.
+
+          You use <span class="code">bin/biodb-to-json.pl</span> with a configuration file <a href="../config.html">(documented here)</a>.
+
+          <div class="code">bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json</div>
+
+        </dd>
+
+        <dt class="code"><a name="flatfile-to-json.pl" id="flatfile-to-json.pl">bin/flatfile-to-json.pl</a></dt>
+        <dd>
+          On the other hand, if you mainly deal with flat files like
+          GFF or BED, it may be more convenient to use
+          JBrowse's <span class="code"><a href="#flatfile-to-json.pl">flatfile-to-json.pl</a></span>.
+
+          <span class="code">bin/flatfile-to-json.pl</span> doesn't
+          use a configuration file; instead, per-track settings are
+          given as command-line arguments.
+          Run <span class="code">bin/flatfile-to-json.pl --help</span>
+          to see a description of the available settings.  Most of
+          them correspond to track settings in the config file used
+          by <span class="code">biodb-to-json.pl</span>, so
+          see <a href="../config-desc.html#track_settings">the track
+          settings section in the config file documentation</a> for
+          more details.
+
+        </dd>
+      </dl>
+
       <a name="Next-gen reads" id="Next-gen"></a>
       <h3>Next-gen reads</h3>
       <p>
         If you have data in the BAM format, you can import it into a JBrowse instance using the flatfile-to-json.pl program.  Here is one example of a command that does that, using the included data:
       </p>
-      <pre>bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Simulated next-gen reads" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}'</pre>
+      <div class="code">bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Simulated next-gen reads" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}'</div>
       <a name="Names" id="Names"></a>
       <h3>Names</h3>
       <p>
@@ -87,7 +114,7 @@
           <li>run <span class="code">bin/generate-names.pl</span> to collect those per-track files together into the structure that JBrowse uses to search</li>
         </ol>
       </p>
-      <pre>$ bin/generate-names.pl -v</pre>
+      <div class="code">$ bin/generate-names.pl -v</div>
       <p>
         You need to run <span class="code">bin/generate-names.pl</span> again every time you add new features to JBrowse.
       </p>
@@ -98,44 +125,58 @@
       <a name="Quantitative_tracks" id="Quantitative_tracks"></a>
       <h3>Quantitative tracks</h3>
       <p>
-        If you want to browse quantitative ("wiggle") tracks in JBrowse, you need to do a bit more work.
+        If you want to create quantitative ("wiggle") tracks for JBrowse, you need to do a bit more work.
       </p>
       <p>
         Prerequisites:
         <ul>
-          <li>libpng</li>
+          <li>libpng, with development header files</li>
         </ul>
       </p>
       <p>
         Compile the wiggle-processing program by running <span class="code">configure</span> and then <span class="code">make</span> in the JBrowse root directory
-        <pre>$ ./configure
-$ make</pre>
+        <div class="code">
+          ./configure<br />
+          make
+        </div>
       </p>
-      <div class="specific">
-        <i>System-specific:</i>
-        <ul>
-          <li>
-            Apple OS X:<br>
+
+      <p>
+        Once compilation is complete, use
+        the <span class="code">wig-to-json.pl</span> script to load
+        wiggle files:
+      </p>
+      <div class="code">bin/wig-to-json.pl --wig docs/tutorial/data_files/volvox_microarray.wig</div>
+
+
+      <div class="system-specific">
+        <h3 style="margin-top: 0">System-specific tips for compilation</h3>
+        <dl>
+
+          <dt>Apple OS X</dt>
+          <dd>
             <p>You need libpng and a C++ compiler; you can get these from <a href="http://www.macports.org/">MacPorts</a> or <a href="http://www.finkproject.org/">Fink</a>.</p>
             <p>Once you have those installed, you need to compile the JBrowse wiggle-processing program.  JBrowse includes a makefile to do this, but you may need to add the paths for <span class="code">libpng</span> and <span class="code">png.h</span> to your compiler's library and include paths. For example, if libpng is in <span class="code">/usr/X11</span>, you can run <span class="code">configure</span> like this:</p>
-            <pre>$ ./configure CXXFLAGS=-I/usr/X11/include LDFLAGS=-L/usr/X11/lib</pre>
+            <div class="code">./configure CXXFLAGS=-I/usr/X11/include LDFLAGS=-L/usr/X11/lib</div>
             <p>Depending on which OS X you have (and whether you're using MacPorts/fink/etc.), libpng might be somewhere other than <span class="code">/usr/X11</span>, like <span class="code">/opt/local</span> for example.  To find where libpng is, try <span class="code">locate libpng</span></p>
-          </li>
-          <br>
-          <li>
-            Red Hat/CentOS/Fedora:<br>
-            install the <span class="code">libpng</span> and <span class="code">libpng-devel</span> packages.  (The rest should just work)
-          </li>
-          <br>
-          <li>
-            Ubuntu:<br>
-            install the <span class="code">libpng12</span> and <span class="code">libpng12-dev</span> packages.  (The rest should just work)
-        </ul>
+          </dd>
+
+          <dt>Red Hat/CentOS/Fedora</dt>
+          <dd><p>
+            Be sure to install the <span class="code">libpng</span>
+            and <span class="code">libpng-devel</span> packages for
+            compilation to work.
+          </p></dd>
+
+          <dt>Ubuntu</dt>
+          <dd><p>
+            Be sure to install the <span class="code">libpng##</span>
+            and <span class="code">libpng##-dev</span> packages,
+            where <span class="code">##</span> is a number such as 12
+            or 15, depending on the version of Ubuntu.
+          </p></dd>
+        </dl>
       </div>
-      <p>
-        Once wig2png is compiled, you run it via a wrapper script:
-      </p>
-      <pre>$ bin/wig-to-json.pl --wig docs/tutorial/data_files/volvox_microarray.wig</pre>
     </div>
   </body>
 </html>

@@ -1,18 +1,57 @@
 #!/usr/bin/env perl
 
+=head1 NAME
+
+generate-names.pl - generate a global index of feature names
+
+=head1 USAGE
+
+  generate-names.pl                        \
+      [ --out <output directory> ]         \
+      [ --thresh <threshold> ]             \
+      [ --verbose ]
+
+=head1 OPTIONS
+
+=over 4
+
+=item --out <directory>
+
+Data directory to process.  Default 'data/'.
+
+=item --thresh <threshold>
+
+Optional LazyPatricia chunking threshold.  Default 200.  See
+L<LazyPatricia> for details.
+
+=item --verbose
+
+Print more progress messages.
+
+=item --help | -h | -?
+
+Print a usage message.
+
+=back
+
+=cut
+
 use strict;
 use warnings;
 
+use Fcntl ":flock";
 use FindBin qw($Bin);
 use File::Spec::Functions;
-use lib catdir($Bin, updir(), "lib");
-
 use Getopt::Long;
 use IO::File;
-use Fcntl ":flock";
+use Pod::Usage;
+
+use JSON 2;
+
+use lib catdir($Bin, updir(), "lib");
+
 use LazyPatricia;
 use JsonGenerator qw/ readJSON writeJSON /;
-use JSON 2;
 
 my %trackHash;
 my @tracksWithNames;
@@ -21,10 +60,12 @@ my $outDir = "data";
 my $thresh = 200;
 my $verbose = 0;
 my $help;
-GetOptions("dir=s" => \$outDir,
+GetOptions("dir|out=s" => \$outDir,
            "thresh=i" => \$thresh,
            "verbose+" => \$verbose,
-           "help" => \$help);
+           "help|h|?" => \$help) or pod2usage();
+
+pod2usage( -verbose => 2 ) if $help;
 
 unless (-d $outDir) {
     die <<OUTDIR;
@@ -38,15 +79,6 @@ OUTDIR
 my $nameDir = catdir($outDir, "names");
 mkdir($nameDir) unless (-d $nameDir);
 
-if ($help) {
-    die <<USAGE;
-USAGE: $0 [--dir <output directory>] [--thresh <n>] [--verbose]
-
-    --dir: defaults to "$outDir"
-
-USAGE
-}
-
 sub partitionCallback {
     my ($subtreeRoot, $prefix, $thisChunk, $total) = @_;
     # output subtree
@@ -58,8 +90,10 @@ sub partitionCallback {
         if $verbose;
 }
 
-my @refSeqs = @{readJSON(catfile($outDir, "refSeqs.js"), [], 1)};
-my @tracks = @{readJSON(catfile($outDir, "trackInfo.js"), [], 1)};
+my @refSeqs = @{readJSON(catfile($outDir, "refSeqs.json"), [], 1)};
+my $trackList = readJSON(catfile($outDir, "trackList.json"),
+                           {"tracks" => []}, 1);
+my @tracks = @{$trackList->{tracks}};
 
 # open the root file; we lock this file while we're
 # reading the name lists, deleting all the old lazy-*
@@ -78,8 +112,8 @@ foreach my $ref (@refSeqs) {
     foreach my $track (@tracks) {
         my $infile = catfile($outDir,
                              "tracks",
-                             $ref->{name},
                              $track->{label},
+                             $ref->{name},
                              "names.json");
         next unless -e $infile;
         open JSON, "<$infile"
