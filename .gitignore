@@ -7,5 +7,6 @@ names
 *.index
 bin/wig2png
 *.pyc
+*TODO.txt
 Makefile
 /sample_data/json
