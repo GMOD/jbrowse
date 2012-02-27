@@ -1,4 +1,4 @@
-table { 
+table {
     border: 1px solid #777;
     border-collapse: collapse;
 }
@@ -7,14 +7,16 @@ td { border: 1px solid #777; }
 
 th { border: 1px solid #777; }
 
-pre {
-    background-color: #ddd;
-    overflow; auto;
+
+.code {
+    font-family: monospace;
 }
-
-.code { font-family: monospace; font-weight: bold; }
-
-pre { overflow: auto; }
+div.code {
+    background: #f1f1f1;
+    margin: 1em 2em 1em 2em;
+    padding: 0.5em;
+    overflow: auto;
+}
 
 div.container { 
     padding-left: 4em; 

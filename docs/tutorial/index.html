@@ -27,7 +27,7 @@
       </span>
       <p>
         The server-side scripts for formatting data have some Perl module prerequisites from CPAN.  If you have a working internet connection, these can be installed by the command:
-       <blockquote><tt>bin/cpanm --installdeps .</tt></blockquote>
+       <div class="code">bin/cpanm --installdeps .</div>
       </p>
 
       <a name="Download_install" id="Download_install"></a>
@@ -46,7 +46,7 @@
       </p>
       <p>
         (JBrowse generates files with links that are relative to the directory where index.html is located, so you should run the JBrowse scripts from that directory)
-        <pre>$ bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa</pre>
+        <div class="code">bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa</div>
       </p>
       
       <a name="Features" id="Features"></a>
@@ -58,7 +58,7 @@
       <p>
         You use <span class="code">bin/biodb-to-json.pl</span> with a configuration file <a href="../config.html">(documented here)</a>.
       </p>
-      <pre>$ bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json</pre>
+      <div class="code">bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json</div>
       <a name="flatfile-to-json.pl" id="flatfile-to-json.pl"><h4><span class="code">bin/flatfile-to-json.pl</span> -</h4></a>
       <p>
         <span class="code">bin/flatfile-to-json.pl</span> doesn't use a configuration file; instead, per-track settings are given as command-line arguments.  Run <span class="code">bin/flatfile-to-json.pl</span> without any arguments to see a description of the available settings.  Most of them correspond to track settings in the config file, so see <a href="../config-desc.html#track_settings">the track settings section in the config file documentation</a> for more details.
@@ -68,7 +68,7 @@
       <p>
         If you have data in the BAM format, you can import it into a JBrowse instance using the flatfile-to-json.pl program.  Here is one example of a command that does that, using the included data:
       </p>
-      <pre>bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Simulated next-gen reads" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}'</pre>
+      <div class="code">bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Simulated next-gen reads" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}'</div>
       <a name="Names" id="Names"></a>
       <h3>Names</h3>
       <p>
@@ -78,7 +78,7 @@
           <li>run <span class="code">bin/generate-names.pl</span> to collect those per-track files together into the structure that JBrowse uses to search</li>
         </ol>
       </p>
-      <pre>$ bin/generate-names.pl -v</pre>
+      <div class="code">$ bin/generate-names.pl -v</div>
       <p>
         You need to run <span class="code">bin/generate-names.pl</span> again every time you add new features to JBrowse.
       </p>
@@ -99,8 +99,10 @@
       </p>
       <p>
         Compile the wiggle-processing program by running <span class="code">configure</span> and then <span class="code">make</span> in the JBrowse root directory
-        <pre>$ ./configure
-$ make</pre>
+        <div class="code">
+          ./configure<br />
+          make
+        </div>
       </p>
       <div class="specific">
         <i>System-specific:</i>
@@ -109,7 +111,7 @@ $ make</pre>
             Apple OS X:<br>
             <p>You need libpng and a C++ compiler; you can get these from <a href="http://www.macports.org/">MacPorts</a> or <a href="http://www.finkproject.org/">Fink</a>.</p>
             <p>Once you have those installed, you need to compile the JBrowse wiggle-processing program.  JBrowse includes a makefile to do this, but you may need to add the paths for <span class="code">libpng</span> and <span class="code">png.h</span> to your compiler's library and include paths. For example, if libpng is in <span class="code">/usr/X11</span>, you can run <span class="code">configure</span> like this:</p>
-            <pre>$ ./configure CXXFLAGS=-I/usr/X11/include LDFLAGS=-L/usr/X11/lib</pre>
+            <div class="code">./configure CXXFLAGS=-I/usr/X11/include LDFLAGS=-L/usr/X11/lib</div>
             <p>Depending on which OS X you have (and whether you're using MacPorts/fink/etc.), libpng might be somewhere other than <span class="code">/usr/X11</span>, like <span class="code">/opt/local</span> for example.  To find where libpng is, try <span class="code">locate libpng</span></p>
           </li>
           <br>
@@ -126,7 +128,7 @@ $ make</pre>
       <p>
         Once wig2png is compiled, you run it via a wrapper script:
       </p>
-      <pre>$ bin/wig-to-json.pl --wig docs/tutorial/data_files/volvox_microarray.wig</pre>
+      <div class="code">bin/wig-to-json.pl --wig docs/tutorial/data_files/volvox_microarray.wig</div>
     </div>
   </body>
 </html>
