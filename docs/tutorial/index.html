@@ -26,19 +26,10 @@
         Alternatively, you can skip installing JBrowse and its prerequisites by launching a machine image using <a href="http://aws.amazon.com/ec2/">Amazon.com's EC2 service</a>.  We've prepared an image for use with EC2.  For more information, see <a href="http://biowiki.org/view/JBrowse/AmazonMachineImage">our wiki page</a>.
       </span>
       <p>
-        From CPAN:
-        <ul>
-          <li><span class="code">BioPerl</span> <i>(version 1.6)</i></li>
-          <li><span class="code">JSON</span> <i>(version 2)</i></li>
-          <li><span class="code">JSON::XS</span> <i>(optional, for speed)</i></li>
-          <li><span class="code">Heap::Simple</span></li>
-          <li><span class="code">Heap::Simple::Perl</span></li>
-          <li><span class="code">Heap::Simple::XS</span></li>
-          <li><span class="code">PerlIO::gzip</span></li>
-          <li><span class="code">Devel::Size</span></li>
-        </ul>
+        The server-side scripts for formatting data have some Perl module prerequisites from CPAN.  If you have a working internet connection, these can be installed by the command:
+       <blockquote><tt>bin/cpanm --installdeps .</tt></blockquote>
       </p>
-      
+
       <a name="Download_install" id="Download_install"></a>
       <h3>Download/install</h3>
       <p>
