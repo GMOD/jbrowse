@@ -33,36 +33,72 @@
       <a name="Download_install" id="Download_install"></a>
       <h3>Download/install</h3>
       <p>
-        <a href="http://github.com/GMOD/jbrowse/tree/master">Get JBrowse from GitHub</a> (click on the "ZIP" button to download a .zip file)
+        <a href="http://jbrowse.org/?page_id=36">Get JBrowse from JBrowse.org</a>.
       </p>
       <p>
-        Then unzip/untar JBrowse in a directory that's served by apache (e.g., <span class="code">/var/www/html/</span>)
+
+        Then extract JBrowse into a directory that's served by your
+        web server (e.g. <span class="code">/var/www/html/</span>),
+        and change into this directory.
+
+        For example:
+
+        <div class="code">
+          cd /var/www<br />
+          unzip jbrowse-1.2.1.zip<br />
+          cd jbrowse-1.2.1
+        </div>
+
+        JBrowse generates files with links that are relative to the
+        main JBrowse directory (where index.html is located), so you
+        should run all scripts from this directory.
       </p>
-      
+
       <a name="Reference_Sequences" id="Reference_Sequences"></a>
       <h3>Reference Sequences</h3>
       <p>
         Tell JBrowse about your reference sequences with <span class="code">bin/prepare-refseqs.pl</span>
       </p>
       <p>
-        (JBrowse generates files with links that are relative to the directory where index.html is located, so you should run the JBrowse scripts from that directory)
         <div class="code">bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa</div>
       </p>
       
       <a name="Features" id="Features"></a>
       <h3>Features</h3>
       <p>
-        There are two options for telling JBrowse about your feature data: if you have a genomic annotation database such as <a href="http://gmod.org/wiki/Chado">chado</a>, <a href="http://www.bioperl.org/wiki/Module:Bio::DB::SeqFeature::Store">Bio::DB::SeqFeature::Store</a>, or <a href="http://www.bioperl.org/wiki/Module:Bio::DB::GFF">Bio::DB::GFF</a>, then you can use JBrowse's <span class="code"><a href="#biodb-to-json.pl">biodb-to-json.pl</a></span>.  On the other hand, if you mainly deal with flat files like GFF or BED, it may be more convenient to use JBrowse's <span class="code"><a href="#flatfile-to-json.pl">flatfile-to-json.pl</a></span>.
+        There are two options for loading your feature data into JBrowse.
       </p>
-      <a name="biodb-to-json.pl" id="biodb-to-json.pl"><h4><span class="code">biodb-to-json.pl</span> -</h4></a>
-      <p>
-        You use <span class="code">bin/biodb-to-json.pl</span> with a configuration file <a href="../config.html">(documented here)</a>.
-      </p>
-      <div class="code">bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json</div>
-      <a name="flatfile-to-json.pl" id="flatfile-to-json.pl"><h4><span class="code">bin/flatfile-to-json.pl</span> -</h4></a>
-      <p>
-        <span class="code">bin/flatfile-to-json.pl</span> doesn't use a configuration file; instead, per-track settings are given as command-line arguments.  Run <span class="code">bin/flatfile-to-json.pl</span> without any arguments to see a description of the available settings.  Most of them correspond to track settings in the config file, so see <a href="../config-desc.html#track_settings">the track settings section in the config file documentation</a> for more details.
-      </p>
+      <dl>
+
+        <dt class="code"><a name="biodb-to-json.pl" id="biodb-to-json.pl">biodb-to-json.pl</a></dt>
+        <dd>If you have a genomic annotation database such as <a href="http://gmod.org/wiki/Chado">chado</a>, <a href="http://www.bioperl.org/wiki/Module:Bio::DB::SeqFeature::Store">Bio::DB::SeqFeature::Store</a>, or <a href="http://www.bioperl.org/wiki/Module:Bio::DB::GFF">Bio::DB::GFF</a>, then you can use JBrowse's <span class="code"><a href="#biodb-to-json.pl">biodb-to-json.pl</a></span>.
+
+          You use <span class="code">bin/biodb-to-json.pl</span> with a configuration file <a href="../config.html">(documented here)</a>.
+
+          <div class="code">bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json</div>
+
+        </dd>
+
+        <dt class="code"><a name="flatfile-to-json.pl" id="flatfile-to-json.pl">bin/flatfile-to-json.pl</a></dt>
+        <dd>
+          On the other hand, if you mainly deal with flat files like
+          GFF or BED, it may be more convenient to use
+          JBrowse's <span class="code"><a href="#flatfile-to-json.pl">flatfile-to-json.pl</a></span>.
+
+          <span class="code">bin/flatfile-to-json.pl</span> doesn't
+          use a configuration file; instead, per-track settings are
+          given as command-line arguments.
+          Run <span class="code">bin/flatfile-to-json.pl --help</span>
+          to see a description of the available settings.  Most of
+          them correspond to track settings in the config file used
+          by <span class="code">biodb-to-json.pl</span>, so
+          see <a href="../config-desc.html#track_settings">the track
+          settings section in the config file documentation</a> for
+          more details.
+
+        </dd>
+      </dl>
+
       <a name="Next-gen reads" id="Next-gen"></a>
       <h3>Next-gen reads</h3>
       <p>
@@ -89,12 +125,12 @@
       <a name="Quantitative_tracks" id="Quantitative_tracks"></a>
       <h3>Quantitative tracks</h3>
       <p>
-        If you want to browse quantitative ("wiggle") tracks in JBrowse, you need to do a bit more work.
+        If you want to create quantitative ("wiggle") tracks for JBrowse, you need to do a bit more work.
       </p>
       <p>
         Prerequisites:
         <ul>
-          <li>libpng</li>
+          <li>libpng, with development header files</li>
         </ul>
       </p>
       <p>
@@ -126,7 +162,9 @@
         </ul>
       </div>
       <p>
-        Once wig2png is compiled, you run it via a wrapper script:
+        Once compilation is complete, use
+        the <span class="code">wig-to-json.pl</span> script to load
+        wiggle files:
       </p>
       <div class="code">bin/wig-to-json.pl --wig docs/tutorial/data_files/volvox_microarray.wig</div>
     </div>
