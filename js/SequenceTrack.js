@@ -19,11 +19,13 @@ function SequenceTrack(trackMeta, url, refSeq, browserParams) {
     Track.call(this, trackMeta.label, trackMeta.key,
                false, browserParams.changeCallback);
     this.browserParams = browserParams;
+    this.refSeq = refSeq;
     this.trackMeta = trackMeta;
     this.setLoaded();
     this.chunks = [];
     this.chunkSize = trackMeta.args.chunkSize;
     this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "") + url;
+    this.hilightLoc = {refName: null, startBase:-1, endBase:-1};
 }
 
 SequenceTrack.prototype = new Track("");
@@ -57,13 +59,38 @@ SequenceTrack.prototype.fillBlock = function(blockIndex, block,
                                              leftBase, rightBase,
                                              scale, stripeWidth,
                                              containerStart, containerEnd) {
+    var compl_rx = /[ACGT]/g;
+    var compl_tbl = {'A':'G', 'C':'T', 'G':'A', 'T':'C'};
+    var compl_fn = function(m) { return compl_tbl[m] || m; }
+    var hloc = this.hilightLoc;
+    var rseq = this.refSeq;
+    function hilighted_seq(start, end, seq) {
+        // start, end coords are interbase (half-open intervals)
+        if(hloc.refName == rseq.name & hloc.startBase < end & hloc.endBase > start) {
+            var hseq_start = Math.max(0, hloc.startBase - start);
+            var hseq_end = Math.min(seq.length, hloc.endBase - start);
+            var spanOuter = document.createElement("span");
+            var spanInner = document.createElement("span");
+            spanInner.style.cssText = "background: #ff0;";
+            spanOuter.appendChild(document.createTextNode(seq.substring(0, hseq_start)));
+            spanInner.appendChild(document.createTextNode(seq.substring(hseq_start, hseq_end)));
+            spanOuter.appendChild(spanInner);
+            spanOuter.appendChild(document.createTextNode(seq.substring(hseq_end, seq.length)));
+            return spanOuter;
+        } else {
+            return document.createTextNode(seq);
+        }
+    }
     if (this.shown) {
         this.getRange(leftBase, rightBase,
                       function(start, end, seq) {
                           //console.log("adding seq from %d to %d: %s", start, end, seq);
                           var seqNode = document.createElement("div");
                           seqNode.className = "sequence";
-                          seqNode.appendChild(document.createTextNode(seq));
+                          seqNode.appendChild(hilighted_seq(start, end, seq));
+                          // IWD: add complement!
+                          seqNode.appendChild(document.createElement("br"));
+                          seqNode.appendChild(hilighted_seq(start, end, seq.replace(compl_rx, compl_fn)));
 	                  seqNode.style.cssText = "top: 0px;";
                           block.appendChild(seqNode);
                       });

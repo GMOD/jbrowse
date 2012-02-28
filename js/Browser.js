@@ -158,6 +158,10 @@ var Browser = function(params) {
 	    for (var i = 0; i < brwsr.deferredFunctions.length; i++)
 		brwsr.deferredFunctions[i]();
 	    brwsr.deferredFunctions = [];
+
+            if (params.highlight) {
+                brwsr.highlightRegion(params.highlight);
+            }
         });
 };
 
@@ -321,7 +325,7 @@ Browser.prototype.addTracks = function(trackList, replace) {
 };
 
 /**
- * navigate to a given location
+ * Parse a location string.  showTracks and/or startBase may be undefined.
  * @example
  * gb=dojo.byId("GenomeBrowser").genomeBrowser
  * gb.navigateTo("ctgA:100..200")
@@ -332,10 +336,9 @@ Browser.prototype.addTracks = function(trackList, replace) {
  * &lt;center base&gt;<br>
  * &lt;feature name/ID&gt;
  */
-Browser.prototype.navigateTo = function(loc) {
+Browser.prototype.parseLocation = function(loc) {
     if (!this.isInitialized) {
-        var brwsr = this;
-        this.deferredFunctions.push(function() { brwsr.navigateTo(loc); });
+        console.log("parseLocation() cannot usefully be deferred!");
 	return;
     }
 
@@ -348,7 +351,6 @@ Browser.prototype.navigateTo = function(loc) {
     //matches[6] = end base (or center base, if it's the only one)
     if (matches) {
 	if (matches[3]) {
-	    var refName;
 	    for (ref in this.allRefs) {
 		if ((matches[3].toUpperCase() == ref.toUpperCase())
                     ||
@@ -356,52 +358,26 @@ Browser.prototype.navigateTo = function(loc) {
                     ||
                     (matches[3].toUpperCase() == "CHR" + ref.toUpperCase())) {
 
-		    refName = ref;
+		    return { refName: ref,
+		             startBase: parseInt(matches[4].replace(/[,.]/g, "")),
+		             endBase: parseInt(matches[6].replace(/[,.]/g, "")) };
                 }
             }
-	    if (refName) {
-		dojo.cookie(this.container.id + "-refseq", refName, {expires: 60});
-		if (refName == this.refSeq.name) {
-		    //go to given start, end on current refSeq
-		    this.view.setLocation(this.refSeq,
-					  parseInt(matches[4].replace(/[,.]/g, "")),
-					  parseInt(matches[6].replace(/[,.]/g, "")));
-		} else {
-		    //new refseq, record open tracks and re-open on new refseq
-                    var curTracks = [];
-                    this.viewDndWidget.forInItems(function(obj, id, map) {
-                            curTracks.push(obj.data);
-                        });
-
-		    for (var i = 0; i < this.chromList.options.length; i++)
-			if (this.chromList.options[i].text == refName)
-			    this.chromList.selectedIndex = i;
-		    this.refSeq = this.allRefs[refName];
-		    //go to given refseq, start, end
-		    this.view.setLocation(this.refSeq,
-					  parseInt(matches[4].replace(/[,.]/g, "")),
-					  parseInt(matches[6].replace(/[,.]/g, "")));
-
-                    this.viewDndWidget.insertNodes(false, curTracks);
-                    this.onVisibleTracksChanged();
-		}
-		return;
-	    }
 	} else if (matches[4]) {
 	    //go to start, end on this refseq
-	    this.view.setLocation(this.refSeq,
-				  parseInt(matches[4].replace(/[,.]/g, "")),
-				  parseInt(matches[6].replace(/[,.]/g, "")));
-	    return;
+            return { refName: this.refSeq,
+                     startBase: parseInt(matches[4].replace(/[,.]/g, "")),
+                     endBase: parseInt(matches[6].replace(/[,.]/g, "")) };
 	} else if (matches[6]) {
 	    //center at given base
-	    this.view.centerAtBase(parseInt(matches[6].replace(/[,.]/g, "")));
-	    return;
+            return { refName: this.refSeq,
+                     endBase: parseInt(matches[6].replace(/[,.]/g, "")) };
 	}
     }
     //if we get here, we didn't match any expected location format
 
     var brwsr = this;
+    var retval;
     this.names.exactMatch(loc, function(nameMatches) {
 	    var goingTo;
 	    //first check for exact case match
@@ -422,12 +398,107 @@ Browser.prototype.navigateTo = function(loc) {
 	    var endbp = goingTo[4];
 	    var flank = Math.round((endbp - startbp) * .2);
 	    //go to location, with some flanking region
-	    brwsr.navigateTo(goingTo[2]
-			     + ":" + (startbp - flank)
-			     + ".." + (endbp + flank));
-	    brwsr.showTracks(brwsr.names.extra[nameMatches[0][0]]);
+            retval = { refName: goingTo[2],
+                       startBase: (startbp - flank),
+                       endBase: (endbp + flank),
+                       showTracks: brwsr.names.extra[nameMatches[0][0]]};
 	});
+    return retval;
 };
+
+/**
+ * navigate to a given location
+ * @example
+ * gb=dojo.byId("GenomeBrowser").genomeBrowser
+ * gb.navigateTo("ctgA:100..200")
+ * gb.navigateTo("f14")
+ * @param loc can be either:<br>
+ * &lt;chromosome&gt;:&lt;start&gt; .. &lt;end&gt;<br>
+ * &lt;start&gt; .. &lt;end&gt;<br>
+ * &lt;center base&gt;<br>
+ * &lt;feature name/ID&gt;
+ */
+Browser.prototype.navigateTo = function(loc) {
+    if (!this.isInitialized) {
+        var brwsr = this;
+        this.deferredFunctions.push(function() { brwsr.navigateTo(loc); });
+	return;
+    }
+
+    loc = this.parseLocation(loc);
+    if (loc === undefined) {
+        return; // oops -- parsing failed
+    } else if (loc.refName) {
+        dojo.cookie(this.container.id + "-refseq", loc.refName, {expires: 60});
+        if (loc.refName == this.refSeq.name) {
+            //go to given start, end on current refSeq
+            this.view.setLocation(this.refSeq, loc.startBase, loc.endBase);
+        } else {
+            //new refseq, record open tracks and re-open on new refseq
+            var curTracks = [];
+            this.viewDndWidget.forInItems(function(obj, id, map) {
+                    curTracks.push(obj.data);
+                });
+            for (var i = 0; i < this.chromList.options.length; i++)
+                if (this.chromList.options[i].text == loc.refName)
+                    this.chromList.selectedIndex = i;
+            this.refSeq = this.allRefs[loc.refName];
+            //go to given refseq, start, end
+            this.view.setLocation(this.refSeq, loc.startBase, loc.endBase);
+            this.viewDndWidget.insertNodes(false, curTracks);
+            this.onVisibleTracksChanged();
+        }
+        if (loc.showTracks) {
+            // We matched a feature name instead of a "chromosome:start..end"
+            this.showTracks(loc.showTracks);
+        }
+        //return;
+    } else if (loc.startBase) {
+        //go to start, end on this refseq
+        this.view.setLocation(this.refSeq, loc.startBase, loc.endBase);
+        //return;
+    } else if (loc.endBase) {
+        //center at given base
+        this.view.centerAtBase(loc.endBase);
+        //return;
+    }
+};
+
+/**
+ * highlight a given location
+ * @example
+ * gb=dojo.byId("GenomeBrowser").genomeBrowser
+ * gb.navigateTo("ctgA:100..200")
+ * gb.navigateTo("f14")
+ * @param loc can be either:<br>
+ * &lt;chromosome&gt;:&lt;start&gt; .. &lt;end&gt;<br>
+ * &lt;start&gt; .. &lt;end&gt;<br>
+ * &lt;center base&gt;<br>
+ * &lt;feature name/ID&gt;
+ */
+Browser.prototype.highlightRegion = function(loc) {
+    if (!this.isInitialized) {
+        var brwsr = this;
+        this.deferredFunctions.push(function() { brwsr.highlightRegion(loc); });
+        return;
+    }
+    // Capture location for highlighting DNA sequence.
+    // Tracks are initialized by one of the deferred functions!
+    var loc = this.parseLocation(loc);
+    if(!loc || !loc.refName || loc.startBase === undefined || loc.endBase === undefined) return;
+
+    // Convert from "natural" numbering to interbase:
+    loc.startBase -= 1;
+    for(var i = 0; i < this.view.tracks.length; i++) {
+        var track = this.view.tracks[i];
+        if(track.name == "DNA") {
+            track.hilightLoc = loc;
+            track.clear();
+        }
+    }
+    this.view.showVisibleBlocks(true);
+    // Calls to .clear() and .showVisibleBlocks() required to refresh the view...
+}
 
 /**
  * load and display the given tracks
