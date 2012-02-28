@@ -36,6 +36,9 @@ def test_volvox():
     # test scrolling, make sure we get no js errors
     scroll(browser)
 
+    # test dragging in and displaying the wiggle track
+    wiggle(browser)
+
     browser.close()
     pass;
 
@@ -66,8 +69,39 @@ def scroll(browser):
 
     assert_no_js_errors(browser)
 
-def assert_no_js_errors(browser):
-    assert browser.find_element_by_xpath('/html/body').get_attribute('JSError') == None
+
+def wiggle(browser):
+    # find the microarray track label
+    tracklabel = assert_element( browser, "//div[@class='tracklist-label'][contains(.,'microarray')]" )
+
+    # drag the track label over
+    ActionChains( browser ) \
+        .move_to_element( tracklabel ) \
+        .click_and_hold( None ) \
+        .move_by_offset( 300, 0 ) \
+        .release( None ) \
+        .perform()
+
+    assert_no_js_errors(browser)
+
+    # see that we have an image track png in the DOM now
+    imagetrack_xpath =  "//div[contains(@class,'track')]//img[@class='image-track']";
+    imagetrack_png = assert_element( browser, imagetrack_xpath )
+
+    # drag the track back into the track list
+    track_handle = assert_element( browser, "/html//div[contains(@class,'track')]//div[contains(@class,'track-label')][contains(.,'microarray')]" )
+    track_list = assert_element( browser, "/html//div[@id='tracksAvail']" )
+
+    ActionChains( browser ) \
+        .drag_and_drop( track_handle, track_list ) \
+        .perform()
+
+    try:
+        browser.find_element_by_xpath( imagetrack_xpath )
+        assert 0, ( "imagetrack png is still in the DOM after the track is turned off, something is wrong" )
+    except NoSuchElementException:
+        pass
+
 
 def search_f15(browser):
 
@@ -91,6 +125,7 @@ def search_f15(browser):
     label = assert_element( browser, yal024_xpath )
     assert label.text == 'f15';
 
+
 def assert_element( browser, xpathExpression ):
     try:
         el = browser.find_element_by_xpath( xpathExpression )
@@ -98,9 +133,12 @@ def assert_element( browser, xpathExpression ):
         assert 0, ( "can't find %s" % xpathExpression )
     return el
 
+def assert_no_js_errors(browser):
+    assert browser.find_element_by_xpath('/html/body').get_attribute('JSError') == None
+
 def format_volvox():
-    os.environ['PATH'] = "bin/:" + os.environ['PATH']
     call( "rm -rf sample_data/json/volvox/", shell=True )
-    call( "prepare-refseqs.pl --fasta sample_data/raw/volvox/volvox.fa --out sample_data/json/volvox/", shell=True )
-    call( "biodb-to-json.pl --conf sample_data/raw/volvox.json --out sample_data/json/volvox/", shell=True )
-    call( "generate-names.pl --dir sample_data/json/volvox/", shell=True )
+    call( "bin/prepare-refseqs.pl --fasta sample_data/raw/volvox/volvox.fa --out sample_data/json/volvox/", shell=True )
+    call( "bin/biodb-to-json.pl --conf sample_data/raw/volvox.json --out sample_data/json/volvox/", shell=True )
+    call( "bin/wig-to-json.pl --out sample_data/json/volvox/ --wig sample_data/raw/volvox/volvox_microarray.wig", shell=True )
+    call( "bin/generate-names.pl --dir sample_data/json/volvox/", shell=True )

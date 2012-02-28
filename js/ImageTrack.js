@@ -99,6 +99,7 @@ ImageTrack.prototype.fillBlock = function(blockIndex, block,
 
     for (var i = 0; i < images.length; i++) {
 	im = images[i];
+        im.className = 'image-track';
 	if (!(im.parentNode && im.parentNode.parentNode)) {
             im.style.position = "absolute";
             im.style.left = (100 * ((im.startBase - leftBase) / blockWidth)) + "%";
