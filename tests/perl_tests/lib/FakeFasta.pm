@@ -22,10 +22,10 @@ Return a random string of A,C,T,G,N of the given length.
 
 =cut
 
+my @letters = qw( A C T G N );
 sub random_seq {
-    my ( $self, $length ) = @_;
-    my $rand = '0' x $length;
-    $rand =~ s/ . / [qw( A C T G N )]->[ int rand 5 ] /xge;
+    my $rand = '0' x $_[1];
+    $rand =~ s/ . / $letters[ int rand 5 ] /xge;
     return $rand;
 }
 
@@ -119,14 +119,18 @@ sub fkfa_to_fasta {
             $seq->{desc} || '',
             "\n",
           );
+
         my $length = $seq->{length};
+        my $line_width = 78;
+
+        # believe it or not this is actually the fastest way to print
+        # a random sequence.  print() is apparently very fast.
         while( $length > 0 ) {
-            print $out_fh (
-                $self->random_seq( List::Util::min( $length, 78 ) ),
-                "\n",
-              );
-            $length -= 78;
+            print $out_fh  $letters[ int rand 5 ];
+            print $out_fh "\n" unless $length % $line_width;
+            $length--;
         }
+        print $out_fh "\n";
     }
 }
 
