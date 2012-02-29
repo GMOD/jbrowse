@@ -304,7 +304,6 @@ ENDJS
                 last;
             }
         }
-        # next unless defined($refSeqs{$curChrom});
         my $jsonRow = $converter->($row, \%fields, $type);
         $track->addSorted($jsonRow);
         if (defined $nameCol) {

@@ -171,6 +171,59 @@ sub trackDir {
     return $result;
 }
 
+=head2 refSeqs
+
+Returns a arrayref of hashrefs defining the reference sequences, as:
+
+    [ {
+        name         => 'ctgB',
+        seqDir       => 'seq/ctgB',
+
+        start        => 0
+        end          => 66,
+        length       => 66,
+
+        seqChunkSize => 20000,
+      },
+      ...
+    ]
+
+=cut
+
+sub refSeqs {
+    shift->{rootStore}->get( 'seq/refSeqs.json', [] );
+}
+
+
+=head2 trackList
+
+Return an arrayref of track definition hashrefs similar to:
+
+    [
+        {
+          config => {
+                      autocomplete => "all",
+                      compress => 0,
+                      feature => ["remark"],
+                      key => "Example Features",
+                      style => { className => "feature2" },
+                      track => "ExampleFeatures",
+                      urlTemplate => "tracks/ExampleFeatures/{refseq}/trackData.json",
+                    },
+          key    => "Example Features",
+          label  => "ExampleFeatures",
+          type   => "FeatureTrack",
+        },
+        ...
+    ]
+
+=cut
+
+sub trackList {
+    shift->{rootStore}->get( 'trackList.json', { tracks => [] } )->{tracks}
+}
+
+
 1;
 
 =head1 AUTHOR

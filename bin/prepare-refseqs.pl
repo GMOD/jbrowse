@@ -204,7 +204,7 @@ unless( @refSeqs ) {
     exit;
 }
 
-JsonGenerator::modifyJsonFile( catfile( $outDir, 'refSeqs.json' ),
+JsonGenerator::modifyJsonFile( catfile( $outDir, 'seq', 'refSeqs.json' ),
                               sub {
                                   #add new ref seqs while keeping the order
                                   #of the existing ref seqs

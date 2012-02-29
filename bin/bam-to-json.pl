@@ -103,7 +103,9 @@ unless( defined $nclChunk ) {
     $nclChunk *= 4 if $compress;
 }
 
-my @refSeqs = @{JSON::from_json( slurp("$outdir/refSeqs.json") || '[]' )}
+my $gdb = GenomeDB->new( $outdir );
+
+my @refSeqs = @{ $gdb->refSeqs }
   or die "Run prepare-refseqs.pl to define reference sequences before running this script.\n";
 
 my %config = (
@@ -127,7 +129,6 @@ my $index = Bio::DB::Bam->index( $bamFile, 1 );
 my $hdr = $bam->header;
 
 
-my $gdb = GenomeDB->new( $outdir );
 my $track = $gdb->getTrack( $trackLabel )
             || $gdb->createFeatureTrack( $trackLabel,
                                          \%config,

@@ -51,7 +51,7 @@ use JSON 2;
 use lib catdir($Bin, updir(), "lib");
 
 use LazyPatricia;
-use JsonGenerator qw/ readJSON writeJSON /;
+use GenomeDB;
 
 my %trackHash;
 my @tracksWithNames;
@@ -76,24 +76,12 @@ the --dir command line option.
 OUTDIR
 }
 
+my $gdb = GenomeDB->new( $outDir );
 my $nameDir = catdir($outDir, "names");
 mkdir($nameDir) unless (-d $nameDir);
 
-sub partitionCallback {
-    my ($subtreeRoot, $prefix, $thisChunk, $total) = @_;
-    # output subtree
-    writeJSON(catfile($nameDir, "lazy-$prefix.json"),
-              $subtreeRoot,
-              {pretty => 0});
-    printf STDERR "subtree for %15s   has %10d  in chunk, %10d  total\n",
-      $prefix, $thisChunk, $total
-        if $verbose;
-}
-
-my @refSeqs = @{readJSON(catfile($outDir, "refSeqs.json"), [], 1)};
-my $trackList = readJSON(catfile($outDir, "trackList.json"),
-                           {"tracks" => []}, 1);
-my @tracks = @{$trackList->{tracks}};
+my @refSeqs  = @{ $gdb->refSeqs   };
+my @tracks   = @{ $gdb->trackList };
 
 # open the root file; we lock this file while we're
 # reading the name lists, deleting all the old lazy-*
@@ -106,59 +94,74 @@ flock $root, LOCK_EX;
 # read the name list for each track that has one
 my %nameHash;
 my $trackNum = 0;
-my $OLDSEP = $/;
-undef $/;
 foreach my $ref (@refSeqs) {
     foreach my $track (@tracks) {
-        my $infile = catfile($outDir,
-                             "tracks",
-                             $track->{label},
-                             $ref->{name},
-                             "names.json");
+        my $infile = catfile( $outDir,
+                              "tracks",
+                              $track->{label},
+                              $ref->{name},
+                              "names.json");
         next unless -e $infile;
-        open JSON, "<$infile"
-            or die "couldn't open $: $!";
-        my $names = JSON::from_json(<JSON>);
-        close JSON
-            or die "couldn't close $infile: $!";
-        foreach my $nameinfo (@$names) {
-            foreach my $alias (@{$nameinfo->[0]}) {
+
+        my $names = do {
+            local $/;
+            open my $j, '<', $infile or die "$! reading $infile";
+            JSON::from_json(<$j>);
+        };
+
+        foreach my $nameinfo ( @$names) {
+            foreach my $alias ( @{$nameinfo->[0]} ) {
                 my $track = $nameinfo->[1];
-                if (!defined($trackHash{$track})) {
+                unless( defined $trackHash{$track} ) {
                     $trackHash{$track} = $trackNum++;
                     push @tracksWithNames, $track;
                 }
 
-                push @{$nameHash{lc $alias}}, [$trackHash{$track},
-                                               @{$nameinfo}[2..$#{$nameinfo}]];
+                push @{$nameHash{lc $alias}}, [ $trackHash{$track},
+                                                @{$nameinfo}[2..$#{$nameinfo}]];
             }
         }
     }
 }
-$/ = $OLDSEP;
 
 # clear out old data
 $root->seek(0, SEEK_SET);
 $root->truncate(0);
-my @lazyFiles = glob(catfile($nameDir, "lazy-*"));
-if (@lazyFiles) {
+if( my @lazyFiles = glob( catfile( $nameDir, "lazy-*" )) ) {
     unlink @lazyFiles
       or die "couldn't unlink name files: $!";
 }
 
-my $trie = LazyPatricia::create(\%nameHash);
+my $trie = LazyPatricia::create( \%nameHash );
 $trie->[0] = \@tracksWithNames;
 
 my ($total, $thisChunk) =
-  LazyPatricia::partition($trie, "", $thresh, \&partitionCallback);
+  LazyPatricia::partition( $trie, "", $thresh, sub {
+      my ($subtreeRoot, $prefix, $thisChunk, $total) = @_;
+      # output subtree
+      writeJSON( catfile($nameDir, "lazy-$prefix.json"),
+                 $subtreeRoot,
+                 {pretty => 0} );
+      printf STDERR ( "subtree for %15s   has %10d  in chunk, %10d  total\n",
+                      $prefix, $thisChunk, $total )
+          if $verbose;
+  });
 
 print STDERR "$total total names, with $thisChunk in the root chunk\n"
   if $verbose;
 
 # write the root
-$root->print(JSON::to_json($trie, {pretty => 0}));
-$root->close()
-  or die "couldn't close $rootFile: $!";
+$root->print( JSON::to_json($trie, {pretty => 0}) );
+
+exit;
+
+############
+
+sub writeJSON {
+    my ( $file, $contents, $opts ) = @_;
+    open my $f, '>', $file or die "$! writing $file";
+    print $f JSON::to_json( $contents, $opts || {} );
+}
 
 
 =head1 AUTHOR

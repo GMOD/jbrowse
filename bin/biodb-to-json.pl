@@ -98,9 +98,10 @@ if (!defined($nclChunk)) {
     $nclChunk *= 4 if $compress;
 }
 
+my $gdb = GenomeDB->new( $outdir );
 
 # determine which reference sequences we'll be operating on
-my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.json", [], 1)};
+my @refSeqs = @{ $gdb->refSeqs };
 if (defined $refid) {
     @refSeqs = grep { $_->{id} eq $refid } @refSeqs;
     die "Didn't find a refseq with ID $refid (have you run prepare-refseqs.pl to supply information about your reference sequences?)" if $#refSeqs < 0;
@@ -125,7 +126,6 @@ if (my $refclass = $config->{'reference class'}) {
 $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
 $db->absolute(1)               if $db->can('absolute');
 
-my $gdb = GenomeDB->new( $outdir );
 
 foreach my $seg (@refSeqs) {
     my $segName = $seg->{name};

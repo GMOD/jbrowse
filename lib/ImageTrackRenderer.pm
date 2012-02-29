@@ -91,7 +91,7 @@ sub new {
         'datadir'       => "data",
         'trackdir'      => "tracks",
         'tiledir'       => undef, #< ignored for backcompat
-        'refseqsfile'   => 'refSeqs.json',
+        'refseqsfile'   => undef,
         'trackinfofile' => 'trackList.json',
         'zooms'         =>
             [ 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000 ],
@@ -139,7 +139,7 @@ then adds the track to the data/trackList.json file.
 
 sub render {
     my ($self) = @_;
-    my @refSeqs = $self->refseqs
+    my @refSeqs = @{ $self->_genomedb->refSeqs }
         or die "No reference sequences defined";
 
     foreach my $seqInfo (@refSeqs) {
@@ -327,23 +327,13 @@ sub tilefilepath {
     $self->_file( $self->datadir, $self->trackdir, $self->tilefile( @_ ));
 }
 
-sub refseqspath {
-    my ( $self ) = @_;
-    $self->_file( $self->datadir, $self->refseqsfile );
-}
-sub refseqs {
-    my ($self) = @_;
-    my $contents = eval { open my $f, '<',$self->refseqspath; local $/; <$f> };
-    return @{ JSON::from_json( $contents || '[]' ) };
-}
-
 ######### read-only accessors
 
 sub link        { shift->{link}        }
 sub datadir     { shift->{datadir}     }
 sub tracklabel  { shift->{tracklabel}  }
 sub key         { shift->{key}         }
-sub refseqsfile { shift->{refseqsfile} }
+sub refseqsfile { undef                } #< only for backcompat
 sub trackdir    { shift->{trackdir}    }
 sub tilewidth   { shift->{tilewidth}   }
 sub zooms       { shift->{zooms}       }

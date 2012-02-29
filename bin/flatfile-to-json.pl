@@ -203,12 +203,12 @@ my $help;
 
 pod2usage( -verbose => 2 ) if $help;
 
-my %refSeqs =
-    map {
-        $_->{name} => $_
-    } @{JsonGenerator::readJSON("$outdir/refSeqs.json", [], 1)};
+my $gdb = GenomeDB->new( $outdir );
 
-die "run prepare-refseqs.pl first to supply information about your reference sequences" unless (scalar keys %refSeqs);
+my %refSeqs = map { $_->{name} => $_ } @{ $gdb->refSeqs };
+
+scalar keys %refSeqs
+    or die "run prepare-refseqs.pl first to supply information about your reference sequences";
 
 pod2usage( "Must provide a --tracklabel parameter." ) unless defined $trackLabel;
 pod2usage( "You must supply either a --gff or --bed parameter." )
@@ -367,7 +367,6 @@ $sorter->finish();
 
 ################################
 
-my $gdb = GenomeDB->new( $outdir );
 my $track = $gdb->getTrack( $trackLabel )
             || $gdb->createFeatureTrack( $trackLabel,
                                          \%config,

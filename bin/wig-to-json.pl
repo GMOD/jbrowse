@@ -128,13 +128,13 @@ GetOptions("wig=s"                   => \$path,
 pod2usage( -verbose => 2 ) if $help;
 pod2usage( 'Must provide a --wig argument.' ) unless defined $path;
 
-my @refSeqs = @{ JSON::from_json(do{ open my $f, '<', "$outdir/refSeqs.json"; local $/; <$f>}) || [] }
+my $gdb = GenomeDB->new( $outdir );
+
+my @refSeqs = @{ $gdb->refSeqs }
    or die "Run prepare-refseqs.pl first to supply information about your reference sequences.\n";
 
 $trackLabel = basename( $path ) unless defined $trackLabel;
 my $urlTemplate = "tracks/$trackLabel/{refseq}/trackData.json";
-
-my $gdb = GenomeDB->new( $outdir );
 
 my %style = (
     "key"            => defined($key) ? $key : $trackLabel,
