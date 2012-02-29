@@ -53,6 +53,7 @@ sub fasta_to_fkfa {
     while( <$f> ) {
         if( /^\s*>\s*(\S+)(.*)/ ) {
             push @spec, $curr_entry = { id => $1, desc => $2, length => 0 };
+            undef $curr_entry->{desc} if $curr_entry->{desc} eq '';
             chomp $curr_entry->{desc};
         }
         else {
