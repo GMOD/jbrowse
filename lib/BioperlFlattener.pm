@@ -32,9 +32,9 @@ use NameHandler;
 #for every feature, which would take up too much space/bandwidth)
 #@featMap maps from feature objects to arrays
 my @featMap = (
-	       sub {$_[0]->start - 1},
-	       sub {int($_[0]->end)},
-	       sub {int($_[0]->strand)},
+	       sub {int $_[0]->start },
+	       sub {int $_[0]->end   },
+	       sub {int $_[0]->strand},
                sub {$_[0]->source_tag},
 	      );
 
