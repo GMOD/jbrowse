@@ -354,6 +354,7 @@ div.exon-hist {
     z-index: 10;
 }
 
+.exon,
 .plus-exon,
 .minus-exon {
     position: absolute;
@@ -375,6 +376,7 @@ div.est-hist {
     z-index: 10;
 }
 
+.est,
 .plus-est,
 .minus-est {
     position: absolute;
@@ -387,6 +389,7 @@ div.est-hist {
     z-index: 10;
 }
 
+.dblhelix,
 .plus-dblhelix,
 .minus-dblhelix {
     position:absolute;
