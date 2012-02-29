@@ -98,6 +98,19 @@ if (!defined($nclChunk)) {
     $nclChunk *= 4 if $compress;
 }
 
+
+# determine which reference sequences we'll be operating on
+my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.json", [], 1)};
+if (defined $refid) {
+    @refSeqs = grep { $_->{id} eq $refid } @refSeqs;
+    die "Didn't find a refseq with ID $refid (have you run prepare-refseqs.pl to supply information about your reference sequences?)" if $#refSeqs < 0;
+} elsif (defined $ref) {
+    @refSeqs = grep { $_->{name} eq $ref } @refSeqs;
+    die "Didn't find a refseq with name $ref (have you run prepare-refseqs.pl to supply information about your reference sequences?)" if $#refSeqs < 0;
+}
+die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
+
+
 # read our conf file
 die "conf file '$confFile' not found or not readable" unless -r $confFile;
 my $config = JsonGenerator::readJSON($confFile);
@@ -111,18 +124,6 @@ if (my $refclass = $config->{'reference class'}) {
 }
 $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
 $db->absolute(1)               if $db->can('absolute');
-
-# determine which reference sequences we'll be operating on
-my @refSeqs = @{JsonGenerator::readJSON("$outdir/refSeqs.json", [], 1)};
-if (defined $refid) {
-    @refSeqs = grep { $_->{id} eq $refid } @refSeqs;
-    die "Didn't find a refseq with ID $refid (have you run prepare-refseqs.pl to supply information about your reference sequences?)" if $#refSeqs < 0;
-} elsif (defined $ref) {
-    @refSeqs = grep { $_->{name} eq $ref } @refSeqs;
-    die "Didn't find a refseq with name $ref (have you run prepare-refseqs.pl to supply information about your reference sequences?)" if $#refSeqs < 0;
-}
-
-die "run prepare-refseqs.pl first to supply information about your reference sequences" if $#refSeqs < 0;
 
 my $gdb = GenomeDB->new( $outdir );
 
