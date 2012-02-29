@@ -46,11 +46,12 @@ sub fasta_to_fkfa {
     my ( $self, $file ) = @_;
 
     my @spec;
-    open my $f, '<', $file or die "$! reading $file";
+    my $gzip = $file =~ /\.gz/ ? ':gzip' : '';
+    open my $f, "<$gzip", $file or die "$! reading $file";
     my $curr_entry;
     local $_; #< unlike for, while does not automatically localize $_
     while( <$f> ) {
-        if( /^\s*>\s*(\S+)(.+)/ ) {
+        if( /^\s*>\s*(\S+)(.*)/ ) {
             push @spec, $curr_entry = { id => $1, desc => $2, length => 0 };
             chomp $curr_entry->{desc};
         }
@@ -91,14 +92,21 @@ sub fkfa_to_fasta {
     }
 
     croak "must provide a spec argument" unless $args{spec};
-    croak "must provide an out_file argument" unless $args{out_file};
+    if( $args{out_fh} ) {
+        # do nothing i guess
+    }
+    elsif( defined $args{out_file} ) {
+        open $args{out_fh}, '<', $args{out_file}
+            or die "$! reading $args{out_file}";
+    }
+    else {
+        croak "must provide either an out_file or out_fh argument";
+    }
 
-    # now open our output file and make our sequences
-    open my $out_fh, '>', $args{out_file}
-        or confess "$! writing '$args{out_file}'";
+    my $out_fh = $args{out_fh};
 
     for my $seq ( @{$args{spec}} ) {
-        $out_fh->print(
+        print $out_fh (
             '>',
             $seq->{id},
             $seq->{desc} || '',
