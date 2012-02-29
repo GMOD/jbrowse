@@ -11,6 +11,8 @@ package FakeFasta;
 use strict;
 use warnings;
 
+use List::Util ();
+
 use Carp;
 use JSON 2 ();
 
@@ -46,15 +48,19 @@ sub fasta_to_fkfa {
     my ( $self, $file ) = @_;
 
     my @spec;
-    my $gzip = $file =~ /\.gz/ ? ':gzip' : '';
-    open my $f, "<$gzip", $file or die "$! reading $file";
+
+    my $fh = ref $file ? $file : do {
+        my $gzip = $file =~ /\.gz/ ? ':gzip' : '';
+        open my $f, "<$gzip", $file or die "$! reading $file";
+        $f
+    };
     my $curr_entry;
     local $_; #< unlike for, while does not automatically localize $_
-    while( <$f> ) {
+    while( <$fh> ) {
         if( /^\s*>\s*(\S+)(.*)/ ) {
             push @spec, $curr_entry = { id => $1, desc => $2, length => 0 };
-            undef $curr_entry->{desc} if $curr_entry->{desc} eq '';
             chomp $curr_entry->{desc};
+            undef $curr_entry->{desc} if $curr_entry->{desc} eq '';
         }
         else {
             s/\s//g;
@@ -86,25 +92,25 @@ sub fkfa_to_fasta {
     my ( $self, %args ) = @_;
 
     # slurp and decode the in_file if present
-    if( $args{in_file} ) {
-        open my $f, '<', $args{in_file} or die "$! reading '$args{in_file}'";
+    if( $args{in_fh} || $args{in_file} ) {
+        my $in_fh = $args{in_fh} || do {
+            open my $f, '<', $args{in_file} or die "$! reading '$args{in_file}'";
+            $f
+        };
         local $/;
-        $args{spec} = JSON::from_json( scalar <$f> );
+        $args{spec} = JSON::from_json( scalar <$in_fh> );
     }
 
     croak "must provide a spec argument" unless $args{spec};
-    if( $args{out_fh} ) {
-        # do nothing i guess
-    }
-    elsif( defined $args{out_file} ) {
-        open $args{out_fh}, '<', $args{out_file}
-            or die "$! reading $args{out_file}";
-    }
-    else {
-        croak "must provide either an out_file or out_fh argument";
-    }
 
-    my $out_fh = $args{out_fh};
+    croak "must provide either an out_file or out_fh argument"
+        unless defined $args{out_fh} || defined $args{out_file};
+
+    my $out_fh = $args{out_fh} || do {
+        open my $f, '>', $args{out_file}
+            or die "$! writing $args{out_file}";
+        $f
+    };
 
     for my $seq ( @{$args{spec}} ) {
         print $out_fh (
@@ -112,9 +118,15 @@ sub fkfa_to_fasta {
             $seq->{id},
             $seq->{desc} || '',
             "\n",
-            $self->random_seq( $seq->{length} ),
-            "\n"
           );
+        my $length = $seq->{length};
+        while( $length > 0 ) {
+            print $out_fh (
+                $self->random_seq( List::Util::min( $length, 78 ) ),
+                "\n",
+              );
+            $length -= 78;
+        }
     }
 }
 
