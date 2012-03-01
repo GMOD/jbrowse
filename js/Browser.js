@@ -247,6 +247,7 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
  */
 Browser.prototype.createTrackList = function(parent, params) {
     var leftPane = document.createElement("div");
+    leftPane.id = "trackPane";
     leftPane.style.cssText="width: 10em";
     parent.appendChild(leftPane);
     var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, leftPane);
