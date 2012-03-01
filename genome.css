@@ -4,6 +4,7 @@ html, body {
     padding: 0;
     border: 0;
     font-size: 9px;
+    font-family: Univers,Trebuchet MS,Arial,Helvetica;
 }
 
 .nav {
@@ -60,7 +61,6 @@ div.overview {
     border-width: 5px 0px 5px 0px;
     border-color: #aaa;
     color:#aaa;
-    font-family: sans-serif;
     text-align: center;
     z-index: -5;
 }
@@ -115,7 +115,6 @@ div.pos-label {
     top: 0px;
     z-index: 100;
     margin: 1px;
-    font-family: sans-serif;
 }
 
 div.overview-pos {
@@ -142,7 +141,8 @@ div.blank-block {
 div.sequence {
     position: absolute;
     left: 0px;
-    font-family: monospace;
+    font-family: Courier New,monospace;
+    font-size: 10px;
     letter-spacing: 2px;
     padding-left: 2px;
 }
@@ -207,7 +207,6 @@ div.tracklist-container {
 
 .feature-label {
     position: absolute;
-    font-family: monospace;
     border: 0px;
     margin: -2px 0px 0px 0px;
     /* padding: 0px 0px 2px 0px; for more space below labels */
