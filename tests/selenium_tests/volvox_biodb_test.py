@@ -73,11 +73,16 @@ def scroll(browser):
     assert_no_js_errors(browser)
 
 def sequence(browser):
-    turn_on_track( browser, 'DNA' );
-    do_typed_query( browser, '0..122' );
+    do_typed_query( browser, '0..80' );
+    #turn_on_track( browser, 'DNA' );
     assert_element( browser,"/html//div[contains(@class,'sequence')][contains(.,'TCTCtcact')]")
     turn_off_track( browser, 'DNA' );
     assert_no_element( browser,"/html//div[contains(@class,'sequence')][contains(.,'TCTCtcact')]")
+    turn_on_track( browser, 'DNA' );
+    assert_element( browser,"/html//div[contains(@class,'sequence')][contains(.,'TCTCtcact')]")
+    do_typed_query( browser, '1..20000');
+    assert_no_element( browser,"/html//div[contains(@class,'sequence')][contains(.,'TCTCtcact')]")
+
 
 
 def turn_on_track( browser, tracktext ):
@@ -117,7 +122,9 @@ def wiggle(browser):
     imagetrack_png = assert_element( browser, imagetrack_xpath )
 
     turn_off_track(browser,'microarray')
-    assert_no_element( browser, imagetrack_xpath, "imagetrack png is still in the DOM after the track is turned off, something is wrong" )
+    # check that imagetrack png is not still in the DOM after the
+    # track is turned off
+    assert_no_element( browser, imagetrack_xpath )
 
 
 def do_typed_query( browser, text ):
@@ -132,7 +139,8 @@ def search_f15(browser):
 
     # check that a f15 feature label is not yet in the DOM
     yal024_xpath = "//div[@class='feature-label'][contains(.,'f15')]"
-    assert_no_element( browser, yal024_xpath, "f15 is already in the DOM at load time, something is wrong" )
+    # check that f15 is not already in the DOM at load time
+    assert_no_element( browser, yal024_xpath )
 
     do_typed_query( browser, "f15" );
 
@@ -150,10 +158,10 @@ def assert_element( browser, xpathExpression ):
         assert 0, ( "can't find %s" % xpathExpression )
     return el
 
-def assert_no_element( browser, xpath, message ):
+def assert_no_element( browser, xpath ):
     try:
         browser.find_element_by_xpath( xpath )
-        assert 0, ( message )
+        assert 0, ( "not supposed to find %s" % xpath )
     except NoSuchElementException:
         pass
 
