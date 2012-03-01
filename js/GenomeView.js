@@ -984,7 +984,7 @@ GenomeView.prototype.scrollUpdate = function() {
 
 GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
     var y = this.getY();
-    if (! trackName in this.trackIndices) return;
+    if ( ! (trackName in this.trackIndices)) return;
     var track = this.trackIndices[trackName];
     if (Math.abs(height - this.trackHeights[track]) < 1) return;
 
