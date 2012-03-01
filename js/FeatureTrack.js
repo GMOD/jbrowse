@@ -78,8 +78,8 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
         defaultConfig.events.click =
             function(track, elem, feat, attrs, event) {
 	        alert("clicked on feature\n" +
-                      "start: " + attrs.get(feat, "Start") +
-	              ", end: " + attrs.get(feat, "End") +
+                      "start: " + (Number(attrs.get(feat, "Start"))+1) +
+	              ", end: " + Number(attrs.get(feat, "End")) +
 	              ", strand: " + attrs.get(feat, "Strand") +
 	              ", label: " + attrs.get(feat, "Name") +
 	              ", ID: " + attrs.get(feat, "ID") );

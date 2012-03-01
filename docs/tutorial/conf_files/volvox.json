@@ -24,6 +24,12 @@
       "key": "Name test track"
     },
     {
+      "track": "snps",
+      "feature": ["SNP"],
+      "class": "triangle hgred",
+      "key": "Test SNPs"
+    },
+    {
       "track": "Motifs",
       "feature": ["polypeptide_domain"],
       "class": "feature3",
