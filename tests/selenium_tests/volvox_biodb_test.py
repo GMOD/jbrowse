@@ -39,6 +39,9 @@ def test_volvox():
     # test dragging in and displaying the wiggle track
     wiggle(browser)
 
+    # test sequence track display
+    sequence(browser)
+
     browser.close()
     pass;
 
@@ -69,55 +72,69 @@ def scroll(browser):
 
     assert_no_js_errors(browser)
 
+def sequence(browser):
+    turn_on_track( browser, 'DNA' );
+    do_typed_query( browser, '0..122' );
+    assert_element( browser,"/html//div[contains(@class,'sequence')][contains(.,'TCTCtcact')]")
+    turn_off_track( browser, 'DNA' );
+    assert_no_element( browser,"/html//div[contains(@class,'sequence')][contains(.,'TCTCtcact')]")
 
-def wiggle(browser):
+
+def turn_on_track( browser, tracktext ):
+
     # find the microarray track label
-    tracklabel = assert_element( browser, "//div[@class='tracklist-label'][contains(.,'microarray')]" )
+    tracklabel = assert_element( browser, "//div[@class='tracklist-label'][contains(.,'%s')]" % tracktext )
 
     # drag the track label over
     ActionChains( browser ) \
         .move_to_element( tracklabel ) \
         .click_and_hold( None ) \
-        .move_by_offset( 300, 0 ) \
+        .move_by_offset( 300, 50 ) \
         .release( None ) \
         .perform()
 
     assert_no_js_errors(browser)
 
-    # see that we have an image track png in the DOM now
-    imagetrack_xpath =  "//div[contains(@class,'track')]//img[@class='image-track']";
-    imagetrack_png = assert_element( browser, imagetrack_xpath )
+def turn_off_track( browser, tracktext ):
 
     # drag the track back into the track list
-    track_handle = assert_element( browser, "/html//div[contains(@class,'track')]//div[contains(@class,'track-label')][contains(.,'microarray')]" )
+    track_handle = assert_element( browser, "/html//div[contains(@class,'track')]//div[contains(@class,'track-label')][contains(.,'%s')]" % tracktext )
     track_list = assert_element( browser, "/html//div[@id='tracksAvail']" )
 
     ActionChains( browser ) \
         .drag_and_drop( track_handle, track_list ) \
         .perform()
 
-    try:
-        browser.find_element_by_xpath( imagetrack_xpath )
-        assert 0, ( "imagetrack png is still in the DOM after the track is turned off, something is wrong" )
-    except NoSuchElementException:
-        pass
+    assert_no_js_errors( browser )
+
+
+def wiggle(browser):
+
+    turn_on_track( browser, 'microarray' )
+
+    # see that we have an image track png in the DOM now
+    imagetrack_xpath =  "//div[contains(@class,'track')]//img[@class='image-track']";
+    imagetrack_png = assert_element( browser, imagetrack_xpath )
+
+    turn_off_track(browser,'microarray')
+    assert_no_element( browser, imagetrack_xpath, "imagetrack png is still in the DOM after the track is turned off, something is wrong" )
+
+
+def do_typed_query( browser, text ):
+    # Find the query box and put f15 into it and hit enter
+    qbox = browser.find_element_by_id("location")
+    qbox.clear()
+    qbox.send_keys( text + Keys.RETURN )
+    time.sleep( 0.2 )
 
 
 def search_f15(browser):
 
     # check that a f15 feature label is not yet in the DOM
     yal024_xpath = "//div[@class='feature-label'][contains(.,'f15')]"
-    try:
-        browser.find_element_by_xpath( yal024_xpath )
-        assert 0, ( "f15 is already in the DOM at load time, something is wrong" )
-    except NoSuchElementException:
-        pass
+    assert_no_element( browser, yal024_xpath, "f15 is already in the DOM at load time, something is wrong" )
 
-    # Find the query box and put f15 into it and hit enter
-    qbox = browser.find_element_by_id("location")
-    qbox.clear()
-    qbox.send_keys( "f15" + Keys.RETURN )
-    time.sleep( 0.2 )
+    do_typed_query( browser, "f15" );
 
     # test that f15 appeared in the DOM (TODO: check that it's
     # actually centered in the window), and that the protein-coding
@@ -132,6 +149,13 @@ def assert_element( browser, xpathExpression ):
     except NoSuchElementException:
         assert 0, ( "can't find %s" % xpathExpression )
     return el
+
+def assert_no_element( browser, xpath, message ):
+    try:
+        browser.find_element_by_xpath( xpath )
+        assert 0, ( message )
+    except NoSuchElementException:
+        pass
 
 def assert_no_js_errors(browser):
     assert browser.find_element_by_xpath('/html/body').get_attribute('JSError') == None
