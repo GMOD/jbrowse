@@ -111,10 +111,10 @@ div.gridline {
 
 div.pos-label {
     position: absolute;
-    left: 0px;
-    background-color: #ddd;
+    left: -0.35em;
+    top: 0px;
     z-index: 100;
-    padding: 4px;
+    margin: 1px;
     font-family: sans-serif;
 }
 

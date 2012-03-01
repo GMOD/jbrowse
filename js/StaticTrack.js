@@ -15,9 +15,10 @@ StaticTrack.prototype.fillBlock = function(blockIndex, block,
 					   leftBase, rightBase, scale,
 					   padding, stripeWidth) {
     var posLabel = document.createElement("div");
+    var numtext = Util.addCommas( leftBase );
     posLabel.className = this.labelClass;
-    posLabel.appendChild(document.createTextNode(Util.addCommas(leftBase)));
-    posLabel.style.top = "0px";// y + "px";
+    posLabel.style.left = "-" + Number(numtext.length)/1.7 + "ex";
+    posLabel.appendChild( document.createTextNode( numtext ) );
     block.appendChild(posLabel);
     this.heightUpdate(this.posHeight, blockIndex);
 };
