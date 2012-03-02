@@ -75,6 +75,24 @@ is_deeply( $tracklist,
     {
       'config' => {
         'autocomplete' => 'all',
+        'compress' => 0,
+        'feature' => [
+          'SNP'
+        ],
+        'key' => 'Test SNPs',
+        'style' => {
+          'className' => 'triangle hgred'
+        },
+        'track' => 'snps',
+        'urlTemplate' => 'tracks/snps/{refseq}/trackData.json'
+      },
+      'key' => 'Test SNPs',
+      'label' => 'snps',
+      'type' => 'FeatureTrack'
+    },
+    {
+      'config' => {
+        'autocomplete' => 'all',
         style => {'className' => 'feature3'},
         'compress' => 0,
         'description' => 1,
@@ -232,7 +250,7 @@ is_deeply( $names_output,
                    'ctgA',
                    '17399',
                    '23000',
-                   '191'
+                   '192'
                ]
            ],
            'got the right names output'
