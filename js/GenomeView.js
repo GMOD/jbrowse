@@ -785,7 +785,7 @@ GenomeView.prototype.sizeInit = function() {
 	    track.sizeInit(view.overviewStripes,
 			   overviewStripePct);
             track.showRange(0, view.overviewStripes - 1,
-                            0, view.overviewStripeBases,
+                            -1, view.overviewStripeBases,
                             view.overviewBox.w /
                             (view.ref.end - view.ref.start));
 	});
@@ -1024,6 +1024,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 
     var startBase = Math.round(this.pxToBp((leftVisible * this.stripeWidth)
                                            + this.offset));
+    startBase -= 1;
     var containerStart = Math.round(this.pxToBp(this.offset));
     var containerEnd =
         Math.round(this.pxToBp(this.offset

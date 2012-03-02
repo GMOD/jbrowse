@@ -53,6 +53,7 @@ SequenceTrack.prototype.setViewInfo = function(genomeView, numBlocks,
     this.setLabel(this.key);
 };
 
+SequenceTrack.nbsp = String.fromCharCode(160);
 SequenceTrack.prototype.fillBlock = function(blockIndex, block,
                                              leftBlock, rightBlock,
                                              leftBase, rightBase,
@@ -68,6 +69,14 @@ SequenceTrack.prototype.fillBlock = function(blockIndex, block,
         this.getRange(leftBase, rightBase,
                       function(start, end, seq) {
                           //console.log("adding seq from %d to %d: %s", start, end, seq);
+
+                          // fill with leading blanks if the
+                          // sequence does not extend all the way
+                          // across our range
+                          for( ; start < 0; start++ ) {
+                              seq = SequenceTrack.nbsp + seq; //nbsp is an "&nbsp;" entity
+                          }
+
                           var seqNode = document.createElement("div");
                           seqNode.className = "sequence";
                           seqNode.appendChild(document.createTextNode(seq));
