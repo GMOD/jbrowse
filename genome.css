@@ -104,11 +104,19 @@ div#static_track {
 
 div.gridline {
     position: absolute;
-    top: 0px;
+    left: 0px;
+    top: 0px
+    width: 0px;
     height: 100%;
     border-style: none none none solid;
     border-width: 1px;
-    border-color: #ddd;
+    border-color: red;
+}
+div.gridline_major {
+    border-color: #bbb;
+}
+div.gridline_minor {
+    border-color: #eee;
 }
 
 div.pos-label {
