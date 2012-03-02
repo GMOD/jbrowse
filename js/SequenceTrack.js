@@ -84,7 +84,7 @@ SequenceTrack.prototype.getRange = function(start, end, callback) {
     //start: start coord, in interbase
     //end: end coord, in interbase
     //callback: function that takes (start, end, seq)
-    var firstChunk = Math.floor((start) / this.chunkSize);
+    var firstChunk = Math.floor( Math.max(0,start) / this.chunkSize);
     var lastChunk = Math.floor((end - 1) / this.chunkSize);
     var callbackInfo = {start: start, end: end, callback: callback};
     var chunkSize = this.chunkSize;
