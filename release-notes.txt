@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Fixed a long-standing off-by-one bug where the window could not be
+   scrolled to view the last base in the reference sequence.
+
  * Coordinates displayed in the user interface are now 1-based closed
    coordinates, which are more familiar to most users.  Previously,
    the labels displayed interbase (i.e. 0-based half-open)
