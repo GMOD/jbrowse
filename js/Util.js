@@ -169,6 +169,66 @@ Util.resolveUrl = function(baseUrl, relativeUrl) {
     return baseUrl + relativeUrl;
 };
 
+Util.parseLocString = function( locstring ) {
+    locstring = dojo.trim( locstring );
+
+    //                                (chromosome)    (    start      )   (  sep     )     (    end   )
+    var matches = locstring.match(/^(((\S*)\s*:)?\s*(-?[0-9,.]*[0-9])\s*(\.\.|-|\s+))?\s*(-?[0-9,.]+)$/i);
+    //matches potentially contains location components:
+    //matches[3] = chromosome (optional)
+    //matches[4] = start base (optional)
+    //matches[6] = end base (or center base, if it's the only one)
+
+    // parses a number from a locstring that's a coordinate, and
+    // converts it from 1-based to interbase coordinates
+    var parseCoord = function( coord ) {
+        var num = parseInt( String(coord).replace(/[,.]/g, "") );
+        return typeof num == 'number' && !isNaN(num) ? num : null;
+    };
+
+    if( !matches )
+        return null;
+
+    return {
+        start: parseCoord( matches[4] )-1,
+        end:   parseCoord( matches[6] ),
+        ref:   matches[3]
+    };
+};
+
+Util.assembleLocString = function( loc_in ) {
+    var s = '',
+        types = { start: 'number', end: 'number', ref: 'string' },
+        location = {}
+       ;
+
+    // filter the incoming loc_in to only pay attention to slots that we
+    // know how to handle
+    for( var slot in types ) {
+        if( types[slot] == typeof loc_in[slot]
+            && (types[slot] != 'number' || !isNaN(loc_in[slot])) //filter any NaNs
+          ) {
+            location[slot] = loc_in[slot];
+        }
+    }
+
+    //finally assembly our string
+    if( 'ref' in location ) {
+        s += location.ref;
+        if( location.start || location.end )
+            s += ':';
+    }
+    if( 'start' in location ) {
+        s += (Math.round(location.start)+1).toLocaleString();
+        if( 'end' in location )
+            s+= '..';
+    }
+    if( 'end' in location )
+        s += Math.round(location.end).toLocaleString();
+
+    return s;
+};
+
 if (!Array.prototype.reduce)
 {
   Array.prototype.reduce = function(fun /*, initial*/)
