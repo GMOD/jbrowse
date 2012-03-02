@@ -179,15 +179,15 @@ Util.parseLocString = function( locstring ) {
     //matches[4] = start base (optional)
     //matches[6] = end base (or center base, if it's the only one)
 
+    if( !matches )
+        return null;
+
     // parses a number from a locstring that's a coordinate, and
     // converts it from 1-based to interbase coordinates
     var parseCoord = function( coord ) {
         var num = parseInt( String(coord).replace(/[,.]/g, "") );
         return typeof num == 'number' && !isNaN(num) ? num : null;
     };
-
-    if( !matches )
-        return null;
 
     return {
         start: parseCoord( matches[4] )-1,
@@ -227,6 +227,29 @@ Util.assembleLocString = function( loc_in ) {
         s += Math.round(location.end).toLocaleString();
 
     return s;
+};
+
+// given a possible reference sequence name and an object as { 'foo':
+// <refseq foo>, ... }, try to match that reference sequence name
+// against the actual name of one of the reference sequences.  returns
+// the reference sequence record, or null
+// if none matched.
+Util.matchRefSeqName = function( name, refseqs ) {
+    for( var ref in refseqs ) {
+        if( ! refseqs.hasOwnProperty(ref) )
+            continue;
+
+        var ucname = name.toUpperCase();
+        var ucref  = ref.toUpperCase();
+
+	if(    ucname == ucref
+            || "CHR" + ucname == ucref
+            || ucname == "CHR" + ucref
+          ) {
+            return refseqs[ref];
+        }
+    }
+    return null;
 };
 
 if (!Array.prototype.reduce)

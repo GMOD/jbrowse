@@ -184,16 +184,8 @@ Browser.prototype.addRefseqs = function(refSeqs) {
     }
 
     dojo.connect(this.chromList, "onchange", function(event) {
-        var oldLocMap = dojo.fromJson(dojo.cookie(brwsr.container.id + "-location")) || {};
         var newRef = brwsr.allRefs[brwsr.chromList.options[brwsr.chromList.selectedIndex].value];
-
-        if (oldLocMap[newRef.name])
-            brwsr.navigateTo( oldLocMap[newRef.name] );
-        else
-            brwsr.navigateTo(newRef.name + ":"
-                             + (((newRef.start + newRef.end) * 0.4) | 0)
-                             + " .. "
-                             + (((newRef.start + newRef.end) * 0.6) | 0));
+        brwsr.navigateTo( newRef.name );
     });
 
     this.isInitialized = true;
@@ -348,68 +340,96 @@ Browser.prototype.navigateTo = function(loc) {
 	return;
     }
 
-    var location = Util.parseLocString( loc ),
-        refName;
-
+    // if it's a foo:123..456 location, go there
+    var location = Util.parseLocString( loc );
     if( location ) {
-	if( location.ref ) {
-	    for( ref in this.allRefs ) {
-		if( location.ref.toUpperCase() == ref.toUpperCase()
-                    ||
-                    "CHR" + location.ref.toUpperCase() == ref.toUpperCase()
-                    ||
-                    location.ref.toUpperCase() == "CHR" + ref.toUpperCase()
-                  ) {
+        this.navigateToLocation( location );
+    }
+    // otherwise, if it's just a word, try to figure out what it is
+    else {
 
-		    refName = ref;
-                }
+        // is it just the name of one of our ref seqs?
+        var ref = Util.matchRefSeqName( loc, this.allRefs );
+        if( ref ) {
+            // see if we have a stored location for this ref seq in a
+            // cookie, and go there if we do
+            try {
+                var oldLoc = Util.parseLocString(
+                    dojo.fromJson(
+                        dojo.cookie(brwsr.container.id + "-location")
+                    )[ref.name]
+                );
+                oldLoc.ref = ref.name; // force the refseq name; older cookies don't have it
+                this.navigateToLocation( oldLoc );
             }
-	    if( refName ) {
-		dojo.cookie(this.container.id + "-refseq", refName, {expires: 60});
-		if(refName == this.refSeq.name) {
-		    //go to given start, end on current refSeq
-		    this.view.setLocation(this.refSeq,
-					  location.start,
-					  location.end );
-		} else {
-		    //new refseq, record open tracks and re-open on new refseq
-                    var curTracks = [];
-                    this.viewDndWidget.forInItems(function(obj, id, map) {
-                            curTracks.push(obj.data);
-                        });
+            // if we don't just go to the middle 80% of that refseq
+            catch(x) {
+                this.navigateToLocation({ref: ref.name, start: ref.end*0.1, end: ref.end*0.9 });
+            }
+        }
 
-		    for (var i = 0; i < this.chromList.options.length; i++)
-			if (this.chromList.options[i].text == refName)
-			    this.chromList.selectedIndex = i;
-		    this.refSeq = this.allRefs[refName];
-		    //go to given refseq, start, end
-		    this.view.setLocation(this.refSeq,
-					  location.start,
-					  location.end );
+        // lastly, try to search our feature names for it
+        this.searchNames( loc );
+    }
+};
 
-                    this.viewDndWidget.insertNodes(false, curTracks);
-                    this.onVisibleTracksChanged();
-		}
-		return;
-	    }
-	} else if( location.start ) {
-	    //go to start, end on this refseq
-	    this.view.setLocation(this.refSeq,
-				  location.start,
-				  location.end );
-	    return;
-	} else if( location.end ) {
-	    //center at given base
-	    this.view.centerAtBase( location.end );
-	    return;
-	}
+// given an object like { ref: 'foo', start: 2, end: 100 }, set the
+// browser's view to that location.  any of ref, start, or end may be
+// missing, in which case the function will try set the view to
+// something that seems intelligent
+Browser.prototype.navigateToLocation = function( location ) {
+
+    // validate the ref seq we were passed
+    var ref = location.ref ? Util.matchRefSeqName( location.ref, this.allRefs )
+                           : this.refSeq;
+    if( !ref )
+        return;
+    location.ref = ref.name;
+
+    // clamp the start and end to the size of the ref seq
+    location.start = Math.max( 0, location.start || 0 );
+    location.end   = Math.max( location.start,
+                               Math.min( ref.end, location.end || ref.end )
+                             );
+
+    // if it's the same sequence, just go there
+    if( location.ref == this.refSeq.name) {
+        this.view.setLocation( this.refSeq,
+                               location.start,
+                               location.end
+                             );
+    }
+    // if different, we need to poke some other things before going there
+    else {
+        // record open tracks and re-open on new refseq
+        var curTracks = [];
+        this.viewDndWidget.forInItems(function(obj, id, map) {
+            curTracks.push(obj.data);
+        });
+
+        for (var i = 0; i < this.chromList.options.length; i++)
+            if (this.chromList.options[i].text == location.ref )
+                this.chromList.selectedIndex = i;
+
+        this.refSeq = this.allRefs[location.ref];
+
+        this.view.setLocation( this.refSeq,
+                               location.start,
+                               location.end );
+
+        this.viewDndWidget.insertNodes( false, curTracks );
+        this.onVisibleTracksChanged();
     }
 
+    return;
+    //this.view.centerAtBase( location.end );
+}
 
-    //if we get here, we didn't match any expected location format
-
+// given a string name, search for matching feature names and set the
+// view location to any that match
+Browser.prototype.searchNames = function( loc ) {
     var brwsr = this;
-    this.names.exactMatch(loc, function(nameMatches) {
+    this.names.exactMatch( loc, function(nameMatches) {
 	    var goingTo;
 	    //first check for exact case match
 	    for (var i = 0; i < nameMatches.length; i++) {
