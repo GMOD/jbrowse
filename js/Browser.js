@@ -171,19 +171,16 @@ Browser.prototype.addRefseqs = function(refSeqs) {
     if (this.params.location) {
         this.navigateTo(this.params.location);
     } else if (oldLocMap[this.refSeq.name]) {
-        this.navigateTo(this.refSeq.name
-                         + ":"
-                         + oldLocMap[this.refSeq.name]);
+        this.navigateTo( oldLocMap[this.refSeq.name] );
     } else if (this.params.defaultLocation){
         this.navigateTo(this.params.defaultLocation);
     } else {
-        this.navigateTo(this.refSeq.name
-                         + ":"
-                         + ((((this.refSeq.start + this.refSeq.end)
-                              * 0.4) | 0)
-                            + " .. "
-                            + (((this.refSeq.start + this.refSeq.end)
-                                * 0.6) | 0)));
+        this.navigateTo( Util.assembleLocString({
+                             ref:   this.refSeq.name,
+                             start: 0.4 * ( this.refSeq.start + this.refSeq.end ),
+                             end:   0.6 * ( this.refSeq.start + this.refSeq.end )
+                         })
+                       );
     }
 
     dojo.connect(this.chromList, "onchange", function(event) {
@@ -191,8 +188,7 @@ Browser.prototype.addRefseqs = function(refSeqs) {
         var newRef = brwsr.allRefs[brwsr.chromList.options[brwsr.chromList.selectedIndex].value];
 
         if (oldLocMap[newRef.name])
-            brwsr.navigateTo(newRef.name + ":"
-                             + oldLocMap[newRef.name]);
+            brwsr.navigateTo( oldLocMap[newRef.name] );
         else
             brwsr.navigateTo(newRef.name + ":"
                              + (((newRef.start + newRef.end) * 0.4) | 0)
@@ -352,33 +348,29 @@ Browser.prototype.navigateTo = function(loc) {
 	return;
     }
 
-    loc = dojo.trim(loc);
-    //                                (chromosome)    (    start      )   (  sep     )     (    end   )
-    var matches = String(loc).match(/^(((\S*)\s*:)?\s*(-?[0-9,.]*[0-9])\s*(\.\.|-|\s+))?\s*(-?[0-9,.]+)$/i);
-    //matches potentially contains location components:
-    //matches[3] = chromosome (optional)
-    //matches[4] = start base (optional)
-    //matches[6] = end base (or center base, if it's the only one)
-    if (matches) {
-	if (matches[3]) {
-	    var refName;
-	    for (ref in this.allRefs) {
-		if ((matches[3].toUpperCase() == ref.toUpperCase())
+    var location = Util.parseLocString( loc ),
+        refName;
+
+    if( location ) {
+	if( location.ref ) {
+	    for( ref in this.allRefs ) {
+		if( location.ref.toUpperCase() == ref.toUpperCase()
                     ||
-                    ("CHR" + matches[3].toUpperCase() == ref.toUpperCase())
+                    "CHR" + location.ref.toUpperCase() == ref.toUpperCase()
                     ||
-                    (matches[3].toUpperCase() == "CHR" + ref.toUpperCase())) {
+                    location.ref.toUpperCase() == "CHR" + ref.toUpperCase()
+                  ) {
 
 		    refName = ref;
                 }
             }
-	    if (refName) {
+	    if( refName ) {
 		dojo.cookie(this.container.id + "-refseq", refName, {expires: 60});
-		if (refName == this.refSeq.name) {
+		if(refName == this.refSeq.name) {
 		    //go to given start, end on current refSeq
 		    this.view.setLocation(this.refSeq,
-					  parseInt(matches[4].replace(/[,.]/g, "")),
-					  parseInt(matches[6].replace(/[,.]/g, "")));
+					  location.start,
+					  location.end );
 		} else {
 		    //new refseq, record open tracks and re-open on new refseq
                     var curTracks = [];
@@ -392,26 +384,28 @@ Browser.prototype.navigateTo = function(loc) {
 		    this.refSeq = this.allRefs[refName];
 		    //go to given refseq, start, end
 		    this.view.setLocation(this.refSeq,
-					  parseInt(matches[4].replace(/[,.]/g, "")),
-					  parseInt(matches[6].replace(/[,.]/g, "")));
+					  location.start,
+					  location.end );
 
                     this.viewDndWidget.insertNodes(false, curTracks);
                     this.onVisibleTracksChanged();
 		}
 		return;
 	    }
-	} else if (matches[4]) {
+	} else if( location.start ) {
 	    //go to start, end on this refseq
 	    this.view.setLocation(this.refSeq,
-				  parseInt(matches[4].replace(/[,.]/g, "")),
-				  parseInt(matches[6].replace(/[,.]/g, "")));
+				  location.start,
+				  location.end );
 	    return;
-	} else if (matches[6]) {
+	} else if( location.end ) {
 	    //center at given base
-	    this.view.centerAtBase(parseInt(matches[6].replace(/[,.]/g, "")));
+	    this.view.centerAtBase( location.end );
 	    return;
 	}
     }
+
+
     //if we get here, we didn't match any expected location format
 
     var brwsr = this;
@@ -481,11 +475,15 @@ Browser.prototype.showTracks = function(trackNameList) {
 };
 
 /**
- * @returns {String} string representation of the current location<br>
+ * @returns {String} locstring representation of the current location<br>
  * (suitable for passing to navigateTo)
  */
 Browser.prototype.visibleRegion = function() {
-    return this.view.ref.name + ":" + Math.round(this.view.minVisible()) + ".." + Math.round(this.view.maxVisible());
+    return Util.assembleLocString({
+               ref:   this.view.ref.name,
+               start: this.view.minVisible(),
+               end:   this.view.maxVisible()
+           });
 };
 
 /**
@@ -517,18 +515,18 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     //since this method gets triggered by the initial GenomeView.sizeInit,
     //we don't want to save whatever location we happen to start at
     if (! this.isInitialized) return;
-    var locString = Util.addCommas(Math.round(startbp)) + " .. " + Util.addCommas(Math.round(endbp));
+    var locString = Util.assembleLocString({ start: startbp, end: endbp, ref: this.refSeq.name });
     this.locationBox.value = locString;
     this.goButton.disabled = true;
     this.locationBox.blur();
-    var oldLocMap = dojo.fromJson(dojo.cookie(this.container.id + "-location"));
-    if ((typeof oldLocMap) != "object") oldLocMap = {};
-    oldLocMap[this.refSeq.name] = locString;
-    dojo.cookie(this.container.id + "-location",
-                dojo.toJson(oldLocMap),
-                {expires: 60});
 
-    document.title = this.refSeq.name + ":" + locString;
+    // update the location cookie
+    var ckname = this.container.id + "-location";
+    var oldLocMap = dojo.fromJson( dojo.cookie(ckname ) ) || {};
+    oldLocMap[this.refSeq.name] = locString;
+    dojo.cookie( ckname, dojo.toJson(oldLocMap), {expires: 60});
+
+    document.title = locString;
 };
 
 /**

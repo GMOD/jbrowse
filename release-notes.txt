@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+ * Coordinates displayed in the user interface are now 1-based closed
+   coordinates, which are more familiar to most users.  Previously,
+   the labels displayed interbase (i.e. 0-based half-open)
+   coordinates.
+
  * NON-BACKWARDS-COMPATIBLE improvements to the JSON format used for
    track configuration, feature data, and image data
      - initial support for a new hook system for greater
