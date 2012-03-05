@@ -34,6 +34,7 @@ my %WriteMakefileArgs = (
     'Bio::Annotation::SimpleValue' => '0',
     'Bio::DB::Sam' => '0',
     'Bio::FeatureIO' => '0',
+    'Bio::Index::Fasta' => '0',
     'Bio::OntologyIO' => '0',
     'Bio::Root::Version' => '1.006000',
     'Bio::SeqFeature::Annotated' => '0',
