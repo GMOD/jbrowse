@@ -51,7 +51,7 @@ def scroll(browser):
        .release( None ) \
        .move_by_offset( -100,100 ) \
        .click_and_hold( None ) \
-       .move_by_offset( -600, 0 ) \
+       .move_by_offset( -400, 0 ) \
        .release( None ) \
        .perform()
 
