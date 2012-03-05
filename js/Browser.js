@@ -43,18 +43,18 @@ var Browser = function(params) {
             brwsr.container = dojo.byId(params.containerID);
             brwsr.container.genomeBrowser = brwsr;
             var topPane = document.createElement("div");
-	    brwsr.container.appendChild(topPane);
+            brwsr.container.appendChild(topPane);
             var overview = document.createElement("div");
             overview.className = "overview";
             overview.id = "overview";
 
-	    // controls blue shading in red box
+            // controls blue shading in red box
             topPane.appendChild(overview);
 
-	    // overview=0 hides overview 
-	    if( params.show_overview == 0 ) {   
-            	overview.style.cssText="display: none";
-	    };
+            // overview=0 hides overview
+            if( params.show_overview == 0 ) {
+                overview.style.cssText="display: none";
+            };
 
             //try to come up with a good estimate of how big the location box
             //actually has to be
@@ -205,7 +205,7 @@ Browser.prototype.addRefseqs = function(refSeqs) {
     //before it's fully initialized, then we defer
     //those functions until now
     for (var i = 0; i < brwsr.deferredFunctions.length; i++)
-	brwsr.deferredFunctions[i]();
+        brwsr.deferredFunctions[i]();
     brwsr.deferredFunctions = [];
 };
 
@@ -289,8 +289,8 @@ Browser.prototype.createTrackList = function(parent, params) {
     };
     this.trackListWidget = new dojo.dnd.Source(trackListDiv,
                                                {creator: trackListCreate,
-						accept: ["track"], // accepts tracks into left div
-						withHandles: false});
+                                                accept: ["track"], // accepts tracks into left div
+                                                withHandles: false});
 
     var trackCreate = function(track, hint) {
         var node;
@@ -309,15 +309,14 @@ Browser.prototype.createTrackList = function(parent, params) {
         }
         return {node: node, data: track, type: ["track"]};
     };
-    
 
 
     this.viewDndWidget = new dojo.dnd.Source(this.view.zoomContainer,
-    	                               {
-    	                                   creator: trackCreate,
-    	                                   accept: ["track"], //accepts tracks into the viewing field
-    	                                   withHandles: true
-    	                               });
+                                       {
+                                           creator: trackCreate,
+                                           accept: ["track"], //accepts tracks into the viewing field
+                                           withHandles: true
+                                       });
     dojo.subscribe("/dnd/drop", function(source,nodes,iscopy){
                        brwsr.onVisibleTracksChanged();
                        //multi-select too confusing?
@@ -359,7 +358,7 @@ Browser.prototype.navigateTo = function(loc) {
     if (!this.isInitialized) {
         var brwsr = this;
         this.deferredFunctions.push(function() { brwsr.navigateTo(loc); });
-	return;
+        return;
     }
 
     // if it's a foo:123..456 location, go there
@@ -452,13 +451,13 @@ Browser.prototype.navigateToLocation = function( location ) {
 Browser.prototype.searchNames = function( loc ) {
     var brwsr = this;
     this.names.exactMatch( loc, function(nameMatches) {
-	    var goingTo;
-	    //first check for exact case match
-	    for (var i = 0; i < nameMatches.length; i++) {
-		if (nameMatches[i][1] == loc)
-		    goingTo = nameMatches[i];
-	    }
-	    //if no exact case match, try a case-insentitive match
+            var goingTo;
+            //first check for exact case match
+            for (var i = 0; i < nameMatches.length; i++) {
+                if (nameMatches[i][1] == loc)
+                    goingTo = nameMatches[i];
+            }
+            //if no exact case match, try a case-insentitive match
             if (!goingTo) {
                 for (var i = 0; i < nameMatches.length; i++) {
                     if (nameMatches[i][1].toLowerCase() == loc.toLowerCase())
@@ -466,16 +465,16 @@ Browser.prototype.searchNames = function( loc ) {
                 }
             }
             //else just pick a match
-	    if (!goingTo) goingTo = nameMatches[0];
-	    var startbp = goingTo[3];
-	    var endbp = goingTo[4];
-	    var flank = Math.round((endbp - startbp) * .2);
-	    //go to location, with some flanking region
-	    brwsr.navigateTo(goingTo[2]
-			     + ":" + (startbp - flank)
-			     + ".." + (endbp + flank));
-	    brwsr.showTracks(brwsr.names.extra[nameMatches[0][0]]);
-	});
+            if (!goingTo) goingTo = nameMatches[0];
+            var startbp = goingTo[3];
+            var endbp = goingTo[4];
+            var flank = Math.round((endbp - startbp) * .2);
+            //go to location, with some flanking region
+            brwsr.navigateTo(goingTo[2]
+                             + ":" + (startbp - flank)
+                             + ".." + (endbp + flank));
+            brwsr.showTracks(brwsr.names.extra[nameMatches[0][0]]);
+        });
 };
 
 
@@ -495,7 +494,7 @@ Browser.prototype.showTracks = function(trackNameList) {
         this.deferredFunctions.push(
             function() { brwsr.showTracks(trackNameList); }
         );
-	return;
+        return;
     }
 
     var trackNames = trackNameList.split(",");
@@ -547,16 +546,16 @@ Browser.prototype.bkmrk = function (params, area) {
     var brwsr = this;
     if (!this.isInitialized) {
         this.deferredFunctions.push(function() { brwsr.bkmrk(params, area); });
-	return;
+        return;
     }
 
     if (params.bookmark) {
         this.link = document.createElement("a");
-	if ((params.show_nav != 0) && (params.show_tracklist != 0) && (params.show_overview != 0)) {
+        if ((params.show_nav != 0) && (params.show_tracklist != 0) && (params.show_overview != 0)) {
            this.link.appendChild(document.createTextNode("Link"));
-	} else {
-	   this.link.appendChild(document.createTextNode("Fullview"));
-	};
+        } else {
+           this.link.appendChild(document.createTextNode("Fullview"));
+        };
         this.link.href = window.location.href;
         dojo.connect(this, "onCoarseMove", function() {
                          brwsr.link.href = params.bookmark(brwsr);
@@ -625,13 +624,13 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     moveLeft.className = "icon nav";
     moveLeft.style.height = "40px";
     if( params.show_nav != 0 ) {
-	dojo.connect(moveLeft, "click",
-		function(event) {
-		dojo.stopEvent(event);
-		brwsr.view.slide(0.9);
-        })
-    };
-  
+        dojo.connect(moveLeft, "click",
+                function(event) {
+                dojo.stopEvent(event);
+                brwsr.view.slide(0.9);
+        });
+    }
+
     var moveRight = document.createElement("input");
     moveRight.type = "image";
     moveRight.src = browserRoot + "img/slide-right.png";
@@ -639,11 +638,12 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     moveRight.className = "icon nav";
     moveRight.style.height = "40px";
     if( params.show_nav != 0 ) {
-    	dojo.connect(moveRight, "click",
+        dojo.connect(moveRight, "click",
                      function(event) {
                      dojo.stopEvent(event);
                      brwsr.view.slide(-0.9);
-                 })};
+                 });
+    };
 
     navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
 
@@ -653,12 +653,13 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     bigZoomOut.id = "bigZoomOut";
     bigZoomOut.className = "icon nav";
     bigZoomOut.style.height = "40px";
-    if( params.show_nav != 0 ) {   
-	dojo.connect(bigZoomOut, "click",
+    if( params.show_nav != 0 ) {
+        dojo.connect(bigZoomOut, "click",
                  function(event) {
                      dojo.stopEvent(event);
                      brwsr.view.zoomOut(undefined, undefined, 2);
-                 })};
+                 });
+    }
 
     var zoomOut = document.createElement("input");
     zoomOut.type = "image";
@@ -666,12 +667,13 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     zoomOut.id = "zoomOut";
     zoomOut.className = "icon nav";
     zoomOut.style.height = "40px";
-    if( params.show_nav != 0 ) {   
-	dojo.connect(zoomOut, "click",
+    if( params.show_nav != 0 ) {
+        dojo.connect(zoomOut, "click",
                  function(event) {
                      dojo.stopEvent(event);
                      brwsr.view.zoomOut();
-                 })};
+                 });
+    }
 
     var zoomIn = document.createElement("input");
     zoomIn.type = "image";
@@ -680,11 +682,12 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     zoomIn.className = "icon nav";
     zoomIn.style.height = "40px";
     if( params.show_nav != 0 ) {
-    	dojo.connect(zoomIn, "click",
+        dojo.connect(zoomIn, "click",
                  function(event) {
                      dojo.stopEvent(event);
                      brwsr.view.zoomIn();
-                 })};
+                 });
+    }
 
     var bigZoomIn = document.createElement("input");
     bigZoomIn.type = "image";
@@ -692,12 +695,13 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     bigZoomIn.id = "bigZoomIn";
     bigZoomIn.className = "icon nav";
     bigZoomIn.style.height = "40px";
-    if( params.show_nav != 0 ) {  
-	dojo.connect(bigZoomIn, "click",
+    if( params.show_nav != 0 ) {
+        dojo.connect(bigZoomIn, "click",
                  function(event) {
                      dojo.stopEvent(event);
                      brwsr.view.zoomIn(undefined, undefined, 2);
-                 })};
+                 });
+    };
 
     this.chromList = document.createElement("select");
     this.chromList.id="chrom";
@@ -705,8 +709,8 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     this.locationBox.size=locLength;
     this.locationBox.type="text";
     this.locationBox.id="location";
-    if( params.show_nav != 0 ) { 
-	dojo.connect(this.locationBox, "keydown", function(event) {
+    if( params.show_nav != 0 ) {
+        dojo.connect(this.locationBox, "keydown", function(event) {
             if (event.keyCode == dojo.keys.ENTER) {
                 brwsr.navigateTo(brwsr.locationBox.value);
                 //brwsr.locationBox.blur();
@@ -715,31 +719,33 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
             } else {
                 brwsr.goButton.disabled = false;
             }
-        })};
+        });
+    }
 
     this.goButton = document.createElement("button");
     this.goButton.appendChild(document.createTextNode("Go"));
     this.goButton.disabled = true;
-    if( params.show_nav != 0 ) {   
-	dojo.connect(this.goButton, "click", function(event) {
+    if( params.show_nav != 0 ) {
+        dojo.connect(this.goButton, "click", function(event) {
             brwsr.navigateTo(brwsr.locationBox.value);
             //brwsr.locationBox.blur();
             brwsr.goButton.disabled = true;
             dojo.stopEvent(event);
-        })};
+        });
+    };
 
     if( params.show_nav != 0 ) {
-	    navbox.appendChild(moveLeft);
-	    navbox.appendChild(moveRight);
-	    navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
-	    navbox.appendChild(bigZoomOut);
-	    navbox.appendChild(zoomOut);
-	    navbox.appendChild(zoomIn);
-	    navbox.appendChild(bigZoomIn);
-	    navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
-	    navbox.appendChild(this.chromList);
-	    navbox.appendChild(this.locationBox);
-	    navbox.appendChild(this.goButton);
+        navbox.appendChild(moveLeft);
+        navbox.appendChild(moveRight);
+        navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
+        navbox.appendChild(bigZoomOut);
+        navbox.appendChild(zoomOut);
+        navbox.appendChild(zoomIn);
+        navbox.appendChild(bigZoomIn);
+        navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
+        navbox.appendChild(this.chromList);
+        navbox.appendChild(this.locationBox);
+        navbox.appendChild(this.goButton);
     };
 
     return navbox;
