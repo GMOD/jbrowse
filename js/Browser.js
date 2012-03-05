@@ -246,7 +246,7 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
 Browser.prototype.createTrackList = function(parent, params) {
     var leftPane = document.createElement("div");
     leftPane.id = "trackPane";
-    leftPane.style.cssText="width: 10em";
+    leftPane.style.cssText= params.show_tracklist == 0 ? "width: 0": "width: 10em";
     parent.appendChild(leftPane);
     //splitter on left side
     var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, leftPane);
