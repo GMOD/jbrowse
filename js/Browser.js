@@ -561,16 +561,14 @@ Browser.prototype.makeBookmarkLink = function (area) {
         };
 
     // make the bookmark link
+    var fullview = this.params.show_nav == 0 || this.params.show_tracklist == 0 || this.params.show_overview == 0;
     this.link = document.createElement("a");
-    this.link.href = window.location.href;
-    this.link.appendChild(
-        document.createTextNode(
-            this.params.show_nav == 0 || this.params.show_tracklist == 0 || this.params.show_overview == 0
-                ? "Full view"
-                : "Link"
-        )
-    );
-    this.link.style.cssText = "float: right; clear: both;";
+    this.link.className = "topLink";
+    this.link.href  = window.location.href;
+    if( fullview )
+        this.link.target = "_blank";
+    this.link.title = fullview ? "View in full browser" : "Bookmarkable link to this view";
+    this.link.appendChild( document.createTextNode( fullview ? "Full view" : "Link" ) );
 
     // put it in the DOM
     area.appendChild(this.link);
@@ -630,7 +628,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     var browserRoot = params.browserRoot ? params.browserRoot : "";
     navbox.id = "navbox";
     parent.appendChild(navbox);
-    navbox.style.cssText = "text-align: center; padding: 2px; z-index: 10;";
+    navbox.style.cssText = "text-align: center; z-index: 10;";
     brwsr.makeBookmarkLink( navbox );
 
     var moveLeft = document.createElement("input");
@@ -660,8 +658,6 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
                      brwsr.view.slide(-0.9);
                  });
     };
-
-    navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
 
     var bigZoomOut = document.createElement("input");
     bigZoomOut.type = "image";
@@ -751,6 +747,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     };
 
     if( params.show_nav != 0 ) {
+        navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
         navbox.appendChild(moveLeft);
         navbox.appendChild(moveRight);
         navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
