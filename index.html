@@ -63,6 +63,9 @@
                                    location: queryParams.loc,
                                    tracks: queryParams.tracks,
                                    bookmark: bookmarkCallback,
+				   show_nav: queryParams.nav,
+				   show_tracklist: queryParams.tracklist,
+				   show_overview: queryParams.overview
                                });
            b.deferredFunctions.push(function() { loadTouch(); });
 
