@@ -42,15 +42,7 @@
 
     <script type="text/javascript">
     /* <![CDATA[ */
-           var queryParams = dojo.queryToObject(window.location.search.slice(1));
-           var bookmarkCallback = function(brwsr) {
-               return window.location.protocol
-                      + "//" + window.location.host
-                      + window.location.pathname
-                      + "?loc=" + brwsr.visibleRegion()
-                      + "&tracks=" + brwsr.visibleTracks();
-           }
-
+           var queryParams = dojo.queryToObject( window.location.search.slice(1) );
            var dataRoot = queryParams.data || 'data';
            var b = new Browser({
                                    containerID: "GenomeBrowser",
@@ -60,9 +52,9 @@
                                    ],
                                    nameUrl: dataRoot + "/names/root.json",
                                    defaultTracks: "DNA,gene,mRNA,noncodingRNA",
+                                   queryParams: queryParams,
                                    location: queryParams.loc,
                                    tracks: queryParams.tracks,
-                                   bookmark: bookmarkCallback,
 				   show_nav: queryParams.nav,
 				   show_tracklist: queryParams.tracklist,
 				   show_overview: queryParams.overview

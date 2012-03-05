@@ -44,17 +44,13 @@ var Browser = function(params) {
             brwsr.container.genomeBrowser = brwsr;
             var topPane = document.createElement("div");
             brwsr.container.appendChild(topPane);
+
             var overview = document.createElement("div");
             overview.className = "overview";
             overview.id = "overview";
-
-            // controls blue shading in red box
+            // overview=0 hides the overview, but we still need it to exist
+            if( params.show_overview == 0 ) overview.style.cssText = "display: none";
             topPane.appendChild(overview);
-
-            // overview=0 hides overview
-            if( params.show_overview == 0 ) {
-                overview.style.cssText="display: none";
-            };
 
             //try to come up with a good estimate of how big the location box
             //actually has to be
@@ -542,30 +538,51 @@ Browser.prototype.visibleTracks = function() {
     return trackLabels.join(",");
 };
 
-Browser.prototype.bkmrk = function (params, area) {
-    var brwsr = this;
-    if (!this.isInitialized) {
-        this.deferredFunctions.push(function() { brwsr.bkmrk(params, area); });
+Browser.prototype.makeBookmarkLink = function (area) {
+    // don't make the link if we were explicitly passed a 'bookmark'
+    // param of 'false'
+    if( typeof this.params.bookmark != 'undefined' && !this.params.bookmark )
         return;
-    }
 
-    if (params.bookmark) {
-        this.link = document.createElement("a");
-        if ((params.show_nav != 0) && (params.show_tracklist != 0) && (params.show_overview != 0)) {
-           this.link.appendChild(document.createTextNode("Link"));
-        } else {
-           this.link.appendChild(document.createTextNode("Fullview"));
+    // if a function was not passed, make a default bookmarking function
+    if( typeof this.params.bookmark != 'function' )
+        this.params.bookmark = function( browser_obj ) {
+               return "".concat(
+                   window.location.protocol,
+                   "//",
+                   window.location.host,
+                   window.location.pathname,
+                   "?",
+                   dojo.objectToQuery({
+                       loc:    browser_obj.visibleRegion(),
+                       tracks: browser_obj.visibleTracks(),
+                       data:   browser_obj.params.queryParams.data
+                   })
+               );
         };
-        this.link.href = window.location.href;
-        dojo.connect(this, "onCoarseMove", function() {
-                         brwsr.link.href = params.bookmark(brwsr);
-                     });
-        dojo.connect(this, "onVisibleTracksChanged", function() {
-                         brwsr.link.href = params.bookmark(brwsr);
-                     });
-        this.link.style.cssText = "float: right; clear";
-        area.appendChild(this.link);
-    }
+
+    // make the bookmark link
+    this.link = document.createElement("a");
+    this.link.href = window.location.href;
+    this.link.appendChild(
+        document.createTextNode(
+            this.params.show_nav == 0 || this.params.show_tracklist == 0 || this.params.show_overview == 0
+                ? "Full view"
+                : "Link"
+        )
+    );
+    this.link.style.cssText = "float: right; clear: both;";
+
+    // put it in the DOM
+    area.appendChild(this.link);
+
+    // connect moving events to update it
+    var update_bookmark = function() {
+        this.link.href = this.params.bookmark.call( this, this );
+    };
+    dojo.connect( this, "onCoarseMove",           update_bookmark, this );
+    dojo.connect( this, "onVisibleTracksChanged", update_bookmark, this );
+
 };
 
 /**
@@ -615,7 +632,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     navbox.id = "navbox";
     parent.appendChild(navbox);
     navbox.style.cssText = "text-align: center; padding: 2px; z-index: 10;";
-    brwsr.bkmrk(params, navbox);
+    brwsr.makeBookmarkLink( navbox );
 
     var moveLeft = document.createElement("input");
     moveLeft.type = "image";
