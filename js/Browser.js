@@ -54,8 +54,7 @@ var Browser = function(params) {
 
             //try to come up with a good estimate of how big the location box
             //actually has to be
-            var maxBase = 100000000;
-            brwsr.navbox = brwsr.createNavBox(topPane, (2 * (String(maxBase).length + (((String(maxBase).length / 3) | 0) / 2))) + 2, params);
+            brwsr.navbox = brwsr.createNavBox( topPane, 25, params );
 
             var viewElem = document.createElement("div");
             brwsr.viewElem = viewElem;
