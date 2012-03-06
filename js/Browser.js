@@ -82,14 +82,15 @@ Browser.prototype.initialize = function() {
     topPane.appendChild(this.locationTrap);
     topPane.style.overflow="hidden";
 
-    var cookieTracks = dojo.cookie(this.container.id + "-tracks");
-    if (this.params.tracks) {
-        this.origTracklist = this.params.tracks;
-    } else if (cookieTracks) {
-        this.origTracklist = cookieTracks;
-    } else if (this.params.defaultTracks) {
-        this.origTracklist = this.params.defaultTracks;
-    }
+    // figure out what initial track list we will use:
+    //    from a param passed to our instance, or from a cookie, or
+    //    the passed defaults, or the last-resort default of "DNA"?
+    this.origTracklist =
+           this.params.tracks
+        || dojo.cookie( this.container.id + "-tracks" )
+        || this.params.defaultTracks
+        || "DNA";
+
 
     // load our ref seqs
     var brwsr = this;
