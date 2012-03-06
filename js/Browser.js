@@ -28,82 +28,84 @@ var Browser = function(params) {
     dojo.require("dijit.layout.BorderContainer");
 
     this.params = params;
-    var brwsr = this;
 
     this.deferredFunctions = [];
 
     if (params.nameUrl)
         this.names = new LazyTrie(params.nameUrl, "lazy-{Chunk}.json");
     this.tracks = [];
-    brwsr.isInitialized = false;
-    dojo.addOnLoad(
-        function() {
-            //set up top nav/overview pane and main GenomeView pane
-            dojo.addClass(document.body, "tundra");
-            brwsr.container = dojo.byId(params.containerID);
-            brwsr.container.genomeBrowser = brwsr;
-            var topPane = document.createElement("div");
-            brwsr.container.appendChild(topPane);
+    this.isInitialized = false;
+    var browser = this;
+    dojo.addOnLoad( function() { browser.initialize(); } );
+};
 
-            var overview = document.createElement("div");
-            overview.className = "overview";
-            overview.id = "overview";
-            // overview=0 hides the overview, but we still need it to exist
-            if( params.show_overview == 0 ) overview.style.cssText = "display: none";
-            topPane.appendChild(overview);
+Browser.prototype.initialize = function() {
+    //set up top nav/overview pane and main GenomeView pane
+    dojo.addClass(document.body, "tundra");
+    this.container = dojo.byId(this.params.containerID);
+    this.container.genomeBrowser = this;
+    var topPane = document.createElement("div");
+    this.container.appendChild(topPane);
 
-            //try to come up with a good estimate of how big the location box
-            //actually has to be
-            brwsr.navbox = brwsr.createNavBox( topPane, 25 );
+    var overview = document.createElement("div");
+    overview.className = "overview";
+    overview.id = "overview";
+    // overview=0 hides the overview, but we still need it to exist
+    if( this.params.show_overview == 0 ) overview.style.cssText = "display: none";
+    topPane.appendChild(overview);
 
-            var viewElem = document.createElement("div");
-            brwsr.viewElem = viewElem;
-            brwsr.container.appendChild(viewElem);
-            viewElem.className = "dragWindow";
+    //try to come up with a good estimate of how big the location box
+    //actually has to be
+    this.navbox = this.createNavBox( topPane, 25 );
 
-            brwsr.containerWidget = new dijit.layout.BorderContainer({
-                liveSplitters: false,
-                design: "sidebar",
-                gutters: false
-            }, brwsr.container);
-            var contentWidget =
-                new dijit.layout.ContentPane({region: "top"}, topPane);
-            brwsr.browserWidget =
-                new dijit.layout.ContentPane({region: "center"}, viewElem);
+    var viewElem = document.createElement("div");
+    this.viewElem = viewElem;
+    this.container.appendChild(viewElem);
+    viewElem.className = "dragWindow";
 
-            //create location trapezoid
-            brwsr.locationTrap = document.createElement("div");
-            brwsr.locationTrap.className = "locationTrap";
-            topPane.appendChild(brwsr.locationTrap);
-            topPane.style.overflow="hidden";
+    this.containerWidget = new dijit.layout.BorderContainer({
+        liveSplitters: false,
+        design: "sidebar",
+        gutters: false
+    }, this.container);
+    var contentWidget =
+        new dijit.layout.ContentPane({region: "top"}, topPane);
+    this.browserWidget =
+        new dijit.layout.ContentPane({region: "center"}, viewElem);
 
-            var cookieTracks = dojo.cookie(brwsr.container.id + "-tracks");
-            if (params.tracks) {
-                brwsr.origTracklist = params.tracks;
-            } else if (cookieTracks) {
-                brwsr.origTracklist = cookieTracks;
-            } else if (params.defaultTracks) {
-                brwsr.origTracklist = params.defaultTracks;
-            }
+    //create location trapezoid
+    this.locationTrap = document.createElement("div");
+    this.locationTrap.className = "locationTrap";
+    topPane.appendChild(this.locationTrap);
+    topPane.style.overflow="hidden";
 
-            Util.maybeLoad(params.refSeqs.url, params.refSeqs,
-                           function(o) {
-                               brwsr.addRefseqs(o);
-                           });
+    var cookieTracks = dojo.cookie(this.container.id + "-tracks");
+    if (this.params.tracks) {
+        this.origTracklist = this.params.tracks;
+    } else if (cookieTracks) {
+        this.origTracklist = cookieTracks;
+    } else if (this.params.defaultTracks) {
+        this.origTracklist = this.params.defaultTracks;
+    }
 
-            for (var i = 0; i < params.tracklists.length; i++) {
-                (function(tracklist) {
-                     Util.maybeLoad(tracklist.url,
-                                    tracklist,
-                                    function(o) {
-                                        brwsr.addDeferred(
-                                            function() {
-                                                brwsr.addTracklist(tracklist.url, o);
-                                            });
+    var brwsr = this;
+    Util.maybeLoad(this.params.refSeqs.url, this.params.refSeqs,
+                   function(o) {
+                       brwsr.addRefseqs(o);
+                   });
+
+    for (var i = 0; i < this.params.tracklists.length; i++) {
+        (function(tracklist) {
+             Util.maybeLoad(tracklist.url,
+                            tracklist,
+                            function(o) {
+                                brwsr.addDeferred(
+                                    function() {
+                                        brwsr.addTracklist(tracklist.url, o);
                                     });
-                 })(params.tracklists[i]);
-            }
-        });
+                            });
+         })(this.params.tracklists[i]);
+    }
 };
 
 /**
