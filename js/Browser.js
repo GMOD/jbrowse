@@ -88,12 +88,14 @@ Browser.prototype.initialize = function() {
         this.origTracklist = this.params.defaultTracks;
     }
 
+    // load our ref seqs
     var brwsr = this;
     Util.maybeLoad(this.params.refSeqs.url, this.params.refSeqs,
                    function(o) {
                        brwsr.addRefseqs(o);
                    });
 
+    // load any configuration files we've been passed
     if( typeof this.params.config != 'object' || !this.params.config.length )
         this.params.config = [ this.params.config ];
 
@@ -105,7 +107,7 @@ Browser.prototype.initialize = function() {
                  function(o) {
                      brwsr.addDeferred(
                          function() {
-                             brwsr.addConfig(config.url, o);
+                             brwsr.addConfig( o, { sourceUrl: config.url });
                          });
                  });
          })(this.params.config[i]);
@@ -123,11 +125,20 @@ Browser.prototype.addDeferred = function(f) {
         this.deferredFunctions.push(f);
 };
 
-Browser.prototype.addConfig = function( url, config ) {
+Browser.prototype.addConfig = function( config, additional ) {
+
+    // add any additional data to the config hash
+    for( p in additional ) {
+        if( additional.hasOwnProperty(p) )
+            config[p] = additional[p];
+    }
+
     if (1 == config.formatVersion) {
         if( config.tracks ) {
-            for (var i = 0; i < config.tracks.length; i++)
-                config.tracks[i].sourceUrl = url;
+            if( additional.sourceUrl ) {
+                for (var i = 0; i < config.tracks.length; i++)
+                    config.tracks[i].sourceUrl = additional.sourceUrl;
+            }
             this.trackListWidget.insertNodes(false, config.tracks);
             this.showTracks(this.origTracklist);
         }
