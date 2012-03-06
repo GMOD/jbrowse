@@ -54,7 +54,7 @@ var Browser = function(params) {
 
             //try to come up with a good estimate of how big the location box
             //actually has to be
-            brwsr.navbox = brwsr.createNavBox( topPane, 25, params );
+            brwsr.navbox = brwsr.createNavBox( topPane, 25 );
 
             var viewElem = document.createElement("div");
             brwsr.viewElem = viewElem;
@@ -622,10 +622,10 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
  * @private
  */
 
-Browser.prototype.createNavBox = function(parent, locLength, params) {
+Browser.prototype.createNavBox = function( parent, locLength ) {
     var brwsr = this;
     var navbox = document.createElement("div");
-    var browserRoot = params.browserRoot ? params.browserRoot : "";
+    var browserRoot = this.params.browserRoot ? this.params.browserRoot : "";
     navbox.id = "navbox";
     parent.appendChild(navbox);
     navbox.style.cssText = "text-align: center; z-index: 10;";
@@ -637,7 +637,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     moveLeft.id = "moveLeft";
     moveLeft.className = "icon nav";
     moveLeft.style.height = "40px";
-    if( params.show_nav != 0 ) {
+    if( this.params.show_nav != 0 ) {
         dojo.connect(moveLeft, "click",
                 function(event) {
                 dojo.stopEvent(event);
@@ -651,7 +651,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     moveRight.id="moveRight";
     moveRight.className = "icon nav";
     moveRight.style.height = "40px";
-    if( params.show_nav != 0 ) {
+    if( this.params.show_nav != 0 ) {
         dojo.connect(moveRight, "click",
                      function(event) {
                      dojo.stopEvent(event);
@@ -665,7 +665,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     bigZoomOut.id = "bigZoomOut";
     bigZoomOut.className = "icon nav";
     bigZoomOut.style.height = "40px";
-    if( params.show_nav != 0 ) {
+    if( this.params.show_nav != 0 ) {
         dojo.connect(bigZoomOut, "click",
                  function(event) {
                      dojo.stopEvent(event);
@@ -679,7 +679,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     zoomOut.id = "zoomOut";
     zoomOut.className = "icon nav";
     zoomOut.style.height = "40px";
-    if( params.show_nav != 0 ) {
+    if( this.params.show_nav != 0 ) {
         dojo.connect(zoomOut, "click",
                  function(event) {
                      dojo.stopEvent(event);
@@ -693,7 +693,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     zoomIn.id = "zoomIn";
     zoomIn.className = "icon nav";
     zoomIn.style.height = "40px";
-    if( params.show_nav != 0 ) {
+    if( this.params.show_nav != 0 ) {
         dojo.connect(zoomIn, "click",
                  function(event) {
                      dojo.stopEvent(event);
@@ -707,7 +707,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     bigZoomIn.id = "bigZoomIn";
     bigZoomIn.className = "icon nav";
     bigZoomIn.style.height = "40px";
-    if( params.show_nav != 0 ) {
+    if( this.params.show_nav != 0 ) {
         dojo.connect(bigZoomIn, "click",
                  function(event) {
                      dojo.stopEvent(event);
@@ -721,7 +721,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     this.locationBox.size=locLength;
     this.locationBox.type="text";
     this.locationBox.id="location";
-    if( params.show_nav != 0 ) {
+    if( this.params.show_nav != 0 ) {
         dojo.connect(this.locationBox, "keydown", function(event) {
             if (event.keyCode == dojo.keys.ENTER) {
                 brwsr.navigateTo(brwsr.locationBox.value);
@@ -737,7 +737,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     this.goButton = document.createElement("button");
     this.goButton.appendChild(document.createTextNode("Go"));
     this.goButton.disabled = true;
-    if( params.show_nav != 0 ) {
+    if( this.params.show_nav != 0 ) {
         dojo.connect(this.goButton, "click", function(event) {
             brwsr.navigateTo(brwsr.locationBox.value);
             //brwsr.locationBox.blur();
@@ -746,7 +746,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
         });
     };
 
-    if( params.show_nav != 0 ) {
+    if( this.params.show_nav != 0 ) {
         navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
         navbox.appendChild(moveLeft);
         navbox.appendChild(moveRight);
