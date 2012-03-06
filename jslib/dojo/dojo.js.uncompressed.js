@@ -240,7 +240,7 @@ dojo.global = {
 =====*/
 	dojo.locale = d.config.locale;
 	
-	var rev = "$Rev: 15278 $".match(/\d+/);
+	var rev = "$Rev: 15997 $".match(/\d+/);
 
 	dojo.version = {
 		// summary: 
@@ -255,7 +255,7 @@ dojo.global = {
 		//		Descriptor flag. If total version is "1.2.0beta1", will be "beta1"
 		//	revision: Number
 		//		The SVN rev from which dojo was pulled
-		major: 1, minor: 2, patch: 3, flag: "mitch",
+		major: 0, minor: 0, patch: 0, flag: "jbrowse",
 		revision: rev ? +rev[0] : 999999, //FIXME: use NaN?
 		toString: function(){
 			with(d.version){
@@ -7645,22 +7645,14 @@ dojo.provide("dojo._base.xhr");
 		//resHandle:
 		//		Function used to process response. Gets the dfd
 		//		object as its only argument.
-		var args = dfd.ioArgs.args;
-		if(args.timeout){
+		if(dfd.ioArgs.args.timeout){
 			dfd.startTime = (new Date()).getTime();
 		}
 		_inFlight.push({dfd: dfd, validCheck: validCheck, ioCheck: ioCheck, resHandle: resHandle});
 		if(!_inFlightIntvl){
 			_inFlightIntvl = setInterval(_watchInFlight, 50);
 		}
-		// handle sync requests
-		//A weakness: async calls in flight
-		//could have their handlers called as part of the
-		//_watchInFlight call, before the sync's callbacks
-		// are called.
-		if(args.sync){
-			_watchInFlight();
-		}
+		_watchInFlight(); // handle sync requests
 	}
 
 	var _defaultContentType = "application/x-www-form-urlencoded";
