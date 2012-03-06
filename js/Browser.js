@@ -40,6 +40,9 @@ var Browser = function(params) {
 };
 
 Browser.prototype.initialize = function() {
+
+    this.loadConfig();
+
     //set up top nav/overview pane and main GenomeView pane
     dojo.addClass(document.body, "tundra");
     this.container = dojo.byId(this.params.containerID);
@@ -94,6 +97,12 @@ Browser.prototype.initialize = function() {
                    function(o) {
                        brwsr.addRefseqs(o);
                    });
+};
+
+// load our configuration files based on the parameters the
+// constructor was passed
+Browser.prototype.loadConfig = function () {
+    var brwsr = this;
 
     // load any configuration files we've been passed
     if( typeof this.params.config != 'object' || !this.params.config.length )
