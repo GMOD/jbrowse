@@ -21,7 +21,7 @@ function SequenceTrack(trackMeta, refSeq, browserParams) {
     this.setLoaded();
     this.chunks = [];
     this.chunkSize = trackMeta.config.chunkSize;
-    this.url = Util.resolveUrl(trackMeta.sourceUrl,
+    this.url = Util.resolveUrl(trackMeta.baseUrl,
                                Util.fillTemplate(trackMeta.config.urlTemplate,
                                                  {'refseq': refSeq.name}) );
 }

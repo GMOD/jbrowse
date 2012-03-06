@@ -148,11 +148,14 @@ Browser.prototype.addConfig = function( config, additional ) {
             config[p] = additional[p];
     }
 
+    config.baseUrl = config.baseUrl || config.sourceUrl;
+
     if (1 == config.formatVersion) {
         if( config.tracks ) {
-            if( additional.sourceUrl ) {
+            if( config.sourceUrl ) {
                 for (var i = 0; i < config.tracks.length; i++)
-                    config.tracks[i].sourceUrl = additional.sourceUrl;
+                    if( ! config.tracks[i].baseUrl )
+                        config.tracks[i].baseUrl = config.baseUrl;
             }
             this.trackListWidget.insertNodes(false, config.tracks);
             this.showTracks(this.origTracklist);
