@@ -33,8 +33,8 @@ div.dragWindow {
 
 div.locationTrap {
     position: absolute;
-    background-color: #BDD7FF;
-    border-color: white white #BDD7FF white;
+    background-color: #ccc;
+    border-color: white white #ccc white;
     border-style: solid;
     width: 0px;
     height: 0px;
