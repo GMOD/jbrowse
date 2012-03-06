@@ -301,10 +301,10 @@ Browser.prototype.createTrackList = function(parent, params) {
        brwsr.view.showVisibleBlocks(true);
     };
 
-    var trackListCreate = function(track, hint) {
+    var trackListCreate = function( trackConfig, hint ) {
         var node = document.createElement("div");
         node.className = "tracklist-label";
-        node.innerHTML = track.key;
+        node.innerHTML = trackConfig.key;
         //in the list, wrap the list item in a container for
         //border drag-insertion-point monkeying
         if ("avatar" != hint) {
@@ -314,20 +314,20 @@ Browser.prototype.createTrackList = function(parent, params) {
             node = container;
         }
         node.id = dojo.dnd.getUniqueId();
-        return {node: node, data: track, type: ["track"]};
+        return {node: node, data: trackConfig, type: ["track"]};
     };
     this.trackListWidget = new dojo.dnd.Source(trackListDiv,
                                                {creator: trackListCreate,
                                                 accept: ["track"], // accepts tracks into left div
                                                 withHandles: false});
 
-    var trackCreate = function(track, hint) {
+    var trackCreate = function( trackConfig, hint) {
         var node;
         if ("avatar" == hint) {
-            return trackListCreate(track, hint);
+            return trackListCreate( trackConfig, hint);
         } else {
-            var klass = eval(track.type);
-            var newTrack = new klass(track, brwsr.refSeq,
+            var klass = eval( trackConfig.type);
+            var newTrack = new klass( trackConfig, brwsr.refSeq,
                                      {
                                          changeCallback: changeCallback,
                                          trackPadding: brwsr.view.trackPadding,
@@ -336,7 +336,7 @@ Browser.prototype.createTrackList = function(parent, params) {
                                      });
             node = brwsr.view.addTrack(newTrack);
         }
-        return {node: node, data: track, type: ["track"]};
+        return {node: node, data: trackConfig, type: ["track"]};
     };
 
 
@@ -363,7 +363,7 @@ Browser.prototype.createTrackList = function(parent, params) {
 Browser.prototype.onVisibleTracksChanged = function() {
     this.view.updateTrackList();
     var trackLabels = dojo.map(this.view.tracks,
-                               function(track) { return track.name; });
+                               function( trackConfig ) { return trackConfig.name; });
     dojo.cookie(this.container.id + "-tracks",
                 trackLabels.join(","),
                 {expires: 60});
@@ -566,8 +566,8 @@ Browser.prototype.visibleRegion = function() {
  */
 
 Browser.prototype.visibleTracks = function() {
-    var trackLabels = dojo.map(this.view.tracks,
-                               function(track) { return track.name; });
+    var trackLabels = dojo.map( this.view.tracks,
+                                function( trackConfig ) { return trackConfig.name; });
     return trackLabels.join(",");
 };
 
