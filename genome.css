@@ -469,8 +469,7 @@ div.helix-hist {
     cursor: pointer;
 }
 
-.plus-cds0, .plus-cds1, .plus-cds2,
-.minus-cds0, .minus-cds1, .minus-cds2 {
+.plus-cds, .minus-cds {
     position:absolute;
     height: 13px;
     background-repeat: repeat-x;
@@ -478,12 +477,12 @@ div.helix-hist {
     min-width: 1px;
 }
 
-.plus-cds0 { background-image: url('img/plus-cds0.png'); }
-.plus-cds1 { background-image: url('img/plus-cds1.png'); }
-.plus-cds2 { background-image: url('img/plus-cds2.png'); }
-.minus-cds0 { background-image: url('img/minus-cds0.png'); }
-.minus-cds1 { background-image: url('img/minus-cds1.png'); }
-.minus-cds2 { background-image: url('img/minus-cds2.png'); }
+.plus-cds_phase0 { background-image: url('img/plus-cds0.png'); }
+.plus-cds_phase1 { background-image: url('img/plus-cds1.png'); }
+.plus-cds_phase2 { background-image: url('img/plus-cds2.png'); }
+.minus-cds_phase0 { background-image: url('img/minus-cds0.png'); }
+.minus-cds_phase1 { background-image: url('img/minus-cds1.png'); }
+.minus-cds_phase2 { background-image: url('img/minus-cds2.png'); }
 
 div.cds-hist {
     position: absolute;
