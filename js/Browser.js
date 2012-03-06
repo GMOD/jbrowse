@@ -4,9 +4,9 @@
  * @constructor
  * @param params an object with the following properties:<br>
  * <ul>
+ * <li><code>config</code> - list of objects with "url" property that points to a config JSON file</li>
  * <li><code>containerID</code> - ID of the HTML element that contains the browser</li>
  * <li><code>refSeqs</code> - object with "url" property that is the URL to list of reference sequence information items</li>
- * <li><code>tracklists</code> - list of objects with "url" property that points to a track list JSON file</li>
  * <li><code>browserRoot</code> - (optional) URL prefix for the browser code</li>
  * <li><code>tracks</code> - (optional) comma-delimited string containing initial list of tracks to view</li>
  * <li><code>location</code> - (optional) string describing the initial location</li>
@@ -94,17 +94,21 @@ Browser.prototype.initialize = function() {
                        brwsr.addRefseqs(o);
                    });
 
-    for (var i = 0; i < this.params.tracklists.length; i++) {
-        (function(tracklist) {
-             Util.maybeLoad(tracklist.url,
-                            tracklist,
-                            function(o) {
-                                brwsr.addDeferred(
-                                    function() {
-                                        brwsr.addTracklist(tracklist.url, o);
-                                    });
-                            });
-         })(this.params.tracklists[i]);
+    if( typeof this.params.config != 'object' || !this.params.config.length )
+        this.params.config = [ this.params.config ];
+
+    for (var i = 0; i < this.params.config.length; i++) {
+        (function(config) {
+             Util.maybeLoad(
+                 config.url,
+                 config,
+                 function(o) {
+                     brwsr.addDeferred(
+                         function() {
+                             brwsr.addConfig(config.url, o);
+                         });
+                 });
+         })(this.params.config[i]);
     }
 };
 
@@ -119,12 +123,14 @@ Browser.prototype.addDeferred = function(f) {
         this.deferredFunctions.push(f);
 };
 
-Browser.prototype.addTracklist = function(url, trackList) {
-    if (1 == trackList.formatVersion) {
-        for (var i = 0; i < trackList.tracks.length; i++)
-            trackList.tracks[i].sourceUrl = url;
-        this.trackListWidget.insertNodes(false, trackList.tracks);
-        this.showTracks(this.origTracklist);
+Browser.prototype.addConfig = function( url, config ) {
+    if (1 == config.formatVersion) {
+        if( config.tracks ) {
+            for (var i = 0; i < config.tracks.length; i++)
+                config.tracks[i].sourceUrl = url;
+            this.trackListWidget.insertNodes(false, config.tracks);
+            this.showTracks(this.origTracklist);
+        }
     } else {
         throw "track list format " + trackList.formatVersion + " not supported";
     }
