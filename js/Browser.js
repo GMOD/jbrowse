@@ -94,6 +94,8 @@ Browser.prototype.initialize = function() {
 
     // load our ref seqs
     var brwsr = this;
+    if( typeof this.params.refSeqs == 'string' )
+        this.params.refSeqs = { url: this.params.refSeqs };
     Util.maybeLoad(this.params.refSeqs.url, this.params.refSeqs,
                    function(o) {
                        brwsr.addRefseqs(o);
@@ -110,6 +112,9 @@ Browser.prototype.loadConfig = function () {
         this.params.config = [ this.params.config ];
 
     for (var i = 0; i < this.params.config.length; i++) {
+        if( typeof this.params.config[i] == 'string' )
+            this.params.config[i] = { url: this.params.config[i] };
+
         (function(config) {
              Util.maybeLoad(
                  config.url,
