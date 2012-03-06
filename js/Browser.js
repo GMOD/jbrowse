@@ -149,6 +149,8 @@ Browser.prototype.addConfig = function( config, additional ) {
     }
 
     config.baseUrl = config.baseUrl || config.sourceUrl;
+    if( ! /\/$/.test(config.baseUrl) ) // make sure the baseUrl has a trailing slash
+        config.baseUrl += "/";
 
     if (1 == config.formatVersion) {
         if( config.tracks ) {
