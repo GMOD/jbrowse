@@ -316,41 +316,10 @@ my @arrayrepr_classes = (
   );
 
 # build a filtering subroutine for the features
-my $filter = do {
-    my @filters;
-
-    # add a filter for type:source if --type was specified
-    if( $types && @$types ) {
-        my @type_regexes = map {
-            my $t = $_;
-            $t .= ":.*" unless $t =~ /:/;
-            qr/^$t$/
-        } @$types;
-        my $feature_representation = ArrayRepr->new( \@arrayrepr_classes );
-        my $type_getter   = $feature_representation->makeFastGetter('Type');
-        my $source_getter = $feature_representation->makeFastGetter('Source');
-        push @filters, sub {
-                 my $type = $type_getter->( $_[0][1] )
-                   or return 0;
-                 my $source = $source_getter->( $_[0][1] ) || 'undefined';
-                 my $t_s = "$type:$source";
-                 for( @type_regexes ) {
-                     return 1 if $t_s =~ $_;
-                 }
-                 return 0;
-             };
-    }
-
-    sub {
-        for (@filters) {
-            return 0 unless $_->( @_ );
-        }
-        return 1;
-    }
-};
+my $filter = make_feature_filter( $types );
 
 my %featureCounts;
-while ( my @feats = $stream->() ) {
+while ( my @feats = $filter->( $stream->() ) ) {
     for my $feat ( @feats ) {
         my $chrom = ref $feat->seq_id ? $feat->seq_id->value : $feat->seq_id;
         $featureCounts{$chrom} += 1;
@@ -359,7 +328,6 @@ while ( my @feats = $stream->() ) {
                     $flattener->flatten_to_feature( $feat ),
                     $flattener->flatten_to_name( $feat, $chrom ),
                     ];
-        next unless $filter->($row);
         $sorter->add( $row );
     }
 }
@@ -403,15 +371,65 @@ if( !$totalMatches && defined $types ) {
     warn "WARNING: No matching features found for @$types\n";
 }
 
-=head1 AUTHOR
 
-Mitchell Skinner E<lt>mitch_skinner@berkeley.eduE<gt>
+################
 
-Copyright (c) 2007-2009 The Evolutionary Software Foundation
+sub make_feature_filter {
 
-This package and its accompanying libraries are free software; you can
-redistribute it and/or modify it under the terms of the LGPL (either
-version 2.1, or at your option, any later version) or the Artistic
-License 2.0.  Refer to LICENSE for the full license text.
+    my @filters;
 
-=cut
+    # add a filter for type:source if --type was specified
+    if( $types && @$types ) {
+        my @type_regexes = map {
+            my $t = $_;
+            $t .= ":.*" unless $t =~ /:/;
+            qr/^$t$/
+        } @$types;
+
+        push @filters, sub {
+            my ($f) = @_;
+            my $type = $f->primary_tag
+                or return 0;
+            my $source = $f->source_tag;
+            my $t_s = "$type:$source";
+            for( @type_regexes ) {
+                return 1 if $t_s =~ $_;
+            }
+            return 0;
+        };
+    }
+
+    # if no filtering, just return a pass-through now.
+    return sub { @_ } unless @filters;
+
+    # make a sub that tells whether a single feature passes
+    my $pass_feature = sub {
+        my ($f) = @_;
+        $_->($f) || return 0 for @filters;
+        return 1;
+    };
+
+    # Apply this filtering rule through the whole feature hierarchy,
+    # returning features that pass.  If a given feature passes, return
+    # it *and* all of its subfeatures, with no further filtering
+    # applied to the subfeatures.  If a given feature does NOT pass,
+    # search its subfeatures to see if they do.
+    return sub {
+        _find_passing_features( $pass_feature, @_ );
+    }
+};
+
+# given a subref that says whether an individual feature passes,
+# return the LIST of features among the whole feature hierarchy that
+# pass the filtering rule
+sub _find_passing_features {
+    my $pass_feature = shift;
+    return map {
+        my $feature = $_;
+        $pass_feature->( $feature )
+            # if this feature passes, we're done, just return it
+            ? ( $feature )
+            # otherwise, look for passing features in its subfeatures
+            : _find_passing_features( $pass_feature, $feature->get_SeqFeatures );
+    } @_;
+}
