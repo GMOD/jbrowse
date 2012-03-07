@@ -10,5 +10,6 @@ bin/wig2png
 *TODO.txt
 Makefile
 /sample_data/json
-./config.log
-./config.status
+wig2png/config.log
+wig2png/config.status
+wig2png/src/config.h

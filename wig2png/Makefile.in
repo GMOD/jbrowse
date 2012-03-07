@@ -1,0 +1,21 @@
+BINDIR = ../bin
+SRCDIR = src
+
+CXX = @CXX@
+CXXFLAGS = @CXXFLAGS@ -include $(SRCDIR)/config.h
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+CXXARGS = $(CXXFLAGS) $(LDFLAGS) $(LIBS)
+
+WIG2PNG_TARGET = $(BINDIR)/wig2png
+WIG2PNG_SRCFILES = $(SRCDIR)/wig2png.cc $(SRCDIR)/opts_list.cc
+
+all: $(WIG2PNG_TARGET)
+
+clean:
+	rm $(WIG2PNG_TARGET)
+
+$(WIG2PNG_TARGET): $(WIG2PNG_SRCFILES)
+	$(CXX) $(CXXARGS) -o $@ $(WIG2PNG_SRCFILES)
+
+.PHONY: all clean
