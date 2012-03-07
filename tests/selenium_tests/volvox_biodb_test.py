@@ -75,16 +75,17 @@ def scroll(browser):
 def sequence(browser):
     do_typed_query( browser, '0..80' );
     #turn_on_track( browser, 'DNA' );
-    sequence_div_xpath = "/html//div[contains(@class,'sequence')][contains(.,'aacaACGG')]"
-    assert_element( browser, sequence_div_xpath )
+    sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')][contains(.,'%s')]"
+    sequence_div_xpath_1 = sequence_div_xpath_templ % 'aacaACGG';
+    assert_element( browser, sequence_div_xpath_1)
     turn_off_track( browser, 'DNA' );
-    assert_no_element( browser, sequence_div_xpath )
+    assert_no_element( browser, sequence_div_xpath_1 )
     turn_on_track( browser, 'DNA' );
-    assert_element( browser, sequence_div_xpath )
+    assert_element( browser, sequence_div_xpath_1 )
     do_typed_query( browser, '1..20000');
-    assert_no_element( browser, sequence_div_xpath )
-
-
+    assert_no_element( browser, sequence_div_xpath_1 )
+    do_typed_query( browser, 'ctgA:19961..20047');
+    assert_element( browser, sequence_div_xpath_templ % 'ccgcgtgtagtc' )
 
 def turn_on_track( browser, tracktext ):
 
