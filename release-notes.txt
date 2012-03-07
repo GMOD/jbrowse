@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * fixed bug in which, for some sequence chunk sizes, the DNA bases
+   would display incorrectly.
+
  * added nav, overview, and tracklist URL options that, when set to 0,
    turn off the navigation box, the overview panel, and the track
    list, respectively.  When all of these are off, and if run in an
