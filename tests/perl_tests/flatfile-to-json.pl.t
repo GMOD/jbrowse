@@ -111,4 +111,34 @@ sub tempdir {
     is( scalar @{$cds_trackdata->{intervals}{nclist}[0][9]}, 7, 'mRNA has 7 subfeatures' );
 }
 
+{   #diag "running on single_au9_gene.gff3, testing that we emit 2 levels of subfeatures";
+
+    my $tempdir = tempdir();
+    dircopy( 'tests/data/AU9', $tempdir );
+
+    run_with (
+        '--out' => $tempdir,
+        '--gff' => "tests/data/AU9/single_au9_gene.gff3",
+        '--trackLabel' => 'AU_mRNA',
+        '--key' => 'AU mRNA',
+        '--type' => 'gene',
+        '--autocomplete' => 'all',
+        '--cssClass' => 'transcript',
+        '--getPhase',
+        '--getSubfeatures',
+        );
+
+    #system "find $tempdir";
+
+    my $read_json = sub { JsonGenerator::readJSON( catfile( $tempdir, @_ ) ) };
+    my $cds_trackdata = $read_json->(qw( tracks AU_mRNA Group1.33 trackData.json ));
+    is( $cds_trackdata->{featureCount}, 1, 'got right feature count' ) or diag explain $cds_trackdata;
+    is( ref $cds_trackdata->{intervals}{nclist}[0][9], 'ARRAY', 'gene has its subfeatures' )
+       or diag explain $cds_trackdata;
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][9]}, 1, 'gene has 1 subfeature' );
+    is( ref $cds_trackdata->{intervals}{nclist}[0][9][0][6], 'ARRAY', 'mRNA has its subfeatures' )
+       or diag explain $cds_trackdata;
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][9][0][6]}, 7, 'mRNA has 7 subfeatures' );
+}
+
 done_testing;
