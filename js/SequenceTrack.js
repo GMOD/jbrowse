@@ -145,18 +145,41 @@ SequenceTrack.prototype.getRange = function(start, end, callback) {
     //callback: function that takes (start, end, seq)
     var firstChunk = Math.floor( Math.max(0,start) / this.chunkSize);
     var lastChunk = Math.floor((end - 1) / this.chunkSize);
-    var callbackInfo = {start: start, end: end, callback: callback};
     var chunkSize = this.chunkSize;
     var chunk;
+
+    // if a callback spans more than one chunk, we need to wrap the
+    // callback in another one that will be passed to each chunk to
+    // concatenate the different pieces from each chunk and *then*
+    // call the main callback
+    if( firstChunk != lastChunk ) {
+        callback = (function() {
+            var chunk_seqs = [],
+                chunks_still_needed = lastChunk-firstChunk+1,
+                orig_callback = callback;
+            return function( start, end, seq, chunkNum) {
+                chunk_seqs[chunkNum] = seq;
+                if( --chunks_still_needed == 0 )
+                    orig_callback( start, end, chunk_seqs.join("") );
+            };
+         })();
+    }
+
+    var callbackInfo = { start: start, end: end, callback: callback };
 
     for (var i = firstChunk; i <= lastChunk; i++) {
         //console.log("working on chunk %d for %d .. %d", i, start, end);
         chunk = this.chunks[i];
         if (chunk) {
             if (chunk.loaded) {
-                callback(start, end,
-                         chunk.sequence.substring(start - (i * chunkSize),
-                                                  end - (i * chunkSize)));
+                callback( start,
+                          end,
+                          chunk.sequence.substring(
+                              start - i*chunkSize,
+                              end - i*chunkSize
+                          ),
+                          i
+                        );
             } else {
                 //console.log("added callback for %d .. %d", start, end);
                 chunk.callbacks.push(callbackInfo);
@@ -175,10 +198,13 @@ SequenceTrack.prototype.getRange = function(start, end, callback) {
                                 chunk.sequence = response;
                                 for (var c = 0; c < chunk.callbacks.length; c++) {
                                     ci = chunk.callbacks[c];
-                                    ci.callback(ci.start,
-                                                ci.end,
-                                                response.substring(ci.start - (chunk.num * chunkSize),
-                                                                   ci.end - (chunk.num * chunkSize)));
+                                    ci.callback( ci.start,
+                                                 ci.end,
+                                                 response.substring( ci.start - chunk.num*chunkSize,
+                                                                     ci.end   - chunk.num*chunkSize
+                                                                   ),
+                                                 i
+                                               );
                                 }
                                 chunk.callbacks = undefined;
                                 chunk.loaded = true;
