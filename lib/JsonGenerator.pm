@@ -1,7 +1,7 @@
 package JsonGenerator;
 
 use base 'Exporter';
-our @EXPORT_OK = qw/ readJSON writeJSON modifyJSFile /;
+our @EXPORT_OK = qw/ readJSON writeJSON modifyJsonFile /;
 
 use strict;
 use warnings;
@@ -33,15 +33,13 @@ my %builtinDefaults =
   );
 
 sub readJSON {
-    my ($file, $default, $skipAssign, $compress) = @_;
+    my ($file, $default, $compress) = @_;
     if (-s $file) {
         my $OLDSEP = $/;
         my $fh = new IO::File $file, O_RDONLY
             or die "couldn't open $file: $!";
         binmode($fh, ":gzip") if $compress;
         flock $fh, LOCK_SH;
-        # optionally skip variable assignment line
-        $fh->getline() if $skipAssign;
         undef $/;
         $default = JSON::from_json(<$fh>);
         $fh->close()
@@ -99,16 +97,14 @@ sub writeJSON {
       or die "couldn't close $file: $!";
 }
 
-sub modifyJSFile {
-    my ($file, $varName, $callback) = @_;
+sub modifyJsonFile {
+    my ($file, $callback) = @_;
     my ($data, $assign);
     my $fh = new IO::File $file, O_RDWR | O_CREAT
       or die "couldn't open $file: $!";
     flock $fh, LOCK_EX;
     # if the file is non-empty,
     if (($fh->stat())[7] > 0) {
-        # get variable assignment line
-        $assign = $fh->getline();
         # get data
         my $jsonString = join("", $fh->getlines());
         $data = JSON::from_json($jsonString) if (length($jsonString) > 0);
@@ -116,8 +112,6 @@ sub modifyJSFile {
         $fh->seek(0, SEEK_SET);
         $fh->truncate(0);
     }
-    # add assignment line
-    $fh->print("$varName = \n");
     # modify data, write back
     $fh->print(JSON::to_json($callback->($data), {pretty => 1}));
     $fh->close()
@@ -126,7 +120,7 @@ sub modifyJSFile {
 
 sub writeTrackEntry {
     my ($file, $entry) = @_;
-    modifyJSFile($file, "trackInfo",
+    modifyJsonFile($file,
         sub {
             my $origTrackList = shift;
             my @trackList = grep { exists($_->{'label'}) } @$origTrackList;

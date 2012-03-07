@@ -34,16 +34,12 @@ Bio::DB::SeqFeature::Store methods for returning subsequences.
 
 package FastaDatabase;
 
-use Exporter;
-use AutoHash;
-@ISA = qw (Exporter AutoHash);
-@EXPORT = qw (new from_fasta seq_ids segment AUTOLOAD);
-@EXPORT_OK = @EXPORT;
-
 use strict;
-use vars '@ISA';
+use warnings;
 
-use Carp;
+use File::Temp;
+
+use Bio::Index::Fasta;
 
 =head2 from_fasta
 
@@ -56,25 +52,29 @@ Creates a new FastaDatabase object, reading sequences from a FASTA file.
 sub from_fasta {
     my ($class, @files ) = @_;
 
-    my $seqdata = {};
+    my $self = {
+        index_file => File::Temp->new,
+    };
 
-    for my $filename ( @files ) {
+    $self->{index} = Bio::Index::Fasta->new( -filename => $self->{index_file}, -write_flag => 1 );
 
-	my $gzip = $filename =~ /\.gz(ip)?$/i ? ':gzip' : '';
+    # uncompress any files that need it into temp files
+    $self->{files} = [ map {
+                           /\.gz(ip)?$/ ? $class->_unzip( $_ ) : $_
+                       } @files
+                     ];
 
-        open my $fh, "<$gzip", $filename or die "Couldn't open '$filename': $!";
+    $self->{index}->make_index( map "$_", @{ $self->{files} } );
 
-        local $/ = "\n>";
-        while( my $entry = <$fh> ) {
-	    my ( $name, $seq ) = split "\n", $entry, 2;
-	    ($name) = $name =~ /^\s*>?\s*(\S+)/;
-            $seq =~ s/\s//g;
-            $seqdata->{$name} = $seq;
-        }
-    }
-
-    my $self = $class->new ('seqdata' => $seqdata);
-    return $self;
+    return bless $self, $class;
+}
+sub _unzip {
+    my ( $class, $filename ) = @_;
+    my $tempfile = File::Temp->new;
+    open my $f, '<:gzip', $filename or die "$! reading $filename";
+    print $tempfile $_ while <$f>;
+    $tempfile->close;
+    return $tempfile;
 }
 
 =head2 seq_ids
@@ -89,8 +89,7 @@ sub from_fasta {
 =cut
 
 sub seq_ids {
-    my $self = shift;
-    return keys %{$self->seqdata};
+    shift->{index}->get_all_primary_ids;
 }
 
 =head2 segment
@@ -135,40 +134,76 @@ Example:
 
 sub segment {
     my $self = shift;
-    my (@arg, %opt);
-    while (@_) {
-	my $arg = shift;
-	if ($arg =~ /^-(.+)$/) {
-	    my $key = $1;
-	    my $val = shift;
-	    $opt{$key} = $val;
-	} else {
-	    push @arg, $arg;
-	}
+    my %opt;
+    if( $_[0] =~ /^-/ ) { # if we have args like -db_id, etc
+        %opt = @_;
     }
-    $opt{'name'} = $arg[0] if @arg > 0;
-    $opt{'start'} = $arg[1] if @arg > 1;
-    $opt{'end'} = $arg[2] if @arg > 2;
+    else { # if we have positional args
+        @opt{ '-name', '-start', '-end' } = @_;
+    }
 
-    my $name = defined($opt{'name'}) ? $opt{'name'} : $opt{'db_id'};
-    my $start = defined($opt{'start'}) ? $opt{'start'} : 1;
-    my $end = defined($opt{'end'}) ? $opt{'end'} : length ($self->seqdata->{$name});
+    my $name  = defined $opt{'-name'}  ? $opt{'-name'}  : $opt{'-db_id'};
+    my $start = defined $opt{'-start'} ? $opt{'-start'} : 1;
 
-    my $subseq = substr ($self->seqdata->{$name}, $start - 1, $end + 1 - $start);
-    my $length = length ($subseq);
+    my $seq_ref = $self->_fetch( $name );
+    my $length  = length $$seq_ref;
+
+    my $end = defined $opt{'-end'} && $opt{'-end'} <= $length
+                  ? $opt{'-end'}
+                  : $length;
+
+    my $subseq = substr( $$seq_ref, $start-1, $end-$start+1 );
 
     # behold, the awesome redundancy of BioPerl ;-)
-    return AutoHash->new (%opt,
-			  'name'   => $name,
-			  'ref'    => $name,
-			  'seq_id' => $name,
-			  'start'  => $start,
-			  'end'    => $end,
-			  'length' => $length,
-			  'seq' => AutoHash->new ('primary_id' => $name,
-						  'length'     => $length,
-						  'seq'        => $subseq));
+    return mock->new( %opt,
+                      'name'   => $name,
+                      'ref'    => $name,
+                      'seq_id' => $name,
+                      'start'  => $start,
+                      'end'    => $end,
+                      'length' => $length,
+                      'seq'    => mock->new( 'primary_id' => $name,
+                                             'length'     => $length,
+                                             'seq'        => $subseq
+                                           ),
+                    );
 }
+
+# cache the last fetch from the index, which will cache the last
+# sequence we fetched, and make repeated fetches of the same sequence
+# fast.  returns a REFERENCE to a sequence string.
+sub _fetch {
+    my ( $self, $name ) = @_;
+    no warnings 'uninitialized';
+    if( $self->{_fetch_cache}{name} eq $name ) {
+        return $self->{_fetch_cache}{seq};
+    }
+    else {
+        my $seq = $self->{index}->fetch( $name )->seq;
+        $self->{_fetch_cache} = { name => $name, seq => \$seq };
+        return \$seq;
+    }
+}
+
+package mock;
+
+sub new {
+    my $class = shift;
+    bless { @_ }, $class
+}
+
+sub AUTOLOAD {
+    my $self = shift;
+
+    my $method_name = our $AUTOLOAD;
+    $method_name =~ s/.*:://;  # strip off module path
+    return if $method_name eq "DESTROY";
+
+    return @_ ? ( $self->{ $method_name } = $_[0] )
+              : $self->{ $method_name };
+}
+
+
 
 =head1 AUTHOR
 

@@ -1,0 +1,10 @@
+[
+   {
+      "length" : 7440,
+      "name" : "mahoney",
+      "seqDir" : "seq/mahoney",
+      "seqChunkSize" : 20000,
+      "end" : 7440,
+      "start" : 0
+   }
+]

@@ -276,7 +276,7 @@ function touchinit()
  }
 
 
-function load()
+function loadTouch()
 {
   
     touchinit();

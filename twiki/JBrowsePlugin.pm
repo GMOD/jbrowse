@@ -381,8 +381,8 @@ JBCODE
     <script type="text/javascript" src="$jbRoot/js/ImageTrack.js"></script>
     <script type="text/javascript" src="$jbRoot/js/GenomeView.js"></script>
 
-    <script type="text/javascript" src="$jbDataRoot/data/refSeqs.js"></script>
-    <script type="text/javascript" src="$jbDataRoot/data/trackInfo.js"></script>
+    <script type="text/javascript" src="$jbDataRoot/data/refSeqs.json"></script>
+    <script type="text/javascript" src="$jbDataRoot/data/trackInfo.json"></script>
 
     $makeLink
     <script type="text/javascript">

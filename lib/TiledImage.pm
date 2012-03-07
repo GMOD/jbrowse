@@ -69,7 +69,6 @@ TiledImage.pm - Perl module to provide a GD-like interface for rendering large i
 =cut
 
 use GD::Image;
-use Data::Dumper;
 use Carp;
 use TiledImage::MemoryPrimStorage;
 # "use TiledImage::DBPrimStorage" commented out because it is imported lazily via an "eval" statement below

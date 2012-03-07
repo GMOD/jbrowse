@@ -1,0 +1,18 @@
+[
+   {
+      "length" : 50001,
+      "name" : "ctgA",
+      "seqDir" : "seq/ctgA",
+      "seqChunkSize" : 20000,
+      "end" : 50001,
+      "start" : 0
+   },
+   {
+      "length" : 66,
+      "name" : "ctgB",
+      "seqDir" : "seq/ctgB",
+      "seqChunkSize" : 20000,
+      "end" : 66,
+      "start" : 0
+   }
+]

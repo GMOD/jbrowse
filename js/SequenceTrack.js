@@ -1,10 +1,9 @@
-function SequenceTrack(trackMeta, url, refSeq, browserParams) {
+function SequenceTrack(trackMeta, refSeq, browserParams) {
     //trackMeta: object with:
     //  key:   display text track name
     //  label: internal track name (no spaces or odd characters)
-    //  className: CSS class for sequence
-    //  args: object with:
-    //    seqDir: directory in which to find the sequence chunks
+    //  config: object with:
+    //    urlTemplate: url of directory in which to find the sequence chunks
     //    chunkSize: size of sequence chunks, in characters
     //refSeq: object with:
     //  start: refseq start
@@ -12,7 +11,6 @@ function SequenceTrack(trackMeta, url, refSeq, browserParams) {
     //browserParams: object with:
     //  changeCallback: function to call once JSON is loaded
     //  trackPadding: distance in px between tracks
-    //  baseUrl: base URL for the URL in trackMeta
     //  charWidth: width, in pixels, of sequence base characters
     //  seqHeight: height, in pixels, of sequence elements
 
@@ -23,9 +21,12 @@ function SequenceTrack(trackMeta, url, refSeq, browserParams) {
     this.trackMeta = trackMeta;
     this.setLoaded();
     this.chunks = [];
-    this.chunkSize = trackMeta.args.chunkSize;
-    this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "") + url;
-    this.hilightLoc = {refName: null, startBase:-1, endBase:-1};
+    this.chunkSize = trackMeta.config.chunkSize;
+    this.url = Util.resolveUrl(trackMeta.sourceUrl,
+                               Util.fillTemplate(trackMeta.config.urlTemplate,
+                                                 {'refseq': refSeq.name}) );
+    this.hilightLoc = {ref: null, start:-1, end:-1};
+
 }
 
 SequenceTrack.prototype = new Track("");
@@ -50,48 +51,43 @@ SequenceTrack.prototype.setViewInfo = function(genomeView, numBlocks,
         this.show();
     } else {
         this.hide();
+        this.heightUpdate(0);
     }
     this.setLabel(this.key);
 };
 
+SequenceTrack.nbsp = String.fromCharCode(160);
 SequenceTrack.prototype.fillBlock = function(blockIndex, block,
                                              leftBlock, rightBlock,
                                              leftBase, rightBase,
                                              scale, stripeWidth,
                                              containerStart, containerEnd) {
-    var compl_rx = /[ACGT]/g;
-    var compl_tbl = {'A':'G', 'C':'T', 'G':'A', 'T':'C'};
-    var compl_fn = function(m) { return compl_tbl[m] || m; }
-    var hloc = this.hilightLoc;
-    var rseq = this.refSeq;
-    function hilighted_seq(start, end, seq) {
-        // start, end coords are interbase (half-open intervals)
-        if(hloc.refName == rseq.name & hloc.startBase < end & hloc.endBase > start) {
-            var hseq_start = Math.max(0, hloc.startBase - start);
-            var hseq_end = Math.min(seq.length, hloc.endBase - start);
-            var spanOuter = document.createElement("span");
-            var spanInner = document.createElement("span");
-            spanInner.style.cssText = "background: #ff0;";
-            spanOuter.appendChild(document.createTextNode(seq.substring(0, hseq_start)));
-            spanInner.appendChild(document.createTextNode(seq.substring(hseq_start, hseq_end)));
-            spanOuter.appendChild(spanInner);
-            spanOuter.appendChild(document.createTextNode(seq.substring(hseq_end, seq.length)));
-            return spanOuter;
-        } else {
-            return document.createTextNode(seq);
-        }
+    var that = this;
+    if (scale == this.browserParams.charWidth) {
+        this.show();
+    } else {
+        this.hide();
+        this.heightUpdate(0);
     }
+
     if (this.shown) {
         this.getRange(leftBase, rightBase,
                       function(start, end, seq) {
                           //console.log("adding seq from %d to %d: %s", start, end, seq);
+
+                          // fill with leading blanks if the
+                          // sequence does not extend all the way
+                          // across our range
+                          for( ; start < 0; start++ ) {
+                              seq = SequenceTrack.nbsp + seq; //nbsp is an "&nbsp;" entity
+                          }
+
                           var seqNode = document.createElement("div");
                           seqNode.className = "sequence";
-                          seqNode.appendChild(hilighted_seq(start, end, seq));
-                          // IWD: add complement!
-                          seqNode.appendChild(document.createElement("br"));
-                          seqNode.appendChild(hilighted_seq(start, end, seq.replace(compl_rx, compl_fn)));
-	                  seqNode.style.cssText = "top: 0px;";
+                          seqNode.appendChild( that.highlightSeq( start, end, seq ));
+                          var comp = that.highlightSeq( start, end, that.complement(seq) );
+                          comp.className = 'revcom';
+                          seqNode.appendChild( comp );
                           block.appendChild(seqNode);
                       });
         this.heightUpdate(this.browserParams.seqHeight, blockIndex);
@@ -100,11 +96,54 @@ SequenceTrack.prototype.fillBlock = function(blockIndex, block,
     }
 };
 
+
+
+SequenceTrack.prototype.complement = (function() {
+    var compl_rx   = /[ACGT]/gi;
+
+    // from bioperl: tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/
+    // generated with:
+    // perl -MJSON -E '@l = split "","acgtrymkswhbvdnxACGTRYMKSWHBVDNX"; print to_json({ map { my $in = $_; tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/; $in => $_ } @l})'
+    var compl_tbl  = {"S":"S","w":"w","T":"A","r":"y","a":"t","N":"N","K":"M","x":"x","d":"h","Y":"R","V":"B","y":"r","M":"K","h":"d","k":"m","C":"G","g":"c","t":"a","A":"T","n":"n","W":"W","X":"X","m":"k","v":"b","B":"V","s":"s","H":"D","c":"g","D":"H","b":"v","R":"Y","G":"C"};
+
+    var compl_func = function(m) { return compl_tbl[m] || SequenceTrack.nbsp; };
+    return function( seq ) {
+        return seq.replace( compl_rx, compl_func );
+    };
+})();
+
+SequenceTrack.prototype.highlightSeq = function ( start, end, seq ) {
+    var container  = document.createElement("div"),
+        hloc = this.hilightLoc;
+
+    if( hloc && hloc.ref == this.refSeq.name && hloc.start < end && hloc.end > start ) {
+        // start, end coords are interbase (half-open intervals)
+        var hseq_start = Math.max( 0,          hloc.start - start ),
+            hseq_end   = Math.min( seq.length, hloc.end   - start   ),
+            spanOuter  = document.createElement("span"),
+            spanInner  = document.createElement("span");
+
+        spanInner.style.className = "highlighted";
+        spanInner.appendChild( document.createTextNode( seq.substring( hseq_start, hseq_end )));
+
+        spanOuter.appendChild( document.createTextNode( seq.substring( 0, hseq_start )) );
+        spanOuter.appendChild( spanInner );
+        spanOuter.appendChild( document.createTextNode( seq.substring( hseq_end, seq.length )));
+
+        container.appendChild( spanOuter );
+    }
+    else {
+        container.appendChild( document.createTextNode( seq ) );
+    }
+
+    return container;
+}
+
 SequenceTrack.prototype.getRange = function(start, end, callback) {
     //start: start coord, in interbase
     //end: end coord, in interbase
     //callback: function that takes (start, end, seq)
-    var firstChunk = Math.floor((start) / this.chunkSize);
+    var firstChunk = Math.floor( Math.max(0,start) / this.chunkSize);
     var lastChunk = Math.floor((end - 1) / this.chunkSize);
     var callbackInfo = {start: start, end: end, callback: callback};
     var chunkSize = this.chunkSize;
@@ -130,7 +169,7 @@ SequenceTrack.prototype.getRange = function(start, end, callback) {
             };
             this.chunks[i] = chunk;
             dojo.xhrGet({
-                            url: this.baseUrl + i + ".txt",
+                            url: this.url + i + ".txt",
                             load: function (response) {
                                 var ci;
                                 chunk.sequence = response;
