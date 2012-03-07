@@ -15,7 +15,7 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
       [ --autocomplete <none|label|alias|all> ]                               \
       [ --getType ]                                                           \
       [ --getPhase ]                                                          \
-      [ --getSubs ]                                                           \
+      [ --getSubfeatures ]                                                    \
       [ --getLabel ]                                                          \
       [ --urltemplate "http://example.com/idlookup?id={id}" ]                 \
       [ --arrowheadClass <CSS class> ]                                        \
@@ -81,7 +81,7 @@ Include the type of the features in the JSON.
 
 Include the phase of the features in the JSON.
 
-=item --getSubs
+=item --getSubfeatures
 
 Include subfeatures in the JSON.
 
