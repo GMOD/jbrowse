@@ -108,11 +108,6 @@ Browser.prototype.initialize = function() {
                             });
          })(this.params.tracklists[i]);
     }
-
-    // set a highlighted region, if any was passed
-    if( this.params.highlight ) {
-        this.highlightRegion( this.params.highlight );
-    }
 };
 
 /**
@@ -481,42 +476,6 @@ Browser.prototype.searchNames = function( loc ) {
         });
 };
 
-
-/**
- * highlight a given location
- * @example
- * gb=dojo.byId("GenomeBrowser").genomeBrowser
- * gb.navigateTo("ctgA:100..200")
- * gb.navigateTo("f14")
- * @param loc can be either:<br>
- * &lt;chromosome&gt;:&lt;start&gt; .. &lt;end&gt;<br>
- * &lt;start&gt; .. &lt;end&gt;<br>
- * &lt;center base&gt;<br>
- * &lt;feature name/ID&gt;
- */
-Browser.prototype.highlightRegion = function(loc) {
-    if (!this.isInitialized) {
-        var brwsr = this;
-        this.deferredFunctions.push(function() { brwsr.highlightRegion(loc); });
-        return;
-    }
-
-    // Capture location for highlighting DNA sequence.
-    // Tracks are initialized by one of the deferred functions!
-    loc = Util.parseLocString(loc );
-    if( !loc || !loc.ref || loc.start === undefined || loc.start === undefined )
-        return;
-
-    for(var i = 0; i < this.view.tracks.length; i++) {
-        var track = this.view.tracks[i];
-        if(track.name == "DNA") {
-            track.hilightLoc = loc;
-            track.clear();
-        }
-    }
-    this.view.showVisibleBlocks(true);
-    // Calls to .clear() and .showVisibleBlocks() required to refresh the view
-}
 
 /**
  * load and display the given tracks

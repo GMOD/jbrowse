@@ -117,29 +117,8 @@ SequenceTrack.prototype.complement = (function() {
 //given the start and end coordinates, and the sequence bases, makes a
 //div containing the sequence
 SequenceTrack.prototype.renderSeqDiv = function ( start, end, seq ) {
-    var container  = document.createElement("div"),
-        hloc       = this.hilightLoc;
-
-    if( hloc && hloc.ref == this.refSeq.name && hloc.start < end && hloc.end > start ) {
-        // start, end coords are interbase (half-open intervals)
-        var hseq_start = Math.max( 0,          hloc.start - start ),
-            hseq_end   = Math.min( seq.length, hloc.end   - start   ),
-            spanOuter  = document.createElement("span"),
-            spanInner  = document.createElement("span");
-
-        spanInner.style.className = "highlighted";
-        spanInner.appendChild( document.createTextNode( seq.substring( hseq_start, hseq_end )));
-
-        spanOuter.appendChild( document.createTextNode( seq.substring( 0, hseq_start )) );
-        spanOuter.appendChild( spanInner );
-        spanOuter.appendChild( document.createTextNode( seq.substring( hseq_end, seq.length )));
-
-        container.appendChild( spanOuter );
-    }
-    else {
-        container.appendChild( document.createTextNode( seq ) );
-    }
-
+    var container  = document.createElement("div");
+    container.appendChild( document.createTextNode( seq ) );
     return container;
 };
 
