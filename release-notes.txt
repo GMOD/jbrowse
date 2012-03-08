@@ -14,6 +14,8 @@
    Thanks to Julie Moon, a co-op student working at OICR, for this
    work!
 
+ * Added minor gridlines to the main track view.
+
  * Fixed a long-standing off-by-one bug where the window could not be
    scrolled to view the last base in the reference sequence.
 
