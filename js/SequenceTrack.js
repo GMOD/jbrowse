@@ -70,32 +70,35 @@ SequenceTrack.prototype.fillBlock = function(blockIndex, block,
     }
 
     if (this.shown) {
-        this.getRange(leftBase, rightBase,
-                      function(start, end, seq) {
-                          //console.log("adding seq from %d to %d: %s", start, end, seq);
+        this.getRange( leftBase, rightBase,
+                       function( start, end, seq ) {
 
-                          // fill with leading blanks if the
-                          // sequence does not extend all the way
-                          // across our range
-                          for( ; start < 0; start++ ) {
-                              seq = SequenceTrack.nbsp + seq; //nbsp is an "&nbsp;" entity
-                          }
+                           // fill with leading blanks if the
+                           // sequence does not extend all the way
+                           // across our range
+                           for( ; start < 0; start++ ) {
+                               seq = SequenceTrack.nbsp + seq; //nbsp is an "&nbsp;" entity
+                           }
 
-                          var seqNode = document.createElement("div");
-                          seqNode.className = "sequence";
-                          seqNode.appendChild( that.highlightSeq( start, end, seq ));
-                          var comp = that.highlightSeq( start, end, that.complement(seq) );
-                          comp.className = 'revcom';
-                          seqNode.appendChild( comp );
-                          block.appendChild(seqNode);
-                      });
+                           // make a div to contain the sequences
+                           var seqNode = document.createElement("div");
+                           seqNode.className = "sequence";
+                           block.appendChild(seqNode);
+
+                           // add a div for the forward strand
+                           seqNode.appendChild( that.renderSeqDiv( start, end, seq ));
+
+                           // and one for the reverse strand
+                           var comp = that.renderSeqDiv( start, end, that.complement(seq) );
+                           comp.className = 'revcom';
+                           seqNode.appendChild( comp );
+                       }
+                     );
         this.heightUpdate(this.browserParams.seqHeight, blockIndex);
     } else {
         this.heightUpdate(0, blockIndex);
     }
 };
-
-
 
 SequenceTrack.prototype.complement = (function() {
     var compl_rx   = /[ACGT]/gi;
@@ -111,7 +114,9 @@ SequenceTrack.prototype.complement = (function() {
     };
 })();
 
-SequenceTrack.prototype.highlightSeq = function ( start, end, seq ) {
+//given the start and end coordinates, and the sequence bases, makes a
+//div containing the sequence
+SequenceTrack.prototype.renderSeqDiv = function ( start, end, seq ) {
     var container  = document.createElement("div"),
         hloc       = this.hilightLoc;
 
@@ -136,7 +141,7 @@ SequenceTrack.prototype.highlightSeq = function ( start, end, seq ) {
     }
 
     return container;
-}
+};
 
 SequenceTrack.prototype.getRange = function(start, end, callback) {
     //start: start coord, in interbase
