@@ -3,14 +3,16 @@
  * Ian Davis contributed code to add a view of the reverse strand of
    the sequence in the DNA track.  Thanks Ian!
 
- * fixed bug in which, for some sequence chunk sizes, the DNA bases
+ * Fixed bug in which, for some sequence chunk sizes, the DNA bases
    would display incorrectly.
 
- * added nav, overview, and tracklist URL options that, when set to 0,
+ * Added nav, overview, and tracklist URL options that, when set to 0,
    turn off the navigation box, the overview panel, and the track
    list, respectively.  When all of these are off, and if run in an
    iframe, JBrowse looks similar to the output of GBrowse's
    gbrowse_img script.  More documentation on this coming soon.
+   Thanks to Julie Moon, a co-op student working at OICR, for this
+   work!
 
  * Fixed a long-standing off-by-one bug where the window could not be
    scrolled to view the last base in the reference sequence.
