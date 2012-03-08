@@ -557,7 +557,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     }
 
     var subfeatures = this.attrs.get(feature, "Subfeatures");
-    if (subfeatures) {
+    if( subfeatures ) {
         for (var i = 0; i < subfeatures.length; i++) {
             this.renderSubfeature(feature, featDiv,
                                   subfeatures[i],
@@ -601,23 +601,22 @@ FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
 
     var subDiv = document.createElement("div");
 
-    if (this.subfeatureClasses) {
+    if( this.config.style.subfeatureClasses ) {
         var type = this.attrs.get(subfeature, "Type");
-        var className = this.config.style.subfeatureClasses[type];
+        subDiv.className = this.config.style.subfeatureClasses[type];
         switch (this.attrs.get(subfeature, "Strand")) {
-        case 1:
-        case '+':
-            subDiv.className = "plus-" + className; break;
-        case 0:
-        case '.':
-        case null:
-        case undefined:
-            subDiv.className = className; break;
-        case -1:
-        case '-':
-            subDiv.className = "minus-" + className; break;
+            case 1:
+            case '+':
+                subDiv.className += " plus-" + subDiv.className; break;
+            case 0:
+            case '.':
+            case null:
+            case undefined:
+                subDiv.className = className; break;
+            case -1:
+            case '-':
+                subDiv.className += " minus-" + subDiv.className; break;
         }
-
     }
 
     // if the feature has been truncated to where it doesn't cover
