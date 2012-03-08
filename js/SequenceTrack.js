@@ -17,6 +17,7 @@ function SequenceTrack(trackMeta, refSeq, browserParams) {
     Track.call(this, trackMeta.label, trackMeta.key,
                false, browserParams.changeCallback);
     this.browserParams = browserParams;
+    this.refSeq = refSeq;
     this.trackMeta = trackMeta;
     this.setLoaded();
     this.chunks = [];
@@ -24,6 +25,7 @@ function SequenceTrack(trackMeta, refSeq, browserParams) {
     this.url = Util.resolveUrl(trackMeta.sourceUrl,
                                Util.fillTemplate(trackMeta.config.urlTemplate,
                                                  {'refseq': refSeq.name}) );
+
 }
 
 SequenceTrack.prototype = new Track("");
@@ -59,34 +61,65 @@ SequenceTrack.prototype.fillBlock = function(blockIndex, block,
                                              leftBase, rightBase,
                                              scale, stripeWidth,
                                              containerStart, containerEnd) {
+    var that = this;
     if (scale == this.browserParams.charWidth) {
         this.show();
     } else {
         this.hide();
         this.heightUpdate(0);
     }
+
     if (this.shown) {
-        this.getRange(leftBase, rightBase,
-                      function(start, end, seq) {
-                          //console.log("adding seq from %d to %d: %s", start, end, seq);
+        this.getRange( leftBase, rightBase,
+                       function( start, end, seq ) {
 
-                          // fill with leading blanks if the
-                          // sequence does not extend all the way
-                          // across our range
-                          for( ; start < 0; start++ ) {
-                              seq = SequenceTrack.nbsp + seq; //nbsp is an "&nbsp;" entity
-                          }
+                           // fill with leading blanks if the
+                           // sequence does not extend all the way
+                           // across our range
+                           for( ; start < 0; start++ ) {
+                               seq = SequenceTrack.nbsp + seq; //nbsp is an "&nbsp;" entity
+                           }
 
-                          var seqNode = document.createElement("div");
-                          seqNode.className = "sequence";
-                          seqNode.appendChild(document.createTextNode(seq));
-	                  seqNode.style.cssText = "top: 0px;";
-                          block.appendChild(seqNode);
-                      });
+                           // make a div to contain the sequences
+                           var seqNode = document.createElement("div");
+                           seqNode.className = "sequence";
+                           block.appendChild(seqNode);
+
+                           // add a div for the forward strand
+                           seqNode.appendChild( that.renderSeqDiv( start, end, seq ));
+
+                           // and one for the reverse strand
+                           var comp = that.renderSeqDiv( start, end, that.complement(seq) );
+                           comp.className = 'revcom';
+                           seqNode.appendChild( comp );
+                       }
+                     );
         this.heightUpdate(this.browserParams.seqHeight, blockIndex);
     } else {
         this.heightUpdate(0, blockIndex);
     }
+};
+
+SequenceTrack.prototype.complement = (function() {
+    var compl_rx   = /[ACGT]/gi;
+
+    // from bioperl: tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/
+    // generated with:
+    // perl -MJSON -E '@l = split "","acgtrymkswhbvdnxACGTRYMKSWHBVDNX"; print to_json({ map { my $in = $_; tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/; $in => $_ } @l})'
+    var compl_tbl  = {"S":"S","w":"w","T":"A","r":"y","a":"t","N":"N","K":"M","x":"x","d":"h","Y":"R","V":"B","y":"r","M":"K","h":"d","k":"m","C":"G","g":"c","t":"a","A":"T","n":"n","W":"W","X":"X","m":"k","v":"b","B":"V","s":"s","H":"D","c":"g","D":"H","b":"v","R":"Y","G":"C"};
+
+    var compl_func = function(m) { return compl_tbl[m] || SequenceTrack.nbsp; };
+    return function( seq ) {
+        return seq.replace( compl_rx, compl_func );
+    };
+})();
+
+//given the start and end coordinates, and the sequence bases, makes a
+//div containing the sequence
+SequenceTrack.prototype.renderSeqDiv = function ( start, end, seq ) {
+    var container  = document.createElement("div");
+    container.appendChild( document.createTextNode( seq ) );
+    return container;
 };
 
 SequenceTrack.prototype.getRange = function(start, end, callback) {

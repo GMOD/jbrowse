@@ -166,6 +166,12 @@ div.sequence {
     letter-spacing: 2px;
     padding-left: 2px;
 }
+div.sequence .highlighted {
+    background: #ff0;
+}
+div.sequence .revcom {
+    color: red;
+}
 
 /*
 div.minus-feature:before {

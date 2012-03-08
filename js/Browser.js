@@ -88,12 +88,14 @@ Browser.prototype.initialize = function() {
         this.origTracklist = this.params.defaultTracks;
     }
 
+    // load our ref seqs
     var brwsr = this;
     Util.maybeLoad(this.params.refSeqs.url, this.params.refSeqs,
                    function(o) {
                        brwsr.addRefseqs(o);
                    });
 
+    // load our tracks
     for (var i = 0; i < this.params.tracklists.length; i++) {
         (function(tracklist) {
              Util.maybeLoad(tracklist.url,
