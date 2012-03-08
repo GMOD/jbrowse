@@ -25,7 +25,6 @@ function SequenceTrack(trackMeta, refSeq, browserParams) {
     this.url = Util.resolveUrl(trackMeta.sourceUrl,
                                Util.fillTemplate(trackMeta.config.urlTemplate,
                                                  {'refseq': refSeq.name}) );
-    this.hilightLoc = {ref: null, start:-1, end:-1};
 
 }
 
@@ -114,7 +113,7 @@ SequenceTrack.prototype.complement = (function() {
 
 SequenceTrack.prototype.highlightSeq = function ( start, end, seq ) {
     var container  = document.createElement("div"),
-        hloc = this.hilightLoc;
+        hloc       = this.hilightLoc;
 
     if( hloc && hloc.ref == this.refSeq.name && hloc.start < end && hloc.end > start ) {
         // start, end coords are interbase (half-open intervals)

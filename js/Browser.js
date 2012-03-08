@@ -88,12 +88,14 @@ Browser.prototype.initialize = function() {
         this.origTracklist = this.params.defaultTracks;
     }
 
+    // load our ref seqs
     var brwsr = this;
     Util.maybeLoad(this.params.refSeqs.url, this.params.refSeqs,
                    function(o) {
                        brwsr.addRefseqs(o);
                    });
 
+    // load our tracks
     for (var i = 0; i < this.params.tracklists.length; i++) {
         (function(tracklist) {
              Util.maybeLoad(tracklist.url,
@@ -105,6 +107,11 @@ Browser.prototype.initialize = function() {
                                     });
                             });
          })(this.params.tracklists[i]);
+    }
+
+    // set a highlighted region, if any was passed
+    if( this.params.highlight ) {
+        this.highlightRegion( this.params.highlight );
     }
 };
 
@@ -496,7 +503,7 @@ Browser.prototype.highlightRegion = function(loc) {
 
     // Capture location for highlighting DNA sequence.
     // Tracks are initialized by one of the deferred functions!
-    loc = Util.parseLocString(loc);
+    loc = Util.parseLocString(loc );
     if( !loc || !loc.ref || loc.start === undefined || loc.start === undefined )
         return;
 
