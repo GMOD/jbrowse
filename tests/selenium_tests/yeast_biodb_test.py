@@ -1,10 +1,13 @@
+import os
+import time
+from subprocess import check_call as call
+
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-from subprocess import check_call as call
-import os
-import time
+
+from jbrowse_selenium import *
 
 def test_yeast():
     format_yeast()
@@ -57,9 +60,6 @@ def scroll(browser):
 
     assert_no_js_errors(browser)
 
-def assert_no_js_errors(browser):
-    assert browser.find_element_by_xpath('/html/body').get_attribute('JSError') == None
-
 def search_yal024c(browser):
 
     # check that a YAL024C feature label is not yet in the DOM
@@ -97,18 +97,6 @@ def search_yal024c(browser):
     # test that the track with YAL024C has appeared and has the correct track label
     track_labels = get_track_labels_containing( browser, 'Protein-coding genes' )
     assert len(track_labels) == 1, '%d tracks displayed with that name' % len(track_labels)
-
-def get_track_labels_containing( browser, string ):
-    track_labels = assert_elements( browser, "//div[contains(@class,'track-label')][contains(.,'%s')]" % string )
-    return track_labels
-
-
-def assert_elements( browser, xpathExpression ):
-    try:
-        el = browser.find_elements_by_xpath( xpathExpression )
-    except NoSuchElementException:
-        assert 0, ( "can't find %s" % xpathExpression )
-    return el
 
 def format_yeast():
     call( "rm -rf sample_data/json/yeast/", shell=True )
