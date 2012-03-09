@@ -1,5 +1,4 @@
-
-
+// INTEGRATE ME INTO BROWSER.JS
 
 function CompareObjPos(nodes, touch) {
    var samePos = 0,

@@ -1,3 +1,5 @@
+// MODEL
+
 /*
  * For a JSON array that gets too large to load in one go, this class
  * helps break it up into chunks and provides an

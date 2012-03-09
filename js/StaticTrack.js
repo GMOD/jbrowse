@@ -1,3 +1,5 @@
+// VIEW
+
 //This track is for (e.g.) position and sequence information that should
 //always stay visible at the top of the view
 

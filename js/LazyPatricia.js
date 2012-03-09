@@ -1,3 +1,5 @@
+// MODEL
+
 /*
   Implements a lazy PATRICIA tree.
 

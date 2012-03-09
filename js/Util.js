@@ -1,3 +1,5 @@
+// MISC
+
 var Util = {};
 
 Util.is_ie = navigator.appVersion.indexOf('MSIE') >= 0;

@@ -1,3 +1,5 @@
+// CONTROLLER
+
 /**
  * Construct a new Browser object.
  * @class This class is the main interface between JBrowse and embedders

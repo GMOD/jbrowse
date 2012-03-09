@@ -1,3 +1,5 @@
+// VIEW
+
 // This track draws vertical gridlines, which are divs with height:
 // 100%, absolutely positioned at the very top of all the tracks
 function GridTrack(name) {

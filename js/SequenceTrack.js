@@ -1,3 +1,5 @@
+// VIEW
+
 function SequenceTrack(trackMeta, refSeq, browserParams) {
     //trackMeta: object with:
     //  key:   display text track name

@@ -1,3 +1,5 @@
+// MODEL
+
 /*
     class for operating on indexed representations of objects
 

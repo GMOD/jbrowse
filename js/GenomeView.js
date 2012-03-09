@@ -1,3 +1,5 @@
+// VIEW
+
 function Animation(subject, callback, time) {
     //subject: what's being animated
     //callback: function to call at the end of the animation

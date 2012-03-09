@@ -1,3 +1,5 @@
+// VIEW
+
 /*
  * Code for laying out rectangles, given that layout is also happening
  * in adjacent blocks at the same time
