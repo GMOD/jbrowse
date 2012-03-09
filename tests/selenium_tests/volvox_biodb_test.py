@@ -22,15 +22,6 @@ class VolvoxBiodbTest( JBrowseTest ):
         # check a good browser title
         assert "ctgA" in self.browser.title, "browser title is actually %s" % self.browser.title
 
-        tabs = self.browser.find_elements_by_xpath( '//div[@class="browsingTab"]' )
-        for t in tabs:
-            t.click()
-            time.sleep(1)
-            t.click()
-            time.sleep(0.5)
-
-        self.assert_no_js_errors()
-
         # do a test where we search for a certain gene using the search box
         self.search_f15()
 
