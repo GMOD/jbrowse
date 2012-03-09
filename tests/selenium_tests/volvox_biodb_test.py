@@ -1,9 +1,10 @@
 import time
 from subprocess import check_call as call
+import unittest
 
 from jbrowse_selenium import JBrowseTest;
 
-class VolvoxBiodbTest( JBrowseTest ):
+class AbstractVolvoxBiodbTest( JBrowseTest ):
 
     data_dir = 'sample_data/json/volvox'
 
@@ -13,7 +14,7 @@ class VolvoxBiodbTest( JBrowseTest ):
         call( "bin/biodb-to-json.pl --conf sample_data/raw/volvox.json --out sample_data/json/volvox/", shell=True )
         call( "bin/wig-to-json.pl --out sample_data/json/volvox/ --wig sample_data/raw/volvox/volvox_microarray.wig", shell=True )
         call( "bin/generate-names.pl --dir sample_data/json/volvox/", shell=True )
-        super( VolvoxBiodbTest, self ).setUp()
+        super( AbstractVolvoxBiodbTest, self ).setUp()
 
     def test_volvox( self ):
         # select "ctgA from the dropdown
@@ -80,6 +81,12 @@ class VolvoxBiodbTest( JBrowseTest ):
         label = self.assert_element( xpath )
         assert label.text == 'f15';
 
+
+class VolvoxBiodbTest( AbstractVolvoxBiodbTest, unittest.TestCase ):
+    pass
+
+
 if __name__ == '__main__':
     import unittest
     unittest.main()
+

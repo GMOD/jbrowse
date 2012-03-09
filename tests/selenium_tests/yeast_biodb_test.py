@@ -1,8 +1,9 @@
+import unittest
 from subprocess import check_call as call
 
-import jbrowse_selenium
+from jbrowse_selenium import JBrowseTest
 
-class YeastBiodbTest ( jbrowse_selenium.JBrowseTest ):
+class YeastBiodbTest ( JBrowseTest, unittest.TestCase ):
 
     data_dir = 'sample_data/json/yeast'
 
