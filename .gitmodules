@@ -1,6 +1,0 @@
-[submodule "tests/jasmine"]
-	path = tests/jasmine
-	url = git://github.com/pivotal/jasmine.git
-[submodule "jslib/jsdoc"]
-	path = jslib/jsdoc
-	url = git://github.com/micmath/jsdoc.git
