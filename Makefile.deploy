@@ -1,10 +1,17 @@
-JSDIR = js
+JSDIR = $(PWD)/js
 JARDIR = jar
 JSMIN_TARGET = jbrowse.js
-JS_SRCFILES = $(wildcard $(JSDIR)/*.js)
+JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
 
-all: minify-js
+all: minify-js docs/jsdoc
+
+docs: doc
+
+doc: docs/jsdoc/index.html
+
+docs/jsdoc/index.html: $(JS_SRCFILES)
+	cd jslib/jsdoc_toolkit-*/ && java -jar jsrun.jar app/run.js -a -t=templates/jsdoc -d=../../docs/jsdoc $(JS_SRCFILES)
 
 jbrowse:
 	$(MAKE) -f $(TWIKI_PLUGIN_MAKEFILE) all
@@ -18,4 +25,8 @@ $(JSMIN_TARGET): $(JS_SRCFILES)
 	    perl -pe 'BEGIN { undef $$/; }; s#<!-- js_source_files -->.*<!-- js_source_files -->#    <script type="text/javascript" src="$(JSMIN_TARGET)"></script>\n#ms' index-debug.html > index.html; \
 	fi
 
-.PHONY: all clean jbrowse minify-js
+clean:
+	-mv index-debug.html index.html;
+	rm -rf docs/jsdoc jbrowse.js;
+
+.PHONY: all clean jbrowse minify-js docs doc
