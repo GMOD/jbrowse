@@ -6,11 +6,11 @@ TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
 
 all: minify-js docs/jsdoc
 
-docs: docs/jsdoc
+docs: doc
 
-doc: docs/jsdoc
+doc: docs/jsdoc/index.html
 
-docs/jsdoc: $(JS_SRCFILES)
+docs/jsdoc/index.html: $(JS_SRCFILES)
 	cd jslib/jsdoc_toolkit-*/ && java -jar jsrun.jar app/run.js -a -t=templates/jsdoc -d=../../docs/jsdoc $(JS_SRCFILES)
 
 jbrowse:
