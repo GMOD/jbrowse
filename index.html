@@ -46,9 +46,9 @@
            var dataRoot = queryParams.data || 'data';
            var b = new Browser({
                                    containerID: "GenomeBrowser",
-                                   refSeqs: {url: dataRoot + "/seq/refSeqs.json"},
-                                   tracklists: [
-                                       {url: dataRoot + "/trackList.json"}
+                                   refSeqs: dataRoot + "/seq/refSeqs.json",
+                                   config: [
+                                     dataRoot + "/trackList.json",
                                    ],
                                    nameUrl: dataRoot + "/names/root.json",
                                    defaultTracks: "DNA,gene,mRNA,noncodingRNA",

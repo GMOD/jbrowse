@@ -4,9 +4,9 @@
  * @constructor
  * @param params an object with the following properties:<br>
  * <ul>
+ * <li><code>config</code> - list of objects with "url" property that points to a config JSON file</li>
  * <li><code>containerID</code> - ID of the HTML element that contains the browser</li>
  * <li><code>refSeqs</code> - object with "url" property that is the URL to list of reference sequence information items</li>
- * <li><code>tracklists</code> - list of objects with "url" property that points to a track list JSON file</li>
  * <li><code>browserRoot</code> - (optional) URL prefix for the browser code</li>
  * <li><code>tracks</code> - (optional) comma-delimited string containing initial list of tracks to view</li>
  * <li><code>location</code> - (optional) string describing the initial location</li>
@@ -40,6 +40,9 @@ var Browser = function(params) {
 };
 
 Browser.prototype.initialize = function() {
+
+    this.loadConfig();
+
     //set up top nav/overview pane and main GenomeView pane
     dojo.addClass(document.body, "tundra");
     this.container = dojo.byId(this.params.containerID);
@@ -79,34 +82,50 @@ Browser.prototype.initialize = function() {
     topPane.appendChild(this.locationTrap);
     topPane.style.overflow="hidden";
 
-    var cookieTracks = dojo.cookie(this.container.id + "-tracks");
-    if (this.params.tracks) {
-        this.origTracklist = this.params.tracks;
-    } else if (cookieTracks) {
-        this.origTracklist = cookieTracks;
-    } else if (this.params.defaultTracks) {
-        this.origTracklist = this.params.defaultTracks;
-    }
+    // figure out what initial track list we will use:
+    //    from a param passed to our instance, or from a cookie, or
+    //    the passed defaults, or the last-resort default of "DNA"?
+    this.origTracklist =
+           this.params.tracks
+        || dojo.cookie( this.container.id + "-tracks" )
+        || this.params.defaultTracks
+        || "DNA";
+
 
     // load our ref seqs
     var brwsr = this;
+    if( typeof this.params.refSeqs == 'string' )
+        this.params.refSeqs = { url: this.params.refSeqs };
     Util.maybeLoad(this.params.refSeqs.url, this.params.refSeqs,
                    function(o) {
                        brwsr.addRefseqs(o);
                    });
+};
 
-    // load our tracks
-    for (var i = 0; i < this.params.tracklists.length; i++) {
-        (function(tracklist) {
-             Util.maybeLoad(tracklist.url,
-                            tracklist,
-                            function(o) {
-                                brwsr.addDeferred(
-                                    function() {
-                                        brwsr.addTracklist(tracklist.url, o);
-                                    });
-                            });
-         })(this.params.tracklists[i]);
+// load our configuration files based on the parameters the
+// constructor was passed
+Browser.prototype.loadConfig = function () {
+    var brwsr = this;
+
+    // load any configuration files we've been passed
+    if( typeof this.params.config != 'object' || !this.params.config.length )
+        this.params.config = [ this.params.config ];
+
+    for (var i = 0; i < this.params.config.length; i++) {
+        if( typeof this.params.config[i] == 'string' )
+            this.params.config[i] = { url: this.params.config[i] };
+
+        (function(config) {
+             Util.maybeLoad(
+                 config.url,
+                 config,
+                 function(o) {
+                     brwsr.addDeferred(
+                         function() {
+                             brwsr.addConfig( o, { sourceUrl: config.url });
+                         });
+                 });
+         })(this.params.config[i]);
     }
 };
 
@@ -121,12 +140,28 @@ Browser.prototype.addDeferred = function(f) {
         this.deferredFunctions.push(f);
 };
 
-Browser.prototype.addTracklist = function(url, trackList) {
-    if (1 == trackList.formatVersion) {
-        for (var i = 0; i < trackList.tracks.length; i++)
-            trackList.tracks[i].sourceUrl = url;
-        this.trackListWidget.insertNodes(false, trackList.tracks);
-        this.showTracks(this.origTracklist);
+Browser.prototype.addConfig = function( config, additional ) {
+
+    // add any additional data to the config hash
+    for( p in additional ) {
+        if( additional.hasOwnProperty(p) )
+            config[p] = additional[p];
+    }
+
+    config.baseUrl = config.baseUrl || config.sourceUrl;
+    if( ! /\/$/.test(config.baseUrl) ) // make sure the baseUrl has a trailing slash
+        config.baseUrl += "/";
+
+    if (1 == config.formatVersion) {
+        if( config.tracks ) {
+            if( config.sourceUrl ) {
+                for (var i = 0; i < config.tracks.length; i++)
+                    if( ! config.tracks[i].baseUrl )
+                        config.tracks[i].baseUrl = config.baseUrl;
+            }
+            this.trackListWidget.insertNodes(false, config.tracks);
+            this.showTracks(this.origTracklist);
+        }
     } else {
         throw "track list format " + trackList.formatVersion + " not supported";
     }
@@ -271,10 +306,10 @@ Browser.prototype.createTrackList = function(parent, params) {
        brwsr.view.showVisibleBlocks(true);
     };
 
-    var trackListCreate = function(track, hint) {
+    var trackListCreate = function( trackConfig, hint ) {
         var node = document.createElement("div");
         node.className = "tracklist-label";
-        node.innerHTML = track.key;
+        node.innerHTML = trackConfig.key;
         //in the list, wrap the list item in a container for
         //border drag-insertion-point monkeying
         if ("avatar" != hint) {
@@ -284,20 +319,20 @@ Browser.prototype.createTrackList = function(parent, params) {
             node = container;
         }
         node.id = dojo.dnd.getUniqueId();
-        return {node: node, data: track, type: ["track"]};
+        return {node: node, data: trackConfig, type: ["track"]};
     };
     this.trackListWidget = new dojo.dnd.Source(trackListDiv,
                                                {creator: trackListCreate,
                                                 accept: ["track"], // accepts tracks into left div
                                                 withHandles: false});
 
-    var trackCreate = function(track, hint) {
+    var trackCreate = function( trackConfig, hint) {
         var node;
         if ("avatar" == hint) {
-            return trackListCreate(track, hint);
+            return trackListCreate( trackConfig, hint);
         } else {
-            var klass = eval(track.type);
-            var newTrack = new klass(track, brwsr.refSeq,
+            var klass = eval( trackConfig.type);
+            var newTrack = new klass( trackConfig, brwsr.refSeq,
                                      {
                                          changeCallback: changeCallback,
                                          trackPadding: brwsr.view.trackPadding,
@@ -306,7 +341,7 @@ Browser.prototype.createTrackList = function(parent, params) {
                                      });
             node = brwsr.view.addTrack(newTrack);
         }
-        return {node: node, data: track, type: ["track"]};
+        return {node: node, data: trackConfig, type: ["track"]};
     };
 
 
@@ -333,7 +368,7 @@ Browser.prototype.createTrackList = function(parent, params) {
 Browser.prototype.onVisibleTracksChanged = function() {
     this.view.updateTrackList();
     var trackLabels = dojo.map(this.view.tracks,
-                               function(track) { return track.name; });
+                               function( trackConfig ) { return trackConfig.name; });
     dojo.cookie(this.container.id + "-tracks",
                 trackLabels.join(","),
                 {expires: 60});
@@ -536,8 +571,8 @@ Browser.prototype.visibleRegion = function() {
  */
 
 Browser.prototype.visibleTracks = function() {
-    var trackLabels = dojo.map(this.view.tracks,
-                               function(track) { return track.name; });
+    var trackLabels = dojo.map( this.view.tracks,
+                                function( trackConfig ) { return trackConfig.name; });
     return trackLabels.join(",");
 };
 

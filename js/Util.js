@@ -94,7 +94,7 @@ Util.fillTemplate = function(template, fillWith) {
  * function to load a specified resource only once
  * @param url URL to get
  * @param stateObj object that stores the state of the load
- * @param successCalback function to call on a successful load
+ * @param successCallback function to call on a successful load
  * @param errorCallback function to call on an unsuccessful load
  */
 Util.maybeLoad = function (url, stateObj, successCallback, errorCallback) {

@@ -5,7 +5,7 @@ function ImageTrack(trackMeta, refSeq, browserParams) {
     this.trackPadding = browserParams.trackPadding;
     this.tileToImage = {};
     this.zoomCache = {};
-    this.url = Util.resolveUrl(trackMeta.sourceUrl,
+    this.url = Util.resolveUrl(trackMeta.baseUrl,
                                Util.fillTemplate(trackMeta.config.urlTemplate,
                                                  {'refseq': refSeq.name}) );
     this.load(this.url);

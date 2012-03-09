@@ -2,7 +2,8 @@ function FeatureTrack(trackMeta, refSeq, browserParams) {
     //trackMeta: object with:
     //            key:   display text track name
     //            label: internal track name (no spaces, odd characters)
-    //            sourceUrl: URL of the tracklist containing this track entry
+    //            baseUrl: base URL to use for resolving relative URLs
+    //                     contained in the track's configuration
     //            config: configuration info for this track
     //refSeq: object with:
     //         name:  refseq name
@@ -18,7 +19,7 @@ function FeatureTrack(trackMeta, refSeq, browserParams) {
     this.fields = {};
     this.features = new NCList();
     this.refSeq = refSeq;
-    this.url = Util.resolveUrl(trackMeta.sourceUrl,
+    this.url = Util.resolveUrl(trackMeta.baseUrl,
                                Util.fillTemplate(trackMeta.config.urlTemplate,
                                                  {'refseq': refSeq.name}) );
     //number of histogram bins per block
