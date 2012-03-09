@@ -8,7 +8,7 @@ use File::Basename;
 
 # get jsdoc if needed
 unless( -e File::Spec->catfile(qw( jslib/jsdoc/jsdoc )) ) {
-    system 'git submodule update jslib/jsdoc';
+    system 'git submodule update --init jslib/jsdoc';
 }
 
 # make sure our jsdocs are up to date
