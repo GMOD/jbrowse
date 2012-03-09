@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Added build instrumentation to support a JSDoc-based system of
+   developer API documentation.  This documentation is still far from
+   complete.
+
  * Ian Davis contributed code to add a view of the reverse strand of
    the sequence in the DNA track.  Thanks Ian!
 
