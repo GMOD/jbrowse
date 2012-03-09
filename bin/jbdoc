@@ -6,6 +6,15 @@ use Cwd;
 use File::Spec;
 use File::Basename;
 
-my $f = basename( $ARGV[0] || 'Browser', qr/\.[^.]*/) || 'Browser';
-$f =  File::Spec->catfile( 'docs', 'jsdoc', "$f.html" );
-exec $ENV{BROWSER} || 'firefox', $f;
+unless( -f html_file_for('Browser') ) {
+    system 'make -f Makefile.deploy docs';
+}
+
+exec $ENV{BROWSER} || 'firefox', html_file_for( $ARGV[0] );
+
+###
+sub html_file_for {
+    my ( $n ) = @_;
+    my $f = basename( $n, qr/\.[^.]*/);
+    return File::Spec->catfile( 'docs', 'jsdoc', "$f.html" );
+}
