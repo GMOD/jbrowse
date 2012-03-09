@@ -1,0 +1,11 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use Cwd;
+use File::Spec;
+use File::Basename;
+
+my $f = basename( $ARGV[0] || 'Browser', qr/\.[^.]*/) || 'Browser';
+$f =  File::Spec->catfile( 'docs', 'jsdoc', "$f.html" );
+exec $ENV{BROWSER} || 'firefox', $f;
