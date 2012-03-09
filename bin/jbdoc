@@ -6,9 +6,13 @@ use Cwd;
 use File::Spec;
 use File::Basename;
 
-unless( -f html_file_for('Browser') ) {
-    system 'make -f Makefile.deploy docs';
+# get jsdoc if needed
+unless( -e File::Spec->catfile(qw( jslib/jsdoc/jsdoc )) ) {
+    system 'git submodule update jslib/jsdoc';
 }
+
+# make sure our jsdocs are up to date
+system 'make -f Makefile.deploy docs >/dev/null 2>&1';
 
 exec $ENV{BROWSER} || 'firefox', html_file_for( $ARGV[0] );
 
