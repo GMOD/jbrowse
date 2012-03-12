@@ -218,12 +218,18 @@ ArrayRepr.prototype._makeAccessors = function() {
     var that = this,
         accessors = {
             get: function(field) {
-                try { return this.get[field].call(this); }
-                catch (x) { return undefined; }
+                var f = this.get[field];
+                if( f )
+                    return f.call(this);
+                else
+                    return undefined;
             },
             set: function(field,val) {
-                try { return this.set[field].call(this,val); }
-                catch (x) { return undefined; }
+                var f = this.set[field];
+                if( f )
+                    return f.call(this,val);
+                else
+                    return undefined;
             }
         };
 
@@ -258,6 +264,7 @@ ArrayRepr.prototype._makeAccessors = function() {
             };
         })();
     }
+
 
     return accessors;
 };
