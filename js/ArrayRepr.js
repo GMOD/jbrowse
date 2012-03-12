@@ -109,12 +109,6 @@ ArrayRepr.prototype.get = function(obj, attr) {
     }
 };
 
-ArrayRepr.prototype.fastGet = function(obj, attr) {
-    // can be used only if attr is guaranteed to be in
-    // the "classes" array for this object
-    return obj[self.fields[obj[0]][attr]];
-};
-
 ArrayRepr.prototype.set = function(obj, attr, val) {
     if (attr in this.fields[obj[0]]) {
         obj[this.fields[obj[0]][attr]] = val;
@@ -124,12 +118,6 @@ ArrayRepr.prototype.set = function(obj, attr, val) {
             obj[adhocIndex] = {};
         obj[adhocIndex][attr] = val;
     }
-};
-
-ArrayRepr.prototype.fastSet = function(obj, attr, val) {
-    // can be used only if attr is guaranteed to be in
-    // the "classes" array for this object
-    obj[this.fields[obj[0]][attr]] = val;
 };
 
 ArrayRepr.prototype.makeSetter = function(attr) {
