@@ -150,9 +150,13 @@ Browser.prototype.addConfig = function( config, additional ) {
             config[p] = additional[p];
     }
 
-    config.baseUrl = config.baseUrl || config.sourceUrl;
-    if( ! /\/$/.test(config.baseUrl) ) // make sure the baseUrl has a trailing slash
+    // make a default baseUrl if one is not already set
+    if( !config.baseUrl ) {
+        config.baseUrl = Util.resolveUrl( config.sourceUrl, '.' );
+    }
+    if( ! /\/$/.test( config.baseUrl ) )
         config.baseUrl += "/";
+
 
     if (1 == config.formatVersion) {
         if( config.tracks ) {

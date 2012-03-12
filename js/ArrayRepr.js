@@ -172,6 +172,65 @@ ArrayRepr.prototype.construct = function(self, obj, klass) {
     return result;
 };
 
+ArrayRepr.prototype.accessors = function () {
+    return this._accessors = this._accessors || this._makeAccessors();
+};
+
+// make an object like
+//     { get: { attrname: func() {}, ... },
+//       set: { attrname: func() {}. ... }
+//     }
+// prototype object that, when set as the prototype on a data
+// array, provides nicely-named, fast accessors to access the
+// attributes in that array
+ArrayRepr.prototype._makeAccessors = function() {
+    var that = this,
+        accessors = {
+            get: function(field) {
+                try { return this.get[field].call(this); }
+                catch (x) { return undefined; }
+            },
+            set: function(field,val) {
+                try { return this.set[field].call(this,val); }
+                catch (x) { return undefined; }
+            }
+        };
+
+    // make a data structure as: { attr_name: [offset,offset,offset], }
+    // that will be convenient for finding the location of the attr
+    // for a given class like: indexForAttr{attrname}[classnum]
+    var indices = {};
+    dojo.forEach( this.classes, function(cdef,classnum) {
+        dojo.forEach( cdef.attributes || [], function(attrname,offset) {
+            attrname = attrname.toLowerCase();
+            indices[attrname] = indices[attrname] || [];
+            indices[attrname][classnum] = offset + 1;
+        });
+    });
+
+    for( var attrname in indices ) {
+        if( ! indices.hasOwnProperty(attrname) ) continue;
+
+        // make a get accessor
+        accessors.get[ attrname ] = (function() {
+            var attr_indices = indices[attrname];
+            return !attr_indices ? function() { return undefined; } : function() {
+                return this[ attr_indices[ this[0] ] ];
+            };
+        })();
+
+        // make a set accessor
+        accessors.set[ attrname ] = (function() {
+            var attr_indices =  indices[attrname];
+            return !attr_indices ? function() { return undefined; } : function(v) {
+                return ( this[ attr_indices[ this[0] ] ] = v );
+            };
+        })();
+    }
+
+    return accessors;
+};
+
 /*
 
 Copyright (c) 2007-2010 The Evolutionary Software Foundation

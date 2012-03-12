@@ -1,6 +1,6 @@
 // VIEW
 
-function FeatureTrack(trackMeta, refSeq, browserParams) {
+function FeatureTrack( trackMeta, refSeq, browserParams ) {
     //trackMeta: object with:
     //            key:   display text track name
     //            label: internal track name (no spaces, odd characters)
@@ -19,11 +19,21 @@ function FeatureTrack(trackMeta, refSeq, browserParams) {
     Track.call(this, trackMeta.label, trackMeta.key,
                false, browserParams.changeCallback);
     this.fields = {};
-    this.features = new NCList();
     this.refSeq = refSeq;
-    this.url = Util.resolveUrl(trackMeta.baseUrl,
-                               Util.fillTemplate(trackMeta.config.urlTemplate,
-                                                 {'refseq': refSeq.name}) );
+
+    this.featureStore = new SeqFeatureStore.NCList({
+        urlTemplate: trackMeta.config.urlTemplate,
+        baseUrl: trackMeta.baseUrl,
+        refSeq: refSeq
+    });
+
+    // connect the store and track loadSuccess and loadFailed events
+    // to eachother
+    dojo.connect( this.featureStore, 'loadSuccess', this, 'loadSuccess' );
+    dojo.connect( this.featureStore, 'loadFail',    this, 'loadFail' );
+
+    this.featureStore.load();
+
     //number of histogram bins per block
     this.numBins = 25;
     this.histLabel = false;
@@ -32,23 +42,11 @@ function FeatureTrack(trackMeta, refSeq, browserParams) {
 
     this.trackMeta = trackMeta;
     this.config = trackMeta.config;
-    this.load(this.url);
 }
 
 FeatureTrack.prototype = new Track("");
 
 FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
-    var startTime = new Date().getTime();
-    this.count = trackInfo.featureCount;
-    // average feature density per base
-    this.density = trackInfo.featureCount / this.refSeq.length;
-    
-    this.attrs = new ArrayRepr(trackInfo.intervals.classes);
-    this.features.importExisting(trackInfo.intervals.nclist,
-                                 this.attrs,
-                                 url,
-                                 trackInfo.intervals.urlTemplate,
-                                 trackInfo.intervals.lazyClass);
 
     var defaultConfig = {
         style: {
@@ -60,7 +58,7 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
             subfeature: 80
         },
         hooks: {
-            create: function(track, feat, attrs) {
+            create: function(track, feat ) {
                 var featDiv;
                 var featUrl = track.featureUrl(feat);
                 if (featUrl) {
@@ -79,13 +77,13 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
 
     if (! this.config.linkTemplate) {
         defaultConfig.events.click =
-            function(track, elem, feat, attrs, event) {
-	        alert("clicked on feature\n" +
-                      "start: " + (Number(attrs.get(feat, "Start"))+1) +
-	              ", end: " + Number(attrs.get(feat, "End")) +
-	              ", strand: " + attrs.get(feat, "Strand") +
-	              ", label: " + attrs.get(feat, "Name") +
-	              ", ID: " + attrs.get(feat, "ID") );
+            function(track, elem, feat, event) {
+	        alert( "clicked on feature\n" +
+                       "start: " + (Number( feat.get('start') )+1) +
+	               ", end: " + Number( feat.get('end') ) +
+	               ", strand: " + feat.get('strand') +
+	               ", label: " + feat.get('name') +
+	               ", ID: " + feat.get('id') );
             };
     }
 
@@ -99,14 +97,6 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
     for (var event in this.config.events) {
         this.eventHandlers[event] =
             this.wrapHandler(this.evalHook(this.config.events[event]));
-    }
-
-    if (trackInfo.histograms) {
-        this.histograms = trackInfo.histograms;
-        for (var i = 0; i < this.histograms.meta.length; i++) {
-            this.histograms.meta[i].lazyArray =
-                new LazyArray(this.histograms.meta[i].arrayParams, url);
-        }
     }
 
     this.setLoaded();
@@ -137,16 +127,14 @@ FeatureTrack.prototype.wrapHandler = function(handler) {
         //instead of the parent feature
         if (!elem.feature) elem = elem.parentElement;
         if (!elem.feature) return; //shouldn't happen; just bail if it does
-        handler(track, elem, elem.feature, track.attrs, event);
+        handler(track, elem, elem.feature, event);
     };
 };
 
 FeatureTrack.prototype.setViewInfo = function(genomeView, numBlocks,
                                               trackDiv, labelDiv,
                                               widthPct, widthPx, scale) {
-    Track.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
-                                             trackDiv, labelDiv,
-                                             widthPct, widthPx, scale]);
+    Track.prototype.setViewInfo.apply(this, arguments );
     this.setLabel(this.key);
 };
 
@@ -157,7 +145,7 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
     var bpPerBin = (rightBase - leftBase) / this.numBins;
     var pxPerCount = 2;
     var logScale = false;
-    var stats = this.histograms.stats;
+    var stats = this.featureStore.histograms.stats;
     for (var i = 0; i < stats.length; i++) {
         if (stats[i].bases >= bpPerBin) {
             //console.log("bpPerBin: " + bpPerBin + ", histStats bases: " + this.histStats[i].bases + ", mean/max: " + (this.histStats[i].mean / this.histStats[i].max));
@@ -209,10 +197,10 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
     // is at 50,000 bases/bin, and we have server histograms at 20,000
     // and 2,000 bases/bin, then we should choose the 2,000 histogramMeta
     // rather than the 20,000)
-    var histogramMeta = this.histograms.meta[0];
-    for (var i = 0; i < this.histograms.meta.length; i++) {
-        if (bpPerBin >= this.histograms.meta[i].basesPerBin)
-            histogramMeta = this.histograms.meta[i];
+    var histogramMeta = this.featureStore.histograms.meta[0];
+    for (var i = 0; i < this.featureStore.histograms.meta.length; i++) {
+        if (bpPerBin >= this.featureStore.histograms.meta[i].basesPerBin)
+            histogramMeta = this.featureStore.histograms.meta[i];
     }
 
     // number of bins in the server-supplied histogram for each current bin
@@ -243,8 +231,8 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
         );
     } else {
         // make our own counts
-        this.features.histogram(leftBase, rightBase,
-                                this.numBins, makeHistBlock);
+        this.featureStore.histogram( leftBase, rightBase,
+                                     this.numBins, makeHistBlock);
     }
 };
 
@@ -263,7 +251,7 @@ FeatureTrack.prototype.fillBlock = function(blockIndex, block,
                                             scale, stripeWidth,
                                             containerStart, containerEnd) {
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
-    if (this.histograms &&
+    if (this.featureStore.histograms &&
         (scale < (this.density * this.config.scaleThresh.hist)) ) {
 	this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
                       containerStart, containerEnd);
@@ -305,7 +293,7 @@ FeatureTrack.prototype.transfer = function(sourceBlock, destBlock, scale,
 	}
 	if (sourceSlot && sourceSlot.feature) {
 	    if ( sourceSlot.layoutEnd > destLeft
-		 && this.attrs.get(sourceSlot.feature, "Start") < destRight ) {
+		 && sourceSlot.feature.get('start') < destRight ) {
 
                 sourceBlock.removeChild(sourceSlot);
                 delete sourceBlock.featureNodes[overlaps[i].id];
@@ -378,8 +366,7 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
     var startBase = goLeft ? rightBase : leftBase;
     var endBase = goLeft ? leftBase : rightBase;
 
-
-    this.features.iterate(startBase, endBase, featCallback,
+    this.featureStore.iterate(startBase, endBase, featCallback,
                           function () {
                               block.style.backgroundColor = "";
                               curTrack.heightUpdate(layouter.totalHeight,
@@ -437,10 +424,10 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     //featureStart and featureEnd indicate how far left or right
     //the feature extends in bp space, including labels
     //and arrowheads if applicable
-    var featureEnd = this.attrs.get(feature, "End");
-    var featureStart = this.attrs.get(feature, "Start");
+    var featureEnd = feature.get('end');
+    var featureStart = feature.get('start');
     if (this.arrowheadClass) {
-        switch (this.attrs.get(feature, "Strand")) {
+        switch ( feature.get('strand') ) {
         case 1:
         case '+':
             featureEnd   += (this.plusArrowWidth / scale); break;
@@ -454,7 +441,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
 
     // if the label extends beyond the feature, use the
     // label end position as the end position for layout
-    var name = this.attrs.get(feature, "Name");
+    var name = feature.get('name');
     var labelScale = this.density * this.config.scaleThresh.label;
     if (name && (scale > labelScale)) {
 	featureEnd = Math.max(featureEnd,
@@ -469,7 +456,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
                                           featureEnd,
                                           levelHeight);
 
-    var featDiv = this.config.hooks.create(this, feature, this.attrs);
+    var featDiv = this.config.hooks.create(this, feature );
     for (event in this.eventHandlers) {
         featDiv["on" + event] = this.eventHandlers[event];
     }
@@ -478,7 +465,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
 
     block.featureNodes[uniqueId] = featDiv;
 
-    var strand = this.attrs.get(feature, "Strand");
+    var strand = feature.get('strand');
     switch (strand) {
     case 1:
     case '+':
@@ -493,7 +480,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
         featDiv.className = "minus-" + this.config.style.className; break;
     }
 
-    var phase = this.attrs.get(feature, "Phase");
+    var phase = feature.get('phase');
     if ((phase !== null) && (phase !== undefined))
         featDiv.className = featDiv.className + " " + featDiv.className + "_phase" + phase;
 
@@ -503,10 +490,8 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     // To make sure the truncated end of the feature never gets shown,
     // we'll destroy and re-create the feature (with updated truncated
     // boundaries) in the transfer method.
-    var displayStart = Math.max(this.attrs.get(feature, "Start"),
-                                containerStart);
-    var displayEnd = Math.min(this.attrs.get(feature, "End"),
-                              containerEnd);
+    var displayStart = Math.max( feature.get('start'), containerStart );
+    var displayEnd = Math.min( feature.get('end'), containerEnd );
     var blockWidth = block.endBase - block.startBase;
     featDiv.style.cssText =
         "left:" + (100 * (displayStart - block.startBase) / blockWidth) + "%;"
@@ -559,7 +544,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
         block.appendChild(labelDiv);
     }
 
-    var subfeatures = this.attrs.get(feature, "Subfeatures");
+    var subfeatures = feature.get('subfeatures');
     if( subfeatures ) {
         for (var i = 0; i < subfeatures.length; i++) {
             this.renderSubfeature(feature, featDiv,
@@ -569,7 +554,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     }
 
     if (this.config.hooks.modify) {
-        this.config.hooks.modify(this, feature, this.attrs, featDiv);
+        this.config.hooks.modify(this, feature, featDiv);
     }
 
     //ie6 doesn't respect the height style if the div is empty
@@ -580,11 +565,10 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
 
 FeatureTrack.prototype.featureUrl = function(feature) {
     var urlValid = true;
-    var attrs = this.attrs;
     if (this.urlTemplate) {
         var href = this.urlTemplate.replace(/\{([^}]+)\}/g,
         function(match, group) {
-            var val = attrs.get(feature, group);
+            var val = feature.get( group.toLowerCase() );
             if (val !== undefined)
                 return val;
             else
@@ -598,24 +582,19 @@ FeatureTrack.prototype.featureUrl = function(feature) {
 
 FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
                                                    displayStart, displayEnd) {
-    var subStart = this.attrs.get(subfeature, "Start");
-    var subEnd = this.attrs.get(subfeature, "End");
+    var subStart = subfeature.get('start');
+    var subEnd = subfeature.get('end');
     var featLength = displayEnd - displayStart;
 
     var subDiv = document.createElement("div");
 
     if( this.config.style.subfeatureClasses ) {
-        var type = this.attrs.get(subfeature, "Type");
+        var type = subfeature.get('type');
         subDiv.className = this.config.style.subfeatureClasses[type];
-        switch (this.attrs.get(subfeature, "Strand")) {
+        switch ( subfeature.get('strand') ) {
             case 1:
             case '+':
                 subDiv.className += " plus-" + subDiv.className; break;
-            case 0:
-            case '.':
-            case null:
-            case undefined:
-                subDiv.className = className; break;
             case -1:
             case '-':
                 subDiv.className += " minus-" + subDiv.className; break;
