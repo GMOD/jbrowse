@@ -1,21 +1,34 @@
 // MODEL
 
-/*
-    class for operating on indexed representations of objects
+/**
+    @class
+    @constructor
 
-    For example, if we have a lot of objects with similar attributes, e.g.:
+    @description
+
+    Class for operating on indexed array representations of objects.
+
+    For example, if we have a lot of objects with similar attrbutes, e.g.:
+
+    <pre class="code">
         [
             {start: 1, end: 2, strand: -1},
             {start: 5, end: 6, strand: 1},
             ...
         ]
+    </pre>
+
+    @description
     we can represent them more compactly (e.g., in JSON) something like this:
+
+    <pre class="code">
         class = ["start", "end", "strand"]
         [
             [1, 2, -1],
             [5, 6, 1],
             ...
         ]
+    </pre>
 
     If we want to represent a few different kinds of objects in our big list,
     we can have multiple "class" arrays, and tag each object to identify
@@ -23,6 +36,8 @@
 
     For example, if we have a lot of instances of a few types of objects,
     like this:
+
+    <pre class="code">
         [
             {start: 1, end: 2, strand: 1, id: 1},
             {start: 5, end: 6, strand: 1, id: 2},
@@ -31,8 +46,12 @@
             {start: 30, end: 40, chunk: 2},
             ...
         ]
+    </pre>
+
     We could use the first array position to indicate the "class" for the
     object, like this:
+
+    <pre class="code">
         classes = [["start", "end", "strand", "id"], ["start", "end", "chunk"]]
         [
             [0, 1, 2, 1, 1],
@@ -41,13 +60,18 @@
             [1, 10, 20, 1],
             [1, 30, 40, 1]
         ]
+    </pre>
+
     Also, if we occasionally want to add an ad-hoc attribute, we could just
     stick an optional dictionary onto the end:
+
+    <pre class="code">
         classes = [["start", "end", "strand", "id"], ["start", "end", "chunk"]]
         [
             [0, 1, 2, 1, 1],
             [0, 5, 6, 1, 2, {foo: 1}]
         ]
+    </pre>
 
     Given that individual objects are being represented by arrays, generic
     code needs some way to differentiate arrays that are meant to be objects
@@ -61,15 +85,15 @@
 
     In the end, we get something like this:
 
+    <pre class="code">
         classes=[
             {'attributes': ['Start', 'End', 'Subfeatures'],
              'proto': {'Chrom': 'chr1'},
              'isArrayAttr': {Subfeatures: true}}
             ]
+    </pre>
 
     That's what this class facilitates.
-    """
-
 */
 function ArrayRepr (classes) {
     this.classes = classes;
@@ -86,6 +110,9 @@ function ArrayRepr (classes) {
     }
 }
 
+/**
+ * @private
+ */
 ArrayRepr.prototype.attrIndices = function(attr) {
     return this.classes.map(
         function(x) {
@@ -160,17 +187,33 @@ ArrayRepr.prototype.construct = function(self, obj, klass) {
     return result;
 };
 
+
+/**
+
+Returns fast pre-compiled getter and setter functions for use with
+Arrays that use this representation.
+
+When the returned <code>get</code> and <code>set</code> functions are
+added as methods to an Array that contains data in this
+representation, they provide fast access by name to the data.
+
+@returns {Object} <code>{ get: function() {...}, set: function(val) {...} }</code>
+
+@example
+var accessors = attrs.accessors();
+var feature = get_feature_from_someplace();
+feature.get = accessors.get;
+// print out the feature start and end
+console.log( feature.get('start') + ',' + feature.get('end') );
+
+*/
 ArrayRepr.prototype.accessors = function () {
     return this._accessors = this._accessors || this._makeAccessors();
 };
 
-// make an object like
-//     { get: { attrname: func() {}, ... },
-//       set: { attrname: func() {}. ... }
-//     }
-// prototype object that, when set as the prototype on a data
-// array, provides nicely-named, fast accessors to access the
-// attributes in that array
+/**
+ * @private
+ */
 ArrayRepr.prototype._makeAccessors = function() {
     var that = this,
         accessors = {
