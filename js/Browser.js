@@ -484,7 +484,7 @@ Browser.prototype.navigateToLocation = function( location ) {
 
     return;
     //this.view.centerAtBase( location.end );
-}
+};
 
 // given a string name, search for matching feature names and set the
 // view location to any that match
