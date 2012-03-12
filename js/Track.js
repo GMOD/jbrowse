@@ -1,5 +1,8 @@
 // VIEW
 
+/**
+ * @class
+ */
 function Track(name, key, loaded, changeCallback) {
     this.name = name;
     this.key = key;

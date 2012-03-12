@@ -1,11 +1,22 @@
 // MODEL
 
-//After
-//Alekseyenko, A., and Lee, C. (2007).
-//Nested Containment List (NCList): A new algorithm for accelerating
-//   interval query of genome alignment and interval databases.
-//Bioinformatics, doi:10.1093/bioinformatics/btl647
-//http://bioinformatics.oxfordjournals.org/cgi/content/abstract/btl647v1
+/**
+
+Nested containment list.
+
+@class
+
+After
+<pre>
+  Alekseyenko, A., and Lee, C. (2007).
+  Nested Containment List (NCList): A new algorithm for accelerating
+     interval query of genome alignment and interval databases.
+  Bioinformatics, doi:10.1093/bioinformatics/btl647
+</pre>
+
+<a href="http://bioinformatics.oxfordjournals.org/cgi/content/abstract/btl647v1">http://bioinformatics.oxfordjournals.org/cgi/content/abstract/btl647v1</a>
+
+ */
 
 function NCList() {
 }

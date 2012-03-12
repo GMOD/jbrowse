@@ -1,5 +1,8 @@
 // VIEW
 
+/**
+ * @class
+ */
 function SequenceTrack(trackMeta, refSeq, browserParams) {
     //trackMeta: object with:
     //  key:   display text track name
@@ -124,10 +127,12 @@ SequenceTrack.prototype.renderSeqDiv = function ( start, end, seq ) {
     return container;
 };
 
-SequenceTrack.prototype.getRange = function(start, end, callback) {
-    //start: start coord, in interbase
-    //end: end coord, in interbase
-    //callback: function that takes (start, end, seq)
+/**
+ * @param start start coord, in interbase
+ * @param end end coord, in interbase
+ * @param callback function that takes ( start, end, seq )
+ */
+SequenceTrack.prototype.getRange = function( /**Number*/ start, /**Number*/ end, /**Function*/ callback) {
     var firstChunk = Math.floor( Math.max(0,start) / this.chunkSize);
     var lastChunk = Math.floor((end - 1) / this.chunkSize);
     var chunkSize = this.chunkSize;

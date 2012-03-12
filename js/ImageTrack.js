@@ -1,5 +1,8 @@
 // VIEW
 
+/**
+ * @class
+ */
 function ImageTrack(trackMeta, refSeq, browserParams) {
     Track.call(this, trackMeta.label, trackMeta.key,
                false, browserParams.changeCallback);

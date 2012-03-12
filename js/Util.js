@@ -1,5 +1,9 @@
 // MISC
 
+/**
+ * @namespace
+ */
+
 var Util = {};
 
 Util.is_ie = navigator.appVersion.indexOf('MSIE') >= 0;
@@ -364,6 +368,9 @@ if (!Array.prototype.indexOf)
   };
 }
 
+/**
+ * @class
+ */
 function Finisher(fun) {
     this.fun = fun;
     this.count = 0;

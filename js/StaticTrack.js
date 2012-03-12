@@ -1,7 +1,12 @@
 // VIEW
 
-//This track is for (e.g.) position and sequence information that should
-//always stay visible at the top of the view
+/**
+
+This track is for (e.g.) position and sequence information that should
+always stay visible at the top of the view.
+
+@class
+*/
 
 function StaticTrack(name, labelClass, posHeight) {
     Track.call(this, name, name, true, function() {});

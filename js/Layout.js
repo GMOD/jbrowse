@@ -1,6 +1,6 @@
 // VIEW
 
-/*
+/**
  * Code for laying out rectangles, given that layout is also happening
  * in adjacent blocks at the same time
  *
@@ -10,6 +10,7 @@
  * contour spans and give up some packing closeness in exchange for speed
  * (the code already merges spans that have the same x-coord and are vertically
  * contiguous).
+ * @class
  */
 
 function Contour(top) {
@@ -183,6 +184,9 @@ Contour.prototype.getNextTop = function(fit) {
     return this.spans[fit.above].top + this.spans[fit.above].height;
 };
 
+/**
+ * @class
+ */
 function Layout(leftBound, rightBound) {
     this.leftBound = leftBound;
     this.rightBound = rightBound;

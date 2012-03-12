@@ -1,5 +1,8 @@
 // VIEW
 
+/**
+ * @class
+ */
 function FeatureTrack( trackMeta, refSeq, browserParams ) {
     //trackMeta: object with:
     //            key:   display text track name

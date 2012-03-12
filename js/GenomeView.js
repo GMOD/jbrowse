@@ -1,5 +1,8 @@
 // VIEW
 
+/**
+ * @class
+ */
 function Animation(subject, callback, time) {
     //subject: what's being animated
     //callback: function to call at the end of the animation
@@ -59,6 +62,9 @@ Animation.prototype.stop = function() {
     this.callback(this);
 };
 
+/**
+ * @class
+ */
 function Slider(view, callback, time, distance) {
     Animation.call(this, view, callback, time);
     this.slideStart = view.getX();
@@ -78,6 +84,9 @@ Slider.prototype.step = function(pos) {
     this.subject.setX(newX);
 };
 
+/**
+ * @class
+ */
 function Zoomer(scale, toScroll, callback, time, zoomLoc) {
     Animation.call(this, toScroll, callback, time);
     this.toZoom = toScroll.zoomContainer;
@@ -115,6 +124,9 @@ Zoomer.prototype.step = function(pos) {
     this.subject.updateTrackLabels(this.initialX - newLeft);
 };
 
+/**
+ * @class
+ */
 function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     //all coordinates are interbase
 
