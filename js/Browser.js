@@ -110,12 +110,12 @@ Browser.prototype.loadConfig = function () {
     var brwsr = this;
 
     // load any configuration files we've been passed
-    if( typeof this.params.config != 'object' || !this.params.config.length )
-        this.params.config = [ this.params.config ];
+    if( typeof this.params.configFile != 'object' || !this.params.configFile.length )
+        this.params.configFile = [ this.params.configFile ];
 
-    for (var i = 0; i < this.params.config.length; i++) {
-        if( typeof this.params.config[i] == 'string' )
-            this.params.config[i] = { url: this.params.config[i] };
+    for (var i = 0; i < this.params.configFile.length; i++) {
+        if( typeof this.params.configFile[i] == 'string' )
+            this.params.configFile[i] = { url: this.params.configFile[i] };
 
         (function(config) {
              Util.maybeLoad(
@@ -127,7 +127,7 @@ Browser.prototype.loadConfig = function () {
                              brwsr.addConfig( o, { sourceUrl: config.url });
                          });
                  });
-         })(this.params.config[i]);
+         })(this.params.configFile[i]);
     }
 };
 
