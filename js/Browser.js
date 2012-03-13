@@ -37,6 +37,8 @@ var Browser = function(params) {
     this.isInitialized = false;
     var browser = this;
     dojo.addOnLoad( function() { browser.initialize(); } );
+    // TODO: refactor the touch stuff
+    this.deferredFunctions.push(function() { loadTouch(); });
 };
 
 Browser.prototype.initialize = function() {
