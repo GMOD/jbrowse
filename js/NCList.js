@@ -124,10 +124,12 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
             }
             var chunk = this.lazyChunks[chunkNum];
             finish.inc();
-            Util.maybeLoad(Util.resolveUrl(this.baseURL,
+            Util.maybeLoad({ url: Util.resolveUrl(this.baseURL,
                                            this.lazyUrlTemplate.replace(
                                                    /\{Chunk\}/g, chunkNum
                                            ) ),
+                             handleAs: 'json'
+                           },
                            chunk,
                            (function (myChunkNum) {
                                return function(o) {

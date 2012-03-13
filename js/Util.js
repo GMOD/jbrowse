@@ -98,12 +98,13 @@ Util.fillTemplate = function(template, fillWith) {
 
 /**
  * function to load a specified resource only once
- * @param url URL to get
- * @param stateObj object that stores the state of the load
- * @param successCallback function to call on a successful load
- * @param errorCallback function to call on an unsuccessful load
+ * @param {Object}   dojoXhrArgs object containing arguments for dojo.xhrGet,
+ *                               like <code>url</code> and <code>handleAs</code>
+ * @param {Object}   stateObj object that stores the state of the load
+ * @param {Function} successCallback function to call on a successful load
+ * @param {Function} errorCallback function to call on an unsuccessful load
  */
-Util.maybeLoad = function (url, stateObj, successCallback, errorCallback) {
+Util.maybeLoad = function ( dojoXhrArgs, stateObj, successCallback, errorCallback) {
     if (stateObj.state) {
         if ("loaded" == stateObj.state) {
             successCallback(stateObj.data);
@@ -117,22 +118,21 @@ Util.maybeLoad = function (url, stateObj, successCallback, errorCallback) {
         stateObj.state = "loading";
         stateObj.successCallbacks = [successCallback];
         stateObj.errorCallbacks = [errorCallback];
-        dojo.xhrGet(
-            {
-                url: url,
-                handleAs: "json",
-                load: function(o) {
-                    stateObj.state = "loaded";
-                    stateObj.data = o;
-                    var cbs = stateObj.successCallbacks;
-                    for (var c = 0; c < cbs.length; c++) cbs[c](o);
-                },
-                error: function() {
-                    stateObj.state = "error";
-                    var cbs = stateObj.errorCallbacks;
-                    for (var c = 0; c < cbs.length; c++) cbs[c]();
-                }
-            });
+
+        var args = dojo.clone( dojoXhrArgs );
+        args.load = function(o) {
+            stateObj.state = "loaded";
+            stateObj.data = o;
+            var cbs = stateObj.successCallbacks;
+            for (var c = 0; c < cbs.length; c++) cbs[c](o);
+        };
+        args.error = function() {
+            stateObj.state = "error";
+            var cbs = stateObj.errorCallbacks;
+            for (var c = 0; c < cbs.length; c++) cbs[c]();
+        };
+
+        dojo.xhrGet( args );
     }
 };
 

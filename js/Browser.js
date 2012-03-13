@@ -100,7 +100,7 @@ Browser.prototype.initialize = function() {
     var brwsr = this;
     if( typeof this.params.refSeqs == 'string' )
         this.params.refSeqs = { url: this.params.refSeqs };
-    Util.maybeLoad(this.params.refSeqs.url, this.params.refSeqs,
+    Util.maybeLoad({ url: this.config.refSeqs.url, handleAs: 'json'}, this.config.refSeqs,
                    function(o) {
                        brwsr.addRefseqs(o);
                    });
@@ -121,7 +121,10 @@ Browser.prototype.loadConfig = function () {
 
         (function(config) {
              Util.maybeLoad(
-                 config.url,
+                 {
+                     url: config.url,
+                     handleAs: 'json'
+                 },
                  config,
                  function(o) {
                      brwsr.addDeferred(
