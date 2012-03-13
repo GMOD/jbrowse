@@ -41,6 +41,11 @@ var Browser = function(params) {
     this.deferredFunctions.push(function() { loadTouch(); });
 };
 
+/**
+ * Does most of the actual initialization work.  Scheduled by
+ * constructor, and called after page load.
+ * @returns nothing meaningful
+ */
 Browser.prototype.initialize = function() {
 
     this.loadConfig();
@@ -107,8 +112,12 @@ Browser.prototype.initialize = function() {
                    });
 };
 
-// load our configuration files based on the parameters the
-// constructor was passed
+/**
+ *  Load our configuration file(s) based on the parameters thex
+ *  constructor was passed.  Does not return until all files are
+ *  loaded and merged in.
+ *  @returns nothing meaningful
+ */
 Browser.prototype.loadConfig = function () {
     var brwsr = this;
 
