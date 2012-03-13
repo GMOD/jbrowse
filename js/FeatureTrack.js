@@ -240,7 +240,7 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
 };
 
 FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
-    if (destScale < (this.density * this.config.scaleThresh.hist)) {
+    if (destScale < (this.featureStore.density * this.config.scaleThresh.hist)) {
         this.setLabel(this.key + "<br>per " + Math.round(destBlockBases / this.numBins) + "bp");
     } else {
         this.setLabel(this.key);
@@ -255,7 +255,7 @@ FeatureTrack.prototype.fillBlock = function(blockIndex, block,
                                             containerStart, containerEnd) {
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
     if (this.featureStore.histograms &&
-        (scale < (this.density * this.config.scaleThresh.hist)) ) {
+        (scale < (this.featureStore.density * this.config.scaleThresh.hist)) ) {
 	this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
                       containerStart, containerEnd);
     } else {
@@ -445,7 +445,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     // if the label extends beyond the feature, use the
     // label end position as the end position for layout
     var name = feature.get('name');
-    var labelScale = this.density * this.config.scaleThresh.label;
+    var labelScale = this.featureStore.density * this.config.scaleThresh.label;
     if (name && (scale > labelScale)) {
 	featureEnd = Math.max(featureEnd,
                               featureStart + ((name ? name.length : 0)
