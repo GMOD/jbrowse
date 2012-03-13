@@ -17,6 +17,7 @@
 <!-- the files between the "js_source_files" comments get replaced
      when the JS gets minified (see the minification rule in the Makefile) -->
     <script type="text/javascript" src="js/Browser.js"></script>
+    <script type="text/javascript" src="js/ConfigAdaptor/JB_json_v1.js"></script>
     <script type="text/javascript" src="js/Util.js"></script>
     <script type="text/javascript" src="js/ArrayRepr.js"></script>
     <script type="text/javascript" src="js/NCList.js"></script>
@@ -56,7 +57,7 @@
                                    defaultTracks: "DNA,gene,mRNA,noncodingRNA",
                                    queryParams: queryParams,
                                    location: queryParams.loc,
-                                   tracks: queryParams.tracks,
+                                   forceTracks: queryParams.tracks,
 				   show_nav: queryParams.nav,
 				   show_tracklist: queryParams.tracklist,
 				   show_overview: queryParams.overview
