@@ -36,7 +36,7 @@ class VolvoxBiodbTest( JBrowseTest ):
         # test sequence track display
         self.sequence()
 
-        pass;
+        self.browser.close()
 
     def sequence( self ):
         self.do_typed_query( '0..80' );

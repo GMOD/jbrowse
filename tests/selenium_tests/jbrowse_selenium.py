@@ -23,9 +23,6 @@ class JBrowseTest( TestCase ):
             + ( "?data="+self.data_dir if self.data_dir else "" )
         )
 
-    def tearDown( self ):
-        self.browser.close()
-
     ## convenience methods for us
 
     def assert_element( self, xpathExpression ):
