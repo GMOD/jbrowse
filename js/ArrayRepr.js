@@ -218,20 +218,22 @@ ArrayRepr.prototype._makeAccessors = function() {
     var that = this,
         accessors = {
             get: function(field) {
-                var f = this.get[field];
+                var f = this.get.field_accessors[field];
                 if( f )
                     return f.call(this);
                 else
                     return undefined;
             },
             set: function(field,val) {
-                var f = this.set[field];
+                var f = this.set.field_accessors[field];
                 if( f )
                     return f.call(this,val);
                 else
                     return undefined;
             }
         };
+    accessors.get.field_accessors = {};
+    accessors.set.field_accessors = {};
 
     // make a data structure as: { attr_name: [offset,offset,offset], }
     // that will be convenient for finding the location of the attr
@@ -245,19 +247,20 @@ ArrayRepr.prototype._makeAccessors = function() {
         });
     });
 
+    // use that to make precalculated get and set accessors for each field
     for( var attrname in indices ) {
         if( ! indices.hasOwnProperty(attrname) ) continue;
 
-        // make a get accessor
-        accessors.get[ attrname ] = (function() {
+        // get
+        accessors.get.field_accessors[ attrname ] = (function() {
             var attr_indices = indices[attrname];
             return !attr_indices ? function() { return undefined; } : function() {
                 return this[ attr_indices[ this[0] ] ];
             };
         })();
 
-        // make a set accessor
-        accessors.set[ attrname ] = (function() {
+        // set
+        accessors.set.field_accessors[ attrname ] = (function() {
             var attr_indices =  indices[attrname];
             return !attr_indices ? function() { return undefined; } : function(v) {
                 return ( this[ attr_indices[ this[0] ] ] = v );
