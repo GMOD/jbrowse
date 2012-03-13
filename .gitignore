@@ -14,3 +14,4 @@ wig2png/config.log
 wig2png/config.status
 wig2png/src/config.h
 docs/jsdoc/
+./index-debug.html

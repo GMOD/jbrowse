@@ -32,7 +32,7 @@ class YeastBiodbTest ( JBrowseTest, unittest.TestCase ):
         # test scrolling, make sure we get no js errors
         self.scroll()
 
-        pass;
+        self.browser.close()
 
     def search_yal024c( self ):
 
