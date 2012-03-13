@@ -126,7 +126,8 @@ Util.maybeLoad = function ( dojoXhrArgs, stateObj, successCallback, errorCallbac
             var cbs = stateObj.successCallbacks;
             for (var c = 0; c < cbs.length; c++) cbs[c](o);
         };
-        args.error = function() {
+        args.error = function(error) {
+            console.error(''+error);
             stateObj.state = "error";
             var cbs = stateObj.errorCallbacks;
             for (var c = 0; c < cbs.length; c++) cbs[c]();
@@ -145,10 +146,11 @@ Util.deepUpdate = function(a, b) {
             && ("object" == typeof b[prop])
             && ("object" == typeof a[prop]) ) {
             Util.deepUpdate(a[prop], b[prop]);
-        } else {
+        } else if( typeof a[prop] == 'undefined' || typeof b[prop] != undefined ){
             a[prop] = b[prop];
         }
     }
+    return a;
 };
 
 // from http://bugs.dojotoolkit.org/ticket/5794
