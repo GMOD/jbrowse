@@ -204,8 +204,12 @@ Browser.prototype.loadConfig = function () {
     dojo.forEach( this.config.include, function(config) {
 
         // set defaults for format and version
-        if( !config.format ) config.format = 'JB_json';
-        if( typeof config.version == 'undefined' ) config.version = 1;
+        if( ! ('format' in config) ) {
+            config.format = 'JB_json';
+        }
+        if( config.format == 'JB_json' && ! ('version' in config) ) {
+            config.version = 1;
+        }
 
         // instantiate the adaptor and load the config
         var adaptor = this.getConfigAdaptor( config );
@@ -274,7 +278,7 @@ Browser.prototype.validateConfig = function() {
 
 Browser.prototype.getConfigAdaptor = function( config_def ) {
     var adaptor_name = "ConfigAdaptor." + config_def.format;
-    if( config_def.version )
+    if( 'version' in config_def )
         adaptor_name += '_v'+config_def.version;
     adaptor_name.replace( /\W/g,'' );
     var adaptor_class = eval( adaptor_name );
