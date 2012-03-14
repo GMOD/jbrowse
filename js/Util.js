@@ -260,6 +260,19 @@ Util.matchRefSeqName = function( name, refseqs ) {
     return null;
 };
 
+/**
+ * Wrap a handler function to be called 1ms later in a window timeout.
+ * This will usually give a better stack trace for figuring out where
+ * errors are happening.
+ */
+Util.debugHandler = function( context, func ) {
+    var debuggedHandler = function() {
+        var args = arguments;
+        window.setTimeout( function() { func.apply(context,args);}, 1);
+    };
+    return debuggedHandler;
+};
+
 if (!Array.prototype.reduce)
 {
   Array.prototype.reduce = function(fun /*, initial*/)
