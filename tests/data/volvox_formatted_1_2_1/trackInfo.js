@@ -1,73 +1,79 @@
 trackInfo = 
 [
    {
-      "url" : "seq/{refseq}/",
       "args" : {
          "chunkSize" : 20000
       },
-      "label" : "DNA",
+      "url" : "seq/{refseq}/",
       "type" : "SequenceTrack",
+      "label" : "DNA",
       "key" : "DNA"
    },
    {
       "url" : "tracks/{refseq}/ExampleFeatures/trackData.json",
-      "type" : "FeatureTrack",
       "label" : "ExampleFeatures",
+      "type" : "FeatureTrack",
       "key" : "Example Features"
    },
    {
       "url" : "tracks/{refseq}/NameTest/trackData.json",
-      "label" : "NameTest",
       "type" : "FeatureTrack",
+      "label" : "NameTest",
       "key" : "Name test track"
    },
    {
       "url" : "tracks/{refseq}/Motifs/trackData.json",
-      "type" : "FeatureTrack",
       "label" : "Motifs",
+      "type" : "FeatureTrack",
       "key" : "Example motifs"
    },
    {
       "url" : "tracks/{refseq}/Alignments/trackData.json",
-      "label" : "Alignments",
       "type" : "FeatureTrack",
+      "label" : "Alignments",
       "key" : "Example alignments"
    },
    {
       "url" : "tracks/{refseq}/Genes/trackData.json",
-      "type" : "FeatureTrack",
       "label" : "Genes",
+      "type" : "FeatureTrack",
       "key" : "Protein-coding genes"
    },
    {
       "url" : "tracks/{refseq}/ReadingFrame/trackData.json",
-      "label" : "ReadingFrame",
       "type" : "FeatureTrack",
+      "label" : "ReadingFrame",
       "key" : "Frame usage"
    },
    {
       "url" : "tracks/{refseq}/CDS/trackData.json",
-      "type" : "FeatureTrack",
       "label" : "CDS",
+      "type" : "FeatureTrack",
       "key" : "Predicted genes"
    },
    {
       "url" : "tracks/{refseq}/Transcript/trackData.json",
-      "label" : "Transcript",
       "type" : "FeatureTrack",
+      "label" : "Transcript",
       "key" : "Exonerate predictions"
    },
    {
       "url" : "tracks/{refseq}/Clones/trackData.json",
-      "type" : "FeatureTrack",
       "label" : "Clones",
+      "type" : "FeatureTrack",
       "key" : "Fingerprinted BACs"
    },
    {
       "url" : "tracks/{refseq}/EST/trackData.json",
-      "label" : "EST",
       "type" : "FeatureTrack",
+      "label" : "EST",
       "key" : "ESTs"
+   },
+   {
+      "url" : "tracks/{refseq}/bam_simulated/trackData.json",
+      "label" : "bam_simulated",
+      "type" : "FeatureTrack",
+      "key" : "Simulated next-gen reads"
    },
    {
       "url" : "tracks/{refseq}/volvox_microarray.wig.json",
