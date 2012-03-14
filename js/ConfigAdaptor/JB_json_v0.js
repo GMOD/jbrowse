@@ -22,14 +22,20 @@ ConfigAdaptor.JB_json_v0.prototype.regularize_conf = function( o, load_args ) {
 
     console.log(o);
 
-    // transform the object to conform to format version 1
+    // transform Ye Olde Confige to conform to format version 1
     o = { tracks: o };
     dojo.forEach( o.tracks, function( trackdef ) {
         if( 'url' in trackdef ) {
             trackdef.urlTemplate = trackdef.url;
             //trackdef.urlTemplate = trackdef.url.replace(/\{refseq\}\/([^/]+)/, "$1/{refseq}");
             delete trackdef.url;
+
+            // TODO: this backendVersion thing is a stopgap until we
+            // refactor far enough to have real pluggable datasources
+            trackdef.backendVersion = 0;
         }
+
+        
     });
 
     console.log(o);

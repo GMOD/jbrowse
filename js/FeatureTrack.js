@@ -24,10 +24,12 @@ function FeatureTrack( config, refSeq, browserParams ) {
     this.fields = {};
     this.refSeq = refSeq;
 
-    this.featureStore = new SeqFeatureStore.NCList({
+    var storeclass = config.backendVersion == 0 ? SeqFeatureStore.NCList_v0 : SeqFeatureStore.NCList;
+    this.featureStore = new storeclass({
         urlTemplate: config.urlTemplate,
         baseUrl: config.baseUrl,
-        refSeq: refSeq
+        refSeq: refSeq,
+        track: this
     });
 
     // connect the store and track loadSuccess and loadFailed events

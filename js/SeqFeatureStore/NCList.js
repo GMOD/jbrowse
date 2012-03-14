@@ -1,5 +1,7 @@
+var SeqFeatureStore; if( !SeqFeatureStore) SeqFeatureStore = function() {};
+
 /**
- * Implementation of SeqFeatureStore using using nested containment
+ * Implementation of SeqFeatureStore using nested containment
  * lists held in static files that are lazily fetched from the web
  * server.
  *
@@ -7,12 +9,12 @@
  * @augments SeqFeatureStore
  */
 
-var SeqFeatureStore;
-
 SeqFeatureStore.NCList = function(args) {
     SeqFeatureStore.call( this, args );
+    if( !args )
+        return;
 
-    this.nclist = new NCList();
+    this.nclist = this.makeNCList();
 
     this.baseUrl = args.baseUrl;
     this.urlTemplates = { tracklist: args.urlTemplate };
@@ -20,6 +22,10 @@ SeqFeatureStore.NCList = function(args) {
 };
 
 SeqFeatureStore.NCList.prototype = new SeqFeatureStore();
+
+SeqFeatureStore.NCList.prototype.makeNCList = function() {
+    return new NCList();
+};
 
 SeqFeatureStore.NCList.prototype.load = function() {
     var that = this,
@@ -29,10 +35,10 @@ SeqFeatureStore.NCList.prototype.load = function() {
                                       {'refseq': this.refSeq.name}
                                     )
                );
-    // fetch the trackList
+    // fetch the trackdata
     dojo.xhrGet({ url: url,
                   handleAs: "json",
-                  load:  function(o) { that.loadSuccess(o, url); },
+                  load:  Util.debugHandler(this,function(o) { that.loadSuccess(o, url); }),
                   error: function(e) { console.error(''+e); that.loadFail(e, url);    }
 	        });
 };
@@ -43,13 +49,7 @@ SeqFeatureStore.NCList.prototype.loadSuccess = function( trackInfo, url ) {
     // average feature density per base
     this.density = trackInfo.featureCount / this.refSeq.length;
 
-    this.attrs = new ArrayRepr(trackInfo.intervals.classes);
-    this.nclist.importExisting( trackInfo.intervals.nclist,
-                                this.attrs,
-                                url,
-                                trackInfo.intervals.urlTemplate,
-                                trackInfo.intervals.lazyClass
-                              );
+    this.loadNCList( trackInfo, url );
 
     if (trackInfo.histograms) {
         this.histograms = trackInfo.histograms;
@@ -60,6 +60,17 @@ SeqFeatureStore.NCList.prototype.loadSuccess = function( trackInfo, url ) {
     }
 };
 
+SeqFeatureStore.NCList.prototype.loadNCList = function( trackInfo, url ) {
+    this.attrs = new ArrayRepr(trackInfo.intervals.classes);
+    this.nclist.importExisting( trackInfo.intervals.nclist,
+                                this.attrs,
+                                url,
+                                trackInfo.intervals.urlTemplate,
+                                trackInfo.intervals.lazyClass
+                              );
+};
+
+
 SeqFeatureStore.NCList.prototype.loadFail = function(trackInfo,url) {
     this.empty = true;
     this.setLoaded();
@@ -69,6 +80,7 @@ SeqFeatureStore.NCList.prototype.loadFail = function(trackInfo,url) {
 SeqFeatureStore.NCList.prototype.histogram = function() {
     return this.nclist.histogram.apply( this.nclist, arguments );
 };
+
 
 SeqFeatureStore.NCList.prototype.iterate = function( startBase, endBase, origFeatCallback, finishCallback ) {
     var that = this;

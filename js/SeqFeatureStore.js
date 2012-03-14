@@ -17,14 +17,3 @@ function SeqFeatureStore(args) {
     this.changed = args.changeCallback;
 };
 
-
-
-/**
- * Return a stored feature given its primary unique identifier.
- */
-
-SeqFeatureStore.prototype.get_feature_by_id = function(id) {
-
-};
-
-
