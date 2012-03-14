@@ -210,8 +210,7 @@ Browser.prototype.loadConfig = function () {
         // instantiate the adaptor and load the config
         var adaptor = this.getConfigAdaptor( config );
         if( !adaptor ) {
-            console.log( "WARNING: could not load config: " );
-            console.log( config );
+            console.error( "Could not load config "+config.url+", no configuration adaptor found for config format "+config.format+' version '+config.version );
             return;
         }
 
