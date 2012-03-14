@@ -22,6 +22,7 @@ class JBrowseTest (object):
             self.base_url
             + ( "?data="+self.data_dir if self.data_dir else "" )
         )
+        time.sleep(0.5)
 
     ## convenience methods for us
 
