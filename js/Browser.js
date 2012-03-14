@@ -189,19 +189,19 @@ Browser.prototype.onResize = function() {
 Browser.prototype.loadConfig = function () {
     var that = this;
 
-    // coerce configFile to an array
-    if( typeof this.config.configFile != 'object' || !this.config.configFile.length )
-        this.config.configFile = [ this.config.configFile ];
+    // coerce include to an array
+    if( typeof this.config.include != 'object' || !this.config.include.length )
+        this.config.include = [ this.config.include ];
 
     // coerce bare strings in the configs to URLs
-    for (var i = 0; i < this.config.configFile.length; i++) {
-        if( typeof this.config.configFile[i] == 'string' )
-            this.config.configFile[i] = { url: this.config.configFile[i] };
+    for (var i = 0; i < this.config.include.length; i++) {
+        if( typeof this.config.include[i] == 'string' )
+            this.config.include[i] = { url: this.config.include[i] };
     }
 
     // fetch and parse all the configuration data
-    var configs_remaining = this.config.configFile.length;
-    dojo.forEach( this.config.configFile, function(config) {
+    var configs_remaining = this.config.include.length;
+    dojo.forEach( this.config.include, function(config) {
 
         // set defaults for format and version
         if( !config.format ) config.format = 'JB_json';
@@ -242,7 +242,7 @@ Browser.prototype.onConfigLoaded = function() {
     this.config = {};
 
     // load all the configuration data in order
-    dojo.forEach( initial_config.configFile, function( config ) {
+    dojo.forEach( initial_config.include, function( config ) {
                       if( config.loaded && config.data )
                           this.addConfigData( config.data );
                   }, this );
