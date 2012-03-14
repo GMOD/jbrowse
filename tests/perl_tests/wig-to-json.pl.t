@@ -31,23 +31,18 @@ is_deeply( $tracklist,
                'formatVersion' => 1,
                'tracks' => [
                    {
-                       'config' => {
-                           'chunkSize' => 20000,
-                           'urlTemplate' => 'seq/{refseq}/'
-                           },
+                       'chunkSize' => 20000,
+                       'urlTemplate' => 'seq/{refseq}/',
                        'key' => 'DNA',
                        'label' => 'DNA',
                        'type' => 'SequenceTrack'
                    },
                    {
-                       'config' => {
-                           'compress' => 0,
-                           'key' => 'volvox_microarray.wig',
-                           'style' => {
-                               'className' => 'image',
-                               },
-                           'urlTemplate' => 'tracks/volvox_microarray.wig/{refseq}/trackData.json'
-                           },
+                       'compress' => 0,
+                       'style' => {
+                           'className' => 'image',
+                       },
+                       'urlTemplate' => 'tracks/volvox_microarray.wig/{refseq}/trackData.json',
                        'key' => 'volvox_microarray.wig',
                        'label' => 'volvox_microarray.wig',
                        'type' => 'ImageTrack'

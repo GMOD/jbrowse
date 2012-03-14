@@ -247,11 +247,8 @@ unless ($noSeq) {
                                        'label' => $seqTrackName,
                                        'key' => $seqTrackName,
                                        'type' => "SequenceTrack",
-                                       'config' =>
-                                       {
-                                        'chunkSize' => $chunkSize,
-                                        'urlTemplate' => "$seqRel/{refseq}/",
-                                       }
+                                       'chunkSize' => $chunkSize,
+                                       'urlTemplate' => "$seqRel/{refseq}/",
                                       };
                                     return $trackList;
                             });

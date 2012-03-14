@@ -3,8 +3,8 @@
 /**
  * @class
  */
-function FeatureTrack( trackMeta, refSeq, browserParams ) {
-    //trackMeta: object with:
+function FeatureTrack( config, refSeq, browserParams ) {
+    //config: object with:
     //            key:   display text track name
     //            label: internal track name (no spaces, odd characters)
     //            baseUrl: base URL to use for resolving relative URLs
@@ -17,16 +17,16 @@ function FeatureTrack( trackMeta, refSeq, browserParams ) {
     //browserParams: object with:
     //                changeCallback: function to call once JSON is loaded
     //                trackPadding: distance in px between tracks
-    //                baseUrl: base URL for the URL in trackMeta
+    //                baseUrl: base URL for the URL in config
 
-    Track.call(this, trackMeta.label, trackMeta.key,
+    Track.call(this, config.label, config.key,
                false, browserParams.changeCallback);
     this.fields = {};
     this.refSeq = refSeq;
 
     this.featureStore = new SeqFeatureStore.NCList({
-        urlTemplate: trackMeta.config.urlTemplate,
-        baseUrl: trackMeta.baseUrl,
+        urlTemplate: config.urlTemplate,
+        baseUrl: config.baseUrl,
         refSeq: refSeq
     });
 
@@ -43,8 +43,7 @@ function FeatureTrack( trackMeta, refSeq, browserParams ) {
     this.padding = 5;
     this.trackPadding = browserParams.trackPadding;
 
-    this.trackMeta = trackMeta;
-    this.config = trackMeta.config;
+    this.config = config;
 }
 
 FeatureTrack.prototype = new Track("");

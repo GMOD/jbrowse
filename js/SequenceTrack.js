@@ -7,9 +7,8 @@ function SequenceTrack(trackMeta, refSeq, browserParams) {
     //trackMeta: object with:
     //  key:   display text track name
     //  label: internal track name (no spaces or odd characters)
-    //  config: object with:
-    //    urlTemplate: url of directory in which to find the sequence chunks
-    //    chunkSize: size of sequence chunks, in characters
+    //  urlTemplate: url of directory in which to find the sequence chunks
+    //  chunkSize: size of sequence chunks, in characters
     //refSeq: object with:
     //  start: refseq start
     //  end:   refseq end
@@ -26,9 +25,9 @@ function SequenceTrack(trackMeta, refSeq, browserParams) {
     this.trackMeta = trackMeta;
     this.setLoaded();
     this.chunks = [];
-    this.chunkSize = trackMeta.config.chunkSize;
+    this.chunkSize = trackMeta.chunkSize;
     this.url = Util.resolveUrl(trackMeta.baseUrl,
-                               Util.fillTemplate(trackMeta.config.urlTemplate,
+                               Util.fillTemplate(trackMeta.urlTemplate,
                                                  {'refseq': refSeq.name}) );
 
 }

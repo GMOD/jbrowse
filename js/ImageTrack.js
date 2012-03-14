@@ -3,15 +3,15 @@
 /**
  * @class
  */
-function ImageTrack(trackMeta, refSeq, browserParams) {
-    Track.call(this, trackMeta.label, trackMeta.key,
+function ImageTrack(config, refSeq, browserParams) {
+    Track.call(this, config.label, config.key,
                false, browserParams.changeCallback);
     this.refSeq = refSeq;
     this.trackPadding = browserParams.trackPadding;
     this.tileToImage = {};
     this.zoomCache = {};
-    this.url = Util.resolveUrl(trackMeta.baseUrl,
-                               Util.fillTemplate(trackMeta.config.urlTemplate,
+    this.url = Util.resolveUrl(config.baseUrl,
+                               Util.fillTemplate(config.urlTemplate,
                                                  {'refseq': refSeq.name}) );
     this.load(this.url);
 
