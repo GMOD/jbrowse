@@ -6,7 +6,7 @@ var SeqFeatureStore; if( !SeqFeatureStore) SeqFeatureStore = function() {};
  * server.
  *
  * @class
- * @augments SeqFeatureStore
+ * @extends SeqFeatureStore
  */
 
 SeqFeatureStore.NCList = function(args) {

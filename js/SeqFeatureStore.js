@@ -6,6 +6,7 @@
  * Bio::DB::SeqFeature::Store.
   *
  * @class
+ * @extends Store
  * @constructor
  *
  */

@@ -24,6 +24,9 @@ function FeatureTrack( config, refSeq, browserParams ) {
     this.fields = {};
     this.refSeq = refSeq;
 
+    // TODO: this featureStore object should eventuallly be
+    // instantiated by Browser and passed into this constructor, not
+    // constructed here.
     var storeclass = config.backendVersion == 0 ? SeqFeatureStore.NCList_v0 : SeqFeatureStore.NCList;
     this.featureStore = new storeclass({
         urlTemplate: config.urlTemplate,

@@ -1,7 +1,10 @@
 // VIEW
 
 /**
+ * A track that displays tiled images (PNGs, or other images) along
+ * the reference sequence.
  * @class
+ * @extends Track
  */
 function ImageTrack(config, refSeq, browserParams) {
     Track.call(this, config.label, config.key,
