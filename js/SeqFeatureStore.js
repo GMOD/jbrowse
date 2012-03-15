@@ -8,13 +8,15 @@
  * @class
  * @extends Store
  * @constructor
- *
  */
 
 function SeqFeatureStore(args) {
+    Store.call(this, args);
+
     if( !args ) return;
 
     this.loaded  = args.loaded;
     this.changed = args.changeCallback;
 };
 
+SeqFeatureStore.prototype = new Store('');
