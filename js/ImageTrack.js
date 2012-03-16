@@ -9,81 +9,56 @@
 function ImageTrack(config, refSeq, browserParams) {
     Track.call(this, config.label, config.key,
                false, browserParams.changeCallback);
+
     this.refSeq = refSeq;
     this.trackPadding = browserParams.trackPadding;
-    this.tileToImage = {};
-    this.zoomCache = {};
-    this.url = Util.resolveUrl(config.baseUrl,
-                               Util.fillTemplate(config.urlTemplate,
-                                                 {'refseq': refSeq.name}) );
-    this.load(this.url);
 
-    this.imgErrorHandler = function(ev) {
-        var img = ev.currentTarget || ev.srcElement;
-        img.style.display = "none";
-        dojo.stopEvent(ev);
-    };
+    this.config = config;
+
+    this.imagestore = new TiledImageStore.Fixed({
+                              refSeq: refSeq,
+                              urlTemplate: config.urlTemplate,
+                              baseUrl: config.baseUrl,
+                              track: this
+                          });
+    dojo.connect( this.imagestore, 'loadSuccess', this, 'loadSuccess' );
+    dojo.connect( this.imagestore, 'loadFail',    this, 'loadFail'    );
+
+    this.imagestore.load();
 }
 
 ImageTrack.prototype = new Track("");
 
-ImageTrack.prototype.loadSuccess = function(o) {
-    //tileWidth: width, in pixels, of the tiles
-    this.tileWidth = o.tileWidth;
-    this.align = o.align;
-    //zoomLevels: array of {basesPerTile, urlPrefix} hashes
-    this.zoomLevels = o.zoomLevels;
+ImageTrack.prototype.loadSuccess = function(o,url) {
+    this.empty = this.imagestore.empty;
     this.setLoaded();
 };
 
 ImageTrack.prototype.setViewInfo = function(heightUpdate, numBlocks,
                                             trackDiv, labelDiv,
                                             widthPct, widthPx, scale) {
-    Track.prototype.setViewInfo.apply(this, [heightUpdate, numBlocks,
-                                             trackDiv, labelDiv,
-                                             widthPct, widthPx, scale]);
-    this.setLabel(this.key);
+    Track.prototype.setViewInfo.apply( this, arguments );
+    this.setLabel( this.key );
 };
 
-ImageTrack.prototype.getZoom = function(scale) {
-    var result = this.zoomCache[scale];
-    if (result) return result;
-
-    result = this.zoomLevels[0];
-    var desiredBases = this.tileWidth / scale;
-    for (i = 1; i < this.zoomLevels.length; i++) {
-        if (Math.abs(this.zoomLevels[i].basesPerTile - desiredBases)
-            < Math.abs(result.basesPerTile - desiredBases))
-            result = this.zoomLevels[i];
-    }
-
-    this.zoomCache[scale] = result;
-    return result;
+ImageTrack.prototype.handleImageError = function(ev) {
+    var img = ev.currentTarget || ev.srcElement;
+    img.style.display = "none";
+    dojo.stopEvent(ev);
 };
 
-ImageTrack.prototype.getImages = function(zoom, startBase, endBase) {
-    //var startTile = ((startBase - this.refSeq.start) / zoom.basesPerTile) | 0;
-    //var endTile = ((endBase - this.refSeq.start) / zoom.basesPerTile) | 0;
-    var startTile = (startBase / zoom.basesPerTile) | 0;
-    var endTile = (endBase / zoom.basesPerTile) | 0;
-    startTile = Math.max(startTile, 0);
-    var result = [];
-    var im;
-    for (var i = startTile; i <= endTile; i++) {
-	im = this.tileToImage[i];
-	if (!im) {
-	    im = document.createElement("img");
-            dojo.connect(im, "onerror", this.imgErrorHandler);
-            im.src = Util.resolveUrl(this.url, zoom.urlPrefix + i + ".png");
-            //TODO: need image coord systems that don't start at 0?
-	    im.startBase = (i * zoom.basesPerTile); // + this.refSeq.start;
-	    im.baseWidth = zoom.basesPerTile;
-	    im.tileNum = i;
-	    this.tileToImage[i] = im;
-	}
-	result.push(im);
-    }
-    return result;
+
+/**
+ * @private
+ */
+ImageTrack.prototype._makeImageLoadHandler = function( img, blockIndex, blockWidth ) {
+    var that = this;
+    return function() {
+        img.style.height = img.height + "px";
+        img.style.width  = (100 * (img.baseWidth / blockWidth)) + "%";
+        that.heightUpdate( img.height, blockIndex );
+        return true;
+    };
 };
 
 ImageTrack.prototype.fillBlock = function(blockIndex, block,
@@ -91,48 +66,44 @@ ImageTrack.prototype.fillBlock = function(blockIndex, block,
                                           leftBase, rightBase,
                                           scale, stripeWidth,
                                           containerStart, containerEnd) {
-    var zoom = this.getZoom(scale);
     var blockWidth = rightBase - leftBase;
-    var images = this.getImages(zoom, leftBase, rightBase);
+    var images = this.imagestore.getImages( scale, leftBase, rightBase );
     var im;
 
-    var self = this;
-    var makeLoadHandler = function(img, bi) {
-        return function() {
-            img.style.height = img.height + "px";
-            img.style.width = (100 * (img.baseWidth / blockWidth)) + "%";
-            self.heightUpdate(img.height, bi);
-        };
-    };
-
-    for (var i = 0; i < images.length; i++) {
-	im = images[i];
+    dojo.forEach( images, function(im) {
         im.className = 'image-track';
 	if (!(im.parentNode && im.parentNode.parentNode)) {
             im.style.position = "absolute";
             im.style.left = (100 * ((im.startBase - leftBase) / blockWidth)) + "%";
-            switch (self.align) {
+            switch (this.config.align) {
             case "top":
                 im.style.top = "0px";
                 break;
             case "bottom":
+            default:
                 im.style.bottom = this.trackPadding + "px";
                 break;
             }
             block.appendChild(im);
 	}
-        if (im.complete) {
-            makeLoadHandler(im, blockIndex)();
-        } else {
-            dojo.connect(im, "onload", makeLoadHandler(im, blockIndex));
-        }
-    }
+
+        // make an onload handler for when the image is fetched that
+        // will update the height and width of the track
+        var loadhandler = this._makeImageLoadHandler( im, blockIndex, blockWidth );
+        if( im.complete )
+            // just call the handler ourselves if the image is already loaded
+            loadhandler();
+        else
+            // otherwise schedule it
+            dojo.connect( im, "onload", loadhandler );
+
+    }, this);
 };
 
 ImageTrack.prototype.startZoom = function(destScale, destStart, destEnd) {
     if (this.empty) return;
-    this.tileToImage = {};
-    this.getImages(this.getZoom(destScale), destStart, destEnd);
+    this.imagestore.clearCache();
+    this.imagestore.getImages( destScale, destStart, destEnd );
 };
 
 ImageTrack.prototype.endZoom = function(destScale, destBlockBases) {
@@ -141,7 +112,7 @@ ImageTrack.prototype.endZoom = function(destScale, destBlockBases) {
 
 ImageTrack.prototype.clear = function() {
     Track.prototype.clear.apply(this);
-    this.tileToImage = {};
+    this.imagestore.clearCache();
 };
 
 ImageTrack.prototype.transfer = function(sourceBlock, destBlock, scale,
@@ -162,7 +133,8 @@ ImageTrack.prototype.transfer = function(sourceBlock, destBlock, scale,
 		im.style.left = (100 * ((im.startBase - destLeft) / (destRight - destLeft))) + "%";
 		destBlock.appendChild(im);
 	    } else {
-		delete this.tileToImage[im.tileNum];
+                // don't move it, and even uncache it
+		this.imagestore.unCacheImage( im );
 	    }
 	}
     }

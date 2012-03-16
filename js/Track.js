@@ -22,6 +22,10 @@ Track.prototype.load = function(url) {
 	        });
 };
 
+Track.prototype.loadSuccess = function(error) {
+    this.setLoaded();
+};
+
 Track.prototype.loadFail = function(error) {
     this.empty = true;
     this.setLoaded();

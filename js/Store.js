@@ -16,7 +16,7 @@ Store.prototype.loadFail = function(error) {
 
 Store.prototype.load = function(url) {
     var that = this;
-    dojo.xhrGet({url: url,
+    dojo.xhrGet({url: url || this.url,
                  handleAs: "json",
                  load: function(o)  { that.loadSuccess(o, url); },
                  error: function(o) { that.loadFail(o, url); }
