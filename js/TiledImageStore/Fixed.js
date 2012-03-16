@@ -37,7 +37,10 @@ TiledImageStore.Fixed.prototype.loadSuccess = function(o) {
     this.setLoaded();
 };
 
-TiledImageStore.Fixed.prototype.getZoom = function(scale) {
+/**
+ * @private
+ */
+TiledImageStore.Fixed.prototype._getZoom = function(scale) {
     var result = this.zoomCache[scale];
     if (result) return result;
 
@@ -63,7 +66,7 @@ TiledImageStore.Fixed.prototype.getZoom = function(scale) {
  */
 TiledImageStore.Fixed.prototype.getImages = function( scale, startBase, endBase ) {
 
-    var zoom = this.getZoom( scale );
+    var zoom = this._getZoom( scale );
 
     var startTile = Math.max( startBase / zoom.basesPerTile, 0 ) | 0;
     var endTile   =           endBase   / zoom.basesPerTile      | 0;
