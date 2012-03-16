@@ -20,8 +20,6 @@ ConfigAdaptor.JB_json_v0.prototype = new ConfigAdaptor.JB_json_v1();
  */
 ConfigAdaptor.JB_json_v0.prototype.regularize_conf = function( o, load_args ) {
 
-    console.log(o);
-
     // transform Ye Olde Confige to conform to format version 1
     o = { tracks: o };
     dojo.forEach( o.tracks, function( trackdef ) {
@@ -34,11 +32,7 @@ ConfigAdaptor.JB_json_v0.prototype.regularize_conf = function( o, load_args ) {
             // refactor far enough to have real pluggable datasources
             trackdef.backendVersion = 0;
         }
-
-        
     });
-
-    console.log(o);
 
     return ConfigAdaptor.JB_json_v1.prototype.regularize_conf.call( this, o, load_args );
 };
