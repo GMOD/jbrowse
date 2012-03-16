@@ -15,7 +15,10 @@ function ImageTrack(config, refSeq, browserParams) {
 
     this.config = config;
 
-    this.imagestore = new TiledImageStore.Fixed({
+    // TODO: the imagestore should be passed in as an arg to the
+    // constructor, not instantiated here
+    var storeclass = config.backendVersion == 0 ? TiledImageStore.Fixed_v0 : TiledImageStore.Fixed;
+    this.imagestore = new storeclass({
                               refSeq: refSeq,
                               urlTemplate: config.urlTemplate,
                               baseUrl: config.baseUrl,

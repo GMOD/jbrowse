@@ -13,6 +13,8 @@ var TiledImageStore; if( !TiledImageStore ) TiledImageStore = {};
 
 TiledImageStore.Fixed = function(args) {
     Store.call( this, args );
+    if( !args )
+        return;
 
     this.tileToImage = {};
     this.zoomCache = {};
@@ -46,7 +48,7 @@ TiledImageStore.Fixed.prototype._getZoom = function(scale) {
 
     result = this.zoomLevels[0];
     var desiredBases = this.tileWidth / scale;
-    for (i = 1; i < this.zoomLevels.length; i++) {
+    for (var i = 1; i < this.zoomLevels.length; i++) {
         if (Math.abs(this.zoomLevels[i].basesPerTile - desiredBases)
             < Math.abs(result.basesPerTile - desiredBases))
             result = this.zoomLevels[i];
@@ -78,7 +80,7 @@ TiledImageStore.Fixed.prototype.getImages = function( scale, startBase, endBase 
 	if (!im) {
 	    im = document.createElement("img");
             dojo.connect(im, "onerror", this.handleImageError );
-            im.src = Util.resolveUrl(this.url, zoom.urlPrefix + i + ".png");
+            im.src = this._imageSource( zoom, i );
             //TODO: need image coord systems that don't start at 0?
 	    im.startBase = (i * zoom.basesPerTile); // + this.refSeq.start;
 	    im.baseWidth = zoom.basesPerTile;
@@ -90,6 +92,14 @@ TiledImageStore.Fixed.prototype.getImages = function( scale, startBase, endBase 
     return result;
 };
 
+/**
+ * Gives the image source for a given zoom (as returned by _getZoom())
+ * and tileIndex.
+ * @private
+ */
+TiledImageStore.Fixed.prototype._imageSource = function( zoom, tileIndex ) {
+    return Util.resolveUrl(this.url, zoom.urlPrefix + tileIndex + ".png");
+};
 
 /**
  * Clear the store's cache of image elements.
