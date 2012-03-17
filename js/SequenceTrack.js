@@ -19,18 +19,23 @@
  *  charWidth: width, in pixels, of sequence base characters
  *  seqHeight: height, in pixels, of sequence elements
  */
-    Track.call(this, trackMeta.label, trackMeta.key,
-               false, browserParams.changeCallback);
-    this.browserParams = browserParams;
-    this.refSeq = refSeq;
-    this.trackMeta = trackMeta;
-    this.setLoaded();
-    this.chunks = [];
-    this.chunkSize = trackMeta.chunkSize;
-    this.url = Util.resolveUrl(trackMeta.baseUrl,
-                               Util.fillTemplate(trackMeta.urlTemplate,
-                                                 {'refseq': refSeq.name}) );
+function SequenceTrack(config, refSeq, browserParams) {
 
+    Track.call( this, config.label, config.key,
+                false, browserParams.changeCallback );
+
+    this.config = config;
+
+    this.charWidth = browserParams.charWidth;
+    this.seqHeight = browserParams.seqHeight;
+
+    this.chunks = [];
+    this.chunkSize = config.chunkSize;
+    this.url = Util.resolveUrl( config.baseUrl,
+                                Util.fillTemplate( config.urlTemplate,
+                                                   {'refseq': refSeq.name} ));
+
+    this.setLoaded();
 }
 
 SequenceTrack.prototype = new Track("");
@@ -41,7 +46,7 @@ SequenceTrack.prototype.startZoom = function(destScale, destStart, destEnd) {
 };
 
 SequenceTrack.prototype.endZoom = function(destScale, destBlockBases) {
-    if (destScale == this.browserParams.charWidth) this.show();
+    if (destScale == this.charWidth) this.show();
     Track.prototype.clear.apply(this);
 };
 
@@ -51,7 +56,7 @@ SequenceTrack.prototype.setViewInfo = function(genomeView, numBlocks,
     Track.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
                                              trackDiv, labelDiv,
                                              widthPct, widthPx, scale]);
-    if (scale == this.browserParams.charWidth) {
+    if (scale == this.charWidth) {
         this.show();
     } else {
         this.hide();
@@ -67,7 +72,7 @@ SequenceTrack.prototype.fillBlock = function(blockIndex, block,
                                              scale, stripeWidth,
                                              containerStart, containerEnd) {
     var that = this;
-    if (scale == this.browserParams.charWidth) {
+    if (scale == this.charWidth) {
         this.show();
     } else {
         this.hide();
@@ -99,7 +104,7 @@ SequenceTrack.prototype.fillBlock = function(blockIndex, block,
                            seqNode.appendChild( comp );
                        }
                      );
-        this.heightUpdate(this.browserParams.seqHeight, blockIndex);
+        this.heightUpdate(this.seqHeight, blockIndex);
     } else {
         this.heightUpdate(0, blockIndex);
     }
@@ -132,10 +137,10 @@ SequenceTrack.prototype.renderSeqDiv = function ( start, end, seq ) {
  * @param {Number} end end coord, in interbase
  * @param {Function} callback function that takes ( start, end, seq )
  */
-SequenceTrack.prototype.getRange = function( /**Number*/ start, /**Number*/ end, /**Function*/ callback) {
-    var firstChunk = Math.floor( Math.max(0,start) / this.chunkSize);
-    var lastChunk = Math.floor((end - 1) / this.chunkSize);
+SequenceTrack.prototype.getRange = function( start, end, callback) {
     var chunkSize = this.chunkSize;
+    var firstChunk = Math.floor( Math.max(0,start) / chunkSize );
+    var lastChunk  = Math.floor( (end - 1)         / chunkSize );
     var chunk;
 
     // if a callback spans more than one chunk, we need to wrap the
