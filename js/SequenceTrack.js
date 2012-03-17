@@ -1,23 +1,24 @@
 // VIEW
 
 /**
+ * Track to display the underlying reference sequence, when zoomed in
+ * far enough.
  * @class
+ * @constructor
+ * @param {Object} config
+ *   key:   display text track name
+ *   label: internal track name (no spaces or odd characters)
+ *   urlTemplate: url of directory in which to find the sequence chunks
+ *   chunkSize: size of sequence chunks, in characters
+ * @param {Object} refSeq
+ *  start: refseq start
+ *  end:   refseq end
+ * @param {Object} browserParams
+ *  changeCallback: function to call once JSON is loaded
+ *  trackPadding: distance in px between tracks
+ *  charWidth: width, in pixels, of sequence base characters
+ *  seqHeight: height, in pixels, of sequence elements
  */
-function SequenceTrack(trackMeta, refSeq, browserParams) {
-    //trackMeta: object with:
-    //  key:   display text track name
-    //  label: internal track name (no spaces or odd characters)
-    //  urlTemplate: url of directory in which to find the sequence chunks
-    //  chunkSize: size of sequence chunks, in characters
-    //refSeq: object with:
-    //  start: refseq start
-    //  end:   refseq end
-    //browserParams: object with:
-    //  changeCallback: function to call once JSON is loaded
-    //  trackPadding: distance in px between tracks
-    //  charWidth: width, in pixels, of sequence base characters
-    //  seqHeight: height, in pixels, of sequence elements
-
     Track.call(this, trackMeta.label, trackMeta.key,
                false, browserParams.changeCallback);
     this.browserParams = browserParams;
@@ -127,9 +128,9 @@ SequenceTrack.prototype.renderSeqDiv = function ( start, end, seq ) {
 };
 
 /**
- * @param start start coord, in interbase
- * @param end end coord, in interbase
- * @param callback function that takes ( start, end, seq )
+ * @param {Number} start start coord, in interbase
+ * @param {Number} end end coord, in interbase
+ * @param {Function} callback function that takes ( start, end, seq )
  */
 SequenceTrack.prototype.getRange = function( /**Number*/ start, /**Number*/ end, /**Function*/ callback) {
     var firstChunk = Math.floor( Math.max(0,start) / this.chunkSize);
