@@ -13,6 +13,7 @@
  * @param {Object} refSeq
  *  start: refseq start
  *  end:   refseq end
+ *  name:  refseq name
  * @param {Object} browserParams
  *  changeCallback: function to call once JSON is loaded
  *  trackPadding: distance in px between tracks
@@ -29,11 +30,14 @@ function SequenceTrack(config, refSeq, browserParams) {
     this.charWidth = browserParams.charWidth;
     this.seqHeight = browserParams.seqHeight;
 
-    this.chunks = [];
-    this.chunkSize = config.chunkSize;
-    this.url = Util.resolveUrl( config.baseUrl,
-                                Util.fillTemplate( config.urlTemplate,
-                                                   {'refseq': refSeq.name} ));
+    this.refSeq = refSeq;
+
+    // TODO: this should be passed into the constructor instead of
+    // being instantiated here
+    this.sequenceStore = new SequenceStore.StaticChunked({
+                               baseUrl: config.baseUrl,
+                               urlTemplate: config.urlTemplate
+                             });
 
     this.setLoaded();
 }
@@ -80,7 +84,7 @@ SequenceTrack.prototype.fillBlock = function(blockIndex, block,
     }
 
     if (this.shown) {
-        this.getRange( leftBase, rightBase,
+        this.sequenceStore.getRange( this.refSeq, leftBase, rightBase,
                        function( start, end, seq ) {
 
                            // fill with leading blanks if the
@@ -132,79 +136,3 @@ SequenceTrack.prototype.renderSeqDiv = function ( start, end, seq ) {
     return container;
 };
 
-/**
- * @param {Number} start start coord, in interbase
- * @param {Number} end end coord, in interbase
- * @param {Function} callback function that takes ( start, end, seq )
- */
-SequenceTrack.prototype.getRange = function( start, end, callback) {
-    var chunkSize = this.chunkSize;
-    var firstChunk = Math.floor( Math.max(0,start) / chunkSize );
-    var lastChunk  = Math.floor( (end - 1)         / chunkSize );
-    var chunk;
-
-    // if a callback spans more than one chunk, we need to wrap the
-    // callback in another one that will be passed to each chunk to
-    // concatenate the different pieces from each chunk and *then*
-    // call the main callback
-    if( firstChunk != lastChunk ) {
-        callback = (function() {
-            var chunk_seqs = [],
-                chunks_still_needed = lastChunk-firstChunk+1,
-                orig_callback = callback;
-            return function( start, end, seq, chunkNum) {
-                chunk_seqs[chunkNum] = seq;
-                if( --chunks_still_needed == 0 )
-                    orig_callback( start, end, chunk_seqs.join("") );
-            };
-         })();
-    }
-
-    var callbackInfo = { start: start, end: end, callback: callback };
-
-    for (var i = firstChunk; i <= lastChunk; i++) {
-        //console.log("working on chunk %d for %d .. %d", i, start, end);
-        chunk = this.chunks[i];
-        if (chunk) {
-            if (chunk.loaded) {
-                callback( start,
-                          end,
-                          chunk.sequence.substring(
-                              start - i*chunkSize,
-                              end - i*chunkSize
-                          ),
-                          i
-                        );
-            } else {
-                //console.log("added callback for %d .. %d", start, end);
-                chunk.callbacks.push(callbackInfo);
-            }
-        } else {
-            chunk = {
-                loaded: false,
-                num: i,
-                callbacks: [callbackInfo]
-            };
-            this.chunks[i] = chunk;
-            dojo.xhrGet({
-                            url: this.url + i + ".txt",
-                            load: function (response) {
-                                var ci;
-                                chunk.sequence = response;
-                                for (var c = 0; c < chunk.callbacks.length; c++) {
-                                    ci = chunk.callbacks[c];
-                                    ci.callback( ci.start,
-                                                 ci.end,
-                                                 response.substring( ci.start - chunk.num*chunkSize,
-                                                                     ci.end   - chunk.num*chunkSize
-                                                                   ),
-                                                 i
-                                               );
-                                }
-                                chunk.callbacks = undefined;
-                                chunk.loaded = true;
-                            }
-                        });
-        }
-    }
-};
