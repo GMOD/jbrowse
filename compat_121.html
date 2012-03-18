@@ -35,6 +35,7 @@
     <script type="text/javascript" src="js/SeqFeatureStore/NCList_v0.js"></script>
     <script type="text/javascript" src="js/TiledImageStore/Fixed.js"></script>
     <script type="text/javascript" src="js/TiledImageStore/Fixed_v0.js"></script>
+    <script type="text/javascript" src="js/SequenceStore/StaticChunked.js"></script>
 
     <script type="text/javascript" src="js/FeatureTrack.js"></script>
     <script type="text/javascript" src="js/StaticTrack.js"></script>
@@ -59,7 +60,7 @@
                                    include: { url: dataRoot+"/trackInfo.js", version: 0 },
 
                                    containerID: "GenomeBrowser",
-                                   refSeqs: { url: dataRoot+"/refSeqs.js", version: 0 },
+                                   refSeqs: dataRoot+"/refSeqs.js",
                                    nameUrl: dataRoot + "/names/root.json",
                                    defaultTracks: "DNA,gene,mRNA,noncodingRNA",
                                    queryParams: queryParams,
