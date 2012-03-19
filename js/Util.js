@@ -1,3 +1,9 @@
+// MISC
+
+/**
+ * @namespace
+ */
+
 var Util = {};
 
 Util.is_ie = navigator.appVersion.indexOf('MSIE') >= 0;
@@ -92,12 +98,13 @@ Util.fillTemplate = function(template, fillWith) {
 
 /**
  * function to load a specified resource only once
- * @param url URL to get
- * @param stateObj object that stores the state of the load
- * @param successCalback function to call on a successful load
- * @param errorCallback function to call on an unsuccessful load
+ * @param {Object}   dojoXhrArgs object containing arguments for dojo.xhrGet,
+ *                               like <code>url</code> and <code>handleAs</code>
+ * @param {Object}   stateObj object that stores the state of the load
+ * @param {Function} successCallback function to call on a successful load
+ * @param {Function} errorCallback function to call on an unsuccessful load
  */
-Util.maybeLoad = function (url, stateObj, successCallback, errorCallback) {
+Util.maybeLoad = function ( dojoXhrArgs, stateObj, successCallback, errorCallback) {
     if (stateObj.state) {
         if ("loaded" == stateObj.state) {
             successCallback(stateObj.data);
@@ -111,22 +118,22 @@ Util.maybeLoad = function (url, stateObj, successCallback, errorCallback) {
         stateObj.state = "loading";
         stateObj.successCallbacks = [successCallback];
         stateObj.errorCallbacks = [errorCallback];
-        dojo.xhrGet(
-            {
-                url: url,
-                handleAs: "json",
-                load: function(o) {
-                    stateObj.state = "loaded";
-                    stateObj.data = o;
-                    var cbs = stateObj.successCallbacks;
-                    for (var c = 0; c < cbs.length; c++) cbs[c](o);
-                },
-                error: function() {
-                    stateObj.state = "error";
-                    var cbs = stateObj.errorCallbacks;
-                    for (var c = 0; c < cbs.length; c++) cbs[c]();
-                }
-            });
+
+        var args = dojo.clone( dojoXhrArgs );
+        args.load = function(o) {
+            stateObj.state = "loaded";
+            stateObj.data = o;
+            var cbs = stateObj.successCallbacks;
+            for (var c = 0; c < cbs.length; c++) cbs[c](o);
+        };
+        args.error = function(error) {
+            console.error(''+error);
+            stateObj.state = "error";
+            var cbs = stateObj.errorCallbacks;
+            for (var c = 0; c < cbs.length; c++) cbs[c]();
+        };
+
+        dojo.xhrGet( args );
     }
 };
 
@@ -139,10 +146,11 @@ Util.deepUpdate = function(a, b) {
             && ("object" == typeof b[prop])
             && ("object" == typeof a[prop]) ) {
             Util.deepUpdate(a[prop], b[prop]);
-        } else {
+        } else if( typeof a[prop] == 'undefined' || typeof b[prop] != undefined ){
             a[prop] = b[prop];
         }
     }
+    return a;
 };
 
 // from http://bugs.dojotoolkit.org/ticket/5794
@@ -250,6 +258,19 @@ Util.matchRefSeqName = function( name, refseqs ) {
         }
     }
     return null;
+};
+
+/**
+ * Wrap a handler function to be called 1ms later in a window timeout.
+ * This will usually give a better stack trace for figuring out where
+ * errors are happening.
+ */
+Util.debugHandler = function( context, func ) {
+    var debuggedHandler = function() {
+        var args = arguments;
+        window.setTimeout( function() { func.apply(context,args);}, 1);
+    };
+    return debuggedHandler;
 };
 
 if (!Array.prototype.reduce)
@@ -362,6 +383,9 @@ if (!Array.prototype.indexOf)
   };
 }
 
+/**
+ * @class
+ */
 function Finisher(fun) {
     this.fun = fun;
     this.count = 0;

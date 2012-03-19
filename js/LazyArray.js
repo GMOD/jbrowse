@@ -1,3 +1,5 @@
+// MODEL
+
 /*
  * For a JSON array that gets too large to load in one go, this class
  * helps break it up into chunks and provides an
@@ -5,10 +7,10 @@
  */
 
 /**
- * Construct a new LazyArray
- * @class This class makes it easier to partially load a large JSON array
+ * Construct a new LazyArray, which partially loads large JSON arrays.
+ * @class
  * @constructor
- * @param lazyArrayParams object with:<br>
+ * @param lazyArrayParams {Object} as:
  * <ul>
  * <li><code>urlTemplate</code> - for each lazily-loaded array chunk, the chunk number will get substituted for {chunk} in this template, and the result will beused as the URL of the JSON for that array chunk</li>
  * <li><code>length</code> - length of the overall array</li>
@@ -54,7 +56,7 @@ LazyArray.prototype.range = function(start, end, callback, postFun, param) {
     var firstChunk = Math.floor(start / this.chunkSize);
     var lastChunk = Math.floor(end / this.chunkSize);
 
-    if (postFun === undefined) postFun = function() {};
+    if (postFun === undefined) /** @inner */ postFun = function() {};
     var finish = new Finisher(postFun);
 
     for (var chunk = firstChunk; chunk <= lastChunk; chunk++) {

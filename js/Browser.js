@@ -1,12 +1,14 @@
+// CONTROLLER
+
 /**
  * Construct a new Browser object.
  * @class This class is the main interface between JBrowse and embedders
  * @constructor
  * @param params an object with the following properties:<br>
  * <ul>
+ * <li><code>config</code> - list of objects with "url" property that points to a config JSON file</li>
  * <li><code>containerID</code> - ID of the HTML element that contains the browser</li>
  * <li><code>refSeqs</code> - object with "url" property that is the URL to list of reference sequence information items</li>
- * <li><code>tracklists</code> - list of objects with "url" property that points to a track list JSON file</li>
  * <li><code>browserRoot</code> - (optional) URL prefix for the browser code</li>
  * <li><code>tracks</code> - (optional) comma-delimited string containing initial list of tracks to view</li>
  * <li><code>location</code> - (optional) string describing the initial location</li>
@@ -27,24 +29,61 @@ var Browser = function(params) {
     dojo.require("dijit.layout.ContentPane");
     dojo.require("dijit.layout.BorderContainer");
 
-    this.params = params;
-
     this.deferredFunctions = [];
-
-    if (params.nameUrl)
-        this.names = new LazyTrie(params.nameUrl, "lazy-{Chunk}.json");
     this.tracks = [];
     this.isInitialized = false;
-    var browser = this;
-    dojo.addOnLoad( function() { browser.initialize(); } );
-    // TODO: refactor the touch stuff
+
+    this.config = params;
+
+    // load our touch device support
+    // TODO: refactor this
     this.deferredFunctions.push(function() { loadTouch(); });
+
+    // schedule the config load, the first step in the initialization
+    // process, to happen when the page is done loading
+    var browser = this;
+    dojo.addOnLoad( function() { browser.loadConfig(); } );
+
+    dojo.connect( this, 'onConfigLoaded',  this, 'loadRefSeqs' );
+    dojo.connect( this, 'onConfigLoaded',  this, 'loadNames'   );
+    dojo.connect( this, 'onRefSeqsLoaded', this, 'initView'   );
 };
 
-Browser.prototype.initialize = function() {
+Browser.prototype.loadRefSeqs = function() {
+    // load our ref seqs
+    var that = this;
+    if( typeof this.config.refSeqs == 'string' )
+        this.config.refSeqs = { url: this.config.refSeqs };
+    dojo.xhrGet(
+        {
+            url: this.config.refSeqs.url,
+            handleAs: 'json',
+            load: function(o) {
+                that.addRefseqs(o);
+                //that.onRefSeqsLoaded();
+                window.setTimeout(function() { that.onRefSeqsLoaded();},1);
+            }
+        });
+};
+
+/**
+ * Event that fires when the reference sequences have been loaded.
+ */
+Browser.prototype.onRefSeqsLoaded = function() {};
+
+/**
+ * Load our name index.
+ */
+Browser.prototype.loadNames = function() {
+    // load our name index
+    if (this.config.nameUrl)
+        this.names = new LazyTrie(this.config.nameUrl, "lazy-{Chunk}.json");
+};
+
+Browser.prototype.initView = function() {
     //set up top nav/overview pane and main GenomeView pane
     dojo.addClass(document.body, "tundra");
-    this.container = dojo.byId(this.params.containerID);
+    this.container = dojo.byId(this.config.containerID);
     this.container.genomeBrowser = this;
     var topPane = document.createElement("div");
     this.container.appendChild(topPane);
@@ -53,11 +92,9 @@ Browser.prototype.initialize = function() {
     overview.className = "overview";
     overview.id = "overview";
     // overview=0 hides the overview, but we still need it to exist
-    if( this.params.show_overview == 0 ) overview.style.cssText = "display: none";
+    if( this.config.show_overview == 0 ) overview.style.cssText = "display: none";
     topPane.appendChild(overview);
 
-    //try to come up with a good estimate of how big the location box
-    //actually has to be
     this.navbox = this.createNavBox( topPane, 25 );
 
     var viewElem = document.createElement("div");
@@ -81,35 +118,174 @@ Browser.prototype.initialize = function() {
     topPane.appendChild(this.locationTrap);
     topPane.style.overflow="hidden";
 
-    var cookieTracks = dojo.cookie(this.container.id + "-tracks");
-    if (this.params.tracks) {
-        this.origTracklist = this.params.tracks;
-    } else if (cookieTracks) {
-        this.origTracklist = cookieTracks;
-    } else if (this.params.defaultTracks) {
-        this.origTracklist = this.params.defaultTracks;
+    // figure out what initial track list we will use:
+    //    from a param passed to our instance, or from a cookie, or
+    //    the passed defaults, or the last-resort default of "DNA"?
+    this.origTracklist =
+           this.config.forceTracks
+        || dojo.cookie( this.container.id + "-tracks" )
+        || this.config.defaultTracks
+        || "DNA";
+
+    // hook up GenomeView
+    this.view = this.viewElem.view =
+        new GenomeView(this.viewElem, 250, this.refSeq, 1/200,
+                       this.config.browserRoot);
+    dojo.connect( this.view, "onFineMove",   this, "onFineMove"   );
+    dojo.connect( this.view, "onCoarseMove", this, "onCoarseMove" );
+
+    //set up track list
+    var trackListDiv = this.createTrackList( this.container );
+    this.containerWidget.startup();
+    dojo.connect( this.browserWidget, "resize", this, 'onResize' );
+    this.onResize();
+
+    //set initial location
+    var oldLocMap = dojo.fromJson(dojo.cookie(this.container.id + "-location")) || {};
+    if (this.config.location) {
+        this.navigateTo(this.config.location);
+    } else if (oldLocMap[this.refSeq.name]) {
+        this.navigateTo( oldLocMap[this.refSeq.name] );
+    } else if (this.config.defaultLocation){
+        this.navigateTo(this.config.defaultLocation);
+    } else {
+        this.navigateTo( Util.assembleLocString({
+                             ref:   this.refSeq.name,
+                             start: 0.4 * ( this.refSeq.start + this.refSeq.end ),
+                             end:   0.6 * ( this.refSeq.start + this.refSeq.end )
+                         })
+                       );
     }
 
-    // load our ref seqs
-    var brwsr = this;
-    Util.maybeLoad(this.params.refSeqs.url, this.params.refSeqs,
-                   function(o) {
-                       brwsr.addRefseqs(o);
-                   });
+    dojo.connect(this.chromList, "onchange", this, function(event) {
+        var newRef = this.allRefs[this.chromList.options[this.chromList.selectedIndex].value];
+        this.navigateTo( newRef.name );
+    });
 
-    // load our tracks
-    for (var i = 0; i < this.params.tracklists.length; i++) {
-        (function(tracklist) {
-             Util.maybeLoad(tracklist.url,
-                            tracklist,
-                            function(o) {
-                                brwsr.addDeferred(
-                                    function() {
-                                        brwsr.addTracklist(tracklist.url, o);
-                                    });
-                            });
-         })(this.params.tracklists[i]);
+    this.isInitialized = true;
+
+    //if someone calls methods on this browser object
+    //before it's fully initialized, then we defer
+    //those functions until now
+    for (var i = 0; i < this.deferredFunctions.length; i++)
+        this.deferredFunctions[i]();
+    this.deferredFunctions = [];
+};
+
+Browser.prototype.onResize = function() {
+    this.view.sizeInit();
+    this.view.locationTrapHeight = dojo.marginBox( this.navbox ).h;
+    this.view.showVisibleBlocks();
+    this.view.showFine();
+    this.view.showCoarse();
+};
+
+/**
+ *  Load our configuration file(s) based on the parameters thex
+ *  constructor was passed.  Does not return until all files are
+ *  loaded and merged in.
+ *  @returns nothing meaningful
+ */
+Browser.prototype.loadConfig = function () {
+    var that = this;
+
+    // coerce include to an array
+    if( typeof this.config.include != 'object' || !this.config.include.length )
+        this.config.include = [ this.config.include ];
+
+    // coerce bare strings in the configs to URLs
+    for (var i = 0; i < this.config.include.length; i++) {
+        if( typeof this.config.include[i] == 'string' )
+            this.config.include[i] = { url: this.config.include[i] };
     }
+
+    // fetch and parse all the configuration data
+    var configs_remaining = this.config.include.length;
+    dojo.forEach( this.config.include, function(config) {
+
+        // set defaults for format and version
+        if( ! ('format' in config) ) {
+            config.format = 'JB_json';
+        }
+        if( config.format == 'JB_json' && ! ('version' in config) ) {
+            config.version = 1;
+        }
+
+        // instantiate the adaptor and load the config
+        var adaptor = this.getConfigAdaptor( config );
+        if( !adaptor ) {
+            console.error( "Could not load config "+config.url+", no configuration adaptor found for config format "+config.format+' version '+config.version );
+            return;
+        }
+
+        adaptor.load({
+            config: config,
+            context: this,
+            onSuccess: function( config_data, request_info ) {
+                config.data = config_data;
+                config.loaded = true;
+                if( ! --configs_remaining )
+                    this.onConfigLoaded();
+                    //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
+            },
+            onFailure: function( request_info ) {
+                config.loaded = false;
+                if( ! --configs_remaining )
+                    this.onConfigLoaded();
+                    //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
+            }
+        });
+
+    }, this);
+};
+
+Browser.prototype.onConfigLoaded = function() {
+
+    var initial_config = this.config;
+    this.config = {};
+
+    // load all the configuration data in order
+    dojo.forEach( initial_config.include, function( config ) {
+                      if( config.loaded && config.data )
+                          this.addConfigData( config.data );
+                  }, this );
+
+    // load the initial config (i.e. constructor params) last so that
+    // it overrides the other config
+    this.addConfigData( initial_config );
+
+    this.validateConfig();
+};
+
+/**
+ * Examine the loaded and merged configuration for errors.  Throws
+ * exceptions if it finds anything amiss.
+ * @returns nothing meaningful
+ */
+Browser.prototype.validateConfig = function() {
+    var c = this.config;
+    if( ! c.baseUrl ) {
+        throw "Must provide a baseUrl in config.";
+    }
+};
+
+/**
+ * Instantiate the right config adaptor for a given configuration source.
+ * @param {Object} config the configuraiton
+ * @returns {Object} the right configuration adaptor to use, or
+ * undefined if one could not be found
+ */
+
+Browser.prototype.getConfigAdaptor = function( config_def ) {
+    var adaptor_name = "ConfigAdaptor." + config_def.format;
+    if( 'version' in config_def )
+        adaptor_name += '_v'+config_def.version;
+    adaptor_name.replace( /\W/g,'' );
+    var adaptor_class = eval( adaptor_name );
+    if( ! adaptor_class )
+        return undefined;
+
+    return new adaptor_class( config_def );
 };
 
 /**
@@ -123,91 +299,24 @@ Browser.prototype.addDeferred = function(f) {
         this.deferredFunctions.push(f);
 };
 
-Browser.prototype.addTracklist = function(url, trackList) {
-    if (1 == trackList.formatVersion) {
-        for (var i = 0; i < trackList.tracks.length; i++)
-            trackList.tracks[i].sourceUrl = url;
-        this.trackListWidget.insertNodes(false, trackList.tracks);
-        this.showTracks(this.origTracklist);
-    } else {
-        throw "track list format " + trackList.formatVersion + " not supported";
-    }
+/**
+ * Merge in some additional configuration data.  Properties in the
+ * passed configuration will override those properties in the existing
+ * configuration.
+ */
+Browser.prototype.addConfigData = function( /**Object*/ config_data ) {
+    Util.deepUpdate( this.config, config_data );
 };
 
-Browser.prototype.addRefseqs = function(refSeqs) {
-    //currently only meant to be called once
-
-    this.allRefs = {};
-    for (var i = 0; i < refSeqs.length; i++)
-        this.allRefs[refSeqs[i].name] = refSeqs[i];
-
-    var refCookie = dojo.cookie(this.params.containerID + "-refseq");
-    this.refSeq = refSeqs[0];
-    for (var i = 0; i < refSeqs.length; i++) {
-        this.chromList.options[i] = new Option(refSeqs[i].name,
-                                               refSeqs[i].name);
-        if (refSeqs[i].name.toUpperCase() == String(refCookie).toUpperCase()) {
-            this.refSeq = this.allRefs[refSeqs[i].name];
-            this.chromList.selectedIndex = i;
-        }
-    }
-
-    //hook up GenomeView
-    var gv = new GenomeView(this.viewElem, 250, this.refSeq, 1/200,
-                            this.params.browserRoot);
-    this.view = gv;
-    //gv.setY(0);
-    this.viewElem.view = gv;
-
-    //set up track list
-    var trackListDiv = this.createTrackList(this.container, this.params);
-    this.containerWidget.startup();
-
-    var brwsr = this;
-    this.resizeCallback = function() {
-        gv.sizeInit();
-
-        brwsr.view.locationTrapHeight = dojo.marginBox(brwsr.navbox).h;
-        gv.showVisibleBlocks();
-        gv.showFine();
-        gv.showCoarse();
-    };
-    dojo.connect(this.browserWidget, "resize", this.resizeCallback);
-    this.resizeCallback();
-
-    dojo.connect(gv, "onFineMove", brwsr, "onFineMove");
-    dojo.connect(gv, "onCoarseMove", brwsr, "onCoarseMove");
-
-    //set initial location
-    var oldLocMap = dojo.fromJson(dojo.cookie(brwsr.container.id + "-location")) || {};
-    if (this.params.location) {
-        this.navigateTo(this.params.location);
-    } else if (oldLocMap[this.refSeq.name]) {
-        this.navigateTo( oldLocMap[this.refSeq.name] );
-    } else if (this.params.defaultLocation){
-        this.navigateTo(this.params.defaultLocation);
-    } else {
-        this.navigateTo( Util.assembleLocString({
-                             ref:   this.refSeq.name,
-                             start: 0.4 * ( this.refSeq.start + this.refSeq.end ),
-                             end:   0.6 * ( this.refSeq.start + this.refSeq.end )
-                         })
-                       );
-    }
-
-    dojo.connect(this.chromList, "onchange", function(event) {
-        var newRef = brwsr.allRefs[brwsr.chromList.options[brwsr.chromList.selectedIndex].value];
-        brwsr.navigateTo( newRef.name );
-    });
-
-    this.isInitialized = true;
-
-    //if someone calls methods on this browser object
-    //before it's fully initialized, then we defer
-    //those functions until now
-    for (var i = 0; i < brwsr.deferredFunctions.length; i++)
-        brwsr.deferredFunctions[i]();
-    brwsr.deferredFunctions = [];
+/**
+ * @param refSeqs {Array} array of refseq records to add to the browser
+ */
+Browser.prototype.addRefseqs = function( refSeqs ) {
+    this.allRefs = this.allRefs || {};
+    this.refSeq  = this.refSeq  || refSeqs[0];
+    dojo.forEach( refSeqs, function(r) {
+        this.allRefs[r.name] = r;
+    },this);
 };
 
 /**
@@ -248,11 +357,10 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
  * @private
  */
 
-
-Browser.prototype.createTrackList = function(parent, params) {
+Browser.prototype.createTrackList = function( /**Element*/ parent ) {
     var leftPane = document.createElement("div");
     leftPane.id = "trackPane";
-    leftPane.style.cssText= params.show_tracklist == 0 ? "width: 0": "width: 10em";
+    leftPane.style.cssText= this.config.show_tracklist == 0 ? "width: 0": "width: 10em";
     parent.appendChild(leftPane);
     //splitter on left side
     var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, leftPane);
@@ -263,7 +371,7 @@ Browser.prototype.createTrackList = function(parent, params) {
         "width: 100%; height: 100%; overflow-x: hidden; overflow-y: auto;";
     trackListDiv.innerHTML =
         "Available Tracks:<br/>(Drag <img src=\""
-        + (params.browserRoot ? params.browserRoot : "")
+        + (this.config.browserRoot ? this.config.browserRoot : "")
         + "img/right_arrow.png\"/> to view)<br/><br/>";
     leftPane.appendChild(trackListDiv);
 
@@ -273,10 +381,10 @@ Browser.prototype.createTrackList = function(parent, params) {
        brwsr.view.showVisibleBlocks(true);
     };
 
-    var trackListCreate = function(track, hint) {
+    var trackListCreate = function( trackConfig, hint ) {
         var node = document.createElement("div");
         node.className = "tracklist-label";
-        node.innerHTML = track.key;
+        node.innerHTML = trackConfig.key;
         //in the list, wrap the list item in a container for
         //border drag-insertion-point monkeying
         if ("avatar" != hint) {
@@ -286,20 +394,31 @@ Browser.prototype.createTrackList = function(parent, params) {
             node = container;
         }
         node.id = dojo.dnd.getUniqueId();
-        return {node: node, data: track, type: ["track"]};
+        return {node: node, data: trackConfig, type: ["track"]};
     };
     this.trackListWidget = new dojo.dnd.Source(trackListDiv,
                                                {creator: trackListCreate,
                                                 accept: ["track"], // accepts tracks into left div
                                                 withHandles: false});
 
-    var trackCreate = function(track, hint) {
+    // instantiate our track objects
+    if( this.config.tracks ) {
+        if( this.config.sourceUrl ) {
+            for (var i = 0; i < this.config.tracks.length; i++)
+                if( ! this.config.tracks[i].baseUrl )
+                    this.config.tracks[i].baseUrl = this.config.baseUrl;
+        }
+        this.trackListWidget.insertNodes(false, this.config.tracks);
+        this.showTracks(this.origTracklist);
+    }
+
+    var trackCreate = /**@inner*/ function( trackConfig, hint) {
         var node;
         if ("avatar" == hint) {
-            return trackListCreate(track, hint);
+            return trackListCreate( trackConfig, hint);
         } else {
-            var klass = eval(track.type);
-            var newTrack = new klass(track, brwsr.refSeq,
+            var klass = eval( trackConfig.type);
+            var newTrack = new klass( trackConfig, brwsr.refSeq,
                                      {
                                          changeCallback: changeCallback,
                                          trackPadding: brwsr.view.trackPadding,
@@ -308,7 +427,7 @@ Browser.prototype.createTrackList = function(parent, params) {
                                      });
             node = brwsr.view.addTrack(newTrack);
         }
-        return {node: node, data: track, type: ["track"]};
+        return {node: node, data: trackConfig, type: ["track"]};
     };
 
 
@@ -335,7 +454,7 @@ Browser.prototype.createTrackList = function(parent, params) {
 Browser.prototype.onVisibleTracksChanged = function() {
     this.view.updateTrackList();
     var trackLabels = dojo.map(this.view.tracks,
-                               function(track) { return track.name; });
+                               function( trackConfig ) { return trackConfig.name; });
     dojo.cookie(this.container.id + "-tracks",
                 trackLabels.join(","),
                 {expires: 60});
@@ -445,7 +564,7 @@ Browser.prototype.navigateToLocation = function( location ) {
 
     return;
     //this.view.centerAtBase( location.end );
-}
+};
 
 // given a string name, search for matching feature names and set the
 // view location to any that match
@@ -538,20 +657,20 @@ Browser.prototype.visibleRegion = function() {
  */
 
 Browser.prototype.visibleTracks = function() {
-    var trackLabels = dojo.map(this.view.tracks,
-                               function(track) { return track.name; });
+    var trackLabels = dojo.map( this.view.tracks,
+                                function( trackConfig ) { return trackConfig.name; });
     return trackLabels.join(",");
 };
 
 Browser.prototype.makeBookmarkLink = function (area) {
     // don't make the link if we were explicitly passed a 'bookmark'
     // param of 'false'
-    if( typeof this.params.bookmark != 'undefined' && !this.params.bookmark )
+    if( typeof this.config.bookmark != 'undefined' && !this.config.bookmark )
         return;
 
     // if a function was not passed, make a default bookmarking function
-    if( typeof this.params.bookmark != 'function' )
-        this.params.bookmark = function( browser_obj ) {
+    if( typeof this.config.bookmark != 'function' )
+        this.config.bookmark = function( browser_obj ) {
                return "".concat(
                    window.location.protocol,
                    "//",
@@ -561,13 +680,13 @@ Browser.prototype.makeBookmarkLink = function (area) {
                    dojo.objectToQuery({
                        loc:    browser_obj.visibleRegion(),
                        tracks: browser_obj.visibleTracks(),
-                       data:   browser_obj.params.queryParams.data
+                       data:   browser_obj.config.queryParams.data
                    })
                );
         };
 
     // make the bookmark link
-    var fullview = this.params.show_nav == 0 || this.params.show_tracklist == 0 || this.params.show_overview == 0;
+    var fullview = this.config.show_nav == 0 || this.config.show_tracklist == 0 || this.config.show_overview == 0;
     this.link = document.createElement("a");
     this.link.className = "topLink";
     this.link.href  = window.location.href;
@@ -581,10 +700,10 @@ Browser.prototype.makeBookmarkLink = function (area) {
 
     // connect moving events to update it
     var update_bookmark = function() {
-        this.link.href = this.params.bookmark.call( this, this );
+        this.link.href = this.config.bookmark.call( this, this );
     };
-    dojo.connect( this, "onCoarseMove",           update_bookmark, this );
-    dojo.connect( this, "onVisibleTracksChanged", update_bookmark, this );
+    dojo.connect( this, "onCoarseMove",           update_bookmark );
+    dojo.connect( this, "onVisibleTracksChanged", update_bookmark );
 
 };
 
@@ -631,7 +750,7 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
 Browser.prototype.createNavBox = function( parent, locLength ) {
     var brwsr = this;
     var navbox = document.createElement("div");
-    var browserRoot = this.params.browserRoot ? this.params.browserRoot : "";
+    var browserRoot = this.config.browserRoot ? this.config.browserRoot : "";
     navbox.id = "navbox";
     parent.appendChild(navbox);
     navbox.style.cssText = "text-align: center; z-index: 10;";
@@ -643,7 +762,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     moveLeft.id = "moveLeft";
     moveLeft.className = "icon nav";
     moveLeft.style.height = "40px";
-    if( this.params.show_nav != 0 ) {
+    if( this.config.show_nav != 0 ) {
         dojo.connect(moveLeft, "click",
                 function(event) {
                 dojo.stopEvent(event);
@@ -657,7 +776,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     moveRight.id="moveRight";
     moveRight.className = "icon nav";
     moveRight.style.height = "40px";
-    if( this.params.show_nav != 0 ) {
+    if( this.config.show_nav != 0 ) {
         dojo.connect(moveRight, "click",
                      function(event) {
                      dojo.stopEvent(event);
@@ -671,7 +790,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     bigZoomOut.id = "bigZoomOut";
     bigZoomOut.className = "icon nav";
     bigZoomOut.style.height = "40px";
-    if( this.params.show_nav != 0 ) {
+    if( this.config.show_nav != 0 ) {
         dojo.connect(bigZoomOut, "click",
                  function(event) {
                      dojo.stopEvent(event);
@@ -685,7 +804,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     zoomOut.id = "zoomOut";
     zoomOut.className = "icon nav";
     zoomOut.style.height = "40px";
-    if( this.params.show_nav != 0 ) {
+    if( this.config.show_nav != 0 ) {
         dojo.connect(zoomOut, "click",
                  function(event) {
                      dojo.stopEvent(event);
@@ -699,7 +818,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     zoomIn.id = "zoomIn";
     zoomIn.className = "icon nav";
     zoomIn.style.height = "40px";
-    if( this.params.show_nav != 0 ) {
+    if( this.config.show_nav != 0 ) {
         dojo.connect(zoomIn, "click",
                  function(event) {
                      dojo.stopEvent(event);
@@ -713,7 +832,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     bigZoomIn.id = "bigZoomIn";
     bigZoomIn.className = "icon nav";
     bigZoomIn.style.height = "40px";
-    if( this.params.show_nav != 0 ) {
+    if( this.config.show_nav != 0 ) {
         dojo.connect(bigZoomIn, "click",
                  function(event) {
                      dojo.stopEvent(event);
@@ -723,11 +842,22 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
 
     this.chromList = document.createElement("select");
     this.chromList.id="chrom";
+    var refCookie = dojo.cookie(this.config.containerID + "-refseq");
+    var i = 0;
+    for ( var name in this.allRefs ) {
+        this.chromList.add( new Option( name, name), null );
+        if ( name.toUpperCase() == String(refCookie).toUpperCase()) {
+            this.refSeq = this.allRefs[name];
+            this.chromList.selectedIndex = i;
+        }
+        i++;
+    }
+
     this.locationBox = document.createElement("input");
     this.locationBox.size=locLength;
     this.locationBox.type="text";
     this.locationBox.id="location";
-    if( this.params.show_nav != 0 ) {
+    if( this.config.show_nav != 0 ) {
         dojo.connect(this.locationBox, "keydown", function(event) {
             if (event.keyCode == dojo.keys.ENTER) {
                 brwsr.navigateTo(brwsr.locationBox.value);
@@ -743,7 +873,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     this.goButton = document.createElement("button");
     this.goButton.appendChild(document.createTextNode("Go"));
     this.goButton.disabled = true;
-    if( this.params.show_nav != 0 ) {
+    if( this.config.show_nav != 0 ) {
         dojo.connect(this.goButton, "click", function(event) {
             brwsr.navigateTo(brwsr.locationBox.value);
             //brwsr.locationBox.blur();
@@ -752,7 +882,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
         });
     };
 
-    if( this.params.show_nav != 0 ) {
+    if( this.config.show_nav != 0 ) {
         navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
         navbox.appendChild(moveLeft);
         navbox.appendChild(moveRight);

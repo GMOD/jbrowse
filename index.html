@@ -17,6 +17,8 @@
 <!-- the files between the "js_source_files" comments get replaced
      when the JS gets minified (see the minification rule in the Makefile) -->
     <script type="text/javascript" src="js/Browser.js"></script>
+    <script type="text/javascript" src="js/ConfigAdaptor/JB_json_v1.js"></script>
+    <script type="text/javascript" src="js/ConfigAdaptor/JB_json_v0.js"></script>
     <script type="text/javascript" src="js/Util.js"></script>
     <script type="text/javascript" src="js/ArrayRepr.js"></script>
     <script type="text/javascript" src="js/NCList.js"></script>
@@ -25,6 +27,13 @@
     <script type="text/javascript" src="js/Track.js"></script>
     <script type="text/javascript" src="js/SequenceTrack.js"></script>
     <script type="text/javascript" src="js/Layout.js"></script>
+
+    <script type="text/javascript" src="js/Store.js"></script>
+    <script type="text/javascript" src="js/SeqFeatureStore.js"></script>
+    <script type="text/javascript" src="js/SeqFeatureStore/NCList.js"></script>
+    <script type="text/javascript" src="js/TiledImageStore/Fixed.js"></script>
+    <script type="text/javascript" src="js/SequenceStore/StaticChunked.js"></script>
+
     <script type="text/javascript" src="js/FeatureTrack.js"></script>
     <script type="text/javascript" src="js/StaticTrack.js"></script>
     <script type="text/javascript" src="js/GridTrack.js"></script>
@@ -46,15 +55,15 @@
            var dataRoot = queryParams.data || 'data';
            var b = new Browser({
                                    containerID: "GenomeBrowser",
-                                   refSeqs: {url: dataRoot + "/seq/refSeqs.json"},
-                                   tracklists: [
-                                       {url: dataRoot + "/trackList.json"}
+                                   refSeqs: dataRoot + "/seq/refSeqs.json",
+                                   include: [
+                                     dataRoot + "/trackList.json",
                                    ],
                                    nameUrl: dataRoot + "/names/root.json",
                                    defaultTracks: "DNA,gene,mRNA,noncodingRNA",
                                    queryParams: queryParams,
                                    location: queryParams.loc,
-                                   tracks: queryParams.tracks,
+                                   forceTracks: queryParams.tracks,
 				   show_nav: queryParams.nav,
 				   show_tracklist: queryParams.tracklist,
 				   show_overview: queryParams.overview
