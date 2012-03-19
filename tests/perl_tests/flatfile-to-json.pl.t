@@ -141,13 +141,16 @@ sub tempdir {
     is( scalar @{$cds_trackdata->{intervals}{nclist}[0][9][0][6]}, 7, 'mRNA has 7 subfeatures' );
 }
 
-{ # add a test for duplicate lazyclasses bug found by Gregg
+for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffold_subset_sync.gff3" ) {
+    # add a test for duplicate lazyclasses bug found by Gregg
+
+    my $start_time = time;
 
     my $tempdir = tempdir();
     dircopy( 'tests/data/AU9', $tempdir );
     run_with (
         '--out' => $tempdir,
-        '--gff' => "tests/data/au9_scaffold_subset.gff3",
+        '--gff' => $testfile,
         '--arrowheadClass' => 'transcript-arrowhead',
         '--getSubfeatures',
         '--subfeatureClasses' => '{"CDS": "transcript-CDS", "UTR": "transcript-UTR", "exon":"transcript-exon", "three_prime_UTR":"transcript-three_prime_UTR", "five_prime_UTR":"transcript-five_prime_UTR", "stop_codon":null, "start_codon":null}',
@@ -161,6 +164,8 @@ sub tempdir {
     is( $cds_trackdata->{featureCount}, 28, 'got right feature count' ) or diag explain $cds_trackdata;
     is( scalar @{$cds_trackdata->{intervals}{classes}}, 3, 'got the right number of classes' )
         or diag explain $cds_trackdata->{intervals}{classes};
+
+    diag "formatting $testfile took ".(time-$start_time)." seconds";
 
     #system "find $tempdir";
 }
