@@ -125,7 +125,10 @@ Zoomer.prototype.step = function(pos) {
 };
 
 /**
+ * Main view class, shows a scrollable, horizontal view of annotation
+ * tracks.
  * @class
+ * @constructor
  */
 function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     //all coordinates are interbase
@@ -742,8 +745,12 @@ GenomeView.prototype.pxToBp = function(pixels) {
     return pixels / this.pxPerBp;
 };
 
-// convert absolute pixels X position to base pair position on the current reference sequence
-GenomeView.prototype.absXtoBp = function(pixels) {
+/**
+ * Convert absolute pixels X position to base pair position on the
+ * current reference sequence.
+ * @returns {Number}
+ */
+GenomeView.prototype.absXtoBp = function( /**Number*/ pixels) {
     return this.pxToBp( this.getPosition().x + this.offset - dojo.coords(this.elem, true).x + pixels );
 };
 
