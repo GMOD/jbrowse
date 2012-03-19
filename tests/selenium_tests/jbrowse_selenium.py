@@ -1,7 +1,7 @@
 import os
 import time
 
-from unittest import TestCase
+import unittest
 
 from selenium                       import webdriver
 from selenium.webdriver             import ActionChains
@@ -9,7 +9,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions     import NoSuchElementException
 from selenium.webdriver.support.ui  import Select
 
-class JBrowseTest( TestCase ):
+class JBrowseTest (object):
 
     base_url = "file://%s/index.html" % os.getcwd()
     data_dir = None
@@ -22,6 +22,7 @@ class JBrowseTest( TestCase ):
             self.base_url
             + ( "?data="+self.data_dir if self.data_dir else "" )
         )
+        time.sleep(0.5)
 
     ## convenience methods for us
 

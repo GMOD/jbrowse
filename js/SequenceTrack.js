@@ -1,31 +1,45 @@
-function SequenceTrack(trackMeta, refSeq, browserParams) {
-    //trackMeta: object with:
-    //  key:   display text track name
-    //  label: internal track name (no spaces or odd characters)
-    //  config: object with:
-    //    urlTemplate: url of directory in which to find the sequence chunks
-    //    chunkSize: size of sequence chunks, in characters
-    //refSeq: object with:
-    //  start: refseq start
-    //  end:   refseq end
-    //browserParams: object with:
-    //  changeCallback: function to call once JSON is loaded
-    //  trackPadding: distance in px between tracks
-    //  charWidth: width, in pixels, of sequence base characters
-    //  seqHeight: height, in pixels, of sequence elements
+// VIEW
 
-    Track.call(this, trackMeta.label, trackMeta.key,
-               false, browserParams.changeCallback);
-    this.browserParams = browserParams;
+/**
+ * Track to display the underlying reference sequence, when zoomed in
+ * far enough.
+ * @class
+ * @constructor
+ * @param {Object} config
+ *   key:   display text track name
+ *   label: internal track name (no spaces or odd characters)
+ *   urlTemplate: url of directory in which to find the sequence chunks
+ *   chunkSize: size of sequence chunks, in characters
+ * @param {Object} refSeq
+ *  start: refseq start
+ *  end:   refseq end
+ *  name:  refseq name
+ * @param {Object} browserParams
+ *  changeCallback: function to call once JSON is loaded
+ *  trackPadding: distance in px between tracks
+ *  charWidth: width, in pixels, of sequence base characters
+ *  seqHeight: height, in pixels, of sequence elements
+ */
+function SequenceTrack(config, refSeq, browserParams) {
+
+    Track.call( this, config.label, config.key,
+                false, browserParams.changeCallback );
+
+    this.config = config;
+
+    this.charWidth = browserParams.charWidth;
+    this.seqHeight = browserParams.seqHeight;
+
     this.refSeq = refSeq;
-    this.trackMeta = trackMeta;
-    this.setLoaded();
-    this.chunks = [];
-    this.chunkSize = trackMeta.config.chunkSize;
-    this.url = Util.resolveUrl(trackMeta.sourceUrl,
-                               Util.fillTemplate(trackMeta.config.urlTemplate,
-                                                 {'refseq': refSeq.name}) );
 
+    // TODO: this should be passed into the constructor instead of
+    // being instantiated here
+    this.sequenceStore = new SequenceStore.StaticChunked({
+                               baseUrl: config.baseUrl,
+                               urlTemplate: config.urlTemplate
+                             });
+
+    this.setLoaded();
 }
 
 SequenceTrack.prototype = new Track("");
@@ -36,7 +50,7 @@ SequenceTrack.prototype.startZoom = function(destScale, destStart, destEnd) {
 };
 
 SequenceTrack.prototype.endZoom = function(destScale, destBlockBases) {
-    if (destScale == this.browserParams.charWidth) this.show();
+    if (destScale == this.charWidth) this.show();
     Track.prototype.clear.apply(this);
 };
 
@@ -46,7 +60,7 @@ SequenceTrack.prototype.setViewInfo = function(genomeView, numBlocks,
     Track.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
                                              trackDiv, labelDiv,
                                              widthPct, widthPx, scale]);
-    if (scale == this.browserParams.charWidth) {
+    if (scale == this.charWidth) {
         this.show();
     } else {
         this.hide();
@@ -62,7 +76,7 @@ SequenceTrack.prototype.fillBlock = function(blockIndex, block,
                                              scale, stripeWidth,
                                              containerStart, containerEnd) {
     var that = this;
-    if (scale == this.browserParams.charWidth) {
+    if (scale == this.charWidth) {
         this.show();
     } else {
         this.hide();
@@ -70,7 +84,7 @@ SequenceTrack.prototype.fillBlock = function(blockIndex, block,
     }
 
     if (this.shown) {
-        this.getRange( leftBase, rightBase,
+        this.sequenceStore.getRange( this.refSeq, leftBase, rightBase,
                        function( start, end, seq ) {
 
                            // fill with leading blanks if the
@@ -94,7 +108,7 @@ SequenceTrack.prototype.fillBlock = function(blockIndex, block,
                            seqNode.appendChild( comp );
                        }
                      );
-        this.heightUpdate(this.browserParams.seqHeight, blockIndex);
+        this.heightUpdate(this.seqHeight, blockIndex);
     } else {
         this.heightUpdate(0, blockIndex);
     }
@@ -122,77 +136,3 @@ SequenceTrack.prototype.renderSeqDiv = function ( start, end, seq ) {
     return container;
 };
 
-SequenceTrack.prototype.getRange = function(start, end, callback) {
-    //start: start coord, in interbase
-    //end: end coord, in interbase
-    //callback: function that takes (start, end, seq)
-    var firstChunk = Math.floor( Math.max(0,start) / this.chunkSize);
-    var lastChunk = Math.floor((end - 1) / this.chunkSize);
-    var chunkSize = this.chunkSize;
-    var chunk;
-
-    // if a callback spans more than one chunk, we need to wrap the
-    // callback in another one that will be passed to each chunk to
-    // concatenate the different pieces from each chunk and *then*
-    // call the main callback
-    if( firstChunk != lastChunk ) {
-        callback = (function() {
-            var chunk_seqs = [],
-                chunks_still_needed = lastChunk-firstChunk+1,
-                orig_callback = callback;
-            return function( start, end, seq, chunkNum) {
-                chunk_seqs[chunkNum] = seq;
-                if( --chunks_still_needed == 0 )
-                    orig_callback( start, end, chunk_seqs.join("") );
-            };
-         })();
-    }
-
-    var callbackInfo = { start: start, end: end, callback: callback };
-
-    for (var i = firstChunk; i <= lastChunk; i++) {
-        //console.log("working on chunk %d for %d .. %d", i, start, end);
-        chunk = this.chunks[i];
-        if (chunk) {
-            if (chunk.loaded) {
-                callback( start,
-                          end,
-                          chunk.sequence.substring(
-                              start - i*chunkSize,
-                              end - i*chunkSize
-                          ),
-                          i
-                        );
-            } else {
-                //console.log("added callback for %d .. %d", start, end);
-                chunk.callbacks.push(callbackInfo);
-            }
-        } else {
-            chunk = {
-                loaded: false,
-                num: i,
-                callbacks: [callbackInfo]
-            };
-            this.chunks[i] = chunk;
-            dojo.xhrGet({
-                            url: this.url + i + ".txt",
-                            load: function (response) {
-                                var ci;
-                                chunk.sequence = response;
-                                for (var c = 0; c < chunk.callbacks.length; c++) {
-                                    ci = chunk.callbacks[c];
-                                    ci.callback( ci.start,
-                                                 ci.end,
-                                                 response.substring( ci.start - chunk.num*chunkSize,
-                                                                     ci.end   - chunk.num*chunkSize
-                                                                   ),
-                                                 i
-                                               );
-                                }
-                                chunk.callbacks = undefined;
-                                chunk.loaded = true;
-                            }
-                        });
-        }
-    }
-};

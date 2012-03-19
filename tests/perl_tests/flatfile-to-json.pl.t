@@ -73,7 +73,7 @@ sub tempdir {
        or diag explain $cds_trackdata;
     is( scalar @{$cds_trackdata->{intervals}{nclist}[2][9]}, 5, 'exonerate mRNA has 5 subfeatures' );
 
-    is_deeply( $read_json->('trackList.json')->{tracks}[1]{config}{style},
+    is_deeply( $read_json->('trackList.json')->{tracks}[1]{style},
                { featureCss => 'height: 8px;',
                  histScale => 2,
                  className => 'feature2',

@@ -87,10 +87,10 @@ sub writeTrackEntry {
         $trackIndex = ($#{$trackList} + 1) unless defined($trackIndex);
 
         $trackList->[$trackIndex] = {
+                                     %{ $track->config || {} },
                                      label => $track->label,
                                      key => $track->key,
                                      type => $track->type,
-                                     config => $track->config
                                     };
         return $trackData;
     };
@@ -158,7 +158,7 @@ sub getTrack {
     return $type->new( $self->trackDir($trackLabel),
                        $baseUrl,
                        $trackDesc->{label},
-                       $trackDesc->{config},
+                       $trackDesc,
                        $trackDesc->{key},
                      );
 }
@@ -201,15 +201,12 @@ Return an arrayref of track definition hashrefs similar to:
 
     [
         {
-          config => {
-                      autocomplete => "all",
-                      compress => 0,
-                      feature => ["remark"],
-                      key => "Example Features",
-                      style => { className => "feature2" },
-                      track => "ExampleFeatures",
-                      urlTemplate => "tracks/ExampleFeatures/{refseq}/trackData.json",
-                    },
+          autocomplete => "all",
+          compress => 0,
+          feature => ["remark"],
+          style => { className => "feature2" },
+          track => "ExampleFeatures",
+          urlTemplate => "tracks/ExampleFeatures/{refseq}/trackData.json",
           key    => "Example Features",
           label  => "ExampleFeatures",
           type   => "FeatureTrack",
