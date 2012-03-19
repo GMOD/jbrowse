@@ -205,11 +205,6 @@ pod2usage( -verbose => 2 ) if $help;
 
 my $gdb = GenomeDB->new( $outdir );
 
-my %refSeqs = map { $_->{name} => $_ } @{ $gdb->refSeqs };
-
-scalar keys %refSeqs
-    or die "run prepare-refseqs.pl first to supply information about your reference sequences";
-
 pod2usage( "Must provide a --tracklabel parameter." ) unless defined $trackLabel;
 pod2usage( "You must supply either a --gff or --bed parameter." )
   unless defined $gff || defined $bed || defined $bam;
@@ -344,8 +339,6 @@ my $track = $gdb->getTrack( $trackLabel )
 my $curChrom = 'NONE YET';
 my $totalMatches = 0;
 while( my $feat = $sorter->get ) {
-
-    next unless $refSeqs{ $feat->[0] }; # skip features we have no ref seq for
 
     unless( $curChrom eq $feat->[0] ) {
         $curChrom = $feat->[0];
