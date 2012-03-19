@@ -1,0 +1,21 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use Cwd;
+use File::Spec;
+use File::Basename;
+
+# make sure our jsdocs are up to date
+system 'make -f Makefile.deploy docs >/dev/null 2>&1';
+
+exec $ENV{BROWSER} || 'firefox', $ARGV[0] ? html_file_for( $ARGV[0] ) : 'docs/jsdoc/index.html';
+
+###
+sub html_file_for {
+    my ( $n ) = @_;
+    my $base = basename( $n, qr/\.[^.]*/);
+    my $f = File::Spec->catfile( 'docs', 'jsdoc', 'symbols', "$base.html" );
+    die "$base not found" unless -e $f;
+    return $f;
+}

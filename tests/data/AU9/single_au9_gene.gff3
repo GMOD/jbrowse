@@ -1,0 +1,10 @@
+##gff-version 3
+Group1.33	AU9	gene	244554	245373	0.32	-	.	ID=au9.g901;Name=au9.g901
+Group1.33	AU9	mRNA	244554	245373	0.32	-	.	ID=au9.g901.t1;Name=au9.g901.t1;Parent=au9.g901
+Group1.33	AU9	three_prime_UTR	244554	244667	0.5	-	.	Parent=au9.g901.t1
+Group1.33	AU9	stop_codon	244668	244670	.	-	0	Parent=au9.g901.t1
+Group1.33	AU9	CDS	244668	244772	1	-	0	Parent=au9.g901.t1
+Group1.33	AU9	CDS	244859	245086	1	-	0	Parent=au9.g901.t1
+Group1.33	AU9	start_codon	245084	245086	.	-	0	Parent=au9.g901.t1
+Group1.33	AU9	five_prime_UTR	245087	245114	1	-	.	Parent=au9.g901.t1
+Group1.33	AU9	five_prime_UTR	245314	245373	0.67	-	.	Parent=au9.g901.t1

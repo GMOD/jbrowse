@@ -1,3 +1,8 @@
+// VIEW
+
+/**
+ * @class
+ */
 function Track(name, key, loaded, changeCallback) {
     this.name = name;
     this.key = key;
@@ -12,9 +17,13 @@ Track.prototype.load = function(url) {
     var curTrack = this;
     dojo.xhrGet({url: url,
                  handleAs: "json",
-                 load: function(o) { curTrack.loadSuccess(o); },
-                 error: function(o) { curTrack.loadFail(o); }
+                 load: function(o) { curTrack.loadSuccess(o, url); },
+                 error: function(o) { curTrack.loadFail(o, url); }
 	        });
+};
+
+Track.prototype.loadSuccess = function(error) {
+    this.setLoaded();
 };
 
 Track.prototype.loadFail = function(error) {

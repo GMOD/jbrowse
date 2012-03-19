@@ -1,3 +1,34 @@
+=head1 NAME
+
+ExternalSorter - efficiently sort arrayrefs with a given comparison function
+
+=head1 SYNOPSIS
+
+  # make a new sorter that sorts by column 4, then column 3
+  my $sorter = ExternalSorter->new(
+                sub ($$) {
+                        $_[0]->[4] <=> $_[1]->[4]
+                        ||
+                        $_[1]->[3] <=> $_[0]->[3];
+                }, $sortMem);
+
+   for my $arrayref ( @arrayrefs ) {
+       $sorter->add( $arrayref );
+   }
+
+   # finalize sort
+   $sorter->finish;
+
+   # iterate through the sorted arrayrefs
+   while( my $arrayref = $sorter->get ) {
+
+   }
+
+=head1 METHODS
+
+=cut
+
+
 package ExternalSorter;
 
 use strict;
@@ -10,10 +41,16 @@ use Devel::Size qw(size total_size);
 use Heap::Simple;
 use File::Temp;
 
-# the comparison function must have an ($$) prototype
-# $ram is the amount of RAM to use before writing to disk (i.e., the size
-#     of each external sort segment)
-# tmpDir is an (optional) directory in which to create the temporary files
+=head1 new( \&comparison, $ramInBytes, $tmpDir )
+
+Make a new sorter using the given comparison function, using at most
+$ramInBytes bytes of RAM.  Optionally, can also pass $tmpDir, a path
+to the temporary directory to use for intermediate files.
+
+The comparison function must have a ($$) prototype.
+
+=cut
+
 sub new {
     my ($class, $compare, $ram, $tmpDir) = @_;
     my $self = {
@@ -29,7 +66,12 @@ sub new {
     return $self;
 }
 
-# add new item
+=head1 add( $item )
+
+Add a new item to the sort buffer.
+
+=cut
+
 sub add {
     my ($self, $item) = @_;
     $self->{curSize} += total_size($item);
@@ -39,7 +81,12 @@ sub add {
     }
 }
 
-# to be called when all items have been added
+=head1 finish()
+
+Call when all items have been added.  Finalizes the sort.
+
+=cut
+
 sub finish {
     my ($self) = @_;
     my $compare = $self->{compare};
@@ -68,7 +115,12 @@ sub finish {
     $self->{finished} = 1;
 }
 
-# write out a sorted version of the current list
+=head1 flush()
+
+Write a sorted version of the list to temporary storage.
+
+=cut
+
 sub flush {
     my ($self) = @_;
     my $compare = $self->{compare};
@@ -120,6 +172,8 @@ sub get {
         return shift @{$self->{curList}};
     }
 }
+
+
 
 # read one item from a file handle
 sub readOne {

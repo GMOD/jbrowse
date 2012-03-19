@@ -1,39 +1,55 @@
-//After
-//Alekseyenko, A., and Lee, C. (2007).
-//Nested Containment List (NCList): A new algorithm for accelerating
-//   interval query of genome alignment and interval databases.
-//Bioinformatics, doi:10.1093/bioinformatics/btl647
-//http://bioinformatics.oxfordjournals.org/cgi/content/abstract/btl647v1
+// MODEL
+
+/**
+
+Nested containment list.
+
+@class
+
+After
+<pre>
+  Alekseyenko, A., and Lee, C. (2007).
+  Nested Containment List (NCList): A new algorithm for accelerating
+     interval query of genome alignment and interval databases.
+  Bioinformatics, doi:10.1093/bioinformatics/btl647
+</pre>
+
+<a href="http://bioinformatics.oxfordjournals.org/cgi/content/abstract/btl647v1">http://bioinformatics.oxfordjournals.org/cgi/content/abstract/btl647v1</a>
+
+ */
 
 function NCList() {
 }
 
-NCList.prototype.importExisting = function(nclist, sublistIndex,
-                                           lazyIndex, baseURL,
-                                           lazyUrlTemplate) {
+NCList.prototype.importExisting = function(nclist, attrs, baseURL,
+                                           lazyUrlTemplate, lazyClass) {
     this.topList = nclist;
-    this.sublistIndex = sublistIndex;
-    this.lazyIndex = lazyIndex;
+    this.attrs = attrs;
+    this.start = attrs.makeFastGetter("Start");
+    this.end = attrs.makeFastGetter("End");
+    this.lazyClass = lazyClass;
     this.baseURL = baseURL;
     this.lazyUrlTemplate = lazyUrlTemplate;
+    this.lazyChunks = {};
 };
 
-NCList.prototype.fill = function(intervals, sublistIndex) {
+NCList.prototype.fill = function(intervals, attrs) {
     //intervals: array of arrays of [start, end, ...]
-    //sublistIndex: index into a [start, end] array for storing a sublist
-    //              array. this is so you can use those arrays for something
-    //              else, and keep the NCList bookkeeping from interfering.
-    //              That's hacky, but keeping a separate copy of the intervals
-    //              in the NCList seems like a waste (TODO: measure that waste).
+    //attrs: an ArrayRepr object
     //half-open?
-    this.sublistIndex = sublistIndex;
-    var myIntervals = intervals;//.concat();
+    this.attrs = attrs;
+    this.start = attrs.makeFastGetter("Start");
+    this.end = attrs.makeFastGetter("End");
+    var sublist = attrs.makeSetter("Sublist");
+    var start = this.start;
+    var end = this.end;
+    var myIntervals = intervals;
     //sort by OL
     myIntervals.sort(function(a, b) {
-        if (a[0] != b[0])
-            return a[0] - b[0];
+        if (start(a) != start(b))
+            return start(a) - start(b());
         else
-            return b[1] - a[1];
+            return end(b) - end(a);
     });
     var sublistStack = new Array();
     var curList = new Array();
@@ -43,11 +59,11 @@ NCList.prototype.fill = function(intervals, sublistIndex) {
     for (var i = 1, len = myIntervals.length; i < len; i++) {
         curInterval = myIntervals[i];
         //if this interval is contained in the previous interval,
-        if (curInterval[1] < myIntervals[i - 1][1]) {
+        if (end(curInterval) < end(myIntervals[i - 1])) {
             //create a new sublist starting with this interval
             sublistStack.push(curList);
             curList = new Array(curInterval);
-            myIntervals[i - 1][sublistIndex] = curList;
+            sublist(myIntervals[i - 1], curList);
         } else {
             //find the right sublist for this interval
             while (true) {
@@ -56,7 +72,8 @@ NCList.prototype.fill = function(intervals, sublistIndex) {
                     break;
                 } else {
                     topSublist = sublistStack[sublistStack.length - 1];
-                    if (topSublist[topSublist.length - 1][1] > curInterval[1]) {
+                    if (end(topSublist[topSublist.length - 1])
+                        > end(curInterval)) {
                         //curList is the first (deepest) sublist that
                         //curInterval fits into
                         curList.push(curInterval);
@@ -70,14 +87,14 @@ NCList.prototype.fill = function(intervals, sublistIndex) {
     }
 };
 
-NCList.prototype.binarySearch = function(arr, item, itemIndex) {
+NCList.prototype.binarySearch = function(arr, item, getter) {
     var low = -1;
     var high = arr.length;
     var mid;
 
     while (high - low > 1) {
         mid = (low + high) >>> 1;
-        if (arr[mid][itemIndex] > item)
+        if (getter(arr[mid]) > item)
             high = mid;
         else
             low = mid;
@@ -85,82 +102,55 @@ NCList.prototype.binarySearch = function(arr, item, itemIndex) {
 
     //if we're iterating rightward, return the high index;
     //if leftward, the low index
-    if (1 == itemIndex) return high; else return low;
+    if (getter === this.end) return high; else return low;
 };
 
 NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
-                                       inc, searchIndex, testIndex, path) {
+                                       inc, searchGet, testGet, path) {
     var len = arr.length;
-    var i = this.binarySearch(arr, from, searchIndex);
+    var i = this.binarySearch(arr, from, searchGet);
+    var getChunk = this.attrs.makeGetter("Chunk");
+    var getSublist = this.attrs.makeGetter("Sublist");
+
     while ((i < len)
            && (i >= 0)
-           && ((inc * arr[i][testIndex]) < (inc * to)) ) {
+           && ((inc * testGet(arr[i])) < (inc * to)) ) {
 
-        if ("object" == typeof arr[i][this.lazyIndex]) {
+        if (arr[i][0] == this.lazyClass) {
             var ncl = this;
-            // lazy node
-            if (arr[i][this.lazyIndex].state) {
-                if ("loading" == arr[i][this.lazyIndex].state) {
-                    // node is currenly loading; finish this query once it
-                    // has been loaded
-                    finish.inc();
-                    arr[i][this.lazyIndex].callbacks.push(
-                        function(parentIndex) {
-                            return function(o) {
-                                ncl.iterHelper(o, from, to, fun, finish, inc,
-                                               searchIndex, testIndex,
-                                               path.concat(parentIndex));
-                                finish.dec();
-                            };
-                        }(i)
-                    );
-                } else if ("loaded" == arr[i][this.lazyIndex].state) {
-                    // just continue below
-                } else {
-                    console.log("unknown lazy type: " + arr[i]);
-                }
-            } else {
-                // no "state" property means this node hasn't been loaded,
-                // start loading
-                arr[i][this.lazyIndex].state = "loading";
-                arr[i][this.lazyIndex].callbacks = [];
-                finish.inc();
-                dojo.xhrGet(
-                    {
-                        url: this.baseURL +
-                            this.lazyUrlTemplate.replace(
-                                /\{chunk\}/g,
-                                arr[i][this.lazyIndex].chunk
-                            ),
-                        handleAs: "json",
-                        load: function(lazyFeat, lazyObj,
-                                       sublistIndex, parentIndex) {
-                            return function(o) {
-                                lazyObj.state = "loaded";
-                                lazyFeat[sublistIndex] = o;
-                                ncl.iterHelper(o, from, to,
-                                               fun, finish, inc,
-                                               searchIndex, testIndex,
-                                               path.concat(parentIndex));
-                                for (var c = 0;
-                                     c < lazyObj.callbacks.length;
-                                     c++)
-                                     lazyObj.callbacks[c](o);
-                                finish.dec();
-                            };
-                        }(arr[i], arr[i][this.lazyIndex], this.sublistIndex, i),
-                        error: function() {
-                            finish.dec();
-                        }
-                    });
+            var chunkNum = getChunk(arr[i]);
+            if (!(chunkNum in this.lazyChunks)) {
+                this.lazyChunks[chunkNum] = {};
             }
+            var chunk = this.lazyChunks[chunkNum];
+            finish.inc();
+            Util.maybeLoad({ url: Util.resolveUrl(this.baseURL,
+                                           this.lazyUrlTemplate.replace(
+                                                   /\{Chunk\}/g, chunkNum
+                                           ) ),
+                             handleAs: 'json'
+                           },
+                           chunk,
+                           (function (myChunkNum) {
+                               return function(o) {
+                                   ncl.iterHelper(o, from, to, fun, finish,
+                                                  inc, searchGet, testGet,
+                                                  [myChunkNum]);
+                                   finish.dec();
+                               };
+                            })(chunkNum),
+                           function() {
+                               finish.dec();
+                           }
+                          );
         } else {
             fun(arr[i], path.concat(i));
         }
 
-        if (arr[i][this.sublistIndex])
-            this.iterHelper(arr[i][this.sublistIndex], from, to,
-                            fun, finish, inc, searchIndex, testIndex,
+        var sublist = getSublist(arr[i]);
+        if (sublist)
+            this.iterHelper(sublist, from, to,
+                            fun, finish, inc, searchGet, testGet,
                             path.concat(i));
         i += inc;
     }
@@ -173,13 +163,13 @@ NCList.prototype.iterate = function(from, to, fun, postFun) {
 
     //inc: iterate leftward or rightward
     var inc = (from > to) ? -1 : 1;
-    //searchIndex: search on start or end
-    var searchIndex = (from > to) ? 0 : 1;
-    //testIndex: test on start or end
-    var testIndex = (from > to) ? 1 : 0;
+    //searchGet: search on start or end
+    var searchGet = (from > to) ? this.start : this.end;
+    //testGet: test on start or end
+    var testGet = (from > to) ? this.end : this.start;
     var finish = new Finisher(postFun);
     this.iterHelper(this.topList, from, to, fun, finish,
-                    inc, searchIndex, testIndex, []);
+                    inc, searchGet, testGet, [0]);
     finish.finish();
 };
 
@@ -189,14 +179,15 @@ NCList.prototype.histogram = function(from, to, numBins, callback) {
 
     var result = new Array(numBins);
     var binWidth = (to - from) / numBins;
+    var start = this.start;
+    var end = this.end;
     for (var i = 0; i < numBins; i++) result[i] = 0;
-    //this.histHelper(this.topList, from, to, result, numBins, (to - from) / numBins);
     this.iterate(from, to,
                  function(feat) {
 	             var firstBin =
-                         Math.max(0, ((feat[0] - from) / binWidth) | 0);
+                         Math.max(0, ((start(feat) - from) / binWidth) | 0);
                      var lastBin =
-                         Math.min(numBins, ((feat[1] - from) / binWidth) | 0);
+                         Math.min(numBins, ((end(feat) - from) / binWidth) | 0);
 	             for (var bin = firstBin; bin <= lastBin; bin++)
                          result[bin]++;
                  },

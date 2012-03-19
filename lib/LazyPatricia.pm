@@ -1,49 +1,67 @@
-# Implements a lazy PATRICIA tree.
+=head1 NAME
 
-# This class is a map where the keys are strings.  The map supports fast
-# queries by key string prefix ("show me all the values for keys that
-# start with "abc").  It also supports lazily loading subtrees.
+LazyPatricia - a lazy PATRICIA tree
 
-# Each edge is labeled with a substring of a key string.
-# Each node in the tree has one or more children, each of which represents
-#   a potential completion of the string formed by concatenating all of the
-#   edge strings from that node up to the root.
-#   Nodes also have zero or one data items.
-# Leaves have zero or one data items.
+=head1 SYNOPSIS
 
-# Each loaded node is an array.
-#   element 0 is the edge string;
-#   element 1 is the data item, or undefined if there is none;
-#   any further elements are the child nodes, sorted lexicographically
-#     by their edge string
+  my $trie = LazyPatricia::create({abc=>0, abcd=>1, abce=>2,abfoo=>3});
+  use JSON 2;
+  print JSON::to_json($trie, {pretty=>1});
 
-# Each lazy node is just the edge string for the edge leading to the lazy node.
-#   when the lazy node is loaded, the string gets replaced with a loaded
-#   node array; lazy nodes and loaded nodes can be distinguished by:
-#    "string" == typeof loaded_node[0]
-#    "number" == typeof lazy_node[0]
+=head1 DESCRIPTION
 
-# e.g., for the mappings:
-#   abc   => 0
-#   abcd  => 1
-#   abce  => "baz"
-#   abfoo => [3, 4]
-#   abbar (subtree to be loaded lazily)
+This class is a map where the keys are strings.  The map supports fast
+queries by key string prefix ("show me all the values for keys that
+start with "abc").  It also supports lazily loading subtrees.
 
-# the structure is:
+Each edge is labeled with a substring of a key string.
 
-# [, , ["ab", ,
-#       "bar",
-#       ["c", 0, ["d", 1],
-#        ["e", "baz"]],
-#       ["foo", [3, 4]]
-#       ]
-#  ]
+Each node in the tree has one or more children, each of which
+represents a potential completion of the string formed by
+concatenating all of the edge strings from that node up to the root.
 
-# The main goals for this structure were to minimize the JSON size on
-# the wire (so, no type tags in the JSON to distinguish loaded nodes,
-# lazy nodes, and leaves) while supporting lazy loading and reasonably
-# fast lookups.
+Nodes also have zero or one data items.
+
+Leaves have zero or one data items.
+
+Each loaded node is an array:
+
+Element 0 is the edge string; element 1 is the data item, or undefined
+if there is none; any further elements are the child nodes, sorted
+lexicographically by their edge string
+
+Each lazy node is just the edge string for the edge leading to the
+lazy node.  when the lazy node is loaded, the string gets replaced
+with a loaded node array; lazy nodes and loaded nodes can be
+distinguished by:
+
+  "string" == typeof loaded_node[0]
+  "number" == typeof lazy_node[0]
+
+e.g., for the mappings:
+
+  abc   => 0
+  abcd  => 1
+  abce  => "baz"
+  abfoo => [3, 4]
+  abbar (subtree to be loaded lazily)
+
+the structure is:
+
+  [, , ["ab", ,
+       "bar",
+       ["c", 0, ["d", 1],
+        ["e", "baz"]],
+       ["foo", [3, 4]]
+       ]
+  ]
+
+The main goals for this structure were to minimize the JSON size on
+the wire (so, no type tags in the JSON to distinguish loaded nodes,
+lazy nodes, and leaves) while supporting lazy loading and reasonably
+fast lookups.
+
+=cut
 
 package LazyPatricia;
 
@@ -56,8 +74,14 @@ use constant EDGESTRING => 0;
 use constant VALUE => 1;
 use constant SUBLIST => 2;
 
-# takes: a hash reference containing the mappings to put into the trie
-# returns: trie structure described above
+=head2 create( \%mappings )
+
+takes: a hash reference containing the mappings to put into the trie
+
+returns: trie structure described above
+
+=cut
+
 sub create {
     my ($mappings) = @_;
     my $tree = [];
@@ -158,11 +182,6 @@ sub partition {
     }
     return ($total, $thisChunk);
 }
-
-
-#my $trie = LazyPatricia::create({abc=>0, abcd=>1, abce=>2,abfoo=>3});
-#use JSON 2;
-#print JSON::to_json($trie, {pretty=>1});
 
 1;
 

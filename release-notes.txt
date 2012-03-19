@@ -1,3 +1,63 @@
+{{$NEXT}}
+
+ * Added build instrumentation to support a JSDoc-based system of
+   developer API documentation.  This documentation is still far from
+   complete.
+
+ * Ian Davis contributed code to add a view of the reverse strand of
+   the sequence in the DNA track.  Thanks Ian!
+
+ * Fixed bug in which, for some sequence chunk sizes, the DNA bases
+   would display incorrectly.
+
+ * Added nav, overview, and tracklist URL options that, when set to 0,
+   turn off the navigation box, the overview panel, and the track
+   list, respectively.  When all of these are off, and if run in an
+   iframe, JBrowse looks similar to the output of GBrowse's
+   gbrowse_img script.  More documentation on this coming soon.
+   Thanks to Julie Moon, a co-op student working at OICR, for this
+   work!
+
+ * Added minor gridlines to the main track view.
+
+ * Fixed a long-standing off-by-one bug where the window could not be
+   scrolled to view the last base in the reference sequence.
+
+ * Coordinates displayed in the user interface are now 1-based closed
+   coordinates, which are more familiar to most users.  Previously,
+   the labels displayed interbase (i.e. 0-based half-open)
+   coordinates.
+
+ * NON-BACKWARDS-COMPATIBLE improvements to the JSON format used for
+   track configuration, feature data, and image data
+     - initial support for a new hook system for greater
+       administrator-configurability of feature display
+     - support for more than one level of subfeatures
+
+ * Miscellaneous improvements and refactoring of data-formatting Perl
+   code.
+
+ * More detailed POD-based help documentation on all scripts
+
+ * Nonfunctional --extraData switch remove from flatfile-to-json.pl
+
+ * --tracklabel options to all scripts replaced with --trackLabel.
+
+ * New suite of integration tests, and some unit tests, for
+   server-side Perl code.
+
+ * Beginnings of a suite of Selenium-based integration tests for the
+   front-end JavaScript code.
+
+ * Support for Apple touch-based devices merged into normal
+   index.html, so that the same link can be used regardless of the
+   browsing platform.
+
+ * Bug fixed in which non-stranded features do not display properly
+   (was a problem with the styles in the CSS).
+
+========================================================
+
 version 1.2.1, March 2011
 
 Fixed bugs in release 1.2:

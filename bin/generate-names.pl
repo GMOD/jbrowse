@@ -1,18 +1,57 @@
 #!/usr/bin/env perl
 
+=head1 NAME
+
+generate-names.pl - generate a global index of feature names
+
+=head1 USAGE
+
+  generate-names.pl                        \
+      [ --out <output directory> ]         \
+      [ --thresh <threshold> ]             \
+      [ --verbose ]
+
+=head1 OPTIONS
+
+=over 4
+
+=item --out <directory>
+
+Data directory to process.  Default 'data/'.
+
+=item --thresh <threshold>
+
+Optional LazyPatricia chunking threshold.  Default 200.  See
+L<LazyPatricia> for details.
+
+=item --verbose
+
+Print more progress messages.
+
+=item --help | -h | -?
+
+Print a usage message.
+
+=back
+
+=cut
+
 use strict;
 use warnings;
 
+use Fcntl ":flock";
 use FindBin qw($Bin);
 use File::Spec::Functions;
-use lib catdir($Bin, updir(), "lib");
-
 use Getopt::Long;
 use IO::File;
-use Fcntl ":flock";
-use LazyPatricia;
-use JsonGenerator qw/ readJSON writeJSON /;
+use Pod::Usage;
+
 use JSON 2;
+
+use lib catdir($Bin, updir(), "lib");
+
+use LazyPatricia;
+use GenomeDB;
 
 my %trackHash;
 my @tracksWithNames;
@@ -21,10 +60,12 @@ my $outDir = "data";
 my $thresh = 200;
 my $verbose = 0;
 my $help;
-GetOptions("dir=s" => \$outDir,
+GetOptions("dir|out=s" => \$outDir,
            "thresh=i" => \$thresh,
            "verbose+" => \$verbose,
-           "help" => \$help);
+           "help|h|?" => \$help) or pod2usage();
+
+pod2usage( -verbose => 2 ) if $help;
 
 unless (-d $outDir) {
     die <<OUTDIR;
@@ -35,31 +76,12 @@ the --dir command line option.
 OUTDIR
 }
 
+my $gdb = GenomeDB->new( $outDir );
 my $nameDir = catdir($outDir, "names");
 mkdir($nameDir) unless (-d $nameDir);
 
-if ($help) {
-    die <<USAGE;
-USAGE: $0 [--dir <output directory>] [--thresh <n>] [--verbose]
-
-    --dir: defaults to "$outDir"
-
-USAGE
-}
-
-sub partitionCallback {
-    my ($subtreeRoot, $prefix, $thisChunk, $total) = @_;
-    # output subtree
-    writeJSON(catfile($nameDir, "lazy-$prefix.json"),
-              $subtreeRoot,
-              {pretty => 0});
-    printf STDERR "subtree for %15s   has %10d  in chunk, %10d  total\n",
-      $prefix, $thisChunk, $total
-        if $verbose;
-}
-
-my @refSeqs = @{readJSON(catfile($outDir, "refSeqs.js"), [], 1)};
-my @tracks = @{readJSON(catfile($outDir, "trackInfo.js"), [], 1)};
+my @refSeqs  = @{ $gdb->refSeqs   };
+my @tracks   = @{ $gdb->trackList };
 
 # open the root file; we lock this file while we're
 # reading the name lists, deleting all the old lazy-*
@@ -72,59 +94,74 @@ flock $root, LOCK_EX;
 # read the name list for each track that has one
 my %nameHash;
 my $trackNum = 0;
-my $OLDSEP = $/;
-undef $/;
 foreach my $ref (@refSeqs) {
     foreach my $track (@tracks) {
-        my $infile = catfile($outDir,
-                             "tracks",
-                             $ref->{name},
-                             $track->{label},
-                             "names.json");
+        my $infile = catfile( $outDir,
+                              "tracks",
+                              $track->{label},
+                              $ref->{name},
+                              "names.json");
         next unless -e $infile;
-        open JSON, "<$infile"
-            or die "couldn't open $: $!";
-        my $names = JSON::from_json(<JSON>);
-        close JSON
-            or die "couldn't close $infile: $!";
-        foreach my $nameinfo (@$names) {
-            foreach my $alias (@{$nameinfo->[0]}) {
+
+        my $names = do {
+            local $/;
+            open my $j, '<', $infile or die "$! reading $infile";
+            JSON::from_json(<$j>);
+        };
+
+        foreach my $nameinfo ( @$names) {
+            foreach my $alias ( @{$nameinfo->[0]} ) {
                 my $track = $nameinfo->[1];
-                if (!defined($trackHash{$track})) {
+                unless( defined $trackHash{$track} ) {
                     $trackHash{$track} = $trackNum++;
                     push @tracksWithNames, $track;
                 }
 
-                push @{$nameHash{lc $alias}}, [$trackHash{$track},
-                                               @{$nameinfo}[2..$#{$nameinfo}]];
+                push @{$nameHash{lc $alias}}, [ $trackHash{$track},
+                                                @{$nameinfo}[2..$#{$nameinfo}]];
             }
         }
     }
 }
-$/ = $OLDSEP;
 
 # clear out old data
 $root->seek(0, SEEK_SET);
 $root->truncate(0);
-my @lazyFiles = glob(catfile($nameDir, "lazy-*"));
-if (@lazyFiles) {
+if( my @lazyFiles = glob( catfile( $nameDir, "lazy-*" )) ) {
     unlink @lazyFiles
       or die "couldn't unlink name files: $!";
 }
 
-my $trie = LazyPatricia::create(\%nameHash);
+my $trie = LazyPatricia::create( \%nameHash );
 $trie->[0] = \@tracksWithNames;
 
 my ($total, $thisChunk) =
-  LazyPatricia::partition($trie, "", $thresh, \&partitionCallback);
+  LazyPatricia::partition( $trie, "", $thresh, sub {
+      my ($subtreeRoot, $prefix, $thisChunk, $total) = @_;
+      # output subtree
+      writeJSON( catfile($nameDir, "lazy-$prefix.json"),
+                 $subtreeRoot,
+                 {pretty => 0} );
+      printf STDERR ( "subtree for %15s   has %10d  in chunk, %10d  total\n",
+                      $prefix, $thisChunk, $total )
+          if $verbose;
+  });
 
 print STDERR "$total total names, with $thisChunk in the root chunk\n"
   if $verbose;
 
 # write the root
-$root->print(JSON::to_json($trie, {pretty => 0}));
-$root->close()
-  or die "couldn't close $rootFile: $!";
+$root->print( JSON::to_json($trie, {pretty => 0}) );
+
+exit;
+
+############
+
+sub writeJSON {
+    my ( $file, $contents, $opts ) = @_;
+    open my $f, '>', $file or die "$! writing $file";
+    print $f JSON::to_json( $contents, $opts || {} );
+}
 
 
 =head1 AUTHOR

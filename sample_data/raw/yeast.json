@@ -1,0 +1,40 @@
+{
+  "description": "Yeast Example Database",
+  "db_adaptor": "Bio::DB::SeqFeature::Store",
+  "db_args": {
+      "-adaptor": "memory",
+      "-dir": "sample_data/raw/yeast_chr1+2"
+  },
+  "TRACK DEFAULTS": {
+    "class": "feature",
+    "autocomplete": "all"
+  },
+  "tracks": [
+    {
+      "track": "Genes",
+      "feature": ["gene"],
+      "class": "feature5",
+      "key": "Protein-coding genes",
+      "subfeatures": true,
+      "subfeature_classes": {
+        "CDS": "transcript-CDS"
+      },
+      "arrowheadClass": "transcript-arrowhead",
+      "category": "Genes"
+    },
+    {
+      "track": "transcript_with_no_features",
+      "feature": ["mRNA"],
+      "description": 1,
+      "class": "transcript",
+      "subfeatures": true,
+      "subfeature_classes": {
+        "CDS": "transcript-CDS",
+        "UTR": "transcript-UTR"
+      },
+      "arrowheadClass": "transcript-arrowhead",
+      "key": "Exonerate predictions (misconfigured for test, and with a long description)",
+      "category": "Genes"
+    }
+  ]
+}
