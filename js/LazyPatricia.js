@@ -129,6 +129,19 @@ LazyTrie.prototype.valuesFromNode = function(node) {
     return results;
 };
 
+// node is an array: either loaded or lazy. get all the keys
+LazyTrie.prototype.edgesFromNode = function(node, temp) {
+    var results = [];
+    temp += node[0];
+    if (node[2] == null) {
+        results.push(temp);
+    }
+    for (var i = 2; i < node.length; i++) {
+        results = results.concat(this.edgesFromNode(node[i], temp));
+    }
+    return results;
+};
+
 LazyTrie.prototype.exactMatch = function(key, callback) {
     var trie = this;
     this.findNode(key, function(prefix, node) {
