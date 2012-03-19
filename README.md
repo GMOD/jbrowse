@@ -1,6 +1,6 @@
 # Installing JBrowse
 
-To install JBrowse, See the main JBrowse wiki at http://gmod.org/wiki/JBrowse.
+To install JBrowse, see the main JBrowse wiki at http://gmod.org/wiki/JBrowse.
 
 The rest of this file is aimed primarily at developers.
 
@@ -11,7 +11,7 @@ The rest of this file is aimed primarily at developers.
 Tests for the server-side Perl code.  You must have the JBrowse Perl
 module prerequisites installed for them to work.  Run with:
 
-   prove -lr t
+    prove -lr t
 
 ## Client-side Integration Tests
 
