@@ -60,7 +60,7 @@ class JBrowseTest (object):
 
     def turn_on_track( self, tracktext ):
 
-        # find the microarray track label
+        # find the track label
         tracklabel = self.assert_element( "//div[@class='tracklist-label'][contains(.,'%s')]" % tracktext )
 
         # drag the track label over
