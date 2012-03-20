@@ -431,9 +431,10 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     //featureStart and featureEnd indicate how far left or right
     //the feature extends in bp space, including labels
     //and arrowheads if applicable
+
     var featureEnd = feature.get('end');
     var featureStart = feature.get('start');
-    if (this.arrowheadClass) {
+    if (this.config.style.arrowheadClass) {
         switch ( feature.get('strand') ) {
         case 1:
         case '+':
