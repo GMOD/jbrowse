@@ -1,7 +1,10 @@
-use strict;
+use Carp::Always;use strict;
 use warnings;
 
 use Test::More;
+
+use lib 'lib';
+use Script::FlatFileToJson;
 
 use File::Spec::Functions 'catfile';
 use File::Temp ();
@@ -10,8 +13,9 @@ use File::Copy::Recursive 'dircopy';
 use JsonGenerator;
 
 sub run_with(@) {
-    system $^X, 'bin/flatfile-to-json.pl', @_;
-    ok( ! $?, 'flatfile-to-json.pl ran ok' );
+    #system $^X, 'bin/flatfile-to-json.pl', @_;
+    #ok( ! $?, 'flatfile-to-json.pl ran ok' );
+    Script::FlatFileToJson->new( @_ )->run;
 }
 
 sub tempdir {
@@ -36,6 +40,9 @@ sub tempdir {
         '--clientConfig' =>  '{"featureCss": "height: 8px;", "histScale": 2}',
         );
 
+    #system "find $tempdir -type f";
+    #die 'break';
+
     run_with (
         '--out' => $tempdir,
         '--gff' => 'sample_data/raw/volvox/volvox.gff3',
@@ -49,7 +56,7 @@ sub tempdir {
         );
 
     my $hist_output = $read_json->(qw( tracks ExampleFeatures ctgA hist-10000-0.json ));
-    is_deeply( $hist_output, [4,3,4,3,4,1], 'got right histogram output' ) or diag explain( $hist_output );
+    is_deeply( $hist_output, [4,3,4,3,4,1], 'got right histogram output for ExampleFeatures' ) or diag explain( $hist_output );
 
     my $names_output = $read_json->(qw( tracks ExampleFeatures ctgA names.json ));
     is_deeply( $names_output->[3],
@@ -68,7 +75,7 @@ sub tempdir {
                ) or diag explain $names_output;
 
     my $cds_trackdata = $read_json->(qw( tracks CDS ctgA trackData.json ));
-    is( $cds_trackdata->{featureCount}, 3, 'got right feature count' ) or diag explain $cds_trackdata;
+    is( $cds_trackdata->{featureCount}, 3, 'got right feature count for CDS track' ) or diag explain $cds_trackdata;
     is( ref $cds_trackdata->{intervals}{nclist}[2][9], 'ARRAY', 'exonerate mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
     is( scalar @{$cds_trackdata->{intervals}{nclist}[2][9]}, 5, 'exonerate mRNA has 5 subfeatures' );
@@ -136,15 +143,13 @@ sub tempdir {
     is( ref $cds_trackdata->{intervals}{nclist}[0][9], 'ARRAY', 'gene has its subfeatures' )
        or diag explain $cds_trackdata;
     is( scalar @{$cds_trackdata->{intervals}{nclist}[0][9]}, 1, 'gene has 1 subfeature' );
-    is( ref $cds_trackdata->{intervals}{nclist}[0][9][0][6], 'ARRAY', 'mRNA has its subfeatures' )
+    is( ref $cds_trackdata->{intervals}{nclist}[0][9][0][9], 'ARRAY', 'mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
-    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][9][0][6]}, 7, 'mRNA has 7 subfeatures' );
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][9][0][9]}, 7, 'mRNA has 7 subfeatures' );
 }
 
 for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffold_subset_sync.gff3" ) {
     # add a test for duplicate lazyclasses bug found by Gregg
-
-    my $start_time = time;
 
     my $tempdir = tempdir();
     dircopy( 'tests/data/AU9', $tempdir );
@@ -164,8 +169,6 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     is( $cds_trackdata->{featureCount}, 28, 'got right feature count' ) or diag explain $cds_trackdata;
     is( scalar @{$cds_trackdata->{intervals}{classes}}, 3, 'got the right number of classes' )
         or diag explain $cds_trackdata->{intervals}{classes};
-
-    diag "formatting $testfile took ".(time-$start_time)." seconds";
 
     #system "find $tempdir";
 }
