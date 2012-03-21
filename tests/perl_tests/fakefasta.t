@@ -33,7 +33,7 @@ my $correct_fkfa = [
     'length' => 0
   }
 ];
-use Carp::Always;
+
 my $fkfa = FakeFasta->fasta_to_fkfa( do{ open my $f, '<', \$fasta; $f} );
 is_deeply( $fkfa,
            $correct_fkfa,
