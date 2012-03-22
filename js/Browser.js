@@ -431,7 +431,7 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
     };
 
 
-    this.viewDndWidget = new dojo.dnd.Source(this.view.zoomContainer,
+    this.viewDndWidget = new dojo.dnd.Source(this.view.trackContainer,
                                        {
                                            creator: trackCreate,
                                            accept: ["track"], //accepts tracks into the viewing field

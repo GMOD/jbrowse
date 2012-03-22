@@ -43,6 +43,11 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
         "position: absolute; left: 0px; top: 0px; height: 100%;";
     this.scrollContainer.appendChild(this.zoomContainer);
 
+    this.trackContainer = document.createElement("div");
+    this.trackContainer.id = "trackContainer";
+    this.trackContainer.style.cssText = "height: 100%;";
+    this.zoomContainer.appendChild( this.trackContainer );
+
     //width, in pixels of the "regular" (not min or max zoom) stripe
     this.regularStripe = stripeWidth;
     //width, in pixels, of stripes at full zoom (based on the sequence
@@ -138,8 +143,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
                           gridTrackDiv, undefined, this.stripePercent,
                           this.stripeWidth, this.pxPerBp,
                           this.trackPadding);
-    this.zoomContainer.appendChild(gridTrackDiv);
-
+    this.trackContainer.appendChild(gridTrackDiv);
     this.uiTracks = [this.staticTrack, gridTrack];
 
     dojo.forEach(this.uiTracks, function(track) {
@@ -159,13 +163,13 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.showCoarse();
 
     // connect all the events only after everything is drawn
-    dojo.connect(this.locationThumbMover, "onMoveStop", this, "thumbMoved");
+    dojo.connect( this.locationThumbMover, "onMoveStop", this, "thumbMoved");
 
-    dojo.connect( this.zoomContainer, "mousedown", this, 'startMouseDragScroll' );
-    dojo.connect( this.zoomContainer, "dblclick",  this, 'doubleClick' );
+    dojo.connect( this.trackContainer, "mousedown", this, 'startMouseDragScroll' );
+    dojo.connect( this.trackContainer, "dblclick",  this, 'doubleClick' );
 
-    dojo.connect( this.zoomContainer, "mousewheel",     this, 'wheelScroll', false );
-    dojo.connect( this.zoomContainer, "DOMMouseScroll", this, 'wheelScroll', false );
+    dojo.connect( this.trackContainer, "mousewheel",     this, 'wheelScroll', false );
+    dojo.connect( this.trackContainer, "DOMMouseScroll", this, 'wheelScroll', false );
 }
 
 /**
@@ -1039,7 +1043,7 @@ GenomeView.prototype.updateTrackList = function() {
     var tracks = [];
     // after a track has been dragged, the DOM is the only place
     // that knows the new ordering
-    var containerChild = this.zoomContainer.firstChild;
+    var containerChild = this.trackContainer.firstChild;
     do {
         // this test excludes UI tracks, whose divs don't have a track property
         if (containerChild.track) tracks.push(containerChild.track);
