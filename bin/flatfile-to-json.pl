@@ -38,7 +38,7 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
 
 =head1 ARGUMENTS
 
-=head2 REQUIRED
+=head2 Required
 
 =over 4
 
@@ -56,7 +56,7 @@ Unique identifier for this track.  Required.
 
 =back
 
-=head1 OPTIONAL
+=head2 Optional
 
 =over 4
 
@@ -139,7 +139,7 @@ Bytes of RAM to use for sorting features.  Default 512MB.
 
 =back
 
-=head2 BED-SPECIFIC
+=head2 BED-specific
 
 =over 4
 
