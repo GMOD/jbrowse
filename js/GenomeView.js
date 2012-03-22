@@ -208,18 +208,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     }
 
     dojo.connect( this.elem, "mousedown", this, 'mouseDown' );
-
-    dojo.connect( this.elem, "dblclick", this, function(event) {
-	    if (this.dragging) return;
-	    if ("animation" in this) return;
-	    var zoomLoc = (event.pageX - dojo.coords(this.elem, true).x) / this.dim.width;
-	    if (event.shiftKey) {
-		this.zoomOut(event, zoomLoc, 2);
-	    } else {
-		this.zoomIn(event, zoomLoc, 2);
-	    }
-	    dojo.stopEvent(event);
-	});
+    dojo.connect( this.elem, "dblclick",  this, 'doubleClick' );
 
     var wheelScrollTimeout = null;
     var wheelScrollUpdate = function() {
@@ -316,6 +305,18 @@ GenomeView.prototype.afterSlide = function() {
     this.showCoarse();
     this.scrollUpdate();
     this.showVisibleBlocks(true);
+};
+
+GenomeView.prototype.doubleClick = function(event) {
+    if (this.dragging) return;
+    if ("animation" in this) return;
+    var zoomLoc = (event.pageX - dojo.coords(this.elem, true).x) / this.dim.width;
+    if (event.shiftKey) {
+	this.zoomOut(event, zoomLoc, 2);
+    } else {
+	this.zoomIn(event, zoomLoc, 2);
+    }
+    dojo.stopEvent(event);
 };
 
 GenomeView.prototype.mouseDown = function(event) {
