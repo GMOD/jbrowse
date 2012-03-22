@@ -137,33 +137,6 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     dojo.connect( this.elem, "mousedown", this, 'mouseDown' );
     dojo.connect( this.elem, "dblclick",  this, 'doubleClick' );
 
-    var view = this;
-
-    var wheelScrollTimeout = null;
-    var wheelScrollUpdate = function() {
-	view.showVisibleBlocks(true);
-	wheelScrollTimeout = null;
-    };
-
-    view.wheelScroll = function(e) {
-	var oldY = view.getY();
-        // arbitrary 60 pixel vertical movement per scroll wheel event
-	var newY = Math.min(Math.max(0, oldY - 60 * Util.wheel(e)),
-			    view.containerHeight - view.dim.height);
-	view.setY(newY);
-
-	//the timeout is so that we don't have to run showVisibleBlocks
-	//for every scroll wheel click (we just wait until so many ms
-	//after the last one).
-	if (wheelScrollTimeout)
-	    clearTimeout(wheelScrollTimeout);
-        // 100 milliseconds since the last scroll event is an arbitrary
-        // cutoff for deciding when the user is done scrolling
-        // (set by a bit of experimentation)
-	wheelScrollTimeout = setTimeout(wheelScrollUpdate, 100);
-	dojo.stopEvent(e);
-    };
-
     dojo.connect( this.scrollContainer, "mousewheel",     this, 'wheelScroll', false );
     dojo.connect( this.scrollContainer, "DOMMouseScroll", this, 'wheelScroll', false );
 
@@ -208,6 +181,29 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.showFine();
     this.showCoarse();
 }
+
+GenomeView.prototype.wheelScroll = function(e) {
+
+    // 60 pixels per mouse wheel event
+    this.setY( this.getY() - 60 * Util.wheel(e) );
+
+    //the timeout is so that we don't have to run showVisibleBlocks
+    //for every scroll wheel click (we just wait until so many ms
+    //after the last one).
+    if ( this.wheelScrollTimeout )
+        window.clearTimeout( this.wheelScrollTimeout );
+
+    // 100 milliseconds since the last scroll event is an arbitrary
+    // cutoff for deciding when the user is done scrolling
+    // (set by a bit of experimentation)
+    var view = this;
+    this.wheelScrollTimeout = window.setTimeout( function() {
+        view.showVisibleBlocks(true);
+        view.wheelScrollTimeout = null;
+    }, 100);
+
+    dojo.stopEvent(e);
+};
 
 GenomeView.prototype.getX = function() {
     return this.x;
