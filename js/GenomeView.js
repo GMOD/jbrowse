@@ -260,10 +260,6 @@ GenomeView.prototype.getPosition = function() {
 };
 
 GenomeView.prototype.zoomCallback = function() {
-
-};
-
-GenomeView.prototype.zoomCallback = function() {
     this.zoomUpdate();
 };
 
@@ -429,9 +425,6 @@ GenomeView.prototype.slide = function(distance) {
                this.afterSlide,
                Math.abs(distance) * this.dim.width * this.slideTimeMultiple + 200,
                distance * this.dim.width);
-};
-
-GenomeView.prototype.highlightRegions = function(regionList) {
 };
 
 GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
