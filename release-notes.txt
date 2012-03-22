@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Added bin/remove-track.pl, a script to remove a track from a
+   JBrowse data directory.  Run bin/remove-track.pl -? to see its
+   documentation.
+
  * Added build instrumentation to support a JSDoc-based system of
    developer API documentation.  This documentation is still far from
    complete.
