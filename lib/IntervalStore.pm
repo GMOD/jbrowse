@@ -70,9 +70,9 @@ sub new {
 
     my $self = {
                 store => $args->{store},
-                classes => $args->{classes},
+                classes => [ @{$args->{classes}} ],
                 lazyClass => $args->{lazyClass},
-                urlTemplate => $args->{urlTemplate} || ("lf-{Chunk}" 
+                urlTemplate => $args->{urlTemplate} || ("lf-{Chunk}"
                                                         . $args->{store}->ext),
                 attrs => ArrayRepr->new($args->{classes}),
                 nclist => $args->{nclist},

@@ -24,7 +24,7 @@ package JsonFileStorage;
 use strict;
 use warnings;
 use File::Spec;
-use File::Path qw(make_path remove_tree);
+use File::Path qw( mkpath );
 use JSON 2;
 use IO::File;
 use Fcntl ":flock";
@@ -60,7 +60,7 @@ sub new {
                };
     bless $self, $class;
 
-    make_path $outDir unless (-d $outDir);
+    mkpath( $outDir ) unless (-d $outDir);
 
     return $self;
 }
