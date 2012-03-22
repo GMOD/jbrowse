@@ -1,4 +1,10 @@
-## featurestream that wraps a Bio::GFF3::LowLevel::Parser
+=head1 NAME
+
+Script::FlatFileToJson::FeatureStream::GFF3_LowLevel - feature stream
+class for working with L<Bio::GFF3::LowLevel::Parser> features
+
+=cut
+
 package Script::FlatFileToJson::FeatureStream::GFF3_LowLevel;
 use strict;
 use warnings;

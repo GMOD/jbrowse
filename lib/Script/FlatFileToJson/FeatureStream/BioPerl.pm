@@ -1,3 +1,10 @@
+=head1 NAME
+
+Script::FlatFileToJson::FeatureStream::BioPerl - feature stream class
+for working with BioPerl seqfeature objects
+
+=cut
+
 package Script::FlatFileToJson::FeatureStream::BioPerl;
 use strict;
 use warnings;

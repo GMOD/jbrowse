@@ -1,3 +1,10 @@
+=head1 NAME
+
+Script::FlatFileToJson::FeatureStream - base class for feature streams
+used for handling features inside FlatFileToJson.pm
+
+=cut
+
 package Script::FlatFileToJson::FeatureStream;
 use strict;
 use warnings;
