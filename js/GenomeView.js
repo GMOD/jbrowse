@@ -117,17 +117,17 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
         };
     }
 
-    var trackDiv = document.createElement("div");
-    trackDiv.className = "track";
-    trackDiv.style.height = this.posHeight + "px";
-    trackDiv.id = "static_track";
+    var scaleTrackDiv = document.createElement("div");
+    scaleTrackDiv.className = "track";
+    scaleTrackDiv.style.height = this.posHeight + "px";
+    scaleTrackDiv.id = "static_track";
     this.staticTrack = new StaticTrack("static_track", "pos-label", this.posHeight);
     this.staticTrack.setViewInfo(function(height) {}, this.stripeCount,
-                                 trackDiv, undefined, this.stripePercent,
+                                 scaleTrackDiv, undefined, this.stripePercent,
                                  this.stripeWidth, this.pxPerBp,
                                  this.trackPadding);
-    this.zoomContainer.appendChild(trackDiv);
-    this.waitElems.push(trackDiv);
+    this.zoomContainer.appendChild(scaleTrackDiv);
+    this.waitElems.push(scaleTrackDiv);
 
     var gridTrackDiv = document.createElement("div");
     gridTrackDiv.className = "track";
