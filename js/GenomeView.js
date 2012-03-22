@@ -109,106 +109,35 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.locationThumbMover = new dojo.dnd.move.parentConstrainedMoveable(this.locationThumb, {area: "margin", within: true});
     dojo.connect(this.locationThumbMover, "onMoveStop", this, "thumbMoved");
 
-    var view = this;
-
-    var cssScroll = dojo.isIE;
-    if (cssScroll) {
-        view.x = -parseInt(view.scrollContainer.style.left);
-        view.y = -parseInt(view.scrollContainer.style.top);
-        view.rawSetX = function(x) {
-            view.scrollContainer.style.left = -x + "px"; view.x = x;
+    if ( dojo.isIE ) {
+        // if using IE, we have to do scrolling with CSS
+        this.x = -parseInt( this.scrollContainer.style.left );
+        this.y = -parseInt( this.scrollContainer.style.top );
+        this.rawSetX = function(x) {
+            this.scrollContainer.style.left = -x + "px";
+            this.x = x;
         };
-        view.setX = function(x) {
-	    view.x = Math.max(Math.min(view.maxLeft - view.offset, x),
-                              view.minLeft - view.offset);
-            view.x = Math.round(view.x);
-	    view.updateTrackLabels(view.x);
-	    view.showFine();
-            view.scrollContainer.style.left = -view.x + "px";
-        };
-        view.rawSetY = function(y) {
-            view.scrollContainer.style.top = -y + "px"; view.y = y;
-        };
-
-        view.setY = function(y) {
-            view.y = Math.min((y < 0 ? 0 : y),
-                              view.containerHeight
-                              - view.dim.height);
-            view.y = Math.round(view.y);
-            view.updatePosLabels(view.y);
-            view.scrollContainer.style.top = -view.y + "px";
-        };
-        view.rawSetPosition = function(pos) {
-            view.scrollContainer.style.left = -pos.x + "px";
-            view.scrollContainer.style.top = -pos.y + "px";
-        };
-
-        view.setPosition = function(pos) {
-            view.x = Math.max(Math.min(view.maxLeft - view.offset, pos.x),
-                              view.minLeft - view.offset);
-            view.y = Math.min((pos.y < 0 ? 0 : pos.y),
-                              view.containerHeight - view.dim.height);
-            view.x = Math.round(view.x);
-            view.y = Math.round(view.y);
-
-            view.updateTrackLabels(view.x);
-            view.updatePosLabels(view.y);
-	    view.showFine();
-
-            view.scrollContainer.style.left = -view.x + "px";
-            view.scrollContainer.style.top = -view.y + "px";
+        this.rawSetY = function(y) {
+            this.scrollContainer.style.top = -y + "px";
+            this.y = y;
         };
     } else {
-	view.x = view.elem.scrollLeft;
-	view.y = view.elem.scrollTop;
-
-        view.rawSetX = function(x) {
-            view.elem.scrollLeft = x; view.x = x;
+	this.x = this.elem.scrollLeft;
+	this.y = this.elem.scrollTop;
+        this.rawSetX = function(x) {
+            this.elem.scrollLeft = x;
+            this.x = x;
         };
-        view.setX = function(x) {
-	    view.x = Math.max(Math.min(view.maxLeft - view.offset, x),
-			      view.minLeft - view.offset);
-            view.x = Math.round(view.x);
-	    view.updateTrackLabels(view.x);
-	    view.showFine();
-            view.elem.scrollLeft = view.x;
+        this.rawSetY = function(y) {
+            this.elem.scrollTop = y;
+            this.y = y;
         };
-        view.rawSetY = function(y) {
-            view.elem.scrollTop = y; view.y = y;
-        };
-
-        view.setY = function(y) {
-            view.y = Math.min((y < 0 ? 0 : y),
-                              view.containerHeight
-                              - view.dim.height);
-            view.y = Math.round(view.y);
-            view.updatePosLabels(view.y);
-            view.elem.scrollTop = view.y;
-        };
-        view.rawSetPosition = function(pos) {
-            view.elem.scrollLeft = pos.x; view.x = pos.x;
-            view.elem.scrollTop = pos.y; view.y = pos.y;
-        };
-
-        view.setPosition = function(pos) {
-            view.x = Math.max(Math.min(view.maxLeft - view.offset, pos.x),
-                              view.minLeft - view.offset);
-            view.y = Math.min((pos.y < 0 ? 0 : pos.y),
-                              view.containerHeight - view.dim.height);
-            view.x = Math.round(view.x);
-            view.y = Math.round(view.y);
-
-            view.updateTrackLabels(view.x);
-            view.updatePosLabels(view.y);
-	    view.showFine();
-
-            view.elem.scrollLeft = view.x;
-            view.elem.scrollTop = view.y;
-	};
     }
 
     dojo.connect( this.elem, "mousedown", this, 'mouseDown' );
     dojo.connect( this.elem, "dblclick",  this, 'doubleClick' );
+
+    var view = this;
 
     var wheelScrollTimeout = null;
     var wheelScrollUpdate = function() {
@@ -280,13 +209,54 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.showCoarse();
 }
 
-
 GenomeView.prototype.getX = function() {
     return this.x;
 };
 
 GenomeView.prototype.getY = function() {
     return this.y;
+};
+
+GenomeView.prototype.clampX = function(x) {
+    return Math.round( Math.max( Math.min( this.maxLeft - this.offset, x),
+                                 this.minLeft - this.offset
+                               )
+                     );
+};
+
+GenomeView.prototype.clampY = function(y) {
+    return Math.round( Math.min( (y < 0 ? 0 : y),
+                                 this.containerHeight- this.dim.height
+                               )
+                     );
+};
+
+GenomeView.prototype.setX = function(x) {
+    x = this.clampX(x);
+    this.rawSetX( x );
+    this.updateTrackLabels( x );
+    this.showFine();
+};
+
+GenomeView.prototype.setY = function(y) {
+    y = this.clampY(y);
+    this.rawSetY(y);
+    this.updatePosLabels(y);
+};
+
+GenomeView.prototype.rawSetPosition = function(pos) {
+    this.rawSetX( pos.x );
+    this.rawSetY( pos.y );
+};
+
+GenomeView.prototype.setPosition = function(pos) {
+    var x = this.clampX( pos.x );
+    var y = this.clampY( pos.y );
+    this.updateTrackLabels( x );
+    this.updatePosLabels( y );
+    this.rawSetX( x );
+    this.rawSetY( y );
+    this.showFine();
 };
 
 GenomeView.prototype.getPosition = function() {
