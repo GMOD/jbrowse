@@ -24,6 +24,7 @@ my %WriteMakefileArgs = (
   'DISTNAME' => 'JBrowse',
   'EXE_FILES' => [
     'bin/ucsc-to-json.pl',
+    'bin/remove-track.pl',
     'bin/generate-names.pl',
     'bin/prepare-refseqs.pl',
     'bin/wig-to-json.pl',
@@ -38,6 +39,7 @@ my %WriteMakefileArgs = (
     'Bio::Annotation::SimpleValue' => '0',
     'Bio::DB::Sam' => '0',
     'Bio::FeatureIO' => '0',
+    'Bio::GFF3::LowLevel::Parser' => '0',
     'Bio::Index::Fasta' => '0',
     'Bio::OntologyIO' => '0',
     'Bio::Root::Version' => '1.006000',
