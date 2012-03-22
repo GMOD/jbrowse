@@ -1,35 +1,19 @@
 /**
  * Main view class, shows a scrollable, horizontal view of annotation
- * tracks.
+ * tracks.  NOTE: All coordinates are interbase.
  * @class
  * @constructor
  */
 function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
-    //all coordinates are interbase
 
-    //measure text width for the max zoom level
-    var widthTest = document.createElement("div");
-    widthTest.className = "sequence";
-    widthTest.style.visibility = "hidden";
-    var widthText = "12345678901234567890123456789012345678901234567890";
-    widthTest.appendChild(document.createTextNode(widthText));
-    elem.appendChild(widthTest);
-    this.charWidth = widthTest.clientWidth / widthText.length;
-    this.seqHeight = widthTest.clientHeight;
-    elem.removeChild(widthTest);
+    var seqCharSize = this.calculateSequenceCharacterSize( elem );
+    this.charWidth = seqCharSize.width;
+    this.seqHeight = seqCharSize.height;
 
-    // measure the height of some arbitrary text in whatever font this
-    // shows up in (set by an external CSS file)
-    var heightTest = document.createElement("div");
-    heightTest.className = "pos-label";
-    heightTest.style.visibility = "hidden";
-    heightTest.appendChild(document.createTextNode("42"));
-    elem.appendChild(heightTest);
-    this.posHeight = heightTest.clientHeight;
+    this.posHeight = this.calculatePositionLabelHeight( elem );
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
     this.topSpace = 1.5 * this.posHeight;
-    elem.removeChild(heightTest);
 
     //the reference sequence
     this.ref = refseq;
@@ -181,6 +165,44 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.showFine();
     this.showCoarse();
 }
+
+/**
+ * Conducts a test with DOM elements to measure sequence text width
+ * and height.
+ */
+GenomeView.prototype.calculateSequenceCharacterSize = function( containerElement ) {
+    var widthTest = document.createElement("div");
+    widthTest.className = "sequence";
+    widthTest.style.visibility = "hidden";
+    var widthText = "12345678901234567890123456789012345678901234567890";
+    widthTest.appendChild(document.createTextNode(widthText));
+    containerElement.appendChild(widthTest);
+
+    var result = {
+        width:  widthTest.clientWidth / widthText.length,
+        height: widthTest.clientHeight
+    };
+
+    containerElement.removeChild(widthTest);
+    return result;
+};
+
+/**
+ * Conduct a DOM test to calculate the height of div.pos-label
+ * elements with a line of text in them.
+ */
+GenomeView.prototype.calculatePositionLabelHeight = function( containerElement ) {
+    // measure the height of some arbitrary text in whatever font this
+    // shows up in (set by an external CSS file)
+    var heightTest = document.createElement("div");
+    heightTest.className = "pos-label";
+    heightTest.style.visibility = "hidden";
+    heightTest.appendChild(document.createTextNode("42"));
+    containerElement.appendChild(heightTest);
+    var h = heightTest.clientHeight;
+    containerElement.removeChild(heightTest);
+    return h;
+};
 
 GenomeView.prototype.wheelScroll = function(e) {
 
