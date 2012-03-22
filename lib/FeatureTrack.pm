@@ -15,7 +15,7 @@ package FeatureTrack;
 
 use strict;
 use warnings;
-use File::Path qw(remove_tree);
+use File::Path qw( rmtree );
 use File::Spec;
 use List::Util qw( min max first );
 use POSIX qw (ceil);
@@ -65,7 +65,7 @@ sub startLoad {
     my ($self, $refSeq, $chunkBytes, $classes) = @_;
 
     (my $outDir = $self->{trackDirTemplate}) =~ s/\{refseq\}/$refSeq/g;
-    remove_tree($outDir) if (-d $outDir);
+    rmtree($outDir) if (-d $outDir);
 
     my $jsonStore = JsonFileStorage->new($outDir, $self->config->{compress});
     $self->_make_nameHandler;
