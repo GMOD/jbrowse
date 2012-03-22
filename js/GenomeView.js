@@ -112,19 +112,9 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     var view = this;
 
     var cssScroll = dojo.isIE;
-
     if (cssScroll) {
         view.x = -parseInt(view.scrollContainer.style.left);
         view.y = -parseInt(view.scrollContainer.style.top);
-        view.getX = function() {
-            return view.x;
-        };
-        view.getY = function() {
-            return view.y;
-        };
-        view.getPosition = function() {
-	    return { x: view.x, y: view.y };
-        };
         view.rawSetX = function(x) {
             view.scrollContainer.style.left = -x + "px"; view.x = x;
         };
@@ -139,6 +129,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
         view.rawSetY = function(y) {
             view.scrollContainer.style.top = -y + "px"; view.y = y;
         };
+
         view.setY = function(y) {
             view.y = Math.min((y < 0 ? 0 : y),
                               view.containerHeight
@@ -151,6 +142,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
             view.scrollContainer.style.left = -pos.x + "px";
             view.scrollContainer.style.top = -pos.y + "px";
         };
+
         view.setPosition = function(pos) {
             view.x = Math.max(Math.min(view.maxLeft - view.offset, pos.x),
                               view.minLeft - view.offset);
@@ -169,15 +161,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     } else {
 	view.x = view.elem.scrollLeft;
 	view.y = view.elem.scrollTop;
-        view.getX = function() {
-	    return view.x;
-	};
-        view.getY = function() {
-	    return view.y;
-	};
-        view.getPosition = function() {
-	    return { x: view.x, y: view.y };
-        };
+
         view.rawSetX = function(x) {
             view.elem.scrollLeft = x; view.x = x;
         };
@@ -187,15 +171,10 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
             view.x = Math.round(view.x);
 	    view.updateTrackLabels(view.x);
 	    view.showFine();
-
             view.elem.scrollLeft = view.x;
         };
         view.rawSetY = function(y) {
             view.elem.scrollTop = y; view.y = y;
-        };
-        view.rawSetPosition = function(pos) {
-            view.elem.scrollLeft = pos.x; view.x = pos.x;
-            view.elem.scrollTop = pos.y; view.y = pos.y;
         };
 
         view.setY = function(y) {
@@ -206,6 +185,11 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
             view.updatePosLabels(view.y);
             view.elem.scrollTop = view.y;
         };
+        view.rawSetPosition = function(pos) {
+            view.elem.scrollLeft = pos.x; view.x = pos.x;
+            view.elem.scrollTop = pos.y; view.y = pos.y;
+        };
+
         view.setPosition = function(pos) {
             view.x = Math.max(Math.min(view.maxLeft - view.offset, pos.x),
                               view.minLeft - view.offset);
@@ -306,6 +290,23 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.showFine();
     this.showCoarse();
 }
+
+
+GenomeView.prototype.getX = function() {
+    return this.x;
+};
+
+GenomeView.prototype.getY = function() {
+    return this.y;
+};
+
+GenomeView.prototype.getPosition = function() {
+    return { x: this.x, y: this.y };
+};
+
+GenomeView.prototype.zoomCallback = function() {
+
+};
 
 GenomeView.prototype.zoomCallback = function() {
     this.zoomUpdate();
