@@ -91,7 +91,6 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.locationThumb.className = "locationThumb";
     this.overview.appendChild(this.locationThumb);
     this.locationThumbMover = new dojo.dnd.move.parentConstrainedMoveable(this.locationThumb, {area: "margin", within: true});
-    dojo.connect(this.locationThumbMover, "onMoveStop", this, "thumbMoved");
 
     if ( dojo.isIE ) {
         // if using IE, we have to do scrolling with CSS
@@ -117,12 +116,6 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
             this.y = y;
         };
     }
-
-    dojo.connect( this.elem, "mousedown", this, 'mouseDown' );
-    dojo.connect( this.elem, "dblclick",  this, 'doubleClick' );
-
-    dojo.connect( this.scrollContainer, "mousewheel",     this, 'wheelScroll', false );
-    dojo.connect( this.scrollContainer, "DOMMouseScroll", this, 'wheelScroll', false );
 
     var trackDiv = document.createElement("div");
     trackDiv.className = "track";
@@ -164,6 +157,15 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
 
     this.showFine();
     this.showCoarse();
+
+    // connect all the events only after everything is drawn
+    dojo.connect(this.locationThumbMover, "onMoveStop", this, "thumbMoved");
+
+    dojo.connect( this.zoomContainer, "mousedown", this, 'startMouseDragScroll' );
+    dojo.connect( this.zoomContainer, "dblclick",  this, 'doubleClick' );
+
+    dojo.connect( this.zoomContainer, "mousewheel",     this, 'wheelScroll', false );
+    dojo.connect( this.zoomContainer, "DOMMouseScroll", this, 'wheelScroll', false );
 }
 
 /**
@@ -303,7 +305,11 @@ GenomeView.prototype.doubleClick = function(event) {
     dojo.stopEvent(event);
 };
 
-GenomeView.prototype.mouseDown = function(event) {
+/**
+ * Event fired when a user's mouse button goes down inside the main
+ * element of the genomeview.
+ */
+GenomeView.prototype.startMouseDragScroll = function(event) {
     if ("animation" in this) {
         if (this.animation instanceof Zoomer) {
             dojo.stopEvent(event);
@@ -333,9 +339,9 @@ GenomeView.prototype.mouseDown = function(event) {
     } else {
         this.dragEventHandles =
             [
-             dojo.connect(document.body, "mouseup", this, 'dragEnd'),
+             dojo.connect(document.body, "mouseup",   this, 'dragEnd'),
              dojo.connect(document.body, "mousemove", this, 'dragMove'),
-             dojo.connect(document.body, "mouseout", this, 'checkDragOut')
+             dojo.connect(document.body, "mouseout",  this, 'checkDragOut')
             ];
 
         this.dragging = true;
