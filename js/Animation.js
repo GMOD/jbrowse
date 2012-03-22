@@ -59,5 +59,5 @@ Animation.prototype.animate = function () {
 Animation.prototype.stop = function() {
     clearTimeout(this.animID);
     delete this.subject.animation;
-    this.callback(this);
+    this.callback.call(this.subject,this);
 };
