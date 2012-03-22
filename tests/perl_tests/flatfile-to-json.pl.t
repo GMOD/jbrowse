@@ -1,4 +1,4 @@
-use Carp::Always;use strict;
+use strict;
 use warnings;
 
 use Test::More;
