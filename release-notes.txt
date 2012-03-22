@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+ * flatfile-to-json.pl: now much faster and more memory-efficient,
+   especially for GFF3 files.  Remember that '###' directives are very
+   important to have in large GFF3 files!  Also removed nonfunctional
+   --extraData switch.
+
  * Added bin/remove-track.pl, a script to remove a track from a
    JBrowse data directory.  Run bin/remove-track.pl -? to see its
    documentation.
@@ -42,8 +47,6 @@
    code.
 
  * More detailed POD-based help documentation on all scripts
-
- * Nonfunctional --extraData switch remove from flatfile-to-json.pl
 
  * --tracklabel options to all scripts replaced with --trackLabel.
 
