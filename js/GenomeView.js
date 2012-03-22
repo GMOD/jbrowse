@@ -390,7 +390,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
         var h;
         if( ! view.rubberHighlight ) {
             h = view.rubberHighlight = document.createElement("div");
-            h.className = 'details-rubber-highlight';
+            h.className = 'rubber-highlight';
             //h.style.opacity = '50%';
             h.style.position = 'absolute';
             h.style.height = '100%';

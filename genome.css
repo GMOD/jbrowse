@@ -714,7 +714,7 @@ div.generic_parent-hist {
     cursor: pointer;
 }
 
-.details-rubber-highlight {
+.rubber-highlight {
     border: 1px solid black;
     background: #8087ff;
     filter: alpha(opacity=30); /* IE */
