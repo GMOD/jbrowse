@@ -387,6 +387,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     };
     // draws the rubber-banding highlight region from start.x to end.x
     view.setRubberHighlight = function( start, end ) {
+        var h;
         if( ! view.rubberHighlight ) {
             h = view.rubberHighlight = document.createElement("div");
             h.className = 'details-rubber-highlight';
@@ -398,7 +399,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
         }
         h = view.rubberHighlight;
         h.style.visibility  = 'visible';
-        h.style.left   = view.winStartPos.x + Math.min(start.x,end.x) - dojo.coords(view.elem, true).x + 'px'
+        h.style.left   = view.winStartPos.x + Math.min(start.x,end.x) - dojo.coords(view.elem, true).x + 'px';
         h.style.width  = Math.abs(end.x-start.x) + 'px';
         //console.log({ left: h.style.left, end: end.x });
     };
