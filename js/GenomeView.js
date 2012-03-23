@@ -44,12 +44,12 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.scrollContainer.appendChild(this.zoomContainer);
 
     this.outerTrackContainer = document.createElement("div");
-    this.outerTrackContainer.id = "outerTrackContainer";
+    this.outerTrackContainer.className = "trackContainer outerTrackContainer";
     this.outerTrackContainer.style.cssText = "height: 100%;";
     this.zoomContainer.appendChild( this.outerTrackContainer );
 
     this.trackContainer = document.createElement("div");
-    this.trackContainer.className = "trackContainer draggable";
+    this.trackContainer.className = "trackContainer innerTrackContainer draggable";
     this.trackContainer.style.cssText = "height: 100%;";
     this.outerTrackContainer.appendChild( this.trackContainer );
 
@@ -129,7 +129,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     }
 
     var scaleTrackDiv = document.createElement("div");
-    scaleTrackDiv.className = "track";
+    scaleTrackDiv.className = "track static_track rubberbandAvailable";
     scaleTrackDiv.style.height = this.posHeight + "px";
     scaleTrackDiv.id = "static_track";
 
@@ -163,9 +163,6 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
     this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
-
-    document.body.style.cursor = "default";
-
     this.showFine();
     this.showCoarse();
 
@@ -349,7 +346,6 @@ GenomeView.prototype.startMouseDragScroll = function(event) {
     this.dragStartPos = {x: event.clientX,
                          y: event.clientY};
     this.winStartPos = this.getPosition();
-    document.body.style.cursor = "url(\"" + this.browserRoot + "img/closedhand.cur\")";
 };
 
 GenomeView.prototype.startRubberZoom = function(event) {
@@ -366,7 +362,6 @@ GenomeView.prototype.startRubberZoom = function(event) {
     this.rubberbandStartPos = {x: event.clientX,
                                y: event.clientY};
     this.winStartPos = this.getPosition();
-    document.body.style.cursor = "text";
 };
 
 GenomeView.prototype.rubberCancel = function(event) {
@@ -396,8 +391,6 @@ GenomeView.prototype.rubberExecute = function(event) {
     var end   = { x: event.clientX, y: event.clientY };
     var h_start_bp = this.absXtoBp( Math.min(start.x,end.x) );
     var h_end_bp   = this.absXtoBp( Math.max(start.x,end.x) );
-    this.elem.style.cursor = "url(\"" + this.browserRoot + "img/openhand.cur\"), move";
-    document.body.style.cursor = "default";
     this.setLocation( this.ref, h_start_bp, h_end_bp );
 };
 
@@ -424,8 +417,6 @@ GenomeView.prototype.dragEnd = function(event) {
     dojo.forEach( this.dragEventHandles, dojo.disconnect);
 
     this.dragging = false;
-    this.elem.style.cursor = "url(\"" + this.browserRoot + "img/openhand.cur\")";
-    document.body.style.cursor = "default";
     dojo.stopEvent(event);
     this.showCoarse();
 
