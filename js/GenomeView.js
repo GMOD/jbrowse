@@ -96,6 +96,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.locationThumb.className = "locationThumb";
     this.overview.appendChild(this.locationThumb);
     this.locationThumbMover = new dojo.dnd.move.parentConstrainedMoveable(this.locationThumb, {area: "margin", within: true});
+    dojo.connect(this.locationThumbMover, "onMoveStop", this, "thumbMoved");
 
     if ( dojo.isIE ) {
         // if using IE, we have to do scrolling with CSS
@@ -126,6 +127,13 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     scaleTrackDiv.className = "track";
     scaleTrackDiv.style.height = this.posHeight + "px";
     scaleTrackDiv.id = "static_track";
+
+    dojo.connect( this.elem, "mousedown", this, 'startMouseDragScroll' );
+    dojo.connect( this.elem, "dblclick",  this, 'doubleClick' );
+
+    dojo.connect( this.scrollContainer, "mousewheel",     this, 'wheelScroll', false );
+    dojo.connect( this.scrollContainer, "DOMMouseScroll", this, 'wheelScroll', false );
+
     this.staticTrack = new StaticTrack("static_track", "pos-label", this.posHeight);
     this.staticTrack.setViewInfo(function(height) {}, this.stripeCount,
                                  scaleTrackDiv, undefined, this.stripePercent,
@@ -161,15 +169,6 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
 
     this.showFine();
     this.showCoarse();
-
-    // connect all the events only after everything is drawn
-    dojo.connect( this.locationThumbMover, "onMoveStop", this, "thumbMoved");
-
-    dojo.connect( this.trackContainer, "mousedown", this, 'startMouseDragScroll' );
-    dojo.connect( this.trackContainer, "dblclick",  this, 'doubleClick' );
-
-    dojo.connect( this.trackContainer, "mousewheel",     this, 'wheelScroll', false );
-    dojo.connect( this.trackContainer, "DOMMouseScroll", this, 'wheelScroll', false );
 }
 
 /**
