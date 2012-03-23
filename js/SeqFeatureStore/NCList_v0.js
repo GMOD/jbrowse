@@ -41,12 +41,16 @@ SeqFeatureStore.NCList_v0.prototype.loadSuccess = function( trackInfo, url ) {
 
         // since the old format had config information inside the
         // trackdata file, yuckily push it up to the track's config
+        var renameVar = {
+            urlTemplate: "linkTemplate"
+        };
         dojo.forEach(
-            ['className','arrowheadClass','subfeatureClasses'],
+            ['className','arrowheadClass','subfeatureClasses','urlTemplate'],
             function(varname) {
                 if( !this.track.config.style ) this.track.config.style = {};
+                var dest_varname = renameVar[varname] || varname;
                 if( varname in trackInfo )
-                    this.track.config.style[varname] = trackInfo[varname];
+                    this.track.config.style[dest_varname] = trackInfo[varname];
             },this);
 
         // remember the field offsets from the old-style trackinfo headers

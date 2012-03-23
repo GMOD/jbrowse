@@ -82,7 +82,7 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
         }
     };
 
-    if (! this.config.linkTemplate) {
+    if (! this.config.style.linkTemplate) {
         defaultConfig.events.click =
             function(track, elem, feat, event) {
 	        alert( "clicked on feature\n" +
@@ -573,17 +573,19 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
 
 FeatureTrack.prototype.featureUrl = function(feature) {
     var urlValid = true;
-    if (this.urlTemplate) {
-        var href = this.urlTemplate.replace(/\{([^}]+)\}/g,
-        function(match, group) {
-            var val = feature.get( group.toLowerCase() );
-            if (val !== undefined)
-                return val;
-            else
-                urlValid = false;
-            return 0;
-        });
-        if(urlValid) return href;
+    if (this.config.style.linkTemplate) {
+        var href = this.config.style.linkTemplate.replace(
+                /\{([^}]+)\}/g,
+               function(match, group) {
+                   var val = feature.get( group.toLowerCase() );
+                   if (val !== undefined)
+                       return val;
+                   else
+                       urlValid = false;
+                   return 0;
+               });
+        if( urlValid )
+            return href;
     }
     return undefined;
 };

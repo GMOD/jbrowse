@@ -38,6 +38,7 @@ sub tempdir {
         '--autocomplete' => 'all',
         '--cssClass' => 'feature2',
         '--clientConfig' =>  '{"featureCss": "height: 8px;", "histScale": 2}',
+        '--urltemplate' => 'http://example.com/{name}/{start}/{end}',
         );
 
     #system "find $tempdir -type f";
@@ -80,13 +81,15 @@ sub tempdir {
        or diag explain $cds_trackdata;
     is( scalar @{$cds_trackdata->{intervals}{nclist}[2][9]}, 5, 'exonerate mRNA has 5 subfeatures' );
 
-    is_deeply( $read_json->('trackList.json')->{tracks}[1]{style},
-               { featureCss => 'height: 8px;',
-                 histScale => 2,
-                 className => 'feature2',
+    my $tracklist = $read_json->('trackList.json');
+    is_deeply( $tracklist->{tracks}[1]{style},
+               { featureCss   => 'height: 8px;',
+                 histScale    => 2,
+                 className    => 'feature2',
+                 linkTemplate => 'http://example.com/{name}/{start}/{end}'
                },
-               '--clientConfig option seems to work'
-             ) or diag explain $read_json->('trackList.json');
+               '--clientConfig and --urltemplate options seem to work'
+             ) or diag explain $tracklist;
 
     #system "find $tempdir";
 }

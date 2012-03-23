@@ -37,6 +37,11 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # test sequence track display
         self.sequence()
 
+        # test that the alignments track has links to example.com
+        self.turn_on_track( 'alignments' );
+        self.do_typed_query('ctgA:39520..45364');
+        self.assert_element("//a[@href='http://example.com/seg14-42056-42474']");
+
         self.browser.close()
 
     def sequence( self ):

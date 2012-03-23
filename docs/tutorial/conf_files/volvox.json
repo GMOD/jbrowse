@@ -41,7 +41,8 @@
       "feature": ["match"],
       "class": "feature4",
       "key": "Example alignments",
-      "category": "Alignments"
+      "category": "Alignments",
+      "urlTemplate": "http://example.com/{name}-{start}-{end}"
     },
     {
       "track": "Genes",

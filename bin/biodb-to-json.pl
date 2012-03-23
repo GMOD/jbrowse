@@ -251,8 +251,9 @@ sub assemble_track_config {
 
     # rename some of the config variables
     my %renamed_keys = qw(
-        class   className
-        subfeature_classes subfeatureClasses
+        class               className
+        subfeature_classes  subfeatureClasses
+        urlTemplate         linkTemplate
     );
     for ( keys %cfg ) {
         if( my $new_keyname = $renamed_keys{ $_ } ) {
@@ -267,6 +268,7 @@ sub assemble_track_config {
         className
         histCss
         featureCss
+        linkTemplate
     );
     for ( keys %cfg ) {
         if( $style_keys{$_} ) {

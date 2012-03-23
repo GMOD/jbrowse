@@ -98,12 +98,12 @@ sub run {
         style          => {
             %{ $self->opt('clientConfig') || {} },
             className      => $self->opt('cssClass'),
+            ( $self->opt('urltemplate')       ? ( linkTemplate      => $self->opt('urltemplate')       ) : () ),
             ( $self->opt('arrowheadClass')    ? ( arrowheadClass    => $self->opt('arrowheadClass')    ) : () ),
             ( $self->opt('subfeatureClasses') ? ( subfeatureClasses => $self->opt('subfeatureClasses') ) : () ),
         },
         key          => defined( $self->opt('key') ) ? $self->opt('key') : $self->opt('trackLabel'),
         compress     => $self->opt('compress'),
-        urlTemplate  => $self->opt('urlTemplate'),
      );
 
     my $feature_stream = $self->opt('gff') ? $self->make_gff_stream :

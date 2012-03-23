@@ -99,7 +99,10 @@ use JsonGenerator;
         {
             'autocomplete' => 'all',
             'category' => 'Alignments',
-            style => { 'className' => 'feature4' },
+            style => {
+                'className' => 'feature4',
+                'linkTemplate' => 'http://example.com/{name}-{start}-{end}'
+                },
             'compress' => 0,
             'feature' => [
                 'match'
