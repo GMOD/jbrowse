@@ -320,14 +320,15 @@ GenomeView.prototype._beforeMouseDrag = function( event ) {
     if ( this.animation ) {
         if (this.animation instanceof Zoomer) {
             dojo.stopEvent(event);
-            return;
+            return 0;
 
         } else {
             this.animation.stop();
         }
     }
-    if (Util.isRightButton(event)) return;
+    if (Util.isRightButton(event)) return 0;
     dojo.stopEvent(event);
+    return 1;
 };
 
 /**
@@ -335,7 +336,7 @@ GenomeView.prototype._beforeMouseDrag = function( event ) {
  * element of the genomeview.
  */
 GenomeView.prototype.startMouseDragScroll = function(event) {
-    this._beforeMouseDrag(event);
+    if( ! this._beforeMouseDrag(event) ) return;
 
     this.dragEventHandles =
         [
@@ -352,7 +353,7 @@ GenomeView.prototype.startMouseDragScroll = function(event) {
 };
 
 GenomeView.prototype.startRubberZoom = function(event) {
-    this._beforeMouseDrag(event);
+    if( ! this._beforeMouseDrag(event) ) return;
 
     this.dragEventHandles =
         [
