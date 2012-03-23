@@ -101,7 +101,6 @@ use JsonGenerator;
             'category' => 'Alignments',
             style => {
                 'className' => 'feature4',
-                'linkTemplate' => 'http://example.com/{name}-{start}-{end}'
                 },
             'compress' => 0,
             'feature' => [
@@ -143,11 +142,15 @@ use JsonGenerator;
         {
             'autocomplete' => 'all',
             'category' => 'Genes',
-            style => { 'className' => 'cds' },
+            style => {
+                'className' => 'cds',
+                'linkTemplate' => 'http://example.com/{name}-{start}-{end}'
+                },
             'compress' => 0,
             'feature' => [
                 'CDS:predicted',
-                'mRNA:exonerate'
+                'mRNA:exonerate',
+                'mRNA:predicted',
             ],
             'phase' => 1,
             'track' => 'CDS',
