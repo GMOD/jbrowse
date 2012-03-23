@@ -227,11 +227,10 @@ GenomeView.prototype.wheelScroll = function(e) {
     // 100 milliseconds since the last scroll event is an arbitrary
     // cutoff for deciding when the user is done scrolling
     // (set by a bit of experimentation)
-    var view = this;
-    this.wheelScrollTimeout = window.setTimeout( function() {
-        view.showVisibleBlocks(true);
-        view.wheelScrollTimeout = null;
-    }, 100);
+    this.wheelScrollTimeout = window.setTimeout( dojo.hitch( this, function() {
+        this.showVisibleBlocks(true);
+        this.wheelScrollTimeout = null;
+    }, 100));
 
     dojo.stopEvent(e);
 };
