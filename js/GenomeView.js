@@ -43,10 +43,15 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
         "position: absolute; left: 0px; top: 0px; height: 100%;";
     this.scrollContainer.appendChild(this.zoomContainer);
 
+    this.outerTrackContainer = document.createElement("div");
+    this.outerTrackContainer.id = "outerTrackContainer";
+    this.outerTrackContainer.style.cssText = "height: 100%;";
+    this.zoomContainer.appendChild( this.outerTrackContainer );
+
     this.trackContainer = document.createElement("div");
-    this.trackContainer.id = "trackContainer";
+    this.trackContainer.className = "trackContainer draggable";
     this.trackContainer.style.cssText = "height: 100%;";
-    this.zoomContainer.appendChild( this.trackContainer );
+    this.outerTrackContainer.appendChild( this.trackContainer );
 
     //width, in pixels of the "regular" (not min or max zoom) stripe
     this.regularStripe = stripeWidth;
@@ -128,12 +133,6 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     scaleTrackDiv.style.height = this.posHeight + "px";
     scaleTrackDiv.id = "static_track";
 
-    dojo.connect( this.elem, "mousedown", this, 'startMouseDragScroll' );
-    dojo.connect( this.elem, "dblclick",  this, 'doubleClick' );
-
-    dojo.connect( this.scrollContainer, "mousewheel",     this, 'wheelScroll', false );
-    dojo.connect( this.scrollContainer, "DOMMouseScroll", this, 'wheelScroll', false );
-
     this.staticTrack = new StaticTrack("static_track", "pos-label", this.posHeight);
     this.staticTrack.setViewInfo(function(height) {}, this.stripeCount,
                                  scaleTrackDiv, undefined, this.stripePercent,
@@ -169,6 +168,14 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
 
     this.showFine();
     this.showCoarse();
+
+    dojo.connect( this.outerTrackContainer, "mousedown", this, 'startMouseDragScroll' );
+    dojo.connect( this.outerTrackContainer, "dblclick",  this, 'doubleClickZoom' );
+    dojo.connect( scaleTrackDiv,            "mousedown", this, 'startRubberZoom' );
+
+    dojo.connect( this.scrollContainer, "mousewheel",     this, 'wheelScroll', false );
+    dojo.connect( this.scrollContainer, "DOMMouseScroll", this, 'wheelScroll', false );
+
 }
 
 /**
@@ -296,7 +303,7 @@ GenomeView.prototype.afterSlide = function() {
     this.showVisibleBlocks(true);
 };
 
-GenomeView.prototype.doubleClick = function(event) {
+GenomeView.prototype.doubleClickZoom = function(event) {
     if (this.dragging) return;
     if ("animation" in this) return;
     var zoomLoc = (event.pageX - dojo.coords(this.elem, true).x) / this.dim.width;
@@ -308,12 +315,9 @@ GenomeView.prototype.doubleClick = function(event) {
     dojo.stopEvent(event);
 };
 
-/**
- * Event fired when a user's mouse button goes down inside the main
- * element of the genomeview.
- */
-GenomeView.prototype.startMouseDragScroll = function(event) {
-    if ("animation" in this) {
+/** @private */
+GenomeView.prototype._beforeMouseDrag = function( event ) {
+    if ( this.animation ) {
         if (this.animation instanceof Zoomer) {
             dojo.stopEvent(event);
             return;
@@ -324,43 +328,54 @@ GenomeView.prototype.startMouseDragScroll = function(event) {
     }
     if (Util.isRightButton(event)) return;
     dojo.stopEvent(event);
-
-    if (event.shiftKey || event.ctrlKey) {
-        this.dragEventHandles =
-            [
-             dojo.connect(document.body, "mouseup",   this, 'rubberEnd'  ),
-             dojo.connect(document.body, "mousemove", this, 'rubberMove' ),
-             dojo.connect(document.body, "mouseout",  this, 'rubberOut'  )
-             ];
-
-        this.rubberbanding = true;
-        this.rubberbandStartPos = {x: event.clientX,
-                                   y: event.clientY};
-        this.winStartPos = this.getPosition();
-        document.body.style.cursor = "text";
-        this.elem.style.cursor     = "text";
-    } else {
-        this.dragEventHandles =
-            [
-             dojo.connect(document.body, "mouseup",   this, 'dragEnd'),
-             dojo.connect(document.body, "mousemove", this, 'dragMove'),
-             dojo.connect(document.body, "mouseout",  this, 'checkDragOut')
-            ];
-
-        this.dragging = true;
-        this.dragStartPos = {x: event.clientX,
-                             y: event.clientY};
-        this.winStartPos = this.getPosition();
-        document.body.style.cursor = "url(\"" + this.browserRoot + "img/closedhand.cur\")";
-        this.elem.style.cursor = "url(\"" + this.browserRoot + "img/closedhand.cur\")";
-    }
 };
 
-GenomeView.prototype.rubberOut = function(event) {
+/**
+ * Event fired when a user's mouse button goes down inside the main
+ * element of the genomeview.
+ */
+GenomeView.prototype.startMouseDragScroll = function(event) {
+    this._beforeMouseDrag(event);
+
+    this.dragEventHandles =
+        [
+            dojo.connect(document.body, "mouseup",   this, 'dragEnd'),
+            dojo.connect(document.body, "mousemove", this, 'dragMove'),
+            dojo.connect(document.body, "mouseout",  this, 'checkDragOut')
+        ];
+
+    this.dragging = true;
+    this.dragStartPos = {x: event.clientX,
+                         y: event.clientY};
+    this.winStartPos = this.getPosition();
+    document.body.style.cursor = "url(\"" + this.browserRoot + "img/closedhand.cur\")";
+};
+
+GenomeView.prototype.startRubberZoom = function(event) {
+    this._beforeMouseDrag(event);
+
+    this.dragEventHandles =
+        [
+            dojo.connect(document.body, "mouseup",   this, 'rubberExecute'  ),
+            dojo.connect(document.body, "mousemove", this, 'rubberMove' ),
+            dojo.connect(document.body, "mouseout",  this, 'rubberCancel'  )
+        ];
+
+    this.rubberbanding = true;
+    this.rubberbandStartPos = {x: event.clientX,
+                               y: event.clientY};
+    this.winStartPos = this.getPosition();
+    document.body.style.cursor = "text";
+};
+
+GenomeView.prototype.rubberCancel = function(event) {
+    var htmlNode = document.body.parentNode;
+    var bodyNode = document.body;
+
     if (!(event.relatedTarget || event.toElement)
         || (htmlNode === (event.relatedTarget || event.toElement))
         || (bodyNode === (event.relatedTarget || event.toElement))) {
-        dojo.forEach(this.dragEventHandles, dojo.disconnect);
+        dojo.forEach(this.dragEventHandles, dojo.disconnect, dojo);
         this.rubberbanding = false;
         dojo.stopEvent(event);
         this.hideRubberHighlight();
@@ -371,7 +386,7 @@ GenomeView.prototype.rubberMove = function(event) {
     this.setRubberHighlight( this.rubberbandStartPos, { x: event.clientX, y: event.clientY } );
 };
 
-GenomeView.prototype.rubberEnd = function(event) {
+GenomeView.prototype.rubberExecute = function(event) {
     dojo.forEach(this.dragEventHandles, dojo.disconnect);
     this.rubberbanding = false;
     dojo.stopEvent(event);
@@ -388,18 +403,18 @@ GenomeView.prototype.rubberEnd = function(event) {
 // draws the rubber-banding highlight region from start.x to end.x
 GenomeView.prototype.setRubberHighlight = function( start, end ) {
     var h;
-    if( ! view.rubberHighlight ) {
-        h = view.rubberHighlight = document.createElement("div");
+    if( ! this.rubberHighlight ) {
+        h = this.rubberHighlight = document.createElement("div");
         h.className = 'rubber-highlight';
         //h.style.opacity = '50%';
         h.style.position = 'absolute';
         h.style.height = '100%';
         h.style.zIndex = 1000;
-        view.scrollContainer.appendChild(h);
+        this.scrollContainer.appendChild(h);
     }
-    h = view.rubberHighlight;
+    h = this.rubberHighlight;
     h.style.visibility  = 'visible';
-    h.style.left   = view.winStartPos.x + Math.min(start.x,end.x) - dojo.coords(view.elem, true).x + 'px';
+    h.style.left   = this.winStartPos.x + Math.min(start.x,end.x) - dojo.coords(this.elem, true).x + 'px';
     h.style.width  = Math.abs(end.x-start.x) + 'px';
     //console.log({ left: h.style.left, end: end.x });
 };
