@@ -62,7 +62,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.fullZoomStripe = this.charWidth * (stripeWidth / 10);
 
     this.overview = dojo.byId("overview");
-    this.overviewBox = dojo.marginBox(this.overview);
+    this.overviewBox = dojo.coords(this.overview);
 
     this.tracks = [];
     this.uiTracks = [];
@@ -190,6 +190,7 @@ GenomeView.prototype._behaviors = function() { return {
                 dojo.connect( this.outerTrackContainer, "dblclick",  this, 'doubleClickZoom'         ),
 
                 dojo.connect( this.locationThumbMover,  "onMoveStop",     this, 'thumbMoved'         ),
+                dojo.connect( this.overview,            "onclick",        this, 'overviewClicked'    ),
 
                 dojo.connect( window, 'onkeyup', this, function(evt) {
                     if( evt.keyCode == dojo.keys.SHIFT ) // shift
@@ -659,6 +660,16 @@ GenomeView.prototype.showCoarse = function() {
 GenomeView.prototype.onFineMove = function() {};
 GenomeView.prototype.onCoarseMove = function() {};
 
+/** Event handler fired when the overview bar is single-clicked. */
+GenomeView.prototype.overviewClicked = function( evt ) {
+    var bp = ( evt.clientX - this.overviewBox.x ) / this.overviewBox.w * this.ref.length + this.ref.start;
+    this.centerAtBase( bp );
+};
+
+/**
+ * Event handler fired when the region thumbnail in the overview bar
+ * is dragged.
+ */
 GenomeView.prototype.thumbMoved = function(mover) {
     var pxLeft = parseInt(this.locationThumb.style.left);
     var pxWidth = parseInt(this.locationThumb.style.width);
@@ -717,7 +728,7 @@ GenomeView.prototype.bpToPx = function(bp) {
 GenomeView.prototype.sizeInit = function() {
     this.dim = {width: this.elem.clientWidth,
                 height: this.elem.clientHeight};
-    this.overviewBox = dojo.marginBox(this.overview);
+    this.overviewBox = dojo.coords(this.overview);
 
     //scale values, in pixels per bp, for all zoom levels
     this.zoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, this.charWidth];
@@ -854,7 +865,7 @@ GenomeView.prototype.updateOverviewHeight = function(trackName, height) {
 	    overviewHeight += track.height;
 	});
     this.overview.style.height = overviewHeight + "px";
-    this.overviewBox = dojo.marginBox(this.overview);
+    this.overviewBox = dojo.coords(this.overview);
 };
 
 GenomeView.prototype.addOverviewTrack = function(track) {

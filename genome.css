@@ -149,9 +149,7 @@ div.overview-pos {
     color: black;
     padding-left: 4px;
     font-family: sans-serif;
-    border-style: solid;
-    border-color: black;
-    border-width: 0px 0px 0px 1px;
+    border: 0;
 }
 
 div.blank-block {
