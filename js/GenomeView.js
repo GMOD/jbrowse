@@ -444,7 +444,7 @@ GenomeView.prototype.rubberCancel = function(event) {
     var htmlNode = document.body.parentNode;
     var bodyNode = document.body;
 
-    if (!(event.relatedTarget || event.toElement)
+    if ( !event || !(event.relatedTarget || event.toElement)
         || (htmlNode === (event.relatedTarget || event.toElement))
         || (bodyNode === (event.relatedTarget || event.toElement))) {
         this._rubberStop(event);
@@ -463,7 +463,7 @@ GenomeView.prototype.rubberExecute = function(event) {
 
     // cancel the rubber-zoom if the user has moved less than 3 pixels
     if( Math.abs( start.x - end.x ) < 3 ) {
-        return this.rubberCancel();
+        return this._rubberStop();
     }
 
     var h_start_bp = this.absXtoBp( Math.min(start.x,end.x) );
