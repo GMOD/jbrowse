@@ -128,7 +128,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     }
 
     var scaleTrackDiv = document.createElement("div");
-    scaleTrackDiv.className = "track static_track rubberbandAvailable";
+    scaleTrackDiv.className = "track static_track rubberBandAvailable";
     scaleTrackDiv.style.height = this.posHeight + "px";
     scaleTrackDiv.id = "static_track";
 
@@ -216,9 +216,16 @@ GenomeView.prototype._behaviors = function() { return {
     // mouse events connected when the shift button is being held down
     shiftMouse: {
         apply: function() {
+            dojo.removeClass(this.trackContainer,'draggable');
+            dojo.addClass(this.trackContainer,'rubberBandAvailable');
             return [
                 dojo.connect( this.outerTrackContainer, "mousedown", this, 'startRubberZoom' )
             ];
+        },
+        remove: function( mgr, handles ) {
+            dojo.forEach( handles, dojo.disconnect, dojo );
+            dojo.removeClass(this.trackContainer,'rubberBandAvailable');
+            dojo.addClass(this.trackContainer,'draggable');
         }
     },
 
