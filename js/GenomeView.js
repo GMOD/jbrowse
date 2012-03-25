@@ -166,7 +166,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.showFine();
     this.showCoarse();
 
-    this.behaviorManager = new BehaviorManager( this, this._behaviors() );
+    this.behaviorManager = new BehaviorManager({ context: this, behaviors: this._behaviors() });
     this.behaviorManager.initialize();
 };
 

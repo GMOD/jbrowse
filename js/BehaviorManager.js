@@ -4,12 +4,7 @@
  * disconnected repeatedly as a group.
  * @constructor
  * @class
- * @param {Object} behaviors object containing the behaviors to be managed.  See below.
- * @param {Object} context optional context (i.e. <code>this</code>) in which each of the
- *    behavior <code>apply()</code> and <code>remove()</code> functions will be called.
- *    Defaults to the BehaviorManager object itself.
- * @description
- * <h4>Behaviors Object Format</h4>
+ * @param {Object} args.behaviors object containing the behaviors to be managed, as:
  * <pre>
  *     {
  *        behavior_name: {
@@ -31,10 +26,14 @@
  *        ...
  *     }
  * </pre>
+ * @param {Object} [args.context=BehaviorManager itself] context
+ *    (i.e. <code>this</code>) in which each of the behavior
+ *    <code>apply()</code> and <code>remove()</code> functions will be
+ *    called.
  */
-function BehaviorManager( context, behaviors ) {
-    this.context   = context;
-    this.behaviors = behaviors;
+function BehaviorManager( args ) {
+    this.context   = args.context;
+    this.behaviors = args.behaviors;
 };
 
 /**
@@ -51,6 +50,7 @@ BehaviorManager.prototype.initialize = function() {
 
 /**
  * Apply each of the behaviors named as arguments to this function.
+ * @param {String} [...] Zero or more string behavior names to apply.
  */
 BehaviorManager.prototype.applyBehaviors = function() {
     dojo.forEach( arguments, function(name) {
@@ -84,6 +84,7 @@ BehaviorManager.prototype.swapBehaviors = function( off, on ) {
 
 /**
  * Remove each of the behaviors named as arguments to this function.
+ * @param {String} [...] Zero or more string behavior names to remove.
  */
 BehaviorManager.prototype.removeBehaviors = function( ) {
     dojo.forEach( arguments, function(name) {
