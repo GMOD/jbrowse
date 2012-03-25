@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+ * Added support for "rubberband" dynamic zooming, in which users can
+   click and drag to select a region to zoom to.  Can be accessed
+   either by dragging on the track number scale bar or by holding down
+   the Shift key and dragging in the main track panel.
+
  * flatfile-to-json.pl: now much faster and more memory-efficient,
    especially for GFF3 files.  Remember that '###' directives are very
    important to have in large GFF3 files!  Also removed nonfunctional
