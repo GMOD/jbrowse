@@ -242,9 +242,10 @@ GenomeView.prototype._behaviors = function() { return {
     mouseRubberBandZooming: {
         apply: function() {
             return [
-                dojo.connect(document.body, "mouseup",   this, 'rubberExecute'  ),
-                dojo.connect(document.body, "mousemove", this, 'rubberMove'     ),
-                dojo.connect(document.body, "mouseout",  this, 'rubberCancel'   )
+                dojo.connect(document.body, "mouseup",    this, 'rubberExecute'  ),
+                dojo.connect(document.body, "mousemove",  this, 'rubberMove'     ),
+                dojo.connect(document.body, "mouseout",   this, 'rubberCancel'   ),
+                dojo.connect(window,        "onkeydown",  this, 'rubberCancel'   )
             ];
         }
     }
