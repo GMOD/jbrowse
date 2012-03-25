@@ -191,15 +191,12 @@ GenomeView.prototype._behaviors = function() { return {
 
                 dojo.connect( this.locationThumbMover,  "onMoveStop",     this, 'thumbMoved'         ),
 
-                // 16 is shift, 17 is ctrl, 18 is alt
                 dojo.connect( window, 'onkeyup', this, function(evt) {
-                    console.log("key up");
-                    if( evt.keyCode == 16 ) // shift
+                    if( evt.keyCode == dojo.keys.SHIFT ) // shift
                         this.behaviorManager.swapBehaviors( 'shiftMouse', 'normalMouse' );
                 }),
                 dojo.connect( window, 'onkeydown', this, function(evt) {
-                    console.log("key down");
-                    if( evt.keyCode == 16 ) // shift
+                    if( evt.keyCode == dojo.keys.SHIFT ) // shift
                         this.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );
                 })
             ];
