@@ -90,8 +90,8 @@ BehaviorManager.prototype.removeBehaviors = function( ) {
     dojo.forEach( arguments, function(name) {
         var b = this._get(name);
         if( b.applied ) {
-            var remove = b.remove || function() {
-                dojo.forEach( b.handles, dojo.disconnect, dojo );
+            var remove = b.remove || function( m, h ) {
+                dojo.forEach( h, dojo.disconnect, dojo );
             };
             remove.call( this.context || this, this, b.handles );
             b.applied = false;
