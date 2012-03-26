@@ -673,7 +673,7 @@ GenomeView.prototype.onCoarseMove = function() {};
  * Event handler fired when the overview bar is single-clicked.
  */
 GenomeView.prototype.overviewClicked = function( evt ) {
-    var bp = ( evt.clientX - this.overviewBox.x ) / this.overviewBox.w * this.ref.length + this.ref.start;
+    var bp = ( evt.clientX - this.overviewBox.x ) / this.overviewBox.w * (this.ref.end - this.ref.start) + this.ref.start;
     this.centerAtBase( bp );
 };
 
