@@ -607,6 +607,8 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
         this.sizeInit();
         this.setY(0);
         this.containerHeight = this.topSpace;
+
+        this.behaviorManager.initialize();
     }
 
     this.pxPerBp = Math.min(this.dim.width / (endbp - startbp), this.charWidth);
