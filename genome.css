@@ -79,6 +79,7 @@ div.overview {
     color:#aaa;
     text-align: center;
     z-index: -5;
+    cursor: crosshair;
 }
 
 div.block {
