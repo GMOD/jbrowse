@@ -5,8 +5,10 @@
    either by dragging on the track number scale bar or by holding down
    the Shift key and dragging in the main track panel.
 
- * Clicking on the overview bar now centers the view at the clicked
-   position.
+ * Clicking on the overview bar or the main scale bar now centers the
+   view at the clicked position.  In addition, while holding down
+   shift, clicking in the main track panel will also center the view
+   at that position.
 
  * flatfile-to-json.pl: now much faster and more memory-efficient,
    especially for GFF3 files.  Remember that '###' directives are very
