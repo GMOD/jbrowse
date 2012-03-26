@@ -105,9 +105,6 @@ BehaviorManager.prototype.removeBehaviors = function( ) {
  */
 BehaviorManager.prototype.removeAll = function( ) {
     for( var bname in this.behaviors ) {
-        if( this.behaviors[bname].applied ) {
-            this.removeBehaviors( bname );
-        }
+        this.removeBehaviors( bname );
     }
-
 };
