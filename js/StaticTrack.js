@@ -24,7 +24,11 @@ StaticTrack.prototype.fillBlock = function(blockIndex, block,
     var posLabel = document.createElement("div");
     var numtext = Util.addCommas( leftBase+1 );
     posLabel.className = this.labelClass;
+
+    // give the position label a negative left offset in ex's to
+    // more-or-less center it over the left boundary of the block
     posLabel.style.left = "-" + Number(numtext.length)/1.7 + "ex";
+
     posLabel.appendChild( document.createTextNode( numtext ) );
     block.appendChild(posLabel);
     this.heightUpdate(this.posHeight, blockIndex);
