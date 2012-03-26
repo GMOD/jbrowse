@@ -721,9 +721,21 @@ div.generic_parent-hist {
 
 .rubber-highlight {
     border: 1px solid black;
-    background: #8087ff;
-    filter: alpha(opacity=30); /* IE */
-    opacity: 0.3;              /* standard */
+    border-color: rgba( 0, 0, 0, 0.6 );
+    background-color: #8087ff;
+    background-color: rgba( 128, 136, 255, 0.6 );
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+.rubber-highlight div {
+    color: white;
+    padding: 0;
+    margin-top: 10px;
+    font-size: 160%;
+    text-align: center;
+    font-weight: bold;
+    text-shadow: #6374AB 1px 1px 0;
 }
 
 .icon.nav {
