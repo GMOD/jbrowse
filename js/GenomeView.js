@@ -187,10 +187,12 @@ GenomeView.prototype._behaviors = function() { return {
 
                 dojo.connect( this.scaleTrackDiv,       "mousedown",      this, 'startRubberZoom'    ),
 
-                dojo.connect( this.outerTrackContainer, "dblclick",  this, 'doubleClickZoom'         ),
+                dojo.connect( this.outerTrackContainer, "dblclick",       this, 'doubleClickZoom'    ),
 
                 dojo.connect( this.locationThumbMover,  "onMoveStop",     this, 'thumbMoved'         ),
+
                 dojo.connect( this.overview,            "onclick",        this, 'overviewClicked'    ),
+                dojo.connect( this.scaleTrackDiv,       "onclick",        this, 'scaleClicked'       ),
 
                 dojo.connect( window, 'onkeyup', this, function(evt) {
                     if( evt.keyCode == dojo.keys.SHIFT ) // shift
@@ -220,7 +222,8 @@ GenomeView.prototype._behaviors = function() { return {
             dojo.removeClass(this.trackContainer,'draggable');
             dojo.addClass(this.trackContainer,'rubberBandAvailable');
             return [
-                dojo.connect( this.outerTrackContainer, "mousedown", this, 'startRubberZoom' )
+                dojo.connect( this.outerTrackContainer, "mousedown", this, 'startRubberZoom' ),
+                dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'    )
             ];
         },
         remove: function( mgr, handles ) {
@@ -381,8 +384,14 @@ GenomeView.prototype.afterSlide = function() {
 };
 
 GenomeView.prototype.doubleClickZoom = function(event) {
-    if (this.dragging) return;
-    if ("animation" in this) return;
+    if( this.dragging ) return;
+    if( "animation" in this ) return;
+
+    // if we have a timeout in flight from a scaleClicked click,
+    // cancel it, cause it looks now like the user has actually
+    // double-clicked
+    if( this.scaleClickedTimeout ) window.clearTimeout( this.scaleClickedTimeout );
+
     var zoomLoc = (event.pageX - dojo.coords(this.elem, true).x) / this.dim.width;
     if (event.shiftKey) {
 	this.zoomOut(event, zoomLoc, 2);
@@ -666,6 +675,17 @@ GenomeView.prototype.onCoarseMove = function() {};
 GenomeView.prototype.overviewClicked = function( evt ) {
     var bp = ( evt.clientX - this.overviewBox.x ) / this.overviewBox.w * this.ref.length + this.ref.start;
     this.centerAtBase( bp );
+};
+
+/**
+ * Event handler fired when the track scale bar is single-clicked.
+ */
+GenomeView.prototype.scaleClicked = function( evt ) {
+    var bp = this.absXtoBp(evt.clientX);
+
+    this.scaleClickedTimeout = window.setTimeout( dojo.hitch( this, function() {
+        this.centerAtBase( bp );
+    },100));
 };
 
 /**
