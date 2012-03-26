@@ -40,6 +40,7 @@ function BehaviorManager( args ) {
  * Apply the behaviors that have <code>apply_on_init</code> true.
  */
 BehaviorManager.prototype.initialize = function() {
+    this.removeAll();
     for( var bname in this.behaviors ) {
         var b = this.behaviors[bname];
         if( b.apply_on_init ) {
