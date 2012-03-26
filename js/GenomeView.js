@@ -194,6 +194,12 @@ GenomeView.prototype._behaviors = function() { return {
                 dojo.connect( this.overview,            "onclick",        this, 'overviewClicked'    ),
                 dojo.connect( this.scaleTrackDiv,       "onclick",        this, 'scaleClicked'       ),
 
+                // when the mouse leaves the document, need to cancel
+                // any keyboard-modifier-holding-down state
+                dojo.connect( document.body,            'mouseout',       this, function() {
+                    this.behaviorManager.swapBehaviors('shiftMouse','normalMouse');
+                }),
+
                 dojo.connect( window, 'onkeyup', this, function(evt) {
                     if( evt.keyCode == dojo.keys.SHIFT ) // shift
                         this.behaviorManager.swapBehaviors( 'shiftMouse', 'normalMouse' );
