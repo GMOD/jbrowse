@@ -181,11 +181,17 @@ GenomeView.prototype._behaviors = function() { return {
     always: {
         apply_on_init: true,
         apply: function() {
-            return [
+            var handles = [];
+            this.overviewTrackIterate( function(t) {
+                handles.push( dojo.connect(
+                    t.div, 'mousedown', dojo.hitch( this, 'startRubberZoom', this.overview_absXtoBp, t.div )
+                ));
+            });
+            handles.push(
                 dojo.connect( this.scrollContainer,     "mousewheel",     this, 'wheelScroll', false ),
                 dojo.connect( this.scrollContainer,     "DOMMouseScroll", this, 'wheelScroll', false ),
 
-                dojo.connect( this.scaleTrackDiv,       "mousedown",      this, 'startRubberZoom'    ),
+                dojo.connect( this.scaleTrackDiv,       "mousedown",      dojo.hitch( this, 'startRubberZoom', this.absXtoBp, this.scrollContainer )),
 
                 dojo.connect( this.outerTrackContainer, "dblclick",       this, 'doubleClickZoom'    ),
 
@@ -208,7 +214,8 @@ GenomeView.prototype._behaviors = function() { return {
                     if( evt.keyCode == dojo.keys.SHIFT ) // shift
                         this.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );
                 })
-            ];
+            );
+            return handles;
         }
     },
 
@@ -228,7 +235,7 @@ GenomeView.prototype._behaviors = function() { return {
             dojo.removeClass(this.trackContainer,'draggable');
             dojo.addClass(this.trackContainer,'rubberBandAvailable');
             return [
-                dojo.connect( this.outerTrackContainer, "mousedown", this, 'startRubberZoom' ),
+                dojo.connect( this.outerTrackContainer, "mousedown", dojo.hitch( this, 'startRubberZoom', this.absXtoBp, this.scrollContainer )),
                 dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'    )
             ];
         },
@@ -438,12 +445,22 @@ GenomeView.prototype.startMouseDragScroll = function(event) {
     this.winStartPos = this.getPosition();
 };
 
-GenomeView.prototype.startRubberZoom = function(event) {
+/**
+ * Start a rubber-band dynamic zoom.
+ *
+ * @param {Function} absToBp function to convert page X coordinates to
+ *   base pair positions on the reference sequence.  Called in the
+ *   context of the GenomeView object.
+ * @param {HTMLElement} container element in which to draw the
+ *   rubberbanding highlight
+ * @param {Event} event the mouse event that's starting the zoom
+ */
+GenomeView.prototype.startRubberZoom = function( absToBp, container, event ) {
     if( ! this._beforeMouseDrag(event) ) return;
 
     this.behaviorManager.applyBehaviors('mouseRubberBandZooming');
 
-    this.rubberbanding = true;
+    this.rubberbanding = { absFunc: absToBp, container: container };
     this.rubberbandStartPos = {x: event.clientX,
                                y: event.clientY};
     this.winStartPos = this.getPosition();
@@ -451,7 +468,6 @@ GenomeView.prototype.startRubberZoom = function(event) {
 
 GenomeView.prototype._rubberStop = function(event) {
     this.behaviorManager.removeBehaviors('mouseRubberBandZooming');
-    this.rubberbanding = false;
     this.hideRubberHighlight();
     dojo.stopEvent(event);
 };
@@ -482,13 +498,15 @@ GenomeView.prototype.rubberExecute = function(event) {
         return this._rubberStop(event);
     }
 
-    var h_start_bp = this.absXtoBp( Math.min(start.x,end.x) );
-    var h_end_bp   = this.absXtoBp( Math.max(start.x,end.x) );
+    var h_start_bp = this.rubberbanding.absFunc.call( this, Math.min(start.x,end.x) );
+    var h_end_bp   = this.rubberbanding.absFunc.call( this, Math.max(start.x,end.x) );
+    delete this.rubberbanding;
     this.setLocation( this.ref, h_start_bp, h_end_bp );
 };
 
 // draws the rubber-banding highlight region from start.x to end.x
 GenomeView.prototype.setRubberHighlight = function( start, end ) {
+    var container = this.rubberbanding.container;
     var h;
     if( ! this.rubberHighlight ) {
         h = this.rubberHighlight = document.createElement("div");
@@ -497,11 +515,11 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
         h.style.position = 'absolute';
         h.style.height = '100%';
         h.style.zIndex = 1000;
-        this.scrollContainer.appendChild(h);
+        container.appendChild( h );
     }
     h = this.rubberHighlight;
     h.style.visibility  = 'visible';
-    h.style.left   = this.winStartPos.x + Math.min(start.x,end.x) - dojo.coords(this.elem, true).x + 'px';
+    h.style.left   = Math.min(start.x,end.x) - dojo.coords(container, true).x + 'px';
     h.style.width  = Math.abs(end.x-start.x) + 'px';
     //console.log({ left: h.style.left, end: end.x });
 };
@@ -540,7 +558,8 @@ GenomeView.prototype.dragMove = function(event) {
 
 GenomeView.prototype.hideRubberHighlight = function( start, end ) {
     if( this.rubberHighlight ) {
-        this.rubberHighlight.style.visibility = 'hidden';
+       this.rubberHighlight.parentNode.removeChild( this.rubberHighlight );
+       delete this.rubberHighlight;
     }
 };
 
@@ -679,8 +698,17 @@ GenomeView.prototype.onCoarseMove = function() {};
  * Event handler fired when the overview bar is single-clicked.
  */
 GenomeView.prototype.overviewClicked = function( evt ) {
-    var bp = ( evt.clientX - this.overviewBox.x ) / this.overviewBox.w * (this.ref.end - this.ref.start) + this.ref.start;
-    this.centerAtBase( bp );
+    this.centerAtBase( this.overview_absXtoBp( evt.clientX ) );
+};
+
+/**
+ * Convert absolute X pixel position to base pair position on the
+ * <b>overview</b> track.  This needs refactoring; a scale bar should
+ * itself know how to convert an absolute X position to base pairs.
+ * @param {Number} x absolute pixel X position (for example, from a click event's clientX property)
+ */
+GenomeView.prototype.overview_absXtoBp = function(x) {
+    return ( x - this.overviewBox.x ) / this.overviewBox.w * (this.ref.end - this.ref.start) + this.ref.start;
 };
 
 /**
@@ -883,7 +911,7 @@ GenomeView.prototype.overviewTrackIterate = function(callback) {
     var overviewTrack = this.overview.firstChild;
     do {
         if (overviewTrack && overviewTrack.track)
-	    callback(overviewTrack.track, this);
+	    callback.call( this, overviewTrack.track, this);
     } while (overviewTrack && (overviewTrack = overviewTrack.nextSibling));
 };
 
