@@ -118,7 +118,7 @@ div.track {
 div#static_track {
     top: 0px;
     position: absolute;
-    background-color: #f0f0f0;
+    background: #FAFAFA url(jslib/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
     border-top: 1px solid #bbb;
     border-bottom: 1px solid #444;
     z-index: 20;
