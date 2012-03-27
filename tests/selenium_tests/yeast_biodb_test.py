@@ -26,8 +26,27 @@ class YeastBiodbTest ( JBrowseTest, unittest.TestCase ):
 
         # do a test where we search for a certain gene using the search box
         self.search_yal024c()
-
         self.assert_no_js_errors()
+
+        # do a rubberband zoom in the overview
+        self.overview_rubberband( 0.2, 0.5 );
+        # should be no feature labels zoomed out this far
+        self.assert_no_element("//div[contains(@class,'feature-label')]")
+        self.assert_elements("//div[@class='track']//div[@class='minus-feature5']");
+        self.overview_rubberband( 0.1, 0.11 );
+        self.assert_elements("//div[@class='track']//div[@class='minus-feature5']");
+        self.assert_elements("//div[contains(@class,'feature-label')]")
+
+        # do some more rubberbanding and check that the title (which
+        # says the displayed area) is changing in response to them
+        t1 = self.browser.title
+        self.overview_rubberband( 0.6, 0.9 )
+        t2 = self.browser.title
+        assert t1 != t2
+        self.trackpane_rubberband( 0.1, 0.2 )
+        t3 = self.browser.title
+        assert t3 != t2
+        assert t3 != t1
 
         # test scrolling, make sure we get no js errors
         self.scroll()
