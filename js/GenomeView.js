@@ -518,7 +518,6 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
         var main = this.rubberHighlight = document.createElement("div");
         main.className = 'rubber-highlight';
         main.style.position = 'absolute';
-        main.style.height = '100%';
         main.style.zIndex = 1000;
         var text = document.createElement('div');
         text.appendChild( document.createTextNode("Zoom to region") );

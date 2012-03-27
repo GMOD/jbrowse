@@ -721,6 +721,7 @@ div.generic_parent-hist {
 
 .rubber-highlight {
     border: 1px solid black;
+    height: 100%;
     border-color: rgba( 0, 0, 0, 0.6 );
     background-color: #8087ff;
     background-color: rgba( 128, 136, 255, 0.6 );
@@ -736,6 +737,11 @@ div.generic_parent-hist {
     text-align: center;
     font-weight: bold;
     text-shadow: #6374AB 1px 1px 0;
+}
+div.overview .rubber-highlight {
+    font-size: 0;
+    top: -5px;
+    height: 20px;
 }
 
 .icon.nav {
