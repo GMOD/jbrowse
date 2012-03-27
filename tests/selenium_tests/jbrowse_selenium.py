@@ -58,6 +58,42 @@ class JBrowseTest (object):
         qbox.send_keys( text + Keys.RETURN )
         time.sleep( 0.2 )
 
+    def _rubberband( self, el_xpath, start_pct, end_pct, modkey = None ):
+        el = self.assert_element( el_xpath )
+        start_offset = el.size['width'] * start_pct - el.size['width']/2;
+        c = self.actionchains() \
+            .move_to_element( el ) \
+            .move_by_offset( start_offset, 0 )
+
+        if( modkey ):
+            c = c.key_down( modkey )
+
+        c =  c \
+            .click_and_hold( None ) \
+            .move_by_offset( el.size['width']*(end_pct-start_pct), 0 ) \
+            .release( None )
+
+        if( modkey ):
+            c = c.key_up( modkey )
+
+        c \
+            .release( None ) \
+            .perform()
+
+        self.assert_no_js_errors()
+
+    def overview_rubberband( self, start_pct, end_pct ):
+        """Executes a rubberband gesture from start_pct to end_pct on the overview bar"""
+        self._rubberband( "//div[@id='overview']", start_pct, end_pct )
+
+    # I can't get a mainscale_rubberband() working, can't find an
+    # element to tell selenium to move to that will hit it.  can't
+    # move to the scale itself because it's so wide.
+
+    def trackpane_rubberband( self, start_pct, end_pct ):
+        """Executes a rubberband gesture from start_pct to end_pct in the main track pane"""
+        self._rubberband( "//div[contains(@class,'dragWindow')]", start_pct, end_pct, Keys.SHIFT )
+
     def turn_on_track( self, tracktext ):
 
         # find the track label

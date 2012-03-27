@@ -28,7 +28,13 @@ div.dragWindow {
     position:absolute;
     overflow: hidden;
     z-index: 1;
-    cursor: url("img/openhand.cur");
+}
+
+.draggable {
+    cursor: move;
+}
+.rubberBandAvailable {
+    cursor: crosshair;
 }
 
 div.locationTrap {
@@ -48,11 +54,11 @@ div.locationThumb {
     /* if you change this border from 2px, change GenomeView.showTrap */
     border: 2px solid red;
     margin: 0px -2px 0px -2px;
-    cursor: url("img/openhand.cur");
+    cursor: move;
 }
 
 div.locationThumb.dojoMoveItem {
-    cursor: url("img/closedhand.cur");
+    cursor: move;
 }
 
 .topLink {
@@ -73,6 +79,7 @@ div.overview {
     color:#aaa;
     text-align: center;
     z-index: -5;
+    cursor: crosshair;
 }
 
 div.block {
@@ -143,9 +150,7 @@ div.overview-pos {
     color: black;
     padding-left: 4px;
     font-family: sans-serif;
-    border-style: solid;
-    border-color: black;
-    border-width: 0px 0px 0px 1px;
+    border: 0;
 }
 
 div.blank-block {
@@ -714,9 +719,38 @@ div.generic_parent-hist {
     cursor: pointer;
 }
 
+.rubber-highlight {
+    border: 1px solid black;
+    height: 100%;
+    border-color: rgba( 0, 0, 0, 0.6 );
+    background-color: #8087ff;
+    background-color: rgba( 128, 136, 255, 0.6 );
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+.rubber-highlight div {
+    color: white;
+    padding: 0;
+    margin-top: 10px;
+    font-size: 160%;
+    text-align: center;
+    font-weight: bold;
+    text-shadow: #6374AB 1px 1px 0;
+}
+div.overview .rubber-highlight {
+    font-size: 0;
+    top: -5px;
+    height: 20px;
+}
+div.overview .rubber-highlight * {
+    display: none;
+}
+
 .icon.nav {
     height: 30px !important;
 }
+
 input.nav {
     font-size: 9px !important;
 }

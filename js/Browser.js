@@ -97,10 +97,9 @@ Browser.prototype.initView = function() {
 
     this.navbox = this.createNavBox( topPane, 25 );
 
-    var viewElem = document.createElement("div");
-    this.viewElem = viewElem;
-    this.container.appendChild(viewElem);
-    viewElem.className = "dragWindow";
+    this.viewElem = document.createElement("div");
+    this.viewElem.className = "dragWindow";
+    this.container.appendChild( this.viewElem);
 
     this.containerWidget = new dijit.layout.BorderContainer({
         liveSplitters: false,
@@ -110,7 +109,7 @@ Browser.prototype.initView = function() {
     var contentWidget =
         new dijit.layout.ContentPane({region: "top"}, topPane);
     this.browserWidget =
-        new dijit.layout.ContentPane({region: "center"}, viewElem);
+        new dijit.layout.ContentPane({region: "center"}, this.viewElem);
 
     //create location trapezoid
     this.locationTrap = document.createElement("div");
@@ -431,7 +430,7 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
     };
 
 
-    this.viewDndWidget = new dojo.dnd.Source(this.view.zoomContainer,
+    this.viewDndWidget = new dojo.dnd.Source(this.view.trackContainer,
                                        {
                                            creator: trackCreate,
                                            accept: ["track"], //accepts tracks into the viewing field

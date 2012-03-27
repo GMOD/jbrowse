@@ -1,158 +1,19 @@
-// VIEW
-
 /**
+ * Main view class, shows a scrollable, horizontal view of annotation
+ * tracks.  NOTE: All coordinates are interbase.
  * @class
- */
-function Animation(subject, callback, time) {
-    //subject: what's being animated
-    //callback: function to call at the end of the animation
-    //time: time for the animation to run
-    if (subject === undefined) return;
-    //don't want a zoom and a slide going on at the same time
-    if ("animation" in subject) subject.animation.stop();
-    this.index = 0;
-    this.time = time;
-    this.subject = subject;
-    this.callback = callback;
-
-    var myAnim = this;
-    this.animFunction = function() { myAnim.animate(); };
-    // number of milliseconds between frames (e.g., 33ms at 30fps)
-    this.animID = setTimeout(this.animFunction, 33);
-
-    this.frames = 0;
-
-    subject.animation = this;
-}
-
-Animation.prototype.animate = function () {
-    if (this.finished) {
-	this.stop();
-	return;
-    }
-
-    // number of milliseconds between frames (e.g., 33ms at 30fps)
-    var nextTimeout = 33;
-    var elapsed = 0;
-    if (!("startTime" in this)) {
-        this.startTime = (new Date()).getTime();
-    } else {
-        elapsed = (new Date()).getTime() - this.startTime;
-        //set the next timeout to be the average of the
-        //frame times we've achieved so far.
-        //The goal is to avoid overloading the browser
-        //and getting a jerky animation.
-        nextTimeout = Math.max(33, elapsed / this.frames);
-    }
-
-    if (elapsed < this.time) {
-        this.step(elapsed / this.time);
-        this.frames++;
-    } else {
-	this.step(1);
-        this.finished = true;
-	//console.log("final timeout: " + nextTimeout);
-    }
-    this.animID = setTimeout(this.animFunction, nextTimeout);
-};
-
-Animation.prototype.stop = function() {
-    clearTimeout(this.animID);
-    delete this.subject.animation;
-    this.callback(this);
-};
-
-/**
- * @class
- */
-function Slider(view, callback, time, distance) {
-    Animation.call(this, view, callback, time);
-    this.slideStart = view.getX();
-    this.slideDistance = distance;
-}
-
-Slider.prototype = new Animation();
-
-Slider.prototype.step = function(pos) {
-    var newX = (this.slideStart -
-                (this.slideDistance *
-                 //cos will go from 1 to -1, we want to go from 0 to 1
-                 ((-0.5 * Math.cos(pos * Math.PI)) + 0.5))) | 0;
-
-    newX = Math.max(Math.min(this.subject.maxLeft - this.subject.offset, newX),
-                         this.subject.minLeft - this.subject.offset);
-    this.subject.setX(newX);
-};
-
-/**
- * @class
- */
-function Zoomer(scale, toScroll, callback, time, zoomLoc) {
-    Animation.call(this, toScroll, callback, time);
-    this.toZoom = toScroll.zoomContainer;
-    var cWidth = this.toZoom.clientWidth;
-
-    this.initialWidth = cWidth;
-
-    // the container width when zoomFraction is 0
-    this.width0 = cWidth * Math.min(1, scale);
-    // the container width when zoomFraction is 1
-    var width1 = cWidth * Math.max(1, scale);
-    this.distance = width1 - this.width0;
-    this.zoomingIn = scale > 1;
-    //this.zoomLoc = zoomLoc;
-    this.center =
-        (toScroll.getX() + (toScroll.elem.clientWidth * zoomLoc))
-        / toScroll.scrollContainer.clientWidth;
-
-    // initialX and initialLeft can differ when we're scrolling
-    // using scrollTop and scrollLeft
-    this.initialX = this.subject.getX();
-    this.initialLeft = parseInt(this.toZoom.style.left);
-};
-
-Zoomer.prototype = new Animation();
-
-Zoomer.prototype.step = function(pos) {
-    var zoomFraction = this.zoomingIn ? pos : 1 - pos;
-    var newWidth =
-        ((zoomFraction * zoomFraction) * this.distance) + this.width0;
-    var newLeft = (this.center * this.initialWidth) - (this.center * newWidth);
-    this.toZoom.style.width = newWidth + "px";
-    this.toZoom.style.left = (this.initialLeft + newLeft) + "px";
-    var forceRedraw = this.toZoom.offsetTop;
-    this.subject.updateTrackLabels(this.initialX - newLeft);
-};
-
-/**
- * @class
+ * @constructor
  */
 function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
-    //all coordinates are interbase
 
-    //measure text width for the max zoom level
-    var widthTest = document.createElement("div");
-    widthTest.className = "sequence";
-    widthTest.style.visibility = "hidden";
-    var widthText = "12345678901234567890123456789012345678901234567890";
-    widthTest.appendChild(document.createTextNode(widthText));
-    elem.appendChild(widthTest);
-    this.charWidth = widthTest.clientWidth / widthText.length;
-    this.seqHeight = widthTest.clientHeight;
-    elem.removeChild(widthTest);
+    var seqCharSize = this.calculateSequenceCharacterSize( elem );
+    this.charWidth = seqCharSize.width;
+    this.seqHeight = seqCharSize.height;
 
-    // measure the height of some arbitrary text in whatever font this
-    // shows up in (set by an external CSS file)
-    var heightTest = document.createElement("div");
-    heightTest.className = "pos-label";
-    heightTest.style.visibility = "hidden";
-    heightTest.appendChild(document.createTextNode("42"));
-    elem.appendChild(heightTest);
-    this.posHeight = heightTest.clientHeight;
+    this.posHeight = this.calculatePositionLabelHeight( elem );
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
     this.topSpace = 1.5 * this.posHeight;
-    elem.removeChild(heightTest);
 
     //the reference sequence
     this.ref = refseq;
@@ -182,6 +43,16 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
         "position: absolute; left: 0px; top: 0px; height: 100%;";
     this.scrollContainer.appendChild(this.zoomContainer);
 
+    this.outerTrackContainer = document.createElement("div");
+    this.outerTrackContainer.className = "trackContainer outerTrackContainer";
+    this.outerTrackContainer.style.cssText = "height: 100%;";
+    this.zoomContainer.appendChild( this.outerTrackContainer );
+
+    this.trackContainer = document.createElement("div");
+    this.trackContainer.className = "trackContainer innerTrackContainer draggable";
+    this.trackContainer.style.cssText = "height: 100%;";
+    this.outerTrackContainer.appendChild( this.trackContainer );
+
     //width, in pixels of the "regular" (not min or max zoom) stripe
     this.regularStripe = stripeWidth;
     //width, in pixels, of stripes at full zoom (based on the sequence
@@ -191,7 +62,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.fullZoomStripe = this.charWidth * (stripeWidth / 10);
 
     this.overview = dojo.byId("overview");
-    this.overviewBox = dojo.marginBox(this.overview);
+    this.overviewBox = dojo.coords(this.overview);
 
     this.tracks = [];
     this.uiTracks = [];
@@ -230,246 +101,45 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.locationThumb.className = "locationThumb";
     this.overview.appendChild(this.locationThumb);
     this.locationThumbMover = new dojo.dnd.move.parentConstrainedMoveable(this.locationThumb, {area: "margin", within: true});
-    dojo.connect(this.locationThumbMover, "onMoveStop", this, "thumbMoved");
 
-    var view = this;
-
-    var cssScroll = dojo.isIE;
-
-    if (cssScroll) {
-        view.x = -parseInt(view.scrollContainer.style.left);
-        view.y = -parseInt(view.scrollContainer.style.top);
-        view.getX = function() {
-            return view.x;
+    if ( dojo.isIE ) {
+        // if using IE, we have to do scrolling with CSS
+        this.x = -parseInt( this.scrollContainer.style.left );
+        this.y = -parseInt( this.scrollContainer.style.top );
+        this.rawSetX = function(x) {
+            this.scrollContainer.style.left = -x + "px";
+            this.x = x;
         };
-        view.getY = function() {
-            return view.y;
-        };
-        view.getPosition = function() {
-	    return { x: view.x, y: view.y };
-        };
-        view.rawSetX = function(x) {
-            view.scrollContainer.style.left = -x + "px"; view.x = x;
-        };
-        view.setX = function(x) {
-	    view.x = Math.max(Math.min(view.maxLeft - view.offset, x),
-                              view.minLeft - view.offset);
-            view.x = Math.round(view.x);
-	    view.updateTrackLabels(view.x);
-	    view.showFine();
-            view.scrollContainer.style.left = -view.x + "px";
-        };
-        view.rawSetY = function(y) {
-            view.scrollContainer.style.top = -y + "px"; view.y = y;
-        };
-        view.setY = function(y) {
-            view.y = Math.min((y < 0 ? 0 : y),
-                              view.containerHeight
-                              - view.dim.height);
-            view.y = Math.round(view.y);
-            view.updatePosLabels(view.y);
-            view.scrollContainer.style.top = -view.y + "px";
-        };
-        view.rawSetPosition = function(pos) {
-            view.scrollContainer.style.left = -pos.x + "px";
-            view.scrollContainer.style.top = -pos.y + "px";
-        };
-        view.setPosition = function(pos) {
-            view.x = Math.max(Math.min(view.maxLeft - view.offset, pos.x),
-                              view.minLeft - view.offset);
-            view.y = Math.min((pos.y < 0 ? 0 : pos.y),
-                              view.containerHeight - view.dim.height);
-            view.x = Math.round(view.x);
-            view.y = Math.round(view.y);
-
-            view.updateTrackLabels(view.x);
-            view.updatePosLabels(view.y);
-	    view.showFine();
-
-            view.scrollContainer.style.left = -view.x + "px";
-            view.scrollContainer.style.top = -view.y + "px";
+        this.rawSetY = function(y) {
+            this.scrollContainer.style.top = -y + "px";
+            this.y = y;
         };
     } else {
-	view.x = view.elem.scrollLeft;
-	view.y = view.elem.scrollTop;
-        view.getX = function() {
-	    return view.x;
-	};
-        view.getY = function() {
-	    return view.y;
-	};
-        view.getPosition = function() {
-	    return { x: view.x, y: view.y };
+	this.x = this.elem.scrollLeft;
+	this.y = this.elem.scrollTop;
+        this.rawSetX = function(x) {
+            this.elem.scrollLeft = x;
+            this.x = x;
         };
-        view.rawSetX = function(x) {
-            view.elem.scrollLeft = x; view.x = x;
+        this.rawSetY = function(y) {
+            this.elem.scrollTop = y;
+            this.y = y;
         };
-        view.setX = function(x) {
-	    view.x = Math.max(Math.min(view.maxLeft - view.offset, x),
-			      view.minLeft - view.offset);
-            view.x = Math.round(view.x);
-	    view.updateTrackLabels(view.x);
-	    view.showFine();
-
-            view.elem.scrollLeft = view.x;
-        };
-        view.rawSetY = function(y) {
-            view.elem.scrollTop = y; view.y = y;
-        };
-        view.rawSetPosition = function(pos) {
-            view.elem.scrollLeft = pos.x; view.x = pos.x;
-            view.elem.scrollTop = pos.y; view.y = pos.y;
-        };
-
-        view.setY = function(y) {
-            view.y = Math.min((y < 0 ? 0 : y),
-                              view.containerHeight
-                              - view.dim.height);
-            view.y = Math.round(view.y);
-            view.updatePosLabels(view.y);
-            view.elem.scrollTop = view.y;
-        };
-        view.setPosition = function(pos) {
-            view.x = Math.max(Math.min(view.maxLeft - view.offset, pos.x),
-                              view.minLeft - view.offset);
-            view.y = Math.min((pos.y < 0 ? 0 : pos.y),
-                              view.containerHeight - view.dim.height);
-            view.x = Math.round(view.x);
-            view.y = Math.round(view.y);
-
-            view.updateTrackLabels(view.x);
-            view.updatePosLabels(view.y);
-	    view.showFine();
-
-            view.elem.scrollLeft = view.x;
-            view.elem.scrollTop = view.y;
-	};
     }
 
-    view.dragEnd = function(event) {
-	dojo.forEach(view.dragEventHandles, dojo.disconnect);
+    var scaleTrackDiv = document.createElement("div");
+    scaleTrackDiv.className = "track static_track rubberBandAvailable";
+    scaleTrackDiv.style.height = this.posHeight + "px";
+    scaleTrackDiv.id = "static_track";
 
-	view.dragging = false;
-        view.elem.style.cursor = "url(\"" + view.browserRoot + "img/openhand.cur\")";
-        document.body.style.cursor = "default";
-        dojo.stopEvent(event);
-	view.showCoarse();
-
-        view.scrollUpdate();
-	view.showVisibleBlocks(true);
-    };
-
-    var htmlNode = document.body.parentNode;
-    var bodyNode = document.body;
-    //stop the drag if we mouse out of the view
-    view.checkDragOut = function(event) {
-        if (!(event.relatedTarget || event.toElement)
-            || (htmlNode === (event.relatedTarget || event.toElement))
-            || (bodyNode === (event.relatedTarget || event.toElement)))
-            view.dragEnd(event);
-    };
-
-    view.dragMove = function(event) {
-	view.setPosition({
-		x: view.winStartPos.x - (event.clientX - view.dragStartPos.x),
-		y: view.winStartPos.y - (event.clientY - view.dragStartPos.y)
-            });
-        dojo.stopEvent(event);
-    };
-
-    view.mouseDown = function(event) {
-        if ("animation" in view) {
-            if (view.animation instanceof Zoomer) {
-                dojo.stopEvent(event);
-                return;
-
-            } else {
-                view.animation.stop();
-            }
-        }
-	if (Util.isRightButton(event)) return;
-        dojo.stopEvent(event);
-	if (event.shiftKey || event.ctrlKey) return;
-	view.dragEventHandles =
-	    [
-	     dojo.connect(document.body, "mouseup", view.dragEnd),
-	     dojo.connect(document.body, "mousemove", view.dragMove),
-	     dojo.connect(document.body, "mouseout", view.checkDragOut)
-	     ];
-
-	view.dragging = true;
-	view.dragStartPos = {x: event.clientX,
-			     y: event.clientY};
-	view.winStartPos = view.getPosition();
-
-	document.body.style.cursor = "url(\"" + view.browserRoot + "img/closedhand.cur\")";
-	view.elem.style.cursor = "url(\"" + view.browserRoot + "img/closedhand.cur\")";
-    };
-
-    dojo.connect(view.elem, "mousedown", view.mouseDown);
-
-    dojo.connect(view.elem, "dblclick", function(event) {
-	    if (view.dragging) return;
-	    if ("animation" in view) return;
-	    var zoomLoc = (event.pageX - dojo.coords(view.elem, true).x) / view.dim.width;
-	    if (event.shiftKey) {
-		view.zoomOut(event, zoomLoc, 2);
-	    } else {
-		view.zoomIn(event, zoomLoc, 2);
-	    }
-	    dojo.stopEvent(event);
-	});
-
-    view.afterSlide = function() {
-	view.showCoarse();
-        view.scrollUpdate();
-	view.showVisibleBlocks(true);
-    };
-
-    view.zoomCallback = function() { view.zoomUpdate(); };
-
-    var wheelScrollTimeout = null;
-    var wheelScrollUpdate = function() {
-	view.showVisibleBlocks(true);
-	wheelScrollTimeout = null;
-    };
-
-    view.wheelScroll = function(e) {
-	var oldY = view.getY();
-        // arbitrary 60 pixel vertical movement per scroll wheel event
-	var newY = Math.min(Math.max(0, oldY - 60 * Util.wheel(e)),
-			    view.containerHeight - view.dim.height);
-	view.setY(newY);
-
-	//the timeout is so that we don't have to run showVisibleBlocks
-	//for every scroll wheel click (we just wait until so many ms
-	//after the last one).
-	if (wheelScrollTimeout)
-	    clearTimeout(wheelScrollTimeout);
-        // 100 milliseconds since the last scroll event is an arbitrary
-        // cutoff for deciding when the user is done scrolling
-        // (set by a bit of experimentation)
-	wheelScrollTimeout = setTimeout(wheelScrollUpdate, 100);
-	dojo.stopEvent(e);
-    };
-
-    dojo.connect(view.scrollContainer, "mousewheel",
-                 view.wheelScroll, false);
-
-    dojo.connect(view.scrollContainer, "DOMMouseScroll",
-                 view.wheelScroll, false);
-
-    var trackDiv = document.createElement("div");
-    trackDiv.className = "track";
-    trackDiv.style.height = this.posHeight + "px";
-    trackDiv.id = "static_track";
+    this.scaleTrackDiv = scaleTrackDiv;
     this.staticTrack = new StaticTrack("static_track", "pos-label", this.posHeight);
     this.staticTrack.setViewInfo(function(height) {}, this.stripeCount,
-                                 trackDiv, undefined, this.stripePercent,
+                                 this.scaleTrackDiv, undefined, this.stripePercent,
                                  this.stripeWidth, this.pxPerBp,
                                  this.trackPadding);
-    this.zoomContainer.appendChild(trackDiv);
-    this.waitElems.push(trackDiv);
+    this.zoomContainer.appendChild(this.scaleTrackDiv);
+    this.waitElems.push(this.scaleTrackDiv);
 
     var gridTrackDiv = document.createElement("div");
     gridTrackDiv.className = "track";
@@ -480,8 +150,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
                           gridTrackDiv, undefined, this.stripePercent,
                           this.stripeWidth, this.pxPerBp,
                           this.trackPadding);
-    this.zoomContainer.appendChild(gridTrackDiv);
-
+    this.trackContainer.appendChild(gridTrackDiv);
     this.uiTracks = [this.staticTrack, gridTrack];
 
     dojo.forEach(this.uiTracks, function(track) {
@@ -494,12 +163,418 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
     this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
-
-    document.body.style.cursor = "default";
-
     this.showFine();
     this.showCoarse();
-}
+
+    this.behaviorManager = new BehaviorManager({ context: this, behaviors: this._behaviors() });
+    this.behaviorManager.initialize();
+};
+
+/**
+ * Behaviors (event handler bundles) for various states that the
+ * GenomeView might be in.
+ * @private
+ */
+GenomeView.prototype._behaviors = function() { return {
+
+    // behaviors that don't change
+    always: {
+        apply_on_init: true,
+        apply: function() {
+            var handles = [];
+            this.overviewTrackIterate( function(t) {
+                handles.push( dojo.connect(
+                    t.div, 'mousedown', dojo.hitch( this, 'startRubberZoom', this.overview_absXtoBp, t.div )
+                ));
+            });
+            handles.push(
+                dojo.connect( this.scrollContainer,     "mousewheel",     this, 'wheelScroll', false ),
+                dojo.connect( this.scrollContainer,     "DOMMouseScroll", this, 'wheelScroll', false ),
+
+                dojo.connect( this.scaleTrackDiv,       "mousedown",      dojo.hitch( this, 'startRubberZoom', this.absXtoBp, this.scrollContainer )),
+
+                dojo.connect( this.outerTrackContainer, "dblclick",       this, 'doubleClickZoom'    ),
+
+                dojo.connect( this.locationThumbMover,  "onMoveStop",     this, 'thumbMoved'         ),
+
+                dojo.connect( this.overview,            "onclick",        this, 'overviewClicked'    ),
+                dojo.connect( this.scaleTrackDiv,       "onclick",        this, 'scaleClicked'       ),
+
+                // when the mouse leaves the document, need to cancel
+                // any keyboard-modifier-holding-down state
+                dojo.connect( document.body,            'onmouseleave',       this, function() {
+                    this.behaviorManager.swapBehaviors('shiftMouse','normalMouse');
+                }),
+
+                // when the mouse leaves the document, need to cancel
+                // any keyboard-modifier-holding-down state
+                dojo.connect( document.body,            'onmouseenter',       this, function(evt) {
+                    if( evt.shiftKey )
+                        this.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );
+                }),
+
+                dojo.connect( window, 'onkeyup', this, function(evt) {
+                    if( evt.keyCode == dojo.keys.SHIFT ) // shift
+                        this.behaviorManager.swapBehaviors( 'shiftMouse', 'normalMouse' );
+                }),
+                dojo.connect( window, 'onkeydown', this, function(evt) {
+                    if( evt.keyCode == dojo.keys.SHIFT ) // shift
+                        this.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );
+                })
+            );
+            return handles;
+        }
+    },
+
+    // mouse events connected for "normal" behavior
+    normalMouse: {
+        apply_on_init: true,
+        apply: function() {
+            return [
+                dojo.connect( this.outerTrackContainer, "mousedown", this, 'startMouseDragScroll' )
+            ];
+        }
+    },
+
+    // mouse events connected when the shift button is being held down
+    shiftMouse: {
+        apply: function() {
+            dojo.removeClass(this.trackContainer,'draggable');
+            dojo.addClass(this.trackContainer,'rubberBandAvailable');
+            return [
+                dojo.connect( this.outerTrackContainer, "mousedown", dojo.hitch( this, 'startRubberZoom', this.absXtoBp, this.scrollContainer )),
+                dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'    )
+            ];
+        },
+        remove: function( mgr, handles ) {
+            dojo.forEach( handles, dojo.disconnect, dojo );
+            dojo.removeClass(this.trackContainer,'rubberBandAvailable');
+            dojo.addClass(this.trackContainer,'draggable');
+        }
+    },
+
+    // mouse events that are connected when we are in the middle of a
+    // drag-scrolling operation
+    mouseDragScrolling: {
+        apply: function() {
+            return [
+                dojo.connect(document.body, "mouseup",   this, 'dragEnd'      ),
+                dojo.connect(document.body, "mousemove", this, 'dragMove'     ),
+                dojo.connect(document.body, "mouseout",  this, 'checkDragOut' )
+            ];
+        }
+    },
+
+    // mouse events that are connected when we are in the middle of a
+    // rubber-band zooming operation
+    mouseRubberBandZooming: {
+        apply: function() {
+            return [
+                dojo.connect(document.body, "mouseup",    this, 'rubberExecute'  ),
+                dojo.connect(document.body, "mousemove",  this, 'rubberMove'     ),
+                dojo.connect(document.body, "mouseout",   this, 'rubberCancel'   ),
+                dojo.connect(window,        "onkeydown",  this, 'rubberCancel'   )
+            ];
+        }
+    }
+};};
+
+/**
+ * Conducts a test with DOM elements to measure sequence text width
+ * and height.
+ */
+GenomeView.prototype.calculateSequenceCharacterSize = function( containerElement ) {
+    var widthTest = document.createElement("div");
+    widthTest.className = "sequence";
+    widthTest.style.visibility = "hidden";
+    var widthText = "12345678901234567890123456789012345678901234567890";
+    widthTest.appendChild(document.createTextNode(widthText));
+    containerElement.appendChild(widthTest);
+
+    var result = {
+        width:  widthTest.clientWidth / widthText.length,
+        height: widthTest.clientHeight
+    };
+
+    containerElement.removeChild(widthTest);
+    return result;
+};
+
+/**
+ * Conduct a DOM test to calculate the height of div.pos-label
+ * elements with a line of text in them.
+ */
+GenomeView.prototype.calculatePositionLabelHeight = function( containerElement ) {
+    // measure the height of some arbitrary text in whatever font this
+    // shows up in (set by an external CSS file)
+    var heightTest = document.createElement("div");
+    heightTest.className = "pos-label";
+    heightTest.style.visibility = "hidden";
+    heightTest.appendChild(document.createTextNode("42"));
+    containerElement.appendChild(heightTest);
+    var h = heightTest.clientHeight;
+    containerElement.removeChild(heightTest);
+    return h;
+};
+
+GenomeView.prototype.wheelScroll = function(e) {
+
+    // 60 pixels per mouse wheel event
+    this.setY( this.getY() - 60 * Util.wheel(e) );
+
+    //the timeout is so that we don't have to run showVisibleBlocks
+    //for every scroll wheel click (we just wait until so many ms
+    //after the last one).
+    if ( this.wheelScrollTimeout )
+        window.clearTimeout( this.wheelScrollTimeout );
+
+    // 100 milliseconds since the last scroll event is an arbitrary
+    // cutoff for deciding when the user is done scrolling
+    // (set by a bit of experimentation)
+    this.wheelScrollTimeout = window.setTimeout( dojo.hitch( this, function() {
+        this.showVisibleBlocks(true);
+        this.wheelScrollTimeout = null;
+    }, 100));
+
+    dojo.stopEvent(e);
+};
+
+GenomeView.prototype.getX = function() {
+    return this.x;
+};
+
+GenomeView.prototype.getY = function() {
+    return this.y;
+};
+
+GenomeView.prototype.clampX = function(x) {
+    return Math.round( Math.max( Math.min( this.maxLeft - this.offset, x),
+                                 this.minLeft - this.offset
+                               )
+                     );
+};
+
+GenomeView.prototype.clampY = function(y) {
+    return Math.round( Math.min( (y < 0 ? 0 : y),
+                                 this.containerHeight- this.dim.height
+                               )
+                     );
+};
+
+GenomeView.prototype.setX = function(x) {
+    x = this.clampX(x);
+    this.rawSetX( x );
+    this.updateTrackLabels( x );
+    this.showFine();
+};
+
+GenomeView.prototype.setY = function(y) {
+    y = this.clampY(y);
+    this.rawSetY(y);
+    this.updatePosLabels(y);
+};
+
+GenomeView.prototype.rawSetPosition = function(pos) {
+    this.rawSetX( pos.x );
+    this.rawSetY( pos.y );
+};
+
+GenomeView.prototype.setPosition = function(pos) {
+    var x = this.clampX( pos.x );
+    var y = this.clampY( pos.y );
+    this.updateTrackLabels( x );
+    this.updatePosLabels( y );
+    this.rawSetX( x );
+    this.rawSetY( y );
+    this.showFine();
+};
+
+GenomeView.prototype.getPosition = function() {
+    return { x: this.x, y: this.y };
+};
+
+GenomeView.prototype.zoomCallback = function() {
+    this.zoomUpdate();
+};
+
+GenomeView.prototype.afterSlide = function() {
+    this.showCoarse();
+    this.scrollUpdate();
+    this.showVisibleBlocks(true);
+};
+
+GenomeView.prototype.doubleClickZoom = function(event) {
+    if( this.dragging ) return;
+    if( "animation" in this ) return;
+
+    // if we have a timeout in flight from a scaleClicked click,
+    // cancel it, cause it looks now like the user has actually
+    // double-clicked
+    if( this.scaleClickedTimeout ) window.clearTimeout( this.scaleClickedTimeout );
+
+    var zoomLoc = (event.pageX - dojo.coords(this.elem, true).x) / this.dim.width;
+    if (event.shiftKey) {
+	this.zoomOut(event, zoomLoc, 2);
+    } else {
+	this.zoomIn(event, zoomLoc, 2);
+    }
+    dojo.stopEvent(event);
+};
+
+/** @private */
+GenomeView.prototype._beforeMouseDrag = function( event ) {
+    if ( this.animation ) {
+        if (this.animation instanceof Zoomer) {
+            dojo.stopEvent(event);
+            return 0;
+
+        } else {
+            this.animation.stop();
+        }
+    }
+    if (Util.isRightButton(event)) return 0;
+    dojo.stopEvent(event);
+    return 1;
+};
+
+/**
+ * Event fired when a user's mouse button goes down inside the main
+ * element of the genomeview.
+ */
+GenomeView.prototype.startMouseDragScroll = function(event) {
+    if( ! this._beforeMouseDrag(event) ) return;
+
+    this.behaviorManager.applyBehaviors('mouseDragScrolling');
+
+    this.dragging = true;
+    this.dragStartPos = {x: event.clientX,
+                         y: event.clientY};
+    this.winStartPos = this.getPosition();
+};
+
+/**
+ * Start a rubber-band dynamic zoom.
+ *
+ * @param {Function} absToBp function to convert page X coordinates to
+ *   base pair positions on the reference sequence.  Called in the
+ *   context of the GenomeView object.
+ * @param {HTMLElement} container element in which to draw the
+ *   rubberbanding highlight
+ * @param {Event} event the mouse event that's starting the zoom
+ */
+GenomeView.prototype.startRubberZoom = function( absToBp, container, event ) {
+    if( ! this._beforeMouseDrag(event) ) return;
+
+    this.behaviorManager.applyBehaviors('mouseRubberBandZooming');
+
+    this.rubberbanding = { absFunc: absToBp, container: container };
+    this.rubberbandStartPos = {x: event.clientX,
+                               y: event.clientY};
+    this.winStartPos = this.getPosition();
+};
+
+GenomeView.prototype._rubberStop = function(event) {
+    this.behaviorManager.removeBehaviors('mouseRubberBandZooming');
+    this.hideRubberHighlight();
+    dojo.stopEvent(event);
+};
+
+GenomeView.prototype.rubberCancel = function(event) {
+    var htmlNode = document.body.parentNode;
+    var bodyNode = document.body;
+
+    if ( !event || !(event.relatedTarget || event.toElement)
+        || (htmlNode === (event.relatedTarget || event.toElement))
+        || (bodyNode === (event.relatedTarget || event.toElement))) {
+        this._rubberStop(event);
+    }
+};
+
+GenomeView.prototype.rubberMove = function(event) {
+    this.setRubberHighlight( this.rubberbandStartPos, { x: event.clientX, y: event.clientY } );
+};
+
+GenomeView.prototype.rubberExecute = function(event) {
+    this._rubberStop(event);
+
+    var start = this.rubberbandStartPos;
+    var end   = { x: event.clientX, y: event.clientY };
+
+    // cancel the rubber-zoom if the user has moved less than 3 pixels
+    if( Math.abs( start.x - end.x ) < 3 ) {
+        return this._rubberStop(event);
+    }
+
+    var h_start_bp = this.rubberbanding.absFunc.call( this, Math.min(start.x,end.x) );
+    var h_end_bp   = this.rubberbanding.absFunc.call( this, Math.max(start.x,end.x) );
+    delete this.rubberbanding;
+    this.setLocation( this.ref, h_start_bp, h_end_bp );
+};
+
+// draws the rubber-banding highlight region from start.x to end.x
+GenomeView.prototype.setRubberHighlight = function( start, end ) {
+    var container = this.rubberbanding.container,
+        container_coords = dojo.coords(container,true);
+
+    var h = this.rubberHighlight || (function(){
+        var main = this.rubberHighlight = document.createElement("div");
+        main.className = 'rubber-highlight';
+        main.style.position = 'absolute';
+        main.style.zIndex = 1000;
+        var text = document.createElement('div');
+        text.appendChild( document.createTextNode("Zoom to region") );
+        main.appendChild(text);
+        text.style.position = 'relative';
+        text.style.top = (50-container_coords.y) + "px";
+
+        container.appendChild( main );
+        return main;
+    }).call(this);
+
+    h.style.visibility  = 'visible';
+    h.style.left   = Math.min(start.x,end.x) - container_coords.x + 'px';
+    h.style.width  = Math.abs(end.x-start.x) + 'px';
+    //console.log({ left: h.style.left, end: end.x });
+};
+
+GenomeView.prototype.dragEnd = function(event) {
+    this.behaviorManager.removeBehaviors('mouseDragScrolling');
+
+    this.dragging = false;
+    dojo.stopEvent(event);
+    this.showCoarse();
+
+    this.scrollUpdate();
+    this.showVisibleBlocks(true);
+};
+
+/** stop the drag if we mouse out of the view */
+GenomeView.prototype.checkDragOut = function( event ) {
+    var htmlNode = document.body.parentNode;
+    var bodyNode = document.body;
+
+    if (!(event.relatedTarget || event.toElement)
+        || (htmlNode === (event.relatedTarget || event.toElement))
+        || (bodyNode === (event.relatedTarget || event.toElement))
+       ) {
+           this.dragEnd(event);
+    }
+};
+
+GenomeView.prototype.dragMove = function(event) {
+    this.setPosition({
+    	x: this.winStartPos.x - (event.clientX - this.dragStartPos.x),
+    	y: this.winStartPos.y - (event.clientY - this.dragStartPos.y)
+        });
+    dojo.stopEvent(event);
+};
+
+GenomeView.prototype.hideRubberHighlight = function( start, end ) {
+    if( this.rubberHighlight ) {
+       this.rubberHighlight.parentNode.removeChild( this.rubberHighlight );
+       delete this.rubberHighlight;
+    }
+};
 
 /* moves the view by (distance times the width of the view) pixels */
 GenomeView.prototype.slide = function(distance) {
@@ -512,9 +587,6 @@ GenomeView.prototype.slide = function(distance) {
                this.afterSlide,
                Math.abs(distance) * this.dim.width * this.slideTimeMultiple + 200,
                distance * this.dim.width);
-};
-
-GenomeView.prototype.highlightRegions = function(regionList) {
 };
 
 GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
@@ -539,6 +611,8 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
         this.sizeInit();
         this.setY(0);
         this.containerHeight = this.topSpace;
+
+        this.behaviorManager.initialize();
     }
 
     this.pxPerBp = Math.min(this.dim.width / (endbp - startbp), this.charWidth);
@@ -635,6 +709,38 @@ GenomeView.prototype.showCoarse = function() {
 GenomeView.prototype.onFineMove = function() {};
 GenomeView.prototype.onCoarseMove = function() {};
 
+/**
+ * Event handler fired when the overview bar is single-clicked.
+ */
+GenomeView.prototype.overviewClicked = function( evt ) {
+    this.centerAtBase( this.overview_absXtoBp( evt.clientX ) );
+};
+
+/**
+ * Convert absolute X pixel position to base pair position on the
+ * <b>overview</b> track.  This needs refactoring; a scale bar should
+ * itself know how to convert an absolute X position to base pairs.
+ * @param {Number} x absolute pixel X position (for example, from a click event's clientX property)
+ */
+GenomeView.prototype.overview_absXtoBp = function(x) {
+    return ( x - this.overviewBox.x ) / this.overviewBox.w * (this.ref.end - this.ref.start) + this.ref.start;
+};
+
+/**
+ * Event handler fired when the track scale bar is single-clicked.
+ */
+GenomeView.prototype.scaleClicked = function( evt ) {
+    var bp = this.absXtoBp(evt.clientX);
+
+    this.scaleClickedTimeout = window.setTimeout( dojo.hitch( this, function() {
+        this.centerAtBase( bp );
+    },100));
+};
+
+/**
+ * Event handler fired when the region thumbnail in the overview bar
+ * is dragged.
+ */
 GenomeView.prototype.thumbMoved = function(mover) {
     var pxLeft = parseInt(this.locationThumb.style.left);
     var pxWidth = parseInt(this.locationThumb.style.width);
@@ -677,6 +783,15 @@ GenomeView.prototype.pxToBp = function(pixels) {
     return pixels / this.pxPerBp;
 };
 
+/**
+ * Convert absolute pixels X position to base pair position on the
+ * current reference sequence.
+ * @returns {Number}
+ */
+GenomeView.prototype.absXtoBp = function( /**Number*/ pixels) {
+    return this.pxToBp( this.getPosition().x + this.offset - dojo.coords(this.elem, true).x + pixels );
+};
+
 GenomeView.prototype.bpToPx = function(bp) {
     return bp * this.pxPerBp;
 };
@@ -684,7 +799,7 @@ GenomeView.prototype.bpToPx = function(bp) {
 GenomeView.prototype.sizeInit = function() {
     this.dim = {width: this.elem.clientWidth,
                 height: this.elem.clientHeight};
-    this.overviewBox = dojo.marginBox(this.overview);
+    this.overviewBox = dojo.coords(this.overview);
 
     //scale values, in pixels per bp, for all zoom levels
     this.zoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, this.charWidth];
@@ -811,7 +926,7 @@ GenomeView.prototype.overviewTrackIterate = function(callback) {
     var overviewTrack = this.overview.firstChild;
     do {
         if (overviewTrack && overviewTrack.track)
-	    callback(overviewTrack.track, this);
+	    callback.call( this, overviewTrack.track, this);
     } while (overviewTrack && (overviewTrack = overviewTrack.nextSibling));
 };
 
@@ -821,7 +936,7 @@ GenomeView.prototype.updateOverviewHeight = function(trackName, height) {
 	    overviewHeight += track.height;
 	});
     this.overview.style.height = overviewHeight + "px";
-    this.overviewBox = dojo.marginBox(this.overview);
+    this.overviewBox = dojo.coords(this.overview);
 };
 
 GenomeView.prototype.addOverviewTrack = function(track) {
@@ -892,12 +1007,11 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
                                                 / this.pxPerBp));
 	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp)));
 
-    var thisObj = this;
     // Zooms take an arbitrary 700 milliseconds, which feels about right
     // to me, although if the zooms were smoother they could probably
     // get faster without becoming off-putting. -MS
     new Zoomer(scale, this,
-               function() {thisObj.zoomUpdate(zoomLoc, fixedBp);},
+               function() {this.zoomUpdate(zoomLoc, fixedBp);},
                700, zoomLoc);
 };
 
@@ -932,12 +1046,11 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
 	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.dim.width) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.dim.width) / this.pxPerBp)));
     this.minLeft = this.pxPerBp * this.ref.start;
 
-    var thisObj = this;
     // Zooms take an arbitrary 700 milliseconds, which feels about right
     // to me, although if the zooms were smoother they could probably
     // get faster without becoming off-putting. -MS
     new Zoomer(scale, this,
-               function() {thisObj.zoomUpdate(zoomLoc, fixedBp);},
+               function() {this.zoomUpdate(zoomLoc, fixedBp);},
                700, zoomLoc);
 };
 
@@ -1094,7 +1207,7 @@ GenomeView.prototype.updateTrackList = function() {
     var tracks = [];
     // after a track has been dragged, the DOM is the only place
     // that knows the new ordering
-    var containerChild = this.zoomContainer.firstChild;
+    var containerChild = this.trackContainer.firstChild;
     do {
         // this test excludes UI tracks, whose divs don't have a track property
         if (containerChild.track) tracks.push(containerChild.track);
