@@ -28,6 +28,7 @@ var Browser = function(params) {
     dojo.require("dojo.dnd.move");
     dojo.require("dijit.layout.ContentPane");
     dojo.require("dijit.layout.BorderContainer");
+    dojo.require("dijit.Dialog");
 
     this.deferredFunctions = [];
     this.tracks = [];
@@ -661,11 +662,38 @@ Browser.prototype.visibleTracks = function() {
     return trackLabels.join(",");
 };
 
+Browser.prototype.makeHelpDialog = function () {
+
+    // make a div containing our help text
+    var helpdiv = document.createElement('div');
+    helpdiv.appendChild( document.createTextNode('hello world!'));
+    helpdiv.style.width = "600px";
+    helpdiv.style.display = 'none';
+    this.container.appendChild( helpdiv );
+
+    var dialog = new dijit.Dialog({
+        id: "help_dialog",
+        refocus:false,
+        title: "JBrowse Mouse and Keyboard Commands"
+    }, helpdiv );
+
+    // make a Help link that will show the dialog and set a handler on it
+    var helplink = document.createElement('a');
+    helplink.className = 'topLink';
+    helplink.title = 'Help';
+    helplink.style.cursor = 'help';
+    helplink.appendChild( document.createTextNode('Help'));
+    dojo.connect(helplink, 'onclick', function() { dialog.show(); });
+
+    return helplink;
+};
+
+
 Browser.prototype.makeBookmarkLink = function (area) {
     // don't make the link if we were explicitly passed a 'bookmark'
     // param of 'false'
     if( typeof this.config.bookmark != 'undefined' && !this.config.bookmark )
-        return;
+        return null;
 
     // if a function was not passed, make a default bookmarking function
     if( typeof this.config.bookmark != 'function' )
@@ -692,10 +720,7 @@ Browser.prototype.makeBookmarkLink = function (area) {
     if( fullview )
         this.link.target = "_blank";
     this.link.title = fullview ? "View in full browser" : "Bookmarkable link to this view";
-    this.link.appendChild( document.createTextNode( fullview ? "Full view" : "Link" ) );
-
-    // put it in the DOM
-    area.appendChild(this.link);
+    this.link.appendChild( document.createTextNode( fullview ? "Full view" : "Bookmark" ) );
 
     // connect moving events to update it
     var update_bookmark = function() {
@@ -704,6 +729,7 @@ Browser.prototype.makeBookmarkLink = function (area) {
     dojo.connect( this, "onCoarseMove",           update_bookmark );
     dojo.connect( this, "onVisibleTracksChanged", update_bookmark );
 
+    return this.link;
 };
 
 /**
@@ -753,7 +779,13 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     navbox.id = "navbox";
     parent.appendChild(navbox);
     navbox.style.cssText = "text-align: center; z-index: 10;";
-    brwsr.makeBookmarkLink( navbox );
+
+    var linkContainer = document.createElement('div');
+    linkContainer.className = 'topLink';
+    linkContainer.appendChild( this.makeBookmarkLink() );
+    linkContainer.appendChild( this.makeHelpDialog()   );
+
+    navbox.appendChild( linkContainer );
 
     var moveLeft = document.createElement("input");
     moveLeft.type = "image";

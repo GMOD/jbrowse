@@ -11,8 +11,8 @@ dependencies = (
                     "dojo.dnd.Mover",
                     "dojo.dnd.move",
                     "dijit.layout.ContentPane",
-                    "dijit.layout.BorderContainer"
-//                    "dijit.form.ComboBox"
+                    "dijit.layout.BorderContainer",
+                    "dijit.Dialog"
                 ],
                 layerDependencies: [],
                 name: "jbrowse_dojo.js",
