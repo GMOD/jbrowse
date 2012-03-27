@@ -762,6 +762,13 @@ input.nav {
     font-size: 9px !important;
 }
 
-div.helpDialog {
+#help_dialog {
     font-size: 12px;
+    width: 70%;
+}
+#help_dialog dl {
+    width: 48%;
+}
+#help_dialog dt {
+    font-weight: bold;
 }

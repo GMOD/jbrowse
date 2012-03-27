@@ -667,23 +667,30 @@ Browser.prototype.makeHelpDialog = function () {
     // make a div containing our help text
     var helpdiv = document.createElement('div');
     helpdiv.style.display = 'none';
-    helpdiv.innerHTML =
-          '<div class="helpDialog" style="float: left">'
-        + '<h2 style="margin-top: 0">Mouse Commands</h2>'
-        + '<dl>'
-        + '<dt>Track pane</dt>'
+    helpdiv.className = "helpDialog";
+    helpdiv.innerHTML = ''
+        + '<dl style="float: left">'
+        + '<dt>Moving</dt>'
         + '<dd><ul>'
-        + '    <li>Click and drag in the main pane to move the view</li>'
-        + '    <li>Shift-click and drag to highlight a region to zoom to</li> '
+        + '    <li>Clicking and draging in the track area moves the view</li>'
+        + '    <li>Clicking on either the overview bar or the track scale bar centers the view there</li>'
+        + '    <li>Shift-clicking in the track area centers the view there</li>'
+        + '</ul></dd>'
+        + '<dt>Zooming</dt>'
+        + '<dd><ul>'
+        + '    <li>Clicking the "+" and "-" buttons in the navigation bar zooms the view in and out</li>'
+        + '    <li>Clicking and dragging in the overview or the track scale bar zooms to the region you select</li>'
+        + '    <li>Shift-clicking and dragging in the track area also zooms to the region you select</li>'
         + '    </ul>'
         + '</dd>'
-        + '<dt>Overview and scale bars</dt>'
+        + '</dl>'
+        + '<dl style="float: right">'
+        + '<dt>Searching</dt>'
         + '<dd><ul>'
-        + '    <li>Click to center the view at that region</li>'
-        + '    <li>Click and drag to highlight a region to zoom to</li>'
-        + '    </ul>'
-        + '</dd>'
-        + '</div>'
+        + '<li>Type the name of a feature or reference sequence in the search box to jump there</li>'
+        + '<li>Type a reference sequence name, optionally including a region, to jump to that region</li>'
+        + '</ul></dd>'
+        + '</dl>'
         ;
     this.container.appendChild( helpdiv );
 
