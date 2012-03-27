@@ -743,6 +743,9 @@ div.overview .rubber-highlight {
     top: -5px;
     height: 20px;
 }
+div.overview .rubber-highlight * {
+    display: none;
+}
 
 .icon.nav {
     height: 30px !important;
