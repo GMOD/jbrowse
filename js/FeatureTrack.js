@@ -434,16 +434,6 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
 
     var featureEnd = feature.get('end');
     var featureStart = feature.get('start');
-    if (this.config.style.arrowheadClass) {
-        switch ( feature.get('strand') ) {
-        case 1:
-        case '+':
-            featureEnd   += (this.plusArrowWidth / scale); break;
-        case -1:
-        case '-':
-            featureStart -= (this.minusArrowWidth / scale); break;
-        }
-    }
 
     var levelHeight = this.glyphHeight + 2;
 
@@ -501,27 +491,33 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     var displayStart = Math.max( feature.get('start'), containerStart );
     var displayEnd = Math.min( feature.get('end'), containerEnd );
     var blockWidth = block.endBase - block.startBase;
+    var featwidth = (100 * ((displayEnd - displayStart) / blockWidth));
     featDiv.style.cssText =
         "left:" + (100 * (displayStart - block.startBase) / blockWidth) + "%;"
         + "top:" + top + "px;"
-        + " width:" + (100 * ((displayEnd - displayStart) / blockWidth)) + "%;"
+        + " width:" + featwidth + "%;"
         + (this.config.style.featureCss ? this.config.style.featureCss : "");
 
-    if (this.config.style.arrowheadClass) {
+    if ( this.config.style.arrowheadClass ) {
         var ah = document.createElement("div");
+        var featwidth_px = featwidth/100*blockWidth*scale;
         switch (strand) {
         case 1:
         case '+':
-            ah.className = "plus-" + this.config.style.arrowheadClass;
-            ah.style.cssText = "left: 100%; top: 0px;";
-            featDiv.appendChild(ah);
+            if( featwidth_px > this.plusArrowWidth*1.1 ) {
+                ah.className = "plus-" + this.config.style.arrowheadClass;
+                ah.style.cssText = "position: absolute; right: 0px; top: 0px; z-index: 100;";
+                featDiv.appendChild(ah);
+            }
             break;
         case -1:
         case '-':
-            ah.className = "minus-" + this.config.style.arrowheadClass;
-            ah.style.cssText =
-                "left: " + (-this.minusArrowWidth) + "px; top: 0px;";
-            featDiv.appendChild(ah);
+            if( featwidth_px > this.minusArrowWidth*1.1 ) {
+                ah.className = "minus-" + this.config.style.arrowheadClass;
+                ah.style.cssText =
+                    "position: absolute; left: 0px; top: 0px; z-index: 100;";
+                featDiv.appendChild(ah);
+            }
             break;
         }
     }

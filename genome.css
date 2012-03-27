@@ -596,7 +596,8 @@ div.transcript-hist {
     cursor: pointer;
 }
 
-.plus-transcript-arrowhead {
+.plus-transcript-arrowhead,
+.plus-arrowhead {
     position: absolute;
 /*  border stuff seems slow
     height: 0px;
@@ -606,13 +607,14 @@ div.transcript-hist {
     border-color: white white white #999;
     border-width: 6px 0px 6px 10px; */
     margin-top: -4px;
-    width: 12px;
+    width: 7px;
     height: 12px;
-    background-image: url('img/plus-transcript-head.png');
+    background-image: url('img/plus-arrowhead.png');
     background-repeat: no-repeat;
 }
 
-.minus-transcript-arrowhead {
+.minus-transcript-arrowhead,
+.minus-arrowhead {
     position: absolute;
 /*  border stuff seems slow
     height: 0px;
@@ -622,9 +624,9 @@ div.transcript-hist {
     border-color: white #999 white white;
     border-width: 6px 10px 6px 0px; */
     margin-top: -4px;
-    width: 12px;
+    width: 7px;
     height: 12px;
-    background-image: url('img/minus-transcript-head.png');
+    background-image: url('img/minus-arrowhead.png');
     background-repeat: no-repeat;
 }
 
