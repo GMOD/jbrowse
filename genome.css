@@ -761,3 +761,7 @@ div.overview .rubber-highlight * {
 input.nav {
     font-size: 9px !important;
 }
+
+div.helpDialog {
+    font-size: 12px;
+}

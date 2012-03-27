@@ -666,15 +666,32 @@ Browser.prototype.makeHelpDialog = function () {
 
     // make a div containing our help text
     var helpdiv = document.createElement('div');
-    helpdiv.appendChild( document.createTextNode('hello world!'));
-    helpdiv.style.width = "600px";
     helpdiv.style.display = 'none';
+    helpdiv.innerHTML =
+          '<div class="helpDialog" style="float: left">'
+        + '<h2 style="margin-top: 0">Mouse Commands</h2>'
+        + '<dl>'
+        + '<dt>Track pane</dt>'
+        + '<dd><ul>'
+        + '    <li>Click and drag in the main pane to move the view</li>'
+        + '    <li>Shift-click and drag to highlight a region to zoom to</li> '
+        + '    </ul>'
+        + '</dd>'
+        + '<dt>Overview and scale bars</dt>'
+        + '<dd><ul>'
+        + '    <li>Click to center the view at that region</li>'
+        + '    <li>Click and drag to highlight a region to zoom to</li>'
+        + '    </ul>'
+        + '</dd>'
+        + '</div>'
+        ;
     this.container.appendChild( helpdiv );
 
     var dialog = new dijit.Dialog({
         id: "help_dialog",
-        refocus:false,
-        title: "JBrowse Mouse and Keyboard Commands"
+        refocus: false,
+        draggable: false,
+        title: "JBrowse Help"
     }, helpdiv );
 
     // make a Help link that will show the dialog and set a handler on it
