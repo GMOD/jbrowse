@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Arrowheads indicating strandedness are now drawn inside feature
+   boundaries.
+
  * Added support for "rubberband" dynamic zooming, in which users can
    click and drag to select a region to zoom to.  Dragging on any
    scale bar, or shift-dragging on the main track pane, triggers a
