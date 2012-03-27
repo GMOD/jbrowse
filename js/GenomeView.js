@@ -513,7 +513,9 @@ GenomeView.prototype.rubberExecute = function(event) {
 
 // draws the rubber-banding highlight region from start.x to end.x
 GenomeView.prototype.setRubberHighlight = function( start, end ) {
-    var container = this.rubberbanding.container;
+    var container = this.rubberbanding.container,
+        container_coords = dojo.coords(container,true);
+
     var h = this.rubberHighlight || (function(){
         var main = this.rubberHighlight = document.createElement("div");
         main.className = 'rubber-highlight';
@@ -522,12 +524,15 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
         var text = document.createElement('div');
         text.appendChild( document.createTextNode("Zoom to region") );
         main.appendChild(text);
+        text.style.position = 'relative';
+        text.style.top = (50-container_coords.y) + "px";
+
         container.appendChild( main );
         return main;
     }).call(this);
 
     h.style.visibility  = 'visible';
-    h.style.left   = Math.min(start.x,end.x) - dojo.coords(container, true).x + 'px';
+    h.style.left   = Math.min(start.x,end.x) - container_coords.x + 'px';
     h.style.width  = Math.abs(end.x-start.x) + 'px';
     //console.log({ left: h.style.left, end: end.x });
 };
