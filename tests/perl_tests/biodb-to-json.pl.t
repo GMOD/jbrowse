@@ -7,12 +7,14 @@ use File::Spec::Functions 'catfile';
 use File::Temp;
 use File::Copy::Recursive 'dircopy';
 
-use JsonGenerator;
+use lib 'tests/perl_tests/lib';
+use FileSlurping 'slurp';
+
 
 { # test volvox
 
     my $tempdir   = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
-    my $read_json = sub { JsonGenerator::readJSON( catfile( $tempdir, @_ ) ) };
+    my $read_json = sub { slurp( $tempdir, @_ ) };
 
     dircopy( 'tests/data/volvox_formatted_refseqs', $tempdir );
 
@@ -26,6 +28,21 @@ use JsonGenerator;
 
     my $hist_output = $read_json->(qw( tracks Transcript ctgA hist-100000-0.json ));
     is_deeply( $hist_output, [1], 'got right histogram output' ) or diag explain( $hist_output );
+
+    my $genes_trackdata = $read_json->(qw( tracks Genes ctgA trackData.json ));
+    is_deeply(
+        $genes_trackdata->{intervals}{nclist}[0],
+        [
+            0,
+            1049,
+            9000,
+            1,
+            'example',
+            'EDEN',
+            'EDEN'
+        ],
+        'got the right genes trackdata'
+      ) or diag explain $genes_trackdata->{intervals}{nclist}[0];
 
     my $tracklist = $read_json->('trackList.json');
     is_deeply( $tracklist,
@@ -242,10 +259,74 @@ use JsonGenerator;
     ok( ! $?, 'generate-names.pl also ran ok with the --out option' );
 }
 
+
+
+{ # test volvox compressed
+
+    my $tempdir   = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
+    my $read_json = sub { slurp( $tempdir, @_ ) };
+
+    dircopy( 'tests/data/volvox_formatted_refseqs', $tempdir );
+
+    diag "writing output to $tempdir";
+    system $^X, 'bin/biodb-to-json.pl', (
+        '--quiet',
+        '--compress',
+        '--conf'  => 'sample_data/raw/volvox.json',
+        '--out'   => "$tempdir",
+      );
+    ok( ! $?, 'biodb-to-json.pl ran ok' );
+
+    my $hist_output = $read_json->(qw( tracks Transcript ctgA hist-100000-0.jsonz ));
+    is_deeply( $hist_output, [1], 'got right histogram output' ) or diag explain( $hist_output );
+
+    my $genes_trackdata = $read_json->(qw( tracks Genes ctgA trackData.jsonz ));
+    is_deeply(
+        $genes_trackdata->{intervals}{nclist}[0],
+        [
+            0,
+            1049,
+            9000,
+            1,
+            'example',
+            'EDEN',
+            'EDEN'
+        ],
+        'got the right genes trackdata'
+      ) or diag explain $genes_trackdata->{intervals}{nclist}[0];
+
+    my $names_output = $read_json->(qw( tracks Transcript ctgA names.json ));
+    is_deeply( $names_output,
+               [
+                   [
+                       [ 'Apple3' ],
+                       'Transcript',
+                       'Apple3',
+                       'ctgA',
+                       '17399',
+                       '23000',
+                       '192'
+                   ]
+               ],
+               'got the right names output'
+               ) or diag explain $names_output;
+
+    system $^X, 'bin/generate-names.pl', (
+        '--dir'   => "$tempdir",
+      );
+    ok( ! $?, 'generate-names.pl ran ok' );
+
+    system $^X, 'bin/generate-names.pl', (
+        '--out'   => "$tempdir",
+      );
+    ok( ! $?, 'generate-names.pl also ran ok with the --out option' );
+}
+
+
 { # test yeast
 
     my $tempdir   = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
-    my $read_json = sub { JsonGenerator::readJSON( catfile( $tempdir, @_ ) ) };
+    my $read_json = sub { slurp( $tempdir, @_ ) };
 
     system $^X, 'bin/prepare-refseqs.pl', (
         '--fasta' => 'sample_data/raw/yeast_scaffolds/chr1.fa.gz',
@@ -254,6 +335,7 @@ use JsonGenerator;
         );
 
     system $^X, 'bin/biodb-to-json.pl', (
+        '--quiet',
         '--conf'  => 'sample_data/raw/yeast.json',
         '--out'   => "$tempdir",
       );
