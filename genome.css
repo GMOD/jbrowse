@@ -772,11 +772,16 @@ input.nav {
 #help_dialog ul {
     padding-left: 0;
 }
-#help_dialog dl.main {
-    width: 48%;
+#help_dialog div.main {
+    width: 49%;
+}
+#help_dialog div.main > dl {
+    width: 90%;
+    margin: 0 auto 1em auto;
 }
 #help_dialog dt {
     font-weight: bold;
+    margin-top: 1em;
 }
 #help_dialog dd {
     margin-left: 2em;

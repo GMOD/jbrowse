@@ -670,7 +670,9 @@ Browser.prototype.makeHelpDialog = function () {
     helpdiv.style.display = 'none';
     helpdiv.className = "helpDialog";
     helpdiv.innerHTML = ''
-        + '<dl class="main" style="float: left">'
+        + '<div class="main" style="float: left">'
+
+        + '<dl>'
         + '<dt>Moving</dt>'
         + '<dd><ul>'
         + '    <li>Move the view by clicking and dragging in the track area, or by clicking <img height="20px" src="'+browserRoot+'img/slide-left.png"> or <img height="20px"  src="'+browserRoot+'img/slide-right.png"> in the navigation bar.</li>'
@@ -682,8 +684,16 @@ Browser.prototype.makeHelpDialog = function () {
         + '    <li>Select a region and zoom to it ("rubber-band" zoom) by clicking and dragging in the overview or track scale bar, or shift-clicking and dragging in the track area.</li>'
         + '    </ul>'
         + '</dd>'
+        + '<dt>Selecting Tracks</dt>'
+        + '<dd><ul><li>Turn a track off by dragging its track label from the "Available Tracks" area into the track area.</li>'
+        + '        <li>Turn a track on by dragging its track label from the track area back into the "Available Tracks" area.</li>'
+        + '    </ul>'
+        + '</dd>'
         + '</dl>'
-        + '<dl class="main" style="float: right">'
+        + '</div>'
+
+        + '<div class="main" style="float: right">'
+        + '<dl>'
         + '<dt>Searching</dt>'
         + '<dd><ul>'
         + '    <li>Jump to a feature or reference sequence by typing its name in the search box and pressing Enter.</li>'
@@ -698,14 +708,15 @@ Browser.prototype.makeHelpDialog = function () {
         + '        <dt>chr4:79,500,000..80,000,000</dt><dd>jumps the region on chromosome 4 between 79.5Mb and 80Mb.</dd>'
         + '    </dl>'
         + '</dd>'
-        + '</dl>'
-        + '<dl class="main" style="width: 100%; clear: both">'
-        + '<dt>Selecting Tracks</dt>'
-        + '<dd><ul><li>Turn a track off by dragging its track label from the "Available Tracks" area into the track area.</li>'
-        + '        <li>Turn a track on by dragging its track label from the track area back into the "Available Tracks" area.</li>'
+        + '<dt>JBrowse setup</dt>'
+        + '<dd><ul><li><a target="_blank" href="docs/tutorial/">Setup tutorial</a></li>'
+        + '        <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse wiki</a></li>'
+        + '        <li><a target="_blank" href="docs/config.html">Configuration reference</a></li>'
+        + '        <li><a target="_blank" href="docs/featureglyphs.html">Feature glyph reference</a></li>'
         + '    </ul>'
         + '</dd>'
         + '</dl>'
+        + '</div>'
         ;
     this.container.appendChild( helpdiv );
 
