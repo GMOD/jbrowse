@@ -708,6 +708,13 @@ Browser.prototype.makeHelpDialog = function () {
     helplink.style.cursor = 'help';
     helplink.appendChild( document.createTextNode('Help'));
     dojo.connect(helplink, 'onclick', function() { dialog.show(); });
+    dojo.connect(document.body,  'onkeydown', function() { dialog.hide(); } );
+    dojo.connect(document.body,  'onkeypress', function( evt ) {
+        if( evt.keyChar == '?' )
+            dialog.show();
+        else
+            dialog.hide();
+    });
 
     return helplink;
 };
