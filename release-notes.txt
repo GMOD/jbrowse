@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+ * Server-side data-formatting scripts now support a --compress option
+   to compress (gzip) feature and sequence data to conserve server
+   disk space.  Using this option requires some web server
+   configuration, see the GMOD wiki for details.
+
  * A new "Help" link in the upper right, or pressing "?" on the
    keyboard, brings up a "JBrowse Help" dialog box with basic usage
    information and links to more help information.
