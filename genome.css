@@ -37,6 +37,9 @@ div.dragWindow {
     cursor: crosshair;
 }
 
+#navbox {
+}
+
 div.locationTrap {
     position: absolute;
     background-color: #ccc;
@@ -766,9 +769,20 @@ input.nav {
     font-size: 12px;
     width: 70%;
 }
-#help_dialog dl {
+#help_dialog ul {
+    padding-left: 0;
+}
+#help_dialog dl.main {
     width: 48%;
 }
 #help_dialog dt {
     font-weight: bold;
+}
+#help_dialog dd {
+    margin-left: 2em;
+}
+#help_dialog dl dl.searchexample dt,
+#help_dialog span.example {
+    font-weight: normal;
+    font-family: monospace;
 }
