@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * A new "Help" link in the upper right, or pressing "?" on the
+   keyboard, brings up a "JBrowse Help" dialog box with basic usage
+   information and links to more help information.
+
  * Arrowheads indicating strandedness are now drawn inside feature
    boundaries.
 
