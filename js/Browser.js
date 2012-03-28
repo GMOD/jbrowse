@@ -723,11 +723,14 @@ Browser.prototype.makeHelpDialog = function () {
     helplink.style.cursor = 'help';
     helplink.appendChild( document.createTextNode('Help'));
     dojo.connect(helplink, 'onclick', function() { dialog.show(); });
-    dojo.connect(document.body,  'onkeydown', function() { dialog.hide(); } );
+    dojo.connect(document.body,  'onkeydown', function( evt ) {
+        if( evt.keyCode != dojo.keys.SHIFT && evt.keyCode != dojo.keys.CTRL && evt.keyCode != dojo.keys.ALT )
+            dialog.hide();
+    });
     dojo.connect(document.body,  'onkeypress', function( evt ) {
         if( evt.keyChar == '?' )
             dialog.show();
-        else
+        else if( evt.keyCode != dojo.keys.SHIFT && evt.keyCode != dojo.keys.CTRL && evt.keyCode != dojo.keys.ALT )
             dialog.hide();
     });
 
