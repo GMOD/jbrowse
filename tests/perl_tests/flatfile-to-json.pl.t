@@ -10,7 +10,8 @@ use File::Spec::Functions 'catfile';
 use File::Temp ();
 use File::Copy::Recursive 'dircopy';
 
-use JsonGenerator;
+use lib 'tests/perl_tests/lib';
+use FileSlurping 'slurp';
 
 sub run_with(@) {
     #system $^X, 'bin/flatfile-to-json.pl', @_;
@@ -27,7 +28,7 @@ sub tempdir {
 {  #diag "running on volvox";
 
     my $tempdir = tempdir();
-    my $read_json = sub { JsonGenerator::readJSON( catfile( $tempdir, @_ ) ) };
+    my $read_json = sub { slurp( $tempdir, @_ ) };
     dircopy( 'tests/data/volvox_formatted_refseqs', $tempdir );
 
     run_with (
@@ -52,6 +53,7 @@ sub tempdir {
         '--type' => 'CDS:predicted,mRNA:exonerate,mRNA:predicted',
         '--autocomplete' => 'all',
         '--cssClass' => 'cds',
+        '--compress',
         '--getPhase',
         '--getSubfeatures',
         );
@@ -75,7 +77,7 @@ sub tempdir {
                'got the right names output'
                ) or diag explain $names_output;
 
-    my $cds_trackdata = $read_json->(qw( tracks CDS ctgA trackData.json ));
+    my $cds_trackdata = $read_json->(qw( tracks CDS ctgA trackData.jsonz ));
     is( $cds_trackdata->{featureCount}, 3, 'got right feature count for CDS track' ) or diag explain $cds_trackdata;
     is( ref $cds_trackdata->{intervals}{nclist}[2][9], 'ARRAY', 'exonerate mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
@@ -113,7 +115,7 @@ sub tempdir {
 
     #system "find $tempdir";
 
-    my $read_json = sub { JsonGenerator::readJSON( catfile( $tempdir, @_ ) ) };
+    my $read_json = sub { slurp( $tempdir, @_ ) };
     my $cds_trackdata = $read_json->(qw( tracks AU_mRNA Group1.33 trackData.json ));
     is( $cds_trackdata->{featureCount}, 1, 'got right feature count' ) or diag explain $cds_trackdata;
     is( ref $cds_trackdata->{intervals}{nclist}[0][9], 'ARRAY', 'mRNA has its subfeatures' )
@@ -140,7 +142,7 @@ sub tempdir {
 
     #system "find $tempdir";
 
-    my $read_json = sub { JsonGenerator::readJSON( catfile( $tempdir, @_ ) ) };
+    my $read_json = sub { slurp( $tempdir, @_ ) };
     my $cds_trackdata = $read_json->(qw( tracks AU_mRNA Group1.33 trackData.json ));
     is( $cds_trackdata->{featureCount}, 1, 'got right feature count' ) or diag explain $cds_trackdata;
     is( ref $cds_trackdata->{intervals}{nclist}[0][9], 'ARRAY', 'gene has its subfeatures' )
@@ -167,7 +169,7 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
         '--trackLabel' => 'au9_full1',
         );
 
-    my $read_json = sub { JsonGenerator::readJSON( catfile( $tempdir, @_ ) ) };
+    my $read_json = sub { slurp( $tempdir, @_ ) };
     my $cds_trackdata = $read_json->(qw( tracks au9_full1 Group1.33 trackData.json ));
     is( $cds_trackdata->{featureCount}, 28, 'got right feature count' ) or diag explain $cds_trackdata;
     is( scalar @{$cds_trackdata->{intervals}{classes}}, 3, 'got the right number of classes' )
