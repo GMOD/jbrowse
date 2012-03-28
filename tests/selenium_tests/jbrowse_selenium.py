@@ -11,7 +11,7 @@ from selenium.webdriver.support.ui  import Select
 
 class JBrowseTest (object):
 
-    base_url = "file://%s/index.html" % os.getcwd()
+    base_url = os.environ['JBROWSE_URL'] if 'JBROWSE_URL' in os.environ else "file://"+os.getcwd()+"/index.html"
     data_dir = None
 
     ## TestCase overrides
