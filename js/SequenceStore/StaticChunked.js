@@ -13,6 +13,7 @@ SequenceStore.StaticChunked = function(args) {
 
     this.chunkCache  = {};
 
+    this.compress    = args.compress;
     this.urlTemplate = args.urlTemplate;
     this.baseUrl     = args.baseUrl;
 };
@@ -88,7 +89,7 @@ SequenceStore.StaticChunked.prototype.getRange = function( seq, start, end, call
                                                      {'refseq': seq.name} ));
 
             dojo.xhrGet({
-                            url: sequrl + i + ".txt",
+                            url: sequrl + i + ".txt" + ( this.compress ? 'z' : '' ),
                             load: function (response) {
                                 var ci;
                                 chunk.sequence = response;

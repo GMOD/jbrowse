@@ -36,7 +36,8 @@ function SequenceTrack(config, refSeq, browserParams) {
     // being instantiated here
     this.sequenceStore = new SequenceStore.StaticChunked({
                                baseUrl: config.baseUrl,
-                               urlTemplate: config.urlTemplate
+                               urlTemplate: config.urlTemplate,
+                               compress: config.compress
                              });
 
     this.setLoaded();
