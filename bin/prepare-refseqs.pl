@@ -45,6 +45,12 @@ Do not write out the actual sequence bases, just the sequence metadata.
 
 Output only sequences with the given names or (database-dependent) IDs.
 
+=item --compress
+
+If passed, compress the reference sequences with gzip, making the
+chunks be .txt.gz.  NOTE: this requires a bit of additional web server
+configuration to be served correctly.
+
 =back
 
 =cut
@@ -63,11 +69,12 @@ use lib "$Bin/../lib";
 use JsonGenerator;
 use FastaDatabase;
 
-my $chunkSize = 20000;
 my ($confFile, $noSeq, $gff, @fasta, $refs, $refids);
+my $chunkSize = 20000;
 my $outDir = "data";
 my $seqTrackName = "DNA";
 my $help;
+my $compress;
 GetOptions("out=s" => \$outDir,
            "conf=s" => \$confFile,
            "noseq" => \$noSeq,
@@ -75,11 +82,14 @@ GetOptions("out=s" => \$outDir,
            "fasta=s" => \@fasta,
 	   "refs=s" => \$refs,
            "refids=s" => \$refids,
+           "compress" => \$compress,
            "help|h|?" => \$help,
            ) or pod2usage();
 pod2usage( -verbose => 2 ) if $help;
 pod2usage( 'must provide either a --fasta, --gff, or --conf option' )
     unless defined $gff || defined $confFile || @fasta;
+
+$chunkSize *= 4 if $compress;
 
 # $seqRel is the path relative to $outDir
 my $seqRel = "seq";
@@ -154,7 +164,7 @@ if (defined($gff)) {
 
             unless ($noSeq) {
                 my $refDir = catdir($seqDir,$refInfo->{name});
-                exportSeqChunks($refDir, $chunkSize, $db,
+                exportSeqChunks($refDir, $compress, $chunkSize, $db,
                                 [-db_id => $refid],
                                 $seg->start, $seg->end);
                 $refInfo->{"seqDir"} = $refDir;
@@ -182,12 +192,13 @@ if (defined($gff)) {
                 name => refName($seg),
                 start => $seg->start - 1,
                 end => $seg->end,
-                length => $seg->length
+                length => $seg->length,
+                ( $compress ? ( 'compress' => 1 ) : () ),
             };
 
             unless ($noSeq) {
                 my $refDir = catdir( $seqDir, $refInfo->{"name"} );
-                exportSeqChunks($refDir, $chunkSize, $db,
+                exportSeqChunks($refDir, $compress, $chunkSize, $db,
                                 [-name => $ref],
                                 $seg->start, $seg->end);
                 $refInfo->{"seqDir"} = catdir( $seqRel, $refInfo->{"name"} );
@@ -249,6 +260,7 @@ unless ($noSeq) {
                                        'type' => "SequenceTrack",
                                        'chunkSize' => $chunkSize,
                                        'urlTemplate' => "$seqRel/{refseq}/",
+                                       ( $compress ? ( 'compress' => 1 ): () ),
                                       };
                                     return $trackList;
                             });
@@ -267,7 +279,7 @@ sub refName {
 }
 
 sub exportSeqChunks {
-    my ($dir, $len, $db, $segDef, $start, $end) = @_;
+    my ($dir, $compress, $len, $db, $segDef, $start, $end) = @_;
 
     mkdir $dir unless -d $dir;
     $start = 1 if $start < 1;
@@ -292,8 +304,8 @@ sub exportSeqChunks {
         $chunkStart = $chunkEnd + 1;
         next unless $seg && $seg->seq && $seg->seq->seq;
 
-        my $path = File::Spec->catfile( "$dir", "$chunkNum.txt" );
-        open my $chunkfile, '>', $path or die "$! writing $path";
+        my $path = File::Spec->catfile( "$dir", "$chunkNum.txt" .( $compress ? ".gz" : '' ));
+        open my $chunkfile, '>'.($compress ? ':gzip' : ''), $path or die "$! writing $path";
         $chunkfile->print( $seg->seq->seq );
     }
 }
