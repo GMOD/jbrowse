@@ -62,15 +62,19 @@ sub new {
 
     mkpath( $outDir ) unless (-d $outDir);
 
-    if( $compress ) {
+    return $self;
+}
+
+sub _write_htaccess {
+    my ( $self ) = @_;
+    if( $self->{compress} && ! $self->{htaccess_written} ) {
         require IO::File;
         require GenomeDB;
-        my $hn = File::Spec->catfile( $outDir, '.htaccess' );
+        my $hn = File::Spec->catfile( $self->{outDir}, '.htaccess' );
         open my $h, '>', $hn or die "$! writing $hn";
         $h->print( GenomeDB->precompression_htaccess( '.jsonz', '.txtz', '.txt.gz' ));
+        $self->{htaccess_written} = 1;
     }
-
-    return $self;
 }
 
 =head2 fullPath( 'path/to/file.json' )
@@ -112,6 +116,8 @@ sub encodedSize {
 
 sub put {
     my ($self, $path, $toWrite) = @_;
+
+    $self->_write_htaccess;
 
     my $file = $self->fullPath($path);
     my $fh = new IO::File $file, O_WRONLY | O_CREAT
@@ -159,6 +165,8 @@ sub get {
 
 sub modify {
     my ($self, $path, $callback) = @_;
+
+    $self->_write_htaccess;
 
     my $file = $self->fullPath($path);
     my ($data, $assign);
