@@ -665,6 +665,7 @@ Browser.prototype.visibleTracks = function() {
 Browser.prototype.makeHelpDialog = function () {
 
     // make a div containing our help text
+    var browserRoot = this.config.browserRoot || "";
     var helpdiv = document.createElement('div');
     helpdiv.style.display = 'none';
     helpdiv.className = "helpDialog";
@@ -672,12 +673,12 @@ Browser.prototype.makeHelpDialog = function () {
         + '<dl class="main" style="float: left">'
         + '<dt>Moving</dt>'
         + '<dd><ul>'
-        + '    <li>Move the view by clicking and dragging in the track area, or clicking the left and right scrolling buttons in the navigation bar.</li>'
+        + '    <li>Move the view by clicking and dragging in the track area, or by clicking <img height="20px" src="'+browserRoot+'img/slide-left.png"> or <img height="20px"  src="'+browserRoot+'img/slide-right.png"> in the navigation bar.</li>'
         + '    <li>Center the view at a point by clicking on either the track scale bar or overview bar, or by shift-clicking in the track area.</li>'
         + '</ul></dd>'
         + '<dt>Zooming</dt>'
         + '<dd><ul>'
-        + '    <li>Zoom in and out by clicking the "+" and "-" buttons in the navigation bar.</li>'
+        + '    <li>Zoom in and out by clicking <img height="20px" src="'+browserRoot+'img/zoom-in-1.png"> or <img height="20px"  src="'+browserRoot+'img/zoom-out-1.png"> in the navigation bar.</li>'
         + '    <li>Select a region and zoom to it ("rubber-band" zoom) by clicking and dragging in the overview or track scale bar, or shift-clicking and dragging in the track area.</li>'
         + '    </ul>'
         + '</dd>'
