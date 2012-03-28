@@ -66,7 +66,7 @@ div.topLink {
     right: 0;
     z-index: 25;
     background: white;
-    border: 1px solid #bbb;
+    border: 1px solid #888;
     border-width: 0 0 1px 1px;
 }
 
@@ -80,7 +80,7 @@ div.overview {
     width: 100%;
     border-style: solid;
     border-width: 5px 0px 5px 0px;
-    border-color: #aaa;
+    border-color: #bbb;
     color:#aaa;
     text-align: center;
     z-index: -5;
