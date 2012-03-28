@@ -67,7 +67,7 @@ system $^X, 'bin/prepare-refseqs.pl', (
 
 ok( !$?, 'yeast genbank formatting ran OK' );
 
-@chunks = glob("$tempdir/seq/NC_001133/*.txt.gz");
+@chunks = glob("$tempdir/seq/NC_001133/*.txtz");
 is( scalar @chunks, 3, 'see 3 COMPRESSED seq chunks' );
 
 done_testing;

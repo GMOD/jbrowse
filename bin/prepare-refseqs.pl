@@ -304,7 +304,7 @@ sub exportSeqChunks {
         $chunkStart = $chunkEnd + 1;
         next unless $seg && $seg->seq && $seg->seq->seq;
 
-        my $path = File::Spec->catfile( "$dir", "$chunkNum.txt" .( $compress ? ".gz" : '' ));
+        my $path = File::Spec->catfile( "$dir", "$chunkNum.txt" .( $compress ? 'z' : '' ));
         open my $chunkfile, '>'.($compress ? ':gzip' : ''), $path or die "$! writing $path";
         $chunkfile->print( $seg->seq->seq );
     }
