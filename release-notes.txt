@@ -3,7 +3,19 @@
  * Server-side data-formatting scripts now support a --compress option
    to compress (gzip) feature and sequence data to conserve server
    disk space.  Using this option requires some web server
-   configuration, see the GMOD wiki for details.
+   configuration.  Under Apache, AllowOverride FileInfo (or
+   AllowOverride All) must be set for the JBrowse data directories in
+   order to use the included .htaccess files, and mod_headers and
+   mod_setenvif must be installed and enabled.  Under nginx a
+   configuration snippet like the following should be included in the
+   configuration:
+
+      location ~* "\.(json|txt)z$" {
+               add_header Content-Encoding  gzip;
+               gzip off;
+               types { application/json jsonz; }
+      }
+
 
  * A new "Help" link in the upper right, or pressing "?" on the
    keyboard, brings up a "JBrowse Help" dialog box with basic usage
