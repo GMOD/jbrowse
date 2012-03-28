@@ -28,6 +28,7 @@ var Browser = function(params) {
     dojo.require("dojo.dnd.move");
     dojo.require("dijit.layout.ContentPane");
     dojo.require("dijit.layout.BorderContainer");
+    dojo.require("dijit.Dialog");
 
     this.deferredFunctions = [];
     this.tracks = [];
@@ -661,11 +662,98 @@ Browser.prototype.visibleTracks = function() {
     return trackLabels.join(",");
 };
 
+Browser.prototype.makeHelpDialog = function () {
+
+    // make a div containing our help text
+    var browserRoot = this.config.browserRoot || "";
+    var helpdiv = document.createElement('div');
+    helpdiv.style.display = 'none';
+    helpdiv.className = "helpDialog";
+    helpdiv.innerHTML = ''
+        + '<div class="main" style="float: left">'
+
+        + '<dl>'
+        + '<dt>Moving</dt>'
+        + '<dd><ul>'
+        + '    <li>Move the view by clicking and dragging in the track area, or by clicking <img height="20px" src="'+browserRoot+'img/slide-left.png"> or <img height="20px"  src="'+browserRoot+'img/slide-right.png"> in the navigation bar.</li>'
+        + '    <li>Center the view at a point by clicking on either the track scale bar or overview bar, or by shift-clicking in the track area.</li>'
+        + '</ul></dd>'
+        + '<dt>Zooming</dt>'
+        + '<dd><ul>'
+        + '    <li>Zoom in and out by clicking <img height="20px" src="'+browserRoot+'img/zoom-in-1.png"> or <img height="20px"  src="'+browserRoot+'img/zoom-out-1.png"> in the navigation bar.</li>'
+        + '    <li>Select a region and zoom to it ("rubber-band" zoom) by clicking and dragging in the overview or track scale bar, or shift-clicking and dragging in the track area.</li>'
+        + '    </ul>'
+        + '</dd>'
+        + '<dt>Selecting Tracks</dt>'
+        + '<dd><ul><li>Turn a track off by dragging its track label from the "Available Tracks" area into the track area.</li>'
+        + '        <li>Turn a track on by dragging its track label from the track area back into the "Available Tracks" area.</li>'
+        + '    </ul>'
+        + '</dd>'
+        + '</dl>'
+        + '</div>'
+
+        + '<div class="main" style="float: right">'
+        + '<dl>'
+        + '<dt>Searching</dt>'
+        + '<dd><ul>'
+        + '    <li>Jump to a feature or reference sequence by typing its name in the search box and pressing Enter.</li>'
+        + '    <li>Jump to a specific region by typing the region into the search box as: <span class="example">ref:start..end</span>.</li>'
+        + '    </ul>'
+        + '</dd>'
+        + '<dt>Example Searches</dt>'
+        + '<dd>'
+        + '    <dl class="searchexample">'
+        + '        <dt>uc0031k.2</dt><dd>jumps to the feature named <span class="example">uc0031k.2</span>.</dd>'
+        + '        <dt>chr4</dt><dd>jumps to chromosome 4</dd>'
+        + '        <dt>chr4:79,500,000..80,000,000</dt><dd>jumps the region on chromosome 4 between 79.5Mb and 80Mb.</dd>'
+        + '    </dl>'
+        + '</dd>'
+        + '<dt>JBrowse setup</dt>'
+        + '<dd><ul><li><a target="_blank" href="docs/tutorial/">Setup tutorial</a></li>'
+        + '        <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse wiki</a></li>'
+        + '        <li><a target="_blank" href="docs/config.html">Configuration reference</a></li>'
+        + '        <li><a target="_blank" href="docs/featureglyphs.html">Feature glyph reference</a></li>'
+        + '    </ul>'
+        + '</dd>'
+        + '</dl>'
+        + '</div>'
+        ;
+    this.container.appendChild( helpdiv );
+
+    var dialog = new dijit.Dialog({
+        id: "help_dialog",
+        refocus: false,
+        draggable: false,
+        title: "JBrowse Help"
+    }, helpdiv );
+
+    // make a Help link that will show the dialog and set a handler on it
+    var helplink = document.createElement('a');
+    helplink.className = 'topLink';
+    helplink.title = 'Help';
+    helplink.style.cursor = 'help';
+    helplink.appendChild( document.createTextNode('Help'));
+    dojo.connect(helplink, 'onclick', function() { dialog.show(); });
+    dojo.connect(document.body,  'onkeydown', function( evt ) {
+        if( evt.keyCode != dojo.keys.SHIFT && evt.keyCode != dojo.keys.CTRL && evt.keyCode != dojo.keys.ALT )
+            dialog.hide();
+    });
+    dojo.connect(document.body,  'onkeypress', function( evt ) {
+        if( evt.keyChar == '?' )
+            dialog.show();
+        else if( evt.keyCode != dojo.keys.SHIFT && evt.keyCode != dojo.keys.CTRL && evt.keyCode != dojo.keys.ALT )
+            dialog.hide();
+    });
+
+    return helplink;
+};
+
+
 Browser.prototype.makeBookmarkLink = function (area) {
     // don't make the link if we were explicitly passed a 'bookmark'
     // param of 'false'
     if( typeof this.config.bookmark != 'undefined' && !this.config.bookmark )
-        return;
+        return null;
 
     // if a function was not passed, make a default bookmarking function
     if( typeof this.config.bookmark != 'function' )
@@ -692,10 +780,7 @@ Browser.prototype.makeBookmarkLink = function (area) {
     if( fullview )
         this.link.target = "_blank";
     this.link.title = fullview ? "View in full browser" : "Bookmarkable link to this view";
-    this.link.appendChild( document.createTextNode( fullview ? "Full view" : "Link" ) );
-
-    // put it in the DOM
-    area.appendChild(this.link);
+    this.link.appendChild( document.createTextNode( fullview ? "Full view" : "Bookmark" ) );
 
     // connect moving events to update it
     var update_bookmark = function() {
@@ -704,6 +789,7 @@ Browser.prototype.makeBookmarkLink = function (area) {
     dojo.connect( this, "onCoarseMove",           update_bookmark );
     dojo.connect( this, "onVisibleTracksChanged", update_bookmark );
 
+    return this.link;
 };
 
 /**
@@ -753,7 +839,13 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     navbox.id = "navbox";
     parent.appendChild(navbox);
     navbox.style.cssText = "text-align: center; z-index: 10;";
-    brwsr.makeBookmarkLink( navbox );
+
+    var linkContainer = document.createElement('div');
+    linkContainer.className = 'topLink';
+    linkContainer.appendChild( this.makeBookmarkLink() );
+    linkContainer.appendChild( this.makeHelpDialog()   );
+
+    navbox.appendChild( linkContainer );
 
     var moveLeft = document.createElement("input");
     moveLeft.type = "image";

@@ -37,6 +37,9 @@ div.dragWindow {
     cursor: crosshair;
 }
 
+#navbox {
+}
+
 div.locationTrap {
     position: absolute;
     background-color: #ccc;
@@ -61,21 +64,26 @@ div.locationThumb.dojoMoveItem {
     cursor: move;
 }
 
-.topLink {
-    position: fixed;
+div.topLink {
+    position: absolute;
     right: 0;
     z-index: 25;
     background: white;
-    padding: 0 0.5ex 0 0.5ex;
-    border: 1px solid #bbb;
+    border: 1px solid #888;
     border-width: 0 0 1px 1px;
+}
+
+a.topLink {
+    padding: 0 0.5ex 0 0.5ex;
+    text-decoration: none;
+    color: blue;
 }
 
 div.overview {
     width: 100%;
     border-style: solid;
     border-width: 5px 0px 5px 0px;
-    border-color: #aaa;
+    border-color: #bbb;
     color:#aaa;
     text-align: center;
     z-index: -5;
@@ -113,7 +121,7 @@ div.track {
 div#static_track {
     top: 0px;
     position: absolute;
-    background-color: #f0f0f0;
+    background: #FAFAFA url(jslib/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
     border-top: 1px solid #bbb;
     border-bottom: 1px solid #444;
     z-index: 20;
@@ -755,4 +763,31 @@ div.overview .rubber-highlight * {
 
 input.nav {
     font-size: 9px !important;
+}
+
+#help_dialog {
+    font-size: 12px;
+    width: 70%;
+}
+#help_dialog ul {
+    padding-left: 0;
+}
+#help_dialog div.main {
+    width: 49%;
+}
+#help_dialog div.main > dl {
+    width: 90%;
+    margin: 0 auto 1em auto;
+}
+#help_dialog dt {
+    font-weight: bold;
+    margin-top: 1em;
+}
+#help_dialog dd {
+    margin-left: 2em;
+}
+#help_dialog dl dl.searchexample dt,
+#help_dialog span.example {
+    font-weight: normal;
+    font-family: monospace;
 }
