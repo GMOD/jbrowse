@@ -3,7 +3,7 @@ from subprocess import check_call as call
 
 from jbrowse_selenium import JBrowseTest
 
-class YeastBiodbTest ( JBrowseTest, unittest.TestCase ):
+class AbstractYeastBiodbTest ( JBrowseTest ):
 
     data_dir = 'sample_data/json/yeast'
 
@@ -12,7 +12,7 @@ class YeastBiodbTest ( JBrowseTest, unittest.TestCase ):
         call( "bin/prepare-refseqs.pl --fasta sample_data/raw/yeast_scaffolds/chr1.fa.gz --fasta sample_data/raw/yeast_scaffolds/chr2.fa.gzip  --out sample_data/json/yeast/", shell=True )
         call( "bin/biodb-to-json.pl --conf sample_data/raw/yeast.json --out sample_data/json/yeast/", shell=True )
         call( "bin/generate-names.pl --dir sample_data/json/yeast/", shell=True )
-        super( YeastBiodbTest, self ).setUp()
+        super( AbstractYeastBiodbTest, self ).setUp()
 
 
     def test_yeast( self ):
@@ -51,7 +51,24 @@ class YeastBiodbTest ( JBrowseTest, unittest.TestCase ):
         # test scrolling, make sure we get no js errors
         self.scroll()
 
+        # test sequence fetching
+        self.sequence();
+
         self.browser.close()
+
+    def sequence( self ):
+        self.do_typed_query( 'chrII:296318..296400' );
+        sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')][contains(.,'%s')]"
+        sequence_div_xpath_1 = sequence_div_xpath_templ % 'TATATGGTCTT';
+        self.assert_element( sequence_div_xpath_1)
+        self.turn_off_track( 'DNA' );
+        self.assert_no_element( sequence_div_xpath_1 )
+        self.turn_on_track( 'DNA' );
+        self.assert_element( sequence_div_xpath_1 )
+        self.do_typed_query( '1..20000');
+        self.assert_no_element( sequence_div_xpath_1 )
+        self.do_typed_query( 'chrI:19961..20047');
+        self.assert_element( sequence_div_xpath_templ % 'AATTATAATCCTCGG' )
 
     def search_yal024c( self ):
 
@@ -84,3 +101,5 @@ class YeastBiodbTest ( JBrowseTest, unittest.TestCase ):
         track_labels = self.get_track_labels_containing( 'Protein-coding genes' )
         assert len(track_labels) == 1, '%d tracks displayed with that name' % len(track_labels)
 
+class YeastBiodbTest( AbstractYeastBiodbTest, unittest.TestCase ):
+    pass
