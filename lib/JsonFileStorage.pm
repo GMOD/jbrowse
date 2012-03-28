@@ -62,6 +62,14 @@ sub new {
 
     mkpath( $outDir ) unless (-d $outDir);
 
+    if( $compress ) {
+        require IO::File;
+        require GenomeDB;
+        my $hn = File::Spec->catfile( $outDir, '.htaccess' );
+        open my $h, '>', $hn or die "$! writing $hn";
+        $h->print( GenomeDB->precompression_htaccess( '.jsonz', '.txtz', '.txt.gz' ));
+    }
+
     return $self;
 }
 

@@ -234,6 +234,17 @@ JsonGenerator::modifyJsonFile( catfile( $outDir, 'seq', 'refSeqs.json' ),
                                   }
                                   return $old;
                               });
+if( $compress ) {
+    # if we are compressing the sequence files, drop a .htaccess file
+    # in the seq/ dir that will automatically configure users with
+    # Apache (and AllowOverride on) to serve the .txt.gz files
+    # correctly
+    require GenomeDB;
+    my $hta = catfile( $outDir, 'seq', '.htaccess' );
+    open my $hta_fh, '>', $hta or die "$! writing $hta";
+    $hta_fh->print( GenomeDB->precompression_htaccess('.txtz','.jsonz') );
+}
+
 
 unless ($noSeq) {
     JsonGenerator::modifyJsonFile( catfile( $outDir, "trackList.json" ),
