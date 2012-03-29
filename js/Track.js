@@ -166,6 +166,7 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale,
     this._adjustBlanks();
     this.inShowRange = false;
     this.heightUpdate(this.height);
+    return 1;
 };
 
 Track.prototype.cleanupBlock = function() {};
