@@ -336,6 +336,11 @@ Track.prototype.sizeInit = function(numBlocks, widthPct, blockDelta) {
     }
 };
 
+Track.prototype.updateStaticElements = function() { // function( /**Object*/ coords ) {
+    // does nothing in the base track class
+};
+
+
 /*
 
 Copyright (c) 2007-2009 The Evolutionary Software Foundation
