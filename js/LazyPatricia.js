@@ -130,14 +130,36 @@ LazyTrie.prototype.valuesFromNode = function(node) {
 };
 
 // node is an array: either loaded or lazy. get all the keys
+// currently not dynamic. need to make it dynamic 
 LazyTrie.prototype.edgesFromNode = function(node, temp) {
+    var results = [];
+    for (var i = 2; i < node.length; i++) {
+        temp = node[0];
+        temp += node[i][0];
+	results.push(temp);
+    }
+    return results;
+};
+
+// node is an array: either loaded or lazy. get all the keys
+LazyTrie.prototype.edgesFromNodeLong = function(node, temp) {
     var results = [];
     temp += node[0];
     if (node[2] == null) {
         results.push(temp);
     }
     for (var i = 2; i < node.length; i++) {
-        results = results.concat(this.edgesFromNode(node[i], temp));
+        results = results.concat(this.edgesFromNodeLong(node[i], temp));
+    }
+    return results;
+};
+
+// grabs the child node
+LazyTrie.prototype.childFromNode = function(node, lim) {
+    var results = [];
+    for (var i = 2; (i < node.length) && (results.length < lim) ; i++) {
+        var temp = node[i][0];
+        results.push(temp);
     }
     return results;
 };

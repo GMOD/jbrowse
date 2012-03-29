@@ -26,14 +26,23 @@ var Browser = function(params) {
     dojo.require("dojo.dnd.move");
     dojo.require("dijit.layout.ContentPane");
     dojo.require("dijit.layout.BorderContainer");
+    dojo.require("dojo.data.ItemFileReadStore");
+    dojo.require("dijit.form.ComboBox");
+    dojo.require("dojo.data.ItemFileWriteStore");
 
     this.params = params;
     var brwsr = this;
 
     this.deferredFunctions = [];
 
-    if (params.nameUrl)
-        this.names = new LazyTrie(params.nameUrl, "lazy-{Chunk}.json");
+    this.inClose = function() {
+	if (params.nameUrl)
+	    this.names = new LazyTrie(params.nameUrl, "lazy-{Chunk}.json");
+	return this.names;
+    };
+    this.inClose();
+    //console.log(this.inClose());
+
     this.tracks = [];
     brwsr.isInitialized = false;
     dojo.addOnLoad(
@@ -624,6 +633,7 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
 
 Browser.prototype.createNavBox = function(parent, locLength, params) {
     var brwsr = this;
+
     var navbox = document.createElement("div");
     var browserRoot = params.browserRoot ? params.browserRoot : "";
     navbox.id = "navbox";
@@ -746,6 +756,38 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
         });
     };
 
+// jquery when everything is loaded!
+	$(function() {
+		$( "#tags" ).autocomplete({
+			source: function( request, response ) {
+				var gotcha, parent;
+				brwsr.names.findNode(request.term, function(found, node) {
+					parent = found;
+					gotcha = brwsr.names.childFromNode(node, 20);
+				});
+				var ground = [];
+				for ( i = 0; i < gotcha.length; i++) {
+				      ground.push({ label: parent+gotcha[i], value: parent+gotcha[i] });
+				};		
+				response(ground);
+				},
+			select: function( event, ui ) {
+					ui.item.selected = true;
+					brwsr.navigateTo(ui.item.value);
+				}
+		});
+	});
+	
+    tags = document.createElement("input");
+    tags.id = "tags";
+
+    dojo.connect(tags, "keydown", function(event) {
+            if (event.keyCode == dojo.keys.ENTER) {
+		brwsr.navigateTo(tags.value);
+                dojo.stopEvent(event);
+            }
+        });
+
     if( params.show_nav != 0 ) {
         navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
         navbox.appendChild(moveLeft);
@@ -757,15 +799,14 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
         navbox.appendChild(bigZoomIn);
         navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
         navbox.appendChild(this.chromList);
-        navbox.appendChild(this.locationBox);
+        //navbox.appendChild(this.locationBox);
+	navbox.appendChild(tags);
         navbox.appendChild(this.goButton);
     };
-
     return navbox;
 };
 
 /*
-
 Copyright (c) 2007-2009 The Evolutionary Software Foundation
 
 Created by Mitchell Skinner <mitch_skinner@berkeley.edu>
