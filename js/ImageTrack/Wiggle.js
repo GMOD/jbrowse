@@ -26,13 +26,17 @@ ImageTrack.Wiggle.prototype.updateStaticElements = function( coords ) {
 
 ImageTrack.Wiggle.prototype.loadSuccess = function() {
     ImageTrack.prototype.loadSuccess.apply( this, arguments );
-    this.makeYScale();
 };
 
-ImageTrack.Wiggle.prototype.heightUpdate = function() {
+ImageTrack.Wiggle.prototype.heightUpdate = function(h) {
     ImageTrack.prototype.heightUpdate.apply(this,arguments);
     if( this.yscale )
         this.yscale.style.height = this.height+"px";
+};
+
+ImageTrack.Wiggle.prototype.makeImageLoadHandler = function( img, blockIndex, blockWidth ) {
+    var h = ImageTrack.prototype.makeImageLoadHandler.apply( this, arguments );
+    return dojo.hitch( this, function() { h(); if(! this.yscale ) this.makeYScale(); });
 };
 
 ImageTrack.Wiggle.prototype.makeYScale = function() {
@@ -51,25 +55,25 @@ ImageTrack.Wiggle.prototype.makeYScale = function() {
     this.yscale = maindiv;
     maindiv.className = 'verticalRuler';
     dojo.style( maindiv, {
-        height: this.height+'px',
+        height: this.imageHeight+'px',
         position: 'absolute',
         top: '0px',
         background: "#ccc",
         'z-index': 15,
         left: this.yscale_left,
-        width: '20px'
+        width: '50px',
+        overflow: 'hidden'
     });
+    this.div.appendChild( maindiv );
 
     this._renderScale( maindiv );
-
-    this.div.appendChild( maindiv );
 };
 
 ImageTrack.Wiggle.prototype._renderScale = function( div ) {
     var ruler = new Ruler({
         min: this.min,
         max: this.max,
-        direction: 'up'
+        direction: 'up',
     });
     ruler.render_to(div);
 };

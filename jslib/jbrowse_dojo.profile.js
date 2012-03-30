@@ -12,7 +12,8 @@ dependencies = (
                     "dojo.dnd.move",
                     "dijit.layout.ContentPane",
                     "dijit.layout.BorderContainer",
-                    "dijit.Dialog"
+                    "dijit.Dialog",
+                    "dojox.charting.Chart2D"
                 ],
                 layerDependencies: [],
                 name: "jbrowse_dojo.js",

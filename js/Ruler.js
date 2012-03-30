@@ -13,42 +13,33 @@
  */
 
 function Ruler(args) {
-    dojo.mixin(this,args);
+    dojo.mixin( this, args );
 };
 
 Ruler.prototype.render_to = function( target_div ) {
     if( typeof target_div == 'string' )
         target_div = dojo.byId( target_div );
 
+    var dims = dojo.coords( target_div );
 
+    //target_div.style.overflow = "hidden";
     var container = document.createElement('div');
-    dojo.style(container, {height: '100%', width: '100%'});
-    var section_style = {
-        'border-color': 'black',
-        'border-width': '1px 0 0 1px',
-        'border-style': 'solid',
-        'width': '100%',
-        'z-index': 1000,
-        'margin': 0,
-        'padding': 0
-    };
-
-    var range = this.max - this.min;
-    this.ticks = [ this.min, 3, 6, this.max ];
-
-    var prev = 0;
-    var sections = dojo.map( this.ticks, function( tickval ) {
-        var proportion = (tickval - prev)/range;
-        var sec = document.createElement('div');
-        dojo.style( sec, section_style );
-        sec.style.height = proportion*100 + "%";
-        //sec.innerHTML = tickval;
-        prev = tickval;
-        return sec;
-    }, this );
-
-    dojo.forEach( sections.reverse(), function(s) {
-        container.appendChild(s);
-    });
+    dojo.style(container,{ position: 'absolute', bottom: "-12px", width: dims.w+"px", height: (dims.h+26)+"px"});
     target_div.appendChild(container);
+
+    dojo.require('dojox.charting.Chart2D');
+    var chart1 = new dojox.charting.Chart2D( container );
+//    chart1.addAxis("x", {fixLower: "major", fixUpper: "major", includeZero: true});
+    chart1.addAxis( "y", {
+                        vertical: true,
+                        min: 0,
+                        max: this.max
+                        // minorTickStep: 0.5,
+                        // majorTickStep: 1
+                        //labels: [{value: 1, text: "One"}, {value: 3, text: "Ten"}]
+                    });
+    chart1.addPlot("default", {type: "Default"});
+//    chart1.addSeries("Series A", [1, 2, 3, 4, 5], {stroke: {color: "red"}, fill: "lightpink"});
+    // chart1.addSeries("Series B", [5, 4, 3, 2, 1], {stroke: {color: "blue"}, fill: "lightblue"});
+    chart1.render();
 };
