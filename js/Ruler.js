@@ -41,7 +41,7 @@ Ruler.prototype.render_to = function( target_div ) {
     chart1.addAxis( "y", {
                         vertical: true,
                         fill: 'transparent',
-                        min: 0,
+                        min: this.min,
                         max: this.max
                         // minorTickStep: 0.5,
                         // majorTickStep: 1
