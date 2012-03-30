@@ -4,7 +4,7 @@ JSMIN_TARGET = jbrowse.js
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
 
-all: minify-js docs/jsdoc
+all: minify-js docs/jsdoc/index.html
 	cd wig2png && ./configure && $(MAKE)
 
 docs: doc
