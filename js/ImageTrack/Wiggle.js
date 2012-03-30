@@ -51,23 +51,19 @@ ImageTrack.Wiggle.prototype.makeYScale = function() {
     // make and style the main container div for the axis
     var rulerdiv = document.createElement('div');
     this.yscale = rulerdiv;
-    rulerdiv.className = 'verticalRuler';
+    rulerdiv.className = 'ruler vertical_ruler';
     dojo.style( rulerdiv, {
         height: this.imageHeight+'px',
         position: 'absolute',
-        'z-index': 17,
         left: this.yscale_left,
-        width: '30px'
+        width: '30px',
+        zIndex: 17
     });
-    switch (this.config.align) {
-    case "top":
-        rulerdiv.style.top = "0px";
-        break;
-    case "bottom":
-    default:
-        rulerdiv.style.bottom = this.trackPadding + "px";
-        break;
-    }
+    dojo.style(
+       rulerdiv,
+       ( this.config.align == 'top' ? { top: '0px' } :
+                                      { bottom: this.trackPadding+"px"})
+    );
     this.div.appendChild( rulerdiv );
 
     // now make a Ruler and draw the axis in the div we just made
