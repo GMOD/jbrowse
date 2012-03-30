@@ -162,7 +162,7 @@ div.overview-pos {
 }
 
 div.blank-block {
-    font: sans-serif;
+    font-family: sans-serif;
     position: absolute;
     overflow: visible;
     top: 0px;
