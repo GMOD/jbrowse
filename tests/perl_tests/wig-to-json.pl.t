@@ -52,4 +52,98 @@ is_deeply( $tracklist,
            'got the right tracklist',
          ) or diag explain $tracklist;
 
+my $trackdata = slurp( $tempdir, 'tracks', 'volvox_microarray.wig', 'ctgA', 'trackData.json' );
+is_deeply( $trackdata,
+           {
+               'metadata' => {
+                   'global_max' => 899,
+                   'global_min' => 100
+                   },
+               'tileWidth' => 2000,
+               'zoomLevels' => [
+                   {
+                       'basesPerTile' => 2000,
+                       'height' => 100,
+                       'urlPrefix' => '1/'
+                       },
+                   {
+                       'basesPerTile' => 4000,
+                       'height' => 100,
+                       'urlPrefix' => '2/'
+                       },
+                   {
+                       'basesPerTile' => 10000,
+                       'height' => 100,
+                       'urlPrefix' => '5/'
+                       },
+                   {
+                       'basesPerTile' => 20000,
+                       'height' => 100,
+                       'urlPrefix' => '10/'
+                       },
+                   {
+                       'basesPerTile' => 40000,
+                       'height' => 100,
+                       'urlPrefix' => '20/'
+                       },
+                   {
+                       'basesPerTile' => 100000,
+                       'height' => 100,
+                       'urlPrefix' => '50/'
+                       },
+                   {
+                       'basesPerTile' => 200000,
+                       'height' => 100,
+                       'urlPrefix' => '100/'
+                       },
+                   {
+                       'basesPerTile' => 400000,
+                       'height' => 100,
+                       'urlPrefix' => '200/'
+                       },
+                   {
+                       'basesPerTile' => 1000000,
+                       'height' => 100,
+                       'urlPrefix' => '500/'
+                       },
+                   {
+                       'basesPerTile' => 2000000,
+                       'height' => 100,
+                       'urlPrefix' => '1000/'
+                       },
+                   {
+                       'basesPerTile' => 4000000,
+                       'height' => 100,
+                       'urlPrefix' => '2000/'
+                       },
+                   {
+                       'basesPerTile' => 10000000,
+                       'height' => 100,
+                       'urlPrefix' => '5000/'
+                       },
+                   {
+                       'basesPerTile' => 20000000,
+                       'height' => 100,
+                       'urlPrefix' => '10000/'
+                       },
+                   {
+                       'basesPerTile' => 40000000,
+                       'height' => 100,
+                       'urlPrefix' => '20000/'
+                       },
+                   {
+                       'basesPerTile' => 100000000,
+                       'height' => 100,
+                       'urlPrefix' => '50000/'
+                       },
+                   {
+                       'basesPerTile' => 200000000,
+                       'height' => 100,
+                       'urlPrefix' => '100000/'
+                       }
+                   ]
+               },
+           'got the right trackData.json for ctgA',
+         ) or diag explain $trackdata;
+
 done_testing;
