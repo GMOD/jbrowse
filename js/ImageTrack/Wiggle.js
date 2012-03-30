@@ -39,7 +39,8 @@ ImageTrack.Wiggle.prototype.makeYScale = function() {
 
     // if we are not loaded yet, we won't have any metadata, so just return
     try {
-        this.range = { min: this.store.metadata.min_value, max: this.store.metadata.max_value };
+        this.min   = this.store.metadata.global_min;
+        this.max   = this.store.metadata.global_max;
         this.ticks = this.config.tick_marks;
     } catch (x) {
         return;
@@ -55,7 +56,8 @@ ImageTrack.Wiggle.prototype.makeYScale = function() {
         top: '0px',
         background: "#ccc",
         'z-index': 15,
-        left: this.yscale_left
+        left: this.yscale_left,
+        width: '20px'
     });
 
     this._renderScale( maindiv );
@@ -64,5 +66,10 @@ ImageTrack.Wiggle.prototype.makeYScale = function() {
 };
 
 ImageTrack.Wiggle.prototype._renderScale = function( div ) {
-    div.innerHTML = this.range.max + "<br>" + this.range.min;
+    var ruler = new Ruler({
+        min: this.min,
+        max: this.max,
+        direction: 'up'
+    });
+    ruler.render_to(div);
 };
