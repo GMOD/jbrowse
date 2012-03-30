@@ -28,19 +28,17 @@ ImageTrack.Wiggle.prototype.loadSuccess = function() {
     ImageTrack.prototype.loadSuccess.apply( this, arguments );
 };
 
-ImageTrack.Wiggle.prototype.heightUpdate = function(h) {
-    ImageTrack.prototype.heightUpdate.apply(this,arguments);
-    if( this.yscale )
-        this.yscale.style.height = this.height+"px";
-};
-
 ImageTrack.Wiggle.prototype.makeImageLoadHandler = function( img, blockIndex, blockWidth ) {
-    var h = ImageTrack.prototype.makeImageLoadHandler.apply( this, arguments );
-    return dojo.hitch( this, function() { h(); if(! this.yscale ) this.makeYScale(); });
+    var superclass_handler = ImageTrack.prototype.makeImageLoadHandler.apply( this, arguments );
+    return dojo.hitch( this, function() {
+        superclass_handler();
+
+        if(! this.yscale )
+            this.makeYScale();
+    });
 };
 
 ImageTrack.Wiggle.prototype.makeYScale = function() {
-
     // if we are not loaded yet, we won't have any metadata, so just return
     try {
         this.min   = this.store.metadata.global_min;
@@ -51,29 +49,36 @@ ImageTrack.Wiggle.prototype.makeYScale = function() {
     }
 
     // make and style the main container div for the axis
-    var maindiv = document.createElement('div');
-    this.yscale = maindiv;
-    maindiv.className = 'verticalRuler';
-    dojo.style( maindiv, {
+    var rulerdiv = document.createElement('div');
+    this.yscale = rulerdiv;
+    rulerdiv.className = 'verticalRuler';
+    dojo.style( rulerdiv, {
         height: this.imageHeight+'px',
         position: 'absolute',
-        top: '0px',
-        background: "#ccc",
-        'z-index': 15,
+        'z-index': 17,
         left: this.yscale_left,
-        width: '50px',
-        overflow: 'hidden'
+        width: '30px'
     });
-    this.div.appendChild( maindiv );
+    switch (this.config.align) {
+    case "top":
+        rulerdiv.style.top = "0px";
+        break;
+    case "bottom":
+    default:
+        rulerdiv.style.bottom = this.trackPadding + "px";
+        break;
+    }
+    this.div.appendChild( rulerdiv );
 
-    this._renderScale( maindiv );
+    // now make a Ruler and draw the axis in the div we just made
+    this._renderScale( rulerdiv );
 };
 
 ImageTrack.Wiggle.prototype._renderScale = function( div ) {
     var ruler = new Ruler({
         min: this.min,
         max: this.max,
-        direction: 'up',
+        direction: 'up'
     });
     ruler.render_to(div);
 };
