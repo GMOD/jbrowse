@@ -26,9 +26,6 @@ var Browser = function(params) {
     dojo.require("dojo.dnd.move");
     dojo.require("dijit.layout.ContentPane");
     dojo.require("dijit.layout.BorderContainer");
-    dojo.require("dojo.data.ItemFileReadStore");
-    dojo.require("dijit.form.ComboBox");
-    dojo.require("dojo.data.ItemFileWriteStore");
 
     this.params = params;
     var brwsr = this;
@@ -41,7 +38,6 @@ var Browser = function(params) {
 	return this.names;
     };
     this.inClose();
-    //console.log(this.inClose());
 
     this.tracks = [];
     brwsr.isInitialized = false;
@@ -613,8 +609,10 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     if (! this.isInitialized) return;
     var locString = Util.assembleLocString({ start: startbp, end: endbp, ref: this.refSeq.name });
     this.locationBox.value = locString;
+    this.tags.value = locString;
     this.goButton.disabled = true;
     this.locationBox.blur();
+    this.tags.blur();
 
     // update the location cookie
     var ckname = this.container.id + "-location";
@@ -633,7 +631,6 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
 
 Browser.prototype.createNavBox = function(parent, locLength, params) {
     var brwsr = this;
-
     var navbox = document.createElement("div");
     var browserRoot = params.browserRoot ? params.browserRoot : "";
     navbox.id = "navbox";
@@ -778,15 +775,15 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
 		});
 	});
 	
-    tags = document.createElement("input");
-    tags.id = "tags";
+    this.tags = document.createElement("input");
+    this.tags.id = "tags";
 
-    dojo.connect(tags, "keydown", function(event) {
-            if (event.keyCode == dojo.keys.ENTER) {
-		brwsr.navigateTo(tags.value);
-                dojo.stopEvent(event);
-            }
-        });
+    dojo.connect(brwsr.tags, "keydown", function(event) {
+        if (event.keyCode == dojo.keys.ENTER) {
+	    brwsr.navigateTo(brwsr.tags.value);
+            dojo.stopEvent(event);
+        }
+    });
 
     if( params.show_nav != 0 ) {
         navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
@@ -800,7 +797,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
         navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
         navbox.appendChild(this.chromList);
         //navbox.appendChild(this.locationBox);
-	navbox.appendChild(tags);
+	navbox.appendChild(this.tags);
         navbox.appendChild(this.goButton);
     };
     return navbox;
