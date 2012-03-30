@@ -98,36 +98,42 @@ sub writeTrackEntry {
     $self->{rootStore}->modify($trackListPath, $setTrackEntry);
 }
 
-=head2 createFeatureTrack( $label, \%config, $key )
+=head2 createFeatureTrack( $label, \%config, $key, $jsclass )
 
 Create a new FeatureTrack object in this data dir with the given
-label, config, and key.
+label, config, key, and (JavaScript) class.
+
+$jsclass is optional, and defaults to C<FeatureTrack>.
 
 =cut
 
 sub createFeatureTrack {
     my $self = shift;
+    push( @_, 'FeatureTrack' ) if @_ < 4;
     $self->_create_track( FeatureTrack => @_ );
 }
 
-=head2 createImageTrack( $label, \%config, $key )
+=head2 createImageTrack( $label, \%config, $key, $jsclass )
 
 Create a new ImageTrack object in this data dir with the given
-label, config, and key.
+label, config, key, and (JavaScript) class.
+
+$jsclass is optional, and defaults to C<ImageTrack>.
 
 =cut
 
 sub createImageTrack {
     my $self = shift;
+    push( @_, 'ImageTrack' ) if @_ < 4;
     $self->_create_track( ImageTrack => @_ );
 }
 
 sub _create_track {
-    my ($self, $class, $trackLabel, $config, $key) = @_;
+    my ($self, $class, $trackLabel, $config, $key, $jsclass) = @_;
     eval "require $class"; die $@ if $@;
     (my $baseUrl = $self->{trackUrlTempl}) =~ s/\{tracklabel\}/$trackLabel/g;
     return $class->new( $self->trackDir($trackLabel), $baseUrl,
-                        $trackLabel, $config, $key);
+                        $trackLabel, $config, $key, $jsclass );
 }
 
 =head2 getTrack( $trackLabel )
