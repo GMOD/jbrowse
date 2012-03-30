@@ -114,8 +114,12 @@ int main(int argc, char **argv){
         string jsonPath = outdiropt + "/" + *chrom + "/trackData.json";
         ofstream json(jsonPath.c_str());
         if (json.is_open()) {
-            json << "{" << endl;
-            json << "   \"zoomLevels\" : [" << endl;
+            json << "{" << endl
+                 << "   \"metadata\" : { " << endl
+                 << "       \"global_min\": " << min << "," << endl
+                 << "       \"global_max\": " << max << endl
+                 << "    }," << endl
+                 << "   \"zoomLevels\" : [" << endl;
             for (int i = 0; i < p.rendererCount(); i++) {
                 r = p.getRenderer(i);
                 json << "      {" << endl
