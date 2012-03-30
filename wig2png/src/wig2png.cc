@@ -21,7 +21,7 @@
 
 using namespace std;
 
-#define PNG_DEBUG 3
+//#define PNG_DEBUG 3
 #include <png.h>
 
 #define MAX_PATH_LEN 2048
