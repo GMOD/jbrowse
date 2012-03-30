@@ -45,7 +45,7 @@ is_deeply( $tracklist,
                        'urlTemplate' => 'tracks/volvox_microarray.wig/{refseq}/trackData.json',
                        'key' => 'volvox_microarray.wig',
                        'label' => 'volvox_microarray.wig',
-                       'type' => 'ImageTrack'
+                       'type' => 'ImageTrack.Wiggle'
                    },
                  ],
                },
