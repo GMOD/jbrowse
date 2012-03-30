@@ -14,7 +14,7 @@ function ImageTrack(config, refSeq, browserParams) {
         return;
 
     this.refSeq = refSeq;
-    this.trackPadding = browserParams.trackPadding;
+    this.trackPadding = browserParams.trackPadding || 0;
 
     this.config = config;
 
@@ -57,14 +57,14 @@ ImageTrack.prototype.handleImageError = function(ev) {
 /**
  * @private
  */
-ImageTrack.prototype._makeImageLoadHandler = function( img, blockIndex, blockWidth ) {
-    var that = this;
-    return function() {
+ImageTrack.prototype.makeImageLoadHandler = function( img, blockIndex, blockWidth ) {
+    return dojo.hitch( this, function() {
+        this.imageHeight = img.height;
         img.style.height = img.height + "px";
         img.style.width  = (100 * (img.baseWidth / blockWidth)) + "%";
-        that.heightUpdate( img.height, blockIndex );
+        this.heightUpdate( img.height+this.trackPadding, blockIndex );
         return true;
-    };
+    });
 };
 
 ImageTrack.prototype.fillBlock = function(blockIndex, block,
@@ -95,7 +95,7 @@ ImageTrack.prototype.fillBlock = function(blockIndex, block,
 
         // make an onload handler for when the image is fetched that
         // will update the height and width of the track
-        var loadhandler = this._makeImageLoadHandler( im, blockIndex, blockWidth );
+        var loadhandler = this.makeImageLoadHandler( im, blockIndex, blockWidth );
         if( im.complete )
             // just call the handler ourselves if the image is already loaded
             loadhandler();
