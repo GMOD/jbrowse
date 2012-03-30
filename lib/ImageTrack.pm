@@ -25,7 +25,7 @@ use JsonFileStorage;
 use NameHandler;
 
 sub new {
-    my ($class, $trackDirTemplate, $baseUrl, $label, $config, $key) = @_;
+    my ($class, $trackDirTemplate, $baseUrl, $label, $config, $key, $jsclass) = @_;
 
     $config->{compress} = $config->{compress} || 0;
     my $self = {
@@ -33,7 +33,8 @@ sub new {
         label             => $label,
         key               => $key || $label,
         trackDataFilename => "trackData.json" . ( $config->{compress} ? 'z' : '' ),
-        config            => $config
+        config            => $config,
+        jsclass           => $jsclass || 'ImageTrack',
       };
 
     $config->{urlTemplate} = $baseUrl . "/" . $self->{trackDataFilename}
@@ -46,7 +47,7 @@ sub new {
 
 sub label  { return shift->{label}; }
 sub key    { return shift->{key}; }
-sub type   { return "ImageTrack"; }
+sub type   { return shift->{jsclass} }
 sub config { return shift->{config}; }
 
 =head2 startLoad( $refSeqName, $chunkBytes, \@classes )

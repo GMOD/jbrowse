@@ -149,6 +149,7 @@ my $track = $gdb->getTrack( $trackLabel )
    || $gdb->createImageTrack( $trackLabel,
                               \%style,
                               $style{key},
+                              'ImageTrack.Wiggle'
                             );
 $track->startLoad;
 

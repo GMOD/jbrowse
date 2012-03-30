@@ -31,22 +31,27 @@ Track.prototype.loadFail = function(error) {
     this.setLoaded();
 };
 
+
+Track.prototype.heightUpdate = function(height, blockIndex) {
+    if (!this.shown) {
+        this.heightUpdateCallback(0);
+        return;
+    }
+
+    if (blockIndex !== undefined)
+        this.blockHeights[blockIndex] = height;
+
+    this.height = Math.max( this.height, height );
+    if ( ! this.inShowRange ) {
+        this.heightUpdateCallback( Math.max( this.labelHeight, this.height ) );
+    }
+};
+
 Track.prototype.setViewInfo = function(heightUpdate, numBlocks,
                                        trackDiv, labelDiv,
                                        widthPct, widthPx, scale) {
-    var track = this;
-    this.heightUpdate = function(height, blockIndex) {
-        if (!this.shown) {
-            heightUpdate(0);
-            return;
-        }
-        if (blockIndex !== undefined) track.blockHeights[blockIndex] = height;
 
-        track.height = Math.max(track.height, height);
-        if (!track.inShowRange) {
-            heightUpdate(Math.max(track.labelHeight, track.height));
-        }
-    };
+    this.heightUpdateCallback = heightUpdate;
     this.div = trackDiv;
     this.label = labelDiv;
     this.widthPct = widthPct;
@@ -161,6 +166,7 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale,
     this._adjustBlanks();
     this.inShowRange = false;
     this.heightUpdate(this.height);
+    return 1;
 };
 
 Track.prototype.cleanupBlock = function() {};
@@ -335,6 +341,11 @@ Track.prototype.sizeInit = function(numBlocks, widthPct, blockDelta) {
         this.initBlocks();
     }
 };
+
+Track.prototype.updateStaticElements = function() { // function( /**Object*/ coords ) {
+    // does nothing in the base track class
+};
+
 
 /*
 

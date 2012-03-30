@@ -10,30 +10,33 @@ function ImageTrack(config, refSeq, browserParams) {
     Track.call(this, config.label, config.key,
                false, browserParams.changeCallback);
 
+    if( !refSeq.end )
+        return;
+
     this.refSeq = refSeq;
-    this.trackPadding = browserParams.trackPadding;
+    this.trackPadding = browserParams.trackPadding || 0;
 
     this.config = config;
 
     // TODO: the imagestore should be passed in as an arg to the
     // constructor, not instantiated here
     var storeclass = config.backendVersion == 0 ? TiledImageStore.Fixed_v0 : TiledImageStore.Fixed;
-    this.imagestore = new storeclass({
+    this.store = new storeclass({
                               refSeq: refSeq,
                               urlTemplate: config.urlTemplate,
                               baseUrl: config.baseUrl,
                               track: this
                           });
-    dojo.connect( this.imagestore, 'loadSuccess', this, 'loadSuccess' );
-    dojo.connect( this.imagestore, 'loadFail',    this, 'loadFail'    );
+    dojo.connect( this.store, 'loadSuccess', this, 'loadSuccess' );
+    dojo.connect( this.store, 'loadFail',    this, 'loadFail'    );
 
-    this.imagestore.load();
+    this.store.load();
 }
 
 ImageTrack.prototype = new Track("");
 
 ImageTrack.prototype.loadSuccess = function(o,url) {
-    this.empty = this.imagestore.empty;
+    this.empty = this.store.empty;
     this.setLoaded();
 };
 
@@ -54,14 +57,14 @@ ImageTrack.prototype.handleImageError = function(ev) {
 /**
  * @private
  */
-ImageTrack.prototype._makeImageLoadHandler = function( img, blockIndex, blockWidth ) {
-    var that = this;
-    return function() {
+ImageTrack.prototype.makeImageLoadHandler = function( img, blockIndex, blockWidth ) {
+    return dojo.hitch( this, function() {
+        this.imageHeight = img.height;
         img.style.height = img.height + "px";
         img.style.width  = (100 * (img.baseWidth / blockWidth)) + "%";
-        that.heightUpdate( img.height, blockIndex );
+        this.heightUpdate( img.height+this.trackPadding, blockIndex );
         return true;
-    };
+    });
 };
 
 ImageTrack.prototype.fillBlock = function(blockIndex, block,
@@ -70,7 +73,7 @@ ImageTrack.prototype.fillBlock = function(blockIndex, block,
                                           scale, stripeWidth,
                                           containerStart, containerEnd) {
     var blockWidth = rightBase - leftBase;
-    var images = this.imagestore.getImages( scale, leftBase, rightBase );
+    var images = this.store.getImages( scale, leftBase, rightBase );
     var im;
 
     dojo.forEach( images, function(im) {
@@ -92,7 +95,7 @@ ImageTrack.prototype.fillBlock = function(blockIndex, block,
 
         // make an onload handler for when the image is fetched that
         // will update the height and width of the track
-        var loadhandler = this._makeImageLoadHandler( im, blockIndex, blockWidth );
+        var loadhandler = this.makeImageLoadHandler( im, blockIndex, blockWidth );
         if( im.complete )
             // just call the handler ourselves if the image is already loaded
             loadhandler();
@@ -105,8 +108,8 @@ ImageTrack.prototype.fillBlock = function(blockIndex, block,
 
 ImageTrack.prototype.startZoom = function(destScale, destStart, destEnd) {
     if (this.empty) return;
-    this.imagestore.clearCache();
-    this.imagestore.getImages( destScale, destStart, destEnd );
+    this.store.clearCache();
+    this.store.getImages( destScale, destStart, destEnd );
 };
 
 ImageTrack.prototype.endZoom = function(destScale, destBlockBases) {
@@ -115,7 +118,7 @@ ImageTrack.prototype.endZoom = function(destScale, destBlockBases) {
 
 ImageTrack.prototype.clear = function() {
     Track.prototype.clear.apply(this);
-    this.imagestore.clearCache();
+    this.store.clearCache();
 };
 
 ImageTrack.prototype.transfer = function(sourceBlock, destBlock, scale,
@@ -137,21 +140,9 @@ ImageTrack.prototype.transfer = function(sourceBlock, destBlock, scale,
 		destBlock.appendChild(im);
 	    } else {
                 // don't move it, and even uncache it
-		this.imagestore.unCacheImage( im );
+		this.store.unCacheImage( im );
 	    }
 	}
     }
 };
 
-/*
-
-Copyright (c) 2007-2009 The Evolutionary Software Foundation
-
-Created by Mitchell Skinner <mitch_skinner@berkeley.edu>
-
-This package and its accompanying libraries are free software; you can
-redistribute it and/or modify it under the terms of the LGPL (either
-version 2.1, or at your option, any later version) or the Artistic
-License 2.0.  Refer to LICENSE for the full license text.
-
-*/

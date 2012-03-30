@@ -8,7 +8,7 @@ LIBS = @LIBS@
 CXXARGS = $(CXXFLAGS) $(LDFLAGS) $(LIBS)
 
 WIG2PNG_TARGET = $(BINDIR)/wig2png
-WIG2PNG_SRCFILES = $(SRCDIR)/wig2png.cc $(SRCDIR)/opts_list.cc
+WIG2PNG_SRCFILES = $(wildcard $(SRCDIR)/*)
 
 all: $(WIG2PNG_TARGET)
 
@@ -16,6 +16,6 @@ clean:
 	rm $(WIG2PNG_TARGET)
 
 $(WIG2PNG_TARGET): $(WIG2PNG_SRCFILES)
-	$(CXX) $(CXXARGS) -o $@ $(WIG2PNG_SRCFILES)
+	$(CXX) $(CXXARGS) -o $@ $(SRCDIR)/wig2png.cc $(SRCDIR)/opts_list.cc
 
 .PHONY: all clean

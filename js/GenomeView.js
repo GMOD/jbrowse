@@ -364,14 +364,14 @@ GenomeView.prototype.clampY = function(y) {
 GenomeView.prototype.setX = function(x) {
     x = this.clampX(x);
     this.rawSetX( x );
-    this.updateTrackLabels( x );
+    this.updateStaticTrackElements( { x: x } );
     this.showFine();
 };
 
 GenomeView.prototype.setY = function(y) {
     y = this.clampY(y);
     this.rawSetY(y);
-    this.updatePosLabels(y);
+    this.updateStaticTrackElements( { y: y } );
 };
 
 GenomeView.prototype.rawSetPosition = function(pos) {
@@ -382,8 +382,7 @@ GenomeView.prototype.rawSetPosition = function(pos) {
 GenomeView.prototype.setPosition = function(pos) {
     var x = this.clampX( pos.x );
     var y = this.clampY( pos.y );
-    this.updateTrackLabels( x );
-    this.updatePosLabels( y );
+    this.updateStaticTrackElements( {x: x, y: y} );
     this.rawSetX( x );
     this.rawSetY( y );
     this.showFine();
@@ -752,15 +751,31 @@ GenomeView.prototype.checkY = function(y) {
     return Math.min((y < 0 ? 0 : y), this.containerHeight - this.dim.height);
 };
 
-GenomeView.prototype.updatePosLabels = function(newY) {
-    if (newY === undefined) newY = this.getY();
-    this.staticTrack.div.style.top = newY + "px";
-};
+/**
+ * Given a new X and Y pixels position for the main track container,
+ * reposition static elements that "float" over it, like track labels,
+ * Y axis labels, the main track ruler, and so on.
+ *
+ * @param [args.x] the new X coordinate.  if not provided,
+ *   elements that only need updates on the X position are not
+ *   updated.
+ * @param [args.y] the new Y coordinate.  if not provided,
+ *   elements that only need updates on the Y position are not
+ *   updated.
+ */
+GenomeView.prototype.updateStaticTrackElements = function( args ) {
+    this.trackIterate( function(t) {
+        t.updateStaticElements( args );
+    },this);
 
-GenomeView.prototype.updateTrackLabels = function(newX) {
-    if (newX === undefined) newX = this.getX();
-    for (var i = 0; i < this.trackLabels.length; i++)
-        this.trackLabels[i].style.left = newX + "px";
+    if( typeof args.x == 'number' ) {
+        dojo.forEach( this.trackLabels, function(l) {
+            l.style.left = args.x+"px";
+        });
+    }
+
+    if( typeof args.y == 'number' )
+        this.staticTrack.div.style.top = args.y + "px";
 };
 
 GenomeView.prototype.showWait = function() {
@@ -868,7 +883,7 @@ GenomeView.prototype.sizeInit = function() {
         var delta = (blockDelta * this.stripeWidth);
         var newX = this.getX() - delta;
         this.offset += delta;
-        this.updateTrackLabels(newX);
+        this.updateStaticTrackElements( { x: newX } );
         this.rawSetX(newX);
     }
 
@@ -1105,7 +1120,7 @@ GenomeView.prototype.scrollUpdate = function() {
     this.trackIterate(function(track) { track.moveBlocks(dStripes); });
 
     var newX = x + (dStripes * this.stripeWidth);
-    this.updateTrackLabels(newX);
+    this.updateStaticTrackElements( { x: newX } );
     this.rawSetX(newX);
     var firstVisible = (newX / this.stripeWidth) | 0;
 };
