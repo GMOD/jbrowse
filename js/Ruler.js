@@ -29,9 +29,9 @@ Ruler.prototype.render_to = function( target_div ) {
     // change, making the tick marks align correctly with the images
     dojo.style(container,{
                    position: 'absolute',
-                   right: "0px",
+                   left: "-12px",
                    bottom: "-12px",
-                   width: "44px",
+                   width: "50px",
                    height: (target_dims.h+26)+"px"
                });
     target_div.appendChild(container);
