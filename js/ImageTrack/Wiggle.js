@@ -48,8 +48,6 @@ ImageTrack.Wiggle.prototype.makeYScale = function() {
         return;
     }
 
-    var label_digits = Math.floor( Math.log(this.max+1)/Math.log(10))+1;
-
     // make and style the main container div for the axis
     var rulerdiv = document.createElement('div');
     this.yscale = rulerdiv;
@@ -58,7 +56,7 @@ ImageTrack.Wiggle.prototype.makeYScale = function() {
         height: this.imageHeight+'px',
         position: 'absolute',
         left: this.yscale_left,
-        width: (label_digits*11)+'px',
+        width: "100px",
         zIndex: 17
     });
     dojo.style(

@@ -27,11 +27,14 @@ Ruler.prototype.render_to = function( target_div ) {
     // make an inner container that's styled to compensate for the
     // 12px edge-padding that dojox.charting has builtin that we can't
     // change, making the tick marks align correctly with the images
+    var label_digits = Math.floor( Math.log(this.max+1)/Math.log(10))+1;
+
+
     dojo.style(container,{
                    position: 'absolute',
                    left: "-12px",
                    bottom: "-12px",
-                   width: "50px",
+                   width: (40+4*label_digits)+"px",
                    height: (target_dims.h+26)+"px"
                });
     target_div.appendChild(container);
