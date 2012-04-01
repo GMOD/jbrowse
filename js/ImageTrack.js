@@ -62,7 +62,7 @@ ImageTrack.prototype.makeImageLoadHandler = function( img, blockIndex, blockWidt
         this.imageHeight = img.height;
         img.style.height = img.height + "px";
         img.style.width  = (100 * (img.baseWidth / blockWidth)) + "%";
-        this.heightUpdate( img.height+this.trackPadding, blockIndex );
+        this.heightUpdate( img.height, blockIndex );
         return true;
     });
 };

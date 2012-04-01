@@ -39,13 +39,14 @@ int main(int argc, char **argv){
     string fgopt = "105,155,111";
     string bgopt = "255,255,255";
     string minopt, maxopt;
-
+    bool no_transparency;
 
     opts.add ("od -outdir", outdiropt, "the directory for this track");
     opts.add ("tw -tile-width", width, "tile width in pixels");
     opts.add ("th -track-height", height, "track height in pixels");
     opts.add ("fg -foreground-color", fgopt, "foreground R,G,B color");
     opts.add ("bg -background-color", bgopt, "background R,G,B color");
+    opts.add ("nt -no-transparency", no_transparency, "turn off background transparency");
     opts.add ("min -min-value", minopt, "minimum value to show (default is minimum value in WIG file)", false);
     opts.add ("max -max-value", maxopt, "maximum value to show (default is maximum value in WIG file)", false);
 
@@ -102,7 +103,7 @@ int main(int argc, char **argv){
     for (int i = 0; i < num_zooms; i++) {
         p.addRenderer(new MeanRenderer(zooms[i], width, height,
                                        outdiropt,
-                                       bg, fg, max, min));
+                                       bg, fg, no_transparency, max, min));
     }
 
     p.processWiggle(wig_filename.c_str());

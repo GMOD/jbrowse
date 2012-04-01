@@ -1,10 +1,26 @@
 class MeanRenderer : public WiggleTileRenderer {
+private:
+    // colors
+    png_color bgColor_;
+    png_color fgColor_;
+    // moment buffer
+    deque<float> sumVals_;
+    deque<int> valsPerPx_;
+    // global bounds
+    float globalMax_;
+    float globalMin_;
+    // image buffer
+    png_bytep * buf_;
+
+    //flag saying whether transparency is disabled
+    bool no_transparency_;
 
 public:
 
     MeanRenderer(int tileWidthBases, int tileWidthPixels,
                  int tileHeight, string baseDir,
                  png_color bgColor, png_color fgColor,
+                 bool no_transparency,
                  float globalMax, float globalMin) :
         WiggleTileRenderer(tileWidthBases, tileWidthPixels,
                            tileHeight, baseDir),
@@ -13,7 +29,8 @@ public:
         globalMax_(globalMax),
         globalMin_(globalMin),
         sumVals_(),
-        valsPerPx_()
+        valsPerPx_(),
+        no_transparency_(no_transparency)
     {
         buf_ = new png_bytep[tileHeight];
         for (int y = 0; y < tileHeight; y++) 
@@ -93,23 +110,10 @@ public:
                 buf_[y][x] = fgIndex;
         }
 
-        write_png_file(pngFile.c_str(), tileWidthPixels_, tileHeight_, buf_, palette, num_colors, bitdepth);
+        write_png_file(pngFile.c_str(), tileWidthPixels_, tileHeight_, buf_, palette, num_colors, bitdepth, !no_transparency_);
 
 	// erase tile data from buffers
         eraseTileTo(tileWidthPixels_ - 1);
     }
-
-private:
-    // colors
-    png_color bgColor_;
-    png_color fgColor_;
-    // moment buffer
-    deque<float> sumVals_;
-    deque<int> valsPerPx_;
-    // global bounds
-    float globalMax_;
-    float globalMin_;
-    // image buffer
-    png_bytep * buf_;
 };
 

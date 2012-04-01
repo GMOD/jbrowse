@@ -53,6 +53,8 @@ function FeatureTrack( config, refSeq, browserParams ) {
 
 FeatureTrack.prototype = new Track("");
 
+dojo.mixin( FeatureTrack.prototype, Track.YScaleMixin );
+
 FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
 
     var defaultConfig = {
@@ -145,14 +147,19 @@ FeatureTrack.prototype.setViewInfo = function(genomeView, numBlocks,
     this.setLabel(this.key);
 };
 
-FeatureTrack.prototype.fillHist = function(blockIndex, block,
-                                           leftBase, rightBase,
-                                           stripeWidth) {
+/**
+ * Return an object with some statistics about the histograms we will
+ * draw for a given block size in base pairs.
+ * @private
+ */
+FeatureTrack.prototype._histDimensions = function( blockSizeBp ) {
+
     // bases in each histogram bin that we're currently rendering
-    var bpPerBin = (rightBase - leftBase) / this.numBins;
+    var bpPerBin = blockSizeBp / this.numBins;
     var pxPerCount = 2;
     var logScale = false;
     var stats = this.featureStore.histograms.stats;
+    var statEntry;
     for (var i = 0; i < stats.length; i++) {
         if (stats[i].bases >= bpPerBin) {
             //console.log("bpPerBin: " + bpPerBin + ", histStats bases: " + this.histStats[i].bases + ", mean/max: " + (this.histStats[i].mean / this.histStats[i].max));
@@ -160,9 +167,25 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
             pxPerCount = 100 / (logScale ?
                                 Math.log(stats[i].max) :
                                 stats[i].max);
+            statEntry = stats[i];
             break;
         }
     }
+
+    return {
+        bpPerBin: bpPerBin,
+        pxPerCount: pxPerCount,
+        logScale: logScale,
+        stats: statEntry
+    };
+};
+
+FeatureTrack.prototype.fillHist = function(blockIndex, block,
+                                           leftBase, rightBase,
+                                           stripeWidth) {
+
+    var dims = this._histDimensions( Math.abs( rightBase - leftBase ) );
+
     var track = this;
     var makeHistBlock = function(hist) {
         var maxBin = 0;
@@ -180,7 +203,7 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
             binDiv.style.cssText =
                 "left: " + ((bin / track.numBins) * 100) + "%; "
                 + "height: "
-                + (pxPerCount * (logScale ? Math.log(hist[bin]) : hist[bin]))
+                + (dims.pxPerCount * ( dims.logScale ? Math.log(hist[bin]) : hist[bin]))
                 + "px;"
                 + "bottom: " + track.trackPadding + "px;"
                 + "width: " + (((1 / track.numBins) * 100) - (100 / stripeWidth)) + "%;"
@@ -190,8 +213,9 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
             block.appendChild(binDiv);
         }
 
-        track.heightUpdate(pxPerCount * (logScale ? Math.log(maxBin) : maxBin),
-                           blockIndex);
+        track.heightUpdate( dims.pxPerCount * ( dims.logScale ? Math.log(maxBin) : maxBin ),
+                            blockIndex );
+        track.makeHistogramYScale( Math.abs(rightBase-leftBase) );
     };
 
     // The histogramMeta array describes multiple levels of histogram detail,
@@ -206,12 +230,12 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
     // rather than the 20,000)
     var histogramMeta = this.featureStore.histograms.meta[0];
     for (var i = 0; i < this.featureStore.histograms.meta.length; i++) {
-        if (bpPerBin >= this.featureStore.histograms.meta[i].basesPerBin)
+        if (dims.bpPerBin >= this.featureStore.histograms.meta[i].basesPerBin)
             histogramMeta = this.featureStore.histograms.meta[i];
     }
 
     // number of bins in the server-supplied histogram for each current bin
-    var binCount = bpPerBin / histogramMeta.basesPerBin;
+    var binCount = dims.bpPerBin / histogramMeta.basesPerBin;
     // if the server-supplied histogram fits neatly into our current histogram,
     if ((binCount > .9)
         &&
@@ -252,6 +276,15 @@ FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
     this.clear();
 };
 
+FeatureTrack.prototype.updateStaticElements = function( coords ) {
+    Track.prototype.updateStaticElements.apply( this, arguments );
+    if( typeof coords.x == 'number' ) {
+        this.yscale_left = coords.x + "px";
+        if( this.yscale )
+            this.yscale.style.left = this.yscale_left;
+    }
+};
+
 FeatureTrack.prototype.fillBlock = function(blockIndex, block,
                                             leftBlock, rightBlock,
                                             leftBase, rightBase,
@@ -263,21 +296,78 @@ FeatureTrack.prototype.fillBlock = function(blockIndex, block,
 	this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
                       containerStart, containerEnd);
     } else {
+
+        // if we have transitioned to viewing features, delete the
+        // y-scale used for the histograms
+        if( this.yscale ) {
+            this._removeYScale();
+        }
+
 	this.fillFeatures(blockIndex, block, leftBlock, rightBlock,
                           leftBase, rightBase, scale,
                           containerStart, containerEnd);
     }
 };
 
+/**
+ * Creates a Y-axis scale for the feature histogram.  Must be run after
+ * the histogram bars are drawn, because it sometimes must use the
+ * track height to calculate the max value if there are no explicit
+ * histogram stats.
+ * @param {Number} blockSizeBp the size of the blocks in base pairs.
+ * Necessary for calculating histogram stats.
+ */
+FeatureTrack.prototype.makeHistogramYScale = function( blockSizeBp ) {
+    var dims = this._histDimensions( blockSizeBp);
+    if( dims.logScale ) {
+        console.error("Log histogram scale axis labels not yet implemented.");
+        return;
+    }
+    var maxval = dims.stats ? dims.stats.max : this.height/dims.pxPerCount;
+    maxval = dims.logScale ? log(maxval) : maxval;
+
+    // if we have a scale, and it has the same characteristics
+    // (including pixel height), don't redraw it.
+    if( this.yscale && this.yscale_params
+        && this.yscale_params.maxval == maxval
+        && this.yscale_params.height == this.height
+        && this.yscale_params.blockbp == blockSizeBp
+      ) {
+        return;
+      } else {
+          this._removeYScale();
+          this.makeYScale({ min: 0, max: maxval });
+          this.yscale_params = {
+              height: this.height,
+              blockbp: blockSizeBp,
+              maxval: maxval
+          };
+      }
+};
+
+/**
+ * Delete the Y-axis scale if present.
+ * @private
+ */
+FeatureTrack.prototype._removeYScale = function() {
+    if( !this.yscale )
+        return;
+    this.yscale.parentNode.removeChild( this.yscale );
+    delete this.yscale_params;
+    delete this.yscale;
+};
+
 FeatureTrack.prototype.cleanupBlock = function(block) {
     if (block && block.featureLayout) block.featureLayout.cleanup();
 };
 
+/**
+ * Called when sourceBlock gets deleted.  Any child features of
+ * sourceBlock that extend onto destBlock should get moved onto
+ * destBlock.
+ */
 FeatureTrack.prototype.transfer = function(sourceBlock, destBlock, scale,
                                            containerStart, containerEnd) {
-    //transfer(sourceBlock, destBlock) is called when sourceBlock gets deleted.
-    //Any child features of sourceBlock that extend onto destBlock should get
-    //moved onto destBlock.
 
     if (!(sourceBlock && destBlock)) return;
     if (!sourceBlock.featureLayout) return;

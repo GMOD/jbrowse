@@ -16,7 +16,7 @@ void abort_(const char * s, ...)
     abort();
 }
 
-void write_png_file(const char* file_name, int width, int height, png_bytep imgbuf[], png_color palette[], int num_colors, int bitdepth) {
+void write_png_file(const char* file_name, int width, int height, png_bytep imgbuf[], png_color palette[], int num_colors, int bitdepth, bool transparent_background ) {
     FILE *fp = fopen(file_name, "wb");
     if (!fp)
         abort_("[write_png_file] File %s could not be opened for writing", file_name);
@@ -50,6 +50,13 @@ void write_png_file(const char* file_name, int width, int height, png_bytep imgb
 
     //set palette info
     png_set_PLTE(png_ptr, info_ptr, palette, num_colors);
+#ifdef PNG_tRNS_SUPPORTED
+    if( transparent_background ) {
+      png_byte trans[1];
+      trans[0] = 0;
+      png_set_tRNS(png_ptr, info_ptr, trans, 1, NULL);
+    }
+#endif
 
     //set actual image data
     png_set_rows(png_ptr, info_ptr, imgbuf);
