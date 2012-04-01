@@ -5,7 +5,9 @@
  * @class
  */
 
-var YScaleMixin = {
+var Track; if( !Track ) Track = {};
+
+Track.YScaleMixin = {
 
     /**
      * @param {Number} [min] Optional minimum value for the scale.
@@ -22,7 +24,7 @@ var YScaleMixin = {
         this.yscale = rulerdiv;
         rulerdiv.className = 'ruler vertical_ruler';
         dojo.style( rulerdiv, {
-                        height: this.imageHeight+'px',
+                        height: this.height+'px',
                         position: 'absolute',
                         left: this.yscale_left,
                         width: "100px",
