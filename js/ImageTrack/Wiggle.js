@@ -15,7 +15,7 @@ ImageTrack.Wiggle = function() {
 
 ImageTrack.Wiggle.prototype = new ImageTrack({},{},{});
 
-dojo.mixin( ImageTrack.Wiggle.prototype, YScaleMixin );
+dojo.mixin( ImageTrack.Wiggle.prototype, Track.YScaleMixin );
 
 ImageTrack.Wiggle.prototype.updateStaticElements = function( coords ) {
     ImageTrack.prototype.updateStaticElements.apply( this, arguments );
