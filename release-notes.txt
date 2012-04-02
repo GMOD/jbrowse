@@ -1,5 +1,19 @@
 {{$NEXT}}
 
+ * Browser testing for this release:
+      * Google Chrome 18                perfect
+      * Google Chrome 17                perfect
+      * Mozilla Firefox 11.0            perfect
+      * Mozilla Firefox 10.1            perfect
+      * Mozilla Firefox 10.0.2          perfect
+      * Mozilla Firefox 3.6.28          nonfunctional
+      * Microsoft Internet Explorer 9   perfect
+      * Microsoft Internet Explorer 8   good
+      * Microsoft Internet Explorer 7   minor problems
+      * KDE Konqueror 4.7.4             nonfunctional
+      * KDE Konqueror 4.5.5             nonfunctional
+      * Opera (all versions)            not tested
+
  * Server-side data-formatting scripts now support a --compress option
    to compress (gzip) feature and sequence data to conserve server
    disk space.  Using this option requires some web server
