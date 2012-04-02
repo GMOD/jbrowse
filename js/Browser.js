@@ -52,18 +52,16 @@ var Browser = function(params) {
 
 Browser.prototype.loadRefSeqs = function() {
     // load our ref seqs
-    var that = this;
     if( typeof this.config.refSeqs == 'string' )
         this.config.refSeqs = { url: this.config.refSeqs };
     dojo.xhrGet(
         {
             url: this.config.refSeqs.url,
             handleAs: 'json',
-            load: function(o) {
-                that.addRefseqs(o);
-                //that.onRefSeqsLoaded();
-                window.setTimeout(function() { that.onRefSeqsLoaded();},1);
-            }
+            load: dojo.hitch( this, function(o) {
+                this.addRefseqs(o);
+                this.onRefSeqsLoaded();
+            })
         });
 };
 
