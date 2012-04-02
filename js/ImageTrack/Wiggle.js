@@ -30,14 +30,19 @@ ImageTrack.Wiggle.prototype.loadSuccess = function() {
     ImageTrack.prototype.loadSuccess.apply( this, arguments );
 };
 
-ImageTrack.Wiggle.prototype.makeImageLoadHandler = function( img, blockIndex, blockWidth ) {
-    var superclass_handler = ImageTrack.prototype.makeImageLoadHandler.apply( this, arguments );
-    return dojo.hitch( this, function() {
-        superclass_handler();
-
-        if(! this.yscale )
-            this.makeWiggleYScale();
-    });
+ImageTrack.Wiggle.prototype.makeImageLoadHandler = function( img, blockIndex, blockWidth, composeCallback ) {
+    return ImageTrack.prototype.makeImageLoadHandler.call(
+        this,
+        img,
+        blockIndex,
+        blockWidth,
+        dojo.hitch(this, function() {
+                       if(! this.yscale )
+                           this.makeWiggleYScale();
+                       if( composeCallback )
+                           composeCallback();
+                   })
+    );
 };
 
 ImageTrack.Wiggle.prototype.makeWiggleYScale = function() {

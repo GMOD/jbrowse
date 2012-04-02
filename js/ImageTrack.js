@@ -57,14 +57,27 @@ ImageTrack.prototype.handleImageError = function(ev) {
 /**
  * @private
  */
-ImageTrack.prototype.makeImageLoadHandler = function( img, blockIndex, blockWidth ) {
-    return dojo.hitch( this, function() {
+ImageTrack.prototype.makeImageLoadHandler = function( img, blockIndex, blockWidth, composeCallback ) {
+    var handler = dojo.hitch( this, function() {
         this.imageHeight = img.height;
         img.style.height = img.height + "px";
         img.style.width  = (100 * (img.baseWidth / blockWidth)) + "%";
         this.heightUpdate( img.height, blockIndex );
+        if( composeCallback )
+            composeCallback();
         return true;
     });
+
+    if( ! dojo.isIE )
+        return handler;
+    else
+        // in IE, have to delay calling it for a (arbitrary) 1/4
+        // second because the image's height is not always
+        // available when the onload event fires.  >:-{
+        return function() {
+            window.setTimeout(handler,250);
+        };
+
 };
 
 ImageTrack.prototype.fillBlock = function(blockIndex, block,
