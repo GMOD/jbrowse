@@ -142,13 +142,35 @@
 		//
 		
 		// http://developer.yahoo.com/search/content/V1/termExtraction.html
-		contextSearch: {
+		termExtraction: {
 			// FIXME: the API docs say to submit this as a POST, but we need JSONP for cross-domain, right?
 			// transport: "POST",
 			target: "http://search.yahooapis.com/ContentAnalysisService/V1/termExtraction",
 			parameters: [
 				{ name: "context", type: "string", optional: false, "default": "" },
 				{ name: "query", type: "string", optional: true, "default": "" }
+			]
+		},
+
+		//
+		// CONTEXT SEARCH
+		//
+		
+		// http://developer.yahoo.com/search/content/V1/contextSearch.html
+		contextSearch: {
+			target: "http://search.yahooapis.com/WebSearchService/V1/contextSearch",
+			parameters: [
+				{ name: "query", type: "string", optional: true, "default": "" },
+				{ name: "context", type: "string", optional: false, "default": "" },
+				{ name: "results", type: "integer", optional: true, "default": 10 }, // max 100
+				{ name: "start", type: "integer", optional: true, "default": 1 },
+				{ name: "format", type: "string", optional: true, "default": "any" }, // can be "any", "html", "msword", "pdf", "ppt", "rss", "txt", "xls"
+				{ name: "adult_ok", type: "boolean", optional: true, "default": null },
+				{ name: "similar_ok", type: "boolean", optional: true, "default": null },
+				{ name: "language", type: "string", optional: true, "default": null },
+				{ name: "country", type: "string", optional: true, "default": null },
+				{ name: "site", type: "string", optional: true, "default": null },
+				{ name: "license", type: "string", optional: true, "default": "any" } // can be "any", "cc_any", "cc_commercial", "cc_modifiable"
 			]
 		},
 

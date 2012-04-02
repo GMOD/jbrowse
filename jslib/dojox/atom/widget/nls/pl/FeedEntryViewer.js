@@ -1,1 +1,1 @@
-({"close":"[Zamknij]","title":"Tytuł","authors":"Autorzy","summary":"Podsumowanie","content":"Treść","contributors":"Kontrybutorzy","updated":"Zaktualizowano","displayOptions":"[Opcje wyświetlania]","id":"Identyfikator"})
+({"close":"[zamknij]","title":"Tytuł","authors":"Autorzy","summary":"Podsumowanie","content":"Treść","contributors":"Kontrybutorzy","updated":"Zaktualizowano","displayOptions":"[opcje wyświetlania]","id":"Identyfikator"})

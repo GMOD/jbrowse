@@ -5,17 +5,25 @@ Version 0.9
 Release date: 5/17/2007
 -------------------------------------------------------------------------------
 Project state:
-experimental
+varies
+
+Buddhist, Hebrew, Islamic calendars: stable
+posix, php: beta
+timezone: experimental
+
 -------------------------------------------------------------------------------
 Credits
 	Paul Sowden (dojox.date.posix)
 	Neil Roberts (dojox.date.php)
-	Hossam Aldin Katory (dojox.date.IslamicCalendar, dojox.date.HebrewCalendar)
+	Hossam Aldin Katory (dojox.date.islamic, dojox.date.hebrew)
+	Helena Halperin, Moshe Wajnberg, Tomer Mahlin (dojox.date.hebrew)
+	Nathan Toone (dojox.date.relative, dojox.date.tzdate, dojox.date.timezone)
 -------------------------------------------------------------------------------
 Project description
 
 Placeholder for any kind of date operations, including formatters that are
 common to other languages (posix and php).
+
 -------------------------------------------------------------------------------
 Dependencies:
 

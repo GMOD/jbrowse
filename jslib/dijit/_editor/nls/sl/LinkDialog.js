@@ -1,1 +1,1 @@
-({"set":"Nastavi","text":"Opis:","insertImageTitle":"Lastnosti slike","url":"URL:","createLinkTitle":"Lastnosti povezave"})
+({"text":"Opis:","insertImageTitle":"Lastnosti slike","set":"Nastavi","newWindow":"Novo okno","topWindow":"Okno na vrhu","target":"Cilj:","createLinkTitle":"Lastnosti povezave","parentWindow":"Nadrejeno okno","currentWindow":"Trenutno okno","url":"URL:"})

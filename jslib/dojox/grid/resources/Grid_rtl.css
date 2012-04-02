@@ -1,1 +1,1 @@
-.dijitRtl .dojoxGridHeader table {}.dj_ie .dijitRtl .dojoxGridHeader table {float:none;}.dijitRtl .dojoxGridContent {float:left;}.dijitRtl .dojoxGridCell {text-align:right;}
+.dj_ie .dojoxGridRtl .dojoxGridHeader table {float:none;}.dojoxGridRtl .dojoxGridCell {text-align:right;}.dj_ie8 .dojoxGridRtl .dojoxGridCell {border-left: none;}.dojoxGridRtl .dojoxGridArrowButtonNode {float:left;}

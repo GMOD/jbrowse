@@ -1,1 +1,1 @@
-({"iframeEditTitle":"uredi področje","iframeFocusTitle":"uredi področje okvirja"})
+({"iframeEditTitle":"urejevalno področje","iframeFocusTitle":"okvir urejevalnega področja"})

@@ -13,6 +13,7 @@ dependencies = (
                     "dijit.layout.ContentPane",
                     "dijit.layout.BorderContainer",
                     "dijit.Dialog",
+                    "dojox.gfx.svg",
                     "dojox.charting.Chart2D"
                 ],
                 layerDependencies: [],

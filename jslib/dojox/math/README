@@ -11,11 +11,13 @@ Credits
 	Cal Henderson
 	Dan Pupius
 	Tom Trenka (ttrenka AT gmail.com)
+	Eugene Lazutkin (eugene.lazutkin AT gmail.com)
 -------------------------------------------------------------------------------
 Project description
 
 A port of the main functionality of dojo.math 0.4.  Includes advanced math
 functions, abstract curve definitions, and some point calculations.
+
 -------------------------------------------------------------------------------
 Dependencies:
 
@@ -28,8 +30,8 @@ See the API documentation.
 Installation instructions
 
 Grab the following from the Dojo SVN Repository:
-http://svn.dojotoolkit.org/var/src/dojo/dojox/trunk/math.js
-http://svn.dojotoolkit.org/var/src/dojo/dojox/trunk/math/*
+http://svn.dojotoolkit.org/src/dojox/trunk/math.js
+http://svn.dojotoolkit.org/src/dojox/trunk/math/*
 
 Install into the following directory structure:
 /dojox/math/

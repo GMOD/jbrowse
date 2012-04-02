@@ -1,1 +1,1 @@
-({"set":"Definir","text":"Descrição:","insertImageTitle":"Propriedades da imagem","url":"URL:","createLinkTitle":"Propriedades da ligação"})
+({"text":"Descrição:","insertImageTitle":"Propriedades da imagem","set":"Definir","newWindow":"Nova janela","topWindow":"Janela superior","target":"Destino:","createLinkTitle":"Propriedades da ligação","parentWindow":"Janela ascendente","currentWindow":"Janela actual","url":"URL:"})

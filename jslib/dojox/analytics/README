@@ -24,7 +24,7 @@ back to the server.  Plugins included at this time:
 	idle - reports idle/activity 
 	consoleMessages - reports console.* messages to the server	
 
-	Additionally, a Google Ananlytics (Urchin tracker) helper is included
+	Additionally, a Google Analytics (Urchin tracker) helper is included
 	in this project, though is unrelated to the Core dojox.analytics 
 	project code. 
 

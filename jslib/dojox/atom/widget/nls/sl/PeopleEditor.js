@@ -1,1 +1,1 @@
-({"add":"Dodaj","addAuthor":"Dodaj avtorja","addContributor":"Dodaj kontributorja,"})
+({"add":"Dodaj","addAuthor":"Dodaj avtorja","addContributor":"Dodaj kontributorja"})

@@ -12,17 +12,11 @@ JsonRPC.js: beta - plugins for json-rpc for the rpc system
 Rest.js: beta - plugin for REST style services for the rpc system
 JsonRest.js: beta - A module for tracking and persisting changes to JSON objects 
 through REST.
-LocalStorageRest.js: alpha - A module for storing REST changes locally as write-
+OfflineRest.js: alpha - A module for storing REST changes locally as write-
 back cache for offline and intermittent connection situations
-OfflineRest.js: alpha - A module for using LocalStorageRest for a full-fledged
-offline application
 ProxiedPath.js: beta - plugin for the PATH envelope to work with a simple PHP proxy
 Client.js: alpha - A module for maintaining per page/tab client sessions and 
 deterministic message sequencing with a server.
-
-Stores: CouchDBRestStore.js  JsonReferencing.js  PersevereRestStore.js
-These stores are fresh new and alpha. The will likely be moved to dojox.data 
-after they are well tested and documented.
 
 SMDLibrary contains smd files representing external services.
 

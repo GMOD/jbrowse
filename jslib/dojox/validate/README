@@ -8,7 +8,7 @@ Project state: experimental / beta
 -------------------------------------------------------------------------------
 Credits
 	port: Peter Higgins (dante)
-	contributions: Kun Xi (bookstack at gmail com)
+	contributions: Kun Xi (bookstack at gmail com), Jared Jurkiewicz
 -------------------------------------------------------------------------------
 Project description
 
@@ -40,6 +40,8 @@ Project description
 	
 	web.js provides url and email address validation, as well as a number
 		of web/network related validation functions. 
+
+	br.js provides Brazil specific validators for CNPJ and CPF numbers.
 		
 -------------------------------------------------------------------------------
 Dependencies:

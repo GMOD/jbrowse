@@ -1,1 +1,1 @@
-({"USD_symbol":"US$","EUR_displayName":"EUR","GBP_displayName":"GBP","JPY_displayName":"JPY","GBP_symbol":"UK£","JPY_symbol":"JP¥","EUR_symbol":"€","USD_displayName":"USD"})
+({"USD_symbol":"US$","CAD_symbol":"CA$","GBP_symbol":"£","HKD_symbol":"HK$","JPY_symbol":"JP¥","AUD_symbol":"AU$","CNY_symbol":"CN¥","EUR_symbol":"€"})
