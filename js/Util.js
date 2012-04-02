@@ -11,9 +11,9 @@ Util.is_ie6 = navigator.appVersion.indexOf('MSIE 6') >= 0;
 Util.addCommas = function(nStr)
 {
 	nStr += '';
-	x = nStr.split('.');
-	x1 = x[0];
-	x2 = x.length > 1 ? '.' + x[1] : '';
+	var x = nStr.split('.');
+	var x1 = x[0];
+	var x2 = x.length > 1 ? '.' + x[1] : '';
 	var rgx = /(\d+)(\d{3})/;
 	while (rgx.test(x1)) {
 		x1 = x1.replace(rgx, '$1' + ',' + '$2');
@@ -181,7 +181,7 @@ Util.parseLocString = function( locstring ) {
     locstring = dojo.trim( locstring );
 
     //                                (chromosome)    (    start      )   (  sep     )     (    end   )
-    var matches = locstring.match(/^(((\S*)\s*:)?\s*(-?[0-9,.]*[0-9])\s*(\.\.|-|\s+))?\s*(-?[0-9,.]+)$/i);
+    var matches = locstring.match(/^(((\S*)\s*:)?\s*(-?[\d,.']*[\d])\s*(\.\.|-|\s+))?\s*(-?[\d,.']+)$/i);
     //matches potentially contains location components:
     //matches[3] = chromosome (optional)
     //matches[4] = start base (optional)
@@ -193,7 +193,7 @@ Util.parseLocString = function( locstring ) {
     // parses a number from a locstring that's a coordinate, and
     // converts it from 1-based to interbase coordinates
     var parseCoord = function( coord ) {
-        var num = parseInt( String(coord).replace(/[,.]/g, "") );
+        var num = parseInt( coord, 10 );
         return typeof num == 'number' && !isNaN(num) ? num : null;
     };
 
@@ -220,19 +220,19 @@ Util.assembleLocString = function( loc_in ) {
         }
     }
 
-    //finally assembly our string
+    //finally assemble our string
     if( 'ref' in location ) {
         s += location.ref;
         if( location.start || location.end )
             s += ':';
     }
     if( 'start' in location ) {
-        s += (Math.round(location.start)+1).toLocaleString();
+        s += (Math.round(location.start)+1).toFixed(0).toLocaleString();
         if( 'end' in location )
             s+= '..';
     }
     if( 'end' in location )
-        s += Math.round(location.end).toLocaleString();
+        s += Math.round(location.end).toFixed(0).toLocaleString();
 
     return s;
 };

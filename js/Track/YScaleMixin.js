@@ -26,10 +26,13 @@ Track.YScaleMixin = {
         dojo.style( rulerdiv, {
                         height: this.height+'px',
                         position: 'absolute',
-                        left: this.yscale_left,
                         width: "100px",
                         zIndex: 17
                     });
+
+        if( this.yscale_left )
+            rulerdiv.style.left = this.yscale_left;
+
         dojo.style(
             rulerdiv,
             ( this.config.align == 'top' ? { top: '0px' } :

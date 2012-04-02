@@ -545,7 +545,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
                                           levelHeight);
 
     var featDiv = this.config.hooks.create(this, feature );
-    for (event in this.eventHandlers) {
+    for (var event in this.eventHandlers) {
         featDiv["on" + event] = this.eventHandlers[event];
     }
     featDiv.feature = feature;

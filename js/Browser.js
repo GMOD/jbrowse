@@ -937,7 +937,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     var refCookie = dojo.cookie(this.config.containerID + "-refseq");
     var i = 0;
     for ( var name in this.allRefs ) {
-        this.chromList.add( new Option( name, name), null );
+        this.chromList.add( new Option( name, name) );
         if ( name.toUpperCase() == String(refCookie).toUpperCase()) {
             this.refSeq = this.allRefs[name];
             this.chromList.selectedIndex = i;
