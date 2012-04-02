@@ -1231,6 +1231,8 @@ GenomeView.prototype.addTrack = function(track) {
     labelDiv.style.left = this.getX() + "px";
     trackDiv.appendChild(labelDiv);
 
+    track.updateStaticElements({ x: this.getX(), y: this.getY() });
+
     return trackDiv;
 };
 
