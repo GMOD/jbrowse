@@ -203,6 +203,11 @@ Browser.prototype.loadConfig = function () {
     // fetch and parse all the configuration data
     var configs_remaining = this.config.include.length;
     dojo.forEach( this.config.include, function(config) {
+        // include array might have undefined elements in it if
+        // somebody left a trailing comma in and we are running under
+        // IE
+        if( !config )
+            return;
 
         // set defaults for format and version
         if( ! ('format' in config) ) {
