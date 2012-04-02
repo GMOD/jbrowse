@@ -79,6 +79,9 @@ jbrowse_dojo.js:
 ./../../release/dojo/dojox/gfx/matrix.js
 ./../../release/dojo/dojox/gfx/path.js
 ./../../release/dojo/dojox/gfx/svg.js
+./../../release/dojo/dojox/gfx/arc.js
+./../../release/dojo/dojox/gfx/gradient.js
+./../../release/dojo/dojox/gfx/vml.js
 ./../../release/dojo/dojox/charting/scaler/common.js
 ./../../release/dojo/dojox/charting/scaler/linear.js
 ./../../release/dojo/dojox/gfx.js
