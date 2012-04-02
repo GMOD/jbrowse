@@ -691,11 +691,24 @@ GenomeView.prototype.centerAtBase = function(base, instantly) {
 };
 
 GenomeView.prototype.minVisible = function() {
-    return this.pxToBp(this.x + this.offset);
+    var mv = this.pxToBp(this.x + this.offset);
+
+    // if we are less than one pixel from the beginning of the ref
+    // seq, just say we are at the beginning.
+    if( mv < this.pxToBp(1) )
+        return 0;
+    else
+        return mv;
 };
 
 GenomeView.prototype.maxVisible = function() {
-    return this.pxToBp(this.x + this.offset + this.dim.width);
+    var mv = this.pxToBp(this.x + this.offset + this.dim.width);
+    // if we are less than one pixel from the end of the ref
+    // seq, just say we are at the end.
+    if( mv > this.ref.end - this.pxToBp(1) )
+        return this.ref.end;
+    else
+        return mv;
 };
 
 GenomeView.prototype.showFine = function() {
