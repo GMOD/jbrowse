@@ -690,6 +690,10 @@ GenomeView.prototype.centerAtBase = function(base, instantly) {
     }
 };
 
+/**
+ * @returns {Number} minimum basepair coordinate of the current
+ * reference sequence visible in the genome view
+ */
 GenomeView.prototype.minVisible = function() {
     var mv = this.pxToBp(this.x + this.offset);
 
@@ -701,6 +705,10 @@ GenomeView.prototype.minVisible = function() {
         return mv;
 };
 
+/**
+ * @returns {Number} maximum basepair coordinate of the current
+ * reference sequence visible in the genome view
+ */
 GenomeView.prototype.maxVisible = function() {
     var mv = this.pxToBp(this.x + this.offset + this.dim.width);
     // if we are less than one pixel from the end of the ref
@@ -718,8 +726,14 @@ GenomeView.prototype.showCoarse = function() {
     this.onCoarseMove(this.minVisible(), this.maxVisible());
 };
 
-GenomeView.prototype.onFineMove = function() {};
-GenomeView.prototype.onCoarseMove = function() {};
+/**
+ * Hook for other components to dojo.connect to.
+ */
+GenomeView.prototype.onFineMove = function( startbp, endbp ) {};
+/**
+ * Hook for other components to dojo.connect to.
+ */
+GenomeView.prototype.onCoarseMove = function( startbp, endbp ) {};
 
 /**
  * Event handler fired when the overview bar is single-clicked.
