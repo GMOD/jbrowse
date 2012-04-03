@@ -7,6 +7,7 @@
       * Mozilla Firefox 10.1            perfect
       * Mozilla Firefox 10.0.2          perfect
       * Mozilla Firefox 3.6.28          nonfunctional
+      * Apple Safari 5.1.5 (Lion)       perfect
       * Microsoft Internet Explorer 9   perfect
       * Microsoft Internet Explorer 8   good
       * Microsoft Internet Explorer 7   minor problems
