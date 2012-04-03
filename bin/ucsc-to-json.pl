@@ -197,7 +197,7 @@ foreach my $tableName (@$tracks) {
        compress => $compress,
        style => {
                  "className" => $cssClass,
-                 "featureCss" => "background-color: $color; height: 8px;",
+                 "featureCss" => "background-color: $color; height: 6px;",
                  "histCss" => "background-color: $color;"
                 }
       };
