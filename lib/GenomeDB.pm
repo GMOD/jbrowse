@@ -155,9 +155,24 @@ sub getTrack {
     # this should never happen
     die "multiple tracks labeled $trackLabel" if @selected > 1;
 
-    ( my $type = $trackDesc->{type} ) =~ s/\W//g;
+    my $type = $trackDesc->{type};
+    $type =~ s/\./::/g;
+    $type =~ s/[^\w:]//g;
 
-    eval "require $type"; die $@ if $@;
+    # make a list of perl packages to try, finding the most specific
+    # perl track class that matches the type in the JSON file.  For
+    # example, ImageTrack.Wiggle.Frobnicated will try first to require
+    # ImageTrack::Wiggle::Frobnicated, then ImageTrack::Wiggle, then
+    # finally ImageTrack.
+    my @packages_to_try = ( $type );
+    while( $type =~ s/::[^:]+$// ) {
+        push @packages_to_try, $type;
+    }
+    for( @packages_to_try ) {
+        eval "require $_";
+        last unless $@;
+    }
+    die $@ if $@;
 
     (my $baseUrl = $self->{trackUrlTempl}) =~ s/\{tracklabel\}/$trackLabel/g;
 
