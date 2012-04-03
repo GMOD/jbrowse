@@ -68,20 +68,21 @@ Browser.prototype.fatalError = function( error ) {
         container.innerHTML = ''
             + '<div class="fatal_error">'
             + '  <h1>JBrowse error</h1>'
-            + '  <div id="fatal_errors" class="errors"> <h2>Error message(s):</h2>'
-            + ( error ? '<div> '+error+'</div>' : '' )
-            + '  </div>'
             + "  <p>JBrowse could not start because of an error in its data or configuration.  Please refer to the following resources for help on getting JBrowse up and running.</p>"
             + '  <ul><li><a target="_blank" href="docs/tutorial/">Setup tutorial</a></li>'
             + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse wiki</a></li>'
             + '      <li><a target="_blank" href="docs/config.html">Configuration reference</a></li>'
             + '      <li><a target="_blank" href="docs/featureglyphs.html">Feature glyph reference</a></li>'
             + '  </ul>'
+
+            + '  <div id="fatal_error_list" class="errors"> <h2>Error message(s):</h2>'
+            + ( error ? '<div class="error"> '+error+'</div>' : '' )
+            + '  </div>'
             + '</div>'
             ;
         this.hasFatalErrors = true;
     } else {
-        var errors_div = dojo.byId('fatal_errors') || document.body;
+        var errors_div = dojo.byId('fatal_error_list') || document.body;
         dojo.create('div', { className: 'error', innerHTML: error+'' }, errors_div );
     }
 };
@@ -309,7 +310,7 @@ Browser.prototype.validateConfig = function() {
         this.fatalError( 'No tracks defined in configuration' );
     }
     if( ! c.baseUrl ) {
-        this.fatalError( 'Must provide a baseUrl in configuration' );
+        this.fatalError( 'Must provide a <code>baseUrl</code> in configuration' );
     }
     if( this.hasFatalErrors )
         throw "Errors in configuration, aborting.";

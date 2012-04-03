@@ -797,3 +797,8 @@ input.nav {
     font-size: 12px;
     margin: 1em;
 }
+.fatal_error div.error {
+    margin: 1px 0px 1px 1em;
+    background: #ff8888;
+    padding: 2px 6px;
+}
