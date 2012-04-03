@@ -64,13 +64,15 @@ use strict;
 use warnings;
 
 use FindBin qw($Bin);
+use lib "$Bin/../lib";
+use JBlibs;
+
 use Pod::Usage;
 use Getopt::Long;
 
 use JSON 2;
 use Bio::DB::Sam;
 
-use lib "$Bin/../lib";
 use GenomeDB;
 use NCLSorter;
 
