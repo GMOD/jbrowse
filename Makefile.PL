@@ -13,7 +13,6 @@ my %WriteMakefileArgs = (
   'AUTHOR' => 'Robert Buels <rbuels@cpan.org>',
   'BUILD_REQUIRES' => {
     'Capture::Tiny' => '0',
-    'Data::Visitor::Callback' => '0',
     'File::Copy::Recursive' => '0',
     'File::Next' => '0',
     'Test::More' => '0'
