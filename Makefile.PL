@@ -37,7 +37,6 @@ my %WriteMakefileArgs = (
   'NAME' => 'JBrowse',
   'PREREQ_PM' => {
     'Bio::Annotation::SimpleValue' => '0',
-    'Bio::DB::Sam' => '0',
     'Bio::FeatureIO' => '0',
     'Bio::GFF3::LowLevel::Parser' => '0',
     'Bio::Index::Fasta' => '0',
