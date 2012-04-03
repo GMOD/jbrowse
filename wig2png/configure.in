@@ -23,7 +23,7 @@ AC_SEARCH_LIBS([png_create_write_struct],
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS([float.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([float.h stdlib.h string.h unistd.h png.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
