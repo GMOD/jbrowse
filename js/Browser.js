@@ -50,6 +50,31 @@ var Browser = function(params) {
     dojo.connect( this, 'onRefSeqsLoaded', this, 'initView'   );
 };
 
+/**
+ * Displays links to configuration help in the main window.  Called
+ * when the main browser cannot run at all, due to configuration
+ * errors or whatever.
+ */
+Browser.prototype.showFatalError = function( message ) {
+    var container =
+        dojo.byId(this.config.containerID || 'GenomeBrowser')
+        || document.body;
+
+    container.innerHTML = ''
+        + '<div class="fatal_error">'
+        + '  <h1>JBrowse error</h1>'
+        + ( message ? '  <p><b>Error message:</b> '+message+"</p>" : '' )
+        + "  <p>JBrowse could not start because of an error in its data or configuration.  Please refer to the following resources for help on getting JBrowse up and running.</p>"
+        + '  <ul><li><a target="_blank" href="docs/tutorial/">Setup tutorial</a></li>'
+        + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse wiki</a></li>'
+        + '      <li><a target="_blank" href="docs/config.html">Configuration reference</a></li>'
+        + '      <li><a target="_blank" href="docs/featureglyphs.html">Feature glyph reference</a></li>'
+        + '  </ul>'
+        + '</div>'
+        ;
+
+};
+
 Browser.prototype.loadRefSeqs = function() {
     // load our ref seqs
     if( typeof this.config.refSeqs == 'string' )
@@ -268,8 +293,18 @@ Browser.prototype.onConfigLoaded = function() {
  */
 Browser.prototype.validateConfig = function() {
     var c = this.config;
+    var that = this;
+    var error = function( msg ) {
+        if( ! /\.$/.exec(msg) )
+            msg = msg + '.';
+        that.showFatalError( msg );
+        throw msg;
+    };
+    if( ! c.tracks ) {
+        error( 'No tracks defined in configuration' );
+    }
     if( ! c.baseUrl ) {
-        throw "Must provide a baseUrl in config.";
+        error( 'Must provide a baseUrl in config' );
     }
 };
 

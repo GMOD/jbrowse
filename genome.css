@@ -792,3 +792,8 @@ input.nav {
     font-weight: normal;
     font-family: monospace;
 }
+
+.fatal_error {
+    font-size: 12px;
+    margin: 1em;
+}
