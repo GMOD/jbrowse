@@ -181,7 +181,7 @@ Util.parseLocString = function( locstring ) {
     locstring = dojo.trim( locstring );
 
     //                                (chromosome)    (    start      )   (  sep     )     (    end   )
-    var matches = locstring.match(/^(((\S*)\s*:)?\s*(-?[\d,.']*[\d])\s*(\.\.|-|\s+))?\s*(-?[\d,.']+)$/i);
+    var matches = locstring.match(/^(((\S*)\s*:)?\s*(-?[\d,.']+)\s*(\.\.|-|\s+))?\s*(-?[\d,.']+)$/i);
     //matches potentially contains location components:
     //matches[3] = chromosome (optional)
     //matches[4] = start base (optional)
@@ -193,6 +193,7 @@ Util.parseLocString = function( locstring ) {
     // parses a number from a locstring that's a coordinate, and
     // converts it from 1-based to interbase coordinates
     var parseCoord = function( coord ) {
+        coord = (coord+'').replace(/\D/g,'');
         var num = parseInt( coord, 10 );
         return typeof num == 'number' && !isNaN(num) ? num : null;
     };
