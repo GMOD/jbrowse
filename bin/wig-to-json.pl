@@ -107,7 +107,7 @@ my $clientConfig;
 
 my $wig2png = "$Bin/wig2png";
 unless( -x $wig2png ) {
-    die "Can't find binary executable $wig2png, did you compile it? (Hint: try typing './configure && make' in jbrowse root directory)\n";
+    die "Can't find binary executable $wig2png, did you compile it? (Type '(cd wig2png && ./configure && make; cd ..)' in the JBrowse root directory to compile it.)\n";
 }
 
 my $help;
