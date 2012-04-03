@@ -55,24 +55,35 @@ var Browser = function(params) {
  * when the main browser cannot run at all, due to configuration
  * errors or whatever.
  */
-Browser.prototype.showFatalError = function( message ) {
-    var container =
-        dojo.byId(this.config.containerID || 'GenomeBrowser')
-        || document.body;
-
-    container.innerHTML = ''
-        + '<div class="fatal_error">'
-        + '  <h1>JBrowse error</h1>'
-        + ( message ? '  <p><b>Error message:</b> '+message+"</p>" : '' )
-        + "  <p>JBrowse could not start because of an error in its data or configuration.  Please refer to the following resources for help on getting JBrowse up and running.</p>"
-        + '  <ul><li><a target="_blank" href="docs/tutorial/">Setup tutorial</a></li>'
-        + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse wiki</a></li>'
-        + '      <li><a target="_blank" href="docs/config.html">Configuration reference</a></li>'
-        + '      <li><a target="_blank" href="docs/featureglyphs.html">Feature glyph reference</a></li>'
-        + '  </ul>'
-        + '</div>'
-        ;
-
+Browser.prototype.fatalError = function( error ) {
+    if( error ) {
+        error = error+'';
+        if( ! /\.$/.exec(error) )
+            error = error + '.';
+    }
+    if( ! this.hasFatalErrors ) {
+        var container =
+            dojo.byId(this.config.containerID || 'GenomeBrowser')
+            || document.body;
+        container.innerHTML = ''
+            + '<div class="fatal_error">'
+            + '  <h1>JBrowse error</h1>'
+            + '  <div id="fatal_errors" class="errors"> <h2>Error message(s):</h2>'
+            + ( error ? '<div> '+error+'</div>' : '' )
+            + '  </div>'
+            + "  <p>JBrowse could not start because of an error in its data or configuration.  Please refer to the following resources for help on getting JBrowse up and running.</p>"
+            + '  <ul><li><a target="_blank" href="docs/tutorial/">Setup tutorial</a></li>'
+            + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse wiki</a></li>'
+            + '      <li><a target="_blank" href="docs/config.html">Configuration reference</a></li>'
+            + '      <li><a target="_blank" href="docs/featureglyphs.html">Feature glyph reference</a></li>'
+            + '  </ul>'
+            + '</div>'
+            ;
+        this.hasFatalErrors = true;
+    } else {
+        var errors_div = dojo.byId('fatal_errors') || document.body;
+        dojo.create('div', { className: 'error', innerHTML: error+'' }, errors_div );
+    }
 };
 
 Browser.prototype.loadRefSeqs = function() {
@@ -243,7 +254,7 @@ Browser.prototype.loadConfig = function () {
         // instantiate the adaptor and load the config
         var adaptor = this.getConfigAdaptor( config );
         if( !adaptor ) {
-            console.error( "Could not load config "+config.url+", no configuration adaptor found for config format "+config.format+' version '+config.version );
+            this.fatalError( "Could not load config "+config.url+", no configuration adaptor found for config format "+config.format+' version '+config.version );
             return;
         }
 
@@ -257,8 +268,9 @@ Browser.prototype.loadConfig = function () {
                     this.onConfigLoaded();
                     //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
             },
-            onFailure: function( request_info ) {
+            onFailure: function( error ) {
                 config.loaded = false;
+                this.fatalError( error );
                 if( ! --configs_remaining )
                     this.onConfigLoaded();
                     //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
@@ -293,19 +305,14 @@ Browser.prototype.onConfigLoaded = function() {
  */
 Browser.prototype.validateConfig = function() {
     var c = this.config;
-    var that = this;
-    var error = function( msg ) {
-        if( ! /\.$/.exec(msg) )
-            msg = msg + '.';
-        that.showFatalError( msg );
-        throw msg;
-    };
     if( ! c.tracks ) {
-        error( 'No tracks defined in configuration' );
+        this.fatalError( 'No tracks defined in configuration' );
     }
     if( ! c.baseUrl ) {
-        error( 'Must provide a baseUrl in config' );
+        this.fatalError( 'Must provide a baseUrl in configuration' );
     }
+    if( this.hasFatalErrors )
+        throw "Errors in configuration, aborting.";
 };
 
 /**
