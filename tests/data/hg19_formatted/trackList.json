@@ -9,7 +9,7 @@
                   "UTR" : "transcript-UTR"
                },
                "arrowheadClass" : "transcript-arrowhead",
-               "featureCss" : "background-color: #0c0c78; height: 8px;",
+               "featureCss" : "background-color: #0c0c78; height: 6px;",
                "histCss" : "background-color: #0c0c78;"
             },
             "compress" : 1,
