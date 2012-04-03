@@ -1,6 +1,8 @@
 use strict;
 use warnings;
 
+use JBlibs;
+
 use File::Spec::Functions 'catfile';
 use File::Temp;
 use Test::More;

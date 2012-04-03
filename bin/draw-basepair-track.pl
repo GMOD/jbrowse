@@ -69,15 +69,16 @@ tiles.
 use strict;
 use warnings;
 
-use POSIX qw (abs ceil);
-
 use FindBin qw($Bin);
+use lib "$Bin/../lib";
+use JBlibs;
+
 use File::Basename;
 use Getopt::Long;
 use List::Util 'max';
 use Pod::Usage;
+use POSIX qw (abs ceil);
 
-use lib "$Bin/../lib";
 use ImageTrackRenderer;
 
 my ($path, $trackLabel, $key, $cssClass);

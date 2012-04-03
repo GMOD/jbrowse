@@ -1,12 +1,15 @@
 use strict;
 use warnings;
 
+use lib 'tests/perl_tests/lib';
+use JBlibs;
+
 use File::Temp;
 use Test::More;
 
 use File::Copy::Recursive 'dircopy';
 
-use lib 'tests/perl_tests/lib';
+
 use FileSlurping 'slurp';
 
 use Script::RemoveTrack;

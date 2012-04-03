@@ -85,13 +85,15 @@ Extra configuration for the client, in JSON syntax.  Example:
 use strict;
 use warnings;
 
-use File::Basename;
 use FindBin qw($Bin);
+use lib "$Bin/../lib";
+use JBlibs;
+
+use File::Basename;
 use Getopt::Long;
 use Pod::Usage;
-use JSON 2;
 
-use lib "$Bin/../lib";
+use JSON 2;
 
 use GenomeDB;
 

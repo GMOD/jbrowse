@@ -93,13 +93,14 @@ use strict;
 use warnings;
 
 use FindBin qw($Bin);
-use Pod::Usage;
-
 use lib "$Bin/../lib";
+use JBlibs;
 
-use PerlIO::gzip;
+use Pod::Usage;
 use Getopt::Long;
 use List::Util qw(min max);
+
+use PerlIO::gzip;
 use JSON 2;
 use GenomeDB;
 use NameHandler;

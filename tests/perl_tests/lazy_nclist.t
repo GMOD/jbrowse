@@ -1,6 +1,8 @@
 use strict;
 use warnings;
 
+use JBlibs;
+
 use Test::More;
 use List::Util 'sum';
 use Storable 'dclone';

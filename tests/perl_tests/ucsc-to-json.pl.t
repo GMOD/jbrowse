@@ -1,11 +1,12 @@
 use strict;
 use warnings;
 
+use lib 'tests/perl_tests/lib';
+use JBlibs;
+
 use Test::More;
 use File::Spec;
 use File::Temp;
-
-use lib 'tests/perl_tests/lib';
 
 use FileSlurping 'slurp_tree';
 

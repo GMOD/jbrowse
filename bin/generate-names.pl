@@ -39,8 +39,11 @@ Print a usage message.
 use strict;
 use warnings;
 
-use Fcntl ":flock";
 use FindBin qw($Bin);
+use lib "$Bin/../lib";
+use JBlibs;
+
+use Fcntl ":flock";
 use File::Spec::Functions;
 use Getopt::Long;
 use IO::File;
@@ -48,7 +51,6 @@ use Pod::Usage;
 
 use JSON 2;
 
-use lib catdir($Bin, updir(), "lib");
 
 use LazyPatricia;
 use GenomeDB;

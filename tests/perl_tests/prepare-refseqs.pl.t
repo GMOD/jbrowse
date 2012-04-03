@@ -1,13 +1,16 @@
 use strict;
 use warnings;
 
+use lib 'tests/perl_tests/lib';
+use JBlibs;
+
 use Test::More;
 
 use File::Spec::Functions 'catfile';
 use File::Temp;
 use Capture::Tiny 'capture';
 
-use lib 'tests/perl_tests/lib';
+
 use FileSlurping 'slurp_tree';
 
 my $tempdir = File::Temp->newdir;

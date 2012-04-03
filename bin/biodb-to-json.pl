@@ -60,9 +60,11 @@ If passed, compress the output with gzip (requires some web server configuration
 use strict;
 use warnings;
 
-use FindBin qw($Bin);
+use FindBin qw($RealBin);
+use lib "$RealBin/../lib";
+use JBlibs;
+
 use Pod::Usage;
-use lib "$Bin/../lib";
 
 use Getopt::Long;
 use Data::Dumper;

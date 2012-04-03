@@ -1,13 +1,15 @@
 use strict;
 use warnings;
 
+use lib 'tests/perl_tests/lib';
+use JBlibs;
+
 use File::Spec::Functions 'catfile';
 use File::Temp;
 use Test::More;
 
 use File::Copy::Recursive 'dircopy';
 
-use lib 'tests/perl_tests/lib';
 use FileSlurping 'slurp';
 
 my $tempdir   = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );

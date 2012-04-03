@@ -1,7 +1,9 @@
 #!/usr/bin/env perl
-
+use strict;
 use FindBin qw($RealBin);
 use lib "$RealBin/../lib";
+use JBlibs;
+
 use Script::FlatFileToJson;
 
 exit Script::FlatFileToJson->new(@ARGV)->run;

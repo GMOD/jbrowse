@@ -65,6 +65,7 @@ use POSIX;
 use Getopt::Long;
 
 use lib "$Bin/../lib";
+use JBlibs;
 
 use JsonGenerator;
 use FastaDatabase;

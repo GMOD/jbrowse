@@ -2,6 +2,8 @@
 
 use FindBin '$RealBin';
 use lib "$RealBin/../lib";
+use JBlibs;
+
 use Script::RemoveTrack;
 
 exit Script::RemoveTrack->new(@ARGV)->run;

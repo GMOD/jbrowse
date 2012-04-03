@@ -4,6 +4,7 @@ use warnings;
 use Test::More;
 
 use lib 'lib';
+use JBlibs;
 use Script::FlatFileToJson;
 
 use File::Spec::Functions 'catfile';
