@@ -768,6 +768,7 @@ input.nav {
 #help_dialog {
     font-size: 12px;
     width: 70%;
+    overflow: auto;
 }
 #help_dialog ul {
     padding-left: 0;
