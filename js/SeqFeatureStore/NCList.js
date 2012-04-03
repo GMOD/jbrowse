@@ -38,7 +38,7 @@ SeqFeatureStore.NCList.prototype.load = function() {
     // fetch the trackdata
     dojo.xhrGet({ url: url,
                   handleAs: "json",
-                  load:  Util.debugHandler(this,function(o) { that.loadSuccess(o, url); }),
+                  load:  function(o) { that.loadSuccess(o, url); },
                   error: function(e) { console.error(''+e); that.loadFail(e, url);    }
 	        });
 };
