@@ -3,7 +3,7 @@ done_message () {
     if( [ $? == 0 ] ); then
         echo done.
     else
-        echo failed.
+        echo failed.  See install.log file for error messages.
     fi
 }
 
@@ -33,11 +33,13 @@ echo
 echo -n "Building wig2png (requires libpng and libpng-dev) ... ";
 (
     set -e;
+    if( [ ! -f bin/wig2png ] ); then
+        set -x;
+        cd wig2png;
+        ./configure && make;
+        cd ..;
+    fi
     set -x;
-    cd wig2png;
-    ./configure;
-    make;
-    cd ..;
     bin/wig-to-json.pl --wig docs/tutorial/data_files/volvox_microarray.wig;
 ) >>install.log 2>&1
 done_message;
@@ -50,7 +52,6 @@ echo -n "Attempting to fetch samtools and format example BAM data ... ";
     # try to install samtools
     if( perl -Iextlib/ -Mlocal::lib=extlib -MBio::DB::Sam -e 1 ); then
         echo Bio::DB::Sam already installed.
-        rm zazz;
     else
         set -x;
         rm -rf samtools;
