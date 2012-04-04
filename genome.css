@@ -41,6 +41,12 @@ div.dragWindow {
     padding-top: 3px;
 }
 
+.powered_by {
+    padding: 0 0.5em;
+    color: black;
+    text-decoration: none;
+}
+
 div.locationTrap {
     position: absolute;
     background-color: #b1d3f6;

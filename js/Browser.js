@@ -886,6 +886,12 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     navbox.style.cssText = "text-align: center; z-index: 10;";
 
     var linkContainer = document.createElement('div');
+    dojo.create('a', {
+        className: 'powered_by',
+        innerHTML: 'JBrowse 1.3.0',
+        href: 'http://jbrowse.org',
+        title: 'powered by JBrowse version 1.3.0'
+     }, linkContainer );
     linkContainer.className = 'topLink';
     linkContainer.appendChild( this.makeBookmarkLink() );
     linkContainer.appendChild( this.makeHelpDialog()   );
