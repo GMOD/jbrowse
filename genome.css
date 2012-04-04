@@ -38,6 +38,7 @@ div.dragWindow {
 }
 
 #navbox {
+    padding-top: 3px;
 }
 
 div.locationTrap {
@@ -67,6 +68,7 @@ div.locationThumb.dojoMoveItem {
 div.topLink {
     position: absolute;
     right: 0;
+    top: 22px;
     z-index: 25;
     background: white;
     border: 1px solid #888;
@@ -81,12 +83,17 @@ a.topLink {
 
 div.overview {
     width: 100%;
+    padding: 4px 0;
+    z-index: -5;
+
+    background: #FAFAFA url(jslib/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
+
     border-style: solid;
-    border-width: 5px 0px 5px 0px;
-    border-color: #bbb;
+    border-width: 1px 0px 1px 0px;
+    border-color: #555;
+
     color:#aaa;
     text-align: center;
-    z-index: -5;
     cursor: crosshair;
 }
 
@@ -122,7 +129,7 @@ div#static_track {
     top: 0px;
     position: absolute;
     background: #FAFAFA url(jslib/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
-    border-top: 1px solid #bbb;
+    border-top: 1px solid #999;
     border-bottom: 1px solid #444;
     z-index: 20;
 }
@@ -199,29 +206,48 @@ div.plus-feature:before {
 */
 
 div.track-label, div.tracklist-label {
-    font-weight: bold;
     z-index: 20;
-    background-color: #bcbcbc;
-    background-color: rgba( 160, 160, 160, 0.7 );
-    border: 1px #2b434c solid;
-    color: #111;
-    cursor: pointer;
-    font-size: 10px;
-    padding: 5px;
-    border-radius: 3px;
+
+    padding: 1px 6px;
     overflow: hidden;
+    cursor: pointer;
+
+    background-color: #bcbcbc;
+    background-color: rgba( 210, 210, 210, 0.7 );
+
+    border-width: 1px;
+    border-style: solid;
+
+    border-top-color: #999;
+    border-left-color: #999;
+    border-bottom-color: #444
+    border-right-color: #444;
+
+    border-radius: 3px;
+
+    color: #111;
+    font-size: 10px;
+    font-weight: bold;
+    text-shadow: #ddd 1px 1px 0;
+
 }
 /* NOTE: browsers that don't support rgba colors will fall back to all
    track labels being #bcbcbc */
 
 div.track-label {
-    margin-left: 5px;
+    color: black;
+    margin-left: 13px;
     border-color: rgba( 0,0,0,0);
-    background-color: rgba( 160, 160, 160, 0 );
+    background-color: rgba( 200,200,200, 0.8 );
+
+
+    border-width: 1px;
+    border-color: #666;
+    border-color: rgba( 40, 40, 40, 0.6 );
 }
 div.track-label:hover {
-    border-color: rgba( 0,0,0,1);
-    background-color: rgba( 160, 160, 160, 0.7 );
+    border-color: rgba( 0,0,0, 1);
+    background-color: #ddd;
 }
 div.tracklist-label {
     padding: 3px;
@@ -230,20 +256,16 @@ div.tracklist-label {
 #trackPane {
     border-right: 1px solid #444;
 }
-/* commented for now, multi-select too confusing?
-.tracklist-container.dojoDndItemSelected {
-    background: #ddf;
+#trackPane h2 {
+    margin: 0.5em 0 1em 0.5em;
 }
 
-.tracklist-container.dojoDndItemAnchor {
-    background: #ddf;
-}
-*/
+/* .dojoDndItemSelected, .dojoDndItemAnchor { */
+/*     background: rgba( 220, 220, 255, 0.8); */
+/* } */
 
 div.tracklist-container {
-    padding: 5px;
-    margin-top: -3px;
-    margin-bottom: -3px;
+    padding: 2px 5px;
 }
 
 .tracklist-container.dojoDndItemBefore {
