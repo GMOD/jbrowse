@@ -65,6 +65,7 @@ div.locationThumb {
     border: 2px solid red;
     margin: 0px -2px 0px -2px;
     cursor: move;
+    background: rgba(0, 121, 245, 0.1);
 }
 
 div.locationThumb.dojoMoveItem {
