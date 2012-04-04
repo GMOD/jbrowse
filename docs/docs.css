@@ -1,36 +1,65 @@
+body {
+    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
+    color: #333;
+}
+
+b { color: black }
+h1, h2, h3, h4 {
+    border-bottom: 1px solid #ccc;
+    color: #222;
+    letter-spacing: 1px;
+}
+h2 {
+    margin-top: 2em;
+}
+
 table {
     border: 1px solid #777;
     border-collapse: collapse;
 }
 
-td { border: 1px solid #777; }
+td { border: 1px solid #777; padding: 0.3em }
 
 th { border: 1px solid #777; }
 
 
-.code {
+code, .code {
     font-family: monospace;
+    color: black;
 }
-div.code {
-    background: #f1f1f1;
-    margin: 1em 2em 1em 2em;
-    padding: 0.5em;
-    overflow: auto;
+code, span.code {
+    font-size: 115%;
 }
 
-div.container { 
-    padding-left: 4em; 
+a[href], a[href] .code, a[href] code {
+    color: #33b;
+}
+
+div.code {
+    background: #eee;
+    margin: 1em 1.5em 1em 1.5em;
+    padding: 0.5em;
+    overflow: auto;
+    font-size: 110%;
+}
+
+div.code, div.system-specific, div.sidebar {
+    border-radius: 4px;
+    border: 1px solid #bbb;
+}
+
+div.container {
+    padding-left: 4em;
     padding-right: 4em;
     max-width: 45em;
 }
 
-span.sidebar {
-    background-color:#EEEEEE;
-    /* border-color:#FFCC99;
-       border-style:none none none solid; */
+div.sidebar {
+    background-color: white;
+    border: 3px solid #f9a21b;
     float:right;
     font-weight:normal;
-    margin:2px 0 2px 1em;
+    margin: 2px -4em 2px 1em;
     max-width:30%;
     padding:5px 2px 5px 0.5em;
 }
@@ -38,6 +67,11 @@ span.sidebar {
 .system-specific {
     background-color: #DDDDFF;
     padding: 0.5em;
+    margin: 2em 0;
+}
+.system-specific dl {
+    margin-left: 1em;
 }
 
+dl { margin-left: 1em  }
 dt { font-weight: bold }
