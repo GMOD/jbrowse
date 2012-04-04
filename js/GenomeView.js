@@ -1213,6 +1213,7 @@ GenomeView.prototype.addTrack = function(track) {
     var labelDiv = document.createElement("div");
     labelDiv.className = "track-label dojoDndHandle";
     labelDiv.id = "label_" + track.name;
+    labelDiv.title = "to turn off, drag into track list";
     this.trackLabels.push(labelDiv);
     var trackDiv = document.createElement("div");
     trackDiv.className = "track";

@@ -431,6 +431,7 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
     var trackListCreate = function( trackConfig, hint ) {
         var node = document.createElement("div");
         node.className = "tracklist-label";
+        node.title = "to turn on, drag into track area";
         node.innerHTML = trackConfig.key;
         //in the list, wrap the list item in a container for
         //border drag-insertion-point monkeying
