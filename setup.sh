@@ -7,7 +7,6 @@ done_message () {
     fi
 }
 
-
 echo -n "Installing Perl dependencies ... ";
 ( set -e;
   set -x;
@@ -17,16 +16,13 @@ done_message;
 
 echo
 echo -n "Formatting Volvox example data ... ";
-if( [ -d data/ ] ); then
-    echo data/ directory already exists, skipping example data formatting.
-else
-    (   set -e;
-        set -x;
-        bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa;
-        bin/biodb-to-json.pl -v --conf docs/tutorial/conf_files/volvox.json;
-        bin/generate-names.pl -v;
-    ) >>install.log 2>&1
-fi
+(   set -e;
+    set -x;
+    rm -rf sample_data/json/volvox;
+    bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa --out sample_data/json/volvox;
+    bin/biodb-to-json.pl -v --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox;
+    bin/generate-names.pl -v --out sample_data/json/volvox;
+) >>install.log 2>&1
 done_message;
 
 echo
@@ -40,7 +36,7 @@ echo -n "Building and installing wiggle-format support (requires libpng and libp
         cd ..;
     fi
     set -x;
-    bin/wig-to-json.pl --wig docs/tutorial/data_files/volvox_microarray.wig;
+    bin/wig-to-json.pl --wig docs/tutorial/data_files/volvox_microarray.wig --out sample_data/json/volvox;
 ) >>install.log 2>&1
 done_message;
 
@@ -64,6 +60,6 @@ echo -n "Building and installing BAM format support ...";
         cpanm -v -l extlib Bio::DB::Sam
     fi
 
-    bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Simulated next-gen reads" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}'
+    bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Simulated next-gen reads" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}' --out sample_data/json/volvox;
 ) >>install.log 2>&1
 done_message;
