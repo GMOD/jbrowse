@@ -53,11 +53,13 @@ echo -n "Building and installing BAM format support ...";
     if( perl -Iextlib/ -Mlocal::lib=extlib -MBio::DB::Sam -e 1 ); then
         echo Bio::DB::Sam already installed.
     else
-        set -x;
-        rm -rf samtools;
-        svn co https://samtools.svn.sourceforge.net/svnroot/samtools/trunk/samtools;
-        make -C samtools -j3 lib;
-        export SAMTOOLS="$PWD/samtools";
+        if( [ "x$SAMTOOLS" == "x" ] ); then
+            set -x;
+            rm -rf samtools;
+            svn co https://samtools.svn.sourceforge.net/svnroot/samtools/trunk/samtools;
+            make -C samtools -j3 lib;
+            export SAMTOOLS="$PWD/samtools";
+        fi
         echo "samtools in env at '$SAMTOOLS'";
         cpanm -v -l extlib Bio::DB::Sam
     fi
