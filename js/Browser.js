@@ -888,9 +888,9 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     var linkContainer = document.createElement('div');
     dojo.create('a', {
         className: 'powered_by',
-        innerHTML: 'JBrowse 1.3.0',
+        innerHTML: 'JBrowse',
         href: 'http://jbrowse.org',
-        title: 'powered by JBrowse version 1.3.0'
+        title: 'powered by JBrowse'
      }, linkContainer );
     linkContainer.className = 'topLink';
     linkContainer.appendChild( this.makeBookmarkLink() );
