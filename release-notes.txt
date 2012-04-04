@@ -15,6 +15,20 @@
       * KDE Konqueror 4.5.5             nonfunctional
       * Opera (all versions)            not tested
 
+ * Added an automated-setup script, setup.sh, that tries to install
+   Perl prerequisites, format Volvox example data, and install Wiggle
+   and BAM support (fetching samtools from SVN if necessary)
+   automatically.
+
+ * Navigating to JBrowse with missing or malformed configuration or
+   data will now bring up an error page with useful messages and links
+   to help documentation, instead of a blank white page.
+
+ * JBrowse data directories now include an Apache .htaccess in their
+   root directory that, if mod_headers is installed and AllowOverride
+   FileInfo or AllowOverride All is enabled, will emit the proper HTTP
+   headers to allow cross-origin XHR requests for the data.
+
  * Server-side data-formatting scripts now support a --compress option
    to compress (gzip) feature and sequence data to conserve server
    disk space.  Using this option requires some web server
