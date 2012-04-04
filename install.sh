@@ -30,7 +30,7 @@ fi
 done_message;
 
 echo
-echo -n "Building wig2png (requires libpng and libpng-dev) ... ";
+echo -n "Building and installing wiggle-format support (requires libpng and libpng-dev) ... ";
 (
     set -e;
     if( [ ! -f bin/wig2png ] ); then
@@ -45,7 +45,7 @@ echo -n "Building wig2png (requires libpng and libpng-dev) ... ";
 done_message;
 
 echo
-echo -n "Attempting to fetch samtools and format example BAM data ... ";
+echo -n "Building and installing BAM format support ...";
 (
     set -e;
 
