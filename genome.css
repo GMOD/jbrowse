@@ -562,7 +562,7 @@ div.cds-hist {
     cursor: pointer;
 }
 
-.triangle {
+.triangle, .plus-triangle, .minus-triangle {
     position:absolute;
     height: 0px;
     border-style: solid;
