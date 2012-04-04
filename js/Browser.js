@@ -894,9 +894,10 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
      }, linkContainer );
     linkContainer.className = 'topLink';
     linkContainer.appendChild( this.makeBookmarkLink() );
-    linkContainer.appendChild( this.makeHelpDialog()   );
+    if( this.config.show_nav != 0 )
+        linkContainer.appendChild( this.makeHelpDialog()   );
 
-    navbox.appendChild( linkContainer );
+    this.container.appendChild( linkContainer );
 
     var moveLeft = document.createElement("input");
     moveLeft.type = "image";
