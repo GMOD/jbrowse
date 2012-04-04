@@ -416,10 +416,7 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
     trackListDiv.className = "container handles";
     trackListDiv.style.cssText =
         "width: 100%; height: 100%; overflow-x: hidden; overflow-y: auto;";
-    trackListDiv.innerHTML =
-        "Available Tracks:<br/>(Drag <img src=\""
-        + (this.config.browserRoot ? this.config.browserRoot : "")
-        + "img/right_arrow.png\"/> to view)<br/><br/>";
+    trackListDiv.innerHTML = "<h2>Available Tracks</h2>";
     leftPane.appendChild(trackListDiv);
 
     var brwsr = this;
