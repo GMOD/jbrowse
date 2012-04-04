@@ -1,7 +1,10 @@
 #!/bin/bash
 done_message () {
-    if( [ $? == 0 ] ); then
+    if [ $? == 0 ]; then
         echo done.
+        if [ "x$1" != "x" ]; then
+            echo $1;
+        fi
     else
         echo failed.  See install.log file for error messages.
     fi
@@ -23,7 +26,7 @@ echo -n "Formatting Volvox example data ... ";
     bin/biodb-to-json.pl -v --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox;
     bin/generate-names.pl -v --out sample_data/json/volvox;
 ) >>install.log 2>&1
-done_message;
+done_message "To see the example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/volvox.";
 
 echo
 echo -n "Building and installing wiggle format support (requires libpng and libpng-dev) ... ";
