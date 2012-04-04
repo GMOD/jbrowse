@@ -753,20 +753,23 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
         });
     };
 
+    var namelist, parent, lim;
 // jquery when everything is loaded!
 	$(function() {
 		$( "#tags" ).autocomplete({
 			source: function( request, response ) {
-				var gotcha, parent;
 				brwsr.names.findNode(request.term, function(found, node) {
 					parent = found;
-					gotcha = brwsr.names.childFromNode(node, 20);
+					lim = 100; //if over 100 options, don't show
+					namelist = brwsr.names.LimEdges(node, lim);
 				});
-				var ground = [];
-				for ( i = 0; i < gotcha.length; i++) {
-				      ground.push({ label: parent+gotcha[i], value: parent+gotcha[i] });
+
+				var optionlist = [];
+				for ( i = 0; i < namelist.length; i++) {
+				      optionlist.push({ label: parent+namelist[i], value: parent+namelist[i] });
 				};		
-				response(ground);
+
+				response(optionlist);
 				},
 			select: function( event, ui ) {
 					ui.item.selected = true;

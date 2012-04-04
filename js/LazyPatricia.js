@@ -154,6 +154,30 @@ LazyTrie.prototype.edgesFromNodeLong = function(node, temp) {
     return results;
 };
 
+LazyTrie.prototype.LimEdges = function(node, lim){
+	var results = [];	
+	lim++;
+	var loop = function(node, temp) {
+	    temp += node[0]; 
+	    if (node[2] == null) {
+	        results.push(temp);
+	    }
+	    for (var j = 2; (j < node.length) && (results.length < lim); j++) {
+	        loop(node[j], temp);
+	    }
+	    return results;
+	};
+
+	if (node.length == 2) results.push("");
+	else {
+	    for (var i = 2; (i < node.length) && (results.length < lim); i++) {
+		loop(node[i], []);
+	    };
+	};
+	if (results[--lim] != null) results = [];
+	return results;	
+};
+
 // grabs the child node
 LazyTrie.prototype.childFromNode = function(node, lim) {
     var results = [];
