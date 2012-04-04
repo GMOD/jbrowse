@@ -4,7 +4,7 @@ html, body {
     padding: 0;
     border: 0;
     font-size: 9px;
-    font-family: Univers,Trebuchet MS,Helvetica,Arial;
+    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
 .nav {
