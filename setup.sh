@@ -7,7 +7,7 @@ done_message () {
     fi
 }
 
-echo -n "Installing Perl dependencies ... ";
+echo -n "Installing Perl prerequisites ... ";
 ( set -e;
   set -x;
   bin/cpanm -v --notest -l extlib/ --installdeps . < /dev/null
@@ -26,7 +26,7 @@ echo -n "Formatting Volvox example data ... ";
 done_message;
 
 echo
-echo -n "Building and installing wiggle-format support (requires libpng and libpng-dev) ... ";
+echo -n "Building and installing wiggle format support (requires libpng and libpng-dev) ... ";
 (
     set -e;
     if( [ ! -f bin/wig2png ] ); then
