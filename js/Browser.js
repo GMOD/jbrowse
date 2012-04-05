@@ -987,14 +987,20 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     this.chromList.id="chrom";
     var refCookie = dojo.cookie(this.config.containerID + "-refseq");
     var i = 0;
+    var refnames = [];
     for ( var name in this.allRefs ) {
+        if( this.allRefs.hasOwnProperty(name) )
+            refnames.push( name );
+    }
+    refnames = refnames.sort();
+    dojo.forEach( refnames, function(name) {
         this.chromList.add( new Option( name, name) );
         if ( name.toUpperCase() == String(refCookie).toUpperCase()) {
             this.refSeq = this.allRefs[name];
             this.chromList.selectedIndex = i;
         }
         i++;
-    }
+    }, this );
 
     this.locationBox = document.createElement("input");
     this.locationBox.size=locLength;
