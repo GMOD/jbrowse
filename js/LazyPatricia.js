@@ -174,7 +174,6 @@ LazyTrie.prototype.LimEdges = function(node, lim){
 		loop(node[i], []);
 	    };
 	};
-	if (results[--lim] != null) results = [];
 	return results;	
 };
 

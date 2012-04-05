@@ -760,7 +760,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
 			source: function( request, response ) {
 				brwsr.names.findNode(request.term, function(found, node) {
 					parent = found;
-					lim = 100; //if over 100 options, don't show
+					lim = 100; //if over 100 options, show only up to 100 matches
 					namelist = brwsr.names.LimEdges(node, lim);
 				});
 
@@ -768,7 +768,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
 				for ( i = 0; i < namelist.length; i++) {
 				      optionlist.push({ label: parent+namelist[i], value: parent+namelist[i] });
 				};		
-
+				if (namelist[lim] != null) optionlist[lim] = {label: "More than " + lim + " matches", value: "More than " + lim + " matches"};
 				response(optionlist);
 				},
 			select: function( event, ui ) {
