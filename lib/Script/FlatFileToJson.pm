@@ -67,7 +67,7 @@ sub run {
 
     my $gdb = GenomeDB->new( $self->opt('out') );
 
-    Pod::Usage::pod2usage( "Must provide a --tracklabel parameter." ) unless defined $self->opt('trackLabel');
+    Pod::Usage::pod2usage( "Must provide a --trackLabel parameter." ) unless defined $self->opt('trackLabel');
     unless( defined $self->opt('gff') || defined $self->opt('bed') || defined $self->opt('bam') ) {
         Pod::Usage::pod2usage( "You must supply either a --gff or --bed parameter." )
     }
