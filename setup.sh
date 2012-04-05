@@ -6,7 +6,7 @@ done_message () {
             echo $1;
         fi
     else
-        echo failed.  See install.log file for error messages.
+        echo failed.  See setup.log file for error messages.
     fi
 }
 
@@ -14,7 +14,7 @@ echo -n "Installing Perl prerequisites ... ";
 ( set -e;
   set -x;
   bin/cpanm -v --notest -l extlib/ --installdeps . < /dev/null
-) >install.log 2>&1;
+) >setup.log 2>&1;
 done_message;
 
 echo
@@ -25,7 +25,7 @@ echo -n "Formatting Volvox example data ... ";
     bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa --out sample_data/json/volvox;
     bin/biodb-to-json.pl -v --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox;
     bin/generate-names.pl -v --out sample_data/json/volvox;
-) >>install.log 2>&1
+) >>setup.log 2>&1
 done_message "To see the example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/volvox.";
 
 echo
@@ -40,7 +40,7 @@ echo -n "Building and installing wiggle format support (requires libpng and libp
     fi
     set -x;
     bin/wig-to-json.pl --wig docs/tutorial/data_files/volvox_microarray.wig --out sample_data/json/volvox;
-) >>install.log 2>&1
+) >>setup.log 2>&1
 done_message;
 
 echo
@@ -64,5 +64,5 @@ echo -n "Building and installing BAM format support ...";
     fi
 
     bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Simulated next-gen reads" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}' --out sample_data/json/volvox;
-) >>install.log 2>&1
+) >>setup.log 2>&1
 done_message;
