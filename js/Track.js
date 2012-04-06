@@ -342,8 +342,8 @@ Track.prototype.sizeInit = function(numBlocks, widthPct, blockDelta) {
     }
 };
 
-Track.prototype.updateStaticElements = function() { // function( /**Object*/ coords ) {
-    // does nothing in the base track class
+Track.prototype.updateStaticElements = function( /**Object*/ coords ) {
+    this.window_info = dojo.mixin( this.window_info || {}, coords );
 };
 
 

@@ -20,9 +20,8 @@ dojo.mixin( ImageTrack.Wiggle.prototype, Track.YScaleMixin );
 ImageTrack.Wiggle.prototype.updateStaticElements = function( coords ) {
     ImageTrack.prototype.updateStaticElements.apply( this, arguments );
     if( typeof coords.x == 'number' ) {
-        this.yscale_left = coords.x + "px";
         if( this.yscale )
-            this.yscale.style.left = this.yscale_left;
+            this.yscale.style.left = this.window_info.x + "px";
     }
 };
 

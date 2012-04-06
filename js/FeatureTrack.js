@@ -279,9 +279,8 @@ FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
 FeatureTrack.prototype.updateStaticElements = function( coords ) {
     Track.prototype.updateStaticElements.apply( this, arguments );
     if( typeof coords.x == 'number' ) {
-        this.yscale_left = coords.x + "px";
         if( this.yscale )
-            this.yscale.style.left = this.yscale_left;
+            this.yscale.style.left = this.window_info.x + "px";
     }
 };
 

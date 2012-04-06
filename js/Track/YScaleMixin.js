@@ -30,8 +30,8 @@ Track.YScaleMixin = {
                         zIndex: 17
                     });
 
-        if( this.yscale_left )
-            rulerdiv.style.left = this.yscale_left;
+        if( this.window_info && 'x' in this.window_info )
+            rulerdiv.style.left = this.window_info.x + "px";
 
         dojo.style(
             rulerdiv,
