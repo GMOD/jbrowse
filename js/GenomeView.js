@@ -736,6 +736,21 @@ GenomeView.prototype.onFineMove = function( startbp, endbp ) {};
 GenomeView.prototype.onCoarseMove = function( startbp, endbp ) {};
 
 /**
+ * Hook to be called on a window resize.
+ */
+GenomeView.prototype.onResize = function() {
+    this.sizeInit();
+    this.showVisibleBlocks();
+    this.showFine();
+    this.showCoarse();
+    this.updateStaticTrackElements({
+        width: this.elem.clientWidth,
+        height: this.elem.clientHeight
+    });
+};
+
+
+/**
  * Event handler fired when the overview bar is single-clicked.
  */
 GenomeView.prototype.overviewClicked = function( evt ) {

@@ -173,8 +173,10 @@ Browser.prototype.initView = function() {
     //set up track list
     var trackListDiv = this.createTrackList( this.container );
     this.containerWidget.startup();
-    dojo.connect( this.browserWidget, "resize", this, 'onResize' );
+    dojo.connect( this.browserWidget, "resize", this,      'onResize' );
+    dojo.connect( this.browserWidget, "resize", this.view, 'onResize' );
     this.onResize();
+    this.view.onResize();
 
     //set initial location
     var oldLocMap = dojo.fromJson(dojo.cookie(this.container.id + "-location")) || {};
@@ -209,11 +211,7 @@ Browser.prototype.initView = function() {
 };
 
 Browser.prototype.onResize = function() {
-    this.view.sizeInit();
     this.view.locationTrapHeight = dojo.marginBox( this.navbox ).h;
-    this.view.showVisibleBlocks();
-    this.view.showFine();
-    this.view.showCoarse();
 };
 
 /**
