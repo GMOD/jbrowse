@@ -121,7 +121,11 @@ Extra configuration for the client, in JSON syntax.  Example:
 
 =item --type <feature types to process>
 
-Only process features of the given type.
+Only process features of the given type.  Can take either single type
+names, e.g. "mRNA", or type names qualified by "source" name, for
+whatever definition of "source" your data file might have.  For
+example, "mRNA:exonerate" will filter for only mRNA features that have
+a source of "exonerate".
 
 =item --nclChunk <chunk size for generated NCLs>
 
