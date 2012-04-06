@@ -212,7 +212,6 @@ div.plus-feature:before {
 }
 */
 
-
 div.track-label, div.tracklist-label {
     z-index: 20;
 
@@ -225,8 +224,8 @@ div.track-label, div.tracklist-label {
 
     border-top-color: #999;
     border-left-color: #999;
-    border-bottom-color: #444
-    border-right-color: #444;
+    border-bottom-color: #555
+    border-right-color: #555;
 
     border-radius: 3px;
 
@@ -262,16 +261,17 @@ div.tracklist-label {
     background-color: rgba( 210, 210, 210, 0.9 );
 }
 
-#trackPane {
+#trackPane, #trackPane_splitter {
     background: #f2f2f2;
-    border-right: 1px solid #555;
     background-image: url('img/tracklist_bg.png');
     background-repeat: repeat-y;
     background-position: right;
 }
-
 #trackPane h2 {
     margin: 0.5em 0 1em 0.5em;
+}
+#trackPane_splitter {
+    border-right: 1px solid #555;
 }
 
 
