@@ -261,7 +261,7 @@ div.tracklist-label {
     background-color: rgba( 210, 210, 210, 0.9 );
 }
 
-#trackPane, #trackPane_splitter {
+#trackPane {
     background: #f2f2f2;
     background-image: url('img/tracklist_bg.png');
     background-repeat: repeat-y;
@@ -271,6 +271,8 @@ div.tracklist-label {
     margin: 0.5em 0 1em 0.5em;
 }
 #trackPane_splitter {
+    background: #dcdcdc;
+    width: 5px;
     border-right: 1px solid #555;
 }
 
