@@ -11,9 +11,11 @@ done_message () {
 }
 
 echo -n "Installing Perl prerequisites ... ";
-( set -e;
-  set -x;
-  bin/cpanm -v --notest -l extlib/ --installdeps . < /dev/null
+( set -x;
+  bin/cpanm -v --notest -l extlib/ --installdeps . < /dev/null;
+  bin/cpanm -v --notest -l extlib/ --installdeps . < /dev/null;
+  set -e;
+  bin/cpanm -v --notest -l extlib/ --installdeps . < /dev/null;
 ) >setup.log 2>&1;
 done_message;
 
@@ -60,7 +62,10 @@ echo -n "Building and installing BAM format support ...";
             export SAMTOOLS="$PWD/samtools";
         fi
         echo "samtools in env at '$SAMTOOLS'";
-        cpanm -v -l extlib Bio::DB::Sam
+        set +e;
+        cpanm -v -l extlib Bio::DB::Sam;
+        set -e;
+        cpanm -v -l extlib Bio::DB::Sam;
     fi
 
     bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Simulated next-gen reads" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}' --out sample_data/json/volvox;
