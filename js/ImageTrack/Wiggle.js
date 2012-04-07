@@ -47,8 +47,8 @@ ImageTrack.Wiggle.prototype.makeImageLoadHandler = function( img, blockIndex, bl
 ImageTrack.Wiggle.prototype.makeWiggleYScale = function() {
     // if we are not loaded yet, we won't have any metadata, so just return
     try {
-        this.min   = this.store.metadata.global_min;
-        this.max   = this.store.metadata.global_max;
+        this.min   = this.store.stats.global_min;
+        this.max   = this.store.stats.global_max;
     } catch (x) {
         return;
     }

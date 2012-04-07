@@ -31,7 +31,7 @@ TiledImageStore.Fixed = function(args) {
 TiledImageStore.Fixed.prototype = new Store('');
 
 TiledImageStore.Fixed.prototype.loadSuccess = function(o) {
-    this.metadata = o.metadata;
+    this.stats = o.stats;
 
     //tileWidth: width, in pixels, of the tiles
     this.tileWidth = o.tileWidth;

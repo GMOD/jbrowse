@@ -116,7 +116,7 @@ int main(int argc, char **argv){
         ofstream json(jsonPath.c_str());
         if (json.is_open()) {
             json << "{" << endl
-                 << "   \"metadata\" : { " << endl
+                 << "   \"stats\" : { " << endl
                  << "       \"global_min\": " << min << "," << endl
                  << "       \"global_max\": " << max << endl
                  << "    }," << endl
