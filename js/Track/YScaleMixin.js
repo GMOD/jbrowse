@@ -31,7 +31,7 @@ Track.YScaleMixin = {
                     });
 
         if( this.window_info && 'x' in this.window_info )
-            rulerdiv.style.left = this.window_info.x + "px";
+            rulerdiv.style.left = (this.window_info.x + (this.window_info.width||0)/2)+ "px";
 
         dojo.style(
             rulerdiv,
@@ -47,5 +47,12 @@ Track.YScaleMixin = {
             direction: 'up'
         });
         ruler.render_to( rulerdiv );
+    },
+
+    updateYScaleFromViewDimensions: function( coords ) {
+        if( typeof coords.x == 'number' || typeof coords.width == 'number' ) {
+            if( this.yscale )
+                this.yscale.style.left = (this.window_info.x + (this.window_info.width||0)/2) + "px";
+        }
     }
 };

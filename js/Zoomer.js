@@ -35,6 +35,6 @@ Zoomer.prototype.step = function(pos) {
     this.toZoom.style.width = newWidth + "px";
     this.toZoom.style.left = (this.initialLeft + newLeft) + "px";
     var forceRedraw = this.toZoom.offsetTop;
-    this.subject.updateStaticTrackElements({ x: this.initialX - newLeft });
+    this.subject.updateViewDimensions({ x: this.initialX - newLeft });
 };
 

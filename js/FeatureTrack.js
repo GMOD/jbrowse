@@ -53,6 +53,9 @@ function FeatureTrack( config, refSeq, browserParams ) {
 
 FeatureTrack.prototype = new Track("");
 
+/**
+ * Mixin: Track.YScaleMixin.
+ */
 dojo.mixin( FeatureTrack.prototype, Track.YScaleMixin );
 
 FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
@@ -276,12 +279,9 @@ FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
     this.clear();
 };
 
-FeatureTrack.prototype.updateStaticElements = function( coords ) {
-    Track.prototype.updateStaticElements.apply( this, arguments );
-    if( typeof coords.x == 'number' ) {
-        if( this.yscale )
-            this.yscale.style.left = this.window_info.x + "px";
-    }
+FeatureTrack.prototype.updateViewDimensions = function( coords ) {
+    Track.prototype.updateViewDimensions.apply( this, arguments );
+    this.updateYScaleFromViewDimensions( coords );
 };
 
 FeatureTrack.prototype.fillBlock = function(blockIndex, block,

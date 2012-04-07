@@ -15,14 +15,14 @@ ImageTrack.Wiggle = function() {
 
 ImageTrack.Wiggle.prototype = new ImageTrack({},{},{});
 
+/**
+ * Mixin: Track.YScaleMixin.
+ */
 dojo.mixin( ImageTrack.Wiggle.prototype, Track.YScaleMixin );
 
-ImageTrack.Wiggle.prototype.updateStaticElements = function( coords ) {
-    ImageTrack.prototype.updateStaticElements.apply( this, arguments );
-    if( typeof coords.x == 'number' ) {
-        if( this.yscale )
-            this.yscale.style.left = this.window_info.x + "px";
-    }
+ImageTrack.Wiggle.prototype.updateViewDimensions = function( coords ) {
+    ImageTrack.prototype.updateViewDimensions.apply( this, arguments );
+    this.updateYScaleFromViewDimensions( coords );
 };
 
 ImageTrack.Wiggle.prototype.loadSuccess = function() {

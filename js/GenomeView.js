@@ -346,6 +346,12 @@ GenomeView.prototype.getX = function() {
 GenomeView.prototype.getY = function() {
     return this.y;
 };
+GenomeView.prototype.getHeight = function() {
+    return this.elem.clientHeight;
+};
+GenomeView.prototype.getWidth = function() {
+    return this.elem.clientWidth;
+};
 
 GenomeView.prototype.clampX = function(x) {
     return Math.round( Math.max( Math.min( this.maxLeft - this.offset, x),
@@ -364,14 +370,14 @@ GenomeView.prototype.clampY = function(y) {
 GenomeView.prototype.setX = function(x) {
     x = this.clampX(x);
     this.rawSetX( x );
-    this.updateStaticTrackElements( { x: x } );
+    this.updateViewDimensions( { x: x } );
     this.showFine();
 };
 
 GenomeView.prototype.setY = function(y) {
     y = this.clampY(y);
     this.rawSetY(y);
-    this.updateStaticTrackElements( { y: y } );
+    this.updateViewDimensions( { y: y } );
 };
 
 GenomeView.prototype.rawSetPosition = function(pos) {
@@ -382,7 +388,7 @@ GenomeView.prototype.rawSetPosition = function(pos) {
 GenomeView.prototype.setPosition = function(pos) {
     var x = this.clampX( pos.x );
     var y = this.clampY( pos.y );
-    this.updateStaticTrackElements( {x: x, y: y} );
+    this.updateViewDimensions( {x: x, y: y} );
     this.rawSetX( x );
     this.rawSetY( y );
     this.showFine();
@@ -743,9 +749,9 @@ GenomeView.prototype.onResize = function() {
     this.showVisibleBlocks();
     this.showFine();
     this.showCoarse();
-    this.updateStaticTrackElements({
-        width: this.elem.clientWidth,
-        height: this.elem.clientHeight
+    this.updateViewDimensions({
+        width: this.getWidth(),
+        height: this.getHeight()
     });
 };
 
@@ -805,9 +811,9 @@ GenomeView.prototype.checkY = function(y) {
  *   elements that only need updates on the Y position are not
  *   updated.
  */
-GenomeView.prototype.updateStaticTrackElements = function( args ) {
+GenomeView.prototype.updateViewDimensions = function( args ) {
     this.trackIterate( function(t) {
-        t.updateStaticElements( args );
+        t.updateViewDimensions( args );
     },this);
 
     if( typeof args.x == 'number' ) {
@@ -925,7 +931,7 @@ GenomeView.prototype.sizeInit = function() {
         var delta = (blockDelta * this.stripeWidth);
         var newX = this.getX() - delta;
         this.offset += delta;
-        this.updateStaticTrackElements( { x: newX } );
+        this.updateViewDimensions( { x: newX } );
         this.rawSetX(newX);
     }
 
@@ -1162,7 +1168,7 @@ GenomeView.prototype.scrollUpdate = function() {
     this.trackIterate(function(track) { track.moveBlocks(dStripes); });
 
     var newX = x + (dStripes * this.stripeWidth);
-    this.updateStaticTrackElements( { x: newX } );
+    this.updateViewDimensions( { x: newX } );
     this.rawSetX(newX);
     var firstVisible = (newX / this.stripeWidth) | 0;
 };
@@ -1247,7 +1253,12 @@ GenomeView.prototype.addTrack = function(track) {
     labelDiv.style.left = this.getX() + "px";
     trackDiv.appendChild(labelDiv);
 
-    track.updateStaticElements({ x: this.getX(), y: this.getY() });
+    track.updateViewDimensions({
+        x: this.getX(),
+        y: this.getY(),
+        height: this.getHeight(),
+        width: this.getWidth()
+     });
 
     return trackDiv;
 };
