@@ -57,7 +57,7 @@ is_deeply( $tracklist,
 my $trackdata = slurp( $tempdir, 'tracks', 'volvox_microarray.wig', 'ctgA', 'trackData.json' );
 is_deeply( $trackdata,
            {
-               'metadata' => {
+               'stats' => {
                    'global_max' => 899,
                    'global_min' => 100
                    },
