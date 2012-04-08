@@ -15,9 +15,9 @@ for my $d ( $dir, catdir( $dir, updir() ), catdir( $dir, updir(), updir() )) {
     $extlib = catfile( $d, 'extlib' );
     last if -e $extlib;
 }
-die "cannot find JBrowse root directory ($extlib)" unless -e $extlib;
-
-require local::lib;
-local::lib->import( $extlib );
+if( -e $extlib ) {
+    require local::lib;
+    local::lib->import( $extlib );
+}
 
 1;
