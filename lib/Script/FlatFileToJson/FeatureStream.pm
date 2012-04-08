@@ -21,8 +21,10 @@ sub flatten_to_feature {
               (map $f->{attributes}{$_}[0], qw(ID Name)),
               [ map $self->flatten_to_feature($_,1), @{$f->{child_features}} ],
             );
-    # convert start to interbase
+    # convert start to interbase and numify it
     $f[1] -= 1;
+    # numify end
+    $f[2] += 0;
     # convert strand to 1/0/-1/undef if necessary
     $f[3] = { '+' => 1, '-' => -1 }->{$f[3]} || $f[3] || undef;
     return \@f;
