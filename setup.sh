@@ -1,12 +1,12 @@
 #!/bin/bash
 done_message () {
     if [ $? == 0 ]; then
-        echo done.
+        echo " done."
         if [ "x$1" != "x" ]; then
             echo $1;
         fi
     else
-        echo failed.  See setup.log file for error messages. $2
+        echo " failed.  See setup.log file for error messages." $2
     fi
 }
 
@@ -24,7 +24,7 @@ fi;
 done_message "" "As a first troubleshooting step, make sure development libraries and header files for GD, Zlib, and libpng are installed and try again.";
 
 echo
-echo -n "Formatting Volvox example data ... ";
+echo -n "Formatting Volvox example data ...";
 (   set -e;
     set -x;
     rm -rf sample_data/json/volvox;
@@ -35,7 +35,7 @@ echo -n "Formatting Volvox example data ... ";
 done_message "To see the example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/volvox.";
 
 echo
-echo -n "Building and installing wiggle format support ... ";
+echo -n "Building and installing wiggle format support ...";
 (
     set -e;
     if( [ ! -f bin/wig2png ] ); then
