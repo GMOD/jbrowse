@@ -10,7 +10,7 @@ done_message () {
     fi
 }
 
-echo -n "Installing Perl prerequisites ... ";
+echo -n "Installing Perl prerequisites (may require development libraries for GD, Zlib, and libpng) ... ";
 if ! ( perl -MExtUtils::MakeMaker -e 1 >/dev/null 2>&1); then
     echo;
     echo "WARNING: Your Perl installation does not seem to include a complete set of core modules.  Attempting to cope with this, but if installation fails please make sure that at least ExtUtils::MakeMaker is installed.  For most users, the best way to do this is to use your system's package manager: apt, yum, fink, homebrew, or similar.";
@@ -35,7 +35,7 @@ echo -n "Formatting Volvox example data ... ";
 done_message "To see the example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/volvox.";
 
 echo
-echo -n "Building and installing wiggle format support (requires libpng and libpng-dev) ... ";
+echo -n "Building and installing wiggle format support (requires libpng and libpng-devel) ... ";
 (
     set -e;
     if( [ ! -f bin/wig2png ] ); then
