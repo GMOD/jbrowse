@@ -4,10 +4,11 @@ use warnings;
 use JBlibs;
 
 use Test::More;
+use Test::Warn;
 
 use Script::FlatFileToJson;
 
-use File::Spec::Functions 'catfile';
+use File::Spec::Functions qw( catfile catdir );
 use File::Temp ();
 use File::Copy::Recursive 'dircopy';
 
@@ -17,7 +18,10 @@ use FileSlurping 'slurp';
 sub run_with(@) {
     #system $^X, 'bin/flatfile-to-json.pl', @_;
     #ok( ! $?, 'flatfile-to-json.pl ran ok' );
-    Script::FlatFileToJson->new( @_ )->run;
+    my @args = @_;
+    warnings_are {
+      Script::FlatFileToJson->new( @args )->run;
+    } [], 'ran without warnings';
 }
 
 sub tempdir {
@@ -206,5 +210,27 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
 
     #system "find $tempdir";
 }
+
+{
+    # test for warnings
+    my $tempdir = tempdir();
+    run_with (
+        '--out' => $tempdir,
+        '--gff' => catfile('tests','data','SL2.40ch10_sample.gff3'),
+        '--compress',
+        '--key' => 'Assembly',
+        '--trackLabel' => 'assembly',
+        );
+    my $read_json = sub { slurp( $tempdir, @_ ) };
+    my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks assembly SL2.40ch10 )));
+    is( scalar( grep @{$trackdata->{$_}} == 0,
+                grep /^lf/,
+                keys %$trackdata
+               ),
+        0,
+        'no empty chunks in trackdata'
+      ) or diag explain $trackdata;
+}
+
 
 done_testing;
