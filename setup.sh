@@ -6,11 +6,11 @@ done_message () {
             echo $1;
         fi
     else
-        echo failed.  See setup.log file for error messages.
+        echo failed.  See setup.log file for error messages. $2
     fi
 }
 
-echo -n "Installing Perl prerequisites (may require development libraries for GD, Zlib, and libpng) ... ";
+echo -n "Installing Perl prerequisites ..."
 if ! ( perl -MExtUtils::MakeMaker -e 1 >/dev/null 2>&1); then
     echo;
     echo "WARNING: Your Perl installation does not seem to include a complete set of core modules.  Attempting to cope with this, but if installation fails please make sure that at least ExtUtils::MakeMaker is installed.  For most users, the best way to do this is to use your system's package manager: apt, yum, fink, homebrew, or similar.";
@@ -21,7 +21,7 @@ fi;
   set -e;
   bin/cpanm -v --notest -l extlib/ --installdeps . < /dev/null;
 ) >setup.log 2>&1;
-done_message;
+done_message "" "As a first troubleshooting step, make sure development libraries and header files for GD, Zlib, and libpng are installed and try again.";
 
 echo
 echo -n "Formatting Volvox example data ... ";
@@ -35,7 +35,7 @@ echo -n "Formatting Volvox example data ... ";
 done_message "To see the example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/volvox.";
 
 echo
-echo -n "Building and installing wiggle format support (requires libpng and libpng-devel) ... ";
+echo -n "Building and installing wiggle format support ... ";
 (
     set -e;
     if( [ ! -f bin/wig2png ] ); then
@@ -47,7 +47,7 @@ echo -n "Building and installing wiggle format support (requires libpng and libp
     set -x;
     bin/wig-to-json.pl --wig docs/tutorial/data_files/volvox_microarray.wig --out sample_data/json/volvox;
 ) >>setup.log 2>&1
-done_message;
+done_message "" "Make sure libpng development libraries and header files are installed.";
 
 echo
 echo -n "Building and installing BAM format support ...";
@@ -60,8 +60,9 @@ echo -n "Building and installing BAM format support ...";
     else
         if( [ "x$SAMTOOLS" == "x" ] ); then
             set -x;
-            rm -rf samtools;
-            svn co https://samtools.svn.sourceforge.net/svnroot/samtools/trunk/samtools;
+            if [ ! -e samtools ]; then
+                svn co https://samtools.svn.sourceforge.net/svnroot/samtools/trunk/samtools;
+            fi;
             make -C samtools -j3 lib;
             export SAMTOOLS="$PWD/samtools";
         fi
@@ -74,4 +75,4 @@ echo -n "Building and installing BAM format support ...";
 
     bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Simulated next-gen reads" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}' --out sample_data/json/volvox;
 ) >>setup.log 2>&1
-done_message;
+done_message "" "Try reading the Bio-SamTools troubleshooting guide at https://metacpan.org/source/LDS/Bio-SamTools-1.33/README for help getting Bio::DB::Sam installed.";
