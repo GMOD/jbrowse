@@ -753,7 +753,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
         });
     };
 
-    var configList = params.config_list.split(",");
+    var configList = params.config_list ? params.config_list.split(",") : [];
     var namelist, parent, lim;
 // jquery when everything is loaded
     $(function() {
