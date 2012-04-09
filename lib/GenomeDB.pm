@@ -34,7 +34,6 @@ use File::Spec;
 use IO::File;
 use Storable 'dclone';
 
-use List::MoreUtils ();
 use Hash::Merge ();
 
 use JsonFileStorage;
