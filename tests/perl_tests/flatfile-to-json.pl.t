@@ -122,6 +122,34 @@ sub tempdir {
     is( ref $cds_trackdata->{intervals}{nclist}[0][9], 'ARRAY', 'mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
     is( scalar @{$cds_trackdata->{intervals}{nclist}[0][9]}, 7, 'mRNA has 7 subfeatures' );
+
+    my $tracklist = $read_json->( 'trackList.json' );
+    is( $tracklist->{tracks}[0]{key}, 'AU mRNA', 'got a tracklist' ) or diag explain $tracklist;
+    is_deeply( $tracklist->{tracks}[0]{style}, { className => 'transcript' }, 'got the right style' ) or diag explain $tracklist;
+
+    # run it again with a different CSS class, check that it updated
+    run_with (
+        '--out' => $tempdir,
+        '--gff' => "tests/data/AU9/single_au9_gene.gff3",
+        '--trackLabel' => 'AU_mRNA',
+        '--key' => 'AU mRNA',
+        '--type' => 'mRNA',
+        '--autocomplete' => 'all',
+        '--cssClass' => 'foo_fake_class',
+        '--getPhase',
+        '--getSubfeatures',
+        );
+
+    $tracklist = $read_json->( 'trackList.json' );
+    is( $tracklist->{tracks}[0]{key}, 'AU mRNA', 'got a tracklist' );
+    is_deeply( $tracklist->{tracks}[0]{style}, { className => 'foo_fake_class'}, 'got the right style' );
+
+    # check that we got the same data as before
+    $cds_trackdata = $read_json->(qw( tracks AU_mRNA Group1.33 trackData.json ));
+    is( $cds_trackdata->{featureCount}, 1, 'got right feature count' ) or diag explain $cds_trackdata;
+    is( ref $cds_trackdata->{intervals}{nclist}[0][9], 'ARRAY', 'mRNA has its subfeatures' )
+       or diag explain $cds_trackdata;
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][9]}, 7, 'mRNA has 7 subfeatures' );
 }
 
 {   #diag "running on single_au9_gene.gff3, testing that we emit 2 levels of subfeatures";
