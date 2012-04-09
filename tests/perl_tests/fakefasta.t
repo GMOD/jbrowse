@@ -1,9 +1,10 @@
 use strict;
 use warnings;
 
-use Test::More;
-
 use lib 'tests/perl_tests/lib';
+use JBlibs;
+
+use Test::More;
 
 use FakeFasta;
 
