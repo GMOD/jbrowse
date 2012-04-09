@@ -14,7 +14,7 @@
             },
             "compress" : 1,
             "hooks" : {
-               "modify" : "function(track, feat, attrs, elem) {\n    var fType = attrs.get(feat, \"Type\");\n    if (fType) {\n        elem.className = \"basic\";\n        switch (fType]) {\n        case \"CDS\":\n        case \"thick\":\n            elem.style.height = \"10px\";\n            elem.style.marginTop = \"-3px\";\n            break;\n        case \"UTR\":\n        case \"thin\":\n            elem.style.height = \"6px\";\n            elem.style.marginTop = \"-1px\";\n            break;\n        }\n        elem.style.backgroundColor = \"#0c0c78\";\n    }\n}\n"
+               "modify" : "function(track, feat, elem) {\n    var fType = feat.get(\"Type\");\n    if (fType) {\n        elem.className = \"basic\";\n        switch (fType]) {\n        case \"CDS\":\n        case \"thick\":\n            elem.style.height = \"10px\";\n            elem.style.marginTop = \"-3px\";\n            break;\n        case \"UTR\":\n        case \"thin\":\n            elem.style.height = \"6px\";\n            elem.style.marginTop = \"-1px\";\n            break;\n        }\n        elem.style.backgroundColor = \"#0c0c78\";\n    }\n}\n"
             },
          "type" : "FeatureTrack",
          "label" : "knownGene",

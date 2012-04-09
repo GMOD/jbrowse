@@ -218,8 +218,8 @@ foreach my $tableName (@$tracks) {
         $trackConfig->{style}->{className} = "generic_parent";
         $trackConfig->{style}->{histCss} = "background-color: $color;";
         $trackConfig->{hooks}->{modify} = <<ENDJS;
-function(track, feat, attrs, elem) {
-    var fType = attrs.get(feat, "Type");
+function(track, feat, elem) {
+    var fType = feat.get("Type");
     if (fType) {
         elem.className = "basic";
         switch (fType]) {
