@@ -121,26 +121,27 @@ sub addSorted {
 
     $self->{lastAdded} = $feat;
 
-    my $chunkSizes = $self->{chunkSizes};
+    my $chunkSizes   = $self->{chunkSizes};
+    my $partialStack = $self->{partialStack};
 
-    for (my $level = 0; $level <= $#{$self->{partialStack}}; $level++) {
-        my $featSize = $self->{measure}->($feat);
+    for (my $level = 0; $level <= $#$partialStack; $level++) {
         # due to NCList nesting, among other things, it's hard to be exactly
         # precise about the size of the JSON serialization, but this will get
         # us pretty close.
-        $chunkSizes->[$level] += $featSize;
+        my $featSize     = $self->{measure}->($feat);
+        my $proposedChunkSize = $chunkSizes->[$level] + $featSize;
         #print STDERR "chunksize at $level is now " . $chunkSizes->[$level] . "; (next chunk is " . $self->{chunkNum} . ")\n";
 
         # If this partial chunk is full,
-        if ($chunkSizes->[$level] > $self->{sizeThresh} ){
+        if ( $proposedChunkSize > $self->{sizeThresh} && @{$partialStack->[$level]} ){
             # then we're finished with the current "partial" chunk (i.e.,
             # it's now a "complete" chunk rather than a partial one), so
             # create a new NCList to hold all the features in this chunk.
-            my $lazyFeat = $self->finishChunk($self->{partialStack}->[$level]);
+            my $lazyFeat = $self->finishChunk( $partialStack->[$level] );
 
             # start a new partial chunk with the current feature
-            $self->{partialStack}->[$level] = [$feat];
-            $chunkSizes->[$level] = $featSize;
+            $partialStack->[$level] = [$feat];
+            $chunkSizes->[$level]   = $featSize;
 
             # and propagate $lazyFeat up to the next level
             $feat = $lazyFeat;
@@ -153,7 +154,8 @@ sub addSorted {
             }
         } else {
             # add the current feature the partial chunk at this level
-            push @{$self->{partialStack}->[$level]}, $feat;
+            push @{$partialStack->[$level]}, $feat;
+            $chunkSizes->[$level] = $proposedChunkSize;
             last;
         }
     }
