@@ -523,6 +523,11 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
 
     var featureEnd = feature.get('end');
     var featureStart = feature.get('start');
+    if( typeof featureEnd == 'string' )
+        featureEnd = parseInt(featureEnd);
+    if( typeof featureStart == 'string' )
+        featureStart = parseInt(featureStart);
+
 
     var levelHeight = this.glyphHeight + 2;
 
