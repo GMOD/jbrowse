@@ -159,7 +159,7 @@ sub run {
 
     ################################
 
-    my $track = $gdb->getTrack( $self->opt('trackLabel') )
+    my $track = $gdb->getTrack( $self->opt('trackLabel'), { %config, type => 'FeatureTrack' }, $config{key} )
                 || $gdb->createFeatureTrack( $self->opt('trackLabel'),
                                              \%config,
                                              $config{key},

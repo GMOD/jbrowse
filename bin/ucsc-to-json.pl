@@ -263,11 +263,11 @@ ENDJS
 
     my $curChrom;
     my $gdb = GenomeDB->new($outdir);
-    my $track = $gdb->getTrack($tableName);
+    my $track = $gdb->getTrack($tableName, $trackConfig, $trackConfig->{shortLabel} );
     unless (defined($track)) {
         $track = $gdb->createFeatureTrack($tableName,
                                           $trackConfig,
-                                          $track->{shortLabel});
+                                          $trackConfig->{shortLabel});
     }
     my $nameHandler;
     while (1) {

@@ -6,7 +6,7 @@ GenomeDB - central "handle" for a directory tree of JBrowse JSON data
 
     my $gdb = GenomeDB->new( '/path/to/data/dir' );
 
-    my $track = $gdb->getTrack($tableName);
+    my $track = $gdb->getTrack($tableName, $trackConfig, $track->{shortLabel} );
     #returns an object for the track, e.g. a FeatureTrack
 
     unless( defined $track ) {
@@ -32,6 +32,10 @@ use warnings;
 
 use File::Spec;
 use IO::File;
+use Storable 'dclone';
+
+use List::MoreUtils ();
+use Hash::Merge ();
 
 use JsonFileStorage;
 
@@ -147,24 +151,40 @@ sub _create_track {
                         $trackLabel, $config, $key, $jsclass );
 }
 
-=head2 getTrack( $trackLabel )
+=head2 getTrack( $trackLabel, $config, $key, $jsclass )
 
-Get a track object (FeatureTrack or otherwise) from the GenomeDB.
+Get a track object (FeatureTrack or otherwise) from the GenomeDB.  If
+$config, $key, and/or $jsclass are provided, they are merged into and
+override the existing settings for that track.
 
 =cut
 
 sub getTrack {
-    my ($self, $trackLabel) = @_;
+    my ($self, $trackLabel, $config, $key, $jsclass ) = @_;
 
     my $trackList = $self->{rootStore}->get($trackListPath,
                                             $defaultTracklist);
     my ( $trackDesc ) = my @selected =
         grep { $_->{label} eq $trackLabel } @{$trackList->{tracks}};
 
-    return undef unless @selected;
+    return unless @selected;
 
     # this should never happen
     die "multiple tracks labeled $trackLabel" if @selected > 1;
+
+    # merge the $config into the trackdesc
+    if( $config ) {
+        $trackDesc = {
+            %$trackDesc,
+            %$config,
+            style => { %{$trackDesc->{style}||{}}, %{$config->{style}||{}} },
+        };
+    }
+    # merge the $key into the trackdesc
+    $trackDesc->{key} = $key if defined $key;
+    # merge the jsclass into the trackdesc
+    $trackDesc->{type} = $jsclass if defined $jsclass;
+
 
     my $type = $trackDesc->{type};
     $type =~ s/\./::/g;

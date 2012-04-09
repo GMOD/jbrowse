@@ -131,7 +131,7 @@ my $index = Bio::DB::Bam->index( $bamFile, 1 );
 my $hdr = $bam->header;
 
 
-my $track = $gdb->getTrack( $trackLabel )
+my $track = $gdb->getTrack( $trackLabel, \%config, $config{key} )
             || $gdb->createFeatureTrack( $trackLabel,
                                          \%config,
                                          $config{key},

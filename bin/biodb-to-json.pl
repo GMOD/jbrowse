@@ -152,7 +152,7 @@ foreach my $seg (@refSeqs) {
 
         print "mergedTrackCfg: " . Dumper( $mergedTrackCfg ) if $verbose && !$quiet;
 
-        my $track = $gdb->getTrack( $trackLabel )
+        my $track = $gdb->getTrack( $trackLabel, $mergedTrackCfg, $mergedTrackCfg->{key} )
                  || $gdb->createFeatureTrack( $trackLabel,
                                               $mergedTrackCfg,
                                               $mergedTrackCfg->{key},
