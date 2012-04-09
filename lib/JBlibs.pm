@@ -16,6 +16,8 @@ for my $d ( $dir, catdir( $dir, updir() ), catdir( $dir, updir(), updir() )) {
     last if -e $extlib;
 }
 if( -e $extlib ) {
+    require lib;
+    lib->import( 'extlib/lib/perl5' );
     require local::lib;
     local::lib->import( $extlib );
 }
