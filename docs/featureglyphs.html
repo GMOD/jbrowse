@@ -17,11 +17,12 @@
     th { border: 1px solid #777; }
 
     div.ex {
-      position: static;
+      position: relative;
       width: 5em;
       margin-left: 1em;
       margin-right: 1em;
-
+    }
+    div.ex, div.ex * {
       display:-moz-inline-stack;/*Firefox need this to simulate display:inline-block*/
       display:inline-block; /*IE does not apply this to Block Element, and Firefox does not render this, too*/
       _overflow:hidden;/*fix IE6 to expanded content*/
@@ -31,12 +32,12 @@
 
 </style>
   <body>
-    <h3>JBrowse feature glyphs</h3>
+    <h2>JBrowse feature glyphs</h2>
     <p>Here are some of the feature glyphs built into JBrowse.  These are what you specify for the --cssclass option to gff-to-json.pl, or for the &quot;class&quot; value or &quot;subfeatureClasses&quot; map in the config file.  You can also easily add your own; look in the <a href="../genome.css">genome.css</a> file for examples.</p>
 
     <b>Simple features:</b><br>
     <table>
-      <tr><th>class name</th><th>how it looks</th></tr>
+      <tr><th>class name</th><th style="width: 8em">how it looks</th></tr>
 
       <tr><td>feature  </td><td><div class="ex plus-feature"></div></td></tr>
       <tr><td>feature2 </td><td><div class="ex plus-feature2"></div></td></tr>
@@ -52,9 +53,20 @@
     <br><br>
     <b>Compound Features:</b><br>
     <table>
-      <tr><th>config</th><th>how it looks</th></tr>
+      <tr><th>config</th><th style="width: 8em">how it looks</th></tr>
 
-      <tr><td>class: transcript<!--<br>arrowheadClass: transcript-arrowhead--> </td><td><div class="ex minus-transcript"><div class="minus-transcript-arrowhead" style="right: 0px;"></div></div></td></tr>
+      <tr><td>class: transcript</td>
+      <td>
+<!-- copied from an actual display using chrome debugger -->
+         <div class="ex minus-transcript">
+           <div class="minus-transcript-arrowhead" style="position: absolute; left: 0px; top: 0px; z-index: 100; "></div>
+           <div class="transcript-exon minus-transcript-exon" style="left: 0%; top: 0px; width: 53.71900826446281%; "></div>
+           <div class="transcript-CDS minus-transcript-CDS" style="left: 0%; top: 0px; width: 53.71900826446281%; "></div>
+           <div class="transcript-intron minus-transcript-intron" style="left: 53.71900826446281%; top: 0px; width: 22.31404958677686%; "></div>
+           <div class="transcript-exon minus-transcript-exon" style="left: 76.03305785123968%; top: 0px; width: 23.96694214876033%; "></div>
+           <div class="transcript-CDS minus-transcript-CDS" style="left: 76.03305785123968%; top: 0px; width: 23.96694214876033%; "></div>
+         </div>
+</td></tr>
 
     </table>
   </body>
