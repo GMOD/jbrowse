@@ -39,7 +39,7 @@ sub option_definitions {
         "out=s",
         "trackLabel|tracklabel=s",
         "key=s",
-        "cssClass=s",
+        "cssClass|className=s",
         "autocomplete=s",
         "getType",
         "getPhase",

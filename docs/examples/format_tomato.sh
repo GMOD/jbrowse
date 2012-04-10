@@ -8,7 +8,7 @@ OUT='sample_data/json/tomato';
 
 set -e;
 rm -rf $OUT;
-mkdir -p $IN $OUT;
+mkdir -p $OUT;
 
 # fetch the tomato data using `wget` (about 1G total)
 for f in ITAG2.3_assembly.gff3        \
@@ -34,7 +34,7 @@ bin/flatfile-to-json.pl --compress \
     --trackLabel genes  \
     --key 'Gene models' \
     --getSubfeatures    \
-    --cssClass transcript \
+    --className transcript \
     --subfeatureClasses '{"CDS": "transcript-CDS", "exon": "transcript-exon"}' \
     --arrowheadClass arrowhead \
     --urltemplate "http://solgenomics.net/search/quick?term={name}" \
@@ -49,7 +49,7 @@ bin/flatfile-to-json.pl --compress  \
     --type supercontig,remark \
     --autocomplete all \
     --getSubfeatures \
-    --cssClass generic_parent \
+    --className generic_parent \
     --subfeatureClasses '{"contig": "feature3"}' \
     --urltemplate "http://solgenomics.net/search/quick?term={name}" \
     ;
@@ -63,7 +63,7 @@ bin/flatfile-to-json.pl --compress  \
     --type match:ITAG_sgn_unigenes \
     --autocomplete all \
     --getSubfeatures \
-    --cssClass generic_parent \
+    --className generic_parent \
     --subfeatureClasses '{"match_part": "match_part"}' \
     --arrowheadClass 'arrowhead' \
     --urltemplate "http://solgenomics.net/search/quick?term={name}" \
@@ -78,7 +78,7 @@ bin/flatfile-to-json.pl --compress  \
     --type match:ITAG_microtom_flcdnas \
     --autocomplete all \
     --getSubfeatures \
-    --cssClass generic_parent \
+    --className generic_parent \
     --subfeatureClasses '{"match_part": "match_part"}' \
     --arrowheadClass 'arrowhead' \
     ;
@@ -92,7 +92,7 @@ bin/flatfile-to-json.pl --compress  \
     --type match:ITAG_sgn_markers \
     --autocomplete all \
     --getSubfeatures \
-    --cssClass transcript \
+    --className transcript \
     --subfeatureClasses '{"match_part": "match_part"}' \
     --arrowheadClass 'arrowhead' \
     --urltemplate "http://solgenomics.net/search/quick?term={name}" \
