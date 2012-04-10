@@ -53,20 +53,68 @@
 
     <h3>Compound Features</h3>
     <table>
-      <tr><th>config</th><th style="width: 8em">how it looks</th></tr>
+      <tr>
+        <th>data</th>
+        <th>config</th>
+        <th style="width: 8em">how it looks</th>
+      </tr>
 
-      <tr><td>class: transcript</td>
+      <tr>
+        <td>parent feature with two subfeatures of type 'CDS'</td>
+        <td><pre>
+"style": {
+  "className": "transcript",
+  "arrowheadClass": "transcript-arrowhead",
+  "subfeatureClasses": {
+      "CDS": "transcript-CDS"
+    }
+ }
+          </pre></td>
       <td>
-<!-- copied from an actual display using chrome debugger -->
          <div class="ex minus-transcript">
            <div class="minus-transcript-arrowhead" style="position: absolute; left: 0px; top: 0px; z-index: 100; "></div>
-           <div class="transcript-exon minus-transcript-exon" style="left: 0%; top: 0px; width: 53.71900826446281%; "></div>
            <div class="transcript-CDS minus-transcript-CDS" style="left: 0%; top: 0px; width: 53.71900826446281%; "></div>
-           <div class="transcript-intron minus-transcript-intron" style="left: 53.71900826446281%; top: 0px; width: 22.31404958677686%; "></div>
-           <div class="transcript-exon minus-transcript-exon" style="left: 76.03305785123968%; top: 0px; width: 23.96694214876033%; "></div>
            <div class="transcript-CDS minus-transcript-CDS" style="left: 76.03305785123968%; top: 0px; width: 23.96694214876033%; "></div>
          </div>
-</td></tr>
+      </td></tr>
+
+      <tr>
+        <td>parent feature with two subfeatures of type 'match_part'</td>
+        <td><pre>
+"style": {
+  "className": "generic_parent",
+  "arrowheadClass": "arrowhead",
+  "subfeatureClasses": {
+      "match_part": "match_part"
+    }
+ }
+          </pre></td>
+      <td>
+         <div class="ex minus-generic_parent">
+           <div class="minus-arrowhead" style="position: absolute; left: 0px; top: 0px; z-index: 100; "></div>
+           <div class="transcript-match_part minus-match_part" style="left: 0%; top: 0px; width: 53.71900826446281%; "></div>
+           <div class="transcript-match_part minus-match_part" style="left: 76.03305785123968%; top: 0px; width: 23.96694214876033%; "></div>
+         </div>
+      </td></tr>
+
+      <tr>
+        <td>parent feature with two subfeatures of type 'match_part'</td>
+        <td><pre>
+"style": {
+  "className": "generic_parent",
+  "arrowheadClass": "arrowhead",
+  "subfeatureClasses": {
+      "match_part": "generic_part_a"
+    }
+ }
+          </pre></td>
+      <td>
+         <div class="ex minus-generic_parent">
+           <div class="minus-arrowhead" style="position: absolute; left: 0px; top: 0px; z-index: 100; "></div>
+           <div class="transcript-generic_part_a minus-generic_part_a" style="left: 0%; top: 0px; width: 53.71900826446281%; "></div>
+           <div class="transcript-generic_part_a minus-generic_part_a" style="left: 76.03305785123968%; top: 0px; width: 23.96694214876033%; "></div>
+         </div>
+      </td></tr>
 
     </table>
   </body>
