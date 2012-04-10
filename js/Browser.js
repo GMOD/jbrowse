@@ -629,8 +629,8 @@ Browser.prototype.searchNames = function( loc ) {
             }
             //else just pick a match
             if (!goingTo) goingTo = nameMatches[0];
-            var startbp = goingTo[3];
-            var endbp = goingTo[4];
+            var startbp = parseInt(goingTo[3]);
+            var endbp = parseInt(goingTo[4]);
             var flank = Math.round((endbp - startbp) * .2);
             //go to location, with some flanking region
             brwsr.navigateTo(goingTo[2]
