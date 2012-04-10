@@ -690,7 +690,7 @@ FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
 
     if( this.config.style.subfeatureClasses ) {
         var type = subfeature.get('type');
-        subDiv.className = this.config.style.subfeatureClasses[type];
+        subDiv.className = this.config.style.subfeatureClasses[type] || this.config.style.className + '-' + type;
         switch ( subfeature.get('strand') ) {
             case 1:
             case '+':
