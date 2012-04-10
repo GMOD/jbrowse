@@ -2,14 +2,22 @@
 "http://www.w3.org/TR/html4/loose.dtd">
 
 <html>
-  <head><title>JBrowse quick-start guide</title></head>
+  <head><title>JBrowse Quick-Start Tutorial</title></head>
   <link rel="stylesheet" type="text/css" href="../docs.css"></link>
   <body>
     <div class="container">
 
-      <h1>JBrowse Quick-Start Guide</h1>
+      <h1>JBrowse Quick-Start Tutorial</h1>
 
-      <p>This short guide should hopefully be enough to get you started using JBrowse.  If you run into trouble, please visit the <a href="http://gmod.org/wiki/JBrowse">GMOD wiki</a> for extended documentation and troubleshooting information, or <a href="https://lists.sourceforge.net/lists/listinfo/gmod-ajax">join the gmod-ajax mailing list</a> and ask a question about it.</p>
+      <p>
+        This short guide should hopefully be enough to get you started
+        using JBrowse.  If you run into trouble, please visit
+        the <a href="http://gmod.org/wiki/JBrowse">GMOD wiki</a> for
+        extended documentation and troubleshooting information,
+        or <a href="https://lists.sourceforge.net/lists/listinfo/gmod-ajax">join
+        the gmod-ajax mailing list</a> and ask a question about
+        it.
+      </p>
 
       <p>
         <h3>Contents</h3>
@@ -30,6 +38,11 @@
         <h2>Download and uncompress JBrowse</h2>
       </a>
 
+      <p>
+        <b>Skip this step</b> if you are reading this page on your own
+        server, since you have already downloaded and uncompressed
+        JBrowse.
+      </p>
       <p>
         <a href="http://jbrowse.org/install/">Get JBrowse from jbrowse.org</a>.
       </p>
@@ -64,7 +77,7 @@
         To get started with a working JBrowse running on
         example <a style="font-style: italic"
         href="http://en.wikipedia.org/wiki/Volvox">Volvox</a> data, on
-        most machines running Linux or Mac OS X one can simply run:
+        machines running Linux or Mac OS X one can simply run:
 
         <div class="code">
           ./setup.sh
@@ -73,27 +86,30 @@
         which tries to automatically install the Perl prerequisites,
         format the Volvox example data, and install JBrowse WIG and
         BAM support (which require additional dependencies and
-        compilation that can be a little tricky).
-
-        And then, if it says the Volvox example data was successfully
-        formatted (even if the WIG support, BAM support, or both
-        failed) you can navigate to the example <a target="_blank"
+        compilation that can be a bit tricky).
+      </p>
+      <p>
+        If it says the Volvox example data was successfully formatted
+        (even if the WIG or BAM support setup failed) you can
+        navigate to the example <a target="_blank"
         href="../../index.html?data=sample_data/json/volvox">Volvox
         JBrowse</a>.  If you see a genome browser with Volvox data in
         it, congratulations!  You have a working JBrowse installation.
         Read on to <a href="#Reference_Sequences">Reference
         Sequences</a> for how to format your own data for use with
         JBrowse.
-
+      </p>
+      <p>
+        If the WIG support failed to install, 
       </p>
 
       <a name="Prerequisites" id="Prerequisites">
         <h2>Perl Prerequisites</h2>
       </a>
       <p>
-        <b>Skip this</b> if <code>setup.sh</code> was successful at
-        installing the Perl prerequisites; this has already been done
-        for you!
+        <b>Skip this step</b> if <code>setup.sh</code> was successful
+        at installing the Perl prerequisites, it has already done this
+        for you.
       </p>
       <p>
         The server-side scripts for formatting data have some Perl
@@ -186,7 +202,10 @@ bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam             
       </p>
       <div class="code">bin/generate-names.pl -v</div>
       <p>
-        You need to run <span class="code">bin/generate-names.pl</span> again every time you add new features to JBrowse.
+        <b>Note:</b> You need to
+        rerun <span class="code">bin/generate-names.pl</span> to
+        re-index feature names time you add new annotations to
+        JBrowse.
       </p>
 
       <p><span style="font-size: 130%"><b>And that's all</b>, for basic usage.</span> Visit <a href="../../index.html">the main page</a> to view the results.</p>
@@ -195,14 +214,15 @@ bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam             
       <h2>Quantitative tracks (Wiggle support)</h2>
       <p>
         If you want to create quantitative ("wiggle") tracks for
-        JBrowse, you need to do a bit more work.  However,
-        if <code>setup.sh</code> reported being successful at
-        installing wiggle format support, this has already been done
-        for you!
+        JBrowse, you need to have a compiled C program
+        called <code>wig2png</code>.  If <code>setup.sh</code>
+        reported being successful at installing wiggle format support,
+        this has already been done for you.  Otherwise,
+        if <code>setup.sh</code> had trouble, read on.
       </p>
       <h3>Manually building <code>wig2png</code></h3>
       <p>
-        <b>Skip this</b> if <code>setup.sh</code> reported being successful at
+        <b>Skip this step</b> if <code>setup.sh</code> reported being successful at
         installing Wiggle support; this has already been done for you!
       </p>
       <dl>
