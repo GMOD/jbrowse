@@ -584,8 +584,9 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     // boundaries) in the transfer method.
     var displayStart = Math.max( feature.get('start'), containerStart );
     var displayEnd = Math.min( feature.get('end'), containerEnd );
+    var minFeatWidth = 1;
     var blockWidth = block.endBase - block.startBase;
-    var featwidth = (100 * ((displayEnd - displayStart) / blockWidth));
+    var featwidth = Math.max(minFeatWidth, (100 * ((displayEnd - displayStart) / blockWidth)));
     featDiv.style.cssText =
         "left:" + (100 * (displayStart - block.startBase) / blockWidth) + "%;"
         + "top:" + top + "px;"
@@ -642,12 +643,14 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
         block.appendChild(labelDiv);
     }
 
-    var subfeatures = feature.get('subfeatures');
-    if( subfeatures ) {
-        for (var i = 0; i < subfeatures.length; i++) {
-            this.renderSubfeature(feature, featDiv,
-                                  subfeatures[i],
-                                  displayStart, displayEnd);
+    if( featwidth > minFeatWidth ) {
+        var subfeatures = feature.get('subfeatures');
+        if( subfeatures ) {
+            for (var i = 0; i < subfeatures.length; i++) {
+                this.renderSubfeature(feature, featDiv,
+                                      subfeatures[i],
+                                      displayStart, displayEnd);
+            }
         }
     }
 
