@@ -209,7 +209,7 @@ div.helix-hist {
     z-index: 10;
 }
 
-.loops {
+.loops, .minus-loops, .plus-loops {
     position:absolute;
     height: 13px;
     background-image: url('img/loops.png');
@@ -261,7 +261,7 @@ div.cds-hist {
     cursor: pointer;
 }
 
-.hourglass {
+.hourglass, .plus-hourglass, .minus-hourglass {
     position:absolute;
     height: 0px;
     border-style: solid;
@@ -301,7 +301,7 @@ div.hgblue-hist {
     z-index: 10;
 }
 
-.ibeam {
+.ibeam, .plus-ibeam, .minus-ibeam {
     position:absolute;
     height: 2px;
     background-color: blue;
