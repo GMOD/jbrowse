@@ -32,12 +32,8 @@ var Browser = function(params) {
 
     this.deferredFunctions = [];
 
-    this.inClose = function() {
-	if (params.nameUrl)
-	    this.names = new LazyTrie(params.nameUrl, "lazy-{Chunk}.json");
-	return this.names;
-    };
-    this.inClose();
+    if (params.nameUrl)
+        this.names = new LazyTrie(params.nameUrl, "lazy-{Chunk}.json");
 
     this.tracks = [];
     brwsr.isInitialized = false;
@@ -753,7 +749,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
         });
     };
 
-    var configList = params.config_list.split(",");
+    var configList = params.config_list ? params.config_list.split(",") : [];
     var namelist, parent, lim;
 // jquery when everything is loaded
     $(function() {
