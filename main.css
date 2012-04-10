@@ -276,6 +276,10 @@ div.tracklist-label {
     border-right: 1px solid #555;
 }
 
+a.feature-label {
+    color: black;
+}
+
 
 /* .dojoDndItemSelected, .dojoDndItemAnchor { */
 /*     background: rgba( 220, 220, 255, 0.8); */
