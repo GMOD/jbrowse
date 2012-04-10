@@ -68,10 +68,10 @@ Browser.prototype.fatalError = function( error ) {
         container.innerHTML = ''
             + '<div class="fatal_error">'
             + '  <h1>Congratulations, JBrowse is on the web!</h1>'
-            + "  <p>However, JBrowse could not start, either because it has not yet been configured, or because of an error.</p>"
+            + "  <p>However, JBrowse could not start, either because it has not yet been configured or because of an error.</p>"
             + "  <p style=\"font-size: 110%; font-weight: bold\"><a title=\"View the tutorial\" href=\"docs/tutorial/\">If this is your first time running JBrowse, click here to follow the Quick-start Tutorial to get up and running.</a></p>"
-            + "  <p>Otherwise, pease refer to the following resources for help in getting JBrowse up and running.</p>"
-            + '  <ul><li><a target="_blank" href="docs/tutorial/">Quick-start guide</a></li>'
+            + "  <p>Otherwise, please refer to the following resources for help in getting JBrowse up and running.</p>"
+            + '  <ul><li><a target="_blank" href="docs/tutorial/">Quick-start tutorial</a></li>'
             + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse wiki</a></li>'
             + '      <li><a target="_blank" href="docs/config.html">Configuration reference</a></li>'
             + '      <li><a target="_blank" href="docs/featureglyphs.html">Feature glyph reference</a></li>'
