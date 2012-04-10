@@ -37,7 +37,8 @@ sub flatten_to_name {
         [ grep defined, @{$f->{attributes}{Name}}, @{$f->{attributes}{Alias}} ],
         $self->{track_label},
         $f->{attributes}{Name}[0],
-        @{$f}{'seq_id','start','end'},
+        $f->{seq_id},
+        (map $_+0, @{$f}{'start','end'}),
         $f->{attributes}{ID}[0],
         );
     $namerec[4]--; #< to one-based
