@@ -36,9 +36,15 @@
     <h2>JBrowse feature glyphs</h2>
     <p>Here are some of the feature glyphs built into JBrowse.  These are what you specify for the --cssclass option to gff-to-json.pl, or for the &quot;class&quot; value or &quot;subfeatureClasses&quot; map in the config file.  You can also easily add your own; look in the <a href="../genome.css">genome.css</a> file for examples.</p>
 
-    <h3>Single-level features</h3>
+    <h3>Feature classes</h3>
+
+    <p>Features with no subfeatures will be drawn as rectangles like
+    those below, depending on their <code>cssClass</code>
+    configuration.
+    </p>
+
     <table>
-      <tr><th>class name</th><th style="width: 8em">how it looks</th></tr>
+      <tr><th><code>cssClass</code></th><th style="width: 8em">displayed</th></tr>
       <tr><td>feature  </td><td><div class="ex plus-feature"></div></td></tr>
       <tr><td>feature2 </td><td><div class="ex plus-feature2"></div></td></tr>
       <tr><td>feature3 </td><td><div class="ex plus-feature3"></div></td></tr>
@@ -63,15 +69,22 @@
       <tr><td>generic_part_a</td><td><div class="ex plus-generic_part_a"></div></td></tr>
     </table>
 
+
     <h3>Two-level Features</h3>
+
+    <p>To show features with subfeatures, JBrowse draws the glyphs for
+    the subfeatures on top of the glyph for the parent feature.  The
+    parent feature's glyph is set with <code>className</code> and the
+    glyphs for the subfeatures are set
+    with <code>subfeatureClasses</code>.
+    </p>
+
     <table>
       <tr>
         <th>data</th>
         <th>config</th>
-        <th style="width: 8em">how it looks</th>
+        <th style="width: 8em">displayed</th>
       </tr>
-
-
       <tr>
         <td>parent feature with two subfeatures of type 'exon'</td>
         <td><pre>
