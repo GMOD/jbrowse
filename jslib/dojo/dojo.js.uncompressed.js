@@ -261,7 +261,7 @@ dojo.global = {
 		//		Descriptor flag. If total version is "1.2.0beta1", will be "beta1"
 		//	revision: Number
 		//		The SVN rev from which dojo was pulled
-		major: 0, minor: 0, patch: 0, flag: "jbrowse",
+		major: 1, minor: 3, patch: 3, flag: "",
 		revision: rev ? +rev[0] : NaN,
 		toString: function(){
 			with(d.version){
@@ -329,7 +329,7 @@ dojo.global = {
 		//	|			// property configuration:
 		//	|			dojo.mixin(this, properties);
 		//	|	
-		//	|			console.log(this.quip);
+		//	|			
 		//	|			//  ...
 		//	|		},
 		//	|		quip: "I wasn't born yesterday, you know - I've seen movies.",
@@ -351,9 +351,9 @@ dojo.global = {
 		//	|	);
 		//	|	
 		//	|	// will print "Carl Brutanananadilewski"
-		//	|	console.log(flattened.name);
+		//	|	
 		//	|	// will print "true"
-		//	|	console.log(flattened.braces);
+		//	|	
 		if(!obj){ obj = {}; }
 		for(var i=1, l=arguments.length; i<l; i++){
 			d._mixin(obj, arguments[i]);
@@ -1177,7 +1177,7 @@ dojo.global = {
 		//		Returns a `dojo._Url` object relative to a module.
 		//	example:
 		//	|	var pngPath = dojo.moduleUrl("acme","images/small.png");
-		//	|	console.dir(pngPath); // list the object properties
+		//	|	 // list the object properties
 		//	|	// create an image and set it's source to pngPath's value:
 		//	|	var img = document.createElement("img");
 		// 	|	// NOTE: we assign the string representation of the url object
@@ -2961,7 +2961,7 @@ dojo.toJson = function(/*Object*/ it, /*Boolean?*/ prettyPrint, /*String?*/ _ind
 		newObj = dojo.json.jsonRegistry.match(it);
 		return recurse(newObj, prettyPrint, nextIndent);
 	}catch(e){
-		// console.log(e);
+		// 
 	}
 	// it's a function with no adapter, skip it
 	*/
@@ -3063,7 +3063,7 @@ dojo.provide("dojo._base.array");
 			//	|	dojo.forEach(
 			//	|		[ "thinger", "blah", "howdy", 10 ],
 			//	|		function(item){
-			//	|			console.log(item);
+			//	|			
 			//	|		}
 			//	|	);
 			//	example:
@@ -3071,7 +3071,7 @@ dojo.provide("dojo._base.array");
 			//	|	dojo.forEach(
 			//	|		[ "thinger", "blah", "howdy", 10 ],
 			//	|		function(item, idx, arr){
-			//	|			console.log(item, "at index:", idx);
+			//	|			
 			//	|		}
 			//	|	);
 			//	example:
@@ -3080,7 +3080,7 @@ dojo.provide("dojo._base.array");
 			//	|	var obj = {
 			//	|		prefix: "logged via obj.callback:", 
 			//	|		callback: function(item){
-			//	|			console.log(this.prefix, item);
+			//	|			
 			//	|		}
 			//	|	};
 			//	|	
@@ -3260,7 +3260,7 @@ dojo.provide("dojo._base.Color");
 		//	| var n = new dojo.Color(color);
 		//	| // adjust the color some
 		//	| n.r *= .5; 
-		//  | console.log(n.toString()); // rgb(128, 255, 255);
+		//  |  // rgb(128, 255, 255);
 		if(color){ this.setColor(color); }
 	};
 
@@ -3321,7 +3321,7 @@ dojo.provide("dojo._base.Color");
 			//
 			// example:
 			//	| var c = new dojo.Color("#000000"); 
-			//	| console.log(c.toRgb()); // [0,0,0] 
+			//	|  // [0,0,0] 
 			var t = this;
 			return [t.r, t.g, t.b];	// Array
 		},
@@ -3334,7 +3334,7 @@ dojo.provide("dojo._base.Color");
 			// summary: Returns a css color string in hexadecimal representation
 			//
 			// example: 
-			// | 	console.log(new dojo.Color([0,0,0]).toHex()); // #000000
+			// | 	 // #000000
 			var arr = d.map(["r", "g", "b"], function(x){
 				var s = this[x].toString(16);
 				return s.length < 2 ? "0" + s : s;
@@ -3346,7 +3346,7 @@ dojo.provide("dojo._base.Color");
 			//
 			// example:
 			// |	var c = new dojo.Color("#FFF").toCss();
-			// |	console.log(c); // rgb('255','255','255')
+			// |	 // rgb('255','255','255')
 			var t = this, rgb = t.r + ", " + t.g + ", " + t.b;
 			return (includeAlpha ? "rgba(" + rgb + ", " + t.a : "rgb(" + rgb) + ")";	// String
 		},
@@ -5550,7 +5550,7 @@ if(dojo.isIE || dojo.isOpera){
 		//	Create a `dojo.NodeList` from a new element (for syntatic sugar):
 		//	|	dojo.query(dojo.create('div'))
 		//	|		.addClass("newDiv")
-		//	|		.onclick(function(e){ console.log('clicked', e.target) })
+		//	|		.onclick(function(e){  })
 		//	|		.place("#someNode"); // redundant, but cleaner.
 
 		var doc = d.doc;
@@ -5908,7 +5908,7 @@ dojo.provide("dojo._base.NodeList");
 		//		get a NodeList from a CSS query and iterate on it
 		//		|	var l = dojo.query(".thinger");
 		//		|	l.forEach(function(node, index, nodeList){
-		//		|		console.log(index, node.innerHTML);
+		//		|		
 		//		|	});
 		//	example:
 		//		use native and Dojo-provided array methods to manipulate a
@@ -5917,13 +5917,13 @@ dojo.provide("dojo._base.NodeList");
 		//		|	// since NodeLists are real arrays, they have a length
 		//		|	// property that is both readable and writable and
 		//		|	// push/pop/shift/unshift methods
-		//		|	console.log(l.length);
+		//		|	
 		//		|	l.push(dojo.create("<span>howdy!</span>"));
 		//		|
 		//		|	// dojo's normalized array methods work too:
-		//		|	console.log( l.indexOf(dojo.byId("foo")) );
+		//		|	
 		//		|	// ...including the special "function as string" shorthand
-		//		|	console.log( l.every("item.nodeType == 1") );
+		//		|	
 		//		|
 		//		|	// NodeLists can be [..] indexed, or you can use the at()
 		//		|	// function to get specific items wrapped in a new NodeList:
@@ -6266,7 +6266,7 @@ dojo.provide("dojo._base.NodeList");
 			//	example:
 			//		add an onclick handler to every button on the page
 			//		|	dojo.query("div:nth-child(odd)").connect("onclick", function(e){
-			//		|		console.log("clicked!");
+			//		|		
 			//		|	});
 			// example:
 			//		attach foo.bar() to every odd div's onmouseover
@@ -6522,13 +6522,13 @@ dojo.provide("dojo._base.NodeList");
 								// see:
 								//		http://developer.mozilla.org/en/docs/DOM:element
 
-								console.log(n, evt, _oe);
+								
 
 								// FIXME: need synthetic event support!
 								var _e = { target: n, faux: true, type: evt };
 								// dojo._event_listener._synthesizeEvent({}, { target: n, faux: true, type: evt });
-								try{ n[evt](_e); }catch(e){ console.log(e); }
-								try{ n[_oe](_e); }catch(e){ console.log(e); }
+								try{ n[evt](_e); }catch(e){  }
+								try{ n[_oe](_e); }catch(e){  }
 							})
 				);
 			}
@@ -6775,10 +6775,7 @@ if(typeof dojo != "undefined"){
 				currentPart.infixOper = queryParts.pop();
 				currentPart.query = currentPart.infixOper.query + " " + currentPart.query;
 				/*
-				console.debug(	"swapping out the infix", 
-								currentPart.infixOper, 
-								"and attaching it to", 
-								currentPart);
+				
 				*/
 			}
 			queryParts.push(currentPart);
@@ -9294,7 +9291,7 @@ dojo.provide("dojo._base.fx");
 		//	|		}
 		//	|	});
 		//	|	dojo.connect(anim,"onEnd", function(){
-		//	|		console.log("animation ended");
+		//	|		
 		//	|	});
 		//	|	// play the animation now:
 		//	|	anim.play();
