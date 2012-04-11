@@ -1,6 +1,6 @@
 {{$NEXT}}
 
- * Browser testing for this release:
+ * Browser support for this release:
       * Google Chrome 18                perfect
       * Google Chrome 17                perfect
       * Mozilla Firefox 11.0            perfect
@@ -11,9 +11,12 @@
       * Microsoft Internet Explorer 9   perfect
       * Microsoft Internet Explorer 8   good
       * Microsoft Internet Explorer 7   minor problems
+      * Microsoft Internet Explorer 6   not tested
       * KDE Konqueror 4.7.4             nonfunctional
       * KDE Konqueror 4.5.5             nonfunctional
       * Opera (all versions)            not tested
+
+   NOTE: Internet Explorer 6 is no longer supported by JBrowse.
 
  * Added an automated-setup script, setup.sh, that tries to install
    Perl prerequisites, format Volvox example data, and install Wiggle
