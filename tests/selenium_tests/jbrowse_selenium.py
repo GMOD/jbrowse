@@ -11,15 +11,21 @@ from selenium.webdriver.support.ui  import Select
 
 class JBrowseTest (object):
 
-    base_url = os.environ['JBROWSE_URL'] if 'JBROWSE_URL' in os.environ else "file://"+os.getcwd()+"/index.html"
     data_dir = None
+    base_url = None
 
     ## TestCase overrides
 
+    def baseURL( self ):
+        if not self.base_url:
+            self.base_url = os.environ['JBROWSE_URL'] if 'JBROWSE_URL' in os.environ else "file://"+os.getcwd()+"/index.html"
+        return self.base_url
+
     def setUp( self ):
+
         self.browser = webdriver.Firefox()
         self.browser.get(
-            self.base_url
+            self.baseURL()
             + ( "?data="+self.data_dir if self.data_dir else "" )
         )
         time.sleep(0.5)
