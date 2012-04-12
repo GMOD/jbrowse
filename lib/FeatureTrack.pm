@@ -17,7 +17,7 @@ use strict;
 use warnings;
 use File::Path qw( rmtree );
 use File::Spec;
-use List::Util qw( min max first );
+use List::Util qw( min max sum first );
 use POSIX qw (ceil);
 
 use IntervalStore;
@@ -210,15 +210,16 @@ sub writeHistograms {
     }
 
     my @histogramMeta;
+    my @histStats;
     for (my $j = $i - 1; $j <= $#multiples; $j += 1) {
         my $curHist = $histograms[$j];
         last unless defined($curHist);
         my $histBases = $histBinBases * $multiples[$j];
 
         my $chunks = chunkArray($curHist, $histChunkSize);
-        for (my $i = 0; $i <= $#{$chunks}; $i++) {
-            $jsonStore->put("hist-$histBases-$i" . $jsonStore->ext,
-                            $chunks->[$i]);
+        for (my $k = 0; $k <= $#{$chunks}; $k++) {
+            $jsonStore->put("hist-$histBases-$k" . $jsonStore->ext,
+                            $chunks->[$k]);
         }
         push @histogramMeta,
             {
@@ -229,14 +230,12 @@ sub writeHistograms {
                     chunkSize => $histChunkSize
                 }
             };
-    }
-
-    my @histStats;
-    for (my $j = $i - 1; $j <= $#multiples; $j++) {
-        last unless defined($self->{hists}->[$j]);
-        my $binBases = $histBinBases * $multiples[$j];
-        push @histStats, {'bases' => $binBases,
-                          arrayStats($histograms[$j])};
+        push @histStats,
+            {
+                'bases' => $histBases,
+                'max'  => @$curHist ? max( @$curHist ) : undef,
+                'mean' => @$curHist ? ( sum( @$curHist ) / @$curHist ) : undef,
+            };
     }
 
     return { meta => \@histogramMeta,

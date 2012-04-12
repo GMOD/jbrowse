@@ -84,6 +84,10 @@ sub tempdir {
 
     my $cds_trackdata = $read_json->(qw( tracks CDS ctgA trackData.jsonz ));
     is( $cds_trackdata->{featureCount}, 3, 'got right feature count for CDS track' ) or diag explain $cds_trackdata;
+    is( scalar( @{$cds_trackdata->{histograms}{meta}}),
+        scalar( @{$cds_trackdata->{histograms}{stats}}),
+        'have stats for each precalculated hist' );
+
     is( ref $cds_trackdata->{intervals}{nclist}[2][9], 'ARRAY', 'exonerate mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
     is( scalar @{$cds_trackdata->{intervals}{nclist}[2][9]}, 5, 'exonerate mRNA has 5 subfeatures' );
