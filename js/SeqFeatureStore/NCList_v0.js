@@ -39,19 +39,25 @@ SeqFeatureStore.NCList_v0.prototype.loadSuccess = function( trackInfo, url ) {
             stats: this._del( trackInfo, 'histStats' )
         };
 
-        // since the old format had config information inside the
-        // trackdata file, yuckily push it up to the track's config
+        // since the old format had style information inside the
+        // trackdata file, yuckily push it up to the track's config.style
         var renameVar = {
             urlTemplate: "linkTemplate"
         };
         dojo.forEach(
-            ['className','arrowheadClass','subfeatureClasses','urlTemplate'],
+            ['className','arrowheadClass','subfeatureClasses','urlTemplate','clientConfig'],
             function(varname) {
                 if( !this.track.config.style ) this.track.config.style = {};
                 var dest_varname = renameVar[varname] || varname;
                 if( varname in trackInfo )
                     this.track.config.style[dest_varname] = trackInfo[varname];
             },this);
+
+        // also need to merge Ye Olde clientConfig values into the style object
+        if( this.track.config.style.clientConfig ) {
+            this.track.config.style = dojo.mixin( this.track.config.style, this.track.config.style.clientConfig );
+            delete this.track.config.style.clientConfig;
+        }
 
         // remember the field offsets from the old-style trackinfo headers
         this.fields = {};
