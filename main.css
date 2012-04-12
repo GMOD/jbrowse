@@ -307,7 +307,6 @@ div.tracklist-container {
     padding: 0px 0px 0px 0px;
     /* font-size: 80%; */
     white-space: nowrap;
-    background-color: #eee;
     z-index: 10;
     cursor: pointer;
 }
