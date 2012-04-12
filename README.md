@@ -28,5 +28,5 @@ http://code.google.com/p/jsdoc-toolkit.
 Running `bin/jbdoc ArrayRepr` will open your browser with
 documentation about ArrayRepr.js.
 
-See [http://code.google.com/p/jsdoc-toolkit/w/list] for a list of JSDoc
-tags.
+The [here](http://code.google.com/p/jsdoc-toolkit/w/list) for a
+comprehensive list of JSDoc tags.
