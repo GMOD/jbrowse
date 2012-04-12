@@ -123,11 +123,13 @@ NCList_v0.prototype.iterHelper = function(arr, from, to, fun, finish,
                 finish.inc();
                 dojo.xhrGet(
                     {
-                        url: this.baseURL +
-                            this.lazyUrlTemplate.replace(
-                                /\{chunk\}/g,
-                                arr[i][this.lazyIndex].chunk
-                            ),
+                        url: Util.resolveUrl(
+                                this.baseURL,
+                                this.lazyUrlTemplate.replace(
+                                    /\{chunk\}/g,
+                                   arr[i][this.lazyIndex].chunk
+                                )
+                             ),
                         handleAs: "json",
                         load: function(lazyFeat, lazyObj,
                                        sublistIndex, parentIndex) {
