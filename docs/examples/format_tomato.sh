@@ -8,7 +8,7 @@ OUT='sample_data/json/tomato';
 
 set -e;
 rm -rf $OUT;
-mkdir -p $OUT;
+mkdir -p $IN $OUT;
 
 # fetch the tomato data using `wget` (about 1G total)
 for f in ITAG2.3_assembly.gff3        \
