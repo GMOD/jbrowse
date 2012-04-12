@@ -164,7 +164,7 @@ FeatureTrack.prototype._histDimensions = function( blockSizeBp ) {
     var stats = this.featureStore.histograms.stats;
     var statEntry;
     for (var i = 0; i < stats.length; i++) {
-        if (stats[i].bases >= bpPerBin) {
+        if (stats[i].basesPerBin >= bpPerBin) {
             //console.log("bpPerBin: " + bpPerBin + ", histStats bases: " + this.histStats[i].bases + ", mean/max: " + (this.histStats[i].mean / this.histStats[i].max));
             logScale = ((stats[i].mean / stats[i].max) < .01);
             pxPerCount = 100 / (logScale ?

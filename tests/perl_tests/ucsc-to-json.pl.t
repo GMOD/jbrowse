@@ -25,13 +25,14 @@ system $^X, 'bin/ucsc-to-json.pl', (
   );
 ok( ! $?, 'ucsc-to-json.pl ran ok' );
 
+#system "cp -r $tempdir/* tests/data/hg19_formatted/";
+
+# make sure it has the right output
 is_deeply(
     slurp_tree( $tempdir ),
     slurp_tree( 'tests/data/hg19_formatted/' ),
     'ucsc_to_json.pl made the right output',
   );
 
-
-# make sure it has the right output
 done_testing;
 

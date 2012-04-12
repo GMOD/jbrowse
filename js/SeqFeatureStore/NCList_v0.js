@@ -38,6 +38,10 @@ SeqFeatureStore.NCList_v0.prototype.loadSuccess = function( trackInfo, url ) {
             meta: this._del( trackInfo, 'histogramMeta' ),
             stats: this._del( trackInfo, 'histStats' )
         };
+        // rename stats.bases to stats.basesPerBin
+        dojo.forEach( trackInfo.histograms.stats, function(s) {
+            s.basesPerBin = this._del( s, 'bases' );
+        },this);
 
         // since the old format had style information inside the
         // trackdata file, yuckily push it up to the track's config.style

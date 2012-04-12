@@ -232,7 +232,7 @@ sub writeHistograms {
             };
         push @histStats,
             {
-                'bases' => $histBases,
+                'basesPerBin' => $histBases,
                 'max'  => @$curHist ? max( @$curHist ) : undef,
                 'mean' => @$curHist ? ( sum( @$curHist ) / @$curHist ) : undef,
             };
