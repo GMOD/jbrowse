@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.3.0     2012-04-13 17:04:30 America/New_York
+
  * Added support for "rubberband" dynamic zooming, in which users can
    click and drag to select a region to zoom to.  Dragging on any
    scale bar, or shift-dragging on the main track pane, triggers a
