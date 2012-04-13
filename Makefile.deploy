@@ -46,7 +46,7 @@ $(JSMIN_TARGET): $(JS_SRCFILES)
 	    if ! which yui-compressor; then \
 	        sudo apt-get install yui-compressor; \
 	    fi; \
-	    cat `perl -nE 'say $$1 if /src="(js\/[^"]+)/' index-debug.html` | yui-compressor --type js --nomunge --preserve-semi --disable-optimizations > $@; \
+	    cat `perl -nE 'say $$1 if /src="(js\/[^"]+)/' index-debug.html` | yui-compressor --type js > $@; \
 	    perl -pe 'BEGIN { undef $$/; }; s#<!-- js_source_files -->.*<!-- js_source_files -->#    <script type="text/javascript" src="$(JSMIN_TARGET)"></script>\n#ms' index-debug.html > index.html; \
 	fi
 
