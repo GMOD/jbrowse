@@ -5,7 +5,7 @@ used for handling features inside FlatFileToJson.pm
 
 =cut
 
-package Bio::JBrowse::Script::FlatFileToJson::FeatureStream;
+package Bio::JBrowse::Cmd::FlatFileToJson::FeatureStream;
 use strict;
 use warnings;
 

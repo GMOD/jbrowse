@@ -1,4 +1,4 @@
-package Bio::JBrowse::Script;
+package Bio::JBrowse::Cmd;
 use strict;
 use warnings;
 

@@ -5,10 +5,10 @@ for working with BioPerl seqfeature objects
 
 =cut
 
-package Bio::JBrowse::Script::FlatFileToJson::FeatureStream::BioPerl;
+package Bio::JBrowse::Cmd::FlatFileToJson::FeatureStream::BioPerl;
 use strict;
 use warnings;
-use base 'Bio::JBrowse::Script::FlatFileToJson::FeatureStream';
+use base 'Bio::JBrowse::Cmd::FlatFileToJson::FeatureStream';
 
 sub next_items {
     my ( $self ) = @_;

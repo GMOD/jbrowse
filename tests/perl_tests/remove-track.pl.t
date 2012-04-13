@@ -12,10 +12,10 @@ use File::Copy::Recursive 'dircopy';
 
 use FileSlurping 'slurp';
 
-use Bio::JBrowse::Script::RemoveTrack;
+use Bio::JBrowse::Cmd::RemoveTrack;
 
 sub remove_track {
-    Bio::JBrowse::Script::RemoveTrack->new( '--quiet',  @_ )->run
+    Bio::JBrowse::Cmd::RemoveTrack->new( '--quiet',  @_ )->run
 }
 
 {

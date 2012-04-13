@@ -4,9 +4,9 @@ use FindBin qw($RealBin);
 use lib "$RealBin/../lib";
 use JBlibs;
 
-use Bio::JBrowse::Script::FlatFileToJson;
+use Bio::JBrowse::Cmd::FlatFileToJson;
 
-exit Bio::JBrowse::Script::FlatFileToJson->new(@ARGV)->run;
+exit Bio::JBrowse::Cmd::FlatFileToJson->new(@ARGV)->run;
 
 __END__
 
