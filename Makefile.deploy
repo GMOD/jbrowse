@@ -6,20 +6,9 @@ TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
 
 all: minify-js docs wig2png
 
-release: release-normal release-min
-
-release-normal: superclean docs minify-js
+release: superclean docs minify-js
 	dzil build;
 	cp Makefile.PL JBrowse-*/;
-
-release-min: release-normal
-	( \
-	export RELEASE=$(shell basename JBrowse-*/); \
-	export MIN=$$RELEASE-min; \
-	cp -r $$RELEASE/ $$MIN/; \
-	rm -rf $$MIN/index-debug.html $$MIN/js $$MIN/dist.ini $$MIN/docs/jsdoc $$MIN/t $$MIN/tests $$MIN/*META.*; \
-	tar -czf $$MIN.tar.gz $$MIN/; \
-	)
 
 wig2png: wig2png/Makefile
 	$(MAKE) -C wig2png;
@@ -56,4 +45,4 @@ clean:
 	-mv index-debug.html index.html;
 	rm -rf docs/jsdoc $(JSMIN_TARGET);
 
-.PHONY: all clean superclean jbrowse minify-js docs doc wig2png release release-min release-normal
+.PHONY: all clean superclean jbrowse minify-js docs doc wig2png release
