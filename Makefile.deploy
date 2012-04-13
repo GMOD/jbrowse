@@ -12,6 +12,8 @@ release-normal: superclean docs minify-js
 	dzil build;
 	cp Makefile.PL JBrowse-*/;
 	cp JBrowse-*/release-notes.txt .;
+	rm JBrowse-*.tar.gz;
+	zip -r `basename JBrowse-*`.zip JBrowse-*/;
 
 release-min: release-normal
 	( \
@@ -19,7 +21,7 @@ release-min: release-normal
 	export MIN=$$RELEASE-min; \
 	cp -r $$RELEASE/ $$MIN/; \
 	rm -rf $$MIN/index-debug.html $$MIN/js $$MIN/dist.ini $$MIN/docs/jsdoc $$MIN/t $$MIN/tests $$MIN/xt $$MIN/sample_data $$MIN/*META.*; \
-	tar -czf $$MIN.tar.gz $$MIN/; \
+	zip -r $$MIN.zip $$MIN/; \
 	)
 
 wig2png: wig2png/Makefile
