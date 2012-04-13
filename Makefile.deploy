@@ -9,14 +9,15 @@ all: minify-js docs/jsdoc/index.html wig2png
 release: release-normal release-min
 
 release-normal: superclean minify-js
-	dzil build
+	dzil build;
+	cp Makefile.PL JBrowse-*/;
 
 release-min: release-normal
 	( \
 	export RELEASE=$(shell basename JBrowse-*/); \
 	export MIN=$$RELEASE-min; \
 	cp -r $$RELEASE/ $$MIN/; \
-	rm -rf $$MIN/index-debug.html $$MIN/js $$MIN/dist.ini $$MIN/docs $$MIN/t $$MIN/tests; \
+	rm -rf $$MIN/index-debug.html $$MIN/js $$MIN/dist.ini $$MIN/docs/jsdoc $$MIN/t $$MIN/tests; \
 	tar -czf $$MIN.tar.gz $$MIN/; \
 	)
 
