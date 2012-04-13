@@ -1,6 +1,6 @@
 JSDIR = $(PWD)/js
 JARDIR = jar
-JSMIN_TARGET = jbrowse.js
+JSMIN_TARGET = jbrowse-min.js
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
 
@@ -29,7 +29,8 @@ jbrowse:
 minify-js: $(JSMIN_TARGET)
 
 $(JSMIN_TARGET): $(JS_SRCFILES)
-	java -jar $(JARDIR)/shrinksafe.jar $^ > $@
+	if ! ( which yui-compressor ); then sudo apt-get install yui-compressor; fi
+	cat $^ | yui-compressor --type js > $@
 	if grep -q '<!-- js_source_files -->' index.html; then \
 	    mv index.html index-debug.html; \
 	    perl -pe 'BEGIN { undef $$/; }; s#<!-- js_source_files -->.*<!-- js_source_files -->#    <script type="text/javascript" src="$(JSMIN_TARGET)"></script>\n#ms' index-debug.html > index.html; \
@@ -41,6 +42,6 @@ superclean: clean
 
 clean:
 	-mv index-debug.html index.html;
-	rm -rf docs/jsdoc jbrowse.js;
+	rm -rf docs/jsdoc $(JSMIN_TARGET);
 
 .PHONY: all clean superclean jbrowse minify-js docs doc wig2png release
