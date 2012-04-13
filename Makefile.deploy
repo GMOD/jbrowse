@@ -4,11 +4,11 @@ JSMIN_TARGET  = jbrowse-min.js
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
 
-all: minify-js docs/jsdoc/index.html wig2png
+all: minify-js docs wig2png
 
 release: release-normal release-min
 
-release-normal: superclean minify-js
+release-normal: superclean docs minify-js
 	dzil build;
 	cp Makefile.PL JBrowse-*/;
 
@@ -17,7 +17,7 @@ release-min: release-normal
 	export RELEASE=$(shell basename JBrowse-*/); \
 	export MIN=$$RELEASE-min; \
 	cp -r $$RELEASE/ $$MIN/; \
-	rm -rf $$MIN/index-debug.html $$MIN/js $$MIN/dist.ini $$MIN/docs/jsdoc $$MIN/t $$MIN/tests; \
+	rm -rf $$MIN/index-debug.html $$MIN/js $$MIN/dist.ini $$MIN/docs/jsdoc $$MIN/t $$MIN/tests $$MIN/*META.*; \
 	tar -czf $$MIN.tar.gz $$MIN/; \
 	)
 
