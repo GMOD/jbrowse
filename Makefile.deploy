@@ -17,7 +17,7 @@ release-min: release-normal
 	export RELEASE=$(shell basename JBrowse-*/); \
 	export MIN=$$RELEASE-min; \
 	cp -r $$RELEASE/ $$MIN/; \
-	rm -rf $$MIN/index-debug.html $$MIN/js $$MIN/dist.ini $$MIN/docs/jsdoc $$MIN/t $$MIN/tests $$MIN/sample_data $$MIN/*META.*; \
+	rm -rf $$MIN/index-debug.html $$MIN/js $$MIN/dist.ini $$MIN/docs/jsdoc $$MIN/t $$MIN/tests $$MIN/xt $$MIN/sample_data $$MIN/*META.*; \
 	tar -czf $$MIN.tar.gz $$MIN/; \
 	)
 
