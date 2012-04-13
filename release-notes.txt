@@ -5,6 +5,10 @@
    scale bar, or shift-dragging on the main track pane, triggers a
    dynamic zoom.
 
+ * Correcting a long-standing oversight, wiggle data tracks and
+   feature histograms now have numerical y-axis scales that show the
+   numerical values of the data.
+
  * Server-side data-formatting scripts now support a --compress option
    to compress (gzip) feature and sequence data to conserve server
    disk space.  Using this option requires some web server
