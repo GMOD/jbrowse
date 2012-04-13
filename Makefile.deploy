@@ -6,6 +6,9 @@ TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
 
 all: minify-js docs/jsdoc/index.html wig2png
 
+release: superclean minify-js docs/jsdoc/index.html
+	dzil build
+
 wig2png: wig2png/Makefile
 	$(MAKE) -C wig2png;
 wig2png/Makefile: wig2png/configure
@@ -32,8 +35,12 @@ $(JSMIN_TARGET): $(JS_SRCFILES)
 	    perl -pe 'BEGIN { undef $$/; }; s#<!-- js_source_files -->.*<!-- js_source_files -->#    <script type="text/javascript" src="$(JSMIN_TARGET)"></script>\n#ms' index-debug.html > index.html; \
 	fi
 
+superclean: clean
+	-git clean -fdx;
+	-git reset --hard;
+
 clean:
 	-mv index-debug.html index.html;
 	rm -rf docs/jsdoc jbrowse.js;
 
-.PHONY: all clean jbrowse minify-js docs doc wig2png
+.PHONY: all clean superclean jbrowse minify-js docs doc wig2png release
