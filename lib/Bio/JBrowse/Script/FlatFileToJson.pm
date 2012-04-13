@@ -10,12 +10,12 @@ Do C<perldoc bin/flatfile-to-json.pl> for most of the documentation.
 
 =cut
 
-package Script::FlatFileToJson;
+package Bio::JBrowse::Script::FlatFileToJson;
 
 use strict;
 use warnings;
 
-use base 'Script';
+use base 'Bio::JBrowse::Script';
 
 use ArrayRepr;
 use GenomeDB;
@@ -198,11 +198,11 @@ sub make_gff_stream {
     my $self = shift;
 
     require Bio::GFF3::LowLevel::Parser;
-    require Script::FlatFileToJson::FeatureStream::GFF3_LowLevel;
+    require Bio::JBrowse::Script::FlatFileToJson::FeatureStream::GFF3_LowLevel;
 
     my $p = Bio::GFF3::LowLevel::Parser->new( $self->opt('gff') );
 
-    return Script::FlatFileToJson::FeatureStream::GFF3_LowLevel->new(
+    return Bio::JBrowse::Script::FlatFileToJson::FeatureStream::GFF3_LowLevel->new(
         parser => $p,
         track_label => $self->opt('trackLabel')
      );
@@ -212,7 +212,7 @@ sub make_bed_stream {
     my ( $self, $config_hash ) = @_;
 
     require Bio::FeatureIO;
-    require Script::FlatFileToJson::FeatureStream::BioPerl;
+    require Bio::JBrowse::Script::FlatFileToJson::FeatureStream::BioPerl;
 
     my $io = Bio::FeatureIO->new(
         -format => 'bed',
@@ -221,7 +221,7 @@ sub make_bed_stream {
         ($self->opt('thickType') ? ("-thick_type" => $self->opt('thickType')) : ()),
         );
 
-    return Script::FlatFileToJson::FeatureStream::BioPerl->new(
+    return Bio::JBrowse::Script::FlatFileToJson::FeatureStream::BioPerl->new(
         stream => sub { $io->next_feature },
         track_label => $self->opt('trackLabel'),
     );

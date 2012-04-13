@@ -8,7 +8,7 @@ Do C<perldoc bin/remove-track.pl> to see usage documentation.
 
 =cut
 
-package Script::RemoveTrack;
+package Bio::JBrowse::Script::RemoveTrack;
 use strict;
 use warnings;
 
@@ -17,7 +17,7 @@ use File::Path ();
 use File::Spec;
 
 use JsonFileStorage;
-use base 'Script';
+use base 'Bio::JBrowse::Script';
 
 sub option_defaults {
     ( dir => 'data/' )
