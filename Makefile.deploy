@@ -11,6 +11,7 @@ release: release-normal release-min
 release-normal: superclean docs minify-js
 	dzil build;
 	cp Makefile.PL JBrowse-*/;
+	cp JBrowse-*/release-notes.txt .;
 
 release-min: release-normal
 	( \
