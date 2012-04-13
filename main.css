@@ -242,6 +242,7 @@ div.track-label {
     color: black;
     margin-left: 20px;
     border-color: rgba( 0,0,0,0);
+    white-space: nowrap;
 
     background-color: #bcbcbc;
     background-color: rgba( 200,200,200, 0.8 );

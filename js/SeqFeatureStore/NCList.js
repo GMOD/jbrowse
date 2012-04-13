@@ -28,8 +28,7 @@ SeqFeatureStore.NCList.prototype.makeNCList = function() {
 };
 
 SeqFeatureStore.NCList.prototype.load = function() {
-    var that = this,
-         url = Util.resolveUrl(
+    var url = Util.resolveUrl(
                    this.baseUrl,
                    Util.fillTemplate( this.urlTemplates.tracklist,
                                       {'refseq': this.refSeq.name}
@@ -38,8 +37,8 @@ SeqFeatureStore.NCList.prototype.load = function() {
     // fetch the trackdata
     dojo.xhrGet({ url: url,
                   handleAs: "json",
-                  load:  function(o) { that.loadSuccess(o, url); },
-                  error: function(e) { console.error(''+e); that.loadFail(e, url);    }
+                  load:  dojo.hitch( this, function(o) { this.loadSuccess(o, url); }),
+                  error: dojo.hitch( this, function(e) { console.error(''+e); this.loadFail(e, url); } )
 	        });
 };
 

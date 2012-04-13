@@ -4,9 +4,9 @@ use FindBin '$RealBin';
 use lib "$RealBin/../lib";
 use JBlibs;
 
-use Script::RemoveTrack;
+use Bio::JBrowse::Cmd::RemoveTrack;
 
-exit Script::RemoveTrack->new(@ARGV)->run;
+exit Bio::JBrowse::Cmd::RemoveTrack->new(@ARGV)->run;
 
 __END__
 

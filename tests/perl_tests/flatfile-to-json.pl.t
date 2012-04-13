@@ -6,7 +6,7 @@ use JBlibs;
 use Test::More;
 use Test::Warn;
 
-use Script::FlatFileToJson;
+use Bio::JBrowse::Cmd::FlatFileToJson;
 
 use File::Spec::Functions qw( catfile catdir );
 use File::Temp ();
@@ -20,7 +20,7 @@ sub run_with(@) {
     #ok( ! $?, 'flatfile-to-json.pl ran ok' );
     my @args = @_;
     warnings_are {
-      Script::FlatFileToJson->new( @args )->run;
+      Bio::JBrowse::Cmd::FlatFileToJson->new( @args )->run;
     } [], 'ran without warnings';
 }
 

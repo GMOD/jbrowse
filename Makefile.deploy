@@ -1,10 +1,25 @@
 JSDIR = $(PWD)/js
 JARDIR = jar
-JSMIN_TARGET = jbrowse.js
+JSMIN_TARGET  = jbrowse-min.js
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
 
-all: minify-js docs/jsdoc/index.html wig2png
+all: minify-js docs wig2png
+
+release: release-normal release-min
+
+release-normal: superclean docs minify-js
+	dzil build;
+	cp Makefile.PL JBrowse-*/;
+
+release-min: release-normal
+	( \
+	export RELEASE=$(shell basename JBrowse-*/); \
+	export MIN=$$RELEASE-min; \
+	cp -r $$RELEASE/ $$MIN/; \
+	rm -rf $$MIN/index-debug.html $$MIN/js $$MIN/dist.ini $$MIN/docs/jsdoc $$MIN/t $$MIN/tests $$MIN/sample_data $$MIN/*META.*; \
+	tar -czf $$MIN.tar.gz $$MIN/; \
+	)
 
 wig2png: wig2png/Makefile
 	$(MAKE) -C wig2png;
@@ -26,14 +41,21 @@ jbrowse:
 minify-js: $(JSMIN_TARGET)
 
 $(JSMIN_TARGET): $(JS_SRCFILES)
-	java -jar $(JARDIR)/shrinksafe.jar $^ > $@
 	if grep -q '<!-- js_source_files -->' index.html; then \
 	    mv index.html index-debug.html; \
+	    if ! which yui-compressor; then \
+	        sudo apt-get install yui-compressor; \
+	    fi; \
+	    cat `perl -nE 'say $$1 if /src="(js\/[^"]+)/' index-debug.html` | yui-compressor --type js > $@; \
 	    perl -pe 'BEGIN { undef $$/; }; s#<!-- js_source_files -->.*<!-- js_source_files -->#    <script type="text/javascript" src="$(JSMIN_TARGET)"></script>\n#ms' index-debug.html > index.html; \
 	fi
 
+superclean: clean
+	-git clean -fdx;
+	-git reset --hard;
+
 clean:
 	-mv index-debug.html index.html;
-	rm -rf docs/jsdoc jbrowse.js;
+	rm -rf docs/jsdoc $(JSMIN_TARGET);
 
-.PHONY: all clean jbrowse minify-js docs doc wig2png
+.PHONY: all clean superclean jbrowse minify-js docs doc wig2png release release-min release-normal

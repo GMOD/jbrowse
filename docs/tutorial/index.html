@@ -182,14 +182,15 @@
         If you have data in BAM format, you can import it into a JBrowse instance using <span class="code">bam-to-json.pl</span>.  For example:
       </p>
       <div class="code"><pre>
-bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam             \
-                   --tracklabel bam_simulated                                   \
-                   --key "Simulated next-gen reads"                             \
-                   --cssClass basic                                             \
-                   --clientConfig                                               \
-                        '{ "featureCss": "background-color: #66F; height: 8px",
-                           "histCss": "background-color: #88F"
-                        }'
+bin/bam-to-json.pl                                              \
+   --bam docs/tutorial/data_files/volvox-sorted.bam             \
+   --tracklabel bam_simulated                                   \
+   --key "Simulated next-gen reads"                             \
+   --cssClass basic                                             \
+   --clientConfig                                               \
+        '{ "featureCss": "background-color: #66F; height: 8px",
+           "histCss": "background-color: #88F"
+        }'
 </pre></div>
       <a name="Names" id="Names"></a>
       <h2>Index Names</h2>

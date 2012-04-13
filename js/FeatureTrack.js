@@ -271,11 +271,6 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
 };
 
 FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
-    if (destScale < (this.featureStore.density * this.config.scaleThresh.hist)) {
-        this.setLabel(this.key + "<br>per " + Math.round(destBlockBases / this.numBins) + "bp");
-    } else {
-        this.setLabel(this.key);
-    }
     this.clear();
 };
 
@@ -289,6 +284,18 @@ FeatureTrack.prototype.fillBlock = function(blockIndex, block,
                                             leftBase, rightBase,
                                             scale, stripeWidth,
                                             containerStart, containerEnd) {
+
+    // only update the label once for each block size
+    var blockBases = Math.abs( leftBase-rightBase );
+    if( this._updatedLabelForBlockSize != blockBases ){
+        if ( scale < (this.featureStore.density * this.config.scaleThresh.hist)) {
+            this.setLabel(this.key + "<br>per " + Math.round( blockBases / this.numBins) + "bp");
+        } else {
+            this.setLabel(this.key);
+        }
+        this._updatedLabelForBlockSize = blockBases;
+    }
+
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
     if (this.featureStore.histograms &&
         (scale < (this.featureStore.density * this.config.scaleThresh.hist)) ) {

@@ -15,11 +15,10 @@ Store.prototype.loadFail = function(error) {
 };
 
 Store.prototype.load = function(url) {
-    var that = this;
-    dojo.xhrGet({url: url || this.url,
-                 handleAs: "json",
-                 load: function(o)  { that.loadSuccess(o, url); },
-                 error: function(o) { that.loadFail(o, url); }
+    dojo.xhrGet({ url: url || this.url,
+                  handleAs: "json",
+                  load:  dojo.hitch( this, function(o) { this.loadSuccess(o, url); }),
+                  error: dojo.hitch( this, function(o) { this.loadFail(o, url);    })
 	        });
 };
 

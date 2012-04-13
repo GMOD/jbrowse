@@ -59,6 +59,8 @@ use strict;
 use warnings;
 
 use File::Spec::Functions qw/ catfile catdir /;
+use File::Path 'mkpath';
+
 use FindBin qw($Bin);
 use Pod::Usage;
 use POSIX;
@@ -96,8 +98,8 @@ $chunkSize *= 4 if $compress;
 my $seqRel = "seq";
 my $seqDir = catdir( $outDir, $seqRel );
 
-mkdir($outDir) unless (-d $outDir);
-mkdir($seqDir) unless $noSeq || (-d $seqDir);
+mkpath( $outDir );
+mkpath( $seqDir ) unless $noSeq;
 
 my @refSeqs;
 
