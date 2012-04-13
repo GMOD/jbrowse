@@ -10,9 +10,9 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
     def setUp( self ):
         call( "rm -rf sample_data/json/volvox/", shell=True )
-        call( "bin/prepare-refseqs.pl --fasta sample_data/raw/volvox/volvox.fa --out sample_data/json/volvox/", shell=True )
-        call( "bin/biodb-to-json.pl --conf sample_data/raw/volvox.json --out sample_data/json/volvox/", shell=True )
-        call( "bin/wig-to-json.pl --out sample_data/json/volvox/ --wig sample_data/raw/volvox/volvox_microarray.wig", shell=True )
+        call( "bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa --out sample_data/json/volvox/", shell=True )
+        call( "bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox/", shell=True )
+        call( "bin/wig-to-json.pl --out sample_data/json/volvox/ --wig docs/tutorial/data_files/volvox_microarray.wig", shell=True )
         call( "bin/generate-names.pl --dir sample_data/json/volvox/", shell=True )
         super( AbstractVolvoxBiodbTest, self ).setUp()
 
