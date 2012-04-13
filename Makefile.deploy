@@ -41,10 +41,12 @@ jbrowse:
 minify-js: $(JSMIN_TARGET)
 
 $(JSMIN_TARGET): $(JS_SRCFILES)
-	if ! ( which yui-compressor ); then sudo apt-get install yui-compressor; fi
-	cat $^ | yui-compressor --type js > $@
 	if grep -q '<!-- js_source_files -->' index.html; then \
 	    mv index.html index-debug.html; \
+	    if ! which yui-compressor; then \
+	        sudo apt-get install yui-compressor; \
+	    fi; \
+	    cat `perl -nE 'say $$1 if /src="(js\/[^"]+)/' index-debug.html` | yui-compressor --type js --nomunge --preserve-semi --disable-optimizations > $@; \
 	    perl -pe 'BEGIN { undef $$/; }; s#<!-- js_source_files -->.*<!-- js_source_files -->#    <script type="text/javascript" src="$(JSMIN_TARGET)"></script>\n#ms' index-debug.html > index.html; \
 	fi
 
