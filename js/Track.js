@@ -14,11 +14,10 @@ function Track(name, key, loaded, changeCallback) {
 }
 
 Track.prototype.load = function(url) {
-    var curTrack = this;
-    dojo.xhrGet({url: url,
-                 handleAs: "json",
-                 load: function(o) { curTrack.loadSuccess(o, url); },
-                 error: function(o) { curTrack.loadFail(o, url); }
+    dojo.xhrGet({ url: url,
+                  handleAs: "json",
+                  load:  dojo.hitch( this, function(o) { this.loadSuccess(o, url); }),
+                  error: dojo.hitch( this, function(o) { this.loadFail(o, url);    })
 	        });
 };
 
