@@ -13,13 +13,14 @@ release-normal: superclean docs minify-js
 	cp Makefile.PL JBrowse-*/;
 	cp JBrowse-*/release-notes.txt .;
 	rm JBrowse-*.tar.gz;
+	mv JBrowse-*/ `basename JBrowse-*`-full/;
 	zip -r `basename JBrowse-*`.zip JBrowse-*/;
 
 release-min: release-normal
 	( \
-	export RELEASE=$(shell basename JBrowse-*/); \
+	export RELEASE=$(shell basename JBrowse-*/ -full); \
 	export MIN=$$RELEASE-min; \
-	cp -r $$RELEASE/ $$MIN/; \
+	cp -r JBrowse-*/ $$MIN/; \
 	rm -rf $$MIN/index-debug.html $$MIN/js $$MIN/dist.ini $$MIN/docs/jsdoc $$MIN/t $$MIN/tests $$MIN/xt $$MIN/sample_data $$MIN/*META.*; \
 	zip -r $$MIN.zip $$MIN/; \
 	)
