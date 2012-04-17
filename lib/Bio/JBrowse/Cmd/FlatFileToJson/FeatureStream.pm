@@ -17,7 +17,7 @@ sub new {
 sub flatten_to_feature {
     my ( $self, $f, $class_index ) = @_;
     my @f = ( $class_index || 0,
-              @{$f}{qw{ start end strand source phase type }},
+              @{$f}{qw{ start end strand source phase type score }},
               (map $f->{attributes}{$_}[0], qw(ID Name)),
               [ map $self->flatten_to_feature($_,1), @{$f->{child_features}} ],
             );
@@ -45,7 +45,7 @@ sub flatten_to_name {
     return \@namerec;
 }
 
-sub featureHeaders    { [qw[ Start End Strand Source Phase Type Id Name Subfeatures ]] }
+sub featureHeaders    { [qw[ Start End Strand Source Phase Type Score Id Name Subfeatures ]] }
 *subfeatureHeaders = \&featureHeaders;
 sub startIndex        { 1 }
 sub endIndex          { 2 }
