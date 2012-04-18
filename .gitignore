@@ -16,3 +16,4 @@ docs/jsdoc/
 jslib/dojo-release-*-src/
 /extlib/
 autom4te.cache
+sample_data/raw/tomato
