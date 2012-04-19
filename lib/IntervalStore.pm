@@ -89,7 +89,7 @@ sub new {
                                      $args->{count},
                                      $args->{minStart},
                                      $args->{maxEnd},
-                                     sub { $self->loadChunk($self, @_); },
+                                     sub { $self->_loadChunk( @_ ); },
                                      $args->{nclist} );
     }
 
