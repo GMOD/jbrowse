@@ -126,6 +126,9 @@ sub finishLoad {
 
     $ivalStore->store->put($self->{trackDataFilename}, $trackData);
 
+    %{ $self->{intervalStore}} = ();
+    delete $self->{intervalStore};
+
     $self->{loading} = 0;
 
     return;
