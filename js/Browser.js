@@ -750,19 +750,14 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     };
 
     var configList = params.config_list ? params.config_list.split(",") : [];
-    var namelist, parent, lim;
 // jquery when everything is loaded
     $(function() {
 	$( "#tags" ).autocomplete({
 	    source: function( request, response ) {
+		var namelist, parent, lim;
 		namelist = [];
 		parent = "";
-		brwsr.names.findNode(request.term, function(found, node) {
-		    parent = found;
-		    lim = 100; //if over 100 options, show only up to 100 matches
-		    namelist = brwsr.names.LimEdges(node, lim);
-		});
-
+		lim = 10; //if over 100 options, show only up to 100 matches
 		var optionlist = [];
 		var matchTest = function() {
 		    var bool = false;
@@ -773,13 +768,19 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
 		    return bool;
 		};
 
-		for ( i = 0; i < namelist.length; i++) {
-		    optionlist.push({ label: parent+namelist[i], value: parent+namelist[i] });
-		};		
-		if (namelist[lim] != null) optionlist[lim] = {label: "More than " + lim + " matches", value: "More than " + lim + " matches"};
+		brwsr.names.mappingsFromPrefix(request.term, function(tree) {
+			for (var i = 0; i < tree.length; i++) {
+				optionlist.push({ label: tree[i][0], value: tree[i][0] });
+			};
 
-		if (matchTest() == true) optionlist = [];
-		response(optionlist);
+			if (lim < tree.length) {
+			    optionlist = optionlist.slice(0, lim);
+			    optionlist.push({label: "More than " + lim + " matches", value: "More than " + lim + " matches"});
+			};
+
+			if (matchTest() == true) optionlist = [];
+			response(optionlist);
+		});
 	    },
 	    select: function( event, ui ) {
 		ui.item.selected = true;
