@@ -55,7 +55,7 @@ echo -n "Building and installing BAM format support (samtools and Bio::DB::Sam) 
     set -e;
 
     # try to install samtools
-    if( perl -Iextlib/ -Mlocal::lib=extlib -MBio::DB::Sam -e 1 ); then
+    if( perl -Iextlib/lib/perl5 -Mlocal::lib=extlib -MBio::DB::Sam -e 1 ); then
         echo Bio::DB::Sam already installed.
     else
         if( [ "x$SAMTOOLS" == "x" ] ); then
@@ -68,9 +68,9 @@ echo -n "Building and installing BAM format support (samtools and Bio::DB::Sam) 
         fi
         echo "samtools in env at '$SAMTOOLS'";
         set +e;
-        cpanm -v -l extlib Bio::DB::Sam;
+        bin/cpanm -v -l extlib Bio::DB::Sam;
         set -e;
-        cpanm -v -l extlib Bio::DB::Sam;
+        bin/cpanm -v -l extlib Bio::DB::Sam;
     fi
 
     bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Simulated next-gen reads" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}' --out sample_data/json/volvox;
