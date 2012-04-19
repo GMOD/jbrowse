@@ -56,7 +56,6 @@ $(JSMIN_TARGET): $(JS_SRCFILES)
 
 superclean: clean
 	-git clean -fdx;
-	-git reset --hard;
 
 clean:
 	-mv index-debug.html index.html;
