@@ -138,14 +138,6 @@ Browser.prototype.addRefseqs = function(refSeqs) {
 
     var refCookie = dojo.cookie(this.params.containerID + "-refseq");
     this.refSeq = refSeqs[0];
-    for (var i = 0; i < refSeqs.length; i++) {
-        this.chromList.options[i] = new Option(refSeqs[i].name,
-                                               refSeqs[i].name);
-        if (refSeqs[i].name.toUpperCase() == String(refCookie).toUpperCase()) {
-            this.refSeq = this.allRefs[refSeqs[i].name];
-            this.chromList.selectedIndex = i;
-        }
-    }
 
     //hook up GenomeView
     var gv = new GenomeView(this.viewElem, 250, this.refSeq, 1/200,
@@ -189,11 +181,6 @@ Browser.prototype.addRefseqs = function(refSeqs) {
                          })
                        );
     }
-
-    dojo.connect(this.chromList, "onchange", function(event) {
-        var newRef = brwsr.allRefs[brwsr.chromList.options[brwsr.chromList.selectedIndex].value];
-        brwsr.navigateTo( newRef.name );
-    });
 
     this.isInitialized = true;
 
@@ -423,10 +410,6 @@ Browser.prototype.navigateToLocation = function( location ) {
         this.viewDndWidget.forInItems(function(obj, id, map) {
             curTracks.push(obj.data);
         });
-
-        for (var i = 0; i < this.chromList.options.length; i++)
-            if (this.chromList.options[i].text == location.ref )
-                this.chromList.selectedIndex = i;
 
         this.refSeq = this.allRefs[location.ref];
 
@@ -718,8 +701,6 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
                  });
     };
 
-    this.chromList = document.createElement("select");
-    this.chromList.id="chrom";
     this.locationBox = document.createElement("input");
     this.locationBox.size=locLength;
     this.locationBox.type="text";
@@ -809,7 +790,6 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
         navbox.appendChild(zoomIn);
         navbox.appendChild(bigZoomIn);
         navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
-        navbox.appendChild(this.chromList);
         //navbox.appendChild(this.locationBox);
 	navbox.appendChild(this.tags);
         navbox.appendChild(this.goButton);
