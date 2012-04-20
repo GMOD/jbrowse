@@ -53,6 +53,7 @@ function LazyTrie(rootURL, chunkTempl) {
     this.rootURL = rootURL;
     this.chunkTempl = chunkTempl;
     var trie = this;
+    this.storeArray = [];
 
     dojo.xhrGet({url: rootURL,
                  handleAs: "json",
@@ -102,22 +103,27 @@ LazyTrie.prototype.valuesFromPrefix = function(query, callback) {
 
 LazyTrie.prototype.mappingsFromPrefix = function(query, callback) {
     var trie = this;
+    this.storeArray = []; //resets option list everytime input changes
     this.findNode(query, function(prefix, node) {
             callback(trie.mappingsFromNode(prefix, node));
         });
 };
 
+// default max number of options are 100
 LazyTrie.prototype.mappingsFromNode = function(prefix, node) {
     var results = [];
-    if (node[1] !== null)
-        results.push([prefix, node[1]]);
+    if (node[1] !== null) {
+        //results.push([prefix, node[1]]);
+	this.storeArray.push([prefix, node[1]]);
+    }
     for (var i = 2; i < node.length; i++) {
-        if ("string" == typeof node[i][0]) {
+        if (("string" == typeof node[i][0]) || (this.storeArray.length < 101)) { // limit max number of options here
             results = results.concat(this.mappingsFromNode(prefix + node[i][0],
                                                            node[i]));
         }
-    }
-    return results;
+    };
+    //return results;
+    return this.storeArray;
 };
 
 LazyTrie.prototype.valuesFromNode = function(node) {
@@ -126,64 +132,6 @@ LazyTrie.prototype.valuesFromNode = function(node) {
         results.push(node[1]);
     for (var i = 2; i < node.length; i++)
         results = results.concat(this.valuesFromNode(node[i]));
-    return results;
-};
-
-// node is an array: either loaded or lazy. get all the keys
-// currently not dynamic. need to make it dynamic 
-LazyTrie.prototype.edgesFromNode = function(node, temp) {
-    var results = [];
-    for (var i = 2; i < node.length; i++) {
-        temp = node[0];
-        temp += node[i][0];
-	results.push(temp);
-    }
-    return results;
-};
-
-// node is an array: either loaded or lazy. get all the keys
-LazyTrie.prototype.edgesFromNodeLong = function(node, temp) {
-    var results = [];
-    temp += node[0];
-    if (node[2] == null) {
-        results.push(temp);
-    }
-    for (var i = 2; i < node.length; i++) {
-        results = results.concat(this.edgesFromNodeLong(node[i], temp));
-    }
-    return results;
-};
-
-LazyTrie.prototype.LimEdges = function(node, lim){
-	var results = [];	
-	lim++;
-	var loop = function(node, temp) {
-	    temp += node[0]; 
-	    if (node[2] == null) {
-	        results.push(temp);
-	    }
-	    for (var j = 2; (j < node.length) && (results.length < lim); j++) {
-	        loop(node[j], temp);
-	    }
-	    return results;
-	};
-
-	if (node.length == 2) results.push("");
-	else {
-	    for (var i = 2; (i < node.length) && (results.length < lim); i++) {
-		loop(node[i], []);
-	    };
-	};
-	return results;	
-};
-
-// grabs the child node
-LazyTrie.prototype.childFromNode = function(node, lim) {
-    var results = [];
-    for (var i = 2; (i < node.length) && (results.length < lim) ; i++) {
-        var temp = node[i][0];
-        results.push(temp);
-    }
     return results;
 };
 
