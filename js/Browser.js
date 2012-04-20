@@ -207,8 +207,10 @@ Browser.prototype.initView = function() {
     //if someone calls methods on this browser object
     //before it's fully initialized, then we defer
     //those functions until now
-    for (var i = 0; i < this.deferredFunctions.length; i++)
-        this.deferredFunctions[i]();
+    dojo.forEach( this.deferredFunctions, function(f) {
+        f.call(this);
+    },this );
+
     this.deferredFunctions = [];
 };
 
@@ -543,8 +545,7 @@ Browser.prototype.onVisibleTracksChanged = function() {
 
 Browser.prototype.navigateTo = function(loc) {
     if (!this.isInitialized) {
-        var brwsr = this;
-        this.deferredFunctions.push(function() { brwsr.navigateTo(loc); });
+        this.deferredFunctions.push(function() { this.navigateTo(loc); });
         return;
     }
 
@@ -676,11 +677,8 @@ Browser.prototype.searchNames = function( loc ) {
  */
 
 Browser.prototype.showTracks = function(trackNameList) {
-    if (!this.isInitialized) {
-        var brwsr = this;
-        this.deferredFunctions.push(
-            function() { brwsr.showTracks(trackNameList); }
-        );
+    if( !this.isInitialized ) {
+        this.deferredFunctions.push( function() { this.showTracks(trackNameList); } );
         return;
     }
 
