@@ -405,36 +405,49 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
  */
 
 Browser.prototype.createTrackList = function( /**Element*/ parent ) {
-    var leftPane = document.createElement("div");
-    leftPane.id = "trackPane";
-    leftPane.style.cssText= this.config.show_tracklist == 0 ? "width: 0": "width: 10em";
-    parent.appendChild(leftPane);
+
+    var leftPane = dojo.create(
+        'div',
+        { id: 'trackPane',
+          style: {
+              width: ( this.config.show_tracklist == 0 ? 0 : 10 ) + 'em'
+          }
+        },
+        parent
+    );
+
     //splitter on left side
     var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, leftPane);
-    var trackListDiv = document.createElement("div");
-    trackListDiv.id = "tracksAvail";
-    trackListDiv.className = "container handles";
-    trackListDiv.style.cssText =
-        "width: 100%; height: 100%; overflow-x: hidden; overflow-y: auto;";
-    trackListDiv.innerHTML = "<h2>Available Tracks</h2>";
-    leftPane.appendChild(trackListDiv);
 
-    var brwsr = this;
+    var trackListDiv = dojo.create(
+        'div',
+        { id: 'tracksAvail',
+          className: 'container handles',
+          style: { width: '100%', height: '100%', overflowX: 'hidden', overflowY: 'auto' },
+          innerHTML: '<h2>Available Tracks</h2>'
+        },
+        leftPane
+    );
 
-    var changeCallback = function() {
-       brwsr.view.showVisibleBlocks(true);
-    };
+
+    var changeCallback = dojo.hitch( this, function() {
+       this.view.showVisibleBlocks(true);
+    });
 
     var trackListCreate = function( trackConfig, hint ) {
-        var node = document.createElement("div");
-        node.className = "tracklist-label";
-        node.title = "to turn on, drag into track area";
-        node.innerHTML = trackConfig.key;
+        var node = dojo.create(
+            'div',
+            { className: 'tracklist-label',
+              title: 'to turn on, drag into track area',
+              innerHTML: trackConfig.key
+            }
+        );
         //in the list, wrap the list item in a container for
         //border drag-insertion-point monkeying
         if ("avatar" != hint) {
-            var container = document.createElement("div");
-            container.className = "tracklist-container";
+            var container = dojo.create(
+                'div',
+                { className: 'tracklist-container' });
             container.appendChild(node);
             node = container;
         }
@@ -449,44 +462,53 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
     // instantiate our track objects
     if( this.config.tracks ) {
         if( this.config.sourceUrl ) {
-            for (var i = 0; i < this.config.tracks.length; i++)
-                if( ! this.config.tracks[i].baseUrl )
-                    this.config.tracks[i].baseUrl = this.config.baseUrl;
+            dojo.forEach( this.config.tracks, function(t) {
+                if( ! t.baseUrl )
+                    t.baseUrl = this.config.baseUrl;
+
+            }, this );
         }
-        this.trackListWidget.insertNodes(false, this.config.tracks);
-        this.showTracks(this.origTracklist);
+        this.trackListWidget.insertNodes( false, this.config.tracks );
+        this.showTracks( this.origTracklist );
     }
 
-    var trackCreate = /**@inner*/ function( trackConfig, hint) {
-        var node;
-        if ("avatar" == hint) {
-            return trackListCreate( trackConfig, hint);
-        } else {
-            var klass = eval( trackConfig.type);
-            var newTrack = new klass( trackConfig, brwsr.refSeq,
-                                     {
-                                         changeCallback: changeCallback,
-                                         trackPadding: brwsr.view.trackPadding,
-                                         charWidth: brwsr.view.charWidth,
-                                         seqHeight: brwsr.view.seqHeight
-                                     });
-            node = brwsr.view.addTrack(newTrack);
-        }
-        return {node: node, data: trackConfig, type: ["track"]};
-    };
-
-
-    this.viewDndWidget = new dojo.dnd.Source(this.view.trackContainer,
-                                       {
-                                           creator: trackCreate,
-                                           accept: ["track"], //accepts tracks into the viewing field
-                                           withHandles: true
-                                       });
-    dojo.subscribe("/dnd/drop", function(source,nodes,iscopy){
-                       brwsr.onVisibleTracksChanged();
-                       //multi-select too confusing?
-                       //brwsr.viewDndWidget.selectNone();
+    var trackCreate = dojo.hitch( this,
+       function( trackConfig, hint) {
+           var node;
+           if ("avatar" == hint) {
+               return trackListCreate( trackConfig, hint );
+           } else {
+               var klass = eval( trackConfig.type );
+               var newTrack = new klass(
+                   trackConfig,
+                   this.refSeq,
+                   {
+                       changeCallback: changeCallback,
+                       trackPadding: this.view.trackPadding,
+                       charWidth: this.view.charWidth,
+                       seqHeight: this.view.seqHeight
                    });
+               node = this.view.addTrack(newTrack);
+           }
+           return {node: node, data: trackConfig, type: ["track"]};
+       });
+
+    this.viewDndWidget =
+        new dojo.dnd.Source(
+            this.view.trackContainer,
+            {
+                creator: trackCreate,
+                accept: ["track"], //accepts tracks into the viewing field
+                withHandles: true
+            });
+
+    dojo.subscribe( "/dnd/drop",
+                    dojo.hitch( this,
+                                function(source,nodes,iscopy){
+                                    this.onVisibleTracksChanged();
+                                    //multi-select too confusing?
+                                    //brwsr.viewDndWidget.selectNone();
+                                }));
 
     return trackListDiv;
 };
