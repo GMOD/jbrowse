@@ -757,7 +757,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
 		var namelist, parent, lim;
 		namelist = [];
 		parent = "";
-		lim = 10; //if over 100 options, show only up to 100 matches
+		lim = 100; //if over 100 options, show only up to 100 matches
 		var optionlist = [];
 		var matchTest = function() {
 		    var bool = false;
