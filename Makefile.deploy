@@ -1,5 +1,4 @@
 JSDIR = $(PWD)/js
-JARDIR = jar
 JSMIN_TARGET  = jbrowse-min.js
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
