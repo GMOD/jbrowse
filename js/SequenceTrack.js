@@ -44,6 +44,8 @@ function SequenceTrack(config, refSeq, browserParams) {
 }
 
 SequenceTrack.prototype = new Track("");
+SequenceTrack.prototype.load = function() {
+};
 
 SequenceTrack.prototype.startZoom = function(destScale, destStart, destEnd) {
     this.hide();

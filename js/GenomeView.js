@@ -153,6 +153,29 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.trackContainer.appendChild(gridTrackDiv);
     this.uiTracks = [this.staticTrack, gridTrack];
 
+    // accept tracks being dragged into this
+    this.trackDndWidget =
+        new dojo.dnd.Source(
+            this.trackContainer,
+            {
+                accept: ["track"], //accepts only tracks into the viewing field
+                withHandles: true,
+                creator: dojo.hitch( this, function( track, hint ) {
+                    if ("avatar" == hint) {
+                        return {
+                            node: dojo.create('div', {
+                                innerHTML: track.key,
+                                className: 'track-label dragging'
+                            }),
+                            data: track,
+                            type: ["track"]
+                        };
+                    }
+                    var node = this.addTrack( track );
+                    return {node: node, data: track, type: ["track"]};
+                })
+            });
+
     dojo.forEach(this.uiTracks, function(track) {
         track.showRange(0, this.stripeCount - 1,
                         Math.round(this.pxToBp(this.offset)),
@@ -166,8 +189,19 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.showFine();
     this.showCoarse();
 
+    // initialize the behavior manager used for setting what this view
+    // does (i.e. the behavior it has) for mouse and keyboard events
     this.behaviorManager = new BehaviorManager({ context: this, behaviors: this._behaviors() });
     this.behaviorManager.initialize();
+};
+
+/**
+ * @returns {Array} of currently-viewed tracks (suitable for
+ * passing to showTracks)
+ */
+
+GenomeView.prototype.visibleTracks = function() {
+    return dojo.map( this.tracks, function( t ) { return t.name; });
 };
 
 /**
@@ -1230,6 +1264,17 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 };
 
 GenomeView.prototype.addTrack = function(track) {
+
+    if( !track )
+        return null;
+
+    // do nothing if this track is already visible
+    if( dojo.indexOf( this.tracks, track ) >= 0 )
+        return track.div;
+
+    // tell the track to get its data, since we're going to display it.
+    track.load();
+
     var trackNum = this.tracks.length;
     var labelDiv = document.createElement("div");
     labelDiv.className = "track-label dojoDndHandle";
@@ -1260,6 +1305,8 @@ GenomeView.prototype.addTrack = function(track) {
         width: this.getWidth()
      });
 
+    this.updateTrackList();
+
     return trackDiv;
 };
 
@@ -1270,6 +1317,7 @@ GenomeView.prototype.trackIterate = function(callback) {
     for (i = 0; i < this.tracks.length; i++)
         callback(this.tracks[i], this);
 };
+
 
 /* this function must be called whenever tracks in the GenomeView
  * are added, removed, or reordered

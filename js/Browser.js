@@ -402,118 +402,75 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
     this.locationTrap.style.cssText = locationTrapStyle;
 };
 
+// /**
+//  * Get a track object, given a track's uniquename.
+//  */
+// Browser.prototype.getTrack = function( /**String*/ trackName ) {
+//     if( this.tracks[trackName] )
+//         return this.tracks[trackName];
+//     else {
+//         var trackConfig = this.config.tracks[ 'track_'+trackName ];
+//         if( ! trackConfig )
+//             return null;
+
+//         this.tracks[ 'track_' + trackName] = track;
+//         return track;
+//     }
+// };
+
 /**
  * @private
  */
 
 Browser.prototype.createTrackList = function( /**Element*/ parent ) {
 
-    var leftPane = dojo.create(
-        'div',
-        { id: 'trackPane',
-          style: {
-              width: ( this.config.show_tracklist == 0 ? 0 : 10 ) + 'em'
-          }
-        },
-        parent
-    );
+    if( ! this.config.tracks )
+        this.config.tracks = [];
 
-    //splitter on left side
-    var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, leftPane);
-
-    var trackListDiv = dojo.create(
-        'div',
-        { id: 'tracksAvail',
-          className: 'container handles',
-          style: { width: '100%', height: '100%', overflowX: 'hidden', overflowY: 'auto' },
-          innerHTML: '<h2>Available Tracks</h2>'
-        },
-        leftPane
-    );
-
-
-    var changeCallback = dojo.hitch( this, function() {
-       this.view.showVisibleBlocks(true);
-    });
-
-    var trackListCreate = function( trackConfig, hint ) {
-        var node = dojo.create(
-            'div',
-            { className: 'tracklist-label',
-              title: 'to turn on, drag into track area',
-              innerHTML: trackConfig.key
-            }
-        );
-        //in the list, wrap the list item in a container for
-        //border drag-insertion-point monkeying
-        if ("avatar" != hint) {
-            var container = dojo.create(
-                'div',
-                { className: 'tracklist-container' });
-            container.appendChild(node);
-            node = container;
-        }
-        node.id = dojo.dnd.getUniqueId();
-        return {node: node, data: trackConfig, type: ["track"]};
-    };
-    this.trackListWidget = new dojo.dnd.Source(trackListDiv,
-                                               {creator: trackListCreate,
-                                                accept: ["track"], // accepts tracks into left div
-                                                withHandles: false});
-
-    // instantiate our track objects
-    if( this.config.tracks ) {
-        if( this.config.sourceUrl ) {
-            dojo.forEach( this.config.tracks, function(t) {
-                if( ! t.baseUrl )
-                    t.baseUrl = this.config.baseUrl;
-
-            }, this );
-        }
-        this.trackListWidget.insertNodes( false, this.config.tracks );
-        this.showTracks( this.origTracklist );
+    // set a default baseUrl in each of the track confs if needed
+    if( this.config.sourceUrl ) {
+        dojo.forEach( this.config.tracks, function(t) {
+            if( ! t.baseUrl )
+                t.baseUrl = this.config.baseUrl;
+        },this);
     }
 
-    var trackCreate = dojo.hitch( this,
-       function( trackConfig, hint) {
-           var node;
-           if ("avatar" == hint) {
-               return trackListCreate( trackConfig, hint );
-           } else {
-               var klass = eval( trackConfig.type );
-               var newTrack = new klass(
-                   trackConfig,
-                   this.refSeq,
-                   {
-                       changeCallback: changeCallback,
-                       trackPadding: this.view.trackPadding,
-                       charWidth: this.view.charWidth,
-                       seqHeight: this.view.seqHeight
-                   });
-               node = this.view.addTrack(newTrack);
-           }
-           return {node: node, data: trackConfig, type: ["track"]};
-       });
+    // instantiate all our tracks.  note: tracks don't load their data
+    // until actually displayed
+    this.tracks = dojo.map( this.config.tracks, dojo.hitch( this, function( trackConfig ) {
+                      var class_ = eval( trackConfig.type );
+                      var track = new class_(
+                          trackConfig,
+                          this.refSeq,
+                          {
+                              changeCallback: dojo.hitch( this.view, 'showVisibleBlocks', true ),
+                              trackPadding: this.view.trackPadding,
+                              charWidth: this.view.charWidth,
+                              seqHeight: this.view.seqHeight
+                          });
+                      return track;
+                  })),
+    // index the tracks by name also
+    dojo.forEach( this.tracks, function(t) {
+        this.tracks[ 'track_'+t.name ] = t;
+    },this);
 
-    this.viewDndWidget =
-        new dojo.dnd.Source(
-            this.view.trackContainer,
-            {
-                creator: trackCreate,
-                accept: ["track"], //accepts tracks into the viewing field
-                withHandles: true
-            });
+    // make a tracklist of the right type
+    this.trackListView = new JBrowse.View.TrackList[ this.config.show_tracklist == 0 ? 'Null' : 'Simple' ]( {
+        tracks: this.tracks,
+        renderTo: parent
+    });
 
-    dojo.subscribe( "/dnd/drop",
-                    dojo.hitch( this,
-                                function(source,nodes,iscopy){
-                                    this.onVisibleTracksChanged();
-                                    //multi-select too confusing?
-                                    //brwsr.viewDndWidget.selectNone();
-                                }));
+    // listen for track-visibility-changing events emitted by the track list
+    dojo.subscribe(
+        '/jbrowse/v1/v/tracks/visibleTracksChanged',
+        dojo.hitch( this, this.onVisibleTracksChanged )
+    );
 
-    return trackListDiv;
+    this.showTracks( this.origTracklist );
 };
+
+
 
 /**
  * @private
@@ -611,10 +568,7 @@ Browser.prototype.navigateToLocation = function( location ) {
     // if different, we need to poke some other things before going there
     else {
         // record open tracks and re-open on new refseq
-        var curTracks = [];
-        this.viewDndWidget.forInItems(function(obj, id, map) {
-            curTracks.push(obj.data);
-        });
+        var curTracks = this.visibleTracks();
 
         for (var i = 0; i < this.chromList.options.length; i++)
             if (this.chromList.options[i].text == location.ref )
@@ -625,13 +579,11 @@ Browser.prototype.navigateToLocation = function( location ) {
         this.view.setLocation( this.refSeq,
                                location.start,
                                location.end );
-
-        this.viewDndWidget.insertNodes( false, curTracks );
+        this.showTracks( curTracks );
         this.onVisibleTracksChanged();
     }
 
     return;
-    //this.view.centerAtBase( location.end );
 };
 
 // given a string name, search for matching feature names and set the
@@ -639,15 +591,17 @@ Browser.prototype.navigateToLocation = function( location ) {
 Browser.prototype.searchNames = function( loc ) {
     var brwsr = this;
     this.names.exactMatch( loc, function(nameMatches) {
-            var goingTo;
+            var goingTo,
+                i;
+
             //first check for exact case match
-            for (var i = 0; i < nameMatches.length; i++) {
+            for (i = 0; i < nameMatches.length; i++) {
                 if (nameMatches[i][1] == loc)
                     goingTo = nameMatches[i];
             }
             //if no exact case match, try a case-insentitive match
             if (!goingTo) {
-                for (var i = 0; i < nameMatches.length; i++) {
+                for (i = 0; i < nameMatches.length; i++) {
                     if (nameMatches[i][1].toLowerCase() == loc.toLowerCase())
                         goingTo = nameMatches[i];
                 }
@@ -670,37 +624,35 @@ Browser.prototype.searchNames = function( loc ) {
  * load and display the given tracks
  * @example
  * gb=dojo.byId("GenomeBrowser").genomeBrowser
- * gb.showTracks("DNA,gene,mRNA,noncodingRNA")
- * @param trackNameList {String} comma-delimited string containing track names,
- * each of which should correspond to the "label" element of the track
- * information dictionaries
+ * gb.showTracks(["DNA","gene","mRNA","noncodingRNA"])
+ * @param trackNameList {Array|String} array or comma-separated string
+ * of track names, each of which should correspond to the "label"
+ * element of the track information
  */
 
-Browser.prototype.showTracks = function(trackNameList) {
+Browser.prototype.showTracks = function( trackNames ) {
     if( !this.isInitialized ) {
-        this.deferredFunctions.push( function() { this.showTracks(trackNameList); } );
+        this.deferredFunctions.push( function() { this.showTracks(trackNames); } );
         return;
     }
 
-    var trackNames = trackNameList.split(",");
-    var removeFromList = [];
-    var brwsr = this;
-    for (var n = 0; n < trackNames.length; n++) {
-        this.trackListWidget.forInItems(function(obj, id, map) {
-                if (trackNames[n] == obj.data.label) {
-                    brwsr.viewDndWidget.insertNodes(false, [obj.data]);
-                    removeFromList.push(id);
-                }
+    if( typeof trackNames == 'string' )
+        trackNames = trackNames.split(',');
 
-            });
-    }
-    var movedNode;
-    for (var i = 0; i < removeFromList.length; i++) {
-        this.trackListWidget.delItem(removeFromList[i]);
-        movedNode = dojo.byId(removeFromList[i]);
-        movedNode.parentNode.removeChild(movedNode);
-    }
-    this.onVisibleTracksChanged();
+    // get all the tracks from their names with this.getTrack(name),
+    // filtering for only tracks that exist
+    var tracks =
+        dojo.filter( dojo.map( trackNames,
+                               dojo.hitch( this, function(n){ return this.tracks[ 'track_'+n ]; } )),
+                     function(t) { return t; }
+                   );
+
+    // add each of the tracks to the GenomeView with addTrack().  does
+    // nothing if the track is already turned on
+    dojo.forEach( tracks, this.view.addTrack, this.view );
+
+    dojo.publish( '/jbrowse/v1/c/showTracks', tracks );
+    dojo.publish( '/jbrowse/v1/n/visibleTracksChanged' );
 };
 
 /**
@@ -717,14 +669,12 @@ Browser.prototype.visibleRegion = function() {
 };
 
 /**
- * @returns {String} containing comma-separated list of currently-viewed tracks<br>
- * (suitable for passing to showTracks)
+ * @returns {Array} of currently-viewed tracks (suitable for
+ * passing to showTracks)
  */
 
 Browser.prototype.visibleTracks = function() {
-    var trackLabels = dojo.map( this.view.tracks,
-                                function( trackConfig ) { return trackConfig.name; });
-    return trackLabels.join(",");
+    return this.view.visibleTracks();
 };
 
 Browser.prototype.makeHelpDialog = function () {
@@ -831,7 +781,7 @@ Browser.prototype.makeBookmarkLink = function (area) {
                    "?",
                    dojo.objectToQuery({
                        loc:    browser_obj.visibleRegion(),
-                       tracks: browser_obj.visibleTracks(),
+                       tracks: browser_obj.visibleTracks().join(','),
                        data:   browser_obj.config.queryParams.data
                    })
                );
@@ -852,7 +802,7 @@ Browser.prototype.makeBookmarkLink = function (area) {
         this.link.href = this.config.bookmark.call( this, this );
     };
     dojo.connect( this, "onCoarseMove",           update_bookmark );
-    dojo.connect( this, "onVisibleTracksChanged", update_bookmark );
+    dojo.connect( this, 'onVisibleTracksChanged', update_bookmark );
 
     return this.link;
 };

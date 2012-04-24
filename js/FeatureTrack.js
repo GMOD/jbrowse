@@ -40,8 +40,6 @@ function FeatureTrack( config, refSeq, browserParams ) {
     dojo.connect( this.featureStore, 'loadSuccess', this, 'loadSuccess' );
     dojo.connect( this.featureStore, 'loadFail',    this, 'loadFail' );
 
-    this.featureStore.load();
-
     //number of histogram bins per block
     this.numBins = 25;
     this.histLabel = false;
@@ -52,6 +50,14 @@ function FeatureTrack( config, refSeq, browserParams ) {
 }
 
 FeatureTrack.prototype = new Track("");
+
+/**
+ * Request that the track load its data.  The track will call its own
+ * loadSuccess() function when it is loaded.
+ */
+FeatureTrack.prototype.load = function() {
+    this.featureStore.load();
+};
 
 /**
  * Mixin: Track.YScaleMixin.
