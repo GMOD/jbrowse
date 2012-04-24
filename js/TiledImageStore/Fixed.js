@@ -18,14 +18,6 @@ TiledImageStore.Fixed = function(args) {
 
     this.tileToImage = {};
     this.zoomCache = {};
-
-    this.refSeq = args.refSeq;
-
-    this.url = Util.resolveUrl(
-                   args.baseUrl,
-                   Util.fillTemplate( args.urlTemplate,
-                                      {'refseq': this.refSeq.name } )
-               );
 };
 
 TiledImageStore.Fixed.prototype = new Store('');

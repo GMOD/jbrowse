@@ -13,12 +13,22 @@ function Track(name, key, loaded, changeCallback) {
     this.empty = false;
 }
 
-Track.prototype.load = function(url) {
-    dojo.xhrGet({ url: url,
-                  handleAs: "json",
-                  load:  dojo.hitch( this, function(o) { this.loadSuccess(o, url); }),
-                  error: dojo.hitch( this, function(o) { this.loadFail(o, url);    })
-	        });
+/**
+ * Request that the track load its data.  The track will call its own
+ * loadSuccess() function when it is loaded.
+ * @private
+ */
+Track.prototype.load = function( refSeq ) {
+    if( !refSeq )
+        console.error("must provide a refseq to Track.load()!");
+
+    if( this.loadedRefSeq != refSeq.name ) {
+        if( this.store ) {
+            this.clearLoaded();
+            this.store.load( refSeq );
+        }
+        this.loadedRefSeq = refSeq.name;
+    }
 };
 
 Track.prototype.loadSuccess = function(error) {
@@ -113,9 +123,11 @@ Track.prototype.transfer = function() {};
 Track.prototype.startZoom = function(destScale, destStart, destEnd) {};
 Track.prototype.endZoom = function(destScale, destBlockBases) {};
 
-Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale,
-                                     containerStart, containerEnd) {
+Track.prototype.showRange = function( refSeq, first, last, startBase, bpPerBlock, scale,
+                                      containerStart, containerEnd) {
     if (this.blocks === undefined) return 0;
+
+    this.load( refSeq );
 
     // this might make more sense in setViewInfo, but the label element
     // isn't in the DOM tree yet at that point
@@ -133,13 +145,13 @@ Track.prototype.showRange = function(first, last, startBase, bpPerBlock, scale,
     //fill left, including existing blocks (to get their heights)
     for (i = lastAttached; i >= first; i--) {
         leftBase = startBase + (bpPerBlock * (i - first));
-        this._showBlock(i, leftBase, leftBase + bpPerBlock, scale,
+        this._showBlock(i, refSeq, leftBase, leftBase + bpPerBlock, scale,
                         containerStart, containerEnd);
     }
     //fill right
     for (i = lastAttached + 1; i <= last; i++) {
         leftBase = startBase + (bpPerBlock * (i - first));
-        this._showBlock(i, leftBase, leftBase + bpPerBlock, scale,
+        this._showBlock(i, refSeq, leftBase, leftBase + bpPerBlock, scale,
                         containerStart, containerEnd);
     }
 
@@ -211,6 +223,13 @@ Track.prototype.setLoaded = function() {
     this.hideAll();
     this.changed();
 };
+Track.prototype.clearLoaded = function() {
+    if( this.loaded ) {
+        this.loaded = false;
+        this.hideAll();
+        this.changed();
+    }
+};
 
 Track.prototype._loadingBlock = function(blockDiv) {
     blockDiv.appendChild(document.createTextNode("Loading..."));
@@ -218,7 +237,7 @@ Track.prototype._loadingBlock = function(blockDiv) {
     return 50;
 };
 
-Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale,
+Track.prototype._showBlock = function(blockIndex, refSeq, startBase, endBase, scale,
                                       containerStart, containerEnd) {
     if (this.blocks[blockIndex]) {
         this.heightUpdate(this.blockHeights[blockIndex], blockIndex);
@@ -240,6 +259,7 @@ Track.prototype._showBlock = function(blockIndex, startBase, endBase, scale,
                        blockDiv,
                        this.blocks[blockIndex - 1],
                        this.blocks[blockIndex + 1],
+                       refSeq,
                        startBase,
                        endBase,
                        scale,

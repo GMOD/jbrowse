@@ -3,7 +3,7 @@
 /**
  * @class
  */
-function FeatureTrack( config, refSeq, browserParams ) {
+function FeatureTrack( config, browserParams ) {
     //config: object with:
     //            key:   display text track name
     //            label: internal track name (no spaces, odd characters)
@@ -22,23 +22,21 @@ function FeatureTrack( config, refSeq, browserParams ) {
     Track.call(this, config.label, config.key,
                false, browserParams.changeCallback);
     this.fields = {};
-    this.refSeq = refSeq;
 
-    // TODO: this featureStore object should eventuallly be
+    // TODO: this store object should eventuallly be
     // instantiated by Browser and passed into this constructor, not
     // constructed here.
     var storeclass = config.backendVersion == 0 ? SeqFeatureStore.NCList_v0 : SeqFeatureStore.NCList;
-    this.featureStore = new storeclass({
+    this.store = new storeclass({
         urlTemplate: config.urlTemplate,
         baseUrl: config.baseUrl,
-        refSeq: refSeq,
         track: this
     });
 
     // connect the store and track loadSuccess and loadFailed events
     // to eachother
-    dojo.connect( this.featureStore, 'loadSuccess', this, 'loadSuccess' );
-    dojo.connect( this.featureStore, 'loadFail',    this, 'loadFail' );
+    dojo.connect( this.store, 'loadSuccess', this, 'loadSuccess' );
+    dojo.connect( this.store, 'loadFail',    this, 'loadFail' );
 
     //number of histogram bins per block
     this.numBins = 25;
@@ -50,14 +48,6 @@ function FeatureTrack( config, refSeq, browserParams ) {
 }
 
 FeatureTrack.prototype = new Track("");
-
-/**
- * Request that the track load its data.  The track will call its own
- * loadSuccess() function when it is loaded.
- */
-FeatureTrack.prototype.load = function() {
-    this.featureStore.load();
-};
 
 /**
  * Mixin: Track.YScaleMixin.
@@ -167,7 +157,7 @@ FeatureTrack.prototype._histDimensions = function( blockSizeBp ) {
     var bpPerBin = blockSizeBp / this.numBins;
     var pxPerCount = 2;
     var logScale = false;
-    var stats = this.featureStore.histograms.stats;
+    var stats = this.store.histograms.stats;
     var statEntry;
     for (var i = 0; i < stats.length; i++) {
         if (stats[i].basesPerBin >= bpPerBin) {
@@ -237,10 +227,10 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
     // is at 50,000 bases/bin, and we have server histograms at 20,000
     // and 2,000 bases/bin, then we should choose the 2,000 histogramMeta
     // rather than the 20,000)
-    var histogramMeta = this.featureStore.histograms.meta[0];
-    for (var i = 0; i < this.featureStore.histograms.meta.length; i++) {
-        if (dims.bpPerBin >= this.featureStore.histograms.meta[i].basesPerBin)
-            histogramMeta = this.featureStore.histograms.meta[i];
+    var histogramMeta = this.store.histograms.meta[0];
+    for (var i = 0; i < this.store.histograms.meta.length; i++) {
+        if (dims.bpPerBin >= this.store.histograms.meta[i].basesPerBin)
+            histogramMeta = this.store.histograms.meta[i];
     }
 
     // number of bins in the server-supplied histogram for each current bin
@@ -271,7 +261,7 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
         );
     } else {
         // make our own counts
-        this.featureStore.histogram( leftBase, rightBase,
+        this.store.histogram( leftBase, rightBase,
                                      this.numBins, makeHistBlock);
     }
 };
@@ -287,6 +277,7 @@ FeatureTrack.prototype.updateViewDimensions = function( coords ) {
 
 FeatureTrack.prototype.fillBlock = function(blockIndex, block,
                                             leftBlock, rightBlock,
+                                            refSeq,
                                             leftBase, rightBase,
                                             scale, stripeWidth,
                                             containerStart, containerEnd) {
@@ -294,7 +285,7 @@ FeatureTrack.prototype.fillBlock = function(blockIndex, block,
     // only update the label once for each block size
     var blockBases = Math.abs( leftBase-rightBase );
     if( this._updatedLabelForBlockSize != blockBases ){
-        if ( scale < (this.featureStore.density * this.config.scaleThresh.hist)) {
+        if ( scale < (this.store.density * this.config.scaleThresh.hist)) {
             this.setLabel(this.key + "<br>per " + Math.round( blockBases / this.numBins) + "bp");
         } else {
             this.setLabel(this.key);
@@ -303,8 +294,8 @@ FeatureTrack.prototype.fillBlock = function(blockIndex, block,
     }
 
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
-    if (this.featureStore.histograms &&
-        (scale < (this.featureStore.density * this.config.scaleThresh.hist)) ) {
+    if (this.store.histograms &&
+        (scale < (this.store.density * this.config.scaleThresh.hist)) ) {
 	this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
                       containerStart, containerEnd);
     } else {
@@ -475,7 +466,7 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
     var startBase = goLeft ? rightBase : leftBase;
     var endBase = goLeft ? leftBase : rightBase;
 
-    this.featureStore.iterate(startBase, endBase, featCallback,
+    this.store.iterate(startBase, endBase, featCallback,
                           function () {
                               block.style.backgroundColor = "";
                               curTrack.heightUpdate(layouter.totalHeight,
@@ -547,7 +538,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     // if the label extends beyond the feature, use the
     // label end position as the end position for layout
     var name = feature.get('name');
-    var labelScale = this.featureStore.density * this.config.scaleThresh.label;
+    var labelScale = this.store.density * this.config.scaleThresh.label;
     if (name && (scale > labelScale)) {
 	featureEnd = Math.max(featureEnd,
                               featureStart + ((name ? name.length : 0)
