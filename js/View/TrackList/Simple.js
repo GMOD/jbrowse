@@ -90,8 +90,11 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null, {
             this.trackListWidget.forInItems(function(obj, id, map) {
                 if( track === obj.data ) {
                     this.trackListWidget.delItem( id );
+                    var item = dojo.byId(id);
+                    if( item && item.parentNode )
+                        item.parentNode.removeChild(item);
                 }
-            });
+            },this);
         },this);
     }
 });
