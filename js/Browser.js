@@ -744,7 +744,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
 		    var bool = false;
 		    for (var i = 0; i < configList.length; i++) {
 		        // if this is true, request is a prefix of configList
-			bool = bool || (request.term == configList[i].substr(0,request.term.length));
+			bool = (bool || (request.term == configList[i].substr(0,request.term.length)));
 		    }
 		    return bool;
 		};

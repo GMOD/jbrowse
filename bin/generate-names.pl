@@ -100,7 +100,7 @@ my $trackNum = 0;
 my @namearray;
 
 foreach my $ref (@refSeqs) {
-    push @{$nameHash{$ref->{name}}}, [@{$ref}{ qw/length name seqDir start end seqChunkSize/ }]; 
+    push @{$nameHash{lc $ref->{name}}}, [@{$ref}{ qw/length name seqDir start end seqChunkSize/ }];
     foreach my $track (@tracks) {
         my $infile = catfile( $outDir,
                               "tracks",
@@ -182,4 +182,3 @@ version 2.1, or at your option, any later version) or the Artistic
 License 2.0.  Refer to LICENSE for the full license text.
 
 =cut
-
