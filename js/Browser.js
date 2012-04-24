@@ -156,14 +156,6 @@ Browser.prototype.initView = function() {
     topPane.appendChild(this.locationTrap);
     topPane.style.overflow="hidden";
 
-    // figure out what initial track list we will use:
-    //    from a param passed to our instance, or from a cookie, or
-    //    the passed defaults, or the last-resort default of "DNA"?
-    this.origTracklist =
-           this.config.forceTracks
-        || dojo.cookie( this.container.id + "-tracks" )
-        || this.config.defaultTracks
-        || "DNA";
 
     // hook up GenomeView
     this.view = this.viewElem.view =
@@ -461,13 +453,20 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
         renderTo: parent
     });
 
-    // listen for track-visibility-changing events emitted by the track list
-    dojo.subscribe(
-        '/jbrowse/v1/v/tracks/visibleTracksChanged',
-        dojo.hitch( this, this.onVisibleTracksChanged )
-    );
+    // listen for track-visibility-changing messages from views
+    dojo.subscribe( '/jbrowse/v1/v/tracks/hide', this, 'onVisibleTracksChanged' );
+    dojo.subscribe( '/jbrowse/v1/v/tracks/show', this, 'onVisibleTracksChanged' );
 
-    this.showTracks( this.origTracklist );
+    // figure out what initial track list we will use:
+    //    from a param passed to our instance, or from a cookie, or
+    //    the passed defaults, or the last-resort default of "DNA"?
+    var origTracklist =
+           this.config.forceTracks
+        || dojo.cookie( this.container.id + "-tracks" )
+        || this.config.defaultTracks
+        || "DNA";
+
+    this.showTracks( origTracklist );
 };
 
 
@@ -479,11 +478,9 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
 
 Browser.prototype.onVisibleTracksChanged = function() {
     this.view.updateTrackList();
-    var trackLabels = dojo.map(this.view.tracks,
-                               function( trackConfig ) { return trackConfig.name; });
-    dojo.cookie(this.container.id + "-tracks",
-                trackLabels.join(","),
-                {expires: 60});
+    dojo.cookie( this.container.id + "-tracks",
+                 this.visibleTracks().join(','),
+                 {expires: 60});
     this.view.showVisibleBlocks();
 };
 
@@ -567,7 +564,7 @@ Browser.prototype.navigateToLocation = function( location ) {
     }
     // if different, we need to poke some other things before going there
     else {
-        // record open tracks and re-open on new refseq
+        // record names of open tracks and re-open on new refseq
         var curTracks = this.visibleTracks();
 
         for (var i = 0; i < this.chromList.options.length; i++)
@@ -580,7 +577,6 @@ Browser.prototype.navigateToLocation = function( location ) {
                                location.start,
                                location.end );
         this.showTracks( curTracks );
-        this.onVisibleTracksChanged();
     }
 
     return;
@@ -647,12 +643,9 @@ Browser.prototype.showTracks = function( trackNames ) {
                      function(t) { return t; }
                    );
 
-    // add each of the tracks to the GenomeView with addTrack().  does
-    // nothing if the track is already turned on
-    dojo.forEach( tracks, this.view.addTrack, this.view );
-
-    dojo.publish( '/jbrowse/v1/c/showTracks', tracks );
-    dojo.publish( '/jbrowse/v1/n/visibleTracksChanged' );
+    // publish some events to make it happen somehow
+    dojo.publish( '/jbrowse/v1/c/tracks/show', [tracks] );
+    dojo.publish( '/jbrowse/v1/n/tracks/visibleChanged' );
 };
 
 /**
@@ -669,12 +662,12 @@ Browser.prototype.visibleRegion = function() {
 };
 
 /**
- * @returns {Array} of currently-viewed tracks (suitable for
- * passing to showTracks)
+ * @returns {Array[String]} of the <b>names</b> of currently-viewed
+ * tracks (suitable for passing to showTracks)
  */
 
 Browser.prototype.visibleTracks = function() {
-    return this.view.visibleTracks();
+    return dojo.map( this.view.visibleTracks(), function(t){ return t.name; } );
 };
 
 Browser.prototype.makeHelpDialog = function () {

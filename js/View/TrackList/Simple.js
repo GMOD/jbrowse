@@ -19,18 +19,17 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null, {
             args.tracks
         );
 
-        // subscribe to drop events for things being dragged into or
-        // out of this tracklist
+        // subscribe to drop events for tracks being DND'ed
         dojo.subscribe( "/dnd/drop",
                         function(){
                             //TODO: check if this is actually a track-drag that
                             //generated this drop event
-                            dojo.publish( '/jbrowse/v1/v/tracks/visibleTracksChanged' );
+                            dojo.publish( '/jbrowse/v1/v/tracks/hide' );
                         }
                       );
 
         // subscribe to commands coming from the the controller
-        dojo.subscribe( '/jbrowse/v1/c/showTracks',
+        dojo.subscribe( '/jbrowse/v1/c/tracks/show',
                         dojo.hitch( this, 'setTracksActive' ));
     },
 

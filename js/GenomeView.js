@@ -171,11 +171,15 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
                             type: ["track"]
                         };
                     }
-                    var node = this.addTrack( track );
+                    var node = this.renderTrack( track );
                     return {node: node, data: track, type: ["track"]};
                 })
             });
 
+    // subscribe to showTracks commands
+    dojo.subscribe( '/jbrowse/v1/c/tracks/show', this, 'showTracks' );
+
+    // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
     dojo.forEach(this.uiTracks, function(track) {
         track.showRange(0, this.stripeCount - 1,
                         Math.round(this.pxToBp(this.offset)),
@@ -196,18 +200,18 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
 };
 
 /**
- * @returns {Array} of currently-viewed tracks (suitable for
- * passing to showTracks)
+ * @returns {Array[Track]} of the tracks that are currently visible in
+ * this genomeview
  */
-
 GenomeView.prototype.visibleTracks = function() {
-    return dojo.map( this.tracks, function( t ) { return t.name; });
+    return this.tracks;
 };
 
 /**
  * Behaviors (event handler bundles) for various states that the
  * GenomeView might be in.
  * @private
+ * @returns {Object} description of behaviors
  */
 GenomeView.prototype._behaviors = function() { return {
 
@@ -1263,7 +1267,24 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
                       });
 };
 
-GenomeView.prototype.addTrack = function(track) {
+/**
+ * Add the given list of tracks to the genome view.
+ */
+GenomeView.prototype.showTracks = function( /**Array[Track]*/ tracks) {
+    this.trackDndWidget.insertNodes( false, tracks );
+    dojo.publish( '/jbrowse/v1/v/tracks/show', [tracks] );
+};
+
+
+
+/**
+ * Create the DOM elements that will contain the rendering of the
+ * given track in this genome view.
+ * @private
+ * @returns {HTMLElement} the HTML element that will contain the
+ *                        rendering of this track
+ */
+GenomeView.prototype.renderTrack = function( /**Track*/ track) {
 
     if( !track )
         return null;
