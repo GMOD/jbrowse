@@ -267,11 +267,15 @@ Util.matchRefSeqName = function( name, refseqs ) {
  * errors are happening.
  */
 Util.debugHandler = function( context, func ) {
-    var debuggedHandler = function() {
+    return function() {
         var args = arguments;
-        window.setTimeout( function() { func.apply(context,args);}, 1);
+        window.setTimeout( function() {
+            var f = func;
+            if( typeof f == 'string' )
+                f = context[f];
+            f.apply(context,args);
+        }, 1);
     };
-    return debuggedHandler;
 };
 
 if (!Array.prototype.reduce)
