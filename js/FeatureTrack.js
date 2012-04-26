@@ -289,7 +289,7 @@ FeatureTrack.prototype.fillBlock = function(blockIndex, block,
     var blockBases = Math.abs( leftBase-rightBase );
     if( this._updatedLabelForBlockSize != blockBases ){
         if ( scale < (this.featureStore.density * this.config.scaleThresh.hist)) {
-            this.setLabel(this.key + "<br>per " + Math.round( blockBases / this.numBins) + "bp");
+            this.setLabel(this.key + "<br>per " + Util.addCommas( Math.round( blockBases / this.numBins)) + " bp");
         } else {
             this.setLabel(this.key);
         }
