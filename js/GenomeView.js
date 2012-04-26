@@ -160,19 +160,14 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
             {
                 accept: ["track"], //accepts only tracks into the viewing field
                 withHandles: true,
-                creator: dojo.hitch( this, function( track, hint ) {
-                    if ("avatar" == hint) {
-                        return {
-                            node: dojo.create('div', {
-                                innerHTML: track.key,
-                                className: 'track-label dragging'
-                            }),
-                            data: track,
-                            type: ["track"]
-                        };
-                    }
-                    var node = this.renderTrack( track );
-                    return {node: node, data: track, type: ["track"]};
+                creator: dojo.hitch( this, function( trackConfig, hint ) {
+                    return {
+                        data: trackConfig,
+                        type: ["track"],
+                        node: hint == 'avatar'
+                                 ? dojo.create('div', { innerHTML: trackConfig.key || trackConfig.label, className: 'track-label dragging' })
+                                 : this.renderTrack( trackConfig )
+                    };
                 })
             });
 
@@ -1268,14 +1263,43 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 };
 
 /**
- * Add the given list of tracks to the genome view.
+ * Add the given track configurations to the genome view.
+ * @param trackConfigs {Array[Object]} array of track configuration
+ * objects to add
  */
-GenomeView.prototype.showTracks = function( /**Array[Track]*/ tracks) {
-    this.trackDndWidget.insertNodes( false, tracks );
-    dojo.publish( '/jbrowse/v1/v/tracks/show', [tracks] );
+GenomeView.prototype.showTracks = function( /**Array[String]*/ trackConfigs ) {
+    // filter out any track configs that are already displayed
+    var needed = dojo.filter( trackConfigs, function(conf) {
+        return this._getTracks( [conf.label] ).length == 0;
+    },this);
+    if( ! needed.length ) return;
+
+    // insert the track configs into the trackDndWidget ( the widget
+    // will call create() on the confs to render them)
+    this.trackDndWidget.insertNodes( false, needed );
+
+    // notify any interested parties that these tracks were just newly shown
+    dojo.publish( '/jbrowse/v1/v/tracks/show', [needed] );
 };
 
-
+/**
+ * For an array of track names, get the track object if it exists.
+ * @private
+ * @returns {Array[Track]} the track objects that were found
+ */
+GenomeView.prototype._getTracks = function( /**Array[String]*/ trackNames ) {
+    var tracks = [],
+        tn = { count: trackNames.length };
+    dojo.forEach( trackNames, function(n) { tn[n] = 1;} );
+    dojo.some( this.tracks, function(t) {
+        if( tn[t.name] ) {
+            tracks.push(t);
+            tn.count--;
+        }
+        return ! tn.count;
+    }, this);
+    return tracks;
+};
 
 /**
  * Create the DOM elements that will contain the rendering of the
@@ -1284,19 +1308,39 @@ GenomeView.prototype.showTracks = function( /**Array[Track]*/ tracks) {
  * @returns {HTMLElement} the HTML element that will contain the
  *                        rendering of this track
  */
-GenomeView.prototype.renderTrack = function( /**Track*/ track) {
+GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
 
-    if( !track )
+    if( !trackConfig )
         return null;
 
-    // do nothing if this track is already visible
-    if( dojo.indexOf( this.tracks, track ) >= 0 )
-        return track.div;
+    // just return its div if this track is already on
+    var existingTrack;
+    if( dojo.some( this.tracks, function(t) {
+            if( t.name == trackConfig.label ) {
+                existingTrack = t;
+                return true;
+            }
+            return false;
+        })
+      ) {
+          return existingTrack.div;
+      }
+
+    var class_ = eval( trackConfig.type ),
+        track = new class_(
+            trackConfig,
+            this.ref,
+            {
+                changeCallback: dojo.hitch( this, 'showVisibleBlocks', true ),
+                trackPadding: this.trackPadding,
+                charWidth: this.charWidth,
+                seqHeight: this.seqHeight
+            });
+
 
     // tell the track to get its data, since we're going to display it.
     track.load();
 
-    var trackNum = this.tracks.length;
     var labelDiv = document.createElement("div");
     labelDiv.className = "track-label dojoDndHandle";
     labelDiv.id = "label_" + track.name;

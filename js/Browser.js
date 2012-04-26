@@ -31,7 +31,6 @@ var Browser = function(params) {
     dojo.require("dijit.Dialog");
 
     this.deferredFunctions = [];
-    this.tracks = [];
     this.isInitialized = false;
 
     this.config = params;
@@ -291,6 +290,13 @@ Browser.prototype.onConfigLoaded = function() {
     this.addConfigData( initial_config );
 
     this.validateConfig();
+
+    // index the track configurations by name
+    this.trackConfigsByName = {};
+    dojo.forEach( this.config.tracks || [], function(conf){
+        this.trackConfigsByName[conf.label] = conf;
+    },this);
+
 };
 
 /**
@@ -402,22 +408,6 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
     this.locationTrap.style.cssText = locationTrapStyle;
 };
 
-// /**
-//  * Get a track object, given a track's uniquename.
-//  */
-// Browser.prototype.getTrack = function( /**String*/ trackName ) {
-//     if( this.tracks[trackName] )
-//         return this.tracks[trackName];
-//     else {
-//         var trackConfig = this.config.tracks[ 'track_'+trackName ];
-//         if( ! trackConfig )
-//             return null;
-
-//         this.tracks[ 'track_' + trackName] = track;
-//         return track;
-//     }
-// };
-
 /**
  * @private
  */
@@ -435,28 +425,9 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
         },this);
     }
 
-    // instantiate all our tracks, indexing them by name, but also
-    // having a trackOrder property that remembers their ordering.
-    // note: tracks don't load their data until actually displayed
-    this.tracks = { trackOrder: [] };
-    dojo.forEach( this.config.tracks, function(trackConfig) {
-        var class_ = eval( trackConfig.type );
-        var track = new class_(
-            trackConfig,
-            this.refSeq,
-            {
-                changeCallback: dojo.hitch( this.view, 'showVisibleBlocks', true ),
-                trackPadding: this.view.trackPadding,
-                charWidth: this.view.charWidth,
-                seqHeight: this.view.seqHeight
-            });
-        this.tracks[ track.name ] = track;
-        this.tracks.trackOrder.push( track.name );
-    },this);
-
     // make a tracklist of the right type
     this.trackListView = new JBrowse.View.TrackList[ this.config.show_tracklist == 0 ? 'Null' : 'Simple' ]( {
-        tracks: this.tracks,
+        trackConfigs: this.config.tracks,
         renderTo: parent
     });
 
@@ -642,16 +613,12 @@ Browser.prototype.showTracks = function( trackNames ) {
     if( typeof trackNames == 'string' )
         trackNames = trackNames.split(',');
 
-    // get all the tracks from their names with this.getTrack(name),
-    // filtering for only tracks that exist
-    var tracks =
-        dojo.filter( dojo.map( trackNames,
-                               dojo.hitch( this, function(n){ return this.tracks[ n ]; } )),
-                     function(t) { return t; }
-                   );
+    var trackConfs = dojo.map( trackNames, function(n) {
+        return this.trackConfigsByName[n];
+    }, this);
 
     // publish some events with the tracks to instruct the views to show them.
-    dojo.publish( '/jbrowse/v1/c/tracks/show', [tracks] );
+    dojo.publish( '/jbrowse/v1/c/tracks/show', [trackConfs] );
     dojo.publish( '/jbrowse/v1/n/tracks/visibleChanged' );
 };
 

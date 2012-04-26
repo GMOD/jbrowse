@@ -16,7 +16,7 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null, {
         // populate our track list (in the right order)
         this.trackListWidget.insertNodes(
             false,
-            dojo.map( args.tracks.trackOrder, function(n) { return args.tracks[n]; } )
+            args.trackConfigs
         );
 
         // subscribe to drop events for tracks being DND'ed
@@ -60,12 +60,12 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null, {
             {
                 accept: ["track"], // accepts only tracks into left div
                 withHandles: false,
-                creator: function( track, hint ) {
+                creator: function( trackConfig, hint ) {
                     var node = dojo.create(
                         'div',
                         { className: 'tracklist-label',
                           title: 'to turn on, drag into track area',
-                          innerHTML: track.key
+                          innerHTML: trackConfig.key
                         }
                     );
                     //in the list, wrap the list item in a container for
@@ -76,7 +76,7 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null, {
                         node = container;
                     }
                     node.id = dojo.dnd.getUniqueId();
-                    return {node: node, data: track, type: ["track"]};
+                    return {node: node, data: trackConfig, type: ["track"]};
                 }
             }
         );
@@ -84,11 +84,15 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null, {
         return trackListDiv;
     },
 
-    setTracksActive: function( tracks ) {
+    /**
+     * Given an array of track configs, update the track list to show
+     * that they are turned on.
+     */
+    setTracksActive: function( /**Array[Object]*/ trackConfigs ) {
         // remove any tracks in our track list that are being set as visible
-        dojo.forEach( tracks || [], function( track ) {
+        dojo.forEach( trackConfigs || [], function( conf ) {
             this.trackListWidget.forInItems(function(obj, id, map) {
-                if( track === obj.data ) {
+                if( conf.label === obj.data.label ) {
                     this.trackListWidget.delItem( id );
                     var item = dojo.byId(id);
                     if( item && item.parentNode )
