@@ -47,7 +47,7 @@ var Browser = function(params) {
 
     dojo.connect( this, 'onConfigLoaded',  this, 'loadRefSeqs' );
     dojo.connect( this, 'onConfigLoaded',  this, 'loadNames'   );
-    dojo.connect( this, 'onRefSeqsLoaded', this, 'initView'   );
+    dojo.connect( this, 'onRefSeqsLoaded', this, 'initView'    );
 };
 
 /**
@@ -173,7 +173,7 @@ Browser.prototype.initView = function() {
     this.view.onResize();
 
     //set initial location
-    var oldLocMap = dojo.fromJson(dojo.cookie(this.container.id + "-location")) || {};
+    var oldLocMap = dojo.fromJson( this.cookie('location') ) || {};
     if (this.config.location) {
         this.navigateTo(this.config.location);
     } else if (oldLocMap[this.refSeq.name]) {
@@ -354,10 +354,18 @@ Browser.prototype.addConfigData = function( /**Object*/ config_data ) {
  */
 Browser.prototype.addRefseqs = function( refSeqs ) {
     this.allRefs = this.allRefs || {};
-    this.refSeq  = this.refSeq  || refSeqs[0];
+    this.refSeqOrder = this.refSeqOrder || [];
+    var refCookie = this.cookie('refseq');
     dojo.forEach( refSeqs, function(r) {
+        if( ! this.allRefs[r.name] )
+            this.refSeqOrder.push(r.name);
         this.allRefs[r.name] = r;
+        if( refCookie && r.name.toLowerCase() == refCookie.toLowerCase() ) {
+            this.refSeq = r;
+        }
     },this);
+    this.refSeqOrder = this.refSeqOrder.sort();
+    this.refSeq  = this.refSeq || refSeqs[0];
 };
 
 /**
@@ -460,7 +468,7 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
     //    the passed defaults, or the last-resort default of "DNA"?
     var origTracklist =
            this.config.forceTracks
-        || dojo.cookie( this.container.id + "-tracks" )
+        || this.cookie( "tracks" )
         || this.config.defaultTracks
         || "DNA";
 
@@ -476,7 +484,7 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
 
 Browser.prototype.onVisibleTracksChanged = function() {
     this.view.updateTrackList();
-    dojo.cookie( this.container.id + "-tracks",
+    this.cookie( "tracks",
                  this.visibleTracks().join(','),
                  {expires: 60});
     this.view.showVisibleBlocks();
@@ -517,7 +525,7 @@ Browser.prototype.navigateTo = function(loc) {
             try {
                 var oldLoc = Util.parseLocString(
                     dojo.fromJson(
-                        dojo.cookie(brwsr.container.id + "-location")
+                        this.cookie("location")
                     )[ref.name]
                 );
                 oldLoc.ref = ref.name; // force the refseq name; older cookies don't have it
@@ -823,16 +831,25 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     this.goButton.disabled = true;
     this.locationBox.blur();
 
-    // update the location cookie
-    var ckname = this.container.id + "-location";
-    var oldLocMap = dojo.fromJson( dojo.cookie(ckname ) ) || {};
+    // update the location and refseq cookies
+    var oldLocMap = dojo.fromJson( this.cookie('location') ) || {};
     oldLocMap[this.refSeq.name] = locString;
-    dojo.cookie( ckname, dojo.toJson(oldLocMap), {expires: 60});
+    this.cookie( 'location', dojo.toJson(oldLocMap), {expires: 60});
+    this.cookie( 'refseq', this.refSeq.name );
 
     document.title = locString;
 };
 
-
+/**
+ * Wrapper for dojo.cookie that namespaces our cookie names by
+ * prefixing them with this.config.containerID.
+ * @param [...] same as dojo.cookie
+ * @returns same as dojo.cookie
+ */
+Browser.prototype.cookie = function( ) {
+    arguments[0] = this.config.containerID + '-' + arguments[0];
+    return dojo.cookie.apply( this, arguments );
+};
 
 /**
  * @private
@@ -945,22 +962,12 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     };
 
     this.chromList = document.createElement("select");
-    this.chromList.id="chrom";
-    var refCookie = dojo.cookie(this.config.containerID + "-refseq");
-    var i = 0;
-    var refnames = [];
-    for ( var name in this.allRefs ) {
-        if( this.allRefs.hasOwnProperty(name) )
-            refnames.push( name );
-    }
-    refnames = refnames.sort();
-    dojo.forEach( refnames, function(name) {
+    this.chromList.id = "chrom";
+    dojo.forEach( this.refSeqOrder, function(name, i) {
         this.chromList.add( new Option( name, name) );
-        if ( name.toUpperCase() == String(refCookie).toUpperCase()) {
-            this.refSeq = this.allRefs[name];
+        if ( this.refSeq && name.toUpperCase() == this.refSeq.name.toUpperCase() ) {
             this.chromList.selectedIndex = i;
         }
-        i++;
     }, this );
 
     this.locationBox = document.createElement("input");
