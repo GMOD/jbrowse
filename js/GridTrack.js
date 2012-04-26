@@ -15,7 +15,6 @@ GridTrack.prototype = new Track("");
 
 GridTrack.prototype.fillBlock = function(blockIndex, block,
                                          leftBlock, rightBlock,
-                                         refSeq,
                                          leftBase, rightBase, scale,
                                          padding, stripeWidth) {
 

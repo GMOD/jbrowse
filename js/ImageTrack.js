@@ -6,10 +6,14 @@
  * @class
  * @extends Track
  */
-function ImageTrack(config, browserParams) {
+function ImageTrack(config, refSeq, browserParams) {
     Track.call(this, config.label, config.key,
                false, browserParams.changeCallback);
 
+    if( !refSeq.end )
+        return;
+
+    this.refSeq = refSeq;
     this.trackPadding = browserParams.trackPadding || 0;
 
     this.config = config;
@@ -18,6 +22,7 @@ function ImageTrack(config, browserParams) {
     // constructor, not instantiated here
     var storeclass = config.backendVersion == 0 ? TiledImageStore.Fixed_v0 : TiledImageStore.Fixed;
     this.store = new storeclass({
+                              refSeq: refSeq,
                               urlTemplate: config.urlTemplate,
                               baseUrl: config.baseUrl,
                               track: this
@@ -27,6 +32,14 @@ function ImageTrack(config, browserParams) {
 }
 
 ImageTrack.prototype = new Track("");
+
+/**
+ * Request that the track load its data.  The track will call its own
+ * loadSuccess() function when it is loaded.
+ */
+ImageTrack.prototype.load = function() {
+    this.store.load();
+};
 
 ImageTrack.prototype.loadSuccess = function(o,url) {
     this.empty = this.store.empty;
@@ -75,7 +88,6 @@ ImageTrack.prototype.makeImageLoadHandler = function( img, blockIndex, blockWidt
 
 ImageTrack.prototype.fillBlock = function(blockIndex, block,
                                           leftBlock, rightBlock,
-                                          refSeq,
                                           leftBase, rightBase,
                                           scale, stripeWidth,
                                           containerStart, containerEnd) {

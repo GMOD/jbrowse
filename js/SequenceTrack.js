@@ -10,13 +10,17 @@
  *   label: internal track name (no spaces or odd characters)
  *   urlTemplate: url of directory in which to find the sequence chunks
  *   chunkSize: size of sequence chunks, in characters
+ * @param {Object} refSeq
+ *  start: refseq start
+ *  end:   refseq end
+ *  name:  refseq name
  * @param {Object} browserParams
  *  changeCallback: function to call once JSON is loaded
  *  trackPadding: distance in px between tracks
  *  charWidth: width, in pixels, of sequence base characters
  *  seqHeight: height, in pixels, of sequence elements
  */
-function SequenceTrack(config, browserParams) {
+function SequenceTrack(config, refSeq, browserParams) {
 
     Track.call( this, config.label, config.key,
                 false, browserParams.changeCallback );
@@ -25,6 +29,8 @@ function SequenceTrack(config, browserParams) {
 
     this.charWidth = browserParams.charWidth;
     this.seqHeight = browserParams.seqHeight;
+
+    this.refSeq = refSeq;
 
     // TODO: this should be passed into the constructor instead of
     // being instantiated here
@@ -38,8 +44,7 @@ function SequenceTrack(config, browserParams) {
 }
 
 SequenceTrack.prototype = new Track("");
-SequenceTrack.prototype.load = function( refSeq ) {
-    this.refSeq = refSeq;
+SequenceTrack.prototype.load = function() {
 };
 
 SequenceTrack.prototype.startZoom = function(destScale, destStart, destEnd) {

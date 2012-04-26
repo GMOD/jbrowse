@@ -15,6 +15,10 @@ SeqFeatureStore.NCList = function(args) {
         return;
 
     this.nclist = this.makeNCList();
+
+    this.baseUrl = args.baseUrl;
+    this.urlTemplates = { tracklist: args.urlTemplate };
+    this.refSeq = args.refSeq;
 };
 
 SeqFeatureStore.NCList.prototype = new SeqFeatureStore();
@@ -23,10 +27,26 @@ SeqFeatureStore.NCList.prototype.makeNCList = function() {
     return new NCList();
 };
 
-SeqFeatureStore.NCList.prototype.loadSuccess = function( trackInfo, url, refSeq ) {
+SeqFeatureStore.NCList.prototype.load = function() {
+    var url = Util.resolveUrl(
+                   this.baseUrl,
+                   Util.fillTemplate( this.urlTemplates.tracklist,
+                                      {'refseq': this.refSeq.name}
+                                    )
+               );
+    // fetch the trackdata
+    dojo.xhrGet({ url: url,
+                  handleAs: "json",
+                  load:  dojo.hitch( this, function(o) { this.loadSuccess(o, url); }),
+                  error: dojo.hitch( this, function(e) { console.error(''+e); this.loadFail(e, url); } )
+	        });
+};
+
+SeqFeatureStore.NCList.prototype.loadSuccess = function( trackInfo, url ) {
+
     this.count = trackInfo.featureCount;
     // average feature density per base
-    this.density = trackInfo.featureCount / refSeq.length;
+    this.density = trackInfo.featureCount / this.refSeq.length;
 
     this.loadNCList( trackInfo, url );
 

@@ -443,6 +443,7 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
         var class_ = eval( trackConfig.type );
         var track = new class_(
             trackConfig,
+            this.refSeq,
             {
                 changeCallback: dojo.hitch( this.view, 'showVisibleBlocks', true ),
                 trackPadding: this.view.trackPadding,

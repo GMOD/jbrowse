@@ -181,7 +181,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
 
     // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
     dojo.forEach(this.uiTracks, function(track) {
-        track.showRange( this.ref, 0, this.stripeCount - 1,
+        track.showRange(0, this.stripeCount - 1,
                         Math.round(this.pxToBp(this.offset)),
                         Math.round(this.stripeWidth / this.pxPerBp),
                         this.pxPerBp);
@@ -1011,15 +1011,15 @@ GenomeView.prototype.sizeInit = function() {
 
     var overviewStripePct = 100 / (refLength / this.overviewStripeBases);
     var overviewHeight = 0;
-    this.overviewTrackIterate( function ( track ) {
-        track.clear();
-        track.sizeInit( this.overviewStripes,
-                        overviewStripePct);
-        track.showRange( this.ref, 0, this.overviewStripes - 1,
-                         -1, this.overviewStripeBases,
-                         this.overviewBox.w /
-                         (this.ref.end - this.ref.start));
-    });
+    this.overviewTrackIterate(function (track, view) {
+	    track.clear();
+	    track.sizeInit(view.overviewStripes,
+			   overviewStripePct);
+            track.showRange(0, view.overviewStripes - 1,
+                            -1, view.overviewStripeBases,
+                            view.overviewBox.w /
+                            (view.ref.end - view.ref.start));
+	});
     this.updateOverviewHeight();
 };
 
@@ -1163,7 +1163,6 @@ GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {
         (this.stripeCount * this.stripeWidth) + "px";
     this.zoomContainer.style.width =
         (this.stripeCount * this.stripeWidth) + "px";
-
     var centerStripe = Math.round(centerPx / this.stripeWidth);
     var firstStripe = (centerStripe - ((this.stripeCount) / 2)) | 0;
     this.offset = firstStripe * this.stripeWidth;
@@ -1173,11 +1172,9 @@ GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {
     this.zoomContainer.style.left = "0px";
     this.setX((centerPx - this.offset) - (eWidth / 2));
     dojo.forEach(this.uiTracks, function(track) { track.clear(); });
-    dojo.forEach( this.tracks, function(track) {
-	track.endZoom(this.pxPerBp, Math.round(this.stripeWidth / this.pxPerBp));
-    },this);
-
-
+    for (var track = 0; track < this.tracks.length; track++)
+	this.tracks[track].endZoom(this.pxPerBp, Math.round(this.stripeWidth / this.pxPerBp));
+    //YAHOO.log("post-zoom start base: " + this.pxToBp(this.offset + this.getX()) + ", end base: " + this.pxToBp(this.offset + this.getX() + this.dim.width));
     this.showVisibleBlocks(true);
     this.showDone();
     this.showCoarse();
@@ -1262,12 +1259,12 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
         Math.round(this.pxToBp(this.offset
                                + (this.stripeCount * this.stripeWidth)));
 
-    this.trackIterate( function( track, view ) {
-        track.showRange( this.ref, leftVisible, rightVisible,
-                         startBase, bpPerBlock,
-                         this.pxPerBp,
-                         containerStart, containerEnd);
-    });
+    this.trackIterate(function(track, view) {
+                          track.showRange(leftVisible, rightVisible,
+                                          startBase, bpPerBlock,
+                                          view.pxPerBp,
+                                          containerStart, containerEnd);
+                      });
 };
 
 /**
@@ -1295,6 +1292,9 @@ GenomeView.prototype.renderTrack = function( /**Track*/ track) {
     // do nothing if this track is already visible
     if( dojo.indexOf( this.tracks, track ) >= 0 )
         return track.div;
+
+    // tell the track to get its data, since we're going to display it.
+    track.load();
 
     var trackNum = this.tracks.length;
     var labelDiv = document.createElement("div");
@@ -1332,9 +1332,11 @@ GenomeView.prototype.renderTrack = function( /**Track*/ track) {
 };
 
 GenomeView.prototype.trackIterate = function(callback) {
-    dojo.forEach( this.uiTracks.concat( this.tracks ), function(track) {
-        callback.call(this, track, this);
-    },this);
+    var i;
+    for (i = 0; i < this.uiTracks.length; i++)
+        callback(this.uiTracks[i], this);
+    for (i = 0; i < this.tracks.length; i++)
+        callback(this.tracks[i], this);
 };
 
 

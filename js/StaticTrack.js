@@ -17,7 +17,6 @@ StaticTrack.prototype = new Track("");
 
 StaticTrack.prototype.fillBlock = function(blockIndex, block,
                                            leftBlock, rightBlock,
-                                           refSeq,
 					   leftBase, rightBase, scale,
 					   padding, stripeWidth) {
     var posLabel = document.createElement("div");
