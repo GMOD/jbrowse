@@ -13,10 +13,10 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null, {
         // make the track list DOM nodes and widgets
         this.createTrackList( args.renderTo );
 
-        // populate our track list
+        // populate our track list (in the right order)
         this.trackListWidget.insertNodes(
             false,
-            args.tracks
+            dojo.map( args.tracks.trackOrder, function(n) { return args.tracks[n]; } )
         );
 
         // subscribe to drop events for tracks being DND'ed

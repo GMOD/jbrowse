@@ -427,23 +427,22 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
         },this);
     }
 
-    // instantiate all our tracks.  note: tracks don't load their data
-    // until actually displayed
-    this.tracks = dojo.map( this.config.tracks, dojo.hitch( this, function( trackConfig ) {
-                      var class_ = eval( trackConfig.type );
-                      var track = new class_(
-                          trackConfig,
-                          {
-                              changeCallback: dojo.hitch( this.view, 'showVisibleBlocks', true ),
-                              trackPadding: this.view.trackPadding,
-                              charWidth: this.view.charWidth,
-                              seqHeight: this.view.seqHeight
-                          });
-                      return track;
-                  })),
-    // index the tracks by name also
-    dojo.forEach( this.tracks, function(t) {
-        this.tracks[ 'track_'+t.name ] = t;
+    // instantiate all our tracks, indexing them by name, but also
+    // having a trackOrder property that remembers their ordering.
+    // note: tracks don't load their data until actually displayed
+    this.tracks = { trackOrder: [] };
+    dojo.forEach( this.config.tracks, function(trackConfig) {
+        var class_ = eval( trackConfig.type );
+        var track = new class_(
+            trackConfig,
+            {
+                changeCallback: dojo.hitch( this.view, 'showVisibleBlocks', true ),
+                trackPadding: this.view.trackPadding,
+                charWidth: this.view.charWidth,
+                seqHeight: this.view.seqHeight
+            });
+        this.tracks[ track.name ] = track;
+        this.tracks.trackOrder.push( track.name );
     },this);
 
     // make a tracklist of the right type
@@ -638,11 +637,11 @@ Browser.prototype.showTracks = function( trackNames ) {
     // filtering for only tracks that exist
     var tracks =
         dojo.filter( dojo.map( trackNames,
-                               dojo.hitch( this, function(n){ return this.tracks[ 'track_'+n ]; } )),
+                               dojo.hitch( this, function(n){ return this.tracks[ n ]; } )),
                      function(t) { return t; }
                    );
 
-    // publish some events to make it happen somehow
+    // publish some events with the tracks to instruct the views to show them.
     dojo.publish( '/jbrowse/v1/c/tracks/show', [tracks] );
     dojo.publish( '/jbrowse/v1/n/tracks/visibleChanged' );
 };
