@@ -110,20 +110,27 @@ LazyTrie.prototype.mappingsFromPrefix = function(query, callback) {
 };
 
 // default max number of options are 100
+// storeArray is to limit the length 
 LazyTrie.prototype.mappingsFromNode = function(prefix, node) {
     var results = [];
+    var trie = this;
+    var lazy;
+
     if (node[1] !== null) {
         //results.push([prefix, node[1]]);
 	this.storeArray.push([prefix, node[1]]);
     }
     for (var i = 2; i < node.length; i++) {
-        if (("string" == typeof node[i][0]) || (this.storeArray.length < 101)) { // limit max number of options here
+        if ("string" == typeof node[i][0]) {
             results = results.concat(this.mappingsFromNode(prefix + node[i][0],
                                                            node[i]));
-        }
+        } else if ("number" == typeof node[i][0]) {
+    //if node[i][0] == number -> lazy node : load it!
+	    lazy = prefix+node[i][1];
+	    trie.storeArray.push([node[i][0], lazy]);
+	};	   
     };
-    //return results;
-    return this.storeArray;
+    return trie.storeArray;
 };
 
 LazyTrie.prototype.valuesFromNode = function(node) {

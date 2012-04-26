@@ -735,8 +735,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     $(function() {
 	$( "#tags" ).autocomplete({
 	    source: function( request, response ) {
-		var namelist, parent, lim;
-		namelist = [];
+		var parent, lim;
 		parent = "";
 		lim = 100; //if over 100 options, show only up to 100 matches
 		var optionlist = [];
@@ -749,9 +748,15 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
 		    return bool;
 		};
 
-		brwsr.names.mappingsFromPrefix(request.term, function(tree) {
+		var gotTree = false; // stays false if tree isn't found
+		brwsr.names.mappingsFromPrefix( request.term, function(tree) {
+			gotTree = true;
 			for (var i = 0; i < tree.length; i++) {
-				optionlist.push({ label: tree[i][0], value: tree[i][0] });
+			    if ("number" == typeof tree[i][0]) {
+				optionlist.push({ label: tree[i][0] + " options for " + tree[i][1], value: "enter " + tree[i][1] });
+			    } else { 
+				optionlist.push({ label: tree[i][1][0][1], value: tree[i][1][0][1] });
+			    }
 			};
 
 			if (lim < tree.length) {
@@ -762,6 +767,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
 			if (matchTest() == true) optionlist = [];
 			response(optionlist);
 		});
+		if ( gotTree == false ) response(optionlist);
 	    },
 	    select: function( event, ui ) {
 		ui.item.selected = true;
