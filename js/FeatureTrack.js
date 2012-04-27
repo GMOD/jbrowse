@@ -274,8 +274,8 @@ FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
     this.clear();
 };
 
-FeatureTrack.prototype.updateViewDimensions = function( coords ) {
-    Track.prototype.updateViewDimensions.apply( this, arguments );
+FeatureTrack.prototype.updateStaticElements = function( coords ) {
+    Track.prototype.updateStaticElements.apply( this, arguments );
     this.updateYScaleFromViewDimensions( coords );
 };
 

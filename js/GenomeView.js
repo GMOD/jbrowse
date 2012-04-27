@@ -370,14 +370,14 @@ GenomeView.prototype.clampY = function(y) {
 GenomeView.prototype.setX = function(x) {
     x = this.clampX(x);
     this.rawSetX( x );
-    this.updateViewDimensions( { x: x } );
+    this.updateStaticElements( { x: x } );
     this.showFine();
 };
 
 GenomeView.prototype.setY = function(y) {
     y = this.clampY(y);
     this.rawSetY(y);
-    this.updateViewDimensions( { y: y } );
+    this.updateStaticElements( { y: y } );
 };
 
 GenomeView.prototype.rawSetPosition = function(pos) {
@@ -388,7 +388,7 @@ GenomeView.prototype.rawSetPosition = function(pos) {
 GenomeView.prototype.setPosition = function(pos) {
     var x = this.clampX( pos.x );
     var y = this.clampY( pos.y );
-    this.updateViewDimensions( {x: x, y: y} );
+    this.updateStaticElements( {x: x, y: y} );
     this.rawSetX( x );
     this.rawSetY( y );
     this.showFine();
@@ -749,7 +749,7 @@ GenomeView.prototype.onResize = function() {
     this.showVisibleBlocks();
     this.showFine();
     this.showCoarse();
-    this.updateViewDimensions({
+    this.updateStaticElements({
         width: this.getWidth(),
         height: this.getHeight()
     });
@@ -811,9 +811,9 @@ GenomeView.prototype.checkY = function(y) {
  *   elements that only need updates on the Y position are not
  *   updated.
  */
-GenomeView.prototype.updateViewDimensions = function( args ) {
+GenomeView.prototype.updateStaticElements = function( args ) {
     this.trackIterate( function(t) {
-        t.updateViewDimensions( args );
+        t.updateStaticElements( args );
     },this);
 
     if( typeof args.x == 'number' ) {
@@ -931,7 +931,7 @@ GenomeView.prototype.sizeInit = function() {
         var delta = (blockDelta * this.stripeWidth);
         var newX = this.getX() - delta;
         this.offset += delta;
-        this.updateViewDimensions( { x: newX } );
+        this.updateStaticElements( { x: newX } );
         this.rawSetX(newX);
     }
 
@@ -1168,7 +1168,7 @@ GenomeView.prototype.scrollUpdate = function() {
     this.trackIterate(function(track) { track.moveBlocks(dStripes); });
 
     var newX = x + (dStripes * this.stripeWidth);
-    this.updateViewDimensions( { x: newX } );
+    this.updateStaticElements( { x: newX } );
     this.rawSetX(newX);
     var firstVisible = (newX / this.stripeWidth) | 0;
 };
@@ -1253,7 +1253,7 @@ GenomeView.prototype.addTrack = function(track) {
     labelDiv.style.left = this.getX() + "px";
     trackDiv.appendChild(labelDiv);
 
-    track.updateViewDimensions({
+    track.updateStaticElements({
         x: this.getX(),
         y: this.getY(),
         height: this.getHeight(),

@@ -20,8 +20,8 @@ ImageTrack.Wiggle.prototype = new ImageTrack({},{},{});
  */
 dojo.mixin( ImageTrack.Wiggle.prototype, Track.YScaleMixin );
 
-ImageTrack.Wiggle.prototype.updateViewDimensions = function( coords ) {
-    ImageTrack.prototype.updateViewDimensions.apply( this, arguments );
+ImageTrack.Wiggle.prototype.updateStaticElements = function( coords ) {
+    ImageTrack.prototype.updateStaticElements.apply( this, arguments );
     this.updateYScaleFromViewDimensions( coords );
 };
 
