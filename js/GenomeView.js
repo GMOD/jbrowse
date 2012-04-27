@@ -642,6 +642,7 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
                 track.div.parentNode.removeChild(track.div);
 	};
 	dojo.forEach(this.tracks, removeTrack);
+        this.tracks = [];
         dojo.forEach(this.uiTracks, function(track) { track.clear(); });
 	this.overviewTrackIterate(removeTrack);
 
