@@ -859,6 +859,12 @@ GenomeView.prototype.bpToPx = function(bp) {
     return bp * this.pxPerBp;
 };
 
+
+/**
+ * Update the view's state, and that of its tracks, for the current
+ * width and height of its container.
+ * @returns nothing
+ */
 GenomeView.prototype.sizeInit = function() {
     this.dim = {width: this.elem.clientWidth,
                 height: this.elem.clientHeight};
