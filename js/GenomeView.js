@@ -768,10 +768,6 @@ GenomeView.prototype.onResize = function() {
     this.showVisibleBlocks();
     this.showFine();
     this.showCoarse();
-    this.updateStaticElements({
-        width: this.getWidth(),
-        height: this.getHeight()
-    });
 };
 
 
@@ -1010,6 +1006,21 @@ GenomeView.prototype.sizeInit = function() {
                             (view.ref.end - view.ref.start));
 	});
     this.updateOverviewHeight();
+
+    // may need to update our Y position if our height has changed
+    var update = dojo.clone( this.dim );
+    if( this.getY() > 0 ) {
+        var totalTrackHeights = dojof.reduce( this.trackHeights, '+' ) + this.trackPadding * this.trackHeights.length;
+        if( totalTrackHeights - this.getY() < update.height ) {
+            console.log( totalTrackHeights, update.height, this.getY() );
+            update.y = this.setY( Math.max( 0, totalTrackHeights - update.height ));
+        }
+    }
+
+    // update any static (i.e. fixed-position) elements that need to
+    // float in one position over the scrolling track div (can't use
+    // CSS position:fixed for these)
+    this.updateStaticElements( update );
 };
 
 GenomeView.prototype.overviewTrackIterate = function(callback) {
