@@ -280,8 +280,8 @@ FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
     this.clear();
 };
 
-FeatureTrack.prototype.updateViewDimensions = function( coords ) {
-    Track.prototype.updateViewDimensions.apply( this, arguments );
+FeatureTrack.prototype.updateStaticElements = function( coords ) {
+    Track.prototype.updateStaticElements.apply( this, arguments );
     this.updateYScaleFromViewDimensions( coords );
 };
 
@@ -295,7 +295,7 @@ FeatureTrack.prototype.fillBlock = function(blockIndex, block,
     var blockBases = Math.abs( leftBase-rightBase );
     if( this._updatedLabelForBlockSize != blockBases ){
         if ( scale < (this.featureStore.density * this.config.scaleThresh.hist)) {
-            this.setLabel(this.key + "<br>per " + Math.round( blockBases / this.numBins) + "bp");
+            this.setLabel(this.key + "<br>per " + Util.addCommas( Math.round( blockBases / this.numBins)) + " bp");
         } else {
             this.setLabel(this.key);
         }

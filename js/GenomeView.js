@@ -400,33 +400,52 @@ GenomeView.prototype.clampY = function(y) {
                      );
 };
 
+/**
+ * @returns the new x value that was set
+ */
 GenomeView.prototype.setX = function(x) {
     x = this.clampX(x);
     this.rawSetX( x );
-    this.updateViewDimensions( { x: x } );
+    this.updateStaticElements( { x: x } );
     this.showFine();
+    return x;
 };
 
+/**
+ * @returns the new y value that was set
+ */
 GenomeView.prototype.setY = function(y) {
     y = this.clampY(y);
     this.rawSetY(y);
-    this.updateViewDimensions( { y: y } );
+    this.updateStaticElements( { y: y } );
+    return y;
 };
 
+/**
+ * @private
+ */
 GenomeView.prototype.rawSetPosition = function(pos) {
     this.rawSetX( pos.x );
     this.rawSetY( pos.y );
+    return pos;
 };
 
+/**
+ * @param pos.x new x position
+ * @param pos.y new y position
+ */
 GenomeView.prototype.setPosition = function(pos) {
     var x = this.clampX( pos.x );
     var y = this.clampY( pos.y );
-    this.updateViewDimensions( {x: x, y: y} );
+    this.updateStaticElements( {x: x, y: y} );
     this.rawSetX( x );
     this.rawSetY( y );
     this.showFine();
 };
 
+/**
+ * @returns {Object} as <code>{ x: 123, y: 456 }</code>
+ */
 GenomeView.prototype.getPosition = function() {
     return { x: this.x, y: this.y };
 };
@@ -783,10 +802,6 @@ GenomeView.prototype.onResize = function() {
     this.showVisibleBlocks();
     this.showFine();
     this.showCoarse();
-    this.updateViewDimensions({
-        width: this.getWidth(),
-        height: this.getHeight()
-    });
 };
 
 
@@ -845,9 +860,9 @@ GenomeView.prototype.checkY = function(y) {
  *   elements that only need updates on the Y position are not
  *   updated.
  */
-GenomeView.prototype.updateViewDimensions = function( args ) {
+GenomeView.prototype.updateStaticElements = function( args ) {
     this.trackIterate( function(t) {
-        t.updateViewDimensions( args );
+        t.updateStaticElements( args );
     },this);
 
     if( typeof args.x == 'number' ) {
@@ -893,6 +908,12 @@ GenomeView.prototype.bpToPx = function(bp) {
     return bp * this.pxPerBp;
 };
 
+
+/**
+ * Update the view's state, and that of its tracks, for the current
+ * width and height of its container.
+ * @returns nothing
+ */
 GenomeView.prototype.sizeInit = function() {
     this.dim = {width: this.elem.clientWidth,
                 height: this.elem.clientHeight};
@@ -965,10 +986,11 @@ GenomeView.prototype.sizeInit = function() {
         var delta = (blockDelta * this.stripeWidth);
         var newX = this.getX() - delta;
         this.offset += delta;
-        this.updateViewDimensions( { x: newX } );
+        this.updateStaticElements( { x: newX } );
         this.rawSetX(newX);
     }
 
+    // update the sizes for each of the tracks
     this.trackIterate(function(track, view) {
                           track.sizeInit(view.stripeCount,
                                          view.stripePercent,
@@ -1005,6 +1027,7 @@ GenomeView.prototype.sizeInit = function() {
 	if (this.overviewStripes < 2) break;
     }
 
+    // update our overview tracks
     var overviewStripePct = 100 / (refLength / this.overviewStripeBases);
     var overviewHeight = 0;
     this.overviewTrackIterate(function (track, view) {
@@ -1017,6 +1040,21 @@ GenomeView.prototype.sizeInit = function() {
                             (view.ref.end - view.ref.start));
 	});
     this.updateOverviewHeight();
+
+    // may need to update our Y position if our height has changed
+    var update = dojo.clone( this.dim );
+    if( this.getY() > 0 ) {
+        var totalTrackHeights = dojof.reduce( this.trackHeights, '+' ) + this.trackPadding * this.trackHeights.length;
+        if( totalTrackHeights - this.getY() < update.height ) {
+            console.log( totalTrackHeights, update.height, this.getY() );
+            update.y = this.setY( Math.max( 0, totalTrackHeights - update.height ));
+        }
+    }
+
+    // update any static (i.e. fixed-position) elements that need to
+    // float in one position over the scrolling track div (can't use
+    // CSS position:fixed for these)
+    this.updateStaticElements( update );
 };
 
 GenomeView.prototype.overviewTrackIterate = function(callback) {
@@ -1202,7 +1240,7 @@ GenomeView.prototype.scrollUpdate = function() {
     this.trackIterate(function(track) { track.moveBlocks(dStripes); });
 
     var newX = x + (dStripes * this.stripeWidth);
-    this.updateViewDimensions( { x: newX } );
+    this.updateStaticElements( { x: newX } );
     this.rawSetX(newX);
     var firstVisible = (newX / this.stripeWidth) | 0;
 };
@@ -1364,7 +1402,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     labelDiv.style.left = this.getX() + "px";
     trackDiv.appendChild(labelDiv);
 
-    track.updateViewDimensions({
+    track.updateStaticElements({
         x: this.getX(),
         y: this.getY(),
         height: this.getHeight(),

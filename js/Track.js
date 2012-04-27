@@ -346,7 +346,7 @@ Track.prototype.sizeInit = function(numBlocks, widthPct, blockDelta) {
  * new x, y, width, and height of the view.  This is needed by tracks
  * for positioning stationary things like axis labels.
  */
-Track.prototype.updateViewDimensions = function( /**Object*/ coords ) {
+Track.prototype.updateStaticElements = function( /**Object*/ coords ) {
     this.window_info = dojo.mixin( this.window_info || {}, coords );
 };
 

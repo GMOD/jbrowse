@@ -20,6 +20,7 @@
  * </ul>
  */
 
+var dojof = dojox.lang.functional;
 
 var Browser = function(params) {
     dojo.require("dojo.dnd.Source");
