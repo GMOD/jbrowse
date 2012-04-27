@@ -367,24 +367,40 @@ GenomeView.prototype.clampY = function(y) {
                      );
 };
 
+/**
+ * @returns the new x value that was set
+ */
 GenomeView.prototype.setX = function(x) {
     x = this.clampX(x);
     this.rawSetX( x );
     this.updateStaticElements( { x: x } );
     this.showFine();
+    return x;
 };
 
+/**
+ * @returns the new y value that was set
+ */
 GenomeView.prototype.setY = function(y) {
     y = this.clampY(y);
     this.rawSetY(y);
     this.updateStaticElements( { y: y } );
+    return y;
 };
 
+/**
+ * @private
+ */
 GenomeView.prototype.rawSetPosition = function(pos) {
     this.rawSetX( pos.x );
     this.rawSetY( pos.y );
+    return pos;
 };
 
+/**
+ * @param pos.x new x position
+ * @param pos.y new y position
+ */
 GenomeView.prototype.setPosition = function(pos) {
     var x = this.clampX( pos.x );
     var y = this.clampY( pos.y );
@@ -394,6 +410,9 @@ GenomeView.prototype.setPosition = function(pos) {
     this.showFine();
 };
 
+/**
+ * @returns {Object} as <code>{ x: 123, y: 456 }</code>
+ */
 GenomeView.prototype.getPosition = function() {
     return { x: this.x, y: this.y };
 };
@@ -941,6 +960,7 @@ GenomeView.prototype.sizeInit = function() {
         this.rawSetX(newX);
     }
 
+    // update the sizes for each of the tracks
     this.trackIterate(function(track, view) {
                           track.sizeInit(view.stripeCount,
                                          view.stripePercent,
@@ -977,6 +997,7 @@ GenomeView.prototype.sizeInit = function() {
 	if (this.overviewStripes < 2) break;
     }
 
+    // update our overview tracks
     var overviewStripePct = 100 / (refLength / this.overviewStripeBases);
     var overviewHeight = 0;
     this.overviewTrackIterate(function (track, view) {
