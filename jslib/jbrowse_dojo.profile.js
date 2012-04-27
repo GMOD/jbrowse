@@ -15,7 +15,8 @@ dependencies = (
                     "dijit.Dialog",
                     "dojox.gfx.svg",
                     "dojox.gfx.vml",
-                    "dojox.charting.Chart2D"
+                    "dojox.charting.Chart2D",
+                    "dojox.lang.functional"
                 ],
                 layerDependencies: [],
                 name: "jbrowse_dojo.js",
