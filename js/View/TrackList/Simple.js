@@ -1,12 +1,11 @@
-/**
- * Simple drag-and-drop track selector.
- * @class JBrowse.View.TrackList.Simple
- */
+dojo.declare( 'JBrowse.View.TrackList.Simple', null,
 
-dojo.declare( 'JBrowse.View.TrackList.Simple', null, {
+    /** @lends JBrowse.View.TrackList.Simple.prototype */
+    {
 
     /**
-     * @constructor
+     * Simple drag-and-drop track selector.
+     * @constructs
      */
     constructor: function( args ) {
 
@@ -33,6 +32,7 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null, {
                         dojo.hitch( this, 'setTracksActive' ));
     },
 
+    /** @private */
     createTrackList: function( renderTo ) {
         var leftPane = dojo.create(
             'div',
@@ -100,6 +100,18 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null, {
                 }
             },this);
         },this);
+    },
+
+    /**
+     * Given an array of track configs, update the track list to show
+     * that they are turned off.
+     */
+    setTracksInactive: function( /**Array[Object]*/ trackConfigs ) {
+        // remove any tracks in our track list that are being set as visible
+        dojo.forEach( trackConfigs || [], function( conf ) {
+            this.trackListWidget.insertNode( conf );
+        },this);
     }
+
 });
 
