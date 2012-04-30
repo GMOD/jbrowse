@@ -123,7 +123,9 @@ Browser.prototype.initView = function() {
     //set up top nav/overview pane and main GenomeView pane
     dojo.addClass(document.body, "tundra");
     this.container = dojo.byId(this.config.containerID);
-    this.container.onselectstart = function() { return false; };
+    this.container.onselectstart = function(evt) {
+        return evt.target.id == 'location';
+    };
     this.container.genomeBrowser = this;
     var topPane = document.createElement("div");
     this.container.appendChild(topPane);
