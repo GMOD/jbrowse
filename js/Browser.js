@@ -427,10 +427,14 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
     }
 
     // make a tracklist of the right type
-    this.trackListView = new JBrowse.View.TrackList[ this.config.show_tracklist == 0 ? 'Null' : 'Simple' ]( {
+    var tl_class = this.config.show_tracklist == 0 ? 'Null'                    :
+                   this.config.trackListType       ? this.config.trackListType :
+                                                     'Simple';
+
+    this.trackListView = new JBrowse.View.TrackList[tl_class]( {
         trackConfigs: this.config.tracks,
         renderTo: parent
-    });
+      });
 
     // listen for track-visibility-changing messages from views
     dojo.subscribe( '/jbrowse/v1/v/tracks/hide', this, 'onVisibleTracksChanged' );
