@@ -172,6 +172,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
             });
 
     // subscribe to showTracks commands
+    dojo.subscribe( '/dnd/drop',dojo.hitch(this, 'updateTrackList'));
     dojo.subscribe( '/jbrowse/v1/c/tracks/show', this, 'showTracks' );
 
     // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
