@@ -1020,6 +1020,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
                 brwsr.goButton.disabled = false;
             }
         });
+        dojo.connect( this.locationBox, 'keypress', function(e){ e.stopPropagation(); });
     }
 
     this.goButton = document.createElement("button");
