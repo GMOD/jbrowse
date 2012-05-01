@@ -443,6 +443,7 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
         resolved_tl_class = JBrowse.View.TrackList.Simple;
     }
 
+    // instantiate the tracklist
     this.trackListView = new resolved_tl_class( {
         trackConfigs: this.config.tracks,
         renderTo: parent,
