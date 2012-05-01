@@ -947,6 +947,10 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     this.locationBox.size=locLength;
     this.locationBox.type="text";
     this.locationBox.id="location";
+    this.locationBox.onselectstart = function( evt ) {
+        evt.stopPropagation();
+        return true;
+    };
     if( this.config.show_nav != 0 ) {
         dojo.connect(this.locationBox, "keydown", function(event) {
             if (event.keyCode == dojo.keys.ENTER) {
@@ -958,6 +962,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
                 brwsr.goButton.disabled = false;
             }
         });
+        dojo.connect( this.locationBox, 'keypress', function(e){ e.stopPropagation(); });
     }
 
     this.goButton = document.createElement("button");
