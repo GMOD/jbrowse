@@ -11,40 +11,48 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
    constructor: function(args) {
        dojo.require('dojox.grid.DataGrid');
        dojo.require('dojo.data.ItemFileWriteStore');
+       dojo.require('dojo.store.Memory');
 
+       // data store that fetches and filters our track metadata
+       this.trackDataStore = new JBrowse.Model.TrackMetaData({ trackConfigs: args.trackConfigs });
+
+       // the div that will hold all of the track selector content
        var grid_div = dojo.create('div', {
-                                      style: {
-                                          height: '95%',
-                                          width: '600px'
-                                      }
-                                  },
-                                  document.body
-                                 );
+           style: {
+               height: '95%',
+               width:  '94%'
+           }
+         },
+         document.body
+       );
 
-        /*create a new grid:*/
+       // make a data grid that will hold the search results
        this.dataGrid = new dojox.grid.DataGrid({
                id: 'grid',
-               store: new dojo.data.ItemFileWriteStore({
-                   data: {
-                       identifier: 'label',
-                       items: dojo.map( args.trackConfigs, function(c){
-                           return { key: c.key, label: c.label, type: c.type };
-                       })
-                   }
-               }),
+               store: this.trackDataStore,
                structure: [[
                      {'name': 'Type', 'field': 'type', 'width': '100px'},
-                     {'name': 'Key', 'field': 'key', 'width': '100px'}
+                     {'name': 'Key',  'field': 'key',  'width': '100px'}
                ]],
                rowSelector: '20px'
            },
            document.createElement('div')
-           );
-
-       /*append the new grid to the div*/
+       );
        grid_div.appendChild(this.dataGrid.domNode);
        this.dataGrid.startup();
 
+       // make the text input for text filtering
+       this.textFilterInput = dojo.create(
+           'input',
+           {
+               type: 'text',
+               width: 30,
+               id: 'tracklist_textfilter'
+           },
+           grid_div
+       );
+
+       // put it all in a dialog
        this.dialog = new dijit.Dialog({
            id: "faceted_tracksel",
            refocus: false,
@@ -76,7 +84,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
      */
     show: function() {
         this.dialog.show();
-        this.dataGrid.startup();
         this.shown = true;
     },
 
