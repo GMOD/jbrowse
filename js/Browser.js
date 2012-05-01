@@ -166,7 +166,7 @@ Browser.prototype.initView = function() {
     dojo.connect( this.view, "onCoarseMove", this, "onCoarseMove" );
 
     //set up track list
-    var trackListDiv = this.createTrackList( this.container );
+    var trackListDiv = this.createTrackList();
     this.containerWidget.startup();
     dojo.connect( this.browserWidget, "resize", this,      'onResize' );
     dojo.connect( this.browserWidget, "resize", this.view, 'onResize' );
@@ -417,7 +417,7 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
  * @private
  */
 
-Browser.prototype.createTrackList = function( /**Element*/ parent ) {
+Browser.prototype.createTrackList = function() {
 
     if( ! this.config.tracks )
         this.config.tracks = [];
@@ -446,7 +446,6 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
     // instantiate the tracklist
     this.trackListView = new resolved_tl_class( {
         trackConfigs: this.config.tracks,
-        renderTo: parent,
         browser: this
       });
 

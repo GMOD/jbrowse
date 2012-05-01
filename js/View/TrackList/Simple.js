@@ -10,7 +10,7 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null,
     constructor: function( args ) {
 
         // make the track list DOM nodes and widgets
-        this.createTrackList( args.renderTo );
+        this.createTrackList( args.browser.container );
 
         // populate our track list (in the right order)
         this.trackListWidget.insertNodes(
