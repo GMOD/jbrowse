@@ -34,8 +34,9 @@
     <script type="text/javascript" src="js/TiledImageStore/Fixed.js"></script>
     <script type="text/javascript" src="js/SequenceStore/StaticChunked.js"></script>
 
-    <script type="text/javascript" src="js/View/TrackList/Simple.js"></script>
     <script type="text/javascript" src="js/View/TrackList/Null.js"></script>
+    <script type="text/javascript" src="js/View/TrackList/Simple.js"></script>
+    <script type="text/javascript" src="js/View/TrackList/Faceted.js"></script>
 
     <script type="text/javascript" src="js/Ruler.js"></script>
     <script type="text/javascript" src="js/Track/YScaleMixin.js"></script>
@@ -79,7 +80,9 @@
                                    forceTracks: queryParams.tracks,
 				   show_nav: queryParams.nav,
 				   show_tracklist: queryParams.tracklist,
-				   show_overview: queryParams.overview
+				   show_overview: queryParams.overview,
+
+                                   trackListType: 'Faceted'
                                });
     /* ]]> */
     </script>

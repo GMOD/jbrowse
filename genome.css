@@ -2,3 +2,10 @@
 @import url("main.css");
 /* CSS styles for the various types of feature glyphs */
 @import url("feature_styles.css");
+
+@import url("jslib/dojox/grid/resources/Grid.css");
+@import url("jslib/dojox/grid/resources/tundraGrid.css");
+
+.dojoxGrid table {
+  margin: 0;
+}
