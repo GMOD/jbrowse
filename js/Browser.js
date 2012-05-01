@@ -430,13 +430,20 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
         },this);
     }
 
-    // make a tracklist of the right type
-    var tl_class = this.config.show_tracklist == 0 ? 'Null'                    :
-                   this.config.trackListType       ? this.config.trackListType :
-                                                     'Simple';
-    tl_class = JBrowse.View.TrackList[tl_class];
+    // find the tracklist class to use
+    var resolved_tl_class = function() {
+        var tl_class = this.config.show_tracklist == 0 ? 'Null'                    :
+                       this.config.trackListType       ? this.config.trackListType :
+                                                         'Simple';
+        tl_class.replace(/[^\.\w\d]/g, ''); // sanitize tracklist class for security
+        return JBrowse.View.TrackList[tl_class] || eval( tl_class );
+    }.call(this);
+    if( !resolved_tl_class ) {
+        console.error("configured trackListType "+tl_class+" not found, falling back to JBrowse.View.TrackList.Simple");
+        resolved_tl_class = JBrowse.View.TrackList.Simple;
+    }
 
-    this.trackListView = new tl_class( {
+    this.trackListView = new resolved_tl_class( {
         trackConfigs: this.config.tracks,
         renderTo: parent,
         browser: this
