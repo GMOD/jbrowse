@@ -32,6 +32,7 @@ var Browser = function(params) {
     dojo.require("dijit.Dialog");
 
     this.deferredFunctions = [];
+    this.globalKeyboardShortcuts = {};
     this.isInitialized = false;
 
     this.config = params;
@@ -193,6 +194,9 @@ Browser.prototype.initView = function() {
         var newRef = this.allRefs[this.chromList.options[this.chromList.selectedIndex].value];
         this.navigateTo( newRef.name );
     });
+
+    // make our global keyboard shortcut handler
+    dojo.connect( document.body, 'onkeypress', this, 'globalKeyHandler' );
 
     this.isInitialized = true;
 
@@ -430,11 +434,16 @@ Browser.prototype.createTrackList = function( /**Element*/ parent ) {
     var tl_class = this.config.show_tracklist == 0 ? 'Null'                    :
                    this.config.trackListType       ? this.config.trackListType :
                                                      'Simple';
+    tl_class = JBrowse.View.TrackList[tl_class];
 
-    this.trackListView = new JBrowse.View.TrackList[tl_class]( {
+    this.trackListView = new tl_class( {
         trackConfigs: this.config.tracks,
-        renderTo: parent
+        renderTo: parent,
+        browser: this
       });
+
+    // bind the 't' key as a global keyboard shortcut
+    this.setGlobalKeyboardShortcut( 't', this.trackListView, 'toggle' );
 
     // listen for track-visibility-changing messages from views
     dojo.subscribe( '/jbrowse/v1/v/tracks/hide', this, 'onVisibleTracksChanged' );
@@ -721,20 +730,41 @@ Browser.prototype.makeHelpDialog = function () {
     helplink.style.cursor = 'help';
     helplink.appendChild( document.createTextNode('Help'));
     dojo.connect(helplink, 'onclick', function() { dialog.show(); });
-    dojo.connect(document.body,  'onkeydown', function( evt ) {
+
+    this.setGlobalKeyboardShortcut( '?', dialog, 'show' );
+    dojo.connect( document.body, 'onkeydown', function(evt) {
         if( evt.keyCode != dojo.keys.SHIFT && evt.keyCode != dojo.keys.CTRL && evt.keyCode != dojo.keys.ALT )
-            dialog.hide();
-    });
-    dojo.connect(document.body,  'onkeypress', function( evt ) {
-        if( evt.keyChar == '?' )
-            dialog.show();
-        else if( evt.keyCode != dojo.keys.SHIFT && evt.keyCode != dojo.keys.CTRL && evt.keyCode != dojo.keys.ALT )
             dialog.hide();
     });
 
     return helplink;
 };
 
+/**
+ * Create a global keyboard shortcut.
+ * @param keychar the character of the key that is typed
+ * @param [...] additional arguments passed to dojo.hitch for making the handler
+ */
+Browser.prototype.setGlobalKeyboardShortcut = function( keychar ) {
+    // warn if redefining
+    if( this.globalKeyboardShortcuts[ keychar ] )
+        console.warn("WARNING: JBrowse global keyboard shortcut '"+keychar+"' redefined");
+
+    // make the wrapped handler func
+    var func = dojo.hitch.apply( dojo, Array.prototype.slice.call( arguments, 1 ) );
+
+    // remember it
+    this.globalKeyboardShortcuts[ keychar ] = func;
+};
+
+/**
+ * Key event handler that implements all global keyboard shortcuts.
+ */
+Browser.prototype.globalKeyHandler = function( evt ) {
+    var shortcut = this.globalKeyboardShortcuts[ evt.keyChar ];
+    if( shortcut )
+        shortcut.call( this );
+};
 
 Browser.prototype.makeBookmarkLink = function (area) {
     // don't make the link if we were explicitly passed a 'bookmark'

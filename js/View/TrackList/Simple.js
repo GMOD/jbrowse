@@ -111,6 +111,27 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null,
         dojo.forEach( trackConfigs || [], function( conf ) {
             this.trackListWidget.insertNode( conf );
         },this);
+    },
+
+    /**
+     * Make the track selector visible.
+     * This does nothing for the Simple track selector, since it is always visible.
+     */
+    show: function() {
+    },
+
+    /**
+     * Make the track selector invisible.
+     * This does nothing for the Simple track selector, since it is always visible.
+     */
+    hide: function() {
+    },
+
+    /**
+     * Toggle visibility of this track selector.
+     * This does nothing for the Simple track selector, since it is always visible.
+     */
+    toggle: function() {
     }
 
 });
