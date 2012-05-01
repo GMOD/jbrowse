@@ -14,7 +14,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
        dojo.require('dojo.store.Memory');
 
        // data store that fetches and filters our track metadata
-       this.trackDataStore = new JBrowse.Model.TrackMetaData({ trackConfigs: args.trackConfigs });
+       this.trackDataStore = args.trackMetaData;
 
        // the div that will hold all of the track selector content
        var grid_div = dojo.create('div', {

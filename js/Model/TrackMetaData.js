@@ -1,4 +1,5 @@
 dojo.require('dojo.data.ItemFileWriteStore');
+
 dojo.declare( 'JBrowse.Model.TrackMetaData', dojo.data.ItemFileWriteStore,
 /**
  * @lends JBrowse.Model.TrackMetaData.prototype
