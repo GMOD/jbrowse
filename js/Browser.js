@@ -123,9 +123,7 @@ Browser.prototype.initView = function() {
     //set up top nav/overview pane and main GenomeView pane
     dojo.addClass(document.body, "tundra");
     this.container = dojo.byId(this.config.containerID);
-    this.container.onselectstart = function(evt) {
-        return evt.target.id == 'location';
-    };
+    this.container.onselectstart = function() { return false; };
     this.container.genomeBrowser = this;
     var topPane = document.createElement("div");
     this.container.appendChild(topPane);
@@ -1009,6 +1007,10 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     this.locationBox.size=locLength;
     this.locationBox.type="text";
     this.locationBox.id="location";
+    this.locationBox.onselectstart = function( evt ) {
+        evt.stopPropagation();
+        return true;
+    };
     if( this.config.show_nav != 0 ) {
         dojo.connect(this.locationBox, "keydown", function(event) {
             if (event.keyCode == dojo.keys.ENTER) {
