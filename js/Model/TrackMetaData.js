@@ -77,6 +77,12 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', dojox.data.CsvStore,
                 bucket.items.push(item);
             },this);
         }, this);
+
+        this.facetIndexes.facetRank = this.facets.sort(dojo.hitch(this,function(a,b){
+            return this.facetIndexes.byName[b].bucketCount - this.facetIndexes.byName[a].bucketCount;
+        }));
+
+        console.log(this.facetIndexes);
     },
 
     /**
