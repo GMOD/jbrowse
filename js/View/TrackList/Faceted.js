@@ -71,14 +71,19 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
     renderFacetSelectors: function( facets ) {
         var store = this.trackDataStore;
         dojo.forEach( store.getFacets() , function(facetName) {
+            var values = store.getFacetValues(facetName).sort();
+            if( !values || !values.length )
+                return;
+
             var selector =
-                dojo.create( 'select', {},
+                dojo.create( 'select', { multiple: true, size: Math.min( 10, values.length ) },
                              dojo.create( 'label', {innerHTML: facetName},
                                           this.facetsDiv ));
 
-            dojo.forEach( store.getFacetValues(facetName).sort(), function(val) {
+            dojo.forEach( values, function(val) {
                 dojo.create( 'option', { innerHTML: val, value: val }, selector );
             },this);
+
         },this);
     },
 

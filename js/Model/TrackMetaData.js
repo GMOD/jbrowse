@@ -54,22 +54,26 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', dojox.data.CsvStore,
                        );
 
         // initialize the empty indexes
-        this.facetIndexes = { count: 0, byFacetName: {} };
+        this.facetIndexes = { itemCount: 0, bucketCount: 0, byName: {} };
         dojo.forEach( facets, function(facet) {
-            this.facetIndexes.byFacetName[facet] = { count: 0, byFacetValue: {} };
+            this.facetIndexes.bucketCount++;
+            this.facetIndexes.byName[facet] = { itemCount: 0, bucketCount: 0, byValue: {} };
         }, this);
 
         // build an index of our items for each facet
         dojo.forEach( items, function( item ) {
-            this.facetIndexes.count++;
+            this.facetIndexes.itemCount++;
             dojo.forEach( facets, function( facet ) {
                 var value = this.getValue( item, facet, undefined );
                 if( typeof value == 'undefined' )
                     return;
-                var bucket = this.facetIndexes.byFacetName[facet].byFacetValue[value];
-                if( !bucket )
-                    bucket = this.facetIndexes.byFacetName[facet].byFacetValue[value] = { count: 0, items: [] };
-                bucket.count++;
+                var facetValues = this.facetIndexes.byName[facet];
+                var bucket = facetValues.byValue[value];
+                if( !bucket ) {
+                    bucket = facetValues.byValue[value] = { itemCount: 0, items: [] };
+                    facetValues.bucketCount++;
+                }
+                bucket.itemCount++;
                 bucket.items.push(item);
             },this);
         }, this);
@@ -90,13 +94,13 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', dojox.data.CsvStore,
      * @returns {Array} distinct values for that facet
      */
     getFacetValues: function( facetName ) {
-        var index = this.facetIndexes.byFacetName[facetName];
+        var index = this.facetIndexes.byName[facetName];
         if( !index )
             return [];
 
         var values = [];
-        for( var v in index.byFacetValue ) {
-            if( index.byFacetValue.hasOwnProperty(v) )
+        for( var v in index.byValue ) {
+            if( index.byValue.hasOwnProperty(v) )
                 values.push( v );
         }
         return values;
@@ -112,8 +116,5 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', dojox.data.CsvStore,
         else {
             this.onReadyFuncs.push( callback );
         }
-    },
-
-
-
+    }
 });
