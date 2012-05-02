@@ -5,7 +5,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
    {
 
    /**
-     * Drag-and-drop track selector with facets and text searching.
+     * Track selector with facets and text searching.
      * @constructs
      */
    constructor: function(args) {
@@ -26,6 +26,17 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
          document.body
        );
 
+       // schedule the facet selectors to render once the data is loaded
+       this.facetsDiv = dojo.create( 'div',{ className: 'facetSelectorContainer' }, grid_div);
+       this.trackDataStore.onReady( dojo.hitch(this, 'renderFacetSelectors') );
+
+       // make the text input for text filtering
+       this.textFilterInput = dojo.create(
+           'input',
+           { type: 'text', width: 30 },
+           dojo.create('label',{innerHTML: 'Containing text', id: 'tracklist_textfilter'}, grid_div )
+       );
+
        // make a data grid that will hold the search results
        this.dataGrid = new dojox.grid.DataGrid({
                id: 'grid',
@@ -33,24 +44,13 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                structure: [[
                      {'name': 'Type', 'field': 'type', 'width': '100px'},
                      {'name': 'Key',  'field': 'key',  'width': '100px'}
-               ]],
-               rowSelector: '20px'
+               ]]
+               //rowSelector: '20px'
            },
            document.createElement('div')
        );
        grid_div.appendChild(this.dataGrid.domNode);
        this.dataGrid.startup();
-
-       // make the text input for text filtering
-       this.textFilterInput = dojo.create(
-           'input',
-           {
-               type: 'text',
-               width: 30,
-               id: 'tracklist_textfilter'
-           },
-           grid_div
-       );
 
        // put it all in a dialog
        this.dialog = new dijit.Dialog({
@@ -64,6 +64,23 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
          grid_div
       );
    },
+
+    /**
+     * Create selection boxes for each searchable facet.
+     */
+    renderFacetSelectors: function( facets ) {
+        var store = this.trackDataStore;
+        dojo.forEach( store.getFacets() , function(facetName) {
+            var selector =
+                dojo.create( 'select', {},
+                             dojo.create( 'label', {innerHTML: facetName},
+                                          this.facetsDiv ));
+
+            dojo.forEach( store.getFacetValues(facetName).sort(), function(val) {
+                dojo.create( 'option', { innerHTML: val, value: val }, selector );
+            },this);
+        },this);
+    },
 
     /**
      * Given an array of track configs, update the track list to show
