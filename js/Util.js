@@ -278,6 +278,10 @@ Util.debugHandler = function( context, func ) {
     };
 };
 
+Util.ucFirst = function(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
 if (!Array.prototype.reduce)
 {
   Array.prototype.reduce = function(fun /*, initial*/)
