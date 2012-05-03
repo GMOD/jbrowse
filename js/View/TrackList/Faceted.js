@@ -53,8 +53,8 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
       this.gridContainer = dojo.create('div',{
           className: 'gridContainer',
            style: {
-               width: (2+facets.length * 100) + 'px',
-               height: '60%',
+               width: (12+facets.length * 100) + 'px',
+               height: '80%',
                "float": 'left'
            }
       },this.container);
@@ -170,6 +170,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
         this.query = newQuery;
         console.log(this.query);
+        this.dataGrid.setQuery( this.query );
     },
 
     /**

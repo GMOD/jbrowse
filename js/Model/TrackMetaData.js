@@ -215,15 +215,17 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
 
                            var set = [];
                            dojo.forEach( queryValues, function(val) {
-                                             set.push( index.byValue[val] || [] );
-                                         },this);
+                              var bucket = index.byValue[val];
+                              if( bucket )
+                                  set.push.apply( set, bucket.items );
+                           },this);
                            return set;
                        }).call(this);
 
             // and filter this starting set for the other facets
             dojo.forEach( dojof.keys(query), function(facetName) {
                               var desired_values = query[facetName] || [];
-                              if( desired_values.length )
+                              if( ! desired_values.length )
                                   return;
                               results = dojo.filter(results, function(item) {
                                                         var value = this.getValue(item,facetName);
