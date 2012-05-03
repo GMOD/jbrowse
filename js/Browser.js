@@ -444,8 +444,17 @@ Browser.prototype.createTrackList = function() {
     }
 
     // instantiate the tracklist
+    dojo.require('dojox.data.CsvStore');
     this.trackListView = new resolved_tl_class( {
-        trackMetaData: new JBrowse.Model.TrackMetaData({ trackConfigs: this.config.tracks, browser: this }),
+        trackMetaData: new JBrowse.Model.TrackMetaData({
+            trackConfigs: this.config.tracks,
+            browser: this,
+            metadataStores: [
+                new dojox.data.CsvStore({
+                        url: Util.resolveUrl( this.config.sourceUrl, 'trackMeta.csv' )
+                    })
+            ]
+        }),
         trackConfigs: this.config.tracks,
         browser: this
       });
