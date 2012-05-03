@@ -14,8 +14,8 @@
 }
 
 #faceted_tracksel .gridContainer {
-    height: 95%;
-    width: 90%;
+    height: 300px;
+    float: left;
 }
 
 #faceted_tracksel .facetSelect,

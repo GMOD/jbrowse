@@ -41,7 +41,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
            draggable: false,
            resizable: true,
            title: "Track Selection",
-           style: "width: 95%;"
          },
          this.container
       );
@@ -53,9 +52,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
       this.gridContainer = dojo.create('div',{
           className: 'gridContainer',
            style: {
-               width: (12+facets.length * 100) + 'px',
-               height: '80%',
-               "float": 'left'
+               width: (20+facets.length * 100) + 'px',
            }
       },this.container);
        // make a data grid that will hold the search results

@@ -23,6 +23,9 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             this.onReadyFuncs = dojo.clone(args.onReady);
         }
 
+        // index the track configurations as a store
+        this._indexItems({ store: this, items: args.trackConfigs });
+
         // fetch and index all the items from each of the stores
         var stores_fetched_count = 0;
         dojo.forEach( args.metadataStores, function(store) {
@@ -30,7 +33,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                 scope: this,
                 onComplete: Util.debugHandler( this, function(items) {
                     // build our indexes
-                    this._indexItems( store, items );
+                    this._indexItems({ store: store, items: items, supplementalOnly: true });
 
                     // if this is the last store to be fetched, call
                     // our onReady callbacks
@@ -46,63 +49,99 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         },this);
      },
 
-    _indexItems: function( store, items ) {
-
+    _indexItems: function( args ) {
         // get our (filtered) list of facets we will index for
-        var seen = {};
-        var facets = this.facets =
-            dojo.filter( ( this.facets || [] ).concat( store.getAttributes(items[0])),
-                         function(facetName) {
-                             var take = this._filterFacet(facetName) && !seen[facetName];
-                             seen[facetName] = true;
-                             return take;
-                         },
-                         this
-                       );
+        var store = args.store,
+            items = args.items;
 
-        // initialize our indexes if necessary
+        // convert the items to a uniform format
+        items = dojo.map( items, function( item ) {
+                              var attributes = store.getAttributes(item);
+
+                              //convert the item into a uniform data format of plain objects
+                              var newitem = {};
+                              dojo.forEach( attributes, function(attr) {
+                                                newitem[attr] = store.getValue(item,attr);
+                                            });
+                              return newitem;
+                          },
+                          this
+                        );
+
+        // merge them with any existing records, filtering out ones
+        // that should be ignored if we were passed
+        // 'supplementalOnly', and update the identity index
         this.identIndex = this.identIndex || {};
+        items = dojo.filter( items, function(item) {
+                                 // merge the new item attributes with any existing
+                                 // record for this item
+                                 var ident = this.getIdentity(item);
+                                 var existingItem = this.identIndex[ ident ];
+                                 if( args.supplementalOnly && !existingItem) {
+                                     // skip this item if we are supplementalOnly and it
+                                     // does not already exist
+                                     return false;
+                                 }
+                                 this.identIndex[ ident ] = dojo.mixin( existingItem || {}, item );
+                                 return true;
+                             },
+                             this
+                           );
+
+        // update our facet list to include any new attrs these
+        // items have
+        var old_facets = this.facets || [];
+        this.facets = (function() {
+            var seen = {};
+            return dojo.filter( old_facets.concat( this.getAttributes( items[0] ) ),
+                                function(facetName) {
+                                    var take = this._filterFacet(facetName) && !seen[facetName];
+                                    seen[facetName] = true;
+                                    return take;
+                                },
+                                this
+                              );
+        }).call(this);
+        var new_facets = this.facets.slice( old_facets.length );
+
+        // initialize indexes for any new facets
         this.facetIndexes = this.facetIndexes || { itemCount: 0, bucketCount: 0, byName: {} };
-        dojo.forEach( facets, function(facet) {
+        dojo.forEach( new_facets, function(facet) {
             if( ! this.facetIndexes.byName[facet] ) {
                 this.facetIndexes.bucketCount++;
                 this.facetIndexes.byName[facet] = { itemCount: 0, bucketCount: 0, byValue: {} };
             }
         }, this);
 
-        // put each of the items into our indexes
-        dojo.forEach( items, function( item ) {
+        // now update the indexes with the new facets
+        if( new_facets.length ) {
+            dojo.forEach( items, function( item ) {
+                this.facetIndexes.itemCount++;
+                dojo.forEach( new_facets, function( facet ) {
 
-            //convert the item into a uniform data format of plain objects
-            item = (function(){
-                var newitem = {};
-                dojo.forEach(store.getAttributes(item), function(attr) {
-                    newitem[attr] = store.getValue(item,attr);
-                });
-                return newitem;
-            }).call(this);
+                    var value = this.getValue( item, facet, undefined );
+                    if( typeof value == 'undefined' )
+                        return;
+                    var facetValues = this.facetIndexes.byName[facet];
+                    var bucket = facetValues.byValue[value];
+                    if( !bucket ) {
+                        bucket = facetValues.byValue[value] = { itemCount: 0, items: [] };
+                        facetValues.bucketCount++;
+                    }
+                    bucket.itemCount++;
+                    bucket.items.push(item);
+                },this);
+            }, this);
 
-            this.identIndex[ this.getIdentity(item) ] = item;
-
-            this.facetIndexes.itemCount++;
-            dojo.forEach( facets, function( facet ) {
-                var value = this.getValue( item, facet, undefined );
-                if( typeof value == 'undefined' )
-                    return;
-                var facetValues = this.facetIndexes.byName[facet];
-                var bucket = facetValues.byValue[value];
-                if( !bucket ) {
-                    bucket = facetValues.byValue[value] = { itemCount: 0, items: [] };
-                    facetValues.bucketCount++;
-                }
-                bucket.itemCount++;
-                bucket.items.push(item);
-            },this);
-        }, this);
-
-        this.facetIndexes.facetRank = this.facets.sort(dojo.hitch(this,function(a,b){
-            return this.facetIndexes.byName[b].bucketCount - this.facetIndexes.byName[a].bucketCount;
-        }));
+            // calculate the rank of the facets: make an array of
+            // facet names sorted by smallest average bucket size,
+            // descending
+            this.facetIndexes.facetRank = this.facets.sort(dojo.hitch(this,function(a,b){
+                a = this.facetIndexes.byName[a];
+                b = this.facetIndexes.byName[b];
+                return b.itemCount/b.bucketCount - a.itemCount/a.bucketCount;
+            }));
+        }
 
         console.log(this.facetIndexes);
     },
