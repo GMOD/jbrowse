@@ -2,6 +2,7 @@
 @import url("main.css");
 /* CSS styles for the various types of feature glyphs */
 @import url("feature_styles.css");
+@import url("faceted_track_selector.css");
 
 @import url("jslib/dojox/grid/resources/Grid.css");
 @import url("jslib/dojox/grid/resources/tundraGrid.css");

@@ -15,45 +15,24 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
        // data store that fetches and filters our track metadata
        this.trackDataStore = args.trackMetaData;
+       this.trackDataStore.onReady( dojo.hitch(this, 'render') );
+    },
 
+    render: function() {
        // the div that will hold all of the track selector content
-       var grid_div = dojo.create('div', {
+       this.container = dojo.create('div', {
            style: {
-               height: '95%',
-               width:  '94%'
+               width: this.trackDataStore.getFacets().length * 100 + 'px',
+               height: '60%'
            }
+
          },
          document.body
        );
 
-       // schedule the facet selectors to render once the data is loaded
-       this.facetsDiv = dojo.create( 'div',{ className: 'facetSelectorContainer' }, grid_div);
-       this.trackDataStore.onReady( dojo.hitch(this, 'renderFacetSelectors') );
-
-       // make the text input for text filtering
-       this.textFilterInput = dojo.create(
-           'input',
-           { type: 'text',
-             width: 30,
-             onchange: dojo.hitch( this, 'updateQuery' )
-           },
-           dojo.create('label',{innerHTML: 'Containing text', id: 'tracklist_textfilter'}, grid_div )
-       );
-
-       // make a data grid that will hold the search results
-       this.dataGrid = new dojox.grid.DataGrid({
-               id: 'grid',
-               store: this.trackDataStore,
-               structure: [[
-                     {'name': 'Type', 'field': 'type', 'width': '100px'},
-                     {'name': 'Key',  'field': 'key',  'width': '100px'}
-               ]]
-               //rowSelector: '20px'
-           },
-           document.createElement('div')
-       );
-       grid_div.appendChild(this.dataGrid.domNode);
-       this.dataGrid.startup();
+       this.renderGrid();
+       this.renderTextFilter();
+       this.renderFacetSelectors();
 
        // put it all in a pop-up dialog
        this.dialog = new dijit.Dialog({
@@ -64,15 +43,68 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
            title: "Track Selection",
            style: "width: 95%;"
          },
-         grid_div
+         this.container
       );
+      this.dialog.show();
+    },
+
+    renderGrid: function() {
+      var facets = this.trackDataStore.getFacets();
+      this.gridContainer = dojo.create('div',{
+          className: 'gridContainer',
+           style: {
+               width: (2+facets.length * 100) + 'px',
+               height: '60%',
+               "float": 'left'
+           }
+      },this.container);
+       // make a data grid that will hold the search results
+       this.dataGrid = new dojox.grid.DataGrid({
+               id: 'trackSelectGrid',
+               store: this.trackDataStore,
+               structure: [
+                   dojo.map( facets, function(facetName) {
+                     return {'name': Util.ucFirst(facetName), 'field': facetName, 'width': '100px'};
+                   })
+               ]
+               //rowSelector: '20px'
+           },
+           document.createElement('div')
+       );
+       this.gridContainer.appendChild( this.dataGrid.domNode );
+       this.dataGrid.startup();
+
+   },
+
+   renderTextFilter: function() {
+       // make the text input for text filtering
+       var textFilterLabel = dojo.create(
+           'label',
+           { className: 'textFilterControl',
+             innerHTML: 'Containing text<br>',
+             id: 'tracklist_textfilter'
+           },
+           this.container
+       );
+       this.textFilterInput = dojo.create(
+           'input',
+           { type: 'text',
+             width: 30,
+             onchange: dojo.hitch( this, 'updateQuery' ),
+             onkeypress: function(e){ e.stopPropagation(); }
+           },
+           textFilterLabel
+       );
    },
 
     /**
      * Create selection boxes for each searchable facet.
      */
-    renderFacetSelectors: function( facets ) {
+    renderFacetSelectors: function() {
         var store = this.trackDataStore;
+
+        this.facetsDiv = dojo.create( 'div',{ className: 'facetSelectorContainer' }, this.container );
+
         this.facetSelectors = {};
         dojo.forEach( store.getFacets() , function(facetName) {
             // get the values of this facet
@@ -83,6 +115,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             // make a selection control for the values of this facet
             var group = this.facetSelectors[facetName] = [];
             var div = dojo.create( 'div', {className: 'facetSelect'}, this.facetsDiv );
+            dojo.create('div',{className: 'facetName', innerHTML: Util.ucFirst(facetName) }, div );
 
             // populate selector's options
             this.facetSelectors[facetName] = dojo.map(
@@ -93,7 +126,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                         'div',
                         { className: 'facetValue',
                           innerHTML: val,
-                          title: val,
                           onclick: function(evt) {
                               dojo.toggleClass(this,'selected');
                               that.updateQuery();
@@ -130,13 +162,14 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                                   options,
                                   function(opt) {return dojo.hasClass(opt,'selected');}
                               ),
-                              function(opt) {return opt.title;}
+                              function(opt) {return opt.innerHTML;}
                           );
                           if( selectedFacets.length )
                               newQuery[facetName] = selectedFacets;
         },this);
 
-       this.query = newQuery;
+        this.query = newQuery;
+        console.log(this.query);
     },
 
     /**
