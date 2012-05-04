@@ -9,9 +9,8 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
      * @constructs
      */
    constructor: function(args) {
-       dojo.require('dojox.grid.DataGrid');
-       dojo.require('dojo.data.ItemFileWriteStore');
-       dojo.require('dojo.store.Memory');
+       dojo.require('dojox.grid.EnhancedGrid');
+       dojo.require('dojox.grid.enhanced.plugins.IndirectSelection');
        dojo.require('dijit.layout.AccordionContainer');
        dojo.require('dijit.layout.AccordionPane');
 
@@ -54,7 +53,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
     renderGrid: function() {
         // make a data grid that will hold the search results
         var facets = this.trackDataStore.getFacets();
-        this.dataGrid = new dojox.grid.DataGrid({
+        this.dataGrid = new dojox.grid.EnhancedGrid({
                id: 'trackSelectGrid',
                region: 'center',
                store: this.trackDataStore,
@@ -62,7 +61,12 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                    dojo.map( facets, function(facetName) {
                      return {'name': Util.ucFirst(facetName), 'field': facetName, 'width': '100px'};
                    })
-               ]
+               ],
+               plugins: {
+                   indirectSelection: {
+                       headerSelector: true
+                   }
+               }
            }
        );
         this.mainContainer.addChild( this.dataGrid );

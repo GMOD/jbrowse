@@ -1,3 +1,16 @@
+/* Dojo and Dijit stuff */
+
+@import url("jslib/dijit/themes/tundra/tundra.css");
+@import url("jslib/dojox/grid/resources/Grid.css");
+@import url("jslib/dojox/grid/resources/tundraGrid.css");
+@import url("jslib/dojox/grid/enhanced/resources/tundra/EnhancedGrid.css");
+
+.dojoxGrid table {
+  margin: 0;
+}
+
+/* JBrowse stuff */
+
 #faceted_tracksel {
     font-size: 130%;
     background: #c7dbf1;
