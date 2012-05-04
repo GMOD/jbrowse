@@ -16,6 +16,7 @@
 
     font-weight: bold;
     color: white;
+    white-space: nowrap;
 }
 
 #faceted_tracksel label.textFilterControl {
