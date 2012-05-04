@@ -14,7 +14,12 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
 
         // set up our facet name discrimination: what facets we will
         // actually provide search on
-        this._filterFacet = args.filterFacets || function() {return true;};
+        var ident_attrs = this.getIdentityAttributes();
+        this._filterFacet = function( facetName ) {
+            var userfilter = args.filterFacets || function() {return true;};
+            return userfilter(facetName)
+                   && ! dojo.some( ident_attrs, function(i) { return i == facetName;});
+        };
 
         // set up our onReady callbacks
         if( ! dojo.isArray( args.onReady ) ){
