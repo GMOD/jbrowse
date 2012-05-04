@@ -21,24 +21,23 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
     },
 
     render: function() {
-        this.dialog = new dijit.Dialog({
-            id: "faceted_tracksel",
-            refocus: false,
-            draggable: false,
-            resizable: true,
-            title: "Track Selection"
-         });
-
-        var div = dojo.create( 'div', {
+        this.containerElem = dojo.create( 'div', {
+            id: 'faceted_tracksel',
             style: {
-                height: document.body.clientHeight + 'px',
-                width: document.body.clientWidth + 'px'
+                position: 'fixed',
+                top: '0',
+                left: '0',
+                height: '100%',
+                width: '100%',
+                zIndex: -1000,
+                opacity: 0
             }
-        }, this.dialog.containerNode );
+        },
+        document.body );
 
         this.mainContainer = new dijit.layout.BorderContainer(
             { design: 'sidebar'  },
-            div
+            this.containerElem
         );
         this.renderTextFilter();
         this.renderFacetSelectors();
@@ -47,13 +46,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
     },
 
     renderGrid: function() {
-        var gridPane = new dijit.layout.ContentPane(
-            {
-                region: 'center',
-//                style: { height: document.body.clientHeight * 0.6 + 'px' }
-            }
-        );
-        this.mainContainer.addChild( gridPane );
         // make a data grid that will hold the search results
         var facets = this.trackDataStore.getFacets();
         this.dataGrid = new dojox.grid.DataGrid({
@@ -64,14 +56,10 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                    dojo.map( facets, function(facetName) {
                      return {'name': Util.ucFirst(facetName), 'field': facetName, 'width': '100px'};
                    })
-               ],
-               autoHeight: true,
-               style: {
-                   width: (20+facets.length * 100) + 'px'
-               }
-           },
-           gridPane.containerNode
+               ]
+           }
        );
+        this.mainContainer.addChild( this.dataGrid );
     },
 
     renderTextFilter: function() {
@@ -193,7 +181,8 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
      * Make the track selector visible.
      */
     show: function() {
-        this.dialog.show();
+        this.containerElem.style.opacity = 1.0;
+        this.containerElem.style.zIndex = 10000;
         this.shown = true;
     },
 
@@ -201,7 +190,8 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
      * Make the track selector invisible.
      */
     hide: function() {
-        this.dialog.hide();
+        this.containerElem.style.opacity = 0;
+        this.containerElem.style.zIndex = -1000;
         this.shown = false;
     },
 
