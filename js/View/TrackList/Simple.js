@@ -30,6 +30,9 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null,
         // subscribe to commands coming from the the controller
         dojo.subscribe( '/jbrowse/v1/c/tracks/show',
                         dojo.hitch( this, 'setTracksActive' ));
+            // subscribe to commands coming from the the controller
+        dojo.subscribe( '/jbrowse/v1/c/tracks/hide',
+                        dojo.hitch( this, 'setTracksInactive' ));
     },
 
     /** @private */
