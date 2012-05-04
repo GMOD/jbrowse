@@ -36,9 +36,15 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         document.body );
 
         this.mainContainer = new dijit.layout.BorderContainer(
-            { design: 'sidebar'  },
+            { design: 'sidebar', gutters: false },
             this.containerElem
         );
+        this.topPane = new dijit.layout.ContentPane(
+            { region: 'top',
+              id: "faceted_tracksel_top",
+              content: '<h1>Select Tracks</h1>'
+            });
+        this.mainContainer.addChild( this.topPane );
         this.renderTextFilter();
         this.renderFacetSelectors();
         this.renderGrid();
@@ -63,16 +69,14 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
     },
 
     renderTextFilter: function() {
-        var textPane = new dijit.layout.ContentPane({region: 'top', height: '2em'});
-        this.mainContainer.addChild( textPane );
         // make the text input for text filtering
         var textFilterLabel = dojo.create(
             'label',
             { className: 'textFilterControl',
-              innerHTML: 'Containing text<br>',
+              innerHTML: 'Containing text ',
               id: 'tracklist_textfilter'
             },
-            textPane.containerNode
+            this.topPane.containerNode
         );
         this.textFilterInput = dojo.create(
             'input',
