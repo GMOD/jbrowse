@@ -24,7 +24,17 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         }
 
         // index the track configurations as a store
-        this._indexItems({ store: this, items: args.trackConfigs });
+        this._indexItems(
+            {
+                store: this,
+                items: dojo.map( args.trackConfigs, function(conf) {
+                    var metarecord = conf.metadata || {};
+                    metarecord.label = conf.label;
+                    metarecord.key = conf.key;
+                    return metarecord;
+                })
+            }
+        );
 
         // fetch and index all the items from each of the stores
         var stores_fetched_count = 0;
