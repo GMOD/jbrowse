@@ -14,11 +14,12 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
 
         // set up our facet name discrimination: what facets we will
         // actually provide search on
-        var ident_attrs = this.getIdentityAttributes();
+        var non_facet_attrs = this.getIdentityAttributes();
+        non_facet_attrs.push('conf');
         this._filterFacet = function( facetName ) {
             var userfilter = args.filterFacets || function() {return true;};
             return userfilter(facetName)
-                   && ! dojo.some( ident_attrs, function(i) { return i == facetName;});
+                   && ! dojo.some( non_facet_attrs, function(a) { return a == facetName;});
         };
 
         // set up our onReady callbacks
@@ -33,9 +34,10 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             {
                 store: this,
                 items: dojo.map( args.trackConfigs, function(conf) {
-                    var metarecord = conf.metadata || {};
+                    var metarecord = dojo.clone( conf.metadata || {} );
                     metarecord.label = conf.label;
                     metarecord.key = conf.key;
+                    metarecord.conf = conf;
                     return metarecord;
                 })
             }
