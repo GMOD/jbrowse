@@ -56,7 +56,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         var facets = this.trackDataStore.getFacets();
         this.dataGrid = new dojox.grid.DataGrid({
                id: 'trackSelectGrid',
-               region: 'top',
+               region: 'center',
                store: this.trackDataStore,
                structure: [
                    dojo.map( facets, function(facetName) {
