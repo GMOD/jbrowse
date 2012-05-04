@@ -198,6 +198,9 @@ Browser.prototype.initView = function() {
     // make our global keyboard shortcut handler
     dojo.connect( document.body, 'onkeypress', this, 'globalKeyHandler' );
 
+    // configure our event routing
+    this._initEventRouting();
+
     this.isInitialized = true;
 
     //if someone calls methods on this browser object
@@ -208,6 +211,27 @@ Browser.prototype.initView = function() {
     },this );
 
     this.deferredFunctions = [];
+};
+
+/**
+ * Initialize our event routing, which is mostly echoing logical
+ * commands from the user interacting with the views.
+ * @private
+ */
+Browser.prototype._initEventRouting = function() {
+    this.subscribe('/jbrowse/v1/v/tracks/hide', this, function() {
+        this.publish( '/jbrowse/v1/c/tracks/hide', arguments );
+    });
+    this.subscribe('/jbrowse/v1/v/tracks/show', this, function() {
+        this.publish( '/jbrowse/v1/c/tracks/show', arguments );
+    });
+};
+
+Browser.prototype.publish = function() {
+    return dojo.publish.apply( dojo, arguments );
+};
+Browser.prototype.subscribe = function() {
+    return dojo.subscribe.apply( dojo, arguments );
 };
 
 Browser.prototype.onResize = function() {
@@ -463,8 +487,8 @@ Browser.prototype.createTrackList = function() {
     this.setGlobalKeyboardShortcut( 't', this.trackListView, 'toggle' );
 
     // listen for track-visibility-changing messages from views
-    dojo.subscribe( '/jbrowse/v1/v/tracks/hide', this, 'onVisibleTracksChanged' );
-    dojo.subscribe( '/jbrowse/v1/v/tracks/show', this, 'onVisibleTracksChanged' );
+    this.subscribe( '/jbrowse/v1/v/tracks/hide', this, 'onVisibleTracksChanged' );
+    this.subscribe( '/jbrowse/v1/v/tracks/show', this, 'onVisibleTracksChanged' );
 
     // figure out what initial track list we will use:
     //    from a param passed to our instance, or from a cookie, or

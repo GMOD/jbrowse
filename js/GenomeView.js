@@ -174,6 +174,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     // subscribe to showTracks commands
     dojo.subscribe( '/dnd/drop',dojo.hitch(this, 'updateTrackList'));
     dojo.subscribe( '/jbrowse/v1/c/tracks/show', this, 'showTracks' );
+    dojo.subscribe( '/jbrowse/v1/c/tracks/hide', this, 'hideTracks' );
 
     // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
     dojo.forEach(this.uiTracks, function(track) {
@@ -1318,8 +1319,35 @@ GenomeView.prototype.showTracks = function( /**Array[String]*/ trackConfigs ) {
     // will call create() on the confs to render them)
     this.trackDndWidget.insertNodes( false, needed );
 
-    // notify any interested parties that these tracks were just newly shown
-    dojo.publish( '/jbrowse/v1/v/tracks/show', [needed] );
+    this.updateTrackList();
+};
+
+/**
+ * Remove the given track (configs) from the genome view.
+ * @param trackConfigs {Array[Object]} array of track configurations
+ */
+GenomeView.prototype.hideTracks = function( /**Array[String]*/ trackConfigs ) {
+
+    // filter out any track configs that are not displayed
+    var displayed = dojo.filter( trackConfigs, function(conf) {
+        return this._getTracks( [conf.label] ).length != 0;
+    },this);
+    if( ! displayed.length ) return;
+
+    // insert the track configs into the trackDndWidget ( the widget
+    // will call create() on the confs to render them)
+    dojo.forEach( displayed, function( conf ) {
+        this.trackDndWidget.forInItems(function(obj, id, map) {
+            if( conf.label === obj.data.label ) {
+                this.trackDndWidget.delItem( id );
+                var item = dojo.byId(id);
+                if( item && item.parentNode )
+                    item.parentNode.removeChild(item);
+            }
+        },this);
+    },this);
+
+    this.updateTrackList();
 };
 
 /**

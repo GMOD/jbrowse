@@ -14,9 +14,42 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
        dojo.require('dijit.layout.AccordionContainer');
        dojo.require('dijit.layout.AccordionPane');
 
+       this.browser = args.browser;
+       this.tracksActive = {};
+
        // data store that fetches and filters our track metadata
        this.trackDataStore = args.trackMetaData;
-       this.trackDataStore.onReady( dojo.hitch(this, 'render') );
+
+       // subscribe to commands coming from the the controller
+       dojo.subscribe( '/jbrowse/v1/c/tracks/show',
+                       dojo.hitch( this, 'setTracksActive' ));
+       // subscribe to commands coming from the the controller
+       dojo.subscribe( '/jbrowse/v1/c/tracks/hide',
+                       dojo.hitch( this, 'setTracksInactive' ));
+
+       // once its data is loaded and ready
+       this.trackDataStore.onReady( dojo.hitch(this, function() {
+
+           // render our controls and so forth
+           this.render();
+
+           // connect events so that when a grid row is selected or
+           // deselected (with the checkbox), publish a message
+           // indicating that the user wants that track turned on or
+           // off
+           dojo.connect( this.dataGrid.selection, 'onSelected', this, function( index ) {
+               if( this.suppressSelectionEvents )
+                   return;
+               console.log('selected',arguments);
+               dojo.publish( '/jbrowse/v1/v/tracks/show', [[this.dataGrid.getItem( index ).conf]] );
+           });
+           dojo.connect( this.dataGrid.selection, 'onDeselected', this, function( index ) {
+               if( this.suppressSelectionEvents )
+                   return;
+               console.log('deselected',arguments);
+               dojo.publish( '/jbrowse/v1/v/tracks/hide', [[this.dataGrid.getItem( index ).conf]] );
+           });
+       }));
     },
 
     render: function() {
@@ -48,6 +81,8 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.renderFacetSelectors();
         this.renderGrid();
         this.mainContainer.startup();
+        this._updateGridSelections();
+        this.show();
     },
 
     renderGrid: function() {
@@ -64,7 +99,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                ],
                plugins: {
                    indirectSelection: {
-                       headerSelector: true
+                       //headerSelector: true
                    }
                }
            }
@@ -150,25 +185,46 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         }
 
         // update from the facet selectors
-        dojo.forEach( this.trackDataStore.getFacets(),
-                      function(facetName) {
-                          var options = this.facetSelectors[facetName];
-                          if( !options ) return;
+        dojo.forEach( this.trackDataStore.getFacets(), function(facetName) {
+            var options = this.facetSelectors[facetName];
+            if( !options ) return;
 
-                          var selectedFacets = dojo.map(
-                              dojo.filter(
-                                  options,
-                                  function(opt) {return dojo.hasClass(opt,'selected');}
-                              ),
-                              function(opt) {return opt.innerHTML;}
-                          );
-                          if( selectedFacets.length )
-                              newQuery[facetName] = selectedFacets;
+            var selectedFacets = dojo.map(
+                dojo.filter(
+                    options,
+                    function(opt) {return dojo.hasClass(opt,'selected');}
+                ),
+                function(opt) {return opt.innerHTML;}
+            );
+            if( selectedFacets.length )
+                newQuery[facetName] = selectedFacets;
         },this);
 
         this.query = newQuery;
-        console.log(this.query);
         this.dataGrid.setQuery( this.query );
+        this._updateGridSelections();
+    },
+
+    /**
+     * Update the grid to have only rows checked that correspond to
+     * tracks that are currently active.
+     * @private
+     */
+    _updateGridSelections: function() {
+        this.suppressSelectionEvents = true;
+
+        this.dataGrid.selection.deselectAll();
+
+        // check the boxes that should be checked, based on our
+        // internal memory of what tracks should be on.
+        for( var i= 0; i < this.dataGrid.rowCount; i++ ) {
+            var item = this.dataGrid.getItem( i );
+            var label = this.dataGrid.store.getIdentity( item );
+            if( this.tracksActive[label] )
+                this.dataGrid.rowSelectCell.toggleRow( i, true );
+        }
+
+        this.suppressSelectionEvents = false;
     },
 
     /**
@@ -176,6 +232,10 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
      * that they are turned on.
      */
     setTracksActive: function( /**Array[Object]*/ trackConfigs ) {
+        dojo.forEach( trackConfigs, function(conf) {
+            this.tracksActive[conf.label] = true;
+        },this);
+        this.trackDataStore.onReady( dojo.hitch(this, '_updateGridSelections') );
     },
 
     /**
@@ -183,6 +243,10 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
      * that they are turned off.
      */
     setTracksInactive: function( /**Array[Object]*/ trackConfigs ) {
+        dojo.forEach( trackConfigs, function(conf) {
+            delete this.tracksActive[conf.label];
+        },this);
+        this.trackDataStore.onReady( dojo.hitch(this, '_updateGridSelections') );
     },
 
     /**
