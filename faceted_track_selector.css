@@ -1,44 +1,50 @@
-#faceted_tracksel {
-    font-size: 130%;
-}
+/* #faceted_tracksel { */
+/*     font-size: 130%; */
+/* } */
 
-#faceted_tracksel .facetName,
-#faceted_tracksel label {
-    font-weight: bold;
-    padding: 0 0.3em;
-}
+/* #faceted_tracksel .facetName, */
+/* #faceted_tracksel label { */
+/*     font-weight: bold; */
+/*     padding: 0 0.3em; */
+/* } */
 
-#faceted_tracksel div.facetSelectorContainer {
-    float: left;
-    width: 30%;
-}
+/* #faceted_tracksel div.facetSelectorContainer { */
+/*     float: left; */
+/*     width: 30%; */
+/* } */
 
-#faceted_tracksel .gridContainer {
-    height: 300px;
-    float: left;
-}
+/* #faceted_tracksel .gridContainer { */
+/*     height: 300px; */
+/*     float: left; */
+/* } */
 
-#faceted_tracksel .facetSelect,
-#faceted_tracksel .textFilterControl {
-    margin: 0 0.4em 0.4em 0.4em;
-    border: 1px solid #ccc;
-    padding: 0;
-}
-#faceted_tracksel .facetSelect {
-    float: left;
-    height: 15em;
-    overflow-y: scroll;
-    overflow-x: hide;
-}
-#faceted_tracksel .textFilterControl {
-    padding: 0.4em;
-    display: block;
-    float: left;
-}
+/* #faceted_tracksel .facetSelect, */
+/* #faceted_tracksel .textFilterControl { */
+/*     margin: 0 0.4em 0.4em 0.4em; */
+/*     border: 1px solid #ccc; */
+/*     padding: 0; */
+/* } */
+/* #faceted_tracksel .facetSelect { */
+/*     float: left; */
+/*     height: 15em; */
+/*     overflow-y: scroll; */
+/*     overflow-x: hide; */
+/* } */
+/* #faceted_tracksel .textFilterControl { */
+/*     padding: 0.4em; */
+/*     display: block; */
+/*     float: left; */
+/* } */
 #faceted_tracksel .facetSelect .facetValue {
     padding: 0.1em 0.4em;
     cursor: pointer;
 }
 #faceted_tracksel .facetSelect .selected {
     background: #b1d3f6;
+}
+.tundra #faceted_tracksel .facetSelect .selected {
+    background: #AEC7E3;
+}
+#faceted_tracksel .dijitAccordionContainer-dijitContentPane {
+    padding: 0;
 }
