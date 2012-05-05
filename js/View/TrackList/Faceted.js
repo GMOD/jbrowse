@@ -103,7 +103,12 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                    }
                }
            }
-       );
+        );
+        //monkey-patch this grid's onRowClick handler to not do
+        //anything.  without this, clicking on a row selects it, and
+        //deselects everything else.
+        this.dataGrid.onRowClick = function() {};
+
         this.mainContainer.addChild( this.dataGrid );
     },
 
