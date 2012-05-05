@@ -89,7 +89,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         // that should be ignored if we were passed
         // 'supplementalOnly', and update the identity index
         this.identIndex = this.identIndex || {};
-        items = dojo.filter( items, function(item) {
+        items = dojo.map( items, function(item) {
                                  // merge the new item attributes with any existing
                                  // record for this item
                                  var ident = this.getIdentity(item);
@@ -97,13 +97,14 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                                  if( args.supplementalOnly && !existingItem) {
                                      // skip this item if we are supplementalOnly and it
                                      // does not already exist
-                                     return false;
+                                     return null;
                                  }
-                                 this.identIndex[ ident ] = dojo.mixin( existingItem || {}, item );
-                                 return true;
+                                 return this.identIndex[ ident ] = dojo.mixin( existingItem || {}, item );
                              },
                              this
                            );
+        // filter out nulls
+        items = dojo.filter( items, function(i) { return i;});
 
         // update our facet list to include any new attrs these
         // items have
