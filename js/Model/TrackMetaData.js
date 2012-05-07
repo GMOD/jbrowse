@@ -312,10 +312,41 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                           },this);
         }
 
-        // TODO: filter with the text filter, if we have it
+        // filter with the text filter, if we have it
+	if( typeof textFilter != 'undefined' ) {
+            var filter = this._compileTextFilter( textFilter );
+            results = dojo.filter( results, function(item) {
+                return dojo.some( this.facets, function(facetName) {
+                           return filter( this.getValue( item, facetName ) );
+                       },this);
+            },this);
+        }
 
         // and finally, hand them to the finding callback
         findCallback(results,keywordArgs);
+    },
+
+    /**
+     * Compile a text search string into a function that tests whether
+     * a given piece of text matches that search string.
+     * @private
+     */
+    _compileTextFilter: function( textString ) {
+        // escape regex control chars, and convert glob-like chars to
+        // their regex equivalents
+        textString =
+            dojo.regexp.escapeString( textString, '*?' )
+            .replace(/\*/g,'.+')
+            .replace(/\?/g,'.');
+
+        // split into words, and convert each word into a regexp
+        var wordREs = dojo.map( textString.split(/\s+/), function(w) { return new RegExp(w,'i'); });
+
+        // return a function that returns true if all of the words
+        // match the string, but in any order
+        return function( text ) {
+            return dojof.every( wordREs, function(re) { return re.test(text); } );
+        };
     },
 
     getFeatures: function() {
