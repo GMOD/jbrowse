@@ -48,6 +48,10 @@
     padding: 0.1em 0.4em;
     cursor: pointer;
 }
+#faceted_tracksel .facetSelect .facetValue:hover {
+    background: #D2E1F1;
+}
+
 #faceted_tracksel .facetSelect .selected {
     background: #b1d3f6;
 }
@@ -70,6 +74,7 @@
     color: #bbb;
     font-weight: normal;
     text-decoration: underline;
+    font-size: 80%;
 }
 #faceted_tracksel .facetTitle.selected a {
     color: black;
