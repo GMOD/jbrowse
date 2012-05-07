@@ -52,6 +52,11 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             this._ready();
         } else  {
             // index the track metadata from each of the stores
+
+            var storeFetchFinished = dojo.hitch( this, function() {
+                if( ++stores_fetched_count == args.metadataStores.length )
+                    this._ready();
+            });
             dojo.forEach( args.metadataStores, function(store) {
                 store.fetch({
                     scope: this,
@@ -61,9 +66,9 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
 
                         // if this is the last store to be fetched, call
                         // our onReady callbacks
-                        if( ++stores_fetched_count == args.metadataStores.length )
-                            this._ready();
-                    })
+                        storeFetchFinished();
+                    }),
+                    onError: storeFetchFinished
                 });
             },this);
         }
