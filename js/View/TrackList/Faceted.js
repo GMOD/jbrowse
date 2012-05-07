@@ -40,13 +40,11 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
            dojo.connect( this.dataGrid.selection, 'onSelected', this, function( index ) {
                if( this.suppressSelectionEvents )
                    return;
-               console.log('selected',arguments);
                dojo.publish( '/jbrowse/v1/v/tracks/show', [[this.dataGrid.getItem( index ).conf]] );
            });
            dojo.connect( this.dataGrid.selection, 'onDeselected', this, function( index ) {
                if( this.suppressSelectionEvents )
                    return;
-               console.log('deselected',arguments);
                dojo.publish( '/jbrowse/v1/v/tracks/hide', [[this.dataGrid.getItem( index ).conf]] );
            });
        }));
