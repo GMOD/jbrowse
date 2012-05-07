@@ -182,6 +182,13 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
      * based on the values of the search form elements.
      */
     updateQuery: function() {
+        if( this.suppressUpdateQuery )
+            return;
+        this.suppressUpdateQuery = true;
+        this._updateQuery();
+        this.suppressUpdateQuery = false;
+    },
+    _updateQuery: function() {
         var newQuery = {};
 
         // update from the text filter
