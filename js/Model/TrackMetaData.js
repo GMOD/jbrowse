@@ -22,14 +22,15 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                    && ! dojo.some( non_facet_attrs, function(a) { return a == facetName;});
         };
 
-        // set up our onReady callbacks
+        // set up our onReady callbacks to fire once the data is
+        // loaded
         if( ! dojo.isArray( args.onReady ) ){
             this.onReadyFuncs = args.onReady ? [ args.onReady ] : [];
         } else {
             this.onReadyFuncs = dojo.clone(args.onReady);
         }
 
-        // index the track configurations as a store
+        // interpret the track configurations as a metadata store
         this._indexItems(
             {
                 store: this,
@@ -39,32 +40,47 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                     metarecord.key = conf.key;
                     metarecord.conf = conf;
                     return metarecord;
-                })
+                },this)
             }
         );
 
         // fetch and index all the items from each of the stores
         var stores_fetched_count = 0;
-        dojo.forEach( args.metadataStores, function(store) {
-            store.fetch({
-                scope: this,
-                onComplete: Util.debugHandler( this, function(items) {
-                    // build our indexes
-                    this._indexItems({ store: store, items: items, supplementalOnly: true });
+        if( ! args.metadataStores || ! args.metadataStores.length ) {
+            // if we don't actually have any stores besides the track
+            // confs, we're ready now.
+            this._ready();
+        } else  {
+            // index the track metadata from each of the stores
+            dojo.forEach( args.metadataStores, function(store) {
+                store.fetch({
+                    scope: this,
+                    onComplete: Util.debugHandler( this, function(items) {
+                        // build our indexes
+                        this._indexItems({ store: store, items: items, supplementalOnly: true });
 
-                    // if this is the last store to be fetched, call
-                    // our onReady callbacks
-                    if( ++stores_fetched_count == args.metadataStores.length ) {
-                        this.ready = true;
-                        dojo.forEach( this.onReadyFuncs, function(f) {
-                                          f.call( this, this );
-                                      }, this );
-                        this.onReadyFuncs = [];
-                    }
-                })
-            });
-        },this);
+                        // if this is the last store to be fetched, call
+                        // our onReady callbacks
+                        if( ++stores_fetched_count == args.metadataStores.length )
+                            this._ready();
+                    })
+                });
+            },this);
+        }
      },
+
+    /**
+     * Set the store's state to be ready (i.e. loaded), and calls all
+     * our onReady callbacks.
+     * @private
+     */
+    _ready: function() {
+        this.ready = true;
+        dojo.forEach( this.onReadyFuncs, function(f) {
+                          f.call( this, this );
+                      }, this );
+        this.onReadyFuncs = [];
+    },
 
     _indexItems: function( args ) {
         // get our (filtered) list of facets we will index for
@@ -160,8 +176,6 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                 return b.itemCount/b.bucketCount - a.itemCount/a.bucketCount;
             }));
         }
-
-        console.log(this.facetIndexes);
     },
 
     /**
