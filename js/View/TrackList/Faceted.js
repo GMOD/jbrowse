@@ -66,7 +66,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         document.body );
 
         this.mainContainer = new dijit.layout.BorderContainer(
-            { design: 'sidebar', gutters: false },
+            { design: 'headline', gutters: false },
             this.containerElem
         );
         this.topPane = new dijit.layout.ContentPane(

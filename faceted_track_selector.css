@@ -23,8 +23,8 @@
 
 #faceted_tracksel_top {
     background: #396494;
-    background: #8C9BAA;
     padding: 0.5em;
+    border-bottom: 1px solid #ccc;
 }
 #faceted_tracksel_top h1 {
     width: 40%;
@@ -39,7 +39,9 @@
 
 #faceted_tracksel label.textFilterControl {
     font-weight: bold;
-    float: right;
+    position: absolute;
+    top: 5px;
+    left: 205px;
     color: white;
 }
 
