@@ -16,6 +16,11 @@
     background: #c7dbf1;
 }
 
+#faceted_tracksel .dojoxGridCellFocus {
+    border-color: transparent;
+    border-color: transparent !important;
+}
+
 #faceted_tracksel_top {
     background: #396494;
     background: #8C9BAA;
