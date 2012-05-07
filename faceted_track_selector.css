@@ -43,6 +43,7 @@
     color: white;
 }
 
+/* Facet selection controls */
 #faceted_tracksel .facetSelect .facetValue {
     padding: 0.1em 0.4em;
     cursor: pointer;
@@ -55,4 +56,22 @@
 }
 #faceted_tracksel .dijitAccordionContainer-dijitContentPane {
     padding: 0;
+}
+#faceted_tracksel .facetTitle {
+    border-top: 3px solid transparent;
+    margin: -2px;
+    padding: 2px;
+}
+#faceted_tracksel .facetTitle.selected {
+    border-top: 3px solid #396494;
+    font-weight: bold;
+}
+#faceted_tracksel .facetTitle a {
+    color: #bbb;
+    font-weight: normal;
+    text-decoration: underline;
+}
+#faceted_tracksel .facetTitle.selected a {
+    color: black;
+    font-weight: bold;
 }

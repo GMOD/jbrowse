@@ -148,12 +148,17 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             if( !values || !values.length )
                 return;
 
-            var facetPane = new dijit.layout.AccordionPane({title: Util.ucFirst(facetName)});
+            var facetPane = new dijit.layout.AccordionPane({
+                    title: '<div id="facet_title_' + facetName +'" '
+                           + 'class="facetTitle">'
+                           + Util.ucFirst(facetName)
+                           + ' <a style=\"float: right\" title="clear selections">clear</a>'
+                           + '</div>'
+                });
             container.addChild(facetPane);
 
             // make a selection control for the values of this facet
             var facetControl = dojo.create( 'div', {className: 'facetSelect'}, facetPane.containerNode );
-            //dojo.create('div',{className: 'facetName', innerHTML: Util.ucFirst(facetName) }, div );
             // populate selector's options
             this.facetSelectors[facetName] = dojo.map(
                 values,
@@ -164,7 +169,8 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                         { className: 'facetValue',
                           innerHTML: val,
                           onclick: function(evt) {
-                              dojo.toggleClass(this,'selected');
+                              dojo.toggleClass(this, 'selected');
+                              that._updateFacetControl( facetPane, facetName );
                               that.updateQuery();
                           }
                         },
@@ -176,6 +182,27 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         },this);
     },
 
+    _updateFacetControl: function( facetPane, facetName ) {
+        var titleContent = dojo.byId('facet_title_'+facetName);
+        if( dojo.some( this.facetSelectors[facetName] || [], function(sel) {
+                return dojo.hasClass( sel, 'selected' );
+            }, this ) ) {
+                var clearFunc = dojo.hitch( this, function(evt) {
+                    dojo.forEach( this.facetSelectors[facetName] || [], function(sel) {
+                        dojo.removeClass(sel,'selected');
+                    },this);
+                    this._updateFacetControl( facetPane, facetName );
+                    this.updateQuery();
+                    evt.stopPropagation();
+                });
+                dojo.addClass( titleContent, 'selected' );
+                dojo.query( '> a', titleContent ).onclick( clearFunc );
+        }
+        else {
+                dojo.removeClass( titleContent, 'selected' );
+                dojo.query( '> a', titleContent ).onclick( function(){return false;});
+        }
+    },
 
     /**
      * Update the query we are using with the track metadata store
