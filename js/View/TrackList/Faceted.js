@@ -152,7 +152,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                     title: '<div id="facet_title_' + facetName +'" '
                            + 'class="facetTitle">'
                            + Util.ucFirst(facetName)
-                           + ' <a style=\"float: right\" title="clear selections">clear</a>'
+                           + ' <a style=\"float: right\">clear</a>'
                            + '</div>'
                 });
             container.addChild(facetPane);
@@ -196,11 +196,15 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                     evt.stopPropagation();
                 });
                 dojo.addClass( titleContent, 'selected' );
-                dojo.query( '> a', titleContent ).onclick( clearFunc );
+                dojo.query( '> a', titleContent )
+                    .onclick( clearFunc )
+                    .attr('title','clear selections');
         }
         else {
                 dojo.removeClass( titleContent, 'selected' );
-                dojo.query( '> a', titleContent ).onclick( function(){return false;});
+                dojo.query( '> a', titleContent )
+                    .onclick( function(){return false;})
+                    .removeAttr('title');
         }
     },
 
