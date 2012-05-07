@@ -71,12 +71,8 @@
     font-weight: bold;
 }
 #faceted_tracksel .facetTitle a {
-    color: #bbb;
-    font-weight: normal;
-    text-decoration: underline;
-    font-size: 80%;
+    display: none;
 }
 #faceted_tracksel .facetTitle.selected a {
-    color: black;
-    font-weight: bold;
+    display: block;
 }
