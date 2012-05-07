@@ -97,15 +97,28 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                ],
                plugins: {
                    indirectSelection: {
-                       //headerSelector: true
+                       headerSelector: true
                    }
                }
            }
         );
-        //monkey-patch this grid's onRowClick handler to not do
-        //anything.  without this, clicking on a row selects it, and
-        //deselects everything else.
+
+        // monkey-patch the grid's onRowClick handler to not do
+        // anything.  without this, clicking on a row selects it, and
+        // deselects everything else, which is quite undesirable.
         this.dataGrid.onRowClick = function() {};
+
+        // monkey-patch the grid's range-selector to refuse to select
+        // if the selection is too big
+        var origSelectRange = this.dataGrid.selection.selectRange;
+        this.dataGrid.selection.selectRange = function( inFrom, inTo ) {
+            var selectionLimit = 30;
+            if( inTo - inFrom > selectionLimit ) {
+                alert( "Too many tracks selected, please select fewer than "+selectionLimit+" tracks." );
+                return undefined;
+            }
+            return origSelectRange.apply( this, arguments );
+        };
 
         this.mainContainer.addChild( this.dataGrid );
     },
