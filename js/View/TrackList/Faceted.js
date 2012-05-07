@@ -86,13 +86,14 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
     renderGrid: function() {
         // make a data grid that will hold the search results
         var facets = this.trackDataStore.getFacets();
+        var rename = { key: 'name' }; // rename some columns in the grid
         this.dataGrid = new dojox.grid.EnhancedGrid({
                id: 'trackSelectGrid',
                region: 'center',
                store: this.trackDataStore,
                structure: [
                    dojo.map( facets, function(facetName) {
-                     return {'name': Util.ucFirst(facetName), 'field': facetName, 'width': '100px'};
+                     return {'name': Util.ucFirst(rename[facetName]||facetName), 'field': facetName, 'width': '100px'};
                    })
                ],
                plugins: {
