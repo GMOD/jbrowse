@@ -674,9 +674,12 @@ Browser.prototype.showTracks = function( trackNames ) {
     if( typeof trackNames == 'string' )
         trackNames = trackNames.split(',');
 
-    var trackConfs = dojo.map( trackNames, function(n) {
-        return this.trackConfigsByName[n];
-    }, this);
+    var trackConfs = dojo.filter(
+        dojo.map( trackNames, function(n) {
+                      return this.trackConfigsByName[n];
+                  }, this),
+        function(c) {return c;} // filter out confs that are missing
+    );
 
     // publish some events with the tracks to instruct the views to show them.
     dojo.publish( '/jbrowse/v1/c/tracks/show', [trackConfs] );
