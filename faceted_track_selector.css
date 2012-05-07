@@ -37,6 +37,14 @@
     padding: 0.3em;
 }
 
+#faceted_tracksel_top button.faceted_tracksel_on_off {
+    float: right;
+}
+#navbox button.faceted_tracksel_on_off {
+    float: left;
+    margin-left: 1em;
+}
+
 #faceted_tracksel label.textFilterControl {
     font-weight: bold;
     position: absolute;

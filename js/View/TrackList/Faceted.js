@@ -72,9 +72,23 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.topPane = new dijit.layout.ContentPane(
             { region: 'top',
               id: "faceted_tracksel_top",
-              content: '<h1>Select Tracks</h1>'
+              content: '<h1>Select Tracks</h1><button class="faceted_tracksel_on_off">Back to browser</button>'
             });
+
+        // add a button to the main browser window that shows this tracksel
+        if( this.browser.config.show_nav != 0 ) {
+            dojo.create('button', {
+                className: 'faceted_tracksel_on_off',
+                innerHTML: 'Select tracks'
+            }, this.browser.navbox );
+        }
+
         this.mainContainer.addChild( this.topPane );
+
+        // make both buttons toggle this track selector
+        dojo.query( 'button.faceted_tracksel_on_off' )
+            .onclick( dojo.hitch( this, 'toggle' ));
+
         this.renderTextFilter();
         this.renderFacetSelectors();
         this.renderGrid();
