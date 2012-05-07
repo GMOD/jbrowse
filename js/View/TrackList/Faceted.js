@@ -124,8 +124,15 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             'input',
             { type: 'text',
               width: 30,
-              onchange: dojo.hitch( this, 'updateQuery' ),
-              onkeypress: function(e){ e.stopPropagation(); }
+              onkeypress: dojo.hitch( this, function(evt) {
+                  if( this.textFilterTimeout )
+                      window.clearTimeout( this.textFilterTimeout );
+                  this.textFilterTimeout = window.setTimeout(
+                      dojo.hitch(this,function(){ this.updateQuery(); this.textFilterInput.focus(); }),
+                      400
+                  );
+                  evt.stopPropagation();
+              })
             },
             textFilterLabel
         );
