@@ -456,14 +456,14 @@ Browser.prototype.createTrackList = function() {
 
     // find the tracklist class to use
     var resolved_tl_class = function() {
-        var tl_class = this.config.show_tracklist == 0 ? 'Null'                    :
-                       this.config.trackListType       ? this.config.trackListType :
+        var tl_class = this.config.show_tracklist == 0 ? 'Null'                        :
+                       this.config.trackSelectorType   ? this.config.trackSelectorType :
                                                          'Simple';
         tl_class.replace(/[^\.\w\d]/g, ''); // sanitize tracklist class for security
         return JBrowse.View.TrackList[tl_class] || eval( tl_class );
     }.call(this);
     if( !resolved_tl_class ) {
-        console.error("configured trackListType "+tl_class+" not found, falling back to JBrowse.View.TrackList.Simple");
+        console.error("configured trackSelectorType "+tl_class+" not found, falling back to JBrowse.View.TrackList.Simple");
         resolved_tl_class = JBrowse.View.TrackList.Simple;
     }
 
@@ -473,11 +473,17 @@ Browser.prototype.createTrackList = function() {
         trackMetaData: new JBrowse.Model.TrackMetaData({
             trackConfigs: this.config.tracks,
             browser: this,
-            metadataStores: [
-                new dojox.data.CsvStore({
-                        url: Util.resolveUrl( this.config.sourceUrl, 'trackMeta.csv' )
-                    })
-            ]
+            metadataStores: dojo.map( this.config.trackMetaSources || [], function( sourceDef ) {
+                var url = Util.resolveUrl( this.config.sourceUrl, sourceDef.url || 'trackMeta.csv' );
+                var type = sourceDef.type || (
+                        /\.csv$/i.test(url)     ? 'csv'  :
+                        /\.js(on)?$/i.test(url) ? 'json' :
+                                                  'csv'
+                );
+                var storeClass = { csv: 'dojox.data.CsvStore', json: 'dojox.data.JsonRestStore' }[type];
+                dojo.require(storeClass);
+                return new (eval(storeClass))({ url: url });
+            },this)
         }),
         trackConfigs: this.config.tracks,
         browser: this

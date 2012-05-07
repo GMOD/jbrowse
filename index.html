@@ -84,7 +84,10 @@
 				   show_tracklist: queryParams.tracklist,
 				   show_overview: queryParams.overview,
 
-                                   trackListType: 'Faceted'
+                                   trackMetaSources: [
+                                       { url: 'trackMeta.csv' }
+                                   ],
+                                   trackSelectorType: 'Faceted'
                                });
     /* ]]> */
     </script>
