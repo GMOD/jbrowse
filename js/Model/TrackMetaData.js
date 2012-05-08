@@ -39,6 +39,8 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                     metarecord.label = conf.label;
                     metarecord.key = conf.key;
                     metarecord.conf = conf;
+                    if( conf.category )
+                        metarecord.category = conf.category;
                     return metarecord;
                 },this)
             }
