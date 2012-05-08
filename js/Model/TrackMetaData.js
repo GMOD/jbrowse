@@ -11,7 +11,6 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
      * @param args.trackConfigs {Array} array of track configuration
      */
     constructor: function( args ) {
-
         // set up our facet name discrimination: what facets we will
         // actually provide search on
         var non_facet_attrs = this.getIdentityAttributes();
@@ -278,7 +277,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
     },
 
     isItem: function(item) {
-        return typeof item == 'object' && typeof item[name] == 'string';
+        return typeof item == 'object' && typeof item.label == 'string';
     },
 
     isItemLoaded: function() {
@@ -398,7 +397,8 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         return this.getValue(i,'key',undefined);
     },
     getLabelAttributes: function(i) {
-        return ['key']; },
+        return ['key'];
+    },
 
     // dojo.data.api.Identity support
     getIdentityAttributes: function() {
