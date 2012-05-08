@@ -14,6 +14,7 @@
 #faceted_tracksel {
     font-size: 130%;
     background: #c7dbf1;
+    vertical-align: top;
 }
 
 #faceted_tracksel .dojoxGridCellFocus {
@@ -21,37 +22,37 @@
     border-color: transparent !important;
 }
 
+/* Track selector title bar */
 #faceted_tracksel_top {
     background: #396494;
-    padding: 0.5em;
     border-bottom: 1px solid #ccc;
+    padding: 5px;
 }
-#faceted_tracksel_top h1 {
-    width: 180px;
-    float: left;
-
-    margin: 0;
+#faceted_tracksel_top > * {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 5px;
+}
+#faceted_tracksel_top .title {
+    padding: 0;
+    width: 185px;
 
     font-weight: bold;
     color: white;
-    padding: 0.3em;
+    font-size: 180%;
 }
 
 #faceted_tracksel_top button.faceted_tracksel_on_off {
-    float: right;
-}
-#navbox button.faceted_tracksel_on_off {
-    float: left;
-    margin-left: 1em;
+    padding: 5px;
 }
 
-#faceted_tracksel label.textFilterControl {
+#faceted_tracksel_top label.textFilterControl {
+    width: 22em;
+
     font-weight: bold;
-    position: absolute;
-    bottom: 0.7em;
-    left: 205px;
     color: white;
 }
+
 
 /* Facet selection controls */
 #faceted_tracksel .facetSelect .facetValue {
@@ -85,4 +86,12 @@
 }
 #faceted_tracksel .facetTitle.selected a {
     display: block;
+}
+
+
+/* Button that we inject into the navbox for turning the track
+selector on and off. */
+#navbox button.faceted_tracksel_on_off {
+    float: left;
+    margin-left: 1em;
 }
