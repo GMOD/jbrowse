@@ -134,19 +134,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
 
         // update our facet list to include any new attrs these
         // items have
-        var old_facets = this.facets || [];
-        this.facets = (function() {
-            var seen = {};
-            return dojo.filter( old_facets.concat( dojof.keys( storeAttributes ) ),
-                                function(facetName) {
-                                    var take = this._filterFacet(facetName) && !seen[facetName];
-                                    seen[facetName] = true;
-                                    return take;
-                                },
-                                this
-                              );
-        }).call(this);
-        var new_facets = this.facets.slice( old_facets.length );
+        var new_facets = this._addFacets( dojof.keys( storeAttributes ) );
 
         // initialize indexes for any new facets
         this.facetIndexes = this.facetIndexes || { itemCount: 0, bucketCount: 0, byName: {} };
@@ -159,23 +147,31 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
 
         // now update the indexes with the new facets
         if( new_facets.length ) {
+            var gotDataForItem = {};
+            dojo.forEach( new_facets, function(f){ gotDataForItem[f] = {};});
+
             dojo.forEach( items, function( item ) {
                 this.facetIndexes.itemCount++;
                 dojo.forEach( new_facets, function( facet ) {
-
                     var value = this.getValue( item, facet, undefined );
                     if( typeof value == 'undefined' )
                         return;
-                    var facetValues = this.facetIndexes.byName[facet];
-                    var bucket = facetValues.byValue[value];
-                    if( !bucket ) {
-                        bucket = facetValues.byValue[value] = { itemCount: 0, items: [] };
-                        facetValues.bucketCount++;
-                    }
-                    bucket.itemCount++;
-                    bucket.items.push(item);
+                    gotDataForItem[facet][this.getIdentity(item)] = 1;
+                    this._indexItem( facet, value, item );
                 },this);
             }, this);
+
+            // index the items that do not have data for this facet
+            var noDataValue = '(no data)';
+            dojo.forEach( new_facets, function(facet) {
+                var gotSomeWithNoData = false;
+                dojo.forEach( dojof.values( this.identIndex ), function(item) {
+                    if( ! gotDataForItem[facet][this.getIdentity(item)] ) {
+                        gotSomeWithNoData = true;
+                        this._indexItem( facet, noDataValue, item );
+                    }
+                },this);
+            },this);
 
             // calculate the rank of the facets: make an array of
             // facet names sorted by smallest average bucket size,
@@ -186,6 +182,42 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                 return b.itemCount/b.bucketCount - a.itemCount/a.bucketCount;
             }));
         }
+    },
+
+    /**
+     * Add an item to the indexes for the given facet name and value.
+     * @private
+     */
+    _indexItem: function( facet, value, item ) {
+        var facetValues = this.facetIndexes.byName[facet];
+        var bucket = facetValues.byValue[value];
+        if( !bucket ) {
+            bucket = facetValues.byValue[value] = { itemCount: 0, items: [] };
+            facetValues.bucketCount++;
+        }
+        bucket.itemCount++;
+        bucket.items.push(item);
+    },
+
+    /**
+     * Given an array of string facet names, add records for them,
+     * initializing the necessary data structures.
+     * @private
+     * @returns {Array[String]} facet names that did not already exist
+     */
+    _addFacets: function( facetNames ) {
+        var old_facets = this.facets || [];
+        var seen = {};
+        this.facets = dojo.filter(
+            old_facets.concat( facetNames ),
+            function(facetName) {
+                var take = this._filterFacet(facetName) && !seen[facetName];
+                seen[facetName] = true;
+                return take;
+            },
+            this
+        );
+        return this.facets.slice( old_facets.length );
     },
 
     /**
