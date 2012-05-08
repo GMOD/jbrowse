@@ -72,7 +72,8 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.topPane = new dijit.layout.ContentPane(
             { region: 'top',
               id: "faceted_tracksel_top",
-              content: '<h1>Select Tracks</h1><button class="faceted_tracksel_on_off">Back to browser</button>'
+              content: '<div class="title">Select Tracks</div> '
+                       + '<button class="faceted_tracksel_on_off">Back to browser</button>'
             });
 
         // add a button to the main browser window that shows this tracksel
@@ -89,9 +90,20 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         dojo.query( 'button.faceted_tracksel_on_off' )
             .onclick( dojo.hitch( this, 'toggle' ));
 
-        this.renderTextFilter();
-        this.renderFacetSelectors();
-        this.renderGrid();
+        // make our main components
+        var textFilterContainer = this.renderTextFilter();
+        var facetContainer = this.renderFacetSelectors();
+        this.dataGrid = this.renderGrid();
+
+        // put them in their places in the overall layout of the track selector
+        facetContainer.set('region','left');
+        this.mainContainer.addChild( facetContainer );
+        var centerPane = new dijit.layout.BorderContainer({region: 'center', gutters: false});
+        this.dataGrid.set('region','center');
+        centerPane.addChild( this.dataGrid );
+        centerPane.addChild( new dijit.layout.ContentPane({region: 'top', content: textFilterContainer}));
+        this.mainContainer.addChild( centerPane );
+
         this.mainContainer.startup();
         this._updateGridSelections();
         this.show();
@@ -101,9 +113,8 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         // make a data grid that will hold the search results
         var facets = this.trackDataStore.getFacets();
         var rename = { key: 'name' }; // rename some columns in the grid
-        this.dataGrid = new dojox.grid.EnhancedGrid({
+        var grid = new dojox.grid.EnhancedGrid({
                id: 'trackSelectGrid',
-               region: 'center',
                store: this.trackDataStore,
                structure: [
                    dojo.map( facets, function(facetName) {
@@ -121,12 +132,12 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         // monkey-patch the grid's onRowClick handler to not do
         // anything.  without this, clicking on a row selects it, and
         // deselects everything else, which is quite undesirable.
-        this.dataGrid.onRowClick = function() {};
+        grid.onRowClick = function() {};
 
         // monkey-patch the grid's range-selector to refuse to select
         // if the selection is too big
-        var origSelectRange = this.dataGrid.selection.selectRange;
-        this.dataGrid.selection.selectRange = function( inFrom, inTo ) {
+        var origSelectRange = grid.selection.selectRange;
+        grid.selection.selectRange = function( inFrom, inTo ) {
             var selectionLimit = 30;
             if( inTo - inFrom > selectionLimit ) {
                 alert( "Too many tracks selected, please select fewer than "+selectionLimit+" tracks." );
@@ -135,18 +146,18 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             return origSelectRange.apply( this, arguments );
         };
 
-        this.mainContainer.addChild( this.dataGrid );
+        return grid;
     },
 
-    renderTextFilter: function() {
+    renderTextFilter: function( parent ) {
         // make the text input for text filtering
         var textFilterLabel = dojo.create(
             'label',
             { className: 'textFilterControl',
-              innerHTML: 'Containing text ',
+              innerHTML: 'Filter for text ',
               id: 'tracklist_textfilter'
             },
-            this.topPane.containerNode
+            parent
         );
         this.textFilterInput = dojo.create(
             'input',
@@ -164,13 +175,15 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             },
             textFilterLabel
         );
+
+        return textFilterLabel;
     },
 
     /**
      * Create selection boxes for each searchable facet.
      */
     renderFacetSelectors: function() {
-        var container = new dijit.layout.AccordionContainer({region: 'left',style: 'width: 200px'});
+        var container = new dijit.layout.AccordionContainer({style: 'width: 200px'});
         this.mainContainer.addChild( container );
 
         var store = this.trackDataStore;
@@ -216,6 +229,8 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                 this
             );
         },this);
+
+        return container;
     },
 
     _updateFacetControl: function( facetPane, facetName ) {
