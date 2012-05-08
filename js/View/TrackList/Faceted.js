@@ -92,7 +92,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
     _suppressRecursion: function( methodName ) {
         var flag   = ['method_'+methodName];
         var method = this[methodName];
-        return this._ifNotSuppressed( flag, this._suppress( flag, method ) );
+        return this._ifNotSuppressed( flag, function() { this._suppress( flag, method );});
     },
 
     render: function() {
