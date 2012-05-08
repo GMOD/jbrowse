@@ -1414,9 +1414,11 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     labelDiv.id = "label_" + track.name;
     labelDiv.title = "to turn off, drag into track list";
     this.trackLabels.push(labelDiv);
-    var trackDiv = document.createElement("div");
-    trackDiv.className = "track";
-    trackDiv.id = "track_" + track.name;
+    var trackDiv = dojo.create('div', {
+        className: 'track track_'+track.name,
+        id: "track_" + track.name
+    });
+    trackDiv.trackName = track.name;
     trackDiv.track = track;
     var view = this;
     var heightUpdate = function(height) {

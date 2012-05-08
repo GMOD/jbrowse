@@ -20,10 +20,29 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null,
 
         // subscribe to drop events for tracks being DND'ed
         dojo.subscribe( "/dnd/drop",
-                        function(){
-                            //TODO: check if this is actually a track-drag that
-                            //generated this drop event
-                            dojo.publish( '/jbrowse/v1/v/tracks/hide' );
+                        this,
+                        function( source, nodes, copy, target ){
+                            if( target !== this.trackListWidget )
+                                return;
+
+                            // get the configs from the tracks being dragged in
+                            var confs = dojo.filter(
+                                dojo.map( nodes, function(n) {
+                                              return n.track && n.track.config;
+                                          }
+                                        ),
+                                function(c) {return c;}
+                            );
+
+                            // return if no confs; whatever was
+                            // dragged here probably wasn't a
+                            // track
+                            if( ! confs.length )
+                                return;
+
+                            this.dndDrop = true;
+                            dojo.publish( '/jbrowse/v1/v/tracks/hide', [confs] );
+                            this.dndDrop = false;
                         }
                       );
 
@@ -111,9 +130,8 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null,
      */
     setTracksInactive: function( /**Array[Object]*/ trackConfigs ) {
         // remove any tracks in our track list that are being set as visible
-        dojo.forEach( trackConfigs || [], function( conf ) {
-            this.trackListWidget.insertNode( conf );
-        },this);
+        if( ! this.dndDrop )
+            this.trackListWidget.insertNodes( false, trackConfigs );
     },
 
     /**
