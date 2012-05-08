@@ -9,7 +9,6 @@
     display: none;
 }
 
-
 /* JBrowse stuff */
 
 #faceted_tracksel {
@@ -58,6 +57,7 @@
 
 
 /* Facet selection controls */
+
 #faceted_tracksel .facetSelect .facetValue {
     padding: 0.1em 0.4em;
     cursor: pointer;
@@ -74,6 +74,9 @@
 }
 #faceted_tracksel .dijitAccordionContainer-dijitContentPane {
     padding: 0;
+}
+#faceted_tracksel .dijitAccordionContainer .dijitAccordionTitle {
+    padding: 0 0 0.2emd 0.5em;
 }
 #faceted_tracksel .facetTitle {
     border-top: 3px solid transparent;

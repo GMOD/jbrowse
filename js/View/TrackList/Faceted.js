@@ -233,6 +233,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
      */
     renderFacetSelectors: function() {
         var container = new dijit.layout.AccordionContainer({style: 'width: 200px'});
+        container.domNode.style.overflowY = 'auto';
         this.mainContainer.addChild( container );
 
         var store = this.trackDataStore;
