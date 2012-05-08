@@ -92,13 +92,16 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         var store = args.store,
             items = args.items;
 
+        var storeAttributes = {};
+
         // convert the items to a uniform format
         items = dojo.map( items, function( item ) {
-                              var attributes = store.getAttributes(item);
+                              var itemattrs = store.getAttributes(item);
 
                               //convert the item into a uniform data format of plain objects
                               var newitem = {};
-                              dojo.forEach( attributes, function(attr) {
+                              dojo.forEach( itemattrs, function(attr) {
+                                                storeAttributes[attr] = 1;
                                                 newitem[attr] = store.getValue(item,attr);
                                             });
                               return newitem;
@@ -132,7 +135,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         var old_facets = this.facets || [];
         this.facets = (function() {
             var seen = {};
-            return dojo.filter( old_facets.concat( this.getAttributes( items[0] ) ),
+            return dojo.filter( old_facets.concat( dojof.keys( storeAttributes ) ),
                                 function(facetName) {
                                     var take = this._filterFacet(facetName) && !seen[facetName];
                                     seen[facetName] = true;
