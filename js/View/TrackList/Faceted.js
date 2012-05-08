@@ -37,17 +37,62 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
            // deselected (with the checkbox), publish a message
            // indicating that the user wants that track turned on or
            // off
-           dojo.connect( this.dataGrid.selection, 'onSelected', this, function( index ) {
-               if( this.suppressSelectionEvents )
-                   return;
-               dojo.publish( '/jbrowse/v1/v/tracks/show', [[this.dataGrid.getItem( index ).conf]] );
+           dojo.connect( this.dataGrid.selection, 'onSelected', this, function(index) {
+                         this._ifNotSuppressed( 'selectionEvents', function() {
+                             this._suppress( 'gridUpdate', function() {
+                                 dojo.publish( '/jbrowse/v1/v/tracks/show', [[this.dataGrid.getItem( index ).conf]] );
+                             });
+                         });
+
            });
-           dojo.connect( this.dataGrid.selection, 'onDeselected', this, function( index ) {
-               if( this.suppressSelectionEvents )
-                   return;
-               dojo.publish( '/jbrowse/v1/v/tracks/hide', [[this.dataGrid.getItem( index ).conf]] );
+           dojo.connect( this.dataGrid.selection, 'onDeselected', this, function(index) {
+                         this._ifNotSuppressed( 'selectionEvents', function() {
+                             this._suppress( 'gridUpdate', function() {
+                                 dojo.publish( '/jbrowse/v1/v/tracks/hide', [[this.dataGrid.getItem( index ).conf]] );
+                             });
+                         });
            });
        }));
+    },
+
+    /**
+     * Call the given callback if none of the given event suppression flags are set.
+     * @private
+     */
+    _ifNotSuppressed: function( suppressFlags, callback ) {
+        if( typeof suppressFlags == 'string')
+            suppressFlags = [suppressFlags];
+        if( !this.suppress)
+            this.suppress = {};
+        if( dojo.some( suppressFlags, function(f) {return this.suppress[f];}, this) )
+            return undefined;
+        return callback.call(this);
+    },
+
+    /**
+     * Call the given callback while setting the given event suppression flags.
+     * @private
+     */
+    _suppress: function( suppressFlags, callback ) {
+        if( typeof suppressFlags == 'string')
+            suppressFlags = [suppressFlags];
+        if( !this.suppress)
+            this.suppress = {};
+        dojo.forEach( suppressFlags, function(f) {this.suppress[f] = true; }, this);
+        var retval = callback.call( this );
+        dojo.forEach( suppressFlags, function(f) {this.suppress[f] = false;}, this);
+        return retval;
+    },
+
+    /**
+     * Call a method of our object such that it cannot call itself
+     * by way of event cycles.
+     * @private
+     */
+    _suppressRecursion: function( methodName ) {
+        var flag   = ['method_'+methodName];
+        var method = this[methodName];
+        return this._ifNotSuppressed( flag, this._suppress( flag, method ) );
     },
 
     render: function() {
@@ -268,11 +313,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
      * based on the values of the search form elements.
      */
     updateQuery: function() {
-        if( this.suppressUpdateQuery )
-            return;
-        this.suppressUpdateQuery = true;
-        this._updateQuery();
-        this.suppressUpdateQuery = false;
+        this._suppressRecursion( '_updateQuery' );
     },
     _updateQuery: function() {
         var newQuery = {};
@@ -309,20 +350,23 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
      * @private
      */
     _updateGridSelections: function() {
-        this.suppressSelectionEvents = true;
+        // keep selection events from firing while we mess with the
+        // grid
+        this._ifNotSuppressed('gridUpdate', function(){
+            this._suppress('selectionEvents', function() {
+                this.dataGrid.selection.deselectAll();
 
-        this.dataGrid.selection.deselectAll();
+                // check the boxes that should be checked, based on our
+                // internal memory of what tracks should be on.
+                for( var i= 0; i < this.dataGrid.rowCount; i++ ) {
+                    var item = this.dataGrid.getItem( i );
+                    var label = this.dataGrid.store.getIdentity( item );
+                    if( this.tracksActive[label] )
+                        this.dataGrid.rowSelectCell.toggleRow( i, true );
+                }
 
-        // check the boxes that should be checked, based on our
-        // internal memory of what tracks should be on.
-        for( var i= 0; i < this.dataGrid.rowCount; i++ ) {
-            var item = this.dataGrid.getItem( i );
-            var label = this.dataGrid.store.getIdentity( item );
-            if( this.tracksActive[label] )
-                this.dataGrid.rowSelectCell.toggleRow( i, true );
-        }
-
-        this.suppressSelectionEvents = false;
+            });
+        });
     },
 
     /**
