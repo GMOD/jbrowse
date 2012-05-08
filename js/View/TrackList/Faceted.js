@@ -78,10 +78,14 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
         // add a button to the main browser window that shows this tracksel
         if( this.browser.config.show_nav != 0 ) {
-            dojo.create('button', {
-                className: 'faceted_tracksel_on_off',
-                innerHTML: 'Select tracks'
-            }, this.browser.navbox );
+            // (insertBefore the firstChild so that it's on the left of the navbox)
+            this.browser.navbox.insertBefore(
+                dojo.create('button', {
+                                className: 'faceted_tracksel_on_off',
+                                innerHTML: 'Select tracks'
+                            }),
+                this.browser.navbox.firstChild
+            );
         }
 
         this.mainContainer.addChild( this.topPane );
@@ -98,10 +102,10 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         // put them in their places in the overall layout of the track selector
         facetContainer.set('region','left');
         this.mainContainer.addChild( facetContainer );
-        var centerPane = new dijit.layout.BorderContainer({region: 'center', gutters: false});
+        var centerPane = new dijit.layout.BorderContainer({region: 'center', "class": 'gridPane', gutters: false});
         this.dataGrid.set('region','center');
         centerPane.addChild( this.dataGrid );
-        centerPane.addChild( new dijit.layout.ContentPane({region: 'top', content: textFilterContainer}));
+        centerPane.addChild( new dijit.layout.ContentPane({region: 'top', "class": 'gridControls', content: textFilterContainer}));
         this.mainContainer.addChild( centerPane );
 
         this.mainContainer.startup();
@@ -154,7 +158,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         var textFilterLabel = dojo.create(
             'label',
             { className: 'textFilterControl',
-              innerHTML: 'Filter for text ',
+              innerHTML: 'Contains text ',
               id: 'tracklist_textfilter'
             },
             parent

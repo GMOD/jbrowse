@@ -13,13 +13,22 @@
 
 #faceted_tracksel {
     font-size: 130%;
-    background: #c7dbf1;
+    background: white;
     vertical-align: top;
 }
+
+/* Track grid */
 
 #faceted_tracksel .dojoxGridCellFocus {
     border-color: transparent;
     border-color: transparent !important;
+}
+#faceted_tracksel .gridPane .gridControls {
+    background: #e9e9e9;
+    padding: 2px 3px;
+}
+#faceted_tracksel label.textFilterControl {
+
 }
 
 /* Track selector title bar */
@@ -44,13 +53,6 @@
 
 #faceted_tracksel_top button.faceted_tracksel_on_off {
     padding: 5px;
-}
-
-#faceted_tracksel_top label.textFilterControl {
-    width: 22em;
-
-    font-weight: bold;
-    color: white;
 }
 
 
@@ -92,6 +94,4 @@
 /* Button that we inject into the navbox for turning the track
 selector on and off. */
 #navbox button.faceted_tracksel_on_off {
-    float: left;
-    margin-left: 1em;
 }
