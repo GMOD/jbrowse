@@ -1048,7 +1048,7 @@ GenomeView.prototype.sizeInit = function() {
     if( this.getY() > 0 ) {
         var totalTrackHeights = dojof.reduce( this.trackHeights, '+' ) + this.trackPadding * this.trackHeights.length;
         if( totalTrackHeights - this.getY() < update.height ) {
-            console.log( totalTrackHeights, update.height, this.getY() );
+            //console.log( totalTrackHeights, update.height, this.getY() );
             update.y = this.setY( Math.max( 0, totalTrackHeights - update.height ));
         }
     }
