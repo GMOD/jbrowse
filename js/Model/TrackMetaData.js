@@ -50,13 +50,13 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         if( ! args.metadataStores || ! args.metadataStores.length ) {
             // if we don't actually have any stores besides the track
             // confs, we're ready now.
-            this._ready();
+            this._finishLoad();
         } else  {
             // index the track metadata from each of the stores
 
             var storeFetchFinished = dojo.hitch( this, function() {
                 if( ++stores_fetched_count == args.metadataStores.length )
-                    this._ready();
+                    this._finishLoad();
             });
             dojo.forEach( args.metadataStores, function(store) {
                 store.fetch({
@@ -83,7 +83,8 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
      * our onReady callbacks.
      * @private
      */
-    _ready: function() {
+    _finishLoad: function() {
+        this.facets = this.facets.sort();
         this.ready = true;
         dojo.forEach( this.onReadyFuncs, function(f) {
                           f.call( this, this );
