@@ -69,7 +69,10 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                         // our onReady callbacks
                         storeFetchFinished();
                     }),
-                    onError: storeFetchFinished
+                    onError: function(e) {
+                        console.error(''+e);
+                        storeFetchFinished();
+                    },
                 });
             },this);
         }
