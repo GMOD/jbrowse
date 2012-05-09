@@ -379,7 +379,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
                 // check the boxes that should be checked, based on our
                 // internal memory of what tracks should be on.
-                for( var i= 0; i < this.dataGrid.rowCount; i++ ) {
+                for( var i= 0; i < Math.min( this.dataGrid.get('rowCount'), this.dataGrid.get('rowsPerPage') ); i++ ) {
                     var item = this.dataGrid.getItem( i );
                     var label = this.dataGrid.store.getIdentity( item );
                     if( this.tracksActive[label] )
