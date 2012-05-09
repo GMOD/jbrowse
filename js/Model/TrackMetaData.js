@@ -105,8 +105,9 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                               //convert the item into a uniform data format of plain objects
                               var newitem = {};
                               dojo.forEach( itemattrs, function(attr) {
-                                                storeAttributes[attr] = 1;
-                                                newitem[attr] = store.getValue(item,attr);
+                                                var lcattr = attr.toLowerCase();
+                                                storeAttributes[lcattr] = true;
+                                                newitem[lcattr] = store.getValue(item,attr);
                                             });
                               return newitem;
                           },
