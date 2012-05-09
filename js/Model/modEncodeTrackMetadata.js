@@ -54,12 +54,18 @@ dojo.declare( 'JBrowse.Model.modEncodeTrackMetadata', null,
             url: this.url,
             handleAs: 'json',
             load: dojo.hitch(this, function( data ) {
-                var items = data.items||[];
-                dojo.forEach( items, function(i) {
+                var items = [];
+                dojo.forEach( data.items || [], function(i) {
                     if( Array.isArray( i.Tracks ) )
-                        i.Tracks = i.Tracks.join(',');
-                });
-                findCallback( data.items||[], keywordArgs );
+                        dojo.forEach( i.Tracks, function(trackName) {
+                            var item = dojo.clone(i);
+                            item.key = item.label;
+                            item.label = trackName;
+                            delete item.Tracks;
+                            items.push( item );
+                        },this);
+                },this);
+                findCallback( items, keywordArgs );
             }),
             error: function(e) { errorCallback(e,keywordArgs); }
         });
@@ -74,10 +80,10 @@ dojo.declare( 'JBrowse.Model.modEncodeTrackMetadata', null,
     close: function() {},
 
     getLabel: function(i) {
-        return this.getIdentity(i);
+        return this.getValue(i,'key',undefined);
     },
     getLabelAttributes: function(i) {
-        return this.getIdentityAttributes();
+        return ['key'];
     },
 
     // dojo.data.api.Identity support

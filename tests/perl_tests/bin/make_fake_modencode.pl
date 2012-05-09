@@ -16,11 +16,13 @@ use Storable 'dclone';
 use JSON;
 use File::Slurp 'slurp';
 
+my $modencode_js = $ARGV[0] or die "must provide path to modencode.js";
 my $metadata = from_json( slurp(@ARGV) );
 my $volvox_tracklist = from_json( slurp('sample_data/json/volvox/trackList.json') );
 
 system <<'';
 set -e;
+rm -rf sample_data/json/modencode;
 cp -r sample_data/json/volvox sample_data/json/modencode
 rm -rf sample_data/json/modencode/tracks;
 mkdir sample_data/json/modencode/tracks;
@@ -33,10 +35,13 @@ $tracklist->{tracks} = [
     $tracklist->{tracks}[0], #DNA track
 ];
 
-for my $tracklabel ( map $_->{label}, @{ $metadata->{items} } ) {
-    my $trackconf = dclone( $microarray_conf );
-    $trackconf->{label} = $trackconf->{key} = $tracklabel;
-    push @{$tracklist->{tracks}}, $trackconf;
+for my $dataset ( @{ $metadata->{items} } ) {
+    for my $tracklabel ( @{ $dataset->{Tracks} || next} ) {
+        my $trackconf = dclone( $microarray_conf );
+        $trackconf->{key}   = $dataset->{label};
+        $trackconf->{label} = $tracklabel;
+        push @{$tracklist->{tracks}}, $trackconf;
+    }
 }
 
 { open my $f, '>', 'sample_data/json/modencode/trackList.json';
