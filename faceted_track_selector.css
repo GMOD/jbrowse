@@ -27,7 +27,10 @@
     padding: 2px 3px;
 }
 #faceted_tracksel label.textFilterControl {
-
+}
+#faceted_tracksel label.textFilterControl input {
+    color: red;
+    font-weight: bold;
 }
 
 /* Track selector title bar */
