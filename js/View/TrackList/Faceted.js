@@ -168,7 +168,27 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         var centerPane = new dijit.layout.BorderContainer({region: 'center', "class": 'gridPane', gutters: false});
         this.dataGrid.set('region','center');
         centerPane.addChild( this.dataGrid );
-        centerPane.addChild( new dijit.layout.ContentPane({region: 'top', "class": 'gridControls', content: textFilterContainer}));
+        centerPane.addChild(
+            new dijit.layout.ContentPane(
+                { region: 'top',
+                  "class": 'gridControls',
+                  content: [
+                      dojo.create( 'button', {
+                                       className: 'clear_filters',
+                                       innerHTML:'<img style="position: relative; bottom: -2px;" src="img/red_x.png">'
+                                                 + ' Clear All Filters',
+                                       onclick: dojo.hitch( this, function(evt) {
+                                           this.textFilterInput.value = '';
+                                           this._clearAllFacetControls();
+                                           this.updateQuery();
+                                       })
+                                   }
+                                 ),
+                      textFilterContainer
+                  ]
+                }
+            )
+        );
         this.mainContainer.addChild( centerPane );
 
         this.mainContainer.startup();
@@ -295,7 +315,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                           innerHTML: val,
                           onclick: function(evt) {
                               dojo.toggleClass(this, 'selected');
-                              that._updateFacetControl( facetPane, facetName );
+                              that._updateFacetControl( facetName );
                               that.updateQuery();
                           }
                         },
@@ -309,16 +329,40 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         return container;
     },
 
-    _updateFacetControl: function( facetPane, facetName ) {
+    /**
+     * Clear all the selections from all of the facet controls.
+     * @private
+     */
+    _clearAllFacetControls: function() {
+       dojo.forEach( dojof.keys( this.facetSelectors ), function( facetName ) {
+           this._clearFacetControl( facetName );
+       },this);
+    },
+
+    /**
+     * Clear all the selections from the facet control with the given name.
+     * @private
+     */
+    _clearFacetControl: function( facetName ) {
+        dojo.forEach( this.facetSelectors[facetName] || [], function(selector) {
+                          dojo.removeClass(selector,'selected');
+                      },this);
+        this._updateFacetControl( facetName );
+    },
+
+    /**
+     * Update the title bar of the given facet control to reflect
+     * whether it has selected values in it.
+     */
+    _updateFacetControl: function( facetName ) {
         var titleContent = dojo.byId('facet_title_'+facetName);
+
+        // if we have some selected values
         if( dojo.some( this.facetSelectors[facetName] || [], function(sel) {
                 return dojo.hasClass( sel, 'selected' );
             }, this ) ) {
                 var clearFunc = dojo.hitch( this, function(evt) {
-                    dojo.forEach( this.facetSelectors[facetName] || [], function(sel) {
-                        dojo.removeClass(sel,'selected');
-                    },this);
-                    this._updateFacetControl( facetPane, facetName );
+                    this._clearFacetControl( facetName );
                     this.updateQuery();
                     evt.stopPropagation();
                 });
@@ -327,6 +371,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                     .onclick( clearFunc )
                     .attr('title','clear selections');
         }
+        // otherwise, no selected values
         else {
                 dojo.removeClass( titleContent, 'selected' );
                 dojo.query( '> a', titleContent )
