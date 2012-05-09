@@ -372,15 +372,30 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
      * @private
      */
     _compileTextFilter: function( textString ) {
-        // escape regex control chars, and convert glob-like chars to
-        // their regex equivalents
-        textString =
-            dojo.regexp.escapeString( textString, '*?' )
-            .replace(/\*/g,'.+')
-            .replace(/\?/g,'.');
 
-        // split into words, and convert each word into a regexp
-        var wordREs = dojo.map( textString.split(/\s+/), function(w) { return new RegExp(w,'i'); });
+        // parse out words and quoted words, and convert each into a regexp
+        var rQuotedWord = /\s*["']([^"']+)["']\s*/g;
+        var rWord = /(\S+)/g;
+        var parseWord = function() {
+            var word = rQuotedWord.exec( textString ) || rWord.exec( textString );
+            if( word ) {
+                word = word[1];
+                var lastIndex = Math.max( rQuotedWord.lastIndex, rWord.lastIndex );
+                rWord.lastIndex = rQuotedWord.lastIndex = lastIndex;
+            }
+            return word;
+        };
+        var wordREs = [];
+        var currentWord;
+        while( (currentWord = parseWord()) ) {
+            // escape regex control chars, and convert glob-like chars to
+            // their regex equivalents
+            currentWord = dojo.regexp.escapeString( currentWord, '*?' )
+                              .replace(/\*/g,'.+')
+                              .replace(/ /g,'\\s+')
+                              .replace(/\?/g,'.');
+            wordREs.push( new RegExp(currentWord,'i') );
+        }
 
         // return a function that returns true if all of the words
         // match the string, but in any order
