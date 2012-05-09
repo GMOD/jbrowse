@@ -237,7 +237,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                       window.clearTimeout( this.textFilterTimeout );
                   this.textFilterTimeout = window.setTimeout(
                       dojo.hitch(this,function(){ this.updateQuery(); this.textFilterInput.focus(); }),
-                      400
+                      500
                   );
                   evt.stopPropagation();
               })
