@@ -474,14 +474,18 @@ Browser.prototype.createTrackList = function() {
             trackConfigs: this.config.tracks,
             browser: this,
             metadataStores: dojo.map( this.config.trackMetaSources || [], function( sourceDef ) {
-                var url = Util.resolveUrl( this.config.sourceUrl, sourceDef.url || 'trackMeta.csv' );
+                var url  = sourceDef.url || 'trackMeta.csv';
                 var type = sourceDef.type || (
                         /\.csv$/i.test(url)     ? 'csv'  :
                         /\.js(on)?$/i.test(url) ? 'json' :
                                                   'csv'
                 );
-                var storeClass = { csv: 'dojox.data.CsvStore', json: 'dojox.data.JsonRestStore' }[type];
-                dojo.require(storeClass);
+                var storeClass = sourceDef['class']
+                    || { csv: 'dojox.data.CsvStore', json: 'dojox.data.JsonRestStore' }[type];
+
+                try { eval(storeClass) || dojo.require(storeClass); }
+                catch (x) { console.error('Could not load trackMetaSource class '+storeClass+': ' + x); }
+
                 return new (eval(storeClass))({ url: url });
             },this)
         }),
