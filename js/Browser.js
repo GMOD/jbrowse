@@ -816,8 +816,10 @@ Browser.prototype.setGlobalKeyboardShortcut = function( keychar ) {
  */
 Browser.prototype.globalKeyHandler = function( evt ) {
     var shortcut = this.globalKeyboardShortcuts[ evt.keyChar ];
-    if( shortcut )
+    if( shortcut ) {
         shortcut.call( this );
+        evt.stopPropagation();
+    }
 };
 
 Browser.prototype.makeBookmarkLink = function (area) {
