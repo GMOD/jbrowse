@@ -230,14 +230,20 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.textFilterInput = dojo.create(
             'input',
             { type: 'text',
-              width: 50,
+              size: 50,
               disabled: true, // disabled until shown
               onkeypress: dojo.hitch( this, function(evt) {
+                  if( evt.keyCode == dojo.keys.SHIFT || evt.keyCode == dojo.keys.CTRL || evt.keyCode == dojo.keys.ALT )
+                      return;
                   if( this.textFilterTimeout )
                       window.clearTimeout( this.textFilterTimeout );
                   this.textFilterTimeout = window.setTimeout(
-                      dojo.hitch(this,function(){ this.updateQuery(); this.textFilterInput.focus(); }),
-                      500
+                      dojo.hitch( this, function() {
+                                      this.textFilterPreviousValue = this.textFilterInput.value;
+                                      this.updateQuery();
+                                      this.textFilterInput.focus();
+                                  }),
+                      600
                   );
                   evt.stopPropagation();
               })
