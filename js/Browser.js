@@ -716,7 +716,7 @@ Browser.prototype.makeHelpDialog = function () {
     helpdiv.style.display = 'none';
     helpdiv.className = "helpDialog";
     helpdiv.innerHTML = ''
-        + '<div class="main" style="float: left">'
+        + '<div class="main" style="float: left; width: 49%;">'
 
         + '<dl>'
         + '<dt>Moving</dt>'
@@ -738,7 +738,7 @@ Browser.prototype.makeHelpDialog = function () {
         + '</dl>'
         + '</div>'
 
-        + '<div class="main" style="float: right">'
+        + '<div class="main" style="float: right; width: 49%;">'
         + '<dl>'
         + '<dt>Searching</dt>'
         + '<dd><ul>'
@@ -767,7 +767,7 @@ Browser.prototype.makeHelpDialog = function () {
     this.container.appendChild( helpdiv );
 
     var dialog = new dijit.Dialog({
-        id: "help_dialog",
+        "class": 'help_dialog',
         refocus: false,
         draggable: false,
         title: "JBrowse Help"

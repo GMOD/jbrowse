@@ -119,7 +119,25 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
               id: "faceted_tracksel_top",
               content: '<div class="title">Select Tracks</div> '
                        + '<button class="faceted_tracksel_on_off">Back to browser</button>'
+                       + '<div class="topLink" style="cursor: help"><a title="Help">Help</a></div>'
             });
+        dojo.query('div.topLink a[title="Help"]',this.topPane.domNode)
+            .forEach(function(helplink){
+                var helpdialog = new dijit.Dialog({
+                    "class": 'help_dialog',
+                    refocus: false,
+                    draggable: false,
+                    title: 'Track Selection',
+                    content: '<div class="main">'
+                             + '  <dl><dt>Finding Tracks</dt>'
+                             + '  <dd>Find tracks by selecting data categories on the left, typing text to search for, or both.</dd>'
+                             + '  <dt>Activating Tracks</dt>'
+                             + "  <dd>Click a track's check box to display it in the browser.</dd>"
+                             + "  </dl>"
+                             + "</div>"
+                 });
+                dojo.connect( helplink, 'onclick', this, function(evt) {helpdialog.show(); return false;});
+            },this);
 
         // add a button to the main browser window that shows this tracksel
         if( this.browser.config.show_nav != 0 ) {
@@ -211,7 +229,8 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.textFilterInput = dojo.create(
             'input',
             { type: 'text',
-              width: 30,
+              width: 50,
+              disabled: true, // disabled until shown
               onkeypress: dojo.hitch( this, function(evt) {
                   if( this.textFilterTimeout )
                       window.clearTimeout( this.textFilterTimeout );
@@ -396,8 +415,14 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
      * Make the track selector visible.
      */
     show: function() {
+        window.setTimeout( dojo.hitch( this, function() {
+            this.textFilterInput.disabled = false;
+            this.textFilterInput.focus();
+        }), 300);
+
         this.containerElem.style.opacity = 1.0;
-        this.containerElem.style.zIndex = 10000;
+        this.containerElem.style.zIndex = 500;
+
         this.shown = true;
     },
 
@@ -407,6 +432,10 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
     hide: function() {
         this.containerElem.style.opacity = 0;
         this.containerElem.style.zIndex = -1000;
+
+        this.textFilterInput.blur();
+        this.textFilterInput.disabled = true;
+
         this.shown = false;
     },
 

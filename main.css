@@ -3,7 +3,7 @@ html, body {
     width: 100%;
     padding: 0;
     border: 0;
-    font-size: 10px;
+    font-size: 12px;
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
@@ -348,30 +348,30 @@ input.nav {
     font-size: 9px !important;
 }
 
-#help_dialog {
+.help_dialog {
     font-size: 12px;
     width: 70%;
     overflow: auto;
+    z-index: 2000;
 }
-#help_dialog ul {
+.help_dialog ul {
     padding-left: 0;
 }
-#help_dialog div.main {
-    width: 49%;
+.help_dialog div.main {
 }
-#help_dialog div.main > dl {
+.help_dialog div.main > dl {
     width: 90%;
     margin: 0 auto 1em auto;
 }
-#help_dialog dt {
+.help_dialog dt {
     font-weight: bold;
     margin-top: 1em;
 }
-#help_dialog dd {
+.help_dialog dd {
     margin-left: 2em;
 }
-#help_dialog dl dl.searchexample dt,
-#help_dialog span.example {
+.help_dialog dl dl.searchexample dt,
+.help_dialog span.example {
     font-weight: normal;
     font-family: monospace;
 }
