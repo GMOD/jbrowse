@@ -101,6 +101,9 @@
 #faceted_tracksel .facetTitle.selected {
     border-top: 3px solid #396494;
     font-weight: bold;
+    background: #AEC7E3;
+    padding-left: 5px;
+    margin-left: -5px;
 }
 #faceted_tracksel .facetTitle a {
     display: none;
