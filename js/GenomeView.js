@@ -1412,17 +1412,34 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     // tell the track to get its data, since we're going to display it.
     track.load();
 
-    var labelDiv = document.createElement("div");
-    labelDiv.className = "track-label dojoDndHandle";
-    labelDiv.id = "label_" + track.name;
-    labelDiv.title = "to turn off, drag into track list";
-    this.trackLabels.push(labelDiv);
     var trackDiv = dojo.create('div', {
         className: 'track track_'+track.name,
         id: "track_" + track.name
     });
     trackDiv.trackName = track.name;
     trackDiv.track = track;
+
+    var labelDiv = dojo.create(
+        'div', {
+            className: "track-label dojoDndHandle",
+            id: "label_" + track.name,
+            style: {
+                position: 'absolute',
+                top: 0,
+                left: this.getX() + 'px'
+            }
+        },trackDiv);
+    var closeButton = dojo.create('div',{
+        className: 'track-close-button',
+        onclick: dojo.hitch(this,function(evt){
+            this.browser.publish( '/jbrowse/v1/v/tracks/hide', [[trackConfig]]);
+            evt.stopPropagation();
+        })
+    },labelDiv);
+
+    var labelText = dojo.create('span', { className: 'track-label-text' }, labelDiv );
+    this.trackLabels.push(labelDiv);
+
     var view = this;
     var heightUpdate = function(height) {
         view.trackHeightUpdate(track.name, height);
@@ -1430,11 +1447,6 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     track.setViewInfo(heightUpdate, this.stripeCount, trackDiv, labelDiv,
 		      this.stripePercent, this.stripeWidth,
                       this.pxPerBp, this.trackPadding);
-
-    labelDiv.style.position = "absolute";
-    labelDiv.style.top = "0px";
-    labelDiv.style.left = this.getX() + "px";
-    trackDiv.appendChild(labelDiv);
 
     track.updateStaticElements({
         x: this.getX(),

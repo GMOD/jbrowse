@@ -235,6 +235,7 @@ div.track-label, div.tracklist-label {
     text-shadow: #ddd 1px 1px 0;
 
 }
+
 /* NOTE: browsers that don't support rgba colors will fall back to all
    track labels being #bcbcbc */
 
@@ -250,6 +251,20 @@ div.track-label {
     border-width: 1px;
     border-color: #666;
     border-color: rgba( 40, 40, 40, 0.6 );
+}
+div.track-label .track-close-button {
+    display: inline-block;
+    padding: 4px;
+    vertical-align: -20%;
+    height: 16px;
+    width: 1.3em;
+    margin: -3px -3px -4px -6px;
+}
+.tundra div.track-label .track-close-button {
+    background: url("jslib/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
+}
+.tundra div.track-label .track-close-button:hover {
+    background-image: url("jslib/dijit/themes/tundra/images/tabCloseHover.png");
 }
 div.track-label:hover {
     border-color: rgba( 0,0,0, 1);
