@@ -232,8 +232,6 @@ div.track-label, div.tracklist-label {
     color: #111;
     font-size: 110%;
     font-weight: bold;
-    text-shadow: #ddd 1px 1px 0;
-
 }
 
 /* NOTE: browsers that don't support rgba colors will fall back to all
@@ -241,12 +239,13 @@ div.track-label, div.tracklist-label {
 
 div.track-label {
     color: black;
-    margin-left: 20px;
+
+    margin: 5px 0 0 20px;
+
     border-color: rgba( 0,0,0,0);
     white-space: nowrap;
 
-    background-color: #bcbcbc;
-    background-color: rgba( 200,200,200, 0.8 );
+    background: #FAFAFA url(jslib/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
 
     border-width: 1px;
     border-color: #666;
@@ -269,12 +268,13 @@ div.track-label .track-close-button {
 div.track-label:hover {
     border-color: rgba( 0,0,0, 1);
     background-color: #ddd;
+    opacity: 1.0;
 }
 div.tracklist-label {
     padding: 3px;
 
     background-color: #bcbcbc;
-    background-color: rgba( 210, 210, 210, 0.9 );
+    background-color: rgba( 220, 220, 220, 0.9 );
 }
 
 #trackPane {
