@@ -175,7 +175,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                   content: [
                       dojo.create( 'button', {
                                        className: 'clear_filters',
-                                       innerHTML:'<img style="position: relative; bottom: -2px;" src="img/red_x.png">'
+                                       innerHTML:'<img style="position: relative; bottom: -3px;" src="img/red_x.png">'
                                                  + ' Clear All Filters',
                                        onclick: dojo.hitch( this, function(evt) {
                                            this.textFilterInput.value = '';
