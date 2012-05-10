@@ -163,7 +163,7 @@ Browser.prototype.initView = function() {
 
     // hook up GenomeView
     this.view = this.viewElem.view =
-        new GenomeView(this.viewElem, 250, this.refSeq, 1/200,
+        new GenomeView(this, this.viewElem, 250, this.refSeq, 1/200,
                        this.config.browserRoot);
     dojo.connect( this.view, "onFineMove",   this, "onFineMove"   );
     dojo.connect( this.view, "onCoarseMove", this, "onCoarseMove" );

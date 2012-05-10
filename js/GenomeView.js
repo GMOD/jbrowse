@@ -4,7 +4,10 @@
  * @class
  * @constructor
  */
-function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
+function GenomeView( browser, elem, stripeWidth, refseq, zoomLevel, browserRoot) {
+
+    // keep a reference to the main browser object
+    this.browser = browser;
 
     var seqCharSize = this.calculateSequenceCharacterSize( elem );
     this.charWidth = seqCharSize.width;
@@ -172,9 +175,9 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
             });
 
     // subscribe to showTracks commands
-    dojo.subscribe( '/dnd/drop',dojo.hitch(this, 'updateTrackList'));
-    dojo.subscribe( '/jbrowse/v1/c/tracks/show', this, 'showTracks' );
-    dojo.subscribe( '/jbrowse/v1/c/tracks/hide', this, 'hideTracks' );
+    this.browser.subscribe( '/dnd/drop',dojo.hitch(this, 'updateTrackList'));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/show', this, 'showTracks' );
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide', this, 'hideTracks' );
 
     // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
     dojo.forEach(this.uiTracks, function(track) {
