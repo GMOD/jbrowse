@@ -217,6 +217,17 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
            }
         );
 
+
+        this._monkeyPatchGrid( grid );
+        return grid;
+    },
+
+    /**
+     * Apply several run-time patches to the dojox.grid.EnhancedGrid
+     * code.
+     * @private
+     */
+    _monkeyPatchGrid: function( grid ) {
         // monkey-patch the grid's onRowClick handler to not do
         // anything.  without this, clicking on a row selects it, and
         // deselects everything else, which is quite undesirable.
@@ -234,7 +245,37 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             return origSelectRange.apply( this, arguments );
         };
 
-        return grid;
+        // monkey-patch the grid's scrolling handler to fix
+        // http://bugs.dojotoolkit.org/ticket/15343
+        // diff between this and its implementation in dojox.grid._View.js (1.6.1) is only:
+        // if(top !== this.lastTop)  --->  if( Math.abs( top - this.lastTop ) > 1 )
+        grid.views.views[0].doscroll = function(inEvent){
+                //var s = dojo.marginBox(this.headerContentNode.firstChild);
+                var isLtr = dojo._isBodyLtr();
+                if(this.firstScroll < 2){
+                        if((!isLtr && this.firstScroll == 1) || (isLtr && this.firstScroll === 0)){
+                                var s = dojo.marginBox(this.headerNodeContainer);
+                                if(dojo.isIE){
+                                        this.headerNodeContainer.style.width = s.w + this.getScrollbarWidth() + 'px';
+                                }else if(dojo.isMoz){
+                                        //TODO currently only for FF, not sure for safari and opera
+                                        this.headerNodeContainer.style.width = s.w - this.getScrollbarWidth() + 'px';
+                                        //this.headerNodeContainer.style.width = s.w + 'px';
+                                        //set scroll to right in FF
+                                        this.scrollboxNode.scrollLeft = isLtr ?
+                                                this.scrollboxNode.clientWidth - this.scrollboxNode.scrollWidth :
+                                                this.scrollboxNode.scrollWidth - this.scrollboxNode.clientWidth;
+                                }
+                        }
+                        this.firstScroll++;
+                }
+                this.headerNode.scrollLeft = this.scrollboxNode.scrollLeft;
+                // 'lastTop' is a semaphore to prevent feedback-loop with setScrollTop below
+                var top = this.scrollboxNode.scrollTop;
+                if(Math.abs( top - this.lastTop ) > 1 ){
+                        this.grid.scrollTo(top);
+                }
+        };
     },
 
     renderTextFilter: function( parent ) {
