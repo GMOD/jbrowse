@@ -20,9 +20,12 @@
  * </ul>
  */
 
-var dojof = dojox.lang.functional;
+var dojof;
 
 var Browser = function(params) {
+    dojo.require('dojox.lang.functional');
+    dojof = dojox.lang.functional;
+
     dojo.require("dojo.dnd.Source");
     dojo.require("dojo.dnd.Moveable");
     dojo.require("dojo.dnd.Mover");
