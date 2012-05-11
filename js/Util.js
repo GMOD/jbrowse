@@ -279,6 +279,7 @@ Util.debugHandler = function( context, func ) {
 };
 
 Util.ucFirst = function(str) {
+    if( typeof str != 'string') return undefined;
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
