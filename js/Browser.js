@@ -225,7 +225,8 @@ Browser.prototype._initEventRouting = function() {
     this.subscribe('/jbrowse/v1/v/tracks/hide', this, function() {
         this.publish( '/jbrowse/v1/c/tracks/hide', arguments );
     });
-    this.subscribe('/jbrowse/v1/v/tracks/show', this, function() {
+    this.subscribe('/jbrowse/v1/v/tracks/show', this, function( trackConfigs ) {
+        this.addRecentlyUsedTracks( dojo.map(trackConfigs, function(c){ return c.label;}) );
         this.publish( '/jbrowse/v1/c/tracks/show', arguments );
     });
 };
@@ -239,6 +240,43 @@ Browser.prototype.subscribe = function() {
 
 Browser.prototype.onResize = function() {
     this.view.locationTrapHeight = dojo.marginBox( this.navbox ).h;
+};
+
+/**
+ * Get the list of the most recently used tracks, stored for this user
+ * in a cookie.
+ * @returns {Array[Object]} as <code>[{ time: (integer), label: (track label)}]</code>
+ */
+Browser.prototype.getRecentlyUsedTracks = function() {
+    return dojo.fromJson( this.cookie( 'recentTracks' ) || '[]' );
+};
+
+/**
+ * Add the given list of tracks as being recently used.
+ * @param trackLabels {Array[String]} array of track labels to add
+ */
+Browser.prototype.addRecentlyUsedTracks = function( trackLabels ) {
+    var seen = {};
+    var newRecent =
+        Util.uniq(
+            dojo.map( trackLabels, function(label) {
+                          return {
+                              label: label,
+                              time: Math.round( new Date() / 1000 ) // secs since epoch
+                          };
+                      },this)
+                .concat( dojo.fromJson( this.cookie('recentTracks'))  || [] ),
+            function(entry) {
+                return entry.label;
+            }
+        )
+        // limit by default to 20 recent tracks
+        .slice( 0, this.config.recentTracksLimit == undefined ? this.config.recentTracksLimit : 20 );
+
+    // set the recentTracks cookie, good for one year
+    this.cookie( 'recentTracks', newRecent, { expires: 365 } );
+
+    return newRecent;
 };
 
 /**
@@ -905,12 +943,19 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
 /**
  * Wrapper for dojo.cookie that namespaces our cookie names by
  * prefixing them with this.config.containerID.
+ *
+ * Has one additional bit of smarts: if an object or array is passed
+ * instead of a string to set as the cookie contents, will serialize
+ * it with dojo.toJson before storing.
+ *
  * @param [...] same as dojo.cookie
- * @returns same as dojo.cookie
+ * @returns the new value of the cookie, same as dojo.cookie
  */
-Browser.prototype.cookie = function( ) {
+Browser.prototype.cookie = function() {
     arguments[0] = this.config.containerID + '-' + arguments[0];
-    return dojo.cookie.apply( this, arguments );
+    if( typeof arguments[1] == 'object' )
+        arguments[1] = dojo.toJson( arguments[1] );
+    return dojo.cookie.apply( dojo.cookie, arguments );
 };
 
 /**
