@@ -324,7 +324,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         var store = this.trackDataStore;
         this.facetSelectors = {};
         var renderFacets = dojo.filter( store.getFacets(), function(facet) {
-            return ! dojo.some( store.getLabelAttributes(), function(l) {return l == facet;} );
+            return ! dojo.some( store.getLabelAttributes().concat( store.getIdentityAttributes() ), function(l) {return l == facet;} );
         });
         dojo.forEach( renderFacets, function(facetName) {
             // get the values of this facet

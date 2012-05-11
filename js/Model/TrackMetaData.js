@@ -13,8 +13,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
     constructor: function( args ) {
         // set up our facet name discrimination: what facets we will
         // actually provide search on
-        var non_facet_attrs = this.getIdentityAttributes();
-        non_facet_attrs.push('conf');
+        var non_facet_attrs = ['conf'];
         this._filterFacet = function( facetName ) {
             var userfilter = args.filterFacets || function() {return true;};
             return userfilter(facetName)
