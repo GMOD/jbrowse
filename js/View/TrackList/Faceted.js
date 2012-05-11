@@ -356,6 +356,13 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         var store = this.trackDataStore;
         this.facetSelectors = {};
 
+        // render a facet selector for a pseudo-facet holding
+        // attributes regarding the tracks the user has been working
+        // with
+        var usageFacet = this._renderFacetSelector(
+            'My Tracks', ['Currently Active', 'Recently Used'] );
+        usageFacet.set('class', 'myTracks' );
+        container.addChild( usageFacet );
 
         // for the facets from the store, only render facet selectors
         // for ones that are not identity attributes, and have an
@@ -364,47 +371,62 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             dojo.filter( store.getFacetNames(),
                          dojo.hitch( this, '_isSelectableFacet', store )
                        );
-
         dojo.forEach( storeFacets, function(facetName) {
+
             // get the values of this facet
             var values = store.getFacetValues(facetName).sort();
             if( !values || !values.length )
                 return;
 
-            var facetPane = new dijit.layout.AccordionPane({
-                    title: '<div id="facet_title_' + facetName +'" '
-                           + 'class="facetTitle">'
-                           + Util.ucFirst(facetName)
-                           + ' <a class="clearFacet"><img src="img/red_x.png" /></a>'
-                           + '</div>'
-                });
-            container.addChild(facetPane);
-
-            // make a selection control for the values of this facet
-            var facetControl = dojo.create( 'div', {className: 'facetSelect'}, facetPane.containerNode );
-            // populate selector's options
-            this.facetSelectors[facetName] = dojo.map(
-                values,
-                function(val) {
-                    var that = this;
-                    return dojo.create(
-                        'div',
-                        { className: 'facetValue',
-                          innerHTML: val,
-                          onclick: function(evt) {
-                              dojo.toggleClass(this, 'selected');
-                              that._updateFacetControl( facetName );
-                              that.updateQuery();
-                          }
-                        },
-                        facetControl
-                    );
-                },
-                this
-            );
+            var facetPane = this._renderFacetSelector( facetName, values );
+            container.addChild( facetPane );
         },this);
 
         return container;
+    },
+
+    /**
+     * Make HTML elements for a single facet selector.
+     * @private
+     * @returns {dijit.layout.AccordionPane}
+     */
+    _renderFacetSelector: function( /**String*/ facetName, /**Array[String]*/ values ) {
+
+        var facetPane = new dijit.layout.AccordionPane(
+            {
+                title: '<div id="facet_title_' + facetName +'" '
+                    + 'class="facetTitle">'
+                    + Util.ucFirst(facetName)
+                    + ' <a class="clearFacet"><img src="img/red_x.png" /></a>'
+                    + '</div>'
+            });
+
+        // make a selection control for the values of this facet
+        var facetControl = dojo.create( 'div', {className: 'facetSelect'}, facetPane.containerNode );
+        // populate selector's options
+        this.facetSelectors[facetName] = dojo.map(
+            values,
+            function(val) {
+                var that = this;
+                var node = dojo.create(
+                    'div',
+                    { className: 'facetValue',
+                      innerHTML: val,
+                      onclick: function(evt) {
+                          dojo.toggleClass(this, 'selected');
+                          that._updateFacetControl( facetName );
+                          that.updateQuery();
+                      }
+                    },
+                    facetControl
+                );
+                node.facetValue = val;
+                return node;
+            },
+            this
+        );
+
+        return facetPane;
     },
 
     /**
@@ -468,22 +490,68 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
     _updateQuery: function() {
         var newQuery = {};
 
+        var is_selected = function(node) {
+            return dojo.hasClass(node,'selected');
+        };
+
+        // update from the My Tracks pseudofacet
+        (function() {
+             var mytracks_options = this.facetSelectors['My Tracks'];
+
+             // index the optoins by name
+             var byname = {};
+             dojo.forEach( mytracks_options, function(opt){ byname[opt.facetValue] = opt;});
+
+             // if filtering for active tracks, add the labels for the
+             // currently selected tracks to the query
+             if( is_selected( byname['Currently Active'] ) ) {
+                 var activeTrackLabels = dojof.keys(this.tracksActive || {});
+                 newQuery.label = Util.uniq(
+                     (newQuery.label ||[])
+                     .concat( activeTrackLabels )
+                 );
+             }
+
+             // if filtering for recently used tracks, add the labels of recently used tracks
+             if( is_selected( byname['Recently Used'])) {
+                 var recentlyUsed = dojo.map(
+                     this.browser.getRecentlyUsedTracks(),
+                     function(t){
+                         return t.label;
+                     }
+                 );
+
+                 newQuery.label = Util.uniq(
+                     (newQuery.label ||[])
+                     .concat(recentlyUsed)
+                 );
+             }
+
+             // finally, if something is selected in here, but we have
+             // not come up with any track labels, then insert a dummy
+             // track label value that will never match, because the
+             // query engine ignores empty arrayrefs.
+             if( ( ! newQuery.label || ! newQuery.label.length )
+                 && dojo.some( mytracks_options, is_selected )
+               ) {
+                   newQuery.label = ['FAKE LABEL THAT IS HIGHLY UNLIKELY TO EVER MATCH ANYTHING'];
+             }
+
+        }).call(this);
+
         // update from the text filter
         if( this.textFilterInput.value.length ) {
             newQuery.text = this.textFilterInput.value;
         }
 
-        // update from the facet selectors
+        // update from the data-based facet selectors
         dojo.forEach( this.trackDataStore.getFacetNames(), function(facetName) {
             var options = this.facetSelectors[facetName];
             if( !options ) return;
 
             var selectedFacets = dojo.map(
-                dojo.filter(
-                    options,
-                    function(opt) {return dojo.hasClass(opt,'selected');}
-                ),
-                function(opt) {return opt.innerHTML;}
+                dojo.filter( options, is_selected ),
+                function(opt) {return opt.facetValue;}
             );
             if( selectedFacets.length )
                 newQuery[facetName] = selectedFacets;

@@ -106,13 +106,16 @@
     border-top: 3px solid transparent;
     margin: -2px;
     padding: 2px 2px 2px 0.6em;
+    color: #1B3047
+}
+#faceted_tracksel .dijitAccordionTitleSelected .facetTitle {
+    color: black;
 }
 #faceted_tracksel .facetTitle.selected {
     border-top: 3px solid #396494;
     font-weight: bold;
-    background: #AEC7E3;
-    /* padding-left: 5px; */
-    /* margin-left: -5px; */
+    background-color: #AEC7E3;
+    color: black;
 }
 #faceted_tracksel .facetTitle a {
     display: none;
@@ -122,7 +125,17 @@
     float: right;
     padding: 4px 6px;
 }
-
+/* styling specifically for the title of the first facet title, which is 'My Tracks' */
+.tundra #faceted_tracksel .dijitAccordionInnerContainer:first-child .facetTitle:after {
+    content: url("jslib/dijit/themes/tundra/images/circleIcon.png");
+    margin-left: 7px;
+}
+#faceted_tracksel .dijitAccordionInnerContainer:first-child .facetTitle {
+    color: black;
+    font-weight: bold;
+    border-bottom: 3px solid #666;
+    padding-bottom: 6px;
+}
 
 /* Button that we inject into the navbox for turning the track
 selector on and off. */
