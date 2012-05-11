@@ -256,6 +256,20 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
     },
 
     /**
+     * Get statistics about the facet with the given name.
+     * @returns {Object} as: <code>{ itemCount: ##, bucketCount: ##, avgBucketSize: ## }</code>
+     */
+    getFacetStats: function( facetName ) {
+        var index = this.facetIndexes.byName[facetName];
+        if( !index ) return {};
+
+        var stats = {};
+        dojo.forEach( ['itemCount','bucketCount'], function(attr) { stats[attr] = index[attr];});
+        stats.avgBucketSize = stats.itemCount / stats.bucketCount;
+        return stats;
+    },
+
+    /**
      * Add a callback to be called when this store is ready (i.e. loaded).
      */
     onReady: function( callback ) {
