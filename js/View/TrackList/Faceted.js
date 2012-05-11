@@ -337,7 +337,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                     title: '<div id="facet_title_' + facetName +'" '
                            + 'class="facetTitle">'
                            + Util.ucFirst(facetName)
-                           + ' <a style="float: right"><img src="img/red_x.png" /></a>'
+                           + ' <a class="clearFacet"><img src="img/red_x.png" /></a>'
                            + '</div>'
                 });
             container.addChild(facetPane);

@@ -117,8 +117,10 @@
 #faceted_tracksel .facetTitle a {
     display: none;
 }
-#faceted_tracksel .facetTitle.selected a {
+#faceted_tracksel .facetTitle.selected a.clearFacet {
     display: block;
+    float: right;
+    padding: 4px 6px;
 }
 
 
