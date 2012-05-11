@@ -299,6 +299,13 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         }
 
         var query = dojo.clone( keywordArgs.query || {} );
+        // coerce query arguments to arrays if they are not already arrays
+        dojo.forEach( dojof.keys( query ), function(qattr) {
+            if( ! Array.isArray( query[qattr] ) ) {
+                query[qattr] = [ query[qattr] ];
+            }
+        },this);
+
         var textFilter = query.text;
         delete query.text;
 
