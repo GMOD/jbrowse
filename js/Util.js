@@ -283,6 +283,27 @@ Util.ucFirst = function(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+/**
+ * Uniqify an array.
+ * @param stuff {Array} array of stuff
+ * @param normalizer {Function} optional function to be called on each
+ * element.  by default, just compares by stringification
+ */
+Util.uniq = function( stuff, normalizer ) {
+    normalizer = normalizer || function(t) {
+        return ''+t;
+    };
+    var result = [],
+        seen   = {};
+    dojo.forEach( stuff, function(thing) {
+        var norm = normalizer(thing);
+        if( !seen[ normalizer(thing) ] )
+            result.push( thing );
+        seen[norm] = true;
+    });
+    return result;
+};
+
 if (!Array.prototype.reduce)
 {
   Array.prototype.reduce = function(fun /*, initial*/)
