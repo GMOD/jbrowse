@@ -208,6 +208,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             facetValues.bucketCount++;
         }
         bucket.itemCount++;
+        facetValues.itemCount++;
         bucket.items.push(item);
     },
 
