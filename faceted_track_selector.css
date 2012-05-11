@@ -100,19 +100,19 @@
     padding: 0;
 }
 #faceted_tracksel .dijitAccordionContainer .dijitAccordionTitle {
-    padding: 0 0 2px 5px;
+    padding: 0;
 }
 #faceted_tracksel .facetTitle {
     border-top: 3px solid transparent;
     margin: -2px;
-    padding: 2px;
+    padding: 2px 2px 2px 0.6em;
 }
 #faceted_tracksel .facetTitle.selected {
     border-top: 3px solid #396494;
     font-weight: bold;
     background: #AEC7E3;
-    padding-left: 5px;
-    margin-left: -5px;
+    /* padding-left: 5px; */
+    /* margin-left: -5px; */
 }
 #faceted_tracksel .facetTitle a {
     display: none;
