@@ -238,7 +238,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
      * in this track metadata.
      * @param callback {Function} called as callback( [facet,facet,...] )
      */
-    getFacets: function( callback ) {
+    getFacetNames: function( callback ) {
         return this.facets;
     },
 

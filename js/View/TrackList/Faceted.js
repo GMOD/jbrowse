@@ -17,6 +17,38 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
        this.browser = args.browser;
        this.tracksActive = {};
 
+       // construct the discriminator for whether we will display a
+       // facet selector for this facet
+       this._isSelectableFacet = function() {
+           // just a function returning true if not specified
+           var filter = args.selectableFacets ||
+               // default facet filtering function
+               function( store, facetName ){
+                   return (
+                       // has an avg bucket size > 1
+                       store.getFacetStats( facetName ).avgBucketSize > 1
+                    &&
+                       // and not an ident or label attribute
+                       ! dojo.some( store.getLabelAttributes()
+                                    .concat( store.getIdentityAttributes() ),
+                                    function(l) {return l == facetName;}
+                                  )
+                   );
+               };
+           // if we have a non-function filter, coerce to an array,
+           // then convert that array to a function
+           if( typeof filter == 'string' )
+               filter = [filter];
+           if( Array.isArray( filter ) ) {
+               filter = function( store, facetName) {
+                   return dojo.some( filter, function(fn) {
+                                         return facetName == fn;
+                                     });
+               };
+           }
+           return filter;
+       }.call(this);
+
        // data store that fetches and filters our track metadata
        this.trackDataStore = args.trackMetaData;
 
@@ -198,7 +230,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
     renderGrid: function() {
         // make a data grid that will hold the search results
-        var facets = this.trackDataStore.getFacets();
+        var facets = this.trackDataStore.getFacetNames();
         var rename = { key: 'name' }; // rename some columns in the grid
         var grid = new dojox.grid.EnhancedGrid({
                id: 'trackSelectGrid',
@@ -323,10 +355,17 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
         var store = this.trackDataStore;
         this.facetSelectors = {};
-        var renderFacets = dojo.filter( store.getFacets(), function(facet) {
-            return ! dojo.some( store.getLabelAttributes().concat( store.getIdentityAttributes() ), function(l) {return l == facet;} );
-        });
-        dojo.forEach( renderFacets, function(facetName) {
+
+
+        // for the facets from the store, only render facet selectors
+        // for ones that are not identity attributes, and have an
+        // average bucket size greater than 1
+        var storeFacets =
+            dojo.filter( store.getFacetNames(),
+                         dojo.hitch( this, '_isSelectableFacet', store )
+                       );
+
+        dojo.forEach( storeFacets, function(facetName) {
             // get the values of this facet
             var values = store.getFacetValues(facetName).sort();
             if( !values || !values.length )
@@ -435,7 +474,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         }
 
         // update from the facet selectors
-        dojo.forEach( this.trackDataStore.getFacets(), function(facetName) {
+        dojo.forEach( this.trackDataStore.getFacetNames(), function(facetName) {
             var options = this.facetSelectors[facetName];
             if( !options ) return;
 
