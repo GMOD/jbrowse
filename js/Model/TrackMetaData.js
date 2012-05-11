@@ -118,20 +118,29 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         // that should be ignored if we were passed
         // 'supplementalOnly', and update the identity index
         this.identIndex = this.identIndex || {};
-        items = dojo.map( items, function(item) {
+        items = (function() {
+            var seenInThisStore = {};
+            return dojo.map( items, function(item) {
                                  // merge the new item attributes with any existing
                                  // record for this item
                                  var ident = this.getIdentity(item);
                                  var existingItem = this.identIndex[ ident ];
-                                 if( args.supplementalOnly && !existingItem) {
-                                     // skip this item if we are supplementalOnly and it
-                                     // does not already exist
+
+                                 // skip this item if we have already
+                                 // seen it from this store, or if we
+                                 // are supplementalOnly and it
+                                 // does not already exist
+                                 if( seenInThisStore[ident] || args.supplementalOnly && !existingItem) {
                                      return null;
                                  }
+                                 seenInThisStore[ident] = true;
+
                                  return this.identIndex[ ident ] = dojo.mixin( existingItem || {}, item );
                              },
                              this
                            );
+        }).call(this);
+
         // filter out nulls
         items = dojo.filter( items, function(i) { return i;});
 
