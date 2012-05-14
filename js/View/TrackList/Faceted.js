@@ -171,10 +171,19 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                     draggable: false,
                     title: 'Track Selection',
                     content: '<div class="main">'
-                             + '  <dl><dt>Finding Tracks</dt>'
-                             + '  <dd>Find tracks by selecting data categories on the left, typing text to search for, or both.</dd>'
+                             + '<p>The JBrowse Faceted Track Selector makes it easy to search through'
+                             + ' large numbers of available tracks to find exactly the ones you want.'
+                             + ' You can incrementally filter the track display to narrow it down to'
+                             + ' those your are interested in.  There are two types of filtering available,'
+                             + ' which can be used together:'
+                             + ' <b>filtering with data fields</b>, and free-form <b>filtering with text</b>.'
+                             + '</p>'
+                             + '  <dl><dt>Filtering with Data Fields</dt>'
+                             + '  <dd>The left column of the display contains the available <b>data fields</b>.  Click on the data field name to expand it, and then select one or more values for that field to narrow the search to display only tracks that have one of those values.  You can do this for any number of fields.<dd>'
+                             + '  <dt>Filtering with Text</dt>'
+                             + '  <dd>Type text in the "Contains text" box to filter for tracks whose data contains that text.  When you type multiple words, tracks are found that contain all of those words, in any order, and in any field.  If you place "quotation marks" around the text, the filter finds only tracks that exactly match that phrase.</dd>'
                              + '  <dt>Activating Tracks</dt>'
-                             + "  <dd>Click a track's check box to display it in the browser.</dd>"
+                             + "  <dd>To activate and deactivate a track, click its check-box in the left-most column.  When the box contains a check mark, the track is activated.  You can also turn whole groups of tracks on and off using the check-box in the table heading.</dd>"
                              + "  </dl>"
                              + "</div>"
                  });
