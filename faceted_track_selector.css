@@ -12,17 +12,19 @@
 /* JBrowse stuff */
 
 #faceted_tracksel {
-
     position: fixed;
     top: 0;
     left: 0;
     height: 100%;
-    width: 95%;
 
-    font-size: 120%;
+    font-size: 14px;
 }
 
-.tundra #faceted_tracksel {
+#faceted_tracksel div.mainContainer {
+    height: 100%;
+    width: 100%;
+}
+.tundra #faceted_tracksel div.mainContainer {
     border-right: 2px solid #555;
     background: #e9e9e9;
 }
@@ -79,20 +81,31 @@
     font-size: 180%;
 }
 
-#faceted_tracksel button.faceted_tracksel_on_off {
-    padding: 5px 4px;
-
+#faceted_tracksel .faceted_tracksel_on_off.tab {
     position: absolute;
     top: 1.8em;
-    right: -2px;
-    width: 7%;
-
+    left: 100%;
+    width: 78px;
     z-index: 5;
+
+    padding: 5px 4px;
+
+    cursor: pointer;
 }
-#faceted_tracksel button.faceted_tracksel_on_off div {
+#faceted_tracksel div.faceted_tracksel_on_off.tab > * {
     display: inline-block;
     vertical-align: middle;
+    padding: 0 6px;
 }
+.tundra #faceted_tracksel .faceted_tracksel_on_off.tab {
+    background: #e9e9e9 url("jslib/dijit/themes/tundra/images/titleBar.png") top repeat-x;
+    border: 1px solid #666;
+    border-left: none;
+
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
 
 #faceted_tracksel_top div.topLink {
     position: absolute;
@@ -168,14 +181,3 @@
     padding-bottom: 6px;
 }
 
-/* Button that we inject into the navbox for turning the track
-selector on and off. */
-#navbox button.faceted_tracksel_on_off {
-    position: absolute;
-    top: 2em;
-    left: -5px;
-}
-#navbox button.faceted_tracksel_on_off > * {
-    display: inline-block;
-    vertical-align: middle;
-}

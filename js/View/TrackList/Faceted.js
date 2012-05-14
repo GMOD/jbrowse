@@ -131,19 +131,18 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.containerElem = dojo.create( 'div', {
             id: 'faceted_tracksel',
             style: {
-                left: '-100%',
+                left: '-95%',
+                width: '95%',
                 zIndex: 500
             }
         },
         document.body );
 
-        dojo.create('button',
+        // make the tab that turns the selector on and off
+        dojo.create('div',
                     {
-                        className: 'faceted_tracksel_on_off',
-                        innerHTML: '<div style="width: 13%"><img src="img/left_arrow.png"></div>'
-                                 + '<div style="width: 85%">Back to browser</div>',
-                        style: {
-                        }
+                        className: 'faceted_tracksel_on_off tab',
+                        innerHTML: '<img src="img/left_arrow.png"><div>Select<br>tracks</div>'
                     },
                     this.containerElem
                    );
@@ -151,8 +150,9 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
         this.mainContainer = new dijit.layout.BorderContainer(
             { design: 'headline', gutters: false },
-            this.containerElem
+            dojo.create('div',{ className: 'mainContainer' }, this.containerElem)
         );
+
         this.topPane = new dijit.layout.ContentPane(
             { region: 'top',
               id: "faceted_tracksel_top",
@@ -177,23 +177,10 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                 dojo.connect( helplink, 'onclick', this, function(evt) {helpdialog.show(); return false;});
             },this);
 
-        // add a button to the main browser window that shows this tracksel
-        if( this.browser.config.show_nav != 0 ) {
-            // (insertBefore the firstChild so that it's on the left of the navbox)
-            this.browser.navbox.insertBefore(
-                dojo.create('button', {
-                                className: 'faceted_tracksel_on_off',
-                                innerHTML: '<div style="width: 7em">Select tracks</div>'
-                                    +'<div style="width: 10px;"><img src="img/right_arrow.png"></div>'
-                            }),
-                this.browser.navbox.firstChild
-            );
-        }
-
         this.mainContainer.addChild( this.topPane );
 
         // make both buttons toggle this track selector
-        dojo.query( 'button.faceted_tracksel_on_off' )
+        dojo.query( '.faceted_tracksel_on_off' )
             .onclick( dojo.hitch( this, 'toggle' ));
 
         // make our main components
@@ -627,8 +614,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         dojo.animateProperty({
             node: this.containerElem,
             properties: {
-                left: { start: -100, end: 0, units: '%' },
-                opacity: { start: 0.3, end: 1.0 }
+                left: { start: -95, end: 0, units: '%' }
             }
         }).play();
 
@@ -643,8 +629,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         dojo.animateProperty({
             node: this.containerElem,
             properties: {
-                left: { start: 0, end: -100, units: '%' },
-                opacity: { start: 1.0, end: 0.3 }
+                left: { start: 0, end: -95, units: '%' }
             }
         }).play();
 
