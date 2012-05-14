@@ -59,7 +59,7 @@
     vertical-align: middle;
 }
 #faceted_tracksel .gridPane .gridControls button img {
-    padding: 3px 0.4em 0 0;
+    padding: 0 0.4em 0 0;
 }
 
 #faceted_tracksel label.textFilterControl {
