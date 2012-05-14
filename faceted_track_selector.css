@@ -193,6 +193,7 @@
     display: block;
     float: right;
     padding: 4px 6px;
+    margin: -3px;
 }
 /* styling specifically for the title of the first facet title, which is 'My Tracks' */
 .tundra #faceted_tracksel .dijitAccordionInnerContainer:first-child .facetTitle:after {
