@@ -67,10 +67,20 @@
     display: inline-block;
     padding: 0 0.5em;
 }
+#faceted_tracksel label.textFilterControl img.text_filter_clear {
+    display: none;
+}
+#faceted_tracksel label.textFilterControl.selected img.text_filter_clear {
+    display: block;
+}
 #faceted_tracksel label.textFilterControl input {
-    color: red;
+    border-top: 3px solid transparent;
     font-weight: bold;
     padding: 0.2em;
+}
+#faceted_tracksel label.textFilterControl.selected input {
+    border-top: 3px solid #396494;
+    background: #D2E1F1;
 }
 
 /* Track selector title bar */

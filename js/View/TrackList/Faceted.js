@@ -214,7 +214,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                                        innerHTML:'<img src="img/red_x.png">'
                                                  + '<div>Clear All Filters</div>',
                                        onclick: dojo.hitch( this, function(evt) {
-                                           this.textFilterInput.value = '';
+                                           this._clearTextFilterControl();
                                            this._clearAllFacetControls();
                                            this.updateQuery();
                                        })
@@ -317,7 +317,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
     renderTextFilter: function( parent ) {
         // make the text input for text filtering
-        var textFilterLabel = dojo.create(
+        this.textFilterLabel = dojo.create(
             'label',
             { className: 'textFilterControl',
               innerHTML: 'Contains text ',
@@ -338,37 +338,56 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                       window.clearTimeout( this.textFilterTimeout );
                   this.textFilterTimeout = window.setTimeout(
                       dojo.hitch( this, function() {
-                                      this.textFilterPreviousValue = this.textFilterInput.value;
+                                      this._updateTextFilterControl();
                                       this.updateQuery();
                                       this.textFilterInput.focus();
                                   }),
-                      600
+                      500
                   );
-                  if( this.textFilterInput.value.length )
-                      this.textFilterClearButton.style.display = 'block';
+                  this._updateTextFilterControl();
 
                   evt.stopPropagation();
               })
             },
-            textFilterLabel
+            this.textFilterLabel
         );
         // make a "clear" button for the text filtering input
         this.textFilterClearButton = dojo.create('img', {
             src: 'img/red_x.png',
+            className: 'text_filter_clear',
             onclick: dojo.hitch( this, function() {
-                this.textFilterInput.value = '';
-                this.textFilterClearButton.style.display = 'none';
+                this._clearTextFilterControl();
                 this.updateQuery();
             }),
             style: {
                 position: 'absolute',
                 right: '12px',
                 top: '20%',
-                display: 'none'
             }
-        }, textFilterLabel );
+        }, this.textFilterLabel );
 
-        return textFilterLabel;
+        return this.textFilterLabel;
+    },
+
+   /**
+    * Clear the text filter control input.
+    * @private
+    */
+    _clearTextFilterControl: function() {
+        this.textFilterInput.value = '';
+        this._updateTextFilterControl();
+    },
+    /**
+     * Update the display of the text filter control based on whether
+     * it has any text in it.
+     * @private
+     */
+    _updateTextFilterControl: function() {
+        if( this.textFilterInput.value.length )
+            dojo.addClass( this.textFilterLabel, 'selected' );
+        else
+            dojo.removeClass( this.textFilterLabel, 'selected' );
+
     },
 
     /**
