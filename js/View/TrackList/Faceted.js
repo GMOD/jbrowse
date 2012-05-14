@@ -86,6 +86,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
            });
        });
 
+       dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateGridSelections' );
        dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateMatchCount' );
 
     },
@@ -228,7 +229,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.mainContainer.addChild( centerPane );
 
         this.mainContainer.startup();
-        this._updateGridSelections();
         this._updateMatchCount();
     },
 
@@ -563,7 +563,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
         this.query = newQuery;
         this.dataGrid.setQuery( this.query );
-        this._updateGridSelections();
         this._updateMatchCount();
     },
 
