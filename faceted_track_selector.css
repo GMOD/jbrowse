@@ -16,8 +16,10 @@
     top: 0;
     left: 0;
     height: 100%;
+}
 
-    font-size: 14px;
+#faceted_tracksel button, #faceted_tracksel input {
+    font-size: 12px;
 }
 
 #faceted_tracksel div.mainContainer {
