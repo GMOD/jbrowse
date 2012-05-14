@@ -13,7 +13,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
        dojo.require('dojox.grid.enhanced.plugins.IndirectSelection');
        dojo.require('dijit.layout.AccordionContainer');
        dojo.require('dijit.layout.AccordionPane');
-       dojo.require('dojo.fx.easing');
 
        this.browser = args.browser;
        this.tracksActive = {};
@@ -616,7 +615,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
         dojo.animateProperty({
             node: this.containerElem,
-            easing: dojo.fx.easing.sineIn,
             properties: {
                 left: { start: -100, end: 0, units: '%' },
                 opacity: { start: 0.3, end: 1.0 }
@@ -633,7 +631,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
         dojo.animateProperty({
             node: this.containerElem,
-            easing: dojo.fx.easing.sineOut,
             properties: {
                 left: { start: 0, end: -100, units: '%' },
                 opacity: { start: 1.0, end: 0.3 }
