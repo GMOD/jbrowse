@@ -110,10 +110,10 @@
     position: absolute;
     top: 1.8em;
     left: 100%;
-    width: 78px;
     z-index: 5;
 
     padding: 5px 4px;
+    white-space: nowrap;
 
     cursor: pointer;
 }
