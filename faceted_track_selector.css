@@ -19,11 +19,12 @@
     height: 100%;
     width: 93%;
 
-    background: white;
     font-size: 120%;
 }
-#faceted_tracksel > div {
+
+.tundra #faceted_tracksel {
     border-right: 2px solid #555;
+    background: #e9e9e9;
 }
 
 /* Track grid */
@@ -33,9 +34,12 @@
     border-color: transparent !important;
 }
 #faceted_tracksel .gridPane .gridControls {
-    background: #e9e9e9;
     padding: 2px 3px;
 }
+.tundra #faceted_tracksel .gridPane .gridControls {
+    background: #e9e9e9;
+}
+
 #faceted_tracksel .gridPane .gridControls button {
     height: 2.2em;
     margin: 4px;
@@ -54,10 +58,13 @@
 
 /* Track selector title bar */
 #faceted_tracksel_top {
-    background: #396494;
     border-bottom: 1px solid #ccc;
     padding: 5px;
 }
+.tundra #faceted_tracksel_top {
+    background: #396494;
+}
+
 #faceted_tracksel_top > * {
     display: inline-block;
     vertical-align: middle;
@@ -96,7 +103,7 @@
     padding: 0.1em 0.4em;
     cursor: pointer;
 }
-#faceted_tracksel .facetSelect .facetValue:hover {
+.tundra #faceted_tracksel .facetSelect .facetValue:hover {
     background: #D2E1F1;
 }
 
@@ -122,11 +129,14 @@
     color: black;
 }
 #faceted_tracksel .facetTitle.selected {
-    border-top: 3px solid #396494;
     font-weight: bold;
-    background-color: #AEC7E3;
     color: black;
 }
+.tundra #faceted_tracksel .facetTitle.selected {
+    border-top: 3px solid #396494;
+    background-color: #AEC7E3;
+}
+
 #faceted_tracksel .facetTitle a {
     display: none;
 }
