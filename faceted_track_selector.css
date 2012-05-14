@@ -17,7 +17,7 @@
     top: 0;
     left: 0;
     height: 100%;
-    width: 93%;
+    width: 95%;
 
     font-size: 120%;
 }
@@ -79,8 +79,19 @@
     font-size: 180%;
 }
 
-#faceted_tracksel_top button.faceted_tracksel_on_off {
-    padding: 5px;
+#faceted_tracksel button.faceted_tracksel_on_off {
+    padding: 5px 4px;
+
+    position: absolute;
+    top: 1.8em;
+    right: -2px;
+    width: 7%;
+
+    z-index: 5;
+}
+#faceted_tracksel button.faceted_tracksel_on_off div {
+    display: inline-block;
+    vertical-align: middle;
 }
 
 #faceted_tracksel_top div.topLink {
@@ -160,4 +171,11 @@
 /* Button that we inject into the navbox for turning the track
 selector on and off. */
 #navbox button.faceted_tracksel_on_off {
+    position: absolute;
+    top: 2em;
+    left: -5px;
+}
+#navbox button.faceted_tracksel_on_off > * {
+    display: inline-block;
+    vertical-align: middle;
 }

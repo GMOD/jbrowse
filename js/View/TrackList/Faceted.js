@@ -137,6 +137,18 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         },
         document.body );
 
+        dojo.create('button',
+                    {
+                        className: 'faceted_tracksel_on_off',
+                        innerHTML: '<div style="width: 13%"><img src="img/left_arrow.png"></div>'
+                                 + '<div style="width: 85%">Back to browser</div>',
+                        style: {
+                        }
+                    },
+                    this.containerElem
+                   );
+
+
         this.mainContainer = new dijit.layout.BorderContainer(
             { design: 'headline', gutters: false },
             this.containerElem
@@ -145,7 +157,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             { region: 'top',
               id: "faceted_tracksel_top",
               content: '<div class="title">Select Tracks</div> '
-                       + '<button class="faceted_tracksel_on_off">Back to browser</button>'
                        + '<div class="topLink" style="cursor: help"><a title="Track selector help">Help</a></div>'
             });
         dojo.query('div.topLink a[title="Track selector help"]',this.topPane.domNode)
@@ -172,7 +183,8 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             this.browser.navbox.insertBefore(
                 dojo.create('button', {
                                 className: 'faceted_tracksel_on_off',
-                                innerHTML: 'Select tracks'
+                                innerHTML: '<div style="width: 7em">Select tracks</div>'
+                                    +'<div style="width: 10px;"><img src="img/right_arrow.png"></div>'
                             }),
                 this.browser.navbox.firstChild
             );
