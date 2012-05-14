@@ -200,9 +200,15 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                   "class": 'gridControls',
                   content: [
                       dojo.create( 'button', {
+                                       className: 'faceted_tracksel_on_off',
+                                       innerHTML: '<img src="img/left_arrow.png"> <div>Back to browser</div>',
+                                       onclick: dojo.hitch( this, 'hide' )
+                                   }
+                                 ),
+                      dojo.create( 'button', {
                                        className: 'clear_filters',
-                                       innerHTML:'<img style="position: relative; bottom: -3px;" src="img/red_x.png">'
-                                                 + ' Clear All Filters',
+                                       innerHTML:'<img src="img/red_x.png">'
+                                                 + '<div>Clear All Filters</div>',
                                        onclick: dojo.hitch( this, function(evt) {
                                            this.textFilterInput.value = '';
                                            this._clearAllFacetControls();
@@ -316,7 +322,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.textFilterInput = dojo.create(
             'input',
             { type: 'text',
-              size: 50,
+              size: 40,
               disabled: true, // disabled until shown
               onkeypress: dojo.hitch( this, function(evt) {
                   if( evt.keyCode == dojo.keys.SHIFT || evt.keyCode == dojo.keys.CTRL || evt.keyCode == dojo.keys.ALT )

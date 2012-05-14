@@ -45,6 +45,14 @@
 #faceted_tracksel .gridPane .gridControls button {
     height: 2.2em;
     margin: 4px;
+    white-space: nowrap;
+}
+#faceted_tracksel .gridPane .gridControls button * {
+    display: inline-block;
+    vertical-align: middle;
+}
+#faceted_tracksel .gridPane .gridControls button img {
+    padding: 3px 0.4em 0 0;
 }
 
 #faceted_tracksel label.textFilterControl {
