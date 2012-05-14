@@ -12,8 +12,18 @@
 /* JBrowse stuff */
 
 #faceted_tracksel {
-    font-size: 120%;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 93%;
+
     background: white;
+    font-size: 120%;
+}
+#faceted_tracksel > div {
+    border-right: 2px solid #555;
 }
 
 /* Track grid */
@@ -67,14 +77,14 @@
 }
 
 #faceted_tracksel_top div.topLink {
-    position: fixed;
+    position: absolute;
     top: 0;
     right: 0;
 
     background: none;
     border: none;
     color: white;
-    padding: 3px;
+    padding: 3px 0.6em;
 
     font-weight: bold;
 }

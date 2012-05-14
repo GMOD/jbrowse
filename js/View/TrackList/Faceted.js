@@ -131,11 +131,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.containerElem = dojo.create( 'div', {
             id: 'faceted_tracksel',
             style: {
-                position: 'fixed',
-                top: '0',
-                left: '0',
-                height: '100%',
-                width: '100%',
                 zIndex: -1000,
                 opacity: 0
             }
@@ -151,9 +146,9 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
               id: "faceted_tracksel_top",
               content: '<div class="title">Select Tracks</div> '
                        + '<button class="faceted_tracksel_on_off">Back to browser</button>'
-                       + '<div class="topLink" style="cursor: help"><a title="Help">Help</a></div>'
+                       + '<div class="topLink" style="cursor: help"><a title="Track selector help">Help</a></div>'
             });
-        dojo.query('div.topLink a[title="Help"]',this.topPane.domNode)
+        dojo.query('div.topLink a[title="Track selector help"]',this.topPane.domNode)
             .forEach(function(helplink){
                 var helpdialog = new dijit.Dialog({
                     "class": 'help_dialog',
