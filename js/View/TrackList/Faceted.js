@@ -344,22 +344,27 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                                   }),
                       600
                   );
+                  if( this.textFilterInput.value.length )
+                      this.textFilterClearButton.style.display = 'block';
+
                   evt.stopPropagation();
               })
             },
             textFilterLabel
         );
         // make a "clear" button for the text filtering input
-        dojo.create('img', {
+        this.textFilterClearButton = dojo.create('img', {
             src: 'img/red_x.png',
             onclick: dojo.hitch( this, function() {
                 this.textFilterInput.value = '';
+                this.textFilterClearButton.style.display = 'none';
                 this.updateQuery();
             }),
             style: {
                 position: 'absolute',
                 right: '12px',
-                top: '20%'
+                top: '20%',
+                display: 'none'
             }
         }, textFilterLabel );
 
