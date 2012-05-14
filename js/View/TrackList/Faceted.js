@@ -321,7 +321,8 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             'label',
             { className: 'textFilterControl',
               innerHTML: 'Contains text ',
-              id: 'tracklist_textfilter'
+              id: 'tracklist_textfilter',
+              style: {position: 'relative'}
             },
             parent
         );
@@ -348,6 +349,19 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             },
             textFilterLabel
         );
+        // make a "clear" button for the text filtering input
+        dojo.create('img', {
+            src: 'img/red_x.png',
+            onclick: dojo.hitch( this, function() {
+                this.textFilterInput.value = '';
+                this.updateQuery();
+            }),
+            style: {
+                position: 'absolute',
+                right: '12px',
+                top: '20%'
+            }
+        }, textFilterLabel );
 
         return textFilterLabel;
     },
