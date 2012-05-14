@@ -253,23 +253,24 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
            }
         );
 
-
         this._monkeyPatchGrid( grid );
         return grid;
     },
 
     /**
      * Apply several run-time patches to the dojox.grid.EnhancedGrid
-     * code.
+     * code to fix bugs and customize the behavior in ways that aren't
+     * quite possible using the regular Dojo APIs.
      * @private
      */
     _monkeyPatchGrid: function( grid ) {
-        // monkey-patch the grid's onRowClick handler to not do
+
+        // 1. monkey-patch the grid's onRowClick handler to not do
         // anything.  without this, clicking on a row selects it, and
         // deselects everything else, which is quite undesirable.
         grid.onRowClick = function() {};
 
-        // monkey-patch the grid's range-selector to refuse to select
+        // 2. monkey-patch the grid's range-selector to refuse to select
         // if the selection is too big
         var origSelectRange = grid.selection.selectRange;
         grid.selection.selectRange = function( inFrom, inTo ) {
@@ -281,7 +282,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             return origSelectRange.apply( this, arguments );
         };
 
-        // monkey-patch the grid's scrolling handler to fix
+        // 3. monkey-patch the grid's scrolling handler to fix
         // http://bugs.dojotoolkit.org/ticket/15343
         // diff between this and its implementation in dojox.grid._View.js (1.6.1) is only:
         // if(top !== this.lastTop)  --->  if( Math.abs( top - this.lastTop ) > 1 )
