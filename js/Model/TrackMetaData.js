@@ -85,10 +85,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
     _finishLoad: function() {
         this.facets = this.facets.sort();
         this.ready = true;
-        dojo.forEach( this.onReadyFuncs, function(f) {
-                          f.call( this, this );
-                      }, this );
-        this.onReadyFuncs = [];
+        this.onReady();
     },
 
     _indexItems: function( args ) {
@@ -234,6 +231,15 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
     },
 
     /**
+     * Get the number of items that matched the most recent query.
+     * @returns {Number} the item count, or undefined if there has not
+     * been any query so far.
+     */
+    getCount: function() {
+        return this._fetchCount;
+    },
+
+    /**
      * Get an array of the text names of the facets that are defined
      * in this track metadata.
      * @param callback {Function} called as callback( [facet,facet,...] )
@@ -267,18 +273,6 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         dojo.forEach( ['itemCount','bucketCount'], function(attr) { stats[attr] = index[attr];});
         stats.avgBucketSize = stats.itemCount / stats.bucketCount;
         return stats;
-    },
-
-    /**
-     * Add a callback to be called when this store is ready (i.e. loaded).
-     */
-    onReady: function( callback ) {
-        if( this.ready ) {
-            callback.call( this, this );
-        }
-        else {
-            this.onReadyFuncs.push( callback );
-        }
     },
 
     // dojo.data.api.Read support
@@ -393,8 +387,23 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             },this);
         }
 
+        this._fetchCount = results.length;
+
         // and finally, hand them to the finding callback
         findCallback(results,keywordArgs);
+        this.onFetchSuccess();
+    },
+
+    /**
+     * Event hook called once when the store is initialized and has
+     * an initial set of data loaded.
+     */
+    onReady: function() {},
+    /**
+     * Event hook called after a fetch has been successfully completed
+     * on this store.
+     */
+    onFetchSuccess: function() {
     },
 
     /**

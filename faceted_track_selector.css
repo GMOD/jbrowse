@@ -42,12 +42,17 @@
     background: #e9e9e9;
 }
 
+#faceted_tracksel .gridPane .gridControls > * {
+    margin: 2px 3px;
+    display: inline-block;
+    vertical-align: middle;
+}
 #faceted_tracksel .gridPane .gridControls button {
     height: 2.2em;
     margin: 4px;
     white-space: nowrap;
 }
-#faceted_tracksel .gridPane .gridControls button * {
+#faceted_tracksel .gridPane .gridControls button > * {
     display: inline-block;
     vertical-align: middle;
 }
@@ -58,7 +63,7 @@
 #faceted_tracksel label.textFilterControl {
     display: block;
     display: inline-block;
-    padding: 0.3em 0.3em 0.3em 2em;
+    padding: 0 0.5em;
 }
 #faceted_tracksel label.textFilterControl input {
     color: red;

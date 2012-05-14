@@ -60,7 +60,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                        dojo.hitch( this, 'setTracksInactive' ));
 
        // once its data is loaded and ready
-       this.trackDataStore.onReady( dojo.hitch(this, function() {
+       dojo.connect( this.trackDataStore, 'onReady', this, function() {
 
            // render our controls and so forth
            this.render();
@@ -84,7 +84,10 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                              });
                          });
            });
-       }));
+       });
+
+       dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateMatchCount' );
+
     },
 
     /**
@@ -216,7 +219,8 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                                        })
                                    }
                                  ),
-                      textFilterContainer
+                      textFilterContainer,
+                      dojo.create('div', { className: 'matching_record_count' })
                   ]
                 }
             )
@@ -225,6 +229,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
         this.mainContainer.startup();
         this._updateGridSelections();
+        this._updateMatchCount();
     },
 
     renderGrid: function() {
@@ -559,6 +564,21 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.query = newQuery;
         this.dataGrid.setQuery( this.query );
         this._updateGridSelections();
+        this._updateMatchCount();
+    },
+
+    /**
+     * Update the match-count text in the grid controls bar based
+     * on the last query that was run against the store.
+     * @private
+     */
+    _updateMatchCount: function() {
+        var count = this.dataGrid.store.getCount();
+        dojo.query( '.matching_record_count', this.containerElem )
+            .forEach( function(n) {
+                          n.innerHTML = Util.addCommas(count) + ' matching track' + ( count == 1 ? '' : 's' );
+                      }
+                    );
     },
 
     /**
@@ -594,7 +614,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         dojo.forEach( trackConfigs, function(conf) {
             this.tracksActive[conf.label] = true;
         },this);
-        this.trackDataStore.onReady( dojo.hitch(this, '_updateGridSelections') );
     },
 
     /**
@@ -605,7 +624,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         dojo.forEach( trackConfigs, function(conf) {
             delete this.tracksActive[conf.label];
         },this);
-        this.trackDataStore.onReady( dojo.hitch(this, '_updateGridSelections') );
     },
 
     /**
