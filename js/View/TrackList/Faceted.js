@@ -232,7 +232,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
         this.mainContainer.startup();
         this._updateGridSelections();
-        this.show();
     },
 
     renderGrid: function() {
