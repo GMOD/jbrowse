@@ -149,12 +149,39 @@
 
 /* Facet selection controls */
 
+#faceted_tracksel .facetSelect {
+    width: 100%;
+    border-spacing: 0;
+}
 #faceted_tracksel .facetSelect .facetValue {
     padding: 0.1em 0.4em;
     cursor: pointer;
 }
+#faceted_tracksel .facetSelect .facetValue > * {
+    vertical-align: top;
+}
+#faceted_tracksel .facetSelect .disabled {
+    color: gray;
+}
+
+#faceted_tracksel .facetSelect .facetValue.disabled {
+    display: none;
+}
+#faceted_tracksel .facetSelect .facetValue.disabled.selected {
+    display: block;
+}
+
 .tundra #faceted_tracksel .facetSelect .facetValue:hover {
     background: #D2E1F1;
+}
+
+#faceted_tracksel .facetSelect .facetValue .count {
+    padding: 0 0.7em 0 0.4em;
+    color: #333;
+    text-align: right;
+}
+#faceted_tracksel .facetSelect .facetValue .value {
+    width: 80%;
 }
 
 #faceted_tracksel .facetSelect .selected {

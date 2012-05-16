@@ -85,10 +85,10 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                          });
            });
        });
+       dojo.connect( this.trackDataStore, 'onReady', this, '_updateFacetCounts' ); // just once at start
 
        dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateGridSelections' );
        dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateMatchCount' );
-
     },
 
     /**
@@ -226,6 +226,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                                            this._clearTextFilterControl();
                                            this._clearAllFacetControls();
                                            this.updateQuery();
+                                           this._updateFacetCounts();
                                        })
                                    }
                                  ),
@@ -238,7 +239,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.mainContainer.addChild( centerPane );
 
         this.mainContainer.startup();
-        this._updateMatchCount();
+        this.show();
     },
 
     renderGrid: function() {
@@ -349,6 +350,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                       dojo.hitch( this, function() {
                                       this._updateTextFilterControl();
                                       this.updateQuery();
+                                      this._updateFacetCounts();
                                       this.textFilterInput.focus();
                                   }),
                       500
@@ -367,6 +369,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             onclick: dojo.hitch( this, function() {
                 this._clearTextFilterControl();
                 this.updateQuery();
+                this._updateFacetCounts();
             }),
             style: {
                 position: 'absolute',
@@ -454,20 +457,21 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             });
 
         // make a selection control for the values of this facet
-        var facetControl = dojo.create( 'div', {className: 'facetSelect'}, facetPane.containerNode );
+        var facetControl = dojo.create( 'table', {className: 'facetSelect'}, facetPane.containerNode );
         // populate selector's options
         this.facetSelectors[facetName] = dojo.map(
             values,
             function(val) {
                 var that = this;
                 var node = dojo.create(
-                    'div',
+                    'tr',
                     { className: 'facetValue',
-                      innerHTML: val,
+                      innerHTML: '<td class="count"></td><td class="value">'+ val + '</td>',
                       onclick: function(evt) {
                           dojo.toggleClass(this, 'selected');
                           that._updateFacetControl( facetName );
                           that.updateQuery();
+                          that._updateFacetCounts( facetName );
                       }
                     },
                     facetControl
@@ -503,19 +507,55 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
     },
 
     /**
+     * Incrementally update the facet counts as facet values are selected.
+     * @private
+     */
+    _updateFacetCounts: function( /**String*/ skipFacetName ) {
+        dojo.forEach( dojof.keys( this.facetSelectors ), function( facetName ) {
+            if( facetName == 'My Tracks' )// || facetName == skipFacetName )
+                return;
+            var thisFacetCounts = this.trackDataStore.getFacetCounts( facetName );
+            dojo.forEach( this.facetSelectors[facetName] || [], function( selectorNode ) {
+                dojo.query('.count',selectorNode)
+                    .forEach( function(countNode) {
+                         var count = thisFacetCounts ? thisFacetCounts[ selectorNode.facetValue ] || 0 : 0;
+                         countNode.innerHTML = Util.addCommas( count );
+                         if( count )
+                             dojo.removeClass( selectorNode, 'disabled');
+                         else
+                             dojo.addClass( selectorNode, 'disabled' );
+                     },this);
+                //dojo.removeClass(selector,'selected');
+            },this);
+            this._updateFacetControl( facetName );
+       },this);
+    },
+
+    /**
      * Update the title bar of the given facet control to reflect
      * whether it has selected values in it.
      */
     _updateFacetControl: function( facetName ) {
         var titleContent = dojo.byId('facet_title_'+facetName);
 
-        // if we have some selected values
+        // if all our values are disabled, add 'disabled' to our
+        // title's CSS classes
+        if( dojo.every( this.facetSelectors[facetName] ||[], function(sel) {
+                            return dojo.hasClass( sel, 'disabled' );
+                        },this)
+          ) {
+                dojo.addClass( titleContent, 'disabled' );
+        }
+
+        // if we have some selected values, make a "clear" button, and
+        // add 'selected' to our title's CSS classes
         if( dojo.some( this.facetSelectors[facetName] || [], function(sel) {
                 return dojo.hasClass( sel, 'selected' );
             }, this ) ) {
                 var clearFunc = dojo.hitch( this, function(evt) {
                     this._clearFacetControl( facetName );
                     this.updateQuery();
+                    this._updateFacetCounts( facetName );
                     evt.stopPropagation();
                 });
                 dojo.addClass( titleContent, 'selected' );

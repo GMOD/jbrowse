@@ -3,6 +3,9 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
  * @lends JBrowse.Model.TrackMetaData.prototype
  */
 {
+
+    _noDataValue: '(no data)',
+
     /**
      * Data store for track metadata, supporting faceted
      * (parameterized) searching.  Keeps all of the track metadata,
@@ -83,9 +86,39 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
      * @private
      */
     _finishLoad: function() {
-        this.facets = this.facets.sort();
+
+        // sort the facet names
+        this.facets.sort();
+
+        // calculate the average bucket size for each facet index
+        dojo.forEach( dojof.values( this.facetIndexes.byName ), function(bucket) {
+            bucket.avgBucketSize = bucket.itemCount / bucket.bucketCount;
+        });
+        // calculate the rank of the facets: make an array of
+        // facet names sorted by bucket size, descending
+        this.facetIndexes.facetRank = dojo.clone(this.facets).sort(dojo.hitch(this,function(a,b){
+            return this.facetIndexes.byName[a].avgBucketSize - this.facetIndexes.byName[b].avgBucketSize;
+        }));
+
+        // sort the facet indexes by ident, so that we can do our
+        // kind-of-efficient N-way merging when querying
+        var itemSortFunction = dojo.hitch( this, '_itemSortFunc' );
+        dojo.forEach( dojof.values( this.facetIndexes.byName ), function( facetIndex ) {
+            dojo.forEach( dojof.keys( facetIndex.byValue ), function( value ) {
+                facetIndex.byValue[value].items = facetIndex.byValue[value].items.sort( itemSortFunction );
+            });
+        },this);
+
         this.ready = true;
         this.onReady();
+    },
+
+    _itemSortFunc: function(a,b) {
+            var ai = this.getIdentity(a),
+                bi = this.getIdentity(b);
+            return ai == bi ?  0 :
+                   ai  > bi ?  1 :
+                   ai  < bi ? -1 : 0;
     },
 
     _indexItems: function( args ) {
@@ -171,25 +204,15 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             }, this);
 
             // index the items that do not have data for this facet
-            var noDataValue = '(no data)';
             dojo.forEach( new_facets, function(facet) {
                 var gotSomeWithNoData = false;
                 dojo.forEach( dojof.values( this.identIndex ), function(item) {
                     if( ! gotDataForItem[facet][this.getIdentity(item)] ) {
                         gotSomeWithNoData = true;
-                        this._indexItem( facet, noDataValue, item );
+                        this._indexItem( facet, this._noDataValue, item );
                     }
                 },this);
             },this);
-
-            // calculate the rank of the facets: make an array of
-            // facet names sorted by smallest average bucket size,
-            // descending
-            this.facetIndexes.facetRank = this.facets.sort(dojo.hitch(this,function(a,b){
-                a = this.facetIndexes.byName[a];
-                b = this.facetIndexes.byName[b];
-                return b.itemCount/b.bucketCount - a.itemCount/a.bucketCount;
-            }));
         }
     },
 
@@ -239,6 +262,16 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         return this._fetchCount;
     },
 
+
+    /**
+     * @param facetName {String} facet name
+     * @returns {Object}
+     */
+    getFacetCounts: function( facetName ) {
+        var context = this._fetchFacetCounts[ facetName ] || this._fetchFacetCounts[ '__other__' ];
+        return context[facetName];
+    },
+
     /**
      * Get an array of the text names of the facets that are defined
      * in this track metadata.
@@ -270,8 +303,9 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         if( !index ) return {};
 
         var stats = {};
-        dojo.forEach( ['itemCount','bucketCount'], function(attr) { stats[attr] = index[attr];});
-        stats.avgBucketSize = stats.itemCount / stats.bucketCount;
+        dojo.forEach( ['itemCount','bucketCount','avgBucketSize'],
+                      function(attr) { stats[attr] = index[attr]; }
+                    );
         return stats;
     },
 
@@ -324,74 +358,143 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             }
         },this);
 
-        var textFilter = query.text;
+        var textFilter = this._compileTextFilter( query.text );
         delete query.text;
 
-        var results;
-
-        // if we don't actually have any facets specified in the
-        // query, the results are just all the items
-        if( ! dojo.some( dojof.values(query), function(q){ return q.length > 0;}) ) {
-            results = dojof.values( this.identIndex );
-        }
-        else {
-            // start with an initial set of items that have the desired
-            // value for the most specific (smallest avg index bucket
-            // size) facet that was specified
-            results = (function() {
-                           var highestRankedFacet,
-                               queryValues = [],
-                               index;
-                           dojo.some( this.facetIndexes.facetRank, function(facetName) {
-                                          if( query[facetName] ) {
-                                              highestRankedFacet = facetName;
-                                              queryValues = query[highestRankedFacet];
-                                              index = this.facetIndexes.byName[highestRankedFacet];
-                                              return queryValues.length > 0;
-                                          }
-                                          return false;
-                                      },this);
-
-                           delete query[highestRankedFacet];
-
-                           var set = [];
-                           dojo.forEach( queryValues, function(val) {
-                              var bucket = index.byValue[val];
-                              if( bucket )
-                                  set.push.apply( set, bucket.items );
-                           },this);
-                           return set;
-                       }).call(this);
-
-            // and filter this starting set for the other facets
-            dojo.forEach( dojof.keys(query), function(facetName) {
-                              var desired_values = query[facetName] || [];
-                              if( ! desired_values.length )
-                                  return;
-                              results = dojo.filter(results, function(item) {
-                                                        var value = this.getValue(item,facetName);
-                                                        return dojo.some( desired_values, function(desired) {
-                                                                              return desired == value;
-                                                                          },this);
-                                                    },this);
-                          },this);
-        }
-
-        // filter with the text filter, if we have it
-	if( typeof textFilter != 'undefined' ) {
-            var filter = this._compileTextFilter( textFilter );
-            results = dojo.filter( results, function(item) {
-                return dojo.some( this.facets, function(facetName) {
-                           return filter( this.getValue( item, facetName ) );
-                       },this);
-            },this);
-        }
+        var results = this._doQuery( query, textFilter );
 
         this._fetchCount = results.length;
 
         // and finally, hand them to the finding callback
         findCallback(results,keywordArgs);
         this.onFetchSuccess();
+    },
+
+    /**
+     * @private
+     */
+    _doQuery: function( /**Object*/ facetQuery, /**Function*/ textFilter ) {
+        // algorithm pseudocode:
+        //
+        //    * for each individual facet, get a set of tracks that
+        //      matches its selected values.  sort each set by the
+        //      tracks' unique identifier.
+        //    * while still need to go through all the items in the filtered sets:
+        //          - if all the facets have the same track first in their sorted set:
+        //                 add it to the core result set.
+        //                 count it in the global counts
+        //          - if all the facets *but one* have the same track first:
+        //                 this track will need to be counted in the
+        //                 'leave-out' counts for the odd facet out.  count it.
+        //          - shift the lowest-labeled track off of whatever facets have it at the front
+
+
+        var results = []; // array of items that completely match the query
+
+        // construct the filtered sets (arrays of items) for each of
+        // our search criteria
+        var filteredSets = [];
+        if( textFilter ) {
+            filteredSets.push( dojo.filter( dojof.values( this.identIndex ), textFilter ) );
+            filteredSets[0].facetName = 'Contains text';
+            filteredSets[0].myOffset = 0;
+        }
+        filteredSets.push.apply( filteredSets,
+                dojo.map( dojof.keys( facetQuery ), function( facetName ) {
+                    var values = facetQuery[facetName];
+                    var items = [];
+                    dojo.forEach( values, function(value) {
+                        items.push.apply( items, this.facetIndexes.byName[facetName].byValue[value].items );
+                    },this);
+                    items.myOffset = 0;
+                    items.facetName = facetName;
+                    items.sort( dojo.hitch( this, '_itemSortFunc' ));
+                    return items;
+                },this)
+        );
+
+        // init counts
+        var facetMatchCounts   = {};
+        var countItem = function( item, facetName ) {
+            var facetEntry = facetMatchCounts[facetName];
+            if( !facetEntry ) facetEntry = facetMatchCounts[facetName] = {};
+            dojo.forEach( this.facets, function(attrName) {
+                var value = this.getValue( item, attrName, this._noDataValue );
+                var attrEntry = facetEntry[attrName];
+                if( !attrEntry ) {
+                    attrEntry = facetEntry[attrName] = {};
+                    attrEntry[value] = 0;
+                }
+                attrEntry[value] = ( attrEntry[value] || 0 ) + 1;
+            },this);
+        };
+
+        if( ! filteredSets.length ) {
+            results = dojof.values( this.identIndex );
+        } else {
+            // calculate how many item records total we need to go through
+            var leftToProcess = 0;
+            dojo.forEach( filteredSets,
+                          function(s) { leftToProcess += s.length;} );
+
+            // do a sort of N-way merge of the filtered sets
+            while( leftToProcess ) {
+
+                // look at the top of each of our sets, seeing what items
+                // we have there.  group the sets by the identity of their
+                // topmost item.
+                var setsByTopIdent = {}, uniqueIdents = [], ident, item;
+                dojo.forEach(filteredSets, function(set,i) {
+                    item = set[ set.myOffset ];
+                    ident = item ? this.getIdentity( item ) : '(at end of set)';
+                    if( setsByTopIdent[ ident ] ) {
+                        setsByTopIdent[ ident ].push( set );
+                    } else {
+                        setsByTopIdent[ ident ] = [set];
+                        uniqueIdents.push( ident );
+                    }
+                },this);
+                if( uniqueIdents.length == 1 ) {
+                    // each of our matched sets has the same item at the
+                    // top.  this means it is part of the core result set.
+                    results.push( item );
+                } else {
+                    uniqueIdents.sort();
+                    ident = uniqueIdents[0] == '(at end of set)' ? uniqueIdents[1] : uniqueIdents[0];
+                    if( uniqueIdents.length == 2
+                        && setsByTopIdent[ ident ].length == 1 ) {
+                        // all of the matched sets except one has the same
+                        // item on top, and it is the lowest-labeled item
+
+                        var leftOutSet = setsByTopIdent[ ident ][0];
+                        countItem.call( this, leftOutSet[ leftOutSet.myOffset ], leftOutSet.facetName );
+                    }
+                }
+                dojo.forEach( setsByTopIdent[ ident ], function(s) { s.myOffset++; leftToProcess--; });
+            }
+        }
+
+        // dojo.forEach( dojof.keys(facetMatchCounts), function(category) {
+        //     dojo.forEach( results, function(item) {
+        //          countItem.call(this, item, category);
+        //     },this);
+        // },this);
+        dojo.forEach( results, function(item) {
+            countItem.call(this, item, '__other__' );
+        },this);
+        this._fetchFacetCounts = facetMatchCounts;
+        console.log( facetMatchCounts );
+        // in the case of just one filtered set, the 'leave-one-out'
+        // count for it is actually the count of all results, so we
+        // need to make a special little count of that attribute for
+        // the global result set.
+        // if( filteredSets.length == 1 ) {
+        //     dojo.forEach( dojof.values( this.identIndex ), function(item) {
+        //         countItem.call( this, item, filteredSets[0].facetName, filteredSets[0].facetName );
+        //     },this);
+        // }
+
+        return results;
     },
 
     /**
@@ -412,6 +515,8 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
      * @private
      */
     _compileTextFilter: function( textString ) {
+        if( textString === undefined )
+            return null;
 
         // parse out words and quoted words, and convert each into a regexp
         var rQuotedWord = /\s*["']([^"']+)["']\s*/g;
@@ -437,11 +542,14 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             wordREs.push( new RegExp(currentWord,'i') );
         }
 
-        // return a function that returns true if all of the words
-        // match the string, but in any order
-        return function( text ) {
-            return dojof.every( wordREs, function(re) { return re.test(text); } );
-        };
+        // return a function that takes on item and returns true if it
+        // matches the text filter
+        return dojo.hitch(this, function(item) {
+            return dojo.some( this.facets, function(facetName) {
+                       var text = this.getValue( item, facetName );
+                       return dojof.every( wordREs, function(re) { return re.test(text); } );
+            },this);
+        });
     },
 
     getFeatures: function() {
