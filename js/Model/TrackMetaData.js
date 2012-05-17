@@ -492,7 +492,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             this._countItem( facetMatchCounts, item, '__other__' );
         },this);
         this._fetchFacetCounts = facetMatchCounts;
-        console.log( facetMatchCounts );
+
         // in the case of just one filtered set, the 'leave-one-out'
         // count for it is actually the count of all results, so we
         // need to make a special little count of that attribute for
