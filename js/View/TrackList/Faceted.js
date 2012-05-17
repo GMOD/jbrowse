@@ -197,26 +197,10 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         dojo.query( '.faceted_tracksel_on_off' )
             .onclick( dojo.hitch( this, 'toggle' ));
 
-    },
-    renderSelectors: function() {
-
-        // make our main components
+        this.centerPane = new dijit.layout.BorderContainer({region: 'center', "class": 'gridPane', gutters: false});
+        this.mainContainer.addChild( this.centerPane );
         var textFilterContainer = this.renderTextFilter();
-        var facetContainer = this.renderFacetSelectors();
-        this.dataGrid = this.renderGrid();
-        this.busyIndicator = dojo.create(
-            'div', {
-                innerHTML: '<img src="img/spinner.gif">',
-                className: 'busy_indicator'
-            }, this.containerElem );
-
-        // put them in their places in the overall layout of the track selector
-        facetContainer.set('region','left');
-        this.mainContainer.addChild( facetContainer );
-        var centerPane = new dijit.layout.BorderContainer({region: 'center', "class": 'gridPane', gutters: false});
-        this.dataGrid.set('region','center');
-        centerPane.addChild( this.dataGrid );
-        centerPane.addChild(
+        this.centerPane.addChild(
             new dijit.layout.ContentPane(
                 { region: 'top',
                   "class": 'gridControls',
@@ -248,7 +232,26 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                 }
             )
         );
-        this.mainContainer.addChild( centerPane );
+
+
+    },
+    renderSelectors: function() {
+
+        // make our main components
+        var facetContainer = this.renderFacetSelectors();
+        this.dataGrid = this.renderGrid();
+        this.busyIndicator = dojo.create(
+            'div', {
+                innerHTML: '<img src="img/spinner.gif">',
+                className: 'busy_indicator'
+            }, this.containerElem );
+
+        // put them in their places in the overall layout of the track selector
+        facetContainer.set('region','left');
+        this.mainContainer.addChild( facetContainer );
+
+        this.dataGrid.set('region','center');
+        this.centerPane.addChild( this.dataGrid );
 
         this.mainContainer.startup();
     },
