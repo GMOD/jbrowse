@@ -395,7 +395,10 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         // our search criteria
         var filteredSets = [];
         if( textFilter ) {
-            filteredSets.push( dojo.filter( dojof.values( this.identIndex ), textFilter ) );
+            filteredSets.push(
+                dojo.filter( dojof.values( this.identIndex ), textFilter )
+                    .sort( dojo.hitch(this,'_itemSortFunc') )
+            );
             filteredSets[0].facetName = 'Contains text';
         }
         filteredSets.push.apply( filteredSets,
@@ -413,6 +416,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         dojo.forEach( filteredSets, function(s) {
             s.myOffset = 0;
             s.topItem = function() { return this[this.myOffset]; };
+            s.shift   = function() { this.myOffset++; };
         });
 
         // init counts
@@ -467,7 +471,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                     }
                 }
 
-                dojo.forEach( setsByTopIdent[ ident ], function(s) { s.myOffset++; leftToProcess--; });
+                dojo.forEach( setsByTopIdent[ ident ], function(s) { s.shift(); leftToProcess--; });
             }
         }
 
