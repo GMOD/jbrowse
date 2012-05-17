@@ -69,8 +69,6 @@
 #faceted_tracksel .gridControls .busy_indicator {
     z-index: 20;
     visibility: hidden;
-
-    content: url("img/spinner.gif");
 }
 
 

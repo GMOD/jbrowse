@@ -202,7 +202,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.dataGrid = this.renderGrid();
         this.busyIndicator = dojo.create(
             'div', {
-                innerHTML: 'BUSY',
+                innerHTML: '<img src="img/spinner.gif">',
                 className: 'busy_indicator'
             }, this.containerElem );
 
