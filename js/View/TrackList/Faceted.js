@@ -200,6 +200,11 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         var textFilterContainer = this.renderTextFilter();
         var facetContainer = this.renderFacetSelectors();
         this.dataGrid = this.renderGrid();
+        this.busyIndicator = dojo.create(
+            'div', {
+                innerHTML: 'BUSY',
+                className: 'busy_indicator'
+            }, this.containerElem );
 
         // put them in their places in the overall layout of the track selector
         facetContainer.set('region','left');
@@ -225,11 +230,14 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                                        onclick: dojo.hitch( this, function(evt) {
                                            this._clearTextFilterControl();
                                            this._clearAllFacetControls();
-                                           this.updateQuery();
-                                           this._updateFacetCounts();
+                                           this._async( function() {
+                                               this.updateQuery();
+                                               this._updateFacetCounts();
+                                           },this).call();
                                        })
                                    }
                                  ),
+                      this.busyIndicator,
                       textFilterContainer,
                       dojo.create('div', { className: 'matching_record_count' })
                   ]
@@ -239,7 +247,32 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.mainContainer.addChild( centerPane );
 
         this.mainContainer.startup();
+        this._busy( false );
         this.show();
+    },
+
+    _async: function( func, scope ) {
+        var that = this;
+        return function() {
+            var args = arguments;
+            var nativeScope = this;
+            that._busy( true );
+            window.setTimeout(
+                function() {
+                    func.apply( scope || nativeScope, args );
+                    that._busy( false );
+                },
+                50
+            );
+        };
+    },
+
+    _busy: function( busy ) {
+        this.busyCount = Math.max( 0, (this.busyCount || 0) + ( busy ? 1 : -1 ) );
+        if( this.busyCount > 0 )
+            dojo.addClass( this.containerElem, 'busy' );
+        else
+            dojo.removeClass( this.containerElem, 'busy' );
     },
 
     renderGrid: function() {
@@ -368,8 +401,10 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             className: 'text_filter_clear',
             onclick: dojo.hitch( this, function() {
                 this._clearTextFilterControl();
-                this.updateQuery();
-                this._updateFacetCounts();
+                this._async( function() {
+                    this.updateQuery();
+                    this._updateFacetCounts();
+                },this).call();
             }),
             style: {
                 position: 'absolute',
@@ -470,8 +505,10 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                       onclick: function(evt) {
                           dojo.toggleClass(this, 'selected');
                           that._updateFacetControl( facetName );
-                          that.updateQuery();
-                          that._updateFacetCounts( facetName );
+                          that._async( function() {
+                              that.updateQuery();
+                              that._updateFacetCounts( facetName );
+                          }).call();
                       }
                     },
                     facetControl
@@ -554,13 +591,15 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             }, this ) ) {
                 var clearFunc = dojo.hitch( this, function(evt) {
                     this._clearFacetControl( facetName );
-                    this.updateQuery();
-                    this._updateFacetCounts( facetName );
+                    this._async( function() {
+                        this.updateQuery();
+                        this._updateFacetCounts( facetName );
+                    },this).call();
                     evt.stopPropagation();
                 });
                 dojo.addClass( titleContent, 'selected' );
                 dojo.query( '> a', titleContent )
-                    .forEach(function(node) { node.onclick = clearFunc; })
+                    .forEach(function(node) { node.onclick = clearFunc; },this)
                     .attr('title','clear selections');
         }
         // otherwise, no selected values

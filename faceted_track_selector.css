@@ -63,12 +63,17 @@
 #faceted_tracksel .gridPane .gridControls button img {
     padding: 0 0.4em 0 0;
 }
-
-#faceted_tracksel label.textFilterControl {
-    display: block;
-    display: inline-block;
-    padding: 0 0.5em;
+#faceted_tracksel.busy .gridControls .busy_indicator {
+    visibility: visible;
 }
+#faceted_tracksel .gridControls .busy_indicator {
+    z-index: 20;
+    visibility: hidden;
+
+    content: url("img/spinner.gif");
+}
+
+
 #faceted_tracksel label.textFilterControl img.text_filter_clear {
     display: none;
 }
@@ -187,9 +192,12 @@
 #faceted_tracksel .facetSelect .selected {
     background: #b1d3f6;
 }
-.tundra #faceted_tracksel .facetSelect .selected {
+.tundra #faceted_tracksel .facetSelect .facetValue.selected,
+.tundra #faceted_tracksel .facetSelect .facetValue.selected:hover {
     background: #AEC7E3;
 }
+
+
 #faceted_tracksel .dijitAccordionContainer-dijitContentPane {
     padding: 0;
 }
