@@ -65,7 +65,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             dojo.forEach( args.metadataStores, function(store) {
                 store.fetch({
                     scope: this,
-                    onComplete: Util.debugHandler( this, function(items) {
+                    onComplete: dojo.hitch( this, function(items) {
                         // build our indexes
                         this._indexItems({ store: store, items: items, supplementalOnly: true });
 
