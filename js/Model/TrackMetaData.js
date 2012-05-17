@@ -360,7 +360,14 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             }
         },this);
 
-        var results = this._doQuery( query );
+        var results;
+        var queryFingerprint = Util.objectFingerprint( query );
+        if( queryFingerprint == this.previousQueryFingerprint ) {
+            results = this.previousResults;
+        } else {
+            this.previousQueryFingerprint = queryFingerprint;
+            this.previousResults = results = this._doQuery( query );
+        }
 
         // and finally, hand them to the finding callback
         findCallback(results,keywordArgs);
@@ -379,7 +386,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         //
         //    * for each individual facet, get a set of tracks that
         //      matches its selected values.  sort each set by the
-        //      tracks' unique identifier.
+        //      track's unique identifier.
         //    * while still need to go through all the items in the filtered sets:
         //          - if all the facets have the same track first in their sorted set:
         //                 add it to the core result set.
@@ -388,7 +395,6 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         //                 this track will need to be counted in the
         //                 'leave-out' counts for the odd facet out.  count it.
         //          - shift the lowest-labeled track off of whatever facets have it at the front
-
 
         var results = []; // array of items that completely match the query
 
