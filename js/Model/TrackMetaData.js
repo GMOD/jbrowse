@@ -271,7 +271,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
      */
     getFacetCounts: function( facetName ) {
         var context = this._fetchFacetCounts[ facetName ] || this._fetchFacetCounts[ '__other__' ];
-        return context[facetName];
+        return context ? context[facetName] : undefined;
     },
 
     /**
