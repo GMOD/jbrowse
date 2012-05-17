@@ -74,7 +74,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                     onError: function(e) {
                         console.error(''+e);
                         storeFetchFinished();
-                    },
+                    }
                 });
             },this);
         }
@@ -457,16 +457,22 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                     // lexically-first one that is not the end-of-set
                     // marker
                     uniqueIdents.sort();
-                    if( uniqueIdents[0] == '(at end of set)' )
-                        uniqueIdents.shift();
-                    ident = uniqueIdents[0];
+                    var leftOutIndex;
+                    if( uniqueIdents[0] == '(at end of set)' ) {
+                        ident = uniqueIdents[1];
+                        leftOutIndex = 0;
+                    } else {
+                        ident = uniqueIdents[0];
+                        leftOutIndex = 1;
+                    }
+                    ident = uniqueIdents[0] == '(at end of set)' ? uniqueIdents[1] : uniqueIdents[0];
 
                     if( uniqueIdents.length == 2
                         && setsByTopIdent[ ident ].length == filteredSets.length - 1 ) {
                         // all of the matched sets except one has the same
                         // item on top, and it is the lowest-labeled item
 
-                        var leftOutSet = setsByTopIdent[ uniqueIdents[1] ][0];
+                        var leftOutSet = setsByTopIdent[ uniqueIdents[ leftOutIndex ] ][0];
                         this._countItem( facetMatchCounts, setsByTopIdent[ident][0].topItem(), leftOutSet.facetName );
                     }
                 }
