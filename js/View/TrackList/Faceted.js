@@ -560,7 +560,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                 });
                 dojo.addClass( titleContent, 'selected' );
                 dojo.query( '> a', titleContent )
-                    .onclick( clearFunc )
+                    .forEach(function(node) { node.onclick = clearFunc; })
                     .attr('title','clear selections');
         }
         // otherwise, no selected values
