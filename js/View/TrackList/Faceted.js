@@ -59,11 +59,13 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
        dojo.subscribe( '/jbrowse/v1/c/tracks/hide',
                        dojo.hitch( this, 'setTracksInactive' ));
 
+       this.renderInitial();
+
        // once its data is loaded and ready
        dojo.connect( this.trackDataStore, 'onReady', this, function() {
 
            // render our controls and so forth
-           this.render();
+           this.renderSelectors();
 
            // connect events so that when a grid row is selected or
            // deselected (with the checkbox), publish a message
@@ -131,7 +133,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         return this._ifNotSuppressed( flag, function() { this._suppress( flag, method );});
     },
 
-    render: function() {
+    renderInitial: function() {
         this.containerElem = dojo.create( 'div', {
             id: 'faceted_tracksel',
             style: {
@@ -150,12 +152,11 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                     },
                     this.containerElem
                    );
-
-
         this.mainContainer = new dijit.layout.BorderContainer(
             { design: 'headline', gutters: false },
             dojo.create('div',{ className: 'mainContainer' }, this.containerElem)
         );
+
 
         this.topPane = new dijit.layout.ContentPane(
             { region: 'top',
@@ -195,6 +196,9 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         // make both buttons toggle this track selector
         dojo.query( '.faceted_tracksel_on_off' )
             .onclick( dojo.hitch( this, 'toggle' ));
+
+    },
+    renderSelectors: function() {
 
         // make our main components
         var textFilterContainer = this.renderTextFilter();
