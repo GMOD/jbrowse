@@ -397,7 +397,6 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         if( textFilter ) {
             filteredSets.push( dojo.filter( dojof.values( this.identIndex ), textFilter ) );
             filteredSets[0].facetName = 'Contains text';
-            filteredSets[0].myOffset = 0;
         }
         filteredSets.push.apply( filteredSets,
                 dojo.map( dojof.keys( facetQuery ), function( facetName ) {
@@ -406,28 +405,18 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                     dojo.forEach( values, function(value) {
                         items.push.apply( items, this.facetIndexes.byName[facetName].byValue[value].items );
                     },this);
-                    items.myOffset = 0;
                     items.facetName = facetName;
                     items.sort( dojo.hitch( this, '_itemSortFunc' ));
                     return items;
                 },this)
         );
+        dojo.forEach( filteredSets, function(s) {
+            s.myOffset = 0;
+            s.topItem = function() { return this[this.myOffset]; };
+        });
 
         // init counts
         var facetMatchCounts   = {};
-        var countItem = function( item, facetName ) {
-            var facetEntry = facetMatchCounts[facetName];
-            if( !facetEntry ) facetEntry = facetMatchCounts[facetName] = {};
-            dojo.forEach( this.facets, function(attrName) {
-                var value = this.getValue( item, attrName, this._noDataValue );
-                var attrEntry = facetEntry[attrName];
-                if( !attrEntry ) {
-                    attrEntry = facetEntry[attrName] = {};
-                    attrEntry[value] = 0;
-                }
-                attrEntry[value] = ( attrEntry[value] || 0 ) + 1;
-            },this);
-        };
 
         if( ! filteredSets.length ) {
             results = dojof.values( this.identIndex );
@@ -445,7 +434,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                 // topmost item.
                 var setsByTopIdent = {}, uniqueIdents = [], ident, item;
                 dojo.forEach(filteredSets, function(set,i) {
-                    item = set[ set.myOffset ];
+                    item = set.topItem();
                     ident = item ? this.getIdentity( item ) : '(at end of set)';
                     if( setsByTopIdent[ ident ] ) {
                         setsByTopIdent[ ident ].push( set );
@@ -459,28 +448,36 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                     // top.  this means it is part of the core result set.
                     results.push( item );
                 } else {
+
+                    // ident we are operating on is always the
+                    // lexically-first one that is not the end-of-set
+                    // marker
                     uniqueIdents.sort();
-                    ident = uniqueIdents[0] == '(at end of set)' ? uniqueIdents[1] : uniqueIdents[0];
+                    if( uniqueIdents[0] == '(at end of set)' )
+                        uniqueIdents.shift();
+                    ident = uniqueIdents[0];
+
                     if( uniqueIdents.length == 2
-                        && setsByTopIdent[ ident ].length == 1 ) {
+                        && setsByTopIdent[ ident ].length == filteredSets.length - 1 ) {
                         // all of the matched sets except one has the same
                         // item on top, and it is the lowest-labeled item
 
-                        var leftOutSet = setsByTopIdent[ ident ][0];
-                        countItem.call( this, leftOutSet[ leftOutSet.myOffset ], leftOutSet.facetName );
+                        var leftOutSet = setsByTopIdent[ uniqueIdents[1] ][0];
+                        this._countItem( facetMatchCounts, setsByTopIdent[ident][0].topItem(), leftOutSet.facetName );
                     }
                 }
+
                 dojo.forEach( setsByTopIdent[ ident ], function(s) { s.myOffset++; leftToProcess--; });
             }
         }
 
-        // dojo.forEach( dojof.keys(facetMatchCounts), function(category) {
-        //     dojo.forEach( results, function(item) {
-        //          countItem.call(this, item, category);
-        //     },this);
-        // },this);
+        dojo.forEach( dojof.keys(facetMatchCounts), function(category) {
+            dojo.forEach( results, function(item) {
+                 this._countItem( facetMatchCounts, item, category);
+            },this);
+        },this);
         dojo.forEach( results, function(item) {
-            countItem.call(this, item, '__other__' );
+            this._countItem( facetMatchCounts, item, '__other__' );
         },this);
         this._fetchFacetCounts = facetMatchCounts;
         console.log( facetMatchCounts );
@@ -488,13 +485,28 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         // count for it is actually the count of all results, so we
         // need to make a special little count of that attribute for
         // the global result set.
-        // if( filteredSets.length == 1 ) {
-        //     dojo.forEach( dojof.values( this.identIndex ), function(item) {
-        //         countItem.call( this, item, filteredSets[0].facetName, filteredSets[0].facetName );
-        //     },this);
-        // }
+        if( filteredSets.length == 1 ) {
+            dojo.forEach( dojof.values( this.identIndex ), function(item) {
+                this._countItem( facetMatchCounts, item, filteredSets[0].facetName );
+            },this);
+        }
 
         return results;
+    },
+
+    _countItem: function( facetMatchCounts, item, facetName ) {
+        var facetEntry = facetMatchCounts[facetName];
+        if( !facetEntry ) facetEntry = facetMatchCounts[facetName] = {};
+        var facets = facetName == '__other__' ? this.facets : [facetName];
+        dojo.forEach( facets, function(attrName) {
+            var value = this.getValue( item, attrName, this._noDataValue );
+            var attrEntry = facetEntry[attrName];
+            if( !attrEntry ) {
+                attrEntry = facetEntry[attrName] = {};
+                attrEntry[value] = 0;
+            }
+            attrEntry[value] = ( attrEntry[value] || 0 ) + 1;
+        },this);
     },
 
     /**
