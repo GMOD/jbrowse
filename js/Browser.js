@@ -523,6 +523,10 @@ Browser.prototype.createTrackList = function() {
                 );
                 var storeClass = sourceDef['class']
                     || { csv: 'dojox.data.CsvStore', json: 'dojox.data.JsonRestStore' }[type];
+                if( !storeClass ) {
+                    console.error("No store class found for type '"+type +"', cannot load track metadata from URL "+url);
+                    return null;
+                }
 
                 try { eval(storeClass) || dojo.require(storeClass); }
                 catch (x) { console.error('Could not load trackMetaSource class '+storeClass+': ' + x); }

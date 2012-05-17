@@ -49,6 +49,8 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
 
         // fetch and index all the items from each of the stores
         var stores_fetched_count = 0;
+        // filter out empty metadata store entries
+        args.metadataStores = dojo.filter( args.metadataStores, function(s) { return s; } );
         if( ! args.metadataStores || ! args.metadataStores.length ) {
             // if we don't actually have any stores besides the track
             // confs, we're ready now.
