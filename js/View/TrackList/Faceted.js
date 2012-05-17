@@ -247,8 +247,6 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.mainContainer.addChild( centerPane );
 
         this.mainContainer.startup();
-        this._busy( false );
-        this.show();
     },
 
     _async: function( func, scope ) {
