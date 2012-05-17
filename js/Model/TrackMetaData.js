@@ -360,12 +360,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             }
         },this);
 
-        var textFilter = this._compileTextFilter( query.text );
-        delete query.text;
-
-        var results = this._doQuery( query, textFilter );
-
-        this._fetchCount = results.length;
+        var results = this._doQuery( query );
 
         // and finally, hand them to the finding callback
         findCallback(results,keywordArgs);
@@ -375,7 +370,11 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
     /**
      * @private
      */
-    _doQuery: function( /**Object*/ facetQuery, /**Function*/ textFilter ) {
+    _doQuery: function( /**Object*/ query ) {
+
+        var textFilter = this._compileTextFilter( query.text );
+        delete query.text;
+
         // algorithm pseudocode:
         //
         //    * for each individual facet, get a set of tracks that
@@ -404,8 +403,8 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             filteredSets[0].facetName = 'Contains text';
         }
         filteredSets.push.apply( filteredSets,
-                dojo.map( dojof.keys( facetQuery ), function( facetName ) {
-                    var values = facetQuery[facetName];
+                dojo.map( dojof.keys( query ), function( facetName ) {
+                    var values = query[facetName];
                     var items = [];
                     dojo.forEach( values, function(value) {
                         items.push.apply( items, this.facetIndexes.byName[facetName].byValue[value].items );
@@ -483,15 +482,15 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             }
         }
 
-        dojo.forEach( dojof.keys(facetMatchCounts), function(category) {
+        // each of the leave-one-out count sets needs to also have the
+        // core result set counted in it, and also make a counting set
+        // for the core result set (used by __other__ facets not
+        // involved in the query)
+        dojo.forEach( dojof.keys(facetMatchCounts).concat( ['__other__'] ), function(category) {
             dojo.forEach( results, function(item) {
                  this._countItem( facetMatchCounts, item, category);
             },this);
         },this);
-        dojo.forEach( results, function(item) {
-            this._countItem( facetMatchCounts, item, '__other__' );
-        },this);
-        this._fetchFacetCounts = facetMatchCounts;
 
         // in the case of just one filtered set, the 'leave-one-out'
         // count for it is actually the count of all results, so we
@@ -503,6 +502,8 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             },this);
         }
 
+        this._fetchFacetCounts = facetMatchCounts;
+        this._fetchCount = results.length;
         return results;
     },
 
