@@ -58,6 +58,8 @@ class AbstractYeastBiodbTest ( JBrowseTest ):
 
     def sequence( self ):
         self.do_typed_query( 'chrII:296318..296400' );
+        if not self.is_track_on('DNA'):
+            self.turn_on_track( 'DNA' );
         sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')][contains(.,'%s')]"
         sequence_div_xpath_1 = sequence_div_xpath_templ % 'TATATGGTCTT';
         self.assert_element( sequence_div_xpath_1)

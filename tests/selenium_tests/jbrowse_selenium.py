@@ -32,6 +32,13 @@ class JBrowseTest (object):
 
     ## convenience methods for us
 
+    def maybe_find_element_by_xpath( self, xpathExpression ):
+        try:
+            el = self.browser.find_element_by_xpath( xpathExpression )
+        except NoSuchElementException:
+            return None
+        return el
+
     def assert_element( self, xpathExpression ):
         try:
             el = self.browser.find_element_by_xpath( xpathExpression )
@@ -100,17 +107,19 @@ class JBrowseTest (object):
         """Executes a rubberband gesture from start_pct to end_pct in the main track pane"""
         self._rubberband( "//div[contains(@class,'dragWindow')]", start_pct, end_pct, Keys.SHIFT )
 
+    def is_track_on( self, tracktext ):
+        # find the track label
+        return not self.maybe_find_element_by_xpath( "//div[@class='tracklist-label'][contains(.,'%s')]" % tracktext )
+
     def turn_on_track( self, tracktext ):
 
         # find the track label
         tracklabel = self.assert_element( "//div[@class='tracklist-label'][contains(.,'%s')]" % tracktext )
+        dragpane   = self.assert_element( "//div[contains(@class, 'trackContainer')]" )
 
         # drag the track label over
         self.actionchains() \
-            .move_to_element( tracklabel ) \
-            .click_and_hold( None ) \
-            .move_by_offset( 300, 50 ) \
-            .release( None ) \
+            .drag_and_drop( tracklabel, dragpane ) \
             .perform()
 
         self.assert_no_js_errors()
