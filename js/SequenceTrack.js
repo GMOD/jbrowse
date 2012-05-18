@@ -39,12 +39,11 @@ function SequenceTrack(config, refSeq, browserParams) {
                                urlTemplate: config.urlTemplate,
                                compress: config.compress
                              });
-
-    this.setLoaded();
 }
 
 SequenceTrack.prototype = new Track("");
 SequenceTrack.prototype.load = function() {
+    window.setTimeout( dojo.hitch( this, 'setLoaded' ), 10 );
 };
 
 SequenceTrack.prototype.startZoom = function(destScale, destStart, destEnd) {

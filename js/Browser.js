@@ -568,7 +568,6 @@ Browser.prototype.onVisibleTracksChanged = function() {
     this.cookie( "tracks",
                  this.visibleTracks().join(','),
                  {expires: 60});
-    this.view.showVisibleBlocks();
 };
 
 /**
