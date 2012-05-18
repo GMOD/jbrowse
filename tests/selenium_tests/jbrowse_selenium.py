@@ -32,6 +32,13 @@ class JBrowseTest (object):
 
     ## convenience methods for us
 
+    def maybe_find_element_by_xpath( self, xpathExpression ):
+        try:
+            el = self.browser.find_element_by_xpath( xpathExpression )
+        except NoSuchElementException:
+            return None
+        return el
+
     def assert_element( self, xpathExpression ):
         try:
             el = self.browser.find_element_by_xpath( xpathExpression )
@@ -99,6 +106,10 @@ class JBrowseTest (object):
     def trackpane_rubberband( self, start_pct, end_pct ):
         """Executes a rubberband gesture from start_pct to end_pct in the main track pane"""
         self._rubberband( "//div[contains(@class,'dragWindow')]", start_pct, end_pct, Keys.SHIFT )
+
+    def is_track_on( self, tracktext ):
+        # find the track label
+        return not self.maybe_find_element_by_xpath( "//div[@class='tracklist-label'][contains(.,'%s')]" % tracktext )
 
     def turn_on_track( self, tracktext ):
 
