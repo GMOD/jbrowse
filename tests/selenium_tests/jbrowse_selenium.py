@@ -115,13 +115,11 @@ class JBrowseTest (object):
 
         # find the track label
         tracklabel = self.assert_element( "//div[@class='tracklist-label'][contains(.,'%s')]" % tracktext )
+        dragpane   = self.assert_element( "//div[contains(@class, 'trackContainer')]" )
 
         # drag the track label over
         self.actionchains() \
-            .move_to_element( tracklabel ) \
-            .click_and_hold( None ) \
-            .move_by_offset( 300, 50 ) \
-            .release( None ) \
+            .drag_and_drop( tracklabel, dragpane ) \
             .perform()
 
         self.assert_no_js_errors()
