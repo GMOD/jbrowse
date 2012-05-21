@@ -36,6 +36,7 @@
     <script type="text/javascript" src="js/SequenceStore/StaticChunked.js"></script>
 
     <script type="text/javascript" src="js/Model/TrackMetaData.js"></script>
+    <script type="text/javascript" src="js/Model/modEncodeTrackMetadata.js"></script>
 
     <script type="text/javascript" src="js/View/TrackList/Null.js"></script>
     <script type="text/javascript" src="js/View/TrackList/Simple.js"></script>
@@ -83,12 +84,7 @@
                                    forceTracks: queryParams.tracks,
 				   show_nav: queryParams.nav,
 				   show_tracklist: queryParams.tracklist,
-				   show_overview: queryParams.overview,
-
-                                   trackMetaSources: [
-                                       { url: 'trackMeta.csv' }
-                                   ],
-                                   trackSelectorType: 'Faceted'
+				   show_overview: queryParams.overview
                                });
     /* ]]> */
     </script>
