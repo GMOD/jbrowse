@@ -200,6 +200,13 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         this.centerPane = new dijit.layout.BorderContainer({region: 'center', "class": 'gridPane', gutters: false});
         this.mainContainer.addChild( this.centerPane );
         var textFilterContainer = this.renderTextFilter();
+
+        this.busyIndicator = dojo.create(
+            'div', {
+                innerHTML: '<img src="img/spinner.gif">',
+                className: 'busy_indicator'
+            }, this.containerElem );
+
         this.centerPane.addChild(
             new dijit.layout.ContentPane(
                 { region: 'top',
@@ -239,17 +246,11 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
         // make our main components
         var facetContainer = this.renderFacetSelectors();
-        this.dataGrid = this.renderGrid();
-        this.busyIndicator = dojo.create(
-            'div', {
-                innerHTML: '<img src="img/spinner.gif">',
-                className: 'busy_indicator'
-            }, this.containerElem );
-
         // put them in their places in the overall layout of the track selector
         facetContainer.set('region','left');
         this.mainContainer.addChild( facetContainer );
 
+        this.dataGrid = this.renderGrid();
         this.dataGrid.set('region','center');
         this.centerPane.addChild( this.dataGrid );
 
