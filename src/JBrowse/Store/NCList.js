@@ -95,7 +95,7 @@ NCList.prototype.binarySearch = function(arr, item, getter) {
 
     while (high - low > 1) {
         mid = (low + high) >>> 1;
-        if (getter(arr[mid]) > item)
+        if (getter(arr[mid]) >= item)
             high = mid;
         else
             low = mid;
