@@ -508,34 +508,42 @@ Browser.prototype.createTrackList = function() {
         resolved_tl_class = JBrowse.View.TrackList.Simple;
     }
 
-    // instantiate the tracklist
-    this.trackListView = new resolved_tl_class( {
-        trackMetaData: new JBrowse.Model.TrackMetaData({
-            trackConfigs: this.config.tracks,
-            browser: this,
-            metadataStores: dojo.map( this.config.trackMetaSources || [], function( sourceDef ) {
-                var url  = sourceDef.url || 'trackMeta.csv';
-                var type = sourceDef.type || (
-                        /\.csv$/i.test(url)     ? 'csv'  :
-                        /\.js(on)?$/i.test(url) ? 'json' :
-                                                  'csv'
-                );
-                var storeClass = sourceDef['class']
-                    || { csv: 'dojox.data.CsvStore', json: 'dojox.data.JsonRestStore' }[type];
-                if( !storeClass ) {
-                    console.error("No store class found for type '"+type +"', cannot load track metadata from URL "+url);
-                    return null;
-                }
+    var trackMeta =  new JBrowse.Model.TrackMetaData(
+        dojo.mixin( this.config.trackMetadata || {}, {
+                        trackConfigs: this.config.tracks,
+                        browser: this,
+                        metadataStores: dojo.map(
+                            (this.config.trackMetadata||{}).sources || [],
+                            function( sourceDef ) {
+                                var url  = sourceDef.url || 'trackMeta.csv';
+                                var type = sourceDef.type || (
+                                        /\.csv$/i.test(url)     ? 'csv'  :
+                                        /\.js(on)?$/i.test(url) ? 'json' :
+                                        'csv'
+                                );
+                                var storeClass = sourceDef['class']
+                                    || { csv: 'dojox.data.CsvStore', json: 'dojox.data.JsonRestStore' }[type];
+                                if( !storeClass ) {
+                                    console.error( "No store class found for type '"
+                                                   +type+"', cannot load track metadata from URL "+url);
+                                    return null;
+                                }
 
-                try { eval(storeClass) || dojo.require(storeClass); }
-                catch (x) { console.error('Could not load trackMetaSource class '+storeClass+': ' + x); }
+                                try { eval(storeClass) || dojo.require(storeClass); }
+                                catch (x) { console.error('Could not load trackMetaSource class '+storeClass+': ' + x); }
 
-                return new (eval(storeClass))({ url: url });
-            },this)
-        }),
+                                return new (eval(storeClass))({ url: url });
+                            },this)
+                    })
+    );
+
+
+    // instantiate the tracklist and the track metadata object
+    this.trackListView = new resolved_tl_class({
         trackConfigs: this.config.tracks,
-        browser: this
-      });
+        browser: this,
+        trackMetaData: trackMeta
+    });
 
     // bind the 't' key as a global keyboard shortcut
     this.setGlobalKeyboardShortcut( 't', this.trackListView, 'toggle' );
