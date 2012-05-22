@@ -1,5 +1,6 @@
 import os
 import time
+import re
 
 import unittest
 
@@ -45,26 +46,36 @@ class JBrowseTest (object):
             return None
         return el
 
-    def assert_element( self, xpathExpression ):
+    def assert_element( self, expression ):
         try:
-            el = self.browser.find_element_by_xpath( xpathExpression )
+            if expression.find('/') >= 0:
+                el = self.browser.find_element_by_xpath( expression )
+            else:
+                el = self.browser.find_element_by_css_selector( expression )
         except NoSuchElementException:
-            assert 0, ( "can't find %s" % xpathExpression )
+            assert 0, ( "can't find %s" % expression )
         return el
 
-    def assert_no_element( self, xpath ):
+    def assert_elements( self, expression ):
         try:
-            self.browser.find_element_by_xpath( xpath )
-            assert 0, ( "not supposed to find %s" % xpath )
+            if expression.find('/') >= 0:
+                el = self.browser.find_elements_by_xpath( expression )
+            else:
+                el = self.browser.find_elements_by_css_selector( expression )
+        except NoSuchElementException:
+            assert 0, ( "can't find %s" % expression )
+        return el
+
+
+    def assert_no_element( self, expression ):
+        try:
+            if expression.find('/') >= 0:
+                el = self.browser.find_element_by_xpath( expression )
+            else:
+                el = self.browser.find_element_by_css_selector( expression )
+            assert 0, ( "not supposed to find %s" % expression )
         except NoSuchElementException:
             pass
-
-    def assert_elements( self, xpathExpression ):
-        try:
-            el = self.browser.find_elements_by_xpath( xpathExpression )
-        except NoSuchElementException:
-            assert 0, ( "can't find %s" % xpathExpression )
-        return el
 
     def assert_no_js_errors( self ):
         assert self.browser.find_element_by_xpath('/html/body') \
