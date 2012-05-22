@@ -288,6 +288,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         var grid = new dojox.grid.EnhancedGrid({
                id: 'trackSelectGrid',
                store: this.trackDataStore,
+               selectable: true,
                noDataMessage: "No tracks match the filtering criteria.",
                structure: [
                    dojo.map( facets, function(facetName) {
