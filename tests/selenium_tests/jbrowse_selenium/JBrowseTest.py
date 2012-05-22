@@ -9,26 +9,32 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions     import NoSuchElementException
 from selenium.webdriver.support.ui  import Select
 
+import track_selectors
+
 class JBrowseTest (object):
 
     data_dir = None
     base_url = None
 
-    ## TestCase overrides
+    tracksel_type = 'Simple'
 
-    def baseURL( self ):
-        if not self.base_url:
-            self.base_url = os.environ['JBROWSE_URL'] if 'JBROWSE_URL' in os.environ else "file://"+os.getcwd()+"/index.html"
-        return self.base_url
-
+    ## TestCase override - use instead of constructor
     def setUp( self ):
+
+        self.track_selector = getattr( track_selectors, '%sTrackSelector' % self.tracksel_type )( self )
 
         self.browser = webdriver.Firefox()
         self.browser.get(
             self.baseURL()
             + ( "?data="+self.data_dir if self.data_dir else "" )
         )
-        time.sleep(0.5)
+        time.sleep(0.5)  # give selenium some time to get its head on straight
+
+    def baseURL( self ):
+        if not self.base_url:
+            self.base_url = os.environ['JBROWSE_URL'] if 'JBROWSE_URL' in os.environ else "file://"+os.getcwd()+"/index.html"
+        return self.base_url
+
 
     ## convenience methods for us
 
@@ -108,33 +114,14 @@ class JBrowseTest (object):
         self._rubberband( "//div[contains(@class,'dragWindow')]", start_pct, end_pct, Keys.SHIFT )
 
     def is_track_on( self, tracktext ):
-        # find the track label
-        return not self.maybe_find_element_by_xpath( "//div[@class='tracklist-label'][contains(.,'%s')]" % tracktext )
+        # find the track label in the track pane
+        return not self.maybe_find_element_by_xpath( "//div[contains(@class,'dragWindow')]//div[@class='track-label'][contains(.,'%s')]" % tracktext )
 
     def turn_on_track( self, tracktext ):
-
-        # find the track label
-        tracklabel = self.assert_element( "//div[@class='tracklist-label'][contains(.,'%s')]" % tracktext )
-        dragpane   = self.assert_element( "//div[contains(@class, 'trackContainer')]" )
-
-        # drag the track label over
-        self.actionchains() \
-            .drag_and_drop( tracklabel, dragpane ) \
-            .perform()
-
-        self.assert_no_js_errors()
+        return self.track_selector.turn_on_track( tracktext )
 
     def turn_off_track( self, tracktext ):
-
-        # drag the track back into the track list
-        track_handle = self.assert_element( "/html//div[contains(@class,'track')]//div[contains(@class,'track-label')][contains(.,'%s')]" % tracktext )
-        track_list = self.assert_element( "/html//div[@id='tracksAvail']" )
-
-        self.actionchains() \
-            .drag_and_drop( track_handle, track_list ) \
-            .perform()
-
-        self.assert_no_js_errors()
+        return self.track_selector.turn_off_track( tracktext )
 
     def actionchains( self ):
         return ActionChains( self.browser )
