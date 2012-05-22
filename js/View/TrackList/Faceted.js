@@ -334,11 +334,11 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         // make renameFacets if needed
         this.renameFacets = this.renameFacets || function(){
             var rename = this.config.renameFacets || {};
-            rename.key = rename.key || 'name';
+            rename.key = rename.key || 'Name';
             return rename;
         }.call(this);
 
-        return Util.ucFirst( this.renameFacets[facetName] || facetName );
+        return this.renameFacets[facetName] || Util.ucFirst( facetName.replace('_',' ') );
     },
 
     /**
