@@ -16,14 +16,14 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
        this.browser = args.browser;
        this.tracksActive = {};
+       this.config = args;
 
        // construct the discriminator for whether we will display a
        // facet selector for this facet
-       this._isSelectableFacet = function() {
-           // just a function returning true if not specified
-           var filter = args.selectableFacets ||
+       this._isSelectableFacet = this._coerceFilter(
+               args.selectableFacetFilter
                // default facet filtering function
-               function( store, facetName ){
+               || function( facetName, store ){
                    return (
                        // has an avg bucket size > 1
                        store.getFacetStats( facetName ).avgBucketSize > 1
@@ -34,20 +34,14 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                                     function(l) {return l == facetName;}
                                   )
                    );
-               };
-           // if we have a non-function filter, coerce to an array,
-           // then convert that array to a function
-           if( typeof filter == 'string' )
-               filter = [filter];
-           if( Array.isArray( filter ) ) {
-               filter = function( store, facetName) {
-                   return dojo.some( filter, function(fn) {
-                                         return facetName == fn;
-                                     });
-               };
-           }
-           return filter;
-       }.call(this);
+               }
+           );
+
+       // construct a similar discriminator for which columns will be displayed
+       this.displayColumns = args.displayColumns;
+       this._isDisplayableColumn = this._coerceFilter(
+           args.displayColumnFilter || function() { return true; }
+       );
 
        // data store that fetches and filters our track metadata
        this.trackDataStore = args.trackMetaData;
@@ -91,6 +85,28 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
        dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateGridSelections' );
        dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateMatchCount' );
+    },
+
+    /**
+     * Coerces a string or array of strings into a function that,
+     * given a string, returns true if the string matches one of the
+     * given strings.  If passed a function, just returns that
+     * function.
+     * @private
+     */
+    _coerceFilter: function( filter ) {
+        // if we have a non-function filter, coerce to an array,
+        // then convert that array to a function
+        if( typeof filter == 'string' )
+            filter = [filter];
+        if( Array.isArray( filter ) ) {
+            filter = function( store, facetName) {
+                return dojo.some( filter, function(fn) {
+                                      return facetName == fn;
+                                  });
+            };
+        }
+        return filter;
     },
 
     /**
@@ -282,18 +298,21 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
     },
 
     renderGrid: function() {
-        // make a data grid that will hold the search results
-        var facets = this.trackDataStore.getFacetNames();
-        var rename = { key: 'name' }; // rename some columns in the grid
         var grid = new dojox.grid.EnhancedGrid({
                id: 'trackSelectGrid',
                store: this.trackDataStore,
                selectable: true,
                noDataMessage: "No tracks match the filtering criteria.",
                structure: [
-                   dojo.map( facets, function(facetName) {
-                     return {'name': Util.ucFirst(rename[facetName]||facetName), 'field': facetName, 'width': '100px'};
-                   })
+                   dojo.map(
+                       dojo.filter( this.displayColumns || this.trackDataStore.getFacetNames(),
+                                    dojo.hitch(this, '_isDisplayableColumn')
+                                  ),
+                       function(facetName) {
+                           return {'name': this._facetDisplayName(facetName), 'field': facetName, 'width': '100px'};
+                       },
+                       this
+                   )
                ],
                plugins: {
                    indirectSelection: {
@@ -305,6 +324,21 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
 
         this._monkeyPatchGrid( grid );
         return grid;
+    },
+
+    /**
+     * Given a raw facet name, format it for user-facing display.
+     * @private
+     */
+    _facetDisplayName: function( facetName ) {
+        // make renameFacets if needed
+        this.renameFacets = this.renameFacets || function(){
+            var rename = this.config.renameFacets || {};
+            rename.key = rename.key || 'name';
+            return rename;
+        }.call(this);
+
+        return Util.ucFirst( this.renameFacets[facetName] || facetName );
     },
 
     /**
@@ -464,11 +498,15 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
         // for the facets from the store, only render facet selectors
         // for ones that are not identity attributes, and have an
         // average bucket size greater than 1
-        var storeFacets =
-            dojo.filter( store.getFacetNames(),
-                         dojo.hitch( this, '_isSelectableFacet', store )
+        var selectableFacets =
+            dojo.filter( this.config.selectableFacets || store.getFacetNames(),
+                         function( facetName ) {
+                             return this._isSelectableFacet( facetName, this.trackDataStore );
+                         },
+                         this
                        );
-        dojo.forEach( storeFacets, function(facetName) {
+
+        dojo.forEach( selectableFacets, function(facetName) {
 
             // get the values of this facet
             var values = store.getFacetValues(facetName).sort();
@@ -493,7 +531,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             {
                 title: '<div id="facet_title_' + facetName +'" '
                     + 'class="facetTitle">'
-                    + Util.ucFirst(facetName)
+                    + this._facetDisplayName(facetName)
                     + ' <a class="clearFacet"><img src="img/red_x.png" /></a>'
                     + '</div>'
             });

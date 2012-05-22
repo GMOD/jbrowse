@@ -539,11 +539,16 @@ Browser.prototype.createTrackList = function() {
 
 
     // instantiate the tracklist and the track metadata object
-    this.trackListView = new resolved_tl_class({
-        trackConfigs: this.config.tracks,
-        browser: this,
-        trackMetaData: trackMeta
-    });
+    this.trackListView = new resolved_tl_class(
+        dojo.mixin(
+            dojo.clone( this.config.trackSelector ) || {},
+            {
+                trackConfigs: this.config.tracks,
+                browser: this,
+                trackMetaData: trackMeta
+            }
+        )
+    );
 
     // bind the 't' key as a global keyboard shortcut
     this.setGlobalKeyboardShortcut( 't', this.trackListView, 'toggle' );

@@ -1,4 +1,8 @@
 {
+trackSelector: {
+    displayColumns: ['key', 'organism', 'developmental-stage', 'organism' ],
+    renameFacets: { 'developmental-stage': 'Developmental Stage' }
+},
 trackMetadata: {
   filterFacets: [ 'category', 'organism','target','technique','principal_investigator','factor','developmental-stage','strain','cell-line','tissue','compound','temperature' ],
   sources: [
