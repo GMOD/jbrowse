@@ -17,11 +17,25 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         // set up our facet name discrimination: what facets we will
         // actually provide search on
         var non_facet_attrs = ['conf'];
-        this._filterFacet = function( facetName ) {
-            var userfilter = args.filterFacets || function() {return true;};
-            return userfilter(facetName)
-                   && ! dojo.some( non_facet_attrs, function(a) { return a == facetName;});
-        };
+        this._filterFacet = (function() {
+            var filter = args.filterFacets || function() {return true;};
+            // if we have a non-function filter, coerce to an array,
+            // then convert that array to a function
+            if( typeof filter == 'string' )
+                filter = [filter];
+            if( Array.isArray( filter ) ) {
+                var oldfilter = filter;
+                filter = function( facetName) {
+                    return dojo.some( oldfilter, function(fn) {
+                                         return facetName == fn.toLowerCase();
+                                     });
+               };
+            }
+            return function(facetName) {
+                return filter(facetName)
+                    && ! dojo.some( non_facet_attrs, function(a) { return a == facetName;});
+            };
+        }).call(this);
 
         // set up our onReady callbacks to fire once the data is
         // loaded
