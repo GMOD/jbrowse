@@ -808,6 +808,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             this.textFilterInput.focus();
         }), 300);
 
+        dojo.addClass( this.containerElem, 'active' );
         dojo.animateProperty({
             node: this.containerElem,
             properties: {
@@ -822,6 +823,8 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
      * Make the track selector invisible.
      */
     hide: function() {
+
+        dojo.removeClass( this.containerElem, 'active' );
 
         dojo.animateProperty({
             node: this.containerElem,
