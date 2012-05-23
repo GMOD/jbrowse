@@ -451,7 +451,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
             }),
             style: {
                 position: 'absolute',
-                right: '12px',
+                right: '4px',
                 top: '20%'
             }
         }, this.textFilterLabel );

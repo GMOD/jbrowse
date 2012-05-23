@@ -39,6 +39,7 @@
 }
 #faceted_tracksel .gridPane .gridControls {
     padding: 2px 3px;
+    font-size: 110%;
 }
 .tundra #faceted_tracksel .gridPane .gridControls {
     background: #e9e9e9;
