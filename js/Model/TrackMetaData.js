@@ -426,8 +426,13 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                 dojo.map( dojof.keys( query ), function( facetName ) {
                     var values = query[facetName];
                     var items = [];
+                    if( ! this.facetIndexes.byName[facetName] ) {
+                        console.error( "No facet defined with name '"+facetName+"'." );
+                        throw "No facet defined with name '"+facetName+"', faceted search failed.";
+                    }
                     dojo.forEach( values, function(value) {
-                        items.push.apply( items, this.facetIndexes.byName[facetName].byValue[value].items );
+                        var idx = this.facetIndexes.byName[facetName].byValue[value] || {};
+                        items.push.apply( items, idx.items || [] );
                     },this);
                     items.facetName = facetName;
                     items.sort( dojo.hitch( this, '_itemSortFunc' ));
