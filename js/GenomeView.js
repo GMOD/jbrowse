@@ -1113,8 +1113,16 @@ GenomeView.prototype.sizeInit = function() {
 	});
     this.updateOverviewHeight();
 
+    this.updateScroll();
+};
+
+/**
+ * @private
+ */
+GenomeView.prototype.updateScroll = function() {
+
     // may need to update our Y position if our height has changed
-    var update = { height: this.getHeight(), width: this.getWidth() };
+    var update = { height: this.getHeight() };
     if( this.getY() > 0 ) {
         if( this.containerHeight - this.getY() < update.height ) {
             //console.log( this.totalTrackHeight, update.height, this.getY() );
@@ -1550,6 +1558,7 @@ GenomeView.prototype.updateTrackList = function() {
 
     var newIndices = {};
     var newHeights = new Array(this.tracks.length);
+    var totalHeight = 0;
     for (var i = 0; i < tracks.length; i++) {
         newIndices[tracks[i].name] = i;
         if (tracks[i].name in this.trackIndices) {
@@ -1557,6 +1566,7 @@ GenomeView.prototype.updateTrackList = function() {
         } else {
             newHeights[i] = 0;
         }
+        totalHeight += newHeights[i];
         this.trackIndices[tracks[i].name] = i;
     }
     this.trackIndices = newIndices;
@@ -1568,6 +1578,11 @@ GenomeView.prototype.updateTrackList = function() {
         if (this.tracks[i].shown)
             nextTop += this.trackHeights[i] + this.trackPadding;
     }
+
+    this.containerHeight = nextTop;
+    this.scrollContainer.style.height = this.containerHeight + "px";
+
+    this.updateScroll();
 };
 
 /*
