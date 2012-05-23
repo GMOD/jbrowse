@@ -18,6 +18,12 @@
     height: 100%;
 }
 
+#faceted_tracksel.active {
+    -moz-box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
+    -webkit-box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
+    box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
+}
+
 #faceted_tracksel button, #faceted_tracksel input {
     font-size: 12px;
 }
@@ -122,6 +128,10 @@
     white-space: nowrap;
 
     cursor: pointer;
+
+    -moz-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
+    -webkit-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
+    box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
 }
 #faceted_tracksel div.faceted_tracksel_on_off.tab > * {
     display: inline-block;
