@@ -230,7 +230,7 @@ GenomeView.prototype._renderVerticalScrollBar = function() {
             className: 'vertical_position_marker',
             style: {
                 position: 'absolute',
-                height: '100%',
+                height: '100%'
             }
         },
         container
@@ -248,7 +248,8 @@ GenomeView.prototype._updateVerticalScrollBar = function( newDims ) {
         var heightAdjust = this.staticTrack ? -this.staticTrack.div.offsetHeight : 0;
         var trackPaneHeight = newDims.height + heightAdjust;
         this.verticalScrollBar.container.style.height = trackPaneHeight+'px';
-        this.verticalScrollBar.positionMarker.style.height = ( newDims.height / this.containerHeight * 100 )+'%';
+        var markerHeight = newDims.height / this.containerHeight * 100;
+        this.verticalScrollBar.positionMarker.style.height = markerHeight > 0.5 ? markerHeight+'%' :  '1px';
         this.verticalScrollBar.container.style.display = newDims.height / this.containerHeight > 0.98 ? 'none' : 'block';
     }
 
