@@ -385,10 +385,10 @@ GenomeView.prototype.getY = function() {
     return this.y;
 };
 GenomeView.prototype.getHeight = function() {
-    return this.elem.clientHeight;
+    return this.elem.offsetHeight;
 };
 GenomeView.prototype.getWidth = function() {
-    return this.elem.clientWidth;
+    return this.elem.offsetWidth;
 };
 
 GenomeView.prototype.clampX = function(x) {
@@ -920,8 +920,8 @@ GenomeView.prototype.bpToPx = function(bp) {
  * @returns nothing
  */
 GenomeView.prototype.sizeInit = function() {
-    this.dim = {width: this.elem.clientWidth,
-                height: this.elem.clientHeight};
+    this.dim = {width: this.elem.offsetWidth,
+                height: this.elem.offsetHeight };
     this.overviewBox = dojo.coords(this.overview);
 
     //scale values, in pixels per bp, for all zoom levels
