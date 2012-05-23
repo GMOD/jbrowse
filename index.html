@@ -12,6 +12,7 @@
 
     <script type="text/javascript" src="jslib/dojo/dojo.js" djConfig="isDebug: false"></script>
     <script type="text/javascript" src="jslib/dojo/jbrowse_dojo.js" ></script>
+    <script type="text/javascript" src="jslib/dojo/jbrowse_dojo_faceted_tracksel.js" ></script>
 
 <!-- js_source_files -->
 <!-- the files between the "js_source_files" comments get replaced
@@ -33,6 +34,13 @@
     <script type="text/javascript" src="js/SeqFeatureStore/NCList.js"></script>
     <script type="text/javascript" src="js/TiledImageStore/Fixed.js"></script>
     <script type="text/javascript" src="js/SequenceStore/StaticChunked.js"></script>
+
+    <script type="text/javascript" src="js/Model/TrackMetaData.js"></script>
+    <script type="text/javascript" src="js/Model/modEncodeTrackMetadata.js"></script>
+
+    <script type="text/javascript" src="js/View/TrackList/Null.js"></script>
+    <script type="text/javascript" src="js/View/TrackList/Simple.js"></script>
+    <script type="text/javascript" src="js/View/TrackList/Faceted.js"></script>
 
     <script type="text/javascript" src="js/Ruler.js"></script>
     <script type="text/javascript" src="js/Track/YScaleMixin.js"></script>
@@ -81,7 +89,7 @@
     /* ]]> */
     </script>
   </head>
-  
+
   <body>
     <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
   </body>

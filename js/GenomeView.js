@@ -4,7 +4,10 @@
  * @class
  * @constructor
  */
-function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
+function GenomeView( browser, elem, stripeWidth, refseq, zoomLevel, browserRoot) {
+
+    // keep a reference to the main browser object
+    this.browser = browser;
 
     var seqCharSize = this.calculateSequenceCharacterSize( elem );
     this.charWidth = seqCharSize.width;
@@ -153,6 +156,30 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.trackContainer.appendChild(gridTrackDiv);
     this.uiTracks = [this.staticTrack, gridTrack];
 
+    // accept tracks being dragged into this
+    this.trackDndWidget =
+        new dojo.dnd.Source(
+            this.trackContainer,
+            {
+                accept: ["track"], //accepts only tracks into the viewing field
+                withHandles: true,
+                creator: dojo.hitch( this, function( trackConfig, hint ) {
+                    return {
+                        data: trackConfig,
+                        type: ["track"],
+                        node: hint == 'avatar'
+                                 ? dojo.create('div', { innerHTML: trackConfig.key || trackConfig.label, className: 'track-label dragging' })
+                                 : this.renderTrack( trackConfig )
+                    };
+                })
+            });
+
+    // subscribe to showTracks commands
+    this.browser.subscribe( '/dnd/drop',dojo.hitch(this, 'updateTrackList'));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/show', this, 'showTracks' );
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide', this, 'hideTracks' );
+
+    // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
     dojo.forEach(this.uiTracks, function(track) {
         track.showRange(0, this.stripeCount - 1,
                         Math.round(this.pxToBp(this.offset)),
@@ -166,14 +193,25 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel, browserRoot) {
     this.showFine();
     this.showCoarse();
 
+    // initialize the behavior manager used for setting what this view
+    // does (i.e. the behavior it has) for mouse and keyboard events
     this.behaviorManager = new BehaviorManager({ context: this, behaviors: this._behaviors() });
     this.behaviorManager.initialize();
+};
+
+/**
+ * @returns {Array[Track]} of the tracks that are currently visible in
+ * this genomeview
+ */
+GenomeView.prototype.visibleTracks = function() {
+    return this.tracks;
 };
 
 /**
  * Behaviors (event handler bundles) for various states that the
  * GenomeView might be in.
  * @private
+ * @returns {Object} description of behaviors
  */
 GenomeView.prototype._behaviors = function() { return {
 
@@ -628,6 +666,7 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
                 track.div.parentNode.removeChild(track.div);
 	};
 	dojo.forEach(this.tracks, removeTrack);
+        this.tracks = [];
         dojo.forEach(this.uiTracks, function(track) { track.clear(); });
 	this.overviewTrackIterate(removeTrack);
 
@@ -1012,7 +1051,7 @@ GenomeView.prototype.sizeInit = function() {
     if( this.getY() > 0 ) {
         var totalTrackHeights = dojof.reduce( this.trackHeights, '+' ) + this.trackPadding * this.trackHeights.length;
         if( totalTrackHeights - this.getY() < update.height ) {
-            console.log( totalTrackHeights, update.height, this.getY() );
+            //console.log( totalTrackHeights, update.height, this.getY() );
             update.y = this.setY( Math.max( 0, totalTrackHeights - update.height ));
         }
     }
@@ -1267,17 +1306,140 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
                       });
 };
 
-GenomeView.prototype.addTrack = function(track) {
-    var trackNum = this.tracks.length;
-    var labelDiv = document.createElement("div");
-    labelDiv.className = "track-label dojoDndHandle";
-    labelDiv.id = "label_" + track.name;
-    labelDiv.title = "to turn off, drag into track list";
-    this.trackLabels.push(labelDiv);
-    var trackDiv = document.createElement("div");
-    trackDiv.className = "track";
-    trackDiv.id = "track_" + track.name;
+/**
+ * Add the given track configurations to the genome view.
+ * @param trackConfigs {Array[Object]} array of track configuration
+ * objects to add
+ */
+GenomeView.prototype.showTracks = function( /**Array[String]*/ trackConfigs ) {
+    // filter out any track configs that are already displayed
+    var needed = dojo.filter( trackConfigs, function(conf) {
+        return this._getTracks( [conf.label] ).length == 0;
+    },this);
+    if( ! needed.length ) return;
+
+    // insert the track configs into the trackDndWidget ( the widget
+    // will call create() on the confs to render them)
+    this.trackDndWidget.insertNodes( false, needed );
+
+    this.updateTrackList();
+};
+
+/**
+ * Remove the given track (configs) from the genome view.
+ * @param trackConfigs {Array[Object]} array of track configurations
+ */
+GenomeView.prototype.hideTracks = function( /**Array[String]*/ trackConfigs ) {
+
+    // filter out any track configs that are not displayed
+    var displayed = dojo.filter( trackConfigs, function(conf) {
+        return this._getTracks( [conf.label] ).length != 0;
+    },this);
+    if( ! displayed.length ) return;
+
+    // insert the track configs into the trackDndWidget ( the widget
+    // will call create() on the confs to render them)
+    dojo.forEach( displayed, function( conf ) {
+        this.trackDndWidget.forInItems(function(obj, id, map) {
+            if( conf.label === obj.data.label ) {
+                this.trackDndWidget.delItem( id );
+                var item = dojo.byId(id);
+                if( item && item.parentNode )
+                    item.parentNode.removeChild(item);
+            }
+        },this);
+    },this);
+
+    this.updateTrackList();
+};
+
+/**
+ * For an array of track names, get the track object if it exists.
+ * @private
+ * @returns {Array[Track]} the track objects that were found
+ */
+GenomeView.prototype._getTracks = function( /**Array[String]*/ trackNames ) {
+    var tracks = [],
+        tn = { count: trackNames.length };
+    dojo.forEach( trackNames, function(n) { tn[n] = 1;} );
+    dojo.some( this.tracks, function(t) {
+        if( tn[t.name] ) {
+            tracks.push(t);
+            tn.count--;
+        }
+        return ! tn.count;
+    }, this);
+    return tracks;
+};
+
+/**
+ * Create the DOM elements that will contain the rendering of the
+ * given track in this genome view.
+ * @private
+ * @returns {HTMLElement} the HTML element that will contain the
+ *                        rendering of this track
+ */
+GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
+
+    if( !trackConfig )
+        return null;
+
+    // just return its div if this track is already on
+    var existingTrack;
+    if( dojo.some( this.tracks, function(t) {
+            if( t.name == trackConfig.label ) {
+                existingTrack = t;
+                return true;
+            }
+            return false;
+        })
+      ) {
+          return existingTrack.div;
+      }
+
+    var class_ = eval( trackConfig.type ),
+        track = new class_(
+            trackConfig,
+            this.ref,
+            {
+                changeCallback: dojo.hitch( this, 'showVisibleBlocks', true ),
+                trackPadding: this.trackPadding,
+                charWidth: this.charWidth,
+                seqHeight: this.seqHeight
+            });
+
+
+    // tell the track to get its data, since we're going to display it.
+    track.load();
+
+    var trackDiv = dojo.create('div', {
+        className: 'track track_'+track.name,
+        id: "track_" + track.name
+    });
+    trackDiv.trackName = track.name;
     trackDiv.track = track;
+
+    var labelDiv = dojo.create(
+        'div', {
+            className: "track-label dojoDndHandle",
+            id: "label_" + track.name,
+            style: {
+                position: 'absolute',
+                top: 0,
+                left: this.getX() + 'px'
+            }
+        },trackDiv);
+    var closeButton = dojo.create('div',{
+        className: 'track-close-button',
+        onclick: dojo.hitch(this,function(evt){
+            this.browser.publish( '/jbrowse/v1/v/tracks/hide', [[trackConfig]]);
+            evt.stopPropagation();
+        })
+    },labelDiv);
+
+    var labelText = dojo.create('span', { className: 'track-label-text' }, labelDiv );
+    this.trackLabels.push(labelDiv);
+
     var view = this;
     var heightUpdate = function(height) {
         view.trackHeightUpdate(track.name, height);
@@ -1286,17 +1448,14 @@ GenomeView.prototype.addTrack = function(track) {
 		      this.stripePercent, this.stripeWidth,
                       this.pxPerBp, this.trackPadding);
 
-    labelDiv.style.position = "absolute";
-    labelDiv.style.top = "0px";
-    labelDiv.style.left = this.getX() + "px";
-    trackDiv.appendChild(labelDiv);
-
     track.updateStaticElements({
         x: this.getX(),
         y: this.getY(),
         height: this.getHeight(),
         width: this.getWidth()
      });
+
+    this.updateTrackList();
 
     return trackDiv;
 };
@@ -1308,6 +1467,7 @@ GenomeView.prototype.trackIterate = function(callback) {
     for (i = 0; i < this.tracks.length; i++)
         callback(this.tracks[i], this);
 };
+
 
 /* this function must be called whenever tracks in the GenomeView
  * are added, removed, or reordered

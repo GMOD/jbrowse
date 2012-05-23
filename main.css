@@ -3,7 +3,7 @@ html, body {
     width: 100%;
     padding: 0;
     border: 0;
-    font-size: 10px;
+    font-size: 12px;
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
@@ -49,8 +49,8 @@ div.dragWindow {
 
 div.locationTrap {
     position: absolute;
-    background-color: #b1d3f6;
-    border-color: white white #b1d3f6 white;
+    background-color: #AEC7E3;
+    border-color: white white #AEC7E3 white;
     border-style: solid;
     width: 0px;
     height: 0px;
@@ -232,34 +232,49 @@ div.track-label, div.tracklist-label {
     color: #111;
     font-size: 110%;
     font-weight: bold;
-    text-shadow: #ddd 1px 1px 0;
-
 }
+
 /* NOTE: browsers that don't support rgba colors will fall back to all
    track labels being #bcbcbc */
 
 div.track-label {
     color: black;
-    margin-left: 20px;
+
+    margin: 5px 0 0 20px;
+
     border-color: rgba( 0,0,0,0);
     white-space: nowrap;
 
-    background-color: #bcbcbc;
-    background-color: rgba( 200,200,200, 0.8 );
+    background: #FAFAFA url(jslib/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
 
     border-width: 1px;
     border-color: #666;
     border-color: rgba( 40, 40, 40, 0.6 );
 }
+div.track-label .track-close-button {
+    display: inline-block;
+    padding: 4px;
+    vertical-align: -20%;
+    height: 16px;
+    width: 1.3em;
+    margin: -3px -3px -4px -6px;
+}
+.tundra div.track-label .track-close-button {
+    background: url("jslib/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
+}
+.tundra div.track-label .track-close-button:hover {
+    background-image: url("jslib/dijit/themes/tundra/images/tabCloseHover.png");
+}
 div.track-label:hover {
     border-color: rgba( 0,0,0, 1);
     background-color: #ddd;
+    opacity: 1.0;
 }
 div.tracklist-label {
     padding: 3px;
 
     background-color: #bcbcbc;
-    background-color: rgba( 210, 210, 210, 0.9 );
+    background-color: rgba( 220, 220, 220, 0.9 );
 }
 
 #trackPane {
@@ -348,30 +363,30 @@ input.nav {
     font-size: 9px !important;
 }
 
-#help_dialog {
+.help_dialog {
     font-size: 12px;
     width: 70%;
     overflow: auto;
+    z-index: 2000;
 }
-#help_dialog ul {
+.help_dialog ul {
     padding-left: 0;
 }
-#help_dialog div.main {
-    width: 49%;
+.help_dialog div.main {
 }
-#help_dialog div.main > dl {
+.help_dialog div.main > dl {
     width: 90%;
     margin: 0 auto 1em auto;
 }
-#help_dialog dt {
+.help_dialog dt {
     font-weight: bold;
     margin-top: 1em;
 }
-#help_dialog dd {
+.help_dialog dd {
     margin-left: 2em;
 }
-#help_dialog dl dl.searchexample dt,
-#help_dialog span.example {
+.help_dialog dl dl.searchexample dt,
+.help_dialog span.example {
     font-weight: normal;
     font-family: monospace;
 }

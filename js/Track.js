@@ -100,11 +100,12 @@ Track.prototype.clear = function() {
 };
 
 Track.prototype.setLabel = function(newHTML) {
-    if (this.label === undefined) return;
+    if (this.label === undefined || this.labelHTML == newHTML )
+        return;
 
-    if (this.labelHTML == newHTML) return;
     this.labelHTML = newHTML;
-    this.label.innerHTML = newHTML;
+    dojo.query('.track-label-text',this.label)
+        .forEach(function(n){ n.innerHTML = newHTML; });
     this.labelHeight = this.label.offsetHeight;
 };
 

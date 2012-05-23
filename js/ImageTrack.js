@@ -29,11 +29,17 @@ function ImageTrack(config, refSeq, browserParams) {
                           });
     dojo.connect( this.store, 'loadSuccess', this, 'loadSuccess' );
     dojo.connect( this.store, 'loadFail',    this, 'loadFail'    );
-
-    this.store.load();
 }
 
 ImageTrack.prototype = new Track("");
+
+/**
+ * Request that the track load its data.  The track will call its own
+ * loadSuccess() function when it is loaded.
+ */
+ImageTrack.prototype.load = function() {
+    this.store.load();
+};
 
 ImageTrack.prototype.loadSuccess = function(o,url) {
     this.empty = this.store.empty;

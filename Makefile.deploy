@@ -44,14 +44,16 @@ jbrowse:
 minify-js: $(JSMIN_TARGET)
 
 $(JSMIN_TARGET): $(JS_SRCFILES)
-	if grep -q '<!-- js_source_files -->' index.html; then \
-	    mv index.html index-debug.html; \
-	    if ! which yui-compressor; then \
-	        sudo apt-get install yui-compressor; \
-	    fi; \
-	    cat `perl -nE 'say $$1 if /src="(js\/[^"]+)/' index-debug.html` | yui-compressor --type js > $@; \
-	    perl -pe 'BEGIN { undef $$/; }; s#<!-- js_source_files -->.*<!-- js_source_files -->#    <script type="text/javascript" src="$(JSMIN_TARGET)"></script>\n#ms' index-debug.html > index.html; \
-	fi
+	for HTMLFILE in index compat_121; do \
+	  if grep -q '<!-- js_source_files -->' $$HTMLFILE.html; then \
+	      mv $$HTMLFILE.html $$HTMLFILE-debug.html; \
+	      if ! which yui-compressor >/dev/null; then \
+	          sudo apt-get install yui-compressor; \
+	      fi; \
+	      cat `perl -nE 'say $$1 if /src="(js\/[^"]+)/' $$HTMLFILE-debug.html` | yui-compressor --type js > $@; \
+	      perl -pe 'BEGIN { undef $$/; }; s#<!-- js_source_files -->.*<!-- js_source_files -->#    <script type="text/javascript" src="$(JSMIN_TARGET)"></script>\n#ms' $$HTMLFILE-debug.html > $$HTMLFILE.html; \
+	  fi \
+        done
 
 superclean: clean
 	-git clean -fdx;
