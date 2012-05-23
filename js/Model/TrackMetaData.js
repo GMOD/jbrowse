@@ -31,9 +31,15 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
                                      });
                };
             }
+            var ident_facets = this.getIdentityAttributes();
             return function(facetName) {
-                return filter(facetName)
-                    && ! dojo.some( non_facet_attrs, function(a) { return a == facetName;});
+                return (
+                    // always index ident facets
+                    dojo.some( ident_facets, function(n) { return n == facetName; } )
+                    // otherwise, must pass the user filter AND not be one of our explicitly-blocked attrs
+                 || filter(facetName)
+                    && ! dojo.some( non_facet_attrs, function(a) { return a == facetName;})
+                );
             };
         }).call(this);
 
