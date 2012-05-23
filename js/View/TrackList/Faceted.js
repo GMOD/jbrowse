@@ -426,6 +426,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                                       this._async( function() {
                                           this.updateQuery();
                                           this._updateFacetCounts();
+                                          this.textFilterInput.focus();
                                       },this).call();
                                       this.textFilterInput.focus();
                                   }),
