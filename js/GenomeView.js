@@ -31,11 +31,17 @@ function GenomeView( browser, elem, stripeWidth, refseq, zoomLevel, browserRoot)
 
     // the scrollContainer is the element that changes position
     // when the user scrolls
-    this.scrollContainer = document.createElement("div");
-    this.scrollContainer.id = "container";
-    this.scrollContainer.style.cssText =
-        "position: absolute; left: 0px; top: 0px;";
-    elem.appendChild(this.scrollContainer);
+    this.scrollContainer = dojo.create(
+        'div', {
+            id: 'container',
+            style: { position: 'absolute',
+                     left: '0px',
+                     top: '0px'
+                   }
+        }, elem
+    );
+
+    this._renderVerticalScrollBar();
 
     // we have a separate zoomContainer as a child of the scrollContainer.
     // they used to be the same element, but making zoomContainer separate
@@ -197,6 +203,59 @@ function GenomeView( browser, elem, stripeWidth, refseq, zoomLevel, browserRoot)
     // does (i.e. the behavior it has) for mouse and keyboard events
     this.behaviorManager = new BehaviorManager({ context: this, behaviors: this._behaviors() });
     this.behaviorManager.initialize();
+};
+
+/**
+ * Create and place the elements for the vertical scrollbar.
+ * @private
+ */
+GenomeView.prototype._renderVerticalScrollBar = function() {
+    var container = dojo.create(
+        'div',
+        {
+            className: 'vertical_scrollbar',
+            style: { position: 'fixed',
+                     right: '0px',
+                     bottom: '0px',
+                     height: '100%',
+                     zIndex: 1000
+                   }
+        },
+        this.elem
+    );
+
+    var positionMarker = dojo.create(
+        'div',
+        {
+            className: 'vertical_position_marker',
+            style: {
+                position: 'absolute',
+                height: '100%',
+            }
+        },
+        container
+    );
+    this.verticalScrollBar = { container: container, positionMarker: positionMarker };
+};
+
+/**
+ * Update the position and look of the vertical scroll bar as our
+ * y-scroll offset changes.
+ * @private
+ */
+GenomeView.prototype._updateVerticalScrollBar = function( newDims ) {
+    if( typeof newDims.height == 'number' ) {
+        var heightAdjust = this.staticTrack ? -this.staticTrack.div.offsetHeight : 0;
+        var trackPaneHeight = newDims.height + heightAdjust;
+        this.verticalScrollBar.container.style.height = trackPaneHeight+'px';
+        this.verticalScrollBar.positionMarker.style.height = ( newDims.height / this.containerHeight * 100 )+'%';
+        this.verticalScrollBar.container.style.display = newDims.height / this.containerHeight > 0.98 ? 'none' : 'block';
+    }
+
+    if( typeof newDims.y == 'number' ) {
+        this.verticalScrollBar.positionMarker.style.top    = ( newDims.y / this.containerHeight * 100 )+'%';
+    }
+
 };
 
 /**
@@ -399,7 +458,7 @@ GenomeView.prototype.clampX = function(x) {
 };
 
 GenomeView.prototype.clampY = function(y) {
-    return Math.round( Math.min( (y < 0 ? 0 : y),
+    return Math.round( Math.min( Math.max( 0, y ),
                                  this.containerHeight- this.dim.height
                                )
                      );
@@ -864,11 +923,19 @@ GenomeView.prototype.checkY = function(y) {
  * @param [args.y] the new Y coordinate.  if not provided,
  *   elements that only need updates on the Y position are not
  *   updated.
+ * @param [args.width] the new width of the view.  if not provided,
+ *   elements that only need updates on the width are not
+ *   updated.
+ * @param [args.height] the new height of the view. if not provided,
+ *   elements that only need updates on the height are not
+ *   updated.
  */
 GenomeView.prototype.updateStaticElements = function( args ) {
     this.trackIterate( function(t) {
         t.updateStaticElements( args );
     },this);
+
+    this._updateVerticalScrollBar( args );
 
     if( typeof args.x == 'number' ) {
         dojo.forEach( this.trackLabels, function(l) {
@@ -876,8 +943,9 @@ GenomeView.prototype.updateStaticElements = function( args ) {
         });
     }
 
-    if( typeof args.y == 'number' )
+    if( typeof args.y == 'number' ) {
         this.staticTrack.div.style.top = args.y + "px";
+    }
 };
 
 GenomeView.prototype.showWait = function() {
@@ -1049,10 +1117,9 @@ GenomeView.prototype.sizeInit = function() {
     // may need to update our Y position if our height has changed
     var update = dojo.clone( this.dim );
     if( this.getY() > 0 ) {
-        var totalTrackHeights = dojof.reduce( this.trackHeights, '+' ) + this.trackPadding * this.trackHeights.length;
-        if( totalTrackHeights - this.getY() < update.height ) {
-            //console.log( totalTrackHeights, update.height, this.getY() );
-            update.y = this.setY( Math.max( 0, totalTrackHeights - update.height ));
+        if( this.containerHeight - this.getY() < update.height ) {
+            //console.log( this.totalTrackHeight, update.height, this.getY() );
+            update.y = this.setY( Math.max( 0, this.containerHeight - update.height ));
         }
     }
 
@@ -1278,6 +1345,8 @@ GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
     }
     this.containerHeight = Math.max(nextTop, this.getY() + this.dim.height);
     this.scrollContainer.style.height = this.containerHeight + "px";
+
+    this.updateStaticElements({ height: this.getHeight() });
 };
 
 GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, endX) {
@@ -1440,10 +1509,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     var labelText = dojo.create('span', { className: 'track-label-text' }, labelDiv );
     this.trackLabels.push(labelDiv);
 
-    var view = this;
-    var heightUpdate = function(height) {
-        view.trackHeightUpdate(track.name, height);
-    };
+    var heightUpdate = dojo.hitch( this, 'trackHeightUpdate', track.name );
     track.setViewInfo(heightUpdate, this.stripeCount, trackDiv, labelDiv,
 		      this.stripePercent, this.stripeWidth,
                       this.pxPerBp, this.trackPadding);

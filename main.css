@@ -30,6 +30,18 @@ div.dragWindow {
     z-index: 1;
 }
 
+div.vertical_scrollbar {
+    width: 8px;
+    background: #eee;
+    background: rgba(235, 235, 235, 0.62);
+    border-left: 1px solid #DDD9D9;
+}
+div.vertical_scrollbar .vertical_position_marker {
+    background: #666;
+    border-radius: 5px;
+    width: 100%;
+}
+
 .draggable {
     cursor: move;
 }
