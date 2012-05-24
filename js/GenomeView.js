@@ -1579,7 +1579,7 @@ GenomeView.prototype.updateTrackList = function() {
             nextTop += this.trackHeights[i] + this.trackPadding;
     }
 
-    this.containerHeight = nextTop;
+    this.containerHeight = Math.max( nextTop, this.getHeight() );
     this.scrollContainer.style.height = this.containerHeight + "px";
 
     this.updateScroll();
