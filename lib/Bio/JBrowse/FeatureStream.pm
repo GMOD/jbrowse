@@ -30,7 +30,7 @@ sub flatten_to_feature {
 
     my @f = ( $class->{index},
               @{$f}{ $self->_fixed_fields },
-              (map $f->{attributes}{$_}[0], @{$class->{fields}}),
+              (map $f->{attributes}{$_}[0], @{$class->{variable_fields}}),
               $subfeatures
             );
 
@@ -57,6 +57,8 @@ sub _get_class {
     return $self->{classes}{$attr_fingerprint} ||= {
         index  => $self->{class_count}++, # the classes start from 1.  so what.
         fields => [ $self->_fixed_fields, @attrs],
+        fixed_fields => [ $self->_fixed_fields ],
+        variable_fields => \@attrs,
     };
 }
 

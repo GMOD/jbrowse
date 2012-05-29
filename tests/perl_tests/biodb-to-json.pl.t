@@ -32,14 +32,15 @@ use FileSlurping 'slurp';
     is_deeply( $hist_output, [1], 'got right histogram output' ) or diag explain( $hist_output );
 
     my $genes_trackdata = $read_json->(qw( tracks Genes ctgA trackData.json ));
-    is_deeply(
-        $genes_trackdata->{intervals}{nclist}[0],
+    is_deeply( [ @{$genes_trackdata->{intervals}{nclist}[0]}[1..9] ],
         [
-            0,
             1049,
             9000,
             1,
             'example',
+            undef,
+            'gene',
+            undef,
             'EDEN',
             'EDEN'
         ],
@@ -244,7 +245,7 @@ use FileSlurping 'slurp';
                        'ctgA',
                        '17399',
                        '23000',
-                       '192'
+                       undef,
                    ]
                ],
                'got the right names output'
@@ -283,14 +284,15 @@ use FileSlurping 'slurp';
     is_deeply( $hist_output, [1], 'got right histogram output' ) or diag explain( $hist_output );
 
     my $genes_trackdata = $read_json->(qw( tracks Genes ctgA trackData.jsonz ));
-    is_deeply(
-        $genes_trackdata->{intervals}{nclist}[0],
+    is_deeply( [ @{$genes_trackdata->{intervals}{nclist}[0]}[1..9] ],
         [
-            0,
             1049,
             9000,
             1,
             'example',
+            undef,
+            'gene',
+            undef,
             'EDEN',
             'EDEN'
         ],
@@ -307,7 +309,7 @@ use FileSlurping 'slurp';
                        'ctgA',
                        '17399',
                        '23000',
-                       '192'
+                       undef
                    ]
                ],
                'got the right names output'
@@ -374,6 +376,29 @@ use FileSlurping 'slurp';
       'track' => 'Genes',
       'type' => 'FeatureTrack',
       'urlTemplate' => 'tracks/Genes/{refseq}/trackData.json'
+    },
+{
+      'autocomplete' => 'all',
+      'category' => 'Genes',
+      'compress' => 0,
+      'description' => 1,
+      'feature' => [
+        'mRNA'
+      ],
+      'key' => 'Exonerate predictions (misconfigured for test, and with a long description)',
+      'label' => 'transcript_with_no_features',
+      'style' => {
+        'arrowheadClass' => 'transcript-arrowhead',
+        'className' => 'transcript',
+        'subfeatureClasses' => {
+          'CDS' => 'transcript-CDS',
+          'UTR' => 'transcript-UTR'
+        }
+      },
+      'subfeatures' => bless( do{\(my $o = 1)}, 'JSON::XS::Boolean' ),
+      'track' => 'transcript_with_no_features',
+      'type' => 'FeatureTrack',
+      'urlTemplate' => 'tracks/transcript_with_no_features/{refseq}/trackData.json'
     }
   ]
 },

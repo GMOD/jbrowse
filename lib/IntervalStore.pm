@@ -1,8 +1,8 @@
 package IntervalStore;
-
 use strict;
 use warnings;
 use Carp;
+use Storable ();
 
 use ArrayRepr;
 use LazyNCList;
@@ -70,7 +70,7 @@ sub new {
 
     my $self = {
                 store => $args->{store},
-                classes => [ @{$args->{classes}} ],
+                classes => Storable::dclone( $args->{classes} ),
                 lazyClass => $args->{lazyClass},
                 urlTemplate => $args->{urlTemplate} || ("lf-{Chunk}"
                                                         . $args->{store}->ext),

@@ -15,11 +15,8 @@ package Bio::JBrowse::Cmd::FlatFileToJson;
 use strict;
 use warnings;
 
-use base 'Bio::JBrowse::Cmd';
+use base 'Bio::JBrowse::Cmd::NCFormatter';
 
-use ArrayRepr;
-use GenomeDB;
-use ExternalSorter;
 use JSON 2;
 
 sub option_defaults {
@@ -62,11 +59,6 @@ sub option_definitions {
 sub run {
     my ( $self ) = @_;
 
-    my $types = $self->opt('type');
-    @$types = split /,/, join ',', @$types;
-
-    my $gdb = GenomeDB->new( $self->opt('out') );
-
     Pod::Usage::pod2usage( "Must provide a --trackLabel parameter." ) unless defined $self->opt('trackLabel');
     unless( defined $self->opt('gff') || defined $self->opt('bed') || defined $self->opt('bam') ) {
         Pod::Usage::pod2usage( "You must supply either a --gff or --bed parameter." )
@@ -92,7 +84,7 @@ sub run {
 
     my %config = (
         autocomplete => $self->opt('autocomplete'),
-        type         => $self->opt('getType') || @$types ? 1 : 0,
+        type         => $self->opt('getType') || $self->opt('type') ? 1 : 0,
         phase        => $self->opt('getPhase'),
         subfeatures  => $self->opt('getSubs'),
         style          => {
@@ -107,82 +99,23 @@ sub run {
      );
 
     my $feature_stream = $self->opt('gff') ? $self->make_gff_stream :
-                         $self->opt('bed') ? $self->make_bed_stream( \%config ) :
+                         $self->opt('bed') ? $self->make_bed_stream :
                              die "Please specify --gff or --bed.\n";
 
-    # The ExternalSorter will get flattened [chrom, [start, end, ...]]
-    # arrays from the feature_stream
-    my $sorter = ExternalSorter->new(
-        do {
-            my $startIndex = $feature_stream->startIndex;
-            my $endIndex = $feature_stream->endIndex;
-            sub ($$) {
-                $_[0]->[0] cmp $_[1]->[0]
-                    ||
-                $_[0]->[1]->[$startIndex] <=> $_[1]->[1]->[$startIndex]
-                    ||
-                $_[1]->[1]->[$endIndex] <=> $_[0]->[1]->[$endIndex];
-            }
-        },
-        $self->opt('sortMem'),
-    );
-
-
     # build a filtering subroutine for the features
+    my $types = $self->opt('type');
+    @$types = split /,/, join ',', @$types;
     my $filter = $self->make_feature_filter( $types );
 
-    my %featureCounts;
-    while ( my @feats = $feature_stream->next_items ) {
+    $self->_format( trackConfig   => \%config,
+                    featureStream => $feature_stream,
+                    featureFilter => $filter,
+                    trackLabel    => $self->opt('trackLabel')
+                  );
 
-        for my $feat ( $filter->( @feats ) ) {
-            my $chrom = $feat->{seq_id};
-            $featureCounts{$chrom} += 1;
-
-            my $row = [ $chrom,
-                        $feature_stream->flatten_to_feature( $feat ),
-                        $feature_stream->flatten_to_name( $feat ),
-                        ];
-            $sorter->add( $row );
-        }
-    }
-    $sorter->finish();
-
-    ################################
-
-    my $track = $gdb->getTrack( $self->opt('trackLabel'), { %config, type => 'FeatureTrack' }, $config{key} )
-                || $gdb->createFeatureTrack( $self->opt('trackLabel'),
-                                             \%config,
-                                             $config{key},
-                                           );
-
-    my $curChrom = 'NONE YET';
-    my $totalMatches = 0;
-    while( my $feat = $sorter->get ) {
-
-        unless( $curChrom eq $feat->[0] ) {
-            $curChrom = $feat->[0];
-            $track->finishLoad; #< does nothing if no load happening
-            $track->startLoad( $curChrom,
-                               $self->opt('nclChunk'),
-                               $feature_stream->arrayReprClasses,
-                             );
-        }
-        $totalMatches++;
-        $track->addSorted( $feat->[1] );
-
-        # load the feature's name record into the track if necessary
-        if( my $namerec = $feat->[2] ) {
-            $track->nameHandler->addName( $namerec );
-        }
-    }
-
-    $gdb->writeTrackEntry( $track );
-
-    # If no features are found, check for mistakes in user input
-    if( !$totalMatches && defined $types ) {
-        warn "WARNING: No matching features found for @$types\n";
-    }
+    return 0;
 }
+
 
 sub make_gff_stream {
     my $self = shift;
@@ -199,7 +132,7 @@ sub make_gff_stream {
 }
 
 sub make_bed_stream {
-    my ( $self, $config_hash ) = @_;
+    my ( $self ) = @_;
 
     require Bio::FeatureIO;
     require Bio::JBrowse::FeatureStream::BioPerl;
