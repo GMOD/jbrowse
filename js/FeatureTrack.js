@@ -575,14 +575,11 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     case 1:
     case '+':
         featDiv.className = "plus-" + this.config.style.className; break;
-    case 0:
-    case '.':
-    case null:
-    case undefined:
-        featDiv.className = this.config.style.className; break;
     case -1:
     case '-':
         featDiv.className = "minus-" + this.config.style.className; break;
+    default:
+        featDiv.className = this.config.style.className; break;
     }
 
     var phase = feature.get('phase');
