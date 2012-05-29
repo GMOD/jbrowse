@@ -127,16 +127,6 @@ sub run {
         $self->opt('sortMem'),
     );
 
-    my @arrayrepr_classes = (
-        {
-            attributes  => $feature_stream->featureHeaders,
-            isArrayAttr => { Subfeatures => 1 },
-        },
-        {
-            attributes  => $feature_stream->subfeatureHeaders,
-            isArrayAttr => {},
-        },
-      );
 
     # build a filtering subroutine for the features
     my $filter = $self->make_feature_filter( $types );
@@ -174,7 +164,7 @@ sub run {
             $track->finishLoad; #< does nothing if no load happening
             $track->startLoad( $curChrom,
                                $self->opt('nclChunk'),
-                               \@arrayrepr_classes,
+                               $feature_stream->arrayReprClasses,
                              );
         }
         $totalMatches++;

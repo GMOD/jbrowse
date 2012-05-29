@@ -9,18 +9,31 @@ package Bio::JBrowse::Cmd::FlatFileToJson::FeatureStream;
 use strict;
 use warnings;
 
+use Digest::MurmurHash ();
+
 sub new {
     my $class = shift;
-    bless { @_ }, $class;
+
+    my $self = bless {
+        @_,
+        class_count => 0
+    }, $class;
+
+    return $self;
 }
 
 sub flatten_to_feature {
-    my ( $self, $f, $class_index ) = @_;
-    my @f = ( $class_index || 0,
-              @{$f}{qw{ start end strand source phase type score }},
-              (map $f->{attributes}{$_}[0], qw(ID Name)),
-              [ map $self->flatten_to_feature($_,1), @{$f->{child_features}} ],
+    my ( $self, $f ) = @_;
+    my $subfeatures =  [ map $self->flatten_to_feature($_), @{$f->{child_features}} ];
+
+    my $class = $self->_get_class( $f );
+
+    my @f = ( $class->{index},
+              @{$f}{ $self->_fixed_fields },
+              (map $f->{attributes}{$_}[0], @{$class->{fields}}),
+              $subfeatures
             );
+
     # convert start to interbase and numify it
     $f[1] -= 1;
     # numify end
@@ -29,6 +42,22 @@ sub flatten_to_feature {
     no warnings 'uninitialized';
     $f[3] = { '+' => 1, '-' => -1 }->{$f[3]} || $f[3] || undef;
     return \@f;
+}
+
+sub _fixed_fields {
+    return qw{ start end strand source phase type score };
+}
+
+sub _get_class {
+    my ( $self, $f ) = @_;
+
+    my @attrs = keys %{$f->{attributes}};
+    my $attr_fingerprint = Digest::MurmurHash::murmur_hash( join '-', @attrs );
+
+    return $self->{classes}{$attr_fingerprint} ||= {
+        index  => $self->{class_count}++, # the classes start from 1.  so what.
+        fields => [ $self->_fixed_fields, @attrs],
+    };
 }
 
 sub flatten_to_name {
@@ -44,9 +73,18 @@ sub flatten_to_name {
     $namerec[4]--; #< to one-based
     return \@namerec;
 }
+sub arrayReprClasses {
+    my ( $self ) = @_;
+    return [
+        map {
+            attributes  => [ map ucfirst, @{$_->{fields}}, 'Subfeatures' ],
+            isArrayAttr => { Subfeatures => 1 }
+        },
+        sort { $a->{index} <=> $b->{index} }
+        values %{ $self->{classes} }
+    ];
+}
 
-sub featureHeaders    { [qw[ Start End Strand Source Phase Type Score Id Name Subfeatures ]] }
-*subfeatureHeaders = \&featureHeaders;
 sub startIndex        { 1 }
 sub endIndex          { 2 }
 
