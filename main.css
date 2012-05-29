@@ -360,8 +360,8 @@ div.tracklist-container {
 }
 div.overview .rubber-highlight {
     font-size: 0;
-    top: -5px;
-    height: 20px;
+    top: -4px;
+    height: 21px;
 }
 div.overview .rubber-highlight * {
     display: none;
