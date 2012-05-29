@@ -95,28 +95,22 @@ sub addSorted {
 
     $self->{count} += 1;
     my $lastAdded = $self->{lastAdded};
-    my $start = $self->{start};
-    my $end = $self->{end};
+    my $start = $self->{start}->( $feat );
+    my $end = $self->{end}->( $feat );
 
     if (defined($lastAdded)) {
+        my $lastStart = $self->{start}->($lastAdded);
+        my $lastEnd = $self->{end}->($lastAdded);
         # check that the input is sorted
-        die "input not sorted: got start "
-            . $start->($lastAdded)
-                . " before "
-                    . $start->($feat)
-                        if ($start->($lastAdded) > $start->($feat));
+        $lastStart <= $start
+            or die "input not sorted: got start $lastStart before $start";
 
-        die "input not sorted: got "
-            . $start->($lastAdded) . " .. " . $end->($lastAdded)
-                . " before "
-                    . $start->($feat) . " .. " . $end->($feat)
-                        if (($start->($lastAdded) == $start->($feat))
-                                &&
-                                    ($end->($lastAdded) < $end->($feat)));
+        die "input not sorted: got $lastStart..$lastEnd before $start..$end"
+            if $lastStart == $start && $lastEnd < $end;
     } else {
         # LazyNCList requires sorted input, so the start of the first feat
         # is the minStart
-        $self->{minStart} = $start->($feat);
+        $self->{minStart} = $start;
     }
 
     $self->{lastAdded} = $feat;
