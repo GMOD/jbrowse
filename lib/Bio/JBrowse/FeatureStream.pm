@@ -1,11 +1,11 @@
 =head1 NAME
 
-Script::FlatFileToJson::FeatureStream - base class for feature streams
+FeatureStream - base class for feature streams
 used for handling features inside FlatFileToJson.pm
 
 =cut
 
-package Bio::JBrowse::Cmd::FlatFileToJson::FeatureStream;
+package Bio::JBrowse::FeatureStream;
 use strict;
 use warnings;
 

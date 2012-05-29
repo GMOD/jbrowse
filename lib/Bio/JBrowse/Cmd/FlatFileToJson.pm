@@ -188,11 +188,11 @@ sub make_gff_stream {
     my $self = shift;
 
     require Bio::GFF3::LowLevel::Parser;
-    require Bio::JBrowse::Cmd::FlatFileToJson::FeatureStream::GFF3_LowLevel;
+    require Bio::JBrowse::FeatureStream::GFF3_LowLevel;
 
     my $p = Bio::GFF3::LowLevel::Parser->new( $self->opt('gff') );
 
-    return Bio::JBrowse::Cmd::FlatFileToJson::FeatureStream::GFF3_LowLevel->new(
+    return Bio::JBrowse::FeatureStream::GFF3_LowLevel->new(
         parser => $p,
         track_label => $self->opt('trackLabel')
      );
@@ -202,7 +202,7 @@ sub make_bed_stream {
     my ( $self, $config_hash ) = @_;
 
     require Bio::FeatureIO;
-    require Bio::JBrowse::Cmd::FlatFileToJson::FeatureStream::BioPerl;
+    require Bio::JBrowse::FeatureStream::BioPerl;
 
     my $io = Bio::FeatureIO->new(
         -format => 'bed',
@@ -211,7 +211,7 @@ sub make_bed_stream {
         ($self->opt('thickType') ? ("-thick_type" => $self->opt('thickType')) : ()),
         );
 
-    return Bio::JBrowse::Cmd::FlatFileToJson::FeatureStream::BioPerl->new(
+    return Bio::JBrowse::FeatureStream::BioPerl->new(
         stream => sub { $io->next_feature },
         track_label => $self->opt('trackLabel'),
     );

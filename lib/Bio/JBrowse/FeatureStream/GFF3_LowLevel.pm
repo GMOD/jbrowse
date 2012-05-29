@@ -5,11 +5,11 @@ class for working with L<Bio::GFF3::LowLevel::Parser> features
 
 =cut
 
-package Bio::JBrowse::Cmd::FlatFileToJson::FeatureStream::GFF3_LowLevel;
+package Bio::JBrowse::FeatureStream::GFF3_LowLevel;
 use strict;
 use warnings;
 
-use base 'Bio::JBrowse::Cmd::FlatFileToJson::FeatureStream';
+use base 'Bio::JBrowse::FeatureStream';
 
 sub next_items {
     while ( my $i = $_[0]->{parser}->next_item ) {
