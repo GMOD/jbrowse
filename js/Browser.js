@@ -676,6 +676,10 @@ Browser.prototype.navigateToLocation = function( location ) {
         // record names of open tracks and re-open on new refseq
         var curTracks = this.visibleTracks();
 
+        for (var i = 0; i < this.chromList.options.length; i++)
+            if (this.chromList.options[i].text == location.ref )
+                this.chromList.selectedIndex = i;
+
         this.refSeq = this.allRefs[location.ref];
 
         this.view.setLocation( this.refSeq,
@@ -949,12 +953,10 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     if (! this.isInitialized) return;
     var locString = Util.assembleLocString({ start: startbp, end: endbp, ref: this.refSeq.name });
     if( this.locationBox ) {
-        this.locationBox.value = locString;
+        this.locationBox.set('value',locString);
         this.goButton.disabled = true;
-        this.locationBox.blur();
+        //this.locationBox.blur();
     }
-    this.tags.value = locString;
-    this.tags.blur();
 
     // update the location and refseq cookies
     var oldLocMap = dojo.fromJson( this.cookie('location') ) || {};
@@ -988,13 +990,14 @@ Browser.prototype.cookie = function() {
  */
 
 Browser.prototype.createNavBox = function( parent, locLength ) {
-    var brwsr = this;
     var navbox = document.createElement("div");
     var browserRoot = this.config.browserRoot ? this.config.browserRoot : "";
     navbox.id = "navbox";
     parent.appendChild(navbox);
     navbox.style.cssText = "text-align: center; z-index: 10;";
 
+    var four_nbsp = String.fromCharCode(160); four_nbsp = four_nbsp + four_nbsp + four_nbsp + four_nbsp;
+    navbox.appendChild(document.createTextNode( four_nbsp ));
 
     var moveLeft = document.createElement("input");
     moveLeft.type = "image";
@@ -1002,10 +1005,11 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     moveLeft.id = "moveLeft";
     moveLeft.className = "icon nav";
     moveLeft.style.height = "40px";
-    dojo.connect( moveLeft, "click",
+    navbox.appendChild(moveLeft);
+    dojo.connect( moveLeft, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
-                      brwsr.view.slide(0.9);
+                      this.view.slide(0.9);
                   });
 
     var moveRight = document.createElement("input");
@@ -1014,11 +1018,14 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     moveRight.id="moveRight";
     moveRight.className = "icon nav";
     moveRight.style.height = "40px";
-    dojo.connect( moveRight, "click",
+    navbox.appendChild(moveRight);
+    dojo.connect( moveRight, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
-                      brwsr.view.slide(-0.9);
+                      this.view.slide(-0.9);
                   });
+
+    navbox.appendChild(document.createTextNode( four_nbsp ));
 
     var bigZoomOut = document.createElement("input");
     bigZoomOut.type = "image";
@@ -1026,11 +1033,13 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     bigZoomOut.id = "bigZoomOut";
     bigZoomOut.className = "icon nav";
     bigZoomOut.style.height = "40px";
-    dojo.connect( bigZoomOut, "click",
+    navbox.appendChild(bigZoomOut);
+    dojo.connect( bigZoomOut, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
-                      brwsr.view.zoomOut(undefined, undefined, 2);
+                      this.view.zoomOut(undefined, undefined, 2);
                   });
+
 
     var zoomOut = document.createElement("input");
     zoomOut.type = "image";
@@ -1038,10 +1047,11 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     zoomOut.id = "zoomOut";
     zoomOut.className = "icon nav";
     zoomOut.style.height = "40px";
-    dojo.connect( zoomOut, "click",
+    navbox.appendChild(zoomOut);
+    dojo.connect( zoomOut, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
-                     brwsr.view.zoomOut();
+                     this.view.zoomOut();
                   });
 
     var zoomIn = document.createElement("input");
@@ -1050,10 +1060,11 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     zoomIn.id = "zoomIn";
     zoomIn.className = "icon nav";
     zoomIn.style.height = "40px";
-    dojo.connect( zoomIn, "click",
+    navbox.appendChild(zoomIn);
+    dojo.connect( zoomIn, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
-                      brwsr.view.zoomIn();
+                      this.view.zoomIn();
                   });
 
     var bigZoomIn = document.createElement("input");
@@ -1062,14 +1073,19 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     bigZoomIn.id = "bigZoomIn";
     bigZoomIn.className = "icon nav";
     bigZoomIn.style.height = "40px";
-    dojo.connect( bigZoomIn, "click",
+    navbox.appendChild(bigZoomIn);
+    dojo.connect( bigZoomIn, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
-                      brwsr.view.zoomIn(undefined, undefined, 2);
+                      this.view.zoomIn(undefined, undefined, 2);
                   });
+
+    navbox.appendChild(document.createTextNode( four_nbsp ));
 
     this.chromList = document.createElement("select");
     this.chromList.id = "chrom";
+    navbox.appendChild(this.chromList);
+
     dojo.forEach( this.refSeqOrder, function(name, i) {
         this.chromList.add( new Option( name, name) );
         if ( this.refSeq && name.toUpperCase() == this.refSeq.name.toUpperCase() ) {
@@ -1077,113 +1093,60 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
         }
     }, this );
 
-    this.locationBox = document.createElement("input");
-    this.locationBox.size=locLength;
-    this.locationBox.type="text";
-    this.locationBox.id="location";
-    this.locationBox.onselectstart = function( evt ) {
-        evt.stopPropagation();
-        return true;
-    };
-    dojo.connect( this.locationBox, "keydown", function(event) {
-                      if (event.keyCode == dojo.keys.ENTER) {
-                          brwsr.navigateTo(brwsr.locationBox.value);
-                          //brwsr.locationBox.blur();
-                          brwsr.goButton.disabled = true;
-                          dojo.stopEvent(event);
-                      } else {
-                          brwsr.goButton.disabled = false;
-                      }
-                  });
-    dojo.connect( this.locationBox, 'keypress', function(e){ e.stopPropagation(); });
+    dojo.require('dijit.form.ComboBox');
+    this.locationBox = new dijit.form.ComboBox(
+        {
+            id: "location",
+            name: "state",
+            value: "Kentucky",
+            store: this._makeLocationAutocompleteStore(),
+            searchAttr: "name"
+        },
+        dojo.create('input',{ size: locLength },navbox) );
+    dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
 
+    // make the 'Go' button'
     this.goButton = document.createElement("button");
     this.goButton.appendChild(document.createTextNode("Go"));
     this.goButton.disabled = true;
-
-    dojo.connect( this.goButton, "click", function(event) {
-                      brwsr.navigateTo(brwsr.locationBox.value);
-                      //brwsr.locationBox.blur();
-                      brwsr.goButton.disabled = true;
+    navbox.appendChild(this.goButton);
+    dojo.connect( this.goButton, "click", this, function(event) {
+                      this.navigateTo(this.locationBox.get('value'));
+                      //this.locationBox.blur();
+                      this.goButton.disabled = true;
                       dojo.stopEvent(event);
                   });
-
-    var configList = params.config_list ? params.config_list.split(",") : [];
-// jquery when everything is loaded
-    $(function() {
-	$( "#tags" ).autocomplete({
-	    source: function( request, response ) {
-		var parent, lim;
-		parent = "";
-		lim = 100; //if over 100 options, show only up to 100 matches
-		var optionlist = [];
-		var matchTest = function() {
-		    var bool = false;
-		    for (var i = 0; i < configList.length; i++) {
-		        // if this is true, request is a prefix of configList
-			bool = (bool || (request.term == configList[i].substr(0,request.term.length)));
-		    }
-		    return bool;
-		};
-
-		var gotTree = false; // stays false if tree isn't found
-		brwsr.names.mappingsFromPrefix( request.term, function(tree) {
-			gotTree = true;
-			for (var i = 0; i < tree.length; i++) {
-			    if ("number" == typeof tree[i][0]) {
-				optionlist.push({ label: tree[i][0] + " options for " + tree[i][1], value: "enter " + tree[i][1] });
-			    } else {
-				optionlist.push({ label: tree[i][1][0][1], value: tree[i][1][0][1] });
-			    }
-			};
-
-			if (lim < tree.length) {
-			    optionlist = optionlist.slice(0, lim);
-			    optionlist.push({label: "More than " + lim + " matches", value: "More than " + lim + " matches"});
-			};
-
-			if (matchTest() == true) optionlist = [];
-			response(optionlist);
-		});
-		if ( gotTree == false ) response(optionlist);
-	    },
-	    select: function( event, ui ) {
-		ui.item.selected = true;
-		brwsr.navigateTo(ui.item.value);
-	    }
-	});
-    });
-
-    this.tags = document.createElement("input");
-    this.tags.id = "tags";
-
-    dojo.connect(brwsr.tags, "keydown", function(event) {
-        if (event.keyCode == dojo.keys.ENTER) {
-	    brwsr.navigateTo(brwsr.tags.value);
-            dojo.stopEvent(event);
-        }
-    });
-
-    var four_nbsp = String.fromCharCode(160); four_nbsp = four_nbsp + four_nbsp + four_nbsp + four_nbsp;
-    navbox.appendChild(document.createTextNode( four_nbsp ));
-    navbox.appendChild(moveLeft);
-    navbox.appendChild(moveRight);
-    navbox.appendChild(document.createTextNode( four_nbsp ));
-    navbox.appendChild(bigZoomOut);
-    navbox.appendChild(zoomOut);
-    navbox.appendChild(zoomIn);
-    navbox.appendChild(bigZoomIn);
-    navbox.appendChild(document.createTextNode( four_nbsp ));
-    navbox.appendChild(this.chromList);
-    navbox.appendChild(this.locationBox);
-    navbox.appendChild(this.goButton);
-    navbox.appendChild(this.tags);
-    navbox.appendChild(this.goButton);
 
     return navbox;
 };
 
+Browser.prototype._makeLocationAutocompleteStore = function() {
+    dojo.require('dojo.data.ItemFileWriteStore');
+    return new dojo.data.ItemFileWriteStore(
+        {
+            data: {
+                identifier: 'id',
+                items: [
+                    {name:"Alabama", id:"AL"},
+                    {name:"Alaska", id:"AK"},
+                    {name:"American Samoa", id:"AS"},
+                    {name:"Arizona", id:"AZ"},
+                    {name:"Arkansas", id:"AR"},
+                    {name:"Armed Forces Europe", id:"AE"},
+                    {name:"Armed Forces Pacific", id:"AP"},
+                    {name:"Armed Forces the Americas", id:"AA"},
+                    {name:"California", id:"CA"},
+                    {name:"Colorado", id:"CO"},
+                    {name:"Connecticut", id:"CT"},
+                    {name:"Delaware", id:"DE"}
+                ]
+            }
+        }
+    );
+};
+
 /*
+
 Copyright (c) 2007-2009 The Evolutionary Software Foundation
 
 Created by Mitchell Skinner <mitch_skinner@berkeley.edu>
