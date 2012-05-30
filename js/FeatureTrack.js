@@ -117,6 +117,8 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
             this.wrapHandler(this.evalHook(this.config.events[event]));
     }
 
+    this.labelScale = this.featureStore.density * this.config.scaleThresh.label;
+
     this.setLoaded();
 };
 
@@ -283,6 +285,45 @@ FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
 FeatureTrack.prototype.updateStaticElements = function( coords ) {
     Track.prototype.updateStaticElements.apply( this, arguments );
     this.updateYScaleFromViewDimensions( coords );
+    this.updateFeatureLabelPositions( coords );
+};
+
+FeatureTrack.prototype.updateFeatureLabelPositions = function( coords ) {
+    if( ! 'x' in coords || this.scale < this.labelScale )
+        return;
+
+    dojo.query( '.block', this.div )
+        .forEach( function(block) {
+                      // calculate the view left coord relative to the
+                      // block left coord in units of pct of the block
+                      // width
+                      var viewLeft = 100 * ( coords.x - block.offsetLeft ) / block.offsetWidth + 2;
+
+                      // if the view start is unknown, or is to the
+                      // left of this block, we don't have to worry
+                      // about adjusting the feature labels
+                      if( ! viewLeft )
+                          return;
+
+                      var blockWidth = block.endBase - block.startBase;
+
+                      dojo.query('.feature',block)
+                          .forEach( function(featDiv) {
+                                        if( ! featDiv.label ) return;
+                                        var labelDiv = featDiv.label;
+                                        var feature = featDiv.feature;
+
+                                        // get the feature start and end in terms of block width pct
+                                        var minLeft = parseInt( feature.get('start') );
+                                        minLeft = 100 * (minLeft - block.startBase) / blockWidth;
+                                        var maxLeft = parseInt( feature.get('end') );
+                                        maxLeft = 100 * ( (maxLeft - block.startBase) / blockWidth - labelDiv.offsetWidth / block.offsetWidth);
+
+                                        // move our label div to the view start if the start is between the feature start and end
+                                        labelDiv.style.left = Math.max( minLeft, Math.min( viewLeft, maxLeft ) ) + '%';
+
+                                    },this);
+                  },this);
 };
 
 FeatureTrack.prototype.fillBlock = function(blockIndex, block,
@@ -386,7 +427,7 @@ FeatureTrack.prototype.transfer = function(sourceBlock, destBlock, scale,
 
     var destLeft = destBlock.startBase;
     var destRight = destBlock.endBase;
-    var blockWidth = destRight - destLeft;
+        var blockWidth = destRight - destLeft;
     var sourceSlot;
 
     var overlaps = (sourceBlock.startBase < destBlock.startBase)
@@ -431,6 +472,8 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
     //containerStart: don't make HTML elements extend further left than this
     //containerEnd: don't make HTML elements extend further right than this
     //0-based
+
+    this.scale = scale;
 
     var layouter = new Layout(leftBase, rightBase);
     block.featureLayout = layouter;
@@ -547,8 +590,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     // if the label extends beyond the feature, use the
     // label end position as the end position for layout
     var name = feature.get('name');
-    var labelScale = this.featureStore.density * this.config.scaleThresh.label;
-    if (name && (scale > labelScale)) {
+    if (name && (scale > this.labelScale)) {
 	featureEnd = Math.max(featureEnd,
                               featureStart + ((name ? name.length : 0)
 				              * (this.nameWidth / scale) ) );
@@ -567,6 +609,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     }
     featDiv.feature = feature;
     featDiv.layoutEnd = featureEnd;
+    featDiv.className = (featDiv.className ? featDiv.className + " " : "") + "feature";
 
     block.featureNodes[uniqueId] = featDiv;
 
@@ -574,12 +617,12 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     switch (strand) {
     case 1:
     case '+':
-        featDiv.className = "plus-" + this.config.style.className; break;
+        featDiv.className = featDiv.className + " plus-" + this.config.style.className; break;
     case -1:
     case '-':
-        featDiv.className = "minus-" + this.config.style.className; break;
+        featDiv.className = featDiv.className + " minus-" + this.config.style.className; break;
     default:
-        featDiv.className = this.config.style.className; break;
+        featDiv.className = featDiv.className + " " + this.config.style.className; break;
     }
 
     var phase = feature.get('phase');
@@ -627,7 +670,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
         }
     }
 
-    if (name && (scale > labelScale)) {
+    if (name && (scale > this.labelScale)) {
         var labelDiv;
         var featUrl = this.featureUrl(feature);
         if (featUrl) {
@@ -643,11 +686,8 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
 
         labelDiv.className = "feature-label";
         labelDiv.appendChild(document.createTextNode(name));
-        labelDiv.style.cssText =
-            "left: "
-            + (100 * (featureStart - block.startBase) / blockWidth)
-            + "%; "
-            + "top: " + (top + this.glyphHeight) + "px;";
+        labelDiv.style.top  = (top + this.glyphHeight) + "px";
+        labelDiv.style.left = (100 * (featureStart - block.startBase) / blockWidth)+'%';
 	featDiv.label = labelDiv;
         labelDiv.feature = feature;
         block.appendChild(labelDiv);
