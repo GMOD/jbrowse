@@ -14,6 +14,9 @@
    feature data: all attributes of features are now encoded in the
    JSON and are available for use by feature callbacks.
 
+ * Feature labels now do not scroll off screen if any part of the
+   feature is still visible (fixes issue #62).
+
 1.3.1     2012-04-19 17:55:44 America/New_York
 
  * Fixed memory-management bug that caused way too much RAM to be used
