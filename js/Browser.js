@@ -155,10 +155,12 @@ Browser.prototype.initView = function() {
         new dijit.layout.ContentPane({region: "center"}, this.viewElem);
 
     //create location trapezoid
-    this.locationTrap = document.createElement("div");
-    this.locationTrap.className = "locationTrap";
-    topPane.appendChild(this.locationTrap);
-    topPane.style.overflow="hidden";
+    if( this.config.show_nav != 0 ) {
+        this.locationTrap = document.createElement("div");
+        this.locationTrap.className = "locationTrap";
+        topPane.appendChild(this.locationTrap);
+        topPane.style.overflow="hidden";
+    }
 
 
     // hook up GenomeView
@@ -450,32 +452,30 @@ Browser.prototype.addRefseqs = function( refSeqs ) {
 
 
 Browser.prototype.onFineMove = function(startbp, endbp) {
-    var length = this.view.ref.end - this.view.ref.start;
-    var trapLeft = Math.round((((startbp - this.view.ref.start) / length)
-                               * this.view.overviewBox.w) + this.view.overviewBox.l);
-    var trapRight = Math.round((((endbp - this.view.ref.start) / length)
-                                * this.view.overviewBox.w) + this.view.overviewBox.l);
-    var locationTrapStyle;
-    if (dojo.isIE) {
-        //IE apparently doesn't like borders thicker than 1024px
-        locationTrapStyle =
-            "top: " + this.view.overviewBox.t + "px;"
-            + "height: " + this.view.overviewBox.h + "px;"
-            + "left: " + trapLeft + "px;"
-            + "width: " + (trapRight - trapLeft) + "px;"
-            + "border-width: 0px";
-    } else {
-        locationTrapStyle =
-            "top: " + this.view.overviewBox.t + "px;"
-            + "height: " + this.view.overviewBox.h + "px;"
-            + "left: " + this.view.overviewBox.l + "px;"
-            + "width: " + (trapRight - trapLeft) + "px;"
-            + "border-width: " + "0px "
-            + (this.view.overviewBox.w - trapRight) + "px "
-            + this.view.locationTrapHeight + "px " + trapLeft + "px;";
-    }
 
-    this.locationTrap.style.cssText = locationTrapStyle;
+    if( this.locationTrap ) {
+        var length = this.view.ref.end - this.view.ref.start;
+        var trapLeft = Math.round((((startbp - this.view.ref.start) / length)
+                                   * this.view.overviewBox.w) + this.view.overviewBox.l);
+        var trapRight = Math.round((((endbp - this.view.ref.start) / length)
+                                    * this.view.overviewBox.w) + this.view.overviewBox.l);
+
+        var locationTrapStyle = dojo.isIE
+            ? "top: " + this.view.overviewBox.t + "px;"
+              + "height: " + this.view.overviewBox.h + "px;"
+              + "left: " + trapLeft + "px;"
+              + "width: " + (trapRight - trapLeft) + "px;"
+              + "border-width: 0px"
+            : "top: " + this.view.overviewBox.t + "px;"
+              + "height: " + this.view.overviewBox.h + "px;"
+              + "left: " + this.view.overviewBox.l + "px;"
+              + "width: " + (trapRight - trapLeft) + "px;"
+              + "border-width: " + "0px "
+              + (this.view.overviewBox.w - trapRight) + "px "
+              + this.view.locationTrapHeight + "px " + trapLeft + "px;";
+
+        this.locationTrap.style.cssText = locationTrapStyle;
+    }
 };
 
 /**
