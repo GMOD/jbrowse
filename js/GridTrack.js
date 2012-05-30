@@ -1,5 +1,12 @@
-// This track draws vertical gridlines, which are divs with height:
-// 100%, absolutely positioned at the very top of all the tracks
+// VIEW
+
+/**
+
+This track draws vertical gridlines, which are divs with height 100%,
+absolutely positioned at the very top of all the tracks.
+
+@class
+*/
 function GridTrack(name) {
     Track.call(this, name, name, true, function() {});
 }
@@ -43,5 +50,4 @@ GridTrack.prototype.renderGridlines = function(block,leftBase,rightBase) {
     }
 
 };
-
 

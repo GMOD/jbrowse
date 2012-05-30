@@ -2,22 +2,34 @@
 "http://www.w3.org/TR/html4/loose.dtd">
 
 <html>
-  <head><title>The JBrowse configuration file</title></head>
+  <head><title>The JBrowse biodb-to-json.pl Configuration File</title></head>
     <link rel="stylesheet" type="text/css" href="docs.css"></link>
   <body>
     <div class="container">
-      <h3>The Config File</h3>
+      <h3>The JBrowse <code>biodb-to-json.pl</code> Configuration File</h3>
       
-      <p>A JBrowse config file exists to tell the JBrowse tools about a database and the tracks within the database.
-        You don't need a config file if all of your data is in flat files, and your feature flat files (BED, GFF) are separated so that there's only one file per track.
-        However, a config file is a convenient way to specify the details of how JBrowse should treat a track, so you may want to use a config file anyway, especially if you expect to process new versions of your data on an ongoing basis.</p>
-      
-      <p>The syntax of the config file is <a href="http://json.org">JSON</a>.
-        It originally used the GBrowse config file syntax, but JBrowse really needed multiple levels of nesting and an array syntax, so it's JSON.
-        However, it does contain some of the same settings as the GBrowse config file, especially at the beginning.
-        A JBrowse config file starts out just like a GBrowse config file, with a slightly different syntax.
+      <p>
+        <code>biodb-to-json.pl</code>
+        and <code>prepare-refseqs.pl</code> can use a configuration
+        file to connect to an existing <code>Bio::DB::*</code>
+        database and batch-format its data for use by JBrowse You
+        don't necessarily need a config file if all of your data is in
+        flat files.  In this case, it is recommended that you format
+        your data using <code>flatfile-to-json.pl</code>.
+        See <a href="bexamples/format_tomato.sh"><code>docs/examples/format_tomato.sh</code></a>
+        for an example of a simple shell script that
+        uses <code>prepare-refseqs.pl</code>
+        and <code>flatfile-to-json.pl</code> to to create a complete
+        genome browser for Tomato.
       </p>
-      
+
+      <p>
+        The basic syntax of the configuration file
+        is <a href="http://json.org">JSON</a>.  Many of the
+        configuration keys are quite similar to those used by
+        <a href="http://gmod.org/wiki/GBrowse">GBrowse</a>.
+      </p>
+
       <p>The root level of the config file:
         <table>
           <tr><th>key</th><th>value</th><th>type</th></tr>
@@ -30,7 +42,7 @@
       </p>
 
       <a name="track_settings" id="track_settings"></a>
-      <p>The meat of the configuration file consists of the <b>per-track settings:</b><table>
+      <p>The main part of the configuration file consists of the <b>per-track settings:</b><table>
           <tr><th>key</th><th>value</th><th>type</th></tr>
           <tr><td>track</td><td>track identifier used by the software.<br>It's more convenient if this doesn't have any weird characters or spaces in it</td><td>string</td></tr>
           <tr><td>key</td><td>Human-readable label for the track</td><td>string</td></tr>

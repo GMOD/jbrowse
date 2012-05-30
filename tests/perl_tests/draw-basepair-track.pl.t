@@ -1,6 +1,8 @@
 use strict;
 use warnings;
 
+use JBlibs;
+
 use File::Spec::Functions 'catfile';
 use File::Temp;
 use Test::More;
@@ -44,22 +46,18 @@ for my $args ( @testargs ) {
           'formatVersion' => 1,
           'tracks' => [
             {
-              'config' => {
                 'chunkSize' => 20000,
-                'urlTemplate' => 'seq/{refseq}/'
-              },
-              'key' => 'DNA',
-              'label' => 'DNA',
-              'type' => 'SequenceTrack'
+                'urlTemplate' => 'seq/{refseq}/',
+                'key' => 'DNA',
+                'label' => 'DNA',
+                'type' => 'SequenceTrack'
             },
             {
-              'config' => {
                 'compress' => 0,
-                'urlTemplate' => 'tracks/foo/{refseq}/trackData.json'
-              },
-              'key' => 'Fooish Test Data',
-              'label' => 'foo',
-              'type' => 'ImageTrack'
+                'urlTemplate' => 'tracks/foo/{refseq}/trackData.json',
+                'key' => 'Fooish Test Data',
+                'label' => 'foo',
+                'type' => 'ImageTrack'
             }
           ]
         },

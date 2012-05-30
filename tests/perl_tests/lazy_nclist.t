@@ -1,6 +1,8 @@
 use strict;
 use warnings;
 
+use JBlibs;
+
 use Test::More;
 use List::Util 'sum';
 use Storable 'dclone';
@@ -8,7 +10,7 @@ use Data::Dumper;
 
 use JSON 2;
 
-use Data::Visitor::Callback;
+#use Data::Visitor::Callback;
 
 use ArrayRepr;
 
@@ -66,12 +68,12 @@ $list->finish;
                $features_clone,
                'LazyNCList did not modify the features it was passed' );
 
-    find_missing_features( $features_clone, \%nclist_output );
+    #find_missing_features( $features_clone, \%nclist_output );
 
 }
 
 # remove this one when the TODO above is passing
-find_missing_features( $features, \%nclist_output );
+#find_missing_features( $features, \%nclist_output );
 
 
 # #use this to re-dump the correct output if needed at some point

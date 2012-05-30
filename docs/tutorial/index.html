@@ -2,44 +2,55 @@
 "http://www.w3.org/TR/html4/loose.dtd">
 
 <html>
-  <head><title>JBrowse getting started guide</title></head>
+  <head><title>JBrowse Quick-Start Tutorial</title></head>
   <link rel="stylesheet" type="text/css" href="../docs.css"></link>
   <body>
     <div class="container">
-      <h2>Getting Started With JBrowse</h2>
-      <p>This page should be enough to get you started.  If you run into trouble, please <a href="https://lists.sourceforge.net/lists/listinfo/gmod-ajax">join the mailing list</a> and ask us about it.</p>
+
+      <h1>JBrowse Quick-Start Tutorial</h1>
+
       <p>
-        <h4>Contents:</h4>
+        This short guide should hopefully be enough to get you started
+        using JBrowse.  If you run into trouble, please visit
+        the <a href="http://gmod.org/wiki/JBrowse">GMOD wiki</a> for
+        extended documentation and troubleshooting information,
+        or <a href="https://lists.sourceforge.net/lists/listinfo/gmod-ajax">join
+        the gmod-ajax mailing list</a> and ask a question about
+        it.
+      </p>
+
+      <p>
+        <h3>Contents</h3>
         <ul>
-          <li><a href="#Prerequisites">Prerequisites</a></li>
-          <li><a href="#Download_install">Download/install</a></li>
+          <li><a href="#Download_install">Download and uncompress JBrowse</a></li>
+          <li><a href="#setup_sh">Run <code>setup.sh</code></a></li>
+          <li><a href="#Prerequisites">Perl Prerequisites</a></li>
           <li><a href="#Reference_Sequences">Reference Sequences</a></li>
           <li><a href="#Features">Features</a></li>
-          <li><a href="#Names">Names</a></li>
-          <li><a href="#Quantitative_tracks">Quantitative tracks</a></li>
+          <li><a href="#Next-gen">Next-gen Reads (BAM support)</a></li>
+          <li><a href="#Names">Index Names</a></li>
+          <li><a href="#Quantitative_tracks">Quantitative Tracks (Wiggle support)</a></li>
+          <li><a href="#Troubleshooting">Troubleshooting</a></li>
         </ul>
       </p>
-      
-      <a name="Prerequisites" id="Prerequisites"></a>
-      <h3>Prerequisites</h3>
-      <span class="sidebar">
-        Alternatively, you can skip installing JBrowse and its prerequisites by launching a machine image using <a href="http://aws.amazon.com/ec2/">Amazon.com's EC2 service</a>.  We've prepared an image for use with EC2.  For more information, see <a href="http://biowiki.org/view/JBrowse/AmazonMachineImage">our wiki page</a>.
-      </span>
-      <p>
-        The server-side scripts for formatting data have some Perl module prerequisites from CPAN.  If you have a working internet connection, these can be installed by the command:
-       <div class="code">bin/cpanm --installdeps .</div>
-      </p>
 
-      <a name="Download_install" id="Download_install"></a>
-      <h3>Download/install</h3>
+      <a name="Download_install" id="Download_install">
+        <h2>Download and uncompress JBrowse</h2>
+      </a>
+
       <p>
-        <a href="http://jbrowse.org/?page_id=36">Get JBrowse from JBrowse.org</a>.
+        <b>Skip this step</b> if you are reading this page on your own
+        server, since you have already downloaded and uncompressed
+        JBrowse.
       </p>
       <p>
+        <a href="http://jbrowse.org/install/">Get JBrowse from jbrowse.org</a>.
+      </p>
 
-        Then extract JBrowse into a directory that's served by your
-        web server (e.g. <span class="code">/var/www/html/</span>),
-        and change into this directory.
+      <p>
+        Change into a directory that's served by your
+        web server (e.g. <span class="code">/var/www/</span>),
+        and extract JBrowse there.
 
         For example:
 
@@ -54,24 +65,90 @@
         should run all scripts from this directory.
       </p>
 
+      <div class="sidebar">
+        You can skip installing JBrowse and its prerequisites by launching a machine image using <a href="http://aws.amazon.com/ec2/">Amazon.com's EC2 service</a>.  We've prepared an image for use with EC2.  For more information, see <a href="http://biowiki.org/view/JBrowse/AmazonMachineImage">our wiki page</a>.
+      </div>
+
+      <a name="setup_sh">
+        <h2>Run <code>setup.sh</code></h2>
+      </a>
+
+      <p>
+        To get started with a working JBrowse running on
+        example <a style="font-style: italic"
+        href="http://en.wikipedia.org/wiki/Volvox">Volvox</a> data, on
+        machines running Linux or Mac OS X one can simply run:
+
+        <div class="code">
+          ./setup.sh
+        </div>
+
+        which tries to automatically install the Perl prerequisites,
+        format the Volvox example data, and install JBrowse WIG and
+        BAM support (which require additional dependencies and
+        compilation that can be a bit tricky).
+      </p>
+      <p>
+        If it says the Volvox example data was successfully formatted
+        (even if the WIG or BAM support setup failed) you can
+        navigate to the example <a target="_blank"
+        href="../../index.html?data=sample_data/json/volvox">Volvox
+        JBrowse</a>.  If you see a genome browser with Volvox data in
+        it, congratulations!  You have a working JBrowse installation.
+        Read on to <a href="#Reference_Sequences">Reference
+        Sequences</a> for how to format your own data for use with
+        JBrowse.
+      </p>
+      <p>
+        If the WIG support failed to install, 
+      </p>
+
+      <a name="Prerequisites" id="Prerequisites">
+        <h2>Perl Prerequisites</h2>
+      </a>
+      <p>
+        <b>Skip this step</b> if <code>setup.sh</code> was successful
+        at installing the Perl prerequisites, it has already done this
+        for you.
+      </p>
+      <p>
+        The server-side scripts for formatting data have some Perl
+        module prerequisites from the
+        CPAN. <span class="code">setup.sh</span> tries to install
+        these Perl dependencies for you, but in case you need to run
+        the installation independently, they can be installed by the
+        command:
+        <div class="code">bin/cpanm -l extlib --installdeps .</div>
+      </p>
+
       <a name="Reference_Sequences" id="Reference_Sequences"></a>
-      <h3>Reference Sequences</h3>
+      <h2>Reference Sequences</h2>
       <p>
         Tell JBrowse about your reference sequences with <span class="code">bin/prepare-refseqs.pl</span>
       </p>
-      <p>
-        <div class="code">bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa</div>
-      </p>
-      
+      <dl>
+        <dt>For FASTA format sequence files</dt>
+        <dd><div class="code">bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa</div></dd>
+        <dt>For sequences already stored in a <code>Bio::DB::*</code> database</dt>
+        <dd>
+          <div class="code">bin/prepare-refseqs.pl --conf docs/tutorial/conf_files/volvox.json</div>
+
+          See the <a href="../config.html">configuration file
+          reference</a> for more details on how these configuration
+          files work.
+
+        </dd>
+      </dl>
+
       <a name="Features" id="Features"></a>
-      <h3>Features</h3>
+      <h2>Features</h2>
       <p>
         There are two options for loading your feature data into JBrowse.
       </p>
       <dl>
 
-        <dt class="code"><a name="biodb-to-json.pl" id="biodb-to-json.pl">biodb-to-json.pl</a></dt>
-        <dd>If you have a genomic annotation database such as <a href="http://gmod.org/wiki/Chado">chado</a>, <a href="http://www.bioperl.org/wiki/Module:Bio::DB::SeqFeature::Store">Bio::DB::SeqFeature::Store</a>, or <a href="http://www.bioperl.org/wiki/Module:Bio::DB::GFF">Bio::DB::GFF</a>, then you can use JBrowse's <span class="code"><a href="#biodb-to-json.pl">biodb-to-json.pl</a></span>.
+        <dt class="code"><a name="biodb-to-json.pl" id="biodb-to-json.pl" class="code">biodb-to-json.pl</a></dt>
+        <dd>If you have a genomic annotation database such as <a href="http://gmod.org/wiki/Chado">Chado</a>, <a href="http://www.bioperl.org/wiki/Module:Bio::DB::SeqFeature::Store">Bio::DB::SeqFeature::Store</a>, or <a href="http://www.bioperl.org/wiki/Module:Bio::DB::GFF">Bio::DB::GFF</a>, then you can use JBrowse's <span class="code"><a href="#biodb-to-json.pl">biodb-to-json.pl</a></span>.
 
           You use <span class="code">bin/biodb-to-json.pl</span> with a configuration file <a href="../config.html">(documented here)</a>.
 
@@ -79,7 +156,7 @@
 
         </dd>
 
-        <dt class="code"><a name="flatfile-to-json.pl" id="flatfile-to-json.pl">bin/flatfile-to-json.pl</a></dt>
+        <dt class="code"><a class="anchor" name="flatfile-to-json.pl" id="flatfile-to-json.pl">bin/flatfile-to-json.pl</a></dt>
         <dd>
           On the other hand, if you mainly deal with flat files like
           GFF or BED, it may be more convenient to use
@@ -100,49 +177,72 @@
       </dl>
 
       <a name="Next-gen reads" id="Next-gen"></a>
-      <h3>Next-gen reads</h3>
+      <h2>Next-gen reads (BAM format)</h2>
       <p>
-        If you have data in the BAM format, you can import it into a JBrowse instance using the flatfile-to-json.pl program.  Here is one example of a command that does that, using the included data:
+        If you have data in BAM format, you can import it into a JBrowse instance using <span class="code">bam-to-json.pl</span>.  For example:
       </p>
-      <div class="code">bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Simulated next-gen reads" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}'</div>
+      <div class="code"><pre>
+bin/bam-to-json.pl                                              \
+   --bam docs/tutorial/data_files/volvox-sorted.bam             \
+   --tracklabel bam_simulated                                   \
+   --key "Simulated next-gen reads"                             \
+   --cssClass basic                                             \
+   --clientConfig                                               \
+        '{ "featureCss": "background-color: #66F; height: 8px",
+           "histCss": "background-color: #88F"
+        }'
+</pre></div>
       <a name="Names" id="Names"></a>
-      <h3>Names</h3>
+      <h2>Index Names</h2>
       <p>
-        To enable users to search using feature names or IDs, you have to do two things:
+        To let users find features by typing feature names or IDs in the search box, do two things:
         <ol>
           <li>specify <span class="code">autocomplete</span> for the tracks whose features you want to be searchable (see <a href="../config-desc.html#track_settings">the track settings section in the config file documentation</a> for details about the <span class="code">autocomplete</span> setting).  When you do this, a file with a list of names and locations will be generated for each track that has the <span class="code">autocomplete</span> setting.</li>
           <li>run <span class="code">bin/generate-names.pl</span> to collect those per-track files together into the structure that JBrowse uses to search</li>
         </ol>
       </p>
-      <div class="code">$ bin/generate-names.pl -v</div>
+      <div class="code">bin/generate-names.pl -v</div>
       <p>
-        You need to run <span class="code">bin/generate-names.pl</span> again every time you add new features to JBrowse.
+        <b>Note:</b> You need to
+        rerun <span class="code">bin/generate-names.pl</span> to
+        re-index feature names time you add new annotations to
+        JBrowse.
       </p>
-      
-      <h4>And that's all, for basic usage.</h4>
-      <p>visit <a href="../../index.html">the main page</a> to view the results.</p>
-      
+
+      <p><span style="font-size: 130%"><b>And that's all</b>, for basic usage.</span> Visit <a href="../../index.html">the main page</a> to view the results.</p>
+
       <a name="Quantitative_tracks" id="Quantitative_tracks"></a>
-      <h3>Quantitative tracks</h3>
+      <h2>Quantitative tracks (Wiggle support)</h2>
       <p>
-        If you want to create quantitative ("wiggle") tracks for JBrowse, you need to do a bit more work.
+        If you want to create quantitative ("wiggle") tracks for
+        JBrowse, you need to have a compiled C program
+        called <code>wig2png</code>.  If <code>setup.sh</code>
+        reported being successful at installing wiggle format support,
+        this has already been done for you.  Otherwise,
+        if <code>setup.sh</code> had trouble, read on.
       </p>
+      <h3>Manually building <code>wig2png</code></h3>
       <p>
-        Prerequisites:
-        <ul>
-          <li>libpng, with development header files</li>
-        </ul>
+        <b>Skip this step</b> if <code>setup.sh</code> reported being successful at
+        installing Wiggle support; this has already been done for you!
       </p>
+      <dl>
+        <dt>Prerequisites</dt>
+        <dd><code>libpng</code> must be installed, along with corresponding
+          development header files (see "System-specific tips for
+          building" below).
+        </dd>
+      </dl>
       <p>
-        Compile the wiggle-processing program by running <span class="code">configure</span> and then <span class="code">make</span> in the JBrowse root directory
+        Compile the wiggle-processing program by running <span class="code">configure</span> and then <span class="code">make</span> in the <span class="code">wig2png/</span> subdirectory of the JBrowse root directory.
         <div class="code">
-          ./configure<br />
-          make
+          (cd wig2png && ./configure && make; cd ..)
         </div>
       </p>
 
+      <h3>Formatting Wiggle Data</h3>
       <p>
-        Once compilation is complete, use
+        Once <code>wig2png</code> has been built, use
         the <span class="code">wig-to-json.pl</span> script to load
         wiggle files:
       </p>
@@ -150,7 +250,7 @@
 
 
       <div class="system-specific">
-        <h3 style="margin-top: 0">System-specific tips for compilation</h3>
+        <h2 style="margin-top: 0">System-specific tips for building <span class="code">wig2png</span></h2>
         <dl>
 
           <dt>Apple OS X</dt>
@@ -161,22 +261,37 @@
             <p>Depending on which OS X you have (and whether you're using MacPorts/fink/etc.), libpng might be somewhere other than <span class="code">/usr/X11</span>, like <span class="code">/opt/local</span> for example.  To find where libpng is, try <span class="code">locate libpng</span></p>
           </dd>
 
-          <dt>Red Hat/CentOS/Fedora</dt>
-          <dd><p>
-            Be sure to install the <span class="code">libpng</span>
-            and <span class="code">libpng-devel</span> packages for
-            compilation to work.
-          </p></dd>
-
-          <dt>Ubuntu</dt>
+          <dt>Ubuntu / Debian Linux</dt>
           <dd><p>
             Be sure to install the <span class="code">libpng##</span>
             and <span class="code">libpng##-dev</span> packages,
             where <span class="code">##</span> is a number such as 12
             or 15, depending on the version of Ubuntu.
           </p></dd>
+
+          <dt>Red Hat/CentOS/Fedora Linux</dt>
+          <dd><p>
+            Be sure to install the <span class="code">libpng</span>
+            and <span class="code">libpng-devel</span> packages for
+            compilation to work.
+          </p></dd>
+
         </dl>
       </div>
+
+      <a name="Troubleshooting"><h2>Troubleshooting</h2></a>
+      <p>
+        Sometimes things just don't go well.  It seems like nothing's
+        ever as easy as it should be.  Here are several resources you
+        can use if it turns out that this guide is not enough to get
+        JBrowse working for you.
+      </p>
+      <dl>
+        <dt><a href="http://gmod.org/wiki/JBrowse">JBrowse on the GMOD wiki</a></dt>
+        <dd>Contains extended documentation on many aspects JBrowse, including troubleshooting tips.</dd>
+        <dt><a href="https://lists.sourceforge.net/lists/listinfo/gmod-ajax">gmod-ajax@lists.sourceforge.net mailing list</a></dt>
+        <dd>Primary mailing list for JBrowse questions and discussion.</dd>
+      </dl>
     </div>
   </body>
 </html>

@@ -1,5 +1,145 @@
 {{$NEXT}}
 
+ * Added a full-featured faceted track selector for users that have
+   many (hundreds or thousands) of tracks.  This can be turned on by
+   setting the `trackSelectorType` config variable to "Faceted".  See
+   the JBrowse wiki for more documentation on how to use faceted track
+   selection.
+
+ * Added a vertical-scrolling marker on the right side of the track
+   pane, making it much easier to discern the vertical position of the
+   track display.
+
+ * biodb-to-json.pl and flatfile-to-json.pl now load all available
+   feature data: all attributes of features are now encoded in the
+   JSON and are available for use by feature callbacks.
+
+ * Feature labels now do not scroll off screen if any part of the
+   feature is still visible (fixes issue #62).
+
+1.3.1     2012-04-19 17:55:44 America/New_York
+
+ * Fixed memory-management bug that caused way too much RAM to be used
+   by FeatureTrack loading (flatfile, bam, and biodb-to-json.pl) when
+   loading with very large numbers of reference sequences.  Big thanks
+   to Tristan Lubinski for help in isolating this.
+
+ * Fixed some bugs in BAM support section of setup.sh autosetup
+   script, thanks to Tristan Lubinski for help in isolating this as
+   well.
+
+ * Added an example document with an iframe running JBrowse in
+   embedded mode in docs/examples/embedded_mode.html
+
+ * flatfile-to-json.pl now loads the 'score' attribute of features in the
+   JSON.
+
+1.3.0     2012-04-13 17:04:30 America/New_York
+
+ * Added support for "rubberband" dynamic zooming, in which users can
+   click and drag to select a region to zoom to.  Dragging on any
+   scale bar, or shift-dragging on the main track pane, triggers a
+   dynamic zoom.
+
+ * Correcting a long-standing oversight, wiggle data tracks and
+   feature histograms now have numerical y-axis scales that show the
+   numerical values of the data.
+
+ * Server-side data-formatting scripts now support a --compress option
+   to compress (gzip) feature and sequence data to conserve server
+   disk space.  Using this option requires some web server
+   configuration.  Under Apache, AllowOverride FileInfo (or
+   AllowOverride All) must be set for the JBrowse data directories in
+   order to use the included .htaccess files, and mod_headers and
+   mod_setenvif must be installed and enabled.  Under nginx a
+   configuration snippet like the following should be included in the
+   configuration:
+
+      location ~* "\.(json|txt)z$" {
+               add_header Content-Encoding  gzip;
+               gzip off;
+               types { application/json jsonz; }
+      }
+
+ * flatfile-to-json.pl: now much faster and more memory-efficient,
+   especially for GFF3 files.  Remember that '###' directives are very
+   important to have in large GFF3 files!  Also removed nonfunctional
+   --extraData switch.
+
+ * Added ability to turn off some JBrowse UI panels via URL arguments
+   to the default index.html, or via arguments to the Browser
+   constructor itself.  Can dynamically turn off the navigation box,
+   the overview panel, and the track list, respectively.  When all of
+   these are off, and if run in an iframe, JBrowse is running in an
+   "embedded mode" that looks similar to the output of GBrowse's
+   gbrowse_img script, with the exception that the view in this case
+   is a fully functioning, scrollable and zoomable JBrowse.  See the
+   GMOD wiki (http://gmod.org/wiki/JBrowse) for more on how to set up
+   embedded mode.  Thanks to Julie Moon, a co-op student working at
+   OICR, for this work!
+
+ * Improved graphical look and feel.
+
+ * Browser support for this release:
+      * Google Chrome 18                perfect
+      * Google Chrome 17                perfect
+      * Mozilla Firefox 11.0            perfect
+      * Mozilla Firefox 10.1            perfect
+      * Mozilla Firefox 10.0.2          perfect
+      * Mozilla Firefox 3.6.28          nonfunctional
+      * Apple Safari 5.1.5 (Lion)       perfect
+      * Microsoft Internet Explorer 9   perfect
+      * Microsoft Internet Explorer 8   good
+      * Microsoft Internet Explorer 7   minor problems
+      * Microsoft Internet Explorer 6   not tested
+      * KDE Konqueror 4.7.4             nonfunctional
+      * KDE Konqueror 4.5.5             nonfunctional
+      * Opera (all versions)            not tested
+
+   NOTE: Internet Explorer 6 is no longer supported by JBrowse.
+
+ * Added an automated-setup script, setup.sh, that tries to install
+   Perl prerequisites, format Volvox example data, and install Wiggle
+   and BAM support (fetching samtools from SVN if necessary)
+   automatically.
+
+ * Navigating to JBrowse with missing or malformed configuration or
+   data will now bring up an error page with useful messages and links
+   to help documentation, instead of a blank white page.
+
+ * JBrowse data directories now include an Apache .htaccess in their
+   root directory that, if mod_headers is installed and AllowOverride
+   FileInfo or AllowOverride All is enabled, will emit the proper HTTP
+   headers to allow cross-origin XHR requests for the data.
+
+ * A new "Help" link in the upper right, or pressing "?" on the
+   keyboard, brings up a "JBrowse Help" dialog box with basic usage
+   information and links to more help information.
+
+ * Arrowheads indicating strandedness are now drawn inside feature
+   boundaries.
+
+ * Clicking on the overview bar or the main scale bar now centers the
+   view at the clicked position.  In addition, while holding down
+   shift, clicking in the main track panel will also center the view
+   at that position.
+
+ * Added bin/remove-track.pl, a script to remove a track from a
+   JBrowse data directory.  Run bin/remove-track.pl -? to see its
+   documentation.
+
+ * Added build instrumentation to support a JSDoc-based system of
+   developer API documentation.  This documentation is still far from
+   complete.
+
+ * Ian Davis contributed code to add a view of the reverse strand of
+   the sequence in the DNA track.  Thanks Ian!
+
+ * Fixed bug in which, for some sequence chunk sizes, the DNA bases
+   would display incorrectly.
+
+ * Added minor gridlines to the main track view.
+
  * Fixed a long-standing off-by-one bug where the window could not be
    scrolled to view the last base in the reference sequence.
 
@@ -19,8 +159,6 @@
 
  * More detailed POD-based help documentation on all scripts
 
- * Nonfunctional --extraData switch remove from flatfile-to-json.pl
-
  * --tracklabel options to all scripts replaced with --trackLabel.
 
  * New suite of integration tests, and some unit tests, for
@@ -34,7 +172,7 @@
    browsing platform.
 
  * Bug fixed in which non-stranded features do not display properly
-   (was a problem with the styles in the CSS).
+   (a problem with the CSS styles).
 
 ========================================================
 

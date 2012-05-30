@@ -1,4 +1,7 @@
-/*
+// MODEL
+
+/**
+<pre>
   Implements a lazy PATRICIA tree.
 
   This class is a map where the keys are strings.  The map supports fast
@@ -47,7 +50,11 @@
   the wire (so, no type tags in the JSON to distinguish loaded nodes,
   lazy nodes, and leaves) while supporting lazy loading and reasonably
   fast lookups.
- */
+</pre>
+
+@class
+
+*/
 
 function LazyTrie(rootURL, chunkTempl) {
     this.rootURL = rootURL;

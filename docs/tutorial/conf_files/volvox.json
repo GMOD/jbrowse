@@ -58,11 +58,12 @@
     },
     {
       "track": "CDS",
-      "feature": ["CDS:predicted", "mRNA:exonerate"],
+      "feature": ["CDS:predicted", "mRNA:exonerate","mRNA:predicted"],
       "class": "cds",
       "phase": 1,
       "key": "Predicted genes",
-      "category": "Genes"
+      "category": "Genes",
+      "urlTemplate": "http://example.com/{name}-{start}-{end}"
     },
     {
       "track": "Transcript",

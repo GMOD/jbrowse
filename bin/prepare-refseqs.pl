@@ -45,6 +45,12 @@ Do not write out the actual sequence bases, just the sequence metadata.
 
 Output only sequences with the given names or (database-dependent) IDs.
 
+=item --compress
+
+If passed, compress the reference sequences with gzip, making the
+chunks be .txt.gz.  NOTE: this requires a bit of additional web server
+configuration to be served correctly.
+
 =back
 
 =cut
@@ -53,21 +59,25 @@ use strict;
 use warnings;
 
 use File::Spec::Functions qw/ catfile catdir /;
+use File::Path 'mkpath';
+
 use FindBin qw($Bin);
 use Pod::Usage;
 use POSIX;
 use Getopt::Long;
 
 use lib "$Bin/../lib";
+use JBlibs;
 
 use JsonGenerator;
 use FastaDatabase;
 
-my $chunkSize = 20000;
 my ($confFile, $noSeq, $gff, @fasta, $refs, $refids);
+my $chunkSize = 20000;
 my $outDir = "data";
 my $seqTrackName = "DNA";
 my $help;
+my $compress;
 GetOptions("out=s" => \$outDir,
            "conf=s" => \$confFile,
            "noseq" => \$noSeq,
@@ -75,18 +85,21 @@ GetOptions("out=s" => \$outDir,
            "fasta=s" => \@fasta,
 	   "refs=s" => \$refs,
            "refids=s" => \$refids,
+           "compress" => \$compress,
            "help|h|?" => \$help,
            ) or pod2usage();
 pod2usage( -verbose => 2 ) if $help;
 pod2usage( 'must provide either a --fasta, --gff, or --conf option' )
     unless defined $gff || defined $confFile || @fasta;
 
+$chunkSize *= 4 if $compress;
+
 # $seqRel is the path relative to $outDir
 my $seqRel = "seq";
 my $seqDir = catdir( $outDir, $seqRel );
 
-mkdir($outDir) unless (-d $outDir);
-mkdir($seqDir) unless $noSeq || (-d $seqDir);
+mkpath( $outDir );
+mkpath( $seqDir ) unless $noSeq;
 
 my @refSeqs;
 
@@ -154,7 +167,7 @@ if (defined($gff)) {
 
             unless ($noSeq) {
                 my $refDir = catdir($seqDir,$refInfo->{name});
-                exportSeqChunks($refDir, $chunkSize, $db,
+                exportSeqChunks($refDir, $compress, $chunkSize, $db,
                                 [-db_id => $refid],
                                 $seg->start, $seg->end);
                 $refInfo->{"seqDir"} = $refDir;
@@ -182,12 +195,13 @@ if (defined($gff)) {
                 name => refName($seg),
                 start => $seg->start - 1,
                 end => $seg->end,
-                length => $seg->length
+                length => $seg->length,
+                ( $compress ? ( 'compress' => 1 ) : () ),
             };
 
             unless ($noSeq) {
                 my $refDir = catdir( $seqDir, $refInfo->{"name"} );
-                exportSeqChunks($refDir, $chunkSize, $db,
+                exportSeqChunks($refDir, $compress, $chunkSize, $db,
                                 [-name => $ref],
                                 $seg->start, $seg->end);
                 $refInfo->{"seqDir"} = catdir( $seqRel, $refInfo->{"name"} );
@@ -223,6 +237,17 @@ JsonGenerator::modifyJsonFile( catfile( $outDir, 'seq', 'refSeqs.json' ),
                                   }
                                   return $old;
                               });
+if( $compress ) {
+    # if we are compressing the sequence files, drop a .htaccess file
+    # in the seq/ dir that will automatically configure users with
+    # Apache (and AllowOverride on) to serve the .txt.gz files
+    # correctly
+    require GenomeDB;
+    my $hta = catfile( $outDir, 'seq', '.htaccess' );
+    open my $hta_fh, '>', $hta or die "$! writing $hta";
+    $hta_fh->print( GenomeDB->precompression_htaccess('.txtz','.jsonz') );
+}
+
 
 unless ($noSeq) {
     JsonGenerator::modifyJsonFile( catfile( $outDir, "trackList.json" ),
@@ -247,11 +272,9 @@ unless ($noSeq) {
                                        'label' => $seqTrackName,
                                        'key' => $seqTrackName,
                                        'type' => "SequenceTrack",
-                                       'config' =>
-                                       {
-                                        'chunkSize' => $chunkSize,
-                                        'urlTemplate' => "$seqRel/{refseq}/",
-                                       }
+                                       'chunkSize' => $chunkSize,
+                                       'urlTemplate' => "$seqRel/{refseq}/",
+                                       ( $compress ? ( 'compress' => 1 ): () ),
                                       };
                                     return $trackList;
                             });
@@ -270,7 +293,7 @@ sub refName {
 }
 
 sub exportSeqChunks {
-    my ($dir, $len, $db, $segDef, $start, $end) = @_;
+    my ($dir, $compress, $len, $db, $segDef, $start, $end) = @_;
 
     mkdir $dir unless -d $dir;
     $start = 1 if $start < 1;
@@ -295,8 +318,8 @@ sub exportSeqChunks {
         $chunkStart = $chunkEnd + 1;
         next unless $seg && $seg->seq && $seg->seq->seq;
 
-        my $path = File::Spec->catfile( "$dir", "$chunkNum.txt" );
-        open my $chunkfile, '>', $path or die "$! writing $path";
+        my $path = File::Spec->catfile( "$dir", "$chunkNum.txt" .( $compress ? 'z' : '' ));
+        open my $chunkfile, '>'.($compress ? ':gzip' : ''), $path or die "$! writing $path";
         $chunkfile->print( $seg->seq->seq );
     }
 }

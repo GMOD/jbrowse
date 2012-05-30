@@ -1,6 +1,8 @@
 use strict;
 use warnings;
 
+use JBlibs;
+
 use Test::More;
 
 use File::Spec::Functions 'catfile';
@@ -34,8 +36,8 @@ is( ref(  $out->{ catfile(qw( tracks TestBAM ctgA lf-4.json  )) } ),
     'BAM! got some features up in there',
   );
 
-is( $out->{'trackList.json'}{tracks}[1]{config}{style}{foobee}, 1, 'got some style' );
-is( $out->{'trackList.json'}{tracks}[1]{config}{style}{className}, 'basic', 'got default CSS class' );
+is( $out->{'trackList.json'}{tracks}[1]{style}{foobee}, 1, 'got some style' );
+is( $out->{'trackList.json'}{tracks}[1]{style}{className}, 'basic', 'got default CSS class' );
 
 
 #system "find $tempdir";

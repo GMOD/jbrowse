@@ -40,6 +40,7 @@ sub slurp_tree {
 
     my $output_files_iter = File::Next::files( $dir );
     while( my $file = $output_files_iter->() ) {
+        next if $file =~ /\.htaccess$/;
         my $rel = File::Spec->abs2rel( $file, $dir );
         $data{ $rel } = $rel =~ /\.json$/  ? $storage->get( $rel )   :
                         $rel =~ /\.jsonz$/ ? $storage_z->get( $rel ) :

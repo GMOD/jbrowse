@@ -1,6 +1,8 @@
 use strict;
 use warnings FATAL => 'all';
 
+use JBlibs;
+
 use Test::More;
 
 use lib 'lib';

@@ -129,20 +129,21 @@ sub new {
     my @subfeatHeaders = (@mapHeaders, "type");
 
     if ($style{subfeatures}) {
-        push @curFeatMap, sub {
+        my $get_subfeatures = sub {
             my ($feat, $flatten) = @_;
-            my @flattened;
-            my @subFeatures = $feat->get_SeqFeatures;
-            return undef unless (@subFeatures);
-
-            my $sfClasses = $style{subfeature_classes};
-            my @subfeatIndices;
-            foreach my $subFeature (@subFeatures) {
-                push @flattened, [ map scalar($_->($subFeature)), @subfeatMap ];
-            }
-            return \@flattened;
+            my @subFeatures = $feat->get_SeqFeatures
+                or return undef;
+            return [
+                map {
+                    my $subfeat = $_;
+                    [ map scalar $_->($subfeat), @subfeatMap ]
+                } @subFeatures
+            ];
         };
+        push @curFeatMap, $get_subfeatures;
+        push @subfeatMap, $get_subfeatures;
         push @curMapHeaders, 'subfeatures';
+        push @subfeatHeaders, 'subfeatures';
     }
 
     my @nameMap =

@@ -1,9 +1,10 @@
 use strict;
 use warnings;
 
-use Test::More;
-
 use lib 'tests/perl_tests/lib';
+use JBlibs;
+
+use Test::More;
 
 use FakeFasta;
 
@@ -33,7 +34,7 @@ my $correct_fkfa = [
     'length' => 0
   }
 ];
-use Carp::Always;
+
 my $fkfa = FakeFasta->fasta_to_fkfa( do{ open my $f, '<', \$fasta; $f} );
 is_deeply( $fkfa,
            $correct_fkfa,

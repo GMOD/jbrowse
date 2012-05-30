@@ -93,13 +93,14 @@ use strict;
 use warnings;
 
 use FindBin qw($Bin);
-use Pod::Usage;
-
 use lib "$Bin/../lib";
+use JBlibs;
 
-use PerlIO::gzip;
+use Pod::Usage;
 use Getopt::Long;
 use List::Util qw(min max);
+
+use PerlIO::gzip;
 use JSON 2;
 use GenomeDB;
 use NameHandler;
@@ -196,7 +197,7 @@ foreach my $tableName (@$tracks) {
        compress => $compress,
        style => {
                  "className" => $cssClass,
-                 "featureCss" => "background-color: $color; height: 8px;",
+                 "featureCss" => "background-color: $color; height: 6px;",
                  "histCss" => "background-color: $color;"
                 }
       };
@@ -217,8 +218,8 @@ foreach my $tableName (@$tracks) {
         $trackConfig->{style}->{className} = "generic_parent";
         $trackConfig->{style}->{histCss} = "background-color: $color;";
         $trackConfig->{hooks}->{modify} = <<ENDJS;
-function(track, feat, attrs, elem) {
-    var fType = attrs.get(feat, "Type");
+function(track, feat, elem) {
+    var fType = feat.get("Type");
     if (fType) {
         elem.className = "basic";
         switch (fType]) {
@@ -262,11 +263,11 @@ ENDJS
 
     my $curChrom;
     my $gdb = GenomeDB->new($outdir);
-    my $track = $gdb->getTrack($tableName);
+    my $track = $gdb->getTrack($tableName, $trackConfig, $trackConfig->{shortLabel} );
     unless (defined($track)) {
         $track = $gdb->createFeatureTrack($tableName,
                                           $trackConfig,
-                                          $track->{shortLabel});
+                                          $trackConfig->{shortLabel});
     }
     my $nameHandler;
     while (1) {

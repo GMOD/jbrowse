@@ -5,11 +5,12 @@
   <head><title>JBrowse feature glyphs</title></head>
   <link rel="stylesheet" type="text/css" href="../genome.css"></link>
   <style type="text/css">
-    body { font-size: 14px }
+    body { font-size: 14px; width: 90%; padding: 0 0 1em 1em; }
 
-    table { 
+    table {
       border: 1px solid #777;
       border-collapse: collapse;
+      margin-bottom: 1em;
     }
 
     td { border: 1px solid #777; padding: 5px; }
@@ -17,11 +18,12 @@
     th { border: 1px solid #777; }
 
     div.ex {
-      position: static;
+      position: relative;
       width: 5em;
       margin-left: 1em;
       margin-right: 1em;
-
+    }
+    div.ex, div.ex * {
       display:-moz-inline-stack;/*Firefox need this to simulate display:inline-block*/
       display:inline-block; /*IE does not apply this to Block Element, and Firefox does not render this, too*/
       _overflow:hidden;/*fix IE6 to expanded content*/
@@ -31,31 +33,134 @@
 
 </style>
   <body>
-    <h3>JBrowse feature glyphs</h3>
+    <h2>JBrowse feature glyphs</h2>
     <p>Here are some of the feature glyphs built into JBrowse.  These are what you specify for the --cssclass option to gff-to-json.pl, or for the &quot;class&quot; value or &quot;subfeatureClasses&quot; map in the config file.  You can also easily add your own; look in the <a href="../genome.css">genome.css</a> file for examples.</p>
 
-    <b>Simple features:</b><br>
-    <table>
-      <tr><th>class name</th><th>how it looks</th></tr>
+    <h3>Feature classes</h3>
 
+    <p>Features with no subfeatures will be drawn as rectangles like
+    those below, depending on their <code>cssClass</code>
+    configuration.
+    </p>
+
+    <table>
+      <tr><th><code>cssClass</code></th><th style="width: 8em">displayed</th></tr>
       <tr><td>feature  </td><td><div class="ex plus-feature"></div></td></tr>
       <tr><td>feature2 </td><td><div class="ex plus-feature2"></div></td></tr>
       <tr><td>feature3 </td><td><div class="ex plus-feature3"></div></td></tr>
       <tr><td>feature4 </td><td><div class="ex plus-feature4"></div></td></tr>
       <tr><td>feature5 </td><td><div class="ex plus-feature5"></div></td></tr>
+      <tr><td>match_part</td><td><div class="ex plus-match_part"></div></td></tr>
       <tr><td>exon     </td><td><div class="ex plus-exon"></div></td></tr>
-      <tr><td>cds      </td><td><div class="ex minus-cds2"></div></td></tr>
+      <tr><td>est     </td><td><div class="ex plus-est"></div></td></tr>
+      <tr><td>cds      </td><td><div class="ex minus-cds minus-cds_phase2"></div></td></tr>
+      <tr><td>loops      </td><td><div class="ex minus-loops minus-loops"></div></td></tr>
+      <tr><td>helix </td><td><div class="ex plus-helix"></div></td></tr>
       <tr><td>dblhelix </td><td><div class="ex plus-dblhelix"></div></td></tr>
-      <tr><td>triangle hgred </td><td><div class="ex plus-triangle hgred" style="width: 0px;"></div><div class="ex minus-triangle hgred" style="width: 0px;"></div></td></tr>
-      <tr><td>triangle hgblue </td><td><div class="ex plus-triangle hgblue" style="width: 0px;"></div><div class="ex minus-triangle hgblue" style="width: 0px;"></div></td></tr>
+      <tr><td>ibeam </td><td><div class="ex plus-ibeam"></div></td></tr>
+      <tr><td>transcript-exon </td><td><div class="ex plus-transcript-exon"></div></td></tr>
+      <tr><td>transcript-UTR </td><td><div class="ex plus-transcript-UTR"></div></td></tr>
+      <tr><td>transcript-CDS </td><td><div class="ex plus-transcript-CDS"></div></td></tr>
+      <tr><td>triangle hgred </td><td><div class="ex plus-triangle hgred" style="width: 0px;"></div></div></td></tr>
+      <tr><td>triangle hgblue </td><td><div class="ex plus-triangle hgblue" style="width: 0px;"></div></td></tr>
+      <tr><td>hourglass hgred </td><td><div class="ex plus-hourglass hgred" style="width: 0px;"></div></td></tr>
+      <tr><td>hourglass hgblue </td><td><div class="ex plus-hourglass hgblue" style="width: 0px;"></div></td></tr>
+      <tr><td>generic_parent</td><td><div class="ex plus-generic_parent"></div></td></tr>
+      <tr><td>generic_part_a</td><td><div class="ex plus-generic_part_a"></div></td></tr>
     </table>
-    <br><br>
-    <b>Compound Features:</b><br>
+
+
+    <h3>Two-level Features</h3>
+
+    <p>To show features with subfeatures, JBrowse draws the glyphs for
+    the subfeatures on top of the glyph for the parent feature.  The
+    parent feature's glyph is set with <code>className</code> and the
+    glyphs for the subfeatures are set
+    with <code>subfeatureClasses</code>.
+    </p>
+
     <table>
-      <tr><th>config</th><th>how it looks</th></tr>
+      <tr>
+        <th>data</th>
+        <th>config</th>
+        <th style="width: 8em">displayed</th>
+      </tr>
+      <tr>
+        <td>parent feature with two subfeatures of type 'exon'</td>
+        <td><pre>
+"style": {
+  "className": "transcript",
+  "arrowheadClass": "transcript-arrowhead",
+  "subfeatureClasses": {
+      "exon": "transcript-exon"
+    }
+ }
+          </pre></td>
+      <td>
+         <div class="ex minus-transcript">
+           <div class="minus-transcript-arrowhead" style="position: absolute; left: 0px; top: 0px; z-index: 100; "></div>
+           <div class="transcript-exon minus-transcript-exon" style="left: 0%; top: 0px; width: 53.71900826446281%; "></div>
+           <div class="transcript-exon minus-transcript-exon" style="left: 76.03305785123968%; top: 0px; width: 23.96694214876033%; "></div>
+         </div>
+      </td></tr>
 
-      <tr><td>class: transcript<!--<br>arrowheadClass: transcript-arrowhead--> </td><td><div class="ex minus-transcript"><div class="minus-transcript-arrowhead" style="right: 0px;"></div></div></td></tr>
+      <tr>
+        <td>parent feature with two subfeatures of type 'CDS'</td>
+        <td><pre>
+"style": {
+  "className": "transcript",
+  "arrowheadClass": "transcript-arrowhead",
+  "subfeatureClasses": {
+      "CDS": "transcript-CDS"
+    }
+ }
+          </pre></td>
+      <td>
+         <div class="ex minus-transcript">
+           <div class="minus-transcript-arrowhead" style="position: absolute; left: 0px; top: 0px; z-index: 100; "></div>
+           <div class="transcript-CDS minus-transcript-CDS" style="left: 0%; top: 0px; width: 53.71900826446281%; "></div>
+           <div class="transcript-CDS minus-transcript-CDS" style="left: 76.03305785123968%; top: 0px; width: 23.96694214876033%; "></div>
+         </div>
+      </td></tr>
 
+      <tr>
+        <td>parent feature with two subfeatures of type 'match_part'</td>
+        <td><pre>
+"style": {
+  "className": "generic_parent",
+  "arrowheadClass": "arrowhead",
+  "subfeatureClasses": {
+      "match_part": "match_part"
+    }
+ }
+          </pre></td>
+      <td>
+         <div class="ex minus-generic_parent">
+           <div class="minus-arrowhead" style="position: absolute; left: 0px; top: 0px; z-index: 100; "></div>
+           <div class="transcript-match_part minus-match_part" style="left: 0%; top: 0px; width: 53.71900826446281%; "></div>
+           <div class="transcript-match_part minus-match_part" style="left: 76.03305785123968%; top: 0px; width: 23.96694214876033%; "></div>
+         </div>
+      </td></tr>
+
+      <tr>
+        <td>parent feature with two subfeatures of type 'match_part'</td>
+        <td><pre>
+"style": {
+  "className": "generic_parent",
+  "arrowheadClass": "arrowhead",
+  "subfeatureClasses": {
+      "match_part": "generic_part_a"
+    }
+ }
+          </pre></td>
+      <td>
+         <div class="ex minus-generic_parent">
+           <div class="minus-arrowhead" style="position: absolute; left: 0px; top: 0px; z-index: 100; "></div>
+           <div class="transcript-generic_part_a minus-generic_part_a" style="left: 0%; top: 0px; width: 53.71900826446281%; "></div>
+           <div class="transcript-generic_part_a minus-generic_part_a" style="left: 76.03305785123968%; top: 0px; width: 23.96694214876033%; "></div>
+         </div>
+      </td></tr>
     </table>
+    <br>
   </body>
 </html>

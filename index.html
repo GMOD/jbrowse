@@ -12,11 +12,14 @@
 
     <script type="text/javascript" src="jslib/dojo/dojo.js" djConfig="isDebug: false"></script>
     <script type="text/javascript" src="jslib/dojo/jbrowse_dojo.js" ></script>
+    <script type="text/javascript" src="jslib/dojo/jbrowse_dojo_faceted_tracksel.js" ></script>
 
 <!-- js_source_files -->
 <!-- the files between the "js_source_files" comments get replaced
      when the JS gets minified (see the minification rule in the Makefile) -->
     <script type="text/javascript" src="js/Browser.js"></script>
+    <script type="text/javascript" src="js/ConfigAdaptor/JB_json_v1.js"></script>
+    <script type="text/javascript" src="js/ConfigAdaptor/JB_json_v0.js"></script>
     <script type="text/javascript" src="js/Util.js"></script>
     <script type="text/javascript" src="js/ArrayRepr.js"></script>
     <script type="text/javascript" src="js/NCList.js"></script>
@@ -25,11 +28,35 @@
     <script type="text/javascript" src="js/Track.js"></script>
     <script type="text/javascript" src="js/SequenceTrack.js"></script>
     <script type="text/javascript" src="js/Layout.js"></script>
+
+    <script type="text/javascript" src="js/Store.js"></script>
+    <script type="text/javascript" src="js/SeqFeatureStore.js"></script>
+    <script type="text/javascript" src="js/SeqFeatureStore/NCList.js"></script>
+    <script type="text/javascript" src="js/TiledImageStore/Fixed.js"></script>
+    <script type="text/javascript" src="js/SequenceStore/StaticChunked.js"></script>
+
+    <script type="text/javascript" src="js/Model/TrackMetaData.js"></script>
+    <script type="text/javascript" src="js/Model/modEncodeTrackMetadata.js"></script>
+
+    <script type="text/javascript" src="js/View/TrackList/Null.js"></script>
+    <script type="text/javascript" src="js/View/TrackList/Simple.js"></script>
+    <script type="text/javascript" src="js/View/TrackList/Faceted.js"></script>
+
+    <script type="text/javascript" src="js/Ruler.js"></script>
+    <script type="text/javascript" src="js/Track/YScaleMixin.js"></script>
+
     <script type="text/javascript" src="js/FeatureTrack.js"></script>
     <script type="text/javascript" src="js/StaticTrack.js"></script>
     <script type="text/javascript" src="js/GridTrack.js"></script>
     <script type="text/javascript" src="js/ImageTrack.js"></script>
+    <script type="text/javascript" src="js/ImageTrack/Wiggle.js"></script>
+
+    <script type="text/javascript" src="js/Animation.js"></script>
+    <script type="text/javascript" src="js/Slider.js"></script>
+    <script type="text/javascript" src="js/Zoomer.js"></script>
+    <script type="text/javascript" src="js/BehaviorManager.js"></script>
     <script type="text/javascript" src="js/GenomeView.js"></script>
+
     <script type="text/javascript" src="js/touchJBrowse.js"></script>
 
 <!-- jQuery mess-->
@@ -52,26 +79,24 @@
            var dataRoot = queryParams.data || 'data';
            var b = new Browser({
                                    containerID: "GenomeBrowser",
-                                   refSeqs: {url: dataRoot + "/seq/refSeqs.json"},
-                                   tracklists: [
-                                       {url: dataRoot + "/trackList.json"}
+                                   refSeqs: dataRoot + "/seq/refSeqs.json",
+                                   include: [
+                                     dataRoot + "/trackList.json"
                                    ],
                                    nameUrl: dataRoot + "/names/root.json",
                                    defaultTracks: "DNA,gene,mRNA,noncodingRNA",
                                    queryParams: queryParams,
                                    location: queryParams.loc,
-                                   tracks: queryParams.tracks,
+                                   forceTracks: queryParams.tracks,
 				   show_nav: queryParams.nav,
 				   show_tracklist: queryParams.tracklist,
 				   show_overview: queryParams.overview,
 				   config_list: queryParams.config
                                });
-           b.deferredFunctions.push(function() { loadTouch(); });
-
     /* ]]> */
     </script>
   </head>
-  
+
   <body>
     <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
   </body>

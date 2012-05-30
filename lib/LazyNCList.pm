@@ -95,52 +95,47 @@ sub addSorted {
 
     $self->{count} += 1;
     my $lastAdded = $self->{lastAdded};
-    my $start = $self->{start};
-    my $end = $self->{end};
+    my $start = $self->{start}->( $feat );
+    my $end = $self->{end}->( $feat );
 
     if (defined($lastAdded)) {
+        my $lastStart = $self->{start}->($lastAdded);
+        my $lastEnd = $self->{end}->($lastAdded);
         # check that the input is sorted
-        die "input not sorted: got start "
-            . $start->($lastAdded)
-                . " before "
-                    . $start->($feat)
-                        if ($start->($lastAdded) > $start->($feat));
+        $lastStart <= $start
+            or die "input not sorted: got start $lastStart before $start";
 
-        die "input not sorted: got "
-            . $start->($lastAdded) . " .. " . $end->($lastAdded)
-                . " before "
-                    . $start->($feat) . " .. " . $end->($feat)
-                        if (($start->($lastAdded) == $start->($feat))
-                                &&
-                                    ($end->($lastAdded) < $end->($feat)));
+        die "input not sorted: got $lastStart..$lastEnd before $start..$end"
+            if $lastStart == $start && $lastEnd < $end;
     } else {
         # LazyNCList requires sorted input, so the start of the first feat
         # is the minStart
-        $self->{minStart} = $start->($feat);
+        $self->{minStart} = $start;
     }
 
     $self->{lastAdded} = $feat;
 
-    my $chunkSizes = $self->{chunkSizes};
+    my $chunkSizes   = $self->{chunkSizes};
+    my $partialStack = $self->{partialStack};
 
-    for (my $level = 0; $level <= $#{$self->{partialStack}}; $level++) {
-        my $featSize = $self->{measure}->($feat);
+    for (my $level = 0; $level <= $#$partialStack; $level++) {
         # due to NCList nesting, among other things, it's hard to be exactly
         # precise about the size of the JSON serialization, but this will get
         # us pretty close.
-        $chunkSizes->[$level] += $featSize;
+        my $featSize     = $self->{measure}->($feat);
+        my $proposedChunkSize = $chunkSizes->[$level] + $featSize;
         #print STDERR "chunksize at $level is now " . $chunkSizes->[$level] . "; (next chunk is " . $self->{chunkNum} . ")\n";
 
         # If this partial chunk is full,
-        if ($chunkSizes->[$level] > $self->{sizeThresh} ){
+        if ( $proposedChunkSize > $self->{sizeThresh} && @{$partialStack->[$level]} ){
             # then we're finished with the current "partial" chunk (i.e.,
             # it's now a "complete" chunk rather than a partial one), so
             # create a new NCList to hold all the features in this chunk.
-            my $lazyFeat = $self->finishChunk($self->{partialStack}->[$level]);
+            my $lazyFeat = $self->finishChunk( $partialStack->[$level] );
 
             # start a new partial chunk with the current feature
-            $self->{partialStack}->[$level] = [$feat];
-            $chunkSizes->[$level] = $featSize;
+            $partialStack->[$level] = [$feat];
+            $chunkSizes->[$level]   = $featSize;
 
             # and propagate $lazyFeat up to the next level
             $feat = $lazyFeat;
@@ -153,7 +148,8 @@ sub addSorted {
             }
         } else {
             # add the current feature the partial chunk at this level
-            push @{$self->{partialStack}->[$level]}, $feat;
+            push @{$partialStack->[$level]}, $feat;
+            $chunkSizes->[$level] = $proposedChunkSize;
             last;
         }
     }

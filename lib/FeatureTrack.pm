@@ -15,9 +15,9 @@ package FeatureTrack;
 
 use strict;
 use warnings;
-use File::Path qw(remove_tree);
+use File::Path qw( rmtree );
 use File::Spec;
-use List::Util qw( min max first );
+use List::Util qw( min max sum first );
 use POSIX qw (ceil);
 
 use IntervalStore;
@@ -25,7 +25,7 @@ use JsonFileStorage;
 use NameHandler;
 
 sub new {
-    my ($class, $trackDirTemplate, $baseUrl, $label, $config, $key) = @_;
+    my ($class, $trackDirTemplate, $baseUrl, $label, $config, $key, $jsclass) = @_;
 
     $config->{compress} = $config->{compress} || 0;
     my $self = {
@@ -34,7 +34,8 @@ sub new {
                 key => $key || $label,
                 trackDataFilename => "trackData" . ($config->{compress} ?
                                                     ".jsonz" : ".json"),
-                config => $config
+                config => $config,
+                jsclass => $jsclass || 'FeatureTrack',
                };
     $config->{urlTemplate} = $baseUrl . "/" . $self->{trackDataFilename}
       unless defined($config->{urlTemplate});
@@ -45,7 +46,7 @@ sub new {
 
 sub label { return shift->{label}; }
 sub key { return shift->{key}; }
-sub type { return "FeatureTrack"; }
+sub type { return shift->{jsclass} }
 sub config { return shift->{config}; }
 
 =head2 startLoad( $refSeqName, $chunkBytes, \@classes )
@@ -65,7 +66,7 @@ sub startLoad {
     my ($self, $refSeq, $chunkBytes, $classes) = @_;
 
     (my $outDir = $self->{trackDirTemplate}) =~ s/\{refseq\}/$refSeq/g;
-    remove_tree($outDir) if (-d $outDir);
+    rmtree($outDir) if (-d $outDir);
 
     my $jsonStore = JsonFileStorage->new($outDir, $self->config->{compress});
     $self->_make_nameHandler;
@@ -124,6 +125,9 @@ sub finishLoad {
         };
 
     $ivalStore->store->put($self->{trackDataFilename}, $trackData);
+
+    %{ $self->{intervalStore}} = ();
+    delete $self->{intervalStore};
 
     $self->{loading} = 0;
 
@@ -209,15 +213,16 @@ sub writeHistograms {
     }
 
     my @histogramMeta;
+    my @histStats;
     for (my $j = $i - 1; $j <= $#multiples; $j += 1) {
         my $curHist = $histograms[$j];
         last unless defined($curHist);
         my $histBases = $histBinBases * $multiples[$j];
 
         my $chunks = chunkArray($curHist, $histChunkSize);
-        for (my $i = 0; $i <= $#{$chunks}; $i++) {
-            $jsonStore->put("hist-$histBases-$i" . $jsonStore->ext,
-                            $chunks->[$i]);
+        for (my $k = 0; $k <= $#{$chunks}; $k++) {
+            $jsonStore->put("hist-$histBases-$k" . $jsonStore->ext,
+                            $chunks->[$k]);
         }
         push @histogramMeta,
             {
@@ -228,14 +233,12 @@ sub writeHistograms {
                     chunkSize => $histChunkSize
                 }
             };
-    }
-
-    my @histStats;
-    for (my $j = $i - 1; $j <= $#multiples; $j++) {
-        last unless defined($self->{hists}->[$j]);
-        my $binBases = $histBinBases * $multiples[$j];
-        push @histStats, {'bases' => $binBases,
-                          arrayStats($histograms[$j])};
+        push @histStats,
+            {
+                'basesPerBin' => $histBases,
+                'max'  => @$curHist ? max( @$curHist ) : undef,
+                'mean' => @$curHist ? ( sum( @$curHist ) / @$curHist ) : undef,
+            };
     }
 
     return { meta => \@histogramMeta,

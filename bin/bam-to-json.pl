@@ -64,13 +64,15 @@ use strict;
 use warnings;
 
 use FindBin qw($Bin);
+use lib "$Bin/../lib";
+use JBlibs;
+
 use Pod::Usage;
 use Getopt::Long;
 
 use JSON 2;
 use Bio::DB::Sam;
 
-use lib "$Bin/../lib";
 use GenomeDB;
 use NCLSorter;
 
@@ -129,7 +131,7 @@ my $index = Bio::DB::Bam->index( $bamFile, 1 );
 my $hdr = $bam->header;
 
 
-my $track = $gdb->getTrack( $trackLabel )
+my $track = $gdb->getTrack( $trackLabel, \%config, $config{key} )
             || $gdb->createFeatureTrack( $trackLabel,
                                          \%config,
                                          $config{key},

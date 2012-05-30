@@ -85,13 +85,15 @@ Extra configuration for the client, in JSON syntax.  Example:
 use strict;
 use warnings;
 
-use File::Basename;
 use FindBin qw($Bin);
+use lib "$Bin/../lib";
+use JBlibs;
+
+use File::Basename;
 use Getopt::Long;
 use Pod::Usage;
-use JSON 2;
 
-use lib "$Bin/../lib";
+use JSON 2;
 
 use GenomeDB;
 
@@ -107,7 +109,7 @@ my $clientConfig;
 
 my $wig2png = "$Bin/wig2png";
 unless( -x $wig2png ) {
-    die "Can't find binary executable $wig2png, did you compile it? (Hint: try typing './configure && make' in jbrowse root directory)\n";
+    die "Can't find binary executable $wig2png, did you compile it? (Type '(cd wig2png && ./configure && make; cd ..)' in the JBrowse root directory to compile it.)\n";
 }
 
 my $help;
@@ -145,10 +147,11 @@ my %style = (
     },
 );
 
-my $track = $gdb->getTrack( $trackLabel )
+my $track = $gdb->getTrack( $trackLabel, \%style, $style{key}, 'ImageTrack.Wiggle' )
    || $gdb->createImageTrack( $trackLabel,
                               \%style,
                               $style{key},
+                              'ImageTrack.Wiggle'
                             );
 $track->startLoad;
 

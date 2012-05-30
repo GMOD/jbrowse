@@ -1,13 +1,16 @@
 use strict;
 use warnings;
 
+use lib 'tests/perl_tests/lib';
+use JBlibs;
+
 use Test::More;
 
 use File::Spec::Functions 'catfile';
 use File::Temp;
 use Capture::Tiny 'capture';
 
-use lib 'tests/perl_tests/lib';
+
 use FileSlurping 'slurp_tree';
 
 my $tempdir = File::Temp->newdir;
@@ -53,6 +56,22 @@ system $^X, 'bin/prepare-refseqs.pl', (
    );
 
 ok( !$?, 'yeast genbank formatting ran OK' );
+my @chunks = glob("$tempdir/seq/NC_001133/*.txt");
+is( scalar @chunks, 12, 'see 12 uncompressed seq chunks' ) or diag explain \@chunks;
+
+$tempdir = File::Temp->newdir;
+
+system $^X, 'bin/prepare-refseqs.pl', (
+    '--refs'  => 'NC_001133',
+    '--conf' => 'sample_data/raw/yeast_genbank.json',
+    '--out'   => $tempdir,
+    '--compress',
+   );
+
+ok( !$?, 'yeast genbank formatting ran OK' );
+
+@chunks = glob("$tempdir/seq/NC_001133/*.txtz");
+is( scalar @chunks, 3, 'see 3 COMPRESSED seq chunks' );
 
 done_testing;
 
