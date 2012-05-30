@@ -204,11 +204,6 @@ Browser.prototype.initView = function() {
                        );
     }
 
-    dojo.connect(this.chromList, "onchange", this, function(event) {
-        var newRef = this.allRefs[this.chromList.options[this.chromList.selectedIndex].value];
-        this.navigateTo( newRef.name );
-    });
-
     // make our global keyboard shortcut handler
     dojo.connect( document.body, 'onkeypress', this, 'globalKeyHandler' );
 
@@ -676,10 +671,6 @@ Browser.prototype.navigateToLocation = function( location ) {
         // record names of open tracks and re-open on new refseq
         var curTracks = this.visibleTracks();
 
-        for (var i = 0; i < this.chromList.options.length; i++)
-            if (this.chromList.options[i].text == location.ref )
-                this.chromList.selectedIndex = i;
-
         this.refSeq = this.allRefs[location.ref];
 
         this.view.setLocation( this.refSeq,
@@ -1082,23 +1073,12 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
 
     navbox.appendChild(document.createTextNode( four_nbsp ));
 
-    this.chromList = document.createElement("select");
-    this.chromList.id = "chrom";
-    navbox.appendChild(this.chromList);
-
-    dojo.forEach( this.refSeqOrder, function(name, i) {
-        this.chromList.add( new Option( name, name) );
-        if ( this.refSeq && name.toUpperCase() == this.refSeq.name.toUpperCase() ) {
-            this.chromList.selectedIndex = i;
-        }
-    }, this );
-
+    // make the location box
     dojo.require('dijit.form.ComboBox');
     this.locationBox = new dijit.form.ComboBox(
         {
             id: "location",
-            name: "state",
-            value: "Kentucky",
+            name: "location",
             store: this._makeLocationAutocompleteStore(),
             searchAttr: "name"
         },
