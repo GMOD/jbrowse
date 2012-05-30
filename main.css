@@ -51,6 +51,7 @@ div.vertical_scrollbar .vertical_position_marker {
 
 #navbox {
     padding-top: 3px;
+    position: relative;
 }
 
 .powered_by {
@@ -87,8 +88,8 @@ div.locationThumb.dojoMoveItem {
 div.topLink {
     position: absolute;
     right: 0;
-    top: 22px;
-    z-index: 25;
+    top: 0;
+    z-index: 50;
     background: white;
     border: 1px solid #888;
     border-width: 0 0 1px 1px;
@@ -361,7 +362,9 @@ div.tracklist-container {
 div.overview .rubber-highlight {
     font-size: 0;
     top: -4px;
-    height: 21px;
+    height: 23px;
+    border-top: none;
+    border-bottom: none;
 }
 div.overview .rubber-highlight * {
     display: none;

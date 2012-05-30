@@ -128,17 +128,29 @@ Browser.prototype.initView = function() {
     this.container = dojo.byId(this.config.containerID);
     this.container.onselectstart = function() { return false; };
     this.container.genomeBrowser = this;
-    var topPane = document.createElement("div");
-    this.container.appendChild(topPane);
+    var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, this.container );
 
-    var overview = document.createElement("div");
-    overview.className = "overview";
-    overview.id = "overview";
+    var overview = dojo.create( 'div', { className: 'overview', id: 'overview' }, topPane );
     // overview=0 hides the overview, but we still need it to exist
-    if( this.config.show_overview == 0 ) overview.style.cssText = "display: none";
-    topPane.appendChild(overview);
+    if( this.config.show_overview == 0 )
+        overview.style.cssText = "display: none";
 
-    this.navbox = this.createNavBox( topPane, 25 );
+    if( this.config.show_nav != 0 )
+        this.navbox = this.createNavBox( topPane, 25 );
+
+    // make our little top-links box with links to help, etc.
+    var linkContainer = dojo.create('div', { className: 'topLink' });
+    dojo.create('a', {
+        className: 'powered_by',
+        innerHTML: 'JBrowse',
+        href: 'http://jbrowse.org',
+        title: 'powered by JBrowse'
+     }, linkContainer );
+    linkContainer.appendChild( this.makeBookmarkLink() );
+    if( this.config.show_nav != 0 )
+        linkContainer.appendChild( this.makeHelpDialog()   );
+    ( this.config.show_nav == 0 ? this.container : this.navbox ).appendChild( linkContainer );
+
 
     this.viewElem = document.createElement("div");
     this.viewElem.className = "dragWindow";
@@ -156,12 +168,9 @@ Browser.prototype.initView = function() {
 
     //create location trapezoid
     if( this.config.show_nav != 0 ) {
-        this.locationTrap = document.createElement("div");
+        this.locationTrap = dojo.create('div', {className: 'locationTrap'}, topPane );
         this.locationTrap.className = "locationTrap";
-        topPane.appendChild(this.locationTrap);
-        topPane.style.overflow="hidden";
     }
-
 
     // hook up GenomeView
     this.view = this.viewElem.view =
@@ -241,7 +250,8 @@ Browser.prototype.subscribe = function() {
 };
 
 Browser.prototype.onResize = function() {
-    this.view.locationTrapHeight = dojo.marginBox( this.navbox ).h;
+    if( this.navbox )
+        this.view.locationTrapHeight = dojo.marginBox( this.navbox ).h;
 };
 
 /**
@@ -942,9 +952,11 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     //we don't want to save whatever location we happen to start at
     if (! this.isInitialized) return;
     var locString = Util.assembleLocString({ start: startbp, end: endbp, ref: this.refSeq.name });
-    this.locationBox.value = locString;
-    this.goButton.disabled = true;
-    this.locationBox.blur();
+    if( this.locationBox ) {
+        this.locationBox.value = locString;
+        this.goButton.disabled = true;
+        this.locationBox.blur();
+    }
 
     // update the location and refseq cookies
     var oldLocMap = dojo.fromJson( this.cookie('location') ) || {};
@@ -985,19 +997,6 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     parent.appendChild(navbox);
     navbox.style.cssText = "text-align: center; z-index: 10;";
 
-    var linkContainer = document.createElement('div');
-    dojo.create('a', {
-        className: 'powered_by',
-        innerHTML: 'JBrowse',
-        href: 'http://jbrowse.org',
-        title: 'powered by JBrowse'
-     }, linkContainer );
-    linkContainer.className = 'topLink';
-    linkContainer.appendChild( this.makeBookmarkLink() );
-    if( this.config.show_nav != 0 )
-        linkContainer.appendChild( this.makeHelpDialog()   );
-
-    this.container.appendChild( linkContainer );
 
     var moveLeft = document.createElement("input");
     moveLeft.type = "image";
@@ -1005,13 +1004,11 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     moveLeft.id = "moveLeft";
     moveLeft.className = "icon nav";
     moveLeft.style.height = "40px";
-    if( this.config.show_nav != 0 ) {
-        dojo.connect(moveLeft, "click",
-                function(event) {
-                dojo.stopEvent(event);
-                brwsr.view.slide(0.9);
-        });
-    }
+    dojo.connect( moveLeft, "click",
+                  function(event) {
+                      dojo.stopEvent(event);
+                      brwsr.view.slide(0.9);
+                  });
 
     var moveRight = document.createElement("input");
     moveRight.type = "image";
@@ -1019,13 +1016,11 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     moveRight.id="moveRight";
     moveRight.className = "icon nav";
     moveRight.style.height = "40px";
-    if( this.config.show_nav != 0 ) {
-        dojo.connect(moveRight, "click",
-                     function(event) {
-                     dojo.stopEvent(event);
-                     brwsr.view.slide(-0.9);
-                 });
-    };
+    dojo.connect( moveRight, "click",
+                  function(event) {
+                      dojo.stopEvent(event);
+                      brwsr.view.slide(-0.9);
+                  });
 
     var bigZoomOut = document.createElement("input");
     bigZoomOut.type = "image";
@@ -1033,13 +1028,11 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     bigZoomOut.id = "bigZoomOut";
     bigZoomOut.className = "icon nav";
     bigZoomOut.style.height = "40px";
-    if( this.config.show_nav != 0 ) {
-        dojo.connect(bigZoomOut, "click",
-                 function(event) {
-                     dojo.stopEvent(event);
-                     brwsr.view.zoomOut(undefined, undefined, 2);
-                 });
-    }
+    dojo.connect( bigZoomOut, "click",
+                  function(event) {
+                      dojo.stopEvent(event);
+                      brwsr.view.zoomOut(undefined, undefined, 2);
+                  });
 
     var zoomOut = document.createElement("input");
     zoomOut.type = "image";
@@ -1047,13 +1040,11 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     zoomOut.id = "zoomOut";
     zoomOut.className = "icon nav";
     zoomOut.style.height = "40px";
-    if( this.config.show_nav != 0 ) {
-        dojo.connect(zoomOut, "click",
-                 function(event) {
-                     dojo.stopEvent(event);
+    dojo.connect( zoomOut, "click",
+                  function(event) {
+                      dojo.stopEvent(event);
                      brwsr.view.zoomOut();
-                 });
-    }
+                  });
 
     var zoomIn = document.createElement("input");
     zoomIn.type = "image";
@@ -1061,13 +1052,11 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     zoomIn.id = "zoomIn";
     zoomIn.className = "icon nav";
     zoomIn.style.height = "40px";
-    if( this.config.show_nav != 0 ) {
-        dojo.connect(zoomIn, "click",
-                 function(event) {
-                     dojo.stopEvent(event);
-                     brwsr.view.zoomIn();
-                 });
-    }
+    dojo.connect( zoomIn, "click",
+                  function(event) {
+                      dojo.stopEvent(event);
+                      brwsr.view.zoomIn();
+                  });
 
     var bigZoomIn = document.createElement("input");
     bigZoomIn.type = "image";
@@ -1075,13 +1064,11 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     bigZoomIn.id = "bigZoomIn";
     bigZoomIn.className = "icon nav";
     bigZoomIn.style.height = "40px";
-    if( this.config.show_nav != 0 ) {
-        dojo.connect(bigZoomIn, "click",
-                 function(event) {
-                     dojo.stopEvent(event);
-                     brwsr.view.zoomIn(undefined, undefined, 2);
-                 });
-    };
+    dojo.connect( bigZoomIn, "click",
+                  function(event) {
+                      dojo.stopEvent(event);
+                      brwsr.view.zoomIn(undefined, undefined, 2);
+                  });
 
     this.chromList = document.createElement("select");
     this.chromList.id = "chrom";
@@ -1100,46 +1087,41 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
         evt.stopPropagation();
         return true;
     };
-    if( this.config.show_nav != 0 ) {
-        dojo.connect(this.locationBox, "keydown", function(event) {
-            if (event.keyCode == dojo.keys.ENTER) {
-                brwsr.navigateTo(brwsr.locationBox.value);
-                //brwsr.locationBox.blur();
-                brwsr.goButton.disabled = true;
-                dojo.stopEvent(event);
-            } else {
-                brwsr.goButton.disabled = false;
-            }
-        });
-        dojo.connect( this.locationBox, 'keypress', function(e){ e.stopPropagation(); });
-    }
+    dojo.connect( this.locationBox, "keydown", function(event) {
+                      if (event.keyCode == dojo.keys.ENTER) {
+                          brwsr.navigateTo(brwsr.locationBox.value);
+                          //brwsr.locationBox.blur();
+                          brwsr.goButton.disabled = true;
+                          dojo.stopEvent(event);
+                      } else {
+                          brwsr.goButton.disabled = false;
+                      }
+                  });
+    dojo.connect( this.locationBox, 'keypress', function(e){ e.stopPropagation(); });
 
     this.goButton = document.createElement("button");
     this.goButton.appendChild(document.createTextNode("Go"));
     this.goButton.disabled = true;
-    if( this.config.show_nav != 0 ) {
-        dojo.connect(this.goButton, "click", function(event) {
-            brwsr.navigateTo(brwsr.locationBox.value);
-            //brwsr.locationBox.blur();
-            brwsr.goButton.disabled = true;
-            dojo.stopEvent(event);
-        });
-    };
+    dojo.connect( this.goButton, "click", function(event) {
+                      brwsr.navigateTo(brwsr.locationBox.value);
+                      //brwsr.locationBox.blur();
+                      brwsr.goButton.disabled = true;
+                      dojo.stopEvent(event);
+                  });
 
-    if( this.config.show_nav != 0 ) {
-        navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
-        navbox.appendChild(moveLeft);
-        navbox.appendChild(moveRight);
-        navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
-        navbox.appendChild(bigZoomOut);
-        navbox.appendChild(zoomOut);
-        navbox.appendChild(zoomIn);
-        navbox.appendChild(bigZoomIn);
-        navbox.appendChild(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
-        navbox.appendChild(this.chromList);
-        navbox.appendChild(this.locationBox);
-        navbox.appendChild(this.goButton);
-    };
+    var four_nbsp = String.fromCharCode(160); four_nbsp = four_nbsp + four_nbsp + four_nbsp + four_nbsp;
+    navbox.appendChild(document.createTextNode( four_nbsp ));
+    navbox.appendChild(moveLeft);
+    navbox.appendChild(moveRight);
+    navbox.appendChild(document.createTextNode( four_nbsp ));
+    navbox.appendChild(bigZoomOut);
+    navbox.appendChild(zoomOut);
+    navbox.appendChild(zoomIn);
+    navbox.appendChild(bigZoomIn);
+    navbox.appendChild(document.createTextNode( four_nbsp ));
+    navbox.appendChild(this.chromList);
+    navbox.appendChild(this.locationBox);
+    navbox.appendChild(this.goButton);
 
     return navbox;
 };

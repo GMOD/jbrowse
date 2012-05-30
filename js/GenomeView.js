@@ -101,10 +101,12 @@ function GenomeView( browser, elem, stripeWidth, refseq, zoomLevel, browserRoot)
     this.trackHeights = [];
     this.trackTops = [];
     this.trackLabels = [];
-    this.waitElems = [dojo.byId("moveLeft"), dojo.byId("moveRight"),
-                      dojo.byId("zoomIn"), dojo.byId("zoomOut"),
-                      dojo.byId("bigZoomIn"), dojo.byId("bigZoomOut"),
-                      document.body, elem];
+    this.waitElems = dojo.filter( [ dojo.byId("moveLeft"), dojo.byId("moveRight"),
+                                    dojo.byId("zoomIn"), dojo.byId("zoomOut"),
+                                    dojo.byId("bigZoomIn"), dojo.byId("bigZoomOut"),
+                                    document.body, elem ],
+                                  function(e) { return e; }
+                                );
     this.prevCursors = [];
     this.locationThumb = document.createElement("div");
     this.locationThumb.className = "locationThumb";
