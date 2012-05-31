@@ -946,9 +946,8 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     if (! this.isInitialized) return;
     var locString = Util.assembleLocString({ start: startbp, end: endbp, ref: this.refSeq.name });
     if( this.locationBox ) {
-        this.locationBox.set('value',locString);
-        this.goButton.disabled = true;
-        //this.locationBox.blur();
+        this.locationBox.set('value',locString,false);
+        this.goButton.set('disabled',true);
     }
 
     // update the location and refseq cookies
@@ -1085,19 +1084,28 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
             searchAttr: "name"
         },
         dojo.create('input',{ size: locLength },navbox) );
+    dojo.connect( this.locationBox.focusNode, "keydown", this, function(event) {
+                      if (event.keyCode == dojo.keys.ENTER) {
+                          this.navigateTo(this.locationBox.value);
+                          this.goButton.set('disabled',true);
+                          dojo.stopEvent(event);
+                      } else {
+                          this.goButton.set('disabled', false);
+                      }
+                  });
     dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
 
     // make the 'Go' button'
-    this.goButton = document.createElement("button");
-    this.goButton.appendChild(document.createTextNode("Go"));
-    this.goButton.disabled = true;
-    navbox.appendChild(this.goButton);
-    dojo.connect( this.goButton, "click", this, function(event) {
-                      this.navigateTo(this.locationBox.get('value'));
-                      //this.locationBox.blur();
-                      this.goButton.disabled = true;
-                      dojo.stopEvent(event);
-                  });
+    dojo.require('dijit.form.Button');
+    this.goButton = new dijit.form.Button(
+        {
+            label: 'Go',
+            onClick: dojo.hitch( this, function(event) {
+                this.navigateTo(this.locationBox.get('value'));
+                this.goButton.set('disabled',true);
+                dojo.stopEvent(event);
+            })
+        }, dojo.create('button',{},navbox));
 
     return navbox;
 };
