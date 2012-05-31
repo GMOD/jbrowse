@@ -47,7 +47,7 @@ dojo.declare( 'JBrowse.Model.AutocompleteStore', null,
                                    if( typeof node[0] == 'number' ) {
                                        matches.push({ name: node[0] + " options for " + node[1] });
                                    } else {
-                                       matches.push({ name: node[1][0][1] });
+                                       matches.push({ name: node[0] });
                                    }
                                }
                                return matchesRemaining < 0;
