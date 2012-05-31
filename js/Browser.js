@@ -682,9 +682,11 @@ Browser.prototype.navigateToLocation = function( location ) {
     return;
 };
 
-// given a string name, search for matching feature names and set the
-// view location to any that match
-Browser.prototype.searchNames = function( loc ) {
+/**
+ * Given a string name, search for matching feature names and set the
+ * view location to any that match.
+ */
+Browser.prototype.searchNames = function( /**String*/ loc ) {
     var brwsr = this;
     this.names.exactMatch( loc, function(nameMatches) {
             var goingTo,
@@ -1101,28 +1103,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
 };
 
 Browser.prototype._makeLocationAutocompleteStore = function() {
-    dojo.require('dojo.data.ItemFileWriteStore');
-    return new dojo.data.ItemFileWriteStore(
-        {
-            data: {
-                identifier: 'id',
-                items: [
-                    {name:"Alabama", id:"AL"},
-                    {name:"Alaska", id:"AK"},
-                    {name:"American Samoa", id:"AS"},
-                    {name:"Arizona", id:"AZ"},
-                    {name:"Arkansas", id:"AR"},
-                    {name:"Armed Forces Europe", id:"AE"},
-                    {name:"Armed Forces Pacific", id:"AP"},
-                    {name:"Armed Forces the Americas", id:"AA"},
-                    {name:"California", id:"CA"},
-                    {name:"Colorado", id:"CO"},
-                    {name:"Connecticut", id:"CT"},
-                    {name:"Delaware", id:"DE"}
-                ]
-            }
-        }
-    );
+    return new JBrowse.Model.AutocompleteStore({ namesTrie: this.names });
 };
 
 /*
