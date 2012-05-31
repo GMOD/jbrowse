@@ -12,6 +12,9 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
      * and the indexes thereof, in memory.
      * @constructs
      * @param args.trackConfigs {Array} array of track configuration
+     * @param args.filterFacets {Function|Array|String}
+     * @param args.onReady {Function}
+     * @param args.metadataStores {Array[dojox.data]}
      */
     constructor: function( args ) {
         // set up our facet name discrimination: what facets we will
