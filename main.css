@@ -187,6 +187,9 @@ div.overview-pos {
     font-family: sans-serif;
     border: 0;
 }
+div.overview-pos:first-child {
+    margin-left: 1px;
+}
 
 div.blank-block {
     font-family: sans-serif;
