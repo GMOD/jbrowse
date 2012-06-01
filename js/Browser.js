@@ -1086,6 +1086,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
         dojo.create('input',{ size: locLength },navbox) );
     dojo.connect( this.locationBox.focusNode, "keydown", this, function(event) {
                       if (event.keyCode == dojo.keys.ENTER) {
+                          this.locationBox.closeDropDown(false);
                           this.navigateTo( this.locationBox.get('value') );
                           this.goButton.set('disabled',true);
                           dojo.stopEvent(event);
