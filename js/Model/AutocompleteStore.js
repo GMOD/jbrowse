@@ -11,6 +11,22 @@ dojo.declare( 'JBrowse.Model.AutocompleteStore', null,
             throw "must provide a namesTrie argument";
 
         this.namesTrie = args.namesTrie;
+
+        // generate stopPrefixes
+        var stopPrefixes = this.stopPrefixes = {};
+        // make our stopPrefixes an object as { prefix: true, ... }
+        // with all possible prefixes of our stop prefixes
+        if( args.stopPrefixes ) {
+            var prefixesInput = typeof args.stopPrefixes == 'string'
+                ? [ args.stopPrefixes ] : args.stopPrefixes;
+
+            dojo.forEach( prefixesInput, function(prefix) {
+                while( prefix.length ) {
+                    stopPrefixes[prefix] = true;
+                    prefix = prefix.substr( 0, prefix.length - 1 );
+                }
+            });
+        }
     },
 
     // dojo.data.api.Read support
@@ -37,22 +53,24 @@ dojo.declare( 'JBrowse.Model.AutocompleteStore', null,
         var gotTree = false; // stays false if tree isn't found
         var matches = [];
         var prefix = (request.query.name || '').replace(/\*$/,'');
-        this.namesTrie.mappingsFromPrefix(
-            prefix,
-            function(tree) {
-                gotTree = true;
-                // use dojo.some so that we can break out of the loop when we hit the limit
-                dojo.some( tree, function(node) {
-                               if( matchesRemaining-- ) {
-                                   if( typeof node[0] == 'number' ) {
-                                       matches.push({ name: node[0] + " options for " + node[1] });
-                                   } else {
-                                       matches.push({ name: node[0] });
+        if( ! this.stopPrefixes[ prefix ] ) {
+            this.namesTrie.mappingsFromPrefix(
+                prefix,
+                function(tree) {
+                    gotTree = true;
+                    // use dojo.some so that we can break out of the loop when we hit the limit
+                    dojo.some( tree, function(node) {
+                                   if( matchesRemaining-- ) {
+                                       if( typeof node[0] == 'number' ) {
+                                           matches.push({ name: node[0] + " options for " + node[1] });
+                                       } else {
+                                           matches.push({ name: node[0] });
+                                       }
                                    }
-                               }
-                               return matchesRemaining < 0;
-                           });
-            });
+                                   return matchesRemaining < 0;
+                               });
+                });
+        }
 
         // if we found more than the match limit
         if( matchesRemaining < 0 )

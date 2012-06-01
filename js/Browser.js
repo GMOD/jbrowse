@@ -1112,7 +1112,10 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
 };
 
 Browser.prototype._makeLocationAutocompleteStore = function() {
-    return new JBrowse.Model.AutocompleteStore({ namesTrie: this.names });
+    return new JBrowse.Model.AutocompleteStore({
+        namesTrie: this.names,
+        stopPrefixes: (this.config.autocomplete||{}).stopPrefixes
+    });
 };
 
 /*
