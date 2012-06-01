@@ -102,7 +102,7 @@ my $trackNum = 0;
 my @namearray;
 
 foreach my $ref (@refSeqs) {
-    push @{$nameHash{lc $ref->{name}}}, [@{$ref}{ qw/length name seqDir start end seqChunkSize/ }];
+    push @{$nameHash{lc $ref->{name}}}, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
     foreach my $track (@tracks) {
         my $infile = catfile( $outDir,
                               "tracks",
@@ -125,7 +125,8 @@ foreach my $ref (@refSeqs) {
                     push @tracksWithNames, $track;
                 }
 
-                push @{$nameHash{lc $alias}}, [ $trackHash{$track},
+                push @{$nameHash{lc $alias}}, [ $alias,
+                                                $trackHash{$track},
                                                 @{$nameinfo}[2..$#{$nameinfo}]];
             }
         }

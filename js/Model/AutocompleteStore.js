@@ -61,11 +61,7 @@ dojo.declare( 'JBrowse.Model.AutocompleteStore', null,
                     // use dojo.some so that we can break out of the loop when we hit the limit
                     dojo.some( tree, function(node) {
                                    if( matchesRemaining-- ) {
-                                       if( typeof node[0] == 'number' ) {
-                                           matches.push({ name: node[0] + " options for " + node[1] });
-                                       } else {
-                                           matches.push({ name: node[0] });
-                                       }
+                                           matches.push({ name: node[1][0][0] });
                                    }
                                    return matchesRemaining < 0;
                                });

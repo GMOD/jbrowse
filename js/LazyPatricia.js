@@ -60,7 +60,6 @@ function LazyTrie(rootURL, chunkTempl) {
     this.rootURL = rootURL;
     this.chunkTempl = chunkTempl;
     var trie = this;
-    this.storeArray = [];
 
     dojo.xhrGet({url: rootURL,
                  handleAs: "json",
@@ -110,34 +109,22 @@ LazyTrie.prototype.valuesFromPrefix = function(query, callback) {
 
 LazyTrie.prototype.mappingsFromPrefix = function(query, callback) {
     var trie = this;
-    this.storeArray = []; //resets option list everytime input changes
     this.findNode(query, function(prefix, node) {
             callback(trie.mappingsFromNode(prefix, node));
         });
 };
 
-// default max number of options are 100
-// storeArray is to limit the length 
 LazyTrie.prototype.mappingsFromNode = function(prefix, node) {
     var results = [];
-    var trie = this;
-    var lazy;
-
-    if (node[1] !== null) {
-        //results.push([prefix, node[1]]);
-	this.storeArray.push([prefix, node[1]]);
-    }
+    if (node[1] !== null)
+        results.push([prefix, node[1]]);
     for (var i = 2; i < node.length; i++) {
         if ("string" == typeof node[i][0]) {
             results = results.concat(this.mappingsFromNode(prefix + node[i][0],
                                                            node[i]));
-        } else if ("number" == typeof node[i][0]) {
-    //if node[i][0] == number -> lazy node : load it!
-	    lazy = prefix+node[i][1];
-	    trie.storeArray.push([node[i][0], lazy]);
-	};	   
-    };
-    return trie.storeArray;
+        }
+    }
+    return results;
 };
 
 LazyTrie.prototype.valuesFromNode = function(node) {

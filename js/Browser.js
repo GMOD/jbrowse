@@ -694,26 +694,26 @@ Browser.prototype.searchNames = function( /**String*/ loc ) {
 
             //first check for exact case match
             for (i = 0; i < nameMatches.length; i++) {
-                if (nameMatches[i][1] == loc)
+                if (nameMatches[i][0] == loc)
                     goingTo = nameMatches[i];
             }
             //if no exact case match, try a case-insentitive match
             if (!goingTo) {
                 for (i = 0; i < nameMatches.length; i++) {
-                    if (nameMatches[i][1].toLowerCase() == loc.toLowerCase())
+                    if (nameMatches[i][0].toLowerCase() == loc.toLowerCase())
                         goingTo = nameMatches[i];
                 }
             }
             //else just pick a match
             if (!goingTo) goingTo = nameMatches[0];
-            var startbp = parseInt(goingTo[3]);
-            var endbp = parseInt(goingTo[4]);
+            var startbp = parseInt(goingTo[4]);
+            var endbp = parseInt(goingTo[5]);
             var flank = Math.round((endbp - startbp) * .2);
             //go to location, with some flanking region
-            brwsr.navigateTo(goingTo[2]
+            brwsr.navigateTo(goingTo[3]
                              + ":" + (startbp - flank)
                              + ".." + (endbp + flank));
-            brwsr.showTracks(brwsr.names.extra[nameMatches[0][0]]);
+            brwsr.showTracks(brwsr.names.extra[nameMatches[0][1]]);
         });
 };
 
