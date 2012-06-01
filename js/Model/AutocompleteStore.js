@@ -27,6 +27,23 @@ dojo.declare( 'JBrowse.Model.AutocompleteStore', null,
                 }
             });
         }
+
+        // make a self-modifying method for extracting the that
+        // detects whether the name store is formatted with tools
+        // pre-1.4 or post-1.4.  for pre-1.4 formats, will just
+        // complete with the lower-case version of the name.  for
+        // post-1.4, use the original-case version that's stored in
+        // the name record.
+        this.nodeText = function(node) {
+            if( typeof node[1][0][0] == 'number' ) {
+                // pre-1.4, for backcompat
+                this.nodeText = function(node) { return node[0]; };
+            } else {
+                // post-1.4
+                this.nodeText = function(node) { return node[1][0][0]; };
+            }
+            return this.nodeText( node );
+        };
     },
 
     // dojo.data.api.Read support
@@ -53,19 +70,20 @@ dojo.declare( 'JBrowse.Model.AutocompleteStore', null,
         var gotTree = false; // stays false if tree isn't found
         var matches = [];
         var prefix = (request.query.name || '').replace(/\*$/,'');
+
         if( ! this.stopPrefixes[ prefix ] ) {
             this.namesTrie.mappingsFromPrefix(
                 prefix,
-                function(tree) {
+                dojo.hitch( this, function(tree) {
                     gotTree = true;
                     // use dojo.some so that we can break out of the loop when we hit the limit
                     dojo.some( tree, function(node) {
                                    if( matchesRemaining-- ) {
-                                           matches.push({ name: node[1][0][0] });
+                                           matches.push({ name: this.nodeText(node) });
                                    }
                                    return matchesRemaining < 0;
-                               });
-                });
+                               },this);
+                }));
         }
 
         // if we found more than the match limit
