@@ -13,6 +13,7 @@ dojo.declare( 'JBrowse.Model.AutocompleteStore', null,
         this.namesTrie = args.namesTrie;
 
         this.resultLimit = args.resultLimit || 15;
+        this.tooManyMatchesMessage = args.tooManyMatchesMessage || '(too many matches to display)';
 
         // generate stopPrefixes
         var stopPrefixes = this.stopPrefixes = {};
@@ -90,7 +91,7 @@ dojo.declare( 'JBrowse.Model.AutocompleteStore', null,
 
         // if we found more than the match limit
         if( matchesRemaining < 0 )
-            matches.push({ name: '(too many matches to display)', hitLimit: true });
+            matches.push({ name: this.tooManyMatchesMessage, hitLimit: true });
 
         if( request.onBegin )
             request.onBegin.call( scope, matches.length, request );
