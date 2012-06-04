@@ -55,6 +55,9 @@ use JSON 2;
 use LazyPatricia;
 use GenomeDB;
 
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+
 my %trackHash;
 my @tracksWithNames;
 
@@ -96,7 +99,10 @@ flock $root, LOCK_EX;
 # read the name list for each track that has one
 my %nameHash;
 my $trackNum = 0;
+my @namearray;
+
 foreach my $ref (@refSeqs) {
+    push @{$nameHash{lc $ref->{name}}}, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
     foreach my $track (@tracks) {
         my $infile = catfile( $outDir,
                               "tracks",
@@ -119,7 +125,8 @@ foreach my $ref (@refSeqs) {
                     push @tracksWithNames, $track;
                 }
 
-                push @{$nameHash{lc $alias}}, [ $trackHash{$track},
+                push @{$nameHash{lc $alias}}, [ $alias,
+                                                $trackHash{$track},
                                                 @{$nameinfo}[2..$#{$nameinfo}]];
             }
         }

@@ -35,6 +35,7 @@
     <script type="text/javascript" src="js/TiledImageStore/Fixed.js"></script>
     <script type="text/javascript" src="js/SequenceStore/StaticChunked.js"></script>
 
+    <script type="text/javascript" src="js/Model/AutocompleteStore.js"></script>
     <script type="text/javascript" src="js/Model/TrackMetaData.js"></script>
     <script type="text/javascript" src="js/Model/modEncodeTrackMetadata.js"></script>
 
@@ -58,6 +59,12 @@
     <script type="text/javascript" src="js/GenomeView.js"></script>
 
     <script type="text/javascript" src="js/touchJBrowse.js"></script>
+
+<!-- jQuery mess-->
+    <script src="jquery-ui/js/jquery-1.7.1.min.js"></script>
+    <script src="jquery-ui/js/jquery-ui-1.8.18.custom.min.js"></script>
+    <link href="jquery-ui/css/ui-lightness/jquery-ui-1.8.18.custom.css" rel="stylesheet" type="text/css"/>
+<!-- -->
 
     <script type="text/javascript">
         window.onerror=function(msg){
@@ -84,7 +91,8 @@
                                    forceTracks: queryParams.tracks,
 				   show_nav: queryParams.nav,
 				   show_tracklist: queryParams.tracklist,
-				   show_overview: queryParams.overview
+				   show_overview: queryParams.overview,
+				   config_list: queryParams.config
                                });
     /* ]]> */
     </script>

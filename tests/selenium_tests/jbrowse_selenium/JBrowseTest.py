@@ -84,9 +84,12 @@ class JBrowseTest (object):
     def do_typed_query( self, text ):
         # Find the query box and put f15 into it and hit enter
         qbox = self.browser.find_element_by_id("location")
-        qbox.clear()
-        qbox.send_keys( text + Keys.RETURN )
-        time.sleep( 0.2 )
+        qbox.send_keys( Keys.BACK_SPACE * 40 )
+        time.sleep( 0.05 )
+        for i in range( len(text) ):
+            qbox.send_keys( text[i] )
+        qbox.send_keys( Keys.RETURN );
+        time.sleep( 0.1 )
 
     def _rubberband( self, el_xpath, start_pct, end_pct, modkey = None ):
         el = self.assert_element( el_xpath )
@@ -141,8 +144,7 @@ class JBrowseTest (object):
         return self.assert_elements( "//div[contains(@class,'track-label')][contains(.,'%s')]" % string )
 
     def select_refseq( self, name ):
-        refseq_selector = Select( self.browser.find_element_by_id('chrom') )
-        refseq_selector.select_by_value( name )
+        self.do_typed_query( name );
 
     def scroll( self ):
         move_right_button = self.browser.find_element_by_id('moveRight')

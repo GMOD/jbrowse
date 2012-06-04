@@ -204,11 +204,6 @@ Browser.prototype.initView = function() {
                        );
     }
 
-    dojo.connect(this.chromList, "onchange", this, function(event) {
-        var newRef = this.allRefs[this.chromList.options[this.chromList.selectedIndex].value];
-        this.navigateTo( newRef.name );
-    });
-
     // make our global keyboard shortcut handler
     dojo.connect( document.body, 'onkeypress', this, 'globalKeyHandler' );
 
@@ -676,10 +671,6 @@ Browser.prototype.navigateToLocation = function( location ) {
         // record names of open tracks and re-open on new refseq
         var curTracks = this.visibleTracks();
 
-        for (var i = 0; i < this.chromList.options.length; i++)
-            if (this.chromList.options[i].text == location.ref )
-                this.chromList.selectedIndex = i;
-
         this.refSeq = this.allRefs[location.ref];
 
         this.view.setLocation( this.refSeq,
@@ -691,36 +682,40 @@ Browser.prototype.navigateToLocation = function( location ) {
     return;
 };
 
-// given a string name, search for matching feature names and set the
-// view location to any that match
-Browser.prototype.searchNames = function( loc ) {
+/**
+ * Given a string name, search for matching feature names and set the
+ * view location to any that match.
+ */
+Browser.prototype.searchNames = function( /**String*/ loc ) {
     var brwsr = this;
     this.names.exactMatch( loc, function(nameMatches) {
             var goingTo,
                 i;
 
+            var post1_4 = typeof nameMatches[0][0] == 'string';
+
             //first check for exact case match
             for (i = 0; i < nameMatches.length; i++) {
-                if (nameMatches[i][1] == loc)
+                if (nameMatches[i][ post1_4 ? 0 : 1 ] == loc)
                     goingTo = nameMatches[i];
             }
             //if no exact case match, try a case-insentitive match
             if (!goingTo) {
                 for (i = 0; i < nameMatches.length; i++) {
-                    if (nameMatches[i][1].toLowerCase() == loc.toLowerCase())
+                    if (nameMatches[i][ post1_4 ? 0 : 1].toLowerCase() == loc.toLowerCase())
                         goingTo = nameMatches[i];
                 }
             }
             //else just pick a match
             if (!goingTo) goingTo = nameMatches[0];
-            var startbp = parseInt(goingTo[3]);
-            var endbp = parseInt(goingTo[4]);
+            var startbp = parseInt( goingTo[ post1_4 ? 4 : 3 ]);
+            var endbp   = parseInt( goingTo[ post1_4 ? 5 : 4 ]);
             var flank = Math.round((endbp - startbp) * .2);
             //go to location, with some flanking region
-            brwsr.navigateTo(goingTo[2]
+            brwsr.navigateTo( goingTo[ post1_4 ? 3 : 2]
                              + ":" + (startbp - flank)
                              + ".." + (endbp + flank));
-            brwsr.showTracks(brwsr.names.extra[nameMatches[0][0]]);
+            brwsr.showTracks(brwsr.names.extra[nameMatches[0][ post1_4 ? 1 : 0 ]]);
         });
 };
 
@@ -953,9 +948,8 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     if (! this.isInitialized) return;
     var locString = Util.assembleLocString({ start: startbp, end: endbp, ref: this.refSeq.name });
     if( this.locationBox ) {
-        this.locationBox.value = locString;
-        this.goButton.disabled = true;
-        this.locationBox.blur();
+        this.locationBox.set('value',locString,false);
+        this.goButton.set('disabled',true);
     }
 
     // update the location and refseq cookies
@@ -990,13 +984,14 @@ Browser.prototype.cookie = function() {
  */
 
 Browser.prototype.createNavBox = function( parent, locLength ) {
-    var brwsr = this;
     var navbox = document.createElement("div");
     var browserRoot = this.config.browserRoot ? this.config.browserRoot : "";
     navbox.id = "navbox";
     parent.appendChild(navbox);
     navbox.style.cssText = "text-align: center; z-index: 10;";
 
+    var four_nbsp = String.fromCharCode(160); four_nbsp = four_nbsp + four_nbsp + four_nbsp + four_nbsp;
+    navbox.appendChild(document.createTextNode( four_nbsp ));
 
     var moveLeft = document.createElement("input");
     moveLeft.type = "image";
@@ -1004,10 +999,11 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     moveLeft.id = "moveLeft";
     moveLeft.className = "icon nav";
     moveLeft.style.height = "40px";
-    dojo.connect( moveLeft, "click",
+    navbox.appendChild(moveLeft);
+    dojo.connect( moveLeft, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
-                      brwsr.view.slide(0.9);
+                      this.view.slide(0.9);
                   });
 
     var moveRight = document.createElement("input");
@@ -1016,11 +1012,14 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     moveRight.id="moveRight";
     moveRight.className = "icon nav";
     moveRight.style.height = "40px";
-    dojo.connect( moveRight, "click",
+    navbox.appendChild(moveRight);
+    dojo.connect( moveRight, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
-                      brwsr.view.slide(-0.9);
+                      this.view.slide(-0.9);
                   });
+
+    navbox.appendChild(document.createTextNode( four_nbsp ));
 
     var bigZoomOut = document.createElement("input");
     bigZoomOut.type = "image";
@@ -1028,11 +1027,13 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     bigZoomOut.id = "bigZoomOut";
     bigZoomOut.className = "icon nav";
     bigZoomOut.style.height = "40px";
-    dojo.connect( bigZoomOut, "click",
+    navbox.appendChild(bigZoomOut);
+    dojo.connect( bigZoomOut, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
-                      brwsr.view.zoomOut(undefined, undefined, 2);
+                      this.view.zoomOut(undefined, undefined, 2);
                   });
+
 
     var zoomOut = document.createElement("input");
     zoomOut.type = "image";
@@ -1040,10 +1041,11 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     zoomOut.id = "zoomOut";
     zoomOut.className = "icon nav";
     zoomOut.style.height = "40px";
-    dojo.connect( zoomOut, "click",
+    navbox.appendChild(zoomOut);
+    dojo.connect( zoomOut, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
-                     brwsr.view.zoomOut();
+                     this.view.zoomOut();
                   });
 
     var zoomIn = document.createElement("input");
@@ -1052,10 +1054,11 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     zoomIn.id = "zoomIn";
     zoomIn.className = "icon nav";
     zoomIn.style.height = "40px";
-    dojo.connect( zoomIn, "click",
+    navbox.appendChild(zoomIn);
+    dojo.connect( zoomIn, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
-                      brwsr.view.zoomIn();
+                      this.view.zoomIn();
                   });
 
     var bigZoomIn = document.createElement("input");
@@ -1064,66 +1067,57 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     bigZoomIn.id = "bigZoomIn";
     bigZoomIn.className = "icon nav";
     bigZoomIn.style.height = "40px";
-    dojo.connect( bigZoomIn, "click",
+    navbox.appendChild(bigZoomIn);
+    dojo.connect( bigZoomIn, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
-                      brwsr.view.zoomIn(undefined, undefined, 2);
+                      this.view.zoomIn(undefined, undefined, 2);
                   });
 
-    this.chromList = document.createElement("select");
-    this.chromList.id = "chrom";
-    dojo.forEach( this.refSeqOrder, function(name, i) {
-        this.chromList.add( new Option( name, name) );
-        if ( this.refSeq && name.toUpperCase() == this.refSeq.name.toUpperCase() ) {
-            this.chromList.selectedIndex = i;
-        }
-    }, this );
+    navbox.appendChild(document.createTextNode( four_nbsp ));
 
-    this.locationBox = document.createElement("input");
-    this.locationBox.size=locLength;
-    this.locationBox.type="text";
-    this.locationBox.id="location";
-    this.locationBox.onselectstart = function( evt ) {
-        evt.stopPropagation();
-        return true;
-    };
-    dojo.connect( this.locationBox, "keydown", function(event) {
+    // make the location box
+    dojo.require('dijit.form.ComboBox');
+    this.locationBox = new dijit.form.ComboBox(
+        {
+            id: "location",
+            name: "location",
+            store: this._makeLocationAutocompleteStore(),
+            searchAttr: "name"
+        },
+        dojo.create('input',{ size: locLength },navbox) );
+    dojo.connect( this.locationBox.focusNode, "keydown", this, function(event) {
                       if (event.keyCode == dojo.keys.ENTER) {
-                          brwsr.navigateTo(brwsr.locationBox.value);
-                          //brwsr.locationBox.blur();
-                          brwsr.goButton.disabled = true;
+                          this.locationBox.closeDropDown(false);
+                          this.navigateTo( this.locationBox.get('value') );
+                          this.goButton.set('disabled',true);
                           dojo.stopEvent(event);
                       } else {
-                          brwsr.goButton.disabled = false;
+                          this.goButton.set('disabled', false);
                       }
                   });
-    dojo.connect( this.locationBox, 'keypress', function(e){ e.stopPropagation(); });
+    dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
 
-    this.goButton = document.createElement("button");
-    this.goButton.appendChild(document.createTextNode("Go"));
-    this.goButton.disabled = true;
-    dojo.connect( this.goButton, "click", function(event) {
-                      brwsr.navigateTo(brwsr.locationBox.value);
-                      //brwsr.locationBox.blur();
-                      brwsr.goButton.disabled = true;
-                      dojo.stopEvent(event);
-                  });
-
-    var four_nbsp = String.fromCharCode(160); four_nbsp = four_nbsp + four_nbsp + four_nbsp + four_nbsp;
-    navbox.appendChild(document.createTextNode( four_nbsp ));
-    navbox.appendChild(moveLeft);
-    navbox.appendChild(moveRight);
-    navbox.appendChild(document.createTextNode( four_nbsp ));
-    navbox.appendChild(bigZoomOut);
-    navbox.appendChild(zoomOut);
-    navbox.appendChild(zoomIn);
-    navbox.appendChild(bigZoomIn);
-    navbox.appendChild(document.createTextNode( four_nbsp ));
-    navbox.appendChild(this.chromList);
-    navbox.appendChild(this.locationBox);
-    navbox.appendChild(this.goButton);
+    // make the 'Go' button'
+    dojo.require('dijit.form.Button');
+    this.goButton = new dijit.form.Button(
+        {
+            label: 'Go',
+            onClick: dojo.hitch( this, function(event) {
+                this.navigateTo(this.locationBox.get('value'));
+                this.goButton.set('disabled',true);
+                dojo.stopEvent(event);
+            })
+        }, dojo.create('button',{},navbox));
 
     return navbox;
+};
+
+Browser.prototype._makeLocationAutocompleteStore = function() {
+    return new JBrowse.Model.AutocompleteStore({
+        namesTrie: this.names,
+        stopPrefixes: (this.config.autocomplete||{}).stopPrefixes
+    });
 };
 
 /*

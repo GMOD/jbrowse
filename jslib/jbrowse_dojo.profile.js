@@ -12,6 +12,8 @@ var dependencies =   {
                 "dijit.layout.ContentPane",
                 "dijit.layout.BorderContainer",
                 "dijit.Dialog",
+                "dijit.form.Button",
+                "dijit.form.ComboBox",
                 "dojox.gfx.svg",
                 "dojox.gfx.vml",
                 "dojox.charting.Chart2D",
