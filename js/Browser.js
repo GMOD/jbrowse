@@ -1097,6 +1097,28 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
                       }
                   });
     dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
+    // monkey-patch the combobox code to make a few modifications
+    (function(){
+
+         // add a moreMatches class to our hacked-in "more options" option
+         var dropDownProto = eval(this.locationBox.dropDownClass).prototype;
+         var oldCreateOption = dropDownProto._createOption;
+         dropDownProto._createOption = function( item ) {
+             var option = oldCreateOption.apply( this, arguments );
+             if( item.hitLimit )
+                 dojo.addClass( option, 'moreMatches');
+             return option;
+         };
+
+         // prevent the "more matches" option from being clicked
+         var oldSetValue = dropDownProto._setValueAttr;
+         dropDownProto._setValueAttr = function( value ) {
+             console.log( value.target.item );
+             if( value.target && value.target.item && value.target.item.hitLimit )
+                 return null;
+             return oldSetValue.apply( this, arguments );
+         };
+    }).call(this);
 
     // make the 'Go' button'
     dojo.require('dijit.form.Button');

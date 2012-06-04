@@ -60,6 +60,16 @@ div.vertical_scrollbar .vertical_position_marker {
     text-decoration: none;
 }
 
+.moreMatches {
+    font-style: italic;
+    color: #ccc;
+}
+.moreMatches.dijitMenuItemSelected {
+    background: none;
+    color: #ccc;
+    cursor: default;
+}
+
 div.locationTrap {
     position: absolute;
     background-color: #AEC7E3;
