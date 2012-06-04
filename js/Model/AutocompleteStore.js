@@ -12,6 +12,8 @@ dojo.declare( 'JBrowse.Model.AutocompleteStore', null,
 
         this.namesTrie = args.namesTrie;
 
+        this.resultLimit = args.resultLimit || 15;
+
         // generate stopPrefixes
         var stopPrefixes = this.stopPrefixes = {};
         // make our stopPrefixes an object as { prefix: true, ... }
@@ -50,7 +52,7 @@ dojo.declare( 'JBrowse.Model.AutocompleteStore', null,
 
     fetch: function( /**Object*/ request ) {
         var start = request.start || 0;
-        var matchLimit = Math.min( 15, Math.max(0, request.count) );
+        var matchLimit = Math.min( this.resultLimit, Math.max(0, request.count) );
         var matchesRemaining = matchLimit;
 	var scope = request.scope || dojo.global;
         var aborted = false;
@@ -88,7 +90,7 @@ dojo.declare( 'JBrowse.Model.AutocompleteStore', null,
 
         // if we found more than the match limit
         if( matchesRemaining < 0 )
-            matches.push({ name: 'More than ' + matchLimit + " matches", hitLimit: true });
+            matches.push({ name: '(too many matches to display)', hitLimit: true });
 
         if( request.onBegin )
             request.onBegin.call( scope, matches.length, request );
