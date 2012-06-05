@@ -1071,9 +1071,12 @@ GenomeView.prototype.sizeInit = function() {
                                          blockDelta);
                       });
 
-    var newHeight = parseInt(this.scrollContainer.style.height);
-    newHeight = (newHeight > this.getHeight() ? newHeight : this.getHeight());
-
+    var newHeight =
+        this.trackHeights ? Math.max(
+            dojof.reduce( this.trackHeights, '+') + this.trackPadding * this.trackHeights.length,
+            this.getHeight()
+        ):
+        this.getHeight();
     this.scrollContainer.style.height = newHeight + "px";
     this.containerHeight = newHeight;
 
