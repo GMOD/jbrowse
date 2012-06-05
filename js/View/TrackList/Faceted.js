@@ -56,7 +56,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
        this.renderInitial();
 
        // once its data is loaded and ready
-       dojo.connect( this.trackDataStore, 'onReady', this, function() {
+       this.trackDataStore.onReady( this, function() {
 
            // render our controls and so forth
            this.renderSelectors();
@@ -81,7 +81,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                          });
            });
        });
-       dojo.connect( this.trackDataStore, 'onReady', this, '_updateFacetCounts' ); // just once at start
+       this.trackDataStore.onReady( this, '_updateFacetCounts' ); // just once at start
 
        dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateGridSelections' );
        dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateMatchCount' );

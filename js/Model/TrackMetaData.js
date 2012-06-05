@@ -135,7 +135,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         },this);
 
         this.ready = true;
-        this.onReady();
+        this._onReady();
     },
 
     _itemSortFunc: function(a,b) {
@@ -556,11 +556,27 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         },this);
     },
 
+    onReady: function( scope, func ) {
+        scope = scope || dojo.global;
+        func = dojo.hitch( scope, func );
+        if( ! this.ready ) {
+            this.onReadyFuncs.push( func );
+            return;
+        } else {
+            func();
+        }
+    },
+
     /**
      * Event hook called once when the store is initialized and has
      * an initial set of data loaded.
      */
-    onReady: function() {},
+    _onReady: function() {
+        dojo.forEach( this.onReadyFuncs || [], function(func) {
+            func.call();
+        });
+    },
+
     /**
      * Event hook called after a fetch has been successfully completed
      * on this store.
