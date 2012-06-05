@@ -1,9 +1,19 @@
 // JBrowse JSON-format configuration file
 {
-   trackSelectorType: 'Faceted',
-   trackMetadata: { sources: [] },
-   trackSelector: {
-       displayColumns: ['key', 'organism', 'technique', 'target', 'factor', 'developmental-stage','principal_investigator','submission' ],
-       renameFacets: { 'developmental-stage': 'Conditions', submission: 'Submission ID' }
-   }
+
+    // uncomment the lines below to configure a faceted track selector
+    // trackSelector: {
+    //     type: 'Faceted',
+    //     displayColumns: ['key', 'organism', 'technique', 'target', 'factor', 'developmental-stage','principal_investigator','submission' ],
+    //     renameFacets: { 'developmental-stage': 'Conditions', submission: 'Submission ID' }
+    // },
+    // trackMetadata: {
+    //   filterFacets: [ 'category', 'organism','target','technique','principal_investigator','factor','developmental-stage','strain','cell-line','tissue','compound','temperature' ],
+    //   sources: [
+    //     { url: 'sample_data/json/modencode/modencodeMetaData.json', 'class': 'JBrowse.Model.modEncodeTrackMetadata' }
+    //   ]
+    // },
+
+    // the variable below does nothing
+    placeholder: 1
 }

@@ -502,14 +502,13 @@ Browser.prototype.createTrackList = function() {
 
     // find the tracklist class to use
     var resolved_tl_class = function() {
-        var tl_class = this.config.show_tracklist == 0 ? 'Null'                        :
-                       this.config.trackSelectorType   ? this.config.trackSelectorType :
-                                                         'Simple';
-        tl_class.replace(/[^\.\w\d]/g, ''); // sanitize tracklist class for security
-        return JBrowse.View.TrackList[tl_class] || eval( tl_class );
+        var tl_class = this.config.show_tracklist == 0      ? 'Null'                         :
+                       (this.config.trackSelector||{}).type ? this.config.trackSelector.type :
+                                                              'Simple';
+        return JBrowse.View.TrackList[tl_class] || eval( tl_class.replace(/[^\.\w\d]/g, '') ); // sanitize tracklist class for a little security
     }.call(this);
     if( !resolved_tl_class ) {
-        console.error("configured trackSelectorType "+tl_class+" not found, falling back to JBrowse.View.TrackList.Simple");
+        console.error("configured trackSelector.type "+tl_class+" not found, falling back to JBrowse.View.TrackList.Simple");
         resolved_tl_class = JBrowse.View.TrackList.Simple;
     }
 
