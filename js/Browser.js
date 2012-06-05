@@ -739,6 +739,9 @@ Browser.prototype.showTracks = function( trackNames ) {
     if( typeof trackNames == 'string' )
         trackNames = trackNames.split(',');
 
+    if( ! trackNames )
+        return;
+
     var trackConfs = dojo.filter(
         dojo.map( trackNames, function(n) {
                       return this.trackConfigsByName[n];
