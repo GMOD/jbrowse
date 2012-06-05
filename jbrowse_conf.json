@@ -1,0 +1,9 @@
+// JBrowse JSON-format configuration file
+{
+   trackSelectorType: 'Faceted',
+   trackMetadata: { sources: [] },
+   trackSelector: {
+       displayColumns: ['key', 'organism', 'technique', 'target', 'factor', 'developmental-stage','principal_investigator','submission' ],
+       renameFacets: { 'developmental-stage': 'Conditions', submission: 'Submission ID' }
+   }
+}
