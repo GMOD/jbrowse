@@ -40,6 +40,7 @@ div.vertical_scrollbar .vertical_position_marker {
     background: #666;
     border-radius: 5px;
     width: 100%;
+    border-right: 1px solid #ccc;
 }
 
 .draggable {
