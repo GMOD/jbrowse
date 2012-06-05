@@ -246,6 +246,9 @@ Browser.prototype._initEventRouting = function() {
  * length.
  */
 Browser.prototype.reportUsageStats = function() {
+    if( this.config.suppressUsageStatistics )
+        return;
+
     var stats = {
         version: this.version || 'dev',
         refSeqs: {
