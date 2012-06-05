@@ -52,6 +52,7 @@ var Browser = function(params) {
     dojo.connect( this, 'onConfigLoaded',  this, 'loadRefSeqs' );
     dojo.connect( this, 'onConfigLoaded',  this, 'loadNames'   );
     dojo.connect( this, 'onRefSeqsLoaded', this, 'initView'    );
+    dojo.connect( this, 'onRefSeqsLoaded', this, 'reportUsageStats' );
 };
 
 /**
@@ -235,6 +236,55 @@ Browser.prototype._initEventRouting = function() {
         this.addRecentlyUsedTracks( dojo.map(trackConfigs, function(c){ return c.label;}) );
         this.publish( '/jbrowse/v1/c/tracks/show', arguments );
     });
+};
+
+/**
+ * Makes an XHR call to jbrowse.org reporting some anonymous usage
+ * statistics about this browsing instance.  Currently reports the
+ * number of tracks in the instance and their type (feature, wiggle,
+ * etc), and the number of reference sequences and their average
+ * length.
+ */
+Browser.prototype.reportUsageStats = function() {
+    var stats = {
+        version: this.version || 'dev',
+        refSeqs: {
+            count: this.refSeqOrder.length,
+            avgLength: ! this.refSeqOrder.length
+                ? null
+                : dojof.reduce(
+                    dojo.map( this.refSeqOrder,
+                              function(name) {
+                                  var ref = this.allRefs[name];
+                                  if( !ref )
+                                      return 0;
+                                  return ref.end - ref.start;
+                              },
+                              this
+                            ),
+                    '+'
+                  )
+        },
+        tracks: {
+            count: this.config.tracks.length
+        }
+    };
+
+    // count the number and types of tracks
+    stats.tracks.types = {};
+    dojo.forEach( this.config.tracks, function(trackConfig) {
+        var type = trackConfig.type || 'not set';
+        stats.tracks.types[ type ] =
+          ( stats.tracks.types[ type ] || 0 ) + 1;
+    });
+
+    dojo.xhrGet({
+            url: 'http://jbrowse.org/analytics/clientReport'
+                + '?' +dojo.objectToQuery({ stats:  dojo.toJson(stats) }),
+            handleAs: 'text',
+            handle: function() {},
+            failOk: true
+        });
 };
 
 Browser.prototype.publish = function() {
