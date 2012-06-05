@@ -249,6 +249,8 @@ Browser.prototype.reportUsageStats = function() {
     if( this.config.suppressUsageStatistics )
         return;
 
+    var scn = screen || window.screen;
+
     var stats = {
         version: this.version || 'dev',
         refSeqs: {
@@ -270,6 +272,14 @@ Browser.prototype.reportUsageStats = function() {
         },
         tracks: {
             count: this.config.tracks.length
+        },
+        client: {
+            // screen geometry
+            screen: scn ? { h: scn.height, w: scn.width } : null,
+            // window geometry
+            window: { h: document.body.offsetHeight, w: document.body.offsetWidth },
+            // container geometry
+            container: { h: this.container.offsetHeight, w: this.container.offsetWidth }
         }
     };
 
@@ -281,11 +291,11 @@ Browser.prototype.reportUsageStats = function() {
           ( stats.tracks.types[ type ] || 0 ) + 1;
     });
 
-    dojo.xhrGet({
-            url: 'http://jbrowse.org/analytics/clientReport'
-                + '?' +dojo.objectToQuery({ stats:  dojo.toJson(stats) }),
-            handleAs: 'text',
-            handle: function() {},
+    dojo.require('dojo.io.script');
+    dojo.io.script.get({
+            url: 'http://jbrowse.org/analytics/clientReport',
+            content: { stats:  dojo.toJson(stats) },
+            callbackParamName: null,
             failOk: true
         });
 };
