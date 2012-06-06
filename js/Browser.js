@@ -251,10 +251,13 @@ Browser.prototype.reportUsageStats = function() {
 
     var scn = screen || window.screen;
 
+
+    // make a flat (i.e. non-nested) object for the stats, so that it
+    // encodes compactly in the query string
     var stats = {
         ver: this.version || 'dev',
-        'refSeqs.count': this.refSeqOrder.length,
-        'refSeqs.avgLen':
+        'refSeqs_count': this.refSeqOrder.length,
+        'refSeqs_avgLen':
           ! this.refSeqOrder.length
             ? null
             : dojof.reduce(
@@ -269,22 +272,22 @@ Browser.prototype.reportUsageStats = function() {
                         ),
                 '+'
             ),
-        'tracks.count': this.config.tracks.length,
-        'tracks.types': this.config.tracks.length,
+        'tracks_count': this.config.tracks.length,
+        'tracks_types': this.config.tracks.length,
         // screen geometry
-        'scn.h': scn ? scn.height : null,
-        'scn.w': scn ? scn.width  : null,
+        'scn_h': scn ? scn.height : null,
+        'scn_w': scn ? scn.width  : null,
         // window geometry
-        'win.h':document.body.offsetHeight,
-        'win.w': document.body.offsetWidth,
+        'win_h':document.body.offsetHeight,
+        'win_w': document.body.offsetWidth,
         // container geometry
-        'el.h': this.container.offsetHeight,
-        'el.w': this.container.offsetWidth
+        'el_h': this.container.offsetHeight,
+        'el_w': this.container.offsetWidth
     };
 
     // count the number and types of tracks
     dojo.forEach( this.config.tracks, function(trackConfig) {
-        var typeKey = 'tracks.types.'+ trackConfig.type || 'null';
+        var typeKey = 'tracks_types.'+ trackConfig.type || 'null';
         stats[ typeKey ] =
           ( stats[ typeKey ] || 0 ) + 1;
     });
