@@ -254,10 +254,11 @@ Browser.prototype.reportUsageStats = function() {
 
     // make a flat (i.e. non-nested) object for the stats, so that it
     // encodes compactly in the query string
+    var date = new Date();
     var stats = {
         ver: this.version || 'dev',
-        'refSeqs_count': this.refSeqOrder.length,
-        'refSeqs_avgLen':
+        'refSeqs-count': this.refSeqOrder.length,
+        'refSeqs-avgLen':
           ! this.refSeqOrder.length
             ? null
             : dojof.reduce(
@@ -272,22 +273,27 @@ Browser.prototype.reportUsageStats = function() {
                         ),
                 '+'
             ),
-        'tracks_count': this.config.tracks.length,
-        'tracks_types': this.config.tracks.length,
+        'tracks-count': this.config.tracks.length,
+
         // screen geometry
-        'scn_h': scn ? scn.height : null,
-        'scn_w': scn ? scn.width  : null,
+        'scn-h': scn ? scn.height : null,
+        'scn-w': scn ? scn.width  : null,
         // window geometry
-        'win_h':document.body.offsetHeight,
-        'win_w': document.body.offsetWidth,
+        'win-h':document.body.offsetHeight,
+        'win-w': document.body.offsetWidth,
         // container geometry
-        'el_h': this.container.offsetHeight,
-        'el_w': this.container.offsetWidth
+        'el-h': this.container.offsetHeight,
+        'el-w': this.container.offsetWidth,
+
+        // time param to prevent caching
+        t: date.getTime(),
+        // also get local time zone offset
+        tzoffset: date.getTimezoneOffset()
     };
 
     // count the number and types of tracks
     dojo.forEach( this.config.tracks, function(trackConfig) {
-        var typeKey = 'tracks_types.'+ trackConfig.type || 'null';
+        var typeKey = 'tracks-types-'+ trackConfig.type || 'null';
         stats[ typeKey ] =
           ( stats[ typeKey ] || 0 ) + 1;
     });
