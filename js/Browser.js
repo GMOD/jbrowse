@@ -291,13 +291,15 @@ Browser.prototype.reportUsageStats = function() {
           ( stats.tracks.types[ type ] || 0 ) + 1;
     });
 
-    dojo.require('dojo.io.script');
-    dojo.io.script.get({
-            url: 'http://jbrowse.org/analytics/clientReport',
-            content: { stats:  dojo.toJson(stats) },
-            callbackParamName: null,
-            failOk: true
-        });
+    // phone home with a GET request made by a script tag
+    dojo.create(
+        'script',
+        { type: 'text/javascript',
+          src: 'http://jbrowse.org/analytics/clientReport?'
+               + dojo.objectToQuery({ stats:  dojo.toJson(stats) })
+        },
+        document.head
+    );
 };
 
 Browser.prototype.publish = function() {
