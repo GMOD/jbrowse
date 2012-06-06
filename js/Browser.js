@@ -252,51 +252,50 @@ Browser.prototype.reportUsageStats = function() {
     var scn = screen || window.screen;
 
     var stats = {
-        version: this.version || 'dev',
-        refSeqs: {
-            count: this.refSeqOrder.length,
-            avgLength: ! this.refSeqOrder.length
-                ? null
-                : dojof.reduce(
-                    dojo.map( this.refSeqOrder,
-                              function(name) {
-                                  var ref = this.allRefs[name];
-                                  if( !ref )
-                                      return 0;
-                                  return ref.end - ref.start;
-                              },
-                              this
-                            ),
-                    '+'
-                  )
-        },
-        tracks: {
-            count: this.config.tracks.length
-        },
-        client: {
-            // screen geometry
-            screen: scn ? { h: scn.height, w: scn.width } : null,
-            // window geometry
-            window: { h: document.body.offsetHeight, w: document.body.offsetWidth },
-            // container geometry
-            container: { h: this.container.offsetHeight, w: this.container.offsetWidth }
-        }
+        ver: this.version || 'dev',
+        'refSeqs.count': this.refSeqOrder.length,
+        'refSeqs.avgLen':
+          ! this.refSeqOrder.length
+            ? null
+            : dojof.reduce(
+                dojo.map( this.refSeqOrder,
+                          function(name) {
+                              var ref = this.allRefs[name];
+                              if( !ref )
+                                  return 0;
+                              return ref.end - ref.start;
+                          },
+                          this
+                        ),
+                '+'
+            ),
+        'tracks.count': this.config.tracks.length,
+        'tracks.types': this.config.tracks.length,
+        // screen geometry
+        'scn.h': scn ? scn.height : null,
+        'scn.w': scn ? scn.width  : null,
+        // window geometry
+        'win.h':document.body.offsetHeight,
+        'win.w': document.body.offsetWidth,
+        // container geometry
+        'el.h': this.container.offsetHeight,
+        'el.w': this.container.offsetWidth
     };
 
     // count the number and types of tracks
-    stats.tracks.types = {};
     dojo.forEach( this.config.tracks, function(trackConfig) {
-        var type = trackConfig.type || 'not set';
-        stats.tracks.types[ type ] =
-          ( stats.tracks.types[ type ] || 0 ) + 1;
+        var typeKey = 'tracks.types.'+ trackConfig.type || 'null';
+        stats[ typeKey ] =
+          ( stats[ typeKey ] || 0 ) + 1;
     });
+
 
     // phone home with a GET request made by a script tag
     dojo.create(
         'script',
         { type: 'text/javascript',
           src: 'http://jbrowse.org/analytics/clientReport?'
-               + dojo.objectToQuery({ stats:  dojo.toJson(stats) })
+               + dojo.objectToQuery( stats )
         },
         document.head
     );
