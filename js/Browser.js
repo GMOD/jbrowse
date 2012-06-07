@@ -40,6 +40,8 @@ var Browser = function(params) {
 
     this.config = params;
 
+    this.startTime = Date.now();
+
     // load our touch device support
     // TODO: refactor this
     this.deferredFunctions.push(function() { loadTouch(); });
@@ -286,9 +288,12 @@ Browser.prototype.reportUsageStats = function() {
         'el-w': this.container.offsetWidth,
 
         // time param to prevent caching
-        t: date.getTime(),
+        t: date.getTime()/1000,
+
         // also get local time zone offset
-        tzoffset: date.getTimezoneOffset()
+        tzoffset: date.getTimezoneOffset(),
+
+        loadTime: (date.getTime() - this.startTime)/1000
     };
 
     // count the number and types of tracks
