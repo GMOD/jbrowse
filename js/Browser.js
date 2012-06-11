@@ -259,7 +259,7 @@ Browser.prototype.reportUsageStats = function() {
 // phones home to google analytics
 Browser.prototype._reportGoogleUsageStats = function( stats ) {
     _gaq.push.apply( _gaq, [
-        ['_setAccount', 'UA-32567655-1'],
+        ['_setAccount', 'UA-7115575-2'],
         ['_setDomainName', 'none'],
         ['_setAllowLinker', true],
         ['_setCustomVar', 1, 'tracks-count', stats['tracks-count'], 3 ],
