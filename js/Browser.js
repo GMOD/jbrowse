@@ -21,6 +21,7 @@
  */
 
 var dojof;
+var _gaq = _gaq || [];
 
 var Browser = function(params) {
     dojo.require('dojox.lang.functional');
@@ -241,16 +242,40 @@ Browser.prototype._initEventRouting = function() {
 };
 
 /**
- * Makes an XHR call to jbrowse.org reporting some anonymous usage
- * statistics about this browsing instance.  Currently reports the
- * number of tracks in the instance and their type (feature, wiggle,
- * etc), and the number of reference sequences and their average
- * length.
+ * Reports some anonymous usage statistics about this browsing
+ * instance.  Currently reports the number of tracks in the instance
+ * and their type (feature, wiggle, etc), and the number of reference
+ * sequences and their average length.
  */
 Browser.prototype.reportUsageStats = function() {
+
     if( this.config.suppressUsageStatistics )
         return;
 
+    this._reportGoogleUsageStats();
+    this._reportCustomUsageStats();
+};
+
+// phones home to google analytics
+Browser.prototype._reportGoogleUsageStats = function() {
+    _gaq.push.apply( _gaq, [
+        ['_setAccount', 'UA-32567655-1'],
+        ['_setDomainName', 'none'],
+        ['_setAllowLinker', true],
+        ['_trackPageview']
+    ]);
+
+    var ga = document.createElement('script');
+    ga.type = 'text/javascript';
+    ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www')
+             + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(ga, s);
+};
+
+// phones home to custom analytics at jbrowse.org
+Browser.prototype._reportCustomUsageStats = function() {
     var scn = screen || window.screen;
 
 
