@@ -248,20 +248,25 @@ Browser.prototype._initEventRouting = function() {
  * sequences and their average length.
  */
 Browser.prototype.reportUsageStats = function() {
-
     if( this.config.suppressUsageStatistics )
         return;
 
-    this._reportGoogleUsageStats();
-    this._reportCustomUsageStats();
+    var stats = this._calculateClientStats();
+    this._reportGoogleUsageStats( stats );
+    this._reportCustomUsageStats( stats );
 };
 
 // phones home to google analytics
-Browser.prototype._reportGoogleUsageStats = function() {
+Browser.prototype._reportGoogleUsageStats = function( stats ) {
     _gaq.push.apply( _gaq, [
         ['_setAccount', 'UA-32567655-1'],
         ['_setDomainName', 'none'],
         ['_setAllowLinker', true],
+        ['_setCustomVar', 1, 'tracks-count', stats['tracks-count'], 3 ],
+        ['_setCustomVar', 2, 'refSeqs-count', stats['refSeqs-count'], 3 ],
+        ['_setCustomVar', 3, 'refSeqs-avgLen', stats['refSeqs-avgLen'], 3 ],
+        ['_setCustomVar', 4, 'jbrowse-version', stats['ver'], 3 ],
+        ['_setCustomVar', 5, 'loadTime', stats['loadTime'], 3 ],
         ['_trackPageview']
     ]);
 
@@ -275,9 +280,23 @@ Browser.prototype._reportGoogleUsageStats = function() {
 };
 
 // phones home to custom analytics at jbrowse.org
-Browser.prototype._reportCustomUsageStats = function() {
-    var scn = screen || window.screen;
+Browser.prototype._reportCustomUsageStats = function(stats) {
+    // phone home with a GET request made by a script tag
+    dojo.create(
+        'img',
+        { style: {
+              display: 'none'
+          },
+          src: 'http://localhost:8080/analytics/clientReport?'
+               + dojo.objectToQuery( stats )
+        },
+        document.body
+    );
+};
 
+Browser.prototype._calculateClientStats = function() {
+
+    var scn = screen || window.screen;
 
     // make a flat (i.e. non-nested) object for the stats, so that it
     // encodes compactly in the query string
@@ -328,19 +347,10 @@ Browser.prototype._reportCustomUsageStats = function() {
           ( stats[ typeKey ] || 0 ) + 1;
     });
 
-
-    // phone home with a GET request made by a script tag
-    dojo.create(
-        'img',
-        { style: {
-              display: 'none'
-          },
-          src: 'http://jbrowse.org/analytics/clientReport?'
-               + dojo.objectToQuery( stats )
-        },
-        document.body
-    );
+    return stats;
 };
+
+
 
 Browser.prototype.publish = function() {
     return dojo.publish.apply( dojo, arguments );
