@@ -331,12 +331,14 @@ Browser.prototype._reportCustomUsageStats = function() {
 
     // phone home with a GET request made by a script tag
     dojo.create(
-        'script',
-        { type: 'text/javascript',
+        'img',
+        { style: {
+              display: 'none'
+          },
           src: 'http://jbrowse.org/analytics/clientReport?'
                + dojo.objectToQuery( stats )
         },
-        document.head
+        document.body
     );
 };
 
