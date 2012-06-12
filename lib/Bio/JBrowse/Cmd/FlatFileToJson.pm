@@ -21,7 +21,6 @@ use JSON 2;
 
 sub option_defaults {
     ( type => [],
-      autocomplete => 'none',
       out => 'data',
       cssClass => 'feature',
       sortMem => 1024 * 1024 * 512,
@@ -83,7 +82,6 @@ sub run {
 
 
     my %config = (
-        autocomplete => $self->opt('autocomplete'),
         type         => $self->opt('getType') || $self->opt('type') ? 1 : 0,
         phase        => $self->opt('getPhase'),
         subfeatures  => $self->opt('getSubs'),

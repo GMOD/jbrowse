@@ -252,7 +252,6 @@ Return an arrayref of track definition hashrefs similar to:
 
     [
         {
-          autocomplete => "all",
           compress => 0,
           feature => ["remark"],
           style => { className => "feature2" },

@@ -22,7 +22,6 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
       [ --out <output directory> ]                                            \
       [ --key <human-readable track name> ]                                   \
       [ --className <CSS class name for displaying features> ]                \
-      [ --autocomplete <none|label|alias|all> ]                               \
       [ --getType ]                                                           \
       [ --getPhase ]                                                          \
       [ --getSubfeatures ]                                                    \
@@ -77,11 +76,6 @@ Output directory to write to.  Defaults to "data/".
 =item --className <CSS class name for displaying features>
 
 CSS class for features.  Defaults to "feature".
-
-=item --autocomplete <none|label|alias|all>
-
-Make these features searchable by their C<label>, by their C<alias>es,
-both (C<all>), or C<none>.  Defaults to C<none>.
 
 =item --getType
 
