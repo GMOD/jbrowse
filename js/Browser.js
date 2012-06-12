@@ -342,7 +342,7 @@ Browser.prototype._calculateClientStats = function() {
 
     // count the number and types of tracks
     dojo.forEach( this.config.tracks, function(trackConfig) {
-        var typeKey = 'tracks-types-'+ trackConfig.type || 'null';
+        var typeKey = 'track-types-'+ trackConfig.type || 'null';
         stats[ typeKey ] =
           ( stats[ typeKey ] || 0 ) + 1;
     });
