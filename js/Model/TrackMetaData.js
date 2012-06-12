@@ -12,7 +12,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
      * and the indexes thereof, in memory.
      * @constructs
      * @param args.trackConfigs {Array} array of track configuration
-     * @param args.filterFacets {Function|Array|String}
+     * @param args.indexFacets {Function|Array|String}
      * @param args.onReady {Function}
      * @param args.metadataStores {Array[dojox.data]}
      */
@@ -21,7 +21,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         // actually provide search on
         var non_facet_attrs = ['conf'];
         this._filterFacet = (function() {
-            var filter = args.filterFacets || function() {return true;};
+            var filter = args.indexFacets || function() {return true;};
             // if we have a non-function filter, coerce to an array,
             // then convert that array to a function
             if( typeof filter == 'string' )
