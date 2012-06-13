@@ -287,7 +287,7 @@ Browser.prototype._reportCustomUsageStats = function(stats) {
         { style: {
               display: 'none'
           },
-          src: 'http://localhost:8080/analytics/clientReport?'
+          src: 'http://jbrowse.org/analytics/clientReport?'
                + dojo.objectToQuery( stats )
         },
         document.body
