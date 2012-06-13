@@ -37,7 +37,7 @@ SeqFeatureStore.NCList.prototype.load = function() {
     // fetch the trackdata
     dojo.xhrGet({ url: url,
                   handleAs: "json",
-                  load:  dojo.hitch( this, function(o) { this.loadSuccess(o, url); }),
+                  load:  Util.debugHandler( this, function(o) { this.loadSuccess(o, url); }),
                   error: dojo.hitch( this, function(e) { console.error(''+e); this.loadFail(e, url); } )
 	        });
 };
@@ -50,7 +50,7 @@ SeqFeatureStore.NCList.prototype.loadSuccess = function( trackInfo, url ) {
 
     this.loadNCList( trackInfo, url );
 
-    if (trackInfo.histograms) {
+    if ( trackInfo.histograms && trackInfo.histograms.meta ) {
         this.histograms = trackInfo.histograms;
         for (var i = 0; i < this.histograms.meta.length; i++) {
             this.histograms.meta[i].lazyArray =
