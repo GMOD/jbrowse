@@ -52,10 +52,10 @@ var Browser = function(params) {
     var browser = this;
     dojo.addOnLoad( function() { browser.loadConfig(); } );
 
-    dojo.connect( this, 'onConfigLoaded',  this, 'loadRefSeqs' );
-    dojo.connect( this, 'onConfigLoaded',  this, 'loadNames'   );
-    dojo.connect( this, 'onRefSeqsLoaded', this, 'initView'    );
-    dojo.connect( this, 'onRefSeqsLoaded', this, 'reportUsageStats' );
+    dojo.connect( this, 'onConfigLoaded',  Util.debugHandler( this, 'loadRefSeqs' ));
+    dojo.connect( this, 'onConfigLoaded',  Util.debugHandler( this, 'loadNames'   ));
+    dojo.connect( this, 'onRefSeqsLoaded', Util.debugHandler( this, 'initView'    ));
+    dojo.connect( this, 'onRefSeqsLoaded', Util.debugHandler( this, 'reportUsageStats' ));
 };
 
 /**
