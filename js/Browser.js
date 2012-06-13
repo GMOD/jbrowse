@@ -1,5 +1,8 @@
 // CONTROLLER
 
+var dojof;
+var _gaq = _gaq || [];
+
 /**
  * Construct a new Browser object.
  * @class This class is the main interface between JBrowse and embedders
@@ -19,9 +22,6 @@
  * <li><code>show_overview</code> - (optional) string describing the on/off state of overview</li>
  * </ul>
  */
-
-var dojof;
-var _gaq = _gaq || [];
 
 var Browser = function(params) {
     dojo.require('dojox.lang.functional');

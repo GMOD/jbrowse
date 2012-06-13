@@ -1,6 +1,5 @@
 /**
- * Legacy-compatible NCList for 1.2.1 backcompat.
- * @extends
+ * @class Legacy-compatible NCList for 1.2.1 backward compatibility.
  */
 function NCList_v0() {}
 
