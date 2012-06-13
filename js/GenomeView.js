@@ -267,8 +267,8 @@ GenomeView.prototype._updateVerticalScrollBar = function( newDims ) {
         this.verticalScrollBar.container.style.display = newDims.height / this.containerHeight > 0.98 ? 'none' : 'block';
     }
 
-    if( typeof newDims.y == 'number' ) {
-        this.verticalScrollBar.positionMarker.style.top    = ( newDims.y / this.containerHeight * 100 )+'%';
+    if( typeof newDims.y == 'number' || typeof newDims.height == 'number' ) {
+        this.verticalScrollBar.positionMarker.style.top    = ( (newDims.y || this.getY()) / this.containerHeight * 100 )+'%';
     }
 
 };
@@ -466,14 +466,14 @@ GenomeView.prototype.getWidth = function() {
 };
 
 GenomeView.prototype.clampX = function(x) {
-    return Math.round( Math.max( Math.min( this.maxLeft - this.offset, x),
+    return Math.round( Math.max( Math.min( this.maxLeft - this.offset, x || 0),
                                  this.minLeft - this.offset
                                )
                      );
 };
 
 GenomeView.prototype.clampY = function(y) {
-    return Math.round( Math.min( Math.max( 0, y ),
+    return Math.round( Math.min( Math.max( 0, y || 0 ),
                                  this.containerHeight- this.getHeight()
                                )
                      );
@@ -740,14 +740,20 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
                 track.div.parentNode.removeChild(track.div);
 	};
 	dojo.forEach(this.tracks, removeTrack);
+
         this.tracks = [];
+        this.trackIndices = {};
+        this.trackHeights = [];
+        this.trackTops = [];
+        this.trackLabels = [];
+
         dojo.forEach(this.uiTracks, function(track) { track.clear(); });
 	this.overviewTrackIterate(removeTrack);
 
 	this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
         this.sizeInit();
         this.setY(0);
-        this.containerHeight = this.topSpace;
+        //this.containerHeight = this.topSpace;
 
         this.behaviorManager.initialize();
     }
@@ -1084,11 +1090,12 @@ GenomeView.prototype.sizeInit = function() {
                       });
 
     var newHeight =
-        this.trackHeights ? Math.max(
-            dojof.reduce( this.trackHeights, '+') + this.trackPadding * this.trackHeights.length,
-            this.getHeight()
-        ):
-        this.getHeight();
+        this.trackHeights && this.trackHeights.length
+          ? Math.max(
+              dojof.reduce( this.trackHeights, '+') + this.trackPadding * this.trackHeights.length,
+              this.getHeight()
+            )
+          : this.getHeight();
     this.scrollContainer.style.height = newHeight + "px";
     this.containerHeight = newHeight;
 
@@ -1367,7 +1374,7 @@ GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
         if (this.tracks[i].shown)
             nextTop += this.trackHeights[i] + this.trackPadding;
     }
-    this.containerHeight = Math.max(nextTop, this.getY() + this.getHeight() );
+    this.containerHeight = Math.max( nextTop||0, this.getY() + this.getHeight() );
     this.scrollContainer.style.height = this.containerHeight + "px";
 
     this.updateStaticElements({ height: this.getHeight() });
@@ -1404,7 +1411,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
  * @param trackConfigs {Array[Object]} array of track configuration
  * objects to add
  */
-GenomeView.prototype.showTracks = function( /**Array[String]*/ trackConfigs ) {
+GenomeView.prototype.showTracks = function( trackConfigs ) {
     // filter out any track configs that are already displayed
     var needed = dojo.filter( trackConfigs, function(conf) {
         return this._getTracks( [conf.label] ).length == 0;
@@ -1596,7 +1603,7 @@ GenomeView.prototype.updateTrackList = function() {
             nextTop += this.trackHeights[i] + this.trackPadding;
     }
 
-    this.containerHeight = Math.max( nextTop, this.getHeight() );
+    this.containerHeight = Math.max( nextTop || 0, this.getHeight() );
     this.scrollContainer.style.height = this.containerHeight + "px";
 
     this.updateScroll();

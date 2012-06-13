@@ -736,17 +736,19 @@ Browser.prototype.navigateTo = function(loc) {
         if( ref ) {
             // see if we have a stored location for this ref seq in a
             // cookie, and go there if we do
+            var oldLoc;
             try {
-                var oldLoc = Util.parseLocString(
+                oldLoc = Util.parseLocString(
                     dojo.fromJson(
                         this.cookie("location")
                     )[ref.name]
                 );
                 oldLoc.ref = ref.name; // force the refseq name; older cookies don't have it
+            } catch (x) {}
+            if( oldLoc ) {
                 this.navigateToLocation( oldLoc );
-            }
-            // if we don't just go to the middle 80% of that refseq
-            catch(x) {
+            } else {
+                // if we don't just go to the middle 80% of that refseq
                 this.navigateToLocation({ref: ref.name, start: ref.end*0.1, end: ref.end*0.9 });
             }
         }
