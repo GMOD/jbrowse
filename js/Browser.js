@@ -25,6 +25,8 @@ var _gaq = _gaq || [];
 
 var Browser = function(params) {
     dojo.require('dojox.lang.functional');
+    dojo.require('dojox.lang.functional.array');
+    dojo.require('dojox.lang.functional.fold');
     dojof = dojox.lang.functional;
 
     dojo.require("dojo.dnd.Source");
