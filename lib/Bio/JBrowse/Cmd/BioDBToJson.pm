@@ -118,7 +118,6 @@ sub run {
     }
 }
 
-use Carp::Always;
 sub assemble_track_config {
     my ( $self, $global_config, $track_config ) = @_;
 
