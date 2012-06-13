@@ -7,7 +7,7 @@ function Track(name, key, loaded, changeCallback) {
     this.name = name;
     this.key = key;
     this.loaded = loaded;
-    this.changed = changeCallback;
+    this.changed = changeCallback || function() {};
     this.height = 0;
     this.shown = true;
     this.empty = false;
@@ -16,6 +16,7 @@ function Track(name, key, loaded, changeCallback) {
 Track.prototype.load = function(url) {
     dojo.xhrGet({ url: url,
                   handleAs: "json",
+                  failOk: true,
                   load:  dojo.hitch( this, function(o) { this.loadSuccess(o, url); }),
                   error: dojo.hitch( this, function(o) { this.loadFail(o, url);    })
 	        });
@@ -26,6 +27,8 @@ Track.prototype.loadSuccess = function(error) {
 };
 
 Track.prototype.loadFail = function(error) {
+    if( error.status != 404 )
+        console.error(''+error);
     this.empty = true;
     this.setLoaded();
 };

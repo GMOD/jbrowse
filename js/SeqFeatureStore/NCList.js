@@ -37,6 +37,7 @@ SeqFeatureStore.NCList.prototype.load = function() {
     // fetch the trackdata
     dojo.xhrGet({ url: url,
                   handleAs: "json",
+                  failOk: true,
                   load:  Util.debugHandler( this, function(o) { this.loadSuccess(o, url); }),
                   error: dojo.hitch( this, function(error) {
                                          if( error.status != 404 )
