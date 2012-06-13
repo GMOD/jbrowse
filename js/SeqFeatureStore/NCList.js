@@ -38,7 +38,11 @@ SeqFeatureStore.NCList.prototype.load = function() {
     dojo.xhrGet({ url: url,
                   handleAs: "json",
                   load:  Util.debugHandler( this, function(o) { this.loadSuccess(o, url); }),
-                  error: dojo.hitch( this, function(e) { console.error(''+e); this.loadFail(e, url); } )
+                  error: dojo.hitch( this, function(error) {
+                                         if( error.status != 404 )
+                                             console.error(''+error);
+                                         this.loadFail(error, url);
+                                     })
 	        });
 };
 
