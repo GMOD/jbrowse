@@ -31,6 +31,7 @@ echo -n "Formatting Volvox example data ...";
     bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa --out sample_data/json/volvox;
     bin/biodb-to-json.pl -v --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox;
     bin/generate-names.pl -v --out sample_data/json/volvox;
+    ln -sf ../../volvox/tracks/volvox_microarray.wig sample_data/json/modencode/tracks/volvox_microarray.wig
 ) >>setup.log 2>&1
 done_message "To see the example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/volvox.";
 
