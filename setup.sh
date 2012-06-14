@@ -32,6 +32,7 @@ echo -n "Formatting Volvox example data ...";
     bin/biodb-to-json.pl -v --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox;
     bin/generate-names.pl -v --out sample_data/json/volvox;
     if [ -d sample_data/json/modencode ]; then
+        mkdir -p sample_data/json/modencode/tracks;
         ln -sf ../../volvox/tracks/volvox_microarray.wig sample_data/json/modencode/tracks/volvox_microarray.wig;
     fi;
 ) >>setup.log 2>&1
