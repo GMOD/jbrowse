@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.4.0     2012-06-14 17:43:50 America/New_York
+
  * Added a full-featured faceted track selector for users that have
    many (hundreds or thousands) of tracks.  This can be turned on by
    setting the `trackSelectorType` config variable to "Faceted".  See
