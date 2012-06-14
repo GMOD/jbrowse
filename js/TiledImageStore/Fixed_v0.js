@@ -9,7 +9,9 @@ var TiledImageStore; if( !TiledImageStore ) TiledImageStore = {};
  * @class
  * @extends TiledImageStore.Fixed
  */
-TiledImageStore.Fixed_v0 = TiledImageStore.Fixed;
+TiledImageStore.Fixed_v0 = function( args ) {
+    TiledImageStore.Fixed.call( this, args );
+};
 TiledImageStore.Fixed_v0.prototype = new TiledImageStore.Fixed('');
 
 TiledImageStore.Fixed_v0.prototype._imageSource = function( zoom, tileIndex ) {
