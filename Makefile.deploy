@@ -4,7 +4,7 @@ TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
 
 all: minify-js docs wig2png
 
-release: release-normal release-min
+release: release-normal release-min release-normal-test release-min-test
 
 release-normal: superclean docs minify-js
 	dzil build;
@@ -14,6 +14,11 @@ release-normal: superclean docs minify-js
 	mv JBrowse-*/ `basename JBrowse-*`-full/;
 	zip -r `basename JBrowse-*`.zip JBrowse-*/;
 
+release-normal-test: release-normal
+	cd JBrowse-*-full;
+	./setup.sh;
+	prove -lr -j3 tests/perl_tests;
+
 release-min: release-normal
 	( \
 	export RELEASE=$(shell basename JBrowse-*/ -full); \
@@ -21,7 +26,12 @@ release-min: release-normal
 	cp -r JBrowse-*/ $$MIN/; \
 	rm -rf $$MIN/index-debug.html $$MIN/js $$MIN/dist.ini $$MIN/docs/jsdoc $$MIN/t $$MIN/tests $$MIN/xt $$MIN/sample_data $$MIN/*META.*; \
 	zip -r $$MIN.zip $$MIN/; \
+        cd $$MIN && ./setup.sh; \
 	)
+
+release-min-test: release-min
+	cd JBrowse-*-min;
+	./setup.sh;
 
 wig2png: wig2png/Makefile
 	$(MAKE) -C wig2png;
@@ -59,4 +69,4 @@ clean:
 	-mv index-debug.html index.html;
 	rm -rf docs/jsdoc *-min.js;
 
-.PHONY: all clean superclean jbrowse minify-js docs doc wig2png release release-min release-normal
+.PHONY: all clean superclean jbrowse minify-js docs doc wig2png release release-min release-normal release-normal-test release-min-test
