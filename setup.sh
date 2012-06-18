@@ -39,7 +39,9 @@ echo -n "Formatting Volvox example data ...";
         ln -sf ../../volvox/tracks/volvox_microarray.wig sample_data/json/modencode/tracks/volvox_microarray.wig;
     fi;
     mkdir -p sample_data/raw;
-    ln -sf ../../docs/tutorial/data_files sample_data/raw/volvox;
+    if [ ! -e sample_data/raw/volvox ]; then
+        ln -s ../../docs/tutorial/data_files sample_data/raw/volvox;
+    fi;
     ln -sf ../../docs/tutorial/conf_files/volvox.json sample_data/raw/;
 
 ) >>setup.log 2>&1
