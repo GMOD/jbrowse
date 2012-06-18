@@ -4,7 +4,10 @@ TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
 
 all: minify-js docs wig2png
 
-release: release-normal release-min release-normal-test release-min-test
+release: release-normal release-min release-normal-test release-min-test release-notes.html
+
+release-notes.html: release-notes.txt
+	markdown release-notes.txt > $@
 
 release-normal: superclean docs minify-js
 	dzil build;
@@ -67,6 +70,6 @@ superclean: clean
 
 clean:
 	-mv index-debug.html index.html;
-	rm -rf docs/jsdoc *-min.js;
+	rm -rf docs/jsdoc *-min.js release-notes.html;
 
 .PHONY: all clean superclean jbrowse minify-js docs doc wig2png release release-min release-normal release-normal-test release-min-test
