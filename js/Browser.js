@@ -198,7 +198,7 @@ Browser.prototype.initView = function() {
     if (this.config.location) {
         this.navigateTo(this.config.location);
     } else if (oldLocMap[this.refSeq.name]) {
-        this.navigateTo( oldLocMap[this.refSeq.name] );
+        this.navigateTo( oldLocMap[this.refSeq.name].l || oldLocMap[this.refSeq.name] );
     } else if (this.config.defaultLocation){
         this.navigateTo(this.config.defaultLocation);
     } else {
@@ -741,7 +741,7 @@ Browser.prototype.navigateTo = function(loc) {
                 oldLoc = Util.parseLocString(
                     dojo.fromJson(
                         this.cookie("location")
-                    )[ref.name]
+                    )[ref.name].l
                 );
                 oldLoc.ref = ref.name; // force the refseq name; older cookies don't have it
             } catch (x) {}
@@ -1075,11 +1075,53 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
 
     // update the location and refseq cookies
     var oldLocMap = dojo.fromJson( this.cookie('location') ) || {};
-    oldLocMap[this.refSeq.name] = locString;
+    if( ! oldLocMap.version )
+        oldLocMap = this._migrateLocMap( oldLocMap );
+    oldLocMap[this.refSeq.name] = { l: locString, t: Math.round( (new Date()).getTime() / 1000 ) - 1340211510 };
+    oldLocMap = this._limitLocMap( oldLocMap, this.config.maxSavedLocations || 10 );
     this.cookie( 'location', dojo.toJson(oldLocMap), {expires: 60});
     this.cookie( 'refseq', this.refSeq.name );
 
     document.title = locString;
+};
+/**
+ * Migrate an old location map cookie to the new format that includes timestamps.
+ * @private
+ */
+Browser.prototype._migrateLocMap = function( locMap ) {
+    var newLoc = {};
+    for( var loc in locMap ) {
+        newLoc[loc] = { l: locMap[loc], t: 0 };
+    }
+    return newLoc;
+};
+
+/**
+ * Limit the size of the saved location map, removing the least recently used.
+ * @private
+ */
+Browser.prototype._limitLocMap = function( locMap, maxEntries ) {
+    // don't do anything if the loc map has fewer than the max
+    var locRefs = dojof.keys( locMap );
+    if( locRefs.length <= maxEntries )
+        return locMap;
+
+    // otherwise, calculate the least recently used that we need to
+    // get rid of to be under the size limit
+    locMap = dojo.clone( locMap );
+    var deleteLocs =
+        locRefs
+        .sort( function(a,b){
+                   return locMap[b].t - locMap[a].t;
+               })
+        .slice( maxEntries-1 );
+
+    // and delete them from the locmap
+    dojo.forEach( deleteLocs, function(locRef) {
+        delete locMap[locRef];
+    });
+
+    return locMap;
 };
 
 /**
