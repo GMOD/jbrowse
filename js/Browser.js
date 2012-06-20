@@ -1097,6 +1097,13 @@ Browser.prototype.cookie = function() {
     arguments[0] = this.config.containerID + '-' + arguments[0];
     if( typeof arguments[1] == 'object' )
         arguments[1] = dojo.toJson( arguments[1] );
+
+    var sizeLimit= this.config.cookieSizeLimit || 1200;
+    if( arguments[1] && arguments[1].length > sizeLimit ) {
+        console.warn("not setting cookie '"+arguments[0]+"', value too big ("+arguments[1].length+" > "+sizeLimit+")");
+        return;
+    }
+
     return dojo.cookie.apply( dojo.cookie, arguments );
 };
 
