@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Introduced limits on the sizes of cookies that can be set,
+   preventing '400 bad request' errors (issue #113).
+
 1.4.0     2012-06-14 17:43:50 America/New_York
 
  * Added a full-featured faceted track selector for users that have
