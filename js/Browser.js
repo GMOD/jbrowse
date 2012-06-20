@@ -395,7 +395,7 @@ Browser.prototype.addRecentlyUsedTracks = function( trackLabels ) {
             }
         )
         // limit by default to 20 recent tracks
-        .slice( 0, this.config.recentTracksLimit || 10 );
+        .slice( 0, this.config.maxRecentTracks || 10 );
 
     // set the recentTracks cookie, good for one year
     this.cookie( 'recentTracks', newRecent, { expires: 365 } );
