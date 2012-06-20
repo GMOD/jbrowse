@@ -1101,7 +1101,7 @@ Browser.prototype.cookie = function() {
     var sizeLimit= this.config.cookieSizeLimit || 1200;
     if( arguments[1] && arguments[1].length > sizeLimit ) {
         console.warn("not setting cookie '"+arguments[0]+"', value too big ("+arguments[1].length+" > "+sizeLimit+")");
-        return;
+        return dojo.cookie( arguments[0] );
     }
 
     return dojo.cookie.apply( dojo.cookie, arguments );
