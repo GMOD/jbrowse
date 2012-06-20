@@ -1074,8 +1074,8 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     }
 
     // update the location and refseq cookies
-    var oldLocMap = dojo.fromJson( this.cookie('location') ) || {};
-    if( ! oldLocMap.version )
+    var oldLocMap = dojo.fromJson( this.cookie('location') ) || { "_version": 1 };
+    if( ! oldLocMap["_version"] )
         oldLocMap = this._migrateLocMap( oldLocMap );
     oldLocMap[this.refSeq.name] = { l: locString, t: Math.round( (new Date()).getTime() / 1000 ) - 1340211510 };
     oldLocMap = this._limitLocMap( oldLocMap, this.config.maxSavedLocations || 10 );
@@ -1089,7 +1089,7 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
  * @private
  */
 Browser.prototype._migrateLocMap = function( locMap ) {
-    var newLoc = {};
+    var newLoc = { "_version": 1 };
     for( var loc in locMap ) {
         newLoc[loc] = { l: locMap[loc], t: 0 };
     }
