@@ -1497,8 +1497,11 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
           return existingTrack.div;
       }
 
-    var class_ = eval( trackConfig.type ),
-        track = new class_(
+    var class_ = eval(
+           { FeatureTrack: 'JBrowse.View.Track.FeatureHTML' }[ trackConfig.type ]
+           || trackConfig.type
+         ),
+    track = new class_(
             trackConfig,
             this.ref,
             {

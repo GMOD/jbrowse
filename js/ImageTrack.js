@@ -4,7 +4,7 @@
  * A track that displays tiled images (PNGs, or other images) along
  * the reference sequence.
  * @class
- * @extends Track
+ * @extends JBrowse.View.Track.BlockBased
  */
 function ImageTrack(config, refSeq, browserParams) {
     JBrowse.View.Track.BlockBased.call(

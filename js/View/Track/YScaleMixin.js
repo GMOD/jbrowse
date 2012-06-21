@@ -4,10 +4,7 @@
  * offset in <code>this.yscale_left</code>.
  * @class
  */
-
-var Track; if( !Track ) Track = {};
-
-Track.YScaleMixin = {
+dojo.getObject('JBrowse.View.Track', true ).YScaleMixin = {
 
     /**
      * @param {Number} [min] Optional minimum value for the scale.

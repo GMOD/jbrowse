@@ -16,9 +16,9 @@ ImageTrack.Wiggle = function() {
 ImageTrack.Wiggle.prototype = new ImageTrack({},{},{});
 
 /**
- * Mixin: Track.YScaleMixin.
+ * Mixin: JBrowse.View.Track.YScaleMixin.
  */
-dojo.mixin( ImageTrack.Wiggle.prototype, Track.YScaleMixin );
+dojo.mixin( ImageTrack.Wiggle.prototype, JBrowse.View.Track.YScaleMixin );
 
 ImageTrack.Wiggle.prototype.updateStaticElements = function( coords ) {
     ImageTrack.prototype.updateStaticElements.apply( this, arguments );
