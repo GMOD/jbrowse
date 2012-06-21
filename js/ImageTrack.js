@@ -7,8 +7,9 @@
  * @extends Track
  */
 function ImageTrack(config, refSeq, browserParams) {
-    Track.call(this, config.label, config.key,
-               false, browserParams.changeCallback);
+    JBrowse.View.Track.BlockBased.call(
+        this, config.label, config.key,
+        false, browserParams.changeCallback);
 
     if( !refSeq.end )
         return;
@@ -31,7 +32,7 @@ function ImageTrack(config, refSeq, browserParams) {
     dojo.connect( this.store, 'loadFail',    this, 'loadFail'    );
 }
 
-ImageTrack.prototype = new Track("");
+ImageTrack.prototype = new JBrowse.View.Track.BlockBased("");
 
 /**
  * Request that the track load its data.  The track will call its own
@@ -49,7 +50,7 @@ ImageTrack.prototype.loadSuccess = function(o,url) {
 ImageTrack.prototype.setViewInfo = function(heightUpdate, numBlocks,
                                             trackDiv, labelDiv,
                                             widthPct, widthPx, scale) {
-    Track.prototype.setViewInfo.apply( this, arguments );
+    JBrowse.View.Track.BlockBased.prototype.setViewInfo.apply( this, arguments );
     this.setLabel( this.key );
 };
 
@@ -132,11 +133,11 @@ ImageTrack.prototype.startZoom = function(destScale, destStart, destEnd) {
 };
 
 ImageTrack.prototype.endZoom = function(destScale, destBlockBases) {
-    Track.prototype.clear.apply(this);
+    JBrowse.View.Track.BlockBased.prototype.clear.apply(this);
 };
 
 ImageTrack.prototype.clear = function() {
-    Track.prototype.clear.apply(this);
+    JBrowse.View.Track.BlockBased.prototype.clear.apply(this);
     this.store.clearCache();
 };
 

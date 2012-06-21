@@ -8,10 +8,10 @@ absolutely positioned at the very top of all the tracks.
 @class
 */
 function GridTrack(name) {
-    Track.call(this, name, name, true, function() {});
+    JBrowse.View.Track.BlockBased.call(this, name, name, true, function() {});
 }
 
-GridTrack.prototype = new Track("");
+GridTrack.prototype = new JBrowse.View.Track.BlockBased("");
 
 GridTrack.prototype.fillBlock = function(blockIndex, block,
                                          leftBlock, rightBlock,

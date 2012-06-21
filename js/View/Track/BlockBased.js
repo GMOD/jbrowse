@@ -1,7 +1,7 @@
 // VIEW
-dojo.declare('Track', null,
+dojo.declare('JBrowse.View.Track.BlockBased', null,
 /**
- * @lends Track.prototype
+ * @lends JBrowse.View.Track.BlockBased.prototype
  */
 {
     /**

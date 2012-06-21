@@ -7,13 +7,13 @@
  */
 
 function StaticTrack(name, labelClass, posHeight) {
-    Track.call(this, name, name, true, function() {});
+    JBrowse.View.Track.BlockBased.call(this, name, name, true, function() {});
     this.labelClass = labelClass;
     this.posHeight = posHeight;
     this.height = posHeight;
 }
 
-StaticTrack.prototype = new Track("");
+StaticTrack.prototype = new JBrowse.View.Track.BlockBased("");
 
 StaticTrack.prototype.fillBlock = function(blockIndex, block,
                                            leftBlock, rightBlock,

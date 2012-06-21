@@ -22,7 +22,7 @@
  */
 function SequenceTrack(config, refSeq, browserParams) {
 
-    Track.call( this, config.label, config.key,
+    JBrowse.View.Track.BlockBased.call( this, config.label, config.key,
                 false, browserParams.changeCallback );
 
     this.config = config;
@@ -41,7 +41,7 @@ function SequenceTrack(config, refSeq, browserParams) {
                              });
 }
 
-SequenceTrack.prototype = new Track("");
+SequenceTrack.prototype = new JBrowse.View.Track.BlockBased("");
 SequenceTrack.prototype.load = function() {
     window.setTimeout( dojo.hitch( this, 'setLoaded' ), 10 );
 };
@@ -53,13 +53,13 @@ SequenceTrack.prototype.startZoom = function(destScale, destStart, destEnd) {
 
 SequenceTrack.prototype.endZoom = function(destScale, destBlockBases) {
     if (destScale == this.charWidth) this.show();
-    Track.prototype.clear.apply(this);
+    JBrowse.View.Track.BlockBased.prototype.clear.apply(this);
 };
 
 SequenceTrack.prototype.setViewInfo = function(genomeView, numBlocks,
                                                trackDiv, labelDiv,
                                                widthPct, widthPx, scale) {
-    Track.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
+    JBrowse.View.Track.BlockBased.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
                                              trackDiv, labelDiv,
                                              widthPct, widthPx, scale]);
     if (scale == this.charWidth) {

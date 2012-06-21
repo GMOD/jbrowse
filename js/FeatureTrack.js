@@ -19,7 +19,7 @@ function FeatureTrack( config, refSeq, browserParams ) {
     //                trackPadding: distance in px between tracks
     //                baseUrl: base URL for the URL in config
 
-    Track.call(this, config.label, config.key,
+    JBrowse.View.Track.BlockBased.call(this, config.label, config.key,
                false, browserParams.changeCallback);
     this.fields = {};
     this.refSeq = refSeq;
@@ -49,7 +49,7 @@ function FeatureTrack( config, refSeq, browserParams ) {
     this.config = config;
 }
 
-FeatureTrack.prototype = new Track("");
+FeatureTrack.prototype = new JBrowse.View.Track.BlockBased("");
 
 /**
  * Request that the track load its data.  The track will call its own
@@ -154,7 +154,7 @@ FeatureTrack.prototype.wrapHandler = function(handler) {
 FeatureTrack.prototype.setViewInfo = function(genomeView, numBlocks,
                                               trackDiv, labelDiv,
                                               widthPct, widthPx, scale) {
-    Track.prototype.setViewInfo.apply(this, arguments );
+    JBrowse.View.Track.BlockBased.prototype.setViewInfo.apply(this, arguments );
     this.setLabel(this.key);
 };
 
@@ -283,7 +283,7 @@ FeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
 };
 
 FeatureTrack.prototype.updateStaticElements = function( coords ) {
-    Track.prototype.updateStaticElements.apply( this, arguments );
+    JBrowse.View.Track.BlockBased.prototype.updateStaticElements.apply( this, arguments );
     this.updateYScaleFromViewDimensions( coords );
     this.updateFeatureLabelPositions( coords );
 };
