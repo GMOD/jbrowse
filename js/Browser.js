@@ -518,7 +518,7 @@ Browser.prototype.validateConfig = function() {
  */
 
 Browser.prototype.getConfigAdaptor = function( config_def ) {
-    var adaptor_name = "ConfigAdaptor." + config_def.format;
+    var adaptor_name = "JBrowse.ConfigAdaptor." + config_def.format;
     if( 'version' in config_def )
         adaptor_name += '_v'+config_def.version;
     adaptor_name.replace( /\W/g,'' );
