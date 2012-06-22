@@ -144,7 +144,7 @@ function GenomeView( browser, elem, stripeWidth, refseq, zoomLevel, browserRoot)
     scaleTrackDiv.id = "static_track";
 
     this.scaleTrackDiv = scaleTrackDiv;
-    this.staticTrack = new StaticTrack("static_track", "pos-label", this.posHeight);
+    this.staticTrack = new JBrowse.View.Track.LocationScale("static_track", "pos-label", this.posHeight);
     this.staticTrack.setViewInfo(function(height) {}, this.stripeCount,
                                  this.scaleTrackDiv, undefined, this.stripePercent,
                                  this.stripeWidth, this.pxPerBp,
@@ -209,7 +209,7 @@ function GenomeView( browser, elem, stripeWidth, refseq, zoomLevel, browserRoot)
 
     this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
-    this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
+    this.addOverviewTrack(new JBrowse.View.Track.LocationScale("overview_loc_track", "overview-pos", this.overviewPosHeight));
     this.showFine();
     this.showCoarse();
 
@@ -750,7 +750,7 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
         dojo.forEach(this.uiTracks, function(track) { track.clear(); });
 	this.overviewTrackIterate(removeTrack);
 
-	this.addOverviewTrack(new StaticTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
+	this.addOverviewTrack(new JBrowse.View.Track.LocationScale("overview_loc_track", "overview-pos", this.overviewPosHeight));
         this.sizeInit();
         this.setY(0);
         //this.containerHeight = this.topSpace;
