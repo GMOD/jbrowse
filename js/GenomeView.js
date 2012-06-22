@@ -156,7 +156,7 @@ function GenomeView( browser, elem, stripeWidth, refseq, zoomLevel, browserRoot)
     gridTrackDiv.className = "track";
     gridTrackDiv.style.cssText = "top: 0px; height: 100%;";
     gridTrackDiv.id = "gridtrack";
-    var gridTrack = new GridTrack("gridtrack");
+    var gridTrack = new JBrowse.View.Track.GridLines("gridtrack");
     gridTrack.setViewInfo(function(height) {}, this.stripeCount,
                           gridTrackDiv, undefined, this.stripePercent,
                           this.stripeWidth, this.pxPerBp,
