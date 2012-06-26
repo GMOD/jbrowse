@@ -650,7 +650,7 @@ Browser.prototype.createTrackList = function() {
                                     return null;
                                 }
 
-                                try { eval(storeClass) || dojo.require(storeClass); }
+                                try { dojo.getObject(storeClass) || dojo.require(storeClass); }
                                 catch (x) { console.error('Could not load trackMetaSource class '+storeClass+': ' + x); }
 
                                 return new (eval(storeClass))({ url: url });
