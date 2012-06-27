@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use strict;
 use FindBin qw($RealBin);
-use lib "$RealBin/../lib";
+use lib "$RealBin/../lib/perl5";
 use JBlibs;
 
 use Bio::JBrowse::Cmd::FlatFileToJson;
