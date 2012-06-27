@@ -1,1 +1,0 @@
-tests/perl_tests/
