@@ -70,6 +70,7 @@ superclean: clean
 
 clean:
 	-mv index-debug.html index.html;
+	-mv compat_121-debug.html compat_121.html;
 	rm -rf docs/jsdoc *-min.js release-notes.html;
 
 .PHONY: all clean superclean jbrowse minify-js docs doc wig2png release release-min release-normal release-normal-test release-min-test
