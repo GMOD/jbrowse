@@ -3,6 +3,8 @@ JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
 RELEASE_VERSION = 1.4.1
 RELEASE_NAME = JBrowse-$(RELEASE_VERSION)
+RELEASE_FULL = $(RELEASE_NAME)-full
+RELEASE_MIN  = $(RELEASE_NAME)-min
 
 all: minify-js docs wig2png
 
@@ -13,14 +15,16 @@ release-notes.html: release-notes.txt
 
 release-normal: superclean docs minify-js
 	rm -rf $(RELEASE_NAME)-*/;
-	mkdir $(RELEASE_NAME)-full;
-	-cp -r * $(RELEASE_NAME)-full/;
-	rmdir $(RELEASE_NAME)-full/$(RELEASE_NAME)-full;
-	# date stamp release notes
+	mkdir $(RELEASE_FULL);
+	-cp -r * $(RELEASE_FULL)/;
+	rmdir $(RELEASE_FULL)/$(RELEASE_FULL);
+
+	# date stamp the release notes
 	perl -MDateTime -i -pE 'BEGIN{ $$datestring = DateTime->from_epoch( epoch => time(), time_zone => DateTime::TimeZone->new(name => "local"))->format_cldr(q|yyyy-MM-dd HH:mm:ss VVVV|)}; s/\{\{\$$NEXT\}\}\s*/1.4.1     $$datestring\n/m' $(RELEASE_NAME)-full/release-notes.txt
 	cp JBrowse-*-full/release-notes.txt .;
 	perl -i -pE 'say "{{\$$NEXT}}\n" unless $$x++' release-notes.txt;
-	zip -r $(RELEASE_NAME)-full.zip $(RELEASE_NAME)-full/;
+
+	zip -r $(RELEASE_FULL).zip $(RELEASE_FULL)/;
 
 release-normal-test: release-normal
 	cd JBrowse-*-full;
@@ -28,14 +32,10 @@ release-normal-test: release-normal
 	prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
 release-min: release-normal
-	( \
-	export RELEASE=$(shell basename JBrowse-*/ -full); \
-	export MIN=$$RELEASE-min; \
-	cp -r JBrowse-*/ $$MIN/; \
-	rm -rf $$MIN/index-debug.html $$MIN/js $$MIN/dist.ini $$MIN/docs/jsdoc $$MIN/t $$MIN/tests $$MIN/xt $$MIN/sample_data $$MIN/*META.*; \
-	zip -r $$MIN.zip $$MIN/; \
-        cd $$MIN && ./setup.sh; \
-	)
+	cp -a $(RELEASE_FULL)/ $(RELEASE_MIN)/;
+	rm -rf $(RELEASE_MIN)/index-debug.html $(RELEASE_MIN)/js  $$MIN/docs/jsdoc $$MIN/tests $$MIN/xt $$MIN/sample_data;
+	zip -r $(RELEASE_MIN).zip $(RELEASE_MIN)/;
+	cd $(RELEASE_MIN) && ./setup.sh;
 
 release-min-test: release-min
 	cd JBrowse-*-min;
