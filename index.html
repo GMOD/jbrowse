@@ -10,55 +10,7 @@
     <link rel="stylesheet" type="text/css" href="src/dojo/resources/dojo.css"></link>
     <link rel="stylesheet" type="text/css" href="genome.css"></link>
 
-    <script type="text/javascript" src="src/dojo/dojo.js" djConfig="isDebug: false"></script>
-    <script type="text/javascript" src="src/dojo/jbrowse_dojo.js" ></script>
-    <script type="text/javascript" src="src/dojo/jbrowse_dojo_faceted_tracksel.js" ></script>
-
-<!-- js_source_files -->
-<!-- the files between the "js_source_files" comments get replaced
-     when the JS gets minified (see the minification rule in the Makefile) -->
-    <script type="text/javascript" src="src/JBrowse/Browser.js"></script>
-    <script type="text/javascript" src="src/JBrowse/ConfigAdaptor/JB_json_v1.js"></script>
-    <script type="text/javascript" src="src/JBrowse/ConfigAdaptor/JB_json_v0.js"></script>
-    <script type="text/javascript" src="src/JBrowse/Util.js"></script>
-    <script type="text/javascript" src="src/JBrowse/ArrayRepr.js"></script>
-    <script type="text/javascript" src="src/JBrowse/NCList.js"></script>
-    <script type="text/javascript" src="src/JBrowse/LazyPatricia.js"></script>
-    <script type="text/javascript" src="src/JBrowse/LazyArray.js"></script>
-    <script type="text/javascript" src="src/JBrowse/Track.js"></script>
-    <script type="text/javascript" src="src/JBrowse/SequenceTrack.js"></script>
-    <script type="text/javascript" src="src/JBrowse/Layout.js"></script>
-
-    <script type="text/javascript" src="src/JBrowse/Store.js"></script>
-    <script type="text/javascript" src="src/JBrowse/SeqFeatureStore.js"></script>
-    <script type="text/javascript" src="src/JBrowse/SeqFeatureStore/NCList.js"></script>
-    <script type="text/javascript" src="src/JBrowse/TiledImageStore/Fixed.js"></script>
-    <script type="text/javascript" src="src/JBrowse/SequenceStore/StaticChunked.js"></script>
-
-    <script type="text/javascript" src="src/JBrowse/Model/AutocompleteStore.js"></script>
-    <script type="text/javascript" src="src/JBrowse/Model/TrackMetaData.js"></script>
-    <script type="text/javascript" src="src/JBrowse/Model/modEncodeTrackMetadata.js"></script>
-
-    <script type="text/javascript" src="src/JBrowse/View/TrackList/Null.js"></script>
-    <script type="text/javascript" src="src/JBrowse/View/TrackList/Simple.js"></script>
-    <script type="text/javascript" src="src/JBrowse/View/TrackList/Faceted.js"></script>
-
-    <script type="text/javascript" src="src/JBrowse/Ruler.js"></script>
-    <script type="text/javascript" src="src/JBrowse/Track/YScaleMixin.js"></script>
-
-    <script type="text/javascript" src="src/JBrowse/FeatureTrack.js"></script>
-    <script type="text/javascript" src="src/JBrowse/StaticTrack.js"></script>
-    <script type="text/javascript" src="src/JBrowse/GridTrack.js"></script>
-    <script type="text/javascript" src="src/JBrowse/ImageTrack.js"></script>
-    <script type="text/javascript" src="src/JBrowse/ImageTrack/Wiggle.js"></script>
-
-    <script type="text/javascript" src="src/JBrowse/Animation.js"></script>
-    <script type="text/javascript" src="src/JBrowse/Slider.js"></script>
-    <script type="text/javascript" src="src/JBrowse/Zoomer.js"></script>
-    <script type="text/javascript" src="src/JBrowse/BehaviorManager.js"></script>
-    <script type="text/javascript" src="src/JBrowse/GenomeView.js"></script>
-
-    <script type="text/javascript" src="src/JBrowse/touchJBrowse.js"></script>
+    <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="isDebug: 0, async: 1" ></script>
 
     <script type="text/javascript">
         window.onerror=function(msg){
@@ -66,31 +18,31 @@
         }
     </script>
 
-<!-- js_source_files -->
-
     <script type="text/javascript">
-    /* <![CDATA[ */
-           var queryParams = dojo.queryToObject( window.location.search.slice(1) );
-           var dataRoot = queryParams.data || 'data';
-           var b = new Browser({
-                                   containerID: "GenomeBrowser",
-                                   refSeqs: dataRoot + "/seq/refSeqs.json",
-                                   include: [
-                                     'jbrowse_conf.json',
-                                     dataRoot + "/trackList.json"
-                                   ],
-                                   nameUrl: dataRoot + "/names/root.json",
-                                   defaultTracks: "DNA,gene,mRNA,noncodingRNA",
-                                   queryParams: queryParams,
-                                   location: queryParams.loc,
-                                   forceTracks: queryParams.tracks,
-				   show_nav: queryParams.nav,
-				   show_tracklist: queryParams.tracklist,
-				   show_overview: queryParams.overview,
-				   config_list: queryParams.config
-                               });
-    /* ]]> */
+        require([ 'JBrowse/Browser', 'dojo/io-query' ], function (Browser,ioQuery) {
+                   var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
+                   var dataRoot = queryParams.data || 'data';
+                   var b = new Browser({
+                                           containerID: "GenomeBrowser",
+                                           refSeqs: dataRoot + "/seq/refSeqs.json",
+                                           include: [
+                                             'jbrowse_conf.json',
+                                             dataRoot + "/trackList.json"
+                                           ],
+                                           nameUrl: dataRoot + "/names/root.json",
+                                           defaultTracks: "DNA,gene,mRNA,noncodingRNA",
+                                           queryParams: queryParams,
+                                           location: queryParams.loc,
+                                           forceTracks: queryParams.tracks,
+        				   show_nav: queryParams.nav,
+        				   show_tracklist: queryParams.tracklist,
+        				   show_overview: queryParams.overview,
+        				   config_list: queryParams.config
+                                       });
+
+        });
     </script>
+
   </head>
 
   <body>

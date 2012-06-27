@@ -1,7 +1,15 @@
 // CONTROLLER
-
-var dojof;
 var _gaq = _gaq || [];
+
+define( [
+          'dojo/_base/lang',
+          'dojox/lang/functional',
+          'dijit/layout/ContentPane',
+          'dijit/layout/BorderContainer',
+          'dijit/Dialog',
+          'JBrowse/Util'
+        ],
+        function( lang, dojof, ContentPane, BorderContainer, Dialog, Util) {
 
 /**
  * Construct a new Browser object.
@@ -24,19 +32,6 @@ var _gaq = _gaq || [];
  */
 
 var Browser = function(params) {
-    dojo.require('dojox.lang.functional');
-    dojo.require('dojox.lang.functional.array');
-    dojo.require('dojox.lang.functional.fold');
-    dojof = dojox.lang.functional;
-
-    dojo.require("dojo.dnd.Source");
-    dojo.require("dojo.dnd.Moveable");
-    dojo.require("dojo.dnd.Mover");
-    dojo.require("dojo.dnd.move");
-    dojo.require("dijit.layout.ContentPane");
-    dojo.require("dijit.layout.BorderContainer");
-    dojo.require("dijit.Dialog");
-
     this.deferredFunctions = [];
     this.globalKeyboardShortcuts = {};
     this.isInitialized = false;
@@ -440,31 +435,31 @@ Browser.prototype.loadConfig = function () {
         }
 
         // instantiate the adaptor and load the config
-        var adaptor = this.getConfigAdaptor( config );
-        if( !adaptor ) {
-            this.fatalError( "Could not load config "+config.url+", no configuration adaptor found for config format "+config.format+' version '+config.version );
-            return;
-        }
-
-        adaptor.load({
-            config: config,
-            context: this,
-            onSuccess: function( config_data, request_info ) {
-                config.data = config_data;
-                config.loaded = true;
-                if( ! --configs_remaining )
-                    this.onConfigLoaded();
-                    //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
-            },
-            onFailure: function( error ) {
-                config.loaded = false;
-                this.fatalError( error );
-                if( ! --configs_remaining )
-                    this.onConfigLoaded();
-                    //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
+        this.getConfigAdaptor( config, dojo.hitch(this, function(adaptor) {
+            if( !adaptor ) {
+                this.fatalError( "Could not load config "+config.url+", no configuration adaptor found for config format "+config.format+' version '+config.version );
+                return;
             }
-        });
 
+            adaptor.load({
+                config: config,
+                context: this,
+                onSuccess: function( config_data, request_info ) {
+                    config.data = config_data;
+                    config.loaded = true;
+                    if( ! --configs_remaining )
+                        this.onConfigLoaded();
+                        //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
+                },
+                onFailure: function( error ) {
+                    config.loaded = false;
+                    this.fatalError( error );
+                    if( ! --configs_remaining )
+                        this.onConfigLoaded();
+                        //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
+                }
+            });
+        }));
     }, this);
 };
 
@@ -513,20 +508,19 @@ Browser.prototype.validateConfig = function() {
 /**
  * Instantiate the right config adaptor for a given configuration source.
  * @param {Object} config the configuraiton
+ * @param {Function} callback called with the new config object
  * @returns {Object} the right configuration adaptor to use, or
  * undefined if one could not be found
  */
 
-Browser.prototype.getConfigAdaptor = function( config_def ) {
-    var adaptor_name = "ConfigAdaptor." + config_def.format;
+Browser.prototype.getConfigAdaptor = function( config_def, callback ) {
+    var adaptor_name = "JBrowse/ConfigAdaptor/" + config_def.format;
     if( 'version' in config_def )
         adaptor_name += '_v'+config_def.version;
     adaptor_name.replace( /\W/g,'' );
-    var adaptor_class = eval( adaptor_name );
-    if( ! adaptor_class )
-        return undefined;
-
-    return new adaptor_class( config_def );
+    return require([adaptor_name], function(adaptor_class) {
+        callback( new adaptor_class( config_def ) );
+    });
 };
 
 /**
@@ -649,11 +643,11 @@ Browser.prototype.createTrackList = function() {
                                                    +type+"', cannot load track metadata from URL "+url);
                                     return null;
                                 }
-
-                                try { eval(storeClass) || dojo.require(storeClass); }
-                                catch (x) { console.error('Could not load trackMetaSource class '+storeClass+': ' + x); }
-
-                                return new (eval(storeClass))({ url: url });
+                                var store;
+                                require([storeClass],function(storeClass) {
+                                    store = new storeclass({url: url});
+                                });
+                                return store;
                             },this)
                     })
     );
@@ -1313,6 +1307,11 @@ Browser.prototype._makeLocationAutocompleteStore = function() {
         resultLimit:  conf.resultLimit || 15
     });
 };
+
+return Browser;
+
+});
+
 
 /*
 
