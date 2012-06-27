@@ -60,7 +60,7 @@ minify-js: $(JS_SRCFILES)
 	      if ! which yui-compressor >/dev/null; then \
 	          sudo apt-get install yui-compressor; \
 	      fi; \
-	      cat `perl -nE 'say $$1 if /src="(js\/[^"]+)/' $$HTMLFILE-debug.html` | yui-compressor --type js > jbrowse-$$HTMLFILE-min.js; \
+	      cat `perl -nE 'say $$1 if /src="(src\/JBrowse\/[^"]+)/' $$HTMLFILE-debug.html` | yui-compressor --type js > jbrowse-$$HTMLFILE-min.js; \
 	      perl -pe 'BEGIN { undef $$/; $$minfile = shift; }; s#<!-- js_source_files -->.*<!-- js_source_files -->#    <script type="text/javascript" src="$$minfile"></script>\n#ms' jbrowse-$$HTMLFILE-min.js $$HTMLFILE-debug.html > $$HTMLFILE.html; \
 	  fi \
         done
