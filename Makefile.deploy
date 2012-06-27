@@ -48,7 +48,7 @@ docs: doc
 doc: docs/jsdoc/index.html
 
 docs/jsdoc/index.html: $(JS_SRCFILES)
-	cd extlib/jsdoc_toolkit-*/ && java -jar jsrun.jar app/run.js -a -t=templates/jsdoc -d=../../docs/jsdoc $(JS_SRCFILES)
+	cd src/jsdoc_toolkit-*/ && java -jar jsrun.jar app/run.js -a -t=templates/jsdoc -d=../../docs/jsdoc $(JS_SRCFILES)
 
 jbrowse:
 	$(MAKE) -f $(TWIKI_PLUGIN_MAKEFILE) all
