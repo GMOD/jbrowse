@@ -1,6 +1,8 @@
 JSDIR = $(PWD)/js
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
+RELEASE_VERSION = 1.4.1
+RELEASE_NAME = JBrowse-$(RELEASE_VERSION)
 
 all: minify-js docs wig2png
 
@@ -10,17 +12,20 @@ release-notes.html: release-notes.txt
 	markdown release-notes.txt > $@
 
 release-normal: superclean docs minify-js
-	dzil build;
-	cp Makefile.PL JBrowse-*/;
-	cp JBrowse-*/release-notes.txt .;
-	rm JBrowse-*.tar.gz;
-	mv JBrowse-*/ `basename JBrowse-*`-full/;
-	zip -r `basename JBrowse-*`.zip JBrowse-*/;
+	rm -rf $(RELEASE_NAME)-*/;
+	mkdir $(RELEASE_NAME)-full;
+	-cp -r * $(RELEASE_NAME)-full/;
+	rmdir $(RELEASE_NAME)-full/$(RELEASE_NAME)-full;
+	# date stamp release notes
+	perl -MDateTime -i -pE 'BEGIN{ $$datestring = DateTime->from_epoch( epoch => time(), time_zone => DateTime::TimeZone->new(name => "local"))->format_cldr(q|yyyy-MM-dd HH:mm:ss VVVV|)}; s/\{\{\$$NEXT\}\}\s*/1.4.1     $$datestring\n/m' $(RELEASE_NAME)-full/release-notes.txt
+	cp JBrowse-*-full/release-notes.txt .;
+	perl -i -pE 'say "{{\$$NEXT}}\n" unless $$x++' release-notes.txt;
+	zip -r $(RELEASE_NAME)-full.zip $(RELEASE_NAME)-full/;
 
 release-normal-test: release-normal
 	cd JBrowse-*-full;
 	./setup.sh;
-	prove -lr -j3 tests/perl_tests;
+	prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
 release-min: release-normal
 	( \
