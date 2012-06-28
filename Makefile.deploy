@@ -17,6 +17,7 @@ release-normal: superclean docs minify-js
 	rm -rf $(RELEASE_NAME)-*/;
 	mkdir $(RELEASE_FULL);
 	-cp -r * $(RELEASE_FULL)/;
+	rm -rf $(RELEASE_FULL)/src/*/.git;
 	rmdir $(RELEASE_FULL)/$(RELEASE_FULL);
 
 	# date stamp the release notes
@@ -33,7 +34,7 @@ release-normal-test: release-normal
 
 release-min: release-normal
 	cp -a $(RELEASE_FULL)/ $(RELEASE_MIN)/;
-	rm -rf $(RELEASE_MIN)/index-debug.html $(RELEASE_MIN)/src/JBrowse  $$MIN/docs/jsdoc $$MIN/tests $$MIN/xt $$MIN/sample_data;
+	rm -rf $(RELEASE_MIN)/{index-debug.html,/src/JBrowse,docs/jsdoc,tests,xt,sample_data};
 	zip -r $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 	cd $(RELEASE_MIN) && ./setup.sh;
 
