@@ -1,5 +1,4 @@
-// CONTROLLER
-var _gaq = _gaq || [];
+var _gaq = _gaq || []; // global task queue for Google Analytics
 
 define( [
           'dojo/_base/lang',
@@ -7,9 +6,10 @@ define( [
           'dijit/layout/ContentPane',
           'dijit/layout/BorderContainer',
           'dijit/Dialog',
-          'JBrowse/Util'
+          'JBrowse/Util',
+          'JBrowse/Store/LazyTrie'
         ],
-        function( lang, dojof, ContentPane, BorderContainer, Dialog, Util) {
+        function( lang, dojof, ContentPane, BorderContainer, Dialog, Util, LazyTrie ) {
 
 /**
  * Construct a new Browser object.
