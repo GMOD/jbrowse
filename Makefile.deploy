@@ -1,7 +1,7 @@
 JSDIR = $(PWD)/src/JBrowse
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
-RELEASE_VERSION = 1.4.1
+RELEASE_VERSION = $(shell node -e 'require("fs").readFile("package.json", function(e,d){console.log(JSON.parse(d).version)})')
 RELEASE_NAME = JBrowse-$(RELEASE_VERSION)
 RELEASE_FULL = $(RELEASE_NAME)-full
 RELEASE_MIN  = $(RELEASE_NAME)-min
