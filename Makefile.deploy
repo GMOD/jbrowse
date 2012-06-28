@@ -1,4 +1,4 @@
-JSDIR = $(PWD)/js
+JSDIR = $(PWD)/src/JBrowse
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
 RELEASE_VERSION = 1.4.1
@@ -33,7 +33,7 @@ release-normal-test: release-normal
 
 release-min: release-normal
 	cp -a $(RELEASE_FULL)/ $(RELEASE_MIN)/;
-	rm -rf $(RELEASE_MIN)/index-debug.html $(RELEASE_MIN)/js  $$MIN/docs/jsdoc $$MIN/tests $$MIN/xt $$MIN/sample_data;
+	rm -rf $(RELEASE_MIN)/index-debug.html $(RELEASE_MIN)/src/JBrowse  $$MIN/docs/jsdoc $$MIN/tests $$MIN/xt $$MIN/sample_data;
 	zip -r $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 	cd $(RELEASE_MIN) && ./setup.sh;
 
