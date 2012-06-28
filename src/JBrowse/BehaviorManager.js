@@ -1,4 +1,6 @@
-/**
+define([],
+       function() {
+ /**
  * Stores, applies, and removes a named set of behaviors.  A behavior
  * is a set of event handlers that need to be connected and then
  * disconnected repeatedly as a group.
@@ -108,3 +110,7 @@ BehaviorManager.prototype.removeAll = function( ) {
         this.removeBehaviors( bname );
     }
 };
+
+return BehaviorManager;
+
+});

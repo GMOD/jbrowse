@@ -3,13 +3,15 @@ define([
            'dojo/dnd/move',
            'dojo/dnd/Source',
            'JBrowse/View/Track/LocationScale',
-           'JBrowse/View/Track/GridLines'
+           'JBrowse/View/Track/GridLines',
+           'JBrowse/BehaviorManager'
        ], function(
            Util,
            dndMove,
            dndSource,
            LocationScaleTrack,
-           GridLinesTrack
+           GridLinesTrack,
+           BehaviorManager
        ) {
 
 /**
