@@ -1,15 +1,31 @@
 var _gaq = _gaq || []; // global task queue for Google Analytics
 
 define( [
-          'dojo/_base/lang',
-          'dojox/lang/functional',
-          'dijit/layout/ContentPane',
-          'dijit/layout/BorderContainer',
-          'dijit/Dialog',
-          'JBrowse/Util',
-          'JBrowse/Store/LazyTrie'
+            'dojo/_base/lang',
+            'dojox/lang/functional',
+            'dijit/layout/ContentPane',
+            'dijit/layout/BorderContainer',
+            'dijit/Dialog',
+            'dijit/form/ComboBox',
+            'dijit/form/Button',
+            'JBrowse/Util',
+            'JBrowse/Store/LazyTrie',
+            'JBrowse/Store/Autocomplete',
+            'JBrowse/GenomeView'
         ],
-        function( lang, dojof, ContentPane, BorderContainer, Dialog, Util, LazyTrie ) {
+        function(
+            lang,
+            dojof,
+            dijitContentPane,
+            dijitBorderContainer,
+            dijitDialog,
+            dijitComboBox,
+            dijitButton,
+            Util,
+            LazyTrie,
+            AutocompleteStore,
+            GenomeView
+        ) {
 
 /**
  * Construct a new Browser object.
@@ -157,15 +173,15 @@ Browser.prototype.initView = function() {
     this.viewElem.className = "dragWindow";
     this.container.appendChild( this.viewElem);
 
-    this.containerWidget = new dijit.layout.BorderContainer({
+    this.containerWidget = new dijitBorderContainer({
         liveSplitters: false,
         design: "sidebar",
         gutters: false
     }, this.container);
     var contentWidget =
-        new dijit.layout.ContentPane({region: "top"}, topPane);
+        new dijitContentPane({region: "top"}, topPane);
     this.browserWidget =
-        new dijit.layout.ContentPane({region: "center"}, this.viewElem);
+        new dijitContentPane({region: "center"}, this.viewElem);
 
     //create location trapezoid
     if( this.config.show_nav != 0 ) {
@@ -946,7 +962,7 @@ Browser.prototype.makeHelpDialog = function () {
         ;
     this.container.appendChild( helpdiv );
 
-    var dialog = new dijit.Dialog({
+    var dialog = new dijitDialog({
         "class": 'help_dialog',
         refocus: false,
         draggable: false,
@@ -1241,8 +1257,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     navbox.appendChild(document.createTextNode( four_nbsp ));
 
     // make the location box
-    dojo.require('dijit.form.ComboBox');
-    this.locationBox = new dijit.form.ComboBox(
+    this.locationBox = new dijitComboBox(
         {
             id: "location",
             name: "location",
@@ -1285,8 +1300,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     }).call(this);
 
     // make the 'Go' button'
-    dojo.require('dijit.form.Button');
-    this.goButton = new dijit.form.Button(
+    this.goButton = new dijitButton(
         {
             label: 'Go',
             onClick: dojo.hitch( this, function(event) {
@@ -1301,7 +1315,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
 
 Browser.prototype._makeLocationAutocompleteStore = function() {
     var conf = this.config.autocomplete||{};
-    return new JBrowse.Model.AutocompleteStore({
+    return new AutocompleteStore({
         namesTrie: this.names,
         stopPrefixes: conf.stopPrefixes,
         resultLimit:  conf.resultLimit || 15
