@@ -23,7 +23,7 @@ dojo.declare('JBrowse.Store.BigWig', null,
         args.type = args.type || 'url';
         var data =
             args.type == 'url'  ? new JBrowse.Model.XHRBlob( args.url, args.url_args || {} ) :
-            args.type == 'file' ? new JBrowse.Model.FileBlob( args.file )                   :
+            args.type == 'file' ? new JBrowse.Model.FileBlob( args.file )                    :
                                   false;
         if( !data )
             throw "unknown bigwig source type "+args.type;

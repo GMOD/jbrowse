@@ -1,6 +1,6 @@
 /* Dojo and Dijit stuff */
 
-@import url("jslib/dojox/grid/resources/tundraGrid.css");
+@import url("src/dojox/grid/resources/tundraGrid.css");
 
 .dojoxGrid table {
   margin: 0;
@@ -139,7 +139,7 @@
     padding: 0 6px;
 }
 .tundra #faceted_tracksel .faceted_tracksel_on_off.tab {
-    background: #e9e9e9 url("jslib/dijit/themes/tundra/images/titleBar.png") top repeat-x;
+    background: #e9e9e9 url("src/dijit/themes/tundra/images/titleBar.png") top repeat-x;
     border: 2px solid #666;
 
     border-top-right-radius: 5px;
@@ -242,7 +242,7 @@
 }
 /* styling specifically for the title of the first facet title, which is 'My Tracks' */
 .tundra #faceted_tracksel .dijitAccordionInnerContainer:first-child .facetTitle:after {
-    content: url("jslib/dijit/themes/tundra/images/circleIcon.png");
+    content: url("src/dijit/themes/tundra/images/circleIcon.png");
     margin-left: 7px;
 }
 #faceted_tracksel .dijitAccordionInnerContainer:first-child .facetTitle {

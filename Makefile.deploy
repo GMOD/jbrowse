@@ -1,6 +1,10 @@
-JSDIR = $(PWD)/js
+JSDIR = $(PWD)/src/JBrowse
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
+RELEASE_VERSION = 1.4.1
+RELEASE_NAME = JBrowse-$(RELEASE_VERSION)
+RELEASE_FULL = $(RELEASE_NAME)-full
+RELEASE_MIN  = $(RELEASE_NAME)-min
 
 all: minify-js docs wig2png
 
@@ -10,27 +14,28 @@ release-notes.html: release-notes.txt
 	markdown release-notes.txt > $@
 
 release-normal: superclean docs minify-js
-	dzil build;
-	cp Makefile.PL JBrowse-*/;
-	cp JBrowse-*/release-notes.txt .;
-	rm JBrowse-*.tar.gz;
-	mv JBrowse-*/ `basename JBrowse-*`-full/;
-	zip -r `basename JBrowse-*`.zip JBrowse-*/;
+	rm -rf $(RELEASE_NAME)-*/;
+	mkdir $(RELEASE_FULL);
+	-cp -r * $(RELEASE_FULL)/;
+	rmdir $(RELEASE_FULL)/$(RELEASE_FULL);
+
+	# date stamp the release notes
+	perl -MDateTime -i -pE 'BEGIN{ $$datestring = DateTime->from_epoch( epoch => time(), time_zone => DateTime::TimeZone->new(name => "local"))->format_cldr(q|yyyy-MM-dd HH:mm:ss VVVV|)}; s/\{\{\$$NEXT\}\}\s*/1.4.1     $$datestring\n/m' $(RELEASE_NAME)-full/release-notes.txt
+	cp JBrowse-*-full/release-notes.txt .;
+	perl -i -pE 'say "{{\$$NEXT}}\n" unless $$x++' release-notes.txt;
+
+	zip -r $(RELEASE_FULL).zip $(RELEASE_FULL)/;
 
 release-normal-test: release-normal
 	cd JBrowse-*-full;
 	./setup.sh;
-	prove -lr -j3 tests/perl_tests;
+	prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
 release-min: release-normal
-	( \
-	export RELEASE=$(shell basename JBrowse-*/ -full); \
-	export MIN=$$RELEASE-min; \
-	cp -r JBrowse-*/ $$MIN/; \
-	rm -rf $$MIN/index-debug.html $$MIN/js $$MIN/dist.ini $$MIN/docs/jsdoc $$MIN/t $$MIN/tests $$MIN/xt $$MIN/sample_data $$MIN/*META.*; \
-	zip -r $$MIN.zip $$MIN/; \
-        cd $$MIN && ./setup.sh; \
-	)
+	cp -a $(RELEASE_FULL)/ $(RELEASE_MIN)/;
+	rm -rf $(RELEASE_MIN)/index-debug.html $(RELEASE_MIN)/src/JBrowse  $$MIN/docs/jsdoc $$MIN/tests $$MIN/xt $$MIN/sample_data;
+	zip -r $(RELEASE_MIN).zip $(RELEASE_MIN)/;
+	cd $(RELEASE_MIN) && ./setup.sh;
 
 release-min-test: release-min
 	cd JBrowse-*-min;
@@ -48,7 +53,7 @@ docs: doc
 doc: docs/jsdoc/index.html
 
 docs/jsdoc/index.html: $(JS_SRCFILES)
-	cd jslib/jsdoc_toolkit-*/ && java -jar jsrun.jar app/run.js -a -t=templates/jsdoc -d=../../docs/jsdoc $(JS_SRCFILES)
+	cd src/jsdoc_toolkit-*/ && java -jar jsrun.jar app/run.js -a -t=templates/jsdoc -d=../../docs/jsdoc $(JS_SRCFILES)
 
 jbrowse:
 	$(MAKE) -f $(TWIKI_PLUGIN_MAKEFILE) all
@@ -60,7 +65,7 @@ minify-js: $(JS_SRCFILES)
 	      if ! which yui-compressor >/dev/null; then \
 	          sudo apt-get install yui-compressor; \
 	      fi; \
-	      cat `perl -nE 'say $$1 if /src="(js\/[^"]+)/' $$HTMLFILE-debug.html` | yui-compressor --type js > jbrowse-$$HTMLFILE-min.js; \
+	      cat `perl -nE 'say $$1 if /src="(src\/JBrowse\/[^"]+)/' $$HTMLFILE-debug.html` | yui-compressor --type js > jbrowse-$$HTMLFILE-min.js; \
 	      perl -pe 'BEGIN { undef $$/; $$minfile = shift; }; s#<!-- js_source_files -->.*<!-- js_source_files -->#    <script type="text/javascript" src="$$minfile"></script>\n#ms' jbrowse-$$HTMLFILE-min.js $$HTMLFILE-debug.html > $$HTMLFILE.html; \
 	  fi \
         done
@@ -70,6 +75,7 @@ superclean: clean
 
 clean:
 	-mv index-debug.html index.html;
+	-mv compat_121-debug.html compat_121.html;
 	rm -rf docs/jsdoc *-min.js release-notes.html;
 
 .PHONY: all clean superclean jbrowse minify-js docs doc wig2png release release-min release-normal release-normal-test release-min-test

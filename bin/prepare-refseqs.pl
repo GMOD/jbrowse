@@ -66,7 +66,7 @@ use Pod::Usage;
 use POSIX;
 use Getopt::Long;
 
-use lib "$Bin/../lib";
+use lib "$Bin/../src/perl5";
 use JBlibs;
 
 use JsonGenerator;

@@ -8,8 +8,8 @@ bam-to-json.pl - format data from a BAM file for display by JBrowse
 
   bam-to-json.pl                               \
       --bam <bam file>                         \
+      --trackLabel <track identifier>          \
       [ --out <output directory> ]             \
-      [ --trackLabel <track identifier> ]      \
       [ --key <human-readable track name> ]    \
       [ --cssClass <class> ]                   \
       [ --clientConfig '{ JSON }' ]            \
@@ -64,7 +64,7 @@ use strict;
 use warnings;
 
 use FindBin qw($Bin);
-use lib "$Bin/../lib";
+use lib "$Bin/../src/perl5";
 use JBlibs;
 
 use Pod::Usage;
