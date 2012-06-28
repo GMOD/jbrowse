@@ -1,6 +1,7 @@
-dojo.declare( 'JBrowse.Model.AutocompleteStore', null,
+define(['dojo/_base/declare'],function(declare) {
+return declare( null,
 /**
- * @lends JBrowse.Model.AutocompleteStore
+ * @lends JBrowse.Store.Autocomplete.prototype
  */
 {
     /**
@@ -148,4 +149,5 @@ dojo.declare( 'JBrowse.Model.AutocompleteStore', null,
     getLabelAttributes: function(i) {
         return ['name'];
     }
+});
 });
