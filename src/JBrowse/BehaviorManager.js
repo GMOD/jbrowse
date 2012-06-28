@@ -32,6 +32,7 @@ define([],
  *    (i.e. <code>this</code>) in which each of the behavior
  *    <code>apply()</code> and <code>remove()</code> functions will be
  *    called.
+ * @lends JBrowse.BehaviorManager
  */
 function BehaviorManager( args ) {
     this.context   = args.context;
