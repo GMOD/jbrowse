@@ -1,4 +1,4 @@
-// MODEL
+define(['JBrowse/Util'], function( Util ) {
 
 /*
  * For a JSON array that gets too large to load in one go, this class
@@ -17,7 +17,7 @@
  * <li><code>chunkSize</code> - the size of each array chunk</li>
  * </ul>
  */
-function LazyArray(lazyArrayParams, baseUrl) {
+var LazyArray = function(lazyArrayParams, baseUrl) {
     this.urlTemplate = lazyArrayParams.urlTemplate;
     this.chunkSize = lazyArrayParams.chunkSize;
     this.length = lazyArrayParams.length;
@@ -125,3 +125,6 @@ LazyArray.prototype._processChunk = function(start, end, chunk,
         callback(i + firstIndex, this.chunks[chunk][i], param);
     }
 };
+
+return LazyArray;
+});

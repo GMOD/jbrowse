@@ -1,4 +1,4 @@
-// VIEW
+define([],function(){
 
 /**
  * Code for laying out rectangles, given that layout is also happening
@@ -13,7 +13,7 @@
  * @class
  */
 
-function Contour(top) {
+var Contour = function(top) {
     /*
      * A contour is described by a set of vertical lines of varying heights,
      * like this:
@@ -187,7 +187,7 @@ Contour.prototype.getNextTop = function(fit) {
 /**
  * @class
  */
-function Layout(leftBound, rightBound) {
+var Layout = function(leftBound, rightBound) {
     this.leftBound = leftBound;
     this.rightBound = rightBound;
     // a Layout contains a left contour and a right contour;
@@ -346,6 +346,8 @@ Layout.prototype.addExisting = function(existing) {
                                 existing.height);
 };
 
+return Layout;
+
 /*
 
 Copyright (c) 2007-2010 The Evolutionary Software Foundation
@@ -358,3 +360,4 @@ version 2.1, or at your option, any later version) or the Artistic
 License 2.0.  Refer to LICENSE for the full license text.
 
 */
+});
