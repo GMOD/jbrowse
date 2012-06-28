@@ -1,9 +1,15 @@
 define([
            'JBrowse/Util',
-           'dojo/dnd/move'
+           'dojo/dnd/move',
+           'dojo/dnd/Source',
+           'JBrowse/View/Track/LocationScale',
+           'JBrowse/View/Track/GridLines'
        ], function(
            Util,
-           dndMove
+           dndMove,
+           dndSource,
+           LocationScaleTrack,
+           GridLinesTrack
        ) {
 
 /**
@@ -15,7 +21,7 @@ define([
 var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browserRoot) {
 
     // keep a reference to the main browser object
-    this.browser = browser;  
+    this.browser = browser;
 
     var seqCharSize = this.calculateSequenceCharacterSize( elem );
     this.charWidth = seqCharSize.width;
@@ -152,7 +158,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     scaleTrackDiv.id = "static_track";
 
     this.scaleTrackDiv = scaleTrackDiv;
-    this.staticTrack = new JBrowse.View.Track.LocationScale("static_track", "pos-label", this.posHeight);
+    this.staticTrack = new LocationScaleTrack("static_track", "pos-label", this.posHeight);
     this.staticTrack.setViewInfo(function(height) {}, this.stripeCount,
                                  this.scaleTrackDiv, undefined, this.stripePercent,
                                  this.stripeWidth, this.pxPerBp,
@@ -164,7 +170,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     gridTrackDiv.className = "track";
     gridTrackDiv.style.cssText = "top: 0px; height: 100%;";
     gridTrackDiv.id = "gridtrack";
-    var gridTrack = new JBrowse.View.Track.GridLines("gridtrack");
+    var gridTrack = new GridLinesTrack("gridtrack");
     gridTrack.setViewInfo(function(height) {}, this.stripeCount,
                           gridTrackDiv, undefined, this.stripePercent,
                           this.stripeWidth, this.pxPerBp,
@@ -174,7 +180,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
 
     // accept tracks being dragged into this
     this.trackDndWidget =
-        new dojo.dnd.Source(
+        new dndSource(
             this.trackContainer,
             {
                 accept: ["track"], //accepts only tracks into the viewing field
@@ -217,7 +223,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
 
     this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
-    this.addOverviewTrack(new JBrowse.View.Track.LocationScale("overview_loc_track", "overview-pos", this.overviewPosHeight));
+    this.addOverviewTrack(new LocationScaleTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
     this.showFine();
     this.showCoarse();
 
@@ -758,7 +764,7 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
         dojo.forEach(this.uiTracks, function(track) { track.clear(); });
 	this.overviewTrackIterate(removeTrack);
 
-	this.addOverviewTrack(new JBrowse.View.Track.LocationScale("overview_loc_track", "overview-pos", this.overviewPosHeight));
+	this.addOverviewTrack(new LocationScaleTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
         this.sizeInit();
         this.setY(0);
         //this.containerHeight = this.topSpace;

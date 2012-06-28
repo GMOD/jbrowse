@@ -1,5 +1,6 @@
-// VIEW
-dojo.declare('JBrowse.View.Track.BlockBased', null,
+define( ['dojo/_base/declare'],
+        function( declare ) {
+return declare( null,
 /**
  * @lends JBrowse.View.Track.BlockBased.prototype
  */
@@ -368,6 +369,7 @@ dojo.declare('JBrowse.View.Track.BlockBased', null,
     updateStaticElements: function( /**Object*/ coords ) {
         this.window_info = dojo.mixin( this.window_info || {}, coords );
     }
+});
 });
 
 /*

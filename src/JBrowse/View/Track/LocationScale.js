@@ -1,4 +1,6 @@
-dojo.declare('JBrowse.View.Track.LocationScale', JBrowse.View.Track.BlockBased,
+define(['dojo/_base/declare','JBrowse/View/Track/BlockBased', 'JBrowse/Util'],
+       function( declare, BlockBased, Util ) {
+return declare(BlockBased,
  /**
   * @lends JBrowse.View.Track.LocationScale.prototype
   */
@@ -11,7 +13,7 @@ dojo.declare('JBrowse.View.Track.LocationScale', JBrowse.View.Track.BlockBased,
      */
 
     constructor: function(name, labelClass, posHeight) {
-        JBrowse.View.Track.BlockBased.call(this, name, name, true, function() {});
+        BlockBased.call(this, name, name, true, function() {});
         this.labelClass = labelClass;
         this.posHeight = posHeight;
         this.height = posHeight;
@@ -33,4 +35,5 @@ dojo.declare('JBrowse.View.Track.LocationScale', JBrowse.View.Track.BlockBased,
         block.appendChild(posLabel);
         this.heightUpdate(this.posHeight, blockIndex);
     }
+});
 });

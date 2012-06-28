@@ -1,4 +1,6 @@
-dojo.declare('JBrowse.View.Track.GridLines', JBrowse.View.Track.BlockBased,
+define(['dojo/_base/declare','JBrowse/View/Track/BlockBased'],
+       function( declare, BlockBased ) {
+return dojo.declare( BlockBased,
  /**
   * @lends JBrowse.View.Track.GridLines.prototype
   */
@@ -8,9 +10,10 @@ dojo.declare('JBrowse.View.Track.GridLines', JBrowse.View.Track.BlockBased,
      * This track draws vertical gridlines, which are divs with height
      * 100%, absolutely positioned at the very top of all the tracks.
      * @constructs
+     * @extends JBrowse.View.Track.BlockBased
      */
     constructor: function(name) {
-        JBrowse.View.Track.BlockBased.call(this, name, name, true, function() {});
+        BlockBased.call(this, name, name, true, function() {});
     },
 
     fillBlock: function(blockIndex, block,
@@ -51,4 +54,4 @@ dojo.declare('JBrowse.View.Track.GridLines', JBrowse.View.Track.BlockBased,
 
     }
 });
-
+});
