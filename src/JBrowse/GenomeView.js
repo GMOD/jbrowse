@@ -1,13 +1,21 @@
+define([
+           'JBrowse/Util',
+           'dojo/dnd/move'
+       ], function(
+           Util,
+           dndMove
+       ) {
+
 /**
  * Main view class, shows a scrollable, horizontal view of annotation
  * tracks.  NOTE: All coordinates are interbase.
  * @class
  * @constructor
  */
-function GenomeView( browser, elem, stripeWidth, refseq, zoomLevel, browserRoot) {
+var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browserRoot) {
 
     // keep a reference to the main browser object
-    this.browser = browser;
+    this.browser = browser;  
 
     var seqCharSize = this.calculateSequenceCharacterSize( elem );
     this.charWidth = seqCharSize.width;
@@ -111,7 +119,7 @@ function GenomeView( browser, elem, stripeWidth, refseq, zoomLevel, browserRoot)
     this.locationThumb = document.createElement("div");
     this.locationThumb.className = "locationThumb";
     this.overview.appendChild(this.locationThumb);
-    this.locationThumbMover = new dojo.dnd.move.parentConstrainedMoveable(this.locationThumb, {area: "margin", within: true});
+    this.locationThumbMover = new dndMove.parentConstrainedMoveable(this.locationThumb, {area: "margin", within: true});
 
     if ( dojo.isIE ) {
         // if using IE, we have to do scrolling with CSS
@@ -1608,6 +1616,9 @@ GenomeView.prototype.updateTrackList = function() {
 
     this.updateScroll();
 };
+
+return GenomeView;
+});
 
 /*
 

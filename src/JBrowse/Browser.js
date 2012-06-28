@@ -10,7 +10,8 @@ define( [
             'dijit/form/Button',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
-            'JBrowse/Store/Autocomplete'
+            'JBrowse/Store/Autocomplete',
+            'JBrowse/GenomeView'
         ],
         function(
             lang,
@@ -22,7 +23,8 @@ define( [
             dijitButton,
             Util,
             LazyTrie,
-            AutocompleteStore
+            AutocompleteStore,
+            GenomeView
         ) {
 
 /**
