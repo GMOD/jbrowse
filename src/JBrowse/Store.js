@@ -1,3 +1,6 @@
+define( [],
+        function() {
+
 /**
  * Base class for all JBrowse data stores.
  * @class
@@ -36,3 +39,7 @@ Store.prototype.hideAll = function() {
 
 Store.prototype.changed = function() {
 };
+
+return Store;
+
+});

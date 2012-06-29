@@ -1,100 +1,101 @@
-// MODEL
+define( [],
+        function() {
 
 /**
-    @class
-    @constructor
-
-    @description
-
-    Class for operating on indexed array representations of objects.
-
-    For example, if we have a lot of objects with similar attrbutes, e.g.:
-
-    <pre class="code">
-        [
-            {start: 1, end: 2, strand: -1},
-            {start: 5, end: 6, strand: 1},
-            ...
-        ]
-    </pre>
-
-    @description
-    we can represent them more compactly (e.g., in JSON) something like this:
-
-    <pre class="code">
-        class = ["start", "end", "strand"]
-        [
-            [1, 2, -1],
-            [5, 6, 1],
-            ...
-        ]
-    </pre>
-
-    If we want to represent a few different kinds of objects in our big list,
-    we can have multiple "class" arrays, and tag each object to identify
-    which "class" array describes it.
-
-    For example, if we have a lot of instances of a few types of objects,
-    like this:
-
-    <pre class="code">
-        [
-            {start: 1, end: 2, strand: 1, id: 1},
-            {start: 5, end: 6, strand: 1, id: 2},
-            ...
-            {start: 10, end: 20, chunk: 1},
-            {start: 30, end: 40, chunk: 2},
-            ...
-        ]
-    </pre>
-
-    We could use the first array position to indicate the "class" for the
-    object, like this:
-
-    <pre class="code">
-        classes = [["start", "end", "strand", "id"], ["start", "end", "chunk"]]
-        [
-            [0, 1, 2, 1, 1],
-            [0, 5, 6, 1, 2],
-            ...
-            [1, 10, 20, 1],
-            [1, 30, 40, 1]
-        ]
-    </pre>
-
-    Also, if we occasionally want to add an ad-hoc attribute, we could just
-    stick an optional dictionary onto the end:
-
-    <pre class="code">
-        classes = [["start", "end", "strand", "id"], ["start", "end", "chunk"]]
-        [
-            [0, 1, 2, 1, 1],
-            [0, 5, 6, 1, 2, {foo: 1}]
-        ]
-    </pre>
-
-    Given that individual objects are being represented by arrays, generic
-    code needs some way to differentiate arrays that are meant to be objects
-    from arrays that are actually meant to be arrays.
-    So for each class, we include a dict with <attribute name>: true mappings
-    for each attribute that is meant to be an array.
-
-    Also, in cases where some attribute values are the same for all objects
-    in a particular set, it may be convenient to define a "prototype"
-    with default values for all objects in the set
-
-    In the end, we get something like this:
-
-    <pre class="code">
-        classes=[
-            {'attributes': ['Start', 'End', 'Subfeatures'],
-             'proto': {'Chrom': 'chr1'},
-             'isArrayAttr': {Subfeatures: true}}
-            ]
-    </pre>
-
-    That's what this class facilitates.
-*/
+ * @class JBrowse.Model.ArrayRepr
+ * @constructor
+ *
+ * @description
+ *
+ * Class for operating on indexed array representations of objects.
+ *
+ * For example, if we have a lot of objects with similar attrbutes, e.g.:
+ *
+ * <pre class="code">
+ *     [
+ *         {start: 1, end: 2, strand: -1},
+ *         {start: 5, end: 6, strand: 1},
+ *         ...
+ *     ]
+ * </pre>
+ *
+ * @description
+ * we can represent them more compactly (e.g., in JSON) something like this:
+ *
+ * <pre class="code">
+ *     class = ["start", "end", "strand"]
+ *     [
+ *         [1, 2, -1],
+ *         [5, 6, 1],
+ *         ...
+ *     ]
+ * </pre>
+ *
+ * If we want to represent a few different kinds of objects in our big list,
+ * we can have multiple "class" arrays, and tag each object to identify
+ * which "class" array describes it.
+ *
+ * For example, if we have a lot of instances of a few types of objects,
+ * like this:
+ *
+ * <pre class="code">
+ *     [
+ *         {start: 1, end: 2, strand: 1, id: 1},
+ *         {start: 5, end: 6, strand: 1, id: 2},
+ *         ...
+ *         {start: 10, end: 20, chunk: 1},
+ *         {start: 30, end: 40, chunk: 2},
+ *         ...
+ *     ]
+ * </pre>
+ *
+ * We could use the first array position to indicate the "class" for the
+ * object, like this:
+ *
+ * <pre class="code">
+ *     classes = [["start", "end", "strand", "id"], ["start", "end", "chunk"]]
+ *     [
+ *         [0, 1, 2, 1, 1],
+ *         [0, 5, 6, 1, 2],
+ *         ...
+ *         [1, 10, 20, 1],
+ *         [1, 30, 40, 1]
+ *     ]
+ * </pre>
+ *
+ * Also, if we occasionally want to add an ad-hoc attribute, we could just
+ * stick an optional dictionary onto the end:
+ *
+ * <pre class="code">
+ *     classes = [["start", "end", "strand", "id"], ["start", "end", "chunk"]]
+ *     [
+ *         [0, 1, 2, 1, 1],
+ *         [0, 5, 6, 1, 2, {foo: 1}]
+ *     ]
+ * </pre>
+ *
+ * Given that individual objects are being represented by arrays, generic
+ * code needs some way to differentiate arrays that are meant to be objects
+ * from arrays that are actually meant to be arrays.
+ * So for each class, we include a dict with <attribute name>: true mappings
+ * for each attribute that is meant to be an array.
+ *
+ * Also, in cases where some attribute values are the same for all objects
+ * in a particular set, it may be convenient to define a "prototype"
+ * with default values for all objects in the set
+ *
+ * In the end, we get something like this:
+ *
+ * <pre class="code">
+ *     classes=[
+ *         {'attributes': ['Start', 'End', 'Subfeatures'],
+ *          'proto': {'Chrom': 'chr1'},
+ *          'isArrayAttr': {Subfeatures: true}}
+ *         ]
+ * </pre>
+ *
+ * That's what this class facilitates.
+ */
 function ArrayRepr (classes) {
     this.classes = classes;
     this.fields = [];
@@ -272,6 +273,9 @@ ArrayRepr.prototype._makeAccessors = function() {
     return accessors;
 };
 
+return ArrayRepr;
+
+});
 /*
 
 Copyright (c) 2007-2010 The Evolutionary Software Foundation

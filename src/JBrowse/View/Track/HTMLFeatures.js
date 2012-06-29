@@ -24,7 +24,7 @@ var HTMLFeatures = declare( BlockBased,
         BlockBased.call( this, config.label, config.key,
                          false, args.changeCallback);
         this.fields = {};
-        this.refSeq = refSeq;
+        this.refSeq = args.refSeq;
 
         //number of histogram bins per block
         this.numBins = 25;

@@ -1,15 +1,16 @@
-var SeqFeatureStore; if( !SeqFeatureStore) SeqFeatureStore = function() {};
+define([ 'JBrowse/Store/SeqFeature', 'JBrowse/Util', 'JBrowse/Model/ArrayRepr' ],
+       function( SeqFeatureStore, Util, ArrayRepr ) {
 
 /**
  * Implementation of SeqFeatureStore using nested containment
  * lists held in static files that are lazily fetched from the web
  * server.
  *
- * @class
+ * @class JBrowse.Store.SeqFeature.NCList
  * @extends SeqFeatureStore
  */
 
-SeqFeatureStore.NCList = function(args) {
+var NCList = function(args) {
     SeqFeatureStore.call( this, args );
     if( !args )
         return;
@@ -21,13 +22,13 @@ SeqFeatureStore.NCList = function(args) {
     this.refSeq = args.refSeq;
 };
 
-SeqFeatureStore.NCList.prototype = new SeqFeatureStore();
+NCList.prototype = new SeqFeatureStore();
 
-SeqFeatureStore.NCList.prototype.makeNCList = function() {
+NCList.prototype.makeNCList = function() {
     return new NCList();
 };
 
-SeqFeatureStore.NCList.prototype.load = function() {
+NCList.prototype.load = function() {
     var url = Util.resolveUrl(
                    this.baseUrl,
                    Util.fillTemplate( this.urlTemplates.tracklist,
@@ -47,7 +48,7 @@ SeqFeatureStore.NCList.prototype.load = function() {
 	        });
 };
 
-SeqFeatureStore.NCList.prototype.loadSuccess = function( trackInfo, url ) {
+NCList.prototype.loadSuccess = function( trackInfo, url ) {
 
     this.count = trackInfo.featureCount;
     // average feature density per base
@@ -64,7 +65,7 @@ SeqFeatureStore.NCList.prototype.loadSuccess = function( trackInfo, url ) {
     }
 };
 
-SeqFeatureStore.NCList.prototype.loadNCList = function( trackInfo, url ) {
+NCList.prototype.loadNCList = function( trackInfo, url ) {
     this.attrs = new ArrayRepr(trackInfo.intervals.classes);
     this.nclist.importExisting( trackInfo.intervals.nclist,
                                 this.attrs,
@@ -75,18 +76,18 @@ SeqFeatureStore.NCList.prototype.loadNCList = function( trackInfo, url ) {
 };
 
 
-SeqFeatureStore.NCList.prototype.loadFail = function(trackInfo,url) {
+NCList.prototype.loadFail = function(trackInfo,url) {
     this.empty = true;
     this.setLoaded();
 };
 
 // just forward histogram() and iterate() to our encapsulate nclist
-SeqFeatureStore.NCList.prototype.histogram = function() {
+NCList.prototype.histogram = function() {
     return this.nclist.histogram.apply( this.nclist, arguments );
 };
 
 
-SeqFeatureStore.NCList.prototype.iterate = function( startBase, endBase, origFeatCallback, finishCallback ) {
+NCList.prototype.iterate = function( startBase, endBase, origFeatCallback, finishCallback ) {
     var that = this;
     var accessors    = this.attrs.accessors(),
         /** @inner */
@@ -100,9 +101,13 @@ SeqFeatureStore.NCList.prototype.iterate = function( startBase, endBase, origFea
 
 // helper method to recursively add a .get method to a feature and its
 // subfeatures
-SeqFeatureStore.NCList.prototype._add_getters = function(getter,feature) {
+NCList.prototype._add_getters = function(getter,feature) {
     var that = this;
     feature.get = getter;
     dojo.forEach( feature.get('subfeatures'), function(f) { that._add_getters( getter, f ); } );
 };
+
+return NCList;
+
+});
 

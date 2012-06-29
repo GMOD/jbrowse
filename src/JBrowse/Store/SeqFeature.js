@@ -1,12 +1,13 @@
-//MODEL
+define( ['JBrowse/Store'],
+        function( Store ) {
 
 /**
  * Base class for JBrowse data backends that hold sequences and
  * features.  Some aspects reminiscent of Lincoln Stein's
  * Bio::DB::SeqFeature::Store.
   *
- * @class
- * @extends Store
+ * @class JBrowse.SeqFeatureStore
+ * @extends JBrowse.Store
  * @constructor
  */
 
@@ -20,3 +21,7 @@ function SeqFeatureStore(args) {
 };
 
 SeqFeatureStore.prototype = new Store('');
+
+return SeqFeatureStore;
+
+});
