@@ -1,5 +1,16 @@
-define(['dojo/_base/declare'],
-      function ( declare ){
+define(
+    [
+        'dojo/_base/declare',
+        'dojo/_base/array',
+        'dijit/layout/AccordionContainer',
+        'dijit/layout/AccordionPane',
+        'JBrowse/Util',
+        'dojox/grid/EnhancedGrid',
+        'dojox/grid/enhanced/plugins/IndirectSelection'
+    ],
+    function ( declare, dArray, AccordionContainer, AccordionPane, Util, EnhancedGrid ){
+
+var dojof = Util.dojof;
 return declare( 'JBrowse.View.TrackList.Faceted', null,
    /**
     * @lends JBrowse.View.TrackList.Faceted.prototype
@@ -11,11 +22,6 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
      * @constructs
      */
    constructor: function(args) {
-       dojo.require('dojox.grid.EnhancedGrid');
-       dojo.require('dojox.grid.enhanced.plugins.IndirectSelection');
-       dojo.require('dijit.layout.AccordionContainer');
-       dojo.require('dijit.layout.AccordionPane');
-
        this.browser = args.browser;
        this.tracksActive = {};
        this.config = args;
@@ -300,7 +306,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
     },
 
     renderGrid: function() {
-        var grid = new dojox.grid.EnhancedGrid({
+        var grid = new EnhancedGrid({
                id: 'trackSelectGrid',
                store: this.trackDataStore,
                selectable: true,
@@ -487,7 +493,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
      * Create selection boxes for each searchable facet.
      */
     renderFacetSelectors: function() {
-        var container = new dijit.layout.AccordionContainer({style: 'width: 200px'});
+        var container = new AccordionContainer({style: 'width: 200px'});
 
         var store = this.trackDataStore;
         this.facetSelectors = {};
@@ -532,7 +538,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
      */
     _renderFacetSelector: function( /**String*/ facetName, /**Array[String]*/ values ) {
 
-        var facetPane = new dijit.layout.AccordionPane(
+        var facetPane = new AccordionPane(
             {
                 title: '<div id="facet_title_' + facetName +'" '
                     + 'class="facetTitle">'
@@ -627,7 +633,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
 
         // if all our values are disabled, add 'disabled' to our
         // title's CSS classes
-        if( dojo.every( this.facetSelectors[facetName] ||[], function(sel) {
+        if( dArray.every( this.facetSelectors[facetName] ||[], function(sel) {
                             return dojo.hasClass( sel, 'disabled' );
                         },this)
           ) {

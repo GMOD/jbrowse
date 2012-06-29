@@ -1,5 +1,11 @@
-define(['dojo/_base/declare','dojo/data/util/simpleFetch','JBrowse/Util'],
-       function( declare, simpleFetch, Util ) {
+define(
+    [
+        'dojo/_base/declare',
+        'dojo/_base/array',
+        'dojo/data/util/simpleFetch',
+        'JBrowse/Util'
+    ],
+    function( declare, dArray, simpleFetch, Util ) {
 var dojof = Util.dojof;
 var Meta = declare( null,
 
@@ -626,7 +632,7 @@ var Meta = declare( null,
         return dojo.hitch(this, function(item) {
             return dojo.some( this.facets, function(facetName) {
                        var text = this.getValue( item, facetName );
-                       return dojof.every( wordREs, function(re) { return re.test(text); } );
+                       return dArray.every( wordREs, function(re) { return re.test(text); } );
             },this);
         });
     },

@@ -651,7 +651,7 @@ Browser.prototype.createTrackList = function( callback ) {
                                             'csv'
                                     );
                                     var storeClass = sourceDef['class']
-                                        || { csv: 'dojox.data.CsvStore', json: 'dojox.data.JsonRestStore' }[type];
+                                        || { csv: 'dojox/data/CsvStore', json: 'dojox/data/JsonRestStore' }[type];
                                     if( !storeClass ) {
                                         console.error( "No store class found for type '"
                                                        +type+"', cannot load track metadata from URL "+url);
@@ -659,7 +659,7 @@ Browser.prototype.createTrackList = function( callback ) {
                                     }
                                     var store;
                                     require([storeClass],function(storeClass) {
-                                        store = new storeclass({url: url});
+                                        store = new storeClass({url: url});
                                     });
                                     return store;
                                 },this)
