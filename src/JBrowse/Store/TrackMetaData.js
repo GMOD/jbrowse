@@ -1,6 +1,10 @@
-dojo.declare( 'JBrowse.Model.TrackMetaData', null,
+define(['dojo/_base/declare','dojo/data/util/simpleFetch','JBrowse/Util'],
+       function( declare, simpleFetch, Util ) {
+var dojof = Util.dojof;
+var Meta = declare( null,
+
 /**
- * @lends JBrowse.Model.TrackMetaData.prototype
+ * @lends JBrowse.Store.TrackMetaData.prototype
  */
 {
 
@@ -653,5 +657,6 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         return this.identIndex[id];
     }
 });
-dojo.require('dojo.data.util.simpleFetch');
-dojo.extend( JBrowse.Model.TrackMetaData, dojo.data.util.simpleFetch );
+dojo.extend( Meta, simpleFetch );
+return Meta;
+});

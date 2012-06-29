@@ -1,6 +1,9 @@
 // MISC
-define( [],
-{
+define( [ 'dojox/lang/functional/object',
+          'dojox/lang/functional/fold'
+        ], function() {
+return {
+    dojof: dojox.lang.functional,
     is_ie: navigator.appVersion.indexOf('MSIE') >= 0,
     is_ie6: navigator.appVersion.indexOf('MSIE 6') >= 0,
     addCommas: function(nStr) {
@@ -328,6 +331,7 @@ define( [],
         }
         return crc;
     }
+};
 });
 
 if (!Array.prototype.reduce) {

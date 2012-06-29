@@ -2,8 +2,6 @@ var _gaq = _gaq || []; // global task queue for Google Analytics
 
 define( [
             'dojo/_base/lang',
-            'dojox/lang/functional/object',
-            'dojox/lang/functional/fold',
             'dijit/layout/ContentPane',
             'dijit/layout/BorderContainer',
             'dijit/Dialog',
@@ -17,8 +15,6 @@ define( [
         ],
         function(
             lang,
-            skip1,
-            skip2,
             dijitContentPane,
             dijitBorderContainer,
             dijitDialog,
@@ -31,7 +27,7 @@ define( [
             Touch
         ) {
 
-var dojof = dojox.lang.functional;
+var dojof = Util.dojof;
 
 /**
  * Construct a new Browser object.
@@ -638,8 +634,8 @@ Browser.prototype.createTrackList = function( callback ) {
     var tl_class = this.config.show_tracklist == 0       ? 'Null'                         :
                    (this.config.trackSelector||{}).type  ? this.config.trackSelector.type :
                                                            'Simple';
-    require( ['JBrowse/View/TrackList/'+tl_class ], function( resolved_tl_class ) {
-        var trackMeta =  new JBrowse.Model.TrackMetaData(
+    require( ['JBrowse/View/TrackList/'+tl_class, 'JBrowse/Store/TrackMetaData'], dojo.hitch(this,function( resolved_tl_class, MetaDataStore ) {
+        var trackMeta =  new MetaDataStore(
             dojo.mixin( this.config.trackMetadata || {}, {
                             trackConfigs: this.config.tracks,
                             browser: this,
@@ -700,7 +696,7 @@ Browser.prototype.createTrackList = function( callback ) {
         this.showTracks( origTracklist );
 
         callback();
-    });
+    }));
 };
 
 
