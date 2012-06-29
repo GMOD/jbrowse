@@ -1,11 +1,13 @@
+define( [],
+
 /**
  * Mixin for a track that has a Y-axis scale bar on its left side.
  * Puts the scale div in <code>this.yscale</code>, stores the 'left' CSS pixel
  * offset in <code>this.yscale_left</code>.
- * @class
+ * @lends JBrowse.View.Track.YScaleMixin
  */
-dojo.getObject('JBrowse.View.Track', true ).YScaleMixin = {
 
+{
     /**
      * @param {Number} [min] Optional minimum value for the scale.
      * Defaults to value of <code>this.min</code>.
@@ -52,4 +54,4 @@ dojo.getObject('JBrowse.View.Track', true ).YScaleMixin = {
                 this.yscale.style.left = (this.window_info.x + (this.window_info.width||0)/2) + "px";
         }
     }
-};
+});

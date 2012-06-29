@@ -1512,16 +1512,24 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
       ) {
           return existingTrack.div;
       }
+    var trackClass = {
+        'FeatureTrack':      'JBrowse/View/Track/HTMLFeatures',
+        'ImageTrack':        'JBrowse/View/Track/FixedImage',
+        'ImageTrack.Wiggle': 'JBrowse/View/Track/FixedImage/Wiggle',
+        'SequenceTrack':     'JBrowse/View/Track/Sequence'
+      }[ trackConfig.type ]
+      || trackConfig.type;
 
-    var class_ = eval(
-           { FeatureTrack:        'JBrowse.View.Track.FeatureHTML',
-             'ImageTrack':        'JBrowse.View.Track.FixedImage',
-             'ImageTrack.Wiggle': 'JBrowse.View.Track.FixedImage.Wiggle',
-             'SequenceTrack':     'JBrowse.View.Track.Sequence'
-           }[ trackConfig.type ]
-           || trackConfig.type
-         ),
-    track = new class_(
+    var trackName = trackConfig.label;
+    var trackDiv = dojo.create('div', {
+        className: 'track track_'+trackName,
+        id: "track_" + trackName
+    });
+    trackDiv.trackName = trackName;
+
+    require( [trackClass], dojo.hitch(this,function(trackClass) {
+
+        var track = new trackClass(
             trackConfig,
             this.ref,
             {
@@ -1532,50 +1540,46 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
             });
 
 
-    // tell the track to get its data, since we're going to display it.
-    track.load();
+        // tell the track to get its data, since we're going to display it.
+        track.load();
 
-    var trackDiv = dojo.create('div', {
-        className: 'track track_'+track.name,
-        id: "track_" + track.name
-    });
-    trackDiv.trackName = track.name;
-    trackDiv.track = track;
+        trackDiv.track = track;
 
-    var labelDiv = dojo.create(
-        'div', {
-            className: "track-label dojoDndHandle",
-            id: "label_" + track.name,
-            style: {
-                position: 'absolute',
-                top: 0,
-                left: this.getX() + 'px'
-            }
-        },trackDiv);
-    var closeButton = dojo.create('div',{
-        className: 'track-close-button',
-        onclick: dojo.hitch(this,function(evt){
-            this.browser.publish( '/jbrowse/v1/v/tracks/hide', [[trackConfig]]);
-            evt.stopPropagation();
-        })
-    },labelDiv);
+        var labelDiv = dojo.create(
+            'div', {
+                className: "track-label dojoDndHandle",
+                id: "label_" + trackName,
+                style: {
+                    position: 'absolute',
+                    top: 0,
+                    left: this.getX() + 'px'
+                }
+            },trackDiv);
+        var closeButton = dojo.create('div',{
+            className: 'track-close-button',
+            onclick: dojo.hitch(this,function(evt){
+                this.browser.publish( '/jbrowse/v1/v/tracks/hide', [[trackConfig]]);
+                evt.stopPropagation();
+            })
+        },labelDiv);
 
-    var labelText = dojo.create('span', { className: 'track-label-text' }, labelDiv );
-    this.trackLabels.push(labelDiv);
+        var labelText = dojo.create('span', { className: 'track-label-text' }, labelDiv );
+        this.trackLabels.push(labelDiv);
 
-    var heightUpdate = dojo.hitch( this, 'trackHeightUpdate', track.name );
-    track.setViewInfo(heightUpdate, this.stripeCount, trackDiv, labelDiv,
-		      this.stripePercent, this.stripeWidth,
-                      this.pxPerBp, this.trackPadding);
+        var heightUpdate = dojo.hitch( this, 'trackHeightUpdate', trackName );
+        track.setViewInfo(heightUpdate, this.stripeCount, trackDiv, labelDiv,
+    		      this.stripePercent, this.stripeWidth,
+                          this.pxPerBp, this.trackPadding);
 
-    track.updateStaticElements({
-        x: this.getX(),
-        y: this.getY(),
-        height: this.getHeight(),
-        width: this.getWidth()
-     });
+        track.updateStaticElements({
+            x: this.getX(),
+            y: this.getY(),
+            height: this.getHeight(),
+            width: this.getWidth()
+         });
 
-    this.updateTrackList();
+        this.updateTrackList();
+    }));
 
     return trackDiv;
 };

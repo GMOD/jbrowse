@@ -1,4 +1,8 @@
-dojo.declare('JBrowse.View.Track.FeatureHTML', JBrowse.View.Track.BlockBased,
+define(['dojo/_base/declare','JBrowse/View/Track/BlockBased','JBrowse/View/Track/YScaleMixin'],
+      function( declare, BlockBased, YScaleMixin ) {
+
+var HTMLFeatures = declare( BlockBased,
+
  /**
   * @lends JBrowse.View.Track.HTMLFeatures.prototype
   */
@@ -25,8 +29,8 @@ dojo.declare('JBrowse.View.Track.FeatureHTML', JBrowse.View.Track.BlockBased,
         //                trackPadding: distance in px between tracks
         //                baseUrl: base URL for the URL in config
 
-        JBrowse.View.Track.BlockBased.call(this, config.label, config.key,
-                                           false, browserParams.changeCallback);
+        BlockBased.call( this, config.label, config.key,
+                         false, browserParams.changeCallback);
         this.fields = {};
         this.refSeq = refSeq;
 
@@ -154,7 +158,7 @@ dojo.declare('JBrowse.View.Track.FeatureHTML', JBrowse.View.Track.BlockBased,
     setViewInfo: function(genomeView, numBlocks,
                           trackDiv, labelDiv,
                           widthPct, widthPx, scale) {
-        JBrowse.View.Track.BlockBased.prototype.setViewInfo.apply(this, arguments );
+        BlockBased.prototype.setViewInfo.apply(this, arguments );
         this.setLabel(this.key);
     },
 
@@ -281,7 +285,7 @@ dojo.declare('JBrowse.View.Track.FeatureHTML', JBrowse.View.Track.BlockBased,
     },
 
     updateStaticElements: function( coords ) {
-        JBrowse.View.Track.BlockBased.prototype.updateStaticElements.apply( this, arguments );
+        BlockBased.prototype.updateStaticElements.apply( this, arguments );
         this.updateYScaleFromViewDimensions( coords );
         this.updateFeatureLabelPositions( coords );
     },
@@ -762,7 +766,10 @@ dojo.declare('JBrowse.View.Track.FeatureHTML', JBrowse.View.Track.BlockBased,
 /**
  * Mixin: JBrowse.View.Track.YScaleMixin.
  */
-dojo.extend( JBrowse.View.Track.FeatureHTML, JBrowse.View.Track.YScaleMixin );
+dojo.extend( HTMLFeatures, YScaleMixin );
+
+return HTMLFeatures;
+});
 
 /*
 
