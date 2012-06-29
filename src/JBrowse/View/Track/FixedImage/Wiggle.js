@@ -1,4 +1,11 @@
-dojo.declare('JBrowse.View.Track.FixedImage.Wiggle', JBrowse.View.Track.FixedImage,
+define([
+           'dojo/_base/declare',
+           'JBrowse/View/Track/FixedImage',
+           'JBrowse/View/Track/YScaleMixin'
+       ],
+       function( declare, FixedImage, YScaleMixin ) {
+
+var Wiggle = declare( FixedImage,
  /**
   * @lends JBrowse.View.Track.FixedImage.Wiggle.prototype
   */
@@ -11,21 +18,21 @@ dojo.declare('JBrowse.View.Track.FixedImage.Wiggle', JBrowse.View.Track.FixedIma
      * @constructor
      */
     constructor: function() {
-        JBrowse.View.Track.FixedImage.apply( this, arguments );
+        FixedImage.apply( this, arguments );
     },
 
 
     updateStaticElements: function( coords ) {
-        JBrowse.View.Track.FixedImage.prototype.updateStaticElements.apply( this, arguments );
+        FixedImage.prototype.updateStaticElements.apply( this, arguments );
         this.updateYScaleFromViewDimensions( coords );
     },
 
     loadSuccess: function() {
-        JBrowse.View.Track.FixedImage.prototype.loadSuccess.apply( this, arguments );
+        FixedImage.prototype.loadSuccess.apply( this, arguments );
     },
 
     makeImageLoadHandler: function( img, blockIndex, blockWidth, composeCallback ) {
-        return JBrowse.View.Track.FixedImage.prototype.makeImageLoadHandler.call(
+        return FixedImage.prototype.makeImageLoadHandler.call(
             this,
             img,
             blockIndex,
@@ -54,4 +61,7 @@ dojo.declare('JBrowse.View.Track.FixedImage.Wiggle', JBrowse.View.Track.FixedIma
 /**
  * Mixin: JBrowse.View.Track.YScaleMixin.
  */
-dojo.extend( JBrowse.View.Track.FixedImage.Wiggle, JBrowse.View.Track.YScaleMixin );
+declare.safeMixin( Wiggle.prototype, YScaleMixin );
+
+return Wiggle;
+});

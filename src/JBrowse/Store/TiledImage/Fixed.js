@@ -1,17 +1,19 @@
-/**
- * @namespace
- */
-var TiledImageStore; if( !TiledImageStore ) TiledImageStore = {};
+define(
+    ['JBrowse/Store',
+     'JBrowse/Util'
+    ],
+    function(Store,Util) {
 
 /**
  * Implements a store for image tiles that are only available at a
  * fixed set of sizes and zoom levels.  Most often used with
  * pre-generated image tiles served statically.
+ * @lends JBrowse.Store.TiledImage.Fixed
  * @class
  * @extends Store
  */
 
-TiledImageStore.Fixed = function(args) {
+var Fixed = function(args) {
     Store.call( this, args );
     if( !args )
         return;
@@ -28,9 +30,9 @@ TiledImageStore.Fixed = function(args) {
                );
 };
 
-TiledImageStore.Fixed.prototype = new Store('');
+Fixed.prototype = new Store('');
 
-TiledImageStore.Fixed.prototype.loadSuccess = function(o) {
+Fixed.prototype.loadSuccess = function(o) {
     this.stats = o.stats;
 
     //tileWidth: width, in pixels, of the tiles
@@ -44,7 +46,7 @@ TiledImageStore.Fixed.prototype.loadSuccess = function(o) {
 /**
  * @private
  */
-TiledImageStore.Fixed.prototype._getZoom = function(scale) {
+Fixed.prototype._getZoom = function(scale) {
     var result = this.zoomCache[scale];
     if (result) return result;
 
@@ -68,7 +70,7 @@ TiledImageStore.Fixed.prototype._getZoom = function(scale) {
  * @param {Number} startBase the start of the region (in interbase coordinates)
  * @param {Number} endBase   the end of the region   (in interbase coordinates)
  */
-TiledImageStore.Fixed.prototype.getImages = function( scale, startBase, endBase ) {
+Fixed.prototype.getImages = function( scale, startBase, endBase ) {
 
     var zoom = this._getZoom( scale );
 
@@ -99,20 +101,24 @@ TiledImageStore.Fixed.prototype.getImages = function( scale, startBase, endBase 
  * and tileIndex.
  * @private
  */
-TiledImageStore.Fixed.prototype._imageSource = function( zoom, tileIndex ) {
+Fixed.prototype._imageSource = function( zoom, tileIndex ) {
     return Util.resolveUrl(this.url, zoom.urlPrefix + tileIndex + ".png");
 };
 
 /**
  * Clear the store's cache of image elements.
  */
-TiledImageStore.Fixed.prototype.clearCache = function() {
+Fixed.prototype.clearCache = function() {
     this.tileToImage = {};
 };
 
 /**
  * Remove the given image element from the cache.
  */
-TiledImageStore.Fixed.prototype.unCacheImage = function( /**HTMLImageElement*/ im) {
+Fixed.prototype.unCacheImage = function( /**HTMLImageElement*/ im) {
     delete this.tileToImage[ im.tileNum ];
 };
+
+return Fixed;
+
+});

@@ -1,4 +1,11 @@
-dojo.declare('JBrowse.View.Track.FixedImage', JBrowse.View.Track.BlockBased,
+define(
+    [
+        'dojo/_base/declare',
+        'JBrowse/View/Track/BlockBased'
+    ],
+    function( declare, BlockBased ) {
+
+return declare( BlockBased,
  /**
   * @lends JBrowse.View.Track.FixedImage.prototype
   */
@@ -10,28 +17,23 @@ dojo.declare('JBrowse.View.Track.FixedImage', JBrowse.View.Track.BlockBased,
      * @constructs
      * @extends JBrowse.View.Track.BlockBased
      */
-    constructor: function(config, refSeq, browserParams) {
-        JBrowse.View.Track.BlockBased.call(
+    constructor: function( args ) {
+        var config = args.config;
+        var refSeq = args.refSeq;
+
+        BlockBased.call(
             this, config.label, config.key,
-            false, browserParams.changeCallback);
+            false, args.changeCallback);
 
         if( !refSeq.end )
             return;
 
         this.refSeq = refSeq;
-        this.trackPadding = browserParams.trackPadding || 0;
+        this.trackPadding = args.trackPadding || 0;
 
         this.config = config;
 
-        // TODO: the imagestore should be passed in as an arg to the
-        // constructor, not instantiated here
-        var storeclass = config.backendVersion == 0 ? TiledImageStore.Fixed_v0 : TiledImageStore.Fixed;
-        this.store = new storeclass({
-                                        refSeq: refSeq,
-                                        urlTemplate: config.urlTemplate,
-                                        baseUrl: config.baseUrl,
-                                        track: this
-                                    });
+        this.store = args.store;
         dojo.connect( this.store, 'loadSuccess', this, 'loadSuccess' );
         dojo.connect( this.store, 'loadFail',    this, 'loadFail'    );
     },
@@ -52,7 +54,7 @@ dojo.declare('JBrowse.View.Track.FixedImage', JBrowse.View.Track.BlockBased,
     setViewInfo: function(heightUpdate, numBlocks,
                                                 trackDiv, labelDiv,
                                                 widthPct, widthPx, scale) {
-        JBrowse.View.Track.BlockBased.prototype.setViewInfo.apply( this, arguments );
+        BlockBased.prototype.setViewInfo.apply( this, arguments );
         this.setLabel( this.key );
     },
 
@@ -135,11 +137,11 @@ dojo.declare('JBrowse.View.Track.FixedImage', JBrowse.View.Track.BlockBased,
     },
 
     endZoom: function(destScale, destBlockBases) {
-        JBrowse.View.Track.BlockBased.prototype.clear.apply(this);
+        BlockBased.prototype.clear.apply(this);
     },
 
     clear: function() {
-        JBrowse.View.Track.BlockBased.prototype.clear.apply(this);
+        BlockBased.prototype.clear.apply(this);
         this.store.clearCache();
     },
 
@@ -169,3 +171,4 @@ dojo.declare('JBrowse.View.Track.FixedImage', JBrowse.View.Track.BlockBased,
     }
 });
 
+});
