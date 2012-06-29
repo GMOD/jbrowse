@@ -1527,18 +1527,39 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     });
     trackDiv.trackName = trackName;
 
-    require( [trackClass], dojo.hitch(this,function(trackClass) {
+    // figure out what data store class to use with the track,
+    // applying some defaults if it is not explicit in the
+    // configuration
+    var storeClass =
+        trackConfig.storeClass               ? trackConfig.storeClass :
+        /\/HTMLFeatures$/.test( trackClass ) ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' ) :
+        /\/FixedImage/.test( trackClass )    ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
+        /\/Sequence$/.test( trackClass )     ? 'JBrowse/Store/Sequence/StaticChunked' :
+                                                null;
+    if( ! storeClass ) {
+        console.error( "Unable to find an appropriate data store to use with a "
+                       + trackClass + " track, please explicitly specify a "
+                       + "storeClass in the configuration." );
+        return trackDiv;
+    }
 
-        var track = new trackClass(
-            trackConfig,
-            this.ref,
-            {
+    require( [ trackClass, storeClass ], dojo.hitch(this,function( trackClass, storeClass ) {
+
+        var store = new storeClass({
+            urlTemplate: trackConfig.urlTemplate,
+            baseUrl: trackConfig.baseUrl,
+            refSeq: this.ref
+        });
+
+        var track = new trackClass({
+                refSeq: this.ref,
+                config: trackConfig,
                 changeCallback: dojo.hitch( this, 'showVisibleBlocks', true ),
                 trackPadding: this.trackPadding,
                 charWidth: this.charWidth,
-                seqHeight: this.seqHeight
+                seqHeight: this.seqHeight,
+                store: store
             });
-
 
         // tell the track to get its data, since we're going to display it.
         track.load();

@@ -12,51 +12,38 @@ var HTMLFeatures = declare( BlockBased,
      * A track that draws discrete features using `div` elements.
      * @constructs
      * @extends JBrowse.View.Track.BlockBased
+     * @param args.config {Object} track configuration. Must include key, label
+     * @param args.refSeq {Object} reference sequence object with name, start,
+     *   and end members.
+     * @param args.changeCallback {Function} optional callback for
+     *   when the track's data is loaded and ready
+     * @param args.trackPadding {Number} distance in px between tracks
      */
-    constructor: function( config, refSeq, browserParams ) {
-        //config: object with:
-        //            key:   display text track name
-        //            label: internal track name (no spaces, odd characters)
-        //            baseUrl: base URL to use for resolving relative URLs
-        //                     contained in the track's configuration
-        //            config: configuration info for this track
-        //refSeq: object with:
-        //         name:  refseq name
-        //         start: refseq start
-        //         end:   refseq end
-        //browserParams: object with:
-        //                changeCallback: function to call once JSON is loaded
-        //                trackPadding: distance in px between tracks
-        //                baseUrl: base URL for the URL in config
-
+    constructor: function( args ) {
+        var config = args.config;
         BlockBased.call( this, config.label, config.key,
-                         false, browserParams.changeCallback);
+                         false, args.changeCallback);
         this.fields = {};
         this.refSeq = refSeq;
-
-        // TODO: this featureStore object should eventuallly be
-        // instantiated by Browser and passed into this constructor, not
-        // constructed here.
-        var storeclass = config.backendVersion == 0 ? SeqFeatureStore.NCList_v0 : SeqFeatureStore.NCList;
-        this.featureStore = new storeclass({
-                                               urlTemplate: config.urlTemplate,
-                                               baseUrl: config.baseUrl,
-                                               refSeq: refSeq,
-                                               track: this
-                                           });
-
-        // connect the store and track loadSuccess and loadFailed events
-        // to eachother
-        dojo.connect( this.featureStore, 'loadSuccess', this, 'loadSuccess' );
-        dojo.connect( this.featureStore, 'loadFail',    this, 'loadFail' );
 
         //number of histogram bins per block
         this.numBins = 25;
         this.histLabel = false;
         this.padding = 5;
-        this.trackPadding = browserParams.trackPadding;
+        this.trackPadding = args.trackPadding;
 
         this.config = config;
+
+
+        // this featureStore object should eventually be
+        // instantiated by Browser and passed into this constructor, not
+        // constructed here.
+        this.featureStore = args.store;
+
+        // connect the store and track loadSuccess and loadFailed events
+        // to eachother
+        dojo.connect( this.featureStore, 'loadSuccess', this, 'loadSuccess' );
+        dojo.connect( this.featureStore, 'loadFail',    this, 'loadFail' );
     },
 
     /**
