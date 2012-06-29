@@ -2,7 +2,8 @@ var _gaq = _gaq || []; // global task queue for Google Analytics
 
 define( [
             'dojo/_base/lang',
-            'dojox/lang/functional',
+            'dojox/lang/functional/object',
+            'dojox/lang/functional/fold',
             'dijit/layout/ContentPane',
             'dijit/layout/BorderContainer',
             'dijit/Dialog',
@@ -11,11 +12,13 @@ define( [
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Autocomplete',
-            'JBrowse/GenomeView'
+            'JBrowse/GenomeView',
+            'JBrowse/TouchScreenSupport'
         ],
         function(
             lang,
-            dojof,
+            skip1,
+            skip2,
             dijitContentPane,
             dijitBorderContainer,
             dijitDialog,
@@ -24,8 +27,11 @@ define( [
             Util,
             LazyTrie,
             AutocompleteStore,
-            GenomeView
+            GenomeView,
+            Touch
         ) {
+
+var dojof = dojox.lang.functional;
 
 /**
  * Construct a new Browser object.
@@ -56,9 +62,8 @@ var Browser = function(params) {
 
     this.startTime = Date.now();
 
-    // load our touch device support
-    // TODO: refactor this
-    this.deferredFunctions.push(function() { loadTouch(); });
+    // init our touch device support
+    this.addDeferred( Touch.loadTouch );
 
     // schedule the config load, the first step in the initialization
     // process, to happen when the page is done loading
@@ -197,7 +202,9 @@ Browser.prototype.initView = function() {
     dojo.connect( this.view, "onCoarseMove", this, "onCoarseMove" );
 
     //set up track list
-    var trackListDiv = this.createTrackList();
+    this.createTrackList( function() {
+
+    });
     this.containerWidget.startup();
     dojo.connect( this.browserWidget, "resize", this,      'onResize' );
     dojo.connect( this.browserWidget, "resize", this.view, 'onResize' );
@@ -611,10 +618,10 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
 };
 
 /**
+ * Asynchronously create the track list.
  * @private
  */
-
-Browser.prototype.createTrackList = function() {
+Browser.prototype.createTrackList = function( callback ) {
 
     if( ! this.config.tracks )
         this.config.tracks = [];
@@ -628,76 +635,72 @@ Browser.prototype.createTrackList = function() {
     }
 
     // find the tracklist class to use
-    var resolved_tl_class = function() {
-        var tl_class = this.config.show_tracklist == 0      ? 'Null'                         :
-                       (this.config.trackSelector||{}).type ? this.config.trackSelector.type :
-                                                              'Simple';
-        return JBrowse.View.TrackList[tl_class] || eval( tl_class.replace(/[^\.\w\d]/g, '') ); // sanitize tracklist class for a little security
-    }.call(this);
-    if( !resolved_tl_class ) {
-        console.error("configured trackSelector.type "+tl_class+" not found, falling back to JBrowse.View.TrackList.Simple");
-        resolved_tl_class = JBrowse.View.TrackList.Simple;
-    }
-
-    var trackMeta =  new JBrowse.Model.TrackMetaData(
-        dojo.mixin( this.config.trackMetadata || {}, {
-                        trackConfigs: this.config.tracks,
-                        browser: this,
-                        metadataStores: dojo.map(
-                            (this.config.trackMetadata||{}).sources || [],
-                            function( sourceDef ) {
-                                var url  = sourceDef.url || 'trackMeta.csv';
-                                var type = sourceDef.type || (
-                                        /\.csv$/i.test(url)     ? 'csv'  :
-                                        /\.js(on)?$/i.test(url) ? 'json' :
-                                        'csv'
-                                );
-                                var storeClass = sourceDef['class']
-                                    || { csv: 'dojox.data.CsvStore', json: 'dojox.data.JsonRestStore' }[type];
-                                if( !storeClass ) {
-                                    console.error( "No store class found for type '"
-                                                   +type+"', cannot load track metadata from URL "+url);
-                                    return null;
-                                }
-                                var store;
-                                require([storeClass],function(storeClass) {
-                                    store = new storeclass({url: url});
-                                });
-                                return store;
-                            },this)
-                    })
-    );
+    var tl_class = this.config.show_tracklist == 0       ? 'Null'                         :
+                   (this.config.trackSelector||{}).type  ? this.config.trackSelector.type :
+                                                           'Simple';
+    require( ['JBrowse/View/TrackList/'+tl_class ], function( resolved_tl_class ) {
+        var trackMeta =  new JBrowse.Model.TrackMetaData(
+            dojo.mixin( this.config.trackMetadata || {}, {
+                            trackConfigs: this.config.tracks,
+                            browser: this,
+                            metadataStores: dojo.map(
+                                (this.config.trackMetadata||{}).sources || [],
+                                function( sourceDef ) {
+                                    var url  = sourceDef.url || 'trackMeta.csv';
+                                    var type = sourceDef.type || (
+                                            /\.csv$/i.test(url)     ? 'csv'  :
+                                            /\.js(on)?$/i.test(url) ? 'json' :
+                                            'csv'
+                                    );
+                                    var storeClass = sourceDef['class']
+                                        || { csv: 'dojox.data.CsvStore', json: 'dojox.data.JsonRestStore' }[type];
+                                    if( !storeClass ) {
+                                        console.error( "No store class found for type '"
+                                                       +type+"', cannot load track metadata from URL "+url);
+                                        return null;
+                                    }
+                                    var store;
+                                    require([storeClass],function(storeClass) {
+                                        store = new storeclass({url: url});
+                                    });
+                                    return store;
+                                },this)
+                        })
+        );
 
 
-    // instantiate the tracklist and the track metadata object
-    this.trackListView = new resolved_tl_class(
-        dojo.mixin(
-            dojo.clone( this.config.trackSelector ) || {},
-            {
-                trackConfigs: this.config.tracks,
-                browser: this,
-                trackMetaData: trackMeta
-            }
-        )
-    );
+        // instantiate the tracklist and the track metadata object
+        this.trackListView = new resolved_tl_class(
+            dojo.mixin(
+                dojo.clone( this.config.trackSelector ) || {},
+                {
+                    trackConfigs: this.config.tracks,
+                    browser: this,
+                    trackMetaData: trackMeta
+                }
+            )
+        );
 
-    // bind the 't' key as a global keyboard shortcut
-    this.setGlobalKeyboardShortcut( 't', this.trackListView, 'toggle' );
+        // bind the 't' key as a global keyboard shortcut
+        this.setGlobalKeyboardShortcut( 't', this.trackListView, 'toggle' );
 
-    // listen for track-visibility-changing messages from views
-    this.subscribe( '/jbrowse/v1/v/tracks/hide', this, 'onVisibleTracksChanged' );
-    this.subscribe( '/jbrowse/v1/v/tracks/show', this, 'onVisibleTracksChanged' );
+        // listen for track-visibility-changing messages from views
+        this.subscribe( '/jbrowse/v1/v/tracks/hide', this, 'onVisibleTracksChanged' );
+        this.subscribe( '/jbrowse/v1/v/tracks/show', this, 'onVisibleTracksChanged' );
 
-    // figure out what initial track list we will use:
-    //    from a param passed to our instance, or from a cookie, or
-    //    the passed defaults, or the last-resort default of "DNA"?
-    var origTracklist =
-           this.config.forceTracks
-        || this.cookie( "tracks" )
-        || this.config.defaultTracks
-        || "DNA";
+        // figure out what initial track list we will use:
+        //    from a param passed to our instance, or from a cookie, or
+        //    the passed defaults, or the last-resort default of "DNA"?
+        var origTracklist =
+               this.config.forceTracks
+            || this.cookie( "tracks" )
+            || this.config.defaultTracks
+            || "DNA";
 
-    this.showTracks( origTracklist );
+        this.showTracks( origTracklist );
+
+        callback();
+    });
 };
 
 

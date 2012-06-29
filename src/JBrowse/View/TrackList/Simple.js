@@ -1,4 +1,6 @@
-dojo.declare( 'JBrowse.View.TrackList.Simple', null,
+define(['dojo/_base/declare'],
+       function( declare ) {
+return declare( 'JBrowse.View.TrackList.Simple', null,
 
     /** @lends JBrowse.View.TrackList.Simple.prototype */
     {
@@ -156,4 +158,4 @@ dojo.declare( 'JBrowse.View.TrackList.Simple', null,
     }
 
 });
-
+});

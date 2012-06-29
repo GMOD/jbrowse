@@ -1,4 +1,6 @@
-dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
+define(['dojo/_base/declare'],
+      function ( declare ){
+return declare( 'JBrowse.View.TrackList.Faceted', null,
    /**
     * @lends JBrowse.View.TrackList.Faceted.prototype
     */
@@ -846,4 +848,5 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
     toggle: function() {
         this.shown ? this.hide() : this.show();
     }
+});
 });
