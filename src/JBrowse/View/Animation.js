@@ -1,5 +1,5 @@
-// VIEW
-
+define([],
+      function() {
 /**
  * @class
  */
@@ -61,3 +61,5 @@ Animation.prototype.stop = function() {
     delete this.subject.animation;
     this.callback.call(this.subject,this);
 };
+return Animation;
+});

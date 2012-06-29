@@ -1,5 +1,5 @@
-define(['dojo/_base/declare','JBrowse/View/Track/BlockBased','JBrowse/View/Track/YScaleMixin'],
-      function( declare, BlockBased, YScaleMixin ) {
+define(['dojo/_base/declare','JBrowse/View/Track/BlockBased','JBrowse/View/Track/YScaleMixin', 'JBrowse/Util', 'JBrowse/View/Layout'],
+      function( declare, BlockBased, YScaleMixin, Util, Layout ) {
 
 var HTMLFeatures = declare( BlockBased,
 

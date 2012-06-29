@@ -1,5 +1,5 @@
-define([ 'JBrowse/Store/SeqFeature', 'JBrowse/Util', 'JBrowse/Model/ArrayRepr' ],
-       function( SeqFeatureStore, Util, ArrayRepr ) {
+define([ 'JBrowse/Store/SeqFeature', 'JBrowse/Util', 'JBrowse/Model/ArrayRepr', 'JBrowse/Store/NCList', 'JBrowse/Store/LazyArray' ],
+       function( SeqFeatureStore, Util, ArrayRepr, GenericNCList, LazyArray ) {
 
 /**
  * Implementation of SeqFeatureStore using nested containment
@@ -25,7 +25,7 @@ var NCList = function(args) {
 NCList.prototype = new SeqFeatureStore();
 
 NCList.prototype.makeNCList = function() {
-    return new NCList();
+    return new GenericNCList();
 };
 
 NCList.prototype.load = function() {

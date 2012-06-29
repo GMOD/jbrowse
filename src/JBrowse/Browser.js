@@ -181,8 +181,6 @@ Browser.prototype.initView = function() {
     }, this.container);
     var contentWidget =
         new dijitContentPane({region: "top"}, topPane);
-    this.browserWidget =
-        new dijitContentPane({region: "center"}, this.viewElem);
 
     //create location trapezoid
     if( this.config.show_nav != 0 ) {
@@ -197,49 +195,53 @@ Browser.prototype.initView = function() {
     dojo.connect( this.view, "onFineMove",   this, "onFineMove"   );
     dojo.connect( this.view, "onCoarseMove", this, "onCoarseMove" );
 
-    //set up track list
-    this.createTrackList( function() {
-
-    });
-    this.containerWidget.startup();
+    this.browserWidget =
+        new dijitContentPane({region: "center"}, this.viewElem);
     dojo.connect( this.browserWidget, "resize", this,      'onResize' );
     dojo.connect( this.browserWidget, "resize", this.view, 'onResize' );
-    this.onResize();
-    this.view.onResize();
 
-    //set initial location
-    var oldLocMap = dojo.fromJson( this.cookie('location') ) || {};
-    if (this.config.location) {
-        this.navigateTo(this.config.location);
-    } else if (oldLocMap[this.refSeq.name]) {
-        this.navigateTo( oldLocMap[this.refSeq.name].l || oldLocMap[this.refSeq.name] );
-    } else if (this.config.defaultLocation){
-        this.navigateTo(this.config.defaultLocation);
-    } else {
-        this.navigateTo( Util.assembleLocString({
-                             ref:   this.refSeq.name,
-                             start: 0.4 * ( this.refSeq.start + this.refSeq.end ),
-                             end:   0.6 * ( this.refSeq.start + this.refSeq.end )
-                         })
-                       );
-    }
 
-    // make our global keyboard shortcut handler
-    dojo.connect( document.body, 'onkeypress', this, 'globalKeyHandler' );
+    //set up track list
+//    this.createTrackList( dojo.hitch(this, function(){this.containerWidget.startup();}));
+    this.createTrackList( dojo.hitch( this, function(){
+        this.containerWidget.startup();
+        this.onResize();
+        this.view.onResize();
 
-    // configure our event routing
-    this._initEventRouting();
+        //set initial location
+        var oldLocMap = dojo.fromJson( this.cookie('location') ) || {};
+        if (this.config.location) {
+            this.navigateTo(this.config.location);
+        } else if (oldLocMap[this.refSeq.name]) {
+            this.navigateTo( oldLocMap[this.refSeq.name].l || oldLocMap[this.refSeq.name] );
+        } else if (this.config.defaultLocation){
+            this.navigateTo(this.config.defaultLocation);
+        } else {
+            this.navigateTo( Util.assembleLocString({
+                                 ref:   this.refSeq.name,
+                                 start: 0.4 * ( this.refSeq.start + this.refSeq.end ),
+                                 end:   0.6 * ( this.refSeq.start + this.refSeq.end )
+                             })
+                           );
+        }
 
-    this.isInitialized = true;
+        // make our global keyboard shortcut handler
+        dojo.connect( document.body, 'onkeypress', this, 'globalKeyHandler' );
 
-    //if someone calls methods on this browser object
-    //before it's fully initialized, then we defer
-    //those functions until now
-    dojo.forEach( this.deferredFunctions, function(f) {
-        f.call(this);
-    },this );
+        // configure our event routing
+        this._initEventRouting();
 
-    this.deferredFunctions = [];
+        this.isInitialized = true;
+
+        //if someone calls methods on this browser object
+        //before it's fully initialized, then we defer
+        //those functions until now
+        dojo.forEach( this.deferredFunctions, function(f) {
+            f.call(this);
+        },this );
+
+        this.deferredFunctions = [];
+    }));
 };
 
 /**
@@ -248,12 +250,12 @@ Browser.prototype.initView = function() {
  * @private
  */
 Browser.prototype._initEventRouting = function() {
-    this.subscribe('/jbrowse/v1/v/tracks/hide', this, function() {
-        this.publish( '/jbrowse/v1/c/tracks/hide', arguments );
+    this.subscribe('/jbrowse/v1/v/tracks/hide', this, function( trackConfigs ) {
+        this.publish( '/jbrowse/v1/c/tracks/hide', trackConfigs );
     });
     this.subscribe('/jbrowse/v1/v/tracks/show', this, function( trackConfigs ) {
         this.addRecentlyUsedTracks( dojo.map(trackConfigs, function(c){ return c.label;}) );
-        this.publish( '/jbrowse/v1/c/tracks/show', arguments );
+        this.publish( '/jbrowse/v1/c/tracks/show', trackConfigs );
     });
 };
 

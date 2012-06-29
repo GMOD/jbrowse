@@ -1,5 +1,5 @@
 define(['dojo/_base/declare'], function(declare) {
-    return declare( 'JBrowse.Finisher', {
+    return declare(null, {
         constructor: function(fun) {
             this.fun = fun;
             this.count = 0;

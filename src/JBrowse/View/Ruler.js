@@ -1,3 +1,5 @@
+define( ['dojox/charting/Chart','dojox/charting/axis2d/Default','dojox/charting/plot2d/Bubble'],
+        function(Chart) {
 /**
  * Ruler, with ticks and numbers, drawn with HTML elements. Can be
  * stretched to any length.
@@ -40,8 +42,7 @@ Ruler.prototype.render_to = function( target_div ) {
     target_div.appendChild(container);
 
     try {
-        dojo.require('dojox.charting.Chart2D');
-        var chart1 = new dojox.charting.Chart2D( container, {fill: 'transparent'} );
+        var chart1 = new Chart( container, {fill: 'transparent'} );
         chart1.addAxis( "y", {
                             vertical: true,
                             fill: 'transparent',
@@ -67,3 +68,6 @@ Ruler.prototype.render_to = function( target_div ) {
     }
 
 };
+
+return Ruler;
+});

@@ -4,15 +4,21 @@ define([
            'dojo/dnd/Source',
            'JBrowse/View/Track/LocationScale',
            'JBrowse/View/Track/GridLines',
-           'JBrowse/BehaviorManager'
+           'JBrowse/BehaviorManager',
+           'JBrowse/View/Zoomer',
+           'JBrowse/View/Slider'
        ], function(
            Util,
            dndMove,
            dndSource,
            LocationScaleTrack,
            GridLinesTrack,
-           BehaviorManager
+           BehaviorManager,
+           Zoomer,
+           Slider
        ) {
+
+var dojof = Util.dojof;
 
 /**
  * Main view class, shows a scrollable, horizontal view of annotation

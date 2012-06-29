@@ -1,3 +1,6 @@
+define(['JBrowse/View/Animation'],
+      function(Animation) {
+
 /**
  * @class
  */
@@ -19,3 +22,6 @@ Slider.prototype.step = function(pos) {
                          this.subject.minLeft - this.subject.offset);
     this.subject.setX(newX);
 };
+
+return Slider;
+});

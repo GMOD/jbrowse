@@ -1,5 +1,10 @@
+define([],
+      function() {
+
 /**
- * @class Legacy-compatible NCList for 1.2.1 backward compatibility.
+ * Legacy-compatible NCList for 1.2.1 backward compatibility.
+ * @lends JBrowse.Store.NCList_v0
+ * @constructs
  */
 function NCList_v0() {}
 
@@ -215,3 +220,6 @@ version 2.1, or at your option, any later version) or the Artistic
 License 2.0.  Refer to LICENSE for the full license text.
 
 */
+
+return NCList_v0;
+});

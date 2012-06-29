@@ -1,4 +1,4 @@
-define(['JBrowse/Util'], function( Util ) {
+define(['JBrowse/Util','JBrowse/Finisher'], function( Util, Finisher ) {
 
 /*
  * For a JSON array that gets too large to load in one go, this class

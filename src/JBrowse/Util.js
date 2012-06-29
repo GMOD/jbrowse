@@ -2,7 +2,8 @@
 define( [ 'dojox/lang/functional/object',
           'dojox/lang/functional/fold'
         ], function() {
-return {
+var Util;
+Util = {
     dojof: dojox.lang.functional,
     is_ie: navigator.appVersion.indexOf('MSIE') >= 0,
     is_ie6: navigator.appVersion.indexOf('MSIE 6') >= 0,
@@ -29,9 +30,14 @@ return {
     },
 
     isRightButton: function(e) {
-        if (!e) var e = window.event;
-        if (e.which) return e.which == 3;
-        else if (e.button) return e.button == 2;
+        if (!e)
+            var e = window.event;
+        if (e.which)
+            return e.which == 3;
+        else if (e.button)
+            return e.button == 2;
+        else
+            return false;
     },
 
     getViewportWidth: function() {
@@ -332,6 +338,8 @@ return {
         return crc;
     }
 };
+
+    return Util;
 });
 
 if (!Array.prototype.reduce) {

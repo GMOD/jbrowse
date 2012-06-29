@@ -1,4 +1,5 @@
-// MODEL
+define(['JBrowse/Finisher','JBrowse/Util'],
+      function(Finisher, Util) {
 
 /**
 
@@ -209,3 +210,7 @@ version 2.1, or at your option, any later version) or the Artistic
 License 2.0.  Refer to LICENSE for the full license text.
 
 */
+return NCList;
+
+});
+

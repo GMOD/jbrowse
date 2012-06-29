@@ -1,5 +1,5 @@
-define( [],
-
+define( ['JBrowse/View/Ruler'],
+        function( Ruler ) {
 /**
  * Mixin for a track that has a Y-axis scale bar on its left side.
  * Puts the scale div in <code>this.yscale</code>, stores the 'left' CSS pixel
@@ -7,7 +7,7 @@ define( [],
  * @lends JBrowse.View.Track.YScaleMixin
  */
 
-{
+return {
     /**
      * @param {Number} [min] Optional minimum value for the scale.
      * Defaults to value of <code>this.min</code>.
@@ -54,4 +54,5 @@ define( [],
                 this.yscale.style.left = (this.window_info.x + (this.window_info.width||0)/2) + "px";
         }
     }
+};
 });

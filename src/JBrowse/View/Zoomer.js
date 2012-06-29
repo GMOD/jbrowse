@@ -1,3 +1,6 @@
+define(['JBrowse/View/Animation'],
+      function(Animation) {
+
 /**
  * @class
  */
@@ -35,6 +38,10 @@ Zoomer.prototype.step = function(pos) {
     this.toZoom.style.width = newWidth + "px";
     this.toZoom.style.left = (this.initialLeft + newLeft) + "px";
     var forceRedraw = this.toZoom.offsetTop;
-    this.subject.updateStaticElements({ x: this.initialX - newLeft });
+
+    if( this.subject.updateStaticElements )
+        this.subject.updateStaticElements({ x: this.initialX - newLeft });
 };
 
+return Zoomer;
+});
