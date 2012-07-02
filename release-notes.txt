@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * `bam-to-json.pl` now filters out alignments that are not at least
+   two nucleotides in length.  Thanks to Tristan Lubinski for
+   assistance.
+
  * Introduced limits on the sizes of cookies that can be set,
    preventing '400 bad request' errors (issue #113).
 

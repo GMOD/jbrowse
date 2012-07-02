@@ -168,7 +168,10 @@ foreach my $seqInfo (@refSeqs) {
     my $sorter = NCLSorter->new( 1, 2, sub { $track->addSorted( $_[0]) } );
     #$sorter->addSorted( [ 0, 23, 345, 1 ] );
     $index->fetch( $bam, $tid, $start, $end,
-                   sub { $sorter->addSorted( align2array( $_[0] )) }
+                   sub {
+                       my $a = align2array( $_[0] );
+                       $sorter->addSorted( $a ) if $a->[2] - $a->[1] > 1;
+                   }
                   );
     $sorter->flush;
     $track->finishLoad;
