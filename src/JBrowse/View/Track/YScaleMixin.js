@@ -19,15 +19,16 @@ return {
         var max = args && typeof args.max == 'number' ? args.max : this.max;
 
         // make and style the main container div for the axis
-        var rulerdiv = document.createElement('div');
-        this.yscale = rulerdiv;
-        rulerdiv.className = 'ruler vertical_ruler';
-        dojo.style( rulerdiv, {
-                        height: this.height+'px',
-                        position: 'absolute',
-                        width: "100px",
-                        zIndex: 17
-                    });
+        var rulerdiv = this.yscale =
+            dojo.create('div', {
+                            className: 'ruler vertical_ruler',
+                            style: {
+                                height: this.height+'px',
+                                position: 'absolute',
+                                width: "100px",
+                                zIndex: 17
+                            }
+                        }, this.div );
 
         if( this.window_info && 'x' in this.window_info )
             rulerdiv.style.left = (this.window_info.x + (this.window_info.width||0)/2)+ "px";
@@ -37,7 +38,6 @@ return {
             ( this.config.align == 'top' ? { top: '0px' } :
               { bottom: this.trackPadding+"px"})
         );
-        this.div.appendChild( rulerdiv );
 
         // now make a Ruler and draw the axis in the div we just made
         var ruler = new Ruler({
