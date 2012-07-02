@@ -36,7 +36,7 @@ Ruler.prototype.render_to = function( target_div ) {
                    position: 'absolute',
                    left: "-9px",
                    bottom: "-13px",
-                   width: (40+4*label_digits)+"px",
+                   width: (30+4*label_digits)+"px",
                    height: (target_dims.h+26)+"px"
                });
     target_div.appendChild(container);
