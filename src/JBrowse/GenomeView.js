@@ -1572,6 +1572,8 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
                 seqHeight: this.seqHeight,
                 store: store
             });
+        if( store.setTrack )
+            store.setTrack( track );
 
         // tell the track to get its data, since we're going to display it.
         track.load();

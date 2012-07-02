@@ -1,5 +1,5 @@
-define([],
-      function() {
+define([ 'JBrowse/Finisher', 'JBrowse/Util'],
+      function( Finisher, Util ) {
 
 /**
  * Legacy-compatible NCList for 1.2.1 backward compatibility.
