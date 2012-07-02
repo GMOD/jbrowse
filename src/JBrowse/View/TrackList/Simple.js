@@ -10,6 +10,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
      * @constructs
      */
     constructor: function( args ) {
+        this.browser = args.browser;
 
         // make the track list DOM nodes and widgets
         this.createTrackList( args.browser.container );
@@ -21,8 +22,9 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
         );
 
         // subscribe to drop events for tracks being DND'ed
-        dojo.subscribe( "/dnd/drop",
-                        this,
+        this.browser.subscribe( 
+            "/dnd/drop",
+            dojo.hitch( this,
                         function( source, nodes, copy, target ){
                             if( target !== this.trackListWidget )
                                 return;
@@ -43,17 +45,17 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
                                 return;
 
                             this.dndDrop = true;
-                            dojo.publish( '/jbrowse/v1/v/tracks/hide', [confs] );
+                            this.browser.publish( '/jbrowse/v1/v/tracks/hide', confs );
                             this.dndDrop = false;
                         }
-                      );
+                      ));
 
         // subscribe to commands coming from the the controller
-        dojo.subscribe( '/jbrowse/v1/c/tracks/show',
-                        dojo.hitch( this, 'setTracksActive' ));
+        this.browser.subscribe( '/jbrowse/v1/c/tracks/show',
+                                dojo.hitch( this, 'setTracksActive' ));
             // subscribe to commands coming from the the controller
-        dojo.subscribe( '/jbrowse/v1/c/tracks/hide',
-                        dojo.hitch( this, 'setTracksInactive' ));
+        this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',
+                                dojo.hitch( this, 'setTracksInactive' ));
     },
 
     /** @private */

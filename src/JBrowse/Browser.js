@@ -2,6 +2,7 @@ var _gaq = _gaq || []; // global task queue for Google Analytics
 
 define( [
             'dojo/_base/lang',
+            'dojo/topic',
             'dijit/layout/ContentPane',
             'dijit/layout/BorderContainer',
             'dijit/Dialog',
@@ -15,6 +16,7 @@ define( [
         ],
         function(
             lang,
+            topic,
             dijitContentPane,
             dijitBorderContainer,
             dijitDialog,
@@ -250,13 +252,13 @@ Browser.prototype.initView = function() {
  * @private
  */
 Browser.prototype._initEventRouting = function() {
-    this.subscribe('/jbrowse/v1/v/tracks/hide', this, function( trackConfigs ) {
-        this.publish( '/jbrowse/v1/c/tracks/hide', trackConfigs );
-    });
-    this.subscribe('/jbrowse/v1/v/tracks/show', this, function( trackConfigs ) {
+    this.subscribe('/jbrowse/v1/v/tracks/hide', dojo.hitch( this, function( trackConfigs ) {
+        this.publish( '/jbrowse/v1/c/tracks/hide', arguments );
+    }));
+    this.subscribe('/jbrowse/v1/v/tracks/show', dojo.hitch( this, function( trackConfigs ) {
         this.addRecentlyUsedTracks( dojo.map(trackConfigs, function(c){ return c.label;}) );
-        this.publish( '/jbrowse/v1/c/tracks/show', trackConfigs );
-    });
+        this.publish( '/jbrowse/v1/c/tracks/show', arguments );
+    }));
 };
 
 /**
@@ -368,13 +370,11 @@ Browser.prototype._calculateClientStats = function() {
     return stats;
 };
 
-
-
 Browser.prototype.publish = function() {
-    return dojo.publish.apply( dojo, arguments );
+    return topic.publish.apply( topic, arguments );
 };
 Browser.prototype.subscribe = function() {
-    return dojo.subscribe.apply( dojo, arguments );
+    return topic.subscribe.apply( topic, arguments );
 };
 
 Browser.prototype.onResize = function() {
@@ -683,8 +683,8 @@ Browser.prototype.createTrackList = function( callback ) {
         this.setGlobalKeyboardShortcut( 't', this.trackListView, 'toggle' );
 
         // listen for track-visibility-changing messages from views
-        this.subscribe( '/jbrowse/v1/v/tracks/hide', this, 'onVisibleTracksChanged' );
-        this.subscribe( '/jbrowse/v1/v/tracks/show', this, 'onVisibleTracksChanged' );
+        this.subscribe( '/jbrowse/v1/v/tracks/hide', dojo.hitch( this, 'onVisibleTracksChanged' ));
+        this.subscribe( '/jbrowse/v1/v/tracks/show', dojo.hitch( this, 'onVisibleTracksChanged' ));
 
         // figure out what initial track list we will use:
         //    from a param passed to our instance, or from a cookie, or
@@ -879,8 +879,8 @@ Browser.prototype.showTracks = function( trackNames ) {
     );
 
     // publish some events with the tracks to instruct the views to show them.
-    dojo.publish( '/jbrowse/v1/c/tracks/show', [trackConfs] );
-    dojo.publish( '/jbrowse/v1/n/tracks/visibleChanged' );
+    this.publish( '/jbrowse/v1/c/tracks/show', trackConfs );
+    this.publish( '/jbrowse/v1/n/tracks/visibleChanged' );
 };
 
 /**

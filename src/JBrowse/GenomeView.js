@@ -205,21 +205,27 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
             });
 
     // subscribe to showTracks commands
-    this.browser.subscribe( '/dnd/drop', this, function( source, nodes, copy, target ) {
-        this.updateTrackList();
-        if( target.node === this.trackContainer ) {
-            // if dragging into the trackcontainer, we are showing some tracks
-            // get the configs from the tracks being dragged in
-            var confs = dojo.filter( dojo.map( nodes, function(n) {
-                                         return n.track && n.track.config;
-                                     }),
-                                     function(c) {return c;}
-                                   );
-            this.browser.publish( '/jbrowse/v1/v/tracks/show', [confs] );
-        }
-    });
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/show', this, 'showTracks' );
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide', this, 'hideTracks' );
+    this.browser.subscribe(
+        '/dnd/drop',
+        dojo.hitch(
+            this,
+            function( source, nodes, copy, target ) {
+                this.updateTrackList();
+                if( target.node === this.trackContainer ) {
+                    // if dragging into the trackcontainer, we are showing some tracks
+                    // get the configs from the tracks being dragged in
+                    var confs = dojo.filter( dojo.map( nodes, function(n) {
+                                                           return n.track && n.track.config;
+                                                       }),
+                                             function(c) {return c;}
+                                           );
+                    this.browser.publish( '/jbrowse/v1/v/tracks/show', confs );
+                }
+            }
+        )
+    );
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/show', dojo.hitch( this, 'showTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide', dojo.hitch( this, 'hideTracks' ));
 
     // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
     dojo.forEach(this.uiTracks, function(track) {
@@ -1585,7 +1591,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
         var closeButton = dojo.create('div',{
             className: 'track-close-button',
             onclick: dojo.hitch(this,function(evt){
-                this.browser.publish( '/jbrowse/v1/v/tracks/hide', [[trackConfig]]);
+                this.browser.publish( '/jbrowse/v1/v/tracks/hide', [trackConfig]);
                 evt.stopPropagation();
             })
         },labelDiv);

@@ -55,10 +55,10 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
        this.trackDataStore = args.trackMetaData;
 
        // subscribe to commands coming from the the controller
-       dojo.subscribe( '/jbrowse/v1/c/tracks/show',
+       this.browser.subscribe( '/jbrowse/v1/c/tracks/show',
                        dojo.hitch( this, 'setTracksActive' ));
        // subscribe to commands coming from the the controller
-       dojo.subscribe( '/jbrowse/v1/c/tracks/hide',
+       this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',
                        dojo.hitch( this, 'setTracksInactive' ));
 
        this.renderInitial();
@@ -76,7 +76,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
            dojo.connect( this.dataGrid.selection, 'onSelected', this, function(index) {
                          this._ifNotSuppressed( 'selectionEvents', function() {
                              this._suppress( 'gridUpdate', function() {
-                                 dojo.publish( '/jbrowse/v1/v/tracks/show', [[this.dataGrid.getItem( index ).conf]] );
+                                 this.browser.publish( '/jbrowse/v1/v/tracks/show', [this.dataGrid.getItem( index ).conf] );
                              });
                          });
 
@@ -84,7 +84,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
            dojo.connect( this.dataGrid.selection, 'onDeselected', this, function(index) {
                          this._ifNotSuppressed( 'selectionEvents', function() {
                              this._suppress( 'gridUpdate', function() {
-                                 dojo.publish( '/jbrowse/v1/v/tracks/hide', [[this.dataGrid.getItem( index ).conf]] );
+                                 this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.dataGrid.getItem( index ).conf] );
                              });
                          });
            });
