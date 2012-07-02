@@ -1,4 +1,4 @@
-define( ['dojo/_base/declare'], function( declare ) {
+define( ['dojo/_base/declare','JBrowse/Util'], function( declare, Util ) {
 return declare('JBrowse.Store.LazyTrie', null,
 /**
  * @lends JBrowse.Store.LazyTrie.prototype
