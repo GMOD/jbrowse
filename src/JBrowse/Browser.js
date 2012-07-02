@@ -253,11 +253,11 @@ Browser.prototype.initView = function() {
  */
 Browser.prototype._initEventRouting = function() {
     this.subscribe('/jbrowse/v1/v/tracks/hide', dojo.hitch( this, function( trackConfigs ) {
-        this.publish( '/jbrowse/v1/c/tracks/hide', arguments );
+        this.publish( '/jbrowse/v1/c/tracks/hide', trackConfigs );
     }));
     this.subscribe('/jbrowse/v1/v/tracks/show', dojo.hitch( this, function( trackConfigs ) {
         this.addRecentlyUsedTracks( dojo.map(trackConfigs, function(c){ return c.label;}) );
-        this.publish( '/jbrowse/v1/c/tracks/show', arguments );
+        this.publish( '/jbrowse/v1/c/tracks/show', trackConfigs );
     }));
 };
 
