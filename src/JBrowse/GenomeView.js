@@ -790,7 +790,7 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
         //the highest level if it's close.
         //Exactly how close is arbitrary; 0.2 was chosen to be close
         //enough that people wouldn't notice if we fudged that much.
-        console.log("nudging zoom level from %d to %d", this.pxPerBp, this.zoomLevels[this.zoomLevels.length - 1]);
+        //console.log("nudging zoom level from %d to %d", this.pxPerBp, this.zoomLevels[this.zoomLevels.length - 1]);
         this.pxPerBp = this.zoomLevels[this.zoomLevels.length - 1];
     }
     this.stripeWidth = (this.stripeWidthForZoom(this.curZoom) / this.zoomLevels[this.curZoom]) * this.pxPerBp;
