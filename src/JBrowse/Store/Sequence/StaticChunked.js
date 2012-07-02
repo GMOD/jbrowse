@@ -1,5 +1,6 @@
-/** @namespace */
-var SequenceStore; if( !SequenceStore ) SequenceStore = {};
+define( ['JBrowse/Store',
+        'JBrowse/Util'],
+        function( Store, Util ) {
 
 /**
  * Storage backend for sequences broken up into chunks, stored and
@@ -7,8 +8,9 @@ var SequenceStore; if( !SequenceStore ) SequenceStore = {};
  * @class
  * @constructor
  * @extends Store
+ * @lends JBrowse.Store.Sequence.StaticChunked
  */
-SequenceStore.StaticChunked = function(args) {
+var StaticChunked = function(args) {
     Store.call( this, args );
 
     this.chunkCache  = {};
@@ -18,7 +20,7 @@ SequenceStore.StaticChunked = function(args) {
     this.baseUrl     = args.baseUrl;
 };
 
-SequenceStore.StaticChunked.prototype = new Store('');
+StaticChunked.prototype = new Store('');
 
 /**
  * @param {Object} seq object describing the sequence to operate on
@@ -26,7 +28,7 @@ SequenceStore.StaticChunked.prototype = new Store('');
  * @param {Number} end end coord, in interbase
  * @param {Function} callback function that takes ( start, end, seq )
  */
-SequenceStore.StaticChunked.prototype.getRange = function( seq, start, end, callback) {
+StaticChunked.prototype.getRange = function( seq, start, end, callback) {
 
     var seqname    = seq.name;
     var chunkSize  = seq.seqChunkSize;
@@ -110,3 +112,7 @@ SequenceStore.StaticChunked.prototype.getRange = function( seq, start, end, call
         }
     }
 };
+
+
+return StaticChunked;
+});

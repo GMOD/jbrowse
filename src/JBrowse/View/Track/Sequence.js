@@ -1,4 +1,10 @@
-dojo.declare('JBrowse.View.Track.Sequence', JBrowse.View.Track.BlockBased,
+define( [
+            'dojo/_base/declare',
+            'JBrowse/View/Track/BlockBased'
+        ],
+        function( declare, BlockBased ) {
+
+return declare( BlockBased,
  /**
   * @lends JBrowse.View.Track.Sequence.prototype
   */
@@ -7,42 +13,25 @@ dojo.declare('JBrowse.View.Track.Sequence', JBrowse.View.Track.BlockBased,
     /**
      * Track to display the underlying reference sequence, when zoomed in
      * far enough.
+     * 
      * @constructs
      * @extends JBrowse.View.Track.BlockBased
-     * @param {Object} config
-     *   key:   display text track name
-     *   label: internal track name (no spaces or odd characters)
-     *   urlTemplate: url of directory in which to find the sequence chunks
-     *   chunkSize: size of sequence chunks, in characters
-     * @param {Object} refSeq
-     *  start: refseq start
-     *  end:   refseq end
-     *  name:  refseq name
-     * @param {Object} browserParams
-     *  changeCallback: function to call once JSON is loaded
-     *  trackPadding: distance in px between tracks
-     *  charWidth: width, in pixels, of sequence base characters
-     *  seqHeight: height, in pixels, of sequence elements
      */
-    constructor: function(config, refSeq, browserParams) {
+    constructor: function( args ) {
+        var config = args.config;
+        var refSeq = args.refSeq;
 
-        JBrowse.View.Track.BlockBased.call( this, config.label, config.key,
-                                            false, browserParams.changeCallback );
+        BlockBased.call( this, config.label, config.key,
+                                            false, args.changeCallback );
 
         this.config = config;
 
-        this.charWidth = browserParams.charWidth;
-        this.seqHeight = browserParams.seqHeight;
+        this.charWidth = args.charWidth;
+        this.seqHeight = args.seqHeight;
 
         this.refSeq = refSeq;
 
-        // TODO: this should be passed into the constructor instead of
-        // being instantiated here
-        this.sequenceStore = new SequenceStore.StaticChunked({
-                                                                 baseUrl: config.baseUrl,
-                                                                 urlTemplate: config.urlTemplate,
-                                                                 compress: config.compress
-                                                             });
+        this.sequenceStore = args.store;
     },
 
     load: function() {
@@ -56,13 +45,13 @@ dojo.declare('JBrowse.View.Track.Sequence', JBrowse.View.Track.BlockBased,
 
     endZoom: function(destScale, destBlockBases) {
         if (destScale == this.charWidth) this.show();
-        JBrowse.View.Track.BlockBased.prototype.clear.apply(this);
+        BlockBased.prototype.clear.apply(this);
     },
 
     setViewInfo:function(genomeView, numBlocks,
                                                    trackDiv, labelDiv,
                                                    widthPct, widthPx, scale) {
-        JBrowse.View.Track.BlockBased.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
+        BlockBased.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
                                                                          trackDiv, labelDiv,
                                                                          widthPct, widthPx, scale]);
         if (scale == this.charWidth) {
@@ -143,4 +132,6 @@ dojo.declare('JBrowse.View.Track.Sequence', JBrowse.View.Track.BlockBased,
         container.appendChild( document.createTextNode( seq ) );
         return container;
     }
+});
+
 });
