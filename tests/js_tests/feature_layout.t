@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var t = require('./test_common');
+var t = require('./tap_common');
 t.require(['JBrowse/View/Layout'],function(Layout) {
 t.test( "layout basic stuff works", function(t) {
     t.ok( Layout, 'got the Layout constructor' );
