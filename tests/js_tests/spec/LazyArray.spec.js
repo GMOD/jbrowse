@@ -1,10 +1,12 @@
+require(['JBrowse/Store/LazyArray'], function( LazyArray ) {
+
 describe("LazyArray",
 function () {
     var la;
 
     beforeEach(function() {
         la = new LazyArray({
-                               urlTemplate: "lazyarray-{chunk}.json",
+                               urlTemplate: "../data/lazyarray-{chunk}.json",
                                length: 12,
                                chunkSize: 5
                            });
@@ -76,5 +78,7 @@ function () {
                      [5, "five", undefined]);
              });
     });
+
+});
 
 });

@@ -1,4 +1,4 @@
-define(['JBrowse/Util','JBrowse/Finisher'], function( Util, Finisher ) {
+define(['JBrowse/Util','JBrowse/Finisher','dojo/_base/xhr'], function( Util, Finisher, xhr ) {
 
 /*
  * For a JSON array that gets too large to load in one go, this class
@@ -79,11 +79,11 @@ LazyArray.prototype.range = function(start, end, callback, postFun, param) {
             } else {
                 // start loading chunk
                 this.toProcess[chunk] = [toProcessInfo];
-                var url = this.urlTemplate.replace(/\{Chunk\}/g, chunk);
+                var url = this.urlTemplate.replace(/\{Chunk\}/gi, chunk);
                 var thisObj = this;
                 dojo.xhrGet(
                     {
-                        url: Util.resolveUrl(this.baseUrl, url),
+                        url: this.baseUrl ? Util.resolveUrl(this.baseUrl, url) : url,
                         handleAs: "json",
                         load: this._makeLoadFun(chunk),
                         error: function() { finish.dec(); }
