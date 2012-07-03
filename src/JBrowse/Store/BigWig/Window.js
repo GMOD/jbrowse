@@ -1,6 +1,10 @@
-dojo.declare('JBrowse.Store.BigWig.Window', null,
+define( [
+            'dojo/_base/declare'
+        ],
+        function( declare ) {
+return declare( null,
  /**
-  * @lends JBrowse.Store.BigWig
+  * @lends JBrowse.Store.BigWig.Window
   */
 {
 
@@ -735,4 +739,6 @@ dojo.declare('JBrowse.Store.BigWig.Window', null,
 
         cirFobRecur([thisB.cirTreeOffset + 48], 1);
     }
+});
+
 });

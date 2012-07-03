@@ -1,4 +1,8 @@
-dojo.declare('JBrowse.Model.XHRBlob', JBrowse.Model.FileBlob,
+define( [ 'dojo/_base/declare',
+          'JBrowse/Model/FileBlob'
+        ],
+        function( declare, FileBlob ) {
+var XHRBlob = declare( FileBlob,
 /**
  * @lends JBrowse.Model.XHRBlob.prototype
  */
@@ -89,4 +93,6 @@ dojo.declare('JBrowse.Model.XHRBlob', JBrowse.Model.FileBlob,
         }
         req.send('');
     }
+});
+return XHRBlob;
 });

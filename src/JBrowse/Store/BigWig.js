@@ -1,4 +1,9 @@
-dojo.declare('JBrowse.Store.BigWig', null,
+define( [
+            'dojo/_base/declare',
+            'JBrowse/Store/BigWig/Window'
+        ],
+        function( declare, Window, FileBlob, XHRBlob ) {
+return declare( null,
  /**
   * @lends JBrowse.Store.BigWig
   */
@@ -19,17 +24,9 @@ dojo.declare('JBrowse.Store.BigWig', null,
      * @constructs
      */
     constructor: function( args ) {
-        args.name = args.name || 'anonymous';
-        args.type = args.type || 'url';
-        var data =
-            args.type == 'url'  ? new JBrowse.Model.XHRBlob( args.url, args.url_args || {} ) :
-            args.type == 'file' ? new JBrowse.Model.FileBlob( args.file )                    :
-                                  false;
-        if( !data )
-            throw "unknown bigwig source type "+args.type;
-
+        var data = args.blob;
         var callback = args.callback || function(){};
-        var name = args.name;
+        var name = args.name || 'anonymous';
 
         var bwg = this;
         bwg.data = data;
@@ -162,7 +159,7 @@ dojo.declare('JBrowse.Store.BigWig', null,
             if (nzl) {
                 cirLen = this.zoomLevels[0].dataOffset - this.unzoomedIndexOffset;
             }
-            this.unzoomedView = new JBrowse.Store.BigWig.Window( this, this.unzoomedIndexOffset, cirLen, false );
+            this.unzoomedView = new Window( this, this.unzoomedIndexOffset, cirLen, false );
         }
         return this.unzoomedView;
     },
@@ -170,8 +167,10 @@ dojo.declare('JBrowse.Store.BigWig', null,
     getZoomedView: function(z) {
         var zh = this.zoomLevels[z];
         if (!zh.view) {
-            zh.view = new JBrowse.Store.BigWig.Window( this, zh.indexOffset, this.zoomLevels[z + 1].dataOffset - zh.indexOffset, true );
+            zh.view = new Window( this, zh.indexOffset, this.zoomLevels[z + 1].dataOffset - zh.indexOffset, true );
         }
         return zh.view;
     }
+});
+
 });

@@ -1,4 +1,6 @@
-dojo.declare('JBrowse.Model.FileBlob', null,
+define([ 'dojo/_base/declare', 'dojo/has'],
+       function( declare, has ) {
+var FileBlob = declare( null,
 /**
  * @lends JBrowse.Model.FileBlob.prototype
  */
@@ -43,4 +45,7 @@ dojo.declare('JBrowse.Model.FileBlob', null,
         }
         return ba.buffer;
     }
+
+});
+return FileBlob;
 });
