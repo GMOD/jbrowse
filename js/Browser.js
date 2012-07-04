@@ -37,6 +37,8 @@ var Browser = function(params) {
     dojo.require("dijit.layout.BorderContainer");
     dojo.require("dijit.Dialog");
 
+    dojo.require("dijit.Menu"); //AP
+
     this.deferredFunctions = [];
     this.globalKeyboardShortcuts = {};
     this.isInitialized = false;
