@@ -10,3 +10,6 @@
 [submodule "src/util"]
 	path = src/util
 	url = https://github.com/dojo/util.git
+[submodule "src/jszlib"]
+	path = src/jszlib
+	url = git://github.com/rbuels/jszlib.git

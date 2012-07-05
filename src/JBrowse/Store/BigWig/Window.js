@@ -2,9 +2,13 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/Deferred',
-            'JBrowse/Model/Range'
+            'JBrowse/Model/Range',
+            'jszlib/js/inflate'
         ],
-        function( declare, lang, Deferred, Range ) {
+        function( declare, lang, Deferred, Range, inflate_buffer ) {
+function dlog() {
+    console.log.apply(console,arguments);
+};
 return declare( null,
  /**
   * @lends JBrowse.Store.BigWig.Window
@@ -243,18 +247,18 @@ return declare( null,
 
                                 // dlog('processing bigwig block, type=' + blockType + '; count=' + itemCount);
 
-                                if (blockType == BIG_WIG_TYPE_FSTEP) {
+                                if (blockType == thisB.BIG_WIG_TYPE_FSTEP) {
                                     for (var i = 0; i < itemCount; ++i) {
                                         var score = fa[i + 6];
                                         maybeCreateFeature(blockStart + (i*itemStep), blockStart + (i*itemStep) + itemSpan, {score: score});
                                     }
-                                } else if (blockType == BIG_WIG_TYPE_VSTEP) {
+                                } else if (blockType == thisB.BIG_WIG_TYPE_VSTEP) {
                                     for (var i = 0; i < itemCount; ++i) {
                                         var start = la[(i*2) + 6];
                                         var score = fa[(i*2) + 7];
                                         maybeCreateFeature(start, start + itemSpan, {score: score});
                                     }
-                                } else if (blockType == BIG_WIG_TYPE_GRAPH) {
+                                } else if (blockType == thisB.BIG_WIG_TYPE_GRAPH) {
                                     for (var i = 0; i < itemCount; ++i) {
                                         var start = la[(i*3) + 6] + 1;
                                         var end   = la[(i*3) + 7];
@@ -388,7 +392,7 @@ return declare( null,
                                                                                       var data;
                                                                                       if (thisB.bwg.uncompressBufSize > 0) {
                                                                                           // var beforeInf = Date.now();
-                                                                                          data = jszlib_inflate_buffer(result, offset + 2, fb.size - 2);
+                                                                                          data = inflate_buffer(result, offset + 2, fb.size - 2);
                                                                                           // var afterInf = Date.now();
                                                                                           // dlog('inflate: ' + (afterInf - beforeInf) + 'ms');
                                                                                       } else {
@@ -736,7 +740,7 @@ return declare( null,
                                                var data;
                                                if (thisB.bwg.uncompressBufSize > 0) {
                                                    // var beforeInf = Date.now()
-                                                   data = jszlib_inflate_buffer(result, offset + 2, fb.size - 2);
+                                                   data = inflate_buffer(result, offset + 2, fb.size - 2);
                                                    // var afterInf = Date.now();
                                                    // dlog('inflate: ' + (afterInf - beforeInf) + 'ms');
                                                } else {
