@@ -1,6 +1,6 @@
 require(['JBrowse/Store/LazyArray'], function( LazyArray ) {
 
-describe("LazyArray",
+describe("LazyArray with test data",
 function () {
     var la;
 
