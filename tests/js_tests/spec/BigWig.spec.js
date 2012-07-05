@@ -5,5 +5,31 @@ require(['JBrowse/Store/BigWig','JBrowse/Model/XHRBlob'], function( BigWig, XHRB
         });
 
         it('constructs', function(){ expect(b).toBeTruthy(); });
+
+        it('returns empty array of features for a nonexistent chrom', function() {
+            var v = b.getUnzoomedView();
+            var wigData;
+            v.readWigData( 'nonexistent', 1, 10000, function(features) {
+                wigData = features;
+            });
+            waitsFor(function() { return wigData; });
+            runs(function() {
+                expect(wigData.length).toEqual(0);
+            });
+        });
+
+        it('reads some data unzoomed', function() {
+            var v = b.getUnzoomedView();
+            var wigData;
+            v.readWigData( 'SL2.40ch01', 1, 10000, function(features) {
+                wigData = features;
+            });
+            waitsFor(function() { return wigData; },1000);
+            runs(function() {
+                expect(wigData.length).toBeGreaterThan(0);
+                console.log( wigData );
+            });
+        });
+
     });
 });
