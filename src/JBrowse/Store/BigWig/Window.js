@@ -1,8 +1,9 @@
 define( [
             'dojo/_base/declare',
+            'dojo/_base/lang',
             'JBrowse/Model/Range'
         ],
-        function( declare, Range ) {
+        function( declare, lang, Range ) {
 return declare( null,
  /**
   * @lends JBrowse.Store.BigWig.Window
@@ -26,29 +27,53 @@ return declare( null,
     BED_COLOR_REGEXP: /^[0-9]+,[0-9]+,[0-9]+/,
 
     readWigData: function(chrName, min, max, callback) {
-        var chr = this.bwg.chromsToIDs[chrName];
-        if (chr === undefined) {
-            // Not an error because some .bwgs won't have data for all chromosomes.
+        this.bwg.whenReady( this, function() {
+            var chr = this.bwg.chromsToIDs[chrName];
+            if (chr === undefined) {
+                // Not an error because some .bwgs won't have data for all chromosomes.
 
-            // dlog("Couldn't find chr " + chrName);
-            // dlog('Chroms=' + miniJSONify(this.bwg.chromsToIDs));
-            return callback([]);
-        } else {
-            return this.readWigDataById(chr, min, max, callback);
-        }
+                // dlog("Couldn't find chr " + chrName);
+                // dlog('Chroms=' + miniJSONify(this.bwg.chromsToIDs));
+                callback([]);
+            } else {
+                this.readWigDataById(chr, min, max, callback);
+            }
+        });
     },
 
-    readWigDataById: function(chr, min, max, callback) {
+    readWigDataById: function() {
+        var args = arguments;
+        this.bwg.whenReady( this, function() {
+            this._readWigDataById.apply( this, args );
+        });
+    },
+
+    _readWigDataById: function(chr, min, max, callback) {
+
         var thisB = this;
         if (!this.cirHeader) {
-            // dlog('No CIR yet, fetching');
-            this.bwg.data.slice(this.cirTreeOffset, 48).fetch(function(result) {
-                                                                  thisB.cirHeader = result;
-                                                                  var la = new Int32Array(thisB.cirHeader);
-                                                                  thisB.cirBlockSize = la[1];
-                                                                  thisB.readWigDataById(chr, min, max, callback);
-                                                              });
-            return;
+            var args = Array.prototype.slice.call(arguments);
+            if( this.cirHeaderCallbacks )
+                this.cirHeaderCallbacks.push( args );
+            else
+                this.cirHeaderCallbacks = [ args ];
+
+            if( !this.cirHeaderFetchInflight ) {
+                this.cirHeaderFetchInflight = 1;
+                // dlog('No CIR yet, fetching');
+                this.bwg.data
+                    .slice(this.cirTreeOffset, 48)
+                    .fetch( function(result) {
+                                thisB.cirHeader = result;
+                                var la = new Int32Array(thisB.cirHeader);
+                                thisB.cirBlockSize = la[1];
+                                dojo.forEach( this.cirHeaderCallbacks, function(args) {
+                                    thisB.readWigDataById.apply(thisB, args);
+                                });
+                                delete this.cirHeaderCallbacks;
+                            });
+                return;
+            }
         }
 
         var blocksToFetch = [];

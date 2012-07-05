@@ -1,8 +1,10 @@
 define( [
             'dojo/_base/declare',
-            'JBrowse/Store/BigWig/Window'
+            'dojo/_base/lang',
+            'JBrowse/Store/BigWig/Window',
+            'dojo/_base/Deferred'
         ],
-        function( declare, Window ) {
+        function( declare, lang, Window, Deferred ) {
 return declare( null,
  /**
   * @lends JBrowse.Store.BigWig
@@ -25,15 +27,24 @@ return declare( null,
      */
     constructor: function( args ) {
         var data = args.blob;
-        var callback = args.callback || function(){};
         var name = args.name || 'anonymous';
 
         var bwg = this;
+
+        bwg._loading = new Deferred();
+        if( args.callback )
+            bwg._loading.then(
+                function() { args.callback(bwg); },
+                function() { args.callback(null, 'Loading failed!'); }
+            );
+        bwg._loading.then( function() { delete bwg._loading; });
+
         bwg.data = data;
         bwg.name = name;
+
         bwg.data.slice(0, 512).fetch(function(result) {
             if (!result) {
-                callback(null, "Couldn't fetch file");
+                bwg._loading.resolve({ success: false });
             }
 
             var header = result;
@@ -76,10 +87,17 @@ return declare( null,
                 bwg.zoomLevels.push({reduction: zlReduction, dataOffset: zlData, indexOffset: zlIndex});
             }
 
-            bwg._readChromTree(function() {
-                                  return callback(bwg);
-                              });
+            bwg._readChromTree(function() { bwg._loading.resolve({success: true}); });
         });
+    },
+
+    whenReady: function() {
+        var f = lang.hitch.apply(lang, arguments);
+        if( this._loading ) {
+            this._loading.then( f );
+        } else {
+            f();
+        }
     },
 
     /**
