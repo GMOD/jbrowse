@@ -21,16 +21,17 @@ var Range = declare( null,
     },
 
     min: function() {
-        return this._ranges[0].min();
+        return this._ranges[0].min;
     },
 
     max: function() {
-        return this._ranges[this._ranges.length - 1].max();
+        return this._ranges[this._ranges.length - 1].max;
     },
 
     contains: function(pos) {
         for (var s = 0; s < this._ranges.length; ++s) {
-            if (this._ranges[s].contains(pos)) {
+            var r = this._ranges[s];
+            if ( r.min <= pos && r.max >= pos ) {
                 return true;
             }
         }
@@ -42,7 +43,9 @@ var Range = declare( null,
     },
 
     ranges: function() {
-        return this._ranges;
+        return this._ranges.map( function(r) {
+            return new Range( r.min, r.max );
+        });
     },
 
     toString: function() {
