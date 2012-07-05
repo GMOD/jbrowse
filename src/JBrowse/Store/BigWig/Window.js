@@ -1,7 +1,8 @@
 define( [
-            'dojo/_base/declare'
+            'dojo/_base/declare',
+            'JBrowse/Model/Range'
         ],
-        function( declare ) {
+        function( declare, Range ) {
 return declare( null,
  /**
   * @lends JBrowse.Store.BigWig.Window
