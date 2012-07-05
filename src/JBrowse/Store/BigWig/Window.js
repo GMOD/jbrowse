@@ -1,9 +1,10 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
+            'dojo/_base/Deferred',
             'JBrowse/Model/Range'
         ],
-        function( declare, lang, Range ) {
+        function( declare, lang, Deferred, Range ) {
 return declare( null,
  /**
   * @lends JBrowse.Store.BigWig.Window
@@ -49,33 +50,27 @@ return declare( null,
     },
 
     _readWigDataById: function(chr, min, max, callback) {
-
-        var thisB = this;
         if (!this.cirHeader) {
-            var args = Array.prototype.slice.call(arguments);
-            if( this.cirHeaderCallbacks )
-                this.cirHeaderCallbacks.push( args );
-            else
-                this.cirHeaderCallbacks = [ args ];
+            this.cirHeaderLoading = this.cirHeaderLoading || new Deferred();
+            this.cirHeaderLoading.then( lang.hitch( this, function() { this.cirHeaderLoading = false; } ));
+            this.cirHeaderLoading.then( lang.hitch( this, '_readWigDataById', chr, min, max, callback ) );
 
             if( !this.cirHeaderFetchInflight ) {
-                this.cirHeaderFetchInflight = 1;
+                this.cirHeaderFetchInflight = true;
                 // dlog('No CIR yet, fetching');
                 this.bwg.data
                     .slice(this.cirTreeOffset, 48)
-                    .fetch( function(result) {
-                                thisB.cirHeader = result;
-                                var la = new Int32Array(thisB.cirHeader);
-                                thisB.cirBlockSize = la[1];
-                                dojo.forEach( this.cirHeaderCallbacks, function(args) {
-                                    thisB.readWigDataById.apply(thisB, args);
-                                });
-                                delete this.cirHeaderCallbacks;
-                            });
+                    .fetch( lang.hitch( this, function(result) {
+                                this.cirHeader = result;
+                                var la = new Int32Array( this.cirHeader);
+                                this.cirBlockSize = la[1];
+                                this.cirHeaderLoading.resolve({success: true});
+                            }));
                 return;
             }
         }
 
+        var thisB = this;
         var blocksToFetch = [];
         var outstanding = 0;
 

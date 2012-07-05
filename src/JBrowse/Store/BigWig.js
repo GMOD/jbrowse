@@ -37,7 +37,7 @@ return declare( null,
                 function() { args.callback(bwg); },
                 function() { args.callback(null, 'Loading failed!'); }
             );
-        bwg._loading.then( function() { delete bwg._loading; });
+        bwg._loading.then( function() { bwg._loading = null; });
 
         bwg.data = data;
         bwg.name = name;
@@ -45,6 +45,7 @@ return declare( null,
         bwg.data.slice(0, 512).fetch(function(result) {
             if (!result) {
                 bwg._loading.resolve({ success: false });
+                return;
             }
 
             var header = result;
@@ -87,7 +88,9 @@ return declare( null,
                 bwg.zoomLevels.push({reduction: zlReduction, dataOffset: zlData, indexOffset: zlIndex});
             }
 
-            bwg._readChromTree(function() { bwg._loading.resolve({success: true}); });
+            bwg._readChromTree(function() {
+                bwg._loading.resolve({success: true});
+            });
         });
     },
 
