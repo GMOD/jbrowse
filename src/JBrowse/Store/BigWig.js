@@ -2,7 +2,7 @@ define( [
             'dojo/_base/declare',
             'JBrowse/Store/BigWig/Window'
         ],
-        function( declare, Window, FileBlob, XHRBlob ) {
+        function( declare, Window ) {
 return declare( null,
  /**
   * @lends JBrowse.Store.BigWig

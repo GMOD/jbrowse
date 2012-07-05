@@ -46,7 +46,7 @@ var XHRBlob = declare( FileBlob,
         } else {
             ne = ne || l - 1;
         }
-        return new JBrowse.Model.XHRBlob(this.url, ns, ne, this.opts);
+        return new XHRBlob(this.url, ns, ne, this.opts);
     },
 
     fetch: function(callback, attempt, truncatedLength) {
