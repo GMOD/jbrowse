@@ -6,14 +6,25 @@ define( [
             'jszlib/js/inflate'
         ],
         function( declare, lang, Deferred, Range, inflate_buffer ) {
-function dlog() {
-    console.log.apply(console,arguments);
-};
+var dlog = console.log.bind(console);
+
+var gettable = declare( null, {
+    get: function(name) {
+        return this[ { start: 'min', end: 'max' }[name] || name ];
+    }
+});
+var Feature = declare( gettable, {} );
+var Group = declare( gettable, {} );
+
 return declare( null,
  /**
   * @lends JBrowse.Store.BigWig.Window
   */
 {
+
+    BIG_WIG_TYPE_GRAPH: 1,
+    BIG_WIG_TYPE_VSTEP: 2,
+    BIG_WIG_TYPE_FSTEP: 3,
 
     /**
      * View into a subset of the data in a BigWig file.
@@ -180,7 +191,7 @@ return declare( null,
                         opts = {};
                     }
 
-                    var f = new DASFeature();
+                    var f = new Feature();
                     f.segment = thisB.bwg.idsToChroms[chr];
                     f.min = fmin;
                     f.max = fmax;
@@ -322,7 +333,7 @@ return declare( null,
                                         var blockStarts = bedColumns[8].split(',');
 
                                         featureOpts.type = 'bb-transcript';
-                                        var grp = new DASGroup();
+                                        var grp = new Group();
                                         grp.id = bedColumns[0];
                                         grp.type = 'bb-transcript';
                                         grp.notes = [];
@@ -331,7 +342,7 @@ return declare( null,
                                         if (bedColumns.length > 10) {
                                             var geneId = bedColumns[9];
                                             var geneName = bedColumns[10];
-                                            var gg = new DASGroup();
+                                            var gg = new Group();
                                             gg.id = geneId;
                                             gg.label = geneName;
                                             gg.type = 'gene';
@@ -588,7 +599,7 @@ return declare( null,
                         opts = {};
                     }
 
-                    var f = new DASFeature();
+                    var f = new Feature();
                     f.segment = thisB.bwg.idsToChroms[chrx];
                     f.min = fmin;
                     f.max = fmax;
@@ -660,18 +671,18 @@ return declare( null,
 
                                 // dlog('processing bigwig block, type=' + blockType + '; count=' + itemCount);
 
-                                if (blockType == BIG_WIG_TYPE_FSTEP) {
+                                if (blockType == thisB.BIG_WIG_TYPE_FSTEP) {
                                     for (var i = 0; i < itemCount; ++i) {
                                         var score = fa[i + 6];
                                         maybeCreateFeature(chromId, blockStart + (i*itemStep), blockStart + (i*itemStep) + itemSpan, {score: score});
                                     }
-                                } else if (blockType == BIG_WIG_TYPE_VSTEP) {
+                                } else if (blockType == thisB.BIG_WIG_TYPE_VSTEP) {
                                     for (var i = 0; i < itemCount; ++i) {
                                         var start = la[(i*2) + 6];
                                         var score = fa[(i*2) + 7];
                                         maybeCreateFeature(start, start + itemSpan, {score: score});
                                     }
-                                } else if (blockType == BIG_WIG_TYPE_GRAPH) {
+                                } else if (blockType == thisB.BIG_WIG_TYPE_GRAPH) {
                                     for (var i = 0; i < itemCount; ++i) {
                                         var start = la[(i*3) + 6] + 1;
                                         var end   = la[(i*3) + 7];
