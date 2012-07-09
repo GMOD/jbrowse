@@ -42,12 +42,14 @@ return declare( null,
         bwg.data = data;
         bwg.name = name;
 
-        bwg.data.slice(0, 512).fetch(function(result) {
+        var headerSlice = bwg.data.slice(0, 512);
+        headerSlice.fetch(function(result) {
             if (!result) {
                 bwg._loading.resolve({ success: false });
                 return;
             }
 
+            bwg.fileSize = headerSlice.totalSize;
             var header = result;
             var sa = new Int16Array(header);
             var la = new Int32Array(header);
