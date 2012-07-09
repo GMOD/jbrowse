@@ -37,7 +37,9 @@ return declare( null,
                 function() { args.callback(bwg); },
                 function() { args.callback(null, 'Loading failed!'); }
             );
-        bwg._loading.then( function() { bwg._loading = null; });
+        bwg._loading.then( function() {
+                               bwg._loading = null;
+                           });
 
         bwg.data = data;
         bwg.name = name;
@@ -58,7 +60,9 @@ return declare( null,
             } else if (la[0] == bwg.BIG_BED_MAGIC) {
                 bwg.type = 'bigbed';
             } else {
-                callback(null, "Not a supported format");
+                console.error( 'Format '+la[0]+' not supported' );
+                bwg._loading.resolve({ success: false });
+                return;
             }
             //        dlog('magic okay');
 
@@ -167,7 +171,7 @@ return declare( null,
                        };
                        bptReadNode(rootNodeOffset);
 
-                       callback(thisB);
+                       callback.call( thisB, thisB );
                    });
     },
 
@@ -187,12 +191,17 @@ return declare( null,
         return this.unzoomedView;
     },
 
-    getZoomedView: function(z) {
-        var zh = this.zoomLevels[z];
-        if (!zh.view) {
-            zh.view = new Window( this, zh.indexOffset, this.zoomLevels[z + 1].dataOffset - zh.indexOffset, true );
+    getZoomedView: function( basesPerSpan ) {
+        for( var i = this.zoomLevels.length - 1; i >= 0; i-- ) {
+            var zh = this.zoomLevels[i];
+            if( zh && ( zh.reductionLevel <= basesPerSpan || i == 0 ) ) {
+                var indexLength = i < this.zoomLevels.length - 1
+                    ? this.zoomLevels[i + 1].dataOffset - zh.indexOffset
+                    : this.fileSize - 4 - zh.indexOffset;
+                return new Window( this, zh.indexOffset, indexLength, i > 0 );
+            }
         }
-        return zh.view;
+        return undefined;
     }
 });
 

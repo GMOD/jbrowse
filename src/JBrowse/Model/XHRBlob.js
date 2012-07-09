@@ -80,15 +80,15 @@ var XHRBlob = declare( FileBlob,
                     thisB.size = length || thisB.totalSize;
 
                     if (req.response) {
-                        return callback(req.response);
+                        return callback.call(thisB,req.response);
                     } else if (req.mozResponseArrayBuffer) {
-                        return callback(req.mozResponseArrayBuffer);
+                        return callback.call(thisB,req.mozResponseArrayBuffer);
                     } else {
                         var r = req.responseText;
                         if (length && length != r.length && (!truncatedLength || r.length != truncatedLength)) {
                             return thisB.fetch( callback, attempt + 1, r.length );
                         } else {
-                            return callback( thisB._stringToBuffer(req.responseText) );
+                            return callback.call( thisB, thisB._stringToBuffer(req.responseText) );
                         }
                     }
                 } else {

@@ -27,13 +27,29 @@ require(['JBrowse/Store/BigWig','JBrowse/Model/XHRBlob'], function( BigWig, XHRB
             waitsFor(function() { return wigData; },1000);
             runs(function() {
                 expect(wigData.length).toBeGreaterThan(10000);
-                dojo.forEach( wigData.slice(0,10), function(feature) {
-                    expect(feature.min).toBeGreaterThan(0);
+                dojo.forEach( wigData.slice(0,20), function(feature) {
                     expect(feature.get('start')).toBeGreaterThan(0);
-                    expect(feature.max).toBeLessThan(100001);
                     expect(feature.get('end')).toBeLessThan(100001);
                 });
-//                console.log(wigData);
+                     //console.log(wigData);
+            });
+        });
+
+        it('reads some good data when zoomed', function() {
+            var v = b.getZoomedView( 100000 );
+            var wigData;
+            v.readWigData( 'SL2.40ch01', 100000, 2000000, function(features) {
+                wigData = features;
+            });
+            waitsFor(function() { return wigData; },1000);
+            runs(function() {
+                expect(wigData.length).toBeGreaterThan(19);
+                expect(wigData.length).toBeLessThan(100);
+                dojo.forEach( wigData, function(feature) {
+                    expect(feature.get('start')).toBeGreaterThan(80000);
+                    expect(feature.get('end')).toBeLessThan(2050000);
+                });
+                     //console.log(wigData);
             });
         });
 

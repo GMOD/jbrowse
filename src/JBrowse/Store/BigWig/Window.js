@@ -486,14 +486,6 @@ return declare( null,
             thisB.bwg.data.slice(fr.min(), fr.max() - fr.min()).fetch(function(result) {
                                                                           var resultBuffer = result;
 
-                                                                          // This is now handled in URLFetchable instead.
-                                                                          //
-                                                                          //            if (resultBuffer.byteLength != length) {
-                                                                          //                dlog("Didn't get expected size: " + resultBuffer.byteLength + " != " + length);
-                                                                          //                return cirFobStartFetch(offset, fr, level, attempts + 1);
-                                                                          //            }
-
-
                                                                           for (var i = 0; i < offset.length; ++i) {
                                                                               if (fr.contains(offset[i])) {
                                                                                   cirFobRecur2(resultBuffer, offset[i] - fr.min(), level);
