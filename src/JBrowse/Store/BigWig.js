@@ -85,7 +85,7 @@ return declare( null,
                 var zlData = (la[zl*6 + 18]<<32)|(la[zl*6 + 19]);
                 var zlIndex = (la[zl*6 + 20]<<32)|(la[zl*6 + 21]);
                 //          dlog('zoom(' + zl + '): reduction=' + zlReduction + '; data=' + zlData + '; index=' + zlIndex);
-                bwg.zoomLevels.push({reduction: zlReduction, dataOffset: zlData, indexOffset: zlIndex});
+                bwg.zoomLevels.push({reductionLevel: zlReduction, dataOffset: zlData, indexOffset: zlIndex});
             }
 
             bwg._readChromTree(function() {
