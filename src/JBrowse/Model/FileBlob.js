@@ -16,6 +16,8 @@ var FileBlob = declare( null,
      */
     constructor: function(b) {
         this.blob = b;
+        this.size = b.size;
+        this.totalSize = b.size;
     },
 
     slice: function(start, length) {

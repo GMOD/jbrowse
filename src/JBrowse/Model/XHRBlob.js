@@ -70,6 +70,15 @@ var XHRBlob = declare( FileBlob,
         req.onreadystatechange = function() {
             if (req.readyState == 4) {
                 if (req.status == 200 || req.status == 206) {
+                    thisB.totalSize = (function() {
+                        var contentRange = req.getResponseHeader('Content-Range');
+                        if( ! contentRange )
+                            return undefined;
+                        var match = contentRange.match(/\/(\d+)$/);
+                        return match ? parseInt(match[1]) : undefined;
+                    })();
+                    thisB.size = length || thisB.totalSize;
+
                     if (req.response) {
                         return callback(req.response);
                     } else if (req.mozResponseArrayBuffer) {
