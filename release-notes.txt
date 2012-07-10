@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Made displayColumns option for the faceted track selector
+   case-insensitive, and interpret a column name of "Name" as meaning
+   the track's key.
+
  * `bam-to-json.pl` now filters out alignments that are not at least
    two nucleotides in length.  Thanks to Tristan Lubinski for
    assistance.

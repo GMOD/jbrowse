@@ -309,7 +309,9 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
                                     dojo.hitch(this, '_isDisplayableColumn')
                                   ),
                        function(facetName) {
-                           return {'name': this._facetDisplayName(facetName), 'field': facetName, 'width': '100px'};
+                           // rename name to key to avoid configuration confusion
+                           facetName = {name: 'key'}[facetName.toLowerCase()] || facetName;
+                           return {'name': this._facetDisplayName(facetName), 'field': facetName.toLowerCase(), 'width': '100px'};
                        },
                        this
                    )
