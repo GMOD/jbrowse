@@ -40,7 +40,7 @@ dojo.declare( 'JBrowse.View.TrackList.Faceted', null,
        // construct a similar discriminator for which columns will be displayed
        this.displayColumns = args.displayColumns;
        this._isDisplayableColumn = this._coerceFilter(
-           args.displayColumnFilter || function() { return true; }
+           args.displayColumnFilter || function(l) { return l.toLowerCase() != 'label'; }
        );
 
        // data store that fetches and filters our track metadata
