@@ -1,4 +1,4 @@
-{{$NEXT}}
+1.4.1     2012-07-10 14:58:34 America/New_York
 
  * Made displayColumns option for the faceted track selector
    case-insensitive, and interpret a column name of "Name" as meaning
