@@ -1257,6 +1257,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
             searchAttr: "name"
         },
         dojo.create('input',{ size: locLength },navbox) );
+    this.locationBox.focusNode.spellcheck = false;
     dojo.connect( this.locationBox.focusNode, "keydown", this, function(event) {
                       if (event.keyCode == dojo.keys.ENTER) {
                           this.locationBox.closeDropDown(false);
