@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.4.2     2012-07-12 15:38:55 America/New_York
+
  * Restore support for histScale, subfeatureScale, and labelScale in
    --clientConfig and track configuration JSON.  Thanks to Hernán
    Bondino for pointing this out.
