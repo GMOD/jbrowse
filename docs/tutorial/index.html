@@ -5,7 +5,7 @@
   <head><title>JBrowse Quick-Start Tutorial</title></head>
   <link rel="stylesheet" type="text/css" href="../docs.css"></link>
   <body>
-    <div class="container">
+    <div class="container" style="padding-bottom: 3em">
 
       <h1>JBrowse Quick-Start Tutorial</h1>
 
@@ -56,18 +56,14 @@
 
         <div class="code">
           cd /var/www<br />
-          unzip jbrowse-1.2.1.zip<br />
-          cd jbrowse-1.2.1
+          unzip JBrowse-full-1.4.1.zip<br />
+          cd JBrowse-full-1.4.1
         </div>
 
         JBrowse generates files with links that are relative to the
         main JBrowse directory (where index.html is located), so you
         should run all scripts from this directory.
       </p>
-
-      <div class="sidebar">
-        You can skip installing JBrowse and its prerequisites by launching a machine image using <a href="http://aws.amazon.com/ec2/">Amazon.com's EC2 service</a>.  We've prepared an image for use with EC2.  For more information, see <a href="http://biowiki.org/view/JBrowse/AmazonMachineImage">our wiki page</a>.
-      </div>
 
       <a name="setup_sh">
         <h2>Run <code>setup.sh</code></h2>
@@ -147,7 +143,7 @@
       </p>
       <dl>
 
-        <dt class="code"><a name="biodb-to-json.pl" id="biodb-to-json.pl" class="code">biodb-to-json.pl</a></dt>
+        <dt class="code"><a name="biodb-to-json.pl" id="biodb-to-json.pl" class="code">bin/biodb-to-json.pl</a></dt>
         <dd>If you have a genomic annotation database such as <a href="http://gmod.org/wiki/Chado">Chado</a>, <a href="http://www.bioperl.org/wiki/Module:Bio::DB::SeqFeature::Store">Bio::DB::SeqFeature::Store</a>, or <a href="http://www.bioperl.org/wiki/Module:Bio::DB::GFF">Bio::DB::GFF</a>, then you can use JBrowse's <span class="code"><a href="#biodb-to-json.pl">biodb-to-json.pl</a></span>.
 
           You use <span class="code">bin/biodb-to-json.pl</span> with a configuration file <a href="../config.html">(documented here)</a>.
@@ -215,11 +211,12 @@ bin/bam-to-json.pl                                              \
       <h2>Quantitative tracks (Wiggle support)</h2>
       <p>
         If you want to create quantitative ("wiggle") tracks for
-        JBrowse, you need to have a compiled C program
-        called <code>wig2png</code>.  If <code>setup.sh</code>
-        reported being successful at installing wiggle format support,
-        this has already been done for you.  Otherwise,
-        if <code>setup.sh</code> had trouble, read on.
+        JBrowse, you need to compiled a C program
+        called <code>wig2png</code>, included with JBrowse.
+        If <code>setup.sh</code> reported being successful at
+        installing wiggle format support, this has already been done
+        for you.  Otherwise, if <code>setup.sh</code> had trouble,
+        read on to see how to manually build <code>wig2png</code>.
       </p>
       <h3>Manually building <code>wig2png</code></h3>
       <p>
@@ -272,10 +269,8 @@ bin/bam-to-json.pl                                              \
           <dt>Red Hat/CentOS/Fedora Linux</dt>
           <dd><p>
             Be sure to install the <span class="code">libpng</span>
-            and <span class="code">libpng-devel</span> packages for
-            compilation to work.
+            and <span class="code">libpng-devel</span> packages.
           </p></dd>
-
         </dl>
       </div>
 

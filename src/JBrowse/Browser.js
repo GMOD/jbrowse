@@ -92,7 +92,8 @@ Browser.prototype.fatalError = function( error ) {
         container.innerHTML = ''
             + '<div class="fatal_error">'
             + '  <h1>Congratulations, JBrowse is on the web!</h1>'
-            + "  <p>However, JBrowse could not start, either because it has not yet been configured or because of an error.</p>"
+            + "  <p>However, JBrowse could not start, either because it has not yet been configured"
+            + "     and loaded with data, or because of an error.</p>"
             + "  <p style=\"font-size: 110%; font-weight: bold\"><a title=\"View the tutorial\" href=\"docs/tutorial/\">If this is your first time running JBrowse, click here to follow the Quick-start Tutorial to get up and running.</a></p>"
             + "  <p>Otherwise, please refer to the following resources for help in getting JBrowse up and running.</p>"
             + '  <ul><li><a target="_blank" href="docs/tutorial/">Quick-start tutorial</a></li>'
@@ -1266,6 +1267,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
             searchAttr: "name"
         },
         dojo.create('input',{ size: locLength },navbox) );
+    this.locationBox.focusNode.spellcheck = false;
     dojo.connect( this.locationBox.focusNode, "keydown", this, function(event) {
                       if (event.keyCode == dojo.keys.ENTER) {
                           this.locationBox.closeDropDown(false);
