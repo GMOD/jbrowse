@@ -70,11 +70,9 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
         style: {
             className: "feature2"
         },
-        scaleThresh: {
-            hist: 4,
-            label: 50,
-            subfeature: 80
-        },
+        histScale: 4,
+        labelScale: 50,
+        subfeatureScale: 80,
         hooks: {
             create: function(track, feat ) {
                 var featDiv;
@@ -117,7 +115,7 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo, url) {
             this.wrapHandler(this.evalHook(this.config.events[event]));
     }
 
-    this.labelScale = this.featureStore.density * this.config.scaleThresh.label;
+    this.labelScale = this.featureStore.density * this.config.labelScale;
 
     this.setLoaded();
 };
@@ -335,7 +333,7 @@ FeatureTrack.prototype.fillBlock = function(blockIndex, block,
     // only update the label once for each block size
     var blockBases = Math.abs( leftBase-rightBase );
     if( this._updatedLabelForBlockSize != blockBases ){
-        if ( scale < (this.featureStore.density * this.config.scaleThresh.hist)) {
+        if ( scale < (this.featureStore.density * this.config.histScale)) {
             this.setLabel(this.key + "<br>per " + Util.addCommas( Math.round( blockBases / this.numBins)) + " bp");
         } else {
             this.setLabel(this.key);
@@ -345,7 +343,7 @@ FeatureTrack.prototype.fillBlock = function(blockIndex, block,
 
     //console.log("scale: %d, histScale: %d", scale, this.histScale);
     if (this.featureStore.histograms &&
-        (scale < (this.featureStore.density * this.config.scaleThresh.hist)) ) {
+        (scale < (this.featureStore.density * this.config.histScale)) ) {
 	this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
                       containerStart, containerEnd);
     } else {
