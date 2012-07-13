@@ -98,7 +98,6 @@ return declare( BlockBased,
 
         var blockWidth = rightBase - leftBase;
         var images = this.store.getImages( scale, leftBase, rightBase );
-        var im;
 
         dojo.forEach( images, function(im) {
                           im.className = 'image-track';
@@ -146,7 +145,7 @@ return declare( BlockBased,
     },
 
     transfer: function(sourceBlock, destBlock, scale,
-                                             containerStart, containerEnd) {
+                       containerStart, containerEnd) {
         if (!(sourceBlock && destBlock)) return;
 
         var children = sourceBlock.childNodes;
