@@ -44,6 +44,7 @@ return declare( null,
 
     readWigData: function(chrName, min, max, callback) {
         this.bwg.whenReady( this, function() {
+            // console.log( 'reading wig data from '+chrName+':'+min+'..'+max);
             var chr = this.bwg.chromsToIDs[chrName];
             if (chr === undefined) {
                 // Not an error because some .bwgs won't have data for all chromosomes.

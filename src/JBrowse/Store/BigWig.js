@@ -2,9 +2,11 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'JBrowse/Store/BigWig/Window',
-            'dojo/_base/Deferred'
+            'dojo/_base/Deferred',
+            'JBrowse/Util',
+            'JBrowse/Model/XHRBlob'
         ],
-        function( declare, lang, Window, Deferred ) {
+        function( declare, lang, Window, Deferred, Util, XHRBlob ) {
 return declare( null,
  /**
   * @lends JBrowse.Store.BigWig
@@ -26,7 +28,15 @@ return declare( null,
      * @constructs
      */
     constructor: function( args ) {
-        var data = args.blob;
+        var data = args.blob || (function() {
+            var url = Util.resolveUrl(
+                args.baseUrl || '/',
+                Util.fillTemplate( args.urlTemplate || 'data.bigwig',
+                                   {'refseq': args.refSeq.name}
+                                 )
+            );
+            return new XHRBlob( url );
+        }).call(this);
         var name = args.name || 'anonymous';
 
         var bwg = this;
@@ -192,12 +202,14 @@ return declare( null,
     },
 
     getZoomedView: function( basesPerSpan ) {
+//        console.log('getting zoomed view for '+basesPerSpan);
         for( var i = this.zoomLevels.length - 1; i >= 0; i-- ) {
             var zh = this.zoomLevels[i];
             if( zh && ( zh.reductionLevel <= basesPerSpan || i == 0 ) ) {
                 var indexLength = i < this.zoomLevels.length - 1
                     ? this.zoomLevels[i + 1].dataOffset - zh.indexOffset
                     : this.fileSize - 4 - zh.indexOffset;
+//                console.log( 'using zoom level '+i);
                 return new Window( this, zh.indexOffset, indexLength, i > 0 );
             }
         }
