@@ -1,3 +1,11 @@
+{{$NEXT}}
+
+1.4.2     2012-07-12 15:38:55 America/New_York
+
+ * Restore support for histScale, subfeatureScale, and labelScale in
+   --clientConfig and track configuration JSON.  Thanks to Hernán
+   Bondino for pointing this out.
+
 1.4.1     2012-07-10 14:58:34 America/New_York
 
  * Made displayColumns option for the faceted track selector

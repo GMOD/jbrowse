@@ -59,12 +59,10 @@ var HTMLFeatures = declare( BlockBased,
 
         var defaultConfig = {
             style: {
-                className: "feature2"
-            },
-            scaleThresh: {
-                hist: 4,
-                label: 50,
-                subfeature: 80
+                className: "feature2",
+                histScale: 4,
+                labelScale: 50,
+                subfeatureScale: 80
             },
             hooks: {
                 create: function(track, feat ) {
@@ -108,7 +106,8 @@ var HTMLFeatures = declare( BlockBased,
                 this.wrapHandler(this.evalHook(this.config.events[event]));
         }
 
-        this.labelScale = this.featureStore.density * this.config.scaleThresh.label;
+        this.labelScale = this.featureStore.density * this.config.style.labelScale;
+        this.subfeatureScale = this.featureStore.density * this.config.style.subfeatureScale;
 
         this.setLoaded();
     },
@@ -322,7 +321,7 @@ var HTMLFeatures = declare( BlockBased,
         // only update the label once for each block size
         var blockBases = Math.abs( leftBase-rightBase );
         if( this._updatedLabelForBlockSize != blockBases ){
-            if ( scale < (this.featureStore.density * this.config.scaleThresh.hist)) {
+            if ( scale < (this.featureStore.density * this.config.style.histScale)) {
                 this.setLabel(this.key + "<br>per " + Util.addCommas( Math.round( blockBases / this.numBins)) + " bp");
             } else {
                 this.setLabel(this.key);
@@ -332,7 +331,7 @@ var HTMLFeatures = declare( BlockBased,
 
         //console.log("scale: %d, histScale: %d", scale, this.histScale);
         if (this.featureStore.histograms &&
-            (scale < (this.featureStore.density * this.config.scaleThresh.hist)) ) {
+            (scale < (this.featureStore.density * this.config.style.histScale)) ) {
 	    this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
                           containerStart, containerEnd);
         } else {
@@ -574,7 +573,7 @@ var HTMLFeatures = declare( BlockBased,
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
         var name = feature.get('name');
-        if (name && (scale > this.labelScale)) {
+        if (name && (scale >= this.labelScale)) {
 	    featureEnd = Math.max(featureEnd,
                                   featureStart + ((name ? name.length : 0)
 				                  * (this.nameWidth / scale) ) );
@@ -654,7 +653,7 @@ var HTMLFeatures = declare( BlockBased,
             }
         }
 
-        if (name && (scale > this.labelScale)) {
+        if (name && (scale >= this.labelScale)) {
             var labelDiv;
             var featUrl = this.featureUrl(feature);
             if (featUrl) {
@@ -677,7 +676,7 @@ var HTMLFeatures = declare( BlockBased,
             block.appendChild(labelDiv);
         }
 
-        if( featwidth > minFeatWidth ) {
+        if( featwidth > minFeatWidth && scale >= this.subfeatureScale ) {
             var subfeatures = feature.get('subfeatures');
             if( subfeatures ) {
                 for (var i = 0; i < subfeatures.length; i++) {
