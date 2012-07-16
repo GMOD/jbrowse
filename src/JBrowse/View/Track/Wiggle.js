@@ -51,11 +51,11 @@ return declare( CanvasTrack,
                     context.fillStyle = fillStyle;
                     //console.log( 'filling '+leftBase+'-'+rightBase);
                     dojo.forEach(features, function(f) {
-                        //console.log( f.get('start')+'-'+f.get('end')+':'+f.get('score') );
-                        var rectLeft  = ( f.get('start') - leftBase ) * scale;
-                        var rectRight = ( f.get('end')   - leftBase ) * scale;
+                        //console.log( f.get('start') +'-'+f.get('end')+':'+f.get('score') );
+                        var left  = Math.floor(( f.get('start')-1 - leftBase ) * scale );
+                        var width = Math.ceil(( f.get('end') - f.get('start') + 1 ) * scale );
                         var height = f.get('score')/globalMax * trackHeight;
-                        context.fillRect( rectLeft, trackHeight-height, rectRight-rectLeft+1, height );
+                        context.fillRect( left, trackHeight-height, width, height );
                     }, this );
                 }
 
