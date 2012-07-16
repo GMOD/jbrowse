@@ -32,7 +32,7 @@ return declare( CanvasTrack,
     },
 
     renderCanvases: function( scale, leftBase, rightBase, callback ) {
-        var width = ( rightBase - leftBase + 1 ) * scale;
+        var width = Math.ceil(( rightBase - leftBase ) * scale);
         var trackHeight = 100;
         var globalMax = 1000;
         var fillStyle = (this.config.style||{}).fillStyle || '#00f';
