@@ -47,25 +47,26 @@ return declare( BlockBased,
                          containerStart, containerEnd) {
 
         var blockWidth = rightBase - leftBase;
-        var canvases = this.renderCanvases( scale, leftBase, rightBase );
-        dojo.forEach( canvases, function(c) {
-                          this.heightUpdate( c.height, blockIndex );
-                          c.className = 'canvas-track';
-	                  if (!(c.parentNode && c.parentNode.parentNode)) {
-                              c.style.position = "absolute";
-                              c.style.left = (100 * ((c.startBase - leftBase) / blockWidth)) + "%";
-                              switch (this.config.align) {
-                              case "top":
-                                  c.style.top = "0px";
-                                  break;
-                              case "bottom":
-                              default:
-                                  c.style.bottom = this.trackPadding + "px";
-                                  break;
-                              }
-                              block.appendChild(c);
-	                  }
-                      }, this);
+        this.renderCanvases( scale, leftBase, rightBase, dojo.hitch(this, function( canvases ) {
+            dojo.forEach( canvases, function(c) {
+                              this.heightUpdate( c.height, blockIndex );
+                              c.className = 'canvas-track';
+	                      if (!(c.parentNode && c.parentNode.parentNode)) {
+                                  c.style.position = "absolute";
+                                  c.style.left = (100 * ((c.startBase - leftBase) / blockWidth)) + "%";
+                                  switch (this.config.align) {
+                                  case "top":
+                                      c.style.top = "0px";
+                                      break;
+                                  case "bottom":
+                                  default:
+                                      c.style.bottom = this.trackPadding + "px";
+                                      break;
+                                  }
+                                  block.appendChild(c);
+	                      }
+                          }, this);
+        }));
     },
 
     startZoom: function(destScale, destStart, destEnd) {
