@@ -84,6 +84,7 @@ return declare( null,
                             }));
                 return;
             }
+            return;
         }
 
         var thisB = this;
