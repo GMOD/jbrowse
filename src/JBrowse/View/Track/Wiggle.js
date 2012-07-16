@@ -32,6 +32,11 @@ return declare( CanvasTrack,
     },
 
     renderCanvases: function( scale, leftBase, rightBase, callback ) {
+        if( ! callback ) {
+            console.error('null callback?');
+            return;
+        }
+
         var width = Math.ceil(( rightBase - leftBase ) * scale);
         var trackHeight = 100;
         var globalMax = 1000;
@@ -59,12 +64,7 @@ return declare( CanvasTrack,
                     }, this );
                 }
 
-                if( ! callback ) {
-                    console.error('null callback?');
-                }
-                else {
-                    callback( [c] );
-                }
+                callback( [c] );
             });
     }
 });

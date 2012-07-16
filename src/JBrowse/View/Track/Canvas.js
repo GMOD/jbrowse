@@ -71,7 +71,10 @@ return declare( BlockBased,
 
     startZoom: function(destScale, destStart, destEnd) {
         if (this.empty) return;
-        this.renderCanvases( destScale, destStart, destEnd );
+        this.preRenderCanvases( destScale, destStart, destEnd );
+    },
+
+    preRenderCanvases: function( scale, start, end ) {
     },
 
     endZoom: function(destScale, destBlockBases) {
