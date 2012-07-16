@@ -6,7 +6,7 @@ define( [
             'jszlib/js/inflate'
         ],
         function( declare, lang, Deferred, Range, inflate_buffer ) {
-var dlog = console.log.bind(console);
+var dlog = function(){ console.log.apply(console, arguments); };
 
 var gettable = declare( null, {
     get: function(name) {
