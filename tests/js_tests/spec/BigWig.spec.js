@@ -53,6 +53,17 @@ require(['JBrowse/Store/BigWig','JBrowse/Model/XHRBlob'], function( BigWig, XHRB
             });
         });
 
+        it('reads the file stats (the totalSummary section)', function() {
+               var stats = b.getStats();
+               expect(stats.basesCovered).toEqual(141149153);
+               expect(stats.minVal).toEqual(1);
+               expect(stats.maxVal).toEqual(62066);
+               expect(stats.sumData).toEqual(16922295025);
+               expect(stats.sumSquared).toEqual(45582937421360);
+               expect(stats.stdDev).toEqual(555.4891087210976);
+               expect(stats.mean).toEqual(119.88945498666932);
+        });
+
         it('reads good data when zoomed very little', function() {
             var v = b.getView( 17.34 );
             var wigData;

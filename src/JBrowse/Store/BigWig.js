@@ -107,7 +107,40 @@ return declare( null,
             bwg._readChromTree(function() {
                 bwg._loading.resolve({success: true});
             });
+
+            // parse the totalSummary if present (summary of all data in the file)
+            if( bwg.totalSummaryOffset ) {
+                (function() {
+                    var ua = new Uint32Array( header, bwg.totalSummaryOffset, 2 );
+                    var da = new Float64Array( header, bwg.totalSummaryOffset+8, 4 );
+                    var s = {
+                        basesCovered: ua[0]<<32 | ua[1],
+                        minVal: da[0],
+                        maxVal: da[1],
+                        sumData: da[2],
+                        sumSquares: da[3]
+                    };
+                    bwg._stats = s;
+                    // rest of these will be calculated on demand in getStats
+                }).call();
+            }
         });
+    },
+
+    getStats: function() {
+        var s = this._stats;
+        s.mean = s.sumData / s.basesCovered;
+        s.stdDev = this._calcStdFromSums( s.sumData, s.sumSquares, s.basesCovered );
+        s.min = s.minVal; s.max = s.maxVal; // synonyms for compat
+        return s;
+    },
+
+    _calcStdFromSums: function( sum, sumSquares, n ) {
+        var variance = sumSquares - sum*sum/n;
+        if (n > 1) {
+	    variance /= n-1;
+        }
+        return variance < 0 ? 0 : Math.sqrt(variance);
     },
 
     whenReady: function() {
