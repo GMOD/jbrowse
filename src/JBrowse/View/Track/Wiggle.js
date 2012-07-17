@@ -12,6 +12,8 @@ var Wiggle = declare( CanvasTrack,
         this.inherited( arguments );
         this.store = args.store;
         this.store.whenReady( this, 'loadSuccess' );
+
+        this.globalOffset = this.config.offset || 0;
     },
 
     load: function() {
@@ -34,16 +36,19 @@ var Wiggle = declare( CanvasTrack,
 
     makeWiggleYScale: function() {
         // if we are not loaded yet, we won't have any metadata, so just return
-        var globalOffset = this.config.offset || 0;
         var s = this.store.getStats();
-        var min = globalOffset + s.global_min;
-        var max = globalOffset + ( s.global_max > s.mean+3*s.stdDev ? s.mean + 3*s.stdDev : s.global_max );
+        var min = 'min_score' in this.config ? this.config.min_score : this.globalOffset + s.global_min;
+        var max = 'max_score' in this.config ? this.config.max_score : this.globalOffset + ( s.global_max > s.mean+5*s.stdDev ? s.mean + 5*s.stdDev : s.global_max );
 
         // bump minDisplayed to 0 if it is within 0.5% of it
         if( Math.abs( min / max ) < 0.005 )
             min = 0;
 
-        this.makeYScale({ fixBounds: true, min: min, max: max });
+        this.makeYScale({
+            fixBounds: true,
+            min: this.config.log_scale ? ( min ? Math.log(min) : 0 ) : min,
+            max: this.config.log_scale ? Math.log(max) : max
+        });
         this.minDisplayed = this.ruler.scaler.bounds.lower;
         this.maxDisplayed = this.ruler.scaler.bounds.upper;
     },
@@ -53,11 +58,15 @@ var Wiggle = declare( CanvasTrack,
             console.error('null callback?');
             return;
         }
+
+
         var canvasWidth  = Math.ceil(( rightBase - leftBase ) * scale);
         var canvasHeight = 100;
         this.height = canvasHeight;
-        var globalOffset = this.config.offset || 0;
-        var fillStyle = (this.config.style||{}).fillStyle || '#00f';
+
+        var toY = dojo.hitch( this, this.config.log_scale ? '_logY' : '_linearY', canvasHeight );
+        var dataFillStyle = (this.config.style||{}).dataFillStyle || '#00f';
+
         this._getView( scale )
             .readWigData( this.refSeq.name, leftBase, rightBase, dojo.hitch(this,function( features ) {
                 if(! this.yscale )
@@ -73,23 +82,46 @@ var Wiggle = declare( CanvasTrack,
                 c.startBase = leftBase;
                 var context = c && c.getContext && c.getContext('2d');
                 if( context ) {
+                    if( this.config.variance_band )
+                        (function() {
+                             var stats = this.store.getStats();
+                             var drawBand = function( plusminus, fill ) {
+                                 context.fillStyle = fill;
+                                 var varTop = toY( stats.mean + plusminus );
+                                 var varHeight = toY( stats.mean - plusminus ) - varTop;
+                                 varHeight = Math.max( 1, varHeight );
+                                 context.fillRect( 0, varTop, c.width, varHeight );
+                             };
+                             drawBand( 2*stats.stdDev, '#ccc' );
+                             drawBand( stats.stdDev, '#aaa' );
+                             drawBand( 0,'yellow' );
+                         }).call(this);
+
                     //context.fillText(features.length+' spans', 10,10);
-                    context.fillStyle = fillStyle;
+                    context.fillStyle = dataFillStyle;
                     //console.log( 'filling '+leftBase+'-'+rightBase);
                     dojo.forEach(features, function(f) {
                         //console.log( f.get('start') +'-'+f.get('end')+':'+f.get('score') );
-                        var rHeight = ((f.get('score')+globalOffset-this.minDisplayed)/((this.maxDisplayed||1) - this.minDisplayed ))*canvasHeight;
-                        if( rHeight >= 1 ) {
+                        var rTop = toY( f.get('score') );
+                        if( rTop <= canvasHeight ) {
                             var rWidth = Math.ceil(( f.get('end') - f.get('start') + 1 ) * scale );
                             var rLeft  = Math.floor(( f.get('start')-1 - leftBase ) * scale );
-                            context.fillRect( rLeft, canvasHeight-rHeight, rWidth, rHeight );
-//                            console.log('fillRect',rLeft, canvasHeight-rHeight, rWidth, rHeight, 'maxDisplayed='+this.maxDisplayed );
+                            context.fillRect( rLeft, rTop, rWidth, canvasHeight-rTop );
+//                            console.log('fillRect', rLeft, rTop, rWidth, canvasHeight-rTop );
                         }
                     }, this );
                 }
 
                 callback( [c] );
             }));
+    },
+
+    _linearY: function( canvasHeight, value ) {
+        return canvasHeight - canvasHeight * (value+this.globalOffset-this.minDisplayed)/((this.maxDisplayed||1) - this.minDisplayed);
+    },
+
+    _logY: function( canvasHeight, value ) {
+        return canvasHeight - canvasHeight * (Math.log(value+this.globalOffset)-this.minDisplayed)/((this.maxDisplayed||1) - this.minDisplayed );
     },
 
     updateStaticElements: function( coords ) {
