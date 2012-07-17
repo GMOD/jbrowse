@@ -31,6 +31,10 @@ return declare(null,
 	            });
     },
 
+    getStats: function() {
+        return this.stats;
+    },
+
     setLoaded: function() {
         this.loaded = true;
         this.hideAll();

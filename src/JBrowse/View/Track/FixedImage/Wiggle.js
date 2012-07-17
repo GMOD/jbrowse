@@ -21,7 +21,6 @@ var Wiggle = declare( FixedImage,
         FixedImage.apply( this, arguments );
     },
 
-
     updateStaticElements: function( coords ) {
         FixedImage.prototype.updateStaticElements.apply( this, arguments );
         this.updateYScaleFromViewDimensions( coords );
@@ -49,8 +48,8 @@ var Wiggle = declare( FixedImage,
     makeWiggleYScale: function() {
         // if we are not loaded yet, we won't have any metadata, so just return
         try {
-            this.min   = this.store.stats.global_min;
-            this.max   = this.store.stats.global_max;
+            this.minDisplayed = this.store.getStats().global_min;
+            this.maxDisplayed = this.store.getStats().global_max;
         } catch (x) {
             return;
         }

@@ -68,7 +68,6 @@ return declare( null,
     _readWigDataById: function(chr, min, max, callback) {
         if (!this.cirHeader) {
             this.cirHeaderLoading = this.cirHeaderLoading || new Deferred();
-            this.cirHeaderLoading.then( lang.hitch( this, function() { this.cirHeaderLoading = false; } ));
             this.cirHeaderLoading.then( lang.hitch( this, '_readWigDataById', chr, min, max, callback ) );
 
             if( !this.cirHeaderFetchInflight ) {
@@ -78,9 +77,10 @@ return declare( null,
                     .slice(this.cirTreeOffset, 48)
                     .fetch( lang.hitch( this, function(result) {
                                 this.cirHeader = result;
-                                var la = new Int32Array( this.cirHeader);
+                                var la = new Int32Array( this.cirHeader, 0, 2 );
                                 this.cirBlockSize = la[1];
                                 this.cirHeaderLoading.resolve({success: true});
+                                delete this.cirHeaderLoading;
                             }));
                 return;
             }

@@ -10,13 +10,13 @@ define( ['JBrowse/View/Ruler'],
 return {
     /**
      * @param {Number} [min] Optional minimum value for the scale.
-     * Defaults to value of <code>this.min</code>.
+     * Defaults to value of <code>this.minDisplayed</code>.
      * @param {Number} [max] Optional maximum value for the scale.
-     * Defaults to value of <code>this.max</code>.
+     * Defaults to value of <code>this.maxDisplayed</code>.
      */
     makeYScale: function( args ) {
-        var min = args && typeof args.min == 'number' ? args.min : this.min;
-        var max = args && typeof args.max == 'number' ? args.max : this.max;
+        var min = args && typeof args.min == 'number' ? args.min : this.minDisplayed;
+        var max = args && typeof args.max == 'number' ? args.max : this.maxDisplayed;
 
         // make and style the main container div for the axis
         var rulerdiv = this.yscale =
