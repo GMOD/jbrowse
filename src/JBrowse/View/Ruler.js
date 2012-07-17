@@ -35,9 +35,9 @@ Ruler.prototype.render_to = function( target_div ) {
     dojo.style(container,{
                    position: 'absolute',
                    left: "-9px",
-                   bottom: "-13px",
+                   bottom: "-14px",
                    width: (30+4*label_digits)+"px",
-                   height: (target_dims.h+26)+"px"
+                   height: (target_dims.h+27)+"px"
                });
     target_div.appendChild(container);
 
