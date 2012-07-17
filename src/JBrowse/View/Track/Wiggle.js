@@ -34,19 +34,18 @@ var Wiggle = declare( CanvasTrack,
 
     makeWiggleYScale: function() {
         // if we are not loaded yet, we won't have any metadata, so just return
-        try {
-            var s = this.store.getStats();
-            this.minDisplayed = 0;//s.global_min;
-            this.maxDisplayed = s.global_max > s.mean+3*s.stdDev ? s.mean + 2.5*s.stdDev : s.global_max;
+        var globalOffset = this.config.offset || 0;
+        var s = this.store.getStats();
+        var min = globalOffset + s.global_min;
+        var max = globalOffset + ( s.global_max > s.mean+3*s.stdDev ? s.mean + 3*s.stdDev : s.global_max );
 
-            // bump minDisplayed to 0 if it is within 0.5% of it
-            if( this.minDisplayed / this.maxDisplayed < 0.005 )
-                this.minDisplayed = 0;
+        // bump minDisplayed to 0 if it is within 0.5% of it
+        if( Math.abs( min / max ) < 0.005 )
+            min = 0;
 
-        } catch (x) {
-            return;
-        }
-        this.makeYScale();
+        this.makeYScale({ fixBounds: true, min: min, max: max });
+        this.minDisplayed = this.ruler.scaler.bounds.lower;
+        this.maxDisplayed = this.ruler.scaler.bounds.upper;
     },
 
     renderCanvases: function( scale, leftBase, rightBase, callback ) {
@@ -54,12 +53,16 @@ var Wiggle = declare( CanvasTrack,
             console.error('null callback?');
             return;
         }
-
         var canvasWidth  = Math.ceil(( rightBase - leftBase ) * scale);
         var canvasHeight = 100;
+        this.height = canvasHeight;
+        var globalOffset = this.config.offset || 0;
         var fillStyle = (this.config.style||{}).fillStyle || '#00f';
         this._getView( scale )
             .readWigData( this.refSeq.name, leftBase, rightBase, dojo.hitch(this,function( features ) {
+                if(! this.yscale )
+                    this.makeWiggleYScale();
+
                 var c = dojo.create(
                     'canvas',
                     { height: canvasHeight,
@@ -75,7 +78,7 @@ var Wiggle = declare( CanvasTrack,
                     //console.log( 'filling '+leftBase+'-'+rightBase);
                     dojo.forEach(features, function(f) {
                         //console.log( f.get('start') +'-'+f.get('end')+':'+f.get('score') );
-                        var rHeight = f.get('score')/(this.maxDisplayed||1) * canvasHeight;
+                        var rHeight = ((f.get('score')+globalOffset-this.minDisplayed)/((this.maxDisplayed||1) - this.minDisplayed ))*canvasHeight;
                         if( rHeight >= 1 ) {
                             var rWidth = Math.ceil(( f.get('end') - f.get('start') + 1 ) * scale );
                             var rLeft  = Math.floor(( f.get('start')-1 - leftBase ) * scale );
@@ -86,8 +89,6 @@ var Wiggle = declare( CanvasTrack,
                 }
 
                 callback( [c] );
-                if(! this.yscale )
-                    this.makeWiggleYScale();
             }));
     },
 

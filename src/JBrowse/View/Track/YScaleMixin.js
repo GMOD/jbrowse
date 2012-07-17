@@ -15,8 +15,9 @@ return {
      * Defaults to value of <code>this.maxDisplayed</code>.
      */
     makeYScale: function( args ) {
-        var min = args && typeof args.min == 'number' ? args.min : this.minDisplayed;
-        var max = args && typeof args.max == 'number' ? args.max : this.maxDisplayed;
+        args = args || {};
+        var min = typeof args.min == 'number' ? args.min : this.minDisplayed;
+        var max = typeof args.max == 'number' ? args.max : this.maxDisplayed;
 
         // make and style the main container div for the axis
         var rulerdiv = this.yscale =
@@ -43,9 +44,12 @@ return {
         var ruler = new Ruler({
             min: min,
             max: max,
-            direction: 'up'
+            direction: 'up',
+            fixBounds: args.fixBounds || false
         });
         ruler.render_to( rulerdiv );
+
+        this.ruler = ruler;
     },
 
     updateYScaleFromViewDimensions: function( coords ) {

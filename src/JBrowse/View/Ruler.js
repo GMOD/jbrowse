@@ -47,7 +47,9 @@ Ruler.prototype.render_to = function( target_div ) {
                             vertical: true,
                             fill: 'transparent',
                             min: this.min,
-                            max: this.max
+                            max: this.max,
+                            fixLower: this.fixBounds ? 'major' : 'none',
+                            fixUpper: this.fixBounds ? 'major' : 'none'
                             // minorTickStep: 0.5,
                             // majorTickStep: 1
                             //labels: [{value: 1, text: "One"}, {value: 3, text: "Ten"}]
@@ -61,12 +63,12 @@ Ruler.prototype.render_to = function( target_div ) {
         if( undesirable_rect )
             undesirable_rect.setAttribute('fill-opacity',0);
 
+        this.scaler = chart1.axes.y.scaler;
     } catch (x) {
         console.error(x+'');
         console.error("Failed to draw Ruler with SVG, your browser may not support the necessary technology.");
         target_div.removeChild( container );
     }
-
 };
 
 return Ruler;

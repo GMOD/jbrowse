@@ -47,6 +47,7 @@ return declare( BlockBased,
                          containerStart, containerEnd) {
 
         var blockWidth = rightBase - leftBase;
+        this.heightUpdate( this.height, blockIndex );
         this.renderCanvases( scale, leftBase, rightBase, dojo.hitch(this, function( canvases ) {
             dojo.forEach( canvases, function(c) {
                               this.heightUpdate( c.height, blockIndex );
