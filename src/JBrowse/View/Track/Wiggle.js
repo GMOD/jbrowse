@@ -92,8 +92,8 @@ var Wiggle = declare( CanvasTrack,
                                  varHeight = Math.max( 1, varHeight );
                                  context.fillRect( 0, varTop, c.width, varHeight );
                              };
-                             drawBand( 2*stats.stdDev, '#ccc' );
-                             drawBand( stats.stdDev, '#aaa' );
+                             drawBand( 2*stats.stdDev, 'rgba(0,0,0,0.15)' );
+                             drawBand( stats.stdDev, 'rgba(0,0,0,0.25)' );
                              drawBand( 0,'yellow' );
                          }).call(this);
 
