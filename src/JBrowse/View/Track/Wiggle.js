@@ -91,7 +91,12 @@ var Wiggle = declare( CanvasTrack,
             min: min + offset,
             max: max + offset,
             range: max - min,
-            origin: this.config.scale == 'z_score' ? s.mean : 0
+            origin: 'bicolor_pivot' in this.config ? ( this.config.bicolor_pivot == 'mean' ? s.mean :
+                                                       this.config.bicolor_pivot == 'zero' ? 0 :
+                                                         parseFloat( this.config.bicolor_pivot )
+                                                     ) :
+                    this.config.scale == 'z_score' ? s.mean :
+                                                     0
         };
 
         // make a func that converts wiggle values to Y coordinates on
