@@ -13,10 +13,11 @@
     </script>
 
     <script type="text/javascript">
+        var jbrowse;
         require([ 'JBrowse/Browser', 'dojo/io-query' ], function (Browser,ioQuery) {
                    var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
                    var dataRoot = queryParams.data || 'data';
-                   var b = new Browser({
+                   jbrowse = new Browser({
                                            containerID: "GenomeBrowser",
                                            refSeqs: dataRoot + "/seq/refSeqs.json",
                                            include: [
