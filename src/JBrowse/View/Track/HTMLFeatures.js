@@ -198,16 +198,17 @@ var HTMLFeatures = declare( BlockBased,
                 if (!(typeof hist[bin] == 'number' && isFinite(hist[bin])))
                     continue;
                 binDiv = document.createElement("div");
-	        binDiv.className = track.config.style.className + "-hist";;
+	        binDiv.className = "hist "+track.config.style.className + "-hist";
                 binDiv.style.cssText =
                     "left: " + ((bin / track.numBins) * 100) + "%; "
                     + "height: "
-                    + (dims.pxPerCount * ( dims.logScale ? Math.log(hist[bin]) : hist[bin]))
+                    + ((dims.pxPerCount * ( dims.logScale ? Math.log(hist[bin]) : hist[bin]))-2)
                     + "px;"
                     + "bottom: " + track.trackPadding + "px;"
                     + "width: " + (((1 / track.numBins) * 100) - (100 / stripeWidth)) + "%;"
                     + (track.config.style.histCss ?
                        track.config.style.histCss : "");
+                binDiv.setAttribute('value',hist[bin]);
                 if (Util.is_ie6) binDiv.appendChild(document.createComment());
                 block.appendChild(binDiv);
             }

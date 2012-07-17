@@ -7,9 +7,11 @@
     min-width: 1px;
 }
 
-div.basic-hist {
+div.hist {
     position: absolute;
     z-index: 10;
+    border: 1px solid transparent;
+    border-width: 1px !important;
 }
 
 .feature,
@@ -28,12 +30,8 @@ div.basic-hist {
 .minus-feature { background-image: url('img/minus-chevron3.png'); }
 
 div.feature-hist {
-    position: absolute;
     background-color: blue;
     border-color: lightblue;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
 }
 
 .feature2, .plus-feature2, .minus-feature2 {
@@ -50,12 +48,8 @@ div.feature-hist {
 .minus-feature2 { background-image: url('img/minus-herringbone16.png'); }
 
 div.feature2-hist {
-    position: absolute;
     background-color: #9f9;
     border-color: #ada;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
 }
 
 .feature3, .plus-feature3, .minus-feature3 {
@@ -72,12 +66,8 @@ div.feature2-hist {
 .minus-feature3 { background-image: url('img/minus-chevron.png'); }
 
 div.feature3-hist {
-    position: absolute;
     background-color: yellow;
     border-color: black;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
 }
 
 .feature4, .plus-feature4, .minus-feature4 {
@@ -94,12 +84,8 @@ div.feature3-hist {
 .minus-feature4 { background-image: url('img/minus-pacman.png'); }
 
 div.feature4-hist {
-    position: absolute;
     background-color: yellow;
     border-color: black;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
 }
 
 .feature5, .plus-feature5, .minus-feature5 {
@@ -116,21 +102,13 @@ div.feature4-hist {
 .minus-feature5 { background-image: url('img/minus-chevron2.png'); }
 
 div.feature5-hist {
-    position: absolute;
     background-color: blue;
     border-color: lightblue;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
 }
 
 div.exon-hist {
-    position: absolute;
     background-color: #4B76E8;
-    border-style: solid;
     border-color: #00f;
-    border-width: 1px;
-    z-index: 10;
 }
 
 .exon,
@@ -147,12 +125,8 @@ div.exon-hist {
 }
 
 div.est-hist {
-    position: absolute;
     background-color: #ED9185;
-    border-style: solid;
     border-color: #c33;
-    border-width: 1px;
-    z-index: 10;
 }
 
 .est,
@@ -181,12 +155,8 @@ div.est-hist {
 }
 
 div.dblhelix-hist {
-    position: absolute;
     background-color: #fcc;
     border-color: #daa;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
 }
 
 .plus-helix,
@@ -201,12 +171,8 @@ div.dblhelix-hist {
 }
 
 div.helix-hist {
-    position: absolute;
     background-color: #cfc;
     border-color: #ada;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
 }
 
 .loops, .minus-loops, .plus-loops {
@@ -233,12 +199,8 @@ div.helix-hist {
 .minus-cds_phase2 { background-image: url('img/minus-cds2.png'); }
 
 div.cds-hist {
-    position: absolute;
     background-color: #fcc;
     border-color: #daa;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
 }
 
 .topbracket {
@@ -281,24 +243,16 @@ div.cds-hist {
     border-color: #f99 white #f99 white;
 }
 div.hgred-hist {
-    position: absolute;
     background-color: #daa;
     border-color: #d44;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
 }
 
 .hgblue {
     border-color: #99f white #99f white;
 }
 div.hgblue-hist {
-    position: absolute;
     background-color: #aad;
     border-color: #99f;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
 }
 
 .ibeam, .plus-ibeam, .minus-ibeam {
@@ -312,12 +266,8 @@ div.hgblue-hist {
 }
 
 div.transcript-hist {
-    position: absolute;
     background-color: #ddd;
     border-color: #FF9185;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
 }
 
 .transcript,
@@ -420,12 +370,8 @@ div.transcript-hist {
 }
 
 div.generic_parent-hist {
-    position: absolute;
     background-color: #ddd;
     border-color: #555;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
 }
 
 .match_part,
