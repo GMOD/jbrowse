@@ -90,7 +90,8 @@ var Wiggle = declare( CanvasTrack,
             offset: offset,
             min: min + offset,
             max: max + offset,
-            range: max - min
+            range: max - min,
+            origin: this.config.scale == 'z_score' ? s.mean : 0
         };
 
         // make a func that converts wiggle values to Y coordinates on
@@ -131,7 +132,8 @@ var Wiggle = declare( CanvasTrack,
         var canvasHeight = 100;
         this.height = canvasHeight;
 
-        var dataFillStyle = (this.config.style||{}).dataFillStyle || '#00f';
+        var posColor = (this.config.style||{}).pos_color || '#00f';
+        var negColor = (this.config.style||{}).neg_color || '#f00';
 
         this._getView( scale )
             .readWigData( this.refSeq.name, leftBase, rightBase, dojo.hitch(this,function( features ) {
@@ -148,7 +150,8 @@ var Wiggle = declare( CanvasTrack,
                 c.startBase = leftBase;
                 var context = c && c.getContext && c.getContext('2d');
                 if( context ) {
-                    var toY = dojo.hitch( this, this.scale.toY, canvasHeight );
+                    var toY = dojo.hitch( this, this.scale.toY, c.height );
+                    var originY = toY( this.scale.origin );
                     if( this.config.variance_band )
                         (function() {
                              var stats = this.store.getStats();
@@ -165,7 +168,6 @@ var Wiggle = declare( CanvasTrack,
                          }).call(this);
 
                     //context.fillText(features.length+' spans', 10,10);
-                    context.fillStyle = dataFillStyle;
                     //console.log( 'filling '+leftBase+'-'+rightBase);
                     dojo.forEach(features, function(f) {
                         //console.log( f.get('start') +'-'+f.get('end')+':'+f.get('score') );
@@ -173,8 +175,16 @@ var Wiggle = declare( CanvasTrack,
                         if( rTop <= canvasHeight ) {
                             var rWidth = Math.ceil(( f.get('end') - f.get('start') + 1 ) * scale );
                             var rLeft  = Math.floor(( f.get('start')-1 - leftBase ) * scale );
-                            context.fillRect( rLeft, rTop, rWidth, canvasHeight-rTop );
-//                            console.log('fillRect', rLeft, rTop, rWidth, canvasHeight-rTop );
+                            if( rTop <= originY ) {
+                                // bar goes upward
+                                context.fillStyle = posColor;
+                                context.fillRect( rLeft, rTop, rWidth, originY-rTop );
+                            }
+                            else {
+                                // bar goes downward
+                                context.fillStyle = negColor;
+                                context.fillRect( rLeft, originY, rWidth, canvasHeight-rTop );
+                            }
                         }
                     }, this );
                 }
