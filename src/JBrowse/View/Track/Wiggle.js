@@ -38,6 +38,11 @@ var Wiggle = declare( CanvasTrack,
             var s = this.store.getStats();
             this.minDisplayed = 0;//s.global_min;
             this.maxDisplayed = s.global_max > s.mean+3*s.stdDev ? s.mean + 2.5*s.stdDev : s.global_max;
+
+            // bump minDisplayed to 0 if it is within 0.5% of it
+            if( this.minDisplayed / this.maxDisplayed < 0.005 )
+                this.minDisplayed = 0;
+
         } catch (x) {
             return;
         }
