@@ -11,9 +11,8 @@ var Wiggle = declare( CanvasTrack,
     constructor: function( args ) {
         this.inherited( arguments );
         this.store = args.store;
+        this.store.whenReady( this, '_calculateScaling' );
         this.store.whenReady( this, 'loadSuccess' );
-
-        this.globalOffset = this.config.offset || 0;
     },
 
     load: function() {
@@ -35,22 +34,90 @@ var Wiggle = declare( CanvasTrack,
     },
 
     makeWiggleYScale: function() {
-        // if we are not loaded yet, we won't have any metadata, so just return
-        var s = this.store.getStats();
-        var min = 'min_score' in this.config ? this.config.min_score : this.globalOffset + s.global_min;
-        var max = 'max_score' in this.config ? this.config.max_score : this.globalOffset + ( s.global_max > s.mean+5*s.stdDev ? s.mean + 5*s.stdDev : s.global_max );
-
         // bump minDisplayed to 0 if it is within 0.5% of it
-        if( Math.abs( min / max ) < 0.005 )
-            min = 0;
+        if( Math.abs( this.scale.min / this.scale.max ) < 0.005 )
+            this.scale.min = 0;
 
         this.makeYScale({
             fixBounds: true,
-            min: this.config.log_scale ? ( min ? Math.log(min) : 0 ) : min,
-            max: this.config.log_scale ? Math.log(max) : max
+            min: this.scale.min,
+            max: this.scale.max
         });
-        this.minDisplayed = this.ruler.scaler.bounds.lower;
-        this.maxDisplayed = this.ruler.scaler.bounds.upper;
+        this.scale.min = this.ruler.scaler.bounds.lower;
+        this.scale.max = this.ruler.scaler.bounds.upper;
+        this.scale.range = this.scale.max - this.scale.min;
+    },
+
+    _calculateScaling: function() {
+        var s = this.store.getStats();
+        var min = 'min_score' in this.config ? this.config.min_score :
+            (function() {
+                 switch( this.config.autoscale ) {
+                     case 'z_score':
+                         return Math.max( -(this.config.z_score_bound || 4), (s.global_min-s.mean) / s.stdDev );
+                     case 'global':
+                         return s.global_min;
+                     case 'clipped_global':
+                     default:
+                         return Math.max( s.global_min, s.mean - (this.config.z_score_bound || 4) * s.stdDev );
+                 }
+             }).call(this);
+        var max = 'max_score' in this.config ? this.config.max_score :
+            (function() {
+                 switch( this.config.autoscale ) {
+                     case 'z_score':
+                         return Math.min( this.config.z_score_bound || 4, (s.global_max-s.mean) / s.stdDev );
+                     case 'global':
+                         return s.global_max;
+                     case 'clipped_global':
+                     default:
+                         return Math.min( s.global_max, s.mean + (this.config.z_score_bound || 4) * s.stdDev );
+                 }
+             }).call(this);
+
+        // if autoscale is set to z_score, config.scale should default to z_score
+        if( this.config.autoscale == 'z_score' )
+            this.config.scale = this.config.scale || 'z_score';
+
+        // if we have a log scale, need to take the log of the min and max
+        if( this.config.scale == 'log' ) {
+            max = Math.log(max);
+            min = min ? Math.log(min) : 0;
+        }
+
+        var offset = this.config.data_offset || 0;
+        this.scale = {
+            offset: offset,
+            min: min + offset,
+            max: max + offset,
+            range: max - min
+        };
+
+        // make a func that converts wiggle values to Y coordinates on
+        // the plot, depending on what kind of scale we are using
+        this.scale.toY = function() {
+            var scale = this.scale;
+            switch( this.config.scale ) {
+            case 'z_score':
+                return function( canvasHeight, value ) {
+                    with(scale)
+                        return canvasHeight * (1-((value+offset-s.mean)/s.stdDev-min)/range);
+                };
+            case 'log':
+                return function( canvasHeight, value ) {
+                    with(scale)
+                        return canvasHeight * (1-(Math.log(value+offset)-min)/range);
+                };
+            case 'linear':
+            default:
+                return function( canvasHeight, value ) {
+                    with(scale)
+                        return canvasHeight * (1-(value+offset-min)/range);
+                };
+            }
+        }.call(this);
+
+        return this.scale;
     },
 
     renderCanvases: function( scale, leftBase, rightBase, callback ) {
@@ -64,7 +131,6 @@ var Wiggle = declare( CanvasTrack,
         var canvasHeight = 100;
         this.height = canvasHeight;
 
-        var toY = dojo.hitch( this, this.config.log_scale ? '_logY' : '_linearY', canvasHeight );
         var dataFillStyle = (this.config.style||{}).dataFillStyle || '#00f';
 
         this._getView( scale )
@@ -82,6 +148,7 @@ var Wiggle = declare( CanvasTrack,
                 c.startBase = leftBase;
                 var context = c && c.getContext && c.getContext('2d');
                 if( context ) {
+                    var toY = dojo.hitch( this, this.scale.toY, canvasHeight );
                     if( this.config.variance_band )
                         (function() {
                              var stats = this.store.getStats();
@@ -116,13 +183,7 @@ var Wiggle = declare( CanvasTrack,
             }));
     },
 
-    _linearY: function( canvasHeight, value ) {
-        return canvasHeight - canvasHeight * (value+this.globalOffset-this.minDisplayed)/((this.maxDisplayed||1) - this.minDisplayed);
-    },
 
-    _logY: function( canvasHeight, value ) {
-        return canvasHeight - canvasHeight * (Math.log(value+this.globalOffset)-this.minDisplayed)/((this.maxDisplayed||1) - this.minDisplayed );
-    },
 
     updateStaticElements: function( coords ) {
         this.inherited( arguments );

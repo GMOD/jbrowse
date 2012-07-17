@@ -104,10 +104,6 @@ return declare( null,
                 bwg.zoomLevels.push({reductionLevel: zlReduction, dataOffset: zlData, indexOffset: zlIndex});
             }
 
-            bwg._readChromTree(function() {
-                bwg._loading.resolve({success: true});
-            });
-
             // parse the totalSummary if present (summary of all data in the file)
             if( bwg.totalSummaryOffset ) {
                 (function() {
@@ -124,6 +120,10 @@ return declare( null,
                     // rest of these will be calculated on demand in getStats
                 }).call();
             }
+
+            bwg._readChromTree(function() {
+                bwg._loading.resolve({success: true});
+            });
         });
     },
 
