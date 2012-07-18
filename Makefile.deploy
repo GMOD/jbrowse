@@ -5,7 +5,7 @@ RELEASE_NAME = JBrowse-$(RELEASE_VERSION)
 RELEASE_FULL = $(RELEASE_NAME)-full
 RELEASE_MIN  = $(RELEASE_NAME)-min
 
-all: minify-js docs wig2png
+all: minify-js docs bin/wig2png
 
 release: release-normal release-min release-normal-test release-min-test release-notes.html
 
@@ -41,12 +41,12 @@ release-min-test: release-min
 	cd JBrowse-*-min;
 	./setup.sh;
 
-wig2png: wig2png/Makefile
-	$(MAKE) -C wig2png;
-wig2png/Makefile: wig2png/configure
-	cd wig2png && ./configure
-wig2png/configure: wig2png/configure.in
-	cd wig2png && autoconf
+bin/wig2png: src/wig2png/Makefile
+	$(MAKE) -C src/wig2png;
+src/wig2png/Makefile: src/wig2png/configure
+	cd src/wig2png && ./configure
+src/wig2png/configure: src/wig2png/configure.in
+	cd src/wig2png && autoconf
 
 docs: doc
 
@@ -75,4 +75,4 @@ clean:
 	-mv compat_121-debug.html compat_121.html;
 	rm -rf docs/jsdoc *-min.js release-notes.html;
 
-.PHONY: all clean superclean jbrowse minify-js docs doc wig2png release release-min release-normal release-normal-test release-min-test
+.PHONY: all clean superclean jbrowse minify-js docs doc release release-min release-normal release-normal-test release-min-test

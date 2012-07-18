@@ -1,4 +1,4 @@
-BINDIR = ../bin
+BINDIR = ../../bin
 SRCDIR = src
 
 CXX = @CXX@
