@@ -9,7 +9,7 @@ var dlog = function(){ console.log.apply(console, arguments); };
 
 return declare( null,
  /**
-  * @lends JBrowse.Store.BigWig.Window
+  * @lends JBrowse.Store.BigWig.Window.prototype
   */
 {
 
@@ -17,7 +17,7 @@ return declare( null,
      * View into a subset of the data in a BigWig file.
      *
      * Adapted by Robert Buels from bigwig.js in the Dalliance Genome
-     * Explorer which is copyright Thomas Down 2006-2010
+     * Explorer by Thomas Down.
      * @constructs
      */
     constructor: function(bwg, cirTreeOffset, cirTreeLength, isSummary) {

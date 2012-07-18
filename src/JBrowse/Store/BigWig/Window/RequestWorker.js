@@ -16,12 +16,25 @@ var gettable = declare( null, {
 var Feature = declare( gettable, {} );
 var Group = declare( gettable, {} );
 
-var RequestWorker = declare( null, {
+var RequestWorker = declare( null,
+ /**
+  * @lends JBrowse.Store.BigWig.Window.RequestWorker.prototype
+  */
+ {
 
     BIG_WIG_TYPE_GRAPH: 1,
     BIG_WIG_TYPE_VSTEP: 2,
     BIG_WIG_TYPE_FSTEP: 3,
 
+    /**
+     * Worker object for reading data from a bigwig or bigbed file.
+     * Manages the state necessary for traversing the index trees and
+     * so forth.
+     *
+     * Adapted by Robert Buels from bigwig.js in the Dalliance Genome
+     * Explorer by Thomas Down.
+     * @constructs
+     */
     constructor: function( window, chr, min, max, callback ) {
         this.window = window;
         this.blocksToFetch = [];
