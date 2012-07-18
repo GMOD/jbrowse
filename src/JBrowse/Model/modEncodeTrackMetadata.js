@@ -1,4 +1,9 @@
-dojo.declare( 'JBrowse.Model.modEncodeTrackMetadata', null,
+define( [
+            'dojo/_base/declare',
+            'dojo/data/util/simpleFetch'
+        ],
+       function( declare, simpleFetch ) {
+var M = declare( null,
 
 /**
  * @lends JBrowse.Model.modEncodeTrackMetadata.prototype
@@ -97,5 +102,9 @@ dojo.declare( 'JBrowse.Model.modEncodeTrackMetadata', null,
         return this.identIndex[id];
     }
 });
-dojo.require('dojo.data.util.simpleFetch');
-dojo.extend( JBrowse.Model.modEncodeTrackMetadata, dojo.data.util.simpleFetch );
+
+dojo.extend( M, simpleFetch );
+
+return M;
+
+});
