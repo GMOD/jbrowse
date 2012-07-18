@@ -33,7 +33,7 @@ release-normal-test: release-normal
 
 release-min: release-normal
 	cp -a $(RELEASE_FULL)/ $(RELEASE_MIN)/;
-	rm -rf $(RELEASE_MIN)/{index-debug.html,/src/JBrowse,docs/jsdoc,tests,xt,sample_data};
+	rm -rf $(RELEASE_MIN)/{index-debug.html,/src/JBrowse,docs/jsdoc,tests,tests_extended,sample_data};
 	zip -r $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 	cd $(RELEASE_MIN) && ./setup.sh;
 
