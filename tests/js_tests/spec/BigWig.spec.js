@@ -59,7 +59,7 @@ require(['JBrowse/Store/BigWig','JBrowse/Model/XHRBlob'], function( BigWig, XHRB
                expect(stats.minVal).toEqual(1);
                expect(stats.maxVal).toEqual(62066);
                expect(stats.sumData).toEqual(16922295025);
-               expect(stats.sumSquared).toEqual(45582937421360);
+               expect(stats.sumSquares).toEqual(45582937421360);
                expect(stats.stdDev).toEqual(555.4891087210976);
                expect(stats.mean).toEqual(119.88945498666932);
         });
