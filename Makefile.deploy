@@ -1,6 +1,5 @@
 JSDIR = $(PWD)/src/JBrowse
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
-TWIKI_PLUGIN_MAKEFILE = twiki/JBrowsePlugin/Makefile.jbrowse
 RELEASE_VERSION = $(shell node -e 'require("fs").readFile("package.json", function(e,d){console.log(JSON.parse(d).version)})')
 RELEASE_NAME = JBrowse-$(RELEASE_VERSION)
 RELEASE_FULL = $(RELEASE_NAME)-full
@@ -55,9 +54,6 @@ doc: docs/jsdoc/index.html
 
 docs/jsdoc/index.html: $(JS_SRCFILES)
 	cd src/jsdoc_toolkit-*/ && java -jar jsrun.jar app/run.js -a -t=templates/jsdoc -d=../../docs/jsdoc $(JS_SRCFILES)
-
-jbrowse:
-	$(MAKE) -f $(TWIKI_PLUGIN_MAKEFILE) all
 
 minify-js: $(JS_SRCFILES)
 	for HTMLFILE in index compat_121; do \
