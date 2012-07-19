@@ -36,7 +36,7 @@ var profile = {
     // Uses Closure Compiler as the JavaScript minifier. This can also be set to "shrinksafe" to use ShrinkSafe.
     // Note that you will probably get some “errors” with CC; these are generally safe to ignore, and will be
     // fixed in a later version of Dojo. This defaults to "" (no compression) if not provided.
-    optimize: 'closure',
+    //optimize: 'closure',
 
     // We’re building layers, so we need to set the minifier to use for those, too. This defaults to "shrinksafe" if
     // it is not provided.
@@ -64,7 +64,7 @@ var profile = {
             // the main application (app/main) and the dojo/i18n and dojo/domReady modules because they are one of the
             // conditional dependencies in app/main (the other being app/Dialog) but we don’t want to have to make
             // extra HTTP requests for such tiny files.
-            include: [ 'dojo/dojo', 'dojo/i18n', 'dojo/domReady', 'JBrowse/main', 'JBrowse/run' ],
+            include: [ 'dojo/dojo', 'dojo/i18n', 'dojo/domReady', 'JBrowse' ],
 
             // By default, the build system will try to include dojo/main in the built dojo/dojo layer, which adds a
             // bunch of stuff we don’t want or need. We want the initial script load to be as small and quick as
@@ -76,7 +76,7 @@ var profile = {
         // In the demo application, we conditionally require app/Dialog on the client-side, so we’re building a
         // separate layer containing just that client-side code. (Practically speaking, you’d probably just want
         // to roll everything into a single layer, but I wanted to make sure to illustrate multi-layer builds.)
-        'JBrowse/View/TrackList/Faceted': { include: [ 'JBrowse/View/TrackList/Faceted' ] }
+        'JBrowse/View/TrackList/Faceted': { include: [ 'JBrowse/View/TrackList/Faceted' ], exclude: ['JBrowse'] }
     },
 
     // Providing hints to the build system allows code to be conditionally removed on a more granular level than

@@ -1,25 +1,27 @@
-JSDIR = $(PWD)/src/JBrowse
+BASEDIR = $(PWD)
+JSDIR = $(BASEDIR)/src/JBrowse
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
-RELEASE_VERSION = $(shell node -e 'require("fs").readFile("package.json", function(e,d){console.log(JSON.parse(d).version)})')
+RELEASE_VERSION = $(shell node -e 'require("fs").readFile("$(JSDIR)/package.json", function(e,d){console.log(JSON.parse(d).version)})')
 RELEASE_NAME = JBrowse-$(RELEASE_VERSION)
 RELEASE_FULL = $(RELEASE_NAME)-full
 RELEASE_MIN  = $(RELEASE_NAME)-min
+DISTDIR=$(BASEDIR)/dist
 
-all: minify-js docs bin/wig2png
+all: dist docs $(BASEDIR)/bin/wig2png
 
 release: release-normal release-min release-normal-test release-min-test release-notes.html
 
 release-notes.html: release-notes.txt
 	markdown release-notes.txt > $@
 
-release-normal: superclean docs minify-js
+release-normal: superclean docs dist
 	rm -rf $(RELEASE_NAME)-*/;
 	mkdir $(RELEASE_FULL);
 	-cp -r * $(RELEASE_FULL)/;
 	rm -rf $(RELEASE_FULL)/src/*/.git;
 	rmdir $(RELEASE_FULL)/$(RELEASE_FULL);
 
-	# date stamp the release notes
+        # date stamp the release notes
 	perl -MDateTime -i -pE 'BEGIN{ $$datestring = DateTime->from_epoch( epoch => time(), time_zone => DateTime::TimeZone->new(name => "local"))->format_cldr(q|yyyy-MM-dd HH:mm:ss VVVV|)}; s/\{\{\$$NEXT\}\}\s*/1.4.1     $$datestring\n/m' $(RELEASE_NAME)-full/release-notes.txt
 	cp JBrowse-*-full/release-notes.txt .;
 	perl -i -pE 'say "{{\$$NEXT}}\n" unless $$x++' release-notes.txt;
@@ -55,17 +57,13 @@ doc: docs/jsdoc/index.html
 docs/jsdoc/index.html: $(JS_SRCFILES)
 	cd src/jsdoc_toolkit-*/ && java -jar jsrun.jar app/run.js -a -t=templates/jsdoc -d=../../docs/jsdoc $(JS_SRCFILES)
 
-minify-js: $(JS_SRCFILES)
+dist: $(JS_SRCFILES)
+	rm -rf $(DISTDIR);
+	#mkdir $(DISTDIR);
+	( cd $(BASEDIR)/src/util/buildscripts && node ../../dojo/dojo.js load=build --require "$(BASEDIR)/build/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(DISTDIR)/src"; )
 	for HTMLFILE in index compat_121; do \
-	  if grep -q '<!-- js_source_files -->' $$HTMLFILE.html; then \
-	      mv $$HTMLFILE.html $$HTMLFILE-debug.html; \
-	      if ! which yui-compressor >/dev/null; then \
-	          sudo apt-get install yui-compressor; \
-	      fi; \
-	      cat `perl -nE 'say $$1 if /src="(src\/JBrowse\/[^"]+)/' $$HTMLFILE-debug.html` | yui-compressor --type js > jbrowse-$$HTMLFILE-min.js; \
-	      perl -pe 'BEGIN { undef $$/; $$minfile = shift; }; s#<!-- js_source_files -->.*<!-- js_source_files -->#    <script type="text/javascript" src="$$minfile"></script>\n#ms' jbrowse-$$HTMLFILE-min.js $$HTMLFILE-debug.html > $$HTMLFILE.html; \
-	  fi \
-        done
+	  perl -pe "s/(?<=data-dojo-config=\")[^\"]+\"/deps: ['JBrowse'], async: 1\"/;" $(BASEDIR)/$$HTMLFILE.html | grep -v JBrowse/run.js > "$(DISTDIR)/$$HTMLFILE.html"; \
+	done;
 
 superclean: clean
 	-git clean -fdx;
@@ -75,4 +73,4 @@ clean:
 	-mv compat_121-debug.html compat_121.html;
 	rm -rf docs/jsdoc *-min.js release-notes.html;
 
-.PHONY: all clean superclean jbrowse minify-js docs doc release release-min release-normal release-normal-test release-min-test
+.PHONY: all clean superclean jbrowse docs doc release release-min release-normal release-normal-test release-min-test dist

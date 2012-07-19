@@ -53,7 +53,7 @@ echo -n "Building and installing wiggle format support ...";
     set -e;
     if( [ ! -f bin/wig2png ] ); then
         set -x;
-        cd wig2png;
+        cd src/wig2png;
         ./configure && make;
         cd ..;
     fi
