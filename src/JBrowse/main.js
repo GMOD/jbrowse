@@ -14,6 +14,5 @@ require([
             'JBrowse/View/TrackList/Simple',
             'JBrowse/Store/TrackMetaData',
 
-            'dojox/gfx/svg',
-            'dojox/gfx/vml'
+            'dojox/gfx/svg'
         ]);
