@@ -28,7 +28,7 @@ release-normal: superclean $(JS_SRCFILES)
 	done;
 
         # date stamp the release notes
-	perl -MDateTime -i -pE 'BEGIN{ $$datestring = DateTime->from_epoch( epoch => time(), time_zone => DateTime::TimeZone->new(name => "local"))->format_cldr(q|yyyy-MM-dd HH:mm:ss VVVV|)}; s/\{\{\$$NEXT\}\}\s*/1.4.1     $$datestring\n/m' $(RELEASE_FULL_DIR)/release-notes.txt
+	perl -MDateTime -i -pE 'BEGIN{ $$datestring = DateTime->from_epoch( epoch => time(), time_zone => DateTime::TimeZone->new(name => "local"))->format_cldr(q|yyyy-MM-dd HH:mm:ss VVVV|)}; s/\{\{\$$NEXT\}\}\s*/$(RELEASE_VERSION)     $$datestring\n/m' $(RELEASE_FULL_DIR)/release-notes.txt
 	cp $(RELEASE_FULL_DIR)/release-notes.txt .;
 	perl -i -pE 'say "{{\$$NEXT}}\n" unless $$x++' release-notes.txt;
 
