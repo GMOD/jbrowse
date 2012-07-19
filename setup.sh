@@ -55,7 +55,7 @@ echo -n "Building and installing wiggle format support ...";
         set -x;
         cd src/wig2png;
         ./configure && make;
-        cd ..;
+        cd ../..;
     fi
     set -x;
     bin/wig-to-json.pl --wig docs/tutorial/data_files/volvox_microarray.wig --out sample_data/json/volvox;

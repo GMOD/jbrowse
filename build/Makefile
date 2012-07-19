@@ -1,6 +1,8 @@
 BASEDIR = $(PWD)
+
 JSDIR = $(BASEDIR)/src/JBrowse
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
+
 RELEASE_VERSION = $(shell node -e 'require("fs").readFile("$(JSDIR)/package.json", function(e,d){console.log(JSON.parse(d).version)})')
 RELEASE_NAME = JBrowse-$(RELEASE_VERSION)
 RELEASE_FULL = $(RELEASE_NAME)-full
@@ -8,45 +10,43 @@ RELEASE_FULL_DIR = $(BASEDIR)/$(RELEASE_NAME)-full/
 RELEASE_MIN  = $(RELEASE_NAME)-min
 RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_NAME)-min/
 
-all: docs $(BASEDIR)/bin/wig2png
+all: docs bin/wig2png
 
 release: release-normal release-min release-normal-test release-min-test release-notes.html
 
 release-notes.html: release-notes.txt
 	markdown release-notes.txt > $@
 
-release-normal: superclean docs $(JS_SRCFILES)
+release-normal: superclean $(JS_SRCFILES)
 	mkdir $(RELEASE_FULL_DIR);
-	-cp -r $(BASEDIR)/* $(RELEASE_FULL_DIR);
-	rm -rf $(RELEASE_FULL_DIR)/src/*/.git;
-	rm -rf $(RELEASE_FULL_DIR)/$(RELEASE_FULL);
+	-cp -r * $(RELEASE_FULL_DIR);
+	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util;
 
-	( cd $(BASEDIR)/src/util/buildscripts && node ../../dojo/dojo.js load=build --require "$(BASEDIR)/build/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(BASEDIR)/$(RELEASE_FULL)/src"; )
+	( cd $(BASEDIR)/src/util/buildscripts && node ../../dojo/dojo.js load=build --require "$(BASEDIR)/build/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(RELEASE_FULL_DIR)/src"; )
 	for HTMLFILE in index compat_121; do \
-	  perl -pe "s/(?<=data-dojo-config=\")[^\"]+\"/deps: ['JBrowse'], async: 1\"/;" $(BASEDIR)/$$HTMLFILE.html > "$(RELEASE_FULL_DIR)/$$HTMLFILE.html"; \
+	  perl -pe "s/(?<=data-dojo-config=\")[^\"]+\"/deps: ['JBrowse'], async: 1\"/;" $$HTMLFILE.html > "$(RELEASE_FULL_DIR)/$$HTMLFILE.html"; \
 	done;
 
         # date stamp the release notes
 	perl -MDateTime -i -pE 'BEGIN{ $$datestring = DateTime->from_epoch( epoch => time(), time_zone => DateTime::TimeZone->new(name => "local"))->format_cldr(q|yyyy-MM-dd HH:mm:ss VVVV|)}; s/\{\{\$$NEXT\}\}\s*/1.4.1     $$datestring\n/m' $(RELEASE_FULL_DIR)/release-notes.txt
-	cp $(RELEASE_FULL_DIR)/release-notes.txt $(BASEDIR);
-	perl -i -pE 'say "{{\$$NEXT}}\n" unless $$x++' $(BASEDIR)/release-notes.txt;
+	cp $(RELEASE_FULL_DIR)/release-notes.txt .;
+	perl -i -pE 'say "{{\$$NEXT}}\n" unless $$x++' release-notes.txt;
 
-	cd $(BASEDIR) && zip -r $(RELEASE_FULL).zip $(RELEASE_FULL)/;
+	zip -r $(RELEASE_FULL).zip $(RELEASE_FULL)/;
 
 release-normal-test: release-normal
-	cd $(BASEDIR)/JBrowse-*-full;
-	./setup.sh;
-	prove -Isrc/perl5 -r -j3 tests/perl_tests;
+	cd $(RELEASE_FULL_DIR) \
+	  && ./setup.sh \
+	  && prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
 release-min: release-normal
-	cp -a $(RELEASE_FULL)/ $(RELEASE_MIN)/;
-	rm -rf $(RELEASE_MIN)/{index-debug.html,/src/JBrowse,docs/jsdoc,tests,tests_extended,sample_data};
+	cp -a $(RELEASE_FULL_DIR)/ $(RELEASE_MIN_DIR)/;
+	rm -rf $(RELEASE_MIN_DIR)/{index-debug.html,/src/JBrowse,docs/jsdoc,tests,tests_extended,sample_data};
 	zip -r $(RELEASE_MIN).zip $(RELEASE_MIN)/;
-	cd $(RELEASE_MIN) && ./setup.sh;
+	cd $(RELEASE_MIN_DIR) && ./setup.sh;
 
 release-min-test: release-min
-	cd $(BASEDIR)/JBrowse-*-min;
-	./setup.sh;
+	cd $(RELEASE_MIN_DIR) && ./setup.sh;
 
 bin/wig2png: src/wig2png/Makefile
 	$(MAKE) -C src/wig2png;
@@ -60,13 +60,12 @@ docs: doc
 doc: docs/jsdoc/index.html
 
 docs/jsdoc/index.html: $(JS_SRCFILES)
-	cd $(BASEDIR)/src/jsdoc_toolkit-*/ && java -jar jsrun.jar app/run.js -a -t=templates/jsdoc -d=../../docs/jsdoc $(JS_SRCFILES)
+	cd src/jsdoc_toolkit-*/ && java -jar jsrun.jar app/run.js -a -t=templates/jsdoc -d=../../docs/jsdoc $(JS_SRCFILES)
 
 superclean: clean
-	-git clean -fdx $(BASEDIR);
+	-git clean -fdx
 
 clean:
-	cd $(BASEDIR);
 	rm -rf docs/jsdoc *-min.js release-notes.html;
 
 .PHONY: all clean superclean jbrowse docs doc release release-min release-normal release-normal-test release-min-test
