@@ -13,10 +13,13 @@
     </script>
 
     <script type="text/javascript">
-        require([ 'JBrowse/Browser', 'dojo/io-query' ], function (Browser,ioQuery) {
+        var JBrowse;
+        require({ baseUrl: 'src', packages: ['JBrowse','dojo','dijit','dojox'] },
+            [ 'JBrowse/Browser', 'dojo/io-query' ],
+            function (Browser,ioQuery) {
                    var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
                    var dataRoot = queryParams.data || 'data';
-                   var b = new Browser({
+                   JBrowse = new Browser({
                                            containerID: "GenomeBrowser",
                                            refSeqs: dataRoot + "/refSeqs.js",
                                            include: [
@@ -33,12 +36,13 @@
                                            show_overview: queryParams.overview,
                                            config_list: queryParams.config
                                        });
-
         });
     </script>
+
   </head>
 
   <body>
     <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
+    <div style="display: none">JBrowseDefaultMainPage</div>
   </body>
 </html>
