@@ -55,13 +55,13 @@ var profile = {
         // it is actually just plain JavaScript. There is some extra magic in the build system specifically for this
         // module ID.
         'dojo/dojo': {
-            include: [ 'dojo/dojo', 'JBrowse' ],
+            include: [ 'dojo/dojo', 'JBrowse', 'dojox/data/CsvStore' ],
             boot: true,
             customBase: true
         },
 
         'JBrowse/View/TrackList/Faceted': {
-            include: [ 'JBrowse/View/TrackList/Faceted', 'dojox/data/CsvStore' ],
+            include: [ 'JBrowse/View/TrackList/Faceted' ],
             exclude: ['JBrowse']
         },
 
