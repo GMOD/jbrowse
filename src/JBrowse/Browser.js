@@ -664,7 +664,7 @@ Browser.prototype.createTrackList = function( callback ) {
              dojo.hitch( this, function( trackListClass, MetaDataStore ) { // more args after the first 2
                  var mdStores = [];
                  for( var i = 2; i<arguments.length; i++ ) {
-                     mdStores.push( new (arguments[i])({url: metaDataSourceClasses[i-2].url}) )
+                     mdStores.push( new (arguments[i])({url: metaDataSourceClasses[i-2].url}) );
                  }
 
                  var trackMeta =  new MetaDataStore(
