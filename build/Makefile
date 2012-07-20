@@ -20,7 +20,7 @@ release-notes.html: release-notes.txt
 release-normal: superclean $(JS_SRCFILES)
 	mkdir $(RELEASE_FULL_DIR);
 	-cp -r * $(RELEASE_FULL_DIR);
-	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util;
+	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/build;
 
 	( cd $(BASEDIR)/src/util/buildscripts && node ../../dojo/dojo.js load=build --require "$(BASEDIR)/build/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(RELEASE_FULL_DIR)/src"; )
 	for HTMLFILE in index compat_121; do \
@@ -39,8 +39,14 @@ release-normal-test: release-normal
 	  && prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
 release-min: release-normal
-	cp -a $(RELEASE_FULL_DIR)/ $(RELEASE_MIN_DIR)/;
-	rm -rf $(RELEASE_MIN_DIR)/{index-debug.html,/src/JBrowse,docs/jsdoc,tests,tests_extended,sample_data};
+	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
+	for P in src docs/jsdoc tests tests_extended sample_data build; do \
+	    rm -rf $(RELEASE_MIN_DIR)$$P; \
+	done;
+	for P in src/wig2png src/dojo/dojo.js src/dojo/nls src/dojo/resources src/dojox/grid src/dijit/themes/tundra src/JBrowse src/perl5; do \
+	    mkdir -p `dirname $(RELEASE_MIN_DIR)$$P`; \
+	    cp -r $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
+	done
 	zip -q -r $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 	cd $(RELEASE_MIN_DIR) && ./setup.sh;
 
