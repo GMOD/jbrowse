@@ -173,7 +173,7 @@ Util = {
         baseUrl = baseUrl.substring(0,baseUrl.length - baseUrl.match(/[^\/]*$/)[0].length);// clean off the trailing path
         if (relativeUrl == '.')
 	    return baseUrl;
-        while (relativeUrl.substring(0,3) == '../') {
+        while (baseUrl && relativeUrl.substring(0,3) == '../') {
 	    baseUrl = baseUrl.substring(0,baseUrl.length - baseUrl.match(/[^\/]*\/$/)[0].length);
 	    relativeUrl = relativeUrl.substring(3);
         }
