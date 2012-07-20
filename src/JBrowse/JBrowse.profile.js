@@ -63,6 +63,11 @@ var profile = {
         'JBrowse/View/TrackList/Faceted': {
             include: [ 'JBrowse/View/TrackList/Faceted', 'dojox/data/CsvStore' ],
             exclude: ['JBrowse']
+        },
+
+        'JBrowse/Store/BigWig': {
+            include: [ 'JBrowse/Store/BigWig', 'jszlib', 'JBrowse/View/Track/Wiggle' ],
+            exclude: ['JBrowse']
         }
     },
 
