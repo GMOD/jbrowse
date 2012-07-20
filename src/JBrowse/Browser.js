@@ -637,12 +637,7 @@ Browser.prototype.createTrackList = function( callback ) {
     var tl_class = this.config.show_tracklist == 0       ? 'Null'                         :
                    (this.config.trackSelector||{}).type  ? this.config.trackSelector.type :
                                                            'Simple';
-    require( ['JBrowse/View/TrackList/'+tl_class, 'JBrowse/Store/TrackMetaData'], dojo.hitch(this,function( resolved_tl_class, MetaDataStore ) {
-        var trackMeta =  new MetaDataStore(
-            dojo.mixin( this.config.trackMetadata || {}, {
-                            trackConfigs: this.config.tracks,
-                            browser: this,
-                            metadataStores: dojo.map(
+    var metaDataSourceClasses = dojo.map(
                                 (this.config.trackMetadata||{}).sources || [],
                                 function( sourceDef ) {
                                     var url  = sourceDef.url || 'trackMeta.csv';
@@ -658,47 +653,59 @@ Browser.prototype.createTrackList = function( callback ) {
                                                        +type+"', cannot load track metadata from URL "+url);
                                         return null;
                                     }
-                                    var store;
-                                    require([storeClass],function(storeClass) {
-                                        store = new storeClass({url: url});
-                                    });
-                                    return store;
-                                },this)
-                        })
-        );
+                                    return { class_: storeClass, url: url };
+                                });
 
 
-        // instantiate the tracklist and the track metadata object
-        this.trackListView = new resolved_tl_class(
-            dojo.mixin(
-                dojo.clone( this.config.trackSelector ) || {},
-                {
-                    trackConfigs: this.config.tracks,
-                    browser: this,
-                    trackMetaData: trackMeta
-                }
-            )
-        );
+    // load all the classes we need
+    require( Array.prototype.concat.apply( ['JBrowse/View/TrackList/'+tl_class, 'JBrowse/Store/TrackMetaData'],
+                                           dojo.map( metaDataSourceClasses, function(c) { return c.class_; } )
+                                         ),
+             dojo.hitch( this, function( trackListClass, MetaDataStore ) { // more args after the first 2
+                 var mdStores = [];
+                 for( var i = 2; i<arguments.length; i++ ) {
+                     mdStores.push( new (arguments[i])({url: metaDataSourceClasses[i-2].url}) )
+                 }
 
-        // bind the 't' key as a global keyboard shortcut
-        this.setGlobalKeyboardShortcut( 't', this.trackListView, 'toggle' );
+                 var trackMeta =  new MetaDataStore(
+                     dojo.mixin( this.config.trackMetadata || {}, {
+                                     trackConfigs: this.config.tracks,
+                                     browser: this,
+                                     metadataStores: mdStores
+                                 })
+                 );
 
-        // listen for track-visibility-changing messages from views
-        this.subscribe( '/jbrowse/v1/v/tracks/hide', dojo.hitch( this, 'onVisibleTracksChanged' ));
-        this.subscribe( '/jbrowse/v1/v/tracks/show', dojo.hitch( this, 'onVisibleTracksChanged' ));
+                 // instantiate the tracklist and the track metadata object
+                 this.trackListView = new trackListClass(
+                     dojo.mixin(
+                         dojo.clone( this.config.trackSelector ) || {},
+                         {
+                             trackConfigs: this.config.tracks,
+                             browser: this,
+                             trackMetaData: trackMeta
+                         }
+                     )
+                 );
 
-        // figure out what initial track list we will use:
-        //    from a param passed to our instance, or from a cookie, or
-        //    the passed defaults, or the last-resort default of "DNA"?
-        var origTracklist =
-               this.config.forceTracks
-            || this.cookie( "tracks" )
-            || this.config.defaultTracks
-            || "DNA";
+                 // bind the 't' key as a global keyboard shortcut
+                 this.setGlobalKeyboardShortcut( 't', this.trackListView, 'toggle' );
 
-        this.showTracks( origTracklist );
+                 // listen for track-visibility-changing messages from views
+                 this.subscribe( '/jbrowse/v1/v/tracks/hide', dojo.hitch( this, 'onVisibleTracksChanged' ));
+                 this.subscribe( '/jbrowse/v1/v/tracks/show', dojo.hitch( this, 'onVisibleTracksChanged' ));
 
-        callback();
+                 // figure out what initial track list we will use:
+                 //    from a param passed to our instance, or from a cookie, or
+                 //    the passed defaults, or the last-resort default of "DNA"?
+                 var origTracklist =
+                        this.config.forceTracks
+                     || this.cookie( "tracks" )
+                     || this.config.defaultTracks
+                     || "DNA";
+
+                 this.showTracks( origTracklist );
+
+                 callback();
     }));
 };
 
