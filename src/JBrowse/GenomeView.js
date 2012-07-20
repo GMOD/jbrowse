@@ -1555,7 +1555,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
         return trackDiv;
     }
 
-    require( [ trackClass, storeClass ], dojo.hitch(this,function( trackClass, storeClass ) {
+    require( [ storeClass, trackClass ], dojo.hitch(this,function( storeClass, trackClass ) {
 
         var store = new storeClass({
             urlTemplate: trackConfig.urlTemplate,
