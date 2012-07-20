@@ -76,7 +76,10 @@ var profile = {
         // In the demo application, we conditionally require app/Dialog on the client-side, so we’re building a
         // separate layer containing just that client-side code. (Practically speaking, you’d probably just want
         // to roll everything into a single layer, but I wanted to make sure to illustrate multi-layer builds.)
-        'JBrowse/View/TrackList/Faceted': { include: [ 'JBrowse/View/TrackList/Faceted' ], exclude: ['JBrowse'] }
+        'JBrowse/View/TrackList/Faceted': {
+            include: [ 'JBrowse/View/TrackList/Faceted', 'dojox/data/CsvStore' ],
+            exclude: ['JBrowse']
+        }
     },
 
     // Providing hints to the build system allows code to be conditionally removed on a more granular level than
