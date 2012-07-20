@@ -2,9 +2,9 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'JBrowse/Model/Range',
-            'jszlib/js/inflate'
+            'jszlib/inflate'
         ],
-        function( declare, dlang, Range, inflate_buffer ) {
+        function( declare, dlang, Range, inflate ) {
 
 var dlog = function(){ console.log.apply(console, arguments); };
 
@@ -367,7 +367,7 @@ var RequestWorker = declare( null,
                                                 var data;
                                                 if (this.window.bwg.uncompressBufSize > 0) {
                                                     // var beforeInf = Date.now();
-                                                    data = inflate_buffer(result, offset + 2, fb.size - 2);
+                                                    data = inflate(result, offset + 2, fb.size - 2);
                                                     // var afterInf = Date.now();
                                                     // dlog('inflate: ' + (afterInf - beforeInf) + 'ms');
                                                 } else {

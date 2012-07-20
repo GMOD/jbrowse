@@ -6,7 +6,8 @@ require({
         'dojo',
         'dijit',
         'dojox',
-        'JBrowse'
+        'JBrowse',
+        'jszlib'
     ],
 
     tlmSiblingOfDojo: 0,
