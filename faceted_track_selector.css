@@ -1,6 +1,8 @@
 /* Dojo and Dijit stuff */
 
 @import url("src/dojox/grid/resources/tundraGrid.css");
+@import url("src/dijit/themes/tundra/layout/AccordionContainer.css");
+
 
 .dojoxGrid table {
   margin: 0;
@@ -215,18 +217,21 @@
 }
 #faceted_tracksel .facetTitle {
     border-top: 3px solid transparent;
-    margin: -2px;
     padding: 2px 2px 2px 0.6em;
     color: #1B3047
+}
+.tundra #faceted_tracksel .dijitAccordionTitleSelected {
+    background: white;
 }
 #faceted_tracksel .dijitAccordionTitleSelected .facetTitle {
     color: black;
 }
-#faceted_tracksel .facetTitle.selected {
+
+#faceted_tracksel .activeFacet .facetTitle {
     font-weight: bold;
     color: black;
 }
-.tundra #faceted_tracksel .facetTitle.selected {
+.tundra #faceted_tracksel .activeFacet {
     border-top: 3px solid #396494;
     background-color: #AEC7E3;
 }
@@ -234,12 +239,13 @@
 #faceted_tracksel .facetTitle a {
     display: none;
 }
-#faceted_tracksel .facetTitle.selected a.clearFacet {
+#faceted_tracksel .activeFacet a.clearFacet {
     display: block;
     float: right;
-    padding: 4px 6px;
-    margin: -3px;
+    padding: 1px 6px;
 }
+
+
 /* styling specifically for the title of the first facet title, which is 'My Tracks' */
 .tundra #faceted_tracksel .dijitAccordionInnerContainer:first-child .facetTitle:after {
     content: url("src/dijit/themes/tundra/images/circleIcon.png");
@@ -248,7 +254,10 @@
 #faceted_tracksel .dijitAccordionInnerContainer:first-child .facetTitle {
     color: black;
     font-weight: bold;
-    border-bottom: 3px solid #666;
     padding-bottom: 6px;
 }
 
+/* style the 'empty' and similar messages that show up in the grid master pane */
+#faceted_tracksel .dojoxGridMasterMessages {
+    font-size: 16px;
+}

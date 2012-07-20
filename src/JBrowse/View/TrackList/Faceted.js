@@ -655,14 +655,14 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
                     },this).call();
                     evt.stopPropagation();
                 });
-                dojo.addClass( titleContent, 'selected' );
+                dojo.addClass( titleContent.parentNode.parentNode, 'activeFacet' );
                 dojo.query( '> a', titleContent )
                     .forEach(function(node) { node.onclick = clearFunc; },this)
                     .attr('title','clear selections');
         }
         // otherwise, no selected values
         else {
-                dojo.removeClass( titleContent, 'selected' );
+                dojo.removeClass( titleContent.parentNode.parentNode, 'activeFacet' );
                 dojo.query( '> a', titleContent )
                     .onclick( function(){return false;})
                     .removeAttr('title');
