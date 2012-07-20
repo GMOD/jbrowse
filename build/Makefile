@@ -31,8 +31,7 @@ release-normal: superclean $(JS_SRCFILES)
 	perl -MDateTime -i -pE 'BEGIN{ $$datestring = DateTime->from_epoch( epoch => time(), time_zone => DateTime::TimeZone->new(name => "local"))->format_cldr(q|yyyy-MM-dd HH:mm:ss VVVV|)}; s/\{\{\$$NEXT\}\}\s*/$(RELEASE_VERSION)     $$datestring\n/m' $(RELEASE_FULL_DIR)/release-notes.txt
 	cp $(RELEASE_FULL_DIR)/release-notes.txt .;
 	perl -i -pE 'say "{{\$$NEXT}}\n" unless $$x++' release-notes.txt;
-
-	zip -r $(RELEASE_FULL).zip $(RELEASE_FULL)/;
+	zip -q -r $(RELEASE_FULL).zip $(RELEASE_FULL)/;
 
 release-normal-test: release-normal
 	cd $(RELEASE_FULL_DIR) \
@@ -42,7 +41,7 @@ release-normal-test: release-normal
 release-min: release-normal
 	cp -a $(RELEASE_FULL_DIR)/ $(RELEASE_MIN_DIR)/;
 	rm -rf $(RELEASE_MIN_DIR)/{index-debug.html,/src/JBrowse,docs/jsdoc,tests,tests_extended,sample_data};
-	zip -r $(RELEASE_MIN).zip $(RELEASE_MIN)/;
+	zip -q -r $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 	cd $(RELEASE_MIN_DIR) && ./setup.sh;
 
 release-min-test: release-min
