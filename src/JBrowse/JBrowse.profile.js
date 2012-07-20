@@ -66,7 +66,7 @@ var profile = {
         },
 
         'JBrowse/Store/BigWig': {
-            include: [ 'JBrowse/Store/BigWig', 'jszlib', 'JBrowse/View/Track/Wiggle' ],
+            include: [ 'JBrowse/Store/BigWig', 'jszlib' ],
             exclude: ['JBrowse']
         }
     },
