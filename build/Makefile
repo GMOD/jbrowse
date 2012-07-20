@@ -10,6 +10,8 @@ RELEASE_FULL_DIR = $(BASEDIR)/$(RELEASE_NAME)-full/
 RELEASE_MIN  = $(RELEASE_NAME)-min
 RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_NAME)-min/
 
+ZIP=zip -q --symlinks -r
+
 all: docs bin/wig2png
 
 release: release-normal release-min release-normal-test release-min-test release-notes.html
@@ -31,7 +33,7 @@ release-normal: superclean $(JS_SRCFILES)
 	perl -MDateTime -i -pE 'BEGIN{ $$datestring = DateTime->from_epoch( epoch => time(), time_zone => DateTime::TimeZone->new(name => "local"))->format_cldr(q|yyyy-MM-dd HH:mm:ss VVVV|)}; s/\{\{\$$NEXT\}\}\s*/$(RELEASE_VERSION)     $$datestring\n/m' $(RELEASE_FULL_DIR)/release-notes.txt
 	cp $(RELEASE_FULL_DIR)/release-notes.txt .;
 	perl -i -pE 'say "{{\$$NEXT}}\n" unless $$x++' release-notes.txt;
-	zip -q -r $(RELEASE_FULL).zip $(RELEASE_FULL)/;
+	$(ZIP) $(RELEASE_FULL).zip $(RELEASE_FULL)/;
 
 release-normal-test: release-normal
 	cd $(RELEASE_FULL_DIR) \
@@ -47,8 +49,7 @@ release-min: release-normal
 	    mkdir -p `dirname $(RELEASE_MIN_DIR)$$P`; \
 	    cp -r $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
 	done
-	zip -q -r $(RELEASE_MIN).zip $(RELEASE_MIN)/;
-	cd $(RELEASE_MIN_DIR) && ./setup.sh;
+	$(ZIP) $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 
 release-min-test: release-min
 	cd $(RELEASE_MIN_DIR) && ./setup.sh;
