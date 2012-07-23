@@ -158,19 +158,6 @@ var Wiggle = declare( CanvasTrack,
                 if( context ) {
                     var toY = dojo.hitch( this, this.scale.toY, c.height );
                     var originY = toY( this.scale.origin );
-                    var drawVarianceBand;
-                    if( this.config.variance_band ) {
-                        var stats = this.store.getStats();
-                        drawVarianceBand = function( plusminus, fill ) {
-                            context.fillStyle = fill;
-                            var varTop = toY( stats.mean + plusminus );
-                            var varHeight = toY( stats.mean - plusminus ) - varTop;
-                            varHeight = Math.max( 1, varHeight );
-                            context.fillRect( 0, varTop, c.width, varHeight );
-                        };
-                        drawVarianceBand( 2*stats.stdDev, 'rgba(0,0,0,0.15)' );
-                        drawVarianceBand( stats.stdDev, 'rgba(0,0,0,0.25)' );
-                    }
 
                     //context.fillText(features.length+' spans', 10,10);
                     //console.log( 'filling '+leftBase+'-'+rightBase);
@@ -201,9 +188,19 @@ var Wiggle = declare( CanvasTrack,
                         }
                     }, this );
 
-                    if( this.config.variance_band )
+                    if( this.config.variance_band ) {
+                        var stats = this.store.getStats();
+                        var drawVarianceBand = function( plusminus, fill ) {
+                            context.fillStyle = fill;
+                            var varTop = toY( stats.mean + plusminus );
+                            var varHeight = toY( stats.mean - plusminus ) - varTop;
+                            varHeight = Math.max( 1, varHeight );
+                            context.fillRect( 0, varTop, c.width, varHeight );
+                        };
+                        drawVarianceBand( 2*stats.stdDev, 'rgba(0,0,0,0.15)' );
+                        drawVarianceBand( stats.stdDev, 'rgba(0,0,0,0.25)' );
                         drawVarianceBand( 0,'yellow' );
-
+                    }
                 }
 
                 callback( [c] );
