@@ -106,19 +106,23 @@ return declare( null,
 
             // parse the totalSummary if present (summary of all data in the file)
             if( bwg.totalSummaryOffset ) {
-                (function() {
-                    var ua = new Uint32Array( header, bwg.totalSummaryOffset, 2 );
-                    var da = new Float64Array( header, bwg.totalSummaryOffset+8, 4 );
-                    var s = {
-                        basesCovered: ua[0]<<32 | ua[1],
-                        minVal: da[0],
-                        maxVal: da[1],
-                        sumData: da[2],
-                        sumSquares: da[3]
-                    };
-                    bwg._stats = s;
-                    // rest of these will be calculated on demand in getGlobalStats
-                }).call();
+                if( Float64Array ) {
+                    (function() {
+                        var ua = new Uint32Array( header, bwg.totalSummaryOffset, 2 );
+                        var da = new Float64Array( header, bwg.totalSummaryOffset+8, 4 );
+                        var s = {
+                            basesCovered: ua[0]<<32 | ua[1],
+                            minVal: da[0],
+                            maxVal: da[1],
+                            sumData: da[2],
+                            sumSquares: da[3]
+                        };
+                        bwg._stats = s;
+                        // rest of these will be calculated on demand in getGlobalStats
+                    }).call();
+                } else {
+                    console.warn("BigWig statistics not available, this web browser is not capable of handing 64-bit floating point typed arrays (Float64Array)");
+                }
             }
 
             bwg._readChromTree(function() {
