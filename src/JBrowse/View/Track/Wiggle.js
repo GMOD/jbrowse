@@ -230,6 +230,7 @@ var Wiggle = declare( CanvasTrack,
                             style: {
                                 position: 'absolute',
                                 top: 0,
+                                display: 'none',
                                 cursor: 'default',
                                 left: '-2px',
                                 height: c.height+'px',
