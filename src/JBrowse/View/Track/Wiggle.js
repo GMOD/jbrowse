@@ -221,7 +221,8 @@ var Wiggle = declare( CanvasTrack,
                                 position: 'absolute',
                                 display: 'none',
                                 top: 0,
-                                left: 0
+                                left: 0,
+                                zIndex: 15
                             }
                         }, block );
                     var verticalLine = dojo.create( 'div', {
@@ -233,24 +234,39 @@ var Wiggle = declare( CanvasTrack,
                                 left: '-2px',
                                 height: c.height+'px',
                                 width: '1px',
-                                borderWidth: '0'
+                                borderWidth: '0',
+                                zIndex: 15
                             }
                     }, block);
+                    var outTO;
                     on( c, 'mousemove', function(evt) {
+                            if( outTO ) {
+                                window.clearTimeout( outTO );
+                                outTO = null;
+                            }
+                            var x = ( evt.offsetX || evt.layerX )-3;
                             verticalLine.style.display = 'block';
-                            verticalLine.style.left = (evt.offsetX-3)+'px';
+                            verticalLine.style.left = x+'px';
 
-                            if( typeof pixelScores[evt.offsetX-3] == 'number' ) {
-                                scoreDisplay.innerHTML = pixelScores[evt.offsetX-3];
-                                scoreDisplay.style.left = (evt.offsetX-3)+'px';
+                            var score = pixelScores[x];
+                            if( typeof score == 'number' ) {
+                                scoreDisplay.innerHTML = score;
+                                scoreDisplay.style.left = x+'px';
                                 scoreDisplay.style.display = 'block';
                             } else {
                                 scoreDisplay.style.display = 'none';
                             }
                     });
                     on( c, 'mouseout', function(evt) {
-                            scoreDisplay.style.display = 'none';
-                            verticalLine.style.display = 'none';
+                            outTO = window.setTimeout( function() {
+                                console.log('out');
+                                scoreDisplay.style.display = 'none';
+                                verticalLine.style.display = 'none';
+                            }, 50 );
+                    });
+                    on( c, 'mousein', function(evt) {
+                                scoreDisplay.style.display = 'block';
+                                verticalLine.style.display = 'block';
                     });
                 }
 
