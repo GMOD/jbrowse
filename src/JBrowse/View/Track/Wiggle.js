@@ -167,11 +167,11 @@ var Wiggle = declare( CanvasTrack,
                         if( rTop <= canvasHeight ) {
                             var rWidth = Math.ceil(( f.get('end') - f.get('start') + 1 ) * scale );
                             var rLeft  = Math.floor(( f.get('start')-1 - leftBase ) * scale );
+                            this._updatePixelScores( pixelScores, rLeft, rWidth, score );
                             if( rTop <= originY ) {
                                 // bar goes upward
                                 context.fillStyle = posColor;
                                 context.fillRect( rLeft, rTop, rWidth, originY-rTop);
-                                this._updatePixelScores( pixelScores, rLeft, rWidth, score );
                                 if( !disableClipMarkers && rTop < 0 ) { // draw clip marker if necessary
                                     context.fillStyle = clipColor || negColor;
                                     context.fillRect( rLeft, 0, rWidth, 2 );
@@ -245,7 +245,6 @@ var Wiggle = declare( CanvasTrack,
                             if( typeof pixelScores[evt.offsetX-3] == 'number' ) {
                                 scoreDisplay.innerHTML = pixelScores[evt.offsetX-3];
                                 scoreDisplay.style.left = (evt.offsetX-3)+'px';
-//                                scoreDisplay.style.top = (evt.offsetY-28)+'px';
                                 scoreDisplay.style.display = 'block';
                             } else {
                                 scoreDisplay.style.display = 'none';
@@ -279,7 +278,7 @@ var Wiggle = declare( CanvasTrack,
     _updatePixelScores: function( pixelScores, rLeft, rWidth, score ) {
         var iend = rLeft+rWidth;
         for( var i = rLeft; i < iend; i++ ) {
-            pixelScores[i] = Math.max( pixelScores[i] || -Infinity, score );
+            pixelScores[i] = i in pixelScores ? Math.max( pixelScores[i], score ) : score;
         }
     },
 
