@@ -221,9 +221,7 @@ var Wiggle = declare( CanvasTrack,
                                 position: 'absolute',
                                 display: 'none',
                                 top: 0,
-                                left: 0,
-                                //height: (c.height + 50)+'px',
-                                zIndex: 15
+                                left: 0
                             }
                         }, block );
                     var verticalLine = dojo.create( 'div', {
