@@ -197,16 +197,23 @@ var Wiggle = declare( CanvasTrack,
                     if( this.config.variance_band ) {
                         var stats = this.store.getStats();
                         if( stats && ('mean' in stats) && ('stdDev' in stats) ) {
-                            var drawVarianceBand = function( plusminus, fill ) {
+                            var drawVarianceBand = function( plusminus, fill, label ) {
                                 context.fillStyle = fill;
                                 var varTop = toY( stats.mean + plusminus );
                                 var varHeight = toY( stats.mean - plusminus ) - varTop;
                                 varHeight = Math.max( 1, varHeight );
                                 context.fillRect( 0, varTop, c.width, varHeight );
+                                if( plusminus > 0 ) {
+                                    context.fillText( '+'+label, 2, varTop );
+                                    context.fillText( '-'+label, 2, varTop+varHeight );
+                                }
+                                else {
+                                    context.fillText( label, 2, varTop );
+                                }
                             };
-                            drawVarianceBand( 2*stats.stdDev, 'rgba(0,0,0,0.15)' );
-                            drawVarianceBand( stats.stdDev, 'rgba(0,0,0,0.25)' );
-                            drawVarianceBand( 0,'yellow' );
+                            drawVarianceBand( 2*stats.stdDev, 'rgba(0,0,0,0.12)', '2σ' );
+                            drawVarianceBand( stats.stdDev, 'rgba(0,0,0,0.25)', '1σ' );
+                            drawVarianceBand( 0,'yellow', 'mean' );
                         }
                     }
                 }
