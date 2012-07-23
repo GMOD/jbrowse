@@ -144,7 +144,7 @@ var Wiggle = declare( CanvasTrack,
                     'canvas',
                     { height: canvasHeight,
                       width:  canvasWidth,
-                      innerHTML: 'Canvas-based tracks not supported by this browser'
+                      innerHTML: 'Your web browser cannot display this type of track.'
                     }
                 );
                 c.startBase = leftBase;
