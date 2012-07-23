@@ -56,7 +56,7 @@ var Range = declare( null,
 
     union: function(s1) {
         var s0 = this;
-        var ranges = s0.ranges().concat(s1.ranges()).sort(rangeOrder);
+        var ranges = s0.ranges().concat(s1.ranges()).sort( this.rangeOrder );
         var oranges = [];
         var current = ranges[0];
 
@@ -121,8 +121,12 @@ var Range = declare( null,
         return tot;
     },
 
-    rangeOrder: function(b) {
-        var a = this;
+    rangeOrder: function( a, b ) {
+        if( arguments.length < 2 ) {
+            b = a;
+            a = this;
+        }
+
         if (a.min() < b.min()) {
             return -1;
         } else if (a.min() > b.min()) {

@@ -53,7 +53,7 @@ var RequestWorker = declare( null,
         var spans;
         for (var i = 0; i < offset.length; ++i) {
             var blockSpan = new Range(offset[i], Math.min(offset[i] + maxCirBlockSpan, this.window.cirTreeOffset + this.window.cirTreeLength));
-            spans = spans ? union(spans, blockSpan) : blockSpan;
+            spans = spans ? spans.union( blockSpan ) : blockSpan;
         }
 
         var fetchRanges = spans.ranges();
@@ -316,7 +316,7 @@ var RequestWorker = declare( null,
                                 var bmax = bmin + (blockSizes[b]|0);
                                 var span = new Range(bmin, bmax);
                                 if (spans) {
-                                    spans = union(spans, span);
+                                    spans = spans.union( span );
                                 } else {
                                     spans = span;
                                 }
@@ -329,7 +329,7 @@ var RequestWorker = declare( null,
                             }
 
                             if (thickEnd > thickStart) {
-                                var tl = intersection(spans, new Range(thickStart, thickEnd));
+                                var tl = spans.intersection( new Range(thickStart, thickEnd) );
                                 if (tl) {
                                     featureOpts.type = 'bb-translation';
                                     var tlList = tl.ranges();
