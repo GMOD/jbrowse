@@ -199,7 +199,7 @@ var Wiggle = declare( CanvasTrack,
                                 var varHeight = toY( stats.mean - plusminus ) - varTop;
                                 varHeight = Math.max( 1, varHeight );
                                 context.fillRect( 0, varTop, c.width, varHeight );
-                                context.font = '10px sans-serif';
+                                context.font = '12px sans-serif';
                                 if( plusminus > 0 ) {
                                     context.fillText( '+'+label, 2, varTop );
                                     context.fillText( '-'+label, 2, varTop+varHeight );
@@ -216,21 +216,36 @@ var Wiggle = declare( CanvasTrack,
 
                     var scoreDisplay = dojo.create(
                         'div', {
-                            innerHTML: '0',
                             className: 'wiggleValueDisplay',
                             style: {
                                 position: 'absolute',
                                 display: 'none',
                                 top: 0,
                                 left: 0,
-                                zIndex: 10000
+                                //height: (c.height + 50)+'px',
+                                zIndex: 15
                             }
                         }, block );
+                    var verticalLine = dojo.create( 'div', {
+                            className: 'trackVerticalPositionIndicator',
+                            style: {
+                                position: 'absolute',
+                                top: 0,
+                                cursor: 'default',
+                                left: '-2px',
+                                height: c.height+'px',
+                                width: '1px',
+                                borderWidth: '0'
+                            }
+                    }, block);
                     on( c, 'mousemove', function(evt) {
-                            if( typeof pixelScores[evt.offsetX] == 'number' ) {
-                                scoreDisplay.innerHTML = pixelScores[evt.offsetX];
-                                scoreDisplay.style.left = evt.offsetX+'px';
-                                scoreDisplay.style.top = (evt.offsetY-28)+'px';
+                            verticalLine.style.display = 'block';
+                            verticalLine.style.left = (evt.offsetX-3)+'px';
+
+                            if( typeof pixelScores[evt.offsetX-3] == 'number' ) {
+                                scoreDisplay.innerHTML = pixelScores[evt.offsetX-3];
+                                scoreDisplay.style.left = (evt.offsetX-3)+'px';
+//                                scoreDisplay.style.top = (evt.offsetY-28)+'px';
                                 scoreDisplay.style.display = 'block';
                             } else {
                                 scoreDisplay.style.display = 'none';
@@ -238,6 +253,7 @@ var Wiggle = declare( CanvasTrack,
                     });
                     on( c, 'mouseout', function(evt) {
                             scoreDisplay.style.display = 'none';
+                            verticalLine.style.display = 'none';
                     });
                 }
 
