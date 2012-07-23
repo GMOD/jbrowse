@@ -24,22 +24,24 @@ Ruler.prototype.render_to = function( target_div ) {
 
     var target_dims = dojo.coords( target_div );
 
-    //target_div.style.overflow = "hidden";
-    var container = document.createElement('div');
+
     // make an inner container that's styled to compensate for the
     // 12px edge-padding that dojox.charting has builtin that we can't
     // change, making the tick marks align correctly with the images
     var label_digits = Math.floor( Math.log(this.max+1)/Math.log(10))+1;
 
-
-    dojo.style(container,{
+    var container = dojo.create(
+        'div', {
+            style: {
                    position: 'absolute',
                    left: "-9px",
                    bottom: "-14px",
-                   width: (30+4*label_digits)+"px",
-                   height: (target_dims.h+27)+"px"
-               });
-    target_div.appendChild(container);
+                   width: (26+4*label_digits)+"px",
+                   height: (target_dims.h+27)+"px",
+                   overflow: 'hidden'
+            }
+        },
+        target_div );
 
     try {
         var chart1 = new Chart( container, {fill: 'transparent'} );

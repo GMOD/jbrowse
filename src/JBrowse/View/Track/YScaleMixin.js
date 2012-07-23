@@ -26,7 +26,6 @@ return {
                             style: {
                                 height: this.height+'px',
                                 position: 'absolute',
-                                width: "100px",
                                 zIndex: 17
                             }
                         }, this.div );
