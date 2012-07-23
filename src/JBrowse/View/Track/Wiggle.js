@@ -1,8 +1,9 @@
 define( ['dojo/_base/declare',
+         'dojo/on',
          'JBrowse/View/Track/Canvas',
          'JBrowse/View/Track/YScaleMixin'
         ],
-        function( declare,  CanvasTrack, YScaleMixin ) {
+        function( declare, on, CanvasTrack, YScaleMixin ) {
 var Wiggle = declare( CanvasTrack,
 /**
  * @lends JBrowse.View.Track.Wiggle.prototype
@@ -120,12 +121,14 @@ var Wiggle = declare( CanvasTrack,
         return this.scale;
     },
 
-    renderCanvases: function( scale, leftBase, rightBase, callback ) {
-        if( ! callback ) {
-            console.error('null callback?');
-            return;
-        }
+    fillBlock: function( blockIndex,     block,
+                         leftBlock,      rightBlock,
+                         leftBase,       rightBase,
+                         scale,          stripeWidth,
+                         containerStart, containerEnd) {
 
+        var blockWidth = rightBase - leftBase;
+        this.heightUpdate( this.height, blockIndex );
 
         var canvasWidth  = Math.ceil(( rightBase - leftBase ) * scale);
         var canvasHeight = 100;
@@ -144,6 +147,7 @@ var Wiggle = declare( CanvasTrack,
                     'canvas',
                     { height: canvasHeight,
                       width:  canvasWidth,
+                      style: { cursor: 'default' },
                       innerHTML: 'Your web browser cannot display this type of track.'
                     }
                 );
@@ -155,9 +159,11 @@ var Wiggle = declare( CanvasTrack,
 
                     //context.fillText(features.length+' spans', 10,10);
                     //console.log( 'filling '+leftBase+'-'+rightBase);
+                    var pixelScores = new Array( c.width );
                     dojo.forEach(features, function(f) {
                         //console.log( f.get('start') +'-'+f.get('end')+':'+f.get('score') );
-                        var rTop = toY( f.get('score') );
+                        var score = f.get('score');
+                        var rTop = toY( score );
                         if( rTop <= canvasHeight ) {
                             var rWidth = Math.ceil(( f.get('end') - f.get('start') + 1 ) * scale );
                             var rLeft  = Math.floor(( f.get('start')-1 - leftBase ) * scale );
@@ -165,6 +171,7 @@ var Wiggle = declare( CanvasTrack,
                                 // bar goes upward
                                 context.fillStyle = posColor;
                                 context.fillRect( rLeft, rTop, rWidth, originY-rTop);
+                                this._updatePixelScores( pixelScores, rLeft, rWidth, score );
                                 if( !disableClipMarkers && rTop < 0 ) { // draw clip marker if necessary
                                     context.fillStyle = clipColor || negColor;
                                     context.fillRect( rLeft, 0, rWidth, 2 );
@@ -206,13 +213,59 @@ var Wiggle = declare( CanvasTrack,
                             drawVarianceBand( 0,'yellow', 'mean' );
                         }
                     }
+
+                    var scoreDisplay = dojo.create(
+                        'div', {
+                            innerHTML: '0',
+                            className: 'wiggleValueDisplay',
+                            style: {
+                                position: 'absolute',
+                                display: 'none',
+                                top: 0,
+                                left: 0,
+                                zIndex: 10000
+                            }
+                        }, block );
+                    on( c, 'mousemove', function(evt) {
+                            if( typeof pixelScores[evt.offsetX] == 'number' ) {
+                                scoreDisplay.innerHTML = pixelScores[evt.offsetX];
+                                scoreDisplay.style.left = evt.offsetX+'px';
+                                scoreDisplay.style.top = (evt.offsetY-28)+'px';
+                                scoreDisplay.style.display = 'block';
+                            } else {
+                                scoreDisplay.style.display = 'none';
+                            }
+                    });
+                    on( c, 'mouseout', function(evt) {
+                            scoreDisplay.style.display = 'none';
+                    });
                 }
 
-                callback( [c] );
+                this.heightUpdate( c.height, blockIndex );
+                c.className = 'canvas-track';
+	        if (!(c.parentNode && c.parentNode.parentNode)) {
+                    c.style.position = "absolute";
+                    c.style.left = (100 * ((c.startBase - leftBase) / blockWidth)) + "%";
+                    switch (this.config.align) {
+                    case "top":
+                        c.style.top = "0px";
+                        break;
+                    case "bottom":
+                    default:
+                        c.style.bottom = this.trackPadding + "px";
+                        break;
+                    }
+                    block.appendChild(c);
+	        }
             }));
     },
 
-
+    _updatePixelScores: function( pixelScores, rLeft, rWidth, score ) {
+        var iend = rLeft+rWidth;
+        for( var i = rLeft; i < iend; i++ ) {
+            pixelScores[i] = Math.max( pixelScores[i] || -Infinity, score );
+        }
+    },
 
     updateStaticElements: function( coords ) {
         this.inherited( arguments );

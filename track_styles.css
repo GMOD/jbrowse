@@ -403,3 +403,10 @@ div.generic_parent-hist {
     min-width: 1px;
     cursor: pointer;
 }
+
+/* floating score display for wiggle tracks */
+.wiggleValueDisplay {
+    background: rgba(255,255,255,0.8);
+    border: 1px solid #aaa;
+    padding: 2px;
+}
