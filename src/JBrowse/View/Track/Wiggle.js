@@ -260,7 +260,6 @@ var Wiggle = declare( CanvasTrack,
                     });
                     on( c, 'mouseout', function(evt) {
                             outTO = window.setTimeout( function() {
-                                console.log('out');
                                 scoreDisplay.style.display = 'none';
                                 verticalLine.style.display = 'none';
                             }, 50 );
