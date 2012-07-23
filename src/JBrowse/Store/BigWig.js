@@ -226,8 +226,8 @@ return declare( null,
                    });
     },
 
-    readWigData: function(chrName, min, max, callback) {
-        this.getUnzoomedView().readWigData(chrName, min, max, callback);
+    readWigData: function( basesPerSpan, chrName, min, max, callback) {
+        this.getView(basesPerSpan).readWigData(chrName, min, max, callback);
     },
 
     getUnzoomedView: function() {
@@ -242,7 +242,18 @@ return declare( null,
         return this.unzoomedView;
     },
 
-    getView: function( basesPerSpan ) {
+    getView: function( scale ) {
+        if( !this._viewCache || this._viewCache.scale != scale ) {
+            this._viewCache = {
+                scale: scale,
+                view: this._getView( scale )
+            };
+        }
+        return this._viewCache.view;
+    },
+
+    _getView: function( scale ) {
+        var basesPerSpan = 1/scale;
         //console.log('getting view for '+basesPerSpan+' bases per span');
         for( var i = this.zoomLevels.length - 1; i > 0; i-- ) {
             var zh = this.zoomLevels[i];

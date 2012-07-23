@@ -23,16 +23,6 @@ var Wiggle = declare( CanvasTrack,
         this.setLoaded();
     },
 
-    _getView: function(scale) {
-        if( !this._viewCache || this._viewCache.scale != scale ) {
-            this._viewCache = {
-                scale: scale,
-                view: this.store.getView(1/scale)
-            };
-        }
-        return this._viewCache.view;
-    },
-
     makeWiggleYScale: function() {
         // bump minDisplayed to 0 if it is within 0.5% of it
         if( Math.abs( this.scale.min / this.scale.max ) < 0.005 )
@@ -146,8 +136,7 @@ var Wiggle = declare( CanvasTrack,
         var clipColor = this.config.style.clip_color;
         var disableClipMarkers = this.config.disable_clip_markers;
 
-        this._getView( scale )
-            .readWigData( this.refSeq.name, leftBase, rightBase, dojo.hitch(this,function( features ) {
+        this.store.readWigData( scale, this.refSeq.name, leftBase, rightBase, dojo.hitch(this,function( features ) {
                 if(! this.yscale )
                     this.makeWiggleYScale();
 
