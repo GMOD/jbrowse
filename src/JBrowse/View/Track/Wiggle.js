@@ -137,8 +137,9 @@ var Wiggle = declare( CanvasTrack,
         var canvasHeight = 100;
         this.height = canvasHeight;
 
-        var posColor = (this.config.style||{}).pos_color || '#00f';
-        var negColor = (this.config.style||{}).neg_color || '#f00';
+        var posColor  = this.config.style.pos_color || '#00f';
+        var negColor  = this.config.style.neg_color || '#f00';
+        var clipColor = this.config.style.clip_color;
 
         this._getView( scale )
             .readWigData( this.refSeq.name, leftBase, rightBase, dojo.hitch(this,function( features ) {
@@ -182,12 +183,20 @@ var Wiggle = declare( CanvasTrack,
                             if( rTop <= originY ) {
                                 // bar goes upward
                                 context.fillStyle = posColor;
-                                context.fillRect( rLeft, rTop, rWidth, originY-rTop );
+                                context.fillRect( rLeft, rTop, rWidth, originY-rTop);
+                                if( rTop < 0 ) {
+                                    context.fillStyle = clipColor || negColor;
+                                    context.fillRect( rLeft, 0, rWidth, 2 );
+                                }
                             }
                             else {
                                 // bar goes downward
                                 context.fillStyle = negColor;
                                 context.fillRect( rLeft, originY, rWidth, canvasHeight-rTop );
+                                if( rTop >= canvasHeight ) {
+                                    context.fillStyle = clipColor || posColor;
+                                    context.fillRect( rLeft, canvasHeight-3, rWidth, 2 );
+                                }
                             }
                         }
                     }, this );
