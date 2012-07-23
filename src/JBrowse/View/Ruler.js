@@ -36,7 +36,7 @@ Ruler.prototype.render_to = function( target_div ) {
                    position: 'absolute',
                    left: "-9px",
                    bottom: "-14px",
-                   width: (26+4*label_digits)+"px",
+                   width: (30+4*label_digits)+"px",
                    height: (target_dims.h+27)+"px",
                    overflow: 'hidden'
             }
