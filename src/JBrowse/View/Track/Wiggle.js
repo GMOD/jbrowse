@@ -190,16 +190,18 @@ var Wiggle = declare( CanvasTrack,
 
                     if( this.config.variance_band ) {
                         var stats = this.store.getStats();
-                        var drawVarianceBand = function( plusminus, fill ) {
-                            context.fillStyle = fill;
-                            var varTop = toY( stats.mean + plusminus );
-                            var varHeight = toY( stats.mean - plusminus ) - varTop;
-                            varHeight = Math.max( 1, varHeight );
-                            context.fillRect( 0, varTop, c.width, varHeight );
-                        };
-                        drawVarianceBand( 2*stats.stdDev, 'rgba(0,0,0,0.15)' );
-                        drawVarianceBand( stats.stdDev, 'rgba(0,0,0,0.25)' );
-                        drawVarianceBand( 0,'yellow' );
+                        if( stats && ('mean' in stats) && ('stdDev' in stats) ) {
+                            var drawVarianceBand = function( plusminus, fill ) {
+                                context.fillStyle = fill;
+                                var varTop = toY( stats.mean + plusminus );
+                                var varHeight = toY( stats.mean - plusminus ) - varTop;
+                                varHeight = Math.max( 1, varHeight );
+                                context.fillRect( 0, varTop, c.width, varHeight );
+                            };
+                            drawVarianceBand( 2*stats.stdDev, 'rgba(0,0,0,0.15)' );
+                            drawVarianceBand( stats.stdDev, 'rgba(0,0,0,0.25)' );
+                            drawVarianceBand( 0,'yellow' );
+                        }
                     }
                 }
 
