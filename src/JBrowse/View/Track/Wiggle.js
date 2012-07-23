@@ -144,6 +144,7 @@ var Wiggle = declare( CanvasTrack,
         var posColor  = this.config.style.pos_color || '#00f';
         var negColor  = this.config.style.neg_color || '#f00';
         var clipColor = this.config.style.clip_color;
+        var disableClipMarkers = this.config.disable_clip_markers;
 
         this._getView( scale )
             .readWigData( this.refSeq.name, leftBase, rightBase, dojo.hitch(this,function( features ) {
@@ -175,7 +176,7 @@ var Wiggle = declare( CanvasTrack,
                                 // bar goes upward
                                 context.fillStyle = posColor;
                                 context.fillRect( rLeft, rTop, rWidth, originY-rTop);
-                                if( rTop < 0 ) {
+                                if( !disableClipMarkers && rTop < 0 ) { // draw clip marker if necessary
                                     context.fillStyle = clipColor || negColor;
                                     context.fillRect( rLeft, 0, rWidth, 2 );
                                 }
@@ -184,7 +185,7 @@ var Wiggle = declare( CanvasTrack,
                                 // bar goes downward
                                 context.fillStyle = negColor;
                                 context.fillRect( rLeft, originY, rWidth, canvasHeight-rTop );
-                                if( rTop >= canvasHeight ) {
+                                if( !disableClipMarkers && rTop >= canvasHeight ) { // draw clip marker if necessary
                                     context.fillStyle = clipColor || posColor;
                                     context.fillRect( rLeft, canvasHeight-3, rWidth, 2 );
                                 }
@@ -192,6 +193,7 @@ var Wiggle = declare( CanvasTrack,
                         }
                     }, this );
 
+                    // draw the variance_band if requested
                     if( this.config.variance_band ) {
                         var stats = this.store.getStats();
                         if( stats && ('mean' in stats) && ('stdDev' in stats) ) {
