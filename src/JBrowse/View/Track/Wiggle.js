@@ -49,6 +49,14 @@ var Wiggle = declare( CanvasTrack,
     },
 
     _calculateScaling: function() {
+        // if either autoscale or scale is set to z_score, the other one should default to z_score
+        if( this.config.autoscale == 'z_score' && ! this.config.scale
+            || this.config.scale == 'z_score'  && !this.config.autoscale
+          ) {
+              this.config.scale = 'z_score';
+              this.config.autoscale = 'z_score';
+          }
+
         var s = this.store.getStats();
         var min = 'min_score' in this.config ? this.config.min_score :
             (function() {
@@ -74,10 +82,6 @@ var Wiggle = declare( CanvasTrack,
                          return Math.min( s.global_max, s.mean + (this.config.z_score_bound || 4) * s.stdDev );
                  }
              }).call(this);
-
-        // if autoscale is set to z_score, config.scale should default to z_score
-        if( this.config.autoscale == 'z_score' )
-            this.config.scale = this.config.scale || 'z_score';
 
         // if we have a log scale, need to take the log of the min and max
         if( this.config.scale == 'log' ) {
