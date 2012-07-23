@@ -203,6 +203,7 @@ var Wiggle = declare( CanvasTrack,
                                 var varHeight = toY( stats.mean - plusminus ) - varTop;
                                 varHeight = Math.max( 1, varHeight );
                                 context.fillRect( 0, varTop, c.width, varHeight );
+                                context.font = '10px sans-serif';
                                 if( plusminus > 0 ) {
                                     context.fillText( '+'+label, 2, varTop );
                                     context.fillText( '-'+label, 2, varTop+varHeight );
