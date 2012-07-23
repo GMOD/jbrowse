@@ -12,7 +12,11 @@ return declare( BlockBased,
      * @constructs
      */
     constructor: function( args ) {
-        var config = args.config;
+        var config = dojo.clone( args.config || {} );
+        if( ! ('style' in config ) ) {
+            config.style = {};
+        }
+
         var refSeq = args.refSeq;
 
         BlockBased.call(
