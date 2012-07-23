@@ -210,7 +210,7 @@ var Wiggle = declare( CanvasTrack,
                             };
                             drawVarianceBand( 2*stats.stdDev, 'rgba(0,0,0,0.12)', '2σ' );
                             drawVarianceBand( stats.stdDev, 'rgba(0,0,0,0.25)', '1σ' );
-                            drawVarianceBand( 0,'yellow', 'mean' );
+                            drawVarianceBand( 0, 'rgba(255,255,0,0.7)', 'mean' );
                         }
                     }
 
