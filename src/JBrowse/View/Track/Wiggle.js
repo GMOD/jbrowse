@@ -47,7 +47,7 @@ var Wiggle = declare( CanvasTrack,
               this.config.autoscale = 'z_score';
           }
 
-        var s = this.store.getStats();
+        var s = this.store.getGlobalStats();
         var min = 'min_score' in this.config ? this.config.min_score :
             (function() {
                  switch( this.config.autoscale ) {
@@ -184,7 +184,7 @@ var Wiggle = declare( CanvasTrack,
 
                     // draw the variance_band if requested
                     if( this.config.variance_band ) {
-                        var stats = this.store.getStats();
+                        var stats = this.store.getGlobalStats();
                         if( stats && ('mean' in stats) && ('stdDev' in stats) ) {
                             var drawVarianceBand = function( plusminus, fill, label ) {
                                 context.fillStyle = fill;

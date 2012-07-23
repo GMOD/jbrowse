@@ -36,7 +36,7 @@ require(['JBrowse/Store/BigWig','JBrowse/Model/XHRBlob'], function( BigWig, XHRB
         });
 
         it('reads some good data when zoomed', function() {
-            var v = b.getView( 100000 );
+            var v = b.getView( 1/100000 );
             var wigData;
             v.readWigData( 'SL2.40ch01', 100000, 2000000, function(features) {
                 wigData = features;
@@ -54,7 +54,7 @@ require(['JBrowse/Store/BigWig','JBrowse/Model/XHRBlob'], function( BigWig, XHRB
         });
 
         it('reads the file stats (the totalSummary section)', function() {
-               var stats = b.getStats();
+               var stats = b.getGlobalStats();
                expect(stats.basesCovered).toEqual(141149153);
                expect(stats.minVal).toEqual(1);
                expect(stats.maxVal).toEqual(62066);
@@ -65,7 +65,7 @@ require(['JBrowse/Store/BigWig','JBrowse/Model/XHRBlob'], function( BigWig, XHRB
         });
 
         it('reads good data when zoomed very little', function() {
-            var v = b.getView( 17.34 );
+            var v = b.getView( 1/17.34 );
             var wigData;
             v.readWigData( 'SL2.40ch01', 19999, 24999, function(features) {
                 wigData = features;

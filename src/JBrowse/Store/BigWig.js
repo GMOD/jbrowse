@@ -117,7 +117,7 @@ return declare( null,
                         sumSquares: da[3]
                     };
                     bwg._stats = s;
-                    // rest of these will be calculated on demand in getStats
+                    // rest of these will be calculated on demand in getGlobalStats
                 }).call();
             }
 
@@ -127,7 +127,7 @@ return declare( null,
         });
     },
 
-    getStats: function() {
+    getGlobalStats: function() {
         var s = this._stats;
 
         // calc mean and standard deviation if necessary
