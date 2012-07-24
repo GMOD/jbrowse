@@ -121,7 +121,7 @@ return declare( null,
                         // rest of these will be calculated on demand in getGlobalStats
                     }).call();
                 } else {
-                    console.warn("BigWig statistics not available, this web browser is not capable of handing 64-bit floating point typed arrays (Float64Array)");
+                    console.warn("BigWig statistics cannot be extracted, this web browser is not capable of handing 64-bit floating point typed arrays (Float64Array)");
                 }
             }
 
