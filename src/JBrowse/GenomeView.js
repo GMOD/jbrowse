@@ -353,11 +353,11 @@ GenomeView.prototype._behaviors = function() { return {
                         this.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );
                 }),
 
-                dojo.connect( window, 'onkeyup', this, function(evt) {
+                dojo.connect( document.body, 'onkeyup', this, function(evt) {
                     if( evt.keyCode == dojo.keys.SHIFT ) // shift
                         this.behaviorManager.swapBehaviors( 'shiftMouse', 'normalMouse' );
                 }),
-                dojo.connect( window, 'onkeydown', this, function(evt) {
+                dojo.connect( document.body, 'onkeydown', this, function(evt) {
                     if( evt.keyCode == dojo.keys.SHIFT ) // shift
                         this.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );
                 })
