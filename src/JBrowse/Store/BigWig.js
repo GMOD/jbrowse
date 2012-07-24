@@ -106,7 +106,7 @@ return declare( null,
 
             // parse the totalSummary if present (summary of all data in the file)
             if( bwg.totalSummaryOffset ) {
-                if( Float64Array ) {
+                if( typeof Float64Array == 'function' ) {
                     (function() {
                         var ua = new Uint32Array( header, bwg.totalSummaryOffset, 2 );
                         var da = new Float64Array( header, bwg.totalSummaryOffset+8, 4 );
@@ -133,6 +133,8 @@ return declare( null,
 
     getGlobalStats: function() {
         var s = this._stats;
+        if( !s )
+            return {};
 
         // calc mean and standard deviation if necessary
         if( !( 'mean' in s ))
