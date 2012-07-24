@@ -174,6 +174,7 @@ div.gridline {
     border-style: none none none solid;
     border-width: 1px;
     border-color: red;
+    z-index: 0;
 }
 div.gridline_major {
     border-color: #bbb;

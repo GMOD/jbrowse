@@ -235,7 +235,12 @@ return declare( null,
     },
 
     readWigData: function( basesPerSpan, chrName, min, max, callback) {
-        this.getView(basesPerSpan).readWigData(chrName, min, max, callback);
+        var v = this.getView( basesPerSpan );
+        if( !v ) {
+            callback(null);
+            return null;
+        }
+        return v.readWigData(chrName, min, max, callback);
     },
 
     getUnzoomedView: function() {
@@ -251,6 +256,9 @@ return declare( null,
     },
 
     getView: function( scale ) {
+        if( ! this.zoomLevels || ! this.zoomLevels.length )
+            return null;
+
         if( !this._viewCache || this._viewCache.scale != scale ) {
             this._viewCache = {
                 scale: scale,

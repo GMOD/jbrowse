@@ -292,11 +292,11 @@ GenomeView.prototype._updateVerticalScrollBar = function( newDims ) {
         this.verticalScrollBar.container.style.height = trackPaneHeight+'px';
         var markerHeight = newDims.height / this.containerHeight * 100;
         this.verticalScrollBar.positionMarker.style.height = markerHeight > 0.5 ? markerHeight+'%' :  '1px';
-        this.verticalScrollBar.container.style.display = newDims.height / this.containerHeight > 0.98 ? 'none' : 'block';
+        this.verticalScrollBar.container.style.display = newDims.height / (this.containerHeight||1) > 0.98 ? 'none' : 'block';
     }
 
     if( typeof newDims.y == 'number' || typeof newDims.height == 'number' ) {
-        this.verticalScrollBar.positionMarker.style.top    = ( (newDims.y || this.getY()) / this.containerHeight * 100 )+'%';
+        this.verticalScrollBar.positionMarker.style.top = ( (newDims.y || this.getY() || 0 ) / (this.containerHeight||1) * 100 )+'%';
     }
 
 };
@@ -480,11 +480,11 @@ GenomeView.prototype.wheelScroll = function(e) {
 };
 
 GenomeView.prototype.getX = function() {
-    return this.x;
+    return this.x || 0;
 };
 
 GenomeView.prototype.getY = function() {
-    return this.y;
+    return this.y || 0;
 };
 GenomeView.prototype.getHeight = function() {
     return this.elem.offsetHeight;

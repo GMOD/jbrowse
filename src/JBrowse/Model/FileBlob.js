@@ -38,7 +38,7 @@ var FileBlob = declare( null,
     },
 
     _stringToBuffer: function(result) {
-        if( ! result )
+        if( ! result || typeof Uint8Array != 'function' )
             return null;
 
         var ba = new Uint8Array( result.length );

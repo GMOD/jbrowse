@@ -61,7 +61,8 @@ var XHRBlob = declare( FileBlob,
         var req = new XMLHttpRequest();
         var length;
         req.open('GET', this.url, true);
-        req.overrideMimeType('text/plain; charset=x-user-defined');
+        if( req.overrideMimeType )
+            req.overrideMimeType('text/plain; charset=x-user-defined');
         if (this.end) {
             req.setRequestHeader('Range', 'bytes=' + this.start + '-' + this.end);
             length = this.end - this.start + 1;

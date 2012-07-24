@@ -36,7 +36,7 @@ var Meta = declare( null,
             // then convert that array to a function
             if( typeof filter == 'string' )
                 filter = [filter];
-            if( Array.isArray( filter ) ) {
+            if( dojo.isArray( filter ) ) {
                 var oldfilter = filter;
                 filter = function( facetName) {
                     return dojo.some( oldfilter, function(fn) {

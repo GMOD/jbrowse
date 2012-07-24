@@ -163,7 +163,7 @@ var Wiggle = declare( CanvasTrack,
                 );
                 c.startBase = leftBase;
                 var context = c && c.getContext && c.getContext('2d');
-                if( context && this.scale && this.scale.toY ) {
+                if( context && this.scale && this.scale.toY && features ) {
                         var toY = dojo.hitch( this, this.scale.toY, c.height );
                         var originY = toY( this.scale.origin );
 
@@ -278,28 +278,31 @@ var Wiggle = declare( CanvasTrack,
                                     scoreDisplay.style.display = 'block';
                                     verticalLine.style.display = 'block';
                         });
+
+
+                    this.heightUpdate( c.height, blockIndex );
+                    c.className = 'canvas-track';
+	            if (!(c.parentNode && c.parentNode.parentNode)) {
+                        c.style.position = "absolute";
+                        c.style.left = (100 * ((c.startBase - leftBase) / blockWidth)) + "%";
+                        switch (this.config.align) {
+                        case "top":
+                            c.style.top = "0px";
+                            break;
+                        case "bottom":
+                        default:
+                            c.style.bottom = this.trackPadding + "px";
+                            break;
+                        }
+	            }
                 }
                 else {
                     // can't draw the data
                     c.parentNode.removeChild(c);
-                    c = dojo.create('div', { innerHTML: 'Track type not supported by this web browser.' }, block );
+                    var notsupported = dojo.create('div', { innerHTML: 'Track type not supported by this web browser.' }, block );
+                    this.heightUpdate( dojo.position(notsupported).h, blockIndex );
                 }
 
-                this.heightUpdate( c.height, blockIndex );
-                c.className = 'canvas-track';
-	        if (!(c.parentNode && c.parentNode.parentNode)) {
-                    c.style.position = "absolute";
-                    c.style.left = (100 * ((c.startBase - leftBase) / blockWidth)) + "%";
-                    switch (this.config.align) {
-                    case "top":
-                        c.style.top = "0px";
-                        break;
-                    case "bottom":
-                    default:
-                        c.style.bottom = this.trackPadding + "px";
-                        break;
-                    }
-	        }
             }));
     },
 
