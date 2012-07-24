@@ -1559,6 +1559,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
 
         var store = new storeClass({
             urlTemplate: trackConfig.urlTemplate,
+            compress: trackConfig.compress,
             baseUrl: trackConfig.baseUrl,
             refSeq: this.ref
         });
