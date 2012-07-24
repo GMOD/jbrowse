@@ -121,8 +121,10 @@ return declare( null,
                         // rest of these will be calculated on demand in getGlobalStats
                     }).call();
                 } else {
-                    console.warn("BigWig statistics cannot be extracted, this web browser is not capable of handing 64-bit floating point typed arrays (Float64Array)");
+                    console.warn("BigWig "+bwg.data.url+ " total summary not available, this web browser is not capable of handling this data type.");
                 }
+            } else {
+                    console.warn("BigWig "+bwg.data.url+ " has no total summary data.");
             }
 
             bwg._readChromTree(function() {
@@ -134,7 +136,7 @@ return declare( null,
     getGlobalStats: function() {
         var s = this._stats;
         if( !s )
-            return {};
+            return undefined;
 
         // calc mean and standard deviation if necessary
         if( !( 'mean' in s ))
