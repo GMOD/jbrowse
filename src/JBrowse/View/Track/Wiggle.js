@@ -282,7 +282,7 @@ var Wiggle = declare( CanvasTrack,
                 else {
                     // can't draw the data
                     c.parentNode.removeChild(c);
-                    c = dojo.create('div', { innerHTML: 'Not supported by this web browser.' }, block );
+                    c = dojo.create('div', { innerHTML: 'Track type not supported by this web browser.' }, block );
                 }
 
                 this.heightUpdate( c.height, blockIndex );
