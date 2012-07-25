@@ -77,10 +77,10 @@ var Wiggle = declare( CanvasTrack,
                  }
              }).call(this);
         if( typeof max != 'number' || isNaN(max) ) {
-            throw 'max_score could not be determined, for track "'+this.name+'", cannot draw track.';
+            throw 'could not determine max_score for track "'+this.name+'", cannot draw track.';
         }
         if( typeof min != 'number' || isNaN(min) ) {
-            throw 'min_score could not be determined, for track "'+this.name+'", cannot draw track.';
+            throw 'could not determine min_score for track "'+this.name+'", cannot draw track.';
         }
 
         // if we have a log scale, need to take the log of the min and max
