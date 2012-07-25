@@ -139,7 +139,7 @@ var Wiggle = declare( CanvasTrack,
         var blockWidth = rightBase - leftBase;
         this.heightUpdate( this.height, blockIndex );
 
-        var canvasWidth  = Math.ceil(( rightBase - leftBase ) * scale);
+        var canvasWidth  = Math.ceil(( rightBase - leftBase ) * scale)+1;
         var canvasHeight = 100;
         this.height = canvasHeight;
 
@@ -148,7 +148,7 @@ var Wiggle = declare( CanvasTrack,
         var clipColor = this.config.style.clip_color;
         var disableClipMarkers = this.config.disable_clip_markers;
 
-        this.store.readWigData( scale, this.refSeq.name, leftBase, rightBase, dojo.hitch(this,function( features ) {
+        this.store.readWigData( scale, this.refSeq.name, leftBase, rightBase+1, dojo.hitch(this,function( features ) {
                 if(! this.yscale )
                     this.makeWiggleYScale();
 
