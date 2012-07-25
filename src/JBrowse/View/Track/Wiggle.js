@@ -299,7 +299,11 @@ var Wiggle = declare( CanvasTrack,
                 else {
                     // can't draw the data
                     c.parentNode.removeChild(c);
-                    var notsupported = dojo.create('div', { innerHTML: 'Track type not supported by this web browser.' }, block );
+                    var notsupported = dojo.create(
+                        'div', {
+                            className: 'error',
+                            innerHTML: 'Track could not be displayed.  See browser error log for details.'
+                        }, block );
                     this.heightUpdate( dojo.position(notsupported).h, blockIndex );
                 }
 
