@@ -766,7 +766,9 @@ var HTMLFeatures = declare( BlockBased,
         if( this.config.menuTemplate ) {
             var menu = this._renderMenuItems( feature, this.config.menuTemplate );
             menu.startup();
-            menu.bindDomNode(featDiv);
+            menu.bindDomNode( featDiv );
+            if( labelDiv )
+                menu.bindDomNode( labelDiv );
         }
 
         return featDiv;
