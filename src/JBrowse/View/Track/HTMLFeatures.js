@@ -783,7 +783,7 @@ var HTMLFeatures = declare( BlockBased,
             var that = this;
             var initObject = {};
             for ( prop in value ) {
-                initObject[ prop ] = value [ prop ];
+                initObject[ prop ] = this.template( feature, value [ prop ] );
             }
             initObject[ 'onClick' ] = function () {
                 var url ;
@@ -806,7 +806,7 @@ var HTMLFeatures = declare( BlockBased,
                                );
                         var dialog = new dijitDialog(
                             {
-                                title: this.title || value.label || "Details",
+                                title: this.title || this.template(feature,value.label) || "Details",
                                 style: style
                             }, container
                         );
@@ -821,7 +821,7 @@ var HTMLFeatures = declare( BlockBased,
                 parent.addChild( child );
                 parent.addChild( new dijitPopupMenuItem ( {
                                                                popup : child,
-                                                               label : value.label
+                                                               label : this.template(feature,value.label)
                                                            } ) );
                 this._renderMenuItems( feature, value.children , child );
             }else{
@@ -837,6 +837,9 @@ var HTMLFeatures = declare( BlockBased,
     },
 
     template: function( feature, template ) {
+        if( typeof template != 'string')
+            return template;
+
         var urlValid = true;
         if ( template ) {
             var href = template.replace(
