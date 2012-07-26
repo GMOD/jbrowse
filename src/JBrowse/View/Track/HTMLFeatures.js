@@ -764,7 +764,7 @@ var HTMLFeatures = declare( BlockBased,
 
         // render the popup menu if present
         if( this.config.menuTemplate ) {
-            var menu = this._renderMenuItems( this.config.menuTemplate );
+            var menu = this._renderMenuItems( feature, this.config.menuTemplate );
             menu.startup();
             menu.bindDomNode(featDiv);
         }
@@ -772,7 +772,7 @@ var HTMLFeatures = declare( BlockBased,
         return featDiv;
     },
 
-    _renderMenuItems: function( menuTemplate, parent ) {
+    _renderMenuItems: function( feature, menuTemplate, parent ) {
         if ( !parent )
             parent = new dijit.Menu();
 
@@ -810,7 +810,7 @@ var HTMLFeatures = declare( BlockBased,
                                                                popup : child,
                                                                label : value.label
                                                            } ) );
-                this._renderMenuItems( value.children , child );
+                this._renderMenuItems( feature, value.children , child );
             }else{
                 var child = new dijit.MenuItem (initObject);
                 parent.addChild(child);
