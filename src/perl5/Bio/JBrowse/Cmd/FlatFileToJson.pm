@@ -92,8 +92,8 @@ sub run {
             ( $self->opt('urltemplate')       ? ( linkTemplate      => $self->opt('urltemplate')       ) : () ),
             ( $self->opt('arrowheadClass')    ? ( arrowheadClass    => $self->opt('arrowheadClass')    ) : () ),
             ( $self->opt('subfeatureClasses') ? ( subfeatureClasses => $self->opt('subfeatureClasses') ) : () ),
-            ( $self->opt('menuTemplate') ? ( menuTemplate => $self->opt('menuTemplate') ) : () ),
         },
+        ( $self->opt('menuTemplate') ? ( menuTemplate => $self->opt('menuTemplate') ) : () ),
         key          => defined( $self->opt('key') ) ? $self->opt('key') : $self->opt('trackLabel'),
         compress     => $self->opt('compress'),
      );
