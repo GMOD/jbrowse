@@ -789,19 +789,30 @@ var HTMLFeatures = declare( BlockBased,
                 var url ;
                 if ( this.url ) {
                     url = that.template( feature , this.url );
-                    if ( this.dialog !== 'true'){
-                        window.open( url );
+                    if ( this.dialog ) {
+                        var style = value.style || {};
+                        dojo.safeMixin( style, {width: '80%', height: '80%'});
+                        var container = dojo.create('div', { style: {display: 'none'} }, document.body);
+                        var iframe = dojo.create(
+                                'iframe', {
+                                    width: '100%',
+                                    height: '90%',
+                                    style: {
+                                        border: 'none'
+                                    },
+                                    src: url
+                                },
+                                container
+                               );
+                        var dialog = new dijitDialog(
+                            {
+                                title: this.title || value.label || "Details",
+                                style: style
+                            }, container
+                        );
+                        dialog.show();
                     } else {
-                        dojo.xhrGet({
-                            url: url,
-                            load: function ( data ) {
-                                var dialog = new dijitDialog({
-                                                                  title:'url',
-                                                                  content : data
-                                                              });
-                                dialog.show();
-                            }
-                        });
+                        window.open( url );
                     }
                 }
             };
