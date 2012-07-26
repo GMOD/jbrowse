@@ -774,7 +774,7 @@ var HTMLFeatures = declare( BlockBased,
 
     _renderMenuItems: function( feature, menuTemplate, parent ) {
         if ( !parent )
-            parent = new dijit.Menu();
+            parent = new dijitMenu();
 
         for ( key in menuTemplate ) {
             var value = menuTemplate [ key ];
@@ -793,7 +793,7 @@ var HTMLFeatures = declare( BlockBased,
                         dojo.xhrGet({
                             url: url,
                             load: function ( data ) {
-                                var dialog = new dijit.Dialog({
+                                var dialog = new dijitDialog({
                                                                   title:'url',
                                                                   content : data
                                                               });
@@ -804,15 +804,15 @@ var HTMLFeatures = declare( BlockBased,
                 }
             };
             if ( value.children ) {
-                var child = new dijit.Menu ();
+                var child = new dijitMenu ();
                 parent.addChild( child );
-                parent.addChild( new dijit.PopupMenuItem ( {
+                parent.addChild( new dijitPopupMenuItem ( {
                                                                popup : child,
                                                                label : value.label
                                                            } ) );
                 this._renderMenuItems( feature, value.children , child );
             }else{
-                var child = new dijit.MenuItem (initObject);
+                var child = new dijitMenuItem (initObject);
                 parent.addChild(child);
             }
         }
