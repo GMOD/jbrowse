@@ -1,5 +1,7 @@
 define( [
             'dojo/_base/declare',
+            'dojo/_base/lang',
+            'dojo/on',
             'dijit/Menu',
             'dijit/Dialog',
             'dijit/PopupMenuItem',
@@ -10,6 +12,8 @@ define( [
             'JBrowse/View/Layout'
         ],
       function( declare,
+                lang,
+                on,
                 dijitMenu,
                 dijitDialog,
                 dijitPopupMenuItem,
@@ -693,6 +697,7 @@ var HTMLFeatures = declare( BlockBased,
             labelDiv.style.left = (100 * (featureStart - block.startBase) / blockWidth)+'%';
 	    featDiv.label = labelDiv;
             labelDiv.feature = feature;
+            featDiv.labelDiv = labelDiv;
             block.appendChild(labelDiv);
         }
 
@@ -719,62 +724,36 @@ var HTMLFeatures = declare( BlockBased,
            AP new schema menuTemplate: an array where everything except
            children, popup and url are passed on as properties to a new
            dijit.Menu object
-
-           menuTemplate : [   // array of menu items, first level
-             {
-               "label" : "Demo label",
-               // skip for no icons "iconClass" : "dijitIconSearch",
-               "children" : [
-               {
-                 "label" : "Check gene on databases",
-                // AP children is recursive for nested menus
-                // NB but if it has children that 'url' will not work (since it is no longer a menuItem but a menu) 
-                 "children" : [
-                 {
-                   "label" : "Query trin",
-                   "iconClass" : "dijitIconBookmark",
-                   "url" : "http://wiki.trin.org.au/{name}-{start}-{end}"
-                 },
-                 {
-                 "label" : "Query example.com",
-                 "iconClass" : "dijitIconSearch", // example icon
-                 "url" : "http://example.com/{name}-{start}-{end}",
-                 }
-                 ]
-               },
-               {
-                 "label" : "2nd child of demo"
-               },
-               {
-                 "label" : "3rd child: this is a track"
-               }
-             ]
-             },
-             {
-               "label" : "Open dialog popup",
-               "iconClass" : "dijitIconDatabase",
-               "dialog": "true",  // popup a dialog box instead of a new window
-               // this one is from the same host so it is ok:
-               "url" : "/geogeneticsWizard/data/chado/sample/1/geojson/" // this returns a json (in our setup)
-               // proxy script needed for cross domain posting:
-               "url" : "/cgi-bin/js_proxy.cgi?url=http://example.org"  // this returns html
-             }
-         ]
          */
 
         // render the popup menu if present
         if( this.config.menuTemplate ) {
-            var menu = this._renderMenuItems( feature, this.config.menuTemplate );
-            menu.startup();
-            menu.bindDomNode( featDiv );
-            if( labelDiv )
-                menu.bindDomNode( labelDiv );
+            // don't actually make the menu until the feature is
+            // moused-over.  pre-generating menus for lots and lots of
+            // features at load time is way too slow.
+            var makeMenu = lang.hitch( this, '_makeFeatureMenu', featDiv );
+            on( featDiv,  'mouseover', makeMenu );
+            if( featDiv.labelDiv )
+                on( featDiv.labelDiv,  'mouseover', makeMenu );
         }
 
         return featDiv;
     },
 
-    _renderMenuItems: function( feature, menuTemplate, parent ) {
+    _makeFeatureMenu: function( featDiv ) {
+
+        // only make the menu once
+        if( featDiv.madeMenu ) return;
+        featDiv.madeMenu = true;
+
+        var menu = this._renderMenu( featDiv.feature, this.config.menuTemplate );
+        menu.startup();
+        menu.bindDomNode( featDiv );
+        if( featDiv.labelDiv )
+            menu.bindDomNode( featDiv.labelDiv );
+    },
+
+    _renderMenu: function( feature, menuTemplate, parent ) {
         var that = this;
        if ( !parent )
             parent = new dijitMenu();
@@ -848,7 +827,7 @@ var HTMLFeatures = declare( BlockBased,
                                                                popup : child,
                                                                label : this.template(feature,value.label)
                                                            } ) );
-                this._renderMenuItems( feature, value.children , child );
+                this._renderMenu( feature, value.children , child );
             } else {
                 var child = new dijitMenuItem (initObject);
                 parent.addChild(child);
