@@ -45,7 +45,7 @@ release-min: release-normal
 	for P in src docs/jsdoc tests tests_extended sample_data build; do \
 	    rm -rf $(RELEASE_MIN_DIR)$$P; \
 	done;
-	for P in src/wig2png src/dojo/dojo.js src/dojo/nls src/dojo/resources src/dojox/grid src/dijit/themes/tundra src/JBrowse src/perl5; do \
+	for P in src/wig2png src/dojo/dojo.js src/dojo/nls src/dojo/resources src/dojox/grid src/dijit/themes/tundra src/dijit/icons src/JBrowse src/perl5; do \
 	    mkdir -p `dirname $(RELEASE_MIN_DIR)$$P`; \
 	    cp -r $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
 	done

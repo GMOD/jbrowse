@@ -695,13 +695,117 @@ var HTMLFeatures = declare( BlockBased,
         //ie6 doesn't respect the height style if the div is empty
         if (Util.is_ie6) featDiv.appendChild(document.createComment());
         //TODO: handle event-handler-related IE leaks
+
+        /* Temi / AP adding right menu click
+           AP new schema menuTemplate: an array where everything except
+           children, popup and url are passed on as properties to a new
+           dijit.Menu object
+
+           menuTemplate : [   // array of menu items, first level
+             {
+               "label" : "Demo label",
+               // skip for no icons "iconClass" : "dijitIconSearch",
+               "children" : [
+               {
+                 "label" : "Check gene on databases",
+                // AP children is recursive for nested menus
+                // NB but if it has children that 'url' will not work (since it is no longer a menuItem but a menu) 
+                 "children" : [
+                 {
+                   "label" : "Query trin",
+                   "iconClass" : "dijitIconBookmark",
+                   "url" : "http://wiki.trin.org.au/{name}-{start}-{end}"
+                 },
+                 {
+                 "label" : "Query example.com",
+                 "iconClass" : "dijitIconSearch", // example icon
+                 "url" : "http://example.com/{name}-{start}-{end}",
+                 }
+                 ]
+               },
+               {
+                 "label" : "2nd child of demo"
+               },
+               {
+                 "label" : "3rd child: this is a track"
+               }
+             ]
+             },
+             {
+               "label" : "Open dialog popup",
+               "iconClass" : "dijitIconDatabase",
+               "dialog": "true",  // popup a dialog box instead of a new window
+               // this one is from the same host so it is ok:
+               "url" : "/geogeneticsWizard/data/chado/sample/1/geojson/" // this returns a json (in our setup)
+               // proxy script needed for cross domain posting:
+               "url" : "/cgi-bin/js_proxy.cgi?url=http://example.org"  // this returns html
+             }
+         ]
+         */
+
+        var menu;
+        var menuItems = function ( menuTemplate , parent) {
+
+            if ( !parent ) {
+                parent = new dijit.Menu ( );
+            }
+
+            for ( key in menuTemplate ) {
+                value = menuTemplate [ key ];
+                var that = this;
+                var initObject = {};
+                for ( prop in value ) {
+                    initObject[ prop ] = value [ prop ];
+                }
+                initObject[ 'onClick' ] = function () {
+                    var url ;
+                    if ( this.url ) {
+                        url = that.template ( feature , this.url ) ;
+                        if ( this.dialog !== 'true'){
+                            window.open( url );
+                        } else {
+                            dojo.xhrGet( { url:url, load:function ( data ) {
+                                               var dialog = new dijit.Dialog ({ 
+                                                                                  title:'url',
+                                                                                  content : data
+                                                                              });
+                                               dialog.show();
+                                           }
+                                         } );
+                        }
+                    }
+                };
+                if ( value.children ) {
+                    var child = new dijit.Menu ();
+                    parent.addChild( child );
+                    parent.addChild( new dijit.PopupMenuItem ( {
+                                                                   popup : child,
+                                                                   label : value.label
+                                                               } ) );
+                    menuItems.call( this , value.children , child );
+                }else{
+                    var child = new dijit.MenuItem (initObject);
+                    parent.addChild(child);
+                }
+            }
+            return parent;
+        };
+
+        menu = menuItems.call ( this ,  this.config.style.menuTemplate  );
+        menu.startup();
+        menu.bindDomNode(featDiv);
+
         return featDiv;
     },
 
     featureUrl: function(feature) {
+        return this.template ( feature , this.config.style.linkTemplate ) ;
+    },
+
+    template: function( feature, temp ) {
         var urlValid = true;
-        if (this.config.style.linkTemplate) {
-            var href = this.config.style.linkTemplate.replace(
+        if ( temp ) {
+            var href = temp.replace(
                     /\{([^}]+)\}/g,
                 function(match, group) {
                     var val = feature.get( group.toLowerCase() );

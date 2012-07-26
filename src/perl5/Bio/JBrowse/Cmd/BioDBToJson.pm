@@ -147,6 +147,7 @@ sub assemble_track_config {
         histCss
         featureCss
         linkTemplate
+        menuTemplate
     );
     for ( keys %cfg ) {
         if( $style_keys{$_} ) {

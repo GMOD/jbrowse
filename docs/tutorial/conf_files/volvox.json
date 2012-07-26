@@ -1,96 +1,155 @@
 {
-  "description": "Volvox Example Database",
-  "db_adaptor": "Bio::DB::SeqFeature::Store",
-  "db_args": { "-adaptor": "memory",
-               "-dir": "docs/tutorial/data_files" },
-
-  "TRACK DEFAULTS": {
-    "class": "feature",
-    "autocomplete": "all"
-  },
-
-  "tracks": [
-    {
-      "track": "ExampleFeatures",
-      "key": "Example Features",
-      "feature": ["remark"],
-      "autocomplete": "all",
-      "class": "feature2"
-    },
-    {
-      "track": "NameTest",
-      "feature": ["protein_coding_primary_transcript", "polypeptide"],
-      "class": "feature2",
-      "key": "Name test track"
-    },
-    {
-      "track": "snps",
-      "feature": ["SNP"],
-      "class": "triangle hgred",
-      "key": "Test SNPs"
-    },
-    {
-      "track": "Motifs",
-      "feature": ["polypeptide_domain"],
-      "class": "feature3",
-      "description": 1,
-      "key": "Example motifs"
-    },
-    {
-      "track": "Alignments",
-      "feature": ["match"],
-      "class": "feature4",
-      "key": "Example alignments",
-      "category": "Alignments"
-    },
-    {
-      "track": "Genes",
-      "feature": ["gene"],
-      "class": "feature5",
-      "key": "Protein-coding genes"
-    },
-    {
-      "track": "ReadingFrame",
-      "feature": ["mRNA"],
-      "class": "dblhelix",
-      "key": "Frame usage",
-      "category": "Genes"
-    },
-    {
-      "track": "CDS",
-      "feature": ["CDS:predicted", "mRNA:exonerate","mRNA:predicted"],
-      "class": "cds",
-      "phase": 1,
-      "key": "Predicted genes",
-      "category": "Genes",
-      "urlTemplate": "http://example.com/{name}-{start}-{end}"
-    },
-    {
-      "track": "Transcript",
-      "feature": ["mRNA:exonerate"],
-      "description": 1,
-      "class": "transcript",
-      "subfeatures": true,
-      "subfeature_classes": {
-        "CDS": "transcript-CDS",
-        "UTR": "transcript-UTR"
+   "tracks" : [
+      {
+         "feature" : [
+            "remark"
+         ],
+         "autocomplete" : "all",
+         "track" : "ExampleFeatures",
+         "class" : "feature2",
+         "key" : "Example Features"
       },
-      "arrowheadClass": "transcript-arrowhead",
-      "key": "Exonerate predictions",
-      "category": "Genes"
-    },
-    {
-      "track": "Clones",
-      "feature": ["BAC"],
-      "class": "exon",
-      "description": 1,
-      "key": "Fingerprinted BACs"
-    },
-    {
-      "track": "EST",
-      "feature": ["EST_match:est"],
-      "class": "est",
-      "key": "ESTs"
-    }
-  ]
+      {
+         "feature" : [
+            "protein_coding_primary_transcript",
+            "polypeptide"
+         ],
+         "track" : "NameTest",
+         "class" : "feature2",
+         "key" : "Name test track"
+      },
+      {
+         "feature" : [
+            "SNP"
+         ],
+         "track" : "snps",
+         "class" : "triangle hgred",
+         "key" : "Test SNPs"
+      },
+      {
+         "feature" : [
+            "polypeptide_domain"
+         ],
+         "track" : "Motifs",
+         "class" : "feature3",
+         "description" : 1,
+         "key" : "Example motifs"
+      },
+      {
+         "feature" : [
+            "match"
+         ],
+         "track" : "Alignments",
+         "category" : "Alignments",
+         "class" : "feature4",
+         "key" : "Example alignments"
+      },
+      {
+         "feature" : [
+            "gene"
+         ],
+         "track" : "Genes",
+         "class" : "feature5",
+         "key" : "Protein-coding genes"
+      },
+      {
+         "feature" : [
+            "mRNA"
+         ],
+         "track" : "ReadingFrame",
+         "category" : "Genes",
+         "class" : "dblhelix",
+         "key" : "Frame usage"
+      },
+      {
+         "feature" : [
+            "CDS:predicted",
+            "mRNA:exonerate",
+            "mRNA:predicted"
+         ],
+         "urlTemplate" : "http://example.com/{name}-{start}-{end}",
+         "phase" : 1,
+         "track" : "CDS",
+         "category" : "Genes",
+         "class" : "cds",
+         "key" : "Predicted genes",
+                "menuTemplate":[
+                    {
+                        "label":"Demo label",
+                        "children":[
+                            {
+                                "label":"Check gene on databases",
+                                "children":[
+                                    {
+                                        "iconClass":"dijitIconBookmark",
+                                        "url":"http://wiki.trin.org.au/{name}-{start}-{end}",
+                                        "label":"Query trin"
+                                    },
+                                    {
+                                        "label":"Query example.com",
+                                        "iconClass":"dijitIconSearch",
+                                        "url":"http://example.com/{name}-{start}-{end}"
+                                    }
+                                ]
+                            },
+                            {
+                                "label":"2nd child of demo"
+                            },
+                            {
+                                "label":"3rd child: this is a track"
+                            }
+                        ]
+                    },
+                    {
+                        "dialog":"true",
+                        "iconClass":"dijitIconDatabase",
+                        "url":"/cgi-bin/js_proxy.cgi?url=example.org",
+                        "label":"Open dialog popup"
+                    }
+                ]
+      },
+      {
+         "track" : "Transcript",
+         "description" : 1,
+         "key" : "Exonerate predictions",
+         "feature" : [
+            "mRNA:exonerate"
+         ],
+         "arrowheadClass" : "transcript-arrowhead",
+         "category" : "Genes",
+         "class" : "transcript",
+         "subfeature_classes" : {
+            "CDS" : "transcript-CDS",
+            "UTR" : "transcript-UTR"
+         },
+         "subfeatures" : true
+      },
+      {
+         "feature" : [
+            "BAC"
+         ],
+         "track" : "Clones",
+         "class" : "exon",
+         "description" : 1,
+         "key" : "Fingerprinted BACs"
+      },
+      {
+         "feature" : [
+            "EST_match:est"
+         ],
+         "track" : "EST",
+         "class" : "est",
+         "key" : "ESTs"
+      }
+   ],
+   "TRACK DEFAULTS" : {
+      "autocomplete" : "all",
+      "class" : "feature"
+   },
+   "db_args" : {
+      "-adaptor" : "memory",
+      "-dir" : "docs/tutorial/data_files"
+   },
+   "description" : "Volvox Example Database",
+   "db_adaptor" : "Bio::DB::SeqFeature::Store"
 }
