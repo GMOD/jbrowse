@@ -13,8 +13,9 @@ import re
 
 # Edit allowed hosts here
 allowedHosts = [
-		'localhost','example.org',
-		]
+    'localhost',
+    'example.org',
+    ]
 
 method = os.environ["REQUEST_METHOD"]
 
@@ -35,12 +36,12 @@ else:
     for param in fs:
         if param != 'url':
 	    	url += '&' + param + '=' + fs.getvalue(param)
-    
+
 try:
     if not url.startswith("http://") and not url.startswith("https://"):
         url = "http://" + url
 
-    parsedurl = re.search("^https?://(?P<domain>[^/?]+)", url) 
+    parsedurl = re.search("^https?://(?P<domain>[^/?]+)", url)
     host = parsedurl.group("domain")
 
     if allowedHosts and not host in allowedHosts:
@@ -61,7 +62,7 @@ try:
             y = urllib2.urlopen(r)
         else:
             y = urllib2.urlopen(url)
-       
+
         # print content type header
         i = y.info()
         if i.has_key("Content-Type"):
