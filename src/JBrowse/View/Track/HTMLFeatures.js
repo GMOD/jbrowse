@@ -775,12 +775,12 @@ var HTMLFeatures = declare( BlockBased,
     },
 
     _renderMenuItems: function( feature, menuTemplate, parent ) {
-        if ( !parent )
+        var that = this;
+       if ( !parent )
             parent = new dijitMenu();
 
         for ( key in menuTemplate ) {
             var value = menuTemplate [ key ];
-            var that = this;
             var initObject = {};
             for ( prop in value ) {
                 initObject[ prop ] = this.template( feature, value [ prop ] );
@@ -849,7 +849,7 @@ var HTMLFeatures = declare( BlockBased,
                                                                label : this.template(feature,value.label)
                                                            } ) );
                 this._renderMenuItems( feature, value.children , child );
-            }else{
+            } else {
                 var child = new dijitMenuItem (initObject);
                 parent.addChild(child);
             }
