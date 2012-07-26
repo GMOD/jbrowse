@@ -62,7 +62,7 @@ sub run {
 
     # read our conf file
     -r $self->opt('conf') or die "conf file not found or not readable";
-    my $config = JSON::from_json( do{ local $/; open my $f, '<', $self->opt('conf'); scalar <$f> });
+    my $config = JSON->new->relaxed->decode( do{ local $/; open my $f, '<', $self->opt('conf'); scalar <$f> });
 
     # open and configure the db defined in the config file
     eval "require $config->{db_adaptor}; 1" or die $@;
