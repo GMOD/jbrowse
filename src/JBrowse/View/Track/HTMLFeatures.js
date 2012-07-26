@@ -1,5 +1,24 @@
-define(['dojo/_base/declare','JBrowse/View/Track/BlockBased','JBrowse/View/Track/YScaleMixin', 'JBrowse/Util', 'JBrowse/View/Layout'],
-      function( declare, BlockBased, YScaleMixin, Util, Layout ) {
+define( [
+            'dojo/_base/declare',
+            'dijit/Menu',
+            'dijit/Dialog',
+            'dijit/PopupMenuItem',
+            'dijit/MenuItem',
+            'JBrowse/View/Track/BlockBased',
+            'JBrowse/View/Track/YScaleMixin',
+            'JBrowse/Util',
+            'JBrowse/View/Layout'
+        ],
+      function( declare,
+                dijitMenu,
+                dijitDialog,
+                dijitPopupMenuItem,
+                dijitMenuItem,
+                BlockBased,
+                YScaleMixin,
+                Util,
+                Layout
+              ) {
 
 var HTMLFeatures = declare( BlockBased,
 
@@ -743,69 +762,71 @@ var HTMLFeatures = declare( BlockBased,
          ]
          */
 
-        var menu;
-        var menuItems = function ( menuTemplate , parent) {
-
-            if ( !parent ) {
-                parent = new dijit.Menu ( );
-            }
-
-            for ( key in menuTemplate ) {
-                value = menuTemplate [ key ];
-                var that = this;
-                var initObject = {};
-                for ( prop in value ) {
-                    initObject[ prop ] = value [ prop ];
-                }
-                initObject[ 'onClick' ] = function () {
-                    var url ;
-                    if ( this.url ) {
-                        url = that.template ( feature , this.url ) ;
-                        if ( this.dialog !== 'true'){
-                            window.open( url );
-                        } else {
-                            dojo.xhrGet( { url:url, load:function ( data ) {
-                                               var dialog = new dijit.Dialog ({ 
-                                                                                  title:'url',
-                                                                                  content : data
-                                                                              });
-                                               dialog.show();
-                                           }
-                                         } );
-                        }
-                    }
-                };
-                if ( value.children ) {
-                    var child = new dijit.Menu ();
-                    parent.addChild( child );
-                    parent.addChild( new dijit.PopupMenuItem ( {
-                                                                   popup : child,
-                                                                   label : value.label
-                                                               } ) );
-                    menuItems.call( this , value.children , child );
-                }else{
-                    var child = new dijit.MenuItem (initObject);
-                    parent.addChild(child);
-                }
-            }
-            return parent;
-        };
-
-        menu = menuItems.call ( this ,  this.config.style.menuTemplate  );
-        menu.startup();
-        menu.bindDomNode(featDiv);
+        // render the popup menu if present
+        if( this.config.menuTemplate ) {
+            var menu = this._renderMenuItems( this.config.menuTemplate );
+            menu.startup();
+            menu.bindDomNode(featDiv);
+        }
 
         return featDiv;
+    },
+
+    _renderMenuItems: function( menuTemplate, parent ) {
+        if ( !parent )
+            parent = new dijit.Menu();
+
+        for ( key in menuTemplate ) {
+            var value = menuTemplate [ key ];
+            var that = this;
+            var initObject = {};
+            for ( prop in value ) {
+                initObject[ prop ] = value [ prop ];
+            }
+            initObject[ 'onClick' ] = function () {
+                var url ;
+                if ( this.url ) {
+                    url = that.template( feature , this.url );
+                    if ( this.dialog !== 'true'){
+                        window.open( url );
+                    } else {
+                        dojo.xhrGet({
+                            url: url,
+                            load: function ( data ) {
+                                var dialog = new dijit.Dialog({
+                                                                  title:'url',
+                                                                  content : data
+                                                              });
+                                dialog.show();
+                            }
+                        });
+                    }
+                }
+            };
+            if ( value.children ) {
+                var child = new dijit.Menu ();
+                parent.addChild( child );
+                parent.addChild( new dijit.PopupMenuItem ( {
+                                                               popup : child,
+                                                               label : value.label
+                                                           } ) );
+                this._renderMenuItems( value.children , child );
+            }else{
+                var child = new dijit.MenuItem (initObject);
+                parent.addChild(child);
+            }
+        }
+        return parent;
     },
 
     featureUrl: function(feature) {
         return this.template ( feature , this.config.style.linkTemplate ) ;
     },
 
-    template: function( feature, temp ) {
+    template: function( feature, template ) {
         var urlValid = true;
-        if ( temp ) {
-            var href = temp.replace(
+        if ( template ) {
+            var href = template.replace(
                     /\{([^}]+)\}/g,
                 function(match, group) {
                     var val = feature.get( group.toLowerCase() );
