@@ -789,28 +789,43 @@ var HTMLFeatures = declare( BlockBased,
                 var url ;
                 if ( this.url ) {
                     url = that.template( feature , this.url );
-                    if ( this.dialog ) {
-                        var style = value.style || {};
-                        dojo.safeMixin( style, {width: '80%', height: '80%'});
-                        var container = dojo.create('div', { style: {display: 'none'} }, document.body);
-                        var iframe = dojo.create(
-                                'iframe', {
-                                    width: '100%',
-                                    height: '90%',
-                                    style: {
-                                        border: 'none'
-                                    },
-                                    src: url
-                                },
-                                container
-                               );
+
+                    var style = dojo.clone( value.style || {} );
+                    dojo.safeMixin( style, {width: '80%', height: '80%' });
+                    if ( this.dialog == 'snippet' ) {
+                        dojo.safeMixin( style, { overflow: 'scroll' });
                         var dialog = new dijitDialog(
                             {
-                                title: this.title || this.template(feature,value.label) || "Details",
+                                "class": "feature-popup-dialog feature-popup-dialog-snippet",
+                                title: this.title || that.template( feature, value.label ) || "Details",
+                                href: url,
                                 style: style
-                            }, container
+                            }
                         );
                         dialog.show();
+                    } else if( this.dialog ) {
+                        var bodyPos = dojo.marginBox(document.body);
+                        var container = dojo.create('div', { id: 'fooContainer', style: { width: '100%', height: '100%', position: 'absolute', display: 'none'} }, document.body);
+                        var iframe = dojo.create(
+                            'iframe', {
+                                width: '100%', height: '100%',
+                                style: { border: 'none' }
+                            }, container
+                        );
+                        var dialog = new dijitDialog(
+                            {
+                                "class": "feature-popup-dialog feature-popup-dialog-iframe",
+                                title: this.title || that.template( feature, value.label ) || "Details",
+                                style: style
+                            },container
+                        );
+                        dialog.show();
+                        window.setTimeout(function() {
+                                              var cDims = dojo.marginBox( dialog.domNode );
+                                              iframe.width = Math.round(cDims.w*0.97);
+                                              iframe.height = Math.round(cDims.h*0.9);
+                                              iframe.src = url;
+                                          },100);
                     } else {
                         window.open( url );
                     }
