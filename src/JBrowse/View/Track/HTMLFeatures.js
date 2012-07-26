@@ -796,7 +796,7 @@ var HTMLFeatures = declare( BlockBased,
                         var dialog = new dijitDialog(
                             {
                                 "class": "feature-popup-dialog feature-popup-dialog-snippet",
-                                title: this.title || that.template( feature, value.label ) || "Details",
+                                title: this.title || that.template( feature, this.label ) || "Details",
                                 href: url,
                                 style: style
                             }
@@ -819,7 +819,7 @@ var HTMLFeatures = declare( BlockBased,
                         var dialog = new dijitDialog(
                             {
                                 "class": "feature-popup-dialog feature-popup-dialog-iframe",
-                                title: this.title || that.template( feature, value.label ) || "Details",
+                                title: this.title || that.template( feature, this.label ) || "Details",
                                 style: style
                             },container
                         );
