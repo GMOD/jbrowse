@@ -740,20 +740,33 @@ var HTMLFeatures = declare( BlockBased,
         return featDiv;
     },
 
+    /**
+     * Make the right-click dijit menu for a feature.
+     */
     _makeFeatureMenu: function( featDiv ) {
 
         // only make the menu once
         if( featDiv.madeMenu ) return;
         featDiv.madeMenu = true;
 
-        var menu = this._renderMenu( featDiv.feature, this.config.menuTemplate );
+        var menu = this._renderMenu(
+            lang.hitch( this, 'template', featDiv.feature ),
+            this.config.menuTemplate
+        );
         menu.startup();
         menu.bindDomNode( featDiv );
         if( featDiv.labelDiv )
             menu.bindDomNode( featDiv.labelDiv );
     },
 
-    _renderMenu: function( feature, menuTemplate, parent ) {
+    /**
+     * Render a dijit menu from a specification object.
+     *
+     * @param templateFill function to fill in a single-string template
+     * @param menuTemplate definition of the menu's structure
+     * @param parent {dijit.Menu|...} parent menu, if this is a submenu
+     */
+    _renderMenu: function( /**Function*/ templateFill, /**Object*/ menuTemplate, /** dijit.Menu */ parent ) {
         var that = this;
        if ( !parent )
             parent = new dijitMenu();
@@ -762,11 +775,11 @@ var HTMLFeatures = declare( BlockBased,
             var value = menuTemplate [ key ];
             var initObject = {};
             for ( prop in value ) {
-                initObject[ prop ] = this.template( feature, value [ prop ] );
+                initObject[ prop ] = templateFill( value[prop] );
             }
             initObject[ 'onClick' ] = function () {
                 if ( this.url ) {
-                    var url = that.template( feature , this.url );
+                    var url = templateFill( this.url );
                     var style = dojo.clone( value.style || {} );
 
                     // if dialog = snippet, open the link in a dialog
@@ -775,7 +788,7 @@ var HTMLFeatures = declare( BlockBased,
                         var dialog = new dijitDialog(
                             {
                                 "class": "feature-popup-dialog feature-popup-dialog-snippet",
-                                title: this.title || that.template( feature, this.label ) || "Details",
+                                title: this.title || templateFill( this.label ) || "Details",
                                 href: url,
                                 style: style
                             }
@@ -798,7 +811,7 @@ var HTMLFeatures = declare( BlockBased,
                         var dialog = new dijitDialog(
                             {
                                 "class": "feature-popup-dialog feature-popup-dialog-iframe",
-                                title: this.title || that.template( feature, this.label ) || "Details",
+                                title: this.title || templateFill( this.label ) || "Details",
                                 style: style
                             },container
                         );
@@ -825,9 +838,9 @@ var HTMLFeatures = declare( BlockBased,
                 parent.addChild( child );
                 parent.addChild( new dijitPopupMenuItem ( {
                                                                popup : child,
-                                                               label : this.template(feature,value.label)
+                                                               label : templateFill( value.label)
                                                            } ) );
-                this._renderMenu( feature, value.children , child );
+                this._renderMenu( templateFill, value.children , child );
             } else {
                 var child = new dijitMenuItem (initObject);
                 parent.addChild(child);
@@ -837,10 +850,15 @@ var HTMLFeatures = declare( BlockBased,
     },
 
     featureUrl: function(feature) {
-        return this.template ( feature , this.config.style.linkTemplate ) ;
+        return this.template ( feature, this.config.style.linkTemplate ) ;
     },
 
-    template: function( feature, template ) {
+    /**
+     * Given a string with template callouts, interpolate them with
+     * data from the given object.  For example, "{foo}" is replaced
+     * with whatever is returned by obj.get('foo')
+     */
+    template: function( /** Object */ obj, /** String */ template ) {
         if( typeof template != 'string')
             return template;
 
@@ -849,7 +867,7 @@ var HTMLFeatures = declare( BlockBased,
             var href = template.replace(
                     /\{([^}]+)\}/g,
                 function(match, group) {
-                    var val = feature.get( group.toLowerCase() );
+                    var val = obj.get( group.toLowerCase() );
                     if (val !== undefined)
                         return val;
                     else
