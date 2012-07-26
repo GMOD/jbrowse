@@ -1,21 +1,27 @@
 #!/usr/bin/env python
 
-# IF YOU ARE SEEING THIS CODE
-# THEN YOU HAVEN'T CONFIGURED
-# APACHE CGI-BIN DIR properly
+# IF YOU ARE SEEING THIS CODE, CHECK THAT CGI EXECUTION IS ENABLED FOR
+# THIS SCRIPT IN YOUR WEB SERVER CONFIGURATION
 
 import urllib2
 import cgi
 import sys, os
 import re
 
-# Designed to prevent Open Proxy type stuff.
-
-# Edit allowed hosts here
-allowedHosts = [
-    'localhost',
-    'example.org',
+# Edit allowed url strings here.  Each string can either be a regular
+# expression (beginning with ^), or a string that will be checked
+# against the first part of the URL
+allowed = [
+    'http://localhost',        # allows urls starting with http://localhost
+    'http://([^\.]+\.)?example\.com', # allows urls matching regex for *.example.com
     ]
+
+def isAllowed( allowed, url ):
+    print >> sys.stderr, allowed, url
+    for a in allowed:
+        if url.find(a) == 0 or re.match(a,url):
+            return True
+    return False
 
 method = os.environ["REQUEST_METHOD"]
 
@@ -41,16 +47,10 @@ try:
     if not url.startswith("http://") and not url.startswith("https://"):
         url = "http://" + url
 
-    parsedurl = re.search("^https?://(?P<domain>[^/?]+)", url)
-    host = parsedurl.group("domain")
-
-    if allowedHosts and not host in allowedHosts:
-        print "Status: 502 Bad Gateway"
-        print "Content-Type: text/plain\n"
-        print "Cannot access this location.\n"
-#debug comment out for production
-#        print "This proxy does not allow you to access this location (%s)." % (host,)
-#        print os.environ
+    if not isAllowed( allowed, url ):
+        print "Status: 403 Forbidden"
+        print "Content-Type: text/html\n"
+        print "JBrowse proxy not configured to allow this destination."
 
     elif url.startswith("http://") or url.startswith("https://"):
 
@@ -75,12 +75,14 @@ try:
 
         y.close()
     else:
-        print "Content-Type: text/plain"
-        print
+        print "Content-Type: text/html\n"
         print "Illegal request."
 
 except Exception, E:
     print "Status: 500 Unexpected Error"
-    print "Content-Type: text/plain\n"
+    print "Content-Type: text/html\n"
+    print "Request failed."
 # debug comment out for production
 #    print "Some unexpected error occurred. Error text was:", E
+
+
