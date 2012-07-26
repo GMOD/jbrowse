@@ -786,12 +786,12 @@ var HTMLFeatures = declare( BlockBased,
                 initObject[ prop ] = this.template( feature, value [ prop ] );
             }
             initObject[ 'onClick' ] = function () {
-                var url ;
                 if ( this.url ) {
-                    url = that.template( feature , this.url );
-
+                    var url = that.template( feature , this.url );
                     var style = dojo.clone( value.style || {} );
-                    dojo.safeMixin( style, {width: '80%', height: '80%' });
+
+                    // if dialog = snippet, open the link in a dialog
+                    // with the html from the URL just shoved in it
                     if ( this.dialog == 'snippet' ) {
                         dojo.safeMixin( style, { overflow: 'scroll' });
                         var dialog = new dijitDialog(
@@ -803,8 +803,14 @@ var HTMLFeatures = declare( BlockBased,
                             }
                         );
                         dialog.show();
-                    } else if( this.dialog ) {
-                        var container = dojo.create('div', { id: 'fooContainer', style: { width: '100%', height: '100%', position: 'absolute', display: 'none'} }, document.body);
+                    }
+
+                    // open the link in a dialog with an iframe if the
+                    // dialog is present, but not "snippet"
+                    else if( this.dialog ) {
+                        dojo.safeMixin( style, {width: '80%', height: '80%'});
+
+                        var container = dojo.create('div', {}, document.body);
                         var iframe = dojo.create(
                             'iframe', {
                                 width: '100%', height: '100%',
@@ -819,12 +825,20 @@ var HTMLFeatures = declare( BlockBased,
                             },container
                         );
                         dialog.show();
+
+                        // fix up the height and width of the iframe
+                        // after the dialog displays, and before
+                        // loading it, so that it fits in the popup
+                        // exactly
                         var cDims = dojo.marginBox( dialog.domNode );
-                        iframe.width = cDims.w;
+                        iframe.width  = cDims.w;
                         iframe.height = iframe.height = cDims.h - dojo.marginBox(dialog.titleBar).h - 2;
                         iframe.src = url;
-                    } else {
-                        window.open( url );
+                    }
+
+                    // otherwise, open the link in a new window
+                    else {
+                        window.open( url, '_blank' );
                     }
                 }
             };
