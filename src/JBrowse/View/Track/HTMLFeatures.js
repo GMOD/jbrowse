@@ -804,7 +804,6 @@ var HTMLFeatures = declare( BlockBased,
                         );
                         dialog.show();
                     } else if( this.dialog ) {
-                        var bodyPos = dojo.marginBox(document.body);
                         var container = dojo.create('div', { id: 'fooContainer', style: { width: '100%', height: '100%', position: 'absolute', display: 'none'} }, document.body);
                         var iframe = dojo.create(
                             'iframe', {
@@ -820,12 +819,10 @@ var HTMLFeatures = declare( BlockBased,
                             },container
                         );
                         dialog.show();
-                        window.setTimeout(function() {
-                                              var cDims = dojo.marginBox( dialog.domNode );
-                                              iframe.width = Math.round(cDims.w*0.97);
-                                              iframe.height = Math.round(cDims.h*0.9);
-                                              iframe.src = url;
-                                          },100);
+                        var cDims = dojo.marginBox( dialog.domNode );
+                        iframe.width = cDims.w;
+                        iframe.height = iframe.height = cDims.h - dojo.marginBox(dialog.titleBar).h - 2;
+                        iframe.src = url;
                     } else {
                         window.open( url );
                     }

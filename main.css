@@ -430,3 +430,8 @@ div.error {
     background: #ff8888;
     padding: 2px 6px;
 }
+
+/* styles dealing with popups launched by clicking on features */
+.feature-popup-dialog-iframe .dijitDialogPaneContent {
+    padding: 0;
+}
