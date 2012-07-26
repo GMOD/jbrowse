@@ -793,7 +793,6 @@ var HTMLFeatures = declare( BlockBased,
                     // if dialog = snippet, open the link in a dialog
                     // with the html from the URL just shoved in it
                     if ( this.dialog == 'snippet' ) {
-                        dojo.safeMixin( style, { overflow: 'scroll' });
                         var dialog = new dijitDialog(
                             {
                                 "class": "feature-popup-dialog feature-popup-dialog-snippet",
