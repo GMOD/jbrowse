@@ -31,6 +31,9 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # test scrolling, make sure we get no js errors
         self.scroll()
 
+        # test context menus
+        self.context_menus()
+
         # test dragging in and displaying the wiggle track
         self.wiggle()
 
@@ -57,6 +60,39 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_no_element( sequence_div_xpath_1 )
         self.do_typed_query( 'ctgA:19961..20047');
         self.assert_element( sequence_div_xpath_templ % 'ccgcgtgtagtc' )
+
+    def context_menus( self ):
+        self.turn_on_track( 'Example alignments' )
+        self.do_typed_query( '20147..35574' );
+
+        # check that there is no dialog open
+        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'snippet')]");
+
+        # get the example alignments features
+        feature_elements = self.assert_elements("//div[@id='track_Alignments']//div[contains(@class,'plus-feature4')]")
+
+        # right-click one of them
+        self.actionchains() \
+            .context_click(feature_elements[20]) \
+            .move_by_offset( 20, 55 ) \
+            .click() \
+            .perform()
+
+        # wait for the dialog to finish fading in
+        time.sleep(0.5)
+
+        # check that the proper HTML snippet popped up in the dialog
+        self.assert_element("//div[contains(@class,'dijitDialog')]//span[@class='amazingTestSnippet']")
+
+        # close the dialog
+        dialog_close = self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title,'snippet')]/span[contains(@class,'dijitDialogCloseIcon')]")
+        dialog_close.click()
+
+        time.sleep(0.5) # wait for it to finish fading out
+
+        # check that the dialog closed
+        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'snippet')]");
+
 
     def wiggle( self ):
 

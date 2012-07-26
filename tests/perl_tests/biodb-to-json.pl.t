@@ -130,7 +130,50 @@ use FileSlurping 'slurp';
             'urlTemplate' => 'tracks/Alignments/{refseq}/trackData.json',
             'key' => 'Example alignments',
             'label' => 'Alignments',
-            'type' => 'FeatureTrack'
+            'type' => 'FeatureTrack',
+
+      'menuTemplate' => [
+        {
+          'children' => [
+            {
+              'children' => [
+                {
+                  'iconClass' => 'dijitIconBookmark',
+                  'label' => 'Query trin for {name}',
+                  'url' => 'http://wiki.trin.org.au/{name}-{start}-{end}'
+                },
+                {
+                  'iconClass' => 'dijitIconSearch',
+                  'label' => 'Query example.com for {name}',
+                  'url' => 'http://example.com/{name}-{start}-{end}'
+                }
+              ],
+              'label' => 'Check gene on databases'
+            },
+            {
+              'label' => '2nd child of demo'
+            },
+            {
+              'label' => '3rd child: this is a track'
+            }
+          ],
+          'label' => 'Item with submenu'
+        },
+        {
+          'dialog' => 'true',
+          'dialogTitle' => 'The magnificent example.com',
+          'iconClass' => 'dijitIconDatabase',
+          'label' => 'Open example.com in an iframe popup',
+          'url' => 'http://www.example.com?featurename={name}'
+        },
+        {
+          'dialog' => 'snippet',
+          'iconClass' => 'dijitIconDatabase',
+          'label' => 'Open a popup with a snippet of HTML',
+          'url' => 'sample_data/test_snippet.html'
+        }
+      ],
+
         },
         {
             'autocomplete' => 'all',

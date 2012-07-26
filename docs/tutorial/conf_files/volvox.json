@@ -1,4 +1,4 @@
-{
+ {
    "tracks" : [
       {
          "feature" : [
@@ -42,7 +42,45 @@
          "track" : "Alignments",
          "category" : "Alignments",
          "class" : "feature4",
-         "key" : "Example alignments"
+         "key" : "Example alignments",
+         "menuTemplate" : [
+             {
+               "label" : "Item with submenu",
+               # hello this is a comment
+               "children" : [
+               {
+                 "label" : "Check gene on databases",
+                 "children" : [
+                 {
+                   "label" : "Query trin for {name}",
+                   "iconClass" : "dijitIconBookmark",
+                   "url" : "http://wiki.trin.org.au/{name}-{start}-{end}"
+                 },
+                 {
+                 "label" : "Query example.com for {name}",
+                 "iconClass" : "dijitIconSearch",
+                 "url" : "http://example.com/{name}-{start}-{end}"
+                 }
+                 ]
+               },
+               { "label" : "2nd child of demo" },
+               { "label" : "3rd child: this is a track" }
+             ]
+             },
+             {
+               "label" : "Open example.com in an iframe popup",
+               "dialogTitle" : "The magnificent example.com",
+               "iconClass" : "dijitIconDatabase",
+               "dialog": "true",
+               "url" : "http://www.example.com?featurename={name}"
+             },
+             {
+               "label" : "Open a popup with a snippet of HTML",
+               "iconClass" : "dijitIconDatabase",
+               "dialog": "snippet",
+               "url" : "sample_data/test_snippet.html"
+             }
+         ]
       },
       {
          "feature" : [
@@ -72,41 +110,7 @@
          "track" : "CDS",
          "category" : "Genes",
          "class" : "cds",
-         "key" : "Predicted genes",
-                "menuTemplate":[
-                    {
-                        "label":"Demo label",
-                        "children":[
-                            {
-                                "label":"Check gene on databases",
-                                "children":[
-                                    {
-                                        "iconClass":"dijitIconBookmark",
-                                        "url":"http://wiki.trin.org.au/{name}-{start}-{end}",
-                                        "label":"Query trin"
-                                    },
-                                    {
-                                        "label":"Query example.com",
-                                        "iconClass":"dijitIconSearch",
-                                        "url":"http://example.com/{name}-{start}-{end}"
-                                    }
-                                ]
-                            },
-                            {
-                                "label":"2nd child of demo"
-                            },
-                            {
-                                "label":"3rd child: this is a track"
-                            }
-                        ]
-                    },
-                    {
-                        "dialog":"true",
-                        "iconClass":"dijitIconDatabase",
-                        "url":"/cgi-bin/js_proxy.cgi?url=example.org",
-                        "label":"Open dialog popup"
-                    }
-                ]
+         "key" : "Predicted genes"
       },
       {
          "track" : "Transcript",
