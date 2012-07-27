@@ -80,15 +80,17 @@
              },
              {
                "label" : "Open popup with XHR HTML snippet (btw this is feature {name})",
+               "title": "function(track,feature,div) { return 'Random XHR HTML '+Math.random()+' title!'; }",
                "iconClass" : "dijitIconDatabase",
                "target": "snippetDialog",
                "url" : "sample_data/test_snippet.html?featurename={name}:{start}-{end}"
              },
              {
                "label" : "Open popup with content snippet (btw this is feature {name})",
+               "title": "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
                "iconClass" : "dijitIconDatabase",
                "target": "contentDialog",
-               "content" : "This is some test content about feature {name}!"
+               "content" : "function(track,feature,div) { return '<h2>{name}</h2><p>This is some test content about feature {name}!</p><p>This message brought to you by the number <span style=\"font-size: 300%\">'+Math.round(Math.random()*100)+'</span>.</p>';} "
              }
          ]
       },

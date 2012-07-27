@@ -731,9 +731,9 @@ var HTMLFeatures = declare( BlockBased,
         featDiv.madeMenu = true;
 
         // interpolate template strings in the menuTemplate
-        var menuTemplate = this._templateMenuSpec(
+        var menuTemplate = this._processMenuSpec(
             dojo.clone( this.config.menuTemplate ),
-            lang.hitch( this, 'template', featDiv.feature )
+            featDiv
         );
 
         // render the menu, start it up, and bind it to right-clicks
@@ -745,14 +745,20 @@ var HTMLFeatures = declare( BlockBased,
             menu.bindDomNode( featDiv.labelDiv );
     },
 
-    _templateMenuSpec: function( spec, templateFunc ) {
+    _processMenuSpec: function( spec, featDiv ) {
         for( var x in spec ) {
             if( typeof spec[x] == 'object' )
-                spec[x] = this._templateMenuSpec( spec[x], templateFunc );
+                spec[x] = this._processMenuSpec( spec[x], featDiv );
             else
-                spec[x] = templateFunc( spec[x] );
+                spec[x] = this.template( featDiv.feature, this._getConf( featDiv, spec[x] ) );
         }
         return spec;
+    },
+
+    _getConf: function( featDiv, confVal ) {
+        return typeof confVal == 'function'
+            ? confVal( this, featDiv.feature, featDiv )
+            : confVal;
     },
 
     /**
