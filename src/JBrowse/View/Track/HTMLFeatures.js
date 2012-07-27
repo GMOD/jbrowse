@@ -749,37 +749,46 @@ var HTMLFeatures = declare( BlockBased,
         if( featDiv.madeMenu ) return;
         featDiv.madeMenu = true;
 
-        var menu = this._renderMenu(
-            lang.hitch( this, 'template', featDiv.feature ),
-            this.config.menuTemplate
+        // interpolate template strings in the menuTemplate
+        var menuTemplate = this._templateMenuSpec(
+            dojo.clone( this.config.menuTemplate ),
+            lang.hitch( this, 'template', featDiv.feature )
         );
+
+        var menu = this._renderMenu( menuTemplate );
         menu.startup();
         menu.bindDomNode( featDiv );
         if( featDiv.labelDiv )
             menu.bindDomNode( featDiv.labelDiv );
     },
 
+    _templateMenuSpec: function( spec, templateFunc ) {
+        for( var x in spec ) {
+            if( typeof spec[x] == 'object' )
+                spec[x] = this._templateMenuSpec( spec[x], templateFunc );
+            else
+                spec[x] = templateFunc( spec[x] );
+        }
+        return spec;
+    },
+
     /**
      * Render a dijit menu from a specification object.
      *
-     * @param templateFill function to fill in a single-string template
      * @param menuTemplate definition of the menu's structure
      * @param parent {dijit.Menu|...} parent menu, if this is a submenu
      */
-    _renderMenu: function( /**Function*/ templateFill, /**Object*/ menuTemplate, /** dijit.Menu */ parent ) {
+    _renderMenu: function( /**Object*/ menuStructure, /** dijit.Menu */ parent ) {
         var that = this;
        if ( !parent )
             parent = new dijitMenu();
 
-        for ( key in menuTemplate ) {
-            var value = menuTemplate [ key ];
-            var initObject = {};
-            for ( prop in value ) {
-                initObject[ prop ] = templateFill( value[prop] );
-            }
+        for ( key in menuStructure ) {
+            var value = menuStructure [ key ];
+            var initObject = dojo.clone( value );
             initObject[ 'onClick' ] = function () {
                 if ( this.url ) {
-                    var url = templateFill( this.url );
+                    var url = this.url;
                     var style = dojo.clone( value.style || {} );
 
                     // if dialog = snippet, open the link in a dialog
@@ -788,7 +797,7 @@ var HTMLFeatures = declare( BlockBased,
                         var dialog = new dijitDialog(
                             {
                                 "class": "feature-popup-dialog feature-popup-dialog-snippet",
-                                title: this.title || templateFill( this.label ) || "Details",
+                                title: this.title || this.label || "Details",
                                 href: url,
                                 style: style
                             }
@@ -811,7 +820,7 @@ var HTMLFeatures = declare( BlockBased,
                         var dialog = new dijitDialog(
                             {
                                 "class": "feature-popup-dialog feature-popup-dialog-iframe",
-                                title: this.title || templateFill( this.label ) || "Details",
+                                title: this.title || this.label || "Details",
                                 style: style
                             },container
                         );
@@ -838,9 +847,9 @@ var HTMLFeatures = declare( BlockBased,
                 parent.addChild( child );
                 parent.addChild( new dijitPopupMenuItem ( {
                                                                popup : child,
-                                                               label : templateFill( value.label)
+                                                               label : value.label
                                                            } ) );
-                this._renderMenu( templateFill, value.children , child );
+                this._renderMenu( value.children , child );
             } else {
                 var child = new dijitMenuItem (initObject);
                 parent.addChild(child);
