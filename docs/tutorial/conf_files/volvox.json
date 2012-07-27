@@ -44,7 +44,7 @@
          "class" : "feature4",
          "key" : "Example alignments",
          "hooks": {
-             "modify": "function( track, feature, div ) { div.style.height = (Math.random()*10+8)+'px'; }"
+             "modify": "function( track, feature, div ) { div.style.height = (Math.random()*10+8)+'px';  div.style.backgroundColor = ['green','blue','red','orange','purple'][Math.round(Math.random()*5)];}"
          },
          "menuTemplate" : [
              {
