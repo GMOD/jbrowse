@@ -726,7 +726,7 @@ var HTMLFeatures = declare( BlockBased,
            dijit.Menu object
          */
 
-        // render the popup menu if present
+        // render the popup menu if configured
         if( this.config.menuTemplate ) {
             // don't actually make the menu until the feature is
             // moused-over.  pre-generating menus for lots and lots of
@@ -755,6 +755,8 @@ var HTMLFeatures = declare( BlockBased,
             lang.hitch( this, 'template', featDiv.feature )
         );
 
+        // render the menu, start it up, and bind it to right-clicks
+        // both on the feature div and on the label div
         var menu = this._renderMenu( menuTemplate );
         menu.startup();
         menu.bindDomNode( featDiv );
