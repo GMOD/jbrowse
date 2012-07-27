@@ -120,31 +120,12 @@ var HTMLFeatures = declare( BlockBased,
         Util.deepUpdate(defaultConfig, this.config);
         this.config = defaultConfig;
 
-        this.config.hooks.create = this.evalHook(this.config.hooks.create);
-        this.config.hooks.modify = this.evalHook(this.config.hooks.modify);
-
-        this.eventHandlers = {};
-        for (var event in this.config.events) {
-            this.eventHandlers[event] =
-                this.wrapHandler(this.evalHook(this.config.events[event]));
-        }
+        this.eventHandlers = dojo.clone(this.config.events);
 
         this.labelScale = this.featureStore.density * this.config.style.labelScale;
         this.subfeatureScale = this.featureStore.density * this.config.style.subfeatureScale;
 
         this.setLoaded();
-    },
-
-    evalHook: function(hook) {
-        if (! ("string" == typeof hook)) return hook;
-        var result;
-        try {
-            result = eval("(" + hook + ")");
-        } catch (e) {
-            console.log("eval failed for hook on track "
-                        + this.name + ": " + hook);
-        }
-        return result;
     },
 
     /**
@@ -712,7 +693,7 @@ var HTMLFeatures = declare( BlockBased,
             }
         }
 
-        if (this.config.hooks.modify) {
+        if ( typeof this.config.hooks.modify == 'function' ) {
             this.config.hooks.modify(this, feature, featDiv);
         }
 

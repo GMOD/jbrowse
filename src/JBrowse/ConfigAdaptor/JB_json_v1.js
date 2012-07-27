@@ -67,7 +67,34 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             o.baseUrl   = o.baseUrl || Util.resolveUrl( o.sourceUrl, '.' );
             if( ! /\/$/.test( o.baseUrl ) )
                 o.baseUrl += "/";
-            return o;
+
+            return this._evalHooks( o );
+        },
+
+        _evalHooks: function( conf ) {
+            for( var x in conf ) {
+                if( typeof conf[x] == 'object' )
+                    // recur
+                    conf[x] = this._evalHooks( conf[x] );
+                else if( typeof conf[x] == 'string' ) {
+                    // compile
+                    var spec = conf[x];
+                    if( /^function\s*\(/.test(spec) && /\}\s*$/.test(spec) ) {
+                        conf[x] = this._evalHook(spec);
+                    }
+                }
+            }
+            return conf;
+        },
+        _evalHook: function(hook) {
+            if (! ("string" == typeof hook)) return hook;
+            var result;
+            try {
+                result = eval("(" + hook + ")");
+            } catch (e) {
+                console.log("eval failed for callback '"+hook+"': "+e);
+            }
+            return result;
         }
 });
 });
