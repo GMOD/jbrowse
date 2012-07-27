@@ -781,69 +781,12 @@ var HTMLFeatures = declare( BlockBased,
      * @param parent {dijit.Menu|...} parent menu, if this is a submenu
      */
     _renderMenu: function( /**Object*/ menuStructure, /** dijit.Menu */ parent ) {
-        var that = this;
        if ( !parent )
             parent = new dijitMenu();
 
         for ( key in menuStructure ) {
             var value = menuStructure [ key ];
             var initObject = dojo.clone( value );
-            initObject[ 'onClick' ] = function () {
-                if ( this.url ) {
-                    var url = this.url;
-                    var style = dojo.clone( value.style || {} );
-
-                    // if dialog = snippet, open the link in a dialog
-                    // with the html from the URL just shoved in it
-                    if ( this.dialog == 'snippet' ) {
-                        var dialog = new dijitDialog(
-                            {
-                                "class": "feature-popup-dialog feature-popup-dialog-snippet",
-                                title: this.title || this.label || "Details",
-                                href: url,
-                                style: style
-                            }
-                        );
-                        dialog.show();
-                    }
-
-                    // open the link in a dialog with an iframe if the
-                    // dialog is present, but not "snippet"
-                    else if( this.dialog ) {
-                        dojo.safeMixin( style, {width: '80%', height: '80%'});
-
-                        var container = dojo.create('div', {}, document.body);
-                        var iframe = dojo.create(
-                            'iframe', {
-                                width: '100%', height: '100%',
-                                style: { border: 'none' }
-                            }, container
-                        );
-                        var dialog = new dijitDialog(
-                            {
-                                "class": "feature-popup-dialog feature-popup-dialog-iframe",
-                                title: this.title || this.label || "Details",
-                                style: style
-                            },container
-                        );
-                        dialog.show();
-
-                        // fix up the height and width of the iframe
-                        // after the dialog displays, and before
-                        // loading it, so that it fits in the popup
-                        // exactly
-                        var cDims = dojo.marginBox( dialog.domNode );
-                        iframe.width  = cDims.w;
-                        iframe.height = iframe.height = cDims.h - dojo.marginBox(dialog.titleBar).h - 2;
-                        iframe.src = url;
-                    }
-
-                    // otherwise, open the link in a new window
-                    else {
-                        window.open( url, '_blank' );
-                    }
-                }
-            };
             if ( value.children ) {
                 var child = new dijitMenu ();
                 parent.addChild( child );
@@ -853,11 +796,97 @@ var HTMLFeatures = declare( BlockBased,
                                                            } ) );
                 this._renderMenu( value.children , child );
             } else {
+                initObject.onClick = this._makeClickHandler( value );
                 var child = new dijitMenuItem (initObject);
                 parent.addChild(child);
             }
         }
         return parent;
+    },
+
+    _openDialog: function( spec ) {
+        var type = spec.target;
+        type = type.replace(/Dialog/,'');
+        var dialogOpts = {
+            "class": "feature-popup-dialog feature-popup-dialog-"+type,
+            title: spec.title || "Details",
+            style: dojo.clone( spec.style || {} )
+        };
+
+        // if dialog == snippet, open the link in a dialog
+        // with the html from the URL just shoved in it
+        if( type == 'snippet' || type == 'content' ) {
+            if( type == 'snippet' )
+                dialogOpts.href = spec.url;
+            else
+                dialogOpts.content = spec.content || 'No data available.';
+            var dialog = new dijitDialog( dialogOpts );
+            dialog.show();
+        }
+        // open the link in a dialog with an iframe
+        else if( type == 'iframe' ) {
+            dojo.safeMixin( dialogOpts.style, {width: '80%', height: '80%'});
+
+            var container = dojo.create('div', {}, document.body);
+            var iframe = dojo.create(
+                'iframe', {
+                    width: '100%', height: '100%',
+                    style: { border: 'none' }
+                }, container
+            );
+            var dialog = new dijitDialog( dialogOpts, container );
+            dialog.show();
+
+            // fix up the height and width of the iframe
+            // after the dialog displays, and before
+            // loading it, so that it fits in the popup
+            // exactly
+            var cDims = dojo.marginBox( dialog.domNode );
+            iframe.width  = cDims.w;
+            iframe.height = iframe.height = cDims.h - dojo.marginBox(dialog.titleBar).h - 2;
+            iframe.src = spec.url;
+        }
+    },
+
+    _makeClickHandler: function( spec ) {
+        var track = this;
+        spec = dojo.clone( spec );
+
+        return function () {
+            // note: `this` is the clicked element
+            var url = spec.url || spec.href;
+            spec.url = url;
+            var style = dojo.clone( spec.style || {} );
+
+            // try to understand the this.target setting
+            spec.target = spec.target ||
+                ( url          ? 'iframeDialog'  :
+                  spec.content ? 'contentDialog' :
+                                 false
+                );
+
+            spec.title = spec.title || spec.label;
+
+            if( spec.target ) {
+                spec.target = {
+                    iframedialog:   'iframeDialog',
+                    iframe:         'iframeDialog',
+                    contentdialog:  'contentDialog',
+                    content:        'content',
+                    snippetdialog:  'snippetDialog',
+                    snippet:        'snippet',
+                    newwindow:      'newWindow',
+                    "_blank":       'newWindow'
+                }[(''+spec.target).toLowerCase()];
+
+                if( spec.target == 'newWindow' )
+                    window.open( url, '_blank' );
+                else
+                    track._openDialog( spec );
+            } else {
+                return;
+            }
+        };
     },
 
     featureUrl: function(feature) {

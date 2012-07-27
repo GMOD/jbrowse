@@ -54,6 +54,7 @@
                  {
                    "label" : "Query trin for {name}",
                    "iconClass" : "dijitIconBookmark",
+                   "target": "newWindow",
                    "url" : "http://wiki.trin.org.au/{name}-{start}-{end}"
                  },
                  {
@@ -69,16 +70,22 @@
              },
              {
                "label" : "Open example.com in an iframe popup",
-               "dialogTitle" : "The magnificent example.com",
+               "title" : "The magnificent example.com (feature {name})",
                "iconClass" : "dijitIconDatabase",
-               "dialog": "true",
+               "target": "iframeDialog",
                "url" : "http://www.example.com?featurename={name}"
              },
              {
-               "label" : "Open a popup with a snippet of HTML",
+               "label" : "Open popup with XHR HTML snippet (btw this is feature {name})",
                "iconClass" : "dijitIconDatabase",
-               "dialog": "snippet",
-               "url" : "sample_data/test_snippet.html"
+               "target": "snippetDialog",
+               "url" : "sample_data/test_snippet.html?featurename={name}:{start}-{end}"
+             },
+             {
+               "label" : "Open popup with content snippet (btw this is feature {name})",
+               "iconClass" : "dijitIconDatabase",
+               "target": "contentDialog",
+               "content" : "This is some test content about feature {name}!"
              }
          ]
       },
