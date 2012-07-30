@@ -126,7 +126,7 @@
             "mRNA:exonerate",
             "mRNA:predicted"
          ],
-         "urlTemplate" : "http://example.com/{name}-{start}-{end}",
+         "urlTemplate" : "http://www.ncbi.nlm.nih.gov/?term={name}-{start}-{end}",
          "phase" : 1,
          "track" : "CDS",
          "category" : "Genes",

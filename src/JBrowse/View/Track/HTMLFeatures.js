@@ -97,7 +97,7 @@ var HTMLFeatures = declare( BlockBased,
                     var feat = this.feature;
                     var lt = this.track.config.linkTemplate || this.track.config.style.linkTemplate;
                     if( lt )
-                        alert( this.track.template( this.feature, lt ),
+                        window.open( this.track.template( this.feature, lt ),
                                      '_blank' );
                     else
 	                alert( "clicked on feature\n" +
@@ -742,14 +742,14 @@ var HTMLFeatures = declare( BlockBased,
             if( typeof spec[x] == 'object' )
                 spec[x] = this._processMenuSpec( spec[x], featDiv );
             else
-                spec[x] = this.template( featDiv.feature, this._getConf( featDiv, x, spec[x] ) );
+                spec[x] = this.template( featDiv.feature, this._evalConf( featDiv, x, spec[x] ) );
         }
         return spec;
     },
 
-    _getConf: function( featDiv, confKey, confVal ) {
+    _evalConf: function( featDiv, confKey, confVal ) {
 
-        // list of conf keys that should not be run immediately on the
+        // list of conf vals that should not be run immediately on the
         // feature data if they are functions
         var dontRunImmediately = {
             action: 1,
@@ -800,12 +800,13 @@ var HTMLFeatures = declare( BlockBased,
         return parent;
     },
 
-    _openDialog: function( spec, evt ) {
+    _openDialog: function( spec, evt, context ) {
+        context = context || {};
         var type = spec.action;
         type = type.replace(/Dialog/,'');
         var dialogOpts = {
             "class": "feature-popup-dialog feature-popup-dialog-"+type,
-            title: spec.title || "Details",
+            title: spec.title || spec.label || ( context.feature ? context.feature.get('name')+' details' : "Details"),
             style: dojo.clone( spec.style || {} )
         };
 
@@ -854,7 +855,8 @@ var HTMLFeatures = declare( BlockBased,
         }
 
         return function ( evt ) {
-            var url = spec.url || spec.href;
+            var ctx = context || this;
+            var url = track.template( ctx.feature, spec.url || spec.href );
             spec.url = url;
             var style = dojo.clone( spec.style || {} );
 
@@ -864,7 +866,7 @@ var HTMLFeatures = declare( BlockBased,
                   spec.content ? 'contentDialog' :
                                  false
                 );
-            spec.title = spec.title || spec.label;
+            spec.title = track.template( ctx.feature, spec.title || spec.label );
 
             if( typeof spec.action == 'string' ) {
                 // treat `action` case-insensitively
@@ -882,10 +884,10 @@ var HTMLFeatures = declare( BlockBased,
                 if( spec.action == 'newWindow' )
                     window.open( url, '_blank' );
                 else if( spec.action in { iframeDialog:1, contentDialog:1, snippetDialog:1} )
-                    track._openDialog( spec, evt );
+                    track._openDialog( spec, evt, ctx );
             }
             else if( typeof spec.action == 'function' ) {
-                spec.action.call( context || this, evt );
+                spec.action.call( ctx, evt );
             }
             else {
                 return;
@@ -899,23 +901,21 @@ var HTMLFeatures = declare( BlockBased,
      * with whatever is returned by obj.get('foo')
      */
     template: function( /** Object */ obj, /** String */ template ) {
-        if( typeof template != 'string')
+        if( typeof template != 'string' || !obj )
             return template;
 
-        var urlValid = true;
+        var valid = true;
         if ( template ) {
-            var href = template.replace(
+            return template.replace(
                     /\{([^}]+)\}/g,
-                function(match, group) {
-                    var val = obj.get( group.toLowerCase() );
-                    if (val !== undefined)
-                        return val;
-                    else
-                        urlValid = false;
-                    return 0;
-                });
-            if( urlValid )
-                return href;
+                    function(match, group) {
+                        var val = obj.get( group.toLowerCase() );
+                        if (val !== undefined)
+                            return val;
+                        else {
+                            return '';
+                        }
+                    });
         }
         return undefined;
     },
