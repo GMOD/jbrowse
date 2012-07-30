@@ -852,6 +852,7 @@ var HTMLFeatures = declare( BlockBased,
                              target: '_blank',
                              className: 'dialogNewWindow',
                              title: 'open in new window',
+                             onclick: dojo.hitch(dialog,'hide'),
                              innerHTML: spec.url
                          }, dialog.titleBar );
 
