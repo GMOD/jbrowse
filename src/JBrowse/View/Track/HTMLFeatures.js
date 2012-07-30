@@ -2,6 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/on',
+            'dojo/aspect',
             'dijit/Menu',
             'dijit/Dialog',
             'dijit/PopupMenuItem',
@@ -14,6 +15,7 @@ define( [
       function( declare,
                 lang,
                 on,
+                aspect,
                 dijitMenu,
                 dijitDialog,
                 dijitPopupMenuItem,
@@ -819,6 +821,7 @@ var HTMLFeatures = declare( BlockBased,
         var type = spec.action;
         type = type.replace(/Dialog/,'');
         var dialogOpts = {
+            draggable: false,
             "class": "feature-popup-dialog feature-popup-dialog-"+type,
             title: spec.title || spec.label || ( context.feature ? context.feature.get('name')+' details' : "Details"),
             style: dojo.clone( spec.style || {} )
@@ -836,14 +839,15 @@ var HTMLFeatures = declare( BlockBased,
         }
         // open the link in a dialog with an iframe
         else if( type == 'iframe' ) {
-            dojo.safeMixin( dialogOpts.style, {width: '80%', height: '80%'});
+            dojo.safeMixin( dialogOpts.style, {width: '90%', height: '90%'});
 
             var container = dojo.create('div', {}, document.body);
             var iframe = dojo.create(
                 'iframe', {
                     width: '100%', height: '100%',
                     tabindex: "0",
-                    style: { border: 'none' }
+                    style: { border: 'none' },
+                    src: spec.url
                 }, container
             );
             var dialog = new dijitDialog( dialogOpts, container );
@@ -855,17 +859,22 @@ var HTMLFeatures = declare( BlockBased,
                              onclick: dojo.hitch(dialog,'hide'),
                              innerHTML: spec.url
                          }, dialog.titleBar );
+            aspect.after( dialog, 'layout', function() {
+                              // hitch a ride on the dialog box's
+                              // layout function, which is called on
+                              // initial display, and when the window
+                              // is resized, to keep the iframe
+                              // sized to fit exactly in it.
+                              var cDims = dojo.marginBox( dialog.domNode );
+                              iframe.width  = cDims.w;
+                              iframe.height = iframe.height = cDims.h - dojo.marginBox(dialog.titleBar).h - 2;
+                              // // also, set the iframe src on the first load of the dialog box
+                              // if( ! iframe.src )
+                              //     iframe.src = spec.url;
+                          });
 
             dialog.show();
 
-            // fix up the height and width of the iframe
-            // after the dialog displays, and before
-            // loading it, so that it fits in the popup
-            // exactly
-            var cDims = dojo.marginBox( dialog.domNode );
-            iframe.width  = cDims.w;
-            iframe.height = iframe.height = cDims.h - dojo.marginBox(dialog.titleBar).h - 2;
-            iframe.src = spec.url;
         }
     },
 
