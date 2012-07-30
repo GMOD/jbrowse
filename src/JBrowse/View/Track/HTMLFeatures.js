@@ -842,10 +842,19 @@ var HTMLFeatures = declare( BlockBased,
             var iframe = dojo.create(
                 'iframe', {
                     width: '100%', height: '100%',
+                    tabindex: "0",
                     style: { border: 'none' }
                 }, container
             );
             var dialog = new dijitDialog( dialogOpts, container );
+            dojo.create( 'a', {
+                             href: spec.url,
+                             target: '_blank',
+                             className: 'dialogNewWindow',
+                             title: 'open in new window',
+                             innerHTML: spec.url
+                         }, dialog.titleBar );
+
             dialog.show();
 
             // fix up the height and width of the iframe

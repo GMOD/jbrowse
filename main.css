@@ -435,3 +435,8 @@ div.error {
 .feature-popup-dialog-iframe .dijitDialogPaneContent {
     padding: 0;
 }
+
+a.dialogNewWindow {
+    padding-left: 1em;
+    font-size: 90%;
+}
