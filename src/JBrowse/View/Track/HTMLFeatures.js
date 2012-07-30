@@ -89,38 +89,31 @@ var HTMLFeatures = declare( BlockBased,
             },
             hooks: {
                 create: function(track, feat ) {
-                    var featDiv;
-                    var featUrl = track.featureUrl(feat);
-                    if (featUrl) {
-                        featDiv = document.createElement("a");
-                        featDiv.href = featUrl;
-                        featDiv.target = "_new";
-                    } else {
-                        featDiv = document.createElement("div");
-                    }
-                    return featDiv;
+                    return document.createElement('div');
                 }
             },
             events: {
+                click: function( evt ) {
+                    var feat = this.feature;
+                    var lt = this.track.config.linkTemplate || this.track.config.style.linkTemplate;
+                    if( lt )
+                        alert( this.track.template( this.feature, lt ),
+                                     '_blank' );
+                    else
+	                alert( "clicked on feature\n" +
+                               "start: " + (Number( feat.get('start') )+1) +
+	                       ", end: " + Number( feat.get('end') ) +
+	                       ", strand: " + feat.get('strand') +
+	                       ", label: " + feat.get('name') +
+	                       ", ID: " + feat.get('id') );
+                }
             }
         };
-
-        if (! this.config.style.linkTemplate) {
-            defaultConfig.events.click =
-                function(track, elem, feat, event) {
-	            alert( "clicked on feature\n" +
-                           "start: " + (Number( feat.get('start') )+1) +
-	                   ", end: " + Number( feat.get('end') ) +
-	                   ", strand: " + feat.get('strand') +
-	                   ", label: " + feat.get('name') +
-	                   ", ID: " + feat.get('id') );
-                };
-        }
-
         Util.deepUpdate(defaultConfig, this.config);
         this.config = defaultConfig;
 
-        this.eventHandlers = dojo.clone(this.config.events);
+        this.eventHandlers = dojo.clone( this.config.on || this.config.events );
+        this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
 
         this.labelScale = this.featureStore.density * this.config.style.labelScale;
         this.subfeatureScale = this.featureStore.density * this.config.style.subfeatureScale;
@@ -592,9 +585,12 @@ var HTMLFeatures = declare( BlockBased,
                                               levelHeight);
 
         var featDiv = this.config.hooks.create(this, feature );
-        for (var event in this.eventHandlers) {
-            featDiv["on" + event] = this.eventHandlers[event];
+        var handlerArgs = { div: featDiv, feature: feature, track: this };
+        for( var event in this.eventHandlers ) {
+            on( featDiv, event, this.eventHandlers[event] );
         }
+
+        featDiv.track = this;
         featDiv.feature = feature;
         featDiv.layoutEnd = featureEnd;
         featDiv.className = (featDiv.className ? featDiv.className + " " : "") + "feature";
@@ -659,27 +655,23 @@ var HTMLFeatures = declare( BlockBased,
         }
 
         if (name && (scale >= this.labelScale)) {
-            var labelDiv;
-            var featUrl = this.featureUrl(feature);
-            if (featUrl) {
-                labelDiv = document.createElement("a");
-                labelDiv.href = featUrl;
-                labelDiv.target = featDiv.target;
-            } else {
-                labelDiv = document.createElement("div");
-            }
-            for (event in this.eventHandlers) {
-                labelDiv["on" + event] = this.eventHandlers[event];
+            var labelDiv = dojo.create( 'div', {
+                    className: "feature-label",
+                    innerHTML: name,
+                    style: {
+                        top: (top + this.glyphHeight) + "px",
+                        left: (100 * (featureStart - block.startBase) / blockWidth)+'%'
+                    }
+                }, block );
+
+            for( event in this.eventHandlers ) {
+                on( labelDiv, event, this.eventHandlers[event] );
             }
 
-            labelDiv.className = "feature-label";
-            labelDiv.appendChild(document.createTextNode(name));
-            labelDiv.style.top  = (top + this.glyphHeight) + "px";
-            labelDiv.style.left = (100 * (featureStart - block.startBase) / blockWidth)+'%';
 	    featDiv.label = labelDiv;
             labelDiv.feature = feature;
+            labelDiv.track = this;
             featDiv.labelDiv = labelDiv;
-            block.appendChild(labelDiv);
         }
 
         if( featwidth > minFeatWidth && scale >= this.subfeatureScale ) {
@@ -738,7 +730,7 @@ var HTMLFeatures = declare( BlockBased,
 
         // render the menu, start it up, and bind it to right-clicks
         // both on the feature div and on the label div
-        var menu = this._renderMenu( menuTemplate );
+        var menu = this._renderMenu( menuTemplate, featDiv );
         menu.startup();
         menu.bindDomNode( featDiv );
         if( featDiv.labelDiv )
@@ -750,13 +742,21 @@ var HTMLFeatures = declare( BlockBased,
             if( typeof spec[x] == 'object' )
                 spec[x] = this._processMenuSpec( spec[x], featDiv );
             else
-                spec[x] = this.template( featDiv.feature, this._getConf( featDiv, spec[x] ) );
+                spec[x] = this.template( featDiv.feature, this._getConf( featDiv, x, spec[x] ) );
         }
         return spec;
     },
 
-    _getConf: function( featDiv, confVal ) {
-        return typeof confVal == 'function'
+    _getConf: function( featDiv, confKey, confVal ) {
+
+        // list of conf keys that should not be run immediately on the
+        // feature data if they are functions
+        var dontRunImmediately = {
+            action: 1,
+            click: 1
+        };
+
+        return typeof confVal == 'function' && !dontRunImmediately[confKey]
             ? confVal( this, featDiv.feature, featDiv )
             : confVal;
     },
@@ -765,34 +765,43 @@ var HTMLFeatures = declare( BlockBased,
      * Render a dijit menu from a specification object.
      *
      * @param menuTemplate definition of the menu's structure
+     * @param context {Object} optional object containing the context
+     *   in which any click handlers defined in the menu should be
+     *   invoked, containing thing like what feature is being operated
+     *   upon, the track object that is involved, etc.
      * @param parent {dijit.Menu|...} parent menu, if this is a submenu
      */
-    _renderMenu: function( /**Object*/ menuStructure, /** dijit.Menu */ parent ) {
+    _renderMenu: function( /**Object*/ menuStructure, /** Object */ context, /** dijit.Menu */ parent ) {
        if ( !parent )
             parent = new dijitMenu();
 
         for ( key in menuStructure ) {
-            var value = menuStructure [ key ];
-            var initObject = dojo.clone( value );
-            if ( value.children ) {
+            var spec = menuStructure [ key ];
+            if ( spec.children ) {
                 var child = new dijitMenu ();
                 parent.addChild( child );
-                parent.addChild( new dijitPopupMenuItem ( {
-                                                               popup : child,
-                                                               label : value.label
-                                                           } ) );
-                this._renderMenu( value.children , child );
-            } else {
-                initObject.onClick = this._makeClickHandler( value );
-                var child = new dijitMenuItem (initObject);
+                parent.addChild( new dijitPopupMenuItem(
+                                     {
+                                         popup : child,
+                                         label : spec.label
+                                     }));
+                this._renderMenu( spec.children, context, child );
+            }
+            // only draw other menu items if they have an action.
+            // drawing menu items that do nothing when clicked
+            // would frustrate users.
+            else if( spec.action || spec.url || spec.href ) {
+                var menuConf = dojo.clone( spec );
+                menuConf.onClick = this._makeClickHandler( spec, context );
+                var child = new dijitMenuItem( menuConf );
                 parent.addChild(child);
             }
         }
         return parent;
     },
 
-    _openDialog: function( spec ) {
-        var type = spec.target;
+    _openDialog: function( spec, evt ) {
+        var type = spec.action;
         type = type.replace(/Dialog/,'');
         var dialogOpts = {
             "class": "feature-popup-dialog feature-popup-dialog-"+type,
@@ -835,27 +844,31 @@ var HTMLFeatures = declare( BlockBased,
         }
     },
 
-    _makeClickHandler: function( spec ) {
-        var track = this;
-        spec = dojo.clone( spec );
+    _makeClickHandler: function( spec, context ) {
+        var track  = this;
 
-        return function () {
-            // note: `this` is the clicked element
+        if( typeof spec == 'function' ) {
+            spec = { action: spec };
+        } else {
+            spec = dojo.clone( spec );
+        }
+
+        return function ( evt ) {
             var url = spec.url || spec.href;
             spec.url = url;
             var style = dojo.clone( spec.style || {} );
 
-            // try to understand the this.target setting
-            spec.target = spec.target ||
+            // try to understand the `action` setting
+            spec.action = spec.action ||
                 ( url          ? 'iframeDialog'  :
                   spec.content ? 'contentDialog' :
                                  false
                 );
-
             spec.title = spec.title || spec.label;
 
-            if( spec.target ) {
-                spec.target = {
+            if( typeof spec.action == 'string' ) {
+                // treat `action` case-insensitively
+                spec.action = {
                     iframedialog:   'iframeDialog',
                     iframe:         'iframeDialog',
                     contentdialog:  'contentDialog',
@@ -864,20 +877,20 @@ var HTMLFeatures = declare( BlockBased,
                     snippet:        'snippet',
                     newwindow:      'newWindow',
                     "_blank":       'newWindow'
-                }[(''+spec.target).toLowerCase()];
+                }[(''+spec.action).toLowerCase()];
 
-                if( spec.target == 'newWindow' )
+                if( spec.action == 'newWindow' )
                     window.open( url, '_blank' );
-                else
-                    track._openDialog( spec );
-            } else {
+                else if( spec.action in { iframeDialog:1, contentDialog:1, snippetDialog:1} )
+                    track._openDialog( spec, evt );
+            }
+            else if( typeof spec.action == 'function' ) {
+                spec.action.call( context || this, evt );
+            }
+            else {
                 return;
             }
         };
-    },
-
-    featureUrl: function(feature) {
-        return this.template ( feature, this.config.style.linkTemplate ) ;
     },
 
     /**

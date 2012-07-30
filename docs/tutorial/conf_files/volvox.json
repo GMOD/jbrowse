@@ -57,7 +57,7 @@
                  {
                    "label" : "Query trin for {name}",
                    "iconClass" : "dijitIconBookmark",
-                   "target": "newWindow",
+                   "action": "newWindow",
                    "url" : "http://wiki.trin.org.au/{name}-{start}-{end}"
                  },
                  {
@@ -75,21 +75,27 @@
                "label" : "Open example.com in an iframe popup",
                "title" : "The magnificent example.com (feature {name})",
                "iconClass" : "dijitIconDatabase",
-               "target": "iframeDialog",
+               "action": "iframeDialog",
                "url" : "http://www.example.com?featurename={name}"
              },
              {
                "label" : "Open popup with XHR HTML snippet (btw this is feature {name})",
                "title": "function(track,feature,div) { return 'Random XHR HTML '+Math.random()+' title!'; }",
                "iconClass" : "dijitIconDatabase",
-               "target": "snippetDialog",
+               "action": "snippetDialog",
                "url" : "sample_data/test_snippet.html?featurename={name}:{start}-{end}"
              },
              {
                "label" : "Open popup with content snippet (btw this is feature {name})",
                "title": "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
                "iconClass" : "dijitIconDatabase",
-               "target": "contentDialog",
+               "action": "contentDialog",
+               "content" : "function(track,feature,div) { return '<h2>{name}</h2><p>This is some test content about feature {name}!</p><p>This message brought to you by the number <span style=\"font-size: 300%\">'+Math.round(Math.random()*100)+'</span>.</p>';} "
+             },
+             {
+               "label" : "function(track,feature,div) { return 'Run a JS callback '+Math.random()+' title!'; }",
+               "iconClass" : "dijitIconDatabase",
+               "action": "function( evt ){ alert('Hi there! Ran the callback on feature '+this.feature.get('name')); }",
                "content" : "function(track,feature,div) { return '<h2>{name}</h2><p>This is some test content about feature {name}!</p><p>This message brought to you by the number <span style=\"font-size: 300%\">'+Math.round(Math.random()*100)+'</span>.</p>';} "
              }
          ]
@@ -109,7 +115,10 @@
          "track" : "ReadingFrame",
          "category" : "Genes",
          "class" : "dblhelix",
-         "key" : "Frame usage"
+         "key" : "Frame usage",
+         "on": {
+             "click": { "url": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}" }
+         }
       },
       {
          "feature" : [
