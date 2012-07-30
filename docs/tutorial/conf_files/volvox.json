@@ -106,7 +106,8 @@
          ],
          "track" : "Genes",
          "class" : "feature5",
-         "key" : "Protein-coding genes"
+         "key" : "Protein-coding genes",
+         "onClick": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}"
       },
       {
          "feature" : [
@@ -116,9 +117,7 @@
          "category" : "Genes",
          "class" : "dblhelix",
          "key" : "Frame usage",
-         "on": {
-             "click": { "url": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}" }
-         }
+         "onClick": { "url": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}" }
       },
       {
          "feature" : [
@@ -126,7 +125,7 @@
             "mRNA:exonerate",
             "mRNA:predicted"
          ],
-         "urlTemplate" : "http://www.ncbi.nlm.nih.gov/?term={name}-{start}-{end}",
+         "urlTemplate" : "http://www.ncbi.nlm.nih.gov/gquery/?term={name}-{start}-{end}",
          "phase" : 1,
          "track" : "CDS",
          "category" : "Genes",

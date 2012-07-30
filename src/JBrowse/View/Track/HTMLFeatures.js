@@ -112,7 +112,21 @@ var HTMLFeatures = declare( BlockBased,
         Util.deepUpdate(defaultConfig, this.config);
         this.config = defaultConfig;
 
-        this.eventHandlers = dojo.clone( this.config.on || this.config.events );
+        this.eventHandlers = function() {
+            var handlers = dojo.clone( this.config.events || {} );
+            // find conf vars that set events, like `onClick`
+            for( var key in this.config ) {
+                var handlerName = key.replace(/^on(?=[A-Z])/, '');
+                if( handlerName != key )
+                    handlers[ handlerName.toLowerCase() ] = this.config[key];
+            }
+            // interpret handlers that are just strings to be URLs that should be opened
+            for( key in handlers ) {
+                if( typeof handlers[key] == 'string' )
+                    handlers[key] = { url: handlers[key] };
+            }
+            return handlers;
+        }.call(this);
         this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
 
         this.labelScale = this.featureStore.density * this.config.style.labelScale;
