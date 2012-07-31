@@ -893,9 +893,6 @@ var HTMLFeatures = declare( BlockBased,
                               var cDims = dojo.marginBox( dialog.domNode );
                               iframe.width  = cDims.w;
                               iframe.height = iframe.height = cDims.h - dojo.marginBox(dialog.titleBar).h - 2;
-                              // // also, set the iframe src on the first load of the dialog box
-                              // if( ! iframe.src )
-                              //     iframe.src = spec.url;
                           });
         }
 
