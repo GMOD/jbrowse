@@ -850,6 +850,7 @@ var HTMLFeatures = declare( BlockBased,
             title: spec.title || spec.label || ( featureName ? featureName +' details' : "Details"),
             style: dojo.clone( spec.style || {} )
         };
+        var dialog;
 
         // if dialog == snippet, open the link in a dialog
         // with the html from the URL just shoved in it
@@ -858,8 +859,7 @@ var HTMLFeatures = declare( BlockBased,
                 dialogOpts.href = spec.url;
             else
                 dialogOpts.content = this._evalConf( context, spec.content, null );
-            var dialog = new dijitDialog( dialogOpts );
-            dialog.show();
+            dialog = new dijitDialog( dialogOpts );
         }
         // open the link in a dialog with an iframe
         else if( type == 'iframe' ) {
@@ -875,7 +875,7 @@ var HTMLFeatures = declare( BlockBased,
                     src: spec.url
                 }, container
             );
-            var dialog = new dijitDialog( dialogOpts, container );
+            dialog = new dijitDialog( dialogOpts, container );
             dojo.create( 'a', {
                              href: spec.url,
                              target: '_blank',
@@ -897,10 +897,10 @@ var HTMLFeatures = declare( BlockBased,
                               // if( ! iframe.src )
                               //     iframe.src = spec.url;
                           });
-
-            dialog.show();
-
         }
+
+        aspect.after( dialog, 'hide', function() { dialog.destroyRecursive(); });
+        dialog.show();
     },
 
     _makeClickHandler: function( inputSpec, context ) {
