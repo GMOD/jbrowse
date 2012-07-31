@@ -79,6 +79,25 @@ var HTMLFeatures = declare( BlockBased,
         this.featureStore.load();
     },
 
+    /**
+     * Make a default feature detail page for the given feature.
+     * @returns {HTMLElement} feature detail page HTML
+     */
+    defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
+        var fmt = function( title, val, class_ ) {
+            var valType = typeof val;
+            if( !( valType in {string:1,number:1} ) )
+                return ''; //val = '<span class="ghosted">none</span>';
+            class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
+            return '<h2 class="field '+class_+'">'+title+'</h2> <div class="value '+class_+'">'+val+'</div>';
+        };
+        var container = dojo.create('div', { className: 'feature-detail feature-detail-'+track.name, innerHTML: '' } );
+        container.innerHTML += fmt( 'Name', f.get('name') || f.get('id') );
+        container.innerHTML += fmt( 'Position', this.refSeq.name+':'+f.get('start')+'..'+f.get('end') );
+        container.innerHTML += fmt( 'Strand', {'1':'+', '-1': '-', 0: undefined }[f.get('strand')] || f.get('strand') );
+        container.innerHTML += fmt( 'Load ID', f.get('id') );
+        return container;
+    },
 
     loadSuccess: function(trackInfo, url) {
 
@@ -95,20 +114,9 @@ var HTMLFeatures = declare( BlockBased,
                 }
             },
             events: {
-                click: function( evt ) {
-                    var feat = this.feature;
-                    var lt = this.track.config.linkTemplate || this.track.config.style.linkTemplate;
-                    if( lt )
-                        window.open( this.track.template( this.feature, lt ),
-                                     '_blank' );
-                    else
-	                alert( "clicked on feature\n" +
-                               "start: " + (Number( feat.get('start') )+1) +
-	                       ", end: " + Number( feat.get('end') ) +
-	                       ", strand: " + feat.get('strand') +
-	                       ", label: " + feat.get('name') +
-	                       ", ID: " + feat.get('id') );
-                }
+                click: this.config.style.linkTemplate
+                    ? { action: "newWindow", url: this.config.style.linkTemplate }
+                    : { action: "contentDialog", content: dojo.hitch( this, 'defaultFeatureDetail' ) }
             }
         };
         Util.deepUpdate(defaultConfig, this.config);
@@ -758,22 +766,29 @@ var HTMLFeatures = declare( BlockBased,
             if( typeof spec[x] == 'object' )
                 spec[x] = this._processMenuSpec( spec[x], featDiv );
             else
-                spec[x] = this.template( featDiv.feature, this._evalConf( featDiv, x, spec[x] ) );
+                spec[x] = this.template( featDiv.feature, this._evalConf( featDiv, spec[x], x ) );
         }
         return spec;
     },
 
-    _evalConf: function( featDiv, confKey, confVal ) {
+    /**
+     * Get the value of a conf variable, evaluating it if it is a
+     * function.  Note: does not template it, that is a separate step.
+     *
+     * @private
+     */
+    _evalConf: function( context, confVal, confKey ) {
 
         // list of conf vals that should not be run immediately on the
         // feature data if they are functions
         var dontRunImmediately = {
             action: 1,
-            click: 1
+            click: 1,
+            content: 1
         };
 
         return typeof confVal == 'function' && !dontRunImmediately[confKey]
-            ? confVal( this, featDiv.feature, featDiv )
+            ? confVal( this, context.feature, context )
             : confVal;
     },
 
@@ -820,10 +835,10 @@ var HTMLFeatures = declare( BlockBased,
         context = context || {};
         var type = spec.action;
         type = type.replace(/Dialog/,'');
+        var featureName = context.feature && (context.feature.get('name')||context.feature.get('id'));
         var dialogOpts = {
-            draggable: false,
             "class": "feature-popup-dialog feature-popup-dialog-"+type,
-            title: spec.title || spec.label || ( context.feature ? context.feature.get('name')+' details' : "Details"),
+            title: spec.title || spec.label || ( featureName ? featureName +' details' : "Details"),
             style: dojo.clone( spec.style || {} )
         };
 
@@ -833,13 +848,14 @@ var HTMLFeatures = declare( BlockBased,
             if( type == 'snippet' )
                 dialogOpts.href = spec.url;
             else
-                dialogOpts.content = spec.content || 'No data available.';
+                dialogOpts.content = this._evalConf( context, spec.content, null );
             var dialog = new dijitDialog( dialogOpts );
             dialog.show();
         }
         // open the link in a dialog with an iframe
         else if( type == 'iframe' ) {
             dojo.safeMixin( dialogOpts.style, {width: '90%', height: '90%'});
+            dialogOpts.draggable = false;
 
             var container = dojo.create('div', {}, document.body);
             var iframe = dojo.create(
@@ -854,7 +870,7 @@ var HTMLFeatures = declare( BlockBased,
             dojo.create( 'a', {
                              href: spec.url,
                              target: '_blank',
-                             className: 'dialogNewWindow',
+                             className: 'dialog-new-window',
                              title: 'open in new window',
                              onclick: dojo.hitch(dialog,'hide'),
                              innerHTML: spec.url
@@ -878,18 +894,17 @@ var HTMLFeatures = declare( BlockBased,
         }
     },
 
-    _makeClickHandler: function( spec, context ) {
+    _makeClickHandler: function( inputSpec, context ) {
         var track  = this;
 
         if( typeof spec == 'function' ) {
-            spec = { action: spec };
-        } else {
-            spec = dojo.clone( spec );
+            inputSpec = { action: spec };
         }
 
         return function ( evt ) {
             var ctx = context || this;
-            var url = track.template( ctx.feature, spec.url || spec.href );
+            var spec = track._processMenuSpec( dojo.clone( inputSpec ), ctx );
+            var url = spec.url || spec.href;
             spec.url = url;
             var style = dojo.clone( spec.style || {} );
 
@@ -899,7 +914,7 @@ var HTMLFeatures = declare( BlockBased,
                   spec.content ? 'contentDialog' :
                                  false
                 );
-            spec.title = track.template( ctx.feature, spec.title || spec.label );
+            spec.title = spec.title || spec.label;
 
             if( typeof spec.action == 'string' ) {
                 // treat `action` case-insensitively
