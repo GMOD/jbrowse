@@ -734,30 +734,50 @@ var HTMLFeatures = declare( BlockBased,
 
         // render the popup menu if configured
         if( this.config.menuTemplate ) {
-            // don't actually make the menu until the feature is
-            // moused-over.  pre-generating menus for lots and lots of
-            // features at load time is way too slow.
-            var makeMenu = lang.hitch( this, '_makeFeatureMenu', featDiv );
-            on( featDiv,  'mouseover', makeMenu );
-            if( featDiv.labelDiv )
-                on( featDiv.labelDiv,  'mouseover', makeMenu );
+            this._connectMenus( featDiv );
         }
 
         return featDiv;
     },
 
+    _connectMenus: function( featDiv ) {
+        // don't actually make the menu until the feature is
+        // moused-over.  pre-generating menus for lots and lots of
+        // features at load time is way too slow.
+        var refreshMenu = lang.hitch( this, function() {
+            // if we already have a menu generated for this feature,
+            // give it a new lease on life
+            if( ! featDiv.contextMenu ) {
+                featDiv.contextMenu = this._makeFeatureContextMenu( featDiv, this.config.menuTemplate );
+            }
+
+            // give the menu a timeout so that it's cleaned up if it's not used within a certain time
+            if( featDiv.contextMenuTimeout ) {
+                window.clearTimeout( featDiv.contextMenuTimeout );
+            }
+            var timeToLive = 30000; // clean menus up after 30 seconds
+            featDiv.contextMenuTimeout = window.setTimeout( function() {
+                if( featDiv.contextMenu ) {
+                    featDiv.contextMenu.destroyRecursive();
+                    delete featDiv.contextMenu;
+                }
+                delete featDiv.contextMenuTimeout;
+            }, timeToLive );
+        });
+
+        on( featDiv,  'mouseover', refreshMenu );
+        if( featDiv.labelDiv )
+            on( featDiv.labelDiv,  'mouseover', refreshMenu );
+        dojo.connect( featDiv.contextMenu, 'onMouseMove', refreshMenu );
+    },
+
     /**
      * Make the right-click dijit menu for a feature.
      */
-    _makeFeatureMenu: function( featDiv ) {
-
-        // only make the menu once
-        if( featDiv.madeMenu ) return;
-        featDiv.madeMenu = true;
-
+    _makeFeatureContextMenu: function( featDiv, menuTemplate ) {
         // interpolate template strings in the menuTemplate
-        var menuTemplate = this._processMenuSpec(
-            dojo.clone( this.config.menuTemplate ),
+        menuTemplate = this._processMenuSpec(
+            dojo.clone( menuTemplate ),
             featDiv
         );
 
@@ -768,6 +788,8 @@ var HTMLFeatures = declare( BlockBased,
         menu.bindDomNode( featDiv );
         if( featDiv.labelDiv )
             menu.bindDomNode( featDiv.labelDiv );
+
+        return menu;
     },
 
     _processMenuSpec: function( spec, featDiv ) {
