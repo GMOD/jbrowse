@@ -95,10 +95,12 @@ var HTMLFeatures = declare( BlockBased,
         };
         var container = dojo.create('div', { className: 'feature-detail feature-detail-'+track.name, innerHTML: '' } );
         container.innerHTML += fmt( 'Name', f.get('name') );
+        container.innerHTML += fmt( 'Type', f.get('type') );
+        container.innerHTML += fmt( 'Description', f.get('note') );
         container.innerHTML += fmt( 'Position', this.refSeq.name+':'+f.get('start')+'..'+f.get('end') );
         container.innerHTML += fmt( 'Strand', {'1':'+', '-1': '-', 0: undefined }[f.get('strand')] || f.get('strand') );
 
-        var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1}[t.toLowerCase()]; });
+        var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()]; });
         dojo.forEach( additionalTags.sort(), function(t) {
             container.innerHTML += fmt( t, f.get(t) );
         });
