@@ -751,7 +751,7 @@ var HTMLFeatures = declare( BlockBased,
         // don't actually make the menu until the feature is
         // moused-over.  pre-generating menus for lots and lots of
         // features at load time is way too slow.
-        var refreshMenu = lang.hitch( this, '_refreshMenu' );
+        var refreshMenu = lang.hitch( this, '_refreshMenu', featDiv );
         on( featDiv,  'mouseover', refreshMenu );
         if( featDiv.labelDiv )
             on( featDiv.labelDiv,  'mouseover', refreshMenu );
