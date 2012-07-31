@@ -86,13 +86,7 @@ var HTMLFeatures = declare( BlockBased,
      * @returns {HTMLElement} feature detail page HTML
      */
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
-        var fmt = function( title, val, class_ ) {
-            var valType = typeof val;
-            if( !( valType in {string:1,number:1} ) )
-                return ''; //val = '<span class="ghosted">none</span>';
-            class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
-            return '<div class="field_container"><h2 class="field '+class_+'">'+title+'</h2> <div class="value '+class_+'">'+val+'</div></div>';
-        };
+        var fmt = dojo.hitch( this, '_fmtFeatureDetailField' );
         var container = dojo.create('div', { className: 'feature-detail feature-detail-'+track.name, innerHTML: '' } );
         container.innerHTML += fmt( 'Name', f.get('name') );
         container.innerHTML += fmt( 'Type', f.get('type') );
@@ -107,6 +101,19 @@ var HTMLFeatures = declare( BlockBased,
 
         return container;
     },
+    _fmtFeatureDetailField: function( title, val, class_ ) {
+        var valType = typeof val;
+        if( !( valType in {string:1,number:1} ) )
+            return ''; //val = '<span class="ghosted">none</span>';
+        class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
+        return '<div class="field_container"><h2 class="field '+class_+'">'+title+'</h2> <div class="value '+class_+'">'+val+'</div></div>';
+    },
+
+    // _autoLinkText: function( text ) {
+    //     return text
+    //         // GO terms like GO:12345
+    //         .replace(/\b(GO:\d{5,})\b/g, '<a href="http://amigo.geneontology.org/cgi-bin/amigo/term_details?term=$1">$1</a>');
+    // },
 
     loadSuccess: function(trackInfo, url) {
 
