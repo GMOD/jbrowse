@@ -744,31 +744,32 @@ var HTMLFeatures = declare( BlockBased,
         // don't actually make the menu until the feature is
         // moused-over.  pre-generating menus for lots and lots of
         // features at load time is way too slow.
-        var refreshMenu = lang.hitch( this, function() {
-            // if we already have a menu generated for this feature,
-            // give it a new lease on life
-            if( ! featDiv.contextMenu ) {
-                featDiv.contextMenu = this._makeFeatureContextMenu( featDiv, this.config.menuTemplate );
-            }
-
-            // give the menu a timeout so that it's cleaned up if it's not used within a certain time
-            if( featDiv.contextMenuTimeout ) {
-                window.clearTimeout( featDiv.contextMenuTimeout );
-            }
-            var timeToLive = 30000; // clean menus up after 30 seconds
-            featDiv.contextMenuTimeout = window.setTimeout( function() {
-                if( featDiv.contextMenu ) {
-                    featDiv.contextMenu.destroyRecursive();
-                    delete featDiv.contextMenu;
-                }
-                delete featDiv.contextMenuTimeout;
-            }, timeToLive );
-        });
-
+        var refreshMenu = lang.hitch( this, '_refreshMenu' );
         on( featDiv,  'mouseover', refreshMenu );
         if( featDiv.labelDiv )
             on( featDiv.labelDiv,  'mouseover', refreshMenu );
         dojo.connect( featDiv.contextMenu, 'onMouseMove', refreshMenu );
+    },
+
+    _refreshMenu: function( featDiv ) {
+        // if we already have a menu generated for this feature,
+        // give it a new lease on life
+        if( ! featDiv.contextMenu ) {
+            featDiv.contextMenu = this._makeFeatureContextMenu( featDiv, this.config.menuTemplate );
+        }
+
+        // give the menu a timeout so that it's cleaned up if it's not used within a certain time
+        if( featDiv.contextMenuTimeout ) {
+            window.clearTimeout( featDiv.contextMenuTimeout );
+        }
+        var timeToLive = 30000; // clean menus up after 30 seconds
+        featDiv.contextMenuTimeout = window.setTimeout( function() {
+                                                            if( featDiv.contextMenu ) {
+                                                                featDiv.contextMenu.destroyRecursive();
+                                                                delete featDiv.contextMenu;
+                                                            }
+                                                            delete featDiv.contextMenuTimeout;
+                                                        }, timeToLive );
     },
 
     /**
