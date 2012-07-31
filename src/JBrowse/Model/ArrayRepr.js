@@ -217,6 +217,8 @@ ArrayRepr.prototype.accessors = function () {
  */
 ArrayRepr.prototype._makeAccessors = function() {
     var that = this,
+        indices = {},
+        tags,
         accessors = {
             get: function(field) {
                 var f = this.get.field_accessors[field];
@@ -231,6 +233,9 @@ ArrayRepr.prototype._makeAccessors = function() {
                     return f.call(this,val);
                 else
                     return undefined;
+            },
+            tags: function() {
+                return tags[ this[0] ] || [];
             }
         };
     accessors.get.field_accessors = {};
@@ -239,13 +244,21 @@ ArrayRepr.prototype._makeAccessors = function() {
     // make a data structure as: { attr_name: [offset,offset,offset], }
     // that will be convenient for finding the location of the attr
     // for a given class like: indexForAttr{attrname}[classnum]
-    var indices = {};
     dojo.forEach( this.classes, function(cdef,classnum) {
         dojo.forEach( cdef.attributes || [], function(attrname,offset) {
+            indices[attrname] = indices[attrname] || [];
+            indices[attrname][classnum] = offset + 1;
+
             attrname = attrname.toLowerCase();
+
             indices[attrname] = indices[attrname] || [];
             indices[attrname][classnum] = offset + 1;
         });
+    });
+
+    // lowercase all the class attributes
+    tags = dojo.map( this.classes, function(c) {
+        return c.attributes;
     });
 
     // use that to make precalculated get and set accessors for each field
@@ -268,7 +281,6 @@ ArrayRepr.prototype._makeAccessors = function() {
             };
         })();
     }
-
 
     return accessors;
 };

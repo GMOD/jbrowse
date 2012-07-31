@@ -93,6 +93,7 @@ NCList.prototype.iterate = function( startBase, endBase, origFeatCallback, finis
         /** @inner */
         featCallBack = function( feature, path ) {
             that._add_getters( accessors.get, feature );
+            feature.tags = accessors.tags;
             return origFeatCallback( feature, path );
         };
 
