@@ -448,14 +448,18 @@ a.dialog-new-window {
 }
 
 /* styles for popup feature detail dialogs from tracks */
+.dijitDialogPaneContent .feature-detail {
+    margin-top: -0.6em;
+}
 .feature-detail div.value {
     margin-left: 1em;
 }
-.feature-detail > h2.field {
-    margin-top: 1.2em;
-    margin-bottom: 0.5em;
-}
-.feature-detail > h2.field:first-child {
+.feature-detail h2.field {
     margin-top: 0;
+    margin-bottom: 0.3em;
 }
 
+.feature-detail .field_container {
+    float: left;
+    padding: 1em;
+}

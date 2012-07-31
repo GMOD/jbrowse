@@ -1,6 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
+            'dojo/_base/array',
             'dojo/on',
             'dojo/aspect',
             'dijit/Menu',
@@ -14,6 +15,7 @@ define( [
         ],
       function( declare,
                 lang,
+                array,
                 on,
                 aspect,
                 dijitMenu,
@@ -89,13 +91,18 @@ var HTMLFeatures = declare( BlockBased,
             if( !( valType in {string:1,number:1} ) )
                 return ''; //val = '<span class="ghosted">none</span>';
             class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
-            return '<h2 class="field '+class_+'">'+title+'</h2> <div class="value '+class_+'">'+val+'</div>';
+            return '<div class="field_container"><h2 class="field '+class_+'">'+title+'</h2> <div class="value '+class_+'">'+val+'</div></div>';
         };
         var container = dojo.create('div', { className: 'feature-detail feature-detail-'+track.name, innerHTML: '' } );
-        container.innerHTML += fmt( 'Name', f.get('name') || f.get('id') );
+        container.innerHTML += fmt( 'Name', f.get('name') );
         container.innerHTML += fmt( 'Position', this.refSeq.name+':'+f.get('start')+'..'+f.get('end') );
         container.innerHTML += fmt( 'Strand', {'1':'+', '-1': '-', 0: undefined }[f.get('strand')] || f.get('strand') );
-        container.innerHTML += fmt( 'Load ID', f.get('id') );
+
+        var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1}[t.toLowerCase()]; });
+        dojo.forEach( additionalTags.sort(), function(t) {
+            container.innerHTML += fmt( t, f.get(t) );
+        });
+
         return container;
     },
 
