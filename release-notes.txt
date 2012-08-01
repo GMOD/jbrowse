@@ -15,6 +15,10 @@
    both prettier, and more comprehensive, displaying all available
    data for the feature.
 
+ * Added a small helper script, `add-track-json.pl` that developers
+   and advanced users can use to programmatically add a block of track
+   configuration JSON to an existing JBrowse configuration file.
+
 1.4.2     2012-07-12 15:38:55 America/New_York
 
  * Restore support for histScale, subfeatureScale, and labelScale in
