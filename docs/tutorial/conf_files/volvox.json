@@ -117,7 +117,7 @@
          "category" : "Genes",
          "class" : "dblhelix",
          "key" : "Frame usage",
-         "onClick": { "url": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}" }
+         "onClick": { "label": "search at NCBI", "url": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}" }
       },
       {
          "feature" : [

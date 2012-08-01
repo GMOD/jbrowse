@@ -625,11 +625,7 @@ var HTMLFeatures = declare( BlockBased,
                                               levelHeight);
 
         var featDiv = this.config.hooks.create(this, feature );
-        var handlerArgs = { div: featDiv, feature: feature, track: this };
-        for( var event in this.eventHandlers ) {
-            on( featDiv, event, this.eventHandlers[event] );
-        }
-
+        this._connectFeatDivHandlers( featDiv );
         featDiv.track = this;
         featDiv.feature = feature;
         featDiv.layoutEnd = featureEnd;
@@ -704,9 +700,7 @@ var HTMLFeatures = declare( BlockBased,
                     }
                 }, block );
 
-            for( event in this.eventHandlers ) {
-                on( labelDiv, event, this.eventHandlers[event] );
-            }
+            this._connectFeatDivHandlers( labelDiv );
 
 	    featDiv.label = labelDiv;
             labelDiv.feature = feature;
@@ -745,6 +739,19 @@ var HTMLFeatures = declare( BlockBased,
         }
 
         return featDiv;
+    },
+
+    /**
+     * Connect our configured event handlers to a given html element,
+     * usually a feature div or label div.
+     */
+    _connectFeatDivHandlers: function( /** HTMLElement */ div  ) {
+        for( var event in this.eventHandlers ) {
+            on( div, event, this.eventHandlers[event] );
+        }
+        // if our click handler has a label, set that as a tooltip
+        if( this.eventHandlers.click && this.eventHandlers.click.label )
+            div.setAttribute( 'title', this.eventHandlers.click.label );
     },
 
     _connectMenus: function( featDiv ) {
@@ -937,7 +944,7 @@ var HTMLFeatures = declare( BlockBased,
             inputSpec = { action: spec };
         }
 
-        return function ( evt ) {
+        var handler = function ( evt ) {
             var ctx = context || this;
             var spec = track._processMenuSpec( dojo.clone( inputSpec ), ctx );
             var url = spec.url || spec.href;
@@ -977,6 +984,13 @@ var HTMLFeatures = declare( BlockBased,
                 return;
             }
         };
+
+        // if there is a label, set it on the handler so that it's
+        // accessible for tooltips or whatever.
+        if( inputSpec.label )
+            handler.label = inputSpec.label;
+
+        return handler;
     },
 
     /**
