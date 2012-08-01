@@ -1,5 +1,20 @@
 {{$NEXT}}
 
+ * Add highly configurable behavior for left-clicking and
+   right-clicking features in HTML-based feature tracks.  If a
+   `menuTemplate` option is specified in the track configuration,
+   right-clicking a feature brings up a context menu, the items in
+   which can be configured to do nearly anything, but that are easy to
+   configure for the very common use case of wanting to display
+   content from a certain URL.  Feature left-clicks are also
+   configurable using the same mechanism.  Thanks to Alexie
+   Papanicolaou and Temi Varghese for the initial implementation of
+   context menus.
+
+ * Improved the default HTML feature left-click dialog box.  It is now
+   both prettier, and more comprehensive, displaying all available
+   data for the feature.
+
 1.4.2     2012-07-12 15:38:55 America/New_York
 
  * Restore support for histScale, subfeatureScale, and labelScale in
