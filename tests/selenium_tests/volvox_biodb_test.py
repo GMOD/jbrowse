@@ -40,15 +40,16 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # test sequence track display
         self.sequence()
 
-        # test that the CDS track has links to example.com
-        self.turn_on_track( 'Predicted genes' );
+        # test that the frame usage track claims to have links to NCBI
+        self.turn_on_track( 'Frame usage' );
         self.do_typed_query('ctgA:2,381..21,220');
-        self.assert_element("//a[@href='http://example.com/Apple2-12999-17200']");
+        self.assert_element("//div[@title='search at NCBI']");
 
         self.browser.close()
 
     def sequence( self ):
         self.do_typed_query( '0..80' );
+        time.sleep(0.2);
         sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')][contains(.,'%s')]"
         sequence_div_xpath_1 = sequence_div_xpath_templ % 'aacaACGG';
         self.assert_element( sequence_div_xpath_1)
@@ -85,13 +86,13 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_element("//div[contains(@class,'dijitDialog')]//span[@class='amazingTestSnippet']")
 
         # close the dialog
-        dialog_close = self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title,'snippet')]/span[contains(@class,'dijitDialogCloseIcon')]")
+        dialog_close = self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title,'Random XHR')]/span[contains(@class,'dijitDialogCloseIcon')]")
         dialog_close.click()
 
         time.sleep(0.5) # wait for it to finish fading out
 
         # check that the dialog closed
-        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'snippet')]");
+        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'Random XHR')]");
 
 
     def wiggle( self ):
@@ -115,6 +116,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_no_element( xpath )
 
         self.do_typed_query( "f15" );
+        time.sleep(0.2);
 
         # test that f15 appeared in the DOM (TODO: check that it's
         # actually centered in the window), and that the protein-coding
