@@ -89,7 +89,7 @@ class JBrowseTest (object):
         for i in range( len(text) ):
             qbox.send_keys( text[i] )
         qbox.send_keys( Keys.RETURN );
-        time.sleep( 0.1 )
+        time.sleep( 0.3 )
 
     def _rubberband( self, el_xpath, start_pct, end_pct, modkey = None ):
         el = self.assert_element( el_xpath )
