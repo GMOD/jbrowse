@@ -1,5 +1,6 @@
 import time
-from subprocess import check_call as call
+import subprocess
+from subprocess import check_call as call, PIPE;
 import unittest
 
 from jbrowse_selenium import JBrowseTest;
@@ -13,6 +14,14 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         call( "bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa --out sample_data/json/volvox/", shell=True )
         call( "bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox/", shell=True )
         call( "bin/wig-to-json.pl --out sample_data/json/volvox/ --wig docs/tutorial/data_files/volvox_microarray.wig", shell=True )
+        # add a definition for the volvox bigwig test track
+        subprocess.Popen( ["bin/add-track-json.pl","sample_data/json/volvox/trackList.json"], stdin=PIPE ).stdin.write("""{
+         "label": "volvox_microarray.bw",
+         "key": "volvox_microarray.bw",
+         "urlTemplate": "../../raw/volvox/volvox_microarray.bw",
+         "type":       "JBrowse/View/Track/Wiggle",
+         "storeClass": "JBrowse/Store/BigWig"
+      }""");
         call( "bin/generate-names.pl --dir sample_data/json/volvox/", shell=True )
         super( AbstractVolvoxBiodbTest, self ).setUp()
 
