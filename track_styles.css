@@ -407,10 +407,11 @@ div.generic_parent-hist {
 
 /* floating score display for wiggle tracks */
 .wiggleValueDisplay {
-    background: rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.9);
     border: 1px solid #aaa;
     padding: 2px;
     font-family: Courier New, monospace;
+    font-weight: bold;
 }
 
 .trackVerticalPositionIndicator {
