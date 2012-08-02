@@ -1,5 +1,11 @@
-define( ['dojox/charting/Chart','dojox/charting/axis2d/Default','dojox/charting/plot2d/Bubble'],
-        function(Chart) {
+define( [
+            'dojo/query',
+            'dojox/charting/Chart',
+            'dojox/charting/axis2d/Default',
+            'dojox/charting/plot2d/Bubble',
+            'dojo/NodeList-dom'
+        ],
+        function( query, Chart ) {
 /**
  * Ruler, with ticks and numbers, drawn with HTML elements. Can be
  * stretched to any length.
@@ -36,7 +42,7 @@ Ruler.prototype.render_to = function( target_div ) {
                    position: 'absolute',
                    left: "-9px",
                    bottom: "-14px",
-                   width: (30+4*label_digits)+"px",
+                   width: (40+4*label_digits)+"px",
                    height: (target_dims.h+27)+"px",
                    overflow: 'hidden'
             }
@@ -59,11 +65,8 @@ Ruler.prototype.render_to = function( target_div ) {
         chart1.addPlot("default", {type: "Bubble", fill: 'transparent'});
         chart1.render();
 
-        // hack to remove a undesirable opaque white rectangle i can't
-        // coax dojox.charting to leave out
-        var undesirable_rect = container.childNodes[0].childNodes[1];
-        if( undesirable_rect )
-            undesirable_rect.setAttribute('fill-opacity',0);
+        // hack to remove undesirable opaque white rectangles
+        query('svg rect', container ).orphan();
 
         this.scaler = chart1.axes.y.scaler;
     } catch (x) {
