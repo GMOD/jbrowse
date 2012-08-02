@@ -690,9 +690,13 @@ Browser.prototype.createTrackList = function( callback ) {
                  // bind the 't' key as a global keyboard shortcut
                  this.setGlobalKeyboardShortcut( 't', this.trackListView, 'toggle' );
 
-                 // listen for track-visibility-changing messages from views
-                 this.subscribe( '/jbrowse/v1/v/tracks/hide', dojo.hitch( this, 'onVisibleTracksChanged' ));
-                 this.subscribe( '/jbrowse/v1/v/tracks/show', dojo.hitch( this, 'onVisibleTracksChanged' ));
+                 // listen for track-visibility-changing messages from
+                 // views and update our tracks cookie
+                 this.subscribe( '/jbrowse/v1/v/tracks/changed', dojo.hitch( this, function() {
+                     this.cookie( "tracks",
+                                  this.view.visibleTrackNames().join(','),
+                                  {expires: 60});
+                 }));
 
                  // figure out what initial track list we will use:
                  //    from a param passed to our instance, or from a cookie, or
@@ -709,18 +713,11 @@ Browser.prototype.createTrackList = function( callback ) {
     }));
 };
 
-
-
 /**
  * @private
  */
 
-
 Browser.prototype.onVisibleTracksChanged = function() {
-    this.view.updateTrackList();
-    this.cookie( "tracks",
-                 this.visibleTracks().join(','),
-                 {expires: 60});
 };
 
 /**
@@ -904,15 +901,6 @@ Browser.prototype.visibleRegion = function() {
            });
 };
 
-/**
- * @returns {Array[String]} of the <b>names</b> of currently-viewed
- * tracks (suitable for passing to showTracks)
- */
-
-Browser.prototype.visibleTracks = function() {
-    return dojo.map( this.view.visibleTracks(), function(t){ return t.name; } );
-};
-
 Browser.prototype.makeHelpDialog = function () {
 
     // make a div containing our help text
@@ -1040,7 +1028,7 @@ Browser.prototype.makeBookmarkLink = function (area) {
                    "?",
                    dojo.objectToQuery({
                        loc:    browser_obj.visibleRegion(),
-                       tracks: browser_obj.visibleTracks().join(','),
+                       tracks: browser_obj.view.visibleTrackNames().join(','),
                        data:   browser_obj.config.queryParams.data
                    })
                );
@@ -1057,11 +1045,12 @@ Browser.prototype.makeBookmarkLink = function (area) {
     this.link.appendChild( document.createTextNode( fullview ? "Full view" : "Bookmark" ) );
 
     // connect moving events to update it
-    var update_bookmark = function() {
+    var update_bookmark = dojo.hitch(this,function() {
         this.link.href = this.config.bookmark.call( this, this );
-    };
-    dojo.connect( this, "onCoarseMove",           update_bookmark );
-    dojo.connect( this, 'onVisibleTracksChanged', update_bookmark );
+    });
+
+    dojo.connect( this, "onCoarseMove",             update_bookmark );
+    this.subscribe( '/jbrowse/v1/v/tracks/changed', update_bookmark );
 
     return this.link;
 };
@@ -1302,7 +1291,6 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
          // prevent the "more matches" option from being clicked
          var oldSetValue = dropDownProto._setValueAttr;
          dropDownProto._setValueAttr = function( value ) {
-             console.log( value.target.item );
              if( value.target && value.target.item && value.target.item.hitLimit )
                  return null;
              return oldSetValue.apply( this, arguments );

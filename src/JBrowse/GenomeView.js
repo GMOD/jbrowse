@@ -310,6 +310,14 @@ GenomeView.prototype.visibleTracks = function() {
 };
 
 /**
+ *  @returns {Array[String]} of the names of tracks that are currently visible in this genomeview
+ */
+GenomeView.prototype.visibleTrackNames = function() {
+    return dojo.map( this.visibleTracks(), function(t){ return t.name; } );
+};
+
+
+/**
  * Behaviors (event handler bundles) for various states that the
  * GenomeView might be in.
  * @private
@@ -1633,7 +1641,9 @@ GenomeView.prototype.trackIterate = function(callback) {
  * are added, removed, or reordered
  */
 GenomeView.prototype.updateTrackList = function() {
-    var tracks = [];
+    var tracks = [],
+        oldtracks = dojo.toJson( this.trackIndices || {} );
+
     // after a track has been dragged, the DOM is the only place
     // that knows the new ordering
     var containerChild = this.trackContainer.firstChild;
@@ -1670,6 +1680,11 @@ GenomeView.prototype.updateTrackList = function() {
     this.scrollContainer.style.height = this.containerHeight + "px";
 
     this.updateScroll();
+
+    // publish a message if the visible tracks or their ordering has changed
+    if( oldtracks != dojo.toJson( this.trackIndices || {} ) ) {
+        this.browser.publish( '/jbrowse/v1/v/tracks/changed', [this.visibleTrackNames()] );
+    }
 };
 
 return GenomeView;
