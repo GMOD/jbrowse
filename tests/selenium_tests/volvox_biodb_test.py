@@ -54,11 +54,20 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.sequence()
 
         # test that the frame usage track claims to have links to NCBI
-        self.turn_on_track( 'Frame usage' );
-        self.do_typed_query('ctgA:2,381..21,220');
-        self.assert_element("//div[@title='search at NCBI']");
+        self.turn_on_track( 'Frame usage' )
+        self.do_typed_query('ctgA:2,381..21,220')
+        self.assert_element("//div[@title='search at NCBI']")
+
+        # test bigwig
+        self.bigwig();
 
         self.browser.close()
+
+    def bigwig( self ):
+        self.turn_on_track('volvox_microarray.bw')
+        self.assert_elements("//div[@id='track_volvox_microarray.bw']//canvas")
+        self.assert_no_js_errors()
+
 
     def sequence( self ):
         self.do_typed_query( '0..80' );
