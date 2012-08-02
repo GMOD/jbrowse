@@ -74,6 +74,11 @@ var Browser = function(params) {
     dojo.connect( this, 'onRefSeqsLoaded', Util.debugHandler( this, 'reportUsageStats' ));
 };
 
+Browser.prototype.version = function() {
+    var BUILD_SYSTEM_JBROWSE_VERSION;
+    return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
+}.call();
+
 /**
  * Displays links to configuration help in the main window.  Called
  * when the main browser cannot run at all, due to configuration
