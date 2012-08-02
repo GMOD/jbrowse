@@ -1,6 +1,19 @@
 {{$NEXT}}
 
- * Add highly configurable behavior for left-clicking and
+ * Added a direct-access storage driver for BigWig data files, based
+   on code from the Dalliance Genome Explorer by Thomas Down.  BigWig
+   file access is supported now by the current versions of all major
+   browsers except Internet Explorer (which is expected to work when
+   version 10 is released along with Windows 8).
+
+ * Added a `canvas`-based wiggle track implementation for quantitative
+   data that, when used with the new BigWig storage backend, removes
+   the need to pre-generate rendered images of wiggle data.  Its
+   display is also highly configurable, with configuration options
+   modeled on the GBrowse `wiggle_xyplot` glyph type
+   (i.e. `Bio::Graphics::Glyph::wiggle_xyplot`).
+
+ * Added highly configurable behavior for left-clicking and
    right-clicking features in HTML-based feature tracks.  If a
    `menuTemplate` option is specified in the track configuration,
    right-clicking a feature brings up a context menu, the items in
