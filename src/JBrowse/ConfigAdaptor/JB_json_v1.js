@@ -25,20 +25,26 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
          */
         load: function( /**Object*/ args ) {
             var that = this;
-            dojo.xhrGet({
-                            url: args.config.url,
-                            handleAs: 'text',
-                            load: function( o ) {
-                                o = that.parse_conf( o, args );
-                                o = that.regularize_conf( o, args );
-                                args.onSuccess.call( args.context || this, o );
-                            },
-                            error: function( i ) {
-                                console.error( ''+i );
-                                if( args.onFailure )
-                                    args.onFailure.call( args.context || this, i);
-                            }
-                        });
+            if( args.config.url ) {
+                dojo.xhrGet({
+                                url: args.config.url,
+                                handleAs: 'text',
+                                load: function( o ) {
+                                    o = that.parse_conf( o, args );
+                                    o = that.regularize_conf( o, args );
+                                    args.onSuccess.call( args.context || this, o );
+                                },
+                                error: function( i ) {
+                                    console.error( ''+i );
+                                    if( args.onFailure )
+                                        args.onFailure.call( args.context || this, i);
+                                }
+                            });
+            }
+            else if( args.config.data ) {
+                var conf = this.regularize_conf( args.config.data, args );
+                args.onSuccess.call( args.context || this, conf );
+            }
         },
 
         /**

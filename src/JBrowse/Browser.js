@@ -65,8 +65,7 @@ var Browser = function(params) {
 
     // schedule the config load, the first step in the initialization
     // process, to happen when the page is done loading
-    var browser = this;
-    dojo.addOnLoad( function() { browser.loadConfig(); } );
+    dojo.addOnLoad( dojo.hitch( this,'loadConfig' ) );
 
     dojo.connect( this, 'onConfigLoaded',  Util.debugHandler( this, 'loadRefSeqs' ));
     dojo.connect( this, 'onConfigLoaded',  Util.debugHandler( this, 'loadNames'   ));
@@ -438,88 +437,12 @@ Browser.prototype.addRecentlyUsedTracks = function( trackLabels ) {
  *  @returns nothing meaningful
  */
 Browser.prototype.loadConfig = function () {
-    var that = this;
-
-    // coerce include to an array
-    if( typeof this.config.include != 'object' || !this.config.include.length )
-        this.config.include = [ this.config.include ];
-
-    // coerce bare strings in the configs to URLs
-    for (var i = 0; i < this.config.include.length; i++) {
-        if( typeof this.config.include[i] == 'string' )
-            this.config.include[i] = { url: this.config.include[i] };
-    }
-
-    // fetch and parse all the configuration data
-    var configs_remaining = this.config.include.length;
-    dojo.forEach( this.config.include, function(config) {
-        // include array might have undefined elements in it if
-        // somebody left a trailing comma in and we are running under
-        // IE
-        if( !config )
-            return;
-
-        // set defaults for format and version
-        if( ! ('format' in config) ) {
-            config.format = 'JB_json';
-        }
-        if( config.format == 'JB_json' && ! ('version' in config) ) {
-            config.version = 1;
-        }
-
-        // instantiate the adaptor and load the config
-        this.getConfigAdaptor( config, dojo.hitch(this, function(adaptor) {
-            if( !adaptor ) {
-                this.fatalError( "Could not load config "+config.url+", no configuration adaptor found for config format "+config.format+' version '+config.version );
-                return;
-            }
-
-            adaptor.load({
-                config: config,
-                context: this,
-                onSuccess: function( config_data, request_info ) {
-                    config.data = config_data;
-                    config.loaded = true;
-                    if( ! --configs_remaining )
-                        this.onConfigLoaded();
-                        //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
-                },
-                onFailure: function( error ) {
-                    config.loaded = false;
-                    this.fatalError( error );
-                    if( ! --configs_remaining )
-                        this.onConfigLoaded();
-                        //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
-                }
+    var c = new ConfigManager();
+    c.load( this.config, function( finishedConfig ) {
+                this.config = dojo.clone( finishedConfig );
             });
-        }));
-    }, this);
 };
 
-Browser.prototype.onConfigLoaded = function() {
-
-    var initial_config = this.config;
-    this.config = {};
-
-    // load all the configuration data in order
-    dojo.forEach( initial_config.include, function( config ) {
-                      if( config.loaded && config.data )
-                          this.addConfigData( config.data );
-                  }, this );
-
-    // load the initial config (i.e. constructor params) last so that
-    // it overrides the other config
-    this.addConfigData( initial_config );
-
-    this.validateConfig();
-
-    // index the track configurations by name
-    this.trackConfigsByName = {};
-    dojo.forEach( this.config.tracks || [], function(conf){
-        this.trackConfigsByName[conf.label] = conf;
-    },this);
-
-};
 
 /**
  * Examine the loaded and merged configuration for errors.  Throws
@@ -538,23 +461,6 @@ Browser.prototype.validateConfig = function() {
         throw "Errors in configuration, aborting.";
 };
 
-/**
- * Instantiate the right config adaptor for a given configuration source.
- * @param {Object} config the configuraiton
- * @param {Function} callback called with the new config object
- * @returns {Object} the right configuration adaptor to use, or
- * undefined if one could not be found
- */
-
-Browser.prototype.getConfigAdaptor = function( config_def, callback ) {
-    var adaptor_name = "JBrowse/ConfigAdaptor/" + config_def.format;
-    if( 'version' in config_def )
-        adaptor_name += '_v'+config_def.version;
-    adaptor_name.replace( /\W/g,'' );
-    return require([adaptor_name], function(adaptor_class) {
-        callback( new adaptor_class( config_def ) );
-    });
-};
 
 /**
  * Add a function to be executed once JBrowse is initialized
@@ -565,15 +471,6 @@ Browser.prototype.addDeferred = function(f) {
         f();
     else
         this.deferredFunctions.push(f);
-};
-
-/**
- * Merge in some additional configuration data.  Properties in the
- * passed configuration will override those properties in the existing
- * configuration.
- */
-Browser.prototype.addConfigData = function( /**Object*/ config_data ) {
-    Util.deepUpdate( this.config, config_data );
 };
 
 /**
