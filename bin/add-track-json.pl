@@ -45,7 +45,7 @@ __END__
 
 =head1 NAME
 
-add-track-json.pl - add a single JSON track configuration (from STDIN
+add-track-json.pl - add a single JSON track configuration snippet(from STDIN
 or from a file) to the given JBrowse configuration file
 
 =head1 DESCRIPTION
@@ -65,11 +65,11 @@ data/trackList.json, you could run something like:
 
 =head1 USAGE
 
-  bin/add-track-json.pl [ track.json ] config.json
+  bin/add-track-json.pl myTrack.json data/trackList.json
 
   # OR
 
-  cat track.json | bin/add-track-json.pl config.json
+  cat track.json | bin/add-track-json.pl data/trackList.json
 
 =head2 OPTIONS
 
