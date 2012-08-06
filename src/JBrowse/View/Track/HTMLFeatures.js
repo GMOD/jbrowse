@@ -2,6 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
+            'dojo/dom-geometry',
             'dojo/on',
             'dojo/aspect',
             'dijit/Menu',
@@ -16,6 +17,7 @@ define( [
       function( declare,
                 lang,
                 array,
+                domGeom,
                 on,
                 aspect,
                 dijitMenu,
@@ -573,8 +575,8 @@ var HTMLFeatures = declare( BlockBased,
         heightTest.style.visibility = "hidden";
         if (Util.is_ie6) heightTest.appendChild(document.createComment("foo"));
         document.body.appendChild(heightTest);
-        glyphBox = dojo.marginBox(heightTest);
-        this.glyphHeight = Math.round(glyphBox.h + 2);
+        glyphBox = domGeom.getMarginBox(heightTest);
+        this.glyphHeight = glyphBox.h;
         this.padding += glyphBox.w;
         document.body.removeChild(heightTest);
 
@@ -584,11 +586,15 @@ var HTMLFeatures = declare( BlockBased,
             ah.className = "plus-" + this.config.style.arrowheadClass;
             if (Util.is_ie6) ah.appendChild(document.createComment("foo"));
             document.body.appendChild(ah);
-            glyphBox = dojo.marginBox(ah);
+            glyphBox = domGeom.position(ah);
             this.plusArrowWidth = glyphBox.w;
+            this.plusArrowHeight = glyphBox.h;
+            this.plusArrowTop = (this.plusArrowHeight-this.glyphHeight)/2;
             ah.className = "minus-" + this.config.style.arrowheadClass;
-            glyphBox = dojo.marginBox(ah);
+            glyphBox = domGeom.position(ah);
             this.minusArrowWidth = glyphBox.w;
+            this.minusArrowHeight = glyphBox.h;
+            this.minusArrowTop = (this.minusArrowHeight-this.glyphHeight)/2;
             document.body.removeChild(ah);
         }
     },
@@ -674,7 +680,7 @@ var HTMLFeatures = declare( BlockBased,
             case '+':
                 if( featwidth_px > this.plusArrowWidth*1.1 ) {
                     ah.className = "plus-" + this.config.style.arrowheadClass;
-                    ah.style.cssText = "position: absolute; right: 0px; top: 0px; z-index: 100;";
+                    ah.style.cssText = "position: absolute; right: 0px; top: "+this.plusArrowTop+"px; z-index: 100;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -683,7 +689,7 @@ var HTMLFeatures = declare( BlockBased,
                 if( featwidth_px > this.minusArrowWidth*1.1 ) {
                     ah.className = "minus-" + this.config.style.arrowheadClass;
                     ah.style.cssText =
-                        "position: absolute; left: 0px; top: 0px; z-index: 100;";
+                        "position: absolute; left: 0px; top: "+this.minusArrowTop+"px; z-index: 100;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -927,9 +933,9 @@ var HTMLFeatures = declare( BlockBased,
                               // initial display, and when the window
                               // is resized, to keep the iframe
                               // sized to fit exactly in it.
-                              var cDims = dojo.marginBox( dialog.domNode );
+                              var cDims = domGeom.getMarginBox( dialog.domNode );
                               iframe.width  = cDims.w;
-                              iframe.height = iframe.height = cDims.h - dojo.marginBox(dialog.titleBar).h - 2;
+                              iframe.height = iframe.height = cDims.h - domGeom.getMarginBox(dialog.titleBar).h - 2;
                           });
         }
 
