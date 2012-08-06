@@ -462,3 +462,10 @@ a.dialog-new-window {
 .feature-detail .field_container {
     padding: 1em 4em 0.3em 1em;
 }
+
+.sharePane input {
+    padding: 1px 0 2px 1px;
+}
+.tundra .sharePane input {
+    border: 1px solid #ccc;
+}

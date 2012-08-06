@@ -172,7 +172,13 @@ Browser.prototype.initView = function() {
         href: 'http://jbrowse.org',
         title: 'powered by JBrowse'
      }, linkContainer );
-    linkContainer.appendChild( this.makeBookmarkLink() );
+
+    var embedded = this.config.show_nav == 0 || this.config.show_tracklist == 0 || this.config.show_overview == 0;
+    if( embedded )
+        linkContainer.appendChild( this.makeFullViewLink() );
+    else
+        linkContainer.appendChild( this.makeShareLink() );
+
     if( this.config.show_nav != 0 )
         linkContainer.appendChild( this.makeHelpDialog()   );
     ( this.config.show_nav == 0 ? this.container : this.navbox ).appendChild( linkContainer );
@@ -1016,48 +1022,127 @@ Browser.prototype.globalKeyHandler = function( evt ) {
     }
 };
 
-Browser.prototype.makeBookmarkLink = function (area) {
-    // don't make the link if we were explicitly passed a 'bookmark'
-    // param of 'false'
-    if( typeof this.config.bookmark != 'undefined' && !this.config.bookmark )
+Browser.prototype.makeShareLink = function () {
+    // don't make the link if we were explicitly configured not to
+    if( ( 'share_link' in this.config ) && !this.config.share_link )
         return null;
 
-    // if a function was not passed, make a default bookmarking function
-    if( typeof this.config.bookmark != 'function' )
-        this.config.bookmark = function( browser_obj ) {
-               return "".concat(
+    var browser = this;
+    var viewURL = '#';
+
+
+    // make the share link
+    var link = dojo.create(
+        'a',
+        {
+            className: 'topLink',
+            href: '#',
+            innerHTML: 'Share',
+            title: 'share this view',
+            style: {
+                position: 'relative'
+            },
+            onclick: function() {
+                console.log('click!');
+                URLinput.value = viewURL;
+                previewLink.href = viewURL;
+
+                sharePane.show();
+
+                var lp = dojo.position(link);
+                dojo.style( sharePane.domNode, {
+                               top: (lp.y+lp.h) + 'px',
+                               right: 0,
+                               left: ''
+                            });
+                URLinput.select();
+                URLinput.focus();
+
+                return false;
+            }
+        }
+    );
+
+    // make the 'share' popup
+    var container = dojo.create(
+        'div', {
+            innerHTML: 'Paste in <b>email</b> or <b>IM</b>'
+        });
+    var URLinput = dojo.create(
+        'input', {
+            type: 'text',
+            value: viewURL,
+            size: 50,
+            onclick: function() { this.select(); }
+        });
+    var previewLink = dojo.create('a', {
+        innerHTML: 'preview',
+        target: '_blank',
+        href: viewURL,
+        style: { display: 'block', "float": 'right' }
+    }, container );
+    var sharePane = new dijitDialog(
+        {
+            className: 'sharePane',
+            title: 'Share this view',
+            content: [
+                container,
+                URLinput
+            ],
+            autofocus: false
+        });
+
+    // connect moving and track-changing events to update it
+    var update_sharelink = dojo.hitch(this,function() {
+                viewURL = "".concat(
+                    window.location.protocol,
+                    "//",
+                    window.location.host,
+                    window.location.pathname,
+                    "?",
+                    dojo.objectToQuery(
+                        {
+                            loc:    browser.visibleRegion(),
+                            tracks: browser.view.visibleTrackNames().join(','),
+                            data:   browser.config.queryParams.data
+                        })
+                );
+    });
+    dojo.connect( this, "onCoarseMove",             update_sharelink );
+    this.subscribe( '/jbrowse/v1/v/tracks/changed', update_sharelink );
+
+    return link;
+};
+
+Browser.prototype.makeFullViewLink = function () {
+    // make the link
+    var link = dojo.create('a', {
+        className: 'topLink',
+        href: window.location.href,
+        target: '_blank',
+        title: 'View in full browser',
+        innerHTML: 'Full view'
+    });
+
+    // update it when the view is moved or tracks are changed
+    var update_link = dojo.hitch(this,function() {
+        link.href = "".concat(
                    window.location.protocol,
                    "//",
                    window.location.host,
                    window.location.pathname,
                    "?",
                    dojo.objectToQuery({
-                       loc:    browser_obj.visibleRegion(),
-                       tracks: browser_obj.view.visibleTrackNames().join(','),
-                       data:   browser_obj.config.queryParams.data
+                       loc:    this.visibleRegion(),
+                       tracks: this.view.visibleTrackNames().join(','),
+                       data:   this.config.queryParams.data
                    })
                );
-        };
-
-    // make the bookmark link
-    var fullview = this.config.show_nav == 0 || this.config.show_tracklist == 0 || this.config.show_overview == 0;
-    this.link = document.createElement("a");
-    this.link.className = "topLink";
-    this.link.href  = window.location.href;
-    if( fullview )
-        this.link.target = "_blank";
-    this.link.title = fullview ? "View in full browser" : "Bookmarkable link to this view";
-    this.link.appendChild( document.createTextNode( fullview ? "Full view" : "Bookmark" ) );
-
-    // connect moving events to update it
-    var update_bookmark = dojo.hitch(this,function() {
-        this.link.href = this.config.bookmark.call( this, this );
     });
+    dojo.connect( this, "onCoarseMove",             update_link );
+    this.subscribe( '/jbrowse/v1/v/tracks/changed', update_link );
 
-    dojo.connect( this, "onCoarseMove",             update_bookmark );
-    this.subscribe( '/jbrowse/v1/v/tracks/changed', update_bookmark );
-
-    return this.link;
+    return link;
 };
 
 /**
