@@ -120,11 +120,13 @@ var HTMLFeatures = declare( BlockBased,
     loadSuccess: function(trackInfo, url) {
 
         var defaultConfig = {
+            description: true,
             style: {
                 className: "feature2",
                 histScale: 4,
                 labelScale: 50,
-                subfeatureScale: 80
+                subfeatureScale: 80,
+                maxDescriptionLength: 70
             },
             hooks: {
                 create: function(track, feat ) {
@@ -551,8 +553,8 @@ var HTMLFeatures = declare( BlockBased,
         heightTest.style.visibility = "hidden";
         heightTest.appendChild(document.createTextNode("1234567890"));
         document.body.appendChild(heightTest);
-        this.nameHeight = heightTest.clientHeight;
-        this.nameWidth = heightTest.clientWidth / 10;
+        this.labelHeight = heightTest.clientHeight;
+        this.labelWidth = heightTest.clientWidth / 10;
         document.body.removeChild(heightTest);
 
         //measure the height of glyphs
@@ -610,11 +612,21 @@ var HTMLFeatures = declare( BlockBased,
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
         var name = feature.get('name');
-        if (name && (scale >= this.labelScale)) {
-	    featureEnd = Math.max(featureEnd,
-                                  featureStart + ((name ? name.length : 0)
-				                  * (this.nameWidth / scale) ) );
-            levelHeight += this.nameHeight;
+        var description = this.config.description && ( feature.get('note') || feature.get('description') );
+        if( description && description.length > this.config.style.maxDescriptionLength )
+            description = description.substr(0, this.config.style.maxDescriptionLength )+String.fromCharCode(8230);
+
+        // add the label div (which includes the description) to the
+        // calculated height of the feature if it will be displayed
+        if( scale >= this.labelScale ) {
+            if (name) {
+	        featureEnd = Math.max(featureEnd, featureStart + (''+name).length * this.labelWidth / scale );
+                levelHeight += this.labelHeight;
+            }
+            if( description ) {
+                featureEnd = Math.max( featureEnd, featureStart + (''+description).length * this.labelWidth / scale );
+                levelHeight += this.labelHeight;
+            }
         }
         featureEnd += Math.max(1, this.padding / scale);
 
@@ -692,9 +704,10 @@ var HTMLFeatures = declare( BlockBased,
         if (name && (scale >= this.labelScale)) {
             var labelDiv = dojo.create( 'div', {
                     className: "feature-label",
-                    innerHTML: name,
+                    innerHTML: '<div class="feature-name">'+name+'</div>'
+                               +( description ? ' <div class="feature-description">'+description+'</div>' : '' ),
                     style: {
-                        top: (top + this.glyphHeight) + "px",
+                        top: (top + this.glyphHeight + 2) + "px",
                         left: (100 * (featureStart - block.startBase) / blockWidth)+'%'
                     }
                 }, block );
