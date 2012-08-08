@@ -226,7 +226,6 @@ Layout.prototype.addRect = function(id, left, right, height) {
 
     var existing = {id: id, left: left, right: right,
                     top: top, height: height};
-    this.seen[id] = top;
     if (left <= this.leftBound) {
         this.leftOverlaps.push(existing);
         if (this.leftLayout) this.leftLayout.addExisting(existing);
