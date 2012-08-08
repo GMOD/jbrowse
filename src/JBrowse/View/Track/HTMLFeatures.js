@@ -614,7 +614,7 @@ var HTMLFeatures = declare( BlockBased,
         var name = feature.get('name');
         var description = this.config.description && ( feature.get('note') || feature.get('description') );
         if( description && description.length > this.config.style.maxDescriptionLength )
-            description = description.substr(0, this.config.style.maxDescriptionLength )+String.fromCharCode(8230);
+            description = description.substr(0, this.config.style.maxDescriptionLength+1 ).replace(/(\s+\S+|\s*)$/,'')+String.fromCharCode(8230);
 
         // add the label div (which includes the description) to the
         // calculated height of the feature if it will be displayed
