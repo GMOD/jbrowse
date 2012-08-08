@@ -167,7 +167,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
 
     this.scaleTrackDiv = scaleTrackDiv;
     this.staticTrack = new LocationScaleTrack("static_track", "pos-label", this.posHeight);
-    this.staticTrack.setViewInfo(function(height) {}, this.stripeCount,
+    this.staticTrack.setViewInfo( this, function(height) {}, this.stripeCount,
                                  this.scaleTrackDiv, undefined, this.stripePercent,
                                  this.stripeWidth, this.pxPerBp,
                                  this.trackPadding);
@@ -179,7 +179,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     gridTrackDiv.style.cssText = "top: 0px; height: 100%;";
     gridTrackDiv.id = "gridtrack";
     var gridTrack = new GridLinesTrack("gridtrack");
-    gridTrack.setViewInfo(function(height) {}, this.stripeCount,
+    gridTrack.setViewInfo( this, function(height) {}, this.stripeCount,
                           gridTrackDiv, undefined, this.stripePercent,
                           this.stripeWidth, this.pxPerBp,
                           this.trackPadding);
@@ -1227,7 +1227,7 @@ GenomeView.prototype.addOverviewTrack = function(track) {
     var heightUpdate = function(height) {
         view.updateOverviewHeight();
     };
-    track.setViewInfo(heightUpdate, this.overviewStripes, trackDiv,
+    track.setViewInfo( this, heightUpdate, this.overviewStripes, trackDiv,
 		      undefined,
 		      overviewStripePct,
 		      this.overviewStripeBases,
@@ -1611,9 +1611,9 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
         this.trackLabels.push(labelDiv);
 
         var heightUpdate = dojo.hitch( this, 'trackHeightUpdate', trackName );
-        track.setViewInfo(heightUpdate, this.stripeCount, trackDiv, labelDiv,
-    		      this.stripePercent, this.stripeWidth,
-                          this.pxPerBp, this.trackPadding);
+        track.setViewInfo( this, heightUpdate, this.stripeCount, trackDiv, labelDiv,
+                           this.stripePercent, this.stripeWidth,
+                           this.pxPerBp, this.trackPadding);
 
         track.updateStaticElements({
             x: this.getX(),

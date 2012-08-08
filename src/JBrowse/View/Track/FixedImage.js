@@ -51,13 +51,6 @@ return declare( BlockBased,
         this.setLoaded();
     },
 
-    setViewInfo: function(heightUpdate, numBlocks,
-                                                trackDiv, labelDiv,
-                                                widthPct, widthPx, scale) {
-        BlockBased.prototype.setViewInfo.apply( this, arguments );
-        this.setLabel( this.key );
-    },
-
     handleImageError: function(ev) {
         var img = ev.currentTarget || ev.srcElement;
         img.style.display = "none";

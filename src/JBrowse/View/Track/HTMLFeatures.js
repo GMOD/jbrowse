@@ -180,13 +180,6 @@ var HTMLFeatures = declare( BlockBased,
         };
     },
 
-    setViewInfo: function(genomeView, numBlocks,
-                          trackDiv, labelDiv,
-                          widthPct, widthPx, scale) {
-        BlockBased.prototype.setViewInfo.apply(this, arguments );
-        this.setLabel(this.key);
-    },
-
     /**
      * Return an object with some statistics about the histograms we will
      * draw for a given block size in base pairs.

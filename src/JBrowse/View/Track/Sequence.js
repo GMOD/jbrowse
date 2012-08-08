@@ -48,19 +48,16 @@ return declare( BlockBased,
         BlockBased.prototype.clear.apply(this);
     },
 
-    setViewInfo:function(genomeView, numBlocks,
-                                                   trackDiv, labelDiv,
-                                                   widthPct, widthPx, scale) {
-        BlockBased.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
-                                                                         trackDiv, labelDiv,
-                                                                         widthPct, widthPx, scale]);
+    setViewInfo:function(genomeView, heightUpdate, numBlocks,
+                         trackDiv, labelDiv,
+                         widthPct, widthPx, scale) {
+        this.inherited( arguments );
         if (scale == this.charWidth) {
             this.show();
         } else {
             this.hide();
             this.heightUpdate(0);
         }
-        this.setLabel(this.key);
     },
 
     nbsp: String.fromCharCode(160),

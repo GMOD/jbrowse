@@ -37,13 +37,6 @@ return declare( BlockBased,
         this.loaded = true;
     },
 
-    setViewInfo: function(heightUpdate, numBlocks,
-                                                trackDiv, labelDiv,
-                                                widthPct, widthPx, scale) {
-        BlockBased.prototype.setViewInfo.apply( this, arguments );
-        this.setLabel( this.key );
-    },
-
     fillBlock: function( blockIndex,     block,
                          leftBlock,      rightBlock,
                          leftBase,       rightBase,

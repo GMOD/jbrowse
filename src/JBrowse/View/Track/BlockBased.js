@@ -54,9 +54,10 @@ return declare( null,
         }
     },
 
-    setViewInfo: function(heightUpdate, numBlocks,
-                          trackDiv, labelDiv,
-                          widthPct, widthPx, scale) {
+    setViewInfo: function( genomeView, heightUpdate, numBlocks,
+                           trackDiv, labelDiv,
+                           widthPct, widthPx, scale) {
+        this.genomeView = genomeView;
         this.heightUpdateCallback = heightUpdate;
         this.div = trackDiv;
         this.label = labelDiv;
@@ -73,6 +74,8 @@ return declare( null,
         this.sizeInit(numBlocks, widthPct);
         this.labelHTML = "";
         this.labelHeight = 0;
+
+        this.setLabel( this.key );
     },
 
 
@@ -184,7 +187,10 @@ return declare( null,
         this.lastAttached = last;
         this._adjustBlanks();
         this.inShowRange = false;
+
         this.heightUpdate(this.height);
+        this.updateStaticElements( this.genomeView.getPosition() );
+
         return 1;
     },
 
