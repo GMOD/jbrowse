@@ -944,6 +944,9 @@ var HTMLFeatures = declare( BlockBased,
         }
 
         var handler = function ( evt ) {
+            if( track.genomeView.dragging )
+                return;
+
             var ctx = context || this;
             var spec = track._processMenuSpec( dojo.clone( inputSpec ), ctx );
             var url = spec.url || spec.href;

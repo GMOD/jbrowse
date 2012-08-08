@@ -618,7 +618,6 @@ GenomeView.prototype.startMouseDragScroll = function(event) {
 
     this.behaviorManager.applyBehaviors('mouseDragScrolling');
 
-    this.dragging = true;
     this.dragStartPos = {x: event.clientX,
                          y: event.clientY};
     this.winStartPos = this.getPosition();
@@ -712,12 +711,17 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
 GenomeView.prototype.dragEnd = function(event) {
     this.behaviorManager.removeBehaviors('mouseDragScrolling');
 
-    this.dragging = false;
     dojo.stopEvent(event);
     this.showCoarse();
 
     this.scrollUpdate();
     this.showVisibleBlocks(true);
+
+    // wait 100 ms before releasing our drag indication, since onclick
+    // events from during the drag might fire after the dragEnd event
+    window.setTimeout(
+        dojo.hitch(this,function() {this.dragging = false;}),
+        100 );
 };
 
 /** stop the drag if we mouse out of the view */
@@ -734,6 +738,7 @@ GenomeView.prototype.checkDragOut = function( event ) {
 };
 
 GenomeView.prototype.dragMove = function(event) {
+    this.dragging = true;
     this.setPosition({
     	x: this.winStartPos.x - (event.clientX - this.dragStartPos.x),
     	y: this.winStartPos.y - (event.clientY - this.dragStartPos.y)
