@@ -1537,13 +1537,14 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
       ) {
           return existingTrack.div;
       }
-    var trackClass = {
+    var trackClass = this._regularizeClass( 'JBrowse/View/Track', {
         'FeatureTrack':      'JBrowse/View/Track/HTMLFeatures',
         'ImageTrack':        'JBrowse/View/Track/FixedImage',
         'ImageTrack.Wiggle': 'JBrowse/View/Track/FixedImage/Wiggle',
         'SequenceTrack':     'JBrowse/View/Track/Sequence'
       }[ trackConfig.type ]
-      || trackConfig.type;
+      || trackConfig.type
+   );
 
     var trackName = trackConfig.label;
     var trackDiv = dojo.create('div', {
@@ -1555,12 +1556,14 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     // figure out what data store class to use with the track,
     // applying some defaults if it is not explicit in the
     // configuration
-    var storeClass =
-        trackConfig.storeClass               ? trackConfig.storeClass :
-        /\/HTMLFeatures$/.test( trackClass ) ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' ) :
-        /\/FixedImage/.test( trackClass )    ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
-        /\/Sequence$/.test( trackClass )     ? 'JBrowse/Store/Sequence/StaticChunked' :
-                                                null;
+    var storeClass = this._regularizeClass( 'JBrowse/Store',
+            trackConfig.storeClass               ? trackConfig.storeClass :
+            /\/HTMLFeatures$/.test( trackClass ) ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' ) :
+            /\/FixedImage/.test( trackClass )    ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
+            /\/Sequence$/.test( trackClass )     ? 'JBrowse/Store/Sequence/StaticChunked' :
+                                                null
+    );
+
     if( ! storeClass ) {
         console.error( "Unable to find an appropriate data store to use with a "
                        + trackClass + " track, please explicitly specify a "
@@ -1631,6 +1634,14 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     }));
 
     return trackDiv;
+};
+
+GenomeView.prototype._regularizeClass = function( root, class_ ) {
+    // prefix the class names with JBrowse/* if they contain no slashes
+    if( ! /\//.test( class_ ) )
+        class_ = root+'/'+class_;
+    class_ = class_.replace(/^\//);
+    return class_;
 };
 
 GenomeView.prototype.trackIterate = function(callback) {
