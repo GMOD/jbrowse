@@ -888,10 +888,10 @@ var HTMLFeatures = declare( BlockBased,
         };
         var dialog;
 
-        // if dialog == snippet, open the link in a dialog
+        // if dialog == xhr, open the link in a dialog
         // with the html from the URL just shoved in it
-        if( type == 'snippet' || type == 'content' ) {
-            if( type == 'snippet' )
+        if( type == 'xhr' || type == 'content' ) {
+            if( type == 'xhr' )
                 dialogOpts.href = spec.url;
             else
                 dialogOpts.content = this._evalConf( context, spec.content, null );
@@ -968,15 +968,15 @@ var HTMLFeatures = declare( BlockBased,
                     iframe:         'iframeDialog',
                     contentdialog:  'contentDialog',
                     content:        'content',
-                    snippetdialog:  'snippetDialog',
-                    snippet:        'snippet',
+                    xhrdialog:      'xhrDialog',
+                    xhr:            'xhr',
                     newwindow:      'newWindow',
                     "_blank":       'newWindow'
                 }[(''+spec.action).toLowerCase()];
 
                 if( spec.action == 'newWindow' )
                     window.open( url, '_blank' );
-                else if( spec.action in { iframeDialog:1, contentDialog:1, snippetDialog:1} )
+                else if( spec.action in { iframeDialog:1, contentDialog:1, xhrDialog:1} )
                     track._openDialog( spec, evt, ctx );
             }
             else if( typeof spec.action == 'function' ) {

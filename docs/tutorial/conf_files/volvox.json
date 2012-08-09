@@ -82,7 +82,7 @@
                "label" : "Open popup with XHR HTML snippet (btw this is feature {name})",
                "title": "function(track,feature,div) { return 'Random XHR HTML '+Math.random()+' title!'; }",
                "iconClass" : "dijitIconDatabase",
-               "action": "snippetDialog",
+               "action": "xhrDialog",
                "url" : "sample_data/test_snippet.html?featurename={name}:{start}-{end}"
              },
              {
