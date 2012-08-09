@@ -51,8 +51,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v0',JB_json_v1,
      */
     parse_conf: function( conf_text ) {
         conf_text.replace( /^[^\{]+/, '' );
-        var conf;
-        return eval( 'conf = ' + conf_text );
+        return this.inherited(arguments);
     }
 });
 });

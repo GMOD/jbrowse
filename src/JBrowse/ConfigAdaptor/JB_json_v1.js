@@ -1,4 +1,4 @@
-define(['dojo/_base/declare','JBrowse/Util'], function(declare,Util) {
+define(['dojo/_base/declare','dojo/_base/json','JBrowse/Util'], function(declare,json,Util) {
 return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
     /**
@@ -49,8 +49,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
          * @returns {Object} the parsed JSON
          */
         parse_conf: function( conf_text, load_args ) {
-            var conf;
-            return eval( 'conf = ' + conf_text );
+            return json.fromJson( conf_text );
         },
 
         /**
