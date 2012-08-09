@@ -939,8 +939,8 @@ var HTMLFeatures = declare( BlockBased,
     _makeClickHandler: function( inputSpec, context ) {
         var track  = this;
 
-        if( typeof spec == 'function' ) {
-            inputSpec = { action: spec };
+        if( typeof inputSpec == 'function' ) {
+            inputSpec = { action: inputSpec };
         }
 
         var handler = function ( evt ) {

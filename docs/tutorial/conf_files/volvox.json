@@ -146,7 +146,8 @@
             "CDS" : "transcript-CDS",
             "UTR" : "transcript-UTR"
          },
-         "subfeatures" : true
+         "subfeatures" : true,
+         "onClick": "function() { alert('Ran arbitrary JavaScript!'); };"
       },
       {
          "feature" : [
