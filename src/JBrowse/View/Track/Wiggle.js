@@ -145,7 +145,7 @@ var Wiggle = declare( CanvasTrack,
 
         var posColor  = this.config.style.pos_color || '#00f';
         var negColor  = this.config.style.neg_color || '#f00';
-        var clipColor = this.config.style.clip_color;
+        var clipColor = this.config.style.clip_marker_color;
         var disableClipMarkers = this.config.disable_clip_markers;
 
         this.store.readWigData( scale, this.refSeq.name, leftBase, rightBase+1, dojo.hitch(this,function( features ) {
