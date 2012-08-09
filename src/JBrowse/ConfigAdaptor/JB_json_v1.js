@@ -78,7 +78,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 else if( typeof conf[x] == 'string' ) {
                     // compile
                     var spec = conf[x];
-                    if( /^function\s*\(/.test(spec) && /\}\s*$/.test(spec) ) {
+                    if( /^function\s*\(/.test(spec) && /\}[\s;]*$/.test(spec) ) {
                         conf[x] = this._evalHook(spec);
                     }
                 }
@@ -89,9 +89,9 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             if (! ("string" == typeof hook)) return hook;
             var result;
             try {
-                result = eval("(" + hook + ")");
+                eval("result="+hook+";");
             } catch (e) {
-                console.log("eval failed for callback '"+hook+"': "+e);
+                console.error("eval failed for callback '"+hook+"': "+e);
             }
             return result;
         }
