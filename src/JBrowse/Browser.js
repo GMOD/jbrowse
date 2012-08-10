@@ -1066,7 +1066,7 @@ Browser.prototype.makeShareLink = function () {
     // make the 'share' popup
     var container = dojo.create(
         'div', {
-            innerHTML: 'Paste in <b>email</b> or <b>IM</b>'
+            innerHTML: 'Paste this link in <b>email</b> or <b>IM</b>'
         });
     var URLinput = dojo.create(
         'input', {
