@@ -3,15 +3,13 @@
   <head>
     <title>JBrowse</title>
     <link rel="stylesheet" type="text/css" href="genome.css"></link>
+    <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="isDebug: 1, async: 1"></script>
 
     <script type="text/javascript">
         window.onerror=function(msg){
             document.body.setAttribute("JSError",msg);
         }
-    </script>
 
-    <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="isDebug: 1, async: 1"></script>
-    <script type="text/javascript">
         var JBrowse;
         require({ baseUrl: 'src', packages: ['JBrowse','dojo','dijit','dojox','jszlib'] },
             [ 'JBrowse/Browser', 'dojo/io-query' ],
