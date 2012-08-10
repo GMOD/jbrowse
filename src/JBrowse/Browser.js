@@ -814,7 +814,7 @@ Browser.prototype.navigateToLocation = function( location ) {
     // if different, we need to poke some other things before going there
     else {
         // record names of open tracks and re-open on new refseq
-        var curTracks = this.visibleTracks();
+        var curTracks = this.view.visibleTracks();
 
         this.refSeq = this.allRefs[location.ref];
 
