@@ -664,12 +664,16 @@ var HTMLFeatures = declare( BlockBased,
         if ( this.config.style.arrowheadClass ) {
             var ah = document.createElement("div");
             var featwidth_px = featwidth/100*blockWidth*scale;
+
+            // NOTE: arrowheads are hidden until they are centered by
+            // _centerFeatureElements, so that they don't jump around
+            // on the screen
             switch (strand) {
             case 1:
             case '+':
                 if( featwidth_px > this.plusArrowWidth*1.1 ) {
                     ah.className = "plus-" + this.config.style.arrowheadClass;
-                    ah.style.cssText = "position: absolute; right: 0px; top: 0px; z-index: 100;";
+                    ah.style.cssText = "visibility: hidden; position: absolute; right: 0px; top: 0px; z-index: 100;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -678,7 +682,7 @@ var HTMLFeatures = declare( BlockBased,
                 if( featwidth_px > this.minusArrowWidth*1.1 ) {
                     ah.className = "minus-" + this.config.style.arrowheadClass;
                     ah.style.cssText =
-                        "position: absolute; left: 0px; top: 0px; z-index: 100;";
+                        "visibility: hidden; position: absolute; left: 0px; top: 0px; z-index: 100;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -703,40 +707,49 @@ var HTMLFeatures = declare( BlockBased,
             featDiv.labelDiv = labelDiv;
         }
 
-        if( featwidth > minFeatWidth && scale >= this.subfeatureScale ) {
-            var subfeatures = feature.get('subfeatures');
-            if( subfeatures ) {
-                for (var i = 0; i < subfeatures.length; i++) {
-                    this.renderSubfeature(feature, featDiv,
-                                          subfeatures[i],
-                                          displayStart, displayEnd);
-                }
-            }
-        }
-
-        if ( typeof this.config.hooks.modify == 'function' ) {
-            this.config.hooks.modify(this, feature, featDiv);
-        }
-
-        //ie6 doesn't respect the height style if the div is empty
-        if (Util.is_ie6) featDiv.appendChild(document.createComment());
-        //TODO: handle event-handler-related IE leaks
-
-        /* Temi / AP adding right menu click
-           AP new schema menuTemplate: an array where everything except
-           children, popup and url are passed on as properties to a new
-           dijit.Menu object
-         */
-
-        // render the popup menu if configured
-        if( this.config.menuTemplate ) {
-            this._connectMenus( featDiv );
-        }
-
         if( destBlock ) {
             destBlock.appendChild(featDiv);
-            this._centerFeatureElements( featDiv );
         }
+
+
+        // defer subfeature rendering and modification hooks into a
+        // timeout so that navigation feels faster.
+        window.setTimeout( dojo.hitch( this,
+             function() {
+
+                 if( featwidth > minFeatWidth && scale >= this.subfeatureScale ) {
+                     var subfeatures = feature.get('subfeatures');
+                     if( subfeatures ) {
+                         for (var i = 0; i < subfeatures.length; i++) {
+                             this.renderSubfeature(feature, featDiv,
+                                                   subfeatures[i],
+                                                   displayStart, displayEnd);
+                         }
+                     }
+                 }
+
+                 if ( typeof this.config.hooks.modify == 'function' ) {
+                     this.config.hooks.modify(this, feature, featDiv);
+                 }
+
+                 //ie6 doesn't respect the height style if the div is empty
+                 if (Util.is_ie6) featDiv.appendChild(document.createComment());
+                 //TODO: handle event-handler-related IE leaks
+
+                 /* Temi / AP adding right menu click
+                  AP new schema menuTemplate: an array where everything except
+                  children, popup and url are passed on as properties to a new
+                  dijit.Menu object
+                  */
+
+                 // render the popup menu if configured
+                 if( this.config.menuTemplate ) {
+                     this._connectMenus( featDiv );
+                 }
+                 if( destBlock )
+                     this._centerFeatureElements(featDiv);
+
+        }),50+Math.random()*50);
 
         return featDiv;
     },
@@ -746,12 +759,11 @@ var HTMLFeatures = declare( BlockBased,
      * @private
      */
     _centerFeatureElements: function( /**HTMLElement*/ featDiv ) {
-        dojo.forEach( featDiv.childNodes, function(child) {
-                          var h = child.offsetHeight;
-                          if( !h )
-                              return;
-                          child.style.top = ((h-this.glyphHeight)/2) + 'px';
-                      },this);
+        for( var i = 0; i< featDiv.childNodes.length; i++ ) {
+            var child = featDiv.childNodes[i];
+            var h = child.offsetHeight || 0;
+            dojo.style( child, { top: ((h-this.glyphHeight)/2) + 'px', visibility: 'visible' });
+         }
     },
 
 
@@ -1058,8 +1070,12 @@ var HTMLFeatures = declare( BlockBased,
         if ((subEnd <= displayStart) || (subStart >= displayEnd)) return;
 
         if (Util.is_ie6) subDiv.appendChild(document.createComment());
+
+        // NOTE: subfeatures are hidden until they are centered by
+        // _centerFeatureElements, so that they don't jump around
+        // on the screen
         subDiv.style.cssText =
-            "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
+            "visibility: hidden; left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
             + "top: 0px;"
             + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
         featDiv.appendChild(subDiv);
