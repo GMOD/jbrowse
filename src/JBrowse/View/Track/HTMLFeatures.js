@@ -1027,17 +1027,15 @@ var HTMLFeatures = declare( BlockBased,
 
         var subDiv = document.createElement("div");
 
-        if( this.config.style.subfeatureClasses ) {
-            var type = subfeature.get('type');
-            subDiv.className = this.config.style.subfeatureClasses[type] || this.config.style.className + '-' + type;
-            switch ( subfeature.get('strand') ) {
-            case 1:
-            case '+':
-                subDiv.className += " plus-" + subDiv.className; break;
-            case -1:
-            case '-':
-                subDiv.className += " minus-" + subDiv.className; break;
-            }
+        var type = subfeature.get('type');
+        subDiv.className = (this.config.style.subfeatureClasses||{})[type] || this.config.style.className + '-' + type;
+        switch ( subfeature.get('strand') ) {
+        case 1:
+        case '+':
+            subDiv.className += " plus-" + subDiv.className; break;
+        case -1:
+        case '-':
+            subDiv.className += " minus-" + subDiv.className; break;
         }
 
         // if the feature has been truncated to where it doesn't cover
