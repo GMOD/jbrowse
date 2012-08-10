@@ -470,8 +470,7 @@ var HTMLFeatures = declare( BlockBased,
                          var featDiv =
                              this.renderFeature(sourceSlot.feature, overlaps[i].id,
                                                 destBlock, scale,
-                                                containerStart, containerEnd);
-                         destBlock.appendChild(featDiv);
+                                                containerStart, containerEnd, destBlock );
                      }
             }
         }
@@ -528,8 +527,7 @@ var HTMLFeatures = declare( BlockBased,
             }
             var featDiv =
                 curTrack.renderFeature(feature, uniqueId, block, scale,
-                                       containerStart, containerEnd);
-            block.appendChild(featDiv);
+                                       containerStart, containerEnd, block );
         };
 
         var startBase = goLeft ? rightBase : leftBase;
@@ -582,17 +580,15 @@ var HTMLFeatures = declare( BlockBased,
             glyphBox = domGeom.position(ah);
             this.plusArrowWidth = glyphBox.w;
             this.plusArrowHeight = glyphBox.h;
-            this.plusArrowTop = (this.plusArrowHeight-this.glyphHeight)/2;
             ah.className = "minus-" + this.config.style.arrowheadClass;
             glyphBox = domGeom.position(ah);
             this.minusArrowWidth = glyphBox.w;
             this.minusArrowHeight = glyphBox.h;
-            this.minusArrowTop = (this.minusArrowHeight-this.glyphHeight)/2;
             document.body.removeChild(ah);
         }
     },
 
-    renderFeature: function(feature, uniqueId, block, scale, containerStart, containerEnd) {
+    renderFeature: function(feature, uniqueId, block, scale, containerStart, containerEnd, destBlock ) {
         //featureStart and featureEnd indicate how far left or right
         //the feature extends in bp space, including labels
         //and arrowheads if applicable
@@ -673,7 +669,7 @@ var HTMLFeatures = declare( BlockBased,
             case '+':
                 if( featwidth_px > this.plusArrowWidth*1.1 ) {
                     ah.className = "plus-" + this.config.style.arrowheadClass;
-                    ah.style.cssText = "position: absolute; right: 0px; top: "+this.plusArrowTop+"px; z-index: 100;";
+                    ah.style.cssText = "position: absolute; right: 0px; top: 0px; z-index: 100;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -682,7 +678,7 @@ var HTMLFeatures = declare( BlockBased,
                 if( featwidth_px > this.minusArrowWidth*1.1 ) {
                     ah.className = "minus-" + this.config.style.arrowheadClass;
                     ah.style.cssText =
-                        "position: absolute; left: 0px; top: "+this.minusArrowTop+"px; z-index: 100;";
+                        "position: absolute; left: 0px; top: 0px; z-index: 100;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -737,8 +733,27 @@ var HTMLFeatures = declare( BlockBased,
             this._connectMenus( featDiv );
         }
 
+        if( destBlock ) {
+            destBlock.appendChild(featDiv);
+            this._centerFeatureElements( featDiv );
+        }
+
         return featDiv;
     },
+
+    /**
+     * Vertically centers all the child elements of a feature div.
+     * @private
+     */
+    _centerFeatureElements: function( /**HTMLElement*/ featDiv ) {
+        dojo.forEach( featDiv.childNodes, function(child) {
+                          var h = child.offsetHeight;
+                          if( !h )
+                              return;
+                          child.style.top = ((h-this.glyphHeight)/2) + 'px';
+                      },this);
+    },
+
 
     /**
      * Connect our configured event handlers to a given html element,

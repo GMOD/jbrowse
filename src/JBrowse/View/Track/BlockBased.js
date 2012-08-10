@@ -261,6 +261,9 @@ return declare( null,
         blockDiv.style.width = this.widthPct + "%";
         blockDiv.startBase = startBase;
         blockDiv.endBase = endBase;
+        this.blocks[blockIndex] = blockDiv;
+        this.div.appendChild(blockDiv);
+
         if (this.loaded) {
             this.fillBlock(blockIndex,
                            blockDiv,
@@ -275,9 +278,6 @@ return declare( null,
         } else {
             this._loadingBlock(blockDiv);
         }
-
-        this.blocks[blockIndex] = blockDiv;
-        this.div.appendChild(blockDiv);
     },
 
     moveBlocks: function(delta) {
