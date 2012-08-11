@@ -121,6 +121,9 @@ whatever definition of "source" your data file might have.  For
 example, "mRNA:exonerate" will filter for only mRNA features that have
 a source of "exonerate".
 
+Multiple type names can be specified by separating the type names with
+commas, e.g. C<--type mRNA:exonerate,ncRNA>.
+
 =item --nclChunk <chunk size for generated NCLs>
 
 NCList chunk size; if you get "json text or perl structure exceeds
