@@ -302,7 +302,7 @@ var Wiggle = declare( CanvasTrack,
                     var notsupported = dojo.create(
                         'div', {
                             className: 'error',
-                            innerHTML: 'Track could not be displayed.  See browser error log for details.'
+                            innerHTML: 'This track could not be displayed, possibly because your browser does not support it.  See browser error log for details.'
                         }, block );
                     this.heightUpdate( dojo.position(notsupported).h, blockIndex );
                 }
