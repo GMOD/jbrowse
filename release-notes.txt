@@ -32,8 +32,10 @@
    and advanced users can use to programmatically add a block of track
    configuration JSON to an existing JBrowse configuration file.
 
- * Improved / fixed vertical alignment of negative-space arrowheads
-   that show the strand of features.
+ * Improved / fixed vertical alignment of sub-elements of HTML
+   features, including subfeatures and the arrowheads that show
+   strand.  All elements in a feature are now vertically centered by
+   default.
 
 1.4.2     2012-07-12 15:38:55 America/New_York
 
