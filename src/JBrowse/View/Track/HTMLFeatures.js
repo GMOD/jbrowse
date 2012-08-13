@@ -728,10 +728,6 @@ var HTMLFeatures = declare( BlockBased,
                      }
                  }
 
-                 if ( typeof this.config.hooks.modify == 'function' ) {
-                     this.config.hooks.modify(this, feature, featDiv);
-                 }
-
                  //ie6 doesn't respect the height style if the div is empty
                  if (Util.is_ie6) featDiv.appendChild(document.createComment());
                  //TODO: handle event-handler-related IE leaks
@@ -748,6 +744,10 @@ var HTMLFeatures = declare( BlockBased,
                  }
                  if( destBlock )
                      this._centerFeatureElements(featDiv);
+
+                 if ( typeof this.config.hooks.modify == 'function' ) {
+                     this.config.hooks.modify(this, feature, featDiv);
+                 }
 
         }),50+Math.random()*50);
 
