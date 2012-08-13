@@ -1548,7 +1548,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
 
     var trackName = trackConfig.label;
     var trackDiv = dojo.create('div', {
-        className: 'track track_'+trackName,
+        className: 'track track_'+trackName.replace(/[^A-Za-z_]/g,'_'),
         id: "track_" + trackName
     });
     trackDiv.trackName = trackName;
