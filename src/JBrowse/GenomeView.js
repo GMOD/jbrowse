@@ -296,7 +296,7 @@ GenomeView.prototype._updateVerticalScrollBar = function( newDims ) {
     }
 
     if( typeof newDims.y == 'number' || typeof newDims.height == 'number' ) {
-        this.verticalScrollBar.positionMarker.style.top    = ( (newDims.y || this.getY() || 0) / (this.containerHeight||1) * 100 )||0+'%';
+        this.verticalScrollBar.positionMarker.style.top    = (((newDims.y || this.getY() || 0) / (this.containerHeight||1) * 100 )||0)+'%';
     }
 
 };
