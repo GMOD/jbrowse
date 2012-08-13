@@ -117,7 +117,7 @@ return declare( BlockBased,
                               loadhandler();
                           else
                               // otherwise schedule it
-                              dojo.connect( im, "onload", loadhandler );
+                              im.onload = loadhandler;
 
                       }, this);
     },
