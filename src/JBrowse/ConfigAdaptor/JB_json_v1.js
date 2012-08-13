@@ -85,15 +85,17 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             }
             return conf;
         },
-        _evalHook: function(hook) {
-            if (! ("string" == typeof hook)) return hook;
-            var result;
+        _evalHook: function() {
+            // can't bind arguments because the closure compiler
+            // renames variables, and we need to assign in the eval
+            if ( "string" != typeof arguments[0])
+                return arguments[0];
             try {
-                eval("result="+hook+";");
+                eval("arguments[0]="+arguments[0]+";");
             } catch (e) {
-                console.error("eval failed for callback '"+hook+"': "+e);
+                console.error("eval failed for callback '"+arguments[0]+"': "+e);
             }
-            return result;
+            return arguments[0];
         }
 });
 });
