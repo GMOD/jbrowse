@@ -26,7 +26,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
             // then convert that array to a function
             if( typeof filter == 'string' )
                 filter = [filter];
-            if( Array.isArray( filter ) ) {
+            if( dojo.isArray( filter ) ) {
                 var oldfilter = filter;
                 filter = function( facetName) {
                     return dojo.some( oldfilter, function(fn) {
@@ -378,7 +378,7 @@ dojo.declare( 'JBrowse.Model.TrackMetaData', null,
         var query = dojo.clone( keywordArgs.query || {} );
         // coerce query arguments to arrays if they are not already arrays
         dojo.forEach( dojof.keys( query ), function(qattr) {
-            if( ! Array.isArray( query[qattr] ) ) {
+            if( ! dojo.isArray( query[qattr] ) ) {
                 query[qattr] = [ query[qattr] ];
             }
         },this);
