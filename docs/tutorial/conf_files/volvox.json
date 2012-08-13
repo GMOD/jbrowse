@@ -86,17 +86,23 @@
                "url" : "sample_data/test_snippet.html?featurename={name}:{start}-{end}"
              },
              {
-               "label" : "Open popup with content snippet (btw this is feature {name})",
+               "label" : "Popup with content snippet from a function (feature {name})",
                "title": "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
                "iconClass" : "dijitIconDatabase",
                "action": "contentDialog",
-               "content" : "function(track,feature,div) { return '<h2>{name}</h2><p>This is some test content about feature {name}!</p><p>This message brought to you by the number <span style=\"font-size: 300%\">'+Math.round(Math.random()*100)+'</span>.</p>';} "
+               "content" : "function(track,feature,div) { return '<h2>'+feature.get('name')+'</h2><p>This is some test content!</p><p>This message brought to you by the number <span style=\"font-size: 300%\">'+Math.round(Math.random()*100)+'</span>.</p>';} "
+             },
+             {
+               "label" : "Popup with content snippet from string (feature {name})",
+               "title": "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
+               "iconClass" : "dijitIconDatabase",
+               "action": "contentDialog",
+               "content" : "<h2>{name}</h2><p>This is some test content about {name}, which goes from {start} to {end} on the {strand} strand.</p>"
              },
              {
                "label" : "function(track,feature,div) { return 'Run a JS callback '+Math.random()+' title!'; }",
                "iconClass" : "dijitIconDatabase",
-               "action": "function( evt ){ alert('Hi there! Ran the callback on feature '+this.feature.get('name')); }",
-               "content" : "function(track,feature,div) { return '<h2>{name}</h2><p>This is some test content about feature {name}!</p><p>This message brought to you by the number <span style=\"font-size: 300%\">'+Math.round(Math.random()*100)+'</span>.</p>';} "
+               "action": "function( evt ){ alert('Hi there! Ran the callback on feature '+this.feature.get('name')); }"
              }
          ]
       },
