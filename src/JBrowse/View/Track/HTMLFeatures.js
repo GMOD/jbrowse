@@ -140,7 +140,7 @@ var HTMLFeatures = declare( BlockBased,
         Util.deepUpdate(defaultConfig, this.config);
         this.config = defaultConfig;
 
-        this.eventHandlers = function() {
+        this.eventHandlers = (function() {
             var handlers = dojo.clone( this.config.events || {} );
             // find conf vars that set events, like `onClick`
             for( var key in this.config ) {
@@ -154,7 +154,7 @@ var HTMLFeatures = declare( BlockBased,
                     handlers[key] = { url: handlers[key] };
             }
             return handlers;
-        }.call(this);
+        }).call(this);
         this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
 
         this.labelScale = this.featureStore.density * this.config.style.labelScale;
@@ -968,6 +968,10 @@ var HTMLFeatures = declare( BlockBased,
 
         if( typeof inputSpec == 'function' ) {
             inputSpec = { action: inputSpec };
+        }
+        else if( typeof inputSpec == 'undefined' ) {
+            console.error("Undefined click specification, cannot make click handler");
+            return function() {};
         }
 
         var handler = function ( evt ) {
