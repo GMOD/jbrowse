@@ -226,7 +226,7 @@ var HTMLFeatures = declare( BlockBased,
                 }
             }
             var binDiv;
-            for (var bin = 0; bin < track.numBins; bin++) {
+            for (bin = 0; bin < track.numBins; bin++) {
                 if (!(typeof hist[bin] == 'number' && isFinite(hist[bin])))
                     continue;
                 binDiv = document.createElement("div");
@@ -249,7 +249,7 @@ var HTMLFeatures = declare( BlockBased,
                                 blockIndex );
             track.makeHistogramYScale( Math.abs(rightBase-leftBase) );
         };
-        
+
         // The histogramMeta array describes multiple levels of histogram detail,
         // going from the finest (smallest number of bases per bin) to the
         // coarsest (largest number of bases per bin).
