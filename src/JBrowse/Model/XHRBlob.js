@@ -85,11 +85,16 @@ var XHRBlob = declare( FileBlob,
                     } else if (req.mozResponseArrayBuffer) {
                         return callback.call(thisB,req.mozResponseArrayBuffer);
                     } else {
-                        var r = req.responseText;
-                        if (length && length != r.length && (!truncatedLength || r.length != truncatedLength)) {
-                            return thisB.fetch( callback, attempt + 1, r.length );
-                        } else {
-                            return callback.call( thisB, thisB._stringToBuffer(req.responseText) );
+                        try{
+                            var r = req.responseText;
+                            if (length && length != r.length && (!truncatedLength || r.length != truncatedLength)) {
+                                return thisB.fetch( callback, attempt + 1, r.length );
+                            } else {
+                                return callback.call( thisB, thisB._stringToBuffer(req.responseText) );
+                            }
+                        } catch (x) {
+                            console.error(''+x);
+                            callback.call( thisB, null );
                         }
                     }
                 } else {
