@@ -107,7 +107,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
         // then convert that array to a function
         if( typeof filter == 'string' )
             filter = [filter];
-        if( Array.isArray( filter ) ) {
+        if( dojo.isArray( filter ) ) {
             filter = function( store, facetName) {
                 return dojo.some( filter, function(fn) {
                                       return facetName == fn;

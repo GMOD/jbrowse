@@ -61,7 +61,7 @@ var M = declare( null,
             load: dojo.hitch(this, function( data ) {
                 var items = [];
                 dojo.forEach( data.items || [], function(i) {
-                    if( Array.isArray( i.Tracks ) )
+                    if( dojo.isArray( i.Tracks ) )
                         dojo.forEach( i.Tracks, function(trackName) {
                             var item = dojo.clone(i);
                             item.key = item.label;

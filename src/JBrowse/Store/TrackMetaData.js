@@ -388,7 +388,7 @@ var Meta = declare( null,
         var query = dojo.clone( keywordArgs.query || {} );
         // coerce query arguments to arrays if they are not already arrays
         dojo.forEach( dojof.keys( query ), function(qattr) {
-            if( ! Array.isArray( query[qattr] ) ) {
+            if( ! dojo.isArray( query[qattr] ) ) {
                 query[qattr] = [ query[qattr] ];
             }
         },this);
