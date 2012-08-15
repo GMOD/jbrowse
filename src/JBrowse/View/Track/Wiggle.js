@@ -51,31 +51,33 @@ var Wiggle = declare( CanvasTrack,
               this.config.autoscale = 'z_score';
           }
 
+        var z_score_bound = parseFloat( this.config.z_score_bound ) || 4;
         var s = this.store.getGlobalStats() || {};
-        var min = 'min_score' in this.config ? this.config.min_score :
+        var min = 'min_score' in this.config ? parseFloat( this.config.min_score ) :
             (function() {
                  switch( this.config.autoscale ) {
                      case 'z_score':
-                         return Math.max( -(this.config.z_score_bound || 4), (s.global_min-s.mean) / s.stdDev );
+                         return Math.max( -z_score_bound, (s.global_min-s.mean) / s.stdDev );
                      case 'global':
                          return s.global_min;
                      case 'clipped_global':
                      default:
-                         return Math.max( s.global_min, s.mean - (this.config.z_score_bound || 4) * s.stdDev );
+                         return Math.max( s.global_min, s.mean - z_score_bound * s.stdDev );
                  }
              }).call(this);
-        var max = 'max_score' in this.config ? this.config.max_score :
+        var max = 'max_score' in this.config ? parseFloat( this.config.max_score ) :
             (function() {
                  switch( this.config.autoscale ) {
                      case 'z_score':
-                         return Math.min( this.config.z_score_bound || 4, (s.global_max-s.mean) / s.stdDev );
+                         return Math.min( z_score_bound, (s.global_max-s.mean) / s.stdDev );
                      case 'global':
                          return s.global_max;
                      case 'clipped_global':
                      default:
-                         return Math.min( s.global_max, s.mean + (this.config.z_score_bound || 4) * s.stdDev );
+                         return Math.min( s.global_max, s.mean + z_score_bound * s.stdDev );
                  }
              }).call(this);
+
         if( typeof max != 'number' || isNaN(max) ) {
             throw 'could not determine max_score for track "'+this.name+'", cannot draw track.';
         }
@@ -89,7 +91,7 @@ var Wiggle = declare( CanvasTrack,
             min = min ? Math.log(min) : 0;
         }
 
-        var offset = this.config.data_offset || 0;
+        var offset = parseFloat( this.config.data_offset ) || 0;
         this.scale = {
             offset: offset,
             min: min + offset,
