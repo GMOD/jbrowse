@@ -12,7 +12,7 @@ define( [
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/YScaleMixin',
             'JBrowse/Util',
-            'JBrowse/View/Layout'
+            'JBrowse/View/Layout2'
         ],
       function( declare,
                 lang,
@@ -432,8 +432,8 @@ var HTMLFeatures = declare( BlockBased,
     },
 
     cleanupBlock: function(block) {
-        if (block && block.featureLayout)
-            block.featureLayout.cleanup();
+        if ( block && this.layout )
+            this.layout.discardRange( block.startBase, block.endBase );
     },
 
     /**
@@ -454,6 +454,7 @@ var HTMLFeatures = declare( BlockBased,
         var overlaps = (sourceBlock.startBase < destBlock.startBase)
             ? sourceBlock.featureLayout.rightOverlaps
             : sourceBlock.featureLayout.leftOverlaps;
+        overlaps = overlaps || [];
 
         for (var i = 0; i < overlaps.length; i++) {
 	    //if the feature overlaps destBlock,
@@ -492,23 +493,23 @@ var HTMLFeatures = declare( BlockBased,
     fillFeatures: function(blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, containerStart, containerEnd) {
 
         this.scale = scale;
-
-        var layouter = new Layout(leftBase, rightBase);
+        this.layout = this.layout && this.layout.pitchX == 3/scale ? this.layout : new Layout({pitchX: 3/scale });
+        var layouter = this.layout;
         block.featureLayout = layouter;
         block.featureNodes = {};
         block.style.backgroundColor = "#ddd";
 
         //are we filling right-to-left (true) or left-to-right (false)?
         var goLeft = false;
-        if (leftBlock && leftBlock.featureLayout) {
-            leftBlock.featureLayout.setRightLayout(layouter);
-            layouter.setLeftLayout(leftBlock.featureLayout);
-        }
-        if (rightBlock && rightBlock.featureLayout) {
-            rightBlock.featureLayout.setLeftLayout(layouter);
-            layouter.setRightLayout(rightBlock.featureLayout);
-            goLeft = true;
-        }
+        // if (leftBlock && leftBlock.featureLayout) {
+        //     leftBlock.featureLayout.setRightLayout(layouter);
+        //     layouter.setLeftLayout(leftBlock.featureLayout);
+        // }
+        // if (rightBlock && rightBlock.featureLayout) {
+        //     rightBlock.featureLayout.setLeftLayout(layouter);
+        //     layouter.setRightLayout(rightBlock.featureLayout);
+        //     //goLeft = true;
+        // }
 
         //determine the glyph height, arrowhead width, label text dimensions, etc.
         if (!this.haveMeasurements) {
@@ -538,7 +539,7 @@ var HTMLFeatures = declare( BlockBased,
         this.featureStore.iterate(startBase, endBase, featCallback,
                                   function () {
                                       block.style.backgroundColor = "";
-                                      curTrack.heightUpdate(layouter.totalHeight,
+                                      curTrack.heightUpdate(layouter.getTotalHeight(),
                                                             blockIndex);
                                   });
     },
