@@ -65,8 +65,9 @@ Ruler.prototype.render_to = function( target_div ) {
         chart1.addPlot("default", {type: "Bubble", fill: 'transparent'});
         chart1.render();
 
-        // hack to remove undesirable opaque white rectangles
-        query('svg rect', container ).orphan();
+        // hack to remove undesirable opaque white rectangles.  do
+        // this a little bit later
+        query('svg rect', chart1.domNode ).orphan();
 
         this.scaler = chart1.axes.y.scaler;
     } catch (x) {

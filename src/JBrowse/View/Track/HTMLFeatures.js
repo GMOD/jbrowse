@@ -142,7 +142,7 @@ var HTMLFeatures = declare( BlockBased,
         Util.deepUpdate(defaultConfig, this.config);
         this.config = defaultConfig;
 
-        this.eventHandlers = function() {
+        this.eventHandlers = (function() {
             var handlers = dojo.clone( this.config.events || {} );
             // find conf vars that set events, like `onClick`
             for( var key in this.config ) {
@@ -156,7 +156,7 @@ var HTMLFeatures = declare( BlockBased,
                     handlers[key] = { url: handlers[key] };
             }
             return handlers;
-        }.call(this);
+        }).call(this);
         this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
 
         this.labelScale = this.featureStore.density * this.config.style.labelScale;
@@ -228,7 +228,7 @@ var HTMLFeatures = declare( BlockBased,
                 }
             }
             var binDiv;
-            for (var bin = 0; bin < track.numBins; bin++) {
+            for (bin = 0; bin < track.numBins; bin++) {
                 if (!(typeof hist[bin] == 'number' && isFinite(hist[bin])))
                     continue;
                 binDiv = document.createElement("div");
@@ -251,7 +251,7 @@ var HTMLFeatures = declare( BlockBased,
                                 blockIndex );
             track.makeHistogramYScale( Math.abs(rightBase-leftBase) );
         };
-        
+
         // The histogramMeta array describes multiple levels of histogram detail,
         // going from the finest (smallest number of bases per bin) to the
         // coarsest (largest number of bases per bin).
@@ -472,8 +472,7 @@ var HTMLFeatures = declare( BlockBased,
                          var featDiv =
                              this.renderFeature(sourceSlot.feature, overlaps[i].id,
                                                 destBlock, scale,
-                                                containerStart, containerEnd);
-                         destBlock.appendChild(featDiv);
+                                                containerStart, containerEnd, destBlock );
                      }
             }
         }
@@ -530,8 +529,7 @@ var HTMLFeatures = declare( BlockBased,
             }
             var featDiv =
                 curTrack.renderFeature(feature, uniqueId, block, scale,
-                                       containerStart, containerEnd);
-            block.appendChild(featDiv);
+                                       containerStart, containerEnd, block );
         };
 
         var startBase = goLeft ? rightBase : leftBase;
@@ -584,17 +582,15 @@ var HTMLFeatures = declare( BlockBased,
             glyphBox = domGeom.position(ah);
             this.plusArrowWidth = glyphBox.w;
             this.plusArrowHeight = glyphBox.h;
-            this.plusArrowTop = (this.plusArrowHeight-this.glyphHeight)/2;
             ah.className = "minus-" + this.config.style.arrowheadClass;
             glyphBox = domGeom.position(ah);
             this.minusArrowWidth = glyphBox.w;
             this.minusArrowHeight = glyphBox.h;
-            this.minusArrowTop = (this.minusArrowHeight-this.glyphHeight)/2;
             document.body.removeChild(ah);
         }
     },
 
-    renderFeature: function(feature, uniqueId, block, scale, containerStart, containerEnd) {
+    renderFeature: function(feature, uniqueId, block, scale, containerStart, containerEnd, destBlock ) {
         //featureStart and featureEnd indicate how far left or right
         //the feature extends in bp space, including labels
         //and arrowheads if applicable
@@ -680,12 +676,16 @@ var HTMLFeatures = declare( BlockBased,
         if ( this.config.style.arrowheadClass ) {
             var ah = document.createElement("div");
             var featwidth_px = featwidth/100*blockWidth*scale;
+
+            // NOTE: arrowheads are hidden until they are centered by
+            // _centerFeatureElements, so that they don't jump around
+            // on the screen
             switch (strand) {
             case 1:
             case '+':
                 if( featwidth_px > this.plusArrowWidth*1.1 ) {
                     ah.className = "plus-" + this.config.style.arrowheadClass;
-                    ah.style.cssText = "position: absolute; right: 0px; top: "+this.plusArrowTop+"px; z-index: 100;";
+                    ah.style.cssText = "visibility: hidden; position: absolute; right: 0px; top: 0px; z-index: 100;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -694,7 +694,7 @@ var HTMLFeatures = declare( BlockBased,
                 if( featwidth_px > this.minusArrowWidth*1.1 ) {
                     ah.className = "minus-" + this.config.style.arrowheadClass;
                     ah.style.cssText =
-                        "position: absolute; left: 0px; top: "+this.minusArrowTop+"px; z-index: 100;";
+                        "visibility: hidden; position: absolute; left: 0px; top: 0px; z-index: 100;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -720,38 +720,65 @@ var HTMLFeatures = declare( BlockBased,
             featDiv.labelDiv = labelDiv;
         }
 
-        if( featwidth > minFeatWidth && scale >= this.subfeatureScale ) {
-            var subfeatures = feature.get('subfeatures');
-            if( subfeatures ) {
-                for (var i = 0; i < subfeatures.length; i++) {
-                    this.renderSubfeature(feature, featDiv,
-                                          subfeatures[i],
-                                          displayStart, displayEnd);
-                }
-            }
+        if( destBlock ) {
+            destBlock.appendChild(featDiv);
         }
 
-        if ( typeof this.config.hooks.modify == 'function' ) {
-            this.config.hooks.modify(this, feature, featDiv);
-        }
 
-        //ie6 doesn't respect the height style if the div is empty
-        if (Util.is_ie6) featDiv.appendChild(document.createComment());
-        //TODO: handle event-handler-related IE leaks
+        // defer subfeature rendering and modification hooks into a
+        // timeout so that navigation feels faster.
+        window.setTimeout( dojo.hitch( this,
+             function() {
 
-        /* Temi / AP adding right menu click
-           AP new schema menuTemplate: an array where everything except
-           children, popup and url are passed on as properties to a new
-           dijit.Menu object
-         */
+                 if( featwidth > minFeatWidth && scale >= this.subfeatureScale ) {
+                     var subfeatures = feature.get('subfeatures');
+                     if( subfeatures ) {
+                         for (var i = 0; i < subfeatures.length; i++) {
+                             this.renderSubfeature(feature, featDiv,
+                                                   subfeatures[i],
+                                                   displayStart, displayEnd);
+                         }
+                     }
+                 }
 
-        // render the popup menu if configured
-        if( this.config.menuTemplate ) {
-            this._connectMenus( featDiv );
-        }
+                 //ie6 doesn't respect the height style if the div is empty
+                 if (Util.is_ie6) featDiv.appendChild(document.createComment());
+                 //TODO: handle event-handler-related IE leaks
+
+                 /* Temi / AP adding right menu click
+                  AP new schema menuTemplate: an array where everything except
+                  children, popup and url are passed on as properties to a new
+                  dijit.Menu object
+                  */
+
+                 // render the popup menu if configured
+                 if( this.config.menuTemplate ) {
+                     this._connectMenus( featDiv );
+                 }
+                 if( destBlock )
+                     this._centerFeatureElements(featDiv);
+
+                 if ( typeof this.config.hooks.modify == 'function' ) {
+                     this.config.hooks.modify(this, feature, featDiv);
+                 }
+
+        }),50+Math.random()*50);
 
         return featDiv;
     },
+
+    /**
+     * Vertically centers all the child elements of a feature div.
+     * @private
+     */
+    _centerFeatureElements: function( /**HTMLElement*/ featDiv ) {
+        for( var i = 0; i< featDiv.childNodes.length; i++ ) {
+            var child = featDiv.childNodes[i];
+            var h = child.offsetHeight || 0;
+            dojo.style( child, { top: ((h-this.glyphHeight)/2) + 'px', visibility: 'visible' });
+         }
+    },
+
 
     /**
      * Connect our configured event handlers to a given html element,
@@ -901,10 +928,10 @@ var HTMLFeatures = declare( BlockBased,
         };
         var dialog;
 
-        // if dialog == snippet, open the link in a dialog
+        // if dialog == xhr, open the link in a dialog
         // with the html from the URL just shoved in it
-        if( type == 'snippet' || type == 'content' ) {
-            if( type == 'snippet' )
+        if( type == 'xhr' || type == 'content' ) {
+            if( type == 'xhr' )
                 dialogOpts.href = spec.url;
             else
                 dialogOpts.content = this._evalConf( context, spec.content, null );
@@ -952,11 +979,18 @@ var HTMLFeatures = declare( BlockBased,
     _makeClickHandler: function( inputSpec, context ) {
         var track  = this;
 
-        if( typeof spec == 'function' ) {
-            inputSpec = { action: spec };
+        if( typeof inputSpec == 'function' ) {
+            inputSpec = { action: inputSpec };
+        }
+        else if( typeof inputSpec == 'undefined' ) {
+            console.error("Undefined click specification, cannot make click handler");
+            return function() {};
         }
 
         var handler = function ( evt ) {
+            if( track.genomeView.dragging )
+                return;
+
             var ctx = context || this;
             var spec = track._processMenuSpec( dojo.clone( inputSpec ), ctx );
             var url = spec.url || spec.href;
@@ -978,15 +1012,15 @@ var HTMLFeatures = declare( BlockBased,
                     iframe:         'iframeDialog',
                     contentdialog:  'contentDialog',
                     content:        'content',
-                    snippetdialog:  'snippetDialog',
-                    snippet:        'snippet',
+                    xhrdialog:      'xhrDialog',
+                    xhr:            'xhr',
                     newwindow:      'newWindow',
                     "_blank":       'newWindow'
                 }[(''+spec.action).toLowerCase()];
 
                 if( spec.action == 'newWindow' )
                     window.open( url, '_blank' );
-                else if( spec.action in { iframeDialog:1, contentDialog:1, snippetDialog:1} )
+                else if( spec.action in { iframeDialog:1, contentDialog:1, xhrDialog:1} )
                     track._openDialog( spec, evt, ctx );
             }
             else if( typeof spec.action == 'function' ) {
@@ -1037,17 +1071,15 @@ var HTMLFeatures = declare( BlockBased,
 
         var subDiv = document.createElement("div");
 
-        if( this.config.style.subfeatureClasses ) {
-            var type = subfeature.get('type');
-            subDiv.className = this.config.style.subfeatureClasses[type] || this.config.style.className + '-' + type;
-            switch ( subfeature.get('strand') ) {
-            case 1:
-            case '+':
-                subDiv.className += " plus-" + subDiv.className; break;
-            case -1:
-            case '-':
-                subDiv.className += " minus-" + subDiv.className; break;
-            }
+        var type = subfeature.get('type');
+        subDiv.className = (this.config.style.subfeatureClasses||{})[type] || this.config.style.className + '-' + type;
+        switch ( subfeature.get('strand') ) {
+        case 1:
+        case '+':
+            subDiv.className += " plus-" + subDiv.className; break;
+        case -1:
+        case '-':
+            subDiv.className += " minus-" + subDiv.className; break;
         }
 
         // if the feature has been truncated to where it doesn't cover
@@ -1055,8 +1087,12 @@ var HTMLFeatures = declare( BlockBased,
         if ((subEnd <= displayStart) || (subStart >= displayEnd)) return;
 
         if (Util.is_ie6) subDiv.appendChild(document.createComment());
+
+        // NOTE: subfeatures are hidden until they are centered by
+        // _centerFeatureElements, so that they don't jump around
+        // on the screen
         subDiv.style.cssText =
-            "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
+            "visibility: hidden; left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
             + "top: 0px;"
             + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
         featDiv.appendChild(subDiv);

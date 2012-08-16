@@ -814,7 +814,7 @@ Browser.prototype.navigateToLocation = function( location ) {
     // if different, we need to poke some other things before going there
     else {
         // record names of open tracks and re-open on new refseq
-        var curTracks = this.visibleTracks();
+        var curTracks = this.view.visibleTrackNames();
 
         this.refSeq = this.allRefs[location.ref];
 
@@ -935,8 +935,8 @@ Browser.prototype.makeHelpDialog = function () {
         + '    </ul>'
         + '</dd>'
         + '<dt>Selecting Tracks</dt>'
-        + '<dd><ul><li>Turn a track off by dragging its track label from the "Available Tracks" area into the track area.</li>'
-        + '        <li>Turn a track on by dragging its track label from the track area back into the "Available Tracks" area.</li>'
+        + '<dd><ul><li>Turn a track on by dragging its track label from the "Available Tracks" area into the genome area.</li>'
+        + '        <li>Turn a track off by dragging its track label from the genome area back into the "Available Tracks" area.</li>'
         + '    </ul>'
         + '</dd>'
         + '</dl>'
@@ -1066,7 +1066,7 @@ Browser.prototype.makeShareLink = function () {
     // make the 'share' popup
     var container = dojo.create(
         'div', {
-            innerHTML: 'Paste in <b>email</b> or <b>IM</b>'
+            innerHTML: 'Paste this link in <b>email</b> or <b>IM</b>'
         });
     var URLinput = dojo.create(
         'input', {

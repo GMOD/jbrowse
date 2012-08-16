@@ -1,3 +1,5 @@
+/** NOTE: avoid negative margins in feature styles */
+
 .basic,
 .plus-basic,
 .minus-basic {
@@ -346,7 +348,6 @@ div.transcript-hist {
 .minus-transcript-three_prime_UTR {
     position: absolute;
     height: 4px;
-    margin-top: -2px;
     background-color: #B66;
     border-style: solid;
     border-color: #D88;
@@ -379,7 +380,6 @@ div.generic_parent-hist {
 .minus-match_part {
     position: absolute;
     height: 4px;
-    margin-top: -2px;
     background-color: #66B;
     border-style: solid;
     border-color: #88D;
@@ -394,7 +394,6 @@ div.generic_parent-hist {
 .minus-generic_part_a {
     position: absolute;
     height: 4px;
-    margin-top: -2px;
     background-color: #6B6;
     border-style: solid;
     border-color: #8D8;

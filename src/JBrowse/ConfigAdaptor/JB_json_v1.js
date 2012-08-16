@@ -1,4 +1,4 @@
-define(['dojo/_base/declare','JBrowse/Util'], function(declare,Util) {
+define(['dojo/_base/declare','dojo/_base/json','JBrowse/Util'], function(declare,json,Util) {
 return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
     /**
@@ -49,8 +49,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
          * @returns {Object} the parsed JSON
          */
         parse_conf: function( conf_text, load_args ) {
-            var conf;
-            return eval( 'conf = ' + conf_text );
+            return json.fromJson( conf_text );
         },
 
         /**
@@ -79,22 +78,24 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 else if( typeof conf[x] == 'string' ) {
                     // compile
                     var spec = conf[x];
-                    if( /^function\s*\(/.test(spec) && /\}\s*$/.test(spec) ) {
+                    if( /^function\s*\(/.test(spec) && /\}[\s;]*$/.test(spec) ) {
                         conf[x] = this._evalHook(spec);
                     }
                 }
             }
             return conf;
         },
-        _evalHook: function(hook) {
-            if (! ("string" == typeof hook)) return hook;
-            var result;
+        _evalHook: function() {
+            // can't bind arguments because the closure compiler
+            // renames variables, and we need to assign in the eval
+            if ( "string" != typeof arguments[0])
+                return arguments[0];
             try {
-                result = eval("(" + hook + ")");
+                eval("arguments[0]="+arguments[0]+";");
             } catch (e) {
-                console.log("eval failed for callback '"+hook+"': "+e);
+                console.error("eval failed for callback '"+arguments[0]+"': "+e);
             }
-            return result;
+            return arguments[0];
         }
 });
 });

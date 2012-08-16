@@ -290,13 +290,13 @@ GenomeView.prototype._updateVerticalScrollBar = function( newDims ) {
         var heightAdjust = this.staticTrack ? -this.staticTrack.div.offsetHeight : 0;
         var trackPaneHeight = newDims.height + heightAdjust;
         this.verticalScrollBar.container.style.height = trackPaneHeight+'px';
-        var markerHeight = newDims.height / this.containerHeight * 100;
+        var markerHeight = newDims.height / (this.containerHeight||1) * 100;
         this.verticalScrollBar.positionMarker.style.height = markerHeight > 0.5 ? markerHeight+'%' :  '1px';
         this.verticalScrollBar.container.style.display = newDims.height / (this.containerHeight||1) > 0.98 ? 'none' : 'block';
     }
 
     if( typeof newDims.y == 'number' || typeof newDims.height == 'number' ) {
-        this.verticalScrollBar.positionMarker.style.top = ( (newDims.y || this.getY() || 0 ) / (this.containerHeight||1) * 100 )+'%';
+        this.verticalScrollBar.positionMarker.style.top    = (((newDims.y || this.getY() || 0) / (this.containerHeight||1) * 100 )||0)+'%';
     }
 
 };
@@ -618,7 +618,6 @@ GenomeView.prototype.startMouseDragScroll = function(event) {
 
     this.behaviorManager.applyBehaviors('mouseDragScrolling');
 
-    this.dragging = true;
     this.dragStartPos = {x: event.clientX,
                          y: event.clientY};
     this.winStartPos = this.getPosition();
@@ -712,12 +711,17 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
 GenomeView.prototype.dragEnd = function(event) {
     this.behaviorManager.removeBehaviors('mouseDragScrolling');
 
-    this.dragging = false;
     dojo.stopEvent(event);
     this.showCoarse();
 
     this.scrollUpdate();
     this.showVisibleBlocks(true);
+
+    // wait 100 ms before releasing our drag indication, since onclick
+    // events from during the drag might fire after the dragEnd event
+    window.setTimeout(
+        dojo.hitch(this,function() {this.dragging = false;}),
+        100 );
 };
 
 /** stop the drag if we mouse out of the view */
@@ -734,6 +738,7 @@ GenomeView.prototype.checkDragOut = function( event ) {
 };
 
 GenomeView.prototype.dragMove = function(event) {
+    this.dragging = true;
     this.setPosition({
     	x: this.winStartPos.x - (event.clientX - this.dragStartPos.x),
     	y: this.winStartPos.y - (event.clientY - this.dragStartPos.y)
@@ -1532,17 +1537,18 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
       ) {
           return existingTrack.div;
       }
-    var trackClass = {
+    var trackClass = this._regularizeClass( 'JBrowse/View/Track', {
         'FeatureTrack':      'JBrowse/View/Track/HTMLFeatures',
         'ImageTrack':        'JBrowse/View/Track/FixedImage',
         'ImageTrack.Wiggle': 'JBrowse/View/Track/FixedImage/Wiggle',
         'SequenceTrack':     'JBrowse/View/Track/Sequence'
       }[ trackConfig.type ]
-      || trackConfig.type;
+      || trackConfig.type
+   );
 
     var trackName = trackConfig.label;
     var trackDiv = dojo.create('div', {
-        className: 'track track_'+trackName,
+        className: 'track track_'+trackName.replace(/[^A-Za-z_]/g,'_'),
         id: "track_" + trackName
     });
     trackDiv.trackName = trackName;
@@ -1550,12 +1556,14 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     // figure out what data store class to use with the track,
     // applying some defaults if it is not explicit in the
     // configuration
-    var storeClass =
-        trackConfig.storeClass               ? trackConfig.storeClass :
-        /\/HTMLFeatures$/.test( trackClass ) ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' ) :
-        /\/FixedImage/.test( trackClass )    ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
-        /\/Sequence$/.test( trackClass )     ? 'JBrowse/Store/Sequence/StaticChunked' :
-                                                null;
+    var storeClass = this._regularizeClass( 'JBrowse/Store',
+            trackConfig.storeClass               ? trackConfig.storeClass :
+            /\/HTMLFeatures$/.test( trackClass ) ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' ) :
+            /\/FixedImage/.test( trackClass )    ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
+            /\/Sequence$/.test( trackClass )     ? 'JBrowse/Store/Sequence/StaticChunked' :
+                                                null
+    );
+
     if( ! storeClass ) {
         console.error( "Unable to find an appropriate data store to use with a "
                        + trackClass + " track, please explicitly specify a "
@@ -1626,6 +1634,14 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     }));
 
     return trackDiv;
+};
+
+GenomeView.prototype._regularizeClass = function( root, class_ ) {
+    // prefix the class names with JBrowse/* if they contain no slashes
+    if( ! /\//.test( class_ ) )
+        class_ = root+'/'+class_;
+    class_ = class_.replace(/^\//);
+    return class_;
 };
 
 GenomeView.prototype.trackIterate = function(callback) {
