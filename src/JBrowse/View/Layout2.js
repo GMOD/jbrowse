@@ -39,7 +39,7 @@ return declare( null,
         //delete rectangle.mX; // don't need to store the midpoint
 
         top *= this.pitchY;
-        this.totalHeight = Math.max( this.totalHeight, top );
+        this.totalHeight = Math.max( this.totalHeight||0, top+height );
         return top;
     },
 
@@ -50,10 +50,11 @@ return declare( null,
         var mY = top + rect.h/2; // Y midpoint: ( top+height  + top ) / 2
         var av = this._autovivify;
 
-        // test the middle first, then each side in the middle
-        if( av( bitmap, rect.mX )[mY]
-            || av(bitmap,rect.l)[mY]
-            || av(bitmap,rect.r)[mY] )
+        // test the left first, then right, then middle
+        if( av(bitmap,rect.l)[mY]
+            || av(bitmap,rect.r)[mY]
+            || av( bitmap, rect.mX )[mY]
+          )
             return true;
 
         // finally, test exhaustively
