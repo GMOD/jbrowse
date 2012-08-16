@@ -25,7 +25,7 @@ return declare( null,
         var pHeight = Math.ceil( height / this.pitchY );
 
         var midX = Math.floor((pLeft+pRight)/2);
-        var rectangle = { id: id, l: pLeft, r: pRight, mX: midX, h: pHeight };
+        var rectangle = { id: id, l: pLeft, r: pRight, mX: midX, h: pHeight, refCount: 0 };
         for( var top=0; top<this.bitmap.length; top++ ){
             if( this._collides(rectangle,top) )
                 top++;
@@ -87,7 +87,7 @@ return declare( null,
                 if(!vertSlice.ids)
                     vertSlice.ids = {};
                 vertSlice.ids[rect.id] = (vertSlice.ids[rect.id]||0) + 1;
-                rect.refCount = (rect.refCount || 0) + 1;
+                rect.refCount++;
             }
     },
 
