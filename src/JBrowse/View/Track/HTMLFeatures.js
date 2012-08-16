@@ -444,7 +444,6 @@ var HTMLFeatures = declare( BlockBased,
     transfer: function(sourceBlock, destBlock, scale, containerStart, containerEnd) {
 
         if (!(sourceBlock && destBlock)) return;
-        if (!sourceBlock.featureLayout) return;
 
         var destLeft = destBlock.startBase;
         var destRight = destBlock.endBase;
@@ -452,8 +451,8 @@ var HTMLFeatures = declare( BlockBased,
         var sourceSlot;
 
         var overlaps = (sourceBlock.startBase < destBlock.startBase)
-            ? sourceBlock.featureLayout.rightOverlaps
-            : sourceBlock.featureLayout.leftOverlaps;
+            ? sourceBlock.rightOverlaps
+            : sourceBlock.leftOverlaps;
         overlaps = overlaps || [];
 
         for (var i = 0; i < overlaps.length; i++) {
@@ -493,23 +492,10 @@ var HTMLFeatures = declare( BlockBased,
     fillFeatures: function(blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, containerStart, containerEnd) {
 
         this.scale = scale;
-        this.layout = this.layout && this.layout.pitchX == 3/scale ? this.layout : new Layout({pitchX: 3/scale });
-        var layouter = this.layout;
-        block.featureLayout = layouter;
+        if( ! this.layout || this.layout.pitchX != 3/scale )
+            this.layout = new Layout({pitchX: 3/scale });
         block.featureNodes = {};
         block.style.backgroundColor = "#ddd";
-
-        //are we filling right-to-left (true) or left-to-right (false)?
-        var goLeft = false;
-        // if (leftBlock && leftBlock.featureLayout) {
-        //     leftBlock.featureLayout.setRightLayout(layouter);
-        //     layouter.setLeftLayout(leftBlock.featureLayout);
-        // }
-        // if (rightBlock && rightBlock.featureLayout) {
-        //     rightBlock.featureLayout.setLeftLayout(layouter);
-        //     layouter.setRightLayout(rightBlock.featureLayout);
-        //     //goLeft = true;
-        // }
 
         //determine the glyph height, arrowhead width, label text dimensions, etc.
         if (!this.haveMeasurements) {
@@ -524,7 +510,7 @@ var HTMLFeatures = declare( BlockBased,
             //(the top-level NCList covers a track/chromosome combination)
             var uniqueId = path.join(",");
             //console.log("ID " + uniqueId + (layouter.hasSeen(uniqueId) ? " (seen)" : " (new)"));
-            if (layouter.hasSeen(uniqueId)) {
+            if (curTrack.layout.hasSeen(uniqueId)) {
                 //console.log("this layouter has seen " + uniqueId);
                 return;
             }
@@ -533,13 +519,13 @@ var HTMLFeatures = declare( BlockBased,
                                        containerStart, containerEnd, block );
         };
 
-        var startBase = goLeft ? rightBase : leftBase;
-        var endBase = goLeft ? leftBase : rightBase;
+        // var startBase = goLeft ? rightBase : leftBase;
+        // var endBase = goLeft ? leftBase : rightBase;
 
-        this.featureStore.iterate(startBase, endBase, featCallback,
+        this.featureStore.iterate( leftBase, rightBase, featCallback,
                                   function () {
                                       block.style.backgroundColor = "";
-                                      curTrack.heightUpdate(layouter.getTotalHeight(),
+                                      curTrack.heightUpdate(curTrack.layout.getTotalHeight(),
                                                             blockIndex);
                                   });
     },

@@ -94,7 +94,7 @@ return declare( null,
     // just a suggestion
     discardRange: function( left, right ) {
         left  = Math.ceil( left / this.pitchX );
-        right = Math.floor( right / this.pitchY );
+        right = Math.floor( right / this.pitchX );
         var b = this.bitmap;
         for( var x = left; x<=right; x++ ) {
             var slice = b[x];
