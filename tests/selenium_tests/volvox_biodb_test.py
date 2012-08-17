@@ -61,7 +61,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
     def sequence( self ):
         self.do_typed_query( '0..80' );
         time.sleep(0.2);
-        sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')][contains(.,'%s')]"
+        sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')]//*[contains(.,'%s')]"
         sequence_div_xpath_1 = sequence_div_xpath_templ % 'aacaACGG';
         self.assert_element( sequence_div_xpath_1)
         self.turn_off_track( 'DNA' );
@@ -85,7 +85,14 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # right-click one of them
         self.actionchains() \
-            .context_click(feature_elements[20]) \
+            .move_to_element(feature_elements[20]) \
+            .perform()
+
+        # wait for the context menu to generate
+        time.sleep(0.1)
+
+        self.actionchains() \
+            .context_click( feature_elements[20] ) \
             .move_by_offset( 20, 55 ) \
             .click() \
             .perform()
@@ -122,7 +129,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
     def search_f15( self ):
 
         # check that a f15 feature label is not yet in the DOM
-        xpath = "//div[@class='feature-label'][contains(.,'f15')]"
+        xpath = "//div[@class='feature-label']//*[contains(.,'f15')]"
         # check that f15 is not already in the DOM at load time
         self.assert_no_element( xpath )
 
