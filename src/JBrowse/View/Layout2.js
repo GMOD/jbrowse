@@ -26,7 +26,7 @@ return declare( null,
         var pHeight = Math.ceil( height / this.pitchY );
 
         var midX = Math.floor((pLeft+pRight)/2);
-        var rectangle = { id: id, l: pLeft, r: pRight, mX: midX, h: pHeight, refCount: 0 };
+        var rectangle = { id: id, l: pLeft, r: pRight, mX: midX, h: pHeight };
         for( var top=0; top <= this.pTotalHeight; top++ ){
             if(! this._collides(rectangle,top) )
                 break;
@@ -44,23 +44,22 @@ return declare( null,
 
     _collides: function( rect, top ) {
         var bitmap = this.bitmap;
-        if( bitmap.length <= top )
-            return false;
-        var mY = top + rect.h/2; // Y midpoint: ( top+height  + top ) / 2
-        var av = this._autovivify;
+        //var mY = top + rect.h/2; // Y midpoint: ( top+height  + top ) / 2
 
         // test the left first, then right, then middle
-        if( av(bitmap,rect.l)[mY]
-            || av(bitmap,rect.r)[mY]
-            || av( bitmap, rect.mX )[mY]
-          )
+        var mRow = bitmap[top];
+        if( mRow && ( mRow[rect.l] || mRow[rect.r] || mRow[rect.mX]) )
             return true;
 
         // finally, test exhaustively
-        for( var x = rect.l; x <= rect.r; x++ )
-            for( var y = top; y < top+rect.h; y++ )
-                if( av(bitmap,x)[y] )
-                    return true;
+        var maxY = top+rect.h;
+        for( var y = top; y < maxY; y++ ) {
+            var row = bitmap[y];
+            if( row )
+                for( var x = rect.l; x <= rect.r; x++ )
+                    if( row[x] )
+                        return true;
+        }
 
         return false;
     },
@@ -79,14 +78,10 @@ return declare( null,
         var av = this._autovivify;
         // finally, test exhaustively
         var yEnd = rect.top+rect.h;
-        for( var x = rect.l; x <= rect.r; x++ )
-            for( var y = rect.top; y < yEnd; y++ ) {
-                var vertSlice = av(bitmap,x);
-                vertSlice[y]=true;
-                if(!vertSlice.ids)
-                    vertSlice.ids = {};
-                vertSlice.ids[rect.id] = (vertSlice.ids[rect.id]||0) + 1;
-                rect.refCount++;
+        for( var y = rect.top; y < yEnd; y++ ) {
+            var row = av(bitmap,y);
+            for( var x = rect.l; x <= rect.r; x++ )
+                row[x]=true;
             }
     },
 
