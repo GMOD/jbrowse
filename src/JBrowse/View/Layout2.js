@@ -5,9 +5,10 @@ return declare( null,
 {
     constructor: function( args ) {
         this.pitchX = args.pitchX || 10;
-        this.pitchY = args.pitchY || 5;
+        this.pitchY = args.pitchY || 10;
         this.bitmap = [];
         this.rectangles = {};
+        this.maxTop = 0;
     },
 
     /**
@@ -26,10 +27,8 @@ return declare( null,
 
         var midX = Math.floor((pLeft+pRight)/2);
         var rectangle = { id: id, l: pLeft, r: pRight, mX: midX, h: pHeight, refCount: 0 };
-        for( var top=0; top<this.bitmap.length; top++ ){
-            if( this._collides(rectangle,top) )
-                top++;
-            else
+        for( var top=0; top <= this.pTotalHeight; top++ ){
+            if(! this._collides(rectangle,top) )
                 break;
         }
         rectangle.top = top;
@@ -38,9 +37,9 @@ return declare( null,
         this.rectangles[id] = rectangle;
         //delete rectangle.mX; // don't need to store the midpoint
 
-        top *= this.pitchY;
-        this.totalHeight = Math.max( this.totalHeight||0, top+height );
-        return top;
+        this.pTotalHeight = Math.max( this.pTotalHeight||0, top+pHeight );
+
+        return top * this.pitchY;
     },
 
     _collides: function( rect, top ) {
@@ -95,24 +94,6 @@ return declare( null,
      *  Given a basepair range, deletes all data dealing with the features
      */
     discardRange: function( left, right ) {
-        left  = Math.ceil( left / this.pitchX );
-        right = Math.floor( right / this.pitchX );
-        var b = this.bitmap;
-        for( var x = left; x<=right; x++ ) {
-            var slice = b[x];
-            if( ! slice )
-                continue;
-
-            for( var id in (slice.ids||{}) ) {
-                this.rectangles[id].refCount -= slice.ids[id];
-                if( this.rectangles[id].refCount == 0 )
-                    delete this.rectangles[id];
-                else if( this.rectangles[id].refCount < 0 )
-                    console.error('wrong refcount!');
-            }
-
-            delete b[x];
-        }
     },
 
     hasSeen: function( id ) {
@@ -123,7 +104,7 @@ return declare( null,
     },
 
     getTotalHeight: function() {
-        return this.totalHeight || 0;
+        return this.pTotalHeight * this.pitchY;
     }
 }
 );
