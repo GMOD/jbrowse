@@ -458,7 +458,7 @@ var HTMLFeatures = declare( BlockBased,
         for (var i = 0; i < overlaps.length; i++) {
 	    //if the feature overlaps destBlock,
 	    //move to destBlock & re-position
-	    sourceSlot = sourceBlock.featureNodes[overlaps[i].id];
+	    sourceSlot = sourceBlock.featureNodes[ overlaps[i] ];
 	    if (sourceSlot && ("label" in sourceSlot)) {
                 sourceSlot.label.parentNode.removeChild(sourceSlot.label);
 	    }
@@ -467,10 +467,10 @@ var HTMLFeatures = declare( BlockBased,
 		     && sourceSlot.feature.get('start') < destRight ) {
 
                          sourceBlock.removeChild(sourceSlot);
-                         delete sourceBlock.featureNodes[overlaps[i].id];
+                         delete sourceBlock.featureNodes[ overlaps[i] ];
 
                          var featDiv =
-                             this.renderFeature(sourceSlot.feature, overlaps[i].id,
+                             this.renderFeature(sourceSlot.feature, overlaps[i],
                                                 destBlock, scale,
                                                 containerStart, containerEnd, destBlock );
                      }
@@ -637,6 +637,16 @@ var HTMLFeatures = declare( BlockBased,
         featDiv.className = (featDiv.className ? featDiv.className + " " : "") + "feature";
 
         block.featureNodes[uniqueId] = featDiv;
+
+        // record whether this feature protrudes beyond the left and/or right side of the block
+        if( featureStart < block.startBase ) {
+            if( ! block.leftOverlaps ) block.leftOverlaps = [];
+            block.leftOverlaps.push( uniqueId );
+        }
+        if( featureEnd > block.endBase ) {
+            if( ! block.rightOverlaps ) block.rightOverlaps = [];
+            block.rightOverlaps.push( uniqueId );
+        }
 
         var strand = feature.get('strand');
         switch (strand) {
