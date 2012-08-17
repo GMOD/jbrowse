@@ -63,7 +63,6 @@ var HTMLFeatures = declare( BlockBased,
 
         this.config = config;
 
-
         // this featureStore object should eventually be
         // instantiated by Browser and passed into this constructor, not
         // constructed here.
@@ -432,6 +431,7 @@ var HTMLFeatures = declare( BlockBased,
     },
 
     cleanupBlock: function(block) {
+        // garbage collect the layout
         if ( block && this.layout )
             this.layout.discardRange( block.startBase, block.endBase );
     },
@@ -492,8 +492,10 @@ var HTMLFeatures = declare( BlockBased,
     fillFeatures: function(blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, containerStart, containerEnd) {
 
         this.scale = scale;
-        if( ! this.layout || this.layout.pitchX != 3/scale )
-            this.layout = new Layout({pitchX: 3/scale });
+
+        if( ! this.layout )
+            this.layout = new Layout({pitchX: 4/scale });
+
         block.featureNodes = {};
         block.style.backgroundColor = "#ddd";
 
@@ -504,20 +506,16 @@ var HTMLFeatures = declare( BlockBased,
         }
 
         var curTrack = this;
-        var featCallback = function(feature, path) {
+        var featCallback = dojo.hitch(this,function(feature, path) {
             //uniqueId is a stringification of the path in the NCList where
             //the feature lives; it's unique across the top-level NCList
             //(the top-level NCList covers a track/chromosome combination)
             var uniqueId = path.join(",");
-            //console.log("ID " + uniqueId + (layouter.hasSeen(uniqueId) ? " (seen)" : " (new)"));
-            if (curTrack.layout.hasSeen(uniqueId)) {
-                //console.log("this layouter has seen " + uniqueId);
-                return;
+            if( ! this._featureIsRendered( uniqueId ) ) {
+                this.renderFeature( feature, uniqueId, block, scale,
+                                    containerStart, containerEnd, block );
             }
-            var featDiv =
-                curTrack.renderFeature(feature, uniqueId, block, scale,
-                                       containerStart, containerEnd, block );
-        };
+        });
 
         // var startBase = goLeft ? rightBase : leftBase;
         // var endBase = goLeft ? leftBase : rightBase;
@@ -528,6 +526,19 @@ var HTMLFeatures = declare( BlockBased,
                                       curTrack.heightUpdate(curTrack.layout.getTotalHeight(),
                                                             blockIndex);
                                   });
+    },
+
+    /**
+     * Returns true if a feature is visible and rendered someplace in the blocks of this track.
+     * @private
+     */
+    _featureIsRendered: function( uniqueId ) {
+        var blocks = this.blocks;
+        for( var i=0; i<blocks.length; i++ ) {
+            if( blocks[i] && blocks[i].featureNodes[uniqueId])
+                return true;
+        }
+        return false;
     },
 
     measureStyles: function() {
@@ -613,10 +624,10 @@ var HTMLFeatures = declare( BlockBased,
         }
         featureEnd += Math.max(1, this.padding / scale);
 
-        var top = block.featureLayout.addRect(uniqueId,
-                                              featureStart,
-                                              featureEnd,
-                                              levelHeight);
+        var top = this.layout.addRect( uniqueId,
+                                       featureStart,
+                                       featureEnd,
+                                       levelHeight);
 
         var featDiv = this.config.hooks.create(this, feature );
         this._connectFeatDivHandlers( featDiv );

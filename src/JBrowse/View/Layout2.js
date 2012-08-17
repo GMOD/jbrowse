@@ -91,7 +91,9 @@ return declare( null,
             }
     },
 
-    // just a suggestion
+    /**
+     *  Given a basepair range, deletes all data dealing with the features
+     */
     discardRange: function( left, right ) {
         left  = Math.ceil( left / this.pitchX );
         right = Math.floor( right / this.pitchX );
@@ -101,12 +103,15 @@ return declare( null,
             if( ! slice )
                 continue;
 
-            delete b[x];
             for( var id in (slice.ids||{}) ) {
                 this.rectangles[id].refCount -= slice.ids[id];
-                if( this.rectangles[id].refCount <= 0 )
+                if( this.rectangles[id].refCount == 0 )
                     delete this.rectangles[id];
+                else if( this.rectangles[id].refCount < 0 )
+                    console.error('wrong refcount!');
             }
+
+            delete b[x];
         }
     },
 
