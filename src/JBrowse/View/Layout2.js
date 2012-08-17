@@ -9,6 +9,7 @@ return declare( null,
         this.bitmap = [];
         this.rectangles = {};
         this.maxTop = 0;
+        this.pTotalHeight = 0; // total height, in units of bitmap squares (px/pitchY)
         this.vertPadding = 2; // pixels
     },
 
