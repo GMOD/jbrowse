@@ -493,8 +493,8 @@ var HTMLFeatures = declare( BlockBased,
 
         this.scale = scale;
 
-        if( ! this.layout || this.layout.pitchX != 5/scale )
-            this.layout = new Layout({pitchX: 5/scale, pitchY: 10});
+        if( ! this.layout || this.layout.pitchX != 2/scale )
+            this.layout = new Layout({pitchX: 2/scale, pitchY: 10});
 
         block.featureNodes = {};
         block.style.backgroundColor = "#ddd";

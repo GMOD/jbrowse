@@ -22,8 +22,8 @@ return declare( null,
             return this.rectangles[id].top * this.pitchY;
 
         var pLeft  = Math.floor( left / this.pitchX );
-        var pRight = Math.ceil( right / this.pitchX );
-        var pHeight = Math.ceil( height / this.pitchY );
+        var pRight = Math.floor( right / this.pitchX );
+        var pHeight = Math.floor( height / this.pitchY );
 
         var midX = Math.floor((pLeft+pRight)/2);
         var rectangle = { id: id, l: pLeft, r: pRight, mX: midX, h: pHeight };
