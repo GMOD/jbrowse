@@ -9,6 +9,7 @@ return declare( null,
         this.bitmap = [];
         this.rectangles = {};
         this.maxTop = 0;
+        this.vertPadding = 2; // pixels
     },
 
     /**
@@ -23,7 +24,7 @@ return declare( null,
 
         var pLeft  = Math.floor( left / this.pitchX );
         var pRight = Math.floor( right / this.pitchX );
-        var pHeight = Math.floor( height / this.pitchY );
+        var pHeight = Math.ceil( (height+this.vertPadding) / this.pitchY );
 
         var midX = Math.floor((pLeft+pRight)/2);
         var rectangle = { id: id, l: pLeft, r: pRight, mX: midX, h: pHeight };
