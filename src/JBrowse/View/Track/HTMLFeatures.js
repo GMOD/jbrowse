@@ -125,7 +125,8 @@ var HTMLFeatures = declare( BlockBased,
                 histScale: 4,
                 labelScale: 50,
                 subfeatureScale: 80,
-                maxDescriptionLength: 70
+                maxDescriptionLength: 70,
+                descriptionScale: 170
             },
             hooks: {
                 create: function(track, feat ) {
@@ -160,6 +161,7 @@ var HTMLFeatures = declare( BlockBased,
 
         this.labelScale = this.featureStore.density * this.config.style.labelScale;
         this.subfeatureScale = this.featureStore.density * this.config.style.subfeatureScale;
+        this.descriptionScale = this.featureStore.density * this.config.style.descriptionScale;;
 
         this.setLoaded();
     },
@@ -606,7 +608,7 @@ var HTMLFeatures = declare( BlockBased,
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
         var name = feature.get('name');
-        var description = this.config.description && ( feature.get('note') || feature.get('description') );
+        var description = this.config.description && scale > this.descriptionScale && ( feature.get('note') || feature.get('description') );
         if( description && description.length > this.config.style.maxDescriptionLength )
             description = description.substr(0, this.config.style.maxDescriptionLength+1 ).replace(/(\s+\S+|\s*)$/,'')+String.fromCharCode(8230);
 
