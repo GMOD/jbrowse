@@ -12,7 +12,7 @@ define( [
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/YScaleMixin',
             'JBrowse/Util',
-            'JBrowse/View/Layout2'
+            'JBrowse/View/GranularRectLayout'
         ],
       function( declare,
                 lang,
