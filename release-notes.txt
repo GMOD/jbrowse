@@ -30,6 +30,15 @@
    both prettier, and more comprehensive, displaying all available
    data for the feature.
 
+ * Added the long-missing ability to render a second line of label
+   text for features containing their description, which is taken from
+   the feature's 'Note' or 'description' attribute, if present.  The
+   description is only displayed if the track's `description`
+   configuration variable is set to a true value, which is the
+   default.  There is also a style.maxDescriptionLength value, that
+   can be set to control how long a description can be before it is
+   truncated with ellipses.  It defaults to 70 characters.
+
  * Added a small helper script, `add-track-json.pl` that developers
    and advanced users can use to programmatically add a block of track
    configuration JSON to an existing JBrowse configuration file.

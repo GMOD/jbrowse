@@ -12,7 +12,7 @@ define( [
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/YScaleMixin',
             'JBrowse/Util',
-            'JBrowse/View/Layout'
+            'JBrowse/View/GranularRectLayout'
         ],
       function( declare,
                 lang,
@@ -62,7 +62,6 @@ var HTMLFeatures = declare( BlockBased,
         this.trackPadding = args.trackPadding;
 
         this.config = config;
-
 
         // this featureStore object should eventually be
         // instantiated by Browser and passed into this constructor, not
@@ -120,11 +119,14 @@ var HTMLFeatures = declare( BlockBased,
     loadSuccess: function(trackInfo, url) {
 
         var defaultConfig = {
+            description: true,
             style: {
                 className: "feature2",
                 histScale: 4,
                 labelScale: 50,
-                subfeatureScale: 80
+                subfeatureScale: 80,
+                maxDescriptionLength: 70,
+                descriptionScale: 170
             },
             hooks: {
                 create: function(track, feat ) {
@@ -159,6 +161,7 @@ var HTMLFeatures = declare( BlockBased,
 
         this.labelScale = this.featureStore.density * this.config.style.labelScale;
         this.subfeatureScale = this.featureStore.density * this.config.style.subfeatureScale;
+        this.descriptionScale = this.featureStore.density * this.config.style.descriptionScale;;
 
         this.setLoaded();
     },
@@ -430,8 +433,9 @@ var HTMLFeatures = declare( BlockBased,
     },
 
     cleanupBlock: function(block) {
-        if (block && block.featureLayout)
-            block.featureLayout.cleanup();
+        // garbage collect the layout
+        if ( block && this.layout )
+            this.layout.discardRange( block.startBase, block.endBase );
     },
 
     /**
@@ -442,7 +446,6 @@ var HTMLFeatures = declare( BlockBased,
     transfer: function(sourceBlock, destBlock, scale, containerStart, containerEnd) {
 
         if (!(sourceBlock && destBlock)) return;
-        if (!sourceBlock.featureLayout) return;
 
         var destLeft = destBlock.startBase;
         var destRight = destBlock.endBase;
@@ -450,13 +453,14 @@ var HTMLFeatures = declare( BlockBased,
         var sourceSlot;
 
         var overlaps = (sourceBlock.startBase < destBlock.startBase)
-            ? sourceBlock.featureLayout.rightOverlaps
-            : sourceBlock.featureLayout.leftOverlaps;
+            ? sourceBlock.rightOverlaps
+            : sourceBlock.leftOverlaps;
+        overlaps = overlaps || [];
 
         for (var i = 0; i < overlaps.length; i++) {
 	    //if the feature overlaps destBlock,
 	    //move to destBlock & re-position
-	    sourceSlot = sourceBlock.featureNodes[overlaps[i].id];
+	    sourceSlot = sourceBlock.featureNodes[ overlaps[i] ];
 	    if (sourceSlot && ("label" in sourceSlot)) {
                 sourceSlot.label.parentNode.removeChild(sourceSlot.label);
 	    }
@@ -465,10 +469,10 @@ var HTMLFeatures = declare( BlockBased,
 		     && sourceSlot.feature.get('start') < destRight ) {
 
                          sourceBlock.removeChild(sourceSlot);
-                         delete sourceBlock.featureNodes[overlaps[i].id];
+                         delete sourceBlock.featureNodes[ overlaps[i] ];
 
                          var featDiv =
-                             this.renderFeature(sourceSlot.feature, overlaps[i].id,
+                             this.renderFeature(sourceSlot.feature, overlaps[i],
                                                 destBlock, scale,
                                                 containerStart, containerEnd, destBlock );
                      }
@@ -491,22 +495,11 @@ var HTMLFeatures = declare( BlockBased,
 
         this.scale = scale;
 
-        var layouter = new Layout(leftBase, rightBase);
-        block.featureLayout = layouter;
+        if( ! this.layout || this.layout.pitchX != 2/scale )
+            this.layout = new Layout({pitchX: 2/scale, pitchY: 10});
+
         block.featureNodes = {};
         block.style.backgroundColor = "#ddd";
-
-        //are we filling right-to-left (true) or left-to-right (false)?
-        var goLeft = false;
-        if (leftBlock && leftBlock.featureLayout) {
-            leftBlock.featureLayout.setRightLayout(layouter);
-            layouter.setLeftLayout(leftBlock.featureLayout);
-        }
-        if (rightBlock && rightBlock.featureLayout) {
-            rightBlock.featureLayout.setLeftLayout(layouter);
-            layouter.setRightLayout(rightBlock.featureLayout);
-            goLeft = true;
-        }
 
         //determine the glyph height, arrowhead width, label text dimensions, etc.
         if (!this.haveMeasurements) {
@@ -515,30 +508,39 @@ var HTMLFeatures = declare( BlockBased,
         }
 
         var curTrack = this;
-        var featCallback = function(feature, path) {
+        var featCallback = dojo.hitch(this,function(feature, path) {
             //uniqueId is a stringification of the path in the NCList where
             //the feature lives; it's unique across the top-level NCList
             //(the top-level NCList covers a track/chromosome combination)
             var uniqueId = path.join(",");
-            //console.log("ID " + uniqueId + (layouter.hasSeen(uniqueId) ? " (seen)" : " (new)"));
-            if (layouter.hasSeen(uniqueId)) {
-                //console.log("this layouter has seen " + uniqueId);
-                return;
+            if( ! this._featureIsRendered( uniqueId ) ) {
+                this.renderFeature( feature, uniqueId, block, scale,
+                                    containerStart, containerEnd, block );
             }
-            var featDiv =
-                curTrack.renderFeature(feature, uniqueId, block, scale,
-                                       containerStart, containerEnd, block );
-        };
+        });
 
-        var startBase = goLeft ? rightBase : leftBase;
-        var endBase = goLeft ? leftBase : rightBase;
+        // var startBase = goLeft ? rightBase : leftBase;
+        // var endBase = goLeft ? leftBase : rightBase;
 
-        this.featureStore.iterate(startBase, endBase, featCallback,
+        this.featureStore.iterate( leftBase, rightBase, featCallback,
                                   function () {
                                       block.style.backgroundColor = "";
-                                      curTrack.heightUpdate(layouter.totalHeight,
+                                      curTrack.heightUpdate(curTrack.layout.getTotalHeight(),
                                                             blockIndex);
                                   });
+    },
+
+    /**
+     * Returns true if a feature is visible and rendered someplace in the blocks of this track.
+     * @private
+     */
+    _featureIsRendered: function( uniqueId ) {
+        var blocks = this.blocks;
+        for( var i=0; i<blocks.length; i++ ) {
+            if( blocks[i] && blocks[i].featureNodes[uniqueId])
+                return true;
+        }
+        return false;
     },
 
     measureStyles: function() {
@@ -549,8 +551,8 @@ var HTMLFeatures = declare( BlockBased,
         heightTest.style.visibility = "hidden";
         heightTest.appendChild(document.createTextNode("1234567890"));
         document.body.appendChild(heightTest);
-        this.nameHeight = heightTest.clientHeight;
-        this.nameWidth = heightTest.clientWidth / 10;
+        this.labelHeight = heightTest.clientHeight;
+        this.labelWidth = heightTest.clientWidth / 10;
         document.body.removeChild(heightTest);
 
         //measure the height of glyphs
@@ -606,18 +608,28 @@ var HTMLFeatures = declare( BlockBased,
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
         var name = feature.get('name');
-        if (name && (scale >= this.labelScale)) {
-	    featureEnd = Math.max(featureEnd,
-                                  featureStart + ((name ? name.length : 0)
-				                  * (this.nameWidth / scale) ) );
-            levelHeight += this.nameHeight;
+        var description = this.config.description && scale > this.descriptionScale && ( feature.get('note') || feature.get('description') );
+        if( description && description.length > this.config.style.maxDescriptionLength )
+            description = description.substr(0, this.config.style.maxDescriptionLength+1 ).replace(/(\s+\S+|\s*)$/,'')+String.fromCharCode(8230);
+
+        // add the label div (which includes the description) to the
+        // calculated height of the feature if it will be displayed
+        if( scale >= this.labelScale ) {
+            if (name) {
+	        featureEnd = Math.max(featureEnd, featureStart + (''+name).length * this.labelWidth / scale );
+                levelHeight += this.labelHeight;
+            }
+            if( description ) {
+                featureEnd = Math.max( featureEnd, featureStart + (''+description).length * this.labelWidth / scale );
+                levelHeight += this.labelHeight;
+            }
         }
         featureEnd += Math.max(1, this.padding / scale);
 
-        var top = block.featureLayout.addRect(uniqueId,
-                                              featureStart,
-                                              featureEnd,
-                                              levelHeight);
+        var top = this.layout.addRect( uniqueId,
+                                       featureStart,
+                                       featureEnd,
+                                       levelHeight);
 
         var featDiv = this.config.hooks.create(this, feature );
         this._connectFeatDivHandlers( featDiv );
@@ -627,6 +639,16 @@ var HTMLFeatures = declare( BlockBased,
         featDiv.className = (featDiv.className ? featDiv.className + " " : "") + "feature";
 
         block.featureNodes[uniqueId] = featDiv;
+
+        // record whether this feature protrudes beyond the left and/or right side of the block
+        if( featureStart < block.startBase ) {
+            if( ! block.leftOverlaps ) block.leftOverlaps = [];
+            block.leftOverlaps.push( uniqueId );
+        }
+        if( featureEnd > block.endBase ) {
+            if( ! block.rightOverlaps ) block.rightOverlaps = [];
+            block.rightOverlaps.push( uniqueId );
+        }
 
         var strand = feature.get('strand');
         switch (strand) {
@@ -692,9 +714,10 @@ var HTMLFeatures = declare( BlockBased,
         if (name && (scale >= this.labelScale)) {
             var labelDiv = dojo.create( 'div', {
                     className: "feature-label",
-                    innerHTML: name,
+                    innerHTML: '<div class="feature-name">'+name+'</div>'
+                               +( description ? ' <div class="feature-description">'+description+'</div>' : '' ),
                     style: {
-                        top: (top + this.glyphHeight) + "px",
+                        top: (top + this.glyphHeight + 2) + "px",
                         left: (100 * (featureStart - block.startBase) / blockWidth)+'%'
                     }
                 }, block );
