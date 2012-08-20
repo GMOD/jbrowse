@@ -128,7 +128,7 @@ return declare( BlockBased,
      */
     renderSeqDiv: function ( start, end, seq, stripeWidth ) {
         var container  = document.createElement('div');
-        var charWidth = ((stripeWidth-2) / seq.length)+"px";
+        var charWidth = Math.floor(stripeWidth/ seq.length)+"px";
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('span');
             base.className = 'base';

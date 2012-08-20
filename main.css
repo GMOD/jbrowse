@@ -222,8 +222,6 @@ div.sequence {
     left: 0px;
     font-family: Courier New,monospace;
     font-size: 10px;
-    letter-spacing: 2px;
-    padding-left: 2px;
 }
 div.sequence .highlighted {
     background: #ff0;
