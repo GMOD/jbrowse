@@ -31,14 +31,13 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     // keep a reference to the main browser object
     this.browser = browser;
 
-    var seqCharSize = this.calculateSequenceCharacterSize( elem );
-    this.charWidth = seqCharSize.width;
-    this.seqHeight = seqCharSize.height;
-
     this.posHeight = this.calculatePositionLabelHeight( elem );
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
     this.topSpace = 1.5 * this.posHeight;
+
+    // arbitrary max of 12px / bp (slightly bigger than most seq char sizes)
+    this.maxPxPerBp = 12;
 
     //the reference sequence
     this.ref = refseq;
@@ -86,11 +85,9 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
 
     //width, in pixels of the "regular" (not min or max zoom) stripe
     this.regularStripe = stripeWidth;
-    //width, in pixels, of stripes at full zoom (based on the sequence
-    //character width)
-    //The number of characters per stripe is somewhat arbitrarily set
-    //at stripeWidth / 10
-    this.fullZoomStripe = this.charWidth * (stripeWidth / 10);
+
+    //width, in pixels, of stripes at full zoom, is 10bp
+    this.fullZoomStripe = stripeWidth/10 * this.maxPxPerBp;
 
     this.overview = dojo.byId("overview");
     this.overviewBox = dojo.coords(this.overview);
@@ -426,27 +423,6 @@ GenomeView.prototype._behaviors = function() { return {
         }
     }
 };};
-
-/**
- * Conducts a test with DOM elements to measure sequence text width
- * and height.
- */
-GenomeView.prototype.calculateSequenceCharacterSize = function( containerElement ) {
-    var widthTest = document.createElement("div");
-    widthTest.className = "sequence";
-    widthTest.style.visibility = "hidden";
-    var widthText = "12345678901234567890123456789012345678901234567890";
-    widthTest.appendChild(document.createTextNode(widthText));
-    containerElement.appendChild(widthTest);
-
-    var result = {
-        width:  widthTest.clientWidth / widthText.length,
-        height: widthTest.clientHeight
-    };
-
-    containerElement.removeChild(widthTest);
-    return result;
-};
 
 /**
  * Conduct a DOM test to calculate the height of div.pos-label
@@ -799,7 +775,7 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
         this.behaviorManager.initialize();
     }
 
-    this.pxPerBp = Math.min(this.getWidth() / (endbp - startbp), this.charWidth);
+    this.pxPerBp = Math.min(this.getWidth() / (endbp - startbp), this.maxPxPerBp );
     this.curZoom = Util.findNearest(this.zoomLevels, this.pxPerBp);
     if (Math.abs(this.pxPerBp - this.zoomLevels[this.zoomLevels.length - 1]) < 0.2) {
         //the cookie-saved location is in round bases, so if the saved
@@ -1053,7 +1029,7 @@ GenomeView.prototype.sizeInit = function() {
     this.overviewBox = dojo.coords(this.overview);
 
     //scale values, in pixels per bp, for all zoom levels
-    this.zoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, this.charWidth];
+    this.zoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, this.maxPxPerBp ];
     //make sure we don't zoom out too far
     while (((this.ref.end - this.ref.start) * this.zoomLevels[0])
            < this.getWidth()) {
@@ -1585,8 +1561,6 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
                 config: trackConfig,
                 changeCallback: dojo.hitch( this, 'showVisibleBlocks', true ),
                 trackPadding: this.trackPadding,
-                charWidth: this.charWidth,
-                seqHeight: this.seqHeight,
                 store: store
             });
         if( store.setTrack )

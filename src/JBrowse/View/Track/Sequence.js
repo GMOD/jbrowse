@@ -13,7 +13,7 @@ return declare( BlockBased,
     /**
      * Track to display the underlying reference sequence, when zoomed in
      * far enough.
-     * 
+     *
      * @constructs
      * @extends JBrowse.View.Track.BlockBased
      */
@@ -22,12 +22,9 @@ return declare( BlockBased,
         var refSeq = args.refSeq;
 
         BlockBased.call( this, config.label, config.key,
-                                            false, args.changeCallback );
+                         false, args.changeCallback );
 
         this.config = config;
-
-        this.charWidth = args.charWidth;
-        this.seqHeight = args.seqHeight;
 
         this.refSeq = refSeq;
 
@@ -44,7 +41,7 @@ return declare( BlockBased,
     },
 
     endZoom: function(destScale, destBlockBases) {
-        if (destScale == this.charWidth) this.show();
+        if (destScale >= this.charWidth) this.show();
         BlockBased.prototype.clear.apply(this);
     },
 
@@ -52,7 +49,12 @@ return declare( BlockBased,
                          trackDiv, labelDiv,
                          widthPct, widthPx, scale) {
         this.inherited( arguments );
-        if (scale == this.charWidth) {
+
+        var measurements = this._measureSequenceCharacterSize( this.div );
+        this.charWidth = measurements.width;
+        this.seqHeight = measurements.height;
+
+        if (scale >= this.charWidth) {
             this.show();
         } else {
             this.hide();
@@ -68,7 +70,7 @@ return declare( BlockBased,
                        scale, stripeWidth,
                        containerStart, containerEnd) {
         var that = this;
-        if (scale == this.charWidth) {
+        if (scale >= this.charWidth) {
             this.show();
         } else {
             this.hide();
@@ -128,6 +130,27 @@ return declare( BlockBased,
         var container  = document.createElement("div");
         container.appendChild( document.createTextNode( seq ) );
         return container;
+    },
+
+    /**
+     * Conducts a test with DOM elements to measure sequence text width
+     * and height.
+     */
+    _measureSequenceCharacterSize: function( containerElement ) {
+        var widthTest = document.createElement("div");
+        widthTest.className = "sequence";
+        widthTest.style.visibility = "hidden";
+        var widthText = "12345678901234567890123456789012345678901234567890";
+        widthTest.appendChild(document.createTextNode(widthText));
+        containerElement.appendChild(widthTest);
+
+        var result = {
+            width:  widthTest.clientWidth / widthText.length,
+            height: widthTest.clientHeight
+        };
+
+        containerElement.removeChild(widthTest);
+        return result;
     }
 });
 
