@@ -94,10 +94,10 @@ return declare( BlockBased,
                                              block.appendChild(seqNode);
 
                                              // add a div for the forward strand
-                                             seqNode.appendChild( that.renderSeqDiv( start, end, seq ));
+                                             seqNode.appendChild( that.renderSeqDiv( start, end, seq, stripeWidth ));
 
                                              // and one for the reverse strand
-                                             var comp = that.renderSeqDiv( start, end, that.complement(seq) );
+                                             var comp = that.renderSeqDiv( start, end, that.complement(seq), stripeWidth );
                                              comp.className = 'revcom';
                                              seqNode.appendChild( comp );
                                          }
@@ -126,9 +126,16 @@ return declare( BlockBased,
      * Given the start and end coordinates, and the sequence bases,
      * makes a div containing the sequence.
      */
-    renderSeqDiv: function ( start, end, seq ) {
-        var container  = document.createElement("div");
-        container.appendChild( document.createTextNode( seq ) );
+    renderSeqDiv: function ( start, end, seq, stripeWidth ) {
+        var container  = document.createElement('div');
+        var charWidth = ((stripeWidth-2) / seq.length)+"px";
+        for( var i=0; i<seq.length; i++ ) {
+            var base = document.createElement('span');
+            base.className = 'base';
+            base.style.width = charWidth;
+            base.innerHTML = seq[i];
+            container.appendChild(base);
+        }
         return container;
     },
 

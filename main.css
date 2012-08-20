@@ -231,6 +231,10 @@ div.sequence .highlighted {
 div.sequence .revcom {
     color: red;
 }
+div.sequence span.base {
+    display: inline-block;
+    text-align: center;
+}
 
 /*
 div.minus-feature:before {
