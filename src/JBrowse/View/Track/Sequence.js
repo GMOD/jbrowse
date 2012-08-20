@@ -35,13 +35,13 @@ return declare( BlockBased,
         window.setTimeout( dojo.hitch( this, 'setLoaded' ), 10 );
     },
 
-    startZoom: function(destScale, destStart, destEnd) {
-        this.hide();
-        this.heightUpdate(0);
-    },
+    // startZoom: function(destScale, destStart, destEnd) {
+    //     this.hide();
+    //     this.heightUpdate(0);
+    // },
 
     endZoom: function(destScale, destBlockBases) {
-        if (destScale >= this.charWidth) this.show();
+        this.clear();
         BlockBased.prototype.clear.apply(this);
     },
 
@@ -70,14 +70,7 @@ return declare( BlockBased,
                        scale, stripeWidth,
                        containerStart, containerEnd) {
         var that = this;
-        if (scale >= this.charWidth) {
-            this.show();
-        } else {
-            this.hide();
-            this.heightUpdate(0);
-        }
-
-        if (this.shown) {
+        if ( scale >= this.charWidth ) {
             this.sequenceStore.getRange( this.refSeq, leftBase, rightBase,
                                          function( start, end, seq ) {
 
@@ -103,9 +96,9 @@ return declare( BlockBased,
                                              seqNode.appendChild( comp );
                                          }
                                        );
-            this.heightUpdate(this.seqHeight, blockIndex);
+            this.heightUpdate( this.seqHeight*2, blockIndex );
         } else {
-            this.heightUpdate(0, blockIndex);
+            this.heightUpdate( 0, blockIndex );
         }
     },
 
