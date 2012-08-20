@@ -89,7 +89,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
             .perform()
 
         # wait for the context menu to generate
-        time.sleep(0.1)
+        time.sleep(0.3)
 
         self.actionchains() \
             .context_click( feature_elements[20] ) \
