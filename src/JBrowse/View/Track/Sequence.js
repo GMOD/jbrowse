@@ -91,6 +91,7 @@ return declare( BlockBased,
                                              // make a div to contain the sequences
                                              var seqNode = document.createElement("div");
                                              seqNode.className = "sequence";
+                                             seqNode.style.width = "100%";
                                              block.appendChild(seqNode);
 
                                              // add a div for the forward strand
@@ -128,7 +129,7 @@ return declare( BlockBased,
      */
     renderSeqDiv: function ( start, end, seq, stripeWidth ) {
         var container  = document.createElement('div');
-        var charWidth = Math.floor(stripeWidth/ seq.length)+"px";
+        var charWidth = (100/seq.length)+"%";
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('span');
             base.className = 'base';
