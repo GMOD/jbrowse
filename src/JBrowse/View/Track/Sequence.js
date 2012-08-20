@@ -50,10 +50,6 @@ return declare( BlockBased,
                          widthPct, widthPx, scale) {
         this.inherited( arguments );
 
-        var measurements = this._measureSequenceCharacterSize( this.div );
-        this.charWidth = measurements.width;
-        this.seqHeight = measurements.height;
-
         this.show();
     },
 
@@ -65,17 +61,19 @@ return declare( BlockBased,
                        scale, stripeWidth,
                        containerStart, containerEnd) {
 
+        var charSize = this.getCharacterMeasurements();
+
         // if we are zoomed in far enough to draw bases, then draw them
-        if ( scale >= this.charWidth ) {
+        if ( scale >= charSize.w ) {
             this.sequenceStore.getRange(
                 this.refSeq, leftBase, rightBase,
                 dojo.hitch( this, '_fillSequenceBlock', block, stripeWidth ) );
-            this.heightUpdate( this.seqHeight*2, blockIndex );
+            this.heightUpdate( charSize.h*2, blockIndex );
         }
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
         else {
-            var borderWidth = Math.max(1,Math.round(4*scale/this.charWidth));
+            var borderWidth = Math.max(1,Math.round(4*scale/charSize.w));
             var blur = dojo.create( 'div', {
                              className: 'sequence_blur',
                              style: { borderStyle: 'solid', borderTopWidth: borderWidth+'px', borderBottomWidth: borderWidth+'px' }
@@ -140,6 +138,16 @@ return declare( BlockBased,
     },
 
     /**
+     * @returns {Object} containing <code>h</code> and <code>w</code>,
+     *      in pixels, of the characters being used for sequences
+     */
+    getCharacterMeasurements: function() {
+        if( !this._measurements )
+            this._measurements = this._measureSequenceCharacterSize( this.div );
+        return this._measurements;
+    },
+
+    /**
      * Conducts a test with DOM elements to measure sequence text width
      * and height.
      */
@@ -151,13 +159,13 @@ return declare( BlockBased,
         widthTest.appendChild(document.createTextNode(widthText));
         containerElement.appendChild(widthTest);
         var result = {
-            width:  widthTest.clientWidth / widthText.length,
-            height: widthTest.clientHeight
+            w:  widthTest.clientWidth / widthText.length,
+            h: widthTest.clientHeight
         };
-
         containerElement.removeChild(widthTest);
         return result;
   }
+
 });
 
 });
