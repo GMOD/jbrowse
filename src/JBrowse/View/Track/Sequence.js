@@ -75,12 +75,10 @@ return declare( BlockBased,
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
         else {
-            var borderWidth = Math.round(4*scale/this.charWidth);
+            var borderWidth = Math.max(1,Math.round(4*scale/this.charWidth));
             var blur = dojo.create( 'div', {
                              className: 'sequence_blur',
-                             style: borderWidth == 0
-                                            ? { borderStyle: 'solid', borderTopWidth: '1px', borderBottomWidth: '1px' }
-                                            : { borderStyle: 'dashed', borderTopWidth: borderWidth+'px', borderBottomWidth: borderWidth+'px' }
+                             style: { borderStyle: 'solid', borderTopWidth: borderWidth+'px', borderBottomWidth: borderWidth+'px' }
                          }, block );
             this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
         }
