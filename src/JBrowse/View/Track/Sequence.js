@@ -54,12 +54,7 @@ return declare( BlockBased,
         this.charWidth = measurements.width;
         this.seqHeight = measurements.height;
 
-        if (scale >= this.charWidth) {
-            this.show();
-        } else {
-            this.hide();
-            this.heightUpdate(0);
-        }
+        this.show();
     },
 
     nbsp: String.fromCharCode(160),
@@ -69,37 +64,49 @@ return declare( BlockBased,
                        leftBase, rightBase,
                        scale, stripeWidth,
                        containerStart, containerEnd) {
-        var that = this;
+
+        // if we are zoomed in far enough to draw bases, then draw them
         if ( scale >= this.charWidth ) {
-            this.sequenceStore.getRange( this.refSeq, leftBase, rightBase,
-                                         function( start, end, seq ) {
-
-                                             // fill with leading blanks if the
-                                             // sequence does not extend all the way
-                                             // across our range
-                                             for( ; start < 0; start++ ) {
-                                                 seq = that.nbsp + seq; //nbsp is an "&nbsp;" entity
-                                             }
-
-                                             // make a div to contain the sequences
-                                             var seqNode = document.createElement("div");
-                                             seqNode.className = "sequence";
-                                             seqNode.style.width = "100%";
-                                             block.appendChild(seqNode);
-
-                                             // add a div for the forward strand
-                                             seqNode.appendChild( that.renderSeqDiv( start, end, seq, stripeWidth ));
-
-                                             // and one for the reverse strand
-                                             var comp = that.renderSeqDiv( start, end, that.complement(seq), stripeWidth );
-                                             comp.className = 'revcom';
-                                             seqNode.appendChild( comp );
-                                         }
-                                       );
+            this.sequenceStore.getRange(
+                this.refSeq, leftBase, rightBase,
+                dojo.hitch( this, '_fillSequenceBlock', block, stripeWidth ) );
             this.heightUpdate( this.seqHeight*2, blockIndex );
-        } else {
-            this.heightUpdate( 0, blockIndex );
         }
+        // otherwise, just draw a sort of line (possibly dotted) that
+        // suggests there are bases there if you zoom in far enough
+        else {
+            var borderWidth = Math.round(4*scale/this.charWidth);
+            var blur = dojo.create( 'div', {
+                             className: 'sequence_blur',
+                             style: borderWidth == 0
+                                            ? { borderStyle: 'solid', borderTopWidth: '1px', borderBottomWidth: '1px' }
+                                            : { borderStyle: 'dashed', borderTopWidth: borderWidth+'px', borderBottomWidth: borderWidth+'px' }
+                         }, block );
+            this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
+        }
+    },
+
+    _fillSequenceBlock: function( block, stripeWidth, start, end, seq ) {
+        // fill with leading blanks if the
+        // sequence does not extend all the way
+        // across our range
+        for( ; start < 0; start++ ) {
+            seq = this.nbsp + seq; //nbsp is an "&nbsp;" entity
+        }
+
+        // make a div to contain the sequences
+        var seqNode = document.createElement("div");
+        seqNode.className = "sequence";
+        seqNode.style.width = "100%";
+        block.appendChild(seqNode);
+
+        // add a div for the forward strand
+        seqNode.appendChild( this._renderSeqDiv( start, end, seq, stripeWidth ));
+
+        // and one for the reverse strand
+        var comp = this._renderSeqDiv( start, end, this.complement(seq), stripeWidth );
+        comp.className = 'revcom';
+        seqNode.appendChild( comp );
     },
 
     complement: (function() {
@@ -119,8 +126,9 @@ return declare( BlockBased,
     /**
      * Given the start and end coordinates, and the sequence bases,
      * makes a div containing the sequence.
+     * @private
      */
-    renderSeqDiv: function ( start, end, seq, stripeWidth ) {
+    _renderSeqDiv: function ( start, end, seq, stripeWidth ) {
         var container  = document.createElement('div');
         var charWidth = (100/seq.length)+"%";
         for( var i=0; i<seq.length; i++ ) {
@@ -144,7 +152,6 @@ return declare( BlockBased,
         var widthText = "12345678901234567890123456789012345678901234567890";
         widthTest.appendChild(document.createTextNode(widthText));
         containerElement.appendChild(widthTest);
-
         var result = {
             width:  widthTest.clientWidth / widthText.length,
             height: widthTest.clientHeight
@@ -152,7 +159,7 @@ return declare( BlockBased,
 
         containerElement.removeChild(widthTest);
         return result;
-    }
+  }
 });
 
 });
