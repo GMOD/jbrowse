@@ -1,4 +1,4 @@
-/** NOTE: avoid negative margins in feature styles */
+/** NOTE: avoid using any margins in feature styles */
 
 .basic,
 .plus-basic,
@@ -134,14 +134,14 @@ div.est-hist {
 .est,
 .plus-est,
 .minus-est {
-    position: absolute;
+    /* position: absolute; */
     height: 5px;
     background-color: #ED9185;
-    border-style: solid;
-    border-color: #c33;
-    border-width: 1px;
-    cursor: pointer;
-    z-index: 10;
+    /* border-style: solid; */
+    /* border-color: #c33; */
+    /* border-width: 1px; */
+    /* cursor: pointer; */
+    /* z-index: 10; */
 }
 
 .dblhelix,
@@ -209,10 +209,8 @@ div.cds-hist {
     position:absolute;
     height: 8px;
     border-style: solid solid none solid;
-/*    border-width: 2px 2px 0px 2px; */
     border-width: 2px;
     border-color: orange;
-/*    margin-top: 2px */
     cursor: pointer;
 }
 
@@ -277,8 +275,6 @@ div.transcript-hist {
 .minus-transcript {
     position: absolute;
     height: 4px;
-    margin-top: 4px;
-    margin-bottom: 4px;
     background-color: #999;
     z-index: 6;
     min-width: 1px;
@@ -288,14 +284,6 @@ div.transcript-hist {
 .plus-transcript-arrowhead,
 .plus-arrowhead {
     position: absolute;
-/*  border stuff seems slow
-    height: 0px;
-    width: 0px;
-    margin-top: -4px;
-    border-style: solid;
-    border-color: white white white #999;
-    border-width: 6px 0px 6px 10px; */
-    margin-top: -4px;
     width: 7px;
     height: 12px;
     background-image: url('img/plus-arrowhead.png');
@@ -305,14 +293,6 @@ div.transcript-hist {
 .minus-transcript-arrowhead,
 .minus-arrowhead {
     position: absolute;
-/*  border stuff seems slow
-    height: 0px;
-    width: 0px;
-    margin-top: -4px;
-    border-style: solid;
-    border-color: white #999 white white;
-    border-width: 6px 10px 6px 0px; */
-    margin-top: -4px;
     width: 7px;
     height: 12px;
     background-image: url('img/minus-arrowhead.png');
@@ -323,16 +303,8 @@ div.transcript-hist {
 .minus-transcript-CDS {
     position: absolute;
     height: 12px;
-    margin-top: -4px;
     background-image: url('img/cds.png');
     background-repeat: repeat-x;
-/*  border-width: 2px 0px 3px 0px;
-    border-style: solid;
-    border-color: white;
-    background-color: #FF9185;
-    border-style: solid;
-    border-color: #00f;
-    border-width: 1px;*/
     cursor: pointer;
     z-index: 10;
     min-width: 1px;
@@ -362,8 +334,6 @@ div.transcript-hist {
 .minus-generic_parent {
     position: absolute;
     height: 4px;
-    margin-top: 2px;
-    margin-bottom: 2px;
     background-color: #AAA;
     z-index: 6;
     min-width: 1px;
