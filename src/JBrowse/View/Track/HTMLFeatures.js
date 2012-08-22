@@ -558,7 +558,7 @@ var HTMLFeatures = declare( BlockBased,
         heightTest = document.createElement("div");
         //cover all the bases: stranded or not, phase or not
         heightTest.className =
-            this.config.style.className
+            "feature " + this.config.style.className
             + " plus-" + this.config.style.className
             + " plus-" + this.config.style.className + "1";
         if (this.config.style.featureCss)
@@ -762,7 +762,7 @@ var HTMLFeatures = declare( BlockBased,
         for( var i = 0; i< featDiv.childNodes.length; i++ ) {
             var child = featDiv.childNodes[i];
             var h = child.offsetHeight || 0;
-            dojo.style( child, { top: ((h-this.glyphHeight)/2) + 'px', visibility: 'visible' });
+            dojo.style( child, { top: ((this.glyphHeight-h)/2) + 'px', visibility: 'visible' });
          }
     },
 
