@@ -101,7 +101,6 @@ sub run {
         if ( $db && ! defined $refs && ! defined $self->opt('refids') ) {
             $refs = join (",", $db->seq_ids);
         }
-        %refSeqs or die "found no sequence-region lines in GFF file";
     } elsif ( $self->opt('conf') ) {
         my $config = JsonGenerator::readJSON( $self->opt('conf') );
 

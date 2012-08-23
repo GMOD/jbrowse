@@ -1,5 +1,4 @@
 ##gff-version 3
-##sequence-region Group1.36 1 10000
 Group1.36	AU9	gene	5975	9744	0.84	+	.	ID=au9.g1002;Name=au9.g1002
 Group1.36	AU9	mRNA	5975	9744	0.84	+	.	ID=au9.g1002.t1;Name=au9.g1002.t1;Parent=au9.g1002
 Group1.36	AU9	five_prime_UTR	5975	6109	0.98	+	.	Parent=au9.g1002.t1
