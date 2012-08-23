@@ -213,7 +213,7 @@ div.blank-block {
     overflow: visible;
     top: 0px;
     height: 100%;
-    background-color: #eee;
+    background-color: white;
     z-index: 19;
 }
 
