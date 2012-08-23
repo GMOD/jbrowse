@@ -921,7 +921,8 @@ GenomeView.prototype.overviewClicked = function( evt ) {
  * @param {Number} x absolute pixel X position (for example, from a click event's clientX property)
  */
 GenomeView.prototype.overview_absXtoBp = function(x) {
-    return ( x - this.overviewBox.x ) / this.overviewBox.w * (this.ref.end - this.ref.start) + this.ref.start;
+    var overviewBox = dojo.position( this.overview );
+    return ( x - overviewBox.x ) / overviewBox.w * (this.ref.end - this.ref.start) + this.ref.start;
 };
 
 /**
