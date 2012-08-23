@@ -61,6 +61,12 @@ If passed, compress the reference sequences with gzip, making the
 chunks be .txt.gz.  NOTE: this requires a bit of additional web server
 configuration to be served correctly.
 
+=item --chunksize <num>
+
+Size of sequence chunks to make, in base pairs.  Default 20kb.  This
+is multiplied by 4 if --compress is passed, so that the compressed
+sequence files are still approximately this size.
+
 =back
 
 =head1 AUTHOR
