@@ -59,6 +59,8 @@ ok( !$?, 'yeast genbank formatting ran OK' );
 my @chunks = glob("$tempdir/seq/NC_001133/*.txt");
 is( scalar @chunks, 12, 'see 12 uncompressed seq chunks' ) or diag explain \@chunks;
 
+
+## check compressed formatting
 $tempdir = File::Temp->newdir;
 
 system $^X, 'bin/prepare-refseqs.pl', (
@@ -72,6 +74,30 @@ ok( !$?, 'yeast genbank formatting ran OK' );
 
 @chunks = glob("$tempdir/seq/NC_001133/*.txtz");
 is( scalar @chunks, 3, 'see 3 COMPRESSED seq chunks' );
+
+
+## check formatting from gff
+
+$tempdir = File::Temp->newdir;
+
+system $^X, 'bin/prepare-refseqs.pl', (
+    '--gff' => 'tests/data/embedded_sequence.gff3',
+    '--out'   => $tempdir,
+   );
+
+$output = slurp_tree( $tempdir );
+
+is_deeply( $output->{"seq/refSeqs.json"},
+           [
+               {
+                   end => 10000,
+                   length => 10000,
+                   name => "Group1.36",
+                   seqChunkSize => 20000,
+                   seqDir => "seq/Group1.36",
+                   start => 0,
+               }
+           ]);
 
 done_testing;
 

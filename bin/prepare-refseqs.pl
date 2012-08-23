@@ -31,7 +31,8 @@ You can use a GFF file to describe the reference sequences; or you can
 use a JBrowse config file (pointing to a BioPerl database) or a FASTA
 file, together with a list of refseq names or a list of refseq IDs.
 If you use a GFF file, it should contain ##sequence-region lines as
-described in the GFF specs.
+described in the GFF specs, and/or it should be GFF version 3 with an
+embedded FASTA section.
 
 If you use a JBrowse config file or FASTA file, you can either provide
 a (comma-separated) list of refseq names, or (if the names aren't

@@ -59,115 +59,128 @@ sub run {
     mkpath( $self->opt('out') );
     mkpath( $seqDir ) unless $self->opt('noseq');
 
-    my @refSeqs;
+    my %refSeqs;
+    my $db;
 
-    if( $self->opt('gff') ) {
+    if ( $self->opt('fasta') && @{$self->opt('fasta')} ) {
+        $db = FastaDatabase->from_fasta( @{$self->opt('fasta')});
+
+        die "IDs not implemented for FASTA database" if defined $self->opt('refids');
+
+        if ( ! defined $refs && ! defined $self->opt('refids') ) {
+            $refs = join (",", $db->seq_ids);
+        }
+
+        die "found no sequences in FASTA file" if "" eq $refs;
+    }
+    elsif ( $self->opt('gff') ) {
         my $gff = $self->opt('gff');
         open my $fh, '<', $gff or die "$! reading GFF file $gff";
-        while( <$fh> ) {
-            if( /^\#\#\s*sequence-region\s+(\S+)\s+(-?\d+)\s+(-?\d+)/i ) { # header line
-                push @refSeqs, {
+        while ( <$fh> ) {
+            if ( /^\#\#\s*sequence-region\s+(\S+)\s+(-?\d+)\s+(-?\d+)/i ) { # header line
+                $refSeqs{$1} = {
                     name => $1,
                     start => $2 - 1,
                     end => int($3),
                     length => ($3 - $2 + 1)
                     };
             }
+            elsif( /^##FASTA\s*$/ ) {
+                # start of the sequence block, pass the filehandle to our fasta database
+                $db = FastaDatabase->from_fasta( $fh );
+                last;
+            }
+            elsif( /^>/ ) {
+                # beginning of implicit sequence block, need to seek
+                # back
+                seek $fh, -length($_), SEEK_CUR;
+                $db = FastaDatabase->from_fasta( $fh );
+                last;
+            }
         }
-        @refSeqs or die "found no sequence-region lines in GFF file";
+        if ( $db && ! defined $refs && ! defined $self->opt('refids') ) {
+            $refs = join (",", $db->seq_ids);
+        }
+        %refSeqs or die "found no sequence-region lines in GFF file";
+    } elsif ( $self->opt('conf') ) {
+        my $config = JsonGenerator::readJSON( $self->opt('conf') );
+
+        eval "require $config->{db_adaptor}; 1" or die $@;
+
+        $db = eval {$config->{db_adaptor}->new(%{$config->{db_args}})}
+                  or warn $@;
+
+        die "Could not open database: $@" unless $db;
+
+        if (my $refclass = $config->{'reference class'}) {
+            eval {$db->default_class($refclass)};
+        }
+        $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
     }
-    elsif( $self->opt('fasta') || $self->opt('conf') ) {
-        my $db;
-        if ( $self->opt('fasta') && @{$self->opt('fasta')} ) {
-            $db = FastaDatabase->from_fasta( @{$self->opt('fasta')});
 
-            die "IDs not implemented for FASTA database" if defined $self->opt('refids');
-
-            if ( ! defined $refs && ! defined $self->opt('refids') ) {
-                $refs = join (",", $db->seq_ids);
-            }
-
-            die "found no sequences in FASTA file" if ("" eq $refs);
-
-        } elsif( $self->opt('conf') ) {
-            my $config = JsonGenerator::readJSON( $self->opt('conf') );
-
-            eval "require $config->{db_adaptor}; 1" or die $@;
-
-            $db = eval {$config->{db_adaptor}->new(%{$config->{db_args}})}
-        or warn $@;
-
-            die "Could not open database: $@" unless $db;
-
-            if (my $refclass = $config->{'reference class'}) {
-                eval {$db->default_class($refclass)};
-            }
-            $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
-        }
-
+    unless ( defined $self->opt('refids') || defined $refs ) {
         die "please specify which sequences to process using the --refs"
-            ." or --refids command line parameters\n"
-            unless ( defined $self->opt('refids') || defined $refs );
+             ." or --refids command line parameters\n";
+    }
 
-        if( defined $self->opt('refids') ) {
-            foreach my $refid (split ",", $self->opt('refids')) {
-                my $seg = $db->segment(-db_id => $refid);
-                my $refInfo = {
-                    name => $self->refName($seg),
-                    id => $refid, #keep ID for later querying
-                    start => $seg->start - 1,
-                    end => $seg->end,
-                    length => $seg->length
-                    };
 
-                unless( $self->opt('noseq') ) {
-                    my $refDir = catdir($seqDir,$refInfo->{name});
-                    $self->exportSeqChunks($refDir, $compress, $chunkSize, $db,
-                                    [-db_id => $refid],
-                                    $seg->start, $seg->end);
-                    $refInfo->{"seqDir"} = $refDir;
-                    $refInfo->{"seqChunkSize"} = $chunkSize;
-                }
-
-                push @refSeqs, $refInfo;
-            }
-        }
-
-        if( defined $refs ) {
-            foreach my $ref (split ",", $refs) {
-
-                my ($seg) = my @segments = $db->segment(-name => $ref);
-
-                if (! @segments ) {
-                    warn "WARNING: Reference sequence '$ref' not found in input.\n";
-                    next;
-                } elsif ( @segments > 1 ) {
-                    warn "WARNING: multiple matches for '$ref' found in input, using only the first one.\n";
-                }
-
-                my $refInfo =  {
-                    name => $self->refName($seg),
-                    start => $seg->start - 1,
-                    end => $seg->end,
-                    length => $seg->length,
-                    ( $compress ? ( 'compress' => 1 ) : () ),
+    if ( defined $self->opt('refids') ) {
+        foreach my $refid (split ",", $self->opt('refids')) {
+            my $seg = $db->segment(-db_id => $refid);
+            my $refInfo = {
+                name => $self->refName($seg),
+                id => $refid,   #keep ID for later querying
+                start => $seg->start - 1,
+                end => $seg->end,
+                length => $seg->length
                 };
 
-                unless ($self->opt('noseq')) {
-                    my $refDir = catdir( $seqDir, $refInfo->{"name"} );
-                    $self->exportSeqChunks($refDir, $compress, $chunkSize, $db,
-                                    [-name => $ref],
-                                    $seg->start, $seg->end);
-                    $refInfo->{"seqDir"} = catdir( $seqRel, $refInfo->{"name"} );
-                    $refInfo->{"seqChunkSize"} = $chunkSize;
-                }
-
-                push @refSeqs, $refInfo;
+            unless( $self->opt('noseq') ) {
+                my $refDir = catdir($seqDir,$refInfo->{name});
+                $self->exportSeqChunks($refDir, $compress, $chunkSize, $db,
+                                       [-db_id => $refid],
+                                       $seg->start, $seg->end);
+                $refInfo->{"seqDir"} = $refDir;
+                $refInfo->{"seqChunkSize"} = $chunkSize;
             }
+
+            $refSeqs{ $refInfo->{name} } = $refInfo;
+        }
+    }
+    if ( defined $refs ) {
+        foreach my $ref (split ",", $refs) {
+
+            my ($seg) = my @segments = $db->segment(-name => $ref);
+
+            if (! @segments ) {
+                warn "WARNING: Reference sequence '$ref' not found in input.\n";
+                next;
+            } elsif ( @segments > 1 ) {
+                warn "WARNING: multiple matches for '$ref' found in input, using only the first one.\n";
+            }
+
+            my $refInfo =  {
+                name => $self->refName($seg),
+                start => $seg->start - 1,
+                end => $seg->end,
+                length => $seg->length,
+                ( $compress ? ( 'compress' => 1 ) : () ),
+            };
+
+            unless ($self->opt('noseq')) {
+                my $refDir = catdir( $seqDir, $refInfo->{"name"} );
+                $self->exportSeqChunks($refDir, $compress, $chunkSize, $db,
+                                       [-name => $ref],
+                                       $seg->start, $seg->end);
+                $refInfo->{"seqDir"} = catdir( $seqRel, $refInfo->{"name"} );
+                $refInfo->{"seqChunkSize"} = $chunkSize;
+            }
+
+            $refSeqs{ $refInfo->{name} } = $refInfo;
         }
     }
 
-    unless( @refSeqs ) {
+    unless( %refSeqs ) {
         warn "No reference sequences found, exiting.\n";
         exit;
     }
@@ -176,18 +189,17 @@ sub run {
                                    sub {
                                        #add new ref seqs while keeping the order
                                        #of the existing ref seqs
-                                       my $old = shift;
-                                       my %refs;
-                                       $refs{$_->{name}} = $_ foreach (@refSeqs);
-                                       for (my $i = 0; $i <= $#{$old}; $i++) {
-                                           $old->[$i] =
-                                       delete $refs{$old->[$i]->{name}}
-                                   if $refs{$old->[$i]->{name}};
-
+                                       my $old = shift || [];
+                                       my %refs = %refSeqs;
+                                       for (my $i = 0; $i < @$old; $i++) {
+                                           if( $refs{$old->[$i]->{name}} ) {
+                                               $old->[$i] = delete $refs{$old->[$i]->{name}};
+                                           }
                                        }
-                                       foreach my $newRef (@refSeqs) {
-                                           push @{$old}, $newRef
-                                       if $refs{$newRef->{name}};
+                                       foreach my $newRef (values %refSeqs) {
+                                           if( $refs{$newRef->{name}} ) {
+                                               push @{$old}, $newRef;
+                                           }
                                        }
                                        return $old;
                                    });
@@ -277,6 +289,5 @@ sub exportSeqChunks {
         $chunkfile->print( $seg->seq->seq );
     }
 }
-
 
 1;
