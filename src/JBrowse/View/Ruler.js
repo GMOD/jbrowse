@@ -28,7 +28,7 @@ Ruler.prototype.render_to = function( target_div ) {
     if( typeof target_div == 'string' )
         target_div = dojo.byId( target_div );
 
-    var target_dims = dojo.coords( target_div );
+    var target_dims = dojo.position( target_div );
 
 
     // make an inner container that's styled to compensate for the

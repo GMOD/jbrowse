@@ -90,7 +90,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     this.fullZoomStripe = stripeWidth/10 * this.maxPxPerBp;
 
     this.overview = dojo.byId("overview");
-    this.overviewBox = dojo.coords(this.overview);
+    this.overviewBox = dojo.marginBox(this.overview);
 
     this.tracks = [];
     this.uiTracks = [];
@@ -560,7 +560,7 @@ GenomeView.prototype.doubleClickZoom = function(event) {
     // double-clicked
     if( this.scaleClickedTimeout ) window.clearTimeout( this.scaleClickedTimeout );
 
-    var zoomLoc = (event.pageX - dojo.coords(this.elem, true).x) / this.getWidth();
+    var zoomLoc = (event.pageX - dojo.position(this.elem, true).x) / this.getWidth();
     if (event.shiftKey) {
 	this.zoomOut(event, zoomLoc, 2);
     } else {
@@ -661,7 +661,7 @@ GenomeView.prototype.rubberExecute = function(event) {
 // draws the rubber-banding highlight region from start.x to end.x
 GenomeView.prototype.setRubberHighlight = function( start, end ) {
     var container = this.rubberbanding.container,
-        container_coords = dojo.coords(container,true);
+        container_coords = dojo.position(container,true);
 
     var h = this.rubberHighlight || (function(){
         var main = this.rubberHighlight = document.createElement("div");
@@ -1012,7 +1012,7 @@ GenomeView.prototype.pxToBp = function(pixels) {
  * @returns {Number}
  */
 GenomeView.prototype.absXtoBp = function( /**Number*/ pixels) {
-    return this.pxToBp( this.getPosition().x + this.offset - dojo.coords(this.elem, true).x + pixels );
+    return this.pxToBp( this.getPosition().x + this.offset - dojo.position(this.elem, true).x + pixels );
 };
 
 GenomeView.prototype.bpToPx = function(bp) {
@@ -1026,7 +1026,7 @@ GenomeView.prototype.bpToPx = function(bp) {
  * @returns nothing
  */
 GenomeView.prototype.sizeInit = function() {
-    this.overviewBox = dojo.coords(this.overview);
+    this.overviewBox = dojo.marginBox(this.overview);
 
     //scale values, in pixels per bp, for all zoom levels
     this.zoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, this.maxPxPerBp ];
@@ -1191,7 +1191,7 @@ GenomeView.prototype.updateOverviewHeight = function(trackName, height) {
 	    overviewHeight += track.height;
 	});
     this.overview.style.height = overviewHeight + "px";
-    this.overviewBox = dojo.coords(this.overview);
+    this.overviewBox = dojo.marginBox(this.overview);
 };
 
 GenomeView.prototype.addOverviewTrack = function(track) {
