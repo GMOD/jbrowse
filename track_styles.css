@@ -134,14 +134,9 @@ div.est-hist {
 .est,
 .plus-est,
 .minus-est {
-    /* position: absolute; */
+    position: absolute;
     height: 5px;
     background-color: #ED9185;
-    /* border-style: solid; */
-    /* border-color: #c33; */
-    /* border-width: 1px; */
-    /* cursor: pointer; */
-    /* z-index: 10; */
 }
 
 .dblhelix,
