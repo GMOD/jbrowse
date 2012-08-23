@@ -22,7 +22,8 @@ use JsonGenerator;
 use FastaDatabase;
 
 sub option_defaults {(
-    out => 'data'
+    out => 'data',
+    chunksize => 20_000
 )}
 
 sub option_definitions {(
@@ -30,14 +31,13 @@ sub option_definitions {(
     "conf=s",
     "noseq",
     "gff=s",
+    "chunksize=s",
     "fasta=s@",
     "refs=s",
     "refids=s",
     "compress",
     "help|h|?",
 )}
-
-my $chunkSize = 20000;
 
 sub run {
     my ( $self ) = @_;
@@ -49,6 +49,7 @@ sub run {
     pod2usage( 'must provide either a --fasta, --gff, or --conf option' )
         unless defined $self->opt('gff') || $self->opt('conf') || $self->opt('fasta');
 
+    my $chunkSize = $self->opt('chunksize');
     $chunkSize *= 4 if $compress;
 
     # $seqRel is the path relative to --out
@@ -246,7 +247,7 @@ sub refName {
 }
 
 sub exportSeqChunks {
-    my ( $self, $dir, $compress, $len, $db, $segDef, $start, $end ) = @_;
+    my ( $self, $dir, $compress, $chunkSize, $db, $segDef, $start, $end ) = @_;
 
     mkdir $dir unless -d $dir;
     $start = 1 if $start < 1;
@@ -254,7 +255,7 @@ sub exportSeqChunks {
 
     my $chunkStart = $start;
     while( $chunkStart <= $end ) {
-        my $chunkEnd = $chunkStart + $len - 1;
+        my $chunkEnd = $chunkStart + $chunkSize - 1;
         my $chunkNum = floor( ($chunkStart - 1) / $chunkSize );
         my ($seg) = $db->segment( @$segDef,
                                   -start    => $chunkStart,
