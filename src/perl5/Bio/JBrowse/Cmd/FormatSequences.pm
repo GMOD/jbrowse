@@ -1,4 +1,12 @@
 package Bio::JBrowse::Cmd::FormatSequences;
+
+=head1 NAME
+
+Bio::JBrowse::Cmd::FormatSequences - script module to format reference
+sequences (backend module for prepare-refseqs.pl)
+
+=cut
+
 use strict;
 use warnings;
 
