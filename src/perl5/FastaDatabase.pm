@@ -43,9 +43,11 @@ use Bio::Index::Fasta;
 
 =head2 from_fasta
 
-    my $db = FastaDatabase->from_fasta ( $filename );
+    my $db = FastaDatabase->from_fasta ( $filename, ... );
 
-Creates a new FastaDatabase object, reading sequences from a FASTA file.
+Creates a new FastaDatabase object, reading sequences from a FASTA
+file or filehandle.  Automatically uncompresses fasta files whose
+names end with .gz or .gzip.
 
 =cut
 
@@ -60,7 +62,9 @@ sub from_fasta {
 
     # uncompress any files that need it into temp files
     $self->{files} = [ map {
-                           /\.gz(ip)?$/ ? $class->_unzip( $_ ) : $_
+                                    ref $_ ? $class->_slurp_to_temp( $_ )  :
+                              /\.gz(ip)?$/ ? $class->_unzip( $_ )          :
+                                             $_
                        } @files
                      ];
 
@@ -70,9 +74,14 @@ sub from_fasta {
 }
 sub _unzip {
     my ( $class, $filename ) = @_;
-    my $tempfile = File::Temp->new;
     open my $f, '<:gzip', $filename or die "$! reading $filename";
-    print $tempfile $_ while <$f>;
+    $class->_slurp_to_temp( $f );
+}
+sub _slurp_to_temp {
+    my ( $class, $fh ) = @_;
+    my $tempfile = File::Temp->new;
+    local $_;
+    print $tempfile $_ while <$fh>;
     $tempfile->close;
     return $tempfile;
 }
