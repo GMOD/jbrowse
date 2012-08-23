@@ -1,5 +1,22 @@
 {{$NEXT}}
 
+ * Added `description` capabilities to HTML-based features, similar to
+   GBrowse's descriptions.  If zoomed in far enough (as defined by
+   `style.descriptionScale`), adds a second line of text below the
+   feature's label that shows the content's of the featur's `Note` or
+   `description` attribute (issue #67).
+
+ * Fixed some bugs in the layout of HTML-based features in which
+   features in different blocks would overlap in some circumstances.
+   Under the hood, replaced the contour-based layout engine with a
+   simpler, not-much-slower implementation that is more correct in the
+   general case (issue #122).
+
+ * Made sequence tracks not disappear when zoomed out too far to see
+   base pairs.  Instead, sequence tracks simply display lines
+   suggesting that DNA would be visible at higher
+   magnification. (issue #124).
+
  * Give prepare-refseqs.pl the capability to load reference sequences
    from embedded FASTA sections in GFF3 files (issue #128).
 
