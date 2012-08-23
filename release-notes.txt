@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Give prepare-refseqs.pl the capability to load reference sequences
+   from embedded FASTA sections in GFF3 files (issue #128).
+
  * Fixed a bug with vertical centering of strand arrows and other
    sub-elements of HTML-based features.
 
