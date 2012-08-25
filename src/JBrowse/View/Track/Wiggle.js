@@ -92,19 +92,32 @@ var Wiggle = declare( CanvasTrack,
         }
 
         var offset = parseFloat( this.config.data_offset ) || 0;
+        var origin = (function() {
+          if ( 'bicolor_pivot' in this.config ) {
+            if ( this.config.bicolor_pivot == 'mean' ) {
+              return s.mean || 0;
+            } else if ( this.config.bicolor_pivot == 'zero' ) {
+              return 0;
+            } else {
+              return parseFloat( this.config.bicolor_pivot );
+            }
+          } else if ( this.config.scale == 'z_score' ) {
+            return s.mean || 0;
+          } else if ( this.config.scale == 'log' ) {
+            return 1;
+          } else {
+            return 0;
+          }
+        }).call(this)
+        
         this.scale = {
             offset: offset,
             min: min + offset,
             max: max + offset,
             range: max - min,
-            origin: 'bicolor_pivot' in this.config ? ( this.config.bicolor_pivot == 'mean' ? s.mean || 0 :
-                                                       this.config.bicolor_pivot == 'zero' ? 0 :
-                                                         parseFloat( this.config.bicolor_pivot )
-                                                     ) :
-                    this.config.scale == 'z_score' ? s.mean || 0 :
-                                                     0
+            origin: origin
         };
-
+        
         // make a func that converts wiggle values to Y coordinates on
         // the plot, depending on what kind of scale we are using
         this.scale.toY = function() {
