@@ -1,5 +1,8 @@
-define(['dojo/_base/declare'],
-       function( declare ) {
+define(['dojo/_base/declare',
+        'dijit/layout/ContentPane',
+        'dojo/dnd/Source'
+       ],
+       function( declare, ContentPane, dndSource ) {
 return declare( 'JBrowse.View.TrackList.Simple', null,
 
     /** @lends JBrowse.View.TrackList.Simple.prototype */
@@ -70,7 +73,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
         );
 
         //splitter on left side
-        var leftWidget = new dijit.layout.ContentPane({region: "left", splitter: true}, leftPane);
+        var leftWidget = new ContentPane({region: "left", splitter: true}, leftPane);
 
         var trackListDiv = dojo.create(
             'div',
@@ -82,7 +85,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             leftPane
         );
 
-        this.trackListWidget = new dojo.dnd.Source(
+        this.trackListWidget = new dndSource(
             trackListDiv,
             {
                 accept: ["track"], // accepts only tracks into left div
