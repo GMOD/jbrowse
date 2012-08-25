@@ -40,7 +40,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v0',JB_json_v1,
                           }
                       });
 
-        return JB_json_v1.prototype.regularize_conf.call( this, o, load_args );
+        return this.inherited( arguments, [o, load_args] );
     },
 
     /**
@@ -51,7 +51,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v0',JB_json_v1,
      */
     parse_conf: function( conf_text ) {
         conf_text.replace( /^[^\{]+/, '' );
-        return this.inherited(arguments);
+        return this.inherited( arguments, [conf_text] );
     }
 });
 });

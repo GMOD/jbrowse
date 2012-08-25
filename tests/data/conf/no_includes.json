@@ -1,0 +1,5 @@
+{
+  "bar": 42,
+  "overrideMe": "no_includes.json",
+  "override2": "no_includes.json"
+}

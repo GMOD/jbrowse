@@ -1,0 +1,6 @@
+{
+  "zoz": 42,
+  "overrideMe": "includes.json",
+  "include": [ "no_includes.json" ],
+  "override2": "includes.json"
+}

@@ -1,4 +1,4 @@
-require(['JBrowse/View/Layout'],function(Layout) {
+require(['JBrowse/View/GranularRectLayout'],function(Layout) {
 describe( "JBrowse.View.Layout", function() {
     var l = new Layout( -1, 249999 );
     it( 'constructs', function() {
