@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+ * Configuration files can now recursively `include` eachother.
+
+ * Double-clicking track labels in the simple track selector now turns
+   the track on (issue #123).
+
+ * Fixed bug in which dragging the scroll bar on the simple track
+   selector can sometimes cause a drag-and-drop to erroneously begin
+   (issue #89).
+
  * Added `description` capabilities to HTML-based features, similar to
    GBrowse's descriptions.  If zoomed in far enough (as defined by
    `style.descriptionScale`), adds a second line of text below the
