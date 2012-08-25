@@ -15,6 +15,8 @@ class SimpleTrackSelector (TrackSelector):
             .drag_and_drop( tracklabel, dragpane ) \
             .perform()
 
+        time.sleep(0.3);
+
         self.test.assert_no_js_errors()
 
     def turn_off_track( self, tracktext ):
@@ -37,6 +39,8 @@ class FacetedTrackSelector (TrackSelector):
         # click the box to turn on the first matching track
         checkbox = track_row.find_element_by_css_selector('.dojoxGridRowSelector');
         checkbox.click();
+
+        time.sleep(0.3);
 
         # check that the track is on
         assert self.test.is_track_on( tracktext ), 'track should be on now';
