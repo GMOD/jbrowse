@@ -1,6 +1,7 @@
 {{$NEXT}}
 
- * Configuration files can now recursively `include` eachother.
+ * Configuration files can now recursively `include` eachother, and
+   `tracks` sections are merged intelligently.
 
  * Double-clicking track labels in the simple track selector now turns
    the track on (issue #123).

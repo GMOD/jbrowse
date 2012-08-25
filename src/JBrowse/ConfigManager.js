@@ -174,9 +174,45 @@ _fatalError: function( error ) {
  * Merges config object b into a.  a <- b
  * @private
  */
-_mergeConfigs: function( a, b ) {
-    // TODO: put smarter config-merging logic here
-    Util.deepUpdate( a, b );
+_mergeConfigs: function( a, b, spaces ) {
+    for (var prop in b) {
+        if( prop == 'tracks' && (prop in a) ) {
+            this._mergeTrackConfigs( a[prop], b[prop] );
+        }
+        else if ( (prop in a)
+              && ("object" == typeof b[prop])
+              && ("object" == typeof a[prop]) ) {
+            this._mergeConfigs(a[prop], b[prop]);
+        } else if( typeof a[prop] == 'undefined' || typeof b[prop] != 'undefined' ){
+            a[prop] = b[prop];
+        }
+    }
+    return a;
+},
+
+/**
+ * Special-case merging of two <code>tracks</code> configuration
+ * arrays.
+ * @private
+ */
+_mergeTrackConfigs: function( a, b ) {
+    if( ! b.length ) return;
+
+    // index the tracks in `a` by track label
+    var aTracks = {};
+    dojo.forEach( a, function(t,i) {
+        t.index = i;
+        aTracks[t.label] = t;
+    });
+
+    dojo.forEach( b, function(bT) {
+        var aT = aTracks[bT.label];
+        if( aT ) {
+            this._mergeConfigs( aT, bT );
+        } else {
+            a.push( bT );
+        }
+    },this);
 }
 
 });

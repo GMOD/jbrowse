@@ -1,5 +1,9 @@
 {
   "bar": 42,
   "overrideMe": "no_includes.json",
-  "override2": "no_includes.json"
+  "override2": "no_includes.json",
+  "tracks": [
+    { "label": "zaz", "honk": "boop", "noinclude": "also here", "quux": "foo" },
+    { "label": "noinclude", "bar": "barbar" }
+  ]
 }
