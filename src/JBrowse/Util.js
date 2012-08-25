@@ -169,6 +169,8 @@ Util = {
 	    baseUrl = baseUrl.match(/.*\/\/[^\/]*/);
 	    return (baseUrl ? baseUrl[0] : '') + relativeUrl;
         }
+        // remove the query string from the base, if any
+        baseUrl = baseUrl.replace(/\?.*$/,'');
         //TODO: handle protocol relative urls:  ://www.domain.com
         baseUrl = baseUrl.substring(0,baseUrl.length - baseUrl.match(/[^\/]*$/)[0].length);// clean off the trailing path
         if (relativeUrl == '.')

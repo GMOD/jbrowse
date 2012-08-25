@@ -59,6 +59,8 @@ var Browser = function(params) {
     this.isInitialized = false;
 
     this.config = params;
+    if( ! this.config.baseUrl )
+        this.config.baseUrl = Util.resolveUrl( window.location.href, '.' ) + '/data/';
 
     this.startTime = Date.now();
 
