@@ -22,7 +22,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
         );
 
         // subscribe to drop events for tracks being DND'ed
-        this.browser.subscribe( 
+        this.browser.subscribe(
             "/dnd/drop",
             dojo.hitch( this,
                         function( source, nodes, copy, target ){
@@ -53,7 +53,8 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
         // subscribe to commands coming from the the controller
         this.browser.subscribe( '/jbrowse/v1/c/tracks/show',
                                 dojo.hitch( this, 'setTracksActive' ));
-            // subscribe to commands coming from the the controller
+
+        // subscribe to commands coming from the the controller
         this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',
                                 dojo.hitch( this, 'setTracksInactive' ));
     },
@@ -86,7 +87,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             {
                 accept: ["track"], // accepts only tracks into left div
                 withHandles: false,
-                creator: function( trackConfig, hint ) {
+                creator: dojo.hitch( this, function( trackConfig, hint ) {
                     var node = dojo.create(
                         'div',
                         { className: 'tracklist-label',
@@ -97,13 +98,16 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
                     //in the list, wrap the list item in a container for
                     //border drag-insertion-point monkeying
                     if ("avatar" != hint) {
+                        dojo.connect( node, "dblclick", dojo.hitch(this, function() {
+                            this.browser.publish( '/jbrowse/v1/v/tracks/show', [trackConfig] );
+                        }));
                         var container = dojo.create( 'div', { className: 'tracklist-container' });
                         container.appendChild(node);
                         node = container;
                     }
                     node.id = dojo.dnd.getUniqueId();
                     return {node: node, data: trackConfig, type: ["track"]};
-                }
+                })
             }
         );
 
