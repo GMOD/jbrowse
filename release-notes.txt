@@ -20,6 +20,12 @@
  * Double-clicking track labels in the simple track selector now turns
    the track on (issue #123).
 
+ * Fixed bug in BigWig tracks that use the "scale": "log" option: did
+   not render properly when the wiggle data included 0's. This was due
+   to the fact that the origin was being mapped to Infinity. Thanks to
+   the [Mockler Lab](http://www.mocklerlab.org/) for the fix! (issue
+   #127).
+
  * Fixed bug in NCList binary search code in which zero-length
    features at node boundaries would not be found (fix by Ed Lee).
 
