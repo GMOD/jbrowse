@@ -439,17 +439,20 @@ Browser.prototype.addRecentlyUsedTracks = function( trackLabels ) {
  *  @returns nothing meaningful
  */
 Browser.prototype.loadConfig = function () {
-    var c = new ConfigManager();
-    c.load( this.config, dojo.hitch(this, function( finishedConfig ) {
-                this.config = dojo.clone( finishedConfig );
+    var c = new ConfigManager({ config: this.config, browser: this });
+    c.getFinalConfig( dojo.hitch(this, function( finishedConfig ) {
+                this.config = finishedConfig;
 
                 // index the track configurations by name
                 this.trackConfigsByName = {};
                 dojo.forEach( this.config.tracks || [], function(conf){
                                   this.trackConfigsByName[conf.label] = conf;
                               },this);
+
+                this.onConfigLoaded();
      }));
 };
+Browser.prototype.onConfigLoaded = function() {};
 
 /**
  * Add a function to be executed once JBrowse is initialized

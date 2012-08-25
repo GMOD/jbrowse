@@ -166,6 +166,7 @@ _validateConfig: function( c ) {
 
 _fatalError: function( error ) {
     this.hasFatalErrors = true;
+    console.error(error);
     this.browser.fatalError( error );
 },
 
