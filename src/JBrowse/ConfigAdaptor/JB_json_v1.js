@@ -27,7 +27,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             var that = this;
             if( args.config.url ) {
                 dojo.xhrGet({
-                                url: args.config.url,
+                                url: Util.resolveUrl( args.baseUrl || window.location.href, args.config.url ),
                                 handleAs: 'text',
                                 load: function( o ) {
                                     o = that.parse_conf( o, args );

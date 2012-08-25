@@ -35,7 +35,6 @@ describe("ConfigManager", function () {
                 config = c;
             });
             runs(function() {
-                console.log(config);
                 expect(config.foo).toEqual(1);
                 expect(config.bar).toEqual(42);
                 expect(config.overrideMe).toEqual('rootConfig');

@@ -105,9 +105,11 @@ _loadIncludes: function( inputConfig, callback ) {
 
             adaptor.load({
                 config: include,
+                baseUrl: inputConfig.baseUrl,
                 onSuccess: dojo.hitch( this, function( config_data ) {
                     this._loadIncludes( config_data, dojo.hitch(this, function( config_data_with_includes_resolved ) {
-                        loadingResult.config = config_data_with_includes_resolved;
+                        loadingResult.loaded = true;
+                        loadingResult.data = config_data_with_includes_resolved;
                         if( ! --configs_remaining )
                             callback( this._mergeIncludes( inputConfig, included_configs ) );
                            //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
@@ -115,6 +117,7 @@ _loadIncludes: function( inputConfig, callback ) {
                 }),
                 onFailure: dojo.hitch( this, function( error ) {
                     loadingResult.error = error;
+                    console.error(error);
                     if( ! --configs_remaining )
                         callback( this._mergeIncludes( inputConfig, included_configs ) );
                         //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
