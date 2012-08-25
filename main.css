@@ -323,12 +323,13 @@ div.tracklist-label {
     border-right: 1px solid #555;
 }
 
-/* .dojoDndItemSelected, .dojoDndItemAnchor { */
-/*     background: rgba( 220, 220, 255, 0.8); */
-/* } */
-
 div.tracklist-container {
-    padding: 2px 5px;
+    padding: 2px 3px;
+    margin-left: 3px;
+}
+div.tracklist-container.dojoDndItemSelected,
+div.tracklist-container.dojoDndItemAnchor {
+    background: #396494;
 }
 
 .tracklist-container.dojoDndItemBefore {
