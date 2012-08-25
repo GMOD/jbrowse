@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta http-equiv="Content-Type" content = "text/html; charset=utf-8">
     <title>JBrowse</title>
     <link rel="stylesheet" type="text/css" href="genome.css"></link>
-
-    <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="isDebug: 0, async: 1" ></script>
+    <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="isDebug: 0, async: 1"></script>
 
     <script type="text/javascript">
         window.onerror=function(msg){
             document.body.setAttribute("JSError",msg);
         }
-    </script>
 
-    <script type="text/javascript">
         var JBrowse;
-        require({ baseUrl: 'src', packages: ['JBrowse','dojo','dijit','dojox'] },
+        require({ baseUrl: 'src', packages: ['JBrowse','dojo','dijit','dojox','jszlib'] },
             [ 'JBrowse/Browser', 'dojo/io-query' ],
             function (Browser,ioQuery) {
                    var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
@@ -22,6 +20,7 @@
                    JBrowse = new Browser({
                                            containerID: "GenomeBrowser",
                                            refSeqs: dataRoot + "/refSeqs.js",
+                                           baseUrl: dataRoot+'/',
                                            include: [
                                              'jbrowse_conf.json',
                                              { url: dataRoot + "/trackInfo.js", version: 0 }
