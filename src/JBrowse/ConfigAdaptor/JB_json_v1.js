@@ -30,9 +30,11 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                                 url: Util.resolveUrl( args.baseUrl || window.location.href, args.config.url ),
                                 handleAs: 'text',
                                 load: function( o ) {
+                                    window.setTimeout( dojo.hitch(this, function() {
                                     o = that.parse_conf( o, args );
                                     o = that.regularize_conf( o, args );
                                     args.onSuccess.call( args.context || this, o );
+                                                                  }, 10 ));
                                 },
                                 error: function( i ) {
                                     console.error( ''+i );
@@ -70,7 +72,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
         regularize_conf: function( o, load_args ) {
             o.sourceUrl = o.sourceUrl || load_args.config.url;
             o.baseUrl   = o.baseUrl || Util.resolveUrl( o.sourceUrl, '.' );
-            if( ! /\/$/.test( o.baseUrl ) )
+            if( o.baseUrl.length && ! /\/$/.test( o.baseUrl ) )
                 o.baseUrl += "/";
 
             return this._evalHooks( o );
