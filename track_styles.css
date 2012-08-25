@@ -38,7 +38,7 @@ div.feature-hist {
 
 .feature2, .plus-feature2, .minus-feature2 {
     position:absolute;
-    height: 15px;
+    height: 14px;
     background-repeat: repeat-x;
     cursor: pointer;
     min-width: 1px;
@@ -117,7 +117,7 @@ div.exon-hist {
 .plus-exon,
 .minus-exon {
     position: absolute;
-    height: 5px;
+    height: 6px;
     background-color: #4B76E8;
     border-style: solid;
     border-color: #00f;
@@ -135,7 +135,7 @@ div.est-hist {
 .plus-est,
 .minus-est {
     position: absolute;
-    height: 5px;
+    height: 6px;
     background-color: #ED9185;
 }
 
