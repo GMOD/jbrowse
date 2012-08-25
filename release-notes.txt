@@ -5,6 +5,9 @@
  * Double-clicking track labels in the simple track selector now turns
    the track on (issue #123).
 
+ * Fixed bug in NCList binary search code in which zero-length
+   features at node boundaries would not be found (fix by Ed Lee).
+
  * Fixed bug in which dragging the scroll bar on the simple track
    selector can sometimes cause a drag-and-drop to erroneously begin
    (issue #89).
