@@ -80,7 +80,8 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             { id: 'tracksAvail',
               className: 'container handles',
               style: { width: '100%', height: '100%', overflowX: 'hidden', overflowY: 'auto' },
-              innerHTML: '<h2>Available Tracks</h2>'
+              innerHTML: '<h2>Available Tracks</h2>',
+              onclick: dojo.hitch( this, function() { this.trackListWidget.selectNone(); } )
             },
             leftPane
         );
