@@ -1,11 +1,9 @@
-
-//////////////////////////////
-
 define(
     [
-        'dojo/_base/declare'
+        'dojo/_base/declare',
+        'JBrowse/Util'
     ],
-function( declare ) { return declare(null,
+function( declare, Util ) { return declare(null,
 
 /**
  * @lends JBrowse.ConfigManager.prototype
@@ -16,11 +14,28 @@ function( declare ) { return declare(null,
  * @constructs
  */
 constructor: function( args ) {
+    this.config = dojo.clone( args.config || {} );
     this.browser = args.browser;
+    this.skipValidation = args.skipValidation;
+    this.topLevelIncludes = this.config.include;
+    delete this.config.include;
 },
 
-load: function( inputConfig, callback ) {
+getFinalConfig: function( callback ) {
+    this._loadIncludes({ include: this.topLevelIncludes }, dojo.hitch( this, function( includedConfig ) {
 
+        // merge the root config *into* the included config last, so
+        // that values in the root config override the others
+        this._mergeConfigs( includedConfig, this.config );
+        this.config = includedConfig;
+
+        // now validate the final merged config, and finally give it
+        // to the callback
+        this._applyDefaults( this.config );
+        if( ! this.skipValidation )
+            this._validateConfig( this.config );
+        callback( this.config );
+    }));
 },
 
 /**
@@ -29,6 +44,7 @@ load: function( inputConfig, callback ) {
  * @param {Function} callback called with the new config object
  * @returns {Object} the right configuration adaptor to use, or
  * undefined if one could not be found
+ * @private
  */
 
 _getConfigAdaptor: function( config_def, callback ) {
@@ -41,116 +57,122 @@ _getConfigAdaptor: function( config_def, callback ) {
     });
 },
 
+/**
+ * Recursively fetch, parse, and merge all the includes in the given
+ * config object.  Calls the callback with the resulting configuration
+ * when finished.
+ * @private
+ */
 _loadIncludes: function( inputConfig, callback ) {
-    var config = dojo.clone( inputConfig );
+    inputConfig = dojo.clone( inputConfig );
+
+    var includes = inputConfig.include || [];
+    delete inputConfig.include;
 
     // coerce include to an array
-    if( typeof config.include != 'object' || !config.include.length )
-        config.include = [ config.include ];
-
+    if( typeof includes != 'object' )
+        includes = [ includes ];
     // coerce bare strings in the includes to URLs
-    for (var i = 0; i < config.include.length; i++) {
-        if( typeof config.include[i] == 'string' )
-            config.include[i] = { url: config.include[i] };
+    for (var i = 0; i < includes.length; i++) {
+        if( typeof includes[i] == 'string' )
+            includes[i] = { url: includes[i] };
     }
 
-    // fetch and parse all the configuration data
-    var configs_remaining = config.include.length;
-    var included_configs = dojo.map( config.include, function(config) {
+    var configs_remaining = includes.length;
+    var included_configs = dojo.map( includes, function( include ) {
         var loadingResult = {};
 
         // include array might have undefined elements in it if
         // somebody left a trailing comma in and we are running under
         // IE
-        if( !config )
+        if( !include )
             return loadingResult;
 
         // set defaults for format and version
-        if( ! ('format' in config) ) {
-            config.format = 'JB_json';
+        if( ! ('format' in include) ) {
+            include.format = 'JB_json';
         }
-        if( config.format == 'JB_json' && ! ('version' in config) ) {
-            config.version = 1;
+        if( include.format == 'JB_json' && ! ('version' in include) ) {
+            include.version = 1;
         }
 
         // instantiate the adaptor and load the config
-        this.getConfigAdaptor( config, dojo.hitch(this, function(adaptor) {
+        this._getConfigAdaptor( include, dojo.hitch(this, function(adaptor) {
             if( !adaptor ) {
-                loadingResult.error = "Could not load config "+config.url+", no configuration adaptor found for config format "+config.format+' version '+config.version;
+                loadingResult.error = "Could not load config "+include.url+", no configuration adaptor found for config format "+include.format+' version '+include.version;
                 return;
             }
 
             adaptor.load({
-                config: config,
-                context: this,
-                onSuccess: function( config_data ) {
-                    loadingResult.config = config_data;
-                    if( ! --configs_remaining )
-                        mergeConfigs();
-                        //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
-                },
-                onFailure: function( error ) {
+                config: include,
+                onSuccess: dojo.hitch( this, function( config_data ) {
+                    this._loadIncludes( config_data, dojo.hitch(this, function( config_data_with_includes_resolved ) {
+                        loadingResult.config = config_data_with_includes_resolved;
+                        if( ! --configs_remaining )
+                            callback( this._mergeIncludes( inputConfig, included_configs ) );
+                           //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
+                     }));
+                }),
+                onFailure: dojo.hitch( this, function( error ) {
                     loadingResult.error = error;
                     if( ! --configs_remaining )
-                        mergeConfigs();
+                        callback( this._mergeIncludes( inputConfig, included_configs ) );
                         //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
-                }
+                })
             });
         }));
         return loadingResult;
     }, this);
 
+    // if there were not actually any includes, just call our callback
+    if( ! included_configs.length ) {
+        callback( inputConfig );
+    }
 },
 
 /**
- * Merge in some additional configuration data.  Properties in the
- * passed configuration will override those properties in the existing
- * configuration.
+ * @private
  */
-addConfigData: function( /**Object*/ config_data ) {
-    Util.deepUpdate( this.config, config_data );
+_mergeIncludes: function( inputConfig, config_includes ) {
+    // load all the configuration data in order
+    dojo.forEach( config_includes, function( config ) {
+                      if( config.loaded && config.data )
+                              this._mergeConfigs( inputConfig, config.data );
+                  }, this );
+    return inputConfig;
+},
+
+_applyDefaults: function( config ) {
+    if( ! config.tracks )
+        config.tracks = [];
 },
 
 /**
  * Examine the loaded and merged configuration for errors.  Throws
  * exceptions if it finds anything amiss.
+ * @private
  * @returns nothing meaningful
  */
-validateConfig: function() {
-    var c = this.config;
-    if( ! c.tracks ) {
-        this.fatalError( 'No tracks defined in configuration' );
-    }
+_validateConfig: function( c ) {
     if( ! c.baseUrl ) {
-        this.fatalError( 'Must provide a <code>baseUrl</code> in configuration' );
+        this._fatalError( 'Must provide a <code>baseUrl</code> in configuration' );
     }
     if( this.hasFatalErrors )
         throw "Errors in configuration, aborting.";
 },
 
-onConfigLoaded: function() {
+_fatalError: function( error ) {
+    this.hasFatalErrors = true;
+    this.browser.fatalError( error );
+},
 
-    var initial_config = this.config;
-    this.config = {};
-
-    // load all the configuration data in order
-    dojo.forEach( initial_config.include, function( config ) {
-                      if( config.loaded && config.data )
-                          this.addConfigData( config.data );
-                  }, this );
-
-    // load the initial config (i.e. constructor params) last so that
-    // it overrides the other config
-    this.addConfigData( initial_config );
-
-    this.validateConfig();
-
-    // index the track configurations by name
-    this.trackConfigsByName = {};
-    dojo.forEach( this.config.tracks || [], function(conf){
-        this.trackConfigsByName[conf.label] = conf;
-    },this);
-
+/**
+ * Merges config object b into a.  a <- b
+ * @private
+ */
+_mergeConfigs: function( a, b ) {
+    // TODO: put smarter config-merging logic here
+    Util.deepUpdate( a, b );
 }
 
 });

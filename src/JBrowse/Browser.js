@@ -12,7 +12,8 @@ define( [
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Autocomplete',
             'JBrowse/GenomeView',
-            'JBrowse/TouchScreenSupport'
+            'JBrowse/TouchScreenSupport',
+            'JBrowse/ConfigManager'
         ],
         function(
             lang,
@@ -26,7 +27,8 @@ define( [
             LazyTrie,
             AutocompleteStore,
             GenomeView,
-            Touch
+            Touch,
+            ConfigManager
         ) {
 
 var dojof = Util.dojof;
@@ -438,29 +440,16 @@ Browser.prototype.addRecentlyUsedTracks = function( trackLabels ) {
  */
 Browser.prototype.loadConfig = function () {
     var c = new ConfigManager();
-    c.load( this.config, function( finishedConfig ) {
+    c.load( this.config, dojo.hitch(this, function( finishedConfig ) {
                 this.config = dojo.clone( finishedConfig );
-            });
+
+                // index the track configurations by name
+                this.trackConfigsByName = {};
+                dojo.forEach( this.config.tracks || [], function(conf){
+                                  this.trackConfigsByName[conf.label] = conf;
+                              },this);
+     }));
 };
-
-
-/**
- * Examine the loaded and merged configuration for errors.  Throws
- * exceptions if it finds anything amiss.
- * @returns nothing meaningful
- */
-Browser.prototype.validateConfig = function() {
-    var c = this.config;
-    if( ! c.tracks ) {
-        this.fatalError( 'No tracks defined in configuration' );
-    }
-    if( ! c.baseUrl ) {
-        this.fatalError( 'Must provide a <code>baseUrl</code> in configuration' );
-    }
-    if( this.hasFatalErrors )
-        throw "Errors in configuration, aborting.";
-};
-
 
 /**
  * Add a function to be executed once JBrowse is initialized
