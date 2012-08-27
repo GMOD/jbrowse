@@ -25,9 +25,10 @@ class JBrowseTest (object):
         self.track_selector = getattr( track_selectors, '%sTrackSelector' % self.tracksel_type )( self )
 
         self.browser = webdriver.Firefox()
+        base = self.baseURL()
         self.browser.get(
-            self.baseURL()
-            + ( "?data="+self.data_dir if self.data_dir else "" )
+            base + ( '&' if base.find('?') >= 0 else '?' )
+            + ( "data="+self.data_dir if self.data_dir else "" )
         )
         time.sleep(0.5)  # give selenium some time to get its head on straight
 
