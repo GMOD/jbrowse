@@ -10,6 +10,9 @@
  * Fixed bug in which passing `tracklist=0` (as when running the
    browser in embedded mode) caused JBrowse to crash (issue #132).
 
+ * Added dependency on Bio::GFF3::LowLevel::Parser 1.4, which has an
+   important bugfix related to multi-location features (issue #109).
+
 1.6.0     2012-08-25 18:04:44 America/New_York
 
  * Added `description` capabilities to HTML-based features, similar to
