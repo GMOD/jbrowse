@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+ * Fixed bug in which welcome page was not shown when JBrowse has not
+   been configured yet (issue #130).
+
+ * Fixed bug in which passing `tracklist=0` (as when running the
+   browser in embedded mode) caused JBrowse to crash (issue #132).
+
 1.6.0     2012-08-25 18:04:44 America/New_York
 
  * Added `description` capabilities to HTML-based features, similar to
