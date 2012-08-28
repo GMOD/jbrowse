@@ -156,4 +156,11 @@ details.
 
 =back
 
+=head1 MEMORY USAGE
+
+For efficient memory usage, it is very important that large GFF3 files
+have C<###> lines in them periodically.  For details of what C<###> is
+and how it is used, see the GFF3 specification at
+L<http://www.sequenceontology.org/gff3.shtml>.
+
 =cut
