@@ -454,7 +454,41 @@ Browser.prototype.loadConfig = function () {
                 this.onConfigLoaded();
      }));
 };
-Browser.prototype.onConfigLoaded = function() {};
+
+/**
+ * Hook run after the configuration is all loaded.
+ */
+Browser.prototype.onConfigLoaded = function() {
+    // coerce some config keys to boolean
+    dojo.forEach( ['show_tracklist','show_nav','show_overview'], function(v) {
+        this.config[v] = this._coerceBoolean( this.config[v] );
+    },this);
+};
+
+/**
+ * Coerce a value of unknown type to a boolean, treating string 'true'
+ * and 'false' as the values they indicate, and string numbers as
+ * numbers.
+ * @private
+ */
+Browser.prototype._coerceBoolean = function(val) {
+    if( typeof val == 'string' ) {
+        val = val.toLowerCase();
+        if( val == 'true' ) {
+            return true;
+        }
+        else if( val == 'false' )
+            return false;
+        else
+            return parseInt(val);
+    }
+    else if( typeof val == 'boolean' ) {
+        return val;
+    }
+    else {
+        return true;
+    }
+};
 
 /**
  * Add a function to be executed once JBrowse is initialized

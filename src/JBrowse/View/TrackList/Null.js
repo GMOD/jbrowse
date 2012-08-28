@@ -1,12 +1,16 @@
-/**
- * Null track selector.  Does not actually do anything.
- * @class JBrowse.View.TrackList.Null
- */
+define(['dojo/_base/declare'],function(declare) {
 
-dojo.declare( 'JBrowse.View.TrackList.Null', null, {
+return declare(null,
+
+/**
+ * @lends JBrowse.View.TrackList.Null.prototype
+ */
+{
     setTracksActive: function() {},
     setTracksInactive: function() {},
     show: function() {},
     hide: function() {},
     toggle: function() {}
-} );
+});
+});
+
