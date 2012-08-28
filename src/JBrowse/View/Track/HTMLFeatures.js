@@ -346,7 +346,7 @@ var HTMLFeatures = declare( BlockBased,
                                                             );
 
                                             // move our label div to the view start if the start is between the feature start and end
-                                            labelDiv.style.left = Math.max( minLeft, Math.min( viewLeft, maxLeft ) ) + '%';
+                                            labelDiv.style.left = Math.max( minLeft, Math.min( viewLeft+70, maxLeft ) ) + '%';
 
                                         },this);
                       },this);

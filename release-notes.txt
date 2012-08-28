@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * JBrowse now attempts to prevent feature labels being obscured by
+   track labels by keeping the feature labels a bit further away from
+   the left side of the view, if possible.
+
  * Fixed bug in which welcome page was not shown when JBrowse has not
    been configured yet (issue #130).
 
