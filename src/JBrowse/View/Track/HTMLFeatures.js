@@ -123,7 +123,7 @@ var HTMLFeatures = declare( BlockBased,
             style: {
                 className: "feature2",
                 histScale: 4,
-                labelScale: 50,
+                labelScale: 30,
                 subfeatureScale: 80,
                 maxDescriptionLength: 70,
                 descriptionScale: 170
