@@ -133,6 +133,9 @@ Browser.prototype.loadRefSeqs = function() {
             load: dojo.hitch( this, function(o) {
                 this.addRefseqs(o);
                 this.onRefSeqsLoaded();
+            }),
+            error: dojo.hitch( this, function(e) {
+                this.fatalError('Failed to load reference sequence info: '+e);
             })
         });
 };
