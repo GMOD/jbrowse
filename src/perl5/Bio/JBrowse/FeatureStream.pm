@@ -66,7 +66,7 @@ sub _get_class {
 sub flatten_to_name {
     my ( $self, $f ) = @_;
     my @namerec = (
-        [ grep defined, @{$f->{attributes}{Name}}, @{$f->{attributes}{Alias}} ],
+        [ grep defined, @{ $f->{attributes}{Name} || $f->{attributes}{ID} || [] }, @{$f->{attributes}{Alias}} ],
         $self->{track_label},
         $f->{attributes}{Name}[0],
         $f->{seq_id},
