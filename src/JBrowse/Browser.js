@@ -64,6 +64,10 @@ var Browser = function(params) {
 
     this.startTime = Date.now();
 
+    this.container = dojo.byId(this.config.containerID);
+    this.container.onselectstart = function() { return false; };
+    this.container.genomeBrowser = this;
+
     // init our touch device support
     this.addDeferred( Touch.loadTouch );
 
@@ -71,6 +75,7 @@ var Browser = function(params) {
     // process, to happen when the page is done loading
     dojo.addOnLoad( dojo.hitch( this,'loadConfig' ) );
 
+    dojo.connect( this, 'onConfigLoaded',  Util.debugHandler( this, 'loadUserCSS' ));
     dojo.connect( this, 'onConfigLoaded',  Util.debugHandler( this, 'loadRefSeqs' ));
     dojo.connect( this, 'onConfigLoaded',  Util.debugHandler( this, 'loadNames'   ));
     dojo.connect( this, 'onRefSeqsLoaded', Util.debugHandler( this, 'initView'    ));
@@ -145,6 +150,18 @@ Browser.prototype.loadRefSeqs = function() {
  */
 Browser.prototype.onRefSeqsLoaded = function() {};
 
+Browser.prototype.loadUserCSS = function() {
+    if( this.config.css && ! dojo.isArray( this.config.css ) )
+        this.config.css = [ this.config.css ];
+    dojo.forEach( this.config.css || [], function(css) {
+        if( typeof css == 'string' ) {
+            dojo.create('style', { type: 'text/css', innerHTML: css }, this.container );
+        } else if( typeof css == 'object' ) {
+            dojo.create('link', { rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
+        }
+    },this);
+};
+
 /**
  * Load our name index.
  */
@@ -157,9 +174,6 @@ Browser.prototype.loadNames = function() {
 Browser.prototype.initView = function() {
     //set up top nav/overview pane and main GenomeView pane
     dojo.addClass(document.body, "tundra");
-    this.container = dojo.byId(this.config.containerID);
-    this.container.onselectstart = function() { return false; };
-    this.container.genomeBrowser = this;
     var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, this.container );
 
     var overview = dojo.create( 'div', { className: 'overview', id: 'overview' }, topPane );

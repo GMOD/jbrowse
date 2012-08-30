@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Add `css` configuration variable that allows users to specify
+   either strings or URLs containing CSS to add.
+
  * Fixed feature-layout performance problem when zoomed very far in
    on features that are much larger than the viewing window.
 
