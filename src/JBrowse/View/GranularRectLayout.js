@@ -57,10 +57,14 @@ return declare( null,
         var maxY = top+rect.h;
         for( var y = top; y < maxY; y++ ) {
             var row = bitmap[y];
-            if( row )
-                for( var x = rect.l; x <= rect.r; x++ )
-                    if( row[x] )
-                        return true;
+            if( row ) {
+                if( row.allFilled )
+                    return true;
+                if( row.length > rect.l )
+                    for( var x = rect.l; x <= rect.r; x++ )
+                        if( row[x] )
+                            return true;
+            }
         }
 
         return false;
@@ -78,13 +82,25 @@ return declare( null,
     _addRectToBitmap: function( rect ) {
         var bitmap = this.bitmap;
         var av = this._autovivify;
-        // finally, test exhaustively
         var yEnd = rect.top+rect.h;
-        for( var y = rect.top; y < yEnd; y++ ) {
-            var row = av(bitmap,y);
-            for( var x = rect.l; x <= rect.r; x++ )
-                row[x]=true;
+        if( rect.r-rect.l > 20000 ) {
+            // the rect is very big in relation to the view size, just
+            // pretend, for the purposes of layout, that it extends
+            // infinitely.  this will cause weird layout if a user
+            // scrolls manually for a very, very long time along the
+            // genome at the same zoom level.  but most users will not
+            // do that.
+            for( var y = rect.top; y < yEnd; y++ ) {
+                av(bitmap,y).allFilled = true;
             }
+        }
+        else {
+            for( var y = rect.top; y < yEnd; y++ ) {
+                var row = av(bitmap,y);
+                for( var x = rect.l; x <= rect.r; x++ )
+                    row[x]=true;
+            }
+        }
     },
 
     /**

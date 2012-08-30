@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Fixed feature-layout performance problem when zoomed very far in
+   on features that are much larger than the viewing window.
+
 1.6.1     2012-08-28 16:50:41 America/New_York
 
  * JBrowse now attempts to prevent feature labels being obscured by
