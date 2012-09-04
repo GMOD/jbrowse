@@ -270,7 +270,7 @@ div.track-label, div.tracklist-label {
 
 div.track-label {
     color: black;
-    margin: 5px 0 0 0;
+    margin: 5px 0 0 3px;
     background: white;
 
     z-index: 20;
