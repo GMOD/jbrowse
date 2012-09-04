@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Added a default `menuTemplate` to all HTML-based features, so that
+   all HTML features now have a right-click menu by default.
+
  * Add `css` configuration variable that allows users to specify
    either strings or URLs containing CSS to add.
 

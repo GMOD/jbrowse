@@ -137,7 +137,14 @@ var HTMLFeatures = declare( BlockBased,
                 click: this.config.style.linkTemplate
                     ? { action: "newWindow", url: this.config.style.linkTemplate }
                     : { action: "contentDialog", content: dojo.hitch( this, 'defaultFeatureDetail' ) }
-            }
+            },
+            menuTemplate: [
+                { label: 'View details',
+                  action: 'contentDialog',
+                  iconClass: 'dijitIconTask',
+                  content: dojo.hitch( this, 'defaultFeatureDetail' )
+                }
+            ]
         };
         Util.deepUpdate(defaultConfig, this.config);
         this.config = defaultConfig;
