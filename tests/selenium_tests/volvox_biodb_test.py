@@ -98,7 +98,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
             .perform()
 
         # wait for the dialog to finish fading in
-        time.sleep(0.5)
+        time.sleep(1.0)
 
         # check that the proper HTML snippet popped up in the dialog
         self.assert_element("//div[contains(@class,'dijitDialog')]//span[@class='amazingTestSnippet']")
