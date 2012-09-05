@@ -72,52 +72,8 @@ var HTMLFeatures = declare( BlockBased,
         // to eachother
         dojo.connect( this.featureStore, 'loadSuccess', this, 'loadSuccess' );
         dojo.connect( this.featureStore, 'loadFail',    this, 'loadFail' );
-    },
 
-    /**
-     * Request that the track load its data.  The track will call its own
-     * loadSuccess() function when it is loaded.
-     */
-    load: function() {
-        this.featureStore.load();
-    },
-
-    /**
-     * Make a default feature detail page for the given feature.
-     * @returns {HTMLElement} feature detail page HTML
-     */
-    defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
-        var fmt = dojo.hitch( this, '_fmtFeatureDetailField' );
-        var container = dojo.create('div', { className: 'feature-detail feature-detail-'+track.name, innerHTML: '' } );
-        container.innerHTML += fmt( 'Name', f.get('name') );
-        container.innerHTML += fmt( 'Type', f.get('type') );
-        container.innerHTML += fmt( 'Description', f.get('note') );
-        container.innerHTML += fmt( 'Position', this.refSeq.name+':'+f.get('start')+'..'+f.get('end') );
-        container.innerHTML += fmt( 'Strand', {'1':'+', '-1': '-', 0: undefined }[f.get('strand')] || f.get('strand') );
-
-        var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()]; });
-        dojo.forEach( additionalTags.sort(), function(t) {
-            container.innerHTML += fmt( t, f.get(t) );
-        });
-
-        return container;
-    },
-    _fmtFeatureDetailField: function( title, val, class_ ) {
-        var valType = typeof val;
-        if( !( valType in {string:1,number:1} ) )
-            return ''; //val = '<span class="ghosted">none</span>';
-        class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
-        return '<div class="field_container"><h2 class="field '+class_+'">'+title+'</h2> <div class="value '+class_+'">'+val+'</div></div>';
-    },
-
-    // _autoLinkText: function( text ) {
-    //     return text
-    //         // GO terms like GO:12345
-    //         .replace(/\b(GO:\d{5,})\b/g, '<a href="http://amigo.geneontology.org/cgi-bin/amigo/term_details?term=$1">$1</a>');
-    // },
-
-    loadSuccess: function(trackInfo, url) {
-
+        // initialize a bunch of config stuff
         var defaultConfig = {
             description: true,
             style: {
@@ -169,9 +125,49 @@ var HTMLFeatures = declare( BlockBased,
         this.labelScale = this.featureStore.density * this.config.style.labelScale;
         this.subfeatureScale = this.featureStore.density * this.config.style.subfeatureScale;
         this.descriptionScale = this.featureStore.density * this.config.style.descriptionScale;;
-
-        this.setLoaded();
     },
+
+    /**
+     * Request that the track load its data.  The track will call its own
+     * loadSuccess() function when it is loaded.
+     */
+    load: function() {
+        this.featureStore.load();
+    },
+
+    /**
+     * Make a default feature detail page for the given feature.
+     * @returns {HTMLElement} feature detail page HTML
+     */
+    defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
+        var fmt = dojo.hitch( this, '_fmtFeatureDetailField' );
+        var container = dojo.create('div', { className: 'feature-detail feature-detail-'+track.name, innerHTML: '' } );
+        container.innerHTML += fmt( 'Name', f.get('name') );
+        container.innerHTML += fmt( 'Type', f.get('type') );
+        container.innerHTML += fmt( 'Description', f.get('note') );
+        container.innerHTML += fmt( 'Position', this.refSeq.name+':'+f.get('start')+'..'+f.get('end') );
+        container.innerHTML += fmt( 'Strand', {'1':'+', '-1': '-', 0: undefined }[f.get('strand')] || f.get('strand') );
+
+        var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()]; });
+        dojo.forEach( additionalTags.sort(), function(t) {
+            container.innerHTML += fmt( t, f.get(t) );
+        });
+
+        return container;
+    },
+    _fmtFeatureDetailField: function( title, val, class_ ) {
+        var valType = typeof val;
+        if( !( valType in {string:1,number:1} ) )
+            return ''; //val = '<span class="ghosted">none</span>';
+        class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
+        return '<div class="field_container"><h2 class="field '+class_+'">'+title+'</h2> <div class="value '+class_+'">'+val+'</div></div>';
+    },
+
+    // _autoLinkText: function( text ) {
+    //     return text
+    //         // GO terms like GO:12345
+    //         .replace(/\b(GO:\d{5,})\b/g, '<a href="http://amigo.geneontology.org/cgi-bin/amigo/term_details?term=$1">$1</a>');
+    // },
 
     /**
      * Make life easier for event handlers by handing them some things
