@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * `bin/add-track-json.pl` now replaces tracks in the target
+   configuration if they have the same label.
+
  * Added a default `menuTemplate` to all HTML-based features, so that
    all HTML features now have a right-click menu by default.
 

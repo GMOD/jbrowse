@@ -33,7 +33,17 @@ my $target_file_data = eval {
     die "error reading target file: $@\n";
 }
 
-push @{ $target_file_data->{tracks} ||= [] }, $track_data;
+for( my $i = 0; $i < @{$target_file_data->{tracks}|| []}; $i++ ) {
+    my $track = $target_file_data->{tracks}[$i];
+    if( $track->{label} eq $track_data->{label} ) {
+        $target_file_data->{tracks}[$i] = $track_data;
+        undef $track_data;
+    }
+}
+
+if( $track_data ) {
+    push @{ $target_file_data->{tracks} ||= [] }, $track_data;
+}
 
 {
     open my $fh, '>', $target_file or die "$! writing $target_file";
