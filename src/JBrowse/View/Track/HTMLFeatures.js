@@ -121,10 +121,6 @@ var HTMLFeatures = declare( BlockBased,
             return handlers;
         }).call(this);
         this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
-
-        this.labelScale = this.featureStore.density * this.config.style.labelScale;
-        this.subfeatureScale = this.featureStore.density * this.config.style.subfeatureScale;
-        this.descriptionScale = this.featureStore.density * this.config.style.descriptionScale;;
     },
 
     /**
@@ -133,6 +129,13 @@ var HTMLFeatures = declare( BlockBased,
      */
     load: function() {
         this.featureStore.load();
+    },
+
+    loadSuccess: function() {
+        this.inherited(arguments);
+        this.labelScale = this.featureStore.density * this.config.style.labelScale;
+        this.subfeatureScale = this.featureStore.density * this.config.style.subfeatureScale;
+        this.descriptionScale = this.featureStore.density * this.config.style.descriptionScale;;
     },
 
     /**
