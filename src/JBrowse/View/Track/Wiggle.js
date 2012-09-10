@@ -10,7 +10,6 @@ var Wiggle = declare( CanvasTrack,
  */
 {
     constructor: function( args ) {
-        this.inherited( arguments );
         this.store = args.store;
         this.store.whenReady( this, '_calculateScaling' );
         this.store.whenReady( this, 'loadSuccess' );

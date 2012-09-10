@@ -163,7 +163,11 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     scaleTrackDiv.id = "static_track";
 
     this.scaleTrackDiv = scaleTrackDiv;
-    this.staticTrack = new LocationScaleTrack("static_track", "pos-label", this.posHeight);
+    this.staticTrack = new LocationScaleTrack({
+        label: "static_track",
+        labelClass: "pos-label",
+        posHeight: this.posHeight
+    });
     this.staticTrack.setViewInfo( this, function(height) {}, this.stripeCount,
                                  this.scaleTrackDiv, undefined, this.stripePercent,
                                  this.stripeWidth, this.pxPerBp,
@@ -175,7 +179,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     gridTrackDiv.className = "track";
     gridTrackDiv.style.cssText = "top: 0px; height: 100%;";
     gridTrackDiv.id = "gridtrack";
-    var gridTrack = new GridLinesTrack("gridtrack");
+    var gridTrack = new GridLinesTrack();
     gridTrack.setViewInfo( this, function(height) {}, this.stripeCount,
                           gridTrackDiv, undefined, this.stripePercent,
                           this.stripeWidth, this.pxPerBp,
@@ -234,7 +238,11 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
 
     this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
-    this.addOverviewTrack(new LocationScaleTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
+    this.addOverviewTrack(new LocationScaleTrack({
+        label: "overview_loc_track",
+        labelClass: "overview-pos",
+        posHeight: this.overviewPosHeight
+    }));
     this.showFine();
     this.showCoarse();
 
@@ -767,7 +775,11 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
         dojo.forEach(this.uiTracks, function(track) { track.clear(); });
 	this.overviewTrackIterate(removeTrack);
 
-	this.addOverviewTrack(new LocationScaleTrack("overview_loc_track", "overview-pos", this.overviewPosHeight));
+	this.addOverviewTrack(new LocationScaleTrack({
+            label: "overview_loc_track",
+            labelClass: "overview-pos",
+            posHeight: this.overviewPosHeight
+        }));
         this.sizeInit();
         this.setY(0);
         //this.containerHeight = this.topSpace;

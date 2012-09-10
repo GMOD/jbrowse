@@ -9,11 +9,13 @@ return declare( null,
      * Base class for all JBrowse tracks.
      * @constructs
      */
-    constructor: function(name, key, loaded, changeCallback) {
-        this.name = name;
-        this.key = key;
-        this.loaded = loaded;
-        this.changed = changeCallback || function() {};
+    constructor: function( args ) {
+        args = args || {};
+        var config = args.config || {};
+        this.name = args.label || config.label;
+        this.key = args.key || config.key || this.name;
+        this.loaded = false;
+        this.changed = args.changeCallback || function() {};
         this.height = 0;
         this.shown = true;
         this.empty = false;

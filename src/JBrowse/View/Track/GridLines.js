@@ -12,8 +12,8 @@ return dojo.declare( BlockBased,
      * @constructs
      * @extends JBrowse.View.Track.BlockBased
      */
-    constructor: function(name) {
-        BlockBased.call(this, name, name, true, function() {});
+    constructor: function( args ) {
+        this.loaded = true;
     },
 
     fillBlock: function(blockIndex, block,

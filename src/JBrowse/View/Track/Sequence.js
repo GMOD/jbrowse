@@ -20,10 +20,6 @@ return declare( BlockBased,
     constructor: function( args ) {
         var config = args.config;
         var refSeq = args.refSeq;
-
-        BlockBased.call( this, config.label, config.key,
-                         false, args.changeCallback );
-
         this.config = config;
 
         this.refSeq = refSeq;

@@ -36,7 +36,6 @@ var HTMLFeatures = declare( BlockBased,
   * @lends JBrowse.View.Track.HTMLFeatures.prototype
   */
 {
-
     /**
      * A track that draws discrete features using `div` elements.
      * @constructs
@@ -49,9 +48,6 @@ var HTMLFeatures = declare( BlockBased,
      * @param args.trackPadding {Number} distance in px between tracks
      */
     constructor: function( args ) {
-        var config = args.config;
-        BlockBased.call( this, config.label, config.key,
-                         false, args.changeCallback);
         this.fields = {};
         this.refSeq = args.refSeq;
 
@@ -61,7 +57,7 @@ var HTMLFeatures = declare( BlockBased,
         this.padding = 5;
         this.trackPadding = args.trackPadding;
 
-        this.config = config;
+        this.config = args.config;
 
         // this featureStore object should eventually be
         // instantiated by Browser and passed into this constructor, not

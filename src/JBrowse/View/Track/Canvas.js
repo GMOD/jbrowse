@@ -18,11 +18,6 @@ return declare( BlockBased,
         }
 
         var refSeq = args.refSeq;
-
-        BlockBased.call(
-            this, config.label, config.key,
-            false, args.changeCallback);
-
         this.refSeq = refSeq;
         this.trackPadding = args.trackPadding || 0;
 

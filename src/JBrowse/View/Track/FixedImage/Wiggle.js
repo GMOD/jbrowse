@@ -18,7 +18,6 @@ var Wiggle = declare( FixedImage,
      * @constructor
      */
     constructor: function() {
-        FixedImage.apply( this, arguments );
     },
 
     updateStaticElements: function( coords ) {

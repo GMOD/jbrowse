@@ -21,10 +21,6 @@ return declare( BlockBased,
         var config = args.config;
         var refSeq = args.refSeq;
 
-        BlockBased.call(
-            this, config.label, config.key,
-            false, args.changeCallback);
-
         if( !refSeq.end )
             return;
 

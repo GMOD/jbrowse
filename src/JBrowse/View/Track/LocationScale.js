@@ -12,11 +12,11 @@ return declare(BlockBased,
      * @constructs
      */
 
-    constructor: function(name, labelClass, posHeight) {
-        BlockBased.call(this, name, name, true, function() {});
-        this.labelClass = labelClass;
-        this.posHeight = posHeight;
-        this.height = posHeight;
+    constructor: function( args ) {//name, labelClass, posHeight) {
+        this.loaded = true;
+        this.labelClass = args.labelClass;
+        this.posHeight = args.posHeight;
+        this.height = args.posHeight;
     },
 
     fillBlock: function(blockIndex, block,
