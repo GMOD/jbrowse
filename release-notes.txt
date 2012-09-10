@@ -1,7 +1,7 @@
 {{$NEXT}}
 
- * `bin/add-track-json.pl` now replaces tracks in the target
-   configuration if they have the same label.
+ * Fixed feature-layout performance problem when zoomed very far in
+   on features that are much larger than the viewing window.
 
  * Added a default `menuTemplate` to all HTML-based features, so that
    all HTML features now have a right-click menu by default.
@@ -9,8 +9,10 @@
  * Add `css` configuration variable that allows users to specify
    either strings or URLs containing CSS to add.
 
- * Fixed feature-layout performance problem when zoomed very far in
-   on features that are much larger than the viewing window.
+ * improved `bin/ucsc-to-json.pl` error messages
+
+ * `bin/add-track-json.pl` now replaces tracks in the target
+   configuration if they have the same label.
 
 1.6.1     2012-08-28 16:50:41 America/New_York
 
