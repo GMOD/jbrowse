@@ -86,7 +86,7 @@ var HTMLFeatures = declare( BlockBased,
                 }
             },
             events: {
-                click: this.config.style.linkTemplate
+                click: this.config.style && this.config.style.linkTemplate
                     ? { action: "newWindow", url: this.config.style.linkTemplate }
                     : { action: "contentDialog", content: dojo.hitch( this, 'defaultFeatureDetail' ) }
             },
