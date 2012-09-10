@@ -128,10 +128,10 @@ var HTMLFeatures = declare( BlockBased,
     },
 
     loadSuccess: function() {
-        this.inherited(arguments);
         this.labelScale = this.featureStore.density * this.config.style.labelScale;
         this.subfeatureScale = this.featureStore.density * this.config.style.subfeatureScale;
         this.descriptionScale = this.featureStore.density * this.config.style.descriptionScale;;
+        this.inherited(arguments);
     },
 
     /**
