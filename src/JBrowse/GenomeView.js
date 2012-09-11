@@ -1572,6 +1572,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
 
         trackDiv.track = track;
 
+
         var labelDiv = dojo.create(
             'div', {
                 className: "track-label dojoDndHandle",
@@ -1582,6 +1583,11 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
                     left: this.getX() + 'px'
                 }
             },trackDiv);
+
+        if ( trackConfig.style.trackLabelCss){
+            labelDiv.style.cssText += ";" + trackConfig.style.trackLabelCss;
+        }
+
         var closeButton = dojo.create('div',{
             className: 'track-close-button',
             onclick: dojo.hitch(this,function(evt){
