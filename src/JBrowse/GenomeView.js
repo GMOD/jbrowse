@@ -1601,8 +1601,28 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
                 evt.stopPropagation();
             })
         },labelDiv);
-
         var labelText = dojo.create('span', { className: 'track-label-text' }, labelDiv );
+        var menuButton = dojo.create('div',{
+            className: 'track-menu-button'
+        },labelDiv);
+        dojo.create('div', {}, menuButton ); // will be styled with an icon by CSS
+
+
+        // make the track menu with things like exporting in it
+        var menu = track._renderContextMenu([
+            { label: 'Save track data as &hellip;',
+              iconClass: 'dijitIconSave',
+              action: 'contentDialog',
+              content: 'TODO: buttons and stuff for exporting functionality'
+            }
+        ], this.elem );
+        menu.startup();
+        menu.attr('leftClickToOpen', true );
+        menu.bindDomNode( menuButton );
+        menu.attr('leftClickToOpen',  false);
+        menu.bindDomNode( labelDiv );
+
+
         this.trackLabels.push(labelDiv);
 
         var heightUpdate = dojo.hitch( this, 'trackHeightUpdate', trackName );

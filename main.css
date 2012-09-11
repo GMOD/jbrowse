@@ -286,11 +286,27 @@ div.track-label .track-close-button {
     width: 1.3em;
     margin: -3px -3px -4px -6px;
 }
+div.track-label .track-menu-button {
+    display: inline-block;
+    width: 1em;
+    height: 100%;
+    margin-right: -0.7em;
+    padding: 0 0.5em;
+}
 .tundra div.track-label .track-close-button {
     background: url("src/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
 }
 .tundra div.track-label .track-close-button:hover {
     background-image: url("src/dijit/themes/tundra/images/tabCloseHover.png");
+}
+.tundra div.track-label:hover .track-menu-button div {
+    height: 8px;
+    width: 8px;
+    margin-top: 5px;
+    background: url("src/dijit/themes/tundra/images/spriteArrows.png") no-repeat -28px 0;
+}
+.tundra div.track-label:hover .track-menu-button:hover div {
+    background-position-x: 0px;
 }
 div.track-label:hover {
     background: #FAFAFA url(src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;

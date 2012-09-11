@@ -1,5 +1,14 @@
-define( ['dojo/_base/declare'],
-        function( declare ) {
+define( [
+            'dojo/_base/declare',
+            'dijit/Menu',
+            'dijit/PopupMenuItem',
+            'dijit/MenuItem'
+        ],
+        function( declare,
+                  dijitMenu,
+                  dijitPopupMenuItem,
+                  dijitMenuItem
+                ) {
 return declare( null,
 /**
  * @lends JBrowse.View.Track.BlockBased.prototype
@@ -376,7 +385,114 @@ return declare( null,
      */
     updateStaticElements: function( /**Object*/ coords ) {
         this.window_info = dojo.mixin( this.window_info || {}, coords );
+    },
+
+    openTrackMenu: function( evt, labelDiv, buttonEl ) {
+        alert('order from menu!');
+    },
+
+    /**
+     * Render a dijit menu from a specification object.
+     *
+     * @param menuTemplate definition of the menu's structure
+     * @param context {Object} optional object containing the context
+     *   in which any click handlers defined in the menu should be
+     *   invoked, containing thing like what feature is being operated
+     *   upon, the track object that is involved, etc.
+     * @param parent {dijit.Menu|...} parent menu, if this is a submenu
+     */
+    _renderContextMenu: function( /**Object*/ menuStructure, /** Object */ context, /** dijit.Menu */ parent ) {
+       if ( !parent )
+            parent = new dijitMenu();
+
+        for ( key in menuStructure ) {
+            var spec = menuStructure [ key ];
+            if ( spec.children ) {
+                var child = new dijitMenu();
+                parent.addChild( child );
+                parent.addChild( new dijitPopupMenuItem(
+                                     {
+                                         popup : child,
+                                         label : spec.label
+                                     }));
+                this._renderContextMenu( spec.children, context, child );
+            }
+            // only draw other menu items if they have an action.
+            // drawing menu items that do nothing when clicked
+            // would frustrate users.
+            else if( spec.action || spec.url || spec.href ) {
+                var menuConf = dojo.clone( spec );
+                menuConf.onClick = this._makeClickHandler( spec, context );
+                var child = new dijitMenuItem( menuConf );
+                parent.addChild(child);
+            }
+        }
+        return parent;
+    },
+
+    _makeClickHandler: function( inputSpec, context ) {
+        var track  = this;
+
+        if( typeof inputSpec == 'function' ) {
+            inputSpec = { action: inputSpec };
+        }
+        else if( typeof inputSpec == 'undefined' ) {
+            console.error("Undefined click specification, cannot make click handler");
+            return function() {};
+        }
+
+        var handler = function ( evt ) {
+            if( track.genomeView.dragging )
+                return;
+
+            var ctx = context || this;
+            var spec = track._processMenuSpec( dojo.clone( inputSpec ), ctx );
+            var url = spec.url || spec.href;
+            spec.url = url;
+            var style = dojo.clone( spec.style || {} );
+
+            // try to understand the `action` setting
+            spec.action = spec.action ||
+                ( url          ? 'iframeDialog'  :
+                  spec.content ? 'contentDialog' :
+                                 false
+                );
+            spec.title = spec.title || spec.label;
+
+            if( typeof spec.action == 'string' ) {
+                // treat `action` case-insensitively
+                spec.action = {
+                    iframedialog:   'iframeDialog',
+                    iframe:         'iframeDialog',
+                    contentdialog:  'contentDialog',
+                    content:        'content',
+                    xhrdialog:      'xhrDialog',
+                    xhr:            'xhr',
+                    newwindow:      'newWindow',
+                    "_blank":       'newWindow'
+                }[(''+spec.action).toLowerCase()];
+
+                if( spec.action == 'newWindow' )
+                    window.open( url, '_blank' );
+                else if( spec.action in { iframeDialog:1, contentDialog:1, xhrDialog:1} )
+                    track._openDialog( spec, evt, ctx );
+            }
+            else if( typeof spec.action == 'function' ) {
+                spec.action.call( ctx, evt );
+            }
+            else {
+                return;
+            }
+        };
+
+        // if there is a label, set it on the handler so that it's
+        // accessible for tooltips or whatever.
+        if( inputSpec.label )
+            handler.label = inputSpec.label;
+
+        return handler;
     }
+
 });
 });
 
