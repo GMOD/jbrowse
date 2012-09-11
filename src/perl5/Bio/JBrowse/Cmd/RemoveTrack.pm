@@ -35,7 +35,7 @@ sub option_definitions {
 
 sub run {
     my ( $self ) = @_;
-    for my $label (@{$self->opt('trackLabel')}) {
+    for my $label (@{ $self->opt('trackLabel') || []}) {
         $self->delete_track( $label );
     }
 }
@@ -46,7 +46,7 @@ sub delete_track {
     my $deleted_conf;
 
     # remove the track configuration and print it
-    JsonFileStorage->new( $self->opt('dir') )
+    JsonFileStorage->new( $self->opt('dir'), 0, { pretty => 1 })
                    ->modify( 'trackList.json', sub {
                          my ( $json ) = @_;
                          $json or die "The trackList.json file in ".$self->opt('dir')." could not be read.\n";
@@ -73,14 +73,14 @@ sub delete_track {
 
     if( $self->opt('delete') ) {
         # delete the track data
-        $self->print( "deleting track data for $trackLabel" );
+        $self->print( "Deleting track data for $trackLabel" );
         my @trackdata_paths = (
             File::Spec->catdir( $self->opt('dir'), 'tracks', $deleted_conf->{label} || die ),
         );
         if( !@trackdata_paths ) {
             $self->print( "Unable to automatically remove track data for $trackLabel (type '$deleted_conf->{type}').  Please remove it manually." );
         } else {
-            $self->print( "Deleting data for $trackLabel: @trackdata_paths" );
+            $self->print( "Deleting: @trackdata_paths" );
             File::Path::rmtree( \@trackdata_paths );
         }
     } else {
