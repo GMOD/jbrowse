@@ -234,47 +234,49 @@ Browser.prototype.initView = function() {
     dojo.connect( this.browserWidget, "resize", this,      'onResize' );
     dojo.connect( this.browserWidget, "resize", this.view, 'onResize' );
 
+    // (this stuff below is just a callback pyramid to make it synchronous)
+    // init the track metadata
+    this.initTrackMetadata( dojo.hitch(this, function() {
+        //set up the track list
+        this.createTrackList( dojo.hitch( this, function(){
+            this.containerWidget.startup();
+            this.onResize();
+            this.view.onResize();
 
-    //set up track list
-//    this.createTrackList( dojo.hitch(this, function(){this.containerWidget.startup();}));
-    this.createTrackList( dojo.hitch( this, function(){
-        this.containerWidget.startup();
-        this.onResize();
-        this.view.onResize();
+            //set initial location
+            var oldLocMap = dojo.fromJson( this.cookie('location') ) || {};
+            if (this.config.location) {
+                this.navigateTo(this.config.location);
+            } else if (oldLocMap[this.refSeq.name]) {
+                this.navigateTo( oldLocMap[this.refSeq.name].l || oldLocMap[this.refSeq.name] );
+            } else if (this.config.defaultLocation){
+                this.navigateTo(this.config.defaultLocation);
+            } else {
+                this.navigateTo( Util.assembleLocString({
+                                     ref:   this.refSeq.name,
+                                     start: 0.4 * ( this.refSeq.start + this.refSeq.end ),
+                                     end:   0.6 * ( this.refSeq.start + this.refSeq.end )
+                                 })
+                               );
+            }
 
-        //set initial location
-        var oldLocMap = dojo.fromJson( this.cookie('location') ) || {};
-        if (this.config.location) {
-            this.navigateTo(this.config.location);
-        } else if (oldLocMap[this.refSeq.name]) {
-            this.navigateTo( oldLocMap[this.refSeq.name].l || oldLocMap[this.refSeq.name] );
-        } else if (this.config.defaultLocation){
-            this.navigateTo(this.config.defaultLocation);
-        } else {
-            this.navigateTo( Util.assembleLocString({
-                                 ref:   this.refSeq.name,
-                                 start: 0.4 * ( this.refSeq.start + this.refSeq.end ),
-                                 end:   0.6 * ( this.refSeq.start + this.refSeq.end )
-                             })
-                           );
-        }
+            // make our global keyboard shortcut handler
+            dojo.connect( document.body, 'onkeypress', this, 'globalKeyHandler' );
 
-        // make our global keyboard shortcut handler
-        dojo.connect( document.body, 'onkeypress', this, 'globalKeyHandler' );
+            // configure our event routing
+            this._initEventRouting();
 
-        // configure our event routing
-        this._initEventRouting();
+            this.isInitialized = true;
 
-        this.isInitialized = true;
+            //if someone calls methods on this browser object
+            //before it's fully initialized, then we defer
+            //those functions until now
+            dojo.forEach( this.deferredFunctions, function(f) {
+                f.call(this);
+            },this );
 
-        //if someone calls methods on this browser object
-        //before it's fully initialized, then we defer
-        //those functions until now
-        dojo.forEach( this.deferredFunctions, function(f) {
-            f.call(this);
-        },this );
-
-        this.deferredFunctions = [];
+            this.deferredFunctions = [];
+        }));
     }));
 };
 
@@ -595,14 +597,9 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
 };
 
 /**
- * Asynchronously create the track list.
- * @private
+ * Asynchronously initialize our track metadata.
  */
-Browser.prototype.createTrackList = function( callback ) {
-    // find the tracklist class to use
-    var tl_class = !this.config.show_tracklist           ? 'Null'                         :
-                   (this.config.trackSelector||{}).type  ? this.config.trackSelector.type :
-                                                           'Simple';
+Browser.prototype.initTrackMetadata = function( callback ) {
     var metaDataSourceClasses = dojo.map(
                                 (this.config.trackMetadata||{}).sources || [],
                                 function( sourceDef ) {
@@ -623,23 +620,39 @@ Browser.prototype.createTrackList = function( callback ) {
                                 });
 
 
-    // load all the classes we need
-    require( Array.prototype.concat.apply( ['JBrowse/View/TrackList/'+tl_class, 'JBrowse/Store/TrackMetaData'],
-                                           dojo.map( metaDataSourceClasses, function(c) { return c.class_; } )
-                                         ),
-             dojo.hitch( this, function( trackListClass, MetaDataStore ) { // more args after the first 2
+    require( Array.prototype.concat.apply( ['JBrowse/Store/TrackMetaData'],
+                                           dojo.map( metaDataSourceClasses, function(c) { return c.class_; } ) ),
+             dojo.hitch(this,function( MetaDataStore ) {
                  var mdStores = [];
-                 for( var i = 2; i<arguments.length; i++ ) {
-                     mdStores.push( new (arguments[i])({url: metaDataSourceClasses[i-2].url}) );
+                 for( var i = 1; i<arguments.length; i++ ) {
+                     mdStores.push( new (arguments[i])({url: metaDataSourceClasses[i-1].url}) );
                  }
 
-                 var trackMeta =  new MetaDataStore(
-                     dojo.mixin( this.config.trackMetadata || {}, {
+                 this.trackMetaDataStore =  new MetaDataStore(
+                     dojo.mixin( dojo.clone(this.config.trackMetadata || {}), {
                                      trackConfigs: this.config.tracks,
                                      browser: this,
                                      metadataStores: mdStores
                                  })
                  );
+
+                 callback();
+    }));
+};
+
+/**
+ * Asynchronously create the track list.
+ * @private
+ */
+Browser.prototype.createTrackList = function( callback ) {
+    // find the tracklist class to use
+    var tl_class = !this.config.show_tracklist           ? 'Null'                         :
+                   (this.config.trackSelector||{}).type  ? this.config.trackSelector.type :
+                                                           'Simple';
+
+    // load all the classes we need
+    require( ['JBrowse/View/TrackList/'+tl_class],
+             dojo.hitch( this, function( trackListClass ) {
 
                  // instantiate the tracklist and the track metadata object
                  this.trackListView = new trackListClass(
@@ -648,7 +661,7 @@ Browser.prototype.createTrackList = function( callback ) {
                          {
                              trackConfigs: this.config.tracks,
                              browser: this,
-                             trackMetaData: trackMeta
+                             trackMetaData: this.trackMetaDataStore
                          }
                      )
                  );

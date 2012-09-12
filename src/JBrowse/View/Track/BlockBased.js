@@ -1,11 +1,15 @@
 define( [
             'dojo/_base/declare',
+            'dojo/aspect',
+            'dijit/Dialog',
             'dijit/Menu',
             'dijit/PopupMenuItem',
             'dijit/MenuItem',
             'JBrowse/Util'
         ],
         function( declare,
+                  aspect,
+                  dijitDialog,
                   dijitMenu,
                   dijitPopupMenuItem,
                   dijitMenuItem,
@@ -30,6 +34,7 @@ return declare( null,
         this.height = 0;
         this.shown = true;
         this.empty = false;
+        this.browser = args.browser;
     },
 
     load: function(url) {
@@ -499,18 +504,19 @@ return declare( null,
      * @returns {String} string of HTML that prints the detailed metadata about this track
      */
     _trackDetailsContent: function() {
-        //TODO: need to hook this up to the track metadata store that's in Browser.js
         var details = '<div class="detail">';
         var fmt = dojo.hitch(this, '_fmtDetailField');
         details += fmt( 'Name', this.key || this.name );
-        var metadata = this.config.metadata || {};
+        var metadata = this.browser && this.browser.trackMetaDataStore ? this.browser.trackMetaDataStore.getItem(this.name) :
+                                                  this.config.metadata ? this.config.metadata :
+                                                                         {};
         var md_keys = [];
         for( var k in metadata )
             md_keys.push(k);
         // TODO: maybe do some intelligent sorting of the keys here?
         dojo.forEach( md_keys, function(key) {
-            details += fmt( Util.ucFirst(key), metadata[key] );
-        });
+                          details += fmt( Util.ucFirst(key), metadata[key] );
+                      });
         details += "</div>";
         return details;
     },
@@ -532,9 +538,126 @@ return declare( null,
               title: 'About track: '+(this.key||this.name),
               iconClass: 'jbrowseIconHelp',
               action: 'contentDialog',
-              content: dojo.hitch( this, '_trackDetailsContent' )
+              content: dojo.hitch(this,'_trackDetailsContent')
             }
         ];
+    },
+
+
+    _processMenuSpec: function( spec, context ) {
+        for( var x in spec ) {
+            if( typeof spec[x] == 'object' )
+                spec[x] = this._processMenuSpec( spec[x], context );
+            else
+                spec[x] = this.template( context.feature, this._evalConf( context, spec[x], x ) );
+        }
+        return spec;
+    },
+
+    /**
+     * Get the value of a conf variable, evaluating it if it is a
+     * function.  Note: does not template it, that is a separate step.
+     *
+     * @private
+     */
+    _evalConf: function( context, confVal, confKey ) {
+
+        // list of conf vals that should not be run immediately on the
+        // feature data if they are functions
+        var dontRunImmediately = {
+            action: 1,
+            click: 1,
+            content: 1
+        };
+
+        return typeof confVal == 'function' && !dontRunImmediately[confKey]
+            ? confVal( this, context.feature, context )
+            : confVal;
+    },
+
+    _openDialog: function( spec, evt, context ) {
+        context = context || {};
+        var type = spec.action;
+        type = type.replace(/Dialog/,'');
+        var featureName = context.feature && (context.feature.get('name')||context.feature.get('id'));
+        var dialogOpts = {
+            "class": "popup-dialog popup-dialog-"+type,
+            title: spec.title || spec.label || ( featureName ? featureName +' details' : "Details"),
+            style: dojo.clone( spec.style || {} )
+        };
+        var dialog;
+
+        // if dialog == xhr, open the link in a dialog
+        // with the html from the URL just shoved in it
+        if( type == 'xhr' || type == 'content' ) {
+            if( type == 'xhr' )
+                dialogOpts.href = spec.url;
+            else
+                dialogOpts.content = this._evalConf( context, spec.content, null );
+            dialog = new dijitDialog( dialogOpts );
+        }
+        // open the link in a dialog with an iframe
+        else if( type == 'iframe' ) {
+            dojo.safeMixin( dialogOpts.style, {width: '90%', height: '90%'});
+            dialogOpts.draggable = false;
+
+            var container = dojo.create('div', {}, document.body);
+            var iframe = dojo.create(
+                'iframe', {
+                    width: '100%', height: '100%',
+                    tabindex: "0",
+                    style: { border: 'none' },
+                    src: spec.url
+                }, container
+            );
+            dialog = new dijitDialog( dialogOpts, container );
+            dojo.create( 'a', {
+                             href: spec.url,
+                             target: '_blank',
+                             className: 'dialog-new-window',
+                             title: 'open in new window',
+                             onclick: dojo.hitch(dialog,'hide'),
+                             innerHTML: spec.url
+                         }, dialog.titleBar );
+            aspect.after( dialog, 'layout', function() {
+                              // hitch a ride on the dialog box's
+                              // layout function, which is called on
+                              // initial display, and when the window
+                              // is resized, to keep the iframe
+                              // sized to fit exactly in it.
+                              var cDims = domGeom.getMarginBox( dialog.domNode );
+                              iframe.width  = cDims.w;
+                              iframe.height = iframe.height = cDims.h - domGeom.getMarginBox(dialog.titleBar).h - 2;
+                          });
+        }
+
+        aspect.after( dialog, 'hide', function() { dialog.destroyRecursive(); });
+        dialog.show();
+    },
+
+    /**
+     * Given a string with template callouts, interpolate them with
+     * data from the given object.  For example, "{foo}" is replaced
+     * with whatever is returned by obj.get('foo')
+     */
+    template: function( /** Object */ obj, /** String */ template ) {
+        if( typeof template != 'string' || !obj )
+            return template;
+
+        var valid = true;
+        if ( template ) {
+            return template.replace(
+                    /\{([^}]+)\}/g,
+                    function(match, group) {
+                        var val = obj ? obj.get( group.toLowerCase() ) : undefined;
+                        if (val !== undefined)
+                            return val;
+                        else {
+                            return '';
+                        }
+                    });
+        }
+        return undefined;
     },
 
     /**

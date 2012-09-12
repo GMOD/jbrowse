@@ -452,7 +452,7 @@ div.error {
 }
 
 /* styles dealing with popups launched by clicking on features */
-.feature-popup-dialog-iframe .dijitDialogPaneContent {
+.popup-dialog-iframe .dijitDialogPaneContent {
     padding: 0;
 }
 

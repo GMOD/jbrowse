@@ -372,10 +372,17 @@ var Meta = declare( null,
     },
 
     isItemLoaded: function() {
-        return true;
+        return this.ready;
     },
 
     loadItem: function( args ) {
+    },
+
+    getItem: function( label ) {
+        if( this.ready )
+            return this.identIndex[label];
+        else
+            return null;
     },
 
     // used by the dojo.data.util.simpleFetch mixin to implement fetch()

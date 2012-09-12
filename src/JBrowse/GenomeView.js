@@ -1566,7 +1566,8 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
             urlTemplate: trackConfig.urlTemplate,
             compress: trackConfig.compress,
             baseUrl: trackConfig.baseUrl,
-            refSeq: this.ref
+            refSeq: this.ref,
+            browser: this.browser
         });
 
         var track = new trackClass({
@@ -1574,7 +1575,8 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
                 config: trackConfig,
                 changeCallback: dojo.hitch( this, 'showVisibleBlocks', true ),
                 trackPadding: this.trackPadding,
-                store: store
+                store: store,
+                browser: this.browser
             });
         if( store.setTrack )
             store.setTrack( track );
