@@ -1000,6 +1000,21 @@ var HTMLFeatures = declare( BlockBased,
             + "top: 0px;"
             + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
         featDiv.appendChild(subDiv);
+    },
+
+    _trackMenuOptions: function() {
+        var opts = this.inherited(arguments);
+        // add a "Save track data as" option to the track menu
+        opts.push({ label: 'Save track data as&hellip;',
+              iconClass: 'dijitIconSave',
+              action: 'contentDialog',
+              content: dojo.hitch( this,'_exportDialogContent' )
+        });
+        return opts;
+    },
+
+    _exportDialogContent: function() {
+        return 'HIHI!';
     }
 });
 

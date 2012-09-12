@@ -491,6 +491,41 @@ return declare( null,
             handler.label = inputSpec.label;
 
         return handler;
+    },
+
+    _trackDetailsContent: function() {
+        return '';
+    },
+
+    /**
+     * @returns {Array} menu options for this track's menu (usually contains save as, etc)
+     */
+    _trackMenuOptions: function() {
+        return [
+            { label: 'About this track',
+              title: 'Track details: '+(this.key||this.name),
+              iconClass: 'jbrowseIconHelp',
+              action: 'contentDialog',
+              content: dojo.hitch( this, '_trackDetailsContent' )
+            }
+        ];
+    },
+
+    /**
+     * @param menuButton {Element} the menu button (little down arrow in the track label) element
+     * @param labelDiv {Element} the track label element
+     * @returns {dijit.Menu} the operations menu for this track
+     */
+    makeTrackMenu: function( menuButton, labelDiv ) {
+        var options = this._trackMenuOptions();
+        if( options && options.length ) {
+            var menu = this._renderContextMenu( options, menuButton );
+            menu.startup();
+            menu.attr('leftClickToOpen', true );
+            menu.bindDomNode( menuButton );
+            menu.attr('leftClickToOpen',  false);
+            menu.bindDomNode( labelDiv );
+        }
     }
 
 });

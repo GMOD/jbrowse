@@ -1607,21 +1607,8 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
         },labelDiv);
         dojo.create('div', {}, menuButton ); // will be styled with an icon by CSS
 
-
-        // make the track menu with things like exporting in it
-        var menu = track._renderContextMenu([
-            { label: 'Save track data as &hellip;',
-              iconClass: 'dijitIconSave',
-              action: 'contentDialog',
-              content: 'TODO: buttons and stuff for exporting functionality'
-            }
-        ], this.elem );
-        menu.startup();
-        menu.attr('leftClickToOpen', true );
-        menu.bindDomNode( menuButton );
-        menu.attr('leftClickToOpen',  false);
-        menu.bindDomNode( labelDiv );
-
+        // make the track menu with things like 'save as'
+        track.makeTrackMenu( menuButton, labelDiv );
 
         this.trackLabels.push(labelDiv);
 
