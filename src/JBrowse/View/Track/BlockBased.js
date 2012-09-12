@@ -2,12 +2,14 @@ define( [
             'dojo/_base/declare',
             'dijit/Menu',
             'dijit/PopupMenuItem',
-            'dijit/MenuItem'
+            'dijit/MenuItem',
+            'JBrowse/Util'
         ],
         function( declare,
                   dijitMenu,
                   dijitPopupMenuItem,
-                  dijitMenuItem
+                  dijitMenuItem,
+                  Util
                 ) {
 return declare( null,
 /**
@@ -493,9 +495,33 @@ return declare( null,
         return handler;
     },
 
+    /**
+     * @returns {String} string of HTML that prints the detailed metadata about this track
+     */
     _trackDetailsContent: function() {
-        return '';
+        //TODO: need to hook this up to the track metadata store that's in Browser.js
+        var details = '<div class="detail">';
+        var fmt = dojo.hitch(this, '_fmtDetailField');
+        details += fmt( 'Name', this.key || this.name );
+        var metadata = this.config.metadata || {};
+        var md_keys = [];
+        for( var k in metadata )
+            md_keys.push(k);
+        // TODO: maybe do some intelligent sorting of the keys here?
+        dojo.forEach( md_keys, function(key) {
+            details += fmt( Util.ucFirst(key), metadata[key] );
+        });
+        details += "</div>";
+        return details;
     },
+    _fmtDetailField: function( title, val, class_ ) {
+        var valType = typeof val;
+        if( !( valType in {string:1,number:1} ) )
+            return ''; //val = '<span class="ghosted">none</span>';
+        class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
+        return '<div class="field_container"><h2 class="field '+class_+'">'+title+'</h2> <div class="value '+class_+'">'+val+'</div></div>';
+    },
+
 
     /**
      * @returns {Array} menu options for this track's menu (usually contains save as, etc)
@@ -503,7 +529,7 @@ return declare( null,
     _trackMenuOptions: function() {
         return [
             { label: 'About this track',
-              title: 'Track details: '+(this.key||this.name),
+              title: 'About track: '+(this.key||this.name),
               iconClass: 'jbrowseIconHelp',
               action: 'contentDialog',
               content: dojo.hitch( this, '_trackDetailsContent' )
@@ -521,9 +547,9 @@ return declare( null,
         if( options && options.length ) {
             var menu = this._renderContextMenu( options, menuButton );
             menu.startup();
-            menu.attr('leftClickToOpen', true );
+            menu.set('leftClickToOpen', true );
             menu.bindDomNode( menuButton );
-            menu.attr('leftClickToOpen',  false);
+            menu.set('leftClickToOpen',  false);
             menu.bindDomNode( labelDiv );
         }
     }

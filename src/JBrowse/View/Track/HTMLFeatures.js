@@ -133,8 +133,8 @@ var HTMLFeatures = declare( BlockBased,
      * @returns {HTMLElement} feature detail page HTML
      */
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
-        var fmt = dojo.hitch( this, '_fmtFeatureDetailField' );
-        var container = dojo.create('div', { className: 'feature-detail feature-detail-'+track.name, innerHTML: '' } );
+        var fmt = dojo.hitch( this, '_fmtDetailField' );
+        var container = dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name, innerHTML: '' } );
         container.innerHTML += fmt( 'Name', f.get('name') );
         container.innerHTML += fmt( 'Type', f.get('type') );
         container.innerHTML += fmt( 'Description', f.get('note') );
@@ -148,7 +148,7 @@ var HTMLFeatures = declare( BlockBased,
 
         return container;
     },
-    _fmtFeatureDetailField: function( title, val, class_ ) {
+    _fmtDetailField: function( title, val, class_ ) {
         var valType = typeof val;
         if( !( valType in {string:1,number:1} ) )
             return ''; //val = '<span class="ghosted">none</span>';
