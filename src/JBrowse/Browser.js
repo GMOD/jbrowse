@@ -178,10 +178,10 @@ Browser.prototype.initView = function() {
 
     var overview = dojo.create( 'div', { className: 'overview', id: 'overview' }, topPane );
     // overview=0 hides the overview, but we still need it to exist
-    if( this.config.show_overview == 0 )
+    if( ! this.config.show_overview )
         overview.style.cssText = "display: none";
 
-    if( this.config.show_nav != 0 )
+    if( this.config.show_nav )
         this.navbox = this.createNavBox( topPane, 25 );
 
     // make our little top-links box with links to help, etc.
@@ -193,15 +193,15 @@ Browser.prototype.initView = function() {
         title: 'powered by JBrowse'
      }, linkContainer );
 
-    var embedded = this.config.show_nav == 0 || this.config.show_tracklist == 0 || this.config.show_overview == 0;
-    if( embedded )
-        linkContainer.appendChild( this.makeFullViewLink() );
-    else
+    if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview )
         linkContainer.appendChild( this.makeShareLink() );
+    else
+        linkContainer.appendChild( this.makeFullViewLink() );
 
-    if( this.config.show_nav != 0 )
+    if( this.config.show_nav )
         linkContainer.appendChild( this.makeHelpDialog()   );
-    ( this.config.show_nav == 0 ? this.container : this.navbox ).appendChild( linkContainer );
+
+    ( this.config.show_nav ? this.navbox : this.container ).appendChild( linkContainer );
 
 
     this.viewElem = document.createElement("div");
@@ -217,7 +217,7 @@ Browser.prototype.initView = function() {
         new dijitContentPane({region: "top"}, topPane);
 
     //create location trapezoid
-    if( this.config.show_nav != 0 ) {
+    if( this.config.show_nav ) {
         this.locationTrap = dojo.create('div', {className: 'locationTrap'}, topPane );
         this.locationTrap.className = "locationTrap";
     }
@@ -458,7 +458,7 @@ Browser.prototype.addRecentlyUsedTracks = function( trackLabels ) {
  *  @returns nothing meaningful
  */
 Browser.prototype.loadConfig = function () {
-    var c = new ConfigManager({ config: this.config, browser: this });
+    var c = new ConfigManager({ config: this.config, defaults: this._configDefaults(), browser: this });
     c.getFinalConfig( dojo.hitch(this, function( finishedConfig ) {
                 this.config = finishedConfig;
 
@@ -472,6 +472,15 @@ Browser.prototype.loadConfig = function () {
      }));
 };
 
+Browser.prototype._configDefaults = function() {
+    return {
+        tracks: [],
+        show_tracklist: true,
+        show_nav: true,
+        show_overview: true
+    };
+};
+
 /**
  * Hook run after the configuration is all loaded.
  */
@@ -480,6 +489,19 @@ Browser.prototype.onConfigLoaded = function() {
     dojo.forEach( ['show_tracklist','show_nav','show_overview'], function(v) {
         this.config[v] = this._coerceBoolean( this.config[v] );
     },this);
+
+    // set empty tracks array if we have none
+    if( ! this.config.tracks )
+        this.config.tracks = [];
+
+    // set a default baseUrl in each of the track confs if needed
+    if( this.config.sourceUrl ) {
+        dojo.forEach( this.config.tracks, function(t) {
+            if( ! t.baseUrl )
+                t.baseUrl = this.config.baseUrl;
+        },this);
+    }
+
 };
 
 /**
@@ -501,6 +523,9 @@ Browser.prototype._coerceBoolean = function(val) {
     }
     else if( typeof val == 'boolean' ) {
         return val;
+    }
+    else if( typeof val == 'number' ) {
+        return !!val;
     }
     else {
         return true;
@@ -574,20 +599,8 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
  * @private
  */
 Browser.prototype.createTrackList = function( callback ) {
-
-    if( ! this.config.tracks )
-        this.config.tracks = [];
-
-    // set a default baseUrl in each of the track confs if needed
-    if( this.config.sourceUrl ) {
-        dojo.forEach( this.config.tracks, function(t) {
-            if( ! t.baseUrl )
-                t.baseUrl = this.config.baseUrl;
-        },this);
-    }
-
     // find the tracklist class to use
-    var tl_class = this.config.show_tracklist == 0       ? 'Null'                         :
+    var tl_class = !this.config.show_tracklist           ? 'Null'                         :
                    (this.config.trackSelector||{}).type  ? this.config.trackSelector.type :
                                                            'Simple';
     var metaDataSourceClasses = dojo.map(
