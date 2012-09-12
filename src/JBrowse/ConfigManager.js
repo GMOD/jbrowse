@@ -15,12 +15,17 @@ function( declare, Util ) { return declare(null,
  */
 constructor: function( args ) {
     this.config = dojo.clone( args.config || {} );
+    this.defaults = dojo.clone( args.defaults || {} );
     this.browser = args.browser;
     this.skipValidation = args.skipValidation;
     this.topLevelIncludes = this.config.include;
     delete this.config.include;
 },
 
+/**
+ * @param callback {Function} callback, receives a single arguments,
+ * which is the final processed configuration object
+ */
 getFinalConfig: function( callback ) {
     this._loadIncludes({ include: this.topLevelIncludes }, dojo.hitch( this, function( includedConfig ) {
 
@@ -31,7 +36,7 @@ getFinalConfig: function( callback ) {
 
         // now validate the final merged config, and finally give it
         // to the callback
-        this._applyDefaults( this.config );
+        this._applyDefaults( this.config, this.defaults );
         if( ! this.skipValidation )
             this._validateConfig( this.config );
         callback( this.config );
@@ -145,9 +150,11 @@ _mergeIncludes: function( inputConfig, config_includes ) {
     return inputConfig;
 },
 
-_applyDefaults: function( config ) {
-    if( ! config.tracks )
-        config.tracks = [];
+/**
+ * @private
+ */
+_applyDefaults: function( config, defaults ) {
+    return Util.deepUpdate( dojo.clone(defaults), config );
 },
 
 /**
@@ -166,6 +173,9 @@ _validateConfig: function( c ) {
         throw "Errors in configuration, aborting.";
 },
 
+/**
+ * @private
+ */
 _fatalError: function( error ) {
     this.hasFatalErrors = true;
     console.error(error);
