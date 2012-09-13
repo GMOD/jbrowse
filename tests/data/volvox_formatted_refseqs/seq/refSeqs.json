@@ -1,10 +1,10 @@
 [
    {
-      "length" : 66,
+      "length" : 6079,
       "name" : "ctgB",
       "seqDir" : "seq/ctgB",
       "seqChunkSize" : 20000,
-      "end" : 66,
+      "end" : 6079,
       "start" : 0
    },
    {
