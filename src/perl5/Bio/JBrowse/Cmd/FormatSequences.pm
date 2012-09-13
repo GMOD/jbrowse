@@ -126,6 +126,11 @@ sub run {
     if ( defined $self->opt('refids') ) {
         foreach my $refid (split ",", $self->opt('refids')) {
             my $seg = $db->segment(-db_id => $refid);
+            unless( $seg ) {
+                warn "WARNING: Reference sequence with -db_id '$refid' not found in input.\n";
+                next;
+            }
+
             my $refInfo = {
                 name => $self->refName($seg),
                 id => $refid,   #keep ID for later querying
