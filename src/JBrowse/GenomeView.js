@@ -1596,7 +1596,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
                 }
             },trackDiv);
 
-        if ( trackConfig.style.trackLabelCss){
+        if ( ( trackConfig.style || {} ).trackLabelCss){
             labelDiv.style.cssText += ";" + trackConfig.style.trackLabelCss;
         }
 
