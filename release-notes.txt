@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Added support for a `style.trackLabelCss` configuration variable to
+   allow customizing the appearance of the label for a particular
+   track (issue #4).
+
 1.6.2     2012-09-10 17:47:43 America/New_York
 
  * Fixed feature-layout performance problem when zoomed very far in
