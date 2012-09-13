@@ -256,3 +256,10 @@ ctgA	est	match_part	5000	5500	.	+	.	Parent=Match5;Name=agt767.5;Target=agt767.5 
 ctgA	est	match_part	7000	7200	.	+	.	Parent=Match5;Name=agt767.5;Target=agt767.5 853 1153
 
 ctgA	est	EST_match	8000	9000	.	-	.	ID=Match6;Name=agt767.3;Target=agt767.3 1 1001
+
+
+
+ctgB	example	contig	1	50000	.	.	.	Name=ctgA
+ctgB	example	remark	1659	1984	.	+	.	Name=f07;Note=This is an example
+ctgB	example	remark	3014	6130	.	+	.	Name=f06;Note=This is another example
+ctgB	example	remark	4715	5968	.	-	.	Name=f05;Note=ああ、この機能は、世界中を旅しています！
