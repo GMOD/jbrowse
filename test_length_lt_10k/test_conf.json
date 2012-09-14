@@ -1,0 +1,21 @@
+{
+  "description": "Test",
+  "db_adaptor": "Bio::DB::SeqFeature::Store",
+  "db_args": { "-adaptor": "memory",
+               "-dir": "./" },
+
+  "TRACK DEFAULTS": {
+    "class": "feature",
+    "autocomplete": "all"
+  },
+
+  "tracks": [
+    {
+      "track": "mRNA",
+      "key": "mRNA",
+      "feature": ["mRNA"],
+      "class": "transcript-CDS",
+      "category": "featureTrack"
+	}
+  ]
+}

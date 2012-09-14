@@ -1,0 +1,11 @@
+##gff-version 3
+# Note: See http://song.sourceforge.net
+contig1234	example	contig	1	9000	.	.	.	Name=contig1234_1; Description=Original contig length 1..9000
+contig1234	example	mRNA	1659	1984	.	+	.	Name=f01;
+contig1234	example	mRNA	3014	6130	.	+	.	Name=f02;
+contig1234	example	mRNA	4715	5968	.	-	.	Name=f03;
+
+contig1234_1	example	contig	1	10000	.	.	.	Name=contig1234_2; Description=Fake contig length 1..10000
+contig1234_1	example	mRNA	1659	1984	.	+	.	Name=f04;
+contig1234_1	example	mRNA	3014	6130	.	+	.	Name=f05;
+contig1234_1	example	mRNA	4715	5968	.	-	.	Name=f06;

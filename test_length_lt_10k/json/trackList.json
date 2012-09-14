@@ -1,0 +1,28 @@
+{
+   "tracks" : [
+      {
+         "chunkSize" : 20000,
+         "urlTemplate" : "seq/{refseq}/",
+         "type" : "SequenceTrack",
+         "label" : "DNA",
+         "key" : "DNA"
+      },
+      {
+         "autocomplete" : "all",
+         "track" : "mRNA",
+         "style" : {
+            "className" : "transcript-CDS"
+         },
+         "key" : "mRNA",
+         "feature" : [
+            "mRNA"
+         ],
+         "urlTemplate" : "tracks/mRNA/{refseq}/trackData.json",
+         "compress" : 0,
+         "type" : "FeatureTrack",
+         "category" : "featureTrack",
+         "label" : "mRNA"
+      }
+   ],
+   "formatVersion" : 1
+}

@@ -1,0 +1,18 @@
+[
+   {
+      "length" : 9000,
+      "name" : "contig1234_1",
+      "seqDir" : "seq/contig1234_1",
+      "seqChunkSize" : 20000,
+      "end" : 9000,
+      "start" : 0
+   },
+   {
+      "length" : 9000,
+      "name" : "contig1234",
+      "seqDir" : "seq/contig1234",
+      "seqChunkSize" : 20000,
+      "end" : 9000,
+      "start" : 0
+   }
+]
