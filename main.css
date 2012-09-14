@@ -293,12 +293,14 @@ div.track-label .track-menu-button {
     width: 24px;
     height: 25px;
     border-radius: 0 6px 6px 0;
+    border-left: 1px inset transparent;
     vertical-align: top;
     right: -5px;
     top: -2px;
 }
 .tundra div.track-label:hover .track-menu-button:hover {
-    background-color: rgba( 0, 0, 100, 0.1 );
+    background-color: rgba( 0, 0, 100, 0.05 );
+    border-left-color: #ccc;
 }
 .tundra div.track-label .track-close-button {
     background: url("src/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
