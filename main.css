@@ -272,7 +272,8 @@ div.track-label {
     color: black;
     margin: 5px 0 0 3px;
     background: white;
-
+    padding: 2px 5px;
+    height: 20px;
     z-index: 20;
     border-color: transparent;
     opacity: 0.7;
@@ -288,10 +289,16 @@ div.track-label .track-close-button {
 }
 div.track-label .track-menu-button {
     display: inline-block;
-    width: 1em;
-    height: 100%;
-    margin-right: -0.7em;
-    padding: 0 0.5em;
+    position: relative;
+    width: 24px;
+    height: 25px;
+    border-radius: 0 6px 6px 0;
+    vertical-align: top;
+    right: -5px;
+    top: -2px;
+}
+.tundra div.track-label:hover .track-menu-button:hover {
+    background-color: rgba( 0, 0, 100, 0.1 );
 }
 .tundra div.track-label .track-close-button {
     background: url("src/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
@@ -302,7 +309,11 @@ div.track-label .track-menu-button {
 .tundra div.track-label:hover .track-menu-button div {
     height: 8px;
     width: 8px;
-    margin-top: 5px;
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    left: 8px;
+    top: 1px;
     background: url("src/dijit/themes/tundra/images/spriteArrows.png") no-repeat -28px 0;
 }
 .tundra div.track-label:hover .track-menu-button:hover div {
