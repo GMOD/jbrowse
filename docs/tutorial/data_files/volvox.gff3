@@ -1,7 +1,7 @@
 ##gff-version 3
 # Note: See http://song.sourceforge.net
 
-ctgA	example	contig	1	50000	.	.	.	Name=ctgA
+ctgA	example	contig	1	50001	.	.	.	Name=ctgA
 ctgA	example	remark	1659	1984	.	+	.	Name=f07;Note=This is an example
 ctgA	example	remark	3014	6130	.	+	.	Name=f06;Note=This is another example
 ctgA	example	remark	4715	5968	.	-	.	Name=f05;Note=Ok! Ok! I get the message.
@@ -259,7 +259,7 @@ ctgA	est	EST_match	8000	9000	.	-	.	ID=Match6;Name=agt767.3;Target=agt767.3 1 100
 
 
 
-ctgB	example	contig	1	50000	.	.	.	Name=ctgA
+ctgB	example	contig	1	6079	.	.	.	Name=ctgB
 ctgB	example	remark	1659	1984	.	+	.	Name=f07;Note=This is an example
 ctgB	example	remark	3014	6130	.	+	.	Name=f06;Note=This is another example
 ctgB	example	remark	4715	5968	.	-	.	Name=f05;Note=ああ、この機能は、世界中を旅しています！
