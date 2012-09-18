@@ -351,7 +351,15 @@ GenomeView.prototype._behaviors = function() { return {
                 dojo.connect( this.locationThumbMover,  "onMoveStop",     this, 'thumbMoved'         ),
 
                 dojo.connect( this.overview,            "onclick",        this, 'overviewClicked'    ),
-                dojo.connect( this.scaleTrackDiv,       "onclick",        this, 'scaleClicked'       ),
+                dojo.connect( this.overview,            "mouseover",      this, 'overviewMouseOver'  ),
+                dojo.connect( this.overview,            "mouseout",       this, 'overviewMouseOut'   ),
+                dojo.connect( this.overview,            "mousemove",      this, 'overviewMouseMove'  ),
+
+                dojo.connect( this.scaleTrackDiv,       "onclick",        this,  'scaleClicked'      ),
+                dojo.connect( this.scaleTrackDiv,       "mouseover",      this,  'scaleMouseOver'    ),
+                dojo.connect( this.scaleTrackDiv,       "mouseout",       this,  'scaleMouseOut'     ),
+                dojo.connect( this.scaleTrackDiv,       "mousemove",      this,  'scaleMouseMove'    ),
+
 
                 // when the mouse leaves the document, need to cancel
                 // any keyboard-modifier-holding-down state
@@ -927,8 +935,75 @@ GenomeView.prototype.overviewClicked = function( evt ) {
 };
 
 /**
+ * Event handler fired when mouse is over the overview bar.
+ */
+GenomeView.prototype.overviewMouseOver = function( evt ) {
+    this.drawGiantLine(evt);
+};
+
+/**
+ * Event handler fired when mouse is over the scale bar.
+ */
+GenomeView.prototype.scaleMouseOver = function( evt ) {
+    this.drawGiantLine(evt);
+};
+
+GenomeView.prototype.scaleMouseMove = function( evt ) {
+    this.drawGiantLine(evt);};
+    
+GenomeView.prototype.overviewMouseMove = function( evt ) {
+    this.drawGiantLine(evt);};
+
+
+/**
+ * Event handler fired when mouse leaves the overview bar.
+ */
+GenomeView.prototype.overviewMouseOut = function( evt ) {
+    this.clearGiantLine();
+};
+
+/**
+ * Event handler fired when mouse leaves the scale bar.
+ */
+GenomeView.prototype.scaleMouseOut = function( evt ) {
+    this.clearGiantLine();
+};
+
+GenomeView.prototype.drawGiantLine = function(evt){
+
+    if ( !document.getElementById("DivGiantLine") ){
+        
+        var divGiantLine = dojo.create( 'div', {
+            className: 'trackVerticalPositionIndicator',
+            id: "DivGiantLine",
+            style: {
+                position: 'absolute',
+                top: 0,
+                display: 'none',
+                cursor: 'default',
+                left: '-2px',
+                height: document.getElementById("gridtrack").offsetHeight+'px',
+                width: '1px',
+                backgroundColor: 'red',
+                zIndex: 15
+            }
+        }, gridtrack);
+    }
+
+    document.getElementById("DivGiantLine").style.height = document.getElementById("gridtrack").offsetHeight+'px';//in case window gets resized
+    var x = evt.pageX + 2*this.getWidth() + parseInt(document.getElementById("trackPane").style.width);
+    document.getElementById("DivGiantLine").style.display = 'block';
+    document.getElementById("DivGiantLine").style.left = x+'px';
+};
+
+GenomeView.prototype.clearGiantLine = function(){
+    document.getElementById("DivGiantLine").style.display = 'none';
+}
+
+
+/**
  * Convert absolute X pixel position to base pair position on the
- * <b>overview</b> track.  This needs refactoring; a scale bar should
+gridtrack.style.height * <b>overview</b> track.  This needs refactoring; a scale bar should
  * itself know how to convert an absolute X position to base pairs.
  * @param {Number} x absolute pixel X position (for example, from a click event's clientX property)
  */
