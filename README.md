@@ -13,12 +13,16 @@ module prerequisites installed for them to work.  Run with:
 
     prove -lr t
 
+## Client-side Unit Tests
+
+Point your browser at [tests/js_tests/index.html](tests/js_tests/index.html)
+
 ## Client-side Integration Tests
 
 Integration tests for the client-side app.  You need to have Python
 eggs for `selenium` and `nose` installed.  Run the tests with:
 
-    nosetests
+    JBROWSE_URL='http://localhost/jbrowse/index.html' nosetests
 
 # Using the embedded JavaScript documentation
 
