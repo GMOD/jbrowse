@@ -982,7 +982,7 @@ GenomeView.prototype.drawGiantLine = function(evt){
                 display: 'none',
                 cursor: 'default',
                 left: '-2px',
-                height: document.getElementById("gridtrack").offsetHeight+'px',
+                height: '100%',
                 width: '1px',
                 backgroundColor: 'red',
                 zIndex: 15
@@ -990,8 +990,12 @@ GenomeView.prototype.drawGiantLine = function(evt){
         }, gridtrack);
     }
 
-    document.getElementById("DivGiantLine").style.height = document.getElementById("gridtrack").offsetHeight+'px';//in case window gets resized
-    var x = evt.pageX + 2*this.getWidth() + parseInt(document.getElementById("trackPane").style.width);
+    var x = evt.pageX + parseInt(document.getElementById('trackPane'     ).style.width);
+    x +=                parseInt(document.getElementById('gridtrack'     ).offsetWidth)/2; 
+    x -=                parseInt(document.getElementById('GenomeBrowser' ).offsetWidth)/2;
+    
+//    alert(parseInt(document.getElementById('GenomeBrowser' ).offsetWidth)/2);
+    
     document.getElementById("DivGiantLine").style.display = 'block';
     document.getElementById("DivGiantLine").style.left = x+'px';
 };
@@ -1003,7 +1007,7 @@ GenomeView.prototype.clearGiantLine = function(){
 
 /**
  * Convert absolute X pixel position to base pair position on the
-gridtrack.style.height * <b>overview</b> track.  This needs refactoring; a scale bar should
+ * <b>overview</b> track.  This needs refactoring; a scale bar should
  * itself know how to convert an absolute X position to base pairs.
  * @param {Number} x absolute pixel X position (for example, from a click event's clientX property)
  */
