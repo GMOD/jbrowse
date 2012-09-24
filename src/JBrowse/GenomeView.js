@@ -985,7 +985,7 @@ GenomeView.prototype.drawGiantLine = function(evt){
             className: 'trackVerticalPositionIndicator',
             id: "DivGiantLine",
             style: {
-                position: 'absolute',
+                position: 'fixed',
                 top: 0,
                 display: 'none',
                 cursor: 'default',
@@ -998,13 +998,8 @@ GenomeView.prototype.drawGiantLine = function(evt){
         }, gridtrack);
     }
 
-    //Get location on screen
-    var x = evt.pageX + parseInt(document.getElementById('trackPane'     ).style.width);
-    x +=                parseInt(document.getElementById('gridtrack'     ).offsetWidth)/2; 
-    x -=                parseInt(document.getElementById('GenomeBrowser' ).offsetWidth)/2;
-
-    document.getElementById("DivGiantLine").style.display = 'block'; //make visible
-    document.getElementById("DivGiantLine").style.left = x+'px';     //set location on screen
+    document.getElementById("DivGiantLine").style.display = 'block';      //make visible
+    document.getElementById("DivGiantLine").style.left = evt.pageX +'px'; //set location on screen
 };
 
 /**
