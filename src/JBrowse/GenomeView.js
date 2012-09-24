@@ -975,7 +975,30 @@ GenomeView.prototype.drawVerticalPositionLine = function(evt){
         }, gridtrack);
     }
 
-    this.verticalPositionLine.style.display = 'block';      //make visible
+    if (!this.verticalPositionLabelBP){
+    // if label does not exist, create it
+        this.verticalPositionLabelBP = dojo.create( 'div', {
+            className: 'trackVerticalPositionLabel',
+            id: "verticalPositionLabelBP",
+            style: {
+                position: 'fixed',
+                top: '59px',
+                display: 'none',
+                cursor: 'default',
+                left: '-50px',
+                height: '16px',
+                backgroundColor: 'red',
+                zIndex: 200,
+                textAlign: 'center'
+            }
+        }, static_track);
+    }
+    
+    this.verticalPositionLabelBP.style.display = 'inline';      //make label visible
+    this.verticalPositionLabelBP.innerHTML = 'BP : ' + Math.floor(this.absXtoBp(evt.pageX)); //set text to BP location
+    this.verticalPositionLabelBP.style.left = (evt.pageX + 15) +'px'; //set location on screen
+
+    this.verticalPositionLine.style.display = 'block';      //make line visible
     this.verticalPositionLine.style.left = evt.pageX +'px'; //set location on screen
 };
 
@@ -984,6 +1007,7 @@ GenomeView.prototype.drawVerticalPositionLine = function(evt){
  */
 GenomeView.prototype.clearVerticalPositionLine = function(){
     this.verticalPositionLine.style.display = 'none';
+    this.verticalPositionLabelBP.style.display = 'none';
 }
 
 
