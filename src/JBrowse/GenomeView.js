@@ -938,52 +938,52 @@ GenomeView.prototype.overviewClicked = function( evt ) {
  * Event handler fired when mouse is over the overview bar.
  */
 GenomeView.prototype.overviewMouseOver = function( evt ) {
-    this.drawGiantLine(evt);
+    this.drawVerticalPositionLine(evt);
 };
 
 /**
  * Event handler fired when mouse is over the scale bar.
  */
 GenomeView.prototype.scaleMouseOver = function( evt ) {
-    this.drawGiantLine(evt);
+    this.drawVerticalPositionLine(evt);
 };
 
 /**
  * Event handler fired when mouse moves over the scale bar.
  */
 GenomeView.prototype.scaleMouseMove = function( evt ) {
-    this.drawGiantLine(evt);};
+    this.drawVerticalPositionLine(evt);};
 
 /**
  * Event handler fired when mouse moves over the overview bar.
  */
 GenomeView.prototype.overviewMouseMove = function( evt ) {
-    this.drawGiantLine(evt);};
+    this.drawVerticalPositionLine(evt);};
 
 /**
  * Event handler fired when mouse leaves the overview bar.
  */
 GenomeView.prototype.overviewMouseOut = function( evt ) {
-    this.clearGiantLine();
+    this.clearVerticalPositionLine();
 };
 
 /**
  * Event handler fired when mouse leaves the scale bar.
  */
 GenomeView.prototype.scaleMouseOut = function( evt ) {
-    this.clearGiantLine();
+    this.clearVerticalPositionLine();
 };
 
 /**
  * Draws the red line across the work area, or updates it if it already exists.
  */
-GenomeView.prototype.drawGiantLine = function(evt){
+GenomeView.prototype.drawVerticalPositionLine = function(evt){
 
-    if ( !document.getElementById("DivGiantLine") ){
+    if (!this.verticalPositionLine){
     // if line does not exist, create it
-        var divGiantLine = dojo.create( 'div', {
+        this.verticalPositionLine = dojo.create( 'div', {
             className: 'trackVerticalPositionIndicator',
-            id: "DivGiantLine",
+            id: "verticalPositionLine",
             style: {
                 position: 'fixed',
                 top: 0,
@@ -998,15 +998,15 @@ GenomeView.prototype.drawGiantLine = function(evt){
         }, gridtrack);
     }
 
-    document.getElementById("DivGiantLine").style.display = 'block';      //make visible
-    document.getElementById("DivGiantLine").style.left = evt.pageX +'px'; //set location on screen
+    this.verticalPositionLine.style.display = 'block';      //make visible
+    this.verticalPositionLine.style.left = evt.pageX +'px'; //set location on screen
 };
 
 /**
  * Function to clear the line
  */
-GenomeView.prototype.clearGiantLine = function(){
-    document.getElementById("DivGiantLine").style.display = 'none';
+GenomeView.prototype.clearVerticalPositionLine = function(){
+    this.verticalPositionLine.style.display = 'none';
 }
 
 
