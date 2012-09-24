@@ -351,9 +351,6 @@ GenomeView.prototype._behaviors = function() { return {
                 dojo.connect( this.locationThumbMover,  "onMoveStop",     this, 'thumbMoved'         ),
 
                 dojo.connect( this.overview,            "onclick",        this, 'overviewClicked'    ),
-                dojo.connect( this.overview,            "mouseover",      this, 'overviewMouseOver'  ),
-                dojo.connect( this.overview,            "mouseout",       this, 'overviewMouseOut'   ),
-                dojo.connect( this.overview,            "mousemove",      this, 'overviewMouseMove'  ),
 
                 dojo.connect( this.scaleTrackDiv,       "onclick",        this,  'scaleClicked'      ),
                 dojo.connect( this.scaleTrackDiv,       "mouseover",      this,  'scaleMouseOver'    ),
@@ -935,13 +932,6 @@ GenomeView.prototype.overviewClicked = function( evt ) {
 };
 
 /**
- * Event handler fired when mouse is over the overview bar.
- */
-GenomeView.prototype.overviewMouseOver = function( evt ) {
-    this.drawVerticalPositionLine(evt);
-};
-
-/**
  * Event handler fired when mouse is over the scale bar.
  */
 GenomeView.prototype.scaleMouseOver = function( evt ) {
@@ -953,19 +943,6 @@ GenomeView.prototype.scaleMouseOver = function( evt ) {
  */
 GenomeView.prototype.scaleMouseMove = function( evt ) {
     this.drawVerticalPositionLine(evt);};
-
-/**
- * Event handler fired when mouse moves over the overview bar.
- */
-GenomeView.prototype.overviewMouseMove = function( evt ) {
-    this.drawVerticalPositionLine(evt);};
-
-/**
- * Event handler fired when mouse leaves the overview bar.
- */
-GenomeView.prototype.overviewMouseOut = function( evt ) {
-    this.clearVerticalPositionLine();
-};
 
 /**
  * Event handler fired when mouse leaves the scale bar.
