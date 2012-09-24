@@ -948,12 +948,17 @@ GenomeView.prototype.scaleMouseOver = function( evt ) {
     this.drawGiantLine(evt);
 };
 
+/**
+ * Event handler fired when mouse moves over the scale bar.
+ */
 GenomeView.prototype.scaleMouseMove = function( evt ) {
     this.drawGiantLine(evt);};
-    
+
+/**
+ * Event handler fired when mouse moves over the overview bar.
+ */
 GenomeView.prototype.overviewMouseMove = function( evt ) {
     this.drawGiantLine(evt);};
-
 
 /**
  * Event handler fired when mouse leaves the overview bar.
@@ -969,10 +974,13 @@ GenomeView.prototype.scaleMouseOut = function( evt ) {
     this.clearGiantLine();
 };
 
+/**
+ * Draws the red line across the work area, or updates it if it already exists.
+ */
 GenomeView.prototype.drawGiantLine = function(evt){
 
     if ( !document.getElementById("DivGiantLine") ){
-        
+    // if line does not exist, create it
         var divGiantLine = dojo.create( 'div', {
             className: 'trackVerticalPositionIndicator',
             id: "DivGiantLine",
@@ -990,16 +998,18 @@ GenomeView.prototype.drawGiantLine = function(evt){
         }, gridtrack);
     }
 
+    //Get location on screen
     var x = evt.pageX + parseInt(document.getElementById('trackPane'     ).style.width);
     x +=                parseInt(document.getElementById('gridtrack'     ).offsetWidth)/2; 
     x -=                parseInt(document.getElementById('GenomeBrowser' ).offsetWidth)/2;
-    
-//    alert(parseInt(document.getElementById('GenomeBrowser' ).offsetWidth)/2);
-    
-    document.getElementById("DivGiantLine").style.display = 'block';
-    document.getElementById("DivGiantLine").style.left = x+'px';
+
+    document.getElementById("DivGiantLine").style.display = 'block'; //make visible
+    document.getElementById("DivGiantLine").style.left = x+'px';     //set location on screen
 };
 
+/**
+ * Function to clear the line
+ */
 GenomeView.prototype.clearGiantLine = function(){
     document.getElementById("DivGiantLine").style.display = 'none';
 }
