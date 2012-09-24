@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+ * Fix coordinate display bug in feature detail popups.  The feature's
+   position was being displayed in interbase coordinates, but should
+   be displayed in 1-based coordinates.  Thanks to Steffi Geisen for
+   pointing this out.
+
  * Added support for a `style.trackLabelCss` configuration variable to
    allow customizing the appearance of the label for a particular
    track (issue #4).
