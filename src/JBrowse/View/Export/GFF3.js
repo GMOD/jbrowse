@@ -15,6 +15,7 @@ return declare( null,
         this.print = args.print || function( line ) { this.output += line; };
         this.refSeq = args.refSeq;
         this.output = '';
+        this._idCounter = 0;
     },
 
     gff3_field_names: [
@@ -76,7 +77,7 @@ return declare( null,
         return this._gff3_reserved_attributes_by_lcname[ fieldname.toLowerCase() ];
     },
 
-    formatFeature: function( feature ) {
+    formatFeature: function( feature, parentID ) {
         var fields = dojo.map(
                 [ feature.get('seq_id') || this.refSeq.name ]
                 .concat( dojo.map( this.gff3_field_names.slice(1,7), function(field) {
@@ -96,9 +97,31 @@ return declare( null,
         fields[6] = { '1': '+', '-1': '-', '0': '.' }[ fields[6] ] || fields[6];
 
         // format the attributes
-        fields[8] = this._gff3_format_attributes( feature );
+        var attr = this._gff3_attributes( feature );
+        if( parentID )
+            attr.Parent = parentID;
 
-        return fields.join("\t")+"\n";
+        // special-case some artifactual attributes left there by
+        // Bio::DB::SeqFeature-based formatting tools (load_id and
+        // parent_id)
+        if( attr.load_id && ! attr.ID ) {
+            attr.ID = attr.load_id;
+            delete attr.load_id;
+        }
+        if( attr.parent_id == attr.Parent )
+            delete attr.parent_id;
+
+        var subfeatures = array.map(
+            feature.get('subfeatures') || [],
+            function(feat) {
+                if( ! attr.ID ) {
+                    attr.ID = "auto_"+( ++this._idCounter );
+                }
+                return this.formatFeature( feat, attr.ID );
+            }, this);
+
+        fields[8] = this._gff3_format_attributes( attr );
+        return fields.join("\t")+"\n" + subfeatures.join('');
     },
 
     writeFeature: function(feature) {
@@ -106,21 +129,36 @@ return declare( null,
     },
 
     /**
+     * Extract a key-value object of gff3 attributes from the given
+     * feature.  Attribute names will have proper capitalization.
      * @private
      */
-    _gff3_format_attributes: function( feature ) {
+    _gff3_attributes: function(feature) {
         var tags = array.filter( feature.tags(), dojo.hitch(this, function(f) {
             f = f.toLowerCase();
             return this._is_not_gff3_tab_field(f) && f != 'subfeatures';
         }));
-        var attrs = [];
+        var attrs = {};
         array.forEach( tags, function(tag) {
             var val = feature.get(tag);
             if( typeof val != 'string' && typeof val != 'number' )
                 return;
-            attrs.push( this._gff3_escape( this._gff3_reserved_attribute(tag) || tag.toLowerCase() )+'='+this._gff3_escape( val ) );
+            tag = this._gff3_reserved_attribute(tag) || tag.toLowerCase();
+            attrs[tag] = val;
         },this);
-        return attrs.join(';');
+        return attrs;
+    },
+
+    /**
+     * @private
+     * @returns {String} formatted attribute string
+     */
+    _gff3_format_attributes: function( attrs ) {
+        var attrOrder = [];
+        for( var tag in attrs ) {
+            attrOrder.push( this._gff3_escape( tag )+'='+this._gff3_escape( attrs[tag] ) );
+        }
+        return attrOrder.join(';');
     },
 
     /**
