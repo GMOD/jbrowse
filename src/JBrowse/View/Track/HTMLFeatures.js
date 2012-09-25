@@ -896,11 +896,12 @@ var HTMLFeatures = declare( BlockBased,
     },
 
     _exportDialogContent: function() {
-        var container = dojo.create('div', { className: 'feature-export' } );
         var visibleRegionStr = this.browser.visibleRegion();
         var wholeRefSeqStr = Util.assembleLocString({ ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end });
-        container.innerHTML = ''
-            + '<form onsubmit="return false;">'
+
+        var container = dojo.create('div', { className: 'feature-export' } );
+        var form = dojo.create('form', { onSubmit: function() { return false; } }, container);
+        form.innerHTML = ''
             + ' <fieldset class="region">'
             + '   <legend>Region to save</legend>'
             + '   <input checked="checked" type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="regionVisible" value="'+visibleRegionStr+'" />'
@@ -922,11 +923,47 @@ var HTMLFeatures = declare( BlockBased,
 
         var actionBar = dojo.create( 'div', {
             className: 'dijitDialogPaneActionBar'
-        });
-        new dijitButton({ iconClass: 'dijitIconDelete', onClick: dojo.hitch(this.dialog,'hide'), label: 'Cancel' }).placeAt( actionBar );
-        new dijitButton({ iconClass: 'dijitIconSave', onClick: dojo.hitch(this.dialog,'hide'), label: 'Save' }).placeAt( actionBar );
+        },form);
+        var dialog = this.dialog;
 
-        return [container, actionBar];
+        new dijitButton({ iconClass: 'dijitIconDelete', onClick: dojo.hitch(dialog,'hide'), label: 'Cancel' })
+            .placeAt( actionBar );
+        new dijitButton({ iconClass: 'dijitIconSave', label: 'Save', onClick: dojo.hitch( this.track, function() {
+                            this.exportFile( form.elements.region.value, form.elements.format.value );
+                            dialog.hide();
+                          })})
+            .placeAt( actionBar );
+
+        return container;
+    },
+
+    exportFile: function( region, format ) {
+        // parse the locstring if necessary
+        if( typeof region == 'string' )
+            region = Util.parseLocString( region );
+
+        // we can only export from the currently-visible reference
+        // sequence right now
+        if( region.ref != this.refSeq.name ) {
+            console.error("cannot export data for ref seq "+region.ref+", "
+                          + "exporting is currently only supported for the "
+                          + "currently-visible reference sequence" );
+            return;
+        }
+
+        require( ['JBrowse/View/Export/'+format], dojo.hitch(this,function( exportDriver ) {
+            var output = '';
+            var exporter = new exportDriver({
+                print: function( line ) { output += line; }
+            });
+
+            this.featureStore.iterate(
+                region.start, region.end,
+                dojo.hitch( exporter, 'writeFeature' ),
+                function () {
+                    console.log(output);
+               });
+        }));
     }
 });
 
