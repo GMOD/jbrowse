@@ -469,3 +469,32 @@ a.dialog-new-window {
 .tundra .sharePane input {
     border: 1px solid #ccc;
 }
+
+/*styles for vertical line and BP label*/
+.trackVerticalPositionLabel{
+    position: fixed;
+    top: 59px;
+    display: none;
+    cursor: default;
+    left: -50px;
+    height: 1.5em;
+    line-height : 1.5em;
+    background-color: #BDCEEF;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 5px;
+    z-index: 200;
+    text-align: center;
+}
+.trackVerticalPositionIndicatorMain{
+    position: fixed;
+    top: 0;
+    display: none;
+    cursor: default;
+    left: -2px;
+    height: 100%;
+    width: 1px;
+    background-color: #FF0000;
+    z-index: 15;
+}
+
