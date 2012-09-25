@@ -571,7 +571,7 @@ return declare( null,
         };
 
         return typeof confVal == 'function' && !dontRunImmediately[confKey]
-            ? confVal( this, context.feature, context )
+            ? confVal.apply( context, context.callbackArgs || [] )
             : confVal;
     },
 
@@ -585,6 +585,9 @@ return declare( null,
             title: spec.title || spec.label || ( featureName ? featureName +' details' : "Details"),
             style: dojo.clone( spec.style || {} )
         };
+        if( spec.dialog )
+            declare.safeMixin( dialogOpts, spec.dialog );
+
         var dialog;
 
         // if dialog == xhr, open the link in a dialog
@@ -592,9 +595,14 @@ return declare( null,
         if( type == 'xhr' || type == 'content' ) {
             if( type == 'xhr' )
                 dialogOpts.href = spec.url;
-            else
-                dialogOpts.content = this._evalConf( context, spec.content, null );
+
             dialog = new dijitDialog( dialogOpts );
+            context.dialog = dialog;
+
+            if( type == 'content' )
+                dialog.set( 'content', this._evalConf( context, spec.content, null ) );
+
+            delete context.dialog;
         }
         // open the link in a dialog with an iframe
         else if( type == 'iframe' ) {
@@ -668,7 +676,7 @@ return declare( null,
     makeTrackMenu: function( menuButton, labelDiv ) {
         var options = this._trackMenuOptions();
         if( options && options.length ) {
-            var menu = this._renderContextMenu( options, menuButton );
+            var menu = this._renderContextMenu( options, { menuButton: menuButton, track: this, browser: this.browser, refSeq: this.refSeq } );
             menu.startup();
             menu.set('leftClickToOpen', true );
             menu.bindDomNode( menuButton );

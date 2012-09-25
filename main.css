@@ -7,6 +7,19 @@ html, body {
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
+fieldset {
+    padding-left: 1em;
+    margin: 0.7em 0.5em;
+}
+fieldset > legend {
+    font-weight: bold;
+    margin-left: -1em;
+}
+
+.locString {
+    font-family: monospace;
+}
+
 .ghosted {
     color: #aaa;
 }
@@ -469,6 +482,9 @@ div.error {
     padding: 0;
 }
 
+.dijitDialogPaneActionBar {
+    text-align: right;
+}
 
 /* styles for popup dialogs */
 a.dialog-new-window {

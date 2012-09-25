@@ -4,6 +4,9 @@ define( [
             'dojo/_base/array',
             'dojo/dom-geometry',
             'dojo/on',
+            'dijit/form/Select',
+            'dijit/form/RadioButton',
+            'dijit/form/Button',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/YScaleMixin',
             'JBrowse/Util',
@@ -14,6 +17,9 @@ define( [
                 array,
                 domGeom,
                 on,
+                dijitSelect,
+                dijitRadioButton,
+                dijitButton,
                 BlockBased,
                 YScaleMixin,
                 Util,
@@ -831,6 +837,9 @@ var HTMLFeatures = declare( BlockBased,
 
         // render the menu, start it up, and bind it to right-clicks
         // both on the feature div and on the label div
+        // (callbackArgs are the args that will be passed to callbacks
+        // in this feature context menu)
+        featDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
         var menu = this._renderContextMenu( menuTemplate, featDiv );
         menu.startup();
         menu.bindDomNode( featDiv );
@@ -877,16 +886,47 @@ var HTMLFeatures = declare( BlockBased,
     _trackMenuOptions: function() {
         var opts = this.inherited(arguments);
         // add a "Save track data as" option to the track menu
-        opts.push({ label: 'Save track data as&hellip;',
+        opts.push({ label: 'Save track data',
               iconClass: 'dijitIconSave',
               action: 'contentDialog',
-              content: dojo.hitch( this,'_exportDialogContent' )
+              content: this._exportDialogContent,
+              dialog: { id: 'exportDialog' }
         });
         return opts;
     },
 
     _exportDialogContent: function() {
-        return 'HIHI!';
+        var container = dojo.create('div', { className: 'feature-export' } );
+        var visibleRegionStr = this.browser.visibleRegion();
+        var wholeRefSeqStr = Util.assembleLocString({ ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end });
+        container.innerHTML = ''
+            + '<form onsubmit="return false;">'
+            + ' <fieldset class="region">'
+            + '   <legend>Region to save</legend>'
+            + '   <input checked="checked" type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="regionVisible" value="'+visibleRegionStr+'" />'
+            + '   <label for="regionVisible">Visible region - <span class="locString">'+visibleRegionStr+'</span></label>'
+            + '   <br>'
+            + '   <input type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="regionRefSeq" value="'+wholeRefSeqStr+'" />'
+            + '   <label for="regionRefSeq">Whole reference sequence - <span class="locString">'+wholeRefSeqStr+'</span></label>'
+            + '   <br>'
+            + ' </fieldset>'
+            + ' '
+            + ' <fieldset class="format">'
+            + '   <legend>Format</legend>'
+            + '   <input checked="checked" type="radio" data-dojo-type="dijit.form.RadioButton" name="format" id="formatGFF3" value="GFF3" />'
+            + '   <label for="formatGFF3">GFF3</label>'
+            + '   <br>'
+            + '   <input type="radio" data-dojo-type="dijit.form.RadioButton" name="format" id="formatBED" value="BED" />'
+            + '   <label for="formatBED">BED</label>'
+            + ' </fieldset>';
+
+        var actionBar = dojo.create( 'div', {
+            className: 'dijitDialogPaneActionBar'
+        });
+        new dijitButton({ iconClass: 'dijitIconDelete', onClick: dojo.hitch(this.dialog,'hide'), label: 'Cancel' }).placeAt( actionBar );
+        new dijitButton({ iconClass: 'dijitIconSave', onClick: dojo.hitch(this.dialog,'hide'), label: 'Save' }).placeAt( actionBar );
+
+        return [container, actionBar];
     }
 });
 
