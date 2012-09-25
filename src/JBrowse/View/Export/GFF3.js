@@ -10,6 +10,10 @@ return declare( null,
   */
 {
 
+    /**
+     * Data export driver for GFF3 format.
+     * @constructs
+     */
     constructor: function( args ) {
         args = args || {};
         this.print = args.print || function( line ) { this.output += line; };
@@ -81,6 +85,12 @@ return declare( null,
         return this._gff3_reserved_attributes_by_lcname[ fieldname.toLowerCase() ];
     },
 
+
+    /**
+     * Format a feature into a string.
+     * @param {Object} feature feature object (like those returned from JBrowse/Store/SeqFeature/*)
+     * @returns {String} GFF3 string representation of the feature
+     */
     formatFeature: function( feature, parentID ) {
         var fields = dojo.map(
                 [ feature.get('seq_id') || this.refSeq.name ]
@@ -128,6 +138,10 @@ return declare( null,
         return fields.join("\t")+"\n" + subfeatures.join('');
     },
 
+    /**
+     * Write the feature to the GFF3 under construction.
+     * @returns nothing
+     */
     writeFeature: function(feature) {
         this.print( this.formatFeature(feature)+"###\n" );
     },

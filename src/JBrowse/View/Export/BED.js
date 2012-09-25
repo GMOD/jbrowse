@@ -10,6 +10,10 @@ return declare( null,
   */
 {
 
+    /**
+     * Data export driver for BED format.
+     * @constructs
+     */
     constructor: function( args ) {
         args = args || {};
         this.print = args.print || function( line ) { this.output += line; };
@@ -46,6 +50,11 @@ return declare( null,
         'blockStarts'
     ],
 
+    /**
+     * Format a feature into a string.
+     * @param {Object} feature feature object (like those returned from JBrowse/Store/SeqFeature/*)
+     * @returns {String} BED string representation of the feature
+     */
     formatFeature: function( feature ) {
         var fields = array.map(
                 [ feature.get('seq_id') || this.refSeq.name ]
@@ -67,6 +76,10 @@ return declare( null,
         return fields.join("\t")+"\n";
     },
 
+    /**
+     * Write the feature to the GFF3 under construction.
+     * @returns nothing
+     */
     writeFeature: function(feature) {
         this.print( this.formatFeature(feature) );
     }
