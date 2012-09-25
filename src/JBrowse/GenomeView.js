@@ -960,7 +960,7 @@ GenomeView.prototype.drawVerticalPositionLine = function(evt){
     // if line does not exist, create it
         this.verticalPositionLine = dojo.create( 'div', {
             className: 'trackVerticalPositionIndicatorMain'
-        }, gridtrack);
+        }, this.staticTrack.div);
     }
 
     if (!this.verticalPositionLabel){

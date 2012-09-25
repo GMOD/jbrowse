@@ -475,7 +475,6 @@ a.dialog-new-window {
     position: fixed;
     top: 59px;
     display: none;
-    cursor: default;
     left: -50px;
     height: 1.5em;
     line-height : 1.5em;
@@ -488,9 +487,8 @@ a.dialog-new-window {
 }
 .trackVerticalPositionIndicatorMain{
     position: fixed;
-    top: 0;
     display: none;
-    cursor: default;
+    cursor: crosshair;
     left: -2px;
     height: 100%;
     width: 1px;
