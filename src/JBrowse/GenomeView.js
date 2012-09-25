@@ -396,7 +396,10 @@ GenomeView.prototype._behaviors = function() { return {
 
     // mouse events connected when the shift button is being held down
     shiftMouse: {
-        apply: function() {
+        apply: function(evt) {
+            this.drawVerticalPositionLine(evt.pageX);
+                                        //^^^^^^^^^//
+
             dojo.removeClass(this.trackContainer,'draggable');
             dojo.addClass(this.trackContainer,'rubberBandAvailable');
             return [
@@ -935,14 +938,14 @@ GenomeView.prototype.overviewClicked = function( evt ) {
  * Event handler fired when mouse is over the scale bar.
  */
 GenomeView.prototype.scaleMouseOver = function( evt ) {
-    this.drawVerticalPositionLine(evt);
+    this.drawVerticalPositionLine(evt.pageX);
 };
 
 /**
  * Event handler fired when mouse moves over the scale bar.
  */
 GenomeView.prototype.scaleMouseMove = function( evt ) {
-    this.drawVerticalPositionLine(evt);};
+    this.drawVerticalPositionLine(evt.pageX);};
 
 /**
  * Event handler fired when mouse leaves the scale bar.
@@ -954,7 +957,7 @@ GenomeView.prototype.scaleMouseOut = function( evt ) {
 /**
  * Draws the red line across the work area, or updates it if it already exists.
  */
-GenomeView.prototype.drawVerticalPositionLine = function(evt){
+GenomeView.prototype.drawVerticalPositionLine = function(numX){
 
     if (!this.verticalPositionLine){
     // if line does not exist, create it
@@ -973,15 +976,15 @@ GenomeView.prototype.drawVerticalPositionLine = function(evt){
     }
     
     this.verticalPositionLabel.style.display = 'inline';      //make label visible
-    this.verticalPositionLabel.innerHTML = 'BP : ' + Util.addCommas(Math.floor(this.absXtoBp(evt.pageX))); //set text to BP location
+    this.verticalPositionLabel.innerHTML = 'BP : ' + Util.addCommas(Math.floor(this.absXtoBp(numX))); //set text to BP location
     
-    if((window.innerWidth - evt.pageX) > (30 + this.verticalPositionLabel.offsetWidth)){ //15 pixels on either side of the label
-        this.verticalPositionLabel.style.left = (evt.pageX + 15) +'px'; //set location on screen to the right
+    if((window.innerWidth - numX) > (30 + this.verticalPositionLabel.offsetWidth)){ //15 pixels on either side of the label
+        this.verticalPositionLabel.style.left = (numX + 15) +'px'; //set location on screen to the right
     } else {
-        this.verticalPositionLabel.style.left = (evt.pageX - 15 - this.verticalPositionLabel.offsetWidth) +'px'; //set location on screen to the left
+        this.verticalPositionLabel.style.left = (numX - 15 - this.verticalPositionLabel.offsetWidth) +'px'; //set location on screen to the left
     }
     this.verticalPositionLine.style.display = 'block';      //make line visible
-    this.verticalPositionLine.style.left = evt.pageX +'px'; //set location on screen
+    this.verticalPositionLine.style.left = numX +'px'; //set location on screen
 };
 
 /**
