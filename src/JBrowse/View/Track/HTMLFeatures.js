@@ -4,6 +4,8 @@ define( [
             'dojo/_base/array',
             'dojo/dom-geometry',
             'dojo/on',
+            'dojo/has',
+            'dijit/Dialog',
             'dijit/form/Select',
             'dijit/form/RadioButton',
             'dijit/form/Button',
@@ -17,6 +19,8 @@ define( [
                 array,
                 domGeom,
                 on,
+                has,
+                dijitDialog,
                 dijitSelect,
                 dijitRadioButton,
                 dijitButton,
@@ -931,16 +935,33 @@ var HTMLFeatures = declare( BlockBased,
 
         new dijitButton({ iconClass: 'dijitIconDelete', onClick: dojo.hitch(dialog,'hide'), label: 'Cancel' })
             .placeAt( actionBar );
-        new dijitButton({ iconClass: 'dijitIconSave', label: 'Save', onClick: dojo.hitch( this.track, function() {
-                            this.exportFile( form.elements.region.value, form.elements.format.value );
+        new dijitButton({ iconClass: 'dijitIconTask', label: 'View', onClick: dojo.hitch( this.track, function() {
+                            var region = form.elements.region.value;
+                            var format = form.elements.format.value;
+                            this.exportRegion( region, format, function(output) {
+                                new dijitDialog({ title: format + ' export - <span class="locString">'+ region+'</span>', content: "<pre>\n"+output+"</pre>" }).show();
+                            });
                             dialog.hide();
                           })})
             .placeAt( actionBar );
 
+        // don't show a download button if the user is using IE older
+        // than 10, cause it won't work.
+        if( ! (has('ie') < 10) ) {
+            new dijitButton({ iconClass: 'dijitIconSave', label: 'Download', onClick: dojo.hitch( this.track, function() {
+                                var format = form.elements.format.value;
+                                this.exportRegion( form.elements.region.value, form.elements.format.value, function( output ) {
+                                    window.location.href="data:application/x-"+format.toLowerCase()+","+escape(output);
+                                });
+                                dialog.hide();
+                              })})
+                .placeAt( actionBar );
+        }
+
         return container;
     },
 
-    exportFile: function( region, format ) {
+    exportRegion: function( region, format, callback ) {
         // parse the locstring if necessary
         if( typeof region == 'string' )
             region = Util.parseLocString( region );
@@ -965,7 +986,7 @@ var HTMLFeatures = declare( BlockBased,
                 region.start, region.end,
                 dojo.hitch( exporter, 'writeFeature' ),
                 function () {
-                    console.log(output);
+                    callback( output );
                });
         }));
     }
