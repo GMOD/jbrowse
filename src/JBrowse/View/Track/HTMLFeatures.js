@@ -976,10 +976,11 @@ var HTMLFeatures = declare( BlockBased,
         }
 
         require( ['JBrowse/View/Export/'+format], dojo.hitch(this,function( exportDriver ) {
-            var output = "##gff-version 3\n##sequence-region "+this.refSeq.name+" "+(this.refSeq.start+1)+" "+this.refSeq.end+"\n";
+            var output = '';
             var exporter = new exportDriver({
                 print: function( line ) { output += line; },
-                refSeq: this.refSeq
+                refSeq: this.refSeq,
+                track: this
             });
 
             this.featureStore.iterate(

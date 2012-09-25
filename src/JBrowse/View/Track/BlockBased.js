@@ -507,9 +507,8 @@ return declare( null,
         var details = '<div class="detail">';
         var fmt = dojo.hitch(this, '_fmtDetailField');
         details += fmt( 'Name', this.key || this.name );
-        var metadata = this.browser && this.browser.trackMetaDataStore ? this.browser.trackMetaDataStore.getItem(this.name) :
-                                                  this.config.metadata ? this.config.metadata :
-                                                                         {};
+        var metadata = this.getMetadata();
+
         var md_keys = [];
         for( var k in metadata )
             md_keys.push(k);
@@ -520,6 +519,13 @@ return declare( null,
         details += "</div>";
         return details;
     },
+
+    getMetadata: function() {
+        return this.browser && this.browser.trackMetaDataStore ? this.browser.trackMetaDataStore.getItem(this.name) :
+                                          this.config.metadata ? this.config.metadata :
+                                                                 {};
+    },
+
     _fmtDetailField: function( title, val, class_ ) {
         var valType = typeof val;
         if( !( valType in {string:1,number:1} ) )

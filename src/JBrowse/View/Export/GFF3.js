@@ -16,6 +16,10 @@ return declare( null,
         this.refSeq = args.refSeq;
         this.output = '';
         this._idCounter = 0;
+
+        this.print( "##gff-version 3\n");
+        if( this.refSeq )
+            this.print("##sequence-region "+this.refSeq.name+" "+(this.refSeq.start+1)+" "+this.refSeq.end+"\n");
     },
 
     gff3_field_names: [
