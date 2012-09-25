@@ -628,6 +628,9 @@ var HTMLFeatures = declare( BlockBased,
         featDiv.feature = feature;
         featDiv.layoutEnd = featureEnd;
         featDiv.className = (featDiv.className ? featDiv.className + " " : "") + "feature";
+        // (callbackArgs are the args that will be passed to callbacks
+        // in this feature's context menu or left-click handlers)
+        featDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
 
         block.featureNodes[uniqueId] = featDiv;
 
@@ -716,15 +719,18 @@ var HTMLFeatures = declare( BlockBased,
             this._connectFeatDivHandlers( labelDiv );
 
 	    featDiv.label = labelDiv;
+            featDiv.labelDiv = labelDiv;
+
             labelDiv.feature = feature;
             labelDiv.track = this;
-            featDiv.labelDiv = labelDiv;
+            // (callbackArgs are the args that will be passed to callbacks
+            // in this feature's context menu or left-click handlers)
+            labelDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
         }
 
         if( destBlock ) {
             destBlock.appendChild(featDiv);
         }
-
 
         // defer subfeature rendering and modification hooks into a
         // timeout so that navigation feels faster.
@@ -837,9 +843,6 @@ var HTMLFeatures = declare( BlockBased,
 
         // render the menu, start it up, and bind it to right-clicks
         // both on the feature div and on the label div
-        // (callbackArgs are the args that will be passed to callbacks
-        // in this feature context menu)
-        featDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
         var menu = this._renderContextMenu( menuTemplate, featDiv );
         menu.startup();
         menu.bindDomNode( featDiv );
@@ -952,9 +955,10 @@ var HTMLFeatures = declare( BlockBased,
         }
 
         require( ['JBrowse/View/Export/'+format], dojo.hitch(this,function( exportDriver ) {
-            var output = '';
+            var output = "##gff-version 3\n##sequence-region "+this.refSeq.name+" "+(this.refSeq.start+1)+" "+this.refSeq.end+"\n";
             var exporter = new exportDriver({
-                print: function( line ) { output += line; }
+                print: function( line ) { output += line; },
+                refSeq: this.refSeq
             });
 
             this.featureStore.iterate(
