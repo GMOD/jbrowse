@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed bug in which popup dialog boxes showing other websites showed
+   the website in only the top portion of the dialog box.  Only
+   present in some browsers. (issue #149).
+
  * Fix coordinate display bug in feature detail popups.  The feature's
    position was being displayed in interbase coordinates, but should
    be displayed in 1-based coordinates.  Thanks to Steffi Geisen for
