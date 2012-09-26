@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Added a `style.height` option to Wiggle tracks to control the
+   track's height in pixels (issue 131). (Erik Derohanian)
+
  * Added support for a `style.trackLabelCss` configuration variable to
    allow customizing the appearance of the label for a particular
    track (issue #4).
