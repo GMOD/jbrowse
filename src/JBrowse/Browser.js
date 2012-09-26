@@ -3,6 +3,7 @@ var _gaq = _gaq || []; // global task queue for Google Analytics
 define( [
             'dojo/_base/lang',
             'dojo/topic',
+            'dojo/aspect',
             'dijit/layout/ContentPane',
             'dijit/layout/BorderContainer',
             'dijit/Dialog',
@@ -18,6 +19,7 @@ define( [
         function(
             lang,
             topic,
+            aspect,
             dijitContentPane,
             dijitBorderContainer,
             dijitDialog,
@@ -816,7 +818,13 @@ Browser.prototype.searchNames = function( /**String*/ loc ) {
                              + ":" + (startbp - flank)
                              + ".." + (endbp + flank));
             brwsr.showTracks(brwsr.names.extra[nameMatches[0][ post1_4 ? 1 : 0 ]]);
-        });
+        },
+        function() {
+            var d =  dijitDialog({ content: 'Not found: <tt>'+loc+'</tt>', title: 'Not Found'});
+            d.show();
+            aspect.after(d, 'hide', function() { d.destroyRecursive(); } );
+        }
+   );
 };
 
 

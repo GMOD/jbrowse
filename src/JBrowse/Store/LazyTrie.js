@@ -138,26 +138,36 @@ return declare('JBrowse.Store.LazyTrie', null,
         return results;
     },
 
-    exactMatch: function(key, callback) {
+    exactMatch: function(key, callback, notfoundCallback ) {
+        notfoundCallback = notfoundCallback || function() {};
+
         var trie = this;
-        this.findNode(key, function(prefix, node) {
+        this.findNode(key,
+                      function(prefix, node) {
                           if ((prefix.toLowerCase() == key.toLowerCase()) && node[1])
                               callback(node[1]);
-                      });
+                      },
+                      notfoundCallback
+                     );
     },
 
-    findNode: function(query, callback) {
+    findNode: function(query, foundCallback, notfoundCallback ) {
+        notfoundCallback = notfoundCallback || function() {};
+
         var trie = this;
         this.findPath(query, function(path) {
                           var node = trie.root;
-                          for (i = 0; i < path.length; i++)
+                          for (var i = 0; i < path.length; i++)
                               node = node[path[i]];
                           var foundPrefix = trie.pathToPrefix(path);
-                          callback(foundPrefix, node);
-                      });
+                          foundCallback(foundPrefix, node);
+                      }, notfoundCallback);
     },
 
-    findPath: function(query, callback) {
+    findPath: function(query, foundCallback, notfoundCallback) {
+
+        notfoundCallback = notfoundCallback || function() {};
+
         if (!this.root) {
             this.deferred = arguments;
             return;
@@ -171,7 +181,10 @@ return declare('JBrowse.Store.LazyTrie', null,
 
         while(true) {
             childIndex = this.binarySearch(node, query.charAt(qStart));
-            if (childIndex < 0) return;
+            if (childIndex < 0) {
+                notfoundCallback();
+                return;
+            }
             path.push(childIndex);
 
             if ("number" == typeof node[childIndex][0]) {
@@ -181,7 +194,7 @@ return declare('JBrowse.Store.LazyTrie', null,
                              handleAs: "json",
                              load: function(o) {
                                  node[childIndex] = o;
-                                 trie.findPath(query, callback);
+                                 trie.findPath(query, foundCallback);
                              }
                             });
                 return;
@@ -194,14 +207,16 @@ return declare('JBrowse.Store.LazyTrie', null,
             // match
             if (query.substr(qStart, node[0].length)
                 != node[0].substr(0, Math.min(node[0].length,
-                                              query.length - qStart)))
+                                              query.length - qStart))) {
+                notfoundCallback();
                 return;
+            }
 
             qStart += node[0].length;
             if (qStart >= query.length) {
                 // we've reached the end of the query string, and we
                 // have some matches
-                callback(path);
+                foundCallback(path);
                 return;
             }
         }
