@@ -351,7 +351,7 @@ var HTMLFeatures = declare( BlockBased,
         var blockBases = Math.abs( leftBase-rightBase );
         if( this._updatedLabelForBlockSize != blockBases ){
             if ( scale < (this.store.density * this.config.style.histScale)) {
-                this.setLabel(this.key + " per " + Util.addCommas( Math.round( blockBases / this.numBins)) + " bp");
+                this.setLabel(this.key + ' <span class="feature-density">per ' + Util.addCommas( Math.round( blockBases / this.numBins)) + ' bp</span>');
             } else {
                 this.setLabel(this.key);
             }

@@ -311,6 +311,11 @@ div.track-label .track-menu-button {
     right: -5px;
     top: -2px;
 }
+div.track-label .feature-density {
+    font-size: 90%;
+    font-weight: normal;
+}
+
 .tundra div.track-label:hover .track-menu-button:hover {
     background-color: rgba( 0, 0, 100, 0.05 );
     border-left-color: #ccc;
