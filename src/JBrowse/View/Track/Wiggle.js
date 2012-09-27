@@ -1,9 +1,10 @@
 define( ['dojo/_base/declare',
          'dojo/on',
          'JBrowse/View/Track/Canvas',
-         'JBrowse/View/Track/YScaleMixin'
+         'JBrowse/View/Track/YScaleMixin',
+         'JBrowse/View/Track/ExportMixin'
         ],
-        function( declare, on, CanvasTrack, YScaleMixin ) {
+        function( declare, on, CanvasTrack, YScaleMixin, ExportMixin ) {
 var Wiggle = declare( CanvasTrack,
 /**
  * @lends JBrowse.View.Track.Wiggle.prototype
@@ -334,13 +335,34 @@ var Wiggle = declare( CanvasTrack,
     updateStaticElements: function( coords ) {
         this.inherited( arguments );
         this.updateYScaleFromViewDimensions( coords );
+    },
+
+    _trackMenuOptions: function() {
+        var opts = this.inherited(arguments);
+        // add a "Save track data as" option to the track menu
+        opts.push({ label: 'Save track data',
+              iconClass: 'dijitIconSave',
+              action: 'contentDialog',
+              content: this._exportDialogContent,
+              dialog: { id: 'exportDialog', className: 'export-dialog' }
+        });
+        return opts;
+    },
+
+    _exportFormats: function() {
+        return ['WIG'];
     }
 });
 
 /**
  * Mixin: JBrowse.View.Track.YScaleMixin.
  */
-declare.safeMixin( Wiggle.prototype, YScaleMixin );
+dojo.extend( Wiggle, YScaleMixin );
+
+/**
+ * Mixin: JBrowse.View.Track.ExportMixin.
+ */
+dojo.extend( Wiggle, ExportMixin );
 
 return Wiggle;
 });

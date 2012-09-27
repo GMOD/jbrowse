@@ -10,7 +10,7 @@ var dlog = function(){ console.log.apply(console, arguments); };
 
 var gettable = declare( null, {
     get: function(name) {
-        return this[ { start: 'min', end: 'max' }[name] || name ];
+        return this[ { start: 'min', end: 'max', seq_id: 'segment' }[name] || name ];
     }
 });
 var Feature = declare( gettable, {} );
