@@ -897,7 +897,7 @@ var HTMLFeatures = declare( BlockBased,
               iconClass: 'dijitIconSave',
               action: 'contentDialog',
               content: this._exportDialogContent,
-              dialog: { id: 'exportDialog' }
+              dialog: { id: 'exportDialog', className: 'export-dialog' }
         });
         return opts;
     },
@@ -906,8 +906,7 @@ var HTMLFeatures = declare( BlockBased,
         var visibleRegionStr = this.browser.visibleRegion();
         var wholeRefSeqStr = Util.assembleLocString({ ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end });
 
-        var container = dojo.create('div', { className: 'feature-export' } );
-        var form = dojo.create('form', { onSubmit: function() { return false; } }, container);
+        var form = dojo.create('form', { onSubmit: function() { return false; } });
         form.innerHTML = ''
             + ' <fieldset class="region">'
             + '   <legend>Region to save</legend>'
@@ -930,7 +929,9 @@ var HTMLFeatures = declare( BlockBased,
 
         var actionBar = dojo.create( 'div', {
             className: 'dijitDialogPaneActionBar'
-        },form);
+        });
+
+        // note that the `this` for this content function is not the track, it's the menu-rendering context
         var dialog = this.dialog;
 
         new dijitButton({ iconClass: 'dijitIconDelete', onClick: dojo.hitch(dialog,'hide'), label: 'Cancel' })
@@ -962,7 +963,7 @@ var HTMLFeatures = declare( BlockBased,
                 .placeAt( actionBar );
         }
 
-        return container;
+        return [ form, actionBar ];
     },
 
     exportRegion: function( region, format, callback ) {
