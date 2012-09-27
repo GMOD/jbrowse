@@ -735,9 +735,11 @@ Browser.prototype.navigateTo = function(loc) {
             } catch (x) {}
             if( oldLoc ) {
                 this.navigateToLocation( oldLoc );
+                return;
             } else {
                 // if we don't just go to the middle 80% of that refseq
                 this.navigateToLocation({ref: ref.name, start: ref.end*0.1, end: ref.end*0.9 });
+                return;
             }
         }
 
