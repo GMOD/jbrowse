@@ -14,20 +14,32 @@ define( [
 
 return {
 
+    _canExport: function() {
+        var visibleRegionStr = this.browser.visibleRegion();
+        var wholeRefSeqStr = Util.assembleLocString({ ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end });
+        var canExportVisibleRegion = this._canExportRegion( visibleRegionStr );
+        var canExportWholeRef = this._canExportRegion( wholeRefSeqStr );
+        return canExportVisibleRegion || canExportWholeRef;
+    },
+
     _exportDialogContent: function() {
         // note that the `this` for this content function is not the track, it's the menu-rendering context
         var visibleRegionStr = this.browser.visibleRegion();
         var wholeRefSeqStr = Util.assembleLocString({ ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end });
+        var canExportVisibleRegion = this.track._canExportRegion( visibleRegionStr );
+        var canExportWholeRef = this.track._canExportRegion( wholeRefSeqStr );
 
         var form = dojo.create('form', { onSubmit: function() { return false; } });
         form.innerHTML = ''
             + ' <fieldset class="region">'
             + '   <legend>Region to save</legend>'
-            + '   <input checked="checked" type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="regionVisible" value="'+visibleRegionStr+'" />'
-            + '   <label for="regionVisible">Visible region - <span class="locString">'+visibleRegionStr+'</span></label>'
+            + '   <input '+( canExportVisibleRegion ? '' : ' disabled="disabled"' )
+            +'      type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="regionVisible" value="'+visibleRegionStr+'" />'
+            + '   <label '+( canExportVisibleRegion ? '' : ' class="ghosted"')+' for="regionVisible">Visible region - <span class="locString">'
+            +       visibleRegionStr+(canExportVisibleRegion ? '' : ' (too large, please zoom in)')+'</span></label>'
             + '   <br>'
-            + '   <input type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="regionRefSeq" value="'+wholeRefSeqStr+'" />'
-            + '   <label for="regionRefSeq">Whole reference sequence - <span class="locString">'+wholeRefSeqStr+'</span></label>'
+            + '   <input '+( canExportWholeRef ? '' : ' disabled="disabled"' )+' type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="regionRefSeq" value="'+wholeRefSeqStr+'" />'
+            + '   <label '+( canExportWholeRef ? '' : ' class="ghosted" ' )+' for="regionRefSeq">Whole reference sequence - <span class="locString">'+wholeRefSeqStr+(canExportWholeRef ? '' : ' (too large)')+'</span></label>'
             + '   <br>'
             + ' </fieldset>'
             + ' '
@@ -55,29 +67,35 @@ return {
 
         new dijitButton({ iconClass: 'dijitIconDelete', onClick: dojo.hitch(dialog,'hide'), label: 'Cancel' })
             .placeAt( actionBar );
-        new dijitButton({ iconClass: 'dijitIconTask', label: 'View', onClick: dojo.hitch( this.track, function() {
+        new dijitButton({ iconClass: 'dijitIconTask',
+                          label: 'View',
+                          disabled: !(canExportVisibleRegion || canExportWholeRef ),
+                          onClick: dojo.hitch( this.track, function() {
                             var region = form.elements.region.value;
                             var format = form.elements.format.value;
                             this.exportRegion( region, format, function(output) {
+                                dialog.hide();
                                 new dijitDialog({
                                     className: 'export-view-dialog',
                                     title: format + ' export - <span class="locString">'+ region+'</span>',
                                     content: "<textarea rows=\"30\" wrap=\"soft\" cols=\"80\" readonly=\"true\">\n"+output+"</textarea>"
                                 }).show();
                             });
-                            dialog.hide();
                           })})
             .placeAt( actionBar );
 
         // don't show a download button if the user is using IE older
         // than 10, cause it won't work.
         if( ! (has('ie') < 10) ) {
-            new dijitButton({ iconClass: 'dijitIconSave', label: 'Download', onClick: dojo.hitch( this.track, function() {
+            new dijitButton({ iconClass: 'dijitIconSave',
+                              label: 'Download',
+                              disabled: !(canExportVisibleRegion || canExportWholeRef ),
+                              onClick: dojo.hitch( this.track, function() {
                                 var format = form.elements.format.value;
                                 this.exportRegion( form.elements.region.value, form.elements.format.value, function( output ) {
+                                    dialog.hide();
                                     window.location.href="data:application/x-"+format.toLowerCase()+","+escape(output);
                                 });
-                                dialog.hide();
                               })})
                 .placeAt( actionBar );
         }

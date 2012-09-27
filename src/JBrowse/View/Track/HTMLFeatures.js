@@ -892,11 +892,12 @@ var HTMLFeatures = declare( BlockBased,
         var opts = this.inherited(arguments);
         // add a "Save track data as" option to the track menu
         opts.push({ label: 'Save track data',
-              iconClass: 'dijitIconSave',
-              action: 'contentDialog',
-              content: this._exportDialogContent,
-              dialog: { id: 'exportDialog', className: 'export-dialog' }
-        });
+                    iconClass: 'dijitIconSave',
+                    disabled: ! this._canExport(),
+                    action: 'contentDialog',
+                    content: this._exportDialogContent,
+                    dialog: { id: 'exportDialog', className: 'export-dialog' }
+                  });
         return opts;
     },
 
@@ -904,6 +905,24 @@ var HTMLFeatures = declare( BlockBased,
         return [ 'GFF3', 'BED' ];
     },
 
+    _canExportRegion: function( locString ) {
+        var l = Util.parseLocString( locString );
+        if( ! l ) return false;
+
+        // if we have a maxExportSpan configured for this track, use it.
+        if( typeof this.config.maxExportSpan == 'number' || typeof this.config.maxExportSpan == 'string' ) {
+            return l.end - l.start + 1 <= this.config.maxExportSpan;
+        }
+        // if we know the store's feature density, then use that with
+        // a limit of maxExportFeatures or 10000 features
+        else if( this.store.density ) {
+            console.log( this.store.density*(l.end - l.start) );
+            return this.store.density*(l.end - l.start) <= ( this.config.maxExportFeatures || 5000 );
+        }
+
+        // otherwise, i guess we can export
+        return true;
+    }
 });
 
 /**

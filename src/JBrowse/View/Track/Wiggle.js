@@ -2,9 +2,10 @@ define( ['dojo/_base/declare',
          'dojo/on',
          'JBrowse/View/Track/Canvas',
          'JBrowse/View/Track/YScaleMixin',
-         'JBrowse/View/Track/ExportMixin'
+         'JBrowse/View/Track/ExportMixin',
+         'JBrowse/Util'
         ],
-        function( declare, on, CanvasTrack, YScaleMixin, ExportMixin ) {
+        function( declare, on, CanvasTrack, YScaleMixin, ExportMixin, Util ) {
 var Wiggle = declare( CanvasTrack,
 /**
  * @lends JBrowse.View.Track.Wiggle.prototype
@@ -343,6 +344,7 @@ var Wiggle = declare( CanvasTrack,
         opts.push({ label: 'Save track data',
               iconClass: 'dijitIconSave',
               action: 'contentDialog',
+              disabled: ! this._canExport(),
               content: this._exportDialogContent,
               dialog: { id: 'exportDialog', className: 'export-dialog' }
         });
@@ -351,6 +353,20 @@ var Wiggle = declare( CanvasTrack,
 
     _exportFormats: function() {
         return ['WIG'];
+    },
+
+    _canExportRegion: function( locString ) {
+        var l = Util.parseLocString( locString );
+        if( ! l ) return false;
+
+        var length = l.end - l.start + 1;
+        // if we have a maxExportSpan configured for this track, use it.
+        if( typeof this.config.maxExportSpan == 'number' || typeof this.config.maxExportSpan == 'string' ) {
+            return length <= this.config.maxExportSpan;
+        }
+        // otherwise, default to a 200Kb limit
+        else
+            return length <= 200000;
     }
 });
 
