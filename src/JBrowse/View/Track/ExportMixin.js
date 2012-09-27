@@ -1,12 +1,13 @@
 define( [
             'dojo/_base/array',
+            'dojo/aspect',
             'dojo/has',
             'JBrowse/Util',
             'dijit/form/Button',
             'dijit/form/RadioButton',
             'dijit/Dialog'
         ],
-        function( array, has, Util, dijitButton, dijitRadioButton, dijitDialog ) {
+        function( array, aspect, has, Util, dijitButton, dijitRadioButton, dijitDialog ) {
 /**
  * Mixin for a track that can export its data.
  * @lends JBrowse.View.Track.ExportMixin
@@ -75,11 +76,23 @@ return {
                             var format = form.elements.format.value;
                             this.exportRegion( region, format, function(output) {
                                 dialog.hide();
-                                new dijitDialog({
+                                var text = dojo.create('textarea', {
+                                                           rows: 30,
+                                                           wrap: 'soft',
+                                                           cols: 80,
+                                                           readonly: true,
+                                                           innerHTML: output
+                                                       });
+                                var exportView = new dijitDialog({
                                     className: 'export-view-dialog',
                                     title: format + ' export - <span class="locString">'+ region+'</span>',
-                                    content: "<textarea rows=\"30\" wrap=\"soft\" cols=\"80\" readonly=\"true\">\n"+output+"</textarea>"
-                                }).show();
+                                    content: text
+                                });
+                                aspect.after( exportView, 'hide', function() {
+                                    text.parentNode.removeChild( text );
+                                    exportView.destroyRecursive();
+                                });
+                                exportView.show();
                             });
                           })})
             .placeAt( actionBar );
