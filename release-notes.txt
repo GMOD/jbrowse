@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+ * Fixed "Can't locate JSON.pm" errors with add-track-json.pl.
+
  * Added a reference-sequence-selection dropdown box, similar to the
    old one, that is on by default if fewer than 30 reference
    sequences, otherwise it's off unless `refSeqDropdown: true` is set
