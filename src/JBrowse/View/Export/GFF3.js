@@ -115,21 +115,11 @@ return declare( null,
         if( parentID )
             attr.Parent = parentID;
 
-        // special-case some artifactual attributes left there by
-        // Bio::DB::SeqFeature-based formatting tools (load_id and
-        // parent_id)
-        if( attr.load_id && ! attr.ID ) {
-            attr.ID = attr.load_id;
-            delete attr.load_id;
-        }
-        if( attr.parent_id == attr.Parent )
-            delete attr.parent_id;
-
         var subfeatures = array.map(
             feature.get('subfeatures') || [],
             function(feat) {
                 if( ! attr.ID ) {
-                    attr.ID = "auto_"+( ++this._idCounter );
+                    attr.ID = ++this._idCounter;
                 }
                 return this.formatFeature( feat, attr.ID );
             }, this);
