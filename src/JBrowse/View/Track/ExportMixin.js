@@ -34,12 +34,12 @@ return {
         form.innerHTML = ''
             + ' <fieldset class="region">'
             + '   <legend>Region to save</legend>'
-            + '   <input '+( canExportVisibleRegion ? '' : ' disabled="disabled"' )
+            + '   <input '+( canExportVisibleRegion ? ' checked="checked"' : ' disabled="disabled"' )
             +'      type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="regionVisible" value="'+visibleRegionStr+'" />'
             + '   <label '+( canExportVisibleRegion ? '' : ' class="ghosted"')+' for="regionVisible">Visible region - <span class="locString">'
             +       visibleRegionStr+(canExportVisibleRegion ? '' : ' (too large, please zoom in)')+'</span></label>'
             + '   <br>'
-            + '   <input '+( canExportWholeRef ? '' : ' disabled="disabled"' )+' type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="regionRefSeq" value="'+wholeRefSeqStr+'" />'
+            + '   <input '+( canExportWholeRef ? (canExportVisibleRegion ? '' : ' checked="checked"') : ' disabled="disabled"' )+' type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="regionRefSeq" value="'+wholeRefSeqStr+'" />'
             + '   <label '+( canExportWholeRef ? '' : ' class="ghosted" ' )+' for="regionRefSeq">Whole reference sequence - <span class="locString">'+wholeRefSeqStr+(canExportWholeRef ? '' : ' (too large)')+'</span></label>'
             + '   <br>'
             + ' </fieldset>'
@@ -68,10 +68,13 @@ return {
 
         new dijitButton({ iconClass: 'dijitIconDelete', onClick: dojo.hitch(dialog,'hide'), label: 'Cancel' })
             .placeAt( actionBar );
-        new dijitButton({ iconClass: 'dijitIconTask',
+        var viewButton = new dijitButton({ iconClass: 'dijitIconTask',
                           label: 'View',
                           disabled: !(canExportVisibleRegion || canExportWholeRef ),
                           onClick: dojo.hitch( this.track, function() {
+                            viewButton.set('disabled',true);
+                            viewButton.set('iconClass','jbrowseIconBusy');
+
                             var region = form.elements.region.value;
                             var format = form.elements.format.value;
                             this.exportRegion( region, format, function(output) {
@@ -101,11 +104,13 @@ return {
         // don't show a download button if the user is using IE older
         // than 10, cause it won't work.
         if( ! (has('ie') < 10) ) {
-            new dijitButton({ iconClass: 'dijitIconSave',
+            var dlButton = new dijitButton({ iconClass: 'dijitIconSave',
                               label: 'Download',
                               disabled: !(canExportVisibleRegion || canExportWholeRef ),
                               onClick: dojo.hitch( this.track, function() {
                                 var format = form.elements.format.value;
+                                dlButton.set('disabled',true);
+                                dlButton.set('iconClass','jbrowseIconBusy');
                                 this.exportRegion( form.elements.region.value, form.elements.format.value, function( output ) {
                                     dialog.hide();
                                     window.location.href="data:application/x-"+format.toLowerCase()+","+escape(output);
