@@ -89,7 +89,8 @@ return {
                                     content: text
                                 });
                                 aspect.after( exportView, 'hide', function() {
-                                    text.parentNode.removeChild( text );
+                                    text.parentNode.removeChild( text ); // manually unhook and free the (possibly huge) text area
+                                    text = null;
                                     exportView.destroyRecursive();
                                 });
                                 exportView.show();
