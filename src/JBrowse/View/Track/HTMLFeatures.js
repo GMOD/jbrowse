@@ -939,7 +939,11 @@ var HTMLFeatures = declare( BlockBased,
                             var region = form.elements.region.value;
                             var format = form.elements.format.value;
                             this.exportRegion( region, format, function(output) {
-                                new dijitDialog({ title: format + ' export - <span class="locString">'+ region+'</span>', content: "<pre>\n"+output+"</pre>" }).show();
+                                new dijitDialog({
+                                    className: 'export-view-dialog',
+                                    title: format + ' export - <span class="locString">'+ region+'</span>',
+                                    content: "<textarea rows=\"30\" wrap=\"soft\" cols=\"80\" readonly=\"true\">\n"+output+"</textarea>"
+                                }).show();
                             });
                             dialog.hide();
                           })})

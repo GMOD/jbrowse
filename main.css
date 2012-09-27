@@ -486,6 +486,10 @@ div.error {
     text-align: right;
 }
 
+.export-view-dialog .dijitDialogPaneContent {
+    background: #fafafa;
+}
+
 /* styles for popup dialogs */
 a.dialog-new-window {
     padding-left: 1em;
