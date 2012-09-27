@@ -110,6 +110,8 @@ return declare( ExportBase,
         var attr = this._gff3_attributes( feature );
         if( parentID )
             attr.Parent = parentID;
+        else
+            delete attr.Parent;
 
         var subfeatures = array.map(
             feature.get('subfeatures') || [],
