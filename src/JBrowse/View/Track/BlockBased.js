@@ -507,7 +507,7 @@ return declare( null,
         var details = '<div class="detail">';
         var fmt = dojo.hitch(this, '_fmtDetailField');
         details += fmt( 'Name', this.key || this.name );
-        var metadata = this.getMetadata();
+        var metadata = dojo.clone( this.getMetadata() );
         delete metadata.key;
         delete metadata.label;
 
