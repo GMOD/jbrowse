@@ -916,7 +916,6 @@ var HTMLFeatures = declare( BlockBased,
         // if we know the store's feature density, then use that with
         // a limit of maxExportFeatures or 10000 features
         else if( this.store.density ) {
-            console.log( this.store.density*(l.end - l.start) );
             return this.store.density*(l.end - l.start) <= ( this.config.maxExportFeatures || 5000 );
         }
 
