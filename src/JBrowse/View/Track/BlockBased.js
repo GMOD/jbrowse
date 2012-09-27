@@ -508,6 +508,8 @@ return declare( null,
         var fmt = dojo.hitch(this, '_fmtDetailField');
         details += fmt( 'Name', this.key || this.name );
         var metadata = this.getMetadata();
+        delete metadata.key;
+        delete metadata.label;
 
         var md_keys = [];
         for( var k in metadata )
