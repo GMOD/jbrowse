@@ -4,11 +4,13 @@ define( [
             'dojo/_base/lang',
             'dojo/topic',
             'dojo/aspect',
+            'dojo/_base/array',
             'dijit/layout/ContentPane',
             'dijit/layout/BorderContainer',
             'dijit/Dialog',
             'dijit/form/ComboBox',
             'dijit/form/Button',
+            'dijit/form/Select',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Autocomplete',
@@ -20,11 +22,13 @@ define( [
             lang,
             topic,
             aspect,
+            array,
             dijitContentPane,
             dijitBorderContainer,
             dijitDialog,
             dijitComboBox,
             dijitButton,
+            dijitSelectBox,
             Util,
             LazyTrie,
             AutocompleteStore,
@@ -1320,6 +1324,22 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
                   });
 
     navbox.appendChild(document.createTextNode( four_nbsp ));
+
+    // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
+    // set in the config, then put in a dropdown box for selecting
+    // reference sequences
+    if( this.refSeqOrder.length && this.refSeqOrder.length < 30 || this.config.refSeqDropdown ) {
+        this.refSeqSelectBox = new dijitSelectBox({
+            name: 'refseq',
+            options: array.map( this.refSeqOrder || [],
+                                function( refseqName ) {
+                return { label: refseqName, value: refseqName };
+            }),
+            onChange: dojo.hitch(this, function( newRefName ) {
+                this.navigateToLocation({ ref: newRefName });
+            })
+        }).placeAt( navbox );
+    }
 
     // make the location box
     this.locationBox = new dijitComboBox(
