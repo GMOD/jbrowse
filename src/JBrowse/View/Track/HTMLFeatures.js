@@ -11,6 +11,7 @@ define( [
             'dijit/form/Button',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/YScaleMixin',
+            'JBrowse/View/Track/ExportMixin',
             'JBrowse/Util',
             'JBrowse/View/GranularRectLayout'
         ],
@@ -26,6 +27,7 @@ define( [
                 dijitButton,
                 BlockBased,
                 YScaleMixin,
+                ExportMixin,
                 Util,
                 Layout
               ) {
@@ -58,16 +60,12 @@ var HTMLFeatures = declare( BlockBased,
         this.trackPadding = args.trackPadding;
 
         this.config = args.config;
-
-        // this featureStore object should eventually be
-        // instantiated by Browser and passed into this constructor, not
-        // constructed here.
-        this.featureStore = args.store;
+        this.store  = args.store;
 
         // connect the store and track loadSuccess and loadFailed events
         // to eachother
-        dojo.connect( this.featureStore, 'loadSuccess', this, 'loadSuccess' );
-        dojo.connect( this.featureStore, 'loadFail',    this, 'loadFail' );
+        dojo.connect( this.store, 'loadSuccess', this, 'loadSuccess' );
+        dojo.connect( this.store, 'loadFail',    this, 'loadFail' );
 
         // initialize a bunch of config stuff
         var defaultConfig = {
@@ -124,13 +122,13 @@ var HTMLFeatures = declare( BlockBased,
      * loadSuccess() function when it is loaded.
      */
     load: function() {
-        this.featureStore.load();
+        this.store.load();
     },
 
     loadSuccess: function() {
-        this.labelScale = this.featureStore.density * this.config.style.labelScale;
-        this.subfeatureScale = this.featureStore.density * this.config.style.subfeatureScale;
-        this.descriptionScale = this.featureStore.density * this.config.style.descriptionScale;;
+        this.labelScale = this.store.density * this.config.style.labelScale;
+        this.subfeatureScale = this.store.density * this.config.style.subfeatureScale;
+        this.descriptionScale = this.store.density * this.config.style.descriptionScale;;
         this.inherited(arguments);
     },
 
@@ -189,7 +187,7 @@ var HTMLFeatures = declare( BlockBased,
         var bpPerBin = blockSizeBp / this.numBins;
         var pxPerCount = 2;
         var logScale = false;
-        var stats = this.featureStore.histograms.stats;
+        var stats = this.store.histograms.stats;
         var statEntry;
         for (var i = 0; i < stats.length; i++) {
             if (stats[i].basesPerBin >= bpPerBin) {
@@ -258,10 +256,10 @@ var HTMLFeatures = declare( BlockBased,
         // is at 50,000 bases/bin, and we have server histograms at 20,000
         // and 2,000 bases/bin, then we should choose the 2,000 histogramMeta
         // rather than the 20,000)
-        var histogramMeta = this.featureStore.histograms.meta[0];
-        for (var i = 0; i < this.featureStore.histograms.meta.length; i++) {
-            if (dims.bpPerBin >= this.featureStore.histograms.meta[i].basesPerBin)
-                histogramMeta = this.featureStore.histograms.meta[i];
+        var histogramMeta = this.store.histograms.meta[0];
+        for (var i = 0; i < this.store.histograms.meta.length; i++) {
+            if (dims.bpPerBin >= this.store.histograms.meta[i].basesPerBin)
+                histogramMeta = this.store.histograms.meta[i];
         }
 
         // number of bins in the server-supplied histogram for each current bin
@@ -292,7 +290,7 @@ var HTMLFeatures = declare( BlockBased,
             );
         } else {
             // make our own counts
-            this.featureStore.histogram( leftBase, rightBase,
+            this.store.histogram( leftBase, rightBase,
                                          this.numBins, makeHistBlock);
         }
     },
@@ -352,7 +350,7 @@ var HTMLFeatures = declare( BlockBased,
         // only update the label once for each block size
         var blockBases = Math.abs( leftBase-rightBase );
         if( this._updatedLabelForBlockSize != blockBases ){
-            if ( scale < (this.featureStore.density * this.config.style.histScale)) {
+            if ( scale < (this.store.density * this.config.style.histScale)) {
                 this.setLabel(this.key + "<br>per " + Util.addCommas( Math.round( blockBases / this.numBins)) + " bp");
             } else {
                 this.setLabel(this.key);
@@ -361,8 +359,8 @@ var HTMLFeatures = declare( BlockBased,
         }
 
         //console.log("scale: %d, histScale: %d", scale, this.histScale);
-        if (this.featureStore.histograms &&
-            (scale < (this.featureStore.density * this.config.style.histScale)) ) {
+        if (this.store.histograms &&
+            (scale < (this.store.density * this.config.style.histScale)) ) {
 	    this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
                           containerStart, containerEnd);
         } else {
@@ -517,7 +515,7 @@ var HTMLFeatures = declare( BlockBased,
         // var startBase = goLeft ? rightBase : leftBase;
         // var endBase = goLeft ? leftBase : rightBase;
 
-        this.featureStore.iterate( leftBase, rightBase, featCallback,
+        this.store.iterate( leftBase, rightBase, featCallback,
                                   function () {
                                       block.style.backgroundColor = "";
                                       curTrack.heightUpdate(curTrack.layout.getTotalHeight(),
@@ -902,106 +900,20 @@ var HTMLFeatures = declare( BlockBased,
         return opts;
     },
 
-    _exportDialogContent: function() {
-        var visibleRegionStr = this.browser.visibleRegion();
-        var wholeRefSeqStr = Util.assembleLocString({ ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end });
-
-        var form = dojo.create('form', { onSubmit: function() { return false; } });
-        form.innerHTML = ''
-            + ' <fieldset class="region">'
-            + '   <legend>Region to save</legend>'
-            + '   <input checked="checked" type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="regionVisible" value="'+visibleRegionStr+'" />'
-            + '   <label for="regionVisible">Visible region - <span class="locString">'+visibleRegionStr+'</span></label>'
-            + '   <br>'
-            + '   <input type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="regionRefSeq" value="'+wholeRefSeqStr+'" />'
-            + '   <label for="regionRefSeq">Whole reference sequence - <span class="locString">'+wholeRefSeqStr+'</span></label>'
-            + '   <br>'
-            + ' </fieldset>'
-            + ' '
-            + ' <fieldset class="format">'
-            + '   <legend>Format</legend>'
-            + '   <input checked="checked" type="radio" data-dojo-type="dijit.form.RadioButton" name="format" id="formatGFF3" value="GFF3" />'
-            + '   <label for="formatGFF3">GFF3</label>'
-            + '   <br>'
-            + '   <input type="radio" data-dojo-type="dijit.form.RadioButton" name="format" id="formatBED" value="BED" />'
-            + '   <label for="formatBED">BED</label>'
-            + ' </fieldset>';
-
-        var actionBar = dojo.create( 'div', {
-            className: 'dijitDialogPaneActionBar'
-        });
-
-        // note that the `this` for this content function is not the track, it's the menu-rendering context
-        var dialog = this.dialog;
-
-        new dijitButton({ iconClass: 'dijitIconDelete', onClick: dojo.hitch(dialog,'hide'), label: 'Cancel' })
-            .placeAt( actionBar );
-        new dijitButton({ iconClass: 'dijitIconTask', label: 'View', onClick: dojo.hitch( this.track, function() {
-                            var region = form.elements.region.value;
-                            var format = form.elements.format.value;
-                            this.exportRegion( region, format, function(output) {
-                                new dijitDialog({
-                                    className: 'export-view-dialog',
-                                    title: format + ' export - <span class="locString">'+ region+'</span>',
-                                    content: "<textarea rows=\"30\" wrap=\"soft\" cols=\"80\" readonly=\"true\">\n"+output+"</textarea>"
-                                }).show();
-                            });
-                            dialog.hide();
-                          })})
-            .placeAt( actionBar );
-
-        // don't show a download button if the user is using IE older
-        // than 10, cause it won't work.
-        if( ! (has('ie') < 10) ) {
-            new dijitButton({ iconClass: 'dijitIconSave', label: 'Download', onClick: dojo.hitch( this.track, function() {
-                                var format = form.elements.format.value;
-                                this.exportRegion( form.elements.region.value, form.elements.format.value, function( output ) {
-                                    window.location.href="data:application/x-"+format.toLowerCase()+","+escape(output);
-                                });
-                                dialog.hide();
-                              })})
-                .placeAt( actionBar );
-        }
-
-        return [ form, actionBar ];
+    _exportFormats: function() {
+        return [ 'GFF3', 'BED' ];
     },
 
-    exportRegion: function( region, format, callback ) {
-        // parse the locstring if necessary
-        if( typeof region == 'string' )
-            region = Util.parseLocString( region );
-
-        // we can only export from the currently-visible reference
-        // sequence right now
-        if( region.ref != this.refSeq.name ) {
-            console.error("cannot export data for ref seq "+region.ref+", "
-                          + "exporting is currently only supported for the "
-                          + "currently-visible reference sequence" );
-            return;
-        }
-
-        require( ['JBrowse/View/Export/'+format], dojo.hitch(this,function( exportDriver ) {
-            var output = '';
-            var exporter = new exportDriver({
-                print: function( line ) { output += line; },
-                refSeq: this.refSeq,
-                track: this
-            });
-
-            this.featureStore.iterate(
-                region.start, region.end,
-                dojo.hitch( exporter, 'writeFeature' ),
-                function () {
-                    callback( output );
-               });
-        }));
-    }
 });
 
 /**
  * Mixin: JBrowse.View.Track.YScaleMixin.
  */
 dojo.extend( HTMLFeatures, YScaleMixin );
+/**
+ * Mixin: JBrowse.View.Track.ExportMixin.
+ */
+dojo.extend( HTMLFeatures, ExportMixin );
 
 return HTMLFeatures;
 });

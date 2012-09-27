@@ -1,9 +1,10 @@
 define([ 'dojo/_base/declare',
-         'dojo/_base/array'
+         'dojo/_base/array',
+         'JBrowse/View/Export'
        ],
-       function( declare, array ) {
+       function( declare, array, ExportBase ) {
 
-return declare( null,
+return declare( ExportBase,
 
  /**
   * @lends JBrowse.View.Export.BED.prototype
@@ -15,13 +16,6 @@ return declare( null,
      * @constructs
      */
     constructor: function( args ) {
-        args = args || {};
-        this.print = args.print || function( line ) { this.output += line; };
-        this.refSeq = args.refSeq;
-        this.track = args.track;
-        this.output = '';
-        this._idCounter = 0;
-
         // print the BED header
         this.print( 'track' );
         if( this.track ) {
@@ -74,15 +68,8 @@ return declare( null,
         // normalize the strand field
         fields[5] = { '1': '+', '-1': '-', '0': '+' }[ fields[5] ] || fields[5];
         return fields.join("\t")+"\n";
-    },
-
-    /**
-     * Write the feature to the GFF3 under construction.
-     * @returns nothing
-     */
-    writeFeature: function(feature) {
-        this.print( this.formatFeature(feature) );
     }
+
 });
 
 });

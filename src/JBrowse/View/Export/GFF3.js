@@ -1,10 +1,10 @@
 define([ 'dojo/_base/declare',
-         'dojo/_base/array'
+         'dojo/_base/array',
+         'JBrowse/View/Export'
        ],
-       function( declare, array ) {
+       function( declare, array, ExportBase ) {
 
-return declare( null,
-
+return declare( ExportBase,
  /**
   * @lends JBrowse.View.Export.GFF3.prototype
   */
@@ -15,10 +15,6 @@ return declare( null,
      * @constructs
      */
     constructor: function( args ) {
-        args = args || {};
-        this.print = args.print || function( line ) { this.output += line; };
-        this.refSeq = args.refSeq;
-        this.output = '';
         this._idCounter = 0;
 
         this.print( "##gff-version 3\n");
