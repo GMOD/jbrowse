@@ -30,6 +30,8 @@ use IO::File;
 use Fcntl ":flock";
 use PerlIO::gzip;
 
+use constant DEFAULT_MAX_JSON_DEPTH => 2048;
+
 =head2 new( $outDir, $compress, \%opts )
 
 Constructor.  Takes the directory to work with, boolean flag of
@@ -44,7 +46,7 @@ sub new {
     my ($class, $outDir, $compress, $opts) = @_;
 
     # create JSON object
-    my $json = JSON->new->relaxed;
+    my $json = JSON->new->relaxed->max_depth( DEFAULT_MAX_JSON_DEPTH );
     # set opts
     if (defined($opts) and ref($opts) eq 'HASH') {
         for my $method (keys %$opts) {
