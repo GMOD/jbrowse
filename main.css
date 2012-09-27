@@ -11,6 +11,10 @@ html, body {
     color: #aaa;
 }
 
+.dijitDialogPaneActionBar {
+    text-align: right;
+}
+
 .nav {
     vertical-align: middle;
     z-index: 10;
@@ -267,6 +271,11 @@ div.track-label, div.tracklist-label {
 
 /* NOTE: browsers that don't support rgba colors will fall back to all
    track labels being #bcbcbc */
+
+.notfound-dialog .message {
+    margin: 1em;
+    text-align: center;
+}
 
 div.track-label {
     color: black;

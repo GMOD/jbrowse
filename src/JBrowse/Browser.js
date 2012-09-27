@@ -819,10 +819,24 @@ Browser.prototype.searchNames = function( /**String*/ loc ) {
                              + ".." + (endbp + flank));
             brwsr.showTracks(brwsr.names.extra[nameMatches[0][ post1_4 ? 1 : 0 ]]);
         },
+        // if no match for the name is found, show a popup dialog saying this.
         function() {
-            var d =  dijitDialog({ content: 'Not found: <tt>'+loc+'</tt>', title: 'Not Found'});
+            var d =  dijitDialog({ title: 'Not found', className: 'notfound-dialog' });
+
+            var content = dojo.create('div', {
+                className: 'message',
+                innerHTML: 'Not found: <span class="locString">'+loc+'</span>'
+            });
+
+            var actionBar = dojo.create( 'div', { className: 'dijitDialogPaneActionBar' });
+            new dijitButton({label: 'OK', onClick: dojo.hitch(d,'hide')}).placeAt(actionBar);
+
+            d.set('content',[content,actionBar]);
+
+            // clean up this dialog completely when it's hidden
+            aspect.after(d, 'hide', function() { d.destroyRecursive(); });
+
             d.show();
-            aspect.after(d, 'hide', function() { d.destroyRecursive(); } );
         }
    );
 };
