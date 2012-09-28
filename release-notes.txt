@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.6.3     2012-09-28 11:33:36 America/New_York
+
  * Fixed bug with shift-rubberband-zooming not working on Windows
    (issue #150) (Erik Derohanian).
 
