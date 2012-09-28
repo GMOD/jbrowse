@@ -24,6 +24,10 @@ eggs for `selenium` and `nose` installed.  Run the tests with:
 
     JBROWSE_URL='http://localhost/jbrowse/index.html' nosetests
 
+It's actually possible to run most of the selenium tests without a web
+server using (`file://` URLs), but the tests of pre-compressed JSON
+data will fail.
+
 # Using the embedded JavaScript documentation
 
 The embedded documentation is written in JSDoc.  See
