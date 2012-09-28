@@ -1164,6 +1164,8 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     var locString = Util.assembleLocString({ start: startbp, end: endbp, ref: this.refSeq.name });
     if( this.locationBox ) {
         this.locationBox.set('value',locString,false);
+        if( this.refSeqSelectBox )
+            this.refSeqSelectBox.set('value', this.refSeq.name );
         this.goButton.set('disabled',true);
     }
 
@@ -1346,6 +1348,7 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
     if( this.refSeqOrder.length && this.refSeqOrder.length < 30 || this.config.refSeqDropdown ) {
         this.refSeqSelectBox = new dijitSelectBox({
             name: 'refseq',
+            value: this.refSeq ? this.refSeq.name : null,
             options: array.map( this.refSeqOrder || [],
                                 function( refseqName ) {
                 return { label: refseqName, value: refseqName };
