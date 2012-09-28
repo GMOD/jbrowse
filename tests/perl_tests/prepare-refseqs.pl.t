@@ -10,7 +10,6 @@ use File::Spec::Functions 'catfile';
 use File::Temp;
 use Capture::Tiny 'capture';
 
-
 use FileSlurping 'slurp_tree';
 
 my $tempdir = File::Temp->newdir;
@@ -98,6 +97,54 @@ is_deeply( $output->{"seq/refSeqs.json"},
                    start => 0,
                }
            ]);
+
+## test formatting from a Bio::DB::SeqFeature::Store with a
+## biodb-to-json.pl conf file
+
+$tempdir = File::Temp->newdir();
+diag $tempdir;
+local $ENV{PATH} = "extlib/bin:$ENV{PATH}";
+
+($stdout, $stderr) = capture {
+   system 'bp_seqfeature_load.pl', (
+        '--adaptor' => 'DBI::SQLite',
+        '--dsn'     => "$tempdir/sqliteDB",
+        '--create',
+        'sample_data/raw/volvox/volvox.gff3',
+        'sample_data/raw/volvox/volvox.fa',
+       );
+};
+unlike( $stderr, qr/error/i, 'no errors stderr from bp_seqfeature_load' );
+is( $stdout, '', 'nothing on stdout from bp_seqfeature_load' );
+
+{ open my $conf, '>', "$tempdir/conf" or die; $conf->print( <<EOCONF ); }
+{
+   "TRACK DEFAULTS" : {
+      "autocomplete" : "all",
+      "class" : "feature"
+   },
+   "db_args" : {
+      "-adaptor" : "DBI::SQLite",
+      "-dsn" : "$tempdir/sqliteDB"
+   },
+   "description" : "Sequence Test Database",
+   "db_adaptor" : "Bio::DB::SeqFeature::Store"
+}
+EOCONF
+
+
+
+system $^X, 'bin/prepare-refseqs.pl', (
+    '--conf' => "$tempdir/conf",
+    '--out'   => "$tempdir/out",
+    '--refs'  => 'ctgA,ctgB'
+   );
+
+$output = slurp_tree( "$tempdir/out" );
+is_deeply( $output,
+           slurp_tree('tests/data/volvox_formatted_refseqs'),
+           'got the right volvox formatted sequence',
+          );# or diag explain $output;
 
 done_testing;
 

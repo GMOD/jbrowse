@@ -1,5 +1,33 @@
 {{$NEXT}}
 
+1.6.3     2012-09-28 11:33:36 America/New_York
+
+ * Fixed bug with shift-rubberband-zooming not working on Windows
+   (issue #150) (Erik Derohanian).
+
+ * Fixed "Can't locate JSON.pm" errors with add-track-json.pl.
+
+ * Added a reference-sequence-selection dropdown box, similar to the
+   old one, that is on by default if fewer than 30 reference
+   sequences, otherwise it's off unless `refSeqDropdown: true` is set
+   in the configuration (issue #138).
+
+ * Fixed bug in which popup dialog boxes showing other websites showed
+   the website in only the top portion of the dialog box.  Only
+   present in some browsers (issue #149).
+
+ * Fix coordinate display bug in feature detail popups.  The feature's
+   position was being displayed in interbase coordinates, but should
+   be displayed in 1-based coordinates.  Thanks to Steffi Geisen for
+   pointing this out.
+
+ * Added a `style.height` option to Wiggle tracks to control the
+   track's height in pixels (issue #131) (Erik Derohanian).
+
+ * Added support for a `style.trackLabelCss` configuration variable to
+   allow customizing the appearance of the label for a particular
+   track (issue #4) (Erik Derohanian).
+
 1.6.2     2012-09-10 17:47:43 America/New_York
 
  * Fixed feature-layout performance problem when zoomed very far in

@@ -156,7 +156,7 @@ var Wiggle = declare( CanvasTrack,
         this.heightUpdate( this.height, blockIndex );
 
         var canvasWidth  = Math.ceil(( rightBase - leftBase ) * scale)+1;
-        var canvasHeight = 100;
+        var canvasHeight = parseInt(( this.config.style || {}).height) || 100;
         this.height = canvasHeight;
 
         var posColor  = this.config.style.pos_color || '#00f';

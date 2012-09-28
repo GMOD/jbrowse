@@ -18,7 +18,8 @@ use File::Path 'mkpath';
 
 use POSIX;
 
-use JsonGenerator;
+use JSON 2;
+use JsonFileStorage;
 use FastaDatabase;
 
 sub option_defaults {(
@@ -45,6 +46,8 @@ sub run {
 
     my $refs = $self->opt('refs');
     my $compress = $self->opt('compress');
+
+    $self->{storage} = JsonFileStorage->new( $self->opt('out'), $self->opt('compress'), { pretty => 0 } );
 
     pod2usage( 'must provide either a --fasta, --gff, or --conf option' )
         unless defined $self->opt('gff') || $self->opt('conf') || $self->opt('fasta');
@@ -102,7 +105,11 @@ sub run {
             $refs = join (",", $db->seq_ids);
         }
     } elsif ( $self->opt('conf') ) {
-        my $config = JsonGenerator::readJSON( $self->opt('conf') );
+        my $config = decode_json( do {
+            local $/;
+            open my $f, '<', $self->opt('conf') or die "$! reading ".$self->opt('conf');
+            scalar <$f>
+        });
 
         eval "require $config->{db_adaptor}; 1" or die $@;
 
@@ -126,6 +133,11 @@ sub run {
     if ( defined $self->opt('refids') ) {
         foreach my $refid (split ",", $self->opt('refids')) {
             my $seg = $db->segment(-db_id => $refid);
+            unless( $seg ) {
+                warn "WARNING: Reference sequence with -db_id '$refid' not found in input.\n";
+                next;
+            }
+
             my $refInfo = {
                 name => $self->refName($seg),
                 id => $refid,   #keep ID for later querying
@@ -184,7 +196,7 @@ sub run {
         exit;
     }
 
-    JsonGenerator::modifyJsonFile( catfile( $self->opt('out'), 'seq', 'refSeqs.json' ),
+    $self->{storage}->modify( 'seq/refSeqs.json',
                                    sub {
                                        #add new ref seqs while keeping the order
                                        #of the existing ref seqs
@@ -214,7 +226,7 @@ sub run {
     }
 
     unless( $self->opt('noseq') ) {
-        JsonGenerator::modifyJsonFile( catfile( $self->opt('out'), "trackList.json" ),
+    $self->{storage}->modify( 'trackList.json',
                                        sub {
                                            my $trackList = shift;
                                            unless (defined($trackList)) {

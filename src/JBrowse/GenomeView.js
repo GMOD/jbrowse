@@ -423,10 +423,10 @@ GenomeView.prototype._behaviors = function() { return {
     mouseRubberBandZooming: {
         apply: function() {
             return [
-                dojo.connect(document.body, "mouseup",    this, 'rubberExecute'  ),
-                dojo.connect(document.body, "mousemove",  this, 'rubberMove'     ),
-                dojo.connect(document.body, "mouseout",   this, 'rubberCancel'   ),
-                dojo.connect(window,        "onkeydown",  this, 'rubberCancel'   )
+                dojo.connect(document.body, "mouseup",    this, 'rubberExecute'                                        ),
+                dojo.connect(document.body, "mousemove",  this, 'rubberMove'                                           ),
+                dojo.connect(document.body, "mouseout",   this, 'rubberCancel'                                         ),
+                dojo.connect(window,        "onkeydown",  this, function(e){if(e.keyCode !== dojo.keys.SHIFT){ this.rubberCancel(e);} }  )
             ];
         }
     }
@@ -1586,6 +1586,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
 
         trackDiv.track = track;
 
+
         var labelDiv = dojo.create(
             'div', {
                 className: "track-label dojoDndHandle",
@@ -1596,6 +1597,11 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
                     left: this.getX() + 'px'
                 }
             },trackDiv);
+
+        if ( ( trackConfig.style || {} ).trackLabelCss){
+            labelDiv.style.cssText += ";" + trackConfig.style.trackLabelCss;
+        }
+
         var closeButton = dojo.create('div',{
             className: 'track-close-button',
             onclick: dojo.hitch(this,function(evt){

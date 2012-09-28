@@ -635,16 +635,18 @@ return declare( null,
                              onclick: dojo.hitch(dialog,'hide'),
                              innerHTML: spec.url
                          }, dialog.titleBar );
-            aspect.after( dialog, 'layout', function() {
-                              // hitch a ride on the dialog box's
-                              // layout function, which is called on
-                              // initial display, and when the window
-                              // is resized, to keep the iframe
-                              // sized to fit exactly in it.
-                              var cDims = domGeom.getMarginBox( dialog.domNode );
-                              iframe.width  = cDims.w;
-                              iframe.height = iframe.height = cDims.h - domGeom.getMarginBox(dialog.titleBar).h - 2;
-                          });
+            var updateIframeSize = function() {
+                // hitch a ride on the dialog box's
+                // layout function, which is called on
+                // initial display, and when the window
+                // is resized, to keep the iframe
+                // sized to fit exactly in it.
+                var cDims = domGeom.getMarginBox( dialog.domNode );
+                iframe.width  = cDims.w;
+                iframe.height = cDims.h - domGeom.getMarginBox(dialog.titleBar).h - 2;
+            };
+            aspect.after( dialog, 'layout', updateIframeSize );
+            aspect.after( dialog, 'show', updateIframeSize );
         }
 
         aspect.after( dialog, 'hide', function() { dialog.destroyRecursive(); });
