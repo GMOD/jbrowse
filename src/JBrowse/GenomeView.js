@@ -400,21 +400,17 @@ GenomeView.prototype._behaviors = function() { return {
             dojo.addClass(this.trackContainer,'rubberBandAvailable');
             return [
                 dojo.connect( this.outerTrackContainer, "mousedown", dojo.hitch( this, 'startRubberZoom', this.absXtoBp, this.scrollContainer )),
-                dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'            ),
-                dojo.connect( this.outerTrackContainer, "mouseover", this, 'drawVerticalPositionLine'),
-                dojo.connect( this.outerTrackContainer, "mousemove", this, 'drawVerticalPositionLine'),
-                dojo.connect( this.outerTrackContainer, "mouseout",  this, 'checkPositionForLine'),
-
+                dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'              ),
+                dojo.connect( this.outerTrackContainer, "mouseover", this, 'drawVerticalPositionLine'  ),
+                dojo.connect( this.outerTrackContainer, "mousemove", this, 'drawVerticalPositionLine'  ),
             ];
         },
         remove: function( mgr, handles ) {
+            this.clearVerticalPositionLabel();
+            this.clearVerticalPositionLine();
             dojo.forEach( handles, dojo.disconnect, dojo );
             dojo.removeClass(this.trackContainer,'rubberBandAvailable');
             dojo.addClass(this.trackContainer,'draggable');
-            return [
-                dojo.connect( this.verticalPositionLine, "mouseover", this, 'clearVerticalPositionLine'),
-                dojo.connect( this.outerTrackContainer,  "mousemove", this, 'clearVerticalPositionLine')
-            ];
         }
     },
 
@@ -638,6 +634,7 @@ GenomeView.prototype.startRubberZoom = function( absToBp, container, event ) {
     this.rubberbandStartPos = {x: event.clientX,
                                y: event.clientY};
     this.winStartPos = this.getPosition();
+    this.clearVerticalPositionLine();
 };
 
 GenomeView.prototype._rubberStop = function(event) {
@@ -676,6 +673,7 @@ GenomeView.prototype.rubberExecute = function(event) {
     var h_end_bp   = this.rubberbanding.absFunc.call( this, Math.max(start.x,end.x) );
     delete this.rubberbanding;
     this.setLocation( this.ref, h_start_bp, h_end_bp );
+    this.clearVerticalPositionLabel();
 };
 
 // draws the rubber-banding highlight region from start.x to end.x
@@ -701,6 +699,11 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
     h.style.visibility  = 'visible';
     h.style.left   = Math.min(start.x,end.x) - container_coords.x + 'px';
     h.style.width  = Math.abs(end.x-start.x) + 'px';
+
+    if (start.y >= parseInt(this.overview.offsetHeight) ){
+        this.drawLineLabel(end.x);
+    }
+    this.clearVerticalPositionLine();
     //console.log({ left: h.style.left, end: end.x });
 };
 
@@ -930,23 +933,6 @@ GenomeView.prototype.onResize = function() {
     this.showCoarse();
 };
 
-
-/**
- * Event handler fired when mouse leaves outerTrackContainer
- * Check if it really left or is just over the select window.
- */
-
-GenomeView.prototype.checkPositionForLine = function( evt ){
-    if (!evt) var evt = window.event;
-    var tg = (window.event) ? evt.srcElement : evt.target;
-    if (tg.nodeName != 'DIV') return;
-    if (evt.relatedTarget.parentNode == evt.target){
-        alert (evt.relatedTarget.parentNode +'  &  '+ evt.target)
-        this.drawVerticalPositionLine(evt);
-        return;
-    }
-};
-
 /**
  * Event handler fired when the overview bar is single-clicked.
  */
@@ -972,6 +958,7 @@ GenomeView.prototype.scaleMouseMove = function( evt ) {
  */
 GenomeView.prototype.scaleMouseOut = function( evt ) {
     this.clearVerticalPositionLine();
+    this.clearVerticalPositionLabel();
 };
 
 /**
@@ -987,7 +974,16 @@ GenomeView.prototype.drawVerticalPositionLine = function(evt){
             className: 'trackVerticalPositionIndicatorMain'
         }, this.staticTrack.div);
     }
+    this.verticalPositionLine.style.display = 'block';      //make line visible
+    this.verticalPositionLine.style.left = numX +'px'; //set location on screen
+    
+    this.drawLineLabel(numX);
+};
 
+/**
+ * Draws the label for the line.
+ */
+GenomeView.prototype.drawLineLabel = function (numX){
     if (!this.verticalPositionLabel){
     // if label does not exist, create it
         this.verticalPositionLabel = dojo.create( 'div', {
@@ -1005,18 +1001,21 @@ GenomeView.prototype.drawVerticalPositionLine = function(evt){
     } else {
         this.verticalPositionLabel.style.left = (numX - 15 - this.verticalPositionLabel.offsetWidth) +'px'; //set location on screen to the left
     }
-    this.verticalPositionLine.style.display = 'block';      //make line visible
-    this.verticalPositionLine.style.left = numX +'px'; //set location on screen
-};
-
+}
 /**
  * Function to clear the line
  */
 GenomeView.prototype.clearVerticalPositionLine = function(){
-    this.verticalPositionLine.style.display = 'none';
-    this.verticalPositionLabel.style.display = 'none';
+    if(this.verticalPositionLine)
+        this.verticalPositionLine.style.display = 'none';
 }
 
+/**
+ * Function to clear the labels
+ */
+GenomeView.prototype.clearVerticalPositionLabel = function(){
+    this.verticalPositionLabel.style.display = 'none';
+}
 
 /**
  * Convert absolute X pixel position to base pair position on the
