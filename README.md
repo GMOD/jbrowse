@@ -41,7 +41,7 @@ comprehensive list of JSDoc tags.
 
 # Cutting a JBrowse release
 
-1. Edit the JBrowse `package.json` file and change 'version' to the version you are releasing.  '''Don't commit this change to the repository, it should stay as `dev` in git so that it shows up in analytics as a development version.'''
+1. Edit the JBrowse `package.json` file and change 'version' to the version you are releasing.  *Don't commit this change to the repository, it should stay as `dev` in git so that it shows up in analytics as a development version.*
 
 2. Build the release packages: `make -f build/Makefile release`.  The files produced during the build should not be committed to the repository either.
 
@@ -55,3 +55,7 @@ file made during the build might be useful for this.
 
 6. Write an email announcing the release, sending to gmod-ajax,
 jbrowse-dev, and maybe gmod-announce.
+
+7. Make a tag in the repository for the release, named, e.g. `1.6.3-release`.
+
+This process could use some more streamlining and automation.
