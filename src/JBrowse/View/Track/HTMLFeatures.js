@@ -144,7 +144,7 @@ var HTMLFeatures = declare( BlockBased,
         container.innerHTML += fmt( 'Name', f.get('name') );
         container.innerHTML += fmt( 'Type', f.get('type') );
         container.innerHTML += fmt( 'Description', f.get('note') );
-        container.innerHTML += fmt( 'Position', this.refSeq.name+':'+f.get('start')+'..'+f.get('end') );
+        container.innerHTML += fmt( 'Position', Util.assembleLocString({ start: f.get('start'), end: f.get('end'), ref: this.refSeq.name }));
         container.innerHTML += fmt( 'Strand', {'1':'+', '-1': '-', 0: undefined }[f.get('strand')] || f.get('strand') );
 
         var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()]; });
@@ -972,16 +972,18 @@ var HTMLFeatures = declare( BlockBased,
                              onclick: dojo.hitch(dialog,'hide'),
                              innerHTML: spec.url
                          }, dialog.titleBar );
-            aspect.after( dialog, 'layout', function() {
-                              // hitch a ride on the dialog box's
-                              // layout function, which is called on
-                              // initial display, and when the window
-                              // is resized, to keep the iframe
-                              // sized to fit exactly in it.
-                              var cDims = domGeom.getMarginBox( dialog.domNode );
-                              iframe.width  = cDims.w;
-                              iframe.height = iframe.height = cDims.h - domGeom.getMarginBox(dialog.titleBar).h - 2;
-                          });
+            var updateIframeSize = function() {
+                // hitch a ride on the dialog box's
+                // layout function, which is called on
+                // initial display, and when the window
+                // is resized, to keep the iframe
+                // sized to fit exactly in it.
+                var cDims = domGeom.getMarginBox( dialog.domNode );
+                iframe.width  = cDims.w;
+                iframe.height = cDims.h - domGeom.getMarginBox(dialog.titleBar).h - 2;
+            };
+            aspect.after( dialog, 'layout', updateIframeSize );
+            aspect.after( dialog, 'show', updateIframeSize );
         }
 
         aspect.after( dialog, 'hide', function() { dialog.destroyRecursive(); });

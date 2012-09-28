@@ -3,11 +3,14 @@ var _gaq = _gaq || []; // global task queue for Google Analytics
 define( [
             'dojo/_base/lang',
             'dojo/topic',
+            'dojo/aspect',
+            'dojo/_base/array',
             'dijit/layout/ContentPane',
             'dijit/layout/BorderContainer',
             'dijit/Dialog',
             'dijit/form/ComboBox',
             'dijit/form/Button',
+            'dijit/form/Select',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Autocomplete',
@@ -18,11 +21,14 @@ define( [
         function(
             lang,
             topic,
+            aspect,
+            array,
             dijitContentPane,
             dijitBorderContainer,
             dijitDialog,
             dijitComboBox,
             dijitButton,
+            dijitSelectBox,
             Util,
             LazyTrie,
             AutocompleteStore,
@@ -729,9 +735,11 @@ Browser.prototype.navigateTo = function(loc) {
             } catch (x) {}
             if( oldLoc ) {
                 this.navigateToLocation( oldLoc );
+                return;
             } else {
                 // if we don't just go to the middle 80% of that refseq
                 this.navigateToLocation({ref: ref.name, start: ref.end*0.1, end: ref.end*0.9 });
+                return;
             }
         }
 
@@ -816,7 +824,27 @@ Browser.prototype.searchNames = function( /**String*/ loc ) {
                              + ":" + (startbp - flank)
                              + ".." + (endbp + flank));
             brwsr.showTracks(brwsr.names.extra[nameMatches[0][ post1_4 ? 1 : 0 ]]);
-        });
+        },
+        // if no match for the name is found, show a popup dialog saying this.
+        function() {
+            var d =  dijitDialog({ title: 'Not found', className: 'notfound-dialog' });
+
+            var content = dojo.create('div', {
+                className: 'message',
+                innerHTML: 'Not found: <span class="locString">'+loc+'</span>'
+            });
+
+            var actionBar = dojo.create( 'div', { className: 'dijitDialogPaneActionBar' });
+            new dijitButton({label: 'OK', onClick: dojo.hitch(d,'hide')}).placeAt(actionBar);
+
+            d.set('content',[content,actionBar]);
+
+            // clean up this dialog completely when it's hidden
+            aspect.after(d, 'hide', function() { d.destroyRecursive(); });
+
+            d.show();
+        }
+   );
 };
 
 
@@ -1298,6 +1326,22 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
                   });
 
     navbox.appendChild(document.createTextNode( four_nbsp ));
+
+    // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
+    // set in the config, then put in a dropdown box for selecting
+    // reference sequences
+    if( this.refSeqOrder.length && this.refSeqOrder.length < 30 || this.config.refSeqDropdown ) {
+        this.refSeqSelectBox = new dijitSelectBox({
+            name: 'refseq',
+            options: array.map( this.refSeqOrder || [],
+                                function( refseqName ) {
+                return { label: refseqName, value: refseqName };
+            }),
+            onChange: dojo.hitch(this, function( newRefName ) {
+                this.navigateToLocation({ ref: newRefName });
+            })
+        }).placeAt( navbox );
+    }
 
     // make the location box
     this.locationBox = new dijitComboBox(
