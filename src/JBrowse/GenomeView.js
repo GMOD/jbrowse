@@ -702,6 +702,7 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
 
     if (start.y >= parseInt(this.overview.offsetHeight) ){
         this.drawLineLabel(end.x);
+        this.drawLineLabel(start.x, 1);
     }
     this.clearVerticalPositionLine();
     //console.log({ left: h.style.left, end: end.x });
@@ -983,23 +984,28 @@ GenomeView.prototype.drawVerticalPositionLine = function(evt){
 /**
  * Draws the label for the line.
  */
-GenomeView.prototype.drawLineLabel = function (numX){
+GenomeView.prototype.drawLineLabel = function (numX, n){
     if (!this.verticalPositionLabel){
+    this.verticalPositionLabel = [2];
     // if label does not exist, create it
-        this.verticalPositionLabel = dojo.create( 'div', {
-            className: 'trackVerticalPositionLabel'
-        }, static_track);
-        this.verticalPositionLabel.style.height = this.posHeight + "px";
-        this.verticalPositionLabel.style.top = (1+document.getElementById('dijit_layout_ContentPane_0').offsetHeight) + 'px';
+        for (var i = 1; i >= 0; i--){
+            this.verticalPositionLabel[i] = dojo.create( 'div', {
+                className: 'trackVerticalPositionLabel'
+            }, container);
+            this.verticalPositionLabel[i].style.height = this.posHeight + "px";
+            this.verticalPositionLabel[i].style.top = (1+document.getElementById('dijit_layout_ContentPane_0').offsetHeight) + 'px';
+        }
+        this.verticalPositionLabel[1].style.backgroundColor = '#97A1B3';
     }
+
+    n=n?n:0;
+    this.verticalPositionLabel[n].style.display = 'inline';      //make label visible
+    this.verticalPositionLabel[n].innerHTML = 'BP : ' + Util.addCommas(Math.floor(this.absXtoBp(numX))); //set text to BP location
     
-    this.verticalPositionLabel.style.display = 'inline';      //make label visible
-    this.verticalPositionLabel.innerHTML = 'BP : ' + Util.addCommas(Math.floor(this.absXtoBp(numX))); //set text to BP location
-    
-    if((window.innerWidth - numX) > (30 + this.verticalPositionLabel.offsetWidth)){ //15 pixels on either side of the label
-        this.verticalPositionLabel.style.left = (numX + 15) +'px'; //set location on screen to the right
+    if((window.innerWidth - numX) > (30 + this.verticalPositionLabel[n].offsetWidth)){ //15 pixels on either side of the label
+        this.verticalPositionLabel[n].style.left = (numX + 15) +'px'; //set location on screen to the right
     } else {
-        this.verticalPositionLabel.style.left = (numX - 15 - this.verticalPositionLabel.offsetWidth) +'px'; //set location on screen to the left
+        this.verticalPositionLabel[n].style.left = (numX - 15 - this.verticalPositionLabel[n].offsetWidth) +'px'; //set location on screen to the left
     }
 }
 /**
@@ -1014,7 +1020,8 @@ GenomeView.prototype.clearVerticalPositionLine = function(){
  * Function to clear the labels
  */
 GenomeView.prototype.clearVerticalPositionLabel = function(){
-    this.verticalPositionLabel.style.display = 'none';
+    this.verticalPositionLabel[0].style.display = 'none';
+    this.verticalPositionLabel[1].style.display = 'none';
 }
 
 /**
