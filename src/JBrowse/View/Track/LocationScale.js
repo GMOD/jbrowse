@@ -19,6 +19,9 @@ return declare(BlockBased,
         this.height = args.posHeight;
     },
 
+    // stub out makeTrackLabel, these don't have labels
+    makeTrackLabel: function() {},
+
     fillBlock: function(blockIndex, block,
                         leftBlock, rightBlock,
 			leftBase, rightBase, scale,

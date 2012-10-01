@@ -31,18 +31,13 @@ return declare( BlockBased,
         window.setTimeout( dojo.hitch( this, 'setLoaded' ), 10 );
     },
 
-    // startZoom: function(destScale, destStart, destEnd) {
-    //     this.hide();
-    //     this.heightUpdate(0);
-    // },
-
     endZoom: function(destScale, destBlockBases) {
         this.clear();
         BlockBased.prototype.clear.apply(this);
     },
 
     setViewInfo:function(genomeView, heightUpdate, numBlocks,
-                         trackDiv, labelDiv,
+                         trackDiv,
                          widthPct, widthPx, scale) {
         this.inherited( arguments );
 

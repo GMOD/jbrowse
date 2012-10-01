@@ -29,6 +29,7 @@ return declare( null,
     constructor: function( args ) {
         args = args || {};
         var config = args.config || {};
+        this.config = config;
         this.name = args.label || config.label;
         this.key = args.key || config.key || this.name;
         this.loaded = false;
@@ -75,12 +76,11 @@ return declare( null,
     },
 
     setViewInfo: function( genomeView, heightUpdate, numBlocks,
-                           trackDiv, labelDiv,
+                           trackDiv,
                            widthPct, widthPx, scale) {
         this.genomeView = genomeView;
         this.heightUpdateCallback = heightUpdate;
         this.div = trackDiv;
-        this.label = labelDiv;
         this.widthPct = widthPct;
         this.widthPx = widthPx;
 
@@ -95,7 +95,45 @@ return declare( null,
         this.labelHTML = "";
         this.labelHeight = 0;
 
+        if( ! this.label ) {
+            this.makeTrackLabel();
+        }
         this.setLabel( this.key );
+    },
+
+    makeTrackLabel: function() {
+        var labelDiv = dojo.create(
+            'div', {
+                className: "track-label dojoDndHandle",
+                id: "label_" + this.name,
+                style: {
+                    position: 'absolute',
+                    top: 0
+                }
+            },this.div);
+
+        this.label = labelDiv;
+
+        if ( ( this.config.style || {} ).trackLabelCss){
+            labelDiv.style.cssText += ";" + trackConfig.style.trackLabelCss;
+        }
+
+        var closeButton = dojo.create('div',{
+            className: 'track-close-button',
+            onclick: dojo.hitch(this,function(evt){
+                this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.config]);
+                evt.stopPropagation();
+            })
+        },labelDiv);
+        var labelText = dojo.create('span', { className: 'track-label-text' }, labelDiv );
+        var menuButton = dojo.create('div',{
+            className: 'track-menu-button'
+        },labelDiv);
+        dojo.create('div', {}, menuButton ); // will be styled with an icon by CSS
+        this.labelMenuButton = menuButton;
+
+        // make the track menu with things like 'save as'
+        this.makeTrackMenu();
     },
 
 
@@ -128,6 +166,7 @@ return declare( null,
                 this._hideBlock(i);
         }
         this.initBlocks();
+        this.makeTrackMenu();
     },
 
     setLabel: function(newHTML) {
@@ -153,7 +192,8 @@ return declare( null,
     /**
      * Stub.
      */
-    endZoom: function(destScale, destBlockBases) {},
+    endZoom: function(destScale, destBlockBases) {
+    },
 
 
     showRange: function(first, last, startBase, bpPerBlock, scale,
@@ -385,6 +425,8 @@ return declare( null,
         } else {
             this.initBlocks();
         }
+
+        this.makeTrackMenu();
     },
 
     /**
@@ -394,6 +436,8 @@ return declare( null,
      */
     updateStaticElements: function( /**Object*/ coords ) {
         this.window_info = dojo.mixin( this.window_info || {}, coords );
+        if( this.label )
+            this.label.style.left = coords.x+'px';
     },
 
     /**
@@ -677,19 +721,25 @@ return declare( null,
     },
 
     /**
-     * @param menuButton {Element} the menu button (little down arrow in the track label) element
-     * @param labelDiv {Element} the track label element
-     * @returns {dijit.Menu} the operations menu for this track
+     * Makes and installs the dropdown menu showing operations available for this track.
+     * @private
      */
-    makeTrackMenu: function( menuButton, labelDiv ) {
+    makeTrackMenu: function() {
         var options = this._trackMenuOptions();
-        if( options && options.length ) {
-            var menu = this._renderContextMenu( options, { menuButton: menuButton, track: this, browser: this.browser, refSeq: this.refSeq } );
+        if( options && options.length && this.label && this.labelMenuButton ) {
+
+            // remove our old track menu if we have one
+            if( this.trackMenu )
+                this.trackMenu.destroyRecursive();
+
+            // render and bind our track menu
+            var menu = this._renderContextMenu( options, { menuButton: this.labelMenuButton, track: this, browser: this.browser, refSeq: this.refSeq } );
             menu.startup();
             menu.set('leftClickToOpen', true );
-            menu.bindDomNode( menuButton );
+            menu.bindDomNode( this.labelMenuButton );
             menu.set('leftClickToOpen',  false);
-            menu.bindDomNode( labelDiv );
+            menu.bindDomNode( this.label );
+            this.trackMenu = menu;
         }
     }
 

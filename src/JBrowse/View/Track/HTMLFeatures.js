@@ -300,7 +300,7 @@ var HTMLFeatures = declare( BlockBased,
     },
 
     updateStaticElements: function( coords ) {
-        BlockBased.prototype.updateStaticElements.apply( this, arguments );
+        this.inherited( arguments );
         this.updateYScaleFromViewDimensions( coords );
         this.updateFeatureLabelPositions( coords );
     },
