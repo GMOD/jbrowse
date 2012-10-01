@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed off-by-one error in Wiggle track display code: wiggle data
+   was incorrectly displayed shifted one base to the left of its
+   proper position.  Thanks to Steffi Geisen for noticing this.
+
  * Fixed bug in which reference-sequence selection box did not
    automatically update in all situations to reflect the current
    reference sequence.
