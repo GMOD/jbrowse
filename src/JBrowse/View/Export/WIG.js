@@ -26,9 +26,9 @@ return declare( ExportBase,
         this.print("\n");
     },
 
-    _printStep: function( ref, span ) {
+    _printStep: function( span, ref ) {
         // print the WIG step
-        this.print( 'variableStep chrom='+ref+' span='+span+"\n" );
+        this.print( 'variableStep'+ (ref ? ' chrom='+ref : '' ) + ' span='+span+"\n" );
     },
 
     // will need to override this if you're not exporting regular features
@@ -46,7 +46,7 @@ return declare( ExportBase,
                     var span = f.get('end') - f.get('start');
                     var ref = f.get('seq_id');
                     if( !( curspan == span && ref == curref ) ) {
-                        this._printStep( ref, span );
+                        this._printStep( span, ref == curref ? null : ref );
                         curref = ref;
                         curspan = span;
                     }
