@@ -19,8 +19,9 @@ return declare(BlockBased,
         this.height = args.posHeight;
     },
 
-    // stub out makeTrackLabel, these don't have labels
+    // this track has no track label or track menu, stub them out
     makeTrackLabel: function() {},
+    makeTrackMenu: function() {},
 
     fillBlock: function(blockIndex, block,
                         leftBlock, rightBlock,
