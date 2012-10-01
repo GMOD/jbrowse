@@ -484,6 +484,7 @@ a.dialog-new-window {
     border-radius: 5px;
     z-index: 2000;
     text-align: center;
+    cursor: crosshair;
 }
 .trackVerticalPositionIndicatorMain{
     position: fixed;

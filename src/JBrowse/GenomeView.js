@@ -991,7 +991,7 @@ GenomeView.prototype.drawLineLabel = function (numX, n){
         for (var i = 1; i >= 0; i--){
             this.verticalPositionLabel[i] = dojo.create( 'div', {
                 className: 'trackVerticalPositionLabel'
-            }, container);
+            }, static_track);
             this.verticalPositionLabel[i].style.height = this.posHeight + "px";
             this.verticalPositionLabel[i].style.top = (1+document.getElementById('dijit_layout_ContentPane_0').offsetHeight) + 'px';
         }
@@ -1000,12 +1000,12 @@ GenomeView.prototype.drawLineLabel = function (numX, n){
 
     n=n?n:0;
     this.verticalPositionLabel[n].style.display = 'inline';      //make label visible
-    this.verticalPositionLabel[n].innerHTML = 'BP : ' + Util.addCommas(Math.floor(this.absXtoBp(numX))); //set text to BP location
+    this.verticalPositionLabel[n].innerHTML = Util.addCommas(Math.floor(this.absXtoBp(numX))); //set text to BP location
     
     if((window.innerWidth - numX) > (30 + this.verticalPositionLabel[n].offsetWidth)){ //15 pixels on either side of the label
-        this.verticalPositionLabel[n].style.left = (numX + 15) +'px'; //set location on screen to the right
+        this.verticalPositionLabel[n].style.left = (numX + 2) +'px'; //set location on screen to the right
     } else {
-        this.verticalPositionLabel[n].style.left = (numX - 15 - this.verticalPositionLabel[n].offsetWidth) +'px'; //set location on screen to the left
+        this.verticalPositionLabel[n].style.left = (numX - 2 - this.verticalPositionLabel[n].offsetWidth) +'px'; //set location on screen to the left
     }
 }
 /**
