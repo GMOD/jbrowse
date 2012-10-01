@@ -1,6 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/aspect',
+            'dojo/dom-geometry',
             'dijit/Dialog',
             'dijit/Menu',
             'dijit/PopupMenuItem',
@@ -9,6 +10,7 @@ define( [
         ],
         function( declare,
                   aspect,
+                  domGeom,
                   dijitDialog,
                   dijitMenu,
                   dijitPopupMenuItem,
