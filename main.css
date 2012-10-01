@@ -278,7 +278,6 @@ div.track-label, div.tracklist-label {
     border-radius: 6px;
 
     color: #111;
-    font-size: 110%;
     font-weight: bold;
 }
 
@@ -300,11 +299,12 @@ div.track-label {
     border-color: transparent;
     opacity: 0.7;
     vertical-align: middle;
+    overflow: hidden;
 }
 div.track-label .track-close-button {
     display: inline-block;
     padding: 4px;
-    vertical-align: -20%;
+    vertical-align: -4px;
     height: 16px;
     width: 1.3em;
     margin: -3px -3px -4px -6px;
@@ -338,11 +338,9 @@ div.track-label .feature-density {
 .tundra div.track-label:hover .track-menu-button div {
     height: 8px;
     width: 8px;
-    display: inline-block;
-    vertical-align: middle;
-    position: relative;
+    position: absolute;
     left: 8px;
-    top: 1px;
+    top: 8px;
     background: url("src/dijit/themes/tundra/images/spriteArrows.png") no-repeat -28px 0;
 }
 .tundra div.track-label:hover .track-menu-button:hover div {
