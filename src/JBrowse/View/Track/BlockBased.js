@@ -396,10 +396,6 @@ return declare( null,
         this.window_info = dojo.mixin( this.window_info || {}, coords );
     },
 
-    openTrackMenu: function( evt, labelDiv, buttonEl ) {
-        alert('order from menu!');
-    },
-
     /**
      * Render a dijit menu from a specification object.
      *
