@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+ * Fixed bug in which reference-sequence selection box did not
+   automatically update in all situations to reflect the current
+   reference sequence.
+
+1.6.3     2012-09-28 11:33:36 America/New_York
+
+ * Fixed bug with shift-rubberband-zooming not working on Windows
+   (issue #150) (Erik Derohanian).
+
  * Fixed "Can't locate JSON.pm" errors with add-track-json.pl.
 
  * Added a reference-sequence-selection dropdown box, similar to the
@@ -17,11 +26,11 @@
    pointing this out.
 
  * Added a `style.height` option to Wiggle tracks to control the
-   track's height in pixels (issue #131). (Erik Derohanian)
+   track's height in pixels (issue #131) (Erik Derohanian).
 
  * Added support for a `style.trackLabelCss` configuration variable to
    allow customizing the appearance of the label for a particular
-   track (issue #4).
+   track (issue #4) (Erik Derohanian).
 
 1.6.2     2012-09-10 17:47:43 America/New_York
 
