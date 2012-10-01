@@ -365,9 +365,9 @@ var Wiggle = declare( CanvasTrack,
         if( typeof this.config.maxExportSpan == 'number' || typeof this.config.maxExportSpan == 'string' ) {
             return length <= this.config.maxExportSpan;
         }
-        // otherwise, default to a 200Kb limit
+        // otherwise, default to a 500Kb limit
         else
-            return length <= 200000;
+            return length <= 500000;
     }
 });
 
