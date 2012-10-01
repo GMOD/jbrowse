@@ -43,7 +43,6 @@ return declare( ExportBase,
                 var curspan;
                 var curref;
                 array.forEach( features, function(f) {
-                    console.log(f);
                     var span = f.get('end') - f.get('start');
                     var ref = f.get('seq_id');
                     if( !( curspan == span && ref == curref ) ) {
@@ -51,7 +50,7 @@ return declare( ExportBase,
                         curref = ref;
                         curspan = span;
                     }
-                    this.print( f.get('start') + "\t" + f.get('score') + "\n" );
+                    this.print( (f.get('start')+1) + "\t" + f.get('score') + "\n" );
                 }, this );
                 callback( this.output );
             })

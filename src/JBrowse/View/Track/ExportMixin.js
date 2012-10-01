@@ -125,11 +125,13 @@ return {
 
     // cross-platform function for (portably) reading the value of a radio control. sigh. *rolls eyes*
     _readRadio: function( r ) {
-        for( var i = 0; i<r.length; i++ ) {
-            if( r[i].checked )
-                return r[i].value;
+        if( r.length ) {
+            for( var i = 0; i<r.length; i++ ) {
+                if( r[i].checked )
+                    return r[i].value;
+            }
         }
-        return undefined;
+        return r.value;
     },
 
     exportRegion: function( region, format, callback ) {
