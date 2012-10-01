@@ -77,7 +77,6 @@ return {
 
                             var region = this._readRadio( form.elements.region );
                             var format = this._readRadio( form.elements.format );
-                            console.error(format);
                             this.exportRegion( region, format, function(output) {
                                 dialog.hide();
                                 var text = dojo.create('textarea', {
