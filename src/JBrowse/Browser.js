@@ -1152,7 +1152,7 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     if( this.locationBox ) {
         this.locationBox.set('value',locString,false);
         if( this.refSeqSelectBox )
-            this.refSeqSelectBox.set('value', this.refSeq.name );
+            this.refSeqSelectBox.set('value', this.refSeq.name, false );
         this.goButton.set('disabled',true);
     }
 
