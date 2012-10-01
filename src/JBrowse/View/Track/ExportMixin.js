@@ -75,17 +75,18 @@ return {
                             viewButton.set('disabled',true);
                             viewButton.set('iconClass','jbrowseIconBusy');
 
-                            var region = form.elements.region.value;
-                            var format = form.elements.format.value;
+                            var region = this._readRadio( form.elements.region );
+                            var format = this._readRadio( form.elements.format );
+                            console.error(format);
                             this.exportRegion( region, format, function(output) {
                                 dialog.hide();
                                 var text = dojo.create('textarea', {
                                                            rows: 30,
                                                            wrap: 'soft',
                                                            cols: 80,
-                                                           readonly: true,
-                                                           innerHTML: output
+                                                           readonly: true
                                                        });
+                                text.value = output;
                                 var exportView = new dijitDialog({
                                     className: 'export-view-dialog',
                                     title: format + ' export - <span class="locString">'+ region+'</span>',
@@ -108,10 +109,11 @@ return {
                               label: 'Download',
                               disabled: !(canExportVisibleRegion || canExportWholeRef ),
                               onClick: dojo.hitch( this.track, function() {
-                                var format = form.elements.format.value;
+                                var format = this._readRadio( form.elements.format );
+                                var region = this._readRadio( form.elements.region );
                                 dlButton.set('disabled',true);
                                 dlButton.set('iconClass','jbrowseIconBusy');
-                                this.exportRegion( form.elements.region.value, form.elements.format.value, function( output ) {
+                                this.exportRegion( region, format, function( output ) {
                                     dialog.hide();
                                     window.location.href="data:application/x-"+format.toLowerCase()+","+escape(output);
                                 });
@@ -120,6 +122,15 @@ return {
         }
 
         return [ form, actionBar ];
+    },
+
+    // cross-platform function for (portably) reading the value of a radio control. sigh. *rolls eyes*
+    _readRadio: function( r ) {
+        for( var i = 0; i<r.length; i++ ) {
+            if( r[i].checked )
+                return r[i].value;
+        }
+        return undefined;
     },
 
     exportRegion: function( region, format, callback ) {
