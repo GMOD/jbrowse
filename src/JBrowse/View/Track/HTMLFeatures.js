@@ -905,8 +905,7 @@ var HTMLFeatures = declare( BlockBased,
         return [ 'GFF3', 'BED' ];
     },
 
-    _canExportRegion: function( locString ) {
-        var l = Util.parseLocString( locString );
+    _canExportRegion: function( l ) {
         if( ! l ) return false;
 
         // if we have a maxExportSpan configured for this track, use it.

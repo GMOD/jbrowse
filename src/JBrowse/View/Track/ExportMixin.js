@@ -16,32 +16,56 @@ define( [
 return {
 
     _canExport: function() {
-        var visibleRegionStr = this.browser.visibleRegion();
-        var wholeRefSeqStr = Util.assembleLocString({ ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end });
-        var canExportVisibleRegion = this._canExportRegion( visibleRegionStr );
-        var canExportWholeRef = this._canExportRegion( wholeRefSeqStr );
+        var visibleRegion = this.browser.view.visibleRegion();
+        var wholeRefSeqRegion = { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end };
+        var canExportVisibleRegion = this._canExportRegion( visibleRegion );
+        var canExportWholeRef = this._canExportRegion( wholeRefSeqRegion );
         return canExportVisibleRegion || canExportWholeRef;
+    },
+
+    _possibleExportRegions: function() {
+        return [
+            // the visible region
+            (function() {
+                 var r = dojo.clone( this.browser.view.visibleRegion() );
+                 r.description = 'Visible region';
+                 r.name = 'visible';
+                 return r;
+             }.call(this)),
+            // whole reference sequence
+            { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end, description: 'Whole reference sequence', name: 'wholeref' }
+        ];
     },
 
     _exportDialogContent: function() {
         // note that the `this` for this content function is not the track, it's the menu-rendering context
-        var visibleRegionStr = this.browser.visibleRegion();
-        var wholeRefSeqStr = Util.assembleLocString({ ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end });
-        var canExportVisibleRegion = this.track._canExportRegion( visibleRegionStr );
-        var canExportWholeRef = this.track._canExportRegion( wholeRefSeqStr );
+        var possibleRegions = this.track._possibleExportRegions();
+
+        // for each region, calculate its length and determine whether we can export it
+        array.forEach( possibleRegions, function( region ) {
+            region.length = region.end - region.start + 1;
+            region.canExport = this._canExportRegion( region );
+        },this.track);
 
         var form = dojo.create('form', { onSubmit: function() { return false; } });
         form.innerHTML = ''
             + ' <fieldset class="region">'
             + '   <legend>Region to save</legend>'
-            + '   <input '+( canExportVisibleRegion ? ' checked="checked"' : ' disabled="disabled"' )
-            +'      type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="regionVisible" value="'+visibleRegionStr+'" />'
-            + '   <label '+( canExportVisibleRegion ? '' : ' class="ghosted"')+' for="regionVisible">Visible region - <span class="locString">'
-            +       visibleRegionStr+(canExportVisibleRegion ? '' : ' (too large, please zoom in)')+'</span></label>'
-            + '   <br>'
-            + '   <input '+( canExportWholeRef ? (canExportVisibleRegion ? '' : ' checked="checked"') : ' disabled="disabled"' )+' type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="regionRefSeq" value="'+wholeRefSeqStr+'" />'
-            + '   <label '+( canExportWholeRef ? '' : ' class="ghosted" ' )+' for="regionRefSeq">Whole reference sequence - <span class="locString">'+wholeRefSeqStr+(canExportWholeRef ? '' : ' (too large)')+'</span></label>'
-            + '   <br>'
+            + function() {
+                    var regions = '';
+                    var checked = 0;
+                    array.forEach( possibleRegions, function(r) {
+                       var locstring = Util.assembleLocString(r);
+                       regions += ' <input '+( r.canExport ? checked++ ? ' checked="checked"' : '' : ' disabled="disabled"' )
+                               + '     type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="region_'+r.name+'"'
+                               + '     value="'+locstring+'" />'
+                               + '   <label '+( r.canExport ? '' : ' class="ghosted"')+' for="region_'+r.name+'">'+r.description+' - <span class="locString">'
+                               +         locstring+(r.canExport ? '' : ' (too large)')+'</span></label>'
+                               + '   <br>';
+                   });
+                   return regions;
+
+              }.call(this)
             + ' </fieldset>'
             + ' '
             + ' <fieldset class="format">'
@@ -70,7 +94,7 @@ return {
             .placeAt( actionBar );
         var viewButton = new dijitButton({ iconClass: 'dijitIconTask',
                           label: 'View',
-                          disabled: !(canExportVisibleRegion || canExportWholeRef ),
+                          disabled: ! array.some(possibleRegions,function(r) { return r.canExport; }),
                           onClick: dojo.hitch( this.track, function() {
                             viewButton.set('disabled',true);
                             viewButton.set('iconClass','jbrowseIconBusy');
@@ -106,7 +130,7 @@ return {
         if( ! (has('ie') < 10) ) {
             var dlButton = new dijitButton({ iconClass: 'dijitIconSave',
                               label: 'Download',
-                              disabled: !(canExportVisibleRegion || canExportWholeRef ),
+                              disabled: ! array.some(possibleRegions,function(r) { return r.canExport; }),
                               onClick: dojo.hitch( this.track, function() {
                                 var format = this._readRadio( form.elements.format );
                                 var region = this._readRadio( form.elements.region );

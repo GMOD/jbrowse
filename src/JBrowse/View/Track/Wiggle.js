@@ -356,8 +356,7 @@ var Wiggle = declare( CanvasTrack,
     },
 
 
-    _canExportRegion: function( locString ) {
-        var l = Util.parseLocString( locString );
+    _canExportRegion: function( l ) {
         if( ! l ) return false;
 
         var length = l.end - l.start + 1;
