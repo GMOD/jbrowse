@@ -252,6 +252,25 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
 };
 
 /**
+ * @returns {Object} containing ref, start, and end members for the currently displayed location
+ */
+GenomeView.prototype.visibleRegion = function() {
+    return {
+               ref:   this.ref.name,
+               start: this.minVisible(),
+               end:   this.maxVisible()
+           };
+};
+
+/**
+ * @returns {String} locstring representation of the current location<br>
+ * (suitable for passing to the browser's navigateTo)
+ */
+GenomeView.prototype.visibleRegionLocString = function() {
+    return Util.assembleLocString( this.visibleRegion() );
+};
+
+/**
  * Create and place the elements for the vertical scrollbar.
  * @private
  */

@@ -895,19 +895,6 @@ Browser.prototype.showTracks = function( trackNames ) {
     this.publish( '/jbrowse/v1/n/tracks/visibleChanged' );
 };
 
-/**
- * @returns {String} locstring representation of the current location<br>
- * (suitable for passing to navigateTo)
- */
-
-Browser.prototype.visibleRegion = function() {
-    return Util.assembleLocString({
-               ref:   this.view.ref.name,
-               start: this.view.minVisible(),
-               end:   this.view.maxVisible()
-           });
-};
-
 Browser.prototype.makeHelpDialog = function () {
 
     // make a div containing our help text
@@ -1098,7 +1085,7 @@ Browser.prototype.makeShareLink = function () {
                     "?",
                     dojo.objectToQuery(
                         {
-                            loc:    browser.visibleRegion(),
+                            loc:    browser.view.visibleRegionLocString(),
                             tracks: browser.view.visibleTrackNames().join(','),
                             data:   browser.config.queryParams.data
                         })
@@ -1129,7 +1116,7 @@ Browser.prototype.makeFullViewLink = function () {
                    window.location.pathname,
                    "?",
                    dojo.objectToQuery({
-                       loc:    this.visibleRegion(),
+                       loc:    this.view.visibleRegionLocString(),
                        tracks: this.view.visibleTrackNames().join(','),
                        data:   this.config.queryParams.data
                    })
