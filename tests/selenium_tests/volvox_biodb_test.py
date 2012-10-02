@@ -159,6 +159,8 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         label = self.assert_element( xpath )
         assert label.text == 'f15';
 
+        self.turn_off_track('Example Features')
+
 
 class VolvoxBiodbTest( AbstractVolvoxBiodbTest, unittest.TestCase ):
     pass
