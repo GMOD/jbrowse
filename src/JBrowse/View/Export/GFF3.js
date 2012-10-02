@@ -19,7 +19,7 @@ return declare( ExportBase,
 
         this.print( "##gff-version 3\n");
         if( this.refSeq )
-            this.print("##sequence-region "+this.refSeq.name+" "+(this.refSeq.start+1)+" "+this.refSeq.end+"\n");
+            this.print( "##sequence-region "+this.refSeq.name+" "+(this.refSeq.start+1)+" "+this.refSeq.end+"\n" );
     },
 
     gff3_field_names: [
@@ -95,7 +95,8 @@ return declare( ExportBase,
                                    },this)
                        ),
             function( data ) {
-                return this._gff3_escape( data || '.' );
+                var dt = typeof data;
+                return this._gff3_escape( dt == 'string' || dt == 'number' ? data : '.' );
             },
             this
         );
