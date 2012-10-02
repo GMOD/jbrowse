@@ -530,7 +530,7 @@ var HTMLFeatures = declare( BlockBased,
     _featureIsRendered: function( uniqueId ) {
         var blocks = this.blocks;
         for( var i=0; i<blocks.length; i++ ) {
-            if( blocks[i] && blocks[i].featureNodes[uniqueId])
+            if( blocks[i] && blocks[i].featureNodes && blocks[i].featureNodes[uniqueId])
                 return true;
         }
         return false;
