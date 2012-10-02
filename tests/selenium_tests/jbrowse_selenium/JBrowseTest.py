@@ -143,12 +143,12 @@ class JBrowseTest (object):
         self.assert_element( "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" % re.sub( '\W', '_', track_name ) ) \
             .click()
 
-        time.sleep(0.8)
+        time.sleep(0.4)
 
         self.menu_item_click( item_name )
 
     def menu_item_click( self, text ):
-        self.assert_element( "//td[contains(@class,'dijitMenuItemLabel')][contains(.,'%s')]" % text ) \
+        self.assert_element( "//div[contains(@class,'dijitMenuPopup')][not(contains(@style,'display: none'))]//td[contains(@class,'dijitMenuItemLabel')][contains(.,'%s')]" % text ) \
             .click()
 
     def overview_rubberband( self, start_pct, end_pct ):

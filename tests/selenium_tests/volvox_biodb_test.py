@@ -66,12 +66,12 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.export_track( trackname, 'Whole', 'bedGraph', 'Download' )
         self.export_track( trackname, 'Whole', 'Wiggle', 'Download' )
 
-        # self.turn_on_track( 'Example Features' )
-        # trackname = 'ExampleFeatures'
-        # self.export_track( trackname, 'Visible region','GFF3','View')
-        # time.sleep(0.4)
-        # self.close_dialog('export')
-        # self.export_track( trackname, 'Visible region','BED','Download')
+        self.turn_on_track( 'Example Features' )
+        trackname = 'ExampleFeatures'
+        self.export_track( trackname, 'Visible region','GFF3','View')
+        time.sleep(0.4)
+        self.close_dialog('export')
+        self.export_track( trackname, 'Visible region','BED','Download')
 
         self.assert_no_js_errors();
 
