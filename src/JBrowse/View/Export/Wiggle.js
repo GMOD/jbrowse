@@ -6,11 +6,11 @@ define([ 'dojo/_base/declare',
 
 return declare( ExportBase,
  /**
-  * @lends JBrowse.View.Export.WIG.prototype
+  * @lends JBrowse.View.Export.Wiggle.prototype
   */
 {
     /**
-     * Data export driver for WIG format.
+     * Data export driver for Wiggle format.
      * @constructs
      */
     constructor: function( args ) {
@@ -27,7 +27,7 @@ return declare( ExportBase,
     },
 
     _printStep: function( span, ref ) {
-        // print the WIG step
+        // print the Wiggle step
         this.print( 'variableStep'+ (ref ? ' chrom='+ref : '' ) + ' span='+span+"\n" );
     },
 

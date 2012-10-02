@@ -352,7 +352,7 @@ var Wiggle = declare( CanvasTrack,
     },
 
     _exportFormats: function() {
-        return ['WIG'];
+        return ['Wiggle'];
     },
 
 
