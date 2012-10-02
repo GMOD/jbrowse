@@ -20,6 +20,8 @@ return declare( ExportBase,
         this.print( "##gff-version 3\n");
         if( this.refSeq )
             this.print( "##sequence-region "+this.refSeq.name+" "+(this.refSeq.start+1)+" "+this.refSeq.end+"\n" );
+
+        this.lastSync = 0;
     },
 
     gff3_field_names: [
@@ -123,8 +125,12 @@ return declare( ExportBase,
                 return this.formatFeature( feat, attr.ID );
             }, this);
 
+        // need to format the attrs after doing the subfeatures,
+        // because the subfeature formatting might have autocreated an
+        // ID for the parent
         fields[8] = this._gff3_format_attributes( attr );
-        return fields.join("\t")+"\n" + subfeatures.join('');
+
+        return [ fields.join("\t")+"\n" ].concat( subfeatures );
     },
 
     /**
@@ -132,7 +138,16 @@ return declare( ExportBase,
      * @returns nothing
      */
     writeFeature: function(feature) {
-        this.print( this.formatFeature(feature)+"###\n" );
+        var fmt = this.formatFeature(feature);
+        this.print( fmt );
+
+        // avoid printing sync marks more than every 10 lines
+        if( this.lastSync >= 9 ) {
+            this.lastSync = 0;
+            this.print( "###\n" );
+        } else {
+            this.lastSync += fmt.length || 1;
+        }
     },
 
     /**
