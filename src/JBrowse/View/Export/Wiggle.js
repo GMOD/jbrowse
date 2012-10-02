@@ -33,25 +33,22 @@ return declare( ExportBase,
 
     // will need to override this if you're not exporting regular features
     exportRegion: function( region, callback ) {
-        var output = '';
-        this.store.readWigData(
-            1,
-            this.refSeq.name,
+        var curspan;
+        var curref;
+        this.store.iterate(
             region.start,
-            region.end+1,
-            dojo.hitch( this, function( features ) {
-                var curspan;
-                var curref;
-                array.forEach( features, function(f) {
-                    var span = f.get('end') - f.get('start');
-                    var ref = f.get('seq_id');
-                    if( !( curspan == span && ref == curref ) ) {
-                        this._printStep( span, ref == curref ? null : ref );
-                        curref = ref;
-                        curspan = span;
-                    }
-                    this.print( (f.get('start')+1) + "\t" + f.get('score') + "\n" );
-                }, this );
+            region.end,
+            dojo.hitch( this, function(f) {
+                var span = f.get('end') - f.get('start');
+                var ref = f.get('seq_id');
+                if( !( curspan == span && ref == curref ) ) {
+                    this._printStep( span, ref == curref ? null : ref );
+                    curref = ref;
+                    curspan = span;
+                }
+                this.print( (f.get('start')+1) + "\t" + f.get('score') + "\n" );
+            }),
+            dojo.hitch( this, function() {
                 callback( this.output );
             })
         );

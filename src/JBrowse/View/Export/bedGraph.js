@@ -1,10 +1,10 @@
 define([ 'dojo/_base/declare',
          'dojo/_base/array',
-         'JBrowse/View/Export'
+         'JBrowse/View/Export/BED'
        ],
-       function( declare, array, ExportBase ) {
+       function( declare, array, bedExport ) {
 
-return declare( ExportBase,
+return declare( bedExport,
  /**
   * @lends JBrowse.View.Export.bedGraph.prototype
   */
@@ -13,7 +13,9 @@ return declare( ExportBase,
      * Data export driver for bedGraph format.
      * @constructs
      */
-    constructor: function( args ) {
+    constructor: function( args ) {},
+
+    _printHeader: function() {
         // print the track definition
         this.print( 'track type=bedGraph' );
         if( this.track ) {
@@ -26,29 +28,13 @@ return declare( ExportBase,
         this.print("\n");
     },
 
-    // will need to override this if you're not exporting regular features
-    exportRegion: function( region, callback ) {
-        var output = '';
-        this.store.readWigData(
-            1,
-            this.refSeq.name,
-            region.start,
-            region.end+1,
-            dojo.hitch( this, function( features ) {
-                array.forEach( features, function(f) {
-                    this.print( [
-                                    f.get('seq_id'),
-                                    f.get('start'),
-                                    f.get('end'),
-                                    f.get('score')
-                                ].join("\t")
-                                + "\n"
-                              );
-                }, this );
-                callback( this.output );
-            })
-        );
+    formatFeature: function( f ) {
+        return [
+            f.get('seq_id'),
+            f.get('start'),
+            f.get('end'),
+            f.get('score')
+        ].join("\t")+"\n";
     }
-
 });
 });

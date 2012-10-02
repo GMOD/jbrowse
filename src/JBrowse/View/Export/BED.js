@@ -16,6 +16,10 @@ return declare( ExportBase,
      * @constructs
      */
     constructor: function( args ) {
+        this._printHeader();
+    },
+
+    _printHeader: function() {
         // print the BED header
         this.print( 'track' );
         if( this.track ) {
