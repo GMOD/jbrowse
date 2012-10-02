@@ -26,12 +26,14 @@ return declare( ExportBase,
         this.print("\n");
     },
 
+    /**
+     * print the Wiggle step
+     * @private
+     */
     _printStep: function( span, ref ) {
-        // print the Wiggle step
         this.print( 'variableStep'+ (ref ? ' chrom='+ref : '' ) + ' span='+span+"\n" );
     },
 
-    // will need to override this if you're not exporting regular features
     exportRegion: function( region, callback ) {
         var curspan;
         var curref;

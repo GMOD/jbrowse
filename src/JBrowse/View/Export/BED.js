@@ -19,6 +19,10 @@ return declare( ExportBase,
         this._printHeader();
     },
 
+    /**
+     * print the BED track definition line
+     * @private
+     */
     _printHeader: function() {
         // print the BED header
         this.print( 'track' );
