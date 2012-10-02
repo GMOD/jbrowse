@@ -352,7 +352,7 @@ var Wiggle = declare( CanvasTrack,
     },
 
     _exportFormats: function() {
-        return ['bedGraph','Wiggle'];
+        return ['bedGraph','Wiggle', 'GFF3' ];
     },
 
 
