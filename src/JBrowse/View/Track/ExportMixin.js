@@ -56,7 +56,7 @@ return {
                     var checked = 0;
                     array.forEach( possibleRegions, function(r) {
                        var locstring = Util.assembleLocString(r);
-                       regions += ' <input '+( r.canExport ? checked++ ? ' checked="checked"' : '' : ' disabled="disabled"' )
+                       regions += ' <input '+( r.canExport ? checked++ ? '' : ' checked="checked"' : ' disabled="disabled"' )
                                + '     type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="region_'+r.name+'"'
                                + '     value="'+locstring+'" />'
                                + '   <label '+( r.canExport ? '' : ' class="ghosted"')+' for="region_'+r.name+'">'+r.description+' - <span class="locString">'
