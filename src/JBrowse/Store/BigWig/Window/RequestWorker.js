@@ -11,6 +11,9 @@ var dlog = function(){ console.log.apply(console, arguments); };
 var gettable = declare( null, {
     get: function(name) {
         return this[ { start: 'min', end: 'max', seq_id: 'segment' }[name] || name ];
+    },
+    tags: function() {
+        return ['start','end','seq_id','score','type','source'];
     }
 });
 var Feature = declare( gettable, {} );
@@ -37,6 +40,8 @@ var RequestWorker = declare( null,
      */
     constructor: function( window, chr, min, max, callback ) {
         this.window = window;
+        this.source = window.bwg.name || undefined;
+
         this.blocksToFetch = [];
         this.outstanding = 0;
 
@@ -156,7 +161,8 @@ var RequestWorker = declare( null,
         f.segment = this.window.bwg.idsToChroms[this.chr];
         f.min = fmin;
         f.max = fmax;
-        f.type = 'bigwig';
+        f.type = 'remark';
+        f.source = this.source;
 
         for (k in opts) {
             f[k] = opts[k];
@@ -197,7 +203,7 @@ var RequestWorker = declare( null,
                         var sumSqData = fa[(i*8)+7];
 
                         if (chromId == this.chr) {
-                            var summaryOpts = {type: 'bigwig', score: sumData/validCnt};
+                            var summaryOpts = {score: sumData/validCnt};
                             if (this.window.bwg.type == 'bigbed') {
                                 summaryOpts.type = 'density';
                             }

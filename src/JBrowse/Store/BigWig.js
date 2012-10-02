@@ -2,12 +2,13 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
+            'dojo/_base/url',
             'JBrowse/Store/BigWig/Window',
             'dojo/_base/Deferred',
             'JBrowse/Util',
             'JBrowse/Model/XHRBlob'
         ],
-        function( declare, lang, array, Window, Deferred, Util, XHRBlob ) {
+        function( declare, lang, array, urlObj, Window, Deferred, Util, XHRBlob ) {
 return declare( null,
  /**
   * @lends JBrowse.Store.BigWig
@@ -41,7 +42,7 @@ return declare( null,
             );
             return new XHRBlob( url );
         }).call(this);
-        var name = args.name || 'anonymous';
+        var name = args.name || ( data.url && new urlObj( data.url ).path.replace(/^.+\//,'') ) || 'anonymous';
 
         var bwg = this;
 
