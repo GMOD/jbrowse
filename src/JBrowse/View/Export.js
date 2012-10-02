@@ -1,7 +1,8 @@
 define([ 'dojo/_base/declare',
+         'dojo/_base/lang',
          'dojo/_base/array'
        ],
-       function( declare, array ) {
+       function( declare, lang, array ) {
 
 return declare( null,
 {
@@ -11,7 +12,7 @@ return declare( null,
      */
     constructor: function( args ) {
         args = args || {};
-        this.print = args.print || function( line ) { this.output += line; };
+        this.printFunc = args.print || function( line ) { this.output += line; };
         this.refSeq = args.refSeq;
         this.output = '';
         this.track = args.track;
@@ -29,12 +30,19 @@ return declare( null,
             }));
     },
 
+    print: function( l ) {
+        if( lang.isArray( l ) ) {
+            array.forEach( l, this.printFunc, this );
+        } else {
+            this.printFunc( l );
+        }
+    },
+
     /**
      * Write the feature to the GFF3 under construction.
      * @returns nothing
      */
     writeFeature: function(feature) {
-        console.log('feature');
         this.print( this.formatFeature(feature) );
     }
 
