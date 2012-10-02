@@ -50,13 +50,36 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # test bigwig
         self.bigwig();
 
+        # test data export
+        self.export();
+
         self.browser.close()
+
+    def export( self ):
+        self.do_typed_query('ctgA')
+
+        trackname = 'volvox_microarray.bw'
+        self.turn_on_track( trackname )
+        self.export_track( trackname, 'Visible region','GFF3','View')
+        time.sleep(0.4);
+        self.close_dialog('export')
+        self.export_track( trackname, 'Whole', 'bedGraph', 'Download' )
+        self.export_track( trackname, 'Whole', 'Wiggle', 'Download' )
+
+        # self.turn_on_track( 'Example Features' )
+        # trackname = 'ExampleFeatures'
+        # self.export_track( trackname, 'Visible region','GFF3','View')
+        # time.sleep(0.4)
+        # self.close_dialog('export')
+        # self.export_track( trackname, 'Visible region','BED','Download')
+
+        self.assert_no_js_errors();
 
     def bigwig( self ):
         self.turn_on_track('volvox_microarray.bw')
         self.assert_elements("//div[@id='track_volvox_microarray.bw']//canvas")
         self.assert_no_js_errors()
-
+        self.turn_off_track('volvox_microarray.bw')
 
     def sequence( self ):
         self.do_typed_query( '0..80' );

@@ -24,7 +24,16 @@ class JBrowseTest (object):
 
         self.track_selector = getattr( track_selectors, '%sTrackSelector' % self.tracksel_type )( self )
 
-        self.browser = webdriver.Firefox()
+
+        fp = webdriver.FirefoxProfile()
+
+        fp.set_preference("browser.download.folderList",2)
+        fp.set_preference("browser.download.manager.showWhenStarting",False)
+        fp.set_preference("browser.download.dir", os.getcwd())
+        fp.set_preference("browser.helperApps.neverAsk.saveToDisk","application/x-bedgraph,application/x-wiggle,application/x-bed")
+
+        self.browser = webdriver.Firefox( firefox_profile = fp )
+
         base = self.baseURL()
         self.browser.get(
             base + ( '&' if base.find('?') >= 0 else '?' )
@@ -115,6 +124,32 @@ class JBrowseTest (object):
             .perform()
 
         self.assert_no_js_errors()
+
+    def export_track( self, track_name, region, format, button ):
+        self.track_menu_click( track_name, 'Save')
+
+        # test view export
+        self.assert_element("//label[contains(.,'%s')]" % region ).click()
+        self.assert_element("//label[contains(.,'%s')]" % format ).click()
+        self.assert_element("//*[contains(@class,'dijitButton')]//*[contains(@class,'dijitButtonText')][contains(.,'%s')]" % button ).click()
+        self.assert_no_js_errors()
+
+    def close_dialog( self, title ):
+        self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title,'%s')]/span[contains(@class,'dijitDialogCloseIcon')]" % title ).click()
+        self.assert_no_js_errors()
+
+
+    def track_menu_click( self, track_name, item_name ):
+        self.assert_element( "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" % re.sub( '\W', '_', track_name ) ) \
+            .click()
+
+        time.sleep(0.8)
+
+        self.menu_item_click( item_name )
+
+    def menu_item_click( self, text ):
+        self.assert_element( "//td[contains(@class,'dijitMenuItemLabel')][contains(.,'%s')]" % text ) \
+            .click()
 
     def overview_rubberband( self, start_pct, end_pct ):
         """Executes a rubberband gesture from start_pct to end_pct on the overview bar"""
