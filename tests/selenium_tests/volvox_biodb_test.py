@@ -108,17 +108,13 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # right-click one of them
         self.actionchains() \
-            .move_to_element(feature_elements[20]) \
+            .context_click(feature_elements[40]) \
             .perform()
 
         # wait for the context menu to generate
-        time.sleep(0.3)
+        time.sleep(0.7)
 
-        self.actionchains() \
-            .context_click( feature_elements[20] ) \
-            .move_by_offset( 20, 55 ) \
-            .click() \
-            .perform()
+        self.menu_item_click( 'XHR HTML' )
 
         # wait for the dialog to finish fading in
         time.sleep(1.0)
@@ -126,9 +122,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # check that the proper HTML snippet popped up in the dialog
         self.assert_element("//div[contains(@class,'dijitDialog')]//span[@class='amazingTestSnippet']")
 
-        # close the dialog
-        dialog_close = self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title,'Random XHR')]/span[contains(@class,'dijitDialogCloseIcon')]")
-        dialog_close.click()
+        self.close_dialog('Random XHR')
 
         time.sleep(0.5) # wait for it to finish fading out
 
