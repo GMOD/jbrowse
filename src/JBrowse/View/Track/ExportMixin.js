@@ -43,7 +43,7 @@ return {
 
         // for each region, calculate its length and determine whether we can export it
         array.forEach( possibleRegions, function( region ) {
-            region.length = region.end - region.start + 1;
+            region.length = Math.round( region.end - region.start + 1 );
             region.canExport = this._canExportRegion( region );
         },this.track);
 
@@ -60,7 +60,7 @@ return {
                                + '     type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="region_'+r.name+'"'
                                + '     value="'+locstring+'" />'
                                + '   <label '+( r.canExport ? '' : ' class="ghosted"')+' for="region_'+r.name+'">'+r.description+' - <span class="locString">'
-                               +         locstring+(r.canExport ? '' : ' (too large)')+'</span></label>'
+                               +         locstring+'</span> ('+Util.humanReadableNumber(r.length)+(r.canExport ? 'bp' : 'bp, too large')+')</label>'
                                + '   <br>';
                    });
                    return regions;
