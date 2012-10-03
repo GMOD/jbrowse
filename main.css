@@ -479,8 +479,8 @@ a.dialog-new-window {
     left: -50px;
     height: 1.5em;
     background-color: #BDCEEF;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: 9px;
+    padding-right: 9px;
     border-radius: 5px;
     z-index: 2000;
     text-align: center;

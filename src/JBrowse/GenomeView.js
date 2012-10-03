@@ -700,7 +700,7 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
     h.style.left   = Math.min(start.x,end.x) - container_coords.x + 'px';
     h.style.width  = Math.abs(end.x-start.x) + 'px';
 
-    if (start.y >= parseInt(this.overview.offsetHeight) ){
+    if (start.y > parseInt(this.overview.offsetHeight) ){
         this.drawLineLabel(end.x);
         this.drawLineLabel(start.x, 1);
     }
@@ -985,24 +985,25 @@ GenomeView.prototype.drawVerticalPositionLine = function(evt){
  * Draws the label for the line.
  */
 GenomeView.prototype.drawLineLabel = function (numX, n){
+    numberOfLabels = 2;
     if (!this.verticalPositionLabel){
-    this.verticalPositionLabel = [2];
+    this.verticalPositionLabel = [numberOfLabels];
     // if label does not exist, create it
-        for (var i = 1; i >= 0; i--){
+        for (var i = (numberOfLabels - 1); i >= 0; i--){
             this.verticalPositionLabel[i] = dojo.create( 'div', {
                 className: 'trackVerticalPositionLabel'
-            }, static_track);
+            }, container);
             this.verticalPositionLabel[i].style.height = this.posHeight + "px";
             this.verticalPositionLabel[i].style.top = (1+document.getElementById('dijit_layout_ContentPane_0').offsetHeight) + 'px';
         }
-        this.verticalPositionLabel[1].style.backgroundColor = '#97A1B3';
+        this.verticalPositionLabel[1].style.backgroundColor = '#C0C9D9';
     }
 
-    n=n?n:0;
+    n=(n && n >= 0 && n < numberOfLabels)?n:0;
     this.verticalPositionLabel[n].style.display = 'inline';      //make label visible
     this.verticalPositionLabel[n].innerHTML = Util.addCommas(Math.floor(this.absXtoBp(numX))); //set text to BP location
     
-    if((window.innerWidth - numX) > (30 + this.verticalPositionLabel[n].offsetWidth)){ //15 pixels on either side of the label
+    if((window.innerWidth - numX) > (8 + this.verticalPositionLabel[n].offsetWidth)){ //15 pixels on either side of the label
         this.verticalPositionLabel[n].style.left = (numX + 2) +'px'; //set location on screen to the right
     } else {
         this.verticalPositionLabel[n].style.left = (numX - 2 - this.verticalPositionLabel[n].offsetWidth) +'px'; //set location on screen to the left
