@@ -21,7 +21,6 @@ return declare( ExportBase,
 
     // will need to override this if you're not exporting regular features
     exportRegion: function( region, callback ) {
-        var output = '';
         this.store.getRange(
             this.refSeq, region.start, region.end,
             dojo.hitch( this,function ( start, end, seq ) {
