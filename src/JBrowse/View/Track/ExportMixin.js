@@ -60,7 +60,7 @@ return {
                                + '     type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="region_'+r.name+'"'
                                + '     value="'+locstring+'" />'
                                + '   <label '+( r.canExport ? '' : ' class="ghosted"')+' for="region_'+r.name+'">'+r.description+' - <span class="locString">'
-                               +         locstring+'</span> ('+Util.humanReadableNumber(r.length)+(r.canExport ? 'bp' : 'bp, too large')+')</label>'
+                               +         locstring+'</span> ('+Util.humanReadableNumber(r.length)+(r.canExport ? 'b' : 'b, too large')+')</label>'
                                + '   <br>';
                    });
                    return regions;
