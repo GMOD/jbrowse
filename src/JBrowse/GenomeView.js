@@ -396,13 +396,21 @@ GenomeView.prototype._behaviors = function() { return {
     // mouse events connected when the shift button is being held down
     shiftMouse: {
         apply: function() {
+            // function that draws the vertical position line only if
+            // we are not rubberbanding
+            var maybeDrawVerticalPositionLine = dojo.hitch( this, function( evt ) {
+                if( this.rubberbanding )
+                    return;
+                this.drawVerticalPositionLine( this.outerTrackContainer, evt );
+            });
+
             dojo.removeClass(this.trackContainer,'draggable');
             dojo.addClass(this.trackContainer,'rubberBandAvailable');
             return [
                 dojo.connect( this.outerTrackContainer, "mousedown", dojo.hitch( this, 'startRubberZoom', this.absXtoBp, this.scrollContainer )),
                 dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'              ),
-                dojo.connect( this.outerTrackContainer, "mouseover", this, 'drawVerticalPositionLine'  ),
-                dojo.connect( this.outerTrackContainer, "mousemove", this, 'drawVerticalPositionLine'  )
+                dojo.connect( this.outerTrackContainer, "mouseover", maybeDrawVerticalPositionLine ),
+                dojo.connect( this.outerTrackContainer, "mousemove", maybeDrawVerticalPositionLine )
             ];
         },
         remove: function( mgr, handles ) {
@@ -685,7 +693,7 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
         var main = this.rubberHighlight = document.createElement("div");
         main.className = 'rubber-highlight';
         main.style.position = 'absolute';
-        main.style.zIndex = 1000;
+        main.style.zIndex = 20;
         var text = document.createElement('div');
         text.appendChild( document.createTextNode("Zoom to region") );
         main.appendChild(text);
@@ -701,8 +709,8 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
     h.style.width  = Math.abs( end.x - start.x ) + 'px';
 
     // draw basepair-position labels for the start and end of the highlight
-    this.drawBasePairLabel( 0, 0, Math.min( start.x, end.x )     );
-    this.drawBasePairLabel( 1, 0, Math.max( start.x, end.x ) + 1 );
+    this.drawBasePairLabel({ name: 'rubberLeft', offset: 0, x: Math.min( start.x, end.x )    , parent: container, className: 'rubber' });
+    this.drawBasePairLabel({ name: 'rubberRight', offset: 0, x: Math.max( start.x, end.x ) + 1, parent: container, className: 'rubber' });
 
     // turn off the red position line if it's on
     this.clearVerticalPositionLine();
@@ -945,14 +953,15 @@ GenomeView.prototype.overviewClicked = function( evt ) {
  * Event handler fired when mouse is over the scale bar.
  */
 GenomeView.prototype.scaleMouseOver = function( evt ) {
-    this.drawVerticalPositionLine(evt);
+    this.drawVerticalPositionLine( this.scaleTrackDiv, evt);
 };
 
 /**
  * Event handler fired when mouse moves over the scale bar.
  */
 GenomeView.prototype.scaleMouseMove = function( evt ) {
-    this.drawVerticalPositionLine(evt);};
+    this.drawVerticalPositionLine( this.scaleTrackDiv, evt);
+};
 
 /**
  * Event handler fired when mouse leaves the scale bar.
@@ -965,7 +974,7 @@ GenomeView.prototype.scaleMouseOut = function( evt ) {
 /**
  * Draws the red line across the work area, or updates it if it already exists.
  */
-GenomeView.prototype.drawVerticalPositionLine = function(evt){
+GenomeView.prototype.drawVerticalPositionLine = function( parent, evt){
 
     var numX = evt.pageX;
 
@@ -973,52 +982,51 @@ GenomeView.prototype.drawVerticalPositionLine = function(evt){
         // if line does not exist, create it
         this.verticalPositionLine = dojo.create( 'div', {
             className: 'trackVerticalPositionIndicatorMain'
-        }, this.staticTrack.div);
+        }, parent );
     }
     this.verticalPositionLine.style.display = 'block';      //make line visible
     this.verticalPositionLine.style.left = numX +'px'; //set location on screen
 
-    this.drawBasePairLabel( 0, 0, numX );
+    this.drawBasePairLabel({ name: 'single', offset: 0, x: numX, parent: parent });
 };
 
 /**
  * Draws the label for the line.
  * @param {Number} numX X-coordinate at which to draw the label's origin
- * @param {Number} slot index of the label.
+ * @param {Number} name unique name used to cache this label
  * @param {Number} offset offset in pixels from numX at which the label should actually be drawn
  */
-GenomeView.prototype.drawBasePairLabel = function ( slot, offset, numX ){
-    slot = slot || 0;
-    offset = offset || 0;
-    this.basePairLabels = this.basePairLabels || [];
+GenomeView.prototype.drawBasePairLabel = function ( args ){
+    var name = args.name || 0;
+    var offset = args.offset || 0;
+    var numX = args.x;
+    this.basePairLabels = this.basePairLabels || {};
 
-    if( ! this.basePairLabels[slot] ) {
-
+    if( ! this.basePairLabels[name] ) {
         var scaleTrackPos = dojo.position( this.scaleTrackDiv );
-        this.basePairLabels[slot] = dojo.create( 'div', {
-            className: 'basePairLabel',
+        this.basePairLabels[name] = dojo.create( 'div', {
+            className: 'basePairLabel'+(args.className ? ' '+args.className : '' ),
             style: {
                 height: this.posHeight + 'px',
                 top: scaleTrackPos.y + scaleTrackPos.h - 1 + 'px'
             }
-        }, this.browser.container );
-        dojo.connect( this.basePairLabels[slot], "mouseover", dojo.hitch( this, 'drawBasePairLabel', 0, 0 ));
-        dojo.connect( this.basePairLabels[slot], "mousemove", dojo.hitch( this, 'drawBasePairLabel', 0, 0 ));
-        dojo.connect( this.basePairLabels[slot], "mouseout",  dojo.hitch( this, 'clearBasePairLabels'));
+        }, args.parent );
     }
+
+    var label = this.basePairLabels[name];
 
     if (typeof numX == 'object'){
         numX = numX.clientX;
     }
 
-    this.basePairLabels[slot].style.display = 'inline';      //make label visible
-    this.basePairLabels[slot].innerHTML = Util.addCommas( Math.floor( this.absXtoBp(numX) )); //set text to BP location
+    label.style.display = 'block';      //make label visible
+    label.innerHTML = Util.addCommas( Math.floor( this.absXtoBp(numX) )); //set text to BP location
 
     // 15 pixels on either side of the label
-    if( window.innerWidth - numX > 8 + this.basePairLabels[slot].offsetWidth ) {
-        this.basePairLabels[slot].style.left = numX + offset + 'px'; //set location on screen to the right
+    if( window.innerWidth - numX > 8 + label.offsetWidth ) {
+        label.style.left = numX + offset + 'px'; //set location on screen to the right
     } else {
-        this.basePairLabels[slot].style.left = numX + 1 - offset - this.basePairLabels[slot].offsetWidth + 'px'; //set location on screen to the left
+        label.style.left = numX + 1 - offset - label.offsetWidth + 'px'; //set location on screen to the left
     }
 };
 
@@ -1034,10 +1042,9 @@ GenomeView.prototype.clearVerticalPositionLine = function(){
  * Hide any base pair labels that are being displayed.
  */
 GenomeView.prototype.clearBasePairLabels = function(){
-    dojo.forEach( this.basePairLabels, function(l) {
-        if( l )
-            l.style.display = 'none';
-    });
+    for( var name in this.basePairLabels ) {
+        this.basePairLabels[name].style.display = 'none';
+    }
 };
 
 /**

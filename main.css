@@ -479,12 +479,17 @@ a.dialog-new-window {
     height: 1.5em;
     background: #fefefe;
     padding: 0 10px;
-    z-index: 2000;
+    z-index: 10;
     text-align: center;
     cursor: crosshair;
     border: 1px solid #444;
 }
-.trackVerticalPositionIndicatorMain{
+
+.basePairLabel.rubber {
+    z-index: 25;
+}
+
+.trackVerticalPositionIndicatorMain {
     position: fixed;
     display: none;
     cursor: crosshair;
