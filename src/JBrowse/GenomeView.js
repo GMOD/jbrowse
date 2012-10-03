@@ -406,7 +406,7 @@ GenomeView.prototype._behaviors = function() { return {
             ];
         },
         remove: function( mgr, handles ) {
-            this.clearVerticalPositionLabel();
+            this.clearLineLabel();
             this.clearVerticalPositionLine();
             dojo.forEach( handles, dojo.disconnect, dojo );
             dojo.removeClass(this.trackContainer,'rubberBandAvailable');
@@ -673,7 +673,12 @@ GenomeView.prototype.rubberExecute = function(event) {
     var h_end_bp   = this.rubberbanding.absFunc.call( this, Math.max(start.x,end.x) );
     delete this.rubberbanding;
     this.setLocation( this.ref, h_start_bp, h_end_bp );
-    this.clearVerticalPositionLabel();
+    this.clearLineLabel();
+    i=0;
+    while (this.verticalPositionLabel[i]){
+        this.verticalPositionLabel[i].style.borderColor = 'red';
+        i++;
+    }
 };
 
 // draws the rubber-banding highlight region from start.x to end.x
@@ -705,6 +710,11 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
         this.drawLineLabel(start.x, 1);
     }
     this.clearVerticalPositionLine();
+    i=0;
+    while (this.verticalPositionLabel[i]){
+        this.verticalPositionLabel[i].style.borderColor = 'blue';
+        i++;
+    }
     //console.log({ left: h.style.left, end: end.x });
 };
 
@@ -959,7 +969,7 @@ GenomeView.prototype.scaleMouseMove = function( evt ) {
  */
 GenomeView.prototype.scaleMouseOut = function( evt ) {
     this.clearVerticalPositionLine();
-    this.clearVerticalPositionLabel();
+    this.clearLineLabel();
 };
 
 /**
@@ -986,21 +996,22 @@ GenomeView.prototype.drawVerticalPositionLine = function(evt){
  */
 GenomeView.prototype.drawLineLabel = function (numX, n){
     numberOfLabels = 2;
-    if (!this.verticalPositionLabel){
-    this.verticalPositionLabel = [numberOfLabels];
+        if (!this.verticalPositionLabel){
+        this.verticalPositionLabel = [numberOfLabels];
     // if label does not exist, create it
         for (var i = (numberOfLabels - 1); i >= 0; i--){
             this.verticalPositionLabel[i] = dojo.create( 'div', {
                 className: 'trackVerticalPositionLabel'
             }, container);
             this.verticalPositionLabel[i].style.height = this.posHeight + "px";
-            this.verticalPositionLabel[i].style.top = (1+document.getElementById('dijit_layout_ContentPane_0').offsetHeight) + 'px';
+            this.verticalPositionLabel[i].style.top = (document.getElementById('dijit_layout_ContentPane_0').offsetHeight) + 'px';
             dojo.connect( this.verticalPositionLabel[i], "mouseover", this, 'drawLineLabel');
             dojo.connect( this.verticalPositionLabel[i], "mousemove", this, 'drawLineLabel');
+            dojo.connect( this.verticalPositionLabel[i], "mouseout",  this, 'clearLineLabel');
         }
-        this.verticalPositionLabel[1].style.backgroundColor = '#C0C9D9';
+        this.verticalPositionLabel[1].style.backgroundColor = '#C0C9E0';
     }
-    
+
     if (typeof numX !== 'number'){
         numX = numX.clientX;
     }
@@ -1010,9 +1021,9 @@ GenomeView.prototype.drawLineLabel = function (numX, n){
     this.verticalPositionLabel[n].innerHTML = Util.addCommas(Math.floor(this.absXtoBp(numX))); //set text to BP location
     
     if((window.innerWidth - numX) > (8 + this.verticalPositionLabel[n].offsetWidth)){ //15 pixels on either side of the label
-        this.verticalPositionLabel[n].style.left = (numX + 2) +'px'; //set location on screen to the right
+        this.verticalPositionLabel[n].style.left = (numX + 1) +'px'; //set location on screen to the right
     } else {
-        this.verticalPositionLabel[n].style.left = (numX - 2 - this.verticalPositionLabel[n].offsetWidth) +'px'; //set location on screen to the left
+        this.verticalPositionLabel[n].style.left = (numX - 1 - this.verticalPositionLabel[n].offsetWidth) +'px'; //set location on screen to the left
     }
 }
 /**
@@ -1026,9 +1037,13 @@ GenomeView.prototype.clearVerticalPositionLine = function(){
 /**
  * Function to clear the labels
  */
-GenomeView.prototype.clearVerticalPositionLabel = function(){
-    this.verticalPositionLabel[0].style.display = 'none';
-    this.verticalPositionLabel[1].style.display = 'none';
+GenomeView.prototype.clearLineLabel = function(){
+
+    i=0;
+    while (this.verticalPositionLabel[i]){
+        this.verticalPositionLabel[i].style.display = 'none';
+        i++;
+    }
 }
 
 /**
