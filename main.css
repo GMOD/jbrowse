@@ -472,21 +472,17 @@ a.dialog-new-window {
 }
 
 /*styles for vertical line and BP label*/
-.trackVerticalPositionLabel{
+.basePairLabel {
     position: fixed;
-    top: 59px;
+    font-weight: bold;
     display: none;
-    left: -50px;
     height: 1.5em;
-    background-color: #E5E5E5;         /*  #BDCEEF;   */
-    padding-left: 10px;
-    padding-right: 10px;
+    background: #fefefe;
+    padding: 0 10px;
     z-index: 2000;
     text-align: center;
     cursor: crosshair;
-    border-color: red;
-    border-style: solid;
-    border-width: 1px;
+    border: 1px solid #444;
 }
 .trackVerticalPositionIndicatorMain{
     position: fixed;
