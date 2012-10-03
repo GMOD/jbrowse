@@ -156,6 +156,26 @@ Util = {
         return a;
     },
 
+    humanReadableNumber: function( num ) {
+        num = parseInt(num);
+        var suffix = '';
+        if( num >= 1e12 ) {
+            num /= 1e12;
+            suffix = 'T';
+        } else if( num >= 1e9 ) {
+            num /= 1e9;
+            suffix = 'G';
+        } else if( num >= 1e6 ) {
+            num /= 1e6;
+            suffix = 'M';
+        } else if( num >= 1000 ) {
+            num /= 1000;
+            suffix = 'K';
+        }
+
+        return (num.toFixed(2)+' '+suffix).replace(/0+ /,' ').replace(/\. /,' ');
+    },
+
     // from http://bugs.dojotoolkit.org/ticket/5794
     resolveUrl: function(baseUrl, relativeUrl) {
         // summary:
