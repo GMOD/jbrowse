@@ -402,7 +402,7 @@ GenomeView.prototype._behaviors = function() { return {
                 dojo.connect( this.outerTrackContainer, "mousedown", dojo.hitch( this, 'startRubberZoom', this.absXtoBp, this.scrollContainer )),
                 dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'              ),
                 dojo.connect( this.outerTrackContainer, "mouseover", this, 'drawVerticalPositionLine'  ),
-                dojo.connect( this.outerTrackContainer, "mousemove", this, 'drawVerticalPositionLine'  ),
+                dojo.connect( this.outerTrackContainer, "mousemove", this, 'drawVerticalPositionLine'  )
             ];
         },
         remove: function( mgr, handles ) {
@@ -674,7 +674,7 @@ GenomeView.prototype.rubberExecute = function(event) {
     delete this.rubberbanding;
     this.setLocation( this.ref, h_start_bp, h_end_bp );
     this.clearLineLabel();
-    i=0;
+    var i=0;
     while (this.verticalPositionLabel[i]){
         this.verticalPositionLabel[i].style.borderColor = 'red';
         i++;
@@ -710,7 +710,7 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
         this.drawLineLabel(start.x, 1);
     }
     this.clearVerticalPositionLine();
-    i=0;
+    var i=0;
     while (this.verticalPositionLabel[i]){
         this.verticalPositionLabel[i].style.borderColor = 'blue';
         i++;
@@ -995,10 +995,9 @@ GenomeView.prototype.drawVerticalPositionLine = function(evt){
  * Draws the label for the line.
  */
 GenomeView.prototype.drawLineLabel = function (numX, n){
-    numberOfLabels = 2;
-        if (!this.verticalPositionLabel){
-        this.verticalPositionLabel = [numberOfLabels];
-    // if label does not exist, create it
+    var numberOfLabels = 2;
+    if (!this.verticalPositionLabel){
+        this.verticalPositionLabel = [];
         for (var i = (numberOfLabels - 1); i >= 0; i--){
             this.verticalPositionLabel[i] = dojo.create( 'div', {
                 className: 'trackVerticalPositionLabel'
@@ -1025,26 +1024,27 @@ GenomeView.prototype.drawLineLabel = function (numX, n){
     } else {
         this.verticalPositionLabel[n].style.left = (numX - 1 - this.verticalPositionLabel[n].offsetWidth) +'px'; //set location on screen to the left
     }
-}
+};
+
 /**
  * Function to clear the line
  */
 GenomeView.prototype.clearVerticalPositionLine = function(){
     if(this.verticalPositionLine)
         this.verticalPositionLine.style.display = 'none';
-}
+};
 
 /**
  * Function to clear the labels
  */
 GenomeView.prototype.clearLineLabel = function(){
 
-    i=0;
+    var i=0;
     while (this.verticalPositionLabel[i]){
         this.verticalPositionLabel[i].style.display = 'none';
         i++;
     }
-}
+};
 
 /**
  * Convert absolute X pixel position to base pair position on the
