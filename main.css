@@ -476,14 +476,14 @@ a.dialog-new-window {
     color: black;
     position: fixed;
     font-weight: bold;
+    font-size: 80%;
     display: none;
-    height: 1.5em;
     background: #fefefe;
-    padding: 0 10px;
+    padding: 0 0.7em;
     z-index: 10;
     text-align: center;
     cursor: crosshair;
-    border: 1px solid #444;
+    border: 1px solid #888;
 }
 
 .basePairLabel.rubber {

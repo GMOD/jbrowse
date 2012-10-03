@@ -1043,7 +1043,7 @@ GenomeView.prototype.drawBasePairLabel = function ( args ){
         var scaleTrackPos = dojo.position( args.scaleDiv || this.scaleTrackDiv );
         this.basePairLabels[name] = dojo.create( 'div', {
             className: 'basePairLabel'+(args.className ? ' '+args.className : '' ),
-            style: { top: scaleTrackPos.y + scaleTrackPos.h - 1 + 'px' }
+            style: { top: scaleTrackPos.y + scaleTrackPos.h - 3 + 'px' }
         }, args.parent );
     }
 
@@ -1079,7 +1079,6 @@ GenomeView.prototype.clearVerticalPositionLine = function(){
  * Delete any base pair labels that are being displayed.
  */
 GenomeView.prototype.clearBasePairLabels = function(){
-    console.log('baleeted');
     for( var name in this.basePairLabels ) {
         var label = this.basePairLabels[name];
         if( label.parentNode )
