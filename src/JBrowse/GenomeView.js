@@ -648,6 +648,7 @@ GenomeView.prototype.startRubberZoom = function( absToBp, container, event ) {
 GenomeView.prototype._rubberStop = function(event) {
     this.behaviorManager.removeBehaviors('mouseRubberBandZooming');
     this.hideRubberHighlight();
+    this.clearBasePairLabels();
     dojo.stopEvent(event);
     delete this.rubberbanding;
 };
@@ -682,7 +683,6 @@ GenomeView.prototype.rubberExecute = function(event) {
     }
 
     this.setLocation( this.ref, h_start_bp, h_end_bp );
-    this.clearBasePairLabels();
 };
 
 // draws the rubber-banding highlight region from start.x to end.x
