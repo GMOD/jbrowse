@@ -32,12 +32,7 @@ define( [
                 Layout
               ) {
 
-var HTMLFeatures = declare( BlockBased,
-
- /**
-  * @lends JBrowse.View.Track.HTMLFeatures.prototype
-  */
-{
+var HTMLFeatures = declare( BlockBased, {
     /**
      * A track that draws discrete features using `div` elements.
      * @constructs
@@ -50,55 +45,26 @@ var HTMLFeatures = declare( BlockBased,
      * @param args.trackPadding {Number} distance in px between tracks
      */
     constructor: function( args ) {
-        this.fields = {};
-        this.refSeq = args.refSeq;
-
         //number of histogram bins per block
         this.numBins = 25;
         this.histLabel = false;
         this.padding = 5;
         this.trackPadding = args.trackPadding;
 
-        this.config = args.config;
-        this.store  = args.store;
-
         // connect the store and track loadSuccess and loadFailed events
         // to eachother
         dojo.connect( this.store, 'loadSuccess', this, 'loadSuccess' );
         dojo.connect( this.store, 'loadFail',    this, 'loadFail' );
 
-        // initialize a bunch of config stuff
-        var defaultConfig = {
-            description: true,
-            style: {
-                className: "feature2",
-                histScale: 4,
-                labelScale: 30,
-                subfeatureScale: 80,
-                maxDescriptionLength: 70,
-                descriptionScale: 170
-            },
-            hooks: {
-                create: function(track, feat ) {
-                    return document.createElement('div');
-                }
-            },
-            events: {
-                click: this.config.style && this.config.style.linkTemplate
+        // make a default click event handler
+        if( ! (this.config.events||{}).click ) {
+            this.config.events = this.config.events || {};
+            this.config.events.click = (this.config.style||{}).linkTemplate
                     ? { action: "newWindow", url: this.config.style.linkTemplate }
-                    : { action: "contentDialog", content: dojo.hitch( this, 'defaultFeatureDetail' ) }
-            },
-            menuTemplate: [
-                { label: 'View details',
-                  action: 'contentDialog',
-                  iconClass: 'dijitIconTask',
-                  content: dojo.hitch( this, 'defaultFeatureDetail' )
-                }
-            ]
-        };
-        Util.deepUpdate(defaultConfig, this.config);
-        this.config = defaultConfig;
+                    : { action: "contentDialog", content: dojo.hitch( this, 'defaultFeatureDetail' ) };
+        }
 
+        // process the configuration to set up our event handlers
         this.eventHandlers = (function() {
             var handlers = dojo.clone( this.config.events || {} );
             // find conf vars that set events, like `onClick`
@@ -115,6 +81,51 @@ var HTMLFeatures = declare( BlockBased,
             return handlers;
         }).call(this);
         this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
+    }
+} );
+/**
+ * Mixin: JBrowse.View.Track.YScaleMixin.
+ */
+dojo.safeMixin( HTMLFeatures.prototype, YScaleMixin );
+/**
+ * Mixin: JBrowse.View.Track.ExportMixin.
+ */
+dojo.safeMixin( HTMLFeatures.prototype, ExportMixin );
+
+ /**
+  * @lends JBrowse.View.Track.HTMLFeatures.prototype
+  */
+HTMLFeatures.extend({
+
+    /**
+     * Returns object holding the default configuration for HTML-based feature tracks.
+     * @private
+     */
+    _defaultConfig: function() {
+        return {
+            description: true,
+            style: {
+                className: "feature2",
+                histScale: 4,
+                labelScale: 30,
+                subfeatureScale: 80,
+                maxDescriptionLength: 70,
+                descriptionScale: 170
+            },
+            hooks: {
+                create: function(track, feat ) {
+                    return document.createElement('div');
+                }
+            },
+            events: {},
+            menuTemplate: [
+                { label: 'View details',
+                  action: 'contentDialog',
+                  iconClass: 'dijitIconTask',
+                  content: dojo.hitch( this, 'defaultFeatureDetail' )
+                }
+            ]
+        };
     },
 
     /**
@@ -893,6 +904,7 @@ var HTMLFeatures = declare( BlockBased,
     },
 
     _canExportRegion: function( l ) {
+        //console.log('can generic export?');
         if( ! l ) return false;
 
         // if we have a maxExportSpan configured for this track, use it.
@@ -908,16 +920,8 @@ var HTMLFeatures = declare( BlockBased,
         // otherwise, i guess we can export
         return true;
     }
-});
 
-/**
- * Mixin: JBrowse.View.Track.YScaleMixin.
- */
-dojo.safeMixin( HTMLFeatures.prototype, YScaleMixin );
-/**
- * Mixin: JBrowse.View.Track.ExportMixin.
- */
-dojo.safeMixin( HTMLFeatures.prototype, ExportMixin );
+});
 
 return HTMLFeatures;
 });

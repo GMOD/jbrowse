@@ -192,7 +192,8 @@ return {
                     dialog: { id: 'exportDialog', className: 'export-dialog' }
                   });
         return opts;
-    }
+    },
+
 
 };
 });

@@ -28,16 +28,31 @@ return declare( null,
      */
     constructor: function( args ) {
         args = args || {};
-        var config = args.config || {};
-        this.config = config;
-        this.name = args.label || config.label;
-        this.key = args.key || config.key || this.name;
+
+        // merge our config with the config defaults
+        this.config = args.config || {};
+        this.config = Util.deepUpdate( dojo.clone( this._defaultConfig() ), this.config );
+
+        this.refSeq = args.refSeq;
+        this.name = args.label || this.config.label;
+        this.key = args.key || this.config.key || this.name;
         this.loaded = false;
         this.changed = args.changeCallback || function() {};
         this.height = 0;
         this.shown = true;
         this.empty = false;
         this.browser = args.browser;
+        this.store = args.store;
+
+    },
+
+    /**
+     * Returns object holding the default configuration for this track
+     * type.  Might want to override in subclasses.
+     * @private
+     */
+    _defaultConfig: function() {
+        return {};
     },
 
     load: function(url) {
