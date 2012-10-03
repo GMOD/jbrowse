@@ -17,15 +17,7 @@ return declare( BlockBased,
      * @constructs
      * @extends JBrowse.View.Track.BlockBased
      */
-    constructor: function( args ) {
-        var config = args.config;
-        var refSeq = args.refSeq;
-        this.config = config;
-
-        this.refSeq = refSeq;
-
-        this.sequenceStore = args.store;
-    },
+    constructor: function( args ) {},
 
     load: function() {
         window.setTimeout( dojo.hitch( this, 'setLoaded' ), 10 );
@@ -56,7 +48,7 @@ return declare( BlockBased,
 
         // if we are zoomed in far enough to draw bases, then draw them
         if ( scale >= charSize.w ) {
-            this.sequenceStore.getRange(
+            this.store.getRange(
                 this.refSeq, leftBase, rightBase,
                 dojo.hitch( this, '_fillSequenceBlock', block, stripeWidth ) );
             this.heightUpdate( charSize.h*2, blockIndex );
