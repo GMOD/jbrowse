@@ -1,15 +1,15 @@
 define( [
             'dojo/_base/declare',
-            'JBrowse/View/Track/BlockBased'
+            'JBrowse/View/Track/BlockBased',
+            'JBrowse/View/Track/ExportMixin'
         ],
-        function( declare, BlockBased ) {
+        function( declare, BlockBased, ExportMixin ) {
 
-return declare( BlockBased,
+var SequenceTrack = declare( BlockBased,
  /**
   * @lends JBrowse.View.Track.Sequence.prototype
   */
 {
-
     /**
      * Track to display the underlying reference sequence, when zoomed in
      * far enough.
@@ -17,7 +17,22 @@ return declare( BlockBased,
      * @constructs
      * @extends JBrowse.View.Track.BlockBased
      */
-    constructor: function( args ) {},
+    constructor: function( args ) {}
+});
+
+dojo.safeMixin( SequenceTrack.prototype, ExportMixin );
+
+SequenceTrack.extend(
+/**
+ * @lends JBrowse.View.Track.Sequence.prototype
+ */
+{
+    _defaultConfig: function() {
+        return { maxExportSpan: 500000 };
+    },
+    _exportFormats: function() {
+        return ['FASTA'];
+    },
 
     load: function() {
         window.setTimeout( dojo.hitch( this, 'setLoaded' ), 10 );
@@ -151,4 +166,6 @@ return declare( BlockBased,
 
 });
 
+
+return SequenceTrack;
 });
