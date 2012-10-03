@@ -473,6 +473,7 @@ a.dialog-new-window {
 
 /*styles for vertical line and BP label*/
 .basePairLabel {
+    color: black;
     position: fixed;
     font-weight: bold;
     display: none;
