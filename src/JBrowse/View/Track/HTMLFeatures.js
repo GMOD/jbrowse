@@ -888,19 +888,6 @@ var HTMLFeatures = declare( BlockBased,
         featDiv.appendChild(subDiv);
     },
 
-    _trackMenuOptions: function() {
-        var opts = this.inherited(arguments);
-        // add a "Save track data as" option to the track menu
-        opts.push({ label: 'Save track data',
-                    iconClass: 'dijitIconSave',
-                    disabled: ! this._canExport(),
-                    action: 'contentDialog',
-                    content: this._exportDialogContent,
-                    dialog: { id: 'exportDialog', className: 'export-dialog' }
-                  });
-        return opts;
-    },
-
     _exportFormats: function() {
         return [ 'GFF3', 'BED' ];
     },
@@ -926,11 +913,11 @@ var HTMLFeatures = declare( BlockBased,
 /**
  * Mixin: JBrowse.View.Track.YScaleMixin.
  */
-dojo.extend( HTMLFeatures, YScaleMixin );
+dojo.safeMixin( HTMLFeatures.prototype, YScaleMixin );
 /**
  * Mixin: JBrowse.View.Track.ExportMixin.
  */
-dojo.extend( HTMLFeatures, ExportMixin );
+dojo.safeMixin( HTMLFeatures.prototype, ExportMixin );
 
 return HTMLFeatures;
 });

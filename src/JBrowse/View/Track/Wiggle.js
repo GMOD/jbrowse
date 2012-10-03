@@ -338,23 +338,9 @@ var Wiggle = declare( CanvasTrack,
         this.updateYScaleFromViewDimensions( coords );
     },
 
-    _trackMenuOptions: function() {
-        var opts = this.inherited(arguments);
-        // add a "Save track data as" option to the track menu
-        opts.push({ label: 'Save track data',
-              iconClass: 'dijitIconSave',
-              action: 'contentDialog',
-              disabled: ! this._canExport(),
-              content: this._exportDialogContent,
-              dialog: { id: 'exportDialog', className: 'export-dialog' }
-        });
-        return opts;
-    },
-
     _exportFormats: function() {
         return ['bedGraph','Wiggle', 'GFF3' ];
     },
-
 
     _canExportRegion: function( l ) {
         if( ! l ) return false;
@@ -373,12 +359,12 @@ var Wiggle = declare( CanvasTrack,
 /**
  * Mixin: JBrowse.View.Track.YScaleMixin.
  */
-dojo.extend( Wiggle, YScaleMixin );
+dojo.safeMixin( Wiggle.prototype, YScaleMixin );
 
 /**
  * Mixin: JBrowse.View.Track.ExportMixin.
  */
-dojo.extend( Wiggle, ExportMixin );
+dojo.safeMixin( Wiggle.prototype, ExportMixin );
 
 return Wiggle;
 });

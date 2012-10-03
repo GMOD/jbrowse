@@ -179,6 +179,19 @@ return {
                 store: this.store
             }).exportRegion( region, callback );
         }));
+    },
+
+    _trackMenuOptions: function() {
+        var opts = this.inherited(arguments);
+        // add a "Save track data as" option to the track menu
+        opts.push({ label: 'Save track data',
+                    iconClass: 'dijitIconSave',
+                    disabled: ! this._canExport(),
+                    action: 'contentDialog',
+                    content: this._exportDialogContent,
+                    dialog: { id: 'exportDialog', className: 'export-dialog' }
+                  });
+        return opts;
     }
 
 };
