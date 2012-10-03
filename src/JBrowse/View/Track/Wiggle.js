@@ -28,6 +28,10 @@ dojo.safeMixin( Wiggle.prototype, ExportMixin );
  * @lends JBrowse.View.Track.Wiggle.prototype
  */
 Wiggle.extend({
+    _defaultConfig: function() {
+        return { maxExportSpan: 500000 };
+    },
+
     load: function() {
     },
 
@@ -351,21 +355,6 @@ Wiggle.extend({
 
     _exportFormats: function() {
         return ['bedGraph','Wiggle', 'GFF3' ];
-    },
-
-    _canExportRegion: function( l ) {
-        //console.log('can wiggle export?');
-
-        if( ! l ) return false;
-
-        var length = l.end - l.start + 1;
-        // if we have a maxExportSpan configured for this track, use it.
-        if( typeof this.config.maxExportSpan == 'number' || typeof this.config.maxExportSpan == 'string' ) {
-            return length <= this.config.maxExportSpan;
-        }
-        // otherwise, default to a 500Kb limit
-        else
-            return length <= 500000;
     }
 });
 return Wiggle;

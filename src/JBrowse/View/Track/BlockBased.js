@@ -43,7 +43,6 @@ return declare( null,
         this.empty = false;
         this.browser = args.browser;
         this.store = args.store;
-
     },
 
     /**
