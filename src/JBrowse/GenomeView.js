@@ -995,8 +995,14 @@ GenomeView.prototype.drawLineLabel = function (numX, n){
             }, container);
             this.verticalPositionLabel[i].style.height = this.posHeight + "px";
             this.verticalPositionLabel[i].style.top = (1+document.getElementById('dijit_layout_ContentPane_0').offsetHeight) + 'px';
+            dojo.connect( this.verticalPositionLabel[i], "mouseover", this, 'drawLineLabel');
+            dojo.connect( this.verticalPositionLabel[i], "mousemove", this, 'drawLineLabel');
         }
         this.verticalPositionLabel[1].style.backgroundColor = '#C0C9D9';
+    }
+    
+    if (typeof numX !== 'number'){
+        numX = numX.clientX;
     }
 
     n=(n && n >= 0 && n < numberOfLabels)?n:0;
