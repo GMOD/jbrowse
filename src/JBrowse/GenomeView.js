@@ -649,6 +649,7 @@ GenomeView.prototype._rubberStop = function(event) {
     this.behaviorManager.removeBehaviors('mouseRubberBandZooming');
     this.hideRubberHighlight();
     dojo.stopEvent(event);
+    delete this.rubberbanding;
 };
 
 GenomeView.prototype.rubberCancel = function(event) {
@@ -667,19 +668,19 @@ GenomeView.prototype.rubberMove = function(event) {
 };
 
 GenomeView.prototype.rubberExecute = function(event) {
-    this._rubberStop(event);
-
     var start = this.rubberbandStartPos;
     var end   = { x: event.clientX, y: event.clientY };
+
+    var h_start_bp = this.rubberbanding.absFunc.call( this, Math.min(start.x,end.x) );
+    var h_end_bp   = this.rubberbanding.absFunc.call( this, Math.max(start.x,end.x) );
+
+    this._rubberStop(event);
 
     // cancel the rubber-zoom if the user has moved less than 3 pixels
     if( Math.abs( start.x - end.x ) < 3 ) {
         return this._rubberStop(event);
     }
 
-    var h_start_bp = this.rubberbanding.absFunc.call( this, Math.min(start.x,end.x) );
-    var h_end_bp   = this.rubberbanding.absFunc.call( this, Math.max(start.x,end.x) );
-    delete this.rubberbanding;
     this.setLocation( this.ref, h_start_bp, h_end_bp );
     this.clearBasePairLabels();
 };
