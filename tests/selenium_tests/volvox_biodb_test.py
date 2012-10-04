@@ -73,6 +73,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.close_dialog('export')
         self.export_track( trackname, 'Visible region','BED','Download')
 
+        self.do_typed_query('ctgA:8379..31627');
         self.export_track( 'DNA', 'Visible region','FASTA','View')
 
         self.assert_no_js_errors();
