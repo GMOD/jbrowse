@@ -305,6 +305,7 @@ div.track-label .track-label-text {
     font-size: 12px;
     display: inline-block;
     vertical-align: -2px;
+    white-space: nowrap;
 }
 div.track-label .track-close-button {
     display: inline-block;
