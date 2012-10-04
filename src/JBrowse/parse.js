@@ -7,9 +7,7 @@
  *  for license details
  */
  
-function parseGBConfig(file){
-
-    // var data = read in 'file' somhow I dunno how and google has failed me.
+function parseGBConfig(data){
 
     var regex = {
         section: /^\s*\[\s*([^\]]*)\s*\]\s*$/,

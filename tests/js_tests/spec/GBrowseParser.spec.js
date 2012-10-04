@@ -1,10 +1,20 @@
+define(['dojo','JBrowse/parse'], function (parse) {
+
 describe( 'GMOD config file parser', function() {
 
     // run the script with shortened ITAG2.3_genomic.conf.mas as input
     // to test different kinds of input
     // config file => GBrowseParseTestBasic.conf
 
-    var gbConfig = parseGBConfig('spec/GBrowseParseTestBasic.conf');
+    var xhrArgs = {
+        url: "spec/GBrowseParseTestBasic.conf",
+        handleAs: "text",
+        load: function(data){
+            gbConfig = parseGBConfig(data);
+        }
+    }
+
+    var data = dojo.xhrGet(xhrArgs);
 
     it ("Check the gbConfig values", function(){
 
@@ -31,4 +41,5 @@ describe( 'GMOD config file parser', function() {
         expect(gbConfig['Markers:region']['citation'        ]).toBe('GenomeThreader alignments of SGN marker sequences.');
 
     });
+});
 });
