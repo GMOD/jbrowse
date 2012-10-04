@@ -37,7 +37,6 @@ return declare( null,
         var chunkSize  = seq.seqChunkSize;
         var firstChunk = Math.floor( Math.max(0,start) / chunkSize );
         var lastChunk  = Math.floor( (end - 1)         / chunkSize );
-        var chunk;
 
         // if a callback spans more than one chunk, we need to wrap the
         // callback in another one that will be passed to each chunk to
@@ -66,7 +65,7 @@ return declare( null,
         for (var i = firstChunk; i <= lastChunk; i++) {
             //console.log("working on chunk %d for %d .. %d", i, start, end);
 
-            chunk = chunkCacheForSeq[i];
+            var chunk = chunkCacheForSeq[i];
             if (chunk) {
                 if (chunk.loaded) {
                     callback( start,
@@ -82,12 +81,11 @@ return declare( null,
                     chunk.callbacks.push(callbackInfo);
                 }
             } else {
-                chunk = {
+                chunkCacheForSeq[i] = {
                     loaded: false,
                     num: i,
                     callbacks: [callbackInfo]
                 };
-                chunkCacheForSeq[i] = chunk;
 
                 var sequrl = Util.resolveUrl( this.baseUrl,
                                               Util.fillTemplate( this.urlTemplate,
@@ -95,22 +93,22 @@ return declare( null,
 
                 dojo.xhrGet({
                                 url: sequrl + i + ".txt" + ( this.compress ? 'z' : '' ),
-                                load: function (response) {
-                                    var ci;
-                                    chunk.sequence = response;
-                                    for (var c = 0; c < chunk.callbacks.length; c++) {
-                                        ci = chunk.callbacks[c];
+                                load: dojo.hitch( this, function( chunkRecord, response ) {
+                                    //console.log('response for chunk '+chunkRecord.num);
+                                    chunkRecord.sequence = response;
+                                    chunkRecord.loaded = true;
+                                    dojo.forEach( chunkRecord.callbacks, function(ci) {
                                         ci.callback( ci.start,
                                                      ci.end,
-                                                     response.substring( ci.start - chunk.num*chunkSize,
-                                                                         ci.end   - chunk.num*chunkSize
+                                                     response.substring( ci.start - chunkRecord.num*chunkSize,
+                                                                         ci.end   - chunkRecord.num*chunkSize
                                                                        ),
                                                      i
                                                    );
-                                    }
-                                    chunk.callbacks = undefined;
-                                    chunk.loaded = true;
-                                }
+                                    });
+                                    delete chunkRecord.callbacks;
+
+                                }, chunkCacheForSeq[i] )
                             });
             }
         }
