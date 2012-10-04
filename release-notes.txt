@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+ * Added a vertical line cursor and labels showing the current
+   basepair position of the mouse when hovering over the scale bar, or
+   when doing a rubber-band zoom (Erik Derohanian) (issue #32).
+
+ * Added support for exporting track data in FASTA, GFF3, bed,
+   bedGraph, and Wiggle formats (issue #104).
+
+ * Fixed off-by-one error in Wiggle track display code: wiggle data
+   was incorrectly displayed shifted one base to the left of its
+   proper position.  Thanks to Steffi Geisen for noticing this.
+
  * Fixed bug in which reference-sequence selection box did not
    automatically update in all situations to reflect the current
    reference sequence.

@@ -7,6 +7,19 @@ html, body {
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
+fieldset {
+    padding-left: 1em;
+    margin: 0.7em 0.5em;
+}
+fieldset > legend {
+    font-weight: bold;
+    margin-left: -1em;
+}
+
+.locString {
+    font-family: monospace;
+}
+
 .ghosted {
     color: #aaa;
 }
@@ -265,7 +278,6 @@ div.track-label, div.tracklist-label {
     border-radius: 6px;
 
     color: #111;
-    font-size: 110%;
     font-weight: bold;
 }
 
@@ -279,27 +291,60 @@ div.track-label, div.tracklist-label {
 
 div.track-label {
     color: black;
-    margin: 5px 0 0 3px;
+    margin: 3px 0 0 3px;
     background: white;
-
+    padding: 2px 5px;
+    height: 20px;
     z-index: 20;
-    border-color: transparent;
+    border-color: #eee;
     opacity: 0.7;
     vertical-align: middle;
+    overflow: hidden;
 }
 div.track-label .track-close-button {
     display: inline-block;
     padding: 4px;
-    vertical-align: -20%;
+    vertical-align: -4px;
     height: 16px;
     width: 1.3em;
     margin: -3px -3px -4px -6px;
+}
+div.track-label .track-menu-button {
+    display: inline-block;
+    position: relative;
+    width: 24px;
+    height: 25px;
+    border-radius: 0 6px 6px 0;
+    border-left: 1px inset transparent;
+    vertical-align: top;
+    right: -5px;
+    top: -2px;
+}
+div.track-label .feature-density {
+    font-size: 90%;
+    font-weight: normal;
+}
+
+.tundra div.track-label:hover .track-menu-button:hover {
+    background-color: rgba( 0, 0, 100, 0.05 );
+    border-left-color: #ccc;
 }
 .tundra div.track-label .track-close-button {
     background: url("src/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
 }
 .tundra div.track-label .track-close-button:hover {
     background-image: url("src/dijit/themes/tundra/images/tabCloseHover.png");
+}
+.tundra div.track-label:hover .track-menu-button div {
+    height: 8px;
+    width: 8px;
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    background: url("src/dijit/themes/tundra/images/spriteArrows.png") no-repeat -28px 0;
+}
+.tundra div.track-label:hover .track-menu-button:hover div {
+    background-position-x: 0px;
 }
 div.track-label:hover {
     background: #FAFAFA url(src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
@@ -314,9 +359,13 @@ div.track-label:hover {
 
 div.tracklist-label {
     padding: 3px;
-
-    background-color: #bcbcbc;
+    background-color: #ddd;
     background-color: rgba( 220, 220, 220, 0.9 );
+}
+div.tracklist-label:hover {
+    background-color:  #396494;
+    color: #fefefe;
+    border: 1px solid black;
 }
 
 #trackPane {
@@ -446,10 +495,17 @@ div.error {
 }
 
 /* styles dealing with popups launched by clicking on features */
-.feature-popup-dialog-iframe .dijitDialogPaneContent {
+.popup-dialog-iframe .dijitDialogPaneContent {
     padding: 0;
 }
 
+.dijitDialogPaneActionBar {
+    text-align: right;
+}
+
+.export-view-dialog .dijitDialogPaneContent {
+    background: #fafafa;
+}
 
 /* styles for popup dialogs */
 a.dialog-new-window {
@@ -461,15 +517,15 @@ a.dialog-new-window {
 .dijitDialogPaneContent .feature-detail {
     margin-top: -0.6em;
 }
-.feature-detail div.value {
+.detail div.value {
     margin-left: 1em;
 }
-.feature-detail h2.field {
+.detail h2.field {
     margin-top: 0;
     margin-bottom: 0.3em;
 }
 
-.feature-detail .field_container {
+.detail .field_container {
     padding: 1em 4em 0.3em 1em;
 }
 
@@ -509,4 +565,3 @@ a.dialog-new-window {
     background-color: #FF0000;
     z-index: 15;
 }
-

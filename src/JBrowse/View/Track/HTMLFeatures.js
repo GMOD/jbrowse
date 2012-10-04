@@ -4,13 +4,14 @@ define( [
             'dojo/_base/array',
             'dojo/dom-geometry',
             'dojo/on',
-            'dojo/aspect',
-            'dijit/Menu',
+            'dojo/has',
             'dijit/Dialog',
-            'dijit/PopupMenuItem',
-            'dijit/MenuItem',
+            'dijit/form/Select',
+            'dijit/form/RadioButton',
+            'dijit/form/Button',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/YScaleMixin',
+            'JBrowse/View/Track/ExportMixin',
             'JBrowse/Util',
             'JBrowse/View/GranularRectLayout'
         ],
@@ -19,23 +20,19 @@ define( [
                 array,
                 domGeom,
                 on,
-                aspect,
-                dijitMenu,
+                has,
                 dijitDialog,
-                dijitPopupMenuItem,
-                dijitMenuItem,
+                dijitSelect,
+                dijitRadioButton,
+                dijitButton,
                 BlockBased,
                 YScaleMixin,
+                ExportMixin,
                 Util,
                 Layout
               ) {
 
-var HTMLFeatures = declare( BlockBased,
-
- /**
-  * @lends JBrowse.View.Track.HTMLFeatures.prototype
-  */
-{
+var HTMLFeatures = declare( BlockBased, {
     /**
      * A track that draws discrete features using `div` elements.
      * @constructs
@@ -48,59 +45,26 @@ var HTMLFeatures = declare( BlockBased,
      * @param args.trackPadding {Number} distance in px between tracks
      */
     constructor: function( args ) {
-        this.fields = {};
-        this.refSeq = args.refSeq;
-
         //number of histogram bins per block
         this.numBins = 25;
         this.histLabel = false;
         this.padding = 5;
         this.trackPadding = args.trackPadding;
 
-        this.config = args.config;
-
-        // this featureStore object should eventually be
-        // instantiated by Browser and passed into this constructor, not
-        // constructed here.
-        this.featureStore = args.store;
-
         // connect the store and track loadSuccess and loadFailed events
         // to eachother
-        dojo.connect( this.featureStore, 'loadSuccess', this, 'loadSuccess' );
-        dojo.connect( this.featureStore, 'loadFail',    this, 'loadFail' );
+        dojo.connect( this.store, 'loadSuccess', this, 'loadSuccess' );
+        dojo.connect( this.store, 'loadFail',    this, 'loadFail' );
 
-        // initialize a bunch of config stuff
-        var defaultConfig = {
-            description: true,
-            style: {
-                className: "feature2",
-                histScale: 4,
-                labelScale: 30,
-                subfeatureScale: 80,
-                maxDescriptionLength: 70,
-                descriptionScale: 170
-            },
-            hooks: {
-                create: function(track, feat ) {
-                    return document.createElement('div');
-                }
-            },
-            events: {
-                click: this.config.style && this.config.style.linkTemplate
+        // make a default click event handler
+        if( ! (this.config.events||{}).click ) {
+            this.config.events = this.config.events || {};
+            this.config.events.click = (this.config.style||{}).linkTemplate
                     ? { action: "newWindow", url: this.config.style.linkTemplate }
-                    : { action: "contentDialog", content: dojo.hitch( this, 'defaultFeatureDetail' ) }
-            },
-            menuTemplate: [
-                { label: 'View details',
-                  action: 'contentDialog',
-                  iconClass: 'dijitIconTask',
-                  content: dojo.hitch( this, 'defaultFeatureDetail' )
-                }
-            ]
-        };
-        Util.deepUpdate(defaultConfig, this.config);
-        this.config = defaultConfig;
+                    : { action: "contentDialog", content: dojo.hitch( this, 'defaultFeatureDetail' ) };
+        }
 
+        // process the configuration to set up our event handlers
         this.eventHandlers = (function() {
             var handlers = dojo.clone( this.config.events || {} );
             // find conf vars that set events, like `onClick`
@@ -117,6 +81,51 @@ var HTMLFeatures = declare( BlockBased,
             return handlers;
         }).call(this);
         this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
+    }
+} );
+/**
+ * Mixin: JBrowse.View.Track.YScaleMixin.
+ */
+dojo.safeMixin( HTMLFeatures.prototype, YScaleMixin );
+/**
+ * Mixin: JBrowse.View.Track.ExportMixin.
+ */
+dojo.safeMixin( HTMLFeatures.prototype, ExportMixin );
+
+ /**
+  * @lends JBrowse.View.Track.HTMLFeatures.prototype
+  */
+HTMLFeatures.extend({
+
+    /**
+     * Returns object holding the default configuration for HTML-based feature tracks.
+     * @private
+     */
+    _defaultConfig: function() {
+        return {
+            description: true,
+            style: {
+                className: "feature2",
+                histScale: 4,
+                labelScale: 30,
+                subfeatureScale: 80,
+                maxDescriptionLength: 70,
+                descriptionScale: 170
+            },
+            hooks: {
+                create: function(track, feat ) {
+                    return document.createElement('div');
+                }
+            },
+            events: {},
+            menuTemplate: [
+                { label: 'View details',
+                  action: 'contentDialog',
+                  iconClass: 'dijitIconTask',
+                  content: dojo.hitch( this, 'defaultFeatureDetail' )
+                }
+            ]
+        };
     },
 
     /**
@@ -124,13 +133,13 @@ var HTMLFeatures = declare( BlockBased,
      * loadSuccess() function when it is loaded.
      */
     load: function() {
-        this.featureStore.load();
+        this.store.load();
     },
 
     loadSuccess: function() {
-        this.labelScale = this.featureStore.density * this.config.style.labelScale;
-        this.subfeatureScale = this.featureStore.density * this.config.style.subfeatureScale;
-        this.descriptionScale = this.featureStore.density * this.config.style.descriptionScale;;
+        this.labelScale = this.store.density * this.config.style.labelScale;
+        this.subfeatureScale = this.store.density * this.config.style.subfeatureScale;
+        this.descriptionScale = this.store.density * this.config.style.descriptionScale;;
         this.inherited(arguments);
     },
 
@@ -139,8 +148,8 @@ var HTMLFeatures = declare( BlockBased,
      * @returns {HTMLElement} feature detail page HTML
      */
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
-        var fmt = dojo.hitch( this, '_fmtFeatureDetailField' );
-        var container = dojo.create('div', { className: 'feature-detail feature-detail-'+track.name, innerHTML: '' } );
+        var fmt = dojo.hitch( this, '_fmtDetailField' );
+        var container = dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name, innerHTML: '' } );
         container.innerHTML += fmt( 'Name', f.get('name') );
         container.innerHTML += fmt( 'Type', f.get('type') );
         container.innerHTML += fmt( 'Description', f.get('note') );
@@ -153,13 +162,6 @@ var HTMLFeatures = declare( BlockBased,
         });
 
         return container;
-    },
-    _fmtFeatureDetailField: function( title, val, class_ ) {
-        var valType = typeof val;
-        if( !( valType in {string:1,number:1} ) )
-            return ''; //val = '<span class="ghosted">none</span>';
-        class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
-        return '<div class="field_container"><h2 class="field '+class_+'">'+title+'</h2> <div class="value '+class_+'">'+val+'</div></div>';
     },
 
     // _autoLinkText: function( text ) {
@@ -196,7 +198,7 @@ var HTMLFeatures = declare( BlockBased,
         var bpPerBin = blockSizeBp / this.numBins;
         var pxPerCount = 2;
         var logScale = false;
-        var stats = this.featureStore.histograms.stats;
+        var stats = this.store.histograms.stats;
         var statEntry;
         for (var i = 0; i < stats.length; i++) {
             if (stats[i].basesPerBin >= bpPerBin) {
@@ -265,10 +267,10 @@ var HTMLFeatures = declare( BlockBased,
         // is at 50,000 bases/bin, and we have server histograms at 20,000
         // and 2,000 bases/bin, then we should choose the 2,000 histogramMeta
         // rather than the 20,000)
-        var histogramMeta = this.featureStore.histograms.meta[0];
-        for (var i = 0; i < this.featureStore.histograms.meta.length; i++) {
-            if (dims.bpPerBin >= this.featureStore.histograms.meta[i].basesPerBin)
-                histogramMeta = this.featureStore.histograms.meta[i];
+        var histogramMeta = this.store.histograms.meta[0];
+        for (var i = 0; i < this.store.histograms.meta.length; i++) {
+            if (dims.bpPerBin >= this.store.histograms.meta[i].basesPerBin)
+                histogramMeta = this.store.histograms.meta[i];
         }
 
         // number of bins in the server-supplied histogram for each current bin
@@ -299,7 +301,7 @@ var HTMLFeatures = declare( BlockBased,
             );
         } else {
             // make our own counts
-            this.featureStore.histogram( leftBase, rightBase,
+            this.store.histogram( leftBase, rightBase,
                                          this.numBins, makeHistBlock);
         }
     },
@@ -309,7 +311,7 @@ var HTMLFeatures = declare( BlockBased,
     },
 
     updateStaticElements: function( coords ) {
-        BlockBased.prototype.updateStaticElements.apply( this, arguments );
+        this.inherited( arguments );
         this.updateYScaleFromViewDimensions( coords );
         this.updateFeatureLabelPositions( coords );
     },
@@ -359,8 +361,8 @@ var HTMLFeatures = declare( BlockBased,
         // only update the label once for each block size
         var blockBases = Math.abs( leftBase-rightBase );
         if( this._updatedLabelForBlockSize != blockBases ){
-            if ( scale < (this.featureStore.density * this.config.style.histScale)) {
-                this.setLabel(this.key + "<br>per " + Util.addCommas( Math.round( blockBases / this.numBins)) + " bp");
+            if ( scale < (this.store.density * this.config.style.histScale)) {
+                this.setLabel(this.key + ' <span class="feature-density">per ' + Util.addCommas( Math.round( blockBases / this.numBins)) + ' bp</span>');
             } else {
                 this.setLabel(this.key);
             }
@@ -368,8 +370,8 @@ var HTMLFeatures = declare( BlockBased,
         }
 
         //console.log("scale: %d, histScale: %d", scale, this.histScale);
-        if (this.featureStore.histograms &&
-            (scale < (this.featureStore.density * this.config.style.histScale)) ) {
+        if (this.store.histograms &&
+            (scale < (this.store.density * this.config.style.histScale)) ) {
 	    this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
                           containerStart, containerEnd);
         } else {
@@ -524,7 +526,7 @@ var HTMLFeatures = declare( BlockBased,
         // var startBase = goLeft ? rightBase : leftBase;
         // var endBase = goLeft ? leftBase : rightBase;
 
-        this.featureStore.iterate( leftBase, rightBase, featCallback,
+        this.store.iterate( leftBase, rightBase, featCallback,
                                   function () {
                                       block.style.backgroundColor = "";
                                       curTrack.heightUpdate(curTrack.layout.getTotalHeight(),
@@ -539,7 +541,7 @@ var HTMLFeatures = declare( BlockBased,
     _featureIsRendered: function( uniqueId ) {
         var blocks = this.blocks;
         for( var i=0; i<blocks.length; i++ ) {
-            if( blocks[i] && blocks[i].featureNodes[uniqueId])
+            if( blocks[i] && blocks[i].featureNodes && blocks[i].featureNodes[uniqueId])
                 return true;
         }
         return false;
@@ -639,6 +641,9 @@ var HTMLFeatures = declare( BlockBased,
         featDiv.feature = feature;
         featDiv.layoutEnd = featureEnd;
         featDiv.className = (featDiv.className ? featDiv.className + " " : "") + "feature";
+        // (callbackArgs are the args that will be passed to callbacks
+        // in this feature's context menu or left-click handlers)
+        featDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
 
         block.featureNodes[uniqueId] = featDiv;
 
@@ -727,15 +732,18 @@ var HTMLFeatures = declare( BlockBased,
             this._connectFeatDivHandlers( labelDiv );
 
 	    featDiv.label = labelDiv;
+            featDiv.labelDiv = labelDiv;
+
             labelDiv.feature = feature;
             labelDiv.track = this;
-            featDiv.labelDiv = labelDiv;
+            // (callbackArgs are the args that will be passed to callbacks
+            // in this feature's context menu or left-click handlers)
+            labelDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
         }
 
         if( destBlock ) {
             destBlock.appendChild(featDiv);
         }
-
 
         // defer subfeature rendering and modification hooks into a
         // timeout so that navigation feels faster.
@@ -790,7 +798,6 @@ var HTMLFeatures = declare( BlockBased,
             dojo.style( child, { top: ((this.glyphHeight-h)/2) + 'px', visibility: 'visible' });
          }
     },
-
 
     /**
      * Connect our configured event handlers to a given html element,
@@ -849,233 +856,13 @@ var HTMLFeatures = declare( BlockBased,
 
         // render the menu, start it up, and bind it to right-clicks
         // both on the feature div and on the label div
-        var menu = this._renderMenu( menuTemplate, featDiv );
+        var menu = this._renderContextMenu( menuTemplate, featDiv );
         menu.startup();
         menu.bindDomNode( featDiv );
         if( featDiv.labelDiv )
             menu.bindDomNode( featDiv.labelDiv );
 
         return menu;
-    },
-
-    _processMenuSpec: function( spec, featDiv ) {
-        for( var x in spec ) {
-            if( typeof spec[x] == 'object' )
-                spec[x] = this._processMenuSpec( spec[x], featDiv );
-            else
-                spec[x] = this.template( featDiv.feature, this._evalConf( featDiv, spec[x], x ) );
-        }
-        return spec;
-    },
-
-    /**
-     * Get the value of a conf variable, evaluating it if it is a
-     * function.  Note: does not template it, that is a separate step.
-     *
-     * @private
-     */
-    _evalConf: function( context, confVal, confKey ) {
-
-        // list of conf vals that should not be run immediately on the
-        // feature data if they are functions
-        var dontRunImmediately = {
-            action: 1,
-            click: 1,
-            content: 1
-        };
-
-        return typeof confVal == 'function' && !dontRunImmediately[confKey]
-            ? confVal( this, context.feature, context )
-            : confVal;
-    },
-
-    /**
-     * Render a dijit menu from a specification object.
-     *
-     * @param menuTemplate definition of the menu's structure
-     * @param context {Object} optional object containing the context
-     *   in which any click handlers defined in the menu should be
-     *   invoked, containing thing like what feature is being operated
-     *   upon, the track object that is involved, etc.
-     * @param parent {dijit.Menu|...} parent menu, if this is a submenu
-     */
-    _renderMenu: function( /**Object*/ menuStructure, /** Object */ context, /** dijit.Menu */ parent ) {
-       if ( !parent )
-            parent = new dijitMenu();
-
-        for ( key in menuStructure ) {
-            var spec = menuStructure [ key ];
-            if ( spec.children ) {
-                var child = new dijitMenu ();
-                parent.addChild( child );
-                parent.addChild( new dijitPopupMenuItem(
-                                     {
-                                         popup : child,
-                                         label : spec.label
-                                     }));
-                this._renderMenu( spec.children, context, child );
-            }
-            // only draw other menu items if they have an action.
-            // drawing menu items that do nothing when clicked
-            // would frustrate users.
-            else if( spec.action || spec.url || spec.href ) {
-                var menuConf = dojo.clone( spec );
-                menuConf.onClick = this._makeClickHandler( spec, context );
-                var child = new dijitMenuItem( menuConf );
-                parent.addChild(child);
-            }
-        }
-        return parent;
-    },
-
-    _openDialog: function( spec, evt, context ) {
-        context = context || {};
-        var type = spec.action;
-        type = type.replace(/Dialog/,'');
-        var featureName = context.feature && (context.feature.get('name')||context.feature.get('id'));
-        var dialogOpts = {
-            "class": "feature-popup-dialog feature-popup-dialog-"+type,
-            title: spec.title || spec.label || ( featureName ? featureName +' details' : "Details"),
-            style: dojo.clone( spec.style || {} )
-        };
-        var dialog;
-
-        // if dialog == xhr, open the link in a dialog
-        // with the html from the URL just shoved in it
-        if( type == 'xhr' || type == 'content' ) {
-            if( type == 'xhr' )
-                dialogOpts.href = spec.url;
-            else
-                dialogOpts.content = this._evalConf( context, spec.content, null );
-            dialog = new dijitDialog( dialogOpts );
-        }
-        // open the link in a dialog with an iframe
-        else if( type == 'iframe' ) {
-            dojo.safeMixin( dialogOpts.style, {width: '90%', height: '90%'});
-            dialogOpts.draggable = false;
-
-            var container = dojo.create('div', {}, document.body);
-            var iframe = dojo.create(
-                'iframe', {
-                    width: '100%', height: '100%',
-                    tabindex: "0",
-                    style: { border: 'none' },
-                    src: spec.url
-                }, container
-            );
-            dialog = new dijitDialog( dialogOpts, container );
-            dojo.create( 'a', {
-                             href: spec.url,
-                             target: '_blank',
-                             className: 'dialog-new-window',
-                             title: 'open in new window',
-                             onclick: dojo.hitch(dialog,'hide'),
-                             innerHTML: spec.url
-                         }, dialog.titleBar );
-            var updateIframeSize = function() {
-                // hitch a ride on the dialog box's
-                // layout function, which is called on
-                // initial display, and when the window
-                // is resized, to keep the iframe
-                // sized to fit exactly in it.
-                var cDims = domGeom.getMarginBox( dialog.domNode );
-                iframe.width  = cDims.w;
-                iframe.height = cDims.h - domGeom.getMarginBox(dialog.titleBar).h - 2;
-            };
-            aspect.after( dialog, 'layout', updateIframeSize );
-            aspect.after( dialog, 'show', updateIframeSize );
-        }
-
-        aspect.after( dialog, 'hide', function() { dialog.destroyRecursive(); });
-        dialog.show();
-    },
-
-    _makeClickHandler: function( inputSpec, context ) {
-        var track  = this;
-
-        if( typeof inputSpec == 'function' ) {
-            inputSpec = { action: inputSpec };
-        }
-        else if( typeof inputSpec == 'undefined' ) {
-            console.error("Undefined click specification, cannot make click handler");
-            return function() {};
-        }
-
-        var handler = function ( evt ) {
-            if( track.genomeView.dragging )
-                return;
-
-            var ctx = context || this;
-            var spec = track._processMenuSpec( dojo.clone( inputSpec ), ctx );
-            var url = spec.url || spec.href;
-            spec.url = url;
-            var style = dojo.clone( spec.style || {} );
-
-            // try to understand the `action` setting
-            spec.action = spec.action ||
-                ( url          ? 'iframeDialog'  :
-                  spec.content ? 'contentDialog' :
-                                 false
-                );
-            spec.title = spec.title || spec.label;
-
-            if( typeof spec.action == 'string' ) {
-                // treat `action` case-insensitively
-                spec.action = {
-                    iframedialog:   'iframeDialog',
-                    iframe:         'iframeDialog',
-                    contentdialog:  'contentDialog',
-                    content:        'content',
-                    xhrdialog:      'xhrDialog',
-                    xhr:            'xhr',
-                    newwindow:      'newWindow',
-                    "_blank":       'newWindow'
-                }[(''+spec.action).toLowerCase()];
-
-                if( spec.action == 'newWindow' )
-                    window.open( url, '_blank' );
-                else if( spec.action in { iframeDialog:1, contentDialog:1, xhrDialog:1} )
-                    track._openDialog( spec, evt, ctx );
-            }
-            else if( typeof spec.action == 'function' ) {
-                spec.action.call( ctx, evt );
-            }
-            else {
-                return;
-            }
-        };
-
-        // if there is a label, set it on the handler so that it's
-        // accessible for tooltips or whatever.
-        if( inputSpec.label )
-            handler.label = inputSpec.label;
-
-        return handler;
-    },
-
-    /**
-     * Given a string with template callouts, interpolate them with
-     * data from the given object.  For example, "{foo}" is replaced
-     * with whatever is returned by obj.get('foo')
-     */
-    template: function( /** Object */ obj, /** String */ template ) {
-        if( typeof template != 'string' || !obj )
-            return template;
-
-        var valid = true;
-        if ( template ) {
-            return template.replace(
-                    /\{([^}]+)\}/g,
-                    function(match, group) {
-                        var val = obj.get( group.toLowerCase() );
-                        if (val !== undefined)
-                            return val;
-                        else {
-                            return '';
-                        }
-                    });
-        }
-        return undefined;
     },
 
     renderSubfeature: function(feature, featDiv, subfeature, displayStart, displayEnd) {
@@ -1110,13 +897,13 @@ var HTMLFeatures = declare( BlockBased,
             + "top: 0px;"
             + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
         featDiv.appendChild(subDiv);
-    }
-});
+    },
 
-/**
- * Mixin: JBrowse.View.Track.YScaleMixin.
- */
-dojo.extend( HTMLFeatures, YScaleMixin );
+    _exportFormats: function() {
+        return [ 'GFF3', 'BED' ];
+    }
+
+});
 
 return HTMLFeatures;
 });

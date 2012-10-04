@@ -1,15 +1,15 @@
 define( [
             'dojo/_base/declare',
-            'JBrowse/View/Track/BlockBased'
+            'JBrowse/View/Track/BlockBased',
+            'JBrowse/View/Track/ExportMixin'
         ],
-        function( declare, BlockBased ) {
+        function( declare, BlockBased, ExportMixin ) {
 
-return declare( BlockBased,
+var SequenceTrack = declare( BlockBased,
  /**
   * @lends JBrowse.View.Track.Sequence.prototype
   */
 {
-
     /**
      * Track to display the underlying reference sequence, when zoomed in
      * far enough.
@@ -17,24 +17,26 @@ return declare( BlockBased,
      * @constructs
      * @extends JBrowse.View.Track.BlockBased
      */
-    constructor: function( args ) {
-        var config = args.config;
-        var refSeq = args.refSeq;
-        this.config = config;
+    constructor: function( args ) {}
+});
 
-        this.refSeq = refSeq;
+dojo.safeMixin( SequenceTrack.prototype, ExportMixin );
 
-        this.sequenceStore = args.store;
+SequenceTrack.extend(
+/**
+ * @lends JBrowse.View.Track.Sequence.prototype
+ */
+{
+    _defaultConfig: function() {
+        return { maxExportSpan: 500000 };
+    },
+    _exportFormats: function() {
+        return ['FASTA'];
     },
 
     load: function() {
         window.setTimeout( dojo.hitch( this, 'setLoaded' ), 10 );
     },
-
-    // startZoom: function(destScale, destStart, destEnd) {
-    //     this.hide();
-    //     this.heightUpdate(0);
-    // },
 
     endZoom: function(destScale, destBlockBases) {
         this.clear();
@@ -42,7 +44,7 @@ return declare( BlockBased,
     },
 
     setViewInfo:function(genomeView, heightUpdate, numBlocks,
-                         trackDiv, labelDiv,
+                         trackDiv,
                          widthPct, widthPx, scale) {
         this.inherited( arguments );
 
@@ -61,7 +63,7 @@ return declare( BlockBased,
 
         // if we are zoomed in far enough to draw bases, then draw them
         if ( scale >= charSize.w ) {
-            this.sequenceStore.getRange(
+            this.store.getRange(
                 this.refSeq, leftBase, rightBase,
                 dojo.hitch( this, '_fillSequenceBlock', block, stripeWidth ) );
             this.heightUpdate( charSize.h*2, blockIndex );
@@ -164,4 +166,6 @@ return declare( BlockBased,
 
 });
 
+
+return SequenceTrack;
 });
