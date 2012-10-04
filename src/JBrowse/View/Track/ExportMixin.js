@@ -16,6 +16,9 @@ define( [
 return {
 
     _canExport: function() {
+        if( this.config.noExport )
+            return false;
+
         var visibleRegion = this.browser.view.visibleRegion();
         var wholeRefSeqRegion = { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end };
         var canExportVisibleRegion = this._canExportRegion( visibleRegion );
@@ -183,14 +186,17 @@ return {
 
     _trackMenuOptions: function() {
         var opts = this.inherited(arguments);
-        // add a "Save track data as" option to the track menu
-        opts.push({ label: 'Save track data',
-                    iconClass: 'dijitIconSave',
-                    disabled: ! this._canExport(),
-                    action: 'contentDialog',
-                    content: this._exportDialogContent,
-                    dialog: { id: 'exportDialog', className: 'export-dialog' }
-                  });
+
+        if( ! this.config.noExport )
+            // add a "Save track data as" option to the track menu
+            opts.push({ label: 'Save track data',
+                        iconClass: 'dijitIconSave',
+                        disabled: ! this._canExport(),
+                        action: 'contentDialog',
+                        content: this._exportDialogContent,
+                        dialog: { id: 'exportDialog', className: 'export-dialog' }
+                      });
+
         return opts;
     },
 
