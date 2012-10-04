@@ -1,5 +1,5 @@
 require(['JBrowse/Store/BigWig','JBrowse/Model/XHRBlob'], function( BigWig, XHRBlob ) {
-    describe( 'BigWig with tomato RNAseq coverage', function() {
+    describe( 'BigWig with volvox_microarray.bw', function() {
         var b = new BigWig({
             blob: new XHRBlob('../../sample_data/raw/volvox/volvox_microarray.bw')
         });
