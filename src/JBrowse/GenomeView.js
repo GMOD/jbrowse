@@ -986,14 +986,16 @@ GenomeView.prototype.overviewClicked = function( evt ) {
  * Event handler fired when mouse is over the scale bar.
  */
 GenomeView.prototype.scaleMouseOver = function( evt ) {
-    this.drawVerticalPositionLine( this.scaleTrackDiv, evt);
+    if( ! this.rubberbanding )
+        this.drawVerticalPositionLine( this.scaleTrackDiv, evt);
 };
 
 /**
  * Event handler fired when mouse moves over the scale bar.
  */
 GenomeView.prototype.scaleMouseMove = function( evt ) {
-    this.drawVerticalPositionLine( this.scaleTrackDiv, evt);
+    if( ! this.rubberbanding )
+        this.drawVerticalPositionLine( this.scaleTrackDiv, evt);
 };
 
 /**
@@ -1008,7 +1010,6 @@ GenomeView.prototype.scaleMouseOut = function( evt ) {
  * Draws the red line across the work area, or updates it if it already exists.
  */
 GenomeView.prototype.drawVerticalPositionLine = function( parent, evt){
-
     var numX = evt.pageX;
 
     if( ! this.verticalPositionLine ){
