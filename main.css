@@ -359,9 +359,13 @@ div.track-label:hover {
 
 div.tracklist-label {
     padding: 3px;
-
-    background-color: #bcbcbc;
+    background-color: #ddd;
     background-color: rgba( 220, 220, 220, 0.9 );
+}
+div.tracklist-label:hover {
+    background-color:  #396494;
+    color: #fefefe;
+    border: 1px solid black;
 }
 
 #trackPane {

@@ -95,7 +95,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
                     var node = dojo.create(
                         'div',
                         { className: 'tracklist-label',
-                          title: 'to turn on, drag into track area',
+                          title: 'drag or double-click to activate',
                           innerHTML: trackConfig.key
                         }
                     );
