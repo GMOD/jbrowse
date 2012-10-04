@@ -292,19 +292,24 @@ div.track-label, div.tracklist-label {
 div.track-label {
     color: black;
     margin: 3px 0 0 3px;
+    overflow: show;
     background: white;
-    padding: 2px 5px;
-    height: 20px;
+    padding: 0 5px;
+    height: 23px;
     z-index: 20;
     border-color: #eee;
     opacity: 0.7;
     vertical-align: middle;
-    overflow: hidden;
+}
+div.track-label .track-label-text {
+    font-size: 12px;
+    display: inline-block;
+    vertical-align: -2px;
 }
 div.track-label .track-close-button {
     display: inline-block;
     padding: 4px;
-    vertical-align: -4px;
+    vertical-align: -6px;
     height: 16px;
     width: 1.3em;
     margin: -3px -3px -4px -6px;
@@ -313,16 +318,24 @@ div.track-label .track-menu-button {
     display: inline-block;
     position: relative;
     width: 24px;
-    height: 25px;
+    height: 100%;
     border-radius: 0 6px 6px 0;
     border-left: 1px inset transparent;
     vertical-align: top;
     right: -5px;
-    top: -2px;
+    top: 0px;
 }
 div.track-label .feature-density {
     font-size: 90%;
     font-weight: normal;
+}
+.tundra div.track-label:hover .track-menu-button div {
+    height: 8px;
+    width: 8px;
+    position: absolute;
+    left: 8px;
+    top: 7px;
+    background: url("src/dijit/themes/tundra/images/spriteArrows.png") no-repeat -28px 0;
 }
 
 .tundra div.track-label:hover .track-menu-button:hover {
@@ -334,14 +347,6 @@ div.track-label .feature-density {
 }
 .tundra div.track-label .track-close-button:hover {
     background-image: url("src/dijit/themes/tundra/images/tabCloseHover.png");
-}
-.tundra div.track-label:hover .track-menu-button div {
-    height: 8px;
-    width: 8px;
-    position: absolute;
-    left: 8px;
-    top: 8px;
-    background: url("src/dijit/themes/tundra/images/spriteArrows.png") no-repeat -28px 0;
 }
 .tundra div.track-label:hover .track-menu-button:hover div {
     background-position-x: 0px;
