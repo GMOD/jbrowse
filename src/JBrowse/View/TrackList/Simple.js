@@ -67,7 +67,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
         var leftPane = dojo.create(
             'div',
             { id: 'trackPane',
-              style: { width: '10em' }
+              style: { width: '160px' }
             },
             renderTo
         );

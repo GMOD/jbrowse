@@ -145,8 +145,8 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
             this.y = y;
         };
     } else {
-	this.x = this.elem.scrollLeft;
-	this.y = this.elem.scrollTop;
+    this.x = this.elem.scrollLeft;
+    this.y = this.elem.scrollTop;
         this.rawSetX = function(x) {
             this.elem.scrollLeft = x;
             this.x = x;
@@ -337,21 +337,36 @@ GenomeView.prototype._behaviors = function() { return {
             var handles = [];
             this.overviewTrackIterate( function(t) {
                 handles.push( dojo.connect(
-                    t.div, 'mousedown', dojo.hitch( this, 'startRubberZoom', this.overview_absXtoBp, t.div )
-                ));
+                                  t.div, 'mousedown',
+                                  dojo.hitch( this, 'startRubberZoom',
+                                              dojo.hitch(this,'overview_absXtoBp'),
+                                              t.div,
+                                              t.div
+                                            )
+                              ));
             });
             handles.push(
                 dojo.connect( this.scrollContainer,     "mousewheel",     this, 'wheelScroll', false ),
                 dojo.connect( this.scrollContainer,     "DOMMouseScroll", this, 'wheelScroll', false ),
 
-                dojo.connect( this.scaleTrackDiv,       "mousedown",      dojo.hitch( this, 'startRubberZoom', this.absXtoBp, this.scrollContainer )),
+                dojo.connect( this.scaleTrackDiv,       "mousedown",
+                              dojo.hitch( this, 'startRubberZoom',
+                                          dojo.hitch( this,'absXtoBp'),
+                                          this.scrollContainer,
+                                          this.scaleTrackDiv
+                                        )
+                            ),
 
                 dojo.connect( this.outerTrackContainer, "dblclick",       this, 'doubleClickZoom'    ),
 
                 dojo.connect( this.locationThumbMover,  "onMoveStop",     this, 'thumbMoved'         ),
 
                 dojo.connect( this.overview,            "onclick",        this, 'overviewClicked'    ),
-                dojo.connect( this.scaleTrackDiv,       "onclick",        this, 'scaleClicked'       ),
+
+                dojo.connect( this.scaleTrackDiv,       "onclick",        this,  'scaleClicked'      ),
+                dojo.connect( this.scaleTrackDiv,       "mouseover",      this,  'scaleMouseOver'    ),
+                dojo.connect( this.scaleTrackDiv,       "mouseout",       this,  'scaleMouseOut'     ),
+                dojo.connect( this.scaleTrackDiv,       "mousemove",      this,  'scaleMouseMove'    ),
 
                 // when the mouse leaves the document, need to cancel
                 // any keyboard-modifier-holding-down state
@@ -392,14 +407,32 @@ GenomeView.prototype._behaviors = function() { return {
     // mouse events connected when the shift button is being held down
     shiftMouse: {
         apply: function() {
+            // function that draws the vertical position line only if
+            // we are not rubberbanding
+            var maybeDrawVerticalPositionLine = dojo.hitch( this, function( evt ) {
+                if( this.rubberbanding )
+                    return;
+                this.drawVerticalPositionLine( this.outerTrackContainer, evt );
+            });
+
             dojo.removeClass(this.trackContainer,'draggable');
             dojo.addClass(this.trackContainer,'rubberBandAvailable');
             return [
-                dojo.connect( this.outerTrackContainer, "mousedown", dojo.hitch( this, 'startRubberZoom', this.absXtoBp, this.scrollContainer )),
-                dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'    )
+                dojo.connect( this.outerTrackContainer, "mousedown",
+                              dojo.hitch( this, 'startRubberZoom',
+                                          dojo.hitch(this,'absXtoBp'),
+                                          this.scrollContainer,
+                                          this.scaleTrackDiv
+                                        )
+                            ),
+                dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'              ),
+                dojo.connect( this.outerTrackContainer, "mouseover", maybeDrawVerticalPositionLine ),
+                dojo.connect( this.outerTrackContainer, "mousemove", maybeDrawVerticalPositionLine )
             ];
         },
         remove: function( mgr, handles ) {
+            this.clearBasePairLabels();
+            this.clearVerticalPositionLine();
             dojo.forEach( handles, dojo.disconnect, dojo );
             dojo.removeClass(this.trackContainer,'rubberBandAvailable');
             dojo.addClass(this.trackContainer,'draggable');
@@ -570,9 +603,9 @@ GenomeView.prototype.doubleClickZoom = function(event) {
 
     var zoomLoc = (event.pageX - dojo.position(this.elem, true).x) / this.getWidth();
     if (event.shiftKey) {
-	this.zoomOut(event, zoomLoc, 2);
+    this.zoomOut(event, zoomLoc, 2);
     } else {
-	this.zoomIn(event, zoomLoc, 2);
+    this.zoomIn(event, zoomLoc, 2);
     }
     dojo.stopEvent(event);
 };
@@ -617,21 +650,25 @@ GenomeView.prototype.startMouseDragScroll = function(event) {
  *   rubberbanding highlight
  * @param {Event} event the mouse event that's starting the zoom
  */
-GenomeView.prototype.startRubberZoom = function( absToBp, container, event ) {
+GenomeView.prototype.startRubberZoom = function( absToBp, container, scaleDiv, event ) {
     if( ! this._beforeMouseDrag(event) ) return;
 
     this.behaviorManager.applyBehaviors('mouseRubberBandZooming');
 
-    this.rubberbanding = { absFunc: absToBp, container: container };
+    this.rubberbanding = { absFunc: absToBp, container: container, scaleDiv: scaleDiv };
     this.rubberbandStartPos = {x: event.clientX,
                                y: event.clientY};
     this.winStartPos = this.getPosition();
+    this.clearVerticalPositionLine();
+    this.clearBasePairLabels();
 };
 
 GenomeView.prototype._rubberStop = function(event) {
     this.behaviorManager.removeBehaviors('mouseRubberBandZooming');
     this.hideRubberHighlight();
+    this.clearBasePairLabels();
     dojo.stopEvent(event);
+    delete this.rubberbanding;
 };
 
 GenomeView.prototype.rubberCancel = function(event) {
@@ -650,19 +687,19 @@ GenomeView.prototype.rubberMove = function(event) {
 };
 
 GenomeView.prototype.rubberExecute = function(event) {
-    this._rubberStop(event);
-
     var start = this.rubberbandStartPos;
     var end   = { x: event.clientX, y: event.clientY };
+
+    var h_start_bp = this.rubberbanding.absFunc( Math.min(start.x,end.x) );
+    var h_end_bp   = this.rubberbanding.absFunc( Math.max(start.x,end.x) );
+
+    this._rubberStop(event);
 
     // cancel the rubber-zoom if the user has moved less than 3 pixels
     if( Math.abs( start.x - end.x ) < 3 ) {
         return this._rubberStop(event);
     }
 
-    var h_start_bp = this.rubberbanding.absFunc.call( this, Math.min(start.x,end.x) );
-    var h_end_bp   = this.rubberbanding.absFunc.call( this, Math.max(start.x,end.x) );
-    delete this.rubberbanding;
     this.setLocation( this.ref, h_start_bp, h_end_bp );
 };
 
@@ -675,7 +712,7 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
         var main = this.rubberHighlight = document.createElement("div");
         main.className = 'rubber-highlight';
         main.style.position = 'absolute';
-        main.style.zIndex = 1000;
+        main.style.zIndex = 20;
         var text = document.createElement('div');
         text.appendChild( document.createTextNode("Zoom to region") );
         main.appendChild(text);
@@ -687,9 +724,29 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
     }).call(this);
 
     h.style.visibility  = 'visible';
-    h.style.left   = Math.min(start.x,end.x) - container_coords.x + 'px';
-    h.style.width  = Math.abs(end.x-start.x) + 'px';
-    //console.log({ left: h.style.left, end: end.x });
+    h.style.left   = Math.min( start.x, end.x ) - container_coords.x + 'px';
+    h.style.width  = Math.abs( end.x - start.x ) + 'px';
+
+    // draw basepair-position labels for the start and end of the highlight
+    this.drawBasePairLabel({ name: 'rubberLeft',
+                             xToBp: this.rubberbanding.absFunc,
+                             scaleDiv: this.rubberbanding.scaleDiv,
+                             offset: 0,
+                             x: Math.min( start.x, end.x ),
+                             parent: container,
+                             className: 'rubber'
+                           });
+    this.drawBasePairLabel({ name: 'rubberRight',
+                             xToBp: this.rubberbanding.absFunc,
+                             scaleDiv: this.rubberbanding.scaleDiv,
+                             offset: 0,
+                             x: Math.max( start.x, end.x ) + 1,
+                             parent: container,
+                             className: 'rubber'
+                           });
+
+    // turn off the red position line if it's on
+    this.clearVerticalPositionLine();
 };
 
 GenomeView.prototype.dragEnd = function(event) {
@@ -724,8 +781,8 @@ GenomeView.prototype.checkDragOut = function( event ) {
 GenomeView.prototype.dragMove = function(event) {
     this.dragging = true;
     this.setPosition({
-    	x: this.winStartPos.x - (event.clientX - this.dragStartPos.x),
-    	y: this.winStartPos.y - (event.clientY - this.dragStartPos.y)
+        x: this.winStartPos.x - (event.clientX - this.dragStartPos.x),
+        y: this.winStartPos.y - (event.clientY - this.dragStartPos.y)
         });
     dojo.stopEvent(event);
 };
@@ -759,12 +816,12 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
         endbp = refseq.end;
 
     if (this.ref != refseq) {
-	this.ref = refseq;
-	var removeTrack = function(track) {
+    this.ref = refseq;
+    var removeTrack = function(track) {
             if (track.div && track.div.parentNode)
                 track.div.parentNode.removeChild(track.div);
-	};
-	dojo.forEach(this.tracks, removeTrack);
+    };
+    dojo.forEach(this.tracks, removeTrack);
 
         this.tracks = [];
         this.trackIndices = {};
@@ -773,9 +830,9 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
         this.trackLabels = [];
 
         dojo.forEach(this.uiTracks, function(track) { track.clear(); });
-	this.overviewTrackIterate(removeTrack);
+    this.overviewTrackIterate(removeTrack);
 
-	this.addOverviewTrack(new LocationScaleTrack({
+    this.addOverviewTrack(new LocationScaleTrack({
             label: "overview_loc_track",
             labelClass: "overview-pos",
             posHeight: this.overviewPosHeight
@@ -830,36 +887,36 @@ GenomeView.prototype.instantZoomUpdate = function() {
 GenomeView.prototype.centerAtBase = function(base, instantly) {
     base = Math.min(Math.max(base, this.ref.start), this.ref.end);
     if (instantly) {
-	var pxDist = this.bpToPx(base);
-	var containerWidth = this.stripeCount * this.stripeWidth;
-	var stripesLeft = Math.floor((pxDist - (containerWidth / 2)) / this.stripeWidth);
-	this.offset = stripesLeft * this.stripeWidth;
-	this.setX(pxDist - this.offset - (this.getWidth() / 2));
-	this.trackIterate(function(track) { track.clear(); });
-	this.showVisibleBlocks(true);
+    var pxDist = this.bpToPx(base);
+    var containerWidth = this.stripeCount * this.stripeWidth;
+    var stripesLeft = Math.floor((pxDist - (containerWidth / 2)) / this.stripeWidth);
+    this.offset = stripesLeft * this.stripeWidth;
+    this.setX(pxDist - this.offset - (this.getWidth() / 2));
+    this.trackIterate(function(track) { track.clear(); });
+    this.showVisibleBlocks(true);
         this.showCoarse();
     } else {
-	var startbp = this.pxToBp(this.x + this.offset);
-	var halfWidth = (this.getWidth() / this.pxPerBp) / 2;
-	var endbp = startbp + halfWidth + halfWidth;
-	var center = startbp + halfWidth;
-	if ((base >= (startbp  - halfWidth))
-	    && (base <= (endbp + halfWidth))) {
-	    //we're moving somewhere nearby, so move smoothly
+    var startbp = this.pxToBp(this.x + this.offset);
+    var halfWidth = (this.getWidth() / this.pxPerBp) / 2;
+    var endbp = startbp + halfWidth + halfWidth;
+    var center = startbp + halfWidth;
+    if ((base >= (startbp  - halfWidth))
+        && (base <= (endbp + halfWidth))) {
+        //we're moving somewhere nearby, so move smoothly
             if (this.animation) this.animation.stop();
             var distance = (center - base) * this.pxPerBp;
-	    this.trimVertical();
+        this.trimVertical();
             // slide for an amount of time that's a function of the
             // distance being traveled plus an arbitrary extra 200
             // milliseconds so that short slides aren't too fast
             // (200 chosen by experimentation)
             new Slider(this, this.afterSlide,
                        Math.abs(distance) * this.slideTimeMultiple + 200,
-		       distance);
-	} else {
-	    //we're moving far away, move instantly
-	    this.centerAtBase(base, true);
-	}
+               distance);
+    } else {
+        //we're moving far away, move instantly
+        this.centerAtBase(base, true);
+    }
     }
 };
 
@@ -918,12 +975,116 @@ GenomeView.prototype.onResize = function() {
     this.showCoarse();
 };
 
-
 /**
  * Event handler fired when the overview bar is single-clicked.
  */
 GenomeView.prototype.overviewClicked = function( evt ) {
     this.centerAtBase( this.overview_absXtoBp( evt.clientX ) );
+};
+
+/**
+ * Event handler fired when mouse is over the scale bar.
+ */
+GenomeView.prototype.scaleMouseOver = function( evt ) {
+    this.drawVerticalPositionLine( this.scaleTrackDiv, evt);
+};
+
+/**
+ * Event handler fired when mouse moves over the scale bar.
+ */
+GenomeView.prototype.scaleMouseMove = function( evt ) {
+    this.drawVerticalPositionLine( this.scaleTrackDiv, evt);
+};
+
+/**
+ * Event handler fired when mouse leaves the scale bar.
+ */
+GenomeView.prototype.scaleMouseOut = function( evt ) {
+    this.clearVerticalPositionLine();
+    this.clearBasePairLabels();
+};
+
+/**
+ * Draws the red line across the work area, or updates it if it already exists.
+ */
+GenomeView.prototype.drawVerticalPositionLine = function( parent, evt){
+
+    var numX = evt.pageX;
+
+    if( ! this.verticalPositionLine ){
+        // if line does not exist, create it
+        this.verticalPositionLine = dojo.create( 'div', {
+            className: 'trackVerticalPositionIndicatorMain'
+        }, this.staticTrack.div );
+    }
+
+    var line = this.verticalPositionLine;
+    line.style.display = 'block';      //make line visible
+    line.style.left = numX +'px'; //set location on screen
+
+    this.drawBasePairLabel({ name: 'single', offset: 0, x: numX, parent: parent });
+};
+
+/**
+ * Draws the label for the line.
+ * @param {Number} args.numX X-coordinate at which to draw the label's origin
+ * @param {Number} args.name unique name used to cache this label
+ * @param {Number} args.offset offset in pixels from numX at which the label should actually be drawn
+ * @param {HTMLElement} args.scaleDiv
+ * @param {Function} args.xToBp
+ */
+GenomeView.prototype.drawBasePairLabel = function ( args ){
+    var name = args.name || 0;
+    var offset = args.offset || 0;
+    var numX = args.x;
+    this.basePairLabels = this.basePairLabels || {};
+
+    if( ! this.basePairLabels[name] ) {
+        var scaleTrackPos = dojo.position( args.scaleDiv || this.scaleTrackDiv );
+        this.basePairLabels[name] = dojo.create( 'div', {
+            className: 'basePairLabel'+(args.className ? ' '+args.className : '' ),
+            style: { top: scaleTrackPos.y + scaleTrackPos.h - 3 + 'px' }
+        }, args.parent );
+    }
+
+    var label = this.basePairLabels[name];
+
+    if (typeof numX == 'object'){
+        numX = numX.clientX;
+    }
+
+    label.style.display = 'block';      //make label visible
+    var absfunc = args.xToBp || dojo.hitch(this,'absXtoBp');
+    label.innerHTML = Util.addCommas( Math.floor( absfunc(numX) )); //set text to BP location
+
+    //label.style.top = args.top + 'px';
+
+    // 15 pixels on either side of the label
+    if( window.innerWidth - numX > 8 + label.offsetWidth ) {
+        label.style.left = numX + offset + 'px'; //set location on screen to the right
+    } else {
+        label.style.left = numX + 1 - offset - label.offsetWidth + 'px'; //set location on screen to the left
+    }
+};
+
+/**
+ * Turn off the basepair-position line if it is being displayed.
+ */
+GenomeView.prototype.clearVerticalPositionLine = function(){
+    if( this.verticalPositionLine )
+        this.verticalPositionLine.style.display = 'none';
+};
+
+/**
+ * Delete any base pair labels that are being displayed.
+ */
+GenomeView.prototype.clearBasePairLabels = function(){
+    for( var name in this.basePairLabels ) {
+        var label = this.basePairLabels[name];
+        if( label.parentNode )
+            label.parentNode.removeChild( label );
+    }
+    this.basePairLabels = {};
 };
 
 /**
@@ -1088,8 +1249,8 @@ GenomeView.prototype.sizeInit = function() {
     }
 
     if (this.stripePercent === undefined) {
-	console.warn("stripeWidth too small: " + this.stripeWidth + ", " + this.getWidth());
-	this.stripePercent = 1;
+    console.warn("stripeWidth too small: " + this.stripeWidth + ", " + this.getWidth());
+    this.stripePercent = 1;
     }
 
     var oldX;
@@ -1142,29 +1303,29 @@ GenomeView.prototype.sizeInit = function() {
     this.overviewPosHeight = posSize.clientHeight;
     this.overview.removeChild(posSize);
     for (var n = 1; n < 30; n++) {
-	//http://research.att.com/~njas/sequences/A051109
+    //http://research.att.com/~njas/sequences/A051109
         // JBrowse uses this sequence (1, 2, 5, 10, 20, 50, 100, 200, 500...)
         // as its set of zoom levels.  That gives nice round numbers for
         // bases per block, and it gives zoom transitions that feel about the
         // right size to me. -MS
-	this.overviewStripeBases = (Math.pow(n % 3, 2) + 1) * Math.pow(10, Math.floor(n/3));
-	this.overviewStripes = Math.ceil(refLength / this.overviewStripeBases);
-	if ((this.overviewBox.w / this.overviewStripes) > minStripe) break;
-	if (this.overviewStripes < 2) break;
+    this.overviewStripeBases = (Math.pow(n % 3, 2) + 1) * Math.pow(10, Math.floor(n/3));
+    this.overviewStripes = Math.ceil(refLength / this.overviewStripeBases);
+    if ((this.overviewBox.w / this.overviewStripes) > minStripe) break;
+    if (this.overviewStripes < 2) break;
     }
 
     // update our overview tracks
     var overviewStripePct = 100 / (refLength / this.overviewStripeBases);
     var overviewHeight = 0;
     this.overviewTrackIterate(function (track, view) {
-	    track.clear();
-	    track.sizeInit(view.overviewStripes,
-			   overviewStripePct);
+        track.clear();
+        track.sizeInit(view.overviewStripes,
+               overviewStripePct);
             track.showRange(0, view.overviewStripes - 1,
                             -1, view.overviewStripeBases,
                             view.overviewBox.w /
                             (view.ref.end - view.ref.start));
-	});
+    });
     this.updateOverviewHeight();
 
     this.updateScroll();
@@ -1194,15 +1355,15 @@ GenomeView.prototype.overviewTrackIterate = function(callback) {
     var overviewTrack = this.overview.firstChild;
     do {
         if (overviewTrack && overviewTrack.track)
-	    callback.call( this, overviewTrack.track, this);
+        callback.call( this, overviewTrack.track, this);
     } while (overviewTrack && (overviewTrack = overviewTrack.nextSibling));
 };
 
 GenomeView.prototype.updateOverviewHeight = function(trackName, height) {
     var overviewHeight = 0;
     this.overviewTrackIterate(function (track, view) {
-	    overviewHeight += track.height;
-	});
+        overviewHeight += track.height;
+    });
     this.overview.style.height = overviewHeight + "px";
     this.overviewBox = dojo.marginBox(this.overview);
 };
@@ -1222,9 +1383,9 @@ GenomeView.prototype.addOverviewTrack = function(track) {
         view.updateOverviewHeight();
     };
     track.setViewInfo( this, heightUpdate, this.overviewStripes, trackDiv,
-		      undefined,
-		      overviewStripePct,
-		      this.overviewStripeBases,
+              undefined,
+              overviewStripePct,
+              this.overviewStripeBases,
                       this.pxPerBp,
                       this.trackPadding);
     this.overview.appendChild(trackDiv);
@@ -1268,12 +1429,12 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
     this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth();
 
     for (var track = 0; track < this.tracks.length; track++)
-	this.tracks[track].startZoom(this.pxPerBp,
-				     fixedBp - ((zoomLoc * this.getWidth())
+    this.tracks[track].startZoom(this.pxPerBp,
+                     fixedBp - ((zoomLoc * this.getWidth())
                                                 / this.pxPerBp),
-				     fixedBp + (((1 - zoomLoc) * this.getWidth())
+                     fixedBp + (((1 - zoomLoc) * this.getWidth())
                                                 / this.pxPerBp));
-	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
+    //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
 
     // Zooms take an arbitrary 700 milliseconds, which feels about right
     // to me, although if the zooms were smoother they could probably
@@ -1305,13 +1466,13 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
     this.pxPerBp = this.zoomLevels[this.curZoom];
 
     for (var track = 0; track < this.tracks.length; track++)
-	this.tracks[track].startZoom(this.pxPerBp,
-				     fixedBp - ((zoomLoc * this.getWidth())
+    this.tracks[track].startZoom(this.pxPerBp,
+                     fixedBp - ((zoomLoc * this.getWidth())
                                                 / this.pxPerBp),
-				     fixedBp + (((1 - zoomLoc) * this.getWidth())
+                     fixedBp + (((1 - zoomLoc) * this.getWidth())
                                                 / this.pxPerBp));
 
-	//YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
+    //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
     this.minLeft = this.pxPerBp * this.ref.start;
 
     // Zooms take an arbitrary 700 milliseconds, which feels about right
@@ -1340,7 +1501,7 @@ GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {
     this.setX((centerPx - this.offset) - (eWidth / 2));
     dojo.forEach(this.uiTracks, function(track) { track.clear(); });
     for (var track = 0; track < this.tracks.length; track++)
-	this.tracks[track].endZoom(this.pxPerBp, Math.round(this.stripeWidth / this.pxPerBp));
+    this.tracks[track].endZoom(this.pxPerBp, Math.round(this.stripeWidth / this.pxPerBp));
     //YAHOO.log("post-zoom start base: " + this.pxToBp(this.offset + this.getX()) + ", end base: " + this.pxToBp(this.offset + this.getX() + this.getWidth()));
     this.showVisibleBlocks(true);
     this.showDone();
