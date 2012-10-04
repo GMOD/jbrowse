@@ -1,0 +1,14 @@
+.jbrowseIconHelp,
+.jbrowseIconBusy {
+    background-image: url('img/commonIconsEnabled.png');
+    width: 16px;
+    height: 16px;
+}
+
+.jbrowseIconHelp {
+    background-position: 0;
+}
+
+.jbrowseIconBusy {
+    background-image: url('img/spinner.gif');
+}

@@ -73,6 +73,7 @@ var Meta = declare( null,
                     metarecord.label = conf.label;
                     metarecord.key = conf.key;
                     metarecord.conf = conf;
+                    metarecord['track type'] = conf.type;
                     if( conf.category )
                         metarecord.category = conf.category;
                     return metarecord;
@@ -372,10 +373,17 @@ var Meta = declare( null,
     },
 
     isItemLoaded: function() {
-        return true;
+        return this.ready;
     },
 
     loadItem: function( args ) {
+    },
+
+    getItem: function( label ) {
+        if( this.ready )
+            return this.identIndex[label];
+        else
+            return null;
     },
 
     // used by the dojo.data.util.simpleFetch mixin to implement fetch()

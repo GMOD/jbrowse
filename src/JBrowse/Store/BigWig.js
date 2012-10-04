@@ -1,12 +1,14 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
+            'dojo/_base/array',
+            'dojo/_base/url',
             'JBrowse/Store/BigWig/Window',
             'dojo/_base/Deferred',
             'JBrowse/Util',
             'JBrowse/Model/XHRBlob'
         ],
-        function( declare, lang, Window, Deferred, Util, XHRBlob ) {
+        function( declare, lang, array, urlObj, Window, Deferred, Util, XHRBlob ) {
 return declare( null,
  /**
   * @lends JBrowse.Store.BigWig
@@ -28,16 +30,19 @@ return declare( null,
      * @constructs
      */
     constructor: function( args ) {
+
+        this.refSeq = args.refSeq;
+
         var data = args.blob || (function() {
             var url = Util.resolveUrl(
                 args.baseUrl || '/',
                 Util.fillTemplate( args.urlTemplate || 'data.bigwig',
-                                   {'refseq': args.refSeq.name}
+                                   {'refseq': (this.refSeq||{}).name }
                                  )
             );
             return new XHRBlob( url );
         }).call(this);
-        var name = args.name || 'anonymous';
+        var name = args.name || ( data.url && new urlObj( data.url ).path.replace(/^.+\//,'') ) || 'anonymous';
 
         var bwg = this;
 
@@ -241,6 +246,14 @@ return declare( null,
             return null;
         }
         return v.readWigData(chrName, min, max, callback);
+    },
+
+    iterate: function( start, end, featCallback, finishCallback ) {
+        this.readWigData( 1, this.refSeq.name, start, end, function( features ) {
+            if( features && features.length )
+                array.forEach( features, featCallback );
+            finishCallback();
+        });
     },
 
     getUnzoomedView: function() {

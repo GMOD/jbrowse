@@ -16,6 +16,10 @@ return dojo.declare( BlockBased,
         this.loaded = true;
     },
 
+    // this track has no track label or track menu, stub them out
+    makeTrackLabel: function() {},
+    makeTrackMenu: function() {},
+
     fillBlock: function(blockIndex, block,
                         leftBlock, rightBlock,
                         leftBase, rightBase, scale,
