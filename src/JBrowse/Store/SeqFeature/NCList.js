@@ -92,20 +92,20 @@ NCList.prototype.iterate = function( startBase, endBase, origFeatCallback, finis
     var accessors    = this.attrs.accessors(),
         /** @inner */
         featCallBack = function( feature, path ) {
-            that._add_getters( accessors.get, feature );
-            feature.tags = accessors.tags;
+            that._add_methods( accessors, feature );
             return origFeatCallback( feature, path );
         };
 
     return this.nclist.iterate.call( this.nclist, startBase, endBase, featCallBack, finishCallback );
 };
 
-// helper method to recursively add a .get method to a feature and its
+// helper method to recursively add a .get and .tags methods to a feature and its
 // subfeatures
-NCList.prototype._add_getters = function(getter,feature) {
+NCList.prototype._add_methods = function(accessors,feature) {
     var that = this;
-    feature.get = getter;
-    dojo.forEach( feature.get('subfeatures'), function(f) { that._add_getters( getter, f ); } );
+    feature.get = accessors.get;
+    feature.tags = accessors.tags;
+    dojo.forEach( feature.get('subfeatures'), function(f) { that._add_methods( accessors, f ); } );
 };
 
 return NCList;

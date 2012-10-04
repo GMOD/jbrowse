@@ -119,7 +119,6 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     this.slideTimeMultiple = 0.8;
     this.trackHeights = [];
     this.trackTops = [];
-    this.trackLabels = [];
     this.waitElems = dojo.filter( [ dojo.byId("moveLeft"), dojo.byId("moveRight"),
                                     dojo.byId("zoomIn"), dojo.byId("zoomOut"),
                                     dojo.byId("bigZoomIn"), dojo.byId("bigZoomOut"),
@@ -250,6 +249,25 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     // does (i.e. the behavior it has) for mouse and keyboard events
     this.behaviorManager = new BehaviorManager({ context: this, behaviors: this._behaviors() });
     this.behaviorManager.initialize();
+};
+
+/**
+ * @returns {Object} containing ref, start, and end members for the currently displayed location
+ */
+GenomeView.prototype.visibleRegion = function() {
+    return {
+               ref:   this.ref.name,
+               start: this.minVisible(),
+               end:   this.maxVisible()
+           };
+};
+
+/**
+ * @returns {String} locstring representation of the current location<br>
+ * (suitable for passing to the browser's navigateTo)
+ */
+GenomeView.prototype.visibleRegionLocString = function() {
+    return Util.assembleLocString( this.visibleRegion() );
 };
 
 /**
@@ -770,7 +788,6 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
         this.trackIndices = {};
         this.trackHeights = [];
         this.trackTops = [];
-        this.trackLabels = [];
 
         dojo.forEach(this.uiTracks, function(track) { track.clear(); });
 	this.overviewTrackIterate(removeTrack);
@@ -987,12 +1004,6 @@ GenomeView.prototype.updateStaticElements = function( args ) {
     },this);
 
     this._updateVerticalScrollBar( args );
-
-    if( typeof args.x == 'number' ) {
-        dojo.forEach( this.trackLabels, function(l) {
-            l.style.left = args.x+"px";
-        });
-    }
 
     if( typeof args.y == 'number' ) {
         this.staticTrack.div.style.top = args.y + "px";
@@ -1338,10 +1349,13 @@ GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {
     this.minLeft = this.bpToPx(this.ref.start);
     this.zoomContainer.style.left = "0px";
     this.setX((centerPx - this.offset) - (eWidth / 2));
+
     dojo.forEach(this.uiTracks, function(track) { track.clear(); });
-    for (var track = 0; track < this.tracks.length; track++)
-	this.tracks[track].endZoom(this.pxPerBp, Math.round(this.stripeWidth / this.pxPerBp));
-    //YAHOO.log("post-zoom start base: " + this.pxToBp(this.offset + this.getX()) + ", end base: " + this.pxToBp(this.offset + this.getX() + this.getWidth()));
+
+    this.trackIterate( function(track) {
+        track.endZoom( this.pxPerBp,Math.round(this.stripeWidth / this.pxPerBp));
+    });
+
     this.showVisibleBlocks(true);
     this.showDone();
     this.showCoarse();
@@ -1566,7 +1580,8 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
             urlTemplate: trackConfig.urlTemplate,
             compress: trackConfig.compress,
             baseUrl: trackConfig.baseUrl,
-            refSeq: this.ref
+            refSeq: this.ref,
+            browser: this.browser
         });
 
         var track = new trackClass({
@@ -1574,45 +1589,18 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
                 config: trackConfig,
                 changeCallback: dojo.hitch( this, 'showVisibleBlocks', true ),
                 trackPadding: this.trackPadding,
-                store: store
+                store: store,
+                browser: this.browser
             });
         if( store.setTrack )
             store.setTrack( track );
 
         // tell the track to get its data, since we're going to display it.
         track.load();
-
         trackDiv.track = track;
 
-
-        var labelDiv = dojo.create(
-            'div', {
-                className: "track-label dojoDndHandle",
-                id: "label_" + trackName,
-                style: {
-                    position: 'absolute',
-                    top: 0,
-                    left: this.getX() + 'px'
-                }
-            },trackDiv);
-
-        if ( ( trackConfig.style || {} ).trackLabelCss){
-            labelDiv.style.cssText += ";" + trackConfig.style.trackLabelCss;
-        }
-
-        var closeButton = dojo.create('div',{
-            className: 'track-close-button',
-            onclick: dojo.hitch(this,function(evt){
-                this.browser.publish( '/jbrowse/v1/v/tracks/hide', [trackConfig]);
-                evt.stopPropagation();
-            })
-        },labelDiv);
-
-        var labelText = dojo.create('span', { className: 'track-label-text' }, labelDiv );
-        this.trackLabels.push(labelDiv);
-
         var heightUpdate = dojo.hitch( this, 'trackHeightUpdate', trackName );
-        track.setViewInfo( this, heightUpdate, this.stripeCount, trackDiv, labelDiv,
+        track.setViewInfo( this, heightUpdate, this.stripeCount, trackDiv,
                            this.stripePercent, this.stripeWidth,
                            this.pxPerBp, this.trackPadding);
 
@@ -1640,9 +1628,9 @@ GenomeView.prototype._regularizeClass = function( root, class_ ) {
 GenomeView.prototype.trackIterate = function(callback) {
     var i;
     for (i = 0; i < this.uiTracks.length; i++)
-        callback(this.uiTracks[i], this);
+        callback.call(this, this.uiTracks[i], this);
     for (i = 0; i < this.tracks.length; i++)
-        callback(this.tracks[i], this);
+        callback.call(this, this.tracks[i], this);
 };
 
 

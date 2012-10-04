@@ -1,18 +1,35 @@
 define( ['dojo/_base/declare',
          'dojo/on',
          'JBrowse/View/Track/Canvas',
-         'JBrowse/View/Track/YScaleMixin'
+         'JBrowse/View/Track/YScaleMixin',
+         'JBrowse/View/Track/ExportMixin',
+         'JBrowse/Util'
         ],
-        function( declare, on, CanvasTrack, YScaleMixin ) {
-var Wiggle = declare( CanvasTrack,
-/**
- * @lends JBrowse.View.Track.Wiggle.prototype
- */
-{
+        function( declare, on, CanvasTrack, YScaleMixin, ExportMixin, Util ) {
+var Wiggle = declare( CanvasTrack, {
     constructor: function( args ) {
         this.store = args.store;
         this.store.whenReady( this, '_calculateScaling' );
         this.store.whenReady( this, 'loadSuccess' );
+    }
+});
+
+/**
+ * Mixin: JBrowse.View.Track.YScaleMixin.
+ */
+dojo.safeMixin( Wiggle.prototype, YScaleMixin );
+
+/**
+ * Mixin: JBrowse.View.Track.ExportMixin.
+ */
+dojo.safeMixin( Wiggle.prototype, ExportMixin );
+
+/**
+ * @lends JBrowse.View.Track.Wiggle.prototype
+ */
+Wiggle.extend({
+    _defaultConfig: function() {
+        return { maxExportSpan: 500000 };
     },
 
     load: function() {
@@ -334,13 +351,11 @@ var Wiggle = declare( CanvasTrack,
     updateStaticElements: function( coords ) {
         this.inherited( arguments );
         this.updateYScaleFromViewDimensions( coords );
+    },
+
+    _exportFormats: function() {
+        return ['bedGraph','Wiggle', 'GFF3' ];
     }
 });
-
-/**
- * Mixin: JBrowse.View.Track.YScaleMixin.
- */
-declare.safeMixin( Wiggle.prototype, YScaleMixin );
-
 return Wiggle;
 });
