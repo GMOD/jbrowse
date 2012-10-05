@@ -2,56 +2,64 @@
 
 /*  Based (now quite loosely) on
  *  https://github.com/shockie/node-iniparser -> released under the MIT license
- *  Copyright (c) 2009-2010 Jordy van Gelder <jordyvangelder@gmail.com>, see
- *  https://github.com/shockie/node-iniparser/blob/master/README.md#license
- *  for license details
  */
  
 function parseGBConfig(data){
 
     var regex = {
-        section: /^\s*\[\s*([^\]]*)\s*\]\s*$/,
-        param: /^\s*([\w\.\-\_\:\s]+)\s*=\s*(.*?)\s*$/,
-        halfParam: /^\s*([\w\.\-\_\:\s]+)\s*=\s*$/,
-        comment: /^\s*#*.*$/,
-        emptyLine: /^\s*$/
+        section:   /^\s*\[\s*([^\]]*)\s*\]\s*$/,
+        param:     /^(\w[\w\.\-\_\:\s]+)=\s*(.*?)\s*$/,
+        halfParam: /^(\w[\w\.\-\_\:\s]+)=\s*$/,
+        comment:   /^\s*#.*$/,
+        emptyLine: /^\s*$/,
+        newLine:   /\r\n|\r|\n/
     };
     var value = {};
-    var lines = data.split(/\r\n|\r|\n/);
+    var lines = data.split(regex.newLine);
     var section = null;
-
-    for (i = 0; i < lines.length; i++){
+    var n = lines.length;
+    for (var i = 0; i < n; i++){
         if(regex.comment.test(lines[i])){
-            return;
+            // do nothing, since it's a comment.
         }else if(regex.param.test(lines[i])){
             if (regex.halfParam.test(lines[i])){
                 var multiLineNum = i+1;
                 var tmpStrVal = '';
-                while  (! ( regex.param.test(lines[multiLineNum])   || regex.section.test(lines[multiLineNum])   )){
+                while (typeof lines[multiLineNum] !== 'undefined' && (! ( regex.param.test(lines[multiLineNum])   || regex.section.test(lines[multiLineNum])  ))){
                     if (! ( regex.comment.test(lines[multiLineNum]) || regex.emptyLine.test(lines[multiLineNum]) )){
-                        tmpStrVal += lines[multiLineNum];
+                        if (tmpStrVal === ''){
+                            tmpStrVal += lines[multiLineNum].trim();
+                        } else {
+                            tmpStrVal = tmpStrVal + ' ' + lines[multiLineNum].trim();
+                        }
                     }
                     multiLineNum++;
                 }
-                var match = line[i].match(regex.param);
+                var match = lines[i].match(regex.param);
                 if(section){
-                    value[section][match[1]] = tmpStrVal;
+                    value[section][match[1].trim()] = tmpStrVal;
                 }else{
-                    value[match[1]] = tmpStrVal;
+                    value[match[1].trim()] = tmpStrVal;
                 }
                 i = multiLineNum - 1;
             }else{
                 var match = lines[i].match(regex.param);
                 if(section){
-                    value[section][match[1]] = match[2];
+                    if (!isNaN(match[2])){
+                        match[2] = parseInt(match[2]);
+                    }
+                    value[section][match[1].trim()] = match[2];
                 }else{
-                    value[match[1]] = match[2];
+                    if (!isNaN(match[2].trim())){
+                        match[2] = parseInt(match[2].trim());
+                    }
+                    value[match[1].trim()] = match[2].trim();
                 }
             }
-        }else if(regex.section.test(line[i])){
+        }else if(regex.section.test(lines[i])){
             var match = lines[i].match(regex.section);
-            value[match[1]] = {};
-            section = match[1];
+            value[match[1].trim()] = {};
+            section = match[1].trim();
         }else if(lines[i].length == 0 && section){
             section = null;
         };
