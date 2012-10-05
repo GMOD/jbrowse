@@ -1,8 +1,9 @@
 define(['dojo/_base/declare',
         'dijit/layout/ContentPane',
-        'dojo/dnd/Source'
+        'dojo/dnd/Source',
+        'dojo/fx/easing'
        ],
-       function( declare, ContentPane, dndSource ) {
+       function( declare, ContentPane, dndSource, animationEasing ) {
 return declare( 'JBrowse.View.TrackList.Simple', null,
 
     /** @lends JBrowse.View.TrackList.Simple.prototype */
@@ -17,6 +18,10 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
 
         // make the track list DOM nodes and widgets
         this.createTrackList( args.browser.container );
+
+        // maintain a list of the HTML nodes of inactive tracks, so we
+        // can flash them and whatnot
+        this.inactiveTrackNodes = {};
 
         // populate our track list (in the right order)
         this.trackListWidget.insertNodes(
@@ -110,6 +115,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
                         node = container;
                     }
                     node.id = dojo.dnd.getUniqueId();
+                    this.inactiveTrackNodes[trackConfig.label] = node;
                     return {node: node, data: trackConfig, type: ["track"]};
                 })
             }
@@ -127,10 +133,15 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
         dojo.forEach( trackConfigs || [], function( conf ) {
             this.trackListWidget.forInItems(function(obj, id, map) {
                 if( conf.label === obj.data.label ) {
+
                     this.trackListWidget.delItem( id );
+
                     var item = dojo.byId(id);
                     if( item && item.parentNode )
                         item.parentNode.removeChild(item);
+
+                    delete this.inactiveTrackNodes[ conf.label ];
+
                 }
             },this);
         },this);
@@ -141,9 +152,34 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
      * that they are turned off.
      */
     setTracksInactive: function( /**Array[Object]*/ trackConfigs ) {
+
         // remove any tracks in our track list that are being set as visible
-        if( ! this.dndDrop )
-            this.trackListWidget.insertNodes( false, trackConfigs );
+        if( ! this.dndDrop ) {
+            var n = this.trackListWidget.insertNodes( false, trackConfigs );
+
+            // scroll the tracklist all the way to the bottom so we can see the blinking nodes
+            n.node.scrollTop = n.node.scrollHeight;
+
+            // blink the track(s) that we just turned off to make it
+            // easier for users to tell where they went.
+            // note that insertNodes will have put its html element in
+            // inactivetracknodes
+            dojo.forEach( trackConfigs, function(c) {
+                var label = this.inactiveTrackNodes[c.label].firstChild;
+                dojo.animateProperty({
+                                         node: label,
+                                         duration: 400,
+                                         properties: {
+                                             backgroundColor: { start: '#FFDE2B', end: 'white' }
+                                         },
+                                         easing: animationEasing.sine,
+                                         repeat: 2,
+                                         onEnd: function() {
+                                             label.style.backgroundColor = null;
+                                         }
+                                     }).play();
+            },this);
+        }
     },
 
     /**
