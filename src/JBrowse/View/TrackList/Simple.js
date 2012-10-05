@@ -170,7 +170,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
                                          node: label,
                                          duration: 400,
                                          properties: {
-                                             backgroundColor: { start: '#FFDE2B', end: 'white' }
+                                             backgroundColor: { start: '#DEDEDE', end:  '#FFDE2B' }
                                          },
                                          easing: animationEasing.sine,
                                          repeat: 2,
