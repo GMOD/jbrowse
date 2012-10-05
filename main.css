@@ -295,36 +295,40 @@ div.track-label {
     overflow: show;
     background: white;
     padding: 0 5px;
+
     height: 23px;
+    line-height: 23px;
+
     z-index: 20;
     border-color: #eee;
     opacity: 0.7;
-    vertical-align: middle;
 }
 div.track-label .track-label-text {
-    font-size: 12px;
     display: inline-block;
-    vertical-align: -2px;
     white-space: nowrap;
 }
 div.track-label .track-close-button {
     display: inline-block;
-    padding: 4px;
-    vertical-align: -6px;
-    height: 16px;
-    width: 1.3em;
-    margin: -3px -3px -4px -6px;
+    vertical-align: top;
+    position: relative;
+    top: 50%;
+    height: 20px;
+    width: 25px;
+    margin: -10px -3px -4px -6px;
 }
 div.track-label .track-menu-button {
     display: inline-block;
     position: relative;
-    width: 24px;
-    height: 100%;
-    border-radius: 0 6px 6px 0;
-    border-left: 1px inset transparent;
     vertical-align: top;
     right: -5px;
     top: 0px;
+
+    width: 24px;
+    height: 100%;
+
+    border-radius: 0 6px 6px 0;
+    border-left: 1px inset transparent;
+
 }
 div.track-label .feature-density {
     font-size: 90%;
@@ -547,7 +551,7 @@ a.dialog-new-window {
     color: black;
     position: fixed;
     font-weight: bold;
-    font-size: 80%;
+    font-size: 9px;
     display: none;
     background: #fefefe;
     padding: 0 0.7em;
