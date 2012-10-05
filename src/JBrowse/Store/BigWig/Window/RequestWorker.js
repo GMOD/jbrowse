@@ -232,7 +232,7 @@ var RequestWorker = declare( null,
                         }
                     } else if (blockType == this.BIG_WIG_TYPE_GRAPH) {
                         for (var i = 0; i < itemCount; ++i) {
-                            var start = la[(i*3) + 6] + 1;
+                            var start = la[(i*3) + 6];
                             var end   = la[(i*3) + 7];
                             var score = fa[(i*3) + 8];
                             if (start > end) {
@@ -281,7 +281,7 @@ var RequestWorker = declare( null,
 
                         if (bedColumns.length < 9) {
                             if (chromId == this.chr) {
-                                this.maybeCreateFeature( start + 1, end, featureOpts);
+                                this.maybeCreateFeature( start, end, featureOpts);
                             }
                         } else if (chromId == this.chr && start <= this.max && end >= this.min) {
                             // Complex-BED?
@@ -325,7 +325,7 @@ var RequestWorker = declare( null,
                             var tsList = spans.ranges();
                             for (var s = 0; s < tsList.length; ++s) {
                                 var ts = tsList[s];
-                                this.createFeature( ts.min() + 1, ts.max(), featureOpts);
+                                this.createFeature( ts.min(), ts.max(), featureOpts);
                             }
 
                             if (thickEnd > thickStart) {
@@ -335,7 +335,7 @@ var RequestWorker = declare( null,
                                     var tlList = tl.ranges();
                                     for (var s = 0; s < tlList.length; ++s) {
                                         var ts = tlList[s];
-                                        this.createFeature( ts.min() + 1, ts.max(), featureOpts);
+                                        this.createFeature( ts.min(), ts.max(), featureOpts);
                                     }
                                 }
                             }
