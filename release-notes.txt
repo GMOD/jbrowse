@@ -15,6 +15,10 @@
    automatically update in all situations to reflect the current
    reference sequence.
 
+ * Added an animation to make it easier to see where in the track
+   selection list a closed track has gone, when using the simple track
+   selector (issue #151).
+
 1.6.3     2012-09-28 11:33:36 America/New_York
 
  * Fixed bug with shift-rubberband-zooming not working on Windows
