@@ -12,6 +12,7 @@ return declare(null,
      * @constructs
      */
     constructor: function( args ) {
+        this.refSeq = dojo.clone( args.refSeq );
     },
 
     loadSuccess: function( data, url ) {
