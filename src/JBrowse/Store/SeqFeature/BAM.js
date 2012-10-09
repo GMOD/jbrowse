@@ -3,11 +3,13 @@ define( [
             'dojo/_base/array',
             'dojo/_base/Deferred',
             'dojo/_base/lang',
+            'JBrowse/Util',
             'JBrowse/Store/SeqFeature',
+            'JBrowse/Model/XHRBlob',
             './BAM/Util',
             './BAM/File'
         ],
-        function( declare, array, Deferred, lang, SeqFeatureStore, BAMUtil, BAMFile ) {
+        function( declare, array, Deferred, lang, Util, SeqFeatureStore, XHRBlob, BAMUtil, BAMFile ) {
 
 var readInt   = BAMUtil.readInt;
 var readShort = BAMUtil.readShort;
@@ -17,12 +19,61 @@ var BAI_MAGIC = 21578050;
 
 var dlog = function(){ console.log.apply(console, arguments); };
 
+var BAMFeature = declare( null, {
+    constructor: function( store, record ) {
+        var data = {};
+        for( var k in record ) {
+            if( record.hasOwnProperty(k) )
+                data[k.toLowerCase()] = record[k];
+        }
+
+        data.start = data.pos;
+        data.end = data.start + parseInt(data.md);
+        data.score = data.mq;
+        data.type = 'match';
+        data.source = store.source;
+        data.seq_id = data.segment;
+
+        data.name = data.readName;
+
+        this.data = data;
+        this.store = store;
+        this._uniqueID = data.name+':'+data.start+'..'+data.end;
+    },
+    get: function(name) {
+        return this.data[ name ];
+    },
+    tags: function() {
+        return this.store.featureKeys();
+    }
+});
+
 var BAMStore = declare( SeqFeatureStore,
 {
     constructor: function( args ) {
         this.bam = new BAMFile();
-        this.bam.data = args.bam;
-        this.bam.bai = args.bai;
+
+        this.bam.data = args.bam || (function() {
+            var url = Util.resolveUrl(
+                args.baseUrl || '/',
+                Util.fillTemplate( args.urlTemplate || 'data.bam',
+                                   {'refseq': (this.refSeq||{}).name }
+                                 )
+            );
+            return new XHRBlob( url );
+        }).call(this);
+
+        this.bam.bai = args.bai || (function() {
+            var url = Util.resolveUrl(
+                args.baseUrl || '/',
+                Util.fillTemplate( args.baiUrlTemplate || args.urlTemplate+'.bai' || 'data.bam.bai',
+                                   {'refseq': (this.refSeq||{}).name }
+                                 )
+            );
+            return new XHRBlob( url );
+        }).call(this);
+
+        this.source = this.bam.data.url ? this.bam.data.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] : undefined;
 
         this._loading = new Deferred();
         if( args.callback )
@@ -33,6 +84,20 @@ var BAMStore = declare( SeqFeatureStore,
         this._loading.then( dojo.hitch( this, function() {
                                             this._loading = null;
                                         }));
+    },
+
+    featureKeys: function() {
+        return this._featureKeys;
+    },
+
+    _setFeatureKeys: function( feature ) {
+        var keys = [];
+        var data = feature.data;
+        for( var k in data ) {
+            if( data.hasOwnProperty( k ) )
+                keys.push( k );
+        }
+        this._featureKeys = keys;
     },
 
     load: function() {
@@ -150,14 +215,19 @@ var BAMStore = declare( SeqFeatureStore,
             return;
         }
 
-        this.bam.fetch( this.refSeq.name, start, end, function(r, e) {
-                if (r) {
-                    array.forEach( r, function( r ) {
-                        featCallback(r);
+        var bamStore = this;
+        this.bam.fetch( this.refSeq.name, start, end, function( records, error) {
+                if( records ) {
+                    array.forEach( records, function( record ) {
+                        var feature = new BAMFeature( bamStore, record );
+                        if( ! bamStore._featureKeys ) {
+                            bamStore._setFeatureKeys( feature );
+                        }
+                        featCallback( feature );
                     });
                 }
-                if (e) {
-                    console.error( e );
+                if ( error ) {
+                    console.error( error );
                 }
                 endCallback();
             });

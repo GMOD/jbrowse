@@ -512,11 +512,8 @@ HTMLFeatures.extend({
         }
 
         var curTrack = this;
-        var featCallback = dojo.hitch(this,function(feature, path) {
-            //uniqueId is a stringification of the path in the NCList where
-            //the feature lives; it's unique across the top-level NCList
-            //(the top-level NCList covers a track/chromosome combination)
-            var uniqueId = path.join(",");
+        var featCallback = dojo.hitch(this,function( feature ) {
+            var uniqueId = feature._uniqueID;
             if( ! this._featureIsRendered( uniqueId ) ) {
                 this.renderFeature( feature, uniqueId, block, scale,
                                     containerStart, containerEnd, block );
