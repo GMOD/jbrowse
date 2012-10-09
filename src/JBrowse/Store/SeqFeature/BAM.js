@@ -7,9 +7,10 @@ define( [
             'JBrowse/Store/SeqFeature',
             'JBrowse/Model/XHRBlob',
             './BAM/Util',
-            './BAM/File'
+            './BAM/File',
+            './BAM/Feature'
         ],
-        function( declare, array, Deferred, lang, Util, SeqFeatureStore, XHRBlob, BAMUtil, BAMFile ) {
+        function( declare, array, Deferred, lang, Util, SeqFeatureStore, XHRBlob, BAMUtil, BAMFile, BAMFeature ) {
 
 var readInt   = BAMUtil.readInt;
 var readShort = BAMUtil.readShort;
@@ -18,35 +19,6 @@ var BAM_MAGIC = 21840194;
 var BAI_MAGIC = 21578050;
 
 var dlog = function(){ console.log.apply(console, arguments); };
-
-var BAMFeature = declare( null, {
-    constructor: function( store, record ) {
-        var data = {};
-        for( var k in record ) {
-            if( record.hasOwnProperty(k) )
-                data[k.toLowerCase()] = record[k];
-        }
-
-        data.start = data.pos;
-        data.end = data.start + parseInt(data.md);
-        data.score = data.mq;
-        data.type = 'match';
-        data.source = store.source;
-        data.seq_id = data.segment;
-
-        data.name = data.readName;
-
-        this.data = data;
-        this.store = store;
-        this._uniqueID = data.name+':'+data.start+'..'+data.end;
-    },
-    get: function(name) {
-        return this.data[ name ];
-    },
-    tags: function() {
-        return this.store.featureKeys();
-    }
-});
 
 var BAMStore = declare( SeqFeatureStore,
 {
@@ -216,9 +188,12 @@ var BAMStore = declare( SeqFeatureStore,
         }
 
         var bamStore = this;
+        var logged = 0;
         this.bam.fetch( this.refSeq.name, start, end, function( records, error) {
                 if( records ) {
                     array.forEach( records, function( record ) {
+                        if( ! logged++ )
+                            console.log( record );
                         var feature = new BAMFeature( bamStore, record );
                         if( ! bamStore._featureKeys ) {
                             bamStore._setFeatureKeys( feature );
