@@ -77,7 +77,9 @@ GetOptions("dir|out=s" => \$outDir,
            'tracks=s' => \@includedTrackNames,
            "help|h|?" => \$help) or pod2usage();
 
-my %includedTrackNames = map { $_ => 1 } @includedTrackNames;
+my %includedTrackNames = map { $_ => 1 }
+                         map { split ',', $_ }
+                         @includedTrackNames;
 
 pod2usage( -verbose => 2 ) if $help;
 
@@ -97,6 +99,10 @@ mkdir($nameDir) unless (-d $nameDir);
 my @refSeqs  = @{ $gdb->refSeqs   };
 my @tracks   = grep { !%includedTrackNames || $includedTrackNames{ $_->{label} } }
                @{ $gdb->trackList };
+
+if( $verbose ) {
+    print STDERR "Tracks:\n".join('', map "    $_->{label}\n", @tracks );
+}
 
 # open the root file; we lock this file while we're
 # reading the name lists, deleting all the old lazy-*
