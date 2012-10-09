@@ -19,6 +19,11 @@ generate-names.pl - generate a global index of feature names
 
 Data directory to process.  Default 'data/'.
 
+=item --tracks <trackname>[,...]
+
+Comma-separated list of which tracks to include in the names index.  If
+not passed, all tracks are indexed.
+
 =item --thresh <threshold>
 
 Optional LazyPatricia chunking threshold.  Default 200.  See
@@ -59,6 +64,7 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
 my %trackHash;
+my @includedTrackNames;
 my @tracksWithNames;
 
 my $outDir = "data";
@@ -68,7 +74,10 @@ my $help;
 GetOptions("dir|out=s" => \$outDir,
            "thresh=i" => \$thresh,
            "verbose+" => \$verbose,
+           'tracks=s' => \@includedTrackNames,
            "help|h|?" => \$help) or pod2usage();
+
+my %includedTrackNames = map { $_ => 1 } @includedTrackNames;
 
 pod2usage( -verbose => 2 ) if $help;
 
@@ -86,7 +95,8 @@ my $nameDir = catdir($outDir, "names");
 mkdir($nameDir) unless (-d $nameDir);
 
 my @refSeqs  = @{ $gdb->refSeqs   };
-my @tracks   = @{ $gdb->trackList };
+my @tracks   = grep { !%includedTrackNames || $includedTrackNames{ $_->{label} } }
+               @{ $gdb->trackList };
 
 # open the root file; we lock this file while we're
 # reading the name lists, deleting all the old lazy-*

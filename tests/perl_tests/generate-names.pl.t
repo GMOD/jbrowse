@@ -16,4 +16,11 @@ system $^X, 'bin/generate-names.pl', (
     );
 ok( ! $?, 'generate-names.pl also ran ok on volvox test data' );
 
+
+system $^X, 'bin/generate-names.pl', (
+    '--out'   => "$tempdir",
+    '--tracks' => 'ExampleFeatures,NameTest'
+    );
+ok( ! $?, 'generate-names.pl also ran ok with the --tracks option' );
+
 done_testing;
