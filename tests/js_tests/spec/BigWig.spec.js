@@ -49,7 +49,7 @@ require(['JBrowse/Store/BigWig','JBrowse/Model/XHRBlob'], function( BigWig, XHRB
                     expect(feature.get('start')).toBeGreaterThan( -1 );
                     expect(feature.get('end')).toBeLessThan( 40000 );
                 });
-                   console.log(wigData);
+                     //console.log(wigData);
             });
         });
 
