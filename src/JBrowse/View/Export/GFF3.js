@@ -165,10 +165,14 @@ return declare( ExportBase,
             var val = feature.get(tag);
             if( typeof val != 'string' && typeof val != 'number' )
                 return;
-            tag = this._gff3_reserved_attribute(tag) || tag.toLowerCase();
+            tag = this._gff3_reserved_attribute(tag) || this._lcFirst( tag );
             attrs[tag] = val;
         },this);
         return attrs;
+    },
+
+    _lcFirst: function( str ) {
+        return str.replace(/^[A-Z]/,function() { return str[0].toLowerCase(); });
     },
 
     /**
