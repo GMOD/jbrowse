@@ -51,6 +51,10 @@ var HTMLFeatures = declare( BlockBased, {
         this.padding = 5;
         this.trackPadding = args.trackPadding;
 
+        this.heightCache = {}; // cache for the heights of some
+                               // feature elements, indexed by the
+                               // complete className of the feature
+
         // connect the store and track loadSuccess and loadFailed events
         // to eachother
         dojo.connect( this.store, 'loadSuccess', this, 'loadSuccess' );
@@ -792,9 +796,21 @@ HTMLFeatures.extend({
      * @private
      */
     _centerFeatureElements: function( /**HTMLElement*/ featDiv ) {
+        var getHeight = this.config.disableHeightCache
+            ? function(child) { return child.offsetHeight || 0; }
+            : function( child ) {
+                var c = this.heightCache[ child.className ];
+                if( c )
+                    return c;
+                c  = child.offsetHeight || 0;
+                this.heightCache[ child.className ] = c;
+                return c;
+            };
+
         for( var i = 0; i< featDiv.childNodes.length; i++ ) {
             var child = featDiv.childNodes[i];
-            var h = child.offsetHeight || 0;
+            // cache the height of elements, for speed.
+            var h = getHeight.call(this,child);
             dojo.style( child, { top: ((this.glyphHeight-h)/2) + 'px', visibility: 'visible' });
          }
     },
