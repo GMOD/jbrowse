@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Greatly sped up rendering of HTML subfeatures by caching the
+   heights of subfeature HTML elements.
+
  * Added a vertical line cursor and labels showing the current
    basepair position of the mouse when hovering over the scale bar, or
    when doing a rubber-band zoom (Erik Derohanian) (issue #32).
