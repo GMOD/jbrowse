@@ -21,43 +21,39 @@ function parseGBConfig(data){
     var n = this.lines.length;
 
 
+    //Process each line
     for (var i = 0; i < n; i++){
-        if(this.regex.comment.test(this.lines[i])){
+        if(this.regex.comment.test(this.lines[i])){                     //      #this is a comment
             // do nothing, since it's a comment.
-        }else if(this.regex.param.test(this.lines[i])){
-            i = itIsParam(i);
-        }else if(this.regex.section.test(this.lines[i])){
+        }else if(this.regex.halfParam.test(this.lines[i])){             //      name = 
+            i = isMultiLine(i); // skips lines, so get where to continue
+        }else if(this.regex.param.test(this.lines[i])){                 //      name = value
+            isParam(i);
+        }else if(this.regex.section.test(this.lines[i])){               //      [section_name]
             isSection(i);
-        }else if(this.lines[i].length == 0 && this.section){
-            this.section = null;
-        };
+        }
     };
 
 
     return this.value; //Returns the JS object
 }
 
-function itIsParam(i){
-    if (this.regex.halfParam.test(this.lines[i])){
-        return multiLine (i);
-    }else{
-        var match = this.lines[i].match(this.regex.param);
-        if(this.section){
-            if (!isNaN(match[2])){
-                match[2] = parseInt(match[2]);
-            }
-            this.value[this.section][match[1].trim()] = match[2];
-        }else{
-            if (!isNaN(match[2].trim())){
-                match[2] = parseInt(match[2].trim());
-            }
-            this.value[match[1].trim()] = match[2].trim();
+function isParam(i){
+    var match = this.lines[i].match(this.regex.param);
+    if(this.section){
+        if (!isNaN(match[2])){
+            match[2] = parseInt(match[2]);
         }
-        return i; //don't change
+        this.value[this.section][match[1].trim()] = match[2];
+    }else{
+        if (!isNaN(match[2].trim())){
+            match[2] = parseInt(match[2].trim());
+        }
+        this.value[match[1].trim()] = match[2].trim();
     }
 }
 
-function multiLine (i){
+function isMultiLine (i){
     var multiLineNum = i+1;
     var tmpStrVal = '';
     while (typeof this.lines[multiLineNum] !== 'undefined' && (! ( this.regex.param.test(this.lines[multiLineNum])   || this.regex.section.test(this.lines[multiLineNum])  ))){
@@ -76,7 +72,7 @@ function multiLine (i){
     }else{
         this.value[match[1].trim()] = tmpStrVal;
     }
-    return multiLineNum - 1; //The next line it should read
+    return multiLineNum - 1; //The line it should continue at.
 }
 
 function isSection (i){
@@ -84,3 +80,4 @@ function isSection (i){
     this.value[match[1].trim()] = {};
     this.section = match[1].trim();
 }
+
