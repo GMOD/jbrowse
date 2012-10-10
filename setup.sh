@@ -75,7 +75,7 @@ echo -n "Building and installing BAM format support (samtools and Bio::DB::Sam) 
             set -x;
 
             if [ ! -e samtools ]; then
-                svn co https://samtools.svn.sourceforge.net/svnroot/samtools/trunk/samtools;
+                svn export https://samtools.svn.sourceforge.net/svnroot/samtools/trunk/samtools;
                 perl -i -pe 's/^CFLAGS=\s*/CFLAGS=-fPIC / unless /\b-fPIC\b/' samtools/Makefile;
             fi;
             make -C samtools -j3 lib;
