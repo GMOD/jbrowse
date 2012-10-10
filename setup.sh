@@ -31,6 +31,7 @@ echo -n "Formatting Volvox example data ...";
     bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa --out sample_data/json/volvox;
     bin/biodb-to-json.pl -v --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox;
     bin/add-track-json.pl docs/tutorial/data_files/volvox_microarray.bw.conf sample_data/json/volvox/trackList.json
+    bin/add-track-json.pl docs/tutorial/data_files/volvox-sorted.bam.conf sample_data/json/volvox/trackList.json
     bin/generate-names.pl -v --out sample_data/json/volvox;
 
     # also recreate some symlinks used by tests and such
