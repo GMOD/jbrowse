@@ -286,7 +286,7 @@ var BamFile = declare( null,
             record.quals = qseq;
 
             record.pos = pos;
-            record.mq = mq;
+            record.MQ = mq;
             record.readName = readName;
             record.segment = this.indexToChr[refID];
 

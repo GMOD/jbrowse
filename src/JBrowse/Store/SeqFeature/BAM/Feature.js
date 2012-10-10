@@ -48,7 +48,7 @@ return declare( null,
         // trying to determine orientation from 'XS' optional field
         data.strand = data.sam_XS == '-' ? -1 : 1;
 
-        data.score = data.sam_MQ;
+        data.score = data.sam_MQ || data.sam_mq;
         data.type = 'match';
         data.source = store.source;
         data.seq_id = data.sam_segment;
