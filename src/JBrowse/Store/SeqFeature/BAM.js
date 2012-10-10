@@ -120,13 +120,14 @@ var BAMStore = declare( SeqFeatureStore,
                 } else {
                     bam.chrToIndex['chr' + name] = i;
                 }
+
                 bam.indexToChr.push(name);
 
                 p = p + 8 + lName;
             }
 
             if( bam.indices ) {
-                this.loadSuccess();
+                this._estimateGlobalStats( dojo.hitch( this, 'loadSuccess' ) );
                 return;
             }
         }));
@@ -166,10 +167,49 @@ var BAMStore = declare( SeqFeatureStore,
                 }
             }
             if( bam.chrToIndex ) {
-                this.loadSuccess();
+                this._estimateGlobalStats( dojo.hitch( this, 'loadSuccess' ) );
                 return;
             }
         }));
+    },
+
+    /**
+     * Fetch a region of the current reference sequence and use it to
+     * estimate the feature density in the BAM file.
+     * @private
+     */
+    _estimateGlobalStats: function( finishCallback ) {
+
+        var statsFromInterval = function( refSeq, length, callback ) {
+            var start = refSeq.start;
+            var end = start+length;
+            this.bam.fetch( refSeq.name, start, end, dojo.hitch( this, function( records, error) {
+                if ( error ) {
+                    console.error( error );
+                    callback.call( this, length,  null, error );
+                }
+                else if( records ) {
+                    records = array.filter( records, function(r) { return r.pos >= start && r.pos <= end; } );
+                    callback.call( this, length,
+                                   {
+                                       featureDensity: records.length / length,
+                                       _statsSampleRecords: records.length,
+                                       _statsSampleInterval: length
+                                   });
+                }
+            }));
+        };
+
+        var maybeRecordStats = function( interval, stats, error ) {
+            if( stats._statsSampleRecords >= 300 || interval * 2 > this.refSeq.length || error ) {
+                this.globalStats = stats;
+                finishCallback();
+            } else {
+                statsFromInterval.call( this, this.refSeq, interval * 2, maybeRecordStats );
+            }
+        };
+
+        statsFromInterval.call( this, this.refSeq, 200, maybeRecordStats );
     },
 
     loadSuccess: function() {
