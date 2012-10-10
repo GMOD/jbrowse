@@ -117,10 +117,10 @@ return declare( null,
                         var da = new Float64Array( header, bwg.totalSummaryOffset+8, 4 );
                         var s = {
                             basesCovered: ua[0]<<32 | ua[1],
-                            minVal: da[0],
-                            maxVal: da[1],
-                            sumData: da[2],
-                            sumSquares: da[3]
+                            scoreMin: da[0],
+                            scoreMax: da[1],
+                            scoreSum: da[2],
+                            scoreSumSquares: da[3]
                         };
                         bwg._stats = s;
                         // rest of these will be calculated on demand in getGlobalStats
@@ -141,17 +141,13 @@ return declare( null,
     getGlobalStats: function() {
         var s = this._stats;
         if( !s )
-            return undefined;
+            return {};
 
         // calc mean and standard deviation if necessary
-        if( !( 'mean' in s ))
-            s.mean = s.sumData / s.basesCovered;
-        if( !( 'stdDev' in s ))
-            s.stdDev = this._calcStdFromSums( s.sumData, s.sumSquares, s.basesCovered );
-
-        // synonyms for compat
-        s.global_min = s.minVal;
-        s.global_max = s.maxVal;
+        if( !( 'scoreMean' in s ))
+            s.scoreMean = s.scoreSum / s.basesCovered;
+        if( !( 'scoreStdDev' in s ))
+            s.scoreStdDev = this._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.basesCovered );
 
         return s;
     },

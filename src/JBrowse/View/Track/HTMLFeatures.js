@@ -137,9 +137,10 @@ HTMLFeatures.extend({
     },
 
     loadSuccess: function() {
-        this.labelScale = this.store.density * this.config.style.labelScale;
-        this.subfeatureScale = this.store.density * this.config.style.subfeatureScale;
-        this.descriptionScale = this.store.density * this.config.style.descriptionScale;;
+        var density = this.store.getGlobalStats().featureDensity;
+        this.labelScale = density * this.config.style.labelScale;
+        this.subfeatureScale = density * this.config.style.subfeatureScale;
+        this.descriptionScale = density * this.config.style.descriptionScale;;
         this.inherited(arguments);
     },
 
@@ -358,10 +359,12 @@ HTMLFeatures.extend({
 
     fillBlock: function(blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth, containerStart, containerEnd) {
 
+        var stats = this.store.getGlobalStats();
+
         // only update the label once for each block size
         var blockBases = Math.abs( leftBase-rightBase );
         if( this._updatedLabelForBlockSize != blockBases ){
-            if ( scale < (this.store.density * this.config.style.histScale)) {
+            if ( scale < (stats.featureDensity * this.config.style.histScale)) {
                 this.setLabel(this.key + ' <span class="feature-density">per ' + Util.addCommas( Math.round( blockBases / this.numBins)) + ' bp</span>');
             } else {
                 this.setLabel(this.key);
@@ -371,7 +374,7 @@ HTMLFeatures.extend({
 
         //console.log("scale: %d, histScale: %d", scale, this.histScale);
         if (this.store.histograms &&
-            (scale < (this.store.density * this.config.style.histScale)) ) {
+            (scale < (stats.featureDensity * this.config.style.histScale)) ) {
 	    this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
                           containerStart, containerEnd);
         } else {

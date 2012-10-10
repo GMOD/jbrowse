@@ -50,9 +50,9 @@ NCList.prototype.load = function() {
 
 NCList.prototype.loadSuccess = function( trackInfo, url ) {
 
-    this.count = trackInfo.featureCount;
+    this.globalStats.featureCount = trackInfo.featureCount;
     // average feature density per base
-    this.density = trackInfo.featureCount / this.refSeq.length;
+    this.globalStats.featureDensity = trackInfo.featureCount / this.refSeq.length;
 
     this.loadNCList( trackInfo, url );
 

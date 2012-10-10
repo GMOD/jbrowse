@@ -33,7 +33,12 @@ var Fixed = function(args) {
 Fixed.prototype = new Store('');
 
 Fixed.prototype.loadSuccess = function(o) {
-    this.stats = o.stats;
+    this.globalStats = o.stats;
+    //backcompat
+    if( ! ('scoreMin' in this.globalStats ) )
+        this.globalStats.scoreMin = this.globalStats.global_min;
+    if( ! ('scoreMax' in this.globalStats ) )
+        this.globalStats.scoreMax = this.globalStats.global_max;
 
     //tileWidth: width, in pixels, of the tiles
     this.tileWidth = o.tileWidth;

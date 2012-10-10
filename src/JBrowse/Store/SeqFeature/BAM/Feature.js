@@ -57,7 +57,6 @@ var Feature = declare( null,
         if( cigar ) {
             this.data.subfeatures.push.apply( this.data.subfeatures, this._cigarToSubfeats( cigar, this ) );
         }
-        console.log( this.data );
     },
 
     _dataFromBAMRecord: function( record ) {

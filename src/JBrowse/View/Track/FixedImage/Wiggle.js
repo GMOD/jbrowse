@@ -47,8 +47,8 @@ var Wiggle = declare( FixedImage,
     makeWiggleYScale: function() {
         // if we are not loaded yet, we won't have any metadata, so just return
         try {
-            this.minDisplayed = this.store.getStats().global_min;
-            this.maxDisplayed = this.store.getStats().global_max;
+            this.minDisplayed = this.store.getGlobalStats().scoreMin;
+            this.maxDisplayed = this.store.getGlobalStats().scoreMax;
         } catch (x) {
             return;
         }

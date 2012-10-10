@@ -12,6 +12,7 @@ return declare(null,
      * @constructs
      */
     constructor: function( args ) {
+        this.globalStats = {};
         if( ! args )
             return;
 
@@ -35,8 +36,8 @@ return declare(null,
 	            });
     },
 
-    getStats: function() {
-        return this.stats;
+    getGlobalStats: function() {
+        return this.globalStats;
     },
 
     setLoaded: function() {

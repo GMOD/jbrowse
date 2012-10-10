@@ -208,10 +208,12 @@ return {
         if( typeof this.config.maxExportSpan == 'number' || typeof this.config.maxExportSpan == 'string' ) {
             return l.end - l.start + 1 <= this.config.maxExportSpan;
         }
-        // if we know the store's feature density, then use that with
-        // a limit of maxExportFeatures or 10000 features
-        else if( this.store.density ) {
-            return this.store.density*(l.end - l.start) <= ( this.config.maxExportFeatures || 5000 );
+        else {
+            // if we know the store's feature density, then use that with
+            // a limit of maxExportFeatures or 5,000 features
+            var storeStats = this.store.getGlobalStats();
+            if( storeStats.featureDensity )
+                return storeStats.featureDensity*(l.end - l.start) <= ( this.config.maxExportFeatures || 5000 );
         }
 
         // otherwise, i guess we can export
