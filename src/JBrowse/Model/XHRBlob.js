@@ -1,7 +1,8 @@
 define( [ 'dojo/_base/declare',
-          'JBrowse/Model/FileBlob'
+          'JBrowse/Model/FileBlob',
+          'JBrowse/Store/LRUCache'
         ],
-        function( declare, FileBlob ) {
+        function( declare, FileBlob, LRUCache ) {
 var XHRBlob = declare( FileBlob,
 /**
  * @lends JBrowse.Model.XHRBlob.prototype
@@ -32,6 +33,12 @@ var XHRBlob = declare( FileBlob,
             this.end = end;
         }
         this.opts = opts;
+
+        this.cache = opts.cache
+            || new LRUCache({
+                                fillCallback: dojo.hitch(this, '_fetch')
+                            });
+        this.opts.cache = this.cache;
     },
 
     slice: function(s, l) {
@@ -49,7 +56,25 @@ var XHRBlob = declare( FileBlob,
         return new XHRBlob(this.url, ns, ne, this.opts);
     },
 
-    fetch: function(callback, attempt, truncatedLength) {
+    fetch: function( callback ) {
+        var url = this.url,
+            end = this.end,
+            start = this.start;
+
+        var request = {
+            url: url,
+            end: end,
+            start: start,
+            toString: function() {
+                return url+" (bytes "+start+".."+end+")";
+            }
+        };
+
+        // note that the cache has `_fetch` configured as its fill callback
+        this.cache.get( request, callback );
+    },
+
+    _fetch: function( request, callback, attempt, truncatedLength) {
         var thisB = this;
 
         attempt = attempt || 1;
@@ -60,12 +85,12 @@ var XHRBlob = declare( FileBlob,
 
         var req = new XMLHttpRequest();
         var length;
-        req.open('GET', this.url, true);
+        req.open('GET', request.url, true);
         if( req.overrideMimeType )
             req.overrideMimeType('text/plain; charset=x-user-defined');
-        if (this.end) {
-            req.setRequestHeader('Range', 'bytes=' + this.start + '-' + this.end);
-            length = this.end - this.start + 1;
+        if (request.end) {
+            req.setRequestHeader('Range', 'bytes=' + request.start + '-' + request.end);
+            length = request.end - request.start + 1;
         }
         req.responseType = 'arraybuffer';
         req.onreadystatechange = function() {
@@ -88,7 +113,7 @@ var XHRBlob = declare( FileBlob,
                         try{
                             var r = req.responseText;
                             if (length && length != r.length && (!truncatedLength || r.length != truncatedLength)) {
-                                return thisB.fetch( callback, attempt + 1, r.length );
+                                return thisB._fetch( request, callback, attempt + 1, r.length );
                             } else {
                                 return callback.call( thisB, thisB._stringToBuffer(req.responseText) );
                             }
@@ -98,7 +123,7 @@ var XHRBlob = declare( FileBlob,
                         }
                     }
                 } else {
-                    return thisB.fetch(callback, attempt + 1);
+                    return thisB._fetch( request, callback, attempt + 1);
                 }
             }
             return null;

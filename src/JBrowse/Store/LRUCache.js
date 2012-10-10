@@ -21,7 +21,7 @@ return declare( null,
      */
     constructor: function( args ) {
         this.fill = args.fillCallback;
-        this.maxSize = args.maxSize || 100000;
+        this.maxSize = args.maxSize || 1000000;
 
         this._size = args.sizeFunction || this._size;
         this._keyString = args.keyFunction || this._keyString;
@@ -36,19 +36,33 @@ return declare( null,
         this._cacheNewest = null;
     },
 
-    get: function( inKey ) {
+    _log: function() {
+        //console.log.apply( console, arguments );
+    },
+
+    get: function( inKey, callback ) {
         var key = this._keyString( inKey );
 
         var record = this._cacheByKey[ key ];
         if( !record ) {
             // call our fill callback if necessary
+            this._log( 'cache miss', key );
+
             if( this.fill ) {
-                var val = this.fill( inKey );
-                if( val )
-                    return this.set( inKey, val );
+                this.fill( inKey, dojo.hitch(this, function( value ) {
+                    if( value ) {
+                        this.set( inKey, value );
+                    }
+                    callback( value );
+                }));
             }
-            return null;
+            else {
+                callback( null );
+            }
+            return;
         }
+
+        this._log( 'cache hit', key, record.value );
 
         // take it out of the linked list
         if( record.prev )
@@ -63,14 +77,15 @@ return declare( null,
             this._cacheNewest.next = record;
         this._cacheNewest = record;
 
-        return record.value;
+        callback( record.value );
     },
 
     set: function( inKey, value ) {
         var key = this._keyString( inKey );
         if( this._cacheByKey[key] ) {
-            return this.get( inKey );
+            return;
         }
+        this._log( 'cache fill', key, value );
 
         // make a cache record for it
         var record = {
@@ -83,11 +98,12 @@ return declare( null,
         this._prune( record.size );
 
         // put it in the byKey structure
-        this._cacheByKey[key] = value;
+        this._cacheByKey[key] = record;
 
         // put it in the doubly-linked list
         record.prev = this._cacheNewest;
-        this._cacheNewest.next = record;
+        if( this._cacheNewest )
+            this._cacheNewest.next = record;
         this._cacheNewest = record;
         if( ! this._cacheOldest )
             this._cacheOldest = record;
@@ -96,7 +112,7 @@ return declare( null,
         this.size += record.size;
         this.itemCount++;
 
-        return value;
+        return;
     },
 
     _keyString: function( key ) {
@@ -110,9 +126,23 @@ return declare( null,
     },
 
     _size: function( value ) {
-        var type = typeof key;
-        if( typeof value == 'object' ) {
-            throw 'not implemented';
+        var type = typeof value;
+        if( type == 'object' ) {
+            var sizeType = typeof value.size;
+            if( sizeType == 'number' ) {
+                return sizeType;
+            }
+            else if( sizeType == 'function' ) {
+                return value.size();
+            } else {
+                var sum = 0;
+                for( var k in value ) {
+                    if( value.hasOwnProperty( k ) ) {
+                        sum += this._size( value[k] );
+                    }
+                }
+            }
+            return sum;
         } else {
             return 1;
         }
