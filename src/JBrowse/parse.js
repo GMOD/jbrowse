@@ -54,17 +54,20 @@ function isParam(i){
 }
 
 function isMultiLine (i){
-    var multiLineNum = i+1;
+    line = this.lines; rx = this.regex;
+    var lineNum = i+1;
     var tmpStrVal = '';
-    while (typeof this.lines[multiLineNum] !== 'undefined' && (! ( this.regex.param.test(this.lines[multiLineNum])   || this.regex.section.test(this.lines[multiLineNum])  ))){
-        if (! ( this.regex.comment.test(this.lines[multiLineNum]) || this.regex.emptyLine.test(this.lines[multiLineNum]) )){
+    // while (line is defined, not a parameter or function)
+    while (typeof line[lineNum] !== 'undefined' && (! ( rx.param.test(line[lineNum]) || rx.section.test(line[lineNum])))){
+        //if (line not comment or empty)
+        if (! ( rx.comment.test(line[lineNum]) || rx.emptyLine.test(line[lineNum]) )){
             if (tmpStrVal === ''){
-                tmpStrVal += this.lines[multiLineNum].trim();
+                tmpStrVal += line[lineNum].trim();
             } else {
-                tmpStrVal = tmpStrVal + ' ' + this.lines[multiLineNum].trim();
+                tmpStrVal = tmpStrVal + ' ' + line[lineNum].trim();
             }
         }
-        multiLineNum++;
+        lineNum++;
     }
     var match = this.lines[i].match(this.regex.param);
     if(this.section){
@@ -72,7 +75,7 @@ function isMultiLine (i){
     }else{
         this.value[match[1].trim()] = tmpStrVal;
     }
-    return multiLineNum - 1; //The line it should continue at.
+    return lineNum - 1; //The line it should continue at.
 }
 
 function isSection (i){
