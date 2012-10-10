@@ -3,7 +3,11 @@ define( [ 'jszlib/inflate',
         ],
         function( inflate, arrayCopy ) {
 
-return {
+/**
+ * @lends JBrowse.Store.SeqFeature.BAM.Util
+ * Package of utility functions used in various places in the BAM code.
+ */
+var Utils = {
 
     readInt: function(ba, offset) {
         return (ba[offset + 3] << 24) | (ba[offset + 2] << 16) | (ba[offset + 1] << 8) | (ba[offset]);
@@ -48,5 +52,7 @@ return {
          }
     }
 };
+
+return Utils;
 
 });

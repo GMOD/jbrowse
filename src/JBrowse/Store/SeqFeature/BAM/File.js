@@ -21,7 +21,7 @@ function reg2bin(beg, end)
 
 /* calculate the list of bins that may overlap with region [beg,end) (zero-based) */
 var MAX_BIN = (((1<<18)-1)/7);
-function reg2bins(beg, end) 
+function reg2bins(beg, end)
 {
     var i = 0, k, list = [];
     --end;
@@ -69,7 +69,22 @@ var BamRecord = declare( null, {} );
 var readInt = BAMUtil.readInt;
 var readShort = BAMUtil.readInt;
 
-var BamFile = declare( null, {
+var BamFile = declare( null,
+
+
+/**
+ * @lends JBrowse.Store.SeqFeature.BAM.File
+ */
+{
+
+    /**
+     * Low-level BAM file reading code.
+     *
+     * Adapted by Robert Buels from bam.js in the Dalliance Genome
+     * Explorer which is copyright Thomas Down 2006-2010
+     * @constructs
+     */
+    constructor: function() {},
 
     blocksForRange: function(refId, min, max) {
         var index = this.indices[refId];
@@ -118,7 +133,7 @@ var BamFile = declare( null, {
             }
         }
         // dlog('Lowest LB = ' + lowest);
-        
+
         var prunedOtherChunks = [];
         if (lowest != null) {
             for (var i = 0; i < otherChunks.length; ++i) {
@@ -221,7 +236,7 @@ var BamFile = declare( null, {
 
             var refID = readInt(ba, offset + 4);
             var pos = readInt(ba, offset + 8);
-            
+
             var bmn = readInt(ba, offset + 12);
             var bin = (bmn & 0xffff0000) >> 16;
             var mq = (bmn & 0xff00) >> 8;
@@ -230,19 +245,19 @@ var BamFile = declare( null, {
             var flag_nc = readInt(ba, offset + 16);
             var flag = (flag_nc & 0xffff0000) >> 16;
             var nc = flag_nc & 0xffff;
-            
+
             var lseq = readInt(ba, offset + 20);
-            
+
             var nextRef  = readInt(ba, offset + 24);
             var nextPos = readInt(ba, offset + 28);
-            
+
             var tlen = readInt(ba, offset + 32);
-            
+
             var readName = '';
             for (var j = 0; j < nl-1; ++j) {
                 readName += String.fromCharCode(ba[offset + 36 + j]);
             }
-            
+
             var p = offset + 36 + nl;
 
             var cigar = '';
@@ -252,7 +267,7 @@ var BamFile = declare( null, {
                 p += 4;
             }
             record.cigar = cigar;
-            
+
             var seq = '';
             var seqBytes = (lseq + 1) >> 1;
             for (var j = 0; j < seqBytes; ++j) {
@@ -269,7 +284,7 @@ var BamFile = declare( null, {
             }
             p += lseq;
             record.quals = qseq;
-            
+
             record.pos = pos;
             record.mq = mq;
             record.readName = readName;

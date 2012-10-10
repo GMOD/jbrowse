@@ -3,8 +3,20 @@ define( ['dojo/_base/declare'
         function( declare ) {
 
 
-return declare( null, {
-    constructor: function( store, record ) {
+return declare( null,
+
+/**
+ * @lends JBrowse.Store.BAM.Feature
+ */
+{
+
+    /**
+     * Feature object used for the JBrowse BAM backend.
+     * @param store the BAM store this feature comes from
+     * @param record the BAM record (a plain object) containing the data for this feature
+     * @constructs
+     */
+    constructor: function( /**JBrowse.Store.SeqFeature.BAM*/ store, /**Object*/ record ) {
         var data = {};
 
         // copy all of the fields verbatim to start, for things people might want

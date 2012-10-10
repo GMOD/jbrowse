@@ -21,7 +21,17 @@ var BAI_MAGIC = 21578050;
 var dlog = function(){ console.log.apply(console, arguments); };
 
 var BAMStore = declare( SeqFeatureStore,
+
+/**
+ * @lends JBrowse.Store.SeqFeature.BAM
+ */
 {
+    /**
+     * Data backend for reading feature data directly from a
+     * web-accessible BAM file.
+     *
+     * @constructs
+     */
     constructor: function( args ) {
         this.bam = new BAMFile();
 
