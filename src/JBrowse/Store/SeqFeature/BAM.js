@@ -241,6 +241,12 @@ var BAMStore = declare( SeqFeatureStore,
         this.bam.fetch( this.refSeq.name, start, end, function( records, error) {
                 if( records ) {
                     array.forEach( records, function( record ) {
+                        // skip if this alignment does not actually overlap this range
+                        var rEnd = record.lref ? record.pos + record.lref : record.seq ? record.pos + record.seq.length : undefined;
+                        if (rEnd <= start || record.pos >= end )
+                            return;
+
+                        // make a new feature and return it
                         var feature = new BAMFeature({ store: bamStore, record: record });
                         if( ! bamStore._featureKeys ) {
                             bamStore._setFeatureKeys( feature );
