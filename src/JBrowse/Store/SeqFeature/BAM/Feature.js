@@ -3,7 +3,7 @@ define( ['dojo/_base/declare'
         function( declare ) {
 
 
-return declare( null,
+var Feature = declare( null,
 
 /**
  * @lends JBrowse.Store.BAM.Feature
@@ -12,26 +12,18 @@ return declare( null,
 
     /**
      * Feature object used for the JBrowse BAM backend.
-     * @param store the BAM store this feature comes from
-     * @param record the BAM record (a plain object) containing the data for this feature
+     * @param args.store the BAM store this feature comes from
+     * @param args.record optional BAM record (a plain object) containing the data for this feature
      * @constructs
      */
-    constructor: function( /**JBrowse.Store.SeqFeature.BAM*/ store, /**Object*/ record ) {
-        var data = {};
+    constructor: function( args ) {
+        this.store = args.store;
 
-        // copy all of the fields verbatim to start, for things people might want
-        for( var k in record ) {
-            if( record.hasOwnProperty(k) )
-                data['sam_'+k] = record[k];
-        }
+        var data = args.record ? this._dataFromBAMRecord( args.record ) : args.data;
 
         // figure out start and end
-        data.start = data.sam_pos;
-        if( data.sam_lref ) {
-            data.end = data.sam_pos + data.sam_lref;
-        } else {
-            data.end = data.sam_pos + data.sam_seq.length;
-        }
+        data.start = data.start || data.sam_pos;
+        data.end = data.end || ( data.sam_lref ? data.sam_pos + data.sam_lref : data.sam_seq ? data.sam_pos + data.sam_seq.length : undefined );
 
         /*  can extract "SEQ reverse complement" from bitwise flag, 
          *    but that gives orientation of the _read sequence_ relative to the reference, 
@@ -49,68 +41,99 @@ return declare( null,
         data.strand = data.sam_XS == '-' ? -1 : 1;
 
         data.score = data.sam_MQ || data.sam_mq;
-        data.type = 'match';
-        data.source = store.source;
+        data.type = data.type || 'match';
+        data.source = args.store.source;
         data.seq_id = data.sam_segment;
 
         data.name = data.sam_readName;
 
         this.data = data;
-        this.store = store;
-        this._uniqueID = data.name+':'+data.start+'..'+data.end;
+        this._subCounter = 0;
+        this._uniqueID = args.parent ? args.parent._uniqueID + '-' + ++args.parent._subCounter
+                                     : this.data.name+' at '+ data.seq_id + ':' + data.start + '..' + data.end;
+
+        var cigar = data.sam_CIGAR || data.sam_cigar;
+        this.data.subfeatures = [];
+        if( cigar ) {
+            this.data.subfeatures.push.apply( this.data.subfeatures, this._cigarToSubfeats( cigar, this ) );
+        }
+        console.log( this.data );
     },
 
+    _dataFromBAMRecord: function( record ) {
+        var data = {};
 
-// BamUtils.convertBamRecord = function (br, make_cigar_subfeats)  {
-//     var feat = [];
-//     var arep = BamUtils.attrs;
-//     // var fields = this.fields;
-//     // feat[fields.start] = br.pos;
+        // copy all of the fields verbatim to start, for things people might want
+        for( var k in record ) {
+            if( record.hasOwnProperty(k) )
+                data['sam_'+k] = record[k];
+        }
 
-//     feat[BamUtils.CINDEX] = BamUtils.feat_class_index;
-//     feat[BamUtils.START] = br.pos;
-    
-//     // lref calc'd in dalliance/js/bam.js  BamFile.readBamRecords() function
-//     if (br.lref)  {  // determine length based on CIGAR (lref is calc'd based on CIGAR string)
-// 	feat[BamUtils.END] = br.pos + br.lref;
-//     }
-//     else  {  // determin length based on read length (no CIGAR found to calc lref)
-// 	feat[BamUtils.END] = br.pos + br.seq.length;
-//     }
-//     //feat[END] = br.pos + br.lref;
-//     // feat.segment = br.segment;
-//     // feat.type = 'bam';
+        return data;
+    },
 
-//     // trying to determine orientation from 'XS' optional field
-//     if (br.XS === '-') { feat[BamUtils.STRAND] = -1; }
-//     else  { feat[BamUtils.STRAND] = 1; }
-//     // var reverse = ((br.flag & 0x10) != 0);
-//     // feat[BamUtils.STRAND] = reverse ? -1 : 1;
-//     // feat[BamUtils.STRAND] = 1; // just calling starnd as forward for now
+    /**
+     *  take a cigar string, and initial position, return an array of subfeatures
+     */
+    _cigarToSubfeats: function(cigar, parent)    {
+        var subfeats = [];
+        var lops = cigar.match(/\d+/g);
+        var ops = cigar.match(/\D/g);
+        // console.log(cigar); console.log(ops); console.log(lops);
+        var min = parent.get('start');
+        var max;
+        for (var i = 0; i < ops.length; i++)  {
+            var lop = parseInt(lops[i]);  // operation length
+            var op = ops[i];  // operation type
+            // converting "=" to "E" to avoid possible problems later with non-alphanumeric type name
+            if (op === "=")  { op = "E"; }
 
-//     // simple ID, just same as readName
-//     // feat[BamUtils.ID] = br.readName;
-
-//     // or possibly uniquify name by combining name, start, end (since read pairs etc. can have same readName):
-//     feat[BamUtils.ID] = br.readName + "/" + feat[BamUtils.START] + "-" + feat[BamUtils.END];
-
-//     // or to really guarantee uniqueness, combine name, start, end, cigar string
-//     //     since different alignments of same read could have identical start and end, but 
-//     //     differing alignment in between (and therefore different CIGAR string)
-//     // feat[BamUtils.ID] = br.readName + "/" + feat[BamUtils.START] + "-" + feat[BamUtils.END] + "/" + feat[BamUtils.CIGAR];
-
-//     // feat.notes = ['Sequence=' + br.seq, 'CIGAR=' + br.cigar, 'MQ=' + br.mq];
-//     // feat.seq = br.seq;  // not having seq field in feat for now
-//     feat[BamUtils.CIGAR] = br.cigar;   // cigar already translated from int array 
-//     if (make_cigar_subfeats)  {
-// 	BamUtils.createSubfeats(feat);
-//     }
+            switch (op) {
+            case 'M':
+            case 'D':
+            case 'N':
+            case 'E':
+            case 'X':
+                max = min + lop;
+                break;
+            case 'I':
+                max = min;
+                break;
+            case 'P':  // not showing padding deletions (possibly change this later -- could treat same as 'I' ?? )
+            case 'H':  // not showing hard clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
+            case 'S':  // not showing soft clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
+                break;
+                // other possible cases
+            }
+            var subfeat = new Feature({
+                store: this.store,
+                data: {
+                    type: 'match_part',
+                    start: min,
+                    end: max,
+                    strand: parent.get('strand'),
+                    sam_CIGAR_OP: op,
+                    sam_CIGAR_LEN: lop
+                },
+                parent: this
+            });
+            if (op !== 'N')  {
+                subfeats.push(subfeat);
+            }
+            min = max;
+        }
+        return subfeats;
+    },
 
     get: function(name) {
         return this.data[ name ];
     },
+
     tags: function() {
         return this.store.featureKeys();
     }
+
 });
+
+return Feature;
 });

@@ -201,7 +201,7 @@ var BAMStore = declare( SeqFeatureStore,
         this.bam.fetch( this.refSeq.name, start, end, function( records, error) {
                 if( records ) {
                     array.forEach( records, function( record ) {
-                        var feature = new BAMFeature( bamStore, record );
+                        var feature = new BAMFeature({ store: bamStore, record: record });
                         if( ! bamStore._featureKeys ) {
                             bamStore._setFeatureKeys( feature );
                         }
