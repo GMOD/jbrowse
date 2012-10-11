@@ -36,6 +36,7 @@ var XHRBlob = declare( FileBlob,
 
         this.cache = opts.cache
             || new LRUCache({
+                                name: 'XHRBlob cache',
                                 fillCallback: dojo.hitch(this, '_fetch')
                             });
         this.opts.cache = this.cache;

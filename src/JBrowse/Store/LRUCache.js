@@ -24,6 +24,8 @@ return declare( null,
         this.fill = args.fillCallback;
         this.maxSize = args.maxSize || 1000000;
 
+        this.name = args.name || 'cache';
+
         this._size = args.sizeFunction || this._size;
         this._keyString = args.keyFunction || this._keyString;
 
@@ -42,6 +44,7 @@ return declare( null,
     },
 
     _log: function() {
+        // arguments[0] = this.name+' '+arguments[0];
         // if( typeof arguments[0] == 'string' )
         //     while( arguments[0].length < 15 )
         //         arguments[0] += ' ';
@@ -56,14 +59,14 @@ return declare( null,
         if( !record ) {
             // call our fill callback if necessary
 
-            this._log( 'cache miss', key );
+            this._log( 'miss', key );
 
             this._attemptFill( inKey, key, callback );
 
             return;
         }
 
-        this._log( 'cache hit', key, record.value );
+        this._log( 'hit', key, record.value );
 
         // take it out of the linked list
         if( record.prev )
@@ -91,7 +94,7 @@ return declare( null,
                     delete this._inProgressFills[ key ];
 
                     if( value ) {
-                        this._log( 'cache fill', key );
+                        this._log( 'fill', key );
                         this.set( inKey, value );
                     }
                     array.forEach( fillRecord.callbacks, function( cb ) {
@@ -102,7 +105,7 @@ return declare( null,
             }
         }
         else {
-            this._log( "cache can't fill", key );
+            this._log( "can't fill", key );
             callback( undefined );
         }
     },
@@ -119,7 +122,7 @@ return declare( null,
             key: key,
             size: this._size( value )
         };
-        this._log( 'cache set', key, record, this.size );
+        this._log( 'set', key, record, this.size );
 
         // evict items if necessary
         this._prune( record.size );
@@ -184,7 +187,7 @@ return declare( null,
         while( this.size + (newItemSize||0) > this.maxSize ) {
             var oldest = this._cacheOldest;
             if( oldest ) {
-                this._log( 'cache evict', oldest );
+                this._log( 'evict', oldest );
 
                 // update the oldest and newest pointers
                 if( ! oldest.next ) // if this was also the newest
@@ -209,8 +212,8 @@ return declare( null,
                 this.itemCount--;
                 this.size -= oldest.size;
             } else {
-                // should not be reached
-                console.error("cache error!");
+                // should usually not be reached
+                console.error( this.name + " eviction error", this.size, newItemSize );
                 return;
             }
         }
