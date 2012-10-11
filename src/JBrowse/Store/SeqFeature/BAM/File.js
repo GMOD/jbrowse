@@ -195,6 +195,7 @@ var BamFile = declare( null,
             }
         }
 
+        // toString function is used by the cache for making cache keys
         chunks.toString = function() {
             var str = '';
             array.forEach( this, function(c) {
@@ -205,7 +206,8 @@ var BamFile = declare( null,
 
         this.recordCache = this.recordCache || new LRUCache({
             name: 'bamRecordCache',
-            fillCallback: dojo.hitch(this, '_fetchChunkRecords' )
+            fillCallback: dojo.hitch(this, '_fetchChunkRecords' ),
+            maxSize: 5000000 // cache up to 5 quasi-MB of BAM records
         });
 
         this.recordCache.get( chunks, function( records ) {
