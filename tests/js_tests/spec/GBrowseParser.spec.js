@@ -49,6 +49,7 @@ require(['dojo','JBrowse/parse'], function (parse) {
             expect(gbConfig['DM_BAC']['citation' ]).toBe('BAC ends from the \'POTATO-B-01-100-110KB\' library aligned using SSAHA2. The clone ends pair correctly (solid connector) or not (dashed connector), and are color coded by insert-size.  Provided by Dan Bolser, <a href="http://www.compbio.dundee.ac.uk/">University of Dundee</a>.');
 
             expect(gbConfig['sub']['section']['giant word']).toBe('Antidisestablishmentarianism');
+            expect(gbConfig['sub']['section']['multiline']).toBe('herp derp');
 
         });
     });
