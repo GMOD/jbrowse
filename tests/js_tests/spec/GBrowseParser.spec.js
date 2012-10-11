@@ -48,6 +48,8 @@ require(['dojo','JBrowse/parse'], function (parse) {
             expect(gbConfig['DM_BAC']['feature'  ]).toBe('\"BAC_clone:DBolser_Dundee_BES_SSAHA_dm_bes_sg\" \"BAC_clone:DBolser_Dundee_BES_SSAHA_dm_bes_sb\" \"BAC_clone:DBolser_Dundee_BES_SSAHA_dm_bes_lg\" \"BAC_clone:DBolser_Dundee_BES_SSAHA_dm_bes_lb\" \"BAC_clone:DBolser_Dundee_BES_SSAHA_dm_bes_hg\" \"BAC_clone:DBolser_Dundee_BES_SSAHA_dm_bes_hb\"');
             expect(gbConfig['DM_BAC']['citation' ]).toBe('BAC ends from the \'POTATO-B-01-100-110KB\' library aligned using SSAHA2. The clone ends pair correctly (solid connector) or not (dashed connector), and are color coded by insert-size.  Provided by Dan Bolser, <a href="http://www.compbio.dundee.ac.uk/">University of Dundee</a>.');
 
+            expect(gbConfig['sub']['section']['giant word']).toBe('Antidisestablishmentarianism');
+
         });
     });
 });
