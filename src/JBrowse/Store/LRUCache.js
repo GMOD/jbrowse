@@ -43,37 +43,56 @@ return declare( null,
         this._inProgressFills = {};
     },
 
-
     get: function( inKey, callback ) {
+
         var key = this._keyString( inKey );
-
         var record = this._cacheByKey[ key ];
-        if( !record ) {
-            // call our fill callback if necessary
 
+        if( !record ) {
             this._log( 'miss', key );
 
+            // call our fill callback if we can
             this._attemptFill( inKey, key, callback );
-
             return;
+
+        } else {
+            this._log( 'hit', key, record.value );
+
+            // take it out of the linked list
+            this._llRemove( record );
+
+            // add it back into the list as newest
+            this._llPush( record );
+
+            callback( record.value );
         }
+    },
 
-        this._log( 'hit', key, record.value );
-
-        // take it out of the linked list
+    // take a record out of the LRU linked list
+    _llRemove: function( record ) {
         if( record.prev )
             record.prev.next = record.next;
         if( record.next )
             record.next.prev = record.prev;
 
-        // add it back into the list as newest
-        record.next = null;
-        record.prev = this._cacheNewest;
-        if( this._cacheNewest )
-            this._cacheNewest.next = record;
-        this._cacheNewest = record;
+        if( this._cacheNewest === record )
+            this._cacheNewest = record.prev;
 
-        callback( record.value );
+        if( this._cacheOldest === record )
+            this._cacheOldest = record.next;
+
+        record.prev = null;
+        record.next = null;
+    },
+
+    _llPush: function( record ) {
+        if( this._cacheNewest ) {
+            this._cacheNewest.next = record;
+            record.prev = this._cacheNewest;
+        }
+        this._cacheNewest = record;
+        if( ! this._cacheOldest )
+            this._cacheOldest = record;
     },
 
     _attemptFill: function( inKey, key, callback ) {
@@ -82,8 +101,9 @@ return declare( null,
             fillRecord.callbacks.push( callback );
             if( ! fillRecord.running ) {
                 fillRecord.running = true;
-                this.fill( inKey, dojo.hitch( this, function( value ) {
+                this.fill( inKey, dojo.hitch( this, function( key, inKey, fillRecord, value ) {
                     delete this._inProgressFills[ key ];
+                    fillRecord.running = false;
 
                     if( value ) {
                         this._log( 'fill', key );
@@ -92,9 +112,9 @@ return declare( null,
                     array.forEach( fillRecord.callbacks, function( cb ) {
                                        cb.call(this, value);
                                    }, this );
-                }));
-                this._inProgressFills[ key ] = fillRecord;
+                }, key, inKey, fillRecord ));
             }
+            this._inProgressFills[ key ] = fillRecord;
         }
         else {
             this._log( "can't fill", key );
@@ -116,7 +136,7 @@ return declare( null,
         };
 
         if( record.size > this.maxSize ) {
-            this._warn( 'not caching', key, '('+record.size + ' > ' + this.maxSize+')' );
+            this._warn( 'cannot fit', key, '('+record.size + ' > ' + this.maxSize+')' );
             return;
         }
 
@@ -129,12 +149,7 @@ return declare( null,
         this._cacheByKey[key] = record;
 
         // put it in the doubly-linked list
-        record.prev = this._cacheNewest;
-        if( this._cacheNewest )
-            this._cacheNewest.next = record;
-        this._cacheNewest = record;
-        if( ! this._cacheOldest )
-            this._cacheOldest = record;
+        this._llPush( record );
 
         // update our total size and item count
         this.size += record.size;
@@ -187,16 +202,13 @@ return declare( null,
             if( oldest ) {
                 this._log( 'evict', oldest );
 
-                // update the oldest and newest pointers
-                if( ! oldest.next ) // if this was also the newest
-                    this._cacheNewest = oldest.prev; // probably undef
-                this._cacheOldest = oldest.next; // maybe undef
+                // // update the oldest and newest pointers
+                // if( ! oldest.next ) // if this was also the newest
+                //     this._cacheNewest = oldest.prev; // probably undef
+                // this._cacheOldest = oldest.next; // maybe undef
 
                 // take it out of the linked list
-                if( oldest.prev )
-                    oldest.prev.next = oldest.next;
-                if( oldest.next )
-                    oldest.next.prev = oldest.prev;
+                this._llRemove( oldest );
 
                 // delete it from the byKey structure
                 delete this._cacheByKey[ oldest.key ];
@@ -211,7 +223,7 @@ return declare( null,
                 this.size -= oldest.size;
             } else {
                 // should usually not be reached
-                this._error( "eviction error", this.size, newItemSize );
+                this._error( "eviction error", this.size, newItemSize, this );
                 return;
             }
         }
