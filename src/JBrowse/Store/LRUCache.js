@@ -43,14 +43,6 @@ return declare( null,
         this._inProgressFills = {};
     },
 
-    _log: function() {
-        // arguments[0] = this.name+' '+arguments[0];
-        // if( typeof arguments[0] == 'string' )
-        //     while( arguments[0].length < 15 )
-        //         arguments[0] += ' ';
-
-        // console.log.apply( console, arguments );
-    },
 
     get: function( inKey, callback ) {
         var key = this._keyString( inKey );
@@ -122,6 +114,12 @@ return declare( null,
             key: key,
             size: this._size( value )
         };
+
+        if( record.size > this.maxSize ) {
+            this._warn( 'not caching', key, '('+record.size + ' > ' + this.maxSize+')' );
+            return;
+        }
+
         this._log( 'set', key, record, this.size );
 
         // evict items if necessary
@@ -213,10 +211,27 @@ return declare( null,
                 this.size -= oldest.size;
             } else {
                 // should usually not be reached
-                console.error( this.name + " eviction error", this.size, newItemSize );
+                this._error( "eviction error", this.size, newItemSize );
                 return;
             }
         }
+    },
+
+    _log: function() {
+        //console.log.apply( console, this._logf.apply(this,arguments) );
+    },
+    _warn: function() {
+        console.warn.apply( console, this._logf.apply(this,arguments) );
+    },
+    _error: function() {
+        console.error.apply( console, this._logf.apply(this,arguments) );
+    },
+    _logf: function() {
+        arguments[0] = this.name+' '+arguments[0];
+        if( typeof arguments[0] == 'string' )
+            while( arguments[0].length < 15 )
+                arguments[0] += ' ';
+        return arguments;
     }
 });
 });
