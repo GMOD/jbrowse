@@ -368,7 +368,7 @@ HTMLFeatures.extend({
         // only update the label once for each block size
         var blockBases = Math.abs( leftBase-rightBase );
         if( this._updatedLabelForBlockSize != blockBases ){
-            if ( scale < (stats.featureDensity * this.config.style.histScale)) {
+            if ( this.store.histogram && scale < (stats.featureDensity * this.config.style.histScale)) {
                 this.setLabel(this.key + ' <span class="feature-density">per ' + Util.addCommas( Math.round( blockBases / this.numBins)) + ' bp</span>');
             } else {
                 this.setLabel(this.key);
@@ -377,10 +377,16 @@ HTMLFeatures.extend({
         }
 
         //console.log("scale: %d, histScale: %d", scale, this.histScale);
-        if (this.store.histograms &&
-            (scale < (stats.featureDensity * this.config.style.histScale)) ) {
-	    this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
-                          containerStart, containerEnd);
+        if( scale < stats.featureDensity * this.config.style.histScale ) {
+            // if our store offers density histograms, draw them
+            if( this.store.histograms ) {
+                this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
+                              containerStart, containerEnd);
+            }
+            // otherwise, display a zoomed-out-too-far message
+            else {
+                this.fillMessage( blockIndex, block, 'Too many features to show; zoom in to see detail.' );
+            }
         } else {
 
             // if we have transitioned to viewing features, delete the

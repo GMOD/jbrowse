@@ -498,10 +498,16 @@ input.nav {
     font-size: 14px;
     margin: 1em;
 }
-div.error {
-    margin: 1px 0px 1px 1em;
-    background: #ff8888;
+div.error, div.message {
+    margin: 1px 1em;
     padding: 2px 6px;
+    border: 1px outset rgba( 0, 0, 0, 0.3 );
+}
+div.error {
+    background: #ff8888;
+}
+div.message {
+    background: #eee;
 }
 
 /* styles dealing with popups launched by clicking on features */

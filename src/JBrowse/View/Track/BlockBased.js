@@ -443,6 +443,15 @@ return declare( null,
         this.makeTrackMenu();
     },
 
+    fillMessage: function( blockIndex, block, message ) {
+        var msgDiv = dojo.create(
+            'div', {
+                className: 'message',
+                innerHTML: message
+            }, block );
+        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+    },
+
     /**
      * Called by GenomeView when the view is scrolled: communicates the
      * new x, y, width, and height of the view.  This is needed by tracks
