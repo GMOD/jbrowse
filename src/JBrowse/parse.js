@@ -28,12 +28,12 @@ function parseGBConfig(data){
         if (this.regex.comment.test(this.lines[i])) {                      //      #this is a comment
             // do nothing, since it's a comment.
         } else if (this.regex.halfParam.test(this.lines[i])) {             //      name = 
-            i = multiLine(i); // skips lines, so get where to continue
+            i = multiLine(i); // skips lines, so get 'i': where to continue
         } else if (this.regex.param.test(this.lines[i])) {                 //      name = value
             param(i);
-        } else if (this.regex.subsection.test(this.lines[i])) {               //      [section_name]
+        } else if (this.regex.subsection.test(this.lines[i])) {            //      [section_name]
             subSection(i);
-        } else if (this.regex.section.test(this.lines[i])){             //      [section/subsection]
+        } else if (this.regex.section.test(this.lines[i])){                //      [section/subsection]
             mainSection(i);
         }
     };
@@ -42,6 +42,7 @@ function parseGBConfig(data){
     return this.value; //Returns the JS object
 }
 
+//called for:  something =
 function multiLine (i){
     var line = this.lines; var rx = this.regex;
     var lineNum = i+1;
@@ -59,7 +60,9 @@ function multiLine (i){
         lineNum++;
     }
     var match = this.lines[i].match(this.regex.param);
-    if (this.section) {
+    if (this.subsection && this.section) {
+        this.value[this.section][this.subsection][match[1].trim()] = tmpStrVal;
+    } else if (this.section){
         this.value[this.section][match[1].trim()] = tmpStrVal;
     } else {
         this.value[match[1].trim()] = tmpStrVal;
@@ -67,11 +70,12 @@ function multiLine (i){
     return lineNum - 1; //The line it should continue at.
 }
 
+//called for:  something = value
 function param(i) {
     var match = this.lines[i].match(this.regex.param);
     match[2].trim();
     if (!isNaN(match[2].trim())) {
-        match[2] = parseInt(match[2]);
+        match[2] = parseFloat(match[2]);
     }
     if (this.subsection && this.section) {
         this.value[this.section][this.subsection][match[1].trim()] = match[2];
@@ -82,6 +86,7 @@ function param(i) {
     }
 }
 
+//called for:  [foobar]
 function mainSection(i) {
     var match = this.lines[i].match(this.regex.section);
     this.section = match[1].trim();
@@ -89,6 +94,7 @@ function mainSection(i) {
     this.subsection = null;
 }
 
+//called for:  [foo/bar]
 function subSection(i) {
     var match = this.lines[i].match(this.regex.subsection);
     this.section = match[1].trim();
