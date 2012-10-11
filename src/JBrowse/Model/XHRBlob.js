@@ -3,6 +3,13 @@ define( [ 'dojo/_base/declare',
           'JBrowse/Store/LRUCache'
         ],
         function( declare, FileBlob, LRUCache ) {
+var globalCache = new LRUCache({
+    name: 'XHRBlob cache',
+    fillCallback: function( request, callback ) {
+        request.context._fetch( request, callback );
+    }
+});
+
 var XHRBlob = declare( FileBlob,
 /**
  * @lends JBrowse.Model.XHRBlob.prototype
@@ -33,13 +40,6 @@ var XHRBlob = declare( FileBlob,
             this.end = end;
         }
         this.opts = opts;
-
-        this.cache = opts.cache
-            || new LRUCache({
-                                name: 'XHRBlob cache',
-                                fillCallback: dojo.hitch(this, '_fetch')
-                            });
-        this.opts.cache = this.cache;
     },
 
     slice: function(s, l) {
@@ -68,11 +68,12 @@ var XHRBlob = declare( FileBlob,
             start: start,
             toString: function() {
                 return url+" (bytes "+start+".."+end+")";
-            }
+            },
+            context: this
         };
 
         // note that the cache has `_fetch` configured as its fill callback
-        this.cache.get( request, callback );
+        globalCache.get( request, callback );
     },
 
     _fetch: function( request, callback, attempt, truncatedLength) {
