@@ -1,8 +1,9 @@
 define( [
             'dojo/_base/declare',
+            'dojo/_base/array',
             './Util'
         ],
-        function( declare, BAMUtil ) {
+        function( declare, array, BAMUtil ) {
 //
 // Binning (transliterated from SAM1.3 spec)
 //
@@ -182,8 +183,6 @@ var BamFile = declare( null,
     },
 
     fetch: function(chr, min, max, callback) {
-        var thisB = this;
-
         var chrId = this.chrToIndex[chr];
         var chunks;
         if (chrId === undefined) {
@@ -195,6 +194,25 @@ var BamFile = declare( null,
             }
         }
 
+        // this.recordCache = this.recordCache || new LRUCache({
+        //     fillCallback: dojo.hitch(this, '_fetchChunkRecords' )function() {
+
+        //     })
+        // });
+        // console.log( chr, min, max, chunks );
+
+        this._fetchChunkRecords( chunks, function( records ) {
+            records = array.filter( records, function( record ) {
+                return (!min || record.pos <= max && record.pos + record.lseq >= min)
+                    && (chrId === undefined || record._refID == chrId);
+            });
+            callback( records );
+        });
+
+    },
+
+    _fetchChunkRecords: function( chunks, callback ) {
+        var thisB = this;
         var records = [];
         var index = 0;
         var data;
@@ -215,7 +233,7 @@ var BamFile = declare( null,
                 return null;
             } else {
                 var ba = new Uint8Array(data);
-                thisB.readBamRecords(ba, chunks[index].minv.offset, records, min, max, chrId);
+                thisB.readBamRecords(ba, chunks[index].minv.offset, records );
                 data = null;
                 ++index;
                 return tramp();
@@ -224,7 +242,7 @@ var BamFile = declare( null,
         tramp();
     },
 
-    readBamRecords: function(ba, offset, sink, min, max, chrId) {
+    readBamRecords: function(ba, offset, sink ) {
         while (true) {
             var blockSize = readInt(ba, offset);
             var blockEnd = offset + blockSize + 4;
@@ -247,6 +265,7 @@ var BamFile = declare( null,
             var nc = flag_nc & 0xffff;
 
             var lseq = readInt(ba, offset + 20);
+            record.lseq = lseq;
 
             var nextRef  = readInt(ba, offset + 24);
             var nextPos = readInt(ba, offset + 28);
@@ -289,6 +308,7 @@ var BamFile = declare( null,
             record.MQ = mq;
             record.readName = readName;
             record.segment = this.indexToChr[refID];
+            record._refID = refID;
 
             while (p < blockEnd) {
                 var tag = String.fromCharCode(ba[p]) + String.fromCharCode(ba[p + 1]);
@@ -326,11 +346,8 @@ var BamFile = declare( null,
                 record[tag] = value;
             }
 
-            if (!min || record.pos <= max && record.pos + lseq >= min) {
-                if (chrId === undefined || refID == chrId) {
-                    sink.push(record);
-                }
-            }
+            sink.push(record);
+
             offset = blockEnd;
         }
         // Exits via top of loop.
