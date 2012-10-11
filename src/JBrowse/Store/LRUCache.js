@@ -1,7 +1,8 @@
 define([
-           'dojo/_base/declare'
+           'dojo/_base/declare',
+           'dojo/_base/array'
        ],
-       function( declare ) {
+       function( declare, array ) {
 
 return declare( null,
 
@@ -34,10 +35,18 @@ return declare( null,
         // each end of a doubly-linked list, sorted in usage order
         this._cacheOldest = null;
         this._cacheNewest = null;
+
+        // we aggregate cache fill calls that are in progress, indexed
+        // by cache key
+        this._inProgressFills = {};
     },
 
     _log: function() {
-        //console.log.apply( console, arguments );
+        // if( typeof arguments[0] == 'string' )
+        //     while( arguments[0].length < 15 )
+        //         arguments[0] += ' ';
+
+        // console.log.apply( console, arguments );
     },
 
     get: function( inKey, callback ) {
@@ -46,19 +55,11 @@ return declare( null,
         var record = this._cacheByKey[ key ];
         if( !record ) {
             // call our fill callback if necessary
+
             this._log( 'cache miss', key );
 
-            if( this.fill ) {
-                this.fill( inKey, dojo.hitch(this, function( value ) {
-                    if( value ) {
-                        this.set( inKey, value );
-                    }
-                    callback( value );
-                }));
-            }
-            else {
-                callback( null );
-            }
+            this._attemptFill( inKey, key, callback );
+
             return;
         }
 
@@ -80,12 +81,37 @@ return declare( null,
         callback( record.value );
     },
 
+    _attemptFill: function( inKey, key, callback ) {
+        if( this.fill ) {
+            var fillRecord = this._inProgressFills[ key ] || { callbacks: [], running: false };
+            fillRecord.callbacks.push( callback );
+            if( ! fillRecord.running ) {
+                fillRecord.running = true;
+                this.fill( inKey, dojo.hitch( this, function( value ) {
+                    delete this._inProgressFills[ key ];
+
+                    if( value ) {
+                        this._log( 'cache fill', key );
+                        this.set( inKey, value );
+                    }
+                    array.forEach( fillRecord.callbacks, function( cb ) {
+                                       cb.call(this, value);
+                                   }, this );
+                }));
+                this._inProgressFills[ key ] = fillRecord;
+            }
+        }
+        else {
+            this._log( "cache can't fill", key );
+            callback( undefined );
+        }
+    },
+
     set: function( inKey, value ) {
         var key = this._keyString( inKey );
         if( this._cacheByKey[key] ) {
             return;
         }
-        this._log( 'cache fill', key, value );
 
         // make a cache record for it
         var record = {
@@ -93,6 +119,7 @@ return declare( null,
             key: key,
             size: this._size( value )
         };
+        this._log( 'cache set', key, record, this.size );
 
         // evict items if necessary
         this._prune( record.size );
@@ -134,6 +161,9 @@ return declare( null,
             }
             else if( sizeType == 'function' ) {
                 return value.size();
+            }
+            else if( value.byteLength ) {
+                return value.byteLength;
             } else {
                 var sum = 0;
                 for( var k in value ) {
@@ -143,15 +173,19 @@ return declare( null,
                 }
             }
             return sum;
+        } else if( type == 'string' ) {
+            return value.length;
         } else {
             return 1;
         }
     },
 
     _prune: function( newItemSize ) {
-        while( this.size + newItemSize > this.maxSize ) {
+        while( this.size + (newItemSize||0) > this.maxSize ) {
             var oldest = this._cacheOldest;
             if( oldest ) {
+                this._log( 'cache evict', oldest );
+
                 // update the oldest and newest pointers
                 if( ! oldest.next ) // if this was also the newest
                     this._cacheNewest = oldest.prev; // probably undef
@@ -176,7 +210,8 @@ return declare( null,
                 this.size -= oldest.size;
             } else {
                 // should not be reached
-                throw "what is this i don't even";
+                console.error("cache error!");
+                return;
             }
         }
     }
