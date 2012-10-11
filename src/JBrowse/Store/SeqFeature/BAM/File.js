@@ -1,9 +1,10 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
-            './Util'
+            './Util',
+            'JBrowse/Store/LRUCache'
         ],
-        function( declare, array, BAMUtil ) {
+        function( declare, array, BAMUtil, LRUCache ) {
 //
 // Binning (transliterated from SAM1.3 spec)
 //
@@ -194,14 +195,20 @@ var BamFile = declare( null,
             }
         }
 
-        // this.recordCache = this.recordCache || new LRUCache({
-        //     fillCallback: dojo.hitch(this, '_fetchChunkRecords' )function() {
+        chunks.toString = function() {
+            var str = '';
+            array.forEach( this, function(c) {
+                str += c.minv+'..'+c.maxv+',';
+            });
+            return str;
+        };
 
-        //     })
-        // });
-        // console.log( chr, min, max, chunks );
+        this.recordCache = this.recordCache || new LRUCache({
+            name: 'bamRecordCache',
+            fillCallback: dojo.hitch(this, '_fetchChunkRecords' )
+        });
 
-        this._fetchChunkRecords( chunks, function( records ) {
+        this.recordCache.get( chunks, function( records ) {
             records = array.filter( records, function( record ) {
                 return (!min || record.pos <= max && record.pos + record.lseq >= min)
                     && (chrId === undefined || record._refID == chrId);
