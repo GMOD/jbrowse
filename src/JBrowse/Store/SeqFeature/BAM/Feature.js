@@ -46,7 +46,6 @@ var Feature = declare( null,
         data.score = data.mapping_quality || data.MQ || data.mq;
         data.type = data.type || 'match';
         data.source = args.store.source;
-        data.segment = data.segment;
 
         if( data.qual && data.qual.join )
             data.qual = data.qual.join(' ');
