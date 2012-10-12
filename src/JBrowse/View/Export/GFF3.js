@@ -163,8 +163,9 @@ return declare( ExportBase,
         var attrs = {};
         array.forEach( tags, function(tag) {
             var val = feature.get(tag);
-            if( typeof val != 'string' && typeof val != 'number' )
-                return;
+            var valtype = typeof val;
+            if( valtype == 'boolean' )
+                val = val ? 1 : 0;
             tag = this._gff3_reserved_attribute(tag) || this._lcFirst( tag );
             attrs[tag] = val;
         },this);
