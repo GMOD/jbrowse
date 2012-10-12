@@ -1,5 +1,6 @@
 define( [
             'dojo/_base/declare',
+            'dojo/_base/lang',
             'dojo/aspect',
             'dojo/dom-geometry',
             'dijit/Dialog',
@@ -9,6 +10,7 @@ define( [
             'JBrowse/Util'
         ],
         function( declare,
+                  lang,
                   aspect,
                   domGeom,
                   dijitDialog,
@@ -595,10 +597,10 @@ return declare( null,
 
     _fmtDetailField: function( title, val, class_ ) {
         var valType = typeof val;
-        if( !( valType in {string:1,number:1,'boolean':1} ) )
-            return ''; //val = '<span class="ghosted">none</span>';
         if( valType == 'boolean' )
             val = val ? 'yes' : 'no';
+        else if( lang.isArray( val ) )
+            val = val.join(' ');
         class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
         return '<div class="field_container"><h2 class="field '+class_+'">'+title+'</h2> <div class="value '+class_+'">'+val+'</div></div>';
     },
