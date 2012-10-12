@@ -42,10 +42,9 @@ var Feature = declare( null,
                        data.seq_reverse_complemented ? -1                          :
                                                        1;
 
-        data.score = data.MQ || data.mq;
+        data.score = data.mapping_quality || data.MQ || data.mq;
         data.type = data.type || 'match';
         data.source = args.store.source;
-        data.seq_id = data.segment;
 
         data.name = data.readName;
 

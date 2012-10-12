@@ -272,30 +272,36 @@ var BamFile = declare( null,
             var flag_nc = readInt(ba, offset + 16);
             this._decodeFlags( record, (flag_nc & 0xffff0000) >> 16 );
 
-            var numCigarOps = flag_nc & 0xffff;
+            var tlen = readInt(ba, offset + 32);
+            record.template_length = tlen;
 
             var lseq = readInt(ba, offset + 20);
             record.lseq = lseq;
 
+            // If the read is unmapped, no assumptions can be made about RNAME, POS,
+            // CIGAR, MAPQ, bits 0x2, 0x10 and 0x100 and the bit 0x20 of the next
+            // segment in the template.
+            var numCigarOps = flag_nc & 0xffff;
+
             var nextRef  = readInt(ba, offset + 24);
             var nextPos = readInt(ba, offset + 28);
 
-            var tlen = readInt(ba, offset + 32);
-
-            var readName = '';
-            for (var j = 0; j < nl-1; ++j) {
-                readName += String.fromCharCode(ba[offset + 36 + j]);
+            if( ! record.unmapped ) {
+                var readName = '';
+                for (var j = 0; j < nl-1; ++j) {
+                    readName += String.fromCharCode(ba[offset + 36 + j]);
+                }
             }
 
             var p = offset + 36 + nl;
-
             var cigar = '';
             for (var c = 0; c < numCigarOps; ++c) {
                 var cigop = readInt(ba, p);
                 cigar = cigar + (cigop>>4) + CIGAR_DECODER[cigop & 0xf];
                 p += 4;
             }
-            record.cigar = cigar;
+            if( ! record.unmapped )
+                record.cigar = cigar;
 
             var seq = '';
             var seqBytes = (lseq + 1) >> 1;
@@ -307,18 +313,25 @@ var BamFile = declare( null,
             p += seqBytes;
             record.seq = seq;
 
-            var qseq = '';
-            for (var j = 0; j < lseq; ++j) {
-                qseq += String.fromCharCode(ba[p + j]);
+            if( ! record.unmapped ) {
+                var qseq = '';
+                for (var j = 0; j < lseq; ++j) {
+                    qseq += String.fromCharCode(ba[p + j]);
+                }
             }
-            p += lseq;
-            record.quals = qseq;
 
-            record.pos = pos;
-            record.MQ = mq;
-            record.readName = readName;
-            record.segment = this.indexToChr[refID];
-            record._refID = refID;
+            p += lseq;
+
+            if( ! record.unmapped ) {
+                record.quals = qseq;
+
+                record.pos = pos;
+                if( mq != 255 ) // value of 255 means MQ is not available
+                    record.mapping_quality = mq;
+                record.readName = readName;
+                record.seq_id = this.indexToChr[refID];
+                record._refID = refID;
+            }
 
             while (p < blockEnd) {
                 var tag = String.fromCharCode(ba[p]) + String.fromCharCode(ba[p + 1]);
@@ -357,7 +370,6 @@ var BamFile = declare( null,
             }
 
             sink.push(record);
-
             offset = blockEnd;
         }
         // Exits via top of loop.
@@ -409,19 +421,29 @@ var BamFile = declare( null,
         // unmapped. If 0x4 is set, no assumptions can be made about RNAME, POS,
         // CIGAR, MAPQ, bits 0x2, 0x10 and 0x100 and the bit 0x20 of the next
         // segment in the template.
-        record.unmapped = !!(flags & 0x4);
-        // 0x10 SEQ being reverse complemented
-        record.seq_reverse_complemented = !!(flags & 0x10);
+        // only set unmapped if true
+        if( flags & 0x4 ) {
+            record.unmapped = true;
+        } else {
+            // 0x10 SEQ being reverse complemented
+            record.seq_reverse_complemented = !!(flags & 0x10);
 
-        // 0x100 secondary alignment
-        // * Bit 0x100 marks the alignment not to be used in certain analyses
-        // when the tools in use are aware of this bit.
-        record.secondary_alignment = !!(flags & 0x100);
+            // 0x100 secondary alignment
+            // * Bit 0x100 marks the alignment not to be used in certain analyses
+            // when the tools in use are aware of this bit.
+            if( flags & 0x100 )
+                record.secondary_alignment = true;
+        }
 
         // 0x200 not passing quality controls
-        record.qc_failed = !!(flags & 0x200 );
+        // only set qc_failed if it is true
+        if( flags & 0x200 )
+            record.qc_failed = true;
+
         // 0x400 PCR or optical duplicate
-        record.duplicate = !!(flags & 0x400 );
+        // only set duplicate if true
+        if ( flags & 0x400 )
+            record.duplicate = true;
     }
 });
 

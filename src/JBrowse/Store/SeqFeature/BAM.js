@@ -232,9 +232,11 @@ var BAMStore = declare( SeqFeatureStore,
                         if (rEnd <= start || record.pos >= end )
                             return;
 
-                        // make a new feature and return it
-                        var feature = new BAMFeature({ store: bamStore, record: record });
-                        featCallback( feature );
+                        // make a new feature and return it, but only if the read is mapped
+                        if( ! record.unmapped ) {
+                            var feature = new BAMFeature({ store: bamStore, record: record });
+                            featCallback( feature );
+                        }
                     });
                 }
                 if ( error ) {
