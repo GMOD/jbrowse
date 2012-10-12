@@ -212,7 +212,7 @@ var BamFile = declare( null,
 
         this.recordCache.get( chunks, function( records ) {
             records = array.filter( records, function( record ) {
-                return (!min || record.pos <= max && record.pos + record.lseq >= min)
+                return (!min || record.pos <= max && record.pos + record.seq_length >= min)
                     && (chrId === undefined || record._refID == chrId);
             });
             callback( records );
@@ -276,7 +276,7 @@ var BamFile = declare( null,
             record.template_length = tlen;
 
             var lseq = readInt(ba, offset + 20);
-            record.lseq = lseq;
+            record.seq_length = lseq;
 
             // If the read is unmapped, no assumptions can be made about RNAME, POS,
             // CIGAR, MAPQ, bits 0x2, 0x10 and 0x100 and the bit 0x20 of the next
@@ -323,13 +323,13 @@ var BamFile = declare( null,
             p += lseq;
 
             if( ! record.unmapped ) {
-                record.quals = qseq;
+                record.qual = qseq;
 
                 record.pos = pos;
                 if( mq != 255 ) // value of 255 means MQ is not available
                     record.mapping_quality = mq;
                 record.readName = readName;
-                record.seq_id = this.indexToChr[refID];
+                record.segment = this.indexToChr[refID];
                 record._refID = refID;
             }
 

@@ -45,8 +45,12 @@ var Feature = declare( null,
         data.score = data.mapping_quality || data.MQ || data.mq;
         data.type = data.type || 'match';
         data.source = args.store.source;
+        data.seq_id = data.segment;
+        delete data.segment;
 
         data.name = data.readName;
+        delete data.readName;
+        delete data.pos;
 
         this.data = data;
         this._subCounter = 0;
