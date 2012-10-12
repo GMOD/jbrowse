@@ -1,6 +1,7 @@
-define( ['dojo/_base/declare'
+define( ['dojo/_base/declare',
+         'dojo/_base/array'
         ],
-        function( declare ) {
+        function( declare, array ) {
 
 
 var Feature = declare( null,
@@ -51,8 +52,10 @@ var Feature = declare( null,
         if( data.qual && data.qual.join )
             data.qual = data.qual.join(' ');
 
-        data.name = data.readName;
-        delete data.readName;
+        if( data.readName ) {
+            data.name = data.readName;
+            delete data.readName;
+        }
         delete data.pos;
 
         this.data = data;
@@ -63,8 +66,15 @@ var Feature = declare( null,
         var cigar = data.CIGAR || data.cigar;
         this.data.subfeatures = [];
         if( cigar ) {
+            this.data.Gap = this._cigarToGap( cigar );
             this.data.subfeatures.push.apply( this.data.subfeatures, this._cigarToSubfeats( cigar, this ) );
         }
+    },
+
+    _parseCigar: function( cigar ) {
+        return array.map( cigar.match(/\d+\D/g), function( op ) {
+           return [ op.match(/\D/)[0].toUpperCase(), parseInt( op ) ];
+        });
     },
 
     /**
@@ -72,14 +82,12 @@ var Feature = declare( null,
      */
     _cigarToSubfeats: function(cigar, parent)    {
         var subfeats = [];
-        var lops = cigar.match(/\d+/g);
-        var ops = cigar.match(/\D/g);
-        // console.log(cigar); console.log(ops); console.log(lops);
         var min = parent.get('start');
         var max;
+        var ops = this._parseCigar( cigar );
         for (var i = 0; i < ops.length; i++)  {
-            var lop = parseInt(lops[i]);  // operation length
-            var op = ops[i];  // operation type
+            var lop = ops[i][1];
+            var op = ops[i][0];  // operation type
             // converting "=" to "E" to avoid possible problems later with non-alphanumeric type name
             if (op === "=")  { op = "E"; }
 
@@ -107,8 +115,7 @@ var Feature = declare( null,
                     start: min,
                     end: max,
                     strand: parent.get('strand'),
-                    CIGAR_OP: op,
-                    CIGAR_LEN: lop
+                    cigar_op: lop+op
                 },
                 parent: this
             });
@@ -118,6 +125,26 @@ var Feature = declare( null,
             min = max;
         }
         return subfeats;
+    },
+
+    /**
+     * Takes a CIGAR string, translates to a GFF3 Gap attribute
+     */
+    _cigarToGap: function(cigar)    {
+        return array.map( this._parseCigar( cigar ), function( op ) {
+            return ( {
+                         // map the CIGAR operations to the less-descriptive
+                         // GFF3 gap operations
+                         M: 'M',
+                         I: 'I',
+                         D: 'D',
+                         N: 'D',
+                         S: 'M',
+                         H: 'M',
+                         P: 'I'
+                     }[op[0]] || op[0]
+                   )+op[1];
+        }).join(' ');
     },
 
     get: function(name) {
