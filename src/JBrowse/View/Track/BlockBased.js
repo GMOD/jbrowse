@@ -599,6 +599,8 @@ return declare( null,
         var valType = typeof val;
         if( valType == 'boolean' )
             val = val ? 'yes' : 'no';
+        else if( valType == 'undefined' || val === null )
+            return '';
         else if( lang.isArray( val ) )
             val = val.join(' ');
         class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
