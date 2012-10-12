@@ -46,8 +46,7 @@ var Feature = declare( null,
         data.score = data.mapping_quality || data.MQ || data.mq;
         data.type = data.type || 'match';
         data.source = args.store.source;
-        data.seq_id = data.segment;
-        delete data.segment;
+        data.segment = data.segment;
 
         if( data.qual && data.qual.join )
             data.qual = data.qual.join(' ');
@@ -61,7 +60,7 @@ var Feature = declare( null,
         this.data = data;
         this._subCounter = 0;
         this._uniqueID = args.parent ? args.parent._uniqueID + '-' + ++args.parent._subCounter
-                                     : this.data.name+' at '+ data.seq_id + ':' + data.start + '..' + data.end;
+                                     : this.data.name+' at '+ data.segment + ':' + data.start + '..' + data.end;
 
         var cigar = data.CIGAR || data.cigar;
         this.data.subfeatures = [];
