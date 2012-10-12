@@ -595,8 +595,10 @@ return declare( null,
 
     _fmtDetailField: function( title, val, class_ ) {
         var valType = typeof val;
-        if( !( valType in {string:1,number:1} ) )
+        if( !( valType in {string:1,number:1,'boolean':1} ) )
             return ''; //val = '<span class="ghosted">none</span>';
+        if( valType == 'boolean' )
+            val = val ? 'yes' : 'no';
         class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
         return '<div class="field_container"><h2 class="field '+class_+'">'+title+'</h2> <div class="value '+class_+'">'+val+'</div></div>';
     },
