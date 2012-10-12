@@ -68,20 +68,6 @@ var BAMStore = declare( SeqFeatureStore,
                                         }));
     },
 
-    featureKeys: function() {
-        return this._featureKeys;
-    },
-
-    _setFeatureKeys: function( feature ) {
-        var keys = [];
-        var data = feature.data;
-        for( var k in data ) {
-            if( data.hasOwnProperty( k ) )
-                keys.push( k );
-        }
-        this._featureKeys = keys;
-    },
-
     load: function() {
         var bam = this.bam;
         var bamFetched, baiFetched;
@@ -248,9 +234,6 @@ var BAMStore = declare( SeqFeatureStore,
 
                         // make a new feature and return it
                         var feature = new BAMFeature({ store: bamStore, record: record });
-                        if( ! bamStore._featureKeys ) {
-                            bamStore._setFeatureKeys( feature );
-                        }
                         featCallback( feature );
                     });
                 }

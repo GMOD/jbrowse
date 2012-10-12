@@ -117,7 +117,13 @@ var Feature = declare( null,
     },
 
     tags: function() {
-        return this.store.featureKeys();
+        var t = [];
+        var d = this.data;
+        for( var k in d ) {
+            if( d.hasOwnProperty( k ) )
+                t.push( k );
+        }
+        return t;
     }
 
 });
