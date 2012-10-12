@@ -159,8 +159,13 @@ HTMLFeatures.extend({
         container.innerHTML += fmt( 'Name', f.get('name') );
         container.innerHTML += fmt( 'Type', f.get('type') );
         container.innerHTML += fmt( 'Description', f.get('note') );
-        container.innerHTML += fmt( 'Position', Util.assembleLocString({ start: f.get('start'), end: f.get('end'), ref: this.refSeq.name }));
-        container.innerHTML += fmt( 'Strand', {'1':'+', '-1': '-', 0: undefined }[f.get('strand')] || f.get('strand') );
+        container.innerHTML += fmt(
+            'Position',
+            Util.assembleLocString({ start: f.get('start'),
+                                     end: f.get('end'),
+                                     ref: this.refSeq.name })
+            + ({'1':' (+)', '-1': ' (-)', 0: ' (no strand)' }[f.get('strand')] || '')
+        );
 
         var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()]; });
         dojo.forEach( additionalTags.sort(), function(t) {
