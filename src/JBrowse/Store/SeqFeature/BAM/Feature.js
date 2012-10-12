@@ -38,7 +38,9 @@ var Feature = declare( null,
          *           for now using XS based on honeybee BAM data
          */
         // trying to determine orientation from 'XS' optional field
-        data.strand = data.XS == '-' ? -1 : 1;
+        data.strand = ('XS' in data )                ? ( data.XS == '-' ? -1 : 1 ) :
+                       data.seq_reverse_complemented ? -1                          :
+                                                       1;
 
         data.score = data.MQ || data.mq;
         data.type = data.type || 'match';
