@@ -270,8 +270,9 @@ var BamFile = declare( null,
             var nl = bmn & 0xff;
 
             var flag_nc = readInt(ba, offset + 16);
-            var flag = (flag_nc & 0xffff0000) >> 16;
-            var nc = flag_nc & 0xffff;
+            this._decodeFlags( record, (flag_nc & 0xffff0000) >> 16 );
+
+            var numCigarOps = flag_nc & 0xffff;
 
             var lseq = readInt(ba, offset + 20);
             record.lseq = lseq;
@@ -289,7 +290,7 @@ var BamFile = declare( null,
             var p = offset + 36 + nl;
 
             var cigar = '';
-            for (var c = 0; c < nc; ++c) {
+            for (var c = 0; c < numCigarOps; ++c) {
                 var cigop = readInt(ba, p);
                 cigar = cigar + (cigop>>4) + CIGAR_DECODER[cigop & 0xf];
                 p += 4;
@@ -360,8 +361,51 @@ var BamFile = declare( null,
             offset = blockEnd;
         }
         // Exits via top of loop.
-    }
+    },
 
+    /**
+     * Decode the BAM flags field and set them in the record.
+     */
+    _decodeFlags: function( record, flags ) {
+        // the following explanations are taken verbatim from the SAM/BAM spec
+
+        // 0x1 template having multiple segments in sequencing
+        // If 0x1 is unset, no assumptions can be made about 0x2, 0x8, 0x20,
+        // 0x40 and 0x80.
+        if( flags & 0x1 ) {
+            record.multi_segment_template = true;
+            // 0x2 each segment properly aligned according to the aligner
+            // 0x8 next segment in the template unmapped
+            // 0x20 SEQ of the next segment in the template being reversed
+
+            // 0x40 the first segment in the template
+            // 0x80 the last segment in the template
+            // * If 0x40 and 0x80 are both set, the segment is part of a linear
+            // template, but it is neither the first nor the last segment. If both
+            // 0x40 and 0x80 are unset, the index of the segment in the template is
+            // unknown. This may happen for a non-linear template or the index is
+            // lost in data processing.
+        }
+
+        // 0x4 segment unmapped
+        // * Bit 0x4 is the only reliable place to tell whether the segment is
+        // unmapped. If 0x4 is set, no assumptions can be made about RNAME, POS,
+        // CIGAR, MAPQ, bits 0x2, 0x10 and 0x100 and the bit 0x20 of the next
+        // segment in the template.
+        record.unmapped = !!(flags & 0x4);
+        // 0x10 SEQ being reverse complemented
+        record.revcom = !!(flags & 0x10);
+
+        // 0x100 secondary alignment
+        // * Bit 0x100 marks the alignment not to be used in certain analyses
+        // when the tools in use are aware of this bit.
+        record.secondary_alignment = !!(flags & 0x100);
+
+        // 0x200 not passing quality controls
+        record.qc_failed = !!(flags & 0x200 );
+        // 0x400 PCR or optical duplicate
+        record.duplicate = !!(flags & 0x400 );
+    }
 });
 
 return BamFile;
