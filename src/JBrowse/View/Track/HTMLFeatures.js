@@ -112,7 +112,7 @@ HTMLFeatures.extend({
                 className: "feature2",
                 histScale: 4,
                 labelScale: 30,
-                subfeatureScale: 80,
+                minSubfeatureWidth: 6,
                 maxDescriptionLength: 70,
                 descriptionScale: 170
             },
@@ -141,9 +141,10 @@ HTMLFeatures.extend({
     },
 
     loadSuccess: function() {
+
+        // recall that scale is pixels per basepair
         var density = this.store.getGlobalStats().featureDensity;
         this.labelScale = density * this.config.style.labelScale;
-        this.subfeatureScale = density * this.config.style.subfeatureScale;
         this.descriptionScale = density * this.config.style.descriptionScale;;
         this.inherited(arguments);
     },
@@ -691,9 +692,8 @@ HTMLFeatures.extend({
         // boundaries) in the transfer method.
         var displayStart = Math.max( feature.get('start'), containerStart );
         var displayEnd = Math.min( feature.get('end'), containerEnd );
-        var minFeatWidth = 1;
         var blockWidth = block.endBase - block.startBase;
-        var featwidth = Math.max(minFeatWidth, (100 * ((displayEnd - displayStart) / blockWidth)));
+        var featwidth = Math.max( 1, (100 * ((displayEnd - displayStart) / blockWidth)));
         featDiv.style.cssText =
             "left:" + (100 * (displayStart - block.startBase) / blockWidth) + "%;"
             + "top:" + top + "px;"
@@ -760,7 +760,7 @@ HTMLFeatures.extend({
         window.setTimeout( dojo.hitch( this,
              function() {
 
-                 if( featwidth > minFeatWidth && scale >= this.subfeatureScale ) {
+                 if( featwidth > this.config.style.minSubfeatureWidth ) {
                      var subfeatures = feature.get('subfeatures');
                      if( subfeatures ) {
                          for (var i = 0; i < subfeatures.length; i++) {
