@@ -19,11 +19,11 @@ var Feature = declare( null,
     constructor: function( args ) {
         this.store = args.store;
 
-        var data = args.record ? this._dataFromBAMRecord( args.record ) : args.data;
+        var data = args.record ? dojo.clone( args.record ) : args.data;
 
         // figure out start and end
-        data.start = data.start || data.sam_pos;
-        data.end = data.end || ( data.sam_lref ? data.sam_pos + data.sam_lref : data.sam_seq ? data.sam_pos + data.sam_seq.length : undefined );
+        data.start = data.start || data.pos;
+        data.end = data.end || ( data.lref ? data.pos + data.lref : data.seq ? data.pos + data.seq.length : undefined );
 
         /*  can extract "SEQ reverse complement" from bitwise flag, 
          *    but that gives orientation of the _read sequence_ relative to the reference, 
@@ -38,37 +38,25 @@ var Feature = declare( null,
          *           for now using XS based on honeybee BAM data
          */
         // trying to determine orientation from 'XS' optional field
-        data.strand = data.sam_XS == '-' ? -1 : 1;
+        data.strand = data.XS == '-' ? -1 : 1;
 
-        data.score = data.sam_MQ || data.sam_mq;
+        data.score = data.MQ || data.mq;
         data.type = data.type || 'match';
         data.source = args.store.source;
-        data.seq_id = data.sam_segment;
+        data.seq_id = data.segment;
 
-        data.name = data.sam_readName;
+        data.name = data.readName;
 
         this.data = data;
         this._subCounter = 0;
         this._uniqueID = args.parent ? args.parent._uniqueID + '-' + ++args.parent._subCounter
                                      : this.data.name+' at '+ data.seq_id + ':' + data.start + '..' + data.end;
 
-        var cigar = data.sam_CIGAR || data.sam_cigar;
+        var cigar = data.CIGAR || data.cigar;
         this.data.subfeatures = [];
         if( cigar ) {
             this.data.subfeatures.push.apply( this.data.subfeatures, this._cigarToSubfeats( cigar, this ) );
         }
-    },
-
-    _dataFromBAMRecord: function( record ) {
-        var data = {};
-
-        // copy all of the fields verbatim to start, for things people might want
-        for( var k in record ) {
-            if( record.hasOwnProperty(k) )
-                data['sam_'+k] = record[k];
-        }
-
-        return data;
     },
 
     /**
@@ -111,8 +99,8 @@ var Feature = declare( null,
                     start: min,
                     end: max,
                     strand: parent.get('strand'),
-                    sam_CIGAR_OP: op,
-                    sam_CIGAR_LEN: lop
+                    CIGAR_OP: op,
+                    CIGAR_LEN: lop
                 },
                 parent: this
             });
