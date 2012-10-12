@@ -375,16 +375,33 @@ var BamFile = declare( null,
         if( flags & 0x1 ) {
             record.multi_segment_template = true;
             // 0x2 each segment properly aligned according to the aligner
+            record.multi_segment_all_aligned = !!( flags & 0x2 );
             // 0x8 next segment in the template unmapped
+            record.multi_segment_next_segment_unmapped = !!( flags & 0x8 );
             // 0x20 SEQ of the next segment in the template being reversed
+            record.multi_segment_next_segment_reversed = !!( flags & 0x20 );
 
             // 0x40 the first segment in the template
+            var first = !!( flags & 0x40 );
             // 0x80 the last segment in the template
+            var last =  !!( flags & 0x80 );
             // * If 0x40 and 0x80 are both set, the segment is part of a linear
             // template, but it is neither the first nor the last segment. If both
             // 0x40 and 0x80 are unset, the index of the segment in the template is
             // unknown. This may happen for a non-linear template or the index is
             // lost in data processing.
+            if( first && last ) {
+                record.multi_segment_inner = true;
+            }
+            else if( first && !last ) {
+                record.multi_segment_first = true;
+            }
+            else if( !first && last ) {
+                record.multi_segment_last = true;
+            }
+            else {
+                record.multi_segment_index_unknown = true;
+            }
         }
 
         // 0x4 segment unmapped
