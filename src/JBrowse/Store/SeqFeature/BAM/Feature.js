@@ -48,6 +48,9 @@ var Feature = declare( null,
         data.seq_id = data.segment;
         delete data.segment;
 
+        if( data.qual && data.qual.join )
+            data.qual = data.qual.join(' ');
+
         data.name = data.readName;
         delete data.readName;
         delete data.pos;

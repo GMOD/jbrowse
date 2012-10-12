@@ -314,9 +314,9 @@ var BamFile = declare( null,
             record.seq = seq;
 
             if( ! record.unmapped ) {
-                var qseq = '';
+                var qseq = [];
                 for (var j = 0; j < lseq; ++j) {
-                    qseq += String.fromCharCode(ba[p + j]);
+                    qseq.push( ba[p + j] );
                 }
             }
 
