@@ -394,7 +394,7 @@ var BamFile = declare( null,
         // segment in the template.
         record.unmapped = !!(flags & 0x4);
         // 0x10 SEQ being reverse complemented
-        record.revcom = !!(flags & 0x10);
+        record.seq_reverse_complemented = !!(flags & 0x10);
 
         // 0x100 secondary alignment
         // * Bit 0x100 marks the alignment not to be used in certain analyses
