@@ -1,10 +1,10 @@
-require(['dojo','JBrowse/parse'], function (parse) {
+require(['dojo','gbrowse'], function (parse) {
 
     describe( 'GBrowse config file parser', function() {
 
-        // run the script with shortened ITAG2.3_genomic.conf.mas as input
+        // run the script with GBrowseParseTestBasic.conf as input
         // to test different kinds of input
-        // config file => GBrowseParseTestBasic.conf
+        // config file => ./spec/GBrowseParseTestBasic.conf
 
         it('should return a javascript object', function() {
 
