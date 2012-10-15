@@ -14,12 +14,14 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
         constructor: function() {},
 
         load: function(args){
+            var that = this;
             dojo.xhrGet({
                 url: Util.resolveUrl( args.baseUrl || window.location.href, args.config.url ),
                 handleAs: 'text',
-                load: function(data) {
-                   gbconfig = parse(data); 
-                },
+                load: dojo.hitch( that, function(data) {
+                    gbConfig = this.parse(data);
+                    args.onSuccess.call( that, gbConfig );
+                }),
                 error: function(e) {
                     console.error( '' + e );
                     if( args.onFailure )
@@ -51,13 +53,13 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
                 if (this.regex.comment.test(this.lines[i])) {                      //      #this is a comment
                     // do nothing, since it's a comment.
                 } else if (this.regex.halfParam.test(this.lines[i])) {             //      name = 
-                    i = multiLine(i); // skips lines, so get 'i': where to continue
+                    i = this.multiLine(i); // skips lines, so get 'i': where to continue
                 } else if (this.regex.param.test(this.lines[i])) {                 //      name = value
-                    param(i);
+                    this.param(i);
                 } else if (this.regex.subsection.test(this.lines[i])) {            //      [section_name]
-                    subSection(i);
+                    this.subSection(i);
                 } else if (this.regex.section.test(this.lines[i])){                //      [section/subsection]
-                    mainSection(i);
+                    this.mainSection(i);
                 }
             };
 

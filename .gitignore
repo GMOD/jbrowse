@@ -18,3 +18,4 @@ jslib/dojo-release-*-src/
 autom4te.cache
 sample_data/raw/tomato
 .prove
+*.sw*
