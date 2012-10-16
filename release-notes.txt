@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.6.4     2012-10-16 11:50:44 America/New_York
+
  * Improvements to the scalability of `generate-names.pl`.  Many
    thanks to Steffi Geisen for her ongoing help with this.
     * Users can now manually specify which tracks will be indexed to
