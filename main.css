@@ -537,16 +537,25 @@ a.dialog-new-window {
 .dijitDialogPaneContent .feature-detail {
     margin-top: -0.6em;
 }
-.detail div.value {
-    margin-left: 1em;
+
+.feature-detail {
+    padding-top: 1em;
 }
-.detail h2.field {
+.detail .value {
+    margin-left: 1em;
+    display: inline-block;
+    vertical-align: top;
+}
+.detail .field {
     margin-top: 0;
     margin-bottom: 0.3em;
+    display: inline-block;
+    min-width: 9em;
+    vertical-align: top;
 }
 
 .detail .field_container {
-    padding: 1em 4em 0.3em 1em;
+    padding: 0 4em 0.3em 1em;
 }
 
 .sharePane input {
