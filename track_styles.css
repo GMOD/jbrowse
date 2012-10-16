@@ -38,10 +38,10 @@ div.hist {
     height: 1em;
 }
 .plus-alignment {
-    background-color: #f66;
+    background-color: #F35E5E;
 }
 .minus-alignment {
-    background-color: #66f;
+    background-color: #835EF3;
 }
 .plus-alignment .mismatch,
 .minus-alignment .mismatch {
