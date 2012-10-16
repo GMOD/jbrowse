@@ -1,12 +1,11 @@
-// Function for parsing GBrowse config files
-// Input : The text in a file (with newlines)
+// Code for parsing GBrowse config files
 // Output : a JS object
 
 // Based (now *extremely* loosely) on
 // https://github.com/shockie/node-iniparser -> released under the MIT license
 
 
-define(['dojo/_base/declare','JBrowse/Util'], function(declare,Util) {
+define(['dojo/_base/declare','JBrowse/Util','JBrowse/ConfigAdaptor/AdaptorUtil'], function(declare,Util,AdaptorUtil) { 
 return declare('JBrowse.ConfigAdaptor.gbrowse',null,
 
     {
@@ -31,13 +30,12 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
         },
 
         parse: function(data){
-            
             this.regex = {
                 section:    /^\s*\[\s*([^\]\/]*)\s*\]\s*$/,
                 subsection: /^\s*\[\s*([^\]]*)\/([^\]]*)\s*\]\s*$/,
                 param:      /^(\w[\w\.\-\_\:\s]+)=\s*(.*?)\s*$/,
                 halfParam:  /^(\w[\w\.\-\_\:\s]+)=\s*$/,
-                comment:    /^\s*#.*$/,
+                comment: /^\s*#|(\/\/).*$/,
                 emptyLine:  /^\s*$/,
                 newLine:    /\r\n|\r|\n/
             };
@@ -63,8 +61,7 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
                 }
             };
 
-
-            return this.value; //Returns the JS object
+            return AdaptorUtil.evalHooks(this.value); //Returns the JS object
         },
 
         //called for:  something =
