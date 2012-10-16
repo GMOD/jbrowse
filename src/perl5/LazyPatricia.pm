@@ -74,6 +74,8 @@ use constant EDGESTRING => 0;
 use constant VALUE => 1;
 use constant SUBLIST => 2;
 
+use Devel::Size qw( total_size );
+
 =head2 create( \%mappings )
 
 takes: a hash reference containing the mappings to put into the trie
@@ -156,11 +158,17 @@ sub partition {
     #   split out into separate lazy-load sub-chunks.
     my $total = 0;
     my $thisChunk = 0;
-    $total++ if defined $parent->[VALUE];
-    $thisChunk++ if defined $parent->[VALUE];
+    if( defined $parent->[VALUE] ) {
+        my $vsize = total_size( $parent->[VALUE] );
+        $total += $vsize;
+        $thisChunk += $vsize;
+    }
     for (my $i = SUBLIST; $i < scalar(@$parent); $i++) {
-        $total++ if defined $parent->[$i]->[VALUE];
-        $thisChunk++ if defined $parent->[$i]->[VALUE];
+        if( defined $parent->[$i]->[VALUE] ) {
+            my $vsize = total_size( $parent->[$i]->[VALUE] );
+            $total += $vsize;
+            $thisChunk += $vsize;
+        }
         if (defined $parent->[$i]->[SUBLIST]) {
             my ($subTotal, $subPartial) =
               partition($parent->[$i],
