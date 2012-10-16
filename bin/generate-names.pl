@@ -26,7 +26,7 @@ not passed, all tracks are indexed.
 
 =item --thresh <threshold>
 
-Optional LazyPatricia chunking threshold.  Default 200.  See
+Optional LazyPatricia chunking threshold, in bytes.  Default 100kb.  See
 L<LazyPatricia> for details.
 
 =item --verbose
@@ -68,7 +68,7 @@ my @includedTrackNames;
 my @tracksWithNames;
 
 my $outDir = "data";
-my $thresh = 200;
+my $thresh = 100 * 2**10;
 my $verbose = 0;
 my $help;
 GetOptions("dir|out=s" => \$outDir,
@@ -172,7 +172,7 @@ my ($total, $thisChunk) =
           if $verbose;
   });
 
-print STDERR "$total total names, with $thisChunk in the root chunk\n"
+print STDERR "${total}b total size, with ${thisChunk}b in the root chunk\n"
   if $verbose;
 
 # write the root
