@@ -23,11 +23,9 @@ return declare( HTMLFeatures,
 
         // recall: scale is pixels/basepair
         var charSize = this.getCharacterMeasurements();
-        console.log(charSize);
         if ( scale >= charSize.w ) {
             var mismatches = this._getMismatches( feature );
 
-            console.log( feature.get('name'), mismatches );
             dojo.forEach( mismatches, function( mismatch ) {
                 dojo.create('span', {
                                 className: 'base mismatch',
@@ -125,6 +123,60 @@ return declare( HTMLFeatures,
         };
         containerElement.removeChild(widthTest);
         return result;
+    },
+
+
+    /**
+     * Make a default feature detail page for the given feature.
+     * @returns {HTMLElement} feature detail page HTML
+     */
+    defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
+        var container = this.inherited( arguments );
+
+        var fmt = dojo.hitch( this, '_fmtDetailField' );
+
+        // if( f.get('strand') == -1 ) {
+        //     dojo.create('div', { className: 'message', innerHTML: '' })
+        // }
+        var alignment = '<div class="alignment sequence">'+f.get('seq')+'</div>';
+        if( f.get('seq') && f.get('qual') ) {
+            container.innerHTML += fmt('Sequence quality scores',"<pre>"+this._renderQual( f )+"</pre>");
+        }
+
+        return container;
+    },
+
+    _renderQual: function( feature ) {
+
+        var seq  = feature.get('seq'),
+            qual = feature.get('qual');
+        if( !seq || !qual )
+            return '';
+
+        qual = qual.split(/\s+/);
+        var fieldWidth = (''+Math.max.apply( Math, qual )).length;
+
+        // pad the sequence with spaces
+        var seqPadding = ' ';
+        while( seqPadding.length < fieldWidth-1 ) {
+            seqPadding += ' ';
+        }
+        var paddedSeq = array.map( seq, function(s) {
+            return s + seqPadding;
+        });
+
+        // insert newlines
+        var rendered = '';
+        var lineFields = Math.round(50/fieldWidth);
+        while( paddedSeq.length ) {
+            var line = paddedSeq.slice(0,Math.min( paddedSeq.length, lineFields ) );
+            paddedSeq = paddedSeq.slice(lineFields);
+            rendered += line.join(' ') + "\n";
+            line = qual.slice(0, Math.min( qual.length, lineFields ));
+            qual = qual.slice(lineFields);
+            rendered += line.join(' ') + "\n\n";
+        }
+        return rendered;
     }
 });
 });
