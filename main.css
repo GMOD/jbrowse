@@ -250,6 +250,10 @@ div.sequence span.base {
     display: inline-block;
     text-align: center;
 }
+div.sequence .base_n {
+    background-color: #ccc;
+}
+
 div.sequence_blur {
     background: none;
     height: 8px;

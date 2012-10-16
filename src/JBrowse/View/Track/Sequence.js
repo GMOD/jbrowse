@@ -127,7 +127,7 @@ SequenceTrack.extend(
         var charWidth = (100/seq.length)+"%";
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('span');
-            base.className = 'base';
+            base.className = 'base base_'+seq[i].toLowerCase();
             base.style.width = charWidth;
             base.innerHTML = seq[i];
             container.appendChild(base);
