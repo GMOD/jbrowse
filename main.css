@@ -237,8 +237,6 @@ div.blank-block {
 div.sequence {
     position: absolute;
     left: 0px;
-    font-family: Courier New,monospace;
-    font-size: 10px;
 }
 div.sequence .highlighted {
     background: #ff0;
@@ -246,11 +244,13 @@ div.sequence .highlighted {
 div.sequence .revcom {
     color: red;
 }
-div.sequence span.base {
+span.base {
+    font-family: Courier New,monospace;
     display: inline-block;
     text-align: center;
+    z-index: 2000;
 }
-div.sequence .base_n {
+span.base_n {
     background-color: #ccc;
 }
 

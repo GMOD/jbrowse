@@ -31,6 +31,23 @@ div.hist {
 .plus-feature { background-image: url('img/plus-chevron3.png'); }
 .minus-feature { background-image: url('img/minus-chevron3.png'); }
 
+.alignment,
+.plus-alignment,
+.minus-alignment {
+    background-color: #ccc;
+    height: 1em;
+}
+.plus-alignment {
+    background-color: #f66;
+}
+.minus-alignment {
+    background-color: #66f;
+}
+.plus-alignment .mismatch,
+.minus-alignment .mismatch {
+    font-weight: bold;
+}
+
 div.feature-hist {
     background-color: blue;
     border-color: lightblue;
