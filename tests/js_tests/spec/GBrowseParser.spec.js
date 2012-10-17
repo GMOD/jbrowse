@@ -9,7 +9,7 @@ require(['JBrowse/ConfigAdaptor/gbrowse'], function ( gbrowseConfigAdaptor ) {
 
         it('should return a javascript object', function() {
             var gbrowseArgs = {
-                config: { url: 'tests/js_tests/spec/GBrowseParseTestBasic.conf' },
+                config: { url: 'spec/GBrowseParseTestBasic.conf' },
                 onSuccess: function( c ) {
                         gbConfig = c;
                 },
