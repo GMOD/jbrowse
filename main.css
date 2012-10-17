@@ -17,7 +17,7 @@ fieldset > legend {
 }
 
 .locString {
-    font-family: monospace;
+    font-family: Courier New,monospace;
 }
 
 .ghosted {
@@ -611,3 +611,17 @@ a.dialog-new-window {
     background-color: #FF0000;
     z-index: 15;
 }
+
+/* styles for per-base quality table in alignment detail pages */
+.baseQuality {
+    font-family: Courier New, monospace;
+}
+.baseQuality td {
+    padding: 0 0.3em;
+    line-height: 0.95;
+    text-align: center;
+}
+.baseQuality tr.seq td {
+    padding-top: 0.5em;
+}
+

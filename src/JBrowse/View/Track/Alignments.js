@@ -144,7 +144,7 @@ return declare( HTMLFeatures,
         // }
         var alignment = '<div class="alignment sequence">'+f.get('seq')+'</div>';
         if( f.get('seq') && f.get('qual') ) {
-            container.innerHTML += fmt('Sequence quality scores',"<pre>"+this._renderQual( f )+"</pre>");
+            container.innerHTML += fmt('Sequence quality scores', this._renderQual( f ) );
         }
 
         return container;
@@ -169,18 +169,22 @@ return declare( HTMLFeatures,
             return s + seqPadding;
         });
 
+        var tableRowHTML = function(fields, class_) {
+            class_ = class_ ? ' class="'+class_+'"' : '';
+            return '<tr'+class_+'>'+array.map( fields, function(f) { return '<td>'+f+'</td>'; }).join('')+'</tr>';
+        };
         // insert newlines
         var rendered = '';
-        var lineFields = Math.round(50/fieldWidth);
+        var lineFields = Math.round(55/fieldWidth);
         while( paddedSeq.length ) {
             var line = paddedSeq.slice(0,Math.min( paddedSeq.length, lineFields ) );
             paddedSeq = paddedSeq.slice(lineFields);
-            rendered += line.join(' ') + "\n";
+            rendered += tableRowHTML( line, 'seq' );
             line = qual.slice(0, Math.min( qual.length, lineFields ));
             qual = qual.slice(lineFields);
-            rendered += line.join(' ') + "\n\n";
+            rendered += tableRowHTML( line, 'qual' );
         }
-        return rendered;
+        return '<table class="baseQuality">'+rendered+'</table>';
     }
 });
 });
