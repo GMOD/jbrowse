@@ -822,7 +822,7 @@ HTMLFeatures.extend({
             var child = featDiv.childNodes[i];
             // cache the height of elements, for speed.
             var h = getHeight.call(this,child);
-            dojo.style( child, { top: ((this.glyphHeight-h)/2) + 'px', visibility: 'visible' });
+            dojo.style( child, { marginTop: '0', top: ((this.glyphHeight-h)/2) + 'px', visibility: 'visible' });
          }
     },
 

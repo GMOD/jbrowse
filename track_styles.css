@@ -43,10 +43,10 @@ div.hist {
 .minus-alignment {
     background-color: #835EF3;
 }
-.plus-alignment .mismatch,
-.minus-alignment .mismatch {
-    font-weight: bold;
-}
+/* .plus-alignment .mismatch, */
+/* .minus-alignment .mismatch { */
+/*     background-color: rgba( 255,255,255,0.8); */
+/* } */
 
 div.feature-hist {
     background-color: blue;

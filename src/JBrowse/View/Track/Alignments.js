@@ -26,18 +26,22 @@ return declare( HTMLFeatures,
         if ( scale >= charSize.w ) {
             var mismatches = this._getMismatches( feature );
 
-            dojo.forEach( mismatches, function( mismatch ) {
-                dojo.create('span', {
-                                className: 'base mismatch',
-                                style: {
-                                    position: 'absolute',
-                                    top: '0px',
-                                    left: scale * mismatch.start + 'px',
-                                    width: mismatch.bases.length * scale + 'px'
-                                },
-                                innerHTML: mismatch.bases
-                            }, featDiv );
-           }, this );
+            array.forEach( mismatches, function( mismatch ) {
+                array.forEach( mismatch.bases, function( base, i ) {
+                    dojo.create('span', {
+                                    className: 'mismatch base base_'+base.toLowerCase(),
+                                    style: {
+                                        position: 'absolute',
+                                        left: scale * (mismatch.start+i) + 'px',
+                                        width: scale + 'px',
+                                        height: '1.2em',
+                                        top: '50%',
+                                        marginTop: '-0.6em'
+                                    },
+                                    innerHTML: base
+                                }, featDiv );
+               }, this );
+            });
         }
     },
 

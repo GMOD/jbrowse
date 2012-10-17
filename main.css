@@ -245,13 +245,30 @@ div.sequence .revcom {
     color: red;
 }
 span.base {
-    font-family: Courier New,monospace;
     display: inline-block;
     text-align: center;
     z-index: 2000;
 }
-span.base_n {
-    background-color: #ccc;
+.base {
+    color: black;
+    font-family: Courier New,monospace;
+    font-weight: bold;
+    text-shadow: white 0px 0px 1px;
+}
+.base_n {
+    background-color: #C6C6C6;
+}
+.base_a {
+    background-color: #00BF00;
+}
+.base_c {
+    background-color: #7373ff;
+}
+.base_t {
+    background-color: red;
+}
+.base_g {
+    background-color: #d5bb04;
 }
 
 div.sequence_blur {
