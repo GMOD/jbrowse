@@ -36,11 +36,11 @@ return declare( Wiggle,
                 var currFeat;
                 array.forEach( coverage, function( c, i ) {
                     if( currFeat && c == currFeat.score ) {
-                            currFeat.end = leftBase+i+1;
+                            currFeat.end = leftBase+i;
                     } else {
                         if( currFeat )
                             features.push( currFeat );
-                        currFeat = new CoverageFeature({ start: leftBase + i, end: leftBase+i+1, score: c || 0 });
+                        currFeat = new CoverageFeature({ start: leftBase + i - 1, end: leftBase+i, score: c || 0 });
                     }
                 });
 
