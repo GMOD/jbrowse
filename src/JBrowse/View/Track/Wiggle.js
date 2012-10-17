@@ -100,10 +100,10 @@ Wiggle.extend({
              }).call(this);
 
         if( typeof max != 'number' || isNaN(max) ) {
-            throw 'could not determine max_score for track "'+this.name+'", cannot draw track.';
+            throw 'cannot display track '+this.name+', could not determine max_score.  Do you need to set max_score in its configuration?';
         }
         if( typeof min != 'number' || isNaN(min) ) {
-            throw 'could not determine min_score for track "'+this.name+'", cannot draw track.';
+            throw 'cannot display track '+this.name+', could not determine min_score.  Do you need to set min_score in its configuration?';
         }
 
         // if we have a log scale, need to take the log of the min and max
