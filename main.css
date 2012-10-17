@@ -578,6 +578,16 @@ a.dialog-new-window {
 .sharePane input {
     padding: 1px 0 2px 1px;
 }
+.sharePane .copyReminder {
+    background-color:  #396494;
+    text-align: center;
+    width: 50%;
+    margin: 0 auto;
+    color: white;
+    padding: 2px;
+    font-weight: bold;
+}
+
 .tundra .sharePane input {
     border: 1px solid #ccc;
 }

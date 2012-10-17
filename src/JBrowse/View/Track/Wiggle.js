@@ -183,7 +183,7 @@ Wiggle.extend({
         var blockWidth = rightBase - leftBase;
         this.heightUpdate( this.height, blockIndex );
 
-        var canvasWidth  = Math.ceil(( rightBase - leftBase ) * scale)+1;
+        var canvasWidth  = Math.ceil(( rightBase - leftBase ) * scale);
         var canvasHeight = parseInt(( this.config.style || {}).height) || 100;
         this.height = canvasHeight;
 

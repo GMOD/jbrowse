@@ -1013,7 +1013,6 @@ Browser.prototype.makeShareLink = function () {
     var browser = this;
     var viewURL = '#';
 
-
     // make the share link
     var link = dojo.create(
         'a',
@@ -1026,7 +1025,6 @@ Browser.prototype.makeShareLink = function () {
                 position: 'relative'
             },
             onclick: function() {
-                console.log('click!');
                 URLinput.value = viewURL;
                 previewLink.href = viewURL;
 
@@ -1038,8 +1036,8 @@ Browser.prototype.makeShareLink = function () {
                                right: 0,
                                left: ''
                             });
-                URLinput.select();
                 URLinput.focus();
+                URLinput.select();
 
                 return false;
             }
@@ -1051,12 +1049,18 @@ Browser.prototype.makeShareLink = function () {
         'div', {
             innerHTML: 'Paste this link in <b>email</b> or <b>IM</b>'
         });
+    var copyReminder = dojo.create('div', {
+                                       className: 'copyReminder',
+                                       innerHTML: 'Press CTRL-C to copy'
+                                   });
     var URLinput = dojo.create(
         'input', {
             type: 'text',
             value: viewURL,
             size: 50,
-            onclick: function() { this.select(); }
+            readonly: 'readonly',
+            onclick: function() { this.select();  copyReminder.style.display = 'block'; },
+            onblur: function() { copyReminder.style.display = 'none'; }
         });
     var previewLink = dojo.create('a', {
         innerHTML: 'preview',
@@ -1070,7 +1074,8 @@ Browser.prototype.makeShareLink = function () {
             title: 'Share this view',
             content: [
                 container,
-                URLinput
+                URLinput,
+                copyReminder
             ],
             autofocus: false
         });
