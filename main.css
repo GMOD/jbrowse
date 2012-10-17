@@ -244,6 +244,10 @@ div.sequence .highlighted {
 div.sequence .revcom {
     color: red;
 }
+div.sequence .base {
+    height: 1.2em;
+    line-height: 1.2em;
+}
 span.base {
     display: inline-block;
     text-align: center;

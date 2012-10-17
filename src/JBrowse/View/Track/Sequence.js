@@ -62,10 +62,10 @@ SequenceTrack.extend(
         var charSize = this.getCharacterMeasurements();
 
         // if we are zoomed in far enough to draw bases, then draw them
-        if ( scale >= charSize.w ) {
+        if ( scale >= 1 ) {
             this.store.getRange(
                 this.refSeq, leftBase, rightBase,
-                dojo.hitch( this, '_fillSequenceBlock', block, stripeWidth ) );
+                dojo.hitch( this, '_fillSequenceBlock', block, scale ) );
             this.heightUpdate( charSize.h*2, blockIndex );
         }
         // otherwise, just draw a sort of line (possibly dotted) that
@@ -80,7 +80,7 @@ SequenceTrack.extend(
         }
     },
 
-    _fillSequenceBlock: function( block, stripeWidth, start, end, seq ) {
+    _fillSequenceBlock: function( block, scale, start, end, seq ) {
         // fill with leading blanks if the
         // sequence does not extend all the way
         // across our range
@@ -95,10 +95,10 @@ SequenceTrack.extend(
         block.appendChild(seqNode);
 
         // add a div for the forward strand
-        seqNode.appendChild( this._renderSeqDiv( start, end, seq, stripeWidth ));
+        seqNode.appendChild( this._renderSeqDiv( start, end, seq, scale ));
 
         // and one for the reverse strand
-        var comp = this._renderSeqDiv( start, end, this.complement(seq), stripeWidth );
+        var comp = this._renderSeqDiv( start, end, this.complement(seq), scale );
         comp.className = 'revcom';
         seqNode.appendChild( comp );
     },
@@ -122,14 +122,19 @@ SequenceTrack.extend(
      * makes a div containing the sequence.
      * @private
      */
-    _renderSeqDiv: function ( start, end, seq, stripeWidth ) {
+    _renderSeqDiv: function ( start, end, seq, scale ) {
+
+        var charSize = this.getCharacterMeasurements();
+
         var container  = document.createElement('div');
         var charWidth = (100/seq.length)+"%";
+        var drawChars = scale >= charSize.w;
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('span');
             base.className = 'base base_'+seq[i].toLowerCase();
             base.style.width = charWidth;
-            base.innerHTML = seq[i];
+            if( drawChars )
+                base.innerHTML = seq[i];
             container.appendChild(base);
         }
         return container;
