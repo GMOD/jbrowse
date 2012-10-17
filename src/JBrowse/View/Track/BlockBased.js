@@ -662,7 +662,7 @@ return declare( null,
         var dialogOpts = {
             "class": "popup-dialog popup-dialog-"+type,
             title: spec.title || spec.label || ( featureName ? featureName +' details' : "Details"),
-            style: dojo.mixin( dojo.clone( spec.style || {} ), { width: '70%' })
+            style: dojo.clone( spec.style || {} )
         };
         if( spec.dialog )
             declare.safeMixin( dialogOpts, spec.dialog );
