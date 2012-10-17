@@ -9,8 +9,8 @@ define( ['dojo/_base/declare',
 var Wiggle = declare( CanvasTrack, {
     constructor: function( args ) {
         this.store = args.store;
-        this.store.whenReady( this, '_calculateScaling' );
-        this.store.whenReady( this, 'loadSuccess' );
+        dojo.connect( this.store, 'loadSuccess', this, 'loadSuccess' );
+        dojo.connect( this.store, 'loadFail',    this, 'loadFail' );
     }
 });
 
@@ -33,11 +33,16 @@ Wiggle.extend({
     },
 
     load: function() {
+        this.store.load();
     },
 
     loadSuccess: function(o,url) {
+        this._calculateScaling();
         this.empty = this.store.empty || false;
         this.setLoaded();
+    },
+
+    loadFail: function() {
     },
 
     makeWiggleYScale: function() {
@@ -68,7 +73,7 @@ Wiggle.extend({
           }
 
         var z_score_bound = parseFloat( this.config.z_score_bound ) || 4;
-        var s = this.store.getGlobalStats() || {};
+        var s = this.getGlobalStats() || {};
         var min = 'min_score' in this.config ? parseFloat( this.config.min_score ) :
             (function() {
                  switch( this.config.autoscale ) {
@@ -161,6 +166,14 @@ Wiggle.extend({
         return this.scale;
     },
 
+    readWigData: function( scale, refSeq, leftBase, rightBase, callback ) {
+        this.store.readWigData.apply( this.store, arguments );
+    },
+
+    getGlobalStats: function() {
+        return this.store.getGlobalStats();
+    },
+
     fillBlock: function( blockIndex,     block,
                          leftBlock,      rightBlock,
                          leftBase,       rightBase,
@@ -179,7 +192,7 @@ Wiggle.extend({
         var clipColor = this.config.style.clip_marker_color;
         var disableClipMarkers = this.config.disable_clip_markers;
 
-        this.store.readWigData( scale, this.refSeq.name, leftBase, rightBase+1, dojo.hitch(this,function( features ) {
+        this.readWigData( scale, this.refSeq.name, leftBase, rightBase+1, dojo.hitch(this,function( features ) {
                 if(! this.yscale )
                     this.makeWiggleYScale();
 
@@ -232,7 +245,7 @@ Wiggle.extend({
 
                         // draw the variance_band if requested
                         if( this.config.variance_band ) {
-                            var stats = this.store.getGlobalStats();
+                            var stats = this.getGlobalStats();
                             if( stats && ('scoreMean' in stats) && ('scoreStdDev' in stats) ) {
                                 var drawVarianceBand = function( plusminus, fill, label ) {
                                     context.fillStyle = fill;

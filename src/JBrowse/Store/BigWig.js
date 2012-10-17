@@ -55,10 +55,50 @@ return declare( null,
         bwg._loading.then( function() {
                                bwg._loading = null;
                            });
+        bwg._loading.then( dojo.hitch( this, function(result) {
+            if( result.success )
+                this.loadSuccess();
+            else
+                this.loadFail();
+        }));
 
         bwg.data = data;
         bwg.name = name;
+    },
 
+    getGlobalStats: function() {
+        var s = this._stats;
+        if( !s )
+            return {};
+
+        // calc mean and standard deviation if necessary
+        if( !( 'scoreMean' in s ))
+            s.scoreMean = s.scoreSum / s.basesCovered;
+        if( !( 'scoreStdDev' in s ))
+            s.scoreStdDev = this._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.basesCovered );
+
+        return s;
+    },
+
+    _calcStdFromSums: function( sum, sumSquares, n ) {
+        var variance = sumSquares - sum*sum/n;
+        if (n > 1) {
+	    variance /= n-1;
+        }
+        return variance < 0 ? 0 : Math.sqrt(variance);
+    },
+
+    whenReady: function() {
+        var f = lang.hitch.apply(lang, arguments);
+        if( this._loading ) {
+            this._loading.then( f );
+        } else {
+            f();
+        }
+    },
+
+    load: function() {
+        var bwg = this;
         var headerSlice = bwg.data.slice(0, 512);
         headerSlice.fetch(function(result) {
             if (!result) {
@@ -138,36 +178,8 @@ return declare( null,
         });
     },
 
-    getGlobalStats: function() {
-        var s = this._stats;
-        if( !s )
-            return {};
-
-        // calc mean and standard deviation if necessary
-        if( !( 'scoreMean' in s ))
-            s.scoreMean = s.scoreSum / s.basesCovered;
-        if( !( 'scoreStdDev' in s ))
-            s.scoreStdDev = this._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.basesCovered );
-
-        return s;
-    },
-
-    _calcStdFromSums: function( sum, sumSquares, n ) {
-        var variance = sumSquares - sum*sum/n;
-        if (n > 1) {
-	    variance /= n-1;
-        }
-        return variance < 0 ? 0 : Math.sqrt(variance);
-    },
-
-    whenReady: function() {
-        var f = lang.hitch.apply(lang, arguments);
-        if( this._loading ) {
-            this._loading.then( f );
-        } else {
-            f();
-        }
-    },
+    loadSuccess: function() {},
+    loadFail: function() {},
 
     /**
      * @private
