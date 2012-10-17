@@ -677,10 +677,10 @@ HTMLFeatures.extend({
         switch (strand) {
         case 1:
         case '+':
-            featDiv.className = featDiv.className + " plus-" + this.config.style.className; break;
+            featDiv.className = featDiv.className + " " + this.config.style.className + " plus-" + this.config.style.className; break;
         case -1:
         case '-':
-            featDiv.className = featDiv.className + " minus-" + this.config.style.className; break;
+            featDiv.className = featDiv.className + " " + this.config.style.className + " minus-" + this.config.style.className; break;
         default:
             featDiv.className = featDiv.className + " " + this.config.style.className; break;
         }
