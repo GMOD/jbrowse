@@ -110,7 +110,11 @@ return declare( null,
                         this.set( inKey, value );
                     }
                     array.forEach( fillRecord.callbacks, function( cb ) {
-                                       cb.call(this, value);
+                                       try {
+                                           cb.call(this, value);
+                                       } catch(x) {
+                                           console.error(x);
+                                       }
                                    }, this );
                 }, key, inKey, fillRecord ));
             }
@@ -118,7 +122,11 @@ return declare( null,
         }
         else {
             this._log( "can't fill", key );
-            callback( undefined );
+            try {
+                callback( undefined );
+            } catch(x) {
+                console.error(x);
+            }
         }
     },
 
