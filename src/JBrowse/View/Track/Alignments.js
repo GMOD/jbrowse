@@ -33,10 +33,7 @@ return declare( HTMLFeatures,
                                     style: {
                                         position: 'absolute',
                                         left: scale * (mismatch.start+i) + 'px',
-                                        width: scale + 'px',
-                                        height: '1.2em',
-                                        top: '50%',
-                                        marginTop: '-0.6em'
+                                        width: scale + 'px'
                                     },
                                     innerHTML: drawChars ? base : ''
                                 }, featDiv );

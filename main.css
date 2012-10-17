@@ -270,10 +270,6 @@ span.base {
 .base_g {
     background-color: #d5bb04;
 }
-.mismatch.base_deletion {
-    background-color: black;
-    color: white;
-}
 
 div.sequence_blur {
     background: none;

@@ -35,7 +35,7 @@ div.hist {
 .plus-alignment,
 .minus-alignment {
     background-color: #ccc;
-    height: 1em;
+    height: 12px;
 }
 .plus-alignment {
     background-color: #F35E5E;
@@ -43,6 +43,15 @@ div.hist {
 .minus-alignment {
     background-color: #835EF3;
 }
+.alignment .mismatch.base {
+    height: 12px;
+    line-height: 12px; /* line height should match the height of the alignment glyph */
+}
+.alignment .mismatch.base_deletion {
+    background-color: black;
+    color: white;
+}
+
 /* .plus-alignment .mismatch, */
 /* .minus-alignment .mismatch { */
 /*     background-color: rgba( 255,255,255,0.8); */
