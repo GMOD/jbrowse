@@ -25,6 +25,7 @@ return declare( HTMLFeatures,
             var mismatches = this._getMismatches( feature );
             var charSize = this.getCharacterMeasurements();
             var drawChars = scale >= charSize.w;
+            var featureLength = feature.get('end') - feature.get('start');
 
             array.forEach( mismatches, function( mismatch ) {
                 array.forEach( mismatch.bases, function( base, i ) {
@@ -32,7 +33,7 @@ return declare( HTMLFeatures,
                                     className: 'mismatch base base_'+(base == '*' ? 'deletion' : base.toLowerCase()),
                                     style: {
                                         position: 'absolute',
-                                        left: scale * (mismatch.start+i) + 'px',
+                                        left: (mismatch.start+i)/featureLength*100 + '%',
                                         width: scale + 'px'
                                     },
                                     innerHTML: drawChars ? base : ''
