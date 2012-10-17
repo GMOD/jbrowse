@@ -35,7 +35,7 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
                 subsection: /^\s*\[\s*([^\]]*)\/([^\]]*)\s*\]\s*$/,
                 param:      /^(\w[\w\.\-\_\:\s]+)=\s*(.*?)\s*$/,
                 halfParam:  /^(\w[\w\.\-\_\:\s]+)=\s*$/,
-                comment: /^\s*#|(\/\/).*$/,
+                comment:    /^\s*#|(\/\/).*$/,
                 emptyLine:  /^\s*$/,
                 newLine:    /\r\n|\r|\n/
             };
