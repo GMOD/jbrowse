@@ -18,7 +18,7 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
                 url: Util.resolveUrl( args.baseUrl || window.location.href, args.config.url ),
                 handleAs: 'text',
                 load: dojo.hitch( that, function(data) {
-                    gbConfig = this.parse(data);
+                    var gbConfig = this.parse(data);
                     args.onSuccess.call( that, gbConfig );
                 }),
                 error: function(e) {
