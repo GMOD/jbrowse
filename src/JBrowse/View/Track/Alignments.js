@@ -20,11 +20,11 @@ return declare( HTMLFeatures,
     },
 
     _drawMismatches: function( feature, featDiv, scale ) {
-
         // recall: scale is pixels/basepair
-        var charSize = this.getCharacterMeasurements();
-        if ( scale >= charSize.w ) {
+        if ( scale >= 1 ) {
             var mismatches = this._getMismatches( feature );
+            var charSize = this.getCharacterMeasurements();
+            var drawChars = scale >= charSize.w;
 
             array.forEach( mismatches, function( mismatch ) {
                 array.forEach( mismatch.bases, function( base, i ) {
@@ -38,7 +38,7 @@ return declare( HTMLFeatures,
                                         top: '50%',
                                         marginTop: '-0.6em'
                                     },
-                                    innerHTML: base
+                                    innerHTML: drawChars ? base : ''
                                 }, featDiv );
                }, this );
             });
