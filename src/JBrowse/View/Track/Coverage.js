@@ -4,19 +4,21 @@ define( ['dojo/_base/declare',
         ],
         function( declare, array, Wiggle ) {
 
-var CoverageFeature = declare(null,
-{ get: function(f) { return this[f]; },
-  tags: function() { return [ 'start', 'end', 'score' ]; },
-  score: 0,
-  constructor: function( args ) {
-      dojo.safeMixin( this, args );
-  }
-});
+// feature class for the features we make for the calculated coverage
+// values
+var CoverageFeature = declare(null, {
+                                  get: function(f) { return this[f]; },
+                                  tags: function() { return [ 'start', 'end', 'score' ]; },
+                                  score: 0,
+                                  constructor: function( args ) {
+                                      dojo.safeMixin( this, args );
+                                  }
+                              });
 
 return declare( Wiggle,
 {
     getGlobalStats: function() {
-        return { scoreMax: 35, scoreMin: 0, scoreStdDev: 20, scoreMean: 20 };
+        return {};
     },
 
     readWigData: function( scale, refSeq, leftBase, rightBase, callback ) {
