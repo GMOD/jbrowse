@@ -518,8 +518,8 @@ HTMLFeatures.extend({
 
         this.scale = scale;
 
-        if( ! this.layout || this.layout.pitchX != 2/scale )
-            this.layout = new Layout({pitchX: 2/scale, pitchY: 10});
+        if( ! this.layout || this.layout.pitchX != 4/scale )
+            this.layout = new Layout({pitchX: 4/scale, pitchY: 4});
 
         block.featureNodes = {};
         block.style.backgroundColor = "#ddd";
