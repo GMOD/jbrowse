@@ -29,7 +29,7 @@ return declare( HTMLFeatures,
             array.forEach( mismatches, function( mismatch ) {
                 array.forEach( mismatch.bases, function( base, i ) {
                     dojo.create('span', {
-                                    className: 'mismatch base base_'+base.toLowerCase(),
+                                    className: 'mismatch base base_'+(base == '*' ? 'deletion' : base.toLowerCase()),
                                     style: {
                                         position: 'absolute',
                                         left: scale * (mismatch.start+i) + 'px',
