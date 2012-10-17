@@ -1,25 +1,28 @@
-require(['dojo','JBrowse/ConfigAdaptor/gbrowse'], function (parse,gbrowse) {
-    var gbrowse = new gbrowse;
+require(['JBrowse/ConfigAdaptor/gbrowse'], function ( gbrowseConfigAdaptor ) {
     describe( 'GBrowse config file parser', function() {
+        var gbrowse = new gbrowseConfigAdaptor();
+        var gbConfig;
 
         // run the script with GBrowseParseTestBasic.conf as input
         // to test different kinds of input
         // config file => ./spec/GBrowseParseTestBasic.conf
 
         it('should return a javascript object', function() {
-
             var gbrowseArgs = {
-                baseUrl: 'tests/js_tests/spec/GBrowseParseTestBasic.conf',
-                onSuccess: dojo.hitch( this, function( gbConfig ) {
-                    runs(function() {
-                        expect(gbConfig).toBeTruthy();
-                    });
-                }),
-                onFailure: dojo.hitch( this, function( error ) {
+                config: { url: 'tests/js_tests/spec/GBrowseParseTestBasic.conf' },
+                onSuccess: function( c ) {
+                        gbConfig = c;
+                },
+                onFailure: function( error ) {
                     console.error(error);
-                })
+                }
             };
             gbrowse.load(gbrowseArgs);
+
+            waitsFor( function() { return gbConfig; } );
+            runs(function() {
+                expect( typeof gbConfig).toEqual('object');
+            });
         });
 
         it ("should return correct values", function(){
