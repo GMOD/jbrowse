@@ -77,7 +77,7 @@ return declare( HTMLFeatures,
               curr.start += parseInt( token );
           }
           else if( token.match(/^\^/) ) { // insertion in the template
-              var i = token.length;
+              var i = token.length-1;
               while( i-- ) {
                   curr.bases += '*';
               }
