@@ -37,7 +37,8 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
                 halfParam:  /^(\w[\w\.\-\_\:\s]+)=\s*$/,
                 comment:    /^\s*(#|\/\/).*$/,
                 emptyLine:  /^\s*$/,
-                newLine:    /\r\n|\r|\n/
+                newLine:    /\r\n|\r|\n/,
+                code:       /^\s*function\s*\(/
             };
             this.value = {};
             this.lines = data.split(this.regex.newLine);
@@ -69,6 +70,7 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
             var line = this.lines; var rx = this.regex;
             var lineNum = i+1;
             var tmpStrVal = '';
+            var divider = this.regex.code.test(line[lineNum]) ? "\n" : ' ';
             // while (line is defined, and not a parameter, section, or subsection)
             while (typeof line[lineNum] !== 'undefined' && (! ( rx.param.test(line[lineNum]) ||
                     rx.section.test(line[lineNum]) || rx.subsection.test(line[lineNum])))){
@@ -77,7 +79,7 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
                     if (tmpStrVal === ''){
                         tmpStrVal += line[lineNum].trim();
                     } else {
-                        tmpStrVal = tmpStrVal + ' ' + line[lineNum].trim();
+                        tmpStrVal = tmpStrVal + divider + line[lineNum].trim();
                     }
                 }
                 lineNum++;
