@@ -11,7 +11,9 @@ var CoverageFeature = declare(null, {
                                   tags: function() { return [ 'start', 'end', 'score' ]; },
                                   score: 0,
                                   constructor: function( args ) {
-                                      dojo.safeMixin( this, args );
+                                      this.start = args.start;
+                                      this.end = args.end;
+                                      this.score = args.score;
                                   }
                               });
 
