@@ -207,7 +207,10 @@ var BamFile = declare( null,
         this.recordCache = this.recordCache || new LRUCache({
             name: 'bamRecordCache',
             fillCallback: dojo.hitch(this, '_fetchChunkRecords' ),
-            maxSize: 5000000 // cache up to 5 quasi-MB of BAM records
+            sizeFunction: function( records ) {
+                return records.length;
+            },
+            maxSize: 100000 // cache up to 100,000 BAM records
         });
 
         this.recordCache.get( chunks, function( records ) {
