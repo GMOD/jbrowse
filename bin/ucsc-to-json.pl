@@ -264,7 +264,7 @@ ENDJS
     my $chromCol = $fields{chrom};
     my $startCol = $fields{txStart} || $fields{chromStart};
     my $endCol = $fields{txEnd} || $fields{chromEnd};
-    my @nameCols = grep $_, distinct( $fields{ $primaryNameColumn }, @fields{grep /^(name|id)\d*$/i, keys %fields} );
+    my @nameCols = grep defined, distinct( $fields{ $primaryNameColumn }, @fields{grep /^(name|id|alias)\d*$/i, keys %fields} );
     my $compare = sub ($$) {
         $_[0]->[$chromCol] cmp $_[1]->[$chromCol]
             ||
