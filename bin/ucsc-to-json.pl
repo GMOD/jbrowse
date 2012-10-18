@@ -99,6 +99,7 @@ use JBlibs;
 use Pod::Usage;
 use Getopt::Long;
 use List::Util qw(min max);
+use List::MoreUtils 'distinct';
 
 use PerlIO::gzip;
 use JSON 2;
@@ -252,7 +253,7 @@ ENDJS
     my $chromCol = $fields{chrom};
     my $startCol = $fields{txStart} || $fields{chromStart};
     my $endCol = $fields{txEnd} || $fields{chromEnd};
-    my $nameCol = $fields{name};
+    my @nameCols = grep $_, distinct( $fields{name}, @fields{grep /^(name|id)\d*$/i, keys %fields} );
     my $compare = sub ($$) {
         $_[0]->[$chromCol] cmp $_[1]->[$chromCol]
             ||
@@ -316,15 +317,14 @@ ENDJS
         }
         my $jsonRow = $converter->($row, \%fields, $type);
         $track->addSorted($jsonRow);
-        if (defined $nameCol) {
+        if ( @nameCols ) {
             $track->nameHandler->addName(
-                [ [$row->[$nameCol]],
+                [ [ @{$row}[@nameCols] ],
                   $tableName,
-                  $row->[$nameCol],
+                  $row->[$nameCols[0]],
                   $row->[$chromCol],
                   $jsonRow->[1],
-                  $jsonRow->[2],
-                  $row->[$nameCol],
+                  $jsonRow->[2]
                 ]
             );
         }
