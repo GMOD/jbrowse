@@ -62,7 +62,7 @@ SequenceTrack.extend(
         var charSize = this.getCharacterMeasurements();
 
         // if we are zoomed in far enough to draw bases, then draw them
-        if ( scale >= 1 ) {
+        if ( scale >= 2 ) {
             this.store.getRange(
                 this.refSeq, leftBase, rightBase,
                 dojo.hitch( this, '_fillSequenceBlock', block, scale ) );
@@ -71,12 +71,16 @@ SequenceTrack.extend(
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
         else {
-            var borderWidth = Math.max(1,Math.round(4*scale/charSize.w));
-            var blur = dojo.create( 'div', {
+            var baseHeight = Math.max( 1, Math.round( 4*scale/charSize.w) );
+            var blur1 = dojo.create( 'div', {
                              className: 'sequence_blur',
-                             style: { borderStyle: 'solid', borderTopWidth: borderWidth+'px', borderBottomWidth: borderWidth+'px' }
+                             innerHTML: 'Zoom in to see base pairs.'
                          }, block );
-            this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
+            var blur2 = dojo.create( 'div', {
+                             className: 'sequence_blur'
+                         }, block );
+            blur2.style.cssText = 'background-position-x: -10px';
+            this.heightUpdate( blur1.offsetHeight+blur2.offsetHeight+2*blur1.offsetTop, blockIndex );
         }
     },
 

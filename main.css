@@ -276,13 +276,13 @@ span.base {
 }
 
 div.sequence_blur {
-    background: none;
-    height: 8px;
-    border-top: 2px solid #aaa;
-    border-bottom: 2px solid #f55;
-    border-left-width: 0;
-    border-right-width: 0;
-    margin-top: 5px;
+    background: url("img/seq_background.png") repeat 0 0;
+    height: 1.2em;
+    margin-bottom: 5px;
+    color: #333;
+    line-height: 1.2em;
+    padding-left: 1em;
+    overflow: hidden;
 }
 
 div.track-label, div.tracklist-label {
