@@ -33,7 +33,7 @@ sub option_definitions {
         "bed=s",
         "bam=s",
         "out=s",
-        "trackLabel|tracklabel=s",
+        "trackLabel=s",
         "key=s",
         "cssClass|className=s",
         "autocomplete=s",

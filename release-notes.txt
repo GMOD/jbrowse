@@ -7,6 +7,9 @@
    columns called "name", "alias", or "id" followed by zero or more
    digits.  Thanks to Steffi Geisen for this suggestion.
 
+ * Fixed "Duplicate specification" warnings coming from
+   `flatfile-to-json.pl` and `remove-track.pl`.
+
 1.6.4     2012-10-16 11:50:44 America/New_York
 
  * Improvements to the scalability of `generate-names.pl`.  Many
