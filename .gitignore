@@ -19,3 +19,6 @@ autom4te.cache
 sample_data/raw/tomato
 .prove
 *.sw*
+MYMETA.yml
+samtools/
+setup.log
