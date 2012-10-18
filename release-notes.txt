@@ -1,8 +1,11 @@
 {{$NEXT}}
 
- * `ucsc-to-json.pl` now treats as indexable names all UCSC data
-   columns called "name", or "id" followed by zero or more digits.
-   Thanks to Steffi Geisen for this suggestion.
+ * `ucsc-to-json.pl` now supports a `--primaryName` option allowing
+   the users to alter which UCSC data field is displayed by JBrowse as
+   the primary name of the features in a track.  Also,
+   `ucsc-to-json.pl` now treats as indexable names all UCSC data
+   columns called "name", "alias", or "id" followed by zero or more
+   digits.  Thanks to Steffi Geisen for this suggestion.
 
 1.6.4     2012-10-16 11:50:44 America/New_York
 
