@@ -15,6 +15,8 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         call( "bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox/", shell=True )
         call( "bin/wig-to-json.pl --out sample_data/json/volvox/ --wig docs/tutorial/data_files/volvox_microarray.wig", shell=True )
         call( "bin/add-track-json.pl sample_data/raw/volvox/volvox_microarray.bw.conf sample_data/json/volvox/trackList.json", shell=True )
+        call( "bin/add-track-json.pl sample_data/raw/volvox/volvox-sorted.bam.conf sample_data/json/volvox/trackList.json", shell=True )
+        call( "bin/add-track-json.pl sample_data/raw/volvox/volvox-sorted.bam.coverage.conf sample_data/json/volvox/trackList.json", shell=True )
         call( "bin/generate-names.pl --dir sample_data/json/volvox/", shell=True )
         super( AbstractVolvoxBiodbTest, self ).setUp()
 
@@ -48,12 +50,24 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_element("//div[@title='search at NCBI']")
 
         # test bigwig
-        self.bigwig();
+        self.bigwig()
 
         # test data export
-        self.export();
+        self.export()
+
+        # test bam
+        self.bam()
 
         self.browser.close()
+
+    def bam( self ):
+        self.do_typed_query('ctgA:18918..19070');
+        self.turn_on_track('volvox-sorted.bam');
+        self.turn_on_track('volvox-sorted Coverage');
+
+        self.assert_element('//div[contains(@class,"alignment")]/span[contains(@class,"mismatch") and contains(@class,"base_c")]');
+        self.assert_elements("//div[@id='track_volvox_sorted_bam_coverage']//canvas")
+
 
     def export( self ):
         self.do_typed_query('ctgA')
