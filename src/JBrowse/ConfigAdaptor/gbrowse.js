@@ -35,7 +35,7 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
                 subsection: /^\s*\[\s*([^\]]*)\/([^\]]*)\s*\]\s*$/,
                 param:      /^(\w[\w\.\-\_\:\s]+)=\s*(.*?)\s*$/,
                 halfParam:  /^(\w[\w\.\-\_\:\s]+)=\s*$/,
-                comment:    /^\s*#|(\/\/).*$/,
+                comment:    /^\s*(#|\/\/).*$/,
                 emptyLine:  /^\s*$/,
                 newLine:    /\r\n|\r|\n/
             };
@@ -49,10 +49,10 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
             //Process each line
             for (var i = 0; i < n; i++) {
                 if (this.regex.comment.test(this.lines[i])) {                      //      #this is a comment
-                    // do nothing, since it's a comment.
-                } else if (this.regex.halfParam.test(this.lines[i])) {             //      name = 
+                    // do nothing, since it's a comment.                           //      // this is also a comment
+                } else if (this.regex.halfParam.test(this.lines[i])) {             //      halfParam = 
                     i = this.multiLine(i); // skips lines, so get 'i': where to continue
-                } else if (this.regex.param.test(this.lines[i])) {                 //      name = value
+                } else if (this.regex.param.test(this.lines[i])) {                 //      param = value
                     this.param(i);
                 } else if (this.regex.subsection.test(this.lines[i])) {            //      [section_name]
                     this.subSection(i);
