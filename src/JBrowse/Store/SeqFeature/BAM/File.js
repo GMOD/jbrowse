@@ -110,6 +110,12 @@ var BamFile = declare( null,
             var uncba = new Uint8Array(unc);
 
             var magic = readInt(uncba, 0);
+            if (magic != BAM_MAGIC) {
+                dlog('Not a BAM file');
+                failCallback();
+                return;
+            }
+
             var headLen = readInt(uncba, 4);
             var header = '';
             for (var i = 0; i < headLen; ++i) {
