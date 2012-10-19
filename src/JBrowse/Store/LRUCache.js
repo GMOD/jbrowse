@@ -18,6 +18,7 @@ return declare( null,
      * @param args.maxSize
      * @param args.sizeFunction
      * @param args.keyFunction
+     * @param args.name
      * @constructs
      */
     constructor: function( args ) {
@@ -44,28 +45,49 @@ return declare( null,
     },
 
     get: function( inKey, callback ) {
-
-        var key = this._keyString( inKey );
-        var record = this._cacheByKey[ key ];
+        var keyString = this._keyString( inKey );
+        var record = this._cacheByKey[ keyString ];
 
         if( !record ) {
-            this._log( 'miss', key );
+            this._log( 'miss', keyString );
 
             // call our fill callback if we can
-            this._attemptFill( inKey, key, callback );
+            this._attemptFill( inKey, keyString, callback );
             return;
 
         } else {
-            this._log( 'hit', key, record.value );
-
-            // take it out of the linked list
-            this._llRemove( record );
-
-            // add it back into the list as newest
-            this._llPush( record );
-
+            this._log( 'hit', keyString, record.value );
+            this._touch( record );
             callback( record.value );
         }
+    },
+
+    query: function( keyRegex ) {
+        var results = [];
+        var cache = this._cacheByKey;
+        for( var k in cache ) {
+            if( keyRegex.test( k ) && cache.hasOwnProperty(k) )
+                results.push( cache[k] );
+        }
+        return results;
+    },
+
+    touch: function( inKey ) {
+        this._touch( this._cacheByKey[ this._keyString( inKey ) ] );
+    },
+    _touch: function( record ) {
+        if( ! record )
+            return;
+
+        // already newest, nothing to do
+        if( this._cacheNewest === record )
+            return;
+
+        // take it out of the linked list
+        this._llRemove( record );
+
+        // add it back into the list as newest
+        this._llPush( record );
     },
 
     // take a record out of the LRU linked list
@@ -95,18 +117,18 @@ return declare( null,
             this._cacheOldest = record;
     },
 
-    _attemptFill: function( inKey, key, callback ) {
+    _attemptFill: function( inKey, keyString, callback ) {
         if( this.fill ) {
-            var fillRecord = this._inProgressFills[ key ] || { callbacks: [], running: false };
+            var fillRecord = this._inProgressFills[ keyString ] || { callbacks: [], running: false };
             fillRecord.callbacks.push( callback );
             if( ! fillRecord.running ) {
                 fillRecord.running = true;
-                this.fill( inKey, dojo.hitch( this, function( key, inKey, fillRecord, value ) {
-                    delete this._inProgressFills[ key ];
+                this.fill( inKey, dojo.hitch( this, function( keyString, inKey, fillRecord, value ) {
+                    delete this._inProgressFills[ keyString ];
                     fillRecord.running = false;
 
                     if( value ) {
-                        this._log( 'fill', key );
+                        this._log( 'fill', keyString );
                         this.set( inKey, value );
                     }
                     array.forEach( fillRecord.callbacks, function( cb ) {
@@ -116,12 +138,11 @@ return declare( null,
                                            console.error(x);
                                        }
                                    }, this );
-                }, key, inKey, fillRecord ));
+                }, keyString, inKey, fillRecord ));
             }
-            this._inProgressFills[ key ] = fillRecord;
+            this._inProgressFills[ keyString ] = fillRecord;
         }
         else {
-            this._log( "can't fill", key );
             try {
                 callback( undefined );
             } catch(x) {
@@ -131,30 +152,31 @@ return declare( null,
     },
 
     set: function( inKey, value ) {
-        var key = this._keyString( inKey );
-        if( this._cacheByKey[key] ) {
+        var keyString = this._keyString( inKey );
+        if( this._cacheByKey[keyString] ) {
             return;
         }
 
         // make a cache record for it
         var record = {
             value: value,
-            key: key,
+            key: inKey,
+            keyString: keyString,
             size: this._size( value )
         };
 
         if( record.size > this.maxSize ) {
-            this._warn( 'cannot fit', key, '('+record.size + ' > ' + this.maxSize+')' );
+            this._warn( 'cannot fit', keyString, '('+record.size + ' > ' + this.maxSize+')' );
             return;
         }
 
-        this._log( 'set', key, record, this.size );
+        this._log( 'set', keyString, record, this.size );
 
         // evict items if necessary
         this._prune( record.size );
 
         // put it in the byKey structure
-        this._cacheByKey[key] = record;
+        this._cacheByKey[keyString] = record;
 
         // put it in the doubly-linked list
         this._llPush( record );
@@ -166,13 +188,13 @@ return declare( null,
         return;
     },
 
-    _keyString: function( key ) {
-        var type = typeof key;
-        if( type == 'object' && typeof key.toString == 'function' ) {
-            return key.toString();
+    _keyString: function( inKey ) {
+        var type = typeof inKey;
+        if( type == 'object' && typeof inKey.toString == 'function' ) {
+            return inKey.toString();
         }
         else {
-            return ''+key;
+            return ''+inKey;
         }
     },
 
@@ -219,7 +241,7 @@ return declare( null,
                 this._llRemove( oldest );
 
                 // delete it from the byKey structure
-                delete this._cacheByKey[ oldest.key ];
+                delete this._cacheByKey[ oldest.keyString ];
 
                 // remove its linked-list links in case that makes it
                 // easier for the GC
@@ -238,7 +260,7 @@ return declare( null,
     },
 
     _log: function() {
-        //console.log.apply( console, this._logf.apply(this,arguments) );
+        console.log.apply( console, this._logf.apply(this,arguments) );
     },
     _warn: function() {
         console.warn.apply( console, this._logf.apply(this,arguments) );
