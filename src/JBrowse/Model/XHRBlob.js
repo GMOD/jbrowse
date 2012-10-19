@@ -1,13 +1,10 @@
 define( [ 'dojo/_base/declare',
           'JBrowse/Model/FileBlob',
-          'JBrowse/Store/LRUCache'
+          'JBrowse/Store/RemoteBinaryFile'
         ],
-        function( declare, FileBlob, LRUCache ) {
-var globalCache = new LRUCache({
-    name: 'XHRBlob cache',
-    fillCallback: function( request, callback ) {
-        request.context._fetch( request, callback );
-    }
+        function( declare, FileBlob, RemoteBinaryFileCache ) {
+var globalCache = new RemoteBinaryFileCache({
+    name: 'XHRBlob'
 });
 
 var XHRBlob = declare( FileBlob,
@@ -62,78 +59,12 @@ var XHRBlob = declare( FileBlob,
             end = this.end,
             start = this.start;
 
-        var request = {
-            url: url,
-            end: end,
-            start: start,
-            toString: function() {
-                return url+" (bytes "+start+".."+end+")";
-            },
-            context: this
-        };
-
-        // note that the cache has `_fetch` configured as its fill callback
-        globalCache.get( request, callback );
-    },
-
-    _fetch: function( request, callback, attempt, truncatedLength) {
-        var thisB = this;
-
-        attempt = attempt || 1;
-        if( attempt > 3 ) {
-            callback(null);
-            return;
-        }
-
-        var req = new XMLHttpRequest();
-        var length;
-        req.open('GET', request.url, true);
-        if( req.overrideMimeType )
-            req.overrideMimeType('text/plain; charset=x-user-defined');
-        if (request.end) {
-            req.setRequestHeader('Range', 'bytes=' + request.start + '-' + request.end);
-            length = request.end - request.start + 1;
-        }
-        req.responseType = 'arraybuffer';
-        req.onreadystatechange = function() {
-            if (req.readyState == 4) {
-                if (req.status == 200 || req.status == 206) {
-                    thisB.totalSize = (function() {
-                        var contentRange = req.getResponseHeader('Content-Range');
-                        if( ! contentRange )
-                            return undefined;
-                        var match = contentRange.match(/\/(\d+)$/);
-                        return match ? parseInt(match[1]) : undefined;
-                    })();
-                    thisB.size = length || thisB.totalSize;
-
-                    if (req.response) {
-                        return callback.call(thisB,req.response);
-                    } else if (req.mozResponseArrayBuffer) {
-                        return callback.call(thisB,req.mozResponseArrayBuffer);
-                    } else {
-                        try{
-                            var r = req.responseText;
-                            if (length && length != r.length && (!truncatedLength || r.length != truncatedLength)) {
-                                return thisB._fetch( request, callback, attempt + 1, r.length );
-                            } else {
-                                return callback.call( thisB, thisB._stringToBuffer(req.responseText) );
-                            }
-                        } catch (x) {
-                            console.error(''+x);
-                            callback.call( thisB, null );
-                        }
-                    }
-                } else {
-                    return thisB._fetch( request, callback, attempt + 1);
-                }
-            }
-            return null;
-        };
-        if (this.opts.credentials) {
-            req.withCredentials = true;
-        }
-        req.send('');
+        globalCache.get({
+            url: this.url,
+            start: this.start,
+            end: this.end,
+            success: callback
+        });
     }
 });
 return XHRBlob;
