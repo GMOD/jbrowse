@@ -260,7 +260,7 @@ return declare( null,
     },
 
     _log: function() {
-        console.log.apply( console, this._logf.apply(this,arguments) );
+        //console.log.apply( console, this._logf.apply(this,arguments) );
     },
     _warn: function() {
         console.warn.apply( console, this._logf.apply(this,arguments) );

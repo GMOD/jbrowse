@@ -55,7 +55,7 @@ require(['JBrowse/Store/BigWig','JBrowse/Model/XHRBlob'], function( BigWig, XHRB
 
         it('reads the file stats (the totalSummary section)', function() {
                var stats = b.getGlobalStats();
-               console.log(stats);
+               //console.log(stats);
                expect(stats.basesCovered).toEqual(50690);
                expect(stats.scoreMin).toEqual(100);
                expect(stats.scoreMax).toEqual(899);
