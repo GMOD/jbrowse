@@ -40,7 +40,7 @@ return declare( null,
         start = start || 0;
 
         var fileChunks = this.chunkCache
-                .query( new RegExp( '^'+this._escapeRegExp( url ) ) );
+                .query( new RegExp( '^'+this._escapeRegExp( url + ' (bytes' ) ) );
 
         // set 'start' and 'end' on any records that don't have them, but should
         array.forEach( fileChunks, function(c) {
@@ -48,7 +48,7 @@ return declare( null,
                                if( ! c.key.start )
                                    c.key.start = 0;
                                if( ! c.key.end )
-                                   c.key.end = c.key.start + c.key.size;
+                                   c.key.end = c.key.start + ( c.size || c.value.byteLength );
                            }
                        });
 
@@ -241,8 +241,17 @@ return declare( null,
             throw "cannot specify a fetch start without a fetch end";
 
         this._fetchChunks( args.url, start, end, dojo.hitch( this, function( chunks ) {
-            var fetchLength = end ? end - start + 1
-                                  : Math.max.apply( Math, array.map( chunks, function(c) { return c.key.end; }) ) + 1;
+            var fetchLength = end ? end - start + 1 // use start end end if we have it
+                                  : Math.max.apply( Math, // otherwise calculate from the end offsets of the chunks
+                                                    array.map(
+                                                        chunks,
+                                                        function(c) {
+                                                            return c.key.end ||
+                                                                // and possibly calculate the end offset of the chunk from its start + its length
+                                                                (c.key.start + c.value.byteLength);
+                                                        })
+                                                  ) + 1;
+
 
             var returnBuffer = new Uint8Array( fetchLength );
 
@@ -274,7 +283,7 @@ return declare( null,
     },
 
     _log: function() {
-        console.log.apply( console, this._logf.apply(this,arguments) );
+        //console.log.apply( console, this._logf.apply(this,arguments) );
     },
     _warn: function() {
         console.warn.apply( console, this._logf.apply(this,arguments) );
