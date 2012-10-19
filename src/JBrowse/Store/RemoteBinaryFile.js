@@ -94,7 +94,7 @@ return declare( null,
                            }
                            else if( chunk.key.start > currIndex ) {
                                // we need to get a chunk for this range
-                               var needed = {
+                               var n = {
                                    key: {
                                        url:   url,
                                        start: currIndex,
@@ -102,8 +102,8 @@ return declare( null,
                                        toString: chunkToString
                                    }
                                };
-                               needed.push( needed );
-                               goldenPath.push( needed );
+                               needed.push( n );
+                               goldenPath.push( n );
                            }
                            else if( chunk.key.end >= currIndex ) {
                                // we'll use this chunk
@@ -125,6 +125,7 @@ return declare( null,
                               toString: chunkToString
                           }
                         });
+            goldenPath.push( needed[needed.length-1] );
         }
 
         this._log( 'needed', needed );
@@ -241,7 +242,7 @@ return declare( null,
 
         this._fetchChunks( args.url, start, end, dojo.hitch( this, function( chunks ) {
             var fetchLength = end ? end - start + 1
-                                  : Math.max( array.map( chunks, function(c) { return c.key.end; }) ) + 1;
+                                  : Math.max.apply( Math, array.map( chunks, function(c) { return c.key.end; }) ) + 1;
 
             var returnBuffer = new Uint8Array( fetchLength );
 

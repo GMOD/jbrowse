@@ -132,11 +132,11 @@ return declare( null,
                         this.set( inKey, value );
                     }
                     array.forEach( fillRecord.callbacks, function( cb ) {
-                                       try {
+                                       //try {
                                            cb.call(this, value);
-                                       } catch(x) {
-                                           console.error(x);
-                                       }
+                                       // } catch(x) {
+                                       //     console.error(x);
+                                       // }
                                    }, this );
                 }, keyString, inKey, fillRecord ));
             }

@@ -31,7 +31,7 @@ require(['JBrowse/Store/RemoteBinaryFile','dojo/aspect'], function( RemoteBinary
                                                     expect( b._fetchCount ).toEqual(1);
                                                     // fetch the whole file
                                                     get( undefined, undefined, function( data ) {
-                                                        expect( data.byteLength ).toEqual( 1 );
+                                                        expect( data.byteLength ).toEqual( 395273 );
                                                         expect( b._fetchCount ).toEqual( 2 );
                                                     });
                                                 });
