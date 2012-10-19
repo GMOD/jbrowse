@@ -22,6 +22,8 @@ return declare( null,
             name: args.name + ' chunk cache',
             fillCallback: dojo.hitch( this, '_fetch' )
         });
+
+        this.totalSizes = {};
     },
 
     _escapeRegExp: function(str) {
@@ -29,23 +31,51 @@ return declare( null,
     },
 
     _relevantExistingChunks: function( url, start, end ) {
-        var chunks =
-            this.chunkCache
-                .query( new RegExp( '^'+this._escapeRegExp( url ) ) )
-                .sort( function( a, b ) {
-                     // sort by start coordinate, then by length descending
-                     return ( a.key.start - b.key.start ) || ((b.key.end - b.key.start) - ( a.key.end - a.key.start ));
-                 });
-        // extract the cache records' keys and sort by start offset,
-        // then descending by length (so that we preferentially use
-        // big chunks)
-        return array.filter( chunks,
+        // we can't actually use any existing chunks if we don't have an
+        // end defined.  not possible in the HTTP spec to ask for all except
+        // the first X bytes of a file
+        if( !end )
+            return [];
+
+        start = start || 0;
+
+        var fileChunks = this.chunkCache
+                .query( new RegExp( '^'+this._escapeRegExp( url ) ) );
+
+        // set 'start' and 'end' on any records that don't have them, but should
+        array.forEach( fileChunks, function(c) {
+                           if( c.size ) {
+                               if( ! c.key.start )
+                                   c.key.start = 0;
+                               if( ! c.key.end )
+                                   c.key.end = c.key.start + c.key.size;
+                           }
+                       });
+
+        // sort the records by start coordinate, then by length descending (so that we preferentially use big chunks)
+        fileChunks = fileChunks.sort( function( a, b ) {
+            return ( a.key.start - b.key.start ) || ((b.key.end - b.key.start) - ( a.key.end - a.key.start ));
+        });
+
+        // filter for the chunks that can actually be used for this request
+        return array.filter( fileChunks,
                              function( chunk ) {
-                                 return ! ( chunk.key.start > end || chunk.key.end < start );
-                             });
+                                 return !( chunk.key.start > end || chunk.key.end < start );
+                             }, this);
     },
 
     _fetchChunks: function( url, start, end, callback ) {
+        start = start || 0;
+
+        // // if we already know how big the file is, use that information for the end
+        if( typeof end != 'number' && this.totalSizes[url] ) {
+            end = this.totalSizes[ url ]-1;
+        }
+        // // NOTE: if end is undefined, take that to mean fetch all the way to the end of the file
+
+
+        this._log( '_fetchChunks', url, start, end );
+
         // what chunks do we already have in the chunk cache?
         var existingChunks = this._relevantExistingChunks( url, start, end );
         this._log( 'existing', existingChunks );
@@ -57,41 +87,41 @@ return declare( null,
             return this.url+" (bytes "+this.start+".."+this.end+")";
         };
 
-        if( existingChunks.length ) {
-            array.forEach( existingChunks, function( chunk, i ) {
-                               if( currIndex > end ) {
-                                   return;
-                               }
-                               else if( chunk.key.start > currIndex ) {
-                                   // we need to get a chunk for this range
-                                   var needed = {
-                                       key: {
-                                           url:   url,
-                                           start: currIndex,
-                                           end:   currIndex + Math.max( this.minChunkSize, chunk.key.start - currIndex ) - 1,
-                                           toString: chunkToString
-                                       }
-                                   };
-                                   needed.push( needed );
-                                   goldenPath.push( needed );
-                               }
-                               else if( chunk.key.end >= currIndex ) {
-                                   // we'll use this chunk
-                                   this.chunkCache.touch( chunk );
-                                   goldenPath.push( chunk );
-                               }
-                               else {
-                                   console.error( currIndex, chunk, i, existingChunks );
-                                   throw 'should not be reached';
-                               }
-                               currIndex = goldenPath[ goldenPath.length-1 ].key.end + 1;
-                           },this);
-        }
-        else {
+        array.forEach( existingChunks, function( chunk, i ) {
+                           // can't use any existing chunks if we have no end specified
+                           if( !end || currIndex > end ) {
+                               return;
+                           }
+                           else if( chunk.key.start > currIndex ) {
+                               // we need to get a chunk for this range
+                               var needed = {
+                                   key: {
+                                       url:   url,
+                                       start: currIndex,
+                                       end:   currIndex + Math.max( this.minChunkSize, chunk.key.start - currIndex ) - 1,
+                                       toString: chunkToString
+                                   }
+                               };
+                               needed.push( needed );
+                               goldenPath.push( needed );
+                           }
+                           else if( chunk.key.end >= currIndex ) {
+                               // we'll use this chunk
+                               this.chunkCache.touch( chunk );
+                               goldenPath.push( chunk );
+                           }
+                           else {
+                               console.error( currIndex, chunk, i, existingChunks );
+                               throw 'should not be reached';
+                           }
+                           currIndex = goldenPath[ goldenPath.length-1 ].key.end + 1;
+        },this);
+
+        if( !existingChunks.length || currIndex <= end ) {
             needed.push({ key: {
                               url: url,
-                              start: start,
-                              end: Math.max( start+this.minChunkSize-1, end ),
+                              start: currIndex,
+                              end: end ? Math.max( currIndex+this.minChunkSize-1, end ) : undefined,
                               toString: chunkToString
                           }
                         });
@@ -106,14 +136,14 @@ return declare( null,
         if( needed.length ) {
             var fetchedCount = 0;
             array.forEach( needed, function( c ) {
-                this.chunkCache.get( c.key, dojo.hitch( function( data ) {
+                this.chunkCache.get( c.key, function( data ) {
                     c.value = data;
                     if( ++fetchedCount == needed.length )
                         callback( goldenPath );
-                }));
+                });
             }, this );
         }
-        // or we might have all the chunks we need
+        // or we might already have all the chunks we need
         else {
             callback( goldenPath );
         }
@@ -140,34 +170,48 @@ return declare( null,
             length = request.end - request.start + 1;
         }
         req.responseType = 'arraybuffer';
-        req.onreadystatechange = dojo.hitch( function() {
+
+        var respond = function( response ) {
+            if( response ) {
+                if( ! request.start )
+                    request.start = 0;
+                if( ! request.end )
+                    request.end = response.byteLength;
+            }
+            callback( response );
+        };
+
+        req.onreadystatechange = dojo.hitch( this, function() {
             if (req.readyState == 4) {
                 if (req.status == 200 || req.status == 206) {
-                    // this.totalSize = (function() {
-                    //     var contentRange = req.getResponseHeader('Content-Range');
-                    //     if( ! contentRange )
-                    //         return undefined;
-                    //     var match = contentRange.match(/\/(\d+)$/);
-                    //     return match ? parseInt(match[1]) : undefined;
-                    // })();
-                    // this.size = length || this.totalSize;
 
-                    if (req.response) {
-                        return callback(req.response);
-                    } else if (req.mozResponseArrayBuffer) {
-                        return callback(req.mozResponseArrayBuffer);
-                    } else {
+                    // if this response tells us the file's total size, remember that
+                    this.totalSizes[request.url] = (function() {
+                        var contentRange = req.getResponseHeader('Content-Range');
+                        if( ! contentRange )
+                            return undefined;
+                        var match = contentRange.match(/\/(\d+)$/);
+                        return match ? parseInt(match[1]) : undefined;
+                    })();
+
+                    var response = req.response || req.mozResponseArrayBuffer || (function() {
                         try{
                             var r = req.responseText;
                             if (length && length != r.length && (!truncatedLength || r.length != truncatedLength)) {
-                                return this._fetch( request, callback, attempt + 1, r.length );
+                                this._fetch( request, callback, attempt + 1, r.length );
+                                return;
                             } else {
-                                return callback( this._stringToBuffer(req.responseText) );
+                                respond( this._stringToBuffer(req.responseText) );
+                                return;
                             }
                         } catch (x) {
                             console.error(''+x);
-                            callback( null );
+                            respond( null );
+                            return;
                         }
+                    }).call(this);
+                    if( response ) {
+                        callback( response );
                     }
                 } else {
                     return this._fetch( request, callback, attempt + 1);
@@ -190,15 +234,23 @@ return declare( null,
     get: function( args ) {
         this._log( 'get', args.url, args.start, args.end );
 
-        this._fetchChunks( args.url, args.start, args.end, dojo.hitch( this, function( chunks ) {
-            var returnBuffer = new Uint8Array( args.end - args.start + 1 );
+        var start = args.start || 0;
+        var end = args.end;
+        if( start && !end )
+            throw "cannot specify a fetch start without a fetch end";
+
+        this._fetchChunks( args.url, start, end, dojo.hitch( this, function( chunks ) {
+            var fetchLength = end ? end - start + 1
+                                  : Math.max( array.map( chunks, function(c) { return c.key.end; }) ) + 1;
+
+            var returnBuffer = new Uint8Array( fetchLength );
 
             // stitch them together into one ArrayBuffer to return
             var cursor = 0;
             array.forEach( chunks, function( chunk ) {
                 var b = new Uint8Array( chunk.value );
-                var bOffset = Math.max( 0, args.start - chunk.key.start );
-                var length = Math.min( b.length - bOffset, returnBuffer.length - cursor );
+                var bOffset = Math.max( 0, start - chunk.key.start );
+                var length = Math.min( b.length - bOffset, fetchLength - cursor );
                 this._log( 'arrayCopy', b, bOffset, returnBuffer, cursor, length );
                 arrayCopy( b, bOffset, returnBuffer, cursor, length );
                 cursor += length;
