@@ -76,77 +76,50 @@ return declare( null,
         }
         // // NOTE: if end is undefined, take that to mean fetch all the way to the end of the file
 
-
-        this._log( '_fetchChunks', url, start, end );
-
         // what chunks do we already have in the chunk cache?
         var existingChunks = this._relevantExistingChunks( url, start, end );
         this._log( 'existing', existingChunks );
 
-        var needed = [];
-        var currIndex = start;
-        var goldenPath = [];
         var chunkToString = function() {
             return this.url+" (bytes "+this.start+".."+this.end+")";
         };
 
-        array.forEach( existingChunks, function( chunk, i ) {
-
-                           if( !end               // can't use any existing chunks if we have no end specified,
-                               || currIndex > end // skip the rest if we already have our golden path
-                               || chunk.key.end < currIndex // skip this one if we have already gone past it
-                             ) {
-                               return;
-                           }
-
-                           if( chunk.key.start > currIndex ) {
-                               // we need to get a chunk for the range before this chunk
-                               var n = {
-                                   key: {
-                                       url:   url,
-                                       start: currIndex,
-                                       end:   currIndex + Math.max( this.minChunkSize, chunk.key.start - currIndex ) - 1,
-                                       toString: chunkToString
-                                   }
-                               };
-
-                               // if the previous chunk we need is
-                               // close to this chunk, just merge them
-                               // and get it all in one request
-                               if( needed.length
-                                   && (n.key.start - needed[ needed.length-1 ].key.end) < this.minChunkSize ) {
-                                  needed[ needed.length-1 ].key.end = n.key.end;
-                                  // this merge might have rendered the previous chunk on the golden path unnecessary
-                                  if( goldenPath[ goldenPath.length-1 ].key.end < n.key.end ) {
-                                      goldenPath.pop();
-                                  }
-                               }
-                               else {
-                                  needed.push( n );
-                                  goldenPath.push( n );
-                               }
-
-                               currIndex = n.key.end + 1;
-                           }
-
-                           if( chunk.key.start <= currIndex && chunk.key.end >= currIndex ) {
-                               this.chunkCache.touch( chunk );
-                               goldenPath.push( chunk );
-                           }
-
-                           currIndex = goldenPath[ goldenPath.length - 1].key.end + 1;
-        },this);
-
-        if( !existingChunks.length || currIndex <= end ) {
-            needed.push({ key: {
-                              url: url,
-                              start: currIndex,
-                              end: end ? Math.max( currIndex+this.minChunkSize-1, end ) : undefined,
-                              toString: chunkToString
-                          }
-                        });
-            goldenPath.push( needed[needed.length-1] );
+        // assemble a 'golden path' of chunks to use to fulfill this
+        // request, using existing chunks where we have them cached,
+        // and where we don't, making records for chunks to fetch
+        var goldenPath = [];
+        if( typeof end != 'number' ) { // if we don't have an end coordinate, we just have to fetch the whole file
+            goldenPath.push({ key: { url: url, start: 0, end: undefined, toString: chunkToString } } );
         }
+        else {
+            for( var currOffset = start; currOffset <= end; currOffset = goldenPath[goldenPath.length-1].key.end+1 ) {
+                if( existingChunks[0] && existingChunks[0].key.start <= currOffset ) {
+                    goldenPath.push( existingChunks.shift() );
+                } else {
+                    goldenPath.push({ key: {
+                                          url: url,
+                                          start: currOffset,
+                                          end: existingChunks[0] ? existingChunks[0].key.start-1 : end,
+                                          toString: chunkToString
+                                      }
+                                    });
+                }
+            }
+        }
+
+        // apply minChunkSize to the blocks in the golden path that
+        // have not already been fetched
+        array.forEach( goldenPath, function(c) {
+                           if( c.value )
+                               return;
+                           var k = c.key;
+                           k.end = typeof k.end == 'number' ? Math.max( k.start + this.minChunkSize - 1, k.end ) : undefined;
+                       }, this );
+
+        // merge and filter request blocks in the golden path
+        goldenPath = this._optimizeGoldenPath( goldenPath );
+
+        var needed = array.filter( goldenPath, function(n) { return ! n.value; });
 
         this._log( 'needed', needed );
 
@@ -168,6 +141,33 @@ return declare( null,
         else {
             callback( goldenPath );
         }
+    },
+
+    _optimizeGoldenPath: function( goldenPath ) {
+        var goldenPath2 = [ goldenPath[0] ];
+        for( var i = 1; i<goldenPath.length; i++ ) {
+            var chunk = goldenPath[i];
+            var prev = goldenPath[i-1];
+            var lastGolden = goldenPath2[ goldenPath2.length-1];
+
+            if( chunk.value ) { // use an existing chunk if it is not rendered superfluous by the previous chunk
+                if( chunk.key.end > lastGolden.key.end )
+                    goldenPath2.push( chunk );
+                // else don't use this chunk
+            }
+            else {
+                // if the last thing on the golden path is also
+                // something we need to fetch, merge with it
+                if( ! lastGolden.value ) {
+                    lastGolden.key.end = chunk.key.end;
+                }
+                // otherwise, use this fetch
+                else {
+                    goldenPath2.push( chunk );
+                }
+            }
+        }
+        return goldenPath2;
     },
 
     _fetch: function( request, callback, attempt, truncatedLength ) {
@@ -278,7 +278,7 @@ return declare( null,
             var returnBuffer;
 
             // if we just have one chunk, return either it, or a subarray of it.  don't have to do any array copying
-            if( chunks.length == 1 && chunks[0].key.start == start ) {
+            if( chunks.length == 1 && chunks[0].key.start == start && (!end || chunks[0].key.end == end) ) {
                 returnBuffer = chunks[0].value;
             } else {
                 // stitch them together into one ArrayBuffer to return
