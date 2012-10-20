@@ -91,13 +91,15 @@ return declare( null,
         };
 
         array.forEach( existingChunks, function( chunk, i ) {
+
                            if( !end               // can't use any existing chunks if we have no end specified,
                                || currIndex > end // skip the rest if we already have our golden path
                                || chunk.key.end < currIndex // skip this one if we have already gone past it
                              ) {
                                return;
                            }
-                           else if( chunk.key.start > currIndex ) {
+
+                           if( chunk.key.start > currIndex ) {
                                // we need to get a chunk for the range before this chunk
                                var n = {
                                    key: {
@@ -107,20 +109,32 @@ return declare( null,
                                        toString: chunkToString
                                    }
                                };
-                               needed.push( n );
-                               goldenPath.push( n );
-                               // and then we can use this chunk
+
+                               // if the previous chunk we need is
+                               // close to this chunk, just merge them
+                               // and get it all in one request
+                               if( needed.length
+                                   && (n.key.start - needed[ needed.length-1 ].key.end) < this.minChunkSize ) {
+                                  needed[ needed.length-1 ].key.end = n.key.end;
+                                  // this merge might have rendered the previous chunk on the golden path unnecessary
+                                  if( goldenPath[ goldenPath.length-1 ].key.end < n.key.end ) {
+                                      goldenPath.pop();
+                                  }
+                               }
+                               else {
+                                  needed.push( n );
+                                  goldenPath.push( n );
+                               }
+
+                               currIndex = n.key.end + 1;
                            }
-                           else if( chunk.key.end >= currIndex ) {
-                               // fine, the chunk is relevant, we'll use it
+
+                           if( chunk.key.start <= currIndex && chunk.key.end >= currIndex ) {
+                               this.chunkCache.touch( chunk );
+                               goldenPath.push( chunk );
                            }
-                           else {
-                               console.error( currIndex, chunk, i, existingChunks );
-                               throw 'should not be reached';
-                           }
-                           this.chunkCache.touch( chunk );
-                           goldenPath.push( chunk );
-                           currIndex = chunk.key.end + 1;
+
+                           currIndex = goldenPath[ goldenPath.length - 1].key.end + 1;
         },this);
 
         if( !existingChunks.length || currIndex <= end ) {
