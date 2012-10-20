@@ -33,6 +33,7 @@ require(['JBrowse/Store/RemoteBinaryFile','dojo/aspect'], function( RemoteBinary
                                                     get( undefined, undefined, function( data ) {
                                                         expect( data.byteLength ).toEqual( 395273 );
                                                         expect( b._fetchCount ).toEqual( 2 );
+                                                        console.log( 'array copy count', b._arrayCopyCount );
                                                     });
                                                 });
                                        });

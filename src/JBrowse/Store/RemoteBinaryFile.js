@@ -16,7 +16,10 @@ return declare( null,
 {
     constructor: function( args ) {
         this.name = args.name;
+
         this._fetchCount = 0;
+        this._arrayCopyCount = 0;
+
         this.minChunkSize = 'minChunkSize' in args ? args.minChunkSize : 65536;
         this.chunkCache = new LRUCache({
             name: args.name + ' chunk cache',
@@ -88,12 +91,14 @@ return declare( null,
         };
 
         array.forEach( existingChunks, function( chunk, i ) {
-                           // can't use any existing chunks if we have no end specified
-                           if( !end || currIndex > end ) {
+                           if( !end               // can't use any existing chunks if we have no end specified,
+                               || currIndex > end // skip the rest if we already have our golden path
+                               || chunk.end < currIndex // skip this one if we have already gone past it
+                             ) {
                                return;
                            }
                            else if( chunk.key.start > currIndex ) {
-                               // we need to get a chunk for this range
+                               // we need to get a chunk for the range before this chunk
                                var n = {
                                    key: {
                                        url:   url,
@@ -104,17 +109,18 @@ return declare( null,
                                };
                                needed.push( n );
                                goldenPath.push( n );
+                               // and then we can use this chunk
                            }
                            else if( chunk.key.end >= currIndex ) {
-                               // we'll use this chunk
-                               this.chunkCache.touch( chunk );
-                               goldenPath.push( chunk );
+                               // fine, the chunk is relevant, we'll use it
                            }
                            else {
                                console.error( currIndex, chunk, i, existingChunks );
                                throw 'should not be reached';
                            }
-                           currIndex = goldenPath[ goldenPath.length-1 ].key.end + 1;
+                           this.chunkCache.touch( chunk );
+                           goldenPath.push( chunk );
+                           currIndex = chunk.key.end + 1;
         },this);
 
         if( !existingChunks.length || currIndex <= end ) {
@@ -265,6 +271,7 @@ return declare( null,
                 var length = Math.min( b.byteLength - bOffset, fetchLength - cursor );
                 this._log( 'arrayCopy', b, bOffset, returnBuffer, cursor, length );
                 arrayCopy( b, bOffset, returnBuffer, cursor, length );
+                this._arrayCopyCount++;
                 cursor += length;
             },this);
 
