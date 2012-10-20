@@ -261,22 +261,29 @@ return declare( null,
                                                   ) + 1;
 
 
-            var returnBuffer = new Uint8Array( fetchLength );
+            var returnBuffer;
 
-            // stitch them together into one ArrayBuffer to return
-            var cursor = 0;
-            array.forEach( chunks, function( chunk ) {
-                var b = new Uint8Array( chunk.value );
-                var bOffset = (start+cursor) - chunk.key.start; if( bOffset < 0 ) this._error('chunking error');
-                var length = Math.min( b.byteLength - bOffset, fetchLength - cursor );
-                this._log( 'arrayCopy', b, bOffset, returnBuffer, cursor, length );
-                arrayCopy( b, bOffset, returnBuffer, cursor, length );
-                this._arrayCopyCount++;
-                cursor += length;
-            },this);
+            // if we just have one chunk, return either it, or a subarray of it.  don't have to do any array copying
+            if( chunks.length == 1 && chunks[0].key.start == start ) {
+                returnBuffer = chunks[0].value;
+            } else {
+                // stitch them together into one ArrayBuffer to return
+                returnBuffer = new Uint8Array( fetchLength );
+                var cursor = 0;
+                array.forEach( chunks, function( chunk ) {
+                    var b = new Uint8Array( chunk.value );
+                    var bOffset = (start+cursor) - chunk.key.start; if( bOffset < 0 ) this._error('chunking error');
+                    var length = Math.min( b.byteLength - bOffset, fetchLength - cursor );
+                    this._log( 'arrayCopy', b, bOffset, returnBuffer, cursor, length );
+                    arrayCopy( b, bOffset, returnBuffer, cursor, length );
+                    this._arrayCopyCount++;
+                    cursor += length;
+                },this);
+                returnBuffer = returnBuffer.buffer;
+            }
 
             // return the data buffer
-            args.success( returnBuffer.buffer );
+            args.success( returnBuffer );
         }));
     },
 
