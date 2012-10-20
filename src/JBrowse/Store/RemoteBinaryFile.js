@@ -93,7 +93,7 @@ return declare( null,
         array.forEach( existingChunks, function( chunk, i ) {
                            if( !end               // can't use any existing chunks if we have no end specified,
                                || currIndex > end // skip the rest if we already have our golden path
-                               || chunk.end < currIndex // skip this one if we have already gone past it
+                               || chunk.key.end < currIndex // skip this one if we have already gone past it
                              ) {
                                return;
                            }
