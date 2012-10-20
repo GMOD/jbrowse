@@ -241,6 +241,8 @@ return declare( null,
             throw "cannot specify a fetch start without a fetch end";
 
         this._fetchChunks( args.url, start, end, dojo.hitch( this, function( chunks ) {
+            this._log( 'golden path', chunks);
+
             var fetchLength = end ? end - start + 1 // use start end end if we have it
                                   : Math.max.apply( Math, // otherwise calculate from the end offsets of the chunks
                                                     array.map(
@@ -259,8 +261,8 @@ return declare( null,
             var cursor = 0;
             array.forEach( chunks, function( chunk ) {
                 var b = new Uint8Array( chunk.value );
-                var bOffset = Math.max( 0, start - chunk.key.start );
-                var length = Math.min( b.length - bOffset, fetchLength - cursor );
+                var bOffset = (start+cursor) - chunk.key.start; if( bOffset < 0 ) this._error('chunking error');
+                var length = Math.min( b.byteLength - bOffset, fetchLength - cursor );
                 this._log( 'arrayCopy', b, bOffset, returnBuffer, cursor, length );
                 arrayCopy( b, bOffset, returnBuffer, cursor, length );
                 cursor += length;
@@ -289,7 +291,8 @@ return declare( null,
         console.warn.apply( console, this._logf.apply(this,arguments) );
     },
     _error: function() {
-        console.error.apply( console, this._logf.apply(this,arguments) );
+        console.error.apply( console,  this._logf.apply(this,arguments) );
+        throw 'file error';
     },
     _logf: function() {
         arguments[0] = this.name+' '+arguments[0];
