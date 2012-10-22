@@ -1,8 +1,9 @@
 define([
            'dojo/_base/declare',
-           'dojo/_base/array'
+           'dojo/_base/array',
+           'JBrowse/Util'
        ],
-       function( declare, array ) {
+       function( declare, array, Util ) {
 
 return declare( null,
 
@@ -166,7 +167,7 @@ return declare( null,
         };
 
         if( record.size > this.maxSize ) {
-            this._warn( 'cannot fit', keyString, '('+record.size + ' > ' + this.maxSize+')' );
+            this._warn( 'cannot fit', keyString, '('+Util.addCommas(record.size) + ' > ' + Util.addCommas(this.maxSize)+')' );
             return;
         }
 
