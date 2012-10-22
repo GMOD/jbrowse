@@ -9,7 +9,7 @@ define( [
 var BAM_MAGIC = 21840194;
 var BAI_MAGIC = 21578050;
 
-var dlog = function(){ console.log.apply(console, arguments); };
+var dlog = function(){ console.error.apply(console, arguments); };
 
 //
 // Binning (transliterated from SAM1.3 spec)
@@ -56,8 +56,12 @@ var Vob = declare( null, {
 });
 
 function readVob(ba, offset) {
-    var block = ((ba[offset+6] & 0xff) * 0x100000000) + ((ba[offset+5] & 0xff) * 0x1000000) + ((ba[offset+4] & 0xff) * 0x10000) + ((ba[offset+3] & 0xff) * 0x100) + ((ba[offset+2] & 0xff));
-    var bint = (ba[offset+1] << 8) | (ba[offset]);
+    var block = (ba[offset+6] & 0xff) * 0x100000000
+              + (ba[offset+5] & 0xff) * 0x1000000
+              + (ba[offset+4] & 0xff) * 0x10000
+              + (ba[offset+3] & 0xff) * 0x100
+              + (ba[offset+2] & 0xff);
+    var bint = (ba[offset+1] << 8) | ba[offset];
     if (block == 0 && bint == 0) {
         return null;  // Should only happen in the linear index?
     } else {
@@ -344,11 +348,10 @@ var BamFile = declare( null,
                 var c = chunks[index];
                 var fetchMin = c.minv.block;
                 var fetchMax = c.maxv.block + (1<<16); // *sigh*
-                thisB.data.slice(fetchMin, fetchMax - fetchMin)
-                    .fetch(function(r) {
-                               data = BAMUtil.unbgzf(r, c.maxv.block - c.minv.block + 1);
-                               return tramp();
-                           });
+                thisB.data.read(fetchMin, fetchMax - fetchMin + 1, function(r) {
+                    data = BAMUtil.unbgzf(r, c.maxv.block - c.minv.block + 1);
+                    return tramp();
+                });
                 return null;
             } else {
                 var ba = new Uint8Array(data);

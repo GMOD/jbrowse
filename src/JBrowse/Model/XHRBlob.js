@@ -55,14 +55,22 @@ var XHRBlob = declare( FileBlob,
     },
 
     fetch: function( callback ) {
-        var url = this.url,
-            end = this.end,
-            start = this.start;
-
         globalCache.get({
             url: this.url,
             start: this.start,
             end: this.end,
+            success: callback
+        });
+    },
+
+    read: function( offset, length, callback ) {
+        var start = this.start + offset,
+            end = start + length;
+
+        globalCache.get({
+            url: this.url,
+            start: start,
+            end: end,
             success: callback
         });
     }
