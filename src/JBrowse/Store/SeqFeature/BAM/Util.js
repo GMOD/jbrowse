@@ -1,7 +1,22 @@
-define( [ 'jszlib/inflate',
+define( [ 'dojo/_base/declare',
+          'jszlib/inflate',
           'jszlib/arrayCopy'
         ],
-        function( inflate, arrayCopy ) {
+        function( declare, inflate, arrayCopy ) {
+
+var VirtualOffset = declare( null, {
+    constructor: function(b, o) {
+        this.block = b;
+        this.offset = o;
+    },
+    toString: function() {
+        return '' + this.block + ':' + this.offset;
+    },
+    cmp: function(b) {
+        var a = this;
+        return b.block - a.block || b.offset - a.offset;
+    }
+});
 
 /**
  * @lends JBrowse.Store.SeqFeature.BAM.Util
@@ -17,25 +32,39 @@ var Utils = {
         return (ba[offset + 1] << 8) | (ba[offset]);
     },
 
+    readVirtualOffset: function(ba, offset) {
+        //console.log( 'readVob', offset );
+        var block = (ba[offset+6] & 0xff) * 0x100000000
+            + (ba[offset+5] & 0xff) * 0x1000000
+            + (ba[offset+4] & 0xff) * 0x10000
+            + (ba[offset+3] & 0xff) * 0x100
+            + (ba[offset+2] & 0xff);
+        var bint = (ba[offset+1] << 8) | ba[offset];
+        if (block == 0 && bint == 0) {
+            return null;  // Should only happen in the linear index?
+        } else {
+            return new VirtualOffset(block, bint);
+        }
+    },
+
     unbgzf: function(data, lim) {
-         lim = Math.min(lim || 1, data.byteLength - 100);
+         lim = lim || data.byteLength;
          var oBlockList = [];
-         var ptr = [0];
          var totalSize = 0;
 
-         while (ptr[0] < lim) {
-             var ba = new Uint8Array(data, ptr[0], 100); // FIXME is this enough for all credible BGZF block headers?
-             var xlen = (ba[11] << 8) | (ba[10]);
+         for(var ptr = [0]; ptr[0] < lim-12; ptr[0] += 8 ) {
+             var ba = new Uint8Array( data, ptr[0], 12 );
+             var xlen = ba[11] << 8 | ba[10];
              // dlog('xlen[' + (ptr[0]) +']=' + xlen);
+             var startInflate = ptr[0] + 12 + xlen;
              var unc = inflate(
                  data,
-                 12 + xlen + ptr[0],
-                 Math.min(65536, data.byteLength - 12 - xlen - ptr[0]),
+                 startInflate,
+                 data.byteLength - startInflate,
                  ptr
              );
-             ptr[0] += 8;
              totalSize += unc.byteLength;
-             oBlockList.push(unc);
+             oBlockList.push( unc );
          }
 
          if (oBlockList.length == 1) {

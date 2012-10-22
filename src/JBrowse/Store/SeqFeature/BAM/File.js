@@ -31,7 +31,7 @@ function reg2bin(beg, end)
 var MAX_BIN = (((1<<18)-1)/7);
 function reg2bins(beg, end)
 {
-    var i = 0, k, list = [];
+    var k, list = [];
     --end;
     list.push(0);
     for (k = 1 + (beg>>26); k <= 1 + (end>>26); ++k) list.push(k);
@@ -45,41 +45,17 @@ function reg2bins(beg, end)
 var SEQRET_DECODER = ['=', 'A', 'C', 'x', 'G', 'x', 'x', 'x', 'T', 'x', 'x', 'x', 'x', 'x', 'x', 'N'];
 var CIGAR_DECODER = ['M', 'I', 'D', 'N', 'S', 'H', 'P', '=', 'X', '?', '?', '?', '?', '?', '?', '?'];
 
-var Vob = declare( null, {
-    constructor: function(b, o) {
-        this.block = b;
-        this.offset = o;
-    },
-    toString: function() {
-        return '' + this.block + ':' + this.offset;
-    }
-});
-
-function readVob(ba, offset) {
-    var block = (ba[offset+6] & 0xff) * 0x100000000
-              + (ba[offset+5] & 0xff) * 0x1000000
-              + (ba[offset+4] & 0xff) * 0x10000
-              + (ba[offset+3] & 0xff) * 0x100
-              + (ba[offset+2] & 0xff);
-    var bint = (ba[offset+1] << 8) | ba[offset];
-    if (block == 0 && bint == 0) {
-        return null;  // Should only happen in the linear index?
-    } else {
-        return new Vob(block, bint);
-    }
-}
-
 var Chunk = declare( null, {
     constructor: function(minv, maxv) {
         this.minv = minv;
         this.maxv = maxv;
     }
 });
-
 var BamRecord = declare( null, {} );
 
 var readInt   = BAMUtil.readInt;
 var readShort = BAMUtil.readInt;
+var readVirtualOffset = BAMUtil.readVirtualOffset;
 
 var BamFile = declare( null,
 
@@ -100,65 +76,19 @@ var BamFile = declare( null,
 
     init: function( args ) {
         var bam = this;
-        var successCallback = args.success;
-        var failCallback = args.failure;
+        var successCallback = args.success || function() {};
+        var failCallback = args.failure || function() {};
 
-        var bamFetched, baiFetched;
-        bam.data.slice(0, 65536).fetch( dojo.hitch( this, function(r) {
-            if (!r) {
-                dlog("Couldn't access BAM");
-                return;
-            }
-
-            var unc = BAMUtil.unbgzf(r);
-            var uncba = new Uint8Array(unc);
-
-            var magic = readInt(uncba, 0);
-            if (magic != BAM_MAGIC) {
-                dlog('Not a BAM file');
-                failCallback();
-                return;
-            }
-
-            var headLen = readInt(uncba, 4);
-            var header = '';
-            for (var i = 0; i < headLen; ++i) {
-                header += String.fromCharCode(uncba[i + 8]);
-            }
-
-            var nRef = readInt(uncba, headLen + 8);
-            var p = headLen + 12;
-
-            bam.chrToIndex = {};
-            bam.indexToChr = [];
-            for (var i = 0; i < nRef; ++i) {
-                var lName = readInt(uncba, p);
-                var name = '';
-                for (var j = 0; j < lName-1; ++j) {
-                    name += String.fromCharCode(uncba[p + 4 + j]);
-                }
-                var lRef = readInt(uncba, p + lName + 4);
-                // dlog(name + ': ' + lRef);
-                bam.chrToIndex[name] = i;
-                if (name.indexOf('chr') == 0) {
-                    bam.chrToIndex[name.substring(3)] = i;
-                } else {
-                    bam.chrToIndex['chr' + name] = i;
-                }
-
-                bam.indexToChr.push(name);
-
-                p = p + 8 + lName;
-            }
-
-            if( bam.indices ) {
+        this._readBAI( dojo.hitch( this, function() {
+            this._readBAMheader( function() {
                 successCallback();
-                return;
-            }
-        }));
+            }, failCallback );
+        }), failCallback );
+    },
 
+    _readBAI: function( successCallback, failCallback ) {
         // Do we really need to fetch the whole thing? :-(
-        bam.bai.fetch( dojo.hitch( this, function(header) {
+        this.bai.fetch( dojo.hitch( this, function(header) {
             if (!header) {
                 dlog("Couldn't access BAI");
                 failCallback();
@@ -166,8 +96,7 @@ var BamFile = declare( null,
             }
 
             var uncba = new Uint8Array(header);
-            var baiMagic = readInt(uncba, 0);
-            if (baiMagic != BAI_MAGIC) {
+            if( readInt(uncba, 0) != BAI_MAGIC) {
                 dlog('Not a BAI file');
                 failCallback();
                 return;
@@ -175,9 +104,10 @@ var BamFile = declare( null,
 
             var nref = readInt(uncba, 4);
 
-            bam.indices = [];
+            this.indices = [];
 
             var p = 8;
+            var minVO; // get smallest virtual offset in the indexes, which indicates where the BAM header ends
             for (var ref = 0; ref < nref; ++ref) {
                 var blockStart = p;
                 var nbin = readInt(uncba, p); p += 4;
@@ -187,15 +117,64 @@ var BamFile = declare( null,
                     p += 8 + (nchnk * 16);
                 }
                 var nintv = readInt(uncba, p); p += 4;
+                var firstVO = readVirtualOffset(uncba,p);
+                if( ! this.minAlignmentVO || this.minAlignmentVO.cmp( firstVO ) < 0 )
+                    this.minAlignmentVO = firstVO;
+                //console.log( ref, ''+firstVO );
                 p += (nintv * 8);
                 if (nbin > 0) {
-                    bam.indices[ref] = new Uint8Array(header, blockStart, p - blockStart);
+                    this.indices[ref] = new Uint8Array(header, blockStart, p - blockStart);
                 }
             }
-            if( bam.chrToIndex ) {
-                successCallback();
+
+            successCallback( this.indices, this.minAlignmentVO );
+        }));
+    },
+
+    _readBAMheader: function( successCallback, failCallback ) {
+        this.data.read( 0, this.minAlignmentVO.block, dojo.hitch( this, function(r) {
+//        this.data.read(0, (1<<16)-1, dojo.hitch( this, function(r) {
+            var unc = BAMUtil.unbgzf(r);
+            var uncba = new Uint8Array(unc);
+
+            if( readInt(uncba, 0) != BAM_MAGIC) {
+                dlog('Not a BAM file');
+                failCallback();
                 return;
             }
+
+            var headLen = readInt(uncba, 4);
+            // var header = '';
+            // for (var i = 0; i < headLen; ++i) {
+            //     header += String.fromCharCode(uncba[i + 8]);
+            // }
+
+            var nRef = readInt(uncba, headLen + 8);
+            var p = headLen + 12;
+
+            this.chrToIndex = {};
+            this.indexToChr = [];
+            for (var i = 0; i < nRef; ++i) {
+                var lName = readInt(uncba, p);
+                var name = '';
+                for (var j = 0; j < lName-1; ++j) {
+                    name += String.fromCharCode(uncba[p + 4 + j]);
+                }
+                var lRef = readInt(uncba, p + lName + 4);
+                // dlog(name + ': ' + lRef);
+                this.chrToIndex[name] = i;
+                if (name.indexOf('chr') == 0) {
+                    this.chrToIndex[name.substring(3)] = i;
+                } else {
+                    this.chrToIndex['chr' + name] = i;
+                }
+
+                this.indexToChr.push(name);
+
+                p = p + 8 + lName;
+            }
+
+            successCallback();
         }));
     },
 
@@ -221,8 +200,8 @@ var BamFile = declare( null,
             p += 8;
             if (intBins[bin]) {
                 for (var c = 0; c < nchnk; ++c) {
-                    var cs = readVob(index, p);
-                    var ce = readVob(index, p + 8);
+                    var cs = readVirtualOffset(index, p);
+                    var ce = readVirtualOffset(index, p + 8);
                     (bin < 4681 ? otherChunks : leafChunks).push(new Chunk(cs, ce));
                     p += 16;
                 }
@@ -237,7 +216,7 @@ var BamFile = declare( null,
         var lowest = null;
         var minLin = Math.min(min>>14, nintv - 1), maxLin = Math.min(max>>14, nintv - 1);
         for (var i = minLin; i <= maxLin; ++i) {
-            var lb =  readVob(index, p + 4 + (i * 8));
+            var lb =  readVirtualOffset(index, p + 4 + (i * 8));
             if (!lb) {
                 continue;
             }
