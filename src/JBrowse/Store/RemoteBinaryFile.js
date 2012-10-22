@@ -108,13 +108,14 @@ return declare( null,
             }
         }
 
-        // apply minChunkSize to the blocks in the golden path that
-        // have not already been fetched
+        // filter the blocks in the golden path that
+        // have not already been fetched to try to align them to chunk boundaries: multiples of minChunkSize
         array.forEach( goldenPath, function(c) {
                            if( c.value )
                                return;
                            var k = c.key;
-                           k.end = typeof k.end == 'number' ? Math.max( k.start + this.minChunkSize - 1, k.end ) : undefined;
+                           k.start = Math.floor( k.start / this.minChunkSize ) * this.minChunkSize;
+                           k.end = Math.ceil( (k.end+1) / this.minChunkSize ) * this.minChunkSize - 1;
                        }, this );
 
         // merge and filter request blocks in the golden path
