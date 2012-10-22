@@ -20,7 +20,7 @@ return declare( null,
         this._fetchCount = 0;
         this._arrayCopyCount = 0;
 
-        this.minChunkSize = 'minChunkSize' in args ? args.minChunkSize : 65536;
+        this.minChunkSize = 'minChunkSize' in args ? args.minChunkSize : 32768;
         this.chunkCache = new LRUCache({
             name: args.name + ' chunk cache',
             fillCallback: dojo.hitch( this, '_fetch' ),
