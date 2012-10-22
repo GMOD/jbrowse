@@ -71,16 +71,7 @@ SequenceTrack.extend(
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
         else {
-            var baseHeight = Math.max( 1, Math.round( 4*scale/charSize.w) );
-            var blur1 = dojo.create( 'div', {
-                             className: 'sequence_blur',
-                             innerHTML: 'Zoom in to see base pairs.'
-                         }, block );
-            var blur2 = dojo.create( 'div', {
-                             className: 'sequence_blur'
-                         }, block );
-            blur2.style.cssText = 'background-position-x: -10px';
-            this.heightUpdate( blur1.offsetHeight+blur2.offsetHeight+2*blur1.offsetTop, blockIndex );
+            this.fillMessage( blockIndex, block, 'Zoom in to see base pairs.' );
         }
     },
 

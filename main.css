@@ -244,21 +244,15 @@ div.sequence .highlighted {
 div.sequence .revcom {
     color: red;
 }
-div.sequence .base, div.sequence > div, div.sequence_blur {
+div.sequence .base, div.sequence > div  {
     height: 14px;
     line-height: 14px;
 }
-div.sequence_blur {
-    background-color: #ddd;
-    color: #333;
-    padding-left: 1em;
-    overflow: hidden;
-}
-div.sequence > div, div.sequence_blur {
+div.sequence > div {
     border-top: 1px solid #4d4d4d;
     border-bottom: 1px solid black;
 }
-div.sequence > div:first-child, div.sequence_blur:first-child {
+div.sequence > div:first-child {
     border-bottom-width: 0px;
 }
 
