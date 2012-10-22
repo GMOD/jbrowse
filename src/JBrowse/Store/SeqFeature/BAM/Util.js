@@ -48,11 +48,11 @@ var Utils = {
     },
 
     unbgzf: function(data, lim) {
-         lim = lim || data.byteLength;
+        lim = lim || data.byteLength - 12;
          var oBlockList = [];
          var totalSize = 0;
 
-         for(var ptr = [0]; ptr[0] < lim-12; ptr[0] += 8 ) {
+         for( var ptr = [0]; ptr[0] < lim; ptr[0] += 8) {
              var ba = new Uint8Array( data, ptr[0], 12 );
              var xlen = ba[11] << 8 | ba[10];
              // dlog('xlen[' + (ptr[0]) +']=' + xlen);
