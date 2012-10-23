@@ -315,31 +315,27 @@ var BamFile = declare( null,
     _fetchChunkFeatures: function( chunks, callback ) {
         var thisB = this;
         var features = [];
-        var index = 0;
-        var data;
+        var chunksProcessed = 0;
 
-        function tramp() {
-            if (index >= chunks.length) {
-                return callback(features);
-            } else if (!data) {
-                // dlog('fetching ' + index);
-                var c = chunks[index];
+        if( ! chunks.length ) {
+            callback([]);
+            return;
+        }
+
+        array.forEach( chunks, function( c ) {
                 var fetchMin = c.minv.block;
                 var fetchMax = c.maxv.block + (1<<16); // *sigh*
+
                 thisB.data.read(fetchMin, fetchMax - fetchMin + 1, function(r) {
-                    data = BAMUtil.unbgzf(r, c.maxv.block - c.minv.block + 1);
-                    return tramp();
+
+                    var data = BAMUtil.unbgzf(r, c.maxv.block - c.minv.block + 1);
+
+                    thisB.readBamFeatures( new Uint8Array(data), c.minv.offset, features );
+
+                    if( ++chunksProcessed == chunks.length )
+                        callback( features );
                 });
-                return null;
-            } else {
-                var ba = new Uint8Array(data);
-                thisB.readBamFeatures(ba, chunks[index].minv.offset, features );
-                data = null;
-                ++index;
-                return tramp();
-            }
-        };
-        tramp();
+        });
     },
 
     readBamFeatures: function(ba, blockStart, sink ) {
