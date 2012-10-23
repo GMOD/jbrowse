@@ -71,11 +71,15 @@ return declare( null,
     _fetchChunks: function( url, start, end, callback ) {
         start = start || 0;
 
-        // // if we already know how big the file is, use that information for the end
+        // if we already know how big the file is, use that information for the end
         if( typeof end != 'number' && this.totalSizes[url] ) {
             end = this.totalSizes[ url ]-1;
         }
-        // // NOTE: if end is undefined, take that to mean fetch all the way to the end of the file
+        // if we know the size of the file, and end is beyond it, then clamp it
+        else if( end >= this.totalSizes[url] ) {
+            end = this.totalSizes[url] - 1;
+        }
+        // NOTE: if end is undefined, we take that to mean fetch all the way to the end of the file
 
         // what chunks do we already have in the chunk cache?
         var existingChunks = this._relevantExistingChunks( url, start, end );
@@ -115,7 +119,8 @@ return declare( null,
                                return;
                            var k = c.key;
                            k.start = Math.floor( k.start / this.minChunkSize ) * this.minChunkSize;
-                           k.end = Math.ceil( (k.end+1) / this.minChunkSize ) * this.minChunkSize - 1;
+                           if( k.end )
+                               k.end = Math.ceil( (k.end+1) / this.minChunkSize ) * this.minChunkSize - 1;
                        }, this );
 
         // merge and filter request blocks in the golden path
