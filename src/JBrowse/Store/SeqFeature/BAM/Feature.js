@@ -34,7 +34,7 @@ var Feature = Util.fastDeclare(
 
         // figure out start and end
         data.start = data.start || data.pos;
-        data.end = data.end || ( data.lref ? data.pos + data.lref : data.seq ? data.pos + data.seq.length : undefined );
+        data.end = data.end || ( data.length_on_ref ? data.pos + data.length_on_ref : data.seq ? data.pos + data.seq.length : undefined );
 
         // trying to determine orientation from 'XS' optional field,
         // or from the seq_reverse_complemented flag
