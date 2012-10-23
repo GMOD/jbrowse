@@ -37,7 +37,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     this.topSpace = 1.5 * this.posHeight;
 
     // arbitrary max px per bp
-    this.maxPxPerBp = 50;
+    this.maxPxPerBp = 20;
 
     //the reference sequence
     this.ref = refseq;
@@ -1215,7 +1215,7 @@ GenomeView.prototype.sizeInit = function() {
     this.overviewBox = dojo.marginBox(this.overview);
 
     //scale values, in pixels per bp, for all zoom levels
-    this.zoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, 10, 20, this.maxPxPerBp ];
+    this.zoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, 10, this.maxPxPerBp ];
     //make sure we don't zoom out too far
     while (((this.ref.end - this.ref.start) * this.zoomLevels[0])
            < this.getWidth()) {
