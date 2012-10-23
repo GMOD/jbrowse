@@ -330,32 +330,50 @@ var BamFile = declare( null,
 
                     var data = BAMUtil.unbgzf(r, c.maxv.block - c.minv.block + 1);
 
-                    thisB.readBamFeatures( new Uint8Array(data), c.minv.offset, features );
-
-                    if( ++chunksProcessed == chunks.length )
-                        callback( features );
+                    thisB.readBamFeatures( new Uint8Array(data), c.minv.offset, features, function() {
+                        if( ++chunksProcessed == chunks.length )
+                            callback( features );
+                    });
                 });
         });
     },
 
-    readBamFeatures: function(ba, blockStart, sink ) {
-        while (true) {
-            var blockSize = readInt(ba, blockStart);
-            var blockEnd = blockStart + blockSize;
-            if (blockEnd >= ba.length) {
-                return sink;
+    readBamFeatures: function(ba, blockStart, sink, callback ) {
+        var that = this;
+        var featureCount = 0;
+
+        var maxFeaturesWithoutYielding = 300;
+
+        while ( true ) {
+            if( blockStart >= ba.length ) {
+                // if we're done, call the callback and return
+                callback( sink );
+                return;
             }
+            else if( featureCount <= maxFeaturesWithoutYielding ) {
+                // if we've read no more than 200 features this cycle, read another one
+                var blockSize = readInt(ba, blockStart);
+                var blockEnd = blockStart + blockSize;
 
-            var feature = new BAMFeature({
-                    store: this.store,
-                    file: this,
-                    bytes: { byteArray: ba, start: blockStart, end: blockEnd }
-            });
-
-            sink.push(feature);
-            blockStart = blockEnd + 4;
+                var feature = new BAMFeature({
+                        store: this.store,
+                        file: this,
+                        bytes: { byteArray: ba, start: blockStart, end: blockEnd }
+                });
+                sink.push(feature);
+                featureCount++;
+                blockStart = blockEnd + 4;
+            }
+            else {
+                // if we're not done but we've read a good chunk of
+                // features, put the rest of our work into a timeout to continue
+                // later, avoiding blocking any UI stuff that's going on
+                window.setTimeout( function() {
+                    that.readBamFeatures( ba, blockStart, sink, callback );
+                }, 1);
+                return;
+            }
         }
-        // Exits via top of loop.
     }
 });
 
