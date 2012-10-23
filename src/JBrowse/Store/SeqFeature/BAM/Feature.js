@@ -107,8 +107,7 @@ var Feature = Util.fastDeclare(
         var lref = 0;
         for (var c = 0; c < numCigarOps; ++c) {
             var cigop = readInt(byteArray, p);
-            cigar = cigar + (cigop>>4) + CIGAR_DECODER[cigop & 0xf];
-            var lop = (cigop>>4);
+            var lop = cigop >> 4;
             var op = CIGAR_DECODER[cigop & 0xf];
             cigar = cigar + lop + op;
             switch (op) {
