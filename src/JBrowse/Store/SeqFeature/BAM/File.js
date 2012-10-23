@@ -304,9 +304,8 @@ var BamFile = declare( null,
 
         this.featureCache.get( chunks, function( features ) {
             features = array.filter( features, function( feature ) {
-                var fstart = feature.get('start');
-                return ( !min || fstart <= max && fstart + (feature.get('length_on_ref') || feature.get('seq_length')) >= min)
-                        && (chrId === undefined || feature.get('_refID') == chrId);
+                return ( !( feature.get('end') < min || feature.get('start') > max )
+                         && ( chrId === undefined || feature.get('_refID') == chrId ) );
             });
             callback( features );
         });
