@@ -59,7 +59,9 @@ return declare( null,
         } else {
             this._log( 'hit', keyString, record.value );
             this._touch( record );
-            callback( record.value );
+            window.setTimeout( function() {
+                callback( record.value );
+            }, 1 );
         }
     },
 
