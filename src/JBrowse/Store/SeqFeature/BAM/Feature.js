@@ -61,11 +61,11 @@ var Feature = Util.fastDeclare(
                                      : this.data.name+' at '+ data.segment + ':' + data.start + '..' + data.end;
 
         var cigar = data.CIGAR || data.cigar;
-        this.data.subfeatures = [];
-        if( cigar ) {
-            this.data.Gap = this._cigarToGap( cigar );
-            this.data.subfeatures.push.apply( this.data.subfeatures, this._cigarToSubfeats( cigar, this ) );
-        }
+        // this.data.subfeatures = [];
+        // if( cigar ) {
+        //     this.data.Gap = this._cigarToGap( cigar );
+        //     this.data.subfeatures.push.apply( this.data.subfeatures, this._cigarToSubfeats( cigar, this ) );
+        // }
     },
 
     _fromBytes: function( byteArray, blockStart, blockEnd ) {
