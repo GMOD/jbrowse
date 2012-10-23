@@ -21,7 +21,7 @@ return declare( HTMLFeatures,
 
     _drawMismatches: function( feature, featDiv, scale ) {
         // recall: scale is pixels/basepair
-        if ( scale >= 1 ) {
+        if ( scale >= 0.5 ) {
             var mismatches = this._getMismatches( feature );
             var charSize = this.getCharacterMeasurements();
             var drawChars = scale >= charSize.w;
@@ -34,7 +34,7 @@ return declare( HTMLFeatures,
                                     style: {
                                         position: 'absolute',
                                         left: (mismatch.start+i)/featureLength*100 + '%',
-                                        width: scale + 'px'
+                                        width: Math.max(scale,1) + 'px'
                                     },
                                     innerHTML: drawChars ? base : ''
                                 }, featDiv );
