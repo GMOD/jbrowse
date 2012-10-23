@@ -1,10 +1,11 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'JBrowse/Util',
             './Util',
             'JBrowse/Store/LRUCache'
         ],
-        function( declare, array, BAMUtil, LRUCache ) {
+        function( declare, array, Util, BAMUtil, LRUCache ) {
 
 var BAM_MAGIC = 21840194;
 var BAI_MAGIC = 21578050;
@@ -45,13 +46,10 @@ function reg2bins(beg, end)
 var SEQRET_DECODER = ['=', 'A', 'C', 'x', 'G', 'x', 'x', 'x', 'T', 'x', 'x', 'x', 'x', 'x', 'x', 'N'];
 var CIGAR_DECODER = ['M', 'I', 'D', 'N', 'S', 'H', 'P', '=', 'X', '?', '?', '?', '?', '?', '?', '?'];
 
-var Chunk = declare( null, {
-    constructor: function(minv, maxv) {
+var Chunk = function(minv,maxv) {
         this.minv = minv;
         this.maxv = maxv;
-    }
-});
-var BamRecord = declare( null, {} );
+};
 
 var readInt   = BAMUtil.readInt;
 var readShort = BAMUtil.readInt;
@@ -351,7 +349,7 @@ var BamFile = declare( null,
                 return sink;
             }
 
-            var record = new BamRecord();
+            var record = {};
 
             var refID = readInt(ba, offset + 4);
             var pos = readInt(ba, offset + 8);

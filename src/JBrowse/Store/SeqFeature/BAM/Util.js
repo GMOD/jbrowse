@@ -1,10 +1,11 @@
 define( [ 'dojo/_base/declare',
           'jszlib/inflate',
-          'jszlib/arrayCopy'
+          'jszlib/arrayCopy',
+          'JBrowse/Util'
         ],
-        function( declare, inflate, arrayCopy ) {
+        function( declare, inflate, arrayCopy, Util ) {
 
-var VirtualOffset = declare( null, {
+var VirtualOffset = Util.fastDeclare({
     constructor: function(b, o) {
         this.block = b;
         this.offset = o;
