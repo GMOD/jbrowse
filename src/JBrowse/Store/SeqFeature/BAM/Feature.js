@@ -71,21 +71,22 @@ var Feature = Util.fastDeclare(
     _fromBytes: function( byteArray, blockStart, blockEnd ) {
         var record = {};
 
-        var refID = readInt(byteArray, blockStart + 4);
-        var pos = readInt(byteArray, blockStart + 8);
+        var intArray = new Int32Array( byteArray.buffer.slice(blockStart+4,blockStart+36) );
+        var refID = intArray[0];
+        var pos = intArray[1];
 
-        var bmn = readInt(byteArray, blockStart + 12);
+        var bmn = intArray[2];
         //var bin = (bmn & 0xffff0000) >> 16;
         var mq = (bmn & 0xff00) >> 8;
         var nl = bmn & 0xff;
 
-        var flag_nc = readInt(byteArray, blockStart + 16);
+        var flag_nc = intArray[3];
         this._decodeFlags( record, (flag_nc & 0xffff0000) >> 16 );
 
-        record.template_length = readInt(byteArray, blockStart + 32);
-
-        var lseq = readInt(byteArray, blockStart + 20);
+        var lseq = intArray[4];
         record.seq_length = lseq;
+
+        record.template_length = intArray[7];
 
         // If the read is unmapped, no assumptions can be made about RNAME, POS,
         // CIGAR, MAPQ, bits 0x2, 0x10 and 0x100 and the bit 0x20 of the next
