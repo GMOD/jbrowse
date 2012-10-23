@@ -393,7 +393,7 @@ HTMLFeatures.extend({
             }
             // otherwise, display a zoomed-out-too-far message
             else {
-                this.fillMessage( blockIndex, block, 'Too many features to show; zoom in to see detail.' );
+                this.fillMessage( blockIndex, block, 'Too many features to show'+(scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')+'.' );
             }
         } else {
 
