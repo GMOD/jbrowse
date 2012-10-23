@@ -2,10 +2,11 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/array',
             'JBrowse/Util',
+            'JBrowse/Store/LRUCache',
             './Util',
-            'JBrowse/Store/LRUCache'
+            './Feature'
         ],
-        function( declare, array, Util, BAMUtil, LRUCache ) {
+        function( declare, array, Util, LRUCache, BAMUtil, BAMFeature ) {
 
 var BAM_MAGIC = 21840194;
 var BAI_MAGIC = 21578050;
@@ -43,16 +44,12 @@ function reg2bins(beg, end)
     return list;
 }
 
-var SEQRET_DECODER = ['=', 'A', 'C', 'x', 'G', 'x', 'x', 'x', 'T', 'x', 'x', 'x', 'x', 'x', 'x', 'N'];
-var CIGAR_DECODER = ['M', 'I', 'D', 'N', 'S', 'H', 'P', '=', 'X', '?', '?', '?', '?', '?', '?', '?'];
-
 var Chunk = function(minv,maxv) {
         this.minv = minv;
         this.maxv = maxv;
 };
 
 var readInt   = BAMUtil.readInt;
-var readShort = BAMUtil.readInt;
 var readVirtualOffset = BAMUtil.readVirtualOffset;
 
 var BamFile = declare( null,
@@ -70,7 +67,11 @@ var BamFile = declare( null,
      * Explorer which is copyright Thomas Down 2006-2010
      * @constructs
      */
-    constructor: function() {},
+    constructor: function( args ) {
+        this.store = args.store;
+        this.data  = args.data;
+        this.bai   = args.bai;
+    },
 
     init: function( args ) {
         var bam = this;
@@ -292,34 +293,35 @@ var BamFile = declare( null,
             return str;
         };
 
-        this.recordCache = this.recordCache || new LRUCache({
-            name: 'bamRecordCache',
-            fillCallback: dojo.hitch(this, '_fetchChunkRecords' ),
-            sizeFunction: function( records ) {
-                return records.length;
+        this.featureCache = this.featureCache || new LRUCache({
+            name: 'bamFeatureCache',
+            fillCallback: dojo.hitch(this, '_fetchChunkFeatures' ),
+            sizeFunction: function( features ) {
+                return features.length;
             },
-            maxSize: 100000 // cache up to 100,000 BAM records
+            maxSize: 100000 // cache up to 100,000 BAM features
         });
 
-        this.recordCache.get( chunks, function( records ) {
-            records = array.filter( records, function( record ) {
-                return ( !min || record.pos <= max && record.pos + (record.length_on_ref || record.seq_length) >= min)
-                        && (chrId === undefined || record._refID == chrId);
+        this.featureCache.get( chunks, function( features ) {
+            features = array.filter( features, function( feature ) {
+                var fstart = feature.get('start');
+                return ( !min || fstart <= max && fstart + (feature.get('length_on_ref') || feature.get('seq_length')) >= min)
+                        && (chrId === undefined || feature.get('_refID') == chrId);
             });
-            callback( records );
+            callback( features );
         });
 
     },
 
-    _fetchChunkRecords: function( chunks, callback ) {
+    _fetchChunkFeatures: function( chunks, callback ) {
         var thisB = this;
-        var records = [];
+        var features = [];
         var index = 0;
         var data;
 
         function tramp() {
             if (index >= chunks.length) {
-                return callback(records);
+                return callback(features);
             } else if (!data) {
                 // dlog('fetching ' + index);
                 var c = chunks[index];
@@ -332,7 +334,7 @@ var BamFile = declare( null,
                 return null;
             } else {
                 var ba = new Uint8Array(data);
-                thisB.readBamRecords(ba, chunks[index].minv.offset, records );
+                thisB.readBamFeatures(ba, chunks[index].minv.offset, features );
                 data = null;
                 ++index;
                 return tramp();
@@ -341,7 +343,7 @@ var BamFile = declare( null,
         tramp();
     },
 
-    readBamRecords: function(ba, blockStart, sink ) {
+    readBamFeatures: function(ba, blockStart, sink ) {
         while (true) {
             var blockSize = readInt(ba, blockStart);
             var blockEnd = blockStart + blockSize;
@@ -349,211 +351,16 @@ var BamFile = declare( null,
                 return sink;
             }
 
-            var record = this._parseRecord( ba, blockStart, blockEnd );
+            var feature = new BAMFeature({
+                    store: this.store,
+                    file: this,
+                    bytes: { byteArray: ba, start: blockStart, end: blockEnd }
+            });
 
-            sink.push(record);
+            sink.push(feature);
             blockStart = blockEnd + 4;
         }
         // Exits via top of loop.
-    },
-
-    _parseRecord: function( ba, blockStart, blockEnd ) {
-        var record = {};
-
-        var refID = readInt(ba, blockStart + 4);
-        var pos = readInt(ba, blockStart + 8);
-
-        var bmn = readInt(ba, blockStart + 12);
-        var bin = (bmn & 0xffff0000) >> 16;
-        var mq = (bmn & 0xff00) >> 8;
-        var nl = bmn & 0xff;
-
-        var flag_nc = readInt(ba, blockStart + 16);
-        this._decodeFlags( record, (flag_nc & 0xffff0000) >> 16 );
-
-        var tlen = readInt(ba, blockStart + 32);
-        record.template_length = tlen;
-
-        var lseq = readInt(ba, blockStart + 20);
-        record.seq_length = lseq;
-
-        // If the read is unmapped, no assumptions can be made about RNAME, POS,
-        // CIGAR, MAPQ, bits 0x2, 0x10 and 0x100 and the bit 0x20 of the next
-        // segment in the template.
-        var numCigarOps = flag_nc & 0xffff;
-
-        var nextRef  = readInt(ba, blockStart + 24);
-        var nextPos = readInt(ba, blockStart + 28);
-
-        if( ! record.unmapped ) {
-            var readName = '';
-            for (var j = 0; j < nl-1; ++j) {
-                readName += String.fromCharCode(ba[blockStart + 36 + j]);
-            }
-        }
-
-        var p = blockStart + 36 + nl;
-        var cigar = '';
-        var lref = 0;
-        for (var c = 0; c < numCigarOps; ++c) {
-            var cigop = readInt(ba, p);
-            cigar = cigar + (cigop>>4) + CIGAR_DECODER[cigop & 0xf];
-            var lop = (cigop>>4);
-            var op = CIGAR_DECODER[cigop & 0xf];
-            cigar = cigar + lop + op;
-            switch (op) {
-            case 'M':
-            case 'D':
-            case 'N':
-            case '=':
-            case 'X':
-                lref += lop;
-                break;
-            }
-            p += 4;
-        }
-        if( ! record.unmapped ) {
-            record.cigar = cigar;
-            record.length_on_ref = lref;
-        }
-
-        var seq = '';
-        var seqBytes = (lseq + 1) >> 1;
-        for (var j = 0; j < seqBytes; ++j) {
-            var sb = ba[p + j];
-            seq += SEQRET_DECODER[(sb & 0xf0) >> 4];
-            seq += SEQRET_DECODER[(sb & 0x0f)];
-        }
-        p += seqBytes;
-        record.seq = seq;
-
-        if( ! record.unmapped ) {
-            var qseq = [];
-            for (var j = 0; j < lseq; ++j) {
-                qseq.push( ba[p + j] );
-            }
-        }
-
-        p += lseq;
-
-        if( ! record.unmapped ) {
-            record.qual = qseq;
-
-            record.pos = pos;
-            if( mq != 255 ) // value of 255 means MQ is not available
-                record.mapping_quality = mq;
-            record.readName = readName;
-            record.segment = this.indexToChr[refID];
-            record._refID = refID;
-        }
-
-        while (p <= blockEnd) {
-            var tag = String.fromCharCode(ba[p]) + String.fromCharCode(ba[p + 1]);
-            var type = String.fromCharCode(ba[p + 2]);
-            var value;
-
-            if (type == 'A') {
-                value = String.fromCharCode(ba[p + 3]);
-                p += 4;
-            } else if (type == 'i' || type == 'I') {
-                value = readInt(ba, p + 3);
-                p += 7;
-            } else if (type == 'c' || type == 'C') {
-                value = ba[p + 3];
-                p += 4;
-            } else if (type == 's' || type == 'S') {
-                value = readShort(ba, p + 3);
-                p += 5;
-            } else if (type == 'f') {
-                throw 'FIXME need floats';
-            } else if (type == 'Z') {
-                p += 3;
-                value = '';
-                for (;;) {
-                    var cc = ba[p++];
-                    if (cc == 0) {
-                        break;
-                    } else {
-                        value += String.fromCharCode(cc);
-                    }
-                }
-            } else {
-                throw 'Unknown type '+ type;
-            }
-            record[tag] = value;
-        }
-        return record;
-    },
-
-    /**
-     * Decode the BAM flags field and set them in the record.
-     */
-    _decodeFlags: function( record, flags ) {
-        // the following explanations are taken verbatim from the SAM/BAM spec
-
-        // 0x1 template having multiple segments in sequencing
-        // If 0x1 is unset, no assumptions can be made about 0x2, 0x8, 0x20,
-        // 0x40 and 0x80.
-        if( flags & 0x1 ) {
-            record.multi_segment_template = true;
-            // 0x2 each segment properly aligned according to the aligner
-            record.multi_segment_all_aligned = !!( flags & 0x2 );
-            // 0x8 next segment in the template unmapped
-            record.multi_segment_next_segment_unmapped = !!( flags & 0x8 );
-            // 0x20 SEQ of the next segment in the template being reversed
-            record.multi_segment_next_segment_reversed = !!( flags & 0x20 );
-
-            // 0x40 the first segment in the template
-            var first = !!( flags & 0x40 );
-            // 0x80 the last segment in the template
-            var last =  !!( flags & 0x80 );
-            // * If 0x40 and 0x80 are both set, the segment is part of a linear
-            // template, but it is neither the first nor the last segment. If both
-            // 0x40 and 0x80 are unset, the index of the segment in the template is
-            // unknown. This may happen for a non-linear template or the index is
-            // lost in data processing.
-            if( first && last ) {
-                record.multi_segment_inner = true;
-            }
-            else if( first && !last ) {
-                record.multi_segment_first = true;
-            }
-            else if( !first && last ) {
-                record.multi_segment_last = true;
-            }
-            else {
-                record.multi_segment_index_unknown = true;
-            }
-        }
-
-        // 0x4 segment unmapped
-        // * Bit 0x4 is the only reliable place to tell whether the segment is
-        // unmapped. If 0x4 is set, no assumptions can be made about RNAME, POS,
-        // CIGAR, MAPQ, bits 0x2, 0x10 and 0x100 and the bit 0x20 of the next
-        // segment in the template.
-        // only set unmapped if true
-        if( flags & 0x4 ) {
-            record.unmapped = true;
-        } else {
-            // 0x10 SEQ being reverse complemented
-            record.seq_reverse_complemented = !!(flags & 0x10);
-
-            // 0x100 secondary alignment
-            // * Bit 0x100 marks the alignment not to be used in certain analyses
-            // when the tools in use are aware of this bit.
-            if( flags & 0x100 )
-                record.secondary_alignment = true;
-        }
-
-        // 0x200 not passing quality controls
-        // only set qc_failed if it is true
-        if( flags & 0x200 )
-            record.qc_failed = true;
-
-        // 0x400 PCR or optical duplicate
-        // only set duplicate if true
-        if ( flags & 0x400 )
-            record.duplicate = true;
     }
 });
 

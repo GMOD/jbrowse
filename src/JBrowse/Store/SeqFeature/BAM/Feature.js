@@ -1,8 +1,14 @@
 define( ['dojo/_base/array',
-         'JBrowse/Util'
+         'JBrowse/Util',
+         './Util'
         ],
-        function( array, Util ) {
+        function( array, Util, BAMUtil ) {
 
+
+var SEQRET_DECODER = ['=', 'A', 'C', 'x', 'G', 'x', 'x', 'x', 'T', 'x', 'x', 'x', 'x', 'x', 'x', 'N'];
+var CIGAR_DECODER  = ['M', 'I', 'D', 'N', 'S', 'H', 'P', '=', 'X', '?', '?', '?', '?', '?', '?', '?'];
+
+var readInt   = BAMUtil.readInt;
 
 var Feature = Util.fastDeclare(
 
@@ -18,27 +24,19 @@ var Feature = Util.fastDeclare(
      * @constructs
      */
     constructor: function( args ) {
+        this.file = args.file;
         this.store = args.store;
 
-        var data = args.record ? dojo.clone( args.record ) : args.data;
+        var data = args.data
+            || args.bytes && this._fromBytes( args.bytes.byteArray, args.bytes.start, args.bytes.end )
+            || args.record && dojo.clone(args.record);
 
         // figure out start and end
         data.start = data.start || data.pos;
         data.end = data.end || ( data.lref ? data.pos + data.lref : data.seq ? data.pos + data.seq.length : undefined );
 
-        /*  can extract "SEQ reverse complement" from bitwise flag, 
-         *    but that gives orientation of the _read sequence_ relative to the reference, 
-         *    whereas feat[STRAND] is intended to indicate orientation of the _template_
-         *        (in the case of RNA-Seq, the RNA that the read is derived from) relative to the reference
-         *   for some BAM sources (such as TopHat), an optional field "XS" is used to to indicate RNA orientation 
-         *        relative to ref.  'XS' values are '+' or '-' (any others?), 
-         *        for some sources, lack of 'XS' is meant to indicate plus strand, only minus strand are specifically tagged
-         *   for more on strandedness, see seqanswers.com/forums/showthread.php?t=9303
-         *   TODO: really need to determine whether to look at bitwise flag, or XS, or something else based 
-         *           on the origin of the BAM data (type of sequencer or program name, etc.)
-         *           for now using XS based on honeybee BAM data
-         */
-        // trying to determine orientation from 'XS' optional field
+        // trying to determine orientation from 'XS' optional field,
+        // or from the seq_reverse_complemented flag
         data.strand = ('XS' in data )                ? ( data.XS == '-' ? -1 : 1 ) :
                        data.seq_reverse_complemented ? -1                          :
                                                        1;
@@ -67,6 +65,205 @@ var Feature = Util.fastDeclare(
             this.data.Gap = this._cigarToGap( cigar );
             this.data.subfeatures.push.apply( this.data.subfeatures, this._cigarToSubfeats( cigar, this ) );
         }
+    },
+
+    _fromBytes: function( byteArray, blockStart, blockEnd ) {
+        var record = {};
+
+        var refID = readInt(byteArray, blockStart + 4);
+        var pos = readInt(byteArray, blockStart + 8);
+
+        var bmn = readInt(byteArray, blockStart + 12);
+        var bin = (bmn & 0xffff0000) >> 16;
+        var mq = (bmn & 0xff00) >> 8;
+        var nl = bmn & 0xff;
+
+        var flag_nc = readInt(byteArray, blockStart + 16);
+        this._decodeFlags( record, (flag_nc & 0xffff0000) >> 16 );
+
+        var tlen = readInt(byteArray, blockStart + 32);
+        record.template_length = tlen;
+
+        var lseq = readInt(byteArray, blockStart + 20);
+        record.seq_length = lseq;
+
+        // If the read is unmapped, no assumptions can be made about RNAME, POS,
+        // CIGAR, MAPQ, bits 0x2, 0x10 and 0x100 and the bit 0x20 of the next
+        // segment in the template.
+        var numCigarOps = flag_nc & 0xffff;
+
+        var nextRef  = readInt(byteArray, blockStart + 24);
+        var nextPos = readInt(byteArray, blockStart + 28);
+
+        if( ! record.unmapped ) {
+            var readName = '';
+            for (var j = 0; j < nl-1; ++j) {
+                readName += String.fromCharCode(byteArray[blockStart + 36 + j]);
+            }
+        }
+
+        var p = blockStart + 36 + nl;
+        var cigar = '';
+        var lref = 0;
+        for (var c = 0; c < numCigarOps; ++c) {
+            var cigop = readInt(byteArray, p);
+            cigar = cigar + (cigop>>4) + CIGAR_DECODER[cigop & 0xf];
+            var lop = (cigop>>4);
+            var op = CIGAR_DECODER[cigop & 0xf];
+            cigar = cigar + lop + op;
+            switch (op) {
+            case 'M':
+            case 'D':
+            case 'N':
+            case '=':
+            case 'X':
+                lref += lop;
+                break;
+            }
+            p += 4;
+        }
+        if( ! record.unmapped ) {
+            record.cigar = cigar;
+            record.length_on_ref = lref;
+        }
+
+        var seq = '';
+        var seqBytes = (lseq + 1) >> 1;
+        for (var j = 0; j < seqBytes; ++j) {
+            var sb = byteArray[p + j];
+            seq += SEQRET_DECODER[(sb & 0xf0) >> 4];
+            seq += SEQRET_DECODER[(sb & 0x0f)];
+        }
+        p += seqBytes;
+        record.seq = seq;
+
+        if( ! record.unmapped ) {
+            var qseq = [];
+            for (var j = 0; j < lseq; ++j) {
+                qseq.push( byteArray[p + j] );
+            }
+        }
+
+        p += lseq;
+
+        if( ! record.unmapped ) {
+            record.qual = qseq;
+
+            record.pos = pos;
+            if( mq != 255 ) // value of 255 means MQ is not available
+                record.mapping_quality = mq;
+            record.readName = readName;
+            record.segment = this.file.indexToChr[refID];
+            record._refID = refID;
+        }
+
+        while (p <= blockEnd) {
+            var tag = String.fromCharCode(byteArray[p]) + String.fromCharCode(byteArray[p + 1]);
+            var type = String.fromCharCode(byteArray[p + 2]);
+            var value;
+
+            if (type == 'A') {
+                value = String.fromCharCode(byteArray[p + 3]);
+                p += 4;
+            } else if (type == 'i' || type == 'I') {
+                value = readInt(byteArray, p + 3);
+                p += 7;
+            } else if (type == 'c' || type == 'C') {
+                value = byteArray[p + 3];
+                p += 4;
+            } else if (type == 's' || type == 'S') {
+                value = readShort(byteArray, p + 3);
+                p += 5;
+            } else if (type == 'f') {
+                throw 'FIXME need floats';
+            } else if (type == 'Z') {
+                p += 3;
+                value = '';
+                for (;;) {
+                    var cc = byteArray[p++];
+                    if (cc == 0) {
+                        break;
+                    } else {
+                        value += String.fromCharCode(cc);
+                    }
+                }
+            } else {
+                throw 'Unknown type '+ type;
+            }
+            record[tag] = value;
+        }
+        return record;
+    },
+
+    /**
+     * Decode the BAM flags field and set them in the record.
+     */
+    _decodeFlags: function( record, flags ) {
+        // the following explanations are taken verbatim from the SAM/BAM spec
+
+        // 0x1 template having multiple segments in sequencing
+        // If 0x1 is unset, no assumptions can be made about 0x2, 0x8, 0x20,
+        // 0x40 and 0x80.
+        if( flags & 0x1 ) {
+            record.multi_segment_template = true;
+            // 0x2 each segment properly aligned according to the aligner
+            record.multi_segment_all_aligned = !!( flags & 0x2 );
+            // 0x8 next segment in the template unmapped
+            record.multi_segment_next_segment_unmapped = !!( flags & 0x8 );
+            // 0x20 SEQ of the next segment in the template being reversed
+            record.multi_segment_next_segment_reversed = !!( flags & 0x20 );
+
+            // 0x40 the first segment in the template
+            var first = !!( flags & 0x40 );
+            // 0x80 the last segment in the template
+            var last =  !!( flags & 0x80 );
+            // * If 0x40 and 0x80 are both set, the segment is part of a linear
+            // template, but it is neither the first nor the last segment. If both
+            // 0x40 and 0x80 are unset, the index of the segment in the template is
+            // unknown. This may happen for a non-linear template or the index is
+            // lost in data processing.
+            if( first && last ) {
+                record.multi_segment_inner = true;
+            }
+            else if( first && !last ) {
+                record.multi_segment_first = true;
+            }
+            else if( !first && last ) {
+                record.multi_segment_last = true;
+            }
+            else {
+                record.multi_segment_index_unknown = true;
+            }
+        }
+
+        // 0x4 segment unmapped
+        // * Bit 0x4 is the only reliable place to tell whether the segment is
+        // unmapped. If 0x4 is set, no assumptions can be made about RNAME, POS,
+        // CIGAR, MAPQ, bits 0x2, 0x10 and 0x100 and the bit 0x20 of the next
+        // segment in the template.
+        // only set unmapped if true
+        if( flags & 0x4 ) {
+            record.unmapped = true;
+        } else {
+            // 0x10 SEQ being reverse complemented
+            record.seq_reverse_complemented = !!(flags & 0x10);
+
+            // 0x100 secondary alignment
+            // * Bit 0x100 marks the alignment not to be used in certain analyses
+            // when the tools in use are aware of this bit.
+            if( flags & 0x100 )
+                record.secondary_alignment = true;
+        }
+
+        // 0x200 not passing quality controls
+        // only set qc_failed if it is true
+        if( flags & 0x200 )
+            record.qc_failed = true;
+
+        // 0x400 PCR or optical duplicate
+        // only set duplicate if true
+        if ( flags & 0x400 )
+            record.duplicate = true;
     },
 
     _parseCigar: function( cigar ) {
@@ -108,6 +305,7 @@ var Feature = Util.fastDeclare(
             }
             var subfeat = new Feature({
                 store: this.store,
+                file: this.file,
                 data: {
                     type: 'match_part',
                     start: min,
