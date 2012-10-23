@@ -1758,7 +1758,11 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
             store.setTrack( track );
 
         // tell the track to get its data, since we're going to display it.
-        track.load();
+        // Need to do this in a timeout though, because the track
+        // needs us to be done with this other stuff before it
+        // finishes its load.
+        window.setTimeout( function() { track.load(); }, 1 );
+
         trackDiv.track = track;
 
         var heightUpdate = dojo.hitch( this, 'trackHeightUpdate', trackName );
