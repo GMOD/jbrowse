@@ -9,6 +9,7 @@ var SEQRET_DECODER = ['=', 'A', 'C', 'x', 'G', 'x', 'x', 'x', 'T', 'x', 'x', 'x'
 var CIGAR_DECODER  = ['M', 'I', 'D', 'N', 'S', 'H', 'P', '=', 'X', '?', '?', '?', '?', '?', '?', '?'];
 
 var readInt   = BAMUtil.readInt;
+var readShort = BAMUtil.readShort;
 
 var Feature = Util.fastDeclare(
 
@@ -74,15 +75,14 @@ var Feature = Util.fastDeclare(
         var pos = readInt(byteArray, blockStart + 8);
 
         var bmn = readInt(byteArray, blockStart + 12);
-        var bin = (bmn & 0xffff0000) >> 16;
+        //var bin = (bmn & 0xffff0000) >> 16;
         var mq = (bmn & 0xff00) >> 8;
         var nl = bmn & 0xff;
 
         var flag_nc = readInt(byteArray, blockStart + 16);
         this._decodeFlags( record, (flag_nc & 0xffff0000) >> 16 );
 
-        var tlen = readInt(byteArray, blockStart + 32);
-        record.template_length = tlen;
+        record.template_length = readInt(byteArray, blockStart + 32);
 
         var lseq = readInt(byteArray, blockStart + 20);
         record.seq_length = lseq;
@@ -92,8 +92,8 @@ var Feature = Util.fastDeclare(
         // segment in the template.
         var numCigarOps = flag_nc & 0xffff;
 
-        var nextRef  = readInt(byteArray, blockStart + 24);
-        var nextPos = readInt(byteArray, blockStart + 28);
+        // var nextRef  = readInt(byteArray, blockStart + 24);
+        // var nextPos = readInt(byteArray, blockStart + 28);
 
         if( ! record.unmapped ) {
             var readName = '';
