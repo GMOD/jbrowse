@@ -1,10 +1,10 @@
-define( ['dojo/_base/declare',
-         'dojo/_base/array'
+define( ['dojo/_base/array',
+         'JBrowse/Util'
         ],
-        function( declare, array ) {
+        function( array, Util ) {
 
 
-var Feature = declare( null,
+var Feature = Util.fastDeclare(
 
 /**
  * @lends JBrowse.Store.BAM.Feature
