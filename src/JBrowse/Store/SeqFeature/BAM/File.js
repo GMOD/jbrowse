@@ -341,143 +341,148 @@ var BamFile = declare( null,
         tramp();
     },
 
-    readBamRecords: function(ba, offset, sink ) {
+    readBamRecords: function(ba, blockStart, sink ) {
         while (true) {
-            var blockSize = readInt(ba, offset);
-            var blockEnd = offset + blockSize + 4;
+            var blockSize = readInt(ba, blockStart);
+            var blockEnd = blockStart + blockSize;
             if (blockEnd >= ba.length) {
                 return sink;
             }
 
-            var record = {};
-
-            var refID = readInt(ba, offset + 4);
-            var pos = readInt(ba, offset + 8);
-
-            var bmn = readInt(ba, offset + 12);
-            var bin = (bmn & 0xffff0000) >> 16;
-            var mq = (bmn & 0xff00) >> 8;
-            var nl = bmn & 0xff;
-
-            var flag_nc = readInt(ba, offset + 16);
-            this._decodeFlags( record, (flag_nc & 0xffff0000) >> 16 );
-
-            var tlen = readInt(ba, offset + 32);
-            record.template_length = tlen;
-
-            var lseq = readInt(ba, offset + 20);
-            record.seq_length = lseq;
-
-            // If the read is unmapped, no assumptions can be made about RNAME, POS,
-            // CIGAR, MAPQ, bits 0x2, 0x10 and 0x100 and the bit 0x20 of the next
-            // segment in the template.
-            var numCigarOps = flag_nc & 0xffff;
-
-            var nextRef  = readInt(ba, offset + 24);
-            var nextPos = readInt(ba, offset + 28);
-
-            if( ! record.unmapped ) {
-                var readName = '';
-                for (var j = 0; j < nl-1; ++j) {
-                    readName += String.fromCharCode(ba[offset + 36 + j]);
-                }
-            }
-
-            var p = offset + 36 + nl;
-            var cigar = '';
-            var lref = 0;
-            for (var c = 0; c < numCigarOps; ++c) {
-                var cigop = readInt(ba, p);
-                cigar = cigar + (cigop>>4) + CIGAR_DECODER[cigop & 0xf];
-                var lop = (cigop>>4);
-                var op = CIGAR_DECODER[cigop & 0xf];
-                cigar = cigar + lop + op;
-                switch (op) {
-                case 'M':
-                case 'D':
-                case 'N':
-                case '=':
-                case 'X':
-                    lref += lop;
-                    break;
-                }
-                p += 4;
-            }
-            if( ! record.unmapped ) {
-                record.cigar = cigar;
-                record.length_on_ref = lref;
-            }
-
-            var seq = '';
-            var seqBytes = (lseq + 1) >> 1;
-            for (var j = 0; j < seqBytes; ++j) {
-                var sb = ba[p + j];
-                seq += SEQRET_DECODER[(sb & 0xf0) >> 4];
-                seq += SEQRET_DECODER[(sb & 0x0f)];
-            }
-            p += seqBytes;
-            record.seq = seq;
-
-            if( ! record.unmapped ) {
-                var qseq = [];
-                for (var j = 0; j < lseq; ++j) {
-                    qseq.push( ba[p + j] );
-                }
-            }
-
-            p += lseq;
-
-            if( ! record.unmapped ) {
-                record.qual = qseq;
-
-                record.pos = pos;
-                if( mq != 255 ) // value of 255 means MQ is not available
-                    record.mapping_quality = mq;
-                record.readName = readName;
-                record.segment = this.indexToChr[refID];
-                record._refID = refID;
-            }
-
-            while (p < blockEnd) {
-                var tag = String.fromCharCode(ba[p]) + String.fromCharCode(ba[p + 1]);
-                var type = String.fromCharCode(ba[p + 2]);
-                var value;
-
-                if (type == 'A') {
-                    value = String.fromCharCode(ba[p + 3]);
-                    p += 4;
-                } else if (type == 'i' || type == 'I') {
-                    value = readInt(ba, p + 3);
-                    p += 7;
-                } else if (type == 'c' || type == 'C') {
-                    value = ba[p + 3];
-                    p += 4;
-                } else if (type == 's' || type == 'S') {
-                    value = readShort(ba, p + 3);
-                    p += 5;
-                } else if (type == 'f') {
-                    throw 'FIXME need floats';
-                } else if (type == 'Z') {
-                    p += 3;
-                    value = '';
-                    for (;;) {
-                        var cc = ba[p++];
-                        if (cc == 0) {
-                            break;
-                        } else {
-                            value += String.fromCharCode(cc);
-                        }
-                    }
-                } else {
-                    throw 'Unknown type '+ type;
-                }
-                record[tag] = value;
-            }
+            var record = this._parseRecord( ba, blockStart, blockEnd );
 
             sink.push(record);
-            offset = blockEnd;
+            blockStart = blockEnd + 4;
         }
         // Exits via top of loop.
+    },
+
+    _parseRecord: function( ba, blockStart, blockEnd ) {
+        var record = {};
+
+        var refID = readInt(ba, blockStart + 4);
+        var pos = readInt(ba, blockStart + 8);
+
+        var bmn = readInt(ba, blockStart + 12);
+        var bin = (bmn & 0xffff0000) >> 16;
+        var mq = (bmn & 0xff00) >> 8;
+        var nl = bmn & 0xff;
+
+        var flag_nc = readInt(ba, blockStart + 16);
+        this._decodeFlags( record, (flag_nc & 0xffff0000) >> 16 );
+
+        var tlen = readInt(ba, blockStart + 32);
+        record.template_length = tlen;
+
+        var lseq = readInt(ba, blockStart + 20);
+        record.seq_length = lseq;
+
+        // If the read is unmapped, no assumptions can be made about RNAME, POS,
+        // CIGAR, MAPQ, bits 0x2, 0x10 and 0x100 and the bit 0x20 of the next
+        // segment in the template.
+        var numCigarOps = flag_nc & 0xffff;
+
+        var nextRef  = readInt(ba, blockStart + 24);
+        var nextPos = readInt(ba, blockStart + 28);
+
+        if( ! record.unmapped ) {
+            var readName = '';
+            for (var j = 0; j < nl-1; ++j) {
+                readName += String.fromCharCode(ba[blockStart + 36 + j]);
+            }
+        }
+
+        var p = blockStart + 36 + nl;
+        var cigar = '';
+        var lref = 0;
+        for (var c = 0; c < numCigarOps; ++c) {
+            var cigop = readInt(ba, p);
+            cigar = cigar + (cigop>>4) + CIGAR_DECODER[cigop & 0xf];
+            var lop = (cigop>>4);
+            var op = CIGAR_DECODER[cigop & 0xf];
+            cigar = cigar + lop + op;
+            switch (op) {
+            case 'M':
+            case 'D':
+            case 'N':
+            case '=':
+            case 'X':
+                lref += lop;
+                break;
+            }
+            p += 4;
+        }
+        if( ! record.unmapped ) {
+            record.cigar = cigar;
+            record.length_on_ref = lref;
+        }
+
+        var seq = '';
+        var seqBytes = (lseq + 1) >> 1;
+        for (var j = 0; j < seqBytes; ++j) {
+            var sb = ba[p + j];
+            seq += SEQRET_DECODER[(sb & 0xf0) >> 4];
+            seq += SEQRET_DECODER[(sb & 0x0f)];
+        }
+        p += seqBytes;
+        record.seq = seq;
+
+        if( ! record.unmapped ) {
+            var qseq = [];
+            for (var j = 0; j < lseq; ++j) {
+                qseq.push( ba[p + j] );
+            }
+        }
+
+        p += lseq;
+
+        if( ! record.unmapped ) {
+            record.qual = qseq;
+
+            record.pos = pos;
+            if( mq != 255 ) // value of 255 means MQ is not available
+                record.mapping_quality = mq;
+            record.readName = readName;
+            record.segment = this.indexToChr[refID];
+            record._refID = refID;
+        }
+
+        while (p <= blockEnd) {
+            var tag = String.fromCharCode(ba[p]) + String.fromCharCode(ba[p + 1]);
+            var type = String.fromCharCode(ba[p + 2]);
+            var value;
+
+            if (type == 'A') {
+                value = String.fromCharCode(ba[p + 3]);
+                p += 4;
+            } else if (type == 'i' || type == 'I') {
+                value = readInt(ba, p + 3);
+                p += 7;
+            } else if (type == 'c' || type == 'C') {
+                value = ba[p + 3];
+                p += 4;
+            } else if (type == 's' || type == 'S') {
+                value = readShort(ba, p + 3);
+                p += 5;
+            } else if (type == 'f') {
+                throw 'FIXME need floats';
+            } else if (type == 'Z') {
+                p += 3;
+                value = '';
+                for (;;) {
+                    var cc = ba[p++];
+                    if (cc == 0) {
+                        break;
+                    } else {
+                        value += String.fromCharCode(cc);
+                    }
+                }
+            } else {
+                throw 'Unknown type '+ type;
+            }
+            record[tag] = value;
+        }
+        return record;
     },
 
     /**
