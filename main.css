@@ -287,6 +287,16 @@ span.base {
     background-color: rgba( 213, 187, 4, 0.9);
 }
 
+div.sequence_blur {
+    background: none;
+    height: 8px;
+    border-top: 2px solid #aaa;
+    border-bottom: 2px solid #f55;
+    border-left-width: 0;
+    border-right-width: 0;
+    margin-top: 5px;
+}
+
 div.track-label, div.tracklist-label {
     z-index: 20;
 
