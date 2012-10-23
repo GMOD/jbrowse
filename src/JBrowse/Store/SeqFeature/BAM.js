@@ -106,7 +106,7 @@ var BAMStore = declare( SeqFeatureStore,
             }
         };
 
-        statsFromInterval.call( this, this.refSeq, 200, maybeRecordStats );
+        statsFromInterval.call( this, this.refSeq, 100, maybeRecordStats );
     },
 
     loadSuccess: function() {
