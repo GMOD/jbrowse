@@ -336,7 +336,9 @@ HTMLFeatures.extend({
                           // calculate the view left coord relative to the
                           // block left coord in units of pct of the block
                           // width
-                          var viewLeft = 100 * ( coords.x - block.offsetLeft ) / block.offsetWidth + 2;
+                          if( ! this.label )
+                              return;
+                          var viewLeft = 100 * ( (this.label.offsetLeft+this.label.offsetWidth) - block.offsetLeft ) / block.offsetWidth + 2;
 
                           // if the view start is unknown, or is to the
                           // left of this block, we don't have to worry
@@ -361,7 +363,7 @@ HTMLFeatures.extend({
                                                             );
 
                                             // move our label div to the view start if the start is between the feature start and end
-                                            labelDiv.style.left = Math.max( minLeft, Math.min( viewLeft+70, maxLeft ) ) + '%';
+                                            labelDiv.style.left = Math.max( minLeft, Math.min( viewLeft, maxLeft ) ) + '%';
 
                                         },this);
                       },this);
