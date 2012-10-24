@@ -1,6 +1,8 @@
 define( ['JBrowse/Store',
-        'JBrowse/Util'],
-        function( Store, Util ) {
+         'JBrowse/Util',
+         'JBrowse/Digest/Crc32'
+        ],
+        function( Store, Util, Crc32 ) {
 
 /**
  * Storage backend for sequences broken up into chunks, stored and
@@ -59,6 +61,24 @@ StaticChunked.prototype.getRange = function( seq, start, end, callback) {
         this.chunkCache[seqname] = [];
     }
     var chunkCacheForSeq = this.chunkCache[seqname];
+    var sequrl = Util.resolveUrl(
+        this.baseUrl,
+        Util.fillTemplate(
+            this.urlTemplate,
+            {
+                'refseq': seq.name,
+                'refseq_dirpath': function() {
+                    var n = seq.name;
+                    var hex = Crc32.crc32("noggin").toString(16).replace('-','n').split('');
+                    var dirpath = [];
+                    for( var i = 0; i<hex.length; i += 3 ) {
+                        var end = Math.min( hex.length, i+3 );
+                        dirpath.push( hex.slice( i, end ).join('') );
+                    }
+                    return dirpath.join('/');
+                }
+            }
+        ));
 
     for (var i = firstChunk; i <= lastChunk; i++) {
         //console.log("working on chunk %d for %d .. %d", i, start, end);
@@ -85,10 +105,6 @@ StaticChunked.prototype.getRange = function( seq, start, end, callback) {
                 callbacks: [callbackInfo]
             };
             chunkCacheForSeq[i] = chunk;
-
-            var sequrl = Util.resolveUrl( this.baseUrl,
-                                          Util.fillTemplate( this.urlTemplate,
-                                                     {'refseq': seq.name} ));
 
             dojo.xhrGet({
                             url: sequrl + i + ".txt" + ( this.compress ? 'z' : '' ),
