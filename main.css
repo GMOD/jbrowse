@@ -657,12 +657,16 @@ a.dialog-new-window {
 .baseQuality {
     font-family: Courier New, monospace;
 }
-.baseQuality td {
-    padding: 0 0.3em;
+table.baseQuality {
+    margin-bottom: 1em;
+}
+table.baseQuality td {
+    padding: 0 0.2em;
     line-height: 0.95;
     text-align: center;
 }
-.baseQuality tr.seq td {
-    padding-top: 0.5em;
+table.baseQuality tr.seq td {
+    padding-top: 0.8em;
+    font-weight: bold;
 }
 
