@@ -1,8 +1,9 @@
 define( ['dojo/_base/declare',
          'dojo/_base/array',
+         'JBrowse/Util',
          'JBrowse/View/Track/HTMLFeatures'
         ],
-        function( declare, array, HTMLFeatures ) {
+        function( declare, array, Util, HTMLFeatures ) {
 
 return declare( HTMLFeatures,
 /**
@@ -11,6 +12,17 @@ return declare( HTMLFeatures,
 {
 
     constructor: function() {
+    },
+
+    _defaultConfig: function() {
+        return Util.deepUpdate(
+            dojo.clone( this.inherited(arguments) ),
+            { style: {
+                  className: 'alignment',
+                  arrowheadClass: 'arrowhead'
+              }
+            }
+        );
     },
 
     renderFeature: function(feature, uniqueId, block, scale, containerStart, containerEnd, destBlock ) {
