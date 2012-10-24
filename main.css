@@ -328,11 +328,16 @@ div.track-label, div.tracklist-label {
 
 .track .loading {
     background: rgba( 0,0,0,0.1);
+    color: #777;
     margin: 0;
     font-weight: bold;
     height: 40px;
     width: 100%;
-    line-height: 3em;
+}
+.track .loading .text {
+    display: inline;
+    line-height: 40px;
+    margin: 1em;
 }
 
 div.track-label {

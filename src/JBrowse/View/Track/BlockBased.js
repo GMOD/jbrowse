@@ -318,8 +318,13 @@ return declare( null,
         var msgDiv = dojo.create(
             'div', {
                 className: 'loading',
+                innerHTML: '<div class="text">Loading</span>',
+                style: {
+                    display: 'none'
+                },
                 title: 'Loading data...'
             }, block );
+        window.setTimeout( function() { msgDiv.style.display = 'block';}, 200 );
         this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
     },
 
