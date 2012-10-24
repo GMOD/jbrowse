@@ -92,8 +92,15 @@ var Feature = Util.fastDeclare(
         // segment in the template.
         var numCigarOps = flag_nc & 0xffff;
 
-        // var nextRef  = readInt(byteArray, blockStart + 24);
-        // var nextPos = readInt(byteArray, blockStart + 28);
+        // if this is a multi-segment read (e.g. mate pairs), parse
+        // out the position of the next segment and format it as a
+        // locstring
+        if( record.multi_segment_template ) {
+            var nextRefID = readInt(byteArray, blockStart + 24);
+            var nextSegment = this.file.indexToChr[nextRefID];
+            if( nextSegment )
+                record.next_segment_position = nextSegment+':'+readInt(byteArray, blockStart + 28);
+        }
 
         if( ! record.unmapped ) {
             var readName = '';
