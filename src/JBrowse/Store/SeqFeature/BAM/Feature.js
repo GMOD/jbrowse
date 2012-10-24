@@ -181,7 +181,8 @@ var Feature = Util.fastDeclare(
                 value = readShort(byteArray, p + 3);
                 p += 5;
             } else if (type == 'f') {
-                throw 'FIXME need floats';
+                //throw 'FIXME need floats';
+                value = undefined;
             } else if (type == 'Z') {
                 p += 3;
                 value = '';
@@ -194,7 +195,7 @@ var Feature = Util.fastDeclare(
                     }
                 }
             } else {
-                throw 'Unknown type '+ type;
+                value = undefined; //throw 'Unknown type '+ type;
             }
             record[tag] = value;
         }
