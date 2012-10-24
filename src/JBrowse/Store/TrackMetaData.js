@@ -3,9 +3,10 @@ define(
         'dojo/_base/declare',
         'dojo/_base/array',
         'dojo/data/util/simpleFetch',
-        'JBrowse/Util'
+        'JBrowse/Util',
+        'JBrowse/Digest/Crc32'
     ],
-    function( declare, dArray, simpleFetch, Util ) {
+    function( declare, dArray, simpleFetch, Util, Crc32 ) {
 var dojof = Util.dojof;
 var Meta = declare( null,
 
@@ -394,7 +395,7 @@ var Meta = declare( null,
         },this);
 
         var results;
-        var queryFingerprint = Util.objectFingerprint( query );
+        var queryFingerprint = Crc32.objectFingerprint( query );
         if( queryFingerprint == this.previousQueryFingerprint ) {
             results = this.previousResults;
         } else {
