@@ -326,6 +326,15 @@ div.track-label, div.tracklist-label {
     text-align: center;
 }
 
+.track .loading {
+    background: rgba( 0,0,0,0.1);
+    margin: 0;
+    font-weight: bold;
+    height: 40px;
+    width: 100%;
+    line-height: 3em;
+}
+
 div.track-label {
     color: black;
     margin: 3px 0 0 3px;
@@ -340,6 +349,7 @@ div.track-label {
     border-color: #eee;
     opacity: 0.7;
 }
+
 div.track-label .track-label-text {
     display: inline-block;
     white-space: nowrap;

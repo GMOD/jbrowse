@@ -314,10 +314,12 @@ return declare( null,
         this.changed();
     },
 
-    _loadingBlock: function(blockDiv) {
-        blockDiv.appendChild(document.createTextNode("Loading..."));
-        blockDiv.style.backgroundColor = "#eee";
-        return 50;
+    fillLoading: function( blockIndex, block ) {
+        var msgDiv = dojo.create(
+            'div', {
+                className: 'loading'
+            }, block );
+        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
     },
 
     _showBlock: function(blockIndex, startBase, endBase, scale,
@@ -340,20 +342,18 @@ return declare( null,
         this.blocks[blockIndex] = blockDiv;
         this.div.appendChild(blockDiv);
 
-        if (this.loaded) {
-            this.fillBlock(blockIndex,
-                           blockDiv,
-                           this.blocks[blockIndex - 1],
-                           this.blocks[blockIndex + 1],
-                           startBase,
-                           endBase,
-                           scale,
-                           this.widthPx,
-                           containerStart,
-                           containerEnd);
-        } else {
-            this._loadingBlock(blockDiv);
-        }
+        var args = [blockIndex,
+                    blockDiv,
+                    this.blocks[blockIndex - 1],
+                    this.blocks[blockIndex + 1],
+                    startBase,
+                    endBase,
+                    scale,
+                    this.widthPx,
+                    containerStart,
+                    containerEnd];
+
+        this[ this.loaded ? 'fillBlock' : 'fillLoading' ].apply( this, args );
     },
 
     moveBlocks: function(delta) {
@@ -445,10 +445,10 @@ return declare( null,
         this.makeTrackMenu();
     },
 
-    fillMessage: function( blockIndex, block, message ) {
+    fillMessage: function( blockIndex, block, message, class_ ) {
         var msgDiv = dojo.create(
             'div', {
-                className: 'message',
+                className: class_ || 'message',
                 innerHTML: message
             }, block );
         this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
