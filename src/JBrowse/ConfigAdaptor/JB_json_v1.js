@@ -101,7 +101,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             try {
                 eval("arguments[0]="+arguments[0]+";");
             } catch (e) {
-                console.error("eval failed for callback '"+arguments[0]+"': "+e);
+                console.error("error parsing parsing JavaScript callback: '"+arguments[0]+"': "+e);
             }
             return arguments[0];
         }
