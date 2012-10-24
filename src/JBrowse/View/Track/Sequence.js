@@ -127,7 +127,7 @@ SequenceTrack.extend(
         var charSize = this.getCharacterMeasurements();
 
         var container  = document.createElement('div');
-        var charWidth = (100/seq.length)+"%";
+        var charWidth = 100/(end-start)+"%";
         var drawChars = scale >= charSize.w;
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('span');
