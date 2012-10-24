@@ -2,7 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/aspect',
             'dojo/dom-geometry',
-            'dijit/Dialog',
+            'JBrowse/View/InfoDialog',
             'dijit/Menu',
             'dijit/PopupMenuItem',
             'dijit/MenuItem',
@@ -11,7 +11,7 @@ define( [
         function( declare,
                   aspect,
                   domGeom,
-                  dijitDialog,
+                  Dialog,
                   dijitMenu,
                   dijitPopupMenuItem,
                   dijitMenuItem,
@@ -660,7 +660,7 @@ return declare( null,
             if( type == 'xhr' )
                 dialogOpts.href = spec.url;
 
-            dialog = new dijitDialog( dialogOpts );
+            dialog = new Dialog( dialogOpts );
             context.dialog = dialog;
 
             if( type == 'content' )
@@ -682,7 +682,7 @@ return declare( null,
                     src: spec.url
                 }, container
             );
-            dialog = new dijitDialog( dialogOpts, container );
+            dialog = new Dialog( dialogOpts, container );
             dojo.create( 'a', {
                              href: spec.url,
                              target: '_blank',
@@ -705,7 +705,10 @@ return declare( null,
             aspect.after( dialog, 'show', updateIframeSize );
         }
 
+        // destroy the dialog after it is hidden
         aspect.after( dialog, 'hide', function() { dialog.destroyRecursive(); });
+
+        // show the dialog
         dialog.show();
     },
 

@@ -16,7 +16,8 @@ define( [
             'JBrowse/Store/Autocomplete',
             'JBrowse/GenomeView',
             'JBrowse/TouchScreenSupport',
-            'JBrowse/ConfigManager'
+            'JBrowse/ConfigManager',
+            'JBrowse/View/InfoDialog'
         ],
         function(
             lang,
@@ -34,7 +35,8 @@ define( [
             AutocompleteStore,
             GenomeView,
             Touch,
-            ConfigManager
+            ConfigManager,
+            InfoDialog
         ) {
 
 var dojof = Util.dojof;
@@ -953,7 +955,7 @@ Browser.prototype.makeHelpDialog = function () {
         ;
     this.container.appendChild( helpdiv );
 
-    var dialog = new dijitDialog({
+    var dialog = new InfoDialog({
         "class": 'help_dialog',
         refocus: false,
         draggable: false,
