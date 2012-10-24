@@ -584,4 +584,5 @@ a.dialog-new-window {
     width: 1px;
     background-color: #FF0000;
     z-index: 15;
+    top: 0;
 }
