@@ -28,9 +28,20 @@ return declare( HTMLFeatures,
     renderFeature: function(feature, uniqueId, block, scale, containerStart, containerEnd, destBlock ) {
         var featDiv = this.inherited( arguments );
         this._drawMismatches( feature, featDiv, scale );
+
+        // if this feature is part of a multi-segment read, and not
+        // all of its segments are aligned, add missing_mate to its
+        // class
+        if( feature.get('multi_segment_template') && !feature.get('multi_segment_all_aligned') )
+            featDiv.className += ' missing_mate';
+
         return featDiv;
     },
 
+
+    /**
+     * draw base-mismatches on the feature
+     */
     _drawMismatches: function( feature, featDiv, scale ) {
         // recall: scale is pixels/basepair
         if ( scale >= 0.5 ) {

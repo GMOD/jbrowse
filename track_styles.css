@@ -43,6 +43,10 @@ div.hist {
 .minus-alignment {
     background-color: #898FD8;
 }
+.alignment.missing_mate {
+    border: 2px solid red;
+}
+
 .alignment .mismatch.base {
     height: 12px;
     line-height: 12px; /* line height should match the height of the alignment glyph */
