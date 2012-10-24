@@ -14,6 +14,10 @@
    selection list a closed track has gone, when using the simple track
    selector (issue #151).
 
+ * Information dialog boxes are now easier to dismiss: clicking
+   anywhere outside of them, or pressing any key, will make them go
+   away.
+
 1.6.4     2012-10-16 11:50:44 America/New_York
 
  * Improvements to the scalability of `generate-names.pl`.  Many
