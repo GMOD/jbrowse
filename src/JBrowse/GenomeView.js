@@ -36,8 +36,8 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     // topmost track
     this.topSpace = 1.5 * this.posHeight;
 
-    // arbitrary max of 12px / bp (slightly bigger than most seq char sizes)
-    this.maxPxPerBp = 12;
+    // arbitrary max px per bp
+    this.maxPxPerBp = 20;
 
     //the reference sequence
     this.ref = refseq;
@@ -1215,7 +1215,7 @@ GenomeView.prototype.sizeInit = function() {
     this.overviewBox = dojo.marginBox(this.overview);
 
     //scale values, in pixels per bp, for all zoom levels
-    this.zoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, this.maxPxPerBp ];
+    this.zoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, 10, this.maxPxPerBp ];
     //make sure we don't zoom out too far
     while (((this.ref.end - this.ref.start) * this.zoomLevels[0])
            < this.getWidth()) {
@@ -1758,7 +1758,11 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
             store.setTrack( track );
 
         // tell the track to get its data, since we're going to display it.
-        track.load();
+        // Need to do this in a timeout though, because the track
+        // needs us to be done with this other stuff before it
+        // finishes its load.
+        window.setTimeout( function() { track.load(); }, 1 );
+
         trackDiv.track = track;
 
         var heightUpdate = dojo.hitch( this, 'trackHeightUpdate', trackName );
@@ -1843,6 +1847,7 @@ GenomeView.prototype.updateTrackList = function() {
     // publish a message if the visible tracks or their ordering has changed
     if( oldtracks != dojo.toJson( this.trackIndices || {} ) ) {
         this.browser.publish( '/jbrowse/v1/v/tracks/changed', [this.visibleTrackNames()] );
+        this.showVisibleBlocks();
     }
 };
 

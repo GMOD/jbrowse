@@ -17,7 +17,7 @@ fieldset > legend {
 }
 
 .locString {
-    font-family: monospace;
+    font-family: Courier New,monospace;
 }
 
 .ghosted {
@@ -237,8 +237,6 @@ div.blank-block {
 div.sequence {
     position: absolute;
     left: 0px;
-    font-family: Courier New,monospace;
-    font-size: 10px;
 }
 div.sequence .highlighted {
     background: #ff0;
@@ -246,10 +244,49 @@ div.sequence .highlighted {
 div.sequence .revcom {
     color: red;
 }
-div.sequence span.base {
+div.sequence .base, div.sequence > div  {
+    height: 14px;
+    line-height: 14px;
+}
+div.sequence > div {
+    border-top: 1px solid #4d4d4d;
+    border-bottom: 1px solid black;
+}
+div.sequence > div:first-child {
+    border-bottom-width: 0px;
+}
+
+span.base {
     display: inline-block;
     text-align: center;
+    z-index: 2000;
 }
+.base {
+    color: black;
+    font-family: Courier New,monospace;
+    font-weight: bold;
+    text-shadow: white 0px 0px 1px;
+}
+.base_n {
+    background-color: #C6C6C6;
+}
+.base_a {
+    background-color: #00BF00;
+    background-color: rgba( 0, 191, 0, 0.9 );
+}
+.base_c {
+    background-color: #4747ff;
+    background-color: rgba( 71, 71, 255, 0.9);
+}
+.base_t {
+    background-color: red;
+    background-color: rgba( 255, 0, 0, 0.9);
+}
+.base_g {
+    background-color: #d5bb04;
+    background-color: rgba( 213, 187, 4, 0.9);
+}
+
 div.sequence_blur {
     background: none;
     height: 8px;
@@ -289,6 +326,20 @@ div.track-label, div.tracklist-label {
     text-align: center;
 }
 
+.track .loading {
+    background: rgba( 0,0,0,0.1);
+    color: #777;
+    margin: 0;
+    font-weight: bold;
+    height: 40px;
+    width: 100%;
+}
+.track .loading .text {
+    display: inline;
+    line-height: 40px;
+    margin: 1em;
+}
+
 div.track-label {
     color: black;
     margin: 3px 0 0 3px;
@@ -303,6 +354,7 @@ div.track-label {
     border-color: #eee;
     opacity: 0.7;
 }
+
 div.track-label .track-label-text {
     display: inline-block;
     white-space: nowrap;
@@ -498,10 +550,16 @@ input.nav {
     font-size: 14px;
     margin: 1em;
 }
-div.error {
-    margin: 1px 0px 1px 1em;
-    background: #ff8888;
+div.error, div.message {
+    margin: 1px 1em;
     padding: 2px 6px;
+    border: 1px outset rgba( 0, 0, 0, 0.3 );
+}
+div.error {
+    background: #ff8888;
+}
+div.message {
+    background: #eee;
 }
 
 /* styles dealing with popups launched by clicking on features */
@@ -527,16 +585,25 @@ a.dialog-new-window {
 .dijitDialogPaneContent .feature-detail {
     margin-top: -0.6em;
 }
-.detail div.value {
-    margin-left: 1em;
+
+.feature-detail {
+    padding-top: 1em;
 }
-.detail h2.field {
+.detail .value {
+    margin-left: 1em;
+    display: inline-block;
+    vertical-align: top;
+}
+.detail .field {
     margin-top: 0;
     margin-bottom: 0.3em;
+    display: inline-block;
+    min-width: 9em;
+    vertical-align: top;
 }
 
 .detail .field_container {
-    padding: 1em 4em 0.3em 1em;
+    padding: 0 4em 0.3em 1em;
 }
 
 .sharePane input {
@@ -586,3 +653,21 @@ a.dialog-new-window {
     z-index: 15;
     top: 0;
 }
+
+/* styles for per-base quality table in alignment detail pages */
+.baseQuality {
+    font-family: Courier New, monospace;
+}
+table.baseQuality {
+    margin-bottom: 1em;
+}
+table.baseQuality td {
+    padding: 0 0.2em;
+    line-height: 0.95;
+    text-align: center;
+}
+table.baseQuality tr.seq td {
+    padding-top: 0.8em;
+    font-weight: bold;
+}
+

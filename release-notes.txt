@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+ * Feature tracks no longer use the `style.subfeatureScale`
+   configuration variable to determine whether to show subfeatures.
+   Instead, subfeatures are shown if the parent feature, when shown on
+   the screen, is wider than `style.minSubfeatureWidth`, which
+   defaults to 6 pixels.
+
  * Greatly sped up rendering of HTML subfeatures by caching the
    heights of subfeature HTML elements.
 

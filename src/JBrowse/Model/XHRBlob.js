@@ -1,7 +1,12 @@
 define( [ 'dojo/_base/declare',
-          'JBrowse/Model/FileBlob'
+          'JBrowse/Model/FileBlob',
+          'JBrowse/Store/RemoteBinaryFile'
         ],
-        function( declare, FileBlob ) {
+        function( declare, FileBlob, RemoteBinaryFileCache ) {
+var globalCache = new RemoteBinaryFileCache({
+    name: 'XHRBlob'
+});
+
 var XHRBlob = declare( FileBlob,
 /**
  * @lends JBrowse.Model.XHRBlob.prototype
@@ -49,64 +54,25 @@ var XHRBlob = declare( FileBlob,
         return new XHRBlob(this.url, ns, ne, this.opts);
     },
 
-    fetch: function(callback, attempt, truncatedLength) {
-        var thisB = this;
+    fetch: function( callback ) {
+        globalCache.get({
+            url: this.url,
+            start: this.start,
+            end: this.end,
+            success: callback
+        });
+    },
 
-        attempt = attempt || 1;
-        if( attempt > 3 ) {
-            callback(null);
-            return;
-        }
+    read: function( offset, length, callback ) {
+        var start = this.start + offset,
+            end = start + length;
 
-        var req = new XMLHttpRequest();
-        var length;
-        req.open('GET', this.url, true);
-        if( req.overrideMimeType )
-            req.overrideMimeType('text/plain; charset=x-user-defined');
-        if (this.end) {
-            req.setRequestHeader('Range', 'bytes=' + this.start + '-' + this.end);
-            length = this.end - this.start + 1;
-        }
-        req.responseType = 'arraybuffer';
-        req.onreadystatechange = function() {
-            if (req.readyState == 4) {
-                if (req.status == 200 || req.status == 206) {
-                    thisB.totalSize = (function() {
-                        var contentRange = req.getResponseHeader('Content-Range');
-                        if( ! contentRange )
-                            return undefined;
-                        var match = contentRange.match(/\/(\d+)$/);
-                        return match ? parseInt(match[1]) : undefined;
-                    })();
-                    thisB.size = length || thisB.totalSize;
-
-                    if (req.response) {
-                        return callback.call(thisB,req.response);
-                    } else if (req.mozResponseArrayBuffer) {
-                        return callback.call(thisB,req.mozResponseArrayBuffer);
-                    } else {
-                        try{
-                            var r = req.responseText;
-                            if (length && length != r.length && (!truncatedLength || r.length != truncatedLength)) {
-                                return thisB.fetch( callback, attempt + 1, r.length );
-                            } else {
-                                return callback.call( thisB, thisB._stringToBuffer(req.responseText) );
-                            }
-                        } catch (x) {
-                            console.error(''+x);
-                            callback.call( thisB, null );
-                        }
-                    }
-                } else {
-                    return thisB.fetch(callback, attempt + 1);
-                }
-            }
-            return null;
-        };
-        if (this.opts.credentials) {
-            req.withCredentials = true;
-        }
-        req.send('');
+        globalCache.get({
+            url: this.url,
+            start: start,
+            end: end,
+            success: callback
+        });
     }
 });
 return XHRBlob;

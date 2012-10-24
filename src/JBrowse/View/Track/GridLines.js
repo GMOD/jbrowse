@@ -14,6 +14,7 @@ return dojo.declare( BlockBased,
      */
     constructor: function( args ) {
         this.loaded = true;
+        this.name = 'gridlines';
     },
 
     // this track has no track label or track menu, stub them out

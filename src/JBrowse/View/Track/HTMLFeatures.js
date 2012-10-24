@@ -112,7 +112,7 @@ HTMLFeatures.extend({
                 className: "feature2",
                 histScale: 4,
                 labelScale: 30,
-                subfeatureScale: 80,
+                minSubfeatureWidth: 6,
                 maxDescriptionLength: 70,
                 descriptionScale: 170
             },
@@ -141,9 +141,11 @@ HTMLFeatures.extend({
     },
 
     loadSuccess: function() {
-        this.labelScale = this.store.density * this.config.style.labelScale;
-        this.subfeatureScale = this.store.density * this.config.style.subfeatureScale;
-        this.descriptionScale = this.store.density * this.config.style.descriptionScale;;
+
+        // recall that scale is pixels per basepair
+        var density = this.store.getGlobalStats().featureDensity;
+        this.labelScale = density * this.config.style.labelScale;
+        this.descriptionScale = density * this.config.style.descriptionScale;;
         this.inherited(arguments);
     },
 
@@ -157,8 +159,13 @@ HTMLFeatures.extend({
         container.innerHTML += fmt( 'Name', f.get('name') );
         container.innerHTML += fmt( 'Type', f.get('type') );
         container.innerHTML += fmt( 'Description', f.get('note') );
-        container.innerHTML += fmt( 'Position', Util.assembleLocString({ start: f.get('start'), end: f.get('end'), ref: this.refSeq.name }));
-        container.innerHTML += fmt( 'Strand', {'1':'+', '-1': '-', 0: undefined }[f.get('strand')] || f.get('strand') );
+        container.innerHTML += fmt(
+            'Position',
+            Util.assembleLocString({ start: f.get('start'),
+                                     end: f.get('end'),
+                                     ref: this.refSeq.name })
+            + ({'1':' (+)', '-1': ' (-)', 0: ' (no strand)' }[f.get('strand')] || '')
+        );
 
         var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()]; });
         dojo.forEach( additionalTags.sort(), function(t) {
@@ -329,7 +336,9 @@ HTMLFeatures.extend({
                           // calculate the view left coord relative to the
                           // block left coord in units of pct of the block
                           // width
-                          var viewLeft = 100 * ( coords.x - block.offsetLeft ) / block.offsetWidth + 2;
+                          if( ! this.label )
+                              return;
+                          var viewLeft = 100 * ( (this.label.offsetLeft+this.label.offsetWidth) - block.offsetLeft ) / block.offsetWidth + 2;
 
                           // if the view start is unknown, or is to the
                           // left of this block, we don't have to worry
@@ -354,7 +363,7 @@ HTMLFeatures.extend({
                                                             );
 
                                             // move our label div to the view start if the start is between the feature start and end
-                                            labelDiv.style.left = Math.max( minLeft, Math.min( viewLeft+70, maxLeft ) ) + '%';
+                                            labelDiv.style.left = Math.max( minLeft, Math.min( viewLeft, maxLeft ) ) + '%';
 
                                         },this);
                       },this);
@@ -362,10 +371,12 @@ HTMLFeatures.extend({
 
     fillBlock: function(blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth, containerStart, containerEnd) {
 
+        var stats = this.store.getGlobalStats();
+
         // only update the label once for each block size
         var blockBases = Math.abs( leftBase-rightBase );
         if( this._updatedLabelForBlockSize != blockBases ){
-            if ( scale < (this.store.density * this.config.style.histScale)) {
+            if ( this.store.histogram && scale < (stats.featureDensity * this.config.style.histScale)) {
                 this.setLabel(this.key + ' <span class="feature-density">per ' + Util.addCommas( Math.round( blockBases / this.numBins)) + ' bp</span>');
             } else {
                 this.setLabel(this.key);
@@ -374,10 +385,16 @@ HTMLFeatures.extend({
         }
 
         //console.log("scale: %d, histScale: %d", scale, this.histScale);
-        if (this.store.histograms &&
-            (scale < (this.store.density * this.config.style.histScale)) ) {
-	    this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
-                          containerStart, containerEnd);
+        if( scale < stats.featureDensity * this.config.style.histScale ) {
+            // if our store offers density histograms, draw them
+            if( this.store.histograms ) {
+                this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
+                              containerStart, containerEnd);
+            }
+            // otherwise, display a zoomed-out-too-far message
+            else {
+                this.fillMessage( blockIndex, block, 'Too many features to show'+(scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')+'.' );
+            }
         } else {
 
             // if we have transitioned to viewing features, delete the
@@ -503,8 +520,8 @@ HTMLFeatures.extend({
 
         this.scale = scale;
 
-        if( ! this.layout || this.layout.pitchX != 2/scale )
-            this.layout = new Layout({pitchX: 2/scale, pitchY: 10});
+        if( ! this.layout || this.layout.pitchX != 4/scale )
+            this.layout = new Layout({pitchX: 4/scale, pitchY: 4});
 
         block.featureNodes = {};
         block.style.backgroundColor = "#ddd";
@@ -516,11 +533,8 @@ HTMLFeatures.extend({
         }
 
         var curTrack = this;
-        var featCallback = dojo.hitch(this,function(feature, path) {
-            //uniqueId is a stringification of the path in the NCList where
-            //the feature lives; it's unique across the top-level NCList
-            //(the top-level NCList covers a track/chromosome combination)
-            var uniqueId = path.join(",");
+        var featCallback = dojo.hitch(this,function( feature ) {
+            var uniqueId = feature._uniqueID;
             if( ! this._featureIsRendered( uniqueId ) ) {
                 this.renderFeature( feature, uniqueId, block, scale,
                                     containerStart, containerEnd, block );
@@ -665,10 +679,10 @@ HTMLFeatures.extend({
         switch (strand) {
         case 1:
         case '+':
-            featDiv.className = featDiv.className + " plus-" + this.config.style.className; break;
+            featDiv.className = featDiv.className + " " + this.config.style.className + " plus-" + this.config.style.className; break;
         case -1:
         case '-':
-            featDiv.className = featDiv.className + " minus-" + this.config.style.className; break;
+            featDiv.className = featDiv.className + " " + this.config.style.className + " minus-" + this.config.style.className; break;
         default:
             featDiv.className = featDiv.className + " " + this.config.style.className; break;
         }
@@ -685,9 +699,8 @@ HTMLFeatures.extend({
         // boundaries) in the transfer method.
         var displayStart = Math.max( feature.get('start'), containerStart );
         var displayEnd = Math.min( feature.get('end'), containerEnd );
-        var minFeatWidth = 1;
         var blockWidth = block.endBase - block.startBase;
-        var featwidth = Math.max(minFeatWidth, (100 * ((displayEnd - displayStart) / blockWidth)));
+        var featwidth = Math.max( 1, (100 * ((displayEnd - displayStart) / blockWidth)));
         featDiv.style.cssText =
             "left:" + (100 * (displayStart - block.startBase) / blockWidth) + "%;"
             + "top:" + top + "px;"
@@ -754,7 +767,7 @@ HTMLFeatures.extend({
         window.setTimeout( dojo.hitch( this,
              function() {
 
-                 if( featwidth > minFeatWidth && scale >= this.subfeatureScale ) {
+                 if( featwidth > this.config.style.minSubfeatureWidth ) {
                      var subfeatures = feature.get('subfeatures');
                      if( subfeatures ) {
                          for (var i = 0; i < subfeatures.length; i++) {
@@ -811,7 +824,7 @@ HTMLFeatures.extend({
             var child = featDiv.childNodes[i];
             // cache the height of elements, for speed.
             var h = getHeight.call(this,child);
-            dojo.style( child, { top: ((this.glyphHeight-h)/2) + 'px', visibility: 'visible' });
+            dojo.style( child, { marginTop: '0', top: ((this.glyphHeight-h)/2) + 'px', visibility: 'visible' });
          }
     },
 

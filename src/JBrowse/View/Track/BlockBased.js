@@ -1,5 +1,6 @@
 define( [
             'dojo/_base/declare',
+            'dojo/_base/lang',
             'dojo/aspect',
             'dojo/dom-geometry',
             'JBrowse/View/InfoDialog',
@@ -9,6 +10,7 @@ define( [
             'JBrowse/Util'
         ],
         function( declare,
+                  lang,
                   aspect,
                   domGeom,
                   Dialog,
@@ -312,10 +314,18 @@ return declare( null,
         this.changed();
     },
 
-    _loadingBlock: function(blockDiv) {
-        blockDiv.appendChild(document.createTextNode("Loading..."));
-        blockDiv.style.backgroundColor = "#eee";
-        return 50;
+    fillLoading: function( blockIndex, block ) {
+        var msgDiv = dojo.create(
+            'div', {
+                className: 'loading',
+                innerHTML: '<div class="text">Loading</span>',
+                style: {
+                    display: 'none'
+                },
+                title: 'Loading data...'
+            }, block );
+        window.setTimeout( function() { msgDiv.style.display = 'block';}, 200 );
+        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
     },
 
     _showBlock: function(blockIndex, startBase, endBase, scale,
@@ -338,20 +348,18 @@ return declare( null,
         this.blocks[blockIndex] = blockDiv;
         this.div.appendChild(blockDiv);
 
-        if (this.loaded) {
-            this.fillBlock(blockIndex,
-                           blockDiv,
-                           this.blocks[blockIndex - 1],
-                           this.blocks[blockIndex + 1],
-                           startBase,
-                           endBase,
-                           scale,
-                           this.widthPx,
-                           containerStart,
-                           containerEnd);
-        } else {
-            this._loadingBlock(blockDiv);
-        }
+        var args = [blockIndex,
+                    blockDiv,
+                    this.blocks[blockIndex - 1],
+                    this.blocks[blockIndex + 1],
+                    startBase,
+                    endBase,
+                    scale,
+                    this.widthPx,
+                    containerStart,
+                    containerEnd];
+
+        this[ this.loaded ? 'fillBlock' : 'fillLoading' ].apply( this, args );
     },
 
     moveBlocks: function(delta) {
@@ -441,6 +449,15 @@ return declare( null,
         }
 
         this.makeTrackMenu();
+    },
+
+    fillMessage: function( blockIndex, block, message, class_ ) {
+        var msgDiv = dojo.create(
+            'div', {
+                className: class_ || 'message',
+                innerHTML: message
+            }, block );
+        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
     },
 
     /**
@@ -586,8 +603,12 @@ return declare( null,
 
     _fmtDetailField: function( title, val, class_ ) {
         var valType = typeof val;
-        if( !( valType in {string:1,number:1} ) )
-            return ''; //val = '<span class="ghosted">none</span>';
+        if( valType == 'boolean' )
+            val = val ? 'yes' : 'no';
+        else if( valType == 'undefined' || val === null )
+            return '';
+        else if( lang.isArray( val ) )
+            val = val.join(' ');
         class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
         return '<div class="field_container"><h2 class="field '+class_+'">'+title+'</h2> <div class="value '+class_+'">'+val+'</div></div>';
     },

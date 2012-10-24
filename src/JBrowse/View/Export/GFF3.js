@@ -163,12 +163,17 @@ return declare( ExportBase,
         var attrs = {};
         array.forEach( tags, function(tag) {
             var val = feature.get(tag);
-            if( typeof val != 'string' && typeof val != 'number' )
-                return;
-            tag = this._gff3_reserved_attribute(tag) || tag.toLowerCase();
+            var valtype = typeof val;
+            if( valtype == 'boolean' )
+                val = val ? 1 : 0;
+            tag = this._gff3_reserved_attribute(tag) || this._ensure_non_reserved( tag );
             attrs[tag] = val;
         },this);
         return attrs;
+    },
+
+    _ensure_non_reserved: function( str ) {
+        return str.replace(/^[A-Z]/,function() { return '_'+str[0]; });
     },
 
     /**

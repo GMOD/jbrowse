@@ -53,9 +53,13 @@ return declare( null,
     },
 
     _readWigDataById: function(chr, min, max, callback) {
-        if (!this.cirHeader) {
-            if( ! this.cirHeaderLoading ) {
-                this.cirHeaderLoading = [];
+        if( !this.cirHeader ) {
+            var readCallback = lang.hitch( this, '_readWigDataById', chr, min, max, callback );
+            if( this.cirHeaderLoading ) {
+                this.cirHeaderLoading.push( readCallback );
+            }
+            else {
+                this.cirHeaderLoading = [ readCallback ];
                 // dlog('No CIR yet, fetching');
                 this.bwg.data
                     .slice(this.cirTreeOffset, 48)
@@ -67,7 +71,6 @@ return declare( null,
                                 delete this.cirHeaderLoading;
                             }));
             }
-            this.cirHeaderLoading.push( lang.hitch( this, '_readWigDataById', chr, min, max, callback ) );
             return;
         }
 

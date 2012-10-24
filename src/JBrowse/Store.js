@@ -12,6 +12,11 @@ return declare(null,
      * @constructs
      */
     constructor: function( args ) {
+        this.globalStats = {};
+        if( ! args )
+            return;
+
+        this.refSeq = dojo.clone( args.refSeq );
     },
 
     loadSuccess: function( data, url ) {
@@ -31,8 +36,8 @@ return declare(null,
 	            });
     },
 
-    getStats: function() {
-        return this.stats;
+    getGlobalStats: function() {
+        return this.globalStats;
     },
 
     setLoaded: function() {

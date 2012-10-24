@@ -186,11 +186,13 @@ exit;
 sub align2array {
     my $align = shift;
 
-    return [ 0,
-             $align->pos,
-             $align->calend + 1,
-             $align->reversed ? -1 : 1
-           ];
+    my $a = [ 0,
+              $align->pos,
+              $align->calend + 1,
+              $align->reversed ? -1 : 1
+              ];
+    $a->[2]--;
+    return $a;
 }
 
 sub slurp {
