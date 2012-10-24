@@ -317,7 +317,8 @@ return declare( null,
     fillLoading: function( blockIndex, block ) {
         var msgDiv = dojo.create(
             'div', {
-                className: 'loading'
+                className: 'loading',
+                title: 'Loading data...'
             }, block );
         this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
     },
