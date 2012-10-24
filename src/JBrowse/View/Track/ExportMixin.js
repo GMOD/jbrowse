@@ -115,7 +115,7 @@ return {
                                 text.value = output;
                                 var exportView = new dijitDialog({
                                     className: 'export-view-dialog',
-                                    title: format + ' export - <span class="locString">'+ region+'</span>',
+                                    title: format + ' export - <span class="locString">'+ region+'</span> ('+Util.humanReadableNumber(output.length)+'b)',
                                     content: text
                                 });
                                 aspect.after( exportView, 'hide', function() {
