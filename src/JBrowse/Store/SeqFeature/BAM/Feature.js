@@ -55,6 +55,9 @@ var Feature = Util.fastDeclare(
         }
         delete data.pos;
 
+        this._refID = data._refID;
+        delete data._refID;
+
         this.data = data;
         this._subCounter = 0;
         this._uniqueID = args.parent ? args.parent._uniqueID + '-' + ++args.parent._subCounter
