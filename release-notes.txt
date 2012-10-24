@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * The arrow keys on the keyboard can now be used to pan and scroll
+   around the genome view.
+
  * `ucsc-to-json.pl` now supports a `--primaryName` option allowing
    the users to alter which UCSC data field is displayed by JBrowse as
    the primary name of the features in a track.  Also,

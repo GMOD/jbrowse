@@ -373,6 +373,22 @@ GenomeView.prototype._behaviors = function() { return {
                 dojo.connect( document.body, 'onkeydown', this, function(evt) {
                     if( evt.keyCode == dojo.keys.SHIFT ) // shift
                         this.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );
+                }),
+                dojo.connect( document.body, 'onkeypress', this, function(evt) {
+                    var that = this;
+                    if( evt.keyCode == dojo.keys.LEFT_ARROW || evt.keyCode == dojo.keys.RIGHT_ARROW ) {
+                        var offset = evt.keyCode == dojo.keys.LEFT_ARROW ? -40 : 40;
+                        this.setX( this.getX() + offset );
+                        if( ! this._keySlideTimeout )
+                            this._keySlideTimeout = window.setTimeout(function() {
+                                that.afterSlide();
+                                delete that._keySlideTimeout;
+                            }, 300 );
+                    }
+                    else if( evt.keyCode == dojo.keys.DOWN_ARROW || evt.keyCode == dojo.keys.UP_ARROW ) {
+                        var offset = evt.keyCode == dojo.keys.UP_ARROW ? -40 : 40;
+                        this.setY( this.getY() + offset );
+                    }
                 })
             );
             return handles;
