@@ -289,7 +289,13 @@ var Wiggle = declare( CanvasTrack,
 
                                 var score = pixelScores[x];
                                 if( typeof score == 'number' ) {
-                                    scoreDisplay.innerHTML = score;
+                                    // display the score with only 6
+                                    // significant digits, avoiding
+                                    // most confusion about the
+                                    // approximative properties of
+                                    // IEEE floating point numbers
+                                    // parsed out of BigWig files
+                                    scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
                                     scoreDisplay.style.left = x+'px';
                                     scoreDisplay.style.display = 'block';
                                 } else {

@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+ * Wiggle track mouseover cursors now display the score with only 6
+   significant digits, avoiding confusion over approximations
+   introduced by scores being converted to IEEE floating-point numbers
+   (as for BigWig files) and back to text.
+
  * Fixed bug dealing with very large regions with the same value in
    canvas-based Wiggle tracks (issue #157).
 
