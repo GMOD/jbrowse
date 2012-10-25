@@ -93,7 +93,6 @@ is_deeply( $output->{"seq/refSeqs.json"},
                    length => 10000,
                    name => "Group1.36",
                    seqChunkSize => 20000,
-                   seqDir => "seq/Group1.36",
                    start => 0,
                }
            ]);

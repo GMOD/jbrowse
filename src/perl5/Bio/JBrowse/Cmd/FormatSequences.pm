@@ -55,13 +55,6 @@ sub run {
     my $chunkSize = $self->opt('chunksize');
     $chunkSize *= 4 if $compress;
 
-    # $seqRel is the path relative to --out
-    my $seqRel = "seq";
-    my $seqDir = catdir( $self->opt('out'), $seqRel );
-
-    mkpath( $self->opt('out') );
-    mkpath( $seqDir ) unless $self->opt('noseq');
-
     my %refSeqs;
     my $db;
 
@@ -147,11 +140,9 @@ sub run {
                 };
 
             unless( $self->opt('noseq') ) {
-                my $refDir = catdir($seqDir,$refInfo->{name});
-                $self->exportSeqChunks($refDir, $compress, $chunkSize, $db,
+                $self->exportSeqChunks( $refInfo, $chunkSize, $db,
                                        [-db_id => $refid],
                                        $seg->start, $seg->end);
-                $refInfo->{"seqDir"} = $refDir;
                 $refInfo->{"seqChunkSize"} = $chunkSize;
             }
 
@@ -179,11 +170,9 @@ sub run {
             };
 
             unless ($self->opt('noseq')) {
-                my $refDir = catdir( $seqDir, $refInfo->{"name"} );
-                $self->exportSeqChunks($refDir, $compress, $chunkSize, $db,
+                $self->exportSeqChunks( $refInfo, $chunkSize, $db,
                                        [-name => $ref],
                                        $seg->start, $seg->end);
-                $refInfo->{"seqDir"} = catdir( $seqRel, $refInfo->{"name"} );
                 $refInfo->{"seqChunkSize"} = $chunkSize;
             }
 
@@ -226,7 +215,7 @@ sub run {
     }
 
     unless( $self->opt('noseq') ) {
-    $self->{storage}->modify( 'trackList.json',
+        $self->{storage}->modify( 'trackList.json',
                                        sub {
                                            my $trackList = shift;
                                            unless (defined($trackList)) {
@@ -249,7 +238,7 @@ sub run {
                                            'key' => $seqTrackName,
                                            'type' => "SequenceTrack",
                                            'chunkSize' => $chunkSize,
-                                           'urlTemplate' => "$seqRel/{refseq}/",
+                                           'urlTemplate' => $self->seqUrlTemplate,
                                            ( $compress ? ( 'compress' => 1 ): () ),
                                        };
                                            return $trackList;
@@ -269,10 +258,28 @@ sub refName {
     return $segName;
 }
 
-sub exportSeqChunks {
-    my ( $self, $dir, $compress, $chunkSize, $db, $segDef, $start, $end ) = @_;
+sub openChunkFile {
+    my ( $self, $refInfo, $chunkNum ) = @_;
 
-    mkdir $dir unless -d $dir;
+    my $compress = $self->opt('compress');
+
+    my $dir = catdir( $self->opt('out'), 'seq', $refInfo->{name} );
+    my $file = catfile( $dir, $chunkNum.'.txt');
+    $file .= 'z' if $compress;
+
+    mkpath( $dir );
+    open my $fh, '>'.($compress ? ':gzip' : ''), $file or die "$! writing $file";
+    return $fh;
+}
+
+sub seqUrlTemplate {
+    my ( $self ) = @_;
+    return "seq/{refseq}/";
+}
+
+sub exportSeqChunks {
+    my ( $self, $refInfo, $chunkSize, $db, $segDef, $start, $end ) = @_;
+
     $start = 1 if $start < 1;
     $db->absolute( 1 ) if $db->can('absolute');
 
@@ -295,9 +302,8 @@ sub exportSeqChunks {
         $chunkStart = $chunkEnd + 1;
         next unless $seg && $seg->seq && $seg->seq->seq;
 
-        my $path = File::Spec->catfile( "$dir", "$chunkNum.txt" .( $compress ? 'z' : '' ));
-        open my $chunkfile, '>'.($compress ? ':gzip' : ''), $path or die "$! writing $path";
-        $chunkfile->print( $seg->seq->seq );
+        $self->openChunkFile( $refInfo, $chunkNum )
+             ->print( $seg->seq->seq );
     }
 }
 
