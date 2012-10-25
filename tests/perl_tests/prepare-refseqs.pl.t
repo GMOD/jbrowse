@@ -20,7 +20,7 @@ my ( $stdout, $stderr ) = capture {
     system $^X, 'bin/prepare-refseqs.pl', (
         '--conf' => 'sample_data/raw/yeast_genbank.json',
         '--refs' => 'DOES NOT EXIST',
-        '--out'  => $tempdir,
+        '--out'  => $tempdir
         );
 };
 ok( ! $?, 'script succeeded for nonexistent ref' );
@@ -34,6 +34,7 @@ system $^X, 'bin/prepare-refseqs.pl', (
     #'--refs'  => 'ctgA',
     '--fasta' => 'sample_data/raw/volvox/volvox.fa',
     '--out'   => $tempdir,
+    '--nohash',
    );
 
 my $output = slurp_tree( $tempdir );
@@ -51,13 +52,13 @@ $tempdir = File::Temp->newdir;
 system $^X, 'bin/prepare-refseqs.pl', (
     '--refs'  => 'NC_001133',
     '--conf' => 'sample_data/raw/yeast_genbank.json',
-    '--out'   => $tempdir,
+    '--out'   => $tempdir
    );
 
 ok( !$?, 'yeast genbank formatting ran OK' );
-my @chunks = glob("$tempdir/seq/NC_001133/*.txt");
+my @chunks = glob("$tempdir/seq/010/83b/05/NC_001133-*.txt");
 is( scalar @chunks, 12, 'see 12 uncompressed seq chunks' ) or diag explain \@chunks;
-
+#diag explain [glob("$tempdir/seq/*/*/*/*.txt")];
 
 ## check compressed formatting
 $tempdir = File::Temp->newdir;
@@ -71,9 +72,9 @@ system $^X, 'bin/prepare-refseqs.pl', (
 
 ok( !$?, 'yeast genbank formatting ran OK' );
 
-@chunks = glob("$tempdir/seq/NC_001133/*.txtz");
+@chunks = glob("$tempdir/seq/*/*/*/NC_001133-*.txtz");
 is( scalar @chunks, 3, 'see 3 COMPRESSED seq chunks' );
-
+#diag explain \@chunks;
 
 ## check formatting from gff
 
@@ -136,13 +137,14 @@ EOCONF
 system $^X, 'bin/prepare-refseqs.pl', (
     '--conf' => "$tempdir/conf",
     '--out'   => "$tempdir/out",
-    '--refs'  => 'ctgA,ctgB'
+    '--refs'  => 'ctgA,ctgB',
+    '--nohash'
    );
 
 $output = slurp_tree( "$tempdir/out" );
 is_deeply( $output,
            slurp_tree('tests/data/volvox_formatted_refseqs'),
-           'got the right volvox formatted sequence',
+           'got the right volvox formatted sequence with --nohash',
           );# or diag explain $output;
 
 done_testing;

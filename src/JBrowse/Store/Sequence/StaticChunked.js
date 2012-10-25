@@ -61,24 +61,6 @@ StaticChunked.prototype.getRange = function( seq, start, end, callback) {
         this.chunkCache[seqname] = [];
     }
     var chunkCacheForSeq = this.chunkCache[seqname];
-    var sequrl = Util.resolveUrl(
-        this.baseUrl,
-        Util.fillTemplate(
-            this.urlTemplate,
-            {
-                'refseq': seq.name,
-                'refseq_dirpath': function() {
-                    var n = seq.name;
-                    var hex = Crc32.crc32("noggin").toString(16).replace('-','n').split('');
-                    var dirpath = [];
-                    for( var i = 0; i<hex.length; i += 3 ) {
-                        var end = Math.min( hex.length, i+3 );
-                        dirpath.push( hex.slice( i, end ).join('') );
-                    }
-                    return dirpath.join('/');
-                }
-            }
-        ));
 
     for (var i = firstChunk; i <= lastChunk; i++) {
         //console.log("working on chunk %d for %d .. %d", i, start, end);
@@ -105,6 +87,29 @@ StaticChunked.prototype.getRange = function( seq, start, end, callback) {
                 callbacks: [callbackInfo]
             };
             chunkCacheForSeq[i] = chunk;
+
+            var sequrl = Util.resolveUrl(
+                this.baseUrl,
+                Util.fillTemplate(
+                    this.urlTemplate,
+                    {
+                        'refseq': seq.name,
+                        'refseq_dirpath': function() {
+                            var hex = Crc32.crc32( seq.name )
+                                           .toString(16)
+                                           .toLowerCase()
+                                           .replace('-','n');
+                            // zero-pad the hex string to be 8 chars if necessary
+                            while( hex.length < 8 )
+                                hex = '0'+hex;
+                            var dirpath = [];
+                            for( var i = 0; i < hex.length; i += 3 ) {
+                                dirpath.push( hex.substring( i, i+3 ) );
+                            }
+                            return dirpath.join('/');
+                        }
+                    })
+            );
 
             dojo.xhrGet({
                             url: sequrl + i + ".txt" + ( this.compress ? 'z' : '' ),

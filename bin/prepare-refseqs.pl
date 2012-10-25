@@ -68,6 +68,12 @@ Size of sequence chunks to make, in base pairs.  Default 20kb.  This
 is multiplied by 4 if --compress is passed, so that the compressed
 sequence files are still approximately this size.
 
+=item --nohash
+
+Store sequences in a flat seq/$seqname/$chunk.txt structure, instead
+of the new (more scalable) /seq/hash/hash/hash/$seqname-$chunk.txt
+structure.
+
 =back
 
 =head1 AUTHOR

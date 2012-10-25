@@ -44,6 +44,7 @@ my %WriteMakefileArgs = (
     "DBI" => 0,
     "Data::Dumper" => 0,
     "Devel::Size" => 0,
+    "Digest::Crc32" => 0,
     "Digest::MurmurHash" => 0,
     "Exporter" => 0,
     "Fcntl" => 0,

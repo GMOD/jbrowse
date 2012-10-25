@@ -38,6 +38,7 @@ sub option_definitions {(
     "refids=s",
     "compress",
     "help|h|?",
+    "nohash"
 )}
 
 sub run {
@@ -263,18 +264,41 @@ sub openChunkFile {
 
     my $compress = $self->opt('compress');
 
-    my $dir = catdir( $self->opt('out'), 'seq', $refInfo->{name} );
-    my $file = catfile( $dir, $chunkNum.'.txt');
+    my ( $dir, $file ) = $self->opt('nohash')
+        # old style
+        ? ( catdir( $self->opt('out'), 'seq',
+                    $refInfo->{name}
+                    ),
+            "$chunkNum.txt"
+          )
+        # new hashed structure
+        : ( catdir( $self->opt('out'), 'seq',
+                    $self->_crc32_path( $refInfo->{name} )
+                  ),
+            "$refInfo->{name}-$chunkNum.txt"
+          );
+
     $file .= 'z' if $compress;
 
     mkpath( $dir );
-    open my $fh, '>'.($compress ? ':gzip' : ''), $file or die "$! writing $file";
+    open my $fh, '>'.($compress ? ':gzip' : ''), catfile( $dir, $file )
+        or die "$! writing $file";
     return $fh;
+}
+
+sub _crc32_path {
+    my ( $self, $str ) = @_;
+    my $crc = ( $self->{crc} ||= do { require Digest::Crc32; Digest::Crc32->new } )
+                ->strcrc32( $str );
+    my $hex = lc sprintf( '%08x', $crc );
+    return catdir( $hex =~ /(.{1,3})/g );
 }
 
 sub seqUrlTemplate {
     my ( $self ) = @_;
-    return "seq/{refseq}/";
+    return $self->opt('nohash')
+        ? "seq/{refseq}/"                   # old style
+        : "seq/{refseq_dirpath}/{refseq}-"; # new hashed structure
 }
 
 sub exportSeqChunks {
