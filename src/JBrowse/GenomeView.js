@@ -6,8 +6,8 @@ define([
            'JBrowse/View/Track/LocationScale',
            'JBrowse/View/Track/GridLines',
            'JBrowse/BehaviorManager',
-           'JBrowse/View/Zoomer',
-           'JBrowse/View/Slider'
+           'JBrowse/View/Animation/Zoomer',
+           'JBrowse/View/Animation/Slider'
        ], function(
            Util,
            dndMove,
