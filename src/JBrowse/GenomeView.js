@@ -2,6 +2,7 @@ define([
            'JBrowse/Util',
            'dojo/dnd/move',
            'dojo/dnd/Source',
+           'dijit/focus',
            'JBrowse/View/Track/LocationScale',
            'JBrowse/View/Track/GridLines',
            'JBrowse/BehaviorManager',
@@ -11,6 +12,7 @@ define([
            Util,
            dndMove,
            dndSource,
+           dijitFocus,
            LocationScaleTrack,
            GridLinesTrack,
            BehaviorManager,
@@ -374,6 +376,8 @@ GenomeView.prototype._behaviors = function() { return {
                     if( evt.keyCode == dojo.keys.SHIFT ) // shift
                         this.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );
                 }),
+
+                // scroll the view around in response to keyboard arrow keys
                 dojo.connect( document.body, 'onkeypress', this, function(evt) {
                     var that = this;
                     if( evt.keyCode == dojo.keys.LEFT_ARROW || evt.keyCode == dojo.keys.RIGHT_ARROW ) {
@@ -389,6 +393,12 @@ GenomeView.prototype._behaviors = function() { return {
                         var offset = evt.keyCode == dojo.keys.UP_ARROW ? -40 : 40;
                         this.setY( this.getY() + offset );
                     }
+                }),
+
+                // when the track pane is clicked, unfocus any dijit
+                // widgets that would otherwise not give up the focus
+                dojo.connect( this.scrollContainer, 'onclick', this, function(evt) {
+                    dijitFocus.curNode && dijitFocus.curNode.blur();
                 })
             );
             return handles;
