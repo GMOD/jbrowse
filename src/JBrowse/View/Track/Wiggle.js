@@ -189,8 +189,22 @@ var Wiggle = declare( CanvasTrack,
                             var score = f.get('score');
                             var rTop = toY( score );
                             if( rTop <= canvasHeight ) {
-                                var rWidth = Math.ceil(( f.get('end') - f.get('start') ) * scale );
-                                var rLeft  = Math.floor(( f.get('start') - leftBase ) * scale );
+                                var rWidth = Math.ceil( ( f.get('end')   - f.get('start') ) * scale );
+                                var rLeft  = Math.floor(( f.get('start') - leftBase       ) * scale );
+
+                                // if rLeft is negative (off the left
+                                // side of the canvas), clip off the
+                                // (possibly large!) non-visible
+                                // portion
+                                if( rLeft < 0 ) {
+                                    rWidth += rLeft;
+                                    rLeft  = 0;
+                                }
+                                // also don't let rWidth get overly big
+                                if( rWidth > canvasWidth ) {
+                                    rWidth = canvasWidth;
+                                }
+
                                 this._updatePixelScores( pixelScores, rLeft, rWidth, score );
                                 if( rTop <= originY ) {
                                     // bar goes upward
