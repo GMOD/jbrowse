@@ -5,8 +5,11 @@
    introduced by scores being converted to IEEE floating-point numbers
    (as for BigWig files) and back to text.
 
+ * Upgraded to a more recent version of jszlib, which contains some
+   important bugfixes (issue #157).
+
  * Fixed bug dealing with very large regions with the same value in
-   canvas-based Wiggle tracks (issue #157).
+   canvas-based Wiggle tracks (also issue #157).
 
  * The arrow keys on the keyboard can now be used to pan and scroll
    around the genome view.
