@@ -17,8 +17,8 @@
  * The faceted track selector now renders any HTML that may be present
    in the track metadata by default.  To turn this off, it now accepts
    an `escapeHTMLInData` option that, if set to `true` or `1`, will
-   not render the HTML, but will instead display the raw code (issue
-   #145).
+   not render the HTML, but will instead display the raw code
+   (issue #145).
 
  * Upgraded to a more recent version of jszlib, which contains some
    important bugfixes (issue #157).
@@ -28,8 +28,8 @@
 
  * `prepare-refseqs.pl` now by default uses a more scalable directory
    structure for storing sequences.  This fixes problems some users
-   were experiencing with large numbers of reference sequences (issue
-   #139).
+   were experiencing with large numbers of reference sequences
+   (issue #139).
 
  * `ucsc-to-json.pl` now supports a `--primaryName` option allowing
    the users to alter which UCSC data field is displayed by JBrowse as
