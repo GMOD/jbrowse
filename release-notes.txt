@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.6.5     2012-10-26 12:10:08 America/New_York
+
  * The location box now shows the length of the currently visible
    region in parentheses.  For example: `ctgB:1244..3566 (2.32 Kb)`.
    Thanks to Karsten Hokamp for the suggestion!
