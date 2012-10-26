@@ -82,7 +82,7 @@ return declare( BlockBased,
         // fill with leading blanks if the
         // sequence does not extend all the way
         // across our range
-        for( ; start < 0; start++ ) {
+        while( seq.length < (end-start) ) {
             seq = this.nbsp + seq; //nbsp is an "&nbsp;" entity
         }
 

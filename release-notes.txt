@@ -39,8 +39,8 @@
  * Fixed "Duplicate specification" warnings coming from
    `flatfile-to-json.pl` and `remove-track.pl`.
 
- * Fixed bug in which the last few bases of a reference sequence were
-   not displaying correctly in a DNA track.
+ * Fixed bugs in which both the first few and the last few bases of a
+   reference sequence were not displaying correctly in a DNA track.
 
 1.6.4     2012-10-16 11:50:44 America/New_York
 
