@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * The location box now shows the length of the currently visible
+   region in parentheses.  For example: `ctgB:1244..3566 (2.32 Kb)`.
+   Thanks to Karsten Hokamp for the suggestion!
+
  * Wiggle track mouseover cursors now display the score with only 6
    significant digits, avoiding confusion over approximations
    introduced by scores being converted to IEEE floating-point numbers
