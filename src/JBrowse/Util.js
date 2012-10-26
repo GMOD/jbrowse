@@ -211,11 +211,12 @@ Util = {
         locstring = dojo.trim( locstring );
 
         //                                (chromosome)    (    start      )   (  sep     )     (    end   )
-        var matches = locstring.match(/^(((\S*)\s*:)?\s*(-?[\d,.']+)\s*(\.\.|-|\s+))?\s*(-?[\d,.']+)$/i);
+        var matches = locstring.match(/^(((\S*)\s*:)?\s*(-?[\d,.']+)\s*(\.\.|-|\s+))?\s*(-?[\d,.']+)(.*)/i);
         //matches potentially contains location components:
         //matches[3] = chromosome (optional)
         //matches[4] = start base (optional)
         //matches[6] = end base (or center base, if it's the only one)
+        //matches[7] = any extra stuff at the end
 
         if( !matches )
             return null;
@@ -231,7 +232,8 @@ Util = {
         return {
             start: parseCoord( matches[4] )-1,
             end:   parseCoord( matches[6] ),
-            ref:   matches[3]
+            ref:   matches[3],
+            extra: matches[7]
         };
     },
 
@@ -264,6 +266,10 @@ Util = {
         }
         if( 'end' in location )
             s += Math.round(location.end).toFixed(0).toLocaleString();
+
+        // add on any extra stuff if it was passed in
+        if( loc_in.extra )
+            s += loc_in.extra;
 
         return s;
     },
