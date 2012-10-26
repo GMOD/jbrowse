@@ -310,6 +310,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
                id: 'trackSelectGrid',
                store: this.trackDataStore,
                selectable: true,
+               escapeHTMLInData: ('escapeHTMLInData' in this.config) ? this.config.escapeHTMLInData : false,
                noDataMessage: "No tracks match the filtering criteria.",
                structure: [
                    dojo.map(

@@ -29,7 +29,7 @@ sub option_definitions {
         'dir|out=s',
         'quiet|q',
         'delete|D',
-        'trackLabel|tracklabel=s@',
+        'trackLabel=s@',
     );
 }
 

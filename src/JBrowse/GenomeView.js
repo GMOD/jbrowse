@@ -2,15 +2,17 @@ define([
            'JBrowse/Util',
            'dojo/dnd/move',
            'dojo/dnd/Source',
+           'dijit/focus',
            'JBrowse/View/Track/LocationScale',
            'JBrowse/View/Track/GridLines',
            'JBrowse/BehaviorManager',
-           'JBrowse/View/Zoomer',
-           'JBrowse/View/Slider'
+           'JBrowse/View/Animation/Zoomer',
+           'JBrowse/View/Animation/Slider'
        ], function(
            Util,
            dndMove,
            dndSource,
+           dijitFocus,
            LocationScaleTrack,
            GridLinesTrack,
            BehaviorManager,
@@ -406,6 +408,30 @@ GenomeView.prototype._behaviors = function() { return {
                 dojo.connect( document.body, 'onkeydown', this, function(evt) {
                     if( evt.keyCode == dojo.keys.SHIFT ) // shift
                         this.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );
+                }),
+
+                // scroll the view around in response to keyboard arrow keys
+                dojo.connect( document.body, 'onkeypress', this, function(evt) {
+                    var that = this;
+                    if( evt.keyCode == dojo.keys.LEFT_ARROW || evt.keyCode == dojo.keys.RIGHT_ARROW ) {
+                        var offset = evt.keyCode == dojo.keys.LEFT_ARROW ? -40 : 40;
+                        this.setX( this.getX() + offset );
+                        if( ! this._keySlideTimeout )
+                            this._keySlideTimeout = window.setTimeout(function() {
+                                that.afterSlide();
+                                delete that._keySlideTimeout;
+                            }, 300 );
+                    }
+                    else if( evt.keyCode == dojo.keys.DOWN_ARROW || evt.keyCode == dojo.keys.UP_ARROW ) {
+                        var offset = evt.keyCode == dojo.keys.UP_ARROW ? -40 : 40;
+                        this.setY( this.getY() + offset );
+                    }
+                }),
+
+                // when the track pane is clicked, unfocus any dijit
+                // widgets that would otherwise not give up the focus
+                dojo.connect( this.scrollContainer, 'onclick', this, function(evt) {
+                    dijitFocus.curNode && dijitFocus.curNode.blur();
                 })
             );
             return handles;

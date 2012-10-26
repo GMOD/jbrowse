@@ -84,7 +84,7 @@ SequenceTrack.extend(
         // fill with leading blanks if the
         // sequence does not extend all the way
         // across our range
-        for( ; start < 0; start++ ) {
+        while( seq.length < (end-start) ) {
             seq = this.nbsp + seq; //nbsp is an "&nbsp;" entity
         }
 
@@ -128,7 +128,6 @@ SequenceTrack.extend(
 
         var container  = document.createElement('div');
         var charWidth = 100/(end-start)+"%";
-        var drawChars = scale >= charSize.w;
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('span');
             base.className = 'base base_'+seq[i].toLowerCase();

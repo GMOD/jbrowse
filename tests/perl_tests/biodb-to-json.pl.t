@@ -170,7 +170,7 @@ use FileSlurping 'slurp';
       'key' => 'DNA',
       'label' => 'DNA',
       'type' => 'SequenceTrack',
-      'urlTemplate' => 'seq/{refseq}/'
+      'urlTemplate' => 'seq/{refseq_dirpath}/{refseq}-'
     },
     {
       'autocomplete' => 'all',

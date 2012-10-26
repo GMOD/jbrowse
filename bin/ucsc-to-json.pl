@@ -11,6 +11,7 @@ ucsc-to-json.pl - format JBrowse JSON from a UCSC database dump
       [ --out <output directory> ]                   \
       [ --track <table name> ]                       \
       [ --cssClass <class> ]                         \
+      [ --primaryName <name column> ]                \
       [ --arrowheadClass <class> ]                   \
       [ --subfeatureClasses <subfeature class map> ] \
       [ --clientConfig <JSON client config> ]        \
@@ -33,6 +34,15 @@ output directory for JSON, defaults to "data/"
 =item --track 'trackName'
 
 name of the database table, e.g., "knownGene"
+
+=item --primaryName 'name2'
+
+name of the UCSC data column (e.g. "name2" in the case of the UCSC
+"refGene" track) to use as the primary name of features in the JBrowse
+display.  If this is set, the primaryName field will be swapped with
+the name field in the output.  For example, C<--primaryName 'name2'>
+will cause the output's C<name> to be the UCSC C<name2>, and C<name2>
+will be the UCSC C<name>.
 
 =item --cssClass 'classname'
 
@@ -99,6 +109,7 @@ use JBlibs;
 use Pod::Usage;
 use Getopt::Long;
 use List::Util qw(min max);
+use List::MoreUtils 'distinct';
 
 use PerlIO::gzip;
 use JSON 2;
@@ -111,6 +122,7 @@ my ($indir, $tracks, $arrowheadClass, $subfeatureClasses, $clientConfig, $db,
     $nclChunk, $compress);
 my $outdir = "data";
 my $cssClass = "basic";
+my $primaryNameColumn = 'name';
 my $sortMem = 1024 * 1024 * 512;
 my $help;
 my $quiet;
@@ -123,6 +135,7 @@ GetOptions(
     "subfeatureClasses=s" => \$subfeatureClasses,
     "clientConfig=s"      => \$clientConfig,
     "nclChunk=i"          => \$nclChunk,
+    "primaryName=s"       => \$primaryNameColumn,
     "compress"            => \$compress,
     "sortMem=i"           => \$sortMem,
     "help|?|h"            => \$help,
@@ -193,8 +206,7 @@ foreach my $tableName (@$tracks) {
     }
 
     my %fields = name2column_map($indir . "/" . $trackMeta->{tableName});
-
-    my ($converter, $headers, $subfeatures) = makeConverter(\%fields, $type);
+    my ($converter, $headers, $subfeatures) = makeConverter(\%fields, $type, $primaryNameColumn);
 
     my $color = sprintf("#%02x%02x%02x",
                         $trackMeta->{colorR},
@@ -252,7 +264,7 @@ ENDJS
     my $chromCol = $fields{chrom};
     my $startCol = $fields{txStart} || $fields{chromStart};
     my $endCol = $fields{txEnd} || $fields{chromEnd};
-    my $nameCol = $fields{name};
+    my @nameCols = grep defined, distinct( $fields{ $primaryNameColumn }, @fields{grep /^(name|id|alias)\d*$/i, keys %fields} );
     my $compare = sub ($$) {
         $_[0]->[$chromCol] cmp $_[1]->[$chromCol]
             ||
@@ -316,15 +328,14 @@ ENDJS
         }
         my $jsonRow = $converter->($row, \%fields, $type);
         $track->addSorted($jsonRow);
-        if (defined $nameCol) {
+        if ( @nameCols ) {
             $track->nameHandler->addName(
-                [ [$row->[$nameCol]],
-                  $tableName,
-                  $row->[$nameCol],
-                  $row->[$chromCol],
-                  $jsonRow->[1],
-                  $jsonRow->[2],
-                  $row->[$nameCol],
+                [ [ @{$row}[@nameCols] ], # all the names
+                  $tableName,             # track name
+                  $row->[$nameCols[0]],   # the primary feature name
+                  $row->[$chromCol],      # location refseq
+                  $jsonRow->[1],          # location start
+                  $jsonRow->[2]           # location end
                 ]
             );
         }
@@ -373,8 +384,13 @@ sub makeConverter {
     # into an array ready for adding to a JsonGenerator,
     # and a reference to an array of header strings that
     # describe the arrays returned by the sub
-    my ($orig_fields, $type) = @_;
+    my ($orig_fields, $type, $primaryNameColumn) = @_;
     my %fields = (%$orig_fields);
+
+    if( $fields{name} && $fields{ $primaryNameColumn } && $fields{$primaryNameColumn} != $fields{name} ) {
+        ( $fields{name}, $fields{$primaryNameColumn} ) = ( $fields{$primaryNameColumn}, $fields{name} );
+    }
+
     my @headers;
     my $srcMap = $typeMaps{$type};
     my @indexMap;

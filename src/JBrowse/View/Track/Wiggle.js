@@ -219,8 +219,22 @@ Wiggle.extend({
                             var score = f.get('score');
                             var rTop = toY( score );
                             if( rTop <= canvasHeight ) {
-                                var rWidth = Math.ceil(( f.get('end') - f.get('start') ) * scale );
-                                var rLeft  = Math.floor(( f.get('start') - leftBase ) * scale );
+                                var rWidth = Math.ceil( ( f.get('end')   - f.get('start') ) * scale );
+                                var rLeft  = Math.floor(( f.get('start') - leftBase       ) * scale );
+
+                                // if rLeft is negative (off the left
+                                // side of the canvas), clip off the
+                                // (possibly large!) non-visible
+                                // portion
+                                if( rLeft < 0 ) {
+                                    rWidth += rLeft;
+                                    rLeft  = 0;
+                                }
+                                // also don't let rWidth get overly big
+                                if( rWidth > canvasWidth ) {
+                                    rWidth = canvasWidth;
+                                }
+
                                 this._updatePixelScores( pixelScores, rLeft, rWidth, score );
                                 if( rTop <= originY ) {
                                     // bar goes upward
@@ -305,7 +319,13 @@ Wiggle.extend({
 
                                 var score = pixelScores[x];
                                 if( typeof score == 'number' ) {
-                                    scoreDisplay.innerHTML = score;
+                                    // display the score with only 6
+                                    // significant digits, avoiding
+                                    // most confusion about the
+                                    // approximative properties of
+                                    // IEEE floating point numbers
+                                    // parsed out of BigWig files
+                                    scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
                                     scoreDisplay.style.left = x+'px';
                                     scoreDisplay.style.display = 'block';
                                 } else {

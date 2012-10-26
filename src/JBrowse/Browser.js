@@ -1154,14 +1154,23 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
 
     //since this method gets triggered by the initial GenomeView.sizeInit,
     //we don't want to save whatever location we happen to start at
-    if (! this.isInitialized) return;
+    if( ! this.isInitialized ) return;
+
     var locString = Util.assembleLocString({ start: startbp, end: endbp, ref: this.refSeq.name });
+
+    // update the location box with our current location
     if( this.locationBox ) {
-        this.locationBox.set('value',locString,false);
-        if( this.refSeqSelectBox )
-            this.refSeqSelectBox.set('value', this.refSeq.name, false );
-        this.goButton.set('disabled',true);
+        this.locationBox.set(
+            'value',
+            locString + ' ('+Util.humanReadableNumber(endbp-startbp+1)+'b)',
+            false //< don't fire any onchange handlers
+        );
+        this.goButton.set( 'disabled', true ) ;
     }
+    // also update the refseq selection dropdown if present
+    if( this.refSeqSelectBox )
+        this.refSeqSelectBox.set( 'value', this.refSeq.name, false );
+
 
     // update the location and refseq cookies
     var oldLocMap = dojo.fromJson( this.cookie('location') ) || { "_version": 1 };

@@ -1,5 +1,5 @@
 "technique","factor","target","principal_investigator","submission","label","category","type","Developmental-Stage","organism","key"
-"ChIP-chip","BEAF-32","Non TF Chromatin binding factor","White, K.","21","fly/White_INSULATORS_WIG/BEAF32","Other chromatin binding sites","data set","Embryos 0-12 hr","D. melanogaster","BEAF-32;Embryos 0-12 hr;ChIP-chip"
+"ChIP-chip","BEAF-32","Non TF Chromatin binding factor <b>with some bold text for testing</b>","White, K.","21","fly/White_INSULATORS_WIG/BEAF32","Other chromatin binding sites","data set","Embryos 0-12 hr","D. melanogaster","BEAF-32;Embryos 0-12 hr;ChIP-chip"
 "ChIP-chip","CP190","Non TF Chromatin binding factor","White, K.","22","fly/White_INSULATORS_WIG/CP190","Other chromatin binding sites","data set","Embryos 0-12 hr","D. melanogaster","CP190;Embryos 0-12 hr;ChIP-chip"
 "ChIP-chip","GAF","Non TF Chromatin binding factor","White, K.","23","fly/White_INSULATORS_WIG/GAF","Other chromatin binding sites","data set","Embryos 0-12 hr","D. melanogaster","GAF;Embryos 0-12 hr;ChIP-chip"
 "ChIP-chip","mod(mdg4)","Non TF Chromatin binding factor","White, K.","24","fly/White_INSULATORS_WIG/MDG4","Other chromatin binding sites","data set","Embryos 0-12 hr","D. melanogaster","mod(mdg4);Embryos 0-12 hr;ChIP-chip"
