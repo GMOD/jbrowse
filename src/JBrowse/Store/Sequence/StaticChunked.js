@@ -1,8 +1,9 @@
-define( ['JBrowse/Store',
-         'JBrowse/Util',
-         'JBrowse/Digest/Crc32'
+define( [ 'dojo/_base/declare',
+          'JBrowse/Store',
+          'JBrowse/Util',
+          'JBrowse/Digest/Crc32'
         ],
-        function( Store, Util, Crc32 ) {
+        function( declare, Store, Util, Crc32 ) {
 
 return declare( null,
 
