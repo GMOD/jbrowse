@@ -90,16 +90,17 @@ var HTMLFeatures = declare( BlockBased, {
 /**
  * Mixin: JBrowse.View.Track.YScaleMixin.
  */
-dojo.safeMixin( HTMLFeatures.prototype, YScaleMixin );
+HTMLFeatures.extend( YScaleMixin );
 /**
  * Mixin: JBrowse.View.Track.ExportMixin.
  */
-dojo.safeMixin( HTMLFeatures.prototype, ExportMixin );
+HTMLFeatures.extend( ExportMixin );
 
- /**
-  * @lends JBrowse.View.Track.HTMLFeatures.prototype
-  */
-HTMLFeatures.extend({
+HTMLFeatures = declare( HTMLFeatures,
+/**
+ * @lends JBrowse.View.Track.HTMLFeatures.prototype
+ */
+{
 
     /**
      * Returns object holding the default configuration for HTML-based feature tracks.
@@ -114,7 +115,8 @@ HTMLFeatures.extend({
                 labelScale: 30,
                 minSubfeatureWidth: 6,
                 maxDescriptionLength: 70,
-                descriptionScale: 170
+                descriptionScale: 170,
+                showLabels: true
             },
             hooks: {
                 create: function(track, feat ) {
@@ -145,6 +147,7 @@ HTMLFeatures.extend({
         // recall that scale is pixels per basepair
         var density = this.store.getGlobalStats().featureDensity;
         this.labelScale = density * this.config.style.labelScale;
+        this.showLabels = this.config.style.showLabels;
         this.descriptionScale = density * this.config.style.descriptionScale;;
         this.inherited(arguments);
     },
@@ -520,9 +523,6 @@ HTMLFeatures.extend({
 
         this.scale = scale;
 
-        if( ! this.layout || this.layout.pitchX != 4/scale )
-            this.layout = new Layout({pitchX: 4/scale, pitchY: 4});
-
         block.featureNodes = {};
         block.style.backgroundColor = "#ddd";
 
@@ -547,7 +547,7 @@ HTMLFeatures.extend({
         this.store.iterate( leftBase, rightBase, featCallback,
                                   function () {
                                       block.style.backgroundColor = "";
-                                      curTrack.heightUpdate(curTrack.layout.getTotalHeight(),
+                                      curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                             blockIndex);
                                   });
     },
@@ -636,7 +636,7 @@ HTMLFeatures.extend({
 
         // add the label div (which includes the description) to the
         // calculated height of the feature if it will be displayed
-        if( scale >= this.labelScale ) {
+        if( this.showLabels && scale >= this.labelScale ) {
             if (name) {
 	        featureEnd = Math.max(featureEnd, featureStart + (''+name).length * this.labelWidth / scale );
                 levelHeight += this.labelHeight;
@@ -648,7 +648,7 @@ HTMLFeatures.extend({
         }
         featureEnd += Math.max(1, this.padding / scale);
 
-        var top = this.layout.addRect( uniqueId,
+        var top = this._getLayout( scale ).addRect( uniqueId,
                                        featureStart,
                                        featureEnd,
                                        levelHeight);
@@ -735,7 +735,7 @@ HTMLFeatures.extend({
             }
         }
 
-        if (name && (scale >= this.labelScale)) {
+        if (name && this.showLabels && scale >= this.labelScale) {
             var labelDiv = dojo.create( 'div', {
                     className: "feature-label",
                     innerHTML: '<div class="feature-name">'+name+'</div>'
@@ -928,8 +928,47 @@ HTMLFeatures.extend({
         featDiv.appendChild(subDiv);
     },
 
+    _getLayout: function( scale ) {
+        // create the layout if we need to, and we can
+        if( ( ! this.layout || this.layout.pitchX != 4/scale ) && scale )
+            this.layout = new Layout({pitchX: 4/scale, pitchY: 4});
+
+        return this.layout;
+    },
+    _clearLayout: function() {
+        delete this.layout;
+    },
+
+    // when all the blocks are hidden, we also should recalculate our layout 
+    changed: function() {
+        this.inherited(arguments);
+        this._clearLayout();
+    },
+
     _exportFormats: function() {
         return [ 'GFF3', 'BED' ];
+    },
+
+    _trackMenuOptions: function() {
+        var o = this.inherited(arguments);
+        var track = this;
+
+        o.push.apply(
+            o,
+            [
+                { type: 'dijitMenuSeparator' },
+                { label: 'Show labels',
+                  type: 'dijitCheckedMenuItem',
+                  checked: !!( 'showLabels' in this ? this.showLabels : this.config.style.showLabels ),
+                  onClick: function(event) {
+                      track.showLabels = this.checked;
+                      track.changed();
+                  }
+                }
+            ]
+        );
+
+        return o;
     }
 
 });

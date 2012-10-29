@@ -7,6 +7,8 @@ define( [
             'dijit/Menu',
             'dijit/PopupMenuItem',
             'dijit/MenuItem',
+            'dijit/CheckedMenuItem',
+            'dijit/MenuSeparator',
             'JBrowse/Util'
         ],
         function( declare,
@@ -17,6 +19,8 @@ define( [
                   dijitMenu,
                   dijitPopupMenuItem,
                   dijitMenuItem,
+                  dijitCheckedMenuItem,
+                  dijitMenuSeparator,
                   Util
                 ) {
 return declare( null,
@@ -39,7 +43,7 @@ return declare( null,
         this.name = args.label || this.config.label;
         this.key = args.key || this.config.key || this.name;
         this.loaded = false;
-        this.changed = args.changeCallback || function() {};
+        this._changedCallback = args.changeCallback || function(){};
         this.height = 0;
         this.shown = true;
         this.empty = false;
@@ -310,8 +314,13 @@ return declare( null,
 
     setLoaded: function() {
         this.loaded = true;
-        this.hideAll();
         this.changed();
+    },
+
+    changed: function() {
+        this.hideAll();
+        if( this._changedCallback )
+            this._changedCallback();
     },
 
     fillLoading: function( blockIndex, block ) {
@@ -487,24 +496,33 @@ return declare( null,
 
         for ( key in menuStructure ) {
             var spec = menuStructure [ key ];
-            if ( spec.children ) {
-                var child = new dijitMenu();
-                parent.addChild( child );
-                parent.addChild( new dijitPopupMenuItem(
-                                     {
-                                         popup : child,
-                                         label : spec.label
-                                     }));
-                this._renderContextMenu( spec.children, context, child );
-            }
-            // only draw other menu items if they have an action.
-            // drawing menu items that do nothing when clicked
-            // would frustrate users.
-            else if( spec.action || spec.url || spec.href ) {
-                var menuConf = dojo.clone( spec );
-                menuConf.onClick = this._makeClickHandler( spec, context );
-                var child = new dijitMenuItem( menuConf );
-                parent.addChild(child);
+            var class_;
+            try {
+                eval( 'class_='+( spec.type || 'dijitMenuItem' )+ ';' );
+                if ( spec.children ) {
+                    var child = new dijitMenu();
+                    parent.addChild( child );
+                    parent.addChild( new dijitPopupMenuItem(
+                                         {
+                                             popup : child,
+                                             label : spec.label
+                                         }));
+                    this._renderContextMenu( spec.children, context, child );
+                }
+                else {
+                    var menuConf = dojo.clone( spec );
+                    if( menuConf.action || menuConf.url || menuConf.href ) {
+                        menuConf.onClick = this._makeClickHandler( spec, context );
+                    }
+                    // only draw other menu items if they do something when clicked.
+                    // drawing menu items that do nothing when clicked
+                    // would frustrate users.
+                    if( menuConf.label && !menuConf.onClick )
+                        menuConf.disabled = true;
+                    parent.addChild( new class_( menuConf ) );
+                }
+            } catch(e) {
+                console.error('failed to render menu item: '+e);
             }
         }
         return parent;
