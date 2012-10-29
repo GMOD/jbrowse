@@ -85,7 +85,7 @@ return declare( SFNCList,
             this.subFieldOrder = [];
             if (trackInfo.subfeatureHeaders) {
                 for (i = 0; i < trackInfo.subfeatureHeaders.length; i++) {
-                    this.subfieldOrder.push( trackInfo.subfeatureHeaders[i] );
+                    this.subFieldOrder.push( trackInfo.subfeatureHeaders[i] );
                     this.subFields[trackInfo.subfeatureHeaders[i]] = i;
                 }
             }
