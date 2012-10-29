@@ -379,6 +379,12 @@ GenomeView.prototype._behaviors = function() { return {
 
                 // scroll the view around in response to keyboard arrow keys
                 dojo.connect( document.body, 'onkeypress', this, function(evt) {
+
+                    // if some digit widget is focused, don't move the
+                    // genome view with arrow keys
+                    if( dijitFocus.curNode )
+                        return;
+
                     var that = this;
                     if( evt.keyCode == dojo.keys.LEFT_ARROW || evt.keyCode == dojo.keys.RIGHT_ARROW ) {
                         var offset = evt.keyCode == dojo.keys.LEFT_ARROW ? -40 : 40;

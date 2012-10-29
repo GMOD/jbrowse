@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Fix bug with the genome view scrolling in response to arrow keys
+   being pressed when typing in the location box.
+
 1.6.5     2012-10-26 12:10:08 America/New_York
 
  * The location box now shows the length of the currently visible
