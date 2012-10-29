@@ -75,13 +75,17 @@ return declare( SFNCList,
 
             // remember the field offsets from the old-style trackinfo headers
             this.fields = {};
+            this.fieldOrder = [];
             var i;
             for (i = 0; i < trackInfo.headers.length; i++) {
+                this.fieldOrder.push( trackInfo.headers[i] );
                 this.fields[trackInfo.headers[i]] = i;
             }
             this.subFields = {};
+            this.subFieldOrder = [];
             if (trackInfo.subfeatureHeaders) {
                 for (i = 0; i < trackInfo.subfeatureHeaders.length; i++) {
+                    this.subfieldOrder.push( trackInfo.subfeatureHeaders[i] );
                     this.subFields[trackInfo.subfeatureHeaders[i]] = i;
                 }
             }
@@ -106,7 +110,9 @@ return declare( SFNCList,
     iterate: function( startBase, endBase, origFeatCallback, finishCallback ) {
         var that = this,
         fields = this.fields,
+        fieldOrder = this.fieldOrder,
         subFields = this.subFields,
+        subfieldOrder = this.subfieldOrder,
         get = function(fieldname) {
             var f = fields[fieldname];
             if( f >= 0 )
@@ -121,10 +127,21 @@ return declare( SFNCList,
             else
                 return undefined;
         },
+        tags = function() {
+            return fieldOrder;
+        },
+        subTags = function() {
+            return subfieldOrder;
+        },
         featCallBack = function( feature, path ) {
             feature.get = get;
+            feature.tags = tags;
+            feature._uniqueID = path.join(',');
+            var subfeatCtr = 0;
             dojo.forEach( feature.get('subfeatures'), function(f) {
                               f.get = subget;
+                              f.tags = subTags;
+                              f._uniqueID = feature._uniqueID+'-'+(++subfeatCtr);
                           });
             return origFeatCallback( feature, path );
         };
