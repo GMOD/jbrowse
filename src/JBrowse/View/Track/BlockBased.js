@@ -601,6 +601,8 @@ return declare( null,
         var metadata = dojo.clone( this.getMetadata() );
         delete metadata.key;
         delete metadata.label;
+        if( typeof metadata.conf == 'object' )
+            delete metadata.conf;
 
         var md_keys = [];
         for( var k in metadata )
