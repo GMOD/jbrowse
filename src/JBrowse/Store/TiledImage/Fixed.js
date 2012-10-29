@@ -33,7 +33,7 @@ var Fixed = function(args) {
 Fixed.prototype = new Store('');
 
 Fixed.prototype.loadSuccess = function(o) {
-    this.globalStats = o.stats;
+    this.globalStats = o.stats || {};
     //backcompat
     if( ! ('scoreMin' in this.globalStats ) )
         this.globalStats.scoreMin = this.globalStats.global_min;
