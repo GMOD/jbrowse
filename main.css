@@ -25,7 +25,13 @@ fieldset > legend {
 }
 
 .dijitDialogPaneActionBar {
-    text-align: right;
+    text-align: center;
+    clear: both;
+    padding-top: 1em;
+}
+
+.infoDialogContent {
+    padding: 2em;
 }
 
 .nav {
@@ -565,10 +571,6 @@ div.message {
 /* styles dealing with popups launched by clicking on features */
 .popup-dialog-iframe .dijitDialogPaneContent {
     padding: 0;
-}
-
-.dijitDialogPaneActionBar {
-    text-align: right;
 }
 
 .export-view-dialog .dijitDialogPaneContent {

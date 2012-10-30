@@ -842,22 +842,12 @@ Browser.prototype.searchNames = function( /**String*/ loc ) {
         },
         // if no match for the name is found, show a popup dialog saying this.
         function() {
-            var d =  dijitDialog({ title: 'Not found', className: 'notfound-dialog' });
-
-            var content = dojo.create('div', {
-                className: 'message',
-                innerHTML: 'Not found: <span class="locString">'+loc+'</span>'
-            });
-
-            var actionBar = dojo.create( 'div', { className: 'dijitDialogPaneActionBar' });
-            new dijitButton({label: 'OK', onClick: dojo.hitch(d,'hide')}).placeAt(actionBar);
-
-            d.set('content',[content,actionBar]);
-
-            // clean up this dialog completely when it's hidden
-            aspect.after(d, 'hide', function() { d.destroyRecursive(); });
-
-            d.show();
+            new InfoDialog(
+                {
+                    title: 'Not found',
+                    content: 'Not found: <span class="locString">'+loc+'</span>',
+                    className: 'notfound-dialog'
+                }).show();
         }
    );
 };
