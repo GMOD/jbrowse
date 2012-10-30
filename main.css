@@ -602,13 +602,15 @@ a.dialog-new-window {
 }
 
 /* styles for popup feature detail dialogs from tracks */
-.dijitDialogPaneContent .feature-detail {
-    margin-top: -0.6em;
-}
-
 .feature-detail {
     padding-top: 1em;
 }
+.feature-detail .subfeature-detail {
+    background: #fafafa;
+    background: rgba( 0, 0, 0, 0.1 );
+    border: 1px outset #B9B9B9
+}
+
 .detail .value {
     margin-left: 1em;
     display: inline-block;

@@ -156,9 +156,9 @@ HTMLFeatures = declare( HTMLFeatures,
      * Make a default feature detail page for the given feature.
      * @returns {HTMLElement} feature detail page HTML
      */
-    defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
+    defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement */ container ) {
         var fmt = dojo.hitch( this, '_fmtDetailField' );
-        var container = dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name, innerHTML: '' } );
+        container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name, innerHTML: '' } );
         container.innerHTML += fmt( 'Name', f.get('name') );
         container.innerHTML += fmt( 'Type', f.get('type') );
         container.innerHTML += fmt( 'Description', f.get('note') );
@@ -174,6 +174,24 @@ HTMLFeatures = declare( HTMLFeatures,
         dojo.forEach( additionalTags.sort(), function(t) {
             container.innerHTML += fmt( t, f.get(t) );
         });
+
+        var subfeatures = f.get('subfeatures');
+        if( subfeatures && subfeatures.length ) {
+            var field_container = dojo.create('div', { className: 'field_container subfeatures' }, container );
+            dojo.create( 'h2', { className: 'field subfeatures', innerHTML: 'Subfeatures' }, field_container );
+            var subfeaturesContainer = dojo.create( 'div', { className: 'value subfeatures' }, field_container );
+            array.forEach( subfeatures || [], function( subfeature ) {
+                    this.defaultFeatureDetail(
+                        track,
+                        subfeature,
+                        null,
+                        dojo.create('div', {
+                                        className: 'detail feature-detail subfeature-detail feature-detail-'+track.name+' subfeature-detail-'+track.name,
+                                        innerHTML: ''
+                                    }, subfeaturesContainer )
+                    );
+            },this);
+        }
 
         return container;
     },
