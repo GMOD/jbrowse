@@ -170,13 +170,22 @@ HTMLFeatures = declare( HTMLFeatures,
             + ({'1':' (+)', '-1': ' (-)', 0: ' (no strand)' }[f.get('strand')] || '')
         );
 
+        // render any additional tags as just key/value
         var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()]; });
         dojo.forEach( additionalTags.sort(), function(t) {
             container.innerHTML += fmt( t, f.get(t) );
         });
 
+        // render any subfeatures this feature has
         var subfeatures = f.get('subfeatures');
         if( subfeatures && subfeatures.length ) {
+            this._subfeaturesDetail( track, subfeatures, container );
+        }
+
+        return container;
+    },
+
+    _subfeaturesDetail: function( track, subfeatures, container ) {
             var field_container = dojo.create('div', { className: 'field_container subfeatures' }, container );
             dojo.create( 'h2', { className: 'field subfeatures', innerHTML: 'Subfeatures' }, field_container );
             var subfeaturesContainer = dojo.create( 'div', { className: 'value subfeatures' }, field_container );
@@ -191,9 +200,6 @@ HTMLFeatures = declare( HTMLFeatures,
                                     }, subfeaturesContainer )
                     );
             },this);
-        }
-
-        return container;
     },
 
     // _autoLinkText: function( text ) {
