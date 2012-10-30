@@ -1030,6 +1030,7 @@ Browser.prototype.makeShareLink = function () {
                             });
                 URLinput.focus();
                 URLinput.select();
+                copyReminder.style.display = 'block';
 
                 return false;
             }
