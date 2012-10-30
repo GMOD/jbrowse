@@ -1003,7 +1003,7 @@ Browser.prototype.makeShareLink = function () {
         return null;
 
     var browser = this;
-    var viewURL = '#';
+    var shareURL = '#';
 
     // make the share link
     var link = dojo.create(
@@ -1017,8 +1017,8 @@ Browser.prototype.makeShareLink = function () {
                 position: 'relative'
             },
             onclick: function() {
-                URLinput.value = viewURL;
-                previewLink.href = viewURL;
+                URLinput.value = shareURL;
+                previewLink.href = shareURL;
 
                 sharePane.show();
 
@@ -1048,7 +1048,7 @@ Browser.prototype.makeShareLink = function () {
     var URLinput = dojo.create(
         'input', {
             type: 'text',
-            value: viewURL,
+            value: shareURL,
             size: 50,
             readonly: 'readonly',
             onclick: function() { this.select();  copyReminder.style.display = 'block'; },
@@ -1057,13 +1057,14 @@ Browser.prototype.makeShareLink = function () {
     var previewLink = dojo.create('a', {
         innerHTML: 'preview',
         target: '_blank',
-        href: viewURL,
+        href: shareURL,
         style: { display: 'block', "float": 'right' }
     }, container );
     var sharePane = new dijitDialog(
         {
             className: 'sharePane',
             title: 'Share this view',
+            draggable: false,
             content: [
                 container,
                 URLinput,
@@ -1073,8 +1074,8 @@ Browser.prototype.makeShareLink = function () {
         });
 
     // connect moving and track-changing events to update it
-    var update_sharelink = dojo.hitch(this,function() {
-                viewURL = "".concat(
+    var updateShareURL = dojo.hitch(this,function() {
+                shareURL = "".concat(
                     window.location.protocol,
                     "//",
                     window.location.host,
@@ -1088,8 +1089,8 @@ Browser.prototype.makeShareLink = function () {
                         })
                 );
     });
-    dojo.connect( this, "onCoarseMove",             update_sharelink );
-    this.subscribe( '/jbrowse/v1/v/tracks/changed', update_sharelink );
+    dojo.connect( this, "onCoarseMove",             updateShareURL );
+    this.subscribe( '/jbrowse/v1/v/tracks/changed', updateShareURL );
 
     return link;
 };
