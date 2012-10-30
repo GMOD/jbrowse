@@ -6,6 +6,13 @@
    the screen, is wider than `style.minSubfeatureWidth`, which
    defaults to 6 pixels.
 
+ * Added a `locationBoxLength` configuration variable that controls
+   the width of the location box.  In addition, the default width of
+   the location box is now also smarter.  Instead of a fixed 25
+   characters, it is calculated to fit the largest location string
+   that is likely to be produced, based on the length of the reference
+   sequences and the length of their names.
+
  * Greatly sped up rendering of HTML subfeatures by caching the
    heights of subfeature HTML elements.
 

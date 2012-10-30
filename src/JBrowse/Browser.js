@@ -190,7 +190,7 @@ Browser.prototype.initView = function() {
         overview.style.cssText = "display: none";
 
     if( this.config.show_nav )
-        this.navbox = this.createNavBox( topPane, 25 );
+        this.navbox = this.createNavBox( topPane );
 
     // make our little top-links box with links to help, etc.
     var linkContainer = dojo.create('div', { className: 'topLink' });
@@ -1148,13 +1148,13 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     //we don't want to save whatever location we happen to start at
     if( ! this.isInitialized ) return;
 
-    var locString = Util.assembleLocString({ start: startbp, end: endbp, ref: this.refSeq.name });
+    var currRegion = { start: startbp, end: endbp, ref: this.refSeq.name };
 
     // update the location box with our current location
     if( this.locationBox ) {
         this.locationBox.set(
             'value',
-            locString + ' ('+Util.humanReadableNumber(endbp-startbp+1)+'b)',
+            this.assembleLocStringWithLength( currRegion ),
             false //< don't fire any onchange handlers
         );
         this.goButton.set( 'disabled', true ) ;
@@ -1165,6 +1165,7 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
 
 
     // update the location and refseq cookies
+    var locString = Util.assembleLocString( currRegion );
     var oldLocMap = dojo.fromJson( this.cookie('location') ) || { "_version": 1 };
     if( ! oldLocMap["_version"] )
         oldLocMap = this._migrateLocMap( oldLocMap );
@@ -1175,6 +1176,13 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
 
     document.title = locString;
 };
+
+Browser.prototype.assembleLocStringWithLength = function( def ) {
+    var locString = Util.assembleLocString( def );
+    var length = def.length || def.end-def.start+1;
+    return locString + ' ('+Util.humanReadableNumber( length )+'b)';
+};
+
 /**
  * Migrate an old location map cookie to the new format that includes timestamps.
  * @private
@@ -1244,7 +1252,7 @@ Browser.prototype.cookie = function() {
  * @private
  */
 
-Browser.prototype.createNavBox = function( parent, locLength ) {
+Browser.prototype.createNavBox = function( parent ) {
     var navbox = document.createElement("div");
     var browserRoot = this.config.browserRoot ? this.config.browserRoot : "";
     navbox.id = "navbox";
@@ -1354,15 +1362,46 @@ Browser.prototype.createNavBox = function( parent, locLength ) {
         }).placeAt( navbox );
     }
 
+    // calculate how big to make the location box:  make it big enough to hold the
+    var locLength = this.config.locationBoxLength || function() {
+
+        // if we have no refseqs, just use 20 chars
+        if( ! this.refSeqOrder.length )
+            return 20;
+
+        // if there are not tons of refseqs, pick the longest-named
+        // one.  otherwise just pick the last one
+        var ref = this.refSeqOrder.length < 1000
+            && function() {
+                   var longestNamedRef;
+                   array.forEach( this.refSeqOrder, function(name) {
+                                      var ref = this.allRefs[name];
+                                      if( ! ref.length )
+                                          ref.length = ref.end - ref.start + 1;
+                                      if( ! longestNamedRef || longestNamedRef.length < ref.length )
+                                          longestNamedRef = ref;
+                                  }, this );
+                   return longestNamedRef;
+               }.call(this)
+            || this.refSeqOrder.length && this.allRefs[ this.refSeqOrder[ this.refSeqOrder.length - 1 ] ]
+            || 20;
+
+        var locstring = this.assembleLocStringWithLength({ ref: ref.name, start: ref.end-1, end: ref.end, length: ref.length });
+        //console.log( locstring, locstring.length );
+        return locstring.length;
+    }.call(this) || 20;
+
     // make the location box
     this.locationBox = new dijitComboBox(
         {
             id: "location",
             name: "location",
+            style: { width: locLength+'ex' },
+            maxLength: 400,
             store: this._makeLocationAutocompleteStore(),
             searchAttr: "name"
         },
-        dojo.create('input',{ size: locLength },navbox) );
+        dojo.create('input', {}, navbox) );
     this.locationBox.focusNode.spellcheck = false;
     dojo.query('div.dijitArrowButton', this.locationBox.domNode ).orphan();
     dojo.connect( this.locationBox.focusNode, "keydown", this, function(event) {
