@@ -16,6 +16,10 @@
    that is likely to be produced, based on the length of the reference
    sequences and the length of their names.
 
+ * Added a `theme` configuration variable to allow changing the
+   graphical theme to something different from the default "tundra".
+   However, no other themes are implemented yet.
+
  * Greatly sped up rendering of HTML subfeatures by caching the
    heights of subfeature HTML elements.
 

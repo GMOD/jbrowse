@@ -181,7 +181,8 @@ Browser.prototype.loadNames = function() {
 
 Browser.prototype.initView = function() {
     //set up top nav/overview pane and main GenomeView pane
-    dojo.addClass(document.body, "tundra");
+    dojo.addClass(document.body, this.config.theme || "tundra");
+
     var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, this.container );
 
     var overview = dojo.create( 'div', { className: 'overview', id: 'overview' }, topPane );
