@@ -24,6 +24,21 @@ fieldset > legend {
     color: #aaa;
 }
 
+.tundra .dijitDialogCloseIcon {
+    height: 100%;
+    width:  25px;
+    top:    0px;
+    right:  0px;
+    background: url("img/commonIconsEnabled.png") no-repeat -73px 6px;
+
+    border-left: 1px inset #fcfcfc;
+}
+.tundra .dijitDialogCloseIcon:hover {
+    background-position: -93px 6px;
+    border-left-color: #ccc;
+}
+
+
 .dijitDialogPaneActionBar {
     text-align: center;
     clear: both;
