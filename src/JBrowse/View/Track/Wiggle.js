@@ -213,7 +213,7 @@ Wiggle.extend({
 
                         //context.fillText(features.length+' spans', 10,10);
                         //console.log( 'filling '+leftBase+'-'+rightBase);
-                        var pixelScores = new Array( c.width );
+                        var pixelValues = new Array( c.width );
                         dojo.forEach(features, function(f) {
                             //console.log( f.get('start') +'-'+f.get('end')+':'+f.get('score') );
                             var score = f.get('score');
@@ -235,7 +235,7 @@ Wiggle.extend({
                                     rWidth = canvasWidth;
                                 }
 
-                                this._updatePixelScores( pixelScores, rLeft, rWidth, score );
+                                this._updatePixelValues( pixelValues, rLeft, rWidth, f );
                                 if( rTop <= originY ) {
                                     // bar goes upward
                                     context.fillStyle = posColor;
@@ -308,7 +308,7 @@ Wiggle.extend({
                                 }
                         }, block);
                         var outTO;
-                        on( c, 'mousemove', function(evt) {
+                        on( c, 'mousemove', dojo.hitch(this,function(evt) {
                                 if( outTO ) {
                                     window.clearTimeout( outTO );
                                     outTO = null;
@@ -317,21 +317,13 @@ Wiggle.extend({
                                 verticalLine.style.display = 'block';
                                 verticalLine.style.left = x+'px';
 
-                                var score = pixelScores[x];
-                                if( typeof score == 'number' ) {
-                                    // display the score with only 6
-                                    // significant digits, avoiding
-                                    // most confusion about the
-                                    // approximative properties of
-                                    // IEEE floating point numbers
-                                    // parsed out of BigWig files
-                                    scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
+                                if( this._showPixelValue( scoreDisplay, pixelValues[x] ) ) {
                                     scoreDisplay.style.left = x+'px';
                                     scoreDisplay.style.display = 'block';
                                 } else {
                                     scoreDisplay.style.display = 'none';
                                 }
-                        });
+                        }));
                         on( c, 'mouseout', function(evt) {
                                 outTO = window.setTimeout( function() {
                                     scoreDisplay.style.display = 'none';
@@ -374,10 +366,25 @@ Wiggle.extend({
             }));
     },
 
-    _updatePixelScores: function( pixelScores, rLeft, rWidth, score ) {
+    _updatePixelValues: function( pixelValues, rLeft, rWidth, f ) {
         var iend = rLeft+rWidth;
+        var score = f.get('score');
         for( var i = rLeft; i < iend; i++ ) {
-            pixelScores[i] = i in pixelScores ? Math.max( pixelScores[i], score ) : score;
+            pixelValues[i] = i in pixelValues ? Math.max( pixelValues[i], score ) : score;
+        }
+    },
+    _showPixelValue: function( scoreDisplay, score ) {
+        if( typeof score == 'number' ) {
+            // display the score with only 6
+            // significant digits, avoiding
+            // most confusion about the
+            // approximative properties of
+            // IEEE floating point numbers
+            // parsed out of BigWig files
+            scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
+            return true;
+        } else {
+            return false;
         }
     },
 
