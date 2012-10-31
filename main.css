@@ -608,6 +608,7 @@ a.dialog-new-window {
 /* styles for popup feature detail dialogs from tracks */
 .feature-detail {
     padding-top: 1em;
+    width: 50em;
 }
 .feature-detail .subfeature-detail {
     background: #fafafa;
@@ -615,10 +616,8 @@ a.dialog-new-window {
     border: 1px outset #B9B9B9
 }
 .feature-detail .fasta {
-    overflow-y: auto;
-    overflow-x: hidden;
-    max-height: 10em;
-    padding-right: 1.5em;
+    clear: both;
+    width: 57ex;
 }
 
 .detail .value {

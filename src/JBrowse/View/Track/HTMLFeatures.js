@@ -168,8 +168,9 @@ HTMLFeatures = declare( HTMLFeatures,
             'Position',
             Util.assembleLocString({ start: f.get('start'),
                                      end: f.get('end'),
-                                     ref: this.refSeq.name })
-            + ({'1':' (+)', '-1': ' (-)', 0: ' (no strand)' }[f.get('strand')] || '')
+                                     ref: this.refSeq.name,
+                                     strand: f.get('strand')
+                                   })
         );
         container.innerHTML += fmt( 'Length', (f.get('end')-f.get('start'))+' b' );
 

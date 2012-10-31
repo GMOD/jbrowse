@@ -11,9 +11,13 @@ return declare(null,
         this.width = args.width || 78;
     },
     renderHTML: function( region, seq, container ) {
-        return dojo.create('div', {
+        return dojo.create('textarea', {
                         className: 'fasta',
-                        innerHTML: this.renderText( region, seq ).replace(/\n/g,'<br>')
+                        cols: this.width,
+                        rows: 10,
+                        readonly: true,
+                        style: { width: (this.width*1.37)+4+'ex' },
+                        innerHTML: this.renderText( region, seq )
                     }, container );
     },
     renderText: function( region, seq ) {
