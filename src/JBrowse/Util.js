@@ -253,7 +253,7 @@ Util = {
 
     assembleLocString: function( loc_in ) {
         var s = '',
-        types = { start: 'number', end: 'number', ref: 'string' },
+        types = { start: 'number', end: 'number', ref: 'string', strand: 'number' },
         location = {}
         ;
 
@@ -281,8 +281,11 @@ Util = {
         if( 'end' in location )
             s += Math.round(location.end).toFixed(0).toLocaleString();
 
+        if( 'strand' in location )
+            s += ({'1':'(+)', '-1': '(-)', '0': '(no strand)' }[ location.strand || '' ]) || '';
+
         // add on any extra stuff if it was passed in
-        if( loc_in.extra )
+        if( 'extra' in loc_in )
             s += loc_in.extra;
 
         return s;
