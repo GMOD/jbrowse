@@ -26,8 +26,10 @@ return declare(null,
     },
     renderText: function( region, seq ) {
         return '>' + region.ref
-            +' '+Util.assembleLocString(region)
-            +' length:'+(region.end - region.start)+"\n"
+            + ' '+Util.assembleLocString(region)
+            + ( region.type ? ' class='+region.type : '' )
+            + ' length='+(region.end - region.start)
+            + "\n"
             + this._wrap( seq, this.width );
     },
     _wrap: function( string, length ) {

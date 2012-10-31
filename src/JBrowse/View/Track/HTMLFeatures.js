@@ -67,7 +67,9 @@ var HTMLFeatures = declare( BlockBased, {
             this.config.events = this.config.events || {};
             this.config.events.click = (this.config.style||{}).linkTemplate
                     ? { action: "newWindow", url: this.config.style.linkTemplate }
-                    : { action: "contentDialog", content: dojo.hitch( this, 'defaultFeatureDetail' ) };
+                    : { action: "contentDialog",
+                        title: '{type} {name}',
+                        content: dojo.hitch( this, 'defaultFeatureDetail' ) };
         }
 
         // process the configuration to set up our event handlers
@@ -128,6 +130,7 @@ HTMLFeatures = declare( HTMLFeatures,
             events: {},
             menuTemplate: [
                 { label: 'View details',
+                  title: '{type} {name}',
                   action: 'contentDialog',
                   iconClass: 'dijitIconTask',
                   content: dojo.hitch( this, 'defaultFeatureDetail' )
@@ -172,7 +175,7 @@ HTMLFeatures = declare( HTMLFeatures,
                                      strand: f.get('strand')
                                    })
         );
-        container.innerHTML += fmt( 'Length', (f.get('end')-f.get('start'))+' b' );
+        container.innerHTML += fmt( 'Length', Util.addCommas(f.get('end')-f.get('start'))+' b' );
 
         // render any additional tags as just key/value
         var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()]; });
@@ -200,12 +203,13 @@ HTMLFeatures = declare( HTMLFeatures,
                     // parser, but this callback may be called either
                     // before or after that happens.  if the fetch by
                     // ID fails, we have come back before the parse.
-                    var textArea = new FASTAView({ width: 45, htmlMaxRows: 10 })
+                    var textArea = new FASTAView({ width: 62, htmlMaxRows: 10 })
                                        .renderHTML(
                                            { ref:   this.refSeq.name,
                                              start: f.get('start'),
                                              end:   f.get('end'),
-                                             strand: f.get('strand')
+                                             strand: f.get('strand'),
+                                             type: f.get('type')
                                            },
                                            f.get('strand') == -1 ? Util.revcom(seq) : seq,
                                            valueContainer

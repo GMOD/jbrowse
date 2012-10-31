@@ -590,6 +590,10 @@ div.message {
     background: #eee;
 }
 
+.tundra .dijitDialogPaneContent {
+    border-top: 1px solid #acacac;
+}
+
 /* styles dealing with popups launched by clicking on features */
 .popup-dialog-iframe .dijitDialogPaneContent {
     padding: 0;
@@ -613,11 +617,12 @@ a.dialog-new-window {
 .feature-detail .subfeature-detail {
     background: #fafafa;
     background: rgba( 0, 0, 0, 0.1 );
-    border: 1px outset #B9B9B9
+    border: 1px outset #B9B9B9;
 }
 .feature-detail .fasta {
     clear: both;
     padding: 1em 1.5em;
+    border: 1px solid #aaa;
 }
 
 .detail .value {
