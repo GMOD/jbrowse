@@ -22,7 +22,8 @@ return declare(null,
     },
     renderText: function( region, seq ) {
         return '>' + region.ref
-            +' '+Util.assembleLocString(region) + "\n"
+            +' '+Util.assembleLocString(region)
+            +' length:'+(region.end - region.start)+"\n"
             + this._wrap( seq, this.width );
     },
     _wrap: function( string, length ) {
