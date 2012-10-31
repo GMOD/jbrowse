@@ -288,6 +288,12 @@ Util = {
         return s;
     },
 
+    assembleLocStringWithLength: function( def ) {
+        var locString = Util.assembleLocString( def );
+        var length = def.length || def.end-def.start+1;
+        return locString + ' ('+Util.humanReadableNumber( length )+'b)';
+    },
+
     // given a possible reference sequence name and an object as { 'foo':
     // <refseq foo>, ... }, try to match that reference sequence name
     // against the actual name of one of the reference sequences.  returns

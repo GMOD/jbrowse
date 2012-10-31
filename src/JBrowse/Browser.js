@@ -1155,7 +1155,7 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     if( this.locationBox ) {
         this.locationBox.set(
             'value',
-            this.assembleLocStringWithLength( currRegion ),
+            Util.assembleLocStringWithLength( currRegion ),
             false //< don't fire any onchange handlers
         );
         this.goButton.set( 'disabled', true ) ;
@@ -1176,12 +1176,6 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     this.cookie( 'refseq', this.refSeq.name );
 
     document.title = locString;
-};
-
-Browser.prototype.assembleLocStringWithLength = function( def ) {
-    var locString = Util.assembleLocString( def );
-    var length = def.length || def.end-def.start+1;
-    return locString + ' ('+Util.humanReadableNumber( length )+'b)';
 };
 
 /**
@@ -1387,7 +1381,7 @@ Browser.prototype.createNavBox = function( parent ) {
             || this.refSeqOrder.length && this.allRefs[ this.refSeqOrder[ this.refSeqOrder.length - 1 ] ]
             || 20;
 
-        var locstring = this.assembleLocStringWithLength({ ref: ref.name, start: ref.end-1, end: ref.end, length: ref.length });
+        var locstring = Util.assembleLocStringWithLength({ ref: ref.name, start: ref.end-1, end: ref.end, length: ref.length });
         //console.log( locstring, locstring.length );
         return locstring.length;
     }.call(this) || 20;
