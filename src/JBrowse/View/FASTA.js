@@ -8,17 +8,20 @@ return declare(null,
 {
 
     constructor: function( args ) {
-        this.width = args.width || 78;
+        this.width       = args.width || 78;
+        this.htmlMaxRows = args.htmlMaxRows || 15;
     },
     renderHTML: function( region, seq, container ) {
-        return dojo.create('textarea', {
+        var text = this.renderText( region, seq );
+        var lineCount = text.match( /\n/g ).length + 1;
+        var textArea = dojo.create('textarea', {
                         className: 'fasta',
                         cols: this.width,
-                        rows: 10,
-                        readonly: true,
-                        style: { width: (this.width*1.37)+4+'ex' },
-                        innerHTML: this.renderText( region, seq )
+                        rows: Math.min( lineCount, this.htmlMaxRows ),
+                        readonly: true
                     }, container );
+        textArea.innerHTML = text;
+        return textArea;
     },
     renderText: function( region, seq ) {
         return '>' + region.ref

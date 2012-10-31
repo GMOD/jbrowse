@@ -607,7 +607,6 @@ a.dialog-new-window {
 
 /* styles for popup feature detail dialogs from tracks */
 .feature-detail {
-    padding-top: 1em;
     width: 50em;
 }
 .feature-detail .subfeature-detail {
@@ -617,7 +616,7 @@ a.dialog-new-window {
 }
 .feature-detail .fasta {
     clear: both;
-    width: 57ex;
+    padding: 1em 1.5em;
 }
 
 .detail .value {

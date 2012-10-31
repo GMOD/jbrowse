@@ -184,22 +184,32 @@ HTMLFeatures = declare( HTMLFeatures,
         var field_container = dojo.create('div', { className: 'field_container feature_sequence' }, container );
         dojo.create( 'h2', { className: 'field feature_sequence', innerHTML: 'Region sequence' }, field_container );
         var valueContainerID = 'feature_sequence'+this._uniqID();
-        var valueContainer = dojo.create( 'div', { id: valueContainerID, className: 'value feature_sequence' }, field_container);
+        var valueContainer = dojo.create(
+            'div', {
+                id: valueContainerID,
+                innerHTML: '<div style="height: 12em">Loading...</div>',
+                className: 'value feature_sequence'
+            }, field_container);
         track.browser.getStore('refseqs', dojo.hitch(this,function( refSeqStore ) {
             valueContainer = dojo.byId(valueContainerID) || valueContainer;
             if( refSeqStore ) {
                 refSeqStore.getRange( this.refSeq, f.get('start'), f.get('end'), dojo.hitch( this, function( start, end, seq ) {
                     valueContainer = dojo.byId(valueContainerID) || valueContainer;
-
+                    valueContainer.innerHTML = '';
                     // the HTML is rewritten by the dojo dialog
                     // parser, but this callback may be called either
                     // before or after that happens.  if the fetch by
                     // ID fails, we have come back before the parse.
-                    new FASTAView({ width: 45 }).renderHTML(
-                        {ref: this.refSeq.name, start: f.get('start'), end: f.get('end'), strand: f.get('strand')},
-                        seq,
-                        valueContainer
-                    );
+                    var textArea = new FASTAView({ width: 45, htmlMaxRows: 10 })
+                                       .renderHTML(
+                                           { ref:   this.refSeq.name,
+                                             start: f.get('start'),
+                                             end:   f.get('end'),
+                                             strand: f.get('strand')
+                                           },
+                                           f.get('strand') == -1 ? Util.revcom(seq) : seq,
+                                           valueContainer
+                                       );
                 }));
             } else {
                 valueContainer.innerHTML = '<span class="ghosted">reference sequences not loaded</span>';
