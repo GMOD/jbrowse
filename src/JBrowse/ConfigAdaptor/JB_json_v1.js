@@ -1,4 +1,10 @@
-define(['dojo/_base/declare','dojo/_base/json','JBrowse/Util'], function(declare,json,Util) {
+define( [ 'dojo/_base/declare',
+          'dojo/_base/array',
+          'dojo/_base/json',
+          'JBrowse/Util',
+          'JBrowse/Digest/Crc32'
+        ], function( declare, array, json, Util, digest ) {
+
 return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
     /**
@@ -75,7 +81,82 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             if( o.baseUrl.length && ! /\/$/.test( o.baseUrl ) )
                 o.baseUrl += "/";
 
-            return this._evalHooks( o );
+            // set a default baseUrl in each of the track confs if needed
+            if( o.sourceUrl ) {
+                dojo.forEach( o.tracks || [], function(t) {
+                                  if( ! t.baseUrl )
+                                      t.baseUrl = o.baseUrl || '/';
+                              },this);
+            }
+
+
+            o = this._evalHooks( o );
+
+            o = this._regularizeTrackConfigs( o );
+
+            return o;
+        },
+
+        _regularizeTrackConfigs: function( conf ) {
+            array.forEach( conf.tracks || [], function( trackConfig ) {
+                // skip if it's a new-style track def
+                if( trackConfig.store )
+                    return;
+
+                var trackClassName = this._regularizeClass(
+                    'JBrowse/View/Track', {
+                        'FeatureTrack':      'JBrowse/View/Track/HTMLFeatures',         'ImageTrack':        'JBrowse/View/Track/FixedImage',
+                        'ImageTrack.Wiggle': 'JBrowse/View/Track/FixedImage/Wiggle',
+                        'SequenceTrack':     'JBrowse/View/Track/Sequence'
+                    }[ trackConfig.type ]
+                    || trackConfig.type
+                );
+                trackConfig.type = trackClassName;
+
+                // figure out what data store class to use with the track,
+                // applying some defaults if it is not explicit in the
+                // configuration
+                var storeClass = this._regularizeClass(
+                    'JBrowse/Store',
+                    trackConfig.storeClass                       ? trackConfig.storeClass :
+                        /\/HTMLFeatures$/.test( trackClassName ) ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
+                        /\/FixedImage/.test( trackClassName )    ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
+                        /\/Sequence$/.test( trackClassName )     ? 'JBrowse/Store/Sequence/StaticChunked'                                              :
+                                                                    null
+                );
+
+                if( ! storeClass ) {
+                    console.error( "Unable to determine an appropriate data store to use with a "
+                                   + trackClassName + " track, please explicitly specify a "
+                                   + "storeClass in the configuration." );
+                    return;
+                }
+
+                // synthesize a separate store conf
+                var storeConf = {
+                    urlTemplate: trackConfig.urlTemplate,
+                    compress: trackConfig.compress,
+                    baseUrl: trackConfig.baseUrl,
+                    type: storeClass
+                };
+                storeConf.name = digest.objectFingerprint( storeConf );
+
+                // record it
+                conf.stores = conf.stores || {};
+                conf.stores[storeConf.name] = storeConf;
+
+                // connect it to the track conf
+                trackConfig.store = storeConf.name;
+            }, this);
+            return conf;
+        },
+
+        _regularizeClass: function( root, class_ ) {
+            // prefix the class names with JBrowse/* if they contain no slashes
+            if( ! /\//.test( class_ ) )
+                class_ = root+'/'+class_;
+            class_ = class_.replace(/^\//);
+            return class_;
         },
 
         _evalHooks: function( conf ) {

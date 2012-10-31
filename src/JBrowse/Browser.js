@@ -357,6 +357,59 @@ Browser.prototype._reportCustomUsageStats = function(stats) {
     );
 };
 
+
+/**
+ * Get a store object from the store registry, loading its code and
+ * instantiating it if necessary.
+ */
+Browser.prototype.getStore = function( storeName, callback ) {
+    var storeCache = this._storeCache || {};
+    this._storeCache = storeCache;
+
+    var storeRecord = storeCache[ storeName ];
+    if( storeRecord ) {
+        storeRecord.refCount++;
+        callback( storeRecord.store );
+    }
+
+    var conf = this.config.stores[storeName];
+    if( ! conf ) {
+        console.error( "store "+storeName+" not defined" );
+        callback( null );
+        return;
+    }
+
+    var storeClassName = conf.type;
+    if( ! storeClassName ) {
+        console.warn( "store "+storeName+" has no type defined" );
+        callback( null );
+        return;
+    }
+
+    require( [ storeClassName ], dojo.hitch( this, function( storeClass ) {
+                 var storeArgs = dojo.mixin( dojo.clone(conf),
+                                             {
+                                                 browser: this,
+                                                 refSeq: this.refSeq
+                                             });
+                 var store = new storeClass( storeArgs );
+                 this._storeCache[ storeName ] = { refCount: 1, store: store };
+                 callback( store );
+             }));
+};
+
+/**
+ * Notifies the browser that the given named store is no longer being
+ * used by the calling component.  Decrements the store's reference
+ * count, and if the store's reference count reaches zero, the store
+ * object will be discarded, to be recreated again later if needed.
+ */
+Browser.prototype.releaseStore = function( storeName ) {
+    var storeRecord = this._storeCache[storeName];
+    if( storeRecord && ! --storeRecord.refCount )
+        delete this._storeCache[storeName];
+};
+
 Browser.prototype._calculateClientStats = function() {
 
     var scn = screen || window.screen;
@@ -504,15 +557,6 @@ Browser.prototype.onConfigLoaded = function() {
     // set empty tracks array if we have none
     if( ! this.config.tracks )
         this.config.tracks = [];
-
-    // set a default baseUrl in each of the track confs if needed
-    if( this.config.sourceUrl ) {
-        dojo.forEach( this.config.tracks, function(t) {
-            if( ! t.baseUrl )
-                t.baseUrl = this.config.baseUrl;
-        },this);
-    }
-
 };
 
 /**

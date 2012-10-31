@@ -1734,14 +1734,6 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
       ) {
           return existingTrack.div;
       }
-    var trackClass = this._regularizeClass( 'JBrowse/View/Track', {
-        'FeatureTrack':      'JBrowse/View/Track/HTMLFeatures',
-        'ImageTrack':        'JBrowse/View/Track/FixedImage',
-        'ImageTrack.Wiggle': 'JBrowse/View/Track/FixedImage/Wiggle',
-        'SequenceTrack':     'JBrowse/View/Track/Sequence'
-      }[ trackConfig.type ]
-      || trackConfig.type
-   );
 
     var trackName = trackConfig.label;
     var trackDiv = dojo.create('div', {
@@ -1750,34 +1742,9 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     });
     trackDiv.trackName = trackName;
 
-    // figure out what data store class to use with the track,
-    // applying some defaults if it is not explicit in the
-    // configuration
-    var storeClass = this._regularizeClass( 'JBrowse/Store',
-            trackConfig.storeClass               ? trackConfig.storeClass :
-            /\/HTMLFeatures$/.test( trackClass ) ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' ) :
-            /\/FixedImage/.test( trackClass )    ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
-            /\/Sequence$/.test( trackClass )     ? 'JBrowse/Store/Sequence/StaticChunked' :
-                                                null
-    );
+    var trackClass, store;
 
-    if( ! storeClass ) {
-        console.error( "Unable to find an appropriate data store to use with a "
-                       + trackClass + " track, please explicitly specify a "
-                       + "storeClass in the configuration." );
-        return trackDiv;
-    }
-
-    require( [ storeClass, trackClass ], dojo.hitch(this,function( storeClass, trackClass ) {
-
-        var store = new storeClass({
-            urlTemplate: trackConfig.urlTemplate,
-            compress: trackConfig.compress,
-            baseUrl: trackConfig.baseUrl,
-            refSeq: this.ref,
-            browser: this.browser
-        });
-
+    var makeTrack = dojo.hitch(this, function() {
         var track = new trackClass({
                 refSeq: this.ref,
                 config: trackConfig,
@@ -1786,7 +1753,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
                 store: store,
                 browser: this.browser
             });
-        if( store.setTrack )
+        if( typeof store.setTrack == 'function' )
             store.setTrack( track );
 
         // tell the track to get its data, since we're going to display it.
@@ -1810,17 +1777,27 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
          });
 
         this.updateTrackList();
-    }));
+    });
+
+    // might need to load both the store and the track class, so do it in
+    // parallel and have whichever one completes last do the actual
+    // track making.
+
+    // get the store
+    this.browser.getStore( trackConfig.store, function( s ) {
+            store = s;
+            if( trackClass && store )
+                makeTrack();
+        });
+
+    // get the track class
+    require( [ trackConfig.type ], function( class_ ) {
+        trackClass = class_;
+        if( trackClass && store )
+            makeTrack();
+    });
 
     return trackDiv;
-};
-
-GenomeView.prototype._regularizeClass = function( root, class_ ) {
-    // prefix the class names with JBrowse/* if they contain no slashes
-    if( ! /\//.test( class_ ) )
-        class_ = root+'/'+class_;
-    class_ = class_.replace(/^\//);
-    return class_;
 };
 
 GenomeView.prototype.trackIterate = function(callback) {

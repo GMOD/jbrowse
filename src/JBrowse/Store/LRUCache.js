@@ -1,9 +1,10 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
-           'JBrowse/Util'
+           'JBrowse/Util',
+           'JBrowse/Digest/Crc32'
        ],
-       function( declare, array, Util ) {
+       function( declare, array, Util, digest ) {
 
 return declare( null,
 
@@ -15,7 +16,7 @@ return declare( null,
     /**
      * An LRU cache.
      *
-     * @param args.fill
+     * @param args.fillCallback
      * @param args.maxSize
      * @param args.sizeFunction
      * @param args.keyFunction
@@ -197,7 +198,7 @@ return declare( null,
             return inKey.toString();
         }
         else {
-            return ''+inKey;
+            return digest.objectFingerprint( inKey );
         }
     },
 
