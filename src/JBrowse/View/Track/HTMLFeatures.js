@@ -169,6 +169,7 @@ HTMLFeatures = declare( HTMLFeatures,
                                      ref: this.refSeq.name })
             + ({'1':' (+)', '-1': ' (-)', 0: ' (no strand)' }[f.get('strand')] || '')
         );
+        container.innerHTML += fmt( 'Length', (f.get('end')-f.get('start'))+' b' );
 
         // render any additional tags as just key/value
         var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()]; });

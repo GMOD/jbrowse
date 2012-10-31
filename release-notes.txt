@@ -6,8 +6,9 @@
    the screen, is wider than `style.minSubfeatureWidth`, which
    defaults to 6 pixels.
 
- * The default feature-detail dialog box for feature tracks now shows
-   the details of any subfeatures.
+ * The default feature-detail dialog box now shows more information, adding:
+   * the feature's exact length
+   * full details of its subfeatures
 
  * Added a `locationBoxLength` configuration variable that controls
    the width of the location box.  In addition, the default width of
