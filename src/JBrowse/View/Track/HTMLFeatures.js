@@ -13,7 +13,8 @@ define( [
             'JBrowse/View/Track/YScaleMixin',
             'JBrowse/View/Track/ExportMixin',
             'JBrowse/Util',
-            'JBrowse/View/GranularRectLayout'
+            'JBrowse/View/GranularRectLayout',
+            'JBrowse/View/FASTA'
         ],
       function( declare,
                 lang,
@@ -29,7 +30,8 @@ define( [
                 YScaleMixin,
                 ExportMixin,
                 Util,
-                Layout
+                Layout,
+                FASTAView
               ) {
 
 var HTMLFeatures = declare( BlockBased, {
@@ -177,6 +179,32 @@ HTMLFeatures = declare( HTMLFeatures,
             container.innerHTML += fmt( t, f.get(t) );
         });
 
+        // render the sequence underlying this feature if possible
+        var field_container = dojo.create('div', { className: 'field_container feature_sequence' }, container );
+        dojo.create( 'h2', { className: 'field feature_sequence', innerHTML: 'Region sequence' }, field_container );
+        var valueContainerID = 'feature_sequence'+this._uniqID();
+        var valueContainer = dojo.create( 'div', { id: valueContainerID, className: 'value feature_sequence' }, field_container);
+        track.browser.getStore('refseqs', dojo.hitch(this,function( refSeqStore ) {
+            valueContainer = dojo.byId(valueContainerID) || valueContainer;
+            if( refSeqStore ) {
+                refSeqStore.getRange( this.refSeq, f.get('start'), f.get('end'), dojo.hitch( this, function( start, end, seq ) {
+                    valueContainer = dojo.byId(valueContainerID) || valueContainer;
+
+                    // the HTML is rewritten by the dojo dialog
+                    // parser, but this callback may be called either
+                    // before or after that happens.  if the fetch by
+                    // ID fails, we have come back before the parse.
+                    new FASTAView({ width: 45 }).renderHTML(
+                        {ref: this.refSeq.name, start: f.get('start'), end: f.get('end'), strand: f.get('strand')},
+                        seq,
+                        valueContainer
+                    );
+                }));
+            } else {
+                valueContainer.innerHTML = '<span class="ghosted">reference sequences not loaded</span>';
+            }
+        }));
+
         // render any subfeatures this feature has
         var subfeatures = f.get('subfeatures');
         if( subfeatures && subfeatures.length ) {
@@ -184,6 +212,11 @@ HTMLFeatures = declare( HTMLFeatures,
         }
 
         return container;
+    },
+
+    _uniqID: function() {
+        this._idCounter = this._idCounter || 0;
+        return this._idCounter++;
     },
 
     _subfeaturesDetail: function( track, subfeatures, container ) {

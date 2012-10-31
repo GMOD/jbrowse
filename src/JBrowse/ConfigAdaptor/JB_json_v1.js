@@ -89,7 +89,6 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                               },this);
             }
 
-
             o = this._evalHooks( o );
 
             o = this._regularizeTrackConfigs( o );
@@ -98,6 +97,8 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
         },
 
         _regularizeTrackConfigs: function( conf ) {
+            conf.stores = conf.stores || {};
+
             array.forEach( conf.tracks || [], function( trackConfig ) {
                 // skip if it's a new-style track def
                 if( trackConfig.store )
@@ -139,15 +140,21 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                     baseUrl: trackConfig.baseUrl,
                     type: storeClass
                 };
-                storeConf.name = digest.objectFingerprint( storeConf );
+
+                // if this is the first sequence store we see, and we
+                // have no refseqs store defined explicitly, make this the refseqs store.
+                if( storeClass == 'JBrowse/Store/Sequence/StaticChunked' && !conf.stores['refseqs'] )
+                    storeConf.name = 'refseqs';
+                else
+                    storeConf.name = 'store'+digest.objectFingerprint( storeConf );
 
                 // record it
-                conf.stores = conf.stores || {};
                 conf.stores[storeConf.name] = storeConf;
 
                 // connect it to the track conf
                 trackConfig.store = storeConf.name;
             }, this);
+
             return conf;
         },
 

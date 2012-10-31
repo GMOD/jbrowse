@@ -19,6 +19,10 @@ fieldset > legend {
 .locString {
     font-family: Courier New,monospace;
 }
+.fasta {
+    font-family: Courier New,monospace;
+    font-size: 14px;
+}
 
 .ghosted {
     color: #aaa;
@@ -609,6 +613,12 @@ a.dialog-new-window {
     background: #fafafa;
     background: rgba( 0, 0, 0, 0.1 );
     border: 1px outset #B9B9B9
+}
+.feature-detail .fasta {
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 10em;
+    padding-right: 1.5em;
 }
 
 .detail .value {

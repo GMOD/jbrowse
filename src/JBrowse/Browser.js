@@ -363,6 +363,8 @@ Browser.prototype._reportCustomUsageStats = function(stats) {
  * instantiating it if necessary.
  */
 Browser.prototype.getStore = function( storeName, callback ) {
+    if( !callback ) throw 'invalid arguments';
+
     var storeCache = this._storeCache || {};
     this._storeCache = storeCache;
 
@@ -370,6 +372,7 @@ Browser.prototype.getStore = function( storeName, callback ) {
     if( storeRecord ) {
         storeRecord.refCount++;
         callback( storeRecord.store );
+        return;
     }
 
     var conf = this.config.stores[storeName];
