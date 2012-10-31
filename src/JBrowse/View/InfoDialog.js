@@ -17,8 +17,12 @@ return declare( dijitDialog,
 {
     autofocus: false,
 
-    show: function() {
-        if( ! this.actionBar ) {
+    constructor: function() {
+        dojo.connect( this, 'onLoad', this, '_addActionBar' );
+    },
+
+    _addActionBar: function() {
+        if( this.get('content') && ! this.actionBar ) {
             this.actionBar = dojo.create( 'div', { className: 'infoDialogActionBar dijitDialogPaneActionBar' });
             new dijitButton({ className: 'OK', label: 'OK', onClick: dojo.hitch(this,'hide') }).placeAt( this.actionBar);
             var c = this.get('content');
@@ -37,6 +41,10 @@ return declare( dijitDialog,
                       ]
                     );
         }
+    },
+
+    show: function() {
+        this._addActionBar();
 
         this.inherited( arguments );
 
