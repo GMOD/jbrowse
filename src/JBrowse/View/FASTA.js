@@ -20,7 +20,8 @@ return declare(null,
                         rows: Math.min( lineCount, this.htmlMaxRows ),
                         readonly: true
                     }, container );
-        textArea.innerHTML = text;
+        var c = 0;
+        textArea.innerHTML = text.replace(/\n/g, function() { return c++ ? '' : "\n"; });
         return textArea;
     },
     renderText: function( region, seq ) {
