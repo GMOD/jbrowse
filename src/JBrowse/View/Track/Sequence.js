@@ -1,9 +1,10 @@
 define( [
             'dojo/_base/declare',
             'JBrowse/View/Track/BlockBased',
-            'JBrowse/View/Track/ExportMixin'
+            'JBrowse/View/Track/ExportMixin',
+            'JBrowse/Util'
         ],
-        function( declare, BlockBased, ExportMixin ) {
+        function( declare, BlockBased, ExportMixin, Util ) {
 
 var SequenceTrack = declare( BlockBased,
  /**
@@ -98,24 +99,10 @@ SequenceTrack.extend(
         seqNode.appendChild( this._renderSeqDiv( start, end, seq, scale ));
 
         // and one for the reverse strand
-        var comp = this._renderSeqDiv( start, end, this.complement(seq), scale );
+        var comp = this._renderSeqDiv( start, end, Util.complement(seq), scale );
         comp.className = 'revcom';
         seqNode.appendChild( comp );
     },
-
-    complement: (function() {
-        var compl_rx   = /[ACGT]/gi;
-
-        // from bioperl: tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/
-        // generated with:
-        // perl -MJSON -E '@l = split "","acgtrymkswhbvdnxACGTRYMKSWHBVDNX"; print to_json({ map { my $in = $_; tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/; $in => $_ } @l})'
-        var compl_tbl  = {"S":"S","w":"w","T":"A","r":"y","a":"t","N":"N","K":"M","x":"x","d":"h","Y":"R","V":"B","y":"r","M":"K","h":"d","k":"m","C":"G","g":"c","t":"a","A":"T","n":"n","W":"W","X":"X","m":"k","v":"b","B":"V","s":"s","H":"D","c":"g","D":"H","b":"v","R":"Y","G":"C"};
-
-        var compl_func = function(m) { return compl_tbl[m] || JBrowse.View.Track.Sequence.prototype.nbsp; };
-        return function( seq ) {
-            return seq.replace( compl_rx, compl_func );
-        };
-    })(),
 
     /**
      * Given the start and end coordinates, and the sequence bases,

@@ -291,6 +291,35 @@ Util = {
         return s;
     },
 
+    /**
+     * Complement a sequence (without reversing).
+     * @param {String} seqString sequence
+     * @returns {String} complemented sequence
+     */
+    complement:  (function() {
+        var compl_rx   = /[ACGT]/gi;
+
+        // from bioperl: tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/
+        // generated with:
+        // perl -MJSON -E '@l = split "","acgtrymkswhbvdnxACGTRYMKSWHBVDNX"; print to_json({ map { my $in = $_; tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/; $in => $_ } @l})'
+        var compl_tbl  = {"S":"S","w":"w","T":"A","r":"y","a":"t","N":"N","K":"M","x":"x","d":"h","Y":"R","V":"B","y":"r","M":"K","h":"d","k":"m","C":"G","g":"c","t":"a","A":"T","n":"n","W":"W","X":"X","m":"k","v":"b","B":"V","s":"s","H":"D","c":"g","D":"H","b":"v","R":"Y","G":"C"};
+
+        var nbsp = String.fromCharCode(160);
+        var compl_func = function(m) { return compl_tbl[m] || nbsp; };
+        return function( seqString ) {
+            return seqString.replace( compl_rx, compl_func );
+        };
+    })(),
+
+    /**
+     * Reverse-complement a sequence string.
+     * @param {String} seqString
+     * @returns {String} reverse-complemented sequence
+     */
+    revcom: function( seqString ) {
+        return Util.complement( seqString ).split('').reverse().join('');
+    },
+
     assembleLocStringWithLength: function( def ) {
         var locString = Util.assembleLocString( def );
         var length = def.length || def.end-def.start+1;
