@@ -78,7 +78,8 @@ return declare( null,
     loadFail: function(error) {
         if( error.status != 404 )
             console.error(''+error);
-        this.empty = true;
+        this.error = error;
+        this.empty = false;
         this.setLoaded();
     },
 
@@ -335,8 +336,27 @@ return declare( null,
                 },
                 title: 'Loading data...'
             }, block );
-        window.setTimeout( function() { msgDiv.style.display = 'block';}, 200 );
-        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+        window.setTimeout(dojo.hitch( this, function() {
+            msgDiv.style.display = 'block';
+            this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+        }, 200 ));
+    },
+
+    fillError: function( blockIndex, block ) {
+        var msgDiv = dojo.create(
+            'div', {
+                className: 'error',
+                innerHTML: '<h2>Error</h2><div class="text">This track could not be displayed, possibly because your browser does not support the necessary technology.</div>'
+                    +(this.error ? '<pre>'+this.error+'</pre>' : '' ),
+                style: {
+                    display: 'none'
+                },
+                title: 'An error occurred'
+            }, block );
+        window.setTimeout(dojo.hitch( this, function() {
+            msgDiv.style.display = 'block';
+            this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+        }, 200 ));
     },
 
     _showBlock: function(blockIndex, startBase, endBase, scale,
@@ -370,7 +390,7 @@ return declare( null,
                     containerStart,
                     containerEnd];
 
-        this[ this.loaded ? 'fillBlock' : 'fillLoading' ].apply( this, args );
+        this[ this.error ? 'fillError' : this.loaded ? 'fillBlock' : 'fillLoading' ].apply( this, args );
     },
 
     moveBlocks: function(delta) {

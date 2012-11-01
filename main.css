@@ -582,6 +582,12 @@ div.error, div.message {
 div.error {
     background: #ff8888;
 }
+div.error h2 {
+    margin-top: 0;
+}
+div.error pre {
+    margin: 1em 0.3em 0.3em 0.3em;
+}
 div.message {
     background: #eee;
 }
