@@ -586,6 +586,10 @@ div.message {
     background: #eee;
 }
 
+.tundra .dijitDialogPaneContent {
+    border-top: 1px solid #acacac;
+}
+
 /* styles dealing with popups launched by clicking on features */
 .popup-dialog-iframe .dijitDialogPaneContent {
     padding: 0;
