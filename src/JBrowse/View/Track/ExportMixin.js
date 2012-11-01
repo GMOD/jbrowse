@@ -192,7 +192,7 @@ return {
             opts.push({ label: 'Save track data',
                         iconClass: 'dijitIconSave',
                         disabled: ! this._canExport(),
-                        action: 'contentDialog',
+                        action: 'bareDialog',
                         content: this._exportDialogContent,
                         dialog: { id: 'exportDialog', className: 'export-dialog' }
                       });

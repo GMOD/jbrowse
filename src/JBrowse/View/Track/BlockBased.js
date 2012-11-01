@@ -4,6 +4,7 @@ define( [
             'dojo/aspect',
             'dojo/dom-geometry',
             'JBrowse/View/InfoDialog',
+            'dijit/Dialog',
             'dijit/Menu',
             'dijit/PopupMenuItem',
             'dijit/MenuItem',
@@ -15,6 +16,7 @@ define( [
                   lang,
                   aspect,
                   domGeom,
+                  InfoDialog,
                   Dialog,
                   dijitMenu,
                   dijitPopupMenuItem,
@@ -563,16 +565,18 @@ return declare( null,
                     iframedialog:   'iframeDialog',
                     iframe:         'iframeDialog',
                     contentdialog:  'contentDialog',
-                    content:        'content',
+                    content:        'contentDialog',
+                    baredialog:     'bareDialog',
+                    bare:           'bareDialog',
                     xhrdialog:      'xhrDialog',
-                    xhr:            'xhr',
+                    xhr:            'xhrDialog',
                     newwindow:      'newWindow',
                     "_blank":       'newWindow'
                 }[(''+spec.action).toLowerCase()];
 
                 if( spec.action == 'newWindow' )
                     window.open( url, '_blank' );
-                else if( spec.action in { iframeDialog:1, contentDialog:1, xhrDialog:1} )
+                else if( spec.action in { iframeDialog:1, contentDialog:1, xhrDialog:1, bareDialog: 1} )
                     track._openDialog( spec, evt, ctx );
             }
             else if( typeof spec.action == 'function' ) {
@@ -701,12 +705,18 @@ return declare( null,
             if( type == 'xhr' )
                 dialogOpts.href = spec.url;
 
-            dialog = new Dialog( dialogOpts );
+            dialog = new InfoDialog( dialogOpts );
             context.dialog = dialog;
 
             if( type == 'content' )
                 dialog.set( 'content', this._evalConf( context, spec.content, null ) );
 
+            delete context.dialog;
+        }
+        else if( type == 'bare' ) {
+            dialog = new Dialog( dialogOpts );
+            context.dialog = dialog;
+            dialog.set( 'content', this._evalConf( context, spec.content, null ) );
             delete context.dialog;
         }
         // open the link in a dialog with an iframe
