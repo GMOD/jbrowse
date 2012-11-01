@@ -347,7 +347,7 @@ return declare( null,
             'div', {
                 className: 'error',
                 innerHTML: '<h2>Error</h2><div class="text">This track could not be displayed, possibly because your browser does not support the necessary technology.</div>'
-                    +(this.error ? '<pre>'+this.error+'</pre>' : '' ),
+                    +(this.error ? '<div class="codecaption">Diagnostic message</div><code>'+this.error+'</code>' : '' ),
                 style: {
                     display: 'none'
                 },
