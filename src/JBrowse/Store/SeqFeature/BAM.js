@@ -65,7 +65,13 @@ var BAMStore = declare( SeqFeatureStore,
     load: function() {
         this.bam.init({
             success: dojo.hitch( this, '_estimateGlobalStats',
-                                 dojo.hitch( this, 'loadSuccess' )),
+                                 dojo.hitch( this, function(error) {
+                                     if( error )
+                                         this.loadFail( error );
+                                     else
+                                         this.loadSuccess();
+
+                                 })),
             failure: dojo.hitch( this, 'loadFail' )
         });
     },
@@ -98,11 +104,15 @@ var BAMStore = declare( SeqFeatureStore,
         };
 
         var maybeRecordStats = function( interval, stats, error ) {
-            if( stats._statsSampleFeatures >= 300 || interval * 2 > this.refSeq.length || error ) {
-                this.globalStats = stats;
-                finishCallback();
+            if( error ) {
+                finishCallback( error );
             } else {
-                statsFromInterval.call( this, this.refSeq, interval * 2, maybeRecordStats );
+                 if( stats._statsSampleFeatures >= 300 || interval * 2 > this.refSeq.length || error ) {
+                     this.globalStats = stats;
+                     finishCallback();
+                 } else {
+                     statsFromInterval.call( this, this.refSeq, interval * 2, maybeRecordStats );
+                 }
             }
         };
 
@@ -144,7 +154,7 @@ var BAMStore = declare( SeqFeatureStore,
                     });
                 }
                 if ( error ) {
-                    console.error( error );
+                    console.error( 'error fetching BAM data: ' + error );
                 }
                 endCallback();
             });
