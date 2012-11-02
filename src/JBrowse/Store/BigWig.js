@@ -102,7 +102,7 @@ return declare( null,
     load: function() {
         var bwg = this;
         var headerSlice = bwg.data.slice(0, 512);
-        headerSlice.fetch(function(result) {
+        headerSlice.fetch( function(result) {
             if (!result) {
                 bwg._loading.resolve({ success: false });
                 return;
@@ -177,7 +177,9 @@ return declare( null,
             bwg._readChromTree(function() {
                 bwg._loading.resolve({success: true});
             });
-        });
+        },
+        function( error ) { bwg._loading.resolve({success: false, error: error }); }
+       );
     },
 
     loadSuccess: function() {},
