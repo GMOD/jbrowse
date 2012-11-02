@@ -76,10 +76,12 @@ return declare( null,
     },
 
     loadFail: function(error) {
-        if( error.status != 404 )
-            console.error(''+error);
-        this.error = error;
-        this.empty = false;
+        console.error(''+error);
+        if( error.status == 404 ) {
+            this.empty = true;
+        } else  {
+            this.error = error;
+        }
         this.setLoaded();
     },
 
