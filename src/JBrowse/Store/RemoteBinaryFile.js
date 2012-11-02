@@ -276,6 +276,7 @@ return declare( null,
                             try {
                                 this._assembleChunks( start, end, args.success, args.failure, chunks );
                             } catch( e ) {
+                                console.error(''+e);
                                 ( args.failure || function(){} )(e);
                             }
                         })
