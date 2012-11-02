@@ -1,8 +1,51 @@
 {{$NEXT}}
 
+ * Added the ability to export track data in FASTA, GFF3, bed,
+   bedGraph, and Wiggle formats (issue #104).  To export data, turn on
+   the track of interest, then click on its track label to bring up
+   the track menu, and select "Save track data".
+
  * Added a new `Wiggle/Density` track type, analagous to the GBrowse
    `wiggle_density` glyph type.  Shows the Wiggle information using
-   varying intensity of color (issue #66).
+   varying intensity of color (issue #66).  Renamed the `Wiggle` track
+   to `Wiggle/XYPlot`, and made the old `Wiggle` track type an alias
+   to `Wiggle/XYPlot`.
+
+ * Added a new data backend to allow direct access to BAM files over
+   the web without needing to translate them to JSON with
+   `bam-to-json.pl`.  This new method of BAM access is far superior to
+   the old `bam-to-json.pl` in nearly every way, except in browser
+   compatibility.  Like the BigWig direct access backend added in
+   JBrowse 1.5.0, it works in all major browsers *except* Internet
+   Explorer, because IE lacks support for the necessary web standards.
+   It may work with Internet Explorer 10, but this has not been tested
+   yet.
+
+ * Added a new `Alignments` track type designed to work seamlessly
+   with BAM files.  This track type shows basepair differences and
+   insertions between aligned reads and the reference, and highlights
+   reads with missing mate-pairs in red.
+
+ * Added a new `FeatureCoverage` track type, which shows a
+   dynamically-computed XY-plot of the depth of coverage of features
+   across a genome.  One good use of this track type is to provide a
+   quick coverage plot directly from a BAM file.  However, since this
+   track calculates coverage on the fly, it can be slow when used with
+   large regions or very deep coverage.  In this case, it is
+   recommended to generate a BigWig file containing the coverage data,
+   and display it with a `Wiggle/XYPlot` or `Wiggle/Density` track.
+
+ * Added a vertical line cursor and labels showing the current
+   basepair position of the mouse when hovering over the scale bar, or
+   when doing a rubber-band zoom (Erik Derohanian) (issue #32).
+
+ * Added an animation to make it easier to see where in the track
+   selection list a closed track has gone, when using the simple track
+   selector (issue #151).
+
+ * Information dialog boxes are now easier to dismiss: clicking
+   anywhere outside of them, or pressing any key, will make them go
+   away.
 
  * Feature tracks no longer use the `style.subfeatureScale`
    configuration variable to determine whether to show subfeatures.
@@ -34,23 +77,6 @@
 
  * Greatly sped up rendering of HTML subfeatures by caching the
    heights of subfeature HTML elements.
-
- * Added a vertical line cursor and labels showing the current
-   basepair position of the mouse when hovering over the scale bar, or
-   when doing a rubber-band zoom (Erik Derohanian) (issue #32).
-
- * Added support for exporting track data in FASTA, GFF3, bed,
-   bedGraph, and Wiggle formats (issue #104).
-
- * Added an animation to make it easier to see where in the track
-   selection list a closed track has gone, when using the simple track
-   selector (issue #151).
-
- * Information dialog boxes are now easier to dismiss: clicking
-   anywhere outside of them, or pressing any key, will make them go
-   away.
-
-1.6.6  FIXME ADD THE DATE HERE
 
  * Fix bug with the genome view scrolling in response to arrow keys
    being pressed when typing in the location box.
