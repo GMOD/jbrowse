@@ -86,6 +86,7 @@ return declare( null,
     },
 
     heightUpdate: function(height, blockIndex) {
+
         if (!this.shown) {
             this.heightUpdateCallback(0);
             return;
@@ -95,6 +96,7 @@ return declare( null,
             this.blockHeights[blockIndex] = height;
 
         this.height = Math.max( this.height, height );
+
         if ( ! this.inShowRange ) {
             this.heightUpdateCallback( Math.max( this.labelHeight, this.height ) );
         }
@@ -333,15 +335,11 @@ return declare( null,
             'div', {
                 className: 'loading',
                 innerHTML: '<div class="text">Loading</span>',
-                style: {
-                    display: 'none'
-                },
-                title: 'Loading data...'
+                title: 'Loading data...',
+                style: { visibility: 'hidden' }
             }, block );
-        window.setTimeout(dojo.hitch( this, function() {
-            msgDiv.style.display = 'block';
-            this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
-        }, 200 ));
+        window.setTimeout(function() { msgDiv.style.visibility = 'visible'; }, 200);
+        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
     },
 
     fillError: function( blockIndex, block ) {
@@ -350,15 +348,9 @@ return declare( null,
                 className: 'error',
                 innerHTML: '<h2>Error</h2><div class="text">This track could not be displayed, possibly because your browser does not support the necessary technology.</div>'
                     +(this.error ? '<div class="codecaption">Diagnostic message</div><code>'+this.error+'</code>' : '' ),
-                style: {
-                    display: 'none'
-                },
                 title: 'An error occurred'
             }, block );
-        window.setTimeout(dojo.hitch( this, function() {
-            msgDiv.style.display = 'block';
             this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
-        }, 200 ));
     },
 
     _showBlock: function(blockIndex, startBase, endBase, scale,

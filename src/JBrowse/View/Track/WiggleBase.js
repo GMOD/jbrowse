@@ -157,11 +157,9 @@ Wiggle.extend({
                          containerStart, containerEnd) {
 
         var blockWidth = rightBase - leftBase;
-        this.heightUpdate( this.height, blockIndex );
-
         var canvasWidth  = Math.ceil(( rightBase - leftBase ) * scale);
         var canvasHeight = parseInt(( this.config.style || {}).height) || 100;
-        this.height = canvasHeight;
+        this.heightUpdate( canvasHeight, blockIndex );
 
         this.readWigData( scale, this.refSeq.name, leftBase, rightBase+1, dojo.hitch(this,function( features ) {
 
