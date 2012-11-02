@@ -54,16 +54,17 @@ var XHRBlob = declare( FileBlob,
         return new XHRBlob(this.url, ns, ne, this.opts);
     },
 
-    fetch: function( callback ) {
+    fetch: function( callback, failCallback ) {
         globalCache.get({
             url: this.url,
             start: this.start,
             end: this.end,
-            success: callback
+            success: callback,
+            failure: failCallback || function() {}
         });
     },
 
-    read: function( offset, length, callback ) {
+    read: function( offset, length, callback, failCallback ) {
         var start = this.start + offset,
             end = start + length;
 
@@ -71,7 +72,8 @@ var XHRBlob = declare( FileBlob,
             url: this.url,
             start: start,
             end: end,
-            success: callback
+            success: callback,
+            failure: failCallback || function() {}
         });
     }
 });
