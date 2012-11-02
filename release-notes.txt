@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Added a new `Wiggle/Density` track type, analagous to the GBrowse
+   `wiggle_density` glyph type.  Shows the Wiggle information using
+   varying intensity of color (issue #66).
+
  * Feature tracks no longer use the `style.subfeatureScale`
    configuration variable to determine whether to show subfeatures.
    Instead, subfeatures are shown if the parent feature, when shown on
