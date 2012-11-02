@@ -89,15 +89,21 @@ var BamFile = declare( null,
         // Do we really need to fetch the whole thing? :-(
         this.bai.fetch( dojo.hitch( this, function(header) {
             if (!header) {
-                dlog("Couldn't access BAI");
-                failCallback();
+                dlog("No data read from BAM index (BAI) file");
+                failCallback("No data read from BAM index (BAI) file");
+                return;
+            }
+
+            if( ! Uint8Array ) {
+                dlog('Browser does not support typed arrays');
+                failCallback('Browser does not support typed arrays');
                 return;
             }
 
             var uncba = new Uint8Array(header);
             if( readInt(uncba, 0) != BAI_MAGIC) {
                 dlog('Not a BAI file');
-                failCallback();
+                failCallback('Not a BAI file');
                 return;
             }
 
@@ -127,7 +133,7 @@ var BamFile = declare( null,
             }
 
             successCallback( this.indices, this.minAlignmentVO );
-        }));
+        }), failCallback );
     },
 
     _readBAMheader: function( successCallback, failCallback ) {
