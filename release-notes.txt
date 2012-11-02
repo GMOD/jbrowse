@@ -1,5 +1,20 @@
 {{$NEXT}}
 
+ * Added a new data backend to allow direct access to BAM files over
+   the web without needing to translate them to JSON with
+   `bam-to-json.pl`.  This new method of BAM access is far superior to
+   the old `bam-to-json.pl` in nearly every way, except in browser
+   compatibility.  Like the BigWig direct access backend added in
+   JBrowse 1.5.0, it works in all major browsers *except* Internet
+   Explorer, because IE lacks support for the necessary web standards.
+   It may work with Internet Explorer 10, but this has not been tested
+   yet.
+
+ * Added a new `Alignments` track type designed to work seamlessly
+   with BAM files.  This track type shows basepair differences and
+   insertions between aligned reads and the reference, and highlights
+   reads with missing mate-pairs in red.
+
  * Added the ability to export track data in FASTA, GFF3, bed,
    bedGraph, and Wiggle formats (issue #104).  To export data, turn on
    the track of interest, then click on its track label to bring up
@@ -20,21 +35,6 @@
    density plots.  Setting this makes it easier for users to
    distinguish at a glance between regions with no data, and regions
    with a value of 0.
-
- * Added a new data backend to allow direct access to BAM files over
-   the web without needing to translate them to JSON with
-   `bam-to-json.pl`.  This new method of BAM access is far superior to
-   the old `bam-to-json.pl` in nearly every way, except in browser
-   compatibility.  Like the BigWig direct access backend added in
-   JBrowse 1.5.0, it works in all major browsers *except* Internet
-   Explorer, because IE lacks support for the necessary web standards.
-   It may work with Internet Explorer 10, but this has not been tested
-   yet.
-
- * Added a new `Alignments` track type designed to work seamlessly
-   with BAM files.  This track type shows basepair differences and
-   insertions between aligned reads and the reference, and highlights
-   reads with missing mate-pairs in red.
 
  * Added a new `FeatureCoverage` track type, which shows a
    dynamically-computed XY-plot of the depth of coverage of features
