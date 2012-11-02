@@ -6,7 +6,16 @@ define( [
             'JBrowse/View/Track/YScaleMixin'
         ],
         function( declare, array, on, WiggleBase, YScaleMixin ) {
+
+
 var XYPlot = declare( WiggleBase,
+
+/**
+ * Wiggle track that shows data with an X-Y plot along the reference.
+ *
+ * @lends JBrowse.View.Track.Wiggle.XYPlot
+ * @extends JBrowse.View.Track.WiggleBase
+ */
 {
     makeWiggleYScale: function() {
         if( ! this.scale )

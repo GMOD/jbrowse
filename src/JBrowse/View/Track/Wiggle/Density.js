@@ -6,7 +6,17 @@ define( [
             'JBrowse/Util'
         ],
         function( declare, array, Color, WiggleBase, Util ) {
-return declare( WiggleBase, {
+
+return declare( WiggleBase,
+
+/**
+ * Wiggle track that shows data with variations in color.
+ *
+ * @lends JBrowse.View.Track.Wiggle.Density
+ * @extends JBrowse.View.Track.WiggleBase
+ */
+
+{
 
     _defaultConfig: function() {
         return { maxExportSpan: 500000, style: { height: 32 } };
