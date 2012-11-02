@@ -9,7 +9,7 @@ define( [
 return declare( WiggleBase, {
 
     _defaultConfig: function() {
-        return { maxExportSpan: 500000, style: { height: 30 } };
+        return { maxExportSpan: 500000, style: { height: 32 } };
     },
 
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, features, featureRects ) {
