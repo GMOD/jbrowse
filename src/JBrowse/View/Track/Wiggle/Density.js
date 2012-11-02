@@ -2,11 +2,11 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/array',
             'dojo/_base/Color',
-            'JBrowse/View/Track/Wiggle',
+            'JBrowse/View/Track/WiggleBase',
             'JBrowse/Util'
         ],
-        function( declare, array, Color, Wiggle, Util ) {
-return declare( Wiggle, {
+        function( declare, array, Color, WiggleBase, Util ) {
+return declare( WiggleBase, {
 
     _defaultConfig: function() {
         return { maxExportSpan: 500000, style: { height: 30 } };
@@ -19,15 +19,21 @@ return declare( Wiggle, {
         var normalize = this.scale.normalize;
 
         var featureColor = typeof this.config.style.color == 'function' ? this.config.style.color :
-            function() {
+            function() { // default color function uses conf variables
                 var posColor  = new Color( this.config.style.pos_color || '#00f' );
                 var negColor  = new Color( this.config.style.neg_color || '#f00' );
-                var backgroundColor = new Color( this.config.style.background_color || '#fcfcfc' );
+                var white = new Color('white');
+                var black = new Color('black');
+                var backgroundColor = new Color( this.config.style.background_color || 'rgba(230,230,230,0.6)' );
                 var clipColor = new Color( this.config.style.clip_marker_color );
                 var disableClipMarkers = this.config.disable_clip_markers;
+                var normOrigin = normalize( this.scale.origin );
                 return function( feature ) {
                     var score = feature.get('score');
-                    return Color.blendColors( backgroundColor, posColor, normalize( score ) );
+                    var n = normalize( score );
+                    return ( disableClipMarkers || n <= 1 && n >= 0 )
+                               ? Color.blendColors( backgroundColor, n >= normOrigin ? posColor : negColor, Math.abs(n-normOrigin) )
+                               : clipColor || ( n > 1 ? white : black );
                 };
             }.call(this);
 
