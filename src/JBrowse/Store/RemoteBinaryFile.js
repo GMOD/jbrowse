@@ -277,7 +277,7 @@ return declare( null,
                                                         function(c) {
                                                             return c.key.end ||
                                                                 // and possibly calculate the end offset of the chunk from its start + its length
-                                                                (c.key.start + c.value.byteLength);
+                                                                (c.key.start + (c.value||{}).byteLength || 0);
                                                         })
                                                   ) + 1;
 
