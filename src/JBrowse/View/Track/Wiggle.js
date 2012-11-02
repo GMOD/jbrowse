@@ -138,26 +138,26 @@ Wiggle.extend({
             origin: origin
         };
 
-        // make a func that converts wiggle values to Y coordinates on
-        // the plot, depending on what kind of scale we are using
-        this.scale.toY = function() {
+        // make a func that converts wiggle values to a range between
+        // 0 and 1, depending on what kind of scale we are using
+        this.scale.normalize = function() {
             var scale = this.scale;
             switch( this.config.scale ) {
             case 'z_score':
-                return function( canvasHeight, value ) {
+                return function( value ) {
                     with(scale)
-                        return canvasHeight * (1-((value+offset-s.scoreMean)/s.scoreStdDev-min)/range);
+                        return (value+offset-s.scoreMean) / s.scoreStdDev-min / range;
                 };
             case 'log':
-                return function( canvasHeight, value ) {
+                return function( value ) {
                     with(scale)
-                        return canvasHeight * (1-(Math.log(value+offset)-min)/range);
+                        return ( Math.log(value+offset) - min )/range;
                 };
             case 'linear':
             default:
-                return function( canvasHeight, value ) {
+                return function( value ) {
                     with(scale)
-                        return canvasHeight * (1-(value+offset-min)/range);
+                        return ( value + offset - min ) / range;
                 };
             }
         }.call(this);
@@ -195,12 +195,13 @@ Wiggle.extend({
                     { height: canvasHeight,
                       width:  canvasWidth,
                       style: { cursor: 'default' },
-                      innerHTML: 'Your web browser cannot display this type of track.'
+                      innerHTML: 'Your web browser cannot display this type of track.',
+                      className: 'canvas-track'
                     },
                     block
                 );
                 c.startBase = leftBase;
-                if( c && c.getContext && c.getContext('2d') && this.scale && this.scale.toY && features ) {
+                if( c && c.getContext && c.getContext('2d') && this.scale && this.scale.normalize && features ) {
 
                     var featureRects = array.map( features, function(f) {
                         return this._featureRect( scale, leftBase, c, f );
@@ -213,7 +214,6 @@ Wiggle.extend({
                     this._makeScoreDisplay( scale, leftBase, rightBase, block, c, features, featureRects );
 
                     this.heightUpdate( c.height, blockIndex );
-                    c.className = 'canvas-track';
 	            if (!(c.parentNode && c.parentNode.parentNode)) {
                         c.style.position = "absolute";
                         c.style.left = (100 * ((c.startBase - leftBase) / blockWidth)) + "%";
@@ -279,9 +279,11 @@ Wiggle.extend({
      */
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, features, featureRects ) {
         var context = canvas.getContext('2d');
-        var toY = dojo.hitch( this, this.scale.toY, canvas.height );
-        var originY = toY( this.scale.origin );
         var canvasHeight = canvas.height;
+        var toY = dojo.hitch( this, function( val ) {
+           return canvasHeight * (1-this.scale.normalize.call(this, val));
+        });
+        var originY = toY( this.scale.origin );
 
         var posColor  = this.config.style.pos_color || '#00f';
         var negColor  = this.config.style.neg_color || '#f00';
@@ -295,6 +297,7 @@ Wiggle.extend({
             //console.log( f.get('start') +'-'+f.get('end')+':'+f.get('score') );
             var score = f.get('score');
             fRect.t = toY( score );
+            //console.log( score, fRect.t );
 
             if( fRect.t <= canvasHeight ) { // if the rectangle is visible at all
 
@@ -325,6 +328,10 @@ Wiggle.extend({
      */
     _postDraw: function( scale, leftBase, rightBase, block, canvas, features, featureRects ) {
         var context = canvas.getContext('2d');
+        var canvasHeight = canvas.height;
+        var toY = dojo.hitch( this, function( val ) {
+           return canvasHeight * (1-this.scale.normalize.call(this, val));
+        });
 
         // draw the variance_band if requested
         if( this.config.variance_band ) {
