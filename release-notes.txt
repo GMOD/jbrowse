@@ -17,7 +17,9 @@
    wiggle data, and xyplots fill the background color behind all
    points that have data present, regardless of value.  `bg_color`
    defaults to off for xy xplots, and semi-transparent gray for
-   density plots.
+   density plots.  Setting this makes it easier for users to
+   distinguish at a glance between regions with no data, and regions
+   with a value of 0.
 
  * Added a new data backend to allow direct access to BAM files over
    the web without needing to translate them to JSON with
