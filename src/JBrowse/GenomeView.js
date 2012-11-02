@@ -420,7 +420,11 @@ GenomeView.prototype._behaviors = function() { return {
 
                     var that = this;
                     if( evt.keyCode == dojo.keys.LEFT_ARROW || evt.keyCode == dojo.keys.RIGHT_ARROW ) {
+
                         var offset = evt.keyCode == dojo.keys.LEFT_ARROW ? -40 : 40;
+                        if( evt.shiftKey )
+                            offset *= 5;
+
                         this.setX( this.getX() + offset );
                         if( ! this._keySlideTimeout )
                             this._keySlideTimeout = window.setTimeout(function() {
