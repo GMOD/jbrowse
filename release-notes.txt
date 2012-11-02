@@ -11,6 +11,14 @@
    to `Wiggle/XYPlot`, and made the old `Wiggle` track type an alias
    to `Wiggle/XYPlot`.
 
+ * Both `Wiggle/XYPlot` and `Wiggle/Density` now support a `style ->
+   bg_color` option.  Color-density plots blend the `pos_color` or
+   `neg_color` into the `bg_color` in amounts that vary with the
+   wiggle data, and xyplots fill the background color behind all
+   points that have data present, regardless of value.  `bg_color`
+   defaults to off for xy xplots, and semi-transparent gray for
+   density plots.
+
  * Added a new data backend to allow direct access to BAM files over
    the web without needing to translate them to JSON with
    `bam-to-json.pl`.  This new method of BAM access is far superior to

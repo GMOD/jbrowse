@@ -34,7 +34,7 @@ return declare( WiggleBase,
                 var negColor  = new Color( this.config.style.neg_color || '#f00' );
                 var white = new Color('white');
                 var black = new Color('black');
-                var backgroundColor = new Color( this.config.style.background_color || 'rgba(230,230,230,0.6)' );
+                var backgroundColor = new Color( this.config.style.bg_color || 'rgba(230,230,230,0.6)' );
                 var clipColor = new Color( this.config.style.clip_marker_color );
                 var disableClipMarkers = this.config.disable_clip_markers;
                 var normOrigin = normalize( this.scale.origin );

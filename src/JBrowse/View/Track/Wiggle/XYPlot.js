@@ -60,6 +60,7 @@ var XYPlot = declare( WiggleBase,
         var posColor  = this.config.style.pos_color || '#00f';
         var negColor  = this.config.style.neg_color || '#f00';
         var clipColor = this.config.style.clip_marker_color;
+        var bgColor   = this.config.style.bg_color;
         var disableClipMarkers = this.config.disable_clip_markers;
 
         dojo.forEach( features, function(f,i) {
@@ -70,6 +71,11 @@ var XYPlot = declare( WiggleBase,
             var score = f.get('score');
             fRect.t = toY( score );
             //console.log( score, fRect.t );
+
+            if( bgColor && fRect.t >= 0 ) {
+                context.fillStyle = bgColor;
+                context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
+            }
 
             if( fRect.t <= canvasHeight ) { // if the rectangle is visible at all
 
