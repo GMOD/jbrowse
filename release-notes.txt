@@ -35,6 +35,12 @@
    recommended to generate a BigWig file containing the coverage data,
    and display it with a `Wiggle/XYPlot` or `Wiggle/Density` track.
 
+ * DNA bases are now displayed with color-coded backgrounds, allowing
+   basepair information to be discerned when zoomed somewhat further
+   out, when base letter cannot be drawn.  Colors are also designed to
+   match the base-mismatch colors used in `Alignment` tracks, enabling
+   clearer SNP visualization.
+
  * Added a vertical line cursor and labels showing the current
    basepair position of the mouse when hovering over the scale bar, or
    when doing a rubber-band zoom (Erik Derohanian) (issue #32).
