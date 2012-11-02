@@ -50,17 +50,19 @@ return declare( null,
         if( args.callback )
             bwg._loading.then(
                 function() { args.callback(bwg); },
-                function() { args.callback(null, 'Loading failed!'); }
+                function(result) { args.callback(null, result.error || 'Loading failed!'); }
             );
         bwg._loading.then( function() {
                                bwg._loading = null;
                            });
-        bwg._loading.then( dojo.hitch( this, function(result) {
-            if( result.success )
-                this.loadSuccess();
-            else
-                this.loadFail();
-        }));
+        bwg._loading.then(
+            dojo.hitch( this, function(result) {
+                            if( result.success )
+                                this.loadSuccess();
+                            else
+                                this.loadFail( result.error || 'BigWig loading failed' ) ;
+                        })
+        );
 
         bwg.data = data;
         bwg.name = name;
@@ -179,7 +181,8 @@ return declare( null,
     },
 
     loadSuccess: function() {},
-    loadFail: function() {},
+    loadFail: function() {
+    },
 
     /**
      * @private
@@ -196,6 +199,11 @@ return declare( null,
 
         this.data.slice( this.chromTreeOffset, udo - this.chromTreeOffset )
             .fetch(function(bpt) {
+                       if( true || !( Uint8Array && Int16Array && Int32Array ) ) {
+                           var msg = 'Browser does not support typed arrays';
+                           thisB._loading.resolve({success: false, error: msg});
+                           return;
+                       }
                        var ba = new Uint8Array(bpt);
                        var sa = new Int16Array(bpt);
                        var la = new Int32Array(bpt);

@@ -42,9 +42,6 @@ Wiggle.extend({
         this.setLoaded();
     },
 
-    loadFail: function() {
-    },
-
     makeWiggleYScale: function() {
         if( ! this.scale )
             return;
