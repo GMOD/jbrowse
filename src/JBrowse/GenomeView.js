@@ -429,8 +429,15 @@ GenomeView.prototype._behaviors = function() { return {
                             }, 300 );
                     }
                     else if( evt.keyCode == dojo.keys.DOWN_ARROW || evt.keyCode == dojo.keys.UP_ARROW ) {
-                        var offset = evt.keyCode == dojo.keys.UP_ARROW ? -40 : 40;
-                        this.setY( this.getY() + offset );
+                        // shift-up/down zooms in and out
+                        if( evt.shiftKey ) {
+                            this[ evt.keyCode == dojo.keys.UP_ARROW ? 'zoomIn' : 'zoomOut' ]( evt, 0.5, evt.altKey ? 2 : 1 );
+                        }
+                        // without shift, scrolls up and down
+                        else {
+                            var offset = evt.keyCode == dojo.keys.UP_ARROW ? -40 : 40;
+                            this.setY( this.getY() + offset );
+                        }
                     }
                 }),
 

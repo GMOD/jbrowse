@@ -17,6 +17,10 @@
    that is likely to be produced, based on the length of the reference
    sequences and the length of their names.
 
+ * Pressing SHIFT+-up/down arrow keys now cause the genome view to
+   zoom in and out.  If ALT is added, it zooms further.  Thanks to
+   Karsten Hokamp for the excellent suggestion.
+
  * Added a `theme` configuration variable to allow changing the
    graphical theme to something different from the default "tundra".
    However, no other themes are implemented yet.
