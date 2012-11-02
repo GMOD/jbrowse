@@ -199,7 +199,7 @@ return declare( null,
 
         this.data.slice( this.chromTreeOffset, udo - this.chromTreeOffset )
             .fetch(function(bpt) {
-                       if( true || !( Uint8Array && Int16Array && Int32Array ) ) {
+                       if( !( Uint8Array && Int16Array && Int32Array ) ) {
                            var msg = 'Browser does not support typed arrays';
                            thisB._loading.resolve({success: false, error: msg});
                            return;
