@@ -132,7 +132,7 @@ return {
         // than 10, cause it won't work.
         if( ! (has('ie') < 10) ) {
             var dlButton = new dijitButton({ iconClass: 'dijitIconSave',
-                              label: 'Download',
+                              label: 'Save',
                               disabled: ! array.some(possibleRegions,function(r) { return r.canExport; }),
                               onClick: dojo.hitch( this.track, function() {
                                 var format = this._readRadio( form.elements.format );
