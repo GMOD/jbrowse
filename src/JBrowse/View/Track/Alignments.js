@@ -15,7 +15,7 @@ return declare( HTMLFeatures,
         return Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
             {
-                maxFeatureScreenDensity: 1.2,
+                maxFeatureScreenDensity: 1.5,
                 layoutPitchY: 4,
                 style: {
                     _defaultLabelScale: 50,
