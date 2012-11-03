@@ -146,19 +146,34 @@ var BAMStore = declare( SeqFeatureStore,
             return;
         }
 
+        var maxFeaturesWithoutYielding = 300;
         this.bam.fetch( this.refSeq.name, start, end, function( features, error) {
-                if( features ) {
-                    array.forEach( features, function( feature ) {
-                        // skip if this alignment is unmapped, or if it does not actually overlap this range
-                        if ( feature.get('unmapped') || feature.get('end') <= start || feature.get('start') >= end )
-                            return;
-                        featCallback( feature );
-                    });
-                }
                 if ( error ) {
                     console.error( 'error fetching BAM data: ' + error );
+                    return;
                 }
-                endCallback();
+                if( features ) {
+                    var i = 0;
+                    var readFeatures = function() {
+                        for( ; i < features.length; i++ ) {
+                            var feature = features[i];
+                            // skip if this alignment is unmapped, or if it does not actually overlap this range
+                            if (! (feature.get('unmapped') || feature.get('end') <= start || feature.get('start') >= end) )
+                                featCallback( feature );
+
+                            if( i && !( i % maxFeaturesWithoutYielding ) ) {
+                                window.setTimeout( readFeatures, 1 );
+                                i++;
+                                break;
+                            }
+                        }
+                        if( i >= features.length )
+                            endCallback();
+                    };
+
+                    readFeatures();
+
+                }
             });
     }
 
