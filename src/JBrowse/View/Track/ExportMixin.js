@@ -113,12 +113,22 @@ return {
                                                            readonly: true
                                                        });
                                 text.value = output;
-                                var content = text;
-                                if( ! (has('ie') < 10) ) { // data URL download doesn't work on IE < 10
-                                    var actionBar = dojo.create( 'div', {
-                                        className: 'dijitDialogPaneActionBar'
-                                    });
-                                    var saveButton = new dijitButton(
+                                var actionBar = dojo.create( 'div', {
+                                    className: 'dijitDialogPaneActionBar'
+                                });
+                                var exportView = new dijitDialog({
+                                    className: 'export-view-dialog',
+                                    title: format + ' export - <span class="locString">'+ region+'</span> ('+Util.humanReadableNumber(output.length)+'b)',
+                                    content: [ text, actionBar ]
+                                });
+                                new dijitButton({ iconClass: 'dijitIconDelete',
+                                                  label: 'Close', onClick: dojo.hitch( exportView, 'hide' )
+                                                })
+                                     .placeAt(actionBar);
+
+                                // data URL download doesn't work on IE < 10
+                                if( ! (has('ie') < 10) ) {
+                                    new dijitButton(
                                         {
                                             iconClass: 'dijitIconSave',
                                             label: 'Save',
@@ -127,13 +137,8 @@ return {
                                                 window.location.href="data:application/x-"+format.toLowerCase()+","+escape(output);
                                             })
                                         }).placeAt(actionBar);
-                                    content = [ content, actionBar ];
                                 }
-                                var exportView = new dijitDialog({
-                                    className: 'export-view-dialog',
-                                    title: format + ' export - <span class="locString">'+ region+'</span> ('+Util.humanReadableNumber(output.length)+'b)',
-                                    content: [ text, actionBar ]
-                                });
+
                                 aspect.after( exportView, 'hide', function() {
                                     text.parentNode.removeChild( text ); // manually unhook and free the (possibly huge) text area
                                     text = null;
