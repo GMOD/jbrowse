@@ -63,11 +63,15 @@
    anywhere outside of them, or pressing any key, will make them go
    away.
 
- * Feature tracks no longer use the `style.subfeatureScale`
-   configuration variable to determine whether to show subfeatures.
-   Instead, subfeatures are shown if the parent feature, when shown on
-   the screen, is wider than `style.minSubfeatureWidth`, which
-   defaults to 6 pixels.
+ * Improvements to feature track configuration:
+   * Feature tracks no longer use the `style.subfeatureScale`
+     configuration variable to determine whether to show subfeatures.
+     Instead, subfeatures are shown if the parent feature, when shown on
+     the screen, is wider than `style.minSubfeatureWidth`, which
+     defaults to 6 pixels.
+   * Make explicitly-configured track `labelScale`, `histScale`, and
+     `descriptionScale` not be modulated by the feature density: only
+     use the feature density to pick the scale defaults
 
  * The default feature-detail dialog box now shows more information, adding:
    * the feature's exact length

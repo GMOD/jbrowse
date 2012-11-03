@@ -115,11 +115,14 @@ HTMLFeatures = declare( HTMLFeatures,
 
             style: {
                 className: "feature2",
-                histScale: 4,
-                labelScale: 30,
+
+                // not configured by users
+                _defaultHistScale: 4,
+                _defaultLabelScale: 30,
+                _defaultDescriptionScale: 170,
+
                 minSubfeatureWidth: 6,
                 maxDescriptionLength: 70,
-                descriptionScale: 170,
                 showLabels: true
             },
             hooks: {
@@ -150,9 +153,13 @@ HTMLFeatures = declare( HTMLFeatures,
 
         // recall that scale is pixels per basepair
         var density = this.store.getGlobalStats().featureDensity;
-        this.labelScale = density * this.config.style.labelScale;
+
         this.showLabels = this.config.style.showLabels;
-        this.descriptionScale = density * this.config.style.descriptionScale;;
+
+        this.labelScale = this.config.style.labelScale || density * this.config.style._defaultLabelScale;
+        this.histScale  = this.config.style.histScale  || density * this.config.style._defaultHistScale;
+        this.descriptionScale =  this.config.style.descriptionScale || density * this.config.style.defaultDescriptionScale;
+
         this.inherited(arguments);
     },
 
@@ -408,7 +415,7 @@ HTMLFeatures = declare( HTMLFeatures,
         // only update the label once for each block size
         var blockBases = Math.abs( leftBase-rightBase );
         if( this._updatedLabelForBlockSize != blockBases ){
-            if ( this.store.histogram && scale < (stats.featureDensity * this.config.style.histScale)) {
+            if ( this.store.histogram && scale < this.histScale ) {
                 this.setLabel(this.key + ' <span class="feature-density">per ' + Util.addCommas( Math.round( blockBases / this.numBins)) + ' bp</span>');
             } else {
                 this.setLabel(this.key);
@@ -419,7 +426,7 @@ HTMLFeatures = declare( HTMLFeatures,
         // console.log(this.name+" scale: %d, density: %d, histScale: %d, screenDensity: %d", scale, stats.featureDensity, this.config.style.histScale, stats.featureDensity / scale );
 
         // if we our store offers density histograms, and we are zoomed out far enough, draw them
-        if( this.store.histograms && scale < stats.featureDensity * this.config.style.histScale ) {
+        if( this.store.histograms && scale < this.histScale ) {
                 this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
                               containerStart, containerEnd);
         }

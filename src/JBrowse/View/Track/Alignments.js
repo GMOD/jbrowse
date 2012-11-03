@@ -18,7 +18,7 @@ return declare( HTMLFeatures,
                 maxFeatureScreenDensity: 1.2,
                 layoutPitchY: 4,
                 style: {
-                    histScale: 1,
+                    _defaultLabelScale: 50,
                     className: 'alignment',
                     arrowheadClass: 'arrowhead'
                 }
