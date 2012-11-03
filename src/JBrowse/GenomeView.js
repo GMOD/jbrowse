@@ -1771,9 +1771,13 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
       || trackConfig.type
    );
 
+    var cssName = function(str) { // replace weird characters and lowercase
+        return str.replace(/[^A-Za-z_]/g,'_').toLowerCase();
+    };
+
     var trackName = trackConfig.label;
     var trackDiv = dojo.create('div', {
-        className: 'track track_'+trackName.replace(/[^A-Za-z_]/g,'_'),
+        className: ['track', cssName('track_'+trackClass), cssName('track_'+trackName)].join(' '),
         id: "track_" + trackName
     });
     trackDiv.trackName = trackName;
