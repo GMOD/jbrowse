@@ -158,7 +158,7 @@ HTMLFeatures = declare( HTMLFeatures,
 
         this.labelScale = this.config.style.labelScale || density * this.config.style._defaultLabelScale;
         this.histScale  = this.config.style.histScale  || density * this.config.style._defaultHistScale;
-        this.descriptionScale =  this.config.style.descriptionScale || density * this.config.style.defaultDescriptionScale;
+        this.descriptionScale =  this.config.style.descriptionScale || density * this.config.style._defaultDescriptionScale;
 
         this.inherited(arguments);
     },
