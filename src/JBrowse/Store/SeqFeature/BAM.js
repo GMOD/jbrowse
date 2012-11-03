@@ -84,8 +84,9 @@ var BAMStore = declare( SeqFeatureStore,
     _estimateGlobalStats: function( finishCallback ) {
 
         var statsFromInterval = function( refSeq, length, callback ) {
-            var start = refSeq.start;
-            var end = start+length;
+            var sampleCenter = refSeq.start*0.75 + refSeq.end*0.25;
+            var start = Math.round( sampleCenter - length/2 );
+            var end = Math.round( sampleCenter + length/2 );
             this.bam.fetch( refSeq.name, start, end, dojo.hitch( this, function( features, error) {
                 if ( error ) {
                     console.error( error );
@@ -97,7 +98,7 @@ var BAMStore = declare( SeqFeatureStore,
                                    {
                                        featureDensity: features.length / length,
                                        _statsSampleFeatures: features.length,
-                                       _statsSampleInterval: length
+                                       _statsSampleInterval: { ref: refSeq.name, start: start, end: end, length: length }
                                    });
                 }
             }));
@@ -109,6 +110,7 @@ var BAMStore = declare( SeqFeatureStore,
             } else {
                  if( stats._statsSampleFeatures >= 300 || interval * 2 > this.refSeq.length || error ) {
                      this.globalStats = stats;
+                     console.log( 'BAM statistics', stats );
                      finishCallback();
                  } else {
                      statsFromInterval.call( this, this.refSeq, interval * 2, maybeRecordStats );
