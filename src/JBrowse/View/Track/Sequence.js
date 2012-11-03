@@ -81,12 +81,20 @@ SequenceTrack.extend(
     },
 
     _fillSequenceBlock: function( block, scale, start, end, seq ) {
-        // fill with leading blanks if the
-        // sequence does not extend all the way
+
+        // pad with blanks if the sequence does not extend all the way
         // across our range
-        while( seq.length < (end-start) ) {
-            seq = this.nbsp + seq; //nbsp is an "&nbsp;" entity
-        }
+        if( start < this.refSeq.start )
+            while( seq.length < (end-start) ) {
+                //nbsp is an "&nbsp;" entity
+                seq = this.nbsp+seq;
+            }
+        else if( end > this.refSeq.end )
+            while( seq.length < (end-start) ) {
+                //nbsp is an "&nbsp;" entity
+                seq += this.nbsp;
+            }
+
 
         // make a div to contain the sequences
         var seqNode = document.createElement("div");
