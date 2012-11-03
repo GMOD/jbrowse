@@ -148,6 +148,7 @@ return declare( null,
         var closeButton = dojo.create('div',{
             className: 'track-close-button',
             onclick: dojo.hitch(this,function(evt){
+                this.browser.view.suppressDoubleClick( 100 );
                 this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.config]);
                 evt.stopPropagation();
             })

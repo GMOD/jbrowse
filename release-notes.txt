@@ -88,8 +88,8 @@
    zoom in and out.  If ALT is added, it zooms further.  Thanks to
    Karsten Hokamp for the excellent suggestion.
 
- * Holding SHIFT while scrolling with the arrow keys causes the view
-   to scroll further.
+ * Holding SHIFT while scrolling left and right with the arrow keys
+   causes the view to scroll further.
 
  * Added a `theme` configuration variable to allow changing the
    graphical theme to something different from the default "tundra".
@@ -98,7 +98,10 @@
  * Greatly sped up rendering of HTML subfeatures by caching the
    heights of subfeature HTML elements.
 
- * Fix bug with the genome view scrolling in response to arrow keys
+ * Fixed bug in which the genome view executed a double-click zoom when
+   users rapidly clicked on multiple track 'close' buttons.
+
+ * Fixed bug with the genome view scrolling in response to arrow keys
    being pressed when typing in the location box.
 
 1.6.5     2012-10-26 12:10:08 America/New_York

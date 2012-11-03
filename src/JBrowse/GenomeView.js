@@ -653,7 +653,24 @@ GenomeView.prototype.afterSlide = function() {
     this.showVisibleBlocks(true);
 };
 
+/**
+ * Suppress double-click events in the genome view for a certain amount of time, default 100 ms.
+ */
+GenomeView.prototype.suppressDoubleClick = function( /** Number */ time ) {
+
+    if( this._noDoubleClick ) {
+        window.clearTimeout( this._noDoubleClick );
+    }
+
+    var thisB = this;
+    this._noDoubleClick = window.setTimeout(
+        function(){ delete thisB._noDoubleClick; },
+        time || 100
+    );
+};
+
 GenomeView.prototype.doubleClickZoom = function(event) {
+    if( this._noDoubleClick ) return;
     if( this.dragging ) return;
     if( "animation" in this ) return;
 
