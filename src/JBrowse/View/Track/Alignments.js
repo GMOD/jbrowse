@@ -11,16 +11,17 @@ return declare( HTMLFeatures,
  */
 {
 
-    constructor: function() {
-    },
-
     _defaultConfig: function() {
         return Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
-            { style: {
-                  className: 'alignment',
-                  arrowheadClass: 'arrowhead'
-              }
+            {
+                maxFeatureScreenDensity: 1.2,
+                layoutPitchY: 4,
+                style: {
+                    histScale: 1,
+                    className: 'alignment',
+                    arrowheadClass: 'arrowhead'
+                }
             }
         );
     },
