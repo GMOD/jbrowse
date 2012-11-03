@@ -276,8 +276,7 @@ Wiggle.extend({
                 style: {
                     position: 'fixed',
                     display: 'none',
-                    zIndex: 15,
-                    cursor: 'default'
+                    zIndex: 15
                 }
             }, block );
         var verticalLine = dojo.create( 'div', {
@@ -286,10 +285,7 @@ Wiggle.extend({
                     position: 'fixed',
                     display: 'none',
                     height: canvas.height+'px',
-                    width: '1px',
-                    borderWidtbh: '0',
-                    zIndex: 15,
-                    cursor: 'default'
+                    zIndex: 15
                 }
         }, block);
         var outTimeout;

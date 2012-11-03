@@ -409,8 +409,11 @@ div.generic_parent-hist {
     padding: 2px;
     font-family: Courier New, monospace;
     font-weight: bold;
+    cursor: default;
 }
-
 .wigglePositionIndicator {
-    background: #999;
+    background: #555;
+    border: none;
+    width: 1px;
+    cursor: default;
 }
