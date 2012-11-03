@@ -104,6 +104,9 @@
  * Fixed bug with the genome view scrolling in response to arrow keys
    being pressed when typing in the location box.
 
+ * Fixed bug in which the score display in Wiggle tracks would
+   sometimes flicker when moving the mouse.
+
 1.6.5     2012-10-26 12:10:08 America/New_York
 
  * The location box now shows the length of the currently visible
