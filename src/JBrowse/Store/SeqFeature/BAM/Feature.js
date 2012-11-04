@@ -61,7 +61,7 @@ var Feature = Util.fastDeclare(
         this.data = data;
         this._subCounter = 0;
         this._uniqueID = args.parent ? args.parent._uniqueID + '-' + ++args.parent._subCounter
-                                     : this.data.name+' at '+ data.segment + ':' + data.start + '..' + data.end;
+                                     : this.data.name+' at '+ data.seq_id + ':' + data.start + '..' + data.end;
 
         var cigar = data.CIGAR || data.cigar;
         // this.data.subfeatures = [];
@@ -162,7 +162,7 @@ var Feature = Util.fastDeclare(
             if( mq != 255 ) // value of 255 means MQ is not available
                 record.mapping_quality = mq;
             record.readName = readName;
-            record.segment = this.file.indexToChr[refID];
+            record.seq_id = this.file.indexToChr[refID];
             record._refID = refID;
         }
 
