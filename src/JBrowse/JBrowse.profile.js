@@ -55,7 +55,7 @@ var profile = {
         // it is actually just plain JavaScript. There is some extra magic in the build system specifically for this
         // module ID.
         'dojo/dojo': {
-            include: [ 'dojo/dojo', 'JBrowse', 'dojox/data/CsvStore' ],
+            include: [ 'dojo/dojo', 'JBrowse', 'dojox/data/CsvStore', 'jszlib' ],
             boot: true,
             customBase: true
         },
@@ -66,7 +66,12 @@ var profile = {
         },
 
         'JBrowse/Store/BigWig': {
-            include: [ 'JBrowse/Store/BigWig', 'jszlib' ],
+            include: [ 'JBrowse/Store/BigWig' ],
+            exclude: ['JBrowse']
+        },
+
+        'JBrowse/Store/SeqFeature/BAM': {
+            include: [ 'JBrowse/Store/SeqFeature/BAM' ],
             exclude: ['JBrowse']
         }
     },
