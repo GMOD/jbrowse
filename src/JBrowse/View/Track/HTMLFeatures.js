@@ -1001,9 +1001,9 @@ HTMLFeatures = declare( HTMLFeatures,
         o.push.apply(
             o,
             [
-                { type: 'dijitMenuSeparator' },
+                { type: 'dijit/MenuSeparator' },
                 { label: 'Show labels',
-                  type: 'dijitCheckedMenuItem',
+                  type: 'dijit/CheckedMenuItem',
                   checked: !!( 'showLabels' in this ? this.showLabels : this.config.style.showLabels ),
                   onClick: function(event) {
                       track.showLabels = this.checked;

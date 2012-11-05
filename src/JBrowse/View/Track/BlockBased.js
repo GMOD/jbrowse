@@ -25,6 +25,7 @@ define( [
                   dijitMenuSeparator,
                   Util
                 ) {
+
 return declare( null,
 /**
  * @lends JBrowse.View.Track.BlockBased.prototype
@@ -513,9 +514,7 @@ return declare( null,
 
         for ( key in menuStructure ) {
             var spec = menuStructure [ key ];
-            var class_;
             try {
-                eval( 'class_='+( spec.type || 'dijitMenuItem' )+ ';' );
                 if ( spec.children ) {
                     var child = new dijitMenu();
                     parent.addChild( child );
@@ -536,6 +535,14 @@ return declare( null,
                     // would frustrate users.
                     if( menuConf.label && !menuConf.onClick )
                         menuConf.disabled = true;
+
+                    // currently can only use preloaded types
+                    var class_ = {
+                        'dijit/MenuItem':        dijitMenuItem,
+                        'dijit/CheckedMenuItem': dijitCheckedMenuItem,
+                        'dijit/MenuSeparator':   dijitMenuSeparator
+                    }[spec.type] || dijitMenuItem;
+
                     parent.addChild( new class_( menuConf ) );
                 }
             } catch(e) {
