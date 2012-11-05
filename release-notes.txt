@@ -1,14 +1,14 @@
 {{$NEXT}}
 
- * Added a new data backend to allow direct access to BAM files over
-   the web without needing to translate them to JSON with
-   `bam-to-json.pl`.  This new method of BAM access is far superior to
-   the old `bam-to-json.pl` in nearly every way, except in browser
-   compatibility.  Like the BigWig direct access backend added in
-   JBrowse 1.5.0, it works in all major browsers *except* Internet
-   Explorer, because IE lacks support for the necessary web standards.
-   It may work with Internet Explorer 10, but this has not been tested
-   yet.
+ * Added a new direct-access storage driver for BAM files, removing
+   the need for `bam-to-json.pl`.  This new method of BAM access is
+   far superior to the old `bam-to-json.pl` in nearly every way,
+   except in browser compatibility.  Like the BigWig direct access
+   backend added in JBrowse 1.5.0, it is based on code from Thomas
+   Down's Dalliance Genome Explorer, and works in all major browsers
+   *except* Internet Explorer, because IE lacks support for the
+   necessary web standards.  It may work with Internet Explorer 10,
+   but this has not been tested yet.
 
  * Added a new `Alignments` track type designed to work seamlessly
    with BAM files.  This track type shows basepair differences and
