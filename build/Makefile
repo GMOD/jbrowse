@@ -5,10 +5,10 @@ JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 
 RELEASE_VERSION = $(shell node -e 'require("fs").readFile("$(JSDIR)/package.json", function(e,d){console.log(JSON.parse(d).version)})')
 RELEASE_NAME = JBrowse-$(RELEASE_VERSION)
-RELEASE_FULL = $(RELEASE_NAME)-full
-RELEASE_FULL_DIR = $(BASEDIR)/$(RELEASE_NAME)-full/
-RELEASE_MIN  = $(RELEASE_NAME)-min
-RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_NAME)-min/
+RELEASE_FULL = $(RELEASE_NAME)-dev
+RELEASE_FULL_DIR = $(BASEDIR)/$(RELEASE_FULL)/
+RELEASE_MIN  = $(RELEASE_NAME)
+RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_MIN)/
 
 ZIP=zip -q --symlinks -r
 
