@@ -93,17 +93,17 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             }
             return conf;
         },
-        _evalHook: function() {
+        _evalHook: function( hook ) {
             // can't bind arguments because the closure compiler
             // renames variables, and we need to assign in the eval
-            if ( "string" != typeof arguments[0])
-                return arguments[0];
+            if ( "string" != typeof hook )
+                return hook;
             try {
-                eval("arguments[0]="+arguments[0]+";");
+                eval('arguments[0]='+hook+';');
             } catch (e) {
-                console.error("error parsing parsing JavaScript callback: '"+arguments[0]+"': "+e);
+                console.error("error parsing parsing JavaScript callback: '"+hook+"': "+e);
             }
-            return arguments[0];
+            return (function(h) { return h; }).apply( this, arguments );
         }
 });
 });
