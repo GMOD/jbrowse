@@ -586,6 +586,21 @@ div.error, div.message {
 div.error {
     background: #ff8888;
 }
+div.error h2 {
+    margin-top: 0;
+}
+
+div.error .codecaption {
+    font-size: 90%;
+    font-weight: bold;
+    margin-top: 1em;
+    margin-left: 0.2em;
+}
+div.error code {
+    display: block;
+    padding: 1.2em;
+    margin: 0 0.3em 0.3em 0.3em;
+}
 div.message {
     background: #eee;
 }

@@ -5,10 +5,10 @@ JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 
 RELEASE_VERSION = $(shell node -e 'require("fs").readFile("$(JSDIR)/package.json", function(e,d){console.log(JSON.parse(d).version)})')
 RELEASE_NAME = JBrowse-$(RELEASE_VERSION)
-RELEASE_FULL = $(RELEASE_NAME)-full
-RELEASE_FULL_DIR = $(BASEDIR)/$(RELEASE_NAME)-full/
-RELEASE_MIN  = $(RELEASE_NAME)-min
-RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_NAME)-min/
+RELEASE_FULL = $(RELEASE_NAME)-dev
+RELEASE_FULL_DIR = $(BASEDIR)/$(RELEASE_FULL)/
+RELEASE_MIN  = $(RELEASE_NAME)
+RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_MIN)/
 
 ZIP=zip -q --symlinks -r
 
@@ -49,14 +49,17 @@ release-min: release-normal
 	for P in src docs/jsdoc tests tests_extended sample_data build; do \
 	    rm -rf $(RELEASE_MIN_DIR)$$P; \
 	done;
-	for P in src/wig2png src/dojo/dojo.js src/dojo/nls src/dojo/resources src/dojox/grid src/dijit/themes/tundra src/dijit/icons src/JBrowse src/perl5 src/dojox/gfx/vml.js src/dojox/gfx/vml_attach.js sample_data/test_snippet.html; do \
+	for P in src/wig2png src/dojo/dojo.js src/dojo/nls src/dojo/resources src/dojox/grid src/dijit/themes/tundra src/dijit/icons src/dijit/templates src/JBrowse src/perl5 src/dojox/gfx/vml.js src/dojox/gfx/vml_attach.js sample_data/test_snippet.html; do \
 	    mkdir -p `dirname $(RELEASE_MIN_DIR)$$P`; \
 	    cp -r $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
 	done
 	$(ZIP) $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 
 release-min-test: release-min
-	cd $(RELEASE_MIN_DIR) && ./setup.sh;
+	cp -r docs tests* sample_data $(RELEASE_MIN_DIR);
+	cd $(RELEASE_MIN_DIR) && ./setup.sh
+	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3
+	cd $(RELEASE_MIN_DIR) && JBROWSE_URL='http://localhost/jbrowse/$(RELEASE_MIN)/index.html' nosetests
 
 bin/wig2png: src/wig2png/Makefile
 	$(MAKE) -C src/wig2png;

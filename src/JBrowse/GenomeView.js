@@ -420,7 +420,11 @@ GenomeView.prototype._behaviors = function() { return {
 
                     var that = this;
                     if( evt.keyCode == dojo.keys.LEFT_ARROW || evt.keyCode == dojo.keys.RIGHT_ARROW ) {
+
                         var offset = evt.keyCode == dojo.keys.LEFT_ARROW ? -40 : 40;
+                        if( evt.shiftKey )
+                            offset *= 5;
+
                         this.setX( this.getX() + offset );
                         if( ! this._keySlideTimeout )
                             this._keySlideTimeout = window.setTimeout(function() {
@@ -429,8 +433,15 @@ GenomeView.prototype._behaviors = function() { return {
                             }, 300 );
                     }
                     else if( evt.keyCode == dojo.keys.DOWN_ARROW || evt.keyCode == dojo.keys.UP_ARROW ) {
-                        var offset = evt.keyCode == dojo.keys.UP_ARROW ? -40 : 40;
-                        this.setY( this.getY() + offset );
+                        // shift-up/down zooms in and out
+                        if( evt.shiftKey ) {
+                            this[ evt.keyCode == dojo.keys.UP_ARROW ? 'zoomIn' : 'zoomOut' ]( evt, 0.5, evt.altKey ? 2 : 1 );
+                        }
+                        // without shift, scrolls up and down
+                        else {
+                            var offset = evt.keyCode == dojo.keys.UP_ARROW ? -40 : 40;
+                            this.setY( this.getY() + offset );
+                        }
                     }
                 }),
 
@@ -642,7 +653,24 @@ GenomeView.prototype.afterSlide = function() {
     this.showVisibleBlocks(true);
 };
 
+/**
+ * Suppress double-click events in the genome view for a certain amount of time, default 100 ms.
+ */
+GenomeView.prototype.suppressDoubleClick = function( /** Number */ time ) {
+
+    if( this._noDoubleClick ) {
+        window.clearTimeout( this._noDoubleClick );
+    }
+
+    var thisB = this;
+    this._noDoubleClick = window.setTimeout(
+        function(){ delete thisB._noDoubleClick; },
+        time || 100
+    );
+};
+
 GenomeView.prototype.doubleClickZoom = function(event) {
+    if( this._noDoubleClick ) return;
     if( this.dragging ) return;
     if( "animation" in this ) return;
 
@@ -1735,9 +1763,13 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
           return existingTrack.div;
       }
 
+    var cssName = function(str) { // replace weird characters and lowercase
+        return str.replace(/[^A-Za-z_]/g,'_').toLowerCase();
+    };
+
     var trackName = trackConfig.label;
     var trackDiv = dojo.create('div', {
-        className: 'track track_'+trackName.replace(/[^A-Za-z_]/g,'_'),
+        className: ['track', cssName('track_'+trackClass), cssName('track_'+trackName)].join(' '),
         id: "track_" + trackName
     });
     trackDiv.trackName = trackName;

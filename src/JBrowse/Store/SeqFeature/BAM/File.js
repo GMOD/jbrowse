@@ -89,15 +89,21 @@ var BamFile = declare( null,
         // Do we really need to fetch the whole thing? :-(
         this.bai.fetch( dojo.hitch( this, function(header) {
             if (!header) {
-                dlog("Couldn't access BAI");
-                failCallback();
+                dlog("No data read from BAM index (BAI) file");
+                failCallback("No data read from BAM index (BAI) file");
+                return;
+            }
+
+            if( ! Uint8Array ) {
+                dlog('Browser does not support typed arrays');
+                failCallback('Browser does not support typed arrays');
                 return;
             }
 
             var uncba = new Uint8Array(header);
             if( readInt(uncba, 0) != BAI_MAGIC) {
                 dlog('Not a BAI file');
-                failCallback();
+                failCallback('Not a BAI file');
                 return;
             }
 
@@ -127,7 +133,7 @@ var BamFile = declare( null,
             }
 
             successCallback( this.indices, this.minAlignmentVO );
-        }));
+        }), failCallback );
     },
 
     _readBAMheader: function( successCallback, failCallback ) {
@@ -302,14 +308,21 @@ var BamFile = declare( null,
             maxSize: 100000 // cache up to 100,000 BAM features
         });
 
-        this.featureCache.get( chunks, function( features ) {
-            features = array.filter( features, function( feature ) {
-                return ( !( feature.get('end') < min || feature.get('start') > max )
-                         && ( chrId === undefined || feature._refID == chrId ) );
+        try {
+            this.featureCache.get( chunks, function( features, error ) {
+                if( error ) {
+                    callback( null, error );
+                } else {
+                    features = array.filter( features, function( feature ) {
+                        return ( !( feature.get('end') < min || feature.get('start') > max )
+                                 && ( chrId === undefined || feature._refID == chrId ) );
+                    });
+                    callback( features );
+                }
             });
-            callback( features );
-        });
-
+        } catch( e ) {
+            callback( null, e );
+        }
     },
 
     _fetchChunkFeatures: function( chunks, callback ) {
@@ -322,18 +335,24 @@ var BamFile = declare( null,
             return;
         }
 
+        var error;
         array.forEach( chunks, function( c ) {
                 var fetchMin = c.minv.block;
                 var fetchMax = c.maxv.block + (1<<16); // *sigh*
 
                 thisB.data.read(fetchMin, fetchMax - fetchMin + 1, function(r) {
+                    try {
+                        var data = BAMUtil.unbgzf(r, c.maxv.block - c.minv.block + 1);
 
-                    var data = BAMUtil.unbgzf(r, c.maxv.block - c.minv.block + 1);
-
-                    thisB.readBamFeatures( new Uint8Array(data), c.minv.offset, features, function() {
+                        thisB.readBamFeatures( new Uint8Array(data), c.minv.offset, features, function() {
+                            if( ++chunksProcessed == chunks.length )
+                                callback( features, error );
+                        });
+                    } catch( e ) {
+                        error = e;
                         if( ++chunksProcessed == chunks.length )
-                            callback( features );
-                    });
+                                callback( null, error );
+                    }
                 });
         });
     },

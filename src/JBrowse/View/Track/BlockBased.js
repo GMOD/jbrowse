@@ -4,6 +4,7 @@ define( [
             'dojo/aspect',
             'dojo/dom-geometry',
             'JBrowse/View/InfoDialog',
+            'dijit/Dialog',
             'dijit/Menu',
             'dijit/PopupMenuItem',
             'dijit/MenuItem',
@@ -15,6 +16,7 @@ define( [
                   lang,
                   aspect,
                   domGeom,
+                  InfoDialog,
                   Dialog,
                   dijitMenu,
                   dijitPopupMenuItem,
@@ -23,6 +25,7 @@ define( [
                   dijitMenuSeparator,
                   Util
                 ) {
+
 return declare( null,
 /**
  * @lends JBrowse.View.Track.BlockBased.prototype
@@ -74,13 +77,17 @@ return declare( null,
     },
 
     loadFail: function(error) {
-        if( error.status != 404 )
-            console.error(''+error);
-        this.empty = true;
+        console.error(''+error);
+        if( error.status == 404 ) {
+            this.empty = true;
+        } else  {
+            this.error = error;
+        }
         this.setLoaded();
     },
 
     heightUpdate: function(height, blockIndex) {
+
         if (!this.shown) {
             this.heightUpdateCallback(0);
             return;
@@ -90,6 +97,7 @@ return declare( null,
             this.blockHeights[blockIndex] = height;
 
         this.height = Math.max( this.height, height );
+
         if ( ! this.inShowRange ) {
             this.heightUpdateCallback( Math.max( this.labelHeight, this.height ) );
         }
@@ -141,6 +149,7 @@ return declare( null,
         var closeButton = dojo.create('div',{
             className: 'track-close-button',
             onclick: dojo.hitch(this,function(evt){
+                this.browser.view.suppressDoubleClick( 100 );
                 this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.config]);
                 evt.stopPropagation();
             })
@@ -328,13 +337,22 @@ return declare( null,
             'div', {
                 className: 'loading',
                 innerHTML: '<div class="text">Loading</span>',
-                style: {
-                    display: 'none'
-                },
-                title: 'Loading data...'
+                title: 'Loading data...',
+                style: { visibility: 'hidden' }
             }, block );
-        window.setTimeout( function() { msgDiv.style.display = 'block';}, 200 );
+        window.setTimeout(function() { msgDiv.style.visibility = 'visible'; }, 200);
         this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+    },
+
+    fillError: function( blockIndex, block ) {
+        var msgDiv = dojo.create(
+            'div', {
+                className: 'error',
+                innerHTML: '<h2>Error</h2><div class="text">This track could not be displayed, possibly because your browser does not support the necessary technology.</div>'
+                    +(this.error ? '<div class="codecaption">Diagnostic message</div><code>'+this.error+'</code>' : '' ),
+                title: 'An error occurred'
+            }, block );
+            this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
     },
 
     _showBlock: function(blockIndex, startBase, endBase, scale,
@@ -368,7 +386,7 @@ return declare( null,
                     containerStart,
                     containerEnd];
 
-        this[ this.loaded ? 'fillBlock' : 'fillLoading' ].apply( this, args );
+        this[ this.error ? 'fillError' : this.loaded ? 'fillBlock' : 'fillLoading' ].apply( this, args );
     },
 
     moveBlocks: function(delta) {
@@ -496,9 +514,7 @@ return declare( null,
 
         for ( key in menuStructure ) {
             var spec = menuStructure [ key ];
-            var class_;
             try {
-                eval( 'class_='+( spec.type || 'dijitMenuItem' )+ ';' );
                 if ( spec.children ) {
                     var child = new dijitMenu();
                     parent.addChild( child );
@@ -519,6 +535,14 @@ return declare( null,
                     // would frustrate users.
                     if( menuConf.label && !menuConf.onClick )
                         menuConf.disabled = true;
+
+                    // currently can only use preloaded types
+                    var class_ = {
+                        'dijit/MenuItem':        dijitMenuItem,
+                        'dijit/CheckedMenuItem': dijitCheckedMenuItem,
+                        'dijit/MenuSeparator':   dijitMenuSeparator
+                    }[spec.type] || dijitMenuItem;
+
                     parent.addChild( new class_( menuConf ) );
                 }
             } catch(e) {
@@ -563,16 +587,18 @@ return declare( null,
                     iframedialog:   'iframeDialog',
                     iframe:         'iframeDialog',
                     contentdialog:  'contentDialog',
-                    content:        'content',
+                    content:        'contentDialog',
+                    baredialog:     'bareDialog',
+                    bare:           'bareDialog',
                     xhrdialog:      'xhrDialog',
-                    xhr:            'xhr',
+                    xhr:            'xhrDialog',
                     newwindow:      'newWindow',
                     "_blank":       'newWindow'
                 }[(''+spec.action).toLowerCase()];
 
                 if( spec.action == 'newWindow' )
                     window.open( url, '_blank' );
-                else if( spec.action in { iframeDialog:1, contentDialog:1, xhrDialog:1} )
+                else if( spec.action in { iframeDialog:1, contentDialog:1, xhrDialog:1, bareDialog: 1} )
                     track._openDialog( spec, evt, ctx );
             }
             else if( typeof spec.action == 'function' ) {
@@ -701,12 +727,18 @@ return declare( null,
             if( type == 'xhr' )
                 dialogOpts.href = spec.url;
 
-            dialog = new Dialog( dialogOpts );
+            dialog = new InfoDialog( dialogOpts );
             context.dialog = dialog;
 
             if( type == 'content' )
                 dialog.set( 'content', this._evalConf( context, spec.content, null ) );
 
+            delete context.dialog;
+        }
+        else if( type == 'bare' ) {
+            dialog = new Dialog( dialogOpts );
+            context.dialog = dialog;
+            dialog.set( 'content', this._evalConf( context, spec.content, null ) );
             delete context.dialog;
         }
         // open the link in a dialog with an iframe

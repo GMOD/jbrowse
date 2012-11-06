@@ -65,7 +65,13 @@ var BAMStore = declare( SeqFeatureStore,
     load: function() {
         this.bam.init({
             success: dojo.hitch( this, '_estimateGlobalStats',
-                                 dojo.hitch( this, 'loadSuccess' )),
+                                 dojo.hitch( this, function(error) {
+                                     if( error )
+                                         this.loadFail( error );
+                                     else
+                                         this.loadSuccess();
+
+                                 })),
             failure: dojo.hitch( this, 'loadFail' )
         });
     },
@@ -78,8 +84,9 @@ var BAMStore = declare( SeqFeatureStore,
     _estimateGlobalStats: function( finishCallback ) {
 
         var statsFromInterval = function( refSeq, length, callback ) {
-            var start = refSeq.start;
-            var end = start+length;
+            var sampleCenter = refSeq.start*0.75 + refSeq.end*0.25;
+            var start = Math.round( sampleCenter - length/2 );
+            var end = Math.round( sampleCenter + length/2 );
             this.bam.fetch( refSeq.name, start, end, dojo.hitch( this, function( features, error) {
                 if ( error ) {
                     console.error( error );
@@ -91,18 +98,23 @@ var BAMStore = declare( SeqFeatureStore,
                                    {
                                        featureDensity: features.length / length,
                                        _statsSampleFeatures: features.length,
-                                       _statsSampleInterval: length
+                                       _statsSampleInterval: { ref: refSeq.name, start: start, end: end, length: length }
                                    });
                 }
             }));
         };
 
         var maybeRecordStats = function( interval, stats, error ) {
-            if( stats._statsSampleFeatures >= 300 || interval * 2 > this.refSeq.length || error ) {
-                this.globalStats = stats;
-                finishCallback();
+            if( error ) {
+                finishCallback( error );
             } else {
-                statsFromInterval.call( this, this.refSeq, interval * 2, maybeRecordStats );
+                 if( stats._statsSampleFeatures >= 300 || interval * 2 > this.refSeq.length || error ) {
+                     this.globalStats = stats;
+                     console.log( 'BAM statistics', stats );
+                     finishCallback();
+                 } else {
+                     statsFromInterval.call( this, this.refSeq, interval * 2, maybeRecordStats );
+                 }
             }
         };
 
@@ -134,19 +146,34 @@ var BAMStore = declare( SeqFeatureStore,
             return;
         }
 
+        var maxFeaturesWithoutYielding = 300;
         this.bam.fetch( this.refSeq.name, start, end, function( features, error) {
-                if( features ) {
-                    array.forEach( features, function( feature ) {
-                        // skip if this alignment is unmapped, or if it does not actually overlap this range
-                        if ( feature.get('unmapped') || feature.get('end') <= start || feature.get('start') >= end )
-                            return;
-                        featCallback( feature );
-                    });
-                }
                 if ( error ) {
-                    console.error( error );
+                    console.error( 'error fetching BAM data: ' + error );
+                    return;
                 }
-                endCallback();
+                if( features ) {
+                    var i = 0;
+                    var readFeatures = function() {
+                        for( ; i < features.length; i++ ) {
+                            var feature = features[i];
+                            // skip if this alignment is unmapped, or if it does not actually overlap this range
+                            if (! (feature.get('unmapped') || feature.get('end') <= start || feature.get('start') >= end) )
+                                featCallback( feature );
+
+                            if( i && !( i % maxFeaturesWithoutYielding ) ) {
+                                window.setTimeout( readFeatures, 1 );
+                                i++;
+                                break;
+                            }
+                        }
+                        if( i >= features.length )
+                            endCallback();
+                    };
+
+                    readFeatures();
+
+                }
             });
     }
 

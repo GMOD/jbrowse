@@ -113,11 +113,32 @@ return {
                                                            readonly: true
                                                        });
                                 text.value = output;
+                                var actionBar = dojo.create( 'div', {
+                                    className: 'dijitDialogPaneActionBar'
+                                });
                                 var exportView = new dijitDialog({
                                     className: 'export-view-dialog',
                                     title: format + ' export - <span class="locString">'+ region+'</span> ('+Util.humanReadableNumber(output.length)+'b)',
-                                    content: text
+                                    content: [ text, actionBar ]
                                 });
+                                new dijitButton({ iconClass: 'dijitIconDelete',
+                                                  label: 'Close', onClick: dojo.hitch( exportView, 'hide' )
+                                                })
+                                     .placeAt(actionBar);
+
+                                // data URL download doesn't work on IE < 10
+                                if( ! (has('ie') < 10) ) {
+                                    new dijitButton(
+                                        {
+                                            iconClass: 'dijitIconSave',
+                                            label: 'Save',
+                                            onClick: dojo.hitch(this, function() {
+                                                exportView.hide();
+                                                window.location.href="data:application/x-"+format.toLowerCase()+","+escape(output);
+                                            })
+                                        }).placeAt(actionBar);
+                                }
+
                                 aspect.after( exportView, 'hide', function() {
                                     text.parentNode.removeChild( text ); // manually unhook and free the (possibly huge) text area
                                     text = null;
@@ -132,7 +153,7 @@ return {
         // than 10, cause it won't work.
         if( ! (has('ie') < 10) ) {
             var dlButton = new dijitButton({ iconClass: 'dijitIconSave',
-                              label: 'Download',
+                              label: 'Save',
                               disabled: ! array.some(possibleRegions,function(r) { return r.canExport; }),
                               onClick: dojo.hitch( this.track, function() {
                                 var format = this._readRadio( form.elements.format );
@@ -192,7 +213,7 @@ return {
             opts.push({ label: 'Save track data',
                         iconClass: 'dijitIconSave',
                         disabled: ! this._canExport(),
-                        action: 'contentDialog',
+                        action: 'bareDialog',
                         content: this._exportDialogContent,
                         dialog: { id: 'exportDialog', className: 'export-dialog' }
                       });
