@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * `Wiggle/XYPlot` tracks now by default draw a horizontal line at the
+   origin, and support a `style.origin_color` configuration variable
+   to set its color or turn it off.
+
 1.7.0     2012-11-05 19:22:17 America/New_York
 
  * Added a new direct-access storage driver for BAM files, removing
