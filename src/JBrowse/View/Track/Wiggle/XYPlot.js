@@ -99,7 +99,7 @@ var XYPlot = declare( WiggleBase,
                 if( fRect.t <= originY ) {
                     // bar goes upward
                     context.fillStyle = posColor;
-                    context.fillRect( fRect.l, fRect.t, fRect.w, originY-fRect.t);
+                    context.fillRect( fRect.l, fRect.t, fRect.w, originY-fRect.t+1);
                     if( !disableClipMarkers && fRect.t < 0 ) { // draw clip marker if necessary
                         context.fillStyle = clipColor || negColor;
                         context.fillRect( fRect.l, 0, fRect.w, 2 );
@@ -108,7 +108,7 @@ var XYPlot = declare( WiggleBase,
                 else {
                     // bar goes downward
                     context.fillStyle = negColor;
-                    context.fillRect( fRect.l, originY, fRect.w, canvasHeight-fRect.t );
+                    context.fillRect( fRect.l, originY, fRect.w, fRect.t-originY+1 );
                     if( !disableClipMarkers && fRect.t >= canvasHeight ) { // draw clip marker if necessary
                         context.fillStyle = clipColor || posColor;
                         context.fillRect( fRect.l, canvasHeight-3, fRect.w, 2 );
