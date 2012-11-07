@@ -10,6 +10,7 @@ var CIGAR_DECODER  = ['M', 'I', 'D', 'N', 'S', 'H', 'P', '=', 'X', '?', '?', '?'
 
 var readInt   = BAMUtil.readInt;
 var readShort = BAMUtil.readShort;
+var readFloat = BAMUtil.readFloat;
 
 var Feature = Util.fastDeclare(
 
@@ -63,7 +64,7 @@ var Feature = Util.fastDeclare(
         this._uniqueID = args.parent ? args.parent._uniqueID + '-' + ++args.parent._subCounter
                                      : this.data.name+' at '+ data.seq_id + ':' + data.start + '..' + data.end;
 
-        var cigar = data.CIGAR || data.cigar;
+        // var cigar = data.CIGAR || data.cigar;
         // this.data.subfeatures = [];
         // if( cigar ) {
         //     this.data.Gap = this._cigarToGap( cigar );
@@ -168,37 +169,43 @@ var Feature = Util.fastDeclare(
 
         while (p <= blockEnd) {
             var tag = String.fromCharCode(byteArray[p]) + String.fromCharCode(byteArray[p + 1]);
-            var type = String.fromCharCode(byteArray[p + 2]);
-            var value;
+            var origType = String.fromCharCode(byteArray[p + 2]);
+            var type = origType.toLowerCase();
+            p += 3;
 
-            if (type == 'A') {
-                value = String.fromCharCode(byteArray[p + 3]);
+            var value;
+            if (type == 'a') {
+                value = String.fromCharCode( byteArray[p] );
+                p += 1;
+            } else if (type == 'i' ) {
+                value = readInt(byteArray, p );
                 p += 4;
-            } else if (type == 'i' || type == 'I') {
-                value = readInt(byteArray, p + 3);
-                p += 7;
-            } else if (type == 'c' || type == 'C') {
-                value = byteArray[p + 3];
-                p += 4;
-            } else if (type == 's' || type == 'S') {
-                value = readShort(byteArray, p + 3);
-                p += 5;
+            } else if (type == 'c' ) {
+                value = byteArray[p];
+                p += 1;
+            } else if (type == 's' ) {
+                value = readShort(byteArray, p);
+                p += 2;
             } else if (type == 'f') {
-                //throw 'FIXME need floats';
-                value = undefined;
-            } else if (type == 'Z') {
-                p += 3;
+                value = readFloat( byteArray, p );
+                p += 4;
+            } else if ( type == 'z' || type == 'h' ) {
                 value = '';
-                for (;;) {
+                while( true ) {
                     var cc = byteArray[p++];
-                    if (cc == 0) {
+                    if( cc == 0 ) {
                         break;
                     } else {
                         value += String.fromCharCode(cc);
                     }
                 }
             } else {
-                value = undefined; //throw 'Unknown type '+ type;
+                console.warn( "Unknown BAM tag type "+origType
+                              +', tags for '+(readName||'(unnamed read)')
+                              +' may be incomplete'
+                            );
+                value = undefined;
+                p = blockEnd+1; // stop parsing tags
             }
             record[tag] = value;
         }

@@ -32,6 +32,15 @@ var Utils = {
         return (ba[offset + 1] << 8) | (ba[offset]);
     },
 
+    readFloat: function(ba, offset) {
+        var temp = new Uint8Array( 4 );
+        for( var i = 0; i<4; i++ ) {
+            temp[i] = ba[offset+i];
+        }
+        var fa = new Float32Array( temp.buffer );
+        return fa[0];
+    },
+
     readVirtualOffset: function(ba, offset) {
         //console.log( 'readVob', offset );
         var block = (ba[offset+6] & 0xff) * 0x100000000
