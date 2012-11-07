@@ -72,7 +72,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
     def export( self ):
         self.do_typed_query('ctgA')
 
-        self.turn_on_track( 'BigWig XY' )
+        self.turn_on_track( 'BigWig XY - volvox_microarray' )
         trackname = 'volvox_microarray.bw_xyplot'
         self.export_track( trackname, 'Visible region','GFF3','View')
         time.sleep(0.4);
@@ -94,14 +94,14 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_no_js_errors();
 
     def bigwig( self ):
-        self.turn_on_track('BigWig XY')
+        self.turn_on_track('BigWig XY - volvox_microarray')
         self.assert_elements("//div[@id='track_volvox_microarray.bw_xyplot']//canvas")
         self.assert_no_js_errors()
-        self.turn_on_track('BigWig Density')
+        self.turn_on_track('BigWig Density - volvox_microarray')
         self.assert_elements("//div[@id='track_volvox_microarray.bw_density']//canvas")
         self.assert_no_js_errors()
-        self.turn_off_track('BigWig XY')
-        self.turn_off_track('BigWig Density')
+        self.turn_off_track('BigWig XY - volvox_microarray')
+        self.turn_off_track('BigWig Density - volvox_microarray')
 
     def sequence( self ):
         self.do_typed_query( '0..80' );

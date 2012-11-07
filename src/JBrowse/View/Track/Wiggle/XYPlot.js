@@ -3,9 +3,10 @@ define( [
             'dojo/_base/array',
             'dojo/on',
             'JBrowse/View/Track/WiggleBase',
-            'JBrowse/View/Track/YScaleMixin'
+            'JBrowse/View/Track/YScaleMixin',
+            'JBrowse/Util'
         ],
-        function( declare, array, on, WiggleBase, YScaleMixin ) {
+        function( declare, array, on, WiggleBase, YScaleMixin, Util ) {
 
 
 var XYPlot = declare( WiggleBase,
@@ -17,6 +18,21 @@ var XYPlot = declare( WiggleBase,
  * @extends JBrowse.View.Track.WiggleBase
  */
 {
+
+    _defaultConfig: function() {
+        return Util.deepUpdate(
+            dojo.clone( this.inherited(arguments) ),
+            {
+                style: {
+                    pos_color: 'blue',
+                    neg_color: 'red',
+                    origin_color: '#888'
+                }
+            }
+        );
+    },
+
+
     makeWiggleYScale: function() {
         if( ! this.scale )
             return;
@@ -57,8 +73,8 @@ var XYPlot = declare( WiggleBase,
         });
         var originY = toY( this.scale.origin );
 
-        var posColor  = this.config.style.pos_color || '#00f';
-        var negColor  = this.config.style.neg_color || '#f00';
+        var posColor  = this.config.style.pos_color;
+        var negColor  = this.config.style.neg_color;
         var clipColor = this.config.style.clip_marker_color;
         var bgColor   = this.config.style.bg_color;
         var disableClipMarkers = this.config.disable_clip_markers;
@@ -72,6 +88,7 @@ var XYPlot = declare( WiggleBase,
             fRect.t = toY( score );
             //console.log( score, fRect.t );
 
+            // draw the background color if we are configured to do so
             if( bgColor && fRect.t >= 0 ) {
                 context.fillStyle = bgColor;
                 context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
@@ -82,7 +99,7 @@ var XYPlot = declare( WiggleBase,
                 if( fRect.t <= originY ) {
                     // bar goes upward
                     context.fillStyle = posColor;
-                    context.fillRect( fRect.l, fRect.t, fRect.w, originY-fRect.t);
+                    context.fillRect( fRect.l, fRect.t, fRect.w, originY-fRect.t+1);
                     if( !disableClipMarkers && fRect.t < 0 ) { // draw clip marker if necessary
                         context.fillStyle = clipColor || negColor;
                         context.fillRect( fRect.l, 0, fRect.w, 2 );
@@ -91,7 +108,7 @@ var XYPlot = declare( WiggleBase,
                 else {
                     // bar goes downward
                     context.fillStyle = negColor;
-                    context.fillRect( fRect.l, originY, fRect.w, canvasHeight-fRect.t );
+                    context.fillRect( fRect.l, originY, fRect.w, fRect.t-originY+1 );
                     if( !disableClipMarkers && fRect.t >= canvasHeight ) { // draw clip marker if necessary
                         context.fillStyle = clipColor || posColor;
                         context.fillRect( fRect.l, canvasHeight-3, fRect.w, 2 );
@@ -135,6 +152,15 @@ var XYPlot = declare( WiggleBase,
                 drawVarianceBand( 0, 'rgba(255,255,0,0.7)', 'mean' );
             }
         }
+
+        // draw the origin line if it is not disabled
+        var originColor = this.config.style.origin_color;
+        if( typeof originColor == 'string' && !{'none':1,'off':1,'no':1,'zero':1}[originColor] ) {
+            var originY = toY( this.scale.origin );
+            context.fillStyle = originColor;
+            context.fillRect( 0, originY, canvas.width-1, 1 );
+        }
+
     }
 
 });

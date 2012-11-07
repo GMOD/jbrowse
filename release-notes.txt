@@ -1,5 +1,19 @@
 {{$NEXT}}
 
+1.7.1     2012-11-07 11:25:39 America/New_York
+
+ * Fixed bug in which bars below the origin of `Wiggle/XYPlot` were
+   drawn incorrectly (issue #161).  Thanks to GitHub user @makela for
+   pointing this out.
+
+ * `Wiggle/XYPlot` tracks now by default draw a horizontal line at the
+   origin, and support a `style.origin_color` configuration variable
+   to set its color or turn it off.
+
+ * Fixed bug in BAM backend that caused an infinite loop and/or
+   browser crash with some BAM files.  Thanks to Gleb Kuznetzov for
+   pointing this out.
+
 1.7.0     2012-11-05 19:22:17 America/New_York
 
  * Added a new direct-access storage driver for BAM files, removing
