@@ -200,8 +200,8 @@ var Feature = Util.fastDeclare(
                     }
                 }
             } else {
-                console.warn( "Unknown BAM tag type "+origType
-                              +', tags for '+(readName||'(unnamed read)')
+                console.warn( "Unknown BAM tag type '"+origType
+                              +'\', tags for '+(readName||'(unnamed read)')
                               +' may be incomplete'
                             );
                 value = undefined;

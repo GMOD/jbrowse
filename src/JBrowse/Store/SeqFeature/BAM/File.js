@@ -44,10 +44,16 @@ function reg2bins(beg, end)
     return list;
 }
 
-var Chunk = function(minv,maxv) {
+var Chunk = Util.fastDeclare({
+    constructor: function(minv,maxv,bin) {
         this.minv = minv;
         this.maxv = maxv;
-};
+        this.bin = bin;
+    },
+    toString: function() {
+        return this.minv+'..'+this.maxv+' (bin '+this.bin+')';
+    }
+});
 
 var readInt   = BAMUtil.readInt;
 var readVirtualOffset = BAMUtil.readVirtualOffset;
@@ -207,7 +213,7 @@ var BamFile = declare( null,
                 for (var c = 0; c < nchnk; ++c) {
                     var cs = readVirtualOffset(index, p);
                     var ce = readVirtualOffset(index, p + 8);
-                    (bin < 4681 ? otherChunks : leafChunks).push(new Chunk(cs, ce));
+                    (bin < 4681 ? otherChunks : leafChunks).push(new Chunk(cs, ce, bin));
                     p += 16;
                 }
             } else {
@@ -265,7 +271,7 @@ var BamFile = declare( null,
             for (var i = 1; i < intChunks.length; ++i) {
                 var nc = intChunks[i];
                 if (nc.minv.block == cur.maxv.block /* && nc.minv.offset == cur.maxv.offset */) { // no point splitting mid-block
-                    cur = new Chunk(cur.minv, nc.maxv);
+                    cur = new Chunk(cur.minv, nc.maxv, 'linear');
                 } else {
                     mergedChunks.push(cur);
                     cur = nc;
@@ -292,11 +298,7 @@ var BamFile = declare( null,
 
         // toString function is used by the cache for making cache keys
         chunks.toString = function() {
-            var str = '';
-            array.forEach( this, function(c) {
-                str += c.minv+'..'+c.maxv+',';
-            });
-            return str;
+            return this.join(', ');
         };
 
         this.featureCache = this.featureCache || new LRUCache({
