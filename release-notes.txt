@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.7.1     2012-11-07 11:25:39 America/New_York
+
  * Fixed bug in which bars below the origin of `Wiggle/XYPlot` were
    drawn incorrectly (issue #161).  Thanks to GitHub user @makela for
    pointing this out.
