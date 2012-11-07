@@ -376,13 +376,17 @@ var BamFile = declare( null,
                 var blockSize = readInt(ba, blockStart);
                 var blockEnd = blockStart + blockSize;
 
-                var feature = new BAMFeature({
+                // only try to read the feature if we have all the bytes for it
+                if( blockEnd < ba.length ) {
+                    var feature = new BAMFeature({
                         store: this.store,
                         file: this,
                         bytes: { byteArray: ba, start: blockStart, end: blockEnd }
-                });
-                sink.push(feature);
-                featureCount++;
+                     });
+                    sink.push(feature);
+                    featureCount++;
+                }
+
                 blockStart = blockEnd + 4;
             }
             else {
