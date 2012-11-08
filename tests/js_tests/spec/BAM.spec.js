@@ -105,6 +105,47 @@ describe( 'empty BAM', function() {
                             });
                   });
 });
+
+describe( 'BAM with tests/data/final.merged.sorted.rgid.mkdup.realign.recal.bam', function() {
+              var b = new BAMStore({
+                  bam: new XHRBlob('../data/final.merged.sorted.rgid.mkdup.realign.recal.bam'),
+                  bai: new XHRBlob('../data/final.merged.sorted.rgid.mkdup.realign.recal.bam.bai'),
+                  refSeq: { end: 27682,
+                            length: 27682,
+                            name: "chr21_gl000210_random",
+                            seqChunkSize: 80000,
+                            start: 0
+                          }
+              });
+
+              it( 'constructs', function() {
+                      expect(b).toBeTruthy();
+                  });
+
+              it( 'loads some data', function() {
+                      var loaded;
+                      var features = [];
+                      var done;
+                      aspect.after( b, 'loadSuccess', function() {
+                          loaded = true;
+                      });
+                      b.load();
+                      b.iterate( 16589, 18964,
+                                 function( feature ) {
+                                     features.push( feature );
+                                 },
+                                 function() {
+                                     done = true;
+                                 }
+                               );
+                      waitsFor( function() { return done; }, 2000 );
+                      runs( function() {
+                                expect(features.length).toEqual(124);
+                                console.log( distinctBins(features) );
+                            });
+                  });
+});
+
 });
 
 function distinctBins( features ) {
