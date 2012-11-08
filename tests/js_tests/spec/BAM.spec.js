@@ -71,6 +71,40 @@ describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', functi
                             });
                   });
 });
+
+describe( 'empty BAM', function() {
+              var b = new BAMStore({
+                  bam: new XHRBlob('../data/empty.bam'),
+                  bai: new XHRBlob('../data/empty.bam.bai'),
+                  refSeq: { name: 'Chromosome', start: 1, end: 20000 }
+              });
+
+              it( 'constructs', function() {
+                      expect(b).toBeTruthy();
+                  });
+
+              it( "returns no data, but doesn't crash", function() {
+                      var loaded;
+                      var features = [];
+                      var done;
+                      aspect.after( b, 'loadSuccess', function() {
+                          loaded = true;
+                      });
+                      b.load();
+                      b.iterate( 0, 50000,
+                                 function( feature ) {
+                                     features.push( feature );
+                                 },
+                                 function() {
+                                     done = true;
+                                 }
+                               );
+                      waitsFor( function() { return done; }, 2000 );
+                      runs( function() {
+                                expect(features.length).toEqual( 0 );
+                            });
+                  });
+});
 });
 
 function distinctBins( features ) {

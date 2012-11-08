@@ -108,9 +108,10 @@ var BAMStore = declare( SeqFeatureStore,
             if( error ) {
                 finishCallback( error );
             } else {
-                 if( stats._statsSampleFeatures >= 300 || interval * 2 > this.refSeq.length || error ) {
+                var refLen = this.refSeq.end - this.refSeq.start;
+                 if( stats._statsSampleFeatures >= 300 || interval * 2 > refLen || error ) {
                      this.globalStats = stats;
-                     console.log( 'BAM statistics', stats );
+                     console.log( 'BAM statistics: '+this.source, stats );
                      finishCallback();
                  } else {
                      statsFromInterval.call( this, this.refSeq, interval * 2, maybeRecordStats );
