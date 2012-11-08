@@ -141,7 +141,7 @@ var BAMStore = declare( SeqFeatureStore,
         }
     },
 
-    iterate: function( start, end, featCallback, endCallback ) {
+    iterate: function( start, end, featCallback, endCallback, errorCallback ) {
         if( this._loading ) {
             this._loading.then( lang.hitch( this, 'iterate', start, end, featCallback, endCallback ) );
             return;
@@ -151,6 +151,7 @@ var BAMStore = declare( SeqFeatureStore,
         this.bam.fetch( this.refSeq.name, start, end, function( features, error) {
                 if ( error ) {
                     console.error( 'error fetching BAM data: ' + error );
+                    if( errorCallback ) errorCallback( error );
                     return;
                 }
                 if( features ) {

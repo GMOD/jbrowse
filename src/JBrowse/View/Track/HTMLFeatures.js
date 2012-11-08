@@ -593,7 +593,12 @@ HTMLFeatures = declare( HTMLFeatures,
                                       block.style.backgroundColor = "";
                                       curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                             blockIndex);
-                                  });
+                                  },
+                                  function( error ) {
+                                      curTrack.error = error;
+                                      curTrack.fillError( blockIndex, block );
+                                  }
+                          );
     },
 
     /**
