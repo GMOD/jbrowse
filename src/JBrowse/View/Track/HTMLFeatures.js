@@ -568,7 +568,6 @@ HTMLFeatures = declare( HTMLFeatures,
         this.scale = scale;
 
         block.featureNodes = {};
-        block.style.backgroundColor = "#ddd";
 
         //determine the glyph height, arrowhead width, label text dimensions, etc.
         if (!this.haveMeasurements) {
@@ -590,7 +589,6 @@ HTMLFeatures = declare( HTMLFeatures,
 
         this.store.iterate( leftBase, rightBase, featCallback,
                                   function () {
-                                      block.style.backgroundColor = "";
                                       curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                             blockIndex);
                                   },
