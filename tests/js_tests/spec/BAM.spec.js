@@ -67,7 +67,7 @@ describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', functi
                       waitsFor( function() { return done; }, 2000 );
                       runs( function() {
                                 expect(features.length).toEqual(124);
-                                console.log( distinctBins(features) );
+                                //console.log( distinctBins(features) );
                             });
                   });
 });
@@ -140,18 +140,18 @@ describe( 'BAM with tests/data/final.merged.sorted.rgid.mkdup.realign.recal.bam'
                                );
                       waitsFor( function() { return done; }, 2000 );
                       runs( function() {
-                                expect(features.length).toEqual(124);
-                                console.log( distinctBins(features) );
+                                expect(features.length).toEqual(281);
+                                //console.log( distinctBins(features) );
                             });
                   });
 });
 
 });
 
-function distinctBins( features ) {
-    var bins = {};
-    features.forEach( function(f) {
-        bins[ f.data._bin ] = ( bins[ f.data._bin ] || 0 ) + 1;
-    });
-    return bins;
-}
+// function distinctBins( features ) {
+//     var bins = {};
+//     features.forEach( function(f) {
+//         bins[ f.data._bin ] = ( bins[ f.data._bin ] || 0 ) + 1;
+//     });
+//     return bins;
+// }
