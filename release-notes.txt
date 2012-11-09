@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.7.2     2012-11-09 15:40:06 America/New_York
+
  * Fixed more bugs in BAM backends that failed to load some types of
    BAM files, including BAM files containing no alignments.  Thanks to
    John St. John for his assistance in isolating the problem.
