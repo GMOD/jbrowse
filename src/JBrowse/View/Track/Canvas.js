@@ -19,14 +19,6 @@ return declare( BlockBased,
         }
     },
 
-    /**
-     * Request that the track load its data.  The track will call its own
-     * loadSuccess() function when it is loaded.
-     */
-    load: function() {
-        this.loaded = true;
-    },
-
     fillBlock: function( blockIndex,     block,
                          leftBlock,      rightBlock,
                          leftBase,       rightBase,
@@ -66,11 +58,11 @@ return declare( BlockBased,
     },
 
     endZoom: function(destScale, destBlockBases) {
-        BlockBased.prototype.clear.apply(this);
+        this.clear();
     },
 
     clear: function() {
-        BlockBased.prototype.clear.apply(this);
+        this.inherited( arguments );
     },
 
     transfer: function(sourceBlock, destBlock, scale,

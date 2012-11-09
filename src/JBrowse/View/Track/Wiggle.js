@@ -7,11 +7,10 @@ define( ['dojo/_base/declare',
         ],
         function( declare, on, CanvasTrack, YScaleMixin, ExportMixin, Util ) {
 var Wiggle = declare( CanvasTrack, {
-    constructor: function( args ) {
-        this.store = args.store;
-        dojo.connect( this.store, 'loadSuccess', this, 'loadSuccess' );
-        dojo.connect( this.store, 'loadFail',    this, 'loadFail' );
-    }
+
+     constructor: function() {
+         this.getGlobalStats( dojo.hitch( this, '_calculateScaling' ) );
+     }
 });
 
 /**
@@ -32,19 +31,6 @@ Wiggle.extend({
         return { maxExportSpan: 500000 };
     },
 
-    load: function() {
-        this.store.load();
-    },
-
-    loadSuccess: function(o,url) {
-        this._calculateScaling();
-        this.empty = this.store.empty || false;
-        this.setLoaded();
-    },
-
-    loadFail: function() {
-    },
-
     makeWiggleYScale: function() {
         if( ! this.scale )
             return;
@@ -63,7 +49,11 @@ Wiggle.extend({
         this.scale.range = this.scale.max - this.scale.min;
     },
 
-    _calculateScaling: function() {
+    /**
+     * @param {Object} s the globalStats
+     */
+    _calculateScaling: function( s ) {
+
         // if either autoscale or scale is set to z_score, the other one should default to z_score
         if( this.config.autoscale == 'z_score' && ! this.config.scale
             || this.config.scale == 'z_score'  && !this.config.autoscale
@@ -73,7 +63,6 @@ Wiggle.extend({
           }
 
         var z_score_bound = parseFloat( this.config.z_score_bound ) || 4;
-        var s = this.getGlobalStats() || {};
         var min = 'min_score' in this.config ? parseFloat( this.config.min_score ) :
             (function() {
                  switch( this.config.autoscale ) {
@@ -167,11 +156,15 @@ Wiggle.extend({
     },
 
     readWigData: function( scale, refSeq, leftBase, rightBase, callback ) {
-        this.store.readWigData.apply( this.store, arguments );
+        var features = [];
+        this.store.getFeatures( { ref: refSeq.name, start: leftBase, end: rightBase, scale: scale },
+                                function( f ) { features.push(f); },
+                                function()  { callback( features ); }
+                              );
     },
 
-    getGlobalStats: function() {
-        return this.store.getGlobalStats();
+    getGlobalStats: function( callback ) {
+        this.store.getGlobalStats( callback );
     },
 
     fillBlock: function( blockIndex,     block,
@@ -259,27 +252,28 @@ Wiggle.extend({
 
                         // draw the variance_band if requested
                         if( this.config.variance_band ) {
-                            var stats = this.getGlobalStats();
-                            if( stats && ('scoreMean' in stats) && ('scoreStdDev' in stats) ) {
-                                var drawVarianceBand = function( plusminus, fill, label ) {
-                                    context.fillStyle = fill;
-                                    var varTop = toY( stats.scoreMean + plusminus );
-                                    var varHeight = toY( stats.scoreMean - plusminus ) - varTop;
-                                    varHeight = Math.max( 1, varHeight );
-                                    context.fillRect( 0, varTop, c.width, varHeight );
-                                    context.font = '12px sans-serif';
-                                    if( plusminus > 0 ) {
-                                        context.fillText( '+'+label, 2, varTop );
-                                        context.fillText( '-'+label, 2, varTop+varHeight );
-                                    }
-                                    else {
-                                        context.fillText( label, 2, varTop );
-                                    }
-                                };
-                                drawVarianceBand( 2*stats.scoreStdDev, 'rgba(0,0,0,0.12)', '2σ' );
-                                drawVarianceBand( stats.scoreStdDev, 'rgba(0,0,0,0.25)', '1σ' );
-                                drawVarianceBand( 0, 'rgba(255,255,0,0.7)', 'mean' );
-                            }
+                            this.getGlobalStats( function( stats ) {
+                                if( stats && ('scoreMean' in stats) && ('scoreStdDev' in stats) ) {
+                                    var drawVarianceBand = function( plusminus, fill, label ) {
+                                        context.fillStyle = fill;
+                                        var varTop = toY( stats.scoreMean + plusminus );
+                                        var varHeight = toY( stats.scoreMean - plusminus ) - varTop;
+                                        varHeight = Math.max( 1, varHeight );
+                                        context.fillRect( 0, varTop, c.width, varHeight );
+                                        context.font = '12px sans-serif';
+                                        if( plusminus > 0 ) {
+                                            context.fillText( '+'+label, 2, varTop );
+                                            context.fillText( '-'+label, 2, varTop+varHeight );
+                                        }
+                                        else {
+                                            context.fillText( label, 2, varTop );
+                                        }
+                                    };
+                                    drawVarianceBand( 2*stats.scoreStdDev, 'rgba(0,0,0,0.12)', '2σ' );
+                                    drawVarianceBand( stats.scoreStdDev, 'rgba(0,0,0,0.25)', '1σ' );
+                                    drawVarianceBand( 0, 'rgba(255,255,0,0.7)', 'mean' );
+                                }
+                            });
                         }
 
                         var scoreDisplay = dojo.create(

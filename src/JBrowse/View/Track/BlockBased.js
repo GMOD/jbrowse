@@ -60,26 +60,6 @@ return declare( null,
         return {};
     },
 
-    load: function(url) {
-        dojo.xhrGet({ url: url,
-                      handleAs: "json",
-                      failOk: true,
-                      load:  dojo.hitch( this, function(o) { this.loadSuccess(o, url); }),
-                      error: dojo.hitch( this, function(o) { this.loadFail(o, url);    })
-	            });
-    },
-
-    loadSuccess: function(error) {
-        this.setLoaded();
-    },
-
-    loadFail: function(error) {
-        if( error.status != 404 )
-            console.error(''+error);
-        this.empty = true;
-        this.setLoaded();
-    },
-
     heightUpdate: function(height, blockIndex) {
         if (!this.shown) {
             this.heightUpdateCallback(0);
@@ -312,11 +292,6 @@ return declare( null,
         //this.div.style.backgroundColor = "#eee";
     },
 
-    setLoaded: function() {
-        this.loaded = true;
-        this.changed();
-    },
-
     changed: function() {
         this.hideAll();
         if( this._changedCallback )
@@ -368,7 +343,7 @@ return declare( null,
                     containerStart,
                     containerEnd];
 
-        this[ this.loaded ? 'fillBlock' : 'fillLoading' ].apply( this, args );
+        this.fillBlock.apply( this, args );
     },
 
     moveBlocks: function(delta) {

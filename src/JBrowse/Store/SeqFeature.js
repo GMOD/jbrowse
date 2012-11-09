@@ -16,9 +16,22 @@ define( [
 
 return declare( Store,
 {
-    constructor: function(args) {
-        if( !args ) return;
-        this.changed = args.changeCallback || function() {};
+
+    constructor: function( args ) {
+        this.globalStats = {};
+    },
+
+    getGlobalStats: function( callback, errorCallback ) {
+        callback( this.globalStats || {} );
+    },
+
+    getRegionStats: function( query, successCallback, errorCallback ) {
+        successCallback( this.globalStats || {} );
+    },
+
+    getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
+        endCallback();
     }
+
 });
 });

@@ -57,11 +57,6 @@ var HTMLFeatures = declare( BlockBased, {
                                // feature elements, indexed by the
                                // complete className of the feature
 
-        // connect the store and track loadSuccess and loadFailed events
-        // to eachother
-        dojo.connect( this.store, 'loadSuccess', this, 'loadSuccess' );
-        dojo.connect( this.store, 'loadFail',    this, 'loadFail' );
-
         // make a default click event handler
         if( ! (this.config.events||{}).click ) {
             this.config.events = this.config.events || {};
@@ -91,10 +86,12 @@ var HTMLFeatures = declare( BlockBased, {
         this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
     }
 } );
+
 /**
  * Mixin: JBrowse.View.Track.YScaleMixin.
  */
 HTMLFeatures.extend( YScaleMixin );
+
 /**
  * Mixin: JBrowse.View.Track.ExportMixin.
  */
@@ -144,17 +141,18 @@ HTMLFeatures = declare( HTMLFeatures,
      * loadSuccess() function when it is loaded.
      */
     load: function() {
-        this.store.load();
+        var thisB = this;
+        this.store.getGlobalStats( function( stats ) {
+            // recall that scale is pixels per basepair
+            var density = stats.featureDensity;
+            thisB.labelScale = density * thisB.config.style.labelScale;
+            thisB.showLabels = thisB.config.style.showLabels;
+            thisB.descriptionScale = density * thisB.config.style.descriptionScale;;
+        });
     },
 
-    loadSuccess: function() {
-
-        // recall that scale is pixels per basepair
-        var density = this.store.getGlobalStats().featureDensity;
-        this.labelScale = density * this.config.style.labelScale;
-        this.showLabels = this.config.style.showLabels;
-        this.descriptionScale = density * this.config.style.descriptionScale;;
-        this.inherited(arguments);
+    _shouldShowLabels: function( scale, stats ) {
+        return this.showLabels && scale >= ((stats||{}).featureDensity || 0 ) * this.config.style.labelScale;
     },
 
     /**
@@ -447,42 +445,47 @@ HTMLFeatures = declare( HTMLFeatures,
 
     fillBlock: function(blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth, containerStart, containerEnd) {
 
-        var stats = this.store.getGlobalStats();
+        var region = { ref: this.refSeq.name, start: leftBase, end: rightBase };
 
-        // only update the label once for each block size
-        var blockBases = Math.abs( leftBase-rightBase );
-        if( this._updatedLabelForBlockSize != blockBases ){
-            if ( this.store.histogram && scale < (stats.featureDensity * this.config.style.histScale)) {
-                this.setLabel(this.key + ' <span class="feature-density">per ' + Util.addCommas( Math.round( blockBases / this.numBins)) + ' bp</span>');
-            } else {
-                this.setLabel(this.key);
-            }
-            this._updatedLabelForBlockSize = blockBases;
-        }
+        this.store.getRegionStats(
+            region,
+            dojo.hitch( this, function( stats ) {
+                // only update the label once for each block size
+                var blockBases = Math.abs( leftBase-rightBase );
+                if( this._updatedLabelForBlockSize != blockBases ){
+                    if ( this.store.histogram && scale < (stats.featureDensity * this.config.style.histScale)) {
+                        this.setLabel(this.key + ' <span class="feature-density">per ' + Util.addCommas( Math.round( blockBases / this.numBins)) + ' bp</span>');
+                    } else {
+                        this.setLabel(this.key);
+                    }
+                    this._updatedLabelForBlockSize = blockBases;
+                }
 
-        //console.log("scale: %d, histScale: %d", scale, this.histScale);
-        if( scale < stats.featureDensity * this.config.style.histScale ) {
-            // if our store offers density histograms, draw them
-            if( this.store.histograms ) {
-                this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
-                              containerStart, containerEnd);
-            }
-            // otherwise, display a zoomed-out-too-far message
-            else {
-                this.fillMessage( blockIndex, block, 'Too many features to show'+(scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')+'.' );
-            }
-        } else {
+                //console.log("scale: %d, histScale: %d", scale, this.histScale);
+                if( scale < stats.featureDensity * this.config.style.histScale ) {
+                    // if our store offers density histograms, draw them
+                    if( this.store.histograms ) {
+                        this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
+                                      containerStart, containerEnd);
+                    }
+                    // otherwise, display a zoomed-out-too-far message
+                    else {
+                        this.fillMessage( blockIndex, block, 'Too many features to show'+(scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')+'.' );
+                    }
+                } else {
 
-            // if we have transitioned to viewing features, delete the
-            // y-scale used for the histograms
-            if( this.yscale ) {
-                this._removeYScale();
-            }
+                    // if we have transitioned to viewing features, delete the
+                    // y-scale used for the histograms
+                    if( this.yscale ) {
+                        this._removeYScale();
+                    }
 
-	    this.fillFeatures(blockIndex, block, leftBlock, rightBlock,
-                              leftBase, rightBase, scale,
-                              containerStart, containerEnd);
-        }
+        	    this.fillFeatures(blockIndex, block, leftBlock, rightBlock,
+                                  leftBase, rightBase, scale,
+                                  containerStart, containerEnd);
+                }
+            })
+        );
     },
 
     /**
@@ -617,12 +620,16 @@ HTMLFeatures = declare( HTMLFeatures,
         // var startBase = goLeft ? rightBase : leftBase;
         // var endBase = goLeft ? leftBase : rightBase;
 
-        this.store.iterate( leftBase, rightBase, featCallback,
-                                  function () {
-                                      block.style.backgroundColor = "";
-                                      curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
-                                                            blockIndex);
-                                  });
+        this.store.getFeatures( { ref: this.refSeq.name,
+                                  start: leftBase,
+                                  end: rightBase
+                                },
+                                featCallback,
+                                function () {
+                                    block.style.backgroundColor = "";
+                                    curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
+                                                          blockIndex);
+                                });
     },
 
     /**
@@ -685,7 +692,7 @@ HTMLFeatures = declare( HTMLFeatures,
         }
     },
 
-    renderFeature: function(feature, uniqueId, block, scale, containerStart, containerEnd, destBlock ) {
+    renderFeature: function( feature, uniqueId, block, scale, containerStart, containerEnd, destBlock ) {
         //featureStart and featureEnd indicate how far left or right
         //the feature extends in bp space, including labels
         //and arrowheads if applicable
@@ -709,7 +716,7 @@ HTMLFeatures = declare( HTMLFeatures,
 
         // add the label div (which includes the description) to the
         // calculated height of the feature if it will be displayed
-        if( this.showLabels && scale >= this.labelScale ) {
+        if( this._shouldShowLabels( scale, regionStats ) ) {
             if (name) {
 	        featureEnd = Math.max(featureEnd, featureStart + (''+name).length * this.labelWidth / scale );
                 levelHeight += this.labelHeight;

@@ -1,15 +1,30 @@
 define( [ 'dojo/_base/declare',
-          'JBrowse/Store',
+          'JBrowse/Store/SeqFeature',
           'JBrowse/Util',
           'JBrowse/Digest/Crc32'
         ],
-        function( declare, Store, Util, Crc32 ) {
+        function( declare, SeqFeatureStore, Util, Crc32 ) {
 
-return declare( null,
+var Feature = Util.fastDeclare({
+    constructor: function(args) {
+        this.start = args.start;
+        this.end = args.end;
+        this.seq = args.seq;
+        this.seq_id = args.seq_id;
+    },
+    get: function( field ) {
+        return this[field];
+    },
+    tags: function() {
+        return ['seq_id','start','end','seq'];
+    }
+});
+
+return declare( SeqFeatureStore,
 
 /**
  * @lends JBrowse.Store.Sequence.StaticChunked
- * @extends JBrowse.Store
+ * @extends JBrowse.Store.SeqFeature
  */
 {
 
@@ -26,13 +41,7 @@ return declare( null,
         this.baseUrl     = args.baseUrl;
     },
 
-    /**
-     * @param {Object} seq object describing the sequence to operate on
-     * @param {Number} start start coord, in interbase
-     * @param {Number} end end coord, in interbase
-     * @param {Function} callback function that takes ( start, end, seq )
-     */
-    getRange: function( seq, start, end, callback) {
+    getFeatures: function( query, callback, endCallback ) {
 
         var seqname    = seq.name;
         var chunkSize  = seq.seqChunkSize;
@@ -43,18 +52,18 @@ return declare( null,
         // callback in another one that will be passed to each chunk to
         // concatenate the different pieces from each chunk and *then*
         // call the main callback
-        if( firstChunk != lastChunk ) {
             callback = (function() {
                             var chunk_seqs = [],
                             chunks_still_needed = lastChunk-firstChunk+1,
                             orig_callback = callback;
                             return function( start, end, seq, chunkNum) {
                                 chunk_seqs[chunkNum] = seq;
-                                if( --chunks_still_needed == 0 )
-                                    orig_callback( start, end, chunk_seqs.join("") );
+                                if( --chunks_still_needed == 0 ) {
+                                    orig_callback( new Feature({seq_id: seq.name, start: start, end: end, seq: chunk_seqs.join("")});
+                                    endCallback();
+                                }
                             };
                         })();
-        }
 
         var callbackInfo = { start: start, end: end, callback: callback };
 
@@ -69,13 +78,14 @@ return declare( null,
             var chunk = chunkCacheForSeq[i];
             if (chunk) {
                 if (chunk.loaded) {
-                    callback( start,
-                              end,
-                              chunk.sequence.substring(
-                                  start - i*chunkSize,
-                                  end - i*chunkSize
-                              ),
-                              i
+                    callback( new Feature({ seq_id: seq.name,
+                                            start: start,
+                                            end: end,
+                                            seq: chunk.sequence.substring(
+                                                start - i*chunkSize,
+                                                end - i*chunkSize
+                                            )
+                                          })
                             );
                 } else {
                     //console.log("added callback for %d .. %d", start, end);

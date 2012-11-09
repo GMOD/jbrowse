@@ -620,6 +620,14 @@ Browser.prototype.addRefseqs = function( refSeqs ) {
     this.refSeq  = this.refSeq || refSeqs[0];
 };
 
+
+Browser.prototype.getRefSeq = function( name, callback ) {
+    if( typeof name != 'string' )
+        name = this.refSeqOrder[0];
+
+    callback( this.allRefs[ name ] );
+};
+
 /**
  * @private
  */

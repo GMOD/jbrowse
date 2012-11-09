@@ -4,14 +4,16 @@ define( [
             'dojo/_base/Deferred',
             'dojo/_base/lang',
             'JBrowse/Util',
-            'JBrowse/Store/SeqFeature',
+            'JBrowse/Store',
+            'JBrowse/Store/DeferredStatsMixin',
+            'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Model/XHRBlob',
             './BAM/Util',
             './BAM/File'
         ],
-        function( declare, array, Deferred, lang, Util, SeqFeatureStore, XHRBlob, BAMUtil, BAMFile ) {
+        function( declare, array, Deferred, lang, Util, Store, DeferredStatsMixin, DeferredFeaturesMixin, XHRBlob, BAMUtil, BAMFile ) {
 
-var BAMStore = declare( SeqFeatureStore,
+var BAMStore = declare( [ Store, DeferredStatsMixin, DeferredFeaturesMixin ],
 
 /**
  * @lends JBrowse.Store.SeqFeature.BAM
@@ -51,24 +53,20 @@ var BAMStore = declare( SeqFeatureStore,
 
         this.source = bamBlob.url ? bamBlob.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] : undefined;
 
-        this._loading = new Deferred();
-        if( args.callback )
-            this._loading.then(
-                function() { args.callback(bwg); },
-                function() { args.callback(null, 'Loading failed!'); }
-            );
-        this._loading.then( dojo.hitch( this, function() {
-                                            this._loading = null;
-                                        }));
-    },
-
-    load: function() {
         this.bam.init({
             success: dojo.hitch( this, '_estimateGlobalStats',
-                                 dojo.hitch( this, 'loadSuccess' )),
-            failure: dojo.hitch( this, 'loadFail' )
+                                 dojo.hitch( this, function() {
+                                                 this._deferred.stats.resolve({success: true });
+                                                 this._deferred.features.resolve({success: true });
+                                             })
+                               ),
+            failure: dojo.hitch( this, function( error ) {
+                                     this._deferred.stats.resolve({success: false, error: error });
+                                     this._deferred.features.resolve({success: false, error: error });
+                     })
         });
     },
+
 
     /**
      * Fetch a region of the current reference sequence and use it to
@@ -114,21 +112,12 @@ var BAMStore = declare( SeqFeatureStore,
         this._loading.resolve({success: true });
     },
 
-    loadFail: function() {
-        this.inherited(arguments);
-        this._loading.resolve({success: false });
-    },
+    // called by getFeatures from the DeferredFeaturesMixin
+    _getFeatures: function( query, featCallback, endCallback ) {
+        var start = query.start;
+        var end   = query.end;
+        var refSeq = query.ref;
 
-    whenReady: function() {
-        var f = lang.hitch.apply(lang, arguments);
-        if( this._loading ) {
-            this._loading.then( f );
-        } else {
-            f();
-        }
-    },
-
-    iterate: function( start, end, featCallback, endCallback ) {
         if( this._loading ) {
             this._loading.then( lang.hitch( this, 'iterate', start, end, featCallback, endCallback ) );
             return;

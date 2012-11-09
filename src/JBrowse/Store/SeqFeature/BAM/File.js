@@ -168,7 +168,7 @@ var BamFile = declare( null,
                     this.chrToIndex['chr' + name] = i;
                 }
 
-                this.indexToChr.push(name);
+                this.indexToChr.push({ name: name, length: lRef });
 
                 p = p + 8 + lName;
             }

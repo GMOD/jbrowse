@@ -102,7 +102,7 @@ var Feature = Util.fastDeclare(
             var nextRefID = readInt(byteArray, blockStart + 24);
             var nextSegment = this.file.indexToChr[nextRefID];
             if( nextSegment )
-                record.next_segment_position = nextSegment+':'+readInt(byteArray, blockStart + 28);
+                record.next_segment_position = nextSegment.name+':'+readInt(byteArray, blockStart + 28);
         }
 
         if( ! record.unmapped ) {
@@ -162,7 +162,11 @@ var Feature = Util.fastDeclare(
             if( mq != 255 ) // value of 255 means MQ is not available
                 record.mapping_quality = mq;
             record.readName = readName;
+
             record.segment = this.file.indexToChr[refID];
+            if( record.segment )
+                record.segment = record.segment.name;
+
             record._refID = refID;
         }
 

@@ -35,20 +35,14 @@ SequenceTrack.extend(
         return ['FASTA'];
     },
 
-    load: function() {
-        window.setTimeout( dojo.hitch( this, 'setLoaded' ), 10 );
-    },
-
     endZoom: function(destScale, destBlockBases) {
         this.clear();
-        BlockBased.prototype.clear.apply(this);
     },
 
     setViewInfo:function(genomeView, heightUpdate, numBlocks,
                          trackDiv,
                          widthPct, widthPx, scale) {
         this.inherited( arguments );
-
         this.show();
     },
 
@@ -64,9 +58,10 @@ SequenceTrack.extend(
 
         // if we are zoomed in far enough to draw bases, then draw them
         if ( scale >= 1 ) {
-            this.store.getRange(
-                this.refSeq, leftBase, rightBase,
-                dojo.hitch( this, '_fillSequenceBlock', block, scale ) );
+            this.store.getFeatures( { ref: this.refSeq.name, start: leftBase, end: rightBase },
+                                    dojo.hitch( this, '_fillSequenceBlock', block, scale ),
+                                    function() {}
+                                  );
             this.heightUpdate( charSize.h*2, blockIndex );
         }
         // otherwise, just draw a sort of line (possibly dotted) that
@@ -81,7 +76,11 @@ SequenceTrack.extend(
         }
     },
 
-    _fillSequenceBlock: function( block, scale, start, end, seq ) {
+    _fillSequenceBlock: function( block, scale, feature ) {
+        var seq = feature.get('seq');
+        var start = feature.get('start');
+        var end = feature.get('end');
+
         // fill with leading blanks if the
         // sequence does not extend all the way
         // across our range

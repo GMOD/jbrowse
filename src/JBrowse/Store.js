@@ -1,7 +1,7 @@
 define( [ 'dojo/_base/declare'],
         function( declare ) {
 
-return declare(null,
+return declare( null,
 
 /**
  * @lends JBrowse.Store.prototype
@@ -12,44 +12,19 @@ return declare(null,
      * @constructs
      */
     constructor: function( args ) {
-        this.globalStats = {};
-        if( ! args )
-            return;
-
         this.refSeq = dojo.clone( args.refSeq );
+        this.changeCallback = args.changeCallback || function() {};
+        this.errorCallback = args.errorCallback || function() {};
+        this.browser = args.browser;
     },
 
-    loadSuccess: function( data, url ) {
+    notifyChanged: function( changeDescription ) {
+        this.changeCallback( changeDescription );
     },
 
-    loadFail: function(error) {
-        this.empty = true;
-        this.setLoaded();
-    },
-
-    load: function(url) {
-        dojo.xhrGet({ url: url || this.url,
-                      handleAs: "json",
-                      failOk: true,
-                      load:  dojo.hitch( this, function(o) { this.loadSuccess(o, url); }),
-                      error: dojo.hitch( this, function(o) { this.loadFail(o, url);    })
-	            });
-    },
-
-    getGlobalStats: function() {
-        return this.globalStats;
-    },
-
-    setLoaded: function() {
-        this.loaded = true;
-        this.hideAll();
-        this.changed();
-    },
-
-    hideAll: function() {
-    },
-
-    changed: function() {
+    notifyError: function( error ) {
+        this.errorCallback( error );
+        this.error = error;
     }
 
 });
