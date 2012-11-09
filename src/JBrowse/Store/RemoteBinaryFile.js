@@ -204,7 +204,7 @@ return declare( null,
                 if( ! request.start )
                     request.start = 0;
                 if( ! request.end )
-                    request.end = response.byteLength;
+                    request.end = request.start + response.byteLength;
             }
             callback( response );
         };
@@ -273,30 +273,27 @@ return declare( null,
             start,
             end,
             dojo.hitch( this,  function( chunks ) {
-                            try {
-                                this._assembleChunks( start, end, args.success, args.failure, chunks );
-                            } catch( e ) {
-                                console.error(''+e);
-                                ( args.failure || function(){} )(e);
-                            }
-                        })
+                 this._assembleChunks(
+                         start,
+                         end,
+                         function() {
+                             try {
+                                 args.success.apply( this, arguments );
+                             } catch( e ) {
+                                 console.error(''+e);
+                                 if( args.failure )
+                                     args.failure( e );
+                             }
+                         },
+                         args.failure,
+                         chunks
+                 );
+            })
         );
     },
 
     _assembleChunks: function( start, end, successCallback, failureCallback, chunks ) {
         this._log( 'golden path', chunks);
-
-        var fetchLength = end ? end - start + 1 // use start end end if we have it
-                              : Math.max.apply( Math, // otherwise calculate from the end offsets of the chunks
-                                                array.map(
-                                                    chunks,
-                                                    function(c) {
-                                                        return c.key.end ||
-                                                            // and possibly calculate the end offset of the chunk from its start + its length
-                                                            (c.key.start + (c.value||{}).byteLength || 0);
-                                                    })
-                                              ) + 1;
-
 
         var returnBuffer;
 
@@ -309,6 +306,26 @@ return declare( null,
         if( chunks.length == 1 && chunks[0].key.start == start && (!end || chunks[0].key.end == end) ) {
             returnBuffer = chunks[0].value;
         } else {
+
+            // calculate the actual range end from the chunks we're
+            // using, can't always trust the `end` we're passed,
+            // because it might actually be beyond the end of the
+            // file.
+            var fetchEnd = Math.max.apply(
+                Math,
+                array.map(
+                    chunks,
+                    function(c) {
+                        return c.key.start + ((c.value||{}).byteLength || 0 ) - 1;
+                    })
+            );
+
+            // if we have an end, we shouldn't go larger than it, though
+            if( end )
+                fetchEnd = Math.min( fetchEnd, end );
+
+            var fetchLength = fetchEnd - start + 1;
+
             // stitch them together into one ArrayBuffer to return
             returnBuffer = new Uint8Array( fetchLength );
             var cursor = 0;
