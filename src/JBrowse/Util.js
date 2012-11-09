@@ -24,13 +24,13 @@ Util = {
      * Fast, simple class-maker, used for classes that need speed more
      * than they need dojo.declare's nice features.
      */
-    fastDeclare: function( members ) {
+    fastDeclare: function( members, className ) {
         var constructor = members.constructor;
-        var newClass = function() {
+        var fastDeclareClass = function() {
             constructor.apply( this, arguments );
         };
-        newClass.prototype = dojo.mixin( newClass.prototype, members );
-        return newClass;
+        dojo.mixin( fastDeclareClass.prototype, members );
+        return fastDeclareClass;
     },
 
     wheel: function(event) {

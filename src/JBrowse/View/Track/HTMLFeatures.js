@@ -110,13 +110,20 @@ HTMLFeatures = declare( HTMLFeatures,
     _defaultConfig: function() {
         return {
             description: true,
+
+            maxFeatureScreenDensity: 0.5,
+            layoutPitchY: 6,
+
             style: {
                 className: "feature2",
-                histScale: 4,
-                labelScale: 30,
+
+                // not configured by users
+                _defaultHistScale: 4,
+                _defaultLabelScale: 30,
+                _defaultDescriptionScale: 170,
+
                 minSubfeatureWidth: 6,
                 maxDescriptionLength: 70,
-                descriptionScale: 170,
                 showLabels: true
             },
             hooks: {
@@ -443,17 +450,23 @@ HTMLFeatures = declare( HTMLFeatures,
                       },this);
     },
 
-    fillBlock: function(blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth, containerStart, containerEnd) {
+    fillBlock: function( blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth, containerStart, containerEnd ) {
 
         var region = { ref: this.refSeq.name, start: leftBase, end: rightBase };
 
         this.store.getRegionStats(
             region,
             dojo.hitch( this, function( stats ) {
+
+                var density          = stats.featureDensity;
+                var labelScale       = this.config.style.labelScale || density * this.config.style._defaultLabelScale;
+                var histScale        = this.config.style.histScale  || density * this.config.style._defaultHistScale;
+                var descriptionScale = this.config.style.descriptionScale || density * this.config.style._defaultDescriptionScale;
+
                 // only update the label once for each block size
                 var blockBases = Math.abs( leftBase-rightBase );
                 if( this._updatedLabelForBlockSize != blockBases ){
-                    if ( this.store.histogram && scale < (stats.featureDensity * this.config.style.histScale)) {
+                    if ( this.store.histogram && scale < histScale ) {
                         this.setLabel(this.key + ' <span class="feature-density">per ' + Util.addCommas( Math.round( blockBases / this.numBins)) + ' bp</span>');
                     } else {
                         this.setLabel(this.key);
@@ -461,31 +474,36 @@ HTMLFeatures = declare( HTMLFeatures,
                     this._updatedLabelForBlockSize = blockBases;
                 }
 
-                //console.log("scale: %d, histScale: %d", scale, this.histScale);
-                if( scale < stats.featureDensity * this.config.style.histScale ) {
-                    // if our store offers density histograms, draw them
-                    if( this.store.histograms ) {
-                        this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
-                                      containerStart, containerEnd);
-                    }
-                    // otherwise, display a zoomed-out-too-far message
-                    else {
-                        this.fillMessage( blockIndex, block, 'Too many features to show'+(scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')+'.' );
-                    }
-                } else {
+                // console.log(this.name+" scale: %d, density: %d, histScale: %d, screenDensity: %d", scale, stats.featureDensity, this.config.style.histScale, stats.featureDensity / scale );
 
+                // if we our store offers density histograms, and we are zoomed out far enough, draw them
+                if( this.store.histograms && scale < histScale ) {
+                        this.fillHist( blockIndex, block, leftBase, rightBase, stripeWidth,
+                                       containerStart, containerEnd);
+                }
+                // if we have no histograms, check the predicted density of
+                // features on the screen, and display a message if it's
+                // bigger than maxFeatureScreenDensity
+                else if( stats.featureDensity / scale > this.config.maxFeatureScreenDensity ) {
+                    this.fillMessage(
+                        blockIndex,
+                        block,
+                        'Too many features to show'
+                            + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
+                            + '.'
+                    );
+                }
+                else {
                     // if we have transitioned to viewing features, delete the
                     // y-scale used for the histograms
                     if( this.yscale ) {
                         this._removeYScale();
                     }
-
-        	    this.fillFeatures(blockIndex, block, leftBlock, rightBlock,
-                                  leftBase, rightBase, scale,
-                                  containerStart, containerEnd);
+                    this.fillFeatures(blockIndex, block, leftBlock, rightBlock,
+                                      leftBase, rightBase, scale,
+                                      containerStart, containerEnd);
                 }
-            })
-        );
+        }));
     },
 
     /**
@@ -600,7 +618,6 @@ HTMLFeatures = declare( HTMLFeatures,
         this.scale = scale;
 
         block.featureNodes = {};
-        block.style.backgroundColor = "#ddd";
 
         //determine the glyph height, arrowhead width, label text dimensions, etc.
         if (!this.haveMeasurements) {
@@ -626,10 +643,14 @@ HTMLFeatures = declare( HTMLFeatures,
                                 },
                                 featCallback,
                                 function () {
-                                    block.style.backgroundColor = "";
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
-                                });
+                                },
+                                function( error ) {
+                                    curTrack.error = error;
+                                    curTrack.fillError( blockIndex, block );
+                                }
+                              );
     },
 
     /**
@@ -705,7 +726,7 @@ HTMLFeatures = declare( HTMLFeatures,
             featureStart = parseInt(featureStart);
 
 
-        var levelHeight = this.glyphHeight + 2;
+        var levelHeight = this.glyphHeight;
 
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
@@ -719,11 +740,11 @@ HTMLFeatures = declare( HTMLFeatures,
         if( this._shouldShowLabels( scale, regionStats ) ) {
             if (name) {
 	        featureEnd = Math.max(featureEnd, featureStart + (''+name).length * this.labelWidth / scale );
-                levelHeight += this.labelHeight;
+                levelHeight += this.labelHeight + 1;
             }
             if( description ) {
                 featureEnd = Math.max( featureEnd, featureStart + (''+description).length * this.labelWidth / scale );
-                levelHeight += this.labelHeight;
+                levelHeight += this.labelHeight + 1;
             }
         }
         featureEnd += Math.max(1, this.padding / scale);
@@ -1011,7 +1032,7 @@ HTMLFeatures = declare( HTMLFeatures,
     _getLayout: function( scale ) {
         // create the layout if we need to, and we can
         if( ( ! this.layout || this.layout.pitchX != 4/scale ) && scale )
-            this.layout = new Layout({pitchX: 4/scale, pitchY: 4});
+            this.layout = new Layout({pitchX: 4/scale, pitchY: this.layoutPitchY || this.config.layoutPitchY });
 
         return this.layout;
     },
@@ -1019,7 +1040,8 @@ HTMLFeatures = declare( HTMLFeatures,
         delete this.layout;
     },
 
-    // when all the blocks are hidden, we also should recalculate our layout 
+    // when all the blocks are hidden, we also should recalculate our
+    // layout
     changed: function() {
         this.inherited(arguments);
         this._clearLayout();
@@ -1036,9 +1058,9 @@ HTMLFeatures = declare( HTMLFeatures,
         o.push.apply(
             o,
             [
-                { type: 'dijitMenuSeparator' },
+                { type: 'dijit/MenuSeparator' },
                 { label: 'Show labels',
-                  type: 'dijitCheckedMenuItem',
+                  type: 'dijit/CheckedMenuItem',
                   checked: !!( 'showLabels' in this ? this.showLabels : this.config.style.showLabels ),
                   onClick: function(event) {
                       track.showLabels = this.checked;

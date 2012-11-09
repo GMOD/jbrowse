@@ -127,7 +127,7 @@ return declare( null,
             fillRecord.callbacks.push( callback );
             if( ! fillRecord.running ) {
                 fillRecord.running = true;
-                this.fill( inKey, dojo.hitch( this, function( keyString, inKey, fillRecord, value ) {
+                this.fill( inKey, dojo.hitch( this, function( keyString, inKey, fillRecord, value, error ) {
                     delete this._inProgressFills[ keyString ];
                     fillRecord.running = false;
 
@@ -136,11 +136,11 @@ return declare( null,
                         this.set( inKey, value );
                     }
                     array.forEach( fillRecord.callbacks, function( cb ) {
-                                       //try {
-                                           cb.call(this, value);
-                                       // } catch(x) {
-                                       //     console.error(x);
-                                       // }
+                                       try {
+                                           cb.call( this, value, error );
+                                       } catch(x) {
+                                           console.error(x);
+                                       }
                                    }, this );
                 }, keyString, inKey, fillRecord ));
             }

@@ -32,6 +32,15 @@ var Utils = {
         return (ba[offset + 1] << 8) | (ba[offset]);
     },
 
+    readFloat: function(ba, offset) {
+        var temp = new Uint8Array( 4 );
+        for( var i = 0; i<4; i++ ) {
+            temp[i] = ba[offset+i];
+        }
+        var fa = new Float32Array( temp.buffer );
+        return fa[0];
+    },
+
     readVirtualOffset: function(ba, offset) {
         //console.log( 'readVob', offset );
         var block = (ba[offset+6] & 0xff) * 0x100000000
@@ -48,37 +57,55 @@ var Utils = {
     },
 
     unbgzf: function(data, lim) {
-        lim = lim || data.byteLength - 12;
-         var oBlockList = [];
-         var totalSize = 0;
+        lim = Math.min( lim || 1, data.byteLength - 27);
+        var oBlockList = [];
+        var totalSize = 0;
 
-         for( var ptr = [0]; ptr[0] < lim; ptr[0] += 8) {
-             var ba = new Uint8Array( data, ptr[0], 12 );
-             var xlen = ba[11] << 8 | ba[10];
-             // dlog('xlen[' + (ptr[0]) +']=' + xlen);
-             var startInflate = ptr[0] + 12 + xlen;
-             var unc = inflate(
-                 data,
-                 startInflate,
-                 data.byteLength - startInflate,
-                 ptr
-             );
-             totalSize += unc.byteLength;
-             oBlockList.push( unc );
-         }
+        for( var ptr = [0]; ptr[0] < lim; ptr[0] += 8) {
 
-         if (oBlockList.length == 1) {
-             return oBlockList[0];
-         } else {
-             var out = new Uint8Array(totalSize);
-             var cursor = 0;
-             for (var i = 0; i < oBlockList.length; ++i) {
-                 var b = new Uint8Array(oBlockList[i]);
-                 arrayCopy(b, 0, out, cursor, b.length);
-                 cursor += b.length;
-             }
-             return out.buffer;
-         }
+            var ba = new Uint8Array( data, ptr[0], 18 );
+
+            // check the bgzf block magic
+            if( !( ba[0] == 31 && ba[1] == 139 ) ) {
+                console.error( 'invalid BGZF block header, skipping', ba );
+                break;
+            }
+
+            var xlen = Utils.readShort( ba, 10 );
+            var compressedDataOffset = ptr[0] + 12 + xlen;
+
+            // var inPtr = ptr[0];
+            // var bSize = Utils.readShort( ba, 16 );
+            // var logLength = Math.min(data.byteLength-ptr[0], 40);
+            // console.log( xlen, bSize, bSize - xlen - 19, new Uint8Array( data, ptr[0], logLength ), logLength );
+
+            var unc = inflate(
+                data,
+                compressedDataOffset,
+                data.byteLength - compressedDataOffset,
+                ptr
+            );
+            if( unc.byteLength ) {
+                totalSize += unc.byteLength;
+                oBlockList.push( unc );
+            }
+            // else {
+            //     console.error( 'BGZF decompression failed for block ', compressedDataOffset, data.byteLength-compressedDataOffset, [inPtr] );
+            // }
+        }
+
+        if (oBlockList.length == 1) {
+            return oBlockList[0];
+        } else {
+            var out = new Uint8Array(totalSize);
+            var cursor = 0;
+            for (var i = 0; i < oBlockList.length; ++i) {
+                var b = new Uint8Array(oBlockList[i]);
+                arrayCopy(b, 0, out, cursor, b.length);
+                cursor += b.length;
+            }
+            return out.buffer;
+        }
     }
 };
 

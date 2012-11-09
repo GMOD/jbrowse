@@ -44,10 +44,16 @@ function reg2bins(beg, end)
     return list;
 }
 
-var Chunk = function(minv,maxv) {
+var Chunk = Util.fastDeclare({
+    constructor: function(minv,maxv,bin) {
         this.minv = minv;
         this.maxv = maxv;
-};
+        this.bin = bin;
+    },
+    toString: function() {
+        return this.minv+'..'+this.maxv+' (bin '+this.bin+')';
+    }
+});
 
 var readInt   = BAMUtil.readInt;
 var readVirtualOffset = BAMUtil.readVirtualOffset;
@@ -89,15 +95,21 @@ var BamFile = declare( null,
         // Do we really need to fetch the whole thing? :-(
         this.bai.fetch( dojo.hitch( this, function(header) {
             if (!header) {
-                dlog("Couldn't access BAI");
-                failCallback();
+                dlog("No data read from BAM index (BAI) file");
+                failCallback("No data read from BAM index (BAI) file");
+                return;
+            }
+
+            if( ! Uint8Array ) {
+                dlog('Browser does not support typed arrays');
+                failCallback('Browser does not support typed arrays');
                 return;
             }
 
             var uncba = new Uint8Array(header);
             if( readInt(uncba, 0) != BAI_MAGIC) {
                 dlog('Not a BAI file');
-                failCallback();
+                failCallback('Not a BAI file');
                 return;
             }
 
@@ -106,7 +118,6 @@ var BamFile = declare( null,
             this.indices = [];
 
             var p = 8;
-            var minVO; // get smallest virtual offset in the indexes, which indicates where the BAM header ends
             for (var ref = 0; ref < nref; ++ref) {
                 var blockStart = p;
                 var nbin = readInt(uncba, p); p += 4;
@@ -116,64 +127,72 @@ var BamFile = declare( null,
                     p += 8 + (nchnk * 16);
                 }
                 var nintv = readInt(uncba, p); p += 4;
-                var firstVO = readVirtualOffset(uncba,p);
-                if( ! this.minAlignmentVO || this.minAlignmentVO.cmp( firstVO ) < 0 )
+                // as we're going through the index, figure out the smallest
+                // virtual offset in the indexes, which tells us where
+                // the BAM header ends
+                var firstVO = nintv ? readVirtualOffset(uncba,p) : null;
+                if( firstVO && ( ! this.minAlignmentVO || this.minAlignmentVO.cmp( firstVO ) < 0 ) )
                     this.minAlignmentVO = firstVO;
+
                 //console.log( ref, ''+firstVO );
-                p += (nintv * 8);
-                if (nbin > 0) {
+                p += nintv * 8;
+                if( nbin > 0 || nintv > 0 ) {
                     this.indices[ref] = new Uint8Array(header, blockStart, p - blockStart);
                 }
             }
 
+            this.empty = ! this.indices.length;
+
             successCallback( this.indices, this.minAlignmentVO );
-        }));
+        }), failCallback );
     },
 
     _readBAMheader: function( successCallback, failCallback ) {
-        this.data.read( 0, this.minAlignmentVO.block, dojo.hitch( this, function(r) {
-//        this.data.read(0, (1<<16)-1, dojo.hitch( this, function(r) {
-            var unc = BAMUtil.unbgzf(r);
-            var uncba = new Uint8Array(unc);
+        this.data.read(
+            0,
+            this.minAlignmentVO ? this.minAlignmentVO.block : null,
+            dojo.hitch( this, function(r) {
+                var unc = BAMUtil.unbgzf(r);
+                var uncba = new Uint8Array(unc);
 
-            if( readInt(uncba, 0) != BAM_MAGIC) {
-                dlog('Not a BAM file');
-                failCallback();
-                return;
-            }
-
-            var headLen = readInt(uncba, 4);
-            // var header = '';
-            // for (var i = 0; i < headLen; ++i) {
-            //     header += String.fromCharCode(uncba[i + 8]);
-            // }
-
-            var nRef = readInt(uncba, headLen + 8);
-            var p = headLen + 12;
-
-            this.chrToIndex = {};
-            this.indexToChr = [];
-            for (var i = 0; i < nRef; ++i) {
-                var lName = readInt(uncba, p);
-                var name = '';
-                for (var j = 0; j < lName-1; ++j) {
-                    name += String.fromCharCode(uncba[p + 4 + j]);
-                }
-                var lRef = readInt(uncba, p + lName + 4);
-                // dlog(name + ': ' + lRef);
-                this.chrToIndex[name] = i;
-                if (name.indexOf('chr') == 0) {
-                    this.chrToIndex[name.substring(3)] = i;
-                } else {
-                    this.chrToIndex['chr' + name] = i;
+                if( readInt(uncba, 0) != BAM_MAGIC) {
+                    dlog('Not a BAM file');
+                    failCallback();
+                    return;
                 }
 
-                this.indexToChr.push({ name: name, length: lRef });
+                var headLen = readInt(uncba, 4);
+                // var header = '';
+                // for (var i = 0; i < headLen; ++i) {
+                //     header += String.fromCharCode(uncba[i + 8]);
+                // }
 
-                p = p + 8 + lName;
-            }
+                var nRef = readInt(uncba, headLen + 8);
+                var p = headLen + 12;
 
-            successCallback();
+                this.chrToIndex = {};
+                this.indexToChr = [];
+                for (var i = 0; i < nRef; ++i) {
+                    var lName = readInt(uncba, p);
+                    var name = '';
+                    for (var j = 0; j < lName-1; ++j) {
+                        name += String.fromCharCode(uncba[p + 4 + j]);
+                    }
+                    var lRef = readInt(uncba, p + lName + 4);
+                    // dlog(name + ': ' + lRef);
+                    this.chrToIndex[name] = i;
+                    if (name.indexOf('chr') == 0) {
+                        this.chrToIndex[name.substring(3)] = i;
+                    } else {
+                        this.chrToIndex['chr' + name] = i;
+                    }
+
+                    this.indexToChr.push({ name: name, length: lRef });
+
+                    p = p + 8 + lName;
+                }
+
+                successCallback();
         }));
     },
 
@@ -201,7 +220,7 @@ var BamFile = declare( null,
                 for (var c = 0; c < nchnk; ++c) {
                     var cs = readVirtualOffset(index, p);
                     var ce = readVirtualOffset(index, p + 8);
-                    (bin < 4681 ? otherChunks : leafChunks).push(new Chunk(cs, ce));
+                    (bin < 4681 ? otherChunks : leafChunks).push(new Chunk(cs, ce, bin));
                     p += 16;
                 }
             } else {
@@ -259,7 +278,7 @@ var BamFile = declare( null,
             for (var i = 1; i < intChunks.length; ++i) {
                 var nc = intChunks[i];
                 if (nc.minv.block == cur.maxv.block /* && nc.minv.offset == cur.maxv.offset */) { // no point splitting mid-block
-                    cur = new Chunk(cur.minv, nc.maxv);
+                    cur = new Chunk(cur.minv, nc.maxv, 'linear');
                 } else {
                     mergedChunks.push(cur);
                     cur = nc;
@@ -273,6 +292,7 @@ var BamFile = declare( null,
     },
 
     fetch: function(chr, min, max, callback) {
+
         var chrId = this.chrToIndex[chr];
         var chunks;
         if (chrId === undefined) {
@@ -286,11 +306,7 @@ var BamFile = declare( null,
 
         // toString function is used by the cache for making cache keys
         chunks.toString = function() {
-            var str = '';
-            array.forEach( this, function(c) {
-                str += c.minv+'..'+c.maxv+',';
-            });
-            return str;
+            return this.join(', ');
         };
 
         this.featureCache = this.featureCache || new LRUCache({
@@ -302,14 +318,21 @@ var BamFile = declare( null,
             maxSize: 100000 // cache up to 100,000 BAM features
         });
 
-        this.featureCache.get( chunks, function( features ) {
-            features = array.filter( features, function( feature ) {
-                return ( !( feature.get('end') < min || feature.get('start') > max )
-                         && ( chrId === undefined || feature._refID == chrId ) );
+        try {
+            this.featureCache.get( chunks, function( features, error ) {
+                if( error ) {
+                    callback( null, error );
+                } else {
+                    features = array.filter( features, function( feature ) {
+                        return ( !( feature.get('end') < min || feature.get('start') > max )
+                                 && ( chrId === undefined || feature._refID == chrId ) );
+                    });
+                    callback( features );
+                }
             });
-            callback( features );
-        });
-
+        } catch( e ) {
+            callback( null, e );
+        }
     },
 
     _fetchChunkFeatures: function( chunks, callback ) {
@@ -322,18 +345,24 @@ var BamFile = declare( null,
             return;
         }
 
+        var error;
         array.forEach( chunks, function( c ) {
                 var fetchMin = c.minv.block;
                 var fetchMax = c.maxv.block + (1<<16); // *sigh*
 
                 thisB.data.read(fetchMin, fetchMax - fetchMin + 1, function(r) {
+                    try {
+                        var data = BAMUtil.unbgzf(r, c.maxv.block - c.minv.block + 1);
 
-                    var data = BAMUtil.unbgzf(r, c.maxv.block - c.minv.block + 1);
-
-                    thisB.readBamFeatures( new Uint8Array(data), c.minv.offset, features, function() {
+                        thisB.readBamFeatures( new Uint8Array(data), c.minv.offset, features, function() {
+                            if( ++chunksProcessed == chunks.length )
+                                callback( features, error );
+                        });
+                    } catch( e ) {
+                        error = e;
                         if( ++chunksProcessed == chunks.length )
-                            callback( features );
-                    });
+                                callback( null, error );
+                    }
                 });
         });
     },
@@ -355,13 +384,17 @@ var BamFile = declare( null,
                 var blockSize = readInt(ba, blockStart);
                 var blockEnd = blockStart + blockSize;
 
-                var feature = new BAMFeature({
+                // only try to read the feature if we have all the bytes for it
+                if( blockEnd < ba.length ) {
+                    var feature = new BAMFeature({
                         store: this.store,
                         file: this,
                         bytes: { byteArray: ba, start: blockStart, end: blockEnd }
-                });
-                sink.push(feature);
-                featureCount++;
+                     });
+                    sink.push(feature);
+                    featureCount++;
+                }
+
                 blockStart = blockEnd + 4;
             }
             else {

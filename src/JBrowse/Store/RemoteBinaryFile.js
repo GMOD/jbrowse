@@ -204,7 +204,7 @@ return declare( null,
                 if( ! request.start )
                     request.start = 0;
                 if( ! request.end )
-                    request.end = response.byteLength;
+                    request.end = request.start + response.byteLength;
             }
             callback( response );
         };
@@ -254,10 +254,11 @@ return declare( null,
     },
 
     /**
-     * @param args.url
-     * @param args.start
-     * @param args.end
-     * @param args.success
+     * @param args.url     {String} url to fetch
+     * @param args.start   {Number|undefined} start byte offset
+     * @param args.end     {Number|undefined} end byte offset
+     * @param args.success {Function} success callback
+     * @param args.failure {Function} failure callback
      */
     get: function( args ) {
         this._log( 'get', args.url, args.start, args.end );
@@ -267,45 +268,81 @@ return declare( null,
         if( start && !end )
             throw "cannot specify a fetch start without a fetch end";
 
-        this._fetchChunks( args.url, start, end, dojo.hitch( this, function( chunks ) {
-            this._log( 'golden path', chunks);
+        this._fetchChunks(
+            args.url,
+            start,
+            end,
+            dojo.hitch( this,  function( chunks ) {
+                 this._assembleChunks(
+                         start,
+                         end,
+                         function() {
+                             try {
+                                 args.success.apply( this, arguments );
+                             } catch( e ) {
+                                 console.error(''+e);
+                                 if( args.failure )
+                                     args.failure( e );
+                             }
+                         },
+                         args.failure,
+                         chunks
+                 );
+            })
+        );
+    },
 
-            var fetchLength = end ? end - start + 1 // use start end end if we have it
-                                  : Math.max.apply( Math, // otherwise calculate from the end offsets of the chunks
-                                                    array.map(
-                                                        chunks,
-                                                        function(c) {
-                                                            return c.key.end ||
-                                                                // and possibly calculate the end offset of the chunk from its start + its length
-                                                                (c.key.start + c.value.byteLength);
-                                                        })
-                                                  ) + 1;
+    _assembleChunks: function( start, end, successCallback, failureCallback, chunks ) {
+        this._log( 'golden path', chunks);
 
+        var returnBuffer;
 
-            var returnBuffer;
+        if( ! Uint8Array ) {
+            failureCallback( 'Browser does not support typed arrays');
+            return;
+        }
 
-            // if we just have one chunk, return either it, or a subarray of it.  don't have to do any array copying
-            if( chunks.length == 1 && chunks[0].key.start == start && (!end || chunks[0].key.end == end) ) {
-                returnBuffer = chunks[0].value;
-            } else {
-                // stitch them together into one ArrayBuffer to return
-                returnBuffer = new Uint8Array( fetchLength );
-                var cursor = 0;
-                array.forEach( chunks, function( chunk ) {
-                    var b = new Uint8Array( chunk.value );
-                    var bOffset = (start+cursor) - chunk.key.start; if( bOffset < 0 ) this._error('chunking error');
-                    var length = Math.min( b.byteLength - bOffset, fetchLength - cursor );
-                    this._log( 'arrayCopy', b, bOffset, returnBuffer, cursor, length );
-                    arrayCopy( b, bOffset, returnBuffer, cursor, length );
-                    this._arrayCopyCount++;
-                    cursor += length;
-                },this);
-                returnBuffer = returnBuffer.buffer;
-            }
+        // if we just have one chunk, return either it, or a subarray of it.  don't have to do any array copying
+        if( chunks.length == 1 && chunks[0].key.start == start && (!end || chunks[0].key.end == end) ) {
+            returnBuffer = chunks[0].value;
+        } else {
 
-            // return the data buffer
-            args.success( returnBuffer );
-        }));
+            // calculate the actual range end from the chunks we're
+            // using, can't always trust the `end` we're passed,
+            // because it might actually be beyond the end of the
+            // file.
+            var fetchEnd = Math.max.apply(
+                Math,
+                array.map(
+                    chunks,
+                    function(c) {
+                        return c.key.start + ((c.value||{}).byteLength || 0 ) - 1;
+                    })
+            );
+
+            // if we have an end, we shouldn't go larger than it, though
+            if( end )
+                fetchEnd = Math.min( fetchEnd, end );
+
+            var fetchLength = fetchEnd - start + 1;
+
+            // stitch them together into one ArrayBuffer to return
+            returnBuffer = new Uint8Array( fetchLength );
+            var cursor = 0;
+            array.forEach( chunks, function( chunk ) {
+                var b = new Uint8Array( chunk.value );
+                var bOffset = (start+cursor) - chunk.key.start; if( bOffset < 0 ) this._error('chunking error');
+                var length = Math.min( b.byteLength - bOffset, fetchLength - cursor );
+                this._log( 'arrayCopy', b, bOffset, returnBuffer, cursor, length );
+                arrayCopy( b, bOffset, returnBuffer, cursor, length );
+                this._arrayCopyCount++;
+                cursor += length;
+            },this);
+            returnBuffer = returnBuffer.buffer;
+        }
+
+        // return the data buffer
+        successCallback( returnBuffer );
     },
 
     _stringToBuffer: function(result) {

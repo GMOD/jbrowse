@@ -14,6 +14,11 @@ require([
             'JBrowse/View/Track/Sequence',
             'JBrowse/View/Track/HTMLFeatures',
             'JBrowse/View/Track/FixedImage/Wiggle',
+            'JBrowse/View/Track/Wiggle',
+            'JBrowse/View/Track/Wiggle/XYPlot',
+            'JBrowse/View/Track/Wiggle/Density',
+            'JBrowse/View/Track/Alignments',
+            'JBrowse/View/Track/FeatureCoverage',
 
             'JBrowse/View/TrackList/Simple',
             'JBrowse/Store/TrackMetaData',
