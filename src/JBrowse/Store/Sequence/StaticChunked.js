@@ -35,7 +35,6 @@ return declare( SeqFeatureStore,
  */
     constructor: function(args) {
         this.chunkCache  = {};
-
         this.compress    = args.compress;
         this.urlTemplate = args.urlTemplate;
         this.baseUrl     = args.baseUrl;
@@ -43,8 +42,10 @@ return declare( SeqFeatureStore,
 
     getFeatures: function( query, callback, endCallback ) {
 
-        var seqname    = seq.name;
-        var chunkSize  = seq.seqChunkSize;
+        var start = query.start;
+        var end   = query.end;
+        var seqname    = query.ref;
+        var chunkSize  = query.seqChunkSize || this.seqChunkSize;
         var firstChunk = Math.floor( Math.max(0,start) / chunkSize );
         var lastChunk  = Math.floor( (end - 1)         / chunkSize );
 
@@ -59,7 +60,7 @@ return declare( SeqFeatureStore,
                             return function( start, end, seq, chunkNum) {
                                 chunk_seqs[chunkNum] = seq;
                                 if( --chunks_still_needed == 0 ) {
-                                    orig_callback( new Feature({seq_id: seq.name, start: start, end: end, seq: chunk_seqs.join("")});
+                                    orig_callback( new Feature({seq_id: query.ref, start: start, end: end, seq: chunk_seqs.join("")}) );
                                     endCallback();
                                 }
                             };
@@ -78,14 +79,13 @@ return declare( SeqFeatureStore,
             var chunk = chunkCacheForSeq[i];
             if (chunk) {
                 if (chunk.loaded) {
-                    callback( new Feature({ seq_id: seq.name,
-                                            start: start,
-                                            end: end,
-                                            seq: chunk.sequence.substring(
-                                                start - i*chunkSize,
-                                                end - i*chunkSize
-                                            )
-                                          })
+                    callback( start,
+                              end,
+                              chunk.sequence.substring(
+                                  start - i*chunkSize,
+                                  end - i*chunkSize
+                              ),
+                              i
                             );
                 } else {
                     //console.log("added callback for %d .. %d", start, end);
@@ -103,9 +103,9 @@ return declare( SeqFeatureStore,
                     Util.fillTemplate(
                         this.urlTemplate,
                         {
-                            'refseq': seq.name,
+                            'refseq': query.ref,
                             'refseq_dirpath': function() {
-                                var hex = Crc32.crc32( seq.name )
+                                var hex = Crc32.crc32( query.ref )
                                                .toString(16)
                                                .toLowerCase()
                                                .replace('-','n');

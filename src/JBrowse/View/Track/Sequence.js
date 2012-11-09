@@ -58,10 +58,16 @@ SequenceTrack.extend(
 
         // if we are zoomed in far enough to draw bases, then draw them
         if ( scale >= 1 ) {
-            this.store.getFeatures( { ref: this.refSeq.name, start: leftBase, end: rightBase },
-                                    dojo.hitch( this, '_fillSequenceBlock', block, scale ),
-                                    function() {}
-                                  );
+            this.store.getFeatures(
+                {
+                    ref: this.refSeq.name,
+                    seqChunkSize: this.refSeq.seqChunkSize,
+                    start: leftBase,
+                    end: rightBase
+                },
+                dojo.hitch( this, '_fillSequenceBlock', block, scale ),
+                function() {}
+            );
             this.heightUpdate( charSize.h*2, blockIndex );
         }
         // otherwise, just draw a sort of line (possibly dotted) that
