@@ -1,8 +1,8 @@
 {{$NEXT}}
 
- * Fixed bug in BAM backend that prevented correct handling of BAM
-   files containing no alignments.  Thanks to John St. John for
-   assistance in isolating the problem.
+ * Fixed more bugs in BAM backends that failed to load some types of
+   BAM files, including BAM files containing no alignments.  Thanks to
+   John St. John for his assistance in isolating the problem.
 
 1.7.1     2012-11-07 11:25:39 America/New_York
 

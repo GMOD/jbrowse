@@ -57,30 +57,41 @@ var Utils = {
     },
 
     unbgzf: function(data, lim) {
-        lim = lim || data.byteLength;
+        lim = Math.min( lim || 1, data.byteLength - 27);
         var oBlockList = [];
         var totalSize = 0;
 
-        for( var ptr = [0]; ptr[0] < lim-13; ptr[0] += 8) {
+        for( var ptr = [0]; ptr[0] < lim; ptr[0] += 8) {
 
-            var ba = new Uint8Array( data, ptr[0], 12 );
+            var ba = new Uint8Array( data, ptr[0], 18 );
 
             // check the bgzf block magic
             if( !( ba[0] == 31 && ba[1] == 139 ) ) {
-                console.error( 'invalid BGZF block', ba );
-                return undefined;
+                console.error( 'invalid BGZF block header, skipping', ba );
+                break;
             }
 
             var xlen = Utils.readShort( ba, 10 );
             var compressedDataOffset = ptr[0] + 12 + xlen;
+
+            // var inPtr = ptr[0];
+            // var bSize = Utils.readShort( ba, 16 );
+            // var logLength = Math.min(data.byteLength-ptr[0], 40);
+            // console.log( xlen, bSize, bSize - xlen - 19, new Uint8Array( data, ptr[0], logLength ), logLength );
+
             var unc = inflate(
                 data,
                 compressedDataOffset,
                 data.byteLength - compressedDataOffset,
                 ptr
             );
-            totalSize += unc.byteLength;
-            oBlockList.push( unc );
+            if( unc.byteLength ) {
+                totalSize += unc.byteLength;
+                oBlockList.push( unc );
+            }
+            // else {
+            //     console.error( 'BGZF decompression failed for block ', compressedDataOffset, data.byteLength-compressedDataOffset, [inPtr] );
+            // }
         }
 
         if (oBlockList.length == 1) {
