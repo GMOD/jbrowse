@@ -108,9 +108,10 @@ var BAMStore = declare( SeqFeatureStore,
             if( error ) {
                 finishCallback( error );
             } else {
-                 if( stats._statsSampleFeatures >= 300 || interval * 2 > this.refSeq.length || error ) {
+                var refLen = this.refSeq.end - this.refSeq.start;
+                 if( stats._statsSampleFeatures >= 300 || interval * 2 > refLen || error ) {
                      this.globalStats = stats;
-                     console.log( 'BAM statistics', stats );
+                     console.log( 'BAM statistics: '+this.source, stats );
                      finishCallback();
                  } else {
                      statsFromInterval.call( this, this.refSeq, interval * 2, maybeRecordStats );
@@ -140,7 +141,7 @@ var BAMStore = declare( SeqFeatureStore,
         }
     },
 
-    iterate: function( start, end, featCallback, endCallback ) {
+    iterate: function( start, end, featCallback, endCallback, errorCallback ) {
         if( this._loading ) {
             this._loading.then( lang.hitch( this, 'iterate', start, end, featCallback, endCallback ) );
             return;
@@ -150,6 +151,7 @@ var BAMStore = declare( SeqFeatureStore,
         this.bam.fetch( this.refSeq.name, start, end, function( features, error) {
                 if ( error ) {
                     console.error( 'error fetching BAM data: ' + error );
+                    if( errorCallback ) errorCallback( error );
                     return;
                 }
                 if( features ) {
