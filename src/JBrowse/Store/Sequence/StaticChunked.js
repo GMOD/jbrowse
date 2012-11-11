@@ -34,10 +34,11 @@ return declare( SeqFeatureStore,
  * @constructs
  */
     constructor: function(args) {
-        this.chunkCache  = {};
-        this.compress    = args.compress;
-        this.urlTemplate = args.urlTemplate;
-        this.baseUrl     = args.baseUrl;
+        this.chunkCache   = {};
+        this.compress     = args.compress;
+        this.urlTemplate  = args.urlTemplate;
+        this.baseUrl      = args.baseUrl;
+        this.seqChunkSize = args.seqChunkSize;
     },
 
     getFeatures: function( query, callback, endCallback ) {
@@ -45,7 +46,7 @@ return declare( SeqFeatureStore,
         var start = query.start;
         var end   = query.end;
         var seqname    = query.ref;
-        var chunkSize  = query.seqChunkSize || this.seqChunkSize;
+        var chunkSize  = query.seqChunkSize || this.refSeq.name == query.ref && this.refSeq.seqChunkSize || this.seqChunkSize;
         var firstChunk = Math.floor( Math.max(0,start) / chunkSize );
         var lastChunk  = Math.floor( (end - 1)         / chunkSize );
 
@@ -61,7 +62,8 @@ return declare( SeqFeatureStore,
                                 chunk_seqs[chunkNum] = seq;
                                 if( --chunks_still_needed == 0 ) {
                                     orig_callback( new Feature({seq_id: query.ref, start: start, end: end, seq: chunk_seqs.join("")}) );
-                                    endCallback();
+                                    if( endCallback )
+                                        endCallback();
                                 }
                             };
                         })();

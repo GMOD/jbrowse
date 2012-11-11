@@ -26,6 +26,10 @@ return declare( Store,
     },
 
     getRegionStats: function( query, successCallback, errorCallback ) {
+        return this._getRegionStats.apply( this, arguments );
+    },
+
+    _getRegionStats: function( query, successCallback, errorCallback ) {
         successCallback( this.globalStats || {} );
     },
 

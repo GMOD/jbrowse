@@ -201,24 +201,27 @@ HTMLFeatures = declare( HTMLFeatures,
         track.browser.getStore('refseqs', dojo.hitch(this,function( refSeqStore ) {
             valueContainer = dojo.byId(valueContainerID) || valueContainer;
             if( refSeqStore ) {
-                refSeqStore.getRange( this.refSeq, f.get('start'), f.get('end'), dojo.hitch( this, function( start, end, seq ) {
-                    valueContainer = dojo.byId(valueContainerID) || valueContainer;
-                    valueContainer.innerHTML = '';
-                    // the HTML is rewritten by the dojo dialog
-                    // parser, but this callback may be called either
-                    // before or after that happens.  if the fetch by
-                    // ID fails, we have come back before the parse.
-                    var textArea = new FASTAView({ width: 62, htmlMaxRows: 10 })
-                                       .renderHTML(
-                                           { ref:   this.refSeq.name,
-                                             start: f.get('start'),
-                                             end:   f.get('end'),
-                                             strand: f.get('strand'),
-                                             type: f.get('type')
-                                           },
-                                           f.get('strand') == -1 ? Util.revcom(seq) : seq,
-                                           valueContainer
-                                       );
+                refSeqStore.getFeatures(
+                    { ref: this.refSeq.name, start: f.get('start'), end: f.get('end')},
+                    dojo.hitch( this, function( feature ) {
+                        var seq = feature.get('seq');
+                        valueContainer = dojo.byId(valueContainerID) || valueContainer;
+                        valueContainer.innerHTML = '';
+                        // the HTML is rewritten by the dojo dialog
+                        // parser, but this callback may be called either
+                        // before or after that happens.  if the fetch by
+                        // ID fails, we have come back before the parse.
+                        var textArea = new FASTAView({ width: 62, htmlMaxRows: 10 })
+                                           .renderHTML(
+                                               { ref:   this.refSeq.name,
+                                                 start: f.get('start'),
+                                                 end:   f.get('end'),
+                                                 strand: f.get('strand'),
+                                                 type: f.get('type')
+                                               },
+                                               f.get('strand') == -1 ? Util.revcom(seq) : seq,
+                                               valueContainer
+                                           );
                 }));
             } else {
                 valueContainer.innerHTML = '<span class="ghosted">reference sequences not loaded</span>';
@@ -500,7 +503,7 @@ HTMLFeatures = declare( HTMLFeatures,
                         this._removeYScale();
                     }
                     this.fillFeatures(blockIndex, block, leftBlock, rightBlock,
-                                      leftBase, rightBase, scale,
+                                      leftBase, rightBase, scale, stats,
                                       containerStart, containerEnd);
                 }
         }));
@@ -613,7 +616,7 @@ HTMLFeatures = declare( HTMLFeatures,
      * @param containerStart don't make HTML elements extend further left than this
      * @param containerEnd don't make HTML elements extend further right than this. 0-based.
      */
-    fillFeatures: function(blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, containerStart, containerEnd) {
+    fillFeatures: function(blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, stats, containerStart, containerEnd) {
 
         this.scale = scale;
 
@@ -629,7 +632,7 @@ HTMLFeatures = declare( HTMLFeatures,
         var featCallback = dojo.hitch(this,function( feature ) {
             var uniqueId = feature._uniqueID;
             if( ! this._featureIsRendered( uniqueId ) ) {
-                this.renderFeature( feature, uniqueId, block, scale,
+                this.renderFeature( feature, uniqueId, block, scale, stats,
                                     containerStart, containerEnd, block );
             }
         });
@@ -713,7 +716,7 @@ HTMLFeatures = declare( HTMLFeatures,
         }
     },
 
-    renderFeature: function( feature, uniqueId, block, scale, containerStart, containerEnd, destBlock ) {
+    renderFeature: function( feature, uniqueId, block, scale, stats, containerStart, containerEnd, destBlock ) {
         //featureStart and featureEnd indicate how far left or right
         //the feature extends in bp space, including labels
         //and arrowheads if applicable
@@ -737,7 +740,7 @@ HTMLFeatures = declare( HTMLFeatures,
 
         // add the label div (which includes the description) to the
         // calculated height of the feature if it will be displayed
-        if( this._shouldShowLabels( scale, regionStats ) ) {
+        if( this._shouldShowLabels( scale, stats ) ) {
             if (name) {
 	        featureEnd = Math.max(featureEnd, featureStart + (''+name).length * this.labelWidth / scale );
                 levelHeight += this.labelHeight + 1;
