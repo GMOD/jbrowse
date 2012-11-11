@@ -395,7 +395,7 @@ HTMLFeatures = declare( HTMLFeatures,
     },
 
     updateFeatureLabelPositions: function( coords ) {
-        if( ! 'x' in coords || this.scale < this.labelScale )
+        if( ! 'x' in coords )
             return;
 
         dojo.query( '.block', this.div )
@@ -579,7 +579,7 @@ HTMLFeatures = declare( HTMLFeatures,
 
                          var featDiv =
                              this.renderFeature(sourceSlot.feature, overlaps[i],
-                                                destBlock, scale,
+                                                destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
                                                 containerStart, containerEnd, destBlock );
                      }
             }
@@ -609,11 +609,14 @@ HTMLFeatures = declare( HTMLFeatures,
             this.haveMeasurements = true;
         }
 
+        var labelScale       = this.config.style.labelScale       || stats.featureDensity * this.config.style._defaultLabelScale;
+        var descriptionScale = this.config.style.descriptionScale || stats.featureDensity * this.config.style._defaultDescriptionScale;
+
         var curTrack = this;
         var featCallback = dojo.hitch(this,function( feature ) {
             var uniqueId = feature._uniqueID;
             if( ! this._featureIsRendered( uniqueId ) ) {
-                this.renderFeature( feature, uniqueId, block, scale, stats,
+                this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                     containerStart, containerEnd, block );
             }
         });
@@ -697,13 +700,10 @@ HTMLFeatures = declare( HTMLFeatures,
         }
     },
 
-    renderFeature: function( feature, uniqueId, block, scale, stats, containerStart, containerEnd, destBlock ) {
+    renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd, destBlock ) {
         //featureStart and featureEnd indicate how far left or right
         //the feature extends in bp space, including labels
         //and arrowheads if applicable
-
-        var labelScale       = this.config.style.labelScale || stats.featureDensity * this.config.style._defaultLabelScale;
-        var descriptionScale = this.config.style.descriptionScale || stats.featureDensity * this.config.style._defaultDescriptionScale;
 
         var featureEnd = feature.get('end');
         var featureStart = feature.get('start');
@@ -712,13 +712,12 @@ HTMLFeatures = declare( HTMLFeatures,
         if( typeof featureStart == 'string' )
             featureStart = parseInt(featureStart);
 
-
         var levelHeight = this.glyphHeight;
 
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
         var name = feature.get('name') || feature.get('ID');
-        var description = this.config.description && scale > descriptionScale && ( feature.get('note') || feature.get('description') );
+        var description = this.config.description && scale > feature._descriptionScale && ( feature.get('note') || feature.get('description') );
         if( description && description.length > this.config.style.maxDescriptionLength )
             description = description.substr(0, this.config.style.maxDescriptionLength+1 ).replace(/(\s+\S+|\s*)$/,'')+String.fromCharCode(8230);
 
@@ -750,6 +749,12 @@ HTMLFeatures = declare( HTMLFeatures,
         // (callbackArgs are the args that will be passed to callbacks
         // in this feature's context menu or left-click handlers)
         featDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
+
+        // save the label scale and description scale in the featDiv
+        // so that we can use them later
+        featDiv._labelScale = labelScale;
+        featDiv._descriptionScale = descriptionScale;
+
 
         block.featureNodes[uniqueId] = featDiv;
 
