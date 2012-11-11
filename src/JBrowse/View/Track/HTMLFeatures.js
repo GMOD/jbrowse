@@ -84,6 +84,8 @@ var HTMLFeatures = declare( BlockBased, {
             return handlers;
         }).call(this);
         this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
+
+        this.showLabels = this.config.style.showLabels;
     }
 } );
 
@@ -141,25 +143,6 @@ HTMLFeatures = declare( HTMLFeatures,
                 }
             ]
         };
-    },
-
-    /**
-     * Request that the track load its data.  The track will call its own
-     * loadSuccess() function when it is loaded.
-     */
-    load: function() {
-        var thisB = this;
-        this.store.getGlobalStats( function( stats ) {
-            // recall that scale is pixels per basepair
-            var density = stats.featureDensity;
-            thisB.labelScale = density * thisB.config.style.labelScale;
-            thisB.showLabels = thisB.config.style.showLabels;
-            thisB.descriptionScale = density * thisB.config.style.descriptionScale;;
-        });
-    },
-
-    _shouldShowLabels: function( scale, stats ) {
-        return this.showLabels && scale >= ((stats||{}).featureDensity || 0 ) * this.config.style.labelScale;
     },
 
     /**
@@ -462,9 +445,7 @@ HTMLFeatures = declare( HTMLFeatures,
             dojo.hitch( this, function( stats ) {
 
                 var density          = stats.featureDensity;
-                var labelScale       = this.config.style.labelScale || density * this.config.style._defaultLabelScale;
                 var histScale        = this.config.style.histScale  || density * this.config.style._defaultHistScale;
-                var descriptionScale = this.config.style.descriptionScale || density * this.config.style._defaultDescriptionScale;
 
                 // only update the label once for each block size
                 var blockBases = Math.abs( leftBase-rightBase );
@@ -721,6 +702,9 @@ HTMLFeatures = declare( HTMLFeatures,
         //the feature extends in bp space, including labels
         //and arrowheads if applicable
 
+        var labelScale       = this.config.style.labelScale || stats.featureDensity * this.config.style._defaultLabelScale;
+        var descriptionScale = this.config.style.descriptionScale || stats.featureDensity * this.config.style._defaultDescriptionScale;
+
         var featureEnd = feature.get('end');
         var featureStart = feature.get('start');
         if( typeof featureEnd == 'string' )
@@ -734,13 +718,13 @@ HTMLFeatures = declare( HTMLFeatures,
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
         var name = feature.get('name') || feature.get('ID');
-        var description = this.config.description && scale > this.descriptionScale && ( feature.get('note') || feature.get('description') );
+        var description = this.config.description && scale > descriptionScale && ( feature.get('note') || feature.get('description') );
         if( description && description.length > this.config.style.maxDescriptionLength )
             description = description.substr(0, this.config.style.maxDescriptionLength+1 ).replace(/(\s+\S+|\s*)$/,'')+String.fromCharCode(8230);
 
         // add the label div (which includes the description) to the
         // calculated height of the feature if it will be displayed
-        if( this._shouldShowLabels( scale, stats ) ) {
+        if( this.showLabels && scale >= labelScale ) {
             if (name) {
 	        featureEnd = Math.max(featureEnd, featureStart + (''+name).length * this.labelWidth / scale );
                 levelHeight += this.labelHeight + 1;
@@ -839,7 +823,7 @@ HTMLFeatures = declare( HTMLFeatures,
             }
         }
 
-        if (name && this.showLabels && scale >= this.labelScale) {
+        if (name && this.showLabels && scale >= labelScale) {
             var labelDiv = dojo.create( 'div', {
                     className: "feature-label",
                     innerHTML: '<div class="feature-name">'+name+'</div>'
