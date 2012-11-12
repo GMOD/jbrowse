@@ -3,13 +3,16 @@ define( [
             'dojo/_base/lang',
             'dojo/_base/array',
             'dojo/_base/url',
+            'JBrowse/Store/SeqFeature',
+            'JBrowse/Store/DeferredStatsMixin',
+            'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/BigWig/Window',
-            'dojo/_base/Deferred',
             'JBrowse/Util',
             'JBrowse/Model/XHRBlob'
         ],
-        function( declare, lang, array, urlObj, Window, Deferred, Util, XHRBlob ) {
-return declare( null,
+        function( declare, lang, array, urlObj, SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin, Window, Util, XHRBlob ) {
+return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
+
  /**
   * @lends JBrowse.Store.BigWig
   */
@@ -31,9 +34,7 @@ return declare( null,
      */
     constructor: function( args ) {
 
-        this.refSeq = args.refSeq;
-
-        var data = args.blob || (function() {
+        this.data = args.blob || (function() {
             var url = Util.resolveUrl(
                 args.baseUrl || '/',
                 Util.fillTemplate( args.urlTemplate || 'data.bigwig',
@@ -42,36 +43,14 @@ return declare( null,
             );
             return new XHRBlob( url );
         }).call(this);
-        var name = args.name || ( data.url && new urlObj( data.url ).path.replace(/^.+\//,'') ) || 'anonymous';
 
-        var bwg = this;
+        this.name = args.name || ( data.url && new urlObj( data.url ).path.replace(/^.+\//,'') ) || 'anonymous';
 
-        bwg._loading = new Deferred();
-        if( args.callback )
-            bwg._loading.then(
-                function() { args.callback(bwg); },
-                function(result) { args.callback(null, result.error || 'Loading failed!'); }
-            );
-        bwg._loading.then( function() {
-                               bwg._loading = null;
-                           });
-        bwg._loading.then(
-            dojo.hitch( this, function(result) {
-                            if( result.success )
-                                this.loadSuccess();
-                            else
-                                this.loadFail( result.error || 'BigWig loading failed' ) ;
-                        })
-        );
-
-        bwg.data = data;
-        bwg.name = name;
+        this._load();
     },
 
-    getGlobalStats: function() {
-        var s = this._stats;
-        if( !s )
-            return {};
+    _getGlobalStats: function( successCallback, errorCallback ) {
+        var s = this._stats || {};
 
         // calc mean and standard deviation if necessary
         if( !( 'scoreMean' in s ))
@@ -79,7 +58,7 @@ return declare( null,
         if( !( 'scoreStdDev' in s ))
             s.scoreStdDev = this._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.basesCovered );
 
-        return s;
+        successCallback( s );
     },
 
     _calcStdFromSums: function( sum, sumSquares, n ) {
@@ -90,21 +69,12 @@ return declare( null,
         return variance < 0 ? 0 : Math.sqrt(variance);
     },
 
-    whenReady: function() {
-        var f = lang.hitch.apply(lang, arguments);
-        if( this._loading ) {
-            this._loading.then( f );
-        } else {
-            f();
-        }
-    },
-
-    load: function() {
+    _load: function() {
         var bwg = this;
         var headerSlice = bwg.data.slice(0, 512);
-        headerSlice.fetch( function(result) {
-            if (!result) {
-                bwg._loading.resolve({ success: false });
+        headerSlice.fetch( function( result ) {
+            if( ! result ) {
+                this._failAllDeferred( 'BBI header not readable' );
                 return;
             }
 
@@ -118,7 +88,7 @@ return declare( null,
                 bwg.type = 'bigbed';
             } else {
                 console.error( 'Format '+la[0]+' not supported' );
-                bwg._loading.resolve({ success: false });
+                bwg._failAllDeferred( 'Format '+la[0]+' not supported' );
                 return;
             }
             //        dlog('magic okay');
@@ -175,15 +145,12 @@ return declare( null,
             }
 
             bwg._readChromTree(function() {
-                bwg._loading.resolve({success: true});
+                bwg._deferred.features.resolve({success: true});
+                bwg._deferred.stats.resolve({success: true});
             });
         },
-        function( error ) { bwg._loading.resolve({success: false, error: error }); }
+        dojo.hitch( this, '_failAllDeferred' )
        );
-    },
-
-    loadSuccess: function() {},
-    loadFail: function() {
     },
 
     /**
@@ -202,8 +169,7 @@ return declare( null,
         this.data.slice( this.chromTreeOffset, udo - this.chromTreeOffset )
             .fetch(function(bpt) {
                        if( !( Uint8Array && Int16Array && Int32Array ) ) {
-                           var msg = 'Browser does not support typed arrays';
-                           thisB._loading.resolve({success: false, error: msg});
+                           this._failAllDeferred( 'Browser does not support typed arrays' );
                            return;
                        }
                        var ba = new Uint8Array(bpt);
@@ -257,21 +223,24 @@ return declare( null,
                    });
     },
 
-    readWigData: function( basesPerSpan, chrName, min, max, callback) {
-        var v = this.getView( basesPerSpan );
-        if( !v ) {
-            callback(null);
-            return null;
-        }
-        return v.readWigData(chrName, min, max, callback);
-    },
+    _getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
 
-    iterate: function( start, end, featCallback, finishCallback ) {
-        this.readWigData( 1, this.refSeq.name, start, end, function( features ) {
-            if( features && features.length )
-                array.forEach( features, featCallback );
-            finishCallback();
-        });
+        var chrName = query.ref;
+        var min = query.start;
+        var max = query.end;
+        var basesPerSpan = query.basesPerSpan || 1;
+
+        var v = this.getView( basesPerSpan );
+
+        if( !v ) {
+            endCallback();
+            return;
+        }
+
+        v.readWigData( chrName, min, max, dojo.hitch( this, function( features ) {
+            array.forEach( features || [], featureCallback );
+            endCallback();
+        }), errorCallback );
     },
 
     getUnzoomedView: function() {

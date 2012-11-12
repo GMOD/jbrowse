@@ -36,9 +36,13 @@ return declare( null, {
     getGlobalStats: function( successCallback, errorCallback ) {
         var thisB = this;
         this._deferred.stats.then(
-            Util.debugHandler( this, function() { successCallback( thisB.globalStats ); } ),
+            dojo.hitch( this, '_getGlobalStats', successCallback, errorCallback ),
             errorCallback
         );
+    },
+
+    _getGlobalStats: function( successCallback, errorCallback ) {
+        successCallback( this.globalStats || {} );
     },
 
     getRegionStats: function( query, successCallback, errorCallback ) {

@@ -20,7 +20,10 @@ return {
         var max = typeof args.max == 'number' ? args.max : this.maxDisplayed;
 
         // make and style the main container div for the axis
-        var rulerdiv = this.yscale =
+        if( this.yscale ) {
+            this.yscale.parentNode.removeChild( this.yscale );
+        }
+        var rulerdiv =
             dojo.create('div', {
                             className: 'ruler vertical_ruler',
                             style: {
@@ -29,6 +32,7 @@ return {
                                 zIndex: 17
                             }
                         }, this.div );
+        this.yscale = rulerdiv;
 
         if( this.window_info && 'x' in this.window_info )
             rulerdiv.style.left = (this.window_info.x + (this.window_info.width||0)/2)+ "px";
