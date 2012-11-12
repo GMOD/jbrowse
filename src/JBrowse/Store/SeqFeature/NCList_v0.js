@@ -1,8 +1,9 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/Deferred',
            'JBrowse/Store/SeqFeature/NCList',
            'JBrowse/Store/NCList_v0'
-       ], function( declare, SFNCList, GenericNCList ) {
+       ], function( declare, Deferred, SFNCList, GenericNCList ) {
 return declare( SFNCList,
 
 /**
@@ -16,14 +17,14 @@ return declare( SFNCList,
      * @constructs
      */
     constructor: function(args) {
-        SFNCList.call( this, args );
-
         this.fields = {};
-        this.track = args.track;
+        this.track = new Deferred();
+        if( args.track )
+            this.track.resolve( args.track );
     },
 
     setTrack: function(t) {
-        this.track = t;
+        this.track.resolve( t );
     },
 
     /**
@@ -58,20 +59,23 @@ return declare( SFNCList,
             var renameVar = {
                 urlTemplate: "linkTemplate"
             };
-            dojo.forEach(
-                ['className','arrowheadClass','subfeatureClasses','urlTemplate','clientConfig'],
-                function(varname) {
-                    if( !this.track.config.style ) this.track.config.style = {};
-                    var dest_varname = renameVar[varname] || varname;
-                    if( varname in trackInfo )
-                        this.track.config.style[dest_varname] = trackInfo[varname];
-                },this);
 
-            // also need to merge Ye Olde clientConfig values into the style object
-            if( this.track.config.style.clientConfig ) {
-                this.track.config.style = dojo.mixin( this.track.config.style, this.track.config.style.clientConfig );
-                delete this.track.config.style.clientConfig;
-            }
+            this.track.then( function( track ) {
+                dojo.forEach(
+                    ['className','arrowheadClass','subfeatureClasses','urlTemplate','clientConfig'],
+                    function(varname) {
+                        if( !track.config.style ) track.config.style = {};
+                        var dest_varname = renameVar[varname] || varname;
+                        if( varname in trackInfo )
+                            track.config.style[dest_varname] = trackInfo[varname];
+                    },this);
+
+                // also need to merge Ye Olde clientConfig values into the style object
+                if( track.config.style.clientConfig ) {
+                    track.config.style = dojo.mixin( track.config.style, track.config.style.clientConfig );
+                    delete track.config.style.clientConfig;
+                }
+            });
 
             // remember the field offsets from the old-style trackinfo headers
             this.fields = {};
@@ -107,8 +111,10 @@ return declare( SFNCList,
                                    trackInfo.lazyfeatureUrlTemplate);
     },
 
-    iterate: function( startBase, endBase, origFeatCallback, finishCallback ) {
+    _getFeatures: function( query, origFeatCallback, finishCallback, errorCallback ) {
         var that = this,
+        startBase = query.start,
+        endBase = query.end,
         fields = this.fields,
         fieldOrder = this.fieldOrder,
         subFields = this.subFields,
