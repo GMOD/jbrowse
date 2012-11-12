@@ -35,19 +35,6 @@ return declare( Store,
 
     getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
         endCallback();
-    },
-
-    /**
-     * If this track has any internal deferreds, resolves them all
-     * with the given error.
-     */
-    _failAllDeferred: function( error ) {
-        var deferreds = this._deferred || {};
-        for( var dname in deferreds ) {
-            if( deferreds.hasOwnProperty( dname ) ) {
-                deferreds[dname].resolve({ success: false, error: error });
-            }
-        }
     }
 
 });

@@ -14,7 +14,6 @@ return declare( null,
     constructor: function( args ) {
         this.refSeq = dojo.clone( args.refSeq );
         this.changeCallback = args.changeCallback || function() {};
-        this.errorCallback = args.errorCallback || function() {};
         this.browser = args.browser;
     },
 
@@ -22,10 +21,19 @@ return declare( null,
         this.changeCallback( changeDescription );
     },
 
-    notifyError: function( error ) {
-        this.errorCallback( error );
-        this.error = error;
+    /**
+     * If this store has any internal deferreds, resolves them all
+     * with the given error.
+     */
+    _failAllDeferred: function( error ) {
+        var deferreds = this._deferred || {};
+        for( var dname in deferreds ) {
+            if( deferreds.hasOwnProperty( dname ) ) {
+                deferreds[dname].resolve({ success: false, error: error });
+            }
+        }
     }
+
 
 });
 });
