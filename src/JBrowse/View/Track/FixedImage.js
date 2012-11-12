@@ -92,7 +92,16 @@ return declare( BlockBased,
                                       im.onload = loadhandler;
 
                               }, this);
-        }));
+        }),
+        dojo.hitch( this, function( error ) {
+            if( error.status == 404 ) {
+                // do nothing
+            } else {
+                this.error = error;
+                this.fillError( blockIndex, block );
+            }
+        })
+        );
     },
 
     startZoom: function(destScale, destStart, destEnd) {

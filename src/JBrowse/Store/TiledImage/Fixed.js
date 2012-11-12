@@ -81,9 +81,14 @@ return declare( [ Store, DeferredStatsMixin ],
     },
 
     getImages: function( query, callback, errorCallback ) {
-        this._deferred.images.then(
-            dojo.hitch( this, '_getImages', query, callback, errorCallback )
-        );
+        this._deferred.images.then( dojo.hitch(this, function( result ) {
+            if( result.success )
+                this._getImages( query, callback, errorCallback );
+            else {
+                this.error = result.error;
+                errorCallback( result.error || result );
+            }
+        }));
     },
 
     /**
