@@ -1,7 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
-            'JBrowse/Store/BigWig/Window/RequestWorker'
+            './RequestWorker'
         ],
         function( declare, lang, RequestWorker ) {
 
