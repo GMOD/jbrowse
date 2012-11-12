@@ -4,16 +4,16 @@ define( [
             'dojo/_base/Deferred',
             'dojo/_base/lang',
             'JBrowse/Util',
-            'JBrowse/Store',
+            'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Model/XHRBlob',
             './BAM/Util',
             './BAM/File'
         ],
-        function( declare, array, Deferred, lang, Util, Store, DeferredStatsMixin, DeferredFeaturesMixin, XHRBlob, BAMUtil, BAMFile ) {
+        function( declare, array, Deferred, lang, Util, SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, XHRBlob, BAMUtil, BAMFile ) {
 
-var BAMStore = declare( [ Store, DeferredStatsMixin, DeferredFeaturesMixin ],
+var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin ],
 
 /**
  * @lends JBrowse.Store.SeqFeature.BAM
@@ -57,12 +57,14 @@ var BAMStore = declare( [ Store, DeferredStatsMixin, DeferredFeaturesMixin ],
             success: dojo.hitch( this, '_estimateGlobalStats',
                                  dojo.hitch( this, function(error) {
                                      if( error )
-                                         this.loadFail( error );
-                                     else
-                                         this.loadSuccess();
+                                         this._failAllDeferred( error );
+                                     else {
+                                         this._deferred.stats.resolve({success:true});
+                                         this._deferred.features.resolve({success:true});
+                                     }
 
                                  })),
-            failure: dojo.hitch( this, 'loadFail' )
+            failure: dojo.hitch( this, '_failAllDeferred' )
         });
     },
 
@@ -113,22 +115,11 @@ var BAMStore = declare( [ Store, DeferredStatsMixin, DeferredFeaturesMixin ],
         statsFromInterval.call( this, this.refSeq, 100, maybeRecordStats );
     },
 
-    loadSuccess: function() {
-        this.inherited(arguments);
-        this._loading.resolve({success: true });
-    },
 
     // called by getFeatures from the DeferredFeaturesMixin
-    _getFeatures: function( query, featCallback, endCallback ) {
+    _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
         var start = query.start;
         var end   = query.end;
-        var refSeq = query.ref;
-
-    iterate: function( start, end, featCallback, endCallback, errorCallback ) {
-        if( this._loading ) {
-            this._loading.then( lang.hitch( this, 'iterate', start, end, featCallback, endCallback ) );
-            return;
-        }
 
         var maxFeaturesWithoutYielding = 300;
         this.bam.fetch( this.refSeq.name, start, end, function( features, error) {
