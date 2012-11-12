@@ -45,7 +45,7 @@ return declare( null,
 
     readWigDataById: function(chr, min, max, callback) {
         if( !this.cirHeader ) {
-            var readCallback = lang.hitch( this, '_readWigDataById', chr, min, max, callback );
+            var readCallback = lang.hitch( this, 'readWigDataById', chr, min, max, callback );
             if( this.cirHeaderLoading ) {
                 this.cirHeaderLoading.push( readCallback );
             }
