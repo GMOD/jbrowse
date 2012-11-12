@@ -401,6 +401,10 @@ Browser.prototype.getStore = function( storeName, callback ) {
              }));
 };
 
+Browser.prototype.clearStores = function() {
+    this._storeCache = {};
+};
+
 /**
  * Notifies the browser that the given named store is no longer being
  * used by the calling component.  Decrements the store's reference
@@ -618,6 +622,18 @@ Browser.prototype.addRefseqs = function( refSeqs ) {
     },this);
     this.refSeqOrder = this.refSeqOrder.sort();
     this.refSeq  = this.refSeq || refSeqs[0];
+};
+
+
+Browser.prototype.getCurrentRefSeq = function( name, callback ) {
+    return this.refSeq || {};
+};
+
+Browser.prototype.getRefSeq = function( name, callback ) {
+    if( typeof name != 'string' )
+        name = this.refSeqOrder[0];
+
+    callback( this.allRefs[ name ] );
 };
 
 /**
@@ -843,6 +859,7 @@ Browser.prototype.navigateToLocation = function( location ) {
         var curTracks = this.view.visibleTrackNames();
 
         this.refSeq = this.allRefs[location.ref];
+        this.clearStores();
 
         this.view.setLocation( this.refSeq,
                                location.start,

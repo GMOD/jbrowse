@@ -5,13 +5,15 @@ define( [
             'dojo/_base/lang',
             'JBrowse/Util',
             'JBrowse/Store/SeqFeature',
+            'JBrowse/Store/DeferredStatsMixin',
+            'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Model/XHRBlob',
             './BAM/Util',
             './BAM/File'
         ],
-        function( declare, array, Deferred, lang, Util, SeqFeatureStore, XHRBlob, BAMUtil, BAMFile ) {
+        function( declare, array, Deferred, lang, Util, SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, XHRBlob, BAMUtil, BAMFile ) {
 
-var BAMStore = declare( SeqFeatureStore,
+var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin ],
 
 /**
  * @lends JBrowse.Store.SeqFeature.BAM
@@ -51,30 +53,21 @@ var BAMStore = declare( SeqFeatureStore,
 
         this.source = bamBlob.url ? bamBlob.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] : undefined;
 
-        this._loading = new Deferred();
-        if( args.callback )
-            this._loading.then(
-                function() { args.callback(bwg); },
-                function() { args.callback(null, 'Loading failed!'); }
-            );
-        this._loading.then( dojo.hitch( this, function() {
-                                            this._loading = null;
-                                        }));
-    },
-
-    load: function() {
         this.bam.init({
             success: dojo.hitch( this, '_estimateGlobalStats',
                                  dojo.hitch( this, function(error) {
                                      if( error )
-                                         this.loadFail( error );
-                                     else
-                                         this.loadSuccess();
+                                         this._failAllDeferred( error );
+                                     else {
+                                         this._deferred.stats.resolve({success:true});
+                                         this._deferred.features.resolve({success:true});
+                                     }
 
                                  })),
-            failure: dojo.hitch( this, 'loadFail' )
+            failure: dojo.hitch( this, '_failAllDeferred' )
         });
     },
+
 
     /**
      * Fetch a region of the current reference sequence and use it to
@@ -108,9 +101,10 @@ var BAMStore = declare( SeqFeatureStore,
             if( error ) {
                 finishCallback( error );
             } else {
-                 if( stats._statsSampleFeatures >= 300 || interval * 2 > this.refSeq.length || error ) {
+                var refLen = this.refSeq.end - this.refSeq.start;
+                 if( stats._statsSampleFeatures >= 300 || interval * 2 > refLen || error ) {
                      this.globalStats = stats;
-                     console.log( 'BAM statistics', stats );
+                     console.log( 'BAM statistics: '+this.source, stats );
                      finishCallback();
                  } else {
                      statsFromInterval.call( this, this.refSeq, interval * 2, maybeRecordStats );
@@ -121,35 +115,17 @@ var BAMStore = declare( SeqFeatureStore,
         statsFromInterval.call( this, this.refSeq, 100, maybeRecordStats );
     },
 
-    loadSuccess: function() {
-        this.inherited(arguments);
-        this._loading.resolve({success: true });
-    },
 
-    loadFail: function() {
-        this.inherited(arguments);
-        this._loading.resolve({success: false });
-    },
-
-    whenReady: function() {
-        var f = lang.hitch.apply(lang, arguments);
-        if( this._loading ) {
-            this._loading.then( f );
-        } else {
-            f();
-        }
-    },
-
-    iterate: function( start, end, featCallback, endCallback ) {
-        if( this._loading ) {
-            this._loading.then( lang.hitch( this, 'iterate', start, end, featCallback, endCallback ) );
-            return;
-        }
+    // called by getFeatures from the DeferredFeaturesMixin
+    _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
+        var start = query.start;
+        var end   = query.end;
 
         var maxFeaturesWithoutYielding = 300;
         this.bam.fetch( this.refSeq.name, start, end, function( features, error) {
                 if ( error ) {
                     console.error( 'error fetching BAM data: ' + error );
+                    if( errorCallback ) errorCallback( error );
                     return;
                 }
                 if( features ) {

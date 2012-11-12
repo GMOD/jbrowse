@@ -232,9 +232,15 @@ return {
         else {
             // if we know the store's feature density, then use that with
             // a limit of maxExportFeatures or 5,000 features
-            var storeStats = this.store.getGlobalStats();
-            if( storeStats.featureDensity )
-                return storeStats.featureDensity*(l.end - l.start) <= ( this.config.maxExportFeatures || 5000 );
+            var thisB = this;
+            var storeStats = {};
+            // will return immediately if the stats are available
+            this.store.getGlobalStats( function( s ) {
+                storeStats = s;
+            });
+            if( storeStats.featureDensity ) {
+                return storeStats.featureDensity*(l.end - l.start) <= ( thisB.config.maxExportFeatures || 5000 );
+            }
         }
 
         // otherwise, i guess we can export

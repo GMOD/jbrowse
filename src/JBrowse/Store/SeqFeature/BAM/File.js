@@ -118,7 +118,6 @@ var BamFile = declare( null,
             this.indices = [];
 
             var p = 8;
-            var minVO; // get smallest virtual offset in the indexes, which indicates where the BAM header ends
             for (var ref = 0; ref < nref; ++ref) {
                 var blockStart = p;
                 var nbin = readInt(uncba, p); p += 4;
@@ -128,64 +127,72 @@ var BamFile = declare( null,
                     p += 8 + (nchnk * 16);
                 }
                 var nintv = readInt(uncba, p); p += 4;
-                var firstVO = readVirtualOffset(uncba,p);
-                if( ! this.minAlignmentVO || this.minAlignmentVO.cmp( firstVO ) < 0 )
+                // as we're going through the index, figure out the smallest
+                // virtual offset in the indexes, which tells us where
+                // the BAM header ends
+                var firstVO = nintv ? readVirtualOffset(uncba,p) : null;
+                if( firstVO && ( ! this.minAlignmentVO || this.minAlignmentVO.cmp( firstVO ) < 0 ) )
                     this.minAlignmentVO = firstVO;
+
                 //console.log( ref, ''+firstVO );
-                p += (nintv * 8);
-                if (nbin > 0) {
+                p += nintv * 8;
+                if( nbin > 0 || nintv > 0 ) {
                     this.indices[ref] = new Uint8Array(header, blockStart, p - blockStart);
                 }
             }
+
+            this.empty = ! this.indices.length;
 
             successCallback( this.indices, this.minAlignmentVO );
         }), failCallback );
     },
 
     _readBAMheader: function( successCallback, failCallback ) {
-        this.data.read( 0, this.minAlignmentVO.block, dojo.hitch( this, function(r) {
-//        this.data.read(0, (1<<16)-1, dojo.hitch( this, function(r) {
-            var unc = BAMUtil.unbgzf(r);
-            var uncba = new Uint8Array(unc);
+        this.data.read(
+            0,
+            this.minAlignmentVO ? this.minAlignmentVO.block : null,
+            dojo.hitch( this, function(r) {
+                var unc = BAMUtil.unbgzf(r);
+                var uncba = new Uint8Array(unc);
 
-            if( readInt(uncba, 0) != BAM_MAGIC) {
-                dlog('Not a BAM file');
-                failCallback();
-                return;
-            }
-
-            var headLen = readInt(uncba, 4);
-            // var header = '';
-            // for (var i = 0; i < headLen; ++i) {
-            //     header += String.fromCharCode(uncba[i + 8]);
-            // }
-
-            var nRef = readInt(uncba, headLen + 8);
-            var p = headLen + 12;
-
-            this.chrToIndex = {};
-            this.indexToChr = [];
-            for (var i = 0; i < nRef; ++i) {
-                var lName = readInt(uncba, p);
-                var name = '';
-                for (var j = 0; j < lName-1; ++j) {
-                    name += String.fromCharCode(uncba[p + 4 + j]);
-                }
-                var lRef = readInt(uncba, p + lName + 4);
-                // dlog(name + ': ' + lRef);
-                this.chrToIndex[name] = i;
-                if (name.indexOf('chr') == 0) {
-                    this.chrToIndex[name.substring(3)] = i;
-                } else {
-                    this.chrToIndex['chr' + name] = i;
+                if( readInt(uncba, 0) != BAM_MAGIC) {
+                    dlog('Not a BAM file');
+                    failCallback();
+                    return;
                 }
 
-                this.indexToChr.push(name);
+                var headLen = readInt(uncba, 4);
+                // var header = '';
+                // for (var i = 0; i < headLen; ++i) {
+                //     header += String.fromCharCode(uncba[i + 8]);
+                // }
 
-                p = p + 8 + lName;
-            }
+                var nRef = readInt(uncba, headLen + 8);
+                var p = headLen + 12;
 
-            successCallback();
+                this.chrToIndex = {};
+                this.indexToChr = [];
+                for (var i = 0; i < nRef; ++i) {
+                    var lName = readInt(uncba, p);
+                    var name = '';
+                    for (var j = 0; j < lName-1; ++j) {
+                        name += String.fromCharCode(uncba[p + 4 + j]);
+                    }
+                    var lRef = readInt(uncba, p + lName + 4);
+                    // dlog(name + ': ' + lRef);
+                    this.chrToIndex[name] = i;
+                    if (name.indexOf('chr') == 0) {
+                        this.chrToIndex[name.substring(3)] = i;
+                    } else {
+                        this.chrToIndex['chr' + name] = i;
+                    }
+
+                    this.indexToChr.push({ name: name, length: lRef });
+
+                    p = p + 8 + lName;
+                }
+
+                successCallback();
         }));
     },
 
@@ -285,6 +292,7 @@ var BamFile = declare( null,
     },
 
     fetch: function(chr, min, max, callback) {
+
         var chrId = this.chrToIndex[chr];
         var chunks;
         if (chrId === undefined) {

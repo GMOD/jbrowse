@@ -37,9 +37,8 @@ return declare( ExportBase,
     exportRegion: function( region, callback ) {
         var curspan;
         var curref;
-        this.store.iterate(
-            region.start,
-            region.end,
+        this.store.getFeatures(
+            region,
             dojo.hitch( this, function(f) {
                 var span = f.get('end') - f.get('start');
                 var ref = f.get('seq_id');

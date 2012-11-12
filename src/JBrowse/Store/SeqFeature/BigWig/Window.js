@@ -1,7 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
-            'JBrowse/Store/BigWig/Window/RequestWorker'
+            './RequestWorker'
         ],
         function( declare, lang, RequestWorker ) {
 
@@ -30,31 +30,22 @@ return declare( null,
     BED_COLOR_REGEXP: /^[0-9]+,[0-9]+,[0-9]+/,
 
     readWigData: function(chrName, min, max, callback) {
-        this.bwg.whenReady( this, function() {
-            // console.log( 'reading wig data from '+chrName+':'+min+'..'+max);
-            var chr = this.bwg.chromsToIDs[chrName];
-            if (chr === undefined) {
-                // Not an error because some .bwgs won't have data for all chromosomes.
+        // console.log( 'reading wig data from '+chrName+':'+min+'..'+max);
+        var chr = this.bwg.chromsToIDs[chrName];
+        if (chr === undefined) {
+            // Not an error because some .bwgs won't have data for all chromosomes.
 
-                // dlog("Couldn't find chr " + chrName);
-                // dlog('Chroms=' + miniJSONify(this.bwg.chromsToIDs));
-                callback([]);
-            } else {
-                this.readWigDataById(chr, min, max, callback);
-            }
-        });
+            // dlog("Couldn't find chr " + chrName);
+            // dlog('Chroms=' + miniJSONify(this.bwg.chromsToIDs));
+            callback([]);
+        } else {
+            this.readWigDataById(chr, min, max, callback);
+        }
     },
 
-    readWigDataById: function() {
-        var args = arguments;
-        this.bwg.whenReady( this, function() {
-            this._readWigDataById.apply( this, args );
-        });
-    },
-
-    _readWigDataById: function(chr, min, max, callback) {
+    readWigDataById: function(chr, min, max, callback) {
         if( !this.cirHeader ) {
-            var readCallback = lang.hitch( this, '_readWigDataById', chr, min, max, callback );
+            var readCallback = lang.hitch( this, 'readWigDataById', chr, min, max, callback );
             if( this.cirHeaderLoading ) {
                 this.cirHeaderLoading.push( readCallback );
             }

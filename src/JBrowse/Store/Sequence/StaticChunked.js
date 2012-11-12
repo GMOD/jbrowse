@@ -1,15 +1,30 @@
 define( [ 'dojo/_base/declare',
-          'JBrowse/Store',
+          'JBrowse/Store/SeqFeature',
           'JBrowse/Util',
           'JBrowse/Digest/Crc32'
         ],
-        function( declare, Store, Util, Crc32 ) {
+        function( declare, SeqFeatureStore, Util, Crc32 ) {
 
-return declare( null,
+var Feature = Util.fastDeclare({
+    constructor: function(args) {
+        this.start = args.start;
+        this.end = args.end;
+        this.seq = args.seq;
+        this.seq_id = args.seq_id;
+    },
+    get: function( field ) {
+        return this[field];
+    },
+    tags: function() {
+        return ['seq_id','start','end','seq'];
+    }
+});
+
+return declare( SeqFeatureStore,
 
 /**
  * @lends JBrowse.Store.Sequence.StaticChunked
- * @extends JBrowse.Store
+ * @extends JBrowse.Store.SeqFeature
  */
 {
 
@@ -19,23 +34,19 @@ return declare( null,
  * @constructs
  */
     constructor: function(args) {
-        this.chunkCache  = {};
-
-        this.compress    = args.compress;
-        this.urlTemplate = args.urlTemplate;
-        this.baseUrl     = args.baseUrl;
+        this.chunkCache   = {};
+        this.compress     = args.compress;
+        this.urlTemplate  = args.urlTemplate;
+        this.baseUrl      = args.baseUrl;
+        this.seqChunkSize = args.seqChunkSize;
     },
 
-    /**
-     * @param {Object} seq object describing the sequence to operate on
-     * @param {Number} start start coord, in interbase
-     * @param {Number} end end coord, in interbase
-     * @param {Function} callback function that takes ( start, end, seq )
-     */
-    getRange: function( seq, start, end, callback) {
+    getFeatures: function( query, callback, endCallback ) {
 
-        var seqname    = seq.name;
-        var chunkSize  = seq.seqChunkSize;
+        var start = query.start;
+        var end   = query.end;
+        var seqname    = query.ref;
+        var chunkSize  = query.seqChunkSize || this.refSeq.name == query.ref && this.refSeq.seqChunkSize || this.seqChunkSize;
         var firstChunk = Math.floor( Math.max(0,start) / chunkSize );
         var lastChunk  = Math.floor( (end - 1)         / chunkSize );
 
@@ -43,18 +54,19 @@ return declare( null,
         // callback in another one that will be passed to each chunk to
         // concatenate the different pieces from each chunk and *then*
         // call the main callback
-        if( firstChunk != lastChunk ) {
             callback = (function() {
                             var chunk_seqs = [],
                             chunks_still_needed = lastChunk-firstChunk+1,
                             orig_callback = callback;
                             return function( start, end, seq, chunkNum) {
                                 chunk_seqs[chunkNum] = seq;
-                                if( --chunks_still_needed == 0 )
-                                    orig_callback( start, end, chunk_seqs.join("") );
+                                if( --chunks_still_needed == 0 ) {
+                                    orig_callback( new Feature({seq_id: query.ref, start: start, end: end, seq: chunk_seqs.join("")}) );
+                                    if( endCallback )
+                                        endCallback();
+                                }
                             };
                         })();
-        }
 
         var callbackInfo = { start: start, end: end, callback: callback };
 
@@ -93,9 +105,9 @@ return declare( null,
                     Util.fillTemplate(
                         this.urlTemplate,
                         {
-                            'refseq': seq.name,
+                            'refseq': query.ref,
                             'refseq_dirpath': function() {
-                                var hex = Crc32.crc32( seq.name )
+                                var hex = Crc32.crc32( query.ref )
                                                .toString(16)
                                                .toLowerCase()
                                                .replace('-','n');

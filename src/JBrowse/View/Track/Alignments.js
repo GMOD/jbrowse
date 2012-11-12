@@ -26,7 +26,7 @@ return declare( HTMLFeatures,
         );
     },
 
-    renderFeature: function(feature, uniqueId, block, scale, containerStart, containerEnd, destBlock ) {
+    renderFeature: function( feature, uniqueId, block, scale ) {
         var featDiv = this.inherited( arguments );
         this._drawMismatches( feature, featDiv, scale );
 

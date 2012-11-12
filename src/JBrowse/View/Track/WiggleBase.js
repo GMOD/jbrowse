@@ -4,14 +4,13 @@ define( [
             'dojo/on',
             'JBrowse/View/Track/Canvas',
             'JBrowse/View/Track/ExportMixin',
-            'JBrowse/Util'
+            'JBrowse/Util',
+            'JBrowse/Digest/Crc32'
         ],
-        function( declare, array, on, CanvasTrack, ExportMixin, Util ) {
+        function( declare, array, on, CanvasTrack, ExportMixin, Util, Digest ) {
 var Wiggle = declare( CanvasTrack, {
     constructor: function( args ) {
         this.store = args.store;
-        dojo.connect( this.store, 'loadSuccess', this, 'loadSuccess' );
-        dojo.connect( this.store, 'loadFail',    this, 'loadFail' );
     }
 });
 
@@ -28,18 +27,28 @@ Wiggle.extend({
         return { maxExportSpan: 500000 };
     },
 
-    load: function() {
-        this.store.load();
+    _getScaling: function( successCallback, errorCallback ) {
+
+        this.getRegionStats( this._getScalingRegion(), dojo.hitch(this, function( stats ) {
+
+            //calculate the scaling if necessary
+            var statsFingerprint = Digest.objectFingerprint( stats );
+            if( ! this.lastScaling || this.lastScaling._statsFingerprint != statsFingerprint )
+                this.lastScaling = this._calculateScaling( stats );
+
+            successCallback( this.lastScaling );
+
+        }), errorCallback );
     },
 
-    loadSuccess: function(o,url) {
-        this._calculateScaling();
-        this.empty = this.store.empty || false;
-        this.setLoaded();
+    // TODO: implement more regions over which we can get the
+    // stats.  currently over whole ref seq
+    _getScalingRegion: function() {
+        return dojo.clone( this.browser.getCurrentRefSeq() );
     },
 
+    _calculateScaling: function( s ) {
 
-    _calculateScaling: function() {
         // if either autoscale or scale is set to z_score, the other one should default to z_score
         if( this.config.autoscale == 'z_score' && ! this.config.scale
             || this.config.scale == 'z_score'  && !this.config.autoscale
@@ -49,7 +58,6 @@ Wiggle.extend({
           }
 
         var z_score_bound = parseFloat( this.config.z_score_bound ) || 4;
-        var s = this.getGlobalStats() || {};
         var min = 'min_score' in this.config ? parseFloat( this.config.min_score ) :
             (function() {
                  switch( this.config.autoscale ) {
@@ -107,18 +115,18 @@ Wiggle.extend({
           }
         }).call(this);
 
-        this.scale = {
+        var scale = {
             offset: offset,
             min: min + offset,
             max: max + offset,
             range: max - min,
-            origin: origin
+            origin: origin,
+            _statsFingerprint: Digest.objectFingerprint( s )
         };
 
         // make a func that converts wiggle values to a range between
         // 0 and 1, depending on what kind of scale we are using
-        this.scale.normalize = function() {
-            var scale = this.scale;
+        scale.normalize = function() {
             switch( this.config.scale ) {
             case 'z_score':
                 return function( value ) {
@@ -139,15 +147,19 @@ Wiggle.extend({
             }
         }.call(this);
 
-        return this.scale;
+        return scale;
     },
 
-    readWigData: function( scale, refSeq, leftBase, rightBase, callback ) {
-        this.store.readWigData.apply( this.store, arguments );
+    getFeatures: function( query, callback, errorCallback ) {
+        this.store.getFeatures.apply( this.store, arguments );
     },
 
-    getGlobalStats: function() {
-        return this.store.getGlobalStats();
+    getGlobalStats: function( successCallback, errorCallback ) {
+        this.store.getGlobalStats( successCallback, errorCallback );
+    },
+
+    getRegionStats: function( region, successCallback, errorCallback ) {
+        this.store.getRegionStats( region, successCallback, errorCallback );
     },
 
     fillBlock: function( blockIndex,     block,
@@ -161,58 +173,62 @@ Wiggle.extend({
         var canvasHeight = parseInt(( this.config.style || {}).height) || 100;
         this.heightUpdate( canvasHeight, blockIndex );
 
-        this.readWigData( scale, this.refSeq.name, leftBase, rightBase+1, dojo.hitch(this,function( features ) {
+        try {
+            dojo.create('canvas').getContext('2d').fillStyle = 'red';
+        } catch( e ) {
+            this.error = 'This browser does not support HTML canvas elements.';
+            this.fillError( blockIndex, block );
+            return;
+        }
 
-                var c = dojo.create(
-                    'canvas',
-                    { height: canvasHeight,
-                      width:  canvasWidth,
-                      style: { cursor: 'default' },
-                      innerHTML: 'Your web browser cannot display this type of track.',
-                      className: 'canvas-track'
-                    },
-                    block
-                );
-                c.startBase = leftBase;
-                if( c && c.getContext && c.getContext('2d') && this.scale && this.scale.normalize && features ) {
+        this._getScaling( dojo.hitch( this, function( dataScale ) {
+            var c = dojo.create(
+                'canvas',
+                { height: canvasHeight,
+                  width:  canvasWidth,
+                  style: { cursor: 'default' },
+                  innerHTML: 'Your web browser cannot display this type of track.',
+                  className: 'canvas-track'
+                },
+                block
+            );
+            c.startBase = leftBase;
 
+            var features = [];
+            this.getFeatures(
+                { ref: this.refSeq.name,
+                  basesPerSpan: 1/scale,
+                  start: leftBase,
+                  end: rightBase+1
+                },
+                function(f) { features.push(f); },
+                dojo.hitch( this, function() {
                     var featureRects = array.map( features, function(f) {
-                        return this._featureRect( scale, leftBase, c, f );
+                        return this._featureRect( scale, leftBase, c, f, dataScale );
                     }, this );
 
-                    this._preDraw(      scale, leftBase, rightBase, block, c, features, featureRects );
-                    this._drawFeatures( scale, leftBase, rightBase, block, c, features, featureRects );
-                    this._postDraw(     scale, leftBase, rightBase, block, c, features, featureRects );
+                    this._preDraw(      scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
+                    this._drawFeatures( scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
+                    this._postDraw(     scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
 
                     this._makeScoreDisplay( scale, leftBase, rightBase, block, c, features, featureRects );
 
                     this.heightUpdate( c.height, blockIndex );
-	            if (!(c.parentNode && c.parentNode.parentNode)) {
-                        c.style.position = "absolute";
-                        c.style.left = (100 * ((c.startBase - leftBase) / blockWidth)) + "%";
-                        switch (this.config.align) {
-                        case "top":
-                            c.style.top = "0px";
-                            break;
-                        case "bottom":
-                        default:
-                            c.style.bottom = this.trackPadding + "px";
-                            break;
-                        }
-	            }
-                }
-                else {
-                    // can't draw the data
-                    c.parentNode.removeChild(c);
-                    var notsupported = dojo.create(
-                        'div', {
-                            className: 'error',
-                            innerHTML: 'This track could not be displayed, possibly because your browser does not support it.  See browser error log for details.'
-                        }, block );
-                    this.heightUpdate( dojo.position(notsupported).h, blockIndex );
-                }
-
-            }));
+                    if( !( c.parentNode && c.parentNode.parentNode )) {
+                            c.style.position = "absolute";
+                            c.style.left = (100 * ((c.startBase - leftBase) / blockWidth)) + "%";
+                            switch (this.config.align) {
+                            case "top":
+                                c.style.top = "0px";
+                                break;
+                            case "bottom":
+                            default:
+                                c.style.bottom = this.trackPadding + "px";
+                                break;
+                            }
+                    }
+                }));
+        }));
     },
 
     /**
@@ -221,7 +237,7 @@ Wiggle.extend({
      * @private
      * @returns {Object} with l, r, and w
      */
-    _featureRect: function( scale, leftBase, canvas, feature ) {
+    _featureRect: function( scale, leftBase, canvas, feature, dataScale ) {
         var fRect = {
             w: Math.ceil( ( feature.get('end')   - feature.get('start') ) * scale ),
             l: Math.floor(( feature.get('start') - leftBase       ) * scale )

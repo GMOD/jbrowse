@@ -57,11 +57,6 @@ var HTMLFeatures = declare( BlockBased, {
                                // feature elements, indexed by the
                                // complete className of the feature
 
-        // connect the store and track loadSuccess and loadFailed events
-        // to eachother
-        dojo.connect( this.store, 'loadSuccess', this, 'loadSuccess' );
-        dojo.connect( this.store, 'loadFail',    this, 'loadFail' );
-
         // make a default click event handler
         if( ! (this.config.events||{}).click ) {
             this.config.events = this.config.events || {};
@@ -89,12 +84,16 @@ var HTMLFeatures = declare( BlockBased, {
             return handlers;
         }).call(this);
         this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
+
+        this.showLabels = this.config.style.showLabels;
     }
 } );
+
 /**
  * Mixin: JBrowse.View.Track.YScaleMixin.
  */
 HTMLFeatures.extend( YScaleMixin );
+
 /**
  * Mixin: JBrowse.View.Track.ExportMixin.
  */
@@ -147,28 +146,6 @@ HTMLFeatures = declare( HTMLFeatures,
     },
 
     /**
-     * Request that the track load its data.  The track will call its own
-     * loadSuccess() function when it is loaded.
-     */
-    load: function() {
-        this.store.load();
-    },
-
-    loadSuccess: function() {
-
-        // recall that scale is pixels per basepair
-        var density = this.store.getGlobalStats().featureDensity;
-
-        this.showLabels = this.config.style.showLabels;
-
-        this.labelScale = this.config.style.labelScale || density * this.config.style._defaultLabelScale;
-        this.histScale  = this.config.style.histScale  || density * this.config.style._defaultHistScale;
-        this.descriptionScale =  this.config.style.descriptionScale || density * this.config.style._defaultDescriptionScale;
-
-        this.inherited(arguments);
-    },
-
-    /**
      * Make a default feature detail page for the given feature.
      * @returns {HTMLElement} feature detail page HTML
      */
@@ -207,24 +184,27 @@ HTMLFeatures = declare( HTMLFeatures,
         track.browser.getStore('refseqs', dojo.hitch(this,function( refSeqStore ) {
             valueContainer = dojo.byId(valueContainerID) || valueContainer;
             if( refSeqStore ) {
-                refSeqStore.getRange( this.refSeq, f.get('start'), f.get('end'), dojo.hitch( this, function( start, end, seq ) {
-                    valueContainer = dojo.byId(valueContainerID) || valueContainer;
-                    valueContainer.innerHTML = '';
-                    // the HTML is rewritten by the dojo dialog
-                    // parser, but this callback may be called either
-                    // before or after that happens.  if the fetch by
-                    // ID fails, we have come back before the parse.
-                    var textArea = new FASTAView({ width: 62, htmlMaxRows: 10 })
-                                       .renderHTML(
-                                           { ref:   this.refSeq.name,
-                                             start: f.get('start'),
-                                             end:   f.get('end'),
-                                             strand: f.get('strand'),
-                                             type: f.get('type')
-                                           },
-                                           f.get('strand') == -1 ? Util.revcom(seq) : seq,
-                                           valueContainer
-                                       );
+                refSeqStore.getFeatures(
+                    { ref: this.refSeq.name, start: f.get('start'), end: f.get('end')},
+                    dojo.hitch( this, function( feature ) {
+                        var seq = feature.get('seq');
+                        valueContainer = dojo.byId(valueContainerID) || valueContainer;
+                        valueContainer.innerHTML = '';
+                        // the HTML is rewritten by the dojo dialog
+                        // parser, but this callback may be called either
+                        // before or after that happens.  if the fetch by
+                        // ID fails, we have come back before the parse.
+                        var textArea = new FASTAView({ width: 62, htmlMaxRows: 10 })
+                                           .renderHTML(
+                                               { ref:   this.refSeq.name,
+                                                 start: f.get('start'),
+                                                 end:   f.get('end'),
+                                                 strand: f.get('strand'),
+                                                 type: f.get('type')
+                                               },
+                                               f.get('strand') == -1 ? Util.revcom(seq) : seq,
+                                               valueContainer
+                                           );
                 }));
             } else {
                 valueContainer.innerHTML = '<span class="ghosted">reference sequences not loaded</span>';
@@ -415,7 +395,7 @@ HTMLFeatures = declare( HTMLFeatures,
     },
 
     updateFeatureLabelPositions: function( coords ) {
-        if( ! 'x' in coords || this.scale < this.labelScale )
+        if( ! 'x' in coords )
             return;
 
         dojo.query( '.block', this.div )
@@ -456,52 +436,58 @@ HTMLFeatures = declare( HTMLFeatures,
                       },this);
     },
 
-    fillBlock: function(blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth, containerStart, containerEnd) {
+    fillBlock: function( blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth, containerStart, containerEnd ) {
 
-        var stats = this.store.getGlobalStats();
+        var region = { ref: this.refSeq.name, start: leftBase, end: rightBase };
 
-        // only update the label once for each block size
-        var blockBases = Math.abs( leftBase-rightBase );
-        if( this._updatedLabelForBlockSize != blockBases ){
-            if ( this.store.histogram && scale < this.histScale ) {
-                this.setLabel(this.key + ' <span class="feature-density">per ' + Util.addCommas( Math.round( blockBases / this.numBins)) + ' bp</span>');
-            } else {
-                this.setLabel(this.key);
-            }
-            this._updatedLabelForBlockSize = blockBases;
-        }
+        this.store.getRegionStats(
+            region,
+            dojo.hitch( this, function( stats ) {
 
-        // console.log(this.name+" scale: %d, density: %d, histScale: %d, screenDensity: %d", scale, stats.featureDensity, this.config.style.histScale, stats.featureDensity / scale );
+                var density          = stats.featureDensity;
+                var histScale        = this.config.style.histScale  || density * this.config.style._defaultHistScale;
 
-        // if we our store offers density histograms, and we are zoomed out far enough, draw them
-        if( this.store.histograms && scale < this.histScale ) {
-                this.fillHist(blockIndex, block, leftBase, rightBase, stripeWidth,
-                              containerStart, containerEnd);
-        }
-        // if we have no histograms, check the predicted density of
-        // features on the screen, and display a message if it's
-        // bigger than maxFeatureScreenDensity
-        else if( stats.featureDensity / scale > this.config.maxFeatureScreenDensity ) {
-            this.fillMessage(
-                blockIndex,
-                block,
-                'Too many features to show'
-                    + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
-                    + '.'
-            );
-        }
-        else {
+                // only update the label once for each block size
+                var blockBases = Math.abs( leftBase-rightBase );
+                if( this._updatedLabelForBlockSize != blockBases ){
+                    if ( this.store.histogram && scale < histScale ) {
+                        this.setLabel(this.key + ' <span class="feature-density">per ' + Util.addCommas( Math.round( blockBases / this.numBins)) + ' bp</span>');
+                    } else {
+                        this.setLabel(this.key);
+                    }
+                    this._updatedLabelForBlockSize = blockBases;
+                }
 
-            // if we have transitioned to viewing features, delete the
-            // y-scale used for the histograms
-            if( this.yscale ) {
-                this._removeYScale();
-            }
+                // console.log(this.name+" scale: %d, density: %d, histScale: %d, screenDensity: %d", scale, stats.featureDensity, this.config.style.histScale, stats.featureDensity / scale );
 
-	    this.fillFeatures(blockIndex, block, leftBlock, rightBlock,
-                              leftBase, rightBase, scale,
-                              containerStart, containerEnd);
-        }
+                // if we our store offers density histograms, and we are zoomed out far enough, draw them
+                if( this.store.histograms && scale < histScale ) {
+                        this.fillHist( blockIndex, block, leftBase, rightBase, stripeWidth,
+                                       containerStart, containerEnd);
+                }
+                // if we have no histograms, check the predicted density of
+                // features on the screen, and display a message if it's
+                // bigger than maxFeatureScreenDensity
+                else if( stats.featureDensity / scale > this.config.maxFeatureScreenDensity ) {
+                    this.fillMessage(
+                        blockIndex,
+                        block,
+                        'Too many features to show'
+                            + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
+                            + '.'
+                    );
+                }
+                else {
+                    // if we have transitioned to viewing features, delete the
+                    // y-scale used for the histograms
+                    if( this.yscale ) {
+                        this._removeYScale();
+                    }
+                    this.fillFeatures(blockIndex, block, leftBlock, rightBlock,
+                                      leftBase, rightBase, scale, stats,
+                                      containerStart, containerEnd);
+                }
+        }));
     },
 
     /**
@@ -593,7 +579,7 @@ HTMLFeatures = declare( HTMLFeatures,
 
                          var featDiv =
                              this.renderFeature(sourceSlot.feature, overlaps[i],
-                                                destBlock, scale,
+                                                destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
                                                 containerStart, containerEnd, destBlock );
                      }
             }
@@ -611,12 +597,11 @@ HTMLFeatures = declare( HTMLFeatures,
      * @param containerStart don't make HTML elements extend further left than this
      * @param containerEnd don't make HTML elements extend further right than this. 0-based.
      */
-    fillFeatures: function(blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, containerStart, containerEnd) {
+    fillFeatures: function(blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, stats, containerStart, containerEnd) {
 
         this.scale = scale;
 
         block.featureNodes = {};
-        block.style.backgroundColor = "#ddd";
 
         //determine the glyph height, arrowhead width, label text dimensions, etc.
         if (!this.haveMeasurements) {
@@ -624,11 +609,14 @@ HTMLFeatures = declare( HTMLFeatures,
             this.haveMeasurements = true;
         }
 
+        var labelScale       = this.config.style.labelScale       || stats.featureDensity * this.config.style._defaultLabelScale;
+        var descriptionScale = this.config.style.descriptionScale || stats.featureDensity * this.config.style._defaultDescriptionScale;
+
         var curTrack = this;
         var featCallback = dojo.hitch(this,function( feature ) {
             var uniqueId = feature._uniqueID;
             if( ! this._featureIsRendered( uniqueId ) ) {
-                this.renderFeature( feature, uniqueId, block, scale,
+                this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                     containerStart, containerEnd, block );
             }
         });
@@ -636,12 +624,20 @@ HTMLFeatures = declare( HTMLFeatures,
         // var startBase = goLeft ? rightBase : leftBase;
         // var endBase = goLeft ? leftBase : rightBase;
 
-        this.store.iterate( leftBase, rightBase, featCallback,
-                                  function () {
-                                      block.style.backgroundColor = "";
-                                      curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
-                                                            blockIndex);
-                                  });
+        this.store.getFeatures( { ref: this.refSeq.name,
+                                  start: leftBase,
+                                  end: rightBase
+                                },
+                                featCallback,
+                                function () {
+                                    curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
+                                                          blockIndex);
+                                },
+                                function( error ) {
+                                    curTrack.error = error;
+                                    curTrack.fillError( blockIndex, block );
+                                }
+                              );
     },
 
     /**
@@ -704,7 +700,7 @@ HTMLFeatures = declare( HTMLFeatures,
         }
     },
 
-    renderFeature: function(feature, uniqueId, block, scale, containerStart, containerEnd, destBlock ) {
+    renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd, destBlock ) {
         //featureStart and featureEnd indicate how far left or right
         //the feature extends in bp space, including labels
         //and arrowheads if applicable
@@ -716,19 +712,18 @@ HTMLFeatures = declare( HTMLFeatures,
         if( typeof featureStart == 'string' )
             featureStart = parseInt(featureStart);
 
-
         var levelHeight = this.glyphHeight;
 
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
         var name = feature.get('name') || feature.get('ID');
-        var description = this.config.description && scale > this.descriptionScale && ( feature.get('note') || feature.get('description') );
+        var description = this.config.description && scale > feature._descriptionScale && ( feature.get('note') || feature.get('description') );
         if( description && description.length > this.config.style.maxDescriptionLength )
             description = description.substr(0, this.config.style.maxDescriptionLength+1 ).replace(/(\s+\S+|\s*)$/,'')+String.fromCharCode(8230);
 
         // add the label div (which includes the description) to the
         // calculated height of the feature if it will be displayed
-        if( this.showLabels && scale >= this.labelScale ) {
+        if( this.showLabels && scale >= labelScale ) {
             if (name) {
 	        featureEnd = Math.max(featureEnd, featureStart + (''+name).length * this.labelWidth / scale );
                 levelHeight += this.labelHeight + 1;
@@ -754,6 +749,12 @@ HTMLFeatures = declare( HTMLFeatures,
         // (callbackArgs are the args that will be passed to callbacks
         // in this feature's context menu or left-click handlers)
         featDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
+
+        // save the label scale and description scale in the featDiv
+        // so that we can use them later
+        featDiv._labelScale = labelScale;
+        featDiv._descriptionScale = descriptionScale;
+
 
         block.featureNodes[uniqueId] = featDiv;
 
@@ -827,7 +828,7 @@ HTMLFeatures = declare( HTMLFeatures,
             }
         }
 
-        if (name && this.showLabels && scale >= this.labelScale) {
+        if (name && this.showLabels && scale >= labelScale) {
             var labelDiv = dojo.create( 'div', {
                     className: "feature-label",
                     innerHTML: '<div class="feature-name">'+name+'</div>'
