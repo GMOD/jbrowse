@@ -150,7 +150,7 @@ Wiggle.extend({
         return scale;
     },
 
-    getFeatures: function( scale, refSeq, leftBase, rightBase, callback, errorCallback ) {
+    getFeatures: function( query, callback, errorCallback ) {
         this.store.getFeatures.apply( this.store, arguments );
     },
 

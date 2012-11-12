@@ -25,11 +25,12 @@ return declare( Wiggle,
         return {};
     },
 
-    readWigData: function( scale, refSeq, leftBase, rightBase, callback ) {
+    getFeatures: function( query, featureCallback, finishCallback, errorCallback ) {
+        var leftBase  = query.start;
+        var rightBase = query.end;
         var coverage = new Array( rightBase-leftBase );
-        this.store.iterate(
-            leftBase,
-            rightBase,
+        this.store.getFeatures(
+            query,
             dojo.hitch( this, function( feature ) {
                             var end = feature.get('end');
                             for( var i = feature.get('start')+1; i <= end; i++ ) {
@@ -38,19 +39,18 @@ return declare( Wiggle,
                         }),
             function () {
                 // make fake features from the coverage
-                var features = [];
                 var currFeat;
                 array.forEach( coverage, function( c, i ) {
                     if( currFeat && c == currFeat.score ) {
                             currFeat.end = leftBase+i;
                     } else {
                         if( currFeat )
-                            features.push( currFeat );
+                            featureCallback( currFeat );
                         currFeat = new CoverageFeature({ start: leftBase + i - 1, end: leftBase+i, score: c || 0 });
                     }
                 });
 
-                callback( features );
+                finishCallback();
             }
         );
     }
