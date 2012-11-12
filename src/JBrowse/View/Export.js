@@ -22,12 +22,13 @@ return declare( null,
     // will need to override this if you're not exporting regular features
     exportRegion: function( region, callback ) {
         var output = '';
-        this.store.iterate(
-            region.start, region.end,
+        this.store.getFeatures( region,
             dojo.hitch( this, 'writeFeature' ),
             dojo.hitch(this,function () {
                 callback( this.output );
-            }));
+            }),
+            dojo.hitch( this, function( error ) { console.error(error); } )
+           );
     },
 
     print: function( l ) {
