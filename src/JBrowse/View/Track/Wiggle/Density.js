@@ -22,11 +22,11 @@ return declare( WiggleBase,
         return { maxExportSpan: 500000, style: { height: 32 } };
     },
 
-    _drawFeatures: function( scale, leftBase, rightBase, block, canvas, features, featureRects ) {
+    _drawFeatures: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale ) {
 
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
-        var normalize = this.scale.normalize;
+        var normalize = dataScale.normalize;
 
         var featureColor = typeof this.config.style.color == 'function' ? this.config.style.color :
             function() { // default color function uses conf variables
@@ -37,7 +37,7 @@ return declare( WiggleBase,
                 var backgroundColor = new Color( this.config.style.bg_color || 'rgba(230,230,230,0.6)' );
                 var clipColor = new Color( this.config.style.clip_marker_color );
                 var disableClipMarkers = this.config.disable_clip_markers;
-                var normOrigin = normalize( this.scale.origin );
+                var normOrigin = normalize( dataScale.origin );
                 return function( feature ) {
                     var score = feature.get('score');
                     var n = normalize( score );
