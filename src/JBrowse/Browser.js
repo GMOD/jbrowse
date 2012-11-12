@@ -621,6 +621,10 @@ Browser.prototype.addRefseqs = function( refSeqs ) {
 };
 
 
+Browser.prototype.getCurrentRefSeq = function( name, callback ) {
+    return this.refSeq || {};
+};
+
 Browser.prototype.getRefSeq = function( name, callback ) {
     if( typeof name != 'string' )
         name = this.refSeqOrder[0];
