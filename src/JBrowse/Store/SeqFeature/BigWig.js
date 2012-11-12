@@ -44,7 +44,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             return new XHRBlob( url );
         }).call(this);
 
-        this.name = args.name || ( data.url && new urlObj( data.url ).path.replace(/^.+\//,'') ) || 'anonymous';
+        this.name = args.name || ( this.data.url && new urlObj( this.data.url ).path.replace(/^.+\//,'') ) || 'anonymous';
 
         this._load();
     },

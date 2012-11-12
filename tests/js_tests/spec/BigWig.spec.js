@@ -4,7 +4,6 @@ require(['JBrowse/Store/BigWig','JBrowse/Model/XHRBlob'], function( BigWig, XHRB
         var b = new BigWig({
             blob: new XHRBlob('../../sample_data/raw/volvox/volvox_microarray.bw')
         });
-        b.load();
         it('constructs', function(){ expect(b).toBeTruthy(); });
 
         it('returns empty array of features for a nonexistent chrom', function() {
@@ -54,15 +53,21 @@ require(['JBrowse/Store/BigWig','JBrowse/Model/XHRBlob'], function( BigWig, XHRB
         });
 
         it('reads the file stats (the totalSummary section)', function() {
-               var stats = b.getGlobalStats();
-               //console.log(stats);
-               expect(stats.basesCovered).toEqual(50690);
-               expect(stats.scoreMin).toEqual(100);
-               expect(stats.scoreMax).toEqual(899);
-               expect(stats.scoreSum).toEqual(16863706);
-               expect(stats.scoreSumSquares).toEqual(8911515204);
-               expect(stats.scoreStdDev).toEqual(255.20080383762445);
-               expect(stats.scoreMean).toEqual(332.6830933122904);
+               var stats;
+               b.getGlobalStats(function(s) {
+                                stats = s;
+               });
+               waitsFor(function() { return stats; });
+               runs( function() {
+                   //console.log(stats);
+                   expect(stats.basesCovered).toEqual(50690);
+                   expect(stats.scoreMin).toEqual(100);
+                   expect(stats.scoreMax).toEqual(899);
+                   expect(stats.scoreSum).toEqual(16863706);
+                   expect(stats.scoreSumSquares).toEqual(8911515204);
+                   expect(stats.scoreStdDev).toEqual(255.20080383762445);
+                   expect(stats.scoreMean).toEqual(332.6830933122904);
+               });
         });
 
         it('reads good data when zoomed very little', function() {

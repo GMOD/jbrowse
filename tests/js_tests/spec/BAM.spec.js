@@ -21,8 +21,7 @@ describe( 'BAM with volvox-sorted.bam', function() {
                       aspect.after( b, 'loadSuccess', function() {
                           loaded = true;
                       });
-                      b.load();
-                      b.iterate( 0, 50000,
+                      b.getFeatures({ start: 0, end: 50000 },
                                  function( feature ) {
                                      features.push( feature );
                                  },
@@ -55,8 +54,7 @@ describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', functi
                       aspect.after( b, 'loadSuccess', function() {
                           loaded = true;
                       });
-                      b.load();
-                      b.iterate( 17000, 18000,
+                      b.getFeatures({ start: 17000, end: 18000 },
                                  function( feature ) {
                                      features.push( feature );
                                  },
@@ -90,8 +88,7 @@ describe( 'empty BAM', function() {
                       aspect.after( b, 'loadSuccess', function() {
                           loaded = true;
                       });
-                      b.load();
-                      b.iterate( 0, 50000,
+                      b.getFeatures( { start: 0, end: 50000 },
                                  function( feature ) {
                                      features.push( feature );
                                  },
@@ -129,8 +126,7 @@ describe( 'BAM with tests/data/final.merged.sorted.rgid.mkdup.realign.recal.bam'
                       aspect.after( b, 'loadSuccess', function() {
                           loaded = true;
                       });
-                      b.load();
-                      b.iterate( 16589, 18964,
+                      b.getFeatures({ start: 16589, end: 18964 },
                                  function( feature ) {
                                      features.push( feature );
                                  },
