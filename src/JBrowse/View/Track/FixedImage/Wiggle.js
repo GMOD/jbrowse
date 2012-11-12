@@ -21,38 +21,30 @@ var Wiggle = declare( FixedImage,
     },
 
     updateStaticElements: function( coords ) {
-        FixedImage.prototype.updateStaticElements.apply( this, arguments );
+        this.inherited( arguments );
         this.updateYScaleFromViewDimensions( coords );
     },
 
-    loadSuccess: function() {
-        FixedImage.prototype.loadSuccess.apply( this, arguments );
-    },
-
     makeImageLoadHandler: function( img, blockIndex, blockWidth, composeCallback ) {
-        return FixedImage.prototype.makeImageLoadHandler.call(
-            this,
-            img,
-            blockIndex,
-            blockWidth,
-            dojo.hitch(this, function() {
-                           if(! this.yscale )
-                               this.makeWiggleYScale();
-                           if( composeCallback )
-                               composeCallback();
-                       })
-        );
+        return this.inherited( arguments,
+                               [ img,
+                                 blockIndex,
+                                 blockWidth,
+                                 dojo.hitch(this, function() {
+                                                this.makeWiggleYScale();
+                                                if( composeCallback )
+                                                    composeCallback();
+                                            })
+                               ]
+                             );
     },
 
     makeWiggleYScale: function() {
-        // if we are not loaded yet, we won't have any metadata, so just return
-        try {
-            this.minDisplayed = this.store.getGlobalStats().scoreMin;
-            this.maxDisplayed = this.store.getGlobalStats().scoreMax;
-        } catch (x) {
-            return;
-        }
-        this.makeYScale();
+        var thisB = this;
+        this.store.getGlobalStats( function( stats ) {
+            if( ! this.yscale )
+                thisB.makeYScale({ min: stats.scoreMin, max: stats.scoreMax });
+        });
     }
 });
 

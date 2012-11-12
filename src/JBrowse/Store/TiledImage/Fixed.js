@@ -1,12 +1,14 @@
 define(
     [
         'dojo/_base/declare',
+        'dojo/_base/Deferred',
         'JBrowse/Store',
+        'JBrowse/Store/DeferredStatsMixin',
         'JBrowse/Util'
     ],
-    function( declare, Store, Util ) {
+    function( declare, Deferred, Store, DeferredStatsMixin, Util ) {
 
-return declare( Store,
+return declare( [ Store, DeferredStatsMixin ],
 
 /**
  * Implements a store for image tiles that are only available at a
@@ -22,6 +24,23 @@ return declare( Store,
         this.zoomCache = {};
 
         this.baseUrl = args.baseUrl;
+
+        this.url = Util.resolveUrl(
+            this.baseUrl,
+            Util.fillTemplate( args.urlTemplate,
+                               {'refseq': this.refSeq.name } )
+        );
+
+        this._deferred.images = new Deferred();
+
+        dojo.xhrGet({ url: this.url,
+                      handleAs: "json",
+                      failOk: true,
+                      load:  dojo.hitch( this, function(o) {
+                          this.loadSuccess(o);
+                      }),
+                      error: dojo.hitch( this, '_failAllDeferred' )
+                   });
     },
 
     loadSuccess: function(o) {
@@ -37,7 +56,9 @@ return declare( Store,
         this.align = o.align;
         //zoomLevels: array of {basesPerTile, urlPrefix} hashes
         this.zoomLevels = o.zoomLevels;
-        this.setLoaded();
+
+        this._deferred.stats.resolve({success: true});
+        this._deferred.images.resolve({success: true});
     },
 
     /**
@@ -59,21 +80,21 @@ return declare( Store,
         return result;
     },
 
+    getImages: function( query, callback, errorCallback ) {
+        this._deferred.images.then(
+            dojo.hitch( this, '_getImages', query, callback, errorCallback )
+        );
+    },
+
     /**
      * Fetch an array of <code>&lt;img&gt;</code> elements for the image
      * tiles that should be displayed for a certain magnification scale
      * and section of the reference.
-     * @param {Number} scale     the current ratio of pixels per base in the view
-     * @param {Number} startBase the start of the region (in interbase coordinates)
-     * @param {Number} endBase   the end of the region   (in interbase coordinates)
      */
-    getImages: function( scale, startBase, endBase ) {
-
-        var url = Util.resolveUrl(
-            this.baseUrl,
-            Util.fillTemplate( args.urlTemplate,
-                               {'refseq': refSeq.name } )
-        );
+    _getImages: function( query, callback, errorCallback ) {
+        var scale     = query.scale || 1;
+        var startBase = query.start;
+        var endBase   = query.end;
 
         var zoom = this._getZoom( scale );
 
@@ -83,20 +104,20 @@ return declare( Store,
         var result = [];
         var im;
         for (var i = startTile; i <= endTile; i++) {
-    	im = this.tileToImage[i];
-    	if (!im) {
-    	    im = document.createElement("img");
+            im = this.tileToImage[i];
+            if (!im) {
+                im = document.createElement("img");
                 dojo.connect(im, "onerror", this.handleImageError );
                 im.src = this._imageSource( zoom, i );
                 //TODO: need image coord systems that don't start at 0?
-    	    im.startBase = (i * zoom.basesPerTile); // + this.refSeq.start;
-    	    im.baseWidth = zoom.basesPerTile;
-    	    im.tileNum = i;
-    	    this.tileToImage[i] = im;
-    	}
-    	result.push(im);
+                im.startBase = (i * zoom.basesPerTile); // + this.refSeq.start;
+                im.baseWidth = zoom.basesPerTile;
+                im.tileNum = i;
+                this.tileToImage[i] = im;
+            }
+            result.push(im);
         }
-        return result;
+        callback( result );
     },
 
     /**

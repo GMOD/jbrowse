@@ -18,33 +18,7 @@ return declare( BlockBased,
      * @extends JBrowse.View.Track.BlockBased
      */
     constructor: function( args ) {
-        var config = args.config;
-        var refSeq = args.refSeq;
-
-        if( !refSeq.end )
-            return;
-
-        this.refSeq = refSeq;
         this.trackPadding = args.trackPadding || 0;
-
-        this.config = config;
-
-        this.store = args.store;
-        dojo.connect( this.store, 'loadSuccess', this, 'loadSuccess' );
-        dojo.connect( this.store, 'loadFail',    this, 'loadFail'    );
-    },
-
-    /**
-     * Request that the track load its data.  The track will call its own
-     * loadSuccess() function when it is loaded.
-     */
-    load: function() {
-        this.store.load();
-    },
-
-    loadSuccess: function(o,url) {
-        this.empty = this.store.empty;
-        this.setLoaded();
     },
 
     handleImageError: function(ev) {
@@ -86,50 +60,52 @@ return declare( BlockBased,
                         containerStart, containerEnd) {
 
         var blockWidth = rightBase - leftBase;
-        var images = this.store.getImages( scale, leftBase, rightBase );
 
-        dojo.forEach( images, function(im) {
-                          im.className = 'image-track';
-	                  if (!(im.parentNode && im.parentNode.parentNode)) {
-                              im.style.position = "absolute";
-                              im.style.left = (100 * ((im.startBase - leftBase) / blockWidth)) + "%";
-                              switch (this.config.align) {
-                              case "top":
-                                  im.style.top = "0px";
-                                  break;
-                              case "bottom":
-                              default:
-                                  im.style.bottom = this.trackPadding + "px";
-                                  break;
-                              }
-                              block.appendChild(im);
-	                  }
+        this.store.getImages(
+            { scale: scale, start: leftBase, end: rightBase },
+            dojo.hitch(this, function(images) {
+                dojo.forEach( images, function(im) {
+                                  im.className = 'image-track';
+                                  if (!(im.parentNode && im.parentNode.parentNode)) {
+                                      im.style.position = "absolute";
+                                      im.style.left = (100 * ((im.startBase - leftBase) / blockWidth)) + "%";
+                                      switch (this.config.align) {
+                                      case "top":
+                                          im.style.top = "0px";
+                                          break;
+                                      case "bottom":
+                                      default:
+                                          im.style.bottom = this.trackPadding + "px";
+                                          break;
+                                      }
+                                      block.appendChild(im);
+                                  }
 
-                          // make an onload handler for when the image is fetched that
-                          // will update the height and width of the track
-                          var loadhandler = this.makeImageLoadHandler( im, blockIndex, blockWidth );
-                          if( im.complete )
-                              // just call the handler ourselves if the image is already loaded
-                              loadhandler();
-                          else
-                              // otherwise schedule it
-                              im.onload = loadhandler;
+                                  // make an onload handler for when the image is fetched that
+                                  // will update the height and width of the track
+                                  var loadhandler = this.makeImageLoadHandler( im, blockIndex, blockWidth );
+                                  if( im.complete )
+                                      // just call the handler ourselves if the image is already loaded
+                                      loadhandler();
+                                  else
+                                      // otherwise schedule it
+                                      im.onload = loadhandler;
 
-                      }, this);
+                              }, this);
+        }));
     },
 
     startZoom: function(destScale, destStart, destEnd) {
         if (this.empty) return;
         this.store.clearCache();
-        this.store.getImages( destScale, destStart, destEnd );
     },
 
     endZoom: function(destScale, destBlockBases) {
-        BlockBased.prototype.clear.apply(this);
+        this.clear();
     },
 
     clear: function() {
-        BlockBased.prototype.clear.apply(this);
+        this.inherited( arguments );
         this.store.clearCache();
     },
 
@@ -142,19 +118,19 @@ return declare( BlockBased,
         var destRight = destBlock.endBase;
         var im;
         for (var i = 0; i < children.length; i++) {
-	    im = children[i];
-	    if ("startBase" in im) {
-	        //if sourceBlock contains an image that overlaps destBlock,
-	        if ((im.startBase < destRight)
-		    && ((im.startBase + im.baseWidth) > destLeft)) {
-		    //move image from sourceBlock to destBlock
-		    im.style.left = (100 * ((im.startBase - destLeft) / (destRight - destLeft))) + "%";
-		    destBlock.appendChild(im);
-	        } else {
+            im = children[i];
+            if ("startBase" in im) {
+                //if sourceBlock contains an image that overlaps destBlock,
+                if ((im.startBase < destRight)
+                    && ((im.startBase + im.baseWidth) > destLeft)) {
+                    //move image from sourceBlock to destBlock
+                    im.style.left = (100 * ((im.startBase - destLeft) / (destRight - destLeft))) + "%";
+                    destBlock.appendChild(im);
+                } else {
                     // don't move it, and even uncache it
-		    this.store.unCacheImage( im );
-	        }
-	    }
+                    this.store.unCacheImage( im );
+                }
+            }
         }
     }
 });
