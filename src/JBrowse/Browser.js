@@ -401,6 +401,10 @@ Browser.prototype.getStore = function( storeName, callback ) {
              }));
 };
 
+Browser.prototype.clearStores = function() {
+    this._storeCache = {};
+};
+
 /**
  * Notifies the browser that the given named store is no longer being
  * used by the calling component.  Decrements the store's reference
@@ -855,6 +859,7 @@ Browser.prototype.navigateToLocation = function( location ) {
         var curTracks = this.view.visibleTrackNames();
 
         this.refSeq = this.allRefs[location.ref];
+        this.clearStores();
 
         this.view.setLocation( this.refSeq,
                                location.start,
