@@ -16,23 +16,8 @@ return declare( DraggableFeatureTrack,
  * far enough.
  * @class
  * @constructor
- * @param {Object} config
- *   key:   display text track name
- *   label: internal track name (no spaces or odd characters)
- *   urlTemplate: url of directory in which to find the sequence chunks
- *   chunkSize: size of sequence chunks, in characters
- * @param {Object} refSeq
- *  start: refseq start
- *  end:   refseq end
- *  name:  refseq name
- * @param {Object} browserParams
- *  changeCallback: function to call once JSON is loaded
- *  trackPadding: distance in px between tracks
- *  charWidth: width, in pixels, of sequence base characters
- *  seqHeight: height, in pixels, of sequence elements
- *
  */
-    constructor: function(config, refSeq, browserParams) {
+    constructor: function( args ) {
 
         /**
          * DraggableFeatureTrack now has its own context menu for divs,
@@ -40,13 +25,8 @@ return declare( DraggableFeatureTrack,
          * initialization
          */
         this.has_custom_context_menu = true;
-
-        //    var cback = browserParams ? browserParams.changeCallbck : null;
-        if (arguments.length == 0)  { return; }
-        if (browserParams === undefined) { return; }
-        var track = this;
-        track.show_reverse_strand = true;
-        track.show_protein_translation = true;
+        this.show_reverse_strand = true;
+        this.show_protein_translation = true;
 
  /*
     track.watch("height", function(id, oldval, newval)  {
@@ -61,16 +41,12 @@ return declare( DraggableFeatureTrack,
 */
 
 
-        track.residues_context_menu = new dijit.Menu({});  // placeholder till setAnnotTrack() triggers real menu init
-        track.annot_context_menu = new dijit.Menu({});     // placeholder till setAnnotTrack() triggers real menu init
+        this.residues_context_menu = new dijit.Menu({});  // placeholder till setAnnotTrack() triggers real menu init
+        this.annot_context_menu = new dijit.Menu({});     // placeholder till setAnnotTrack() triggers real menu init
 
         this.residuesMouseDown = function(event) {
             track.onResiduesMouseDown(event);
         };
-
-        // this.selectionManager = this.setSelectionManager(SequenceTrack.seqSelectionManager);
-
-        this.config = config;
 
         this.charWidth = browserParams.charWidth;
         this.seqHeight = browserParams.seqHeight;
@@ -78,17 +54,6 @@ return declare( DraggableFeatureTrack,
         //    for DNA residues and protein translation to be different styles
         this.dnaHeight = this.seqHeight;
         this.proteinHeight = this.seqHeight;
-
-        this.refSeq = refSeq;
-
-        // TODO: this should be passed into the constructor instead of
-        // being instantiated here
-        this.sequenceStore = new SequenceStore.StaticChunked(
-            {
-		baseUrl: config.baseUrl,
-		urlTemplate: config.residuesUrlTemplate,
-		compress: config.compress
-	    });
 
         this.trackPadding = 10;
         this.SHOW_IF_FEATURES = true;
@@ -296,10 +261,13 @@ return declare( DraggableFeatureTrack,
     	var rightExtended = rightBase + 2;
 
     	if (scale == this.charWidth) {
-    	    // this.sequenceStore.getRange( this.refSeq, leftBase, rightBase,
-    	   //  this.sequenceStore.getRange( this.refSeq, leftBase, endBase,
-    	    this.sequenceStore.getRange( this.refSeq, leftExtended, rightExtended,
-    		   function( start, end, seq ) {
+            // this.store.getRange( this.refSeq, leftBase, rightBase,
+            //  this.store.getRange( this.refSeq, leftBase, endBase,
+            this.store.getFeatures( { ref: this.refSeq.name, start: leftExtended, end: rightExtended },
+    		   function( feat ) {
+                       var start = feat.get('start');
+                       var end   = feat.get('end');
+                       var seq   = feat.get('seq');
 
     		       // fill with leading blanks if the
     		       // sequence does not extend all the way
@@ -462,7 +430,8 @@ return declare( DraggableFeatureTrack,
     		       blockHeight += 5;  // a little extra padding below (track.trackPadding used for top padding)
     	               // this.blockHeights[blockIndex] = blockHeight;  // shouldn't be necessary, done in track.heightUpdate();
     		       track.heightUpdate(blockHeight, blockIndex);
-    		   }
+    		   },
+                   function() {}
     	     );
     	}
     	else  {
