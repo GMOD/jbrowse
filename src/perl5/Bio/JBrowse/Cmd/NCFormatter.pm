@@ -37,6 +37,8 @@ sub _format {
             my $chrom = $feat->{seq_id};
             $featureCounts{$chrom} += 1;
 
+            $feat = $self->transform_feature( $feat );
+
             my $row = [ $chrom,
                         $feature_stream->flatten_to_feature( $feat ),
                         $feature_stream->flatten_to_name( $feat ),
@@ -84,6 +86,11 @@ sub _format {
     if( !$totalMatches && @$types ) {
         warn "WARNING: No matching features found for @$types\n";
     }
+}
+
+# stub
+sub transform_feature {
+    return $_[0];
 }
 
 1;
