@@ -119,11 +119,16 @@ Browser.prototype.initPlugins = function() {
              pluginNames,
              dojo.hitch( this, function() {
                              array.forEach( arguments, function( pluginClass, i ) {
-                                                this.plugins.push(
-                                                    new pluginClass(
-                                                        dojo.mixin( dojo.clone( plugins[i] ), { browser: this } )
-                                                    )
+
+                                                // instantiate the plugin
+                                                var plugin = new pluginClass(
+                                                    dojo.mixin( dojo.clone( plugins[i] ), { browser: this } )
                                                 );
+                                                this.plugins.push( plugin );
+
+                                                // load its css
+                                                this._loadCSS({url: 'plugins/'+plugin.getName()+'/css/main.css'});
+
                                             }, this );
                          }));
 
@@ -195,13 +200,15 @@ Browser.prototype.onRefSeqsLoaded = function() {};
 Browser.prototype.loadUserCSS = function() {
     if( this.config.css && ! dojo.isArray( this.config.css ) )
         this.config.css = [ this.config.css ];
-    dojo.forEach( this.config.css || [], function(css) {
+    dojo.forEach( this.config.css || [], dojo.hitch( this, '_loadCSS' ) );
+};
+
+Browser.prototype._loadCSS = function( css ) {
         if( typeof css == 'string' ) {
             dojo.create('style', { type: 'text/css', innerHTML: css }, this.container );
         } else if( typeof css == 'object' ) {
             dojo.create('link', { rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
         }
-    },this);
 };
 
 /**
