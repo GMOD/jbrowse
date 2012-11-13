@@ -121,8 +121,6 @@ Browser.prototype.initPlugins = function() {
                 )
             );
         }, this );
-
-        console.log( this.plugins );
     }));
 };
 
