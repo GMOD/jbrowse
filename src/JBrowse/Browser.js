@@ -88,12 +88,43 @@ var Browser = function(params) {
     dojo.connect( this, 'onConfigLoaded',  Util.debugHandler( this, 'loadNames'   ));
     dojo.connect( this, 'onRefSeqsLoaded', Util.debugHandler( this, 'initView'    ));
     dojo.connect( this, 'onRefSeqsLoaded', Util.debugHandler( this, 'reportUsageStats' ));
+    dojo.connect( this, 'onRefSeqsLoaded', Util.debugHandler( this, 'initPlugins' ));
 };
 
 Browser.prototype.version = function() {
     var BUILD_SYSTEM_JBROWSE_VERSION;
     return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
 }.call();
+
+/**
+ * Load and instantiate any plugins defined in the configuration.
+ */
+Browser.prototype.initPlugins = function() {
+    var plugins = this.config.plugins;
+
+    // coerce plugins to array of objects
+    plugins = array.map( dojo.isArray(plugins) ? plugins : [plugins], function( p ) {
+        return typeof p == 'object' ? p : { 'class_': p };
+    });
+
+    var pluginClasses = array.map( plugins, function( p ) {
+        return p.class_;
+    });
+
+    this.plugins = [];
+
+    require( pluginClasses, dojo.hitch( this, function() {
+        array.forEach( arguments, function( pluginClass, i ) {
+            this.plugins.push(
+                new pluginClass(
+                    dojo.mixin( dojo.clone( plugins[i] ), { browser: this } )
+                )
+            );
+        }, this );
+
+        console.log( this.plugins );
+    }));
+};
 
 /**
  * Displays links to configuration help in the main window.  Called
