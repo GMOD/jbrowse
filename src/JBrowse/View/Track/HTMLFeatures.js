@@ -50,7 +50,13 @@ var HTMLFeatures = declare( BlockBased, {
         //number of histogram bins per block
         this.numBins = 25;
         this.histLabel = false;
-        this.padding = 5;
+
+        this.defaultPadding = 5;
+        this.padding = this.defaultPadding;
+
+        this.glyphHeightPad = 2;
+        this.levelHeightPad = 2;
+
         this.trackPadding = args.trackPadding;
 
         this.heightCache = {}; // cache for the heights of some
@@ -315,7 +321,7 @@ HTMLFeatures = declare( HTMLFeatures,
                 if (!(typeof hist[bin] == 'number' && isFinite(hist[bin])))
                     continue;
                 binDiv = document.createElement("div");
-	        binDiv.className = "hist "+track.config.style.className + "-hist";
+	        binDiv.className = "hist feature-hist "+track.config.style.className + "-hist";
                 binDiv.style.cssText =
                     "left: " + ((bin / track.numBins) * 100) + "%; "
                     + "height: "
@@ -574,13 +580,15 @@ HTMLFeatures = declare( HTMLFeatures,
 	        if ( sourceSlot.layoutEnd > destLeft
 		     && sourceSlot.feature.get('start') < destRight ) {
 
-                         sourceBlock.removeChild(sourceSlot);
+                         sourceSlot.parentNode.removeChild(sourceSlot);
+
                          delete sourceBlock.featureNodes[ overlaps[i] ];
 
                          var featDiv =
                              this.renderFeature(sourceSlot.feature, overlaps[i],
                                                 destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
                                                 containerStart, containerEnd, destBlock );
+                         destBlock.appendChild( featDiv );
                      }
             }
         }
@@ -616,8 +624,9 @@ HTMLFeatures = declare( HTMLFeatures,
         var featCallback = dojo.hitch(this,function( feature ) {
             var uniqueId = feature._uniqueID;
             if( ! this._featureIsRendered( uniqueId ) ) {
-                this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
-                                    containerStart, containerEnd, block );
+                var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                                                  containerStart, containerEnd, block );
+                block.appendChild( featDiv );
             }
         });
 
@@ -679,8 +688,8 @@ HTMLFeatures = declare( HTMLFeatures,
         if (Util.is_ie6) heightTest.appendChild(document.createComment("foo"));
         document.body.appendChild(heightTest);
         glyphBox = domGeom.getMarginBox(heightTest);
-        this.glyphHeight = glyphBox.h;
-        this.padding += glyphBox.w;
+        this.glyphHeight = Math.round(glyphBox.h + this.glyphHeightPad);
+        this.padding = this.defaultPadding + glyphBox.w;
         document.body.removeChild(heightTest);
 
         //determine the width of the arrowhead, if any
@@ -698,6 +707,24 @@ HTMLFeatures = declare( HTMLFeatures,
             this.minusArrowHeight = glyphBox.h;
             document.body.removeChild(ah);
         }
+    },
+
+    getFeatDiv: function( feature )  {
+        var id = this.getId( feature );
+        if( ! id )
+            return null;
+
+        for( var i = 0; i < this.blocks.length; i++ ) {
+            var f = this.blocks[i].featureNodes[id];
+            if( f )
+                return f;
+        }
+
+        return null;
+    },
+
+    getId: function( f ) {
+        return f._uniqueId;
     },
 
     renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd, destBlock ) {
@@ -849,10 +876,6 @@ HTMLFeatures = declare( HTMLFeatures,
             // (callbackArgs are the args that will be passed to callbacks
             // in this feature's context menu or left-click handlers)
             labelDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
-        }
-
-        if( destBlock ) {
-            destBlock.appendChild(featDiv);
         }
 
         // defer subfeature rendering and modification hooks into a
