@@ -12,7 +12,10 @@
         }
 
         var JBrowse;
-        require({ baseUrl: 'src', packages: ['JBrowse','dojo','dijit','dojox','jszlib', 'WebApollo', 'jquery'] },
+        require( { baseUrl: 'src',
+                   packages: [ 'JBrowse','dojo','dijit','dojox','jszlib', 'WebApollo',
+                               { name: 'jquery', location: 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.1', main: 'jquery' }
+                             ] },
             [ 'JBrowse/Browser', 'dojo/io-query' ],
             function (Browser,ioQuery) {
                    var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
