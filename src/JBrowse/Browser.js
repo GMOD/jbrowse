@@ -104,24 +104,29 @@ Browser.prototype.initPlugins = function() {
 
     // coerce plugins to array of objects
     plugins = array.map( dojo.isArray(plugins) ? plugins : [plugins], function( p ) {
-        return typeof p == 'object' ? p : { 'class_': p };
+        return typeof p == 'object' ? p : { 'name': p };
     });
 
-    var pluginClasses = array.map( plugins, function( p ) {
-        return p.class_;
+    var pluginNames = array.map( plugins, function( p ) {
+        return p.name;
     });
 
     this.plugins = [];
 
-    require( pluginClasses, dojo.hitch( this, function() {
-        array.forEach( arguments, function( pluginClass, i ) {
-            this.plugins.push(
-                new pluginClass(
-                    dojo.mixin( dojo.clone( plugins[i] ), { browser: this } )
-                )
-            );
-        }, this );
-    }));
+    require( {
+                 packages: array.map( pluginNames, function(c) { return { name: c, location: "../plugins/"+c+"/js" }; })
+             },
+             pluginNames,
+             dojo.hitch( this, function() {
+                             array.forEach( arguments, function( pluginClass, i ) {
+                                                this.plugins.push(
+                                                    new pluginClass(
+                                                        dojo.mixin( dojo.clone( plugins[i] ), { browser: this } )
+                                                    )
+                                                );
+                                            }, this );
+                         }));
+
 };
 
 /**

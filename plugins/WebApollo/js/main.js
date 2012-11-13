@@ -1,6 +1,7 @@
 define.amd.jQuery = true;
 
-define([
+define(
+       [
            'dojo/_base/declare',
            'JBrowse/Plugin',
            './FeatureEdgeMatchManager'
