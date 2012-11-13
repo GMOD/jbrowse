@@ -1670,6 +1670,8 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
                                           view.pxPerBp,
                                           containerStart, containerEnd);
                       });
+
+    this.browser.publish( '/jbrowse/v1/v/redraw' );
 };
 
 /**

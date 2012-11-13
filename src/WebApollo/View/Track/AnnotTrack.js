@@ -13,16 +13,6 @@ define( [
 
 var listeners = [];
 
-// annotSelectionManager is class variable (shared by all AnnotTrack instances)
-var annotSelectionManager = new FeatureSelectionManager();
-
-// setting up selection exclusiveOr --
-//    if selection is made in annot track, any selection in other tracks is deselected, and vice versa,
-//    regardless of multi-select mode etc.
-annotSelectionManager.addMutualExclusion(DraggableFeatureTrack.selectionManager);
-// AnnotTrack.annotSelectionManager.addMutualExclusion(SequenceTrack.seqSelectionManager);
-DraggableFeatureTrack.selectionManager.addMutualExclusion( annotSelectionManager );
-
 /**
  *  only set USE_COMET true if server supports Servlet 3.0
  *  comet-style long-polling, and web app is propertly set up
@@ -50,7 +40,6 @@ var context_path = "..";
 var non_annot_context_menu;
 
 var AnnotTrack = declare( DraggableFeatureTrack,
-
 {
     constructor: function(trackMeta, refSeq, browserParams) {
                 //function AnnotTrack(trackMeta, url, refSeq, browserParams) {
@@ -69,7 +58,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
         // this.selectionManager = this.setSelectionManager(new FeatureSelectionManager());
         // this.selectionManager = this.setSelectionManager(DraggableFeatureTrack.selectionManager);
-        this.selectionManager = this.setSelectionManager( annotSelectionManager );
+        this.selectionManager = this.setSelectionManager( this.selectionManager );
         //    this.selectionManager.setClearOnAdd(new Array(DraggableFeatureTrack.selectionManager));
         //    DraggableFeatureTrack.selectionManager.setClearOnAdd(new Array(this.selectionManager)); 
 
@@ -2973,6 +2962,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         return annotation;
     }
 });
+
+// setting up selection exclusiveOr --
+//    if selection is made in annot track, any selection in other tracks is deselected, and vice versa,
+//    regardless of multi-select mode etc.
+AnnotTrack.selectionManager = new FeatureSelectionManager();
+AnnotTrack.selectionManager.addMutualExclusion( DraggableFeatureTrack.selectionManager );
+DraggableFeatureTrack.selectionManager.addMutualExclusion( AnnotTrack.selectionManager );
 
 return AnnotTrack;
 });

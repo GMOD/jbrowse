@@ -28,10 +28,6 @@ var debugFrame = false;
 var DraggableFeatureTrack = declare( HTMLFeatureTrack,
 
 {
-
-    // selectionManager is class variable (shared across all DraggableFeatureTrack objects)
-    selectionManager: new FeatureSelectionManager(),
-
     // so is dragging
     dragging: false,
 
@@ -46,7 +42,7 @@ var DraggableFeatureTrack = declare( HTMLFeatureTrack,
         // DraggableFeatureTracks all share the same FeatureSelectionManager
         //    if want subclasses to have different selection manager,
         //    call this.setSelectionManager in subclass (after calling parent constructor)
-        this.setSelectionManager(DraggableFeatureTrack.selectionManager);
+        this.setSelectionManager( this.selectionManager );
 
         // CSS class for selected features
         // override if want subclass to have different CSS class for selected features
@@ -1005,6 +1001,11 @@ var DraggableFeatureTrack = declare( HTMLFeatureTrack,
         }
     }
 });
+
+    // selectionManager is class variable (shared across all DraggableFeatureTrack objects)
+    DraggableFeatureTrack.selectionManager = new FeatureSelectionManager();
+
+    return DraggableFeatureTrack;
 });
 
  /*
