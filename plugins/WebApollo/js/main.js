@@ -12,6 +12,7 @@ return declare( JBPlugin,
 {
     constructor: function( args ) {
         FeatureEdgeMatchManager.setBrowser( args.browser );
-   }
+    },
+    getName: function() { return 'WebApollo'; }
 });
 });

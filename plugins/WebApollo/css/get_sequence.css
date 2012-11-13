@@ -1,0 +1,24 @@
+@CHARSET "UTF-8";
+
+.sequence_area {
+	width: 60em;
+	height: 20em;
+	font-family: 'courier';
+	font-size: 1.5em;
+}
+
+.first_button_div {
+	margin-top: 10px;
+}
+
+.button_div {
+	margin-top: 5px;
+}
+
+.button_label {
+	margin-left: 3px;
+}
+
+.button_field {
+	margin-left: 3px;
+}
