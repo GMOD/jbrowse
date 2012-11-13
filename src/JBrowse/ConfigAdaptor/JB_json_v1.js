@@ -87,19 +87,6 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
                                   if( ! t.baseUrl )
                                       t.baseUrl = o.baseUrl || '/';
-
-                                  // if there is a `config` subpart,
-                                  // just copy its keys in to the
-                                  // top-level config
-                                  if( t.config ) {
-                                      var conf = t.config;
-                                      delete t.config;
-                                      for( var prop in conf ) {
-                                          if( conf.hasOwnProperty(prop) ) {
-                                              t[prop] = conf[prop];
-                                          }
-                                      }
-                                  }
                               },this);
             }
 
@@ -114,6 +101,20 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             conf.stores = conf.stores || {};
 
             array.forEach( conf.tracks || [], function( trackConfig ) {
+
+                // if there is a `config` subpart,
+                // just copy its keys in to the
+                // top-level config
+                if( trackConfig.config ) {
+                    var c = trackConfig.config;
+                    delete trackConfig.config;
+                    for( var prop in c ) {
+                        if( conf.hasOwnProperty(prop) ) {
+                            trackConfig[prop] = c[prop];
+                        }
+                    }
+                }
+
                 // skip if it's a new-style track def
                 if( trackConfig.store )
                     return;
@@ -167,6 +168,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
                 // connect it to the track conf
                 trackConfig.store = storeConf.name;
+
             }, this);
 
             return conf;
