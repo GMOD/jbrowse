@@ -31,9 +31,11 @@ var DraggableFeatureTrack = declare( HTMLFeatureTrack,
     // so is dragging
     dragging: false,
 
-    constructor: function( config, refSeq, browserParams ) {
+    constructor: function( args ) {
 
         //  console.log("DragableFeatureTrack constructor called");
+
+        this.gview = this.browser.view;
 
         var thisObj = this;
         this.featMouseDown   = function(event) { thisObj.onFeatureMouseDown(event);   };
@@ -58,7 +60,6 @@ var DraggableFeatureTrack = declare( HTMLFeatureTrack,
         this.verbose_selection = false;
         this.verbose_selection_notification = false;
         this.verbose_drag = false;
-        this.browserParams = browserParams;
 
         this.feature_context_menu = null;
     },

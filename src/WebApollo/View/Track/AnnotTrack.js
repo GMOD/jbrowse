@@ -41,7 +41,7 @@ var non_annot_context_menu;
 
 var AnnotTrack = declare( DraggableFeatureTrack,
 {
-    constructor: function(trackMeta, refSeq, browserParams) {
+    constructor: function( args ) {
                 //function AnnotTrack(trackMeta, url, refSeq, browserParams) {
         //trackMeta: object with:
         //            key:   display text track name
