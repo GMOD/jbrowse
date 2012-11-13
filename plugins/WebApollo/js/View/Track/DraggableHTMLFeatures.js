@@ -31,6 +31,17 @@ var DraggableFeatureTrack = declare( HTMLFeatureTrack,
     // so is dragging
     dragging: false,
 
+    _defaultConfig: function() {
+        return Util.deepUpdate(
+            dojo.clone( this.inherited(arguments) ),
+            {
+                style: {
+                    renderClassName: 'DraggableFeatureTrack'
+                }
+            }
+        );
+    },
+
     constructor: function( args ) {
 
         //  console.log("DragableFeatureTrack constructor called");
