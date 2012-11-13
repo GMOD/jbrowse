@@ -84,8 +84,22 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             // set a default baseUrl in each of the track confs if needed
             if( o.sourceUrl ) {
                 dojo.forEach( o.tracks || [], function(t) {
+
                                   if( ! t.baseUrl )
                                       t.baseUrl = o.baseUrl || '/';
+
+                                  // if there is a `config` subpart,
+                                  // just copy its keys in to the
+                                  // top-level config
+                                  if( t.config ) {
+                                      var conf = t.config;
+                                      delete t.config;
+                                      for( var prop in conf ) {
+                                          if( conf.hasOwnProperty(prop) ) {
+                                              t[prop] = conf[prop];
+                                          }
+                                      }
+                                  }
                               },this);
             }
 
