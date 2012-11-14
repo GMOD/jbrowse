@@ -385,12 +385,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 subfeat = subfeats[i];
             }
 	    var uid = this.getId(subfeat);
-/*          var uid = subfeat.uid;
-            if (!uid)  {
-                uid = this.getSubfeatId(subfeat, i, parentId);
-                subfeat.uid= uid;
-            }
-*/
             subtype = subfeat.get('type');
             // don't render "wholeCDS" type
             // although if subfeatureClases is properly set up, wholeCDS would also be filtered out in renderFeature?
