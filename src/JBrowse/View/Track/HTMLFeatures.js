@@ -192,6 +192,7 @@ HTMLFeatures = declare( HTMLFeatures,
             if( refSeqStore ) {
                 refSeqStore.getFeatures(
                     { ref: this.refSeq.name, start: f.get('start'), end: f.get('end')},
+                    // feature callback
                     dojo.hitch( this, function( feature ) {
                         var seq = feature.get('seq');
                         valueContainer = dojo.byId(valueContainerID) || valueContainer;
@@ -211,9 +212,17 @@ HTMLFeatures = declare( HTMLFeatures,
                                                f.get('strand') == -1 ? Util.revcom(seq) : seq,
                                                valueContainer
                                            );
-                }));
+                  }),
+                  // end callback
+                  function() {},
+                  // error callback
+                  dojo.hitch( this, function() {
+                      valueContainer = dojo.byId(valueContainerID) || valueContainer;
+                      valueContainer.innerHTML = '<span class="ghosted">reference sequence not available</span>';
+                  })
+                );
             } else {
-                valueContainer.innerHTML = '<span class="ghosted">reference sequences not loaded</span>';
+                valueContainer.innerHTML = '<span class="ghosted">reference sequence not available</span>';
             }
         }));
 
