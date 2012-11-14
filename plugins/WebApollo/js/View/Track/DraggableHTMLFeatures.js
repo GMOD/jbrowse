@@ -5,9 +5,10 @@ define( [
             'dijit/Menu',
             'dijit/MenuItem',
             'dijit/CheckedMenuItem',
-            'dijit/Dialog'
+    'dijit/Dialog',
+    'jquery'
         ],
-        function( declare, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitDialog ) {
+        function( declare, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitDialog, $ ) {
 
 /*  Subclass of FeatureTrack that allows features to be selected,
     and dragged and dropped into the annotation track to create annotations.
@@ -25,7 +26,8 @@ define( [
 
 var debugFrame = false;
 
-var DraggableFeatureTrack = declare( HTMLFeatureTrack,
+//var DraggableFeatureTrack = declare( HTMLFeatureTrack,
+var draggableTrack = declare( HTMLFeatureTrack,
 
 {
     // so is dragging
@@ -33,7 +35,7 @@ var DraggableFeatureTrack = declare( HTMLFeatureTrack,
 
     constructor: function( args ) {
 
-        //  console.log("DragableFeatureTrack constructor called");
+        console.log("DragableFeatureTrack constructor called");
 
         this.gview = this.browser.view;
 
@@ -1004,9 +1006,9 @@ var DraggableFeatureTrack = declare( HTMLFeatureTrack,
 });
 
     // selectionManager is class variable (shared across all DraggableFeatureTrack objects)
-    DraggableFeatureTrack.selectionManager = new FeatureSelectionManager();
+    draggableTrack.selectionManager = new FeatureSelectionManager();
 
-    return DraggableFeatureTrack;
+	    return draggableTrack;
 });
 
  /*
