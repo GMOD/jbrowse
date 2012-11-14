@@ -425,8 +425,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
     renderExonSegments: function( subfeature, subDiv, cdsMin, cdsMax,
                                   displayStart, displayEnd, priorCdsLength, reverse)  {
         var attrs = this.attrs;
-        var subStart = attrs.get(subfeature, "Start");
-        var subEnd = attrs.get(subfeature, "End");
+        var subStart = subfeature.get('start');
+        var subEnd = subfeature.get('end');
         var subLength = subEnd - subStart;
         var UTRclass, CDSclass;
 
