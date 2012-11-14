@@ -44,8 +44,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     renderClassName: 'DraggableFeatureTrack'
                 },
                 events: {
-                    click:    dojo.hitch( this, 'onFeatureMouseDown' ),
-                    dblclick: dojo.hitch( this, 'onFeatureDoubleClick' )
+		    // need to map click to a null-op, to override default JBrowse click behavior (feature detail popup)
+                    click:     function() { },  
+		    mousedown: dojo.hitch( this, 'onFeatureMouseDown' ),
+                    dblclick:  dojo.hitch( this, 'onFeatureDoubleClick' )
                 }
             }
         );
@@ -75,7 +77,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         this.verbose = false;
         this.verbose_selection = false;
         this.verbose_selection_notification = false;
-        this.verbose_drag = false;
+        this.verbose_drag = true;
 
         this.feature_context_menu = null;
     },
