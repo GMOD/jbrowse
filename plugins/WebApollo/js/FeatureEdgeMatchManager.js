@@ -88,7 +88,7 @@ var FeatureEdgeMatchManager = declare( null,
         // var source_fields = source_track.fields;
         // var source_subfields = source_track.subFields;
         //    var source_attrs = source_track.attrs;
-        var source_attrs = source_track.featureStore.attrs;
+        var source_attrs = source_track.store.attrs;
 
         var source_subfeats = source_attrs.get(source_feat, "Subfeatures");
         if (! source_subfeats || source_subfeats.length === 0) {
@@ -135,12 +135,12 @@ var FeatureEdgeMatchManager = declare( null,
     //             "target_subfields is undefined"
     //             at "var tmindex = target_subfields["start"];" line below
     //     error possibly due to track's trackData not yet being fully loaded, so check track load fiel
-            if (target_track && target_track.featureStore && target_track.loaded)  {
+            if (target_track && target_track.store && target_track.loaded)  {
                 if (verbose_edges)  {
                     console.log("edge matching for: " + target_track.name);
                 }
 
-                var featureStore = target_track.featureStore;
+                var featureStore = target_track.store;
                 var target_attrs = featureStore.attrs;
 
                 // var target_fields = target_track.fields;
