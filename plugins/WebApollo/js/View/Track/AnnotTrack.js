@@ -7,9 +7,10 @@ define( [
             'WebApollo/View/Track/DraggableHTMLFeatures',
             'WebApollo/FeatureSelectionManager',
             'WebApollo/JSONUtils',
-            'WebApollo/BioFeatureUtils'
+            'WebApollo/BioFeatureUtils',
+            'WebApollo/Permission'
         ],
-        function( declare, $, dijitMenu, dijitMenuItem, dijitDialog, DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils ) {
+        function( declare, $, dijitMenu, dijitMenuItem, dijitDialog, DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission ) {
 
 var listeners = [];
 

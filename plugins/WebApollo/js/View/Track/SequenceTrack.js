@@ -1,9 +1,10 @@
 define( [
             'dojo/_base/declare',
             'WebApollo/View/Track/DraggableHTMLFeatures',
-            'WebApollo/JSONUtils'
+            'WebApollo/JSONUtils',
+            'WebApollo/Permission'
         ],
-        function( declare, DraggableFeatureTrack, JSONUtils ) {
+        function( declare, DraggableFeatureTrack, JSONUtils, Permission ) {
 
 var nbsp = String.fromCharCode(160);
 
