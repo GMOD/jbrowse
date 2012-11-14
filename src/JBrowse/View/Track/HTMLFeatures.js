@@ -887,14 +887,7 @@ HTMLFeatures = declare( HTMLFeatures,
              function() {
 
                  if( featwidth > this.config.style.minSubfeatureWidth ) {
-                     var subfeatures = feature.get('subfeatures');
-                     if( subfeatures ) {
-                         for (var i = 0; i < subfeatures.length; i++) {
-                             this.renderSubfeature(feature, featDiv,
-                                                   subfeatures[i],
-                                                   displayStart, displayEnd);
-                         }
-                     }
+		     this.handleSubFeatures(feature, featDiv, displayStart, displayEnd, block);
                  }
 
                  //ie6 doesn't respect the height style if the div is empty
@@ -922,6 +915,18 @@ HTMLFeatures = declare( HTMLFeatures,
 
         return featDiv;
     },
+
+    handleSubFeatures: function( feature, featDiv,
+                                 displayStart, displayEnd, block )  {
+	var subfeatures = feature.get('subfeatures');
+        if( subfeatures ) {
+            for (var i = 0; i < subfeatures.length; i++) {
+                this.renderSubfeature(feature, featDiv,
+                                      subfeatures[i],
+                                      displayStart, displayEnd);
+            }
+        }
+    }, 
 
     /**
      * Vertically centers all the child elements of a feature div.
