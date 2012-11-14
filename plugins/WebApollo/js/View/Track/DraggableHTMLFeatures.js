@@ -44,8 +44,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     renderClassName: 'DraggableFeatureTrack'
                 },
                 events: {
-                    click:       dojo.hitch( this, 'onFeatureMouseDown' ),
-                    doubleClick: dojo.hitch( this, 'onFeatureDoubleClick' )
+                    click:    dojo.hitch( this, 'onFeatureMouseDown' ),
+                    dblclick: dojo.hitch( this, 'onFeatureDoubleClick' )
                 }
             }
         );
