@@ -67,10 +67,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.annot_under_mouse = null;
 
         /**
-         * only show residues overlay if "pointer-events" CSS property is suppported
+         * only show residues overlay if "pointer-events" CSS property is supported
          *   (otherwise will interfere with passing of events to features beneath the overlay)
          */
-        this.useResiduesOverlay = Modernizr.testProp('pointerEvents');
+        this.useResiduesOverlay = 'pointerEvents' in document.body.style;
         this.FADEIN_RESIDUES = false;
 
         /**
