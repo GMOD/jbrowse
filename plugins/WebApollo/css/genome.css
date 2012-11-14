@@ -62,30 +62,6 @@ div.locationThumb {
     cursor: url("img/openhand.cur");
 }
 
-/* Style of locationThumb outline as it is being dragged. */
-div.locationThumb.dojoMoveItem {
-    cursor: url("img/closedhand.cur");
-}
-
-.topLink {
-    position: fixed;
-    right: 0;
-    z-index: 25;
-    background: white;
-    padding: 0 0.5ex 0 0.5ex;
-    border: 1px solid #bbb;
-    border-width: 0 0 1px 1px;
-}
-
-div.overview {
-    width: 100%;
-    border-style: solid;
-    border-width: 5px 0px 5px 0px;
-    border-color: #aaa;
-    color:#aaa;
-    text-align: center;
-    z-index: -5;
-}
 
 div.block {
     position: absolute;
