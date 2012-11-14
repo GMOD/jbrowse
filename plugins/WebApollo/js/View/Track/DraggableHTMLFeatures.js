@@ -5,10 +5,11 @@ define( [
             'dijit/Menu',
             'dijit/MenuItem',
             'dijit/CheckedMenuItem',
-    'dijit/Dialog',
-    'jquery'
+            'dijit/Dialog',
+            'jquery',
+            'JBrowse/Util'
         ],
-        function( declare, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitDialog, $ ) {
+        function( declare, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitDialog, $, Util ) {
 
 /*  Subclass of FeatureTrack that allows features to be selected,
     and dragged and dropped into the annotation track to create annotations.
