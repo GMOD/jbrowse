@@ -37,6 +37,10 @@ return declare( SeqFeatureStore,
         this.chunkCache   = {};
         this.compress     = args.compress;
         this.urlTemplate  = args.urlTemplate;
+        if( ! this.urlTemplate ) {
+            throw "no urlTemplate provided, cannot open sequence store";
+        }
+
         this.baseUrl      = args.baseUrl;
         this.seqChunkSize = args.seqChunkSize;
     },
