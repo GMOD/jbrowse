@@ -36,7 +36,7 @@ getFinalConfig: function( callback ) {
 
         // now validate the final merged config, and finally give it
         // to the callback
-        this._applyDefaults( this.config, this.defaults );
+        this.config = this._applyDefaults( this.config, this.defaults );
         if( ! this.skipValidation )
             this._validateConfig( this.config );
         callback( this.config );
