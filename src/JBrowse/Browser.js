@@ -137,16 +137,18 @@ Browser.prototype.initPlugins = function() {
                  pluginNames,
                  dojo.hitch( this, function() {
                                  array.forEach( arguments, function( pluginClass, i ) {
+                                                    if( typeof pluginClass == 'string' ) {
+                                                        console.error("could not load plugin "+pluginNames[i]+": "+pluginClass);
+                                                    } else {
+                                                        // instantiate the plugin
+                                                        var plugin = new pluginClass(
+                                                            dojo.mixin( dojo.clone( plugins[i] ), { browser: this } )
+                                                        );
+                                                        this.plugins.push( plugin );
 
-                                                    // instantiate the plugin
-                                                    var plugin = new pluginClass(
-                                                        dojo.mixin( dojo.clone( plugins[i] ), { browser: this } )
-                                                    );
-                                                    this.plugins.push( plugin );
-
-                                                    // load its css
-                                                    this._loadCSS({url: 'plugins/'+plugin.getName()+'/css/main.css'});
-
+                                                        // load its css
+                                                        this._loadCSS({url: 'plugins/'+plugin.getName()+'/css/main.css'});
+                                                    }
                                                 }, this );
                                  deferred.resolve({success: true});
                              }));
