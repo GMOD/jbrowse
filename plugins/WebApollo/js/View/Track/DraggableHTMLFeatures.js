@@ -58,7 +58,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // DraggableFeatureTracks all share the same FeatureSelectionManager
         //    if want subclasses to have different selection manager,
         //    call this.setSelectionManager in subclass (after calling parent constructor)
-        this.setSelectionManager( this.selectionManager );
+        this.setSelectionManager( DraggableFeatureTrack.selectionManager );
 
         // CSS class for selected features
         // override if want subclass to have different CSS class for selected features

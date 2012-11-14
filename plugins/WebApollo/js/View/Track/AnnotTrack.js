@@ -59,7 +59,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
         // this.selectionManager = this.setSelectionManager(new FeatureSelectionManager());
         // this.selectionManager = this.setSelectionManager(DraggableFeatureTrack.selectionManager);
-        this.selectionManager = this.setSelectionManager( this.selectionManager );
+        this.selectionManager = this.setSelectionManager( AnnotTrack.selectionManager );
         //    this.selectionManager.setClearOnAdd(new Array(DraggableFeatureTrack.selectionManager));
         //    DraggableFeatureTrack.selectionManager.setClearOnAdd(new Array(this.selectionManager)); 
 
