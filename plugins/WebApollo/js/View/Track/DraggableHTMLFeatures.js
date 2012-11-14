@@ -316,8 +316,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // only way to get here is via renderFeature(parent,...),
         //   so parent guaranteed to have unique ID set by now
         var attrs = this.attrs;
-        var parentId = feature.uid;
-        var subfeats = attrs.get(feature, "Subfeatures");
+        var parentId = this.getId(feature);
+        var subfeats = feature.get('subfeatures');
         var slength = subfeats.length;
         var subfeat;
         var wholeCDS = null;
@@ -325,7 +325,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var i;
         for (i=0; i < slength; i++)  {
             subfeat = subfeats[i];
-            subtype = attrs.get(subfeat, "Type");
+            subtype = subfeat.get('type');
             if (subtype === "wholeCDS" || subtype === "polypeptide") {
                 wholeCDS = subfeat;
                 break;
@@ -384,12 +384,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
             else  {
                 subfeat = subfeats[i];
             }
-            var uid = subfeat.uid;
+	    var uid = this.getId(subfeat);
+/*          var uid = subfeat.uid;
             if (!uid)  {
                 uid = this.getSubfeatId(subfeat, i, parentId);
                 subfeat.uid= uid;
             }
-            subtype = attrs.get(subfeat, "Type");
+*/
+            subtype = subfeat.get('type');
             // don't render "wholeCDS" type
             // although if subfeatureClases is properly set up, wholeCDS would also be filtered out in renderFeature?
             // if (subtype == "wholeCDS")  {  continue; }
