@@ -1050,6 +1050,7 @@ HTMLFeatures = declare( HTMLFeatures,
             + "top: 0px;"
             + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
         featDiv.appendChild(subDiv);
+	return subDiv;
     },
 
     _getLayout: function( scale ) {
