@@ -1,3 +1,12 @@
+require({
+           packages: [
+               { name: 'jqueryui', location: '../plugins/WebApollo/jslib/jqueryui' },
+               { name: 'jquery', location: 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.1', main: 'jquery' }
+           ]
+       },
+       [],
+       function() {
+
 define.amd.jQuery = true;
 
 define(
@@ -15,4 +24,7 @@ return declare( JBPlugin,
     },
     getName: function() { return 'WebApollo'; }
 });
+
+});
+
 });
