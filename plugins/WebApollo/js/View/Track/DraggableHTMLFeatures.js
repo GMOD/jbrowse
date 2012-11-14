@@ -7,9 +7,10 @@ define( [
             'dijit/CheckedMenuItem',
             'dijit/Dialog',
             'jquery',
+            'jqueryui/draggable',
             'JBrowse/Util'
         ],
-        function( declare, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitDialog, $, Util ) {
+        function( declare, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitDialog, $, draggable, Util ) {
 
 /*  Subclass of FeatureTrack that allows features to be selected,
     and dragged and dropped into the annotation track to create annotations.
@@ -58,7 +59,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // DraggableFeatureTracks all share the same FeatureSelectionManager
         //    if want subclasses to have different selection manager,
         //    call this.setSelectionManager in subclass (after calling parent constructor)
-        this.setSelectionManager( DraggableFeatureTrack.selectionManager );
+        this.setSelectionManager( draggableTrack.selectionManager );
 
         // CSS class for selected features
         // override if want subclass to have different CSS class for selected features

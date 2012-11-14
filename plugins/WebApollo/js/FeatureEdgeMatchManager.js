@@ -84,13 +84,8 @@ var FeatureEdgeMatchManager = declare( null,
         var source_feat = feat;
         var verbose_edges = this.verbose_edges;
         if (verbose_edges)  { console.log("EdgeMatcher.selectionAdded called"); }
-        var source_track = source_feat.track;
-        // var source_fields = source_track.fields;
-        // var source_subfields = source_track.subFields;
-        //    var source_attrs = source_track.attrs;
-        var source_attrs = source_track.store.attrs;
 
-        var source_subfeats = source_attrs.get(source_feat, "Subfeatures");
+        var source_subfeats = source_feat.get('subfeatures');
         if (! source_subfeats || source_subfeats.length === 0) {
             source_subfeats = [ source_feat ];
         }
@@ -118,8 +113,8 @@ var FeatureEdgeMatchManager = declare( null,
 
         var sourceid = source_feat.uid;
 
-        var qmin = source_attrs.get(source_feat, "Start");
-        var qmax = source_attrs.get(source_feat, "End");
+        var qmin = source_feat.get('start');
+        var qmax = source_feat.get("end");
         // var smindex = source_attrs.get(source_subfields["start"];
         // var smaxdex = source_subfields["end"];
 
@@ -176,8 +171,8 @@ var FeatureEdgeMatchManager = declare( null,
                                         continue;
                                     }
 
-                                    var ssmin = source_attrs.get(ssfeat, "Start");
-                                    var ssmax = source_attrs.get(ssfeat, "End");
+                                    var ssmin = ssfeat.get('start');
+                                    var ssmax = ssfeat.get('end');
                                     for (var j in target_subfeats)  {
                                         var tsfeat = target_subfeats[j];
                                         var tstype = tsfeat.get('type');
