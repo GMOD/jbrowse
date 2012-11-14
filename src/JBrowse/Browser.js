@@ -2,6 +2,8 @@ var _gaq = _gaq || []; // global task queue for Google Analytics
 
 define( [
             'dojo/_base/lang',
+            'dojo/on',
+            'dojo/_base/Deferred',
             'dojo/topic',
             'dojo/aspect',
             'dojo/_base/array',
@@ -21,6 +23,8 @@ define( [
         ],
         function(
             lang,
+            on,
+            Deferred,
             topic,
             aspect,
             array,
@@ -81,14 +85,22 @@ var Browser = function(params) {
 
     // schedule the config load, the first step in the initialization
     // process, to happen when the page is done loading
-    dojo.addOnLoad( dojo.hitch( this,'loadConfig' ) );
 
-    dojo.connect( this, 'onConfigLoaded',  Util.debugHandler( this, 'loadUserCSS' ));
-    dojo.connect( this, 'onConfigLoaded',  Util.debugHandler( this, 'loadRefSeqs' ));
-    dojo.connect( this, 'onConfigLoaded',  Util.debugHandler( this, 'loadNames'   ));
-    dojo.connect( this, 'onRefSeqsLoaded', Util.debugHandler( this, 'initView'    ));
-    dojo.connect( this, 'onRefSeqsLoaded', Util.debugHandler( this, 'reportUsageStats' ));
-    dojo.connect( this, 'onRefSeqsLoaded', Util.debugHandler( this, 'initPlugins' ));
+    this._deferred = {};
+    var thisB = this;
+    dojo.addOnLoad( function() {
+        thisB.loadConfig().then( function() {
+            thisB.loadNames();
+            thisB.loadUserCSS().then( function() {
+                thisB.initPlugins().then( function() {
+                    thisB.loadRefSeqs().then( function() {
+                       thisB.initView();
+                       thisB.reportUsageStats();
+                    });
+                });
+            });
+        });
+    });
 };
 
 Browser.prototype.version = function() {
@@ -100,40 +112,45 @@ Browser.prototype.version = function() {
  * Load and instantiate any plugins defined in the configuration.
  */
 Browser.prototype.initPlugins = function() {
-    this.plugins = [];
+    return this._deferredFunction( 'plugin initalization', function( deferred ) {
+        this.plugins = [];
 
-    var plugins = this.config.plugins;
+        var plugins = this.config.plugins;
 
-    if( ! plugins )
-        return;
+        if( ! plugins ) {
+            deferred.resolve({success: true});
+            return;
+        }
 
-    // coerce plugins to array of objects
-    plugins = array.map( dojo.isArray(plugins) ? plugins : [plugins], function( p ) {
-        return typeof p == 'object' ? p : { 'name': p };
+        // coerce plugins to array of objects
+        plugins = array.map( dojo.isArray(plugins) ? plugins : [plugins], function( p ) {
+            return typeof p == 'object' ? p : { 'name': p };
+        });
+
+        var pluginNames = array.map( plugins, function( p ) {
+            return p.name;
+        });
+
+        require( {
+                     packages: array.map( pluginNames, function(c) { return { name: c, location: "../plugins/"+c+"/js" }; })
+                 },
+                 pluginNames,
+                 dojo.hitch( this, function() {
+                                 array.forEach( arguments, function( pluginClass, i ) {
+
+                                                    // instantiate the plugin
+                                                    var plugin = new pluginClass(
+                                                        dojo.mixin( dojo.clone( plugins[i] ), { browser: this } )
+                                                    );
+                                                    this.plugins.push( plugin );
+
+                                                    // load its css
+                                                    this._loadCSS({url: 'plugins/'+plugin.getName()+'/css/main.css'});
+
+                                                }, this );
+                                 deferred.resolve({success: true});
+                             }));
     });
-
-    var pluginNames = array.map( plugins, function( p ) {
-        return p.name;
-    });
-
-    require( {
-                 packages: array.map( pluginNames, function(c) { return { name: c, location: "../plugins/"+c+"/js" }; })
-             },
-             pluginNames,
-             dojo.hitch( this, function() {
-                             array.forEach( arguments, function( pluginClass, i ) {
-
-                                                // instantiate the plugin
-                                                var plugin = new pluginClass(
-                                                    dojo.mixin( dojo.clone( plugins[i] ), { browser: this } )
-                                                );
-                                                this.plugins.push( plugin );
-
-                                                // load its css
-                                                this._loadCSS({url: 'plugins/'+plugin.getName()+'/css/main.css'});
-
-                                            }, this );
-                         }));
 
 };
 
@@ -178,21 +195,24 @@ Browser.prototype.fatalError = function( error ) {
 };
 
 Browser.prototype.loadRefSeqs = function() {
-    // load our ref seqs
-    if( typeof this.config.refSeqs == 'string' )
-        this.config.refSeqs = { url: this.config.refSeqs };
-    dojo.xhrGet(
-        {
-            url: this.config.refSeqs.url,
-            handleAs: 'json',
-            load: dojo.hitch( this, function(o) {
-                this.addRefseqs(o);
-                this.onRefSeqsLoaded();
-            }),
-            error: dojo.hitch( this, function(e) {
-                this.fatalError('Failed to load reference sequence info: '+e);
-            })
-        });
+    return this._deferredFunction( 'refseq loading', function( deferred ) {
+        // load our ref seqs
+        if( typeof this.config.refSeqs == 'string' )
+            this.config.refSeqs = { url: this.config.refSeqs };
+        dojo.xhrGet(
+            {
+                url: this.config.refSeqs.url,
+                handleAs: 'json',
+                load: dojo.hitch( this, function(o) {
+                    this.addRefseqs( o );
+                    deferred.resolve({success:true});
+                }),
+                error: dojo.hitch( this, function(e) {
+                    this.fatalError('Failed to load reference sequence info: '+e);
+                    deferred.resolve({ success: false, error: e });
+                })
+            });
+    });
 };
 
 /**
@@ -201,16 +221,30 @@ Browser.prototype.loadRefSeqs = function() {
 Browser.prototype.onRefSeqsLoaded = function() {};
 
 Browser.prototype.loadUserCSS = function() {
-    if( this.config.css && ! dojo.isArray( this.config.css ) )
-        this.config.css = [ this.config.css ];
-    dojo.forEach( this.config.css || [], dojo.hitch( this, '_loadCSS' ) );
+    return this._deferredFunction( 'load user css', function( deferred ) {
+        if( this.config.css && ! dojo.isArray( this.config.css ) )
+            this.config.css = [ this.config.css ];
+        var css = this.config.css || [];
+        var toLoad = css.length;
+        if( toLoad ) {
+            dojo.forEach( this.config.css || [], dojo.hitch( this, '_loadCSS', function() {
+                if( ! --toLoad )
+                    deferred.resolve({success:true});
+            }));
+        } else {
+            deferred.resolve({success:true});
+        }
+    });
 };
 
-Browser.prototype._loadCSS = function( css ) {
+Browser.prototype._loadCSS = function( css, callback ) {
         if( typeof css == 'string' ) {
             dojo.create('style', { type: 'text/css', innerHTML: css }, this.container );
+            callback();
         } else if( typeof css == 'object' ) {
-            dojo.create('link', { rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
+            var link = dojo.create('link', { rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
+            on( link, 'load', callback );
+            on( link, 'error', callback );
         }
 };
 
@@ -218,9 +252,12 @@ Browser.prototype._loadCSS = function( css ) {
  * Load our name index.
  */
 Browser.prototype.loadNames = function() {
-    // load our name index
-    if (this.config.nameUrl)
-        this.names = new LazyTrie(this.config.nameUrl, "lazy-{Chunk}.json");
+    return this._deferredFunction( 'name store loading', function( deferred ) {
+        // load our name index
+        if (this.config.nameUrl)
+            this.names = new LazyTrie(this.config.nameUrl, "lazy-{Chunk}.json");
+        deferred.resolve({success: true});
+     });
 };
 
 Browser.prototype.initView = function() {
@@ -287,48 +324,47 @@ Browser.prototype.initView = function() {
     dojo.connect( this.browserWidget, "resize", this,      'onResize' );
     dojo.connect( this.browserWidget, "resize", this.view, 'onResize' );
 
-    // (this stuff below is just a callback pyramid to make it synchronous)
-    // init the track metadata
-    this.initTrackMetadata( dojo.hitch(this, function() {
-        //set up the track list
-        this.createTrackList( dojo.hitch( this, function(){
-            this.containerWidget.startup();
-            this.onResize();
-            this.view.onResize();
+    //set initial location
+    this.loadRefSeqs().then( dojo.hitch( this, function() {
+        this.initTrackMetadata().then( dojo.hitch( this, function() {
+            this.createTrackList().then( dojo.hitch( this, function() {
+                    this.containerWidget.startup();
+                    this.onResize();
+                    this.view.onResize();
 
-            //set initial location
-            var oldLocMap = dojo.fromJson( this.cookie('location') ) || {};
-            if (this.config.location) {
-                this.navigateTo(this.config.location);
-            } else if (oldLocMap[this.refSeq.name]) {
-                this.navigateTo( oldLocMap[this.refSeq.name].l || oldLocMap[this.refSeq.name] );
-            } else if (this.config.defaultLocation){
-                this.navigateTo(this.config.defaultLocation);
-            } else {
-                this.navigateTo( Util.assembleLocString({
-                                     ref:   this.refSeq.name,
-                                     start: 0.4 * ( this.refSeq.start + this.refSeq.end ),
-                                     end:   0.6 * ( this.refSeq.start + this.refSeq.end )
-                                 })
-                               );
-            }
+                    var oldLocMap = dojo.fromJson( this.cookie('location') ) || {};
+                    if (this.config.location) {
+                        this.navigateTo(this.config.location);
+                    } else if (oldLocMap[this.refSeq.name]) {
+                        this.navigateTo( oldLocMap[this.refSeq.name].l || oldLocMap[this.refSeq.name] );
+                    } else if (this.config.defaultLocation){
+                        this.navigateTo(this.config.defaultLocation);
+                    } else {
+                        this.navigateTo( Util.assembleLocString({
+                                             ref:   this.refSeq.name,
+                                             start: 0.4 * ( this.refSeq.start + this.refSeq.end ),
+                                             end:   0.6 * ( this.refSeq.start + this.refSeq.end )
+                                         })
+                                       );
+                    }
 
-            // make our global keyboard shortcut handler
-            dojo.connect( document.body, 'onkeypress', this, 'globalKeyHandler' );
+                // make our global keyboard shortcut handler
+                dojo.connect( document.body, 'onkeypress', this, 'globalKeyHandler' );
 
-            // configure our event routing
-            this._initEventRouting();
+                // configure our event routing
+                this._initEventRouting();
 
-            this.isInitialized = true;
+                this.isInitialized = true;
 
-            //if someone calls methods on this browser object
-            //before it's fully initialized, then we defer
-            //those functions until now
-            dojo.forEach( this.deferredFunctions, function(f) {
-                f.call(this);
-            },this );
+                //if someone calls methods on this browser object
+                //before it's fully initialized, then we defer
+                //those functions until now
+                dojo.forEach( this.deferredFunctions, function(f) {
+                                  f.call(this);
+                              },this );
 
-            this.deferredFunctions = [];
+                this.deferredFunctions = [];
+           }));
         }));
     }));
 };
@@ -566,6 +602,27 @@ Browser.prototype.addRecentlyUsedTracks = function( trackLabels ) {
     return newRecent;
 };
 
+Browser.prototype._deferredFunction = function(  name, func ) {
+
+    var args = Array.prototype.slice.call( arguments, 2 );
+    var thisB = this;
+
+    this._deferred[name] = this._deferred[name] || (function() {
+        var d = new Deferred();
+        args.unshift( d );
+        try {
+            func.apply( thisB, args ) ;
+        } catch(e) {
+            console.error(''+e, e);
+            d.resolve({ success:false, error: e });
+        }
+
+        return d;
+    }());
+
+    return this._deferred[name];
+};
+
 /**
  *  Load our configuration file(s) based on the parameters thex
  *  constructor was passed.  Does not return until all files are
@@ -573,8 +630,9 @@ Browser.prototype.addRecentlyUsedTracks = function( trackLabels ) {
  *  @returns nothing meaningful
  */
 Browser.prototype.loadConfig = function () {
-    var c = new ConfigManager({ config: this.config, defaults: this._configDefaults(), browser: this });
-    c.getFinalConfig( dojo.hitch(this, function( finishedConfig ) {
+    return this._deferredFunction( 'configuration loading', function( deferred ) {
+        var c = new ConfigManager({ config: this.config, defaults: this._configDefaults(), browser: this });
+        c.getFinalConfig( dojo.hitch(this, function( finishedConfig ) {
                 this.config = finishedConfig;
 
                 // index the track configurations by name
@@ -583,8 +641,9 @@ Browser.prototype.loadConfig = function () {
                                   this.trackConfigsByName[conf.label] = conf;
                               },this);
 
-                this.onConfigLoaded();
-     }));
+                deferred.resolve({success:true});
+        }));
+    });
 };
 
 Browser.prototype._configDefaults = function() {
@@ -716,96 +775,98 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
  * Asynchronously initialize our track metadata.
  */
 Browser.prototype.initTrackMetadata = function( callback ) {
-    var metaDataSourceClasses = dojo.map(
-                                (this.config.trackMetadata||{}).sources || [],
-                                function( sourceDef ) {
-                                    var url  = sourceDef.url || 'trackMeta.csv';
-                                    var type = sourceDef.type || (
-                                            /\.csv$/i.test(url)     ? 'csv'  :
-                                            /\.js(on)?$/i.test(url) ? 'json' :
-                                            'csv'
-                                    );
-                                    var storeClass = sourceDef['class']
-                                        || { csv: 'dojox/data/CsvStore', json: 'dojox/data/JsonRestStore' }[type];
-                                    if( !storeClass ) {
-                                        console.error( "No store class found for type '"
-                                                       +type+"', cannot load track metadata from URL "+url);
-                                        return null;
-                                    }
-                                    return { class_: storeClass, url: url };
-                                });
+    return this._deferredFunction( 'track metadata initialization', function( deferred ) {
+        var metaDataSourceClasses = dojo.map(
+                                    (this.config.trackMetadata||{}).sources || [],
+                                    function( sourceDef ) {
+                                        var url  = sourceDef.url || 'trackMeta.csv';
+                                        var type = sourceDef.type || (
+                                                /\.csv$/i.test(url)     ? 'csv'  :
+                                                /\.js(on)?$/i.test(url) ? 'json' :
+                                                'csv'
+                                        );
+                                        var storeClass = sourceDef['class']
+                                            || { csv: 'dojox/data/CsvStore', json: 'dojox/data/JsonRestStore' }[type];
+                                        if( !storeClass ) {
+                                            console.error( "No store class found for type '"
+                                                           +type+"', cannot load track metadata from URL "+url);
+                                            return null;
+                                        }
+                                        return { class_: storeClass, url: url };
+                                    });
 
 
-    require( Array.prototype.concat.apply( ['JBrowse/Store/TrackMetaData'],
-                                           dojo.map( metaDataSourceClasses, function(c) { return c.class_; } ) ),
-             dojo.hitch(this,function( MetaDataStore ) {
-                 var mdStores = [];
-                 for( var i = 1; i<arguments.length; i++ ) {
-                     mdStores.push( new (arguments[i])({url: metaDataSourceClasses[i-1].url}) );
-                 }
+        require( Array.prototype.concat.apply( ['JBrowse/Store/TrackMetaData'],
+                                               dojo.map( metaDataSourceClasses, function(c) { return c.class_; } ) ),
+                 dojo.hitch(this,function( MetaDataStore ) {
+                     var mdStores = [];
+                     for( var i = 1; i<arguments.length; i++ ) {
+                         mdStores.push( new (arguments[i])({url: metaDataSourceClasses[i-1].url}) );
+                     }
 
-                 this.trackMetaDataStore =  new MetaDataStore(
-                     dojo.mixin( dojo.clone(this.config.trackMetadata || {}), {
-                                     trackConfigs: this.config.tracks,
-                                     browser: this,
-                                     metadataStores: mdStores
-                                 })
-                 );
+                     this.trackMetaDataStore =  new MetaDataStore(
+                         dojo.mixin( dojo.clone(this.config.trackMetadata || {}), {
+                                         trackConfigs: this.config.tracks,
+                                         browser: this,
+                                         metadataStores: mdStores
+                                     })
+                     );
 
-                 callback();
-    }));
+                     deferred.resolve({success:true});
+        }));
+    });
 };
 
 /**
  * Asynchronously create the track list.
  * @private
  */
-Browser.prototype.createTrackList = function( callback ) {
-    // find the tracklist class to use
-    var tl_class = !this.config.show_tracklist           ? 'Null'                         :
-                   (this.config.trackSelector||{}).type  ? this.config.trackSelector.type :
-                                                           'Simple';
+Browser.prototype.createTrackList = function() {
+    return this._deferredFunction('create tracklist', function( deferred ) {
+        // find the tracklist class to use
+        var tl_class = !this.config.show_tracklist           ? 'Null'                         :
+                       (this.config.trackSelector||{}).type  ? this.config.trackSelector.type :
+                                                               'Simple';
+        // load all the classes we need
+        require( ['JBrowse/View/TrackList/'+tl_class],
+                 dojo.hitch( this, function( trackListClass ) {
+                     // instantiate the tracklist and the track metadata object
+                     this.trackListView = new trackListClass(
+                         dojo.mixin(
+                             dojo.clone( this.config.trackSelector ) || {},
+                             {
+                                 trackConfigs: this.config.tracks,
+                                 browser: this,
+                                 trackMetaData: this.trackMetaDataStore
+                             }
+                         )
+                     );
 
-    // load all the classes we need
-    require( ['JBrowse/View/TrackList/'+tl_class],
-             dojo.hitch( this, function( trackListClass ) {
+                     // bind the 't' key as a global keyboard shortcut
+                     this.setGlobalKeyboardShortcut( 't', this.trackListView, 'toggle' );
 
-                 // instantiate the tracklist and the track metadata object
-                 this.trackListView = new trackListClass(
-                     dojo.mixin(
-                         dojo.clone( this.config.trackSelector ) || {},
-                         {
-                             trackConfigs: this.config.tracks,
-                             browser: this,
-                             trackMetaData: this.trackMetaDataStore
-                         }
-                     )
-                 );
+                     // listen for track-visibility-changing messages from
+                     // views and update our tracks cookie
+                     this.subscribe( '/jbrowse/v1/v/tracks/changed', dojo.hitch( this, function() {
+                         this.cookie( "tracks",
+                                      this.view.visibleTrackNames().join(','),
+                                      {expires: 60});
+                     }));
 
-                 // bind the 't' key as a global keyboard shortcut
-                 this.setGlobalKeyboardShortcut( 't', this.trackListView, 'toggle' );
+                     // figure out what initial track list we will use:
+                     //    from a param passed to our instance, or from a cookie, or
+                     //    the passed defaults, or the last-resort default of "DNA"?
+                     var origTracklist =
+                            this.config.forceTracks
+                         || this.cookie( "tracks" )
+                         || this.config.defaultTracks
+                         || "DNA";
 
-                 // listen for track-visibility-changing messages from
-                 // views and update our tracks cookie
-                 this.subscribe( '/jbrowse/v1/v/tracks/changed', dojo.hitch( this, function() {
-                     this.cookie( "tracks",
-                                  this.view.visibleTrackNames().join(','),
-                                  {expires: 60});
-                 }));
+                     this.showTracks( origTracklist );
 
-                 // figure out what initial track list we will use:
-                 //    from a param passed to our instance, or from a cookie, or
-                 //    the passed defaults, or the last-resort default of "DNA"?
-                 var origTracklist =
-                        this.config.forceTracks
-                     || this.cookie( "tracks" )
-                     || this.config.defaultTracks
-                     || "DNA";
-
-                 this.showTracks( origTracklist );
-
-                 callback();
-    }));
+                     deferred.resolve({ success: true });
+        }));
+    });
 };
 
 /**
@@ -1451,60 +1512,22 @@ Browser.prototype.createNavBox = function( parent ) {
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
     // set in the config, then put in a dropdown box for selecting
     // reference sequences
-    if( this.refSeqOrder.length && this.refSeqOrder.length < 30 || this.config.refSeqDropdown ) {
-        this.refSeqSelectBox = new dijitSelectBox({
-            name: 'refseq',
-            value: this.refSeq ? this.refSeq.name : null,
-            options: array.map( this.refSeqOrder || [],
-                                function( refseqName ) {
-                return { label: refseqName, value: refseqName };
-            }),
-            onChange: dojo.hitch(this, function( newRefName ) {
-                this.navigateToLocation({ ref: newRefName });
-            })
-        }).placeAt( navbox );
-    }
-
-    // calculate how big to make the location box:  make it big enough to hold the
-    var locLength = this.config.locationBoxLength || function() {
-
-        // if we have no refseqs, just use 20 chars
-        if( ! this.refSeqOrder.length )
-            return 20;
-
-        // if there are not tons of refseqs, pick the longest-named
-        // one.  otherwise just pick the last one
-        var ref = this.refSeqOrder.length < 1000
-            && function() {
-                   var longestNamedRef;
-                   array.forEach( this.refSeqOrder, function(name) {
-                                      var ref = this.allRefs[name];
-                                      if( ! ref.length )
-                                          ref.length = ref.end - ref.start + 1;
-                                      if( ! longestNamedRef || longestNamedRef.length < ref.length )
-                                          longestNamedRef = ref;
-                                  }, this );
-                   return longestNamedRef;
-               }.call(this)
-            || this.refSeqOrder.length && this.allRefs[ this.refSeqOrder[ this.refSeqOrder.length - 1 ] ]
-            || 20;
-
-        var locstring = Util.assembleLocStringWithLength({ ref: ref.name, start: ref.end-1, end: ref.end, length: ref.length });
-        //console.log( locstring, locstring.length );
-        return locstring.length;
-    }.call(this) || 20;
+    var refSeqSelectBoxPlaceHolder = dojo.create('span', {}, navbox );
 
     // make the location box
     this.locationBox = new dijitComboBox(
         {
             id: "location",
             name: "location",
-            style: { width: locLength+'ex' },
+            style: { width: '25ex' },
             maxLength: 400,
-            store: this._makeLocationAutocompleteStore(),
             searchAttr: "name"
         },
         dojo.create('input', {}, navbox) );
+    this.loadNames().then( dojo.hitch(this, function() {
+        this.locationBox.set( 'store', this._makeLocationAutocompleteStore() );
+    }));
+
     this.locationBox.focusNode.spellcheck = false;
     dojo.query('div.dijitArrowButton', this.locationBox.domNode ).orphan();
     dojo.connect( this.locationBox.focusNode, "keydown", this, function(event) {
@@ -1550,6 +1573,56 @@ Browser.prototype.createNavBox = function( parent ) {
                 dojo.stopEvent(event);
             })
         }, dojo.create('button',{},navbox));
+
+
+
+    this.loadRefSeqs().then( dojo.hitch( this, function() {
+        if( this.refSeqOrder.length && this.refSeqOrder.length < 30 || this.config.refSeqDropdown ) {
+            this.refSeqSelectBox = new dijitSelectBox({
+                name: 'refseq',
+                value: this.refSeq ? this.refSeq.name : null,
+                options: array.map( this.refSeqOrder || [],
+                                    function( refseqName ) {
+                    return { label: refseqName, value: refseqName };
+                }),
+                onChange: dojo.hitch(this, function( newRefName ) {
+                    this.navigateToLocation({ ref: newRefName });
+                })
+            }).placeAt( refSeqSelectBoxPlaceHolder );
+        }
+
+        // calculate how big to make the location box:  make it big enough to hold the
+        var locLength = this.config.locationBoxLength || function() {
+
+            // if we have no refseqs, just use 20 chars
+            if( ! this.refSeqOrder.length )
+                return 20;
+
+            // if there are not tons of refseqs, pick the longest-named
+            // one.  otherwise just pick the last one
+            var ref = this.refSeqOrder.length < 1000
+                && function() {
+                       var longestNamedRef;
+                       array.forEach( this.refSeqOrder, function(name) {
+                                          var ref = this.allRefs[name];
+                                          if( ! ref.length )
+                                              ref.length = ref.end - ref.start + 1;
+                                          if( ! longestNamedRef || longestNamedRef.length < ref.length )
+                                              longestNamedRef = ref;
+                                      }, this );
+                       return longestNamedRef;
+                   }.call(this)
+                || this.refSeqOrder.length && this.allRefs[ this.refSeqOrder[ this.refSeqOrder.length - 1 ] ]
+                || 20;
+
+            var locstring = Util.assembleLocStringWithLength({ ref: ref.name, start: ref.end-1, end: ref.end, length: ref.length });
+            //console.log( locstring, locstring.length );
+            return locstring.length;
+        }.call(this) || 20;
+
+
+        this.locationBox.domNode.style.width = locLength+'ex';
+    }));
 
     return navbox;
 };
