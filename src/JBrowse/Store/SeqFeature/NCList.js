@@ -89,7 +89,6 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
     loadFail: function(trackInfo,url) {
         this.empty = true;
-        this.setLoaded();
     },
 
     // just forward histogram() and iterate() to our encapsulate nclist

@@ -32,12 +32,14 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
         load: function( /**Object*/ args ) {
             var that = this;
             if( args.config.url ) {
+                var sourceUrl = Util.resolveUrl( args.baseUrl || window.location.href, args.config.url );
                 dojo.xhrGet({
-                                url: Util.resolveUrl( args.baseUrl || window.location.href, args.config.url ),
+                                url: sourceUrl,
                                 handleAs: 'text',
                                 load: function( o ) {
                                     window.setTimeout( dojo.hitch(this, function() {
                                     o = that.parse_conf( o, args );
+                                    o.sourceUrl = sourceUrl;
                                     o = that.regularize_conf( o, args );
                                     args.onSuccess.call( args.context || this, o );
                                                                   }, 10 ));

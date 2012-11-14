@@ -62,30 +62,6 @@ div.locationThumb {
     cursor: url("img/openhand.cur");
 }
 
-/* Style of locationThumb outline as it is being dragged. */
-div.locationThumb.dojoMoveItem {
-    cursor: url("img/closedhand.cur");
-}
-
-.topLink {
-    position: fixed;
-    right: 0;
-    z-index: 25;
-    background: white;
-    padding: 0 0.5ex 0 0.5ex;
-    border: 1px solid #bbb;
-    border-width: 0 0 1px 1px;
-}
-
-div.overview {
-    width: 100%;
-    border-style: solid;
-    border-width: 5px 0px 5px 0px;
-    border-color: #aaa;
-    color:#aaa;
-    text-align: center;
-    z-index: -5;
-}
 
 div.block {
     position: absolute;
@@ -93,84 +69,6 @@ div.block {
     top: 0px;
     height: 100%;
     /* outline: 1px solid blue; */
-}
-
-div.track {
-    position: absolute;
-    left: 0px;
-    width: 100%;
-/*    outline: 1px solid orange; */
-/*    border: 1px solid green */
-/*    z-index: 5; */
-}
-
-.track.dojoDndItemOver {
-    cursor: inherit;
-}
-
-.track.dojoDndItemBefore {
-    border-top: 3px solid #999;
-    margin-top: -3px;
-}
-
-.track.dojoDndItemAfter {
-    border-bottom: 3px solid #999;
-    margin-bottom: -3px;
-}
-
-div#static_track {
-    top: 0px;
-    position: absolute;
-    background-color: #f0f0f0;
-    border-top: 1px solid #bbb;
-    border-bottom: 1px solid #444;
-    z-index: 20;
-}
-
-div.gridline {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    width: 0px;
-    height: 100%;
-    border-style: none none none solid;
-    border-width: 1px;
-    border-color: red;
-}
-div.gridline_major {
-    border-color: #bbb;
-}
-div.gridline_minor {
-    border-color: #eee;
-}
-
-div.pos-label {
-    position: absolute;
-    left: -0.35em;
-    top: 0px;
-    z-index: 100;
-    margin: 1px;
-}
-
-div.overview-pos {
-    position: absolute;
-    left: 0px;
-    color: black;
-    padding-left: 4px;
-    font-family: sans-serif;
-    border-style: solid;
-    border-color: black;
-    border-width: 0px 0px 0px 1px;
-}
-
-div.blank-block {
-    font: sans-serif;
-    position: absolute;
-    overflow: visible;
-    top: 0px;
-    height: 100%;
-    background-color: #eee;
-    z-index: 19;
 }
 
 /* 
@@ -251,36 +149,6 @@ div.sequence .aa-residues.frame2 {
     background-color: #DDDDDD; 
     z-index: 5;
 }
-/*
-div.sequence .aa-residues.frame0 {
-    background-color: #FF8080;
-    z-index: 5;
-}
-
-div.sequence .aa-residues.frame1 {
-    background-color: #80FF80; 
-    z-index: 5;
-}
-
-div.sequence .aa-residues.frame2 {
-    background-color: #8080FF;
-    z-index: 5;
-}
-*/
-
-/*
-div.sequence .aa-residues.offset0 {
-    border: 2px solid #FF0000;
-}
-
-div.sequence .aa-residues.offset1 {
-    border: 2px solid #00FF00;
-}
-
-div.sequence .aa-residues.offset2 {
-    border: 2px solid #0000FF;
-}
-*/
 
 /* highlighting of dna residues in DNA track on mouseover */
 div.sequence .dna-highlighted {
@@ -291,12 +159,6 @@ div.sequence .dna-highlighted {
 div.sequence .highlighted {
     background: #ff0;
 }
-
-/*  not used anymore (using dna-residues, forward-strand, reverse-strand 
-div.sequence .revcom {
-    color: red;
-}
-*/
 
 div.annot-sequence  {
     position: absolute;
@@ -331,102 +193,6 @@ div.plus-feature:before {
 }
 */
 
-div.track-label, div.tracklist-label {
-    font-weight: bold;
-    z-index: 20;
-    background-color: #bcbcbc;
-    background-color: rgba( 160, 160, 160, 0.7 );
-    border: 1px #2b434c solid;
-    color: #111;
-    cursor: pointer;
-    font-size: 10px;
-    padding: 5px;
-    border-radius: 3px;
-    overflow: hidden;
-}
-/* NOTE: browsers that don't support rgba colors will fall back to all
-   track labels being #bcbcbc */
-
-div.track-label {
-    margin-left: 5px;
-    border-color: rgba( 0,0,0,0);
-    background-color: rgba( 160, 160, 160, 0 );
-}
-div.track-label:hover {
-    border-color: rgba( 0,0,0,1);
-    background-color: rgba( 160, 160, 160, 0.7 );
-}
-div.tracklist-label {
-    padding: 3px;
-}
-
-#trackPane {
-    border-right: 1px solid #444;
-}
-
-/* commented for now, multi-select too confusing? */
-/* THIS happens if you've already selected one track label (on the left)--this is used for subsequent additions to your selection. */
-.tracklist-container.dojoDndItemSelected {
-/*    background: #ddf; */
-    color: #d9f;
-    background: #d0f;
-}
-
-/* This is what happens with the FIRST selected track label (on the left). 
-You don't see any color change when you select a track label that's already
-in the main GenomeView. */
-.tracklist-container.dojoDndItemAnchor {
-/*    background: #ddf; */
-    background: #ed0;
-}
-
-div.tracklist-container {
-    padding: 5px;
-    margin-top: -3px;
-    margin-bottom: -3px;
-}
-
-/* I don't know when this happens.  I haven't observed it. */
-.tracklist-container.dojoDndItemBefore {
-    border-top: 3px solid #999;
-    padding-top: 2px;
-}
-
-.tracklist-container.dojoDndItemAfter {
-    border-bottom: 3px solid #999;
-    padding-bottom: 2px;
-}
-
-.feature-label {
-    position: absolute;
-    border: 0px;
-/*    margin: -2px 0px 0px 0px; */
-    margin: 0px 0px 0px 0px;
-    padding: 0px 0px 2px 0px; /* for more space below labels */
-   /* padding: 0px 0px 0px 0px; */
-    /* font-size: 80%; */
-    white-space: nowrap;
-    /* background-color: #eee; */
-    z-index: 10;
-    cursor: pointer;
-}
-
-/*  does not appear to be used yet, annotations are 
-*    still using .feature-label for label styling
-*/
-.annot-label {
-    position: absolute;
-    font-family: monospace;
-    border: 2px;
-    margin: -2px 0px 0px 0px;
-    /* padding: 0px 0px 2px 0px; for more space below labels */
-    padding: 0px 0px 0px 0px;
-    font-size: 80%;
-    white-space: nowrap;
-    /* background-color: #ee0; */
-    z-index: 10;
-    cursor: pointer;
-}
 
 .basic,
 .plus-basic,
