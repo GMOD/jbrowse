@@ -715,16 +715,19 @@ HTMLFeatures = declare( HTMLFeatures,
             return null;
 
         for( var i = 0; i < this.blocks.length; i++ ) {
-            var f = this.blocks[i].featureNodes[id];
-            if( f )
-                return f;
+            var b = this.blocks[i];
+            if( b ) {
+                var f = this.blocks[i].featureNodes[id];
+                if( f )
+                    return f;
+            }
         }
 
         return null;
     },
 
     getId: function( f ) {
-        return f._uniqueId;
+        return f._uniqueID;
     },
 
     renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd, destBlock ) {
