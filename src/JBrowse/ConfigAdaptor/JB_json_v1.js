@@ -109,7 +109,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                     var c = trackConfig.config;
                     delete trackConfig.config;
                     for( var prop in c ) {
-                        if( c.hasOwnProperty(prop) ) {
+                        if( !(prop in trackConfig) && c.hasOwnProperty(prop) ) {
                             trackConfig[prop] = c[prop];
                         }
                     }
