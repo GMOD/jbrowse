@@ -77,7 +77,8 @@ var FeatureEdgeMatchManager = declare( null,
     // experimenting with highlighting edges of features that match selected features (or their subfeatures)
     // still assuming index 0 for start, index 1 for end
     // assumes all tracks have two-level features, and thus track.fields and track.subFields are populated
-    selectionAdded: function(feat)  {
+    selectionAdded: function( rec )  {
+        var feat = rec.feature;
         if ( ! this.SHOW_EDGE_MATCHES ) {
             return;
         }

@@ -2857,7 +2857,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
      *        (and is a sibling of feature divs), events intended for feature divs will
      *        get caught by overlay and not make it to the feature divs
      */
-    selectionAdded: function(feat, smanager)  {
+    selectionAdded: function( rec, smanager)  {
+        var feat = rec.feature;
         this.inherited( arguments );
 
         var track = this;
@@ -2921,13 +2922,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
     },
 
-    selectionRemoved: function(feat, smanager)  {
+    selectionRemoved: function(rec, smanager)  {
         // console.log("AnnotTrack.selectionRemoved() called");
         this.inherited( arguments );
 
         var track = this;
-        if (feat.track === track)  {
-            var featdiv = track.getFeatDiv(feat);
+        if (rec.track === track)  {
+            var featdiv = track.getFeatDiv(rec.feature);
             // remove sequence text nodes
             // console.log("removing base residued text from selected annot");
             $("div.annot-sequence", track.div).remove();

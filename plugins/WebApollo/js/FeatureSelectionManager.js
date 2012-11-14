@@ -34,9 +34,11 @@ return declare( null,
     // adding a parent should remove all children
     // adding a child should remove all parents
     // attempting to add a feature that's already part of the selection does nothing (and doesn't trigger listener calls)
-    addToSelection: function(feat)  {
-        // if this selection manager has had setClearOnAdd(others) called to set other selection managers to 
-        //     clear selection from when 
+    addToSelection: function( rec )  {
+
+        // if this selection manager has had setClearOnAdd(others)
+        // called to set other selection managers to clear selection
+        // from when
         if (this.clearOnAdd)  {
 	    for (var i=0; i<this.clearOnAdd.length; i++)  {
 	        this.clearOnAdd[i].clearSelection();
@@ -44,30 +46,31 @@ return declare( null,
         }
         //    console.log("called FeatureselectionManager.addToSelection()");
         // do nothing if feat is already in selection
-        if (this.isSelected(feat))  {
+        if ( this.isSelected( rec ) )  {
 	    console.log("called FeatureSelectionManager.addToSelection(), but feature already in selection");
 	    return;
         }
         // remove any children
         var selarray = this.selected;
         var slength = selarray.length;
-        for (var sindex=0; sindex<slength; sindex++)  {
-	    var sfeat = selarray[sindex];
-	    if (sfeat.parent == feat)  {
-	        this._removeSelectionAt(sindex, sfeat);
+        for ( var sindex = 0; sindex < slength; sindex++ )  {
+            var srec = selarray[sindex];
+	    if ( srec.feature.parent == rec.feature && srec.track == rec.track )  {
+	        this._removeSelectionAt( sindex, srec );
 	        slength--;
 	    }
         }
+
         // remove any parents
-        var parent = feat.parent;
-        if (parent)  {  
+        var parent = rec.feature.parent;
+        if( parent )  {
 	    this.removeFromSelection(parent);
         }
-        selarray.push(feat);
+        selarray.push( rec );
         var lislength = this.listeners.length;
-        for (var lindex = 0; lindex<lislength; lindex++)  {
+        for (var lindex = 0; lindex < lislength; lindex++)  {
 	    var listener = this.listeners[lindex];
-	    listener.selectionAdded(feat, this);
+	    listener.selectionAdded( rec, this );
         }
         //    console.log("done calling FeatureselectionManager.addToSelection()");
     },
@@ -75,20 +78,29 @@ return declare( null,
     /**
      *  attempting to remove a feature that isn't selected does nothing (and doesn't trigger listener calls)
      */
-    removeFromSelection: function(feat)  {
-        var index = this.selected.indexOf(feat);
+    removeFromSelection: function( rec )  {
+        var index = this._indexOf( rec );
         if (index >= 0)  {
-	    this._removeSelectionAt(index, feat);
+	    this._removeSelectionAt(index);
         }
     },
 
-    _removeSelectionAt: function(index, feat)  {
+    _removeSelectionAt: function(index, rec)  {
         this.selected.splice(index, 1);
         var lislength = this.listeners.length;
         for (var lindex = 0; lindex<lislength; lindex++)  {
 	    var listener = this.listeners[lindex];
-	    listener.selectionRemoved(feat, this);
+	    listener.selectionRemoved( rec, this );
         }
+    },
+
+    _indexOf: function( rec ) {
+        var index = -1;
+        for( var i = 0; i < this.selected.length; i++ ) {
+            if( this.selected[i].feature === rec.feature && this.selected[i].track == rec.track )
+                index = i;
+        }
+        return index;
     },
 
     /**
@@ -118,8 +130,8 @@ return declare( null,
         //  console.log("done calling FeatureselectionManager.clearSelection()");
     },
 
-    isSelected: function(feat)  {
-        return this.selected.indexOf(feat) >= 0;
+    isSelected: function( rec )  {
+        return this._indexOf( rec ) >= 0;
     },
 
     /**

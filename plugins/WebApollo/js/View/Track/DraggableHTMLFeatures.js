@@ -1,5 +1,6 @@
 define( [
             'dojo/_base/declare',
+            'dojo/_base/array',
             'JBrowse/View/Track/HTMLFeatures',
             'WebApollo/FeatureSelectionManager',
             'dijit/Menu',
@@ -10,7 +11,7 @@ define( [
             'jqueryui/draggable',
             'JBrowse/Util'
         ],
-        function( declare, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitDialog, $, draggable, Util ) {
+        function( declare, array, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitDialog, $, draggable, Util ) {
 
 /*  Subclass of FeatureTrack that allows features to be selected,
     and dragged and dropped into the annotation track to create annotations.
@@ -41,6 +42,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
             {
                 style: {
                     renderClassName: 'DraggableFeatureTrack'
+                },
+                events: {
+                    click:       dojo.hitch( this, 'onFeatureMouseDown' ),
+                    doubleClick: dojo.hitch( this, 'onFeatureDoubleClick' )
                 }
             }
         );
@@ -51,10 +56,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
         console.log("DragableFeatureTrack constructor called");
 
         this.gview = this.browser.view;
-
-        var thisObj = this;
-        this.featMouseDown   = function(event) { thisObj.onFeatureMouseDown(event);   };
-        this.featDoubleClick = function(event) { thisObj.onFeatureDoubleClick(event); };
 
         // DraggableFeatureTracks all share the same FeatureSelectionManager
         //    if want subclasses to have different selection manager,
@@ -71,10 +72,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
         this.last_whitespace_mouseup_time = new Date();  // dummy timestamp
         this.prev_selection = null;
 
-        this.verbose = false;
-        this.verbose_selection = false;
-        this.verbose_selection_notification = false;
-        this.verbose_drag = false;
+        this.verbose = true;
+        this.verbose_selection = true;
+        this.verbose_selection_notification = true;
+        this.verbose_drag = true;
 
         this.feature_context_menu = null;
     },
@@ -208,14 +209,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
     },
 
-    selectionAdded: function(feat, smanager) {
+    selectionAdded: function( rec, smanager) {
         var track = this;
-        if( feat.track === track)  {
-            var featdiv = track.getFeatDiv( feat );
+        if( rec.track === track)  {
+            var featdiv = track.getFeatDiv( rec.feature );
             if( track.verbose_selection_notification )  {
                 console.log("DFT.selectionAdded called: ");
-                console.log(feat);
-                console.log(featdiv);
+                console.log( rec );
+                console.log( featdiv );
             }
             if( featdiv )  {
                 var jq_featdiv = $(featdiv);
@@ -233,21 +234,22 @@ var draggableTrack = declare( HTMLFeatureTrack,
         if (track.verbose_selection_notification)  {
             console.log("DFT.selectionCleared called");
         }
+
         var slength = selected.length;
         for (var i=0; i<slength; i++)  {
-            var feat = selected[i];
-            track.selectionRemoved(feat);
+            var rec = selected[i];
+            track.selectionRemoved( rec );
         }
     },
 
-    selectionRemoved: function(feat, smanager)  {
+    selectionRemoved: function( rec, smanager)  {
         var track = this;
-        if( feat.track === track )  {
-            var featdiv = track.getFeatDiv(feat);
+        if( rec.track === track )  {
+            var featdiv = track.getFeatDiv( rec.feature );
             if( track.verbose_selection_notification )  {
                 console.log("DFT.selectionRemoved called");
-                console.log(feat);
-                console.log(featdiv);
+                console.log( rec );
+                console.log( featdiv );
             }
             if( featdiv )  {
                 var jq_featdiv = $(featdiv);
@@ -272,13 +274,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                             containerStart, containerEnd) {
         var featdiv = this.inherited( arguments );
         if( featdiv )  {  // just in case featDiv doesn't actually get created
-            var $featdiv = $(featdiv);
-            // adding pointer to track for each featdiv
-            //   (could get this by DOM traversal, but shouldn't take much memory, and having it with each featdiv is more convenient)
-            featdiv.track = this;
-            // using JQuery bind() will normalize events to W3C spec (don't have to worry about IE inconsistencies, etc.)
-            $featdiv.bind("mousedown", this.featMouseDown);
-            $featdiv.bind("dblclick", this.featDoubleClick);
 
             if (this.feature_context_menu  && (! this.has_custom_context_menu)) {
                 this.feature_context_menu.bindDomNode(featdiv);
@@ -303,12 +298,12 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
         var subfeatdiv = this.inherited( arguments );
         if (subfeatdiv)  {  // just in case subFeatDiv doesn't actually get created
-            var $subfeatdiv = $(subfeatdiv);
-            // adding pointer to track for each subfeatdiv
-            //   (could get this by DOM traversal, but shouldn't take much memory, and having it with each subfeatdiv is more convenient)
-            subfeatdiv.track = this;
-            $subfeatdiv.bind("mousedown", this.featMouseDown);
-            $subfeatdiv.bind("dblclick", this.featDoubleClick);
+            // var $subfeatdiv = $(subfeatdiv);
+            // // adding pointer to track for each subfeatdiv
+            // //   (could get this by DOM traversal, but shouldn't take much memory, and having it with each subfeatdiv is more convenient)
+            // subfeatdiv.track = this;
+            // $subfeatdiv.bind("mousedown", this.featMouseDown);
+            // $subfeatdiv.bind("dblclick", this.featDoubleClick);
         }
         return subfeatdiv;
     },
@@ -674,7 +669,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
        }
        if (event.shiftKey)  {
            if (already_selected) {  // if shift-mouse-down and this already selected, deselect this
-               selman.removeFromSelection(feat);
+               selman.removeFromSelection( { feature: feat, track: this });
            }
            else if (parent_selected)  {
                // if shift-mouse-down and parent selected, do nothing --
@@ -683,7 +678,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
            }
            else  {  // if shift-mouse-down and neither this or parent selected, select this
                // children are auto-deselected by selection manager when parent is selected
-               selman.addToSelection(feat);
+               selman.addToSelection({ feature: feat, track: this });
            }
        }
        else if (event.altKey) {
@@ -704,7 +699,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                }
                else  {  // if this not selected and parent not selected, select this
                    selman.clearSelection();
-                   selman.addToSelection(feat);
+                   selman.addToSelection({ track: this, feature: feat});
                }
            }
        }
@@ -716,7 +711,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         if (this.verbose_drag)  {  console.log(featdiv); }
         var feat = featdiv.feature;
         if (!feat)  { feat = featdiv.subfeature; }
-        var selected = this.selectionManager.isSelected(feat);
+        var selected = this.selectionManager.isSelected( {track: this, feature: feat});
 
         // only do drag if feature is actually selected
         if (selected)  {
@@ -766,9 +761,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
                             var selection = ftrack.selectionManager.getSelection();
                             var selength = selection.length;
                             for (var i=0; i<selength; i++)  {
-                                var sfeat = selection[i];
-                                var strack = sfeat.track;
-                                var sfeatdiv = strack.getFeatDiv(sfeat);
+                                var srec = selection[i];
+                                var strack = srec.track;
+                                var sfeatdiv = strack.getFeatDiv( srec.feature );
                                 // if (sfeatdiv && (sfeatdiv !== featdiv))  {
                                 if (sfeatdiv)  {
                                     var $sfeatdiv = $(sfeatdiv);
@@ -844,20 +839,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
             var parent = subfeat.parent;
             // select parent feature
             // children (including subfeat double-clicked one) are auto-deselected in FeatureSelectionManager if parent is selected
-            if( parent ) { selman.addToSelection(parent); }
+            if( parent ) { selman.addToSelection({ feature: parent, track: this }); }
         }
-    },
-
-
-    /**
-     *  feature click no-op (to override FeatureTrack.onFeatureClick, which conflicts with mouse-down selection
-     *
-     *  was also calling event.stopPropagation() to avoid conflict with JBrowse 1.3.1 shift-click to center
-     *      but commented out because trying instead to use control-click to center and control-drag to zoom to region
-     */
-    onFeatureClick: function(event) {
-        // don't need stopPropagation call to override onFeatureClick,
-        //    event.stopPropagation();
     },
 
 
@@ -890,16 +873,16 @@ var draggableTrack = declare( HTMLFeatureTrack,
         //    console.log("called DraggableFeatureTrack.showRange(), block range: " +
         //          this.firstAttached +  "--" + this.lastAttached + ",  " + (this.lastAttached - this.firstAttached));
         // redo selection styles for divs in case any divs for selected features were changed/added/deleted
-        var sfeats = this.selectionManager.getSelection();
-        for (var sin in sfeats)  {
+        var srecs = this.selectionManager.getSelection();
+        for (var sin in srecs)  {
             // only look for selected features in this track --
             // otherwise will be redoing (sfeats.length * tracks.length) times instead of sfeats.length times,
             // because showRange is getting called for each track
-            var sfeat = sfeats[sin];
-            if (sfeat.track === this)  {
+            var srec = srecs[sin];
+            if (srec.track === this)  {
                 // some or all feature divs are usually recreated in a showRange call
                 //  therefore calling track.selectionAdded() to retrigger setting of selected-feature CSS style, etc. on new feat divs
-                this.selectionAdded(sfeat);
+                this.selectionAdded(srec);
             }
         }
     },
@@ -970,7 +953,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         this.feature_context_menu.addChild(new dijitMenuItem( {
             label: "Information",
             onClick: function(event) {
-                thisObj.showFeatureInformation(thisObj.selectionManager.getSelection());
+                thisObj.showFeatureInformation( array.map( thisObj.selectionManager.getSelection(), function(rec) { return rec.feature; } ));
             }
         } ));
         this.feature_context_menu.addChild(

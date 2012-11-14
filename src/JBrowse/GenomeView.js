@@ -1098,7 +1098,7 @@ GenomeView.prototype.drawVerticalPositionLine = function( parent, evt){
 
     var line = this.verticalPositionLine;
     line.style.display = 'block';      //make line visible
-    line.style.left = numX +'px'; //set location on screen
+    line.style.left = numX+2+'px'; //set location on screen
 
     this.drawBasePairLabel({ name: 'single', offset: 0, x: numX, parent: parent });
 };

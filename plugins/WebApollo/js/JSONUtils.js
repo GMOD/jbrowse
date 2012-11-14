@@ -369,7 +369,6 @@ JSONUtils.convertToTrack = function(feat, source_track, target_track)  {
 		target_arep.set(newsub, "Strand", source_arep.get(oldsub, "Strand") );
 		target_arep.set(newsub, "Type", source_arep.get(oldsub, "Type") );
 		newsub.parent = newfeat;
-		newsub.track = target_track;
 		if (oldsub.uid)  {
 		    newsub.uid = oldsub.uid;
 		}
@@ -379,7 +378,6 @@ JSONUtils.convertToTrack = function(feat, source_track, target_track)  {
 	// newfeat[target_fields["subfeatures"]]  = newsubfeats;
 	target_arep.set(newfeat, "Subfeatures", newsubfeats);
     }
-    newfeat.track = target_track;
     newfeat.uid = feat.uid;
     return newfeat;
 };
