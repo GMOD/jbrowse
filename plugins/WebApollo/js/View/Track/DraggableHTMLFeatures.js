@@ -33,6 +33,17 @@ var draggableTrack = declare( HTMLFeatureTrack,
     // so is dragging
     dragging: false,
 
+    _defaultConfig: function() {
+        return Util.deepUpdate(
+            dojo.clone( this.inherited(arguments) ),
+            {
+                style: {
+                    renderClassName: 'DraggableFeatureTrack'
+                }
+            }
+        );
+    },
+
     constructor: function( args ) {
 
         console.log("DragableFeatureTrack constructor called");
@@ -323,9 +334,35 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 break;
             }
         }
+
+        // try to make a wholeCDS if we don't have one
+        if( ! wholeCDS ) {
+            wholeCDS = (function() {
+                var cds = array.filter( feature.get('subfeatures'),
+                                        function(s) { return s.get('type') == 'CDS'; }
+                                      )
+                               .sort( function( a, b ) {
+                                          var as = a.get('start'),
+                                              bs = b.get('start');
+                                          return as == bs ?  0 :
+                                              as  > bs ?  1 :
+                                              as  < bs ? -1 : 0;
+                                      });
+                if( cds.length ) {
+                    return { start: cds[0].get('start'),
+                             end:   cds[cds.length-1].get('end'),
+                             get:   function(n) { return this[n]; }
+                           };
+                }
+                else {
+                    return null;
+                }
+            }).call(this);
+        }
+
         if (wholeCDS) {
-            var cdsStart = attrs.get(wholeCDS, "Start" );
-            var cdsEnd = attrs.get(wholeCDS, "End" );
+            var cdsStart = wholeCDS.get('start');
+            var cdsEnd = wholeCDS.get('end');
             //    current convention is start = min and end = max regardless of strand, but checking just in case
             var cdsMin = Math.min(cdsStart, cdsEnd);
             var cdsMax = Math.max(cdsStart, cdsEnd);

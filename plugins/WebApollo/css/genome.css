@@ -2,8 +2,6 @@
      and keep added / modified styles here (or break out into additional "webapollo.css" ? */
 /* main application CSS styles */
 @import url("main.css");
-/* CSS styles for the various types of feature glyphs */
-@import url("feature_styles.css");
 
 html, body {
     height: 100%;
@@ -793,7 +791,7 @@ div.transcript-hist {
     margin-top: -4px;
     width: 12px;
     height: 12px;
-    background-image: url('img/plus-transcript-head.png');
+    background-image: url('../img/plus-transcript-head.png');
     /*  JBrowse 1.3.1 style 
     background-image: url('img/plus-arrowhead.png'); 
 */
@@ -812,7 +810,7 @@ div.transcript-hist {
     margin-top: -4px;
     width: 12px;
     height: 12px;
-    background-image: url('img/minus-transcript-head.png');
+    background-image: url('../img/minus-transcript-head.png');
     /*  JBrowse 1.3.1 style
     background-image: url('img/minus-arrowhead.png');
     */
@@ -2776,7 +2774,7 @@ div.generic_parent-hist {
     margin-top: 2px;
     width: 12px;
     height: 12px;
-    background-image: url('img/plus-transcript-head.png');
+    background-image: url('../img/plus-transcript-head.png');
     background-repeat: no-repeat;
 }
 
@@ -2787,7 +2785,7 @@ div.generic_parent-hist {
     margin-top: 2px;
     width: 12px;
     height: 12px;
-    background-image: url('img/minus-transcript-head.png');
+    background-image: url('../img/minus-transcript-head.png');
     background-repeat: no-repeat;
 }
 

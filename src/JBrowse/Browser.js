@@ -100,7 +100,12 @@ Browser.prototype.version = function() {
  * Load and instantiate any plugins defined in the configuration.
  */
 Browser.prototype.initPlugins = function() {
+    this.plugins = [];
+
     var plugins = this.config.plugins;
+
+    if( ! plugins )
+        return;
 
     // coerce plugins to array of objects
     plugins = array.map( dojo.isArray(plugins) ? plugins : [plugins], function( p ) {
@@ -110,8 +115,6 @@ Browser.prototype.initPlugins = function() {
     var pluginNames = array.map( plugins, function( p ) {
         return p.name;
     });
-
-    this.plugins = [];
 
     require( {
                  packages: array.map( pluginNames, function(c) { return { name: c, location: "../plugins/"+c+"/js" }; })
