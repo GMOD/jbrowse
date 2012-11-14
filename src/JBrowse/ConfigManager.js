@@ -18,7 +18,8 @@ constructor: function( args ) {
     this.defaults = dojo.clone( args.defaults || {} );
     this.browser = args.browser;
     this.skipValidation = args.skipValidation;
-    this.topLevelIncludes = this.config.include;
+    this.topLevelIncludes = this.config.include || this.defaults.include;
+    delete this.defaults.include;
     delete this.config.include;
 },
 
