@@ -2,8 +2,6 @@
      and keep added / modified styles here (or break out into additional "webapollo.css" ? */
 /* main application CSS styles */
 @import url("main.css");
-/* CSS styles for the various types of feature glyphs */
-@import url("feature_styles.css");
 
 html, body {
     height: 100%;
