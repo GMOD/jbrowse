@@ -258,12 +258,17 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (jq_featdiv.hasClass(track.selectionClass))  {
                     jq_featdiv.removeClass(track.selectionClass);
                 }
+/*  GAH 11-14-2012
+      TODO: need to restore removal of draggable state upon de-selection!
+          but as of now selectionRemoved is being incorrectly called during drag initiation, thus draggable removal halts drag before can begin
+       
                 if (jq_featdiv.hasClass("ui-draggable"))  {
                     jq_featdiv.draggable("destroy");
                 }
                 if (jq_featdiv.hasClass("ui-multidraggable"))  {
                     jq_featdiv.multidraggable("destroy");
                 }
+*/
             }
 
         }
@@ -706,13 +711,22 @@ var draggableTrack = declare( HTMLFeatureTrack,
     handleFeatureDragSetup: function(event)  {
         var ftrack = this;
         var featdiv = (event.currentTarget || event.srcElement);
-        if (this.verbose_drag)  {  console.log(featdiv); }
+        if (this.verbose_drag)  {  console.log("called handleFeatureDragSetup()"); console.log(featdiv); }
         var feat = featdiv.feature;
         if (!feat)  { feat = featdiv.subfeature; }
         var selected = this.selectionManager.isSelected( {track: this, feature: feat});
+	if (selected)  {
+	    var $featdiv = $(featdiv);
+	    $featdiv.draggable(   { 
+		helper: 'clone', 
+		opacity: 0.5,
+		axis: 'y', 
+		create: function(event, ui)  {  }
+	    } );
+	}
 
         // only do drag if feature is actually selected
-        if (selected)  {
+
             /**
              *  ideally would only make $.draggable call once for each selected div
              *  but having problems with draggability disappearing from selected divs
@@ -720,6 +734,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
              *  therefore whenever mousedown on a previously selected div also want to
              *       check that draggability and redo if missing
              */
+/*        if (selected)  {
             var $featdiv = $(featdiv);
             if (! $featdiv.hasClass("ui-draggable"))  {
                 if (this.verbose_drag)  {
@@ -738,8 +753,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         //        featdiv that the drag is actually initiated on (and thus relative to the holder's
                         //        dimensions)
 
-                        //  helper: 'clone',
-                         helper: function() {
+                       // helper: 'clone',
+                       helper: function() {
                             var $featdiv_copy = $featdiv.clone();
                             var $holder = $featdiv.clone();
                             $holder.removeClass();
@@ -793,10 +808,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
                             return holder;
                         },
                         opacity: 0.5,
-                        axis: 'y',
-                        create: function(event, ui)  {
+			axis: 'y', 
+		        create: function(event, ui)  {
                             // ftrack.drag_create = true;
                         }
+
             //      } ).trigger(event);
                 // see http://bugs.jqueryui.com/ticket/3876 regarding switch from previous hacky approach using JQuery 1.5
                 //       trigger(event) and ftrack.drag_create
@@ -809,11 +825,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     } );
     //              if (this.verbose_drag)  { console.log($featdiv); }
             //      $featdiv.trigger(event);
-                $featdiv.data("draggable")._mouseDown(event);
-               //  $featdiv.draggable().data("draggable")._mouseDown(event);
+         
+		 $featdiv.data("draggable")._mouseDown(event);
+               
+		//  $featdiv.draggable().data("draggable")._mouseDown(event);
             }
         }
-    },
+*/
+    }, 
 
 
     onFeatureDoubleClick: function( event )  {
