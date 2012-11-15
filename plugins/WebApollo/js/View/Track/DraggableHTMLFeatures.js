@@ -206,9 +206,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                       }
                   } );
 
-        this.initTrackLabelContextMenu();
-        this.tracklabel_context_menu.bindDomNode(labelDiv);
-
     },
 
     selectionAdded: function( rec, smanager) {
@@ -902,66 +899,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 this.selectionAdded(srec);
             }
         }
-    },
-
- //     DraggableFeatureTrack.prototype.endZoom = function(destScale, destBlockBases) {
- //         FeatureTrack.prototype.endZoom.call(this, destScale, destBlockBases);
- //         // this.scale = destScale;
- // };
-
-    initTrackLabelContextMenu: function()  {
-        var track = this;
-        this.tracklabel_context_menu = new dijitMenu({});
-        var initState = (track.config.style.showFeatureName == undefined) ? true : track.config.style.showFeatureName;
-        // console.log("track: " + track.config.label + ", show label: " + initState);
-
-        this.tracklabel_context_menu.addChild(new dijitMenuItem({ label: "Configure Single Track", disabled: true }) );
-
-        var feature_label_toggle = new dijitCheckedMenuItem();
-        feature_label_toggle.set("label", "Show Label");
-        feature_label_toggle.set("checked", initState);
-        feature_label_toggle.set("onClick", function(event) {
-            track.config.style.showFeatureName = feature_label_toggle.checked;
-            track.hideAll();
-            track.changed();
-        });
-        this.tracklabel_context_menu.addChild(feature_label_toggle);
-
-        this.tracklabel_context_menu.addChild( new dijitMenuItem({ label: "Configure All Tracks", disabled: true }) );
-        var cds_frame_toggle = new dijitCheckedMenuItem();
-        cds_frame_toggle.set("label", "Color By CDS Frame");
-        cds_frame_toggle.set("checked", false);
-     /*   cds_frame_toggle.set("onClick", function(event) {
-            track.config.style.colorCdsFrame = cds_frame_toggle.checked;
-            if (track.config.style.colorCdsFrame) {
-                track.gview.cds_frame_trackcount++;
-            }
-            else  {
-                track.gview.cds_frame_trackcount--;
-            }
-            var strack = track.getSequenceTrack();
-            if (strack) {
-                strack.hideAll();
-                strack.changed();
-            }
-            track.hideAll();
-            track.changed();
-         } );
-    */
-        cds_frame_toggle.set("onClick", function(event) {
-            track.gview.colorCdsByFrame = cds_frame_toggle.checked;
-            track.gview.trackIterate(function(trk)  {
-                                    trk.hideAll();
-                               });
-            track.gview.showVisibleBlocks(true);
-         } );
-        this.tracklabel_context_menu.addChild(cds_frame_toggle);
-
-    /*    this.tracklabel_context_menu.addChild(new dijitMenuItem( {
-                                                            label: "..."
-                                                        } ));
-    */
-        this.tracklabel_context_menu.startup();
     },
 
     initFeatureContextMenu: function() {

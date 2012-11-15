@@ -12,17 +12,37 @@ define.amd.jQuery = true;
 define(
        [
            'dojo/_base/declare',
+           'dijit/CheckedMenuItem',
            'JBrowse/Plugin',
            './FeatureEdgeMatchManager'
        ],
-       function( declare, JBPlugin, FeatureEdgeMatchManager ) {
+       function( declare, dijitCheckedMenuItem, JBPlugin, FeatureEdgeMatchManager ) {
 
 return declare( JBPlugin,
 {
     constructor: function( args ) {
-        FeatureEdgeMatchManager.setBrowser( args.browser );
+
+        var browser = args.browser;
+
+        // hand the browser object to the feature edge match manager
+        FeatureEdgeMatchManager.setBrowser( browser );
+
+        // add a global menu option for setting CDS color
+        var cds_frame_toggle = new dijitCheckedMenuItem(
+                {
+                    label: "Color by CDS frame",
+                    checked: false,
+                    onClick: function(event) {
+                        browser.view.colorCdsByFrame = cds_frame_toggle.checked;
+                        browser.view.redrawTracks();
+                    }
+                });
+
+        browser.addGlobalConfigMenuItem( cds_frame_toggle );
     },
+
     getName: function() { return 'WebApollo'; }
+
 });
 
 });
