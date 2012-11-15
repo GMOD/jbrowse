@@ -268,7 +268,18 @@ Browser.prototype.initView = function() {
 
     var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, this.container );
 
+    // make our top menu bar
+    var menuBar = dojo.create(
+        'div',
+        {
+            className: this.config.show_nav ? 'menuBar' : 'topLink'
+        }
+        );
+
+    ( this.config.show_nav ? topPane : this.container ).appendChild( menuBar );
+
     var overview = dojo.create( 'div', { className: 'overview', id: 'overview' }, topPane );
+    this.overviewDiv = overview;
     // overview=0 hides the overview, but we still need it to exist
     if( ! this.config.show_overview )
         overview.style.cssText = "display: none";
@@ -277,24 +288,20 @@ Browser.prototype.initView = function() {
         this.navbox = this.createNavBox( topPane );
 
     // make our little top-links box with links to help, etc.
-    var linkContainer = dojo.create('div', { className: 'topLink' });
     dojo.create('a', {
         className: 'powered_by',
         innerHTML: 'JBrowse',
         href: 'http://jbrowse.org',
         title: 'powered by JBrowse'
-     }, linkContainer );
+     }, menuBar );
 
     if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview )
-        linkContainer.appendChild( this.makeShareLink() );
+        menuBar.appendChild( this.makeShareLink() );
     else
-        linkContainer.appendChild( this.makeFullViewLink() );
+        menuBar.appendChild( this.makeFullViewLink() );
 
     if( this.config.show_nav )
-        linkContainer.appendChild( this.makeHelpDialog()   );
-
-    ( this.config.show_nav ? this.navbox : this.container ).appendChild( linkContainer );
-
+        menuBar.appendChild( this.makeHelpDialog()   );
 
     this.viewElem = document.createElement("div");
     this.viewElem.className = "dragWindow";

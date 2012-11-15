@@ -1,4 +1,5 @@
 define([
+           'dojo/_base/declare',
            'JBrowse/Util',
            'dojo/dnd/move',
            'dojo/dnd/Source',
@@ -9,6 +10,7 @@ define([
            'JBrowse/View/Animation/Zoomer',
            'JBrowse/View/Animation/Slider'
        ], function(
+           declare,
            Util,
            dndMove,
            dndSource,
@@ -21,6 +23,19 @@ define([
        ) {
 
 var dojof = Util.dojof;
+
+// weird subclass of dojo dnd constrained mover to make the location
+// thumb behave better
+var locationThumbMover = declare( dndMove.constrainedMoveable, {
+        constructor: function(node, params){
+                this.constraints = function(){
+                        var n = this.node.parentNode,
+                        mb = dojo.marginBox(n);
+                        mb.t = 0;
+                        return mb;
+                 };
+        }
+});
 
 /**
  * Main view class, shows a scrollable, horizontal view of annotation
@@ -91,7 +106,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     //width, in pixels, of stripes at full zoom, is 10bp
     this.fullZoomStripe = stripeWidth/10 * this.maxPxPerBp;
 
-    this.overview = dojo.byId("overview");
+    this.overview = this.browser.overviewDiv;
     this.overviewBox = dojo.marginBox(this.overview);
 
     this.tracks = [];
@@ -131,7 +146,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     this.locationThumb = document.createElement("div");
     this.locationThumb.className = "locationThumb";
     this.overview.appendChild(this.locationThumb);
-    this.locationThumbMover = new dndMove.parentConstrainedMoveable(this.locationThumb, {area: "margin", within: true});
+    this.locationThumbMover = new locationThumbMover(this.locationThumb, {area: "margin", within: true});
 
     if ( dojo.isIE ) {
         // if using IE, we have to do scrolling with CSS
