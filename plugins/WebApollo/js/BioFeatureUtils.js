@@ -12,7 +12,7 @@ return declare( null, {
 //
 removeChild: function(child)  {
     // console.log("called BioFeatureUtils.removeChild");
-    var parent = child.parent;
+    var parent = child.parent();
     var fields = parent.track.fields;
     var subfields = parent.track.subFields;
     var children = parent[fields["subfeatures"]];

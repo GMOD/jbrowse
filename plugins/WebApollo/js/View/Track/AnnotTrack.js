@@ -525,7 +525,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 var allSameStrand = 1;
                 for (var i = 0; i < feats_to_add.length; ++i)  { 
                         var feat = feats_to_add[i];
-                        var isSubfeature = (!!feat.parent);  // !! is shorthand for returning true if value is defined and non-null
+                        var isSubfeature = !! feat.parent();  // !! is shorthand for returning true if value is defined and non-null
                         var annotStrand = annot.get('strand');
                         if (isSubfeature)  {
                                 var featStrand = feat.get('strand');
@@ -578,7 +578,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 //              var parent = JSONUtils.createApolloFeature(annot, target_track.fields, target_track.subfields);
 //              parent.uniquename = annot[target_track.fields["name"]];
                 dojo.xhrPost( {
-                        postData: '{ "track": "' + target_track.getUniqueTrackName() + '", "features": [ {"uniquename": "' + annot.uid + '"}' + featuresString + '], "operation": "add_exon" }',
+                        postData: '{ "track": "' + target_track.getUniqueTrackName() + '", "features": [ {"uniquename": "' + annot.id() + '"}' + featuresString + '], "operation": "add_exon" }',
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "json",
                         timeout: 5000, // Time in milliseconds
@@ -668,8 +668,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var parentFeatures = new Object();
             for (var i in feats)  {
                     var dragfeat = feats[i];
-                    var is_subfeature = (!!dragfeat.parent);  // !! is shorthand for returning true if value is defined and non-null
-                    var parentId = is_subfeature ? dragfeat.parent.uid : dragfeat.uid;
+                    var is_subfeature = !! dragfeat.parent();  // !! is shorthand for returning true if value is defined and non-null
+                    var parentId = is_subfeature ? dragfeat.parent().id() : dragfeat.id();
                     if (parentFeatures[parentId] === undefined) {
                             parentFeatures[parentId] = new Array();
                             parentFeatures[parentId].isSubfeature = is_subfeature;
@@ -680,7 +680,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             for (var i in parentFeatures) {
                     var featArray = parentFeatures[i];
                     if (featArray.isSubfeature) {
-                            var parentFeature = featArray[0].parent;
+                            var parentFeature = featArray[0].parent();
                             var parentSourceTrack = parentFeature.track;
                             var fmin = undefined;
                             var fmax = undefined;
@@ -758,9 +758,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                             if (this.verbose_create)  { console.log("AnnotationEditorService annot object: ");
                                             console.log(rfeat); }
                                             var jfeat = JSONUtils.createJBrowseFeature( rfeat );
-                                            if (this.verbose_create)  { console.log("Converted annot object to JBrowse feature array: " + jfeat.uid);
+                                            if (this.verbose_create)  { console.log("Converted annot object to JBrowse feature array: " + jfeat.id());
                                             console.log(jfeat); }
-                                            features_nclist.add(jfeat, jfeat.uid);
+                                            features_nclist.add(jfeat, jfeat.id());
                                     }
                                     target_track.hideAll();
                                     target_track.changed();
@@ -864,7 +864,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var uniqueNames = [];
         for (var i in annots)  {
             var annot = annots[i];
-            var uniqueName = annot.uid;
+            var uniqueName = annot.id();
             // just checking to ensure that all features in selection are from this track --
             //   if not, then don't try and delete them
             if (annot.track === track)  {
@@ -952,14 +952,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var features;
         var operation;
         // merge exons
-        if (leftAnnot.parent && rightAnnot.parent && leftAnnot.parent == rightAnnot.parent) {
-            features = '"features": [ { "uniquename": "' + leftAnnot.uid + '" }, { "uniquename": "' + rightAnnot.uid + '" } ]';
+        if (leftAnnot.parent() && rightAnnot.parent() && leftAnnot.parent() == rightAnnot.parent()) {
+            features = '"features": [ { "uniquename": "' + leftAnnot.id() + '" }, { "uniquename": "' + rightAnnot.id() + '" } ]';
             operation = "merge_exons";
         }
         // merge transcripts
         else {
-            var leftTranscriptId = leftAnnot.parent ? leftAnnot.parent.uid : leftAnnot.uid;
-            var rightTranscriptId = rightAnnot.parent ? rightAnnot.parent.uid : rightAnnot.uid;
+            var leftTranscriptId = leftAnnot.parent() ? leftAnnot.parent().id() : leftAnnot.id();
+            var rightTranscriptId = rightAnnot.parent() ? rightAnnot.parent().id() : rightAnnot.id();
             features = '"features": [ { "uniquename": "' + leftTranscriptId + '" }, { "uniquename": "' + rightTranscriptId + '" } ]';
             operation = "merge_transcripts";
         }
@@ -1022,12 +1022,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         // split exon
         if (leftAnnot == rightAnnot) {
             var coordinate = this.gview.getGenomeCoord(event);
-            features = '"features": [ { "uniquename": "' + leftAnnot.uid + '", "location": { "fmax": ' + (coordinate - 1) + ', "fmin": ' + (coordinate + 1) + ' } } ]';
+            features = '"features": [ { "uniquename": "' + leftAnnot.id() + '", "location": { "fmax": ' + (coordinate - 1) + ', "fmin": ' + (coordinate + 1) + ' } } ]';
             operation = "split_exon";
         }
         // split transcript
-        else if (leftAnnot.parent == rightAnnot.parent) {
-            features = '"features": [ { "uniquename": "' + leftAnnot.uid + '" }, { "uniquename": "' + rightAnnot.uid + '" } ]';
+        else if (leftAnnot.parent() == rightAnnot.parent()) {
+            features = '"features": [ { "uniquename": "' + leftAnnot.id() + '" }, { "uniquename": "' + rightAnnot.id() + '" } ]';
             operation = "split_transcript";
         }
         else {
@@ -1067,7 +1067,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var track = this;
         var annot = annots[0];
             var coordinate = this.gview.getGenomeCoord(event);
-        var features = '"features": [ { "uniquename": "' + annot.uid + '", "location": { "fmin": ' + coordinate + ' } } ]';
+        var features = '"features": [ { "uniquename": "' + annot.id() + '", "location": { "fmin": ' + coordinate + ' } } ]';
         var operation = "make_intron";
         var trackName = track.getUniqueTrackName();
             dojo.xhrPost( {
@@ -1104,7 +1104,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var track = this;
         var annot = annots[0];
             var coordinate = this.gview.getGenomeCoord(event);
-            var uid = annot.parent ? annot.parent.uid : annot.uid;
+            var uid = annot.parent() ? annot.parent().id() : annot.id();
         var features = '"features": [ { "uniquename": "' + uid + '", "location": { "fmin": ' + coordinate + ' } } ]';
         var operation = "set_translation_start";
         var trackName = track.getUniqueTrackName();
@@ -1138,7 +1138,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var uniqueNames = new Object();
         for (var i in annots)  {
             var annot = AnnotTrack.getTopLevelAnnotation(annots[i]);
-            var uniqueName = annot.uid;
+            var uniqueName = annot.id();
             // just checking to ensure that all features in selection are from this track
             if (annot.track === track)  {
                     uniqueNames[uniqueName] = 1;
@@ -1190,7 +1190,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var features = '"features": [';
         for (var i in annots)  {
             var annot = AnnotTrack.getTopLevelAnnotation(annots[i]);
-            var uniqueName = annot.uid;
+            var uniqueName = annot.id();
             // just checking to ensure that all features in selection are from this track
             if (annot.track === track)  {
                 var trackdiv = track.div;
@@ -1245,7 +1245,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     dojo.attr(parentContent, "class", "parent_comments_div");
                     dojo.place(parentContent, content);
             }
-            var annotContent = this.createEditCommentsPanelForFeature(annot.uid, track.getUniqueTrackName());
+            var annotContent = this.createEditCommentsPanelForFeature(annot.id(), track.getUniqueTrackName());
             dojo.place(annotContent, content);
             track.openDialog("Comments for " + annot.get('name'), content);
     },
@@ -1502,7 +1502,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             dojo.attr(parentContent, "class", "parent_dbxrefs_div");
             dojo.place(parentContent, content);
         }
-        var annotContent = this.createEditDbxrefsPanelForFeature(annot.uid, track.getUniqueTrackName());
+        var annotContent = this.createEditDbxrefsPanelForFeature(annot.id(), track.getUniqueTrackName());
         dojo.place(annotContent, content);
         track.openDialog("Dbxrefs for " + annot.get("name"), content);
     },
@@ -1697,7 +1697,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var features = '"features": [';
         for (var i in annots)  {
             var annot = AnnotTrack.getTopLevelAnnotation(annots[i]);
-            var uniqueName = annot.uid;
+            var uniqueName = annot.id();
             // just checking to ensure that all features in selection are from this track
             if (annot.track === track)  {
                 var trackdiv = track.div;
@@ -1758,7 +1758,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var features = '"features": [';
         for (var i in annots)  {
             var annot = AnnotTrack.getTopLevelAnnotation(annots[i]);
-            var uniqueName = annot.uid;
+            var uniqueName = annot.id();
             // just checking to ensure that all features in selection are from this track
             if (annot.track === track)  {
                 var trackdiv = track.div;
@@ -1804,7 +1804,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var features = '"features": [';
         for (var i in annots)  {
             var annot = AnnotTrack.getTopLevelAnnotation(annots[i]);
-            var uniqueName = annot.uid;
+            var uniqueName = annot.id();
             // just checking to ensure that all features in selection are from this track
             if (annot.track === track)  {
                 var trackdiv = track.div;
@@ -1883,7 +1883,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var features = '"features": [';
             for (var i = 0; i < annots.length; ++i)  {
                 var annot = annots[i];
-                var uniqueName = annot.uid;
+                var uniqueName = annot.id();
                 // just checking to ensure that all features in selection are from this track
                 if (annot.track === track)  {
                     var trackdiv = track.div;
@@ -2434,8 +2434,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         menuItem.set("disabled", false);
         var selectedFeat = selected[0];
-        if (selectedFeat.parent) {
-            selectedFeat = selectedFeat.parent;
+        if (selectedFeat.parent()) {
+            selectedFeat = selectedFeat.parent();
         }
         if (selectedFeat.manuallySetTranslationStart) {
             menuItem.set("label", "Unset translation start");
@@ -2469,9 +2469,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             menuItem.set("disabled", true);
             return;
         }
-        var parent = selected[0].parent;
+        var parent = selected[0].parent();
         for (var i = 1; i < selected.length; ++i) {
-            if (selected[i].parent != parent) {
+            if (selected[i].parent() != parent) {
                 menuItem.set("disabled", true);
                 return;
             }
@@ -2661,8 +2661,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         // want to get child of block, since want position relative to block
         // so get top-level feature div (assumes top level feature is always rendered...)
         var topfeat = feat;
-        while (topfeat.parent)  {
-            topfeat = topfeat.parent;
+        while (topfeat.parent())  {
+            topfeat = topfeat.parent();
         }
         var featdiv = track.getFeatDiv(topfeat);
         if (featdiv)  {
@@ -2754,8 +2754,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     // };
 
     getTopLevelAnnotation: function(annotation) {
-        while( annotation.parent ) {
-            annotation = annotation.parent;
+        while( annotation.parent() ) {
+            annotation = annotation.parent();
         }
         return annotation;
     }

@@ -651,7 +651,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
        var already_selected = selman.isSelected(feat);
        var parent_selected = false;
-       var parent = feat.parent;
+       var parent = feat.parent();
        if (parent)  {
            parent_selected = selman.isSelected(parent);
        }
@@ -850,7 +850,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var subfeat = featdiv.subfeature;
        // if (subfeat && (! unselectableTypes[subfeat.get('type')]))  {  // only allow double-click parent selection for selectable features
         if( subfeat && selman.isSelected(subfeat) ) {  // only allow double-click of child for parent selection if child is already selected
-            var parent = subfeat.parent;
+            var parent = subfeat.parent();
             // select parent feature
             // children (including subfeat double-clicked one) are auto-deselected in FeatureSelectionManager if parent is selected
             if( parent ) { selman.addToSelection({ feature: parent, track: this }); }
