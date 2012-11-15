@@ -34,7 +34,7 @@ var JAFeature = Util.fastDeclare({
         this.strand = loc.strand;
         this.name = afeature.name;
         this.parent_id = afeature.parent_id;
-        this.type = afeature.type.cv.name + ':' + afeature.type.name;
+        this.type = afeature.type.name;
         this._uniqueID = afeature.uniquename;
 
         // get the subfeatures
