@@ -110,12 +110,27 @@ Browser.prototype.version = function() {
     return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
 }.call();
 
+
+/**
+ * Get a plugin, if it is present.  Note that, if plugin
+ * initialization is not yet complete, it may be a while before the
+ * callback is called.
+ *
+ * Callback is called with one parameter, the desired plugin object,
+ * or undefined if it does not exist.
+ */
+Browser.prototype.getPlugin = function( name, callback ) {
+    this.initPlugins().then(dojo.hitch( this, function() {
+        callback( this.plugins[name] );
+    }));
+};
+
 /**
  * Load and instantiate any plugins defined in the configuration.
  */
 Browser.prototype.initPlugins = function() {
     return this._deferredFunction( 'plugin initalization', function( deferred ) {
-        this.plugins = [];
+        this.plugins = {};
 
         var plugins = this.config.plugins;
 
@@ -158,7 +173,7 @@ Browser.prototype.initPlugins = function() {
 
                                  // instantiate the plugin
                                  var plugin = new pluginClass( args );
-                                 this.plugins.push( plugin );
+                                 this.plugins[ pluginName ] = plugin;
                              }
                          }, this );
                      deferred.resolve({success: true});
