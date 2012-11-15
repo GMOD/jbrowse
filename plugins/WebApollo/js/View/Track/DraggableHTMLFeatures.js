@@ -302,12 +302,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
         var subfeatdiv = this.inherited( arguments );
         if (subfeatdiv)  {  // just in case subFeatDiv doesn't actually get created
-            // var $subfeatdiv = $(subfeatdiv);
-            // // adding pointer to track for each subfeatdiv
-            // //   (could get this by DOM traversal, but shouldn't take much memory, and having it with each subfeatdiv is more convenient)
-            // subfeatdiv.track = this;
-            // $subfeatdiv.bind("mousedown", this.featMouseDown);
-            // $subfeatdiv.bind("dblclick", this.featDoubleClick);
+            var $subfeatdiv = $(subfeatdiv);
+            // adding pointer to track for each subfeatdiv
+            //   (could get this by DOM traversal, but shouldn't take much memory, and having it with each subfeatdiv is more convenient)
+            subfeatdiv.track = this;
+            subfeatdiv.subfeature = subfeature;
+            $subfeatdiv.bind("mousedown", dojo.hitch( this, 'onFeatureMouseDown' ) );
+            $subfeatdiv.bind("dblclick",  dojo.hitch( this, 'onFeatureDoubleClick') );
         }
         return subfeatdiv;
     },
@@ -393,7 +394,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
             // don't render "wholeCDS" type
             // although if subfeatureClases is properly set up, wholeCDS would also be filtered out in renderFeature?
             // if (subtype == "wholeCDS")  {  continue; }
-            var subDiv = this.renderSubfeature(feature, featDiv, subfeat, displayStart, displayEnd, block);
+            var subDiv = this.renderSubfeature( feature, featDiv, subfeat, displayStart, displayEnd, block);
+            subDiv.subfeature = subfeat;
             // if subfeat is of type "exon", add CDS/UTR rendering
             // if (subDiv && wholeCDS && (subtype === "exon")) {
             // if (wholeCDS && (subtype === "exon")) {   // pass even if subDiv is null (not drawn), in order to correctly calc downstream CDS frame
@@ -639,10 +641,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
        var ftrack = this;
        var selman = ftrack.selectionManager;
        var featdiv = (event.currentTarget || event.srcElement);
-       var feat = featdiv.feature;
-       if( !feat ) {
-           feat = featdiv.subfeature;
-       }
+       var feat = featdiv.feature || featdiv.subfeature;
 
        if( selman.unselectableTypes[feat.get('type')] ) {
            return;
@@ -709,8 +708,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var ftrack = this;
         var featdiv = (event.currentTarget || event.srcElement);
         if (this.verbose_drag)  {  console.log("called handleFeatureDragSetup()"); console.log(featdiv); }
-        var feat = featdiv.feature;
-        if (!feat)  { feat = featdiv.subfeature; }
+        var feat = featdiv.feature || featdiv.subfeature;
         var selected = this.selectionManager.isSelected( {track: this, feature: feat});
 	if (selected)  {
 	    var $featdiv = $(featdiv);
