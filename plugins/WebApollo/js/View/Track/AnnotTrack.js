@@ -1,6 +1,8 @@
 define( [
             'dojo/_base/declare',
             'jquery',
+            'jqueryui/draggable',
+            'jqueryui/droppable',
             'dijit/Menu',
             'dijit/MenuItem',
             'dijit/Dialog',
@@ -10,7 +12,7 @@ define( [
             'WebApollo/BioFeatureUtils',
             'WebApollo/Permission'
         ],
-        function( declare, $, dijitMenu, dijitMenuItem, dijitDialog, DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission ) {
+        function( declare, $, draggable, droppable, dijitMenu, dijitMenuItem, dijitDialog, DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission ) {
 
 var listeners = [];
 
@@ -104,7 +106,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 //        this.features = this.featureStore.nclist;
 //        var features = this.features;
 
-//        this.initAnnotContextMenu();
+//        this.initAnnotContextMenu();J
 //        this.initNonAnnotContextMenu();
 //        this.initPopupDialog();
 
@@ -119,19 +121,19 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     for (var i = 0; i < responseFeatures.length; i++) {
                         // var jfeat = JSONUtils.createJBrowseFeature(track.attrs, responseFeatures[i]);
                         var jfeat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
-                        features.add( jfeat, responseFeatures[i].uniquename );
+			track.store.insert(jfeat);
                         // console.log("responseFeatures[0].uniquename: " + responseFeatures[0].uniquename);
                     }
                     track.hideAll();
                     track.changed();
                     //              features.verbose = true;  // turn on diagnostics reporting for track's NCList
-                    features.verbose = false;  // turn on diagnostics reporting for track's NCList
+                   // features.verbose = false;  // turn on diagnostics reporting for track's NCList
 
                     if ( USE_COMET )  {
                         track.createAnnotationChangeListener();
                     }
 
-                    track.getSequenceTrack().loadSequenceAlterations();
+                    // track.getSequenceTrack().loadSequenceAlterations();
                 },
                 // The ERROR function will be called in an error case.
                 error: function(response, ioArgs) { //
@@ -287,7 +289,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var featDiv = this.inherited( arguments );
 
         if (featDiv && featDiv != null)  {
-            annot_context_menu.bindDomNode(featDiv);
+            // annot_context_menu.bindDomNode(featDiv);
             $(featDiv).droppable(  {
                 accept: ".selected-feature",   // only accept draggables that are selected feature divs
                 tolerance: "pointer",
