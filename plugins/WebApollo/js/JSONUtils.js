@@ -1,182 +1,72 @@
+define([ 'dojo/_base/declare',
+         'JBrowse/Util'
+       ],
+       function( declare, Util ) {
+
 function JSONUtils() {
 }
 
-// Convert an ApolloEditorService JSON feature to JBrowse JSON feature array
-// form server into feature array (fa) for JBrowse.  fa[0] is an array of field definitions
-// with each subsequent element being the data
-/*
- JSONUtils.convertJsonToFeatureArray = function(jsonFeature) {
-    var featureArray = new Array();
-    featureArray[0] = jsonFeature.location.fmin;
-    featureArray[1] = jsonFeature.location.fmax;
-    featureArray[2] = jsonFeature.location.strand;
-    featureArray[3] = jsonFeature.uniquename;
-    return featureArray;
-};
-*/
-
-// Creates a feature object in ApolloEditorService JSON format
-/*
- JSONUtils.createJsonFeature = function(fmin, fmax, strand, cv, cvterm) {
-    var feature = {
-	"location": {
-	    "fmin": fmin, 
-	    "fmax": fmax, 
-	    "strand": strand
-	}, 
-	"type": {
-	    "cv": {
-		"name": cv
-	    }, 
-	    "name": cvterm
-	}
-    };
-    return feature;
-};
-*/
 
 /**
 *  creates a feature in JBrowse JSON format
 *  takes as arguments:
 *      afeature: feature in ApolloEditorService JSON format,
 *      arep: ArrayRepr for kind of JBrowse feature to output
-*      OLD: fields: array specifying order of fields for JBrowse feature 
-*      OLD: subfields:  array specifying order of fields for subfeatures of JBrowse feature 
-*   "CDS" type feature in Apollo JSON format is from genomic start of translation to genomic end of translation, 
+*      OLD: fields: array specifying order of fields for JBrowse feature
+*      OLD: subfields:  array specifying order of fields for subfeatures of JBrowse feature
+*   "CDS" type feature in Apollo JSON format is from genomic start of translation to genomic end of translation,
 *          (+ stop codon), regardless of intons, so one per transcript (usually)
 *   "CDS" type feature in JBrowse JSON format is a CDS _segment_, which are piecewise and broken up by introns
 *          therefore commonyly have multiple CDS segments
-*          
+*
 */
 // JSONUtils.createJBrowseFeature = function(afeature, fields, subfields)  {
-JSONUtils.createJBrowseFeature = function(arep, afeature, classIndex)  {
-    // console.log("JSON: " + JSON.stringify(afeature));
-    // console.log("JSONUtils.createJBrowseFeature, input feature:");
-    // console.log(afeature);
-    // var CONVERT_UTR_CDS = false;
+var JAFeature = Util.fastDeclare({
+    constructor: function( afeature ) {
+        this.afeature = afeature;
 
-    var loc = afeature.location;
-    var uid = afeature.uniquename; 
+        // get the main data
+        var loc = afeature.location;
+        this.start = loc.fmin;
+        this.end = loc.fmax;
+        this.strand = loc.strand;
+        this.name = afeature.name;
+        this.parent = afeature.parent_id;
+        this.type = afeature.type.cv.name + ':' + afeature.type.name;
+        this._uniqueID = afeature.uniquename;
 
-    if (! classIndex)  {
-	classIndex = 0;
-    }
-    var jfeature = new Array();
+        // get the subfeatures
+        this.subfeatures = array.map( afeature.children, function(s) {
+            return new JAFeature( s );
+        });
 
+        var tags = ['start','end','strand','name','parent','type','subfeatures'];
 
-    // need ArrayRepr constructor that sets class field:
-    //    var jfeature = arep.constructFeature(classIndex);
-    // or probably better:
-    //    var jfeature = arep.constructFeature(className);
-    // 
-    jfeature[0] = classIndex;
-    arep.set(jfeature, "Start", loc.fmin);  // arep.fastSet(jfeature, "Start", loc.fmin);
-    arep.set(jfeature, "End", loc.fmax);   //  arep.fastSet(jfeature, "End", loc.fmax);
-    arep.set(jfeature, "Strand", loc.strand);   // arep.fastSet(jfeature, "Strand", loc.strand);
+        // parse the props
+        var props = afeature.properties;
+        dojo.forEach( props, function( p ) {
+            var pn = p.type.cv.name+':'+p.type.name;
+            tags.push(pn);
+            this[pn] = p.value;
+        });
 
-    //    if (fields["id"])  { jfeature[fields["id"]] = uid; }    
-    // if (arep.fastGet(jfeature, "Id"))  {
-    if (arep.hasDefinedAttribute(jfeature, "Id")) {
-	arep.set(jfeature, "Id", uid);
+        this._tags = tags;
+    },
+    get: function( fname ) {
+        return this[fname];
+    },
+    tags: function() {
+        return this._tags;
+    },
+    id: function() {
+        return this._uniqueID;
     }
-    //    if (fields["name"])  { var name = afeature.name ? afeature.name : uid; jfeature[fields["name"]] = name; }
-   //  if (arep.fastGet(jfeature, "Name"))  {
-    if (arep.hasDefinedAttribute(jfeature, "Name")) {
-    	var name = afeature.name ? afeature.name : uid;
-	arep.set(jfeature, "Name", name);
-    }
-    jfeature.uid = uid;
+});
 
-    // rename "CDS" to "wholeCDS", pass through other type names (currently only other type is "exon")
-    if (arep.hasDefinedAttribute(jfeature, "Type"))  {
-	var type = afeature.type.name;
-	if (type == "CDS")  { type =  "wholeCDS"; }
-	arep.set(jfeature, "Type", type);
-    }
-    /*
-    if (fields["type"])  { 
-	var type = afeature.type.name;
-	if (type == "CDS")  { type =  "wholeCDS"; }
-	//	if (type == "exon")  { type = "exon"; }
-	jfeature[fields["type"]] = type;
-    }
-     */
-    // may not need parent_id? including for now just in case
-    // if (fields["parent_id"] && afeature.parent_id) { jfeature[fields["parent_id"]] = afeature.parent_id; }
-    if (arep.hasDefinedAttribute(jfeature, "parent_id") && afeature.parent_id)  {
-	arep.set(jfeature, "parent_id", afeature.parent_id);
-    }
-    if (afeature.properties) {
-    	for (var i = 0; i < afeature.properties.length; ++i) {
-    		var property = afeature.properties[i];
-    		if (property.type.name == "comment" && property.value == "Manually set translation start") {
-    			jfeature.manuallySetTranslationStart = true;
-    		}
-    	}
-    }
-    
-    var children = afeature.children;
-    if (children && arep.hasDefinedAttribute(jfeature, "Subfeatures"))  {
-	//    if (fields["subfeatures"] && children)  {
-	// jfeature[fields["subfeatures"]] = new Array();
-	var subarray = new Array();
-	arep.set(jfeature, "Subfeatures", subarray);
-	var clength = children.length;
-	var nonCanonicalSplicePositions = new Object();
-	for (var i = 0; i<clength; i++)  {
-	    var achild = children[i];
-//	    var jchild =  JSONUtils.createJBrowseFeature(achild, subfields, subfields);
-	    var jchild =  JSONUtils.createJBrowseFeature(arep, achild, 1);
-	    // jfeature[fields["subfeatures"]].push(jchild);
-	    
-	    // don't add non canonical splice sites as children - use for post processing of exon features
-//	    if (arep.get(jchild, "Type").match("non_canonical_(five|three)_prime_splice_site")) {
-//	    	nonCanonicalSplicePositions[arep.get(jchild, "Start")] = 1;
-//	    }
-//	    else {
-	    	subarray.push(jchild);
-//	    }
-	    if (jchild.manuallySetTranslationStart) {
-	    	jfeature.manuallySetTranslationStart = true;
-	    }
-	}
-	
+JSONUtils.JAFeature = JAFeature;
 
-	/*
-	// process non canonical splice sites and update exons
-	for (var i = 0; i < subarray.length; ++i) {
-		var child = subarray[i];
-		if (arep.get(child, "Type") == "exon") {
-			var start = arep.get(child, "Start");
-			var end = arep.get(child, "End");
-
-			var nonCanonicalStart = nonCanonicalSplicePositions[start] != undefined;
-			var nonCanonicalEnd = nonCanonicalSplicePositions[end] != undefined;
-			
-//			if (nonCanonicalStart && nonCanonicalEnd) {
-//				arep.set(child, "Type", "exon_non_canonical_start_end");
-//			}
-//			else if (nonCanonicalStart) {
-//				arep.set(child, "Type", "exon_non_canonical_start");
-//			}
-//			else if (nonCanonicalEnd) {
-//				arep.set(child, "Type", "exon_non_canonical_end");
-//			}
-			
-//			if (nonCanonicalSplicePositions[start] != undefined) {
-//				child.nonCanonicalStartSpliceSite = true;
-//			}
-//			if (nonCanonicalSplicePositions[end] != undefined) {
-//				child.nonCanonicalEndSplieSite = true;
-//			}
-		}
-	}
-	*/
-	
-    }
-    // console.log("JSONUtils.createJBrowseFeature, output feature:");
-    // console.log(jfeature);
-    return jfeature;
+JSONUtils.createJBrowseFeature = function( afeature )  {
+    return new JAFeature( afeature );
 };
 
 /**
@@ -246,13 +136,13 @@ JSONUtils.createJBrowseSequenceAlteration = function(arep, afeature)  {
 *    ignoring JBrowse ID / name fields for now
 *    currently, for features with lazy-loaded children, ignores children 
 */
-JSONUtils.createApolloFeature = function(arep, jfeature, specified_type)   {
-// JSONUtils.createApolloFeature = function(jfeature, fields, subfields, specified_type)   {
+JSONUtils.createApolloFeature = function( jfeature )   {
+
     var afeature = new Object();
     afeature.location = {
-	"fmin": arep.get(jfeature, "Start"), 
-	"fmax": arep.get(jfeature, "End"), 
-	"strand": arep.get(jfeature, "Strand")
+	"fmin": jfeature.get('start'),
+	"fmax": jfeature.get('end'),
+	"strand": jfeature.get('strand')
     };
 
     var typename;
@@ -260,8 +150,8 @@ JSONUtils.createApolloFeature = function(arep, jfeature, specified_type)   {
 	typename = specified_type;
     }
 //    else if (fields["type"])  { typename = jfeature[fields["type"]]; }
-    else if (arep.hasDefinedAttribute(jfeature, "Type"))  {
-	typename = arep.get(jfeature, "Type");
+    else if ( jfeature.get('type') ) {
+	typename = jfeature.get('type');
     }
 
     if (typename)  {
@@ -275,23 +165,21 @@ JSONUtils.createApolloFeature = function(arep, jfeature, specified_type)   {
     }
     //    if (fields["subfeatures"])  {
     // var subfeats = jfeature[fields["subfeatures"]];
-    if (arep.hasDefinedAttribute(jfeature, "Subfeatures"))  {
-	var subfeats = arep.get(jfeature, "Subfeatures");
-	if (subfeats && subfeats.length > 0 && (subfeats[0] instanceof Array))  {
-	    afeature.children = new Array();
-	    var slength = subfeats.length;
-	    for (var i=0; i<slength; i++)  {
-		var subfeat = subfeats[i];
-		// afeature.children[i] = JSONUtils.createApolloFeature(subfeat, subfields); 
-		//  var subtype = subfeat[subfields["type"]];
-		var subtype = arep.get(subfeat, "Type");
-		// if "wholeCDS", then translate to the equivalent "CDS" for server
-		if (subtype === "wholeCDS" || subtype === "polypeptide") {
-		    afeature.children[i] = JSONUtils.createApolloFeature(arep, subfeat, "CDS"); 
-		}
-		else  {  // currently client "CDS" (CDS-segment), "UTR", etc. are all converted to "exon"
-		    afeature.children[i] = JSONUtils.createApolloFeature(arep, subfeat, "exon"); 	
-		}
+    var subfeats = jfeature.get('subfeatures');
+    if( subfeats && subfeats.length )  {
+	afeature.children = new Array();
+	var slength = subfeats.length;
+	for (var i=0; i<slength; i++)  {
+	    var subfeat = subfeats[i];
+	    // afeature.children[i] = JSONUtils.createApolloFeature(subfeat, subfields);
+	    //  var subtype = subfeat[subfields["type"]];
+	    var subtype = subfeat.get('type');
+	    // if "wholeCDS", then translate to the equivalent "CDS" for server
+	    if (subtype === "wholeCDS" || subtype === "polypeptide") {
+		afeature.children[i] = JSONUtils.createApolloFeature( subfeat, "CDS");
+	    }
+	    else  {  // currently client "CDS" (CDS-segment), "UTR", etc. are all converted to "exon"
+		afeature.children[i] = JSONUtils.createApolloFeature( subfeat, "exon");
 	    }
 	}
     }
@@ -540,3 +428,6 @@ JSONUtils.parsedNinthGff3Field = function(ninthField) {
     }
     return parsedNinthField;
 }
+
+return JSONUtils;
+});
