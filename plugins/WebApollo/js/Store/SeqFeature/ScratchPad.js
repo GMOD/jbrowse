@@ -11,12 +11,12 @@ return declare( SeqFeatureStore,
     },
 
     insert: function( feature ) {
-        this.features[feature._uniqueID] = feature;
+        this.features[ feature.id() ] = feature;
         this._calculateStats();
     },
 
     delete: function( feature ) {
-        delete this.features[ feature._uniqueID ];
+        delete this.features[ feature.id() ];
         this._calculateStats();
     },
 
