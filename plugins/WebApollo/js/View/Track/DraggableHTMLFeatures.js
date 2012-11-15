@@ -901,62 +901,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
         }
     },
 
-    initFeatureContextMenu: function() {
-        var thisObj = this;
-        this.feature_context_menu = new dijitMenu({});
-        this.feature_context_menu.addChild(new dijitMenuItem( {
-            label: "Information",
-            onClick: function(event) {
-                thisObj.showFeatureInformation( array.map( thisObj.selectionManager.getSelection(), function(rec) { return rec.feature; } ));
-            }
-        } ));
-        this.feature_context_menu.addChild(
-            new dijitMenuItem({ label: "..." })
-        );
-
-        this.feature_context_menu.onOpen = function(event) {
-            dojo.forEach(this.getChildren(), function(item, idx, arr) {
-                             item._setSelected(false);
-                             item._onUnhover();
-                         });
-        };
-        this.feature_context_menu.startup();
-    },
-
-    showFeatureInformation: function(feats) {
-        var info = "";
-        for (var i=0; i<feats.length; i++) {
-            var feat = feats[i];
-            var attrs = this.featureStore.attrs;
-            var props = attrs.getAttributeNames(feat);
-            if (i > 0) {
-                info += "<hr/> \n";
-            }
-            for (var k=0; k<props.length; k++) {
-                var prop = props[k];
-                var val = attrs.get(feat, prop);
-                if ($.isArray(val))  {
-                    val = val.length;
-                }
-                var tagval = prop + ": " +  val + " <br/> \n";
-                info += tagval;
-            }
-        }
-        this.openFeatureDialog("Feature information", info);
-    },
-
-    initFeatureDialog: function() {
-        this.featureDialog = new dijitDialog({});
-        this.featureDialog.startup();
-    },
-
-    openFeatureDialog: function(title, data) {
-        this.featureDialog.set("title", title);
-        this.featureDialog.set("content", data);
-        this.featureDialog.show();
-        this.featureDialog.placeAt("GenomeBrowser", "first");
-    },
-
     /**
      *  get the GenomeView's sequence track -- maybe move this to GenomeView?
      *  WebApollo assumes there is only one SequenceTrack
