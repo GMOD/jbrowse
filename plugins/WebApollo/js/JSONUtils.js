@@ -1,7 +1,8 @@
 define([ 'dojo/_base/declare',
+         'dojo/_base/array',
          'JBrowse/Util'
        ],
-       function( declare, Util ) {
+       function( declare, array, Util ) {
 
 function JSONUtils() {
 }
