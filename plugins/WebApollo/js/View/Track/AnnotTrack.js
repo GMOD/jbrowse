@@ -22,15 +22,6 @@ var listeners = [];
  */
 var USE_COMET = true;
 
-/**
- *  set USE_LOCAL_EDITS = true to bypass editing calls to
- *  AnnotationEditorService servlet and attempt to create
- *  similar annotations locally useful when
- *  AnnotationEditorService is having problems, or experimenting
- *  with something not yet completely implemented server-side
- */
-var USE_LOCAL_EDITS = false;
-
 var creation_count = 0;
 
 var annot_context_menu;
@@ -97,30 +88,26 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.verbose_create = false;
         this.verbose_add = false;
         this.verbose_delete = false;
-        this.verbose_drop = false;
+        this.verbose_drop = true;
         this.verbose_click = false;
         this.verbose_resize = false;
         this.verbose_mousedown = false;
         this.verbose_mouseenter = false;
         this.verbose_mouseleave = false;
         this.verbose_render = false;
-    },
 
-
-    loadSuccess: function(trackInfo) {
-        this.inherited( arguments );
+//        this.inherited( arguments );
 
         var track = this;
         // for AnnotTrack, features currently MUST be an NCList
     //    var features = this.features;
-        this.features = this.featureStore.nclist;
-        var features = this.features;
+//        this.features = this.featureStore.nclist;
+//        var features = this.features;
 
-        this.initAnnotContextMenu();
-        this.initNonAnnotContextMenu();
-        this.initPopupDialog();
+//        this.initAnnotContextMenu();
+//        this.initNonAnnotContextMenu();
+//        this.initPopupDialog();
 
-        if (! USE_LOCAL_EDITS)  {
             dojo.xhrPost( {
                 postData: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_features" }',
                 url: context_path + "/AnnotationEditorService",
@@ -131,8 +118,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     var responseFeatures = response.features;
                     for (var i = 0; i < responseFeatures.length; i++) {
                         // var jfeat = JSONUtils.createJBrowseFeature(track.attrs, responseFeatures[i]);
-                        var jfeat = JSONUtils.createJBrowseFeature(features.attrs, responseFeatures[i]);
-                        features.add(jfeat, responseFeatures[i].uniquename);
+                        // var jfeat = JSONUtils.createJBrowseFeature(features.attrs, responseFeatures[i]);
+                        store.insert(jfeat, responseFeatures[i].uniquename);
                         // console.log("responseFeatures[0].uniquename: " + responseFeatures[0].uniquename);
                     }
                     track.hideAll();
@@ -156,9 +143,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     return response; //
                 }
             });
-        }
 
-        this.makeTrackDroppable();
+  /*
+      this.makeTrackDroppable();
         this.hide();
         this.show();
 
@@ -170,6 +157,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             }
         });
+*/
     },
 
     createAnnotationChangeListener: function() {
@@ -524,97 +512,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var tatts = target_track.attrs;
         var nclist = target_track.features;
 
-        if ( USE_LOCAL_EDITS) {
-                if (this.verbose_add)  {
-                        console.log("adding to annot: ");
-                        console.log(annot);
-                        // console.log("removing annotation for modification");
-                }
-                // removing annotation from NCList (since need to re-add after modifications for proper repositioning)
-                // not necessary, track.hideAll() / track.changed() at end forces rerendering
-                //  nclist.deleteEntry(annot.uid);
-
-                // flatten features (only add subfeats)
-                var subfeats = [];
-
-                var flength = feats_to_add.length;
-                for (var i=0; i<flength; i++)  { 
-                        var feat = feats_to_add[i];
-
-                        var is_subfeature = (!!feat.parent);  // !! is shorthand for returning true if value is defined and non-null
-                        if (is_subfeature)  {
-                                subfeats.push(feat);
-                        }
-                        else  {
-                                var source_track = feat.track;
-                            var satts = source_track.attrs;
-                                if (satts.hasDefinedAttribute(feat, "Subfeatures")) {
-                                // if (source_track.fields["subfeatures"])  {
-                                        // var subs = feat[source_track.fields["subfeatures"]];
-                                        var subs = satts.get(feat, "Subfeatures");
-                                        $.merge(subfeats, subs);
-                                }
-                        }
-                }
-                if (this.verbose_add)  {
-                        console.log("flattened feats to add");
-                        console.log(subfeats);
-                }
-
-                var slength = subfeats.length;
-                for (var k=0; k<slength; k++)  {
-                        var sfeat = subfeats[k];
-                        if (this.verbose_add)  {
-                                console.log("converting feature, is_subfeature = " + is_subfeature + ":");
-                                console.log(sfeat);
-                        }
-                        var source_track = sfeat.track;
-                        var satts = source_track.attrs;
-                        var newfeat = JSONUtils.convertToTrack(sfeat, source_track, target_track);
-                        var id = "annot_" + creation_count++;
-                        newfeat.parent = annot;
-                        if (tatts.hasDefinedAttribute(newfeat, "Id"))  {
-                            tatts.set(newfeat, "Id", id);
-                        }
-                        if (tatts.hasDefinedAttribute(newfeat, "Name"))  {
-                            tatts.set(newfeat, "Name", id);
-                        }
-                        newfeat.uid = id;
-                        newfeat.track = target_track;  // done in convertToTrack, but just making sure...
-                        if (this.verbose_add)  {
-                                console.log("converted feature created: ");
-                                console.log(newfeat);
-                        }
-                        // var annot_subs = annot[target_track.fields["subfeatures"]];
-                        var annot_subs = tatts.get(annot, "Subfeatures");
-                        annot_subs.push(newfeat);
-                        // hardwiring start as f[0], end as f[1] for now -- 
-                        //   to fix this need to whether newfeat is a subfeat, etc.
-                        // if (newfeat[0] < annot[0])  {annot[0] = newfeat[0];}
-                        // if (newfeat[1] > annot[1])  {annot[1] = newfeat[1];}
-                        if (tatts.get(newfeat, "Start") < tatts.get(annot, "Start")) {
-                            tatts.set(annot, "Start", tatts.get(newfeat, "Start"));
-                        }
-                        if (tatts.get(newfeat, "End") > tatts.get(annot, "End"))  {
-                            tatts.set(annot, "End", tatts.get(newfeat, "End"));
-                        }
-                }
-
-                if (this.verbose_add)  {
-                        console.log("adding modified annotation back: ");
-                        console.log(annot.slice());
-                }
-
-                // adding modified annotation back to NCList 
-                // no longer removing (relying on hideAll/changed calls), so don't need to add back
-                //    nclist.add(annot, annot.uid);
-
-                // force re-rendering
-                this.hideAll();
-                this.changed();
-                if (this.verbose_add)  { console.log("finished adding to annot: "); }
-        }
-        else {
                 var subfeats = new Array();
                 var allSameStrand = 1;
                 for (var i = 0; i < feats_to_add.length; ++i)  { 
@@ -691,7 +588,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                 return response;
                         }
                 });
-        }
     },
 
     makeTrackDroppable: function() {
@@ -704,7 +600,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         $(target_trackdiv).droppable(  {
             // only accept draggables that are selected feature divs
-            accept: ".selected-feature",
+          //  accept: ".selected-feature",
+
             // switched to using deactivate() rather than drop() for drop handling
             // this fixes bug where drop targets within track (feature divs) were lighting up as drop target,
             //    but dropping didn't actually call track.droppable.drop()
@@ -722,9 +619,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             // drop: function(event, ui)  {
             over: function(event, ui) {
                 target_track.track_under_mouse_drag = true;
+		if (target_track.verbose_drop) { console.log("droppable entered AnnotTrack") };
             },
             out: function(event, ui) {
                 target_track.track_under_mouse_drag = false;
+		if (target_track.verbose_drop) { console.log("droppable exited AnnotTrack") };
+
             },
             deactivate: function(event, ui)  {x
                 // console.log("trackdiv droppable detected: draggable deactivated");
