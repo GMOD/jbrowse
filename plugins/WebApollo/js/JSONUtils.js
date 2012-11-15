@@ -51,9 +51,8 @@ var JAFeature = declare( SimpleFeature, {
         var props = afeature.properties;
         dojo.forEach( props, function( p ) {
             var pn = p.type.cv.name+':'+p.type.name;
-            tags.push(pn);
-            this[pn] = p.value;
-        });
+            this.data[pn] = p.value;
+        }, this);
     }
 });
 
