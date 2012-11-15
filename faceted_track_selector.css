@@ -105,6 +105,9 @@
 .tundra #faceted_tracksel_top {
     background: #396494;
 }
+.tundra #faceted_tracksel_top .topLink {
+    color: white;
+}
 
 #faceted_tracksel_top > * {
     display: inline-block;

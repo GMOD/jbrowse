@@ -51,9 +51,6 @@ div.menuBar a, .topLink a {
     padding: 0 0.8ex;
     text-decoration: none;
 }
-.topLink a {
-    color: blue;
-}
 .menuBar .powered_by {
     float: left;
     font-size: 125%;
