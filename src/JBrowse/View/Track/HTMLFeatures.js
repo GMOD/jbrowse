@@ -930,9 +930,9 @@ HTMLFeatures = declare( HTMLFeatures,
 	var subfeatures = feature.get('subfeatures');
         if( subfeatures ) {
             for (var i = 0; i < subfeatures.length; i++) {
-                this.renderSubfeature(feature, featDiv,
+                this.renderSubfeature( feature, featDiv,
                                       subfeatures[i],
-                                      displayStart, displayEnd);
+                                      displayStart, displayEnd, block );
             }
         }
     }, 
@@ -1027,7 +1027,7 @@ HTMLFeatures = declare( HTMLFeatures,
         return menu;
     },
 
-    renderSubfeature: function(feature, featDiv, subfeature, displayStart, displayEnd) {
+    renderSubfeature: function( feature, featDiv, subfeature, displayStart, displayEnd, block ) {
         var subStart = subfeature.get('start');
         var subEnd = subfeature.get('end');
         var featLength = displayEnd - displayStart;
@@ -1047,7 +1047,8 @@ HTMLFeatures = declare( HTMLFeatures,
 
         // if the feature has been truncated to where it doesn't cover
         // this subfeature anymore, just skip this subfeature
-        if ((subEnd <= displayStart) || (subStart >= displayEnd)) return;
+        if ( subEnd <= displayStart || subStart >= displayEnd )
+            return null;
 
         if (Util.is_ie6) subDiv.appendChild(document.createComment());
 
@@ -1059,6 +1060,9 @@ HTMLFeatures = declare( HTMLFeatures,
             + "top: 0px;"
             + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
         featDiv.appendChild(subDiv);
+
+        block.featureNodes[ subfeature.id() ] = subDiv;
+
 	return subDiv;
     },
 
