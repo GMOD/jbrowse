@@ -79,36 +79,22 @@ JSONUtils.createJBrowseFeature = function( afeature )  {
 *      arep: ArrayRepr for kind of JBrowse feature to output
 *      afeature: sequence alteration in ApolloEditorService JSON format,
 */
-JSONUtils.createJBrowseSequenceAlteration = function(arep, afeature)  {
+JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
     var loc = afeature.location;
     var uid = afeature.uniquename;
 
-    var classIndex = 0;
-    var jfeature = new Array();
-
-    jfeature.uid = uid;
-
-    // need ArrayRepr constructor that sets class field:
-    //    var jfeature = arep.constructFeature(classIndex);
-    // or probably better:
-    //    var jfeature = arep.constructFeature(className);
-    //
-    jfeature[0] = classIndex;
-    arep.set(jfeature, "Start", loc.fmin);
-    arep.set(jfeature, "End", loc.fmax);
-    arep.set(jfeature, "Strand", loc.strand);
-    if (arep.hasDefinedAttribute(jfeature, "Id")) {
-    	arep.set(jfeature, "Id", uid);
-    }
-    if (arep.hasDefinedAttribute(jfeature, "Type"))  {
-    	var type = afeature.type.name;
-    	arep.set(jfeature, "Type", type);
-    }
-    if (arep.hasDefinedAttribute(jfeature, "Residues"))  {
-    	var residues = afeature.residues;
-    	arep.set(jfeature, "Residues", residues);
-    }
-    return jfeature;
+    return new SimpleFeature({
+        data: {
+            start:    loc.fmin,
+            end:      loc.fmax,
+            strand:   loc.strand,
+            id:       uid,
+            type:     afeature.type.name,
+            residues: afeature.residues,
+            seq:      afeature.residues
+        },
+        id: uid
+    });
 };
 
 

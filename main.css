@@ -721,7 +721,7 @@ a.dialog-new-window {
     display: none;
     background: #fefefe;
     padding: 0 0.7em;
-    z-index: 10;
+    z-index: 1000;
     text-align: center;
     cursor: crosshair;
     border: 1px solid #888;
