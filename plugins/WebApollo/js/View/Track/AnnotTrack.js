@@ -661,15 +661,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         if( target_track.verbose_drop) { console.log("finished making droppable target"); }
     },
 
-    createAnnotations: function(feats)  {
+    createAnnotations: function(selection_records)  {
             var target_track = this;
             var features_nclist = target_track.features;
             var featuresToAdd = new Array();
             var parentFeatures = new Object();
-            for (var i in feats)  {
-                    var dragfeat = feats[i];
+            for (var i in selection_records)  {
+                    var dragfeat = selection_records[i].feature;
                     var is_subfeature = (!!dragfeat.parent);  // !! is shorthand for returning true if value is defined and non-null
-                    var parentId = is_subfeature ? dragfeat.parent.uid : dragfeat.uid;
+                    var parentId = is_subfeature ? dragfeat.parent() : dragfeat.id();
                     if (parentFeatures[parentId] === undefined) {
                             parentFeatures[parentId] = new Array();
                             parentFeatures[parentId].isSubfeature = is_subfeature;
@@ -716,7 +716,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
             /*
             {
-                    
+             
+       
                     var source_track = dragfeat.track;
                     if (this.verbose_create)  {
                             console.log("creating annotation based on feature: ");
