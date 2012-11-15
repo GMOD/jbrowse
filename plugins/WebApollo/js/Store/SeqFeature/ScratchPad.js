@@ -38,7 +38,11 @@ return declare( SeqFeatureStore,
         }
 
         this.globalStats = {
-            featureDensity: featureCount/(maxEnd-minStart+1)
+            featureDensity: featureCount/(maxEnd-minStart+1),
+            featureCount: featureCount,
+            minStart: minStart,
+            maxEnd: maxEnd,
+            span: (maxEnd-minStart+1)
         };
     },
 
