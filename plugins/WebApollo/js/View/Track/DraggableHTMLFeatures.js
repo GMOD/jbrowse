@@ -395,7 +395,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
             // although if subfeatureClases is properly set up, wholeCDS would also be filtered out in renderFeature?
             // if (subtype == "wholeCDS")  {  continue; }
             var subDiv = this.renderSubfeature( feature, featDiv, subfeat, displayStart, displayEnd, block);
-            subDiv.subfeature = subfeat;
+            if( subDiv )
+                subDiv.subfeature = subfeat;
+
             // if subfeat is of type "exon", add CDS/UTR rendering
             // if (subDiv && wholeCDS && (subtype === "exon")) {
             // if (wholeCDS && (subtype === "exon")) {   // pass even if subDiv is null (not drawn), in order to correctly calc downstream CDS frame
