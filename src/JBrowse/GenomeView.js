@@ -1135,7 +1135,7 @@ GenomeView.prototype.drawBasePairLabel = function ( args ){
         this.basePairLabels[name] = dojo.create( 'div', {
             className: 'basePairLabel'+(args.className ? ' '+args.className : '' ),
             style: { top: scaleTrackPos.y + scaleTrackPos.h - 3 + 'px' }
-        }, args.parent );
+        }, document.body );
     }
 
     var label = this.basePairLabels[name];
