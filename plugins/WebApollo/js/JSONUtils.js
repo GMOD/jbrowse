@@ -126,7 +126,7 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
 *    ignoring JBrowse ID / name fields for now
 *    currently, for features with lazy-loaded children, ignores children 
 */
-JSONUtils.createApolloFeature = function( jfeature )   {
+JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
 
     var afeature = new Object();
     afeature.location = {
