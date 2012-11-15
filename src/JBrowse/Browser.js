@@ -138,22 +138,31 @@ Browser.prototype.initPlugins = function() {
                  },
                  pluginNames,
                  dojo.hitch( this, function() {
-                                 array.forEach( arguments, function( pluginClass, i ) {
-                                                    if( typeof pluginClass == 'string' ) {
-                                                        console.error("could not load plugin "+pluginNames[i]+": "+pluginClass);
-                                                    } else {
-                                                        // instantiate the plugin
-                                                        var plugin = new pluginClass(
-                                                            dojo.mixin( dojo.clone( plugins[i] ), { browser: this } )
-                                                        );
-                                                        this.plugins.push( plugin );
+                     array.forEach( arguments, function( pluginClass, i ) {
+                             var pluginName = pluginNames[i];
+                             if( typeof pluginClass == 'string' ) {
+                                 console.error("could not load plugin "+pluginName+": "+pluginClass);
+                             } else {
+                                 // make the plugin's arguments out of
+                                 // its little obj in 'plugins', and
+                                 // also anything in the top-level
+                                 // conf under its plugin name
+                                 var args = dojo.mixin(
+                                     dojo.clone( plugins[i] ),
+                                     this.config[pluginName]||{});
+                                 args.browser = this;
+                                 args = dojo.mixin( args, { browser: this } );
 
-                                                        // load its css
-                                                        this._loadCSS({url: 'plugins/'+plugin.getName()+'/css/main.css'});
-                                                    }
-                                                }, this );
-                                 deferred.resolve({success: true});
-                             }));
+                                 // load its css
+                                 this._loadCSS({url: 'plugins/'+pluginName+'/css/main.css'});
+
+                                 // instantiate the plugin
+                                 var plugin = new pluginClass( args );
+                                 this.plugins.push( plugin );
+                             }
+                         }, this );
+                     deferred.resolve({success: true});
+                  }));
     });
 
 };

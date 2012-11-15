@@ -39,10 +39,7 @@ return declare( JBPlugin,
                 });
 
         browser.addGlobalConfigMenuItem( cds_frame_toggle );
-    },
-
-    getName: function() { return 'WebApollo'; }
-
+    }
 });
 
 });
