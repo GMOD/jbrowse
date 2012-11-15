@@ -1132,12 +1132,15 @@ Browser.prototype.makeHelpDialog = function () {
     }, helpdiv );
 
     // make a Help link that will show the dialog and set a handler on it
-    var helplink = document.createElement('a');
-    helplink.className = 'topLink';
-    helplink.title = 'Help';
-    helplink.style.cursor = 'help';
-    helplink.appendChild( document.createTextNode('Help'));
-    dojo.connect(helplink, 'onclick', function() { dialog.show(); });
+    var helplink = dojo.create(
+        'a',
+        {
+            className: 'topLink help',
+            title: 'Help',
+            style: { cursor: 'help' },
+            innerHTML: '<div class="icon"></div> Help',
+            onclick: function() { dialog.show(); }
+        });
 
     this.setGlobalKeyboardShortcut( '?', dialog, 'show' );
     dojo.connect( document.body, 'onkeydown', function(evt) {
