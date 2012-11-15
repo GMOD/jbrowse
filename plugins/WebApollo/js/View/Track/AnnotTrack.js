@@ -245,7 +245,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                 console.error("HTTP status code: ", ioArgs.xhr.status); //
                 track.comet_working = false;
-                return response;
             },
             failOk: true
         });

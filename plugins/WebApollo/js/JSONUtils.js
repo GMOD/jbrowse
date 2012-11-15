@@ -32,7 +32,7 @@ var JAFeature = Util.fastDeclare({
         this.end = loc.fmax;
         this.strand = loc.strand;
         this.name = afeature.name;
-        this.parent = afeature.parent_id;
+        this.parent_id = afeature.parent_id;
         this.type = afeature.type.cv.name + ':' + afeature.type.name;
         this._uniqueID = afeature.uniquename;
 
@@ -59,7 +59,9 @@ var JAFeature = Util.fastDeclare({
     tags: function() {
         return this._tags;
     },
-    id: function() {
+    id: function( newid ) {
+        if( newid )
+            this._uniqueID = newid;
         return this._uniqueID;
     }
 });
@@ -78,7 +80,7 @@ JSONUtils.createJBrowseFeature = function( afeature )  {
 */
 JSONUtils.createJBrowseSequenceAlteration = function(arep, afeature)  {
     var loc = afeature.location;
-    var uid = afeature.uniquename; 
+    var uid = afeature.uniquename;
 
     var classIndex = 0;
     var jfeature = new Array();
@@ -89,7 +91,7 @@ JSONUtils.createJBrowseSequenceAlteration = function(arep, afeature)  {
     //    var jfeature = arep.constructFeature(classIndex);
     // or probably better:
     //    var jfeature = arep.constructFeature(className);
-    // 
+    //
     jfeature[0] = classIndex;
     arep.set(jfeature, "Start", loc.fmin);
     arep.set(jfeature, "End", loc.fmax);
@@ -201,11 +203,7 @@ JSONUtils.createApolloFeature = function( jfeature )   {
 */
 JSONUtils.convertToTrack = function(feat, source_track, target_track)  {
 // JSONUtils.convertToTrack = function(arep, feat, is_subfeat, source_track, target_track)  {
-    var newfeat = new Array();
-    var source_arep = source_track.attrs;
-    console.log(source_track);
-    console.log(source_arep);
-    var target_arep = target_track.attrs;
+    var newfeat = new SimpleFeature();
 //    var source_fields = source_track.fields;
 //    var source_subfields = source_track.subFields;
 //    var target_fields = target_track.fields;
@@ -216,50 +214,38 @@ JSONUtils.convertToTrack = function(feat, source_track, target_track)  {
 //    }
     // feature class assignment
     // this doesn't really work across tracks though (different class data structs) !!!
-    newfeat[0] = feat[0];
-    target_arep.set(newfeat, "Start",  source_arep.get(feat, "Start"));
-    target_arep.set(newfeat, "End",    source_arep.get(feat, "End"));
-    target_arep.set(newfeat, "Strand", source_arep.get(feat, "Strand"));
+    newfeat.set( "start",  feat.get( "start") );
+    newfeat.set( "end",    feat.get("end")    );
+    newfeat.set( "strand", feat.get( "strand"));
 //    if (target_fields["id"])  {
 //	newfeat[target_fields["id"]] = feat[source_fields["id"]];
 //    }
-    if (target_arep.hasDefinedAttribute(newfeat, "Id"))  {
-	target_arep.set(newfeat, "Id", source_arep.get(feat, "Id"));
+    if ( newfeat.get('id') ) {
+	newfeat.set('id', feat.get("id"));
     }
-    if (target_arep.hasDefinedAttribute(newfeat, "Name"))  {
-	if (source_arep.hasDefinedAttribute(feat, "Name")) {
-	    var source_name = source_arep.get(feat, "Name");
-	}
-	else  {
-	     var source_name = source_arep.get(feat, "Id");
-	}
-	target_arep.set(newfeat, "Name", source_name);
-    }
-    if (target_arep.hasDefinedAttribute(newfeat, "Type"))  {
-	target_arep.set(newfeat, "Type", source_arep.get(feat, "Type"));
-    }
+
+    newfeat.set( 'name', feat.get('name') || feat.get('id') );
+
+    if( feat.get('type') )
+        newfeat.set('type', feat.get('type') );
 
 //    if (target_fields["subfeatures"] && source_fields["subfeatures"])   { 
-    if (target_arep.hasDefinedAttribute(feat, "Subfeatures") &&
-	source_arep.hasDefinedAttribute(newfeat, "Subfeatures"))  {
-
+    if( feat.get('subfeatures') && newfeat.get('subfeatures') ) {
 	var newsubfeats = new Array();
 	// var subfeats = feat[source_fields["subfeatures"]];
-	var subfeats = source_arep.get(feat, "Subfeatures"); 
+	var subfeats = feat.get('subfeatures');
 	if (subfeats)  {
 	    var slength = subfeats.length;
 	    for (var i = 0; i<slength; i++)  {
 		var oldsub = subfeats[i];
 		var newsub = new Array();
-		// not reliable!  need better way of mapping class data structs, and setting
-		newsub[0] = oldsub[0];
-		target_arep.set(newsub, "Start", source_arep.get(oldsub, "Start") );
-		target_arep.set(newsub, "End", source_arep.get(oldsub, "End") );
-		target_arep.set(newsub, "Strand", source_arep.get(oldsub, "Strand") );
-		target_arep.set(newsub, "Type", source_arep.get(oldsub, "Type") );
-		newsub.parent = newfeat;
-		if (oldsub.uid)  {
-		    newsub.uid = oldsub.uid;
+		newsub.set('start', oldsub.get('start'));
+		newsub.set('end', oldsub.get('end'));
+		newsub.set('strand', oldsub.get('strand'));
+		newsub.set("type", oldsub.get('type'));
+		newsub.set('parent_id',newfeat);
+		if ( oldsub.id() )  {
+		    newsub.id( oldsub.id() );
 		}
 		newsubfeats[i] = newsub;
 	    }
