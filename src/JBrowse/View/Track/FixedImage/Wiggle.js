@@ -42,7 +42,7 @@ var Wiggle = declare( FixedImage,
     makeWiggleYScale: function() {
         var thisB = this;
         this.store.getGlobalStats( function( stats ) {
-            if( ! this.yscale )
+            if( ! thisB.yscale )
                 thisB.makeYScale({ min: stats.scoreMin, max: stats.scoreMax });
         });
     }
