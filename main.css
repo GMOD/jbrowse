@@ -56,6 +56,9 @@ div.menuBar a, .topLink a {
 }
 .menuBar .powered_by {
     float: left;
+    font-size: 125%;
+    font-family: 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
+    font-weight: bold;
 }
 .topLink .powered_by {
     padding: 0 0.5em;
@@ -64,14 +67,23 @@ div.menuBar a, .topLink a {
 }
 .topLink.help div.icon {
     position: relative;
-    top: 1px;
+    top: 2px;
     height: 14px;
     width: 8px;
     display: inline;
     display: inline-block;
     background: url("img/glyphs_white.png") no-repeat -174px -3px;
 }
-
+.menuBar .config {
+    height: 16px;
+    width: 16px;
+    display: inline;
+    display: inline-block;
+    background: url("img/glyphs_white.png") no-repeat -168px -26px;
+    float: left;
+    position: relative;
+    top: 1px;
+}
 
 
 .tundra .dijitDialogCloseIcon {

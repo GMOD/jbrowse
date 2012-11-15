@@ -13,6 +13,7 @@ define( [
             'dijit/form/ComboBox',
             'dijit/form/Button',
             'dijit/form/Select',
+            'dijit/Menu',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Autocomplete',
@@ -34,6 +35,7 @@ define( [
             dijitComboBox,
             dijitButton,
             dijitSelectBox,
+            dijitMenu,
             Util,
             LazyTrie,
             AutocompleteStore,
@@ -295,6 +297,20 @@ Browser.prototype.initView = function() {
         title: 'powered by JBrowse'
      }, menuBar );
 
+    if( this.config.show_nav ) {
+        var configMenu = this.makeGlobalConfigMenu();
+        if( configMenu ) {
+            var configLink = dojo.create(
+                'a',
+                { className: 'config',
+                  innerHTML: '&nbsp;',
+                  title: 'configure JBrowse'
+                });
+            menuBar.appendChild( configLink );
+            configMenu.bindDomNode( configLink );
+        }
+    }
+
     if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview )
         menuBar.appendChild( this.makeShareLink() );
     else
@@ -376,6 +392,25 @@ Browser.prototype.initView = function() {
            }));
         }));
     }));
+};
+
+
+Browser.prototype.makeGlobalConfigMenu = function( item ) {
+    var items = this._globalConfigMenuItems || [];
+    if( ! items.length )
+        return null;
+
+    var menu = new dijitMenu({ leftClickToOpen: true });
+    dojo.forEach( items, function( item ) {
+        menu.addChild( item );
+    });
+    menu.startup();
+    return menu;
+};
+
+Browser.prototype.addGlobalConfigMenuItem = function( item ) {
+    this._globalConfigMenuItems = this._globalConfigMenuItems || [];
+    this._globalConfigMenuItems.push( item );
 };
 
 /**
@@ -622,7 +657,7 @@ Browser.prototype._deferredFunction = function(  name, func ) {
         try {
             func.apply( thisB, args ) ;
         } catch(e) {
-            console.error(''+e, e);
+            console.error(''+e, e.stack);
             d.resolve({ success:false, error: e });
         }
 
