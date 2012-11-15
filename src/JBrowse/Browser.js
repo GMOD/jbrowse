@@ -110,12 +110,27 @@ Browser.prototype.version = function() {
     return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
 }.call();
 
+
+/**
+ * Get a plugin, if it is present.  Note that, if plugin
+ * initialization is not yet complete, it may be a while before the
+ * callback is called.
+ *
+ * Callback is called with one parameter, the desired plugin object,
+ * or undefined if it does not exist.
+ */
+Browser.prototype.getPlugin = function( name, callback ) {
+    this.initPlugins().then(dojo.hitch( this, function() {
+        callback( this.plugins[name] );
+    }));
+};
+
 /**
  * Load and instantiate any plugins defined in the configuration.
  */
 Browser.prototype.initPlugins = function() {
     return this._deferredFunction( 'plugin initalization', function( deferred ) {
-        this.plugins = [];
+        this.plugins = {};
 
         var plugins = this.config.plugins;
 
@@ -138,22 +153,31 @@ Browser.prototype.initPlugins = function() {
                  },
                  pluginNames,
                  dojo.hitch( this, function() {
-                                 array.forEach( arguments, function( pluginClass, i ) {
-                                                    if( typeof pluginClass == 'string' ) {
-                                                        console.error("could not load plugin "+pluginNames[i]+": "+pluginClass);
-                                                    } else {
-                                                        // instantiate the plugin
-                                                        var plugin = new pluginClass(
-                                                            dojo.mixin( dojo.clone( plugins[i] ), { browser: this } )
-                                                        );
-                                                        this.plugins.push( plugin );
+                     array.forEach( arguments, function( pluginClass, i ) {
+                             var pluginName = pluginNames[i];
+                             if( typeof pluginClass == 'string' ) {
+                                 console.error("could not load plugin "+pluginName+": "+pluginClass);
+                             } else {
+                                 // make the plugin's arguments out of
+                                 // its little obj in 'plugins', and
+                                 // also anything in the top-level
+                                 // conf under its plugin name
+                                 var args = dojo.mixin(
+                                     dojo.clone( plugins[i] ),
+                                     this.config[pluginName]||{});
+                                 args.browser = this;
+                                 args = dojo.mixin( args, { browser: this } );
 
-                                                        // load its css
-                                                        this._loadCSS({url: 'plugins/'+plugin.getName()+'/css/main.css'});
-                                                    }
-                                                }, this );
-                                 deferred.resolve({success: true});
-                             }));
+                                 // load its css
+                                 this._loadCSS({url: 'plugins/'+pluginName+'/css/main.css'});
+
+                                 // instantiate the plugin
+                                 var plugin = new pluginClass( args );
+                                 this.plugins[ pluginName ] = plugin;
+                             }
+                         }, this );
+                     deferred.resolve({success: true});
+                  }));
     });
 
 };
@@ -685,6 +709,15 @@ Browser.prototype.loadConfig = function () {
                                   this.trackConfigsByName[conf.label] = conf;
                               },this);
 
+                // coerce some config keys to boolean
+                dojo.forEach( ['show_tracklist','show_nav','show_overview'], function(v) {
+                                  this.config[v] = this._coerceBoolean( this.config[v] );
+                              },this);
+
+               // set empty tracks array if we have none
+               if( ! this.config.tracks )
+                   this.config.tracks = [];
+
                 deferred.resolve({success:true});
         }));
     });
@@ -697,20 +730,6 @@ Browser.prototype._configDefaults = function() {
         show_nav: true,
         show_overview: true
     };
-};
-
-/**
- * Hook run after the configuration is all loaded.
- */
-Browser.prototype.onConfigLoaded = function() {
-    // coerce some config keys to boolean
-    dojo.forEach( ['show_tracklist','show_nav','show_overview'], function(v) {
-        this.config[v] = this._coerceBoolean( this.config[v] );
-    },this);
-
-    // set empty tracks array if we have none
-    if( ! this.config.tracks )
-        this.config.tracks = [];
 };
 
 /**
