@@ -377,6 +377,10 @@ var Feature = Util.fastDeclare(
                 t.push( k );
         }
         return t;
+    },
+
+    id: function() {
+        return this._uniqueID;
     }
 
 });

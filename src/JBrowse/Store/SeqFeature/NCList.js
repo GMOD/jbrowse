@@ -19,6 +19,8 @@ define([
  * @extends SeqFeatureStore
  */
 
+var idfunc = function() { return this._uniqueID; };
+
 return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 {
     constructor: function(args) {
@@ -121,6 +123,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         feature.get = accessors.get;
         feature.tags = accessors.tags;
         feature._uniqueID = id;
+        feature.id = idfunc;
         dojo.forEach( feature.get('subfeatures'), function(f,i) {
             this._decorate_feature( accessors, f, id+'-'+i );
         },this);

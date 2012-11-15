@@ -631,7 +631,7 @@ HTMLFeatures = declare( HTMLFeatures,
 
         var curTrack = this;
         var featCallback = dojo.hitch(this,function( feature ) {
-            var uniqueId = feature._uniqueID;
+            var uniqueId = feature.id();
             if( ! this._featureIsRendered( uniqueId ) ) {
                 var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                                   containerStart, containerEnd, block );
@@ -736,7 +736,7 @@ HTMLFeatures = declare( HTMLFeatures,
     },
 
     getId: function( f ) {
-        return f._uniqueID;
+        return f.id();
     },
 
     renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd, destBlock ) {
