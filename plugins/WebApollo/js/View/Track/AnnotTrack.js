@@ -118,8 +118,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     var responseFeatures = response.features;
                     for (var i = 0; i < responseFeatures.length; i++) {
                         // var jfeat = JSONUtils.createJBrowseFeature(track.attrs, responseFeatures[i]);
-                        // var jfeat = JSONUtils.createJBrowseFeature(features.attrs, responseFeatures[i]);
-                        store.insert(jfeat, responseFeatures[i].uniquename);
+                        var jfeat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
+                        features.add( jfeat, responseFeatures[i].uniquename );
                         // console.log("responseFeatures[0].uniquename: " + responseFeatures[0].uniquename);
                     }
                     track.hideAll();
@@ -256,7 +256,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     addFeatures: function(responseFeatures) {
             for (var i = 0; i < responseFeatures.length; ++i) {
     //          var featureArray = JSONUtils.createJBrowseFeature(responseFeatures[i], this.fields, this.subFields);
-                var featureArray = JSONUtils.createJBrowseFeature(this.attrs, responseFeatures[i]);
+                var featureArray = JSONUtils.createJBrowseFeature( responseFeatures[i] );
                 var id = responseFeatures[i].uniquename;
                // if (this.features.featIdMap[id] == null) {
                if (! this.features.contains(id))  {
@@ -450,18 +450,18 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         console.log(subfeat);
 
                         if ( ! USE_COMET || !track.comet_working) {
-                            track.attrs.set(subfeat, "Start", (track.attrs.get(subfeat, "Start") + leftDeltaBases));
-                            track.attrs.set(subfeat, "End", (track.attrs.get(subfeat, "End") + rightDeltaBases));
+                            subfeat.set('start', ( subfeat.get('start') + leftDeltaBases ));
+                            subfeat.set('End', ( subfeat.get('end') + rightDeltaBases));
                             // subfeat[track.subFields["start"]] += leftDeltaBases;
                             // subfeat[track.subFields["end"]] += rightDeltaBases;
                         }
                         else {
-                            var fmin = track.attrs.get(subfeat, "Start") + leftDeltaBases;
-                            var fmax = track.attrs.get(subfeat, "End") + rightDeltaBases;
+                            var fmin = subfeat.get('start') + leftDeltaBases;
+                            var fmax = subfeat.get('end') + rightDeltaBases;
                             // var fmin = subfeat[track.subFields["start"]] + leftDeltaBases;
                             // var fmax = subfeat[track.subFields["end"]] + rightDeltaBases;
                             dojo.xhrPost( {
-                                postData: '{ "track": "' + track.getUniqueTrackName() + '", "features": [ { "uniquename": ' + subfeat.uid + ', "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ], "operation": "set_exon_boundaries" }',
+                                postData: '{ "track": "' + track.getUniqueTrackName() + '", "features": [ { "uniquename": ' + subfeat.id() + ', "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ], "operation": "set_exon_boundaries" }',
                                 url: context_path + "/AnnotationEditorService",
                                 handleAs: "json",
                                 timeout: 1000 * 1000, // Time in milliseconds
@@ -509,42 +509,39 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     addToAnnotation: function(annot, feats_to_add)  {
         var target_track = this;
-        var tatts = target_track.attrs;
-        var nclist = target_track.features;
 
                 var subfeats = new Array();
                 var allSameStrand = 1;
                 for (var i = 0; i < feats_to_add.length; ++i)  { 
                         var feat = feats_to_add[i];
                         var isSubfeature = (!!feat.parent);  // !! is shorthand for returning true if value is defined and non-null
-                        var annotStrand = tatts.get(annot, "Strand");
+                        var annotStrand = annot.get('strand');
                         if (isSubfeature)  {
-                                var featStrand = tatts.get(feat, "Strand");
+                                var featStrand = feat.get('strand');
                                 var featToAdd = feat;
                                 if (featStrand != annotStrand) {
                                         allSameStrand = 0;
                                         featToAdd = new Array();
                                         $.extend(featToAdd, feat);
-                                        tatts.set(featToAdd, "Strand", annotStrand);
+                                        featToAdd.set('strand', annotStrand);
                                 }
                                 subfeats.push(featToAdd);
                         }
                         else  {
                                 var source_track = feat.track;
-                                var satts = source_track.attrs;
                                 // if (source_track.fields["subfeatures"])  {
-                                if (satts.hasDefinedAttribute(feat, "Subfeatures")) {
+                                if ( feat.get('subfeatures') ) {
                                     // var subs = feat[source_track.fields["subfeatures"]];
-                                    var subs = satts.get(feat, "Subfeatures");
+                                    var subs = feat.get('subfeatures');
                                     for (var i = 0; i < subs.length; ++i) {
                                         var feat = subs[i];
-                                                var featStrand = tatts.get(feat, "Strand");
+                                                var featStrand = feat.get('strand');
                                         var featToAdd = feat;
                                                 if (featStrand != annotStrand) {
                                                         allSameStrand = 0;
                                                         featToAdd = new Array();
                                                         $.extend(featToAdd, feat);
-                                                        tatts.set(featToAdd, "Strand", annotStrand);
+                                                        featToAdd.set('strand', annotStrand);
                                                 }
                                                 subfeats.push(featToAdd);
                                     }
@@ -562,9 +559,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         var subfeat = subfeats[i];
                         // if (subfeat[target_track.subFields["type"]] != "wholeCDS") {
                         var source_track = subfeat.track;
-                        var satts = source_track.attrs;
-                        if (satts.get(subfeat, "Type") != "wholeCDS") {
-                                var jsonFeature = JSONUtils.createApolloFeature(tatts, subfeats[i], "exon");
+                        if ( subfeat.get('type') != "wholeCDS") {
+                                var jsonFeature = JSONUtils.createApolloFeature( subfeats[i], "exon");
                                 featuresString += ", " + JSON.stringify( jsonFeature );
                         }
                 }
@@ -678,30 +674,30 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                             var fmin = undefined;
                             var fmax = undefined;
                             var featureToAdd = $.extend({}, parentFeature);
-                            parentSourceTrack.attrs.set(featureToAdd, "Subfeatures", new Array());
+                            featureToAdd.set('subfeatures', new Array());
                             for (var k = 0; k < featArray.length; ++k) {
                                     var dragfeat = featArray[k];
                                     var source_track = dragfeat.track;
-                                    var childFmin = source_track.attrs.get(dragfeat, "Start");
-                                    var childFmax = source_track.attrs.get(dragfeat, "End");
+                                    var childFmin = dragfeat.get('start');
+                                    var childFmax = dragfeat.get('end');
                                     if (fmin === undefined || childFmin < fmin) {
                                             fmin = childFmin;
                                     }
                                     if (fmax === undefined || childFmax > fmax) {
                                             fmax = childFmax;
                                     }
-                                    parentSourceTrack.attrs.get(featureToAdd, "Subfeatures").push(dragfeat);
+                                    featureToAdd.get("subfeatures").push( dragfeat );
                             }
-                            parentSourceTrack.attrs.set(featureToAdd, "Start", fmin);
-                            parentSourceTrack.attrs.set(featureToAdd, "End", fmax);
-                            var afeat = JSONUtils.createApolloFeature(parentSourceTrack.attrs, featureToAdd, "transcript");
+                            featureToAdd.set( "start", fmin );
+                            featureToAdd.set( "end",   fmax );
+                            var afeat = JSONUtils.createApolloFeature( featureToAdd, "transcript" );
                             featuresToAdd.push(afeat);
                     }
                     else {
                             for (var k = 0; k < featArray.length; ++k) {
                                     var dragfeat = featArray[k];
                                     var source_track = dragfeat.track;
-                                    var afeat = JSONUtils.createApolloFeature(source_track.attrs, dragfeat, "transcript");
+                                    var afeat = JSONUtils.createApolloFeature( dragfeat, "transcript");
                                     featuresToAdd.push(afeat);
                             }
                     }
@@ -750,7 +746,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                             var rfeat = responseFeatures[rindex];
                                             if (this.verbose_create)  { console.log("AnnotationEditorService annot object: ");
                                             console.log(rfeat); }
-                                            var jfeat = JSONUtils.createJBrowseFeature(target_track.attrs, rfeat);
+                                            var jfeat = JSONUtils.createJBrowseFeature( rfeat );
                                             if (this.verbose_create)  { console.log("Converted annot object to JBrowse feature array: " + jfeat.uid);
                                             console.log(jfeat); }
                                             features_nclist.add(jfeat, jfeat.uid);
@@ -778,49 +774,51 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     duplicateAnnotations: function(feats)  {
             var track = this;
-            var attrs = track.attrs;
             var featuresToAdd = new Array();
             var subfeaturesToAdd = new Array();
             var parentFeature;
-            for (var i in feats)  {
+            for( var i in feats )  {
                     var feat = feats[i];
-                    var is_subfeature = (!!feat.parent);  // !! is shorthand for returning true if value is defined and non-null
+                    var is_subfeature = !! feat.get('parent') ;  // !! is shorthand for returning true if value is defined and non-null
                     if (is_subfeature) {
                             subfeaturesToAdd.push(feat);
                     }
                     else {
-                            featuresToAdd.push(JSONUtils.createApolloFeature(attrs, feat, "transcript"));
+                            featuresToAdd.push( JSONUtils.createApolloFeature( feat, "transcript") );
                     }
             }
             if (subfeaturesToAdd.length > 0) {
-                    var feature = new Array();
+                    var feature = new SimpleFeature();
                     var subfeatures = new Array();
-                    feature[0] = 0;
-                    attrs.set(feature, "Subfeatures", subfeatures);
+                    feature.set( 'subfeatures', subfeatures );
                     var fmin = undefined;
                     var fmax = undefined;
                     var strand = undefined;
                     for (var i = 0; i < subfeaturesToAdd.length; ++i) {
                             var subfeature = subfeaturesToAdd[i];
-                            if (fmin === undefined || attrs.get(subfeature, "Start") < fmin) {
-                                    fmin = attrs.get(subfeature, "Start");
+                            if (fmin === undefined || subfeature.get('start') < fmin) {
+                                    fmin = subfeature.get('start');
                             }
-                            if (fmax === undefined || attrs.get(subfeature, "End") > fmax) {
-                                    fmax = attrs.get(subfeature, "End");
+                            if (fmax === undefined || subfeature.get('end') > fmax) {
+                                    fmax = subfeature.get('end');
                             }
                             if (strand === undefined) {
-                                    strand = attrs.get(subfeature, "Strand");
+                                    strand = subfeature.get('strand');
                             }
                             subfeatures.push(subfeature);
                     }
-                    attrs.set(feature, "Start", fmin);
-                    attrs.set(feature, "End", fmax);
-                    attrs.set(feature, "Strand", strand);
-                    featuresToAdd.push(JSONUtils.createApolloFeature(attrs, feature, "transcript"));
+                    feature.set('start', fmin );
+                    feature.set('end', fmax );
+                    feature.set('strand', strand );
+                    featuresToAdd.push( JSONUtils.createApolloFeature( feature, "transcript") );
             }
 
             dojo.xhrPost( {
-                    postData: '{ "track": "' + track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_transcript" }',
+                    postData: '{ "track": "'
+                                  + track.getUniqueTrackName()
+                                  + '", "features": '
+                                  + JSON.stringify(featuresToAdd)
+                                  + ', "operation": "add_transcript" }',
                     url: context_path + "/AnnotationEditorService",
                     handleAs: "json",
                     timeout: 5000, // Time in milliseconds
@@ -1231,14 +1229,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
             var content = dojo.create("div");
             // if annotation has parent, get comments for parent
-            if (track.attrs.hasDefinedAttribute(annot, "parent_id")) {
-                    var parentContent = this.createEditCommentsPanelForFeature(track.attrs.get(annot, "parent_id"), track.getUniqueTrackName());
+            if( annot.get('parent') ) {
+                    var parentContent = this.createEditCommentsPanelForFeature( annot.get('parent'), track.getUniqueTrackName());
                     dojo.attr(parentContent, "class", "parent_comments_div");
                     dojo.place(parentContent, content);
             }
             var annotContent = this.createEditCommentsPanelForFeature(annot.uid, track.getUniqueTrackName());
             dojo.place(annotContent, content);
-            track.openDialog("Comments for " + track.attrs.get(annot, "Name"), content);
+            track.openDialog("Comments for " + annot.get('name'), content);
     },
 
     createEditCommentsPanelForFeature: function(uniqueName, trackName) {
@@ -1488,14 +1486,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         var content = dojo.create("div");
         // if annotation has parent, get comments for parent
-        if (track.attrs.hasDefinedAttribute(annot, "parent_id")) {
-            var parentContent = this.createEditDbxrefsPanelForFeature(track.attrs.get(annot, "parent_id"), track.getUniqueTrackName());
+        if ( annot.get('parent') ) {
+            var parentContent = this.createEditDbxrefsPanelForFeature( annot.get("parent"), track.getUniqueTrackName());
             dojo.attr(parentContent, "class", "parent_dbxrefs_div");
             dojo.place(parentContent, content);
         }
         var annotContent = this.createEditDbxrefsPanelForFeature(annot.uid, track.getUniqueTrackName());
         dojo.place(annotContent, content);
-        track.openDialog("Dbxrefs for " + track.attrs.get(annot, "Name"), content);
+        track.openDialog("Dbxrefs for " + annot.get("name"), content);
     },
 
     createEditDbxrefsPanelForFeature: function(uniqueName, trackName) {
@@ -2562,21 +2560,20 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     //              return feature[this.subFields["strand"]];
     //      }
     //      return feature[this.fields["strand"]];
-        return this.attrs.get(feature, "Strand");
+        return feature.get("strand");
     },
 
     sortAnnotationsByLocation: function(annots) {
         var track = this;
-        var atts = track.attrs;
         return annots.sort(function(annot1, annot2) {
-                               var start1 = atts.get(annot1, "Start");
-                               var end1 = atts.get(annot1, "End");
-                               var start2 = atts.get(annot2, "Start");
-                               var end2 = atts.get(annot2, "End");
+                               var start1 = annot1.get("start");
+                               var end1 = annot1.get("end");
+                               var start2 = annot2.get("start");
+                               var end2 = annot2.get('end');
 
                                if (start1 != start2)  { return start1 - start2; }
                                else if (end1 != end2) { return end1 - end2; }
-                               else { return 0; }
+                               else                   { return 0; }
                                /*
                                 if (annot1[track.fields["start"]] != annot2[track.fields["start"]]) {
                                 return annot1[track.fields["start"]] - annot2[track.fields["start"]];
