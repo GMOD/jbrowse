@@ -188,7 +188,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 track: track.getUniqueTrackName()
             },
             handleAs: "json",
-    //      timeout: 1000 * 1000, // Time in milliseconds
+	    preventCache: true, 
+            // timeout: 1000 * 1000, // Time in milliseconds
             timeout: 0,
             // The LOAD function will be called on a successful response.
             load: function(response, ioArgs) {
@@ -267,17 +268,18 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     addFeatures: function(responseFeatures) {
             for (var i = 0; i < responseFeatures.length; ++i) {
     //          var featureArray = JSONUtils.createJBrowseFeature(responseFeatures[i], this.fields, this.subFields);
-                var featureArray = JSONUtils.createJBrowseFeature( responseFeatures[i] );
+                var feat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
                 var id = responseFeatures[i].uniquename;
                // if (this.features.featIdMap[id] == null) {
-               if (! this.features.contains(id))  {
+	// GAH TODO JBrowse1.7 merge: need to restore check on id already existing!
+		if (! this.store.contains(id))  {
                     // note that proper handling of subfeatures requires annotation trackData.json resource to
                     //    set sublistIndex one past last feature array index used by other fields
                     //    (currently Annotations always have 6 fields (0-5), so sublistIndex = 6
-                    this.features.add(featureArray, id);
+                    this.store.insert(feat);
+		console.log("finished addFeatures, feat id: ",  feat.id());
                 }
             }
-
     },
 
     deleteFeatures: function(responseFeatures) {
