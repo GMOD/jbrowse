@@ -23,26 +23,29 @@ function JSONUtils() {
 *
 */
 // JSONUtils.createJBrowseFeature = function(afeature, fields, subfields)  {
-var JAFeature = Util.fastDeclare({
+var JAFeature = declare( SimpleFeature, {
+    "-chains-": {
+        constructor: "manual"
+    },
     constructor: function( afeature ) {
         this.afeature = afeature;
 
         // get the main data
         var loc = afeature.location;
-        this.start = loc.fmin;
-        this.end = loc.fmax;
-        this.strand = loc.strand;
-        this.name = afeature.name;
-        this.parent_id = afeature.parent_id;
-        this.type = afeature.type.name;
+        this.data = {
+            start: loc.fmin,
+            end: loc.fmax,
+            strand: loc.strand,
+            name: afeature.name,
+            parent_id: afeature.parent_id,
+            type: afeature.type.name,
+            // get the subfeatures
+            subfeatures: array.map( afeature.children, function(s) {
+                                        return new JAFeature( s );
+                                    })
+        };
+
         this._uniqueID = afeature.uniquename;
-
-        // get the subfeatures
-        this.subfeatures = array.map( afeature.children, function(s) {
-            return new JAFeature( s );
-        });
-
-        var tags = ['start','end','strand','name','parent','type','subfeatures'];
 
         // parse the props
         var props = afeature.properties;
@@ -51,19 +54,6 @@ var JAFeature = Util.fastDeclare({
             tags.push(pn);
             this[pn] = p.value;
         });
-
-        this._tags = tags;
-    },
-    get: function( fname ) {
-        return this[fname];
-    },
-    tags: function() {
-        return this._tags;
-    },
-    id: function( newid ) {
-        if( newid )
-            this._uniqueID = newid;
-        return this._uniqueID;
     }
 });
 
