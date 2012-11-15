@@ -10,9 +10,10 @@ define( [
             'WebApollo/FeatureSelectionManager',
             'WebApollo/JSONUtils',
             'WebApollo/BioFeatureUtils',
-            'WebApollo/Permission'
+            'WebApollo/Permission',
+            'JBrowse/Model/SimpleFeature'
         ],
-        function( declare, $, draggable, droppable, dijitMenu, dijitMenuItem, dijitDialog, DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission ) {
+        function( declare, $, draggable, droppable, dijitMenu, dijitMenuItem, dijitDialog, DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SimpleFeature ) {
 
 var listeners = [];
 

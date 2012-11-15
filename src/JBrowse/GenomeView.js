@@ -1497,6 +1497,11 @@ GenomeView.prototype.trimVertical = function(y) {
     }
 };
 
+GenomeView.prototype.redrawTracks = function() {
+    this.trackIterate( function(t) { t.hideAll(); } );
+    this.showVisibleBlocks( true );
+};
+
 GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
     if (this.animation) return;
     if (zoomLoc === undefined) zoomLoc = 0.5;

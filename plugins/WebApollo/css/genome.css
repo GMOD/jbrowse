@@ -3,19 +3,6 @@
 /* main application CSS styles */
 /* @import url("main.css"); */
 
-html, body {
-    height: 100%;
-    width: 100%;
-    padding: 0;
-    border: 0;
-    /*  
-      GAH, comment out font-size and font-family to reverting GMOD trunk changes, 
-      and use default input.nav font etc.
-     */
-    font-size: 9px;
-    font-family: Univers,Trebuchet MS,Helvetica,Arial;
-}
-
 .nav {
     vertical-align: middle;
     z-index: 10;
