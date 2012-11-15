@@ -1,8 +1,9 @@
 define([ 'dojo/_base/declare',
          'dojo/_base/array',
-         'JBrowse/Util'
+         'JBrowse/Util',
+         'JBrowse/Model/SimpleFeature'
        ],
-       function( declare, array, Util ) {
+       function( declare, array, Util, SimpleFeature ) {
 
 function JSONUtils() {
 }
