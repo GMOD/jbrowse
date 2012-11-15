@@ -16,7 +16,7 @@ return declare(BlockBased,
         this.loaded = true;
         this.labelClass = args.labelClass;
         this.posHeight = args.posHeight;
-        this.height = args.posHeight;
+        this.height = Math.round( args.posHeight * 1.2 );
     },
 
     // this track has no track label or track menu, stub them out
@@ -37,7 +37,7 @@ return declare(BlockBased,
 
         posLabel.appendChild( document.createTextNode( numtext ) );
         block.appendChild(posLabel);
-        this.heightUpdate(this.posHeight, blockIndex);
+        this.heightUpdate( Math.round( this.posHeight*1.2 ), blockIndex);
     }
 });
 });

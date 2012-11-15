@@ -185,10 +185,11 @@ div.locationTrap {
 
 div.locationThumb {
     position: absolute;
+    top: 0px;
     /* if you change this border from 2px, change GenomeView.showTrap */
     border: 2px solid red;
     margin: 0px -2px 0px -2px;
-    height: 25px;
+    height: 23px;
     cursor: move;
     background: rgba(0, 121, 245, 0.1);
 }
@@ -200,10 +201,10 @@ div.locationThumb.dojoMoveItem {
 div.overview {
     position: relative;
     width: 100%;
-    padding: 0;
+    padding: 4px 0 0 0;
     z-index: -5;
-
-    line-height: 25px;
+    display: block;
+    height: 23px;
 
     background: #FAFAFA url(src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
 
@@ -568,8 +569,8 @@ a.feature-label {
 }
 div.overview .rubber-highlight {
     font-size: 0;
-    top: -4px;
-    height: 23px;
+    height: 100%;
+    margin-top: -4px; /* corresponds to padding on div.overview */
     border-top: none;
     border-bottom: none;
 }

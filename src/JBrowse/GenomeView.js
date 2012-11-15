@@ -370,16 +370,14 @@ GenomeView.prototype._behaviors = function() { return {
         apply_on_init: true,
         apply: function() {
             var handles = [];
-            this.overviewTrackIterate( function(t) {
-                handles.push( dojo.connect(
-                                  t.div, 'mousedown',
-                                  dojo.hitch( this, 'startRubberZoom',
-                                              dojo.hitch(this,'overview_absXtoBp'),
-                                              t.div,
-                                              t.div
-                                            )
-                              ));
-            });
+            handles.push( dojo.connect(
+                              this.overview, 'mousedown',
+                              dojo.hitch( this, 'startRubberZoom',
+                                          dojo.hitch(this,'overview_absXtoBp'),
+                                          this.overview,
+                                          this.overview
+                                        )
+                          ));
             handles.push(
                 dojo.connect( this.scrollContainer,     "mousewheel",     this, 'wheelScroll', false ),
                 dojo.connect( this.scrollContainer,     "DOMMouseScroll", this, 'wheelScroll', false ),
@@ -927,7 +925,7 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
     this.addOverviewTrack(new LocationScaleTrack({
             label: "overview_loc_track",
             labelClass: "overview-pos",
-            posHeight: this.overviewPosHeight
+            posHeight: Math.round( this.overviewPosHeight * 1.3 )
         }));
         this.sizeInit();
         this.setY(0);
@@ -1450,6 +1448,7 @@ GenomeView.prototype.updateOverviewHeight = function(trackName, height) {
     var overviewHeight = 0;
     this.overviewTrackIterate(function (track, view) {
         overviewHeight += track.height;
+        track.div.style.height = track.height+'px';
     });
     this.overview.style.height = overviewHeight + "px";
     this.overviewBox = dojo.marginBox(this.overview);
