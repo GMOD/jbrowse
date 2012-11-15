@@ -62,7 +62,8 @@ var Feature = Util.fastDeclare(
         this.data = data;
         this._subCounter = 0;
         this._uniqueID = args.parent ? args.parent._uniqueID + '-' + ++args.parent._subCounter
-                                     : this.data.name+' at '+ data.seq_id + ':' + data.start + '..' + data.end;
+                                     : data.name+'/'+data.MD+'/'+data.cigar+'/'+data.start;
+
 
         // var cigar = data.CIGAR || data.cigar;
         // this.data.subfeatures = [];
