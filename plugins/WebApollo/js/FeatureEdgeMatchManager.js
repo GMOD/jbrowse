@@ -112,7 +112,7 @@ var FeatureEdgeMatchManager = declare( null,
             console.dir(source_subfeats);
         }
 
-        var sourceid = source_feat.uid;
+        var sourceid = source_feat.id();
 
         var qmin = source_feat.get('start');
         var qmax = source_feat.get("end");
@@ -157,7 +157,7 @@ var FeatureEdgeMatchManager = declare( null,
 
                     if (source_subfeats instanceof Array &&
                         target_subfeats instanceof Array && target_subfeats[0] instanceof Array)  {
-                        var tid = target_feat.uid;
+                        var tid = target_feat.id();
                         if (verbose_edges)  {  console.log("found overlap"); console.log(target_feat); }
                         if (tid)  {
                             var tdiv = target_track.getFeatDiv(target_feat);
@@ -184,7 +184,7 @@ var FeatureEdgeMatchManager = declare( null,
                                         var tsmin = target_attrs.get(tsfeat, "Start");
                                         var tsmax = target_attrs.get(tsfeat, "End");
                                         if (ssmin === tsmin || ssmax === tsmax)  {
-                                            var tsid = tsfeat.uid;
+                                            var tsid = tsfeat.id();
                                             if (tsid)   {
                                                 var tsubdiv = target_track.getFeatDiv(tsfeat);
                                                 if (tsubdiv)  {

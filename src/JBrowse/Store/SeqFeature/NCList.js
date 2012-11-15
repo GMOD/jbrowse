@@ -20,6 +20,8 @@ define([
  */
 
 var idfunc = function() { return this._uniqueID; };
+var parentfunc = function() { return this._parent; };
+var childrenfunc = function() { return this.get('subfeatures'); };
 
 return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 {
@@ -119,13 +121,16 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
     // helper method to recursively add .get and .tags methods to a feature and its
     // subfeatures
-    _decorate_feature: function( accessors, feature, id ) {
+    _decorate_feature: function( accessors, feature, id, parent ) {
         feature.get = accessors.get;
         feature.tags = accessors.tags;
         feature._uniqueID = id;
         feature.id = idfunc;
+        feature._parent  = parent;
+        feature.parent   = parentfunc;
+        feature.children = childrenfunc;;
         dojo.forEach( feature.get('subfeatures'), function(f,i) {
-            this._decorate_feature( accessors, f, id+'-'+i );
+            this._decorate_feature( accessors, f, id+'-'+i, feature );
         },this);
     }
 });

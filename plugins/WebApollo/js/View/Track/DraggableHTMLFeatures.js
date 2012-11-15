@@ -395,7 +395,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
             // although if subfeatureClases is properly set up, wholeCDS would also be filtered out in renderFeature?
             // if (subtype == "wholeCDS")  {  continue; }
             var subDiv = this.renderSubfeature( feature, featDiv, subfeat, displayStart, displayEnd, block);
-            subDiv.subfeature = subfeat;
+            if( subDiv )
+                subDiv.subfeature = subfeat;
+
             // if subfeat is of type "exon", add CDS/UTR rendering
             // if (subDiv && wholeCDS && (subtype === "exon")) {
             // if (wholeCDS && (subtype === "exon")) {   // pass even if subDiv is null (not drawn), in order to correctly calc downstream CDS frame
@@ -649,7 +651,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
        var already_selected = selman.isSelected(feat);
        var parent_selected = false;
-       var parent = feat.parent;
+       var parent = feat.parent();
        if (parent)  {
            parent_selected = selman.isSelected(parent);
        }
@@ -848,7 +850,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var subfeat = featdiv.subfeature;
        // if (subfeat && (! unselectableTypes[subfeat.get('type')]))  {  // only allow double-click parent selection for selectable features
         if( subfeat && selman.isSelected(subfeat) ) {  // only allow double-click of child for parent selection if child is already selected
-            var parent = subfeat.parent;
+            var parent = subfeat.parent();
             // select parent feature
             // children (including subfeat double-clicked one) are auto-deselected in FeatureSelectionManager if parent is selected
             if( parent ) { selman.addToSelection({ feature: parent, track: this }); }

@@ -381,8 +381,15 @@ var Feature = Util.fastDeclare(
 
     id: function() {
         return this._uniqueID;
-    }
+    },
 
+    parent: function() {
+        return null;
+    },
+
+    children: function() {
+        return null;
+    }
 });
 
 return Feature;

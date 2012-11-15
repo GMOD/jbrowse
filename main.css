@@ -30,6 +30,7 @@ fieldset > legend {
 
 /* styles for the top menu bar */
 div.menuBar {
+    padding-bottom: 1px;
 }
 .tundra .menuBar {
     background: #396494;

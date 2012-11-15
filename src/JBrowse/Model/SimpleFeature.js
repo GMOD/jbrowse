@@ -11,6 +11,7 @@ return Util.fastDeclare({
         args = args || {};
         this.data = args.data || {};
         this._uniqueID = args.id || 'SimpleFeature_'+(counter++);
+        this._parent = args.parent;
     },
 
     get: function(name) {
@@ -35,6 +36,14 @@ return Util.fastDeclare({
         if( newid )
             this._uniqueID = newid;
         return this._uniqueID;
+    },
+
+    parent: function() {
+        return this._parent;
+    },
+
+    children: function() {
+        return this.get('subfeatures');
     }
 
 });

@@ -882,7 +882,7 @@ return declare( DraggableFeatureTrack,
     	    if (i > 0) {
     		features += ", ";
     	    }
-    	    features += '{ "uniquename": "' + annot.uid + '" }';
+    	    features += '{ "uniquename": "' + annot.id() + '" }';
         }
         features += "]";
 	dojo.xhrPost( {
