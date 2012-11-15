@@ -20,6 +20,11 @@ return declare( SeqFeatureStore,
         this._calculateStats();
     },
 
+    /* if feature with given id is present in store, return it.  Otherwise return null */
+    contains: function( id )  {
+	return this.features[ id ];
+    },
+
     _calculateStats: function() {
         var minStart = Infinity;
         var maxEnd = -Infinity;
