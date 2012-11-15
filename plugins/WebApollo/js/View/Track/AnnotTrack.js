@@ -875,46 +875,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             console.log(features);
         }
 
-        if( USE_LOCAL_EDITS )  {
-            // need to sort into top-level features (which need to get deleted from nclist) and non-top-level
-            //   (which need to get removed from their parent feature)
-            for (var k in annots)  {
-                var annot = annots[k];
-                var id_to_delete = annot.uid;
-                if (this.verbose_delete)  {
-                    console.log("trying to delete: " + id_to_delete);
-                    console.log(annot);
-                    // console.dir(annot);
-                }
-                // console.log(features_nclist);
-                if (features_nclist.contains(id_to_delete))  {
-                    if (this.verbose_delete)  { console.log("found in nclist, calling nclist.deleteEntry()"); }
-                    features_nclist.deleteEntry(id_to_delete);
-                }
-                else  {
-                    if (this.verbose_delete)  { console.log("not found in nclist, trying to remove from parent: "); }
-                    var parent = annot.parent;
-                    if (this.verbose_delete)  { console.log(parent); }
-                    if (parent)  {
-                        // var modparent = BioFeatureUtils.removeChild(annot);
-                        var modparent = BioFeatureUtils.removeChild(annot);
-                        if (this.verbose_delete)  { console.log(parent); }
-                        if (modparent)  {  // child removed, removeChild returned parent 
-                            features_nclist.deleteEntry(parent.uid);
-                            features_nclist.add(parent, parent.uid);
-                        }
-                        else  {   // child removed, but removeChild returned null, indicating parent has no more children
-                            if (this.verbose_delete)  { console.log("no more children, so removing parent too"); }
-                            features_nclist.deleteEntry(parent.uid);
-                        }
-                    }
-                }
-            }
-            if (this.verbose_delete)  { console.log("re-rendering track"); }
-            track.hideAll();
-            track.changed();
-        }
-        else {
             dojo.xhrPost( {
                 postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }',
                 // postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_exon" }',
@@ -946,8 +906,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     return response;
                 }
             });
-        }
-    },
+
+    }, 
 
     mergeSelectedFeatures: function()  {
         var selected = this.selectionManager.getSelection();
@@ -994,12 +954,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             features = '"features": [ { "uniquename": "' + leftTranscriptId + '" }, { "uniquename": "' + rightTranscriptId + '" } ]';
             operation = "merge_transcripts";
         }
-        if ( USE_LOCAL_EDITS )  {
-            // TODO
-            track.hideAll();
-            track.changed();
-        }
-        else  {
             dojo.xhrPost( {
                 postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
                 url: context_path + "/AnnotationEditorService",
@@ -1019,7 +973,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
 
             });
-        }
     },
 
     splitSelectedFeatures: function(event)  {
@@ -1071,12 +1024,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         else {
             return;
         }
-        if( USE_LOCAL_EDITS )  {
-            // TODO
-            track.hideAll();
-            track.changed();
-        }
-        else  {
             dojo.xhrPost( {
                 postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
                 url: context_path + "/AnnotationEditorService",
@@ -1096,7 +1043,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
 
             });
-        }
     },
 
     makeIntron: function(event)  {
@@ -1115,12 +1061,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var features = '"features": [ { "uniquename": "' + annot.uid + '", "location": { "fmin": ' + coordinate + ' } } ]';
         var operation = "make_intron";
         var trackName = track.getUniqueTrackName();
-        if ( USE_LOCAL_EDITS )  {
-            // TODO
-            track.hideAll();
-            track.changed();
-        }
-        else  {
             dojo.xhrPost( {
                 postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
                 url: context_path + "/AnnotationEditorService",
@@ -1140,7 +1080,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
 
             });
-        }
     },
 
     setTranslationStart: function(event)  {
@@ -1160,12 +1099,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var features = '"features": [ { "uniquename": "' + uid + '", "location": { "fmin": ' + coordinate + ' } } ]';
         var operation = "set_translation_start";
         var trackName = track.getUniqueTrackName();
-        if( USE_LOCAL_EDITS )  {
-            // TODO
-            track.hideAll();
-            track.changed();
-        }
-        else  {
             dojo.xhrPost( {
                 postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
                 url: context_path + "/AnnotationEditorService",
@@ -1184,7 +1117,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     return response;
                 }
             });
-        }
     },
 
     flipStrand: function()  {
@@ -1218,12 +1150,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         features += ']';
         var operation = "flip_strand";
         var trackName = track.getUniqueTrackName();
-        if( USE_LOCAL_EDITS )  {
-            // TODO
-            track.hideAll();
-            track.changed();
-        }
-        else  {
             dojo.xhrPost( {
                 postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
                 url: context_path + "/AnnotationEditorService",
@@ -1242,7 +1168,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
 
             });
-        }
     },
 
     setLongestORF: function()  {
@@ -1272,12 +1197,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var operation = "set_longest_orf";
         var trackName = track.getUniqueTrackName();
             var information = "";
-        if ( USE_LOCAL_EDITS )  {
-            // TODO
-            track.hideAll();
-            track.changed();
-        }
-        else  {
             dojo.xhrPost( {
                 postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
                 url: context_path + "/AnnotationEditorService",
@@ -1296,7 +1215,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
 
             });
-        }
     },
 
     editComments: function()  {
@@ -1785,12 +1703,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         features += ']';
         var operation = "undo";
         var trackName = track.getUniqueTrackName();
-        if( USE_LOCAL_EDITS )  {
-            // TODO
-            track.hideAll();
-            track.changed();
-        }
-        else  {
             dojo.xhrPost( {
                 postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
                 url: context_path + "/AnnotationEditorService",
@@ -1823,7 +1735,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
 
             });
-        }
     },
 
     redo: function()  {
@@ -1853,12 +1764,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         features += ']';
         var operation = "redo";
         var trackName = track.getUniqueTrackName();
-        if ( USE_LOCAL_EDITS )  {
-            // TODO
-            track.hideAll();
-            track.changed();
-        }
-        else  {
             dojo.xhrPost( {
                 postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
                 url: context_path + "/AnnotationEditorService",
@@ -1878,7 +1783,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
 
             });
-        }
     },
 
     getAnnotationInformation: function()  {
@@ -1907,12 +1811,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var operation = "get_information";
         var trackName = track.getUniqueTrackName();
             var information = "";
-        if (AnnotTrack.USE_LOCAL_EDITS)  {
-            // TODO
-            track.hideAll();
-            track.changed();
-        }
-        else  {
             dojo.xhrPost( {
                 postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
                 url: context_path + "/AnnotationEditorService",
@@ -1941,7 +1839,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     return response;
                 }
             });
-        }
     },
 
     getSequence: function()  {
@@ -1992,12 +1889,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             features += ']';
             var operation = "get_sequence";
             var trackName = track.getUniqueTrackName();
-            if (AnnotTrack.USE_LOCAL_EDITS)  {
-                // TODO
-                track.hideAll();
-                track.changed();
-            }
-            else  {
                 var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"';
                 var flank = 0;
                 if (type == "genomic_with_flank") {
@@ -2036,9 +1927,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
 
                 });
-            }
-
-
         };
         var callback = function(event) {
                 var type;
