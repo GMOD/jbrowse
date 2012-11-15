@@ -1,4 +1,8 @@
 
+div.track_annotations {
+    background-color: #FFFFDD;
+}
+
 /* 
    To support WebApollo with sequence alteration features shown on SequenceTrack, 
    sequence style MUST NOT have a z-index specified 
