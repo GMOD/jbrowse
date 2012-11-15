@@ -147,12 +147,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             });
 
-  /*
-      this.makeTrackDroppable();
-        this.hide();
-        this.show();
 
-        dojo.addOnUnload(this, function() {
+
+	dojo.addOnUnload(this, function() {
             var track = this;
             if( listeners[track.getUniqueTrackName()] ) {
                 if( listeners[track.getUniqueTrackName()].fired == -1 ) {
@@ -160,8 +157,20 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             }
         });
-*/
+
     },
+
+    setViewInfo: function( genomeView, numBlocks,
+                           trackDiv, labelDiv,
+                           widthPct, widthPx, scale ) {
+
+        this.inherited( arguments );
+
+        this.makeTrackDroppable();
+        this.hide();
+        this.show();
+
+    }, 
 
     createAnnotationChangeListener: function() {
         var track = this;
@@ -624,7 +633,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 		if (target_track.verbose_drop) { console.log("droppable exited AnnotTrack") };
 
             },
-            deactivate: function(event, ui)  {x
+            deactivate: function(event, ui)  {
                 // console.log("trackdiv droppable detected: draggable deactivated");
                 // "this" is the div being dropped on, so same as target_trackdiv
                 if (target_track.verbose_drop)  { console.log("draggable deactivated"); }
