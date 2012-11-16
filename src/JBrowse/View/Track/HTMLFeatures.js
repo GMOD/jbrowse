@@ -54,8 +54,9 @@ var HTMLFeatures = declare( BlockBased, {
         this.defaultPadding = 5;
         this.padding = this.defaultPadding;
 
-        this.glyphHeightPad = 2;
+        this.glyphHeightPad = 1;
         this.levelHeightPad = 2;
+        this.labelPad = 1;
 
         this.trackPadding = args.trackPadding;
 
@@ -120,7 +121,6 @@ HTMLFeatures = declare( HTMLFeatures,
             description: true,
 
             maxFeatureScreenDensity: 0.5,
-            layoutPitchY: 6,
 
             style: {
                 className: "feature2",
@@ -460,7 +460,7 @@ HTMLFeatures = declare( HTMLFeatures,
             dojo.hitch( this, function( stats ) {
 
                 var density          = stats.featureDensity;
-                var histScale        = this.config.style.histScale  || density * this.config.style._defaultHistScale;
+                var histScale        = this.config.style.histScale || density * this.config.style._defaultHistScale;
 
                 // only update the label once for each block size
                 var blockBases = Math.abs( leftBase-rightBase );
@@ -697,7 +697,7 @@ HTMLFeatures = declare( HTMLFeatures,
         if (Util.is_ie6) heightTest.appendChild(document.createComment("foo"));
         document.body.appendChild(heightTest);
         glyphBox = domGeom.getMarginBox(heightTest);
-        this.glyphHeight = Math.round(glyphBox.h + this.glyphHeightPad);
+        this.glyphHeight = Math.round(glyphBox.h);
         this.padding = this.defaultPadding + glyphBox.w;
         document.body.removeChild(heightTest);
 
@@ -751,7 +751,7 @@ HTMLFeatures = declare( HTMLFeatures,
         if( typeof featureStart == 'string' )
             featureStart = parseInt(featureStart);
 
-        var levelHeight = this.glyphHeight;
+        var levelHeight = this.glyphHeight + this.glyphHeightPad;
 
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
@@ -765,19 +765,20 @@ HTMLFeatures = declare( HTMLFeatures,
         if( this.showLabels && scale >= labelScale ) {
             if (name) {
 	        featureEnd = Math.max(featureEnd, featureStart + (''+name).length * this.labelWidth / scale );
-                levelHeight += this.labelHeight + 1;
+                levelHeight += this.labelHeight + this.labelPad;
             }
             if( description ) {
                 featureEnd = Math.max( featureEnd, featureStart + (''+description).length * this.labelWidth / scale );
-                levelHeight += this.labelHeight + 1;
+                levelHeight += this.labelHeight + this.labelPad;
             }
         }
         featureEnd += Math.max(1, this.padding / scale);
 
-        var top = this._getLayout( scale ).addRect( uniqueId,
-                                       featureStart,
-                                       featureEnd,
-                                       levelHeight);
+        var top = this._getLayout( scale )
+                      .addRect( uniqueId,
+                                featureStart,
+                                featureEnd,
+                                levelHeight);
 
         var featDiv = this.config.hooks.create(this, feature );
         this._connectFeatDivHandlers( featDiv );
@@ -936,7 +937,7 @@ HTMLFeatures = declare( HTMLFeatures,
                                       displayStart, displayEnd, block );
             }
         }
-    }, 
+    },
 
     /**
      * Vertically centers all the child elements of a feature div.
@@ -1084,9 +1085,16 @@ HTMLFeatures = declare( HTMLFeatures,
     },
 
     _getLayout: function( scale ) {
+
+        //determine the glyph height, arrowhead width, label text dimensions, etc.
+        if (!this.haveMeasurements) {
+            this.measureStyles();
+            this.haveMeasurements = true;
+        }
+
         // create the layout if we need to, and we can
-        if( ( ! this.layout || this.layout.pitchX != 4/scale ) && scale )
-            this.layout = new Layout({pitchX: 4/scale, pitchY: this.layoutPitchY || this.config.layoutPitchY });
+        if( ( ! this.layout || this.layout.pitchX != 4/scale ) && scale  )
+            this.layout = new Layout({pitchX: 4/scale, pitchY: this.config.layoutPitchY || (this.glyphHeight + this.glyphHeightPad) });
 
         return this.layout;
     },
