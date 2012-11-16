@@ -38,7 +38,7 @@ return declare( JBPlugin,
                     }
                 });
 
-        browser.addGlobalConfigMenuItem( cds_frame_toggle );
+        browser.addGlobalMenuItem( 'options', cds_frame_toggle );
     }
 });
 

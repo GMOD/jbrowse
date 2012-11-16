@@ -15,6 +15,7 @@ define( [
             'dijit/form/Select',
             'dijit/form/DropDownButton',
             'dijit/DropDownMenu',
+            'dijit/MenuItem',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Autocomplete',
@@ -38,6 +39,7 @@ define( [
             dijitSelectBox,
             dijitDropDownButton,
             dijitDropDownMenu,
+            dijitMenuItem,
             Util,
             LazyTrie,
             AutocompleteStore,
@@ -324,7 +326,27 @@ Browser.prototype.initView = function() {
      }, menuBar );
 
     if( this.config.show_nav ) {
-        var configMenu = this.makeGlobalConfigMenu();
+
+        // this.addGlobalMenuItem( 'file',
+        //                         new dijitMenuItem(
+        //                             {
+        //                                 label: 'Open',
+        //                                 onClick: function() { alert('open sesame!'); }
+        //                             })
+        //                       );
+        // var fileMenu = this.makeGlobalMenu('file');
+        // if( fileMenu ) {
+        //     var fileButton = new dijitDropDownButton(
+        //         { className: 'file',
+        //           innerHTML: 'File',
+        //           //title: '',
+        //           dropDown: fileMenu
+        //         });
+        //     dojo.addClass( fileButton.domNode, 'menu' );
+        //     menuBar.appendChild( fileButton.domNode );
+        // }
+
+        var configMenu = this.makeGlobalMenu('options');
         if( configMenu ) {
             var configLink = new dijitDropDownButton(
                 { className: 'config',
@@ -333,9 +355,7 @@ Browser.prototype.initView = function() {
                   dropDown: configMenu
                 });
             menuBar.appendChild( configLink.domNode );
-
-
-        }
+       }
     }
 
     if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview )
@@ -422,8 +442,8 @@ Browser.prototype.initView = function() {
 };
 
 
-Browser.prototype.makeGlobalConfigMenu = function( item ) {
-    var items = this._globalConfigMenuItems || [];
+Browser.prototype.makeGlobalMenu = function( menuName ) {
+    var items = ( this._globalMenuItems || {} )[menuName] || [];
     if( ! items.length )
         return null;
 
@@ -431,13 +451,17 @@ Browser.prototype.makeGlobalConfigMenu = function( item ) {
     dojo.forEach( items, function( item ) {
         menu.addChild( item );
     });
+    dojo.addClass( menu.domNode, 'globalMenu' );
     menu.startup();
     return menu;
 };
 
-Browser.prototype.addGlobalConfigMenuItem = function( item ) {
-    this._globalConfigMenuItems = this._globalConfigMenuItems || [];
-    this._globalConfigMenuItems.push( item );
+Browser.prototype.addGlobalMenuItem = function( menuName, item ) {
+    if( ! this._globalMenuItems )
+        this._globalMenuItems = {};
+    if( ! this._globalMenuItems[ menuName ] )
+        this._globalMenuItems[ menuName ] = [];
+    this._globalMenuItems[ menuName ].push( item );
 };
 
 /**
