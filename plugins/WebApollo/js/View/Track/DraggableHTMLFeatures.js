@@ -41,7 +41,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             dojo.clone( this.inherited(arguments) ),
             {
                 style: {
-                    renderClassName: 'DraggableFeatureTrack'
+                    // renderClassName: 'DraggableFeatureTrack'  ???
                 },
                 events: {
 		    // need to map click to a null-op, to override default JBrowse click behavior (feature detail popup)

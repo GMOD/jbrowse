@@ -11,9 +11,10 @@ define( [
             'WebApollo/JSONUtils',
             'WebApollo/BioFeatureUtils',
             'WebApollo/Permission',
-            'JBrowse/Model/SimpleFeature'
+            'JBrowse/Model/SimpleFeature',
+            'JBrowse/Util'
         ],
-        function( declare, $, draggable, droppable, dijitMenu, dijitMenuItem, dijitDialog, DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SimpleFeature ) {
+        function( declare, $, draggable, droppable, dijitMenu, dijitMenuItem, dijitDialog, DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SimpleFeature, Util ) {
 
 var listeners = [];
 
@@ -155,17 +156,27 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     _defaultConfig: function() {
-        return Util.deepUpdate(
-            dojo.clone( this.inherited(arguments) ),
+	var track = this;
+	var superConfig = this.inherited(arguments);
+	var superMenuTemplate = superConfig.menuTemplate;
+        var thisConfig =  Util.deepUpdate(
+            // dojo.clone( this.inherited(arguments) ),
+	    dojo.clone( superConfig ),
             {
                 menuTemplate: [
                     {
-                        label:  "Self destruct",
-                        action: function() { blow_up(); }
+                        label:  "Delete",
+                        action: function() { track.deleteSelectedFeatures(); }
                     }
                 ]
             }
         );
+	var thisMenuTemplate = thisConfig.menuTemplate;
+	for (var i=0; i<superMenuTemplate.length; i++)  {
+	    thisMenuTemplate.push(superMenuTemplate[i]);
+	}
+	console.log(thisMenuTemplate);
+	return thisConfig;
     },
 
     setViewInfo: function( genomeView, numBlocks,
@@ -298,7 +309,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     deleteFeatures: function(responseFeatures) {
         for (var i = 0; i < responseFeatures.length; ++i) {
             var id_to_delete = responseFeatures[i].uniquename;
-            this.features.deleteEntry(id_to_delete);
+            this.store.delete(id_to_delete);
         }
     },
 
@@ -842,22 +853,24 @@ var AnnotTrack = declare( DraggableFeatureTrack,
      *    (contrasted with DraggableFeatureTracks, which all share the same selection and selection manager
      */
     deleteSelectedFeatures: function()  {
+	console.log("attempting to delete selected features");
         var selected = this.selectionManager.getSelection();
         this.selectionManager.clearSelection();
         this.deleteAnnotations(selected);
     },
 
-    deleteAnnotations: function(annots) {
+    deleteAnnotations: function(selection_records) {
         var track = this;
-        var features_nclist = track.features;
+//        var features_nclist = track.features;
         var features = '"features": [';
         var uniqueNames = [];
-        for (var i in annots)  {
-            var annot = annots[i];
+        for (var i in selection_records)  {
+            var annot = selection_records[i].feature;
+	    var annotTrack = selection_records[i].track;
             var uniqueName = annot.id();
             // just checking to ensure that all features in selection are from this track --
             //   if not, then don't try and delete them
-            if (annot.track === track)  {
+            if (annotTrack === track)  {
                 var trackdiv = track.div;
                 var trackName = track.getUniqueTrackName();
 
