@@ -43,7 +43,7 @@ var locationThumbMover = declare( dndMove.constrainedMoveable, {
  * @class
  * @constructor
  */
-var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browserRoot) {
+var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
 
     // keep a reference to the main browser object
     this.browser = browser;
@@ -60,8 +60,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     this.ref = refseq;
     //current scale, in pixels per bp
     this.pxPerBp = zoomLevel;
-    //path prefix for static assets (e.g., cursors)
-    this.browserRoot = browserRoot ? browserRoot : "";
+
     //width, in pixels, of the vertical stripes
     this.stripeWidth = stripeWidth;
     //the page element that the GenomeView lives in
