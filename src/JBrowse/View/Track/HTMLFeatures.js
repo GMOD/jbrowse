@@ -784,7 +784,7 @@ HTMLFeatures = declare( HTMLFeatures,
         featDiv.track = this;
         featDiv.feature = feature;
         featDiv.layoutEnd = featureEnd;
-        featDiv.className = (featDiv.className ? featDiv.className + " " : "") + "feature";
+	dojo.addClass(featDiv, "feature");
         // (callbackArgs are the args that will be passed to callbacks
         // in this feature's context menu or left-click handlers)
         featDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
@@ -1032,18 +1032,34 @@ HTMLFeatures = declare( HTMLFeatures,
         var subStart = subfeature.get('start');
         var subEnd = subfeature.get('end');
         var featLength = displayEnd - displayStart;
-
-        var subDiv = document.createElement("div");
-
         var type = subfeature.get('type');
-        subDiv.className = (this.config.style.subfeatureClasses||{})[type] || this.config.style.className + '-' + type;
+	var className;
+	if (this.config.style.subfeatureClasses) {
+	    className = this.config.style.subfeatureClasses[type];
+	    // if no class mapping specified for type, default to "{parentclass}-{type}"
+	    if (className === undefined) { className = this.config.style.className + '-' + type; }
+	    // if subfeatureClasses specifies that subfeature type explicitly maps to null className 
+	    //     then don't render the feature        
+	    else if (className === null)  { 
+		className = this.config.style.className + '-' + type; 
+		return ; 
+	    }
+	}
+	else {
+	    // if no config.style.subfeatureClasses to specify subfeature class mapping, default to "{parentclass}-{type}"
+	    className = this.config.style.className + '-' + type; 
+	}
+        var subDiv = document.createElement("div");
+	dojo.addClass(subDiv, "subfeature");
+        dojo.addClass(subDiv, className);
+
         switch ( subfeature.get('strand') ) {
         case 1:
         case '+':
-            subDiv.className += " plus-" + subDiv.className; break;
+	    dojo.addClass(subDiv, "plus-" + className); break;
         case -1:
         case '-':
-            subDiv.className += " minus-" + subDiv.className; break;
+            dojo.addClass(subDiv, "minus-" + className); break;
         }
 
         // if the feature has been truncated to where it doesn't cover
