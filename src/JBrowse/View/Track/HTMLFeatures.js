@@ -920,7 +920,8 @@ HTMLFeatures = declare( HTMLFeatures,
                      this.config.hooks.modify(this, feature, featDiv);
                  }
 
-        }),50+Math.random()*50);
+            // }),50+Math.random()*50);
+	     }),10);
 
         return featDiv;
     },
