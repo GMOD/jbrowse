@@ -333,6 +333,7 @@ Browser.prototype.initView = function() {
                                 new dijitMenuItem(
                                     {
                                         label: 'Open',
+                                        iconClass: 'dijitIconFolderOpen',
                                         onClick: dojo.hitch( this, 'openFileDialog' )
                                     })
                               );

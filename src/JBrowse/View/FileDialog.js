@@ -7,7 +7,7 @@ define( [ 'dojo/_base/declare',
           'dijit/form/Button',
           'dijit/form/RadioButton'
         ],
-        function( declare, aspect, on, Dialog, TextBox, Select, Button ) {
+        function( declare, aspect, on, Dialog, TextBox, Select, Button, RadioButton ) {
 
 return declare(null,{
     constructor: function( args ) {
@@ -24,13 +24,23 @@ return declare(null,{
 
         var textBox = new TextBox({
             id: id,
-            regExpGen: function()  { return '^(https?|file):\/\/.+'; }
+            regExpGen: function() { return '^(https?|file):\/\/.+'; },
+            onChange: function() {
+                typeSelect.set(
+                    'value',
+                        /\.bam$/i.test(this.get('value')) ? 'bam' :
+                        /\.bai$/i.test(this.get('value')) ? 'bai' :
+                        /\.gff3?$/i.test(this.get('value') ) ? 'gff3' :
+                        /\.(bw|bigwig)$/i.test(this.get('value') ) ? 'bigwig' :
+                        null
+                );
+            }
         });
         textBox.placeAt( dojo.create('td',{},tr) );
 
         var typeSelect = new Select({
             options: [
-                { label: '<span class="ghosted">file type</span>', value: null     },
+                { label: '<span class="ghosted">file type?</span>', value: null     },
                 { label: "GFF3",   value: "gff3"   },
                 { label: "BigWig", value: "bigwig" },
                 { label: "BAM",    value: "bam"    },
@@ -49,15 +59,23 @@ return declare(null,{
         var tr = dojo.create( 'tr', {} );
 
         var fileBox = dojo.create('input', { type: 'file',
-            id: id,
-            onChange: function() {
-                alert('change!');
-            }
+            id: id
         }, dojo.create('td',{colspan: 2},tr));
+        on( fileBox, 'change', function() {
+                console.log(this.value);
+                typeSelect.set(
+                    'value',
+                        /\.bam$/i.test(this.value)    ? 'bam' :
+                        /\.bai$/i.test(this.value)    ? 'bai' :
+                        /\.gff3?$/i.test(this.value ) ? 'gff3' :
+                        /\.(bw|bigwig)$/i.test(this.value ) ? 'bigwig' :
+                        null
+                );
+        });
 
         var typeSelect = new Select({
             options: [
-                { label: '<span class="ghosted">file type</span>', value: null   },
+                { label: '<span class="ghosted">file type?</span>', value: null   },
                 { label: "GFF3",   value: "gff3"   },
                 { label: "BigWig", value: "bigwig" },
                 { label: "BAM",    value: "bam"    },
@@ -74,9 +92,9 @@ return declare(null,{
             'div', {
                 className: 'dijitDialogPaneActionBar',
                 innerHTML: '<div class="aux">'
-                           + '<input type="radio" checked="checked" data-dojo-type="dijit/form/RadioButton" name="display" id="immediate" value="immediate"/>'
+                           + '<input type="radio" checked="checked" data-dojo-type="dijit.form.RadioButton" name="display" id="immediate" value="immediate"/>'
                            + '<label for="immediate">Display immediately</label>'
-                           + ' <input type="radio" data-dojo-type="dijit/form/RadioButton" name="display" id="tracksOnly" value="tracksOnly"/>'
+                           + ' <input type="radio" data-dojo-type="dijit.form.RadioButton" name="display" id="tracksOnly" value="tracksOnly"/>'
                            + '<label for="tracksOnly">Add to tracks</label>'
                            + '</div>'
             });
