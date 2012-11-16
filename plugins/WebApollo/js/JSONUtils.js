@@ -44,6 +44,9 @@ var JAFeature = declare( SimpleFeature, {
                                         return new JAFeature( s );
                                     })
         };
+	if (this.data.type === "CDS")  { 
+	    this.data.type = "wholeCDS"; 
+	}
 
         this._uniqueID = afeature.uniquename;
 
