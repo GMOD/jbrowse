@@ -30,7 +30,8 @@ fieldset > legend {
 
 /* styles for the top menu bar */
 div.menuBar {
-    padding-bottom: 1px;
+    padding: 1px 0;
+    height: 25px;
 }
 .tundra .menuBar {
     background: #396494;
@@ -57,30 +58,72 @@ div.menuBar a, .topLink a {
     font-size: 125%;
     font-family: 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
     font-weight: bold;
+    line-height: 25px; /* note this line-height should be the same as the fixed height of the menuBar */
+}
+
+.share .icon {
+    height: 8px;
+    width: 19px;
+    display: inline;
+    display: inline-block;
+    background: url("img/glyphs_white.png") no-repeat -149px -91px;
+    margin-right: 2px;
+    margin-top: -2px;
+}
+a.topLink, a.topLink * {
+    cursor: pointer;
 }
 .topLink .powered_by {
     padding: 0 0.5em;
     color: black;
     text-decoration: none;
 }
-.topLink.help div.icon {
-    position: relative;
-    top: 2px;
+.help .icon {
     height: 14px;
     width: 8px;
-    display: inline;
     display: inline-block;
+    margin-top: -4px;
+    margin-right: 1px;
     background: url("img/glyphs_white.png") no-repeat -174px -3px;
 }
-.menuBar .config {
+.tundra .menuBar * {
+    outline: none;
+}
+
+.tundra .menuBar .dijitButtonNode {
+    background: transparent;
+}
+
+.menuBar .topLink,
+.tundra .menuBar .dijitButtonNode {
+    border: 2px outset rgba( 120, 120, 120, 0.2 );
+}
+.menuBar .topLink:hover,
+.tundra .menuBar .dijitButtonHover .dijitButtonNode,
+.tundra .menuBar .dijitDropDownButtonHover .dijitButtonNode {
+    background: rgba( 255, 255, 255, 0.07 );
+}
+.menuBar .topLink:active,
+.tundra .menuBar .dijitButtonActive .dijitButtonNode,
+.tundra .menuBar .dijitDropDownButtonActive .dijitButtonNode {
+    border: 2px inset rgba( 120, 120, 120, 0.2 );
+}
+
+.menuBar .dijitButtonNode {
+    padding: 0 1em;
+}
+
+.menuBar .dijitButtonNode * {
+    color: white;
+}
+.menuBar .config .icon {
     height: 16px;
     width: 16px;
+    margin-right: 2px;
+    margin-top: -2px;
     display: inline;
     display: inline-block;
-    background: url("img/glyphs_white.png") no-repeat -168px -26px;
-    float: left;
-    position: relative;
-    top: 1px;
+    background: url("img/glyphs_white.png") no-repeat -168px -27px;
 }
 
 

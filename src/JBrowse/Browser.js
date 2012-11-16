@@ -13,7 +13,8 @@ define( [
             'dijit/form/ComboBox',
             'dijit/form/Button',
             'dijit/form/Select',
-            'dijit/Menu',
+            'dijit/form/DropDownButton',
+            'dijit/DropDownMenu',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Autocomplete',
@@ -35,7 +36,8 @@ define( [
             dijitComboBox,
             dijitButton,
             dijitSelectBox,
-            dijitMenu,
+            dijitDropDownButton,
+            dijitDropDownMenu,
             Util,
             LazyTrie,
             AutocompleteStore,
@@ -324,14 +326,15 @@ Browser.prototype.initView = function() {
     if( this.config.show_nav ) {
         var configMenu = this.makeGlobalConfigMenu();
         if( configMenu ) {
-            var configLink = dojo.create(
-                'a',
+            var configLink = new dijitDropDownButton(
                 { className: 'config',
-                  innerHTML: '&nbsp;',
-                  title: 'configure JBrowse'
+                  innerHTML: '<span class="icon"></span> Config',
+                  title: 'configure JBrowse',
+                  dropDown: configMenu
                 });
-            menuBar.appendChild( configLink );
-            configMenu.bindDomNode( configLink );
+            menuBar.appendChild( configLink.domNode );
+
+
         }
     }
 
@@ -424,7 +427,7 @@ Browser.prototype.makeGlobalConfigMenu = function( item ) {
     if( ! items.length )
         return null;
 
-    var menu = new dijitMenu({ leftClickToOpen: true });
+    var menu = new dijitDropDownMenu({ leftClickToOpen: true });
     dojo.forEach( items, function( item ) {
         menu.addChild( item );
     });
@@ -1186,14 +1189,12 @@ Browser.prototype.makeHelpDialog = function () {
     }, helpdiv );
 
     // make a Help link that will show the dialog and set a handler on it
-    var helplink = dojo.create(
-        'a',
+    var helpButton = new dijitButton(
         {
-            className: 'topLink help',
+            className: 'help',
             title: 'Help',
-            style: { cursor: 'help' },
-            innerHTML: '<div class="icon"></div> Help',
-            onclick: function() { dialog.show(); }
+            innerHTML: '<span class="icon"></span> Help',
+            onClick: function() { dialog.show(); }
         });
 
     this.setGlobalKeyboardShortcut( '?', dialog, 'show' );
@@ -1202,7 +1203,7 @@ Browser.prototype.makeHelpDialog = function () {
             dialog.hide();
     });
 
-    return helplink;
+    return helpButton.domNode;
 };
 
 /**
@@ -1242,23 +1243,17 @@ Browser.prototype.makeShareLink = function () {
     var shareURL = '#';
 
     // make the share link
-    var link = dojo.create(
-        'a',
-        {
-            className: 'topLink',
-            href: '#',
-            innerHTML: 'Share',
+    var button = new dijitButton({
+            className: 'share',
+            innerHTML: '<span class="icon"></span> Share',
             title: 'share this view',
-            style: {
-                position: 'relative'
-            },
-            onclick: function() {
+            onClick: function() {
                 URLinput.value = shareURL;
                 previewLink.href = shareURL;
 
                 sharePane.show();
 
-                var lp = dojo.position(link);
+                var lp = dojo.position( button.domNode );
                 dojo.style( sharePane.domNode, {
                                top: (lp.y+lp.h) + 'px',
                                right: 0,
@@ -1292,7 +1287,7 @@ Browser.prototype.makeShareLink = function () {
             onblur: function() { copyReminder.style.display = 'none'; }
         });
     var previewLink = dojo.create('a', {
-        innerHTML: 'preview',
+        innerHTML: 'Preview',
         target: '_blank',
         href: shareURL,
         style: { display: 'block', "float": 'right' }
@@ -1329,7 +1324,7 @@ Browser.prototype.makeShareLink = function () {
     dojo.connect( this, "onCoarseMove",             updateShareURL );
     this.subscribe( '/jbrowse/v1/v/tracks/changed', updateShareURL );
 
-    return link;
+    return button.domNode;
 };
 
 Browser.prototype.makeFullViewLink = function () {
