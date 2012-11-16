@@ -61,12 +61,14 @@ div.menuBar a, .topLink a {
     line-height: 25px; /* note this line-height should be the same as the fixed height of the menuBar */
 }
 
-a.topLink.share .icon {
+.share .icon {
     height: 8px;
     width: 19px;
     display: inline;
     display: inline-block;
     background: url("img/glyphs_white.png") no-repeat -149px -91px;
+    margin-right: 2px;
+    margin-top: -2px;
 }
 a.topLink, a.topLink * {
     cursor: pointer;
@@ -76,13 +78,12 @@ a.topLink, a.topLink * {
     color: black;
     text-decoration: none;
 }
-.topLink.help div.icon {
-    position: relative;
-    top: 2px;
+.help .icon {
     height: 14px;
     width: 8px;
-    display: inline;
     display: inline-block;
+    margin-top: -4px;
+    margin-right: 1px;
     background: url("img/glyphs_white.png") no-repeat -174px -3px;
 }
 .tundra .menuBar * {
@@ -98,10 +99,12 @@ a.topLink, a.topLink * {
     border: 2px outset rgba( 120, 120, 120, 0.2 );
 }
 .menuBar .topLink:hover,
+.tundra .menuBar .dijitButtonHover .dijitButtonNode,
 .tundra .menuBar .dijitDropDownButtonHover .dijitButtonNode {
     background: rgba( 255, 255, 255, 0.07 );
 }
 .menuBar .topLink:active,
+.tundra .menuBar .dijitButtonActive .dijitButtonNode,
 .tundra .menuBar .dijitDropDownButtonActive .dijitButtonNode {
     border: 2px inset rgba( 120, 120, 120, 0.2 );
 }
@@ -110,13 +113,14 @@ a.topLink, a.topLink * {
     padding: 0 1em;
 }
 
-.menuBar .config {
+.menuBar .dijitButtonNode * {
     color: white;
 }
 .menuBar .config .icon {
     height: 16px;
     width: 16px;
-    margin-right: 0.1em;
+    margin-right: 2px;
+    margin-top: -2px;
     display: inline;
     display: inline-block;
     background: url("img/glyphs_white.png") no-repeat -168px -27px;

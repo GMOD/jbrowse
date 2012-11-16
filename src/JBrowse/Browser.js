@@ -1189,13 +1189,12 @@ Browser.prototype.makeHelpDialog = function () {
     }, helpdiv );
 
     // make a Help link that will show the dialog and set a handler on it
-    var helplink = dojo.create(
-        'a',
+    var helpButton = new dijitButton(
         {
-            className: 'topLink help',
+            className: 'help',
             title: 'Help',
-            innerHTML: '<div class="icon"></div> Help',
-            onclick: function() { dialog.show(); }
+            innerHTML: '<span class="icon"></span> Help',
+            onClick: function() { dialog.show(); }
         });
 
     this.setGlobalKeyboardShortcut( '?', dialog, 'show' );
@@ -1204,7 +1203,7 @@ Browser.prototype.makeHelpDialog = function () {
             dialog.hide();
     });
 
-    return helplink;
+    return helpButton.domNode;
 };
 
 /**
@@ -1244,23 +1243,17 @@ Browser.prototype.makeShareLink = function () {
     var shareURL = '#';
 
     // make the share link
-    var link = dojo.create(
-        'a',
-        {
-            className: 'topLink share',
-            href: '#',
-            innerHTML: '<div class="icon"></div> Share',
+    var button = new dijitButton({
+            className: 'share',
+            innerHTML: '<span class="icon"></span> Share',
             title: 'share this view',
-            style: {
-                position: 'relative'
-            },
-            onclick: function() {
+            onClick: function() {
                 URLinput.value = shareURL;
                 previewLink.href = shareURL;
 
                 sharePane.show();
 
-                var lp = dojo.position(link);
+                var lp = dojo.position( button.domNode );
                 dojo.style( sharePane.domNode, {
                                top: (lp.y+lp.h) + 'px',
                                right: 0,
@@ -1331,7 +1324,7 @@ Browser.prototype.makeShareLink = function () {
     dojo.connect( this, "onCoarseMove",             updateShareURL );
     this.subscribe( '/jbrowse/v1/v/tracks/changed', updateShareURL );
 
-    return link;
+    return button.domNode;
 };
 
 Browser.prototype.makeFullViewLink = function () {
