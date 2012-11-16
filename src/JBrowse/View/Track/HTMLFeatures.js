@@ -899,7 +899,7 @@ HTMLFeatures = declare( HTMLFeatures,
 
         // render the popup menu if configured
         if( this.config.menuTemplate ) {
-            window.setTimeout( dojo.hitch( this, '_connectMenus', featDiv ), 50 );
+            window.setTimeout( dojo.hitch( this, '_connectMenus', featDiv ), 50+Math.random()*150 );
         }
 
         if ( typeof this.config.hooks.modify == 'function' ) {
@@ -966,7 +966,6 @@ HTMLFeatures = declare( HTMLFeatures,
         on( featDiv,  'mouseover', refreshMenu );
         if( featDiv.labelDiv )
             on( featDiv.labelDiv,  'mouseover', refreshMenu );
-        dojo.connect( featDiv.contextMenu, 'onMouseMove', refreshMenu );
     },
 
     _refreshMenu: function( featDiv ) {
