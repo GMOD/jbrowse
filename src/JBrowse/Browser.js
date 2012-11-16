@@ -22,7 +22,8 @@ define( [
             'JBrowse/GenomeView',
             'JBrowse/TouchScreenSupport',
             'JBrowse/ConfigManager',
-            'JBrowse/View/InfoDialog'
+            'JBrowse/View/InfoDialog',
+            'JBrowse/View/FileDialog'
         ],
         function(
             lang,
@@ -46,7 +47,8 @@ define( [
             GenomeView,
             Touch,
             ConfigManager,
-            InfoDialog
+            InfoDialog,
+            FileDialog
         ) {
 
 var dojof = Util.dojof;
@@ -327,24 +329,24 @@ Browser.prototype.initView = function() {
 
     if( this.config.show_nav ) {
 
-        // this.addGlobalMenuItem( 'file',
-        //                         new dijitMenuItem(
-        //                             {
-        //                                 label: 'Open',
-        //                                 onClick: function() { alert('open sesame!'); }
-        //                             })
-        //                       );
-        // var fileMenu = this.makeGlobalMenu('file');
-        // if( fileMenu ) {
-        //     var fileButton = new dijitDropDownButton(
-        //         { className: 'file',
-        //           innerHTML: 'File',
-        //           //title: '',
-        //           dropDown: fileMenu
-        //         });
-        //     dojo.addClass( fileButton.domNode, 'menu' );
-        //     menuBar.appendChild( fileButton.domNode );
-        // }
+        this.addGlobalMenuItem( 'file',
+                                new dijitMenuItem(
+                                    {
+                                        label: 'Open',
+                                        onClick: dojo.hitch( this, 'openFileDialog' )
+                                    })
+                              );
+        var fileMenu = this.makeGlobalMenu('file');
+        if( fileMenu ) {
+            var fileButton = new dijitDropDownButton(
+                { className: 'file',
+                  innerHTML: 'File',
+                  //title: '',
+                  dropDown: fileMenu
+                });
+            dojo.addClass( fileButton.domNode, 'menu' );
+            menuBar.appendChild( fileButton.domNode );
+        }
 
         var configMenu = this.makeGlobalMenu('options');
         if( configMenu ) {
@@ -439,6 +441,10 @@ Browser.prototype.initView = function() {
            }));
         }));
     }));
+};
+
+Browser.prototype.openFileDialog = function() {
+    new FileDialog({ browser: this }).open();
 };
 
 
@@ -1658,7 +1664,6 @@ Browser.prototype.createNavBox = function( parent ) {
                 dojo.stopEvent(event);
             })
         }, dojo.create('button',{},navbox));
-
 
 
     this.loadRefSeqs().then( dojo.hitch( this, function() {

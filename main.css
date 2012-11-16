@@ -7,6 +7,27 @@ html, body {
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
+.fileDialog label {
+    font-weight: bold;
+    padding: 0 0.5em;
+}
+.fileDialog table {
+    padding: 1em;
+    margin: 2em 1em;
+}
+.fileDialog table h2 {
+    text-align: center;
+    margin: 0;
+}
+.fileDialog table hr {
+    margin: 3em 0;
+}
+.fileDialog div.aux {
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+
 fieldset {
     padding-left: 1em;
     margin: 0.7em 0.5em;
