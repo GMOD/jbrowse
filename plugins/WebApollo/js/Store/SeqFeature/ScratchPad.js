@@ -15,13 +15,19 @@ return declare( SeqFeatureStore,
         this._calculateStats();
     },
 
+/*
     delete: function( feature ) {
-        delete this.features[ feature.id() ];
+	this.deleteFeatureById[ feature.id() ];
+    },
+*/
+
+    deleteFeatureById: function( id ) {
+	delete  this.features[ id ];
         this._calculateStats();
     },
 
     /* if feature with given id is present in store, return it.  Otherwise return null */
-    contains: function( id )  {
+    getFeatureById: function( id )  {
 	return this.features[ id ];
     },
 
