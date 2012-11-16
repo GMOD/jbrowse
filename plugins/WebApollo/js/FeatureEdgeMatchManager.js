@@ -21,7 +21,7 @@ var FeatureEdgeMatchManager = declare( null,
     SHOW_EDGE_MATCHES: true,
 
     setBrowser: function( browser ) {
-        browser.subscribe('/jbrowse/v1/v/redraw', dojo.hitch( this, function() {
+        browser.subscribe('/jbrowse/v1/n/redraw', dojo.hitch( this, function() {
             var selected = this.featSelectionManager;
             var annot_selected = this.annotSelectionManager;
             this.selectionCleared();
