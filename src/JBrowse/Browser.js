@@ -13,7 +13,8 @@ define( [
             'dijit/form/ComboBox',
             'dijit/form/Button',
             'dijit/form/Select',
-            'dijit/Menu',
+            'dijit/form/DropDownButton',
+            'dijit/DropDownMenu',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Autocomplete',
@@ -35,7 +36,8 @@ define( [
             dijitComboBox,
             dijitButton,
             dijitSelectBox,
-            dijitMenu,
+            dijitDropDownButton,
+            dijitDropDownMenu,
             Util,
             LazyTrie,
             AutocompleteStore,
@@ -324,14 +326,15 @@ Browser.prototype.initView = function() {
     if( this.config.show_nav ) {
         var configMenu = this.makeGlobalConfigMenu();
         if( configMenu ) {
-            var configLink = dojo.create(
-                'a',
+            var configLink = new dijitDropDownButton(
                 { className: 'config',
-                  innerHTML: '&nbsp;',
-                  title: 'configure JBrowse'
+                  innerHTML: '<span class="icon"></span> Config',
+                  title: 'configure JBrowse',
+                  dropDown: configMenu
                 });
-            menuBar.appendChild( configLink );
-            configMenu.bindDomNode( configLink );
+            menuBar.appendChild( configLink.domNode );
+
+
         }
     }
 
@@ -424,7 +427,7 @@ Browser.prototype.makeGlobalConfigMenu = function( item ) {
     if( ! items.length )
         return null;
 
-    var menu = new dijitMenu({ leftClickToOpen: true });
+    var menu = new dijitDropDownMenu({ leftClickToOpen: true });
     dojo.forEach( items, function( item ) {
         menu.addChild( item );
     });
@@ -1191,7 +1194,6 @@ Browser.prototype.makeHelpDialog = function () {
         {
             className: 'topLink help',
             title: 'Help',
-            style: { cursor: 'help' },
             innerHTML: '<div class="icon"></div> Help',
             onclick: function() { dialog.show(); }
         });
@@ -1245,9 +1247,9 @@ Browser.prototype.makeShareLink = function () {
     var link = dojo.create(
         'a',
         {
-            className: 'topLink',
+            className: 'topLink share',
             href: '#',
-            innerHTML: 'Share',
+            innerHTML: '<div class="icon"></div> Share',
             title: 'share this view',
             style: {
                 position: 'relative'
@@ -1292,7 +1294,7 @@ Browser.prototype.makeShareLink = function () {
             onblur: function() { copyReminder.style.display = 'none'; }
         });
     var previewLink = dojo.create('a', {
-        innerHTML: 'preview',
+        innerHTML: 'Preview',
         target: '_blank',
         href: shareURL,
         style: { display: 'block', "float": 'right' }
