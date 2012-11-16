@@ -2420,7 +2420,8 @@ div.generic_parent-hist {
     position: absolute;
     height: 16px;
     z-index: 100;
-    background-image: url('img/exclamation_circle_orange.png'); 
+    background-image: url('../img/exclamation_circle_orange.png'); 
+/*    background-image: url('img/exclamation_circle_orange.png');  */
 /*    background-image: url('img/warning_exclamation_small.png'); */
 /*    background-image: url('img/warning_exclamation.png');  */
 /*    background-image: url('img/marker_rounded_red.png'); */
