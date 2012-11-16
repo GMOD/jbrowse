@@ -154,6 +154,20 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     },
 
+    _defaultConfig: function() {
+        return Util.deepUpdate(
+            dojo.clone( this.inherited(arguments) ),
+            {
+                menuTemplate: [
+                    {
+                        label:  "Self destruct",
+                        action: function() { blow_up(); }
+                    }
+                ]
+            }
+        );
+    },
+
     setViewInfo: function( genomeView, numBlocks,
                            trackDiv, labelDiv,
                            widthPct, widthPx, scale ) {
