@@ -483,7 +483,7 @@ HTMLFeatures = declare( HTMLFeatures,
                 // if we have no histograms, check the predicted density of
                 // features on the screen, and display a message if it's
                 // bigger than maxFeatureScreenDensity
-                else if( stats.featureDensity / scale > this.config.maxFeatureScreenDensity ) {
+                else if( false && stats.featureDensity / scale > this.config.maxFeatureScreenDensity ) {
                     this.fillMessage(
                         blockIndex,
                         block,
@@ -598,6 +598,7 @@ HTMLFeatures = declare( HTMLFeatures,
                                                 destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
                                                 containerStart, containerEnd, destBlock );
                          destBlock.appendChild( featDiv );
+                         this._centerFeatureElements(featDiv);
                      }
             }
         }
@@ -636,6 +637,7 @@ HTMLFeatures = declare( HTMLFeatures,
                 var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                                   containerStart, containerEnd, block );
                 block.appendChild( featDiv );
+                this._centerFeatureElements(featDiv);
             }
         });
 
@@ -891,38 +893,18 @@ HTMLFeatures = declare( HTMLFeatures,
             labelDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
         }
 
-        // defer subfeature rendering and modification hooks into a
-        // timeout so that navigation feels faster.
-        window.setTimeout( dojo.hitch( this,
-             function() {
+        if( featwidth > this.config.style.minSubfeatureWidth ) {
+	    this.handleSubFeatures(feature, featDiv, displayStart, displayEnd, block);
+        }
 
-                 if( featwidth > this.config.style.minSubfeatureWidth ) {
-		     this.handleSubFeatures(feature, featDiv, displayStart, displayEnd, block);
-                 }
+        // render the popup menu if configured
+        if( this.config.menuTemplate ) {
+            window.setTimeout( dojo.hitch( this, '_connectMenus', featDiv ), 50 );
+        }
 
-                 //ie6 doesn't respect the height style if the div is empty
-                 if (Util.is_ie6) featDiv.appendChild(document.createComment());
-                 //TODO: handle event-handler-related IE leaks
-
-                 /* Temi / AP adding right menu click
-                  AP new schema menuTemplate: an array where everything except
-                  children, popup and url are passed on as properties to a new
-                  dijit.Menu object
-                  */
-
-                 // render the popup menu if configured
-                 if( this.config.menuTemplate ) {
-                     this._connectMenus( featDiv );
-                 }
-                 if( destBlock )
-                     this._centerFeatureElements(featDiv);
-
-                 if ( typeof this.config.hooks.modify == 'function' ) {
-                     this.config.hooks.modify(this, feature, featDiv);
-                 }
-
-            // }),50+Math.random()*50);
-	     }),10);
+        if ( typeof this.config.hooks.modify == 'function' ) {
+            this.config.hooks.modify(this, feature, featDiv);
+        }
 
         return featDiv;
     },
