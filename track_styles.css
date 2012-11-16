@@ -31,6 +31,16 @@ div.hist {
 .plus-feature { background-image: url('img/plus-chevron3.png'); }
 .minus-feature { background-image: url('img/minus-chevron3.png'); }
 
+.subfeature, 
+.plus-subfeature,
+.minus-subfeature {
+    position:absolute;
+    background-color: slategray;
+    height: 8px;
+    min-width: 1px;
+    z-index: 10;
+}
+
 .alignment,
 .plus-alignment,
 .minus-alignment {
