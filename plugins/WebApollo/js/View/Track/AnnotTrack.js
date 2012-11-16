@@ -297,7 +297,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 var feat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
                 var id = responseFeatures[i].uniquename;
                // if (this.features.featIdMap[id] == null) {
-		if (! this.store.contains(id))  {
+		if (! this.store.getFeatureById(id))  {
                     // note that proper handling of subfeatures requires annotation trackData.json resource to
                     //    set sublistIndex one past last feature array index used by other fields
                     //    (currently Annotations always have 6 fields (0-5), so sublistIndex = 6
@@ -309,7 +309,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     deleteFeatures: function(responseFeatures) {
         for (var i = 0; i < responseFeatures.length; ++i) {
             var id_to_delete = responseFeatures[i].uniquename;
-            this.store.delete(id_to_delete);
+            this.store.deleteFeatureById(id_to_delete);
         }
     },
 
