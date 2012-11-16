@@ -18,12 +18,12 @@ define( [
 var listeners = [];
 
 /**
- *  only set USE_COMET true if server supports Servlet 3.0
- *  comet-style long-polling, and web app is propertly set up
- *  for async otherwise if USE_COMET is set to true, will cause
- *  server-breaking errors
+ *  WARNING
+ *  Requires
+ *      server support for Servlet 3.0 comet-style long-polling, 
+ *      AnnotationChangeNotificationService web app properly set up for async
+ *  Otherwise will cause server-breaking errors
  */
-var USE_COMET = true;
 
 var creation_count = 0;
 
@@ -127,13 +127,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                     track.hideAll();
                     track.changed();
-                    //              features.verbose = true;  // turn on diagnostics reporting for track's NCList
-                   // features.verbose = false;  // turn on diagnostics reporting for track's NCList
-
-                    if ( USE_COMET )  {
-                        track.createAnnotationChangeListener();
-                    }
-
+                    track.createAnnotationChangeListener();
                     // track.getSequenceTrack().loadSequenceAlterations();
                 },
                 // The ERROR function will be called in an error case.
@@ -188,9 +182,16 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 track: track.getUniqueTrackName()
             },
             handleAs: "json",
+	    /*  WARNING: 
+                MUST set preventCache to true, at least with Dojo 1.? (7?) 
+		otherwise with AnnotationChangeNotificationService dojo.xhrGet, dojo will cache the response till page reload
+		(seems to do this regardless of whether web browser caching is enabled or not)
+		result is infinite loop due to recursive createAnnotationChangeListener() call in xhr.load, 
+		  with each loop just receiving cached response without ever going back out to server after first response.
+	     */
 	    preventCache: true, 
             // timeout: 1000 * 1000, // Time in milliseconds
-            timeout: 0,
+            timeout: 0,  // setting timeout to 0 indicates no timeout set
             // The LOAD function will be called on a successful response.
             load: function(response, ioArgs) {
                     if (response == null) {
@@ -271,13 +272,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 var feat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
                 var id = responseFeatures[i].uniquename;
                // if (this.features.featIdMap[id] == null) {
-	// GAH TODO JBrowse1.7 merge: need to restore check on id already existing!
 		if (! this.store.contains(id))  {
                     // note that proper handling of subfeatures requires annotation trackData.json resource to
                     //    set sublistIndex one past last feature array index used by other fields
                     //    (currently Annotations always have 6 fields (0-5), so sublistIndex = 6
                     this.store.insert(feat);
-		console.log("finished addFeatures, feat id: ",  feat.id());
                 }
             }
     },
@@ -462,13 +461,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         var subfeat = ui.originalElement[0].subfeature;
                         console.log(subfeat);
 
-                        if ( ! USE_COMET || !track.comet_working) {
-                            subfeat.set('start', ( subfeat.get('start') + leftDeltaBases ));
-                            subfeat.set('End', ( subfeat.get('end') + rightDeltaBases));
-                            // subfeat[track.subFields["start"]] += leftDeltaBases;
-                            // subfeat[track.subFields["end"]] += rightDeltaBases;
-                        }
-                        else {
                             var fmin = subfeat.get('start') + leftDeltaBases;
                             var fmax = subfeat.get('end') + rightDeltaBases;
                             // var fmin = subfeat[track.subFields["start"]] + leftDeltaBases;
@@ -480,9 +472,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                 timeout: 1000 * 1000, // Time in milliseconds
                                 // The LOAD function will be called on a successful response.
                                 load: function(response, ioArgs) { //
-                                    if ( ! USE_COMET || !track.comet_working)  {
-                                        //TODO
-                                    }
+				    // no-op, relaying on AnnotationChangeNotificationListener comet long-poll for notification
                                 },
                                 // The ERROR function will be called in an error case.
                                 error: function(response, ioArgs) { //
@@ -493,7 +483,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                     return response;
                                 }
                             });
-                        }
                         console.log(subfeat);
                         track.hideAll();
                         track.changed();
@@ -585,10 +574,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         handleAs: "json",
                         timeout: 5000, // Time in milliseconds
                         // The LOAD function will be called on a successful response.
-                        load: function(response, ioArgs) { //
-                                if ( ! USE_COMET || !target_track.comet_working)  {
-                                        //TODO
-                                }
+                        load: function(response, ioArgs) { 
+			    // no-op, relaying on AnnotationChangeNotificationListener comet long-poll for notification
                         },
                         error: function(response, ioArgs) {
                                 target_track.handleError(response);
@@ -752,24 +739,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     timeout: 5000, // Time in milliseconds
                     // The LOAD function will be called on a successful response.
                     load: function(response, ioArgs) { //
+			    // no-op, relaying on AnnotationChangeNotificationListener comet long-poll for notification
                             if (this.verbose_create)  { console.log("Successfully created annotation object: " + response); }
-                            // response processing is now handled by the long poll thread (when using servlet 3.0)
-                            //  if comet-style long pollling is not working, then create annotations based on
-                            //     AnnotationEditorResponse
-                            if ( ! USE_COMET || !target_track.comet_working)  {
-                                    var responseFeatures = response.features;
-                                    for (var rindex in responseFeatures)  {
-                                            var rfeat = responseFeatures[rindex];
-                                            if (this.verbose_create)  { console.log("AnnotationEditorService annot object: ");
-                                            console.log(rfeat); }
-                                            var jfeat = JSONUtils.createJBrowseFeature( rfeat );
-                                            if (this.verbose_create)  { console.log("Converted annot object to JBrowse feature array: " + jfeat.id());
-                                            console.log(jfeat); }
-                                            features_nclist.add(jfeat, jfeat.id());
-                                    }
-                                    target_track.hideAll();
-                                    target_track.changed();
-                            }
                     },
                     // The ERROR function will be called in an error case.
                     error: function(response, ioArgs) { //
@@ -896,20 +867,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 handleAs: "json",
                 timeout: 5000 * 1000, // Time in milliseconds
                 load: function(response, ioArgs) {
-                    if (! USE_COMET || !track.comet_working)  {
-                        var responseFeatures = response.features;
-                        if (!responseFeatures || responseFeatures.length == 0)  {
-                            // if not using comet, or comet not working
-                            // and no features are returned, then they were successfully deleted?
-                            for (var j in uniqueNames)  {
-                                var id_to_delete = uniqueNames[j];
-                                if (this.verbose_delete)  { console.log("server deleted: " + id_to_delete); }
-                                features_nclist.deleteEntry(id_to_delete);
-                            }
-                            track.hideAll();
-                            track.changed();
-                        }
-                    }
+		    // no-op, relaying on AnnotationChangeNotificationListener comet long-poll for notification
                 },
                 // The ERROR function will be called in an error case.
                 error: function(response, ioArgs) { //
@@ -2056,12 +2014,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
             var searchAllRefSeqs = dojo.attr(searchAllRefSeqsCheckbox, "checked");
             if (ok) {
-                    if (AnnotTrack.USE_LOCAL_EDITS)  {
-                            // TODO
-                            track.hideAll();
-                            track.changed();
-                    }
-                    else  {
+
                             dojo.xhrPost( {
                                     postData: '{ "track": "' + trackName + '", "search": { "key": "' + sequenceToolsSelect.value + '", "residues": "' + residues + (!searchAllRefSeqs ? '", "database_id": "' + track.refSeq.name : '') + '"}, "operation": "' + operation + '" }', 
                                     url: context_path + "/AnnotationEditorService",
@@ -2132,7 +2085,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                     }
 
                             });
-                    }
+
             }
         };
 
@@ -2670,7 +2623,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             topfeat = topfeat.parent();
         }
         var featdiv = track.getFeatDiv(topfeat);
-        if (featdiv)  {
+    /*  GAH JBrowse1.7 merge TODO: restore residues overlay (need to get general residues rendering working on top of JBrowse sequence track first 
+    if (featdiv)  {
             //          track.selectionYPosition = $(featdiv).position().top;
             var selectionYPosition = $(featdiv).position().top;
             var scale = track.gview.bpToPx(1);
@@ -2721,6 +2675,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             }
         }
+    */
+
     },
 
     selectionRemoved: function(rec, smanager)  {
