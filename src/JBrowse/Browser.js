@@ -328,7 +328,7 @@ Browser.prototype.initView = function() {
         if( configMenu ) {
             var configLink = new dijitDropDownButton(
                 { className: 'config',
-                  innerHTML: '<span class="icon"></span> Config',
+                  innerHTML: '<span class="icon"></span> Options',
                   title: 'configure JBrowse',
                   dropDown: configMenu
                 });
