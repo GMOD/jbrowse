@@ -1179,6 +1179,7 @@ div.generic_parent-hist {
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
+    background-color: transparent;
 }
 
 .ogsv3-transcript-render  {
@@ -2284,6 +2285,7 @@ div.generic_parent-hist {
     position: absolute;
     height: 16px;
     margin-top: 0px;
+    background-color: transparent;
     /* margin-bottom: 0px; 
        margin-bottom is ignored, 
        since nothing else is positioned relative to bottom of margin?
