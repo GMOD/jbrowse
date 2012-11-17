@@ -1130,7 +1130,7 @@ GenomeView.prototype.scaleMouseOut = function( evt ) {
  * Draws the red line across the work area, or updates it if it already exists.
  */
 GenomeView.prototype.drawVerticalPositionLine = function( parent, evt){
-    var numX = evt.pageX;
+    var numX = evt.pageX + 2;
 
     if( ! this.verticalPositionLine ){
         // if line does not exist, create it
@@ -1141,7 +1141,7 @@ GenomeView.prototype.drawVerticalPositionLine = function( parent, evt){
 
     var line = this.verticalPositionLine;
     line.style.display = 'block';      //make line visible
-    line.style.left = numX+2+'px'; //set location on screen
+    line.style.left = numX+'px'; //set location on screen
 
     this.drawBasePairLabel({ name: 'single', offset: 0, x: numX, parent: parent });
 };
