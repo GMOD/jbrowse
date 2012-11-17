@@ -228,9 +228,10 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         var chrName = query.ref;
         var min = query.start;
         var max = query.end;
-        var basesPerSpan = query.basesPerSpan || 1;
 
-        var v = this.getView( basesPerSpan );
+        var v = query.basesPerSpan ? this.getView( 1/query.basesPerSpan ) :
+                       query.scale ? this.getView( scale )                :
+                                     this.getView( 1 );
 
         if( !v ) {
             endCallback();

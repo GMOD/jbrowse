@@ -1209,6 +1209,7 @@ div.generic_parent-hist {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
+    background-color: transparent;
 }
 
 .ogsv3-CDS, 
@@ -2343,6 +2344,7 @@ div.generic_parent-hist {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
+    background-color: transparent;
 /* not needed?  residues overlay is on .annot, so that's where text selection needs to be disabled
   -moz-user-select: none;
   -khtml-user-select: none;
@@ -2420,7 +2422,8 @@ div.generic_parent-hist {
     position: absolute;
     height: 16px;
     z-index: 100;
-    background-image: url('img/exclamation_circle_orange.png'); 
+    background-image: url('../img/exclamation_circle_orange.png'); 
+/*    background-image: url('img/exclamation_circle_orange.png');  */
 /*    background-image: url('img/warning_exclamation_small.png'); */
 /*    background-image: url('img/warning_exclamation.png');  */
 /*    background-image: url('img/marker_rounded_red.png'); */

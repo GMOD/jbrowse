@@ -337,6 +337,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             }
         }
 
+/*
         // try to make a wholeCDS if we don't have one
         if( ! wholeCDS ) {
             wholeCDS = (function() {
@@ -361,6 +362,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 }
             }).call(this);
         }
+*/
 
         if (wholeCDS) {
             var cdsStart = wholeCDS.get('start');

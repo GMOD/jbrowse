@@ -54,8 +54,9 @@ var HTMLFeatures = declare( BlockBased, {
         this.defaultPadding = 5;
         this.padding = this.defaultPadding;
 
-        this.glyphHeightPad = 2;
+        this.glyphHeightPad = 1;
         this.levelHeightPad = 2;
+        this.labelPad = 1;
 
         this.trackPadding = args.trackPadding;
 
@@ -120,7 +121,6 @@ HTMLFeatures = declare( HTMLFeatures,
             description: true,
 
             maxFeatureScreenDensity: 0.5,
-            layoutPitchY: 6,
 
             style: {
                 className: "feature2",
@@ -460,7 +460,7 @@ HTMLFeatures = declare( HTMLFeatures,
             dojo.hitch( this, function( stats ) {
 
                 var density          = stats.featureDensity;
-                var histScale        = this.config.style.histScale  || density * this.config.style._defaultHistScale;
+                var histScale        = this.config.style.histScale || density * this.config.style._defaultHistScale;
 
                 // only update the label once for each block size
                 var blockBases = Math.abs( leftBase-rightBase );
@@ -483,7 +483,7 @@ HTMLFeatures = declare( HTMLFeatures,
                 // if we have no histograms, check the predicted density of
                 // features on the screen, and display a message if it's
                 // bigger than maxFeatureScreenDensity
-                else if( stats.featureDensity / scale > this.config.maxFeatureScreenDensity ) {
+                else if( false && stats.featureDensity / scale > this.config.maxFeatureScreenDensity ) {
                     this.fillMessage(
                         blockIndex,
                         block,
@@ -598,6 +598,7 @@ HTMLFeatures = declare( HTMLFeatures,
                                                 destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
                                                 containerStart, containerEnd, destBlock );
                          destBlock.appendChild( featDiv );
+                         this._centerFeatureElements(featDiv);
                      }
             }
         }
@@ -636,6 +637,7 @@ HTMLFeatures = declare( HTMLFeatures,
                 var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                                   containerStart, containerEnd, block );
                 block.appendChild( featDiv );
+                this._centerFeatureElements(featDiv);
             }
         });
 
@@ -697,7 +699,7 @@ HTMLFeatures = declare( HTMLFeatures,
         if (Util.is_ie6) heightTest.appendChild(document.createComment("foo"));
         document.body.appendChild(heightTest);
         glyphBox = domGeom.getMarginBox(heightTest);
-        this.glyphHeight = Math.round(glyphBox.h + this.glyphHeightPad);
+        this.glyphHeight = Math.round(glyphBox.h);
         this.padding = this.defaultPadding + glyphBox.w;
         document.body.removeChild(heightTest);
 
@@ -751,7 +753,7 @@ HTMLFeatures = declare( HTMLFeatures,
         if( typeof featureStart == 'string' )
             featureStart = parseInt(featureStart);
 
-        var levelHeight = this.glyphHeight;
+        var levelHeight = this.glyphHeight + this.glyphHeightPad;
 
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
@@ -765,26 +767,27 @@ HTMLFeatures = declare( HTMLFeatures,
         if( this.showLabels && scale >= labelScale ) {
             if (name) {
 	        featureEnd = Math.max(featureEnd, featureStart + (''+name).length * this.labelWidth / scale );
-                levelHeight += this.labelHeight + 1;
+                levelHeight += this.labelHeight + this.labelPad;
             }
             if( description ) {
                 featureEnd = Math.max( featureEnd, featureStart + (''+description).length * this.labelWidth / scale );
-                levelHeight += this.labelHeight + 1;
+                levelHeight += this.labelHeight + this.labelPad;
             }
         }
         featureEnd += Math.max(1, this.padding / scale);
 
-        var top = this._getLayout( scale ).addRect( uniqueId,
-                                       featureStart,
-                                       featureEnd,
-                                       levelHeight);
+        var top = this._getLayout( scale )
+                      .addRect( uniqueId,
+                                featureStart,
+                                featureEnd,
+                                levelHeight);
 
         var featDiv = this.config.hooks.create(this, feature );
         this._connectFeatDivHandlers( featDiv );
         featDiv.track = this;
         featDiv.feature = feature;
         featDiv.layoutEnd = featureEnd;
-        featDiv.className = (featDiv.className ? featDiv.className + " " : "") + "feature";
+	dojo.addClass(featDiv, "feature");
         // (callbackArgs are the args that will be passed to callbacks
         // in this feature's context menu or left-click handlers)
         featDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
@@ -890,37 +893,18 @@ HTMLFeatures = declare( HTMLFeatures,
             labelDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
         }
 
-        // defer subfeature rendering and modification hooks into a
-        // timeout so that navigation feels faster.
-        window.setTimeout( dojo.hitch( this,
-             function() {
+        if( featwidth > this.config.style.minSubfeatureWidth ) {
+	    this.handleSubFeatures(feature, featDiv, displayStart, displayEnd, block);
+        }
 
-                 if( featwidth > this.config.style.minSubfeatureWidth ) {
-		     this.handleSubFeatures(feature, featDiv, displayStart, displayEnd, block);
-                 }
+        // render the popup menu if configured
+        if( this.config.menuTemplate ) {
+            window.setTimeout( dojo.hitch( this, '_connectMenus', featDiv ), 50+Math.random()*150 );
+        }
 
-                 //ie6 doesn't respect the height style if the div is empty
-                 if (Util.is_ie6) featDiv.appendChild(document.createComment());
-                 //TODO: handle event-handler-related IE leaks
-
-                 /* Temi / AP adding right menu click
-                  AP new schema menuTemplate: an array where everything except
-                  children, popup and url are passed on as properties to a new
-                  dijit.Menu object
-                  */
-
-                 // render the popup menu if configured
-                 if( this.config.menuTemplate ) {
-                     this._connectMenus( featDiv );
-                 }
-                 if( destBlock )
-                     this._centerFeatureElements(featDiv);
-
-                 if ( typeof this.config.hooks.modify == 'function' ) {
-                     this.config.hooks.modify(this, feature, featDiv);
-                 }
-
-        }),50+Math.random()*50);
+        if ( typeof this.config.hooks.modify == 'function' ) {
+            this.config.hooks.modify(this, feature, featDiv);
+        }
 
         return featDiv;
     },
@@ -935,7 +919,7 @@ HTMLFeatures = declare( HTMLFeatures,
                                       displayStart, displayEnd, block );
             }
         }
-    }, 
+    },
 
     /**
      * Vertically centers all the child elements of a feature div.
@@ -982,7 +966,6 @@ HTMLFeatures = declare( HTMLFeatures,
         on( featDiv,  'mouseover', refreshMenu );
         if( featDiv.labelDiv )
             on( featDiv.labelDiv,  'mouseover', refreshMenu );
-        dojo.connect( featDiv.contextMenu, 'onMouseMove', refreshMenu );
     },
 
     _refreshMenu: function( featDiv ) {
@@ -1031,18 +1014,34 @@ HTMLFeatures = declare( HTMLFeatures,
         var subStart = subfeature.get('start');
         var subEnd = subfeature.get('end');
         var featLength = displayEnd - displayStart;
-
-        var subDiv = document.createElement("div");
-
         var type = subfeature.get('type');
-        subDiv.className = (this.config.style.subfeatureClasses||{})[type] || this.config.style.className + '-' + type;
+	var className;
+	if (this.config.style.subfeatureClasses) {
+	    className = this.config.style.subfeatureClasses[type];
+	    // if no class mapping specified for type, default to "{parentclass}-{type}"
+	    if (className === undefined) { className = this.config.style.className + '-' + type; }
+	    // if subfeatureClasses specifies that subfeature type explicitly maps to null className 
+	    //     then don't render the feature        
+	    else if (className === null)  { 
+		className = this.config.style.className + '-' + type; 
+		return ; 
+	    }
+	}
+	else {
+	    // if no config.style.subfeatureClasses to specify subfeature class mapping, default to "{parentclass}-{type}"
+	    className = this.config.style.className + '-' + type; 
+	}
+        var subDiv = document.createElement("div");
+	dojo.addClass(subDiv, "subfeature");
+        dojo.addClass(subDiv, className);
+
         switch ( subfeature.get('strand') ) {
         case 1:
         case '+':
-            subDiv.className += " plus-" + subDiv.className; break;
+	    dojo.addClass(subDiv, "plus-" + className); break;
         case -1:
         case '-':
-            subDiv.className += " minus-" + subDiv.className; break;
+            dojo.addClass(subDiv, "minus-" + className); break;
         }
 
         // if the feature has been truncated to where it doesn't cover
@@ -1067,9 +1066,16 @@ HTMLFeatures = declare( HTMLFeatures,
     },
 
     _getLayout: function( scale ) {
+
+        //determine the glyph height, arrowhead width, label text dimensions, etc.
+        if (!this.haveMeasurements) {
+            this.measureStyles();
+            this.haveMeasurements = true;
+        }
+
         // create the layout if we need to, and we can
-        if( ( ! this.layout || this.layout.pitchX != 4/scale ) && scale )
-            this.layout = new Layout({pitchX: 4/scale, pitchY: this.layoutPitchY || this.config.layoutPitchY });
+        if( ( ! this.layout || this.layout.pitchX != 4/scale ) && scale  )
+            this.layout = new Layout({pitchX: 4/scale, pitchY: this.config.layoutPitchY || (this.glyphHeight + this.glyphHeightPad) });
 
         return this.layout;
     },

@@ -389,8 +389,8 @@ Browser.prototype.initView = function() {
 
     // hook up GenomeView
     this.view = this.viewElem.view =
-        new GenomeView(this, this.viewElem, 250, this.refSeq, 1/200,
-                       this.config.browserRoot);
+        new GenomeView(this, this.viewElem, 250, this.refSeq, 1/200 );
+
     dojo.connect( this.view, "onFineMove",   this, "onFineMove"   );
     dojo.connect( this.view, "onCoarseMove", this, "onCoarseMove" );
 
@@ -625,6 +625,7 @@ Browser.prototype._calculateClientStats = function() {
                 '+'
             ),
         'tracks-count': this.config.tracks.length,
+        'plugins': dojof.keys( this.plugins ).sort().join(','),
 
         // screen geometry
         'scn-h': scn ? scn.height : null,

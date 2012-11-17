@@ -3,6 +3,7 @@ define( [
             'jquery',
             'jqueryui/draggable',
             'jqueryui/droppable',
+            'jqueryui/resizable', 
             'dijit/Menu',
             'dijit/MenuItem',
             'dijit/Dialog',
@@ -14,7 +15,7 @@ define( [
             'JBrowse/Model/SimpleFeature',
             'JBrowse/Util'
         ],
-        function( declare, $, draggable, droppable, dijitMenu, dijitMenuItem, dijitDialog, DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SimpleFeature, Util ) {
+        function( declare, $, draggable, droppable, resizable, dijitMenu, dijitMenuItem, dijitDialog, DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SimpleFeature, Util ) {
 
 var listeners = [];
 
@@ -99,8 +100,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.verbose_mouseenter = false;
         this.verbose_mouseleave = false;
         this.verbose_render = false;
-
-//        this.inherited( arguments );
 
         var track = this;
         // for AnnotTrack, features currently MUST be an NCList
@@ -193,8 +192,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     createAnnotationChangeListener: function() {
         var track = this;
-        var features = this.features;
-
         if (listeners[track.getUniqueTrackName()]) {
             if (listeners[track.getUniqueTrackName()].fired == -1) {
                     listeners[track.getUniqueTrackName()].cancel();
@@ -293,11 +290,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     addFeatures: function(responseFeatures) {
             for (var i = 0; i < responseFeatures.length; ++i) {
-    //          var featureArray = JSONUtils.createJBrowseFeature(responseFeatures[i], this.fields, this.subFields);
                 var feat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
                 var id = responseFeatures[i].uniquename;
-               // if (this.features.featIdMap[id] == null) {
-		if (! this.store.contains(id))  {
+		if (! this.store.getFeatureById(id))  {
                     // note that proper handling of subfeatures requires annotation trackData.json resource to
                     //    set sublistIndex one past last feature array index used by other fields
                     //    (currently Annotations always have 6 fields (0-5), so sublistIndex = 6
@@ -309,7 +304,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     deleteFeatures: function(responseFeatures) {
         for (var i = 0; i < responseFeatures.length; ++i) {
             var id_to_delete = responseFeatures[i].uniquename;
-            this.store.delete(id_to_delete);
+            this.store.deleteFeatureById(id_to_delete);
         }
     },
 
@@ -436,7 +431,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         if (verbose_resize || track.verbose_mousedown)  { console.log("AnnotTrack.onAnnotMouseDown called"); }
         event = event || window.event;
         var elem = (event.currentTarget || event.srcElement);
-        var featdiv = DraggableFeatureTrack.prototype.getLowestFeatureDiv(elem);
+        // need to redo getLowestFeatureDiv
+	// var featdiv = DraggableFeatureTrack.prototype.getLowestFeatureDiv(elem);
+	var featdiv = track.getLowestFeatureDiv(elem);
+
         if (featdiv && (featdiv != null))  {
             if (dojo.hasClass(featdiv, "ui-resizable"))  {
                 if (verbose_resize)  {
@@ -450,9 +448,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     console.log(featdiv);
                 }
                 var scale = track.gview.bpToPx(1);
+
+		var gridvals = false;
                 // if zoomed int to showing sequence residues, then make edge-dragging snap to interbase pixels
-                if (scale === track.browserParams.charWidth) { var gridvals = [track.browserParams.charWidth, 1]; }
-                else  { var gridvals = false; }
+
+		// GAH TODO JBrowse1.7 merge -- restore grid snap when resolve charWidth
+                // if (scale === track.browserParams.charWidth) { var gridvals = [track.browserParams.charWidth, 1]; }
+                // else  { var gridvals = false; }
+
                 $(featdiv).resizable( {
                     handles: "e, w",
                     helper: "ui-resizable-helper",
@@ -534,13 +537,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         //   event.stopPropagation();
     },
 
-    addToAnnotation: function(annot, feats_to_add)  {
+    /* feature_records ==> { feature: the_feature, track: track_feature_is_from } */
+    addToAnnotation: function(annot, feature_records)  {
         var target_track = this;
 
                 var subfeats = new Array();
                 var allSameStrand = 1;
-                for (var i = 0; i < feats_to_add.length; ++i)  { 
-                        var feat = feats_to_add[i];
+                for (var i = 0; i < feature_records.length; ++i)  { 
+                    var feature_record = feature_records[i];
+		    var feat = feature_record.feature;
                         var isSubfeature = !! feat.parent();  // !! is shorthand for returning true if value is defined and non-null
                         var annotStrand = annot.get('strand');
                         if (isSubfeature)  {
@@ -555,7 +560,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                 subfeats.push(featToAdd);
                         }
                         else  {
-                                var source_track = feat.track;
+                            var source_track = feature_record.track;
                                 // if (source_track.fields["subfeatures"])  {
                                 if ( feat.get('subfeatures') ) {
                                     // var subs = feat[source_track.fields["subfeatures"]];
@@ -677,7 +682,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     createAnnotations: function(selection_records)  {
             var target_track = this;
-            var features_nclist = target_track.features;
             var featuresToAdd = new Array();
             var parentFeatures = new Object();
             for (var i in selection_records)  {
@@ -729,33 +733,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                             }
                     }
             }
-
-            /*
-            {
-             
-       
-                    var source_track = dragfeat.track;
-                    if (this.verbose_create)  {
-                            console.log("creating annotation based on feature: ");
-                            console.log(dragfeat);
-                    }
-                    var dragdiv = source_track.getFeatDiv(dragfeat);
-
-
-                    var newfeat = JSONUtils.convertToTrack(dragfeat, source_track, target_track);
-                    var source_fields = source_track.fields;
-                    var source_subFields = source_track.subFields;
-                    var target_fields = target_track.fields;
-                    var target_subFields = target_track.subFields;
-                    if (this.verbose_create)  {
-                            console.log("local feat conversion: " );
-                            console.log(newfeat);
-                    }
-                    var afeat = JSONUtils.createApolloFeature(source_track.attrs, dragfeat, "transcript");
-                    featuresToAdd.push(afeat);
-
-            }
-            */
 
             dojo.xhrPost( {
                     postData: '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_transcript" }',
@@ -861,7 +838,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     deleteAnnotations: function(selection_records) {
         var track = this;
-//        var features_nclist = track.features;
         var features = '"features": [';
         var uniqueNames = [];
         for (var i in selection_records)  {
@@ -1683,7 +1659,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     undoSelectedFeatures: function(annots) {
         var track = this;
-        var features_nclist = track.features;
         var features = '"features": [';
         for (var i in annots)  {
             var annot = AnnotTrack.getTopLevelAnnotation(annots[i]);
@@ -1744,7 +1719,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     redoSelectedFeatures: function(annots) {
         var track = this;
-        var features_nclist = track.features;
         var features = '"features": [';
         for (var i in annots)  {
             var annot = AnnotTrack.getTopLevelAnnotation(annots[i]);

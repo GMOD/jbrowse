@@ -43,7 +43,7 @@ var locationThumbMover = declare( dndMove.constrainedMoveable, {
  * @class
  * @constructor
  */
-var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browserRoot) {
+var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
 
     // keep a reference to the main browser object
     this.browser = browser;
@@ -60,8 +60,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel, browse
     this.ref = refseq;
     //current scale, in pixels per bp
     this.pxPerBp = zoomLevel;
-    //path prefix for static assets (e.g., cursors)
-    this.browserRoot = browserRoot ? browserRoot : "";
+
     //width, in pixels, of the vertical stripes
     this.stripeWidth = stripeWidth;
     //the page element that the GenomeView lives in
@@ -1100,7 +1099,7 @@ GenomeView.prototype.scaleMouseOut = function( evt ) {
  * Draws the red line across the work area, or updates it if it already exists.
  */
 GenomeView.prototype.drawVerticalPositionLine = function( parent, evt){
-    var numX = evt.pageX;
+    var numX = evt.pageX + 2;
 
     if( ! this.verticalPositionLine ){
         // if line does not exist, create it
@@ -1111,7 +1110,7 @@ GenomeView.prototype.drawVerticalPositionLine = function( parent, evt){
 
     var line = this.verticalPositionLine;
     line.style.display = 'block';      //make line visible
-    line.style.left = numX+2+'px'; //set location on screen
+    line.style.left = numX+'px'; //set location on screen
 
     this.drawBasePairLabel({ name: 'single', offset: 0, x: numX, parent: parent });
 };
@@ -1690,7 +1689,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
                                           containerStart, containerEnd);
                       });
 
-    this.browser.publish( '/jbrowse/v1/v/redraw' );
+    this.browser.publish( '/jbrowse/v1/n/redraw' );
 };
 
 /**
