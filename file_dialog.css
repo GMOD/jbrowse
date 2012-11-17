@@ -1,0 +1,22 @@
+.fileDialog label {
+    font-weight: bold;
+    padding: 0 0.5em;
+}
+.fileDialog table {
+    margin: 1em;
+}
+.fileDialog table h2 {
+    text-align: center;
+    margin: 0.3em 0 1em 0;
+}
+.fileDialog table hr {
+    margin: 0;
+}
+.fileDialog td {
+    vertical-align: middle;
+}
+.fileDialog div.aux {
+    text-align: center;
+    margin-bottom: 1em;
+}
+
