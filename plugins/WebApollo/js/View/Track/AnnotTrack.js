@@ -792,7 +792,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var parentFeature;
             for( var i in feats )  {
                     var feat = feats[i];
-                    var is_subfeature = !! feat.get('parent') ;  // !! is shorthand for returning true if value is defined and non-null
+                    var is_subfeature = !! feat.parent() ;  // !! is shorthand for returning true if value is defined and non-null
                     if (is_subfeature) {
                             subfeaturesToAdd.push(feat);
                     }
@@ -1229,17 +1229,19 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.editCommentsForSelectedFeatures(selected);
     },
 
-    editCommentsForSelectedFeatures: function(selection) {
+    editCommentsForSelectedFeatures: function(records) {
             var track = this;
-            var annot = AnnotTrack.getTopLevelAnnotation(selection[0].feature);
+	var record = records[0];
+	var seltrack = record.track;
+            var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
             // just checking to ensure that all features in selection are from this track
-            if (annot.track !== track)  {
+            if (seltrack !== track)  {
                     return;
             }
             var content = dojo.create("div");
             // if annotation has parent, get comments for parent
-            if( annot.get('parent') ) {
-                    var parentContent = this.createEditCommentsPanelForFeature( annot.get('parent'), track.getUniqueTrackName());
+            if( annot.parent()) {
+                var parentContent = this.createEditCommentsPanelForFeature( annot.parent(), track.getUniqueTrackName());
                     dojo.attr(parentContent, "class", "parent_comments_div");
                     dojo.place(parentContent, content);
             }
@@ -1495,8 +1497,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         var content = dojo.create("div");
         // if annotation has parent, get comments for parent
-        if ( annot.get('parent') ) {
-            var parentContent = this.createEditDbxrefsPanelForFeature( annot.get("parent"), track.getUniqueTrackName());
+        if ( annot.parent() ) {
+            var parentContent = this.createEditDbxrefsPanelForFeature( annot.parent(), track.getUniqueTrackName());
             dojo.attr(parentContent, "class", "parent_dbxrefs_div");
             dojo.place(parentContent, content);
         }
@@ -2647,10 +2649,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var track = this;
         // want to get child of block, since want position relative to block
         // so get top-level feature div (assumes top level feature is always rendered...)
-        var topfeat = feat;
-        while (topfeat.parent())  {
-            topfeat = topfeat.parent();
-        }
+        var topfeat = AnnotTrack.getTopLevelAnnotation(feat);
         var featdiv = track.getFeatDiv(topfeat);
     /*  GAH JBrowse1.7 merge TODO: restore residues overlay (need to get general residues rendering working on top of JBrowse sequence track first 
     if (featdiv)  {
