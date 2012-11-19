@@ -38,11 +38,11 @@ use FileSlurping 'slurp';
             9000,
             1,
             'example',
-            undef,
-            'gene',
-            undef,
+            'ctgA',
             'EDEN',
-            'EDEN'
+            'EDEN',
+            'protein kinase',
+            'gene'
         ],
         'got the right genes trackdata'
       ) or diag explain $genes_trackdata->{intervals}{nclist}[0];
@@ -106,11 +106,11 @@ use FileSlurping 'slurp';
             9000,
             1,
             'example',
-            undef,
-            'gene',
-            undef,
+            'ctgA',
             'EDEN',
-            'EDEN'
+            'EDEN',
+            'protein kinase',
+            'gene',
         ],
         'got the right genes trackdata'
       ) or diag explain $genes_trackdata->{intervals}{nclist}[0];

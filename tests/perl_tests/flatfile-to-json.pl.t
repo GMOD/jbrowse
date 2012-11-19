@@ -264,12 +264,9 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
                        'Start',
                        'End',
                        'Strand',
-                       'Source',
-                       'Phase',
-                       'Type',
-                       'Score',
                        'Seq_id',
-                       'Name'
+                       'Name',
+                       'Score'
                        ],
                    'isArrayAttr' => {
                        }
