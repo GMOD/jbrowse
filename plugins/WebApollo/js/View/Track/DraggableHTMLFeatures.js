@@ -79,7 +79,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
         this.verbose_selection_notification = false;
         this.verbose_drag = true;
 
-        this.feature_context_menu = null;
+        this.feature_context_menu = null; 
+
+	/** hack to determine which tracks to apply edge matching to 
+	    would rather do a check for whether track is instance of DraggableHTMLFeatures (or possibly HTMLFeatures), 
+	        but use of dojo.declare() for classes means track object's class is actually base Object. 
+	*/
+	this.edge_matching_enabled = true;
     },
 
 
