@@ -2731,8 +2731,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             //     (in case zoomed in to base pair resolution and the residues overlay is being displayed)
             $(".annot-sequence", this.div).css('display', 'none');
         }
-    },
+    }
 
+    // , 
     // endZoom: function(destScale, destBlockBases) {
     //     DraggableFeatureTrack.prototype.endZoom.call(this, destScale, destBlockBases);
     // };
