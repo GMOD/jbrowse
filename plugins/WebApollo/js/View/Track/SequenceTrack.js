@@ -909,7 +909,7 @@ return declare( DraggableFeatureTrack,
      * sequence alteration annotation ADD command received by a ChangeNotificationListener,
      *      so telling SequenceTrack to add to it's SeqFeatureStore
      */
-    addSequenceAlterations: function(annots)  {
+    annotationsAddedNotification: function(annots)  {
         console.log("SequenceTrack.addSequenceAlterations() called");
         var track = this;
         // add to SeqFeatureStore
@@ -935,7 +935,7 @@ return declare( DraggableFeatureTrack,
      * sequence alteration annotation DELETE command received by a ChangeNotificationListener,
      *      so telling SequenceTrack to remove from it's SeqFeatureStore
      */
-    removeSequenceAlterations: function(annots)  {
+    annotationsDeletedNotification: function(annots)  {
         console.log("SequenceTrack.removeSequenceAlterations() called");
         var track = this;
         // remove from SeqFeatureStore
@@ -954,6 +954,15 @@ return declare( DraggableFeatureTrack,
         track.changed();
     },
 
+    /*
+     *  sequence alteration UPDATE command received by a ChangeNotificationListener
+     *  currently handled as if receiving DELETE followed by ADD command
+     */
+    annotationsUpdatedNotification: function(annots)  {
+	this.annotationsDeletedNotification(annots);
+	this.annotationAddedNotification(annots);
+    },
+    
     storedFeatureCount: function(start, end)  {
         // get accurate count of features loaded (should do this within the XHR.load() function
         var track = this;
