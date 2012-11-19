@@ -45,7 +45,7 @@ return declare( null,
         this.refSeq = args.refSeq;
         this.name = args.label || this.config.label;
         this.key = args.key || this.config.key || this.name;
-        this.loaded = false;
+
         this._changedCallback = args.changeCallback || function(){};
         this.height = 0;
         this.shown = true;
