@@ -5,7 +5,8 @@ define( [
             'jqueryui/droppable',
             'jqueryui/resizable', 
             'dijit/Menu',
-            'dijit/MenuItem',
+            'dijit/MenuItem', 
+            'dijit/MenuSeparator', 
             'dijit/Dialog',
             'WebApollo/View/Track/DraggableHTMLFeatures',
             'WebApollo/FeatureSelectionManager',
@@ -15,7 +16,7 @@ define( [
             'JBrowse/Model/SimpleFeature',
             'JBrowse/Util'
         ],
-        function( declare, $, draggable, droppable, resizable, dijitMenu, dijitMenuItem, dijitDialog, DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SimpleFeature, Util ) {
+        function( declare, $, draggable, droppable, resizable, dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitDialog, DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SimpleFeature, Util ) {
 
 var listeners = [];
 
@@ -107,7 +108,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 //        this.features = this.featureStore.nclist;
 //        var features = this.features;
 
-//        this.initAnnotContextMenu();J
+        this.initAnnotContextMenu();
 //        this.initNonAnnotContextMenu();
 //        this.initPopupDialog();
 
@@ -155,8 +156,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     _defaultConfig: function() {
-	var track = this;
+	var thisConfig = this.inherited(arguments);
+	thisConfig.menuTemplate = null;
+	return thisConfig;
+	/*
 	var superConfig = this.inherited(arguments);
+        var track = this;
 	var superMenuTemplate = superConfig.menuTemplate;
         var thisConfig =  Util.deepUpdate(
             // dojo.clone( this.inherited(arguments) ),
@@ -175,7 +180,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	    thisMenuTemplate.push(superMenuTemplate[i]);
 	}
 	console.log(thisMenuTemplate);
-	return thisConfig;
+*/
+
     },
 
     setViewInfo: function( genomeView, numBlocks,
@@ -229,32 +235,34 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                             console.log("ADD command from server: ");
                                             console.log(changeData);
                                             if (changeData.sequenceAlterationEvent) {
-                                                    track.getSequenceTrack().addSequenceAlterations(changeData.features);
+                                                    track.getSequenceTrack().annotationsAddedNotification(changeData.features);
                                             }
                                             else {
-                                                    track.addFeatures(changeData.features);
+                                                    track.annotationsAddedNotification(changeData.features);
                                             }
                                     }
                                     else if (changeData.operation == "DELETE") {
                                             console.log("DELETE command from server: ");
                                             console.log(changeData);
                                             if (changeData.sequenceAlterationEvent) {
-                                                    track.getSequenceTrack().removeSequenceAlterations(changeData.features);
+                                                    track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
                                             }
                                             else {
-                                                    track.deleteFeatures(changeData.features);
+                                                    track.annotationsDeletedNotification(changeData.features);
                                             }
                                     }
                                     else if (changeData.operation == "UPDATE") {
                                             console.log("UPDATE command from server: ");
                                             console.log(changeData);
                                             if (changeData.sequenceAlterationEvent) {
-                                                    track.getSequenceTrack().removeSequenceAlterations(changeData.features);
-                                                    track.getSequenceTrack().addSequenceAlterations(changeData.features);
+						track.getSequenceTrack().annotationsUpdatedNotification(changeData.features);
+                                                 //   track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
+                                                 //   track.getSequenceTrack().annotationsAddedNotification(changeData.features);
                                             }
                                             else {
-                                                    track.deleteFeatures(changeData.features);
-                                                    track.addFeatures(changeData.features);
+						track.annotationsUpdatedNotification(changeData.features);
+                                                //    track.annotationsDeletedNotification(changeData.features);
+                                                //    track.annotationsAddedNotification(changeData.features);
                                             }
                                     }
                                     else  {
@@ -288,7 +296,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     },
 
-    addFeatures: function(responseFeatures) {
+    /** 
+     *  received notification from server ChangeNotificationListener that annotations were added
+     */
+    annotationsAddedNotification: function(responseFeatures) {
             for (var i = 0; i < responseFeatures.length; ++i) {
                 var feat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
                 var id = responseFeatures[i].uniquename;
@@ -301,11 +312,23 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
     },
 
-    deleteFeatures: function(responseFeatures) {
+    /** 
+     *  received notification from server ChangeNotificationListener that annotations were deleted
+     */
+    annotationsDeletedNotification: function(responseFeatures) {
         for (var i = 0; i < responseFeatures.length; ++i) {
             var id_to_delete = responseFeatures[i].uniquename;
             this.store.deleteFeatureById(id_to_delete);
         }
+    },
+
+    /*
+     *  received notification from server ChangeNotificationListener that annotations were updated
+     *  currently handled as if receiving DELETE followed by ADD command
+     */
+    annotationsUpdatedNotification: function(annots)  {
+	this.annotationsDeletedNotification(annots);
+	this.annotationsAddedNotification(annots);
     },
 
     /**
@@ -320,7 +343,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var featDiv = this.inherited( arguments );
 
         if (featDiv && featDiv != null)  {
-            // annot_context_menu.bindDomNode(featDiv);
+            annot_context_menu.bindDomNode(featDiv);
             $(featDiv).droppable(  {
                 accept: ".selected-feature",   // only accept draggables that are selected feature divs
                 tolerance: "pointer",
@@ -757,8 +780,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     duplicateSelectedFeatures: function() {
         var selected = this.selectionManager.getSelection();
+	var selfeats = this.selectionManager.getSelectedFeatures();
         this.selectionManager.clearSelection();
-        this.duplicateAnnotations(selected);
+        this.duplicateAnnotations(selfeats);
     },
 
     duplicateAnnotations: function(feats)  {
@@ -890,8 +914,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.mergeAnnotations(selected);
     },
 
-    mergeAnnotations: function(annots) {
+    mergeAnnotations: function(selection) {
         var track = this;
+	var annots = []; 
+	for (var i=0; i<selection.length; i++)  { 
+	    annots[i] = selection[i].feature; 
+	}
 
         var sortedAnnots = track.sortAnnotationsByLocation(annots);
         var leftAnnot = sortedAnnots[0];
@@ -1151,11 +1179,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.setLongestORFForSelectedFeatures(selected);
     },
 
-    setLongestORFForSelectedFeatures: function(annots) {
+    setLongestORFForSelectedFeatures: function(selection) {
         var track = this;
         var features = '"features": [';
-        for (var i in annots)  {
-            var annot = AnnotTrack.getTopLevelAnnotation(annots[i]);
+        for (var i in selection)  {
+            var annot = AnnotTrack.getTopLevelAnnotation(selection[i].feature);
             var uniqueName = annot.id();
             // just checking to ensure that all features in selection are from this track
             if (annot.track === track)  {
@@ -1197,9 +1225,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.editCommentsForSelectedFeatures(selected);
     },
 
-    editCommentsForSelectedFeatures: function(annots) {
+    editCommentsForSelectedFeatures: function(selection) {
             var track = this;
-            var annot = AnnotTrack.getTopLevelAnnotation(annots[0]);
+            var annot = AnnotTrack.getTopLevelAnnotation(selection[0].feature);
             // just checking to ensure that all features in selection are from this track
             if (annot.track !== track)  {
                     return;
@@ -1454,9 +1482,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.editDbxrefsForSelectedFeatures(selected);
     },
 
-    editDbxrefsForSelectedFeatures: function(annots) {
+    editDbxrefsForSelectedFeatures: function(selection) {
         var track = this;
-        var annot = AnnotTrack.getTopLevelAnnotation(annots[0]);
+        var annot = AnnotTrack.getTopLevelAnnotation(selection[0].feature);
         // just checking to ensure that all features in selection are from this track
         if ( annot.track !== track )  {
             return;
@@ -1657,14 +1685,17 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.undoSelectedFeatures(selected);
     },
 
-    undoSelectedFeatures: function(annots) {
+    undoSelectedFeatures: function(records) {
         var track = this;
         var features = '"features": [';
-        for (var i in annots)  {
-            var annot = AnnotTrack.getTopLevelAnnotation(annots[i]);
-            var uniqueName = annot.id();
+        for (var i in records)  {
+	    var record = records[i];
+	    var selfeat = record.feature;
+	    var seltrack = record.track;
+            var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
+            var uniqueName = topfeat.id();
             // just checking to ensure that all features in selection are from this track
-            if (annot.track === track)  {
+            if (seltrack === track)  {
                 var trackdiv = track.div;
                 var trackName = track.getUniqueTrackName();
 
@@ -1717,14 +1748,17 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.redoSelectedFeatures(selected);
     },
 
-    redoSelectedFeatures: function(annots) {
+    redoSelectedFeatures: function(records) {
         var track = this;
         var features = '"features": [';
-        for (var i in annots)  {
-            var annot = AnnotTrack.getTopLevelAnnotation(annots[i]);
-            var uniqueName = annot.id();
+        for (var i in records)  {
+	    var record = records[i];
+	    var selfeat = record.feature;
+	    var seltrack = record.track;
+            var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
+            var uniqueName = topfeat.id();
             // just checking to ensure that all features in selection are from this track
-            if (annot.track === track)  {
+            if (seltrack === track)  {
                 var trackdiv = track.div;
                 var trackName = track.getUniqueTrackName();
 
@@ -2119,19 +2153,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.gview.zoomBackOut(event);
     },
 
-    createAnnotation: function()  {
-
-    },
-
-    // AnnotTrack.prototype.addToAnnotation
-    // AnnotTrack.prototype.deleteFromAnnotation = function()  { }
-    // handle potential effect on parent?
-    deleteAnnotation: function()  {
-    },
-
-    changeAnnotationLocation: function()  {
-    },
-
     handleError: function(response) {
         console.log("ERROR: ");
         console.log(response);  // in Firebug, allows retrieval of stack trace, jump to code, etc.
@@ -2275,7 +2296,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                     }
                             } ));
                             contextMenuItems["get_sequence"] = index++;
-                            annot_context_menu.addChild(new dijitMenuItem( {
+/*                            annot_context_menu.addChild(new dijitMenuItem( {
                                     label: "Zoom to base level",
                                     onClick: function(event) {
                                             if (thisObj.getMenuItem("zoom_to_base_level").get("label") == "Zoom to base level") {
@@ -2287,6 +2308,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                     }
                             } ));
                             contextMenuItems["zoom_to_base_level"] = index++;
+*/
                             annot_context_menu.addChild(new dijitMenuItem( {
                                     label: "..."
                             } ));
@@ -2380,7 +2402,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.updateEditDbxrefsMenuItem();
         this.updateUndoMenuItem();
         this.updateRedoMenuItem();
-        this.updateZoomToBaseLevelMenuItem();
+//        this.updateZoomToBaseLevelMenuItem();
         this.updateDuplicateMenuItem();
     },
 
@@ -2392,7 +2414,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             return;
         }
         menuItem.set("disabled", false);
-        var selectedFeat = selected[0];
+        var selectedFeat = selected[0].feature;
         if (selectedFeat.parent()) {
             selectedFeat = selectedFeat.parent();
         }
@@ -2411,9 +2433,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             menuItem.set("disabled", true);
             return;
         }
-        var strand = this.getStrand(selected[0]);
+        var strand = this.getStrand(selected[0].feature);
         for (var i = 1; i < selected.length; ++i) {
-            if (this.getStrand(selected[i]) != strand) {
+            if (this.getStrand(selected[i].feature) != strand) {
                     menuItem.set("disabled", true);
                     return;
             }
@@ -2428,9 +2450,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             menuItem.set("disabled", true);
             return;
         }
-        var parent = selected[0].parent();
+        var parent = selected[0].feature.parent();
         for (var i = 1; i < selected.length; ++i) {
-            if (selected[i].parent() != parent) {
+            if (selected[i].feature.parent() != parent) {
                 menuItem.set("disabled", true);
                 return;
             }
@@ -2455,9 +2477,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     updateEditCommentsMenuItem: function() {
         var menuItem = this.getMenuItem("edit_comments");
         var selected = this.selectionManager.getSelection();
-        var parent = AnnotTrack.getTopLevelAnnotation(selected[0]);
+        var parent = AnnotTrack.getTopLevelAnnotation(selected[0].feature);
         for (var i = 1; i < selected.length; ++i) {
-            if (AnnotTrack.getTopLevelAnnotation(selected[i]) != parent) {
+            if (AnnotTrack.getTopLevelAnnotation(selected[i].feature) != parent) {
                 menuItem.set("disabled", true);
                 return;
             }
@@ -2468,9 +2490,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     updateEditDbxrefsMenuItem: function() {
         var menuItem = this.getMenuItem("edit_dbxrefs");
         var selected = this.selectionManager.getSelection();
-        var parent = AnnotTrack.getTopLevelAnnotation(selected[0]);
+        var parent = AnnotTrack.getTopLevelAnnotation(selected[0].feature);
         for (var i = 1; i < selected.length; ++i) {
-            if (AnnotTrack.getTopLevelAnnotation(selected[i]) != parent) {
+            if (AnnotTrack.getTopLevelAnnotation(selected[i].feature) != parent) {
                 menuItem.set("disabled", true);
                 return;
             }
@@ -2511,9 +2533,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     updateDuplicateMenuItem: function() {
         var menuItem = this.getMenuItem("duplicate");
         var selected = this.selectionManager.getSelection();
-        var parent = AnnotTrack.getTopLevelAnnotation(selected[0]);
+        var parent = AnnotTrack.getTopLevelAnnotation(selected[0].feature);
         for (var i = 1; i < selected.length; ++i) {
-            if (AnnotTrack.getTopLevelAnnotation(selected[i]) != parent) {
+            if (AnnotTrack.getTopLevelAnnotation(selected[i].feature) != parent) {
                 menuItem.set("disabled", true);
                 return;
             }
@@ -2715,13 +2737,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     //     DraggableFeatureTrack.prototype.endZoom.call(this, destScale, destBlockBases);
     // };
 
-    getTopLevelAnnotation: function(annotation) {
-        while( annotation.parent() ) {
-            annotation = annotation.parent();
-        }
-        return annotation;
-    }
+
 });
+
+AnnotTrack.getTopLevelAnnotation = function(annotation) {
+    while( annotation.parent() ) {
+        annotation = annotation.parent();
+    }
+    return annotation;
+}
 
 // setting up selection exclusiveOr --
 //    if selection is made in annot track, any selection in other tracks is deselected, and vice versa,
