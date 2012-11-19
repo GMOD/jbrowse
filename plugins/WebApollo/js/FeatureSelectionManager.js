@@ -135,7 +135,7 @@ return declare( null,
     },
 
     /**
-     * returns array of currently selected features
+     * returns array of currently selected feature records { feature: feature, track: track }
      * this is a (shallow) copy of the selected array, therefore a snapshot of what is selected 
      *     as of when getSelection is called
      *  so if selection changes, previous value returned from getSelection will not change
@@ -145,6 +145,18 @@ return declare( null,
         //    return this.selected.slice(0);  // return shallow copy of array
         return this.selected.slice(0, this.selected.length);  // return shallow copy of array
     },
+
+    /**
+     *  since getSelection now returns feature records { feature: feature, track: track }, 
+     *  also want a method that returns only the feautures (not wrapped in records)
+     */
+    getSelectedFeatures: function()  {
+	var selfeats = new Array(this.selected.length);
+	for (var i=0; i<this.selected.length; i++)  {
+	    selfeats[i] = this.selected[i].feature;
+	}
+	return selfeats;
+    }, 
 
     addListener: function( listener )  {
 	var index = dojo.indexOf(this.listeners, listener);
