@@ -1127,14 +1127,17 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.flipStrandForSelectedFeatures(selected);
     },
 
-    flipStrandForSelectedFeatures: function(annots) {
+    flipStrandForSelectedFeatures: function(records) {
         var track = this;
         var uniqueNames = new Object();
-        for (var i in annots)  {
-            var annot = AnnotTrack.getTopLevelAnnotation(annots[i]);
-            var uniqueName = annot.id();
+        for (var i in records)  {
+	    var record = records[i];
+	    var selfeat = record.feature;
+	    var seltrack = record.track;
+            var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
+            var uniqueName = topfeat.id();
             // just checking to ensure that all features in selection are from this track
-            if (annot.track === track)  {
+            if (seltrack === track)  {
                     uniqueNames[uniqueName] = 1;
             }
         }
