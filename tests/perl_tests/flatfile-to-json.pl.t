@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 
+
 use JBlibs;
 
 use Test::More;
@@ -19,9 +20,9 @@ sub run_with(@) {
     #system $^X, 'bin/flatfile-to-json.pl', @_;
     #ok( ! $?, 'flatfile-to-json.pl ran ok' );
     my @args = @_;
-    warnings_are {
+    #warnings_are {
       Bio::JBrowse::Cmd::FlatFileToJson->new( @args )->run;
-    } [], 'ran without warnings';
+    #} [], 'ran without warnings';
 }
 
 sub tempdir {
@@ -88,9 +89,9 @@ sub tempdir {
         scalar( @{$cds_trackdata->{histograms}{stats}}),
         'have stats for each precalculated hist' );
 
-    is( ref $cds_trackdata->{intervals}{nclist}[2][11], 'ARRAY', 'exonerate mRNA has its subfeatures' )
+    is( ref $cds_trackdata->{intervals}{nclist}[2][10], 'ARRAY', 'exonerate mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
-    is( scalar @{$cds_trackdata->{intervals}{nclist}[2][11]}, 5, 'exonerate mRNA has 5 subfeatures' );
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[2][10]}, 5, 'exonerate mRNA has 5 subfeatures' );
 
     my $tracklist = $read_json->('trackList.json');
     is_deeply( $tracklist->{tracks}[1]{style},
@@ -127,9 +128,9 @@ sub tempdir {
     my $read_json = sub { slurp( $tempdir, @_ ) };
     my $cds_trackdata = $read_json->(qw( tracks AU_mRNA Group1.33 trackData.json ));
     is( $cds_trackdata->{featureCount}, 1, 'got right feature count' ) or diag explain $cds_trackdata;
-    is( ref $cds_trackdata->{intervals}{nclist}[0][11], 'ARRAY', 'mRNA has its subfeatures' )
+    is( ref $cds_trackdata->{intervals}{nclist}[0][10], 'ARRAY', 'mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
-    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][11]}, 7, 'mRNA has 7 subfeatures' );
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][10]}, 7, 'mRNA has 7 subfeatures' );
 
     my $tracklist = $read_json->( 'trackList.json' );
     is( $tracklist->{tracks}[0]{key}, 'AU mRNA', 'got a tracklist' ) or diag explain $tracklist;
@@ -155,9 +156,9 @@ sub tempdir {
     # check that we got the same data as before
     $cds_trackdata = $read_json->(qw( tracks AU_mRNA Group1.33 trackData.json ));
     is( $cds_trackdata->{featureCount}, 1, 'got right feature count' ) or diag explain $cds_trackdata;
-    is( ref $cds_trackdata->{intervals}{nclist}[0][11], 'ARRAY', 'mRNA has its subfeatures' )
+    is( ref $cds_trackdata->{intervals}{nclist}[0][10], 'ARRAY', 'mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
-    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][11]}, 7, 'mRNA has 7 subfeatures' );
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][10]}, 7, 'mRNA has 7 subfeatures' );
 }
 
 {   #diag "running on single_au9_gene.gff3, testing that we emit 2 levels of subfeatures";
@@ -185,9 +186,9 @@ sub tempdir {
     is( ref $cds_trackdata->{intervals}{nclist}[0][10], 'ARRAY', 'gene has its subfeatures' )
        or diag explain $cds_trackdata;
     is( scalar @{$cds_trackdata->{intervals}{nclist}[0][10]}, 1, 'gene has 1 subfeature' );
-    is( ref $cds_trackdata->{intervals}{nclist}[0][10][0][11], 'ARRAY', 'mRNA has its subfeatures' )
+    is( ref $cds_trackdata->{intervals}{nclist}[0][10][0][10], 'ARRAY', 'mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
-    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][10][0][11]}, 7, 'mRNA has 7 subfeatures' );
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][10][0][10]}, 7, 'mRNA has 7 subfeatures' );
 }
 
 for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffold_subset_sync.gff3" ) {
@@ -209,7 +210,7 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     my $read_json = sub { slurp( $tempdir, @_ ) };
     my $cds_trackdata = $read_json->(qw( tracks au9_full1 Group1.33 trackData.json ));
     is( $cds_trackdata->{featureCount}, 28, 'got right feature count' ) or diag explain $cds_trackdata;
-    is( scalar @{$cds_trackdata->{intervals}{classes}}, 3, 'got the right number of classes' )
+    is( scalar @{$cds_trackdata->{intervals}{classes}}, 5, 'got the right number of classes' )
         or diag explain $cds_trackdata->{intervals}{classes};
 
     #system "find $tempdir";
@@ -268,14 +269,12 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
                        'Type',
                        'Score',
                        'Seq_id',
-                       'Name',
-                       'Subfeatures'
+                       'Name'
                        ],
                    'isArrayAttr' => {
-                       'Subfeatures' => 1
                        }
                    }
-               ) or diag explain $trackdata->{'trackData.jsonz'}{intervals}{classes}[0];
+               ) or diag explain $trackdata->{'trackData.jsonz'};
 
 }
 

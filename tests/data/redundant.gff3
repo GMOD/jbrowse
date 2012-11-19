@@ -1,0 +1,2 @@
+##gff-version 3
+Group1.36	AU9	gene	176975	180744	0.84	+	.	ID=au9.g1002;Name=au9.g1002,foobar;score=20;start=99839;Alias=noggin
