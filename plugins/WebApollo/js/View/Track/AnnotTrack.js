@@ -1860,7 +1860,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.getSequenceForSelectedFeatures(selected);
     },
 
-    getSequenceForSelectedFeatures: function(annots) {
+    getSequenceForSelectedFeatures: function(records) {
         var track = this;
 
         var content = dojo.create("div");
@@ -1886,11 +1886,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
         var fetchSequence = function(type) {
             var features = '"features": [';
-            for (var i = 0; i < annots.length; ++i)  {
-                var annot = annots[i];
+            for (var i = 0; i < records.length; ++i)  {
+		var record = records[i];
+                var annot = record.feature;
+		var seltrack = record.track;
                 var uniqueName = annot.id();
                 // just checking to ensure that all features in selection are from this track
-                if (annot.track === track)  {
+                if (seltrack === track)  {
                     var trackdiv = track.div;
                     var trackName = track.getUniqueTrackName();
 
@@ -2316,9 +2318,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                             } ));
                             contextMenuItems["zoom_to_base_level"] = index++;
 */
-                            annot_context_menu.addChild(new dijitMenuItem( {
-                                    label: "..."
-                            } ));
                     },
                     // The ERROR function will be called in an error case.
                     error: function(response, ioArgs) { //
