@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed some bugs in server-side formatting code for feature tracks:
+   data was recorded multiple times in JSON files in some
+   circumstances.
+
 1.7.2     2012-11-09 15:40:06 America/New_York
 
  * Fixed more bugs in BAM backends that failed to load some types of
