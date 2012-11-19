@@ -110,7 +110,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
         this.initAnnotContextMenu();
 //        this.initNonAnnotContextMenu();
-//        this.initPopupDialog();
+        this.initPopupDialog();
 
             dojo.xhrPost( {
                 postData: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_features" }',
@@ -860,17 +860,18 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.deleteAnnotations(selected);
     },
 
-    deleteAnnotations: function(selection_records) {
+    deleteAnnotations: function(records) {
         var track = this;
         var features = '"features": [';
         var uniqueNames = [];
-        for (var i in selection_records)  {
-            var annot = selection_records[i].feature;
-	    var annotTrack = selection_records[i].track;
-            var uniqueName = annot.id();
+        for (var i in records)  {
+	    var record = records[i];
+	    var selfeat = record.feature;
+	    var seltrack = record.track;
+            var uniqueName = selfeat.id();
             // just checking to ensure that all features in selection are from this track --
             //   if not, then don't try and delete them
-            if (annotTrack === track)  {
+            if (seltrack === track)  {
                 var trackdiv = track.div;
                 var trackName = track.getUniqueTrackName();
 
@@ -1800,14 +1801,17 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.getInformationForSelectedAnnotations(selected);
     },
 
-    getInformationForSelectedAnnotations: function(annots) {
+    getInformationForSelectedAnnotations: function(records) {
         var track = this;
         var features = '"features": [';
-        for (var i in annots)  {
-            var annot = AnnotTrack.getTopLevelAnnotation(annots[i]);
-            var uniqueName = annot.id();
+        for (var i in records)  {
+	    var record = records[i];
+	    var selfeat = record.feature;
+	    var seltrack = record.track;
+            var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
+            var uniqueName = topfeat.id();
             // just checking to ensure that all features in selection are from this track
-            if (annot.track === track)  {
+            if (seltrack === track)  {
                 var trackdiv = track.div;
                 var trackName = track.getUniqueTrackName();
 
@@ -2214,7 +2218,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                     annot_context_menu.addChild(new dijitMenuItem( {
                                             label: "Duplicate",
                                             onClick: function(event) {
-                                                    // use annot_context_mousedown instead of current event, since want to split 
+                                                    // use annot_context_mousedown instead of current even, since want to split 
                                                     //    at mouse position of event that triggered annot_context_menu popup
                                                     thisObj.duplicateSelectedFeatures(thisObj.annot_context_mousedown);
                                             }
