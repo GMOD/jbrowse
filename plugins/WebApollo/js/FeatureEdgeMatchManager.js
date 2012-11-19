@@ -90,23 +90,6 @@ var FeatureEdgeMatchManager = declare( null,
         if (! source_subfeats || source_subfeats.length === 0) {
             source_subfeats = [ source_feat ];
         }
-        /*
-            var source_subfeats = null;
-            if (source_feat.parent)  {  // selection is a subfeature
-                source_subfeats = [ source_feat ];
-            }
-            else if (!source_subfields)  { // track features don't have subfeatures
-                source_subfeats = [ source_feat ];
-                source_subfields = source_fields;
-                // WARNING!  currently assumes min/max fields are same index in track.fields and track.subFields
-            }
-            else if (source_subfields && source_fields["subfeatures"])  {
-                source_subfeats = source_feat[source_fields["subfeatures"]];
-            }
-            else { // no way of munging subfeatures, so give up
-                return;
-            }
-        */
 
         if( verbose_edges ) {
             console.dir(source_subfeats);
@@ -116,8 +99,6 @@ var FeatureEdgeMatchManager = declare( null,
 
         var qmin = source_feat.get('start');
         var qmax = source_feat.get("end");
-        // var smindex = source_attrs.get(source_subfields["start"];
-        // var smaxdex = source_subfields["end"];
 
         if (verbose_edges)  { console.log("qmin = " + qmin + ", qmax = " + qmax); }
         var unmatchableTypes = this.unmatchableTypes;
@@ -125,38 +106,33 @@ var FeatureEdgeMatchManager = declare( null,
 
         var ftracks = $("div.track").each( function(index, trackdiv)  {
             var target_track = trackdiv.track;
-    //      if (target_track && target_track.features)  {
     // TEMPORARY FIX for error when dragging track into main view --
     //     if something selected, edge matching attempted on new track, which throws an error:
     //             "target_subfields is undefined"
     //             at "var tmindex = target_subfields["start"];" line below
     //     error possibly due to track's trackData not yet being fully loaded, so check track load fiel
-            if (target_track && target_track.store && target_track.loaded)  {
+            if (target_track && target_track.store && target_track.edge_matching_enabled)  {
                 if (verbose_edges)  {
                     console.log("edge matching for: " + target_track.name);
                 }
 
                 var featureStore = target_track.store;
-                var target_attrs = featureStore.attrs;
-
-                // var target_fields = target_track.fields;
-                // var target_subfields = target_track.subFields;
-               //  var tmindex = target_subfields["start"];
-               //  var tmaxdex = target_subfields["end"];
 
                 // only look at features that overlap source_feat min/max
                 // NCList.iterate only calls function for features that overlap qmin/qmax coords
-                featureStore.iterate(qmin, qmax, function(target_feat, path) {
-
+		var query =  { ref: target_track.refSeq.name, start: qmin, end: qmax };
+                featureStore.getFeatures(query, function(target_feat, path) {
+		    // some stores invoke the callback (with target_feat = undefined) even if no features meet query, so catching this case
+		    if (! target_feat)  { return; }  
                     if (verbose_edges)  {  console.log("========="); console.log("checking feature: "); console.log(target_feat); }
-                    var target_subfeats = target_attrs.get(target_feat, "Subfeatures");
+                    var target_subfeats = target_feat.get('subfeatures');
                     if (! target_subfeats) {
                         target_subfeats = [ target_feat ];
                     }
                     if (verbose_edges)  { console.log(target_subfeats); }
 
                     if (source_subfeats instanceof Array &&
-                        target_subfeats instanceof Array && target_subfeats[0] instanceof Array)  {
+                        target_subfeats instanceof Array)  {
                         var tid = target_feat.id();
                         if (verbose_edges)  {  console.log("found overlap"); console.log(target_feat); }
                         if (tid)  {
@@ -164,7 +140,7 @@ var FeatureEdgeMatchManager = declare( null,
                             if (verbose_edges)  { console.log(tdiv); }
                             if (tdiv)  {  // only keep going if target feature.uid already populated
                                 // console.log(rsubdivs);
-                                for (var i in source_subfeats)  {
+                                for (var i=0; i < source_subfeats.length; i++)  {
                                     var ssfeat = source_subfeats[i];
                                     var sstype = ssfeat.get('type');
                                     // don't do matching for source features of type registered as unmatchable
@@ -174,15 +150,15 @@ var FeatureEdgeMatchManager = declare( null,
 
                                     var ssmin = ssfeat.get('start');
                                     var ssmax = ssfeat.get('end');
-                                    for (var j in target_subfeats)  {
-                                        var tsfeat = target_subfeats[j];
+                                    for (var k=0; k < target_subfeats.length; k++)  {
+                                        var tsfeat = target_subfeats[k];
                                         var tstype = tsfeat.get('type');
                                         // don't do matching for target features of type registered as unmatchable
                                         if (unmatchableTypes[tstype] || unedgeableTypes[tstype]) {
                                             continue;
                                         }
-                                        var tsmin = target_attrs.get(tsfeat, "Start");
-                                        var tsmax = target_attrs.get(tsfeat, "End");
+                                        var tsmin = tsfeat.get('start');
+                                        var tsmax = tsfeat.get('end');
                                         if (ssmin === tsmin || ssmax === tsmax)  {
                                             var tsid = tsfeat.id();
                                             if (tsid)   {
