@@ -237,4 +237,47 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
 }
 
 
+{
+    # test BED import
+    my $tempdir = tempdir();
+    run_with (
+        '--out' => $tempdir,
+        '--bed' => catfile('tests','data','foo.bed'),
+        '--compress',
+        '--key' => 'Fooish Bar Data',
+        '--trackLabel' => 'foo',
+        );
+    my $read_json = sub { slurp( $tempdir, @_ ) };
+    my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks foo chr10 )));
+    is( scalar( grep @{$trackdata->{$_}} == 0,
+                grep /^lf/,
+                keys %$trackdata
+               ),
+        0,
+        'no empty chunks in trackdata'
+      ) or diag explain $trackdata;
+
+    is_deeply( $trackdata->{'trackData.jsonz'}{intervals}{classes}[0],
+               {
+                   'attributes' => [
+                       'Start',
+                       'End',
+                       'Strand',
+                       'Source',
+                       'Phase',
+                       'Type',
+                       'Score',
+                       'Seq_id',
+                       'Name',
+                       'Subfeatures'
+                       ],
+                   'isArrayAttr' => {
+                       'Subfeatures' => 1
+                       }
+                   }
+               ) or diag explain $trackdata->{'trackData.jsonz'}{intervals}{classes}[0];
+
+}
+
+
 done_testing;
