@@ -48,13 +48,21 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     // keep a reference to the main browser object
     this.browser = browser;
 
+    var seqCharSize = this.calculateSequenceCharacterSize( elem );
+    this.charWidth = seqCharSize.width;
+    this.seqHeight = seqCharSize.height;
+
     this.posHeight = this.calculatePositionLabelHeight( elem );
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
     this.topSpace = 1.5 * this.posHeight;
 
     // arbitrary max px per bp
-    this.maxPxPerBp = 20;
+//    this.maxPxPerBp = 20;
+    this.maxPxPerBp = this.charWidth;
+
+    console.log("charWidth: " + this.charWidth);
+    console.log("seqHeight: " + this.seqHeight);
 
     //the reference sequence
     this.ref = refseq;
@@ -537,6 +545,29 @@ GenomeView.prototype._behaviors = function() { return {
         }
     }
 };};
+
+
+/**
+ * Conducts a test with DOM elements to measure sequence text width
+ * and height.
+ */
+GenomeView.prototype.calculateSequenceCharacterSize = function( containerElement ) {
+    var widthTest = document.createElement("div");
+    widthTest.className = "sequence";
+    widthTest.style.visibility = "hidden";
+    var widthText = "12345678901234567890123456789012345678901234567890";
+    widthTest.appendChild(document.createTextNode(widthText));
+    containerElement.appendChild(widthTest);
+
+    var result = {
+        width:  widthTest.clientWidth / widthText.length,
+        height: widthTest.clientHeight
+    };
+
+    containerElement.removeChild(widthTest);
+    return result;
+};
+
 
 /**
  * Conduct a DOM test to calculate the height of div.pos-label
