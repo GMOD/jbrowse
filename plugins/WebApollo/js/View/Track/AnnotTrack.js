@@ -980,7 +980,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     splitSelectedFeatures: function(event)  {
-        var selected = this.selectionManager.getSelection();
+        // var selected = this.selectionManager.getSelection();
+	var selected = this.selectionManager.getSelectedFeatures();
         this.selectionManager.clearSelection();
         this.splitAnnotations(selected, event);
     },
@@ -1016,7 +1017,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var operation;
         // split exon
         if (leftAnnot == rightAnnot) {
-            var coordinate = this.gview.getGenomeCoord(event);
+            var coordinate = this.getGenomeCoord(event);
             features = '"features": [ { "uniquename": "' + leftAnnot.id() + '", "location": { "fmax": ' + (coordinate - 1) + ', "fmin": ' + (coordinate + 1) + ' } } ]';
             operation = "split_exon";
         }
@@ -1055,13 +1056,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.makeIntronInExon(selected, event);
     },
 
-    makeIntronInExon: function(annots, event) {
-        if (annots.length > 1) {
+    makeIntronInExon: function(records, event) {
+        if (records.length > 1) {
             return;
         }
         var track = this;
-        var annot = annots[0];
-            var coordinate = this.gview.getGenomeCoord(event);
+        var annot = records[0].feature;
+        var coordinate = this.getGenomeCoord(event);
         var features = '"features": [ { "uniquename": "' + annot.id() + '", "location": { "fmin": ' + coordinate + ' } } ]';
         var operation = "make_intron";
         var trackName = track.getUniqueTrackName();
@@ -1100,7 +1101,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var track = this;
         var annot = annots[0];
             // var coordinate = this.gview.getGenomeCoord(event);
-	var coordinate = Math.floor(this.gview.absXtoBp(event.pageX));
+// 	var coordinate = Math.floor(this.gview.absXtoBp(event.pageX));
+	var coordinate = this.getGenomeCoord(event);
 	console.log("called setTranslationStartInCDS to: " + coordinate);
 	    
             var uid = annot.parent() ? annot.parent().id() : annot.id();
@@ -2162,7 +2164,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     zoomToBaseLevel: function(event) {
-        var coordinate = this.gview.getGenomeCoord(event);
+        var coordinate = this.getGenomeCoord(event);
         this.gview.zoomToBaseLevel(event, coordinate);
     },
 
