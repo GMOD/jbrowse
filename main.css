@@ -141,6 +141,10 @@ div.locationThumb.dojoMoveItem {
     cursor: move;
 }
 
+#location {
+    font-family: sans-serif;
+}
+
 div.topLink {
     position: absolute;
     right: 0;
@@ -234,6 +238,7 @@ div.pos-label {
     top: 0px;
     z-index: 100;
     margin: 1px;
+    font-family: sans-serif;
 }
 
 div.overview-pos {
