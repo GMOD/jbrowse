@@ -10,6 +10,8 @@ use strict;
 use warnings;
 use base 'Bio::JBrowse::FeatureStream';
 
+use List::MoreUtils 'uniq';
+
 sub next_items {
     my ( $self ) = @_;
     return map $self->_bp_to_hashref( $_ ),
@@ -22,7 +24,7 @@ sub _bp_to_hashref {
     no warnings 'uninitialized';
 
     my %h;
-    @h{qw{ seq_id start end strand source phase type child_features }} =
+    @h{qw{ seq_id start end strand source phase type }} =
         ( $f->seq_id,
           $f->start,
           $f->end,
@@ -30,22 +32,41 @@ sub _bp_to_hashref {
           $f->source_tag,
           {0=>0,1=>1,2=>2}->{$f->phase},
           $f->primary_tag || undef,
-          [ map $self->_bp_to_hashref($_), $f->get_SeqFeatures ],
         );
     for(qw( seq_id start end strand source type )) {
-        $h{$_} = undef if $h{$_} eq '.';
+        if( $h{$_} eq '.' ) {
+            delete $h{$_};
+        }
     }
-    $h{attributes} = {
-        map {
-            my $t = $_;
-            $t => [ grep $_ ne '.', $f->get_tag_values($t) ]
-        } $f->get_all_tags
-    };
+    for ( keys %h ) {
+        if( ! defined $h{$_} ) {
+            delete $h{$_};
+        } else {
+            $h{$_} = [ $h{$_} ];
+        }
+    }
+    my @subfeatures = $f->get_SeqFeatures;
+    if( @subfeatures ) {
+        $h{subfeatures} = [[ map $self->_bp_to_hashref($_), @subfeatures ]];
+    }
 
-    if( ! $h{attributes}{Name} and defined( my $label = $self->_label( $f ) )) {
-        $h{attributes}{Name} = [ $label ];
+    for my $tag ( $f->get_all_tags ) {
+        my $lctag = lc $tag;
+        push @{ $h{ $lctag } ||= [] }, $f->get_tag_values($tag);
     }
-    return \%h;
+
+    for ( keys %h ) {
+        $h{$_} = [ uniq grep { defined && ($_ ne '.') } @{$h{$_}} ];
+        unless( @{$h{$_}} ) {
+            delete $h{$_};
+        }
+    }
+
+    if( ! $h{name} and defined( my $label = $self->_label( $f ) )) {
+        $h{name} = [ $label ];
+    }
+
+    return $self->_flatten_multivalues( \%h );
 };
 
 sub _label {
