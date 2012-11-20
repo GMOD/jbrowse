@@ -27,11 +27,13 @@ var JAFeature = declare( SimpleFeature, {
     "-chains-": {
         constructor: "manual"
     },
-    constructor: function( afeature ) {
+    constructor: function( afeature, parent ) {
         this.afeature = afeature;
-
+	if (parent)  { this._parent = parent; }
+	
         // get the main data
         var loc = afeature.location;
+	var pfeat = this;
         this.data = {
             start: loc.fmin,
             end: loc.fmax,
@@ -39,10 +41,11 @@ var JAFeature = declare( SimpleFeature, {
             name: afeature.name,
             parent_id: afeature.parent_id,
             type: afeature.type.name,
-            // get the subfeatures
+            // get the subfeatures              
             subfeatures: array.map( afeature.children, function(s) {
-                                        return new JAFeature( s );
-                                    })
+		return new JAFeature( s, pfeat);
+	    } )
+                
         };
 	if (this.data.type === "CDS")  { 
 	    this.data.type = "wholeCDS"; 
@@ -72,7 +75,7 @@ JSONUtils.createJBrowseFeature = function( afeature )  {
 *      afeature: sequence alteration in ApolloEditorService JSON format,
 */
 JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
-    var loc = afeature.location;
+    var loc = afeature.location; 
     var uid = afeature.uniquename;
 
     return new SimpleFeature({
