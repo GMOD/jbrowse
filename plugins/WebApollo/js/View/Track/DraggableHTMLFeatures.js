@@ -626,6 +626,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
     onFeatureMouseDown: function(event) {
         // event.stopPropagation();
         if( this.verbose_selection || this.verbose_drag ) { console.log("DFT.onFeatureMouseDown called"); }
+	console.log("genome coord: " + this.gview.absXtoBp(event.pageX));
         var ftrack = this;
 
         // checking for whether this is part of drag setup retrigger of mousedown --
@@ -930,7 +931,12 @@ var draggableTrack = declare( HTMLFeatureTrack,
             }
             return this.seqTrack;
         }
+    }, 
+
+    getGenomeCoord: function(mouseEvent)  {
+	return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
     }
+
 });
 
     // selectionManager is class variable (shared across all DraggableFeatureTrack objects)
