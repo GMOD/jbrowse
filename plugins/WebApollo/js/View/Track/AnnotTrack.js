@@ -444,7 +444,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     /**
-     *   handles mouse down on an annotation
+     *   handles mouse down on an annotation subfeature
      *   to make the annotation resizable by pulling the left/right edges
      */
     onAnnotMouseDown: function(event)  {
@@ -1087,9 +1087,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     setTranslationStart: function(event)  {
-        var selected = this.selectionManager.getSelection();
+        // var selected = this.selectionManager.getSelection();
+	var selfeats = this.selectionManager.getSelectedFeatures();
         this.selectionManager.clearSelection();
-        this.setTranslationStartInCDS(selected, event);
+        this.setTranslationStartInCDS(selfeats, event);
     },
 
     setTranslationStartInCDS: function(annots, event) {
@@ -1098,7 +1099,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         var track = this;
         var annot = annots[0];
-            var coordinate = this.gview.getGenomeCoord(event);
+            // var coordinate = this.gview.getGenomeCoord(event);
+	var coordinate = Math.floor(this.gview.absXtoBp(event.pageX));
+	console.log("called setTranslationStartInCDS to: " + coordinate);
+	    
             var uid = annot.parent() ? annot.parent().id() : annot.id();
         var features = '"features": [ { "uniquename": "' + uid + '", "location": { "fmin": ' + coordinate + ' } } ]';
         var operation = "set_translation_start";
@@ -1488,11 +1492,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.editDbxrefsForSelectedFeatures(selected);
     },
 
-    editDbxrefsForSelectedFeatures: function(selection) {
+    editDbxrefsForSelectedFeatures: function(records) {
         var track = this;
-        var annot = AnnotTrack.getTopLevelAnnotation(selection[0].feature);
+	var record = records[0];
+        var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
+	var seltrack = record.track;
         // just checking to ensure that all features in selection are from this track
-        if ( annot.track !== track )  {
+        if ( seltrack !== track )  {
             return;
         }
         var content = dojo.create("div");
