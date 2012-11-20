@@ -71,15 +71,20 @@ return declare( null,
         if( ! request.store )
             request.store = this;
 
-        var gotTree = false; // stays false if tree isn't found
-        var matches = [];
+        if( request.onBegin )
+            request.onBegin.call( scope, 0, request );
+
         var prefix = (request.query.name || '').replace(/\*$/,'');
 
         if( ! this.stopPrefixes[ prefix ] ) {
             this.namesTrie.mappingsFromPrefix(
                 prefix,
                 dojo.hitch( this, function(tree) {
-                    gotTree = true;
+                    var matches = [];
+
+                    if( aborted )
+                        return;
+
                     // use dojo.some so that we can break out of the loop when we hit the limit
                     dojo.some( tree, function(node) {
                                    if( matchesRemaining-- ) {
@@ -87,26 +92,27 @@ return declare( null,
                                    }
                                    return matchesRemaining < 0;
                                },this);
-                }));
-        }
 
-        // if we found more than the match limit
-        if( matchesRemaining < 0 )
-            matches.push({ name: this.tooManyMatchesMessage, hitLimit: true });
+                    // if we found more than the match limit
+                    if( matchesRemaining < 0 )
+                        matches.push({ name: this.tooManyMatchesMessage, hitLimit: true });
 
-        if( request.onBegin )
-            request.onBegin.call( scope, matches.length, request );
-        if( request.sort )
-            matches.sort(dojo.data.util.sorter.createSortFunction(request.sort, this));
-        if( request.onItem ) {
-            dojo.forEach( matches, function( item ) {
-                if( !aborted )
-                    request.onItem.call( scope, item, request );
-            });
+                    if( request.sort )
+                        matches.sort( dojo.data.util.sorter.createSortFunction(request.sort, this) );
+                    if( !aborted && request.onItem )
+                        dojo.forEach( matches, function( item ) {
+                            if( !aborted )
+                                request.onItem.call( scope, item, request );
+                        });
+                    if( !aborted && request.onComplete )
+                        request.onComplete.call( scope, matches, request );
+            }));
         }
-	if(request.onComplete && !aborted){
-	    request.onComplete.call( scope, matches, request );
-	}
+        else if( request.onComplete ) {
+                request.onComplete.call( scope, [], request );
+   	}
+
+        return request;
     },
 
     getValue: function( i, attr, defaultValue ) {
