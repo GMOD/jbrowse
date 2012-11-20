@@ -640,10 +640,9 @@ a.dialog-new-window {
 .feature-detail div.additional {
 }
 .feature-detail div.additional > h2 {
-    border-bottom: 1px solid #CCC;
-    margin: 1.5em 0 0.8em 0;
-    background: #F8F8F8;
-    padding: 0.5em;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 0.2em 0 0.7em 0;
+    padding: 0.5em 0.5em 0.3em 0em;
 }
 
 .detail .value {
