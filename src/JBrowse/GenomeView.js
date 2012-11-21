@@ -1541,6 +1541,7 @@ GenomeView.prototype.redrawTracks = function() {
 
 GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
     if (this.animation) return;
+    this._unsetPosBeforeZoom();
     if (zoomLoc === undefined) zoomLoc = 0.5;
     if (steps === undefined) steps = 1;
     steps = Math.min(steps, (this.zoomLevels.length - 1) - this.curZoom);
@@ -1573,8 +1574,43 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
                700, zoomLoc);
 };
 
+/** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
+GenomeView.prototype.zoomToBaseLevel = function(e, pos) {
+    if (this.animation) return;
+    //   if (this.zoomLevels[this.curZoom] === this.charWidth)  {  console.log("already zoomed to base level"); return; }
+    // if at max zoomLevel then already zoomed to bases, so then no-op
+    var baseZoomIndex = this.zoomLevels.length - 1;
+
+    if (this.curZoom === baseZoomIndex)  { console.log("already zoomed to base level"); return; }
+    this._setPosBeforeZoom(this.minVisible(), this.maxVisible(), this.curZoom);
+    var zoomLoc = 0.5;
+
+    this.showWait();
+    this.trimVertical();
+
+    var relativeScale = this.zoomLevels[baseZoomIndex] / this.pxPerBp;
+    var fixedBp = pos;
+    this.curZoom = baseZoomIndex;
+    this.pxPerBp = this.zoomLevels[baseZoomIndex];
+
+    this.maxLeft = (this.pxPerBp * this.ref.end) - this.getWidth();
+
+    for (var track = 0; track < this.tracks.length; track++)
+	this.tracks[track].startZoom(this.pxPerBp,
+				     fixedBp - ((zoomLoc * this.getWidth())
+						/ this.pxPerBp),
+				     fixedBp + (((1 - zoomLoc) * this.getWidth())
+						/ this.pxPerBp));
+    //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
+    new Zoomer(relativeScale, this,
+               function() {this.zoomUpdate(zoomLoc, fixedBp);},
+               700, zoomLoc);
+};
+
+
 GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
     if (this.animation) return;
+    this._unsetPosBeforeZoom();
     if (steps === undefined) steps = 1;
     steps = Math.min(steps, this.curZoom);
     if (0 == steps) return;
@@ -1610,6 +1646,58 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
     new Zoomer(scale, this,
                function() {this.zoomUpdate(zoomLoc, fixedBp);},
                700, zoomLoc);
+};
+
+
+/** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
+GenomeView.prototype.zoomBackOut = function(e) {
+    if (this.animation) { return; }
+    if (!this.isZoomedToBase()) { return; }
+
+    var min = this.posBeforeZoom.min;
+    var max = this.posBeforeZoom.max;
+    var zoomIndex = this.posBeforeZoom.zoomIndex;
+    this.posBeforeZoom = undefined;
+    
+    var zoomLoc = 0.5;
+    this.showWait();
+
+    var scale = this.zoomLevels[zoomIndex] / this.pxPerBp;
+    var fixedBp = (min + max) / 2;
+    this.curZoom = zoomIndex;
+    this.pxPerBp = this.zoomLevels[zoomIndex];
+
+    for (var track = 0; track < this.tracks.length; track++) {
+    	this.tracks[track].startZoom(this.pxPerBp,
+    			fixedBp - ((zoomLoc * this.getWidth())
+    					/ this.pxPerBp),
+    					fixedBp + (((1 - zoomLoc) * this.getWidth())
+    							/ this.pxPerBp));
+	}
+    
+    this.minLeft = this.pxPerBp * this.ref.start;
+    var thisObj = this;
+    // Zooms take an arbitrary 700 milliseconds, which feels about right
+    // to me, although if the zooms were smoother they could probably
+    // get faster without becoming off-putting. -MS
+    new Zoomer(scale, this,
+	       function() {thisObj.setLocation(thisObj.ref, min, max); thisObj.zoomUpdate(zoomLoc, fixedBp); },
+	       700, zoomLoc);
+};
+
+/** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
+GenomeView.prototype.isZoomedToBase = function() {
+	return this.posBeforeZoom !== undefined;
+};
+
+/** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
+GenomeView.prototype._setPosBeforeZoom = function(min, max, zoomIndex) {
+    this.posBeforeZoom = { "min": min, "max": max, "zoomIndex": zoomIndex };
+};
+
+/** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
+GenomeView.prototype._unsetPosBeforeZoom = function() {
+	this.posBeforeZoom = undefined;
 };
 
 GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {

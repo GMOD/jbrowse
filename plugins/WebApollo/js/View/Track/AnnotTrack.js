@@ -2315,7 +2315,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                     }
                             } ));
                             contextMenuItems["get_sequence"] = index++;
-/*                            annot_context_menu.addChild(new dijitMenuItem( {
+                            annot_context_menu.addChild(new dijitMenuItem( {
                                     label: "Zoom to base level",
                                     onClick: function(event) {
                                             if (thisObj.getMenuItem("zoom_to_base_level").get("label") == "Zoom to base level") {
@@ -2327,7 +2327,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                     }
                             } ));
                             contextMenuItems["zoom_to_base_level"] = index++;
-*/
+
                     },
                     // The ERROR function will be called in an error case.
                     error: function(response, ioArgs) { //
@@ -2418,7 +2418,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.updateEditDbxrefsMenuItem();
         this.updateUndoMenuItem();
         this.updateRedoMenuItem();
-//        this.updateZoomToBaseLevelMenuItem();
+        this.updateZoomToBaseLevelMenuItem();
         this.updateDuplicateMenuItem();
     },
 
