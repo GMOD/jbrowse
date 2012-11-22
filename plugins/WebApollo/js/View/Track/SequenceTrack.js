@@ -8,9 +8,7 @@ define( [
      ],
 function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, CodonTable ) {
 
-var nbsp = String.fromCharCode(160);
-
-return declare( DraggableFeatureTrack,
+var SequenceTrack = declare( DraggableFeatureTrack,
 
 {
 
@@ -29,7 +27,8 @@ return declare( DraggableFeatureTrack,
          */
         this.has_custom_context_menu = true;
         this.show_reverse_strand = true;
-        this.show_protein_translation = false;
+        this.show_protein_translation = true;
+
 
  /*
     track.watch("height", function(id, oldval, newval)  {
@@ -335,7 +334,7 @@ return declare( DraggableFeatureTrack,
     		        // sequence does not extend all the way
     		        // across our range
     		        for( ; start < 0; start++ ) {
-    			    seq = nbsp + seq; //nbsp is an "&nbsp;" entity
+    			    seq = SequenceTrack.nbsp + seq; //nbsp is an "&nbsp;" entity
     		        }
 
     		        var blockStart = start + 2;
@@ -602,7 +601,7 @@ return declare( DraggableFeatureTrack,
 		     // perl -MJSON -E '@l = split "","acgtrymkswhbvdnxACGTRYMKSWHBVDNX"; print to_json({ map { my $in = $_; tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/; $in => $_ } @l})'
 		     var compl_tbl  = {"S":"S","w":"w","T":"A","r":"y","a":"t","N":"N","K":"M","x":"x","d":"h","Y":"R","V":"B","y":"r","M":"K","h":"d","k":"m","C":"G","g":"c","t":"a","A":"T","n":"n","W":"W","X":"X","m":"k","v":"b","B":"V","s":"s","H":"D","c":"g","D":"H","b":"v","R":"Y","G":"C"};
 
-		     var compl_func = function(m) { return compl_tbl[m] || nbsp; };
+		     var compl_func = function(m) { return compl_tbl[m] || SequenceTrack.nbsp; };
 		     return function( seq ) {
 			 return seq.replace( compl_rx, compl_func );
 		     };
@@ -637,8 +636,8 @@ return declare( DraggableFeatureTrack,
         $(container).addClass("offset" + offset);
         var prefix = "";
         var suffix = "";
-        for (var i=0; i<offset; i++) { prefix += nbsp; }
-        for (var i=0; i<(2-offset); i++) { suffix += nbsp; }
+        for (var i=0; i<offset; i++) { prefix += SequenceTrack.nbsp; }
+        for (var i=0; i<(2-offset); i++) { suffix += SequenceTrack.nbsp; }
 
         var extra_bases = (seq.length - offset) % 3;
         var dnaRes = seq.substring(offset, seq.length - extra_bases);
@@ -1172,6 +1171,9 @@ return declare( DraggableFeatureTrack,
 	}
     }
 });
+
+    SequenceTrack.nbsp = String.fromCharCode(160);
+    return SequenceTrack;
 });
 
 /*
