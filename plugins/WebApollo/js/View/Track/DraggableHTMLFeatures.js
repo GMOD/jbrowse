@@ -933,8 +933,48 @@ var draggableTrack = declare( HTMLFeatureTrack,
         }
     }, 
 
-    getGenomeCoord: function(mouseEvent)  {
+/**
+ *  for the input mouse event, returns genome position under mouse IN 1-BASED INTERBASE COORDINATES
+ *  WARNING: returns base position relative to UI coordinate system 
+ *       (which is 1-based interbase)
+ *  But for most elements in genome view (features, graphs, etc.) the underlying data structures are 
+ *       in 0-base interbase coordinate system
+ *  So if you want data structure coordinates, you need to do (getUiGenomeCoord() - 1)
+ *       or use the convenience function getGenomeCoord()
+ *
+ *  event can be on GenomeView.elem or any descendant DOM elements (track, block, feature divs, etc.)
+ *  assumes:
+ *      event is a mouse event (plain Javascript event or JQuery event)
+ *      elem is a DOM element OR JQuery wrapped set (in which case result is based on first elem in result set)
+ *      elem is displayed  (see JQuery.offset() docs)
+ *      no border/margin/padding set on the doc <body> element  (see JQuery.offset() docs)
+ *      if in IE<9, either page is not scrollable (in the HTML page sense) OR event is JQuery event
+ *         (currently JBrowse index.html page is not scrollable (JBrowse internal scrolling is NOT same as HTML page scrolling))
+ */
+    getUiGenomeCoord: function(mouseEvent)  {
 	return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
+    }, 
+
+/**
+ *  for the input mouse event, returns genome position under mouse IN 0-BASED INTERBASE COORDINATES
+ *  WARNING:
+ *  returns genome coord in 0-based interbase (which is how internal data structure represent coords), 
+ *       instead of 1-based interbase (which is how UI displays coordinates)
+ *  if need display coordinates, use getUiGenomeCoord() directly instead
+ *  
+ *  otherwise same capability and assumptions as getUiGenomeCoord(): 
+ *  event can be on GenomeView.elem or any descendant DOM elements (track, block, feature divs, etc.)
+ *  assumes:
+ *      event is a mouse event (plain Javascript event or JQuery event)
+ *      elem is a DOM element OR JQuery wrapped set (in which case result is based on first elem in result set)
+ *      elem is displayed  (see JQuery.offset() docs)
+ *      no border/margin/padding set on the doc <body> element  (see JQuery.offset() docs)
+ *      if in IE<9, either page is not scrollable (in the HTML page sense) OR event is JQuery event
+ *         (currently JBrowse index.html page is not scrollable (JBrowse internal scrolling is NOT same as HTML page scrolling))
+ * 
+ */
+    getGenomeCoord: function(mouseEvent)  {
+	return this.getUiGenomeCoord(mouseEvent) - 1;
     }
 
 });
