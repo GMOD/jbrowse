@@ -444,7 +444,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     /**
-     *   handles mouse down on an annotation
+     *   handles mouse down on an annotation subfeature
      *   to make the annotation resizable by pulling the left/right edges
      */
     onAnnotMouseDown: function(event)  {
@@ -792,7 +792,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var parentFeature;
             for( var i in feats )  {
                     var feat = feats[i];
-                    var is_subfeature = !! feat.get('parent') ;  // !! is shorthand for returning true if value is defined and non-null
+                    var is_subfeature = !! feat.parent() ;  // !! is shorthand for returning true if value is defined and non-null
                     if (is_subfeature) {
                             subfeaturesToAdd.push(feat);
                     }
@@ -980,7 +980,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     splitSelectedFeatures: function(event)  {
-        var selected = this.selectionManager.getSelection();
+        // var selected = this.selectionManager.getSelection();
+	var selected = this.selectionManager.getSelectedFeatures();
         this.selectionManager.clearSelection();
         this.splitAnnotations(selected, event);
     },
@@ -1016,7 +1017,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var operation;
         // split exon
         if (leftAnnot == rightAnnot) {
-            var coordinate = this.gview.getGenomeCoord(event);
+            var coordinate = this.getGenomeCoord(event);
             features = '"features": [ { "uniquename": "' + leftAnnot.id() + '", "location": { "fmax": ' + (coordinate - 1) + ', "fmin": ' + (coordinate + 1) + ' } } ]';
             operation = "split_exon";
         }
@@ -1055,13 +1056,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.makeIntronInExon(selected, event);
     },
 
-    makeIntronInExon: function(annots, event) {
-        if (annots.length > 1) {
+    makeIntronInExon: function(records, event) {
+        if (records.length > 1) {
             return;
         }
         var track = this;
-        var annot = annots[0];
-            var coordinate = this.gview.getGenomeCoord(event);
+        var annot = records[0].feature;
+        var coordinate = this.getGenomeCoord(event);
         var features = '"features": [ { "uniquename": "' + annot.id() + '", "location": { "fmin": ' + coordinate + ' } } ]';
         var operation = "make_intron";
         var trackName = track.getUniqueTrackName();
@@ -1087,9 +1088,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     setTranslationStart: function(event)  {
-        var selected = this.selectionManager.getSelection();
+        // var selected = this.selectionManager.getSelection();
+	var selfeats = this.selectionManager.getSelectedFeatures();
         this.selectionManager.clearSelection();
-        this.setTranslationStartInCDS(selected, event);
+        this.setTranslationStartInCDS(selfeats, event);
     },
 
     setTranslationStartInCDS: function(annots, event) {
@@ -1098,7 +1100,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         var track = this;
         var annot = annots[0];
-            var coordinate = this.gview.getGenomeCoord(event);
+            // var coordinate = this.gview.getGenomeCoord(event);
+// 	var coordinate = Math.floor(this.gview.absXtoBp(event.pageX));
+	var coordinate = this.getGenomeCoord(event);
+	console.log("called setTranslationStartInCDS to: " + coordinate);
+	    
             var uid = annot.parent() ? annot.parent().id() : annot.id();
         var features = '"features": [ { "uniquename": "' + uid + '", "location": { "fmin": ' + coordinate + ' } } ]';
         var operation = "set_translation_start";
@@ -1229,17 +1235,19 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.editCommentsForSelectedFeatures(selected);
     },
 
-    editCommentsForSelectedFeatures: function(selection) {
+    editCommentsForSelectedFeatures: function(records) {
             var track = this;
-            var annot = AnnotTrack.getTopLevelAnnotation(selection[0].feature);
+	var record = records[0];
+	var seltrack = record.track;
+            var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
             // just checking to ensure that all features in selection are from this track
-            if (annot.track !== track)  {
+            if (seltrack !== track)  {
                     return;
             }
             var content = dojo.create("div");
             // if annotation has parent, get comments for parent
-            if( annot.get('parent') ) {
-                    var parentContent = this.createEditCommentsPanelForFeature( annot.get('parent'), track.getUniqueTrackName());
+            if( annot.parent()) {
+                var parentContent = this.createEditCommentsPanelForFeature( annot.parent(), track.getUniqueTrackName());
                     dojo.attr(parentContent, "class", "parent_comments_div");
                     dojo.place(parentContent, content);
             }
@@ -1486,17 +1494,19 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.editDbxrefsForSelectedFeatures(selected);
     },
 
-    editDbxrefsForSelectedFeatures: function(selection) {
+    editDbxrefsForSelectedFeatures: function(records) {
         var track = this;
-        var annot = AnnotTrack.getTopLevelAnnotation(selection[0].feature);
+	var record = records[0];
+        var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
+	var seltrack = record.track;
         // just checking to ensure that all features in selection are from this track
-        if ( annot.track !== track )  {
+        if ( seltrack !== track )  {
             return;
         }
         var content = dojo.create("div");
         // if annotation has parent, get comments for parent
-        if ( annot.get('parent') ) {
-            var parentContent = this.createEditDbxrefsPanelForFeature( annot.get("parent"), track.getUniqueTrackName());
+        if ( annot.parent() ) {
+            var parentContent = this.createEditDbxrefsPanelForFeature( annot.parent(), track.getUniqueTrackName());
             dojo.attr(parentContent, "class", "parent_dbxrefs_div");
             dojo.place(parentContent, content);
         }
@@ -2154,7 +2164,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     zoomToBaseLevel: function(event) {
-        var coordinate = this.gview.getGenomeCoord(event);
+        var coordinate = this.getGenomeCoord(event);
         this.gview.zoomToBaseLevel(event, coordinate);
     },
 
@@ -2305,7 +2315,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                     }
                             } ));
                             contextMenuItems["get_sequence"] = index++;
-/*                            annot_context_menu.addChild(new dijitMenuItem( {
+                            annot_context_menu.addChild(new dijitMenuItem( {
                                     label: "Zoom to base level",
                                     onClick: function(event) {
                                             if (thisObj.getMenuItem("zoom_to_base_level").get("label") == "Zoom to base level") {
@@ -2317,7 +2327,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                     }
                             } ));
                             contextMenuItems["zoom_to_base_level"] = index++;
-*/
+
                     },
                     // The ERROR function will be called in an error case.
                     error: function(response, ioArgs) { //
@@ -2408,7 +2418,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.updateEditDbxrefsMenuItem();
         this.updateUndoMenuItem();
         this.updateRedoMenuItem();
-//        this.updateZoomToBaseLevelMenuItem();
+        this.updateZoomToBaseLevelMenuItem();
         this.updateDuplicateMenuItem();
     },
 
@@ -2647,10 +2657,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var track = this;
         // want to get child of block, since want position relative to block
         // so get top-level feature div (assumes top level feature is always rendered...)
-        var topfeat = feat;
-        while (topfeat.parent())  {
-            topfeat = topfeat.parent();
-        }
+        var topfeat = AnnotTrack.getTopLevelAnnotation(feat);
         var featdiv = track.getFeatDiv(topfeat);
     /*  GAH JBrowse1.7 merge TODO: restore residues overlay (need to get general residues rendering working on top of JBrowse sequence track first 
     if (featdiv)  {
