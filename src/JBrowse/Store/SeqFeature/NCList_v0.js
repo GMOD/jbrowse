@@ -140,15 +140,7 @@ return declare( SFNCList,
             return subfieldOrder;
         },
         featCallBack = function( feature, path ) {
-            feature.get = get;
-            feature.tags = tags;
-            feature._uniqueID = path.join(',');
-            var subfeatCtr = 0;
-            dojo.forEach( feature.get('subfeatures'), function(f) {
-                              f.get = subget;
-                              f.tags = subTags;
-                              f._uniqueID = feature._uniqueID+'-'+(++subfeatCtr);
-                          });
+            that._decorate_feature( { get: get, tags: tags }, feature, path.join(',')  );
             return origFeatCallback( feature, path );
         };
 
