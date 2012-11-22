@@ -1,10 +1,12 @@
 define( [
-            'dojo/_base/declare',
-            'WebApollo/View/Track/DraggableHTMLFeatures',
-            'WebApollo/JSONUtils',
-            'WebApollo/Permission'
-        ],
-        function( declare, DraggableFeatureTrack, JSONUtils, Permission ) {
+    'dojo/_base/declare',
+    'JBrowse/Store/Sequence/StaticChunked', 
+    'WebApollo/View/Track/DraggableHTMLFeatures',
+    'WebApollo/JSONUtils',
+    'WebApollo/Permission', 
+    'JBrowse/CodonTable', 
+     ],
+function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, CodonTable ) {
 
 var nbsp = String.fromCharCode(160);
 
@@ -19,7 +21,7 @@ return declare( DraggableFeatureTrack,
  * @constructor
  */
     constructor: function( args ) {
-
+	var track = this;
         /**
          * DraggableFeatureTrack now has its own context menu for divs,
          * and adding this flag provides a quick way to short-circuit it's
@@ -27,7 +29,7 @@ return declare( DraggableFeatureTrack,
          */
         this.has_custom_context_menu = true;
         this.show_reverse_strand = true;
-        this.show_protein_translation = true;
+        this.show_protein_translation = false;
 
  /*
     track.watch("height", function(id, oldval, newval)  {
@@ -49,6 +51,31 @@ return declare( DraggableFeatureTrack,
             track.onResiduesMouseDown(event);
         };
 
+	
+	this.charSize = this.gview.getSequenceCharacterSize();
+	this.charWidth = this.charSize.charWidth;
+	this.seqHeight = this.charSize.seqHeight;
+
+	// splitting seqHeight into residuesHeight and translationHeight, so future iteration may be possible 
+	//    for DNA residues and protein translation to be different styles
+	this.dnaHeight = this.seqHeight;
+	this.proteinHeight = this.seqHeight;
+
+	// this.refSeq = refSeq;  already assigned in BlockBased superclass
+
+	var seqStoreConfig = dojo.clone(this.config);
+	seqStoreConfig.urlTemplate = this.config.residuesUrlTemplate;
+	seqStoreConfig.browser = this.browser;
+	seqStoreConfig.refSeq = this.refSeq;
+
+	this.sequenceStore = new StaticChunked(seqStoreConfig);
+/*	this.sequenceStore = new StaticChunked({
+	    baseUrl: this.config.baseUrl,
+	    urlTemplate: this.config.residuesUrlTemplate,
+	    compress: this.config.compress
+	});
+*/
+//	this.sequenceStore = new SequenceStore.StaticChunked({
 
         this.trackPadding = 10;
         this.SHOW_IF_FEATURES = true;
@@ -294,9 +321,10 @@ return declare( DraggableFeatureTrack,
             var proteinHeight = charSize.h;
 
     	    if ( scale == charSize.w ) {
-                // this.store.getRange( this.refSeq, leftBase, rightBase,
-                //  this.store.getRange( this.refSeq, leftBase, endBase,
-                this.store.getFeatures(
+                // this.sequenceStore.getRange( this.refSeq, leftBase, rightBase,
+                //  this.sequenceStore.getRange( this.refSeq, leftBase, endBase,
+            //    this.store.getFeatures(
+		this.sequenceStore.getFeatures(
                     { ref: this.refSeq.name, start: leftExtended, end: rightExtended },
     		    function( feat ) {
                         var start = feat.get('start');
@@ -396,7 +424,7 @@ return declare( DraggableFeatureTrack,
     			                       track.last_dna_coord = undefined;
     		                           } );
     		        $(forwardDNA).bind("mousemove", function(event) {
-    	                                       var gcoord = track.gview.getGenomeCoord(event);
+    	                                       var gcoord = track.getGenomeCoord(event);
     			                       if ((!track.last_dna_coord) || (gcoord !== track.last_dna_coord)) {
     			                           var blockCoord = gcoord - leftBase;
     			                           track.last_dna_coord = gcoord;
@@ -419,7 +447,7 @@ return declare( DraggableFeatureTrack,
     			                           track.last_dna_coord = undefined;
     		                               } );
     			    $(reverseDNA).bind("mousemove", function(event) {
-    			                           var gcoord = track.gview.getGenomeCoord(event);
+    			                           var gcoord = track.getGenomeCoord(event);
     			                           if ((!track.last_dna_coord) || (gcoord !== track.last_dna_coord)) {
     			                               var blockCoord = gcoord - leftBase;
     			                               track.last_dna_coord = gcoord;
@@ -460,7 +488,9 @@ return declare( DraggableFeatureTrack,
     			        blockHeight += proteinHeight;
     			    }
     		        }
-    	                DraggableFeatureTrack.prototype.fillBlock.apply(track, fillArgs);
+//    	                DraggableFeatureTrack.prototype.fillBlock.apply(track, fillArgs);
+//			dojo.hitch ???
+			track.inherited("fillBlock", fillArgs);
     		        blockHeight += 5;  // a little extra padding below (track.trackPadding used for top padding)
     	                // this.blockHeights[blockIndex] = blockHeight;  // shouldn't be necessary, done in track.heightUpdate();
     		        track.heightUpdate(blockHeight, blockIndex);
@@ -471,7 +501,11 @@ return declare( DraggableFeatureTrack,
     	    else  {
     	        blockHeight = 20;  // default dna track height if not zoomed to base level
     	        seqNode.style.height = "20px";
-    	        DraggableFeatureTrack.prototype.fillBlock.apply(track, arguments);
+
+    	        // DraggableFeatureTrack.prototype.fillBlock.apply(track, arguments);
+		track.inherited("fillBlock", arguments);
+		// this.inherited("fillBlock", arguments);
+
     	        // this.blockHeights[blockIndex] = blockHeight;  // shouldn't be necessary, done in track.heightUpdate();
     	        track.heightUpdate(blockHeight, blockIndex);
     	    }
@@ -823,7 +857,7 @@ return declare( DraggableFeatureTrack,
     },
 
     createGenomicInsertion: function()  {
-        var gcoord = this.gview.getGenomeCoord(this.residues_context_mousedown);
+        var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
         console.log("SequenceTrack.createGenomicInsertion() called at genome position: " + gcoord);
 
         var content = this.createAddSequenceAlterationPanel("insertion", gcoord);
@@ -850,7 +884,7 @@ return declare( DraggableFeatureTrack,
     },
 
     createGenomicDeletion: function()  {
-        var gcoord = this.gview.getGenomeCoord(this.residues_context_mousedown);
+        var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
         console.log("SequenceTrack.createGenomicDeletion() called at genome position: " + gcoord);
 
         var content = this.createAddSequenceAlterationPanel("deletion", gcoord);
@@ -859,7 +893,7 @@ return declare( DraggableFeatureTrack,
     },
 
     createGenomicSubstitution: function()  {
-        var gcoord = this.gview.getGenomeCoord(this.residues_context_mousedown);
+        var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
         console.log("SequenceTrack.createGenomicSubstitution() called at genome position: " + gcoord);
         var content = this.createAddSequenceAlterationPanel("substitution", gcoord);
         this.annotTrack.openDialog("Add Substitution", content);
