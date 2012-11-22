@@ -158,10 +158,11 @@ HTMLFeatures = declare( HTMLFeatures,
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement */ container ) {
         var fmt = dojo.hitch( this, '_fmtDetailField' );
         container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name, innerHTML: '' } );
-        container.innerHTML += fmt( 'Name', f.get('name') );
-        container.innerHTML += fmt( 'Type', f.get('type') );
-        container.innerHTML += fmt( 'Description', f.get('note') );
-        container.innerHTML += fmt(
+        var coreDetails = dojo.create('div', { className: 'core' }, container );
+        coreDetails.innerHTML += fmt( 'Name', f.get('name') );
+        coreDetails.innerHTML += fmt( 'Type', f.get('type') );
+        coreDetails.innerHTML += fmt( 'Description', f.get('note') );
+        coreDetails.innerHTML += fmt(
             'Position',
             Util.assembleLocString({ start: f.get('start'),
                                      end: f.get('end'),
@@ -169,13 +170,18 @@ HTMLFeatures = declare( HTMLFeatures,
                                      strand: f.get('strand')
                                    })
         );
-        container.innerHTML += fmt( 'Length', Util.addCommas(f.get('end')-f.get('start'))+' b' );
+        coreDetails.innerHTML += fmt( 'Length', Util.addCommas(f.get('end')-f.get('start'))+' bp' );
 
         // render any additional tags as just key/value
         var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()]; });
-        dojo.forEach( additionalTags.sort(), function(t) {
-            container.innerHTML += fmt( t, f.get(t) );
-        });
+        if( additionalTags.length ) {
+            var at_html = '<div class="additional"><h2>Attributes</h2>';
+            dojo.forEach( additionalTags.sort(), function(t) {
+                at_html += fmt( t, f.get(t) );
+            });
+            at_html += '</div>';
+            container.innerHTML += at_html;
+        }
 
         // render the sequence underlying this feature if possible
         var field_container = dojo.create('div', { className: 'field_container feature_sequence' }, container );

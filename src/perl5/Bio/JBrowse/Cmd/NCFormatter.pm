@@ -90,7 +90,7 @@ sub _format {
 
 # stub
 sub transform_feature {
-    return $_[0];
+    return $_[1];
 }
 
 1;

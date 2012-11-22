@@ -140,6 +140,26 @@ div.locationThumb.dojoMoveItem {
     cursor: move;
 }
 
+div.topLink {
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 50;
+    background: white;
+    border: 1px solid #888;
+    border-width: 0 0 1px 1px;
+}
+
+a.topLink {
+    padding: 0 0.5ex 0 0.5ex;
+    text-decoration: none;
+    color: blue;
+}
+
+#location {
+    font-family: sans-serif;
+}
+
 div.overview {
     position: relative;
     width: 100%;
@@ -220,6 +240,7 @@ div.pos-label {
     top: 0px;
     z-index: 100;
     margin: 1px;
+    font-family: sans-serif;
 }
 
 div.overview-pos {
@@ -610,6 +631,7 @@ a.dialog-new-window {
 .feature-detail {
     padding-top: 1em;
     width: 50em;
+    color: #333;
 }
 .feature-detail .subfeature-detail {
     background: #fafafa;
@@ -621,17 +643,28 @@ a.dialog-new-window {
     padding: 1em 1.5em;
     border: 1px solid #aaa;
 }
+.feature-detail div.core {
+    font-size: 110%;
+}
+.feature-detail div.additional {
+}
+.feature-detail div.additional > h2 {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 0.2em 0 0.7em 0;
+    padding: 0.5em 0.5em 0.3em 0em;
+}
 
 .detail .value {
     margin-left: 1em;
     display: inline-block;
     vertical-align: top;
+    font-family: sans-serif;
 }
 .detail .field {
     margin-top: 0;
     margin-bottom: 0.3em;
     display: inline-block;
-    min-width: 9em;
+    min-width: 8em;
     vertical-align: top;
 }
 

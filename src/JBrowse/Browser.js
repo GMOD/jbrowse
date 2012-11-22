@@ -618,6 +618,7 @@ Browser.prototype._calculateClientStats = function() {
                 '+'
             ),
         'tracks-count': this.config.tracks.length,
+        'plugins': dojof.keys( this.plugins ).sort().join(','),
 
         // screen geometry
         'scn-h': scn ? scn.height : null,
