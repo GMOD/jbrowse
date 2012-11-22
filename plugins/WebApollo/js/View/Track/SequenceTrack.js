@@ -19,6 +19,7 @@ var SequenceTrack = declare( DraggableFeatureTrack,
  * @constructor
  */
     constructor: function( args ) {
+	this.isWebApolloSequenceTrack = true;
 	var track = this;
         /**
          * DraggableFeatureTrack now has its own context menu for divs,
@@ -28,7 +29,6 @@ var SequenceTrack = declare( DraggableFeatureTrack,
         this.has_custom_context_menu = true;
         this.show_reverse_strand = true;
         this.show_protein_translation = true;
-
 
  /*
     track.watch("height", function(id, oldval, newval)  {
@@ -41,7 +41,6 @@ var SequenceTrack = declare( DraggableFeatureTrack,
 		    return newval;
 	} );
 */
-
 
         this.residues_context_menu = new dijit.Menu({});  // placeholder till setAnnotTrack() triggers real menu init
         this.annot_context_menu = new dijit.Menu({});     // placeholder till setAnnotTrack() triggers real menu init
@@ -80,7 +79,7 @@ var SequenceTrack = declare( DraggableFeatureTrack,
         this.SHOW_IF_FEATURES = true;
         // this.setLoaded();
 
-//    this.initContextMenu();
+	//	this.initContextMenu();
 
 
     /*
@@ -690,45 +689,7 @@ var SequenceTrack = declare( DraggableFeatureTrack,
         thisObj.contextMenuItems = new Array();
         thisObj.annot_context_menu = new dijit.Menu({});
 
-        /*	dojo.xhrPost( {
-         sync: true,
-         postData: '{ "track": "' + thisObj.getUniqueTrackName() + '", "operation": "get_user_permission" }',
-         url: this.context_path + "/AnnotationEditorService",
-         handleAs: "json",
-         timeout: 5 * 1000, // Time in milliseconds
-         // The LOAD function will be called on a successful response.
-         load: function(response, ioArgs) { //
-         var permission = response.permission;
-         thisObj.permission = permission;
          var index = 0;
-         if (permission & Permission.WRITE) {
-         thisObj.annot_context_menu.addChild(new dijit.MenuItem( {
-         label: "Delete",
-         onClick: function() {
-         thisObj.deleteSelectedFeatures();
-         }
-         } ));
-         thisObj.contextMenuItems["delete"] = index++;
-         }
-         thisObj.annot_context_menu.addChild(new dijit.MenuItem( {
-         label: "Information",
-         onClick: function(event) {
-         thisObj.getInformation();
-         }
-         } ));
-         thisObj.contextMenuItems["information"] = index++;
-         thisObj.annot_context_menu.addChild(new dijit.MenuItem( {
-         label: "..."
-         } ));
-         },
-         // The ERROR function will be called in an error case.
-         error: function(response, ioArgs) {
-         //		    thisObj.handleError(response);
-         }
-         });
-         */
-
-        var index = 0;
         if (this.annotTrack.permission & Permission.WRITE) {
         	thisObj.annot_context_menu.addChild(new dijit.MenuItem( {
         		label: "Delete",
