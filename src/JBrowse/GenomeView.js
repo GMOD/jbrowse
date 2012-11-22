@@ -47,10 +47,13 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
 
     // keep a reference to the main browser object
     this.browser = browser;
+    //the page element that the GenomeView lives in
+    this.elem = elem;
 
-    var seqCharSize = this.calculateSequenceCharacterSize( elem );
-    this.charWidth = seqCharSize.width;
-    this.seqHeight = seqCharSize.height;
+   // var seqCharSize = this.calculateSequenceCharacterSize( elem );
+    var charSize = this.getSequenceCharacterSize();
+    this.charWidth = charSize.width;
+    this.seqHeight = charSize.height;
 
     this.posHeight = this.calculatePositionLabelHeight( elem );
     // Add an arbitrary 50% padding between the position labels and the
@@ -70,8 +73,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
 
     //width, in pixels, of the vertical stripes
     this.stripeWidth = stripeWidth;
-    //the page element that the GenomeView lives in
-    this.elem = elem;
+
 
     // the scrollContainer is the element that changes position
     // when the user scrolls
@@ -546,6 +548,12 @@ GenomeView.prototype._behaviors = function() { return {
 };};
 
 
+GenomeView.prototype.getSequenceCharacterSize = function()  {
+    if (! this._charSize)  {
+	this._charSize = this.calculateSequenceCharacterSize(this.elem);
+    }
+    return this._charSize;
+}
 /**
  * Conducts a test with DOM elements to measure sequence text width
  * and height.
