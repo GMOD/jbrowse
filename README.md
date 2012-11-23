@@ -4,6 +4,16 @@ To install JBrowse, see the main JBrowse wiki at http://gmod.org/wiki/JBrowse.
 
 The rest of this file is aimed primarily at developers.
 
+# Setting up a development environment
+
+    cd /my/dev/webserver/root;
+    git clone git@github.com:GMOD/jbrowse.git
+    git submodule update --init
+    ./setup.sh
+    # and now point your browser to
+    #   http://my.dev.machine/jbrowse/index.html?data=sample_data/json/volvox
+    # and you should see the volvox example data
+
 # Running the developer test suites
 
 ## Server-side Perl
