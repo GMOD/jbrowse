@@ -129,7 +129,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     track.hideAll();
                     track.changed();
                     track.createAnnotationChangeListener();
-                    // track.getSequenceTrack().loadSequenceAlterations();
+                    track.getSequenceTrack();
+//                    track.getSequenceTrack().loadSequenceAlterations();
                 },
                 // The ERROR function will be called in an error case.
                 error: function(response, ioArgs) { //
@@ -402,8 +403,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         else  {
             var tracks = this.gview.tracks;
             for (var i = 0; i < tracks.length; i++)  {
-                if (tracks[i] instanceof SequenceTrack)  {
+//                if (tracks[i] instanceof SequenceTrack)  {
+//		if (tracks[i].config.type ==  "WebApollo/View/Track/AnnotSequenceTrack")  {
+                if (tracks[i].isWebApolloSequenceTrack)  {
+
                     this.seqTrack = tracks[i];
+		    console.log("found WebApollo sequence track: ", this.seqTrack);
                     tracks[i].setAnnotTrack(this);
                     break;
                 }
@@ -420,7 +425,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.last_mousedown_event = event;
         var ftrack = this;
         if (ftrack.verbose_selection || ftrack.verbose_drag)  {
-            console.log("AnnotTrack.onFeatureMouseDown called");
+            console.log("AnnotTrack.onFeatureMouseDown called, genome coord: " + this.getGenomeCoord(event));
         }
 
         // checking for whether this is part of drag setup retrigger of mousedown --
@@ -2391,7 +2396,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                             });
         dojo.connect(track.popupDialog, "onHide", null, function() {
                          track.selectionManager.clearSelection();
-                         track.getSequenceTrack().clearHighlightedBases();
+                	 if (track.getSequenceTrack())  { 
+                             track.getSequenceTrack().clearHighlightedBases(); }
                      });
         track.popupDialog.startup();
 
