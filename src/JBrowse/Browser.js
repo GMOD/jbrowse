@@ -100,7 +100,7 @@ Browser.prototype.version = function() {
  * Load and instantiate any plugins defined in the configuration.
  */
 Browser.prototype.initPlugins = function() {
-    var plugins = this.config.plugins;
+    var plugins = this.config.plugins || [];
 
     // coerce plugins to array of objects
     plugins = array.map( dojo.isArray(plugins) ? plugins : [plugins], function( p ) {
