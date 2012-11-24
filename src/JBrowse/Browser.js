@@ -135,8 +135,7 @@ Browser.prototype.getPlugin = function( name, callback ) {
 Browser.prototype.initPlugins = function() {
     return this._deferredFunction( 'plugin initalization', function( deferred ) {
         this.plugins = {};
-
-        var plugins = this.config.plugins;
+        var plugins = this.config.plugins || [];
 
         if( ! plugins ) {
             deferred.resolve({success: true});
