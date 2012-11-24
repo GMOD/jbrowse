@@ -75,8 +75,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
         this.prev_selection = null;
 
         this.verbose = false;
-        this.verbose_selection = false;
-        this.verbose_selection_notification = false;
+        this.verbose_selection = true;
+        this.verbose_selection_notification = true;
         this.verbose_drag = true;
 
         this.feature_context_menu = null; 
@@ -721,18 +721,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
         if (this.verbose_drag)  {  console.log("called handleFeatureDragSetup()"); console.log(featdiv); }
         var feat = featdiv.feature || featdiv.subfeature;
         var selected = this.selectionManager.isSelected( {track: this, feature: feat});
-	if (selected)  {
+/*	if (selected)  {  // simple version (no multiselect ghosting, no event retriggering for simultaneous select & drag)
 	    var $featdiv = $(featdiv);
 	    $featdiv.draggable(   { 
 		helper: 'clone', 
 		opacity: 0.5,
 		axis: 'y', 
-		create: function(event, ui)  {  }
 	    } );
 	}
-
-        // only do drag if feature is actually selected
-
+*/
             /**
              *  ideally would only make $.draggable call once for each selected div
              *  but having problems with draggability disappearing from selected divs
@@ -740,7 +737,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
              *  therefore whenever mousedown on a previously selected div also want to
              *       check that draggability and redo if missing
              */
-/*        if (selected)  {
+        if (selected)  {
             var $featdiv = $(featdiv);
             if (! $featdiv.hasClass("ui-draggable"))  {
                 if (this.verbose_drag)  {
@@ -782,7 +779,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                             for (var i=0; i<selength; i++)  {
                                 var srec = selection[i];
                                 var strack = srec.track;
-                                var sfeatdiv = strack.getFeatDiv( srec.feature );
+				var sfeat = srec.feature;
+                                var sfeatdiv = strack.getFeatDiv( sfeat );
                                 // if (sfeatdiv && (sfeatdiv !== featdiv))  {
                                 if (sfeatdiv)  {
                                     var $sfeatdiv = $(sfeatdiv);
@@ -832,12 +830,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
     //              if (this.verbose_drag)  { console.log($featdiv); }
             //      $featdiv.trigger(event);
          
-		 $featdiv.data("draggable")._mouseDown(event);
+		//  $featdiv.data("draggable")._mouseDown(event);  // was working in WebApollo pre-JBrowse1.7
                
 		//  $featdiv.draggable().data("draggable")._mouseDown(event);
             }
         }
-*/
     }, 
 
 
@@ -933,7 +930,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         }
     }, 
 
-/**
+/*
  *  for the input mouse event, returns genome position under mouse IN 1-BASED INTERBASE COORDINATES
  *  WARNING: returns base position relative to UI coordinate system 
  *       (which is 1-based interbase)
@@ -992,5 +989,4 @@ var draggableTrack = declare( HTMLFeatureTrack,
    redistribute it and/or modify it under the terms of the LGPL (either
    version 2.1, or at your option, any later version) or the Artistic
    License 2.0.  Refer to LICENSE for the full license text.
-
- */
+*/

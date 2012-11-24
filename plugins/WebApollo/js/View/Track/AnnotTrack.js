@@ -2664,9 +2664,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         // so get top-level feature div (assumes top level feature is always rendered...)
         var topfeat = AnnotTrack.getTopLevelAnnotation(feat);
         var featdiv = track.getFeatDiv(topfeat);
-    /*  GAH JBrowse1.7 merge TODO: restore residues overlay (need to get general residues rendering working on top of JBrowse sequence track first  */
 	if (featdiv)  {
-            //          track.selectionYPosition = $(featdiv).position().top;
             var selectionYPosition = $(featdiv).position().top;
             var scale = track.gview.bpToPx(1);
             if (scale === track.gview.charWidth && track.useResiduesOverlay)  {
@@ -2706,8 +2704,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                 var seqNode = document.createElement("div");
                                 seqNode.className = "annot-sequence";
                                 seqNode.appendChild(document.createTextNode(seq));
-
-
                                 // console.log("ypos: " + ypos);
                                 seqNode.style.cssText = "top: " + ypos + "px;";
                                 block.appendChild(seqNode);
@@ -2723,6 +2719,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
 
     },
+
 
     selectionRemoved: function(rec, smanager)  {
         // console.log("AnnotTrack.selectionRemoved() called");
