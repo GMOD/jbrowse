@@ -25,6 +25,7 @@ return declare(null,{
 
         var table = dojo.create('table');
         var inputs = {};
+        var that = this;
 
         var addInput = function() {
             var id = 'remoteInput'+(inputUniq++);
@@ -38,15 +39,12 @@ return declare(null,{
                     regExpGen: function() { return '^(https?|file):\/\/.+'; },
                     onChange: function() {
                         var value = this.get('value');
-                        typeSelect.set(
-                            'value',
-
-                             /\.bam$/i.test( value )          ? 'bam'    :
-                             /\.bai$/i.test( value )          ? 'bai'    :
-                             /\.gff3?$/i.test( value )        ? 'gff3'   :
-                             /\.(bw|bigwig)$/i.test( value ) ? 'bigwig' :
-                                                                  null
-                        );
+                        if( this.isValid() ) {
+                            typeSelect.set(
+                                'value',
+                                that.guessType( value )
+                            );
+                         }
 
                         // add or delete rows in the table of inputs as needed
                         var blankCount = 0;
@@ -86,6 +84,14 @@ return declare(null,{
         addInput();
 
         return table;
+    },
+
+    guessType: function( value ) {
+        return /\.bam$/i.test( value )          ? 'bam'    :
+               /\.bai$/i.test( value )          ? 'bai'    :
+               /\.gff3?$/i.test( value )        ? 'gff3'   :
+                /\.(bw|bigwig)$/i.test( value ) ? 'bigwig' :
+                                                   null;
     },
 
     _localControls: function( mainContainer ) {
