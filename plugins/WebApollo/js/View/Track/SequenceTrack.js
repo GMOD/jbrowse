@@ -32,18 +32,6 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         this.show_protein_translation = true;
         this.context_path = "..";
 
- /*
-    track.watch("height", function(id, oldval, newval)  {
-		    if (newval == 0)  {
-			console.log("   setting height to 0");
-		    }
-		    if (newval == 25 || oldval == 25) {
-			console.log("SequenceTrack height changed to or from default/label height: " + oldval + " ==> " + newval);
-		    }
-		    return newval;
-	} );
-*/
-
         this.residues_context_menu = new dijit.Menu({});  // placeholder till setAnnotTrack() triggers real menu init
         this.annot_context_menu = new dijit.Menu({});     // placeholder till setAnnotTrack() triggers real menu init
 
@@ -93,6 +81,13 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 //DraggableFeatureTrack.selectionManager.addMutualExclusion(SequenceTrack.seqSelectionManager);
 
 //    loadSuccess: function(trackInfo)  { }  // loadSuccess no longer called by track initialization/loading
+    _defaultConfig: function() {
+	var thisConfig = this.inherited(arguments);
+	// nulling out menuTemplate to suppress default JBrowse feature contextual menu
+	thisConfig.menuTemplate = null;
+	return thisConfig;
+    },
+
 
     /**
      * called by AnnotTrack to initiate sequence alterations load
@@ -819,13 +814,13 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         this.requestDeletion(selected);
     },
 
-    requestDeletion: function(annots)  {
+    requestDeletion: function(selected)  {
         console.log("SequenceTrack.requestDeletion called");
-        console.log(annots);
+        console.log(selected);
         var track = this;
         var features = "[ ";
-        for (var i = 0; i < annots.length; ++i) {
-    	    var annot = annots[i];
+        for (var i = 0; i < selected.length; ++i) {
+    	    var annot = selected[i].feature;
     	    if (i > 0) {
     		features += ", ";
     	    }
@@ -866,11 +861,6 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 	    if (! this.store.getFeatureById(id))  {
                 this.store.insert(feat);
             }
-            //	    var featureArray = JSONUtils.createJBrowseSequenceAlteration(this.attrs, annots[i]);
-            //	    var id = annots[i].uniquename;
-            //	    if (! this.features.contains(id))  {
-            //	        this.features.add(featureArray, id);
-            //	    }
         }
         track.featureCount = track.storedFeatureCount();
         if (this.SHOW_IF_FEATURES && this.featureCount > 0) {
@@ -893,7 +883,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         // remove from SeqFeatureStore
         for (var i = 0; i < annots.length; ++i) {
 	    var id_to_delete = annots[i].uniquename;
-	    this.features.deleteEntry(id_to_delete);
+            this.store.deleteFeatureById(id_to_delete);
         }
         track.featureCount = track.storedFeatureCount();
         if (this.SHOW_IF_FEATURES && this.featureCount > 0) {
@@ -1025,6 +1015,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     handleError: function(response) {
 	console.log("ERROR: ");
 	console.log(response);  // in Firebug, allows retrieval of stack trace, jump to code, etc.
+	console.log(response.stack);
 	var error = eval('(' + response.responseText + ')');
 	if (error && error.error) {
 		alert(error.error);

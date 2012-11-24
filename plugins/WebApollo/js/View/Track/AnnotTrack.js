@@ -122,10 +122,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 load: function(response, ioArgs) { //
                     var responseFeatures = response.features;
                     for (var i = 0; i < responseFeatures.length; i++) {
-                        // var jfeat = JSONUtils.createJBrowseFeature(track.attrs, responseFeatures[i]);
                         var jfeat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
 			track.store.insert(jfeat);
-                        // console.log("responseFeatures[0].uniquename: " + responseFeatures[0].uniquename);
                     }
                     track.hideAll();
                     track.changed();
@@ -133,9 +131,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
 		    var strack = track.getSequenceTrack();
                     console.log("AnnotTrack get_features XHR returned, trying to find sequence track: ", strack);
-		    if (strack && (! strack.annotTrack))  { strack.setAnnotTrack(track); }
-//		    strack.loadSequenceAlterations();
-//                    track.getSequenceTrack().loadSequenceAlterations();
+		    // setAnnotTrack() triggers loading of sequence alterations
+		    if (strack && (! strack.annotTrack))  { strack.setAnnotTrack(track); } 
                 },
                 // The ERROR function will be called in an error case.
                 error: function(response, ioArgs) { //
@@ -162,9 +159,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     _defaultConfig: function() {
 	var thisConfig = this.inherited(arguments);
+	// nulling out menuTemplate to suppress default JBrowse feature contextual menu
 	thisConfig.menuTemplate = null;
 	return thisConfig;
-	/*
+	/*  start of alternative to nulling out JBrowse feature contextual menu, instead attempt to merge in AnnotTrack-specific menu items
 	var superConfig = this.inherited(arguments);
         var track = this;
 	var superMenuTemplate = superConfig.menuTemplate;
@@ -2181,7 +2179,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         console.log("ERROR: ");
         console.log(response);  // in Firebug, allows retrieval of stack trace, jump to code, etc.
 	console.log(response.stack);
-	console.log(response.stacktrace);
         var error = eval('(' + response.responseText + ')');
         //      var error = response.error ? response : eval('(' + response.responseText + ')');
         if (error && error.error) {
