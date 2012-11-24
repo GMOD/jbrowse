@@ -62,7 +62,7 @@ var HTMLFeatures = declare( BlockBased, {
 
         this.heightCache = {}; // cache for the heights of some
                                // feature elements, indexed by the
-                               // complete className of the feature
+                               // complete cassName of the feature
 
         // make a default click event handler
         if( ! (this.config.events||{}).click ) {
@@ -599,12 +599,10 @@ HTMLFeatures = declare( HTMLFeatures,
 
                          delete sourceBlock.featureNodes[ overlaps[i] ];
 
-                         var featDiv =
-                             this.renderFeature(sourceSlot.feature, overlaps[i],
-                                                destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
-                                                containerStart, containerEnd, destBlock );
-                         destBlock.appendChild( featDiv );
-                         this._centerFeatureElements(featDiv);
+		         /* feature render, adding to block, centering refactored into addFeatureToBlock() */
+		         var featDiv = this.addFeatureToBlock( sourceSlot.feature, overlaps[i],
+							 destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
+							 containerStart, containerEnd );
                      }
             }
         }
@@ -640,10 +638,9 @@ HTMLFeatures = declare( HTMLFeatures,
         var featCallback = dojo.hitch(this,function( feature ) {
             var uniqueId = feature.id();
             if( ! this._featureIsRendered( uniqueId ) ) {
-                var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
-                                                  containerStart, containerEnd, block );
-                block.appendChild( featDiv );
-                this._centerFeatureElements(featDiv);
+		/* feature render, adding to block, centering refactored into addFeatureToBlock() */
+		var featDiv = this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                                                      containerStart, containerEnd );
             }
         });
 
@@ -665,6 +662,19 @@ HTMLFeatures = declare( HTMLFeatures,
                                 }
                               );
     },
+
+    /** 
+     *  GAH refactored code chunk of creating feature div, adding to block, centering, 
+     *     this allow subclass override where block may have substructure.
+     */
+    addFeatureToBlock: function( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                                 containerStart, containerEnd ) {
+        var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                                          containerStart, containerEnd );
+        block.appendChild( featDiv );
+        this._centerFeatureElements( featDiv );
+	return featDiv;
+    }, 
 
     /**
      * Returns true if a feature is visible and rendered someplace in the blocks of this track.
@@ -747,7 +757,7 @@ HTMLFeatures = declare( HTMLFeatures,
         return f.id();
     },
 
-    renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd, destBlock ) {
+    renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd ) {
         //featureStart and featureEnd indicate how far left or right
         //the feature extends in bp space, including labels
         //and arrowheads if applicable
@@ -793,7 +803,7 @@ HTMLFeatures = declare( HTMLFeatures,
         featDiv.track = this;
         featDiv.feature = feature;
         featDiv.layoutEnd = featureEnd;
-	dojo.addClass(featDiv, "feature");
+
         // (callbackArgs are the args that will be passed to callbacks
         // in this feature's context menu or left-click handlers)
         featDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
@@ -816,21 +826,27 @@ HTMLFeatures = declare( HTMLFeatures,
             block.rightOverlaps.push( uniqueId );
         }
 
+	dojo.addClass(featDiv, "feature");
+	var className = this.config.style.className;
+	if (className == "{type}") { className = feature.get('type'); }
+	dojo.addClass(featDiv, className);
         var strand = feature.get('strand');
         switch (strand) {
         case 1:
         case '+':
-            featDiv.className = featDiv.className + " " + this.config.style.className + " plus-" + this.config.style.className; break;
+	    dojo.addClass(featDiv, "plus-" + className); break;
+            // featDiv.className = featDiv.className + " " + this.config.style.className + " plus-" + this.config.style.className; break;
         case -1:
         case '-':
-            featDiv.className = featDiv.className + " " + this.config.style.className + " minus-" + this.config.style.className; break;
-        default:
-            featDiv.className = featDiv.className + " " + this.config.style.className; break;
+	    dojo.addClass(featDiv, "minus-" + className); break;
+            // featDiv.className = featDiv.className + " " + this.config.style.className + " minus-" + this.config.style.className; break;
+//        default:
+            // featDiv.className = featDiv.className + " " + this.config.style.className; break;
         }
-
         var phase = feature.get('phase');
         if ((phase !== null) && (phase !== undefined))
-            featDiv.className = featDiv.className + " " + featDiv.className + "_phase" + phase;
+//            featDiv.className = featDiv.className + " " + featDiv.className + "_phase" + phase;
+            dojo.addClass(featDiv, className + "_phase" + phase);
 
         // Since some browsers don't deal well with the situation where
         // the feature goes way, way offscreen, we truncate the feature
@@ -914,6 +930,7 @@ HTMLFeatures = declare( HTMLFeatures,
 
         return featDiv;
     },
+
 
     handleSubFeatures: function( feature, featDiv,
                                  displayStart, displayEnd, block )  {
