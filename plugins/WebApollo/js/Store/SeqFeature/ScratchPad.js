@@ -3,6 +3,7 @@ define( ['dojo/_base/declare',
         ],
         function( declare, SeqFeatureStore ) {
 
+// return declare( "testScratchPadClass", SeqFeatureStore,
 return declare( SeqFeatureStore,
 {
     constructor: function( args ) {
@@ -66,7 +67,7 @@ return declare( SeqFeatureStore,
                 featCallback( f );
             }
         }
-        endCallback();
+        if (endCallback)  { endCallback() }
     }
 });
 });
