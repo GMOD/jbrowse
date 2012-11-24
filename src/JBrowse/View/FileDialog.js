@@ -5,9 +5,12 @@ define( [ 'dojo/_base/declare',
           'dijit/form/ValidationTextBox',
           'dijit/form/Select',
           'dijit/form/Button',
-          'dijit/form/RadioButton'
+          'dijit/form/RadioButton',
+          'dojox/form/Uploader',
+          'dojox/form/uploader/FileList',
+          'dojox/form/uploader/plugins/IFrame'
         ],
-        function( declare, aspect, on, Dialog, TextBox, Select, Button, RadioButton ) {
+        function( declare, aspect, on, Dialog, TextBox, Select, Button, RadioButton, Uploader, FileList ) {
 
 return declare(null,{
     constructor: function( args ) {
@@ -19,7 +22,8 @@ return declare(null,{
         var inputCounter = 0;
         var id = 'remoteInput'+(inputCounter++);
 
-        var tr = dojo.create( 'tr', {} );
+        var table = dojo.create('table');
+        var tr = dojo.create( 'tr', {}, table );
         dojo.create( 'label', { for: id, innerHTML: 'URL' }, dojo.create('td',{},tr) );
 
         var textBox = new TextBox({
@@ -49,42 +53,36 @@ return declare(null,{
         });
         typeSelect.placeAt( dojo.create('td',{},tr) );
 
-        return tr;
+        return table;
     },
 
     _localControls: function() {
+        var dndSupported = 'draggable' in document.createElement('span');
+
         var inputCounter = 0;
         var id = 'localInput'+(inputCounter++);
 
-        var tr = dojo.create( 'tr', {} );
-
-        var fileBox = dojo.create('input', { type: 'file',
-            id: id
-        }, dojo.create('td',{colspan: 2},tr));
-        on( fileBox, 'change', function() {
-                console.log(this.value);
-                typeSelect.set(
-                    'value',
-                        /\.bam$/i.test(this.value)    ? 'bam' :
-                        /\.bai$/i.test(this.value)    ? 'bai' :
-                        /\.gff3?$/i.test(this.value ) ? 'gff3' :
-                        /\.(bw|bigwig)$/i.test(this.value ) ? 'bigwig' :
-                        null
-                );
+        var cont = dojo.create('div', {
+            innerHTML: '<h2>Local files</h2>'
+                       +'<h3>'
+                         + (dndSupported ? 'Drag or select files to open.' : 'Select files to open.')
+                         + '</h3>'
         });
 
-        var typeSelect = new Select({
-            options: [
-                { label: '<span class="ghosted">file type?</span>', value: null   },
-                { label: "GFF3",   value: "gff3"   },
-                { label: "BigWig", value: "bigwig" },
-                { label: "BAM",    value: "bam"    },
-                { label: "BAI",    value: "bai"    }
-            ]
+        var fileBox = new dojox.form.Uploader({
+            multiple: true
         });
-        typeSelect.placeAt( dojo.create( 'td', {}, tr ) );
+        fileBox.placeAt( cont );
+        if( dndSupported ) {
+            fileBox.addDropTarget( cont );
+            // cont.ondragover = function() { this.className = 'dragHover'; };
+            // cont.ondragend = function()  { this.className = ''; };
+        }
 
-        return tr;
+        var list = new FileList({ uploaderId: fileBox.get('id') });
+        list.placeAt(cont);
+
+        return cont;
     },
 
     _actionBar: function() {
@@ -108,19 +106,17 @@ return declare(null,{
 
     open: function() {
         var dialog = this.dialog = new Dialog(
-            { title: "Open", className: 'fileDialog' }
+            { title: "Open files", className: 'fileDialog' }
             );
-        var table = dojo.create('table');
-        dojo.forEach(
-            [dojo.create('tr',{ innerHTML: '<td colspan="3"><h2>Local Files</h2></td>'})]
-                .concat( this._localControls() )
-                .concat( dojo.create('tr',{innerHTML: '<td colspan="3"><hr></td>'}) )
-                .concat( dojo.create('tr',{innerHTML: '<td colspan="3"><h2>Remote Files</h2></td>'}) )
-                .concat( this._remoteControls() ),
-            dojo.hitch( table, 'appendChild' )
-        );
 
-        dialog.set( 'content', [ table, this._actionBar() ] );
+        dialog.set(
+            'content',
+            [
+                this._localControls(),
+                dojo.create('hr'),
+                this._remoteControls(),
+                this._actionBar()
+            ]);
         dialog.show();
 
         aspect.after( dialog, 'hide', function() {
