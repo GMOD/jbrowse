@@ -280,7 +280,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
     /**
      *  overriding renderFeature to add event handling for mouseover, mousedown, mouseup
      */
-    renderFeature: function(feature, uniqueId, block, scale,
+    renderFeature: function(feature, uniqueId, block, scale, labelScale, descriptionScale, 
                             containerStart, containerEnd) {
         var featdiv = this.inherited( arguments );
         if( featdiv )  {  // just in case featDiv doesn't actually get created
@@ -324,11 +324,12 @@ var draggableTrack = declare( HTMLFeatureTrack,
      */
     handleSubFeatures: function( feature, featDiv,
                                     displayStart, displayEnd, block )  {
-        // only way to get here is via renderFeature(parent,...),
-        //   so parent guaranteed to have unique ID set by now
-        var attrs = this.attrs;
+
+        var subfeats = feature.get('subfeatures');	
+	if (! subfeats)  { return; }
+
         var parentId = this.getId(feature);
-        var subfeats = feature.get('subfeatures');
+
         var slength = subfeats.length;
         var subfeat;
         var wholeCDS = null;
@@ -434,7 +435,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
     */
     renderExonSegments: function( subfeature, subDiv, cdsMin, cdsMax,
                                   displayStart, displayEnd, priorCdsLength, reverse)  {
-        var attrs = this.attrs;
         var subStart = subfeature.get('start');
         var subEnd = subfeature.get('end');
         var subLength = subEnd - subStart;
