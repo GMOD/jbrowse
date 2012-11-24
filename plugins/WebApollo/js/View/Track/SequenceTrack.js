@@ -8,7 +8,7 @@ define( [
      ],
 function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, CodonTable ) {
 
-var SequenceTrack = declare( DraggableFeatureTrack,
+    var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 
 {
 
@@ -27,8 +27,10 @@ var SequenceTrack = declare( DraggableFeatureTrack,
          * initialization
          */
         this.has_custom_context_menu = true;
+	//        this.use_standard_context_menu = false;
         this.show_reverse_strand = true;
         this.show_protein_translation = true;
+        this.context_path = "..";
 
  /*
     track.watch("height", function(id, oldval, newval)  {
@@ -48,7 +50,6 @@ var SequenceTrack = declare( DraggableFeatureTrack,
         this.residuesMouseDown = function(event) {
             track.onResiduesMouseDown(event);
         };
-
 	
 	this.charSize = this.gview.getSequenceCharacterSize();
 	this.charWidth = this.charSize.charWidth;
@@ -67,57 +68,18 @@ var SequenceTrack = declare( DraggableFeatureTrack,
 	seqStoreConfig.refSeq = this.refSeq;
 
 	this.sequenceStore = new StaticChunked(seqStoreConfig);
-/*	this.sequenceStore = new StaticChunked({
-	    baseUrl: this.config.baseUrl,
-	    urlTemplate: this.config.residuesUrlTemplate,
-	    compress: this.config.compress
-	});
-*/
-//	this.sequenceStore = new SequenceStore.StaticChunked({
 
         this.trackPadding = 10;
         this.SHOW_IF_FEATURES = true;
         // this.setLoaded();
-
 	//	this.initContextMenu();
 
-
-    /*
-     $.contextMenu({
-     selector: '.dna-residues',
-     callback: function(key, options) {
-     console.log("clicked on item: " + key);
-     console.log(options);
-     console.log(arguments);
-     },
-     items: {
-     "showRevComp": {name: "Show Reverse Complement" },
-     "showTranslations": {name: "Show Translation" },
-     "sep1": "---------",
-     "addInsertion": {name: "Add Genomic Insertion" },
-     "addDeletion":  {name: "Add Genomic Deletion" },
-     "addSubsitution": {name: "Add Genomic Substitution"}
-     },
-     events: {
-     show: function(opt, context_event)  {
-     var $this = this;
-     console.log("called contextMenu.events.show(): ");
-     console.log($this.get(0));
-     console.log(arguments);
-     }
-     }
-     });
-
-     $.contextMenu({
-     selector: '.sequence-alteration',
-     callback: function(key, options) {
-     console.log("clicked on item: " + key);
-     },
-     items: {
-     "deleteAlteration": {name: "Delete Genomic Alteration" }
-     }
-     });
-     */
+	var atrack = this.getAnnotTrack();
+	console.log("in SequenceTrack constructor, annotation track = ", atrack);
+	if (atrack)  { 
+	    console.log("in SequenceTrack constructor, found AnnotTrack: ", atrack);
+	    this.setAnnotTrack(atrack); 
+	}  
     },
 
 // annotSelectionManager is class variable (shared by all AnnotTrack instances)
@@ -130,41 +92,30 @@ var SequenceTrack = declare( DraggableFeatureTrack,
 // SequenceTrack.seqSelectionManager.addMutualExclusion(AnnotTrack.annotSelectionManager);
 //DraggableFeatureTrack.selectionManager.addMutualExclusion(SequenceTrack.seqSelectionManager);
 
-    loadSuccess: function(trackInfo)  {
-        this.use_standard_context_menu = false;
-
-        this.inherited( arguments );
-
-        var track = this;
-        // for AnnotTrack, features currently MUST be an NCList
-        //    var features = this.features;
-        this.features = this.featureStore.nclist;
-
-        track.featureCount = track.storedFeatureCount();
-        //    console.log("storedFeatureCount = " + track.featureCount);
-        //    this.initContextMenu();
-    },
+//    loadSuccess: function(trackInfo)  { }  // loadSuccess no longer called by track initialization/loading
 
     /**
      * called by AnnotTrack to initiate sequence alterations load
      */
     loadSequenceAlterations: function() {
         var track = this;
-        var features = this.featureStore.nclist;
+
         /**
          *    now do XHR to WebApollo AnnotationEditorService for "get_sequence_alterations"
          */
         dojo.xhrPost( {
     	                  postData: '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "operation": "get_sequence_alterations" }',
-    	                  url: context_path + "/AnnotationEditorService",
+    	                  url: track.context_path + "/AnnotationEditorService",
     	                  handleAs: "json",
     	                  timeout: 5 * 1000, // Time in milliseconds
     	                  // The LOAD function will be called on a successful response.
     	                  load: function(response, ioArgs) { //
+			      console.log("SequenceTrack get_sequence_alterations response: ");
+			      console.log(response);
     		              var responseFeatures = response.features;
     		              for (var i = 0; i < responseFeatures.length; i++) {
-    			          var jfeat = JSONUtils.createJBrowseSequenceAlteration(features.attrs, responseFeatures[i]);
-    			          features.add(jfeat, responseFeatures[i].uniquename);
+    			          var jfeat = JSONUtils.createJBrowseSequenceAlteration(responseFeatures[i]);
+    			          track.store.insert(jfeat);
     		              }
     	                      track.featureCount = track.storedFeatureCount();
     	                      if (track.SHOW_IF_FEATURES && track.featureCount > 0) {
@@ -178,6 +129,7 @@ var SequenceTrack = declare( DraggableFeatureTrack,
     	                  },
     	                  // The ERROR function will be called in an error case.
     	                  error: function(response, ioArgs) { //
+			      
     		              return response; //
     	                  }
                       });
@@ -517,10 +469,10 @@ var SequenceTrack = declare( DraggableFeatureTrack,
     //     DraggableFeatureTrack.prototype.heightUpdate.call(this, height, blockIndex);
     // };
 
-    addFeatureToBlock: function( feature, uniqueId, block, scale,
+    addFeatureToBlock: function( feature, uniqueId, block, scale, labelScale, descriptionScale, 
                                  containerStart, containerEnd ) {
         var featDiv =
-            this.renderFeature(feature, uniqueId, block, scale, containerStart, containerEnd);
+            this.renderFeature(feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd);
         $(featDiv).addClass("sequence-alteration");
 
         var charSize = this.getCharacterMeasurements();
@@ -567,19 +519,21 @@ var SequenceTrack = declare( DraggableFeatureTrack,
     	}
         }
         seqNode.appendChild(featDiv);
+	return featDiv;
     },
 
     /**
      *  overriding renderFeature to add event handling right-click context menu
      */
-    renderFeature: function( feature, uniqueId, block, scale,
+    renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, 
 			     containerStart, containerEnd ) {
-        var track = this;
-        var featDiv = DraggableFeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale,
-    								     containerStart, containerEnd);
+        // var track = this;
+       // var featDiv = DraggableFeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale,
+
+	var featDiv = this.inherited( arguments );
 
         if (featDiv && featDiv != null)  {
-    	track.annot_context_menu.bindDomNode(featDiv);
+    	    this.annot_context_menu.bindDomNode(featDiv);
         }
         return featDiv;
     },
@@ -685,7 +639,6 @@ var SequenceTrack = declare( DraggableFeatureTrack,
 
     initContextMenu: function() {
         var thisObj = this;
-        this.context_path = "..";
         thisObj.contextMenuItems = new Array();
         thisObj.annot_context_menu = new dijit.Menu({});
 
@@ -881,7 +834,7 @@ var SequenceTrack = declare( DraggableFeatureTrack,
         features += "]";
 	dojo.xhrPost( {
 		          postData: '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "delete_sequence_alteration" }',
-		          url: context_path + "/AnnotationEditorService",
+		          url: track.context_path + "/AnnotationEditorService",
 		          handleAs: "json",
 		          timeout: 5000, // Time in milliseconds
 		          // The LOAD function will be called on a successful response.
@@ -903,16 +856,21 @@ var SequenceTrack = declare( DraggableFeatureTrack,
      * sequence alteration annotation ADD command received by a ChangeNotificationListener,
      *      so telling SequenceTrack to add to it's SeqFeatureStore
      */
-    annotationsAddedNotification: function(annots)  {
-        console.log("SequenceTrack.addSequenceAlterations() called");
+    annotationsAddedNotification: function(responseFeatures)  {
+        console.log("SequenceTrack.annotationsAddedNotification() called");
         var track = this;
-        // add to SeqFeatureStore
-        for (var i = 0; i < annots.length; ++i) {
-	    var featureArray = JSONUtils.createJBrowseSequenceAlteration(this.attrs, annots[i]);
-	    var id = annots[i].uniquename;
-	    if (! this.features.contains(id))  {
-	        this.features.add(featureArray, id);
-	    }
+        // add to store
+        for (var i = 0; i < responseFeatures.length; ++i) {
+            var feat = JSONUtils.createJBrowseSequenceAlteration( responseFeatures[i] );
+            var id = responseFeatures[i].uniquename;
+	    if (! this.store.getFeatureById(id))  {
+                this.store.insert(feat);
+            }
+            //	    var featureArray = JSONUtils.createJBrowseSequenceAlteration(this.attrs, annots[i]);
+            //	    var id = annots[i].uniquename;
+            //	    if (! this.features.contains(id))  {
+            //	        this.features.add(featureArray, id);
+            //	    }
         }
         track.featureCount = track.storedFeatureCount();
         if (this.SHOW_IF_FEATURES && this.featureCount > 0) {
@@ -969,7 +927,7 @@ var SequenceTrack = declare( DraggableFeatureTrack,
     	    end = track.refSeq.end;
         }
         var count = 0;
-        this.features.iterate(start, end, function() { count++; });
+        track.store.getFeatures({ ref: track.refSeq.name, start: start, end: end}, function() { count++; });
         return count;
     },
 
@@ -1033,7 +991,7 @@ var SequenceTrack = declare( DraggableFeatureTrack,
 	    		var features = '[ { ' + feature + ' } ]';
 	    		dojo.xhrPost( {
 	    			postData: '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }',
-	    			url: context_path + "/AnnotationEditorService",
+	    			url: track.context_path + "/AnnotationEditorService",
 	    			handleAs: "json",
 	    			timeout: 5000, // Time in milliseconds
 	    			// The LOAD function will be called on a successful response.
@@ -1075,8 +1033,10 @@ var SequenceTrack = declare( DraggableFeatureTrack,
     },
 
     setAnnotTrack: function(annotTrack) {
+	if (this.annotTrack)  { console.log("WARNING: SequenceTrack.setAnnotTrack called but annoTrack already set"); }
 	this.annotTrack = annotTrack;
 	this.initContextMenu();
+	this.loadSequenceAlterations();
     },
 
     /*
@@ -1130,7 +1090,27 @@ var SequenceTrack = declare( DraggableFeatureTrack,
 	if (this.lastHighlightedReverseDNA) {
 		this.removeTextHighlight(this.lastHighlightedReverseDNA);
 	}
+    }, 
+
+    getAnnotTrack: function()  {
+        if (this.annotTrack)  {
+             return this.annotTrack;
+        }
+        else  {
+            var tracks = this.gview.tracks;
+            for (var i = 0; i < tracks.length; i++)  {
+		// should be doing instanceof here, but class setup is not being cooperative
+                if (tracks[i].isWebApolloAnnotTrack)  {
+                    this.annotTrack = tracks[i];
+		    console.log("In SequenceTrack, found WebApollo annotation track: ", this.annotTrack);
+                    this.annotTrack.seqTrack = this;
+                    break;
+                }
+            }
+	}
+	return this.annotTrack;
     }
+
 });
 
     SequenceTrack.nbsp = String.fromCharCode(160);

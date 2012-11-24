@@ -41,6 +41,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 {
     constructor: function( args ) {
                 //function AnnotTrack(trackMeta, url, refSeq, browserParams) {
+	this.isWebApolloAnnotTrack = true;
         //trackMeta: object with:
         //            key:   display text track name
         //            label: internal track name (no spaces, odd characters)
@@ -129,7 +130,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     track.hideAll();
                     track.changed();
                     track.createAnnotationChangeListener();
-                    track.getSequenceTrack();
+
+		    var strack = track.getSequenceTrack();
+                    console.log("AnnotTrack get_features XHR returned, trying to find sequence track: ", strack);
+		    if (strack && (! strack.annotTrack))  { strack.setAnnotTrack(track); }
+//		    strack.loadSequenceAlterations();
 //                    track.getSequenceTrack().loadSequenceAlterations();
                 },
                 // The ERROR function will be called in an error case.
@@ -142,7 +147,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     return response; //
                 }
             });
-
 
 
 	dojo.addOnUnload(this, function() {
@@ -305,9 +309,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 var feat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
                 var id = responseFeatures[i].uniquename;
 		if (! this.store.getFeatureById(id))  {
-                    // note that proper handling of subfeatures requires annotation trackData.json resource to
-                    //    set sublistIndex one past last feature array index used by other fields
-                    //    (currently Annotations always have 6 fields (0-5), so sublistIndex = 6
                     this.store.insert(feat);
                 }
             }
@@ -335,7 +336,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     /**
      *  overriding renderFeature to add event handling right-click context menu
      */
-    renderFeature:  function( feature, uniqueId, block, scale,
+    renderFeature:  function( feature, uniqueId, block, scale, labelScale, descriptionScale, 
                               containerStart, containerEnd ) {
         //  if (uniqueId.length > 20)  {
         //    feature.short_id = uniqueId;
@@ -406,16 +407,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 //                if (tracks[i] instanceof SequenceTrack)  {
 //		if (tracks[i].config.type ==  "WebApollo/View/Track/AnnotSequenceTrack")  {
                 if (tracks[i].isWebApolloSequenceTrack)  {
-
                     this.seqTrack = tracks[i];
 		    console.log("found WebApollo sequence track: ", this.seqTrack);
-                    tracks[i].setAnnotTrack(this);
+                   // tracks[i].setAnnotTrack(this);
                     break;
                 }
             }
-            return this.seqTrack;
         }
-    },
+        return this.seqTrack;
+    }, 
 
     onFeatureMouseDown: function(event) {
 
@@ -2180,6 +2180,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     handleError: function(response) {
         console.log("ERROR: ");
         console.log(response);  // in Firebug, allows retrieval of stack trace, jump to code, etc.
+	console.log(response.stack);
+	console.log(response.stacktrace);
         var error = eval('(' + response.responseText + ')');
         //      var error = response.error ? response : eval('(' + response.responseText + ')');
         if (error && error.error) {
