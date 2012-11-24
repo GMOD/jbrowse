@@ -19,39 +19,71 @@ return declare(null,{
     },
 
     _remoteControls: function() {
-        var inputCounter = 0;
-        var id = 'remoteInput'+(inputCounter++);
+        var inputUniq = 0;
+        var inputCount = 0;
+        var blankCount = 0;
 
         var table = dojo.create('table');
-        var tr = dojo.create( 'tr', {}, table );
-        dojo.create( 'label', { for: id, innerHTML: 'URL' }, dojo.create('td',{},tr) );
+        var inputs = {};
 
-        var textBox = new TextBox({
-            id: id,
-            regExpGen: function() { return '^(https?|file):\/\/.+'; },
-            onChange: function() {
-                typeSelect.set(
-                    'value',
-                        /\.bam$/i.test(this.get('value')) ? 'bam' :
-                        /\.bai$/i.test(this.get('value')) ? 'bai' :
-                        /\.gff3?$/i.test(this.get('value') ) ? 'gff3' :
-                        /\.(bw|bigwig)$/i.test(this.get('value') ) ? 'bigwig' :
-                        null
-                );
-            }
-        });
-        textBox.placeAt( dojo.create('td',{},tr) );
+        var addInput = function() {
+            var id = 'remoteInput'+(inputUniq++);
+            inputCount++;
+            blankCount++;
+            var tr = dojo.create( 'tr', {}, table );
+            dojo.create( 'label', { for: id, innerHTML: 'URL' }, dojo.create('td',{},tr) );
+            var typeSelect,
+                textBox = new TextBox({
+                    id: id,
+                    regExpGen: function() { return '^(https?|file):\/\/.+'; },
+                    onChange: function() {
+                        var value = this.get('value');
+                        typeSelect.set(
+                            'value',
 
-        var typeSelect = new Select({
-            options: [
-                { label: '<span class="ghosted">file type?</span>', value: null     },
-                { label: "GFF3",   value: "gff3"   },
-                { label: "BigWig", value: "bigwig" },
-                { label: "BAM",    value: "bam"    },
-                { label: "BAI",    value: "bai"    }
-            ]
-        });
-        typeSelect.placeAt( dojo.create('td',{},tr) );
+                             /\.bam$/i.test( value )          ? 'bam'    :
+                             /\.bai$/i.test( value )          ? 'bai'    :
+                             /\.gff3?$/i.test( value )        ? 'gff3'   :
+                             /\.(bw|bigwig)$/i.test( value ) ? 'bigwig' :
+                                                                  null
+                        );
+
+                        // add or delete rows in the table of inputs as needed
+                        var blankCount = 0;
+                        for( var i in inputs ) {
+                            if( ! /\S/.test( inputs[i].get('value')) ) {
+                                blankCount++;
+                                if( blankCount > 1 ) {
+                                    inputs[i]._jbrowseTR.parentNode.removeChild( inputs[i]._jbrowseTR );
+                                    delete inputs[i];
+                                    blankCount--;
+                                }
+                            }
+                        }
+                        if( blankCount == 0 ) {
+                            // make another one
+                            addInput();
+                        }
+                    }
+                });
+            textBox.placeAt( dojo.create('td',{},tr) );
+            textBox._jbrowseTR = tr;
+            inputs[id] = textBox;
+
+            typeSelect = new Select({
+                id: id+'_type',
+                options: [
+                    { label: '<span class="ghosted">file type?</span>', value: null     },
+                    { label: "GFF3",   value: "gff3"   },
+                    { label: "BigWig", value: "bigwig" },
+                    { label: "BAM",    value: "bam"    },
+                    { label: "BAI",    value: "bai"    }
+                ]
+            });
+            typeSelect.placeAt( dojo.create('td',{},tr) );
+        };
+
+        addInput();
 
         return table;
     },
