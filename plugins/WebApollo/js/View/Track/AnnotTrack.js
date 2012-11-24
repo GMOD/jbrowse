@@ -2664,18 +2664,23 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         // so get top-level feature div (assumes top level feature is always rendered...)
         var topfeat = AnnotTrack.getTopLevelAnnotation(feat);
         var featdiv = track.getFeatDiv(topfeat);
-    /*  GAH JBrowse1.7 merge TODO: restore residues overlay (need to get general residues rendering working on top of JBrowse sequence track first 
-    if (featdiv)  {
+    /*  GAH JBrowse1.7 merge TODO: restore residues overlay (need to get general residues rendering working on top of JBrowse sequence track first  */
+	if (featdiv)  {
             //          track.selectionYPosition = $(featdiv).position().top;
             var selectionYPosition = $(featdiv).position().top;
             var scale = track.gview.bpToPx(1);
-            if (scale === track.browserParams.charWidth && track.useResiduesOverlay)  {
+            if (scale === track.gview.charWidth && track.useResiduesOverlay)  {
                 var seqTrack = this.getSequenceTrack();
                 for (var bindex = this.firstAttached; bindex <= this.lastAttached; bindex++)  {
                     var block = this.blocks[bindex];
-    //              seqTrack.getRange(block.startBase, block.endBase,
-                    seqTrack.sequenceStore.getRange(this.refSeq, block.startBase, block.endBase,
-                        function(start, end, seq) {
+		    // seqTrack.getRange(block.startBase, block.endBase,
+                    //  seqTrack.sequenceStore.getRange(this.refSeq, block.startBase, block.endBase,
+		    seqTrack.sequenceStore.getFeatures({ ref: this.refSeq.name, start: block.startBase, end: block.endBase },
+	                    function(feat) {
+				var start = feat.get('start');
+				var end   = feat.get('end');
+				var seq   = feat.get('seq');
+			    
                             // var ypos = $(topfeat).position().top;
                             // +2 hardwired adjustment to center (should be calc'd based on feature div dims?
                             var ypos = selectionYPosition + 2;
@@ -2716,7 +2721,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             }
         }
-    */
 
     },
 
