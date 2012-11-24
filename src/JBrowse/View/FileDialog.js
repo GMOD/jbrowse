@@ -7,10 +7,10 @@ define( [ 'dojo/_base/declare',
           'dijit/form/Button',
           'dijit/form/RadioButton',
           'dojox/form/Uploader',
-          'dojox/form/uploader/FileList',
-          'dojox/form/uploader/plugins/IFrame'
+          'dojox/form/uploader/plugins/IFrame',
+          './FileDialog/SuperFileList'
         ],
-        function( declare, aspect, on, Dialog, TextBox, Select, Button, RadioButton, Uploader, FileList ) {
+        function( declare, aspect, on, Dialog, TextBox, Select, Button, RadioButton, Uploader, ignore, FileList ) {
 
 return declare(null,{
     constructor: function( args ) {
@@ -56,7 +56,7 @@ return declare(null,{
         return table;
     },
 
-    _localControls: function() {
+    _localControls: function( mainContainer ) {
         var dndSupported = 'draggable' in document.createElement('span');
 
         var inputCounter = 0;
@@ -74,13 +74,12 @@ return declare(null,{
         });
         fileBox.placeAt( cont );
         if( dndSupported ) {
-            fileBox.addDropTarget( cont );
-            // cont.ondragover = function() { this.className = 'dragHover'; };
-            // cont.ondragend = function()  { this.className = ''; };
+            fileBox.addDropTarget( mainContainer );
         }
 
-        var list = new FileList({ uploaderId: fileBox.get('id') });
+        var list = new FileList({ uploader: fileBox });
         list.placeAt(cont);
+        this.localFileList = list;
 
         return cont;
     },
@@ -112,7 +111,7 @@ return declare(null,{
         dialog.set(
             'content',
             [
-                this._localControls(),
+                this._localControls( dialog.domNode ),
                 dojo.create('hr'),
                 this._remoteControls(),
                 this._actionBar()
