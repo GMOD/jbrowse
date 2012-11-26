@@ -248,7 +248,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         if (this.shown) {
             // make a div to contain the sequences
             var seqNode = document.createElement("div");
-            seqNode.className = "sequence";
+            seqNode.className = "wa-sequence";
     	    // seq_block_container style sets width = 100%, so seqNode fills the block width
     	    //    regardless of whether holding residue divs or not
     	    $(seqNode).addClass("block-seq-container");
@@ -472,7 +472,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 
         var charSize = this.getCharacterMeasurements();
 
-        var seqNode = $("div.sequence", block).get(0);
+        var seqNode = $("div.wa-sequence", block).get(0);
         // var seqNode = $("div.dna-container", block).get(0);
         featDiv.style.top = "0px";
         var ftype = feature.get("type");
