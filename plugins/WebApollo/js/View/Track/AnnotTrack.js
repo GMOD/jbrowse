@@ -727,14 +727,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     var featArray = parentFeatures[i];
                     if (featArray.isSubfeature) {
                             var parentFeature = featArray[0].parent();
-                            var parentSourceTrack = parentFeature.track;
                             var fmin = undefined;
                             var fmax = undefined;
-                            var featureToAdd = $.extend({}, parentFeature);
+                            // var featureToAdd = $.extend({}, parentFeature);
+			    var featureToAdd = JSONUtils.makeSimpleFeature(parentFeature);
                             featureToAdd.set('subfeatures', new Array());
                             for (var k = 0; k < featArray.length; ++k) {
-                                    var dragfeat = featArray[k];
-                                    var source_track = dragfeat.track;
+                                    // var dragfeat = featArray[k];
+				var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
                                     var childFmin = dragfeat.get('start');
                                     var childFmax = dragfeat.get('end');
                                     if (fmin === undefined || childFmin < fmin) {
@@ -753,7 +753,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     else {
                             for (var k = 0; k < featArray.length; ++k) {
                                     var dragfeat = featArray[k];
-                                    var source_track = dragfeat.track;
                                     var afeat = JSONUtils.createApolloFeature( dragfeat, "transcript");
                                     featuresToAdd.push(afeat);
                             }
