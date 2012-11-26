@@ -475,12 +475,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
                 var scale = track.gview.bpToPx(1);
 
-		var gridvals = false;
                 // if zoomed int to showing sequence residues, then make edge-dragging snap to interbase pixels
-
-		// GAH TODO JBrowse1.7 merge -- restore grid snap when resolve charWidth
-                // if (scale === track.browserParams.charWidth) { var gridvals = [track.browserParams.charWidth, 1]; }
-                // else  { var gridvals = false; }
+		var gridvals;
+                if (scale === track.gview.charWidth) { gridvals = [track.gview.charWidth, 1]; }
+                else  { gridvals = false; }
 
                 $(featdiv).resizable( {
                     handles: "e, w",
