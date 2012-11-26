@@ -78,8 +78,8 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
 
         var statsFromInterval = function( refSeq, length, callback ) {
             var sampleCenter = refSeq.start*0.75 + refSeq.end*0.25;
-            var start = Math.round( sampleCenter - length/2 );
-            var end = Math.round( sampleCenter + length/2 );
+            var start = Math.max( 0, Math.round( sampleCenter - length/2 ) );
+            var end = Math.min( Math.round( sampleCenter + length/2 ), refSeq.end );
             this.bam.fetch( refSeq.name, start, end, dojo.hitch( this, function( features, error) {
                 if ( error ) {
                     console.error( error );
