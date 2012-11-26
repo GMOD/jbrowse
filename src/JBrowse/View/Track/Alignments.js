@@ -17,6 +17,7 @@ return declare( HTMLFeatures,
             {
                 maxFeatureScreenDensity: 1.5,
                 layoutPitchY: 4,
+                showBaseMismatches: true,
                 style: {
                     _defaultLabelScale: 50,
                     className: 'alignment',
@@ -28,7 +29,9 @@ return declare( HTMLFeatures,
 
     renderFeature: function(feature, uniqueId, block, scale, containerStart, containerEnd, destBlock ) {
         var featDiv = this.inherited( arguments );
-        this._drawMismatches( feature, featDiv, scale );
+
+        if( this.config.showBaseMismatches )
+            this._drawMismatches( feature, featDiv, scale );
 
         // if this feature is part of a multi-segment read, and not
         // all of its segments are aligned, add missing_mate to its

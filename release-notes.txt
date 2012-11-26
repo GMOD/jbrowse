@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Added a `showBaseMismatches` configuration variable for Alignment
+   tracks that, when set to false, disables display of per-base
+   mismatches parsed from a SAM/BAM MD field.
+
  * Fixed a bug with the BAM data backend in which some BAM files were
    parsed as if they held no data.
 
