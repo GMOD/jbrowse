@@ -2423,7 +2423,8 @@ div.generic_parent-hist {
     height: 16px;
     z-index: 100;
     background-color: transparent;
-    background-image: url('../img/exclamation_circle_orange.png'); 
+    background-image: url('../img/exclamation_circle_orange.png');
+    pointer-events: none;   /*  attempting to route around issue with centered non-canon splice sites preventing edge-drag */
 /*    background-image: url('img/exclamation_circle_orange.png');  */
 /*    background-image: url('img/warning_exclamation_small.png'); */
 /*    background-image: url('img/warning_exclamation.png');  */
@@ -2504,6 +2505,7 @@ div.generic_parent-hist {
     height: 12px;
     background-image: url('../img/plus-transcript-head.png');
     background-repeat: no-repeat;
+    z-index: 30;
 }
 
 .minus-trellis-arrowhead, 
@@ -2515,6 +2517,7 @@ div.generic_parent-hist {
     height: 12px;
     background-image: url('../img/minus-transcript-head.png');
     background-repeat: no-repeat;
+    z-index: 30;
 }
 
 .cds-frame0 {
