@@ -769,6 +769,23 @@ HTMLFeatures = declare( HTMLFeatures,
         if( typeof featureStart == 'string' )
             featureStart = parseInt(featureStart);
 
+
+	//scale: pixels per base at the current zoom level
+	// 1.3.1 MERGE -- 
+	//     JBrowse now draws arrowheads within feature genome coord bounds
+	//     For WebApollo we're keeping arrow outside of feature genome coord bounds, 
+	//           because otherwise arrow can obscure edge-matching, CDS/UTR transitions, small inton/exons, etc.
+	if (this.config.style.arrowheadClass) {
+            switch (feature.get('strand')) {
+            case 1:
+            case '+':
+		featureEnd   += (this.plusArrowWidth / scale); break;
+            case -1:
+            case '-':
+		featureStart -= (this.minusArrowWidth / scale); break;
+            }
+	}
+
         var levelHeight = this.glyphHeight + this.glyphHeightPad;
 
         // if the label extends beyond the feature, use the
@@ -876,7 +893,10 @@ HTMLFeatures = declare( HTMLFeatures,
             case '+':
                 if( featwidth_px > this.plusArrowWidth*1.1 ) {
                     ah.className = "plus-" + this.config.style.arrowheadClass;
-                    ah.style.cssText = "visibility: hidden; position: absolute; right: 0px; top: 0px; z-index: 100;";
+                    // ah.style.cssText = "visibility: hidden; position: absolute; right: 0px; top: 0px; z-index: 100;";
+		    // in WebApollo, arrowheads extend beyond feature coords
+		    // ah.style.cssText =  "left: 100%; top: 0px;";
+		    ah.style.cssText =  "visibility: hidden; left: 100%; top: 0px;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -884,8 +904,10 @@ HTMLFeatures = declare( HTMLFeatures,
             case '-':
                 if( featwidth_px > this.minusArrowWidth*1.1 ) {
                     ah.className = "minus-" + this.config.style.arrowheadClass;
-                    ah.style.cssText =
-                        "visibility: hidden; position: absolute; left: 0px; top: 0px; z-index: 100;";
+                    // ah.style.cssText =
+                    //     "visibility: hidden; position: absolute; left: 0px; top: 0px; z-index: 100;";
+		    // in WebApollo, arrowheads extend beyond feature coords
+		    ah.style.cssText = "visibility:hidden; left: " + (-this.minusArrowWidth) + "px; top: 0px;";
                     featDiv.appendChild(ah);
                 }
                 break;
