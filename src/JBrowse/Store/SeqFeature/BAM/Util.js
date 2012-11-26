@@ -57,7 +57,7 @@ var Utils = {
     },
 
     unbgzf: function(data, lim) {
-        lim = Math.min( lim || 1, data.byteLength - 27);
+        lim = Math.min( lim || Infinity, data.byteLength - 27);
         var oBlockList = [];
         var totalSize = 0;
 
