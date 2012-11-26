@@ -68,6 +68,36 @@ JSONUtils.createJBrowseFeature = function( afeature )  {
     return new JAFeature( afeature );
 };
 
+
+/**
+ *  takes any JBrowse feature, returns a SimpleFeature "copy", 
+ *        for which all properties returned by tags() are mutable (has set() method)
+ *  needed since JBrowse features no longer necessarily mutable
+ *    feature requirements:
+ *         functions: id, parent, tags, get
+ *         if subfeatures, then returned as array by feature.get('subfeatures')
+ *      
+ */
+JSONUtils.makeSimpleFeature = function(feature, parent)  {
+    result = new SimpleFeature({id: feature.id(), parent: (parent ? parent : feature.parent()) });
+    var ftags = feature.tags();
+    for (var tindex = 0; tindex < ftags.length; tindex++)  {  
+	var tag = ftags[tindex];
+	// forcing lower case, since still having case issues with NCList features
+	result.set(tag.toLowerCase(), feature.get(tag.toLowerCase()));
+    }
+    var subfeats = feature.get('subfeatures');
+    if (subfeats && (subfeats.length > 0))  {
+	var simple_subfeats = [];
+	for (var sindex = 0; sindex < subfeats.length; sindex++)  {
+	    var simple_subfeat = JSONUtils.makeSimpleFeature(subfeats[sindex], this);
+	    simple_subfeats.push(simple_subfeat);
+	}
+	result.set('subfeatures', simple_subfeats);
+    }
+    return result;
+};
+
 /**
 *  creates a sequence alteration in JBrowse JSON format
 *  takes as arguments:
