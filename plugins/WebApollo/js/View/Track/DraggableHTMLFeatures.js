@@ -45,9 +45,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 },
                 events: {
 		    // need to map click to a null-op, to override default JBrowse click behavior (feature detail popup)
-                    click:     function() { },  
-		    mousedown: dojo.hitch( this, 'onFeatureMouseDown' ),
-                    dblclick:  dojo.hitch( this, 'onFeatureDoubleClick' )
+                    click:     function() { }
+		    // WebApollo can't set up mousedown --> onFeatureMouseDown() in config.events, 
+		    //     because dojo.on used by JBrowse config-based event setup doesn't play nice with 
+		    //     JQuery event retriggering via _mousedown() for feature drag bootstrapping
+		    // also, JBrowse only sets these events for features, and WebApollo needs them to trigger for subfeatures as well
+		    // , mousedown: dojo.hitch( this, 'onFeatureMouseDown' ),
+                    // , dblclick:  dojo.hitch( this, 'onFeatureDoubleClick' )
                 }
             }
         );
@@ -87,6 +91,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 	        but use of dojo.declare() for classes means track object's class is actually base Object. 
 	*/
 	this.edge_matching_enabled = true;
+
     },
 
 
@@ -262,17 +267,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (jq_featdiv.hasClass(track.selectionClass))  {
                     jq_featdiv.removeClass(track.selectionClass);
                 }
-/*  GAH 11-14-2012
-      TODO: need to restore removal of draggable state upon de-selection!
-          but as of now selectionRemoved is being incorrectly called during drag initiation, thus draggable removal halts drag before can begin
-       
+
                 if (jq_featdiv.hasClass("ui-draggable"))  {
                     jq_featdiv.draggable("destroy");
                 }
                 if (jq_featdiv.hasClass("ui-multidraggable"))  {
                     jq_featdiv.multidraggable("destroy");
                 }
-*/
             }
 
         }
@@ -286,6 +287,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var featdiv = this.inherited( arguments );
         if( featdiv )  {  // just in case featDiv doesn't actually get created
 
+	    var $featdiv = $(featdiv);
+	    $featdiv.bind("mousedown", dojo.hitch( this, 'onFeatureMouseDown') );
+            $featdiv.bind("dblclick",  dojo.hitch( this, 'onFeatureDoubleClick') );
             if (this.feature_context_menu  && (! this.has_custom_context_menu)) {
                 this.feature_context_menu.bindDomNode(featdiv);
             }
@@ -628,27 +632,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // event.stopPropagation();
         if( this.verbose_selection || this.verbose_drag ) { console.log("DFT.onFeatureMouseDown called"); }
 	console.log("genome coord: " + this.gview.absXtoBp(event.pageX));
-        var ftrack = this;
 
-        // checking for whether this is part of drag setup retrigger of mousedown --
-        //     if so then don't do selection or re-setup draggability)
-        //     this keeps selection from getting confused,
-        //     and keeps trigger(event) in draggable setup from causing infinite recursion
-        //     in event handling calls to featMouseDown
-        if (ftrack.drag_create)  {
-            if (this.verbose_selection || this.verbose_drag)  {
-                console.log("DFT.featMouseDown re-triggered event for drag initiation, drag_create: " + ftrack.drag_create);
-                console.log(ftrack);
-            }
-            ftrack.drag_create = null;
-        }
-        else  {
-            this.handleFeatureSelection(event);
-	    if (this.drag_enabled)  {
-		this.handleFeatureDragSetup(event);
-	    }
-        }
-
+	// drag_create conditional needed in older strategy using trigger(event) for feature drag bootstrapping with JQuery 1.5, 
+	//   but not with with JQuery 1.7+ strategy using _mouseDown(event), since _mouseDown call doesn't lead to onFeatureMouseDown() call 
+        // if (this.drag_create)  { this.drag_create = null; return; }
+        this.handleFeatureSelection(event);
+	if (this.drag_enabled)  {
+	    this.handleFeatureDragSetup(event);
+	}
    },
 
    handleFeatureSelection: function( event )  {
@@ -815,29 +806,27 @@ var draggableTrack = declare( HTMLFeatureTrack,
                             return holder;
                         },
                         opacity: 0.5,
-			axis: 'y', 
-		        create: function(event, ui)  {
-                            // ftrack.drag_create = true;
-                        }
+			axis: 'y'
+			// drag_create setting in create() needed by older drag bootstrapping strategy with JQuery 1.5, 
+			//     but not with different JQuery 1.7+ strategy
+		        // , create: function(event, ui)  { ftrack.drag_create = true; }
+                    } );
 
-	        //      } ).trigger(event);
-	        //      } ).data("draggable")._mouseDown(event);
-
+		// Want to be able to both make feature draggable and initiate actual dragging with the same mousedown event 
+		// to do this need to retrigger/simulate the mousedown event again
                 // see http://bugs.jqueryui.com/ticket/3876 regarding switch from previous hacky approach using JQuery 1.5:
-                //       trigger(event) and ftrack.drag_create
-                // to new hacky approach using JQuery 1.7:
+                //       $featdiv.trigger(event) and ftrack.drag_create 
+                // to new hacky approach using JQuery 1.7+:
                 //       data("draggable")._mouseDown(event);
+		// _mouseDown doesn't lead to another call to onFeatMouseDown, but does trigger the drag
                 //
                 // see also http://stackoverflow.com/questions/9634639/why-does-this-break-in-jquery-1-7-x
                 //     for more explanation of event handling changes in JQuery 1.7
 
-                    } );
-		//  if (this.verbose_drag)  { console.log($featdiv); }
-		//  $featdiv.trigger(event);
-		//  $featdiv.draggable().data("draggable")._mouseDown(event);
-
-		//  LATEST FROM WEBAPOLLO PRE-JBROWSE1.7:
-		//  $featdiv.data("draggable")._mouseDown(event);  // was working in WebApollo pre-JBrowse1.7
+		// _mouseDown(event) triggering boostrapping of feature drag 
+		// $featdiv.data("draggable")._mouseDown(event);  
+		$featdiv.draggable().data("draggable")._mouseDown(event);
+		// $featdiv.trigger(event);
             }
         }
     }, 
