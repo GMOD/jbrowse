@@ -78,6 +78,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         this.verbose_selection = true;
         this.verbose_selection_notification = true;
         this.verbose_drag = true;
+	this.drag_enabled = true;
 
         this.feature_context_menu = null; 
 
@@ -643,7 +644,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
         }
         else  {
             this.handleFeatureSelection(event);
-            this.handleFeatureDragSetup(event);
+	    if (this.drag_enabled)  {
+		this.handleFeatureDragSetup(event);
+	    }
         }
 
    },
@@ -658,11 +661,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
            return;
        }
 
-       var already_selected = selman.isSelected(feat);
+       var already_selected = selman.isSelected( { feature: feat, track: ftrack } );
        var parent_selected = false;
        var parent = feat.parent();
        if (parent)  {
-           parent_selected = selman.isSelected(parent);
+           parent_selected = selman.isSelected( { feature: parent, track: ftrack } );
        }
        if (this.verbose_selection)  {
            console.log("DFT.handleFeatureSelection() called, actual mouse event");
@@ -720,7 +723,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var featdiv = (event.currentTarget || event.srcElement);
         if (this.verbose_drag)  {  console.log("called handleFeatureDragSetup()"); console.log(featdiv); }
         var feat = featdiv.feature || featdiv.subfeature;
-        var selected = this.selectionManager.isSelected( {track: this, feature: feat});
+        var selected = this.selectionManager.isSelected( { feature: feat, track: ftrack });
 /*	if (selected)  {  // simple version (no multiselect ghosting, no event retriggering for simultaneous select & drag)
 	    var $featdiv = $(featdiv);
 	    $featdiv.draggable(   { 
@@ -817,22 +820,24 @@ var draggableTrack = declare( HTMLFeatureTrack,
                             // ftrack.drag_create = true;
                         }
 
-            //      } ).trigger(event);
-                // see http://bugs.jqueryui.com/ticket/3876 regarding switch from previous hacky approach using JQuery 1.5
+	        //      } ).trigger(event);
+	        //      } ).data("draggable")._mouseDown(event);
+
+                // see http://bugs.jqueryui.com/ticket/3876 regarding switch from previous hacky approach using JQuery 1.5:
                 //       trigger(event) and ftrack.drag_create
                 // to new hacky approach using JQuery 1.7:
                 //       data("draggable")._mouseDown(event);
                 //
                 // see also http://stackoverflow.com/questions/9634639/why-does-this-break-in-jquery-1-7-x
                 //     for more explanation of event handling changes in JQuery 1.7
-    //              } ).data("draggable")._mouseDown(event);
+
                     } );
-    //              if (this.verbose_drag)  { console.log($featdiv); }
-            //      $featdiv.trigger(event);
-         
-		//  $featdiv.data("draggable")._mouseDown(event);  // was working in WebApollo pre-JBrowse1.7
-               
+		//  if (this.verbose_drag)  { console.log($featdiv); }
+		//  $featdiv.trigger(event);
 		//  $featdiv.draggable().data("draggable")._mouseDown(event);
+
+		//  LATEST FROM WEBAPOLLO PRE-JBROWSE1.7:
+		//  $featdiv.data("draggable")._mouseDown(event);  // was working in WebApollo pre-JBrowse1.7
             }
         }
     }, 
@@ -855,11 +860,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // GAH TODO:  make this work for feature hierarchies > 2 levels deep
         var subfeat = featdiv.subfeature;
        // if (subfeat && (! unselectableTypes[subfeat.get('type')]))  {  // only allow double-click parent selection for selectable features
-        if( subfeat && selman.isSelected(subfeat) ) {  // only allow double-click of child for parent selection if child is already selected
+        if( subfeat && selman.isSelected({ feature: subfeat, track: ftrack }) ) {  // only allow double-click of child for parent selection if child is already selected
             var parent = subfeat.parent();
             // select parent feature
             // children (including subfeat double-clicked one) are auto-deselected in FeatureSelectionManager if parent is selected
-            if( parent ) { selman.addToSelection({ feature: parent, track: this }); }
+            if( parent ) { selman.addToSelection({ feature: parent, track: ftrack }); }
         }
     },
 

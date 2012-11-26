@@ -50,21 +50,21 @@ return declare( null,
 	    console.log("called FeatureSelectionManager.addToSelection(), but feature already in selection");
 	    return;
         }
-        // remove any children
+        // remove any children of the selected feature (originating from same track)
         var selarray = this.selected;
         var slength = selarray.length;
         for ( var sindex = 0; sindex < slength; sindex++ )  {
             var srec = selarray[sindex];
-	    if ( srec.feature.parent == rec.feature && srec.track == rec.track )  {
-	        this._removeSelectionAt( sindex, srec );
+	    if ( srec.feature.parent() == rec.feature && srec.track == rec.track )  {
+	        this._removeSelectionAt(sindex);
 	        slength--;
 	    }
         }
 
-        // remove any parents
-        var parent = rec.feature.parent;
+        // remove any parents of the selected feature (originating from same track)
+        var parent = rec.feature.parent();
         if( parent )  {
-	    this.removeFromSelection(parent);
+	    this.removeFromSelection( { feature: parent, track: rec.track } );
         }
         selarray.push( rec );
         var lislength = this.listeners.length;
@@ -85,12 +85,13 @@ return declare( null,
         }
     },
 
-    _removeSelectionAt: function(index, rec)  {
+    _removeSelectionAt: function( index )  {
+	var rec = this.selected[index];
         this.selected.splice(index, 1);
         var lislength = this.listeners.length;
         for (var lindex = 0; lindex<lislength; lindex++)  {
 	    var listener = this.listeners[lindex];
-	    listener.selectionRemoved( rec, this );
+	    listener.selectionRemoved(rec, this);
         }
     },
 
