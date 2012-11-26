@@ -4,6 +4,7 @@ define( [
             'dojo/_base/lang',
             'dojo/on',
             'dojo/_base/Deferred',
+            'dojo/DeferredList',
             'dojo/topic',
             'dojo/aspect',
             'dojo/_base/array',
@@ -28,6 +29,7 @@ define( [
             lang,
             on,
             Deferred,
+            DeferredList,
             topic,
             aspect,
             array,
@@ -151,6 +153,14 @@ Browser.prototype.initPlugins = function() {
             return p.name;
         });
 
+        var pluginDeferreds = array.map( plugins, function(p) {
+            return new Deferred();
+        });
+
+        // fire the "all plugins done" deferred when all of the plugins are done loading
+        (new DeferredList( pluginDeferreds ))
+            .then( function() { deferred.resolve({success: true}); });
+
         require( {
                      packages: array.map( pluginNames, function(c) { return { name: c, location: "../plugins/"+c+"/js" }; })
                  },
@@ -158,6 +168,7 @@ Browser.prototype.initPlugins = function() {
                  dojo.hitch( this, function() {
                      array.forEach( arguments, function( pluginClass, i ) {
                              var pluginName = pluginNames[i];
+                             var thisPluginDone = pluginDeferreds[i];
                              if( typeof pluginClass == 'string' ) {
                                  console.error("could not load plugin "+pluginName+": "+pluginClass);
                              } else {
@@ -172,14 +183,22 @@ Browser.prototype.initPlugins = function() {
                                  args = dojo.mixin( args, { browser: this } );
 
                                  // load its css
-                                 this._loadCSS({url: 'plugins/'+pluginName+'/css/main.css'});
+                                 this._loadCSS(
+                                     {url: 'plugins/'+pluginName+'/css/main.css'},
+                                     function() {
+                                         thisPluginDone.resolve({success:true});
+                                     },
+                                     function() {
+                                         // succeed loading even if the css load failed.  not all plugins necessarily have css
+                                         thisPluginDone.resolve({success:true});
+                                     }
+                                 );
 
                                  // instantiate the plugin
                                  var plugin = new pluginClass( args );
                                  this.plugins[ pluginName ] = plugin;
                              }
                          }, this );
-                     deferred.resolve({success: true});
                   }));
     });
 
@@ -255,27 +274,37 @@ Browser.prototype.loadUserCSS = function() {
     return this._deferredFunction( 'load user css', function( deferred ) {
         if( this.config.css && ! dojo.isArray( this.config.css ) )
             this.config.css = [ this.config.css ];
+
         var css = this.config.css || [];
-        var toLoad = css.length;
-        if( toLoad ) {
-            dojo.forEach( this.config.css || [], dojo.hitch( this, '_loadCSS', function() {
-                if( ! --toLoad )
-                    deferred.resolve({success:true});
-            }));
-        } else {
+        if( ! css.length ) {
             deferred.resolve({success:true});
+            return;
         }
-    });
+
+        var that = this;
+        var cssDeferreds = array.map( css, function( css ) {
+            var d = new Deferred();
+            that._loadCSS(
+                css,
+                function() { d.resolve({success:true}); },
+                function() { d.resolve({success:false}); }
+            );
+            return d;
+        });
+
+        new DeferredList(cssDeferreds)
+            .then( function() { deferred.resolve({success:true}); } );
+   });
 };
 
-Browser.prototype._loadCSS = function( css, callback ) {
+Browser.prototype._loadCSS = function( css, successCallback, errorCallback ) {
         if( typeof css == 'string' ) {
             dojo.create('style', { type: 'text/css', innerHTML: css }, this.container );
-            callback();
+            successCallback && successCallback();
         } else if( typeof css == 'object' ) {
             var link = dojo.create('link', { rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
-            on( link, 'load', callback );
-            on( link, 'error', callback );
+            successCallback && on( link, 'load', successCallback );
+            errorCallback   && on( link, 'error', errorCallback );
         }
 };
 
