@@ -7,7 +7,7 @@ div.track_annotations {
    To support WebApollo with sequence alteration features shown on SequenceTrack, 
    sequence style MUST NOT have a z-index specified 
 */
-div.sequence {
+div.wa-sequence {
     position: absolute;
     left: 0px;
     /* Courier New is preferred by JBrowse, but it looks too light in Firefox, and jagged in Chrome */
@@ -37,25 +37,25 @@ div.block-seq-container {
     /* outline: 1px solid #00FF00; */
 }
 
-div.sequence .dna-container  {
+div.wa-sequence .dna-container  {
     position: absolute;
     width: 100%;
 }
 
-div.sequence .dna-residues.forward-strand {
+div.wa-sequence .dna-residues.forward-strand {
     color: black;
     z-index: 5;
     /* outline: 1px solid pink; */
 }
 
-div.sequence .dna-residues.reverse-strand {
+div.wa-sequence .dna-residues.reverse-strand {
     color: gray;
     border-top: 1px solid lightgray;
     z-index: 5;
     /* outline: 1px solid pink; */
 }
 
-div.sequence .aa-residues  {
+div.wa-sequence .aa-residues  {
     color: black;
     z-index: 5;
 /*
@@ -67,17 +67,17 @@ div.sequence .aa-residues  {
 /*    outline: 1px solid orange; */
 }
 
-div.sequence .aa-residues.frame0 {
+div.wa-sequence .aa-residues.frame0 {
     background-color: #999999; 
     z-index: 5;
 }
 
-div.sequence .aa-residues.frame1 {
+div.wa-sequence .aa-residues.frame1 {
     background-color: #BBBBBB; 
     z-index: 5;
 }
 
-div.sequence .aa-residues.frame2 {
+div.wa-sequence .aa-residues.frame2 {
     background-color: #DDDDDD; 
     z-index: 5;
 }
@@ -113,12 +113,12 @@ div.sequence .aa-residues.offset2 {
 */
 
 /* highlighting of dna residues in DNA track on mouseover */
-div.sequence .dna-highlighted {
+div.wa-sequence .dna-highlighted {
     background: #F9BF3A
 }
 
 /* don't think this is currently (April 2012) being used */
-div.sequence .highlighted {
+div.wa-sequence .highlighted {
     background: #ff0;
 }
 
@@ -2422,6 +2422,7 @@ div.generic_parent-hist {
     position: absolute;
     height: 16px;
     z-index: 100;
+    background-color: transparent;
     background-image: url('../img/exclamation_circle_orange.png'); 
 /*    background-image: url('img/exclamation_circle_orange.png');  */
 /*    background-image: url('img/warning_exclamation_small.png'); */
