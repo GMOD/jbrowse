@@ -2657,11 +2657,21 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.inherited( arguments );
 
         var track = this;
+
+        if (rec.track === track)  {
+//            var featdiv = track.getFeatDiv(rec.feature);
+            // remove sequence text nodes
+            // console.log("removing base residued text from selected annot");
+            $("div.annot-sequence", track.div).remove();
+//            track.selectionYPosition = null;
+        }
+
         // want to get child of block, since want position relative to block
         // so get top-level feature div (assumes top level feature is always rendered...)
         var topfeat = AnnotTrack.getTopLevelAnnotation(feat);
         var featdiv = track.getFeatDiv(topfeat);
 	if (featdiv)  {
+	    var strand = topfeat.get('strand');
             var selectionYPosition = $(featdiv).position().top;
             var scale = track.gview.bpToPx(1);
             if (scale === track.gview.charWidth && track.useResiduesOverlay)  {
@@ -2700,6 +2710,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                             if (add_residues)  {
                                 var seqNode = document.createElement("div");
                                 seqNode.className = "annot-sequence";
+				if (strand == '-' || strand == -1)  {
+				    // seq = track.reverseComplement(seq);
+				    seq = track.getSequenceTrack().complement(seq);
+				}
                                 seqNode.appendChild(document.createTextNode(seq));
                                 // console.log("ypos: " + ypos);
                                 seqNode.style.cssText = "top: " + ypos + "px;";
@@ -2715,21 +2729,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
         }
 
-    },
-
-
-    selectionRemoved: function(rec, smanager)  {
-        // console.log("AnnotTrack.selectionRemoved() called");
-        this.inherited( arguments );
-
-        var track = this;
-        if (rec.track === track)  {
-            var featdiv = track.getFeatDiv(rec.feature);
-            // remove sequence text nodes
-            // console.log("removing base residued text from selected annot");
-            $("div.annot-sequence", track.div).remove();
-            track.selectionYPosition = null;
-        }
     },
 
     startZoom: function(destScale, destStart, destEnd) {
