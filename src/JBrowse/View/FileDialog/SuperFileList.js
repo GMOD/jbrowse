@@ -25,7 +25,7 @@ return declare( FileList,
     },
 
     getFiles: function() {
-        return this._files;
+        return this._files || [];
     }
 });
 });

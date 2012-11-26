@@ -24,7 +24,7 @@ return declare(null,{
         var blankCount = 0;
 
         var table = dojo.create('table');
-        var inputs = {};
+        var inputs = this.inputs = {};
         var that = this;
 
         var addInput = function() {
@@ -46,27 +46,11 @@ return declare(null,{
                             );
                          }
 
-                        // add or delete rows in the table of inputs as needed
-                        var blankCount = 0;
-                        for( var i in inputs ) {
-                            if( ! /\S/.test( inputs[i].get('value')) ) {
-                                blankCount++;
-                                if( blankCount > 1 ) {
-                                    inputs[i]._jbrowseTR.parentNode.removeChild( inputs[i]._jbrowseTR );
-                                    delete inputs[i];
-                                    blankCount--;
-                                }
-                            }
-                        }
-                        if( blankCount == 0 ) {
-                            // make another one
-                            addInput();
-                        }
-                    }
+                        updateInputs();
+                    },
+                    onMouseOut: updateInputs
                 });
             textBox.placeAt( dojo.create('td',{},tr) );
-            textBox._jbrowseTR = tr;
-            inputs[id] = textBox;
 
             typeSelect = new Select({
                 id: id+'_type',
@@ -79,6 +63,27 @@ return declare(null,{
                 ]
             });
             typeSelect.placeAt( dojo.create('td',{},tr) );
+
+            inputs[id] = { url: textBox, type: typeSelect, tr: tr };
+        };
+
+        var updateInputs = function() {
+            // add or delete rows in the table of inputs as needed
+            var blankCount = 0;
+            for( var i in inputs ) {
+                if( ! /\S/.test( inputs[i].url.get('value')) ) {
+                    blankCount++;
+                    if( blankCount > 1 ) {
+                        inputs[i].tr.parentNode.removeChild( inputs[i].tr );
+                        delete inputs[i];
+                        blankCount--;
+                    }
+                }
+            }
+            if( blankCount == 0 ) {
+                // make another one
+                addInput();
+            }
         };
 
         addInput();
@@ -122,7 +127,7 @@ return declare(null,{
         return cont;
     },
 
-    _actionBar: function() {
+    _actionBar: function( openCallback, cancelCallback ) {
         var actionBar = dojo.create(
             'div', {
                 className: 'dijitDialogPaneActionBar',
@@ -135,13 +140,19 @@ return declare(null,{
             });
         new Button({ iconClass: 'dijitIconDelete', onClick: dojo.hitch( this.dialog, 'hide' ), label: 'Cancel' })
             .placeAt( actionBar );
-        new Button({ iconClass: 'dijitIconFolderOpen', onClick: dojo.hitch( this.dialog, 'hide' ), label: 'Open' })
+        new Button({ iconClass: 'dijitIconFolderOpen',
+                     label: 'Open',
+                     onClick: dojo.hitch( this, function() {
+                         openCallback && openCallback( this._filesToOpen(), this._urlsToOpen() );
+                         this.dialog.hide();
+                     })
+                   })
             .placeAt( actionBar );
 
         return actionBar;
     },
 
-    open: function() {
+    show: function( args ) {
         var dialog = this.dialog = new Dialog(
             { title: "Open files", className: 'fileDialog' }
             );
@@ -152,13 +163,34 @@ return declare(null,{
                 this._localControls( dialog.domNode ),
                 dojo.create('hr'),
                 this._remoteControls(),
-                this._actionBar()
+                this._actionBar( args.openCallback, args.cancelCallback )
             ]);
         dialog.show();
 
         aspect.after( dialog, 'hide', function() {
                           dialog.destroyRecursive();
                       });
+    },
+
+    _filesToOpen: function() {
+        if( ! this.localFileList )
+            return [];
+
+        return this.localFileList.getFiles();
+    },
+
+    _urlsToOpen: function() {
+        var urls = [];
+        for( var id in this.inputs ) {
+            var input = this.inputs[id];
+            var type = input.type.get('value') || undefined;
+            if( type && input.url.textbox && input.url.isValid() ) {
+                var value = input.url.get('value');
+                if( /\S/.test( value || '') )
+                    urls.push( { url: value, type: type });
+            }
+        }
+        return urls;
     }
 });
 });
