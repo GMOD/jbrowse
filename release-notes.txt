@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Fixed a bug with the BAM data backend in which some BAM files were
+   parsed as if they held no data.
+
  * Fixed some bugs in server-side formatting code for feature tracks:
    data was recorded multiple times in JSON files in some
    circumstances.
