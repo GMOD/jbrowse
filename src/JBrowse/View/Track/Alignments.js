@@ -30,8 +30,9 @@ return declare( HTMLFeatures,
     renderFeature: function(feature, uniqueId, block, scale, containerStart, containerEnd, destBlock ) {
         var featDiv = this.inherited( arguments );
 
-        if( this.config.showBaseMismatches )
-            this._drawMismatches( feature, featDiv, scale );
+        var displayStart = Math.max( feature.get('start'), containerStart );
+        var displayEnd = Math.min( feature.get('end'), containerEnd );
+        this._drawMismatches( feature, featDiv, scale, displayStart, displayEnd );
 
         // if this feature is part of a multi-segment read, and not
         // all of its segments are aligned, add missing_mate to its
@@ -46,42 +47,95 @@ return declare( HTMLFeatures,
     /**
      * draw base-mismatches on the feature
      */
-    _drawMismatches: function( feature, featDiv, scale ) {
+    _drawMismatches: function( feature, featDiv, scale, displayStart, displayEnd ) {
+        var featLength = displayEnd - displayStart;
         // recall: scale is pixels/basepair
-        if ( scale >= 0.5 ) {
+        if ( featLength*scale > 1 ) {
             var mismatches = this._getMismatches( feature );
             var charSize = this.getCharacterMeasurements();
             var drawChars = scale >= charSize.w;
-            var featureLength = feature.get('end') - feature.get('start');
 
             array.forEach( mismatches, function( mismatch ) {
-                array.forEach( mismatch.bases, function( base, i ) {
-                    dojo.create('span', {
-                                    className: 'mismatch base base_'+(base == '*' ? 'deletion' : base.toLowerCase()),
-                                    style: {
-                                        position: 'absolute',
-                                        left: (mismatch.start+i)/featureLength*100 + '%',
-                                        width: Math.max(scale,1) + 'px'
-                                    },
-                                    innerHTML: drawChars ? base : ''
-                                }, featDiv );
-               }, this );
-            });
+                var start = feature.get('start') + mismatch.start;
+                var end = start + mismatch.bases.length;
+
+                // if the feature has been truncated to where it doesn't cover
+                // this mismatch anymore, just skip this subfeature
+                if ( end <= displayStart || start >= displayEnd )
+                    return;
+
+                if( drawChars ) {
+                    array.forEach( mismatch.bases, function( base, i ) {
+                        dojo.create('span', {
+                                        className: mismatch.type+' base base_'+(base == '*' ? 'deletion' : base.toLowerCase()),
+                                        style: {
+                                            position: 'absolute',
+                                            left: 100 * (start + i - displayStart)/featLength + '%',
+                                            width: scale + 'px'
+                                        },
+                                        innerHTML: base
+                                    }, featDiv );
+                    });
+                } else {
+                    var base = mismatch.bases[0];
+                    dojo.create('span',  {
+                        className: mismatch.type,
+                        style: {
+                            position: 'absolute',
+                            left: 100 * (start - displayStart)/featLength + '%',
+                            width: (100 * (end - start)/featLength) + "%"
+                        },
+                        innerHTML: ''
+                    }, featDiv );
+                }
+            }, this );
         }
     },
 
     _getMismatches: function( feature ) {
-        var seq = feature.get('seq');
-        if( ! seq )
-            return m;
-
+        var mismatches = [];
         // parse the MD tag if it has one
-        var mdTag = feature.get('MD');
-        if( mdTag ) {
-            return this._mdToMismatches( feature, mdTag );
+        if( feature.get('MD') ) {
+            mismatches.push.apply( mismatches, this._mdToMismatches( feature, feature.get('MD') ) );
+        }
+        // parse the CIGAR tag if it has one
+        if( feature.get('cigar') ) {
+            mismatches.push.apply( mismatches, this._cigarToMismatches( feature, feature.get('cigar') ) );
         }
 
-        return [];
+        return mismatches;
+    },
+
+    _parseCigar: function( cigar ) {
+        return array.map( cigar.match(/\d+\D/g), function( op ) {
+           return [ op.match(/\D/)[0].toUpperCase(), parseInt( op ) ];
+        });
+    },
+
+    _cigarToMismatches: function( feature, cigarstring ) {
+        var ops = this._parseCigar( cigarstring );
+        var currOffset = 0;
+        var mismatches = [];
+        array.forEach( ops, function( oprec ) {
+           var op  = oprec[0].toUpperCase();
+           if( !op )
+               return;
+           var len = oprec[1];
+           // if( op == 'M' || op == '=' || op == 'E' ) {
+           //     // nothing
+           // }
+           if( op == 'I' )
+               mismatches.push( { start: currOffset, type: 'insertion', bases: '|' } );
+           else if( op == 'D' )
+               mismatches.push( { start: currOffset, type: 'deletion',  bases: new Array(len+1).join('*') } );
+           else if( op == 'N' )
+               mismatches.push( { start: currOffset, type: 'skip',      bases: new Array(len+1).join('N') } );
+           else if( op == 'X' )
+               mismatches.push( { start: currOffset, type: 'mismatch',  bases: new Array(len+1).join('X') } );
+
+           currOffset += len;
+        });
+        return mismatches;
     },
 
     /**
@@ -91,11 +145,10 @@ return declare( HTMLFeatures,
      */
     _mdToMismatches: function( feature, mdstring ) {
         var mismatchRecords = [];
-        var curr = { start: 0, bases: '' };
-        var seq = feature.get('seq');
+        var curr = { start: 0, bases: '', type: 'mismatch' };
         var nextRecord = function() {
               mismatchRecords.push( curr );
-              curr = { start: curr.start + curr.bases.length, bases: ''};
+              curr = { start: curr.start + curr.bases.length, bases: '', type: 'mismatch'};
         };
         array.forEach( mdstring.match(/(\d+|\^[a-z]+|[a-z])/ig), function( token ) {
           if( token.match(/^\d/) ) { // matching bases
@@ -106,6 +159,7 @@ return declare( HTMLFeatures,
               while( i-- ) {
                   curr.bases += '*';
               }
+              curr.type = 'deletion';
               nextRecord();
           }
           else if( token.match(/^[a-z]/i) ) { // mismatch

@@ -1,8 +1,8 @@
 {{$NEXT}}
 
- * Added a `showBaseMismatches` configuration variable for Alignment
-   tracks that, when set to false, disables display of per-base
-   mismatches parsed from a SAM/BAM MD field.
+ * "Alignments" tracks now parse an alignment's CIGAR string if it
+   does not have an MD field, and display mismatches and skipped
+   sequence regions (particularly important for RNA-seq alignments).
 
  * Fixed a bug with the BAM data backend in which some BAM files were
    parsed as if they held no data.

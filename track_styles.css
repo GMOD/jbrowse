@@ -51,13 +51,21 @@ div.hist {
     border: 2px solid red;
 }
 
-.alignment .mismatch.base {
+.alignment .mismatch {
     height: 100%;
 }
-.alignment .mismatch.base_deletion {
+.alignment .mismatch.base {
+}
+.alignment .deletion {
     background-color: black;
     color: white;
 }
+.alignment .skip {
+    background: url('img/black_20x2.png') repeat-x 0 50% white;
+    height: 100%;
+    opacity: 0.7;
+}
+
 
 /* .plus-alignment .mismatch, */
 /* .minus-alignment .mismatch { */
