@@ -115,7 +115,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 //        this.features = this.featureStore.nclist;
 //        var features = this.features;
 
-	this.getPermission( track.initAnnotContextMenu() );  // calling back to initAnnotContextMenu() once permissions are returned by server
+//	this.getPermission( dojo.hitch(this, initAnnotContextMenu) );  // calling back to initAnnotContextMenu() once permissions are returned by server
+	this.getPermission( function()  { track.initAnnotContextMenu(); } );  // calling back to initAnnotContextMenu() once permissions are returned by server
 //        this.initAnnotContextMenu();
 
 //        this.initNonAnnotContextMenu();
@@ -2453,6 +2454,7 @@ initNonAnnotContextMenu: function() {
 
     getPermission: function( callback ) {
 	var thisObj = this;
+	var loadCallback = callback;
 	dojo.xhrPost( {
 		sync: true,
 		postData: '{ "track": "' + thisObj.getUniqueTrackName() + '", "operation": "get_user_permission" }',
@@ -2461,9 +2463,9 @@ initNonAnnotContextMenu: function() {
 		timeout: 5 * 1000, // Time in milliseconds
 		// The LOAD function will be called on a successful response.
 		load: function(response, ioArgs) { //
-			var permission = response.permission;
-			thisObj.permission = permission;
-		    if (callback)  { callback(permission); };
+		    var permission = response.permission;
+		    thisObj.permission = permission;
+		    if (loadCallback)  { loadCallback(permission); };
 		},
 		error: function(response, ioArgs) { //
 		    thisObj.handleError(response);
@@ -2828,18 +2830,18 @@ initNonAnnotContextMenu: function() {
 
     },
 
-    selectionRemoved: function(feat, smanager)  {
-    // console.log("AnnotTrack.selectionRemoved() called");
-    DraggableFeatureTrack.prototype.selectionRemoved.call(this, feat, smanager);
-    var track = this;
-    if (feat.track === track)  {
-	var featdiv = track.getFeatDiv(feat);
-	// remove sequence text nodes
-	// console.log("removing base residued text from selected annot");
-	$("div.annot-sequence", track.div).remove();
-	track.selectionYPosition = null;
-    }
-}, 
+    selectionRemoved: function(selected_record, smanager)  {
+	// console.log("AnnotTrack.selectionRemoved() called");
+	this.inherited( arguments );
+	var track = this;
+	if (selected_record.track === track)  {
+	    var feat = selected_record.feature;
+	    var featdiv = this.getFeatDiv(feat);
+	    // remove sequence text nodes
+	    // console.log("removing base residued text from selected annot");
+	    $("div.annot-sequence", track.div).remove();
+	}
+    }, 
 
     startZoom: function(destScale, destStart, destEnd) {
         // would prefer to only try and hide dna residues on zoom if previous scale was at base pair resolution
