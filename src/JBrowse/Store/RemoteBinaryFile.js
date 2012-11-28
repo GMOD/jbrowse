@@ -234,7 +234,10 @@ return declare( null,
                             }
                         } catch (x) {
                             console.error(''+x, x.stack, x);
-                            respond( null );
+                            // the response must have successful but
+                            // empty, so respond with a zero-length
+                            // arraybuffer
+                            respond( new ArrayBuffer() );
                             return;
                         }
                     }).call(this);
