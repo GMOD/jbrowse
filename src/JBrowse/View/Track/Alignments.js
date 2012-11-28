@@ -57,36 +57,30 @@ return declare( HTMLFeatures,
 
             array.forEach( mismatches, function( mismatch ) {
                 var start = feature.get('start') + mismatch.start;
-                var end = start + mismatch.bases.length;
+                var end = start + mismatch.length;
 
                 // if the feature has been truncated to where it doesn't cover
                 // this mismatch anymore, just skip this subfeature
                 if ( end <= displayStart || start >= displayEnd )
                     return;
 
+                var base = mismatch.base;
+                var overall = dojo.create('span',  {
+                    className: mismatch.type + ' base_'+base.toLowerCase(),
+                    style: {
+                        position: 'absolute',
+                        left: 100 * (start - displayStart)/featLength + '%',
+                        width: (100 * (end - start)/featLength) + "%"
+                    }
+                }, featDiv );
                 if( drawChars ) {
-                    array.forEach( mismatch.bases, function( base, i ) {
-                        dojo.create('span', {
-                                        className: mismatch.type+' base base_'+(base == '*' ? 'deletion' : base.toLowerCase()),
-                                        style: {
-                                            position: 'absolute',
-                                            left: 100 * (start + i - displayStart)/featLength + '%',
-                                            width: scale + 'px'
-                                        },
+                    for( var i = 0; i<mismatch.length; i++ ) {
+                        dojo.create('span',{
+                                        className: 'base',
+                                        style: { width: scale+'px' },
                                         innerHTML: base
-                                    }, featDiv );
-                    });
-                } else {
-                    var base = mismatch.bases[0];
-                    dojo.create('span',  {
-                        className: mismatch.type + ' base_'+base.toLowerCase(),
-                        style: {
-                            position: 'absolute',
-                            left: 100 * (start - displayStart)/featLength + '%',
-                            width: (100 * (end - start)/featLength) + "%"
-                        },
-                        innerHTML: ''
-                    }, featDiv );
+                                    }, overall );
+                    }
                 }
             }, this );
         }
@@ -125,13 +119,13 @@ return declare( HTMLFeatures,
            //     // nothing
            // }
            if( op == 'I' )
-               mismatches.push( { start: currOffset, type: 'insertion', bases: ''+len } );
+               mismatches.push( { start: currOffset, type: 'insertion', base: ''+len, length: 1 });
            else if( op == 'D' )
-               mismatches.push( { start: currOffset, type: 'deletion',  bases: new Array(len+1).join('*') } );
+               mismatches.push( { start: currOffset, type: 'deletion',  base: '*', length: len  });
            else if( op == 'N' )
-               mismatches.push( { start: currOffset, type: 'skip',      bases: new Array(len+1).join('N') } );
+               mismatches.push( { start: currOffset, type: 'skip',      base: 'N', length: len  });
            else if( op == 'X' )
-               mismatches.push( { start: currOffset, type: 'mismatch',  bases: new Array(len+1).join('X') } );
+               mismatches.push( { start: currOffset, type: 'mismatch',  base: 'X', length: len  });
 
            currOffset += len;
         });
@@ -145,27 +139,28 @@ return declare( HTMLFeatures,
      */
     _mdToMismatches: function( feature, mdstring ) {
         var mismatchRecords = [];
-        var curr = { start: 0, bases: '', type: 'mismatch' };
+        var curr = { start: 0, base: '', length: 0, type: 'mismatch' };
         var seq = feature.get('seq');
         var nextRecord = function() {
               mismatchRecords.push( curr );
-              curr = { start: curr.start + curr.bases.length, bases: '', type: 'mismatch'};
+              curr = { start: curr.start + curr.length, length: 0, base: '', type: 'mismatch'};
         };
         array.forEach( mdstring.match(/(\d+|\^[a-z]+|[a-z])/ig), function( token ) {
           if( token.match(/^\d/) ) { // matching bases
               curr.start += parseInt( token );
           }
           else if( token.match(/^\^/) ) { // insertion in the template
-              var i = token.length-1;
-              while( i-- ) {
-                  curr.bases += '*';
-              }
-              curr.type = 'deletion';
+              curr.length = token.length-1;
+              curr.base   = '*';
+              curr.type   = 'deletion';
               nextRecord();
           }
           else if( token.match(/^[a-z]/i) ) { // mismatch
-              curr.bases = seq ? seq.substr( curr.start, token.length ) : new Array( token.length+1 ).join('X');
-              nextRecord();
+              for( var i = 0; i<token.length; i++ ) {
+                  curr.length = 1;
+                  curr.base = seq ? seq.substr( curr.start, 1 ) : 'X';
+                  nextRecord();
+              }
           }
         });
         return mismatchRecords;
