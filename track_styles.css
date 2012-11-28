@@ -60,6 +60,10 @@ div.hist {
     background-color: black;
     color: white;
 }
+.alignment .insertion {
+    background-color: white;
+    color: black;
+}
 .alignment .skip {
     background: url('img/black_20x2.png') repeat-x 0 50% white;
     height: 100%;

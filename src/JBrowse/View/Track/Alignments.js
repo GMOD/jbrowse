@@ -125,7 +125,7 @@ return declare( HTMLFeatures,
            //     // nothing
            // }
            if( op == 'I' )
-               mismatches.push( { start: currOffset, type: 'insertion', bases: '|' } );
+               mismatches.push( { start: currOffset, type: 'insertion', bases: ''+len } );
            else if( op == 'D' )
                mismatches.push( { start: currOffset, type: 'deletion',  bases: new Array(len+1).join('*') } );
            else if( op == 'N' )
