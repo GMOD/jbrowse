@@ -146,6 +146,7 @@ return declare( HTMLFeatures,
     _mdToMismatches: function( feature, mdstring ) {
         var mismatchRecords = [];
         var curr = { start: 0, bases: '', type: 'mismatch' };
+        var seq = feature.get('seq');
         var nextRecord = function() {
               mismatchRecords.push( curr );
               curr = { start: curr.start + curr.bases.length, bases: '', type: 'mismatch'};
@@ -163,7 +164,7 @@ return declare( HTMLFeatures,
               nextRecord();
           }
           else if( token.match(/^[a-z]/i) ) { // mismatch
-              curr.bases = seq.substr( curr.start, token.length );
+              curr.bases = seq ? seq.substr( curr.start, token.length ) : new Array( token.length+1 ).join('X');
               nextRecord();
           }
         });
