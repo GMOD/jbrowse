@@ -1,0 +1,15 @@
+@CHARSET "UTF-8";
+
+.export_response {
+	width: 15em;
+}
+
+.waiting_image {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.export_response {
+	text-align: center;
+}
