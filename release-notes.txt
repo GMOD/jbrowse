@@ -4,6 +4,9 @@
    does not have an MD field, and display mismatches and skipped
    sequence regions (particularly important for RNA-seq alignments).
 
+ * "Alignments" tracks now show reads with missing mate pairs with a
+   red crosshatched pattern instead of with a red border.
+
  * Fixed a bug with the BAM data backend in which some BAM files were
    parsed as if they held no data.
 

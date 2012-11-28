@@ -48,7 +48,7 @@ div.hist {
     background-color: #898FD8;
 }
 .alignment.missing_mate {
-    border: 2px solid red;
+    background-image: url('img/red_crosshatch_bg.png');
 }
 
 .alignment .mismatch {
