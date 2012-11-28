@@ -138,7 +138,7 @@ return declare( null,
                                        try {
                                            cb.call( this, value, error );
                                        } catch(x) {
-                                           console.error(x);
+                                           console.error(''+x, x.stack, x);
                                        }
                                    }, this );
                 }, keyString, inKey, fillRecord ));

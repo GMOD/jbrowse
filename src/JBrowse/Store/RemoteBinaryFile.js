@@ -233,7 +233,7 @@ return declare( null,
                                 return;
                             }
                         } catch (x) {
-                            console.error(''+x);
+                            console.error(''+x, x.stack, x);
                             respond( null );
                             return;
                         }
@@ -280,7 +280,7 @@ return declare( null,
                              try {
                                  args.success.apply( this, arguments );
                              } catch( e ) {
-                                 console.error(''+e);
+                                 console.error(''+e, e.stack, e);
                                  if( args.failure )
                                      args.failure( e );
                              }
