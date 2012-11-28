@@ -191,13 +191,16 @@ var Feature = Util.fastDeclare(
                 p += 4;
             } else if ( type == 'z' || type == 'h' ) {
                 value = '';
-                while( true ) {
+                while( p <= blockEnd ) {
                     var cc = byteArray[p++];
                     if( cc == 0 ) {
                         break;
                     } else {
                         value += String.fromCharCode(cc);
                     }
+                    // if( p == blockEnd && cc ) {
+                    //     console.warn("WARNING: non-null-terminated tag");
+                    // }
                 }
             } else {
                 console.warn( "Unknown BAM tag type '"+origType
