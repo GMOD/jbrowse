@@ -1,7 +1,8 @@
 {{$NEXT}}
 
  * Fixed several more bugs in the BAM data backend that prevented
-   display of some BAM files.
+   display of some BAM files.  Thanks to Gleb Kuznetzov for help in
+   isolating these.
 
  * Fixed bug in display of faceted track selector in which the facet
    titles were taking up too much vertical height.  Thanks to Steffi
@@ -10,6 +11,8 @@
  * "Alignments" tracks now parse an alignment's CIGAR string if it
    does not have an MD field, and display mismatches and skipped
    sequence regions (particularly important for RNA-seq alignments).
+   Thanks to Gregg Helt for providing the sample dataset used to test
+   this.
 
  * "Alignments" tracks now show reads with missing mate pairs with a
    red crosshatched pattern instead of with a red border.
@@ -19,7 +22,8 @@
 
  * Fixed some bugs in server-side formatting code for feature tracks:
    data was recorded multiple times in JSON files in some
-   circumstances.
+   circumstances.  Thanks to Volodymyr Zavidovych and Steffi Geisen
+   for pointing this out.
 
 1.7.2     2012-11-09 15:40:06 America/New_York
 
