@@ -1,14 +1,14 @@
 {{$NEXT}}
 
+ * Fixed several more bugs in the BAM data backend that prevented
+   display of some BAM files.
+
  * "Alignments" tracks now parse an alignment's CIGAR string if it
    does not have an MD field, and display mismatches and skipped
    sequence regions (particularly important for RNA-seq alignments).
 
  * "Alignments" tracks now show reads with missing mate pairs with a
    red crosshatched pattern instead of with a red border.
-
- * Fixed a bug with the BAM data backend in which some BAM files were
-   parsed as if they held no data.
 
  * Fixed some bugs in server-side formatting code for feature tracks:
    data was recorded multiple times in JSON files in some
