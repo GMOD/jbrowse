@@ -727,6 +727,10 @@ Browser.prototype.navigateTo = function(loc) {
         return;
     }
 
+    if( typeof loc != 'string' )
+        console.warn("Warning: JBrowse navigateTo called with strange argument '"+loc+"'", loc);
+    loc = ''+loc;
+
     // if it's a foo:123..456 location, go there
     var location = Util.parseLocString( loc );
     if( location ) {
