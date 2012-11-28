@@ -79,7 +79,7 @@ return declare( HTMLFeatures,
                 } else {
                     var base = mismatch.bases[0];
                     dojo.create('span',  {
-                        className: mismatch.type,
+                        className: mismatch.type + ' base_'+base.toLowerCase(),
                         style: {
                             position: 'absolute',
                             left: 100 * (start - displayStart)/featLength + '%',
