@@ -1633,15 +1633,18 @@ GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
     this.trackHeights[track] = height;
     this.tracks[track].div.style.height = (height + this.trackPadding) + "px";
     var nextTop = this.trackTops[track];
+    var lastTop = 0;
     if (this.tracks[track].shown) nextTop += height + this.trackPadding;
     for (var i = track + 1; i < this.tracks.length; i++) {
         this.trackTops[i] = nextTop;
         this.tracks[i].div.style.top = nextTop + "px";
+        lastTop = nextTop;
         if (this.tracks[i].shown)
             nextTop += this.trackHeights[i] + this.trackPadding;
     }
-    this.containerHeight = Math.max( nextTop||0, this.getY() + this.getHeight() );
+    this.containerHeight = Math.max( nextTop||0, Math.min( this.getY(), lastTop ) + this.getHeight() );
     this.scrollContainer.style.height = this.containerHeight + "px";
+    this.setY( this.getY() );
 
     this.updateStaticElements({ height: this.getHeight() });
 };

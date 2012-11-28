@@ -10,6 +10,9 @@
  * "Alignments" tracks now show reads with missing mate pairs with a
    red crosshatched pattern instead of with a red border.
 
+ * Fixed bug in which the vertical scroll position can sometimes be
+   set too far down when zooming in and out.
+
  * Fixed some bugs in server-side formatting code for feature tracks:
    data was recorded multiple times in JSON files in some
    circumstances.
