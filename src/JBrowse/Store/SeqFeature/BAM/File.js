@@ -148,9 +148,16 @@ var BamFile = declare( null,
     },
 
     _readBAMheader: function( successCallback, failCallback ) {
+        // We have the virtual offset of the first alignment
+        // in the file.  Cannot completely determine how
+        // much of the first part of the file to fetch to get just
+        // up to that, since the file is compressed.  Thus, fetch
+        // up to the start of the BGZF block that the first
+        // alignment is in, plus 64KB, which should get us that whole
+        // BGZF block, assuming BGZF blocks are no bigger than 64KB.
         this.data.read(
             0,
-            this.minAlignmentVO ? this.minAlignmentVO.block : null,
+            this.minAlignmentVO ? this.minAlignmentVO.block + 65535 : null,
             dojo.hitch( this, function(r) {
                 var unc = BAMUtil.unbgzf(r);
                 var uncba = new Uint8Array(unc);
