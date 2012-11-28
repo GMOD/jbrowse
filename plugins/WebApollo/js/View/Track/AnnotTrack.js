@@ -17,12 +17,13 @@ define( [
             'WebApollo/BioFeatureUtils',
             'WebApollo/Permission',
             'JBrowse/Model/SimpleFeature',
-            'JBrowse/Util'
+    'JBrowse/Util', 
+    'JBrowse/View/GranularRectLayout',
         ],
         function( declare, $, draggable, droppable, resizable, 
 		  dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitDialog, dojoxDataGrid, dojoItemFileWriteStore, 
 		  DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, 
-		  SimpleFeature, Util ) {
+		  SimpleFeature, Util, Layout ) {
 
 var listeners = [];
 
@@ -1840,7 +1841,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	this.getHistoryForSelectedFeatures(selected);
     }, 
 
-    getHistoryForSelectedFeatures: function(annots) {
+    getHistoryForSelectedFeatures: function(selected) {
 	var track = this;
 	var content = dojo.create("div");
 	var historyDiv = dojo.create("div", { className: "history_div" }, content);
@@ -1855,6 +1856,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 		if (div.style.top) {
 			div.style.top = null;
 		}
+	    if (div.style.visibility)  { div.style.visibility = null; }
 		annot_context_menu.unBindDomNode(div);
 		$(div).unbind();
 		for (var i = 0; i < div.childNodes.length; ++i) {
@@ -1865,17 +1867,18 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	var displayPreview = function(index) {
 		var historyItem = history[index];
 		var afeature = historyItem.features[0];
-		var jfeature = JSONUtils.createJBrowseFeature(track.features.attrs, afeature);
+		var jfeature = JSONUtils.createJBrowseFeature(afeature);
 		var fmin = afeature.location.fmin;
 		var fmax = afeature.location.fmax;
 		var length = fmax - fmin;
-		track.featureStore._add_getters(track.attrs.accessors().get, jfeature);
+//		track.featureStore._add_getters(track.attrs.accessors().get, jfeature);
 		historyPreviewDiv.featureLayout = new Layout(fmin, fmax);
 		historyPreviewDiv.featureNodes = new Array();
 		historyPreviewDiv.startBase = fmin - (length * 0.1);
 		historyPreviewDiv.endBase = fmax + (length * 0.1);
 		var coords = dojo.coords(historyPreviewDiv);
-		var featDiv = track.renderFeature(jfeature, jfeature.uid, historyPreviewDiv, coords.w / (fmax - fmin), fmin, fmax);
+	    // setting labelScale and descriptionScale parameter to 100 px/bp, so neither should get triggered
+	    var featDiv = track.renderFeature(jfeature, jfeature.uid, historyPreviewDiv, coords.w / (fmax - fmin), 100, 100, fmin, fmax);
 		cleanupDiv(featDiv);
 		while (historyPreviewDiv.hasChildNodes()) {
 			historyPreviewDiv.removeChild(historyPreviewDiv.lastChild);
@@ -1912,11 +1915,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	
 	var fetchHistory = function() {
 		var features = '"features": [';
-		for (var i in annots)  {
-			var annot = AnnotTrack.getTopLevelAnnotation(annots[i]);
-			var uniqueName = annot.uid;
+		for (var i in selected)  {
+		    var record = selected[i];
+			var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
+		    var uniqueName = annot.id();
 			// just checking to ensure that all features in selection are from this track
-			if (annot.track === track)  {
+			if (record.track === track)  {
 				var trackdiv = track.div;
 				var trackName = track.getUniqueTrackName();
 
@@ -1929,12 +1933,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 		features += ']';
 		var operation = "get_history_for_features";
 		var trackName = track.getUniqueTrackName();
-		if (AnnotTrack.USE_LOCAL_EDITS)  {
-			// TODO
-			track.hideAll();
-			track.changed();
-		}
-		else  {
 			dojo.xhrPost( {
 				postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
 				url: context_path + "/AnnotationEditorService",
@@ -1955,7 +1953,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 				}
 
 			});
-		}
 	};
 	
 	fetchHistory();
