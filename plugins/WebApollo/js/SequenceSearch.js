@@ -1,3 +1,10 @@
+define( [
+            'dojo/_base/declare',
+            'jquery',
+], 
+	function( declare, $ ) {
+
+
 function SequenceSearch(contextPath) {
 	this.contextPath = contextPath;
 };
@@ -165,3 +172,7 @@ SequenceSearch.prototype.searchSequence = function(trackName, refSeqName, starts
     
     return content;
 };
+
+
+	    return SequenceSearch;
+	} );
