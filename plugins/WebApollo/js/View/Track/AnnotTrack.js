@@ -15,14 +15,15 @@ define( [
             'WebApollo/FeatureSelectionManager',
             'WebApollo/JSONUtils',
             'WebApollo/BioFeatureUtils',
-            'WebApollo/Permission',
+            'WebApollo/Permission', 
+            'WebApollo/SequenceSearch', 
             'JBrowse/Model/SimpleFeature',
     'JBrowse/Util', 
     'JBrowse/View/GranularRectLayout',
         ],
         function( declare, $, draggable, droppable, resizable, 
 		  dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitDialog, dojoxDataGrid, dojoItemFileWriteStore, 
-		  DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, 
+		  DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, 
 		  SimpleFeature, Util, Layout ) {
 
 var listeners = [];
@@ -111,50 +112,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.verbose_render = false;
 
         var track = this;
-        // for AnnotTrack, features currently MUST be an NCList
-    //    var features = this.features;
-//        this.features = this.featureStore.nclist;
-//        var features = this.features;
-
-//	this.getPermission( dojo.hitch(this, initAnnotContextMenu) );  // calling back to initAnnotContextMenu() once permissions are returned by server
-	this.getPermission( function()  { track.initAnnotContextMenu(); } );  // calling back to initAnnotContextMenu() once permissions are returned by server
-//        this.initAnnotContextMenu();
-
-//        this.initNonAnnotContextMenu();
-        this.initPopupDialog();
-
-            dojo.xhrPost( {
-                postData: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_features" }',
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5 * 1000, // Time in milliseconds
-                // The LOAD function will be called on a successful response.
-                load: function(response, ioArgs) { //
-                    var responseFeatures = response.features;
-                    for (var i = 0; i < responseFeatures.length; i++) {
-                        var jfeat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
-			track.store.insert(jfeat);
-                    }
-                    track.hideAll();
-                    track.changed();
-                    track.createAnnotationChangeListener();
-
-		    var strack = track.getSequenceTrack();
-                    console.log("AnnotTrack get_features XHR returned, trying to find sequence track: ", strack);
-		    // setAnnotTrack() triggers loading of sequence alterations
-		    if (strack && (! strack.annotTrack))  { strack.setAnnotTrack(track); } 
-                },
-                // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) { //
-                    console.log("Annotation server error--maybe you forgot to login to the server?");
-                    console.error("HTTP status code: ", ioArgs.xhr.status); //
-                    track.handleError(response);
-                    //dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work'; //
-                    // track.remote_edit_working = false;
-                    return response; //
-                }
-            });
-
 
 	dojo.addOnUnload(this, function() {
             var track = this;
@@ -202,6 +159,45 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                            widthPct, widthPx, scale ) {
 
         this.inherited( arguments );
+	var track = this;
+
+//	this.getPermission( dojo.hitch(this, initAnnotContextMenu) );  // calling back to initAnnotContextMenu() once permissions are returned by server
+	this.getPermission( function()  { track.initAnnotContextMenu(); } );  // calling back to initAnnotContextMenu() once permissions are returned by server
+	this.initNonAnnotContextMenu();
+        this.initPopupDialog();
+
+            dojo.xhrPost( {
+                postData: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_features" }',
+                url: context_path + "/AnnotationEditorService",
+                handleAs: "json",
+                timeout: 5 * 1000, // Time in milliseconds
+                // The LOAD function will be called on a successful response.
+                load: function(response, ioArgs) { //
+                    var responseFeatures = response.features;
+                    for (var i = 0; i < responseFeatures.length; i++) {
+                        var jfeat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
+			track.store.insert(jfeat);
+                    }
+                    track.hideAll();
+                    track.changed();
+                    track.createAnnotationChangeListener();
+
+		    var strack = track.getSequenceTrack();
+                    console.log("AnnotTrack get_features XHR returned, trying to find sequence track: ", strack);
+		    // setAnnotTrack() triggers loading of sequence alterations
+		    if (strack && (! strack.annotTrack))  { strack.setAnnotTrack(track); } 
+                },
+                // The ERROR function will be called in an error case.
+                error: function(response, ioArgs) { //
+                    console.log("Annotation server error--maybe you forgot to login to the server?");
+                    console.error("HTTP status code: ", ioArgs.xhr.status); //
+                    track.handleError(response);
+                    //dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work'; //
+                    // track.remote_edit_working = false;
+                    return response; //
+                }
+            });
+
 
         this.makeTrackDroppable();
         this.hide();
