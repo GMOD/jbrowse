@@ -543,11 +543,11 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
 
         var facetPane = new ContentPane(
             {
-                title: '<div id="facet_title_' + facetName +'" '
+                title: '<span id="facet_title_' + facetName +'" '
                     + 'class="facetTitle">'
                     + this._facetDisplayName(facetName)
                     + ' <a class="clearFacet"><img src="img/red_x.png" /></a>'
-                    + '</div>'
+                    + '</span>'
             });
 
         // make a selection control for the values of this facet

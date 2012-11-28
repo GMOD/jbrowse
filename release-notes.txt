@@ -3,6 +3,10 @@
  * Fixed several more bugs in the BAM data backend that prevented
    display of some BAM files.
 
+ * Fixed bug in display of faceted track selector in which the facet
+   titles were taking up too much vertical height.  Thanks to Steffi
+   Geisen for pointing this out.
+
  * "Alignments" tracks now parse an alignment's CIGAR string if it
    does not have an MD field, and display mismatches and skipped
    sequence regions (particularly important for RNA-seq alignments).
