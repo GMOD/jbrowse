@@ -164,7 +164,7 @@ var BamFile = declare( null,
 
                 if( readInt(uncba, 0) != BAM_MAGIC) {
                     dlog('Not a BAM file');
-                    failCallback();
+                    failCallback( 'Not a BAM file' );
                     return;
                 }
 
