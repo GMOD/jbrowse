@@ -49,6 +49,7 @@ return declare( HTMLFeatures,
      */
     _drawMismatches: function( feature, featDiv, scale, displayStart, displayEnd ) {
         var featLength = displayEnd - displayStart;
+        var featLengthPx = featLength * scale;
         // recall: scale is pixels/basepair
         if ( featLength*scale > 1 ) {
             var mismatches = this._getMismatches( feature );
@@ -72,7 +73,7 @@ return declare( HTMLFeatures,
                     style: {
                         position: 'absolute',
                         left: 100 * ( mDisplayStart - displayStart)/featLength + '%',
-                        width: (100 * ( mDisplayEnd - mDisplayStart)/featLength) + "%"
+                        width: scale*mDisplayWidth>1 ? 100 * mDisplayWidth/featLength + '%' : '1px'
                     }
                 }, featDiv );
                 if( drawChars && mismatch.length <= 20 ) {
