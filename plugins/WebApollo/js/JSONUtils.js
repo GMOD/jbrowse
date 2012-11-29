@@ -40,25 +40,45 @@ var JAFeature = declare( SimpleFeature, {
             strand: loc.strand,
             name: afeature.name,
             parent_id: afeature.parent_id,
-            type: afeature.type.name,
-            // get the subfeatures              
-            subfeatures: array.map( afeature.children, function(s) {
-		return new JAFeature( s, pfeat);
-	    } )
-                
+            type: afeature.type.name, 
+	    properties: afeature.properties
         };
+
 	if (this.data.type === "CDS")  { 
 	    this.data.type = "wholeCDS"; 
 	}
 
         this._uniqueID = afeature.uniquename;
 
+	// this doesn't work, since can be multiple properties with same CV term (comments, for example)
+	//   could create arrray for each flattened cv-name for multiple values, but not sure what the point would be over 
+	//   just making sure can access via get('properties') via above assignment into data object
         // parse the props
-        var props = afeature.properties;
+/*        var props = afeature.properties;
         dojo.forEach( props, function( p ) {
             var pn = p.type.cv.name+':'+p.type.name;
             this.data[pn] = p.value;
         }, this);
+*/
+
+	if (afeature.properties) {
+    	    for (var i = 0; i < afeature.properties.length; ++i) {
+    		var property = afeature.properties[i];
+    		if (property.type.name == "comment" && property.value == "Manually set translation start") {
+    		    // jfeature.manuallySetTranslationStart = true;
+		    this.data.manuallySetTranslationStart = true;   // so can call feat.get('manuallySetTranslationStart')
+		    if (this.parent())  { parent.data.manuallySetTranslationStart = true; }
+    		}
+    	    }
+	}
+
+	// moved subfeature assignment to bottom of feature construction, since subfeatures may need to call method on their parent
+	//     only thing subfeature constructor won't have access to is parent.data.subfeatures
+        // get the subfeatures              
+	this.data.subfeatures = array.map( afeature.children, function(s) {
+		return new JAFeature( s, pfeat);
+	} );
+
     }
 });
 

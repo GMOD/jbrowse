@@ -117,6 +117,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var track = this;
             if( listeners[track.getUniqueTrackName()] ) {
                 if( listeners[track.getUniqueTrackName()].fired == -1 ) {
+		    console.log("calling listener.cancel(), via addOnUnload setup");
                     listeners[track.getUniqueTrackName()].cancel();
                 }
             }
@@ -288,6 +289,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             error: function(response, ioArgs) { //
 		// client cancel
                     if (response.dojoType == "cancel") {
+			console.log("AnnotationChangeNotification  XHR returned with error of type CANCEL");
+			track.handleError(response);
+
                             return;
                     }
 		// client timeout
@@ -1219,9 +1223,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var features = '"features": [';
         for (var i in selection)  {
             var annot = AnnotTrack.getTopLevelAnnotation(selection[i].feature);
+	    var atrack = selection[i].track;
             var uniqueName = annot.id();
             // just checking to ensure that all features in selection are from this track
-            if (annot.track === track)  {
+            if (atrack === track)  {
                 var trackdiv = track.div;
                 var trackName = track.getUniqueTrackName();
 
@@ -2179,13 +2184,14 @@ getAnnotationInformation: function()  {
 	var track = this;
 	var adapter = key;
 	var content = dojo.create("div");
-	var waitingDiv = dojo.create("div", { innerHTML: "<img class='waiting_image' src='img/loading.gif' />" }, content);
+	var waitingDiv = dojo.create("div", { innerHTML: "<img class='waiting_image' src='plugins/WebApollo/img/loading.gif' />" }, content);
 	var responseDiv = dojo.create("div", { className: "export_response" }, content);
 	dojo.xhrGet( {
 		url: context_path + "/IOService?operation=write&adapter=" + adapter + "&track=" + track.getUniqueTrackName() + "&" + options,
 		handleAs: "text",
 		timeout: 5000 * 1000, // Time in milliseconds
 		load: function(response, ioArgs) {
+		    console.log("/IOService returned, called load()");
 			dojo.style(waitingDiv, { display: "none" } );
 			response = response.replace("href='", "href='../");
 			responseDiv.innerHTML = response;
@@ -2193,6 +2199,7 @@ getAnnotationInformation: function()  {
 		// The ERROR function will be called in an error case.
 		error: function(response, ioArgs) {
 			responseDiv.innerHTML = "Unable to export data";
+		    track.handleError(response);
 		}
 	});
 	track.openDialog("Export " + key, content);
@@ -2525,7 +2532,7 @@ initNonAnnotContextMenu: function() {
         if (selectedFeat.parent()) {
             selectedFeat = selectedFeat.parent();
         }
-        if (selectedFeat.manuallySetTranslationStart) {
+        if (selectedFeat.get('manuallySetTranslationStart')) {
             menuItem.set("label", "Unset translation start");
         }
         else {
