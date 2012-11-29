@@ -28,7 +28,10 @@ SequenceTrack.extend(
  */
 {
     _defaultConfig: function() {
-        return { maxExportSpan: 500000 };
+        return {
+            maxExportSpan: 500000,
+            showReverseStrand: true
+        };
     },
     _exportFormats: function() {
         return ['FASTA'];
@@ -106,9 +109,11 @@ SequenceTrack.extend(
         seqNode.appendChild( this._renderSeqDiv( start, end, seq, scale ));
 
         // and one for the reverse strand
-        var comp = this._renderSeqDiv( start, end, this.complement(seq), scale );
-        comp.className = 'revcom';
-        seqNode.appendChild( comp );
+        if( this.config.showReverseStrand ) {
+            var comp = this._renderSeqDiv( start, end, this.complement(seq), scale );
+            comp.className = 'revcom';
+            seqNode.appendChild( comp );
+        }
     },
 
     complement: (function() {

@@ -282,7 +282,7 @@ div.sequence > div {
     border-bottom: 1px solid black;
 }
 div.sequence > div:first-child {
-    border-bottom-width: 0px;
+    border-bottom-color: #4d4d4d;
 }
 
 span.base {

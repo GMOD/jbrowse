@@ -14,6 +14,10 @@
    Thanks to Gregg Helt for providing the sample dataset used to test
    this.
 
+ * Added support for a `showReverseStrand` config variable to Sequence
+   track that, if set to false, turns off display of the reverse
+   sequence strand.
+
  * "Alignments" tracks now show reads with missing mate pairs with a
    red crosshatched pattern instead of with a red border.
 
