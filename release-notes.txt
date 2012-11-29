@@ -17,6 +17,10 @@
  * "Alignments" tracks now show reads with missing mate pairs with a
    red crosshatched pattern instead of with a red border.
 
+ * Added an Apache .htaccess file to the JBrowse root directory that
+   enabled CORS by default for all files under it, if AllowOverride is
+   on.
+
  * Fixed bug in which the vertical scroll position can sometimes be
    set too far down when zooming in and out.
 
