@@ -2,6 +2,8 @@
 
 .export_response {
 	width: 15em;
+	text-align: center;
+	width: 100%;
 }
 
 .waiting_image {
@@ -10,6 +12,12 @@
 	margin-right: auto;
 }
 
-.export_response {
+.export_response_iframe {
+	border: none;
 	text-align: center;
+	font-size: 12px;
+	max-width: 15em;
+	max-height: 6em;
+	overflow-x: auto;
+	overflow-y: hidden;
 }
