@@ -3,12 +3,12 @@ define(
         'dojo/_base/declare',
         'dojo/_base/array',
         'dijit/layout/AccordionContainer',
-        'dijit/layout/AccordionPane',
+        'dijit/layout/ContentPane',
         'JBrowse/Util',
         'dojox/grid/EnhancedGrid',
         'dojox/grid/enhanced/plugins/IndirectSelection'
     ],
-    function ( declare, dArray, AccordionContainer, AccordionPane, Util, EnhancedGrid ){
+    function ( declare, dArray, AccordionContainer, ContentPane, Util, EnhancedGrid ){
 
 var dojof = Util.dojof;
 return declare( 'JBrowse.View.TrackList.Faceted', null,
@@ -537,17 +537,17 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
     /**
      * Make HTML elements for a single facet selector.
      * @private
-     * @returns {dijit.layout.AccordionPane}
+     * @returns {dijit.layout.ContentPane}
      */
     _renderFacetSelector: function( /**String*/ facetName, /**Array[String]*/ values ) {
 
-        var facetPane = new AccordionPane(
+        var facetPane = new ContentPane(
             {
-                title: '<div id="facet_title_' + facetName +'" '
+                title: '<span id="facet_title_' + facetName +'" '
                     + 'class="facetTitle">'
                     + this._facetDisplayName(facetName)
                     + ' <a class="clearFacet"><img src="img/red_x.png" /></a>'
-                    + '</div>'
+                    + '</span>'
             });
 
         // make a selection control for the values of this facet

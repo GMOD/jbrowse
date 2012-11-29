@@ -233,8 +233,11 @@ return declare( null,
                                 return;
                             }
                         } catch (x) {
-                            console.error(''+x);
-                            respond( null );
+                            console.error(''+x, x.stack, x);
+                            // the response must have successful but
+                            // empty, so respond with a zero-length
+                            // arraybuffer
+                            respond( new ArrayBuffer() );
                             return;
                         }
                     }).call(this);
@@ -280,7 +283,7 @@ return declare( null,
                              try {
                                  args.success.apply( this, arguments );
                              } catch( e ) {
-                                 console.error(''+e);
+                                 console.error(''+e, e.stack, e);
                                  if( args.failure )
                                      args.failure( e );
                              }

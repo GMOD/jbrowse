@@ -59,7 +59,6 @@ release-min-test: release-min
 	cp -r docs tests* sample_data $(RELEASE_MIN_DIR);
 	cd $(RELEASE_MIN_DIR) && ./setup.sh
 	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3
-	cd $(RELEASE_MIN_DIR) && JBROWSE_URL='http://localhost/jbrowse/$(RELEASE_MIN)/index.html' nosetests
 
 bin/wig2png: src/wig2png/Makefile
 	$(MAKE) -C src/wig2png;

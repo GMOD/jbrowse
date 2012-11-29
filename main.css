@@ -279,12 +279,21 @@ div.sequence .base, div.sequence > div  {
     height: 14px;
     line-height: 14px;
 }
+div.sequence .base.big {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-right-color: #333;
+    border-bottom-color: #333;
+    height: 16px;
+}
+
 div.sequence > div {
     border-top: 1px solid #4d4d4d;
     border-bottom: 1px solid black;
 }
 div.sequence > div:first-child {
-    border-bottom-width: 0px;
+    border-bottom-color: #4d4d4d;
 }
 
 span.base {

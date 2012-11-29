@@ -29,7 +29,10 @@ SequenceTrack.extend(
  */
 {
     _defaultConfig: function() {
-        return { maxExportSpan: 500000 };
+        return {
+            maxExportSpan: 500000,
+            showReverseStrand: true
+        };
     },
     _exportFormats: function() {
         return ['FASTA'];
@@ -113,9 +116,11 @@ SequenceTrack.extend(
         seqNode.appendChild( this._renderSeqDiv( start, end, seq, scale ));
 
         // and one for the reverse strand
-        var comp = this._renderSeqDiv( start, end, Util.complement(seq), scale );
-        comp.className = 'revcom';
-        seqNode.appendChild( comp );
+        if( this.config.showReverseStrand ) {
+            var comp = this._renderSeqDiv( start, end, this.complement(seq), scale );
+            comp.className = 'revcom';
+            seqNode.appendChild( comp );
+        }
     },
 
     /**
@@ -134,8 +139,10 @@ SequenceTrack.extend(
             var base = document.createElement('span');
             base.className = 'base base_'+seq[i].toLowerCase();
             base.style.width = charWidth;
-            if( drawChars )
+            if( drawChars ) {
+                base.className = base.className+' big';
                 base.innerHTML = seq[i];
+            }
             container.appendChild(base);
         }
         return container;

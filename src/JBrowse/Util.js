@@ -222,6 +222,9 @@ Util = {
     },
 
     parseLocString: function( locstring ) {
+        if( typeof locstring != 'string' )
+            return null;
+
         locstring = dojo.trim( locstring );
 
         //                                (chromosome)    (    start      )   (  sep     )     (    end   )
