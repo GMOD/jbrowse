@@ -135,12 +135,14 @@ SequenceTrack.extend(
         var container  = document.createElement('div');
         var charWidth = 100/(end-start)+"%";
         var drawChars = scale >= charSize.w;
+        var bigTiles = scale > charSize.w + 2; // whether to add .big styles to the base tiles
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('span');
             base.className = 'base base_'+seq[i].toLowerCase();
             base.style.width = charWidth;
             if( drawChars ) {
-                base.className = base.className+' big';
+                if( bigTiles )
+                    base.className = base.className + ' big';
                 base.innerHTML = seq[i];
             }
             container.appendChild(base);
