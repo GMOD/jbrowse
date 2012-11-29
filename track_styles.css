@@ -51,13 +51,13 @@ div.hist {
     background-image: url('img/red_crosshatch_bg.png');
 }
 
-.alignment .mismatch {
+.alignment * {
     height: 100%;
-}
-.alignment .mismatch.base {
 }
 .alignment .deletion {
     background-color: black;
+}
+.alignment .deletion * {
     color: white;
 }
 .alignment .insertion {
