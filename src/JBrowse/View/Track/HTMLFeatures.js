@@ -489,7 +489,7 @@ HTMLFeatures = declare( HTMLFeatures,
                 // if we have no histograms, check the predicted density of
                 // features on the screen, and display a message if it's
                 // bigger than maxFeatureScreenDensity
-                else if( false && stats.featureDensity / scale > this.config.maxFeatureScreenDensity ) {
+                else if( stats.featureDensity / scale > this.config.maxFeatureScreenDensity ) {
                     this.fillTooManyFeaturesMessage(
                         blockIndex,
                         block,
