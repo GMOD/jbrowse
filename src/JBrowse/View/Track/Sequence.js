@@ -146,8 +146,10 @@ SequenceTrack.extend(
             var base = document.createElement('span');
             base.className = 'base base_'+seq[i].toLowerCase();
             base.style.width = charWidth;
-            if( drawChars )
+            if( drawChars ) {
+                base.className = base.className+' big';
                 base.innerHTML = seq[i];
+            }
             container.appendChild(base);
         }
         return container;
