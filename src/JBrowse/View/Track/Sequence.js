@@ -117,7 +117,7 @@ SequenceTrack.extend(
 
         // and one for the reverse strand
         if( this.config.showReverseStrand ) {
-            var comp = this._renderSeqDiv( start, end, this.complement(seq), scale );
+            var comp = this._renderSeqDiv( start, end, Util.complement(seq), scale );
             comp.className = 'revcom';
             seqNode.appendChild( comp );
         }
