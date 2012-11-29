@@ -389,7 +389,7 @@ var BamFile = declare( null,
             else if( featureCount <= maxFeaturesWithoutYielding ) {
                 // if we've read no more than 200 features this cycle, read another one
                 var blockSize = readInt(ba, blockStart);
-                var blockEnd = blockStart + blockSize;
+                var blockEnd = blockStart + 4 + blockSize - 1;
 
                 // only try to read the feature if we have all the bytes for it
                 if( blockEnd < ba.length ) {
@@ -402,7 +402,7 @@ var BamFile = declare( null,
                     featureCount++;
                 }
 
-                blockStart = blockEnd + 4;
+                blockStart = blockEnd+1;
             }
             else {
                 // if we're not done but we've read a good chunk of

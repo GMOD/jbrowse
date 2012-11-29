@@ -167,7 +167,7 @@ var Feature = Util.fastDeclare(
             record._refID = refID;
         }
 
-        while (p <= blockEnd) {
+        while( p < blockEnd ) { // really should be blockEnd - 3, but this works too and is faster
             var tag = String.fromCharCode(byteArray[p]) + String.fromCharCode(byteArray[p + 1]);
             var origType = String.fromCharCode(byteArray[p + 2]);
             var type = origType.toLowerCase();
@@ -195,12 +195,10 @@ var Feature = Util.fastDeclare(
                     var cc = byteArray[p++];
                     if( cc == 0 ) {
                         break;
-                    } else {
+                    }
+                    else {
                         value += String.fromCharCode(cc);
                     }
-                    // if( p == blockEnd && cc ) {
-                    //     console.warn("WARNING: non-null-terminated tag");
-                    // }
                 }
             } else {
                 console.warn( "Unknown BAM tag type '"+origType
