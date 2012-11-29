@@ -21,6 +21,16 @@ var CoverageFeature = Util.fastDeclare(
 
 return declare( Wiggle,
 {
+
+    _defaultConfig: function() {
+        return Util.deepUpdate(
+            dojo.clone( this.inherited(arguments) ),
+            {
+                min_score: 0
+            }
+        );
+    },
+
     getGlobalStats: function() {
         return {};
     },
