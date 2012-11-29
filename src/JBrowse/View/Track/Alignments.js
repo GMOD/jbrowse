@@ -54,7 +54,6 @@ return declare( HTMLFeatures,
             var mismatches = this._getMismatches( feature );
             var charSize = this.getCharacterMeasurements();
             var drawChars = scale >= charSize.w;
-
             array.forEach( mismatches, function( mismatch ) {
                 var start = feature.get('start') + mismatch.start;
                 var end = start + mismatch.length;
@@ -65,21 +64,31 @@ return declare( HTMLFeatures,
                     return;
 
                 var base = mismatch.base;
+                var mDisplayStart = Math.max( start, displayStart );
+                var mDisplayEnd = Math.min( end, displayEnd );
+                var mDisplayWidth = mDisplayEnd - mDisplayStart;
                 var overall = dojo.create('span',  {
                     className: mismatch.type + ' base_'+base.toLowerCase(),
                     style: {
                         position: 'absolute',
-                        left: 100 * (start - displayStart)/featLength + '%',
-                        width: (100 * (end - start)/featLength) + "%"
+                        left: 100 * ( mDisplayStart - displayStart)/featLength + '%',
+                        width: (100 * ( mDisplayEnd - mDisplayStart)/featLength) + "%"
                     }
                 }, featDiv );
-                if( drawChars ) {
+                if( drawChars && mismatch.length <= 20 ) {
                     for( var i = 0; i<mismatch.length; i++ ) {
-                        dojo.create('span',{
-                                        className: 'base',
-                                        style: { width: scale+'px' },
-                                        innerHTML: base
-                                    }, overall );
+                        var basePosition = start + i;
+                        if( basePosition >= mDisplayStart && basePosition <= mDisplayEnd ) {
+                            dojo.create('span',{
+                                            className: 'base base_'+base.toLowerCase(),
+                                            style: {
+                                                position: 'absolute',
+                                                width: scale+'px',
+                                                left: (basePosition-mDisplayStart)/mDisplayWidth*100 + '%'
+                                            },
+                                            innerHTML: base
+                                        }, overall );
+                        }
                     }
                 }
             }, this );
