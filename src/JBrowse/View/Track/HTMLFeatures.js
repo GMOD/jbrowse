@@ -465,8 +465,9 @@ HTMLFeatures = declare( HTMLFeatures,
             region,
             dojo.hitch( this, function( stats ) {
 
-                var density          = stats.featureDensity;
-                var histScale        = this.config.style.histScale || density * this.config.style._defaultHistScale;
+                var density        = stats.featureDensity;
+                var histScale      = this.config.style.histScale    || density * this.config.style._defaultHistScale;
+                var featureScale   = this.config.style.featureScale || density / this.config.maxFeatureScreenDensity; // (feat/bp) / ( feat/px ) = px/bp )
 
                 // only update the label once for each block size
                 var blockBases = Math.abs( leftBase-rightBase );
@@ -489,7 +490,7 @@ HTMLFeatures = declare( HTMLFeatures,
                 // if we have no histograms, check the predicted density of
                 // features on the screen, and display a message if it's
                 // bigger than maxFeatureScreenDensity
-                else if( stats.featureDensity / scale > this.config.maxFeatureScreenDensity ) {
+                else if( scale < featureScale ) {
                     this.fillTooManyFeaturesMessage(
                         blockIndex,
                         block,

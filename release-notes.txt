@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+ * Added support in HTMLFeatures and Alignments tracks for a
+   `style.featureScale` configuration variable, which, if set,
+   specifies a minimum zoom scale (pixels per basepair) for displaying
+   features.  If zoomed out more than this (i.e. fewer pixels per bp),
+   either histograms or a "too many features" message will be
+   displayed.
+
 1.7.3     2012-11-28 23:29:48 America/New_York
 
  * Fixed several more bugs in the BAM data backend that prevented
