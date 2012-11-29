@@ -561,13 +561,11 @@ GenomeView.prototype.getSequenceCharacterSize = function()  {
  */
 GenomeView.prototype.calculateSequenceCharacterSize = function( containerElement ) {
     var widthTest = document.createElement("div");
-    widthTest.className = "wa-sequence";
+    widthTest.className = "sequence";
     widthTest.style.visibility = "hidden";
     var widthText = "12345678901234567890123456789012345678901234567890";
     widthTest.appendChild(document.createTextNode(widthText));
     containerElement.appendChild(widthTest);
-    console.log("charWidth calc element: ");
-    console.log(widthTest);
 
     var result = {
         width:  widthTest.clientWidth / widthText.length,
