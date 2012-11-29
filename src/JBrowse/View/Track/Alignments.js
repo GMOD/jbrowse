@@ -27,7 +27,8 @@ return declare( HTMLFeatures,
         );
     },
 
-    renderFeature: function( feature, uniqueId, block, scale ) {
+    renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                             containerStart, containerEnd  ) {
         var featDiv = this.inherited( arguments );
 
         var displayStart = Math.max( feature.get('start'), containerStart );
