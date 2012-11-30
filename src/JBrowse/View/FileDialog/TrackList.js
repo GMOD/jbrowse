@@ -18,12 +18,6 @@ constructor: function( args ) {
     this._updateDisplay();
 },
 
-// offer a given resource record (either a file or a URL) to the
-// driver for a given store type.  returns true if that driver has
-// taken and used that resource
-_offerResource: function( resource, typeDriver ) {
-    return typeDriver.tryResource( this.storeConfs, resource );
-},
 
 update: function( resources ) {
     this.storeConfs = {};
@@ -46,14 +40,19 @@ _makeStoreConfs: function( resources ) {
     // turn until no more are being accepted
     var lastLength = 0;
     while( resources.length && resources.length != lastLength ) {
-        resources = array.filter( resources, function( rec ) {
+        resources = array.filter( resources, function( resource ) {
             return ! array.some( this.types, function( typeDriver ) {
-               return this._offerResource( rec, typeDriver );
+               return typeDriver.tryResource( this.storeConfs, resource );
             },this);
         },this);
 
         lastLength = resources.length;
     }
+
+    array.forEach( this.types, function( typeDriver ) {
+        typeDriver.finalizeConfiguration( this.storeConfs );
+    },this);
+
     if( resources.length )
         console.warn( "not all resources could be used", resources );
 },

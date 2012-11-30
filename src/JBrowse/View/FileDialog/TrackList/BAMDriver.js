@@ -89,6 +89,40 @@ return {
             return false;
     },
 
+    // try to merge any singleton BAM and BAI stores.  currently can only do this if there is one of each
+    finalizeConfiguration: function( configs ) {
+        var singletonBAIs = {};
+        var singletonBAICount = 0;
+        var singletonBAMs = {};
+        var singletonBAMCount = 0;
+        for( var n in configs ) {
+            var conf = configs[n];
+            if( (conf.bai || conf.baiUrlTemplate) && ! ( conf.bam || conf.urlTemplate ) ) {
+                // singleton BAI
+                singletonBAICount++;
+                singletonBAIs[n] = conf;
+            }
+            else if(( conf.bam || conf.urlTemplate ) && ! ( conf.bai || conf.baiUrlTemplate) ) {
+                // singleton BAM
+                singletonBAMCount++;
+                singletonBAMs[n] = conf;
+            }
+        }
+
+        if( singletonBAMCount == 1 && singletonBAICount == 1 ) {
+            for( var bainame in singletonBAIs ) {
+                for( var bamname in singletonBAMs ) {
+                    if( singletonBAIs[bainame].baiUrlTemplate )
+                        singletonBAMs[bamname].baiUrlTemplate = singletonBAIs[bainame].baiUrlTemplate;
+                    if( singletonBAIs[bainame].bai )
+                        singletonBAMs[bamname].bai = singletonBAIs[bainame].bai;
+
+                    delete configs[bainame];
+                }
+            }
+        }
+    },
+
     _makeBlob: function( resource ) {
         var r = resource.file ? new FileBlob( resource.file ) :
                 resource.url  ? new XHRBlob( resource.url )   :
