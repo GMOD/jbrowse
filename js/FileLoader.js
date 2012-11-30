@@ -8,7 +8,7 @@ function FileLoader(parent_element, brow)  {
 }
 
 FileLoader.prototype.initLoadDialog = function() {
-    this.loadDialog = new dijit.Dialog({title: "Load BAM File"});
+    this.loadDialog = new dijit.Dialog({title: "Load BAM or GFF3 File"});
     this.loadDialog.startup();
 }
 
@@ -18,6 +18,7 @@ FileLoader.prototype.showLoadDialog = function(event) {
     var floader = this;
     var content = document.createElement("div");
     $(content).append("<table>"
+		      + "<tr><td><label>GFF3 File</label></td><td><input type=\"file\" id=\"gff3_file\" name=\"gff3_files[]\" ></input></td></tr>"
 		      + "<tr><td><label>BAM File</label></td><td><input type=\"file\" id=\"bam_file\" name=\"bam_files[]\" ></input></td></tr>"
 		      + "<tr><td><label>BAI File</label></td><td><input type=\"file\" id=\"bai_file\" name=\"bai_files[]\" ></input></td></tr>"
 		      + "</table>");
@@ -33,6 +34,7 @@ FileLoader.prototype.handleFileSelect = function(event)  {
     console.log("called FileLoader.handleFileSelect()");
     var bamfiles = $("#bam_file")[0].files;
     var baifiles = $("#bai_file")[0].files;
+    var gff3files = $("#gff3_file")[0].files;
     if (bamfiles && baifiles && bamfiles.length > 0 && baifiles.length > 0) {
 	console.log("bamfile:"); console.log(bamfiles);
 	console.log("baifile:"); console.log(baifiles);
@@ -41,10 +43,38 @@ FileLoader.prototype.handleFileSelect = function(event)  {
 	this.loadBamFile(bamfile, baifile);
 	this.loadDialog.hide();
     }
+    else if (gff3files && gff3files.length > 0) {
+	console.log("trying to load GFF3 file");
+	var gff3file = gff3files[0];
+//	var freader = new FileReader();
+//	freader.onload = loadGff3File;
+	
+	this.loadGff3File(gff3file);
+	this.loadDialog.hide();
+    }
     else {
 	alert("must specify both a BAM file and an BAI index file");
     }
 
+};
+
+FileLoader.prototype.loadGff3File = function(gff3file) {
+    console.log("called FileLoader.loadGff3File");
+    var freader = new FileReader();
+    freader.onload = function(event) {
+	var gfftext = event.target.result;
+	console.log("gfftext: ");
+	console.log(gfftext);
+	var parser = new GFF3toJson();
+	var gff3json = parser.parse(gfftext);
+	console.log("GFF3 parsed to JSON: ");
+	console.log(gff3json);
+	var converter = new GFF3toJbrowseJson();
+	var gff3_nclist = converter.gff3toJbrowseJson(gff3json);
+	console.log("GFF3 converted to JBrowse NCList:");
+	console.log(gff3_nclist);
+    };
+    freader.readAsText(gff3file);
 };
 
 FileLoader.prototype.loadBamFile = function(bamfile, baifile)  {  // bamfile and baifile are HTML5 File objects
