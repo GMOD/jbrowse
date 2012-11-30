@@ -223,81 +223,13 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
 
 
 /*
-*  takes a feature from a source_track and returns equivalent feature for a target_track, 
-*       based on inspection of feature fields and subfields
-*  only doing data conversion:
-*       returned feature is _not_ added to target_track (if desired, must do elsewhere)
-*       no rendering or div creation
-*
-*  GAH TODO:  need to make this more generic 
-*       maybe loop through all fields of newfeat, populate any that have corresponding fields in feat, 
-*          if no corresponding field then set to null (or undefined?)
-*/
-JSONUtils.convertToTrack = function(feat, source_track, target_track)  {
-// JSONUtils.convertToTrack = function(arep, feat, is_subfeat, source_track, target_track)  {
-    var newfeat = new SimpleFeature();
-//    var source_fields = source_track.fields;
-//    var source_subfields = source_track.subFields;
-//    var target_fields = target_track.fields;
-//    var target_subfields = target_track.subFields;
-//    if (is_subfeat)  {
-//	source_fields = source_subfields;
-//	target_fields = target_subfields;
-//    }
-    // feature class assignment
-    // this doesn't really work across tracks though (different class data structs) !!!
-    newfeat.set( "start",  feat.get( "start") );
-    newfeat.set( "end",    feat.get("end")    );
-    newfeat.set( "strand", feat.get( "strand"));
-//    if (target_fields["id"])  {
-//	newfeat[target_fields["id"]] = feat[source_fields["id"]];
-//    }
-    if ( newfeat.get('id') ) {
-	newfeat.set('id', feat.get("id"));
-    }
-
-    newfeat.set( 'name', feat.get('name') || feat.get('id') );
-
-    if( feat.get('type') )
-        newfeat.set('type', feat.get('type') );
-
-//    if (target_fields["subfeatures"] && source_fields["subfeatures"])   { 
-    if( feat.get('subfeatures') && newfeat.get('subfeatures') ) {
-	var newsubfeats = new Array();
-	// var subfeats = feat[source_fields["subfeatures"]];
-	var subfeats = feat.get('subfeatures');
-	if (subfeats)  {
-	    var slength = subfeats.length;
-	    for (var i = 0; i<slength; i++)  {
-		var oldsub = subfeats[i];
-		var newsub = new Array();
-		newsub.set('start', oldsub.get('start'));
-		newsub.set('end', oldsub.get('end'));
-		newsub.set('strand', oldsub.get('strand'));
-		newsub.set("type", oldsub.get('type'));
-		newsub.set('parent_id',newfeat);
-		if ( oldsub.id() )  {
-		    newsub.id( oldsub.id() );
-		}
-		newsubfeats[i] = newsub;
-	    }
-	}
-	// newfeat[target_fields["subfeatures"]]  = newsubfeats;
-	target_arep.set(newfeat, "Subfeatures", newsubfeats);
-    }
-    newfeat.uid = feat.uid;
-    return newfeat;
-};
-
-/*
 *  takes one parsed GFF3 feature and all of its subfeatures (children/grandchildren/great-grandchildren/...) 
 *  from a parsed GFF3 data struct (returned from GFF3toJson()), and returns a a two-level feature array for 
 *  the lowest and next-lowest level. For example, given a data struct for a parsed gene/mRNA/exon GFF3
 *  it would return a two-level feature array for the mRNA and all of it's exons. 
 */
 
-// JSONUtils.prototype.convertParsedGFF3JsonToFeatureArray = function(jsonFeature) {
-JSONUtils.convertParsedGFF3JsonToFeatureArray = function(jsonFeature) {
+JSONUtils.prototype.convertParsedGFF3JsonToFeatureArray = function(parsedGff3) {
     var featureArray = new Array();
     // set to zero because we want jbrowse/webapollo to look at the first entry in attr array to 
     // look up what each of the following fields in featureArray mean
@@ -306,30 +238,29 @@ JSONUtils.convertParsedGFF3JsonToFeatureArray = function(jsonFeature) {
     // figure out how many levels we are dealing with here, b/c we need to return 
     // only the data for the lowest contained in the next lowest level, since Webapollo 
     // can only deal with two-level features. 
-    var gff3Depth = JSONUtils.determineParsedGff3Depth(jsonFeature);
+    var jsu = new JSONUtils;
+    var gff3Depth = jsu.determineParsedGff3Depth(parsedGff3);
     
-    console.log("parsed depth: ", gff3Depth);
-
     // okay, we know the depth, go down to gff3Depth - 1, and pull the first feature at this
     // depth and its children. We're going to assume there is only one feature at this depth
     // and ignore any subsequent features.
 
-    // get parent in jsonFeature.parsedData, which is at depth - 1
-    var thisParent = JSONUtils.getFeatureAtGivenDepth(jsonFeature, gff3Depth - 1);
+    // get parent in parsedGff3.parsedData, which is at depth - 1
+    var thisParent = jsu.getFeatureAtGivenDepth(parsedGff3, gff3Depth - 1);
 
     //
     // now set parent info
     // 
-    featureArray[1] = parseInt(thisParent.data[3]); // set start
-    featureArray[2] = parseInt(thisParent.data[4]); // set end
-    featureArray[3] = thisParent.data[6]; // set strand
-    featureArray[4] = thisParent.data[1]; // set source
-    featureArray[5] = thisParent.data[7]; // set phase
-    featureArray[6] = thisParent.data[2]; // set type
-    featureArray[7] = thisParent.data[5]; // set score
-    featureArray[8] = thisParent.ID; // set id
+    featureArray[1] = parseInt(thisParent[0].data[3]); // set start
+    featureArray[2] = parseInt(thisParent[0].data[4]); // set end
+    featureArray[3] = thisParent[0].data[6]; // set strand
+    featureArray[4] = thisParent[0].data[1]; // set source
+    featureArray[5] = thisParent[0].data[7]; // set phase
+    featureArray[6] = thisParent[0].data[2]; // set type
+    featureArray[7] = thisParent[0].data[5]; // set score
+    featureArray[8] = thisParent[0].ID; // set id
 
-    var parsedNinthField = JSONUtils.parsedNinthGff3Field(thisParent.data[8]);  
+    var parsedNinthField = JSONUtils.parsedNinthGff3Field(thisParent[0].data[8]);  
     if ( !!parsedNinthField["Name"] ){
 	featureArray[9] = parsedNinthField["Name"];
     }
@@ -338,19 +269,19 @@ JSONUtils.convertParsedGFF3JsonToFeatureArray = function(jsonFeature) {
     // now set children info 
     // 
     var childrenArray = new Array; // make array for all child features
-     if ( !!thisParent.children ){
- 	for ( i = 0; i < thisParent.children.length; i++ ){
+     if ( !!thisParent[0]["children"] ){
+	 for ( i = 0; i < thisParent[0]["children"].length; i++ ){
  	    childrenArray[i] = new Array;
  	    childrenArray[i][0] = 1; // ? 
- 	    childrenArray[i][1] = parseInt(thisParent.children[i].data[3]); // start
- 	    childrenArray[i][2] = parseInt(thisParent.children[i].data[4]); // end
- 	    childrenArray[i][3] = thisParent.children[i].data[6]; // strand
- 	    childrenArray[i][4] = thisParent.children[i].data[1]; // source
- 	    childrenArray[i][5] = thisParent.children[i].data[7]; // phase
- 	    childrenArray[i][6] = thisParent.children[i].data[2]; // type
- 	    childrenArray[i][7] = thisParent.children[i].data[5]; // score
+ 	    childrenArray[i][1] = parseInt(thisParent[0]["children"][i][0].data[3]); // start
+ 	    childrenArray[i][2] = parseInt(thisParent[0]["children"][i][0].data[4]); // end
+ 	    childrenArray[i][3] = thisParent[0]["children"][i][0].data[6]; // strand
+ 	    childrenArray[i][4] = thisParent[0]["children"][i][0].data[1]; // source
+ 	    childrenArray[i][5] = thisParent[0]["children"][i][0].data[7]; // phase
+ 	    childrenArray[i][6] = thisParent[0]["children"][i][0].data[2]; // type
+ 	    childrenArray[i][7] = thisParent[0]["children"][i][0].data[5]; // score
 
- 	    var childNinthField = JSONUtils.parsedNinthGff3Field( thisParent.children[i].data[8] );
+ 	    var childNinthField = JSONUtils.parsedNinthGff3Field( thisParent[0]["children"][i][0].data[8] );
  	    if ( !!childNinthField["ID"] ){
 		childrenArray[i][8] = childNinthField["ID"];
 	    }
@@ -365,8 +296,9 @@ JSONUtils.convertParsedGFF3JsonToFeatureArray = function(jsonFeature) {
 };
 
 // recursive search of this feature to see how many levels there are,
-// helper for convertParsedGFF3JsonToFeatureArray
-JSONUtils.determineParsedGff3Depth = function(jsonFeature) {
+// helper for convertParsedGFF3JsonToFeatureArray. This determines the
+// depth of the first feature it finds. 
+JSONUtils.prototype.determineParsedGff3Depth = function(parsedGff3) {
     var recursion_level = 0;
     var maximum_recursion_level = 10; // paranoid about infinite recursion
     var determineNumLevels = function(thisJsonFeature) {
@@ -375,44 +307,22 @@ JSONUtils.determineParsedGff3Depth = function(jsonFeature) {
 	    return false;
 	}
 	// recurse if there there are children
-	if ( thisJsonFeature.children != null && thisJsonFeature.children.length > 0 ){
-	    if ( determineNumLevels(thisJsonFeature.children[0]) ){
+	if ( !! thisJsonFeature[0] && thisJsonFeature[0]["children"] != null && thisJsonFeature[0]["children"].length > 0 ){
+	    if ( determineNumLevels(thisJsonFeature[0]["children"][0] ) ){
 		return true;
 	    }
 	}
 	return false;
-    };
-    determineNumLevels( jsonFeature );
+    }
+    determineNumLevels( parsedGff3.parsedData[0] );
     return recursion_level;
-};
-
-/*JSONUtils.getFeaturesAtGivenDepth = function(jsonFeature, depth) {
-    var recursion_level = 0;
-    var maximum_recursion_level = 10; // paranoid about infinite recursion
-    var getFeature = function(thisJsonFeature, thisDepth) {
-	recursion_level++;
-	if ( recursion_level > maximum_recursion_level ){
-	    return null;
-	}
-	// are we at the right depth?
-	if ( recursion_level == thisDepth ){
-	    return thisJsonFeature;
-	}
-	else if ( thisJsonFeature.children != null && thisJsonFeature.children.length > 0 ){
-	    var returnedFeature;
- 	    if ( returnedFeature = getFeature(thisJsonFeature.children[0], depth) ){
- 		return returnedFeature;
- 	    }
-	}
-    };
-    return getFeature( jsonFeature, depth );
-};
-*/
-
+}; 
 
 // helper feature for convertParsedGFF3JsonToFeatureArray
 // that returns the feature at a given depth
-JSONUtils.getFeatureAtGivenDepth = function(jsonFeature, depth) {
+// (it will return the first feature in the arrayref at 
+// that depth)
+JSONUtils.prototype.getFeatureAtGivenDepth = function(parsedGff3, depth) {
     var recursion_level = 0;
     var maximum_recursion_level = 10; // paranoid about infinite recursion
     var getFeature = function(thisJsonFeature, thisDepth) {
@@ -424,15 +334,14 @@ JSONUtils.getFeatureAtGivenDepth = function(jsonFeature, depth) {
 	if ( recursion_level == thisDepth ){
 	    return thisJsonFeature;
 	}
-	else if ( thisJsonFeature.children != null && thisJsonFeature.children.length > 0 ){
-	    return getFeatureAtGivenDepth(thisJsonFeature.children[0], depth);
-//	    var returnedFeature;
-// 	    if ( returnedFeature = getFeature(thisJsonFeature.children[0], depth) ){
-// 		return returnedFeature;
-// 	    }
+	else if ( thisJsonFeature[0].children != null && thisJsonFeature[0].children.length > 0 ){
+	    var returnedFeature;
+ 	    if ( returnedFeature = getFeature(thisJsonFeature[0].children[0], depth) ){
+ 		return returnedFeature;
+ 	    }
 	}
-    };
-    return getFeature( jsonFeature, depth );
+	}
+    return getFeature( parsedGff3.parsedData[0], depth );
 };
 
 // helper feature for convertParsedGFF3JsonToFeatureArray
@@ -446,7 +355,8 @@ JSONUtils.parsedNinthGff3Field = function(ninthField) {
 	parsedNinthField[ keyVal[0] ] = keyVal[1];
     }
     return parsedNinthField;
-}
+};
 
 return JSONUtils;
+ 
 });

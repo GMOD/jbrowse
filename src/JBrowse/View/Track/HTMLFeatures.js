@@ -489,13 +489,11 @@ HTMLFeatures = declare( HTMLFeatures,
                 // if we have no histograms, check the predicted density of
                 // features on the screen, and display a message if it's
                 // bigger than maxFeatureScreenDensity
-                else if( false && stats.featureDensity / scale > this.config.maxFeatureScreenDensity ) {
-                    this.fillMessage(
+                else if( stats.featureDensity / scale > this.config.maxFeatureScreenDensity ) {
+                    this.fillTooManyFeaturesMessage(
                         blockIndex,
                         block,
-                        'Too many features to show'
-                            + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
-                            + '.'
+                        scale
                     );
                 }
                 else {
@@ -509,6 +507,16 @@ HTMLFeatures = declare( HTMLFeatures,
                                       containerStart, containerEnd);
                 }
         }));
+    },
+
+    fillTooManyFeaturesMessage: function( blockIndex, block, scale ) {
+        this.fillMessage(
+            blockIndex,
+            block,
+            'Too many features to show'
+                + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
+                + '.'
+        );
     },
 
     /**

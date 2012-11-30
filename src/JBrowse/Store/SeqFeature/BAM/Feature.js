@@ -172,7 +172,7 @@ var Feature = Util.fastDeclare(
             record._refID = refID;
         }
 
-        while (p <= blockEnd) {
+        while( p < blockEnd ) { // really should be blockEnd - 3, but this works too and is faster
             var tag = String.fromCharCode(byteArray[p]) + String.fromCharCode(byteArray[p + 1]);
             var origType = String.fromCharCode(byteArray[p + 2]);
             var type = origType.toLowerCase();
@@ -196,11 +196,12 @@ var Feature = Util.fastDeclare(
                 p += 4;
             } else if ( type == 'z' || type == 'h' ) {
                 value = '';
-                while( true ) {
+                while( p <= blockEnd ) {
                     var cc = byteArray[p++];
                     if( cc == 0 ) {
                         break;
-                    } else {
+                    }
+                    else {
                         value += String.fromCharCode(cc);
                     }
                 }

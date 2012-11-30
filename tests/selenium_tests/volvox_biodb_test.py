@@ -78,16 +78,19 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         time.sleep(0.4);
         self.close_dialog('export')
         self.export_track( trackname, 'Whole', 'bedGraph', 'Save' )
+        time.sleep(0.5);
         self.export_track( trackname, 'Whole', 'Wiggle', 'Save' )
 
         self.turn_on_track( 'Example Features' )
         trackname = 'ExampleFeatures'
+        time.sleep(0.5);
         self.export_track( trackname, 'Visible region','GFF3','View')
         time.sleep(0.4)
         self.close_dialog('export')
         self.export_track( trackname, 'Visible region','BED','Save')
 
         self.do_typed_query('ctgA:8379..31627');
+        time.sleep(0.5);
         self.export_track( 'DNA', 'Visible region','FASTA','View')
         self.assert_no_js_errors();
         self.close_dialog('export')

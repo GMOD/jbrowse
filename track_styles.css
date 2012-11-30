@@ -58,16 +58,28 @@ div.hist {
     background-color: #898FD8;
 }
 .alignment.missing_mate {
-    border: 2px solid red;
+    background-image: url('img/red_crosshatch_bg.png');
 }
 
-.alignment .mismatch.base {
+.alignment * {
     height: 100%;
 }
-.alignment .mismatch.base_deletion {
+.alignment .deletion {
     background-color: black;
+}
+.alignment .deletion * {
     color: white;
 }
+.alignment .insertion {
+    background-color: white;
+    color: black;
+}
+.alignment .skip {
+    background: url('img/black_20x2.png') repeat-x 0 50% white;
+    height: 100%;
+    opacity: 0.7;
+}
+
 
 /* .plus-alignment .mismatch, */
 /* .minus-alignment .mismatch { */
