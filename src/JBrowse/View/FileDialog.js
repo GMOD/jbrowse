@@ -1,135 +1,42 @@
-define( [ 'dojo/_base/declare',
-          'dojo/aspect',
-          'dojo/on',
-          'dijit/Dialog',
-          'dijit/form/ValidationTextBox',
-          'dijit/form/Select',
-          'dijit/form/Button',
-          'dijit/form/RadioButton',
-          'dojox/form/Uploader',
-          'dojox/form/uploader/plugins/IFrame',
-          './FileDialog/SuperFileList',
-          './FileDialog/TrackList'
+define( [
+            'dojo/_base/declare',
+            'dojo/_base/array',
+            'dojo/aspect',
+            'dijit/form/Button',
+            'dijit/form/RadioButton',
+            'dojo/dom-construct',
+            'dijit/Dialog',
+            'dojox/form/Uploader',
+            'dojox/form/uploader/plugins/IFrame',
+            './FileDialog/ResourceList',
+            './FileDialog/TrackList'
         ],
-        function( declare, aspect, on, Dialog, TextBox, Select, Button, RadioButton, Uploader, ignore, FileList, TrackList ) {
+        function(
+            declare,
+            array,
+            aspect,
+            Button,
+            RadioButton,
+            dom,
+            Dialog,
+            Uploaded,
+            ignore,
+            ResourceList,
+            TrackList
+        ) {
 
-return declare(null,{
+return declare( null, {
+
     constructor: function( args ) {
         this.browser = args.browser;
         this.config = dojo.clone( args.config || {} );
-    },
-
-    _remoteControls: function() {
-        var inputUniq = 0;
-        var inputCount = 0;
-        var blankCount = 0;
-
-        var table = dojo.create('table');
-        var inputs = this.inputs = {};
-        var that = this;
-
-        var addInput = function() {
-            var id = 'remoteInput'+(inputUniq++);
-            inputCount++;
-            blankCount++;
-            var tr = dojo.create( 'tr', {}, table );
-            dojo.create( 'label', { for: id, innerHTML: 'URL' }, dojo.create('td',{},tr) );
-            var typeSelect,
-                textBox = new TextBox({
-                    id: id,
-                    regExpGen: function() { return '^(https?|file):\/\/.+'; },
-                    onChange: function() {
-                        var value = this.get('value');
-                        if( this.isValid() ) {
-                            typeSelect.set(
-                                'value',
-                                that.guessType( value )
-                            );
-                         }
-
-                        updateInputs();
-                        that.trackList.update();
-                    },
-                    onMouseOut: updateInputs
-                });
-            textBox.placeAt( dojo.create('td',{},tr) );
-
-            typeSelect = new Select({
-                id: id+'_type',
-                options: [
-                    { label: '<span class="ghosted">file type?</span>', value: null     },
-                    { label: "GFF3",   value: "gff3"   },
-                    { label: "BigWig", value: "bigwig" },
-                    { label: "BAM",    value: "bam"    },
-                    { label: "BAI",    value: "bai"    }
-                ]
-            });
-            typeSelect.placeAt( dojo.create('td',{},tr) );
-
-            inputs[id] = { url: textBox, type: typeSelect, tr: tr };
+        this.browserSupports = {
+            dnd: 'draggable' in document.createElement('span')
         };
-
-        var updateInputs = function() {
-            // add or delete rows in the table of inputs as needed
-            var blankCount = 0;
-            for( var i in inputs ) {
-                if( ! /\S/.test( inputs[i].url.get('value')) ) {
-                    blankCount++;
-                    if( blankCount > 1 ) {
-                        inputs[i].tr.parentNode.removeChild( inputs[i].tr );
-                        delete inputs[i];
-                        blankCount--;
-                    }
-                }
-            }
-            if( blankCount == 0 ) {
-                // make another one
-                addInput();
-            }
-        };
-
-        addInput();
-
-        return table;
     },
 
-    guessType: function( value ) {
-        return /\.bam$/i.test( value )          ? 'bam'    :
-               /\.bai$/i.test( value )          ? 'bai'    :
-               /\.gff3?$/i.test( value )        ? 'gff3'   :
-                /\.(bw|bigwig)$/i.test( value ) ? 'bigwig' :
-                                                   null;
-    },
-
-    _localControls: function( mainContainer ) {
-        var dndSupported = 'draggable' in document.createElement('span');
-
-        var inputCounter = 0;
-        var id = 'localInput'+(inputCounter++);
-
-        var cont = dojo.create('div', {
-            innerHTML: '<h3>'
-                       + (dndSupported ? 'Drag or select files to open.' : 'Select files to open.')
-                       + '</h3>'
-        });
-
-        var fileBox = new dojox.form.Uploader({
-            multiple: true
-        });
-        fileBox.placeAt( cont );
-        if( dndSupported ) {
-            fileBox.addDropTarget( mainContainer );
-        }
-
-        var list = new FileList({ uploader: fileBox });
-        list.placeAt(cont);
-        this.localFileList = list;
-
-        return cont;
-    },
-
-    _actionBar: function( openCallback, cancelCallback ) {
-        var actionBar = dojo.create(
+    _makeActionBar: function( openCallback, cancelCallback ) {
+        var actionBar = dom.create(
             'div', {
                 className: 'dijitDialogPaneActionBar',
                 innerHTML: '<div class="aux">'
@@ -150,17 +57,7 @@ return declare(null,{
                    })
             .placeAt( actionBar );
 
-        return actionBar;
-    },
-
-    // files and URLS
-    // -> stores
-    // -> tracks
-    // -> tracks with user modifications
-    _makeTrackList: function( container ) {
-        this.trackList = new TrackList({ dialog: this });
-        dojo.connect( this.localFileList, 'onChange', this.trackList, 'update' );
-        return this.trackList.domNode;
+        return { domNode: actionBar };
     },
 
     show: function( args ) {
@@ -168,19 +65,25 @@ return declare(null,{
             { title: "Open files", className: 'fileDialog' }
             );
 
+        var localFilesControl = this._makeLocalFilesControl();
+        var remoteURLsControl = this._makeRemoteURLsControl();
+        var resourceList      = this._makeResourceListControl();
+        var trackList         = this._makeTrackListControl();
+        var actionBar         = this._makeActionBar();
+
+        var div = function( attr, children ) {
+            var d = dom.create('div', attr );
+            array.forEach( children, dojo.hitch( d, 'appendChild' ));
+            return d;
+        };
         var content = [
-                dojo.create('hr'),
-                dojo.create('h2',{ innerHTML: 'Local files' }),
-                this._localControls( dialog.domNode ),
-                dojo.create('hr'),
-                dojo.create('h2',{ innerHTML: 'Remote files' }),
-                this._remoteControls(),
-                this._actionBar( args.openCallback, args.cancelCallback )
-            ];
-        content.unshift( this._makeTrackList() );
-        content.unshift( dojo.create('h2',{ innerHTML: 'Tracks' }) );
-
-
+                div( { className: 'resourceControls' },
+                     [ localFilesControl.domNode, remoteURLsControl.domNode ]
+                   ),
+                resourceList.domNode,
+                trackList.domNode,
+                actionBar.domNode
+        ];
         dialog.set( 'content', content );
         dialog.show();
 
@@ -189,25 +92,49 @@ return declare(null,{
                       });
     },
 
-    filesToOpen: function() {
-        if( ! this.localFileList )
-            return [];
+    _makeLocalFilesControl: function() {
+        var container = dom.create('div', { className: 'localFilesControl' });
 
-        return this.localFileList.getFiles();
+        dom.create('h3', { innerHTML: 'Local files' }, container );
+
+        var dragArea = dom.create('div', { className: 'dragArea' }, container );
+
+        var fileBox = new dojox.form.Uploader({
+            multiple: true
+        });
+        fileBox.placeAt( dragArea );
+
+        if( this.browserSupports.dnd ) {
+            // let the uploader process any files dragged into the dialog
+            fileBox.addDropTarget( this.dialog.domNode );
+
+            // add a message saying you can drag files in
+            dom.create(
+                'div', {
+                    className: 'dragMessage',
+                    innerHTML: 'or drag files here'
+                }, dragArea
+            );
+        }
+
+        return { domNode: container };
+    },
+    _makeRemoteURLsControl: function() {
+        var container = dom.create('div', { className: 'remoteURLsControl' });
+
+        dom.create('h3', { innerHTML: 'Remote URLs - <smaller>one per line</smaller>' }, container );
+        var input = dom.create( 'textarea', { className: 'urlInput' }, container );
+
+        return { domNode: container, input: input  };
     },
 
-    urlsToOpen: function() {
-        var urls = [];
-        for( var id in this.inputs ) {
-            var input = this.inputs[id];
-            var type = input.type.get('value') || undefined;
-            if( type && input.url.textbox && input.url.isValid() ) {
-                var value = input.url.get('value');
-                if( /\S/.test( value || '') )
-                    urls.push( { url: value, type: type });
-            }
-        }
-        return urls;
+    _makeResourceListControl: function () {
+        var rl = new ResourceList({ dialog: this });
+        return rl;
+    },
+    _makeTrackListControl: function() {
+        var tl = new TrackList({});
+        return tl;
     }
 });
 });

@@ -1,9 +1,10 @@
 define(['dojo/_base/declare',
         'dojo/_base/array',
+        'dojo/dom-construct',
         'JBrowse/Util',
         'dijit/form/Button',
        './TrackList/BAMDriver'],
-       function(declare, array, Util, Button, BAMDriver ) {
+       function(declare, array, dom, Util, Button, BAMDriver ) {
 
 var uniqCounter = 0;
 
@@ -11,7 +12,7 @@ return declare( null, {
 
 constructor: function( args ) {
     this.fileDialog = args.dialog;
-    this.domNode = dojo.create('div', { className: 'trackList', innerHTML: 'track list!' });
+    this.domNode = dom.create('div', { className: 'trackList', innerHTML: 'track list!' });
     this.types = [ BAMDriver ];
 
     this._updateDisplay();
@@ -24,9 +25,9 @@ _offerResource: function( resource, typeDriver ) {
     return typeDriver.tryResource( this.storeConfs, resource );
 },
 
-update: function( ) {
+update: function( resources ) {
 
-    this._makeStoreConfs();
+    this._makeStoreConfs( resources );
 
     // make some track configurations from the store configurations
     this._makeTrackConfs();
@@ -34,14 +35,13 @@ update: function( ) {
     this._updateDisplay();
 },
 
-_makeStoreConfs: function() {
+_makeStoreConfs: function( resources ) {
     // when called, rebuild the store and track configurations that we are going to add
     this.storeConfs = this.storeConfs || {};
 
     // anneal the given resources into a set of data store
     // configurations by offering each file to each type driver in
     // turn until no more are being accepted
-    var resources = this.fileDialog.filesToOpen().concat( this.fileDialog.urlsToOpen() );
     var lastLength = 0;
     while( resources.length && resources.length != lastLength ) {
         resources = array.filter( resources, function( rec ) {
@@ -83,18 +83,19 @@ _makeTrackConfs: function() {
 
 _updateDisplay: function() {
     // clear it
-    this.domNode.innerHTML = '';
-    while( this.domNode.children.length ) {
-        this.domNode.removeChild( this.domNode.firstChild );
-    }
+    dom.empty( this.domNode );
+
+    dom.create('h3', { innerHTML: 'New Tracks' }, this.domNode );
 
     if( ! this.trackConfs ) {
-        this.domNode.innerHTML = '<div class="emptyMessage">Add URLs and files to create tracks.</div>';
+        dom.create('div', { className: 'emptyMessage',
+                            innerHTML: 'None yet'
+                          },this.domNode);
     } else {
-        var table = dojo.create('table', { innerHTML: '<tr><th>Name</th><th>Type</th><th></th></tr>'}, this.domNode );
+        var table = dom.create('table', { innerHTML: '<tr><th>Name</th><th>Type</th><th></th></tr>'}, this.domNode );
         for( var n in this.trackConfs ) {
             var t = this.trackConfs[n];
-            var r = dojo.create('tr', { innerHTML: '<td class="name">'+t.key+'</td><td class="type">'+t.type+'</td>' }, table );
+            var r = dom.create('tr', { innerHTML: '<td class="name">'+t.key+'</td><td class="type">'+t.type+'</td>' }, table );
             new Button({
                className: 'edit',
                title: 'edit configuration',
@@ -102,7 +103,7 @@ _updateDisplay: function() {
                onClick: function() {
                    alert('config editing not yet implemented');
                }
-            }).placeAt( dojo.create('td', { className: 'edit' }, r ) );
+            }).placeAt( dom.create('td', { className: 'edit' }, r ) );
         }
     }
 }
