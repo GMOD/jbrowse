@@ -40,7 +40,7 @@ return {
             }
 
             // otherwise make a new store config for it
-            var newName = 'bam_'+uniqCounter++;
+            var newName = 'BAM_'+basename+'_'+uniqCounter++;
             configs[newName] = {
                 type: this.storeType,
                 bam: this._makeBlob( resource ),
@@ -77,7 +77,7 @@ return {
             }
 
             // otherwise make a new store
-            var newName = 'bam_'+uniqCounter++;
+            var newName = 'BAM_'+Util.basename(basename,'.bam')+'_'+uniqCounter++;
             configs[newName] = {
                 bai: this._makeBlob( resource ),
                 name: newName,

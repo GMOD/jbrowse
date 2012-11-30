@@ -1,7 +1,11 @@
 define(['dojo/_base/declare',
         'dojo/_base/array',
+        'JBrowse/Util',
+        'dijit/form/Button',
        './TrackList/BAMDriver'],
-       function(declare, array, BAMDriver ) {
+       function(declare, array, Util, Button, BAMDriver ) {
+
+var uniqCounter = 0;
 
 return declare( null, {
 
@@ -9,16 +13,28 @@ constructor: function( args ) {
     this.fileDialog = args.dialog;
     this.domNode = dojo.create('div', { className: 'trackList', innerHTML: 'track list!' });
     this.types = [ BAMDriver ];
+
+    this._updateDisplay();
 },
 
 // offer a given resource record (either a file or a URL) to the
-// driver for a given store type.  returns true if that driver will
-// make use of that resource
+// driver for a given store type.  returns true if that driver has
+// taken and used that resource
 _offerResource: function( resource, typeDriver ) {
     return typeDriver.tryResource( this.storeConfs, resource );
 },
 
-update: function() {
+update: function( ) {
+
+    this._makeStoreConfs();
+
+    // make some track configurations from the store configurations
+    this._makeTrackConfs();
+
+    this._updateDisplay();
+},
+
+_makeStoreConfs: function() {
     // when called, rebuild the store and track configurations that we are going to add
     this.storeConfs = this.storeConfs || {};
 
@@ -37,9 +53,58 @@ update: function() {
         lastLength = resources.length;
     }
     if( resources.length )
-        console.warn("warning: not all resources could be used", resources );
+        console.warn( "not all resources could be used", resources );
+},
 
-    console.log( this.storeConfs );
+_makeTrackConfs: function() {
+    var typeMap = {
+        'JBrowse/Store/SeqFeature/BAM'        : 'JBrowse/View/Track/Alignments',
+        'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/HTMLFeatures',
+        'JBrowse/Store/SeqFeature/BigWig'     : 'JBrowse/View/Track/Wiggle/XYPlot',
+        'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence'
+    };
+
+    for( var n in this.storeConfs ) {
+        var store = this.storeConfs[n];
+        var trackType = typeMap[store.type] || 'JBrowse/View/Track/HTMLFeatures';
+
+        this.trackConfs = this.trackConfs || {};
+
+        this.trackConfs[ n ] =  {
+                store: this.storeConfs[n],
+                label: n,
+                key: n.replace(/_\d+$/,'').replace(/_/g,' '),
+                type: trackType
+        };
+    }
+
+    console.log( this.trackConfs );
+},
+
+_updateDisplay: function() {
+    // clear it
+    this.domNode.innerHTML = '';
+    while( this.domNode.children.length ) {
+        this.domNode.removeChild( this.domNode.firstChild );
+    }
+
+    if( ! this.trackConfs ) {
+        this.domNode.innerHTML = '<div class="emptyMessage">Add URLs and files to create tracks.</div>';
+    } else {
+        var table = dojo.create('table', { innerHTML: '<tr><th>Name</th><th>Type</th><th></th></tr>'}, this.domNode );
+        for( var n in this.trackConfs ) {
+            var t = this.trackConfs[n];
+            var r = dojo.create('tr', { innerHTML: '<td class="name">'+t.key+'</td><td class="type">'+t.type+'</td>' }, table );
+            new Button({
+               className: 'edit',
+               title: 'edit configuration',
+               innerHTML: 'Edit',
+               onClick: function() {
+                   alert('config editing not yet implemented');
+               }
+            }).placeAt( dojo.create('td', { className: 'edit' }, r ) );
+        }
+    }
 }
 
 });
