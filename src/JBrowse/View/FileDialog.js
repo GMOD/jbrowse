@@ -155,9 +155,8 @@ return declare( null, {
         self.input = dom.create( 'textarea', {
                                      className: 'urlInput',
                                      cols: 25,
-                                     rows: 5
-
-
+                                     rows: 5,
+                                     spellcheck: false
                                  }, container );
 
         // set up the handlers to propagate changes
