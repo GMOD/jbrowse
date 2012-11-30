@@ -173,9 +173,11 @@ return declare( null, {
         var previousText = '';
         var checkFrequency = 900;
         var checkForChange = function() {
-            if( self.input.value != previousText ) {
+            // compare with all whitespace changed to commas so that
+            // we are insensitive to changes in whitespace
+            if( self.input.value.replace(/\s+/g,',') != previousText ) {
                 realChange();
-                previousText = self.input.value;
+                previousText = self.input.value.replace(/\s+/g,',');
             }
             window.setTimeout( checkForChange, checkFrequency );
         };
