@@ -19,6 +19,10 @@ constructor: function( args ) {
 },
 
 
+getTrackConfigurations: function() {
+    return Util.dojof.values( this.trackConfs || {} );
+},
+
 update: function( resources ) {
     this.storeConfs = {};
     this.trackConfs = {};

@@ -51,7 +51,7 @@ return declare( null, {
         new Button({ iconClass: 'dijitIconFolderOpen',
                      label: 'Open',
                      onClick: dojo.hitch( this, function() {
-                         openCallback && openCallback( this._filesToOpen(), this._urlsToOpen() );
+                         openCallback && openCallback( this.trackList.getTrackConfigurations() );
                          this.dialog.hide();
                      })
                    })
@@ -69,7 +69,7 @@ return declare( null, {
         var remoteURLsControl   = this._makeRemoteURLsControl();
         var resourceListControl = this._makeResourceListControl();
         var trackListControl    = this._makeTrackListControl();
-        var actionBar           = this._makeActionBar();
+        var actionBar           = this._makeActionBar( args.openCallback, args.cancelCallback );
 
         // connect the local files control to the resource list
         dojo.connect( localFilesControl.uploader, 'onChange', function() {
@@ -192,6 +192,7 @@ return declare( null, {
     },
     _makeTrackListControl: function() {
         var tl = new TrackList({});
+        this.trackList = tl;
         return tl;
     }
 });

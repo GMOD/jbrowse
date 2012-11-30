@@ -448,8 +448,8 @@ Browser.prototype.initView = function() {
 Browser.prototype.openFileDialog = function() {
     new FileDialog({ browser: this })
         .show({
-            openCallback: dojo.hitch( this, function( files, urls ) {
-                console.log( 'OPEN', files, urls );
+            openCallback: dojo.hitch( this, function( confs ) {
+                console.log( 'NEW TRACKS', confs );
             })
         });
 };
