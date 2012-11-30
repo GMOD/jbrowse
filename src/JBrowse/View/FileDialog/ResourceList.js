@@ -38,6 +38,9 @@ return declare( null, {
         this.onChange();
     },
 
+    // old-style handler stub
+    onChange: function() { },
+
     _updateView: function() {
         var container = this.domNode;
         dom.empty( container );
@@ -56,7 +59,6 @@ return declare( null, {
 
                // make a selector for the resource's type
                var typeSelect = new Select({
-                    id: id+'_type',
                     options: [
                         { label: '<span class="ghosted">file type?</span>', value: null     },
                         { label: "GFF3",   value: "gff3"   },
@@ -70,11 +72,11 @@ return declare( null, {
                 res.type = typeSelect;
 
                 dojo.create( 'td', {
-                  innerHTML: '<span class="dijitIcon'+(res.file ? 'File' : 'Link')+'"></span>'
+                  innerHTML: '<div class="'+(res.file ? 'dijitIconFile' : 'jbrowseIconLink')+'"></div>'
                 },tr);
                 dojo.create('td',{ innerHTML: name },tr);
                 dojo.create('td',{
-                  innerHTML: '<span class="jbrowseIconDelete"></span>',
+                  innerHTML: '<div class="dijitIconDelete"></div>',
                   onclick: function() { alert('baleeted'); }
                 }, tr);
             }, this);

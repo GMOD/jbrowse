@@ -65,11 +65,16 @@ return declare( null, {
             { title: "Open files", className: 'fileDialog' }
             );
 
-        var localFilesControl = this._makeLocalFilesControl();
-        var remoteURLsControl = this._makeRemoteURLsControl();
-        var resourceList      = this._makeResourceListControl();
-        var trackList         = this._makeTrackListControl();
-        var actionBar         = this._makeActionBar();
+        var localFilesControl   = this._makeLocalFilesControl();
+        var remoteURLsControl   = this._makeRemoteURLsControl();
+        var resourceListControl = this._makeResourceListControl();
+        var trackListControl    = this._makeTrackListControl();
+        var actionBar           = this._makeActionBar();
+
+        // connect the local files control to the resource list
+        dojo.connect( localFilesControl.uploader, 'onChange', function() {
+            resourceListControl.addLocalFiles( localFilesControl.uploader._files );
+        });
 
         var div = function( attr, children ) {
             var d = dom.create('div', attr );
@@ -80,8 +85,8 @@ return declare( null, {
                 div( { className: 'resourceControls' },
                      [ localFilesControl.domNode, remoteURLsControl.domNode ]
                    ),
-                resourceList.domNode,
-                trackList.domNode,
+                resourceListControl.domNode,
+                trackListControl.domNode,
                 actionBar.domNode
         ];
         dialog.set( 'content', content );
@@ -117,7 +122,7 @@ return declare( null, {
             );
         }
 
-        return { domNode: container };
+        return { domNode: container, uploader: fileBox };
     },
     _makeRemoteURLsControl: function() {
         var container = dom.create('div', { className: 'remoteURLsControl' });
