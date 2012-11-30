@@ -38,20 +38,38 @@ return declare( null, {
     _makeActionBar: function( openCallback, cancelCallback ) {
         var actionBar = dom.create(
             'div', {
-                className: 'dijitDialogPaneActionBar',
-                innerHTML: '<div class="aux">'
-                           + '<input type="radio" checked="checked" data-dojo-type="dijit.form.RadioButton" name="display" id="immediate" value="immediate"/>'
-                           + '<label for="immediate">Display immediately</label>'
-                           + ' <input type="radio" data-dojo-type="dijit.form.RadioButton" name="display" id="tracksOnly" value="tracksOnly"/>'
-                           + '<label for="tracksOnly">Add to tracks</label>'
-                           + '</div>'
+                className: 'dijitDialogPaneActionBar'
             });
+
+        var disChoices = this.trackDispositionChoice = [
+            new RadioButton({ id: 'immediateOpen',
+                              value: 'immediateOpen',
+                              label: 'open immediately',
+                              checked: true
+                            }),
+            new RadioButton({ id: 'addToTrackList',
+                              value: 'addToTrackList'
+                            })
+        ];
+
+        var aux = dom.create('div',{className:'aux'},actionBar);
+        disChoices[0].placeAt(aux);
+        dom.create('label', { for: 'immediateOpen', innerHTML: 'Open immediately' }, aux ),
+        disChoices[1].placeAt(aux);
+        dom.create('label', { for: 'addToTrackList', innerHTML: 'Add to tracks' }, aux );
+
+
         new Button({ iconClass: 'dijitIconDelete', onClick: dojo.hitch( this.dialog, 'hide' ), label: 'Cancel' })
             .placeAt( actionBar );
         new Button({ iconClass: 'dijitIconFolderOpen',
                      label: 'Open',
                      onClick: dojo.hitch( this, function() {
-                         openCallback && openCallback( this.trackList.getTrackConfigurations() );
+                         openCallback && openCallback({
+                             trackConfs: this.trackList.getTrackConfigurations(),
+                             trackDisposition: this.trackDispositionChoice[0].checked ? this.trackDispositionChoice[0].value :
+                                               this.trackDispositionChoice[1].checked ? this.trackDispositionChoice[1].value :
+                                                                                        undefined
+                         });
                          this.dialog.hide();
                      })
                    })
