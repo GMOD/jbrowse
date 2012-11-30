@@ -22,7 +22,7 @@ return {
             // go through the configs and see if there is one with a BAI that seems to match
             for( var n in configs ) {
                 var c = configs[n];
-                if( Util.basename( c.bai ? c.bai.blob.name : c.baiUrlTemplate, '.bai' ) == basename ) {
+                if( Util.basename( c.bai ? c.bai.url || c.bai.blob.name : c.baiUrlTemplate, '.bai' ) == basename ) {
                     // it's a match, put it in
                     c.bam = this._makeBlob( resource );
                     return true;
@@ -32,7 +32,7 @@ return {
             basename = Util.basename( basename, '.bam' );
             for( var n in configs ) {
                 var c = configs[n];
-                if( Util.basename( c.bai ? c.bai.blob.name : c.baiUrlTemplate, '.bai' ) == basename ) {
+                if( Util.basename( c.bai ? c.bai.url || c.bai.blob.name : c.baiUrlTemplate, '.bai' ) == basename ) {
                     // it's a match, put it in
                     c.bam = this._makeBlob( resource );
                     return true;
@@ -60,7 +60,7 @@ return {
             // go through the configs and look for BAMs that match like zee.bam -> zee.bam.bai
             for( var n in configs ) {
                 var c = configs[n];
-                if( Util.basename( c.bam ? c.bam.blob.name : c.urlTemplate ) == basename ) {
+                if( Util.basename( c.bam ? c.bam.url || c.bam.blob.name : c.urlTemplate ) == basename ) {
                     // it's a match, put it in
                     c.bai = this._makeBlob( resource );
                     return true;
@@ -69,7 +69,7 @@ return {
             // go through again and look for BAMs that match like zee.bam -> zee.bai
             for( var n in configs ) {
                 var c = configs[n];
-                if( Util.basename( c.bam ? c.bam.blob.name : c.urlTemplate, '.bam' ) == basename ) {
+                if( Util.basename( c.bam ? c.bam.url || c.bam.blob.name : c.urlTemplate, '.bam' ) == basename ) {
                     // it's a match, put it in
                     c.bai = this._makeBlob( resource );
                     return true;
