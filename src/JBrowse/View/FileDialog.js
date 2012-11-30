@@ -82,6 +82,11 @@ return declare( null, {
             resourceListControl.addURLs( urls );
         });
 
+        // connect the resource list to the track list
+        dojo.connect( resourceListControl, 'onChange', function( resources ) {
+            trackListControl.update( resources );
+        });
+
         var div = function( attr, children ) {
             var d = dom.create('div', attr );
             array.forEach( children, dojo.hitch( d, 'appendChild' ));

@@ -17,6 +17,19 @@ return declare( null, {
         this._resources = array.filter( this._resources || [], function(res) {
             return ! res.file;
         });
+        this._notifyChange();
+    },
+
+    _notifyChange: function() {
+        this.onChange( array.map( this._resources || [], function( res ) {
+            var r = {};
+            if( res.file )
+                r.file = res.file;
+            if( res.url )
+                r.url = res.url;
+            r.type = res.type.get('value');
+            return r;
+        }));
     },
 
     _addResources: function( resources ) {
@@ -32,7 +45,7 @@ return declare( null, {
         }).reverse();
 
         this._updateView();
-        this.onChange();
+        this._notifyChange();
     },
 
     addLocalFiles: function( fileList ) {
@@ -45,6 +58,7 @@ return declare( null, {
         this._resources = array.filter( this._resources || [], function(res) {
             return ! res.url;
         });
+        this._notifyChange();
     },
     addURLs: function( urls ) {
         this._addResources( array.map( urls, function(u) {

@@ -26,6 +26,8 @@ _offerResource: function( resource, typeDriver ) {
 },
 
 update: function( resources ) {
+    this.storeConfs = {};
+    this.trackConfs = {};
 
     this._makeStoreConfs( resources );
 
@@ -77,8 +79,6 @@ _makeTrackConfs: function() {
                 type: trackType
         };
     }
-
-    console.log( this.trackConfs );
 },
 
 _updateDisplay: function() {
