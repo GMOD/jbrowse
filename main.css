@@ -392,6 +392,12 @@ div.track-label {
     z-index: 20;
     border-color: #eee;
     opacity: 0.7;
+
+    /* setting white-space to "nowrap" prevents Chrome-specific bug with label text sometimes disappearing after zoom in 
+       Chrome was wrapping track-lablel-text to next line, which falls outside of track-label fixed height and therefore not seen
+       see chromium bug report for more details on underlying issue: http://code.google.com/p/chromium/issues/detail?id=138918
+    */
+    white-space: nowrap;  
 }
 
 div.track-label .track-label-text {
