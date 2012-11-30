@@ -76,6 +76,12 @@ return declare( null, {
             resourceListControl.addLocalFiles( localFilesControl.uploader._files );
         });
 
+        // connect the remote URLs control to the resource list
+        dojo.connect( remoteURLsControl, 'onChange', function( urls ) {
+            resourceListControl.clearURLs();
+            resourceListControl.addURLs( urls );
+        });
+
         var div = function( attr, children ) {
             var d = dom.create('div', attr );
             array.forEach( children, dojo.hitch( d, 'appendChild' ));
@@ -124,13 +130,54 @@ return declare( null, {
 
         return { domNode: container, uploader: fileBox };
     },
+
     _makeRemoteURLsControl: function() {
         var container = dom.create('div', { className: 'remoteURLsControl' });
 
+        // make the input elements
         dom.create('h3', { innerHTML: 'Remote URLs - <smaller>one per line</smaller>' }, container );
-        var input = dom.create( 'textarea', { className: 'urlInput' }, container );
+        var changeTimeout;
+        var change = function( urls ) {
+            console.log('url control changed');
+        };
+        // the onChange here will be connected to by the other parts
+        // of the dialog to propagate changes to the text in the box
+        var self = { domNode: container,
+                     onChange: function(urls) {
+                         //console.log('urls changed');
+                     }
+                   };
+        self.input = dom.create( 'textarea', {
+                                     className: 'urlInput',
+                                     cols: 25,
+                                     rows: 5
 
-        return { domNode: container, input: input  };
+
+                                 }, container );
+
+        // set up the handlers to propagate changes
+        var realChange = function() {
+            var text = dojo.trim( self.input.value );
+            var urls = text.length ? text.split( /\s+/ ) : [];
+            self.onChange( urls );
+        };
+        // watch the input text for changes.  just do it every 700ms
+        // because there are many ways that text can get changed (like
+        // pasting), not all of which fire the same events.  not using
+        // the onchange event, because that doesn't fire until the
+        // textarea loses focus.
+        var previousText = '';
+        var checkFrequency = 900;
+        var checkForChange = function() {
+            if( self.input.value != previousText ) {
+                realChange();
+                previousText = self.input.value;
+            }
+            window.setTimeout( checkForChange, checkFrequency );
+        };
+        window.setTimeout( checkForChange, checkFrequency );
+
+        return self;
     },
 
     _makeResourceListControl: function () {

@@ -19,13 +19,10 @@ return declare( null, {
         });
     },
 
-    addLocalFiles: function( fileList ) {
+    _addResources: function( resources ) {
         var seenFile = {};
-        var allRes = [].concat( this._resources||[] );
-        array.forEach( fileList, function(f) {
-            allRes.unshift( { file: f });
-        },this);
-        this._resources = array.filter( allRes, function( res ) {
+        var allRes = ( this._resources||[] ).concat( resources );
+        this._resources = array.filter( allRes.reverse(), function( res ) {
             var key = res.file && res.file.name || res.url;
             if( seenFile[key] ) {
                 return false;
@@ -36,6 +33,23 @@ return declare( null, {
 
         this._updateView();
         this.onChange();
+    },
+
+    addLocalFiles: function( fileList ) {
+        this._addResources( array.map( fileList, function(file) {
+            return { file: file };
+        }));
+    },
+
+    clearURLs: function() {
+        this._resources = array.filter( this._resources || [], function(res) {
+            return ! res.url;
+        });
+    },
+    addURLs: function( urls ) {
+        this._addResources( array.map( urls, function(u) {
+            return { url: u };
+        }));
     },
 
     // old-style handler stub
@@ -66,7 +80,11 @@ return declare( null, {
                         { label: "BAM",    value: "bam"    },
                         { label: "BAI",    value: "bai"    }
                     ],
-                    value: this.guessType( name )
+                    value: this.guessType( name ),
+                    onChange: function() {
+                        this._rememberedTypes = this._rememberedTypes||{};
+                        this._rememberedTypes[name] = this.get('value');
+                    }
                 });
                 typeSelect.placeAt( dojo.create('td',{},tr) );
                 res.type = typeSelect;
@@ -87,9 +105,6 @@ return declare( null, {
                               },
                        container);
         }
-    },
-
-    addURLs: function( urls ) {
     },
 
     guessType: function( name ) {
