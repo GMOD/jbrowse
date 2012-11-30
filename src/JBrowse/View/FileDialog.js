@@ -8,9 +8,10 @@ define( [ 'dojo/_base/declare',
           'dijit/form/RadioButton',
           'dojox/form/Uploader',
           'dojox/form/uploader/plugins/IFrame',
-          './FileDialog/SuperFileList'
+          './FileDialog/SuperFileList',
+          './FileDialog/TrackList'
         ],
-        function( declare, aspect, on, Dialog, TextBox, Select, Button, RadioButton, Uploader, ignore, FileList ) {
+        function( declare, aspect, on, Dialog, TextBox, Select, Button, RadioButton, Uploader, ignore, FileList, TrackList ) {
 
 return declare(null,{
     constructor: function( args ) {
@@ -47,6 +48,7 @@ return declare(null,{
                          }
 
                         updateInputs();
+                        that.trackList.update();
                     },
                     onMouseOut: updateInputs
                 });
@@ -106,10 +108,9 @@ return declare(null,{
         var id = 'localInput'+(inputCounter++);
 
         var cont = dojo.create('div', {
-            innerHTML: '<h2>Local files</h2>'
-                       +'<h3>'
-                         + (dndSupported ? 'Drag or select files to open.' : 'Select files to open.')
-                         + '</h3>'
+            innerHTML: '<h3>'
+                       + (dndSupported ? 'Drag or select files to open.' : 'Select files to open.')
+                       + '</h3>'
         });
 
         var fileBox = new dojox.form.Uploader({
@@ -152,19 +153,35 @@ return declare(null,{
         return actionBar;
     },
 
+    // files and URLS
+    // -> stores
+    // -> tracks
+    // -> tracks with user modifications
+    _makeTrackList: function( container ) {
+        this.trackList = new TrackList({ dialog: this });
+        dojo.connect( this.localFileList, 'onChange', this.trackList, 'update' );
+        return this.trackList.domNode;
+    },
+
     show: function( args ) {
         var dialog = this.dialog = new Dialog(
             { title: "Open files", className: 'fileDialog' }
             );
 
-        dialog.set(
-            'content',
-            [
+        var content = [
+                dojo.create('hr'),
+                dojo.create('h2',{ innerHTML: 'Local files' }),
                 this._localControls( dialog.domNode ),
                 dojo.create('hr'),
+                dojo.create('h2',{ innerHTML: 'Remote files' }),
                 this._remoteControls(),
                 this._actionBar( args.openCallback, args.cancelCallback )
-            ]);
+            ];
+        content.unshift( this._makeTrackList() );
+        content.unshift( dojo.create('h2',{ innerHTML: 'Tracks' }) );
+
+
+        dialog.set( 'content', content );
         dialog.show();
 
         aspect.after( dialog, 'hide', function() {
@@ -172,14 +189,14 @@ return declare(null,{
                       });
     },
 
-    _filesToOpen: function() {
+    filesToOpen: function() {
         if( ! this.localFileList )
             return [];
 
         return this.localFileList.getFiles();
     },
 
-    _urlsToOpen: function() {
+    urlsToOpen: function() {
         var urls = [];
         for( var id in this.inputs ) {
             var input = this.inputs[id];
