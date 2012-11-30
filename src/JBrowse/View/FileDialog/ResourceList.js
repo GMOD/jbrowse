@@ -81,8 +81,8 @@ return declare( null, {
             // render rows in the resource table for each resource in our
             // list
             array.forEach( this._resources, function( res, i){
+               var that = this;
                var tr = dom.create('tr', {}, table );
-
                var name = res.url || res.file.name;
 
                // make a selector for the resource's type
@@ -109,7 +109,9 @@ return declare( null, {
                 dojo.create('td',{ innerHTML: name },tr);
                 dojo.create('td',{
                   innerHTML: '<div class="dijitIconDelete"></div>',
-                  onclick: function() { alert('baleeted'); }
+                  onclick: function() {
+                      that.delete( res );
+                  }
                 }, tr);
             }, this);
         }
@@ -119,6 +121,13 @@ return declare( null, {
                               },
                        container);
         }
+    },
+
+    delete: function( deleteResource ) {
+        this._resources = array.filter( this._resources || [], function(res) {
+            return res !== deleteResource;
+        });
+        this._updateView();
     },
 
     guessType: function( name ) {
