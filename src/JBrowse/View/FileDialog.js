@@ -174,6 +174,7 @@ return declare( null, {
                    };
         self.input = dom.create( 'textarea', {
                                      className: 'urlInput',
+                                     placeHolder: "http://mysite.com/example.bam",
                                      cols: 25,
                                      rows: 5,
                                      spellcheck: false

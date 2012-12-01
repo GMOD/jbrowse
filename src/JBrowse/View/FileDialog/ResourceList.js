@@ -117,7 +117,7 @@ return declare( null, {
         }
         else {
             dom.create('div', { className: 'emptyMessage',
-                                innerHTML: 'Add files or URLs to begin.'
+                                innerHTML: 'None'
                               },
                        container);
         }

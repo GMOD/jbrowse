@@ -90,9 +90,9 @@ _updateDisplay: function() {
 
     dom.create('h3', { innerHTML: 'New Tracks' }, this.domNode );
 
-    if( ! this.trackConfs ) {
+    if( ! Util.dojof.keys( this.trackConfs||{} ).length ) {
         dom.create('div', { className: 'emptyMessage',
-                            innerHTML: 'None yet'
+                            innerHTML: 'Add files and URLs to make tracks.'
                           },this.domNode);
     } else {
         var table = dom.create('table', { innerHTML: '<tr><th>Name</th><th>Type</th><th></th></tr>'}, this.domNode );

@@ -4,19 +4,91 @@
     font-weight: bold;
     padding: 0 0.5em;
 }
-.fileDialog h2 {
-    text-align: center;
+.fileDialog h2, .fileDialog h3 {
+    margin: 0;
+    padding: 0;
+    font-size: 125%;
+}
+
+.fileDialog .dijitDialogPaneContent > div {
+    width: 40em;
+    padding: 0;
+    margin: 6px 0;
 }
 .fileDialog div.aux {
     text-align: center;
     margin-bottom: 1em;
 }
-/* .dojoxUploaderFileListTable { */
-/*     border: 1px solid #ccc; */
-/* } */
-/* .dojoxUploaderFileListTable th { */
-/*     background: #ccc; */
-/* } */
-/* .dojoxUploaderFileListTable td { */
-/*     background: white; */
-/* } */
+.fileDialog .resourceControls {
+    height: 10em;
+    position: relative;
+}
+.fileDialog .resourceControls > div {
+    width: 19.5em;
+    box-sizing: border-box;
+    height: 100%;
+}
+.fileDialog .resourceControls > div > h3 {
+    height: 19%;
+}
+
+.fileDialog .localFilesControl {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.fileDialog .dijitUploader {
+    position: absolute;
+    margin: 0;
+}
+
+.fileDialog .remoteURLsControl textarea,
+.fileDialog .localFilesControl .dragArea {
+    height: 81%;
+    position: relative;
+    border: 1px solid #b3b3b3;
+    width: 100%;
+    box-sizing: border-box;
+}
+.fileDialog .localFilesControl .dragArea .dragMessage {
+    height: 2em;
+    position: absolute;
+    top: 60%;
+    font-weight: bold;
+    margin-top: -1em;
+    text-align: center;
+    width: 100%;
+}
+.fileDialog .remoteURLsControl textarea {
+    font-size: 10px;
+}
+.fileDialog .remoteURLsControl {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.fileDialog .dijitDialogPaneContent > .resourceList,
+.fileDialog .dijitDialogPaneContent > .trackList {
+    padding: 0 0.6em;
+}
+
+.fileDialog .resourceList {
+    background: #bcd3ef;
+}
+.fileDialog .resourceList > h3, .fileDialog .trackList > h3 {
+     padding: 0.3em 0;
+}
+
+.fileDialog .emptyMessage {
+    width: 100%;
+    font-size: 110%;
+    color: #686868;
+    font-weight: bold;
+    text-align: center;
+    line-height: 4;
+}
+
+.fileDialog .trackList {
+    background: #8cb1dd;
+}
