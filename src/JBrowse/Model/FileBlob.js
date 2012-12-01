@@ -21,7 +21,7 @@ var FileBlob = declare( null,
     },
 
     slice: function(start, length) {
-        var sliceFunc = this.blob.webkitSlice || this.blob.mozSlice || this.blob.slice;
+        var sliceFunc = this.blob.mozSlice || this.blob.slice || this.blob.webkitSlice;
         return new FileBlob(
             length ? sliceFunc.call( this.blob, start, start + length )
                    : sliceFunc.call( this.blob, start )
