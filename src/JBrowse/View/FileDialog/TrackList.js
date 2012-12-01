@@ -99,6 +99,10 @@ _makeTrackConfs: function() {
     }
 },
 
+_delete: function( trackname ) {
+    delete (this.trackConfs||{})[trackname];
+    this._updateDisplay();
+},
 
 _updateDisplay: function() {
     var that = this;
@@ -110,7 +114,7 @@ _updateDisplay: function() {
 
     if( ! Util.dojof.keys( this.trackConfs||{} ).length ) {
         dom.create('div', { className: 'emptyMessage',
-                            innerHTML: 'No tracks can be created from the current files and URLs.'
+                            innerHTML: 'No tracks will be added.'
                           },this.domNode);
     } else {
         var table = dom.create('table', { innerHTML: '<tr class="head"><th>Name</th><th>Display</th><th></th></tr>'}, this.domNode );
@@ -144,6 +148,17 @@ _updateDisplay: function() {
                      });
                }
             }).placeAt( dom.create('td', { className: 'edit' }, r ) );
+
+            dojo.create('td',{
+                  width: '1%',
+                  innerHTML: '<div class="dijitIconDelete"></div>',
+                  onclick: function(e) {
+                      e.preventDefault && e.preventDefault();
+                      that._delete( n );
+                  }
+                }, r);
+
+            dom.create('td',{ className: 'type' }, r );
         }
     }
 }
