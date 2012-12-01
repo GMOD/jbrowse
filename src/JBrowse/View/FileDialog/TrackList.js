@@ -99,14 +99,14 @@ _updateDisplay: function() {
         for( var n in this.trackConfs ) {
             var t = this.trackConfs[n];
             var r = dom.create('tr', { innerHTML: '<td class="name">'+t.key+'</td><td class="type">'+t.type+'</td>' }, table );
-            new Button({
-               className: 'edit',
-               title: 'edit configuration',
-               innerHTML: 'Edit',
-               onClick: function() {
-                   alert('config editing not yet implemented');
-               }
-            }).placeAt( dom.create('td', { className: 'edit' }, r ) );
+            // new Button({
+            //    className: 'edit',
+            //    title: 'edit configuration',
+            //    innerHTML: 'Edit',
+            //    onClick: function() {
+            //        alert('config editing not yet implemented');
+            //    }
+            // }).placeAt( dom.create('td', { className: 'edit' }, r ) );
         }
     }
 }
