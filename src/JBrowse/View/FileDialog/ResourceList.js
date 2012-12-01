@@ -96,8 +96,9 @@ return declare( null, {
                     ],
                     value: this.guessType( name ),
                     onChange: function() {
-                        this._rememberedTypes = this._rememberedTypes||{};
-                        this._rememberedTypes[name] = this.get('value');
+                        that._rememberedTypes = that._rememberedTypes||{};
+                        that._rememberedTypes[name] = this.get('value');
+                        that._notifyChange();
                     }
                 });
                 typeSelect.placeAt( dojo.create('td',{ width: '4%'},tr) );
