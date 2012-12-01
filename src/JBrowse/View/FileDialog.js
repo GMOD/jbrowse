@@ -158,6 +158,9 @@ return declare( null, {
             );
         }
 
+        // little elements used to show pipeline-like connections between the controls
+        dom.create( 'div', { className: 'connector', innerHTML: '&nbsp;'}, container );
+
         return { domNode: container, uploader: fileBox };
     },
 
@@ -206,11 +209,18 @@ return declare( null, {
         };
         window.setTimeout( checkForChange, checkFrequency );
 
+        // little elements used to show pipeline-like connections between the controls
+        dom.create( 'div', { className: 'connector', innerHTML: '&nbsp;'}, container );
+
         return self;
     },
 
     _makeResourceListControl: function () {
         var rl = new ResourceList({ dialog: this });
+
+        // little elements used to show pipeline-like connections between the controls
+        dom.create( 'div', { className: 'connector', innerHTML: '&nbsp;'}, rl.domNode );
+
         return rl;
     },
     _makeTrackListControl: function() {

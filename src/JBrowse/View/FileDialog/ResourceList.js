@@ -121,7 +121,7 @@ return declare( null, {
         }
         else {
             dom.create('div', { className: 'emptyMessage',
-                                innerHTML: 'None'
+                                innerHTML: 'Add files and URLs using the controls above.'
                               },
                        container);
         }

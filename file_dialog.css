@@ -9,6 +9,17 @@
     border-bottom: 2px solid black;
 }
 
+.fileDialog .connector {
+    background: #333;
+    height: 6px;
+    width: 12px;
+    position: absolute;
+
+    bottom: -6px;
+    left: 50%;
+    margin-left: -6px;
+}
+
 .fileDialog h2, .fileDialog h3 {
     margin: 0;
     padding: 0;
@@ -16,6 +27,8 @@
 }
 
 .fileDialog .dijitDialogPaneContent > div {
+    position: relative;
+
     width: 40em;
     padding: 0 0 0.75em 0;
     margin: 6px 0;
