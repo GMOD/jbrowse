@@ -42,9 +42,8 @@ return declare( null, {
             });
 
         var disChoices = this.trackDispositionChoice = [
-            new RadioButton({ id: 'immediateOpen',
-                              value: 'immediateOpen',
-                              label: 'open immediately',
+            new RadioButton({ id: 'openImmediately',
+                              value: 'openImmediately',
                               checked: true
                             }),
             new RadioButton({ id: 'addToTrackList',
@@ -54,7 +53,7 @@ return declare( null, {
 
         var aux = dom.create('div',{className:'aux'},actionBar);
         disChoices[0].placeAt(aux);
-        dom.create('label', { for: 'immediateOpen', innerHTML: 'Open immediately' }, aux ),
+        dom.create('label', { for: 'openImmediately', innerHTML: 'Open immediately' }, aux ),
         disChoices[1].placeAt(aux);
         dom.create('label', { for: 'addToTrackList', innerHTML: 'Add to tracks' }, aux );
 

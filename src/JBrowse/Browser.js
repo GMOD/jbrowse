@@ -450,6 +450,32 @@ Browser.prototype.openFileDialog = function() {
         .show({
             openCallback: dojo.hitch( this, function( results ) {
                 console.log( 'NEW TRACKS', results );
+                var confs = results.trackConfs || [];
+                if( confs.length ) {
+
+                    // tuck away each of the store configurations in
+                    // our store configuration, and replace them with
+                    // their names.
+                    // the track configurations don't need to be
+                    // recorded; they live right now shuttling back and
+                    // forth between the track list and the genome
+                    // view
+                    array.forEach( confs, function( conf ) {
+                        var storeConf = conf.store;
+                        delete conf.store;
+                        if( storeConf ) {
+                            var name = this.addStoreConfig( storeConf.name, storeConf );
+                            conf.store = name;
+                        }
+                    },this);
+
+                    // send out a message to create the new tracks
+                    this.publish( '/jbrowse/v1/c/tracks/new', confs );
+
+                    // if requested, send out another message to show them
+                    if( results.trackDisposition == 'openImmediately' )
+                        this.publish( '/jbrowse/v1/c/tracks/show', confs );
+                }
             })
         });
 };
@@ -578,7 +604,7 @@ Browser.prototype.getStore = function( storeName, callback ) {
     }
 
     require( [ storeClassName ], dojo.hitch( this, function( storeClass ) {
-                 var storeArgs = dojo.mixin( dojo.clone(conf),
+                 var storeArgs = dojo.mixin( conf,
                                              {
                                                  browser: this,
                                                  refSeq: this.refSeq
@@ -587,6 +613,18 @@ Browser.prototype.getStore = function( storeName, callback ) {
                  this._storeCache[ storeName ] = { refCount: 1, store: store };
                  callback( store );
              }));
+};
+
+var uniqCounter = 0;
+Browser.prototype.addStoreConfig = function( name, storeConfig ) {
+    name = name || 'addStore'+uniqCounter++;
+
+    if( this.config.stores[name] || this._storeCache[name] ) {
+        throw "store "+name+" already exists!";
+    }
+
+    this.config.stores[name] = storeConfig;
+    return name;
 };
 
 Browser.prototype.clearStores = function() {

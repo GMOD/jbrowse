@@ -22,13 +22,20 @@ var FileBlob = declare( null,
 
     slice: function(start, length) {
         var sliceFunc = this.blob.webkitSlice || this.blob.mozSlice || this.blob.slice;
-        return new JBrowse.Model.Blob(
+        return new FileBlob(
             length ? sliceFunc.call( this.blob, start, start + length )
                    : sliceFunc.call( this.blob, start )
         );
     },
 
-    fetch: function(callback) {
+    read: function( offset, length, callback, failCallback ) {
+        var start = this.start + offset,
+            end = start + length;
+        this.slice( offset, length )
+            .fetch( callback, failCallback );
+    },
+
+    fetch: function( callback, failCallback ) {
         var that = this,
             reader = new FileReader();
         reader.onloadend = function(ev) {

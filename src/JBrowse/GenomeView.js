@@ -1723,8 +1723,8 @@ GenomeView.prototype.hideTracks = function( /**Array[String]*/ trackConfigs ) {
     },this);
     if( ! displayed.length ) return;
 
-    // insert the track configs into the trackDndWidget ( the widget
-    // will call create() on the confs to render them)
+    // remove the track configs from the trackDndWidget ( the widget
+    // will call create() on the confs to render them )
     dojo.forEach( displayed, function( conf ) {
         this.trackDndWidget.forInItems(function(obj, id, map) {
             if( conf.label === obj.data.label ) {
