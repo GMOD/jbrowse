@@ -2,9 +2,11 @@ define(['dojo/_base/declare',
         'dojo/_base/array',
         'dojo/dom-construct',
         'JBrowse/Util',
+        'dijit/form/TextBox',
+        'dijit/form/Select',
         'dijit/form/Button',
        './TrackList/BAMDriver'],
-       function(declare, array, dom, Util, Button, BAMDriver ) {
+       function(declare, array, dom, Util, TextBox, Select, Button, BAMDriver ) {
 
 var uniqCounter = 0;
 
@@ -61,13 +63,23 @@ _makeStoreConfs: function( resources ) {
         console.warn( "not all resources could be used", resources );
 },
 
-_makeTrackConfs: function() {
-    var typeMap = {
+storeTypeToTrackType: {
         'JBrowse/Store/SeqFeature/BAM'        : 'JBrowse/View/Track/Alignments',
         'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/HTMLFeatures',
         'JBrowse/Store/SeqFeature/BigWig'     : 'JBrowse/View/Track/Wiggle/XYPlot',
         'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence'
-    };
+},
+
+knownTrackTypes: [
+    'JBrowse/View/Track/Alignments',
+    'JBrowse/View/Track/FeatureCoverage',
+    'JBrowse/View/Track/HTMLFeatures',
+    'JBrowse/View/Track/Wiggle/XYPlot',
+    'JBrowse/View/Track/Sequence'
+],
+
+_makeTrackConfs: function() {
+    var typeMap = this.storeTypeToTrackType;
 
     for( var n in this.storeConfs ) {
         var store = this.storeConfs[n];
@@ -84,6 +96,7 @@ _makeTrackConfs: function() {
     }
 },
 
+
 _updateDisplay: function() {
     // clear it
     dom.empty( this.domNode );
@@ -92,13 +105,28 @@ _updateDisplay: function() {
 
     if( ! Util.dojof.keys( this.trackConfs||{} ).length ) {
         dom.create('div', { className: 'emptyMessage',
-                            innerHTML: 'Add files and URLs to make tracks.'
+                            innerHTML: 'No tracks can be created from the current files and URLs.'
                           },this.domNode);
     } else {
-        var table = dom.create('table', { innerHTML: '<tr class="head"><th>Name</th><th>Type</th><th></th></tr>'}, this.domNode );
+        var table = dom.create('table', { innerHTML: '<tr class="head"><th>Name</th><th>Display</th><th></th></tr>'}, this.domNode );
         for( var n in this.trackConfs ) {
             var t = this.trackConfs[n];
-            var r = dom.create('tr', { innerHTML: '<td class="name">'+t.key+'</td><td class="type">'+t.type+'</td>' }, table );
+            var r = dom.create('tr', {}, table );
+            new TextBox({
+                value: t.key,
+                onChange: function() { t.key = this.get('value'); }
+            }).placeAt( dom.create('td',{ className: 'name' }, r ) );
+            new Select({
+                    options: array.map( this.knownTrackTypes || [], function( t ) {
+                                            var l = t.replace('JBrowse/View/Track/','');
+                                            return { label: l, value: t };
+                                        }),
+                    value: t.type,
+                    onChange: function() {
+                        t.type = this.get('value');
+                    }
+            }).placeAt( dom.create('td',{ className: 'type' }, r ) );
+
             // new Button({
             //    className: 'edit',
             //    title: 'edit configuration',
