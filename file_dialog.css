@@ -37,6 +37,7 @@
     top: 0;
     left: 0;
 }
+
 .fileDialog .dijitUploader {
     position: absolute;
     margin: 0;
@@ -68,16 +69,11 @@
     right: 0;
 }
 
-.fileDialog .dijitDialogPaneContent > .resourceList,
-.fileDialog .dijitDialogPaneContent > .trackList {
-    padding: 0 0.6em;
-}
-
 .fileDialog .resourceList {
     background: #bcd3ef;
 }
 .fileDialog .resourceList > h3, .fileDialog .trackList > h3 {
-     padding: 0.3em 0;
+     padding: 0.3em 0.6em;
 }
 
 .fileDialog .emptyMessage {
