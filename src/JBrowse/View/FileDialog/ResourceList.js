@@ -111,7 +111,8 @@ return declare( null, {
                 dojo.create('td',{
                   width: '1%',
                   innerHTML: '<div class="dijitIconDelete"></div>',
-                  onclick: function() {
+                  onclick: function(e) {
+                      e.preventDefault && e.preventDefault();
                       that.delete( res );
                   }
                 }, tr);
