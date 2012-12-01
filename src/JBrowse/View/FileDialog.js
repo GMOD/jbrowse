@@ -60,7 +60,12 @@ return declare( null, {
         dom.create('label', { for: 'addToTrackList', innerHTML: 'Add to tracks' }, aux );
 
 
-        new Button({ iconClass: 'dijitIconDelete', onClick: dojo.hitch( this.dialog, 'hide' ), label: 'Cancel' })
+        new Button({ iconClass: 'dijitIconDelete', label: 'Cancel',
+                     onClick: dojo.hitch( this, function() {
+                                              cancelCallback && cancelCallback();
+                                              this.dialog.hide();
+                                          })
+                   })
             .placeAt( actionBar );
         new Button({ iconClass: 'dijitIconFolderOpen',
                      label: 'Open',
