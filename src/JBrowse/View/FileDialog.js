@@ -217,10 +217,6 @@ return declare( null, {
 
     _makeResourceListControl: function () {
         var rl = new ResourceList({ dialog: this });
-
-        // little elements used to show pipeline-like connections between the controls
-        dom.create( 'div', { className: 'connector', innerHTML: '&nbsp;'}, rl.domNode );
-
         return rl;
     },
     _makeTrackListControl: function() {
