@@ -51,7 +51,8 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
                 bai: baiBlob
         });
 
-        this.source = bamBlob.url ? bamBlob.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] : undefined;
+        this.source = ( bamBlob.url  ? bamBlob.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] :
+                        bamBlob.blob ? bamBlob.blob.name : undefined ) || undefined;
 
         this.bam.init({
             success: dojo.hitch( this, '_estimateGlobalStats',
