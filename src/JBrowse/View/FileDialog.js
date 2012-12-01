@@ -166,10 +166,7 @@ return declare( null, {
 
         // make the input elements
         dom.create('h3', { innerHTML: 'Remote URLs - <smaller>one per line</smaller>' }, container );
-        var changeTimeout;
-        var change = function( urls ) {
-            console.log('url control changed');
-        };
+
         // the onChange here will be connected to by the other parts
         // of the dialog to propagate changes to the text in the box
         var self = { domNode: container,
