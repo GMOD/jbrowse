@@ -456,18 +456,22 @@ Browser.prototype.openFileDialog = function() {
                     // tuck away each of the store configurations in
                     // our store configuration, and replace them with
                     // their names.
-                    // the track configurations don't need to be
-                    // recorded; they live right now shuttling back and
-                    // forth between the track list and the genome
-                    // view
                     array.forEach( confs, function( conf ) {
                         var storeConf = conf.store;
-                        delete conf.store;
-                        if( storeConf ) {
-                            var name = this.addStoreConfig( storeConf.name, storeConf );
+                        if( storeConf && typeof storeConf == 'object' ) {
+                            delete conf.store;
+                            var name = this._addStoreConfig( storeConf.name, storeConf );
                             conf.store = name;
                         }
                     },this);
+
+                    // register the track configurations
+                    this._addTrackConfigs( confs );
+
+                    // store the track configurations also
+                    if( ! this.config.tracks )
+                        this.config.tracks = [];
+                    this.config.tracks.push.apply( this.config.tracks, confs );
 
                     // send out a message to create the new tracks
                     this.publish( '/jbrowse/v1/c/tracks/new', confs );
@@ -615,8 +619,13 @@ Browser.prototype.getStore = function( storeName, callback ) {
              }));
 };
 
+/**
+ * Add a store configuration to the browser.  If name is falsy, will
+ * autogenerate one.
+ * @private
+ */
 var uniqCounter = 0;
-Browser.prototype.addStoreConfig = function( name, storeConfig ) {
+Browser.prototype._addStoreConfig = function( /**String*/ name, /**Object*/ storeConfig ) {
     name = name || 'addStore'+uniqCounter++;
 
     if( this.config.stores[name] || this._storeCache[name] ) {
@@ -782,11 +791,11 @@ Browser.prototype.loadConfig = function () {
         c.getFinalConfig( dojo.hitch(this, function( finishedConfig ) {
                 this.config = finishedConfig;
 
-                // index the track configurations by name
-                this.trackConfigsByName = {};
-                dojo.forEach( this.config.tracks || [], function(conf){
-                                  this.trackConfigsByName[conf.label] = conf;
-                              },this);
+                // pass the tracks configurations through
+                // addTrackConfigs so that it will be indexed and such
+                var tracks = finishedConfig.tracks || [];
+                delete finishedConfig.tracks;
+                this._addTrackConfigs( tracks );
 
                 // coerce some config keys to boolean
                 dojo.forEach( ['show_tracklist','show_nav','show_overview'], function(v) {
@@ -800,6 +809,26 @@ Browser.prototype.loadConfig = function () {
                 deferred.resolve({success:true});
         }));
     });
+};
+
+/**
+ * Add track configurations to this object.
+ * @private
+ */
+Browser.prototype._addTrackConfigs = function( configs ) {
+    if( ! this.config.tracks )
+        this.config.tracks = [];
+
+    // index the track configurations by name
+    if( ! this.trackConfigsByName )
+        this.trackConfigsByName = {};
+
+    array.forEach( configs, function(conf){
+        this.trackConfigsByName[conf.label] = conf;
+        this.config.tracks.push( conf );
+    },this);
+
+    return configs;
 };
 
 Browser.prototype._configDefaults = function() {
