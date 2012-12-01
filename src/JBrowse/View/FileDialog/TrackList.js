@@ -62,7 +62,7 @@ _makeStoreConfs: function( resources ) {
     },this);
 
     if( resources.length )
-        console.warn( "not all resources could be used", resources );
+        console.warn( "Not all resources could be assigned to tracks.  Unused resources:", resources );
 },
 
 storeTypeToTrackType: {
