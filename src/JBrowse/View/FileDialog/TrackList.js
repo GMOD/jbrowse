@@ -5,8 +5,10 @@ define(['dojo/_base/declare',
         'dijit/form/TextBox',
         'dijit/form/Select',
         'dijit/form/Button',
-       './TrackList/BAMDriver'],
-       function(declare, array, dom, Util, TextBox, Select, Button, BAMDriver ) {
+        './TrackList/BAMDriver',
+        'JBrowse/View/TrackConfigEditor'
+       ],
+       function(declare, array, dom, Util, TextBox, Select, Button, BAMDriver, TrackConfigEditor ) {
 
 var uniqCounter = 0;
 
@@ -75,6 +77,7 @@ knownTrackTypes: [
     'JBrowse/View/Track/FeatureCoverage',
     'JBrowse/View/Track/HTMLFeatures',
     'JBrowse/View/Track/Wiggle/XYPlot',
+    'JBrowse/View/Track/Wiggle/Density',
     'JBrowse/View/Track/Sequence'
 ],
 
@@ -98,6 +101,8 @@ _makeTrackConfs: function() {
 
 
 _updateDisplay: function() {
+    var that = this;
+
     // clear it
     dom.empty( this.domNode );
 
@@ -118,7 +123,7 @@ _updateDisplay: function() {
             }).placeAt( dom.create('td',{ className: 'name' }, r ) );
             new Select({
                     options: array.map( this.knownTrackTypes || [], function( t ) {
-                                            var l = t.replace('JBrowse/View/Track/','');
+                                            var l = t.replace('JBrowse/View/Track/','').replace('/', ' ');
                                             return { label: l, value: t };
                                         }),
                     value: t.type,
@@ -127,14 +132,18 @@ _updateDisplay: function() {
                     }
             }).placeAt( dom.create('td',{ className: 'type' }, r ) );
 
-            // new Button({
-            //    className: 'edit',
-            //    title: 'edit configuration',
-            //    innerHTML: 'Edit',
-            //    onClick: function() {
-            //        alert('config editing not yet implemented');
-            //    }
-            // }).placeAt( dom.create('td', { className: 'edit' }, r ) );
+            new Button({
+               className: 'edit',
+               title: 'edit configuration',
+               innerHTML: 'Edit Configuration',
+               onClick: function() {
+                   new TrackConfigEditor( t )
+                     .show( function( result) {
+                                dojo.mixin( t, result.conf );
+                                that._updateDisplay();
+                     });
+               }
+            }).placeAt( dom.create('td', { className: 'edit' }, r ) );
         }
     }
 }
