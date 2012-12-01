@@ -2,6 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/array',
             'dojo/aspect',
+            'dijit/focus',
             'dijit/form/Button',
             'dijit/form/RadioButton',
             'dojo/dom-construct',
@@ -15,6 +16,7 @@ define( [
             declare,
             array,
             aspect,
+            dijitFocus,
             Button,
             RadioButton,
             dom,
@@ -120,9 +122,10 @@ return declare( null, {
         dialog.set( 'content', content );
         dialog.show();
 
-        aspect.after( dialog, 'hide', function() {
-                          dialog.destroyRecursive();
-                      });
+        aspect.after( dialog, 'hide', dojo.hitch( this, function() {
+                              dijitFocus.curNode && dijitFocus.curNode.blur();
+                              dialog.destroyRecursive();
+                      }));
     },
 
     _makeLocalFilesControl: function() {
