@@ -4,6 +4,11 @@
     font-weight: bold;
     padding: 0 0.5em;
 }
+.fileDialog th {
+    font-weight: bold;
+    border-bottom: 2px solid black;
+}
+
 .fileDialog h2, .fileDialog h3 {
     margin: 0;
     padding: 0;
@@ -72,6 +77,10 @@
 .fileDialog .resourceList {
     background: #bcd3ef;
 }
+
+.fileDialog .dijitSelect td.dijitStretch {
+    width: 6em;
+}
 .fileDialog .resourceList > h3, .fileDialog .trackList > h3 {
      padding: 0.3em 0.6em;
 }
@@ -87,4 +96,11 @@
 
 .fileDialog .trackList {
     background: #8cb1dd;
+}
+
+.fileDialog .resourceList > table, .fileDialog .trackList > table {
+    width: 95%;
+    padding: 0 0.75em 0.5em 0.75em;
+    margin: 0 auto;
+    border-collapse: collapse;
 }

@@ -100,14 +100,16 @@ return declare( null, {
                         this._rememberedTypes[name] = this.get('value');
                     }
                 });
-                typeSelect.placeAt( dojo.create('td',{},tr) );
+                typeSelect.placeAt( dojo.create('td',{ width: '4%'},tr) );
                 res.type = typeSelect;
 
                 dojo.create( 'td', {
+                  width: '1%',
                   innerHTML: '<div class="'+(res.file ? 'dijitIconFile' : 'jbrowseIconLink')+'"></div>'
                 },tr);
                 dojo.create('td',{ innerHTML: name },tr);
                 dojo.create('td',{
+                  width: '1%',
                   innerHTML: '<div class="dijitIconDelete"></div>',
                   onclick: function() {
                       that.delete( res );

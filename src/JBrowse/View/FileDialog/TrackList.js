@@ -95,7 +95,7 @@ _updateDisplay: function() {
                             innerHTML: 'Add files and URLs to make tracks.'
                           },this.domNode);
     } else {
-        var table = dom.create('table', { innerHTML: '<tr><th>Name</th><th>Type</th><th></th></tr>'}, this.domNode );
+        var table = dom.create('table', { innerHTML: '<tr class="head"><th>Name</th><th>Type</th><th></th></tr>'}, this.domNode );
         for( var n in this.trackConfs ) {
             var t = this.trackConfs[n];
             var r = dom.create('tr', { innerHTML: '<td class="name">'+t.key+'</td><td class="type">'+t.type+'</td>' }, table );
