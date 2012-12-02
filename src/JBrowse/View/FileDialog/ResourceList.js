@@ -135,6 +135,7 @@ return declare( null, {
             return res !== deleteResource;
         });
         this._updateView();
+        this._notifyChange();
     },
 
     guessType: function( name ) {
