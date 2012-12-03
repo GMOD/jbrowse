@@ -101,7 +101,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
                         'div',
                         { className: 'tracklist-label',
                           title: 'drag or double-click to activate',
-                          innerHTML: trackConfig.key
+                          innerHTML: trackConfig.key || trackConfig.name || trackConfig.label
                         }
                     );
                     //in the list, wrap the list item in a container for
