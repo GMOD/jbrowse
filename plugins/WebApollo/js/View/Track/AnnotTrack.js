@@ -359,9 +359,27 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     annotationsUpdatedNotification: function(responseFeatures)  {
 	// this.annotationsDeletedNotification(annots);
 	// this.annotationsAddedNotification(annots);
+	var selfeats = this.selectionManager.getSelectedFeatures();
+	
         for (var i = 0; i < responseFeatures.length; ++i) {
+            var id = responseFeatures[i].uniquename;
+/*     if update deleted a selected child, select the parent??
+             var oldfeat = this.store.getFeatureById(id);
+	     var children_selected;
+	    if (oldfeat)  {
+		var childfeats = oldfeat.children();
+		if (childfeats)  {
+		    for (var k=0; k<childfeats.length; k++)  {
+			var child = childfeats[k];
+			if (this.selectionManager.isSelected( { feature: child, track: this }))  {
+			     if (! children_selected)  { children_selected = []; }
+			     children_selected .push(child);
+			}
+		    }
+		}
+	    }
+*/
             var feat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
-            // var id = responseFeatures[i].uniquename;
             this.store.replace(feat);
         }
     },
