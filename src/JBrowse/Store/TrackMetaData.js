@@ -250,6 +250,8 @@ var Meta = declare( null,
                                  // record for this item
                                  var ident = this.getIdentity(item);
                                  var existingItem = this.identIndex[ ident ];
+                                 if( existingItem && existingItem.DELETED )
+                                     delete existingItem.DELETED;
 
                                  // skip this item if we have already
                                  // seen it from this store, or if we
