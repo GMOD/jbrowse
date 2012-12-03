@@ -1726,29 +1726,30 @@ GenomeView.prototype.replaceTracks = function( trackConfigs ) {
         // figure out its position in the genome view and delete it
         var anchor;
         var done;
-        this.trackDndWidget.forInItems( function(obj, id, map) {
+        var listNode = this.trackDndWidget.parent;
+        array.forEach( listNode.children, function( item ) {
             if( done )
                 return;
 
-            if( conf.label === obj.data.label ) {
+            var track = item.track;
+            if( track && (track.config.label == conf.label) ) {
                 done = 1;
-                this.trackDndWidget.delItem( id );
-                var item = dojo.byId(id);
+                this.trackDndWidget.delItem( item.id );
                 if( item && item.parentNode )
                     item.parentNode.removeChild(item);
             } else {
-                anchor = obj;
+                anchor = item;
             }
         },this);
 
        this.updateTrackList();
 
        // insert the new track config into the trackDndWidget after the 'before'
-       this.trackDndWidget.insertNodes( false, [conf], false, anchor);
+       this.trackDndWidget.insertNodes( false, [conf], false, anchor );
    },this);
 
-   if( trackConfigs.length )
-       this.updateTrackList();
+    if( trackConfigs.length )
+        this.updateTrackList();
 };
 
 /**
