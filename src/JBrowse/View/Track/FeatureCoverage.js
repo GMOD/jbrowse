@@ -26,7 +26,8 @@ return declare( Wiggle,
         return Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
             {
-                min_score: 0
+                min_score: 0,
+                max_score: 100
             }
         );
     },
