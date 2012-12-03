@@ -648,7 +648,7 @@ return declare( null,
               action: 'contentDialog',
               content: dojo.hitch(this,'_trackDetailsContent')
             },
-            { label: 'Configure',
+            { label: 'Edit config',
               title: "edit this track's configuration",
               iconClass: 'dijitIconConfigure',
               action: function() {
