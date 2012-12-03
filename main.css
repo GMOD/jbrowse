@@ -291,6 +291,7 @@ div.sequence .base.big {
 div.sequence > div {
     border-top: 1px solid #4d4d4d;
     border-bottom: 1px solid black;
+    background: #C6C6C6;
 }
 div.sequence > div:first-child {
     border-bottom-color: #4d4d4d;
