@@ -507,8 +507,22 @@ Browser.prototype.addGlobalMenuItem = function( menuName, item ) {
 };
 
 /**
- * Initialize our event routing, which is mostly echoing logical
- * commands from the user interacting with the views.
+ * Initialize our message routing, subscribing to messages, forwarding
+ * them around, and so forth.
+ *
+ * "v" (view)
+ *   Requests from the user.  These go only to the browser, which is
+ *   the central point forx deciding what to do about them.  This is
+ *   usually just forwarding the command as one or more "c" messages.
+ *
+ * "c" (command)
+ *   Commands from authority, like the Browser object.  These cause
+ *   things to actually happen in the UI: things to be shown or
+ *   hidden, actions taken, and so forth.
+ *
+ * "n" (notification)
+ *   Notification that something just happened.
+ *
  * @private
  */
 Browser.prototype._initEventRouting = function() {
