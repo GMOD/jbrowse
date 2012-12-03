@@ -24,11 +24,12 @@
                                            refSeqs: dataRoot + "/seq/refSeqs.json",
                                            baseUrl: dataRoot+'/',
                                            include: [
-                                             'jbrowse_conf.json',
+                                             'jbrowse_conf.json', 
+                                             dataRoot + "/annotation_trackList.json", 
                                              dataRoot + "/trackList.json"
                                            ],
                                            nameUrl: dataRoot + "/names/root.json",
-                                           defaultTracks: "DNA,gene,mRNA,noncodingRNA",
+                                           defaultTracks: "DNA,Annotations,RefSeq",
                                            queryParams: queryParams,
                                            location: queryParams.loc,
                                            forceTracks: queryParams.tracks,
