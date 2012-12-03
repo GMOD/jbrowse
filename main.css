@@ -343,18 +343,8 @@ div.track-label, div.tracklist-label {
     overflow: hidden;
     cursor: pointer;
 
-    border-width: 1px;
-    border-style: solid;
-
-    border-top-color: #999;
-    border-left-color: #999;
-    border-bottom-color: #555
-    border-right-color: #555;
-
-    border-radius: 6px;
-
-    color: #111;
-    font-weight: bold;
+    background-color: #CCCCCC;
+    color: #000;
 }
 
 /* NOTE: browsers that don't support rgba colors will fall back to all
@@ -460,13 +450,12 @@ div.track-label:hover {
 
 div.tracklist-label {
     padding: 3px;
-    background-color: #ddd;
-    background-color: rgba( 220, 220, 220, 0.9 );
+    background-color: #CCCCCC;
+    background-color: rgba( 204, 204, 204, 0.9 );
 }
 div.tracklist-label:hover {
     background-color:  #396494;
     color: #fefefe;
-    border: 1px solid black;
 }
 
 #trackPane {
