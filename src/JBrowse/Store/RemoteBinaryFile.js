@@ -333,6 +333,9 @@ return declare( null,
             returnBuffer = new Uint8Array( fetchLength );
             var cursor = 0;
             array.forEach( chunks, function( chunk ) {
+                if( !( chunk.value && chunk.value.byteLength ) ) // skip if the chunk has no data
+                    return;
+
                 var b = new Uint8Array( chunk.value );
                 var bOffset = (start+cursor) - chunk.key.start; if( bOffset < 0 ) this._error('chunking error');
                 var length = Math.min( b.byteLength - bOffset, fetchLength - cursor );
