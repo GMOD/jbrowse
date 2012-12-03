@@ -9,6 +9,8 @@ define( [
             'JBrowse/Model/XHRBlob'
         ],
         function( declare, lang, array, urlObj, Window, Deferred, Util, XHRBlob ) {
+var dlog = function() { console.log.apply( console, arguments ); };
+
 return declare( null,
  /**
   * @lends JBrowse.Store.BigWig
