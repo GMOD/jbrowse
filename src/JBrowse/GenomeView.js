@@ -1789,7 +1789,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
 
     var trackName = trackConfig.label;
     var trackDiv = dojo.create('div', {
-        className: ['track', cssName('track_'+trackClass), cssName('track_'+trackName)].join(' '),
+        className: ['track', cssName('track_'+trackConfig.type), cssName('track_'+trackName)].join(' '),
         id: "track_" + trackName
     });
     trackDiv.trackName = trackName;
