@@ -85,6 +85,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 	var thisConfig = this.inherited(arguments);
 	// nulling out menuTemplate to suppress default JBrowse feature contextual menu
 	thisConfig.menuTemplate = null;
+	thisConfig.maxFeatureScreenDensity = 100000; // set rediculously high, ensures will never show "zoomed too far out" placeholder
 	return thisConfig;
     },
 
