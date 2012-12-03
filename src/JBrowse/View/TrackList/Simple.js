@@ -1,9 +1,10 @@
 define(['dojo/_base/declare',
+        'dojo/_base/array',
         'dijit/layout/ContentPane',
         'dojo/dnd/Source',
         'dojo/fx/easing'
        ],
-       function( declare, ContentPane, dndSource, animationEasing ) {
+       function( declare, array, ContentPane, dndSource, animationEasing ) {
 return declare( 'JBrowse.View.TrackList.Simple', null,
 
     /** @lends JBrowse.View.TrackList.Simple.prototype */
@@ -61,10 +62,43 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
         // subscribe to commands coming from the the controller
         this.browser.subscribe( '/jbrowse/v1/c/tracks/show',
                                 dojo.hitch( this, 'setTracksActive' ));
-
-        // subscribe to commands coming from the the controller
         this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',
                                 dojo.hitch( this, 'setTracksInactive' ));
+        this.browser.subscribe( '/jbrowse/v1/c/tracks/new',
+                                dojo.hitch( this, 'addTracks' ));
+        this.browser.subscribe( '/jbrowse/v1/c/tracks/replace',
+                                dojo.hitch( this, 'replaceTracks' ));
+        this.browser.subscribe( '/jbrowse/v1/c/tracks/delete',
+                                dojo.hitch( this, 'deleteTracks' ));
+    },
+
+    addTracks: function( trackConfigs ) {
+        // note that new tracks are, by default, hidden, so we just put them in the list
+        this.trackListWidget.insertNodes(
+            false,
+            trackConfigs
+        );
+
+        this._blinkTracks( trackConfigs );
+    },
+
+    replaceTracks: function( trackConfigs ) {
+        // for each one
+        array.forEach( trackConfigs, function( conf ) {
+            // figure out its position in the genome view and delete it
+            var oldNode = this.inactiveTrackNodes[ conf.label ];
+            if( ! oldNode )
+                return;
+            delete this.inactiveTrackNodes[ conf.label ];
+
+            var anchor = node.previousSibling;
+            this.trackDndWidget.delItem( oldNode.id );
+            if( oldNode.parentNode )
+                oldNode.parentNode.removeChild( oldNode );
+
+           // insert the new track config into the trackDndWidget after the 'before'
+           this.trackListWidget.insertNodes( false, [conf], false, oldNode.previousSibling );
+       },this);
     },
 
     /** @private */
@@ -126,24 +160,25 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
 
     /**
      * Given an array of track configs, update the track list to show
-     * that they are turned on.
+     * that they are turned on.  For this list, that just means
+     * deleting them from our widget.
      */
     setTracksActive: function( /**Array[Object]*/ trackConfigs ) {
+        this.deleteTracks( trackConfigs );
+    },
+
+    deleteTracks: function( /**Array[Object]*/ trackConfigs ) {
         // remove any tracks in our track list that are being set as visible
-        dojo.forEach( trackConfigs || [], function( conf ) {
-            this.trackListWidget.forInItems(function(obj, id, map) {
-                if( conf.label === obj.data.label ) {
+        array.forEach( trackConfigs || [], function( conf ) {
+            var oldNode = this.inactiveTrackNodes[ conf.label ];
+            if( ! oldNode )
+                return;
+            delete this.inactiveTrackNodes[ conf.label ];
 
-                    this.trackListWidget.delItem( id );
+            if( oldNode.parentNode )
+                oldNode.parentNode.removeChild( oldNode );
 
-                    var item = dojo.byId(id);
-                    if( item && item.parentNode )
-                        item.parentNode.removeChild(item);
-
-                    delete this.inactiveTrackNodes[ conf.label ];
-
-                }
-            },this);
+            this.trackListWidget.delItem( oldNode.id );
         },this);
     },
 
@@ -157,29 +192,35 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
         if( ! this.dndDrop ) {
             var n = this.trackListWidget.insertNodes( false, trackConfigs );
 
-            // scroll the tracklist all the way to the bottom so we can see the blinking nodes
-            n.node.scrollTop = n.node.scrollHeight;
-
             // blink the track(s) that we just turned off to make it
             // easier for users to tell where they went.
             // note that insertNodes will have put its html element in
             // inactivetracknodes
-            dojo.forEach( trackConfigs, function(c) {
-                var label = this.inactiveTrackNodes[c.label].firstChild;
-                dojo.animateProperty({
-                                         node: label,
-                                         duration: 400,
-                                         properties: {
-                                             backgroundColor: { start: '#DEDEDE', end:  '#FFDE2B' }
-                                         },
-                                         easing: animationEasing.sine,
-                                         repeat: 2,
-                                         onEnd: function() {
-                                             label.style.backgroundColor = null;
-                                         }
-                                     }).play();
-            },this);
+            this._blinkTracks( trackConfigs );
         }
+    },
+
+    _blinkTracks: function( trackConfigs ) {
+            // scroll the tracklist all the way to the bottom so we can see the blinking nodes
+            this.trackListWidget.node.scrollTop = this.trackListWidget.node.scrollHeight;
+
+            array.forEach( trackConfigs, function(c) {
+                var label = this.inactiveTrackNodes[c.label].firstChild;
+                if( label ) {
+                    dojo.animateProperty({
+                                             node: label,
+                                             duration: 400,
+                                             properties: {
+                                                 backgroundColor: { start: '#DEDEDE', end:  '#FFDE2B' }
+                                             },
+                                             easing: animationEasing.sine,
+                                             repeat: 2,
+                                             onEnd: function() {
+                                                 label.style.backgroundColor = null;
+                                             }
+                                         }).play();
+                }
+            },this);
     },
 
     /**

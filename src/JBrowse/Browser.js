@@ -23,7 +23,8 @@ define( [
             'JBrowse/GenomeView',
             'JBrowse/TouchScreenSupport',
             'JBrowse/ConfigManager',
-            'JBrowse/View/InfoDialog'
+            'JBrowse/View/InfoDialog',
+            'JBrowse/View/FileDialog'
         ],
         function(
             lang,
@@ -48,7 +49,8 @@ define( [
             GenomeView,
             Touch,
             ConfigManager,
-            InfoDialog
+            InfoDialog,
+            FileDialog
         ) {
 
 var dojof = Util.dojof;
@@ -355,24 +357,25 @@ Browser.prototype.initView = function() {
 
     if( this.config.show_nav ) {
 
-        // this.addGlobalMenuItem( 'file',
-        //                         new dijitMenuItem(
-        //                             {
-        //                                 label: 'Open',
-        //                                 onClick: function() { alert('open sesame!'); }
-        //                             })
-        //                       );
-        // var fileMenu = this.makeGlobalMenu('file');
-        // if( fileMenu ) {
-        //     var fileButton = new dijitDropDownButton(
-        //         { className: 'file',
-        //           innerHTML: 'File',
-        //           //title: '',
-        //           dropDown: fileMenu
-        //         });
-        //     dojo.addClass( fileButton.domNode, 'menu' );
-        //     menuBar.appendChild( fileButton.domNode );
-        // }
+        this.addGlobalMenuItem( 'file',
+                                new dijitMenuItem(
+                                    {
+                                        label: 'Open',
+                                        iconClass: 'dijitIconFolderOpen',
+                                        onClick: dojo.hitch( this, 'openFileDialog' )
+                                    })
+                              );
+        var fileMenu = this.makeGlobalMenu('file');
+        if( fileMenu ) {
+            var fileButton = new dijitDropDownButton(
+                { className: 'file',
+                  innerHTML: 'File',
+                  //title: '',
+                  dropDown: fileMenu
+                });
+            dojo.addClass( fileButton.domNode, 'menu' );
+            menuBar.appendChild( fileButton.domNode );
+        }
 
         var configMenu = this.makeGlobalMenu('options');
         if( configMenu ) {
@@ -469,6 +472,50 @@ Browser.prototype.initView = function() {
     }));
 };
 
+Browser.prototype.openFileDialog = function() {
+    new FileDialog({ browser: this })
+        .show({
+            openCallback: dojo.hitch( this, function( results ) {
+                console.log( 'NEW TRACKS', results );
+                var confs = results.trackConfs || [];
+                if( confs.length ) {
+
+                    // tuck away each of the store configurations in
+                    // our store configuration, and replace them with
+                    // their names.
+                    array.forEach( confs, function( conf ) {
+                        var storeConf = conf.store;
+                        if( storeConf && typeof storeConf == 'object' ) {
+                            delete conf.store;
+                            var name = this._addStoreConfig( storeConf.name, storeConf );
+                            conf.store = name;
+                        }
+                    },this);
+
+                    // send out a message about how the user wants to create the new tracks
+                    this.publish( '/jbrowse/v1/v/tracks/new', confs );
+
+                    // if requested, send out another message that the user wants to show them
+                    if( results.trackDisposition == 'openImmediately' )
+                        this.publish( '/jbrowse/v1/v/tracks/show', confs );
+                }
+            })
+        });
+};
+
+Browser.prototype.addTracks = function( confs ) {
+    // just register the track configurations right now
+    this._addTrackConfigs( confs );
+};
+Browser.prototype.replaceTracks = function( confs ) {
+    // just add-or-replace the track configurations
+    this._replaceTrackConfigs( confs );
+};
+Browser.prototype.deleteTracks = function( confs ) {
+    // de-register the track configurations
+    this._deleteTrackConfigs( confs );
+};
+
 
 Browser.prototype.makeGlobalMenu = function( menuName ) {
     var items = ( this._globalMenuItems || {} )[menuName] || [];
@@ -493,18 +540,47 @@ Browser.prototype.addGlobalMenuItem = function( menuName, item ) {
 };
 
 /**
- * Initialize our event routing, which is mostly echoing logical
- * commands from the user interacting with the views.
+ * Initialize our message routing, subscribing to messages, forwarding
+ * them around, and so forth.
+ *
+ * "v" (view)
+ *   Requests from the user.  These go only to the browser, which is
+ *   the central point forx deciding what to do about them.  This is
+ *   usually just forwarding the command as one or more "c" messages.
+ *
+ * "c" (command)
+ *   Commands from authority, like the Browser object.  These cause
+ *   things to actually happen in the UI: things to be shown or
+ *   hidden, actions taken, and so forth.
+ *
+ * "n" (notification)
+ *   Notification that something just happened.
+ *
  * @private
  */
 Browser.prototype._initEventRouting = function() {
-    this.subscribe('/jbrowse/v1/v/tracks/hide', dojo.hitch( this, function( trackConfigs ) {
-        this.publish( '/jbrowse/v1/c/tracks/hide', trackConfigs );
-    }));
-    this.subscribe('/jbrowse/v1/v/tracks/show', dojo.hitch( this, function( trackConfigs ) {
-        this.addRecentlyUsedTracks( dojo.map(trackConfigs, function(c){ return c.label;}) );
-        this.publish( '/jbrowse/v1/c/tracks/show', trackConfigs );
-    }));
+    var that = this;
+
+    that.subscribe('/jbrowse/v1/v/tracks/hide', function( trackConfigs ) {
+        that.publish( '/jbrowse/v1/c/tracks/hide', trackConfigs );
+    });
+    that.subscribe('/jbrowse/v1/v/tracks/show', function( trackConfigs ) {
+        that.addRecentlyUsedTracks( dojo.map(trackConfigs, function(c){ return c.label;}) );
+        that.publish( '/jbrowse/v1/c/tracks/show', trackConfigs );
+    });
+
+    that.subscribe('/jbrowse/v1/v/tracks/new', function( trackConfigs ) {
+        that.addTracks( trackConfigs );
+        that.publish( '/jbrowse/v1/c/tracks/new', trackConfigs );
+    });
+    that.subscribe('/jbrowse/v1/v/tracks/replace', function( trackConfigs ) {
+        that.replaceTracks( trackConfigs );
+        that.publish( '/jbrowse/v1/c/tracks/replace', trackConfigs );
+    });
+    that.subscribe('/jbrowse/v1/v/tracks/delete', function( trackConfigs ) {
+        that.deleteTracks( trackConfigs );
+        that.publish( '/jbrowse/v1/c/tracks/delete', trackConfigs );
+    });
 };
 
 /**
@@ -593,7 +669,7 @@ Browser.prototype.getStore = function( storeName, callback ) {
     }
 
     require( [ storeClassName ], dojo.hitch( this, function( storeClass ) {
-                 var storeArgs = dojo.mixin( dojo.clone(conf),
+                 var storeArgs = dojo.mixin( conf,
                                              {
                                                  browser: this,
                                                  refSeq: this.refSeq
@@ -602,6 +678,28 @@ Browser.prototype.getStore = function( storeName, callback ) {
                  this._storeCache[ storeName ] = { refCount: 1, store: store };
                  callback( store );
              }));
+};
+
+/**
+ * Add a store configuration to the browser.  If name is falsy, will
+ * autogenerate one.
+ * @private
+ */
+var uniqCounter = 0;
+Browser.prototype._addStoreConfig = function( /**String*/ name, /**Object*/ storeConfig ) {
+    name = name || 'addStore'+uniqCounter++;
+
+    if( ! this.config.stores )
+        this.config.stores = {};
+    if( ! this._storeCache )
+        this._storeCache = {};
+
+    if( this.config.stores[name] || this._storeCache[name] ) {
+        throw "store "+name+" already exists!";
+    }
+
+    this.config.stores[name] = storeConfig;
+    return name;
 };
 
 Browser.prototype.clearStores = function() {
@@ -759,11 +857,11 @@ Browser.prototype.loadConfig = function () {
         c.getFinalConfig( dojo.hitch(this, function( finishedConfig ) {
                 this.config = finishedConfig;
 
-                // index the track configurations by name
-                this.trackConfigsByName = {};
-                dojo.forEach( this.config.tracks || [], function(conf){
-                                  this.trackConfigsByName[conf.label] = conf;
-                              },this);
+                // pass the tracks configurations through
+                // addTrackConfigs so that it will be indexed and such
+                var tracks = finishedConfig.tracks || [];
+                delete finishedConfig.tracks;
+                this._addTrackConfigs( tracks );
 
                 // coerce some config keys to boolean
                 dojo.forEach( ['show_tracklist','show_nav','show_overview'], function(v) {
@@ -777,6 +875,71 @@ Browser.prototype.loadConfig = function () {
                 deferred.resolve({success:true});
         }));
     });
+};
+
+/**
+ * Add new track configurations.
+ * @private
+ */
+Browser.prototype._addTrackConfigs = function( /**Array*/ configs ) {
+
+    if( ! this.config.tracks )
+        this.config.tracks = [];
+    if( ! this.trackConfigsByName )
+        this.trackConfigsByName = {};
+
+    array.forEach( configs, function(conf){
+
+        // if( this.trackConfigsByName[ conf.label ] ) {
+        //     console.warn("track with label "+conf.label+" already exists, skipping");
+        //     return;
+        // }
+
+        this.trackConfigsByName[conf.label] = conf;
+        this.config.tracks.push( conf );
+
+    },this);
+
+    return configs;
+};
+/**
+ * Replace existing track configurations.
+ * @private
+ */
+Browser.prototype._replaceTrackConfigs = function( /**Array*/ newConfigs ) {
+    if( ! this.trackConfigsByName )
+        this.trackConfigsByName = {};
+
+    array.forEach( newConfigs, function( conf ) {
+        if( ! this.trackConfigsByName[ conf.label ] ) {
+            console.warn("track with label "+conf.label+" does not exist yet.  creating a new one.");
+        }
+
+        this.trackConfigsByName[conf.label] =
+                           dojo.mixin( this.trackConfigsByName[ conf.label ] || {}, conf );
+   },this);
+};
+/**
+ * Delete existing track configs.
+ * @private
+ */
+Browser.prototype._deleteTrackConfigs = function( configsToDelete ) {
+    // remove from this.config.tracks
+    this.config.tracks = array.filter( this.config.tracks || [], function( conf ) {
+        return ! array.some( configsToDelete, function( toDelete ) {
+            return toDelete.label == conf.label;
+        });
+    });
+
+    // remove from trackConfigsByName
+    array.forEach( configsToDelete, function( toDelete ) {
+        if( ! this.trackConfigsByName[ toDelete.label ] ) {
+            console.warn( "track "+toDelete.label+" does not exist, cannot delete" );
+            return;
+        }
+
+        delete this.trackConfigsByName[ toDelete.label ];
+    },this);
 };
 
 Browser.prototype._configDefaults = function() {
@@ -966,7 +1129,7 @@ Browser.prototype.createTrackList = function() {
 
                      // listen for track-visibility-changing messages from
                      // views and update our tracks cookie
-                     this.subscribe( '/jbrowse/v1/v/tracks/changed', dojo.hitch( this, function() {
+                     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch( this, function() {
                          this.cookie( "tracks",
                                       this.view.visibleTrackNames().join(','),
                                       {expires: 60});
@@ -1379,7 +1542,7 @@ Browser.prototype.makeShareLink = function () {
                 );
     });
     dojo.connect( this, "onCoarseMove",             updateShareURL );
-    this.subscribe( '/jbrowse/v1/v/tracks/changed', updateShareURL );
+    this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', updateShareURL );
 
     return button.domNode;
 };
@@ -1410,7 +1573,7 @@ Browser.prototype.makeFullViewLink = function () {
                );
     });
     dojo.connect( this, "onCoarseMove",             update_link );
-    this.subscribe( '/jbrowse/v1/v/tracks/changed', update_link );
+    this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', update_link );
 
     return link;
 };
@@ -1691,7 +1854,6 @@ Browser.prototype.createNavBox = function( parent ) {
                 dojo.stopEvent(event);
             })
         }, dojo.create('button',{},navbox));
-
 
 
     this.loadRefSeqs().then( dojo.hitch( this, function() {

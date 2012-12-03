@@ -1,5 +1,7 @@
 .jbrowseIconHelp,
-.jbrowseIconBusy {
+.jbrowseIconBusy,
+.jbrowseIconLink
+{
     background-image: url('img/commonIconsEnabled.png');
     width: 16px;
     height: 16px;
@@ -7,6 +9,9 @@
 
 .jbrowseIconHelp {
     background-position: 0;
+}
+.jbrowseIconLink {
+    background-position: -152px;
 }
 
 .jbrowseIconBusy {
