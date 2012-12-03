@@ -104,7 +104,6 @@ var Browser = function(params) {
                     thisB.loadRefSeqs().then( function() {
                        thisB.initView();
                        thisB.reportUsageStats();
-                       thisB.openFileDialog();
                     });
                 });
             });
