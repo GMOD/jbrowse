@@ -1901,7 +1901,7 @@ GenomeView.prototype.updateTrackList = function() {
 
     // publish a message if the visible tracks or their ordering has changed
     if( oldtracks != dojo.toJson( this.trackIndices || {} ) ) {
-        this.browser.publish( '/jbrowse/v1/v/tracks/changed', [this.visibleTrackNames()] );
+        this.browser.publish( '/jbrowse/v1/n/tracks/visibleChanged', [this.visibleTrackNames()] );
         this.showVisibleBlocks();
     }
 };

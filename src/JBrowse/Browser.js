@@ -1031,7 +1031,7 @@ Browser.prototype.createTrackList = function() {
 
                      // listen for track-visibility-changing messages from
                      // views and update our tracks cookie
-                     this.subscribe( '/jbrowse/v1/v/tracks/changed', dojo.hitch( this, function() {
+                     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch( this, function() {
                          this.cookie( "tracks",
                                       this.view.visibleTrackNames().join(','),
                                       {expires: 60});
@@ -1440,7 +1440,7 @@ Browser.prototype.makeShareLink = function () {
                 );
     });
     dojo.connect( this, "onCoarseMove",             updateShareURL );
-    this.subscribe( '/jbrowse/v1/v/tracks/changed', updateShareURL );
+    this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', updateShareURL );
 
     return button.domNode;
 };
@@ -1471,7 +1471,7 @@ Browser.prototype.makeFullViewLink = function () {
                );
     });
     dojo.connect( this, "onCoarseMove",             update_link );
-    this.subscribe( '/jbrowse/v1/v/tracks/changed', update_link );
+    this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', update_link );
 
     return link;
 };
