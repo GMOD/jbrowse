@@ -79,9 +79,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
         this.prev_selection = null;
 
         this.verbose = false;
-        this.verbose_selection = true;
-        this.verbose_selection_notification = true;
-        this.verbose_drag = true;
+        this.verbose_selection = false;
+        this.verbose_selection_notification = false;
+        this.verbose_drag = false;
 	this.drag_enabled = true;
 
         this.feature_context_menu = null; 
