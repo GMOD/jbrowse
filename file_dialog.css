@@ -1,4 +1,7 @@
 @import url("src/dojox/form/resources/UploaderFileList.css");
+.fileDialog {
+    color: #333;
+}
 
 .fileDialog label {
     font-weight: bold;
@@ -7,6 +10,13 @@
 .fileDialog th {
     font-weight: bold;
     border-bottom: 2px solid black;
+}
+.fileDialog .dijitDialogPaneContent > div.intro {
+    width: 27em;
+    text-align: justify;
+    position: relative;
+    left: 12%;
+    margin: 1.4em 0 2.4em 0;
 }
 
 .fileDialog .connector {
@@ -69,6 +79,10 @@
     width: 100%;
     box-sizing: border-box;
 }
+.fileDialog .localFilesControl .dragArea:hover {
+    border: 2px dashed green;
+}
+
 .fileDialog .localFilesControl .dragArea .dragMessage {
     height: 2em;
     position: absolute;
@@ -81,6 +95,12 @@
 .fileDialog .remoteURLsControl textarea {
     font-size: 10px;
 }
+.fileDialog .remoteURLsControl textarea:hover {
+    background: #fafafa;
+    background: -webkit-linear-gradient(top, white, #f2f2f2);
+    background: linear-gradient(to bottom, white, #f2f2f2);
+}
+
 .fileDialog .remoteURLsControl {
     position: absolute;
     top: 0;

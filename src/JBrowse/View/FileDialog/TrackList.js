@@ -115,7 +115,7 @@ _updateDisplay: function() {
 
     if( ! Util.dojof.keys( this.trackConfs||{} ).length ) {
         dom.create('div', { className: 'emptyMessage',
-                            innerHTML: 'No tracks will be added.'
+                            innerHTML: 'None'
                           },this.domNode);
     } else {
         var table = dom.create('table', { innerHTML: '<tr class="head"><th>Name</th><th>Display</th><th></th></tr>'}, this.domNode );
