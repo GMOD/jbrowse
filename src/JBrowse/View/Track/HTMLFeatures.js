@@ -50,9 +50,6 @@ var HTMLFeatures = declare( BlockBased, {
         //number of histogram bins per block
         this.numBins = 25;
         this.histLabel = false;
-	this.centerSubDivs = true;
-	this.visibility = "";
-	if (this.centerSubDivs)  { this.visibility = "visibility: hidden; "; }
 
         this.defaultPadding = 5;
         this.padding = this.defaultPadding;
@@ -685,9 +682,9 @@ HTMLFeatures = declare( HTMLFeatures,
         var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                           containerStart, containerEnd );
         block.appendChild( featDiv );
-        if (this.centerSubDivs)  { this._centerFeatureElements( featDiv ); }
+        this._centerFeatureElements( featDiv );
 	return featDiv;
-    }, 
+    },
 
     /**
      * Returns true if a feature is visible and rendered someplace in the blocks of this track.
@@ -896,19 +893,12 @@ HTMLFeatures = declare( HTMLFeatures,
             var ah = document.createElement("div");
             var featwidth_px = featwidth/100*blockWidth*scale;
 
-            // NOTE: arrowheads are hidden until they are centered by
-            // _centerFeatureElements, so that they don't jump around
-            // on the screen
-	    //
             switch (strand) {
             case 1:
             case '+':
                 if( featwidth_px > this.plusArrowWidth*1.1 ) {
                     ah.className = "plus-" + this.config.style.arrowheadClass;
-                    // ah.style.cssText = "visibility: hidden; position: absolute; right: 0px; top: 0px; z-index: 100;";
-		    // in WebApollo, arrowheads extend beyond feature coords
-		    // ah.style.cssText =  "visibility: hidden; left: 100%; top: 0px;";
-		    ah.style.cssText =  this.visibility + " left: 100%; top: 0px;";
+		    ah.style.cssText =  "left: 100%; top: 0px;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -916,10 +906,7 @@ HTMLFeatures = declare( HTMLFeatures,
             case '-':
                 if( featwidth_px > this.minusArrowWidth*1.1 ) {
                     ah.className = "minus-" + this.config.style.arrowheadClass;
-                    // ah.style.cssText = "visibility: hidden; position: absolute; left: 0px; top: 0px; z-index: 100;";
-		    // in WebApollo, arrowheads extend beyond feature coords
-		    // ah.style.cssText = "visibility:hidden; left: " + (-this.minusArrowWidth) + "px; top: 0px;";
-		    ah.style.cssText = this.visibility + " left: " + (-this.minusArrowWidth) + "px; top: 0px;";
+		    ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px; top: 0px;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -998,7 +985,7 @@ HTMLFeatures = declare( HTMLFeatures,
             var child = featDiv.childNodes[i];
             // cache the height of elements, for speed.
             var h = getHeight.call(this,child);
-            dojo.style( child, { marginTop: '0', top: ((this.glyphHeight-h)/2) + 'px', visibility: 'visible' });
+            dojo.style( child, { marginTop: '0', top: ((this.glyphHeight-h)/2) + 'px' });
          }
     },
 
@@ -1108,12 +1095,7 @@ HTMLFeatures = declare( HTMLFeatures,
 
         if (Util.is_ie6) subDiv.appendChild(document.createComment());
 
-        // NOTE: subfeatures are hidden until they are centered by
-        // _centerFeatureElements, so that they don't jump around
-        // on the screen
-        subDiv.style.cssText = 
-//            "visibility: hidden; left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
-            this.visibility + "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
+        subDiv.style.cssText = "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
             + "top: 0px;"
             + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
         featDiv.appendChild(subDiv);
