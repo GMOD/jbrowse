@@ -460,9 +460,6 @@ div.tracklist-label:hover {
 
 #trackPane {
     background: #f2f2f2;
-    background-image: url('img/tracklist_bg.png');
-    background-repeat: repeat-y;
-    background-position: right;
 }
 #trackPane h2 {
     margin: 0.5em 0 1em 0.5em;
