@@ -673,9 +673,9 @@ HTMLFeatures = declare( HTMLFeatures,
                               );
     },
 
-    /** 
-     *  GAH refactored code chunk of creating feature div, adding to block, centering, 
-     *     this allow subclass override where block may have substructure.
+    /**
+     *  Creates feature div, adds to block, and centers subfeatures.
+     *  Overridable by subclasses that need more control over the substructure.
      */
     addFeatureToBlock: function( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                  containerStart, containerEnd ) {
