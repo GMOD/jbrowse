@@ -65,20 +65,12 @@ var Meta = declare( null,
             this.onReadyFuncs = dojo.clone(args.onReady);
         }
 
-        // interpret the track configurations as a metadata store
+        // interpret the track configurations themselves as a metadata store
         this._indexItems(
             {
                 store: this,
-                items: dojo.map( args.trackConfigs, function(conf) {
-                    var metarecord = dojo.clone( conf.metadata || {} );
-                    metarecord.label = conf.label;
-                    metarecord.key = conf.key;
-                    metarecord.conf = conf;
-                    metarecord['track type'] = conf.type;
-                    if( conf.category )
-                        metarecord.category = conf.category;
-                    return metarecord;
-                },this)
+                items: dojo.map( args.trackConfigs,
+                                 dojo.hitch( this, '_trackConfigToItem' ) )
             }
         );
 
@@ -117,13 +109,29 @@ var Meta = declare( null,
         }
 
         // listen for track-editing commands and update our track metadata accordingly
-        // args.browser.subscribe( '/jbrowse/v1/c/tracks/new',
-        //                         dojo.hitch( this, 'addTracks' ));
-        // args.browser.subscribe( '/jbrowse/v1/c/tracks/replace',
-        //                        dojo.hitch( this, 'replaceTracks' ));
+        args.browser.subscribe( '/jbrowse/v1/c/tracks/new',
+                                dojo.hitch( this, 'addTracks' ));
+        args.browser.subscribe( '/jbrowse/v1/c/tracks/replace', dojo.hitch( this, function( trackConfigs ) {
+            this.deleteTracks( trackConfigs );
+            this.addTracks( trackConfigs );
+        }));
         args.browser.subscribe( '/jbrowse/v1/c/tracks/delete',
                                 dojo.hitch( this, 'deleteTracks' ));
      },
+
+    /**
+     * Convert a track config object into a data store item.
+     */
+    _trackConfigToItem: function( conf ) {
+        var metarecord = dojo.clone( conf.metadata || {} );
+        metarecord.label = conf.label;
+        metarecord.key = conf.key;
+        metarecord.conf = conf;
+        metarecord['track type'] = conf.type;
+        if( conf.category )
+            metarecord.category = conf.category;
+        return metarecord;
+    },
 
     addTracks: function( trackConfigs ) {
         if( trackConfigs.length ) {
@@ -132,16 +140,20 @@ var Meta = declare( null,
             delete this.previousResults;
         }
 
-        // we don't actually delete things, we just mark them as
-        // deleted and filter out deleted ones when returning results.
         array.forEach( trackConfigs, function( conf ) {
             // insert in the indexes
-            // TODO
+            this._indexItems({
+                store: this,
+                items: [ this._trackConfigToItem( conf ) ]
+            });
 
-            var item = this.identIndex[ name ];
-            this.onNew( item );
+            var name = conf.label;
+            var item = this.fetchItemByIdentity( name );
+            if( item )
+                this.onNew( item );
+            else
+                console.error( 'failed to add '+name+' track to track metadata store', conf );
         },this );
-
     },
 
     deleteTracks: function( trackConfigs ) {
@@ -156,8 +168,10 @@ var Meta = declare( null,
         array.forEach( trackConfigs, function( conf ) {
             var name = conf.label;
             var item = this.fetchItemByIdentity( name );
-            item.DELETED = true;
-            this.onDelete( item );
+            if( item ) {
+                item.DELETED = true;
+                this.onDelete( item );
+            }
         },this);
     },
 
