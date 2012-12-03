@@ -476,7 +476,6 @@ Browser.prototype.openFileDialog = function() {
     new FileDialog({ browser: this })
         .show({
             openCallback: dojo.hitch( this, function( results ) {
-                console.log( 'NEW TRACKS', results );
                 var confs = results.trackConfs || [];
                 if( confs.length ) {
 
