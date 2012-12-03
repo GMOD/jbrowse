@@ -50,6 +50,9 @@ var HTMLFeatures = declare( BlockBased, {
         //number of histogram bins per block
         this.numBins = 25;
         this.histLabel = false;
+	this.centerSubDivs = true;
+	this.visibility = "";
+	if (this.centerSubDivs)  { this.visibility = "visibility: hidden; "; }
 
         this.defaultPadding = 5;
         this.padding = this.defaultPadding;
@@ -481,6 +484,7 @@ HTMLFeatures = declare( HTMLFeatures,
 
                 // console.log(this.name+" scale: %d, density: %d, histScale: %d, screenDensity: %d", scale, stats.featureDensity, this.config.style.histScale, stats.featureDensity / scale );
 
+		
                 // if we our store offers density histograms, and we are zoomed out far enough, draw them
                 if( this.store.histograms && scale < histScale ) {
                         this.fillHist( blockIndex, block, leftBase, rightBase, stripeWidth,
@@ -489,7 +493,9 @@ HTMLFeatures = declare( HTMLFeatures,
                 // if we have no histograms, check the predicted density of
                 // features on the screen, and display a message if it's
                 // bigger than maxFeatureScreenDensity
-                else if( stats.featureDensity / scale > this.config.maxFeatureScreenDensity ) {
+                else if( (stats.featureDensity / scale > this.config.maxFeatureScreenDensity) || 
+		         ( this.config.fixedBasesPerPixelThreshold && ( 1.0/scale >= this.config.fixedBasesPerPixelThreshold ) ) ) { 
+		    
                     this.fillTooManyFeaturesMessage(
                         blockIndex,
                         block,
@@ -680,7 +686,7 @@ HTMLFeatures = declare( HTMLFeatures,
         var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                           containerStart, containerEnd );
         block.appendChild( featDiv );
-        this._centerFeatureElements( featDiv );
+        if (this.centerSubDivs)  { this._centerFeatureElements( featDiv ); }
 	return featDiv;
     }, 
 
@@ -902,7 +908,8 @@ HTMLFeatures = declare( HTMLFeatures,
                     ah.className = "plus-" + this.config.style.arrowheadClass;
                     // ah.style.cssText = "visibility: hidden; position: absolute; right: 0px; top: 0px; z-index: 100;";
 		    // in WebApollo, arrowheads extend beyond feature coords
-		    ah.style.cssText =  "visibility: hidden; left: 100%; top: 0px;";
+		    // ah.style.cssText =  "visibility: hidden; left: 100%; top: 0px;";
+		    ah.style.cssText =  this.visibility + " left: 100%; top: 0px;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -912,7 +919,8 @@ HTMLFeatures = declare( HTMLFeatures,
                     ah.className = "minus-" + this.config.style.arrowheadClass;
                     // ah.style.cssText = "visibility: hidden; position: absolute; left: 0px; top: 0px; z-index: 100;";
 		    // in WebApollo, arrowheads extend beyond feature coords
-		    ah.style.cssText = "visibility:hidden; left: " + (-this.minusArrowWidth) + "px; top: 0px;";
+		    // ah.style.cssText = "visibility:hidden; left: " + (-this.minusArrowWidth) + "px; top: 0px;";
+		    ah.style.cssText = this.visibility + " left: " + (-this.minusArrowWidth) + "px; top: 0px;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -1104,8 +1112,9 @@ HTMLFeatures = declare( HTMLFeatures,
         // NOTE: subfeatures are hidden until they are centered by
         // _centerFeatureElements, so that they don't jump around
         // on the screen
-        subDiv.style.cssText =
-            "visibility: hidden; left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
+        subDiv.style.cssText = 
+//            "visibility: hidden; left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
+            this.visibility + "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
             + "top: 0px;"
             + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
         featDiv.appendChild(subDiv);
