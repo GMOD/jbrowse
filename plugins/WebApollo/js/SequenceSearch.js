@@ -1,9 +1,12 @@
+console.log("at top of SequenceSearch.js (outside of define)");
+
 define( [
             'dojo/_base/declare',
             'jquery',
 ], 
 	function( declare, $ ) {
 
+	    console.log("in SequenceSearch returned function");
 
 function SequenceSearch(contextPath) {
 	this.contextPath = contextPath;
@@ -173,6 +176,13 @@ SequenceSearch.prototype.searchSequence = function(trackName, refSeqName, starts
     return content;
 };
 
-
+	/*    console.log("at end of SequenceSearch returned function");
+	    console.log(window);
+	    console.log(SequenceSearch);
+	    console.log(new SequenceSearch("."));
+	    window.SequenceSearch = SequenceSearch;
+            */
 	    return SequenceSearch;
 	} );
+
+console.log("at end of SequenceSearch.js (outside of define)");
