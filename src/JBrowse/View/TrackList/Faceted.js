@@ -60,6 +60,8 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
        // subscribe to commands coming from the the controller
        this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',
                        dojo.hitch( this, 'setTracksInactive' ));
+       this.browser.subscribe( '/jbrowse/v1/c/tracks/delete',
+                       dojo.hitch( this, 'setTracksInactive' ));
 
        this.renderInitial();
 
@@ -89,10 +91,12 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
                          });
            });
        });
+
        this.trackDataStore.onReady( this, '_updateFacetCounts' ); // just once at start
 
        dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateGridSelections' );
        dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateMatchCount' );
+
     },
 
     /**
@@ -782,9 +786,11 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
                 // internal memory of what tracks should be on.
                 for( var i= 0; i < Math.min( this.dataGrid.get('rowCount'), this.dataGrid.get('rowsPerPage') ); i++ ) {
                     var item = this.dataGrid.getItem( i );
-                    var label = this.dataGrid.store.getIdentity( item );
-                    if( this.tracksActive[label] )
-                        this.dataGrid.rowSelectCell.toggleRow( i, true );
+                    if( item ) {
+                        var label = this.dataGrid.store.getIdentity( item );
+                        if( this.tracksActive[label] )
+                            this.dataGrid.rowSelectCell.toggleRow( i, true );
+                    }
                 }
 
             });

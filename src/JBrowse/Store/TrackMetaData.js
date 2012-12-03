@@ -6,7 +6,7 @@ define(
         'JBrowse/Util',
         'JBrowse/Digest/Crc32'
     ],
-    function( declare, dArray, simpleFetch, Util, Crc32 ) {
+    function( declare, array, simpleFetch, Util, Crc32 ) {
 var dojof = Util.dojof;
 var Meta = declare( null,
 
@@ -115,7 +115,51 @@ var Meta = declare( null,
                 });
             },this);
         }
+
+        // listen for track-editing commands and update our track metadata accordingly
+        // args.browser.subscribe( '/jbrowse/v1/c/tracks/new',
+        //                         dojo.hitch( this, 'addTracks' ));
+        // args.browser.subscribe( '/jbrowse/v1/c/tracks/replace',
+        //                        dojo.hitch( this, 'replaceTracks' ));
+        args.browser.subscribe( '/jbrowse/v1/c/tracks/delete',
+                                dojo.hitch( this, 'deleteTracks' ));
      },
+
+    addTracks: function( trackConfigs ) {
+        if( trackConfigs.length ) {
+            // clear the query cache
+            delete this.previousQueryFingerprint;
+            delete this.previousResults;
+        }
+
+        // we don't actually delete things, we just mark them as
+        // deleted and filter out deleted ones when returning results.
+        array.forEach( trackConfigs, function( conf ) {
+            // insert in the indexes
+            // TODO
+
+            var item = this.identIndex[ name ];
+            this.onNew( item );
+        },this );
+
+    },
+
+    deleteTracks: function( trackConfigs ) {
+        if( trackConfigs.length ) {
+            // clear the query cache
+            delete this.previousQueryFingerprint;
+            delete this.previousResults;
+        }
+
+        // we don't actually delete things, we just mark them as
+        // deleted and filter out deleted ones when returning results.
+        array.forEach( trackConfigs, function( conf ) {
+            var name = conf.label;
+            var item = this.fetchItemByIdentity( name );
+            item.DELETED = true;
+            this.onDelete( item );
+        },this);
+    },
 
     /**
      * Set the store's state to be ready (i.e. loaded), and calls all
@@ -445,8 +489,9 @@ var Meta = declare( null,
         var filteredSets = [];
         if( textFilter ) {
             filteredSets.push(
-                dojo.filter( dojof.values( this.identIndex ), textFilter )
-                    .sort( dojo.hitch(this,'_itemSortFunc') )
+                this._filterDeleted(
+                    array.filter( dojof.values( this.identIndex ), textFilter )
+                ).sort( dojo.hitch(this,'_itemSortFunc') )
             );
             filteredSets[0].facetName = 'Contains text';
         }
@@ -460,7 +505,7 @@ var Meta = declare( null,
                     }
                     dojo.forEach( values, function(value) {
                         var idx = this.facetIndexes.byName[facetName].byValue[value] || {};
-                        items.push.apply( items, idx.items || [] );
+                        items.push.apply( items, this._filterDeleted( idx.items || [] ) );
                     },this);
                     items.facetName = facetName;
                     items.sort( dojo.hitch( this, '_itemSortFunc' ));
@@ -477,7 +522,7 @@ var Meta = declare( null,
         var facetMatchCounts   = {};
 
         if( ! filteredSets.length ) {
-            results = dojof.values( this.identIndex );
+            results = this._filterDeleted( dojof.values( this.identIndex ) );
         } else {
             // calculate how many item records total we need to go through
             var leftToProcess = 0;
@@ -604,6 +649,28 @@ var Meta = declare( null,
     },
 
     /**
+     * Event hook called when there are new items in the store.
+     */
+    onNew: function( item ) {
+    },
+    /**
+     * Event hook called when something is deleted from the store.
+     */
+    onDelete: function( item ) {
+    },
+    /**
+     * Event hook called when one or more items in the store have changed their values.
+     */
+    onSet: function( item, attribute, oldvalue, newvalue ) {
+    },
+
+    _filterDeleted: function( items ) {
+        return array.filter( items, function(i) {
+                                 return ! i.DELETED;
+        });
+    },
+
+    /**
      * Compile a text search string into a function that tests whether
      * a given piece of text matches that search string.
      * @private
@@ -641,7 +708,7 @@ var Meta = declare( null,
         return dojo.hitch(this, function(item) {
             return dojo.some( this.facets, function(facetName) {
                        var text = this.getValue( item, facetName );
-                       return dArray.every( wordREs, function(re) { return re.test(text); } );
+                       return array.every( wordREs, function(re) { return re.test(text); } );
             },this);
         });
     },
@@ -649,7 +716,8 @@ var Meta = declare( null,
     getFeatures: function() {
         return {
 	    'dojo.data.api.Read': true,
-	    'dojo.data.api.Identity': true
+	    'dojo.data.api.Identity': true,
+	    'dojo.data.api.Notification': true
 	};
     },
     close: function() {},

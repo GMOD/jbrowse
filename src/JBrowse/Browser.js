@@ -862,10 +862,10 @@ Browser.prototype._addTrackConfigs = function( /**Array*/ configs ) {
 
     array.forEach( configs, function(conf){
 
-        if( this.trackConfigsByName[ conf.label ] ) {
-            console.warn("track with label "+conf.label+" already exists, skipping");
-            return;
-        }
+        // if( this.trackConfigsByName[ conf.label ] ) {
+        //     console.warn("track with label "+conf.label+" already exists, skipping");
+        //     return;
+        // }
 
         this.trackConfigsByName[conf.label] = conf;
         this.config.tracks.push( conf );
