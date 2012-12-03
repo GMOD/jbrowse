@@ -99,12 +99,15 @@ return declare( null, {
         // textarea loses focus.
         var previousText = '';
         var checkFrequency = 700;
+        var that = this;
         var checkForChange = function() {
-            if( textArea.value != previousText ) {
-                realChange();
-                previousText = textArea.value;
+            if( that.dialog.get('open') ) {
+                if( textArea.value != previousText ) {
+                    realChange();
+                    previousText = textArea.value;
+                }
+                window.setTimeout( checkForChange, checkFrequency );
             }
-            window.setTimeout( checkForChange, checkFrequency );
         };
         window.setTimeout( checkForChange, checkFrequency );
 
