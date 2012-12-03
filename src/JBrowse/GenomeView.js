@@ -1,5 +1,6 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/array',
            'JBrowse/Util',
            'dojo/dnd/move',
            'dojo/dnd/Source',
@@ -11,6 +12,7 @@ define([
            'JBrowse/View/Animation/Slider'
        ], function(
            declare,
+           array,
            Util,
            dndMove,
            dndSource,
@@ -250,8 +252,10 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
             }
         )
     );
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/show', dojo.hitch( this, 'showTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide', dojo.hitch( this, 'hideTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/show',    dojo.hitch( this, 'showTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    dojo.hitch( this, 'hideTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/replace', dojo.hitch( this, 'replaceTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/delete',  dojo.hitch( this, 'hideTracks' ));
 
     // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
     dojo.forEach(this.uiTracks, function(track) {
@@ -1853,6 +1857,43 @@ GenomeView.prototype.showTracks = function( trackConfigs ) {
 };
 
 /**
+ * Replace the track configurations that are currently visible in the genome view.
+ * @param trackConfigs {Array[Object]} array of track configuration
+ * objects to add
+ */
+GenomeView.prototype.replaceTracks = function( trackConfigs ) {
+    // for each one
+    array.forEach( trackConfigs, function( conf ) {
+        // figure out its position in the genome view and delete it
+        var anchor;
+        var done;
+        var listNode = this.trackDndWidget.parent;
+        array.forEach( listNode.children, function( item ) {
+            if( done )
+                return;
+
+            var track = item.track;
+            if( track && (track.config.label == conf.label) ) {
+                done = 1;
+                this.trackDndWidget.delItem( item.id );
+                if( item && item.parentNode )
+                    item.parentNode.removeChild(item);
+            } else {
+                anchor = item;
+            }
+        },this);
+
+       this.updateTrackList();
+
+       // insert the new track config into the trackDndWidget after the 'before'
+       this.trackDndWidget.insertNodes( false, [conf], false, anchor );
+   },this);
+
+    if( trackConfigs.length )
+        this.updateTrackList();
+};
+
+/**
  * Remove the given track (configs) from the genome view.
  * @param trackConfigs {Array[Object]} array of track configurations
  */
@@ -1864,8 +1905,8 @@ GenomeView.prototype.hideTracks = function( /**Array[String]*/ trackConfigs ) {
     },this);
     if( ! displayed.length ) return;
 
-    // insert the track configs into the trackDndWidget ( the widget
-    // will call create() on the confs to render them)
+    // remove the track configs from the trackDndWidget ( the widget
+    // will call create() on the confs to render them )
     dojo.forEach( displayed, function( conf ) {
         this.trackDndWidget.forInItems(function(obj, id, map) {
             if( conf.label === obj.data.label ) {
@@ -1930,7 +1971,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
 
     var trackName = trackConfig.label;
     var trackDiv = dojo.create('div', {
-        className: ['track', cssName('track_'+trackClass), cssName('track_'+trackName)].join(' '),
+        className: ['track', cssName('track_'+trackConfig.type), cssName('track_'+trackName)].join(' '),
         id: "track_" + trackName
     });
     trackDiv.trackName = trackName;
@@ -2042,7 +2083,7 @@ GenomeView.prototype.updateTrackList = function() {
 
     // publish a message if the visible tracks or their ordering has changed
     if( oldtracks != dojo.toJson( this.trackIndices || {} ) ) {
-        this.browser.publish( '/jbrowse/v1/v/tracks/changed', [this.visibleTrackNames()] );
+        this.browser.publish( '/jbrowse/v1/n/tracks/visibleChanged', [this.visibleTrackNames()] );
         this.showVisibleBlocks();
     }
 };
