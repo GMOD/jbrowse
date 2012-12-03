@@ -661,6 +661,11 @@ var uniqCounter = 0;
 Browser.prototype._addStoreConfig = function( /**String*/ name, /**Object*/ storeConfig ) {
     name = name || 'addStore'+uniqCounter++;
 
+    if( ! this.config.stores )
+        this.config.stores = {};
+    if( ! this._storeCache )
+        this._storeCache = {};
+
     if( this.config.stores[name] || this._storeCache[name] ) {
         throw "store "+name+" already exists!";
     }
