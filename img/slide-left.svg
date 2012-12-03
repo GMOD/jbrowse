@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -12,11 +13,11 @@
    height="40"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.46"
+   inkscape:version="0.48.3.1 r9886"
    version="1.0"
-   sodipodi:docname="slide-left.svg"
+   sodipodi:docname="slide-right.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/mitch/sw/jbrowse/img/slide-left.png"
+   inkscape:export-filename="/home/ederohanian/JBrowse/jbrowse/img/slide-right.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -61,7 +62,9 @@
      inkscape:window-width="1440"
      inkscape:window-height="820"
      inkscape:window-x="0"
-     inkscape:window-y="27">
+     inkscape:window-y="54"
+     inkscape:window-maximized="0"
+     inkscape:snap-global="false">
     <inkscape:grid
        type="xygrid"
        id="grid2460"
@@ -76,6 +79,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -111,25 +115,14 @@
        d="M 80,20 L 115,20"
        id="path6064"
        sodipodi:nodetypes="cc" />
-    <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:#796657;stroke-width:2;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect8631"
-       width="46"
-       height="26"
-       x="-53"
-       y="7"
-       ry="13"
-       rx="15"
-       transform="scale(-1,1)" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#796657;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 29,27 L 14,20 L 29,13"
-       id="path9154"
-       sodipodi:nodetypes="ccc" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#796657;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 15,20 L 46,20"
-       id="path9156"
-       sodipodi:nodetypes="cc" />
+       style="fill:#333333;fill-opacity:1;stroke:none;display:inline"
+       d="m 30.850045,8.8500385 -7.52623,0 L 12.17386,20 l 11.149955,11.14996 7.52623,0 -8.362466,-8.362472 25.512421,0 0,-5.574982 -25.512421,0 z"
+       id="path3110"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccccc"
+       inkscape:export-filename="/home/ederohanian/JBrowse/jbrowse/img/slide-left.png"
+       inkscape:export-xdpi="32.807175"
+       inkscape:export-ydpi="32.807175" />
   </g>
 </svg>
