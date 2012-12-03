@@ -48,7 +48,10 @@ NCList.prototype.fill = function(intervals, attrs) {
     //sort by OL
     myIntervals.sort(function(a, b) {
         if (start(a) != start(b))
-            return start(a) - start(b());
+            // return start(a) - start(b()); when did this happen???
+	    // did git blame, looks like been in GMOD/JBrowse code since 5/19/2011
+	    // GAH: fixed it in WebApollo fork 3/15/2012, so pasting similar fix here:
+            return start(a) - start(b);
         else
             return end(b) - end(a);
     });
