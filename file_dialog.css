@@ -80,7 +80,7 @@
     box-sizing: border-box;
 }
 .fileDialog .localFilesControl .dragArea:hover {
-    border: 2px dashed green;
+    border: 1px dashed green;
 }
 
 .fileDialog .localFilesControl .dragArea .dragMessage {
@@ -94,11 +94,11 @@
 }
 .fileDialog .remoteURLsControl textarea {
     font-size: 10px;
+    background: #f2f2f2;
 }
 .fileDialog .remoteURLsControl textarea:hover {
-    background: #fafafa;
-    background: -webkit-linear-gradient(top, white, #f2f2f2);
-    background: linear-gradient(to bottom, white, #f2f2f2);
+    background: white;
+    border-color: #333;
 }
 
 .fileDialog .remoteURLsControl {
