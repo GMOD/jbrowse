@@ -879,8 +879,8 @@ HTMLFeatures = declare( HTMLFeatures,
         // To make sure the truncated end of the feature never gets shown,
         // we'll destroy and re-create the feature (with updated truncated
         // boundaries) in the transfer method.
-        var displayStart = Math.max( feature.get('start'), containerStart );
-        var displayEnd = Math.min( feature.get('end'), containerEnd );
+        var displayStart = Math.max( featureStart, containerStart );
+        var displayEnd = Math.min( featureEnd, containerEnd );
         var blockWidth = block.endBase - block.startBase;
         var featwidth = Math.max( 1, (100 * ((displayEnd - displayStart) / blockWidth)));
         featDiv.style.cssText =
