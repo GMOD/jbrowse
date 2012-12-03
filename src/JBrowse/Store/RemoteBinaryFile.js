@@ -276,12 +276,17 @@ return declare( null,
             start,
             end,
             dojo.hitch( this,  function( chunks ) {
+
+                 var totalSize = this.totalSizes[ args.url ];
+
                  this._assembleChunks(
                          start,
                          end,
-                         function() {
+                         function( resultBuffer ) {
+                             if( typeof totalSize == 'number' )
+                                 resultBuffer.fileSize = totalSize;
                              try {
-                                 args.success.apply( this, arguments );
+                                 args.success.call( this, resultBuffer );
                              } catch( e ) {
                                  console.error(''+e, e.stack, e);
                                  if( args.failure )
