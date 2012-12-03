@@ -109,6 +109,8 @@ return {
             }
         }
 
+        // if we have a single BAM and single BAI left at the end,
+        // stick them together and we'll see what happens
         if( singletonBAMCount == 1 && singletonBAICount == 1 ) {
             for( var bainame in singletonBAIs ) {
                 for( var bamname in singletonBAMs ) {
@@ -120,6 +122,12 @@ return {
                     delete configs[bainame];
                 }
             }
+        }
+
+        // delete any remaining singleton BAIs, since they don't have
+        // a hope of working
+        for( var bainame in singletonBAIs ) {
+            delete configs[bainame];
         }
     },
 
