@@ -10,7 +10,9 @@ define( [
             'dijit/MenuItem',
             'dijit/CheckedMenuItem',
             'dijit/MenuSeparator',
-            'JBrowse/Util'
+            'JBrowse/Util',
+            'JBrowse/View/TrackConfigEditor',
+            'JBrowse/View/ConfirmDialog'
         ],
         function( declare,
                   lang,
@@ -23,7 +25,9 @@ define( [
                   dijitMenuItem,
                   dijitCheckedMenuItem,
                   dijitMenuSeparator,
-                  Util
+                  Util,
+                  TrackConfigEditor,
+                  ConfirmDialog
                 ) {
 
 return declare( null,
@@ -636,12 +640,35 @@ return declare( null,
      * @returns {Array} menu options for this track's menu (usually contains save as, etc)
      */
     _trackMenuOptions: function() {
+        var that = this;
         return [
             { label: 'About this track',
               title: 'About track: '+(this.key||this.name),
               iconClass: 'jbrowseIconHelp',
               action: 'contentDialog',
               content: dojo.hitch(this,'_trackDetailsContent')
+            },
+            { label: 'Configure',
+              title: "edit this track's configuration",
+              iconClass: 'dijitIconConfigure',
+              action: function() {
+                  new TrackConfigEditor( that.config )
+                      .show( function( result ) {
+                          // replace this track's configuration
+                          that.browser.publish( '/jbrowse/v1/v/tracks/replace', [result.conf] );
+                      });
+              }
+            },
+            { label: 'Delete',
+              title: "delete this track",
+              iconClass: 'dijitIconDelete',
+              action: function() {
+                  new ConfirmDialog({ title: 'Delete track?', message: 'Really delete this track?' })
+                     .show( function( confirmed ) {
+                          if( confirmed )
+                              that.browser.publish( '/jbrowse/v1/v/tracks/delete', [that.config] );
+                      });
+              }
             }
         ];
     },

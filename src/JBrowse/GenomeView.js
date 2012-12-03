@@ -1,5 +1,6 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/array',
            'JBrowse/Util',
            'dojo/dnd/move',
            'dojo/dnd/Source',
@@ -11,6 +12,7 @@ define([
            'JBrowse/View/Animation/Slider'
        ], function(
            declare,
+           array,
            Util,
            dndMove,
            dndSource,
@@ -240,8 +242,10 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
             }
         )
     );
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/show', dojo.hitch( this, 'showTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide', dojo.hitch( this, 'hideTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/show',    dojo.hitch( this, 'showTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    dojo.hitch( this, 'hideTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/replace', dojo.hitch( this, 'replaceTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/delete',  dojo.hitch( this, 'hideTracks' ));
 
     // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
     dojo.forEach(this.uiTracks, function(track) {
@@ -1709,6 +1713,42 @@ GenomeView.prototype.showTracks = function( trackConfigs ) {
     this.trackDndWidget.insertNodes( false, needed );
 
     this.updateTrackList();
+};
+
+/**
+ * Replace the track configurations that are currently visible in the genome view.
+ * @param trackConfigs {Array[Object]} array of track configuration
+ * objects to add
+ */
+GenomeView.prototype.replaceTracks = function( trackConfigs ) {
+    // for each one
+    array.forEach( trackConfigs, function( conf ) {
+        // figure out its position in the genome view and delete it
+        var anchor;
+        var done;
+        this.trackDndWidget.forInItems( function(obj, id, map) {
+            if( done )
+                return;
+
+            if( conf.label === obj.data.label ) {
+                done = 1;
+                this.trackDndWidget.delItem( id );
+                var item = dojo.byId(id);
+                if( item && item.parentNode )
+                    item.parentNode.removeChild(item);
+            } else {
+                anchor = obj;
+            }
+        },this);
+
+       this.updateTrackList();
+
+       // insert the new track config into the trackDndWidget after the 'before'
+       this.trackDndWidget.insertNodes( false, [conf], false, anchor);
+   },this);
+
+   if( trackConfigs.length )
+       this.updateTrackList();
 };
 
 /**

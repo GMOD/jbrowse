@@ -464,23 +464,28 @@ Browser.prototype.openFileDialog = function() {
                         }
                     },this);
 
-                    // register the track configurations
-                    this._addTrackConfigs( confs );
+                    // send out a message about how the user wants to create the new tracks
+                    this.publish( '/jbrowse/v1/v/tracks/new', confs );
 
-                    // store the track configurations also
-                    if( ! this.config.tracks )
-                        this.config.tracks = [];
-                    this.config.tracks.push.apply( this.config.tracks, confs );
-
-                    // send out a message to create the new tracks
-                    this.publish( '/jbrowse/v1/c/tracks/new', confs );
-
-                    // if requested, send out another message to show them
+                    // if requested, send out another message that the user wants to show them
                     if( results.trackDisposition == 'openImmediately' )
-                        this.publish( '/jbrowse/v1/c/tracks/show', confs );
+                        this.publish( '/jbrowse/v1/v/tracks/show', confs );
                 }
             })
         });
+};
+
+Browser.prototype.addTracks = function( confs ) {
+    // just register the track configurations right now
+    this._addTrackConfigs( confs );
+};
+Browser.prototype.replaceTracks = function( confs ) {
+    // just add-or-replace the track configurations
+    this._replaceTrackConfigs( confs );
+};
+Browser.prototype.deleteTracks = function( confs ) {
+    // de-register the track configurations
+    this._deleteTrackConfigs( confs );
 };
 
 
@@ -526,13 +531,28 @@ Browser.prototype.addGlobalMenuItem = function( menuName, item ) {
  * @private
  */
 Browser.prototype._initEventRouting = function() {
-    this.subscribe('/jbrowse/v1/v/tracks/hide', dojo.hitch( this, function( trackConfigs ) {
-        this.publish( '/jbrowse/v1/c/tracks/hide', trackConfigs );
-    }));
-    this.subscribe('/jbrowse/v1/v/tracks/show', dojo.hitch( this, function( trackConfigs ) {
-        this.addRecentlyUsedTracks( dojo.map(trackConfigs, function(c){ return c.label;}) );
-        this.publish( '/jbrowse/v1/c/tracks/show', trackConfigs );
-    }));
+    var that = this;
+
+    that.subscribe('/jbrowse/v1/v/tracks/hide', function( trackConfigs ) {
+        that.publish( '/jbrowse/v1/c/tracks/hide', trackConfigs );
+    });
+    that.subscribe('/jbrowse/v1/v/tracks/show', function( trackConfigs ) {
+        that.addRecentlyUsedTracks( dojo.map(trackConfigs, function(c){ return c.label;}) );
+        that.publish( '/jbrowse/v1/c/tracks/show', trackConfigs );
+    });
+
+    that.subscribe('/jbrowse/v1/v/tracks/new', function( trackConfigs ) {
+        that.addTracks( trackConfigs );
+        that.publish( '/jbrowse/v1/c/tracks/new', trackConfigs );
+    });
+    that.subscribe('/jbrowse/v1/v/tracks/replace', function( trackConfigs ) {
+        that.replaceTracks( trackConfigs );
+        that.publish( '/jbrowse/v1/c/tracks/replace', trackConfigs );
+    });
+    that.subscribe('/jbrowse/v1/v/tracks/delete', function( trackConfigs ) {
+        that.deleteTracks( trackConfigs );
+        that.publish( '/jbrowse/v1/c/tracks/delete', trackConfigs );
+    });
 };
 
 /**
@@ -825,23 +845,68 @@ Browser.prototype.loadConfig = function () {
 };
 
 /**
- * Add track configurations to this object.
+ * Add new track configurations.
  * @private
  */
-Browser.prototype._addTrackConfigs = function( configs ) {
+Browser.prototype._addTrackConfigs = function( /**Array*/ configs ) {
+
     if( ! this.config.tracks )
         this.config.tracks = [];
-
-    // index the track configurations by name
     if( ! this.trackConfigsByName )
         this.trackConfigsByName = {};
 
     array.forEach( configs, function(conf){
+
+        if( this.trackConfigsByName[ conf.label ] ) {
+            console.warn("track with label "+conf.label+" already exists, skipping");
+            return;
+        }
+
         this.trackConfigsByName[conf.label] = conf;
         this.config.tracks.push( conf );
+
     },this);
 
     return configs;
+};
+/**
+ * Replace existing track configurations.
+ * @private
+ */
+Browser.prototype._replaceTrackConfigs = function( /**Array*/ newConfigs ) {
+    if( ! this.trackConfigsByName )
+        this.trackConfigsByName = {};
+
+    array.forEach( newConfigs, function( conf ) {
+        if( ! this.trackConfigsByName[ conf.label ] ) {
+            console.warn("track with label "+conf.label+" does not exist yet.  creating a new one.");
+        }
+
+        this.trackConfigsByName[conf.label] =
+                           dojo.mixin( this.trackConfigsByName[ conf.label ] || {}, conf );
+   },this);
+};
+/**
+ * Delete existing track configs.
+ * @private
+ */
+Browser.prototype._deleteTrackConfigs = function( configsToDelete ) {
+    // remove from this.config.tracks
+    this.config.tracks = array.filter( this.config.tracks || [], function( conf ) {
+        return ! array.some( configsToDelete, function( toDelete ) {
+            return toDelete.label == conf.label;
+        });
+    });
+
+    // remove from trackConfigsByName
+    array.forEach( configsToDelete, function( toDelete ) {
+        if( ! this.trackConfigsByName[ toDelete.label ] ) {
+            console.warn( "track "+toDelete.label+" does not exist, cannot delete" );
+            return;
+        }
+
+        delete this.trackConfigsByName[ toDelete.label ];
+    },this);
 };
 
 Browser.prototype._configDefaults = function() {
