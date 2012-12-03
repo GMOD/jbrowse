@@ -799,6 +799,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
         dojo.forEach( trackConfigs, function(conf) {
             this.tracksActive[conf.label] = true;
         },this);
+        this._updateGridSelections();
     },
 
     /**
@@ -809,6 +810,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
         dojo.forEach( trackConfigs, function(conf) {
             delete this.tracksActive[conf.label];
         },this);
+        this._updateGridSelections();
     },
 
     /**
