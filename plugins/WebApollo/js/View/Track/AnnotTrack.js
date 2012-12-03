@@ -356,9 +356,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
      *  received notification from server ChangeNotificationListener that annotations were updated
      *  currently handled as if receiving DELETE followed by ADD command
      */
-    annotationsUpdatedNotification: function(annots)  {
-	this.annotationsDeletedNotification(annots);
-	this.annotationsAddedNotification(annots);
+    annotationsUpdatedNotification: function(responseFeatures)  {
+	// this.annotationsDeletedNotification(annots);
+	// this.annotationsAddedNotification(annots);
+        for (var i = 0; i < responseFeatures.length; ++i) {
+            var feat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
+            // var id = responseFeatures[i].uniquename;
+            this.store.replace(feat);
+        }
     },
 
     /**
