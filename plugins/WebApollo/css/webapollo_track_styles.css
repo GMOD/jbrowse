@@ -174,9 +174,11 @@ div.basic-hist {
     z-index: 10;
 }
 
+/*
 .feature { background-color: gainsboro }
 .plus-feature { background-image: url('img/plus-chevron3.png'); }
 .minus-feature { background-image: url('img/minus-chevron3.png'); }
+*/
 
 div.feature-hist {
     position: absolute;
