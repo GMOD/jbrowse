@@ -7,9 +7,10 @@ define(['dojo/_base/declare',
         'dijit/form/Button',
         './TrackList/BAMDriver',
         './TrackList/BigWigDriver',
+        './TrackList/GFF3Driver',
         'JBrowse/View/TrackConfigEditor'
        ],
-       function(declare, array, dom, Util, TextBox, Select, Button, BAMDriver, BigWigDriver, TrackConfigEditor ) {
+       function(declare, array, dom, Util, TextBox, Select, Button, BAMDriver, BigWigDriver, GFF3Driver, TrackConfigEditor ) {
 
 var uniqCounter = 0;
 
@@ -18,7 +19,7 @@ return declare( null, {
 constructor: function( args ) {
     this.fileDialog = args.dialog;
     this.domNode = dom.create('div', { className: 'trackList', innerHTML: 'track list!' });
-    this.types = [ BAMDriver, BigWigDriver ];
+    this.types = [ BAMDriver, BigWigDriver, GFF3Driver ];
 
     this._updateDisplay();
 },
