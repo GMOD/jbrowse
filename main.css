@@ -129,11 +129,11 @@ div.locationThumb {
     position: absolute;
     top: 0px;
     /* if you change this border from 2px, change GenomeView.showTrap */
-    border: 2px solid red;
+    border: 2px solid #0E53A7;
     margin: 0px -2px 0px -2px;
     height: 23px;
     cursor: move;
-    background: rgba(0, 121, 245, 0.1);
+    background: rgba(0, 121, 245, 0.2);
 }
 
 div.locationThumb.dojoMoveItem {
@@ -454,20 +454,19 @@ div.tracklist-label {
     background-color: rgba( 204, 204, 204, 0.9 );
 }
 div.tracklist-label:hover {
-    background-color:  #396494;
+    background-color:  #0E53A7;
     color: #fefefe;
 }
 
 #trackPane {
-    background: #f2f2f2;
+    background: #E6E6E6;
 }
 #trackPane h2 {
     margin: 0.5em 0 1em 0.5em;
 }
 #trackPane_splitter {
-    background: #dcdcdc;
+    background: #CCCCCC;
     width: 5px;
-    border-right: 1px solid #555;
 }
 
 div.tracklist-container {
@@ -670,7 +669,7 @@ a.dialog-new-window {
     padding: 1px 0 2px 1px;
 }
 .sharePane .copyReminder {
-    background-color:  #396494;
+    background-color:  #0E53A7;
     text-align: center;
     width: 50%;
     margin: 0 auto;
