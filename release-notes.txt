@@ -7,6 +7,9 @@
    either histograms or a "too many features" message will be
    displayed.
 
+ * Fixed a bug in the BigWig data backend that prevented some BigWig
+   files with large numbers of reference sequences from displaying.
+
 1.7.3     2012-11-28 23:29:48 America/New_York
 
  * Fixed several more bugs in the BAM data backend that prevented
