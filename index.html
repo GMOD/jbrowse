@@ -34,7 +34,8 @@
                                            forceTracks: queryParams.tracks,
                                            show_nav: queryParams.nav,
                                            show_tracklist: queryParams.tracklist,
-                                           show_overview: queryParams.overview
+                                           show_overview: queryParams.overview,
+                                           topBar: "menuBar"
                                        });
         });
     </script>
@@ -42,6 +43,7 @@
   </head>
 
   <body>
+    <div id="menuBar" style="height: 25px; width:100%; padding: 0; border: 0; overflow: hidden"></div>
     <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
     <div style="display: none">JBrowseDefaultMainPage</div>
   </body>

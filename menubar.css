@@ -1,6 +1,5 @@
 /* styles for the top menu bar */
 div.menuBar {
-    padding: 1px 0;
     height: 25px;
 }
 .tundra .menuBar {
@@ -63,7 +62,7 @@ a.topLink, a.topLink * {
 }
 
 .tundra .menuBar .dijitButtonNode {
-    border: 2px outset rgba( 120, 120, 120, 0.2 );
+    border: none; 
 }
 .tundra .menuBar .dijitButtonHover .dijitButtonNode,
 .tundra .menuBar .dijitDropDownButtonHover .dijitButtonNode {

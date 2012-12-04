@@ -87,6 +87,7 @@ var Browser = function(params) {
     this.container = dojo.byId(this.config.containerID);
     this.container.onselectstart = function() { return false; };
     this.container.genomeBrowser = this;
+    this.topbar = dojo.byId(this.config.topBar);
 
     // init our touch device support
     this.addDeferred( Touch.loadTouch );
@@ -334,7 +335,8 @@ Browser.prototype.initView = function() {
         }
         );
 
-    ( this.config.show_nav ? topPane : this.container ).appendChild( menuBar );
+     this.topbar.appendChild( menuBar );
+
 
     var overview = dojo.create( 'div', { className: 'overview', id: 'overview' }, topPane );
     this.overviewDiv = overview;
