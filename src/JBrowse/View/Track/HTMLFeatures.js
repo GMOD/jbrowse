@@ -778,6 +778,12 @@ HTMLFeatures = declare( HTMLFeatures,
             featureEnd = parseInt(featureEnd);
         if( typeof featureStart == 'string' )
             featureStart = parseInt(featureStart);
+	// layoutStart: start genome coord (at current scale) of horizontal space need to render feature, 
+	//       including decorations (arrowhead, label, etc) and padding 
+	var layoutStart = featureStart;  
+	// layoutEnd: end genome coord (at current scale) of horizontal space need to render feature, 
+	//       including decorations (arrowhead, label, etc) and padding
+	var layoutEnd = featureEnd;
 
 	//     JBrowse now draws arrowheads within feature genome coord bounds
 	//     For WebApollo we're keeping arrow outside of feature genome coord bounds, 
@@ -787,10 +793,10 @@ HTMLFeatures = declare( HTMLFeatures,
             switch (feature.get('strand')) {
             case 1:
             case '+':
-		featureEnd   += (this.plusArrowWidth / scale); break;
+		layoutEnd   += (this.plusArrowWidth / scale); break;
             case -1:
             case '-':
-		featureStart -= (this.minusArrowWidth / scale); break;
+		layoutStart -= (this.minusArrowWidth / scale); break;
             }
 	}
 
@@ -807,27 +813,27 @@ HTMLFeatures = declare( HTMLFeatures,
         // calculated height of the feature if it will be displayed
         if( this.showLabels && scale >= labelScale ) {
             if (name) {
-	        featureEnd = Math.max(featureEnd, featureStart + (''+name).length * this.labelWidth / scale );
+	        layoutEnd = Math.max(layoutEnd, layoutStart + (''+name).length * this.labelWidth / scale );
                 levelHeight += this.labelHeight + this.labelPad;
             }
             if( description ) {
-                featureEnd = Math.max( featureEnd, featureStart + (''+description).length * this.labelWidth / scale );
+                layoutEnd = Math.max( layoutEnd, layoutStart + (''+description).length * this.labelWidth / scale );
                 levelHeight += this.labelHeight + this.labelPad;
             }
         }
-        featureEnd += Math.max(1, this.padding / scale);
+        layoutEnd += Math.max(1, this.padding / scale);
 
         var top = this._getLayout( scale )
                       .addRect( uniqueId,
-                                featureStart,
-                                featureEnd,
+                                layoutStart,
+                                layoutEnd,
                                 levelHeight);
 
         var featDiv = this.config.hooks.create(this, feature );
         this._connectFeatDivHandlers( featDiv );
         featDiv.track = this;
         featDiv.feature = feature;
-        featDiv.layoutEnd = featureEnd;
+        featDiv.layoutEnd = layoutEnd;
 
         // (callbackArgs are the args that will be passed to callbacks
         // in this feature's context menu or left-click handlers)
@@ -842,11 +848,11 @@ HTMLFeatures = declare( HTMLFeatures,
         block.featureNodes[uniqueId] = featDiv;
 
         // record whether this feature protrudes beyond the left and/or right side of the block
-        if( featureStart < block.startBase ) {
+        if( layoutStart < block.startBase ) {
             if( ! block.leftOverlaps ) block.leftOverlaps = [];
             block.leftOverlaps.push( uniqueId );
         }
-        if( featureEnd > block.endBase ) {
+        if( layoutEnd > block.endBase ) {
             if( ! block.rightOverlaps ) block.rightOverlaps = [];
             block.rightOverlaps.push( uniqueId );
         }
@@ -879,8 +885,8 @@ HTMLFeatures = declare( HTMLFeatures,
         // To make sure the truncated end of the feature never gets shown,
         // we'll destroy and re-create the feature (with updated truncated
         // boundaries) in the transfer method.
-        var displayStart = Math.max( feature.get('start'), containerStart );
-        var displayEnd = Math.min( feature.get('end'), containerEnd );
+        var displayStart = Math.max( featureStart, containerStart );
+        var displayEnd = Math.min( featureEnd, containerEnd );
         var blockWidth = block.endBase - block.startBase;
         var featwidth = Math.max( 1, (100 * ((displayEnd - displayStart) / blockWidth)));
         featDiv.style.cssText =
@@ -920,7 +926,7 @@ HTMLFeatures = declare( HTMLFeatures,
                                +( description ? ' <div class="feature-description">'+description+'</div>' : '' ),
                     style: {
                         top: (top + this.glyphHeight + 2) + "px",
-                        left: (100 * (featureStart - block.startBase) / blockWidth)+'%'
+                        left: (100 * (layoutStart - block.startBase) / blockWidth)+'%'
                     }
                 }, block );
 
