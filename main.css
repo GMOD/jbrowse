@@ -116,8 +116,8 @@ div.vertical_scrollbar .vertical_position_marker {
 
 div.locationTrap {
     position: absolute;
-    background-color: #AEC7E3;
-    border-color: white white #AEC7E3 white;
+    background-color: #A9C6EB;
+    border-color: white white #A9C6EB white;
     border-style: solid;
     width: 0px;
     height: 0px;
@@ -169,9 +169,6 @@ div.overview {
     height: 23px;
 
     background: #CCCCCC;
-    border-style: solid;
-    border-width: 0px 0px 1px 0px;
-    border-color: #555;
 
     color:#aaa;
     text-align: center;
@@ -209,10 +206,9 @@ div.track {
 div#static_track {
     top: 0px;
     position: absolute;
-    background: #CCCCCC;
-    border-top: 1px solid #999;
-    border-bottom: 1px solid #444;
+    background: #4284D3;
     z-index: 20;
+    color: white;
 }
 
 div.gridline {
@@ -709,8 +705,8 @@ a.dialog-new-window {
     height: 100%;
     width: 1px;
     background-color: #FF0000;
-    z-index: 15;
-    top: 0;
+    z-index: 5;
+    top: 25;
 }
 
 /* styles for per-base quality table in alignment detail pages */
