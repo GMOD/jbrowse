@@ -110,7 +110,7 @@ return declare( null,
                 return;
             }
 
-            bwg.fileSize = headerSlice.totalSize;
+            bwg.fileSize = result.fileSize;
             var header = result;
             var sa = new Int16Array(header);
             var la = new Int32Array(header);
@@ -188,6 +188,14 @@ return declare( null,
     loadFail: function() {
     },
 
+    readInt: function(ba, offset) {
+        return (ba[offset + 3] << 24) | (ba[offset + 2] << 16) | (ba[offset + 1] << 8) | (ba[offset]);
+    },
+
+    readShort: function(ba, offset) {
+        return (ba[offset + 1] << 8) | (ba[offset]);
+    },
+
     /**
      * @private
      */
@@ -201,6 +209,9 @@ return declare( null,
             ++udo;
         }
 
+        var readInt   = this.readInt;
+        var readShort = this.readShort;
+
         this.data.slice( this.chromTreeOffset, udo - this.chromTreeOffset )
             .fetch(function(bpt) {
                        if( !( Uint8Array && Int16Array && Int32Array ) ) {
@@ -209,30 +220,28 @@ return declare( null,
                            return;
                        }
                        var ba = new Uint8Array(bpt);
-                       var sa = new Int16Array(bpt);
-                       var la = new Int32Array(bpt);
+                       var la = new Int32Array(bpt, 0, 6);
                        var bptMagic = la[0];
+                       if( bptMagic !== 2026540177 )
+                           throw "parse error: not a Kent bPlusTree";
                        var blockSize = la[1];
                        var keySize = la[2];
                        var valSize = la[3];
                        var itemCount = (la[4] << 32) | (la[5]);
                        var rootNodeOffset = 32;
 
-                       // dlog('blockSize=' + blockSize + '    keySize=' + keySize + '   valSize=' + valSize + '    itemCount=' + itemCount);
+                       //dlog('blockSize=' + blockSize + '    keySize=' + keySize + '   valSize=' + valSize + '    itemCount=' + itemCount);
 
                        var bptReadNode = function(offset) {
-                           var nodeType = ba[offset];
-                           var cnt = sa[(offset/2) + 1];
-                           // dlog('ReadNode: ' + offset + '     type=' + nodeType + '   count=' + cnt);
+                           if( offset >= ba.length )
+                               throw "reading beyond end of buffer";
+                           var isLeafNode = ba[offset];
+                           var cnt = readShort( ba, offset+2 );
+                           //dlog('ReadNode: ' + offset + '     type=' + isLeafNode + '   count=' + cnt);
                            offset += 4;
                            for (var n = 0; n < cnt; ++n) {
-                               if (nodeType == 0) {
-                                   offset += keySize;
-                                   var childOffset = (la[offset/4] << 32) | (la[offset/4 + 1]);
-                                   offset += 8;
-                                   childOffset -= thisB.chromTreeOffset;
-                                   bptReadNode(childOffset);
-                               } else {
+                               if( isLeafNode ) {
+                                   // parse leaf node
                                    var key = '';
                                    for (var ki = 0; ki < keySize; ++ki) {
                                        var charCode = ba[offset++];
@@ -240,16 +249,23 @@ return declare( null,
                                            key += String.fromCharCode(charCode);
                                        }
                                    }
-                                   var chromId = (ba[offset+3]<<24) | (ba[offset+2]<<16) | (ba[offset+1]<<8) | (ba[offset+0]);
-                                   var chromSize = (ba[offset + 7]<<24) | (ba[offset+6]<<16) | (ba[offset+5]<<8) | (ba[offset+4]);
+                                   var chromId = readInt( ba, offset );
+                                   var chromSize = readInt( ba, offset+4 );
                                    offset += 8;
 
-                                   // dlog(key + ':' + chromId + ',' + chromSize);
+                                   //dlog(key + ':' + chromId + ',' + chromSize);
                                    thisB.chromsToIDs[key] = chromId;
                                    if (key.indexOf('chr') == 0) {
                                        thisB.chromsToIDs[key.substr(3)] = chromId;
                                    }
                                    thisB.idsToChroms[chromId] = key;
+                               } else {
+                                   // parse index node
+                                   offset += keySize;
+                                   var childOffset = (readInt( ba, offset+4 ) << 32) | readInt( ba, offset );
+                                   offset += 8;
+                                   childOffset -= thisB.chromTreeOffset;
+                                   bptReadNode(childOffset);
                                }
                            }
                        };
