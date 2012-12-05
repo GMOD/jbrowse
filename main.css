@@ -7,6 +7,12 @@ html, body {
     font-family: Open Sans,Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
+trackHeader {
+    font-family: Open Sans, Verdana, Geneva, Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    padding: 0 0 0 7px;
+}
+
 fieldset {
     padding-left: 1em;
     margin: 0.7em 0.5em;
