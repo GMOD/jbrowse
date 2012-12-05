@@ -352,6 +352,7 @@ Browser.prototype.initView = function() {
         className: 'powered_by',
         innerHTML: '<img src="img/JBrowse_logo.png" height="25" width="112"> ',
         href: 'http://jbrowse.org',
+        target: "_blank",
         title: 'powered by JBrowse'
      }, menuBar );
 
