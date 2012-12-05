@@ -44,8 +44,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     // renderClassName: 'DraggableFeatureTrack'  ???
                 },
                 events: {
-		    // need to map click to a null-op, to override default JBrowse click behavior (feature detail popup)
-                    click:     function() { }
+		    // need to map click to a null-op, to override default JBrowse click behavior for click on features 
+		    //     (JBrowse default is feature detail popup)
+                    click:     function(event) {
+			// not quite a null-op, also need to suprress propagation of click recursively up through parent divs, 
+			//    in order to stop default JBrowse behavior for click on tracks (which is to recenter view at click point)
+                        event.stopPropagation();
+		    }
 		    // WebApollo can't set up mousedown --> onFeatureMouseDown() in config.events, 
 		    //     because dojo.on used by JBrowse config-based event setup doesn't play nice with 
 		    //     JQuery event retriggering via _mousedown() for feature drag bootstrapping
