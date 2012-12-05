@@ -56,7 +56,6 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     var charSize = this.getSequenceCharacterSize();
     this.charWidth = charSize.width;
     this.seqHeight = charSize.height;
-    this.colorCdsByFrame = false;
 
     this.posHeight = this.calculatePositionLabelHeight( elem );
     // Add an arbitrary 50% padding between the position labels and the

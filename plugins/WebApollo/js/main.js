@@ -20,8 +20,11 @@ define(
 
 return declare( JBPlugin,
 {
-    constructor: function( args ) {
 
+    colorCdsByFrame: false,
+
+    constructor: function( args ) {
+        var thisB = this;
         var browser = args.browser;
 
         // hand the browser object to the feature edge match manager
@@ -33,7 +36,7 @@ return declare( JBPlugin,
                     label: "Color by CDS frame",
                     checked: false,
                     onClick: function(event) {
-                        browser.view.colorCdsByFrame = cds_frame_toggle.checked;
+                        thisB.colorCdsByFrame = cds_frame_toggle.checked;
                         browser.view.redrawTracks();
                     }
                 });

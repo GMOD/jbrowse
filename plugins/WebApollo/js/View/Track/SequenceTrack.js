@@ -3,8 +3,8 @@ define( [
     'JBrowse/Store/Sequence/StaticChunked', 
     'WebApollo/View/Track/DraggableHTMLFeatures',
     'WebApollo/JSONUtils',
-    'WebApollo/Permission', 
-    'JBrowse/CodonTable', 
+    'WebApollo/Permission',
+    'JBrowse/CodonTable'
      ],
 function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, CodonTable ) {
 
@@ -21,6 +21,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     constructor: function( args ) {
 	this.isWebApolloSequenceTrack = true;
 	var track = this;
+
         /**
          * DraggableFeatureTrack now has its own context menu for divs,
          * and adding this flag provides a quick way to short-circuit it's
@@ -38,7 +39,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         this.residuesMouseDown = function(event) {
             track.onResiduesMouseDown(event);
         };
-	
+
 	this.charSize = this.gview.getSequenceCharacterSize();
 	this.charWidth = this.charSize.charWidth;
 	this.seqHeight = this.charSize.seqHeight;
@@ -310,7 +311,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     			        var transProtein = track.renderTranslation( extendedEndResidues, i, blockLength);
     			        // if coloring CDS in feature tracks by frame, use same "cds-frame" styling,
     			        //    otherwise use more muted "frame" styling
-    			        if (track.gview.colorCdsByFrame) {
+    			        if (track.webapollo.colorCdsByFrame) {
     			            $(transProtein).addClass("cds-frame" + frame);
     			        }
     			        else  {
@@ -418,7 +419,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     			        // frame = (frame + (3 - (track.refSeq.length % 3))) % 3;
     			        frame = (Math.abs(frame - 2) + (track.refSeq.length % 3)) % 3;
     			        var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);
-    			        if (track.gview.colorCdsByFrame) {
+    			        if (track.webapollo.colorCdsByFrame) {
     			            $(transProtein).addClass("cds-frame" + frame);
     			        }
     			        else  {

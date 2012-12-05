@@ -67,6 +67,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
         console.log("DragableFeatureTrack constructor called");
 
         this.gview = this.browser.view;
+        // get a handle to on the main WA object
+        this.browser.getPlugin( 'WebApollo', dojo.hitch( this, function(p) {
+            this.webapollo = p;
+        }));
 
         // DraggableFeatureTracks all share the same FeatureSelectionManager
         //    if want subclasses to have different selection manager,
@@ -523,7 +527,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     "left: " + (100 * ((subStart - subStart) / subLength)) + "%;"
                     + "top: 0px;"
                     + "width: " + (100 * ((subEnd - subStart) / subLength)) + "%;";
-                if (this.config.style.colorCdsFrame || this.gview.colorCdsByFrame) {
+                if (this.config.style.colorCdsFrame || this.webapollo.colorCdsByFrame) {
                     $(segDiv).addClass("cds-frame" + cdsFrame);
                 }
                 subDiv.appendChild(segDiv);
@@ -592,7 +596,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     "left: " + (100 * ((cdsSegStart - subStart) / subLength)) + "%;"
                     + "top: 0px;"
                     + "width: " + (100 * ((cdsSegEnd - cdsSegStart) / subLength)) + "%;";
-                if (this.config.style.colorCdsFrame || this.gview.colorCdsByFrame) {
+                if (this.config.style.colorCdsFrame || this.webapollo.colorCdsByFrame) {
                     $(segDiv).addClass("cds-frame" + cdsFrame);
                 }
                 subDiv.appendChild(segDiv);
