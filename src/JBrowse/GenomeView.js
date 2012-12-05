@@ -1184,9 +1184,12 @@ GenomeView.prototype.drawBasePairLabel = function ( args ){
 
     label.style.display = 'block';      //make label visible
     var absfunc = args.xToBp || dojo.hitch(this,'absXtoBp');
-    label.innerHTML = Util.addCommas( Math.floor( absfunc(numX) )); //set text to BP location
+    var value = Math.floor( absfunc(numX) );
+    label.innerHTML = Util.addCommas(value >= 0 ? value : 0 ); // set text to BP location
+                                                               // say 0 if it is a negative number,
+                                                               // ie. if it's in th track menu .: off
+                                                               // the scale
 
-    //label.style.top = args.top + 'px';
 
     // 15 pixels on either side of the label
     if( window.innerWidth - numX > 8 + label.offsetWidth ) {
