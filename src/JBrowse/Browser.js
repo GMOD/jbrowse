@@ -343,7 +343,7 @@ Browser.prototype.initView = function() {
 
         //set up top nav/overview pane and main GenomeView pane
         dojo.addClass( this.container, "jbrowse"); // browser container has an overall .jbrowse class
-        dojo.addClass( this.container, this.config.theme || "tundra"); //< tundra dijit theme
+        dojo.addClass( document.body, this.config.theme || "tundra"); //< tundra dijit theme
 
         var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, this.container );
 
