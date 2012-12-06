@@ -122,7 +122,7 @@ _loadIncludes: function( inputConfig, callback ) {
                 }),
                 onFailure: dojo.hitch( this, function( error ) {
                     loadingResult.error = error;
-                    console.error(error);
+                    this._fatalError( error );
                     if( ! --configs_remaining )
                         callback( this._mergeIncludes( inputConfig, included_configs ) );
                         //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
@@ -170,7 +170,7 @@ _validateConfig: function( c ) {
         this._fatalError( 'Must provide a <code>baseUrl</code> in configuration' );
     }
     if( this.hasFatalErrors )
-        throw "Errors in configuration, aborting.";
+        throw "Errors in configuration, aborting";
 },
 
 /**
