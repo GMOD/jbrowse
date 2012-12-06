@@ -164,7 +164,7 @@ Browser.prototype.loadUserCSS = function() {
         this.config.css = [ this.config.css ];
     dojo.forEach( this.config.css || [], function(css) {
         if( typeof css == 'string' ) {
-            dojo.create('style', { type: 'text/css', innerHTML: css }, this.container );
+            dojo.create('style', { type: 'text/css', innerHTML: css }, document.head );
         } else if( typeof css == 'object' ) {
             dojo.create('link', { rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
         }
