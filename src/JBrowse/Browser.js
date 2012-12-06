@@ -602,13 +602,13 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
               + "left: " + trapLeft + "px;"
               + "width: " + (trapRight - trapLeft) + "px;"
               + "border-width: 0px"
-            : "top: " + this.view.overviewBox.t + "px;"
-              + "height: " + this.view.overviewBox.h + "px;"
+            : "top: " + this.view.overviewBox.h + "px;"
               + "left: " + this.view.overviewBox.l + "px;"
               + "width: " + (trapRight - trapLeft) + "px;"
-              + "border-width: " + "0px "
-              + (this.view.overviewBox.w - trapRight) + "px "
-              + this.view.locationTrapHeight + "px " + trapLeft + "px;";
+              + "border-bottom: " + this.view.locationTrapHeight + "px solid #A9C6EB;"
+              + "border-left: " + trapLeft + "px solid white;"
+              + "border-right: " + (this.view.overviewBox.w - trapRight) + "px solid white;"
+              + "border-top: 0px dotted;";
 
         this.locationTrap.style.cssText = locationTrapStyle;
     }
