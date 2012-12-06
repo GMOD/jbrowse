@@ -164,9 +164,17 @@ Browser.prototype.loadUserCSS = function() {
         this.config.css = [ this.config.css ];
     dojo.forEach( this.config.css || [], function(css) {
         if( typeof css == 'string' ) {
-            dojo.create('style', { type: 'text/css', innerHTML: css }, document.head );
-        } else if( typeof css == 'object' ) {
-            dojo.create('link', { rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
+            // if it has '{' in it, it probably is not a URL, but is a string of CSS statements
+            if( css.indexOf('{') > -1 ) {
+                    dojo.create('style', { "data-from": 'JBrowse Config', type: 'text/css', innerHTML: css }, document.head );
+            }
+            // otherwise, it must be a URL
+            else {
+                css = { url: css };
+            }
+        }
+        if( typeof css == 'object' ) {
+            dojo.create('link', { "data-from": 'JBrowse Config', rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
         }
     },this);
 };
