@@ -247,50 +247,64 @@ JSONUtils.prototype.convertParsedGFF3JsonToFeatureArray = function(parsedGff3) {
 
     // get parent in parsedGff3.parsedData, which is at depth - 1
     var thisParent = jsu.getFeatureAtGivenDepth(parsedGff3, gff3Depth - 1);
+    if (! thisParent)  {
+	// console.log("problem");
+	// console.log(parsedGff3);
+	return null;
+    }
 
     //
     // now set parent info
     // 
-    featureArray[1] = parseInt(thisParent[0].data[3]); // set start
-    featureArray[2] = parseInt(thisParent[0].data[4]); // set end
-    featureArray[3] = thisParent[0].data[6]; // set strand
-    featureArray[4] = thisParent[0].data[1]; // set source
-    featureArray[5] = thisParent[0].data[7]; // set phase
-    featureArray[6] = thisParent[0].data[2]; // set type
-    featureArray[7] = thisParent[0].data[5]; // set score
-    featureArray[8] = thisParent[0].ID; // set id
+    var rawdata = thisParent.data[0].rawdata;
+    featureArray[1] = parseInt(rawdata[3]); // set start
+    featureArray[2] = parseInt(rawdata[4]); // set end
+    featureArray[3] = rawdata[6]; // set strand
+    featureArray[4] = rawdata[1]; // set source
+    featureArray[5] = rawdata[7]; // set phase
+    featureArray[6] = rawdata[2]; // set type
+    featureArray[7] = rawdata[5]; // set score
+    featureArray[8] = thisParent.ID; // set id
 
-    var parsedNinthField = JSONUtils.parsedNinthGff3Field(thisParent[0].data[8]);  
+    var parsedNinthField = JSONUtils.parsedNinthGff3Field(rawdata[8]);  
     if ( !!parsedNinthField["Name"] ){
 	featureArray[9] = parsedNinthField["Name"];
     }
+    else  { featureArray[9] = null; }
 
     // 
     // now set children info 
     // 
-    var childrenArray = new Array; // make array for all child features
-     if ( !!thisParent[0]["children"] ){
-	 for ( i = 0; i < thisParent[0]["children"].length; i++ ){
- 	    childrenArray[i] = new Array;
- 	    childrenArray[i][0] = 1; // ? 
- 	    childrenArray[i][1] = parseInt(thisParent[0]["children"][i][0].data[3]); // start
- 	    childrenArray[i][2] = parseInt(thisParent[0]["children"][i][0].data[4]); // end
- 	    childrenArray[i][3] = thisParent[0]["children"][i][0].data[6]; // strand
- 	    childrenArray[i][4] = thisParent[0]["children"][i][0].data[1]; // source
- 	    childrenArray[i][5] = thisParent[0]["children"][i][0].data[7]; // phase
- 	    childrenArray[i][6] = thisParent[0]["children"][i][0].data[2]; // type
- 	    childrenArray[i][7] = thisParent[0]["children"][i][0].data[5]; // score
+    var children = thisParent.children
+    var subfeats = null; // make array for all child features
+    if ( thisParent.children && (thisParent.children.length > 0))  {
+	subfeats = [];
+	for ( i = 0; i < thisParent.children.length; i++ ){
+	    var childData = thisParent.children[i].data[0].rawdata;
+	    var subfeat = [];
 
- 	    var childNinthField = JSONUtils.parsedNinthGff3Field( thisParent[0]["children"][i][0].data[8] );
+ 	    subfeat[0] = 1; // ? 
+ 	    subfeat[1] = parseInt(childData[3]); // start
+ 	    subfeat[2] = parseInt(childData[4]); // end
+ 	    subfeat[3] = childData[6]; // strand
+ 	    subfeat[4] = childData[1]; // source
+ 	    subfeat[5] = childData[7]; // phase
+ 	    subfeat[6] = childData[2]; // type
+ 	    subfeat[7] = childData[5]; // score
+
+ 	    var childNinthField = JSONUtils.parsedNinthGff3Field( childData[8] );
  	    if ( !!childNinthField["ID"] ){
-		childrenArray[i][8] = childNinthField["ID"];
+		subfeat[8] = childNinthField["ID"];
 	    }
+	    else  { subfeat[8] = null; }
  	    if ( !!childNinthField["Name"] ){
-		childrenArray[i][9] = childNinthField["Name"];
+		subfeat[9] = childNinthField["Name"];
 	    }
+	    else  { subfeat[9] = null; }
+	    subfeats[i] = subfeat;
  	}
      }
-     featureArray[10] = childrenArray; // load up children
+     featureArray[10] = subfeats; // load up children
     
     return featureArray;
 };
@@ -298,7 +312,7 @@ JSONUtils.prototype.convertParsedGFF3JsonToFeatureArray = function(parsedGff3) {
 // recursive search of this feature to see how many levels there are,
 // helper for convertParsedGFF3JsonToFeatureArray. This determines the
 // depth of the first feature it finds. 
-JSONUtils.prototype.determineParsedGff3Depth = function(parsedGff3) {
+JSONUtils.prototype.determineParsedGff3Depth = function(gffFeature) {
     var recursion_level = 0;
     var maximum_recursion_level = 10; // paranoid about infinite recursion
     var determineNumLevels = function(thisJsonFeature) {
@@ -307,14 +321,17 @@ JSONUtils.prototype.determineParsedGff3Depth = function(parsedGff3) {
 	    return false;
 	}
 	// recurse if there there are children
-	if ( !! thisJsonFeature[0] && thisJsonFeature[0]["children"] != null && thisJsonFeature[0]["children"].length > 0 ){
-	    if ( determineNumLevels(thisJsonFeature[0]["children"][0] ) ){
+	//if ( !! thisJsonFeature[0] && thisJsonFeature[0]["children"] != null && thisJsonFeature[0]["children"].length > 0 ){
+	//    if ( determineNumLevels(thisJsonFeature[0]["children"][0] ) ){	
+	if ( thisJsonFeature.children != null && thisJsonFeature.children.length > 0 ){
+	    if ( determineNumLevels(thisJsonFeature.children[0]) ){
 		return true;
 	    }
 	}
 	return false;
     }
-    determineNumLevels( parsedGff3.parsedData[0] );
+    // determineNumLevels( parsedGff3.parsedData[0] );
+    determineNumLevels( gffFeature );
     return recursion_level;
 }; 
 
@@ -322,7 +339,7 @@ JSONUtils.prototype.determineParsedGff3Depth = function(parsedGff3) {
 // that returns the feature at a given depth
 // (it will return the first feature in the arrayref at 
 // that depth)
-JSONUtils.prototype.getFeatureAtGivenDepth = function(parsedGff3, depth) {
+JSONUtils.prototype.getFeatureAtGivenDepth = function(gffFeature, depth) {
     var recursion_level = 0;
     var maximum_recursion_level = 10; // paranoid about infinite recursion
     var getFeature = function(thisJsonFeature, thisDepth) {
@@ -334,14 +351,17 @@ JSONUtils.prototype.getFeatureAtGivenDepth = function(parsedGff3, depth) {
 	if ( recursion_level == thisDepth ){
 	    return thisJsonFeature;
 	}
-	else if ( thisJsonFeature[0].children != null && thisJsonFeature[0].children.length > 0 ){
+	// else if ( thisJsonFeature[0].children != null && thisJsonFeature[0].children.length > 0 ){
+	else if ( thisJsonFeature.children != null && thisJsonFeature.children.length > 0 ){
 	    var returnedFeature;
- 	    if ( returnedFeature = getFeature(thisJsonFeature[0].children[0], depth) ){
+ 	    // if ( returnedFeature = getFeature(thisJsonFeature[0].children[0], depth) ){
+	    if ( returnedFeature = getFeature(thisJsonFeature.children[0], depth) ){
  		return returnedFeature;
  	    }
 	}
 	}
-    return getFeature( parsedGff3.parsedData[0], depth );
+//    return getFeature( parsedGff3.parsedData[0], depth );
+    return getFeature( gffFeature, depth );
 };
 
 // helper feature for convertParsedGFF3JsonToFeatureArray
@@ -356,6 +376,9 @@ JSONUtils.parsedNinthGff3Field = function(ninthField) {
     }
     return parsedNinthField;
 };
+
+// experimenting with forcing export of JSONUtils into global namespace...
+window.JSONUtils = JSONUtils;
 
 return JSONUtils;
  
