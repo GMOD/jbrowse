@@ -1,3 +1,13 @@
+define([ 'dojo/_base/declare',
+         'dojo/_base/array',
+	 'JBrowse/Browser', 
+         'JBrowse/Util',
+         'JBrowse/Model/SimpleFeature', 
+	 'WebApollo/JSONUtils', 
+	 'WebApollo/Store/SeqFeature/ScratchPad'
+       ],
+       function( declare, array, Browser, Util, SimpleFeature, JSONUtils, ScratchPad ) {
+
 // Created by Justin Reese 9/2012
 // justaddcoffee@gmail.com
 //
@@ -15,8 +25,8 @@
 function GFF3toJbrowseJson() {
 };
 
-GFF3toJbrowseJson.prototype.gff3toJbrowseJson = function(parsedGFF3)  {
-
+GFF3toJbrowseJson.prototype.gff3toJbrowseJson = function(parsedGFF3, params)  {
+    this.params = params;
     var trackInfo = {};
     trackInfo["intervals"] = {};
 
@@ -62,15 +72,17 @@ GFF3toJbrowseJson.prototype.gff3toJbrowseJson = function(parsedGFF3)  {
     if ( !parsedGFF3.parsedData.length ){
 	allGff3Features.push( jsonUtilObj.convertParsedGFF3JsonToFeatureArray( parsedGFF3 ) );
     } else { // >1 feature in parsedData, loop through and push each onto allGff3Features
-	for( k = 0; k < parsedGFF3.parsedData.length; k++ ){ 
-	    allGff3Features.push( jsonUtilObj.convertParsedGFF3JsonToFeatureArray( parsedGFF3.parsedData[k] ) );
-	}
+	for( var k = 0; k < parsedGFF3.parsedData.length; k++ ){ 
+	    var jbrowseFeat = jsonUtilObj.convertParsedGFF3JsonToFeatureArray( parsedGFF3.parsedData[k] );
+	    if (jbrowseFeat)  {
+		allGff3Features.push( jbrowseFeat );
+	    }
+   	}
     }
 
-    var args = {"foo": "bar"};
-    var sfnclist = new SeqFeatureStore.NCList( args );
-    sfnclist.loadFlatList( trackInfo, allGff3Features, "foo");
-
-    return sfnclist;
+    return { trackInfo:  trackInfo, featArray: allGff3Features }
 };
 
+return GFF3toJbrowseJson;
+
+} );
