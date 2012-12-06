@@ -5,6 +5,12 @@
  * Fixed a bug in the BigWig data backend that prevented some BigWig
    files with large numbers of reference sequences from displaying.
 
+ * Fixed a bug in the BigWig data backend that prevented BigWig files
+   rendering in Safari.
+
+ * Worked around a bug in Safari in which HTTP byte-range requests are
+   erroneously cached.
+
  * Fixed some minor styling bugs in the facet menus of the faceted
    track selector.
 
