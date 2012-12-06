@@ -147,7 +147,8 @@ SequenceTrack.extend(
             base.className = 'base base_'+seq[i].toLowerCase();
             base.style.width = charWidth;
             if( drawChars ) {
-                base.className = base.className+' big';
+                if( scale > charSize.w + 4 )
+                    base.className = base.className+' big';
                 base.innerHTML = seq[i];
             }
             container.appendChild(base);
