@@ -6,6 +6,8 @@ The rest of this file is aimed primarily at developers.
 
 # Setting up a development environment
 
+Make sure you have a web server installed on your development machine.  Any web server will do.
+
     cd /my/dev/webserver/root;
     git clone git@github.com:GMOD/jbrowse.git
     git submodule update --init
@@ -21,11 +23,11 @@ The rest of this file is aimed primarily at developers.
 Tests for the server-side Perl code.  You must have the JBrowse Perl
 module prerequisites installed for them to work.  Run with:
 
-    prove -lr t
+    prove -Isrc/perl5 -lr tests
 
 ## Client-side Unit Tests
 
-Point your browser at [tests/js_tests/index.html](tests/js_tests/index.html)
+Point your browser at http://my.dev.machine/jbrowse/tests/js_tests/index.html
 
 ## Client-side Integration Tests
 
@@ -33,10 +35,6 @@ Integration tests for the client-side app.  You need to have Python
 eggs for `selenium` and `nose` installed.  Run the tests with:
 
     JBROWSE_URL='http://localhost/jbrowse/index.html' nosetests
-
-It's actually possible to run most of the selenium tests without a web
-server using (`file://` URLs), but the tests of pre-compressed JSON
-data will fail.
 
 # Using the embedded JavaScript documentation
 
