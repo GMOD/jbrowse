@@ -237,7 +237,6 @@ Browser.prototype.initView = function() {
     //create location trapezoid
     if( this.config.show_nav ) {
         this.locationTrap = dojo.create('div', {className: 'locationTrap'}, topPane );
-        this.locationTrap.className = "locationTrap";
     }
 
     // hook up GenomeView
@@ -606,8 +605,8 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
               + "left: " + this.view.overviewBox.l + "px;"
               + "width: " + (trapRight - trapLeft) + "px;"
               + "border-bottom: " + this.view.locationTrapHeight + "px solid #A9C6EB;"
-              + "border-left: " + trapLeft + "px solid white;"
-              + "border-right: " + (this.view.overviewBox.w - trapRight) + "px solid white;"
+              + "border-left: " + trapLeft + "px solid transparent;"
+              + "border-right: " + (this.view.overviewBox.w - trapRight) + "px solid transparent;"
               + "border-top: 0px dotted;";
 
         this.locationTrap.style.cssText = locationTrapStyle;
@@ -1405,6 +1404,7 @@ Browser.prototype.createNavBox = function( parent ) {
             id: "location",
             name: "location",
             style: { width: locLength+'ex' },
+            style: { width: '25ex', height: '20px' },
             maxLength: 400,
             store: this._makeLocationAutocompleteStore(),
             searchAttr: "name"
