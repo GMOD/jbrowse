@@ -5,6 +5,9 @@
  * Fixed a bug in the BigWig data backend that prevented some BigWig
    files with large numbers of reference sequences from displaying.
 
+ * Fixed some minor styling bugs in the facet menus of the faceted
+   track selector.
+
 1.7.3     2012-11-28 23:29:48 America/New_York
 
  * Fixed several more bugs in the BAM data backend that prevented
