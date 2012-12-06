@@ -1,15 +1,19 @@
 {{$NEXT}}
 
- * Fixed a bug preventing loading of JBrowse in some browsers.
+ * Fixed a bug preventing loading of JBrowse in some browsers.  Thanks
+   to Steffi Geisen for pointing this out.
 
  * Fixed a bug in the BigWig data backend that prevented some BigWig
    files with large numbers of reference sequences from displaying.
+   Thanks to Gregg Helt for providing sample data to help isolate
+   this.
 
  * Fixed a bug in the BigWig data backend that prevented BigWig files
-   rendering in Safari.
+   rendering in Safari.  Thanks to Gregor Rot for his help in isolating this.
 
- * Worked around a bug in Safari in which HTTP byte-range requests are
-   erroneously cached.
+ * Worked around a bug in Safari 6 (and probably earlier) in which
+   HTTP byte-range requests are erroneously cached.  Thanks to Gregor
+   Rot for pointing out the Safari problems.
 
  * Fixed some minor styling bugs in the facet menus of the faceted
    track selector.
