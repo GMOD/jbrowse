@@ -17,7 +17,8 @@ define( [
             'JBrowse/GenomeView',
             'JBrowse/TouchScreenSupport',
             'JBrowse/ConfigManager',
-            'JBrowse/View/InfoDialog'
+            'JBrowse/View/InfoDialog',
+            'dojo/domReady!'
         ],
         function(
             lang,
