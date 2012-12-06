@@ -122,13 +122,8 @@ div.vertical_scrollbar .vertical_position_marker {
 
 div.locationTrap {
     position: absolute;
-    background-color: #A9C6EB;
-    border-color: white white #A9C6EB white;
-    border-style: solid;
-    width: 0px;
-    height: 0px;
-    line-height: 0px;
     z-index: -10;
+    height: 0;
 }
 
 div.locationThumb {
@@ -178,6 +173,7 @@ div.overview {
 
     color:#aaa;
     text-align: center;
+    font-size: 1.2em;
     cursor: crosshair;
 }
 

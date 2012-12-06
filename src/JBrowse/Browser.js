@@ -412,7 +412,6 @@ Browser.prototype.initView = function() {
     //create location trapezoid
     if( this.config.show_nav ) {
         this.locationTrap = dojo.create('div', {className: 'locationTrap'}, topPane );
-        this.locationTrap.className = "locationTrap";
     }
 
     // hook up GenomeView
@@ -881,13 +880,13 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
               + "left: " + trapLeft + "px;"
               + "width: " + (trapRight - trapLeft) + "px;"
               + "border-width: 0px"
-            : "top: " + this.view.overviewBox.t + "px;"
-              + "height: " + this.view.overviewBox.h + "px;"
+            : "top: " + this.view.overviewBox.h + "px;"
               + "left: " + this.view.overviewBox.l + "px;"
               + "width: " + (trapRight - trapLeft) + "px;"
-              + "border-width: " + "0px "
-              + (this.view.overviewBox.w - trapRight) + "px "
-              + this.view.locationTrapHeight + "px " + trapLeft + "px;";
+              + "border-bottom: " + this.view.locationTrapHeight + "px solid #A9C6EB;"
+              + "border-left: " + trapLeft + "px solid white;"
+              + "border-right: " + (this.view.overviewBox.w - trapRight) + "px solid white;"
+              + "border-top: 0px dotted;";
 
         this.locationTrap.style.cssText = locationTrapStyle;
     }
@@ -1542,7 +1541,7 @@ Browser.prototype.createNavBox = function( parent ) {
     var browserRoot = this.config.browserRoot ? this.config.browserRoot : "";
     navbox.id = "navbox";
     parent.appendChild(navbox);
-    navbox.style.cssText = "text-align: center; z-index: 10;";
+    navbox.style.cssText = "text-align: left; z-index: 10;";
 
     var four_nbsp = String.fromCharCode(160); four_nbsp = four_nbsp + four_nbsp + four_nbsp + four_nbsp;
     navbox.appendChild(document.createTextNode( four_nbsp ));
@@ -1640,7 +1639,7 @@ Browser.prototype.createNavBox = function( parent ) {
         {
             id: "location",
             name: "location",
-            style: { width: '25ex' },
+            style: { width: '25ex', height: '20px' },
             maxLength: 400,
             searchAttr: "name"
         },
