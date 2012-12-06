@@ -154,7 +154,7 @@ GFF3Parser.prototype.parse = function(gff3String) {
     var bigDataStruct = {
 	"parsedData" : [],
 	"parseErrors": [],
-	"parseWarnings": [],
+	"parseWarnings": []
     }; // parsed GFF3 in JSON format, to be returned
     
     var lines = gff3String.match(/^.*((\r\n|\n|\r)|$)/gm); // this is wasteful, maybe try to avoid storing split lines separately later
