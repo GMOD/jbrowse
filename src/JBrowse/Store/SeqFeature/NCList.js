@@ -26,6 +26,7 @@ var childrenfunc = function() { return this.get('subfeatures'); };
 return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 {
     constructor: function(args) {
+	this.args = args;
         this.nclist = this.makeNCList();
 
         this.baseUrl = args.baseUrl;
