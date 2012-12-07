@@ -716,14 +716,14 @@ a.dialog-new-window {
 
 .trackVerticalPositionIndicatorMain {
     position: fixed;
+    bottom: 0;
     display: none;
     cursor: crosshair;
     left: -2px;
-    height: 100%;
+    height: 200px;
     width: 1px;
     background-color: #FF0000;
     z-index: 15;
-    top: 0;
 }
 
 /* styles for per-base quality table in alignment detail pages */
