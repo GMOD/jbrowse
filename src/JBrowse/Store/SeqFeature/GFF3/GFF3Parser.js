@@ -100,15 +100,20 @@ GFF3Parser.prototype.parse = function(gff3String) {
 	   // search all parents
 	   for ( var k = 0; k < thisLine["data"][0]["attributes"]["Parent"].length; k++ ) {
 	       var thisParentId = thisLine["data"][0]["attributes"]["Parent"][k];	       
+	       if ( thisLine["ID"][0] == 'au9.g910.t3' ){
+		   console.log("j: " + j + " k: " + k );
+		   console.log("comparing "  + thisParentId + " with " + featureArrayToSearch[j]["ID"] );
+	       }
 	       if ( thisParentId == featureArrayToSearch[j]["ID"] ){
 		   featureArrayToSearch[j]["children"].push( thisLine );
 		   foundParents++;
 	       }
 	   }
 	   // paranoid about infinite recursion
-	   if ( recursion_level > maximum_recursion_level ){
-	       return false;
-	   }
+	   // if ( recursion_level > maximum_recursion_level ){
+	   // return false;
+	   // }
+
 	   // recurse if there there are children
 	   if ( featureArrayToSearch[j]["children"].length > 0 ){
 	       if ( placeChildrenWithParent(thisLine, featureArrayToSearch[j]["children"] )){
@@ -188,11 +193,13 @@ GFF3Parser.prototype.parse = function(gff3String) {
 	// check that we have enough fields
 	if(fields.length < 9 ){
 	    console.log("Number of fields < 9! Skipping this line:\n\t" + lines[i] + "\n");
+	    bigDataStruct["parseWarnings"].push( "Number of fields < 9! Skipping this line:\n\t" + lines[i] + "\n" );
 	    continue;
 	}
 	else {
 	    if (fields.length > 9 ){
 		console.log("Number of fields > 9!\n\t" + lines[i] + "\nI'll try to parse this line anyway.");
+		bigDataStruct["parseWarnings"].push( "Number of fields > 9!\n\t" + lines[i] + "\nI'll try to parse this line anyway." );
 	    }
 	}
 
@@ -232,6 +239,20 @@ GFF3Parser.prototype.parse = function(gff3String) {
 		    attributesKeyVal[key] = valArray;
 		}
 	    }
+	}
+
+	if ( fields[3] == '386168' && fields[4] == '453663' && fields[8] == 'ID=au9.g910;Name=au9.g910' ){
+	    console.log("here's the parent");
+	    var foo = 'bar';
+	}
+
+	if ( i == 66 ){
+	    var foo = 'bar';
+	}
+
+	if ( fields[3] == '386168' && fields[4] == '453663' && fields[8] == 'ID=au9.g910.t3;Name=au9.g910.t3;Parent=au9.g910' ){
+	    console.log("here's the child");
+	    var foo = 'bar';
 	}
 
 	if ( ! attributesKeyVal["ID"] ){
@@ -296,6 +317,10 @@ GFF3Parser.prototype.parse = function(gff3String) {
 	var thisID = hasParentIDs[k];
 	var thisLine = hasParent[thisID];
 
+	if ( thisID == 'au9.g910.t3' ){
+	    var foo = 'bar';
+	}
+
 	// is this a discontiguous feature that's already been "filed"? 
 	if ( seenIDs[thisID] > 1 && dealtWithIDs[thisID] > 0 ){ // yes
 	    placeDiscontiguousFeature(thisLine, bigDataStruct["parsedData"] );
@@ -304,7 +329,7 @@ GFF3Parser.prototype.parse = function(gff3String) {
 	    // put this child in the right children array, recursively, or put it on top level and mark it as an orphan
 	    if ( ! placeChildrenWithParent(thisLine, bigDataStruct["parsedData"] ) ){
 		bigDataStruct["parsedData"].push( thisLine );
-		bigDataStruct["parseWarnings"].push( thisID + "seems to be an orphan" );
+		bigDataStruct["parseWarnings"].push( thisID + " seems to be an orphan" );
 	    }
 	}
 
