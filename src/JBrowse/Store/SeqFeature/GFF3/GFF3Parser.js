@@ -63,6 +63,10 @@ and returns a JSON data structure like this:
 
 */
 
+define([],
+       function() {
+
+
 function GFF3Parser() {
 };
 
@@ -326,3 +330,7 @@ GFF3Parser.prototype.parse = function(gff3String) {
     }
     return bigDataStruct;
 };
+
+return GFF3Parser;
+
+});
