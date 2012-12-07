@@ -29,14 +29,7 @@ div.dragWindow {
 }
 
 div.locationTrap {
-    position: absolute;
-    background-color: #ccc;
-    border-color: white white #ccc white;
-    border-style: solid;
-    width: 0px;
-    height: 0px;
-    line-height: 0px;
-    z-index: -10;
+    border-bottom-color: #ccc;
 }
 
 /* This is the red rectangular outline that appears on the top scale bar */

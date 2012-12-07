@@ -1061,13 +1061,10 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
         var trapRight = Math.round((((endbp - this.view.ref.start) / length)
                                     * this.view.overviewBox.w) + this.view.overviewBox.l);
         dojo.style( this.locationTrap, {
-                        top: 0,
-                        left: 0,
                         width: (trapRight - trapLeft) + "px",
-                        borderBottom: this.view.locationTrapHeight + "px solid #A9C6EB",
-                        borderLeft: trapLeft + "px solid transparent",
-                        borderRight: (this.view.overviewBox.w - trapRight) + "px solid transparent",
-                        borderTop: "0px dotted"
+                        borderBottomWidth: this.view.locationTrapHeight + "px",
+                        borderLeftWidth: trapLeft + "px",
+                        borderRightWidth: (this.view.overviewBox.w - trapRight) + "px"
         });
     }
 };

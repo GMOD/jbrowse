@@ -122,6 +122,12 @@ div.locationTrap {
     position: absolute;
     z-index: -10;
     height: 0;
+    top: 0;
+    left: 0;
+    border-color: transparent;
+    border-style: solid;
+    border-bottom-color: #A9C6EB;
+    border-top: 0px dotted transparent;
 }
 
 div.locationThumb {
