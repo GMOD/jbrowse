@@ -1541,6 +1541,7 @@ Browser.prototype.createNavBox = function( parent ) {
     var browserRoot = this.config.browserRoot ? this.config.browserRoot : "";
     navbox.id = "navbox";
     parent.appendChild(navbox);
+    navbox.appendChild(document.createElement("div"));
     navbox.style.cssText = "text-align: left; z-index: 10;";
 
     var four_nbsp = String.fromCharCode(160); four_nbsp = four_nbsp + four_nbsp + four_nbsp + four_nbsp;
