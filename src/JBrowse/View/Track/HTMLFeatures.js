@@ -1003,8 +1003,8 @@ HTMLFeatures = declare( HTMLFeatures,
     // when all the blocks are hidden, we also should recalculate our
     // layout
     changed: function() {
-        this.inherited(arguments);
         this._clearLayout();
+        this.inherited(arguments);
     },
 
     _exportFormats: function() {
