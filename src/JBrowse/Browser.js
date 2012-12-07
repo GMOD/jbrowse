@@ -884,8 +884,8 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
               + "left: " + this.view.overviewBox.l + "px;"
               + "width: " + (trapRight - trapLeft) + "px;"
               + "border-bottom: " + this.view.locationTrapHeight + "px solid #A9C6EB;"
-              + "border-left: " + trapLeft + "px solid white;"
-              + "border-right: " + (this.view.overviewBox.w - trapRight) + "px solid white;"
+              + "border-left: " + trapLeft + "px solid transparent;"
+              + "border-right: " + (this.view.overviewBox.w - trapRight) + "px solid transparent;"
               + "border-top: 0px dotted;";
 
         this.locationTrap.style.cssText = locationTrapStyle;
