@@ -179,7 +179,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         var jfeat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
 			track.store.insert(jfeat);
                     }
-                    track.hideAll();
+                    // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
                     track.changed();
                     track.createAnnotationChangeListener();
 
@@ -280,7 +280,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                             console.log(response);
                                     }
                             }
-                            track.hideAll();
+                            // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
                             track.changed();
                             track.createAnnotationChangeListener();
                     }
@@ -589,7 +589,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                 }
                             });
                         console.log(subfeat);
-                        track.hideAll();
+                        // track.hideAll();   shouldn't need to call hideAll() before changed() anymore
                         track.changed();
                     }
                 } );

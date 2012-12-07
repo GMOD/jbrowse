@@ -121,7 +121,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     	                      else {
     	    	                  track.hide();
     	                      }
-    		              track.hideAll();
+    		              // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
     		              track.changed();
     	                  },
     	                  // The ERROR function will be called in an error case.
@@ -682,7 +682,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         		onClick: function(event) {
     		    thisObj.show_reverse_strand = ! thisObj.show_reverse_strand;
     		    thisObj.clearHighlightedBases();
-    		    thisObj.hideAll();
+    		    // thisObj.hideAll();  shouldn't need to call hideAll() before changed() anymore
     		    thisObj.changed();
         		    // thisObj.toggleReverseStrand();
         		}
@@ -694,7 +694,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         		onClick: function(event) {
     		    thisObj.show_protein_translation = ! thisObj.show_protein_translation;
     		    thisObj.clearHighlightedBases();
-    		    thisObj.hideAll();
+    		    // thisObj.hideAll();  shouldn't need to call hideAll() before changed() anymore
     		    thisObj.changed();
         		    // thisObj.toggleProteinTranslation();
         		}
@@ -871,7 +871,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         else {
     	    this.hide();
         }
-        track.hideAll();
+        // track.hideAll();   shouldn't need to call hideAll() before changed() anymore
         track.changed();
     },
 
@@ -894,7 +894,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         else {
     	    this.hide();
         }
-        track.hideAll();
+        // track.hideAll();   shouldn't need to call hideAll() before changed() anymore
         track.changed();
     },
 
