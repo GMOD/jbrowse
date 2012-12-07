@@ -40,8 +40,25 @@ return declare( JBPlugin,
                         browser.view.redrawTracks();
                     }
                 });
-
         browser.addGlobalMenuItem( 'options', cds_frame_toggle );
+
+        // register the WebApollo track types with the browser, so
+        // that the open-file dialog and other things will have them
+        // as options
+        browser.registerTrackType({
+            type:                 'WebApollo/View/Track/DraggableHTMLFeatures',
+            defaultForStoreTypes: [ 'JBrowse/Store/SeqFeature/NCList',
+                                    'JBrowse/Store/SeqFeature/BAM',
+                                    'JBrowse/Store/SeqFeature/GFF3'
+                                  ],
+            label: 'WebApollo Features'
+        });
+        browser.registerTrackType({
+            type:                 'WebApollo/View/Track/SequenceTrack',
+            defaultForStoreTypes: [ 'JBrowse/Store/Sequence/StaticChunked' ],
+            label: 'WebApollo Sequence'
+        });
+
     }
 });
 
