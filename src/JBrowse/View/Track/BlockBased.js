@@ -302,6 +302,10 @@ return declare( null,
         //this.div.style.backgroundColor = "#eee";
     },
 
+    /**
+     *   _changeCallback invoked here is passed in costructor, 
+     *         and typically is GenomeView.showVisibleBlocks()
+     */
     changed: function() {
         this.hideAll();
         if( this._changedCallback )

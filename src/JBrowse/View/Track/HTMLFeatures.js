@@ -1129,8 +1129,11 @@ HTMLFeatures = declare( HTMLFeatures,
         delete this.layout;
     },
 
-    // when all the blocks are hidden, we also should recalculate our
-    // layout
+    /**
+     *   indicates a change to this track has happened that may require a re-layout
+     *   clearing layout here, and relying on superclass BlockBased.changed() call and 
+     *   standard _changedCallback function passed in track constructor to trigger relayout
+     */
     changed: function() {
         this._clearLayout();
         this.inherited(arguments);
