@@ -437,11 +437,6 @@ Browser.prototype.initView = function() {
         var contentWidget =
             new dijitContentPane({region: "top"}, topPane);
 
-        //create location trapezoid
-        if( this.config.show_nav ) {
-            this.locationTrap = dojo.create('div', {className: 'locationTrap'}, topPane );
-        }
-
         // hook up GenomeView
         this.view = this.viewElem.view =
             new GenomeView(this, this.viewElem, 250, this.refSeq, 1/200 );
@@ -1065,22 +1060,15 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
                                    * this.view.overviewBox.w) + this.view.overviewBox.l);
         var trapRight = Math.round((((endbp - this.view.ref.start) / length)
                                     * this.view.overviewBox.w) + this.view.overviewBox.l);
-
-        var locationTrapStyle = dojo.isIE
-            ? "top: " + this.view.overviewBox.t + "px;"
-              + "height: " + this.view.overviewBox.h + "px;"
-              + "left: " + trapLeft + "px;"
-              + "width: " + (trapRight - trapLeft) + "px;"
-              + "border-width: 0px"
-            : "top: " + this.view.overviewBox.h + "px;"
-              + "left: " + this.view.overviewBox.l + "px;"
-              + "width: " + (trapRight - trapLeft) + "px;"
-              + "border-bottom: " + this.view.locationTrapHeight + "px solid #A9C6EB;"
-              + "border-left: " + trapLeft + "px solid transparent;"
-              + "border-right: " + (this.view.overviewBox.w - trapRight) + "px solid transparent;"
-              + "border-top: 0px dotted;";
-
-        this.locationTrap.style.cssText = locationTrapStyle;
+        dojo.style( this.locationTrap, {
+                        top: 0,
+                        left: 0,
+                        width: (trapRight - trapLeft) + "px",
+                        borderBottom: this.view.locationTrapHeight + "px solid #A9C6EB",
+                        borderLeft: trapLeft + "px solid transparent",
+                        borderRight: (this.view.overviewBox.w - trapRight) + "px solid transparent",
+                        borderTop: "0px dotted"
+        });
     }
 };
 
@@ -1734,11 +1722,11 @@ Browser.prototype.cookie = function() {
  */
 
 Browser.prototype.createNavBox = function( parent ) {
-    var navbox = document.createElement("div");
     var browserRoot = this.config.browserRoot ? this.config.browserRoot : "";
-    navbox.id = "navbox";
-    parent.appendChild(navbox);
-    navbox.style.cssText = "text-align: center; z-index: 10;";
+
+    var navbox = dojo.create( 'div', { id: 'navbox', style: { 'text-align': 'center' } }, parent );
+
+    this.locationTrap = dojo.create('div', {className: 'locationTrap'}, navbox );
 
     var four_nbsp = String.fromCharCode(160); four_nbsp = four_nbsp + four_nbsp + four_nbsp + four_nbsp;
     navbox.appendChild(document.createTextNode( four_nbsp ));
