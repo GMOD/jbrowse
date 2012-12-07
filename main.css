@@ -653,7 +653,6 @@ a.dialog-new-window {
 
 /* styles for popup feature detail dialogs from tracks */
 .feature-detail {
-    padding-top: 1em;
     width: 50em;
     color: #333;
 }
@@ -665,7 +664,9 @@ a.dialog-new-window {
 .feature-detail .fasta {
     clear: both;
     padding: 1em 1.5em;
+    margin: 0.2em 0;
     border: 1px solid #aaa;
+    background: transparent;
 }
 .feature-detail div.core {
     font-size: 110%;
@@ -674,8 +675,7 @@ a.dialog-new-window {
 }
 .feature-detail div.additional > h2 {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    margin: 0.2em 0 0.7em 0;
-    padding: 0.5em 0.5em 0.3em 0em;
+    margin: 1em 0 0.7em 0;
 }
 
 .detail .value {
@@ -685,15 +685,14 @@ a.dialog-new-window {
     font-family: sans-serif;
 }
 .detail .field {
-    margin-top: 0;
-    margin-bottom: 0.3em;
+    margin: 0;
     display: inline-block;
-    min-width: 8em;
+    min-width: 90px;
     vertical-align: top;
 }
 
 .detail .field_container {
-    padding: 0 4em 0.3em 1em;
+    padding: 0 4em 0 1em;
 }
 
 .sharePane input {
