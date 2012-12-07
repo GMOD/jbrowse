@@ -472,6 +472,73 @@ Browser.prototype.initView = function() {
     });
 };
 
+
+/**
+ * Track type registry, used by GUI elements that need to offer
+ * options regarding selecting track types.  Can register a track
+ * type, and get the data structure describing what track types are
+ * known.
+ */
+Browser.prototype.registerTrackType = function( args ) {
+
+    var types = this.getTrackTypes();
+    var typeName   = args.type;
+    var defaultFor = args.defaultForStoreTypes || [];
+    var humanLabel = args.label;
+
+    // add it to known track types
+    types.knownTrackTypes.push( typeName );
+
+    // add its label
+    if( args.label )
+        types.trackTypeLabels[typeName] = args.label;
+
+    // uniqify knownTrackTypes
+    var seen = {};
+    types.knownTrackTypes = array.filter( types.knownTrackTypes, function( type ) {
+        var s = seen[type];
+        seen[type] = true;
+        return !s;
+    });
+
+    // set it as default for the indicated types, if any
+    array.forEach( defaultFor, function( storeName ) {
+        types.trackTypeDefaults[storeName] = typeName;
+    });
+
+    // store the whole structure in this object
+    this._knownTrackTypes = types;
+};
+Browser.prototype.getTrackTypes = function() {
+    // create the default types if necessary
+    if( ! this._knownTrackTypes )
+        this._knownTrackTypes = {
+            // map of store type -> default track type to use for the store
+            trackTypeDefaults: {
+                'JBrowse/Store/SeqFeature/BAM'        : 'JBrowse/View/Track/Alignments',
+                'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/HTMLFeatures',
+                'JBrowse/Store/SeqFeature/BigWig'     : 'JBrowse/View/Track/Wiggle/XYPlot',
+                'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence'
+            },
+
+            knownTrackTypes: [
+                'JBrowse/View/Track/Alignments',
+                'JBrowse/View/Track/FeatureCoverage',
+                'JBrowse/View/Track/HTMLFeatures',
+                'JBrowse/View/Track/Wiggle/XYPlot',
+                'JBrowse/View/Track/Wiggle/Density',
+                'JBrowse/View/Track/Sequence'
+            ],
+
+            trackTypeLabels: {
+            }
+        };
+
+    return this._knownTrackTypes;
+};
+
+
+
 Browser.prototype.openFileDialog = function() {
     new FileDialog({ browser: this })
         .show({

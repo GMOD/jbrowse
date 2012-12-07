@@ -221,7 +221,7 @@ return declare( null, {
         return rl;
     },
     _makeTrackListControl: function() {
-        var tl = new TrackList({});
+        var tl = new TrackList({ browser: this.browser });
         this.trackList = tl;
         return tl;
     }
