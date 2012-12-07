@@ -28,10 +28,9 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             if( args.config.url ) {
                 var url = Util.resolveUrl( args.baseUrl || window.location.href, args.config.url );
                 var handleError = function(e) {
-                    var str = ''+e+' when loading '+url;
-                    console.error( str, e.stack, e );
+                    e.url = url;
                     if( args.onFailure )
-                        args.onFailure.call( args.context || this, str );
+                        args.onFailure.call( args.context || this, e );
                 };
                 dojo.xhrGet({
                                 url: url,
