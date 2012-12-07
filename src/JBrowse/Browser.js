@@ -329,7 +329,7 @@ Browser.prototype._loadCSS = function( css, successCallback, errorCallback ) {
             }
         }
         if( typeof css == 'object' ) {
-            dojo.create('link', { "data-from": 'JBrowse Config', rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
+            var link = dojo.create('link', { "data-from": 'JBrowse Config', rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
             successCallback && on( link, 'load', successCallback );
             errorCallback   && on( link, 'error', errorCallback );
         }
