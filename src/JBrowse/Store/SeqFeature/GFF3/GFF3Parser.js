@@ -241,20 +241,6 @@ GFF3Parser.prototype.parse = function(gff3String) {
 	    }
 	}
 
-	if ( fields[3] == '386168' && fields[4] == '453663' && fields[8] == 'ID=au9.g910;Name=au9.g910' ){
-	    console.log("here's the parent");
-	    var foo = 'bar';
-	}
-
-	if ( i == 66 ){
-	    var foo = 'bar';
-	}
-
-	if ( fields[3] == '386168' && fields[4] == '453663' && fields[8] == 'ID=au9.g910.t3;Name=au9.g910.t3;Parent=au9.g910' ){
-	    console.log("here's the child");
-	    var foo = 'bar';
-	}
-
 	if ( ! attributesKeyVal["ID"] ){
 	    attributesKeyVal["ID"] = [];
 	    attributesKeyVal["ID"][0] = "parser_autogen_id_" + i;
@@ -316,10 +302,6 @@ GFF3Parser.prototype.parse = function(gff3String) {
     for (var k = 0; k < hasParentIDs.length; k++) {
 	var thisID = hasParentIDs[k];
 	var thisLine = hasParent[thisID];
-
-	if ( thisID == 'au9.g910.t3' ){
-	    var foo = 'bar';
-	}
 
 	// is this a discontiguous feature that's already been "filed"? 
 	if ( seenIDs[thisID] > 1 && dealtWithIDs[thisID] > 0 ){ // yes
