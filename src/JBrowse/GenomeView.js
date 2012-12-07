@@ -2010,6 +2010,10 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     // parallel and have whichever one completes last do the actual
     // track making.
 
+    if( ! trackConfig.store )
+        console.warn("configuration for track "+trackConfig.label+" has no store set", trackConfig );
+
+
     // get the store
     this.browser.getStore( trackConfig.store, function( s ) {
             store = s;

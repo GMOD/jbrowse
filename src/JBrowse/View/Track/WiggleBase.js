@@ -33,10 +33,16 @@ Wiggle.extend({
 
             //calculate the scaling if necessary
             var statsFingerprint = Digest.objectFingerprint( stats );
-            if( ! this.lastScaling || this.lastScaling._statsFingerprint != statsFingerprint )
-                this.lastScaling = this._calculateScaling( stats );
-
-            successCallback( this.lastScaling );
+            if( ! this.lastScaling || this.lastScaling._statsFingerprint != statsFingerprint ) {
+                try {
+                    this.lastScaling = this._calculateScaling( stats );
+                    successCallback( this.lastScaling );
+                } catch( e ) {
+                    errorCallback(e);
+                }
+            } else {
+                successCallback( this.lastScaling );
+            }
 
         }), errorCallback );
     },
@@ -228,7 +234,12 @@ Wiggle.extend({
                             }
                     }
                 }));
-        }));
+        }),
+        dojo.hitch( this, function(e) {
+                        this.error = e;
+                        this.fillError( blockIndex, block );
+                    })
+        );
     },
 
     /**
