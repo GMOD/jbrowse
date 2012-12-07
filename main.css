@@ -617,8 +617,11 @@ div.error .codecaption {
 }
 div.error code {
     display: block;
-    padding: 1.2em;
+    font-size: 10px;
+    padding: 0.4em 1.2em;
     margin: 0 0.3em 0.3em 0.3em;
+    overflow: auto;
+    max-height: 6em;
 }
 div.message {
     background: #eee;
