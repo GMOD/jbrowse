@@ -1404,7 +1404,6 @@ Browser.prototype.createNavBox = function( parent ) {
             id: "location",
             name: "location",
             style: { width: locLength+'ex' },
-            style: { width: '25ex', height: '20px' },
             maxLength: 400,
             store: this._makeLocationAutocompleteStore(),
             searchAttr: "name"
