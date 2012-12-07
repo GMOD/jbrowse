@@ -174,10 +174,24 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
 JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
 
     var afeature = new Object();
+    var astrand;
+    // Apollo feature strand must be an integer
+    //     either 1 (plus strand), -1 (minus strand), or 0? (not stranded or strand is unknown?)
+    switch (jfeature.get('strand')) {  // strand
+    case 1:
+    case '+':
+	astrand = 1; break;
+    case -1:
+    case '-':
+	astrand = -1; break;
+    default:
+	astrand = 0; // either not stranded or strand is uknown
+    }
+    
     afeature.location = {
 	"fmin": jfeature.get('start'),
 	"fmax": jfeature.get('end'),
-	"strand": jfeature.get('strand')
+	"strand": astrand
     };
 
     var typename;
