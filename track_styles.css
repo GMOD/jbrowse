@@ -1,4 +1,4 @@
-/** NOTE: avoid using any margins in feature styles */
+/** NOTE: avoid using any margins in feature styles. Layout is done by JBrowse. */
 
 .basic,
 .plus-basic,
@@ -36,7 +36,7 @@ div.hist {
 .minus-subfeature {
     position:absolute;
     background-color: slategray;
-    height: 8px;
+    height: 9px;
     min-width: 1px;
     z-index: 10;
 }
@@ -93,16 +93,14 @@ div.feature-hist {
 
 .feature2, .plus-feature2, .minus-feature2 {
     position:absolute;
-    height: 14px;
+    height: 7px;
     background-repeat: repeat-x;
     cursor: pointer;
     min-width: 1px;
     z-index: 10;
 }
 
-.feature2 { background-color: #4fac2a; }
-.plus-feature2 { background-image: url('img/plus-herringbone16.png'); }
-.minus-feature2 { background-image: url('img/minus-herringbone16.png'); }
+.feature2 { background-color: #62d335; }
 
 div.feature2-hist {
     background-color: #9f9;
