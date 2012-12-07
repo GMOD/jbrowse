@@ -3,7 +3,8 @@ define( [
             'dojox/charting/Chart',
             'dojox/charting/axis2d/Default',
             'dojox/charting/plot2d/Bubble',
-            'dojo/NodeList-dom'
+            'dojo/NodeList-dom',
+            'dojo/number'
         ],
         function( query, Chart ) {
 /**

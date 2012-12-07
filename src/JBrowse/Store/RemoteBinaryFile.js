@@ -1,10 +1,11 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/has',
            'JBrowse/Store/LRUCache',
            'jszlib/arrayCopy'
        ],
-       function( declare, array, LRUCache, arrayCopy ) {
+       function( declare, array, has, LRUCache, arrayCopy ) {
 
 // contains chunks of files, stitches them together if necessary, wraps, and returns them
 // to satisfy requests
@@ -190,7 +191,11 @@ return declare( null,
 
         var req = new XMLHttpRequest();
         var length;
-        req.open('GET', request.url, true);
+        var url = request.url;
+        if( has('safari') ) {
+            url = url + ( url.indexOf('?') > -1 ? '&' : '?' ) + 'safari_cache_bug=' + Date.now();
+        }
+        req.open('GET', url, true );
         if( req.overrideMimeType )
             req.overrideMimeType('text/plain; charset=x-user-defined');
         if (request.end) {

@@ -24,7 +24,8 @@ define( [
             'JBrowse/TouchScreenSupport',
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
-            'JBrowse/View/FileDialog'
+            'JBrowse/View/FileDialog',
+            'dojo/domReady!'
         ],
         function(
             lang,
@@ -317,10 +318,18 @@ Browser.prototype.loadUserCSS = function() {
 
 Browser.prototype._loadCSS = function( css, successCallback, errorCallback ) {
         if( typeof css == 'string' ) {
-            dojo.create('style', { type: 'text/css', innerHTML: css }, this.container );
-            successCallback && successCallback();
-        } else if( typeof css == 'object' ) {
-            var link = dojo.create('link', { rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
+            // if it has '{' in it, it probably is not a URL, but is a string of CSS statements
+            if( css.indexOf('{') > -1 ) {
+                    dojo.create('style', { "data-from": 'JBrowse Config', type: 'text/css', innerHTML: css }, document.head );
+                    successCallback && successCallback();
+            }
+            // otherwise, it must be a URL
+            else {
+                css = { url: css };
+            }
+        }
+        if( typeof css == 'object' ) {
+            dojo.create('link', { "data-from": 'JBrowse Config', rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
             successCallback && on( link, 'load', successCallback );
             errorCallback   && on( link, 'error', errorCallback );
         }
@@ -1064,13 +1073,13 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
               + "left: " + trapLeft + "px;"
               + "width: " + (trapRight - trapLeft) + "px;"
               + "border-width: 0px"
-            : "top: " + this.view.overviewBox.t + "px;"
-              + "height: " + this.view.overviewBox.h + "px;"
+            : "top: " + this.view.overviewBox.h + "px;"
               + "left: " + this.view.overviewBox.l + "px;"
               + "width: " + (trapRight - trapLeft) + "px;"
-              + "border-width: " + "0px "
-              + (this.view.overviewBox.w - trapRight) + "px "
-              + this.view.locationTrapHeight + "px " + trapLeft + "px;";
+              + "border-bottom: " + this.view.locationTrapHeight + "px solid #A9C6EB;"
+              + "border-left: " + trapLeft + "px solid white;"
+              + "border-right: " + (this.view.overviewBox.w - trapRight) + "px solid white;"
+              + "border-top: 0px dotted;";
 
         this.locationTrap.style.cssText = locationTrapStyle;
     }
