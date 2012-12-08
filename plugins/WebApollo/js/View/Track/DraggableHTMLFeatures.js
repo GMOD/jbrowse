@@ -42,6 +42,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
             {
                 style: {
                     // renderClassName: 'DraggableFeatureTrack'  ???
+		    // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn, 
+		    minSubfeatureWidth: 1, 
+		    alwaysDrawArrow: true  // always draw feature arrows if feature is drawn
                 },
                 events: {
 		    // need to map click to a null-op, to override default JBrowse click behavior for click on features 
@@ -71,6 +74,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
         this.browser.getPlugin( 'WebApollo', dojo.hitch( this, function(p) {
             this.webapollo = p;
         }));
+
+	// if calculated feature pixel width would be less than minFeatWidth, then set width to minFeatWidth instead
+	// setting to 0.1 avoids problem with small feature divs getting expanded during zoom in, then shrinking back to 
+	// scale-appropriate size at end of zoom
+	this.minFeatWidth = 0.1;
 
         // DraggableFeatureTracks all share the same FeatureSelectionManager
         //    if want subclasses to have different selection manager,
