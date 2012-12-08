@@ -58,6 +58,9 @@ var HTMLFeatures = declare( BlockBased, {
         this.levelHeightPad = 2;
         this.labelPad = 1;
 
+	// if calculated feature pixel width would be less than minFeatWidth, then set width to minFeatWidth instead
+	this.minFeatWidth = 1;  
+
         this.trackPadding = args.trackPadding;
 
         this.heightCache = {}; // cache for the heights of some
@@ -888,7 +891,7 @@ HTMLFeatures = declare( HTMLFeatures,
         var displayStart = Math.max( featureStart, containerStart );
         var displayEnd = Math.min( featureEnd, containerEnd );
         var blockWidth = block.endBase - block.startBase;
-        var featwidth = Math.max( 1, (100 * ((displayEnd - displayStart) / blockWidth)));
+        var featwidth = Math.max( this.minFeatWidth, (100 * ((displayEnd - displayStart) / blockWidth)));
         featDiv.style.cssText =
             "left:" + (100 * (displayStart - block.startBase) / blockWidth) + "%;"
             + "top:" + top + "px;"
