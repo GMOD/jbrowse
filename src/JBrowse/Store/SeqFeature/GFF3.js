@@ -213,7 +213,7 @@ return declare([ NCListStore ],
         // now set parent info
         //
         var rawdata = thisParent.data[0].rawdata;
-        featureArray[1] = parseInt(rawdata[3]); // set start
+        featureArray[1] = parseInt(rawdata[3])-1; // set start (-1 for converting from 1-based to 0-based)
         featureArray[2] = parseInt(rawdata[4]); // set end
         featureArray[3] = rawdata[6]; // set strand
         featureArray[4] = rawdata[1]; // set source
@@ -240,7 +240,7 @@ return declare([ NCListStore ],
                 var subfeat = [];
 
                 subfeat[0] = 1; // ?
-                subfeat[1] = parseInt(childData[3]); // start
+                subfeat[1] = parseInt(childData[3])-1; // start  (-1 for converting from 1-based to 0-based)
                 subfeat[2] = parseInt(childData[4]); // end
                 subfeat[3] = childData[6]; // strand
                 subfeat[4] = childData[1]; // source
