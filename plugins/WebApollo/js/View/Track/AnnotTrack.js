@@ -129,6 +129,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	var thisConfig = this.inherited(arguments);
 	// nulling out menuTemplate to suppress default JBrowse feature contextual menu
 	thisConfig.menuTemplate = null;
+	thisConfig.style.centerFeatureChildren = false;
 	return thisConfig;
 	/*  start of alternative to nulling out JBrowse feature contextual menu, instead attempt to merge in AnnotTrack-specific menu items
 	var superConfig = this.inherited(arguments);
@@ -306,7 +307,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 		}
 		// server timeout
 		else if (ioArgs.xhr.status == 504){
+		    console.log("received server timeoout");
 			track.createAnnotationChangeListener();
+		    console.log("created new AnnotationChangeListener");
+		    // fiddling with supressing dojo.xhrGet internal Deferred stuff 
+		    //    firing errors
+		    // setting error.log = false may override...
+		    response.log = false;
 			return;
 		}
 		// actual error
