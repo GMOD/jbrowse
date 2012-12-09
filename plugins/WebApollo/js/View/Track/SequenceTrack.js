@@ -205,7 +205,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
      */
     _measureSequenceCharacterSize: function( containerElement ) {
         var widthTest = document.createElement("div");
-        widthTest.className = "sequence";
+        widthTest.className = "wa-sequence";
         widthTest.style.visibility = "hidden";
         var widthText = "12345678901234567890123456789012345678901234567890";
         widthTest.appendChild(document.createTextNode(widthText));
