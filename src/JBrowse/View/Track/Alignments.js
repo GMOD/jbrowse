@@ -1,11 +1,13 @@
 define( ['dojo/_base/declare',
          'dojo/_base/array',
          'JBrowse/Util',
-         'JBrowse/View/Track/HTMLFeatures'
+         'JBrowse/View/Track/HTMLFeatures', 
+	 'plugins/WebApollo/js/View/Track/DraggableHTMLFeatures', 
         ],
-        function( declare, array, Util, HTMLFeatures ) {
+        function( declare, array, Util, HTMLFeatures, DraggableHTMLFeatures ) {
 
-return declare( HTMLFeatures,
+// return declare( HTMLFeatures,
+return declare( DraggableHTMLFeatures,
 /**
  * @lends JBrowse.View.Track.Alignments
  */
@@ -21,7 +23,10 @@ return declare( HTMLFeatures,
                 style: {
                     _defaultLabelScale: 50,
                     className: 'alignment',
-                    arrowheadClass: 'arrowhead'
+                    arrowheadClass: 'arrowhead', 
+		    centerFeatureChildren: false, 
+		    renderMismatches: true, 
+		    renderSubfeatures: false
                 }
             }
         );
@@ -33,7 +38,9 @@ return declare( HTMLFeatures,
 
         var displayStart = Math.max( feature.get('start'), containerStart );
         var displayEnd = Math.min( feature.get('end'), containerEnd );
-        this._drawMismatches( feature, featDiv, scale, displayStart, displayEnd );
+	if (this.config.style.renderMismatches)  { 
+	    this._drawMismatches( feature, featDiv, scale, displayStart, displayEnd ); 
+	}
 
         // if this feature is part of a multi-segment read, and not
         // all of its segments are aligned, add missing_mate to its
@@ -44,6 +51,13 @@ return declare( HTMLFeatures,
         return featDiv;
     },
 
+
+    handleSubFeatures: function( feature, featDiv,
+                                 displayStart, displayEnd, block )  {
+	if (this.config.style.renderSubfeatures)  {
+	    this.inherited(arguments);
+	}
+    }, 
 
     /**
      * draw base-mismatches on the feature
@@ -178,7 +192,7 @@ return declare( HTMLFeatures,
     },
 
     // stub out subfeature rendering, this track doesn't render subfeatures
-    renderSubfeature: function() {},
+//    renderSubfeature: function() {},
 
     /**
      * @returns {Object} containing <code>h</code> and <code>w</code>,
