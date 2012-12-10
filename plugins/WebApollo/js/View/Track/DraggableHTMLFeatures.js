@@ -85,7 +85,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // DraggableFeatureTracks all share the same FeatureSelectionManager
         //    if want subclasses to have different selection manager,
         //    call this.setSelectionManager in subclass (after calling parent constructor)
-        this.setSelectionManager( draggableTrack.selectionManager );
+	this.setSelectionManager( this.webapollo.featSelectionManager );
 
         // CSS class for selected features
         // override if want subclass to have different CSS class for selected features
@@ -348,6 +348,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
     /**
      * Vertically centers all the child elements of a feature div.
+     * Overrides HTMLFeatures._centerFeatureElements() -- possibly port into superclass at some point?
      * @private
      */
     _centerFeatureElements: function( /**HTMLElement*/ featDiv ) {
@@ -1112,9 +1113,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
     }
 
 });
-
-    // selectionManager is class variable (shared across all DraggableFeatureTrack objects)
-    draggableTrack.selectionManager = new FeatureSelectionManager();
 
 	    return draggableTrack;
 });

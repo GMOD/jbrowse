@@ -14,9 +14,10 @@ define(
            'dojo/_base/declare',
            'dijit/CheckedMenuItem',
            'JBrowse/Plugin',
-           './FeatureEdgeMatchManager'
+           './FeatureEdgeMatchManager', 
+	   './FeatureSelectionManager'
        ],
-       function( declare, dijitCheckedMenuItem, JBPlugin, FeatureEdgeMatchManager ) {
+    function( declare, dijitCheckedMenuItem, JBPlugin, FeatureEdgeMatchManager, FeatureSelectionManager ) {
 
 return declare( JBPlugin,
 {
@@ -29,6 +30,19 @@ return declare( JBPlugin,
 
         // hand the browser object to the feature edge match manager
         FeatureEdgeMatchManager.setBrowser( browser );
+	
+	this.featSelectionManager = new FeatureSelectionManager();
+	this.annotSelectionManager = new FeatureSelectionManager();
+
+	// setting up selection exclusiveOr --
+	//    if selection is made in annot track, any selection in other tracks is deselected, and vice versa,
+	//    regardless of multi-select mode etc.
+	this.annotSelectionManager.addMutualExclusion(this.featSelectionManager);
+	this.featSelectionManager.addMutualExclusion(this.annotSelectionManager);
+
+	FeatureEdgeMatchManager.addSelectionManager(this.featSelectionManager);
+	FeatureEdgeMatchManager.addSelectionManager(this.annotSelectionManager);
+
 
         // add a global menu option for setting CDS color
         var cds_frame_toggle = new dijitCheckedMenuItem(

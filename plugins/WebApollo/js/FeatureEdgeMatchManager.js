@@ -6,33 +6,36 @@
         function( declare, $, DraggableFeatureTrack, AnnotTrack ) {
 
 var FeatureEdgeMatchManager = declare( null,
+				       
 {
+
     constructor: function() {
-        // console.log("FeatureEdgeMatchManager constructor called");
-        this.featSelectionManager = DraggableFeatureTrack.selectionManager;
-        this.annotSelectionManager = AnnotTrack.selectionManager;
-        this.featSelectionManager.addListener(this);
-        this.annotSelectionManager.addListener(this);
+	this.SHOW_EDGE_MATCHES = true,
+	this.selection_managers = [];
+	this.unmatchableTypes = {};
+
         this.verbose_edges = false;
-        this.unmatchableTypes = this.featSelectionManager.unselectableTypes;
         this.unedgeableTypes = { "wholeCDS" : true };
     },
 
-    SHOW_EDGE_MATCHES: true,
+    addSelectionManager: function( manager )  {
+	if ( dojo.indexOf( this.selection_managers, manager ) < 0 ) {
+	    this.selection_managers.push( manager );
+	    manager.addListener(this);
+	    dojo.mixin( this.unmatchableTypes, manager.unselectableTypes );
+	}
+
+    }, 
 
     setBrowser: function( browser ) {
         browser.subscribe('/jbrowse/v1/n/tracks/redraw', dojo.hitch( this, function() {
-            var selected = this.featSelectionManager;
-            var annot_selected = this.annotSelectionManager;
             this.selectionCleared();
-            //    for (var i in selected)  {
-            for (var i = 0; i < selected.length; ++i) {
+	    for (var k=0; k < this.selection_managers.length; k++)  {
+		var selected = this.selection_managers[k].getSelection();    
+		for (var i = 0; i < selected.length; ++i) {
         	    this.selectionAdded(selected[i]);
-            }
-            //    for (var i in annot_selected)   {
-            for (var i = 0; i < annot_selected.length; ++i) {
-        	    this.selectionAdded(annot_selected[i]);
-            }
+		}
+	    }
         }));
     },
 
@@ -47,18 +50,13 @@ var FeatureEdgeMatchManager = declare( null,
         if( this.SHOW_EDGE_MATCHES )  {
             $(".left-edge-match").removeClass("left-edge-match");
             $(".right-edge-match").removeClass("right-edge-match");
-            var fselected = this.featSelectionManager.getSelection();
-            for (var i = 0; i < fselected.length; ++i) {
-                //      for (var i in fselected)  {
-                var selfeat = fselected[i];
-                this.selectionAdded(selfeat);
-            }
-            var aselected = this.annotSelectionManager.getSelection();
-            //  for (var i in aselected)  {
-            for (var i = 0; i < aselected.length; ++i) {
-                var selannot = aselected[i];
-                this.selectionAdded(selannot);
-            }
+	    for (var k=0; k < this.selection_managers.length; k++)  {
+		var selected = this.selection_managers[k].getSelection();
+		for (var i = 0; i < selected.length; ++i) {
+		    var selection_record = selected[i];
+		    this.selectionAdded(selection_record);
+		}
+	    }
         }
     },
 
@@ -106,11 +104,7 @@ var FeatureEdgeMatchManager = declare( null,
 
         var ftracks = $("div.track").each( function(index, trackdiv)  {
             var target_track = trackdiv.track;
-    // TEMPORARY FIX for error when dragging track into main view --
-    //     if something selected, edge matching attempted on new track, which throws an error:
-    //             "target_subfields is undefined"
-    //             at "var tmindex = target_subfields["start"];" line below
-    //     error possibly due to track's trackData not yet being fully loaded, so check track load fiel
+	    // only DraggableHTMLFeatures and descendants should have track.edge_matchin_enabled
             if (target_track && target_track.store && target_track.edge_matching_enabled)  {
                 if (verbose_edges)  {
                     console.log("edge matching for: " + target_track.name);

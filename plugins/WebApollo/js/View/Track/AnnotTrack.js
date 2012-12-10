@@ -63,11 +63,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         //                baseUrl: base URL for the URL in trackMeta
         this.has_custom_context_menu = true;
 
-        // this.selectionManager = this.setSelectionManager(new FeatureSelectionManager());
-        // this.selectionManager = this.setSelectionManager(DraggableFeatureTrack.selectionManager);
-        this.selectionManager = this.setSelectionManager( AnnotTrack.selectionManager );
-        //    this.selectionManager.setClearOnAdd(new Array(DraggableFeatureTrack.selectionManager));
-        //    DraggableFeatureTrack.selectionManager.setClearOnAdd(new Array(this.selectionManager)); 
+	this.selectionManager = this.setSelectionManager( this.webapollo.annotSelectionManager );
 
         this.selectionClass = "selected-annotation";
         this.annot_under_mouse = null;
@@ -740,7 +736,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 // "this" is the div being dropped on, so same as target_trackdiv
                 if (target_track.verbose_drop)  { console.log("draggable deactivated"); }
 
-                var dropped_feats = DraggableFeatureTrack.selectionManager.getSelection();
+		var dropped_feats = target_track.webapollo.featSelectionManager.getSelection();
                 // problem with making individual annotations droppable, so checking for "drop" on annotation here,
                 //    and if so re-routing to add to existing annotation
                 if (target_track.annot_under_mouse != null)  {
@@ -2912,13 +2908,6 @@ AnnotTrack.getTopLevelAnnotation = function(annotation) {
     }
     return annotation;
 }
-
-// setting up selection exclusiveOr --
-//    if selection is made in annot track, any selection in other tracks is deselected, and vice versa,
-//    regardless of multi-select mode etc.
-AnnotTrack.selectionManager = new FeatureSelectionManager();
-AnnotTrack.selectionManager.addMutualExclusion( DraggableFeatureTrack.selectionManager );
-DraggableFeatureTrack.selectionManager.addMutualExclusion( AnnotTrack.selectionManager );
 
 return AnnotTrack;
 });
