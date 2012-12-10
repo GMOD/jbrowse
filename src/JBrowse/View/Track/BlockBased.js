@@ -302,6 +302,10 @@ return declare( null,
         //this.div.style.backgroundColor = "#eee";
     },
 
+    /**
+     *   _changeCallback invoked here is passed in costructor, 
+     *         and typically is GenomeView.showVisibleBlocks()
+     */
     changed: function() {
         this.hideAll();
         if( this._changedCallback )
@@ -362,7 +366,21 @@ return declare( null,
                     containerStart,
                     containerEnd];
 
-        this.fillBlock.apply( this, args );
+        this.fillBlock({
+            blockIndex: blockIndex,
+            block:      blockDiv,
+            leftBlock:  this.blocks[blockIndex - 1],
+            rightBlock: this.blocks[blockIndex + 1],
+            leftBase:   startBase,
+            rightBase:  endBase,
+            scale:      scale,
+            stripeWidth:    this.widthPx,
+            containerStart: containerStart,
+            containerEnd:   containerEnd,
+            finishCallback: function() {
+                blockDiv.removeChild( loadMessage );
+            }
+        });
     },
 
     moveBlocks: function(delta) {

@@ -33,10 +33,16 @@ Wiggle.extend({
 
             //calculate the scaling if necessary
             var statsFingerprint = Digest.objectFingerprint( stats );
-            if( ! this.lastScaling || this.lastScaling._statsFingerprint != statsFingerprint )
-                this.lastScaling = this._calculateScaling( stats );
-
-            successCallback( this.lastScaling );
+            if( ! this.lastScaling || this.lastScaling._statsFingerprint != statsFingerprint ) {
+                try {
+                    this.lastScaling = this._calculateScaling( stats );
+                    successCallback( this.lastScaling );
+                } catch( e ) {
+                    errorCallback(e);
+                }
+            } else {
+                successCallback( this.lastScaling );
+            }
 
         }), errorCallback );
     },
@@ -162,11 +168,12 @@ Wiggle.extend({
         this.store.getRegionStats( region, successCallback, errorCallback );
     },
 
-    fillBlock: function( blockIndex,     block,
-                         leftBlock,      rightBlock,
-                         leftBase,       rightBase,
-                         scale,          stripeWidth,
-                         containerStart, containerEnd) {
+    fillBlock: function( args ) {
+        var blockIndex = args.blockIndex;
+        var block = args.block;
+        var leftBase = args.leftBase;
+        var rightBase = args.rightBase;
+        var scale = args.scale;
 
         var blockWidth = rightBase - leftBase;
         var canvasWidth  = Math.ceil(( rightBase - leftBase ) * scale);
@@ -228,7 +235,12 @@ Wiggle.extend({
                             }
                     }
                 }));
-        }));
+        }),
+        dojo.hitch( this, function(e) {
+                        this.error = e;
+                        this.fillError( blockIndex, block );
+                    })
+        );
     },
 
     /**

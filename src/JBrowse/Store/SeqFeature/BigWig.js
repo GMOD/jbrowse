@@ -123,7 +123,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
             // parse the totalSummary if present (summary of all data in the file)
             if( bwg.totalSummaryOffset ) {
-                if( typeof Float64Array == 'function' ) {
+                if( Float64Array ) {
                     (function() {
                         var ua = new Uint32Array( header, bwg.totalSummaryOffset, 2 );
                         var da = new Float64Array( header, bwg.totalSummaryOffset+8, 4 );

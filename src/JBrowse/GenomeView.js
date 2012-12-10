@@ -56,7 +56,6 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     var charSize = this.getSequenceCharacterSize();
     this.charWidth = charSize.width;
     this.seqHeight = charSize.height;
-    this.colorCdsByFrame = false;
 
     this.posHeight = this.calculatePositionLabelHeight( elem );
     // Add an arbitrary 50% padding between the position labels and the
@@ -1156,6 +1155,9 @@ GenomeView.prototype.drawVerticalPositionLine = function( parent, evt){
     var line = this.verticalPositionLine;
     line.style.display = 'block';      //make line visible
     line.style.left = numX+'px'; //set location on screen
+    var scaleTrackPos = dojo.position( this.scaleTrackDiv );
+    line.style.top =  scaleTrackPos.y + 'px';
+
 
     this.drawBasePairLabel({ name: 'single', offset: 0, x: numX, parent: parent });
 };
@@ -1834,7 +1836,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
                                           containerStart, containerEnd);
                       });
 
-    this.browser.publish( '/jbrowse/v1/n/redraw' );
+    this.browser.publish( '/jbrowse/v1/n/tracks/redraw' );
 };
 
 /**
@@ -2010,6 +2012,10 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     // might need to load both the store and the track class, so do it in
     // parallel and have whichever one completes last do the actual
     // track making.
+
+    if( ! trackConfig.store )
+        console.warn("configuration for track "+trackConfig.label+" has no store set", trackConfig );
+
 
     // get the store
     this.browser.getStore( trackConfig.store, function( s ) {

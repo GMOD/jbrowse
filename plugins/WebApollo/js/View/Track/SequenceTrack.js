@@ -3,8 +3,8 @@ define( [
     'JBrowse/Store/Sequence/StaticChunked', 
     'WebApollo/View/Track/DraggableHTMLFeatures',
     'WebApollo/JSONUtils',
-    'WebApollo/Permission', 
-    'JBrowse/CodonTable', 
+    'WebApollo/Permission',
+    'JBrowse/CodonTable'
      ],
 function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, CodonTable ) {
 
@@ -21,6 +21,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     constructor: function( args ) {
 	this.isWebApolloSequenceTrack = true;
 	var track = this;
+
         /**
          * DraggableFeatureTrack now has its own context menu for divs,
          * and adding this flag provides a quick way to short-circuit it's
@@ -38,7 +39,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         this.residuesMouseDown = function(event) {
             track.onResiduesMouseDown(event);
         };
-	
+
 	this.charSize = this.gview.getSequenceCharacterSize();
 	this.charWidth = this.charSize.charWidth;
 	this.seqHeight = this.charSize.seqHeight;
@@ -120,7 +121,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     	                      else {
     	    	                  track.hide();
     	                      }
-    		              track.hideAll();
+    		              // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
     		              track.changed();
     	                  },
     	                  // The ERROR function will be called in an error case.
@@ -204,7 +205,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
      */
     _measureSequenceCharacterSize: function( containerElement ) {
         var widthTest = document.createElement("div");
-        widthTest.className = "sequence";
+        widthTest.className = "wa-sequence";
         widthTest.style.visibility = "hidden";
         var widthText = "12345678901234567890123456789012345678901234567890";
         widthTest.appendChild(document.createTextNode(widthText));
@@ -225,11 +226,15 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
      *   or in other words for a given block there is only one chunk that overlaps it
      *      (otherwise in the callback would need to fiddle with horizontal position of seqNode within the block) ???
      */
-    fillBlock: function( blockIndex, block,
-                         leftBlock, rightBlock,
-                         leftBase, rightBase,
-                         scale, stripeWidth,
-                         containerStart, containerEnd ) {
+    fillBlock: function( args ) {
+        var blockIndex = args.blockIndex;
+        var block = args.block;
+        var leftBase = args.leftBase;
+        var rightBase = args.rightBase;
+        var scale = args.scale;
+        var containerStart = args.containerStart;
+        var containerEnd = args.containerEnd;
+
         var verbose = false;
         // test block for diagnostics
         // var verbose = (leftBase === 245524);
@@ -310,7 +315,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     			        var transProtein = track.renderTranslation( extendedEndResidues, i, blockLength);
     			        // if coloring CDS in feature tracks by frame, use same "cds-frame" styling,
     			        //    otherwise use more muted "frame" styling
-    			        if (track.gview.colorCdsByFrame) {
+    			        if (track.webapollo.colorCdsByFrame) {
     			            $(transProtein).addClass("cds-frame" + frame);
     			        }
     			        else  {
@@ -418,7 +423,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     			        // frame = (frame + (3 - (track.refSeq.length % 3))) % 3;
     			        frame = (Math.abs(frame - 2) + (track.refSeq.length % 3)) % 3;
     			        var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);
-    			        if (track.gview.colorCdsByFrame) {
+    			        if (track.webapollo.colorCdsByFrame) {
     			            $(transProtein).addClass("cds-frame" + frame);
     			        }
     			        else  {
@@ -681,7 +686,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         		onClick: function(event) {
     		    thisObj.show_reverse_strand = ! thisObj.show_reverse_strand;
     		    thisObj.clearHighlightedBases();
-    		    thisObj.hideAll();
+    		    // thisObj.hideAll();  shouldn't need to call hideAll() before changed() anymore
     		    thisObj.changed();
         		    // thisObj.toggleReverseStrand();
         		}
@@ -693,7 +698,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         		onClick: function(event) {
     		    thisObj.show_protein_translation = ! thisObj.show_protein_translation;
     		    thisObj.clearHighlightedBases();
-    		    thisObj.hideAll();
+    		    // thisObj.hideAll();  shouldn't need to call hideAll() before changed() anymore
     		    thisObj.changed();
         		    // thisObj.toggleProteinTranslation();
         		}
@@ -870,7 +875,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         else {
     	    this.hide();
         }
-        track.hideAll();
+        // track.hideAll();   shouldn't need to call hideAll() before changed() anymore
         track.changed();
     },
 
@@ -893,7 +898,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         else {
     	    this.hide();
         }
-        track.hideAll();
+        // track.hideAll();   shouldn't need to call hideAll() before changed() anymore
         track.changed();
     },
 

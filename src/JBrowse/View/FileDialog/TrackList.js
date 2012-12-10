@@ -17,6 +17,7 @@ var uniqCounter = 0;
 return declare( null, {
 
 constructor: function( args ) {
+    this.browser = args.browser;
     this.fileDialog = args.dialog;
     this.domNode = dom.create('div', { className: 'trackList', innerHTML: 'track list!' });
     this.types = [ BAMDriver, BigWigDriver, GFF3Driver ];
@@ -67,24 +68,9 @@ _makeStoreConfs: function( resources ) {
         console.warn( "Not all resources could be assigned to tracks.  Unused resources:", resources );
 },
 
-storeTypeToTrackType: {
-        'JBrowse/Store/SeqFeature/BAM'        : 'JBrowse/View/Track/Alignments',
-        'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/HTMLFeatures',
-        'JBrowse/Store/SeqFeature/BigWig'     : 'JBrowse/View/Track/Wiggle/XYPlot',
-        'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence'
-},
-
-knownTrackTypes: [
-    'JBrowse/View/Track/Alignments',
-    'JBrowse/View/Track/FeatureCoverage',
-    'JBrowse/View/Track/HTMLFeatures',
-    'JBrowse/View/Track/Wiggle/XYPlot',
-    'JBrowse/View/Track/Wiggle/Density',
-    'JBrowse/View/Track/Sequence'
-],
-
 _makeTrackConfs: function() {
-    var typeMap = this.storeTypeToTrackType;
+    // object that maps store type -> default track type to use for the store
+    var typeMap = this.browser.getTrackTypes().trackTypeDefaults;
 
     for( var n in this.storeConfs ) {
         var store = this.storeConfs[n];
@@ -120,6 +106,9 @@ _updateDisplay: function() {
                           },this.domNode);
     } else {
         var table = dom.create('table', { innerHTML: '<tr class="head"><th>Name</th><th>Display</th><th></th></tr>'}, this.domNode );
+
+        var trackTypes = this.browser.getTrackTypes();
+
         for( var n in this.trackConfs ) {
             var t = this.trackConfs[n];
             var r = dom.create('tr', {}, table );
@@ -128,8 +117,9 @@ _updateDisplay: function() {
                 onChange: function() { t.key = this.get('value'); }
             }).placeAt( dom.create('td',{ className: 'name' }, r ) );
             new Select({
-                    options: array.map( this.knownTrackTypes || [], function( t ) {
-                                            var l = t.replace('JBrowse/View/Track/','').replace('/', ' ');
+                    options: array.map( trackTypes.knownTrackTypes, function( t ) {
+                                            var l = trackTypes.trackTypeLabels[t]
+                                                || t.replace('JBrowse/View/Track/','').replace(/\//g, ' ');
                                             return { label: l, value: t };
                                         }),
                     value: t.type,

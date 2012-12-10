@@ -58,6 +58,9 @@ var HTMLFeatures = declare( BlockBased, {
         this.levelHeightPad = 2;
         this.labelPad = 1;
 
+	// if calculated feature pixel width would be less than minFeatWidth, then set width to minFeatWidth instead
+	this.minFeatWidth = 1;  
+
         this.trackPadding = args.trackPadding;
 
         this.heightCache = {}; // cache for the heights of some
@@ -457,7 +460,18 @@ HTMLFeatures = declare( HTMLFeatures,
                       },this);
     },
 
-    fillBlock: function( blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth, containerStart, containerEnd ) {
+    fillBlock: function( args ) {
+        var blockIndex = args.blockIndex;
+        var block = args.block;
+        var leftBlock = args.leftBlock;
+        var rightBlock = args.rightBlock;
+        var leftBase = args.leftBase;
+        var rightBase = args.rightBase;
+        var scale = args.scale;
+        var stripeWidth = args.stripeWidth;
+        var containerStart = args.containerStart;
+        var containerEnd = args.containerEnd;
+        var finishCallback = args.finishCallback;
 
         var region = { ref: this.refSeq.name, start: leftBase, end: rightBase };
 
@@ -753,8 +767,8 @@ HTMLFeatures = declare( HTMLFeatures,
 
         for( var i = 0; i < this.blocks.length; i++ ) {
             var b = this.blocks[i];
-            if( b ) {
-                var f = this.blocks[i].featureNodes[id];
+            if( b && b.featureNodes ) {
+                var f = b.featureNodes[id];
                 if( f )
                     return f;
             }
@@ -888,7 +902,7 @@ HTMLFeatures = declare( HTMLFeatures,
         var displayStart = Math.max( featureStart, containerStart );
         var displayEnd = Math.min( featureEnd, containerEnd );
         var blockWidth = block.endBase - block.startBase;
-        var featwidth = Math.max( 1, (100 * ((displayEnd - displayStart) / blockWidth)));
+        var featwidth = Math.max( this.minFeatWidth, (100 * ((displayEnd - displayStart) / blockWidth)));
         featDiv.style.cssText =
             "left:" + (100 * (displayStart - block.startBase) / blockWidth) + "%;"
             + "top:" + top + "px;"
@@ -902,7 +916,7 @@ HTMLFeatures = declare( HTMLFeatures,
             switch (strand) {
             case 1:
             case '+':
-                if( featwidth_px > this.plusArrowWidth*1.1 ) {
+                if( this.config.style.alwaysDrawArrow || featwidth_px > this.plusArrowWidth*1.1 ) {
                     ah.className = "plus-" + this.config.style.arrowheadClass;
 		    ah.style.cssText =  "left: 100%; top: 0px;";
                     featDiv.appendChild(ah);
@@ -910,7 +924,7 @@ HTMLFeatures = declare( HTMLFeatures,
                 break;
             case -1:
             case '-':
-                if( featwidth_px > this.minusArrowWidth*1.1 ) {
+                if( this.config.style.alwaysDrawArrow || featwidth_px > this.minusArrowWidth*1.1 ) {
                     ah.className = "minus-" + this.config.style.arrowheadClass;
 		    ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px; top: 0px;";
                     featDiv.appendChild(ah);
@@ -1129,11 +1143,14 @@ HTMLFeatures = declare( HTMLFeatures,
         delete this.layout;
     },
 
-    // when all the blocks are hidden, we also should recalculate our
-    // layout
+    /**
+     *   indicates a change to this track has happened that may require a re-layout
+     *   clearing layout here, and relying on superclass BlockBased.changed() call and 
+     *   standard _changedCallback function passed in track constructor to trigger relayout
+     */
     changed: function() {
-        this.inherited(arguments);
         this._clearLayout();
+        this.inherited(arguments);
     },
 
     _exportFormats: function() {

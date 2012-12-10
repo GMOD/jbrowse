@@ -1,10 +1,11 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/has',
            'JBrowse/Store/LRUCache',
            'jszlib/arrayCopy'
        ],
-       function( declare, array, LRUCache, arrayCopy ) {
+       function( declare, array, has, LRUCache, arrayCopy ) {
 
 // contains chunks of files, stitches them together if necessary, wraps, and returns them
 // to satisfy requests
@@ -190,7 +191,20 @@ return declare( null,
 
         var req = new XMLHttpRequest();
         var length;
-        req.open('GET', request.url, true);
+        var url = request.url;
+
+        // Safari browsers cache XHRs to a single resource, regardless
+        // of the byte range.  So, requesting the first 32K, then
+        // requesting second 32K, can result in getting the first 32K
+        // twice.  Seen first-hand on Safari 6, and @dasmoth reports
+        // the same thing on mobile Safari on IOS.  So, if running
+        // Safari, put the byte range in a query param at the end of
+        // the URL to force Safari to pay attention to it.
+        if( has('safari') && request.end ) {
+            url = url + ( url.indexOf('?') > -1 ? '&' : '?' ) + 'safari_range=' + request.start +'-'+request.end;
+        }
+
+        req.open('GET', url, true );
         if( req.overrideMimeType )
             req.overrideMimeType('text/plain; charset=x-user-defined');
         if (request.end) {

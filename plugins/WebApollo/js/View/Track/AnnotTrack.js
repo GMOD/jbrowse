@@ -64,11 +64,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         //                baseUrl: base URL for the URL in trackMeta
         this.has_custom_context_menu = true;
 
-        // this.selectionManager = this.setSelectionManager(new FeatureSelectionManager());
-        // this.selectionManager = this.setSelectionManager(DraggableFeatureTrack.selectionManager);
-        this.selectionManager = this.setSelectionManager( AnnotTrack.selectionManager );
-        //    this.selectionManager.setClearOnAdd(new Array(DraggableFeatureTrack.selectionManager));
-        //    DraggableFeatureTrack.selectionManager.setClearOnAdd(new Array(this.selectionManager)); 
+	this.selectionManager = this.setSelectionManager( this.webapollo.annotSelectionManager );
 
         this.selectionClass = "selected-annotation";
         this.annot_under_mouse = null;
@@ -136,6 +132,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	var thisConfig = this.inherited(arguments);
 	// nulling out menuTemplate to suppress default JBrowse feature contextual menu
 	thisConfig.menuTemplate = null;
+	thisConfig.style.centerFeatureChildren = false;
 	return thisConfig;
 	/*  start of alternative to nulling out JBrowse feature contextual menu, instead attempt to merge in AnnotTrack-specific menu items
 	var superConfig = this.inherited(arguments);
@@ -187,7 +184,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         var jfeat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
 			track.store.insert(jfeat);
                     }
-                    track.hideAll();
+                    // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
                     track.changed();
                     track.createAnnotationChangeListener();
 
@@ -289,7 +286,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                             console.log(response);
                                     }
                             }
-                            track.hideAll();
+                            // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
                             track.changed();
                             track.createAnnotationChangeListener();
                     }
@@ -315,7 +312,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 		}
 		// server timeout
 		else if (ioArgs.xhr.status == 504){
+		    console.log("received server timeoout");
 			track.createAnnotationChangeListener();
+		    console.log("created new AnnotationChangeListener");
+		    // fiddling with supressing dojo.xhrGet internal Deferred stuff 
+		    //    firing errors
+		    // setting error.log = false may override...
+		    response.log = false;
 			return;
 		}
 		// actual error
@@ -598,7 +601,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                 }
                             });
                         console.log(subfeat);
-                        track.hideAll();
+                        // track.hideAll();   shouldn't need to call hideAll() before changed() anymore
                         track.changed();
                     }
                 } );
@@ -742,7 +745,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 // "this" is the div being dropped on, so same as target_trackdiv
                 if (target_track.verbose_drop)  { console.log("draggable deactivated"); }
 
-                var dropped_feats = DraggableFeatureTrack.selectionManager.getSelection();
+		var dropped_feats = target_track.webapollo.featSelectionManager.getSelection();
                 // problem with making individual annotations droppable, so checking for "drop" on annotation here,
                 //    and if so re-routing to add to existing annotation
                 if (target_track.annot_under_mouse != null)  {
@@ -2923,13 +2926,6 @@ AnnotTrack.getTopLevelAnnotation = function(annotation) {
     }
     return annotation;
 }
-
-// setting up selection exclusiveOr --
-//    if selection is made in annot track, any selection in other tracks is deselected, and vice versa,
-//    regardless of multi-select mode etc.
-AnnotTrack.selectionManager = new FeatureSelectionManager();
-AnnotTrack.selectionManager.addMutualExclusion( DraggableFeatureTrack.selectionManager );
-DraggableFeatureTrack.selectionManager.addMutualExclusion( AnnotTrack.selectionManager );
 
 return AnnotTrack;
 });

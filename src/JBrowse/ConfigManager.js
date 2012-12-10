@@ -118,15 +118,14 @@ _loadIncludes: function( inputConfig, callback ) {
                         loadingResult.data = config_data_with_includes_resolved;
                         if( ! --configs_remaining )
                             callback( this._mergeIncludes( inputConfig, included_configs ) );
-                           //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
                      }));
                 }),
                 onFailure: dojo.hitch( this, function( error ) {
                     loadingResult.error = error;
-                    console.error(error);
+                    if( error.status != 404 ) // if it's a missing file, browser will have logged it
+                        this._fatalError( error );
                     if( ! --configs_remaining )
                         callback( this._mergeIncludes( inputConfig, included_configs ) );
-                        //if you need a backtrace: window.setTimeout( function() { that.onConfigLoaded(); }, 1 );
                 })
             });
         }));
@@ -171,7 +170,7 @@ _validateConfig: function( c ) {
         this._fatalError( 'Must provide a <code>baseUrl</code> in configuration' );
     }
     if( this.hasFatalErrors )
-        throw "Errors in configuration, aborting.";
+        throw "Errors in configuration, aborting";
 },
 
 /**
@@ -179,7 +178,8 @@ _validateConfig: function( c ) {
  */
 _fatalError: function( error ) {
     this.hasFatalErrors = true;
-    console.error(error);
+    if( error.url )
+        error = error + ' when loading '+error.url;
     this.browser.fatalError( error );
 },
 

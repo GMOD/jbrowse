@@ -20,6 +20,7 @@ After
  */
 
 function NCList() {
+    this.topList = [];
 }
 
 NCList.prototype.importExisting = function(nclist, attrs, baseURL,
@@ -34,10 +35,23 @@ NCList.prototype.importExisting = function(nclist, attrs, baseURL,
     this.lazyChunks = {};
 };
 
+/**
+ *
+ *  Given an array of features, creates the nested containment list data structure 
+ *  WARNING: DO NOT USE directly for adding additional intervals!
+ *  completely replaces existing nested containment structure
+ *  (erases current topList and subarrays, repopulates from intervals)
+ *  currently assumes each feature is array as described above
+ */
 NCList.prototype.fill = function(intervals, attrs) {
     //intervals: array of arrays of [start, end, ...]
     //attrs: an ArrayRepr object
     //half-open?
+    if (intervals.length == 0) {
+        this.topList = [];
+        return;
+    }
+
     this.attrs = attrs;
     this.start = attrs.makeFastGetter("Start");
     this.end = attrs.makeFastGetter("End");
@@ -48,9 +62,6 @@ NCList.prototype.fill = function(intervals, attrs) {
     //sort by OL
     myIntervals.sort(function(a, b) {
         if (start(a) != start(b))
-            // return start(a) - start(b()); when did this happen???
-	    // did git blame, looks like been in GMOD/JBrowse code since 5/19/2011
-	    // GAH: fixed it in WebApollo fork 3/15/2012, so pasting similar fix here:
             return start(a) - start(b);
         else
             return end(b) - end(a);
@@ -59,6 +70,7 @@ NCList.prototype.fill = function(intervals, attrs) {
     var curList = new Array();
     this.topList = curList;
     curList.push(myIntervals[0]);
+    if (myIntervals.length == 1) return;
     var curInterval, topSublist;
     for (var i = 1, len = myIntervals.length; i < len; i++) {
         curInterval = myIntervals[i];
@@ -130,7 +142,7 @@ NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
             finish.inc();
             Util.maybeLoad({ url: Util.resolveUrl(this.baseURL,
                                            this.lazyUrlTemplate.replace(
-                                                   /\{Chunk\}/g, chunkNum
+                                                   /\{Chunk\}/ig, chunkNum
                                            ) ),
                              handleAs: 'json'
                            },
@@ -172,8 +184,12 @@ NCList.prototype.iterate = function(from, to, fun, postFun) {
     //testGet: test on start or end
     var testGet = (from > to) ? this.end : this.start;
     var finish = new Finisher(postFun);
+
+
+    if (this.topList.length > 0) {
     this.iterHelper(this.topList, from, to, fun, finish,
                     inc, searchGet, testGet, [0]);
+    }
     finish.finish();
 };
 
