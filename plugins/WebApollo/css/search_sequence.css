@@ -53,26 +53,12 @@
 	width: 6em;
 }
 
-.dbxref_button {
-}
-
-.dbxref_add_button_div {
-	margin-top: 5px;
-}
-
-.parent_dbxrefs_div {
-	margin-bottom: 10px;
-	border-bottom-style: dotted;
-	border-bottom-width: 2px;
-	padding-bottom: 10px;
-}
-
 .search_sequence_tools {
 	margin-bottom: 10px;
 }
 
 .search_sequence_matches {
-	height: 25em;
+	max-height: 25em;
 	overflow: auto;
 }
 
@@ -85,4 +71,8 @@
 
 .search_sequence_message {
 	font-size: 1.6em;
+}
+
+.search_sequence {
+	font-size: 9px;
 }

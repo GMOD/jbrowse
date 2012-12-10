@@ -39,6 +39,7 @@ SequenceSearch.prototype.searchSequence = function(trackName, refSeqName, starts
     var sequenceButtonDiv = dojo.create("div", { }, sequenceDiv);
     var sequenceButton = dojo.create("button", { innerHTML: "Search" }, sequenceButtonDiv);
     var messageDiv = dojo.create("div", { className: "search_sequence_message", innerHTML: "No matches found" }, content);
+    var waitingDiv = dojo.create("div", { innerHTML: "<img class='waiting_image' src='plugins/WebApollo/img/loading.gif' />"}, content);
     var headerDiv = dojo.create("div", { className: "search_sequence_matches_header" }, content);
     dojo.create("span", { innerHTML: "ID", className: "search_sequence_matches_header_field search_sequence_matches_generic_field" }, headerDiv);
     dojo.create("span", { innerHTML: "Start", className: "search_sequence_matches_header_field search_sequence_matches_generic_field" }, headerDiv);
@@ -52,6 +53,7 @@ SequenceSearch.prototype.searchSequence = function(trackName, refSeqName, starts
     dojo.style(messageDiv, { display: "none" });
     dojo.style(matchDiv, { display: "none" });
     dojo.style(headerDiv, { display: "none" });
+    dojo.style(waitingDiv, { display: "none" });
     if (!refSeqName) {
     	dojo.style(searchAllRefSeqsDiv, { display: "none" });
     }
@@ -96,13 +98,16 @@ SequenceSearch.prototype.searchSequence = function(trackName, refSeqName, starts
     	}
     	var searchAllRefSeqs = dojo.attr(searchAllRefSeqsCheckbox, "checked");
     	if (ok) {
-    		dojo.xhrPost( {
+    		dojo.style(waitingDiv, { display: "block"} );
+    		dojo.style(matchDiv, { display: "none"} );
+    	    dojo.style(headerDiv, { display: "none" });
+    	    dojo.xhrPost( {
     			postData: '{ "track": "' + trackName + '", "search": { "key": "' + sequenceToolsSelect.value + '", "residues": "' + residues + (!searchAllRefSeqs && refSeqName != null ? '", "database_id": "' + refSeqName : '') + '"}, "operation": "' + operation + '" }', 
     			url: contextPath + "/AnnotationEditorService",
-    			sync: true,
     			handleAs: "json",
     			timeout: 5000 * 1000, // Time in milliseconds
     			load: function(response, ioArgs) {
+    				dojo.style(waitingDiv, { display: "none"} );
     				while (matches.hasChildNodes()) {
     					matches.removeChild(matches.lastChild);
     				}
@@ -115,8 +120,15 @@ SequenceSearch.prototype.searchSequence = function(trackName, refSeqName, starts
     				dojo.style(messageDiv, { display: "none" });
     				dojo.style(headerDiv, { display: "block"} );
     				dojo.style(matchDiv, { display: "block"} );
-    				for (var i = 0; i < response.matches.length; ++i) {
-    					var match = response.matches[i];
+    				
+    				var returnedMatches = response.matches;
+    				returnedMatches.sort(function(match1, match2) {
+    					return match2.rawscore - match1.rawscore;
+    				});
+    				var maxNumberOfHits = 100;
+    				
+    				for (var i = 0; i < returnedMatches.length && i < maxNumberOfHits; ++i) {
+    					var match = returnedMatches[i];
     					var query = match.query;
     					var subject = match.subject;
     					var refSeqStart = starts[subject.feature.uniquename] || 0;
