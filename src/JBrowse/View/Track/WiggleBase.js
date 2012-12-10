@@ -206,6 +206,7 @@ Wiggle.extend({
             this.getFeatures(
                 { ref: this.refSeq.name,
                   basesPerSpan: 1/scale,
+                  scale: scale,
                   start: leftBase,
                   end: rightBase+1
                 },
