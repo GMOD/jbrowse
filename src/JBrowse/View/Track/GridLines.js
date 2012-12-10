@@ -21,13 +21,9 @@ return dojo.declare( BlockBased,
     makeTrackLabel: function() {},
     makeTrackMenu: function() {},
 
-    fillBlock: function(blockIndex, block,
-                        leftBlock, rightBlock,
-                        leftBase, rightBase, scale,
-                        padding, stripeWidth) {
-
-        this.renderGridlines( block, leftBase, rightBase );
-        this.heightUpdate(100, blockIndex);
+    fillBlock: function( args ) {
+        this.renderGridlines( args.block, args.leftBase, args.rightBase );
+        this.heightUpdate(100, args.blockIndex);
     },
 
     renderGridlines: function(block,leftBase,rightBase) {

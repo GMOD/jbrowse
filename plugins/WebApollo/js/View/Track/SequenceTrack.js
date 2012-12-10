@@ -226,11 +226,15 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
      *   or in other words for a given block there is only one chunk that overlaps it
      *      (otherwise in the callback would need to fiddle with horizontal position of seqNode within the block) ???
      */
-    fillBlock: function( blockIndex, block,
-                         leftBlock, rightBlock,
-                         leftBase, rightBase,
-                         scale, stripeWidth,
-                         containerStart, containerEnd ) {
+    fillBlock: function( args ) {
+        var blockIndex = args.blockIndex;
+        var block = args.block;
+        var leftBase = args.leftBase;
+        var rightBase = args.rightBase;
+        var scale = args.scale;
+        var containerStart = args.containerStart;
+        var containerEnd = args.containerEnd;
+
         var verbose = false;
         // test block for diagnostics
         // var verbose = (leftBase === 245524);
