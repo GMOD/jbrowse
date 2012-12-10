@@ -756,8 +756,8 @@ HTMLFeatures = declare( HTMLFeatures,
 
         for( var i = 0; i < this.blocks.length; i++ ) {
             var b = this.blocks[i];
-            if( b ) {
-                var f = this.blocks[i].featureNodes[id];
+            if( b && b.featureNodes ) {
+                var f = b.featureNodes[id];
                 if( f )
                     return f;
             }
