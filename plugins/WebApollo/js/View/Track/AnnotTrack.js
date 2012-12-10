@@ -27,7 +27,7 @@ define( [
 		  SimpleFeature, Util, Layout ) {
 
 //var listeners = [];
-var listener;
+//var listener;
 
 /**
  *  WARNING
@@ -122,10 +122,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             */
         });
 	
-		if( listener && listener.fired == -1 ) {
-			listener.cancel();
-		}
-
+        this.gview.browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function(currRegion) {
+        	if (currRegion.ref != this.refSeq.name) {
+        		if (this.listener && this.listener.fired == -1 ) {
+        			this.listener.cancel();
+        		}
+        	}
+        }));
+		
     },
 
     _defaultConfig: function() {
@@ -220,7 +224,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 //            }
 //        }
 
-        listener = dojo.xhrGet( {
+        this.listener = dojo.xhrGet( {
             url: context_path + "/AnnotationChangeNotificationService",
             content: {
                 track: track.getUniqueTrackName()
