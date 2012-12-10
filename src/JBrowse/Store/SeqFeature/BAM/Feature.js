@@ -55,7 +55,7 @@ var Feature = Util.fastDeclare(
             delete data.readName;
         }
         delete data.pos;
-
+ 
         this._refID = data._refID;
         delete data._refID;
 
@@ -64,13 +64,10 @@ var Feature = Util.fastDeclare(
         this._uniqueID = args.parent ? args.parent._uniqueID + '-' + ++args.parent._subCounter
                                      : data.name+'/'+data.MD+'/'+data.cigar+'/'+data.start;
 
-
-        // var cigar = data.CIGAR || data.cigar;
-        // this.data.subfeatures = [];
-        // if( cigar ) {
-        //     this.data.Gap = this._cigarToGap( cigar );
-        //     this.data.subfeatures.push.apply( this.data.subfeatures, this._cigarToSubfeats( cigar, this ) );
-        // }
+	var cigar = data.CIGAR || data.cigar;
+	if (cigar && this.store.createSubfeatures)  { 
+	    this.data.subfeatures = this._cigarToSubfeats(cigar, this); 
+	}
     },
 
     _fromBytes: function( byteArray, blockStart, blockEnd ) {
@@ -326,17 +323,20 @@ var Feature = Util.fastDeclare(
                 break;
                 // other possible cases
             }
+	    //  TODO may want to redo cigar subfeaturs as SimpleFeatures, and any need for more detail can crawl up to parent?
             var subfeat = new Feature({
                 store: this.store,
                 file: this.file,
                 data: {
-                    type: 'match_part',
+                    // type: 'match_part',
+		    type: op,
                     start: min,
                     end: max,
                     strand: parent.get('strand'),
-                    cigar_op: lop+op
+                    cigar_op: lop+op,
+		    parent: this
                 },
-                parent: this
+                parent: this  // need parent at this level too in order to get proper setting of _uniqueID 
             });
             if (op !== 'N')  {
                 subfeats.push(subfeat);
@@ -385,11 +385,11 @@ var Feature = Util.fastDeclare(
     },
 
     parent: function() {
-        return null;
+	return this.data.parent;
     },
 
     children: function() {
-        return null;
+	return this.data.subfeatures;
     }
 });
 
