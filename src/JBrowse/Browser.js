@@ -1699,7 +1699,7 @@ Browser.prototype.createNavBox = function( parent ) {
             })
         }, dojo.create('button',{},miniTrap));
 
-
+    dojo.style('GoButton', 'height', '16px');
 
     this.loadRefSeqs().then( dojo.hitch( this, function() {
         if( this.refSeqOrder.length && this.refSeqOrder.length < 30 || this.config.refSeqDropdown ) {
