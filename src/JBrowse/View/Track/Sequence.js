@@ -84,6 +84,8 @@ SequenceTrack.extend(
                          }, block );
             this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
         }
+
+        args.finishCallback();
     },
 
     _fillSequenceBlock: function( block, scale, feature ) {

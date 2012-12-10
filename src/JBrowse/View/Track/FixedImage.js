@@ -59,6 +59,7 @@ return declare( BlockBased,
         var leftBase = args.leftBase;
         var rightBase = args.rightBase;
         var scale = args.scale;
+        var finishCallback = args.finishCallback || function() {};
 
         var blockWidth = rightBase - leftBase;
 
@@ -93,6 +94,7 @@ return declare( BlockBased,
                                       im.onload = loadhandler;
 
                               }, this);
+                finishCallback();
         }),
         dojo.hitch( this, function( error ) {
             if( error.status == 404 ) {
@@ -101,6 +103,7 @@ return declare( BlockBased,
                 this.error = error;
                 this.fillError( blockIndex, block );
             }
+            finishCallback();
         })
         );
     },

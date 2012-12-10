@@ -373,12 +373,14 @@ div.track-label, div.tracklist-label {
 }
 
 .track .loading {
-    background: rgba( 0,0,0,0.1);
+    background: #eee;
     color: #777;
     margin: 0;
     font-weight: bold;
-    height: 40px;
+    height: 100%;
     width: 100%;
+    z-index: 15;
+    position: absolute;
 }
 .track .loading .text {
     display: inline;
@@ -400,11 +402,14 @@ div.track-label {
     border-color: #eee;
     opacity: 0.7;
 
-    /* setting white-space to "nowrap" prevents Chrome-specific bug with label text sometimes disappearing after zoom in 
-       Chrome was wrapping track-lablel-text to next line, which falls outside of track-label fixed height and therefore not seen
-       see chromium bug report for more details on underlying issue: http://code.google.com/p/chromium/issues/detail?id=138918
+    /* setting white-space to "nowrap" prevents Chrome-specific bug with
+       label text sometimes disappearing after zoom in Chrome was
+       wrapping track-label text to next line, which falls outside of
+       track-label fixed height and therefore not seen. see chromium
+       bug report for more details on underlying issue:
+       http://code.google.com/p/chromium/issues/detail?id=138918
     */
-    white-space: nowrap;  
+    white-space: nowrap;
 }
 
 div.track-label .track-label-text {

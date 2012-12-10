@@ -322,7 +322,12 @@ HTMLFeatures = declare( HTMLFeatures,
         };
     },
 
-    fillHist: function( blockIndex, block, leftBase, rightBase, stripeWidth ) {
+    fillHist: function( args ) {
+        var blockIndex = args.blockIndex;
+        var block = args.block;
+        var leftBase = args.leftBase;
+        var rightBase = args.rightBase;
+        var stripeWidth = args.stripeWidth;
 
         var dims = this._histDimensions( Math.abs( rightBase - leftBase ) );
 
@@ -406,6 +411,8 @@ HTMLFeatures = declare( HTMLFeatures,
             this.store.histogram( leftBase, rightBase,
                                          this.numBins, makeHistBlock);
         }
+
+        args.finishCallback();
     },
 
     endZoom: function(destScale, destBlockBases) {
@@ -463,15 +470,11 @@ HTMLFeatures = declare( HTMLFeatures,
     fillBlock: function( args ) {
         var blockIndex = args.blockIndex;
         var block = args.block;
-        var leftBlock = args.leftBlock;
-        var rightBlock = args.rightBlock;
         var leftBase = args.leftBase;
         var rightBase = args.rightBase;
         var scale = args.scale;
-        var stripeWidth = args.stripeWidth;
         var containerStart = args.containerStart;
         var containerEnd = args.containerEnd;
-        var finishCallback = args.finishCallback;
 
         var region = { ref: this.refSeq.name, start: leftBase, end: rightBase };
 
@@ -496,11 +499,9 @@ HTMLFeatures = declare( HTMLFeatures,
 
                 // console.log(this.name+" scale: %d, density: %d, histScale: %d, screenDensity: %d", scale, stats.featureDensity, this.config.style.histScale, stats.featureDensity / scale );
 
-		
                 // if we our store offers density histograms, and we are zoomed out far enough, draw them
                 if( this.store.histograms && scale < histScale ) {
-                        this.fillHist( blockIndex, block, leftBase, rightBase, stripeWidth,
-                                       containerStart, containerEnd);
+                        this.fillHist( args );
                 }
                 // if we have no histograms, check the predicted density of
                 // features on the screen, and display a message if it's
@@ -511,6 +512,7 @@ HTMLFeatures = declare( HTMLFeatures,
                         block,
                         scale
                     );
+                    args.finishCallback();
                 }
                 else {
                     // if we have transitioned to viewing features, delete the
@@ -518,9 +520,7 @@ HTMLFeatures = declare( HTMLFeatures,
                     if( this.yscale ) {
                         this._removeYScale();
                     }
-                    this.fillFeatures(blockIndex, block, leftBlock, rightBlock,
-                                      leftBase, rightBase, scale, stats,
-                                      containerStart, containerEnd);
+                    this.fillFeatures( dojo.mixin( {stats: stats}, args ) );
                 }
         }));
     },
@@ -634,23 +634,32 @@ HTMLFeatures = declare( HTMLFeatures,
 
     /**
      * arguments:
-     * @param block div to be filled with info
-     * @param leftBlock div to the left of the block to be filled
-     * @param rightBlock div to the right of the block to be filled
-     * @param leftBase starting base of the block
-     * @param rightBase ending base of the block
-     * @param scale pixels per base at the current zoom level
-     * @param containerStart don't make HTML elements extend further left than this
-     * @param containerEnd don't make HTML elements extend further right than this. 0-based.
+     * @param args.block div to be filled with info
+     * @param args.leftBlock div to the left of the block to be filled
+     * @param args.rightBlock div to the right of the block to be filled
+     * @param args.leftBase starting base of the block
+     * @param args.rightBase ending base of the block
+     * @param args.scale pixels per base at the current zoom level
+     * @param args.containerStart don't make HTML elements extend further left than this
+     * @param args.containerEnd don't make HTML elements extend further right than this. 0-based.
      */
-    fillFeatures: function(blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, stats, containerStart, containerEnd) {
+    fillFeatures: function(args) {
+        var blockIndex = args.blockIndex;
+        var block = args.block;
+        var leftBase = args.leftBase;
+        var rightBase = args.rightBase;
+        var scale = args.scale;
+        var stats = args.stats;
+        var containerStart = args.containerStart;
+        var containerEnd = args.containerEnd;
+        var finishCallback = args.finishCallback;
 
         this.scale = scale;
 
         block.featureNodes = {};
 
         //determine the glyph height, arrowhead width, label text dimensions, etc.
-        if (!this.haveMeasurements) {
+        if( !this.haveMeasurements ) {
             this.measureStyles();
             this.haveMeasurements = true;
         }
@@ -668,9 +677,6 @@ HTMLFeatures = declare( HTMLFeatures,
             }
         });
 
-        // var startBase = goLeft ? rightBase : leftBase;
-        // var endBase = goLeft ? leftBase : rightBase;
-
         this.store.getFeatures( { ref: this.refSeq.name,
                                   start: leftBase,
                                   end: rightBase
@@ -679,10 +685,12 @@ HTMLFeatures = declare( HTMLFeatures,
                                 function () {
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
+                                    finishCallback();
                                 },
                                 function( error ) {
                                     curTrack.error = error;
                                     curTrack.fillError( blockIndex, block );
+                                    finishCallback();
                                 }
                               );
     },

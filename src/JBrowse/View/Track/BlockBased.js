@@ -312,16 +312,16 @@ return declare( null,
             this._changedCallback();
     },
 
-    fillLoading: function( blockIndex, block ) {
+    _makeLoadingMessage: function() {
         var msgDiv = dojo.create(
             'div', {
                 className: 'loading',
                 innerHTML: '<div class="text">Loading</span>',
                 title: 'Loading data...',
                 style: { visibility: 'hidden' }
-            }, block );
+            });
         window.setTimeout(function() { msgDiv.style.visibility = 'visible'; }, 200);
-        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+        return msgDiv;
     },
 
     fillError: function( blockIndex, block ) {
@@ -366,21 +366,35 @@ return declare( null,
                     containerStart,
                     containerEnd];
 
-        this.fillBlock({
-            blockIndex: blockIndex,
-            block:      blockDiv,
-            leftBlock:  this.blocks[blockIndex - 1],
-            rightBlock: this.blocks[blockIndex + 1],
-            leftBase:   startBase,
-            rightBase:  endBase,
-            scale:      scale,
-            stripeWidth:    this.widthPx,
-            containerStart: containerStart,
-            containerEnd:   containerEnd,
-            finishCallback: function() {
-                blockDiv.removeChild( loadMessage );
-            }
-        });
+
+        // loadMessage is an opaque mask div that we place over the
+        // block until the fillBlock finishes
+        var loadMessage = this._makeLoadingMessage();
+        blockDiv.appendChild( loadMessage );
+
+        var finish = function() {
+            blockDiv.removeChild( loadMessage );
+        };
+
+        try {
+            this.fillBlock({
+                blockIndex: blockIndex,
+                block:      blockDiv,
+                leftBlock:  this.blocks[blockIndex - 1],
+                rightBlock: this.blocks[blockIndex + 1],
+                leftBase:   startBase,
+                rightBase:  endBase,
+                scale:      scale,
+                stripeWidth:    this.widthPx,
+                containerStart: containerStart,
+                containerEnd:   containerEnd,
+                finishCallback: finish
+            });
+        } catch( e ) {
+            this.error = e;
+            this.fillError( blockIndex, block );
+            finish();
+        }
     },
 
     moveBlocks: function(delta) {

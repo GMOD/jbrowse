@@ -174,6 +174,7 @@ Wiggle.extend({
         var leftBase = args.leftBase;
         var rightBase = args.rightBase;
         var scale = args.scale;
+        var finishCallback = args.finishCallback || function() {};
 
         var blockWidth = rightBase - leftBase;
         var canvasWidth  = Math.ceil(( rightBase - leftBase ) * scale);
@@ -234,11 +235,13 @@ Wiggle.extend({
                                 break;
                             }
                     }
+                    finishCallback();
                 }));
         }),
         dojo.hitch( this, function(e) {
                         this.error = e;
                         this.fillError( blockIndex, block );
+                        finishCallback();
                     })
         );
     },

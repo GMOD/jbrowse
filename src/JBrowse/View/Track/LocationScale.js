@@ -39,6 +39,7 @@ return declare(BlockBased,
         posLabel.appendChild( document.createTextNode( numtext ) );
         block.appendChild(posLabel);
         this.heightUpdate( Math.round( this.posHeight*1.2 ), blockIndex);
+        args.finishCallback();
     }
 });
 });
