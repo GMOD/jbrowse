@@ -1968,7 +1968,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
       }
 
     var cssName = function(str) { // replace weird characters and lowercase
-        return str.replace(/[^A-Za-z_]/g,'_').toLowerCase();
+        return str.replace(/[^A-Za-z_0-9]/g,'_').toLowerCase();
     };
 
     var trackName = trackConfig.label;

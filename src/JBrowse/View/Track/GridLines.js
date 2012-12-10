@@ -23,6 +23,7 @@ return dojo.declare( BlockBased,
 
     fillBlock: function( args ) {
         this.renderGridlines( args.block, args.leftBase, args.rightBase );
+        args.finishCallback();
         this.heightUpdate(100, args.blockIndex);
     },
 

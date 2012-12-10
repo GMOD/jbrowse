@@ -158,7 +158,8 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                     urlTemplate: trackConfig.urlTemplate,
                     compress: trackConfig.compress,
                     baseUrl: trackConfig.baseUrl,
-                    type: storeClass
+                    type: storeClass,
+                    subfeatures: trackConfig.subfeatures
                 };
 
                 // if this is the first sequence store we see, and we
