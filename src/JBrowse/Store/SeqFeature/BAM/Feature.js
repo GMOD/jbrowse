@@ -55,7 +55,7 @@ var Feature = Util.fastDeclare(
             delete data.readName;
         }
         delete data.pos;
- 
+
         this._refID = data._refID;
         delete data._refID;
 
@@ -64,10 +64,12 @@ var Feature = Util.fastDeclare(
         this._uniqueID = args.parent ? args.parent._uniqueID + '-' + ++args.parent._subCounter
                                      : data.name+'/'+data.MD+'/'+data.cigar+'/'+data.start;
 
-	var cigar = data.CIGAR || data.cigar;
-	if (cigar && this.store.createSubfeatures)  { 
-	    this.data.subfeatures = this._cigarToSubfeats(cigar, this); 
-	}
+        if( this.store.createSubfeatures ) {
+            var subs = this.data.subfeatures = [];
+	    var cigar = data.CIGAR || data.cigar;
+	    if( cigar )
+	        sub.push.apply( subs, this._cigarToSubfeats( cigar ) );
+        }
     },
 
     _fromBytes: function( byteArray, blockStart, blockEnd ) {
@@ -295,9 +297,9 @@ var Feature = Util.fastDeclare(
     /**
      *  take a cigar string, and initial position, return an array of subfeatures
      */
-    _cigarToSubfeats: function(cigar, parent)    {
+    _cigarToSubfeats: function(cigar)    {
         var subfeats = [];
-        var min = parent.get('start');
+        var min = this.get('start');
         var max;
         var ops = this._parseCigar( cigar );
         for (var i = 0; i < ops.length; i++)  {
@@ -332,7 +334,7 @@ var Feature = Util.fastDeclare(
 		    type: op,
                     start: min,
                     end: max,
-                    strand: parent.get('strand'),
+                    strand: this.get('strand'),
                     cigar_op: lop+op,
 		    parent: this
                 },

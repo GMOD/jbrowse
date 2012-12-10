@@ -26,7 +26,9 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
      * @constructs
      */
     constructor: function( args ) {
-	this.createSubfeatures = true;
+
+        this.createSubfeatures = args.subfeatures;
+
         var bamBlob = args.bam || (function() {
                                        var url = Util.resolveUrl(
                                            args.baseUrl || '/',
