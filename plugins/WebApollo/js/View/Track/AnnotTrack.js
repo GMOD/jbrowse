@@ -26,7 +26,8 @@ define( [
 		  DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, 
 		  SimpleFeature, Util, Layout ) {
 
-var listeners = [];
+//var listeners = [];
+var listener;
 
 /**
  *  WARNING
@@ -114,6 +115,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var track = this;
 
 	dojo.addOnUnload(this, function() {
+			/*
             var track = this;
             if( listeners[track.getUniqueTrackName()] ) {
                 if( listeners[track.getUniqueTrackName()].fired == -1 ) {
@@ -121,7 +123,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     listeners[track.getUniqueTrackName()].cancel();
                 }
             }
+            */
         });
+	
+		if( listener && listener.fired == -1 ) {
+			listener.cancel();
+		}
 
     },
 
@@ -163,10 +170,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	var track = this;
 
 //	this.getPermission( dojo.hitch(this, initAnnotContextMenu) );  // calling back to initAnnotContextMenu() once permissions are returned by server
-	this.getPermission( function()  { track.initAnnotContextMenu(); } );  // calling back to initAnnotContextMenu() once permissions are returned by server
+	var success = this.getPermission( function()  { track.initAnnotContextMenu(); } );  // calling back to initAnnotContextMenu() once permissions are returned by server
 	this.initNonAnnotContextMenu();
         this.initPopupDialog();
 
+        if (success) {
             dojo.xhrPost( {
                 postData: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_features" }',
                 url: context_path + "/AnnotationEditorService",
@@ -199,6 +207,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             });
 
+        }
 
         this.makeTrackDroppable();
         this.hide();
@@ -214,7 +223,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 //            }
 //        }
 
-        var listener = dojo.xhrGet( {
+        listener = dojo.xhrGet( {
             url: context_path + "/AnnotationChangeNotificationService",
             content: {
                 track: track.getUniqueTrackName()
@@ -229,7 +238,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	     */
 	    preventCache: true, 
             // timeout: 1000 * 1000, // Time in milliseconds
-            timeout: 0,  // setting timeout to 0 indicates no timeout set
+            timeout: 5 * 60 * 1000,  // setting timeout to 0 indicates no timeout set
             // The LOAD function will be called on a successful response.
             load: function(response, ioArgs) {
                     if (response == null) {
@@ -300,7 +309,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 			return;
 		}
 		// server killed
-		if (ioArgs.xhr.status == 0) {
+		if (ioArgs.xhr.status == 503 || ioArgs.xhr.status == 0) {
 			track.handleError({responseText: '{ error: "Server connection error" }'});
 			return;
 		}
@@ -325,7 +334,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             },
             failOk: true
         });
-        listeners[track.getUniqueTrackName()] = listener;
+//        listeners[track.getUniqueTrackName()] = listener;
 
     },
 
@@ -1299,8 +1308,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
             var content = dojo.create("div");
             // if annotation has parent, get comments for parent
-            if( annot.parent()) {
-                var parentContent = this.createEditCommentsPanelForFeature( annot.parent().id(), track.getUniqueTrackName());
+            if(annot.afeature.parent_id) {
+                var parentContent = this.createEditCommentsPanelForFeature( annot.afeature.parent_id, track.getUniqueTrackName());
                     dojo.attr(parentContent, "class", "parent_comments_div");
                     dojo.place(parentContent, content);
             }
@@ -1558,8 +1567,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         var content = dojo.create("div");
         // if annotation has parent, get comments for parent
-        if ( annot.parent() ) {
-            var parentContent = this.createEditDbxrefsPanelForFeature( annot.parent().id(), track.getUniqueTrackName());
+        if ( annot.afeature.parent_id ) {
+            var parentContent = this.createEditDbxrefsPanelForFeature( annot.afeature.parent_id, track.getUniqueTrackName());
             dojo.attr(parentContent, "class", "parent_dbxrefs_div");
             dojo.place(parentContent, content);
         }
@@ -2209,7 +2218,7 @@ getAnnotationInformation: function()  {
 	var content = dojo.create("div");
 	var waitingDiv = dojo.create("div", { innerHTML: "<img class='waiting_image' src='plugins/WebApollo/img/loading.gif' />" }, content);
 	var responseDiv = dojo.create("div", { className: "export_response" }, content);
-	var responseIFrame = dojo.create("iframe", { class: "export_response_iframe" }, responseDiv);
+//	var responseIFrame = dojo.create("iframe", { class: "export_response_iframe" }, responseDiv);
 
 	dojo.xhrGet( {
 		url: context_path + "/IOService?operation=write&adapter=" + adapter + "&track=" + track.getUniqueTrackName() + "&" + options,
@@ -2220,11 +2229,13 @@ getAnnotationInformation: function()  {
 		    dojo.style(waitingDiv, { display: "none" } );
 		    response = response.replace("href='", "href='../");
 
+		    /*
 		    var iframeDoc = responseIFrame.contentWindow.document;
 		    iframeDoc.open();
 		    iframeDoc.write(response);
 		    iframeDoc.close();
-		    //      responseDiv.innerHTML = response;
+		    */
+		    responseDiv.innerHTML = response;
 		}, 
 		// The ERROR function will be called in an error case.
 		error: function(response, ioArgs) {
@@ -2424,12 +2435,14 @@ initNonAnnotContextMenu: function() {
     non_annot_context_menu = new dijit.Menu({
     });
     
+    /*
     non_annot_context_menu.onItemHover = function(item){
         this.focusChild(item);
         if (this.focusedChild.popup && !this.focusedChild.disabled) {
              this._openPopup();
         }
     };
+    */
     
 	non_annot_context_menu.addChild(new dijit.MenuItem( {
 		label: "Search sequence",
@@ -2471,6 +2484,7 @@ initNonAnnotContextMenu: function() {
 	}));
 	
 	non_annot_context_menu.bindDomNode(thisObj.div);
+	/*
 	non_annot_context_menu.onOpen = function(event) {
 		dojo.forEach(this.getChildren(), function(item, idx, arr) {
 			if (item instanceof dijit.MenuItem || item instanceof dijit.PopupMenuItem) {
@@ -2479,6 +2493,7 @@ initNonAnnotContextMenu: function() {
 			}
 		});
 	};
+	*/
 	
     non_annot_context_menu.startup();
 }, 
@@ -2486,6 +2501,7 @@ initNonAnnotContextMenu: function() {
     getPermission: function( callback ) {
 	var thisObj = this;
 	var loadCallback = callback;
+	var success = true;
 	dojo.xhrPost( {
 		sync: true,
 		postData: '{ "track": "' + thisObj.getUniqueTrackName() + '", "operation": "get_user_permission" }',
@@ -2500,8 +2516,10 @@ initNonAnnotContextMenu: function() {
 		},
 		error: function(response, ioArgs) { //
 		    thisObj.handleError(response);
+		    success = false;
 		}
 	});
+	return success;
     },
 
     initPopupDialog: function() {
