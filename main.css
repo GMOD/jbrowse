@@ -373,7 +373,7 @@ div.track-label, div.tracklist-label {
 }
 
 .track .loading {
-    background: #eee;
+    background: #fafafa;
     color: #777;
     margin: 0;
     font-weight: bold;
