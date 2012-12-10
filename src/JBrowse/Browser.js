@@ -1683,6 +1683,9 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
         this._updateLocationCookies( currRegion );
         document.title = Util.assembleLocString( currRegion );
     }
+
+    // send out a message notifying of the move
+    this.publish( '/jbrowse/v1/n/navigate', currRegion );
 };
 
 Browser.prototype._updateLocationThumb = function() {
