@@ -1,4 +1,4 @@
-require(['JBrowse/Store/SeqFeature/GFF3/GFF3Parser'],function( GFF3ParserTest ) {
+require(['JBrowse/Store/SeqFeature/GFF3/GFF3Parser'],function( GFF3Parser ) {
 describe("GFF3Parser (check correct parsing of deeper features)", function() { 
 
 	var gff3Parser;
