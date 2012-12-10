@@ -460,7 +460,18 @@ HTMLFeatures = declare( HTMLFeatures,
                       },this);
     },
 
-    fillBlock: function( blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth, containerStart, containerEnd ) {
+    fillBlock: function( args ) {
+        var blockIndex = args.blockIndex;
+        var block = args.block;
+        var leftBlock = args.leftBlock;
+        var rightBlock = args.rightBlock;
+        var leftBase = args.leftBase;
+        var rightBase = args.rightBase;
+        var scale = args.scale;
+        var stripeWidth = args.stripeWidth;
+        var containerStart = args.containerStart;
+        var containerEnd = args.containerEnd;
+        var finishCallback = args.finishCallback;
 
         var region = { ref: this.refSeq.name, start: leftBase, end: rightBase };
 

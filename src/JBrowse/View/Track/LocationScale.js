@@ -23,10 +23,11 @@ return declare(BlockBased,
     makeTrackLabel: function() {},
     makeTrackMenu: function() {},
 
-    fillBlock: function(blockIndex, block,
-                        leftBlock, rightBlock,
-			leftBase, rightBase, scale,
-			padding, stripeWidth) {
+    fillBlock: function( args ) {
+        var blockIndex = args.blockIndex;
+        var block = args.block;
+        var leftBase = args.leftBase;
+
         var posLabel = document.createElement("div");
         var numtext = Util.addCommas( leftBase+1 );
         posLabel.className = this.labelClass;
