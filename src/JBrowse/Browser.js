@@ -1541,11 +1541,15 @@ Browser.prototype.createNavBox = function( parent ) {
     var browserRoot = this.config.browserRoot ? this.config.browserRoot : "";
     navbox.id = "navbox";
     parent.appendChild(navbox);
-    navbox.appendChild(document.createElement("div"));
     navbox.style.cssText = "text-align: left; z-index: 10;";
+    
+    var miniTrap = document.createElement("div");
+    miniTrap.id = "minitrap";
+    miniTrap.className = "miniTrap";
+    navbox.appendChild(miniTrap);
 
     var four_nbsp = String.fromCharCode(160); four_nbsp = four_nbsp + four_nbsp + four_nbsp + four_nbsp;
-    navbox.appendChild(document.createTextNode( four_nbsp ));
+    miniTrap.appendChild(document.createTextNode( four_nbsp ));
 
     var moveLeft = document.createElement("input");
     moveLeft.type = "image";
@@ -1553,7 +1557,7 @@ Browser.prototype.createNavBox = function( parent ) {
     moveLeft.id = "moveLeft";
     moveLeft.className = "icon nav";
     moveLeft.style.height = "40px";
-    navbox.appendChild(moveLeft);
+    miniTrap.appendChild(moveLeft);
     dojo.connect( moveLeft, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
@@ -1566,14 +1570,14 @@ Browser.prototype.createNavBox = function( parent ) {
     moveRight.id="moveRight";
     moveRight.className = "icon nav";
     moveRight.style.height = "40px";
-    navbox.appendChild(moveRight);
+    miniTrap.appendChild(moveRight);
     dojo.connect( moveRight, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
                       this.view.slide(-0.9);
                   });
 
-    navbox.appendChild(document.createTextNode( four_nbsp ));
+    miniTrap.appendChild(document.createTextNode( four_nbsp ));
 
     var bigZoomOut = document.createElement("input");
     bigZoomOut.type = "image";
@@ -1581,7 +1585,7 @@ Browser.prototype.createNavBox = function( parent ) {
     bigZoomOut.id = "bigZoomOut";
     bigZoomOut.className = "icon nav";
     bigZoomOut.style.height = "40px";
-    navbox.appendChild(bigZoomOut);
+    miniTrap.appendChild(bigZoomOut);
     dojo.connect( bigZoomOut, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
@@ -1595,7 +1599,7 @@ Browser.prototype.createNavBox = function( parent ) {
     zoomOut.id = "zoomOut";
     zoomOut.className = "icon nav";
     zoomOut.style.height = "40px";
-    navbox.appendChild(zoomOut);
+    miniTrap.appendChild(zoomOut);
     dojo.connect( zoomOut, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
@@ -1608,7 +1612,7 @@ Browser.prototype.createNavBox = function( parent ) {
     zoomIn.id = "zoomIn";
     zoomIn.className = "icon nav";
     zoomIn.style.height = "40px";
-    navbox.appendChild(zoomIn);
+    miniTrap.appendChild(zoomIn);
     dojo.connect( zoomIn, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
@@ -1621,30 +1625,29 @@ Browser.prototype.createNavBox = function( parent ) {
     bigZoomIn.id = "bigZoomIn";
     bigZoomIn.className = "icon nav";
     bigZoomIn.style.height = "40px";
-    navbox.appendChild(bigZoomIn);
+    miniTrap.appendChild(bigZoomIn);
     dojo.connect( bigZoomIn, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
                       this.view.zoomIn(undefined, undefined, 2);
                   });
 
-    navbox.appendChild(document.createTextNode( four_nbsp ));
+    miniTrap.appendChild(document.createTextNode( four_nbsp ));
 
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
     // set in the config, then put in a dropdown box for selecting
     // reference sequences
-    var refSeqSelectBoxPlaceHolder = dojo.create('span', {}, navbox );
+    var refSeqSelectBoxPlaceHolder = dojo.create('span', {}, miniTrap );
 
     // make the location box
     this.locationBox = new dijitComboBox(
         {
             id: "location",
             name: "location",
-            style: { width: '25ex', height: '20px' },
             maxLength: 400,
             searchAttr: "name"
         },
-        dojo.create('input', {}, navbox) );
+        dojo.create('input', {}, miniTrap) );
     this.loadNames().then( dojo.hitch(this, function() {
         this.locationBox.set( 'store', this._makeLocationAutocompleteStore() );
     }));
@@ -1661,7 +1664,7 @@ Browser.prototype.createNavBox = function( parent ) {
                           this.goButton.set('disabled', false);
                       }
                   });
-    dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
+    dojo.connect( miniTrap, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
     // monkey-patch the combobox code to make a few modifications
     (function(){
 
@@ -1687,13 +1690,14 @@ Browser.prototype.createNavBox = function( parent ) {
     // make the 'Go' button'
     this.goButton = new dijitButton(
         {
+            id: 'GoButton',
             label: 'Go',
             onClick: dojo.hitch( this, function(event) {
                 this.navigateTo(this.locationBox.get('value'));
                 this.goButton.set('disabled',true);
                 dojo.stopEvent(event);
             })
-        }, dojo.create('button',{},navbox));
+        }, dojo.create('button',{},miniTrap));
 
 
 

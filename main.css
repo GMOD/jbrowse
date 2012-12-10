@@ -108,6 +108,7 @@ div.vertical_scrollbar .vertical_position_marker {
 #navbox {
     padding-top: 3px;
     position: relative;
+    height: 40px;
 }
 
 .moreMatches {
@@ -534,6 +535,16 @@ div.overview .rubber-highlight * {
 
 .icon.nav {
     height: 30px !important;
+}
+
+.miniTrap{
+    position: absolute;
+    bottom: 0;
+    border-bottom: 30px solid #4284D3;
+    border-left: 0px solid transparent;
+    border-right: 35px solid transparent;
+    height: 0;
+    width: auto;
 }
 
 input.nav {

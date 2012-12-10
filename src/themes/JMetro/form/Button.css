@@ -1,0 +1,130 @@
+
+/*****
+		dijit.form.Button
+		dijit.form.DropDownButton
+		dijit.form.ComboButton
+		dijit.form.ComboBox (partial)
+		dijit.form.Spinner (partial) (TODO: create NumberSpinner.css file like claro has)
+ *****/
+
+.tundra .dijitButtonNode {
+	/* enabled state - inner */
+	padding: 0.1em 0.2em 0.2em 0.2em;
+	background: #CCCCCC;
+}
+.tundra .dijitButtonText {
+	text-align: center;
+	padding: 0 0.3em;
+}
+
+.tundra .dijitDisabled .dijitButtonText {
+	color: #7F7F7F;
+}
+
+.tundra .dijitArrowButton {
+	color: #111;
+}
+
+.tundra .dijitComboButton .dijitDownArrowButton {
+	padding-right:4px;
+}
+
+.tundra .dijitTextBoxReadOnly,
+.tundra .dijitTextBoxReadOnly .dijitButtonNode,
+.tundra .dijitButtonDisabled .dijitButtonNode,
+.tundra .dijitToggleButtonDisabled .dijitButtonNode,
+.tundra .dijitDropDownButtonDisabled .dijitButtonNode,
+.tundra .dijitComboButtonDisabled .dijitButtonNode,
+.tundra .dijitTextBoxDisabled,
+.tundra .dijitTextBoxDisabled .dijitButtonNode {
+	/* disabled state - inner */
+	background:#e4e4e4;
+}
+
+.tundra .dijitButtonHover .dijitButtonNode,
+.tundra .dijitButtonNodeHover,
+.tundra .dijitToggleButtonHover .dijitButtonNode,
+.tundra .dijitDropDownButtonHover .dijitButtonNode,
+.tundra .dijitComboButton .dijitButtonContentsHover,
+.tundra .dijitComboButton .dijitDownArrowButtonHover {
+	/* hover state - inner */
+	/* TODO: change from Hover to Selected so that button is still highlighted while drop down is being used */
+	color:#111111;
+	background:#DDDDEE;
+}
+.tundra .dijitDownArrowButtonHover,
+.tundra .dijitUpArrowButtonHover {
+	color:#111111;
+	background:#DDDDEE;
+}
+
+.tundra .dijitUpArrowButtonActive,
+.tundra .dijitDownArrowButtonActive,
+.tundra .dijitButtonActive .dijitButtonNode,
+.tundra .dijitToggleButtonActive .dijitButtonNode,
+.tundra .dijitDropDownButtonActive .dijitButtonNode,
+.tundra .dijitButtonContentsActive,
+.tundra .dijitStackController .dijitToggleButtonChecked .dijitButtonNode {
+	/* active state - inner (for when you are pressing a normal button, or
+	 * when a radio-type button is in a depressed state
+	 */
+	border-color:#366dba;
+	background: #ededed;
+}
+
+.tundra .dijitArrowButtonInner {
+	background:url("../images/spriteArrows.png") no-repeat scroll 0 center;
+	width: 7px;
+	height: 7px;
+	margin: 0 4px 0 4px;
+}
+.tundra .dijitTextBox .dijitArrowButtonInner {
+	background-position: 0 center;
+}
+.dj_ie6 .tundra .dijitArrowButtonInner {
+	background-image:url("../images/spriteArrows.gif");
+}
+.tundra .dijitLeftArrowButton .dijitArrowButtonInner {
+	background-position: -7px center;
+}
+.tundra .dijitRightArrowButton .dijitArrowButtonInner {
+	background-position: -14px center;
+}
+.tundra .dijitUpArrowButton .dijitArrowButtonInner {
+	background-position: -21px center;
+}
+
+.tundra .dijitDisabled .dijitArrowButtonInner {
+	background-position: -28px center;
+}
+.tundra .dijitDisabled .dijitLeftArrowButton .dijitArrowButtonInner {
+	background-position: -35px center;
+}
+.tundra .dijitDisabled .dijitRightArrowButton .dijitArrowButtonInner {
+	background-position: -42px center;
+}
+.tundra .dijitDisabled .dijitUpArrowButton .dijitArrowButtonInner {
+	background-position: -49px center;
+}
+.dj_webkit .tundra .dijitSpinner .dijitUpArrowButton .dijitArrowButtonInner {
+	margin-top: -1px; /* image has too many blank pixels on top */
+}
+.dj_ie .tundra .dijitSpinner .dijitDownArrowButton .dijitArrowButtonInner {
+	margin-top: -2px; /* image has too many blank pixels on top */
+}
+.dj_ie8 .tundra .dijitSpinner .dijitDownArrowButton .dijitArrowButtonInner {
+	margin-top: -1px; /* image has too many blank pixels on top */
+}
+.tundra .dijitSpinnerButtonContainer {
+	width: auto;
+	padding: 0;
+}
+.tundra .dijitSpinner .dijitArrowButton {
+	width: 15px;
+}
+.tundra .dijitSpinner .dijitSpinnerButtonInner {
+	width: 15px;
+}
+.tundra .dijitSpinner .dijitArrowButtonInner .dijitInputField {
+	padding: 0;
+}

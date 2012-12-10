@@ -1,5 +1,5 @@
 /* main application CSS styles */
-@import url("src/dijit/themes/tundra/tundra.css");
+@import url("src/themes/JMetro/jmetro.css");
 @import url("src/dojo/resources/dojo.css");
 
 @import url("main.css");
