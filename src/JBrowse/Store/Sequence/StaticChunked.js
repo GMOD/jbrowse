@@ -47,6 +47,8 @@ return declare( SeqFeatureStore,
 
     getFeatures: function( query, callback, endCallback, errorCallback ) {
 
+        errorCallback = errorCallback || function(e) { console.error(e); };
+
         var start = query.start;
         var end   = query.end;
         var seqname    = query.ref;
