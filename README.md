@@ -9,7 +9,7 @@ The rest of this file is aimed primarily at developers.
 Make sure you have a web server installed on your development machine.  Any web server will do.
 
     cd /my/dev/webserver/root;
-    git clone git@github.com:GMOD/jbrowse.git
+    git clone git@github.com:YOURACCOUNT/jbrowse.git
     git submodule update --init
     ./setup.sh
     # and now point your browser to
