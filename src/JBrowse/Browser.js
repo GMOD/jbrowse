@@ -18,6 +18,7 @@ define( [
             'JBrowse/TouchScreenSupport',
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
+            'dijit/focus',
             'dojo/domReady!'
         ],
         function(
@@ -37,7 +38,8 @@ define( [
             GenomeView,
             Touch,
             ConfigManager,
-            InfoDialog
+            InfoDialog,
+            dijitFocus
         ) {
 
 var dojof = Util.dojof;
@@ -1003,6 +1005,10 @@ Browser.prototype.setGlobalKeyboardShortcut = function( keychar ) {
  * Key event handler that implements all global keyboard shortcuts.
  */
 Browser.prototype.globalKeyHandler = function( evt ) {
+    // if some digit widget is focused, don't process any global keyboard shortcuts
+    if( dijitFocus.curNode )
+        return;
+
     var shortcut = this.globalKeyboardShortcuts[ evt.keyChar ];
     if( shortcut ) {
         shortcut.call( this );
