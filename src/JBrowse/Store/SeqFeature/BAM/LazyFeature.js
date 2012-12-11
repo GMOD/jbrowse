@@ -49,6 +49,7 @@ var Feature = Util.fastDeclare(
 
     _tags: function() {
         this._parseAllTags();
+
         var tags = [ 'seq', 'seq_reverse_complemented', 'unmapped' ];
         if( ! this.get('unmapped') )
             tags.push( 'start', 'end', 'strand', 'score', 'qual', 'MQ', 'CIGAR', 'length_on_ref' );
@@ -76,8 +77,9 @@ var Feature = Util.fastDeclare(
             if( t in this.data && this.data[t] === undefined )
                 return false;
 
-            var s = seen[t];
-            seen[t] = true;
+            var lt = t.toLowerCase();
+            var s = seen[lt];
+            seen[lt] = true;
             return ! s;
         },this);
 
