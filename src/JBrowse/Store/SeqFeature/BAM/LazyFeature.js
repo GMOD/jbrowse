@@ -123,9 +123,9 @@ var Feature = Util.fastDeclare(
         return qseq.join(' ');
     },
     strand: function() {
-        // var xs = this.get('XS');
-        // return xs ? ( xs == '-' ? -1 : 1 ) :
-        return this.get('seq_reverse_complemented') ? -1 :  1;
+        var xs = this.get('XS');
+        return xs ? ( xs == '-' ? -1 : 1 ) :
+               this.get('seq_reverse_complemented') ? -1 :  1;
     },
     /**
      * Length in characters of the read name.
