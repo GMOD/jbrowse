@@ -34,7 +34,6 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
                 section:    /^\s*\[\s*([^\]\/]*)\s*\]\s*$/,
                 subsection: /^\s*\[\s*([^\]]*)\/([^\]]*)\s*\]\s*$/,
                 param:      /^(\w[\w\.\-\_\:\s]+)=\s*(.*?)\s*$/,
-                halfParam:  /^(\w[\w\.\-\_\:\s]+)=\s*$/,
                 comment:    /^\s*(#|\/\/).*$/,
                 emptyLine:  /^\s*$/,
                 newLine:    /\r\n|\r|\n/,
@@ -51,10 +50,8 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
             for (var i = 0; i < n; i++) {
                 if (this.regex.comment.test(this.lines[i])) {                      //      #this is a comment
                     // do nothing, since it's a comment.                           //      // this is also a comment
-                } else if (this.regex.halfParam.test(this.lines[i])) {             //      halfParam = 
-                    i = this.multiLine(i); // skips lines, so get 'i': where to continue
-                } else if (this.regex.param.test(this.lines[i])) {                 //      param = value
-                    this.param(i);
+                } else if (this.regex.param.test(this.lines[i])) {                 //      param = *
+                    i = this.param(i);
                 } else if (this.regex.subsection.test(this.lines[i])) {            //      [section_name]
                     this.subSection(i);
                 } else if (this.regex.section.test(this.lines[i])){                //      [section/subsection]
@@ -65,11 +62,18 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
             return AdaptorUtil.evalHooks(this.value); //Returns the JS object
         },
 
-        //called for:  something =
-        multiLine: function(i){
+        //called for:  something = *
+        param: function(i){
             var line = this.lines; var rx = this.regex;
             var lineNum = i+1;
-            var tmpStrVal = '';
+
+            var match = this.lines[i].match(this.regex.param);  // Check for a value
+            match[2].trim();                                    // on the first
+            if (!isNaN(match[2].trim())) {                      // line, then check
+                match[2] = parseFloat(match[2]);                // the rest of the
+            }                                                   // block
+
+            var tmpStrVal = match[2] ? match[2] : '';
             var divider = this.regex.code.test(line[lineNum]) ? "\n" : ' ';
             // while (line is defined, and not a parameter, section, or subsection)
             while (typeof line[lineNum] !== 'undefined' && (! ( rx.param.test(line[lineNum]) ||
@@ -93,22 +97,6 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
                 this.value[match[1].trim()] = tmpStrVal;
             }
             return lineNum - 1; //The line it should continue at.
-        },
-
-        //called for:  something = value
-        param: function(i) {
-            var match = this.lines[i].match(this.regex.param);
-            match[2].trim();
-            if (!isNaN(match[2].trim())) {
-                match[2] = parseFloat(match[2]);
-            }
-            if (this.subsection && this.section) {
-                this.value[this.section][this.subsection][match[1].trim()] = match[2];
-            } else if (this.section) {
-                this.value[this.section][match[1].trim()] = match[2];
-            } else{
-                this.value[match[1].trim()] = match[2];
-            }
         },
 
         //called for:  [foobar]
