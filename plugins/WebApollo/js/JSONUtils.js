@@ -99,7 +99,7 @@ JSONUtils.createJBrowseFeature = function( afeature )  {
  *      
  */
 JSONUtils.makeSimpleFeature = function(feature, parent)  {
-    result = new SimpleFeature({id: feature.id(), parent: (parent ? parent : feature.parent()) });
+    var result = new SimpleFeature({id: feature.id(), parent: (parent ? parent : feature.parent()) });
     var ftags = feature.tags();
     for (var tindex = 0; tindex < ftags.length; tindex++)  {  
 	var tag = ftags[tindex];
@@ -110,7 +110,7 @@ JSONUtils.makeSimpleFeature = function(feature, parent)  {
     if (subfeats && (subfeats.length > 0))  {
 	var simple_subfeats = [];
 	for (var sindex = 0; sindex < subfeats.length; sindex++)  {
-	    var simple_subfeat = JSONUtils.makeSimpleFeature(subfeats[sindex], this);
+	    var simple_subfeat = JSONUtils.makeSimpleFeature(subfeats[sindex], result);
 	    simple_subfeats.push(simple_subfeat);
 	}
 	result.set('subfeatures', simple_subfeats);
