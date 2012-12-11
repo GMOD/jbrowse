@@ -33,10 +33,11 @@ var Feature = Util.fastDeclare(
     },
 
     get: function( field ) {
-        return field in this.data ? this.data[field] :     // maybe already parsed
+        field = field.toLowerCase();
+        return field in this.data ? this.data[field] : // maybe already parsed
             function() {
-                var v = this.data[field] = this[field] ? this[field]()                       :  // maybe we have a special parser for it
-                                           this._flagMasks[field] ? this._parseFlag( field ) : // or is it a flag
+                var v = this.data[field] = this[field] ? this[field]()                       : // maybe we have a special parser for it
+                                           this._flagMasks[field] ? this._parseFlag( field ) : // or is it a flag?
                                            this._parseTag( field );                            // otherwise, must be a tag
                 return v;
             }.call(this);
@@ -48,7 +49,7 @@ var Feature = Util.fastDeclare(
 
     _tags: function() {
         this._parseAllTags();
-        var tags = [ 'seq', 'seq_reverse_complemented' ];
+        var tags = [ 'seq', 'seq_reverse_complemented', 'unmapped' ];
         if( ! this.get('unmapped') )
             tags.push( 'start', 'end', 'strand', 'score', 'qual', 'MQ', 'CIGAR', 'length_on_ref' );
         if( this.get('multi_segment_template') ) {
@@ -91,14 +92,14 @@ var Feature = Util.fastDeclare(
     },
 
     id: function() {
-        return this.get('name') + this.get('start');
+        return this.get('name')+'/'+this.get('MD')+'/'+this.get('CIGAR')+'/'+this.get('start');
     },
 
     // special parsers
     /**
      * Mapping quality score.
      */
-    MQ: function() {
+    mq: function() {
         var mq = (this.get('_bin_mq_nl') & 0xff00) >> 8;
         return mq == 255 ? undefined : mq;
     },
@@ -163,7 +164,7 @@ var Feature = Util.fastDeclare(
     _n_cigar_op: function() {
         return this.get('_flag_nc') & 0xffff;
     },
-    CIGAR: function() {
+    cigar: function() {
         if( this.get('unmapped') )
             return undefined;
 
@@ -182,6 +183,14 @@ var Feature = Util.fastDeclare(
         return cigar;
     },
     subfeatures: function() {
+        if( ! this.store.createSubfeatures )
+            return undefined;
+
+        var cigar = this.get('CIGAR');
+        if( cigar )
+            return this._cigarToSubfeats( cigar );
+
+        return undefined;
     },
     length_on_ref: function() {
         if( this.get('unmapped') )
@@ -310,7 +319,63 @@ var Feature = Util.fastDeclare(
 
     _parseFlag: function( flagName ) {
         return !!( this.get('_flags') & this._flagMasks[flagName] );
+    },
+
+    _parseCigar: function( cigar ) {
+        return array.map( cigar.match(/\d+\D/g), function( op ) {
+           return [ op.match(/\D/)[0].toUpperCase(), parseInt( op ) ];
+        });
+    },
+
+    /**
+     *  take a cigar string, and initial position, return an array of subfeatures
+     */
+    _cigarToSubfeats: function(cigar)    {
+        var subfeats = [];
+        var min = this.get('start');
+        var max;
+        var ops = this._parseCigar( cigar );
+        for (var i = 0; i < ops.length; i++)  {
+            var lop = ops[i][1];
+            var op = ops[i][0];  // operation type
+            // converting "=" to "E" to avoid possible problems later with non-alphanumeric type name
+            if (op === "=")  { op = "E"; }
+
+            switch (op) {
+            case 'M':
+            case 'D':
+            case 'N':
+            case 'E':
+            case 'X':
+                max = min + lop;
+                break;
+            case 'I':
+                max = min;
+                break;
+            case 'P':  // not showing padding deletions (possibly change this later -- could treat same as 'I' ?? )
+            case 'H':  // not showing hard clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
+            case 'S':  // not showing soft clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
+                break;
+                // other possible cases
+            }
+            if( op !== 'N' ) {
+                var subfeat = new SimpleFeature({
+                    data: {
+                    type: op,
+                        start: min,
+                        end: max,
+                        strand: this.get('strand'),
+                        cigar_op: lop+op
+                    },
+                    parent: this
+                });
+                subfeats.push(subfeat);
+            }
+            min = max;
+        }
+        return subfeats;
     }
+
 });
 
 return Feature;
