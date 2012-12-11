@@ -1,8 +1,9 @@
 define( ['dojo/_base/array',
          'JBrowse/Util',
-         './Util'
+         './Util',
+         'JBrowse/Model/SimpleFeature'
         ],
-        function( array, Util, BAMUtil ) {
+        function( array, Util, BAMUtil, SimpleFeature ) {
 
 
 var SEQRET_DECODER = ['=', 'A', 'C', 'x', 'G', 'x', 'x', 'x', 'T', 'x', 'x', 'x', 'x', 'x', 'x', 'N'];
@@ -66,9 +67,9 @@ var Feature = Util.fastDeclare(
 
         if( this.store.createSubfeatures ) {
             var subs = this.data.subfeatures = [];
-	    var cigar = data.CIGAR || data.cigar;
-	    if( cigar )
-	        subs.push.apply( subs, this._cigarToSubfeats( cigar ) );
+            var cigar = data.CIGAR || data.cigar;
+            if( cigar )
+                subs.push.apply( subs, this._cigarToSubfeats( cigar ) );
         }
     },
 
@@ -325,22 +326,17 @@ var Feature = Util.fastDeclare(
                 break;
                 // other possible cases
             }
-	    //  TODO may want to redo cigar subfeaturs as SimpleFeatures, and any need for more detail can crawl up to parent?
-            var subfeat = new Feature({
-                store: this.store,
-                file: this.file,
-                data: {
-                    // type: 'match_part',
-		    type: op,
-                    start: min,
-                    end: max,
-                    strand: this.get('strand'),
-                    cigar_op: lop+op,
-		    parent: this
-                },
-                parent: this  // need parent at this level too in order to get proper setting of _uniqueID 
-            });
-            if (op !== 'N')  {
+            if( op !== 'N' ) {
+                var subfeat = new SimpleFeature({
+                    data: {
+                    type: op,
+                        start: min,
+                        end: max,
+                        strand: this.get('strand'),
+                        cigar_op: lop+op
+                    },
+                    parent: this
+                });
                 subfeats.push(subfeat);
             }
             min = max;
@@ -387,11 +383,11 @@ var Feature = Util.fastDeclare(
     },
 
     parent: function() {
-	return this.data.parent;
+        return this.data.parent;
     },
 
     children: function() {
-	return this.data.subfeatures;
+        return this.data.subfeatures;
     }
 });
 
