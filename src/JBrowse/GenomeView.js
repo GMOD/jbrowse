@@ -963,7 +963,7 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
     this.addOverviewTrack(new LocationScaleTrack({
             label: "overview_loc_track",
             labelClass: "overview-pos",
-            posHeight: Math.round( this.overviewPosHeight * 1.3 )
+            posHeight: this.overviewPosHeight //Math.round( this.overviewPosHeight * 1.3 )
         }));
         this.sizeInit();
         this.setY(0);
