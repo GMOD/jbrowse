@@ -65,6 +65,7 @@ var Feature = Util.fastDeclare(
                        'next_segment_position'
                      );
         }
+        tags = tags.concat( this._tagList || [] );
 
         var d = this.data;
         for( var k in d ) {
@@ -152,9 +153,9 @@ var Feature = Util.fastDeclare(
         return seq;
     },
     name: function() {
-        return this.get('read_name');
+        return this.get('_read_name');
     },
-    read_name: function() {
+    _read_name: function() {
         var byteArray = this.bytes.byteArray;
         var readName = '';
         var nl = this.get('_l_read_name');
@@ -255,6 +256,7 @@ var Feature = Util.fastDeclare(
      * Only called if we have not already parsed that field.
      */
     _parseTag: function( tagName ) {
+        this._tagList = this._tagList || [];
         var byteArray = this.bytes.byteArray;
         var p = this.bytes.start + 36 + this.get('_l_read_name') + this.get('_n_cigar_op')*4 + this.get('_seq_bytes') + this.get('seq_length');
         var blockEnd = this.bytes.end;
@@ -299,10 +301,12 @@ var Feature = Util.fastDeclare(
                 value = undefined;
                 p = blockEnd+1; // stop parsing tags
             }
+            this._tagList.push( tag );
             if( tag == tagName )
                 return value;
-            else
-                this.data[tag] = value;
+            else {
+                this.data[tag.toLowerCase()] = value;
+            }
         }
         return undefined;
     },
