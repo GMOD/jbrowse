@@ -106,6 +106,7 @@ div.vertical_scrollbar .vertical_position_marker {
 #navbox {
     padding-top: 3px;
     position: relative;
+    text-align: center;
 }
 
 .moreMatches {
