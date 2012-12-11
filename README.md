@@ -13,7 +13,7 @@ Make sure you have a web server installed on your development machine.  Any web 
     git submodule update --init
     ./setup.sh
     # and now point your browser to
-    #   http://my.dev.machine/jbrowse/index.html?data=sample_data/json/volvox
+    #   http://localhost/jbrowse/index.html?data=sample_data/json/volvox
     # and you should see the volvox example data
 
 # Running the developer test suites
