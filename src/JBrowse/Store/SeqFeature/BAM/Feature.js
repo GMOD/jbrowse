@@ -68,7 +68,7 @@ var Feature = Util.fastDeclare(
             var subs = this.data.subfeatures = [];
 	    var cigar = data.CIGAR || data.cigar;
 	    if( cigar )
-	        sub.push.apply( subs, this._cigarToSubfeats( cigar ) );
+	        subs.push.apply( subs, this._cigarToSubfeats( cigar ) );
         }
     },
 
