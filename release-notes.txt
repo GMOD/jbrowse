@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+ * Greatly improved speed and responsiveness of BAM data backend.
+
  * Added support in HTMLFeatures and Alignments tracks for a
    `style.featureScale` configuration variable, which, if set,
    specifies a minimum zoom scale (pixels per basepair) for displaying
