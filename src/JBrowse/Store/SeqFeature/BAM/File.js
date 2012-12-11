@@ -316,17 +316,8 @@ var BamFile = declare( null,
             return this.join(', ');
         };
 
-        this.featureCache = this.featureCache || new LRUCache({
-            name: 'bamFeatureCache',
-            fillCallback: dojo.hitch(this, '_fetchChunkFeatures' ),
-            sizeFunction: function( features ) {
-                return features.length;
-            },
-            maxSize: 100000 // cache up to 100,000 BAM features
-        });
-
         try {
-            this.featureCache.get( chunks, function( features, error ) {
+            this._fetchChunkFeatures( chunks, function( features, error ) {
                 if( error ) {
                     callback( null, error );
                 } else {
@@ -344,33 +335,49 @@ var BamFile = declare( null,
 
     _fetchChunkFeatures: function( chunks, callback ) {
         var thisB = this;
-        var features = [];
-        var chunksProcessed = 0;
 
         if( ! chunks.length ) {
             callback([]);
             return;
         }
 
+        var features = [];
+        var chunksProcessed = 0;
+
+        var cache = this.featureCache = this.featureCache || new LRUCache({
+            name: 'bamFeatureCache',
+            fillCallback: dojo.hitch( this, '_readChunk' ),
+            sizeFunction: function( features ) {
+                return features.length;
+            },
+            maxSize: 100000 // cache up to 100,000 BAM features
+        });
+
         var error;
         array.forEach( chunks, function( c ) {
-                var fetchMin = c.minv.block;
-                var fetchMax = c.maxv.block + (1<<16); // *sigh*
+            cache.get( c, function( f, e ) {
+                error = error || e;
+                features.push.apply( features, f );
+                if( ++chunksProcessed == chunks.length )
+                    callback( features, error );
+            });
+        });
 
-                thisB.data.read(fetchMin, fetchMax - fetchMin + 1, function(r) {
-                    try {
-                        var data = BAMUtil.unbgzf(r, c.maxv.block - c.minv.block + 1);
+    },
 
-                        thisB.readBamFeatures( new Uint8Array(data), c.minv.offset, features, function() {
-                            if( ++chunksProcessed == chunks.length )
-                                callback( features, error );
-                        });
-                    } catch( e ) {
-                        error = e;
-                        if( ++chunksProcessed == chunks.length )
-                                callback( null, error );
-                    }
-                });
+    _readChunk: function( chunk, callback ) {
+        var thisB = this;
+        var features = [];
+        var fetchMin = chunk.minv.block;
+        var fetchMax = chunk.maxv.block + (1<<16); // *sigh*
+
+        thisB.data.read(fetchMin, fetchMax - fetchMin + 1, function(r) {
+            try {
+                var data = BAMUtil.unbgzf(r, chunk.maxv.block - chunk.minv.block + 1);
+                thisB.readBamFeatures( new Uint8Array(data), chunk.minv.offset, features, callback );
+            } catch( e ) {
+                callback( null, e );
+            }
         });
     },
 
