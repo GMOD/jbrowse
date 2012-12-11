@@ -60,7 +60,8 @@ var Feature = Util.fastDeclare(
                        'multi_segment_last',
                        'secondary_alignment',
                        'qc_failed',
-                       'duplicate'
+                       'duplicate',
+                       'next_segment_position'
                      );
         }
 
@@ -182,6 +183,14 @@ var Feature = Util.fastDeclare(
         }
         return cigar;
     },
+    next_segment_position: function() {
+        var nextRefID = this.get('_next_refID');
+        var nextSegment = this.file.indexToChr[nextRefID];
+        if( nextSegment )
+            return nextSegment.name+':'+this.get('_next_pos');
+        else
+            return undefined;
+    },
     subfeatures: function() {
         if( ! this.store.createSubfeatures )
             return undefined;
@@ -234,8 +243,8 @@ var Feature = Util.fastDeclare(
         this.data._bin_mq_nl = ints[3];
         this.data._flag_nc   = ints[4];
         this.data.seq_length = ints[5];
-        this.data.next_refID = ints[6] != -1 ? ints[6] : undefined;
-        this.data.next_pos   = ints[7] != -1 ? ints[7] : undefined;;
+        this.data._next_refID = ints[6];
+        this.data._next_pos   = ints[7];
         this.data.template_length = ints[8];
     },
 
