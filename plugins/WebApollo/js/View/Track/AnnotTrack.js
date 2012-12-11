@@ -625,7 +625,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 var allSameStrand = 1;
                 for (var i = 0; i < feature_records.length; ++i)  { 
                     var feature_record = feature_records[i];
-		    var feat = feature_record.feature;
+		    var original_feat = feature_record.feature;
+		    var feat = JSONUtils.makeSimpleFeature( original_feat );
                         var isSubfeature = !! feat.parent();  // !! is shorthand for returning true if value is defined and non-null
                         var annotStrand = annot.get('strand');
                         if (isSubfeature)  {
@@ -633,31 +634,25 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                 var featToAdd = feat;
                                 if (featStrand != annotStrand) {
                                         allSameStrand = 0;
-                                        featToAdd = new Array();
-                                        $.extend(featToAdd, feat);
                                         featToAdd.set('strand', annotStrand);
                                 }
                                 subfeats.push(featToAdd);
                         }
                         else  {
                             var source_track = feature_record.track;
-                                // if (source_track.fields["subfeatures"])  {
                                 if ( feat.get('subfeatures') ) {
-                                    // var subs = feat[source_track.fields["subfeatures"]];
                                     var subs = feat.get('subfeatures');
                                     for (var i = 0; i < subs.length; ++i) {
-                                        var feat = subs[i];
-                                                var featStrand = feat.get('strand');
-                                        var featToAdd = feat;
-                                                if (featStrand != annotStrand) {
-                                                        allSameStrand = 0;
-                                                        featToAdd = new Array();
-                                                        $.extend(featToAdd, feat);
-                                                        featToAdd.set('strand', annotStrand);
-                                                }
-                                                subfeats.push(featToAdd);
+                                        var subfeat = subs[i];
+                                        var featStrand = subfeat.get('strand');
+                                        var featToAdd = subfeat;
+                                        if (featStrand != annotStrand) {
+                                            allSameStrand = 0;
+                                            featToAdd.set('strand', annotStrand);
+                                        }
+                                        subfeats.push(featToAdd);
                                     }
-//                                  $.merge(subfeats, subs);
+				    // $.merge(subfeats, subs);
                                 }
                         }
                 }
