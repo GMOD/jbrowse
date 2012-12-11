@@ -3,6 +3,7 @@
  * Fixed a bug in which typing a key that is bound to a global
    keyboard shortcut (currently only 't' or '?') in the location box
    would erroneously execute the action for that global shortcut.
+   Thanks to Gregor Rot for pointing this out.
 
  * Fixed a bug in which toggling 'Show labels' in the track menu did
    not re-layout the track on the first toggling.
