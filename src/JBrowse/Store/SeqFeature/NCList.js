@@ -52,11 +52,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                       handleAs: "json",
                       failOk: true,
                       load:  Util.debugHandler( this, function(o) { this.loadSuccess(o, url); }),
-                      error: dojo.hitch( this, function(error) {
-                                             if( error.status != 404 )
-                                                 console.error(''+error);
-                                             this.loadFail(error, url);
-                                         })
+                      error: dojo.hitch( this, 'loadFail' )
     	        });
     },
 
@@ -92,8 +88,12 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     },
 
 
-    loadFail: function(trackInfo,url) {
+    loadFail: function( error, url ) {
+        if( error.status != 404 )
+            console.error(''+error);
         this.empty = true;
+        this._deferred.stats.resolve(    { success: false });
+        this._deferred.features.resolve( { success: false });
     },
 
     // just forward histogram() and iterate() to our encapsulate nclist
@@ -102,6 +102,11 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     },
 
     _getFeatures: function( query, origFeatCallback, finishCallback, errorCallback ) {
+        if( this.empty ) {
+            finishCallback();
+            return;
+        }
+
         var that = this;
         var startBase  = query.start;
         var endBase    = query.end;
