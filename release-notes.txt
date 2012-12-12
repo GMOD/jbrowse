@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.7.5     2012-12-12 13:40:12 America/New_York
+
  * Fixed a bug in which typing a key that is bound to a global
    keyboard shortcut (currently only 't' or '?') in the location box
    would erroneously execute the action for that global shortcut.
