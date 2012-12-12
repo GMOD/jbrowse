@@ -91,7 +91,6 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
                 return;
             delete this.inactiveTrackNodes[ conf.label ];
 
-            var anchor = node.previousSibling;
             this.trackDndWidget.delItem( oldNode.id );
             if( oldNode.parentNode )
                 oldNode.parentNode.removeChild( oldNode );

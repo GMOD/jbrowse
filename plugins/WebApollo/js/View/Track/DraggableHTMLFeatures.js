@@ -44,9 +44,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 		    className: "feature", 
                     // renderClassName: 'DraggableFeatureTrack'  ???
 		    // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn, 
-		    minSubfeatureWidth: 1, 
-		    alwaysDrawArrow: true,   // always draw feature arrows if feature is drawn
-		    centerFeatureChildren: true  // by default use feature child centering
+		    minSubfeatureWidth: 1
                 },
                 events: {
 		    // need to map click to a null-op, to override default JBrowse click behavior for click on features 
@@ -325,67 +323,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
         }
         return featdiv;
     },
-
-
-    /** 
-     *   refactored out of HTMLFeatures._centerFeatureElements
-     *   
-     *   Caching div heights based on classname, to avoid touching the DOM as much as possiblen
-     */
-    _getHeight: function( theDiv )  {
-	if (this.config.disableHeightCache)  {
-	    return theDiv.offsetHeight || 0; 
-	}
-	else  {
-	    var c = this.heightCache[ theDiv.className ];
-            if( c )
-		return c;
-            c  = theDiv.offsetHeight || 0;
-            this.heightCache[ theDiv.className ] = c;
-            return c;
-	}
-    }, 
-
-    /**
-     * Vertically centers all the child elements of a feature div.
-     * Overrides HTMLFeatures._centerFeatureElements() -- possibly port into superclass at some point?
-     * @private
-     */
-    _centerFeatureElements: function( /**HTMLElement*/ featDiv ) {
-	if (this.config.style.centerFeatureChildren)  { 
-	    if (featDiv.childNodes.length > 0)  {
-		var parentHeight = this._getHeight(featDiv);
-		// var parentHeight = featDiv.offsetHeight;
-		for( var i = 0; i< featDiv.childNodes.length; i++ ) {
-		    var child = featDiv.childNodes[i];
-		    // cache the height of elements, for speed.
-		    var h = this._getHeight(child);
-		    // var h = child.offsetHeight;
-		    dojo.style( child, { marginTop: '0', top: ((parentHeight-h)/2) + 'px' });
-		    // recursively center any descendants
-		    if (child.childNodes.length > 0)  {
-			this._centerFeatureElements( child );
-		    }
-		}
-	    }
-	}
-    }, 
-
-    /** DraggableHTMLFeatures has optional toggle to turn off centering of children */
-/*    _centerFeatureElements: function( featDiv )  {
-	if (this.config.style.centerFeatureChildren)  { 
-	    this.inherited( arguments ); 
-	    // TODO: recurse down and center subfeature children??
-           for( var i = 0; i< featDiv.childNodes.length; i++ ) {
-		var child = featDiv.childNodes[i];
-		if (child.childNodes && child.childNodes.length > 0)  {
-		    this._centerFeatureElements( child );
-		}
-	    }
-
-	}
-    }, 
-*/
 
     renderSubfeature: function( feature, featDiv, subfeature,
                                 displayStart, displayEnd, block )  {

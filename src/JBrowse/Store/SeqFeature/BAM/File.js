@@ -4,7 +4,7 @@ define( [
             'JBrowse/Util',
             'JBrowse/Store/LRUCache',
             './Util',
-            './Feature'
+            './LazyFeature'
         ],
         function( declare, array, Util, LRUCache, BAMUtil, BAMFeature ) {
 

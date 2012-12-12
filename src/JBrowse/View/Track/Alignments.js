@@ -1,13 +1,12 @@
 define( ['dojo/_base/declare',
          'dojo/_base/array',
          'JBrowse/Util',
-         'JBrowse/View/Track/HTMLFeatures', 
-	 'plugins/WebApollo/js/View/Track/DraggableHTMLFeatures', 
+         'JBrowse/View/Track/HTMLFeatures'
         ],
-        function( declare, array, Util, HTMLFeatures, DraggableHTMLFeatures ) {
+        function( declare, array, Util, HTMLFeatures ) {
 
 // return declare( HTMLFeatures,
-return declare( DraggableHTMLFeatures,
+return declare( HTMLFeatures,
 /**
  * @lends JBrowse.View.Track.Alignments
  */
@@ -19,14 +18,13 @@ return declare( DraggableHTMLFeatures,
             {
                 maxFeatureScreenDensity: 1.5,
                 layoutPitchY: 4,
-                showBaseMismatches: true,
                 style: {
                     _defaultLabelScale: 50,
                     className: 'alignment',
-                    arrowheadClass: 'arrowhead', 
-		    centerFeatureChildren: false, 
-		    renderMismatches: true, 
-		    renderSubfeatures: false
+                    arrowheadClass: 'arrowhead',
+                    centerFeatureChildren: false,
+                    showMismatches: true,
+                    showSubfeatures: false
                 }
             }
         );
@@ -38,9 +36,9 @@ return declare( DraggableHTMLFeatures,
 
         var displayStart = Math.max( feature.get('start'), containerStart );
         var displayEnd = Math.min( feature.get('end'), containerEnd );
-	if (this.config.style.renderMismatches)  { 
-	    this._drawMismatches( feature, featDiv, scale, displayStart, displayEnd ); 
-	}
+        if( this.config.style.showMismatches )  {
+            this._drawMismatches( feature, featDiv, scale, displayStart, displayEnd );
+        }
 
         // if this feature is part of a multi-segment read, and not
         // all of its segments are aligned, add missing_mate to its
@@ -54,10 +52,10 @@ return declare( DraggableHTMLFeatures,
 
     handleSubFeatures: function( feature, featDiv,
                                  displayStart, displayEnd, block )  {
-	if (this.config.style.renderSubfeatures)  {
-	    this.inherited(arguments);
-	}
-    }, 
+        if( this.config.style.showSubfeatures )  {
+            this.inherited(arguments);
+        }
+    },
 
     /**
      * draw base-mismatches on the feature
@@ -75,7 +73,7 @@ return declare( DraggableHTMLFeatures,
                 var end = start + mismatch.length;
 
                 // if the feature has been truncated to where it doesn't cover
-                // this mismatch anymore, just skip this subfeature
+                // this mismatch anymore, just skip this mismatch
                 if ( end <= displayStart || start >= displayEnd )
                     return;
 
