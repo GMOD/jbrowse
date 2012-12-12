@@ -1550,10 +1550,8 @@ Browser.prototype.createNavBox = function( parent ) {
 
     var nbsp = String.fromCharCode(160);
 
-//    miniTrap.appendChild(document.createTextNode( nbsp + 'Region' + nbsp ));
-
-    miniTrap.appendChild(document.createTextNode( nbsp ));
-
+    miniTrap.appendChild(document.createTextNode(nbsp + nbsp + nbsp) );
+    
     var regionText = document.createElement('span');
     regionText.style.color = 'white';
     regionText.style.fontWeight = 'bold';

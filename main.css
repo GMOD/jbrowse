@@ -22,6 +22,12 @@ fieldset > legend {
     margin-left: -1em;
 }
 
+button {
+    background: #CCCCCC;
+    color: black;
+    border: none;
+}
+
 .locString {
     font-family: Courier New,monospace;
 }

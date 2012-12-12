@@ -88,12 +88,12 @@
     display: block;
 }
 #faceted_tracksel label.textFilterControl input {
-    border-top: 3px solid transparent;
+    border: none;
     font-weight: bold;
     padding: 0.2em;
 }
 #faceted_tracksel label.textFilterControl.selected input {
-    border-top: 3px solid #0E53A7;
+    border-top: 3px solid #4284D3;
     background: #D2E1F1;
 }
 
@@ -103,7 +103,7 @@
     padding: 5px;
 }
 .tundra #faceted_tracksel_top {
-    background: #0E53A7;
+    background: #333333;
 }
 .tundra #faceted_tracksel_top .topLink {
     color: white;
@@ -125,7 +125,7 @@
 
 #faceted_tracksel .faceted_tracksel_on_off.tab {
     position: absolute;
-    top: 3.5em;
+    top: 2.4em;
     left: 100%;
     z-index: 5;
 
@@ -232,7 +232,7 @@
     color: black;
 }
 .tundra #faceted_tracksel .activeFacet {
-    border-top: 3px solid #0E53A7;
+    border-top: 3px solid #4284D3;
     background-color: #AEC7E3;
 }
 
@@ -260,4 +260,12 @@
 /* style the 'empty' and similar messages that show up in the grid master pane */
 #faceted_tracksel .dojoxGridMasterMessages {
     font-size: 16px;
+}
+
+.tundra .dojoxGridHeader .dojoxGridCellOver {
+    background: #CCCCCC;
+}
+
+.tundra .dojoxGridHeader .dojoxGridCell {
+    background: #CCCCCC;
 }
