@@ -2,6 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
+            'dojo/dom-construct',
             'dojo/dom-geometry',
             'dojo/on',
             'dojo/has',
@@ -19,6 +20,7 @@ define( [
       function( declare,
                 lang,
                 array,
+                dom,
                 domGeom,
                 on,
                 has,
@@ -124,6 +126,7 @@ HTMLFeatures = declare( HTMLFeatures,
             description: true,
 
             maxFeatureScreenDensity: 0.5,
+            blockDisplayTimeout: 3000,
 
             style: {
                 className: "feature2",
@@ -669,7 +672,15 @@ HTMLFeatures = declare( HTMLFeatures,
         var descriptionScale = this.config.style.descriptionScale || stats.featureDensity * this.config.style._defaultDescriptionScale;
 
         var curTrack = this;
+
+        var timedOut = false;
+        var timeOutError = { toString: function() { return 'Timed out trying to display '+curTrack.name+' block '+blockIndex; } };
+        window.setTimeout( function() { timedOut = true; }, this.config.blockDisplayTimeout );
+
         var featCallback = dojo.hitch(this,function( feature ) {
+            if( timedOut )
+                throw timeOutError;
+
             var uniqueId = feature.id();
             if( ! this._featureIsRendered( uniqueId ) ) {
                 /* feature render, adding to block, centering refactored into addFeatureToBlock() */
@@ -690,7 +701,12 @@ HTMLFeatures = declare( HTMLFeatures,
                                 },
                                 function( error ) {
                                     curTrack.error = error;
-                                    curTrack.fillError( blockIndex, block );
+                                    if( error === timeOutError ) {
+                                        dom.empty( block );
+                                        block.featureNodes = {};
+                                        curTrack.fillMessage( blockIndex, block, 'This region took too long to display, possibly because it contains too many features.  Try zooming in to show fewer features.' );
+                                    } else
+                                        curTrack.fillError( blockIndex, block );
                                     finishCallback();
                                 }
                               );
