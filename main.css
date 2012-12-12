@@ -535,6 +535,7 @@ div.overview .rubber-highlight * {
 
 .icon.nav {
     height: 25px !important;
+    outline-style: none;
 }
 
 .miniTrap{
