@@ -99,7 +99,7 @@
 
 /* Track selector title bar */
 #faceted_tracksel_top {
-    border-bottom: 1px solid #ccc;
+    border: none;
     padding: 5px;
 }
 .tundra #faceted_tracksel_top {
@@ -125,27 +125,22 @@
 
 #faceted_tracksel .faceted_tracksel_on_off.tab {
     position: absolute;
-    top: 2.4em;
+    top: 2.8em;
     left: 100%;
     z-index: 5;
 
-    padding: 5px 0px;
     white-space: nowrap;
-
+    font-size: 10pt;
     cursor: pointer;
-
-    -moz-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
-    -webkit-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
-    box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
 }
 #faceted_tracksel div.faceted_tracksel_on_off.tab > * {
     display: inline-block;
     vertical-align: middle;
-    padding: 0 6px;
+    padding: 0 4px;
 }
 .tundra #faceted_tracksel .faceted_tracksel_on_off.tab {
     background: #CCCCCC; 
-    border: 2px solid #666;
+    border: 1px solid #446;
 }
 
 
