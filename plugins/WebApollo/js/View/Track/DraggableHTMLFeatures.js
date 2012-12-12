@@ -44,8 +44,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 		    className: "feature", 
                     // renderClassName: 'DraggableFeatureTrack'  ???
 		    // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn, 
-		    minSubfeatureWidth: 1, 
-		    alwaysDrawArrow: true   // always draw feature arrows if feature is drawn
+		    minSubfeatureWidth: 1
                 },
                 events: {
 		    // need to map click to a null-op, to override default JBrowse click behavior for click on features 

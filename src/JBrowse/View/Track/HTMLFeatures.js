@@ -926,19 +926,15 @@ HTMLFeatures = declare( HTMLFeatures,
             switch (strand) {
             case 1:
             case '+':
-                if( this.config.style.alwaysDrawArrow || featwidth_px > this.plusArrowWidth*1.1 ) {
-                    ah.className = "plus-" + this.config.style.arrowheadClass;
-                    ah.style.cssText =  "left: 100%; top: 0px;";
-                    featDiv.appendChild(ah);
-                }
+                ah.className = "plus-" + this.config.style.arrowheadClass;
+                ah.style.cssText =  "left: 100%; top: 0px;";
+                featDiv.appendChild(ah);
                 break;
             case -1:
             case '-':
-                if( this.config.style.alwaysDrawArrow || featwidth_px > this.minusArrowWidth*1.1 ) {
-                    ah.className = "minus-" + this.config.style.arrowheadClass;
-                    ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px; top: 0px;";
-                    featDiv.appendChild(ah);
-                }
+                ah.className = "minus-" + this.config.style.arrowheadClass;
+                ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px; top: 0px;";
+                featDiv.appendChild(ah);
                 break;
             }
         }
