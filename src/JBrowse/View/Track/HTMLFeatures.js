@@ -58,8 +58,8 @@ var HTMLFeatures = declare( BlockBased, {
         this.levelHeightPad = 2;
         this.labelPad = 1;
 
-	// if calculated feature pixel width would be less than minFeatWidth, then set width to minFeatWidth instead
-	this.minFeatWidth = 1;  
+        // if calculated feature pixel width would be less than minFeatWidth, then set width to minFeatWidth instead
+        this.minFeatWidth = 1;
 
         this.trackPadding = args.trackPadding;
 
@@ -344,7 +344,7 @@ HTMLFeatures = declare( HTMLFeatures,
                 if (!(typeof hist[bin] == 'number' && isFinite(hist[bin])))
                     continue;
                 binDiv = document.createElement("div");
-	        binDiv.className = "hist feature-hist "+track.config.style.className + "-hist";
+                binDiv.className = "hist feature-hist "+track.config.style.className + "-hist";
                 binDiv.style.cssText =
                     "left: " + ((bin / track.numBins) * 100) + "%; "
                     + "height: "
@@ -609,24 +609,24 @@ HTMLFeatures = declare( HTMLFeatures,
         overlaps = overlaps || [];
 
         for (var i = 0; i < overlaps.length; i++) {
-	    //if the feature overlaps destBlock,
-	    //move to destBlock & re-position
-	    sourceSlot = sourceBlock.featureNodes[ overlaps[i] ];
-	    if (sourceSlot && ("label" in sourceSlot)) {
+            //if the feature overlaps destBlock,
+            //move to destBlock & re-position
+            sourceSlot = sourceBlock.featureNodes[ overlaps[i] ];
+            if (sourceSlot && ("label" in sourceSlot)) {
                 sourceSlot.label.parentNode.removeChild(sourceSlot.label);
-	    }
-	    if (sourceSlot && sourceSlot.feature) {
-	        if ( sourceSlot.layoutEnd > destLeft
-		     && sourceSlot.feature.get('start') < destRight ) {
+            }
+            if (sourceSlot && sourceSlot.feature) {
+                if ( sourceSlot.layoutEnd > destLeft
+                     && sourceSlot.feature.get('start') < destRight ) {
 
                          sourceSlot.parentNode.removeChild(sourceSlot);
 
                          delete sourceBlock.featureNodes[ overlaps[i] ];
 
-		         /* feature render, adding to block, centering refactored into addFeatureToBlock() */
-		         var featDiv = this.addFeatureToBlock( sourceSlot.feature, overlaps[i],
-							 destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
-							 containerStart, containerEnd );
+                         /* feature render, adding to block, centering refactored into addFeatureToBlock() */
+                         var featDiv = this.addFeatureToBlock( sourceSlot.feature, overlaps[i],
+                                                         destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
+                                                         containerStart, containerEnd );
                      }
             }
         }
@@ -671,8 +671,8 @@ HTMLFeatures = declare( HTMLFeatures,
         var featCallback = dojo.hitch(this,function( feature ) {
             var uniqueId = feature.id();
             if( ! this._featureIsRendered( uniqueId ) ) {
-		/* feature render, adding to block, centering refactored into addFeatureToBlock() */
-		var featDiv = this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                /* feature render, adding to block, centering refactored into addFeatureToBlock() */
+                var featDiv = this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                                       containerStart, containerEnd );
             }
         });
@@ -705,7 +705,7 @@ HTMLFeatures = declare( HTMLFeatures,
                                           containerStart, containerEnd );
         block.appendChild( featDiv );
         this._centerFeatureElements( featDiv );
-	return featDiv;
+        return featDiv;
     },
 
     /**
@@ -800,27 +800,27 @@ HTMLFeatures = declare( HTMLFeatures,
             featureEnd = parseInt(featureEnd);
         if( typeof featureStart == 'string' )
             featureStart = parseInt(featureStart);
-	// layoutStart: start genome coord (at current scale) of horizontal space need to render feature, 
-	//       including decorations (arrowhead, label, etc) and padding 
-	var layoutStart = featureStart;  
-	// layoutEnd: end genome coord (at current scale) of horizontal space need to render feature, 
-	//       including decorations (arrowhead, label, etc) and padding
-	var layoutEnd = featureEnd;
+        // layoutStart: start genome coord (at current scale) of horizontal space need to render feature,
+        //       including decorations (arrowhead, label, etc) and padding
+        var layoutStart = featureStart;
+        // layoutEnd: end genome coord (at current scale) of horizontal space need to render feature,
+        //       including decorations (arrowhead, label, etc) and padding
+        var layoutEnd = featureEnd;
 
-	//     JBrowse now draws arrowheads within feature genome coord bounds
-	//     For WebApollo we're keeping arrow outside of feature genome coord bounds, 
-	//           because otherwise arrow can obscure edge-matching, CDS/UTR transitions, small inton/exons, etc.
-	//     Would like to implement arrowhead change in WebApollo plugin, but would need to refactor HTMLFeature more to allow for that
-	if (this.config.style.arrowheadClass) {
+        //     JBrowse now draws arrowheads within feature genome coord bounds
+        //     For WebApollo we're keeping arrow outside of feature genome coord bounds,
+        //           because otherwise arrow can obscure edge-matching, CDS/UTR transitions, small inton/exons, etc.
+        //     Would like to implement arrowhead change in WebApollo plugin, but would need to refactor HTMLFeature more to allow for that
+        if (this.config.style.arrowheadClass) {
             switch (feature.get('strand')) {
             case 1:
             case '+':
-		layoutEnd   += (this.plusArrowWidth / scale); break;
+                layoutEnd   += (this.plusArrowWidth / scale); break;
             case -1:
             case '-':
-		layoutStart -= (this.minusArrowWidth / scale); break;
+                layoutStart -= (this.minusArrowWidth / scale); break;
             }
-	}
+        }
 
         var levelHeight = this.glyphHeight + this.glyphHeightPad;
 
@@ -835,7 +835,7 @@ HTMLFeatures = declare( HTMLFeatures,
         // calculated height of the feature if it will be displayed
         if( this.showLabels && scale >= labelScale ) {
             if (name) {
-	        layoutEnd = Math.max(layoutEnd, layoutStart + (''+name).length * this.labelWidth / scale );
+                layoutEnd = Math.max(layoutEnd, layoutStart + (''+name).length * this.labelWidth / scale );
                 levelHeight += this.labelHeight + this.labelPad;
             }
             if( description ) {
@@ -879,19 +879,19 @@ HTMLFeatures = declare( HTMLFeatures,
             block.rightOverlaps.push( uniqueId );
         }
 
-	dojo.addClass(featDiv, "feature");
-	var className = this.config.style.className;
-	if (className == "{type}") { className = feature.get('type'); }
-	dojo.addClass(featDiv, className);
+        dojo.addClass(featDiv, "feature");
+        var className = this.config.style.className;
+        if (className == "{type}") { className = feature.get('type'); }
+        dojo.addClass(featDiv, className);
         var strand = feature.get('strand');
         switch (strand) {
         case 1:
         case '+':
-	    dojo.addClass(featDiv, "plus-" + className); break;
+            dojo.addClass(featDiv, "plus-" + className); break;
             // featDiv.className = featDiv.className + " " + this.config.style.className + " plus-" + this.config.style.className; break;
         case -1:
         case '-':
-	    dojo.addClass(featDiv, "minus-" + className); break;
+            dojo.addClass(featDiv, "minus-" + className); break;
             // featDiv.className = featDiv.className + " " + this.config.style.className + " minus-" + this.config.style.className; break;
 //        default:
             // featDiv.className = featDiv.className + " " + this.config.style.className; break;
@@ -926,7 +926,7 @@ HTMLFeatures = declare( HTMLFeatures,
             case '+':
                 if( this.config.style.alwaysDrawArrow || featwidth_px > this.plusArrowWidth*1.1 ) {
                     ah.className = "plus-" + this.config.style.arrowheadClass;
-		    ah.style.cssText =  "left: 100%; top: 0px;";
+                    ah.style.cssText =  "left: 100%; top: 0px;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -934,7 +934,7 @@ HTMLFeatures = declare( HTMLFeatures,
             case '-':
                 if( this.config.style.alwaysDrawArrow || featwidth_px > this.minusArrowWidth*1.1 ) {
                     ah.className = "minus-" + this.config.style.arrowheadClass;
-		    ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px; top: 0px;";
+                    ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px; top: 0px;";
                     featDiv.appendChild(ah);
                 }
                 break;
@@ -954,7 +954,7 @@ HTMLFeatures = declare( HTMLFeatures,
 
             this._connectFeatDivHandlers( labelDiv );
 
-	    featDiv.label = labelDiv;
+            featDiv.label = labelDiv;
             featDiv.labelDiv = labelDiv;
 
             labelDiv.feature = feature;
@@ -965,7 +965,7 @@ HTMLFeatures = declare( HTMLFeatures,
         }
 
         if( featwidth > this.config.style.minSubfeatureWidth ) {
-	    this.handleSubFeatures(feature, featDiv, displayStart, displayEnd, block);
+            this.handleSubFeatures(feature, featDiv, displayStart, displayEnd, block);
         }
 
         // render the popup menu if configured
@@ -983,7 +983,7 @@ HTMLFeatures = declare( HTMLFeatures,
 
     handleSubFeatures: function( feature, featDiv,
                                  displayStart, displayEnd, block )  {
-	var subfeatures = feature.get('subfeatures');
+        var subfeatures = feature.get('subfeatures');
         if( subfeatures ) {
             for (var i = 0; i < subfeatures.length; i++) {
                 this.renderSubfeature( feature, featDiv,
@@ -1087,30 +1087,30 @@ HTMLFeatures = declare( HTMLFeatures,
         var subEnd = subfeature.get('end');
         var featLength = displayEnd - displayStart;
         var type = subfeature.get('type');
-	var className;
-	if (this.config.style.subfeatureClasses) {
-	    className = this.config.style.subfeatureClasses[type];
-	    // if no class mapping specified for type, default to "{parentclass}-{type}"
-	    if (className === undefined) { className = this.config.style.className + '-' + type; }
-	    // if subfeatureClasses specifies that subfeature type explicitly maps to null className 
-	    //     then don't render the feature        
-	    else if (className === null)  { 
-		className = this.config.style.className + '-' + type; 
-		return ; 
-	    }
-	}
-	else {
-	    // if no config.style.subfeatureClasses to specify subfeature class mapping, default to "{parentclass}-{type}"
-	    className = this.config.style.className + '-' + type; 
-	}
+        var className;
+        if( this.config.style.subfeatureClasses ) {
+            className = this.config.style.subfeatureClasses[type];
+            // if no class mapping specified for type, default to "{parentclass}-{type}"
+            if (className === undefined) { className = this.config.style.className + '-' + type; }
+            // if subfeatureClasses specifies that subfeature type explicitly maps to null className
+            //     then don't render the feature
+            else if (className === null)  {
+                className = this.config.style.className + '-' + type;
+                return null;
+            }
+        }
+        else {
+            // if no config.style.subfeatureClasses to specify subfeature class mapping, default to "{parentclass}-{type}"
+            className = this.config.style.className + '-' + type;
+        }
         var subDiv = document.createElement("div");
-	dojo.addClass(subDiv, "subfeature");
+        dojo.addClass(subDiv, "subfeature");
         dojo.addClass(subDiv, className);
 
         switch ( subfeature.get('strand') ) {
         case 1:
         case '+':
-	    dojo.addClass(subDiv, "plus-" + className); break;
+            dojo.addClass(subDiv, "plus-" + className); break;
         case -1:
         case '-':
             dojo.addClass(subDiv, "minus-" + className); break;
@@ -1130,7 +1130,7 @@ HTMLFeatures = declare( HTMLFeatures,
 
         block.featureNodes[ subfeature.id() ] = subDiv;
 
-	return subDiv;
+        return subDiv;
     },
 
     _getLayout: function( scale ) {
@@ -1153,7 +1153,7 @@ HTMLFeatures = declare( HTMLFeatures,
 
     /**
      *   indicates a change to this track has happened that may require a re-layout
-     *   clearing layout here, and relying on superclass BlockBased.changed() call and 
+     *   clearing layout here, and relying on superclass BlockBased.changed() call and
      *   standard _changedCallback function passed in track constructor to trigger relayout
      */
     changed: function() {
