@@ -332,8 +332,8 @@ div.transcript-hist {
 .plus-transcript-arrowhead,
 .plus-arrowhead {
     position: absolute;
-    width: 7px;
-    height: 12px;
+    width: 9px;
+    height: 5px;
     background-image: url('img/plus-arrowhead.png');
     background-repeat: no-repeat;
 }
@@ -341,8 +341,8 @@ div.transcript-hist {
 .minus-transcript-arrowhead,
 .minus-arrowhead {
     position: absolute;
-    width: 7px;
-    height: 12px;
+    width: 9px;
+    height: 5px;
     background-image: url('img/minus-arrowhead.png');
     background-repeat: no-repeat;
 }
