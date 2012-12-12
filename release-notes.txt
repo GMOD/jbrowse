@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Added a timeout to HTMLFeatures and Alignments tracks to prevent
+   data-heavy tracks (like BAM tracks with very deep coverage) from
+   freezing or crashing a user's browser.
+
  * Greatly improved speed and responsiveness of BAM data backend.
 
  * Added support in HTMLFeatures and Alignments tracks for a
