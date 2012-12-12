@@ -1027,7 +1027,7 @@ HTMLFeatures = declare( HTMLFeatures,
                 dojo.style( child, { marginTop: '0', top: ((parentHeight-h)/2) + 'px' });
                 // recursively center any descendants
                 if (child.childNodes.length > 0)  {
-                    this._centerFeatureElements( child );
+                    this._centerChildrenVertically( child );
                 }
             }
         }
