@@ -126,7 +126,7 @@ HTMLFeatures = declare( HTMLFeatures,
             description: true,
 
             maxFeatureScreenDensity: 0.5,
-            blockDisplayTimeout: 3000,
+            blockDisplayTimeout: 5000,
 
             style: {
                 className: "feature2",
