@@ -846,7 +846,7 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
         text.appendChild( document.createTextNode("Zoom to region") );
         main.appendChild(text);
         text.style.position = 'relative';
-        text.style.top = (50-container_coords.y) + "px";
+        text.style.top = (70-container_coords.y) + "px";
 
         container.appendChild( main );
         return main;

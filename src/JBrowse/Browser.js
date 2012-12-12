@@ -1548,9 +1548,9 @@ Browser.prototype.createNavBox = function( parent ) {
     miniTrap.className = "miniTrap";
     navbox.appendChild(miniTrap);
 
-    var two_nbsp = String.fromCharCode(160); two_nbsp = two_nbsp + two_nbsp;
+    var nbsp = String.fromCharCode(160);
 
-    miniTrap.appendChild(document.createTextNode( two_nbsp ));
+    miniTrap.appendChild(document.createTextNode( nbsp ));
 
     var moveLeft = document.createElement("input");
     moveLeft.type = "image";
@@ -1578,7 +1578,7 @@ Browser.prototype.createNavBox = function( parent ) {
                       this.view.slide(-0.9);
                   });
 
-    miniTrap.appendChild(document.createTextNode( two_nbsp ));
+    miniTrap.appendChild(document.createTextNode( nbsp ));
 
     var zoomOut = document.createElement("input");
     zoomOut.type = "image";
@@ -1606,7 +1606,7 @@ Browser.prototype.createNavBox = function( parent ) {
                       this.view.zoomIn();
                   });
 
-    miniTrap.appendChild(document.createTextNode( two_nbsp ));
+    miniTrap.appendChild(document.createTextNode( nbsp ));
 
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
     // set in the config, then put in a dropdown box for selecting
