@@ -691,7 +691,7 @@ return declare( null,
                       });
               }
             },
-            { label: 'Delete',
+            { label: 'Delete track',
               title: "delete this track",
               iconClass: 'dijitIconDelete',
               action: function() {

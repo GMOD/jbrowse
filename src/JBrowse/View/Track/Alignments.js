@@ -1,13 +1,12 @@
 define( ['dojo/_base/declare',
          'dojo/_base/array',
          'JBrowse/Util',
-         'JBrowse/View/Track/HTMLFeatures',
-         'plugins/WebApollo/js/View/Track/DraggableHTMLFeatures'
+         'JBrowse/View/Track/HTMLFeatures'
         ],
-        function( declare, array, Util, HTMLFeatures, DraggableHTMLFeatures ) {
+        function( declare, array, Util, HTMLFeatures ) {
 
 // return declare( HTMLFeatures,
-return declare( DraggableHTMLFeatures,
+return declare( HTMLFeatures,
 /**
  * @lends JBrowse.View.Track.Alignments
  */
