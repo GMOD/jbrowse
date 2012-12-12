@@ -135,7 +135,8 @@ HTMLFeatures = declare( HTMLFeatures,
 
                 minSubfeatureWidth: 6,
                 maxDescriptionLength: 70,
-                showLabels: true
+                showLabels: true,
+                centerChildrenVertically: true  // by default use feature child centering
             },
             hooks: {
                 create: function(track, feat ) {
@@ -704,7 +705,8 @@ HTMLFeatures = declare( HTMLFeatures,
         var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                           containerStart, containerEnd );
         block.appendChild( featDiv );
-        this._centerFeatureElements( featDiv );
+        if( this.config.style.centerChildrenVertically )
+            this._centerChildrenVertically( featDiv );
         return featDiv;
     },
 
@@ -994,27 +996,41 @@ HTMLFeatures = declare( HTMLFeatures,
     },
 
     /**
+     * Get the height of a div.  Caches div heights based on
+     * classname.
+     */
+    _getHeight: function( theDiv )  {
+        if (this.config.disableHeightCache)  {
+            return theDiv.offsetHeight || 0;
+        }
+        else  {
+            var c = this.heightCache[ theDiv.className ];
+            if( c )
+                return c;
+            c  = theDiv.offsetHeight || 0;
+            this.heightCache[ theDiv.className ] = c;
+            return c;
+        }
+    },
+
+    /**
      * Vertically centers all the child elements of a feature div.
      * @private
      */
-    _centerFeatureElements: function( /**HTMLElement*/ featDiv ) {
-        var getHeight = this.config.disableHeightCache
-            ? function(child) { return child.offsetHeight || 0; }
-            : function( child ) {
-                var c = this.heightCache[ child.className ];
-                if( c )
-                    return c;
-                c  = child.offsetHeight || 0;
-                this.heightCache[ child.className ] = c;
-                return c;
-            };
-
-        for( var i = 0; i< featDiv.childNodes.length; i++ ) {
-            var child = featDiv.childNodes[i];
-            // cache the height of elements, for speed.
-            var h = getHeight.call(this,child);
-            dojo.style( child, { marginTop: '0', top: ((this.glyphHeight-h)/2) + 'px' });
-         }
+    _centerChildrenVertically: function( /**HTMLElement*/ featDiv ) {
+        if( featDiv.childNodes.length > 0 ) {
+            var parentHeight = this._getHeight(featDiv);
+            for( var i = 0; i< featDiv.childNodes.length; i++ ) {
+                var child = featDiv.childNodes[i];
+                // cache the height of elements, for speed.
+                var h = this._getHeight(child);
+                dojo.style( child, { marginTop: '0', top: ((parentHeight-h)/2) + 'px' });
+                // recursively center any descendants
+                if (child.childNodes.length > 0)  {
+                    this._centerFeatureElements( child );
+                }
+            }
+        }
     },
 
     /**
