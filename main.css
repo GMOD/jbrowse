@@ -540,9 +540,9 @@ div.overview .rubber-highlight * {
 .miniTrap{
     position: absolute;
     bottom: 0;
-    border-bottom: 26px solid #4284D3;
+    border-bottom: 22px solid #4284D3;
     border-left: 0px solid transparent;
-    border-right: 35px solid transparent;
+    border-right: 24px solid transparent;
     height: 0;
     width: auto;
 }

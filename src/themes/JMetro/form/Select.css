@@ -7,7 +7,6 @@
 
 /* Make unselected content portion "look" more like a text box and less like a button */
 .tundra .dijitSelect .dijitButtonContents {
-	padding-top: 1px;
 	background:#CCCCCC;
 	#background:#CCCCCC;
 }

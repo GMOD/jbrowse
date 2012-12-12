@@ -35,8 +35,8 @@
 	#display:inline; /* don't use .dj_ie since that increases the priority */
 	border:0;
 	padding:0;
-	vertical-align:middle;
-	#vertical-align: auto;	/* makes TextBox,Button line up w/native counterparts on IE6 */
+	vertical-align: top;
+	#vertical-align: top;	/* makes TextBox,Button line up w/native counterparts on IE6 */
 }
 
 table.dijitInline {
@@ -257,8 +257,8 @@ table.dijitInline {
 .dijitDropDownButton,
 .dijitComboButton {
 	/* outside of button */
-	margin: 0.2em;
-	vertical-align: middle;
+	margin: 1px 0.2em;
+	vertical-align: top;
 }
 
 .dijitButtonContents {
@@ -349,7 +349,8 @@ div.dijitArrowButton {
 	border: solid black 1px;
 	#overflow: hidden; /* #6027, #6067 */
 	width: 15em;	/* need to set default size on outer node since inner nodes say <input style="width:100%"> and <td width=100%>.  user can override */
-	vertical-align: middle;
+	vertical-align: top;
+    padding-top: 2px;
 }
 
 .dijitTextBoxReadOnly,
@@ -396,7 +397,7 @@ div.dijitArrowButton {
 	/* for when an <input> is embedded inside an inline-block <div> with a size and border */
 	border:0 !important;
 	vertical-align:middle !important;
-	background-color:transparent !important;
+	background-color: #CCCCCC !important;
 	width:100% !important;
 	/* IE dislikes horizontal tweaking combined with width:100% so punish everyone for consistency */
 	padding-left: 0 !important;
@@ -1970,7 +1971,7 @@ div.dijitTabDisabled, .dj_ie div.dijitTabDisabled {
 
 /* Select */
 .dijitSelect {
-	margin: 0.2em;
+	margin: 1px 0.2em 0.2em 0.2em;
 	border-collapse: collapse;
 }
 .dj_ie .dijitSelect,

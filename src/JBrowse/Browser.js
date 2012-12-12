@@ -1648,6 +1648,7 @@ Browser.prototype.createNavBox = function( parent ) {
             searchAttr: "name"
         },
         dojo.create('input', {}, miniTrap) );
+    dojo.style('location', 'height', '18px');
     this.loadNames().then( dojo.hitch(this, function() {
         this.locationBox.set( 'store', this._makeLocationAutocompleteStore() );
     }));
@@ -1699,12 +1700,13 @@ Browser.prototype.createNavBox = function( parent ) {
             })
         }, dojo.create('button',{},miniTrap));
 
-    dojo.style('GoButton', 'height', '16px');
+    dojo.style('GoButton', 'height', '18px');
 
     this.loadRefSeqs().then( dojo.hitch( this, function() {
         if( this.refSeqOrder.length && this.refSeqOrder.length < 30 || this.config.refSeqDropdown ) {
             this.refSeqSelectBox = new dijitSelectBox({
                 name: 'refseq',
+                id: 'refseqID',
                 value: this.refSeq ? this.refSeq.name : null,
                 options: array.map( this.refSeqOrder || [],
                                     function( refseqName ) {
@@ -1714,6 +1716,7 @@ Browser.prototype.createNavBox = function( parent ) {
                     this.navigateToLocation({ ref: newRefName });
                 })
             }).placeAt( refSeqSelectBoxPlaceHolder );
+        dojo.style('refseqID', 'height', '16px');
         }
 
         // calculate how big to make the location box:  make it big enough to hold the
