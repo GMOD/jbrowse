@@ -141,7 +141,7 @@ ArrayRepr.prototype.set = function(obj, attr, val) {
     if (attr in this.fields[obj[0]]) {
         obj[this.fields[obj[0]][attr]] = val;
     } else {
-        var adhocIndex = self.classes[obj[0]].length + 1;
+        var adhocIndex = this.classes[obj[0]].attributes.length + 1;
         if (adhocIndex >= obj.length)
             obj[adhocIndex] = {};
         obj[adhocIndex][attr] = val;

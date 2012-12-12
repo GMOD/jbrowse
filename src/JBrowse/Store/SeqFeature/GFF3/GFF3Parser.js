@@ -63,6 +63,10 @@ and returns a JSON data structure like this:
 
 */
 
+define([],
+       function() {
+
+
 function GFF3Parser() {
 };
 
@@ -100,15 +104,20 @@ GFF3Parser.prototype.parse = function(gff3String) {
 	   // search all parents
 	   for ( var k = 0; k < thisLine["data"][0]["attributes"]["Parent"].length; k++ ) {
 	       var thisParentId = thisLine["data"][0]["attributes"]["Parent"][k];	       
+	       if ( thisLine["ID"][0] == 'au9.g910.t3' ){
+		   console.log("j: " + j + " k: " + k );
+		   console.log("comparing "  + thisParentId + " with " + featureArrayToSearch[j]["ID"] );
+	       }
 	       if ( thisParentId == featureArrayToSearch[j]["ID"] ){
 		   featureArrayToSearch[j]["children"].push( thisLine );
 		   foundParents++;
 	       }
 	   }
 	   // paranoid about infinite recursion
-	   if ( recursion_level > maximum_recursion_level ){
-	       return false;
-	   }
+	   // if ( recursion_level > maximum_recursion_level ){
+	   // return false;
+	   // }
+
 	   // recurse if there there are children
 	   if ( featureArrayToSearch[j]["children"].length > 0 ){
 	       if ( placeChildrenWithParent(thisLine, featureArrayToSearch[j]["children"] )){
@@ -154,7 +163,7 @@ GFF3Parser.prototype.parse = function(gff3String) {
     var bigDataStruct = {
 	"parsedData" : [],
 	"parseErrors": [],
-	"parseWarnings": [],
+	"parseWarnings": []
     }; // parsed GFF3 in JSON format, to be returned
     
     var lines = gff3String.match(/^.*((\r\n|\n|\r)|$)/gm); // this is wasteful, maybe try to avoid storing split lines separately later
@@ -188,11 +197,13 @@ GFF3Parser.prototype.parse = function(gff3String) {
 	// check that we have enough fields
 	if(fields.length < 9 ){
 	    console.log("Number of fields < 9! Skipping this line:\n\t" + lines[i] + "\n");
+	    bigDataStruct["parseWarnings"].push( "Number of fields < 9! Skipping this line:\n\t" + lines[i] + "\n" );
 	    continue;
 	}
 	else {
 	    if (fields.length > 9 ){
 		console.log("Number of fields > 9!\n\t" + lines[i] + "\nI'll try to parse this line anyway.");
+		bigDataStruct["parseWarnings"].push( "Number of fields > 9!\n\t" + lines[i] + "\nI'll try to parse this line anyway." );
 	    }
 	}
 
@@ -304,7 +315,7 @@ GFF3Parser.prototype.parse = function(gff3String) {
 	    // put this child in the right children array, recursively, or put it on top level and mark it as an orphan
 	    if ( ! placeChildrenWithParent(thisLine, bigDataStruct["parsedData"] ) ){
 		bigDataStruct["parsedData"].push( thisLine );
-		bigDataStruct["parseWarnings"].push( thisID + "seems to be an orphan" );
+		bigDataStruct["parseWarnings"].push( thisID + " seems to be an orphan" );
 	    }
 	}
 
@@ -319,3 +330,7 @@ GFF3Parser.prototype.parse = function(gff3String) {
     }
     return bigDataStruct;
 };
+
+return GFF3Parser;
+
+});

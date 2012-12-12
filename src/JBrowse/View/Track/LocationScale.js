@@ -23,10 +23,11 @@ return declare(BlockBased,
     makeTrackLabel: function() {},
     makeTrackMenu: function() {},
 
-    fillBlock: function(blockIndex, block,
-                        leftBlock, rightBlock,
-			leftBase, rightBase, scale,
-			padding, stripeWidth) {
+    fillBlock: function( args ) {
+        var blockIndex = args.blockIndex;
+        var block = args.block;
+        var leftBase = args.leftBase;
+
         var posLabel = document.createElement("div");
         var numtext = Util.addCommas( leftBase+1 );
         posLabel.className = this.labelClass;
@@ -38,6 +39,7 @@ return declare(BlockBased,
         posLabel.appendChild( document.createTextNode( numtext ) );
         block.appendChild(posLabel);
         this.heightUpdate( Math.round( this.posHeight*1.2 ), blockIndex);
+        args.finishCallback();
     }
 });
 });

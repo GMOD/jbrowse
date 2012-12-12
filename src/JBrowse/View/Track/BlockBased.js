@@ -10,7 +10,9 @@ define( [
             'dijit/MenuItem',
             'dijit/CheckedMenuItem',
             'dijit/MenuSeparator',
-            'JBrowse/Util'
+            'JBrowse/Util',
+            'JBrowse/View/TrackConfigEditor',
+            'JBrowse/View/ConfirmDialog'
         ],
         function( declare,
                   lang,
@@ -23,7 +25,9 @@ define( [
                   dijitMenuItem,
                   dijitCheckedMenuItem,
                   dijitMenuSeparator,
-                  Util
+                  Util,
+                  TrackConfigEditor,
+                  ConfirmDialog
                 ) {
 
 return declare( null,
@@ -298,22 +302,26 @@ return declare( null,
         //this.div.style.backgroundColor = "#eee";
     },
 
+    /**
+     *   _changeCallback invoked here is passed in costructor, 
+     *         and typically is GenomeView.showVisibleBlocks()
+     */
     changed: function() {
         this.hideAll();
         if( this._changedCallback )
             this._changedCallback();
     },
 
-    fillLoading: function( blockIndex, block ) {
+    _makeLoadingMessage: function() {
         var msgDiv = dojo.create(
             'div', {
                 className: 'loading',
                 innerHTML: '<div class="text">Loading</span>',
                 title: 'Loading data...',
                 style: { visibility: 'hidden' }
-            }, block );
+            });
         window.setTimeout(function() { msgDiv.style.visibility = 'visible'; }, 200);
-        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+        return msgDiv;
     },
 
     fillError: function( blockIndex, block ) {
@@ -358,7 +366,35 @@ return declare( null,
                     containerStart,
                     containerEnd];
 
-        this.fillBlock.apply( this, args );
+
+        // loadMessage is an opaque mask div that we place over the
+        // block until the fillBlock finishes
+        var loadMessage = this._makeLoadingMessage();
+        blockDiv.appendChild( loadMessage );
+
+        var finish = function() {
+            blockDiv.removeChild( loadMessage );
+        };
+
+        try {
+            this.fillBlock({
+                blockIndex: blockIndex,
+                block:      blockDiv,
+                leftBlock:  this.blocks[blockIndex - 1],
+                rightBlock: this.blocks[blockIndex + 1],
+                leftBase:   startBase,
+                rightBase:  endBase,
+                scale:      scale,
+                stripeWidth:    this.widthPx,
+                containerStart: containerStart,
+                containerEnd:   containerEnd,
+                finishCallback: finish
+            });
+        } catch( e ) {
+            this.error = e;
+            this.fillError( blockIndex, block );
+            finish();
+        }
     },
 
     moveBlocks: function(delta) {
@@ -636,12 +672,35 @@ return declare( null,
      * @returns {Array} menu options for this track's menu (usually contains save as, etc)
      */
     _trackMenuOptions: function() {
+        var that = this;
         return [
             { label: 'About this track',
               title: 'About track: '+(this.key||this.name),
               iconClass: 'jbrowseIconHelp',
               action: 'contentDialog',
               content: dojo.hitch(this,'_trackDetailsContent')
+            },
+            { label: 'Edit config',
+              title: "edit this track's configuration",
+              iconClass: 'dijitIconConfigure',
+              action: function() {
+                  new TrackConfigEditor( that.config )
+                      .show( function( result ) {
+                          // replace this track's configuration
+                          that.browser.publish( '/jbrowse/v1/v/tracks/replace', [result.conf] );
+                      });
+              }
+            },
+            { label: 'Delete track',
+              title: "delete this track",
+              iconClass: 'dijitIconDelete',
+              action: function() {
+                  new ConfirmDialog({ title: 'Delete track?', message: 'Really delete this track?' })
+                     .show( function( confirmed ) {
+                          if( confirmed )
+                              that.browser.publish( '/jbrowse/v1/v/tracks/delete', [that.config] );
+                      });
+              }
             }
         ];
     },

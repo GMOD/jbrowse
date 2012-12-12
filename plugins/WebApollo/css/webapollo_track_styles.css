@@ -1,3 +1,57 @@
+/*
+*  naming conventions
+
+*/
+
+.feature, 
+.plus-feature, 
+.minus-feature {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
+
+.subfeature, 
+.plus-subfeature, 
+.minus-subfeature {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
+.webapollo-CDS {
+    position: absolute;
+    height: 12px;
+/*    margin-top: 2px;  */  /* relying on centering code instead */
+    background-color: #F58544;
+    border-style: solid;
+    border-color: #555;
+    border-width: 1px;
+    cursor: pointer;
+    z-index: 10;
+    min-width: 1px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
+.webapollo-UTR {
+    position: absolute;
+    height: 8px; 
+/*    margin-top: 4px; */  /* relying on centering code instead */
+    background-color: #AA5626;
+    z-index: 8;
+    min-width: 1px;
+    cursor: pointer;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
 
 div.track_annotations {
     background-color: #FFFFDD;
@@ -81,36 +135,6 @@ div.wa-sequence .aa-residues.frame2 {
     background-color: #DDDDDD; 
     z-index: 5;
 }
-/*
-div.sequence .aa-residues.frame0 {
-    background-color: #FF8080;
-    z-index: 5;
-}
-
-div.sequence .aa-residues.frame1 {
-    background-color: #80FF80; 
-    z-index: 5;
-}
-
-div.sequence .aa-residues.frame2 {
-    background-color: #8080FF;
-    z-index: 5;
-}
-*/
-
-/*
-div.sequence .aa-residues.offset0 {
-    border: 2px solid #FF0000;
-}
-
-div.sequence .aa-residues.offset1 {
-    border: 2px solid #00FF00;
-}
-
-div.sequence .aa-residues.offset2 {
-    border: 2px solid #0000FF;
-}
-*/
 
 /* highlighting of dna residues in DNA track on mouseover */
 div.wa-sequence .dna-highlighted {
@@ -121,12 +145,6 @@ div.wa-sequence .dna-highlighted {
 div.wa-sequence .highlighted {
     background: #ff0;
 }
-
-/*  not used anymore (using dna-residues, forward-strand, reverse-strand 
-div.sequence .revcom {
-    color: red;
-}
-*/
 
 div.annot-sequence  {
     position: absolute;
@@ -149,415 +167,45 @@ div.annot-sequence  {
     user-select: none;
 }
 
-.basic,
-.plus-basic,
-.minus-basic {
-    position: absolute;
-    cursor: pointer;
-    z-index: 10;
-    min-width: 1px;
-}
-
 div.basic-hist {
     position: absolute;
     z-index: 10;
 }
 
-.feature,
-.plus-feature,
-.minus-feature {
-    position:absolute;
-    height: 8px;
-    background-repeat: repeat-x;
-    cursor: pointer;
-    min-width: 1px;
-    z-index: 10;
-}
-
-.feature { background-color: gainsboro }
-.plus-feature { background-image: url('img/plus-chevron3.png'); }
-.minus-feature { background-image: url('img/minus-chevron3.png'); }
-
-div.feature-hist {
-    position: absolute;
-    background-color: blue;
-    border-color: lightblue;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
-}
-
-.feature2, .plus-feature2, .minus-feature2 {
-    position:absolute;
-    height: 15px;
-    background-repeat: repeat-x;
-    cursor: pointer;
-    min-width: 1px;
-    z-index: 10;
-}
-
-.feature2 { background-color: #4fac2a; }
-.plus-feature2 { background-image: url('img/plus-herringbone16.png'); }
-.minus-feature2 { background-image: url('img/minus-herringbone16.png'); }
-
-div.feature2-hist {
-    position: absolute;
-    background-color: #9f9;
-    border-color: #ada;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
-}
-
-.feature3, .plus-feature3, .minus-feature3 {
-    position:absolute;
-    height: 8px;
-    background-repeat: repeat-x;
-    cursor: pointer;
-    min-width: 1px;
-    z-index: 10;
-}
-
-.feature3 { background-color: goldenrod }
-.plus-feature3 { background-image: url('img/plus-chevron.png'); }
-.minus-feature3 { background-image: url('img/minus-chevron.png'); }
-
-div.feature3-hist {
-    position: absolute;
-    background-color: yellow;
-    border-color: black;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
-}
-
-.feature4, .plus-feature4, .minus-feature4 {
-    position:absolute;
-    height: 12px;
-    background-repeat: repeat-x;
-    cursor: pointer;
-    min-width: 1px;
-    z-index: 10;
-}
-
-.feature4 { background-color: yellow }
-.plus-feature4 { background-image: url('img/plus-pacman.png'); }
-.minus-feature4 { background-image: url('img/minus-pacman.png'); }
-
-div.feature4-hist {
-    position: absolute;
-    background-color: yellow;
-    border-color: black;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
-}
-
-.feature5, .plus-feature5, .minus-feature5 {
-    position:absolute;
-    height: 8px;
-    background-repeat: repeat-x;
-    cursor: pointer;
-    min-width: 1px;
-    z-index: 10;
-}
-
-.feature5 { background-color: blue }
-.plus-feature5 { background-image: url('img/plus-chevron2.png'); }
-.minus-feature5 { background-image: url('img/minus-chevron2.png'); }
-
-div.feature5-hist {
-    position: absolute;
-    background-color: blue;
-    border-color: lightblue;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
-}
-
-div.exon-hist {
-    position: absolute;
-    background-color: #4B76E8;
-    border-style: solid;
-    border-color: #00f;
-    border-width: 1px;
-    z-index: 10;
-}
-
-.exon,
-.plus-exon,
-.minus-exon {
-    position: absolute;
-    height: 5px;
-    background-color: #4B76E8;
-    border-style: solid;
-    border-color: #00f;
-    border-width: 1px;
-    cursor: pointer;
-    z-index: 10;
-}
-
-div.est-hist {
-    position: absolute;
-    background-color: #ED9185;
-    border-style: solid;
-    border-color: #c33;
-    border-width: 1px;
-    z-index: 10;
-}
-
-.est,
-.plus-est,
-.minus-est {
-    position: absolute;
-    height: 5px;
-    background-color: #ED9185;
-    border-style: solid;
-    border-color: #c33;
-    border-width: 1px;
-    cursor: pointer;
-    z-index: 10;
-}
-
-.dblhelix,
-.plus-dblhelix,
-.minus-dblhelix {
-    position:absolute;
-    height: 11px;
-    background-image: url('img/dblhelix-red.png');
-    background-repeat: repeat-x;
-    min-width: 1px;
-    cursor: pointer;
-    z-index: 10;
-}
-
-div.dblhelix-hist {
-    position: absolute;
-    background-color: #fcc;
-    border-color: #daa;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
-}
-
-.plus-helix,
-.minus-helix {
-    position:absolute;
-    height: 12px;
-    background-image: url('img/helix3-green.png');
-    background-repeat: repeat-x;
-    min-width: 1px;
-    cursor: pointer;
-    z-index: 10;
-}
-
-div.helix-hist {
-    position: absolute;
-    background-color: #cfc;
-    border-color: #ada;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
-}
-
-.loops {
-    position:absolute;
-    height: 13px;
-    background-image: url('img/loops.png');
-    background-repeat: repeat-x;
-    cursor: pointer;
-}
-
-.plus-cds, .minus-cds {
-    position:absolute;
-    height: 13px;
-    background-repeat: repeat-x;
-    cursor: pointer;
-    min-width: 1px;
-}
-
-.plus-cds_phase0 { background-image: url('img/plus-cds0.png'); }
-.plus-cds_phase1 { background-image: url('img/plus-cds1.png'); }
-.plus-cds_phase2 { background-image: url('img/plus-cds2.png'); }
-.minus-cds_phase0 { background-image: url('img/minus-cds0.png'); }
-.minus-cds_phase1 { background-image: url('img/minus-cds1.png'); }
-.minus-cds_phase2 { background-image: url('img/minus-cds2.png'); }
-
-div.cds-hist {
-    position: absolute;
-    background-color: #fcc;
-    border-color: #daa;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
-}
-
-.topbracket {
-    position:absolute;
-    height: 8px;
-    border-style: solid solid none solid;
-/*    border-width: 2px 2px 0px 2px; */
-    border-width: 2px;
-    border-color: orange;
-/*    margin-top: 2px */
-    cursor: pointer;
-}
-
-.bottombracket {
-    position:absolute;
-    height: 8px;
-    border-style: none solid solid solid;
-    border-width: 2px;
-    border-color: green;
-    cursor: pointer;
-}
-
-.hourglass {
-    position:absolute;
-    height: 0px;
-    border-style: solid;
-    border-width: 6px 3px 6px 3px;
-    cursor: pointer;
-}
-
-.plus-triangle {
-    position:absolute;
-    height: 0px;
-    border-style: solid;
-    border-width: 6px 3px 0px 3px;
-    cursor: pointer;
-}
-
-.minus-triangle {
-    position:absolute;
-    height: 0px;
-    border-style: solid;
-    border-width: 0px 3px 6px 3px;
-    cursor: pointer;
-}
-
-.triangle {
-    position:absolute;
-    height: 0px;
-    border-style: solid;
-    border-width: 6px 0px 0px 0px;
-    cursor: pointer;
-}
-
-.hgred {
-    border-color: #f99 white #f99 white;
-}
-div.hgred-hist {
-    position: absolute;
-    background-color: #daa;
-    border-color: #d44;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
-}
-
-.hgblue {
-    border-color: #99f white #99f white;
-}
-div.hgblue-hist {
-    position: absolute;
-    background-color: #aad;
-    border-color: #99f;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
-}
-
-.ibeam {
-    position:absolute;
-    height: 2px;
-    background-color: blue;
-    border-style: solid;
-    border-width: 8px 4px 8px 4px;
-    border-color: white blue white blue;
-    cursor: pointer;
-}
-
-div.transcript-hist {
-    position: absolute;
-    background-color: #ddd;
-    border-color: #FF9185;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
-}
-
+/*  kept diff form JBrowse main.css, but commented out
 .transcript,
 .plus-transcript,
 .minus-transcript {
-    position: absolute;
-    height: 4px;
     margin-top: 4px;
     margin-bottom: 4px;
-    background-color: #999;
-    z-index: 6;
-    min-width: 1px;
-    cursor: pointer;
 }
-
-.plus-transcript-arrowhead {
-    position: absolute;
-/*  border stuff seems slow
-    height: 0px;
-    width: 0px;
-    margin-top: -4px;
-    border-style: solid;
-    border-color: white white white #999;
-    border-width: 6px 0px 6px 10px; */
-    margin-top: -4px;
-    width: 12px;
-    height: 12px;
-    background-image: url('../img/plus-transcript-head.png');
-    /*  JBrowse 1.3.1 style 
-    background-image: url('img/plus-arrowhead.png'); 
 */
-    background-repeat: no-repeat;
-}
 
-.minus-transcript-arrowhead {
-    position: absolute;
-/*  border stuff seems slow
-    height: 0px;
-    width: 0px;
-    margin-top: -4px;
-    border-style: solid;
-    border-color: white #999 white white;
-    border-width: 6px 10px 6px 0px; */
+/*  kept diff form JBrowse main.css, but commented out
+.plus-transcript-arrowhead {
     margin-top: -4px;
     width: 12px;
-    height: 12px;
-    background-image: url('../img/minus-transcript-head.png');
-    /*  JBrowse 1.3.1 style
-    background-image: url('img/minus-arrowhead.png');
-    */
-    background-repeat: no-repeat;
+    background-image: url('../img/plus-transcript-head.png');
 }
+*/
 
+/*  kept diff form JBrowse main.css, but commented out
+.minus-transcript-arrowhead {
+    margin-top: -4px;
+    width: 12px;
+    background-image: url('../img/minus-transcript-head.png');
+}
+*/
+
+/*  kept diff form JBrowse main.css, but commented out
 .transcript-CDS, 
 .plus-transcript-CDS,
 .minus-transcript-CDS {
-    position: absolute;
-    height: 12px;
     margin-top: -4px;
-    background-image: url('img/cds.png');
-    background-repeat: repeat-x;
-/*  border-width: 2px 0px 3px 0px;
-    border-style: solid;
-    border-color: white;
-    background-color: #FF9185;
-    border-style: solid;
-    border-color: #00f;
-    border-width: 1px;*/
-    cursor: pointer;
-    z-index: 10;
-    min-width: 1px;
 }
+*/
 
+/*
 .transcript-exon, 
 .plus-transcript-exon,
 .minus-transcript-exon,
@@ -572,87 +220,20 @@ div.transcript-hist {
     height: 8px;
     margin-top: -2px;
     background-color: #B66;
-    /* redoing to try and play nice with edge-match border-box-style
-    height: 8px;
-    margin-top: -4px;
-    border-style: solid;
-    border-color: #D88;
-    border-width: 2px 0px 2px 0px;
-    */
     z-index: 8;
     min-width: 1px;
     cursor: pointer;
 }
+*/
 
-.generic_parent,
-.plus-generic_parent,
-.minus-generic_parent {
-    position: absolute;
-    height: 4px;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    background-color: #AAA;
-    z-index: 6;
-    min-width: 1px;
-    cursor: pointer;
-}
-
-div.generic_parent-hist {
-    position: absolute;
-    background-color: #ddd;
-    border-color: #555;
-    border-style: solid;
-    border-width: 1px;
-    z-index: 10;
-}
-
+/*   kept diff form JBrowse main.css, but commented out
 .match_part,
 .plus-match_part,
 .minus-match_part {
-    position: absolute;
-    height: 4px;
     margin-top: -2px;
-    background-color: #66B;
-    border-style: solid;
-    border-color: #88D;
-    border-width: 2px 0px 2px 0px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
 }
+*/
 
-.generic_part_a,
-.plus-generic_part_a,
-.minus-generic_part_a {
-    position: absolute;
-    height: 4px;
-    margin-top: -2px;
-    background-color: #6B6;
-    border-style: solid;
-    border-color: #8D8;
-    border-width: 2px 0px 2px 0px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
-}
-
-.unknown, 
-.plus-unknown, 
-.minus-unknown  {
-    position:absolute;
-    height: 12px;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    background: gray;
-    border: 1px solid black;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-}
 
 /**
 *  trellis-transcript div is just a holder for any subfeature divs, as 
@@ -670,19 +251,8 @@ div.generic_parent-hist {
     cursor: pointer;
 }
 
-.default-transcript, 
-.plus-default-transcript, 
-.minus-default-transcript  {
-    position: absolute;
-    height: 16px;
-    margin-top: 0px;
-    z-index: 6;
-    min-width: 1px;
-    cursor: pointer;
-}
-
 /**
-*  visual rendering of annot as line centered within the annot
+*  visual rendering of feature as line centered within the feature
 */
 .trellis-transcript-render  {
     position: absolute;
@@ -699,100 +269,101 @@ div.generic_parent-hist {
     width: 100%;
 }
 
-.default-transcript-render  {
-    position: absolute;
-    height: 4px;
-    margin-top: 6px;
-    margin-bottom: 6px;  /* don't think this actually is needed */
-    background-color: #656565;
-    /* annotline div may be added to annot div _after_ child feature divs, so 
-       if want child divs in front of annotline, make sure has lower 
-       z-index than child divs */
-    z-index: 2;  
-    min-width: 1px;
-    cursor: pointer;
-    width: 100%;
-}
-
 
 /********************************************************
 *   RefSeq styling
 ***********************************************/
+.container-large, 
+.plus-container-large, 
+.minus-container-large  {
+    height: 16px;
+    background-color: transparent;
+}
+
 .refseq-transcript, 
 .plus-refseq-transcript, 
 .minus-refseq-transcript  {
-    position: absolute;
     height: 16px;
-    margin-top: 0px;
-    z-index: 6;
-    min-width: 1px;
-    cursor: pointer;
+    background-color: transparent;
 }
+
+
+.center-line-large  {
+    position: absolute;
+    height: 4px;
+    margin-top: 6px;
+    margin-bottom: 6px; /* don't think this actually is needed */
+    background-color: #656565;
+    min-width: 1px;
+    width: 100%;
+    /* annotline div may be added to annot div _after_ child feature divs, so 
+       if want child divs in front of annotline, make sure has lower 
+       z-index than child divs */
+    z-index: 2;  
+}
+
 
 .refseq-transcript-render  {
     position: absolute;
     height: 4px;
     margin-top: 6px;
-    margin-bottom: 6px;  /* don't think this actually is needed */
+    margin-bottom: 6px; /* don't think this actually is needed */
     background-color: #656565;
-
+    min-width: 1px;
+    width: 100%;
     /* annotline div may be added to annot div _after_ child feature divs, so 
        if want child divs in front of annotline, make sure has lower 
        z-index than child divs */
     z-index: 2;  
-    min-width: 1px;
-    cursor: pointer;
-    width: 100%;
 }
 
-.refseq-exon,
+.refseq-exon, 
 .plus-refseq-exon, 
-.minus-refseq-exon {
-    position: absolute;
+.minus-refseq-exon  {
     height: 16px;
-    margi-top: 0px;
-    z-index: 6;
-    min-width: 1px;
-    cursor: pointer;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
+    background-color: transparent;
 }
 
-.refseq-CDS, 
-.plus-refseq-CDS, 
-.minus-refseq-CDS  {
-    position: absolute;
+.pink-box, 
+.plus-pink-box, 
+.minus-pink-box  {
     height: 12px;
-    margin-top: 2px;
+/*    margin-top: 2px; */
     background-color: #D8BDEB;
     border-style: solid;
     border-color: #01F;
     border-width: 1px;
-    cursor: pointer;
-    z-index: 10;
-    min-width: 1px;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
 }
+
+
+.refseq-CDS, 
+.plus-refseq-CDS, 
+.minus-refseq-CDS  {
+    height: 12px;
+/*    margin-top: 2px; */
+    background-color: #D8BDEB;
+    border-style: solid;
+    border-color: #01F;
+    border-width: 1px;
+}
+
+.purple-subfeat-medium, 
+.plus-purple-subfeat-medium, 
+.minus-purple-subfeat-medium {
+    height: 8px; 
+/*   margin-top: 4px; */
+    background-color: #8F408F;
+    z-index: 5;
+}
+
 
 .refseq-UTR, 
 .plus-refseq-UTR, 
 .minus-refseq-UTR {
-    position: absolute;
     height: 8px; 
-    margin-top: 4px;
+/*   margin-top: 4px; */
     background-color: #8F408F;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
+    z-index: 5;
 }
 
 /***************************************************************
@@ -882,7 +453,7 @@ div.generic_parent-hist {
 .minus-nscan-exon {
     position: absolute;
     height: 16px;
-    margi-top: 0px;
+    margin-top: 0px;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
@@ -962,7 +533,7 @@ div.generic_parent-hist {
 .minus-au8-exon {
     position: absolute;
     height: 16px;
-    margi-top: 0px;
+    margin-top: 0px;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
@@ -1042,7 +613,7 @@ div.generic_parent-hist {
 .minus-au9-exon {
     position: absolute;
     height: 16px;
-    margi-top: 0px;
+    margin-top: 0px;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
@@ -1121,7 +692,7 @@ div.generic_parent-hist {
 .minus-geneid-exon {
     position: absolute;
     height: 16px;
-    margi-top: 0px;
+    margin-top: 0px;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
@@ -1201,7 +772,7 @@ div.generic_parent-hist {
 .minus-ogsv3-exon {
     position: absolute;
     height: 16px;
-    margi-top: 0px;
+    margin-top: 0px;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
@@ -1282,7 +853,7 @@ div.generic_parent-hist {
 .minus-sgp2-exon {
     position: absolute;
     height: 16px;
-    margi-top: 0px;
+    margin-top: 0px;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
@@ -1361,7 +932,7 @@ div.generic_parent-hist {
 .minus-fgeneshpp_with_rnaseq-exon {
     position: absolute;
     height: 16px;
-    margi-top: 0px;
+    margin-top: 0px;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
@@ -1441,7 +1012,7 @@ div.generic_parent-hist {
 .minus-fgeneshpp_no_rnaseq-exon {
     position: absolute;
     height: 16px;
-    margi-top: 0px;
+    margin-top: 0px;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
@@ -1522,7 +1093,7 @@ div.generic_parent-hist {
 .minus-fgenesh_no_rnaseq-exon {
     position: absolute;
     height: 16px;
-    margi-top: 0px;
+    margin-top: 0px;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
@@ -2093,7 +1664,7 @@ div.generic_parent-hist {
 .plus-bam, 
 .minus-bam {
     position: absolute;
-    height: 3px; 
+    height: 5px; 
     margin-top: 0px;
     background-color: #AACDDC;
     z-index: 8;
@@ -2126,7 +1697,7 @@ div.generic_parent-hist {
 .plus-cigarM, 
 .minus-cigarM  {
     position: absolute;
-    height: 2px; 
+    height: 100%; 
     margin-top: 0px;
     background-color: #1B8A99;
     /* background-color: green; */
@@ -2497,6 +2068,7 @@ div.generic_parent-hist {
 }
 
 .plus-trellis-arrowhead, 
+.plus-webapollo-arrowhead, 
 .plus-annot-arrowhead {
     position: absolute;
 /*    margin-top: -4px; */
@@ -2505,10 +2077,11 @@ div.generic_parent-hist {
     height: 12px;
     background-image: url('../img/plus-transcript-head.png');
     background-repeat: no-repeat;
-    z-index: 30;
+/*    z-index: 1; */
 }
 
 .minus-trellis-arrowhead, 
+.minus-webapollo-arrowhead, 
 .minus-annot-arrowhead {
     position: absolute;
 /*   margin-top: -4px; */
@@ -2517,7 +2090,7 @@ div.generic_parent-hist {
     height: 12px;
     background-image: url('../img/minus-transcript-head.png');
     background-repeat: no-repeat;
-    z-index: 30;
+/*    z-index: 1; */
 }
 
 .cds-frame0 {
@@ -2722,7 +2295,7 @@ input.nav {
 .minus-maker-exon {
     position: absolute;
     height: 16px;
-    margi-top: 0px;
+    margin-top: 0px;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;

@@ -5,6 +5,7 @@ define( ['dojo/_base/declare',
         ],
         function( declare, array, Util, HTMLFeatures ) {
 
+// return declare( HTMLFeatures,
 return declare( HTMLFeatures,
 /**
  * @lends JBrowse.View.Track.Alignments
@@ -17,11 +18,13 @@ return declare( HTMLFeatures,
             {
                 maxFeatureScreenDensity: 1.5,
                 layoutPitchY: 4,
-                showBaseMismatches: true,
                 style: {
                     _defaultLabelScale: 50,
                     className: 'alignment',
-                    arrowheadClass: 'arrowhead'
+                    arrowheadClass: 'arrowhead',
+                    centerFeatureChildren: false,
+                    showMismatches: true,
+                    showSubfeatures: false
                 }
             }
         );
@@ -33,7 +36,9 @@ return declare( HTMLFeatures,
 
         var displayStart = Math.max( feature.get('start'), containerStart );
         var displayEnd = Math.min( feature.get('end'), containerEnd );
-        this._drawMismatches( feature, featDiv, scale, displayStart, displayEnd );
+        if( this.config.style.showMismatches )  {
+            this._drawMismatches( feature, featDiv, scale, displayStart, displayEnd );
+        }
 
         // if this feature is part of a multi-segment read, and not
         // all of its segments are aligned, add missing_mate to its
@@ -44,6 +49,13 @@ return declare( HTMLFeatures,
         return featDiv;
     },
 
+
+    handleSubFeatures: function( feature, featDiv,
+                                 displayStart, displayEnd, block )  {
+        if( this.config.style.showSubfeatures )  {
+            this.inherited(arguments);
+        }
+    },
 
     /**
      * draw base-mismatches on the feature
@@ -61,7 +73,7 @@ return declare( HTMLFeatures,
                 var end = start + mismatch.length;
 
                 // if the feature has been truncated to where it doesn't cover
-                // this mismatch anymore, just skip this subfeature
+                // this mismatch anymore, just skip this mismatch
                 if ( end <= displayStart || start >= displayEnd )
                     return;
 
@@ -178,7 +190,7 @@ return declare( HTMLFeatures,
     },
 
     // stub out subfeature rendering, this track doesn't render subfeatures
-    renderSubfeature: function() {},
+//    renderSubfeature: function() {},
 
     /**
      * @returns {Object} containing <code>h</code> and <code>w</code>,

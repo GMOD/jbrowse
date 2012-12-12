@@ -32,23 +32,26 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
         load: function( /**Object*/ args ) {
             var that = this;
             if( args.config.url ) {
-                var sourceUrl = Util.resolveUrl( args.baseUrl || window.location.href, args.config.url );
+                var url = Util.resolveUrl( args.baseUrl || window.location.href, args.config.url );
+                var handleError = function(e) {
+                    e.url = url;
+                    if( args.onFailure )
+                        args.onFailure.call( args.context || this, e );
+                };
                 dojo.xhrGet({
-                                url: sourceUrl,
+                                url: url,
                                 handleAs: 'text',
                                 load: function( o ) {
-                                    window.setTimeout( dojo.hitch(this, function() {
-                                    o = that.parse_conf( o, args );
-                                    o.sourceUrl = sourceUrl;
-                                    o = that.regularize_conf( o, args );
-                                    args.onSuccess.call( args.context || this, o );
-                                                                  }, 10 ));
+                                    try {
+                                        o = that.parse_conf( o, args ) || {};
+                                        o.sourceUrl = url;
+                                        o = that.regularize_conf( o, args );
+                                        args.onSuccess.call( args.context || that, o );
+                                    } catch(e) {
+                                        handleError(e);
+                                    }
                                 },
-                                error: function( i ) {
-                                    console.error( ''+i );
-                                    if( args.onFailure )
-                                        args.onFailure.call( args.context || this, i);
-                                }
+                                error: handleError
                             });
             }
             else if( args.config.data ) {
@@ -155,7 +158,8 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                     urlTemplate: trackConfig.urlTemplate,
                     compress: trackConfig.compress,
                     baseUrl: trackConfig.baseUrl,
-                    type: storeClass
+                    type: storeClass,
+                    subfeatures: trackConfig.subfeatures
                 };
 
                 // if this is the first sequence store we see, and we

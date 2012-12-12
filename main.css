@@ -7,6 +7,10 @@ html, body {
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
+.tundra * {
+    outline: none;
+}
+
 fieldset {
     padding-left: 1em;
     margin: 0.7em 0.5em;
@@ -102,6 +106,7 @@ div.vertical_scrollbar .vertical_position_marker {
 #navbox {
     padding-top: 3px;
     position: relative;
+    text-align: center;
 }
 
 .moreMatches {
@@ -116,13 +121,14 @@ div.vertical_scrollbar .vertical_position_marker {
 
 div.locationTrap {
     position: absolute;
-    background-color: #AEC7E3;
-    border-color: white white #AEC7E3 white;
-    border-style: solid;
-    width: 0px;
-    height: 0px;
-    line-height: 0px;
     z-index: -10;
+    height: 0;
+    top: 0;
+    left: 0;
+    border-color: transparent;
+    border-style: solid;
+    border-bottom-color: #A9C6EB;
+    border-top: 0px dotted transparent;
 }
 
 div.locationThumb {
@@ -291,6 +297,7 @@ div.sequence .base.big {
 div.sequence > div {
     border-top: 1px solid #4d4d4d;
     border-bottom: 1px solid black;
+    background: #C6C6C6;
 }
 div.sequence > div:first-child {
     border-bottom-color: #4d4d4d;
@@ -367,12 +374,14 @@ div.track-label, div.tracklist-label {
 }
 
 .track .loading {
-    background: rgba( 0,0,0,0.1);
+    background: #fafafa;
     color: #777;
     margin: 0;
     font-weight: bold;
-    height: 40px;
+    height: 100%;
     width: 100%;
+    z-index: 15;
+    position: absolute;
 }
 .track .loading .text {
     display: inline;
@@ -393,6 +402,15 @@ div.track-label {
     z-index: 20;
     border-color: #eee;
     opacity: 0.7;
+
+    /* setting white-space to "nowrap" prevents Chrome-specific bug with
+       label text sometimes disappearing after zoom in Chrome was
+       wrapping track-label text to next line, which falls outside of
+       track-label fixed height and therefore not seen. see chromium
+       bug report for more details on underlying issue:
+       http://code.google.com/p/chromium/issues/detail?id=138918
+    */
+    white-space: nowrap;
 }
 
 div.track-label .track-label-text {
@@ -610,8 +628,11 @@ div.error .codecaption {
 }
 div.error code {
     display: block;
-    padding: 1.2em;
+    font-size: 10px;
+    padding: 0.4em 1.2em;
     margin: 0 0.3em 0.3em 0.3em;
+    overflow: auto;
+    max-height: 6em;
 }
 div.message {
     background: #eee;
@@ -638,7 +659,6 @@ a.dialog-new-window {
 
 /* styles for popup feature detail dialogs from tracks */
 .feature-detail {
-    padding-top: 1em;
     width: 50em;
     color: #333;
 }
@@ -646,11 +666,14 @@ a.dialog-new-window {
     background: #fafafa;
     background: rgba( 0, 0, 0, 0.1 );
     border: 1px outset #B9B9B9;
+    padding: 0.6em;
 }
 .feature-detail .fasta {
     clear: both;
     padding: 1em 1.5em;
+    margin: 0.2em 0;
     border: 1px solid #aaa;
+    background: transparent;
 }
 .feature-detail div.core {
     font-size: 110%;
@@ -659,8 +682,7 @@ a.dialog-new-window {
 }
 .feature-detail div.additional > h2 {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    margin: 0.2em 0 0.7em 0;
-    padding: 0.5em 0.5em 0.3em 0em;
+    margin: 1em 0 0.7em 0;
 }
 
 .detail .value {
@@ -670,15 +692,14 @@ a.dialog-new-window {
     font-family: sans-serif;
 }
 .detail .field {
-    margin-top: 0;
-    margin-bottom: 0.3em;
+    margin: 0;
     display: inline-block;
-    min-width: 8em;
+    min-width: 90px;
     vertical-align: top;
 }
 
 .detail .field_container {
-    padding: 0 4em 0.3em 1em;
+    padding: 0 4em 0 1em;
 }
 
 .sharePane input {

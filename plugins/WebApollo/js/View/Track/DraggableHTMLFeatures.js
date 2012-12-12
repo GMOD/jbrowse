@@ -41,11 +41,19 @@ var draggableTrack = declare( HTMLFeatureTrack,
             dojo.clone( this.inherited(arguments) ),
             {
                 style: {
+		    className: "feature", 
                     // renderClassName: 'DraggableFeatureTrack'  ???
+		    // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn, 
+		    minSubfeatureWidth: 1
                 },
                 events: {
-		    // need to map click to a null-op, to override default JBrowse click behavior (feature detail popup)
-                    click:     function() { }
+		    // need to map click to a null-op, to override default JBrowse click behavior for click on features 
+		    //     (JBrowse default is feature detail popup)
+                    click:     function(event) {
+			// not quite a null-op, also need to suprress propagation of click recursively up through parent divs, 
+			//    in order to stop default JBrowse behavior for click on tracks (which is to recenter view at click point)
+                        event.stopPropagation();
+		    }
 		    // WebApollo can't set up mousedown --> onFeatureMouseDown() in config.events, 
 		    //     because dojo.on used by JBrowse config-based event setup doesn't play nice with 
 		    //     JQuery event retriggering via _mousedown() for feature drag bootstrapping
@@ -62,11 +70,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
         console.log("DragableFeatureTrack constructor called");
 
         this.gview = this.browser.view;
+        // get a handle to on the main WA object
+        this.browser.getPlugin( 'WebApollo', dojo.hitch( this, function(p) {
+            this.webapollo = p;
+        }));
 
         // DraggableFeatureTracks all share the same FeatureSelectionManager
         //    if want subclasses to have different selection manager,
         //    call this.setSelectionManager in subclass (after calling parent constructor)
-        this.setSelectionManager( draggableTrack.selectionManager );
+	this.setSelectionManager( this.webapollo.featSelectionManager );
 
         // CSS class for selected features
         // override if want subclass to have different CSS class for selected features
@@ -79,9 +91,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
         this.prev_selection = null;
 
         this.verbose = false;
-        this.verbose_selection = true;
-        this.verbose_selection_notification = true;
-        this.verbose_drag = true;
+        this.verbose_selection = false;
+        this.verbose_selection_notification = false;
+        this.verbose_drag = false;
 	this.drag_enabled = true;
 
         this.feature_context_menu = null; 
@@ -91,7 +103,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
 	        but use of dojo.declare() for classes means track object's class is actually base Object. 
 	*/
 	this.edge_matching_enabled = true;
-
     },
 
 
@@ -471,7 +482,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
             if( render )  {
                 segDiv = document.createElement("div");
                 // not worrying about appending "plus-"/"minus-" based on strand yet
-                segDiv.className = UTRclass;
+		dojo.addClass(segDiv, "webapollo-UTR");
+		dojo.addClass(segDiv, UTRclass);
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((subStart - subStart) / subLength)) + "%;"
@@ -512,14 +524,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
             if (render)  {
                 segDiv = document.createElement("div");
                 // not worrying about appending "plus-"/"minus-" based on strand yet
-                segDiv.className = CDSclass;
+		dojo.addClass(segDiv, "webapollo-CDS");
+		dojo.addClass(segDiv, CDSclass);
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((subStart - subStart) / subLength)) + "%;"
                     + "top: 0px;"
                     + "width: " + (100 * ((subEnd - subStart) / subLength)) + "%;";
-                if (this.config.style.colorCdsFrame || this.gview.colorCdsByFrame) {
-                    $(segDiv).addClass("cds-frame" + cdsFrame);
+                if (this.config.style.colorCdsFrame || this.webapollo.colorCdsByFrame) {
+		    dojo.addClass(segDiv, "cds-frame" + cdsFrame);
                 }
                 subDiv.appendChild(segDiv);
             }
@@ -568,7 +581,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (render)  {
                     segDiv = document.createElement("div");
                     // not worrying about appending "plus-"/"minus-" based on strand yet
-                    segDiv.className = UTRclass;
+		    dojo.addClass(segDiv, "webapollo-UTR");
+		    dojo.addClass(segDiv, UTRclass);
                     if (Util.is_ie6) segDiv.appendChild(document.createComment());
                     segDiv.style.cssText =
                         "left: " + (100 * ((utrStart - subStart) / subLength)) + "%;"
@@ -581,14 +595,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 // make CDS segment
                 segDiv = document.createElement("div");
                 // not worrying about appending "plus-"/"minus-" based on strand yet
-                segDiv.className = CDSclass;
+		dojo.addClass(segDiv, "webapollo-CDS");
+		dojo.addClass(segDiv, CDSclass);
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((cdsSegStart - subStart) / subLength)) + "%;"
                     + "top: 0px;"
                     + "width: " + (100 * ((cdsSegEnd - cdsSegStart) / subLength)) + "%;";
-                if (this.config.style.colorCdsFrame || this.gview.colorCdsByFrame) {
-                    $(segDiv).addClass("cds-frame" + cdsFrame);
+                if (this.config.style.colorCdsFrame || this.webapollo.colorCdsByFrame) {
+                    dojo.addClass(segDiv, "cds-frame" + cdsFrame);
                 }
                 subDiv.appendChild(segDiv);
             }
@@ -601,7 +616,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (render)  {
                     segDiv = document.createElement("div");
                     // not worrying about appending "plus-"/"minus-" based on strand yet
-                    segDiv.className = UTRclass;
+		    dojo.addClass(segDiv, "webapollo-UTR");
+		    dojo.addClass(segDiv, UTRclass);
                     if (Util.is_ie6) segDiv.appendChild(document.createComment());
                     segDiv.style.cssText =
                         "left: " + (100 * ((utrStart - subStart) / subLength)) + "%;"
@@ -1029,9 +1045,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
     }
 
 });
-
-    // selectionManager is class variable (shared across all DraggableFeatureTrack objects)
-    draggableTrack.selectionManager = new FeatureSelectionManager();
 
 	    return draggableTrack;
 });

@@ -63,11 +63,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         //                baseUrl: base URL for the URL in trackMeta
         this.has_custom_context_menu = true;
 
-        // this.selectionManager = this.setSelectionManager(new FeatureSelectionManager());
-        // this.selectionManager = this.setSelectionManager(DraggableFeatureTrack.selectionManager);
-        this.selectionManager = this.setSelectionManager( AnnotTrack.selectionManager );
-        //    this.selectionManager.setClearOnAdd(new Array(DraggableFeatureTrack.selectionManager));
-        //    DraggableFeatureTrack.selectionManager.setClearOnAdd(new Array(this.selectionManager)); 
+	this.selectionManager = this.setSelectionManager( this.webapollo.annotSelectionManager );
 
         this.selectionClass = "selected-annotation";
         this.annot_under_mouse = null;
@@ -129,6 +125,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	var thisConfig = this.inherited(arguments);
 	// nulling out menuTemplate to suppress default JBrowse feature contextual menu
 	thisConfig.menuTemplate = null;
+	thisConfig.style.centerFeatureChildren = false;
 	return thisConfig;
 	/*  start of alternative to nulling out JBrowse feature contextual menu, instead attempt to merge in AnnotTrack-specific menu items
 	var superConfig = this.inherited(arguments);
@@ -179,7 +176,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         var jfeat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
 			track.store.insert(jfeat);
                     }
-                    track.hideAll();
+                    // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
                     track.changed();
                     track.createAnnotationChangeListener();
 
@@ -280,7 +277,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                             console.log(response);
                                     }
                             }
-                            track.hideAll();
+                            // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
                             track.changed();
                             track.createAnnotationChangeListener();
                     }
@@ -306,7 +303,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 		}
 		// server timeout
 		else if (ioArgs.xhr.status == 504){
+		    console.log("received server timeoout");
 			track.createAnnotationChangeListener();
+		    console.log("created new AnnotationChangeListener");
+		    // fiddling with supressing dojo.xhrGet internal Deferred stuff 
+		    //    firing errors
+		    // setting error.log = false may override...
+		    response.log = false;
 			return;
 		}
 		// actual error
@@ -356,9 +359,32 @@ var AnnotTrack = declare( DraggableFeatureTrack,
      *  received notification from server ChangeNotificationListener that annotations were updated
      *  currently handled as if receiving DELETE followed by ADD command
      */
-    annotationsUpdatedNotification: function(annots)  {
-	this.annotationsDeletedNotification(annots);
-	this.annotationsAddedNotification(annots);
+    annotationsUpdatedNotification: function(responseFeatures)  {
+	// this.annotationsDeletedNotification(annots);
+	// this.annotationsAddedNotification(annots);
+	var selfeats = this.selectionManager.getSelectedFeatures();
+	
+        for (var i = 0; i < responseFeatures.length; ++i) {
+            var id = responseFeatures[i].uniquename;
+/*     if update deleted a selected child, select the parent??
+             var oldfeat = this.store.getFeatureById(id);
+	     var children_selected;
+	    if (oldfeat)  {
+		var childfeats = oldfeat.children();
+		if (childfeats)  {
+		    for (var k=0; k<childfeats.length; k++)  {
+			var child = childfeats[k];
+			if (this.selectionManager.isSelected( { feature: child, track: this }))  {
+			     if (! children_selected)  { children_selected = []; }
+			     children_selected .push(child);
+			}
+		    }
+		}
+	    }
+*/
+            var feat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
+            this.store.replace(feat);
+        }
     },
 
     /**
@@ -566,7 +592,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                 }
                             });
                         console.log(subfeat);
-                        track.hideAll();
+                        // track.hideAll();   shouldn't need to call hideAll() before changed() anymore
                         track.changed();
                     }
                 } );
@@ -599,7 +625,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 var allSameStrand = 1;
                 for (var i = 0; i < feature_records.length; ++i)  { 
                     var feature_record = feature_records[i];
-		    var feat = feature_record.feature;
+		    var original_feat = feature_record.feature;
+		    var feat = JSONUtils.makeSimpleFeature( original_feat );
                         var isSubfeature = !! feat.parent();  // !! is shorthand for returning true if value is defined and non-null
                         var annotStrand = annot.get('strand');
                         if (isSubfeature)  {
@@ -607,31 +634,25 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                 var featToAdd = feat;
                                 if (featStrand != annotStrand) {
                                         allSameStrand = 0;
-                                        featToAdd = new Array();
-                                        $.extend(featToAdd, feat);
                                         featToAdd.set('strand', annotStrand);
                                 }
                                 subfeats.push(featToAdd);
                         }
                         else  {
                             var source_track = feature_record.track;
-                                // if (source_track.fields["subfeatures"])  {
                                 if ( feat.get('subfeatures') ) {
-                                    // var subs = feat[source_track.fields["subfeatures"]];
                                     var subs = feat.get('subfeatures');
                                     for (var i = 0; i < subs.length; ++i) {
-                                        var feat = subs[i];
-                                                var featStrand = feat.get('strand');
-                                        var featToAdd = feat;
-                                                if (featStrand != annotStrand) {
-                                                        allSameStrand = 0;
-                                                        featToAdd = new Array();
-                                                        $.extend(featToAdd, feat);
-                                                        featToAdd.set('strand', annotStrand);
-                                                }
-                                                subfeats.push(featToAdd);
+                                        var subfeat = subs[i];
+                                        var featStrand = subfeat.get('strand');
+                                        var featToAdd = subfeat;
+                                        if (featStrand != annotStrand) {
+                                            allSameStrand = 0;
+                                            featToAdd.set('strand', annotStrand);
+                                        }
+                                        subfeats.push(featToAdd);
                                     }
-//                                  $.merge(subfeats, subs);
+				    // $.merge(subfeats, subs);
                                 }
                         }
                 }
@@ -710,7 +731,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 // "this" is the div being dropped on, so same as target_trackdiv
                 if (target_track.verbose_drop)  { console.log("draggable deactivated"); }
 
-                var dropped_feats = DraggableFeatureTrack.selectionManager.getSelection();
+		var dropped_feats = target_track.webapollo.featSelectionManager.getSelection();
                 // problem with making individual annotations droppable, so checking for "drop" on annotation here,
                 //    and if so re-routing to add to existing annotation
                 if (target_track.annot_under_mouse != null)  {
@@ -2882,13 +2903,6 @@ AnnotTrack.getTopLevelAnnotation = function(annotation) {
     }
     return annotation;
 }
-
-// setting up selection exclusiveOr --
-//    if selection is made in annot track, any selection in other tracks is deselected, and vice versa,
-//    regardless of multi-select mode etc.
-AnnotTrack.selectionManager = new FeatureSelectionManager();
-AnnotTrack.selectionManager.addMutualExclusion( DraggableFeatureTrack.selectionManager );
-DraggableFeatureTrack.selectionManager.addMutualExclusion( AnnotTrack.selectionManager );
 
 return AnnotTrack;
 });
