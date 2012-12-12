@@ -1548,8 +1548,9 @@ Browser.prototype.createNavBox = function( parent ) {
     miniTrap.className = "miniTrap";
     navbox.appendChild(miniTrap);
 
-    var four_nbsp = String.fromCharCode(160); four_nbsp = four_nbsp + four_nbsp + four_nbsp + four_nbsp;
-    miniTrap.appendChild(document.createTextNode( four_nbsp ));
+    var two_nbsp = String.fromCharCode(160); two_nbsp = two_nbsp + two_nbsp;
+
+    miniTrap.appendChild(document.createTextNode( two_nbsp ));
 
     var moveLeft = document.createElement("input");
     moveLeft.type = "image";
@@ -1577,21 +1578,7 @@ Browser.prototype.createNavBox = function( parent ) {
                       this.view.slide(-0.9);
                   });
 
-    miniTrap.appendChild(document.createTextNode( four_nbsp ));
-
-    var bigZoomOut = document.createElement("input");
-    bigZoomOut.type = "image";
-    bigZoomOut.src = browserRoot + "img/zoom-out-2.png";
-    bigZoomOut.id = "bigZoomOut";
-    bigZoomOut.className = "icon nav";
-    bigZoomOut.style.height = "40px";
-    miniTrap.appendChild(bigZoomOut);
-    dojo.connect( bigZoomOut, "click", this,
-                  function(event) {
-                      dojo.stopEvent(event);
-                      this.view.zoomOut(undefined, undefined, 2);
-                  });
-
+    miniTrap.appendChild(document.createTextNode( two_nbsp ));
 
     var zoomOut = document.createElement("input");
     zoomOut.type = "image";
@@ -1619,20 +1606,7 @@ Browser.prototype.createNavBox = function( parent ) {
                       this.view.zoomIn();
                   });
 
-    var bigZoomIn = document.createElement("input");
-    bigZoomIn.type = "image";
-    bigZoomIn.src = browserRoot + "img/zoom-in-2.png";
-    bigZoomIn.id = "bigZoomIn";
-    bigZoomIn.className = "icon nav";
-    bigZoomIn.style.height = "40px";
-    miniTrap.appendChild(bigZoomIn);
-    dojo.connect( bigZoomIn, "click", this,
-                  function(event) {
-                      dojo.stopEvent(event);
-                      this.view.zoomIn(undefined, undefined, 2);
-                  });
-
-    miniTrap.appendChild(document.createTextNode( four_nbsp ));
+    miniTrap.appendChild(document.createTextNode( two_nbsp ));
 
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
     // set in the config, then put in a dropdown box for selecting
