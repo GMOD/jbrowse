@@ -58,8 +58,8 @@ var HTMLFeatures = declare( BlockBased, {
         this.levelHeightPad = 2;
         this.labelPad = 1;
 
-        // if calculated feature pixel width would be less than minFeatWidth, then set width to minFeatWidth instead
-        this.minFeatWidth = 1;
+        // if calculated feature % width would be less than minFeatWidth, then set width to minFeatWidth instead
+        this.minFeatWidth = 0.1;
 
         this.trackPadding = args.trackPadding;
 
