@@ -356,6 +356,15 @@ div.basic-hist {
     z-index: 5;
 }
 
+.purple-box, 
+.plus-purple-box, 
+.minus-purple-box {
+    height: 8px; 
+/*   margin-top: 4px; */
+    background-color: #8F408F;
+    z-index: 5;
+}
+
 
 .refseq-UTR, 
 .plus-refseq-UTR, 

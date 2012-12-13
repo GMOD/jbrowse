@@ -373,7 +373,8 @@ return declare( null,
         blockDiv.appendChild( loadMessage );
 
         var finish = function() {
-            blockDiv.removeChild( loadMessage );
+            if( blockDiv && loadMessage.parentNode )
+                blockDiv.removeChild( loadMessage );
         };
 
         try {
