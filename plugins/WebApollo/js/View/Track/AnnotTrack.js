@@ -125,7 +125,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	var thisConfig = this.inherited(arguments);
 	// nulling out menuTemplate to suppress default JBrowse feature contextual menu
 	thisConfig.menuTemplate = null;
-	thisConfig.style.centerFeatureChildren = false;
+	thisConfig.style.centerChildrenVertically = false;
 	return thisConfig;
 	/*  start of alternative to nulling out JBrowse feature contextual menu, instead attempt to merge in AnnotTrack-specific menu items
 	var superConfig = this.inherited(arguments);
