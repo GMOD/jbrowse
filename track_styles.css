@@ -69,9 +69,6 @@ div.hist {
     background-image: url('img/red_crosshatch_bg.png');
 }
 
-.alignment * {
-    height: 100%;
-}
 .alignment .deletion {
     background-color: black;
 }
