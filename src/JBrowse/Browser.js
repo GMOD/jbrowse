@@ -17,6 +17,7 @@ define( [
             'dijit/form/DropDownButton',
             'dijit/DropDownMenu',
             'dijit/MenuItem',
+            'dijit/form/HorizontalSlider',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Autocomplete',
@@ -42,6 +43,7 @@ define( [
             dijitDropDownButton,
             dijitDropDownMenu,
             dijitMenuItem,
+            dijitSlider,
             Util,
             LazyTrie,
             AutocompleteStore,
@@ -1572,6 +1574,27 @@ Browser.prototype.createNavBox = function( parent ) {
                       dojo.stopEvent(event);
                      this.view.zoomOut();
                   });
+
+    miniTrap.appendChild(document.createTextNode( nbsp ));
+
+
+    var zoomSliderSpan = dojo.create('span', {}, miniTrap );
+    zoomSliderSpan.className = "icon nav";
+
+    var zoomSlider = new dijitSlider({
+        name: "slider",
+        value: 50,
+        minimum: 0,
+        maximum: 100,
+        intermediateChanges: true,
+        showButtons: false,
+        style: "width:118px; margin: 7px 0 0 0;",
+        onChange: function(value){
+           //Some code to zoom to 'value' %
+        }
+    }, dojo.create('input',{},zoomSliderSpan) );
+
+    miniTrap.appendChild(document.createTextNode( nbsp ));
 
     var zoomIn = document.createElement("input");
     zoomIn.type = "image";
