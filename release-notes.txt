@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Greatly improved speed of layouts for large numbers of stacked
+   features.
+
  * Added a timeout to HTMLFeatures and Alignments tracks to prevent
    data-heavy tracks (like BAM tracks with very deep coverage) from
    freezing or crashing a user's browser.
