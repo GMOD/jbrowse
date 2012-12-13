@@ -9,9 +9,10 @@ define( [
             'dijit/Dialog',
             'jquery',
             'jqueryui/draggable',
-            'JBrowse/Util'
+            'JBrowse/Util', 
+            'JBrowse/Model/SimpleFeature'
         ],
-        function( declare, array, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitDialog, $, draggable, Util ) {
+        function( declare, array, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitDialog, $, draggable, Util, SimpleFeature ) {
 
 /*  Subclass of FeatureTrack that allows features to be selected,
     and dragged and dropped into the annotation track to create annotations.
@@ -335,6 +336,148 @@ var draggableTrack = declare( HTMLFeatureTrack,
         return subfeatdiv;
     },
 
+    _subfeatSorter: function( a, b ) {
+        var as = a.get('start');
+        var bs = b.get('start');
+        if ( as == bs )  { return 0; }
+        else if ( as > bs ) { return 1; }
+        else if ( as < bs ) { return -1; }
+        else  { return 0; /* shouldn't fall through to here */ }
+    }, 
+
+
+    /**
+     *  if feature has translated region (CDS, wholeCDS, start_codon, ???), 
+     *  reworks feature's subfeatures for more annotation-editing-friendly selection 
+     *
+     *  Assumes:
+     *      if translated, will either have 
+     *           CDS-ish term for each coding segment
+     *           wholeCDS from start of translation to end of translation (so already pre-processed)
+     *           mutually exclusive (either have CDS, or wholeCDS, but not both)
+     *      if wholeCDS present, then pre-processed (no UTRs)
+     *      if any exon-ish types present, then _all_ exons are present with exon-ish types
+     */
+    _processTranslation: function( feature ) {
+        var track = this;
+
+        var feat_type = feature.get('type');
+
+        // most very dense genomic feature tracks do not have CDS.  Trying to minimize overhead for that case -- 
+        //    keep list of types that NEVER have CDS children (match, alignment, repeat, etc.)
+        //    (WARNING in this case not sorting, but sorting (currently) only needed for features with CDS (for reading frame calcs))
+        if (this.webapollo.neverHasCDS[feat_type])  {
+            feature.normalized = true;
+            return;
+        }
+        var subfeats = feature.get('subfeatures');
+
+        // var cds = subfeats.filter( function(feat) { return feat.get('type') === 'CDS'; } );
+        var cds = subfeats.filter( function(feat) { 
+            return track.webapollo.cdsTerms[feat.get('type')];
+        } );
+        var wholeCDS = subfeats.filter( function(feat) { return feat.get('type') === 'wholeCDS'; } );
+        
+        // most very dense genomic feature tracks do not have CDS.  Trying to minimize overhead for that case -- 
+        //    if no CDS, no wholeCDS, consider normalized 
+        //    (WARNING in this case not sorting, but sorting (currently) only needed for features with CDS (for reading frame calcs))
+        // 
+        if (cds.length === 0 && wholeCDS.length === 0)  {
+            feature.normalized = true;
+            return;
+        }
+
+        var newsubs;
+        // wholeCDS is specific to WebApollo, if seen can assume no CDS, and UTR/exon already normalized
+        if (wholeCDS.length > 0)  {
+            // extract wholecds from subfeats, then sort subfeats
+            feature.wholeCDS = wholeCDS[0];
+            newsubs = subfeats.filter( function(feat) { return feat.get('type') !== 'wholeCDS'; } );
+        }
+        
+        // if has a CDS, remove CDS from subfeats and sort exons
+        else if (cds.length > 0)  {
+            cds.sort(this._subfeatSorter);
+            var cdsmin = cds[0].get('start');
+            var cdsmax = cds[cds.length-1].get('end');
+            feature.wholeCDS = new SimpleFeature({ parent: feature, 
+                                                   data: { start: cdsmin, end: cdsmax, type: 'wholeCDS', 
+                                                           strand: feature.get('strand') } 
+                                                 } );
+            var hasExons = false;
+            for (var i=0; i<subfeats.length; i++)  { 
+                // if (subfeats[i].get('type') === 'exon')  { hasExons = true; break; } 
+                if (track.webapollo.exonTerms[subfeats[i].get('type')])  { hasExons = true; break; } 
+            }
+            if (hasExons)  {
+                // filter out UTR and CDS
+                newsubs = subfeats.filter( function(feat) { 
+                    var ftype = feat.get('type');
+                    return (! (track.webapollo.utrTerms[ftype] || track.webapollo.cdsTerms[ftype]) );
+                } );
+            }
+            else  {  // no exons, but at least one CDS, possibly UTR
+                // create exons by joining abutting UTR/CDS
+                var sortedsubs = subfeats.slice();  // shallow copy subfeats array
+                sortedsubs.sort(this._subfeatSorter);
+                newsubs = [];
+                // since cds.length > 0, guaranteed to have at least one CDS
+                var exonCount = 0;
+                var prevStart, prevEnd;
+                // scan through sorted subfeats, joining abutting UTR/CDS regions
+                for (var i=0; i<sortedsubs.length; i++)  {
+                    var subfeat = sortedsubs[i];
+                    var ftype = subfeat.get('type');
+                    var curStart = subfeat.get('start');
+                    var curEnd = subfeat.get('end');
+
+                    if (this.webapollo.utrTerms[ftype] || this.webapollo.cdsTerms[ftype] ) {  
+                        if (! prevStart)  {  // first UTR/CDS, just initialize first exon
+                            prevStart = subfeat.get('start');
+                            prevEnd = subfeat.get('end');
+                        }
+                        else  {  // compare to previous UTR/CDS
+                            // abutting, extend previous exon
+                            if (curStart == prevEnd)  {
+                                prevEnd = curEnd;
+                            }
+                            // not abutting, create previous exon and start new one
+                            else  {
+                                var exon = new SimpleFeature({ parent: feature, 
+                                                               id: feature.id() + "-exon-" + exonCount++, 
+                                                               data: { start: prevStart, end: prevEnd, type: 'exon', 
+                                                                       strand: feature.get('strand')  } 
+                                                             } );
+                                console.log(exon);
+                                newsubs.push(exon);
+                                prevStart = curStart;
+                                prevEnd = curEnd;
+                            }
+                        }
+                    }
+                    else  {  // not a CDS or UTR, just add to new subfeats array
+                        newsubs.push(subfeat);
+                    }
+                }
+                // add last exon after exiting loop
+                var exon = new SimpleFeature({ parent: feature, 
+                                               id: feature.id() + "-exon-" + exonCount++, 
+                                               data: { start: prevStart, end: prevEnd, type: 'exon', 
+                                                       strand: feature.get('strand') } 
+                                             } );
+                newsubs.push(exon);
+                
+            }
+        }
+        // ensure that subfeatures are sorted by ascending start (regardless of feature orientation)
+        //    may want to revisit later and sort subfeatures of minus strand in descending order ??
+        //       but if do this must make sure to change reading frame calcs to reflect this
+        newsubs.sort(this._subfeatSorter);  
+        feature.filteredsubs = newsubs;
+        feature.normalized = true;
+    }, 
+    
+
     /**
      * overriding handleSubFeatures for customized handling of UTR/CDS-segment rendering within exon divs
      */
@@ -344,48 +487,17 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var subfeats = feature.get('subfeatures');	
 	if (! subfeats)  { return; }
 
+        if (! feature.normalized )  {
+            this._processTranslation( feature );
+        }
+        var wholeCDS = feature.wholeCDS;
         var parentId = this.getId(feature);
 
+        // if processing resulted in filtered subfeats, render with those instead of unfiltered subfeats
+        if (feature.filteredsubs)  { subfeats = feature.filteredsubs; }
         var slength = subfeats.length;
         var subfeat;
-        var wholeCDS = null;
         var subtype;
-        var i;
-        for (i=0; i < slength; i++)  {
-            subfeat = subfeats[i];
-            subtype = subfeat.get('type');
-            if (subtype === "wholeCDS" || subtype === "polypeptide") {
-                wholeCDS = subfeat;
-                break;
-            }
-        }
-
-/*
-        // try to make a wholeCDS if we don't have one
-        if( ! wholeCDS ) {
-            wholeCDS = (function() {
-                var cds = array.filter( feature.get('subfeatures'),
-                                        function(s) { return s.get('type') == 'CDS'; }
-                                      )
-                               .sort( function( a, b ) {
-                                          var as = a.get('start'),
-                                              bs = b.get('start');
-                                          return as == bs ?  0 :
-                                              as  > bs ?  1 :
-                                              as  < bs ? -1 : 0;
-                                      });
-                if( cds.length ) {
-                    return { start: cds[0].get('start'),
-                             end:   cds[cds.length-1].get('end'),
-                             get:   function(n) { return this[n]; }
-                           };
-                }
-                else {
-                    return null;
-                }
-            }).call(this);
-        }
-*/
 
         if (wholeCDS) {
             var cdsStart = wholeCDS.get('start');
@@ -466,10 +578,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // look for UTR and CDS subfeature class mapping from trackData
         //    if can't find, then default to parent feature class + "-UTR" or "-CDS"
         if( render ) {
-            UTRclass = this.config.style.subfeatureClasses["UTR"];
-            CDSclass = this.config.style.subfeatureClasses["CDS"];
-            if (! UTRclass)  { UTRclass = this.className + "-UTR"; }
-            if (! CDSclass)  { CDSclass = this.className + "-CDS"; }
+            if (this.config.style.subfeatureClasses)  {
+                UTRclass = this.config.style.subfeatureClasses["UTR"];
+                CDSclass = this.config.style.subfeatureClasses["CDS"];
+            }
+//            if (! UTRclass)  { UTRclass = this.className + "-UTR"; }
+//            if (! CDSclass)  { CDSclass = this.className + "-CDS"; }
+            if (! UTRclass)  { UTRclass = "webapollo-UTR"; }
+            if (! CDSclass)  { CDSclass = "webapollo-CDS"; }
         }
 
     //    if ((subEnd <= displayStart) || (subStart >= displayEnd))  { return undefined; }

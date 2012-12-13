@@ -126,7 +126,7 @@ HTMLFeatures = declare( HTMLFeatures,
             description: true,
 
             maxFeatureScreenDensity: 0.5,
-            blockDisplayTimeout: 3000,
+            blockDisplayTimeout: 5000,
 
             style: {
                 className: "feature2",
@@ -675,7 +675,8 @@ HTMLFeatures = declare( HTMLFeatures,
 
         var timedOut = false;
         var timeOutError = { toString: function() { return 'Timed out trying to display '+curTrack.name+' block '+blockIndex; } };
-        window.setTimeout( function() { timedOut = true; }, this.config.blockDisplayTimeout );
+        if( this.config.blockDisplayTimeout )
+            window.setTimeout( function() { timedOut = true; }, this.config.blockDisplayTimeout );
 
         var featCallback = dojo.hitch(this,function( feature ) {
             if( timedOut )
@@ -704,6 +705,7 @@ HTMLFeatures = declare( HTMLFeatures,
                                     if( error === timeOutError ) {
                                         dom.empty( block );
                                         block.featureNodes = {};
+                                        dojo.addClass( block, 'timed_out' );
                                         curTrack.fillMessage( blockIndex, block, 'This region took too long to display, possibly because it contains too many features.  Try zooming in to show fewer features.' );
                                     } else
                                         curTrack.fillError( blockIndex, block );

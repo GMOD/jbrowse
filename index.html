@@ -13,7 +13,7 @@
 
         var JBrowse;
         require( { baseUrl: 'src',
-                   packages: [ 'JBrowse', 'dojo', 'dijit', 'dojox', 'jszlib' ]
+                   packages: [ 'JBrowse', 'dojo' ]
                  },
             [ 'JBrowse/Browser', 'dojo/io-query' ],
             function (Browser,ioQuery) {
@@ -24,8 +24,8 @@
                                            refSeqs: dataRoot + "/seq/refSeqs.json",
                                            baseUrl: dataRoot+'/',
                                            include: [
-                                             'jbrowse_conf.json', 
-                                             dataRoot + "/annotation_trackList.json", 
+                                             'jbrowse_conf.json',
+                                             dataRoot + "/annotation_trackList.json",
                                              dataRoot + "/trackList.json"
                                            ],
                                            nameUrl: dataRoot + "/names/root.json",

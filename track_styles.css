@@ -33,9 +33,14 @@ div.hist {
     cursor: pointer;
     min-width: 1px;
     z-index: 10;
+    background-color: gainsboro;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 
-.feature { background-color: gainsboro }
 .plus-feature { background-image: url('img/plus-chevron3.png'); }
 .minus-feature { background-image: url('img/minus-chevron3.png'); }
 
@@ -47,6 +52,11 @@ div.hist {
     height: 9px;
     min-width: 1px;
     z-index: 10;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 
 .alignment,
@@ -69,9 +79,6 @@ div.hist {
     background-image: url('img/red_crosshatch_bg.png');
 }
 
-.alignment * {
-    height: 100%;
-}
 .alignment .deletion {
     background-color: black;
 }

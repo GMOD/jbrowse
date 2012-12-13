@@ -310,6 +310,13 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
     },
 
     renderGrid: function() {
+
+        var displayColumns = dojo.filter(
+            this.displayColumns || this.trackDataStore.getFacetNames(),
+            dojo.hitch(this, '_isDisplayableColumn')
+        );
+        var colWidth = 90/displayColumns.length;
+
         var grid = new EnhancedGrid({
                id: 'trackSelectGrid',
                store: this.trackDataStore,
@@ -318,13 +325,11 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
                noDataMessage: "No tracks match the filtering criteria.",
                structure: [
                    dojo.map(
-                       dojo.filter( this.displayColumns || this.trackDataStore.getFacetNames(),
-                                    dojo.hitch(this, '_isDisplayableColumn')
-                                  ),
+                       displayColumns,
                        function(facetName) {
                            // rename name to key to avoid configuration confusion
                            facetName = {name: 'key'}[facetName.toLowerCase()] || facetName;
-                           return {'name': this._facetDisplayName(facetName), 'field': facetName.toLowerCase(), 'width': '100px'};
+                           return {'name': this._facetDisplayName(facetName), 'field': facetName.toLowerCase(), 'width': colWidth+'%'};
                        },
                        this
                    )

@@ -3,25 +3,6 @@
 
 */
 
-.feature, 
-.plus-feature, 
-.minus-feature {
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-}
-
-
-.subfeature, 
-.plus-subfeature, 
-.minus-subfeature {
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-}
-
 .webapollo-CDS {
     position: absolute;
     height: 12px;

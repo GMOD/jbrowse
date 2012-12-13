@@ -1,4 +1,11 @@
 var _gaq = _gaq || []; // global task queue for Google Analytics
+require( {
+             packages: [ 'dijit', 'dojox', 'jszlib',
+                         { name: 'lazyload', main: 'lazyload' }
+                       ]
+         },
+         [],
+         function() {
 
 define( [
             'dojo/_base/lang',
@@ -25,6 +32,8 @@ define( [
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
+            'dijit/focus',
+            'lazyload', // for dynamic CSS loading
             'dojo/domReady!'
         ],
         function(
@@ -51,7 +60,9 @@ define( [
             Touch,
             ConfigManager,
             InfoDialog,
-            FileDialog
+            FileDialog,
+            dijitFocus,
+            LazyLoad
         ) {
 
 var dojof = Util.dojof;
@@ -329,9 +340,7 @@ Browser.prototype._loadCSS = function( css, successCallback, errorCallback ) {
             }
         }
         if( typeof css == 'object' ) {
-            var link = dojo.create('link', { "data-from": 'JBrowse Config', rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
-            successCallback && on( link, 'load', successCallback );
-            errorCallback   && on( link, 'error', errorCallback );
+            LazyLoad.css( css.url, successCallback );
         }
 };
 
@@ -1525,6 +1534,10 @@ Browser.prototype.setGlobalKeyboardShortcut = function( keychar ) {
  * Key event handler that implements all global keyboard shortcuts.
  */
 Browser.prototype.globalKeyHandler = function( evt ) {
+    // if some digit widget is focused, don't process any global keyboard shortcuts
+    if( dijitFocus.curNode )
+        return;
+
     var shortcut = this.globalKeyboardShortcuts[ evt.keyChar ];
     if( shortcut ) {
         shortcut.call( this );
@@ -2009,8 +2022,7 @@ Browser.prototype._makeLocationAutocompleteStore = function() {
 
 return Browser;
 
-});
-
+}); });
 
 /*
 
