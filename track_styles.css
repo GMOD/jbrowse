@@ -34,6 +34,11 @@ div.hist {
     min-width: 1px;
     z-index: 10;
     background-color: gainsboro;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 
 .plus-feature { background-image: url('img/plus-chevron3.png'); }
@@ -47,6 +52,11 @@ div.hist {
     height: 9px;
     min-width: 1px;
     z-index: 10;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 
 .alignment,
