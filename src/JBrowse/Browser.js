@@ -1558,33 +1558,6 @@ Browser.prototype.createNavBox = function( parent ) {
     regionText.style.width = 'auto';
     regionText.innerHTML = 'Region';
     miniTrap.appendChild(regionText);
-
-    var moveLeft = document.createElement("input");
-    moveLeft.type = "image";
-    moveLeft.src = browserRoot + "img/slide-left.png";
-    moveLeft.id = "moveLeft";
-    moveLeft.className = "icon nav";
-    moveLeft.style.height = "40px";
-    miniTrap.appendChild(moveLeft);
-    dojo.connect( moveLeft, "click", this,
-                  function(event) {
-                      dojo.stopEvent(event);
-                      this.view.slide(0.9);
-                  });
-
-    var moveRight = document.createElement("input");
-    moveRight.type = "image";
-    moveRight.src = browserRoot + "img/slide-right.png";
-    moveRight.id="moveRight";
-    moveRight.className = "icon nav";
-    moveRight.style.height = "40px";
-    miniTrap.appendChild(moveRight);
-    dojo.connect( moveRight, "click", this,
-                  function(event) {
-                      dojo.stopEvent(event);
-                      this.view.slide(-0.9);
-                  });
-
     miniTrap.appendChild(document.createTextNode( nbsp ));
 
     var zoomOut = document.createElement("input");
