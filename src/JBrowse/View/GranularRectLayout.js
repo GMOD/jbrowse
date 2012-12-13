@@ -41,7 +41,7 @@ return declare( null,
         // the last rectangle we laid out, but does fit just below it,
         // put it just below it.  this is a very common case in deep layouts.
         // otherwise, start from the top and find where rectangle fits.
-        var top = this.lastTop && this._collides( rectangle, this.lastTop ) ? this.lastTop+1 : 0;
+        var top = this.lastTop && this._collides( rectangle, this.lastTop ) && this._collides( rectangle, 0 ) ? this.lastTop+1 : 0;
         for( ; top <= this.pTotalHeight; top++ ){
             if(! this._collides(rectangle,top) )
                 break;
