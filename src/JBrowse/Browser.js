@@ -1,4 +1,11 @@
 var _gaq = _gaq || []; // global task queue for Google Analytics
+require( {
+             packages: [ 'dijit', 'dojox', 'jszlib',
+                         { name: 'lazyload', main: 'lazyload' }
+                       ]
+         },
+         [],
+         function() {
 
 define( [
             'dojo/_base/lang',
@@ -26,6 +33,7 @@ define( [
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
             'dijit/focus',
+            'lazyload', // for dynamic CSS loading
             'dojo/domReady!'
         ],
         function(
@@ -53,7 +61,8 @@ define( [
             ConfigManager,
             InfoDialog,
             FileDialog,
-            dijitFocus
+            dijitFocus,
+            LazyLoad
         ) {
 
 var dojof = Util.dojof;
@@ -331,9 +340,7 @@ Browser.prototype._loadCSS = function( css, successCallback, errorCallback ) {
             }
         }
         if( typeof css == 'object' ) {
-            var link = dojo.create('link', { "data-from": 'JBrowse Config', rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
-            successCallback && on( link, 'load', successCallback );
-            errorCallback   && on( link, 'error', errorCallback );
+            LazyLoad.css( css.url, successCallback );
         }
 };
 
@@ -2015,8 +2022,7 @@ Browser.prototype._makeLocationAutocompleteStore = function() {
 
 return Browser;
 
-});
-
+}); });
 
 /*
 
