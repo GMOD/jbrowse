@@ -4,6 +4,7 @@ define( [
             'dojo/_base/lang',
             'dojo/topic',
             'dojo/aspect',
+            'dojo/on',
             'dojo/_base/array',
             'dijit/layout/ContentPane',
             'dijit/layout/BorderContainer',
@@ -25,6 +26,7 @@ define( [
             lang,
             topic,
             aspect,
+            on,
             array,
             dijitContentPane,
             dijitBorderContainer,
@@ -280,7 +282,7 @@ Browser.prototype.initView = function() {
             }
 
             // make our global keyboard shortcut handler
-            dojo.connect( document.body, 'onkeypress', this, 'globalKeyHandler' );
+            on( document.body, 'keypress', dojo.hitch( this, 'globalKeyHandler' ) );
 
             // configure our event routing
             this._initEventRouting();
@@ -1009,7 +1011,7 @@ Browser.prototype.globalKeyHandler = function( evt ) {
     if( dijitFocus.curNode )
         return;
 
-    var shortcut = this.globalKeyboardShortcuts[ evt.keyChar ];
+    var shortcut = this.globalKeyboardShortcuts[ evt.keyChar || String.fromCharCode( evt.charCode || evt.keyCode ) ];
     if( shortcut ) {
         shortcut.call( this );
         evt.stopPropagation();
