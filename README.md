@@ -53,17 +53,21 @@ comprehensive list of JSDoc tags.
 
 2. Build the release packages: `make -f build/Makefile release`.  The files produced during the build should not be committed to the repository either.
 
-3. `scp` the release .zip files (min and full) to jbrowse.org.
+3. Make a tag in the repository for the release, named, e.g. `1.6.3-release`.
 
-4. Add them to the Wordpress Downloads list so that we can track how
+4. `scp` the release .zip files (min and full) to jbrowse.org.
+
+5. Add them to the Wordpress Downloads list so that we can track how
 many times they are downloaded.
 
-5. Write a blog post announcing the release.  The `release-notes.html`
+6. Write a blog post announcing the release.  The `release-notes.html`
 file made during the build might be useful for this.
 
-6. Write an email announcing the release, sending to gmod-ajax,
-jbrowse-dev, and maybe gmod-announce.
+7. Update the "Install" page on the site to point to the newest release.
 
-7. Make a tag in the repository for the release, named, e.g. `1.6.3-release`.
+8. Update the latest-release code checkout on the site, which the "Latest Release" demo on the jbrowse.org points to, to be an unzipped-and-set-up copy of the latest release.
 
-This process could use some more streamlining and automation.
+9. Write an email announcing the release, sending to gmod-ajax,
+jbrowse-dev.  If it is a major release, add gmod-announce and make a GMOD news item.
+
+As you can tell, this process could really use some more streamlining and automation.
