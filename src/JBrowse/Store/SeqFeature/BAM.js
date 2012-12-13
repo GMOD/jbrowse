@@ -139,7 +139,12 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
                             var feature = features[i];
                             // skip if this alignment is unmapped, or if it does not actually overlap this range
                             if (! (feature.get('unmapped') || feature.get('end') <= start || feature.get('start') >= end) )
-                                featCallback( feature );
+                                try {
+                                    featCallback( feature );
+                                } catch(e) {
+                                    errorCallback( e );
+                                    return;
+                                }
 
                             if( i && !( i % maxFeaturesWithoutYielding ) ) {
                                 window.setTimeout( readFeatures, 1 );
