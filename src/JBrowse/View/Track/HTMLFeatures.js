@@ -675,7 +675,8 @@ HTMLFeatures = declare( HTMLFeatures,
 
         var timedOut = false;
         var timeOutError = { toString: function() { return 'Timed out trying to display '+curTrack.name+' block '+blockIndex; } };
-        window.setTimeout( function() { timedOut = true; }, this.config.blockDisplayTimeout );
+        if( this.config.blockDisplayTimeout )
+            window.setTimeout( function() { timedOut = true; }, this.config.blockDisplayTimeout );
 
         var featCallback = dojo.hitch(this,function( feature ) {
             if( timedOut )
