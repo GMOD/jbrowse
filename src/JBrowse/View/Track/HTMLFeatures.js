@@ -705,6 +705,7 @@ HTMLFeatures = declare( HTMLFeatures,
                                     if( error === timeOutError ) {
                                         dom.empty( block );
                                         block.featureNodes = {};
+                                        dojo.addClass( block, 'timed_out' );
                                         curTrack.fillMessage( blockIndex, block, 'This region took too long to display, possibly because it contains too many features.  Try zooming in to show fewer features.' );
                                     } else
                                         curTrack.fillError( blockIndex, block );

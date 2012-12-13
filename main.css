@@ -191,6 +191,10 @@ div.block {
     top: 0px;
     height: 100%;
 }
+div.block.timed_out {
+    background: #ddd;
+    background: rgba( 0,0,0, 0.1 );
+}
 
 div.track {
     position: absolute;
@@ -636,6 +640,9 @@ div.error code {
 }
 div.message {
     background: #eee;
+}
+div.block > div.message {
+    margin-top: 1em;
 }
 
 .tundra .dijitDialogPaneContent {
