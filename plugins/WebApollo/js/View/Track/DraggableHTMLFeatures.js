@@ -445,7 +445,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                             else  {
                                 var exon = new SimpleFeature({ parent: feature, 
                                                                id: feature.id() + "-exon-" + exonCount++, 
-                                                               data: { start: prevstart, end: prevend, type: 'exon', 
+                                                               data: { start: prevStart, end: prevEnd, type: 'exon', 
                                                                        strand: feature.get('strand')  } 
                                                              } );
                                 console.log(exon);
@@ -462,7 +462,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 // add last exon after exiting loop
                 var exon = new SimpleFeature({ parent: feature, 
                                                id: feature.id() + "-exon-" + exonCount++, 
-                                               data: { start: prevstart, end: prevend, type: 'exon', 
+                                               data: { start: prevStart, end: prevEnd, type: 'exon', 
                                                        strand: feature.get('strand') } 
                                              } );
                 newsubs.push(exon);
@@ -578,10 +578,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // look for UTR and CDS subfeature class mapping from trackData
         //    if can't find, then default to parent feature class + "-UTR" or "-CDS"
         if( render ) {
-            UTRclass = this.config.style.subfeatureClasses["UTR"];
-            CDSclass = this.config.style.subfeatureClasses["CDS"];
-            if (! UTRclass)  { UTRclass = this.className + "-UTR"; }
-            if (! CDSclass)  { CDSclass = this.className + "-CDS"; }
+            if (this.config.style.subfeatureClasses)  {
+                UTRclass = this.config.style.subfeatureClasses["UTR"];
+                CDSclass = this.config.style.subfeatureClasses["CDS"];
+            }
+//            if (! UTRclass)  { UTRclass = this.className + "-UTR"; }
+//            if (! CDSclass)  { CDSclass = this.className + "-CDS"; }
+            if (! UTRclass)  { UTRclass = "webapollo-UTR"; }
+            if (! CDSclass)  { CDSclass = "webapollo-CDS"; }
         }
 
     //    if ((subEnd <= displayStart) || (subStart >= displayEnd))  { return undefined; }

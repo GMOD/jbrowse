@@ -48,6 +48,11 @@ return declare( JBPlugin,
             repeat: true
         }
         
+        
+        /**
+         *  Sequence Ontology feature types that are known to not have exon children
+         *  NOT a complete list (complete list would be extensive)
+         */
         this.neverHasExons = {
             match: true, 
             nucleotide_match: true, 
