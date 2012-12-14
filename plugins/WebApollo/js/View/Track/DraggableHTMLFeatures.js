@@ -42,13 +42,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
             dojo.clone( this.inherited(arguments) ),
             {
                 style: {
-		    className: "{type}",   // feature classname gets set to feature.get('type')
+		    // className: "{type}",   // feature classname gets set to feature.get('type')
+                    className: "container-12px", 
                     renderClassName: "center-line-large", 
                     arrowheadClass: "webapollo-arrowhead", 
                     subfeatureClasses: {
                         UTR: "webapollo-UTR",   
                         CDS: "webapollo-CDS",   
-                        exon: "container-large", 
+                        exon: "container-12px", 
                         wholeCDS: null, 
                         match_part: "est-alignment-part", 
                     }, 
