@@ -22,7 +22,7 @@ return declare( HTMLFeatures,
                     _defaultLabelScale: 50,
                     className: 'alignment',
                     arrowheadClass: 'arrowhead',
-                    centerFeatureChildren: false,
+                    centerChildrenVertically: true,
                     showMismatches: true,
                     showSubfeatures: false
                 }
