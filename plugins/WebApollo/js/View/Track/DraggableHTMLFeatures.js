@@ -10,9 +10,10 @@ define( [
             'jquery',
             'jqueryui/draggable',
             'JBrowse/Util', 
-            'JBrowse/Model/SimpleFeature'
+            'JBrowse/Model/SimpleFeature', 
+            'WebApollo/SequenceOntologyUtils'
         ],
-        function( declare, array, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitDialog, $, draggable, Util, SimpleFeature ) {
+        function( declare, array, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitDialog, $, draggable, Util, SimpleFeature, SeqOnto ) {
 
 /*  Subclass of FeatureTrack that allows features to be selected,
     and dragged and dropped into the annotation track to create annotations.
@@ -51,7 +52,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         CDS: "webapollo-CDS",   
                         exon: "container-12px", 
                         wholeCDS: null, 
-                        match_part: "est-alignment-part", 
+                        match_part: "est-alignment-part"
                     }, 
 
                     // renderClassName: 'DraggableFeatureTrack'  ???
@@ -377,7 +378,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // most very dense genomic feature tracks do not have CDS.  Trying to minimize overhead for that case -- 
         //    keep list of types that NEVER have CDS children (match, alignment, repeat, etc.)
         //    (WARNING in this case not sorting, but sorting (currently) only needed for features with CDS (for reading frame calcs))
-        if (this.webapollo.neverHasCDS[feat_type])  {
+        if (SeqOnto.neverHasCDS[feat_type])  {
             feature.normalized = true;
             return;
         }
@@ -385,7 +386,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
         // var cds = subfeats.filter( function(feat) { return feat.get('type') === 'CDS'; } );
         var cds = subfeats.filter( function(feat) { 
-            return track.webapollo.cdsTerms[feat.get('type')];
+            return SeqOnto.cdsTerms[feat.get('type')];
         } );
         var wholeCDS = subfeats.filter( function(feat) { return feat.get('type') === 'wholeCDS'; } );
         
@@ -418,13 +419,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
             var hasExons = false;
             for (var i=0; i<subfeats.length; i++)  { 
                 // if (subfeats[i].get('type') === 'exon')  { hasExons = true; break; } 
-                if (track.webapollo.exonTerms[subfeats[i].get('type')])  { hasExons = true; break; } 
+                if (SeqOnto.exonTerms[subfeats[i].get('type')])  { hasExons = true; break; } 
             }
             if (hasExons)  {
                 // filter out UTR and CDS
                 newsubs = subfeats.filter( function(feat) { 
                     var ftype = feat.get('type');
-                    return (! (track.webapollo.utrTerms[ftype] || track.webapollo.cdsTerms[ftype]) );
+                    return (! (SeqOnto.utrTerms[ftype] || SeqOnto.cdsTerms[ftype]) );
                 } );
             }
             else  {  // no exons, but at least one CDS, possibly UTR
@@ -442,7 +443,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     var curStart = subfeat.get('start');
                     var curEnd = subfeat.get('end');
 
-                    if (this.webapollo.utrTerms[ftype] || this.webapollo.cdsTerms[ftype] ) {  
+                    if (SeqOnto.utrTerms[ftype] || SeqOnto.cdsTerms[ftype] ) {  
                         if (! prevStart)  {  // first UTR/CDS, just initialize first exon
                             prevStart = subfeat.get('start');
                             prevEnd = subfeat.get('end');
