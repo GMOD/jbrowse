@@ -48,11 +48,6 @@ return declare( JBPlugin,
             repeat: true
         }
         
-        
-        /**
-         *  Sequence Ontology feature types that are known to not have exon children
-         *  NOT a complete list (complete list would be extensive)
-         */
         this.neverHasExons = {
             match: true, 
             nucleotide_match: true, 
@@ -179,16 +174,24 @@ return declare( JBPlugin,
         browser.registerTrackType({
             type:                 'WebApollo/View/Track/DraggableHTMLFeatures',
             defaultForStoreTypes: [ 'JBrowse/Store/SeqFeature/NCList',
-                                    'JBrowse/Store/SeqFeature/BAM',
                                     'JBrowse/Store/SeqFeature/GFF3'
                                   ],
             label: 'WebApollo Features'
+        });
+        browser.registerTrackType({
+            type:                 'WebApollo/View/Track/DraggableAlignments',
+            defaultForStoreTypes: [ 
+                                    'JBrowse/Store/SeqFeature/BAM',
+                                  ],
+            label: 'WebApollo Alignments'
         });
         browser.registerTrackType({
             type:                 'WebApollo/View/Track/SequenceTrack',
             defaultForStoreTypes: [ 'JBrowse/Store/Sequence/StaticChunked' ],
             label: 'WebApollo Sequence'
         });
+
+
 
     }
 });
