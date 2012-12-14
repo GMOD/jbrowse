@@ -37,14 +37,19 @@ return declare( null,
         var midX = Math.floor((pLeft+pRight)/2);
         var rectangle = { id: id, l: pLeft, r: pRight, mX: midX, h: pHeight };
 
-        // optimization: if this rectange does not fit at the level of
-        // the last rectangle we laid out, but does fit just below it,
-        // put it just below it.  this is a very common case in deep layouts.
-        // otherwise, start from the top and find where rectangle fits.
-        var top = 'lastTop' in this ? this._collides( rectangle, this.lastTop ) ? this._collides( rectangle, 0 ) ? this.lastTop+1
-                                                                                                                 : 1
-                                                                                : 0
-                                    : 0;
+        // optimization: if this rectangle is rather deep down, and
+        // does not fit at the level of the last rectangle we laid
+        // out, and does not fit at the top, but does fit just below
+        // it, put it just below it instead of looking for a fit
+        // through the whole deep layout.  this is a very common
+        // case in deep layouts. otherwise, start from the top and
+        // find where rectangle fits.  speeds things up quite a bit in
+        // deep layouts, and does not make the layout much worse.
+        var top = this.lastTop > 40
+            && this._collides( rectangle, this.lastTop )
+            && this._collides( rectangle, 0 )
+                ? this.lastTop+1 : 0;
+
         for( ; top <= this.pTotalHeight; top++ ){
             if(! this._collides(rectangle,top) )
                 break;
