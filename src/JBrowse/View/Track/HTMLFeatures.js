@@ -1120,30 +1120,31 @@ HTMLFeatures = declare( HTMLFeatures,
         var className;
         if( this.config.style.subfeatureClasses ) {
             className = this.config.style.subfeatureClasses[type];
-            // if no class mapping specified for type, default to "{parentclass}-{type}"
-            if (className === undefined) { className = this.config.style.className + '-' + type; }
+            // if no class mapping specified for type, default to subfeature.get('type')
+            if (className === undefined) { className = type; }
             // if subfeatureClasses specifies that subfeature type explicitly maps to null className
             //     then don't render the feature
             else if (className === null)  {
-                className = this.config.style.className + '-' + type;
                 return null;
             }
         }
         else {
-            // if no config.style.subfeatureClasses to specify subfeature class mapping, default to "{parentclass}-{type}"
-            className = this.config.style.className + '-' + type;
+            // if no config.style.subfeatureClasses to specify subfeature class mapping, default to subfeature.get('type')
+            className = type;
         }
         var subDiv = document.createElement("div");
         dojo.addClass(subDiv, "subfeature");
-        dojo.addClass(subDiv, className);
-
-        switch ( subfeature.get('strand') ) {
-        case 1:
-        case '+':
-            dojo.addClass(subDiv, "plus-" + className); break;
-        case -1:
-        case '-':
-            dojo.addClass(subDiv, "minus-" + className); break;
+        // check for className to avoid adding "null", "plus-null", "minus-null" 
+        if (className) {  
+            dojo.addClass(subDiv, className);
+            switch ( subfeature.get('strand') ) {
+            case 1:
+            case '+':
+                dojo.addClass(subDiv, "plus-" + className); break;
+            case -1:
+            case '-':
+                dojo.addClass(subDiv, "minus-" + className); break;
+            }
         }
 
         // if the feature has been truncated to where it doesn't cover
