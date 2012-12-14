@@ -88,6 +88,11 @@ return declare( HTMLFeatures,
                         width: scale*mDisplayWidth>1 ? 100 * mDisplayWidth/featLength + '%' : '1px'
                     }
                 }, featDiv );
+
+                // give the mismatch a mouseover if not drawing a character with the mismatch base
+                if( ! drawChars )
+                    overall.title = base;
+
                 if( drawChars && mismatch.length <= 20 ) {
                     for( var i = 0; i<mismatch.length; i++ ) {
                         var basePosition = start + i;
