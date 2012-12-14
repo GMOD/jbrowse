@@ -62,7 +62,6 @@ return declare( HTMLFeatures,
      */
     _drawMismatches: function( feature, featDiv, scale, displayStart, displayEnd ) {
         var featLength = displayEnd - displayStart;
-        var featLengthPx = featLength * scale;
         // recall: scale is pixels/basepair
         if ( featLength*scale > 1 ) {
             var mismatches = this._getMismatches( feature );
