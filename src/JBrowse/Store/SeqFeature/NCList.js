@@ -117,8 +117,12 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                 // NCList where the feature lives; it's unique across the
                 // top-level NCList (the top-level NCList covers a
                 // track/chromosome combination)
-                var uniqueID = path.join(",");
-                that._decorate_feature( accessors, feature, uniqueID );
+
+                // only need to decorate a feature once
+                if (! feature.decorated)  {
+                    var uniqueID = path.join(",");
+                    that._decorate_feature( accessors, feature, uniqueID );
+                }
                 return origFeatCallback( feature );
             };
 
@@ -127,17 +131,22 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
     // helper method to recursively add .get and .tags methods to a feature and its
     // subfeatures
+
+
     _decorate_feature: function( accessors, feature, id, parent ) {
         feature.get = accessors.get;
+        // possibly include set method in decorations? not currently
+        //    feature.set = accessors.set;
         feature.tags = accessors.tags;
         feature._uniqueID = id;
         feature.id = idfunc;
         feature._parent  = parent;
         feature.parent   = parentfunc;
-        feature.children = childrenfunc;;
+        feature.children = childrenfunc;
         dojo.forEach( feature.get('subfeatures'), function(f,i) {
             this._decorate_feature( accessors, f, id+'-'+i, feature );
         },this);
+        feature.decorated = true;
     }
 });
 });

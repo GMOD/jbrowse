@@ -44,7 +44,7 @@ div.hist {
 .plus-feature { background-image: url('img/plus-chevron3.png'); }
 .minus-feature { background-image: url('img/minus-chevron3.png'); }
 
-.subfeature, 
+.subfeature,
 .plus-subfeature,
 .minus-subfeature {
     position:absolute;
@@ -75,31 +75,30 @@ div.hist {
 .minus-alignment {
     background-color: #898FD8;
 }
-.alignment.missing_mate {
+.alignment.missing_mate, .plus-alignment.missing_mate, .minus-alignment.missing_mate {
     background-image: url('img/red_crosshatch_bg.png');
 }
 
-.alignment .deletion {
-    background-color: black;
+.alignment > .mismatch, .minus-alignment > .mismatch, .plus-alignment > .mismatch  {
+    height: 100%;
 }
-.alignment .deletion * {
+.alignment > .deletion, .minus-alignment > .deletion, .plus-alignment > .deletion {
+    background-color: black;
+    height: 100%;
+}
+.alignment > .deletion *, .plus-alignment > .deletion *, .minus-alignment > .deletion * {
     color: white;
 }
-.alignment .insertion {
+.alignment > .insertion, .plus-alignment > .insertion, .minus-alignment > .insertion {
     background-color: white;
     color: black;
+    height: 100%;
 }
-.alignment .skip {
+.alignment > .skip, .plus-alignment > .skip, .minus-alignment > .skip {
     background: url('img/black_20x2.png') repeat-x 0 50% white;
     height: 100%;
     opacity: 0.7;
 }
-
-
-/* .plus-alignment .mismatch, */
-/* .minus-alignment .mismatch { */
-/*     background-color: rgba( 255,255,255,0.8); */
-/* } */
 
 div.feature-hist {
     background-color: blue;

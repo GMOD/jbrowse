@@ -8,7 +8,8 @@
 
     <script type="text/javascript">
         window.onerror=function(msg){
-            document.body.setAttribute("JSError",msg);
+            if( document.body )
+                document.body.setAttribute("JSError",msg);
         }
 
         var JBrowse;

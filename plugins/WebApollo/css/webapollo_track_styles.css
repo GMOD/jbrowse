@@ -4,35 +4,29 @@
 */
 
 .webapollo-CDS {
-    position: absolute;
     height: 12px;
 /*    margin-top: 2px;  */  /* relying on centering code instead */
     background-color: #F58544;
     border-style: solid;
     border-color: #555;
     border-width: 1px;
-    cursor: pointer;
-    z-index: 10;
-    min-width: 1px;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
 }
 
 .webapollo-UTR {
-    position: absolute;
     height: 8px; 
 /*    margin-top: 4px; */  /* relying on centering code instead */
+/*    z-index: 8; */
     background-color: #AA5626;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
 }
+
+.mRNA, 
+.plus-mRNA, 
+.minus-mRNA  {
+    height: 14px;
+    /* outline: 2px dashed green; */
+    background-color: transparent;
+}
+
 
 div.track_annotations {
     background-color: #FFFFDD;
@@ -215,6 +209,47 @@ div.basic-hist {
 }
 */
 
+/** 
+*   invisible containers, 
+*   for features that also have a renderClass that gets centered, 
+*      and for subfeatures that have rendered children 
+*      (currently only subfeatures like this are exons, which have CDS and UTR child divs)
+*
+*/
+.container-16px, 
+.plus-container-16px, 
+.minus-container-16px  {
+    height: 16px;
+    background-color: transparent;
+}
+
+.container-14px, 
+.plus-container-14px, 
+.minus-container-14px  {
+    height: 14px;
+    background-color: transparent;
+}
+
+.container-12px, 
+.plus-container-12px, 
+.minus-container-12px  {
+    height: 12px;
+    background-color: transparent;
+}
+
+.container-10px, 
+.plus-container-10px, 
+.minus-container-10px  {
+    height: 10px;
+    background-color: transparent;
+}
+
+.container-8px, 
+.plus-container-8px, 
+.minus-container-8px {
+    height: 8px;
+    background-color: transparent;
+}
 
 /**
 *  trellis-transcript div is just a holder for any subfeature divs, as 
@@ -254,12 +289,6 @@ div.basic-hist {
 /********************************************************
 *   RefSeq styling
 ***********************************************/
-.container-large, 
-.plus-container-large, 
-.minus-container-large  {
-    height: 16px;
-    background-color: transparent;
-}
 
 .refseq-transcript, 
 .plus-refseq-transcript, 
@@ -576,12 +605,9 @@ div.basic-hist {
 .au9-transcript, 
 .plus-au9-transcript, 
 .minus-au9-transcript  {
-    position: absolute;
     height: 16px;
-    margin-top: 0px;
-    z-index: 6;
-    min-width: 1px;
-    cursor: pointer;
+    background-color: transparent;
+    outline: 1px solid gray;
 }
 
 .au9-transcript-render  {
@@ -601,16 +627,9 @@ div.basic-hist {
 .au9-exon,
 .plus-au9-exon, 
 .minus-au9-exon {
-    position: absolute;
     height: 16px;
-    margin-top: 0px;
-    z-index: 6;
-    min-width: 1px;
-    cursor: pointer;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
+    background-color: transparent;
+    outline: 2px solid green;
 }
 
 .au9-CDS, 
