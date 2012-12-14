@@ -393,7 +393,8 @@ return declare( null,
             });
         } catch( e ) {
             this.error = e;
-            this.fillError( blockIndex, block );
+            console.error( e, e.stack );
+            this.fillError( blockIndex, blockDiv );
             finish();
         }
     },
