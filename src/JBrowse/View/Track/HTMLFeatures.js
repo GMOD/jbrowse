@@ -707,8 +707,10 @@ HTMLFeatures = declare( HTMLFeatures,
                                         block.featureNodes = {};
                                         dojo.addClass( block, 'timed_out' );
                                         curTrack.fillMessage( blockIndex, block, 'This region took too long to display, possibly because it contains too many features.  Try zooming in to show fewer features.' );
-                                    } else
+                                    } else {
+                                        console.error( error, error.stack );
                                         curTrack.fillError( blockIndex, block );
+                                    }
                                     finishCallback();
                                 }
                               );
