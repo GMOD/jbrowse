@@ -184,7 +184,7 @@ return declare([ NCListStore ],
      *  takes one parsed GFF3 feature and all of its subfeatures (children/grandchildren/great-grandchildren/...)
      *  from a parsed GFF3 data struct (returned from GFF3toJson()), and returns a a two-level feature array for
      *  the lowest and next-lowest level. For example, given a data struct for a parsed gene/mRNA/exon GFF3
-     *  it would return a two-level feature array for the mRNA and all of it's exons.
+     *  it would return a two-level feature array for the all mRNA features and their exons.
      */
     _convertParsedGFF3JsonToFeatureArray: function(parsedGff3) {
         var featureArray = new Array();
@@ -197,22 +197,21 @@ return declare([ NCListStore ],
         // can only deal with two-level features.
         var gff3Depth = this._determineParsedGff3Depth( parsedGff3 );
 
-        // okay, we know the depth, go down to gff3Depth - 1, and pull the first feature at this
-        // depth and its children. We're going to assume there is only one feature at this depth
-        // and ignore any subsequent features.
+        // okay, we know the depth, go down to gff3Depth - 1, and pull the features at this
+        // depth and their children.
 
-        // get parent in parsedGff3.parsedData, which is at depth - 1
-        var thisParent = this._getFeatureAtGivenDepth(parsedGff3, gff3Depth - 1);
-        if (! thisParent)  {
+        // get parents in parsedGff3.parsedData at depth - 1
+        var theseParents = this._getFeaturesAtGivenDepth(parsedGff3, gff3Depth - 1);
+        if (! theseParents || theseParents.length < 1)  {
             // console.log("problem");
             // console.log(parsedGff3);
             return null;
         }
 
         //
-        // now set parent info
+        // set parent info
         //
-        var rawdata = thisParent.data[0].rawdata;
+        var rawdata = theseParents[0].data[0].rawdata;
         featureArray[1] = parseInt(rawdata[3])-1; // set start (-1 for converting from 1-based to 0-based)
         featureArray[2] = parseInt(rawdata[4]); // set end
         featureArray[3] = rawdata[6]; // set strand
@@ -220,7 +219,7 @@ return declare([ NCListStore ],
         featureArray[5] = rawdata[7]; // set phase
         featureArray[6] = rawdata[2]; // set type
         featureArray[7] = rawdata[5]; // set score
-        featureArray[8] = thisParent.ID; // set id
+        featureArray[8] = theseParents[0].ID; // set id
 
         var parsedNinthField = this._parsedNinthGff3Field(rawdata[8]);
         if ( !!parsedNinthField["Name"] ){
@@ -231,12 +230,12 @@ return declare([ NCListStore ],
         //
         // now set children info
         //
-        var children = thisParent.children;
+        var children = theseParents[0].children;
         var subfeats = null; // make array for all child features
-        if ( thisParent.children && (thisParent.children.length > 0))  {
+        if ( theseParents[0].children && (theseParents[0].children.length > 0))  {
             subfeats = [];
-            for (var i = 0; i < thisParent.children.length; i++ ){
-                var childData = thisParent.children[i].data[0].rawdata;
+            for (var i = 0; i < theseParents[0].children.length; i++ ){
+                var childData = theseParents[0].children[i].data[0].rawdata;
                 var subfeat = [];
 
                 subfeat[0] = 1; // ?
@@ -266,11 +265,11 @@ return declare([ NCListStore ],
     },
 
     // recursive search of this feature to see how many levels there are,
-    // helper for convertParsedGFF3JsonToFeatureArray. This determines the
+    // helper for _convertParsedGFF3JsonToFeatureArray. This determines the
     // depth of the first feature it finds.
     _determineParsedGff3Depth: function(gffFeature) {
         var recursion_level = 0;
-        var maximum_recursion_level = 10; // paranoid about infinite recursion
+        var maximum_recursion_level = 20; // paranoid about infinite recursion
         var determineNumLevels = function(thisJsonFeature) {
             recursion_level++;
             if ( recursion_level > maximum_recursion_level ){
@@ -291,11 +290,11 @@ return declare([ NCListStore ],
         return recursion_level;
     },
 
-    // helper feature for convertParsedGFF3JsonToFeatureArray
+    // helper feature for _convertParsedGFF3JsonToFeatureArray
     // that returns the feature at a given depth
     // (it will return the first feature in the arrayref at
     // that depth)
-    _getFeatureAtGivenDepth: function(gffFeature, depth) {
+    _getFeaturesAtGivenDepth: function(gffFeature, depth) {
         var recursion_level = 0;
         var maximum_recursion_level = 10; // paranoid about infinite recursion
         var getFeature = function(thisJsonFeature, thisDepth) {
@@ -307,13 +306,14 @@ return declare([ NCListStore ],
             if ( recursion_level == thisDepth ){
                 return thisJsonFeature;
             }
-            // else if ( thisJsonFeature[0].children != null && thisJsonFeature[0].children.length > 0 ){
             else if ( thisJsonFeature.children != null && thisJsonFeature.children.length > 0 ){
-                var returnedFeature;
-                // if ( returnedFeature = getFeature(thisJsonFeature[0].children[0], depth) ){
-                if ( returnedFeature = getFeature(thisJsonFeature.children[0], depth) ){
-                    return returnedFeature;
-                }
+                var returnedFeatures = new Array;
+		for (var m = 0; m < thisJsonFeature.children.length; m++){
+		    if ( thisFeature = getFeature(thisJsonFeature.children[m], depth) ){
+			returnedFeatures.push( thisFeature );
+		    }
+		}
+		return returnedFeatures;
             }
             return null;
         };
@@ -321,7 +321,7 @@ return declare([ NCListStore ],
         return getFeature( gffFeature, depth );
     },
 
-    // helper feature for convertParsedGFF3JsonToFeatureArray
+    // helper feature for _convertParsedGFF3JsonToFeatureArray
     // that parsed ninth field of gff3 file
     _parsedNinthGff3Field: function(ninthField) {
         // parse info in 9th field to get name
