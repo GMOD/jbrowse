@@ -2,6 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/aspect',
+            'dojo/dom-construct',
             'dojo/dom-geometry',
             'JBrowse/View/InfoDialog',
             'dijit/Dialog',
@@ -17,6 +18,7 @@ define( [
         function( declare,
                   lang,
                   aspect,
+                  dom,
                   domGeom,
                   InfoDialog,
                   Dialog,
@@ -325,6 +327,7 @@ return declare( null,
     },
 
     fillError: function( blockIndex, block ) {
+        dom.empty(block);
         var msgDiv = dojo.create(
             'div', {
                 className: 'error',
@@ -332,7 +335,17 @@ return declare( null,
                     +(this.error ? '<div class="codecaption">Diagnostic message</div><code>'+this.error+'</code>' : '' ),
                 title: 'An error occurred'
             }, block );
-            this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+    },
+
+    fillTooManyFeaturesMessage: function( blockIndex, block, scale ) {
+        this.fillMessage(
+            blockIndex,
+            block,
+            'Too much data to show'
+                + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
+                + '.'
+        );
     },
 
     _showBlock: function(blockIndex, startBase, endBase, scale,
@@ -864,6 +877,19 @@ return declare( null,
             menu.bindDomNode( this.label );
             this.trackMenu = menu;
         }
+    },
+
+
+    // display a rendering-timeout message
+    fillTimeout: function( blockIndex, block ) {
+        dom.empty( block );
+        dojo.addClass( block, 'timed_out' );
+        track.fillMessage( blockIndex, block,
+                           'This region took too long'
+                           + ' to display, possibly because'
+                           + ' it contains too much data.'
+                           + ' Try zooming in to show a smaller region.'
+                         );
     }
 
 });
