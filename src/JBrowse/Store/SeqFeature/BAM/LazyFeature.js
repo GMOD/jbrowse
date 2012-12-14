@@ -256,33 +256,47 @@ var Feature = Util.fastDeclare(
      * Only called if we have not already parsed that field.
      */
     _parseTag: function( tagName ) {
+        // if all of the tags have been parsed and we're still being
+        // called, we already know that we have no such tag, because
+        // it would already have been cached.
+        if( this._allTagsParsed )
+            return undefined;
+
         this._tagList = this._tagList || [];
         var byteArray = this.bytes.byteArray;
-        var p = this.bytes.start + 36 + this.get('_l_read_name') + this.get('_n_cigar_op')*4 + this.get('_seq_bytes') + this.get('seq_length');
+        var p = this._tagOffset || this.bytes.start + 36 + this.get('_l_read_name') + this.get('_n_cigar_op')*4 + this.get('_seq_bytes') + this.get('seq_length');
+
         var blockEnd = this.bytes.end;
-        while( p < blockEnd && !(tag == tagName)) { // really should be blockEnd - 3, but this works too and is faster
-            var tag = String.fromCharCode( byteArray[p] ) + String.fromCharCode(byteArray[p + 1] );
-            var origType = String.fromCharCode( byteArray[p + 2] );
-            var type = origType.toLowerCase();
+        while( p < blockEnd && lcTag != tagName ) {
+            var tag      = String.fromCharCode( byteArray[p], byteArray[ p+1 ] );
+            var lcTag    = tag.toLowerCase();
+            var type = String.fromCharCode( byteArray[ p+2 ] );
             p += 3;
 
             var value;
-            if (type == 'a') {
+            switch( type.toLowerCase() ) {
+            case 'a':
                 value = String.fromCharCode( byteArray[p] );
                 p += 1;
-            } else if (type == 'i' ) {
+                break;
+            case 'i':
                 value = readInt(byteArray, p );
                 p += 4;
-            } else if (type == 'c' ) {
+                break;
+            case 'c':
                 value = byteArray[p];
                 p += 1;
-            } else if (type == 's' ) {
+                break;
+            case 's':
                 value = readShort(byteArray, p);
                 p += 2;
-            } else if (type == 'f') {
+                break;
+            case 'f':
                 value = readFloat( byteArray, p );
                 p += 4;
-            } else if ( type == 'z' || type == 'h' ) {
+                break;
+            case 'z':
+            case 'h':
                 value = '';
                 while( p <= blockEnd ) {
                     var cc = byteArray[p++];
@@ -293,29 +307,30 @@ var Feature = Util.fastDeclare(
                         value += String.fromCharCode(cc);
                     }
                 }
-            } else {
-                console.warn( "Unknown BAM tag type '"+origType
-                              +'\', tags for '+(readName||'(unnamed read)')
-                              +' may be incomplete'
+                break;
+            default:
+                console.warn( "Unknown BAM tag type '"+type
+                              +"', tags may be incomplete"
                             );
                 value = undefined;
-                p = blockEnd+1; // stop parsing tags
+                p = blockEnd; // stop parsing tags
             }
+
+            this._tagOffset = p;
+
             this._tagList.push( tag );
-            if( tag == tagName )
+            if( lcTag == tagName )
                 return value;
             else {
-                this.data[tag.toLowerCase()] = value;
+                this.data[ lcTag ] = value;
             }
         }
+        this._allTagsParsed = true;
         return undefined;
     },
     _parseAllTags: function() {
-        if( ! this._allTagsParsed )
-            this._parseTag(); // calling _parseTag with no arg just parses
-                              // all the tags and returns the last one
-
-        this._allTagsParsed = true;
+        this._parseTag(); // calling _parseTag with no arg just parses
+        // all the tags and returns the last one
     },
 
     _flagMasks: {
