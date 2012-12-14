@@ -42,7 +42,17 @@ var draggableTrack = declare( HTMLFeatureTrack,
             dojo.clone( this.inherited(arguments) ),
             {
                 style: {
-		    className: "feature", 
+		    className: "{type}",   // feature classname gets set to feature.get('type')
+                    renderClassName: "center-line-large", 
+                    arrowheadClass: "webapollo-arrowhead", 
+                    subfeatureClasses: {
+                        UTR: "webapollo-UTR",   
+                        CDS: "webapollo-CDS",   
+                        exon: "container-large", 
+                        wholeCDS: null, 
+                        match_part: "est-alignment-part", 
+                    }, 
+
                     // renderClassName: 'DraggableFeatureTrack'  ???
 		    // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn, 
 		    minSubfeatureWidth: 1
@@ -84,7 +94,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // CSS class for selected features
         // override if want subclass to have different CSS class for selected features
         this.selectionClass = "selected-feature";
-
+        
         //  DraggableFeatureTrack.selectionManager.addListener(this);
 
         this.last_whitespace_mousedown_loc = null;
@@ -577,15 +587,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
         // look for UTR and CDS subfeature class mapping from trackData
         //    if can't find, then default to parent feature class + "-UTR" or "-CDS"
-        if( render ) {
-            if (this.config.style.subfeatureClasses)  {
-                UTRclass = this.config.style.subfeatureClasses["UTR"];
-                CDSclass = this.config.style.subfeatureClasses["CDS"];
-            }
-//            if (! UTRclass)  { UTRclass = this.className + "-UTR"; }
-//            if (! CDSclass)  { CDSclass = this.className + "-CDS"; }
-            if (! UTRclass)  { UTRclass = "webapollo-UTR"; }
-            if (! CDSclass)  { CDSclass = "webapollo-CDS"; }
+        if( render ) {  // subfeatureClases defaults set in this._defaultConfig
+            UTRclass = this.config.style.subfeatureClasses["UTR"];  
+            CDSclass = this.config.style.subfeatureClasses["CDS"];  
         }
 
     //    if ((subEnd <= displayStart) || (subStart >= displayEnd))  { return undefined; }
@@ -598,7 +602,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             if( render )  {
                 segDiv = document.createElement("div");
                 // not worrying about appending "plus-"/"minus-" based on strand yet
-		dojo.addClass(segDiv, "webapollo-UTR");
+		dojo.addClass(segDiv, "subfeature");
 		dojo.addClass(segDiv, UTRclass);
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
@@ -640,7 +644,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             if (render)  {
                 segDiv = document.createElement("div");
                 // not worrying about appending "plus-"/"minus-" based on strand yet
-		dojo.addClass(segDiv, "webapollo-CDS");
+		dojo.addClass(segDiv, "subfeature");
 		dojo.addClass(segDiv, CDSclass);
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
@@ -697,7 +701,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (render)  {
                     segDiv = document.createElement("div");
                     // not worrying about appending "plus-"/"minus-" based on strand yet
-		    dojo.addClass(segDiv, "webapollo-UTR");
+		    dojo.addClass(segDiv, "subfeature");
 		    dojo.addClass(segDiv, UTRclass);
                     if (Util.is_ie6) segDiv.appendChild(document.createComment());
                     segDiv.style.cssText =
@@ -711,7 +715,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 // make CDS segment
                 segDiv = document.createElement("div");
                 // not worrying about appending "plus-"/"minus-" based on strand yet
-		dojo.addClass(segDiv, "webapollo-CDS");
+		dojo.addClass(segDiv, "subfeature");
 		dojo.addClass(segDiv, CDSclass);
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
@@ -732,7 +736,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (render)  {
                     segDiv = document.createElement("div");
                     // not worrying about appending "plus-"/"minus-" based on strand yet
-		    dojo.addClass(segDiv, "webapollo-UTR");
+		    dojo.addClass(segDiv, "subfeature");
 		    dojo.addClass(segDiv, UTRclass);
                     if (Util.is_ie6) segDiv.appendChild(document.createComment());
                     segDiv.style.cssText =
