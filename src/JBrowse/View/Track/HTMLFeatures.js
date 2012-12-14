@@ -902,19 +902,16 @@ HTMLFeatures = declare( HTMLFeatures,
         dojo.addClass(featDiv, "feature");
         var className = this.config.style.className;
         if (className == "{type}") { className = feature.get('type'); }
-        dojo.addClass(featDiv, className);
         var strand = feature.get('strand');
         switch (strand) {
         case 1:
         case '+':
             dojo.addClass(featDiv, "plus-" + className); break;
-            // featDiv.className = featDiv.className + " " + this.config.style.className + " plus-" + this.config.style.className; break;
         case -1:
         case '-':
             dojo.addClass(featDiv, "minus-" + className); break;
-            // featDiv.className = featDiv.className + " " + this.config.style.className + " minus-" + this.config.style.className; break;
-//        default:
-            // featDiv.className = featDiv.className + " " + this.config.style.className; break;
+        default:
+            dojo.addClass(featDiv, className);
         }
         var phase = feature.get('phase');
         if ((phase !== null) && (phase !== undefined))
@@ -1136,7 +1133,6 @@ HTMLFeatures = declare( HTMLFeatures,
         dojo.addClass(subDiv, "subfeature");
         // check for className to avoid adding "null", "plus-null", "minus-null" 
         if (className) {  
-            dojo.addClass(subDiv, className);
             switch ( subfeature.get('strand') ) {
             case 1:
             case '+':
@@ -1144,6 +1140,8 @@ HTMLFeatures = declare( HTMLFeatures,
             case -1:
             case '-':
                 dojo.addClass(subDiv, "minus-" + className); break;
+            default: 
+                dojo.addClass(subDiv, className);
             }
         }
 
