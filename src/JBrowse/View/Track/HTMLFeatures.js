@@ -529,16 +529,6 @@ HTMLFeatures = declare( HTMLFeatures,
         }));
     },
 
-    fillTooManyFeaturesMessage: function( blockIndex, block, scale ) {
-        this.fillMessage(
-            blockIndex,
-            block,
-            'Too many features to show'
-                + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
-                + '.'
-        );
-    },
-
     /**
      * Creates a Y-axis scale for the feature histogram.  Must be run after
      * the histogram bars are drawn, because it sometimes must use the
@@ -703,10 +693,7 @@ HTMLFeatures = declare( HTMLFeatures,
                                 function( error ) {
                                     curTrack.error = error;
                                     if( error === timeOutError ) {
-                                        dom.empty( block );
-                                        block.featureNodes = {};
-                                        dojo.addClass( block, 'timed_out' );
-                                        curTrack.fillMessage( blockIndex, block, 'This region took too long to display, possibly because it contains too many features.  Try zooming in to show fewer features.' );
+                                        curTrack.fillTimeout( blockIndex, block );
                                     } else {
                                         console.error( error, error.stack );
                                         curTrack.fillError( blockIndex, block );
