@@ -737,9 +737,12 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         	} ));
         	thisObj.residuesMenuItems["create_substitution"] = index++;
         }
+        /*
     	thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
     		label: "..."
-    	} ));
+    	}
+    	));
+    	*/
 
     	thisObj.residues_context_menu.onOpen = function(event) {
     		// keeping track of mousedown event that triggered residues_context_menu popup,
@@ -836,20 +839,8 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     	    features += '{ "uniquename": "' + annot.id() + '" }';
         }
         features += "]";
-	dojo.xhrPost( {
-		          postData: '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "delete_sequence_alteration" }',
-		          url: track.context_path + "/AnnotationEditorService",
-		          handleAs: "json",
-		          timeout: 5000, // Time in milliseconds
-		          // The LOAD function will be called on a successful response.
-		          load: function(response, ioArgs) {
-		          },
-		          // The ERROR function will be called in an error case.
-		          error: function(response, ioArgs) { //
-			      track.handleError(response);
-			      return response;
-		          }
-	              });
+        var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "delete_sequence_alteration" }';
+        track.annotTrack.executeUpdateOperation(postData);
     },
 
     getInformation: function()  {
@@ -988,20 +979,8 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 	    			feature += ', "residues": "' + input + '"';
 	    		}
 	    		var features = '[ { ' + feature + ' } ]';
-	    		dojo.xhrPost( {
-	    			postData: '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }',
-	    			url: track.context_path + "/AnnotationEditorService",
-	    			handleAs: "json",
-	    			timeout: 5000, // Time in milliseconds
-	    			// The LOAD function will be called on a successful response.
-	    			load: function(response, ioArgs) {
-	    			},
-	    			// The ERROR function will be called in an error case.
-	    			error: function(response, ioArgs) { //
-	    				track.handleError(response);
-	    				return response;
-	    			}
-	    		});
+	    		var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }';
+	    		track.annotTrack.executeUpdateOperation(postData);
 	    		track.annotTrack.popupDialog.hide();
 	    	}
 	    }
