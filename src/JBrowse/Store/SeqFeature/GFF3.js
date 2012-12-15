@@ -89,7 +89,6 @@ return declare([ NCListStore ],
         console.log("   content start: " + content.substr(0, 50));
         var gparser = new GFF3Parser();
         var gff3_json = gparser.parse(content);
-        console.log(gff3_json);
         var results = this._gff3toJbrowseJson(gff3_json, store.args);
         var trackInfo = results.trackInfo;
         var featArray = results.featArray;
@@ -208,58 +207,61 @@ return declare([ NCListStore ],
             return null;
         }
 
-        //
-        // set parent info
-        //
-        var rawdata = theseParents[0].data[0].rawdata;
-        featureArray[1] = parseInt(rawdata[3])-1; // set start (-1 for converting from 1-based to 0-based)
-        featureArray[2] = parseInt(rawdata[4]); // set end
-        featureArray[3] = rawdata[6]; // set strand
-        featureArray[4] = rawdata[1]; // set source
-        featureArray[5] = rawdata[7]; // set phase
-        featureArray[6] = rawdata[2]; // set type
-        featureArray[7] = rawdata[5]; // set score
-        featureArray[8] = theseParents[0].ID; // set id
-
-        var parsedNinthField = this._parsedNinthGff3Field(rawdata[8]);
-        if ( !!parsedNinthField["Name"] ){
-            featureArray[9] = parsedNinthField["Name"];
-        }
-        else  { featureArray[9] = null; }
-
-        //
-        // now set children info
-        //
-        var children = theseParents[0].children;
-        var subfeats = null; // make array for all child features
-        if ( theseParents[0].children && (theseParents[0].children.length > 0))  {
-            subfeats = [];
-            for (var i = 0; i < theseParents[0].children.length; i++ ){
-                var childData = theseParents[0].children[i].data[0].rawdata;
-                var subfeat = [];
-
-                subfeat[0] = 1; // ?
-                subfeat[1] = parseInt(childData[3])-1; // start  (-1 for converting from 1-based to 0-based)
-                subfeat[2] = parseInt(childData[4]); // end
-                subfeat[3] = childData[6]; // strand
-                subfeat[4] = childData[1]; // source
-                subfeat[5] = childData[7]; // phase
-                subfeat[6] = childData[2]; // type
-                subfeat[7] = childData[5]; // score
-
-                var childNinthField = this._parsedNinthGff3Field( childData[8] );
-                if ( !!childNinthField["ID"] ){
-                    subfeat[8] = childNinthField["ID"];
-                }
-                else  { subfeat[8] = null; }
-                if ( !!childNinthField["Name"] ){
-                    subfeat[9] = childNinthField["Name"];
-                }
+	for ( j = 0; j < theseParents.length; j++ ){
+	    console.log("j: " + j);
+	    //
+	    // set parent info
+	    //
+	    var rawdata = theseParents[j].data[0].rawdata;
+	    featureArray[1] = parseInt(rawdata[3])-1; // set start (-1 for converting from 1-based to 0-based)
+	    featureArray[2] = parseInt(rawdata[4]); // set end
+	    featureArray[3] = rawdata[6]; // set strand
+	    featureArray[4] = rawdata[1]; // set source
+	    featureArray[5] = rawdata[7]; // set phase
+	    featureArray[6] = rawdata[2]; // set type
+	    featureArray[7] = rawdata[5]; // set score
+	    featureArray[8] = theseParents[j].ID; // set id
+	    
+	    var parsedNinthField = this._parsedNinthGff3Field(rawdata[8]);
+	    if ( !!parsedNinthField["Name"] ){
+		featureArray[9] = parsedNinthField["Name"];
+	    }
+	    else  { featureArray[9] = null; }
+	    
+	    //
+	    // now set children info
+	    //
+	    var children = theseParents[j].children;
+	    var subfeats = null; // make array for all child features
+	    if ( theseParents[j].children && (theseParents[j].children.length > 0))  {
+		subfeats = [];
+		for (var i = 0; i < theseParents[j].children.length; i++ ){
+		    var childData = theseParents[j].children[i].data[0].rawdata;
+		    var subfeat = [];
+		    
+		    subfeat[0] = 1; // ?
+		    subfeat[1] = parseInt(childData[3])-1; // start  (-1 for converting from 1-based to 0-based)
+		    subfeat[2] = parseInt(childData[4]); // end
+		    subfeat[3] = childData[6]; // strand
+		    subfeat[4] = childData[1]; // source
+		    subfeat[5] = childData[7]; // phase
+		    subfeat[6] = childData[2]; // type
+		    subfeat[7] = childData[5]; // score
+		    
+		    var childNinthField = this._parsedNinthGff3Field( childData[8] );
+		    if ( !!childNinthField["ID"] ){
+			subfeat[8] = childNinthField["ID"];
+		    }
+		    else  { subfeat[8] = null; }
+		    if ( !!childNinthField["Name"] ){
+			subfeat[9] = childNinthField["Name"];
+		    }
                 else  { subfeat[9] = null; }
-                subfeats[i] = subfeat;
-            }
-        }
-        featureArray[10] = subfeats; // load up children
+		    subfeats[i] = subfeat;
+		}
+	    }
+	    featureArray[10] = subfeats; // load up children
+	}
 
         return featureArray;
     },
@@ -296,17 +298,17 @@ return declare([ NCListStore ],
     // that depth)
     _getFeaturesAtGivenDepth: function(gffFeature, depth) {
         var recursion_level = 0;
-        var maximum_recursion_level = 10; // paranoid about infinite recursion
+	var maximum_recursion_level = 20; // paranoid about infinite recursion
         var getFeature = function(thisJsonFeature, thisDepth) {
-            recursion_level++;
             if ( recursion_level > maximum_recursion_level ){
                 return null;
             }
             // are we at the right depth?
-            if ( recursion_level == thisDepth ){
+            if ( recursion_level + 1 == thisDepth ){
                 return thisJsonFeature;
             }
             else if ( thisJsonFeature.children != null && thisJsonFeature.children.length > 0 ){
+		recursion_level++;
                 var returnedFeatures = new Array;
 		for (var m = 0; m < thisJsonFeature.children.length; m++){
 		    if ( thisFeature = getFeature(thisJsonFeature.children[m], depth) ){
@@ -317,7 +319,6 @@ return declare([ NCListStore ],
             }
             return null;
         };
-        //    return getFeature( parsedGff3.parsedData[0], depth );
         return getFeature( gffFeature, depth );
     },
 
