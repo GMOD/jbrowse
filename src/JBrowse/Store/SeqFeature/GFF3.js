@@ -164,19 +164,17 @@ return declare([ NCListStore ],
 
         // loop through each top level feature in parsedGFF3 and make array of featureArrays
         var allGff3Features = new Array; // this is an array of featureArrays containing info for all features in parsedGFF3
-        // see if there's only one feature, in which case parsedData is an object, not an array with one object (strangely)
-        if ( !parsedGFF3.parsedData.length ){
-            allGff3Features.push( this._convertParsedGFF3JsonToFeatureArray( parsedGFF3 ) );
-        } else { // >1 feature in parsedData, loop through and push each onto allGff3Features
-            for( var k = 0; k < parsedGFF3.parsedData.length; k++ ) {
-                var jbrowseFeat = this._convertParsedGFF3JsonToFeatureArray( parsedGFF3.parsedData[k] );
-                if (jbrowseFeat)  {
-                    allGff3Features.push( jbrowseFeat );
-                }
-            }
-        }
-
+	for( var k = 0; k < parsedGFF3.parsedData.length; k++ ) {
+	    var jbrowseFeat = this._convertParsedGFF3JsonToFeatureArray( parsedGFF3.parsedData[k] );
+	    if (!! jbrowseFeat)  {
+		for (l = 0; l < jbrowseFeat.length; l++){
+		    allGff3Features.push( jbrowseFeat[l] );
+		}
+	    }
+	}
+	
         return { trackInfo:  trackInfo, featArray: allGff3Features };
+	
     },
 
     /**
@@ -187,9 +185,6 @@ return declare([ NCListStore ],
      */
     _convertParsedGFF3JsonToFeatureArray: function(parsedGff3) {
         var featureArray = new Array();
-        // set to zero because we want jbrowse/webapollo to look at the first entry in attr array to
-        // look up what each of the following fields in featureArray mean
-        featureArray[0] = 0;
 
         // figure out how many levels we are dealing with here, b/c we need to return
         // only the data for the lowest contained in the next lowest level, since Webapollo
@@ -202,31 +197,34 @@ return declare([ NCListStore ],
         // get parents in parsedGff3.parsedData at depth - 1
         var theseParents = this._getFeaturesAtGivenDepth(parsedGff3, gff3Depth - 1);
         if (! theseParents || theseParents.length < 1)  {
-            // console.log("problem");
-            // console.log(parsedGff3);
-            return null;
+            return featureArray;
         }
 
 	for ( j = 0; j < theseParents.length; j++ ){
+	    var thisItem = new Array();
+	    // set to zero because we want jbrowse/webapollo to look at the first entry in attr array to
+	    // look up what each of the following fields in thisItem mean
+	    thisItem[0] = 0;
+
 	    console.log("j: " + j);
 	    //
 	    // set parent info
 	    //
 	    var rawdata = theseParents[j].data[0].rawdata;
-	    featureArray[1] = parseInt(rawdata[3])-1; // set start (-1 for converting from 1-based to 0-based)
-	    featureArray[2] = parseInt(rawdata[4]); // set end
-	    featureArray[3] = rawdata[6]; // set strand
-	    featureArray[4] = rawdata[1]; // set source
-	    featureArray[5] = rawdata[7]; // set phase
-	    featureArray[6] = rawdata[2]; // set type
-	    featureArray[7] = rawdata[5]; // set score
-	    featureArray[8] = theseParents[j].ID; // set id
+	    thisItem[1] = parseInt(rawdata[3])-1; // set start (-1 for converting from 1-based to 0-based)
+	    thisItem[2] = parseInt(rawdata[4]); // set end
+	    thisItem[3] = rawdata[6]; // set strand
+	    thisItem[4] = rawdata[1]; // set source
+	    thisItem[5] = rawdata[7]; // set phase
+	    thisItem[6] = rawdata[2]; // set type
+	    thisItem[7] = rawdata[5]; // set score
+	    thisItem[8] = theseParents[j].ID; // set id
 	    
 	    var parsedNinthField = this._parsedNinthGff3Field(rawdata[8]);
 	    if ( !!parsedNinthField["Name"] ){
-		featureArray[9] = parsedNinthField["Name"];
+		thisItem[9] = parsedNinthField["Name"];
 	    }
-	    else  { featureArray[9] = null; }
+	    else  { thisItem[9] = null; }
 	    
 	    //
 	    // now set children info
@@ -260,7 +258,9 @@ return declare([ NCListStore ],
 		    subfeats[i] = subfeat;
 		}
 	    }
-	    featureArray[10] = subfeats; // load up children
+	    thisItem[10] = subfeats; // load up children
+	    
+	    featureArray.push( thisItem );
 	}
 
         return featureArray;

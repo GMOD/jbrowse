@@ -71,7 +71,7 @@ require(['JBrowse/Store/SeqFeature/GFF3/GFF3Parser','JBrowse/Store/SeqFeature/GF
 			expect(actualJbrowseJsonOutput['trackInfo']["intervals"]["urlTemplate"]).toEqual("lf-{Chunk}.json");
 		    });
 
-		it("should correctly retrieve two level features from parsed gene GFF3", function() {
+		it("_getFeaturesAtGivenDepth should correctly retrieve two level features from parsed gene GFF3", function() {
 			var twoLevelFeat = store._getFeaturesAtGivenDepth( parsedGFF3toJbrowseJsonInput["parsedData"][0], 2 );
 			expect(twoLevelFeat).toNotEqual(null);
 			expect(twoLevelFeat).toEqual(
@@ -79,7 +79,7 @@ require(['JBrowse/Store/SeqFeature/GFF3/GFF3Parser','JBrowse/Store/SeqFeature/GF
 						     )
 			    });
 
-		it("should correctly retrieve two level features from parsed gene GFF3 with two mRNAs", function() {
+		it("_getFeaturesAtGivenDepth should correctly retrieve two level features from parsed gene GFF3 with two mRNAs", function() {
 			parsedGFF3toJbrowseJsonInput2 = gparser.parse( makerGff3String2 );
 			var twoLevelFeat = store._getFeaturesAtGivenDepth( parsedGFF3toJbrowseJsonInput2["parsedData"][0], 2 );
 			expect(twoLevelFeat).toNotEqual(null);
@@ -90,6 +90,17 @@ require(['JBrowse/Store/SeqFeature/GFF3/GFF3Parser','JBrowse/Store/SeqFeature/GF
 						       ] 
 						     )
 			    });
+
+		it("_gff3toJbrowseJson should correctly retrieve two level features from parsed gene GFF3 with two mRNAs", function() {
+			parsedGFF3toJbrowseJsonInput2 = gparser.parse( makerGff3String2 );
+			var twoLevelFeat = store._gff3toJbrowseJson( parsedGFF3toJbrowseJsonInput2 );
+			expect(twoLevelFeat["featArray"].length).toEqual(2);
+			expect(twoLevelFeat["featArray"]).toEqual(
+					  [ 
+					   [ 0, 245453, 247006, '+', 'maker', '.', 'mRNA', '.', 'mRNA_1', 'mRNA_1', [ [ 1, 245759, 245879, '+', 'maker', '0', 'CDS', '.', 'cds_1.1', null ], [ 1, 246045, 246278, '+', 'maker', '0', 'CDS', '.', 'cds_1.2', null ], [ 1, 246388, 246815, '+', 'maker', '1', 'CDS', '.', 'cds_1.3', null ] ] ], 
+					   [ 0, 245453, 247006, '+', 'maker', '.', 'mRNA', '.', 'mRNA_2', 'mRNA_2', [ [ 1, 245759, 245879, '+', 'maker', '0', 'CDS', '.', 'cds_2.1', null ], [ 1, 246045, 246278, '+', 'maker', '0', 'CDS', '.', 'cds_2.2', null ], [ 1, 246388, 246815, '+', 'maker', '1', 'CDS', '.', 'cds_2.3', null ] ] ] 
+					    ]);
+		    });
 		
 	    });
 	
