@@ -45,14 +45,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 style: {
 		    // className: "{type}",   // feature classname gets set to feature.get('type')
                     className: "container-12px", 
-                    renderClassName: "center-line-large", 
+                    renderClassName: "gray-center-30pct", 
                     arrowheadClass: "webapollo-arrowhead", 
                     subfeatureClasses: {
                         UTR: "webapollo-UTR",   
                         CDS: "webapollo-CDS",   
-                        exon: "container-12px", 
+                        exon: "container-100pct", 
                         wholeCDS: null, 
-                        match_part: "est-alignment-part"
+                        match_part: "darkblue-80pct"
                     }, 
 
                     // renderClassName: 'DraggableFeatureTrack'  ???
@@ -324,7 +324,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
             if (rclass)  {
                 // console.log("in FeatureTrack.renderFeature, creating annot div");
                 var rendiv = document.createElement("div");
-                rendiv.className = rclass;
+                dojo.addClass(rendiv, "feature-render");
+                dojo.addClass(rendiv, rclass);
                 if (Util.is_ie6) rendiv.appendChild(document.createComment());
                 featdiv.appendChild(rendiv);
             }

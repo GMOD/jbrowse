@@ -20,7 +20,7 @@ return declare([ DraggableTrack, AlignmentsTrack ], {
                 layoutPitchY: 2, 
                 subfeatures: true,
                 style: {
-                    className: "bam", 
+                    className: "bam-read", 
                     renderClassName: null, 
                     arrowheadClass: "arrowhead", 
 	            centerChildrenVertically: false, 
