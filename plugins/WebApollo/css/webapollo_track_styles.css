@@ -465,28 +465,27 @@ div.basic-hist {
 
 .plus-trellis-arrowhead, 
 .plus-webapollo-arrowhead, 
-.plus-annot-arrowhead {
+.plus-annot-arrowhead  {
     position: absolute;
-/*    margin-top: -4px; */
-    margin-top: 2px;
     width: 12px;
-    height: 12px;
+    height: 100%;
     background-image: url('../img/plus-transcript-head.png');
+    /* background-image: url('../img/plus-arrowhead-transparent.png'); */
     background-repeat: no-repeat;
-/*    z-index: 1; */
+    background-position: left center;  /* center image vertically */
+    /*    z-index: 1; */
 }
 
 .minus-trellis-arrowhead, 
 .minus-webapollo-arrowhead, 
 .minus-annot-arrowhead {
     position: absolute;
-/*   margin-top: -4px; */
-    margin-top: 2px;
     width: 12px;
-    height: 12px;
+    height: 100%;
     background-image: url('../img/minus-transcript-head.png');
     background-repeat: no-repeat;
-/*    z-index: 1; */
+    background-position: right center;  /* center image vertically */
+    /*    z-index: 1; */
 }
 
 .cds-frame0 {
