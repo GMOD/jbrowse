@@ -89,7 +89,11 @@ return declare([ NCListStore ],
         console.log("   content start: " + content.substr(0, 50));
         var gparser = new GFF3Parser();
         var gff3_json = gparser.parse(content);
+        console.log("parsed GFF3:");
+        console.log(gff3_json);
         var results = this._gff3toJbrowseJson(gff3_json, store.args);
+        console.log("converted GFF3:");
+        console.log(results);
         var trackInfo = results.trackInfo;
         var featArray = results.featArray;
         store.attrs = new ArrayRepr(trackInfo.intervals.classes);
@@ -293,33 +297,28 @@ return declare([ NCListStore ],
     },
 
     // helper feature for _convertParsedGFF3JsonToFeatureArray
-    // that returns the feature at a given depth
-    // (it will return the first feature in the arrayref at
-    // that depth)
+    // For a given top-level feature, returns descendant features at a given depth
     _getFeaturesAtGivenDepth: function(gffFeature, depth) {
         var recursion_level = 0;
 	var maximum_recursion_level = 20; // paranoid about infinite recursion
-        var getFeature = function(thisJsonFeature, thisDepth) {
+        var getFeatures = function(thisJsonFeature, thisDepth, returnedFeatures) {
             if ( recursion_level > maximum_recursion_level ){
                 return null;
             }
             // are we at the right depth?
             if ( recursion_level + 1 == thisDepth ){
-                return thisJsonFeature;
+                returnedFeatures.push( thisJsonFeature );
             }
             else if ( thisJsonFeature.children != null && thisJsonFeature.children.length > 0 ){
 		recursion_level++;
-                var returnedFeatures = new Array;
 		for (var m = 0; m < thisJsonFeature.children.length; m++){
-		    if ( thisFeature = getFeature(thisJsonFeature.children[m], depth) ){
-			returnedFeatures.push( thisFeature );
-		    }
+                    getFeatures( thisJsonFeature.children[m], depth, returnedFeatures );
 		}
-		return returnedFeatures;
             }
-            return null;
         };
-        return getFeature( gffFeature, depth );
+        var results = [];
+        getFeatures( gffFeature, depth, results );
+        return results;
     },
 
     // helper feature for _convertParsedGFF3JsonToFeatureArray
