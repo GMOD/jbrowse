@@ -1,13 +1,15 @@
 define([ 'dojo/_base/declare',
          'dojo/_base/array',
          'JBrowse/Util',
-         'JBrowse/Model/SimpleFeature'
+         'JBrowse/Model/SimpleFeature', 
+         'WebApollo/SequenceOntologyUtils'
        ],
-       function( declare, array, Util, SimpleFeature ) {
+       function( declare, array, Util, SimpleFeature, SeqOnto ) {
 
 function JSONUtils() {
 }
 
+JSONUtils.verbose_conversion = false;
 
 /**
 *  creates a feature in JBrowse JSON format
@@ -198,7 +200,6 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
     if (specified_type)  {
 	typename = specified_type;
     }
-//    else if (fields["type"])  { typename = jfeature[fields["type"]]; }
     else if ( jfeature.get('type') ) {
 	typename = jfeature.get('type');
     }
@@ -211,31 +212,56 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
 	};
 	afeature.type.name = typename;
     }
-    //    if (fields["subfeatures"])  {
-    // var subfeats = jfeature[fields["subfeatures"]];
-    var subfeats = jfeature.get('subfeatures');
+
+    var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
+    if (diagnose) { console.log("converting to Apollo feature: " + typename); }
+    var subfeats;
+    // use filteredsubs if present instead of subfeats?
+    //    if (jfeature.filteredsubs)  { subfeats = jfeature.filteredsubs; }
+    //    else  { subfeats = jfeature.get('subfeatures'); }
+    subfeats = jfeature.get('subfeatures'); 
     if( subfeats && subfeats.length )  {
 	afeature.children = [];
 	var slength = subfeats.length;
 	for (var i=0; i<slength; i++)  {
 	    var subfeat = subfeats[i];
-	    // afeature.children[i] = JSONUtils.createApolloFeature(subfeat, subfields);
-	    //  var subtype = subfeat[subfields["type"]];
 	    var subtype = subfeat.get('type');
-	    // if "wholeCDS", then translate to the equivalent "CDS" for server
-	    if (subtype === "wholeCDS" || subtype === "polypeptide") {
-		afeature.children.push( JSONUtils.createApolloFeature( subfeat, "CDS") );
-	    }
-            else if (subtype.indexOf('splice_site') > 0)  {
-                // don't include splice site features 
-                //    (this includes non-canonical-five-prime-splice-site and non-canonical-three-prime-splice-site, 
-                //     the only ones we're currently using for WebApollo annotations)
-                // this is a bandaid, can't really do this right without referring to 
-                //    full sequence ontology...
+            var converted_subtype = subtype;
+            if (SeqOnto.exonTerms[subtype])  {
+                // definitely an exon, leave exact subtype as is 
+                // converted_subtype = "exon"
             }
-	    else  {  // currently client "CDS" (CDS-segment), "UTR", etc. are all converted to "exon"
-		afeature.children.push( JSONUtils.createApolloFeature( subfeat, "exon") );
+            else if (subtype === "wholeCDS" || subtype === "polypeptide") {
+                // normalize to "CDS" sequnce ontology term
+                converted_subtype = "CDS";
 	    }
+            else if (SeqOnto.cdsTerms[subtype])  {
+                // other sequence ontology CDS terms, leave unchanged
+            }
+            else if (SeqOnto.spliceTerms[subtype])  {  
+                // splice sites -- filter out?  leave unchanged?
+                // converted_subtype = null;  // filter out
+            }
+            else if (SeqOnto.startCodonTerms[subtype] || SeqOnto.stopCodonTerms[subtype])  {
+                // start and stop codons -- filter out?  leave unchanged?
+                // converted_subtype = null;  // filter out
+            }
+            else if (SeqOnto.intronTerms[subtype])  {
+                // introns -- filter out?  leave unchanged?
+                // converted_subtype = null;  // filter out
+            }
+	    else  { 
+                // convert everything else to exon???
+                // need to do this since server only creates exons for "exon" and descendant terms
+                converted_subtype = "exon";
+	    }
+            if (converted_subtype)  {
+	        afeature.children.push( JSONUtils.createApolloFeature( subfeat, converted_subtype ) );
+                if (diagnose)  { console.log("    subfeat original type: " + subtype + ", converted type: " + converted_subtype); }
+            }
+            else {
+                if (diagnose)  { console.log("    edited out subfeature, type: " + subtype); }
+            }
 	}
     }
     return afeature;
