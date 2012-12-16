@@ -199,7 +199,9 @@ return declare([ NCListStore ],
         // depth and their children.
 
         // get parents in parsedGff3.parsedData at depth - 1
-        var theseParents = this._getFeaturesAtGivenDepth(parsedGff3, gff3Depth - 1);
+        var theseParents;
+        if (gff3Depth == 1)  {  theseParents = [ parsedGff3 ]; }
+        else  { theseParents = this._getFeaturesAtGivenDepth(parsedGff3, gff3Depth - 1); }
         if (! theseParents || theseParents.length < 1)  {
             return featureArray;
         }
