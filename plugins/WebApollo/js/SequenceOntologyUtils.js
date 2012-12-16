@@ -84,7 +84,7 @@ SequenceOntologyUtils.cdsTerms = {
     coding_region_of_exon: true, /* part_of exon */
     five_prime_coding_exon_coding_region: true, /* part_of exon */
     three_prime_coding_exon_coding_region: true /* part_of exon */
-}
+} 
 
 /**
  *  flattened Sequence Ontology for exon
@@ -113,6 +113,43 @@ SequenceOntologyUtils.exonTerms = {
         five_prime_coding_exon_noncoding_region: true,
         three_prime_coding_exon_noncoding_region: true 
     */
+}
+
+SequenceOntologyUtils.startCodonTerms = {
+    start_codon: true, 
+    non_canonical_start_codon: true 
+}
+
+SequenceOntologyUtils.stopCodonTerms = {
+    stop_codon: true
+}
+
+/* not yet complete */
+SequenceOntologyUtils.spliceTerms = {
+    splice_site: true, 
+    cis_splice_site: true, 
+    five_prime_cis_splice_site: true, 
+    recursive_splice_site: true, 
+    three_prime_cis_splice_site: true, 
+    canonical_five_prime_splice_site: true, 
+    canonical_three_prime_splice_site: true, 
+    non_canonical_five_prime_splice_site: true, 
+    non_canonical_three_prime_splice_site: true, 
+    non_canonical_splice_site: true 
+}
+
+/* not yet complete? */
+SequenceOntologyUtils.intronTerms = {
+    intron: true, 
+    five_prime_intron: true, 
+    three_prime_intron: true, 
+    interior_intron: true, 
+    UTR_intron: true, 
+    twintron: true, 
+    spliceosomal_intron: true, 
+    autocatalytically_spliced_intron: true, 
+    endonuclease_spliced_intron: true, 
+    mobile_intron: true
 }
 
 return SequenceOntologyUtils;
