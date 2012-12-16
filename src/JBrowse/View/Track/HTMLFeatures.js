@@ -931,13 +931,13 @@ HTMLFeatures = declare( HTMLFeatures,
             case 1:
             case '+':
                 ah.className = "plus-" + this.config.style.arrowheadClass;
-                ah.style.cssText =  "left: 100%; top: 0px;";
+                ah.style.cssText =  "left: 100%;" 
                 featDiv.appendChild(ah);
                 break;
             case -1:
             case '-':
                 ah.className = "minus-" + this.config.style.arrowheadClass;
-                ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px; top: 0px;";
+                ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px;"
                 featDiv.appendChild(ah);
                 break;
             }
@@ -1142,7 +1142,6 @@ HTMLFeatures = declare( HTMLFeatures,
         if (Util.is_ie6) subDiv.appendChild(document.createComment());
 
         subDiv.style.cssText = "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
-            + "top: 0px;"
             + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
         featDiv.appendChild(subDiv);
 

@@ -609,7 +609,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((subStart - subStart) / subLength)) + "%;"
-                    + "top: 0px;"
                     + "width: " + (100 * ((subEnd - subStart) / subLength)) + "%;";
                 subDiv.appendChild(segDiv);
             }
@@ -651,7 +650,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((subStart - subStart) / subLength)) + "%;"
-                    + "top: 0px;"
                     + "width: " + (100 * ((subEnd - subStart) / subLength)) + "%;";
                 if (this.config.style.colorCdsFrame || this.webapollo.colorCdsByFrame) {
 		    dojo.addClass(segDiv, "cds-frame" + cdsFrame);
@@ -708,7 +706,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     if (Util.is_ie6) segDiv.appendChild(document.createComment());
                     segDiv.style.cssText =
                         "left: " + (100 * ((utrStart - subStart) / subLength)) + "%;"
-                        + "top: 0px;"
                         + "width: " + (100 * ((utrEnd - utrStart) / subLength)) + "%;";
                     subDiv.appendChild(segDiv);
                 }
@@ -722,7 +719,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((cdsSegStart - subStart) / subLength)) + "%;"
-                    + "top: 0px;"
                     + "width: " + (100 * ((cdsSegEnd - cdsSegStart) / subLength)) + "%;";
                 if (this.config.style.colorCdsFrame || this.webapollo.colorCdsByFrame) {
                     dojo.addClass(segDiv, "cds-frame" + cdsFrame);
@@ -743,7 +739,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     if (Util.is_ie6) segDiv.appendChild(document.createComment());
                     segDiv.style.cssText =
                         "left: " + (100 * ((utrStart - subStart) / subLength)) + "%;"
-                        + "top: 0px;"
                         + "width: " + (100 * ((utrEnd - utrStart) / subLength)) + "%;";
                     subDiv.appendChild(segDiv);
                 }
