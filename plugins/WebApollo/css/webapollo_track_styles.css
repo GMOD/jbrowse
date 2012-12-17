@@ -325,6 +325,25 @@ div.basic-hist {
     top: 10%;
 }
 
+
+.brightgreen-80pct, 
+.plus-brightgreen-80pct, 
+.minus-brightgreen-80pct  {
+    background-color: #21D61F;
+    border: 1px solid #555;
+    height: 80%;
+    top: 10%;
+}
+
+.darkgreen-60pct, 
+.plus-darkgreen-60pct, 
+.minus-darkgreen-60pct {
+    height: 60%;
+    top: 20%;
+    background-color: #8DB890;
+}
+
+
 /* defaults for rendering aligned read from BAM files */
 .bam-read, 
 .plus-bam-read, 
