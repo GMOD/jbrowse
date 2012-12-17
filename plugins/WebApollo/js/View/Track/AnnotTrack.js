@@ -634,7 +634,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     addToAnnotation: function(annot, feature_records)  {
         var target_track = this;
 
-                var subfeats = new Array();
+                var subfeats = [];
                 var allSameStrand = 1;
                 for (var i = 0; i < feature_records.length; ++i)  { 
                     var feature_record = feature_records[i];
@@ -651,10 +651,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                 }
                                 subfeats.push(featToAdd);
                         }
-                        else  {
+                        else  {  // top-level feature
                             var source_track = feature_record.track;
-                                if ( feat.get('subfeatures') ) {
-                                    var subs = feat.get('subfeatures');
+                            var subs = feat.get('subfeatures');
+                            if ( subs && subs.length > 0 ) {  // top-level feature with subfeatures
                                     for (var i = 0; i < subs.length; ++i) {
                                         var subfeat = subs[i];
                                         var featStrand = subfeat.get('strand');
@@ -666,7 +666,18 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                         subfeats.push(featToAdd);
                                     }
 				    // $.merge(subfeats, subs);
+                            }
+                            else  {  // top-level feature without subfeatures
+                                // make exon feature
+                                var featStrand = feat.get('strand');
+                                var featToAdd = feat;
+                                if (featStrand != annotStrand) {
+                                        allSameStrand = 0;
+                                        featToAdd.set('strand', annotStrand);
                                 }
+                                featToAdd.set('type', 'exon');
+                                subfeats.push(featToAdd);
+                            }
                         }
                 }
 
