@@ -85,11 +85,14 @@ return declare( CanvasTrack, {
             window.setTimeout( function() { timedOut = true; }, this.config.blockDisplayTimeout );
 
         var fRects = [];
+
+        var toX = function(coord) { return (coord-leftBase)*scale; };
+
         var featCallback = dojo.hitch(this,function( feature ) {
             if( timedOut )
                 throw timeOutError;
 
-            fRects.push( this.layoutFeature( feature, leftBase, scale ) );
+            fRects.push( this.layoutFeature( args, feature, toX ) );
         });
 
         this.store.getFeatures( { ref: this.refSeq.name,
@@ -109,7 +112,7 @@ return declare( CanvasTrack, {
                                         },
                                         block
                                     );
-                                    track.renderFeatures( fRects, c );
+                                    track.renderFeatures( args, c, fRects );
 
                                     track.layoutCanvases([c]);
                                     track.heightUpdate( totalHeight,
@@ -131,7 +134,8 @@ return declare( CanvasTrack, {
 
     // calculate the placement of the feature on the canvas for this
     // block.
-    layoutFeature: function( feature, leftBase, scale ) {
+    layoutFeature: function( viewArgs, feature, toX ) {
+        var scale = viewArgs.scale;
         var layoutStart = feature.get('start');
         var layoutEnd   = feature.get('end');
 
@@ -146,18 +150,20 @@ return declare( CanvasTrack, {
                                 levelHeight);
 
         var fRect = {
-            w: (layoutEnd-layoutStart)*scale,
-            l: (layoutStart-leftBase)*scale,
+            l: toX(layoutStart),
             h: fHeight,
             t: top,
 
-            f: feature
+            f: feature,
+            toX: toX
         };
+        fRect.w = toX(layoutEnd) - fRect.l;
+
         return fRect;
     },
 
     // draw the features on the canvas
-    renderFeatures: function( fRects, canvas ) {
+    renderFeatures: function( args, canvas, fRects ) {
         var context = canvas.getContext('2d');
         var fgcolor = this.config.style.fgcolor;
         context.fillStyle = this.config.style.bgcolor;
