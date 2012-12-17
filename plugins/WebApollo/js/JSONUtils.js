@@ -264,6 +264,17 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
             }
 	}
     }
+    else if ( specified_type === 'transcript' )  {
+        // special casing for Apollo "transcript" features being created from 
+        //    JBrowse top-level features that have no children
+        // need to create an artificial exon child the same size as the transcript
+        var fake_exon = new SimpleFeature({id: jfeature.id()+"_dummy_exon", parent: jfeature});
+        fake_exon.set('start', jfeature.get('start'));
+        fake_exon.set('end', jfeature.get('end'));
+        fake_exon.set('strand', jfeature.get('strand'));
+        fake_exon.set('type', 'exon');
+        afeature.children = [ JSONUtils.createApolloFeature( fake_exon ) ];
+    }
     return afeature;
 };
 
