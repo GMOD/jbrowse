@@ -175,6 +175,12 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
 */
 JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
 
+    var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
+    if (diagnose)  { 
+        console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type); 
+        console.log(jfeature);
+    }
+
     var afeature = new Object();
     var astrand;
     // Apollo feature strand must be an integer
@@ -213,7 +219,6 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
 	afeature.type.name = typename;
     }
 
-    var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
     if (diagnose) { console.log("converting to Apollo feature: " + typename); }
     var subfeats;
     // use filteredsubs if present instead of subfeats?
@@ -240,11 +245,13 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
             }
             else if (SeqOnto.spliceTerms[subtype])  {  
                 // splice sites -- filter out?  leave unchanged?
-                // converted_subtype = null;  // filter out
+                // 12/16/2012 filtering out for now, causes errors in AnnotTrack duplication operation
+                converted_subtype = null;  // filter out
             }
             else if (SeqOnto.startCodonTerms[subtype] || SeqOnto.stopCodonTerms[subtype])  {
                 // start and stop codons -- filter out?  leave unchanged?
-                // converted_subtype = null;  // filter out
+                // 12/16/2012 filtering out for now, causes errors in AnnotTrack createAnnotation operation
+                converted_subtype = null;  // filter out
             }
             else if (SeqOnto.intronTerms[subtype])  {
                 // introns -- filter out?  leave unchanged?
@@ -275,6 +282,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
         fake_exon.set('type', 'exon');
         afeature.children = [ JSONUtils.createApolloFeature( fake_exon ) ];
     }
+    if (diagnose)  { console.log("result:"); console.log(afeature); }
     return afeature;
 };
 

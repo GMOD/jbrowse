@@ -211,8 +211,6 @@ return declare([ NCListStore ],
 	    // set to zero because we want jbrowse/webapollo to look at the first entry in attr array to
 	    // look up what each of the following fields in thisItem mean
 	    thisItem[0] = 0;
-
-	    console.log("j: " + j);
 	    //
 	    // set parent info
 	    //
