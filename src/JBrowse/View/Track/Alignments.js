@@ -1,17 +1,17 @@
 define( ['dojo/_base/declare',
          'dojo/_base/array',
          'JBrowse/Util',
-         'JBrowse/View/Track/HTMLFeatures'
+         'JBrowse/View/Track/HTMLFeatures',
+         'JBrowse/View/Track/Alignments/MismatchesMixin'
         ],
-        function( declare, array, Util, HTMLFeatures ) {
+        function( declare, array, Util, HTMLFeatures, MismatchesMixin ) {
 
 // return declare( HTMLFeatures,
-return declare( HTMLFeatures,
+return declare( [ HTMLFeatures, MismatchesMixin],
 /**
  * @lends JBrowse.View.Track.Alignments
  */
 {
-
     _defaultConfig: function() {
         return Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
@@ -112,89 +112,6 @@ return declare( HTMLFeatures,
             }, this );
         }
     },
-
-    _getMismatches: function( feature ) {
-        var mismatches = [];
-        // parse the MD tag if it has one
-        if( feature.get('MD') ) {
-            mismatches.push.apply( mismatches, this._mdToMismatches( feature, feature.get('MD') ) );
-        }
-        // parse the CIGAR tag if it has one
-        if( feature.get('cigar') ) {
-            mismatches.push.apply( mismatches, this._cigarToMismatches( feature, feature.get('cigar') ) );
-        }
-
-        return mismatches;
-    },
-
-    _parseCigar: function( cigar ) {
-        return array.map( cigar.match(/\d+\D/g), function( op ) {
-           return [ op.match(/\D/)[0].toUpperCase(), parseInt( op ) ];
-        });
-    },
-
-    _cigarToMismatches: function( feature, cigarstring ) {
-        var ops = this._parseCigar( cigarstring );
-        var currOffset = 0;
-        var mismatches = [];
-        array.forEach( ops, function( oprec ) {
-           var op  = oprec[0].toUpperCase();
-           if( !op )
-               return;
-           var len = oprec[1];
-           // if( op == 'M' || op == '=' || op == 'E' ) {
-           //     // nothing
-           // }
-           if( op == 'I' )
-               mismatches.push( { start: currOffset, type: 'insertion', base: ''+len, length: 1 });
-           else if( op == 'D' )
-               mismatches.push( { start: currOffset, type: 'deletion',  base: '*', length: len  });
-           else if( op == 'N' )
-               mismatches.push( { start: currOffset, type: 'skip',      base: 'N', length: len  });
-           else if( op == 'X' )
-               mismatches.push( { start: currOffset, type: 'mismatch',  base: 'X', length: len  });
-
-           currOffset += len;
-        });
-        return mismatches;
-    },
-
-    /**
-     * parse a SAM MD tag to find mismatching bases of the template versus the reference
-     * @returns {Array[Object]} array of mismatches and their positions
-     * @private
-     */
-    _mdToMismatches: function( feature, mdstring ) {
-        var mismatchRecords = [];
-        var curr = { start: 0, base: '', length: 0, type: 'mismatch' };
-        var seq = feature.get('seq');
-        var nextRecord = function() {
-              mismatchRecords.push( curr );
-              curr = { start: curr.start + curr.length, length: 0, base: '', type: 'mismatch'};
-        };
-        array.forEach( mdstring.match(/(\d+|\^[a-z]+|[a-z])/ig), function( token ) {
-          if( token.match(/^\d/) ) { // matching bases
-              curr.start += parseInt( token );
-          }
-          else if( token.match(/^\^/) ) { // insertion in the template
-              curr.length = token.length-1;
-              curr.base   = '*';
-              curr.type   = 'deletion';
-              nextRecord();
-          }
-          else if( token.match(/^[a-z]/i) ) { // mismatch
-              for( var i = 0; i<token.length; i++ ) {
-                  curr.length = 1;
-                  curr.base = seq ? seq.substr( curr.start, 1 ) : 'X';
-                  nextRecord();
-              }
-          }
-        });
-        return mismatchRecords;
-    },
-
-    // stub out subfeature rendering, this track doesn't render subfeatures
-//    renderSubfeature: function() {},
 
     /**
      * @returns {Object} containing <code>h</code> and <code>w</code>,
