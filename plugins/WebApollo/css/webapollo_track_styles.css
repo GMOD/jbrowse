@@ -4,7 +4,9 @@
 */
 
 .webapollo-CDS {
-    height: 12px;
+    height: 80%;
+    top: 10%;
+/* height: 12px */
 /*    margin-top: 2px;  */  /* relying on centering code instead */
     background-color: #F58544;
     border-style: solid;
@@ -13,7 +15,9 @@
 }
 
 .webapollo-UTR {
-    height: 8px; 
+    height: 50%;
+    top: 25%;
+/*    height: 8px;  */
 /*    margin-top: 4px; */  /* relying on centering code instead */
 /*    z-index: 8; */
     background-color: #AA5626;
@@ -280,6 +284,15 @@ div.basic-hist {
     /*    margin-top: 2px; */  /* rely on centering in code instead? */
 }
 
+.pink-16px, 
+.plus-pink-16px, 
+.minus-pink-16px {
+    background-color: #D8BDEB;
+    border: 1px solid #01F;
+    height: 16px;
+    /*    margin-top: 2px; */  /* rely on centering in code instead? */
+}
+
 .purple-60pct, 
 .plus-purple-60pct, 
 .minus-purple-60pct  {
@@ -473,7 +486,7 @@ div.basic-hist {
     /* background-image: url('../img/plus-arrowhead-transparent.png'); */
     background-repeat: no-repeat;
     background-position: left center;  /* center image vertically */
-    /*    z-index: 1; */
+    z-index: 1;
 }
 
 .minus-trellis-arrowhead, 
@@ -485,7 +498,7 @@ div.basic-hist {
     background-image: url('../img/minus-transcript-head.png');
     background-repeat: no-repeat;
     background-position: right center;  /* center image vertically */
-    /*    z-index: 1; */
+    z-index: 1;
 }
 
 .cds-frame0 {
