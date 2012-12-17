@@ -1591,6 +1591,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	var historyPreviewDiv = dojo.create("div", { className: "history_preview" }, historyDiv);
     	var history;
     	var selectedIndex = 0;
+    	var minFmin = undefined;
+    	var maxFmax = undefined;
 
     	var cleanupDiv = function(div) {
     		if (div.style.top) {
@@ -1610,15 +1612,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     		var jfeature = JSONUtils.createJBrowseFeature(afeature);
     		var fmin = afeature.location.fmin;
     		var fmax = afeature.location.fmax;
-    		var length = fmax - fmin;
+    		var maxLength = maxFmax - minFmin;
 //  		track.featureStore._add_getters(track.attrs.accessors().get, jfeature);
     		historyPreviewDiv.featureLayout = new Layout(fmin, fmax);
     		historyPreviewDiv.featureNodes = new Array();
-    		historyPreviewDiv.startBase = fmin - (length * 0.1);
-    		historyPreviewDiv.endBase = fmax + (length * 0.1);
-    		var coords = dojo.coords(historyPreviewDiv);
+    		historyPreviewDiv.startBase = minFmin - (maxLength * 0.1);
+    		historyPreviewDiv.endBase = maxFmax + (maxLength * 0.1);
+    		var coords = dojo.position(historyPreviewDiv);
     		// setting labelScale and descriptionScale parameter to 100 px/bp, so neither should get triggered
-    		var featDiv = track.renderFeature(jfeature, jfeature.uid, historyPreviewDiv, coords.w / (fmax - fmin), 100, 100, fmin, fmax);
+    		var featDiv = track.renderFeature(jfeature, jfeature.uid, historyPreviewDiv, coords.w / (maxLength), 100, 100, minFmin, maxFmax);
     		cleanupDiv(featDiv);
     		while (historyPreviewDiv.hasChildNodes()) {
     			historyPreviewDiv.removeChild(historyPreviewDiv.lastChild);
@@ -1630,6 +1632,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	};
 	
     	var displayHistory = function() {
+    		var current;
     		for (var i = 0; i < history.length; ++i) {
     			var historyItem = history[i];
     			var rowCssClass = "history_row";
@@ -1638,11 +1641,18 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     			dojo.create("span", { className: columnCssClass, innerHTML: historyItem.operation }, row);
     			dojo.create("span", { className: columnCssClass, innerHTML: historyItem.editor }, row);
     			dojo.create("span", { className: columnCssClass + " history_date_column", innerHTML: historyItem.date }, row);
-
+    			var afeature = historyItem.features[0];
+        		var fmin = afeature.location.fmin;
+        		var fmax = afeature.location.fmax;
+        		if (minFmin == undefined || fmin < minFmin) {
+        			minFmin = fmin;
+        		}
+        		if (maxFmax == undefined || fmax > maxFmax) {
+        			maxFmax = fmax;
+        		}
+        		
     			if (historyItem.current) {
-    				displayPreview(i);
-    				var coords = dojo.coords(row);
-    				historyRows.scrollTop = selectedIndex * coords.h;
+    				current = i;
     			}
 
     			dojo.connect(row, "onclick", row, function(index) {
@@ -1651,6 +1661,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     				};
     			}(i));
     		}
+			displayPreview(current);
+			var coords = dojo.position(row);
+			historyRows.scrollTop = selectedIndex * coords.h;
     	};
 	
     	var fetchHistory = function() {
