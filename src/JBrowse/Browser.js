@@ -387,10 +387,9 @@ Browser.prototype.initView = function() {
             this.navbox = this.createNavBox( topPane );
 
         // make our little top-links box with links to help, etc.
-        dojo.create('a', {
+        this.poweredByLink = dojo.create('a', {
             className: 'powered_by',
-//            innerHTML: 'JBrowse',
-            innerHTML: '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />', 
+            innerHTML: 'JBrowse',
             href: 'http://jbrowse.org',
             title: 'powered by JBrowse'
          }, menuBar );
