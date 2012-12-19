@@ -1744,6 +1744,7 @@ GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {
     this.showVisibleBlocks(true);
     this.showDone();
     this.showCoarse();
+    dijit.byId('zoomSlider').set('value',(this.curZoom/this.zoomLevels.length)*100);
 };
 
 GenomeView.prototype.scrollUpdate = function() {

@@ -1583,6 +1583,7 @@ Browser.prototype.createNavBox = function( parent ) {
     
     var that = this;
     var zoomSlider = new dijitSlider({
+        id: "zoomSlider",
         name: "slider",
         value: 50,
         minimum: 0,
