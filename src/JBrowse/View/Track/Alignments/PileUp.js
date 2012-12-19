@@ -13,11 +13,11 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
             dojo.clone( this.inherited(arguments) ),
             {
                 //maxFeatureScreenDensity: 400
-                layoutPitchY: 4,
+                layoutPitchY: 3,
                 style: {
-                    bgColor: 'red',
+                    bgcolor: '#ff9999',
                     height: 3,
-                    marginBottom: 1,
+                    marginBottom: 0,
                     showMismatches: true
                 }
             }
