@@ -7,9 +7,10 @@ define( [
             'dojo/dom-construct',
             'dojo/_base/array',
             'JBrowse/View/GranularRectLayout',
-            'JBrowse/View/Track/Canvas'
+            'JBrowse/View/Track/Canvas',
+            'JBrowse/Errors'
         ],
-        function( declare, dom, array, Layout, CanvasTrack ) {
+        function( declare, dom, array, Layout, CanvasTrack, Errors ) {
 
 return declare( CanvasTrack, {
 
@@ -26,6 +27,14 @@ return declare( CanvasTrack, {
                 marginBottom: 1
             }
         };
+    },
+
+    getStyle: function( feature, name ) {
+        var val = this.config.style[name];
+        if( typeof val == 'function' )
+            return val( feature, name, null, null, this );
+        else
+            return val;
     },
 
     fillBlock: function( args ) {
@@ -58,7 +67,12 @@ return declare( CanvasTrack, {
                 else {
                     this.fillFeatures( dojo.mixin( {stats: stats}, args ) );
                 }
-        }));
+            }),
+            dojo.hitch( this, function(e) {
+                this._handleError(e);
+                args.finishCallback(e);
+            })
+        );
     },
 
     _getLayout: function( scale ) {
@@ -80,7 +94,6 @@ return declare( CanvasTrack, {
         var finishCallback = args.finishCallback;
 
         var timedOut = false;
-        var timeOutError = { toString: function() { return 'Timed out trying to display '+track.name+' block '+blockIndex; } };
         if( this.config.blockDisplayTimeout )
             window.setTimeout( function() { timedOut = true; }, this.config.blockDisplayTimeout );
 
@@ -90,7 +103,7 @@ return declare( CanvasTrack, {
 
         var featCallback = dojo.hitch(this,function( feature ) {
             if( timedOut )
-                throw timeOutError;
+                throw new Errors.TrackBlockTimeout({ track: this, blockIndex: blockIndex, block: block });
 
             fRects.push( this.layoutFeature( args, feature, toX ) );
         });
@@ -99,9 +112,13 @@ return declare( CanvasTrack, {
                                   start: leftBase,
                                   end: rightBase
                                 },
-                                featCallback,
+
+                                featCallback, // callback for each feature
+
+                                // callback when all features sent
                                 function () {
-                                    var totalHeight = track._getLayout(scale).getTotalHeight();
+                                    var totalHeight = track._getLayout(scale)
+                                                           .getTotalHeight();
                                     var c = dojo.create(
                                         'canvas',
                                         { height: totalHeight,
@@ -119,16 +136,11 @@ return declare( CanvasTrack, {
                                                         blockIndex );
                                     finishCallback();
                                 },
-                                function( error ) {
-                                    track.error = error;
-                                    if( error === timeOutError ) {
-                                        track.fillTimeout( blockIndex, block );
-                                    } else {
-                                        console.error( error, error.stack );
-                                        track.fillError( blockIndex, block );
-                                    }
-                                    finishCallback();
-                                }
+
+                                dojo.hitch( track, function(e) {
+                                    this._handleError(e);
+                                    finishCallback(e);
+                                })
                               );
     },
 
@@ -165,21 +177,27 @@ return declare( CanvasTrack, {
     // draw the features on the canvas
     renderFeatures: function( args, canvas, fRects ) {
         var context = canvas.getContext('2d');
-        var fgcolor = this.config.style.fgcolor;
-        context.fillStyle = this.config.style.bgcolor;
-        array.forEach( fRects, function( fRect ) {
-            context.fillRect( fRect.l, fRect.t, fRect.w, fRect.h );
-        });
+        array.forEach( fRects, dojo.hitch( this, 'renderFeature', context ) );
+    },
+    renderFeature: function( c, fRect ) {
+        // background
+        var bgcolor = this.getStyle( fRect.f, 'bgcolor' );
+        if( bgcolor ) {
+            c.fillStyle = bgcolor;
+            c.fillRect( fRect.l, fRect.t, fRect.w, fRect.h );
+        }
+
+        // foreground
+        var fgcolor = this.getStyle( fRect.f, 'fgcolor' );
         if( fgcolor ) {
-            context.lineWidth = 1;
-            context.strokeStyle = fgcolor;
-            array.forEach( fRects, function( fRect ) {
-                // need to stroke a smaller rectangle to remain within
-                // the bounds of the feature's overall height and
-                // width, because of the way stroking is done in
-                // canvas.  thus the +0.5 and -1 business.
-                context.strokeRect( fRect.l+0.5, fRect.t+0.5, fRect.w-1, fRect.h-1 );
-            });
+            c.lineWidth = 1;
+            c.strokeStyle = fgcolor;
+
+            // need to stroke a smaller rectangle to remain within
+            // the bounds of the feature's overall height and
+            // width, because of the way stroking is done in
+            // canvas.  thus the +0.5 and -1 business.
+            context.strokeRect( fRect.l+0.5, fRect.t+0.5, fRect.w-1, fRect.h-1 );
         }
     }
 });

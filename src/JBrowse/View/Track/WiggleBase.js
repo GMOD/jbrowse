@@ -184,8 +184,8 @@ Wiggle.extend({
         try {
             dojo.create('canvas').getContext('2d').fillStyle = 'red';
         } catch( e ) {
-            this.error = 'This browser does not support HTML canvas elements.';
-            this.fillError( blockIndex, block );
+            this.fatalError = 'This browser does not support HTML canvas elements.';
+            this.fillBlockError( blockIndex, block, this.fatalError );
             return;
         }
 
@@ -241,7 +241,7 @@ Wiggle.extend({
         }),
         dojo.hitch( this, function(e) {
                         this.error = e;
-                        this.fillError( blockIndex, block );
+                        this.fillBlockError( blockIndex, block );
                         finishCallback();
                     })
         );
@@ -320,7 +320,6 @@ Wiggle.extend({
                     zIndex: 15
                 }
         }, block);
-        var outTimeout;
         dojo.forEach( [canvas,verticalLine,scoreDisplay], function(element) {
             on( element, 'mousemove', dojo.hitch(this,function(evt) {
                     var cPos = dojo.position(canvas);

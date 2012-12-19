@@ -15,7 +15,7 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                 //maxFeatureScreenDensity: 400
                 layoutPitchY: 3,
                 style: {
-                    bgcolor: '#ff9999',
+                    bgcolor: '#aaa',
                     height: 3,
                     marginBottom: 0,
                     showMismatches: true

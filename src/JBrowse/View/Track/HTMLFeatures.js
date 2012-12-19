@@ -691,12 +691,11 @@ HTMLFeatures = declare( HTMLFeatures,
                                     finishCallback();
                                 },
                                 function( error ) {
-                                    curTrack.error = error;
                                     if( error === timeOutError ) {
-                                        curTrack.fillTimeout( blockIndex, block );
+                                        curTrack.fillBlockTimeout( blockIndex, block, error );
                                     } else {
                                         console.error( error, error.stack );
-                                        curTrack.fillError( blockIndex, block );
+                                        curTrack.fillBlockError( blockIndex, block, error );
                                     }
                                     finishCallback();
                                 }
@@ -1069,12 +1068,12 @@ HTMLFeatures = declare( HTMLFeatures,
         }
         var timeToLive = 30000; // clean menus up after 30 seconds
         featDiv.contextMenuTimeout = window.setTimeout( function() {
-                                                            if( featDiv.contextMenu ) {
-                                                                featDiv.contextMenu.destroyRecursive();
-                                                                delete featDiv.contextMenu;
-                                                            }
-                                                            delete featDiv.contextMenuTimeout;
-                                                        }, timeToLive );
+            if( featDiv.contextMenu ) {
+                featDiv.contextMenu.destroyRecursive();
+                delete featDiv.contextMenu;
+            }
+            delete featDiv.contextMenuTimeout;
+        }, timeToLive );
     },
 
     /**

@@ -69,7 +69,7 @@ return declare( null,
                              }, this);
     },
 
-    _fetchChunks: function( url, start, end, callback ) {
+    _fetchChunks: function( url, start, end, callback, errorCallback ) {
         start = start || 0;
 
         // if we already know how big the file is, use that information for the end
@@ -138,9 +138,12 @@ return declare( null,
         if( needed.length ) {
             var fetchedCount = 0;
             array.forEach( needed, function( c ) {
-                this.chunkCache.get( c.key, function( data ) {
+                this.chunkCache.get( c.key, function( data, error ) {
                     c.value = data;
-                    if( ++fetchedCount == needed.length )
+                    if( error ) {
+                        errorCallback( error );
+                    }
+                    else if( ++fetchedCount == needed.length )
                         callback( goldenPath );
                 });
             }, this );
@@ -184,10 +187,6 @@ return declare( null,
         this._fetchCount++;
 
         attempt = attempt || 1;
-        if( attempt > 3 ) {
-            callback(null);
-            return;
-        }
 
         var req = new XMLHttpRequest();
         var length;
@@ -240,7 +239,11 @@ return declare( null,
                         try{
                             var r = req.responseText;
                             if (length && length != r.length && (!truncatedLength || r.length != truncatedLength)) {
-                                this._fetch( request, callback, attempt + 1, r.length );
+                                if( attempt == 3 ) {
+                                    callback( null, req.status+' ('+req.statusText+') when attempting to fetch '+url );
+                                } else {
+                                    this._fetch( request, callback, attempt + 1, r.length );
+                                }
                                 return;
                             } else {
                                 respond( this._stringToBuffer(req.responseText) );
@@ -258,6 +261,9 @@ return declare( null,
                     if( response ) {
                         callback( response );
                     }
+                } else if( attempt == 3 ) {
+                    callback( null, req.status+' ('+req.statusText+') when attempting to fetch '+url );
+                    return null;
                 } else {
                     return this._fetch( request, callback, attempt + 1);
                 }
@@ -310,7 +316,8 @@ return declare( null,
                          args.failure,
                          chunks
                  );
-            })
+            }),
+            args.failure
         );
     },
 

@@ -620,6 +620,10 @@ div.error, div.message {
 div.error {
     background: #ff8888;
 }
+div.track > div.error {
+    width: 30em;
+    position: absolute;
+}
 div.error h2 {
     margin-top: 0;
 }
