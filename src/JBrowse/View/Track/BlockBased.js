@@ -884,12 +884,12 @@ return declare( null,
     fillTimeout: function( blockIndex, block ) {
         dom.empty( block );
         dojo.addClass( block, 'timed_out' );
-        track.fillMessage( blockIndex, block,
-                           'This region took too long'
-                           + ' to display, possibly because'
-                           + ' it contains too much data.'
-                           + ' Try zooming in to show a smaller region.'
-                         );
+        this.fillMessage( blockIndex, block,
+                          'This region took too long'
+                          + ' to display, possibly because'
+                          + ' it contains too much data.'
+                          + ' Try zooming in to show a smaller region.'
+                        );
     }
 
 });
