@@ -124,17 +124,19 @@ var BamFile = declare( null,
                 for (var b = 0; b < nbin; ++b) {
                     var bin = readInt(uncba, p);
                     var nchnk = readInt(uncba, p+4);
-                    p += 8 + (nchnk * 16);
+                    p += 8;
+                    for( var chunkNum = 0; chunkNum < nchnk; chunkNum++ ) {
+                        var vo = readVirtualOffset( uncba, p );
+                        this._findMinAlignment( vo );
+                        p += 16;
+                    }
                 }
                 var nintv = readInt(uncba, p); p += 4;
-                // as we're going through the index, figure out the smallest
-                // virtual offset in the indexes, which tells us where
-                // the BAM header ends
-                var firstVO = nintv ? readVirtualOffset(uncba,p) : null;
-                if( firstVO && ( ! this.minAlignmentVO || this.minAlignmentVO.cmp( firstVO ) < 0 ) )
-                    this.minAlignmentVO = firstVO;
+                // as we're going through the linear index, figure out
+                // the smallest virtual offset in the indexes, which
+                // tells us where the BAM header ends
+                this._findMinAlignment( nintv ? readVirtualOffset(uncba,p) : null );
 
-                //console.log( ref, ''+firstVO );
                 p += nintv * 8;
                 if( nbin > 0 || nintv > 0 ) {
                     this.indices[ref] = new Uint8Array(header, blockStart, p - blockStart);
@@ -145,6 +147,11 @@ var BamFile = declare( null,
 
             successCallback( this.indices, this.minAlignmentVO );
         }), failCallback );
+    },
+
+    _findMinAlignment: function( candidate ) {
+        if( candidate && ( ! this.minAlignmentVO || this.minAlignmentVO.cmp( candidate ) < 0 ) )
+            this.minAlignmentVO = candidate;
     },
 
     _readBAMheader: function( successCallback, failCallback ) {

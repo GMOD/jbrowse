@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Fixed a bug in the BAM direct-access backend that prevented some
+   BAM files from being displayed.
+
 1.7.5     2012-12-12 13:40:12 America/New_York
 
  * Fixed a bug in which typing a key that is bound to a global
