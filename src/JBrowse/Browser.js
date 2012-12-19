@@ -387,7 +387,8 @@ Browser.prototype.initView = function() {
         // make our little top-links box with links to help, etc.
         dojo.create('a', {
             className: 'powered_by',
-            innerHTML: 'JBrowse',
+//            innerHTML: 'JBrowse',
+            innerHTML: '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />', 
             href: 'http://jbrowse.org',
             title: 'powered by JBrowse'
          }, menuBar );
