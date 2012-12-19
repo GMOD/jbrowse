@@ -1551,7 +1551,13 @@ GenomeView.prototype.redrawTracks = function() {
     this.showVisibleBlocks( true );
 };
 
-GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
+GenomeView.prototype.zoomTo = function(value) {
+    var desiredZoomLevel = Math.round(value/100 * this.zoomLevels.length);
+    var steps = desiredZoomLevel - this.curZoom;
+    this.zoomIn(undefined,undefined,steps);
+}
+
+ GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
     if (this.animation) return;
     this._unsetPosBeforeZoom();
     if (zoomLoc === undefined) zoomLoc = 0.5;

@@ -1580,7 +1580,8 @@ Browser.prototype.createNavBox = function( parent ) {
 
     var zoomSliderSpan = dojo.create('span', {}, miniTrap );
     zoomSliderSpan.className = "icon nav";
-
+    
+    var that = this;
     var zoomSlider = new dijitSlider({
         name: "slider",
         value: 50,
@@ -1590,7 +1591,7 @@ Browser.prototype.createNavBox = function( parent ) {
         showButtons: false,
         style: "width:118px; margin: 7px 0 0 0;",
         onChange: function(value){
-           //Some code to zoom to 'value' %
+            dojo.hitch(that, that.view.zoomTo(value));
         }
     }, dojo.create('input',{},zoomSliderSpan) );
 
