@@ -136,6 +136,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	var thisConfig = this.inherited(arguments);
 	// nulling out menuTemplate to suppress default JBrowse feature contextual menu
 	thisConfig.menuTemplate = null;
+	thisConfig.noExport = true;  // turn off default "Save track data" "
 	thisConfig.style.centerChildrenVertically = false;
 	return thisConfig;
 	/*  start of alternative to nulling out JBrowse feature contextual menu, instead attempt to merge in AnnotTrack-specific menu items
@@ -162,11 +163,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 */
 
     },
-
+    
     setViewInfo: function( genomeView, numBlocks,
                            trackDiv, labelDiv,
                            widthPct, widthPx, scale ) {
-
+			       
         this.inherited( arguments );
 	var track = this;
 
@@ -2198,11 +2199,11 @@ initNonAnnotContextMenu: function() {
 //		    thisObj.handleError(response);
 		}
 	});
-	non_annot_context_menu.addChild(new dijit.PopupMenuItem({
+/*	non_annot_context_menu.addChild(new dijit.PopupMenuItem({
 		label: "Export",
 		popup: dataAdaptersMenu
 	}));
-	
+*/
 	non_annot_context_menu.bindDomNode(thisObj.div);
 	/*
 	non_annot_context_menu.onOpen = function(event) {
@@ -2214,8 +2215,24 @@ initNonAnnotContextMenu: function() {
 		});
 	};
 	*/
-	
     non_annot_context_menu.startup();
+
+    // Add AnnotTrack data save option to track label pulldown menu
+    // Trying to make it a replacement for default JBrowse data save option from ExportMixin 
+    //     (turned off JBrowse default via config.noExport = true)
+    // if there's a menu separator, add right before first seperator (which is where default is added), 
+    //     otherwise add at end
+    var mitems = this.trackMenu.getChildren();
+    for (var mindex=0; mindex < mitems.length; mindex++) {
+        if (mitems[mindex].type == "dijit/MenuSeparator")  { break; }
+    }
+    var savePopup = new dijit.PopupMenuItem({
+		label: "Save track data",
+		iconClass: 'dijitIconSave',
+		popup: dataAdaptersMenu });
+    this.trackMenu.addChild(savePopup, mindex);
+    console.log("AnnotTrack Label Menu:");
+    console.log(this.trackMenu);
 }, 
 
     getPermission: function( callback ) {
