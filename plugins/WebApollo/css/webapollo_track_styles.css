@@ -439,7 +439,10 @@ div.basic-hist {
 .plus-noncanonical-splice-site,  
 .minus-noncanonical-splice-site  { 
     margin-left: -8px;
-    margin-top: -11px;  
+    /* margin-top: -11px;  */
+    /*  moved noncanonical icon to bottom of annotation, prefer top of annotation but 
+	need to have a some padding at top of track before that works */
+    margin-top: 9px;  
     padding-left: 8px;
     padding-right: 8px;
     position: absolute;
