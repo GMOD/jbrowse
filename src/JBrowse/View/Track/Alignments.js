@@ -22,7 +22,7 @@ return declare( HTMLFeatures,
                     _defaultLabelScale: 50,
                     className: 'alignment',
                     arrowheadClass: 'arrowhead',
-                    centerFeatureChildren: false,
+                    centerChildrenVertically: true,
                     showMismatches: true,
                     showSubfeatures: false
                 }
@@ -62,7 +62,6 @@ return declare( HTMLFeatures,
      */
     _drawMismatches: function( feature, featDiv, scale, displayStart, displayEnd ) {
         var featLength = displayEnd - displayStart;
-        var featLengthPx = featLength * scale;
         // recall: scale is pixels/basepair
         if ( featLength*scale > 1 ) {
             var mismatches = this._getMismatches( feature );
@@ -89,6 +88,11 @@ return declare( HTMLFeatures,
                         width: scale*mDisplayWidth>1 ? 100 * mDisplayWidth/featLength + '%' : '1px'
                     }
                 }, featDiv );
+
+                // give the mismatch a mouseover if not drawing a character with the mismatch base
+                if( ! drawChars )
+                    overall.title = base;
+
                 if( drawChars && mismatch.length <= 20 ) {
                     for( var i = 0; i<mismatch.length; i++ ) {
                         var basePosition = start + i;

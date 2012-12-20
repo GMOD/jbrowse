@@ -24,3 +24,16 @@ div.locationThumb {
 }
 */
 
+
+/* tweak the style of the powered_by link that has the WA logo in it */
+.menuBar .powered_by {
+    height: 27px;
+    background: white;
+    border-right: 1px solid rgb(156,156,156);
+    position: relative;
+    top: -1px;
+}
+.menuBar .powered_by > img {
+    position: relative;
+    top: 1px;
+}

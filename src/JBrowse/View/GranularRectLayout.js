@@ -1,3 +1,11 @@
+/**
+ * Rectangle-layout manager that lays out rectangles using bitmaps at
+ * resolution that may be somewhat lower than that of the coordinate
+ * system for the rectangles being laid out.  `pitchX` and `pitchY`
+ * are the ratios of input scale resolution to internal bitmap
+ * resolution.
+ */
+
 define(
     ['dojo/_base/declare'],
     function( declare ) {
@@ -22,14 +30,15 @@ return declare( null,
         if( this.rectangles[id] )
             return this.rectangles[id].top * this.pitchY;
 
-        var pLeft  = Math.floor( left / this.pitchX );
-        var pRight = Math.floor( right / this.pitchX );
-        var pHeight = Math.ceil( height / this.pitchY );
+        var pLeft   = Math.floor( left   / this.pitchX );
+        var pRight  = Math.floor( right  / this.pitchX );
+        var pHeight = Math.ceil(  height / this.pitchY );
 
         var midX = Math.floor((pLeft+pRight)/2);
         var rectangle = { id: id, l: pLeft, r: pRight, mX: midX, h: pHeight };
-        for( var top=0; top <= this.pTotalHeight; top++ ){
-            if(! this._collides(rectangle,top) )
+
+        for(var top = 0; top <= this.pTotalHeight; top++ ){
+            if( ! this._collides(rectangle,top) )
                 break;
         }
         rectangle.top = top;

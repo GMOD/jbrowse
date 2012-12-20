@@ -14,7 +14,7 @@ define(
            'dojo/_base/declare',
            'dijit/CheckedMenuItem',
            'JBrowse/Plugin',
-           './FeatureEdgeMatchManager', 
+           './FeatureEdgeMatchManager',
 	   './FeatureSelectionManager'
        ],
     function( declare, dijitCheckedMenuItem, JBPlugin, FeatureEdgeMatchManager, FeatureSelectionManager ) {
@@ -30,7 +30,7 @@ return declare( JBPlugin,
 
         // hand the browser object to the feature edge match manager
         FeatureEdgeMatchManager.setBrowser( browser );
-	
+
 	this.featSelectionManager = new FeatureSelectionManager();
 	this.annotSelectionManager = new FeatureSelectionManager();
 
@@ -62,15 +62,26 @@ return declare( JBPlugin,
         browser.registerTrackType({
             type:                 'WebApollo/View/Track/DraggableHTMLFeatures',
             defaultForStoreTypes: [ 'JBrowse/Store/SeqFeature/NCList',
-                                    'JBrowse/Store/SeqFeature/BAM',
                                     'JBrowse/Store/SeqFeature/GFF3'
                                   ],
             label: 'WebApollo Features'
         });
         browser.registerTrackType({
+            type:                 'WebApollo/View/Track/DraggableAlignments',
+            defaultForStoreTypes: [ 
+                                    'JBrowse/Store/SeqFeature/BAM',
+                                  ],
+            label: 'WebApollo Alignments'
+        });
+        browser.registerTrackType({
             type:                 'WebApollo/View/Track/SequenceTrack',
             defaultForStoreTypes: [ 'JBrowse/Store/Sequence/StaticChunked' ],
             label: 'WebApollo Sequence'
+        });
+
+        // put the WebApollo logo in the powered_by place in the main JBrowse bar
+        browser.afterMilestone( 'initView', function() {
+            browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
         });
 
     }

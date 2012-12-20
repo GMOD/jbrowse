@@ -8,6 +8,9 @@ define( [
             'dijit/MenuItem', 
             'dijit/MenuSeparator', 
             'dijit/PopupMenuItem', 
+            'dijit/form/DropDownButton',
+            'dijit/DropDownMenu',
+
             'dijit/Dialog', 
             'dojox/grid/DataGrid', 
             'dojo/data/ItemFileWriteStore', 
@@ -22,11 +25,13 @@ define( [
     'JBrowse/View/GranularRectLayout',
         ],
         function( declare, $, draggable, droppable, resizable, 
-		  dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitDialog, dojoxDataGrid, dojoItemFileWriteStore, 
+		  dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, 
+                  dijitDialog, dojoxDataGrid, dojoItemFileWriteStore, 
 		  DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, 
 		  SimpleFeature, Util, Layout ) {
 
-var listeners = [];
+//var listeners = [];
+//var listener;
 
 /**
  *  WARNING
@@ -110,6 +115,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var track = this;
 
 	dojo.addOnUnload(this, function() {
+			/*
             var track = this;
             if( listeners[track.getUniqueTrackName()] ) {
                 if( listeners[track.getUniqueTrackName()].fired == -1 ) {
@@ -117,15 +123,25 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     listeners[track.getUniqueTrackName()].cancel();
                 }
             }
+            */
         });
-
+	
+        this.gview.browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function(currRegion) {
+        	if (currRegion.ref != this.refSeq.name) {
+        		if (this.listener && this.listener.fired == -1 ) {
+        			this.listener.cancel();
+        		}
+        	}
+        }));
+		
     },
 
     _defaultConfig: function() {
 	var thisConfig = this.inherited(arguments);
 	// nulling out menuTemplate to suppress default JBrowse feature contextual menu
 	thisConfig.menuTemplate = null;
-	thisConfig.style.centerFeatureChildren = false;
+	thisConfig.noExport = true;  // turn off default "Save track data" "
+	thisConfig.style.centerChildrenVertically = false;
 	return thisConfig;
 	/*  start of alternative to nulling out JBrowse feature contextual menu, instead attempt to merge in AnnotTrack-specific menu items
 	var superConfig = this.inherited(arguments);
@@ -151,19 +167,22 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 */
 
     },
-
+    
     setViewInfo: function( genomeView, numBlocks,
                            trackDiv, labelDiv,
                            widthPct, widthPx, scale ) {
-
+			       
         this.inherited( arguments );
 	var track = this;
 
 //	this.getPermission( dojo.hitch(this, initAnnotContextMenu) );  // calling back to initAnnotContextMenu() once permissions are returned by server
-	this.getPermission( function()  { track.initAnnotContextMenu(); } );  // calling back to initAnnotContextMenu() once permissions are returned by server
-	this.initNonAnnotContextMenu();
+	var success = this.getPermission( function()  { track.initAnnotContextMenu(); } );  // calling back to initAnnotContextMenu() once permissions are returned by server
+//	this.initNonAnnotContextMenu();
+        this.initSearchMenu();
+        this.initSaveMenu();
         this.initPopupDialog();
 
+        if (success) {
             dojo.xhrPost( {
                 postData: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_features" }',
                 url: context_path + "/AnnotationEditorService",
@@ -196,6 +215,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             });
 
+        }
 
         this.makeTrackDroppable();
         this.hide();
@@ -211,7 +231,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 //            }
 //        }
 
-        var listener = dojo.xhrGet( {
+        this.listener = dojo.xhrGet( {
             url: context_path + "/AnnotationChangeNotificationService",
             content: {
                 track: track.getUniqueTrackName()
@@ -226,7 +246,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	     */
 	    preventCache: true, 
             // timeout: 1000 * 1000, // Time in milliseconds
-            timeout: 0,  // setting timeout to 0 indicates no timeout set
+            timeout: 5 * 60 * 1000,  // setting timeout to 0 indicates no timeout set
             // The LOAD function will be called on a successful response.
             load: function(response, ioArgs) {
                     if (response == null) {
@@ -297,7 +317,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 			return;
 		}
 		// server killed
-		if (ioArgs.xhr.status == 0) {
+		if (ioArgs.xhr.status == 503 || ioArgs.xhr.status == 0) {
 			track.handleError({responseText: '{ error: "Server connection error" }'});
 			return;
 		}
@@ -328,7 +348,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             },
             failOk: true
         });
-        listeners[track.getUniqueTrackName()] = listener;
+//        listeners[track.getUniqueTrackName()] = listener;
 
     },
 
@@ -569,28 +589,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         var subfeat = ui.originalElement[0].subfeature;
                         console.log(subfeat);
 
-                            var fmin = subfeat.get('start') + leftDeltaBases;
-                            var fmax = subfeat.get('end') + rightDeltaBases;
-                            // var fmin = subfeat[track.subFields["start"]] + leftDeltaBases;
-                            // var fmax = subfeat[track.subFields["end"]] + rightDeltaBases;
-                            dojo.xhrPost( {
-                                postData: '{ "track": "' + track.getUniqueTrackName() + '", "features": [ { "uniquename": ' + subfeat.id() + ', "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ], "operation": "set_exon_boundaries" }',
-                                url: context_path + "/AnnotationEditorService",
-                                handleAs: "json",
-                                timeout: 1000 * 1000, // Time in milliseconds
-                                // The LOAD function will be called on a successful response.
-                                load: function(response, ioArgs) { //
-				    // no-op, relaying on AnnotationChangeNotificationListener comet long-poll for notification
-                                },
-                                // The ERROR function will be called in an error case.
-                                error: function(response, ioArgs) { //
-                                    console.log("Error creating annotation--maybe you forgot to log into the server?");
-                                    console.error("HTTP status code: ", ioArgs.xhr.status); //
-                                    track.handleError(response);
-                                    //dojo.byId("replace").innerHTML = 'Loading the ressource from the server did not work'; //
-                                    return response;
-                                }
-                            });
+                        var fmin = subfeat.get('start') + leftDeltaBases;
+                        var fmax = subfeat.get('end') + rightDeltaBases;
+                        // var fmin = subfeat[track.subFields["start"]] + leftDeltaBases;
+                        // var fmax = subfeat[track.subFields["end"]] + rightDeltaBases;
+                        var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": [ { "uniquename": ' + subfeat.id() + ', "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ], "operation": "set_exon_boundaries" }';
+                        track.executeUpdateOperation(postData);
                         console.log(subfeat);
                         // track.hideAll();   shouldn't need to call hideAll() before changed() anymore
                         track.changed();
@@ -621,7 +625,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     addToAnnotation: function(annot, feature_records)  {
         var target_track = this;
 
-                var subfeats = new Array();
+                var subfeats = [];
                 var allSameStrand = 1;
                 for (var i = 0; i < feature_records.length; ++i)  { 
                     var feature_record = feature_records[i];
@@ -638,10 +642,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                 }
                                 subfeats.push(featToAdd);
                         }
-                        else  {
+                        else  {  // top-level feature
                             var source_track = feature_record.track;
-                                if ( feat.get('subfeatures') ) {
-                                    var subs = feat.get('subfeatures');
+                            var subs = feat.get('subfeatures');
+                            if ( subs && subs.length > 0 ) {  // top-level feature with subfeatures
                                     for (var i = 0; i < subs.length; ++i) {
                                         var subfeat = subs[i];
                                         var featStrand = subfeat.get('strand');
@@ -653,7 +657,18 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                         subfeats.push(featToAdd);
                                     }
 				    // $.merge(subfeats, subs);
+                            }
+                            else  {  // top-level feature without subfeatures
+                                // make exon feature
+                                var featStrand = feat.get('strand');
+                                var featToAdd = feat;
+                                if (featStrand != annotStrand) {
+                                        allSameStrand = 0;
+                                        featToAdd.set('strand', annotStrand);
                                 }
+                                featToAdd.set('type', 'exon');
+                                subfeats.push(featToAdd);
+                            }
                         }
                 }
 
@@ -673,22 +688,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
 //              var parent = JSONUtils.createApolloFeature(annot, target_track.fields, target_track.subfields);
 //              parent.uniquename = annot[target_track.fields["name"]];
-                dojo.xhrPost( {
-                        postData: '{ "track": "' + target_track.getUniqueTrackName() + '", "features": [ {"uniquename": "' + annot.id() + '"}' + featuresString + '], "operation": "add_exon" }',
-                        url: context_path + "/AnnotationEditorService",
-                        handleAs: "json",
-                        timeout: 5000, // Time in milliseconds
-                        // The LOAD function will be called on a successful response.
-                        load: function(response, ioArgs) { 
-			    // no-op, relaying on AnnotationChangeNotificationListener comet long-poll for notification
-                        },
-                        error: function(response, ioArgs) {
-                                target_track.handleError(response);
-                                console.log("Annotation server error--maybe you forgot to login to the server?");
-                                console.error("HTTP status code: ", ioArgs.xhr.status);
-                                return response;
-                        }
-                });
+                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": [ {"uniquename": "' + annot.id() + '"}' + featuresString + '], "operation": "add_exon" }';
+                target_track.executeUpdateOperation(postData);
     },
 
     makeTrackDroppable: function() {
@@ -806,26 +807,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                             }
                     }
             }
-
-            dojo.xhrPost( {
-                    postData: '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_transcript" }',
-                    url: context_path + "/AnnotationEditorService",
-                    handleAs: "json",
-                    timeout: 5000, // Time in milliseconds
-                    // The LOAD function will be called on a successful response.
-                    load: function(response, ioArgs) { //
-			    // no-op, relaying on AnnotationChangeNotificationListener comet long-poll for notification
-                            if (this.verbose_create)  { console.log("Successfully created annotation object: " + response); }
-                    },
-                    // The ERROR function will be called in an error case.
-                    error: function(response, ioArgs) { //
-                            target_track.handleError(response);
-                            console.log("Error creating annotation--maybe you forgot to log into the server?");
-                            console.error("HTTP status code: ", ioArgs.xhr.status); //
-                            //dojo.byId("replace").innerHTML = 'Loading the ressource from the server did not work'; //
-                            return response;
-                    }
-            });
+            var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_transcript" }';
+            target_track.executeUpdateOperation(postData);
     },
 
     duplicateSelectedFeatures: function() {
@@ -875,28 +858,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     feature.set('strand', strand );
                     featuresToAdd.push( JSONUtils.createApolloFeature( feature, "transcript") );
             }
-
-            dojo.xhrPost( {
-                    postData: '{ "track": "'
-                                  + track.getUniqueTrackName()
-                                  + '", "features": '
-                                  + JSON.stringify(featuresToAdd)
-                                  + ', "operation": "add_transcript" }',
-                    url: context_path + "/AnnotationEditorService",
-                    handleAs: "json",
-                    timeout: 5000, // Time in milliseconds
-                    // The LOAD function will be called on a successful response.
-                    load: function(response, ioArgs) { //
-                    },
-                    // The ERROR function will be called in an error case.
-                    error: function(response, ioArgs) { //
-                            target_track.handleError(response);
-                            console.log("Error creating annotation--maybe you forgot to log into the server?");
-                            console.error("HTTP status code: ", ioArgs.xhr.status); //
-                            //dojo.byId("replace").innerHTML = 'Loading the ressource from the server did not work'; //
-                            return response;
-                    }
-            });
+            var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_transcript" }';
+            track.executeUpdateOperation(postData);
     },
 
     /**
@@ -937,26 +900,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             console.log("annotations to delete:");
             console.log(features);
         }
-
-            dojo.xhrPost( {
-                postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }',
-                // postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_exon" }',
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5000 * 1000, // Time in milliseconds
-                load: function(response, ioArgs) {
-		    // no-op, relaying on AnnotationChangeNotificationListener comet long-poll for notification
-                },
-                // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) { //
-                    track.handleError(response);
-                    console.log("Annotation server error--maybe you forgot to login to the server?");
-                    console.error("HTTP status code: ", ioArgs.xhr.status); //
-                    //dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work'; //
-                    return response;
-                }
-            });
-
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }';
+        track.executeUpdateOperation(postData);
     }, 
 
     mergeSelectedFeatures: function()  {
@@ -967,10 +912,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     mergeAnnotations: function(selection) {
         var track = this;
-	var annots = []; 
-	for (var i=0; i<selection.length; i++)  { 
-	    annots[i] = selection[i].feature; 
-	}
+        var annots = []; 
+        for (var i=0; i<selection.length; i++)  { 
+        	annots[i] = selection[i].feature; 
+        }
 
         var sortedAnnots = track.sortAnnotationsByLocation(annots);
         var leftAnnot = sortedAnnots[0];
@@ -1008,25 +953,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             features = '"features": [ { "uniquename": "' + leftTranscriptId + '" }, { "uniquename": "' + rightTranscriptId + '" } ]';
             operation = "merge_transcripts";
         }
-            dojo.xhrPost( {
-                postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5000 * 1000, // Time in milliseconds
-                load: function(response, ioArgs) {
-                    // TODO
-                },
-                // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) {
-                    track.handleError(response);
-                    console.log("Annotation server error--maybe you forgot to login to the server?");
-                    console.error("HTTP status code: ", ioArgs.xhr.status);
-                    //
-                    //dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work';
-                    return response;
-                }
-
-            });
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+        track.executeUpdateOperation(postData);
     },
 
     splitSelectedFeatures: function(event)  {
@@ -1068,7 +996,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         // split exon
         if (leftAnnot == rightAnnot) {
             var coordinate = this.getGenomeCoord(event);
-            features = '"features": [ { "uniquename": "' + leftAnnot.id() + '", "location": { "fmax": ' + (coordinate - 1) + ', "fmin": ' + (coordinate + 1) + ' } } ]';
+            features = '"features": [ { "uniquename": "' + leftAnnot.id() + '", "location": { "fmax": ' + coordinate + ', "fmin": ' + (coordinate + 1) + ' } } ]';
             operation = "split_exon";
         }
         // split transcript
@@ -1079,25 +1007,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         else {
             return;
         }
-            dojo.xhrPost( {
-                postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5000 * 1000, // Time in milliseconds
-                load: function(response, ioArgs) {
-                    // TODO
-                },
-                // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) {
-                            track.handleError(response);
-                    console.log("Annotation server error--maybe you forgot to login to the server?");
-                    console.error("HTTP status code: ", ioArgs.xhr.status);
-                    //
-                    //dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work';
-                    return response;
-                }
-
-            });
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+        track.executeUpdateOperation(postData);
     },
 
     makeIntron: function(event)  {
@@ -1116,25 +1027,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var features = '"features": [ { "uniquename": "' + annot.id() + '", "location": { "fmin": ' + coordinate + ' } } ]';
         var operation = "make_intron";
         var trackName = track.getUniqueTrackName();
-            dojo.xhrPost( {
-                postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5000 * 1000, // Time in milliseconds
-                load: function(response, ioArgs) {
-                    // TODO
-                },
-                // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) {
-                            track.handleError(response);
-                    console.log("Annotation server error--maybe you forgot to login to the server?");
-                    console.error("HTTP status code: ", ioArgs.xhr.status);
-                    //
-                    //dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work';
-                    return response;
-                }
-
-            });
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+        track.executeUpdateOperation(postData);
     },
 
     setTranslationStart: function(event)  {
@@ -1145,38 +1039,22 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     setTranslationStartInCDS: function(annots, event) {
-        if (annots.length > 1) {
-            return;
-        }
-        var track = this;
-        var annot = annots[0];
-            // var coordinate = this.gview.getGenomeCoord(event);
-// 	var coordinate = Math.floor(this.gview.absXtoBp(event.pageX));
-	var coordinate = this.getGenomeCoord(event);
-	console.log("called setTranslationStartInCDS to: " + coordinate);
-	    
-            var uid = annot.parent() ? annot.parent().id() : annot.id();
-        var features = '"features": [ { "uniquename": "' + uid + '", "location": { "fmin": ' + coordinate + ' } } ]';
-        var operation = "set_translation_start";
-        var trackName = track.getUniqueTrackName();
-            dojo.xhrPost( {
-                postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5000 * 1000, // Time in milliseconds
-                load: function(response, ioArgs) {
-                    // TODO
-                },
-                // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) {
-                            track.handleError(response);
-                    console.log("Annotation server error--maybe you forgot to login to the server?");
-                    console.error("HTTP status code: ", ioArgs.xhr.status);
-                    //
-                    //dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work';
-                    return response;
-                }
-            });
+    	if (annots.length > 1) {
+    		return;
+    	}
+    	var track = this;
+    	var annot = annots[0];
+    	// var coordinate = this.gview.getGenomeCoord(event);
+//  	var coordinate = Math.floor(this.gview.absXtoBp(event.pageX));
+    	var coordinate = this.getGenomeCoord(event);
+    	console.log("called setTranslationStartInCDS to: " + coordinate);
+
+    	var uid = annot.parent() ? annot.parent().id() : annot.id();
+    	var features = '"features": [ { "uniquename": "' + uid + '", "location": { "fmin": ' + coordinate + ' } } ]';
+    	var operation = "set_translation_start";
+    	var trackName = track.getUniqueTrackName();
+    	var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+    	track.executeUpdateOperation(postData);
     },
 
     flipStrand: function()  {
@@ -1213,24 +1091,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         features += ']';
         var operation = "flip_strand";
         var trackName = track.getUniqueTrackName();
-            dojo.xhrPost( {
-                postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5000 * 1000, // Time in milliseconds
-                load: function(response, ioArgs) {
-                },
-                // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) {
-                            track.handleError(response);
-                    console.log("Annotation server error--maybe you forgot to login to the server?");
-                    console.error("HTTP status code: ", ioArgs.xhr.status);
-                    //
-                    //dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work';
-                    return response;
-                }
-
-            });
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+        track.executeUpdateOperation(postData);
     },
 
     setLongestORF: function()  {
@@ -1260,25 +1122,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         features += ']';
         var operation = "set_longest_orf";
         var trackName = track.getUniqueTrackName();
-            var information = "";
-            dojo.xhrPost( {
-                postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5000 * 1000, // Time in milliseconds
-                load: function(response, ioArgs) {
-                },
-                // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) {
-                            track.handleError(response);
-                    console.log("Annotation server error--maybe you forgot to login to the server?");
-                    console.error("HTTP status code: ", ioArgs.xhr.status);
-                    //
-                    //dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work';
-                    return response;
-                }
-
-            });
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+        track.executeUpdateOperation(postData);
     },
 
     editComments: function()  {
@@ -1297,8 +1142,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
             var content = dojo.create("div");
             // if annotation has parent, get comments for parent
-            if( annot.parent()) {
-                var parentContent = this.createEditCommentsPanelForFeature( annot.parent().id(), track.getUniqueTrackName());
+            if(annot.afeature.parent_id) {
+                var parentContent = this.createEditCommentsPanelForFeature( annot.afeature.parent_id, track.getUniqueTrackName());
                     dojo.attr(parentContent, "class", "parent_comments_div");
                     dojo.place(parentContent, content);
             }
@@ -1308,105 +1153,67 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     createEditCommentsPanelForFeature: function(uniqueName, trackName) {
-        var track = this;
-            var content = dojo.create("div");
-            var header = dojo.create("div", { className: "comment_header" }, content);
-            var table = dojo.create("table", { className: "comments" }, content);
-            var addButtonDiv = dojo.create("div", { className: "comment_add_button_div" }, content);
-            var addButton = dojo.create("button", { className: "comment_button", innerHTML: "Add comment" }, addButtonDiv);
-            var cannedCommentsDiv = dojo.create("div", { }, content);
-            var cannedCommentsComboBox = dojo.create("select", { }, cannedCommentsDiv);
-            var comments;
-            var commentTextFields;
-            var cannedComments;
-            var showCannedComments = false;
+    	var track = this;
+    	var content = dojo.create("div");
+    	var header = dojo.create("div", { className: "comment_header" }, content);
+    	var table = dojo.create("table", { className: "comments" }, content);
+    	var addButtonDiv = dojo.create("div", { className: "comment_add_button_div" }, content);
+    	var addButton = dojo.create("button", { className: "comment_button", innerHTML: "Add comment" }, addButtonDiv);
+    	var cannedCommentsDiv = dojo.create("div", { }, content);
+    	var cannedCommentsComboBox = dojo.create("select", { }, cannedCommentsDiv);
+    	var comments;
+    	var commentTextFields;
+    	var cannedComments;
+    	var showCannedComments = false;
 
-            var getComments = function() {
-                var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-                var operation = "get_comments";
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-                dojo.xhrPost( {
-                                  postData: postData,
-                                  url: context_path + "/AnnotationEditorService",
-                                  handleAs: "json",
-                                  sync: true,
-                                  timeout: 5000 * 1000, // Time in milliseconds
-                                  load: function(response, ioArgs) {
-                                      var feature = response.features[0];
-                                      comments = feature.comments;
-                                      header.innerHTML = "Comments for " + feature.type.name;
-                                  },
-                                  // The ERROR function will be called in an error case.
-                                  error: function(response, ioArgs) {
-                                      track.handleError(response);
-                                      console.error("HTTP status code: ", ioArgs.xhr.status);
-                                      return response;
-                                  }
+    	var getComments = function() {
+    		var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
+    		var operation = "get_comments";
+    		var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+    		dojo.xhrPost( {
+    			postData: postData,
+    			url: context_path + "/AnnotationEditorService",
+    			handleAs: "json",
+    			sync: true,
+    			timeout: 5000 * 1000, // Time in milliseconds
+    			load: function(response, ioArgs) {
+    				var feature = response.features[0];
+    				comments = feature.comments;
+    				header.innerHTML = "Comments for " + feature.type.name;
+    			},
+    			// The ERROR function will be called in an error case.
+    			error: function(response, ioArgs) {
+    				track.handleError(response);
+    				console.error("HTTP status code: ", ioArgs.xhr.status);
+    				return response;
+    			}
 
-                              });
-            };
+    		});
+    	};
 
-            var addComment = function(comment) {
-                var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": [ "' + comment + '" ] } ]';
-                var operation = "add_comments";
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-                dojo.xhrPost( {
-                                  postData: postData,
-                                  url: context_path + "/AnnotationEditorService",
-                                  handleAs: "json",
-                                  timeout: 5000 * 1000, // Time in milliseconds
-                                  load: function(response, ioArgs) {
-                                  },
-                                  // The ERROR function will be called in an error case.
-                                  error: function(response, ioArgs) {
-                                      track.handleError(response);
-                                      console.error("HTTP status code: ", ioArgs.xhr.status);
-                                      return response;
-                                  }
+    	var addComment = function(comment) {
+    		var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": [ "' + comment + '" ] } ]';
+    		var operation = "add_comments";
+    		var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+    		track.executeUpdateOperation(postData);
+    	};
 
-                              });
-            };
-
-            var deleteComment = function(comment) {
-                var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": [ "' + comment + '" ] } ]';
-                var operation = "delete_comments";
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-                dojo.xhrPost( {
-                                  postData: postData,
-                                  url: context_path + "/AnnotationEditorService",
-                                  handleAs: "json",
-                                  timeout: 5000 * 1000, // Time in milliseconds
-                                  load: function(response, ioArgs) {
-                                  },
-                                  // The ERROR function will be called in an error case.
-                                  error: function(response, ioArgs) {
-                                      track.handleError(response);
-                                      console.error("HTTP status code: ", ioArgs.xhr.status);
-                                      return response;
-                                  }
-
-                              });
-            };
+    	var deleteComment = function(comment) {
+    		var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": [ "' + comment + '" ] } ]';
+    		var operation = "delete_comments";
+    		var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+    		track.executeUpdateOperation(postData);
+    	};
 
         var updateComment = function(oldComment, newComment) {
+        	if (oldComment == newComment) {
+        		return;
+        	}
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_comments": [ "' + oldComment + '" ], "new_comments": [ "' + newComment + '"] } ]';
             var operation = "update_comments";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-                              postData: postData,
-                              url: context_path + "/AnnotationEditorService",
-                              handleAs: "json",
-                              timeout: 5000 * 1000, // Time in milliseconds
-                              load: function(response, ioArgs) {
-                              },
-                              // The ERROR function will be called in an error case.
-                              error: function(response, ioArgs) {
-                                  track.handleError(response);
-                                  console.error("HTTP status code: ", ioArgs.xhr.status);
-                                  return response;
-                              }
+            track.executeUpdateOperation(postData);
 
-                          });
         };
 
         var updateTable = function() {
@@ -1556,8 +1363,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         var content = dojo.create("div");
         // if annotation has parent, get comments for parent
-        if ( annot.parent() ) {
-            var parentContent = this.createEditDbxrefsPanelForFeature( annot.parent().id(), track.getUniqueTrackName());
+        if ( annot.afeature.parent_id ) {
+            var parentContent = this.createEditDbxrefsPanelForFeature( annot.afeature.parent_id, track.getUniqueTrackName());
             dojo.attr(parentContent, "class", "parent_dbxrefs_div");
             dojo.place(parentContent, content);
         }
@@ -1607,63 +1414,21 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + db + '", "accession": "' + accession + '" } ] } ]';
             var operation = "add_non_primary_dbxrefs";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-                              postData: postData,
-                              url: context_path + "/AnnotationEditorService",
-                              handleAs: "json",
-                              timeout: 5000 * 1000, // Time in milliseconds
-                              load: function(response, ioArgs) {
-                              },
-                              // The ERROR function will be called in an error case.
-                              error: function(response, ioArgs) {
-                                  track.handleError(response);
-                                  console.error("HTTP status code: ", ioArgs.xhr.status);
-                                  return response;
-                              }
-
-                          });
+            track.executeUpdateOperation(postData);
         };
 
         var deleteDbxref = function(db, accession) {
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + db + '", "accession": "' + accession + '" } ] } ]';
             var operation = "delete_non_primary_dbxrefs";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-                              postData: postData,
-                              url: context_path + "/AnnotationEditorService",
-                              handleAs: "json",
-                              timeout: 5000 * 1000, // Time in milliseconds
-                              load: function(response, ioArgs) {
-                              },
-                              // The ERROR function will be called in an error case.
-                              error: function(response, ioArgs) {
-                                  track.handleError(response);
-                                  console.error("HTTP status code: ", ioArgs.xhr.status);
-                                  return response;
-                              }
-
-                          });
+            track.executeUpdateOperation(postData);
         };
 
         var updateDbxref = function(oldDb, oldAccession, newDb, newAccession) {
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + oldDb + '", "accession": "' + oldAccession + '" } ], "new_dbxrefs": [ { "db": "' + newDb + '", "accession": "' + newAccession + '" } ] } ]';
             var operation = "update_non_primary_dbxrefs";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-                              postData: postData,
-                              url: context_path + "/AnnotationEditorService",
-                              handleAs: "json",
-                              timeout: 5000 * 1000, // Time in milliseconds
-                              load: function(response, ioArgs) {
-                              },
-                              // The ERROR function will be called in an error case.
-                              error: function(response, ioArgs) {
-                                  track.handleError(response);
-                                  console.error("HTTP status code: ", ioArgs.xhr.status);
-                                  return response;
-                              }
-
-                          });
+            track.executeUpdateOperation(postData);
         };
 
         var handleDbxrefUpdate = function(index) {
@@ -1773,38 +1538,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         features += ']';
         var operation = "undo";
         var trackName = track.getUniqueTrackName();
-            dojo.xhrPost( {
-                postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5000 * 1000, // Time in milliseconds
-                load: function(response, ioArgs) {
-                    if (response && response.confirm) {
-                            if (track.handleConfirm(response.confirm)) {
-                                    dojo.xhrPost( {
-                                            sync: true,
-                                        postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "confirm": true }',
-                                        url: context_path + "/AnnotationEditorService",
-                                        handleAs: "json",
-                                        timeout: 5000 * 1000, // Time in milliseconds
-                                        load: function(response, ioArgs) {
-                                            // TODO
-                                        },
-                                        error: function(response, ioArgs) {
-                                            track.handleError(response);
-                                            return response;
-                                        }
-                                    });
-                            }
-                    }
-                },
-                // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) {
-                    track.handleError(response);
-                    return response;
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+        track.executeUpdateOperation(postData, function(response) {
+            if (response && response.confirm) {
+                if (track.handleConfirm(response.confirm)) {
+                	postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "confirm": true }';
+                	track.executeUpdateOperation(postData);
                 }
-
-            });
+            }
+        });
     },
 
     redo: function()  {
@@ -1836,152 +1578,148 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         features += ']';
         var operation = "redo";
         var trackName = track.getUniqueTrackName();
-            dojo.xhrPost( {
-                postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5000 * 1000, // Time in milliseconds
-                load: function(response, ioArgs) {
-                    // TODO
-                },
-                // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) { // 
-                            track.handleError(response);
-                    console.log("Annotation server error--maybe you forgot to login to the server?");
-                    console.error("HTTP status code: ", ioArgs.xhr.status); 
-                    //
-                    //dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work'; //  
-                    return response; // 
-                }
-
-            });
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+        track.executeUpdateOperation(postData);
     }, 
 
     getHistory: function()  {
-	var selected = this.selectionManager.getSelection();
-	this.selectionManager.clearSelection();
-	this.getHistoryForSelectedFeatures(selected);
+    	var selected = this.selectionManager.getSelection();
+    	this.selectionManager.clearSelection();
+    	this.getHistoryForSelectedFeatures(selected);
     }, 
 
     getHistoryForSelectedFeatures: function(selected) {
-	var track = this;
-	var content = dojo.create("div");
-	var historyDiv = dojo.create("div", { className: "history_div" }, content);
-	var historyTable = dojo.create("div", { className: "history_table" }, historyDiv);
-	var historyHeader = dojo.create("div", { className: "history_header", innerHTML: "<span class='history_header_column history_column'>Operation</span><span class='history_header_column history_column'>Editor</span><span class='history_header_column history_column'>Date</span>" }, historyTable);
-	var historyRows = dojo.create("div", { className: "history_rows" }, historyTable);
-	var historyPreviewDiv = dojo.create("div", { className: "history_preview" }, historyDiv);
-	var history;
-	var selectedIndex = 0;
+    	var track = this;
+    	var content = dojo.create("div");
+    	var historyDiv = dojo.create("div", { className: "history_div" }, content);
+    	var historyTable = dojo.create("div", { className: "history_table" }, historyDiv);
+    	var historyHeader = dojo.create("div", { className: "history_header", innerHTML: "<span class='history_header_column history_column'>Operation</span><span class='history_header_column history_column'>Editor</span><span class='history_header_column history_column'>Date</span>" }, historyTable);
+    	var historyRows = dojo.create("div", { className: "history_rows" }, historyTable);
+    	var historyPreviewDiv = dojo.create("div", { className: "history_preview" }, historyDiv);
+    	var history;
+    	var selectedIndex = 0;
+    	var minFmin = undefined;
+    	var maxFmax = undefined;
 
-	var cleanupDiv = function(div) {
-		if (div.style.top) {
-			div.style.top = null;
-		}
-	    if (div.style.visibility)  { div.style.visibility = null; }
-		annot_context_menu.unBindDomNode(div);
-		$(div).unbind();
-		for (var i = 0; i < div.childNodes.length; ++i) {
-			cleanupDiv(div.childNodes[i]);
-		}
-	};
+    	var cleanupDiv = function(div) {
+    		if (div.style.top) {
+    			div.style.top = null;
+    		}
+    		if (div.style.visibility)  { div.style.visibility = null; }
+    		annot_context_menu.unBindDomNode(div);
+    		$(div).unbind();
+    		for (var i = 0; i < div.childNodes.length; ++i) {
+    			cleanupDiv(div.childNodes[i]);
+    		}
+    	};
+
+    	var displayPreview = function(index) {
+    		var historyItem = history[index];
+    		var afeature = historyItem.features[0];
+    		var jfeature = JSONUtils.createJBrowseFeature(afeature);
+    		var fmin = afeature.location.fmin;
+    		var fmax = afeature.location.fmax;
+    		var maxLength = maxFmax - minFmin;
+//  		track.featureStore._add_getters(track.attrs.accessors().get, jfeature);
+    		historyPreviewDiv.featureLayout = new Layout(fmin, fmax);
+    		historyPreviewDiv.featureNodes = new Array();
+    		historyPreviewDiv.startBase = minFmin - (maxLength * 0.1);
+    		historyPreviewDiv.endBase = maxFmax + (maxLength * 0.1);
+    		var coords = dojo.position(historyPreviewDiv);
+    		// setting labelScale and descriptionScale parameter to 100 px/bp, so neither should get triggered
+    		var featDiv = track.renderFeature(jfeature, jfeature.uid, historyPreviewDiv, coords.w / (maxLength), 100, 100, minFmin, maxFmax);
+    		cleanupDiv(featDiv);
+    		while (historyPreviewDiv.hasChildNodes()) {
+    			historyPreviewDiv.removeChild(historyPreviewDiv.lastChild);
+    		}
+    		historyPreviewDiv.appendChild(featDiv);
+    		dojo.attr(historyRows.childNodes.item(selectedIndex), "class", "history_row");
+    		dojo.attr(historyRows.childNodes.item(index), "class", "history_row history_row_selected");
+    		selectedIndex = index;
+    	};
 	
-	var displayPreview = function(index) {
-		var historyItem = history[index];
-		var afeature = historyItem.features[0];
-		var jfeature = JSONUtils.createJBrowseFeature(afeature);
-		var fmin = afeature.location.fmin;
-		var fmax = afeature.location.fmax;
-		var length = fmax - fmin;
-//		track.featureStore._add_getters(track.attrs.accessors().get, jfeature);
-		historyPreviewDiv.featureLayout = new Layout(fmin, fmax);
-		historyPreviewDiv.featureNodes = new Array();
-		historyPreviewDiv.startBase = fmin - (length * 0.1);
-		historyPreviewDiv.endBase = fmax + (length * 0.1);
-		var coords = dojo.coords(historyPreviewDiv);
-	    // setting labelScale and descriptionScale parameter to 100 px/bp, so neither should get triggered
-	    var featDiv = track.renderFeature(jfeature, jfeature.uid, historyPreviewDiv, coords.w / (fmax - fmin), 100, 100, fmin, fmax);
-		cleanupDiv(featDiv);
-		while (historyPreviewDiv.hasChildNodes()) {
-			historyPreviewDiv.removeChild(historyPreviewDiv.lastChild);
-		}
-		historyPreviewDiv.appendChild(featDiv);
-		dojo.attr(historyRows.childNodes.item(selectedIndex), "class", "history_row");
-		dojo.attr(historyRows.childNodes.item(index), "class", "history_row history_row_selected");
-		selectedIndex = index;
-	};
+    	var displayHistory = function() {
+    		var current;
+    		for (var i = 0; i < history.length; ++i) {
+    			var historyItem = history[i];
+    			var rowCssClass = "history_row";
+    			var row = dojo.create("div", { className: rowCssClass }, historyRows);
+    			var columnCssClass = "history_column";
+    			dojo.create("span", { className: columnCssClass, innerHTML: historyItem.operation }, row);
+    			dojo.create("span", { className: columnCssClass, innerHTML: historyItem.editor }, row);
+    			dojo.create("span", { className: columnCssClass + " history_date_column", innerHTML: historyItem.date }, row);
+    			var afeature = historyItem.features[0];
+        		var fmin = afeature.location.fmin;
+        		var fmax = afeature.location.fmax;
+        		if (minFmin == undefined || fmin < minFmin) {
+        			minFmin = fmin;
+        		}
+        		if (maxFmax == undefined || fmax > maxFmax) {
+        			maxFmax = fmax;
+        		}
+        		
+    			if (historyItem.current) {
+    				current = i;
+    			}
+
+    			dojo.connect(row, "onclick", row, function(index) {
+    				return function() {
+    					displayPreview(index);
+    				};
+    			}(i));
+    		}
+			displayPreview(current);
+			var coords = dojo.position(row);
+			historyRows.scrollTop = selectedIndex * coords.h;
+    	};
 	
-	var displayHistory = function() {
-		for (var i = 0; i < history.length; ++i) {
-			var historyItem = history[i];
-			var rowCssClass = "history_row";
-			var row = dojo.create("div", { className: rowCssClass }, historyRows);
-			var columnCssClass = "history_column";
-			dojo.create("span", { className: columnCssClass, innerHTML: historyItem.operation }, row);
-			dojo.create("span", { className: columnCssClass, innerHTML: historyItem.editor }, row);
-			dojo.create("span", { className: columnCssClass + " history_date_column", innerHTML: historyItem.date }, row);
+    	var fetchHistory = function() {
+    		var features = '"features": [';
+    		for (var i in selected)  {
+    			var record = selected[i];
+    			var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
+    			var uniqueName = annot.id();
+    			// just checking to ensure that all features in selection are from this track
+    			if (record.track === track)  {
+    				var trackdiv = track.div;
+    				var trackName = track.getUniqueTrackName();
 
-			if (historyItem.current) {
-				displayPreview(i);
-				var coords = dojo.coords(row);
-				historyRows.scrollTop = selectedIndex * coords.h;
-			}
+    				if (i > 0) {
+    					features += ',';
+    				}
+    				features += ' { "uniquename": "' + uniqueName + '" } ';
+    			}
+    		}
+    		features += ']';
+    		var operation = "get_history_for_features";
+    		var trackName = track.getUniqueTrackName();
+    		dojo.xhrPost( {
+    			postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
+    			url: context_path + "/AnnotationEditorService",
+    			handleAs: "json",
+    			timeout: 5000 * 1000, // Time in milliseconds
+    			load: function(response, ioArgs) {
+    				var features = response.features;
+//  				for (var i = 0; i < features.length; ++i) {
+//  				displayHistory(features[i].history);
+//  				}
+    				history = features[i].history;
+    				displayHistory();
+    			},
+    			// The ERROR function will be called in an error case.
+    			error: function(response, ioArgs) { // 
+    				track.handleError(response);
+    				return response; // 
+    			}
 
-			dojo.connect(row, "onclick", row, function(index) {
-				return function() {
-					displayPreview(index);
-				};
-			}(i));
-		}
-	};
-	
-	var fetchHistory = function() {
-		var features = '"features": [';
-		for (var i in selected)  {
-		    var record = selected[i];
-			var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
-		    var uniqueName = annot.id();
-			// just checking to ensure that all features in selection are from this track
-			if (record.track === track)  {
-				var trackdiv = track.div;
-				var trackName = track.getUniqueTrackName();
+    		});
+    	};
 
-				if (i > 0) {
-					features += ',';
-				}
-				features += ' { "uniquename": "' + uniqueName + '" } ';
-			}
-		}
-		features += ']';
-		var operation = "get_history_for_features";
-		var trackName = track.getUniqueTrackName();
-			dojo.xhrPost( {
-				postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
-				url: context_path + "/AnnotationEditorService",
-				handleAs: "json",
-				timeout: 5000 * 1000, // Time in milliseconds
-				load: function(response, ioArgs) {
-					var features = response.features;
-//					for (var i = 0; i < features.length; ++i) {
-//						displayHistory(features[i].history);
-//					}
-					history = features[i].history;
-					displayHistory();
-				},
-				// The ERROR function will be called in an error case.
-				error: function(response, ioArgs) { // 
-					track.handleError(response);
-					return response; // 
-				}
-
-			});
-	};
-	
-	fetchHistory();
-	this.openDialog("History", content);
-//	this.popupDialog.hide();
-//	this.openDialog("History", content);
-}, 
+    	fetchHistory();
+    	this.openDialog("History", content);
+//  	this.popupDialog.hide();
+//  	this.openDialog("History", content);
+    }, 
 
 getAnnotationInformation: function()  {
         var selected = this.selectionManager.getSelection();
@@ -2023,7 +1761,7 @@ getAnnotationInformation: function()  {
                             if (i > 0) {
                                     information += "<hr/>";
                             }
-                            information += "Uniquename: " + feature.uniquename + "<br/>";
+                            information += "Unique id: " + feature.uniquename + "<br/>";
                             information += "Date of creation: " + feature.time_accessioned + "<br/>";
                             information += "Owner: " + feature.owner + "<br/>";
                             information += "Parent ids: " + feature.parent_ids + "<br/>";
@@ -2207,7 +1945,7 @@ getAnnotationInformation: function()  {
 	var content = dojo.create("div");
 	var waitingDiv = dojo.create("div", { innerHTML: "<img class='waiting_image' src='plugins/WebApollo/img/loading.gif' />" }, content);
 	var responseDiv = dojo.create("div", { className: "export_response" }, content);
-	var responseIFrame = dojo.create("iframe", { class: "export_response_iframe" }, responseDiv);
+//	var responseIFrame = dojo.create("iframe", { class: "export_response_iframe" }, responseDiv);
 
 	dojo.xhrGet( {
 		url: context_path + "/IOService?operation=write&adapter=" + adapter + "&track=" + track.getUniqueTrackName() + "&" + options,
@@ -2218,11 +1956,13 @@ getAnnotationInformation: function()  {
 		    dojo.style(waitingDiv, { display: "none" } );
 		    response = response.replace("href='", "href='../");
 
+		    /*
 		    var iframeDoc = responseIFrame.contentWindow.document;
 		    iframeDoc.open();
 		    iframeDoc.write(response);
 		    iframeDoc.close();
-		    //      responseDiv.innerHTML = response;
+		    */
+		    responseDiv.innerHTML = response;
 		}, 
 		// The ERROR function will be called in an error case.
 		error: function(response, ioArgs) {
@@ -2416,27 +2156,42 @@ getAnnotationInformation: function()  {
     annot_context_menu.startup();
 }, 
 
-initNonAnnotContextMenu: function() {
+/** 
+ * hacking addition of a "tools" menu to standard JBrowse menubar, 
+ *    with a "Search Sequence" dropdown
+ */
+initSearchMenu: function()  {
     var thisObj = this;
-    
-    non_annot_context_menu = new dijit.Menu({
-    });
-    
-    non_annot_context_menu.onItemHover = function(item){
-        this.focusChild(item);
-        if (this.focusedChild.popup && !this.focusedChild.disabled) {
-             this._openPopup();
-        }
-    };
-    
-	non_annot_context_menu.addChild(new dijit.MenuItem( {
-		label: "Search sequence",
-		onClick: function() {
-			thisObj.searchSequence();
-		}
-	} ));
-	var dataAdaptersMenu = new dijit.Menu();
-	dojo.xhrPost( {
+    this.browser.addGlobalMenuItem( 'tools',
+          new dijitMenuItem(
+              {
+		  label: "Search sequence",
+		  onClick: function() {
+		      thisObj.searchSequence();
+		  }
+              }) );
+    var toolMenu = this.browser.makeGlobalMenu('tools');
+    if( toolMenu ) {
+        var toolButton = new dijitDropDownButton(
+            { className: 'file',
+              innerHTML: 'Tools',
+              //title: '',
+              dropDown: toolMenu
+            });
+        dojo.addClass( toolButton.domNode, 'menu' );
+        this.browser.menuBar.appendChild( toolButton.domNode );
+    }
+}, 
+
+/**
+ *  Add AnnotTrack data save option to track label pulldown menu
+ *  Trying to make it a replacement for default JBrowse data save option from ExportMixin 
+ *    (turned off JBrowse default via config.noExport = true)
+ */
+initSaveMenu: function()  {
+    var thisObj = this;
+    var dataAdaptersMenu = new dijit.Menu();
+    dojo.xhrPost( {
 		sync: true,
 		postData: '{ "track": "' + thisObj.getUniqueTrackName() + '", "operation": "get_data_adapters" }',
 		url: context_path + "/AnnotationEditorService",
@@ -2462,28 +2217,25 @@ initNonAnnotContextMenu: function() {
 		error: function(response, ioArgs) { //
 //		    thisObj.handleError(response);
 		}
-	});
-	non_annot_context_menu.addChild(new dijit.PopupMenuItem({
-		label: "Export",
-		popup: dataAdaptersMenu
-	}));
-	
-	non_annot_context_menu.bindDomNode(thisObj.div);
-	non_annot_context_menu.onOpen = function(event) {
-		dojo.forEach(this.getChildren(), function(item, idx, arr) {
-			if (item instanceof dijit.MenuItem || item instanceof dijit.PopupMenuItem) {
-				item._setSelected(false);
-				item._onUnhover();
-			}
-		});
-	};
-	
-    non_annot_context_menu.startup();
+    });
+
+    // if there's a menu separator, add right before first seperator (which is where default save is added), 
+    //     otherwise add at end
+    var mitems = this.trackMenu.getChildren();
+    for (var mindex=0; mindex < mitems.length; mindex++) {
+        if (mitems[mindex].type == "dijit/MenuSeparator")  { break; }
+    }
+    var savePopup = new dijit.PopupMenuItem({
+		label: "Save track data",
+		iconClass: 'dijitIconSave',
+		popup: dataAdaptersMenu });
+    this.trackMenu.addChild(savePopup, mindex);
 }, 
 
     getPermission: function( callback ) {
 	var thisObj = this;
 	var loadCallback = callback;
+	var success = true;
 	dojo.xhrPost( {
 		sync: true,
 		postData: '{ "track": "' + thisObj.getUniqueTrackName() + '", "operation": "get_user_permission" }',
@@ -2498,29 +2250,33 @@ initNonAnnotContextMenu: function() {
 		},
 		error: function(response, ioArgs) { //
 		    thisObj.handleError(response);
+		    success = false;
 		}
 	});
+	return success;
     },
 
     initPopupDialog: function() {
-        var track = this;
-        var id = "popup_dialog";
+    	var track = this;
+    	var id = "popup_dialog";
 
-        // deregister widget (needed if changing refseq without reloading page)
-        var widget = dijit.registry.byId(id);
-        if (widget) {
-            widget.destroy();
-        }
-        track.popupDialog = new dijitDialog({
-                                                preventCache: true,
-                                                id: id
-                                            });
-        dojo.connect(track.popupDialog, "onHide", null, function() {
-                         track.selectionManager.clearSelection();
-                	 if (track.getSequenceTrack())  { 
-                             track.getSequenceTrack().clearHighlightedBases(); }
-                     });
-        track.popupDialog.startup();
+    	// deregister widget (needed if changing refseq without reloading page)
+    	var widget = dijit.registry.byId(id);
+    	if (widget) {
+    		widget.destroy();
+    	}
+    	track.popupDialog = new dijitDialog({
+    		preventCache: true,
+    		id: id
+    	});
+    	dojo.connect(track.popupDialog, "onHide", null, function() {
+    		document.activeElement.blur();
+    		track.selectionManager.clearSelection();
+    		if (track.getSequenceTrack())  {
+    			track.getSequenceTrack().clearHighlightedBases();
+    		}
+    	});
+    	track.popupDialog.startup();
 
     },
 
@@ -2887,13 +2643,34 @@ initNonAnnotContextMenu: function() {
             //     (in case zoomed in to base pair resolution and the residues overlay is being displayed)
             $(".annot-sequence", this.div).css('display', 'none');
         }
-    }
+    },
 
     // , 
     // endZoom: function(destScale, destBlockBases) {
     //     DraggableFeatureTrack.prototype.endZoom.call(this, destScale, destBlockBases);
     // };
 
+    executeUpdateOperation: function(postData, loadCallback) {
+        if (!this.listener || this.listener.fired != -1 ) {
+        	this.handleError({responseText: '{ error: "Server connection error - try reloading the page" }'});
+        	return;
+        }
+        dojo.xhrPost( {
+            postData: postData,
+            url: context_path + "/AnnotationEditorService",
+            handleAs: "json",
+            timeout: 1000 * 1000, // Time in milliseconds
+            load: function(response, ioArgs) { //
+            	if (loadCallback) {
+            		loadCallback(response);
+            	}
+            },
+            error: function(response, ioArgs) { //
+                track.handleError(response);
+                return response;
+            }
+        });
+    }
 
 });
 
@@ -2902,7 +2679,7 @@ AnnotTrack.getTopLevelAnnotation = function(annotation) {
         annotation = annotation.parent();
     }
     return annotation;
-}
+};
 
 return AnnotTrack;
 });

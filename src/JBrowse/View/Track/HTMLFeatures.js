@@ -2,6 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
+            'dojo/dom-construct',
             'dojo/dom-geometry',
             'dojo/on',
             'dojo/has',
@@ -19,6 +20,7 @@ define( [
       function( declare,
                 lang,
                 array,
+                dom,
                 domGeom,
                 on,
                 has,
@@ -124,6 +126,7 @@ HTMLFeatures = declare( HTMLFeatures,
             description: true,
 
             maxFeatureScreenDensity: 0.5,
+            blockDisplayTimeout: 5000,
 
             style: {
                 className: "feature2",
@@ -526,16 +529,6 @@ HTMLFeatures = declare( HTMLFeatures,
         }));
     },
 
-    fillTooManyFeaturesMessage: function( blockIndex, block, scale ) {
-        this.fillMessage(
-            blockIndex,
-            block,
-            'Too many features to show'
-                + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
-                + '.'
-        );
-    },
-
     /**
      * Creates a Y-axis scale for the feature histogram.  Must be run after
      * the histogram bars are drawn, because it sometimes must use the
@@ -669,7 +662,16 @@ HTMLFeatures = declare( HTMLFeatures,
         var descriptionScale = this.config.style.descriptionScale || stats.featureDensity * this.config.style._defaultDescriptionScale;
 
         var curTrack = this;
+
+        var timedOut = false;
+        var timeOutError = { toString: function() { return 'Timed out trying to display '+curTrack.name+' block '+blockIndex; } };
+        if( this.config.blockDisplayTimeout )
+            window.setTimeout( function() { timedOut = true; }, this.config.blockDisplayTimeout );
+
         var featCallback = dojo.hitch(this,function( feature ) {
+            if( timedOut )
+                throw timeOutError;
+
             var uniqueId = feature.id();
             if( ! this._featureIsRendered( uniqueId ) ) {
                 /* feature render, adding to block, centering refactored into addFeatureToBlock() */
@@ -690,7 +692,12 @@ HTMLFeatures = declare( HTMLFeatures,
                                 },
                                 function( error ) {
                                     curTrack.error = error;
-                                    curTrack.fillError( blockIndex, block );
+                                    if( error === timeOutError ) {
+                                        curTrack.fillTimeout( blockIndex, block );
+                                    } else {
+                                        console.error( error, error.stack );
+                                        curTrack.fillError( blockIndex, block );
+                                    }
                                     finishCallback();
                                 }
                               );
@@ -884,19 +891,16 @@ HTMLFeatures = declare( HTMLFeatures,
         dojo.addClass(featDiv, "feature");
         var className = this.config.style.className;
         if (className == "{type}") { className = feature.get('type'); }
-        dojo.addClass(featDiv, className);
         var strand = feature.get('strand');
         switch (strand) {
         case 1:
         case '+':
             dojo.addClass(featDiv, "plus-" + className); break;
-            // featDiv.className = featDiv.className + " " + this.config.style.className + " plus-" + this.config.style.className; break;
         case -1:
         case '-':
             dojo.addClass(featDiv, "minus-" + className); break;
-            // featDiv.className = featDiv.className + " " + this.config.style.className + " minus-" + this.config.style.className; break;
-//        default:
-            // featDiv.className = featDiv.className + " " + this.config.style.className; break;
+        default:
+            dojo.addClass(featDiv, className);
         }
         var phase = feature.get('phase');
         if ((phase !== null) && (phase !== undefined))
@@ -927,13 +931,13 @@ HTMLFeatures = declare( HTMLFeatures,
             case 1:
             case '+':
                 ah.className = "plus-" + this.config.style.arrowheadClass;
-                ah.style.cssText =  "left: 100%; top: 0px;";
+                ah.style.cssText =  "left: 100%;" 
                 featDiv.appendChild(ah);
                 break;
             case -1:
             case '-':
                 ah.className = "minus-" + this.config.style.arrowheadClass;
-                ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px; top: 0px;";
+                ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px;"
                 featDiv.appendChild(ah);
                 break;
             }
@@ -1102,30 +1106,32 @@ HTMLFeatures = declare( HTMLFeatures,
         var className;
         if( this.config.style.subfeatureClasses ) {
             className = this.config.style.subfeatureClasses[type];
-            // if no class mapping specified for type, default to "{parentclass}-{type}"
-            if (className === undefined) { className = this.config.style.className + '-' + type; }
+            // if no class mapping specified for type, default to subfeature.get('type')
+            if (className === undefined) { className = type; }
             // if subfeatureClasses specifies that subfeature type explicitly maps to null className
             //     then don't render the feature
             else if (className === null)  {
-                className = this.config.style.className + '-' + type;
                 return null;
             }
         }
         else {
-            // if no config.style.subfeatureClasses to specify subfeature class mapping, default to "{parentclass}-{type}"
-            className = this.config.style.className + '-' + type;
+            // if no config.style.subfeatureClasses to specify subfeature class mapping, default to subfeature.get('type')
+            className = type;
         }
         var subDiv = document.createElement("div");
         dojo.addClass(subDiv, "subfeature");
-        dojo.addClass(subDiv, className);
-
-        switch ( subfeature.get('strand') ) {
-        case 1:
-        case '+':
-            dojo.addClass(subDiv, "plus-" + className); break;
-        case -1:
-        case '-':
-            dojo.addClass(subDiv, "minus-" + className); break;
+        // check for className to avoid adding "null", "plus-null", "minus-null" 
+        if (className) {  
+            switch ( subfeature.get('strand') ) {
+            case 1:
+            case '+':
+                dojo.addClass(subDiv, "plus-" + className); break;
+            case -1:
+            case '-':
+                dojo.addClass(subDiv, "minus-" + className); break;
+            default: 
+                dojo.addClass(subDiv, className);
+            }
         }
 
         // if the feature has been truncated to where it doesn't cover
@@ -1136,7 +1142,6 @@ HTMLFeatures = declare( HTMLFeatures,
         if (Util.is_ie6) subDiv.appendChild(document.createComment());
 
         subDiv.style.cssText = "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
-            + "top: 0px;"
             + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
         featDiv.appendChild(subDiv);
 

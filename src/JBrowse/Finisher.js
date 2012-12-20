@@ -3,6 +3,7 @@ define(['dojo/_base/declare'], function(declare) {
         constructor: function(fun) {
             this.fun = fun;
             this.count = 0;
+            this.finished = false;
         },
         inc: function() {
             this.count++;
@@ -12,8 +13,10 @@ define(['dojo/_base/declare'], function(declare) {
             this.finish();
         },
         finish: function() {
-            if (this.count <= 0)
+            if (this.count <= 0 && !this.finished) {
                 this.fun();
+                this.finished = true;
+            }
         }
     });
 });

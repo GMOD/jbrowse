@@ -12,8 +12,6 @@ var readInt   = BAMUtil.readInt;
 var readShort = BAMUtil.readShort;
 var readFloat = BAMUtil.readFloat;
 
-var counter = 0;
-
 var Feature = Util.fastDeclare(
 {
     constructor: function( args ) {
@@ -32,28 +30,34 @@ var Feature = Util.fastDeclare(
         this._coreParse();
     },
 
-    get: function( field ) {
-        field = field.toLowerCase();
-        return field in this.data ? this.data[field] : // maybe already parsed
+    get: function( field) {
+        return this._get( field.toLowerCase() );
+    },
+
+    // same as get(), except requires lower-case arguments.  used
+    // internally to save lots of calls to field.toLowerCase()
+    _get: function( field ) {
+        return field in this.data ? this.data[field] : // have we already parsed it out?
             function() {
-                var v = this.data[field] = this[field] ? this[field]()                       : // maybe we have a special parser for it
-                                           this._flagMasks[field] ? this._parseFlag( field ) : // or is it a flag?
-                                           this._parseTag( field );                            // otherwise, must be a tag
+                var v = this.data[field] =
+                    this[field]            ? this[field]()            : // maybe we have a special parser for it
+                    this._flagMasks[field] ? this._parseFlag( field ) : // or is it a flag?
+                                             this._parseTag( field );   // otherwise, look for it in the tags
                 return v;
             }.call(this);
     },
 
     tags: function() {
-        return this.get('_tags');
+        return this._get('_tags');
     },
 
     _tags: function() {
         this._parseAllTags();
 
         var tags = [ 'seq', 'seq_reverse_complemented', 'unmapped' ];
-        if( ! this.get('unmapped') )
+        if( ! this._get('unmapped') )
             tags.push( 'start', 'end', 'strand', 'score', 'qual', 'MQ', 'CIGAR', 'length_on_ref' );
-        if( this.get('multi_segment_template') ) {
+        if( this._get('multi_segment_template') ) {
             tags.push( 'multi_segment_all_aligned',
                        'multi_segment_next_segment_unmapped',
                        'multi_segment_next_segment_reversed',
@@ -92,11 +96,11 @@ var Feature = Util.fastDeclare(
     },
 
     children: function() {
-        return this.get('subfeatures');
+        return this._get('subfeatures');
     },
 
     id: function() {
-        return this.get('name')+'/'+this.get('MD')+'/'+this.get('CIGAR')+'/'+this.get('start');
+        return this._get('name')+'/'+this._get('md')+'/'+this._get('cigar')+'/'+this._get('start');
     },
 
     // special parsers
@@ -104,47 +108,47 @@ var Feature = Util.fastDeclare(
      * Mapping quality score.
      */
     mq: function() {
-        var mq = (this.get('_bin_mq_nl') & 0xff00) >> 8;
+        var mq = (this._get('_bin_mq_nl') & 0xff00) >> 8;
         return mq == 255 ? undefined : mq;
     },
     score: function() {
-        return this.get('MQ');
+        return this._get('mq');
     },
     qual: function() {
-        if( this.get('unmapped') )
+        if( this._get('unmapped') )
             return undefined;
 
         var qseq = [];
         var byteArray = this.bytes.byteArray;
-        var p = this.bytes.start + 36 + this.get('_l_read_name') + this.get('_n_cigar_op')*4 + this.get('_seq_bytes');
-        var lseq = this.get('seq_length');
+        var p = this.bytes.start + 36 + this._get('_l_read_name') + this._get('_n_cigar_op')*4 + this._get('_seq_bytes');
+        var lseq = this._get('seq_length');
         for (var j = 0; j < lseq; ++j) {
             qseq.push( byteArray[p + j] );
         }
         return qseq.join(' ');
     },
     strand: function() {
-        var xs = this.get('XS');
+        var xs = this._get('xs');
         return xs ? ( xs == '-' ? -1 : 1 ) :
-               this.get('seq_reverse_complemented') ? -1 :  1;
+               this._get('seq_reverse_complemented') ? -1 :  1;
     },
     /**
      * Length in characters of the read name.
      */
     _l_read_name: function() {
-        return this.get('_bin_mq_nl') & 0xff;
+        return this._get('_bin_mq_nl') & 0xff;
     },
     /**
      * number of bytes in the sequence field
      */
     _seq_bytes: function() {
-        return (this.get('seq_length') + 1) >> 1;
+        return (this._get('seq_length') + 1) >> 1;
     },
     seq: function() {
         var seq = '';
         var byteArray = this.bytes.byteArray;
-        var p = this.bytes.start + 36 + this.get('_l_read_name') + this.get('_n_cigar_op')*4;
-        var seqBytes = this.get('_seq_bytes');
+        var p = this.bytes.start + 36 + this._get('_l_read_name') + this._get('_n_cigar_op')*4;
+        var seqBytes = this._get('_seq_bytes');
         for (var j = 0; j < seqBytes; ++j) {
             var sb = byteArray[p + j];
             seq += SEQRET_DECODER[(sb & 0xf0) >> 4];
@@ -153,12 +157,12 @@ var Feature = Util.fastDeclare(
         return seq;
     },
     name: function() {
-        return this.get('_read_name');
+        return this._get('_read_name');
     },
     _read_name: function() {
         var byteArray = this.bytes.byteArray;
         var readName = '';
-        var nl = this.get('_l_read_name');
+        var nl = this._get('_l_read_name');
         var p = this.bytes.start + 36;
         for (var j = 0; j < nl-1; ++j) {
             readName += String.fromCharCode(byteArray[p+j]);
@@ -166,15 +170,15 @@ var Feature = Util.fastDeclare(
         return readName;
     },
     _n_cigar_op: function() {
-        return this.get('_flag_nc') & 0xffff;
+        return this._get('_flag_nc') & 0xffff;
     },
     cigar: function() {
-        if( this.get('unmapped') )
+        if( this._get('unmapped') )
             return undefined;
 
         var byteArray   = this.bytes.byteArray;
-        var numCigarOps = this.get('_n_cigar_op');
-        var p = this.bytes.start + 36 + this.get('_l_read_name');
+        var numCigarOps = this._get('_n_cigar_op');
+        var p = this.bytes.start + 36 + this._get('_l_read_name');
         var cigar = '';
         var lref = 0;
         for (var c = 0; c < numCigarOps; ++c) {
@@ -182,15 +186,17 @@ var Feature = Util.fastDeclare(
             var lop = cigop >> 4;
             var op = CIGAR_DECODER[cigop & 0xf];
             cigar = cigar + lop + op;
+            lref += lop;
             p += 4;
         }
+        this.data.length_on_ref = lref;
         return cigar;
     },
     next_segment_position: function() {
-        var nextRefID = this.get('_next_refID');
+        var nextRefID = this._get('_next_refid');
         var nextSegment = this.file.indexToChr[nextRefID];
         if( nextSegment )
-            return nextSegment.name+':'+this.get('_next_pos');
+            return nextSegment.name+':'+this._get('_next_pos');
         else
             return undefined;
     },
@@ -198,31 +204,26 @@ var Feature = Util.fastDeclare(
         if( ! this.store.createSubfeatures )
             return undefined;
 
-        var cigar = this.get('CIGAR');
+        var cigar = this._get('cigar');
         if( cigar )
             return this._cigarToSubfeats( cigar );
 
         return undefined;
     },
     length_on_ref: function() {
-        if( this.get('unmapped') )
-            return undefined;
-
-        var numbers = this.get('CIGAR').match(/\d+(?=[MDN=X])/ig);
-        var sum = 0;
-        for( var i = 0; i<numbers.length; i++ )
-            sum += parseInt( numbers[i] );
-        return sum;
+        var c = this._get('cigar'); // the length_on_ref is set as a
+                                   // side effect of the CIGAR parsing
+        return this.data.length_on_ref;
     },
     _flags: function() {
         return (this.data._flag_nc & 0xffff0000) >> 16;
     },
     end: function() {
-        return this.get('start') + ( this.get('length_on_ref') || this.get('seq_length') || undefined );
+        return this._get('start') + ( this._get('length_on_ref') || this._get('seq_length') || undefined );
     },
 
     seq_id: function() {
-        if( this.get('unmapped') )
+        if( this._get('unmapped') )
             return undefined;
 
         return ( this.file.indexToChr[ this._refID ] || {} ).name;
@@ -233,22 +234,23 @@ var Feature = Util.fastDeclare(
      */
     _coreParse: function() {
         var byteArray = this.bytes.byteArray;
-        var blockStart = this.bytes.start;
+        var dataStart = this.bytes.start+4;
 
-        var tempBytes = new Uint8Array( 36 );
-        for( var i = 0; i<36; i++ ) {
-            tempBytes[i] = byteArray[i+blockStart];
+        var tempBytes = new Uint8Array( 32 );
+        for( var i = 0; i<32; i++ ) {
+            tempBytes[i] = byteArray[i+dataStart];
         }
         var ints = new Int32Array( tempBytes.buffer );
 
-        this._refID = ints[1];
-        var start = this.data.start = ints[2];
-        this.data._bin_mq_nl = ints[3];
-        this.data._flag_nc   = ints[4];
-        this.data.seq_length = ints[5];
-        this.data._next_refID = ints[6];
-        this.data._next_pos   = ints[7];
-        this.data.template_length = ints[8];
+        var d = this.data;
+        this._refID        = ints[0];
+        d.start            = ints[1];
+        d._bin_mq_nl       = ints[2];
+        d._flag_nc         = ints[3];
+        d.seq_length       = ints[4];
+        d._next_refid      = ints[5];
+        d._next_pos        = ints[6];
+        d.template_length  = ints[7];
     },
 
     /**
@@ -256,33 +258,47 @@ var Feature = Util.fastDeclare(
      * Only called if we have not already parsed that field.
      */
     _parseTag: function( tagName ) {
+        // if all of the tags have been parsed and we're still being
+        // called, we already know that we have no such tag, because
+        // it would already have been cached.
+        if( this._allTagsParsed )
+            return undefined;
+
         this._tagList = this._tagList || [];
         var byteArray = this.bytes.byteArray;
-        var p = this.bytes.start + 36 + this.get('_l_read_name') + this.get('_n_cigar_op')*4 + this.get('_seq_bytes') + this.get('seq_length');
+        var p = this._tagOffset || this.bytes.start + 36 + this._get('_l_read_name') + this._get('_n_cigar_op')*4 + this._get('_seq_bytes') + this._get('seq_length');
+
         var blockEnd = this.bytes.end;
-        while( p < blockEnd && !(tag == tagName)) { // really should be blockEnd - 3, but this works too and is faster
-            var tag = String.fromCharCode( byteArray[p] ) + String.fromCharCode(byteArray[p + 1] );
-            var origType = String.fromCharCode( byteArray[p + 2] );
-            var type = origType.toLowerCase();
+        while( p < blockEnd && lcTag != tagName ) {
+            var tag      = String.fromCharCode( byteArray[p], byteArray[ p+1 ] );
+            var lcTag    = tag.toLowerCase();
+            var type = String.fromCharCode( byteArray[ p+2 ] );
             p += 3;
 
             var value;
-            if (type == 'a') {
+            switch( type.toLowerCase() ) {
+            case 'a':
                 value = String.fromCharCode( byteArray[p] );
                 p += 1;
-            } else if (type == 'i' ) {
+                break;
+            case 'i':
                 value = readInt(byteArray, p );
                 p += 4;
-            } else if (type == 'c' ) {
+                break;
+            case 'c':
                 value = byteArray[p];
                 p += 1;
-            } else if (type == 's' ) {
+                break;
+            case 's':
                 value = readShort(byteArray, p);
                 p += 2;
-            } else if (type == 'f') {
+                break;
+            case 'f':
                 value = readFloat( byteArray, p );
                 p += 4;
-            } else if ( type == 'z' || type == 'h' ) {
+                break;
+            case 'z':
+            case 'h':
                 value = '';
                 while( p <= blockEnd ) {
                     var cc = byteArray[p++];
@@ -293,29 +309,30 @@ var Feature = Util.fastDeclare(
                         value += String.fromCharCode(cc);
                     }
                 }
-            } else {
-                console.warn( "Unknown BAM tag type '"+origType
-                              +'\', tags for '+(readName||'(unnamed read)')
-                              +' may be incomplete'
+                break;
+            default:
+                console.warn( "Unknown BAM tag type '"+type
+                              +"', tags may be incomplete"
                             );
                 value = undefined;
-                p = blockEnd+1; // stop parsing tags
+                p = blockEnd; // stop parsing tags
             }
+
+            this._tagOffset = p;
+
             this._tagList.push( tag );
-            if( tag == tagName )
+            if( lcTag == tagName )
                 return value;
             else {
-                this.data[tag.toLowerCase()] = value;
+                this.data[ lcTag ] = value;
             }
         }
+        this._allTagsParsed = true;
         return undefined;
     },
     _parseAllTags: function() {
-        if( ! this._allTagsParsed )
-            this._parseTag(); // calling _parseTag with no arg just parses
-                              // all the tags and returns the last one
-
-        this._allTagsParsed = true;
+        this._parseTag(); // calling _parseTag with no arg just parses
+        // all the tags and returns the last one
     },
 
     _flagMasks: {
@@ -333,7 +350,7 @@ var Feature = Util.fastDeclare(
     },
 
     _parseFlag: function( flagName ) {
-        return !!( this.get('_flags') & this._flagMasks[flagName] );
+        return !!( this._get('_flags') & this._flagMasks[flagName] );
     },
 
     _parseCigar: function( cigar ) {
@@ -347,7 +364,7 @@ var Feature = Util.fastDeclare(
      */
     _cigarToSubfeats: function(cigar)    {
         var subfeats = [];
-        var min = this.get('start');
+        var min = this._get('start');
         var max;
         var ops = this._parseCigar( cigar );
         for (var i = 0; i < ops.length; i++)  {
@@ -379,7 +396,7 @@ var Feature = Util.fastDeclare(
                     type: op,
                         start: min,
                         end: max,
-                        strand: this.get('strand'),
+                        strand: this._get('strand'),
                         cigar_op: lop+op
                     },
                     parent: this

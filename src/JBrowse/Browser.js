@@ -1,4 +1,11 @@
 var _gaq = _gaq || []; // global task queue for Google Analytics
+require( {
+             packages: [ 'dijit', 'dojox', 'jszlib',
+                         { name: 'lazyload', main: 'lazyload' }
+                       ]
+         },
+         [],
+         function() {
 
 define( [
             'dojo/_base/lang',
@@ -7,6 +14,7 @@ define( [
             'dojo/DeferredList',
             'dojo/topic',
             'dojo/aspect',
+            'dojo/on',
             'dojo/_base/array',
             'dijit/layout/ContentPane',
             'dijit/layout/BorderContainer',
@@ -25,6 +33,8 @@ define( [
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
+            'dijit/focus',
+            'lazyload', // for dynamic CSS loading
             'dojo/domReady!'
         ],
         function(
@@ -34,6 +44,7 @@ define( [
             DeferredList,
             topic,
             aspect,
+            on,
             array,
             dijitContentPane,
             dijitBorderContainer,
@@ -51,7 +62,9 @@ define( [
             Touch,
             ConfigManager,
             InfoDialog,
-            FileDialog
+            FileDialog,
+            dijitFocus,
+            LazyLoad
         ) {
 
 var dojof = Util.dojof;
@@ -329,9 +342,7 @@ Browser.prototype._loadCSS = function( css, successCallback, errorCallback ) {
             }
         }
         if( typeof css == 'object' ) {
-            var link = dojo.create('link', { "data-from": 'JBrowse Config', rel: 'stylesheet', href: css.url, type: 'text/css'}, document.head );
-            successCallback && on( link, 'load', successCallback );
-            errorCallback   && on( link, 'error', errorCallback );
+            LazyLoad.css( css.url, successCallback );
         }
 };
 
@@ -348,6 +359,7 @@ Browser.prototype.loadNames = function() {
 };
 
 Browser.prototype.initView = function() {
+    var thisObj = this;
     return this._milestoneFunction('initView', function( deferred ) {
 
         //set up top nav/overview pane and main GenomeView pane
@@ -363,7 +375,7 @@ Browser.prototype.initView = function() {
                 className: this.config.show_nav ? 'menuBar' : 'topLink'
             }
             );
-
+        thisObj.menuBar = menuBar;
         ( this.config.show_nav ? topPane : this.container ).appendChild( menuBar );
 
         var overview = dojo.create( 'div', { className: 'overview', id: 'overview' }, topPane );
@@ -376,7 +388,7 @@ Browser.prototype.initView = function() {
             this.navbox = this.createNavBox( topPane );
 
         // make our little top-links box with links to help, etc.
-        dojo.create('a', {
+        this.poweredByLink = dojo.create('a', {
             className: 'powered_by',
             innerHTML: 'JBrowse',
             href: 'http://jbrowse.org',
@@ -459,7 +471,7 @@ Browser.prototype.initView = function() {
                     this.view.onResize();
 
                     // make our global keyboard shortcut handler
-                    dojo.connect( document.body, 'onkeypress', this, 'globalKeyHandler' );
+                    on( document.body, 'keypress', dojo.hitch( this, 'globalKeyHandler' ));
 
                     // configure our event routing
                     this._initEventRouting();
@@ -1525,7 +1537,11 @@ Browser.prototype.setGlobalKeyboardShortcut = function( keychar ) {
  * Key event handler that implements all global keyboard shortcuts.
  */
 Browser.prototype.globalKeyHandler = function( evt ) {
-    var shortcut = this.globalKeyboardShortcuts[ evt.keyChar ];
+    // if some digit widget is focused, don't process any global keyboard shortcuts
+    if( dijitFocus.curNode )
+        return;
+
+    var shortcut = this.globalKeyboardShortcuts[ evt.keyChar || String.fromCharCode( evt.charCode || evt.keyCode ) ];
     if( shortcut ) {
         shortcut.call( this );
         evt.stopPropagation();
@@ -2009,8 +2025,7 @@ Browser.prototype._makeLocationAutocompleteStore = function() {
 
 return Browser;
 
-});
-
+}); });
 
 /*
 

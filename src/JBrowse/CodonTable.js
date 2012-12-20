@@ -68,9 +68,14 @@ var CodonTable = {
     "GGT" : "G"
 };
 
+
+/** 
+*  take CodonTable above and generate larger codon table that includes 
+*  all permutations of upper and lower case nucleotides
+*/  
 var tempCodonTable = { };
 for (var codon in CodonTable) {
-    // looping through codon table, make sure no hitting generic properties...
+    // looping through codon table, make sure not hitting generic properties...
     if (CodonTable.hasOwnProperty(codon)) {
 	var aa = CodonTable[codon];
 	// console.log("Codon: ", codon, ", aa: ", aa);
