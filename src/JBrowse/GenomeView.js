@@ -790,6 +790,7 @@ GenomeView.prototype.startRubberZoom = function( absToBp, container, scaleDiv, e
     this.winStartPos = this.getPosition();
     this.clearVerticalPositionLine();
     this.clearBasePairLabels();
+    dijit.byId('zoomSlider').set('value',(this.curZoom/this.zoomLevels.length)*100);
 };
 
 GenomeView.prototype._rubberStop = function(event) {

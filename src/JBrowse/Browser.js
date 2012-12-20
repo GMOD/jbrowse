@@ -1590,7 +1590,7 @@ Browser.prototype.createNavBox = function( parent ) {
         maximum: 100,
         intermediateChanges: true,
         showButtons: false,
-        style: "width:118px; margin: 7px 0 0 0;",
+        style: "width:100px; margin: 7px 0 0 0;",
         onChange: function(value){
             dojo.hitch(that, that.view.zoomTo(value));
         }
