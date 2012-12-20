@@ -81,9 +81,9 @@ return {
                    array.forEach( this.track._exportFormats(), function(fmt) {
                        fmts += ' <input type="radio" '+ (checked++?'':'checked="checked" ')
                                +'      data-dojo-type="dijit.form.RadioButton" name="format" id="format'+fmt+'" value="'+fmt+'" />'
-                               + '   <label for="format'+fmt+'">'+fmt+'</label>'
+                               + '   <label for="format'+fmt+'">'+this.track._formatName(fmt)+'</label>'
                                + '   <br>';
-                   });
+                   },this);
                    return fmts;
               }.call(this)
             + ' </fieldset>';
@@ -121,7 +121,7 @@ return {
                                 });
                                 var exportView = new dijitDialog({
                                     className: 'export-view-dialog',
-                                    title: format + ' export - <span class="locString">'+ region+'</span> ('+Util.humanReadableNumber(output.length)+'b)',
+                                    title: track._formatName(format) + ' export - <span class="locString">'+ region+'</span> ('+Util.humanReadableNumber(output.length)+'b)',
                                     content: [ text, actionBar ]
                                 });
                                 new dijitButton({ iconClass: 'dijitIconDelete',
@@ -172,6 +172,10 @@ return {
         }
 
         return [ form, actionBar ];
+    },
+
+    _formatName: function( fmt ) {
+        return fmt.replace(/([a-z])([A-Z])/g,'$1 $2');
     },
 
     _fileDownload: function( args ) {
