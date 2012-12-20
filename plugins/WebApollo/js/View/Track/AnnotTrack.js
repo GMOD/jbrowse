@@ -8,6 +8,9 @@ define( [
             'dijit/MenuItem', 
             'dijit/MenuSeparator', 
             'dijit/PopupMenuItem', 
+            'dijit/form/DropDownButton',
+            'dijit/DropDownMenu',
+
             'dijit/Dialog', 
             'dojox/grid/DataGrid', 
             'dojo/data/ItemFileWriteStore', 
@@ -22,7 +25,8 @@ define( [
     'JBrowse/View/GranularRectLayout',
         ],
         function( declare, $, draggable, droppable, resizable, 
-		  dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitDialog, dojoxDataGrid, dojoItemFileWriteStore, 
+		  dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, 
+                  dijitDialog, dojoxDataGrid, dojoItemFileWriteStore, 
 		  DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, 
 		  SimpleFeature, Util, Layout ) {
 
@@ -173,7 +177,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
 //	this.getPermission( dojo.hitch(this, initAnnotContextMenu) );  // calling back to initAnnotContextMenu() once permissions are returned by server
 	var success = this.getPermission( function()  { track.initAnnotContextMenu(); } );  // calling back to initAnnotContextMenu() once permissions are returned by server
-	this.initNonAnnotContextMenu();
+//	this.initNonAnnotContextMenu();
+        this.initSearchMenu();
+        this.initSaveMenu();
         this.initPopupDialog();
 
         if (success) {
@@ -2150,29 +2156,42 @@ getAnnotationInformation: function()  {
     annot_context_menu.startup();
 }, 
 
-initNonAnnotContextMenu: function() {
+/** 
+ * hacking addition of a "tools" menu to standard JBrowse menubar, 
+ *    with a "Search Sequence" dropdown
+ */
+initSearchMenu: function()  {
     var thisObj = this;
-    
-    non_annot_context_menu = new dijit.Menu({
-    });
-    
-    /*
-    non_annot_context_menu.onItemHover = function(item){
-        this.focusChild(item);
-        if (this.focusedChild.popup && !this.focusedChild.disabled) {
-             this._openPopup();
-        }
-    };
-    */
-    
-	non_annot_context_menu.addChild(new dijit.MenuItem( {
-		label: "Search sequence",
-		onClick: function() {
-			thisObj.searchSequence();
-		}
-	} ));
-	var dataAdaptersMenu = new dijit.Menu();
-	dojo.xhrPost( {
+    this.browser.addGlobalMenuItem( 'tools',
+          new dijitMenuItem(
+              {
+		  label: "Search sequence",
+		  onClick: function() {
+		      thisObj.searchSequence();
+		  }
+              }) );
+    var toolMenu = this.browser.makeGlobalMenu('tools');
+    if( toolMenu ) {
+        var toolButton = new dijitDropDownButton(
+            { className: 'file',
+              innerHTML: 'Tools',
+              //title: '',
+              dropDown: toolMenu
+            });
+        dojo.addClass( toolButton.domNode, 'menu' );
+        this.browser.menuBar.appendChild( toolButton.domNode );
+    }
+}, 
+
+/**
+ *  Add AnnotTrack data save option to track label pulldown menu
+ *  Trying to make it a replacement for default JBrowse data save option from ExportMixin 
+ *    (turned off JBrowse default via config.noExport = true)
+ */
+initSaveMenu: function()  {
+    var thisObj = this;
+    var dataAdaptersMenu = new dijit.Menu();
+    dojo.xhrPost( {
 		sync: true,
 		postData: '{ "track": "' + thisObj.getUniqueTrackName() + '", "operation": "get_data_adapters" }',
 		url: context_path + "/AnnotationEditorService",
@@ -2198,29 +2217,9 @@ initNonAnnotContextMenu: function() {
 		error: function(response, ioArgs) { //
 //		    thisObj.handleError(response);
 		}
-	});
-/*	non_annot_context_menu.addChild(new dijit.PopupMenuItem({
-		label: "Export",
-		popup: dataAdaptersMenu
-	}));
-*/
-	non_annot_context_menu.bindDomNode(thisObj.div);
-	/*
-	non_annot_context_menu.onOpen = function(event) {
-		dojo.forEach(this.getChildren(), function(item, idx, arr) {
-			if (item instanceof dijit.MenuItem || item instanceof dijit.PopupMenuItem) {
-				item._setSelected(false);
-				item._onUnhover();
-			}
-		});
-	};
-	*/
-    non_annot_context_menu.startup();
+    });
 
-    // Add AnnotTrack data save option to track label pulldown menu
-    // Trying to make it a replacement for default JBrowse data save option from ExportMixin 
-    //     (turned off JBrowse default via config.noExport = true)
-    // if there's a menu separator, add right before first seperator (which is where default is added), 
+    // if there's a menu separator, add right before first seperator (which is where default save is added), 
     //     otherwise add at end
     var mitems = this.trackMenu.getChildren();
     for (var mindex=0; mindex < mitems.length; mindex++) {
@@ -2231,8 +2230,6 @@ initNonAnnotContextMenu: function() {
 		iconClass: 'dijitIconSave',
 		popup: dataAdaptersMenu });
     this.trackMenu.addChild(savePopup, mindex);
-    console.log("AnnotTrack Label Menu:");
-    console.log(this.trackMenu);
 }, 
 
     getPermission: function( callback ) {
