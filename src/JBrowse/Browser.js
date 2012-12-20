@@ -359,6 +359,7 @@ Browser.prototype.loadNames = function() {
 };
 
 Browser.prototype.initView = function() {
+    var thisObj = this;
     return this._milestoneFunction('initView', function( deferred ) {
 
         //set up top nav/overview pane and main GenomeView pane
@@ -374,7 +375,7 @@ Browser.prototype.initView = function() {
                 className: this.config.show_nav ? 'menuBar' : 'topLink'
             }
             );
-
+        thisObj.menuBar = menuBar;
         ( this.config.show_nav ? topPane : this.container ).appendChild( menuBar );
 
         var overview = dojo.create( 'div', { className: 'overview', id: 'overview' }, topPane );
