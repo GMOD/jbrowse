@@ -1,0 +1,141 @@
+@import url("src/dojox/form/resources/UploaderFileList.css");
+.fileDialog {
+    color: #333;
+}
+
+.fileDialog label {
+    font-weight: bold;
+    padding: 0 0.5em;
+}
+.fileDialog th {
+    font-weight: bold;
+    border-bottom: 2px solid black;
+}
+.fileDialog .dijitDialogPaneContent > div.intro {
+    width: 27em;
+    text-align: justify;
+    position: relative;
+    left: 12%;
+    margin: 1.4em 0 2.4em 0;
+}
+
+.fileDialog .connector {
+    background: #333;
+    height: 6px;
+    width: 12px;
+    position: absolute;
+
+    bottom: -6px;
+    left: 50%;
+    margin-left: -6px;
+}
+
+.fileDialog h2, .fileDialog h3 {
+    margin: 0;
+    padding: 0;
+    font-size: 125%;
+}
+
+.fileDialog .dijitDialogPaneContent > div {
+    position: relative;
+
+    width: 40em;
+    padding: 0 0 0.75em 0;
+    margin: 6px 0;
+}
+.fileDialog div.aux {
+    text-align: center;
+    margin-bottom: 1em;
+}
+.fileDialog .resourceControls {
+    height: 10em;
+    position: relative;
+}
+.fileDialog .resourceControls > div {
+    width: 19.5em;
+    box-sizing: border-box;
+    height: 100%;
+}
+.fileDialog .resourceControls > div > h3 {
+    height: 19%;
+}
+
+.fileDialog .localFilesControl {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.fileDialog .dijitUploader {
+    position: absolute;
+    margin: 0;
+}
+
+.fileDialog .remoteURLsControl textarea,
+.fileDialog .localFilesControl .dragArea {
+    height: 81%;
+    position: relative;
+    border: 1px solid #b3b3b3;
+    width: 100%;
+    box-sizing: border-box;
+}
+.fileDialog .localFilesControl .dragArea:hover {
+    border: 1px dashed green;
+}
+
+.fileDialog .localFilesControl .dragArea .dragMessage {
+    height: 2em;
+    position: absolute;
+    top: 60%;
+    font-weight: bold;
+    margin-top: -1em;
+    text-align: center;
+    width: 100%;
+}
+.fileDialog .remoteURLsControl textarea {
+    font-size: 10px;
+    background: #f2f2f2;
+}
+.fileDialog .remoteURLsControl textarea:hover {
+    background: white;
+    border-color: #333;
+}
+
+.fileDialog .remoteURLsControl {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.fileDialog .resourceList {
+    background: #bcd3ef;
+}
+
+.fileDialog .dijitSelect td.dijitStretch {
+    width: 6em;
+}
+.fileDialog .resourceList > h3, .fileDialog .trackList > h3 {
+     padding: 0 0.6em;
+     line-height: 2.1;
+     margin-bottom: 0.5em;
+}
+
+.fileDialog .emptyMessage {
+    width: 100%;
+    font-size: 110%;
+    color: #686868;
+    font-weight: bold;
+    text-align: center;
+    line-height: 4;
+}
+
+.fileDialog .trackList {
+    background: #8cb1dd;
+}
+
+.fileDialog .resourceList > table, .fileDialog .trackList > table {
+    width: 95%;
+    padding: 0 0.75em 0.5em 0.75em;
+    margin: 0 auto;
+    border-collapse: collapse;
+}

@@ -1,4 +1,12 @@
-/** NOTE: avoid using any margins in feature styles */
+/*
+  NOTES ON STYLING FEATURES:
+     - avoid using any margins in feature styles. Layout is done
+       by JBrowse.
+
+     - when possible, make all element heights an odd number of
+       pixels, so that vertical centering is possible with
+       pixel-perfect accuracy.
+*/
 
 .basic,
 .plus-basic,
@@ -20,16 +28,36 @@ div.hist {
 .plus-feature,
 .minus-feature {
     position:absolute;
-    height: 8px;
+    height: 7px;
     background-repeat: repeat-x;
     cursor: pointer;
     min-width: 1px;
     z-index: 10;
+    background-color: gainsboro;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 
-.feature { background-color: gainsboro }
 .plus-feature { background-image: url('img/plus-chevron3.png'); }
 .minus-feature { background-image: url('img/minus-chevron3.png'); }
+
+.subfeature,
+.plus-subfeature,
+.minus-subfeature {
+    position:absolute;
+    background-color: slategray;
+    height: 9px;
+    min-width: 1px;
+    z-index: 10;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
 
 .alignment,
 .plus-alignment,
@@ -37,9 +65,9 @@ div.hist {
     background-color: #ccc;
 
     /* these should all 3 match */
-    height:      10px;
-    line-height: 10px;
-    font-size:   10px;
+    height:      11px;
+    line-height: 11px;
+    font-size:   11px;
 }
 .plus-alignment {
     background-color: #EC8B8B;
@@ -47,22 +75,30 @@ div.hist {
 .minus-alignment {
     background-color: #898FD8;
 }
-.alignment.missing_mate {
-    border: 2px solid red;
+.alignment.missing_mate, .plus-alignment.missing_mate, .minus-alignment.missing_mate {
+    background-image: url('img/red_crosshatch_bg.png');
 }
 
-.alignment .mismatch.base {
+.alignment > .mismatch, .minus-alignment > .mismatch, .plus-alignment > .mismatch  {
     height: 100%;
 }
-.alignment .mismatch.base_deletion {
+.alignment > .deletion, .minus-alignment > .deletion, .plus-alignment > .deletion {
     background-color: black;
+    height: 100%;
+}
+.alignment > .deletion *, .plus-alignment > .deletion *, .minus-alignment > .deletion * {
     color: white;
 }
-
-/* .plus-alignment .mismatch, */
-/* .minus-alignment .mismatch { */
-/*     background-color: rgba( 255,255,255,0.8); */
-/* } */
+.alignment > .insertion, .plus-alignment > .insertion, .minus-alignment > .insertion {
+    background-color: white;
+    color: black;
+    height: 100%;
+}
+.alignment > .skip, .plus-alignment > .skip, .minus-alignment > .skip {
+    background: url('img/black_20x2.png') repeat-x 0 50% white;
+    height: 100%;
+    opacity: 0.7;
+}
 
 div.feature-hist {
     background-color: blue;
@@ -71,16 +107,14 @@ div.feature-hist {
 
 .feature2, .plus-feature2, .minus-feature2 {
     position:absolute;
-    height: 14px;
+    height: 7px;
     background-repeat: repeat-x;
     cursor: pointer;
     min-width: 1px;
     z-index: 10;
 }
 
-.feature2 { background-color: #4fac2a; }
-.plus-feature2 { background-image: url('img/plus-herringbone16.png'); }
-.minus-feature2 { background-image: url('img/minus-herringbone16.png'); }
+.feature2 { background-color: #62d335; }
 
 div.feature2-hist {
     background-color: #9f9;
@@ -89,7 +123,7 @@ div.feature2-hist {
 
 .feature3, .plus-feature3, .minus-feature3 {
     position:absolute;
-    height: 8px;
+    height: 7px;
     background-repeat: repeat-x;
     cursor: pointer;
     min-width: 1px;
@@ -107,7 +141,7 @@ div.feature3-hist {
 
 .feature4, .plus-feature4, .minus-feature4 {
     position:absolute;
-    height: 12px;
+    height: 11px;
     background-repeat: repeat-x;
     cursor: pointer;
     min-width: 1px;
@@ -125,7 +159,7 @@ div.feature4-hist {
 
 .feature5, .plus-feature5, .minus-feature5 {
     position:absolute;
-    height: 8px;
+    height: 7px;
     background-repeat: repeat-x;
     cursor: pointer;
     min-width: 1px;
@@ -150,7 +184,7 @@ div.exon-hist {
 .plus-exon,
 .minus-exon {
     position: absolute;
-    height: 6px;
+    height: 7px;
     background-color: #4B76E8;
     border-style: solid;
     border-color: #00f;
@@ -168,7 +202,7 @@ div.est-hist {
 .plus-est,
 .minus-est {
     position: absolute;
-    height: 6px;
+    height: 7px;
     background-color: #ED9185;
 }
 
@@ -192,7 +226,7 @@ div.dblhelix-hist {
 .plus-helix,
 .minus-helix {
     position:absolute;
-    height: 12px;
+    height: 11px;
     background-image: url('img/helix3-green.png');
     background-repeat: repeat-x;
     min-width: 1px;
@@ -302,7 +336,7 @@ div.transcript-hist {
 .plus-transcript,
 .minus-transcript {
     position: absolute;
-    height: 4px;
+    height: 5px;
     background-color: #999;
     z-index: 6;
     min-width: 1px;
@@ -312,8 +346,8 @@ div.transcript-hist {
 .plus-transcript-arrowhead,
 .plus-arrowhead {
     position: absolute;
-    width: 7px;
-    height: 12px;
+    width: 9px;
+    height: 5px;
     background-image: url('img/plus-arrowhead.png');
     background-repeat: no-repeat;
 }
@@ -321,8 +355,8 @@ div.transcript-hist {
 .minus-transcript-arrowhead,
 .minus-arrowhead {
     position: absolute;
-    width: 7px;
-    height: 12px;
+    width: 9px;
+    height: 5px;
     background-image: url('img/minus-arrowhead.png');
     background-repeat: no-repeat;
 }
@@ -330,7 +364,7 @@ div.transcript-hist {
 .plus-transcript-CDS,
 .minus-transcript-CDS {
     position: absolute;
-    height: 12px;
+    height: 11px;
     background-image: url('img/cds.png');
     background-repeat: repeat-x;
     cursor: pointer;
@@ -347,7 +381,7 @@ div.transcript-hist {
 .plus-transcript-three_prime_UTR,
 .minus-transcript-three_prime_UTR {
     position: absolute;
-    height: 4px;
+    height: 3px;
     background-color: #B66;
     border-style: solid;
     border-color: #D88;

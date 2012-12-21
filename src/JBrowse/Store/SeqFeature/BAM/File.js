@@ -4,7 +4,7 @@ define( [
             'JBrowse/Util',
             'JBrowse/Store/LRUCache',
             './Util',
-            './Feature'
+            './LazyFeature'
         ],
         function( declare, array, Util, LRUCache, BAMUtil, BAMFeature ) {
 
@@ -124,17 +124,19 @@ var BamFile = declare( null,
                 for (var b = 0; b < nbin; ++b) {
                     var bin = readInt(uncba, p);
                     var nchnk = readInt(uncba, p+4);
-                    p += 8 + (nchnk * 16);
+                    p += 8;
+                    for( var chunkNum = 0; chunkNum < nchnk; chunkNum++ ) {
+                        var vo = readVirtualOffset( uncba, p );
+                        this._findMinAlignment( vo );
+                        p += 16;
+                    }
                 }
                 var nintv = readInt(uncba, p); p += 4;
-                // as we're going through the index, figure out the smallest
-                // virtual offset in the indexes, which tells us where
-                // the BAM header ends
-                var firstVO = nintv ? readVirtualOffset(uncba,p) : null;
-                if( firstVO && ( ! this.minAlignmentVO || this.minAlignmentVO.cmp( firstVO ) < 0 ) )
-                    this.minAlignmentVO = firstVO;
+                // as we're going through the linear index, figure out
+                // the smallest virtual offset in the indexes, which
+                // tells us where the BAM header ends
+                this._findMinAlignment( nintv ? readVirtualOffset(uncba,p) : null );
 
-                //console.log( ref, ''+firstVO );
                 p += nintv * 8;
                 if( nbin > 0 || nintv > 0 ) {
                     this.indices[ref] = new Uint8Array(header, blockStart, p - blockStart);
@@ -147,17 +149,29 @@ var BamFile = declare( null,
         }), failCallback );
     },
 
+    _findMinAlignment: function( candidate ) {
+        if( candidate && ( ! this.minAlignmentVO || this.minAlignmentVO.cmp( candidate ) < 0 ) )
+            this.minAlignmentVO = candidate;
+    },
+
     _readBAMheader: function( successCallback, failCallback ) {
+        // We have the virtual offset of the first alignment
+        // in the file.  Cannot completely determine how
+        // much of the first part of the file to fetch to get just
+        // up to that, since the file is compressed.  Thus, fetch
+        // up to the start of the BGZF block that the first
+        // alignment is in, plus 64KB, which should get us that whole
+        // BGZF block, assuming BGZF blocks are no bigger than 64KB.
         this.data.read(
             0,
-            this.minAlignmentVO ? this.minAlignmentVO.block : null,
+            this.minAlignmentVO ? this.minAlignmentVO.block + 65535 : null,
             dojo.hitch( this, function(r) {
                 var unc = BAMUtil.unbgzf(r);
                 var uncba = new Uint8Array(unc);
 
                 if( readInt(uncba, 0) != BAM_MAGIC) {
                     dlog('Not a BAM file');
-                    failCallback();
+                    failCallback( 'Not a BAM file' );
                     return;
                 }
 
@@ -309,17 +323,8 @@ var BamFile = declare( null,
             return this.join(', ');
         };
 
-        this.featureCache = this.featureCache || new LRUCache({
-            name: 'bamFeatureCache',
-            fillCallback: dojo.hitch(this, '_fetchChunkFeatures' ),
-            sizeFunction: function( features ) {
-                return features.length;
-            },
-            maxSize: 100000 // cache up to 100,000 BAM features
-        });
-
         try {
-            this.featureCache.get( chunks, function( features, error ) {
+            this._fetchChunkFeatures( chunks, function( features, error ) {
                 if( error ) {
                     callback( null, error );
                 } else {
@@ -337,33 +342,49 @@ var BamFile = declare( null,
 
     _fetchChunkFeatures: function( chunks, callback ) {
         var thisB = this;
-        var features = [];
-        var chunksProcessed = 0;
 
         if( ! chunks.length ) {
             callback([]);
             return;
         }
 
+        var features = [];
+        var chunksProcessed = 0;
+
+        var cache = this.featureCache = this.featureCache || new LRUCache({
+            name: 'bamFeatureCache',
+            fillCallback: dojo.hitch( this, '_readChunk' ),
+            sizeFunction: function( features ) {
+                return features.length;
+            },
+            maxSize: 100000 // cache up to 100,000 BAM features
+        });
+
         var error;
         array.forEach( chunks, function( c ) {
-                var fetchMin = c.minv.block;
-                var fetchMax = c.maxv.block + (1<<16); // *sigh*
+            cache.get( c, function( f, e ) {
+                error = error || e;
+                features.push.apply( features, f );
+                if( ++chunksProcessed == chunks.length )
+                    callback( features, error );
+            });
+        });
 
-                thisB.data.read(fetchMin, fetchMax - fetchMin + 1, function(r) {
-                    try {
-                        var data = BAMUtil.unbgzf(r, c.maxv.block - c.minv.block + 1);
+    },
 
-                        thisB.readBamFeatures( new Uint8Array(data), c.minv.offset, features, function() {
-                            if( ++chunksProcessed == chunks.length )
-                                callback( features, error );
-                        });
-                    } catch( e ) {
-                        error = e;
-                        if( ++chunksProcessed == chunks.length )
-                                callback( null, error );
-                    }
-                });
+    _readChunk: function( chunk, callback ) {
+        var thisB = this;
+        var features = [];
+        var fetchMin = chunk.minv.block;
+        var fetchMax = chunk.maxv.block + (1<<16); // *sigh*
+
+        thisB.data.read(fetchMin, fetchMax - fetchMin + 1, function(r) {
+            try {
+                var data = BAMUtil.unbgzf(r, chunk.maxv.block - chunk.minv.block + 1);
+                thisB.readBamFeatures( new Uint8Array(data), chunk.minv.offset, features, callback );
+            } catch( e ) {
+                callback( null, e );
+            }
         });
     },
 
@@ -382,7 +403,7 @@ var BamFile = declare( null,
             else if( featureCount <= maxFeaturesWithoutYielding ) {
                 // if we've read no more than 200 features this cycle, read another one
                 var blockSize = readInt(ba, blockStart);
-                var blockEnd = blockStart + blockSize;
+                var blockEnd = blockStart + 4 + blockSize - 1;
 
                 // only try to read the feature if we have all the bytes for it
                 if( blockEnd < ba.length ) {
@@ -395,7 +416,7 @@ var BamFile = declare( null,
                     featureCount++;
                 }
 
-                blockStart = blockEnd + 4;
+                blockStart = blockEnd+1;
             }
             else {
                 // if we're not done but we've read a good chunk of

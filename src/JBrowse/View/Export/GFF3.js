@@ -166,6 +166,8 @@ return declare( ExportBase,
             var valtype = typeof val;
             if( valtype == 'boolean' )
                 val = val ? 1 : 0;
+            else if( valtype == 'undefined' )
+                return;
             tag = this._gff3_reserved_attribute(tag) || this._ensure_non_reserved( tag );
             attrs[tag] = val;
         },this);

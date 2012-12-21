@@ -2,12 +2,14 @@ define( [
             'dojo/_base/array',
             'dojo/aspect',
             'dojo/has',
+            'dojo/window',
+            'dojo/dom-construct',
             'JBrowse/Util',
             'dijit/form/Button',
             'dijit/form/RadioButton',
             'dijit/Dialog'
         ],
-        function( array, aspect, has, Util, dijitButton, dijitRadioButton, dijitDialog ) {
+        function( array, aspect, has, dojoWindow, dom, Util, dijitButton, dijitRadioButton, dijitDialog ) {
 /**
  * Mixin for a track that can export its data.
  * @lends JBrowse.View.Track.ExportMixin
@@ -50,7 +52,7 @@ return {
             region.canExport = this._canExportRegion( region );
         },this.track);
 
-        var form = dojo.create('form', { onSubmit: function() { return false; } });
+        var form = dom.create('form', { onSubmit: function() { return false; } });
         form.innerHTML = ''
             + ' <fieldset class="region">'
             + '   <legend>Region to save</legend>'
@@ -79,14 +81,14 @@ return {
                    array.forEach( this.track._exportFormats(), function(fmt) {
                        fmts += ' <input type="radio" '+ (checked++?'':'checked="checked" ')
                                +'      data-dojo-type="dijit.form.RadioButton" name="format" id="format'+fmt+'" value="'+fmt+'" />'
-                               + '   <label for="format'+fmt+'">'+fmt+'</label>'
+                               + '   <label for="format'+fmt+'">'+this.track._formatName(fmt)+'</label>'
                                + '   <br>';
-                   });
+                   },this);
                    return fmts;
               }.call(this)
             + ' </fieldset>';
 
-        var actionBar = dojo.create( 'div', {
+        var actionBar = dom.create( 'div', {
             className: 'dijitDialogPaneActionBar'
         });
 
@@ -99,6 +101,7 @@ return {
                           label: 'View',
                           disabled: ! array.some(possibleRegions,function(r) { return r.canExport; }),
                           onClick: dojo.hitch( this.track, function() {
+                            var track = this;
                             viewButton.set('disabled',true);
                             viewButton.set('iconClass','jbrowseIconBusy');
 
@@ -106,19 +109,19 @@ return {
                             var format = this._readRadio( form.elements.format );
                             this.exportRegion( region, format, function(output) {
                                 dialog.hide();
-                                var text = dojo.create('textarea', {
-                                                           rows: 30,
+                                var text = dom.create('textarea', {
+                                                           rows: Math.round( dojoWindow.getBox().h / 12 * 0.5 ),
                                                            wrap: 'soft',
                                                            cols: 80,
                                                            readonly: true
                                                        });
                                 text.value = output;
-                                var actionBar = dojo.create( 'div', {
+                                var actionBar = dom.create( 'div', {
                                     className: 'dijitDialogPaneActionBar'
                                 });
                                 var exportView = new dijitDialog({
                                     className: 'export-view-dialog',
-                                    title: format + ' export - <span class="locString">'+ region+'</span> ('+Util.humanReadableNumber(output.length)+'b)',
+                                    title: track._formatName(format) + ' export - <span class="locString">'+ region+'</span> ('+Util.humanReadableNumber(output.length)+'b)',
                                     content: [ text, actionBar ]
                                 });
                                 new dijitButton({ iconClass: 'dijitIconDelete',
@@ -132,10 +135,10 @@ return {
                                         {
                                             iconClass: 'dijitIconSave',
                                             label: 'Save',
-                                            onClick: dojo.hitch(this, function() {
+                                            onClick: function() {
                                                 exportView.hide();
-                                                window.location.href="data:application/x-"+format.toLowerCase()+","+escape(output);
-                                            })
+                                                track._fileDownload({ format: format, data: output });
+                                            }
                                         }).placeAt(actionBar);
                                 }
 
@@ -160,15 +163,30 @@ return {
                                 var region = this._readRadio( form.elements.region );
                                 dlButton.set('disabled',true);
                                 dlButton.set('iconClass','jbrowseIconBusy');
-                                this.exportRegion( region, format, function( output ) {
+                                this.exportRegion( region, format, dojo.hitch( this, function( output ) {
                                     dialog.hide();
-                                    window.location.href="data:application/x-"+format.toLowerCase()+","+escape(output);
-                                });
+                                    this._fileDownload({ format: format, data: output });
+                                }));
                               })})
                 .placeAt( actionBar );
         }
 
         return [ form, actionBar ];
+    },
+
+    _formatName: function( fmt ) {
+        return fmt.replace(/([a-z])([A-Z])/g,'$1 $2');
+    },
+
+    _fileDownload: function( args ) {
+        // do the file download by setting the src of a hidden iframe,
+        // because missing with the href of the window messes up
+        // WebApollo long polling
+        var iframe = dom.create( 'iframe', {
+            style: { display: 'none' }
+        },this.div );
+        iframe.src = "data:"+( args.format ? 'application/x-'+args.format.toLowerCase() : 'text/plain' )
+            +","+escape( args.data || '' );
     },
 
     // cross-platform function for (portably) reading the value of a radio control. sigh. *rolls eyes*

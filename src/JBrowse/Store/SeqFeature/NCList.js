@@ -19,9 +19,14 @@ define([
  * @extends SeqFeatureStore
  */
 
+var idfunc = function() { return this._uniqueID; };
+var parentfunc = function() { return this._parent; };
+var childrenfunc = function() { return this.get('subfeatures'); };
+
 return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 {
     constructor: function(args) {
+	this.args = args;
         this.nclist = this.makeNCList();
 
         this.baseUrl = args.baseUrl;
@@ -47,11 +52,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                       handleAs: "json",
                       failOk: true,
                       load:  Util.debugHandler( this, function(o) { this.loadSuccess(o, url); }),
-                      error: dojo.hitch( this, function(error) {
-                                             if( error.status != 404 )
-                                                 console.error(''+error);
-                                             this.loadFail(error, url);
-                                         })
+                      error: dojo.hitch( this, 'loadFail' )
     	        });
     },
 
@@ -87,9 +88,12 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     },
 
 
-    loadFail: function(trackInfo,url) {
+    loadFail: function( error, url ) {
+        if( error.status != 404 )
+            console.error(''+error);
         this.empty = true;
-        this.setLoaded();
+        this._deferred.stats.resolve(    { success: false });
+        this._deferred.features.resolve( { success: false });
     },
 
     // just forward histogram() and iterate() to our encapsulate nclist
@@ -98,6 +102,11 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     },
 
     _getFeatures: function( query, origFeatCallback, finishCallback, errorCallback ) {
+        if( this.empty ) {
+            finishCallback();
+            return;
+        }
+
         var that = this;
         var startBase  = query.start;
         var endBase    = query.end;
@@ -108,8 +117,12 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                 // NCList where the feature lives; it's unique across the
                 // top-level NCList (the top-level NCList covers a
                 // track/chromosome combination)
-                var uniqueID = path.join(",");
-                that._decorate_feature( accessors, feature, uniqueID );
+
+                // only need to decorate a feature once
+                if (! feature.decorated)  {
+                    var uniqueID = path.join(",");
+                    that._decorate_feature( accessors, feature, uniqueID );
+                }
                 return origFeatCallback( feature );
             };
 
@@ -118,13 +131,22 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
     // helper method to recursively add .get and .tags methods to a feature and its
     // subfeatures
-    _decorate_feature: function( accessors, feature, id ) {
+
+
+    _decorate_feature: function( accessors, feature, id, parent ) {
         feature.get = accessors.get;
+        // possibly include set method in decorations? not currently
+        //    feature.set = accessors.set;
         feature.tags = accessors.tags;
         feature._uniqueID = id;
+        feature.id = idfunc;
+        feature._parent  = parent;
+        feature.parent   = parentfunc;
+        feature.children = childrenfunc;
         dojo.forEach( feature.get('subfeatures'), function(f,i) {
-            this._decorate_feature( accessors, f, id+'-'+i );
+            this._decorate_feature( accessors, f, id+'-'+i, feature );
         },this);
+        feature.decorated = true;
     }
 });
 });

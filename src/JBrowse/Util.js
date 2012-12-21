@@ -1,7 +1,8 @@
 // MISC
-define( [ 'dojox/lang/functional/object',
+define( [ 'dojo/_base/array',
+          'dojox/lang/functional/object',
           'dojox/lang/functional/fold'
-        ], function() {
+        ], function( array ) {
 var Util;
 Util = {
     dojof: dojox.lang.functional,
@@ -168,7 +169,7 @@ Util = {
                 && ("object" == typeof b[prop])
                 && ("object" == typeof a[prop]) ) {
                 Util.deepUpdate(a[prop], b[prop]);
-            } else if( typeof a[prop] == 'undefined' || typeof b[prop] != undefined ){
+            } else if( typeof a[prop] == 'undefined' || typeof b[prop] != 'undefined' ){
                 a[prop] = b[prop];
             }
         }
@@ -222,6 +223,9 @@ Util = {
     },
 
     parseLocString: function( locstring ) {
+        if( typeof locstring != 'string' )
+            return null;
+
         locstring = dojo.trim( locstring );
 
         //                                (chromosome)    (    start      )   (  sep     )     (    end   )
@@ -249,6 +253,22 @@ Util = {
             ref:   matches[3],
             extra: matches[7]
         };
+    },
+
+    basename: function( str, suffixList ) {
+        if( ! str || ! str.match )
+            return undefined;
+        var m = str.match( /[\/\\]([^\/\\]+)[\/\/\/]*$/ );
+        var bn = m ? m[1] || undefined : str;
+        if( bn && suffixList ) {
+            if( !( suffixList instanceof Array ) )
+                suffixList = [ suffixList ];
+            suffixList = array.map( suffixList, function( s ) {
+                return s.replace( /([\.\?\+])/g, '\\$1' );
+            });
+            bn = bn.replace( new RegExp( suffixList.join('|')+'$', 'i' ), '' );
+        }
+        return bn;
     },
 
     assembleLocString: function( loc_in ) {

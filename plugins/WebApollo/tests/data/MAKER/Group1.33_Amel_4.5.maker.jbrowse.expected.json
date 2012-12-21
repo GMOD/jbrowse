@@ -1,0 +1,44 @@
+{
+  "histograms" : {
+    "stats" : [ {
+      "basesPerBin" : "1000000",
+      "max" : 1,
+      "mean" : 1
+    } ],
+    "meta" : [ {
+      "basesPerBin" : "1000000",
+      "arrayParams" : {
+        "length" : 1,
+        "chunkSize" : 10000,
+        "urlTemplate" : "hist-1000000-{Chunk}.json"
+      }
+    } ]
+  },
+  "featureCount" : 1,
+  "intervals" : {
+    "nclist" : [
+    	     [0,245453,247006,1,"maker",null,"mRNA",null,"1:gnomon_566853_mRNA","gnomon_566853_mRNA",[[1,245453,245533,1,"maker",null,"exon",null,"1:gnomon_566853_mRNA:exon:5976",null,[]],[1,245701,245879,1,"maker",null,"exon",null,"1:gnomon_566853_mRNA:exon:5977",null,[]],[1,246045,246278,1,"maker",null,"exon",null,"1:gnomon_566853_mRNA:exon:5978",null,[]],[1,246388,247006,1,"maker",null,"exon",null,"1:gnomon_566853_mRNA:exon:5979",null,[]],[1,245453,245533,1,"maker",null,"five_prime_UTR",null,"1:gnomon_566853_mRNA:five_prime_utr",null,[]],[1,245701,245759,1,"maker",null,"five_prime_UTR",null,"1:gnomon_566853_mRNA:five_prime_utr",null,[]],[1,245759,245879,1,"maker","0","CDS",null,"1:gnomon_566853_mRNA:cds",null,[]],[1,246045,246278,1,"maker","0","CDS",null,"1:gnomon_566853_mRNA:cds",null,[]],[1,246388,246815,1,"maker","1","CDS",null,"1:gnomon_566853_mRNA:cds",null,[]],[1,246815,247006,1,"maker",null,"three_prime_UTR",null,"1:gnomon_566853_mRNA:three_prime_utr",null,[]]]],
+    ],
+    "classes" : [ {
+      "isArrayAttr" : {
+        "Subfeatures" : 1
+      },
+      "attributes" : [ "Start", "End", "Strand", "Source", "Phase", "Type", "Score", "Id", "Name", "Subfeatures" ]
+    }, {
+      "isArrayAttr" : {
+      },
+      "attributes" : [ "Start", "End", "Strand", "Source", "Phase", "Type", "Score", "Id", "Name", "Subfeatures" ]
+    }, {
+      "isArrayAttr" : {
+        "Sublist" : 1
+      },
+      "attributes" : [ "Start", "End", "Chunk" ]
+    } ],
+    "maxEnd" : 247006,
+    "count" : 1,
+    "lazyClass" : 2,
+    "urlTemplate" : "lf-{Chunk}.json",
+    "minStart" : 245453
+  },
+  "formatVersion" : 1
+}

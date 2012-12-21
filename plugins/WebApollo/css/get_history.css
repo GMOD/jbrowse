@@ -1,0 +1,40 @@
+@CHARSET "UTF-8";
+
+.history_table {
+	font-size: 1.5em;
+	max-width: 47em;
+}
+
+.history_header_column {
+	font-weight: bold;
+}
+
+.history_column {
+	width: 15em;
+	display: inline-block;
+	background-color: inherit;
+}
+
+.history_row_selected  {
+	background-color: #4169e1;
+	color: white;
+}
+
+.history_row:hover  {
+	background-color: #000099;
+	color: white;
+}
+.history_rows {
+	max-height: 10em;
+	overflow-y: auto;
+}
+
+.history_date_column {
+	max-width: 10em;
+}
+
+.history_preview {
+	width: 45em;
+	height: 2em;
+	padding-top: 3em;
+}

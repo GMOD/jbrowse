@@ -2,6 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/aspect',
+            'dojo/dom-construct',
             'dojo/dom-geometry',
             'JBrowse/View/InfoDialog',
             'dijit/Dialog',
@@ -10,11 +11,14 @@ define( [
             'dijit/MenuItem',
             'dijit/CheckedMenuItem',
             'dijit/MenuSeparator',
-            'JBrowse/Util'
+            'JBrowse/Util',
+            'JBrowse/View/TrackConfigEditor',
+            'JBrowse/View/ConfirmDialog'
         ],
         function( declare,
                   lang,
                   aspect,
+                  dom,
                   domGeom,
                   InfoDialog,
                   Dialog,
@@ -23,7 +27,9 @@ define( [
                   dijitMenuItem,
                   dijitCheckedMenuItem,
                   dijitMenuSeparator,
-                  Util
+                  Util,
+                  TrackConfigEditor,
+                  ConfirmDialog
                 ) {
 
 return declare( null,
@@ -45,7 +51,7 @@ return declare( null,
         this.refSeq = args.refSeq;
         this.name = args.label || this.config.label;
         this.key = args.key || this.config.key || this.name;
-        this.loaded = false;
+
         this._changedCallback = args.changeCallback || function(){};
         this.height = 0;
         this.shown = true;
@@ -298,25 +304,30 @@ return declare( null,
         //this.div.style.backgroundColor = "#eee";
     },
 
+    /**
+     *   _changeCallback invoked here is passed in costructor, 
+     *         and typically is GenomeView.showVisibleBlocks()
+     */
     changed: function() {
         this.hideAll();
         if( this._changedCallback )
             this._changedCallback();
     },
 
-    fillLoading: function( blockIndex, block ) {
+    _makeLoadingMessage: function() {
         var msgDiv = dojo.create(
             'div', {
                 className: 'loading',
                 innerHTML: '<div class="text">Loading</span>',
                 title: 'Loading data...',
                 style: { visibility: 'hidden' }
-            }, block );
+            });
         window.setTimeout(function() { msgDiv.style.visibility = 'visible'; }, 200);
-        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+        return msgDiv;
     },
 
     fillError: function( blockIndex, block ) {
+        dom.empty(block);
         var msgDiv = dojo.create(
             'div', {
                 className: 'error',
@@ -324,7 +335,17 @@ return declare( null,
                     +(this.error ? '<div class="codecaption">Diagnostic message</div><code>'+this.error+'</code>' : '' ),
                 title: 'An error occurred'
             }, block );
-            this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+    },
+
+    fillTooManyFeaturesMessage: function( blockIndex, block, scale ) {
+        this.fillMessage(
+            blockIndex,
+            block,
+            'Too much data to show'
+                + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
+                + '.'
+        );
     },
 
     _showBlock: function(blockIndex, startBase, endBase, scale,
@@ -358,7 +379,37 @@ return declare( null,
                     containerStart,
                     containerEnd];
 
-        this.fillBlock.apply( this, args );
+
+        // loadMessage is an opaque mask div that we place over the
+        // block until the fillBlock finishes
+        var loadMessage = this._makeLoadingMessage();
+        blockDiv.appendChild( loadMessage );
+
+        var finish = function() {
+            if( blockDiv && loadMessage.parentNode )
+                blockDiv.removeChild( loadMessage );
+        };
+
+        try {
+            this.fillBlock({
+                blockIndex: blockIndex,
+                block:      blockDiv,
+                leftBlock:  this.blocks[blockIndex - 1],
+                rightBlock: this.blocks[blockIndex + 1],
+                leftBase:   startBase,
+                rightBase:  endBase,
+                scale:      scale,
+                stripeWidth:    this.widthPx,
+                containerStart: containerStart,
+                containerEnd:   containerEnd,
+                finishCallback: finish
+            });
+        } catch( e ) {
+            this.error = e;
+            console.error( e, e.stack );
+            this.fillError( blockIndex, blockDiv );
+            finish();
+        }
     },
 
     moveBlocks: function(delta) {
@@ -636,12 +687,35 @@ return declare( null,
      * @returns {Array} menu options for this track's menu (usually contains save as, etc)
      */
     _trackMenuOptions: function() {
+        var that = this;
         return [
             { label: 'About this track',
               title: 'About track: '+(this.key||this.name),
               iconClass: 'jbrowseIconHelp',
               action: 'contentDialog',
               content: dojo.hitch(this,'_trackDetailsContent')
+            },
+            { label: 'Edit config',
+              title: "edit this track's configuration",
+              iconClass: 'dijitIconConfigure',
+              action: function() {
+                  new TrackConfigEditor( that.config )
+                      .show( function( result ) {
+                          // replace this track's configuration
+                          that.browser.publish( '/jbrowse/v1/v/tracks/replace', [result.conf] );
+                      });
+              }
+            },
+            { label: 'Delete track',
+              title: "delete this track",
+              iconClass: 'dijitIconDelete',
+              action: function() {
+                  new ConfirmDialog({ title: 'Delete track?', message: 'Really delete this track?' })
+                     .show( function( confirmed ) {
+                          if( confirmed )
+                              that.browser.publish( '/jbrowse/v1/v/tracks/delete', [that.config] );
+                      });
+              }
             }
         ];
     },
@@ -803,6 +877,19 @@ return declare( null,
             menu.bindDomNode( this.label );
             this.trackMenu = menu;
         }
+    },
+
+
+    // display a rendering-timeout message
+    fillTimeout: function( blockIndex, block ) {
+        dom.empty( block );
+        dojo.addClass( block, 'timed_out' );
+        this.fillMessage( blockIndex, block,
+                          'This region took too long'
+                          + ' to display, possibly because'
+                          + ' it contains too much data.'
+                          + ' Try zooming in to show a smaller region.'
+                        );
     }
 
 });

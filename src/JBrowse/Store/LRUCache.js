@@ -58,7 +58,7 @@ return declare( null,
             return;
 
         } else {
-            this._log( 'hit', keyString, record.value );
+            this._log( 'hit', keyString );
             this._touch( record );
             window.setTimeout( function() {
                 callback( record.value );
@@ -139,7 +139,7 @@ return declare( null,
                                        try {
                                            cb.call( this, value, error );
                                        } catch(x) {
-                                           console.error(x);
+                                           console.error(''+x, x.stack, x);
                                        }
                                    }, this );
                 }, keyString, inKey, fillRecord ));

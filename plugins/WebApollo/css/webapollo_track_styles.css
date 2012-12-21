@@ -1,0 +1,669 @@
+/*
+*  naming conventions
+
+*/
+
+.webapollo-CDS {
+    height: 80%;
+    top: 10%;
+/* height: 12px */
+/*    margin-top: 2px;  */  /* relying on centering code instead */
+    background-color: #F58544;
+    border-style: solid;
+    border-color: #555;
+    border-width: 1px;
+}
+
+.webapollo-UTR {
+    height: 50%;
+    top: 25%;
+/*    height: 8px;  */
+/*    margin-top: 4px; */  /* relying on centering code instead */
+/*    z-index: 8; */
+    background-color: #AA5626;
+}
+
+.mRNA, 
+.plus-mRNA, 
+.minus-mRNA  {
+    height: 14px;
+    /* outline: 2px dashed green; */
+    background-color: transparent;
+}
+
+
+div.track_annotations {
+    background-color: #FFFFDD;
+}
+
+/* 
+   To support WebApollo with sequence alteration features shown on SequenceTrack, 
+   sequence style MUST NOT have a z-index specified 
+*/
+div.wa-sequence {
+    position: absolute;
+    left: 0px;
+    /* Courier New is preferred by JBrowse, but it looks too light in Firefox, and jagged in Chrome */
+    /* font-family: Courier New,monospace; */
+    font-family: monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding-left: 2px;
+    /* top: 15px; */
+    cursor: pointer; 
+   /* z-index: 15; */
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 
+   block_seq_container are SequenceTrack divs that are child of .block and parent of .dna-residues
+   need to break this out from div.sequence because .sequence is also used for determining 
+        font character width and height in GenomeView.calculateSequenceCharacterSize(), 
+	and for that don't want a specified width
+*/
+div.block-seq-container {
+    top: 15px;
+    width: 100%;
+    /* outline: 1px solid #00FF00; */
+}
+
+div.wa-sequence .dna-container  {
+    position: absolute;
+    width: 100%;
+}
+
+div.wa-sequence .dna-residues.forward-strand {
+    color: black;
+    z-index: 5;
+    /* outline: 1px solid pink; */
+}
+
+div.wa-sequence .dna-residues.reverse-strand {
+    color: gray;
+    border-top: 1px solid lightgray;
+    z-index: 5;
+    /* outline: 1px solid pink; */
+}
+
+div.wa-sequence .aa-residues  {
+    color: black;
+    z-index: 5;
+/*
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+*/
+/*    outline: 1px solid orange; */
+}
+
+div.wa-sequence .aa-residues.frame0 {
+    background-color: #999999; 
+    z-index: 5;
+}
+
+div.wa-sequence .aa-residues.frame1 {
+    background-color: #BBBBBB; 
+    z-index: 5;
+}
+
+div.wa-sequence .aa-residues.frame2 {
+    background-color: #DDDDDD; 
+    z-index: 5;
+}
+
+/* highlighting of dna residues in DNA track on mouseover */
+div.wa-sequence .dna-highlighted {
+    background: #F9BF3A
+}
+
+/* don't think this is currently (April 2012) being used */
+div.wa-sequence .highlighted {
+    background: #ff0;
+}
+
+div.annot-sequence  {
+    position: absolute;
+    left: 0px;
+    font-family: monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding-left: 2px;
+    z-index: 15;
+    /*  
+	need pointer-events:none so that any events pass through annot-sequence overlay
+	and onto the block or feature div underneath
+    */ 
+    pointer-events: none;
+
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+/*
+div.basic-hist {
+    position: absolute;
+    z-index: 10;
+}
+*/
+
+/********************************************************
+*   invisible containers, 
+*   for features that also have a renderClass that gets centered, 
+*      and for subfeatures that have rendered children 
+*      (currently only subfeatures like this are exons, which have CDS and UTR child divs)
+********************************************************/
+.container-16px, 
+.plus-container-16px, 
+.minus-container-16px  {
+    height: 16px;
+    background-color: transparent;
+}
+
+.container-14px, 
+.plus-container-14px, 
+.minus-container-14px  {
+    height: 14px;
+    background-color: transparent;
+}
+
+.container-12px, 
+.plus-container-12px, 
+.minus-container-12px  {
+    height: 12px;
+    background-color: transparent;
+}
+
+.container-10px, 
+.plus-container-10px, 
+.minus-container-10px  {
+    height: 10px;
+    background-color: transparent;
+}
+
+.container-8px, 
+.plus-container-8px, 
+.minus-container-8px {
+    height: 8px;
+    background-color: transparent;
+}
+
+/* intended for subfeatures that have rendered children, 
+*  want to size subfeature container to same height as parent feature
+*      (currently only subfeatures like this are exons, which have CDS and UTR child divs)
+*/
+.container-100pct, 
+.plus-container-100pct, 
+.minus-container-100pct {
+    height: 100%;
+    background-color: transparent;
+}
+
+.feature-render  {
+    position: absolute;
+    min-width: 1px;
+    width: 100%;
+    /* feature render div may be added to feature div _after_ subfeature divs, so 
+       if want subfeature divs in front of feature render div, make sure feature render div has lower 
+       z-index than subfeature divs */
+    z-index: 2;  
+}
+
+/**
+ *   Basic boxes for subfeatures (and for "render-*" rendering div for features with container divs)
+ *   height is % of parent feature, top % determined based on height to ensure vertically centered
+ */
+.gray-center-30pct  {
+    background-color: gray;
+    height: 30%;
+    top: 35%;
+}
+
+
+.gray-center-50pct  {
+    background-color: lightgray;
+    height: 50%;
+    top: 25%;
+}
+
+
+.gray-center-20pct  {
+    position:absolute;
+    background-color: gray;
+    min-width: 1px;
+    width: 100%;
+    height: 20%;
+    top: 40%;
+    /* annotline div may be added to annot div _after_ child feature divs, so 
+       if want child divs in front of annotline, make sure has lower 
+       z-index than child divs */
+    z-index: 2;  
+}
+
+.gray-center-10pct  {
+    position:absolute;
+    background-color: gray;
+    min-width: 1px;
+    width: 100%;
+    height: 10%;
+    top: 45%;
+    /* annotline div may be added to annot div _after_ child feature divs, so 
+       if want child divs in front of annotline, make sure has lower 
+       z-index than child divs */
+    z-index: 2;  
+}
+
+
+
+
+.pink-90pct, 
+.plus-pink-90pct, 
+.minus-pink-90pct  {
+    height: 90%;
+    top: 5%;
+    background-color: #D8BDEB;
+    border: 1px solid #01F;
+/*    border-style: solid;
+    border-color: #01F;
+    border-width: 1px;
+*/
+}
+
+.pink-12px, 
+.plus-pink-12px, 
+.minus-pink-12px {
+    background-color: #D8BDEB;
+    border: 1px solid #01F;
+    height: 12px;
+    /*    margin-top: 2px; */  /* rely on centering in code instead? */
+}
+
+.pink-16px, 
+.plus-pink-16px, 
+.minus-pink-16px {
+    background-color: #D8BDEB;
+    border: 1px solid #01F;
+    height: 16px;
+    /*    margin-top: 2px; */  /* rely on centering in code instead? */
+}
+
+.purple-60pct, 
+.plus-purple-60pct, 
+.minus-purple-60pct  {
+    background-color: #8F408F;
+    height: 60%;
+    top: 20%;
+}
+
+.purple-8px, 
+.plus-purple-8px, 
+.minus-purple-8px {
+    background-color: #8F408F;
+    height: 8px; 
+    /*   margin-top: 4px; */  /* rely on centering in code instead? */
+}
+
+.darkblue-80pct, 
+.plus-darkblue-80pct, 
+.minus-darkblue-80pct  {
+    background-color: #1F3DDE;
+    height: 80%;
+    top: 10%;
+}
+
+.bluegreen-80pct, 
+.plus-bluegreen-80pct, 
+.minus-bluegreen-80pct  {
+    background-color: #3BA08E;
+    height: 80%;
+    top: 10%;
+}
+
+
+.brightgreen-80pct, 
+.plus-brightgreen-80pct, 
+.minus-brightgreen-80pct  {
+    background-color: #21D61F;
+    border: 1px solid #555;
+    height: 80%;
+    top: 10%;
+}
+
+.darkgreen-60pct, 
+.plus-darkgreen-60pct, 
+.minus-darkgreen-60pct {
+    height: 60%;
+    top: 20%;
+    background-color: #8DB890;
+}
+
+
+/* defaults for rendering aligned read from BAM files */
+.bam-read, 
+.plus-bam-read, 
+.minus-bam-read {
+    height: 5px; 
+    background-color: #AACDDC;
+    z-index: 8;
+}
+
+/* testing different coloration of BAM alignments on minus strand
+.minus-bam {
+    height: 5px; 
+    background-color: #AA00AA;
+    z-index: 8;
+}
+*/
+
+/* render match (M) spans as subfeatures of BAM alignment */
+.cigarM, 
+.plus-cigarM, 
+.minus-cigarM  {
+    position: absolute;
+    height: 100%; 
+    margin-top: 0px;
+    background-color: #1B8A99;
+    /* background-color: green; */
+    z-index: 8;
+    min-width: 1px;
+    cursor: pointer;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
+/*  don't render skips, just let parent bam show through (similar to not rendering intron but letting transcript show through)
+.cigarN, 
+.plus-cigarN, 
+.minus-cigarN  {
+    position: absolute;
+    height: 2px; 
+    margin-top: 0px;
+    background-color: #AACDDC;
+    z-index: 8;
+    min-width: 1px;
+    cursor: pointer;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+*/
+
+
+/** container */
+.annot,  
+.plus-annot,
+.minus-annot {
+  height: 16px;
+  background-color: transparent;
+  /* disabling standard text selection, so residues overlay doesn't get text selection actions */
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.annot-render {
+    height: 8px;
+    margin-top: 4px;
+    background-color: #A4BBFF;
+}
+ 
+.annot-CDS, 
+.plus-annot-CDS,
+.minus-annot-CDS {
+    height: 16px;
+    /*    margin-top: -6px;  */
+    background-color: #30AAFF;
+    border: 1px solid #01F;
+}
+
+.annot-UTR, x
+.plus-annot-UTR, 
+.minus-annot-UTR {
+    height: 12px; 
+    /*    margin-top: -4px; */
+    margin-top: 2px;
+    background-color: #2088FF;
+}
+
+.noncanonical-splice-site, 
+.plus-noncanonical-splice-site,  
+.minus-noncanonical-splice-site  { 
+    margin-left: -8px;
+    /* margin-top: -11px;  */
+    /*  moved noncanonical icon to bottom of annotation, prefer top of annotation but 
+	need to have a some padding at top of track before that works */
+    margin-top: 9px;  
+    padding-left: 8px;
+    padding-right: 8px;
+    position: absolute;
+    height: 16px;
+    z-index: 100;
+    background-color: transparent;
+    background-image: url('../img/exclamation_circle_orange.png');
+    pointer-events: none;   /*  attempting to route around issue with centered non-canon splice sites preventing edge-drag */
+/*    background-image: url('img/exclamation_circle_orange.png');  */
+/*    background-image: url('img/warning_exclamation_small.png'); */
+/*    background-image: url('img/warning_exclamation.png');  */
+/*    background-image: url('img/marker_rounded_red.png'); */
+/*    background-image: url('img/marker_squared_red.png'); */
+}
+
+
+/* 
+   for styles of features that are on SequenceTrack, 
+   z-index MUST be > z-index of 
+       (div.sequence .dna-residues.forward-strand) and 
+       (div.sequence .dna-residues.reverse-strand) styles
+*/
+.deletion, 
+.plus-deletion,
+.minus-deletion {
+    border-style: solid;
+    border-color: blue;
+    border-width: 1px;
+    height: 100%;
+    background-color: rgba(150,0,0,0.3);
+    z-index: 20;  
+}
+
+.insertion, 
+.plus-insertion,
+.minus-insertion {
+    border-style: solid;
+    border-color: green;
+    border-width: 1px;
+    height: 100%;
+    background-color: rgba(0,150,0,0.3);
+    z-index: 20;  
+}
+
+.substitution, 
+.plus-substitution,
+.minus-substitution {
+    border-style: solid;
+    border-color: blue;
+    border-width: 1px;
+    height: 100%;
+    background-color: rgba(250,250,0,0.3);
+    z-index: 20;  
+}
+
+.plus-trellis-arrowhead, 
+.plus-webapollo-arrowhead, 
+.plus-annot-arrowhead  {
+    position: absolute;
+    width: 12px;
+    height: 100%;
+    background-image: url('../img/plus-transcript-head.png');
+    /* background-image: url('../img/plus-arrowhead-transparent.png'); */
+    background-repeat: no-repeat;
+    background-position: left center;  /* center image vertically */
+    z-index: 1;
+}
+
+.minus-trellis-arrowhead, 
+.minus-webapollo-arrowhead, 
+.minus-annot-arrowhead {
+    position: absolute;
+    width: 12px;
+    height: 100%;
+    background-image: url('../img/minus-transcript-head.png');
+    background-repeat: no-repeat;
+    background-position: right center;  /* center image vertically */
+    z-index: 1;
+}
+
+.cds-frame0 {
+    background-color: #FF8080;
+}
+
+.cds-frame1 {
+    background-color: #80FF80; 
+}
+
+.cds-frame2 {
+    background-color: #8080FF;
+}
+
+/**
+*   appearance of resizing box when dragging annotation edges
+*   if case browser doesn't support transparency via "rgba", fall back on solid background?
+*/
+.ui-resizable-helper  {
+    border: 2px dotted red;
+    background: rgb(100, 150, 255);
+    background: rgba(100, 150, 255, 0.5);
+    
+}
+
+/**
+*  By default, no styling associated with custom multifeature draggable helper
+*  But leaving here for easing toggling of diagnostic rendering
+*/
+.custom-multifeature-draggable-helper  {
+/*  
+    outline-style: dotted; 
+    outline-color: red;
+    outline-width: 4px; 
+*/
+}
+
+/**
+*  appearance of annotations (features in AnnoTracks)  when they are drop targets and are hovered over 
+*/
+.annot-drop-hover  {
+    outline-style: solid; 
+    outline-color: green;
+    outline-width: 4px; 
+}
+
+/* 
+*  overriding JQueryUI .ui-resizable style, which changes anything getting resized to "position:absolute"
+*  for this to work this CSS _must_ come after jquery-ui.css in load order
+*/
+.ui-resizable  {
+    position: absolute;
+}
+
+/* style to highlight left feature edges that match selected feature(s) edges 
+*  setting box-sizing to border-box keeps the border _inside_ the element (rather than outside)
+*  (-moz*, -webkit*, -ms* prefixed versions needed because box-sizing property name currently differs across browsers)
+*/
+.left-edge-match  {
+    border-left: solid red 2px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
+/* style to highlight right feature edges that match selected feature(s) edges 
+*  setting box-sizing to border-box keeps the border _inside_ the element (rather than outside)
+*  (-moz*, -webkit*, -ms* prefixed versions needed because box-sizing property name currently differs across browsers)
+*/
+.right-edge-match  {
+    border-right: solid red 2px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
+
+/* to make sure selection style overrides any other styles in this stylesheet, make sure to put selection style at end */
+.selected-feature {
+    outline-style: solid; 
+    outline-color: red;
+    outline-width: 3px;
+}
+
+.shadow  { 
+    -moz-box-shadow: 5px 5px 5px #444;
+    -webkit-box-shadow: 5px 5px 5px #444;
+    box-shadow: 5px 5px 5px #444;
+}
+
+/* 
+*  selection of annotations is separate from selection of features 
+*/
+.selected-annotation  {
+    outline-style: solid;
+    outline-color: red;
+    outline-width: 3px;
+}
+
+/*
+*  diagnostics for blocks
+*/
+/*
+div.block  {
+    outline-style: solid;
+    outline-color: gray;
+    outline-width: 1px;
+}
+*/
+
+
+/*  experimental canvas graph stuff 
+div.graph-color-picker {
+    border: 2px black solid;
+}
+
+div.graph-range-slider {
+    height: 165px;
+    width: 10px;
+}
+
+div.canvas-track-control {
+    left: 0px;
+    top: 0px;
+    width: 300px;
+    height: 250px;
+    padding: 10px;
+    z-index: 190;
+    background-color: white; 
+    border: 2px black solid;
+}
+*/
+
+/* maker    background-color: rgb(255,204,204); */
+/* blastn   background-color: rgb(102,204,102); */
+/* blastx     background-color: rgb(0,200,204); */
+/* tblastx    background-color: rgb(0,200,104); */
+/* snap       background-color: rgb(153,100,204); */
+/* est2genome     background-color: rgb(100,100,210); */
+/* protein2genome   background-color: rgb(117,150,255); */
+/* repeatmasker     background-color: red; */
+/* repeatrunner     background-color: rgb(255,152,255); */
+/* default-alignment-block    background-color: #C87C8E; */
+/* nvit-alignment    background-color: #848DBF; */

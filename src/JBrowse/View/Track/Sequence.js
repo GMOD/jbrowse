@@ -29,7 +29,10 @@ SequenceTrack.extend(
  */
 {
     _defaultConfig: function() {
-        return { maxExportSpan: 500000 };
+        return {
+            maxExportSpan: 500000,
+            showReverseStrand: true
+        };
     },
     _exportFormats: function() {
         return ['FASTA'];
@@ -48,11 +51,12 @@ SequenceTrack.extend(
 
     nbsp: String.fromCharCode(160),
 
-    fillBlock:function(blockIndex, block,
-                       leftBlock, rightBlock,
-                       leftBase, rightBase,
-                       scale, stripeWidth,
-                       containerStart, containerEnd) {
+    fillBlock:function( args ) {
+        var blockIndex = args.blockIndex;
+        var block = args.block;
+        var leftBase = args.leftBase;
+        var rightBase = args.rightBase;
+        var scale = args.scale;
 
         var charSize = this.getCharacterMeasurements();
 
@@ -80,6 +84,8 @@ SequenceTrack.extend(
                          }, block );
             this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
         }
+
+        args.finishCallback();
     },
 
     _fillSequenceBlock: function( block, scale, feature ) {
@@ -113,9 +119,11 @@ SequenceTrack.extend(
         seqNode.appendChild( this._renderSeqDiv( start, end, seq, scale ));
 
         // and one for the reverse strand
-        var comp = this._renderSeqDiv( start, end, Util.complement(seq), scale );
-        comp.className = 'revcom';
-        seqNode.appendChild( comp );
+        if( this.config.showReverseStrand ) {
+            var comp = this._renderSeqDiv( start, end, Util.complement(seq), scale );
+            comp.className = 'revcom';
+            seqNode.appendChild( comp );
+        }
     },
 
     /**
@@ -130,12 +138,16 @@ SequenceTrack.extend(
         var container  = document.createElement('div');
         var charWidth = 100/(end-start)+"%";
         var drawChars = scale >= charSize.w;
+        var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('span');
             base.className = 'base base_'+seq[i].toLowerCase();
             base.style.width = charWidth;
-            if( drawChars )
+            if( drawChars ) {
+                if( bigTiles )
+                    base.className = base.className + ' big';
                 base.innerHTML = seq[i];
+            }
             container.appendChild(base);
         }
         return container;

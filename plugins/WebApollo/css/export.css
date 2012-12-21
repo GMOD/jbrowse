@@ -1,0 +1,22 @@
+@CHARSET "UTF-8";
+
+.export_response {
+	width: 15em;
+	text-align: center;
+}
+
+.waiting_image {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.export_response_iframe {
+	border: none;
+	text-align: center;
+	font-size: 12px;
+	max-width: 15em;
+	max-height: 6em;
+	overflow-x: auto;
+	overflow-y: hidden;
+}

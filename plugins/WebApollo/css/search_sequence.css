@@ -1,0 +1,78 @@
+@CHARSET "UTF-8";
+
+.search_sequence_label {
+	font-size: 1.5em;
+}
+
+.search_sequence_input {
+	width: 50em;
+	height: 3.5em;
+}
+
+.search_sequence_area {
+	margin-bottom: 10px;
+}
+
+.search_all_ref_seqs_area {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.search_all_ref_seqs_checkbox {
+	margin-right: 3px;
+}
+
+.search_all_ref_seqs_label {
+	font-size: 1em;
+}
+
+.search_sequence_matches_row:hover {
+	background-color: #000099;
+	color: white;
+}
+
+.search_sequence_matches_generic_field {
+	width: 6.3em;
+	margin-right: 0.2em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 1.6em;
+	background-color: inherit;
+	display: table-cell;
+}
+
+.search_sequence_matches_header {
+	margin-bottom: 10px;
+}
+
+.search_sequence_matches_field {
+	margin-top: 0px;
+	margin-bottom: 0px;
+	float: left;
+	overflow: hidden;
+	width: 6em;
+}
+
+.search_sequence_tools {
+	margin-bottom: 10px;
+}
+
+.search_sequence_matches {
+	max-height: 25em;
+	overflow: auto;
+}
+
+.search_sequence_matches_row {
+}
+
+.search_sequence_matches_row-firefox {
+	display: table-row;
+}
+
+.search_sequence_message {
+	font-size: 1.6em;
+}
+
+.search_sequence {
+	font-size: 9px;
+}

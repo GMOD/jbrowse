@@ -1,0 +1,10 @@
+@import url("../jslib/jqueryui/themes/base/jquery.ui.all.css");
+@import url("genome.css");
+@import url("webapollo_track_styles.css");
+@import url("add_sequence_alteration.css");
+@import url("edit_dbxrefs.css");
+@import url("edit_comments.css");
+@import url("get_sequence.css");
+@import url("search_sequence.css");
+@import url("get_history.css");
+@import url("export.css");

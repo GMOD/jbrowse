@@ -37,11 +37,17 @@ return declare( SeqFeatureStore,
         this.chunkCache   = {};
         this.compress     = args.compress;
         this.urlTemplate  = args.urlTemplate;
+        if( ! this.urlTemplate ) {
+            throw "no urlTemplate provided, cannot open sequence store";
+        }
+
         this.baseUrl      = args.baseUrl;
         this.seqChunkSize = args.seqChunkSize;
     },
 
-    getFeatures: function( query, callback, endCallback ) {
+    getFeatures: function( query, callback, endCallback, errorCallback ) {
+
+        errorCallback = errorCallback || function(e) { console.error(e); };
 
         var start = query.start;
         var end   = query.end;
@@ -68,7 +74,7 @@ return declare( SeqFeatureStore,
                             };
                         })();
 
-        var callbackInfo = { start: start, end: end, callback: callback };
+        var callbackInfo = { start: start, end: end, success: callback, error: errorCallback  };
 
         if( !this.chunkCache[seqname] ) {
             this.chunkCache[seqname] = [];
@@ -89,7 +95,11 @@ return declare( SeqFeatureStore,
                               ),
                               i
                             );
-                } else {
+                }
+                else if( chunk.error ) {
+                    errorCallback( chunk.error );
+                }
+                else {
                     //console.log("added callback for %d .. %d", start, end);
                     chunk.callbacks.push(callbackInfo);
                 }
@@ -126,21 +136,28 @@ return declare( SeqFeatureStore,
                 dojo.xhrGet({
                                 url: sequrl + i + ".txt" + ( this.compress ? 'z' : '' ),
                                 load: dojo.hitch( this, function( chunkRecord, response ) {
-                                    //console.log('response for chunk '+chunkRecord.num);
-                                    chunkRecord.sequence = response;
-                                    chunkRecord.loaded = true;
+                                                      //console.log('response for chunk '+chunkRecord.num);
+                                                      chunkRecord.sequence = response;
+                                                      chunkRecord.loaded = true;
+                                                      dojo.forEach( chunkRecord.callbacks, function(ci) {
+                                                                        ci.success( ci.start,
+                                                                                    ci.end,
+                                                                                    response.substring( ci.start - chunkRecord.num*chunkSize,
+                                                                                                        ci.end   - chunkRecord.num*chunkSize
+                                                                                                      ),
+                                                                                    i
+                                                                                   );
+                                                                    });
+                                                      delete chunkRecord.callbacks;
+
+                                                  }, chunkCacheForSeq[i] ),
+                                error: dojo.hitch( this, function( chunkRecord, error ) {
+                                    chunkRecord.error = error;
                                     dojo.forEach( chunkRecord.callbacks, function(ci) {
-                                        ci.callback( ci.start,
-                                                     ci.end,
-                                                     response.substring( ci.start - chunkRecord.num*chunkSize,
-                                                                         ci.end   - chunkRecord.num*chunkSize
-                                                                       ),
-                                                     i
-                                                   );
+                                        ci.error( error );
                                     });
                                     delete chunkRecord.callbacks;
-
-                                }, chunkCacheForSeq[i] )
+                                }, chunkCacheForSeq[i])
                             });
             }
         }

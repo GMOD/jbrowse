@@ -1,0 +1,34 @@
+@CHARSET "UTF-8";
+
+.dbxrefs {
+	width: 39em;
+}
+
+.dbxref_header {
+	font-size: 1.5em;
+	margin-bottom: 5px;
+}
+
+.dbxref_table_header_field {
+	margin-right:5em;
+}
+
+.dbxref_field {
+	margin-right:3px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+.dbxref_button {
+}
+
+.dbxref_add_button_div {
+	margin-top: 5px;
+}
+
+.parent_dbxrefs_div {
+	margin-bottom: 10px;
+	border-bottom-style: dotted;
+	border-bottom-width: 2px;
+	padding-bottom: 10px;
+}

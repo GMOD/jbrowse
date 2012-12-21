@@ -126,6 +126,8 @@ class JBrowseTest (object):
         self.assert_no_js_errors()
 
     def export_track( self, track_name, region, format, button ):
+        time.sleep(2);
+
         track_name = re.sub( '\W', '_', track_name.lower() )
 
         self.track_menu_click( track_name, 'Save')
@@ -145,7 +147,7 @@ class JBrowseTest (object):
         self.assert_element( "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" % re.sub( '\W', '_', track_name ) ) \
             .click()
 
-        time.sleep(1.5)
+        time.sleep(2)
 
         self.menu_item_click( item_name )
 
