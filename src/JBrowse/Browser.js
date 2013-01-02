@@ -27,7 +27,7 @@ define( [
             'dijit/MenuItem',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
-            'JBrowse/Store/Autocomplete',
+            'JBrowse/Store/LazyTrieDojoData',
             'JBrowse/GenomeView',
             'JBrowse/TouchScreenSupport',
             'JBrowse/ConfigManager',
@@ -57,7 +57,7 @@ define( [
             dijitMenuItem,
             Util,
             LazyTrie,
-            AutocompleteStore,
+            LazyTrieDojoData,
             GenomeView,
             Touch,
             ConfigManager,
@@ -2016,7 +2016,7 @@ Browser.prototype.createNavBox = function( parent ) {
 
 Browser.prototype._makeLocationAutocompleteStore = function() {
     var conf = this.config.autocomplete||{};
-    return new AutocompleteStore({
+    return new LazyTrieDojoData({
         namesTrie: this.names,
         stopPrefixes: conf.stopPrefixes,
         resultLimit:  conf.resultLimit || 15

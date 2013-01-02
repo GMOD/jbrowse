@@ -1,3 +1,8 @@
+/**
+ * dojo.data.api.Read-compatible store object that reads data from an
+ * encapsulated JBrowse/Store/LazyTrie.
+ */
+
 define(['dojo/_base/declare'],function(declare) {
 return declare( null,
 /**
@@ -6,6 +11,10 @@ return declare( null,
 {
     /**
      * @constructs
+     * @param args.namesTrie
+     * @param args.stopPrefixes
+     * @param args.resultLimit
+     * @param args.tooManyMatchesMessage
      */
     constructor: function( /**Object*/ args ) {
         if( ! args.namesTrie )
