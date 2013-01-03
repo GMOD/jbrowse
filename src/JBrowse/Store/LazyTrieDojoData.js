@@ -3,7 +3,15 @@
  * encapsulated JBrowse/Store/LazyTrie.
  */
 
-define(['dojo/_base/declare'],function(declare) {
+define([
+           'dojo/_base/declare',
+           'dojo/_base/array',
+           'JBrowse/Util'
+       ],function(
+           declare,
+           array,
+           Util
+       ) {
 return declare( null,
 /**
  * @lends JBrowse.Store.Autocomplete.prototype
@@ -59,11 +67,22 @@ return declare( null,
         };
     },
 
+    getFeatures: function() {
+        return {
+	    'dojo.data.api.Read': true,
+	    'dojo.data.api.Identity': true
+	};
+    },
+
+    getIdentity: function( node ) {
+        console.log( node );
+    },
+
     // dojo.data.api.Read support
 
     fetch: function( /**Object*/ request ) {
         var start = request.start || 0;
-        var matchLimit = Math.min( this.resultLimit, Math.max(0, request.count) );
+        var matchLimit = Math.min( this.resultLimit, Math.max(0, request.count || Infinity ) );
         var matchesRemaining = matchLimit;
 	var scope = request.scope || dojo.global;
         var aborted = false;
@@ -83,7 +102,7 @@ return declare( null,
         if( request.onBegin )
             request.onBegin.call( scope, 0, request );
 
-        var prefix = (request.query.name || '').replace(/\*$/,'');
+        var prefix = (request.query.name || '').toString().replace(/\*$/,'');
 
         if( ! this.stopPrefixes[ prefix ] ) {
             this.namesTrie.mappingsFromPrefix(
@@ -94,10 +113,24 @@ return declare( null,
                     if( aborted )
                         return;
 
+                    var post1_4 = tree[0] && typeof tree[0][0] == 'string';
+
                     // use dojo.some so that we can break out of the loop when we hit the limit
                     dojo.some( tree, function(node) {
                                    if( matchesRemaining-- ) {
-                                           matches.push({ name: this.nodeText(node) });
+                                       var name = this.nodeText(node);
+                                       array.forEach( node[1], function(n) {
+                                                          var startbp = parseInt( n[ post1_4 ? 4 : 3 ]);
+                                                          var endbp   = parseInt( n[ post1_4 ? 5 : 4 ]);
+                                                          var ref     = n[ post1_4 ? 3 : 2 ];
+                                           matches.push({
+                                                        name: name,
+                                                        location: { ref: ref,
+                                                                    start: startbp,
+                                                                    end: endbp
+                                                                  }
+                                                    });
+                                       });
                                    }
                                    return matchesRemaining < 0;
                                },this);
@@ -134,7 +167,7 @@ return declare( null,
     },
 
     getAttributes: function(item)  {
-        return dojof.keys( item );
+        return Util.dojof.keys( item );
     },
 
     hasAttribute: function(item,attr) {
@@ -163,6 +196,11 @@ return declare( null,
     },
     getLabelAttributes: function(i) {
         return ['name'];
+    },
+
+    getIdentity: function(i) {
+        return this.getLabel(i);
     }
+
 });
 });

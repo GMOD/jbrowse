@@ -14,7 +14,6 @@ define( [
             'dojo/DeferredList',
             'dojo/topic',
             'dojo/aspect',
-            'dojo/on',
             'dojo/_base/array',
             'dijit/layout/ContentPane',
             'dijit/layout/BorderContainer',
@@ -28,6 +27,8 @@ define( [
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/LazyTrieDojoData',
+            'dojo/store/DataStore',
+            'JBrowse/Store/Hash',
             'JBrowse/GenomeView',
             'JBrowse/TouchScreenSupport',
             'JBrowse/ConfigManager',
@@ -44,7 +45,6 @@ define( [
             DeferredList,
             topic,
             aspect,
-            on,
             array,
             dijitContentPane,
             dijitBorderContainer,
@@ -57,7 +57,9 @@ define( [
             dijitMenuItem,
             Util,
             LazyTrie,
-            LazyTrieDojoData,
+            LazyTrieDojoDataStore,
+            DojoDataStore,
+            HashStore,
             GenomeView,
             Touch,
             ConfigManager,
@@ -351,11 +353,27 @@ Browser.prototype._loadCSS = function( css, successCallback, errorCallback ) {
  */
 Browser.prototype.loadNames = function() {
     return this._milestoneFunction( 'loadNames', function( deferred ) {
-        // load our name index
-        if (this.config.nameUrl)
-            this.names = new LazyTrie(this.config.nameUrl, "lazy-{Chunk}.json");
+        var conf = dojo.mixin( dojo.clone( this.config.names || {} ),
+                               this.config.autocomplete || {} );
+        if( ! conf.url )
+            conf.url = this.config.nameUrl || 'data/names/';
+
+        if( conf.type == 'Hash' )
+            this.nameStore = new HashStore({
+                    url: conf.url
+            });
+        else
+            // wrap the older LazyTrieDojoDataStore to conform with the dojo/store API
+            this.nameStore = new DojoDataStore({
+                store: new LazyTrieDojoDataStore({
+                    namesTrie: new LazyTrie( conf.url, "lazy-{Chunk}.json"),
+                    stopPrefixes: conf.stopPrefixes,
+                    resultLimit:  conf.resultLimit || 15
+                })
+            });
+
         deferred.resolve({success: true});
-     });
+    });
 };
 
 Browser.prototype.initView = function() {
@@ -1360,43 +1378,45 @@ Browser.prototype.navigateToLocation = function( location ) {
  */
 Browser.prototype.searchNames = function( /**String*/ loc ) {
     var brwsr = this;
-    this.names.exactMatch( loc, function(nameMatches) {
-            var goingTo,
-                i;
+    this.nameStore.query({ name: loc })
+        .then( function( nameMatches ) {
 
-            var post1_4 = typeof nameMatches[0][0] == 'string';
+            // if we have no matches, pop up a dialog saying so, and
+            // do nothing more
+            if( ! nameMatches.length ) {
+                new InfoDialog(
+                    {
+                        title: 'Not found',
+                        content: 'Not found: <span class="locString">'+loc+'</span>',
+                        className: 'notfound-dialog'
+                    }).show();
+                return;
+            }
+
+            var goingTo;
 
             //first check for exact case match
-            for (i = 0; i < nameMatches.length; i++) {
-                if (nameMatches[i][ post1_4 ? 0 : 1 ] == loc)
+            for (var i = 0; i < nameMatches.length; i++) {
+                if( nameMatches[i].name  == loc )
                     goingTo = nameMatches[i];
             }
             //if no exact case match, try a case-insentitive match
-            if (!goingTo) {
-                for (i = 0; i < nameMatches.length; i++) {
-                    if (nameMatches[i][ post1_4 ? 0 : 1].toLowerCase() == loc.toLowerCase())
+            if( !goingTo ) {
+                for( i = 0; i < nameMatches.length; i++ ) {
+                    if( nameMatches[i].name.toLowerCase() == loc.toLowerCase() )
                         goingTo = nameMatches[i];
                 }
             }
             //else just pick a match
-            if (!goingTo) goingTo = nameMatches[0];
-            var startbp = parseInt( goingTo[ post1_4 ? 4 : 3 ]);
-            var endbp   = parseInt( goingTo[ post1_4 ? 5 : 4 ]);
-            var flank = Math.round((endbp - startbp) * .2);
+            if( !goingTo ) goingTo = nameMatches[0];
+            var flank   = Math.round( ( goingTo.location.end - goingTo.location.start ) * 0.2 );
             //go to location, with some flanking region
-            brwsr.navigateTo( goingTo[ post1_4 ? 3 : 2]
-                             + ":" + (startbp - flank)
-                             + ".." + (endbp + flank));
-            brwsr.showTracks(brwsr.names.extra[nameMatches[0][ post1_4 ? 1 : 0 ]]);
-        },
-        // if no match for the name is found, show a popup dialog saying this.
-        function() {
-            new InfoDialog(
-                {
-                    title: 'Not found',
-                    content: 'Not found: <span class="locString">'+loc+'</span>',
-                    className: 'notfound-dialog'
-                }).show();
+            brwsr.navigateTo({ ref: goingTo.location.ref,
+                               start: goingTo.location.start - flank,
+                               end: goingTo.location.end + flank
+                             });
+            // var tracks = (brwsr.names.extra||{})[goingTo][ post1_4 ? 1 : 0 ]];
+            // brwsr.showTracks(brwsr.names.extra[goingTo][ post1_4 ? 1 : 0 ]]);
         }
    );
 };
@@ -2015,12 +2035,7 @@ Browser.prototype.createNavBox = function( parent ) {
 };
 
 Browser.prototype._makeLocationAutocompleteStore = function() {
-    var conf = this.config.autocomplete||{};
-    return new LazyTrieDojoData({
-        namesTrie: this.names,
-        stopPrefixes: conf.stopPrefixes,
-        resultLimit:  conf.resultLimit || 15
-    });
+    return this.nameStore;
 };
 
 return Browser;
