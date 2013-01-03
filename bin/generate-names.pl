@@ -67,6 +67,8 @@ my %trackHash;
 my @includedTrackNames;
 my @tracksWithNames;
 
+# TODO: change to hash-based storage, pre-generate prefixes
+
 my $outDir = "data";
 my $thresh = 100 * 2**10;
 my $verbose = 0;
@@ -93,8 +95,8 @@ OUTDIR
 }
 
 my $gdb = GenomeDB->new( $outDir );
-my $nameDir = catdir($outDir, "names");
-mkdir($nameDir) unless (-d $nameDir);
+my $nameDir = catdir( $outDir, "names" );
+mkdir $nameDir unless -d $nameDir;
 
 my @refSeqs  = @{ $gdb->refSeqs   };
 my @tracks   = grep { !%includedTrackNames || $includedTrackNames{ $_->{label} } }
@@ -119,21 +121,21 @@ my @namearray;
 
 foreach my $ref (@refSeqs) {
     push @{$nameHash{lc $ref->{name}}}, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
+  TRACK:
     foreach my $track (@tracks) {
         my $infile = catfile( $outDir,
                               "tracks",
                               $track->{label},
                               $ref->{name},
-                              "names.json");
+                              "names.txt");
         next unless -e $infile;
 
-        my $names = do {
-            local $/;
-            open my $j, '<', $infile or die "$! reading $infile";
-            JSON::from_json(<$j>);
-        };
-
-        foreach my $nameinfo ( @$names) {
+        # read the input json partly with low-level parsing so that we
+        # can parse incrementally from the filehandle.  names.json
+        # files can be very big.
+        open my $json_fh, '<', $infile or die "$! reading $infile";
+        while( my $nameinfo = <$json_fh> ) {
+            $nameinfo = JSON::from_json( $nameinfo );
             foreach my $alias ( @{$nameinfo->[0]} ) {
                 my $track = $nameinfo->[1];
                 unless( defined $trackHash{$track} ) {

@@ -7,6 +7,8 @@ use JBlibs;
 use Test::More;
 use Test::Warn;
 
+use JSON 2;
+
 use Bio::JBrowse::Cmd::FlatFileToJson;
 
 use File::Spec::Functions qw( catfile catdir );
@@ -67,7 +69,7 @@ sub tempdir {
     my $hist_output = $read_json->(qw( tracks ExampleFeatures ctgA hist-10000-0.json ));
     is_deeply( $hist_output, [4,3,4,3,4,1], 'got right histogram output for ExampleFeatures' ) or diag explain( $hist_output );
 
-    my $names_output = $read_json->(qw( tracks ExampleFeatures ctgA names.json ));
+    my $names_output = [ map JSON::from_json($_), split "\n", $read_json->(qw( tracks ExampleFeatures ctgA names.txt )) ];
     is_deeply( $names_output->[3],
                [
                  [
