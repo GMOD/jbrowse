@@ -56,11 +56,25 @@ return declare( null, {
 
         // remember that then() returns a new Deferred that fires after
         // the callback of the then()
-        return this.bucketStore.get( bucketIdent );
+        return this.bucketStore.get( this._hexToDirPath( bucketIdent ) );
+    },
+
+    _hexToDirPath: function( hex ) {
+        // zero-pad the hex string to be 8 chars if necessary
+        while( hex.length < 8 )
+            hex = '0'+hex;
+        var dirpath = [];
+        for( var i = 0; i < hex.length; i += 3 ) {
+            dirpath.push( hex.substring( i, i+3 ) );
+        }
+        return dirpath.join('/');
     },
 
     _hash: function( data ) {
-        return digest.objectFingerprint( data ).toString(16).toLowerCase();
+        return digest.objectFingerprint( data )
+                     .toString(16)
+                     .toLowerCase()
+                     .replace('-','n');
     },
 
     getIdentity: function( object ) {
