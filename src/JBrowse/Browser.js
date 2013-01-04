@@ -1447,7 +1447,8 @@ Browser.prototype.searchNames = function( /**String*/ loc ) {
                     {
                         browser: brwsr,
                         locationChoices: goingTo.multipleLocations,
-                        title: 'Choose '+goingTo.name+' location'
+                        title: 'Choose '+goingTo.name+' location',
+                        description: '"'+goingTo.name+'" is found in multiple locations.  Please choose a location to view.'
                     })
                     .show();
             }

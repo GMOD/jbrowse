@@ -11,6 +11,10 @@ html, body {
     outline: none;
 }
 
+.ghosted {
+    color: #aaa;
+}
+
 fieldset {
     padding-left: 1em;
     margin: 0.7em 0.5em;
@@ -36,9 +40,19 @@ fieldset > legend {
     font-size: 90%;
 }
 
-.ghosted {
-    color: #aaa;
+/* location choice dialog */
+.locationChoiceDialog div.description {
+    margin: 0.3em 1em 1em 1em;
 }
+.locationChoiceDialog .dgrid-row .dijitButton {
+    margin: 0 0.5em;
+}
+.locationChoiceDialog .goButtonColumn,
+.locationChoiceDialog .showButtonColumn {
+    text-align: center;
+    white-space: nowrap;
+}
+
 
 .tundra .dijitDialogCloseIcon {
     height: 25px;
