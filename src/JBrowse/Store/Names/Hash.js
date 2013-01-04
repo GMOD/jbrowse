@@ -92,8 +92,9 @@ return declare( HashStore,
             }
             last = i;
             last.label = last.name
-                + last.location ? ' <span class="locString">'+last.location+'</span>'
-                                : '';
+                + ( last.location ? ' <span class="locString">'+last.location+'</span>'
+                                  : ''
+                  );
             return true;
         });
 
