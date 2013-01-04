@@ -26,9 +26,9 @@ define( [
             'dijit/MenuItem',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
-            'JBrowse/Store/LazyTrieDojoData',
+            'JBrowse/Store/Names/LazyTrieDojoData',
             'dojo/store/DataStore',
-            'JBrowse/Store/Hash',
+            'JBrowse/Store/Names/Hash',
             'JBrowse/GenomeView',
             'JBrowse/TouchScreenSupport',
             'JBrowse/ConfigManager',
@@ -57,9 +57,9 @@ define( [
             dijitMenuItem,
             Util,
             LazyTrie,
-            LazyTrieDojoDataStore,
+            NamesLazyTrieDojoDataStore,
             DojoDataStore,
-            HashStore,
+            NamesHashStore,
             GenomeView,
             Touch,
             ConfigManager,
@@ -358,14 +358,18 @@ Browser.prototype.loadNames = function() {
         if( ! conf.url )
             conf.url = this.config.nameUrl || 'data/names/';
 
+        if( conf.baseUrl )
+            conf.url = Util.resolveUrl( conf.baseUrl, conf.url );
+
         if( conf.type == 'Hash' )
-            this.nameStore = new HashStore({
+            this.nameStore = new NamesHashStore({
                     url: conf.url
             });
         else
-            // wrap the older LazyTrieDojoDataStore to conform with the dojo/store API
+            // wrap the older LazyTrieDojoDataStore with
+            // dojo.store.DataStore to conform with the dojo/store API
             this.nameStore = new DojoDataStore({
-                store: new LazyTrieDojoDataStore({
+                store: new NamesLazyTrieDojoDataStore({
                     namesTrie: new LazyTrie( conf.url, "lazy-{Chunk}.json"),
                     stopPrefixes: conf.stopPrefixes,
                     resultLimit:  conf.resultLimit || 15
@@ -1929,11 +1933,13 @@ Browser.prototype.createNavBox = function( parent ) {
             name: "location",
             style: { width: '25ex' },
             maxLength: 400,
-            searchAttr: "name"
+            searchAttr: "name",
+            labelAttr: "label",
+            labelType: 'html'
         },
         dojo.create('input', {}, navbox) );
     this.afterMilestone( 'loadNames', dojo.hitch(this, function() {
-        this.locationBox.set( 'store', this._makeLocationAutocompleteStore() );
+        this.locationBox.set( 'store', this.nameStore );
     }));
 
     this.locationBox.focusNode.spellcheck = false;
@@ -2034,9 +2040,6 @@ Browser.prototype.createNavBox = function( parent ) {
     return navbox;
 };
 
-Browser.prototype._makeLocationAutocompleteStore = function() {
-    return this.nameStore;
-};
 
 return Browser;
 

@@ -23,30 +23,18 @@ return declare( null, {
         });
     },
 
-    // case-insensitive, and supports prefix queries like 'foo*'
     query: function( query, options ) {
-        // remove trailing asterisks from query.name
-        var name = ( query.name || '' ).toString().toLowerCase();
-        var trailingStar = /\*$/;
-        if( trailingStar.test( name ) ) {
-            return this._getBucket( name.replace( trailingStar, '' ) )
-                       .then( function( bucket ) {
-                            return QueryResults( ( bucket.exact || [] ).concat( bucket.prefix || [] ) );
-                        });
-        }
-        else {
-            return this._getBucket( name )
-                       .then( function( bucket ) {
-                           return QueryResults( bucket.exact || [] );
-                       });
-        }
+        return this._get( (query.name || '').toString() )
+                   .then( function( value ) {
+                              return QueryResults( (value||{}).exact || [] );
+                          });
     },
 
-    get: function( id ) {
-        return this._getBucket( id )
+    get: function( key ) {
+        return this._getBucket(key)
                    .then( function( bucket ) {
-                       return (bucket.exact||[])[0] || null;
-                   });
+                        return bucket[key];
+                    });
     },
 
     _getBucket: function( key ) {

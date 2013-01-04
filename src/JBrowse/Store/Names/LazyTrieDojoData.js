@@ -6,11 +6,13 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
-           'JBrowse/Util'
+           'JBrowse/Util',
+           'JBrowse/Model/Location'
        ],function(
            declare,
            array,
-           Util
+           Util,
+           Location
        ) {
 return declare( null,
 /**
@@ -120,15 +122,15 @@ return declare( null,
                                    if( matchesRemaining-- ) {
                                        var name = this.nodeText(node);
                                        array.forEach( node[1], function(n) {
-                                                          var startbp = parseInt( n[ post1_4 ? 4 : 3 ]);
-                                                          var endbp   = parseInt( n[ post1_4 ? 5 : 4 ]);
-                                                          var ref     = n[ post1_4 ? 3 : 2 ];
+                                           var location = new Location({
+                                               ref: n[ post1_4 ? 3 : 2 ],
+                                               start: parseInt( n[ post1_4 ? 4 : 3 ]),
+                                               end: parseInt( n[ post1_4 ? 5 : 4 ])
+                                           });
+
                                            matches.push({
                                                         name: name,
-                                                        location: { ref: ref,
-                                                                    start: startbp,
-                                                                    end: endbp
-                                                                  }
+                                                        location: location
                                                     });
                                        });
                                    }

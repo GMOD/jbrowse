@@ -11,8 +11,6 @@
     //   ]
     // },
 
-    names: { type: 'Hash', url: 'data/names/' },
-
     suppressUsageStatistics: true,
 
     // the variable below does nothing

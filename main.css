@@ -28,6 +28,14 @@ fieldset > legend {
     font-size: 14px;
 }
 
+/* styles for the autocomplete menu */
+.dijitComboBoxMenu .locString, .dijitComboBoxMenu .multipleLocations {
+    margin-left: 1em;
+}
+.dijitComboBoxMenu .multipleLocations {
+    font-size: 90%;
+}
+
 .ghosted {
     color: #aaa;
 }

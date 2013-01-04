@@ -2,7 +2,7 @@
    "tracks" : [
       {
          "chunkSize" : 20000,
-         "urlTemplate" : "seq/{refseq}/",
+         "urlTemplate" : "seq/{refseq_dirpath}/{refseq}-",
          "label" : "DNA",
          "type" : "SequenceTrack",
          "key" : "DNA"
@@ -218,7 +218,7 @@
             "arrowheadClass" : "transcript-arrowhead"
          },
          "description" : 1,
-         "onClick" : "function() { alert('Ran arbitrary JavaScript!'); };",
+         "onClick" : "function() { alert('This is a user-configurable JavaScript action!'); };",
          "key" : "Exonerate predictions",
          "feature" : [
             "mRNA:exonerate"
@@ -264,9 +264,57 @@
       {
          "storeClass" : "JBrowse/Store/BigWig",
          "urlTemplate" : "../../raw/volvox/volvox_microarray.bw",
-         "type" : "JBrowse/View/Track/Wiggle",
-         "label" : "volvox_microarray.bw",
-         "key" : "volvox_microarray.bw"
+         "label" : "volvox_microarray.bw_density",
+         "type" : "JBrowse/View/Track/Wiggle/Density",
+         "bicolor_pivot" : "mean",
+         "key" : "BigWig Density - volvox_microarray"
+      },
+      {
+         "storeClass" : "JBrowse/Store/BigWig",
+         "urlTemplate" : "../../raw/volvox/volvox_microarray.bw",
+         "label" : "volvox_microarray.bw_xyplot",
+         "type" : "JBrowse/View/Track/Wiggle/XYPlot",
+         "variance_band" : "true",
+         "key" : "BigWig XY - volvox_microarray"
+      },
+      {
+         "storeClass" : "JBrowse/Store/BigWig",
+         "urlTemplate" : "../../raw/volvox/volvox_sine.bw",
+         "type" : "JBrowse/View/Track/Wiggle/Density",
+         "label" : "volvox_sine_density",
+         "bicolor_pivot" : "mean",
+         "key" : "BigWig Density - volvox_sine"
+      },
+      {
+         "storeClass" : "JBrowse/Store/BigWig",
+         "urlTemplate" : "../../raw/volvox/volvox_sine.bw",
+         "style" : {
+            "bg_color" : "#ccc"
+         },
+         "type" : "JBrowse/View/Track/Wiggle/XYPlot",
+         "label" : "volvox_sine_xyplot",
+         "key" : "BigWig XY - volvox_sine"
+      },
+      {
+         "storeClass" : "JBrowse/Store/SeqFeature/BAM",
+         "urlTemplate" : "../../raw/volvox/volvox-sorted.bam",
+         "style" : {
+            "className" : "alignment",
+            "arrowheadClass" : "arrowhead",
+            "labelScale" : 100
+         },
+         "type" : "JBrowse/View/Track/Alignments",
+         "label" : "volvox-sorted.bam",
+         "key" : "volvox-sorted.bam"
+      },
+      {
+         "storeClass" : "JBrowse/Store/SeqFeature/BAM",
+         "urlTemplate" : "../../raw/volvox/volvox-sorted.bam",
+         "max_score" : 35,
+         "type" : "JBrowse/View/Track/FeatureCoverage",
+         "label" : "volvox-sorted.bam_coverage",
+         "min_score" : 0,
+         "key" : "volvox-sorted Coverage"
       },
       {
          "urlTemplate" : "tracks/volvox_microarray.wig/{refseq}/trackData.json",
@@ -292,5 +340,9 @@
          "key" : "Simulated next-gen reads"
       }
    ],
+   "names" : {
+      "url" : "names/",
+      "type" : "Hash"
+   },
    "formatVersion" : 1
 }
