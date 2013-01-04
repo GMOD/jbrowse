@@ -18,17 +18,45 @@ define( [
 return declare( HashStore,
 {
 
+    constructor: function( args ) {
+
+        this.tooManyMatchesMessage = args.tooManyMatchesMessage || '(too many matches to display)';
+
+        // generate stopPrefixes
+        var stopPrefixes = this.stopPrefixes = {};
+        // make our stopPrefixes an object as { prefix: true, ... }
+        // with all possible prefixes of our stop prefixes
+        if( args.stopPrefixes ) {
+            var prefixesInput = typeof args.stopPrefixes == 'string'
+                ? [ args.stopPrefixes ] : args.stopPrefixes;
+
+            dojo.forEach( prefixesInput, function(prefix) {
+                while( prefix.length ) {
+                    stopPrefixes[prefix] = true;
+                    prefix = prefix.substr( 0, prefix.length - 1 );
+                }
+            });
+        }
+    },
+
     _nameRecordToItem: function( nameRecord ) {
-        var name    = nameRecord[0];
-        var location = new Location({
-            ref: nameRecord[3],
-            start: parseInt( nameRecord[4] ),
-            end: parseInt( nameRecord[5] )
-        });
-        return {
-            name: name,
-            location: location
-        };
+        if( nameRecord.hitLimit ) {
+            // it's a too-many-matches marker
+            return { name: this.tooManyMatchesMessage, hitLimit: true };
+        }
+        else {
+            // it's an actual name record
+            var name    = nameRecord[0];
+            var location = new Location({
+                ref: nameRecord[3],
+                start: parseInt( nameRecord[4] ),
+                end: parseInt( nameRecord[5] )
+            });
+            return {
+                name: name,
+                location: location
+            };
+        }
     },
 
     _makeResults: function( nameRecords ) {
@@ -41,14 +69,21 @@ return declare( HashStore,
                                   });
 
         var last;
+        var hitLimit;
 
         // aggregate them and make labels for them.  for names with
         // multiple locations, make a multipleLocations member.
         results = array.filter( results, function( i ) {
-            if( last && last.name == i.name ) {
+            if( i.hitLimit ) {
+                hitLimit = i;
+                if( ! hitLimit.label )
+                    hitLimit.label = hitLimit.name || 'too many matches';
+                return false;
+            }
+            else if( last && last.name == i.name ) {
                 last.label = last.name + ' <span class="multipleLocations">multiple locations</span>';
                 if( last.multipleLocations ) {
-                    last.multipleLocation.push( i.location );
+                    last.multipleLocations.push( i.location );
                 } else {
                     last.multipleLocations = [last.location,i.location];
                     delete last.location;
@@ -56,9 +91,14 @@ return declare( HashStore,
                 return false;
             }
             last = i;
-            last.label = last.name + ' <span class="locString">'+last.location+'</span>';
+            last.label = last.name
+                + last.location ? ' <span class="locString">'+last.location+'</span>'
+                                : '';
             return true;
         });
+
+        if( hitLimit )
+            results.push( hitLimit );
 
         return QueryResults( results );
     },

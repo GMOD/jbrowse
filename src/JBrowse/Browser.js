@@ -365,9 +365,7 @@ Browser.prototype.loadNames = function() {
             conf.url = Util.resolveUrl( conf.baseUrl, conf.url );
 
         if( conf.type == 'Hash' )
-            this.nameStore = new NamesHashStore({
-                    url: conf.url
-            });
+            this.nameStore = new NamesHashStore( conf );
         else
             // wrap the older LazyTrieDojoDataStore with
             // dojo.store.DataStore to conform with the dojo/store API
@@ -375,7 +373,8 @@ Browser.prototype.loadNames = function() {
                 store: new NamesLazyTrieDojoDataStore({
                     namesTrie: new LazyTrie( conf.url, "lazy-{Chunk}.json"),
                     stopPrefixes: conf.stopPrefixes,
-                    resultLimit:  conf.resultLimit || 15
+                    resultLimit:  conf.resultLimit || 15,
+                    tooManyMatchesMessage: conf.tooManyMatchesMessage
                 })
             });
 
@@ -2001,11 +2000,11 @@ Browser.prototype.createNavBox = function( parent ) {
          };
 
          // prevent the "more matches" option from being clicked
-         var oldSetValue = dropDownProto._setValueAttr;
-         dropDownProto._setValueAttr = function( value ) {
-             if( value.target && value.target.item && value.target.item.hitLimit )
+         var oldOnClick = dropDownProto.onClick;
+         dropDownProto.onClick = function( node ) {
+             if( dojo.hasClass(node, 'moreMatches' ) )
                  return null;
-             return oldSetValue.apply( this, arguments );
+             return oldOnClick.apply( this, arguments );
          };
     }).call(this);
 

@@ -194,10 +194,11 @@ sub insert {
         if( @{ $r->{prefix} } < $max_completions ) {
             push @{ $r->{prefix } }, $record;
             $store->set( $prefix, $r );
-        } else {
-            $r->{more_prefixes} = 1;
         }
-
+        elsif( @{ $r->{prefix} } == $max_completions ) {
+            push @{ $r->{prefix} }, { name => 'too many matches', hitLimit => 1 };
+            $store->set( $prefix, $r );
+        }
     }
 }
 
