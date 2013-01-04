@@ -42,10 +42,17 @@ return declare( HashStore,
 
         var last;
 
-        // uniqify them and make labels for them
+        // aggregate them and make labels for them.  for names with
+        // multiple locations, make a multipleLocations member.
         results = array.filter( results, function( i ) {
             if( last && last.name == i.name ) {
                 last.label = last.name + ' <span class="multipleLocations">multiple locations</span>';
+                if( last.multipleLocations ) {
+                    last.multipleLocation.push( i.location );
+                } else {
+                    last.multipleLocations = [last.location,i.location];
+                    delete last.location;
+                }
                 return false;
             }
             last = i;

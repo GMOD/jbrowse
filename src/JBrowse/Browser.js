@@ -1,7 +1,8 @@
 var _gaq = _gaq || []; // global task queue for Google Analytics
 require( {
              packages: [ 'dijit', 'dojox', 'jszlib',
-                         { name: 'lazyload', main: 'lazyload' }
+                         { name: 'lazyload', main: 'lazyload' },
+                         'dgrid', 'xstyle', 'put-selector'
                        ]
          },
          [],
@@ -34,6 +35,7 @@ define( [
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
+            'JBrowse/View/LocationChoiceDialog',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
             'dojo/domReady!'
@@ -65,6 +67,7 @@ define( [
             ConfigManager,
             InfoDialog,
             FileDialog,
+            LocationChoiceDialog,
             dijitFocus,
             LazyLoad
         ) {
@@ -1275,6 +1278,21 @@ Browser.prototype.createTrackList = function() {
 Browser.prototype.onVisibleTracksChanged = function() {
 };
 
+
+/**
+ * Like <code>navigateToLocation()</code>, except it attempts to display the given
+ * location with a little bit of flanking sequence to each side, if
+ * possible.
+ */
+Browser.prototype.showRegion = function( location ) {
+    var flank   = Math.round( ( location.end - location.start ) * 0.2 );
+    //go to location, with some flanking region
+    this.navigateToLocation({ ref: location.ref,
+                               start: location.start - flank,
+                               end: location.end + flank
+                             });
+};
+
 /**
  * navigate to a given location
  * @example
@@ -1413,14 +1431,26 @@ Browser.prototype.searchNames = function( /**String*/ loc ) {
             }
             //else just pick a match
             if( !goingTo ) goingTo = nameMatches[0];
-            var flank   = Math.round( ( goingTo.location.end - goingTo.location.start ) * 0.2 );
-            //go to location, with some flanking region
-            brwsr.navigateTo({ ref: goingTo.location.ref,
-                               start: goingTo.location.start - flank,
-                               end: goingTo.location.end + flank
-                             });
-            // var tracks = (brwsr.names.extra||{})[goingTo][ post1_4 ? 1 : 0 ]];
-            // brwsr.showTracks(brwsr.names.extra[goingTo][ post1_4 ? 1 : 0 ]]);
+
+            // if it has one location, go to it
+            if( goingTo.location ) {
+
+                //go to location, with some flanking region
+                brwsr.showRegion( goingTo.location );
+
+                // var tracks = (brwsr.names.extra||{})[goingTo][ post1_4 ? 1 : 0 ]];
+                // brwsr.showTracks(brwsr.names.extra[goingTo][ post1_4 ? 1 : 0 ]]);
+            }
+            // otherwise, pop up a dialog with a list of the locations to choose from
+            else if( goingTo.multipleLocations ) {
+                new LocationChoiceDialog(
+                    {
+                        browser: brwsr,
+                        locationChoices: goingTo.multipleLocations,
+                        title: 'Choose '+goingTo.name+' location'
+                    })
+                    .show();
+            }
         }
    );
 };

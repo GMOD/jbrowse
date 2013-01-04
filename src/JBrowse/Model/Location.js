@@ -8,10 +8,12 @@ define([
 return Util.fastDeclare(
 {
     constructor: function( args ) {
-        this.ref = args.ref;
-        this.start = args.start;
-        this.end = args.end;
-        this.strand = args.strand;
+        if( args ) {
+            this.ref = args.ref;
+            this.start = args.start;
+            this.end = args.end;
+            this.strand = args.strand;
+        }
     },
     toString: function() {
         return Util.assembleLocString(this);
