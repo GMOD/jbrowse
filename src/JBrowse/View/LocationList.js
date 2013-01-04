@@ -1,3 +1,8 @@
+/**
+ * Generic component that displays a list of genomic locations, along
+ * with buttons to execute actions on them.
+ */
+
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
@@ -31,30 +36,17 @@ return declare(null,{
             columns.unshift( { label: 'Name', field: 'label' } );
         }
 
-        if( args.showCallback || args.goCallback ) {
+        if( args.buttons ) {
             columns.push({
                              label: '',
                              className: 'goButtonColumn',
                              renderCell: function( object, value, node, options ) {
-                                  var container = dom.create('div');
-                                  if( args.showCallback ) {
-                                      new dijitButton(
-                                          {
-                                              className: 'show',
-                                              title: 'Show '+object,
-                                              innerHTML: 'Show',
-                                              onClick: function() { args.showCallback( object, value, node, options ); }
-                                          }).placeAt( container );
-                                  }
-                                  if( args.goCallback ) {
-                                      new dijitButton(
-                                          {
-                                              className: 'go',
-                                              title: 'Go to '+object,
-                                              innerHTML: 'Go',
-                                              onClick: function() { args.goCallback( object, value, node, options ); }
-                                          }).placeAt( container );
-                                  }
+                                 var container = dom.create('div');
+                                 array.forEach( args.buttons, function( button ) {
+                                     var buttonArgs = dojo.mixin( {}, button );
+                                     buttonArgs.onClick = function() { button.onClick( object, value, node, options ); };
+                                     new dijitButton( buttonArgs ).placeAt( container );
+                                 });
                                  return container;
                              }
                          });
