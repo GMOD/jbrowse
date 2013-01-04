@@ -1939,7 +1939,8 @@ Browser.prototype.createNavBox = function( parent ) {
         },
         dojo.create('input', {}, navbox) );
     this.afterMilestone( 'loadNames', dojo.hitch(this, function() {
-        this.locationBox.set( 'store', this.nameStore );
+        if( this.nameStore )
+            this.locationBox.set( 'store', this.nameStore );
     }));
 
     this.locationBox.focusNode.spellcheck = false;
