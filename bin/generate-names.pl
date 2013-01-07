@@ -109,7 +109,10 @@ my $nameStore = Bio::JBrowse::HashStore->open( dir => catdir( $outDir, "names" )
 
 my @refSeqs  = @{ $gdb->refSeqs   };
 my @tracks   = grep { !%includedTrackNames || $includedTrackNames{ $_->{label} } }
-               @{ $gdb->trackList };
+               @{ $gdb->trackList || [] };
+unless( @tracks ) {
+    warn "No tracks defined in configuration, nothing to do.\n";
+}
 
 if( $verbose ) {
     print STDERR "Tracks:\n".join('', map "    $_->{label}\n", @tracks );
