@@ -79,8 +79,7 @@ sub tempdir {
                  'f05',
                  'ctgA',
                  4715,
-                 5968,
-                 undef
+                 5968
                ],
                'got the right names output'
                ) or diag explain $names_output;

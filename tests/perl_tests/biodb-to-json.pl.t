@@ -62,8 +62,7 @@ use FileSlurping 'slurp';
                        'Apple3',
                        'ctgA',
                        '17399',
-                       '23000',
-                       undef,
+                       '23000'
                    ]
                ],
                'got the right names output'
@@ -126,8 +125,7 @@ use FileSlurping 'slurp';
                        'Apple3',
                        'ctgA',
                        '17399',
-                       '23000',
-                       undef
+                       '23000'
                    ]
                ],
                'got the right names output'
