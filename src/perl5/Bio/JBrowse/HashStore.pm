@@ -34,6 +34,8 @@ use JSON 2;
 use File::Spec ();
 use File::Path ();
 
+use Tie::Cache::LRU ();
+
 =head2 open( dir => "/path/to/dir" )
 
 =cut
@@ -43,6 +45,9 @@ sub open {
 
     my $self = bless { @_ }, $class;
     File::Path::mkpath( $self->{dir} );
+
+    tie %{$self->{cache} = {}}, 'Tie::Cache::LRU', 500;
+
     return $self;
 }
 
@@ -52,8 +57,8 @@ sub open {
 
 sub get {
     my ( $self, $key ) = @_;
-    my $bucket = $self->_readBucket( $self->_bucketPath( $key ) );
-    return $bucket->{$key};
+    my $bucket = $self->_getBucket( $key );
+    return $bucket->{data}{$key};
 }
 
 =head2 set( $key, $value )
@@ -63,15 +68,9 @@ sub get {
 sub set {
     my ( $self, $key, $value ) = @_;
 
-    my ( $dir, $file ) = $self->_bucketPath( $key );
-    my $fullpath = File::Spec->catdir( $dir, $file );
-
-    my $bucket = $self->_readBucket( $fullpath );
-    $bucket->{$key} = $value;
-
-    File::Path::mkpath( $dir );
-    CORE::open my $out, '>', $fullpath or die "$! writing $fullpath";
-    $out->print( JSON::to_json( $bucket ) );
+    my $bucket = $self->_getBucket( $key );
+    $bucket->{data}{$key} = $value;
+    $bucket->{dirty} = 1;
 
     return $value;
 }
@@ -101,15 +100,56 @@ sub _bucketPath {
     return ( File::Spec->catdir(@dir), $file );
 }
 
+sub _getBucket {
+    my ( $self, $key ) = @_;
+    return $self->{cache}{$key} ||= $self->_readBucket( $key );
+}
+
 sub _readBucket {
-    my ( $self, @path ) = @_;
-    my $path = @path > 1 ? File::Spec->catdir( @path ) : $path[0];
+    my ( $self, $key ) = @_;
+    my ( $dir, $file ) = $self->_bucketPath( $key );
+    my $path = File::Spec->catfile( $dir, $file );
 
-    -f $path or return {};
+    my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
 
-    local $/;
-    CORE::open my $in, '<', $path or die "$! reading $path";
-    return JSON::from_json( scalar <$in> );
+    if( -f $path ) {
+        local $/;
+        CORE::open my $in, '<', $path or die "$! reading $path";
+        return $bucket_class->new(
+             dir => $dir,
+             fullpath => $path,
+             data => JSON::from_json( scalar <$in> )
+             );
+    }
+    else {
+        return $bucket_class->new(
+            dir => $dir,
+            fullpath => $path,
+            data => {},
+            dirty => 1
+            );
+    }
+}
+
+
+######## inner class for on-disk hash buckets ##########
+
+package Bio::JBrowse::HashStore::Bucket;
+
+sub new {
+    my $class = shift;
+    bless { @_ }, $class;
+}
+
+# when a bucket is deleted, flush it to disk
+sub DESTROY {
+    my ( $self ) = @_;
+
+    return unless $self->{dirty} && %{$self->{data}};
+
+    File::Path::mkpath( $self->{dir} );
+    CORE::open my $out, '>', $self->{fullpath} or die "$! writing $self->{fullpath}";
+    $out->print( JSON::to_json( $self->{data} ) );
 }
 
 1;
