@@ -37,7 +37,7 @@ fieldset > legend {
     margin-left: 1em;
 }
 .dijitComboBoxMenu .multipleLocations {
-    font-size: 90%;
+    color: #333;
 }
 
 /* location choice dialog */
@@ -133,7 +133,7 @@ div.vertical_scrollbar .vertical_position_marker {
 
 .moreMatches {
     font-style: italic;
-    color: #ccc;
+    color: #aaa;
 }
 .moreMatches.dijitMenuItemSelected {
     background: none;

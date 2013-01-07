@@ -8,6 +8,7 @@ define([
            'dojo/dom-construct',
            'dojo/aspect',
            'dijit/Dialog',
+           'dijit/form/Button',
            'dijit/focus',
            'JBrowse/View/LocationList'
        ],
@@ -16,6 +17,7 @@ define([
            dom,
            aspect,
            Dialog,
+           dijitButton,
            dijitFocus,
            LocationListView
        ) {
@@ -34,7 +36,7 @@ return declare( null, {
     constructor: function( args ) {
         this.browser = args.browser;
         this.config = dojo.clone( args.config || {} );
-        this.locationChoices = args.locationChoices;
+        this.locationChoices = args.locationChoices || [];
         this.title = args.title || 'Choose location';
         this.prompt = args.prompt;
         this.goCallback = args.goCallback;
@@ -44,7 +46,8 @@ return declare( null, {
     show: function() {
         var dialog = this.dialog = new Dialog(
             { title: this.title,
-              className: 'locationChoiceDialog'
+              className: 'locationChoiceDialog',
+              style: { width: '70%' }
             }
             );
         var container = dom.create('div',{});
@@ -74,10 +77,19 @@ return declare( null, {
                   }
               ]
             },
-            dom.create( 'div', { className: 'locationList' }, container )
+            dom.create( 'div', {
+                            className: 'locationList',
+                            style: { maxHeight: 0.5*this.browser.container.offsetHeight+'px'}
+                        },container)
         );
 
-        dialog.set( 'content', container );
+        this.actionBar = dojo.create( 'div', { className: 'infoDialogActionBar dijitDialogPaneActionBar' });
+        new dijitButton({ iconClass: 'dijitIconDelete',
+                          label: 'Cancel', onClick: dojo.hitch( dialog, 'hide' )
+                        })
+            .placeAt(this.actionBar);
+
+        dialog.set( 'content', [ container, this.actionBar ] );
         dialog.show();
         aspect.after( dialog, 'hide', dojo.hitch( this, function() {
                               dijitFocus.curNode && dijitFocus.curNode.blur();
