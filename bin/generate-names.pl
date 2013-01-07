@@ -31,7 +31,7 @@ L<LazyPatricia> for details.
 
 =item --completionLimit <number>
 
-Maximum number of completions to store for a given prefix.  Default 15.
+Maximum number of completions to store for a given prefix.  Default 50.
 
 =item --verbose
 
@@ -80,7 +80,7 @@ my $thresh = 100 * 2**10;
 my $verbose = 0;
 my $incremental;
 my $help;
-my $max_completions = 15;
+my $max_completions = 50;
 GetOptions("dir|out=s" => \$outDir,
            "thresh=i" => \$thresh,
            "completionLimit=i" => \$max_completions,
