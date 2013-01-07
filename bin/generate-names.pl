@@ -228,7 +228,10 @@ sub make_namestxt_iterator {
     # read the input json partly with low-level parsing so that we
     # can parse incrementally from the filehandle.  names.txt
     # files can be very big.
-    return sub { <$input_fh> };
+    return sub {
+        my $t = <$input_fh>;
+        return $t ? JSON::from_json( $t ) : undef
+    };
 }
 sub make_namesjson_iterator {
     my ( $infile ) = @_;
