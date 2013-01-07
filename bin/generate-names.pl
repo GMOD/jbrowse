@@ -108,10 +108,13 @@ my $gdb = GenomeDB->new( $outDir );
 my $nameStore = Bio::JBrowse::HashStore->open( dir => catdir( $outDir, "names" ) );
 
 my @refSeqs  = @{ $gdb->refSeqs   };
+unless( @refSeqs ) {
+    die "No reference sequences defined in configuration, nothing to do.\n";
+}
 my @tracks   = grep { !%includedTrackNames || $includedTrackNames{ $_->{label} } }
                @{ $gdb->trackList || [] };
 unless( @tracks ) {
-    warn "No tracks defined in configuration, nothing to do.\n";
+    die "No tracks defined in configuration, nothing to do.\n";
 }
 
 if( $verbose ) {
@@ -130,19 +133,29 @@ for my $ref (@refSeqs) {
     insert( $nameStore, $ref->{name}, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }] );
 
     for my $track (@tracks) {
-        my $infile = catfile( $outDir,
-                              "tracks",
-                              $track->{label},
-                              $ref->{name},
-                              "names.txt");
-        next unless -e $infile;
+        my $dir = catdir( $outDir,
+                          "tracks",
+                          $track->{label},
+                          $ref->{name}
+                        );
 
-        # read the input json partly with low-level parsing so that we
-        # can parse incrementally from the filehandle.  names.txt
-        # files can be very big.
-        open my $json_fh, '<', $infile or die "$! reading $infile";
-        while( my $nameinfo = <$json_fh> ) {
-            $nameinfo = JSON::from_json( $nameinfo );
+        # read either names.txt or names.json files
+        my $name_records_iterator;
+        my $names_txt  = catfile( $dir, 'names.txt'  );
+        if( -f $names_txt ) {
+            $name_records_iterator = make_namestxt_iterator( $names_txt );
+        }
+        else {
+            my $names_json = catfile( $dir, 'names.json' );
+            if( -f $names_json ) {
+                $name_records_iterator = make_namesjson_iterator( $names_json );
+            }
+            else {
+                next;
+            }
+        }
+
+        while( my $nameinfo = $name_records_iterator->() ) {
             foreach my $alias ( @{$nameinfo->[0]} ) {
                 my $track = $nameinfo->[1];
                 unless( defined $trackHash{$track} ) {
@@ -205,3 +218,32 @@ sub insert {
     }
 }
 
+
+# each of these takes an input filename and returns a subroutine that
+# returns name records until there are no more, for either names.txt
+# files or old-style names.json files
+sub make_namestxt_iterator {
+    my ( $infile ) = @_;
+    my $input_fh = open_names_file( $infile );
+    # read the input json partly with low-level parsing so that we
+    # can parse incrementally from the filehandle.  names.txt
+    # files can be very big.
+    return sub { <$input_fh> };
+}
+sub make_namesjson_iterator {
+    my ( $infile ) = @_;
+    my $input_fh = open_names_file( $infile );
+
+    my $data = JSON::from_json(do {
+        local $/;
+        scalar <$input_fh>
+    });
+
+    return sub { shift @$data };
+}
+sub open_names_file {
+    my ( $infile ) = @_;
+    my $gzip = $infile =~ /\.(txt|json)z$/ ? ':gzip' : '';
+    open my $fh, "<$gzip", $infile or die "$! reading $infile";
+    return $fh;
+}
