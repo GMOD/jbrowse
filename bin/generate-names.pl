@@ -8,7 +8,6 @@ generate-names.pl - generate a global index of feature names
 
   generate-names.pl                        \
       [ --out <output directory> ]         \
-      [ --thresh <threshold> ]             \
       [ --verbose ]
 
 =head1 OPTIONS
@@ -23,11 +22,6 @@ Data directory to process.  Default 'data/'.
 
 Comma-separated list of which tracks to include in the names index.  If
 not passed, all tracks are indexed.
-
-=item --thresh <threshold>
-
-Optional LazyPatricia chunking threshold, in bytes.  Default 100kb.  See
-L<LazyPatricia> for details.
 
 =item --completionLimit <number>
 
@@ -55,36 +49,29 @@ use JBlibs;
 use Fcntl ":flock";
 use File::Spec::Functions;
 use Getopt::Long;
-use IO::File;
 use Pod::Usage;
+
+use PerlIO::gzip;
 
 use JSON 2;
 
-
-use LazyPatricia;
-
 use Bio::JBrowse::HashStore;
 use GenomeDB;
-
-use Data::Dumper;
-$Data::Dumper::Indent = 1;
 
 my %trackHash;
 my @includedTrackNames;
 my @tracksWithNames;
 
-# TODO: change to hash-based storage, pre-generate prefixes
-
 my $outDir = "data";
-my $thresh = 100 * 2**10;
 my $verbose = 0;
 my $incremental;
 my $help;
 my $max_completions = 50;
+my $thresh;
 GetOptions("dir|out=s" => \$outDir,
-           "thresh=i" => \$thresh,
            "completionLimit=i" => \$max_completions,
            "verbose+" => \$verbose,
+           "thresh=i" => \$thresh,
            "add"      => \$incremental,
            'tracks=s' => \@includedTrackNames,
            "help|h|?" => \$help) or pod2usage();
