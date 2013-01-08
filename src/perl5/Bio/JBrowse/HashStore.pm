@@ -46,7 +46,7 @@ sub open {
     my $self = bless { @_ }, $class;
     File::Path::mkpath( $self->{dir} );
 
-    tie %{$self->{cache} = {}}, 'Tie::Cache::LRU', 500;
+    tie %{$self->{cache} = {}}, 'Tie::Cache::LRU', 50;
 
     return $self;
 }
