@@ -27,6 +27,22 @@ not passed, all tracks are indexed.
 
 Maximum number of completions to store for a given prefix.  Default 50.
 
+=item --totalNames <number>
+
+Optional estimate of the total number of names that will go into this
+names index.  Used to choose some parameters for how the name index is
+built.  If not passed, tries to estimate this based on the size of the
+input names files.
+
+=item --incremental
+
+Add new entries to the names index, not deleting the old ones.  When
+using this option, it is best to pass the --totalNames parameter as
+well.  Otherwise, the first call to generate-names.pl will initialize
+the names index to be optimal for the number of names added just in
+that first call, which could lead to the names index being constructed
+non-optimally.
+
 =item --verbose
 
 Print more progress messages.
@@ -50,6 +66,7 @@ use Fcntl ":flock";
 use File::Spec::Functions;
 use Getopt::Long;
 use Pod::Usage;
+use List::Util qw/ sum min max /;
 
 use PerlIO::gzip;
 
@@ -68,11 +85,13 @@ my $incremental;
 my $help;
 my $max_completions = 50;
 my $thresh;
+my $est_total_name_records;
 GetOptions("dir|out=s" => \$outDir,
            "completionLimit=i" => \$max_completions,
            "verbose+" => \$verbose,
            "thresh=i" => \$thresh,
-           "add"      => \$incremental,
+           "incremental" => \$incremental,
+           "totalNames=i" => \$est_total_name_records,
            'tracks=s' => \@includedTrackNames,
            "help|h|?" => \$help) or pod2usage();
 
@@ -92,7 +111,6 @@ OUTDIR
 }
 
 my $gdb = GenomeDB->new( $outDir );
-my $nameStore = Bio::JBrowse::HashStore->open( dir => catdir( $outDir, "names" ) );
 
 my @refSeqs  = @{ $gdb->refSeqs   };
 unless( @refSeqs ) {
@@ -108,55 +126,60 @@ if( $verbose ) {
     print STDERR "Tracks:\n".join('', map "    $_->{label}\n", @tracks );
 }
 
-
-# clear out old data
-$nameStore->empty unless $incremental;
-
 # read the name list for each track that has one
 my $trackNum = 0;
 
+# find the names files we will be working with
+my @names_files = find_names_files();
+if( ! @names_files ) {
+    warn "WARNING: No feature names found for indexing, only reference sequence names will be indexed.\n";
+}
+
+unless( $incremental ) {
+    # estimate the total number of name records we probably have based on the input file sizes
+    $est_total_name_records ||= int( (sum( map { -s $_->{fullpath} } @names_files )||0) / 60 );
+    if( $verbose ) {
+        print STDERR "Estimated $est_total_name_records total name records to index.\n";
+    }
+}
+
+my $nameStore = Bio::JBrowse::HashStore->open(
+    dir   => catdir( $outDir, "names" ),
+    empty => !$incremental,
+
+    # set the hash size to try to get about 100 name records per file
+    # if the store has existing data in it, this will be ignored
+    hash_size => $est_total_name_records
+        ? max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 100 )/ 4 / log(2)) ))
+        : 12,
+);
+
+if( $verbose ) {
+    print STDERR "Using ".$nameStore->{hash_size}."-bit hashing.\n";
+}
+
+# insert a name record for all of the reference sequences
 for my $ref (@refSeqs) {
-
     insert( $nameStore, $ref->{name}, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }] );
+}
 
-    for my $track (@tracks) {
-        my $dir = catdir( $outDir,
-                          "tracks",
-                          $track->{label},
-                          $ref->{name}
-                        );
-
-        # read either names.txt or names.json files
-        my $name_records_iterator;
-        my $names_txt  = catfile( $dir, 'names.txt'  );
-        if( -f $names_txt ) {
-            $name_records_iterator = make_namestxt_iterator( $names_txt );
-        }
-        else {
-            my $names_json = catfile( $dir, 'names.json' );
-            if( -f $names_json ) {
-                $name_records_iterator = make_namesjson_iterator( $names_json );
+# go through all of the names in the names files and insert records for them
+for my $names_file_record ( @names_files ) {
+    my $name_records_iterator = make_names_iterator( $names_file_record );
+    while ( my $nameinfo = $name_records_iterator->() ) {
+        foreach my $alias ( @{$nameinfo->[0]} ) {
+            my $track = $nameinfo->[1];
+            unless ( defined $trackHash{$track} ) {
+                $trackHash{$track} = $trackNum++;
+                push @tracksWithNames, $track;
             }
-            else {
-                next;
-            }
-        }
 
-        while( my $nameinfo = $name_records_iterator->() ) {
-            foreach my $alias ( @{$nameinfo->[0]} ) {
-                my $track = $nameinfo->[1];
-                unless( defined $trackHash{$track} ) {
-                    $trackHash{$track} = $trackNum++;
-                    push @tracksWithNames, $track;
-                }
-
-                insert( $nameStore, $alias,
-                        [ $alias,
-                          $trackHash{$track},
-                          @{$nameinfo}[2..$#{$nameinfo}]
-                        ]
-                      );
-            }
+            insert( $nameStore, $alias,
+                    [ $alias,
+                      $trackHash{$track},
+                      @{$nameinfo}[2..$#{$nameinfo}]
+                      ]
+                    );
         }
     }
 }
@@ -171,6 +194,37 @@ $gdb->modifyTrackList( sub {
     $data->{names}{url}  = 'names/';
     return $data;
 });
+
+exit;
+
+################ HELPER SUBROUTINES ##############################
+
+sub find_names_files {
+    my @files;
+    for my $track (@tracks) {
+        for my $ref (@refSeqs) {
+            my $dir = catdir( $outDir,
+                              "tracks",
+                              $track->{label},
+                              $ref->{name}
+                            );
+
+            # read either names.txt or names.json files
+            my $name_records_iterator;
+            my $names_txt  = catfile( $dir, 'names.txt'  );
+            if( -f $names_txt ) {
+                push @files, { fullpath => $names_txt, type => 'txt' };
+            }
+            else {
+                my $names_json = catfile( $dir, 'names.json' );
+                if( -f $names_json ) {
+                    push @files, { fullpath => $names_json, type => 'json' };
+                }
+            }
+        }
+    }
+    return @files;
+}
 
 sub insert {
     my ( $store, $name, $record ) = @_;
@@ -209,28 +263,31 @@ sub insert {
 # each of these takes an input filename and returns a subroutine that
 # returns name records until there are no more, for either names.txt
 # files or old-style names.json files
-sub make_namestxt_iterator {
-    my ( $infile ) = @_;
-    my $input_fh = open_names_file( $infile );
-    # read the input json partly with low-level parsing so that we
-    # can parse incrementally from the filehandle.  names.txt
-    # files can be very big.
-    return sub {
-        my $t = <$input_fh>;
-        return $t ? JSON::from_json( $t ) : undef
-    };
-}
-sub make_namesjson_iterator {
-    my ( $infile ) = @_;
-    my $input_fh = open_names_file( $infile );
+sub make_names_iterator {
+    my ( $file_record ) = @_;
+    if( $file_record->{type} eq 'txt' ) {
+        my $input_fh = open_names_file( $file_record->{fullpath} );
+        # read the input json partly with low-level parsing so that we
+        # can parse incrementally from the filehandle.  names list
+        # files can be very big.
+        return sub {
+            my $t = <$input_fh>;
+            return $t ? JSON::from_json( $t ) : undef
+        };
+    }
+    elsif( $file_record->{type} eq 'json' ) {
+        # read old-style names.json files all from memory
+        my $input_fh = open_names_file( $file_record->{fullpath} );
 
-    my $data = JSON::from_json(do {
-        local $/;
-        scalar <$input_fh>
-    });
+        my $data = JSON::from_json(do {
+            local $/;
+            scalar <$input_fh>
+        });
 
-    return sub { shift @$data };
+        return sub { shift @$data };
+    }
 }
+
 sub open_names_file {
     my ( $infile ) = @_;
     my $gzip = $infile =~ /\.(txt|json)z$/ ? ':gzip' : '';

@@ -36,19 +36,55 @@ use File::Path ();
 
 use Tie::Cache::LRU ();
 
-=head2 open( dir => "/path/to/dir" )
+=head2 open( dir => "/path/to/dir", hash_size => 16 )
 
 =cut
 
 sub open {
     my $class = shift;
 
+    # source of data: defaults, overridden by open args, overridden by meta.json contents
     my $self = bless { @_ }, $class;
+
+    $self->empty if $self->{empty};
+
+    %$self = (
+        %$self,
+        %{$self->_read_meta}
+    );
+
+    $self->{hash_size} ||= 16;
+    $self->{hash_characters} = int( $self->{hash_size}/4 );
+    $self->{file_extension} = '.json';
+
+    tie %{$self->{bucket_cache} = {}}, 'Tie::Cache::LRU', 2000;
+    tie %{$self->{bucket_path_cache} = {}}, 'Tie::Cache::LRU', 200000;
+
+    return bless $self, $class;
+}
+
+# write out meta.json file when the store itself is destroyed
+sub DESTROY {
+    my ( $self ) = @_;
     File::Path::mkpath( $self->{dir} );
-
-    tie %{$self->{cache} = {}}, 'Tie::Cache::LRU', 50;
-
-    return $self;
+    my $meta_path = $self->_meta_path;
+    CORE::open my $out, '>', $meta_path or die "$! writing $meta_path";
+    $out->print( JSON::to_json(
+        {
+            hash_size => $self->{hash_size}
+        }
+        ));
+}
+sub _meta_path {
+    File::Spec->catfile( shift->{dir}, 'meta.json' );
+}
+sub _read_meta {
+    my ( $self ) = @_;
+    my $meta_path = $self->_meta_path;
+    return {} unless -r $meta_path;
+    CORE::open my $meta, '<', $meta_path or die "$! reading $meta_path";
+    local $/;
+    return JSON::from_json( scalar <$meta> );
 }
 
 =head2 get( $key )
@@ -60,6 +96,7 @@ sub get {
     my $bucket = $self->_getBucket( $key );
     return $bucket->{data}{$key};
 }
+
 
 =head2 set( $key, $value )
 
@@ -95,22 +132,25 @@ sub _bucketPath {
     my $crc = ( $self->{crc} ||= do { require Digest::Crc32; Digest::Crc32->new } )
                 ->strcrc32( $key );
     my $hex = lc sprintf( '%08x', $crc );
-    my @dir = ( $self->{dir}, $hex =~ /(.{1,3})/g );
-    my $file = pop @dir;
-    return ( File::Spec->catdir(@dir), $file );
+    $hex = substr( $hex, 8-$self->{hash_characters} );
+    my @dir = ( $self->{dir}, reverse $hex =~ /(.{1,3})/g );
+    my $file = (pop @dir).$self->{file_extension};
+    my $dir = File::Spec->catdir(@dir);
+    return { dir => $dir, fullpath => File::Spec->catfile( $dir, $file ) };
 }
 
 sub _getBucket {
     my ( $self, $key ) = @_;
-    return $self->{cache}{$key} ||= $self->_readBucket( $key );
+    my $pathinfo = $self->{bucket_path_cache}{$key} ||= $self->_bucketPath( $key );
+    return $self->{bucket_cache}{ $pathinfo->{fullpath} } ||= $self->_readBucket( $pathinfo );
 }
 
 sub _readBucket {
-    my ( $self, $key ) = @_;
-    my ( $dir, $file ) = $self->_bucketPath( $key );
-    my $path = File::Spec->catfile( $dir, $file );
-
+    my ( $self, $pathinfo ) = @_;
     my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
+
+    my $path = $pathinfo->{fullpath};
+    my $dir = $pathinfo->{dir};
 
     if( -f $path ) {
         local $/;
