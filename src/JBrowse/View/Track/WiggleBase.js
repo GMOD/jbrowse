@@ -194,7 +194,11 @@ Wiggle.extend({
                 'canvas',
                 { height: canvasHeight,
                   width:  canvasWidth,
-                  style: { cursor: 'default' },
+                  style: {
+                      cursor: 'default',
+                      width: "100%", 
+                      height: canvasHeight + "px"
+                  },
                   innerHTML: 'Your web browser cannot display this type of track.',
                   className: 'canvas-track'
                 },
