@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.7.6     2013-01-10 01:25:58 America/New_York
+
  * Fixed a bug in the BAM direct-access backend that prevented some
    BAM files from being displayed.
 
