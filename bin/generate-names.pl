@@ -23,9 +23,13 @@ Data directory to process.  Default 'data/'.
 Comma-separated list of which tracks to include in the names index.  If
 not passed, all tracks are indexed.
 
+=item --locationLimit <number>
+
+Maximum number of distinct locations to store for a single name.  Default 100.
+
 =item --completionLimit <number>
 
-Maximum number of completions to store for a given prefix.  Default 50.
+Maximum number of completions to store for a given prefix.  Default 20.
 
 =item --totalNames <number>
 
@@ -83,11 +87,13 @@ my $outDir = "data";
 my $verbose = 0;
 my $incremental;
 my $help;
-my $max_completions = 50;
+my $max_completions = 20;
+my $max_locations = 100;
 my $thresh;
 my $est_total_name_records;
 GetOptions("dir|out=s" => \$outDir,
            "completionLimit=i" => \$max_completions,
+           "locationLimit=i" => \$max_locations,
            "verbose+" => \$verbose,
            "thresh=i" => \$thresh,
            "incremental" => \$incremental,
@@ -137,7 +143,7 @@ if( ! @names_files ) {
 
 unless( $incremental ) {
     # estimate the total number of name records we probably have based on the input file sizes
-    $est_total_name_records ||= int( (sum( map { -s $_->{fullpath} } @names_files )||0) / 60 );
+    $est_total_name_records ||= int( (sum( map { -s $_->{fullpath} } @names_files )||0) / 70 );
     if( $verbose ) {
         print STDERR "Estimated $est_total_name_records total name records to index.\n";
     }
@@ -147,10 +153,10 @@ my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
     empty => !$incremental,
 
-    # set the hash size to try to get about 100 name records per file
+    # set the hash size to try to get about 500 name records per file
     # if the store has existing data in it, this will be ignored
     hash_size => $est_total_name_records
-        ? max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 100 )/ 4 / log(2)) ))
+        ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 500 )/ 4 / log(2)) )))
         : 12,
 );
 
@@ -233,8 +239,13 @@ sub insert {
 
     { # store the exact name match
         my $r = $store->get( $lc ) || { exact => [], prefix => [] };
-        push @{ $r->{exact} }, $record;
-        $store->set( $lc, $r );
+        if( $max_locations && @{ $r->{exact} } < $max_locations ) {
+            push @{ $r->{exact} }, $record;
+            $store->set( $lc, $r );
+        }
+        elsif( $verbose ) {
+            #print STDERR "Warning: $name has more than --locationLimit ($max_locations) distinct locations, not all of them will be indexed.\n";
+        }
     }
 
     # generate all the prefixes
