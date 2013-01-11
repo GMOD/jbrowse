@@ -285,6 +285,7 @@ GenomeView.prototype._renderVerticalScrollBar = function() {
                      right: '0px',
                      bottom: '0px',
                      height: '100%',
+                     width: '10px',
                      zIndex: 1000
                    }
         },
