@@ -86,7 +86,8 @@ div.vertical_scrollbar {
     border-left: 1px solid #DDD9D9;
 }
 div.vertical_scrollbar .vertical_position_marker {
-    background: #666;
+    background: #444;
+    opacity: 0.8;
     border-radius: 5px;
     width: 100%;
     border-right: 1px solid #ccc;
