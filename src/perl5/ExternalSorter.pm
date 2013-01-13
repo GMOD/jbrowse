@@ -131,9 +131,9 @@ sub flush {
     croak "ExternalSorter is already finished"
         if $self->{finished};
 
-    my $fh = File::Temp->new($self->{tmpDir} ? (DIR => $self->{tmpDir}) : (),
-                             UNLINK => 0,
-                             TEMPLATE => 'sort-XXXXXXXXXX')
+    my $fh = File::Temp->new( $self->{tmpDir} ? (DIR => $self->{tmpDir}) : (),
+                              SUFFIX => '.sort',
+                              UNLINK => 0 )
         or croak "couldn't open temp file: $!\n";
     my $fn = $fh->filename;
     $fh->close()
@@ -185,6 +185,10 @@ sub readOne {
     my $item = fd_retrieve($fh)
         or croak "couldn't retrieve item: $!\n";
     return $item;
+}
+
+sub DESTROY {
+    unlink $_ for @{shift->{segments}||[]}
 }
 
 1;
