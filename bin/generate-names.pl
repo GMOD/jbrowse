@@ -66,6 +66,8 @@ use FindBin qw($Bin);
 use lib "$Bin/../src/perl5";
 use JBlibs;
 
+use Carp::Always;
+
 use Fcntl ":flock";
 use File::Spec::Functions;
 use Getopt::Long;
@@ -76,7 +78,7 @@ use PerlIO::gzip;
 
 use JSON 2;
 
-use Bio::JBrowse::HashStore;
+use Bio::JBrowse::HashStore::Names;
 use GenomeDB;
 
 my %trackHash;
@@ -141,6 +143,8 @@ if( ! @names_files ) {
     warn "WARNING: No feature names found for indexing, only reference sequence names will be indexed.\n";
 }
 
+#print STDERR "Names files:\n", map "    $_->{fullpath}\n", @names_files;
+
 unless( $incremental ) {
     # estimate the total number of name records we probably have based on the input file sizes
     $est_total_name_records ||= int( (sum( map { -s $_->{fullpath} } @names_files )||0) / 70 );
@@ -149,14 +153,15 @@ unless( $incremental ) {
     }
 }
 
-my $nameStore = Bio::JBrowse::HashStore->open(
+my $nameStore = Bio::JBrowse::HashStore::Names->open(
     dir   => catdir( $outDir, "names" ),
     empty => !$incremental,
 
-    # set the hash size to try to get about 500 name records per file
-    # if the store has existing data in it, this will be ignored
+    # set the hash size to try to get about 100 name records per file
+    # (does not count prefix completions) if the store has existing
+    # data in it, this will be ignored
     hash_size => $est_total_name_records
-        ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 500 )/ 4 / log(2)) )))
+        ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 100 )/ 4 / log(2)) )))
         : 12,
 );
 
@@ -165,29 +170,39 @@ if( $verbose ) {
 }
 
 # insert a name record for all of the reference sequences
-for my $ref (@refSeqs) {
-    insert( $nameStore, $ref->{name}, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }] );
-}
 
-# go through all of the names in the names files and insert records for them
-for my $names_file_record ( @names_files ) {
-    my $name_records_iterator = make_names_iterator( $names_file_record );
-    while ( my $nameinfo = $name_records_iterator->() ) {
+my $name_records_iterator = sub {};
+my @namerecord_buffer;
+for my $ref ( @refSeqs ) {
+    push @namerecord_buffer, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
+}
+my $record_stream = $nameStore->sort_stream( sub {
+    while( ! @namerecord_buffer ) {
+        my $nameinfo = $name_records_iterator->() || do {
+            my $file = shift @names_files;
+            return unless $file;
+            #print STDERR "Processing $file->{fullpath}\n";
+            $name_records_iterator = make_names_iterator( $file );
+            $name_records_iterator->();
+        } or return;
         foreach my $alias ( @{$nameinfo->[0]} ) {
             my $track = $nameinfo->[1];
             unless ( defined $trackHash{$track} ) {
                 $trackHash{$track} = $trackNum++;
                 push @tracksWithNames, $track;
             }
-
-            insert( $nameStore, $alias,
-                    [ $alias,
-                      $trackHash{$track},
-                      @{$nameinfo}[2..$#{$nameinfo}]
-                      ]
-                    );
+            push @namerecord_buffer, [
+                $alias,
+                $trackHash{$track},
+                @{$nameinfo}[2..$#{$nameinfo}]
+                ];
         }
     }
+    return shift @namerecord_buffer;
+});
+
+while( my $record = $record_stream->() ) {
+    insert( $nameStore, $record );
 }
 
 # store the list of tracks that have names
@@ -224,7 +239,7 @@ sub find_names_files {
             else {
                 my $names_json = catfile( $dir, 'names.json' );
                 if( -f $names_json ) {
-                    push @files, { fullpath => $names_json, type => 'json' };
+                    push @files, { fullpath => $names_json, type => 'json', namestxt => $names_txt };
                 }
             }
         }
@@ -233,8 +248,9 @@ sub find_names_files {
 }
 
 sub insert {
-    my ( $store, $name, $record ) = @_;
+    my ( $store, $record ) = @_;
 
+    my $name = $record->[0];
     my $lc = lc $name;
 
     { # store the exact name match
@@ -295,7 +311,14 @@ sub make_names_iterator {
             scalar <$input_fh>
         });
 
-        return sub { shift @$data };
+        open my $nt, '>', $file_record->{namestxt} or die;
+        return sub {
+            my $rec = shift @$data;
+            if( $rec ) {
+                $nt->print(JSON::to_json($rec)."\n");
+            }
+            return $rec;
+        };
     }
 }
 

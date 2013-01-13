@@ -9,13 +9,13 @@ Makes an on-disk hash table, designed to be easily read as static files over HTT
 Makes a set of JSON-encoded files at paths based on a hash of the key.
 For example:
 
-  path/to/dir/29c/c14/fc
-  path/to/dir/23f/5ad/11
-  path/to/dir/711/7c1/29
-  path/to/dir/5ec/b24/6a
-  path/to/dir/4de/9ac/c6
-  path/to/dir/41b/c43/27
-  path/to/dir/28c/d86/e9
+  path/to/dir/29c/c14/fc.json
+  path/to/dir/23f/5ad/11.json
+  path/to/dir/711/7c1/29.json
+  path/to/dir/5ec/b24/6a.json
+  path/to/dir/4de/9ac/c6.json
+  path/to/dir/41b/c43/27.json
+  path/to/dir/28c/d86/e9.json
 
 Where each file contains a JSON object containing data items like:
 
@@ -34,7 +34,12 @@ use JSON 2;
 use File::Spec ();
 use File::Path ();
 
-use Tie::Cache::LRU ();
+use Cache::Ref::FIFO ();
+
+use ExternalSorter;
+
+my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
+
 
 =head2 open( dir => "/path/to/dir", hash_size => 16 )
 
@@ -57,8 +62,8 @@ sub open {
     $self->{hash_characters} = int( $self->{hash_size}/4 );
     $self->{file_extension} = '.json';
 
-    tie %{$self->{bucket_cache} = {}}, 'Tie::Cache::LRU', 2000;
-    tie %{$self->{bucket_path_cache} = {}}, 'Tie::Cache::LRU', 200000;
+    $self->{bucket_cache} = Cache::Ref::FIFO->new( size => 200 );
+    $self->{bucket_path_cache} = Cache::Ref::FIFO->new( size => 1000 );
 
     return bless $self, $class;
 }
@@ -112,6 +117,42 @@ sub set {
     return $value;
 }
 
+=head2 sort_stream( $data_stream )
+
+Given a data stream (sub that returns arrayrefs of [ key, ... ] when
+called repeatedly), returns another data stream that returns the
+arrayrefs in order of their hash bucket numbers.
+
+Using this can greatly speed up bulk operations on the hash store,
+because it allows the internal caches of the HashStore to operate at
+maximum efficiency.
+
+This is achieved by doing an external sort of the data items, which
+involves writing all of the data items to temporary files and then
+reading them back in sorted order.
+
+=cut
+
+sub sort_stream {
+    my ( $self, $in_stream ) = @_;
+
+    my $sorter = ExternalSorter->new(
+        sub ($$) {
+            $_[0]->[0] cmp $_[1]->[0]
+        }, 32_000_000 );
+
+    while( my $data = $in_stream->() ) {
+        # hash each of the keys and values, spool them to a single log file
+        $sorter->add( [ $self->_hexHash( $data->[0] ), $data ] );
+    }
+    $sorter->finish;
+
+    return sub {
+        my $d = $sorter->get or return;
+        return $d->[1];
+    };
+}
+
 =head2 empty
 
 Clear the store of all contents.  Deletes all files and directories
@@ -127,12 +168,17 @@ sub empty {
 
 ########## helper methods ###########
 
-sub _bucketPath {
+sub _hexHash {
     my ( $self, $key ) = @_;
     my $crc = ( $self->{crc} ||= do { require Digest::Crc32; Digest::Crc32->new } )
                 ->strcrc32( $key );
     my $hex = lc sprintf( '%08x', $crc );
     $hex = substr( $hex, 8-$self->{hash_characters} );
+    return $hex;
+}
+
+sub _hexToPath {
+    my ( $self, $hex ) = @_;
     my @dir = ( $self->{dir}, reverse $hex =~ /(.{1,3})/g );
     my $file = (pop @dir).$self->{file_extension};
     my $dir = File::Spec->catdir(@dir);
@@ -141,13 +187,12 @@ sub _bucketPath {
 
 sub _getBucket {
     my ( $self, $key ) = @_;
-    my $pathinfo = $self->{bucket_path_cache}{$key} ||= $self->_bucketPath( $key );
-    return $self->{bucket_cache}{ $pathinfo->{fullpath} } ||= $self->_readBucket( $pathinfo );
+    my $pathinfo = $self->{bucket_path_cache}->compute( $key, sub { $self->_hexToPath( $self->_hexHash( $key ) ); }  );
+    return $self->{bucket_cache}->compute( $pathinfo->{fullpath}, sub { $self->_readBucket( $pathinfo ); } );
 }
 
 sub _readBucket {
     my ( $self, $pathinfo ) = @_;
-    my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
 
     my $path = $pathinfo->{fullpath};
     my $dir = $pathinfo->{dir};
@@ -191,5 +236,6 @@ sub DESTROY {
     CORE::open my $out, '>', $self->{fullpath} or die "$! writing $self->{fullpath}";
     $out->print( JSON::to_json( $self->{data} ) );
 }
+
 
 1;
