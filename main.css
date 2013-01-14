@@ -7,10 +7,6 @@ html, body {
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
-.tundra * {
-    outline: none;
-}
-
 fieldset {
     padding-left: 1em;
     margin: 0.7em 0.5em;
