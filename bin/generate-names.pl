@@ -78,7 +78,8 @@ use PerlIO::gzip;
 
 use JSON 2;
 
-use Bio::JBrowse::HashStore::Names;
+use Bio::JBrowse::HashStore;
+
 use GenomeDB;
 
 my %trackHash;
@@ -153,7 +154,7 @@ unless( $incremental ) {
     }
 }
 
-my $nameStore = Bio::JBrowse::HashStore::Names->open(
+my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
     empty => !$incremental,
 
@@ -299,7 +300,7 @@ sub make_names_iterator {
         # files can be very big.
         return sub {
             my $t = <$input_fh>;
-            return $t ? JSON::from_json( $t ) : undef
+            return $t ? eval { JSON::from_json( $t ) } : undef;
         };
     }
     elsif( $file_record->{type} eq 'json' ) {
