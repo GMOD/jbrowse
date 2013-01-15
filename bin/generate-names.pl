@@ -276,9 +276,12 @@ sub insert {
     # store the prefixes
     for my $prefix ( @prefixes ) {
         my $r = $store->get( $prefix ) || { exact => [], prefix => [] };
-        if( @{ $r->{prefix} } < $max_completions ) {
-            push @{ $r->{prefix } }, $record;
-            $store->set( $prefix, $r );
+        my $p = $r->{prefix};
+        if( @$p < $max_completions ) {
+            if( ! grep $name eq $_, @$p ) {
+                push @{ $r->{prefix} }, $name;
+                $store->set( $prefix, $r );
+            }
         }
         elsif( @{ $r->{prefix} } == $max_completions ) {
             push @{ $r->{prefix} }, { name => 'too many matches', hitLimit => 1 };
