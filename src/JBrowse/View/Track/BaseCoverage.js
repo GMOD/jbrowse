@@ -75,6 +75,7 @@ return declare( Wiggle,
                                         case "T": tCoverage[pos] = (tCoverage[pos] || 0) + 1; break;
                                         case "C": cCoverage[pos] = (cCoverage[pos] || 0) + 1; break;
                                         case "G": gCoverage[pos] = (gCoverage[pos] || 0) + 1; break;
+                                        case "*": break; // unknown base. current version ignores these.
                                         default: alert("Unknown base encountered: " + SNPs[i].bases);
                                     }
                                 }
@@ -84,8 +85,8 @@ return declare( Wiggle,
                 // make fake features from the coverage
                 for( var i = 0; i < coverageBins.length; i++ ) {
                     // score contains [non-SNP coverage, a SNPs, t SNPs, c SNPs, g SNPs]
-                    var nonSNP = (coverageBins[i] || 0) - (aCoverage[i] || 0) - (tCoverage[i] || 0) - (cCoverage[i] || 0) - (gCoverage[i] || 0);
-                    var score = [nonSNP, aCoverage[i] || 0, tCoverage[i] || 0, cCoverage[i] || 0, gCoverage[i] || 0];
+                    var score = [0, aCoverage[i] || 0, tCoverage[i] || 0, cCoverage[i] || 0, gCoverage[i] || 0];
+                    score[0] = coverageBins[i] - score.reduce(function(a,b){return a+b;});
                     var bpOffset = leftBase+binWidth*i;
                     featureCallback( new CoverageFeature({
                         start: bpOffset,
@@ -110,7 +111,7 @@ return declare( Wiggle,
         });
         var originY = toY( dataScale.origin );
 
-        var barColor  = ['#777', 'green', 'red', 'blue', 'yellow'];
+        var barColor  = ['#999', 'green', 'red', 'blue', 'yellow'];
         var clipColor = this.config.style.clip_marker_color;
         var bgColor   = this.config.style.bg_color;
         var disableClipMarkers = this.config.disable_clip_markers;
