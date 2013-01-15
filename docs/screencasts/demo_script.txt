@@ -1,37 +1,61 @@
 ## This is the script for the JBrowse demo screencast, last updated January 10, 2013 ##
 
-** set up browser to initial state **
+** set up browser to initial state: 1088x784, click
+http://localhost/jbrowse/index.html?loc=ctgA%3A11576..30575&tracks=Transcript%2Cbam_simulated%2Cvolvox_microarray.bw_xyplot&data=sample_data%2Fjson%2Fvolvox, then close tracks **
+
 ** hit record **
 
-I'm Rob Buels, lead developer of the JBrowse genome browser.  This short video gives an overview of the primary features of JBrowse.
+=========================
+SCENE 1
+=========================
+
+Hi, I'm Rob Buels, lead developer of the JBrowse genome browser.  This short video gives an overview of the primary features of JBrowse.
 
 Like most genome browsers, JBrowse lets you scroll back and forth through a genome, displaying data in multiple tracks on the screen.  For this demo, we are using a set of artificial test data.
 
-Let's turn on some tracks by dragging them from the track list on the left into the main display pane -
+Let's turn on a few tracks.  We can either drag them from the track list on the left into the main display pane -
 
-** turn on Exonerate predictions, Simulated next-gen reads by dragging **
+** turn on Exonerate predictions, "Simulated next-gen reads" by dragging **
 
 or by double-clicking them
 
-** turn on volvox_microarray with double-click **
+** turn on "BigWig XY - volvox_microarray" with double-click **
 
-We can scroll back and forth a bit by clicking and dragging the mouse in the main pane.
+To scroll back and forth, we just click and drag in the main pane.
 
 ** scroll with the mouse **
 
-By double-clicking, you can zoom in, and shift-double-clicking zooms out.  You can also do these things using the buttons in the bar at the navigation area.
+If we double-click in the main pane, we zoom in, and shift-double-clicking zooms out.  We can also do these things using the buttons in the navigation area at the top.
 
-By typing in the location box in this area, you can jump to the locations of specific features, or to specific reference sequences.  Let's jump to test features number 14, called f14.  Notice that the track that contains f14 appeared when we jumped to it.
-
-Another great way of navigating is what's called rubber-band zooming, or dynamic zooming, where you can highlight parts of the display that you want to zoom to.  You can do this both in the overview -
+Another way of navigating in JBrowse is what's called rubber-band zooming, or dynamic zooming, where you can highlight parts of the display that you want to zoom to.  You can do this either in the overview -
 
 ** highlight in the overview to zoom out **
 
-and in the main view
+or in the main view while holding down shift to highlight.
 
-** zoom in the main view **
+** shift-zoom in the main view **
 
-One of the most exciting developments in JBrowse is the addition of the ability to display data directly from BAM and BigWig files, with no pre-processing necessary.  Just put your BigWig or BAM file on your web server, point JBrowse at it, and go.
+To find a specific feature or reference sequence by name, just type its name in the location box at the top.  Let's type the name of a test feature, f14.
+
+** Type "f1" slowly in the location box **
+
+Notice that as I type, JBrowse suggests names of features that match what I've typed.  So far, I've only typed "f1", but JBrowse is already suggesting "f14" as an option, so I'll click it to select it -
+
+** click "f14" **
+
+and then hit "Go" to jump to it.
+
+** click "Go", MOVE MOUSE OFF SCREEN **
+
+========================================================
+SCENE 2
+========================================================
+
+Notice that "Example Features", the track that contains f14, is automatically brought up to show the feature we're searching for.
+
+JBrowse is capable of displaying a wide variety of data types, and has support for many popular file formats, including GFF3, BED, BAM, Wiggle, and BigWig.
+
+One of the best features of JBrowse is its ability to display data directly from BAM and BigWig files, with no pre-processing necessary.  This means that if your BigWig or BAM file is accessible on your web server, you can just add a track entry for it in the JBrowse configuration, and it'll be ready to go.
 
 # BAM alignments
 
@@ -83,7 +107,17 @@ and there we have our bedGraph file with the data from this region.  If we want 
 
 This data-saving functionality works with all of the major data types supported by JBrowse, and can save files in FASTA, GFF3, BED, bedGraph, and Wiggle format.
 
-** pull up the modencode demo in A NEW TAB **
+
+
+** pull up the modencode demo in A NEW TAB
+
+http://localhost/jbrowse/index.html?data=sample_data/json/modencode
+
+**
+
+==================
+SCENE 3
+==================
 
 Another exciting feature of JBrowse is the optional faceted track selector, which lets users efficiently find the tracks they want in JBrowse installations with hundreds or even thousands of tracks.http://biojava.org/wiki/Google_Summer_of_Code_2012
 
