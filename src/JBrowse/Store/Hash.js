@@ -1,6 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/_base/Deferred',
             'dojo/store/JsonRest',
             'dojo/store/util/QueryResults',
             'JBrowse/Digest/Crc32'
@@ -8,6 +9,7 @@ define( [
         function(
             declare,
             array,
+            Deferred,
             dojoJSONRest,
             QueryResults,
             digest
@@ -21,10 +23,23 @@ return declare( null, {
         this.bucketStore = new dojoJSONRest({
             target: url
         });
+
+        // this.ready is a Deferred that will be resolved when we have
+        // read the meta.json file with the params of this hashstore
+        this.ready = this._readMeta();
+    },
+
+    _readMeta: function() {
+        var thisB = this;
+        return this.bucketStore.get( 'meta.json' )
+            .then( function( meta ) {
+                dojo.mixin( thisB, meta || {} );
+                thisB.hash_hex_characters = Math.ceil( thisB.hash_bits / 4 );
+            });
     },
 
     query: function( query, options ) {
-        return this._get( (query.name || '').toString() )
+        return this.get( (query.name || '').toString() )
                    .then( function( value ) {
                               return QueryResults( (value||{}).exact || [] );
                           });
@@ -38,24 +53,27 @@ return declare( null, {
     },
 
     _getBucket: function( key ) {
-        var thisObj = this;
+        var thisB = this;
+        var bucketP = new Deferred();
+        this.ready.then( function() {
+            var bucketIdent = thisB._hash( key );
+            thisB.bucketStore.get( thisB._hexToDirPath( bucketIdent ) )
+                 .then(function(d) { bucketP.resolve(d); } );
+        });
 
-        var bucketIdent = this._hash( key );
-
-        // remember that then() returns a new Deferred that fires after
-        // the callback of the then()
-        return this.bucketStore.get( this._hexToDirPath( bucketIdent ) );
+        return bucketP;
     },
 
     _hexToDirPath: function( hex ) {
         // zero-pad the hex string to be 8 chars if necessary
         while( hex.length < 8 )
             hex = '0'+hex;
+        hex = hex.substr( 8-this.hash_hex_characters );
         var dirpath = [];
         for( var i = 0; i < hex.length; i += 3 ) {
             dirpath.push( hex.substring( i, i+3 ) );
         }
-        return dirpath.join('/');
+        return dirpath.join('/') + '.json';
     },
 
     _hash: function( data ) {

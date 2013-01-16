@@ -46,16 +46,18 @@ return declare( HashStore,
         }
         else {
             // it's an actual name record
-            var name    = nameRecord[0];
-            var location = new Location({
-                ref: nameRecord[3],
-                start: parseInt( nameRecord[4] ),
-                end: parseInt( nameRecord[5] )
-            });
-            return {
-                name: name,
-                location: location
-            };
+            var item = {};
+            if( typeof nameRecord == 'object' ) {
+                item.name = nameRecord[0];
+                item.location = new Location({
+                    ref: nameRecord[3],
+                    start: parseInt( nameRecord[4] ),
+                    end: parseInt( nameRecord[5] )
+                });
+            } else {
+                item.name = nameRecord;
+            }
+            return item;
         }
     },
 
