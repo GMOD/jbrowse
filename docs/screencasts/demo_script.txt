@@ -1,7 +1,12 @@
-## This is the script for the JBrowse demo screencast, last updated January 10, 2013 ##
+## This is the script for the JBrowse demo screencast, last updated January 15, 2013 ##
 
 ** set up browser to initial state: 1088x784, click
-http://localhost/jbrowse/index.html?loc=ctgA%3A11576..30575&tracks=Transcript%2Cbam_simulated%2Cvolvox_microarray.bw_xyplot&data=sample_data%2Fjson%2Fvolvox, then close tracks **
+
+http://localhost/jbrowse/index.html?loc=ctgA%3A11576..30575&tracks=Transcript%2Cbam_simulated%2Cvolvox_microarray.bw_xyplot&data=sample_data%2Fjson%2Fvolvox
+
+then close tracks
+
+**
 
 ** hit record **
 
@@ -47,6 +52,13 @@ and then hit "Go" to jump to it.
 
 ** click "Go", MOVE MOUSE OFF SCREEN **
 
+**
+ put
+
+ http://localhost/jbrowse/index.html?data=sample_data/json/modencode
+
+ in the clipboard
+**
 ========================================================
 SCENE 2
 ========================================================
@@ -85,9 +97,9 @@ Similarly, JBrowse can also display quantitative data directly from BigWig files
 
 These are two different views of data from the same BigWig file, which contains some made-up quantitative test data.
 
-The upper track, labeled 'BigWig Density' is a JBrowse Wiggle/Density track, set up to show the quantitative data as colored regions: blue for values above the data set's global mean, red for values below the mean.  More intense blues and reds indicate values that are further above or below the mean.
+The upper track is a JBrowse Wiggle/Density track, set up to show the quantitative data as colored regions: blue for values above the data set's global mean, red for values below the mean.  More intense blues and reds indicate values that are further above and below the mean, respectively.
 
-The lower track, labeled 'BigWig XY', is a JBrowse Wiggle/XYPlot track, which shows a bar graph of the quantitative data.  This one is configured to show the values as blue bars of varying heights, along with a yellow line showing the data's global mean, and grey shaded regions showing regions within one and two variances of the mean.
+The lower track, labeled 'BigWig XY', is a JBrowse Wiggle/XYPlot track, which shows a bar graph of the quantitative data.  This one is configured to show the values as blue bars of varying heights, along with a yellow line showing the data's global mean, and grey shaded regions showing plus or minus one and two variances of the mean.
 
 And, just as with the BAM track shown earlier, JBrowse fetches small parts of the BigWig file on an as-needed basis, so this works with even with very large BigWig files.
 
@@ -107,7 +119,7 @@ and there we have our bedGraph file with the data from this region.  If we want 
 
 This data-saving functionality works with all of the major data types supported by JBrowse, and can save files in FASTA, GFF3, BED, bedGraph, and Wiggle format.
 
-
+Next, we'll navigate to a different set of test data for 1800 tracks from the modENCODE project, looking at another exciting feature of JBrowse: the optional faceted track selector.
 
 ** pull up the modencode demo in A NEW TAB
 
@@ -118,10 +130,6 @@ http://localhost/jbrowse/index.html?data=sample_data/json/modencode
 ==================
 SCENE 3
 ==================
-
-Another exciting feature of JBrowse is the optional faceted track selector, which lets users efficiently find the tracks they want in JBrowse installations with hundreds or even thousands of tracks.http://biojava.org/wiki/Google_Summer_of_Code_2012
-
-Let's pull up another JBrowse demonstration that contains a snapshot of the modENCODE track metadata with 1,805 tracks.
 
 With the faceted track selector, you can progressively narrow the set of tracks you're interested in by selecting the attributes you want them to have; that is, searching by one or more facets of the track data.  In the track selector, click to select an attribute, then click to select one or more values you want to search for.
 
