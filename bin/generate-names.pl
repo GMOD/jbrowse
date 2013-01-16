@@ -94,6 +94,7 @@ my $max_completions = 20;
 my $max_locations = 100;
 my $thresh;
 my $est_total_name_records;
+my $hash_bits;
 GetOptions("dir|out=s" => \$outDir,
            "completionLimit=i" => \$max_completions,
            "locationLimit=i" => \$max_locations,
@@ -102,6 +103,7 @@ GetOptions("dir|out=s" => \$outDir,
            "incremental" => \$incremental,
            "totalNames=i" => \$est_total_name_records,
            'tracks=s' => \@includedTrackNames,
+           'hashBits=i' => \$hash_bits,
            "help|h|?" => \$help) or pod2usage();
 
 my %includedTrackNames = map { $_ => 1 }
@@ -158,12 +160,14 @@ my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
     empty => !$incremental,
 
-    # set the hash size to try to get about 100 name records per file
+    # set the hash size to try to get about 10 name records per file
     # (does not count prefix completions) if the store has existing
     # data in it, this will be ignored
-    hash_bits => $est_total_name_records
-        ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 100 )/ 4 / log(2)) )))
-        : 12,
+    hash_bits => $hash_bits || (
+        $est_total_name_records
+            ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 10 )/ 4 / log(2)) )))
+            : 12
+    ),
 );
 
 if( $verbose ) {
