@@ -78,7 +78,7 @@ sub DESTROY {
         {
             hash_bits => $self->{hash_bits}
         }
-        ));
+        )) or die "$! writing $meta_path";
 }
 sub _meta_path {
     File::Spec->catfile( shift->{dir}, 'meta.json' );
@@ -89,7 +89,9 @@ sub _read_meta {
     return {} unless -r $meta_path;
     CORE::open my $meta, '<', $meta_path or die "$! reading $meta_path";
     local $/;
-    return JSON::from_json( scalar <$meta> );
+    my $d = eval { JSON::from_json( scalar <$meta> ) };
+    warn $@ if $@;
+    return $d || {};
 }
 
 =head2 get( $key )
@@ -203,7 +205,7 @@ sub _readBucket {
         return $bucket_class->new(
              dir => $dir,
              fullpath => $path,
-             data => JSON::from_json( scalar <$in> )
+             data => eval { JSON::from_json( scalar <$in> ) } || {}
              );
     }
     else {
@@ -234,8 +236,7 @@ sub DESTROY {
 
     File::Path::mkpath( $self->{dir} );
     CORE::open my $out, '>', $self->{fullpath} or die "$! writing $self->{fullpath}";
-    $out->print( JSON::to_json( $self->{data} ) );
+    $out->print( JSON::to_json( $self->{data} ) ) or die "$! writing to $self->{fullpath}";
 }
-
 
 1;
