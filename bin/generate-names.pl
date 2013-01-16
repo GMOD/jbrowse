@@ -165,7 +165,7 @@ my $nameStore = Bio::JBrowse::HashStore->open(
     # data in it, this will be ignored
     hash_bits => $hash_bits || (
         $est_total_name_records
-            ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 10 )/ 4 / log(2)) )))
+            ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 50 )/ 4 / log(2)) )))
             : 12
     ),
 );
