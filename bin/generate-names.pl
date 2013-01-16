@@ -211,7 +211,7 @@ while( my $record = $record_stream->() ) {
 }
 
 # store the list of tracks that have names
-$nameStore->set( 'JBROWSE_TRACKS_WITH_NAMES', \@tracksWithNames );
+$nameStore->{meta}{track_names} = \@tracksWithNames;
 
 # set up the name store in the trackList.json
 $gdb->modifyTrackList( sub {

@@ -13,6 +13,7 @@ return Util.fastDeclare(
             this.start = args.start;
             this.end = args.end;
             this.strand = args.strand;
+            this.tracks = args.tracks;
         }
     },
     toString: function() {

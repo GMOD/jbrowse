@@ -1290,6 +1290,11 @@ Browser.prototype.showRegion = function( location ) {
                                start: location.start - flank,
                                end: location.end + flank
                              });
+
+    // if the location has a track associated with it, show it
+    if( location.tracks ) {
+        this.showTracks( location.tracks );
+    }
 };
 
 /**
@@ -1398,7 +1403,7 @@ Browser.prototype.navigateToLocation = function( location ) {
  * view location to any that match.
  */
 Browser.prototype.searchNames = function( /**String*/ loc ) {
-    var brwsr = this;
+    var thisB = this;
     this.nameStore.query({ name: loc })
         .then( function( nameMatches ) {
 
@@ -1435,16 +1440,13 @@ Browser.prototype.searchNames = function( /**String*/ loc ) {
             if( goingTo.location ) {
 
                 //go to location, with some flanking region
-                brwsr.showRegion( goingTo.location );
-
-                // var tracks = (brwsr.names.extra||{})[goingTo][ post1_4 ? 1 : 0 ]];
-                // brwsr.showTracks(brwsr.names.extra[goingTo][ post1_4 ? 1 : 0 ]]);
+                thisB.showRegion( goingTo.location );
             }
             // otherwise, pop up a dialog with a list of the locations to choose from
             else if( goingTo.multipleLocations ) {
                 new LocationChoiceDialog(
                     {
-                        browser: brwsr,
+                        browser: thisB,
                         locationChoices: goingTo.multipleLocations,
                         title: 'Choose '+goingTo.name+' location',
                         prompt: '"'+goingTo.name+'" is found in multiple locations.  Please choose a location to view.'
