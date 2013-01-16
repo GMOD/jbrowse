@@ -41,7 +41,7 @@ use ExternalSorter;
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
 
 
-=head2 open( dir => "/path/to/dir", hash_size => 16 )
+=head2 open( dir => "/path/to/dir", hash_bits => 16 )
 
 =cut
 
@@ -58,8 +58,8 @@ sub open {
         %{$self->_read_meta}
     );
 
-    $self->{hash_size} ||= 16;
-    $self->{hash_characters} = int( $self->{hash_size}/4 );
+    $self->{hash_bits} ||= 16;
+    $self->{hash_characters} = int( $self->{hash_bits}/4 );
     $self->{file_extension} = '.json';
 
     $self->{bucket_cache} = Cache::Ref::FIFO->new( size => 200 );
@@ -76,7 +76,7 @@ sub DESTROY {
     CORE::open my $out, '>', $meta_path or die "$! writing $meta_path";
     $out->print( JSON::to_json(
         {
-            hash_size => $self->{hash_size}
+            hash_bits => $self->{hash_bits}
         }
         ));
 }
