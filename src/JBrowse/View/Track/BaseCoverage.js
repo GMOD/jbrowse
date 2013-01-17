@@ -135,6 +135,7 @@ return declare( Wiggle,
                 }
                 else {
                     // bar goes downward (Should not be reached)
+
                     context.fillStyle = negColor;
                     context.fillRect( fRect.l, originY, fRect.w, height );
                     if( !disableClipMarkers && yPos >= canvasHeight ) { // draw clip marker if necessary
@@ -169,7 +170,10 @@ return declare( Wiggle,
         }, this ); 
     },
 
-    // a method from "Alignments.js" Perhaps it would be better just to include the file...
+    /**
+     * parse a SAM MD tag to find mismatching bases of the template versus the reference
+     * @returns {Array[Object]} array of mismatches and their positions
+     */
     _mdToMismatches: function( feature, mdstring ) {
         var mismatchRecords = [];
         var curr = { start: 0, bases: '' };
@@ -185,9 +189,9 @@ return declare( Wiggle,
           else if( token.match(/^\^/) ) { // insertion in the template
               var i = token.length-1;
               while( i-- ) {
-                  curr.bases += '*';
+                  curr.bases = '*';
+                  nextRecord();
               }
-              nextRecord();
           }
           else if( token.match(/^[a-z]/i) ) { // mismatch
               curr.bases = seq.substr( curr.start, token.length );
