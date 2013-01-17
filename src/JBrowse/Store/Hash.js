@@ -24,6 +24,8 @@ return declare( null, {
             target: url
         });
 
+        this.meta = {};
+
         // this.ready is a Deferred that will be resolved when we have
         // read the meta.json file with the params of this hashstore
         this.ready = this._readMeta();
@@ -33,8 +35,8 @@ return declare( null, {
         var thisB = this;
         return this.bucketStore.get( 'meta.json' )
             .then( function( meta ) {
-                dojo.mixin( thisB, meta || {} );
-                thisB.hash_hex_characters = Math.ceil( thisB.hash_bits / 4 );
+                dojo.mixin( thisB.meta, meta || {} );
+                thisB.meta.hash_hex_characters = Math.ceil( thisB.meta.hash_bits / 4 );
             });
     },
 
@@ -68,7 +70,7 @@ return declare( null, {
         // zero-pad the hex string to be 8 chars if necessary
         while( hex.length < 8 )
             hex = '0'+hex;
-        hex = hex.substr( 8-this.hash_hex_characters );
+        hex = hex.substr( 8-this.meta.hash_hex_characters );
         var dirpath = [];
         for( var i = 0; i < hex.length; i += 3 ) {
             dirpath.push( hex.substring( i, i+3 ) );

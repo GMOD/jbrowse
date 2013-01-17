@@ -53,7 +53,7 @@ return declare( HashStore,
                     ref: nameRecord[3],
                     start: parseInt( nameRecord[4] ),
                     end: parseInt( nameRecord[5] ),
-                    tracks: [ (this.track_names||{})[ nameRecord[1] ] ]
+                    tracks: [ ((this.meta||{}).track_names||{})[ nameRecord[1] ] ]
                 });
             } else {
                 item.name = nameRecord;
