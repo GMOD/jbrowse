@@ -45,12 +45,7 @@ return declare( Wiggle,
 
         var binWidth = Math.ceil( query.basesPerSpan ); // in bp
 
-        var arraySize = Math.ceil( widthBp/binWidth );
-        var coverageBins = new Array( arraySize );
-        var aCoverage = new Array( arraySize );
-        var tCoverage = new Array( arraySize );
-        var cCoverage = new Array( arraySize );
-        var gCoverage = new Array( arraySize );
+        var coverageBins = {};
         var bpToBin = function( bp ) {
             return Math.floor( (bp-leftBase) / binWidth );
         };
@@ -61,7 +56,13 @@ return declare( Wiggle,
                             var startBin = bpToBin( feature.get('start') );
                             var endBin   = bpToBin( feature.get('end')-1 );
                             for( var i = startBin; i <= endBin; i++ ) {
-                                coverageBins[i] = (coverageBins[i] || 0) + 1;
+                                if ( coverageBins[i] ) {
+                                    coverageBins[i]['matchCoverage']++;
+                                }
+                                else {
+                                    coverageBins[i] = {};
+                                    coverageBins[i]['matchCoverage'] = 1;
+                                }
                             }
                             // Calculate SNP coverage
                             var mdTag = feature.get('MD');
@@ -69,29 +70,26 @@ return declare( Wiggle,
                                 var SNPs = this._mdToMismatches(feature, mdTag);
                                 // loops through mismatches and updates coverage variables accordingly.
                                 for (var i = 0; i<SNPs.length; i++) {
-                                    var pos = feature.get('start') + SNPs[i].start - leftBase;
-                                    switch (SNPs[i].bases) {
-                                        case "A": aCoverage[pos] = (aCoverage[pos] || 0) + 1; break;
-                                        case "T": tCoverage[pos] = (tCoverage[pos] || 0) + 1; break;
-                                        case "C": cCoverage[pos] = (cCoverage[pos] || 0) + 1; break;
-                                        case "G": gCoverage[pos] = (gCoverage[pos] || 0) + 1; break;
-                                        case "*": break; // unknown base. current version ignores these.
-                                        default: alert("Unknown base encountered: " + SNPs[i].bases);
+                                    var pos = bpToBin( feature.get('start') + SNPs[i].start );
+                                    // Note: we reduce matchCoverage so the sum is the total coverage
+                                    coverageBins[pos]['matchCoverage']--;
+                                    if ( coverageBins[pos][SNPs[i].bases] ) {
+                                        coverageBins[pos][SNPs[i].bases]++;
+                                    }
+                                    else {
+                                        coverageBins[pos][SNPs[i].bases] = 1;
                                     }
                                 }
                             }
                         }),
             function () {
                 // make fake features from the coverage
-                for( var i = 0; i < coverageBins.length; i++ ) {
-                    // score contains [non-SNP coverage, a SNPs, t SNPs, c SNPs, g SNPs]
-                    var score = [0, aCoverage[i] || 0, tCoverage[i] || 0, cCoverage[i] || 0, gCoverage[i] || 0];
-                    score[0] = coverageBins[i] - score.reduce(function(a,b){return a+b;});
+                for( var i = 0; i < Math.ceil( widthBp/binWidth ); i++ ) {
                     var bpOffset = leftBase+binWidth*i;
                     featureCallback( new CoverageFeature({
                         start: bpOffset,
                         end:   bpOffset+binWidth,
-                        score: score
+                        score: coverageBins[i] || {'matchCoverage': 0}
                      }));
                 }
                 finishCallback();
@@ -99,7 +97,7 @@ return declare( Wiggle,
         );
     },
 
-    /***********************************************************************************************************************
+    /*
      * Draw a set of features on the canvas.
      * @private
      */
@@ -111,48 +109,67 @@ return declare( Wiggle,
         });
         var originY = toY( dataScale.origin );
 
-        var barColor  = ['#999', 'green', 'red', 'blue', 'yellow'];
+        var barColor  = {'matchCoverage':'#999', 'A':'#00BF00', 'T':'red', 'C':'#4747ff', 'G':'#d5bb04'}; // base colors from "main.css"
+        var negColor  = this.config.style.neg_color;
         var clipColor = this.config.style.clip_marker_color;
         var bgColor   = this.config.style.bg_color;
         var disableClipMarkers = this.config.disable_clip_markers;
 
-        dojo.forEach( features, function(f,i) {
+        var drawRectangle = function(ID, yPos, height, fRect) {
+            // draw the background color if we are configured to do so
+            if( bgColor && yPos >= 0 ) {
+                context.fillStyle = bgColor;
+                context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
+            }
 
-            var fRect = featureRects[i];
+            if( yPos <= canvasHeight ) { // if the rectangle is visible at all
 
-            var score = f.get('score');
-
-            for (var j = 0; j<5; j++) {
-
-                fRect.t = toY(score.slice(j,5).reduce(function(a,b){return a+b;})); // makes progressively shorter rectangles.
-
-                // draw the background color if we are configured to do so
-                if( bgColor && fRect.t >= 0 ) {
-                    context.fillStyle = bgColor;
-                    context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
-                }
-
-                if( fRect.t <= canvasHeight ) { // if the rectangle is visible at all
-
-                    if( fRect.t <= originY ) {
-                        // bar goes upward
-                        context.fillStyle = barColor[j];
-                        context.fillRect( fRect.l, fRect.t, fRect.w, originY-fRect.t+1);
-                        if( !disableClipMarkers && fRect.t < 0 ) { // draw clip marker if necessary
-                            context.fillStyle = clipColor || negColor;
-                            context.fillRect( fRect.l, 0, fRect.w, 2 );
-                        }
+                if( yPos <= originY ) {
+                    // bar goes upward
+                    context.fillStyle = barColor[ID] || 'black';
+                    context.fillRect( fRect.l, yPos, fRect.w, height);
+                    if( !disableClipMarkers && yPos < 0 ) { // draw clip marker if necessary
+                        context.fillStyle = clipColor || negColor;
+                        context.fillRect( fRect.l, 0, fRect.w, 2 );
                     }
-                    else {
-                        alert('Invalid data used. Negative values are not possible.');
+                }
+                else {
+                    // bar goes downward (Should not be reached)
+                    context.fillStyle = negColor;
+                    context.fillRect( fRect.l, originY, fRect.w, height );
+                    if( !disableClipMarkers && yPos >= canvasHeight ) { // draw clip marker if necessary
+                        context.fillStyle = clipColor || barColor[0];
+                        context.fillRect( fRect.l, canvasHeight-3, fRect.w, 2 );
                     }
                 }
             }
-        }, this );
-    },
-    //*******************************************************************************************************************************
+        };
 
-    // a method blatently stolen from "Alignments.js" Perhaps it would be better just to include the file...
+        dojo.forEach( features, function(f,i) {
+            var fRect = featureRects[i];
+            var score = f.get('score');
+            var totalHeight = 0;
+            for (counts in score) {
+                if (score.hasOwnProperty(counts)) {
+                    totalHeight += score[counts];
+                }
+            }
+
+            // Note: 'matchCoverage' is done first to ensure the grey part of the graph is on top
+            drawRectangle('matchCoverage', toY(totalHeight), originY-toY( score['matchCoverage'] )+1, fRect);
+            totalHeight -= score['matchCoverage'];
+
+            for (counts in score) {
+                if (score.hasOwnProperty(counts) && counts != 'matchCoverage') {
+                    drawRectangle( counts, toY(totalHeight), originY-toY( score[counts] )+1, fRect);
+                    totalHeight -= score[counts];
+                }
+            }
+
+        }, this ); 
+    },
+
+    // a method from "Alignments.js" Perhaps it would be better just to include the file...
     _mdToMismatches: function( feature, mdstring ) {
         var mismatchRecords = [];
         var curr = { start: 0, bases: '' };
