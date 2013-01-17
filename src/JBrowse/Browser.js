@@ -1965,9 +1965,7 @@ Browser.prototype.createNavBox = function( parent ) {
             name: "location",
             style: { width: '25ex' },
             maxLength: 400,
-            searchAttr: "name",
-            labelAttr: "label",
-            labelType: 'html'
+            searchAttr: "name"
         },
         dojo.create('input', {}, navbox) );
     this.afterMilestone( 'loadNames', dojo.hitch(this, function() {

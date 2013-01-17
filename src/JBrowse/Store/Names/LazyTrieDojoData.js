@@ -115,7 +115,8 @@ return declare( null,
                     if( aborted )
                         return;
 
-                    var post1_4 = tree[0] && typeof tree[0][0] == 'string';
+                    // are we working with a post-JBrowse 1.4 data structure?
+                    var post1_4 = tree[0] && tree[0][1] && tree[0][1][0] && typeof tree[0][1][0][0] == 'string';
 
                     // use dojo.some so that we can break out of the loop when we hit the limit
                     dojo.some( tree, function(node) {
@@ -125,14 +126,15 @@ return declare( null,
                                            var location = new Location({
                                                ref: n[ post1_4 ? 3 : 2 ],
                                                start: parseInt( n[ post1_4 ? 4 : 3 ]),
-                                               end: parseInt( n[ post1_4 ? 5 : 4 ])
+                                               end: parseInt( n[ post1_4 ? 5 : 4 ]),
+                                               tracks: [ this.namesTrie.extra[ n[ post1_4 ? 1 : 0 ] ] ]
                                            });
 
                                            matches.push({
                                                         name: name,
                                                         location: location
                                                     });
-                                       });
+                                       },this);
                                    }
                                    return matchesRemaining < 0;
                                },this);
