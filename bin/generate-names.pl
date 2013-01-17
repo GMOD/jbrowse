@@ -38,15 +38,6 @@ names index.  Used to choose some parameters for how the name index is
 built.  If not passed, tries to estimate this based on the size of the
 input names files.
 
-=item --incremental
-
-Add new entries to the names index, not deleting the old ones.  When
-using this option, it is best to pass the --totalNames parameter as
-well.  Otherwise, the first call to generate-names.pl will initialize
-the names index to be optimal for the number of names added just in
-that first call, which could lead to the names index being constructed
-non-optimally.
-
 =item --verbose
 
 Print more progress messages.
@@ -82,13 +73,10 @@ use Bio::JBrowse::HashStore;
 
 use GenomeDB;
 
-my %trackHash;
 my @includedTrackNames;
-my @tracksWithNames;
 
 my $outDir = "data";
 my $verbose = 0;
-my $incremental;
 my $help;
 my $max_completions = 20;
 my $max_locations = 100;
@@ -100,7 +88,6 @@ GetOptions("dir|out=s" => \$outDir,
            "locationLimit=i" => \$max_locations,
            "verbose+" => \$verbose,
            "thresh=i" => \$thresh,
-           "incremental" => \$incremental,
            "totalNames=i" => \$est_total_name_records,
            'tracks=s' => \@includedTrackNames,
            'hashBits=i' => \$hash_bits,
@@ -148,17 +135,15 @@ if( ! @names_files ) {
 
 #print STDERR "Names files:\n", map "    $_->{fullpath}\n", @names_files;
 
-unless( $incremental ) {
-    # estimate the total number of name records we probably have based on the input file sizes
-    $est_total_name_records ||= int( (sum( map { -s $_->{fullpath} } @names_files )||0) / 70 );
-    if( $verbose ) {
-        print STDERR "Estimated $est_total_name_records total name records to index.\n";
-    }
+# estimate the total number of name records we probably have based on the input file sizes
+$est_total_name_records ||= int( (sum( map { -s $_->{fullpath} } @names_files )||0) / 70 );
+if( $verbose ) {
+    print STDERR "Estimated $est_total_name_records total name records to index.\n";
 }
 
 my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
-    empty => !$incremental,
+    empty => 1,
 
     # set the hash size to try to get about 10 name records per file
     # (does not count prefix completions) if the store has existing
@@ -181,7 +166,11 @@ my @namerecord_buffer;
 for my $ref ( @refSeqs ) {
     push @namerecord_buffer, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
 }
-my $record_stream = $nameStore->sort_stream( sub {
+
+
+my %trackHash;
+my @tracksWithNames;
+my $record_stream = sub {
     while( ! @namerecord_buffer ) {
         my $nameinfo = $name_records_iterator->() || do {
             my $file = shift @names_files;
@@ -204,14 +193,19 @@ my $record_stream = $nameStore->sort_stream( sub {
         }
     }
     return shift @namerecord_buffer;
-});
+};
 
+# sort the stream by hash key to improve cache locality
+$record_stream = $nameStore->sort_stream( $record_stream );
+
+# now write it to the store
 while( my $record = $record_stream->() ) {
     insert( $nameStore, $record );
 }
 
 # store the list of tracks that have names
 $nameStore->{meta}{track_names} = \@tracksWithNames;
+
 
 # set up the name store in the trackList.json
 $gdb->modifyTrackList( sub {

@@ -55,10 +55,11 @@ sub open {
 
     %$self = (
         %$self,
-        %{$self->_read_meta}
+        meta => $self->_read_meta
     );
 
-    $self->{hash_bits} ||= 16;
+    $self->{hash_bits} ||= $self->{meta}{hash_bits} || 16;
+    $self->{meta}{hash_bits} = $self->{hash_bits};
     $self->{hash_characters} = int( $self->{hash_bits}/4 );
     $self->{file_extension} = '.json';
 
@@ -74,12 +75,8 @@ sub DESTROY {
     File::Path::mkpath( $self->{dir} );
     my $meta_path = $self->_meta_path;
     CORE::open my $out, '>', $meta_path or die "$! writing $meta_path";
-    $out->print( JSON::to_json(
-        {
-            hash_bits => $self->{hash_bits},
-            %{ $self->{meta} || {} }
-        }
-        )) or die "$! writing $meta_path";
+    $out->print( JSON::to_json( $self->{meta} ) )
+        or die "$! writing $meta_path";
 }
 sub _meta_path {
     File::Spec->catfile( shift->{dir}, 'meta.json' );
