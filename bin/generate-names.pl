@@ -205,6 +205,8 @@ while( my $record = $record_stream->() ) {
 
 # store the list of tracks that have names
 $nameStore->{meta}{track_names} = \@tracksWithNames;
+# record the fact that all the keys are lowercased
+$nameStore->{meta}{lowercase_keys} = 1;
 
 
 # set up the name store in the trackList.json

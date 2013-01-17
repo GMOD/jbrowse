@@ -112,6 +112,11 @@ return declare( HashStore,
         // remove trailing asterisks from query.name
         var thisB = this;
         var name = ( query.name || '' ).toString();
+
+        // lowercase the name if the store is all-lowercase
+        if( this.meta.lowercase_keys )
+            name = name.toLowerCase();
+
         var trailingStar = /\*$/;
         if( trailingStar.test( name ) ) {
             name = name.replace( trailingStar, '' );
@@ -130,6 +135,10 @@ return declare( HashStore,
     },
 
     get: function( id ) {
+        // lowercase the id if the store is all-lowercase
+        if( this.meta.lowercase_keys )
+            id = id.toLowerCase();
+
         return this._getEntry( id )
                    .then( function( bucket ) {
                        var nameRec = (bucket.exact||[])[0];
