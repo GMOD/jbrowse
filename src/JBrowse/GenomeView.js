@@ -312,6 +312,7 @@ GenomeView.prototype._renderVerticalScrollBar = function() {
                      right: '0px',
                      bottom: '0px',
                      height: '100%',
+                     width: '10px',
                      zIndex: 1000
                    }
         },
@@ -485,7 +486,8 @@ GenomeView.prototype._behaviors = function() { return {
         apply_on_init: true,
         apply: function() {
             return [
-                dojo.connect( this.outerTrackContainer, "mousedown", this, 'startMouseDragScroll' )
+                dojo.connect( this.outerTrackContainer,         "mousedown", this, 'startMouseDragScroll'        ),
+                dojo.connect( this.verticalScrollBar.container, "mousedown", this, 'startVerticalMouseDragScroll')
             ];
         }
     },
@@ -533,6 +535,18 @@ GenomeView.prototype._behaviors = function() { return {
                 dojo.connect(document.body, "mouseup",   this, 'dragEnd'      ),
                 dojo.connect(document.body, "mousemove", this, 'dragMove'     ),
                 dojo.connect(document.body, "mouseout",  this, 'checkDragOut' )
+            ];
+        }
+    },
+
+    // mouse events that are connected when we are in the middle of a
+    // vertical-drag-scrolling operation
+    verticalMouseDragScrolling: {
+        apply: function() {
+            return [
+                dojo.connect(document.body, "mouseup",   this, 'dragEnd'         ),
+                dojo.connect(document.body, "mousemove", this, 'verticalDragMove'),
+                dojo.connect(document.body, "mouseout",  this, 'checkDragOut'    )
             ];
         }
     },
@@ -775,6 +789,20 @@ GenomeView.prototype.startMouseDragScroll = function(event) {
 };
 
 /**
+ * Event fired when a user's mouse button goes down inside the vertical
+ * scroll bar element of the genomeview.
+ */
+GenomeView.prototype.startVerticalMouseDragScroll = function(event) {
+    if( ! this._beforeMouseDrag(event) ) return; // not sure what this is for.
+
+    this.behaviorManager.applyBehaviors('verticalMouseDragScrolling');
+
+    this.dragStartPos = {x: event.clientX,
+                         y: event.clientY};
+    this.winStartPos = this.getPosition();
+};
+
+/**
  * Start a rubber-band dynamic zoom.
  *
  * @param {Function} absToBp function to convert page X coordinates to
@@ -884,7 +912,7 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
 };
 
 GenomeView.prototype.dragEnd = function(event) {
-    this.behaviorManager.removeBehaviors('mouseDragScrolling');
+    this.behaviorManager.removeBehaviors('mouseDragScrolling', 'verticalMouseDragScrolling');
 
     dojo.stopEvent(event);
     this.showCoarse();
@@ -918,6 +946,16 @@ GenomeView.prototype.dragMove = function(event) {
         x: this.winStartPos.x - (event.clientX - this.dragStartPos.x),
         y: this.winStartPos.y - (event.clientY - this.dragStartPos.y)
         });
+    dojo.stopEvent(event);
+};
+
+// Similar to "dragMove". Consider merging.
+GenomeView.prototype.verticalDragMove = function(event) {
+    this.dragging = true;
+     this.setPosition({
+         x: this.winStartPos.x,
+         y: this.winStartPos.y + (event.clientY - this.dragStartPos.y)
+         });
     dojo.stopEvent(event);
 };
 
