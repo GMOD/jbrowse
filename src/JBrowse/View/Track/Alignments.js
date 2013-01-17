@@ -55,6 +55,7 @@ return declare( HTMLFeatures,
                 array.forEach( mismatch.bases, function( base, i ) {
                     dojo.create('span', {
                                     className: 'mismatch base base_'+(base == '*' ? 'deletion' : base.toLowerCase()),
+                                    title: base == '*' ? 'deletion' : 'SNP',
                                     style: {
                                         position: 'absolute',
                                         left: (mismatch.start+i)/featureLength*100 + '%',
