@@ -116,6 +116,7 @@ sub set {
     my $bucket = $self->_getBucket( $key );
     $bucket->{data}{$key} = $value;
     $bucket->{dirty} = 1;
+    $self->{meta}{last_changed_entry} = $key;
 
     return $value;
 }
