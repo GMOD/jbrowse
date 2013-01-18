@@ -139,7 +139,7 @@ return declare( Wiggle,
                     context.fillStyle = negColor;
                     context.fillRect( fRect.l, originY, fRect.w, height );
                     if( !disableClipMarkers && yPos >= canvasHeight ) { // draw clip marker if necessary
-                        context.fillStyle = clipColor || barColor[0];
+                        context.fillStyle = clipColor || barColor[ID];
                         context.fillRect( fRect.l, canvasHeight-3, fRect.w, 2 );
                     }
                 }
@@ -199,6 +199,26 @@ return declare( Wiggle,
           }
         });
         return mismatchRecords;
+    },
+
+
+    /*
+     * The following method is required to override the equivalent method in "WiggleBase.js"
+     * It displays more complete data.
+     */
+    _showPixelValue: function( scoreDisplay, score ) {
+        if( typeof score['matchCoverage'] == 'number' ) {
+            var scoreSummary = "<u>COVERAGE SUMMARY</u><br>Matching Bases: "+score['matchCoverage']+'<br>';
+            for (ID in score) {
+                if (score.hasOwnProperty(ID) && ID != 'matchCoverage') {
+                    scoreSummary += ID + ': ' +score[ID] +'<br>';
+                }
+            }
+            scoreDisplay.innerHTML = scoreSummary;
+            return true;
+        } else {
+            return false;
+        }
     }
 });
 });
