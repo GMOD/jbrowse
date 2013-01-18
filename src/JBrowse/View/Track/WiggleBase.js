@@ -319,7 +319,11 @@ Wiggle.extend({
                         scoreDisplay.style.top = cPos.y+'px';
                         scoreDisplay.style.display = 'block';
                     } else {
-                        scoreDisplay.style.display = 'none';
+                        setTimeout(function(){
+                            if( !(this._showPixelValue( scoreDisplay, pixelValues[Math.round(cx)])) ) {
+                            scoreDisplay.style.display = 'none';
+                            }
+                        }, 50);
                     }
             }));
         },this);
