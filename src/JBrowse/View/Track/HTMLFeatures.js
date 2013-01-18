@@ -1179,7 +1179,7 @@ HTMLFeatures = declare( HTMLFeatures,
     },
 
     _exportFormats: function() {
-        return [ 'GFF3', 'BED', 'SequinTable' ];
+        return [ 'GFF3', 'BED', { name: 'SequinTable', label: 'Sequin Table' } ];
     },
 
     _trackMenuOptions: function() {

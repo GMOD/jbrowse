@@ -197,10 +197,8 @@ sub run {
                                                $old->[$i] = delete $refs{$old->[$i]->{name}};
                                            }
                                        }
-                                       foreach my $newRef (values %refSeqs) {
-                                           if( $refs{$newRef->{name}} ) {
-                                               push @{$old}, $newRef;
-                                           }
+                                       foreach my $name (sort keys %refs) {
+                                           push @{$old}, $refs{$name};
                                        }
                                        return $old;
                                    });
