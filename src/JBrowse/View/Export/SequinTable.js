@@ -25,7 +25,7 @@ return declare( ExportBase,
      */
     _printHeader: function( feature ) {
         // print the BED header
-        this.print( '>Feature '+feature.get('seq_id')+"\n" );
+        this.print( '>Feature '+(feature.get('seq_id') || this.refSeq.name)+"\n" );
         return true;
     },
 
