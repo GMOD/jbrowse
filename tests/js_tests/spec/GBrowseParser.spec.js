@@ -1,5 +1,5 @@
-require(['JBrowse/ConfigAdaptor/gbrowse'], function ( gbrowseConfigAdaptor ) {
-    describe( 'GBrowse config file parser', function() {
+require(['JBrowse/ConfigAdaptor/conf'], function ( gbrowseConfigAdaptor ) {
+    describe( 'GBrowse-like config file parser', function() {
         var gbrowse = new gbrowseConfigAdaptor();
         var gbConfig;
 
