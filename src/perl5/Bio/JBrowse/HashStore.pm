@@ -36,7 +36,7 @@ use File::Path ();
 
 use Cache::Ref::FIFO ();
 
-use ExternalSorter;
+use Bio::JBrowse::ExternalSorter;
 
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
 
@@ -137,7 +137,7 @@ reading them back in sorted order.
 sub sort_stream {
     my ( $self, $in_stream ) = @_;
 
-    my $sorter = ExternalSorter->new(
+    my $sorter = Bio::JBrowse::ExternalSorter->new(
         sub ($$) {
             $_[0]->[0] cmp $_[1]->[0]
         }, 32_000_000 );

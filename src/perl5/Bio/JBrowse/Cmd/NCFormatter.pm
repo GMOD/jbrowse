@@ -3,7 +3,7 @@ package Bio::JBrowse::Cmd::NCFormatter;
 use base 'Bio::JBrowse::Cmd';
 
 use GenomeDB;
-use ExternalSorter;
+use Bio::JBrowse::ExternalSorter;
 
 sub _format {
     my ( $self, %args ) = @_;
@@ -13,9 +13,9 @@ sub _format {
     my $types = $self->opt('type');
     @$types = split /,/, join ',', @$types;
 
-    # The ExternalSorter will get flattened [chrom, [start, end, ...]]
+    # The Bio::JBrowse::ExternalSorter will get flattened [chrom, [start, end, ...]]
     # arrays from the feature_stream
-    my $sorter = ExternalSorter->new(
+    my $sorter = Bio::JBrowse::ExternalSorter->new(
         do {
             my $startIndex = $feature_stream->startIndex;
             my $endIndex = $feature_stream->endIndex;

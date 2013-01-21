@@ -1,11 +1,11 @@
 =head1 NAME
 
-ExternalSorter - efficiently sort arrayrefs with a given comparison function
+Bio::JBrowse::ExternalSorter - efficiently sort arrayrefs with a given comparison function
 
 =head1 SYNOPSIS
 
   # make a new sorter that sorts by column 4, then column 3
-  my $sorter = ExternalSorter->new(
+  my $sorter = Bio::JBrowse::ExternalSorter->new(
                 sub ($$) {
                         $_[0]->[4] <=> $_[1]->[4]
                         ||
@@ -29,7 +29,7 @@ ExternalSorter - efficiently sort arrayrefs with a given comparison function
 =cut
 
 
-package ExternalSorter;
+package Bio::JBrowse::ExternalSorter;
 
 use strict;
 use warnings;
@@ -128,7 +128,7 @@ sub flush {
 
     # each segment must have at least one element
     return if ($#sorted < 0);
-    croak "ExternalSorter is already finished"
+    croak "Bio::JBrowse::ExternalSorter is already finished"
         if $self->{finished};
 
     my $fh = File::Temp->new( $self->{tmpDir} ? (DIR => $self->{tmpDir}) : (),
