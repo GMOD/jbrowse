@@ -64,7 +64,8 @@ sub open {
     $self->{file_extension} = '.json';
 
     $self->{bucket_cache} = Cache::Ref::FIFO->new( size => 2000 );
-    $self->{bucket_path_cache} = Cache::Ref::FIFO->new( size => 200_000 );
+    $self->{bucket_path_cache_by_key} = Cache::Ref::FIFO->new( size => 200_000 );
+    $self->{bucket_path_cache_by_hash} = Cache::Ref::FIFO->new( size => 200_000 );
 
     return bless $self, $class;
 }
@@ -120,9 +121,11 @@ sub set {
 
 =head2 sort_stream( $data_stream )
 
-Given a data stream (sub that returns arrayrefs of [ key, ... ] when
-called repeatedly), returns another data stream that returns the
-arrayrefs in order of their hash bucket numbers.
+Given a data stream (sub that returns arrayrefs of [ key, (any amount
+of other data) ] when called repeatedly), returns another stream that
+emits small objects that can be used to get and set the contents of
+the name store at that key ( $entry->get and $entry->set( $value ) )
+and will return the original data you passed if you call $entry->data.
 
 Using this can greatly speed up bulk operations on the hash store,
 because it allows the internal caches of the HashStore to operate at
@@ -150,7 +153,12 @@ sub sort_stream {
 
     return sub {
         my $d = $sorter->get or return;
-        return $d->[1];
+        return Bio::JBrowse::HashStore::Entry->new(
+            store    => $self,
+            key      => $d->[1][0],
+            data     => $d->[1],
+            hex_hash => $d->[0]
+        );
     };
 }
 
@@ -188,7 +196,7 @@ sub _hexToPath {
 
 sub _getBucket {
     my ( $self, $key ) = @_;
-    my $pathinfo = $self->{bucket_path_cache}->compute( $key, sub { $self->_hexToPath( $self->_hexHash( $key ) ); }  );
+    my $pathinfo = $self->{bucket_path_cache_by_key}->compute( $key, sub { $self->_hexToPath( $self->_hexHash( $key ) ); }  );
     return $self->{bucket_cache}->compute( $pathinfo->{fullpath}, sub { $self->_readBucket( $pathinfo ); } );
 }
 
@@ -236,6 +244,45 @@ sub DESTROY {
     File::Path::mkpath( $self->{dir} );
     CORE::open my $out, '>', $self->{fullpath} or die "$! writing $self->{fullpath}";
     $out->print( JSON::to_json( $self->{data} ) ) or die "$! writing to $self->{fullpath}";
+}
+
+package Bio::JBrowse::HashStore::Entry;
+
+sub new {
+    my $class = shift;
+    bless { @_ }, $class;
+}
+
+sub get {
+    my ( $self ) = @_;
+    my $bucket = $self->_getBucket;
+    return $bucket->{data}{ $self->{key} };
+}
+
+sub set {
+    my ( $self, $value ) = @_;
+
+    my $bucket = $self->_getBucket;
+    $bucket->{data}{ $self->{key} } = $value;
+    $bucket->{dirty} = 1;
+    $self->{store}{meta}{last_changed_entry} = $self->{key};
+
+    return $value;
+}
+
+sub data {
+    $_[0]->{data};
+}
+
+sub store {
+    $_[0]->{store};
+}
+
+sub _getBucket {
+    my ( $self ) = @_;
+    my $store = $self->{store};
+    my $pathinfo = $store->{bucket_path_cache_by_hash}->compute( $self->{hex_hash}, sub { $store->_hexToPath( $self->{hex_hash} ); } );
+    return $store->{bucket_cache}->compute( $pathinfo->{fullpath}, sub { $store->_readBucket( $pathinfo ); } );
 }
 
 1;

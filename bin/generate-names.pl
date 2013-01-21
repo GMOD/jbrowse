@@ -186,6 +186,7 @@ my $record_stream = sub {
                 push @tracksWithNames, $track;
             }
             push @namerecord_buffer, [
+                lc $alias,
                 $alias,
                 $trackHash{$track},
                 @{$nameinfo}[2..$#{$nameinfo}]
@@ -196,11 +197,11 @@ my $record_stream = sub {
 };
 
 # sort the stream by hash key to improve cache locality
-$record_stream = $nameStore->sort_stream( $record_stream );
+my $entry_stream = $nameStore->sort_stream( $record_stream );
 
 # now write it to the store
-while( my $record = $record_stream->() ) {
-    insert( $nameStore, $record );
+while( my $entry = $entry_stream->() ) {
+    insert( $nameStore, $entry );
 }
 
 # store the list of tracks that have names
@@ -249,16 +250,17 @@ sub find_names_files {
 }
 
 sub insert {
-    my ( $store, $record ) = @_;
+    my ( $store, $entry ) = @_;
 
+    my $record = $entry->data;
+    my $lc = shift @$record;
     my $name = $record->[0];
-    my $lc = lc $name;
 
     { # store the exact name match
-        my $r = $store->get( $lc ) || { exact => [], prefix => [] };
+        my $r = $entry->get || { exact => [], prefix => [] };
         if( $max_locations && @{ $r->{exact} } < $max_locations ) {
             push @{ $r->{exact} }, $record;
-            $store->set( $lc, $r );
+            $entry->set( $r );
         }
         elsif( $verbose ) {
             #print STDERR "Warning: $name has more than --locationLimit ($max_locations) distinct locations, not all of them will be indexed.\n";

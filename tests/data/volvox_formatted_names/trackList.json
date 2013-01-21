@@ -3,8 +3,8 @@
       {
          "chunkSize" : 20000,
          "urlTemplate" : "seq/{refseq_dirpath}/{refseq}-",
-         "label" : "DNA",
          "type" : "SequenceTrack",
+         "label" : "DNA",
          "key" : "DNA"
       },
       {
@@ -66,8 +66,8 @@
          ],
          "urlTemplate" : "tracks/Motifs/{refseq}/trackData.json",
          "compress" : 0,
-         "label" : "Motifs",
-         "type" : "FeatureTrack"
+         "type" : "FeatureTrack",
+         "label" : "Motifs"
       },
       {
          "autocomplete" : "all",
@@ -75,20 +75,15 @@
          "style" : {
             "className" : "feature4"
          },
-         "hooks" : {
-            "modify" : "function( track, feature, div ) { div.style.height = (Math.random()*10+8)+'px';  div.style.backgroundColor = ['green','blue','red','orange','purple'][Math.round(Math.random()*5)];}"
-         },
          "menuTemplate" : [
             {
-               "label" : "Item with submenu",
                "children" : [
                   {
-                     "label" : "Check gene on databases",
                      "children" : [
                         {
                            "iconClass" : "dijitIconBookmark",
-                           "action" : "newWindow",
                            "url" : "http://wiki.trin.org.au/{name}-{start}-{end}",
+                           "action" : "newWindow",
                            "label" : "Query trin for {name}"
                         },
                         {
@@ -96,7 +91,8 @@
                            "url" : "http://example.com/{name}-{start}-{end}",
                            "label" : "Query example.com for {name}"
                         }
-                     ]
+                     ],
+                     "label" : "Check gene on databases"
                   },
                   {
                      "label" : "2nd child of demo"
@@ -104,35 +100,36 @@
                   {
                      "label" : "3rd child: this is a track"
                   }
-               ]
+               ],
+               "label" : "Item with submenu"
             },
             {
                "iconClass" : "dijitIconDatabase",
-               "action" : "iframeDialog",
                "url" : "http://www.example.com?featurename={name}",
-               "label" : "Open example.com in an iframe popup",
-               "title" : "The magnificent example.com (feature {name})"
+               "action" : "iframeDialog",
+               "title" : "The magnificent example.com (feature {name})",
+               "label" : "Open example.com in an iframe popup"
             },
             {
                "iconClass" : "dijitIconDatabase",
-               "action" : "xhrDialog",
                "url" : "sample_data/test_snippet.html?featurename={name}:{start}-{end}",
-               "label" : "Open popup with XHR HTML snippet (btw this is feature {name})",
-               "title" : "function(track,feature,div) { return 'Random XHR HTML '+Math.random()+' title!'; }"
+               "action" : "xhrDialog",
+               "title" : "function(track,feature,div) { return 'Random XHR HTML '+Math.random()+' title!'; }",
+               "label" : "Open popup with XHR HTML snippet (btw this is feature {name})"
             },
             {
                "iconClass" : "dijitIconDatabase",
-               "action" : "contentDialog",
                "content" : "function(track,feature,div) { return '<h2>'+feature.get('name')+'</h2><p>This is some test content!</p><p>This message brought to you by the number <span style=\"font-size: 300%\">'+Math.round(Math.random()*100)+'</span>.</p>';} ",
-               "label" : "Popup with content snippet from a function (feature {name})",
-               "title" : "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }"
+               "action" : "contentDialog",
+               "title" : "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
+               "label" : "Popup with content snippet from a function (feature {name})"
             },
             {
                "iconClass" : "dijitIconDatabase",
-               "action" : "contentDialog",
                "content" : "<h2>{name}</h2><p>This is some test content about {name}, which goes from {start} to {end} on the {strand} strand.</p>",
-               "label" : "Popup with content snippet from string (feature {name})",
-               "title" : "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }"
+               "action" : "contentDialog",
+               "title" : "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
+               "label" : "Popup with content snippet from string (feature {name})"
             },
             {
                "iconClass" : "dijitIconDatabase",
@@ -140,15 +137,18 @@
                "label" : "function(track,feature,div) { return 'Run a JS callback '+Math.random()+' title!'; }"
             }
          ],
+         "hooks" : {
+            "modify" : "function( track, feature, div ) { div.style.height = (Math.random()*10+8)+'px';  div.style.backgroundColor = ['green','blue','red','orange','purple'][Math.round(Math.random()*5)];}"
+         },
          "key" : "Example alignments",
          "feature" : [
             "match"
          ],
          "urlTemplate" : "tracks/Alignments/{refseq}/trackData.json",
          "compress" : 0,
-         "type" : "FeatureTrack",
+         "category" : "Alignments",
          "label" : "Alignments",
-         "category" : "Alignments"
+         "type" : "FeatureTrack"
       },
       {
          "autocomplete" : "all",
@@ -156,15 +156,15 @@
          "style" : {
             "className" : "feature5"
          },
-         "key" : "Protein-coding genes",
          "onClick" : "http://www.ncbi.nlm.nih.gov/gquery/?term={name}",
+         "key" : "Protein-coding genes",
          "feature" : [
             "gene"
          ],
          "urlTemplate" : "tracks/Genes/{refseq}/trackData.json",
          "compress" : 0,
-         "label" : "Genes",
-         "type" : "FeatureTrack"
+         "type" : "FeatureTrack",
+         "label" : "Genes"
       },
       {
          "autocomplete" : "all",
@@ -172,19 +172,19 @@
          "style" : {
             "className" : "dblhelix"
          },
+         "key" : "Frame usage",
          "onClick" : {
             "url" : "http://www.ncbi.nlm.nih.gov/gquery/?term={name}",
             "label" : "search at NCBI"
          },
-         "key" : "Frame usage",
          "feature" : [
             "mRNA"
          ],
          "urlTemplate" : "tracks/ReadingFrame/{refseq}/trackData.json",
          "compress" : 0,
-         "type" : "FeatureTrack",
+         "category" : "Genes",
          "label" : "ReadingFrame",
-         "category" : "Genes"
+         "type" : "FeatureTrack"
       },
       {
          "autocomplete" : "all",
@@ -202,9 +202,9 @@
          "urlTemplate" : "tracks/CDS/{refseq}/trackData.json",
          "phase" : 1,
          "compress" : 0,
-         "category" : "Genes",
+         "type" : "FeatureTrack",
          "label" : "CDS",
-         "type" : "FeatureTrack"
+         "category" : "Genes"
       },
       {
          "autocomplete" : "all",
@@ -218,16 +218,16 @@
             "arrowheadClass" : "transcript-arrowhead"
          },
          "description" : 1,
-         "onClick" : "function() { alert('This is a user-configurable JavaScript action!'); };",
          "key" : "Exonerate predictions",
+         "onClick" : "function() { alert('This is a user-configurable JavaScript action!'); };",
          "feature" : [
             "mRNA:exonerate"
          ],
          "urlTemplate" : "tracks/Transcript/{refseq}/trackData.json",
          "compress" : 0,
-         "type" : "FeatureTrack",
-         "label" : "Transcript",
          "category" : "Genes",
+         "label" : "Transcript",
+         "type" : "FeatureTrack",
          "subfeatures" : true
       },
       {
@@ -243,8 +243,8 @@
          ],
          "urlTemplate" : "tracks/Clones/{refseq}/trackData.json",
          "compress" : 0,
-         "label" : "Clones",
-         "type" : "FeatureTrack"
+         "type" : "FeatureTrack",
+         "label" : "Clones"
       },
       {
          "autocomplete" : "all",
@@ -264,24 +264,24 @@
       {
          "storeClass" : "JBrowse/Store/BigWig",
          "urlTemplate" : "../../raw/volvox/volvox_microarray.bw",
-         "label" : "volvox_microarray.bw_density",
          "type" : "JBrowse/View/Track/Wiggle/Density",
+         "label" : "volvox_microarray.bw_density",
          "bicolor_pivot" : "mean",
          "key" : "BigWig Density - volvox_microarray"
       },
       {
          "storeClass" : "JBrowse/Store/BigWig",
          "urlTemplate" : "../../raw/volvox/volvox_microarray.bw",
-         "label" : "volvox_microarray.bw_xyplot",
          "type" : "JBrowse/View/Track/Wiggle/XYPlot",
+         "label" : "volvox_microarray.bw_xyplot",
          "variance_band" : "true",
          "key" : "BigWig XY - volvox_microarray"
       },
       {
          "storeClass" : "JBrowse/Store/BigWig",
          "urlTemplate" : "../../raw/volvox/volvox_sine.bw",
-         "type" : "JBrowse/View/Track/Wiggle/Density",
          "label" : "volvox_sine_density",
+         "type" : "JBrowse/View/Track/Wiggle/Density",
          "bicolor_pivot" : "mean",
          "key" : "BigWig Density - volvox_sine"
       },
@@ -291,8 +291,8 @@
          "style" : {
             "bg_color" : "#ccc"
          },
-         "type" : "JBrowse/View/Track/Wiggle/XYPlot",
          "label" : "volvox_sine_xyplot",
+         "type" : "JBrowse/View/Track/Wiggle/XYPlot",
          "key" : "BigWig XY - volvox_sine"
       },
       {
@@ -303,40 +303,40 @@
             "arrowheadClass" : "arrowhead",
             "labelScale" : 100
          },
-         "type" : "JBrowse/View/Track/Alignments",
          "label" : "volvox-sorted.bam",
+         "type" : "JBrowse/View/Track/Alignments",
          "key" : "volvox-sorted.bam"
       },
       {
          "storeClass" : "JBrowse/Store/SeqFeature/BAM",
          "urlTemplate" : "../../raw/volvox/volvox-sorted.bam",
          "max_score" : 35,
-         "type" : "JBrowse/View/Track/FeatureCoverage",
          "label" : "volvox-sorted.bam_coverage",
+         "type" : "JBrowse/View/Track/FeatureCoverage",
          "min_score" : 0,
          "key" : "volvox-sorted Coverage"
       },
       {
          "urlTemplate" : "tracks/volvox_microarray.wig/{refseq}/trackData.json",
-         "compress" : 0,
          "style" : {
             "className" : "image"
          },
-         "label" : "volvox_microarray.wig",
+         "compress" : 0,
          "type" : "ImageTrack.Wiggle",
+         "label" : "volvox_microarray.wig",
          "key" : "volvox_microarray.wig"
       },
       {
          "urlTemplate" : "tracks/bam_simulated/{refseq}/trackData.json",
+         "compress" : 0,
          "style" : {
             "className" : "basic",
             "histScale" : 2,
             "featureCss" : "background-color: #66F; height: 8px",
             "histCss" : "background-color: #88F"
          },
-         "compress" : 0,
-         "type" : "FeatureTrack",
          "label" : "bam_simulated",
+         "type" : "FeatureTrack",
          "key" : "Simulated next-gen reads"
       }
    ],
