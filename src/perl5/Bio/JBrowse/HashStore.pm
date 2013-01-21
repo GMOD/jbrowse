@@ -63,8 +63,8 @@ sub open {
     $self->{hash_characters} = int( $self->{hash_bits}/4 );
     $self->{file_extension} = '.json';
 
-    $self->{bucket_cache} = Cache::Ref::FIFO->new( size => 200 );
-    $self->{bucket_path_cache} = Cache::Ref::FIFO->new( size => 1000 );
+    $self->{bucket_cache} = Cache::Ref::FIFO->new( size => 2000 );
+    $self->{bucket_path_cache} = Cache::Ref::FIFO->new( size => 200_000 );
 
     return bless $self, $class;
 }
