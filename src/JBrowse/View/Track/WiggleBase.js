@@ -319,17 +319,17 @@ Wiggle.extend({
                         scoreDisplay.style.top = cPos.y+'px';
                         scoreDisplay.style.display = 'block';
                     } else {
-                        setTimeout(function(){
-                            if( !(this._showPixelValue( scoreDisplay, pixelValues[Math.round(cx)])) ) {
-                            scoreDisplay.style.display = 'none';
-                            }
-                        }, 50);
+                        scoreDisplay.style.display = 'none';
                     }
             }));
         },this);
         on( block, 'mouseout', function(evt) {
-                     scoreDisplay.style.display = 'none';
-                     verticalLine.style.display = 'none';
+                var target = evt.srcElement || evt.target;
+                var evtParent = evt.relatedTarget || evt.toElement;
+                    if (target.parentNode != evtParent.parentNode) {
+                        scoreDisplay.style.display = 'none';
+                        verticalLine.style.display = 'none';
+                    }
         });
     },
 
