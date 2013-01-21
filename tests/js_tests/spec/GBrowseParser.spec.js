@@ -53,6 +53,7 @@ require(['JBrowse/ConfigAdaptor/gbrowse'], function ( gbrowseConfigAdaptor ) {
 
             expect(gbConfig['sub']['section']['giant word']).toBe('Antidisestablishmentarianism');
             expect(gbConfig['sub']['section']['multiline']).toBe('herp derp');
+            expect(gbConfig['sub']['section']['fancyMultiline']).toBe('Le herp derp');
             
             var x = gbConfig.function_testing.meaningOfLife();
             expect(x).toBe(42);
