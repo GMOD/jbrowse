@@ -207,8 +207,9 @@ return declare( Wiggle,
      * It displays more complete data.
      */
     _showPixelValue: function( scoreDisplay, score ) {
-        if( typeof score['matchCoverage'] == 'number' ) {
-            var scoreSummary = "<u>COVERAGE SUMMARY</u><br>Matching Bases: "+score['matchCoverage']+'<br>';
+        if( typeof score['matchCoverage'] == 'number') {
+            var scoreSummary = "<u>COVERAGE SUMMARY</u><br>";
+            if (score['matchCoverage']){scoreSummary += "Matching Bases: "+score['matchCoverage']+'<br>';}
             for (ID in score) {
                 if (score.hasOwnProperty(ID) && ID != 'matchCoverage') {
                     scoreSummary += ID + ': ' +score[ID] +'<br>';
