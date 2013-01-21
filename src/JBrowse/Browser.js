@@ -365,12 +365,13 @@ Browser.prototype.loadNames = function() {
             conf.url = Util.resolveUrl( conf.baseUrl, conf.url );
 
         if( conf.type == 'Hash' )
-            this.nameStore = new NamesHashStore( conf );
+            this.nameStore = new NamesHashStore( dojo.mixin({ browser: this }, conf) );
         else
             // wrap the older LazyTrieDojoDataStore with
             // dojo.store.DataStore to conform with the dojo/store API
             this.nameStore = new DojoDataStore({
                 store: new NamesLazyTrieDojoDataStore({
+                    browser: this,
                     namesTrie: new LazyTrie( conf.url, "lazy-{Chunk}.json"),
                     stopPrefixes: conf.stopPrefixes,
                     resultLimit:  conf.resultLimit || 15,
@@ -1293,7 +1294,7 @@ Browser.prototype.showRegion = function( location ) {
 
     // if the location has a track associated with it, show it
     if( location.tracks ) {
-        this.showTracks( location.tracks );
+        this.showTracks( array.map( location.tracks, function( t ) { return t && (t.label || t.name) || t; } ));
     }
 };
 

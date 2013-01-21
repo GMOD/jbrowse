@@ -32,6 +32,19 @@ return declare(null,{
                     { label: 'End', field: 'end' }
         ];
 
+        if( args.locations && args.locations.length && args.locations[0].tracks )
+            columns.push({
+                             label: 'Track',
+                             field: 'tracks',
+                             formatter: function(tracks) {
+                                 return array.map( array.filter( tracks, function(t) { return t; }), // remove nulls
+                                                   function(t) {
+                                                       return t.key || t.name || t.label || t;
+                                                   })
+                                             .join(', ');
+                             }
+                         });
+
         if( array.some( args.locations || [], function(l) { return l.label; }) ) {
             columns.unshift( { label: 'Name', field: 'label' } );
         }

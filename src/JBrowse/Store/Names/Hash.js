@@ -49,17 +49,35 @@ return declare( HashStore,
             var item = {};
             if( typeof nameRecord == 'object' ) {
                 item.name = nameRecord[0];
+                var trackConfig = this._findTrackConfig( ((this.meta||{}).track_names||{})[ nameRecord[1] ] );
                 item.location = new Location({
                     ref: nameRecord[3],
                     start: parseInt( nameRecord[4] ),
                     end: parseInt( nameRecord[5] ),
-                    tracks: [ ((this.meta||{}).track_names||{})[ nameRecord[1] ] ]
+                    tracks: [ trackConfig  ]
                 });
             } else {
                 item.name = nameRecord;
             }
             return item;
         }
+    },
+
+    // look in the browser's track configuration for the track with the given label
+    _findTrackConfig: function( trackLabel ) {
+        if( ! trackLabel )
+            return null;
+
+        var track = null;
+        var i = array.some( this.browser.config.tracks, function( t ) {
+            if( t.label == trackLabel ) {
+                track = t;
+                return true;
+            }
+            return false;
+        });
+
+        return track;
     },
 
     _makeResults: function( nameRecords ) {

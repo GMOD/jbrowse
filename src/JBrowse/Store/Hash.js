@@ -26,6 +26,8 @@ return declare( null, {
 
         this.meta = {};
 
+        this.browser = args.browser;
+
         // this.ready is a Deferred that will be resolved when we have
         // read the meta.json file with the params of this hashstore
         this.ready = this._readMeta();
