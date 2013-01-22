@@ -66,11 +66,11 @@ return declare( Wiggle,
                             }
                             // Calculate SNP coverage
                             var mdTag = feature.get('MD');
-                            if(mdTag) {
+                            if(mdTag && binWidth == 1) {
                                 var SNPs = this._mdToMismatches(feature, mdTag);
                                 // loops through mismatches and updates coverage variables accordingly.
                                 for (var i = 0; i<SNPs.length; i++) {
-                                    var pos = bpToBin( feature.get('start') + SNPs[i].start );
+                                    var pos = bpToBin( feature.get('start') + SNPs[i].start);
                                     // Note: we reduce matchCoverage so the sum is the total coverage
                                     coverageBins[pos]['matchCoverage']--;
                                     if ( coverageBins[pos][SNPs[i].bases] ) {
@@ -113,10 +113,14 @@ return declare( Wiggle,
         var snpCanvas = dojo.create('canvas', 
                                     {height: parseInt(block.parentNode.style.height, 10) - canvas.height,
                                      width: canvas.width,
-                                     style: { cursor: 'default' },
+                                     style: { cursor: 'default'},
                                      innerHTML: 'Your web browser cannot display this type of track.',
                                      className: 'SNP-indicator-track'
                                  }, block);
+        // widen the canvas and offset it.
+        snpCanvas.width += snpCanvas.height;
+        snpCanvas.style.position = 'relative';
+        snpCanvas.style.left = -snpCanvas.height*0.5 + 'px';
         var snpContext = snpCanvas.getContext('2d');
 
         var barColor  = {'matchCoverage':'#999', 'A':'#00BF00', 'T':'red', 'C':'#4747ff', 'G':'#d5bb04'}; // base colors from "main.css"
@@ -165,17 +169,25 @@ return declare( Wiggle,
                     totalHeight += score[counts];
                 }
             }
-
             // draw indicators of SNPs if base coverage is greater than 50% of total coverage
             for (ID in score) {
                 if (score.hasOwnProperty(ID) && ID != 'matchCoverage' && score[ID] > 0.5*totalHeight) {
                     snpContext.beginPath();
-                    snpContext.arc(fRect.l + 0.5*fRect.w, 0.25*snpCanvas.height, 0.20*snpCanvas.height, 0, 2 * Math.PI, false);
+                    snpContext.arc( fRect.l + 0.5*(fRect.w+snpCanvas.height), 
+                                    0.40*snpCanvas.height,
+                                    0.20*snpCanvas.height,
+                                    1.75 * Math.PI,
+                                    1.25 * Math.PI,
+                                    false);
+                    snpContext.lineTo(fRect.l + 0.5*(fRect.w+snpCanvas.height), 0);
+                    snpContext.closePath();
                     snpContext.fillStyle = barColor[ID] || 'black';
                     snpContext.fill();
+                    snpContext.lineWidth = 1;
+                    snpContext.strokeStyle = 'black';
+                    snpContext.stroke();
                 }
             }
-
             // Note: 'matchCoverage' is done first to ensure the grey part of the graph is on top
             drawRectangle('matchCoverage', toY(totalHeight), originY-toY( score['matchCoverage'] )+1, fRect);
             totalHeight -= score['matchCoverage'];
