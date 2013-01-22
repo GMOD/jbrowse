@@ -145,12 +145,13 @@ my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
     empty => 1,
 
-    # set the hash size to try to get about 10 name records per file
-    # (does not count prefix completions) if the store has existing
-    # data in it, this will be ignored
+    # set the hash size to try to get about 50KB per file, at an
+    # average of about 500 bytes per name record, for about 100
+    # records per file. if the store has existing data in it, this
+    # will be ignored
     hash_bits => $hash_bits || (
         $est_total_name_records
-            ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 50 )/ 4 / log(2)) )))
+            ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 100 )/ 4 / log(2)) )))
             : 12
     ),
 );
