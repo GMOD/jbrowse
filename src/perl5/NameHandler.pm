@@ -1,6 +1,6 @@
 =head1 NAME
 
-NameHandler - create JSON indices of feature names
+NameHandler - create indices of feature names
 
 =head1 SYNOPSIS
 
@@ -36,7 +36,7 @@ use JSON 2;
 # TODO: find a central place to put this knowledge
 our $chromIndex = 3;
 
-my $nameFile = "names.json";
+my $nameFile = "names.txt";
 
 =head1 new( \&directory_callback )
 
@@ -73,15 +73,8 @@ sub addName {
         carp "chrom not defined in " . JSON::to_json($nameArr) . "\n";
     }
 
-    my $nameFile = $self->{nameFiles}->{$chrom};
-    if ( defined $nameFile ) {
-        $nameFile->print(",");
-    } else {
-        $self->{nameFiles}->{$chrom} =
-            $nameFile                = $self->_newChrom($chrom);
-    }
-
-    $nameFile->print( JSON::to_json($nameArr, {pretty => 0}) )
+    my $nameFile = $self->{nameFiles}->{$chrom} ||= $self->_newChrom($chrom);
+    $nameFile->print( JSON::to_json( $nameArr, {pretty => 0} ), "\n" )
         or die "couldn't write to file for $chrom: $!";
 }
 
@@ -98,7 +91,6 @@ sub _newChrom {
     my $namefile = "$chromDir/$nameFile";
 
     my $fh = IO::File->new( $namefile, '>' ) or die "$! writing $namefile";
-    $fh->print( "[" );
     return $fh;
 }
 
@@ -113,7 +105,6 @@ sub finish {
     foreach my $chrom (keys %{$self->{nameFiles}}) {
         my $fh = $self->{nameFiles}->{$chrom};
         if( $fh && $fh->opened ) {
-            $fh->print("]");
             $fh->close or die "$! closing names file for ref seq $chrom";
         }
     }

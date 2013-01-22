@@ -8,7 +8,6 @@ generate-names.pl - generate a global index of feature names
 
   generate-names.pl                        \
       [ --out <output directory> ]         \
-      [ --thresh <threshold> ]             \
       [ --verbose ]
 
 =head1 OPTIONS
@@ -24,10 +23,20 @@ Data directory to process.  Default 'data/'.
 Comma-separated list of which tracks to include in the names index.  If
 not passed, all tracks are indexed.
 
-=item --thresh <threshold>
+=item --locationLimit <number>
 
-Optional LazyPatricia chunking threshold, in bytes.  Default 100kb.  See
-L<LazyPatricia> for details.
+Maximum number of distinct locations to store for a single name.  Default 100.
+
+=item --completionLimit <number>
+
+Maximum number of completions to store for a given prefix.  Default 20.
+
+=item --totalNames <number>
+
+Optional estimate of the total number of names that will go into this
+names index.  Used to choose some parameters for how the name index is
+built.  If not passed, tries to estimate this based on the size of the
+input names files.
 
 =item --verbose
 
@@ -48,33 +57,40 @@ use FindBin qw($Bin);
 use lib "$Bin/../src/perl5";
 use JBlibs;
 
+use Carp::Always;
+
 use Fcntl ":flock";
 use File::Spec::Functions;
 use Getopt::Long;
-use IO::File;
 use Pod::Usage;
+use List::Util qw/ sum min max /;
+
+use PerlIO::gzip;
 
 use JSON 2;
 
+use Bio::JBrowse::HashStore;
 
-use LazyPatricia;
 use GenomeDB;
 
-use Data::Dumper;
-$Data::Dumper::Indent = 1;
-
-my %trackHash;
 my @includedTrackNames;
-my @tracksWithNames;
 
 my $outDir = "data";
-my $thresh = 100 * 2**10;
 my $verbose = 0;
 my $help;
+my $max_completions = 20;
+my $max_locations = 100;
+my $thresh;
+my $est_total_name_records;
+my $hash_bits;
 GetOptions("dir|out=s" => \$outDir,
-           "thresh=i" => \$thresh,
+           "completionLimit=i" => \$max_completions,
+           "locationLimit=i" => \$max_locations,
            "verbose+" => \$verbose,
+           "thresh=i" => \$thresh,
+           "totalNames=i" => \$est_total_name_records,
            'tracks=s' => \@includedTrackNames,
+           'hashBits=i' => \$hash_bits,
            "help|h|?" => \$help) or pod2usage();
 
 my %includedTrackNames = map { $_ => 1 }
@@ -93,111 +109,229 @@ OUTDIR
 }
 
 my $gdb = GenomeDB->new( $outDir );
-my $nameDir = catdir($outDir, "names");
-mkdir($nameDir) unless (-d $nameDir);
 
 my @refSeqs  = @{ $gdb->refSeqs   };
+unless( @refSeqs ) {
+    die "No reference sequences defined in configuration, nothing to do.\n";
+}
 my @tracks   = grep { !%includedTrackNames || $includedTrackNames{ $_->{label} } }
-               @{ $gdb->trackList };
+               @{ $gdb->trackList || [] };
+unless( @tracks ) {
+    die "No tracks defined in configuration, nothing to do.\n";
+}
 
 if( $verbose ) {
     print STDERR "Tracks:\n".join('', map "    $_->{label}\n", @tracks );
 }
 
-# open the root file; we lock this file while we're
-# reading the name lists, deleting all the old lazy-*
-# files, and writing new ones.
-my $rootFile = catfile($nameDir, "root.json");
-my $root = new IO::File $rootFile, O_WRONLY | O_CREAT
-  or die "couldn't open $rootFile: $!";
-flock $root, LOCK_EX;
-
 # read the name list for each track that has one
-my %nameHash;
 my $trackNum = 0;
-my @namearray;
 
-foreach my $ref (@refSeqs) {
-    push @{$nameHash{lc $ref->{name}}}, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
-    foreach my $track (@tracks) {
-        my $infile = catfile( $outDir,
+# find the names files we will be working with
+my @names_files = find_names_files();
+if( ! @names_files ) {
+    warn "WARNING: No feature names found for indexing, only reference sequence names will be indexed.\n";
+}
+
+#print STDERR "Names files:\n", map "    $_->{fullpath}\n", @names_files;
+
+# estimate the total number of name records we probably have based on the input file sizes
+$est_total_name_records ||= int( (sum( map { -s $_->{fullpath} } @names_files )||0) / 70 );
+if( $verbose ) {
+    print STDERR "Estimated $est_total_name_records total name records to index.\n";
+}
+
+my $nameStore = Bio::JBrowse::HashStore->open(
+    dir   => catdir( $outDir, "names" ),
+    empty => 1,
+
+    # set the hash size to try to get about 50KB per file, at an
+    # average of about 500 bytes per name record, for about 100
+    # records per file. if the store has existing data in it, this
+    # will be ignored
+    hash_bits => $hash_bits || (
+        $est_total_name_records
+            ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 100 )/ 4 / log(2)) )))
+            : 12
+    ),
+);
+
+if( $verbose ) {
+    print STDERR "Using ".$nameStore->{hash_bits}."-bit hashing.\n";
+}
+
+# insert a name record for all of the reference sequences
+
+my $name_records_iterator = sub {};
+my @namerecord_buffer;
+for my $ref ( @refSeqs ) {
+    push @namerecord_buffer, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
+}
+
+
+my %trackHash;
+my @tracksWithNames;
+my $record_stream = sub {
+    while( ! @namerecord_buffer ) {
+        my $nameinfo = $name_records_iterator->() || do {
+            my $file = shift @names_files;
+            return unless $file;
+            #print STDERR "Processing $file->{fullpath}\n";
+            $name_records_iterator = make_names_iterator( $file );
+            $name_records_iterator->();
+        } or return;
+        foreach my $alias ( @{$nameinfo->[0]} ) {
+            my $track = $nameinfo->[1];
+            unless ( defined $trackHash{$track} ) {
+                $trackHash{$track} = $trackNum++;
+                push @tracksWithNames, $track;
+            }
+            push @namerecord_buffer, [
+                lc $alias,
+                $alias,
+                $trackHash{$track},
+                @{$nameinfo}[2..$#{$nameinfo}]
+                ];
+        }
+    }
+    return shift @namerecord_buffer;
+};
+
+# sort the stream by hash key to improve cache locality
+my $entry_stream = $nameStore->sort_stream( $record_stream );
+
+# now write it to the store
+while( my $entry = $entry_stream->() ) {
+    insert( $nameStore, $entry );
+}
+
+# store the list of tracks that have names
+$nameStore->{meta}{track_names} = \@tracksWithNames;
+# record the fact that all the keys are lowercased
+$nameStore->{meta}{lowercase_keys} = 1;
+
+
+# set up the name store in the trackList.json
+$gdb->modifyTrackList( sub {
+    my ( $data ) = @_;
+    $data->{names}{type} = 'Hash';
+    $data->{names}{url}  = 'names/';
+    return $data;
+});
+
+exit;
+
+################ HELPER SUBROUTINES ##############################
+
+sub find_names_files {
+    my @files;
+    for my $track (@tracks) {
+        for my $ref (@refSeqs) {
+            my $dir = catdir( $outDir,
                               "tracks",
                               $track->{label},
-                              $ref->{name},
-                              "names.json");
-        next unless -e $infile;
+                              $ref->{name}
+                            );
 
-        my $names = do {
-            local $/;
-            open my $j, '<', $infile or die "$! reading $infile";
-            JSON::from_json(<$j>);
-        };
-
-        foreach my $nameinfo ( @$names) {
-            foreach my $alias ( @{$nameinfo->[0]} ) {
-                my $track = $nameinfo->[1];
-                unless( defined $trackHash{$track} ) {
-                    $trackHash{$track} = $trackNum++;
-                    push @tracksWithNames, $track;
-                }
-
-                push @{$nameHash{lc $alias}}, [ $alias,
-                                                $trackHash{$track},
-                                                @{$nameinfo}[2..$#{$nameinfo}]];
+            # read either names.txt or names.json files
+            my $name_records_iterator;
+            my $names_txt  = catfile( $dir, 'names.txt'  );
+            if( -f $names_txt ) {
+                push @files, { fullpath => $names_txt, type => 'txt' };
             }
+            else {
+                my $names_json = catfile( $dir, 'names.json' );
+                if( -f $names_json ) {
+                    push @files, { fullpath => $names_json, type => 'json', namestxt => $names_txt };
+                }
+            }
+        }
+    }
+    return @files;
+}
+
+sub insert {
+    my ( $store, $entry ) = @_;
+
+    my $record = $entry->data;
+    my $lc = shift @$record;
+    my $name = $record->[0];
+
+    { # store the exact name match
+        my $r = $entry->get || { exact => [], prefix => [] };
+        if( $max_locations && @{ $r->{exact} } < $max_locations ) {
+            push @{ $r->{exact} }, $record;
+            $entry->set( $r );
+        }
+        elsif( $verbose ) {
+            #print STDERR "Warning: $name has more than --locationLimit ($max_locations) distinct locations, not all of them will be indexed.\n";
+        }
+    }
+
+    # generate all the prefixes
+    my @prefixes;
+    chop $lc;
+    while( $lc ) {
+        push @prefixes, $lc;
+        chop $lc;
+    }
+
+    # store the prefixes
+    for my $prefix ( @prefixes ) {
+        my $r = $store->get( $prefix ) || { exact => [], prefix => [] };
+        my $p = $r->{prefix};
+        if( @$p < $max_completions ) {
+            if( ! grep $name eq $_, @$p ) {
+                push @{ $r->{prefix} }, $name;
+                $store->set( $prefix, $r );
+            }
+        }
+        elsif( @{ $r->{prefix} } == $max_completions ) {
+            push @{ $r->{prefix} }, { name => 'too many matches', hitLimit => 1 };
+            $store->set( $prefix, $r );
         }
     }
 }
 
-# clear out old data
-$root->seek(0, SEEK_SET);
-$root->truncate(0);
-if( my @lazyFiles = glob( catfile( $nameDir, "lazy-*" )) ) {
-    unlink @lazyFiles
-      or die "couldn't unlink name files: $!";
+
+# each of these takes an input filename and returns a subroutine that
+# returns name records until there are no more, for either names.txt
+# files or old-style names.json files
+sub make_names_iterator {
+    my ( $file_record ) = @_;
+    if( $file_record->{type} eq 'txt' ) {
+        my $input_fh = open_names_file( $file_record->{fullpath} );
+        # read the input json partly with low-level parsing so that we
+        # can parse incrementally from the filehandle.  names list
+        # files can be very big.
+        return sub {
+            my $t = <$input_fh>;
+            return $t ? eval { JSON::from_json( $t ) } : undef;
+        };
+    }
+    elsif( $file_record->{type} eq 'json' ) {
+        # read old-style names.json files all from memory
+        my $input_fh = open_names_file( $file_record->{fullpath} );
+
+        my $data = JSON::from_json(do {
+            local $/;
+            scalar <$input_fh>
+        });
+
+        open my $nt, '>', $file_record->{namestxt} or die;
+        return sub {
+            my $rec = shift @$data;
+            if( $rec ) {
+                $nt->print(JSON::to_json($rec)."\n");
+            }
+            return $rec;
+        };
+    }
 }
 
-my $trie = LazyPatricia::create( \%nameHash );
-$trie->[0] = \@tracksWithNames;
-
-my ($total, $thisChunk) =
-  LazyPatricia::partition( $trie, "", $thresh, sub {
-      my ($subtreeRoot, $prefix, $thisChunk, $total) = @_;
-      # output subtree
-      writeJSON( catfile($nameDir, "lazy-$prefix.json"),
-                 $subtreeRoot,
-                 {pretty => 0} );
-      printf STDERR ( "subtree for %15s   has %10d  in chunk, %10d  total\n",
-                      $prefix, $thisChunk, $total )
-          if $verbose;
-  });
-
-print STDERR "${total}b total size, with ${thisChunk}b in the root chunk\n"
-  if $verbose;
-
-# write the root
-$root->print( JSON::to_json($trie, {pretty => 0}) );
-
-exit;
-
-############
-
-sub writeJSON {
-    my ( $file, $contents, $opts ) = @_;
-    open my $f, '>', $file or die "$! writing $file";
-    print $f JSON::to_json( $contents, $opts || {} );
+sub open_names_file {
+    my ( $infile ) = @_;
+    my $gzip = $infile =~ /\.(txt|json)z$/ ? ':gzip' : '';
+    open my $fh, "<$gzip", $infile or die "$! reading $infile";
+    return $fh;
 }
-
-
-=head1 AUTHOR
-
-Mitchell Skinner E<lt>mitch_skinner@berkeley.eduE<gt>
-
-Copyright (c) 2007-2009 The Evolutionary Software Foundation
-
-This package and its accompanying libraries are free software; you can
-redistribute it and/or modify it under the terms of the LGPL (either
-version 2.1, or at your option, any later version) or the Artistic
-License 2.0.  Refer to LICENSE for the full license text.
-
-=cut

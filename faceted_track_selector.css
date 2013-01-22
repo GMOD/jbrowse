@@ -105,6 +105,9 @@
 .tundra #faceted_tracksel_top {
     background: #396494;
 }
+.tundra #faceted_tracksel_top .topLink {
+    color: white;
+}
 
 #faceted_tracksel_top > * {
     display: inline-block;
@@ -215,7 +218,10 @@
 #faceted_tracksel .dijitAccordionContainer .dijitAccordionTitle {
     padding: 0;
 }
-#faceted_tracksel .facetTitle {
+#faceted_tracksel .dijitAccordionTitleFocus {
+    position: relative;
+}
+.tundra #faceted_tracksel .dijitAccordionTitleFocus {
     border-top: 3px solid transparent;
     padding: 2px 2px 2px 0.6em;
     color: #1B3047
@@ -237,11 +243,13 @@
 }
 
 #faceted_tracksel .facetTitle a {
-    display: none;
+    position: absolute;
+    top: 2px;
+    right: -4px;
+    visibility: hidden;
 }
 #faceted_tracksel .activeFacet a.clearFacet {
-    display: block;
-    float: right;
+    visibility: visible;
     padding: 1px 6px;
 }
 

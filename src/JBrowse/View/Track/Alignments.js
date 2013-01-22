@@ -5,6 +5,7 @@ define( ['dojo/_base/declare',
         ],
         function( declare, array, Util, HTMLFeatures ) {
 
+// return declare( HTMLFeatures,
 return declare( HTMLFeatures,
 /**
  * @lends JBrowse.View.Track.Alignments
@@ -20,15 +21,24 @@ return declare( HTMLFeatures,
                 style: {
                     _defaultLabelScale: 50,
                     className: 'alignment',
-                    arrowheadClass: 'arrowhead'
+                    arrowheadClass: 'arrowhead',
+                    centerChildrenVertically: true,
+                    showMismatches: true,
+                    showSubfeatures: false
                 }
             }
         );
     },
 
-    renderFeature: function( feature, uniqueId, block, scale ) {
+    renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                             containerStart, containerEnd  ) {
         var featDiv = this.inherited( arguments );
-        this._drawMismatches( feature, featDiv, scale );
+
+        var displayStart = Math.max( feature.get('start'), containerStart );
+        var displayEnd = Math.min( feature.get('end'), containerEnd );
+        if( this.config.style.showMismatches )  {
+            this._drawMismatches( feature, featDiv, scale, displayStart, displayEnd );
+        }
 
         // if this feature is part of a multi-segment read, and not
         // all of its segments are aligned, add missing_mate to its
@@ -40,46 +50,113 @@ return declare( HTMLFeatures,
     },
 
 
+    handleSubFeatures: function( feature, featDiv,
+                                 displayStart, displayEnd, block )  {
+        if( this.config.style.showSubfeatures )  {
+            this.inherited(arguments);
+        }
+    },
+
     /**
      * draw base-mismatches on the feature
      */
-    _drawMismatches: function( feature, featDiv, scale ) {
+    _drawMismatches: function( feature, featDiv, scale, displayStart, displayEnd ) {
+        var featLength = displayEnd - displayStart;
         // recall: scale is pixels/basepair
-        if ( scale >= 0.5 ) {
+        if ( featLength*scale > 1 ) {
             var mismatches = this._getMismatches( feature );
             var charSize = this.getCharacterMeasurements();
             var drawChars = scale >= charSize.w;
-            var featureLength = feature.get('end') - feature.get('start');
-
             array.forEach( mismatches, function( mismatch ) {
-                array.forEach( mismatch.bases, function( base, i ) {
-                    dojo.create('span', {
-                                    className: 'mismatch base base_'+(base == '*' ? 'deletion' : base.toLowerCase()),
-                                    title: base == '*' ? 'deletion' : null,
-                                    style: {
-                                        position: 'absolute',
-                                        left: (mismatch.start+i)/featureLength*100 + '%',
-                                        width: Math.max(scale,1) + 'px'
-                                    },
-                                    innerHTML: drawChars ? base : ''
-                                }, featDiv );
-               }, this );
-            });
+                var start = feature.get('start') + mismatch.start;
+                var end = start + mismatch.length;
+
+                // if the feature has been truncated to where it doesn't cover
+                // this mismatch anymore, just skip this mismatch
+                if ( end <= displayStart || start >= displayEnd )
+                    return;
+
+                var base = mismatch.base;
+                var mDisplayStart = Math.max( start, displayStart );
+                var mDisplayEnd = Math.min( end, displayEnd );
+                var mDisplayWidth = mDisplayEnd - mDisplayStart;
+                var overall = dojo.create('span',  {
+                    className: mismatch.type + ' base_'+base.toLowerCase(),
+                    style: {
+                        position: 'absolute',
+                        left: 100 * ( mDisplayStart - displayStart)/featLength + '%',
+                        width: scale*mDisplayWidth>1 ? 100 * mDisplayWidth/featLength + '%' : '1px'
+                    }
+                }, featDiv );
+
+                // give the mismatch a mouseover if not drawing a character with the mismatch base
+                if( ! drawChars )
+                    overall.title = base;
+
+                if( drawChars && mismatch.length <= 20 ) {
+                    for( var i = 0; i<mismatch.length; i++ ) {
+                        var basePosition = start + i;
+                        if( basePosition >= mDisplayStart && basePosition <= mDisplayEnd ) {
+                            dojo.create('span',{
+                                            className: 'base base_'+base.toLowerCase(),
+                                            style: {
+                                                position: 'absolute',
+                                                width: scale+'px',
+                                                left: (basePosition-mDisplayStart)/mDisplayWidth*100 + '%'
+                                            },
+                                            innerHTML: base
+                                        }, overall );
+                        }
+                    }
+                }
+            }, this );
         }
     },
 
     _getMismatches: function( feature ) {
-        var seq = feature.get('seq');
-        if( ! seq )
-            return m;
-
+        var mismatches = [];
         // parse the MD tag if it has one
-        var mdTag = feature.get('MD');
-        if( mdTag ) {
-            return this._mdToMismatches( feature, mdTag );
+        if( feature.get('MD') ) {
+            mismatches.push.apply( mismatches, this._mdToMismatches( feature, feature.get('MD') ) );
+        }
+        // parse the CIGAR tag if it has one
+        if( feature.get('cigar') ) {
+            mismatches.push.apply( mismatches, this._cigarToMismatches( feature, feature.get('cigar') ) );
         }
 
-        return [];
+        return mismatches;
+    },
+
+    _parseCigar: function( cigar ) {
+        return array.map( cigar.match(/\d+\D/g), function( op ) {
+           return [ op.match(/\D/)[0].toUpperCase(), parseInt( op ) ];
+        });
+    },
+
+    _cigarToMismatches: function( feature, cigarstring ) {
+        var ops = this._parseCigar( cigarstring );
+        var currOffset = 0;
+        var mismatches = [];
+        array.forEach( ops, function( oprec ) {
+           var op  = oprec[0].toUpperCase();
+           if( !op )
+               return;
+           var len = oprec[1];
+           // if( op == 'M' || op == '=' || op == 'E' ) {
+           //     // nothing
+           // }
+           if( op == 'I' )
+               mismatches.push( { start: currOffset, type: 'insertion', base: ''+len, length: 1 });
+           else if( op == 'D' )
+               mismatches.push( { start: currOffset, type: 'deletion',  base: '*', length: len  });
+           else if( op == 'N' )
+               mismatches.push( { start: currOffset, type: 'skip',      base: 'N', length: len  });
+           else if( op == 'X' )
+               mismatches.push( { start: currOffset, type: 'mismatch',  base: 'X', length: len  });
+
+           currOffset += len;
+        });
+        return mismatches;
     },
 
     /**
@@ -89,33 +166,35 @@ return declare( HTMLFeatures,
      */
     _mdToMismatches: function( feature, mdstring ) {
         var mismatchRecords = [];
-        var curr = { start: 0, bases: '' };
+        var curr = { start: 0, base: '', length: 0, type: 'mismatch' };
         var seq = feature.get('seq');
         var nextRecord = function() {
               mismatchRecords.push( curr );
-              curr = { start: curr.start + curr.bases.length, bases: ''};
+              curr = { start: curr.start + curr.length, length: 0, base: '', type: 'mismatch'};
         };
         array.forEach( mdstring.match(/(\d+|\^[a-z]+|[a-z])/ig), function( token ) {
           if( token.match(/^\d/) ) { // matching bases
               curr.start += parseInt( token );
           }
           else if( token.match(/^\^/) ) { // insertion in the template
-              var i = token.length-1;
-              while( i-- ) {
-                  curr.bases += '*';
-              }
+              curr.length = token.length-1;
+              curr.base   = '*';
+              curr.type   = 'deletion';
               nextRecord();
           }
           else if( token.match(/^[a-z]/i) ) { // mismatch
-              curr.bases = seq.substr( curr.start, token.length );
-              nextRecord();
+              for( var i = 0; i<token.length; i++ ) {
+                  curr.length = 1;
+                  curr.base = seq ? seq.substr( curr.start, 1 ) : 'X';
+                  nextRecord();
+              }
           }
         });
         return mismatchRecords;
     },
 
     // stub out subfeature rendering, this track doesn't render subfeatures
-    renderSubfeature: function() {},
+//    renderSubfeature: function() {},
 
     /**
      * @returns {Object} containing <code>h</code> and <code>w</code>,

@@ -2,8 +2,9 @@ define( [ 'dojo/_base/declare',
           'dojo/_base/array',
           'dojo/_base/json',
           'JBrowse/Util',
-          'JBrowse/Digest/Crc32'
-        ], function( declare, array, json, Util, digest ) {
+          'JBrowse/Digest/Crc32',
+          'JBrowse/ConfigAdaptor/AdaptorUtil'
+        ], function( declare, array, json, Util, digest, AdaptorUtil ) {
 
 return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
@@ -32,21 +33,26 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
         load: function( /**Object*/ args ) {
             var that = this;
             if( args.config.url ) {
+                var url = Util.resolveUrl( args.baseUrl || window.location.href, args.config.url );
+                var handleError = function(e) {
+                    e.url = url;
+                    if( args.onFailure )
+                        args.onFailure.call( args.context || this, e );
+                };
                 dojo.xhrGet({
-                                url: Util.resolveUrl( args.baseUrl || window.location.href, args.config.url ),
+                                url: url,
                                 handleAs: 'text',
                                 load: function( o ) {
-                                    window.setTimeout( dojo.hitch(this, function() {
-                                    o = that.parse_conf( o, args );
-                                    o = that.regularize_conf( o, args );
-                                    args.onSuccess.call( args.context || this, o );
-                                                                  }, 10 ));
+                                    try {
+                                        o = that.parse_conf( o, args ) || {};
+                                        o.sourceUrl = url;
+                                        o = that.regularize_conf( o, args );
+                                        args.onSuccess.call( args.context || that, o );
+                                    } catch(e) {
+                                        handleError(e);
+                                    }
                                 },
-                                error: function( i ) {
-                                    console.error( ''+i );
-                                    if( args.onFailure )
-                                        args.onFailure.call( args.context || this, i);
-                                }
+                                error: handleError
                             });
             }
             else if( args.config.data ) {
@@ -81,15 +87,18 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             if( o.baseUrl.length && ! /\/$/.test( o.baseUrl ) )
                 o.baseUrl += "/";
 
-            // set a default baseUrl in each of the track confs if needed
+            // set a default baseUrl in each of the track confs, and the names conf, if needed
             if( o.sourceUrl ) {
-                dojo.forEach( o.tracks || [], function(t) {
-                                  if( ! t.baseUrl )
-                                      t.baseUrl = o.baseUrl || '/';
-                              },this);
+                var addBase = [].concat( o.tracks || [] );
+                if( o.names )
+                    addBase.push( o.names );
+                dojo.forEach( addBase, function(t) {
+                    if( ! t.baseUrl )
+                        t.baseUrl = o.baseUrl || '/';
+                },this);
             }
 
-            o = this._evalHooks( o );
+            o = AdaptorUtil.evalHooks( o );
 
             o = this._regularizeTrackConfigs( o );
 
@@ -100,6 +109,20 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             conf.stores = conf.stores || {};
 
             array.forEach( conf.tracks || [], function( trackConfig ) {
+
+                // if there is a `config` subpart,
+                // just copy its keys in to the
+                // top-level config
+                if( trackConfig.config ) {
+                    var c = trackConfig.config;
+                    delete trackConfig.config;
+                    for( var prop in c ) {
+                        if( !(prop in trackConfig) && c.hasOwnProperty(prop) ) {
+                            trackConfig[prop] = c[prop];
+                        }
+                    }
+                }
+
                 // skip if it's a new-style track def
                 if( trackConfig.store )
                     return;
@@ -138,7 +161,8 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                     urlTemplate: trackConfig.urlTemplate,
                     compress: trackConfig.compress,
                     baseUrl: trackConfig.baseUrl,
-                    type: storeClass
+                    type: storeClass,
+                    subfeatures: trackConfig.subfeatures
                 };
 
                 // if this is the first sequence store we see, and we
@@ -153,6 +177,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
                 // connect it to the track conf
                 trackConfig.store = storeConf.name;
+
             }, this);
 
             return conf;
@@ -164,34 +189,6 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 class_ = root+'/'+class_;
             class_ = class_.replace(/^\//);
             return class_;
-        },
-
-        _evalHooks: function( conf ) {
-            for( var x in conf ) {
-                if( typeof conf[x] == 'object' )
-                    // recur
-                    conf[x] = this._evalHooks( conf[x] );
-                else if( typeof conf[x] == 'string' ) {
-                    // compile
-                    var spec = conf[x];
-                    if( /^function\s*\(/.test(spec) && /\}[\s;]*$/.test(spec) ) {
-                        conf[x] = this._evalHook(spec);
-                    }
-                }
-            }
-            return conf;
-        },
-        _evalHook: function( hook ) {
-            // can't bind arguments because the closure compiler
-            // renames variables, and we need to assign in the eval
-            if ( "string" != typeof hook )
-                return hook;
-            try {
-                eval('arguments[0]='+hook+';');
-            } catch (e) {
-                console.error("error parsing parsing JavaScript callback: '"+hook+"': "+e);
-            }
-            return (function(h) { return h; }).apply( this, arguments );
         }
 });
 });

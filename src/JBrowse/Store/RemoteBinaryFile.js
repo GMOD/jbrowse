@@ -1,10 +1,11 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/has',
            'JBrowse/Store/LRUCache',
            'jszlib/arrayCopy'
        ],
-       function( declare, array, LRUCache, arrayCopy ) {
+       function( declare, array, has, LRUCache, arrayCopy ) {
 
 // contains chunks of files, stitches them together if necessary, wraps, and returns them
 // to satisfy requests
@@ -190,7 +191,20 @@ return declare( null,
 
         var req = new XMLHttpRequest();
         var length;
-        req.open('GET', request.url, true);
+        var url = request.url;
+
+        // Safari browsers cache XHRs to a single resource, regardless
+        // of the byte range.  So, requesting the first 32K, then
+        // requesting second 32K, can result in getting the first 32K
+        // twice.  Seen first-hand on Safari 6, and @dasmoth reports
+        // the same thing on mobile Safari on IOS.  So, if running
+        // Safari, put the byte range in a query param at the end of
+        // the URL to force Safari to pay attention to it.
+        if( has('safari') && request.end ) {
+            url = url + ( url.indexOf('?') > -1 ? '&' : '?' ) + 'safari_range=' + request.start +'-'+request.end;
+        }
+
+        req.open('GET', url, true );
         if( req.overrideMimeType )
             req.overrideMimeType('text/plain; charset=x-user-defined');
         if (request.end) {
@@ -233,8 +247,11 @@ return declare( null,
                                 return;
                             }
                         } catch (x) {
-                            console.error(''+x);
-                            respond( null );
+                            console.error(''+x, x.stack, x);
+                            // the response must have successful but
+                            // empty, so respond with a zero-length
+                            // arraybuffer
+                            respond( new ArrayBuffer() );
                             return;
                         }
                     }).call(this);
@@ -273,14 +290,19 @@ return declare( null,
             start,
             end,
             dojo.hitch( this,  function( chunks ) {
+
+                 var totalSize = this.totalSizes[ args.url ];
+
                  this._assembleChunks(
                          start,
                          end,
-                         function() {
+                         function( resultBuffer ) {
+                             if( typeof totalSize == 'number' )
+                                 resultBuffer.fileSize = totalSize;
                              try {
-                                 args.success.apply( this, arguments );
+                                 args.success.call( this, resultBuffer );
                              } catch( e ) {
-                                 console.error(''+e);
+                                 console.error(''+e, e.stack, e);
                                  if( args.failure )
                                      args.failure( e );
                              }
@@ -330,6 +352,9 @@ return declare( null,
             returnBuffer = new Uint8Array( fetchLength );
             var cursor = 0;
             array.forEach( chunks, function( chunk ) {
+                if( !( chunk.value && chunk.value.byteLength ) ) // skip if the chunk has no data
+                    return;
+
                 var b = new Uint8Array( chunk.value );
                 var bOffset = (start+cursor) - chunk.key.start; if( bOffset < 0 ) this._error('chunking error');
                 var length = Math.min( b.byteLength - bOffset, fetchLength - cursor );

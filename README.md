@@ -10,6 +10,7 @@ Make sure you have a web server installed on your development machine.  Any web 
 
     cd /my/dev/webserver/root;
     git clone git@github.com:YOURACCOUNT/jbrowse.git
+    cd jbrowse
     git submodule update --init
     ./setup.sh
     # and now point your browser to

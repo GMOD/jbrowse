@@ -5,6 +5,8 @@ use JBlibs;
 
 use Test::More;
 
+use JSON 2;
+
 use File::Spec::Functions 'catfile';
 use File::Temp;
 use File::Copy::Recursive 'dircopy';
@@ -38,11 +40,11 @@ use FileSlurping 'slurp';
             9000,
             1,
             'example',
-            undef,
-            'gene',
-            undef,
+            'ctgA',
             'EDEN',
-            'EDEN'
+            'EDEN',
+            'protein kinase',
+            'gene'
         ],
         'got the right genes trackdata'
       ) or diag explain $genes_trackdata->{intervals}{nclist}[0];
@@ -51,7 +53,7 @@ use FileSlurping 'slurp';
     is( scalar( @{$tracklist->{tracks}} ), 12 );
     is( $tracklist->{tracks}[8]{style}{linkTemplate}, 'http://www.ncbi.nlm.nih.gov/gquery/?term={name}-{start}-{end}' );
 
-    my $names_output = $read_json->(qw( tracks Transcript ctgA names.json ));
+    my $names_output = [ map JSON::from_json($_), split "\n", $read_json->(qw( tracks Transcript ctgA names.txt )) ];
     is_deeply( $names_output,
                [
                    [
@@ -60,8 +62,7 @@ use FileSlurping 'slurp';
                        'Apple3',
                        'ctgA',
                        '17399',
-                       '23000',
-                       undef,
+                       '23000'
                    ]
                ],
                'got the right names output'
@@ -106,16 +107,16 @@ use FileSlurping 'slurp';
             9000,
             1,
             'example',
-            undef,
-            'gene',
-            undef,
+            'ctgA',
             'EDEN',
-            'EDEN'
+            'EDEN',
+            'protein kinase',
+            'gene',
         ],
         'got the right genes trackdata'
       ) or diag explain $genes_trackdata->{intervals}{nclist}[0];
 
-    my $names_output = $read_json->(qw( tracks Transcript ctgA names.json ));
+    my $names_output = [ map JSON::from_json($_), split "\n", $read_json->(qw( tracks Transcript ctgA names.txt )) ];
     is_deeply( $names_output,
                [
                    [
@@ -124,8 +125,7 @@ use FileSlurping 'slurp';
                        'Apple3',
                        'ctgA',
                        '17399',
-                       '23000',
-                       undef
+                       '23000'
                    ]
                ],
                'got the right names output'

@@ -26,6 +26,9 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
      * @constructs
      */
     constructor: function( args ) {
+
+        this.createSubfeatures = args.subfeatures;
+
         var bamBlob = args.bam || (function() {
                                        var url = Util.resolveUrl(
                                            args.baseUrl || '/',
@@ -51,7 +54,8 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
                 bai: baiBlob
         });
 
-        this.source = bamBlob.url ? bamBlob.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] : undefined;
+        this.source = ( bamBlob.url  ? bamBlob.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] :
+                        bamBlob.blob ? bamBlob.blob.name : undefined ) || undefined;
 
         this.bam.init({
             success: dojo.hitch( this, '_estimateGlobalStats',
@@ -78,8 +82,8 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
 
         var statsFromInterval = function( refSeq, length, callback ) {
             var sampleCenter = refSeq.start*0.75 + refSeq.end*0.25;
-            var start = Math.round( sampleCenter - length/2 );
-            var end = Math.round( sampleCenter + length/2 );
+            var start = Math.max( 0, Math.round( sampleCenter - length/2 ) );
+            var end = Math.min( Math.round( sampleCenter + length/2 ), refSeq.end );
             this.bam.fetch( refSeq.name, start, end, dojo.hitch( this, function( features, error) {
                 if ( error ) {
                     console.error( error );
@@ -135,7 +139,12 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
                             var feature = features[i];
                             // skip if this alignment is unmapped, or if it does not actually overlap this range
                             if (! (feature.get('unmapped') || feature.get('end') <= start || feature.get('start') >= end) )
-                                featCallback( feature );
+                                try {
+                                    featCallback( feature );
+                                } catch(e) {
+                                    errorCallback( e );
+                                    return;
+                                }
 
                             if( i && !( i % maxFeaturesWithoutYielding ) ) {
                                 window.setTimeout( readFeatures, 1 );

@@ -115,7 +115,7 @@ use PerlIO::gzip;
 use JSON 2;
 use GenomeDB;
 use NameHandler;
-use ExternalSorter;
+use Bio::JBrowse::ExternalSorter;
 
 my $trackdb = "trackDb";
 my ($indir, $tracks, $arrowheadClass, $subfeatureClasses, $clientConfig, $db,
@@ -274,7 +274,7 @@ ENDJS
     };
 
     my %chromCounts;
-    my $sorter = ExternalSorter->new($compare, $sortMem);
+    my $sorter = Bio::JBrowse::ExternalSorter->new($compare, $sortMem);
     for_columns("$indir/" . $trackMeta->{tableName},
                 sub { 
                     $chromCounts{$_[0]->[$chromCol]} += 1;

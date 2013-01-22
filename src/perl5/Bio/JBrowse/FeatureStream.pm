@@ -9,7 +9,7 @@ package Bio::JBrowse::FeatureStream;
 use strict;
 use warnings;
 
-use Digest::MurmurHash ();
+use List::MoreUtils 'uniq';
 
 sub new {
     my $class = shift;
@@ -24,15 +24,23 @@ sub new {
 
 sub flatten_to_feature {
     my ( $self, $f ) = @_;
-    my $subfeatures =  [ map $self->flatten_to_feature($_), @{$f->{child_features}} ];
-
     my $class = $self->_get_class( $f );
 
     my @f = ( $class->{index},
-              @{$f}{ $self->_fixed_fields },
-              (map $f->{attributes}{$_}[0], @{$class->{variable_fields}}),
-              $subfeatures
+              @{$f}{ @{$class->{fields}} }
             );
+
+    for my $subfeature_field (qw( subfeatures derived_features )) {
+        if( my $sfi = $class->{field_idx}{ $subfeature_field } ) {
+            $f[ $sfi+1 ] = [
+                map {
+                    $self->flatten_to_feature($_)
+                } @{$f[$sfi+1]}
+            ];
+        }
+    }
+    # use Data::Dump 'dump';
+    # print dump($_)."\n" for \@f, $class;
 
     # convert start to interbase and numify it
     $f[1] -= 1;
@@ -45,43 +53,45 @@ sub flatten_to_feature {
     return \@f;
 }
 
-sub _fixed_fields {
-    return qw{ start end strand source phase type score };
-}
-
+my %skip_field = map { $_ => 1 } qw( start end strand );
 sub _get_class {
     my ( $self, $f ) = @_;
 
-    my @attrs = keys %{$f->{attributes}};
-    my $attr_fingerprint = Digest::MurmurHash::murmur_hash( join '-', @attrs );
+    my @attrs = keys %$f;
+    my $attr_fingerprint = join '-', @attrs;
 
-    return $self->{classes}{$attr_fingerprint} ||= {
-        index  => $self->{class_count}++, # the classes start from 1.  so what.
-        fields => [ $self->_fixed_fields, @attrs],
-        fixed_fields => [ $self->_fixed_fields ],
-        variable_fields => \@attrs,
+    return $self->{classes}{$attr_fingerprint} ||= do {
+        my @fields = ( 'start', 'end', 'strand', ( grep !$skip_field{$_}, @attrs ) );
+        my $i = 0;
+        {
+            index  => $self->{class_count}++, # the classes start from 1.  so what.
+            fields => \@fields,
+            field_idx => { map { $_ => $i++ } @fields },
+            # assumes that if a field is an array for one feature, it will be for all of them
+            array_fields => [ grep ref($f->{$_}) eq 'ARRAY', @attrs ]
+        }
     };
 }
 
 sub flatten_to_name {
     my ( $self, $f ) = @_;
+    my @nameattrs = grep /^(name|id|alias)\d*$/, keys %$f;
     my @namerec = (
-        [ grep defined, @{ $f->{attributes}{Name} || $f->{attributes}{ID} || [] }, @{$f->{attributes}{Alias}} ],
+        [ grep defined, @{$f}{@nameattrs} ],
         $self->{track_label},
-        $f->{attributes}{Name}[0],
-        $f->{seq_id},
-        (map $_+0, @{$f}{'start','end'}),
-        $f->{attributes}{ID}[0],
+        $f->{name} || $f->{id} || $f->{alias},
+        $f->{seq_id} || die,
+        (map $_+0, @{$f}{'start','end'})
         );
-    $namerec[4]--; #< to one-based
+    $namerec[4]--; #< to zero-based
     return \@namerec;
 }
 sub arrayReprClasses {
     my ( $self ) = @_;
     return [
         map {
-            attributes  => [ map ucfirst, @{$_->{fields}}, 'Subfeatures' ],
-            isArrayAttr => { Subfeatures => 1 }
+            attributes  => [ map ucfirst, @{$_->{fields}} ],
+            isArrayAttr => { map { ucfirst($_) => 1 } @{$_->{array_fields}} },
         },
         sort { $a->{index} <=> $b->{index} }
         values %{ $self->{classes} }
@@ -90,5 +100,22 @@ sub arrayReprClasses {
 
 sub startIndex        { 1 }
 sub endIndex          { 2 }
+
+
+# given a hashref like {  tagname => [ value1, value2 ], ... }
+# flatten it to numbered tagnames like { tagname => value1, tagname2 => value2 }
+sub _flatten_multivalues {
+    my ( $self, $h ) = @_;
+    my %flattened;
+
+    for my $key ( keys %$h ) {
+        my $v = $h->{$key};
+        for( my $i = 0; $i < @$v; $i++ ) {
+            $flattened{ $key.($i ? $i+1 : '')} = $v->[$i];
+        }
+    }
+
+    return \%flattened;
+}
 
 1;

@@ -207,7 +207,7 @@ sub _find_passing_features {
             # if this feature passes, we're done, just return it
             ? ( $feature )
             # otherwise, look for passing features in its subfeatures
-            : _find_passing_features( $pass_feature, @{$feature->{child_features}} );
+            : _find_passing_features( $pass_feature, @{$feature->{subfeatures}} );
     } @_;
 }
 

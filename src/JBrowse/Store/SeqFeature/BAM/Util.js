@@ -57,7 +57,7 @@ var Utils = {
     },
 
     unbgzf: function(data, lim) {
-        lim = Math.min( lim || 1, data.byteLength - 27);
+        lim = Math.min( lim || Infinity, data.byteLength - 27);
         var oBlockList = [];
         var totalSize = 0;
 
@@ -79,12 +79,27 @@ var Utils = {
             // var logLength = Math.min(data.byteLength-ptr[0], 40);
             // console.log( xlen, bSize, bSize - xlen - 19, new Uint8Array( data, ptr[0], logLength ), logLength );
 
-            var unc = inflate(
-                data,
-                compressedDataOffset,
-                data.byteLength - compressedDataOffset,
-                ptr
-            );
+            var unc;
+            try {
+                unc = inflate(
+                    data,
+                    compressedDataOffset,
+                    data.byteLength - compressedDataOffset,
+                    ptr
+                );
+            } catch( inflateError ) {
+                // if we have a buffer error and we have already
+                // inflated some data, there is probably just an
+                // incomplete BGZF block at the end of the data, so
+                // ignore it and stop inflating
+                if( /^Z_BUF_ERROR/.test(inflateError.statusString) && oBlockList.length ) {
+                    break;
+                }
+                // otherwise it's some other kind of real error
+                else {
+                    throw inflateError;
+                }
+            }
             if( unc.byteLength ) {
                 totalSize += unc.byteLength;
                 oBlockList.push( unc );

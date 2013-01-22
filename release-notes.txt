@@ -1,5 +1,94 @@
 {{$NEXT}}
 
+ * Added a timeout to HTMLFeatures and Alignments tracks to prevent
+   data-heavy tracks (like BAM tracks with very deep coverage) from
+   freezing or crashing a user's browser.
+
+ * Greatly improved speed and responsiveness of BAM data backend.
+
+ * Added support in HTMLFeatures and Alignments tracks for a
+   `style.featureScale` configuration variable, which, if set,
+   specifies a minimum zoom scale (pixels per basepair) for displaying
+   features.  If zoomed out more than this (i.e. fewer pixels per bp),
+   either histograms or a "too many features" message will be
+   displayed.
+
+1.7.6     2013-01-10 01:25:58 America/New_York
+
+ * Fixed a bug in the BAM direct-access backend that prevented some
+   BAM files from being displayed.
+
+1.7.5     2012-12-12 13:40:12 America/New_York
+
+ * Fixed a bug in which typing a key that is bound to a global
+   keyboard shortcut (currently only 't' or '?') in the location box
+   would erroneously execute the action for that global shortcut.
+   Thanks to Gregor Rot for pointing this out.
+
+ * Fixed a bug in which toggling 'Show labels' in the track menu did
+   not re-layout the track on the first toggling.
+
+ * Make columns in the faceted track selector initially each be an
+   equal percentage of the total width of the grid.  Thanks to Steffi
+   Geisen for pointing this out.
+
+1.7.4     2012-12-06 23:08:22 America/New_York
+
+ * Fixed a bug preventing loading of JBrowse in some browsers.  Thanks
+   to Steffi Geisen for pointing this out.
+
+ * Fixed a bug in the BigWig data backend that prevented some BigWig
+   files with large numbers of reference sequences from displaying.
+   Thanks to Gregg Helt for providing sample data to help isolate
+   this.
+
+ * Fixed a bug in the BigWig data backend that prevented BigWig files
+   rendering in Safari.  Thanks to Gregor Rot for his help in isolating this.
+
+ * Worked around a bug in Safari 6 (and probably earlier) in which
+   HTTP byte-range requests are erroneously cached.  Thanks to Gregor
+   Rot for pointing out the Safari problems.
+
+ * Fixed some minor styling bugs in the facet menus of the faceted
+   track selector.
+
+ * Fixed blurry edges of location trapezoid in Firefox (Eric Derohanian).
+
+1.7.3     2012-11-28 23:29:48 America/New_York
+
+ * Fixed several more bugs in the BAM data backend that prevented
+   display of some BAM files.  Thanks to Gleb Kuznetzov for help in
+   isolating these.
+
+ * Fixed bug in display of faceted track selector in which the facet
+   titles were taking up too much vertical height.  Thanks to Steffi
+   Geisen for pointing this out.
+
+ * "Alignments" tracks now parse an alignment's CIGAR string if it
+   does not have an MD field, and display mismatches and skipped
+   sequence regions (particularly important for RNA-seq alignments).
+   Thanks to Gregg Helt for providing the sample dataset used to test
+   this.
+
+ * Added support for a `showReverseStrand` config variable to Sequence
+   track that, if set to false, turns off display of the reverse
+   sequence strand.
+
+ * "Alignments" tracks now show reads with missing mate pairs with a
+   red crosshatched pattern instead of with a red border.
+
+ * Added an Apache .htaccess file to the JBrowse root directory that
+   enabled CORS by default for all files under it, if AllowOverride is
+   on.
+
+ * Fixed bug in which the vertical scroll position can sometimes be
+   set too far down when zooming in and out.
+
+ * Fixed some bugs in server-side formatting code for feature tracks:
+   data was recorded multiple times in JSON files in some
+   circumstances.  Thanks to Volodymyr Zavidovych and Steffi Geisen
+   for pointing this out.
+
 1.7.2     2012-11-09 15:40:06 America/New_York
 
  * Fixed more bugs in BAM backends that failed to load some types of

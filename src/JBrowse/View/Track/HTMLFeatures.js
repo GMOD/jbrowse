@@ -2,6 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
+            'dojo/dom-construct',
             'dojo/dom-geometry',
             'dojo/on',
             'dojo/has',
@@ -19,6 +20,7 @@ define( [
       function( declare,
                 lang,
                 array,
+                dom,
                 domGeom,
                 on,
                 has,
@@ -50,12 +52,22 @@ var HTMLFeatures = declare( BlockBased, {
         //number of histogram bins per block
         this.numBins = 25;
         this.histLabel = false;
-        this.padding = 5;
+
+        this.defaultPadding = 5;
+        this.padding = this.defaultPadding;
+
+        this.glyphHeightPad = 1;
+        this.levelHeightPad = 2;
+        this.labelPad = 1;
+
+        // if calculated feature % width would be less than minFeatWidth, then set width to minFeatWidth instead
+        this.minFeatWidth = 0.1;
+
         this.trackPadding = args.trackPadding;
 
         this.heightCache = {}; // cache for the heights of some
                                // feature elements, indexed by the
-                               // complete className of the feature
+                               // complete cassName of the feature
 
         // make a default click event handler
         if( ! (this.config.events||{}).click ) {
@@ -114,7 +126,7 @@ HTMLFeatures = declare( HTMLFeatures,
             description: true,
 
             maxFeatureScreenDensity: 0.5,
-            layoutPitchY: 6,
+            blockDisplayTimeout: 5000,
 
             style: {
                 className: "feature2",
@@ -126,7 +138,8 @@ HTMLFeatures = declare( HTMLFeatures,
 
                 minSubfeatureWidth: 6,
                 maxDescriptionLength: 70,
-                showLabels: true
+                showLabels: true,
+                centerChildrenVertically: true  // by default use feature child centering
             },
             hooks: {
                 create: function(track, feat ) {
@@ -152,10 +165,11 @@ HTMLFeatures = declare( HTMLFeatures,
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement */ container ) {
         var fmt = dojo.hitch( this, '_fmtDetailField' );
         container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name, innerHTML: '' } );
-        container.innerHTML += fmt( 'Name', f.get('name') );
-        container.innerHTML += fmt( 'Type', f.get('type') );
-        container.innerHTML += fmt( 'Description', f.get('note') );
-        container.innerHTML += fmt(
+        var coreDetails = dojo.create('div', { className: 'core' }, container );
+        coreDetails.innerHTML += fmt( 'Name', f.get('name') );
+        coreDetails.innerHTML += fmt( 'Type', f.get('type') );
+        coreDetails.innerHTML += fmt( 'Description', f.get('note') );
+        coreDetails.innerHTML += fmt(
             'Position',
             Util.assembleLocString({ start: f.get('start'),
                                      end: f.get('end'),
@@ -163,13 +177,18 @@ HTMLFeatures = declare( HTMLFeatures,
                                      strand: f.get('strand')
                                    })
         );
-        container.innerHTML += fmt( 'Length', Util.addCommas(f.get('end')-f.get('start'))+' b' );
+        coreDetails.innerHTML += fmt( 'Length', Util.addCommas(f.get('end')-f.get('start'))+' bp' );
 
         // render any additional tags as just key/value
         var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()]; });
-        dojo.forEach( additionalTags.sort(), function(t) {
-            container.innerHTML += fmt( t, f.get(t) );
-        });
+        if( additionalTags.length ) {
+            var at_html = '<div class="additional"><h2>Attributes</h2>';
+            dojo.forEach( additionalTags.sort(), function(t) {
+                at_html += fmt( t, f.get(t) );
+            });
+            at_html += '</div>';
+            container.innerHTML += at_html;
+        }
 
         // render the sequence underlying this feature if possible
         var field_container = dojo.create('div', { className: 'field_container feature_sequence' }, container );
@@ -186,6 +205,7 @@ HTMLFeatures = declare( HTMLFeatures,
             if( refSeqStore ) {
                 refSeqStore.getFeatures(
                     { ref: this.refSeq.name, start: f.get('start'), end: f.get('end')},
+                    // feature callback
                     dojo.hitch( this, function( feature ) {
                         var seq = feature.get('seq');
                         valueContainer = dojo.byId(valueContainerID) || valueContainer;
@@ -205,9 +225,17 @@ HTMLFeatures = declare( HTMLFeatures,
                                                f.get('strand') == -1 ? Util.revcom(seq) : seq,
                                                valueContainer
                                            );
-                }));
+                  }),
+                  // end callback
+                  function() {},
+                  // error callback
+                  dojo.hitch( this, function() {
+                      valueContainer = dojo.byId(valueContainerID) || valueContainer;
+                      valueContainer.innerHTML = '<span class="ghosted">reference sequence not available</span>';
+                  })
+                );
             } else {
-                valueContainer.innerHTML = '<span class="ghosted">reference sequences not loaded</span>';
+                valueContainer.innerHTML = '<span class="ghosted">reference sequence not available</span>';
             }
         }));
 
@@ -298,7 +326,12 @@ HTMLFeatures = declare( HTMLFeatures,
         };
     },
 
-    fillHist: function( blockIndex, block, leftBase, rightBase, stripeWidth ) {
+    fillHist: function( args ) {
+        var blockIndex = args.blockIndex;
+        var block = args.block;
+        var leftBase = args.leftBase;
+        var rightBase = args.rightBase;
+        var stripeWidth = args.stripeWidth;
 
         var dims = this._histDimensions( Math.abs( rightBase - leftBase ) );
 
@@ -315,7 +348,7 @@ HTMLFeatures = declare( HTMLFeatures,
                 if (!(typeof hist[bin] == 'number' && isFinite(hist[bin])))
                     continue;
                 binDiv = document.createElement("div");
-	        binDiv.className = "hist "+track.config.style.className + "-hist";
+                binDiv.className = "hist feature-hist "+track.config.style.className + "-hist";
                 binDiv.style.cssText =
                     "left: " + ((bin / track.numBins) * 100) + "%; "
                     + "height: "
@@ -382,6 +415,8 @@ HTMLFeatures = declare( HTMLFeatures,
             this.store.histogram( leftBase, rightBase,
                                          this.numBins, makeHistBlock);
         }
+
+        args.finishCallback();
     },
 
     endZoom: function(destScale, destBlockBases) {
@@ -436,7 +471,14 @@ HTMLFeatures = declare( HTMLFeatures,
                       },this);
     },
 
-    fillBlock: function( blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, stripeWidth, containerStart, containerEnd ) {
+    fillBlock: function( args ) {
+        var blockIndex = args.blockIndex;
+        var block = args.block;
+        var leftBase = args.leftBase;
+        var rightBase = args.rightBase;
+        var scale = args.scale;
+        var containerStart = args.containerStart;
+        var containerEnd = args.containerEnd;
 
         var region = { ref: this.refSeq.name, start: leftBase, end: rightBase };
 
@@ -444,8 +486,9 @@ HTMLFeatures = declare( HTMLFeatures,
             region,
             dojo.hitch( this, function( stats ) {
 
-                var density          = stats.featureDensity;
-                var histScale        = this.config.style.histScale  || density * this.config.style._defaultHistScale;
+                var density        = stats.featureDensity;
+                var histScale      = this.config.style.histScale    || density * this.config.style._defaultHistScale;
+                var featureScale   = this.config.style.featureScale || density / this.config.maxFeatureScreenDensity; // (feat/bp) / ( feat/px ) = px/bp )
 
                 // only update the label once for each block size
                 var blockBases = Math.abs( leftBase-rightBase );
@@ -462,20 +505,18 @@ HTMLFeatures = declare( HTMLFeatures,
 
                 // if we our store offers density histograms, and we are zoomed out far enough, draw them
                 if( this.store.histograms && scale < histScale ) {
-                        this.fillHist( blockIndex, block, leftBase, rightBase, stripeWidth,
-                                       containerStart, containerEnd);
+                        this.fillHist( args );
                 }
                 // if we have no histograms, check the predicted density of
                 // features on the screen, and display a message if it's
                 // bigger than maxFeatureScreenDensity
-                else if( stats.featureDensity / scale > this.config.maxFeatureScreenDensity ) {
-                    this.fillMessage(
+                else if( scale < featureScale ) {
+                    this.fillTooManyFeaturesMessage(
                         blockIndex,
                         block,
-                        'Too many features to show'
-                            + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
-                            + '.'
+                        scale
                     );
+                    args.finishCallback();
                 }
                 else {
                     // if we have transitioned to viewing features, delete the
@@ -483,9 +524,7 @@ HTMLFeatures = declare( HTMLFeatures,
                     if( this.yscale ) {
                         this._removeYScale();
                     }
-                    this.fillFeatures(blockIndex, block, leftBlock, rightBlock,
-                                      leftBase, rightBase, scale, stats,
-                                      containerStart, containerEnd);
+                    this.fillFeatures( dojo.mixin( {stats: stats}, args ) );
                 }
         }));
     },
@@ -564,23 +603,24 @@ HTMLFeatures = declare( HTMLFeatures,
         overlaps = overlaps || [];
 
         for (var i = 0; i < overlaps.length; i++) {
-	    //if the feature overlaps destBlock,
-	    //move to destBlock & re-position
-	    sourceSlot = sourceBlock.featureNodes[ overlaps[i] ];
-	    if (sourceSlot && ("label" in sourceSlot)) {
+            //if the feature overlaps destBlock,
+            //move to destBlock & re-position
+            sourceSlot = sourceBlock.featureNodes[ overlaps[i] ];
+            if (sourceSlot && ("label" in sourceSlot)) {
                 sourceSlot.label.parentNode.removeChild(sourceSlot.label);
-	    }
-	    if (sourceSlot && sourceSlot.feature) {
-	        if ( sourceSlot.layoutEnd > destLeft
-		     && sourceSlot.feature.get('start') < destRight ) {
+            }
+            if (sourceSlot && sourceSlot.feature) {
+                if ( sourceSlot.layoutEnd > destLeft
+                     && sourceSlot.feature.get('start') < destRight ) {
 
-                         sourceBlock.removeChild(sourceSlot);
+                         sourceSlot.parentNode.removeChild(sourceSlot);
+
                          delete sourceBlock.featureNodes[ overlaps[i] ];
 
-                         var featDiv =
-                             this.renderFeature(sourceSlot.feature, overlaps[i],
-                                                destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
-                                                containerStart, containerEnd, destBlock );
+                         /* feature render, adding to block, centering refactored into addFeatureToBlock() */
+                         var featDiv = this.addFeatureToBlock( sourceSlot.feature, overlaps[i],
+                                                         destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
+                                                         containerStart, containerEnd );
                      }
             }
         }
@@ -588,23 +628,32 @@ HTMLFeatures = declare( HTMLFeatures,
 
     /**
      * arguments:
-     * @param block div to be filled with info
-     * @param leftBlock div to the left of the block to be filled
-     * @param rightBlock div to the right of the block to be filled
-     * @param leftBase starting base of the block
-     * @param rightBase ending base of the block
-     * @param scale pixels per base at the current zoom level
-     * @param containerStart don't make HTML elements extend further left than this
-     * @param containerEnd don't make HTML elements extend further right than this. 0-based.
+     * @param args.block div to be filled with info
+     * @param args.leftBlock div to the left of the block to be filled
+     * @param args.rightBlock div to the right of the block to be filled
+     * @param args.leftBase starting base of the block
+     * @param args.rightBase ending base of the block
+     * @param args.scale pixels per base at the current zoom level
+     * @param args.containerStart don't make HTML elements extend further left than this
+     * @param args.containerEnd don't make HTML elements extend further right than this. 0-based.
      */
-    fillFeatures: function(blockIndex, block, leftBlock, rightBlock, leftBase, rightBase, scale, stats, containerStart, containerEnd) {
+    fillFeatures: function(args) {
+        var blockIndex = args.blockIndex;
+        var block = args.block;
+        var leftBase = args.leftBase;
+        var rightBase = args.rightBase;
+        var scale = args.scale;
+        var stats = args.stats;
+        var containerStart = args.containerStart;
+        var containerEnd = args.containerEnd;
+        var finishCallback = args.finishCallback;
 
         this.scale = scale;
 
         block.featureNodes = {};
 
         //determine the glyph height, arrowhead width, label text dimensions, etc.
-        if (!this.haveMeasurements) {
+        if( !this.haveMeasurements ) {
             this.measureStyles();
             this.haveMeasurements = true;
         }
@@ -613,16 +662,23 @@ HTMLFeatures = declare( HTMLFeatures,
         var descriptionScale = this.config.style.descriptionScale || stats.featureDensity * this.config.style._defaultDescriptionScale;
 
         var curTrack = this;
+
+        var timedOut = false;
+        var timeOutError = { toString: function() { return 'Timed out trying to display '+curTrack.name+' block '+blockIndex; } };
+        if( this.config.blockDisplayTimeout )
+            window.setTimeout( function() { timedOut = true; }, this.config.blockDisplayTimeout );
+
         var featCallback = dojo.hitch(this,function( feature ) {
-            var uniqueId = feature._uniqueID;
+            if( timedOut )
+                throw timeOutError;
+
+            var uniqueId = feature.id();
             if( ! this._featureIsRendered( uniqueId ) ) {
-                this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
-                                    containerStart, containerEnd, block );
+                /* feature render, adding to block, centering refactored into addFeatureToBlock() */
+                var featDiv = this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                                                      containerStart, containerEnd );
             }
         });
-
-        // var startBase = goLeft ? rightBase : leftBase;
-        // var endBase = goLeft ? leftBase : rightBase;
 
         this.store.getFeatures( { ref: this.refSeq.name,
                                   start: leftBase,
@@ -632,12 +688,33 @@ HTMLFeatures = declare( HTMLFeatures,
                                 function () {
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
+                                    finishCallback();
                                 },
                                 function( error ) {
                                     curTrack.error = error;
-                                    curTrack.fillError( blockIndex, block );
+                                    if( error === timeOutError ) {
+                                        curTrack.fillTimeout( blockIndex, block );
+                                    } else {
+                                        console.error( error, error.stack );
+                                        curTrack.fillError( blockIndex, block );
+                                    }
+                                    finishCallback();
                                 }
                               );
+    },
+
+    /**
+     *  Creates feature div, adds to block, and centers subfeatures.
+     *  Overridable by subclasses that need more control over the substructure.
+     */
+    addFeatureToBlock: function( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                                 containerStart, containerEnd ) {
+        var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                                          containerStart, containerEnd );
+        block.appendChild( featDiv );
+        if( this.config.style.centerChildrenVertically )
+            this._centerChildrenVertically( featDiv );
+        return featDiv;
     },
 
     /**
@@ -679,8 +756,8 @@ HTMLFeatures = declare( HTMLFeatures,
         if (Util.is_ie6) heightTest.appendChild(document.createComment("foo"));
         document.body.appendChild(heightTest);
         glyphBox = domGeom.getMarginBox(heightTest);
-        this.glyphHeight = glyphBox.h;
-        this.padding += glyphBox.w;
+        this.glyphHeight = Math.round(glyphBox.h);
+        this.padding = this.defaultPadding + glyphBox.w;
         document.body.removeChild(heightTest);
 
         //determine the width of the arrowhead, if any
@@ -700,7 +777,28 @@ HTMLFeatures = declare( HTMLFeatures,
         }
     },
 
-    renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd, destBlock ) {
+    getFeatDiv: function( feature )  {
+        var id = this.getId( feature );
+        if( ! id )
+            return null;
+
+        for( var i = 0; i < this.blocks.length; i++ ) {
+            var b = this.blocks[i];
+            if( b && b.featureNodes ) {
+                var f = b.featureNodes[id];
+                if( f )
+                    return f;
+            }
+        }
+
+        return null;
+    },
+
+    getId: function( f ) {
+        return f.id();
+    },
+
+    renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd ) {
         //featureStart and featureEnd indicate how far left or right
         //the feature extends in bp space, including labels
         //and arrowheads if applicable
@@ -711,8 +809,29 @@ HTMLFeatures = declare( HTMLFeatures,
             featureEnd = parseInt(featureEnd);
         if( typeof featureStart == 'string' )
             featureStart = parseInt(featureStart);
+        // layoutStart: start genome coord (at current scale) of horizontal space need to render feature,
+        //       including decorations (arrowhead, label, etc) and padding
+        var layoutStart = featureStart;
+        // layoutEnd: end genome coord (at current scale) of horizontal space need to render feature,
+        //       including decorations (arrowhead, label, etc) and padding
+        var layoutEnd = featureEnd;
 
-        var levelHeight = this.glyphHeight;
+        //     JBrowse now draws arrowheads within feature genome coord bounds
+        //     For WebApollo we're keeping arrow outside of feature genome coord bounds,
+        //           because otherwise arrow can obscure edge-matching, CDS/UTR transitions, small inton/exons, etc.
+        //     Would like to implement arrowhead change in WebApollo plugin, but would need to refactor HTMLFeature more to allow for that
+        if (this.config.style.arrowheadClass) {
+            switch (feature.get('strand')) {
+            case 1:
+            case '+':
+                layoutEnd   += (this.plusArrowWidth / scale); break;
+            case -1:
+            case '-':
+                layoutStart -= (this.minusArrowWidth / scale); break;
+            }
+        }
+
+        var levelHeight = this.glyphHeight + this.glyphHeightPad;
 
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
@@ -725,27 +844,28 @@ HTMLFeatures = declare( HTMLFeatures,
         // calculated height of the feature if it will be displayed
         if( this.showLabels && scale >= labelScale ) {
             if (name) {
-	        featureEnd = Math.max(featureEnd, featureStart + (''+name).length * this.labelWidth / scale );
-                levelHeight += this.labelHeight + 1;
+                layoutEnd = Math.max(layoutEnd, layoutStart + (''+name).length * this.labelWidth / scale );
+                levelHeight += this.labelHeight + this.labelPad;
             }
             if( description ) {
-                featureEnd = Math.max( featureEnd, featureStart + (''+description).length * this.labelWidth / scale );
-                levelHeight += this.labelHeight + 1;
+                layoutEnd = Math.max( layoutEnd, layoutStart + (''+description).length * this.labelWidth / scale );
+                levelHeight += this.labelHeight + this.labelPad;
             }
         }
-        featureEnd += Math.max(1, this.padding / scale);
+        layoutEnd += Math.max(1, this.padding / scale);
 
-        var top = this._getLayout( scale ).addRect( uniqueId,
-                                       featureStart,
-                                       featureEnd,
-                                       levelHeight);
+        var top = this._getLayout( scale )
+                      .addRect( uniqueId,
+                                layoutStart,
+                                layoutEnd,
+                                levelHeight);
 
         var featDiv = this.config.hooks.create(this, feature );
         this._connectFeatDivHandlers( featDiv );
         featDiv.track = this;
         featDiv.feature = feature;
-        featDiv.layoutEnd = featureEnd;
-        featDiv.className = (featDiv.className ? featDiv.className + " " : "") + "feature";
+        featDiv.layoutEnd = layoutEnd;
+
         // (callbackArgs are the args that will be passed to callbacks
         // in this feature's context menu or left-click handlers)
         featDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
@@ -759,30 +879,33 @@ HTMLFeatures = declare( HTMLFeatures,
         block.featureNodes[uniqueId] = featDiv;
 
         // record whether this feature protrudes beyond the left and/or right side of the block
-        if( featureStart < block.startBase ) {
+        if( layoutStart < block.startBase ) {
             if( ! block.leftOverlaps ) block.leftOverlaps = [];
             block.leftOverlaps.push( uniqueId );
         }
-        if( featureEnd > block.endBase ) {
+        if( layoutEnd > block.endBase ) {
             if( ! block.rightOverlaps ) block.rightOverlaps = [];
             block.rightOverlaps.push( uniqueId );
         }
 
+        dojo.addClass(featDiv, "feature");
+        var className = this.config.style.className;
+        if (className == "{type}") { className = feature.get('type'); }
         var strand = feature.get('strand');
         switch (strand) {
         case 1:
         case '+':
-            featDiv.className = featDiv.className + " " + this.config.style.className + " plus-" + this.config.style.className; break;
+            dojo.addClass(featDiv, "plus-" + className); break;
         case -1:
         case '-':
-            featDiv.className = featDiv.className + " " + this.config.style.className + " minus-" + this.config.style.className; break;
+            dojo.addClass(featDiv, "minus-" + className); break;
         default:
-            featDiv.className = featDiv.className + " " + this.config.style.className; break;
+            dojo.addClass(featDiv, className);
         }
-
         var phase = feature.get('phase');
         if ((phase !== null) && (phase !== undefined))
-            featDiv.className = featDiv.className + " " + featDiv.className + "_phase" + phase;
+//            featDiv.className = featDiv.className + " " + featDiv.className + "_phase" + phase;
+            dojo.addClass(featDiv, className + "_phase" + phase);
 
         // Since some browsers don't deal well with the situation where
         // the feature goes way, way offscreen, we truncate the feature
@@ -790,10 +913,10 @@ HTMLFeatures = declare( HTMLFeatures,
         // To make sure the truncated end of the feature never gets shown,
         // we'll destroy and re-create the feature (with updated truncated
         // boundaries) in the transfer method.
-        var displayStart = Math.max( feature.get('start'), containerStart );
-        var displayEnd = Math.min( feature.get('end'), containerEnd );
+        var displayStart = Math.max( featureStart, containerStart );
+        var displayEnd = Math.min( featureEnd, containerEnd );
         var blockWidth = block.endBase - block.startBase;
-        var featwidth = Math.max( 1, (100 * ((displayEnd - displayStart) / blockWidth)));
+        var featwidth = Math.max( this.minFeatWidth, (100 * ((displayEnd - displayStart) / blockWidth)));
         featDiv.style.cssText =
             "left:" + (100 * (displayStart - block.startBase) / blockWidth) + "%;"
             + "top:" + top + "px;"
@@ -804,26 +927,18 @@ HTMLFeatures = declare( HTMLFeatures,
             var ah = document.createElement("div");
             var featwidth_px = featwidth/100*blockWidth*scale;
 
-            // NOTE: arrowheads are hidden until they are centered by
-            // _centerFeatureElements, so that they don't jump around
-            // on the screen
             switch (strand) {
             case 1:
             case '+':
-                if( featwidth_px > this.plusArrowWidth*1.1 ) {
-                    ah.className = "plus-" + this.config.style.arrowheadClass;
-                    ah.style.cssText = "visibility: hidden; position: absolute; right: 0px; top: 0px; z-index: 100;";
-                    featDiv.appendChild(ah);
-                }
+                ah.className = "plus-" + this.config.style.arrowheadClass;
+                ah.style.cssText =  "left: 100%;" 
+                featDiv.appendChild(ah);
                 break;
             case -1:
             case '-':
-                if( featwidth_px > this.minusArrowWidth*1.1 ) {
-                    ah.className = "minus-" + this.config.style.arrowheadClass;
-                    ah.style.cssText =
-                        "visibility: hidden; position: absolute; left: 0px; top: 0px; z-index: 100;";
-                    featDiv.appendChild(ah);
-                }
+                ah.className = "minus-" + this.config.style.arrowheadClass;
+                ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px;"
+                featDiv.appendChild(ah);
                 break;
             }
         }
@@ -835,13 +950,13 @@ HTMLFeatures = declare( HTMLFeatures,
                                +( description ? ' <div class="feature-description">'+description+'</div>' : '' ),
                     style: {
                         top: (top + this.glyphHeight + 2) + "px",
-                        left: (100 * (featureStart - block.startBase) / blockWidth)+'%'
+                        left: (100 * (layoutStart - block.startBase) / blockWidth)+'%'
                     }
                 }, block );
 
             this._connectFeatDivHandlers( labelDiv );
 
-	    featDiv.label = labelDiv;
+            featDiv.label = labelDiv;
             featDiv.labelDiv = labelDiv;
 
             labelDiv.feature = feature;
@@ -851,74 +966,71 @@ HTMLFeatures = declare( HTMLFeatures,
             labelDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
         }
 
-        if( destBlock ) {
-            destBlock.appendChild(featDiv);
+        if( featwidth > this.config.style.minSubfeatureWidth ) {
+            this.handleSubFeatures(feature, featDiv, displayStart, displayEnd, block);
         }
 
-        // defer subfeature rendering and modification hooks into a
-        // timeout so that navigation feels faster.
-        window.setTimeout( dojo.hitch( this,
-             function() {
+        // render the popup menu if configured
+        if( this.config.menuTemplate ) {
+            window.setTimeout( dojo.hitch( this, '_connectMenus', featDiv ), 50+Math.random()*150 );
+        }
 
-                 if( featwidth > this.config.style.minSubfeatureWidth ) {
-                     var subfeatures = feature.get('subfeatures');
-                     if( subfeatures ) {
-                         for (var i = 0; i < subfeatures.length; i++) {
-                             this.renderSubfeature(feature, featDiv,
-                                                   subfeatures[i],
-                                                   displayStart, displayEnd);
-                         }
-                     }
-                 }
-
-                 //ie6 doesn't respect the height style if the div is empty
-                 if (Util.is_ie6) featDiv.appendChild(document.createComment());
-                 //TODO: handle event-handler-related IE leaks
-
-                 /* Temi / AP adding right menu click
-                  AP new schema menuTemplate: an array where everything except
-                  children, popup and url are passed on as properties to a new
-                  dijit.Menu object
-                  */
-
-                 // render the popup menu if configured
-                 if( this.config.menuTemplate ) {
-                     this._connectMenus( featDiv );
-                 }
-                 if( destBlock )
-                     this._centerFeatureElements(featDiv);
-
-                 if ( typeof this.config.hooks.modify == 'function' ) {
-                     this.config.hooks.modify(this, feature, featDiv);
-                 }
-
-        }),50+Math.random()*50);
+        if ( typeof this.config.hooks.modify == 'function' ) {
+            this.config.hooks.modify(this, feature, featDiv);
+        }
 
         return featDiv;
+    },
+
+
+    handleSubFeatures: function( feature, featDiv,
+                                 displayStart, displayEnd, block )  {
+        var subfeatures = feature.get('subfeatures');
+        if( subfeatures ) {
+            for (var i = 0; i < subfeatures.length; i++) {
+                this.renderSubfeature( feature, featDiv,
+                                      subfeatures[i],
+                                      displayStart, displayEnd, block );
+            }
+        }
+    },
+
+    /**
+     * Get the height of a div.  Caches div heights based on
+     * classname.
+     */
+    _getHeight: function( theDiv )  {
+        if (this.config.disableHeightCache)  {
+            return theDiv.offsetHeight || 0;
+        }
+        else  {
+            var c = this.heightCache[ theDiv.className ];
+            if( c )
+                return c;
+            c  = theDiv.offsetHeight || 0;
+            this.heightCache[ theDiv.className ] = c;
+            return c;
+        }
     },
 
     /**
      * Vertically centers all the child elements of a feature div.
      * @private
      */
-    _centerFeatureElements: function( /**HTMLElement*/ featDiv ) {
-        var getHeight = this.config.disableHeightCache
-            ? function(child) { return child.offsetHeight || 0; }
-            : function( child ) {
-                var c = this.heightCache[ child.className ];
-                if( c )
-                    return c;
-                c  = child.offsetHeight || 0;
-                this.heightCache[ child.className ] = c;
-                return c;
-            };
-
-        for( var i = 0; i< featDiv.childNodes.length; i++ ) {
-            var child = featDiv.childNodes[i];
-            // cache the height of elements, for speed.
-            var h = getHeight.call(this,child);
-            dojo.style( child, { marginTop: '0', top: ((this.glyphHeight-h)/2) + 'px', visibility: 'visible' });
-         }
+    _centerChildrenVertically: function( /**HTMLElement*/ featDiv ) {
+        if( featDiv.childNodes.length > 0 ) {
+            var parentHeight = this._getHeight(featDiv);
+            for( var i = 0; i< featDiv.childNodes.length; i++ ) {
+                var child = featDiv.childNodes[i];
+                // cache the height of elements, for speed.
+                var h = this._getHeight(child);
+                dojo.style( child, { marginTop: '0', top: ((parentHeight-h)/2) + 'px' });
+                // recursively center any descendants
+                if (child.childNodes.length > 0)  {
+                    this._centerChildrenVertically( child );
+                }
+            }
+        }
     },
 
     /**
@@ -942,7 +1054,6 @@ HTMLFeatures = declare( HTMLFeatures,
         on( featDiv,  'mouseover', refreshMenu );
         if( featDiv.labelDiv )
             on( featDiv.labelDiv,  'mouseover', refreshMenu );
-        dojo.connect( featDiv.contextMenu, 'onMouseMove', refreshMenu );
     },
 
     _refreshMenu: function( featDiv ) {
@@ -987,44 +1098,69 @@ HTMLFeatures = declare( HTMLFeatures,
         return menu;
     },
 
-    renderSubfeature: function(feature, featDiv, subfeature, displayStart, displayEnd) {
+    renderSubfeature: function( feature, featDiv, subfeature, displayStart, displayEnd, block ) {
         var subStart = subfeature.get('start');
         var subEnd = subfeature.get('end');
         var featLength = displayEnd - displayStart;
-
-        var subDiv = document.createElement("div");
-
         var type = subfeature.get('type');
-        subDiv.className = (this.config.style.subfeatureClasses||{})[type] || this.config.style.className + '-' + type;
-        switch ( subfeature.get('strand') ) {
-        case 1:
-        case '+':
-            subDiv.className += " plus-" + subDiv.className; break;
-        case -1:
-        case '-':
-            subDiv.className += " minus-" + subDiv.className; break;
+        var className;
+        if( this.config.style.subfeatureClasses ) {
+            className = this.config.style.subfeatureClasses[type];
+            // if no class mapping specified for type, default to subfeature.get('type')
+            if (className === undefined) { className = type; }
+            // if subfeatureClasses specifies that subfeature type explicitly maps to null className
+            //     then don't render the feature
+            else if (className === null)  {
+                return null;
+            }
+        }
+        else {
+            // if no config.style.subfeatureClasses to specify subfeature class mapping, default to subfeature.get('type')
+            className = type;
+        }
+        var subDiv = document.createElement("div");
+        dojo.addClass(subDiv, "subfeature");
+        // check for className to avoid adding "null", "plus-null", "minus-null" 
+        if (className) {  
+            switch ( subfeature.get('strand') ) {
+            case 1:
+            case '+':
+                dojo.addClass(subDiv, "plus-" + className); break;
+            case -1:
+            case '-':
+                dojo.addClass(subDiv, "minus-" + className); break;
+            default: 
+                dojo.addClass(subDiv, className);
+            }
         }
 
         // if the feature has been truncated to where it doesn't cover
         // this subfeature anymore, just skip this subfeature
-        if ((subEnd <= displayStart) || (subStart >= displayEnd)) return;
+        if ( subEnd <= displayStart || subStart >= displayEnd )
+            return null;
 
         if (Util.is_ie6) subDiv.appendChild(document.createComment());
 
-        // NOTE: subfeatures are hidden until they are centered by
-        // _centerFeatureElements, so that they don't jump around
-        // on the screen
-        subDiv.style.cssText =
-            "visibility: hidden; left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
-            + "top: 0px;"
+        subDiv.style.cssText = "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
             + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
         featDiv.appendChild(subDiv);
+
+        block.featureNodes[ subfeature.id() ] = subDiv;
+
+        return subDiv;
     },
 
     _getLayout: function( scale ) {
+
+        //determine the glyph height, arrowhead width, label text dimensions, etc.
+        if (!this.haveMeasurements) {
+            this.measureStyles();
+            this.haveMeasurements = true;
+        }
+
         // create the layout if we need to, and we can
-        if( ( ! this.layout || this.layout.pitchX != 4/scale ) && scale )
-            this.layout = new Layout({pitchX: 4/scale, pitchY: this.layoutPitchY || this.config.layoutPitchY });
+        if( ( ! this.layout || this.layout.pitchX != 4/scale ) && scale  )
+            this.layout = new Layout({pitchX: 4/scale, pitchY: this.config.layoutPitchY || (this.glyphHeight + this.glyphHeightPad) });
 
         return this.layout;
     },
@@ -1032,15 +1168,18 @@ HTMLFeatures = declare( HTMLFeatures,
         delete this.layout;
     },
 
-    // when all the blocks are hidden, we also should recalculate our
-    // layout
+    /**
+     *   indicates a change to this track has happened that may require a re-layout
+     *   clearing layout here, and relying on superclass BlockBased.changed() call and
+     *   standard _changedCallback function passed in track constructor to trigger relayout
+     */
     changed: function() {
-        this.inherited(arguments);
         this._clearLayout();
+        this.inherited(arguments);
     },
 
     _exportFormats: function() {
-        return [ 'GFF3', 'BED' ];
+        return [ 'GFF3', 'BED', { name: 'SequinTable', label: 'Sequin Table' } ];
     },
 
     _trackMenuOptions: function() {

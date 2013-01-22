@@ -1,37 +1,135 @@
-## This is the script for the JBrowse demo screencast, last updated July 11, 2012 ##
+## This is the script for the JBrowse demo screencast, last updated January 15, 2013 ##
 
-** set up browser to initial state **
+** set up browser to initial state: 1088x784, click
+
+http://localhost/jbrowse/index.html?loc=ctgA%3A11576..30575&tracks=Transcript%2Cbam_simulated%2Cvolvox_microarray.bw_xyplot&data=sample_data%2Fjson%2Fvolvox
+
+then close tracks
+
+**
+
 ** hit record **
 
-I'm Rob Buels, lead developer of the JBrowse genome browser.  This short video gives an overview of the primary features of JBrowse.
+=========================
+SCENE 1
+=========================
+
+Hi, I'm Rob Buels, lead developer of the JBrowse genome browser.  This short video gives an overview of the primary features of JBrowse.
 
 Like most genome browsers, JBrowse lets you scroll back and forth through a genome, displaying data in multiple tracks on the screen.  For this demo, we are using a set of artificial test data.
 
-Let's turn on some tracks by dragging them from the track list on the left into the main display pane.
+Let's turn on a few tracks.  We can either drag them from the track list on the left into the main display pane -
 
-** turn on Exonerate predictions, Simulated next-gen reads, volvox_microarray **
+** turn on Exonerate predictions, "Simulated next-gen reads" by dragging **
 
-We can scroll back and forth a bit by clicking and dragging the mouse in the main pane.
+or by double-clicking them
+
+** turn on "BigWig XY - volvox_microarray" with double-click **
+
+To scroll back and forth, we just click and drag in the main pane.
 
 ** scroll with the mouse **
 
-By double-clicking, you can zoom in, and shift-double-clicking zooms out.  You can also do these things using the buttons in the bar at the navigation area.
+If we double-click in the main pane, we zoom in, and shift-double-clicking zooms out.  We can also do these things using the buttons in the navigation area at the top.
 
-By typing in the location box in this area, you can jump to the locations of specific features, or to specific reference sequences.  Let's jump to test features number 14, called f14.  Notice that the track that contains f14 appeared when we jumped to it.
-
-Another great way of navigating is what's called rubber-band zooming, or dynamic zooming, where you can highlight parts of the display that you want to zoom to.  You can do this both in the overview
+Another way of navigating in JBrowse is what's called rubber-band zooming, or dynamic zooming, where you can highlight parts of the display that you want to zoom to.  You can do this either in the overview -
 
 ** highlight in the overview to zoom out **
 
-and in the main view
+or in the main view while holding down shift to highlight.
 
-** zoom in the main view **
+** shift-zoom in the main view **
 
-** pull up the modencode demo in A NEW TAB **
+To find a specific feature or reference sequence by name, just type its name in the location box at the top.  Let's type the name of a test feature, f14.
 
-One of the most exciting features of JBrowse is the optional faceted track selector, which lets users efficiently find the tracks they want in JBrowse installations with hundreds or even thousands of tracks.
+** Type "f1" slowly in the location box **
 
-Let's pull up another JBrowse demonstration that contains a snapshot of the modENCODE track metadata with 1,805 tracks.
+Notice that as I type, JBrowse suggests names of features that match what I've typed.  So far, I've only typed "f1", but JBrowse is already suggesting "f14" as an option, so I'll click it to select it -
+
+** click "f14" **
+
+and then hit "Go" to jump to it.
+
+** click "Go", MOVE MOUSE OFF SCREEN **
+
+**
+ put
+
+ http://localhost/jbrowse/index.html?data=sample_data/json/modencode
+
+ in the clipboard
+**
+========================================================
+SCENE 2
+========================================================
+
+Notice that "Example Features", the track that contains f14, is automatically brought up to show the feature we're searching for.
+
+JBrowse is capable of displaying a wide variety of data types, and has support for many popular file formats, including GFF3, BED, BAM, Wiggle, and BigWig.
+
+One of the best features of JBrowse is its ability to display data directly from BAM and BigWig files, with no pre-processing necessary.  This means that if your BigWig or BAM file is accessible on your web server, you can just add a track entry for it in the JBrowse configuration, and it'll be ready to go.
+
+# BAM alignments
+
+First, let's have a look at some alignments from a BAM file, in the track labelled 'volvox-sorted.bam'.  We'll turn off these tracks to give us some space -
+
+** turn off all visible tracks **
+
+We'll drag it from the side bar to turn it on.
+
+** turn on volvox-sorted.bam **
+
+This is a simulated genomic resequencing dataset, with next-gen reads of 100bp, shown with a JBrowse Alignments track, which is optimized specifically for showing next-generation alignments.  As we scroll through, we can see that this data includes both sequencing errors and some SNPs.  It's easy to see visually where the reads agree on a sequence that is different from the reference, since it looks like a column of a different color.  To see all of the detailed information about a particular read, just click on it -
+
+** click on one of the reads **
+
+and a window showing all of the data for that read will come up.
+
+** close the dialog **
+
+Once again, all of this is being displayed directly from the BAM file itself.  As we scroll around, JBrowse is fetching small pieces of the file as they are needed, which works with even the largest BAM files.
+
+# BigWig files
+
+Similarly, JBrowse can also display quantitative data directly from BigWig files.  Let's turn off that alignment track, and turn on a couple of tracks that demonstrate the BigWig functionality -
+
+** turn on BigWig Density and BigWig XY - volvox_microarray **
+
+These are two different views of data from the same BigWig file, which contains some made-up quantitative test data.
+
+The upper track is a JBrowse Wiggle/Density track, set up to show the quantitative data as colored regions: blue for values above the data set's global mean, red for values below the mean.  More intense blues and reds indicate values that are further above and below the mean, respectively.
+
+The lower track, labeled 'BigWig XY', is a JBrowse Wiggle/XYPlot track, which shows a bar graph of the quantitative data.  This one is configured to show the values as blue bars of varying heights, along with a yellow line showing the data's global mean, and grey shaded regions showing plus or minus one and two variances of the mean.
+
+And, just as with the BAM track shown earlier, JBrowse fetches small parts of the BigWig file on an as-needed basis, so this works with even with very large BigWig files.
+
+What's more, beginning in JBrowse 1.7, all of this data can be exported to a variety of file formats.  For example, to get the quantitative data for this particular region in a bedGraph file, I can just go to the menu for this track -
+
+** click the track menu -> save track data **
+
+choose to save the visible region, and bedGraph format
+
+** choose visible region and bedGraph format **
+
+and hit 'View'to see the bedGraph dump of the data in the currently visible region.
+
+** hit View **
+
+and there we have our bedGraph file with the data from this region.  If we want to save it to disk, we can hit the Save button here, or we could also have hit the save button on the previous screen.
+
+This data-saving functionality works with all of the major data types supported by JBrowse, and can save files in FASTA, GFF3, BED, bedGraph, and Wiggle format.
+
+Next, we'll navigate to a different set of test data for 1800 tracks from the modENCODE project, looking at another exciting feature of JBrowse: the optional faceted track selector.
+
+** pull up the modencode demo in A NEW TAB
+
+http://localhost/jbrowse/index.html?data=sample_data/json/modencode
+
+**
+
+==================
+SCENE 3
+==================
 
 With the faceted track selector, you can progressively narrow the set of tracks you're interested in by selecting the attributes you want them to have; that is, searching by one or more facets of the track data.  In the track selector, click to select an attribute, then click to select one or more values you want to search for.
 

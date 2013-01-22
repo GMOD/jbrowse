@@ -15,11 +15,18 @@ for my $d ( $dir, catdir( $dir, updir() ), catdir( $dir, updir(), updir() )) {
     $extlib = catfile( $d, 'extlib' );
     last if -e $extlib;
 }
+
+require lib;
+
 if( -e $extlib ) {
-    require lib;
     lib->import( 'extlib/lib/perl5' );
     require local::lib;
     local::lib->import( $extlib );
+}
+
+# add all plugin dirs to the lib path also
+for my $pluginLib ( glob 'plugins/*/perl5' ) {
+    lib->import( $pluginLib );
 }
 
 1;

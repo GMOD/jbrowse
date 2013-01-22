@@ -7,6 +7,14 @@ html, body {
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
+.tundra input {
+    outline: none;
+}
+
+.ghosted {
+    color: #aaa;
+}
+
 fieldset {
     padding-left: 1em;
     margin: 0.7em 0.5em;
@@ -24,9 +32,27 @@ fieldset > legend {
     font-size: 14px;
 }
 
-.ghosted {
-    color: #aaa;
+/* styles for the autocomplete menu */
+.dijitComboBoxMenu .locString, .dijitComboBoxMenu .multipleLocations {
+    margin-left: 1em;
 }
+.dijitComboBoxMenu .multipleLocations {
+    color: #333;
+}
+
+/* location choice dialog */
+.locationChoiceDialog div.prompt {
+    margin: 0.3em 1em 1em 1em;
+}
+.locationChoiceDialog .dgrid-row .dijitButton {
+    margin: 0 0.5em;
+}
+.locationChoiceDialog .goButtonColumn,
+.locationChoiceDialog .showButtonColumn {
+    text-align: center;
+    white-space: nowrap;
+}
+
 
 .tundra .dijitDialogCloseIcon {
     height: 25px;
@@ -86,7 +112,7 @@ div.vertical_scrollbar {
     border-left: 1px solid #DDD9D9;
 }
 div.vertical_scrollbar .vertical_position_marker {
-    background: #444;
+    background: #555;
     opacity: 0.8;
     border-radius: 5px;
     width: 100%;
@@ -103,17 +129,12 @@ div.vertical_scrollbar .vertical_position_marker {
 #navbox {
     padding-top: 3px;
     position: relative;
-}
-
-.powered_by {
-    padding: 0 0.5em;
-    color: black;
-    text-decoration: none;
+    text-align: center;
 }
 
 .moreMatches {
     font-style: italic;
-    color: #ccc;
+    color: #aaa;
 }
 .moreMatches.dijitMenuItemSelected {
     background: none;
@@ -123,13 +144,14 @@ div.vertical_scrollbar .vertical_position_marker {
 
 div.locationTrap {
     position: absolute;
-    background-color: #AEC7E3;
-    border-color: white white #AEC7E3 white;
-    border-style: solid;
-    width: 0px;
-    height: 0px;
-    line-height: 0px;
     z-index: -10;
+    height: 0;
+    top: 0;
+    left: 0;
+    border-color: transparent;
+    border-style: solid;
+    border-bottom-color: #A9C6EB;
+    border-top: 0px dotted transparent;
 }
 
 div.locationThumb {
@@ -138,6 +160,7 @@ div.locationThumb {
     /* if you change this border from 2px, change GenomeView.showTrap */
     border: 2px solid red;
     margin: 0px -2px 0px -2px;
+    height: 23px;
     cursor: move;
     background: rgba(0, 121, 245, 0.1);
 }
@@ -162,10 +185,17 @@ a.topLink {
     color: blue;
 }
 
+#location {
+    font-family: sans-serif;
+}
+
 div.overview {
+    position: relative;
     width: 100%;
-    padding: 4px 0;
+    padding: 4px 0 0 0;
     z-index: -5;
+    display: block;
+    height: 23px;
 
     background: #FAFAFA url(src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
 
@@ -183,6 +213,10 @@ div.block {
     overflow: visible;
     top: 0px;
     height: 100%;
+}
+div.block.timed_out {
+    background: #ddd;
+    background: rgba( 0,0,0, 0.1 );
 }
 
 div.track {
@@ -239,6 +273,7 @@ div.pos-label {
     top: 0px;
     z-index: 100;
     margin: 1px;
+    font-family: sans-serif;
 }
 
 div.overview-pos {
@@ -277,12 +312,22 @@ div.sequence .base, div.sequence > div  {
     height: 14px;
     line-height: 14px;
 }
+div.sequence .base.big {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-right-color: #333;
+    border-bottom-color: #333;
+    height: 16px;
+}
+
 div.sequence > div {
     border-top: 1px solid #4d4d4d;
     border-bottom: 1px solid black;
+    background: #C6C6C6;
 }
 div.sequence > div:first-child {
-    border-bottom-width: 0px;
+    border-bottom-color: #4d4d4d;
 }
 
 span.base {
@@ -356,12 +401,14 @@ div.track-label, div.tracklist-label {
 }
 
 .track .loading {
-    background: rgba( 0,0,0,0.1);
+    background: #fafafa;
     color: #777;
     margin: 0;
     font-weight: bold;
-    height: 40px;
+    height: 100%;
     width: 100%;
+    z-index: 15;
+    position: absolute;
 }
 .track .loading .text {
     display: inline;
@@ -382,6 +429,15 @@ div.track-label {
     z-index: 20;
     border-color: #eee;
     opacity: 0.7;
+
+    /* setting white-space to "nowrap" prevents Chrome-specific bug with
+       label text sometimes disappearing after zoom in Chrome was
+       wrapping track-label text to next line, which falls outside of
+       track-label fixed height and therefore not seen. see chromium
+       bug report for more details on underlying issue:
+       http://code.google.com/p/chromium/issues/detail?id=138918
+    */
+    white-space: nowrap;
 }
 
 div.track-label .track-label-text {
@@ -530,8 +586,8 @@ a.feature-label {
 }
 div.overview .rubber-highlight {
     font-size: 0;
-    top: -4px;
-    height: 23px;
+    height: 100%;
+    margin-top: -4px; /* corresponds to padding on div.overview */
     border-top: none;
     border-bottom: none;
 }
@@ -599,11 +655,21 @@ div.error .codecaption {
 }
 div.error code {
     display: block;
-    padding: 1.2em;
+    font-size: 10px;
+    padding: 0.4em 1.2em;
     margin: 0 0.3em 0.3em 0.3em;
+    overflow: auto;
+    max-height: 6em;
 }
 div.message {
     background: #eee;
+}
+div.block > div.message {
+    margin-top: 1em;
+    position: absolute;
+}
+div.block:hover > div.message {
+    z-index: 30000;
 }
 
 .tundra .dijitDialogPaneContent {
@@ -627,35 +693,47 @@ a.dialog-new-window {
 
 /* styles for popup feature detail dialogs from tracks */
 .feature-detail {
-    padding-top: 1em;
     width: 50em;
+    color: #333;
 }
 .feature-detail .subfeature-detail {
     background: #fafafa;
     background: rgba( 0, 0, 0, 0.1 );
     border: 1px outset #B9B9B9;
+    padding: 0.6em;
 }
 .feature-detail .fasta {
     clear: both;
     padding: 1em 1.5em;
+    margin: 0.2em 0;
     border: 1px solid #aaa;
+    background: transparent;
+}
+.feature-detail div.core {
+    font-size: 110%;
+}
+.feature-detail div.additional {
+}
+.feature-detail div.additional > h2 {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 1em 0 0.7em 0;
 }
 
 .detail .value {
     margin-left: 1em;
     display: inline-block;
     vertical-align: top;
+    font-family: sans-serif;
 }
 .detail .field {
-    margin-top: 0;
-    margin-bottom: 0.3em;
+    margin: 0;
     display: inline-block;
-    min-width: 9em;
+    min-width: 90px;
     vertical-align: top;
 }
 
 .detail .field_container {
-    padding: 0 4em 0.3em 1em;
+    padding: 0 4em 0 1em;
 }
 
 .sharePane input {
@@ -684,7 +762,7 @@ a.dialog-new-window {
     display: none;
     background: #fefefe;
     padding: 0 0.7em;
-    z-index: 10;
+    z-index: 1000;
     text-align: center;
     cursor: crosshair;
     border: 1px solid #888;
