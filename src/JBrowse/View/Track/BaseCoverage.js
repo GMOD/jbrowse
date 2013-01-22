@@ -109,6 +109,16 @@ return declare( Wiggle,
         });
         var originY = toY( dataScale.origin );
 
+        // a canvas element below the histogram that will contain indicators of likely SNPs
+        var snpCanvas = dojo.create('canvas', 
+                                    {height: parseInt(block.parentNode.style.height, 10) - canvas.height,
+                                     width: canvas.width,
+                                     style: { cursor: 'default' },
+                                     innerHTML: 'Your web browser cannot display this type of track.',
+                                     className: 'SNP-indicator-track'
+                                 }, block);
+        var snpContext = snpCanvas.getContext('2d');
+
         var barColor  = {'matchCoverage':'#999', 'A':'#00BF00', 'T':'red', 'C':'#4747ff', 'G':'#d5bb04'}; // base colors from "main.css"
         var negColor  = this.config.style.neg_color;
         var clipColor = this.config.style.clip_marker_color;
@@ -153,6 +163,16 @@ return declare( Wiggle,
             for (counts in score) {
                 if (score.hasOwnProperty(counts)) {
                     totalHeight += score[counts];
+                }
+            }
+
+            // draw indicators of SNPs if base coverage is greater than 50% of total coverage
+            for (ID in score) {
+                if (score.hasOwnProperty(ID) && ID != 'matchCoverage' && score[ID] > 0.5*totalHeight) {
+                    snpContext.beginPath();
+                    snpContext.arc(fRect.l + 0.5*fRect.w, 0.25*snpCanvas.height, 0.20*snpCanvas.height, 0, 2 * Math.PI, false);
+                    snpContext.fillStyle = barColor[ID] || 'black';
+                    snpContext.fill();
                 }
             }
 
