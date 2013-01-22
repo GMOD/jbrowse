@@ -81,16 +81,48 @@ return declare( Wiggle,
                 }
             },
             function () {
-                // make fake features from the coverage
-                for( var i = 0; i < Math.ceil( widthBp/binWidth ); i++ ) {
-                    var bpOffset = leftBase+binWidth*i;
-                    featureCallback( new CoverageFeature({
-                        start: bpOffset,
-                        end:   bpOffset+binWidth,
-                        score: coverageBins[i] || {'matchCoverage': 0}
-                     }));
+                var makeFeatures = function() {
+                    // make fake features from the coverage
+                    for( var i = 0; i < Math.ceil( widthBp/binWidth ); i++ ) {
+                        var bpOffset = leftBase+binWidth*i;
+                        featureCallback( new CoverageFeature({
+                            start: bpOffset,
+                            end:   bpOffset+binWidth,
+                            score: coverageBins[i] || {'matchCoverage': 0}
+                         }));
+                    }
+                    finishCallback();
+                };
+
+                // if we are zoomed to base level, try to fetch the
+                // reference sequence for this region and record each
+                // of the bases in the coverage bins
+                if( binWidth == 1 ) {
+                    var sequence;
+                    thisB.browser.getStore( 'refseqs', function( refSeqStore ) {
+                        if( refSeqStore ) {
+                            refSeqStore.getFeatures( query,
+                                                     function(f) {
+                                                         sequence = f.get('seq');
+                                                     },
+                                                     function() {
+                                                         if( sequence ) {
+                                                             for( var base = leftBase; base <= rightBase; base++ ) {
+                                                                 var bin = bpToBin( base );
+                                                                 coverageBins[bin]['refBase'] = sequence[bin];
+                                                             }
+                                                         }
+                                                         makeFeatures();
+                                                     },
+                                                     makeFeatures
+                                                   );
+                        } else {
+                            makeFeatures();
+                        }
+                    });
+                } else {
+                    makeFeatures();
                 }
-                finishCallback();
             }
         );
     },
@@ -163,7 +195,7 @@ return declare( Wiggle,
             var score = f.get('score');
             var totalHeight = 0;
             for (var counts in score) {
-                if (score.hasOwnProperty(counts)) {
+                if (score.hasOwnProperty(counts) && counts != 'refBase') {
                     totalHeight += score[counts];
                 }
             }
