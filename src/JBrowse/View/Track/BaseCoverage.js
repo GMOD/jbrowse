@@ -37,6 +37,7 @@ return declare( Wiggle,
     },
 
     getFeatures: function( query, featureCallback, finishCallback, errorCallback ) {
+        var thisB = this;
         var leftBase  = query.start;
         var rightBase = query.end;
         var scale = query.scale; // px/bp
@@ -192,14 +193,14 @@ return declare( Wiggle,
             drawRectangle('matchCoverage', toY(totalHeight), originY-toY( score['matchCoverage'] )+1, fRect);
             totalHeight -= score['matchCoverage'];
 
-            for (counts in score) {
+            for (var counts in score) {
                 if (score.hasOwnProperty(counts) && counts != 'matchCoverage') {
                     drawRectangle( counts, toY(totalHeight), originY-toY( score[counts] )+1, fRect);
                     totalHeight -= score[counts];
                 }
             }
 
-        }, this ); 
+        }, this );
     },
 
     /**
@@ -239,15 +240,22 @@ return declare( Wiggle,
      * It displays more complete data.
      */
     _showPixelValue: function( scoreDisplay, score ) {
-        if( typeof score['matchCoverage'] == 'number') {
-            var scoreSummary = "<u>COVERAGE SUMMARY</u><br>";
-            if (score['matchCoverage']){scoreSummary += "Matching Bases: "+score['matchCoverage']+'<br>';}
-            for (ID in score) {
-                if (score.hasOwnProperty(ID) && ID != 'matchCoverage') {
-                    scoreSummary += ID + ': ' +score[ID] +'<br>';
+        if( score && typeof score['matchCoverage'] == 'number') {
+            var scoreSummary = '<table>';
+            if( score['matchCoverage'] ){
+                scoreSummary +=
+                      "<tr><td>Ref"
+                    + (score['refBase'] ? ' ('+score['refBase']+')': '')
+                    + "</td><td>"
+                    + score['matchCoverage']
+                    + '</td></tr>';
+            }
+            for (var ID in score) {
+                if( score.hasOwnProperty(ID) && ID != 'matchCoverage' && ID != 'refBase' ) {
+                    scoreSummary += '<tr><td>'+ID + '</td><td>' +score[ID] +'</td></tr>';
                 }
             }
-            scoreDisplay.innerHTML = scoreSummary;
+            scoreDisplay.innerHTML = scoreSummary+'</table>';
             return true;
         } else {
             return false;

@@ -445,6 +445,9 @@ div.generic_parent-hist {
     font-weight: bold;
     cursor: default;
 }
+.wiggleValueDisplay td {
+    padding: 0 0.25em;
+}
 .wigglePositionIndicator {
     background: #555;
     border: none;
