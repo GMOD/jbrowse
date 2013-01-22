@@ -342,10 +342,10 @@ Wiggle.extend({
         on( block, 'mouseout', function(evt) {
                 var target = evt.srcElement || evt.target;
                 var evtParent = evt.relatedTarget || evt.toElement;
-                    if (target.parentNode != evtParent.parentNode) {
-                        scoreDisplay.style.display = 'none';
-                        verticalLine.style.display = 'none';
-                    }
+                if( !target || !evtParent || target.parentNode != evtParent.parentNode) {
+                    scoreDisplay.style.display = 'none';
+                    verticalLine.style.display = 'none';
+                }
         });
     },
 

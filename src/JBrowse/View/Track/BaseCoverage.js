@@ -51,38 +51,35 @@ return declare( Wiggle,
             return Math.floor( (bp-leftBase) / binWidth );
         };
 
-        this.store.getFeatures(
+        thisB.store.getFeatures(
             query,
-            dojo.hitch( this, function( feature ) {
-                            var startBin = bpToBin( feature.get('start') );
-                            var endBin   = bpToBin( feature.get('end')-1 );
-                            for( var i = startBin; i <= endBin; i++ ) {
-                                if ( coverageBins[i] ) {
-                                    coverageBins[i]['matchCoverage']++;
-                                }
-                                else {
-                                    coverageBins[i] = {};
-                                    coverageBins[i]['matchCoverage'] = 1;
-                                }
-                            }
-                            // Calculate SNP coverage
-                            var mdTag = feature.get('MD');
-                            if(mdTag && binWidth == 1) {
-                                var SNPs = this._mdToMismatches(feature, mdTag);
-                                // loops through mismatches and updates coverage variables accordingly.
-                                for (var i = 0; i<SNPs.length; i++) {
-                                    var pos = bpToBin( feature.get('start') + SNPs[i].start);
-                                    // Note: we reduce matchCoverage so the sum is the total coverage
-                                    coverageBins[pos]['matchCoverage']--;
-                                    if ( coverageBins[pos][SNPs[i].bases] ) {
-                                        coverageBins[pos][SNPs[i].bases]++;
-                                    }
-                                    else {
-                                        coverageBins[pos][SNPs[i].bases] = 1;
-                                    }
-                                }
-                            }
-                        }),
+            function( feature ) {
+                var startBin = bpToBin( feature.get('start') );
+                var endBin   = bpToBin( feature.get('end')-1 );
+                for( var i = startBin; i <= endBin; i++ ) {
+                    if ( coverageBins[i] ) {
+                        coverageBins[i]['matchCoverage']++;
+                    }
+                    else {
+                        coverageBins[i] = {};
+                        coverageBins[i]['matchCoverage'] = 1;
+                    }
+                }
+                // Calculate SNP coverage
+                if( binWidth == 1 ) {
+                    var mdTag = feature.get('MD');
+                    if( mdTag ) {
+                        var SNPs = thisB._mdToMismatches(feature, mdTag);
+                        // loops through mismatches and updates coverage variables accordingly.
+                        for (var i = 0; i<SNPs.length; i++) {
+                            var pos = bpToBin( feature.get('start') + SNPs[i].start );
+                            // Note: we reduce matchCoverage so the sum is the total coverage
+                            coverageBins[pos]['matchCoverage']--;
+                            coverageBins[pos][SNPs[i].bases] = ( coverageBins[pos][SNPs[i].bases] || 0 ) + 1;
+                        }
+                    }
+                }
+            },
             function () {
                 // make fake features from the coverage
                 for( var i = 0; i < Math.ceil( widthBp/binWidth ); i++ ) {
@@ -111,7 +108,7 @@ return declare( Wiggle,
         var originY = toY( dataScale.origin );
 
         // a canvas element below the histogram that will contain indicators of likely SNPs
-        var snpCanvas = dojo.create('canvas', 
+        var snpCanvas = dojo.create('canvas',
                                     {height: parseInt(block.parentNode.style.height, 10) - canvas.height,
                                      width: canvas.width,
                                      style: { cursor: 'default'},
@@ -165,16 +162,16 @@ return declare( Wiggle,
             var fRect = featureRects[i];
             var score = f.get('score');
             var totalHeight = 0;
-            for (counts in score) {
+            for (var counts in score) {
                 if (score.hasOwnProperty(counts)) {
                     totalHeight += score[counts];
                 }
             }
             // draw indicators of SNPs if base coverage is greater than 50% of total coverage
-            for (ID in score) {
-                if (score.hasOwnProperty(ID) && ID != 'matchCoverage' && score[ID] > 0.5*totalHeight) {
+            for (var ID in score) {
+                if (score.hasOwnProperty(ID) && ID != 'matchCoverage' && ID != 'refBase' && score[ID] > 0.5*totalHeight) {
                     snpContext.beginPath();
-                    snpContext.arc( fRect.l + 0.5*(fRect.w+snpCanvas.height), 
+                    snpContext.arc( fRect.l + 0.5*(fRect.w+snpCanvas.height),
                                     0.40*snpCanvas.height,
                                     0.20*snpCanvas.height,
                                     1.75 * Math.PI,
