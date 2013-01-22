@@ -19,3 +19,5 @@ sample_data/raw/tomato
 /.prove
 /setup.log
 /release-notes.html
+samtools/
+setup.log
