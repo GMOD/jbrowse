@@ -1,0 +1,16 @@
+// JBrowse JSON-format configuration file
+{
+
+    // // uncomment and edit the example below to configure a faceted track selector
+    // trackSelector: {
+    //     type: 'Faceted',
+    // },
+    // trackMetadata: {
+    //   sources: [
+    //       { type: 'csv', url: 'data/trackMetadata.csv' }
+    //   ]
+    // },
+
+    // the variable below does nothing
+    placeholder: 1
+}
