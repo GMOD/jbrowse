@@ -129,6 +129,8 @@ HTMLFeatures = declare( HTMLFeatures,
             blockDisplayTimeout: 5000,
 
             style: {
+                arrowheadClass: 'arrowhead',
+
                 className: "feature2",
 
                 // not configured by users
