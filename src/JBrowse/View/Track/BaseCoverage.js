@@ -22,6 +22,13 @@ var CoverageFeature = Util.fastDeclare(
 return declare( Wiggle,
 {
 
+    constructor: function() {
+        // force conf variables that are meaningless for this kind of track, and maybe harmful
+        delete this.config.bicolor_pivot;
+        delete this.config.scale;
+        delete this.config.align;
+    },
+
     _defaultConfig: function() {
         return Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
