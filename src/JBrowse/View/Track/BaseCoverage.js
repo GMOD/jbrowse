@@ -5,6 +5,8 @@ define( ['dojo/_base/declare',
         ],
         function( declare, array, Wiggle, Util ) {
 
+var dojof = Util.dojof;
+
 // feature class for the features we make for the calculated coverage
 // values
 var CoverageFeature = Util.fastDeclare(
@@ -82,7 +84,8 @@ return declare( Wiggle,
                             var pos = bpToBin( feature.get('start') + SNPs[i].start );
                             // Note: we reduce matchCoverage so the sum is the total coverage
                             coverageBins[pos]['matchCoverage']--;
-                            coverageBins[pos][SNPs[i].bases] = ( coverageBins[pos][SNPs[i].bases] || 0 ) + 1;
+                            var base = SNPs[i].bases;
+                            coverageBins[pos][base] = ( coverageBins[pos][base] || 0 ) + 1;
                         }
                     }
                 }
@@ -274,20 +277,24 @@ return declare( Wiggle,
      */
     _showPixelValue: function( scoreDisplay, score ) {
         if( score && typeof score['matchCoverage'] == 'number') {
+            var snps = dojo.clone( score );
+            delete snps.refBase;
+            delete snps.matchCoverage;
+
+            var total = (score['matchCoverage'] || 0)
+                + dojof.values( snps ).reduce(function(a,b){return a+b;}, 0);
+
             var scoreSummary = '<table>';
-            if( score['matchCoverage'] ){
-                scoreSummary +=
-                      "<tr><td>Ref"
-                    + (score['refBase'] ? ' ('+score['refBase']+')': '')
-                    + "</td><td>"
-                    + score['matchCoverage']
-                    + '</td></tr>';
+            scoreSummary +=
+                  '<tr class="ref"><td>'
+                + (score['refBase'] ? score['refBase'] +'*' : 'Ref')
+                + "</td><td>"
+                + score['matchCoverage'] || 0
+                + '</td></tr>';
+            for (var ID in snps) {
+                scoreSummary += '<tr><td>'+ID + '</td><td>' +snps[ID] +'</td></tr>';
             }
-            for (var ID in score) {
-                if( score.hasOwnProperty(ID) && ID != 'matchCoverage' && ID != 'refBase' ) {
-                    scoreSummary += '<tr><td>'+ID + '</td><td>' +score[ID] +'</td></tr>';
-                }
-            }
+            scoreSummary += '<tr class="total"><td>Total</td><td>'+total+'</td></tr>';
             scoreDisplay.innerHTML = scoreSummary+'</table>';
             return true;
         } else {
