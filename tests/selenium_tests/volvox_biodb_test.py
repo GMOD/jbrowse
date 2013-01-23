@@ -63,7 +63,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
     def bam( self ):
         self.do_typed_query('ctgA:18918..19070');
         self.turn_on_track('volvox-sorted.bam');
-        self.turn_on_track('volvox-sorted Coverage');
+        self.turn_on_track('volvox-sorted SNPs/Coverage');
 
         self.assert_element('//div[contains(@class,"alignment")]/span[contains(@class,"mismatch") and contains(@class,"base_c")]');
         self.assert_elements("//div[@id='track_volvox_sorted_bam_coverage']//canvas")
