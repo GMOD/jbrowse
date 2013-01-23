@@ -1,4 +1,4 @@
- {
+         {
    "tracks" : [
       {
          "feature" : [
@@ -39,10 +39,9 @@
          "feature" : [
             "match"
          ],
-         "track" : "Alignments",
-         "category" : "Alignments",
+         "track" : "malformed_alignments",
          "class" : "feature4",
-         "key" : "Example alignments",
+         "key" : "Example Features with Menus",
          "hooks": {
              "modify": "function( track, feature, div ) { div.style.backgroundColor = ['green','blue','red','orange','purple'][Math.round(Math.random()*5)];}"
          },
