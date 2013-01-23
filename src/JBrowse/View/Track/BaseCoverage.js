@@ -167,10 +167,9 @@ return declare( Wiggle,
             }
 
             if( yPos <= canvasHeight ) { // if the rectangle is visible at all
-
+                context.fillStyle = barColor[ID] || 'black';
                 if( yPos <= originY ) {
                     // bar goes upward
-                    context.fillStyle = barColor[ID] || 'black';
                     context.fillRect( fRect.l, yPos, fRect.w, height);
                     if( !disableClipMarkers && yPos < 0 ) { // draw clip marker if necessary
                         context.fillStyle = clipColor || negColor;
@@ -178,9 +177,7 @@ return declare( Wiggle,
                     }
                 }
                 else {
-                    // bar goes downward (Should not be reached)
-
-                    context.fillStyle = negColor;
+                    // bar goes downward
                     context.fillRect( fRect.l, originY, fRect.w, height );
                     if( !disableClipMarkers && yPos >= canvasHeight ) { // draw clip marker if necessary
                         context.fillStyle = clipColor || barColor[ID];
