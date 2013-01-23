@@ -288,10 +288,9 @@ Wiggle.extend({
     _postDraw: function() {
     },
 
-    _makeScoreDisplay: function( scale, leftBase, rightBase, block, canvas, features, featureRects ) {
-
+    _calculatePixelScores: function( canvasWidth, features, featureRects ) {
         // make an array of the max score at each pixel on the canvas
-        var pixelValues = new Array( canvas.width );
+        var pixelValues = new Array( canvasWidth );
         dojo.forEach( features, function( f, i ) {
             var fRect = featureRects[i];
             var jEnd = fRect.r;
@@ -300,6 +299,12 @@ Wiggle.extend({
                 pixelValues[j] = j in pixelValues ? Math.max( pixelValues[j], score ) : score;
             }
         },this);
+        return pixelValues;
+    },
+
+    _makeScoreDisplay: function( scale, leftBase, rightBase, block, canvas, features, featureRects ) {
+
+        var pixelValues = this._calculatePixelScores( canvas.width, features, featureRects );
 
         // make elements and events to display it
         var scoreDisplay = dojo.create(
