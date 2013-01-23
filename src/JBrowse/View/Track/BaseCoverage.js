@@ -1,9 +1,10 @@
 define( ['dojo/_base/declare',
          'dojo/_base/array',
          'JBrowse/View/Track/Wiggle',
-         'JBrowse/Util'
+         'JBrowse/Util',
+         'JBrowse/Model/NestedFrequencyTable'
         ],
-        function( declare, array, Wiggle, Util ) {
+        function( declare, array, Wiggle, Util, NestedFrequencyTable ) {
 
 var dojof = Util.dojof;
 
@@ -21,9 +22,9 @@ var CoverageFeature = Util.fastDeclare(
         }
     });
 
+
 return declare( Wiggle,
 {
-
     constructor: function() {
         // force conf variables that are meaningless for this kind of track, and maybe harmful
         delete this.config.bicolor_pivot;
@@ -55,25 +56,32 @@ return declare( Wiggle,
 
         var binWidth = Math.ceil( query.basesPerSpan ); // in bp
 
-        var coverageBins = {};
+        var coverageBins = [];
         var bpToBin = function( bp ) {
             return Math.floor( (bp-leftBase) / binWidth );
         };
 
+        // init coverage bins
+        var maxBin = bpToBin( rightBase );
+        for( var i = 0; i <= maxBin; i++ ) {
+            coverageBins[i] = new NestedFrequencyTable();
+        }
+
         thisB.store.getFeatures(
             query,
             function( feature ) {
+
+                // calculate total coverage
                 var startBin = bpToBin( feature.get('start') );
                 var endBin   = bpToBin( feature.get('end')-1 );
                 for( var i = startBin; i <= endBin; i++ ) {
-                    if ( coverageBins[i] ) {
-                        coverageBins[i]['matchCoverage']++;
-                    }
-                    else {
-                        coverageBins[i] = {};
-                        coverageBins[i]['matchCoverage'] = 1;
+                    var bin = coverageBins[i];
+                    if( bin ) {
+                        bin.increment('reference');
+                        bin.snpsCalculated = binWidth == 1;
                     }
                 }
+
                 // Calculate SNP coverage
                 if( binWidth == 1 ) {
                     var mdTag = feature.get('MD');
@@ -82,10 +90,14 @@ return declare( Wiggle,
                         // loops through mismatches and updates coverage variables accordingly.
                         for (var i = 0; i<SNPs.length; i++) {
                             var pos = bpToBin( feature.get('start') + SNPs[i].start );
-                            // Note: we reduce matchCoverage so the sum is the total coverage
-                            coverageBins[pos]['matchCoverage']--;
-                            var base = SNPs[i].bases;
-                            coverageBins[pos][base] = ( coverageBins[pos][base] || 0 ) + 1;
+                            var bin = coverageBins[pos];
+                            if( bin ) {
+                                var strand = { '-1': '-', '1': '+' }[ ''+feature.get('strand') ] || 'unstranded';
+                                // Note: we decrement 'reference' so that total of the score is the total coverage
+                                bin.decrement('reference');
+                                var base = SNPs[i].bases;
+                                bin.getNested(base).increment(strand);
+                            }
                         }
                     }
                 }
@@ -93,12 +105,12 @@ return declare( Wiggle,
             function () {
                 var makeFeatures = function() {
                     // make fake features from the coverage
-                    for( var i = 0; i < Math.ceil( widthBp/binWidth ); i++ ) {
+                    for( var i = 0; i <= maxBin; i++ ) {
                         var bpOffset = leftBase+binWidth*i;
                         featureCallback( new CoverageFeature({
                             start: bpOffset,
                             end:   bpOffset+binWidth,
-                            score: coverageBins[i] || {'matchCoverage': 0}
+                            score: coverageBins[i]
                          }));
                     }
                     finishCallback();
@@ -119,7 +131,7 @@ return declare( Wiggle,
                                                          if( sequence ) {
                                                              for( var base = leftBase; base <= rightBase; base++ ) {
                                                                  var bin = bpToBin( base );
-                                                                 coverageBins[bin]['refBase'] = sequence[bin];
+                                                                 coverageBins[bin].refBase = sequence[bin];
                                                              }
                                                          }
                                                          makeFeatures();
@@ -163,7 +175,7 @@ return declare( Wiggle,
         snpCanvas.style.left = -snpCanvas.height*0.5 + 'px';
         var snpContext = snpCanvas.getContext('2d');
 
-        var barColor  = {'matchCoverage':'#999', 'A':'#00BF00', 'T':'red', 'C':'#4747ff', 'G':'#d5bb04'}; // base colors from "main.css"
+        var barColor  = {'reference':'#999', 'A':'#00BF00', 'T':'red', 'C':'#4747ff', 'G':'#d5bb04'}; // base colors from "main.css"
         var negColor  = this.config.style.neg_color;
         var clipColor = this.config.style.clip_marker_color;
         var bgColor   = this.config.style.bg_color;
@@ -200,15 +212,11 @@ return declare( Wiggle,
         dojo.forEach( features, function(f,i) {
             var fRect = featureRects[i];
             var score = f.get('score');
-            var totalHeight = 0;
-            for (var counts in score) {
-                if (score.hasOwnProperty(counts) && counts != 'refBase') {
-                    totalHeight += score[counts];
-                }
-            }
+            var totalHeight = score.total();
+
             // draw indicators of SNPs if base coverage is greater than 50% of total coverage
-            for (var ID in score) {
-                if (score.hasOwnProperty(ID) && ID != 'matchCoverage' && ID != 'refBase' && score[ID] > 0.5*totalHeight) {
+            score.forEach( function( count, category ) {
+                if ( category != 'reference' && count > 0.5*totalHeight ) {
                     snpContext.beginPath();
                     snpContext.arc( fRect.l + 0.5*(fRect.w+snpCanvas.height),
                                     0.40*snpCanvas.height,
@@ -218,24 +226,24 @@ return declare( Wiggle,
                                     false);
                     snpContext.lineTo(fRect.l + 0.5*(fRect.w+snpCanvas.height), 0);
                     snpContext.closePath();
-                    snpContext.fillStyle = barColor[ID] || 'black';
+                    snpContext.fillStyle = barColor[category] || 'black';
                     snpContext.fill();
                     snpContext.lineWidth = 1;
                     snpContext.strokeStyle = 'black';
                     snpContext.stroke();
                 }
-            }
-            // Note: 'matchCoverage' is done first to ensure the grey part of the graph is on top
-            drawRectangle('matchCoverage', toY(totalHeight), originY-toY( score['matchCoverage'] )+1, fRect);
-            totalHeight -= score['matchCoverage'];
+            });
 
-            for (var counts in score) {
-                if (score.hasOwnProperty(counts) && counts != 'matchCoverage') {
-                    drawRectangle( counts, toY(totalHeight), originY-toY( score[counts] )+1, fRect);
-                    totalHeight -= score[counts];
+            // Note: 'reference' is done first to ensure the grey part of the graph is on top
+            drawRectangle( 'reference', toY(totalHeight), originY-toY( score.get('reference'))+1, fRect);
+            totalHeight -= score.get('reference');
+
+            score.forEach( function( count, category ) {
+                if ( category != 'reference' ) {
+                    drawRectangle( category, toY(totalHeight), originY-toY( count )+1, fRect);
+                    totalHeight -= count;
                 }
-            }
-
+            });
         }, this );
     },
 
@@ -276,29 +284,47 @@ return declare( Wiggle,
      * It displays more complete data.
      */
     _showPixelValue: function( scoreDisplay, score ) {
-        if( score && typeof score['matchCoverage'] == 'number') {
-            var snps = dojo.clone( score );
-            delete snps.refBase;
-            delete snps.matchCoverage;
+        if( ! score )
+            return false;
 
-            var total = (score['matchCoverage'] || 0)
-                + dojof.values( snps ).reduce(function(a,b){return a+b;}, 0);
-
+        if( score.snpsCalculated ) {
+            var total = score.total();
             var scoreSummary = '<table>';
+            function pctString( count ) {
+                return Math.round(count/total*100)+'%';
+            }
             scoreSummary +=
                   '<tr class="ref"><td>'
-                + (score['refBase'] ? score['refBase'] +'*' : 'Ref')
+                + (score.refBase ? score.refBase+'*' : 'Ref')
                 + "</td><td>"
-                + score['matchCoverage'] || 0
+                + score.get('reference')
+                + "</td><td>"
+                + pctString( score.get('reference') )
                 + '</td></tr>';
-            for (var ID in snps) {
-                scoreSummary += '<tr><td>'+ID + '</td><td>' +snps[ID] +'</td></tr>';
-            }
+
+            score.forEach( function( count, category ) {
+                if( category == 'reference' ) return;
+
+                // if this count has more nested categories, do counts of those
+                var subdistribution = '';
+                if( count.forEach ) {
+                    subdistribution = [];
+                    count.forEach( function( count, category ) {
+                        subdistribution.push( count + ' '+category );
+                    });
+                    subdistribution = subdistribution.join(', ');
+                    if( subdistribution )
+                        subdistribution = '('+subdistribution+')';
+                }
+
+                scoreSummary += '<tr><td>'+category + '</td><td>' + count + '</td><td>'+pctString(count)+'</td><td>'+subdistribution + '</td></tr>';
+            });
             scoreSummary += '<tr class="total"><td>Total</td><td>'+total+'</td></tr>';
             scoreDisplay.innerHTML = scoreSummary+'</table>';
             return true;
         } else {
-            return false;
+            scoreDisplay.innerHTML = '<table><tr><td>Total</td><td>'+score+'</td></tr></table>';
+            return true;
         }
     }
 });
