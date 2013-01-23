@@ -445,9 +445,20 @@ div.generic_parent-hist {
     font-weight: bold;
     cursor: default;
 }
+.wiggleValueDisplay table {
+    border-spacing: 0;
+}
 .wiggleValueDisplay td {
     padding: 0 0.25em;
 }
+.wiggleValueDisplay td.count, .wiggleValueDisplay td.pct  {
+    text-align: right;
+}
+.wiggleValueDisplay tr.total > td {
+    border-top: 1px solid #aaa;
+    font-weight: bold;
+}
+
 .wigglePositionIndicator {
     background: #555;
     border: none;

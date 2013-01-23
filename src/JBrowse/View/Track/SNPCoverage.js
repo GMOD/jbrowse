@@ -296,9 +296,9 @@ return declare( Wiggle,
             scoreSummary +=
                   '<tr class="ref"><td>'
                 + (score.refBase ? score.refBase+'*' : 'Ref')
-                + "</td><td>"
+                + '</td><td class="count">'
                 + score.get('reference')
-                + "</td><td>"
+                + '</td><td class="pct">'
                 + pctString( score.get('reference') )
                 + '</td></tr>';
 
@@ -317,13 +317,14 @@ return declare( Wiggle,
                         subdistribution = '('+subdistribution+')';
                 }
 
-                scoreSummary += '<tr><td>'+category + '</td><td>' + count + '</td><td>'+pctString(count)+'</td><td>'+subdistribution + '</td></tr>';
+                scoreSummary += '<tr><td>'+category + '</td><td class="count">' + count + '</td><td class="pct">'
+                                   +pctString(count)+'</td><td class="subdist">'+subdistribution + '</td></tr>';
             });
-            scoreSummary += '<tr class="total"><td>Total</td><td>'+total+'</td></tr>';
+            scoreSummary += '<tr class="total"><td>Total</td><td class="count">'+total+'</td><td class="pct">&nbsp;</td><td class="subdist">&nbsp;</td></tr>';
             scoreDisplay.innerHTML = scoreSummary+'</table>';
             return true;
         } else {
-            scoreDisplay.innerHTML = '<table><tr><td>Total</td><td>'+score+'</td></tr></table>';
+            scoreDisplay.innerHTML = '<table><tr><td>Total</td><td class="count">'+score+'</td></tr></table>';
             return true;
         }
     }
