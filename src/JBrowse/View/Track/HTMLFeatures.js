@@ -1120,6 +1120,11 @@ HTMLFeatures = declare( HTMLFeatures,
             // if no config.style.subfeatureClasses to specify subfeature class mapping, default to subfeature.get('type')
             className = type;
         }
+
+        // a className of 'hidden' causes things to not even be rendered
+        if( className == 'hidden' )
+            return null;
+
         var subDiv = document.createElement("div");
         dojo.addClass(subDiv, "subfeature");
         // check for className to avoid adding "null", "plus-null", "minus-null" 
