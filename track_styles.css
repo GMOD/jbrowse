@@ -438,18 +438,22 @@ div.generic_parent-hist {
 
 /* floating score display for wiggle tracks */
 .wiggleValueDisplay {
-    background: rgba(255,255,255,0.9);
+    background: #FFFEF0;
     border: 1px solid #aaa;
     padding: 2px;
     font-family: Courier New, monospace;
     font-weight: bold;
     cursor: default;
+
+    -moz-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
+    -webkit-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
+    box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
 }
 .wiggleValueDisplay table {
     border-spacing: 0;
 }
 .wiggleValueDisplay td {
-    padding: 0 0.25em;
+    padding: 0.2em 0.4em;
 }
 .wiggleValueDisplay td.count, .wiggleValueDisplay td.pct  {
     text-align: right;
@@ -460,7 +464,7 @@ div.generic_parent-hist {
 }
 
 .wigglePositionIndicator {
-    background: #555;
+    background: #777;
     border: none;
     width: 1px;
     cursor: default;
