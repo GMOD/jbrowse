@@ -110,7 +110,6 @@ return declare( BlockBased,
 
     startZoom: function(destScale, destStart, destEnd) {
         if (this.empty) return;
-        this.store.clearCache();
     },
 
     endZoom: function(destScale, destBlockBases) {
@@ -119,7 +118,6 @@ return declare( BlockBased,
 
     clear: function() {
         this.inherited( arguments );
-        this.store.clearCache();
     },
 
     transfer: function(sourceBlock, destBlock, scale,
@@ -139,9 +137,6 @@ return declare( BlockBased,
                     //move image from sourceBlock to destBlock
                     im.style.left = (100 * ((im.startBase - destLeft) / (destRight - destLeft))) + "%";
                     destBlock.appendChild(im);
-                } else {
-                    // don't move it, and even uncache it
-                    this.store.unCacheImage( im );
                 }
             }
         }

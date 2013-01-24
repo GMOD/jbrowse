@@ -109,17 +109,14 @@ return declare( [ Store, DeferredStatsMixin ],
         var result = [];
         var im;
         for (var i = startTile; i <= endTile; i++) {
-            im = this.tileToImage[i];
-            if (!im) {
-                im = document.createElement("img");
-                dojo.connect(im, "onerror", this.handleImageError );
-                im.src = this._imageSource( zoom, i );
-                //TODO: need image coord systems that don't start at 0?
-                im.startBase = (i * zoom.basesPerTile); // + this.refSeq.start;
-                im.baseWidth = zoom.basesPerTile;
-                im.tileNum = i;
-                this.tileToImage[i] = im;
-            }
+            im = document.createElement("img");
+            dojo.connect(im, "onerror", this.handleImageError );
+            im.src = this._imageSource( zoom, i );
+            //TODO: need image coord systems that don't start at 0?
+            im.startBase = (i * zoom.basesPerTile); // + this.refSeq.start;
+            im.baseWidth = zoom.basesPerTile;
+            im.tileNum = i;
+
             result.push(im);
         }
         callback( result );
@@ -132,20 +129,7 @@ return declare( [ Store, DeferredStatsMixin ],
      */
     _imageSource: function( zoom, tileIndex ) {
         return Util.resolveUrl(this.url, zoom.urlPrefix + tileIndex + ".png");
-    },
-
-    /**
-     * Clear the store's cache of image elements.
-     */
-    clearCache: function() {
-        this.tileToImage = {};
-    },
-
-    /**
-     * Remove the given image element from the cache.
-     */
-    unCacheImage: function( /**HTMLImageElement*/ im) {
-        delete this.tileToImage[ im.tileNum ];
     }
+
 });
 });
