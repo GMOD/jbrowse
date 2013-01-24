@@ -1,8 +1,20 @@
 {{$NEXT}}
 
+ * Added a new "SNPCoverage" track type, designed for use with BAM
+   files, that shows a coverage plot, along with a graphical
+   representation of SNPs, and tables showing base frequencies for
+   each SNP.
+
  * Added a timeout to HTMLFeatures and Alignments tracks to prevent
    data-heavy tracks (like BAM tracks with very deep coverage) from
    freezing or crashing a user's browser.
+
+ * Added an all-new data backend for name indexing, which improves the
+   responsiveness of name autocompletion, and makes it possible to
+   format much bigger name indexes.
+
+ * Improved graphical look of canvas-based tracks during zoom
+   operations.
 
  * Greatly improved speed and responsiveness of BAM data backend.
 
