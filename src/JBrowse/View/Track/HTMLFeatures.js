@@ -357,7 +357,7 @@ HTMLFeatures = declare( HTMLFeatures,
                     + ( dims.pxPerCount * ( dims.logScale ? Math.log(hist[bin]) : hist[bin]) )
                     + "px;"
                     + "bottom: " + track.trackPadding + "px;"
-                    + "width: " + (((1 / track.numBins) * 100) - (100 / stripeWidth)) + "%;"
+                    + "width: " + ((100 / track.numBins) - (100 / stripeWidth)) + "%;"
                     + (track.config.style.histCss ?
                        track.config.style.histCss : "");
                 binDiv.setAttribute('value',hist[bin]);
