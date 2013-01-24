@@ -25,3 +25,9 @@
 [submodule "src/put-selector"]
 	path = src/put-selector
 	url = git://github.com/kriszyp/put-selector.git
+[submodule "src/dbind"]
+	path = src/dbind
+	url = git://github.com/rbuels/dbind.git
+[submodule "src/json-schema"]
+	path = src/json-schema
+	url = git://github.com/kriszyp/json-schema.git
