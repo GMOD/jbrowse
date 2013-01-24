@@ -42,7 +42,7 @@ Ruler.prototype.render_to = function( target_div ) {
             style: {
                    position: 'absolute',
                    left: "-9px",
-                   bottom: "-5px",
+                   bottom: "-9px",
                    width: '10px',
                    height: (target_dims.h+18)+"px"
             }

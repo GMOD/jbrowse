@@ -28,6 +28,7 @@ return {
                             className: 'ruler vertical_ruler',
                             style: {
                                 height: this.height+'px',
+                                width: '10px',
                                 position: 'absolute',
                                 zIndex: 17
                             }
@@ -39,8 +40,8 @@ return {
 
         dojo.style(
             rulerdiv,
-            ( this.config.align == 'top' ? { top: '0px' } :
-              { bottom: this.trackPadding+"px"})
+            ( this.config.align == 'top' ? { bottom: 0 } :
+              { top: 0 })
         );
 
         // now make a Ruler and draw the axis in the div we just made
