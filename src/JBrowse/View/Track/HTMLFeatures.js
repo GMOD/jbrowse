@@ -354,7 +354,7 @@ HTMLFeatures = declare( HTMLFeatures,
                 binDiv.style.cssText =
                     "left: " + ((bin / track.numBins) * 100) + "%; "
                     + "height: "
-                    + ((dims.pxPerCount * ( dims.logScale ? Math.log(hist[bin]) : hist[bin]))-2)
+                    + ( dims.pxPerCount * ( dims.logScale ? Math.log(hist[bin]) : hist[bin]) )
                     + "px;"
                     + "bottom: " + track.trackPadding + "px;"
                     + "width: " + (((1 / track.numBins) * 100) - (100 / stripeWidth)) + "%;"
