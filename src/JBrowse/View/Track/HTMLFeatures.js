@@ -1024,12 +1024,16 @@ HTMLFeatures = declare( HTMLFeatures,
             var parentHeight = this._getHeight(featDiv);
             for( var i = 0; i< featDiv.childNodes.length; i++ ) {
                 var child = featDiv.childNodes[i];
-                // cache the height of elements, for speed.
-                var h = this._getHeight(child);
-                dojo.style( child, { marginTop: '0', top: ((parentHeight-h)/2) + 'px' });
-                // recursively center any descendants
-                if (child.childNodes.length > 0)  {
-                    this._centerChildrenVertically( child );
+                // only operate on child nodes that can be styled,
+                // i.e. HTML elements instead of text nodes or whatnot
+                if( child.style ) {
+                    // cache the height of elements, for speed.
+                    var h = this._getHeight(child);
+                    dojo.style( child, { marginTop: '0', top: ((parentHeight-h)/2) + 'px' });
+                    // recursively center any descendants
+                    if (child.childNodes.length > 0)  {
+                        this._centerChildrenVertically( child );
+                    }
                 }
             }
         }
