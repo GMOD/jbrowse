@@ -16,6 +16,9 @@
  * Improved graphical look of canvas-based tracks during zoom
    operations.
 
+ * Fixed a bug in which the Y-axis scale for feature density
+   histograms was sometimes drawn incorrectly.
+
  * Greatly improved speed and responsiveness of BAM data backend.
 
  * Added support in HTMLFeatures and Alignments tracks for a

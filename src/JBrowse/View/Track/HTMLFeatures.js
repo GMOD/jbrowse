@@ -545,7 +545,7 @@ HTMLFeatures = declare( HTMLFeatures,
             console.error("Log histogram scale axis labels not yet implemented.");
             return;
         }
-        var maxval = dims.stats ? dims.stats.max : this.height/dims.pxPerCount;
+        var maxval = this.height/dims.pxPerCount;
         maxval = dims.logScale ? log(maxval) : maxval;
 
         // if we have a scale, and it has the same characteristics
