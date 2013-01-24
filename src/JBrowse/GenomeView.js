@@ -52,21 +52,13 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     //the page element that the GenomeView lives in
     this.elem = elem;
 
-   // var seqCharSize = this.calculateSequenceCharacterSize( elem );
-    var charSize = this.getSequenceCharacterSize();
-    this.charWidth = charSize.width;
-    this.seqHeight = charSize.height;
-
     this.posHeight = this.calculatePositionLabelHeight( elem );
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
     this.topSpace = 1.5 * this.posHeight;
 
     // WebApollo needs max zoom level to be sequence residues char width
-    this.maxPxPerBp = this.charWidth;
-
-    console.log("charWidth: " + this.charWidth);
-    console.log("seqHeight: " + this.seqHeight);
+    this.maxPxPerBp = 20;
 
     //the reference sequence
     this.ref = refseq;
@@ -564,37 +556,6 @@ GenomeView.prototype._behaviors = function() { return {
         }
     }
 };};
-
-
-GenomeView.prototype.getSequenceCharacterSize = function()  {
-    if (! this._charSize)  {
-	this._charSize = this.calculateSequenceCharacterSize(this.elem);
-    }
-    return this._charSize;
-}
-/**
- * Conducts a test with DOM elements to measure sequence text width
- * and height.
- */
-GenomeView.prototype.calculateSequenceCharacterSize = function( containerElement ) {
-    var widthTest = document.createElement("div");
-    widthTest.className = "wa-sequence";
-    widthTest.style.visibility = "hidden";
-    var widthText = "12345678901234567890123456789012345678901234567890";
-    widthTest.appendChild(document.createTextNode(widthText));
-    containerElement.appendChild(widthTest);
-    console.log("charWidth calc element: ");
-    console.log(widthTest);
-
-    var result = {
-        width:  widthTest.clientWidth / widthText.length,
-        height: widthTest.clientHeight
-    };
-
-    containerElement.removeChild(widthTest);
-    return result;
-};
-
 
 /**
  * Conduct a DOM test to calculate the height of div.pos-label
@@ -1375,13 +1336,15 @@ GenomeView.prototype.sizeInit = function() {
     var desiredZoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, 10, 20 ];
 
     this.zoomLevels = [];
-    for (var i=0; i<desiredZoomLevels.length; i++)  {
+    for( var i = 0; i < desiredZoomLevels.length; i++ )  {
 	var zlevel = desiredZoomLevels[i];
-	if (zlevel < this.maxPxPerBp)  { this.zoomLevels.push(zlevel); }
-	else  { break; }  // once get to zoom level >= maxPxPerBp, quit
+	if( zlevel < this.maxPxPerBp )
+            this.zoomLevels.push( zlevel );
+	else
+            break; // once get to zoom level >= maxPxPerBp, quit
     }
-    this.zoomLevels.push(this.maxPxPerBp);
-    
+    this.zoomLevels.push( this.maxPxPerBp );
+
     //make sure we don't zoom out too far
     while (((this.ref.end - this.ref.start) * this.zoomLevels[0])
            < this.getWidth()) {
