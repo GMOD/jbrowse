@@ -122,14 +122,14 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_element( sequence_div_xpath_templ % 'ccgcgtgtagtc' )
 
     def context_menus( self ):
-        self.turn_on_track( 'Example alignments' )
+        self.turn_on_track( 'Example Features with Menus' )
         self.do_typed_query( '20147..35574' );
 
         # check that there is no dialog open
         self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'snippet')]");
 
         # get the example alignments features
-        feature_elements = self.assert_elements("//div[@id='track_Alignments']//div[contains(@class,'plus-feature4')]")
+        feature_elements = self.assert_elements("//div[@id='track_malformed_alignments']//div[contains(@class,'plus-feature4')]")
 
         # right-click one of them
         self.actionchains() \
