@@ -131,6 +131,18 @@ div.vertical_scrollbar .vertical_position_marker {
     position: relative;
     text-align: center;
 }
+#navbox .dijitSelectLabel {
+    padding: 0 2px;
+}
+
+#navbox .dijitTextBox .dijitInputField {
+    padding-left: 2px;
+}
+
+#navbox * {
+    font-size: 12px;
+    font-family: sans-serif;
+}
 
 .moreMatches {
     font-style: italic;
@@ -183,10 +195,6 @@ a.topLink {
     padding: 0 0.5ex 0 0.5ex;
     text-decoration: none;
     color: blue;
-}
-
-#location {
-    font-family: sans-serif;
 }
 
 div.overview {
