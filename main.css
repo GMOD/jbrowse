@@ -228,6 +228,10 @@ div.track {
 
 .track.dojoDndItemOver {
     cursor: inherit;
+    background: inherit;
+}
+.track.dojoDndItemAnchor {
+    background: inherit;
 }
 
 .track.dojoDndItemBefore {
