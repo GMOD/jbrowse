@@ -36,6 +36,7 @@ code, .code {
 }
 code, span.code {
     font-size: 115%;
+    white-space: nowrap;
 }
 
 a[href], a[href] .code, a[href] code {
@@ -49,6 +50,10 @@ div.code {
     overflow: auto;
     font-size: 110%;
 }
+dd > div.code {
+    margin-left: 0;
+}
+
 span.code {
     background: #f8f8f8;
     padding: 2px;
