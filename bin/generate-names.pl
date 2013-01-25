@@ -165,7 +165,7 @@ if( $verbose ) {
 my $name_records_iterator = sub {};
 my @namerecord_buffer;
 for my $ref ( @refSeqs ) {
-    push @namerecord_buffer, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
+    push @namerecord_buffer, [ lc $ref->{name}, @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
 }
 
 
