@@ -168,6 +168,7 @@ HTMLFeatures = declare( HTMLFeatures,
         var fmt = dojo.hitch( this, '_fmtDetailField' );
         container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name, innerHTML: '' } );
         var coreDetails = dojo.create('div', { className: 'core' }, container );
+        coreDetails.innerHTML += '<h2 class="sectiontitle">Primary Data</h2>';
         coreDetails.innerHTML += fmt( 'Name', f.get('name') );
         coreDetails.innerHTML += fmt( 'Type', f.get('type') );
         coreDetails.innerHTML += fmt( 'Description', f.get('note') );
@@ -184,7 +185,7 @@ HTMLFeatures = declare( HTMLFeatures,
         // render any additional tags as just key/value
         var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()]; });
         if( additionalTags.length ) {
-            var at_html = '<div class="additional"><h2>Attributes</h2>';
+            var at_html = '<div class="additional"><h2 class="sectiontitle">Attributes</h2>';
             dojo.forEach( additionalTags.sort(), function(t) {
                 at_html += fmt( t, f.get(t) );
             });

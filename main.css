@@ -737,9 +737,11 @@ a.dialog-new-window {
 .feature-detail div.core {
     font-size: 110%;
 }
-.feature-detail div.additional {
+
+.feature-detail div.core h2.sectiontitle {
+    margin-top: 0;
 }
-.feature-detail div.additional > h2 {
+.feature-detail h2.sectiontitle {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     margin: 1em 0 0.7em 0;
 }
