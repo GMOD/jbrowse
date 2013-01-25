@@ -1,6 +1,3 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
-
 <html>
   <head><title>JBrowse Quick-Start Tutorial</title></head>
   <link rel="stylesheet" type="text/css" href="../docs.css"></link>
@@ -22,7 +19,7 @@
       <p>
         <h3>Contents</h3>
         <ul>
-          <li><a href="#Download_install">Download and uncompress JBrowse</a></li>
+          <li><a href="#Download_install">Download and Uncompress JBrowse</a></li>
           <li><a href="#setup_sh">Run <code>setup.sh</code></a></li>
           <li><a href="#Prerequisites">Perl Prerequisites</a></li>
           <li><a href="#Reference_Sequences">Reference Sequences</a></li>
@@ -35,7 +32,7 @@
       </p>
 
       <a name="Download_install" id="Download_install">
-        <h2>Download and uncompress JBrowse</h2>
+        <h2>Download and Uncompress JBrowse</h2>
       </a>
 
       <p>
@@ -48,21 +45,37 @@
       </p>
 
       <p>
-        Change into a directory that's served by your
-        web server (e.g. <span class="code">/var/www/</span>),
-        and extract JBrowse there.
-
-        For example:
+        You will want to put JBrowse under a directory that's served
+        by your web server (e.g. <span class="code">/var/www/</span>
+        on Debian or Ubuntu
+        systems, <span class="code">/var/www/html</span> on Red Hat,
+        Fedora, or SUSE).
+      </p>
+      <p>
+        For example, you could make a web-accessible directory to hold
+        your work called <span class="code">/var/www/jbrowse</span>,
+        give your user access to it, and then fetch and uncompress a
+        copy of JBrowse (about 3MB) there:
 
         <div class="code">
-          cd /var/www<br />
-          unzip JBrowse-full-1.4.1.zip<br />
-          cd JBrowse-full-1.4.1
+          sudo mkdir /var/www/jbrowse;<br>
+          sudo chown `whoami` /var/www/jbrowse;<br>
+          cd /var/www/jbrowse;<br>
+          curl -O http://jbrowse.org/releases/JBrowse-1.8.0.zip<br>
+          unzip JBrowse-1.8.0.zip<br>
+          cd JBrowse-1.8.0<br>
         </div>
 
-        JBrowse generates files with links that are relative to the
-        main JBrowse directory (where index.html is located), so you
-        should run all scripts from this directory.
+        Once you finish running that, you should try to read this
+        tutorial (which is included in the JBrowse zip file) on your
+        own web server by navigating to something like
+        http://your.machine.address/jbrowse/JBrowse-1.8.0/docs/tutorial/index.html.
+      </p>
+      <p>
+        Also, please note that JBrowse generates files with links that
+        are relative to the main JBrowse-1.x.x directory (where
+        index.html is located), so you should run all scripts from
+        this directory.
       </p>
 
       <a name="setup_sh">
@@ -137,9 +150,9 @@
       </dl>
 
       <a name="Features" id="Features"></a>
-      <h2>Features</h2>
+      <h2>General-Purpose Features</h2>
       <p>
-        There are two options for loading your feature data into JBrowse.
+        JBrowse can import feature data from flat files, or from databases that have Bio::DB::* Perl interfaces.
       </p>
       <dl>
 
@@ -154,10 +167,9 @@
 
         <dt class="code"><a class="anchor" name="flatfile-to-json.pl" id="flatfile-to-json.pl">bin/flatfile-to-json.pl</a></dt>
         <dd>
-          On the other hand, if you mainly deal with flat files like
-          GFF or BED, it may be more convenient to use
+          If you have flat files like GFF3 or BED, it is usually best
+          to use
           JBrowse's <span class="code"><a href="#flatfile-to-json.pl">flatfile-to-json.pl</a></span>.
-
           <span class="code">bin/flatfile-to-json.pl</span> doesn't
           use a configuration file; instead, per-track settings are
           given as command-line arguments.
