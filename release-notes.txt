@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Added new "File -> Open" function that can display BAM, BigWig, and
+   GFF3 files located on the user's machine.  Everything is done
+   locally, no data is transferred to the server.
+
  * Added a new "SNPCoverage" track type, designed for use with BAM
    files, that shows a coverage plot, along with a graphical
    representation of SNPs, and tables showing base frequencies for
