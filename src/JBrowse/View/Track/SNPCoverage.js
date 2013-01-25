@@ -169,10 +169,6 @@ return declare( Wiggle,
                                      innerHTML: 'Your web browser cannot display this type of track.',
                                      className: 'SNP-indicator-track'
                                  }, block);
-        // widen the canvas and offset it.
-        snpCanvas.width += snpCanvas.height;
-        snpCanvas.style.position = 'relative';
-        snpCanvas.style.left = -snpCanvas.height*0.5 + 'px';
         var snpContext = snpCanvas.getContext('2d');
 
         var barColor  = {'reference':'#999', 'A':'#00BF00', 'T':'red', 'C':'#4747ff', 'G':'#d5bb04'}; // base colors from "main.css"
@@ -218,13 +214,13 @@ return declare( Wiggle,
             score.forEach( function( count, category ) {
                 if ( category != 'reference' && count > 0.5*totalHeight ) {
                     snpContext.beginPath();
-                    snpContext.arc( fRect.l + 0.5*(fRect.w+snpCanvas.height),
+                    snpContext.arc( fRect.l + 0.5*fRect.w,
                                     0.40*snpCanvas.height,
                                     0.20*snpCanvas.height,
                                     1.75 * Math.PI,
                                     1.25 * Math.PI,
                                     false);
-                    snpContext.lineTo(fRect.l + 0.5*(fRect.w+snpCanvas.height), 0);
+                    snpContext.lineTo(fRect.l + 0.5*fRect.w, 0);
                     snpContext.closePath();
                     snpContext.fillStyle = barColor[category] || 'black';
                     snpContext.fill();
