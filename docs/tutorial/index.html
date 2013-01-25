@@ -206,23 +206,7 @@ cd JBrowse-1.8.0
         "Alignments"</span> or <span class="code">"type":
         "SNPCoverage"</span> in the track configuration.
       </p>
-        <h3>bam-to-json.pl</h3>
-      <p>
-        You can also import BAM data into JBrowse using <span class="code">bam-to-json.pl</span>.
-      </p>
-      <p>
-        An example invocation of it might be:
-      <div class="code"><pre>
-bin/bam-to-json.pl                                              \
-   --bam docs/tutorial/data_files/volvox-sorted.bam             \
-   --tracklabel bam_simulated                                   \
-   --key "Simulated next-gen reads"                             \
-   --cssClass basic                                             \
-   --clientConfig                                               \
-        '{ "featureCss": "background-color: #66F; height: 8px",
-           "histCss": "background-color: #88F"
-        }'
-</pre></div>
+
       <a name="Names" id="Names"></a>
       <h2>Index Names</h2>
       <p>
