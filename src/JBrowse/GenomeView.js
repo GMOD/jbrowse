@@ -1389,9 +1389,9 @@ GenomeView.prototype.sizeInit = function() {
         }
     }
 
-    if (this.stripePercent === undefined) {
-    console.warn("stripeWidth too small: " + this.stripeWidth + ", " + this.getWidth());
-    this.stripePercent = 1;
+    if ( ! this.stripePercent ) {
+        console.warn("stripeWidth too small: " + this.stripeWidth + ", " + this.getWidth());
+        this.stripePercent = 1;
     }
 
     var oldX;
