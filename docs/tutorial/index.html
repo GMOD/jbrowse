@@ -21,7 +21,6 @@
         <ul>
           <li><a href="#Download_install">Download and Uncompress JBrowse</a></li>
           <li><a href="#setup_sh">Run <code>setup.sh</code></a></li>
-          <li><a href="#Prerequisites">Perl Prerequisites</a></li>
           <li><a href="#Reference_Sequences">Reference Sequences</a></li>
           <li><a href="#Features">Features</a></li>
           <li><a href="#Next-gen">Next-gen Reads (BAM support)</a></li>
@@ -110,24 +109,6 @@
       </p>
       <p>
         If the WIG support failed to install, 
-      </p>
-
-      <a name="Prerequisites" id="Prerequisites">
-        <h2>Perl Prerequisites</h2>
-      </a>
-      <p>
-        <b>Skip this step</b> if <code>setup.sh</code> was successful
-        at installing the Perl prerequisites, it has already done this
-        for you.
-      </p>
-      <p>
-        The server-side scripts for formatting data have some Perl
-        module prerequisites from the
-        CPAN. <span class="code">setup.sh</span> tries to install
-        these Perl dependencies for you, but in case you need to run
-        the installation independently, they can be installed by the
-        command:
-        <div class="code">bin/cpanm -l extlib --installdeps .</div>
       </p>
 
       <a name="Reference_Sequences" id="Reference_Sequences"></a>
