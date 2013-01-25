@@ -56,14 +56,20 @@
         give your user access to it, and then fetch and uncompress a
         copy of JBrowse (about 3MB) there:
 
-        <div class="code">
-          sudo mkdir /var/www/jbrowse;<br>
-          sudo chown `whoami` /var/www/jbrowse;<br>
-          cd /var/www/jbrowse;<br>
-          curl -O http://jbrowse.org/releases/JBrowse-1.8.0.zip<br>
-          unzip JBrowse-1.8.0.zip<br>
-          cd JBrowse-1.8.0<br>
-        </div>
+        <div class="code"><pre>
+# make a directory that this user can write to
+sudo mkdir /var/www/jbrowse;
+sudo chown `whoami` /var/www/jbrowse;
+# cd into it
+cd /var/www/jbrowse;
+
+# fetch a JBrowse release zip file
+curl -O http://jbrowse.org/releases/JBrowse-1.8.0.zip
+
+# unzip it and cd into it
+unzip JBrowse-1.8.0.zip
+cd JBrowse-1.8.0
+</pre></div>
 
         Once you finish running that, you should try to read this
         tutorial (which is included in the JBrowse zip file) on your
@@ -108,13 +114,18 @@
         JBrowse.
       </p>
       <p>
-        If the WIG support failed to install, 
+        If one or more of the setup steps failed, try reading through
+        the <span class="code">setup.log</code> file for details of
+        what went wrong.  It is always safe to
+        run <span class="code">./setup.sh</span> again after
+        correcting a problem.
       </p>
 
       <a name="Reference_Sequences" id="Reference_Sequences"></a>
       <h2>Reference Sequences</h2>
       <p>
-        Tell JBrowse about your reference sequences with <span class="code">bin/prepare-refseqs.pl</span>
+        Before loading other data, format your reference sequences for
+        JBrowse using <span class="code">bin/prepare-refseqs.pl</span>.
       </p>
       <dl>
         <dt>For FASTA format sequence files</dt>
@@ -161,15 +172,46 @@
           see <a href="../config-desc.html#track_settings">the track
           settings section in the config file documentation</a> for
           more details.
-
         </dd>
       </dl>
 
       <a name="Next-gen reads" id="Next-gen"></a>
       <h2>Next-gen reads (BAM format)</h2>
       <p>
-        If you have data in BAM format, you can import it into a JBrowse instance using <span class="code">bam-to-json.pl</span>.  For example:
+        JBrowse can display alignments directly from BAM files, with
+        no pre-processing necessary.  Simply add a stanza to
+        your <span class="code">trackList.json</span> file of the
+        form:
+
+        <div class="code"><pre>
+{
+   "storeClass" : "JBrowse/Store/SeqFeature/BAM",
+   "urlTemplate" : "../../raw/volvox/volvox-sorted.bam",
+   "baiUrlTemplate" : "../../raw/volvox/volvox-sorted.bam.bai",
+
+   "type" : "JBrowse/View/Track/Alignments",
+   "label" : "volvox-sorted.bam",
+   "key" : "BAM alignments from volvox-sorted.bam"
+}
+        </pre></div>
       </p>
+      <p>
+        JBrowse has two track types that are designed especially for use with BAM data:
+        <dl>
+          <dt class="code">Alignments</dt><dd>Shows individual alignments from the BAM file, as well as insertions, deletions, skipped regions, and SNPs encoded in the BAM's <span class="code">MD</span> or <span class="code">CIGAR</span> fields.</dd>
+          <dt class="code">SNPCoverage</dt><dd>Shows a coverage histogram plot, with colored bars showing the distribution of SNPs</dd>
+        </dl>
+
+        To use them, set <span class="code">"type":
+        "Alignments"</span> or <span class="code">"type":
+        "SNPCoverage"</span> in the track configuration.
+      </p>
+        <h3>bam-to-json.pl</h3>
+      <p>
+        You can also import BAM data into JBrowse using <span class="code">bam-to-json.pl</span>.
+      </p>
+      <p>
+        An example invocation of it might be:
       <div class="code"><pre>
 bin/bam-to-json.pl                                              \
    --bam docs/tutorial/data_files/volvox-sorted.bam             \
@@ -184,21 +226,19 @@ bin/bam-to-json.pl                                              \
       <a name="Names" id="Names"></a>
       <h2>Index Names</h2>
       <p>
-        To let users find features by typing feature names or IDs in the search box, do two things:
-        <ol>
-          <li>specify <span class="code">autocomplete</span> for the tracks whose features you want to be searchable (see <a href="../config-desc.html#track_settings">the track settings section in the config file documentation</a> for details about the <span class="code">autocomplete</span> setting).  When you do this, a file with a list of names and locations will be generated for each track that has the <span class="code">autocomplete</span> setting.</li>
-          <li>run <span class="code">bin/generate-names.pl</span> to collect those per-track files together into the structure that JBrowse uses to search</li>
+        After loading feature data, to let users find features by typing feature names or IDs in the autocompleting search box, a special index of feature names must be generated using <span class="code">bin/generate-names.pl</span>.
         </ol>
       </p>
       <div class="code">bin/generate-names.pl -v</div>
       <p>
         <b>Note:</b> You need to
-        rerun <span class="code">bin/generate-names.pl</span> to
-        re-index feature names time you add new annotations to
-        JBrowse.
+        re-run <span class="code">bin/generate-names.pl</span> to add
+        new feature names to the index every time you add new
+        annotations to JBrowse using any of
+        the <span class="code">*-to-json.pl</span> scripts.
       </p>
 
-      <p><span style="font-size: 130%"><b>And that's all</b>, for basic usage.</span> Visit <a href="../../index.html">the main page</a> to view the results.</p>
+      <p class="done"><span style="font-size: 130%"><b>And that's all</b>, for basic usage.</span> Visit <a href="../../index.html">the main page</a> to view the results.</p>
 
       <a name="Quantitative_tracks" id="Quantitative_tracks"></a>
       <h2>Quantitative tracks (Wiggle support)</h2>
