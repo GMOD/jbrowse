@@ -131,6 +131,14 @@ div.vertical_scrollbar .vertical_position_marker {
     position: relative;
     text-align: center;
 }
+#navbox .dijitButton, #navbox .dijitTextBox, #navbox .dijitSelect {
+    height: 20px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
 #navbox .dijitSelectLabel {
     padding: 0 2px;
 }
@@ -327,8 +335,11 @@ div.sequence .base, div.sequence > div  {
     line-height: 14px;
 }
 div.sequence .base.big {
-    -moz-box-sizing: border-box;
     box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+
     border: 1px solid #ccc;
     border-right-color: #333;
     border-bottom-color: #333;
