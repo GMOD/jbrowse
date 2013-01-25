@@ -162,10 +162,15 @@ return declare( Wiggle,
         var originY = toY( dataScale.origin );
 
         // a canvas element below the histogram that will contain indicators of likely SNPs
+        var snpCanvasHeight = parseInt( block.parentNode.style.height ) - canvas.height;
         var snpCanvas = dojo.create('canvas',
-                                    {height: parseInt(block.parentNode.style.height, 10) - canvas.height,
+                                    {height: snpCanvasHeight,
                                      width: canvas.width,
-                                     style: { cursor: 'default'},
+                                     style: {
+                                         cursor: 'default',
+                                         width: "100%",
+                                         height: snpCanvasHeight + "px"
+                                     },
                                      innerHTML: 'Your web browser cannot display this type of track.',
                                      className: 'SNP-indicator-track'
                                  }, block);
