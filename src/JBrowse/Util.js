@@ -223,21 +223,11 @@ Util = {
     },
 
     parseLocString: function( locstring ) {
+        var inloc = locstring;
         if( typeof locstring != 'string' )
             return null;
 
         locstring = dojo.trim( locstring );
-
-        //                                (chromosome)    (    start      )   (  sep     )     (    end   )
-        var matches = locstring.match(/^(((\S*)\s*:)?\s*(-?[\d,.']+)\s*(\.\.|-|\s+))?\s*(-?[\d,.']+)(.*)/i);
-        //matches potentially contains location components:
-        //matches[3] = chromosome (optional)
-        //matches[4] = start base (optional)
-        //matches[6] = end base (or center base, if it's the only one)
-        //matches[7] = any extra stuff at the end
-
-        if( !matches )
-            return null;
 
         // parses a number from a locstring that's a coordinate, and
         // converts it from 1-based to interbase coordinates
@@ -247,12 +237,30 @@ Util = {
             return typeof num == 'number' && !isNaN(num) ? num : null;
         };
 
-        return {
-            start: parseCoord( matches[4] )-1,
-            end:   parseCoord( matches[6] ),
-            ref:   matches[3],
-            extra: matches[7]
-        };
+        var location = {};
+        var tokens;
+
+        if( locstring.indexOf(':') != -1 ) {
+            tokens = locstring.split(':',2);
+            location.ref = dojo.trim( tokens[0] );
+            locstring = tokens[1];
+        }
+
+        tokens = locstring.match( /^\s*([\d,]+)\s*\.\.+\s*([\d,]+)/ );
+        if( tokens ) { // range of two numbers?
+            location.start = parseCoord( tokens[1] )-1;
+            location.end = parseCoord( tokens[2] );
+        }
+        else { // one number?
+            tokens = locstring.match( /^\s*([\d,]+)/ );
+            if( tokens ) {
+                location.end = location.start = parseCoord( tokens[1] )-1;
+            }
+            else // got nothin
+                return null;
+        }
+
+        return location;
     },
 
     basename: function( str, suffixList ) {
