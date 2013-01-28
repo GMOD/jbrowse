@@ -167,10 +167,16 @@ sub _sort_batch {
     my ( $self, $in_stream, $batch_size ) = @_;
     $batch_size ||= 10_000_000;
 
+
     my $sorter = Bio::JBrowse::ExternalSorter->new(
         sub ($$) {
             $_[0]->[0] cmp $_[1]->[0]
         }, 32_000_000 );
+
+    local $SIG{INT} = sub {
+        $sorter->cleanup;
+        exit -1;
+    };
 
     my $data;
     while( $batch_size-- && ( $data = $in_stream->() ) ) {
