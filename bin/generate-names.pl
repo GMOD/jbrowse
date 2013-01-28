@@ -279,7 +279,7 @@ sub make_operations {
 
     return (
         [ $lc_name, 'add_exact', $record ],
-        map [ $_, 'add_prefix', $record ], @prefixes
+        map [ $_, 'add_prefix', $record->[0] ], @prefixes
     );
 }
 
@@ -288,8 +288,6 @@ sub do_operation {
     my ( $store_entry, $op ) = @_;
 
     my ( $lc_name, $op_name, $record ) = @$op;
-
-    my $name = $record->[0];
 
     my $r = $store_entry->get || { exact => [], prefix => [] };
 
@@ -303,6 +301,8 @@ sub do_operation {
         # }
     }
     elsif( $op_name eq 'add_prefix' ) {
+        my $name = $record;
+
         my $p = $r->{prefix};
         if( @$p < $max_completions ) {
             if( ! grep $name eq $_, @$p ) {
