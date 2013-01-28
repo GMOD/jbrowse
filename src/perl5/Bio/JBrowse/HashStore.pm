@@ -63,9 +63,10 @@ sub open {
     $self->{hash_characters} = int( $self->{hash_bits}/4 );
     $self->{file_extension} = '.json';
 
-    $self->{bucket_cache} = Cache::Ref::FIFO->new( size => 2000 );
-    $self->{bucket_path_cache_by_key} = Cache::Ref::FIFO->new( size => 200_000 );
-    $self->{bucket_path_cache_by_hash} = Cache::Ref::FIFO->new( size => 200_000 );
+    $self->{bucket_cache} = Cache::Ref::FIFO->new( size => 30 );
+    $self->{bucket_path_cache_by_key} = Cache::Ref::FIFO->new( size => 30 );
+    $self->{bucket_path_cache_by_hash} = Cache::Ref::FIFO->new( size => 30 );
+    $self->{hex_hash_cache} = Cache::Ref::FIFO->new( size => 300 );
 
     return bless $self, $class;
 }
@@ -215,11 +216,13 @@ sub empty {
 
 sub _hexHash {
     my ( $self, $key ) = @_;
-    my $crc = ( $self->{crc} ||= do { require Digest::Crc32; Digest::Crc32->new } )
-                ->strcrc32( $key );
-    my $hex = lc sprintf( '%08x', $crc );
-    $hex = substr( $hex, 8-$self->{hash_characters} );
-    return $hex;
+    return $self->{hex_hash_cache}->compute( $key, sub {
+        my $crc = ( $self->{crc} ||= do { require Digest::Crc32; Digest::Crc32->new } )
+                  ->strcrc32( $key );
+        my $hex = lc sprintf( '%08x', $crc );
+        $hex = substr( $hex, 8-$self->{hash_characters} );
+        return $hex;
+    });
 }
 
 sub _hexToPath {
