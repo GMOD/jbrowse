@@ -217,7 +217,7 @@ sub writeRefSeqsJSON {
                                        #add new ref seqs while keeping the order
                                        #of the existing ref seqs
                                        my $old = shift || [];
-                                       my %refs = %refSeqs;
+                                       my %refs = %$refseqs;
                                        for (my $i = 0; $i < @$old; $i++) {
                                            if( $refs{$old->[$i]->{name}} ) {
                                                $old->[$i] = delete $refs{$old->[$i]->{name}};
