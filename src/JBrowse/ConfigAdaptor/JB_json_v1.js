@@ -6,6 +6,8 @@ define( [ 'dojo/_base/declare',
           'JBrowse/ConfigAdaptor/AdaptorUtil'
         ], function( declare, array, json, Util, digest, AdaptorUtil ) {
 
+var dojof = Util.dojof;
+
 return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
     /**
@@ -87,9 +89,13 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             if( o.baseUrl.length && ! /\/$/.test( o.baseUrl ) )
                 o.baseUrl += "/";
 
-            // set a default baseUrl in each of the track confs, and the names conf, if needed
+            // set a default baseUrl in each of the track and store confs, and the names conf, if needed
             if( o.sourceUrl ) {
-                var addBase = [].concat( o.tracks || [] );
+                var addBase =
+                    []
+                    .concat( o.tracks || [] )
+                    .concat( dojof.values(o.stores||{}) ) ;
+
                 if( o.names )
                     addBase.push( o.names );
                 dojo.forEach( addBase, function(t) {
