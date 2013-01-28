@@ -165,7 +165,7 @@ if( $verbose ) {
 my $name_records_iterator = sub {};
 my @namerecord_buffer;
 for my $ref ( @refSeqs ) {
-    push @namerecord_buffer, [ lc $ref->{name}, @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
+    push @namerecord_buffer, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
 }
 
 
@@ -187,7 +187,6 @@ my $record_stream = sub {
                 push @tracksWithNames, $track;
             }
             push @namerecord_buffer, [
-                lc $alias,
                 $alias,
                 $trackHash{$track},
                 @{$nameinfo}[2..$#{$nameinfo}]
@@ -197,19 +196,31 @@ my $record_stream = sub {
     return shift @namerecord_buffer;
 };
 
-# sort the stream by hash key to improve cache locality
-my $entry_stream = $nameStore->sort_stream( $record_stream );
+# convert the stream of name records into a stream of operations to do
+# on the data in the hash store
+my @operation_buffer;
+my $operation_stream = sub {
+    unless( @operation_buffer ) {
+        if( my $name_record = $record_stream->() ) {
+            push @operation_buffer, make_operations( $name_record );
+        }
+    }
+    return shift @operation_buffer;
+};
+
+# sort the stream by hash key to improve cache locality (very
+# important for performance)
+my $entry_stream = $nameStore->sort_stream( $operation_stream );
 
 # now write it to the store
 while( my $entry = $entry_stream->() ) {
-    insert( $nameStore, $entry );
+    do_operation( $entry, $entry->data );
 }
 
 # store the list of tracks that have names
 $nameStore->{meta}{track_names} = \@tracksWithNames;
 # record the fact that all the keys are lowercased
 $nameStore->{meta}{lowercase_keys} = 1;
-
 
 # set up the name store in the trackList.json
 $gdb->modifyTrackList( sub {
@@ -250,45 +261,58 @@ sub find_names_files {
     return @files;
 }
 
-sub insert {
-    my ( $store, $entry ) = @_;
+sub make_operations {
+    my ( $record ) = @_;
 
-    my $record = $entry->data;
-    my $lc = shift @$record;
-    my $name = $record->[0];
-
-    { # store the exact name match
-        my $r = $entry->get || { exact => [], prefix => [] };
-        if( $max_locations && @{ $r->{exact} } < $max_locations ) {
-            push @{ $r->{exact} }, $record;
-            $entry->set( $r );
-        }
-        elsif( $verbose ) {
-            #print STDERR "Warning: $name has more than --locationLimit ($max_locations) distinct locations, not all of them will be indexed.\n";
-        }
-    }
+    my $lc_name = lc $record->[0];
 
     # generate all the prefixes
     my @prefixes;
-    chop $lc;
-    while( $lc ) {
-        push @prefixes, $lc;
-        chop $lc;
+    {
+        my $l = $lc_name;
+        chop $l;
+        while( $l ) {
+            push @prefixes, $l;
+            chop $l;
+        }
     }
 
-    # store the prefixes
-    for my $prefix ( @prefixes ) {
-        my $r = $store->get( $prefix ) || { exact => [], prefix => [] };
+    return (
+        [ $lc_name, 'add_exact', $record ],
+        map [ $_, 'add_prefix', $record ], @prefixes
+    );
+}
+
+
+sub do_operation {
+    my ( $store_entry, $op ) = @_;
+
+    my ( $lc_name, $op_name, $record ) = @$op;
+
+    my $name = $record->[0];
+
+    my $r = $store_entry->get || { exact => [], prefix => [] };
+
+    if( $op_name eq 'add_exact' ) {
+        if( $max_locations && @{ $r->{exact} } < $max_locations ) {
+            push @{ $r->{exact} }, $record;
+            $store_entry->set( $r );
+        }
+        # elsif( $verbose ) {
+        #     print STDERR "Warning: $name has more than --locationLimit ($max_locations) distinct locations, not all of them will be indexed.\n";
+        # }
+    }
+    elsif( $op_name eq 'add_prefix' ) {
         my $p = $r->{prefix};
         if( @$p < $max_completions ) {
             if( ! grep $name eq $_, @$p ) {
                 push @{ $r->{prefix} }, $name;
-                $store->set( $prefix, $r );
+                $store_entry->set( $r );
             }
         }
         elsif( @{ $r->{prefix} } == $max_completions ) {
             push @{ $r->{prefix} }, { name => 'too many matches', hitLimit => 1 };
-            $store->set( $prefix, $r );
+            $store_entry->set( $r );
         }
     }
 }
