@@ -6,13 +6,15 @@ define( [
             'dojo/_base/declare',
             'dojo/dom-construct',
             'dojo/_base/array',
+            'dojo/on',
             'JBrowse/View/GranularRectLayout',
             'JBrowse/View/Track/Canvas',
-            'JBrowse/Errors'
+            'JBrowse/Errors',
+            'JBrowse/View/Track/FeatureDetailMixin'
         ],
-        function( declare, dom, array, Layout, CanvasTrack, Errors ) {
+        function( declare, dom, array, on, Layout, CanvasTrack, Errors, FeatureDetailMixin ) {
 
-return declare( CanvasTrack, {
+return declare( [CanvasTrack,FeatureDetailMixin], {
 
     constructor: function( args ) {
     },
@@ -131,6 +133,8 @@ return declare( CanvasTrack, {
                                     );
                                     track.renderFeatures( args, c, fRects );
 
+                                    track.renderClickMap( args, c, fRects );
+
                                     track.layoutCanvases([c]);
                                     track.heightUpdate( totalHeight,
                                                         blockIndex );
@@ -174,11 +178,44 @@ return declare( CanvasTrack, {
         return fRect;
     },
 
+    renderClickMap: function( args, canvas, fRects ) {
+        var thisB = this;
+
+        var featureMap = [];
+        array.forEach( fRects, function( fRect ) {
+            for( var i = 0; i < fRect.w; i++ ) {
+                for( var j = 0; j < fRect.h; j++ ) {
+                    var x = Math.round( fRect.l+i );
+                    var y = Math.round( fRect.t+j );
+                    (featureMap[x] = featureMap[x] || [])[y] = fRect.f;
+                }
+            }
+        });
+
+        for( var event in this.eventHandlers ) {
+            var handler = this.eventHandlers[event];
+            on( canvas, event, function( evt ) {
+                if( ('offsetX' in evt) && ('offsetY' in evt) ) {
+                    var clickedFeature = (featureMap[evt.offsetX]||[])[evt.offsetY];
+                    if( clickedFeature ) {
+                        handler.call({
+                            track: thisB,
+                            feature: clickedFeature,
+                            callbackArgs: [ thisB, clickedFeature ]
+                        });
+                    }
+                }
+            });
+        }
+    },
+
     // draw the features on the canvas
     renderFeatures: function( args, canvas, fRects ) {
         var context = canvas.getContext('2d');
         array.forEach( fRects, dojo.hitch( this, 'renderFeature', context ) );
     },
+
+    // draw each feature
     renderFeature: function( c, fRect ) {
         // background
         var bgcolor = this.getStyle( fRect.f, 'bgcolor' );
