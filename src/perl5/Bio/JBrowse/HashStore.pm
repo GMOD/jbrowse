@@ -125,7 +125,8 @@ Given a data stream (sub that returns arrayrefs of [ key, (any amount
 of other data) ] when called repeatedly), returns another stream that
 emits small objects that can be used to get and set the contents of
 the name store at that key ( $entry->get and $entry->set( $value ) )
-and will return the original data you passed if you call $entry->data.
+and will return the original data you passed (including the key) if
+you call $entry->data.
 
 Using this can greatly speed up bulk operations on the hash store,
 because it allows the internal caches of the HashStore to operate at
@@ -137,23 +138,52 @@ reading them back in sorted order.
 
 =cut
 
+use constant SORT_EOF     => 1;
+use constant SORT_EOBATCH => 2;
 sub sort_stream {
     my ( $self, $in_stream ) = @_;
+
+    $self->{sort_state} = 0;
+
+    # sort up to 10 million records at a time
+    my $batch_size = 10_000_000;
+
+    my $sorted_stream = $self->_sort_batch( $in_stream, $batch_size );
+
+    return sub {
+        my $d = $sorted_stream->();
+
+        if( !$d && $self->{sort_state} != SORT_EOF ) {
+            # sort another batch if we have not yet reached the end of the input stream
+            $sorted_stream = $self->_sort_batch( $in_stream, $batch_size );
+            $d = $sorted_stream->();
+        }
+
+        return $d;
+    };
+}
+
+sub _sort_batch {
+    my ( $self, $in_stream, $batch_size ) = @_;
+    $batch_size ||= 10_000_000;
 
     my $sorter = Bio::JBrowse::ExternalSorter->new(
         sub ($$) {
             $_[0]->[0] cmp $_[1]->[0]
         }, 32_000_000 );
 
-    while( my $data = $in_stream->() ) {
+    my $data;
+    while( $batch_size-- && ( $data = $in_stream->() ) ) {
         # hash each of the keys and values, spool them to a single log file
         $sorter->add( [ $self->_hexHash( $data->[0] ), $data ] );
     }
     $sorter->finish;
 
+    $self->{sort_state} = $batch_size > -1 ? SORT_EOF : SORT_EOBATCH;
+
     return sub {
-        my $d = $sorter->get or return;
-        return Bio::JBrowse::HashStore::Entry->new(
+        my $d = $sorter->get;
+        return $d && Bio::JBrowse::HashStore::Entry->new(
             store    => $self,
             key      => $d->[1][0],
             data     => $d->[1],
