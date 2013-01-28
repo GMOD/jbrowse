@@ -36,7 +36,7 @@ define( [
                 FASTAView
               ) {
 
-var HTMLFeatures = declare( BlockBased, {
+var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin ], {
     /**
      * A track that draws discrete features using `div` elements.
      * @constructs
@@ -98,24 +98,7 @@ var HTMLFeatures = declare( BlockBased, {
         this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
 
         this.showLabels = this.config.style.showLabels;
-    }
-} );
-
-/**
- * Mixin: JBrowse.View.Track.YScaleMixin.
- */
-HTMLFeatures.extend( YScaleMixin );
-
-/**
- * Mixin: JBrowse.View.Track.ExportMixin.
- */
-HTMLFeatures.extend( ExportMixin );
-
-HTMLFeatures = declare( HTMLFeatures,
-/**
- * @lends JBrowse.View.Track.HTMLFeatures.prototype
- */
-{
+    },
 
     /**
      * Returns object holding the default configuration for HTML-based feature tracks.

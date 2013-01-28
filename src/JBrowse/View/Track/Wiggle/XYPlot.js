@@ -9,8 +9,7 @@ define( [
         ],
         function( declare, array, on, WiggleBase, YScaleMixin, Util, Digest ) {
 
-
-var XYPlot = declare( WiggleBase,
+var XYPlot = declare( [WiggleBase, YScaleMixin],
 
 /**
  * Wiggle track that shows data with an X-Y plot along the reference.
@@ -171,8 +170,6 @@ var XYPlot = declare( WiggleBase,
     }
 
 });
-
-XYPlot.extend( YScaleMixin );
 
 return XYPlot;
 });

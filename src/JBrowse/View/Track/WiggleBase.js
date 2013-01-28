@@ -8,21 +8,13 @@ define( [
             'JBrowse/Digest/Crc32'
         ],
         function( declare, array, on, CanvasTrack, ExportMixin, Util, Digest ) {
-var Wiggle = declare( CanvasTrack, {
+
+return declare( [CanvasTrack,ExportMixin], {
+
     constructor: function( args ) {
         this.store = args.store;
-    }
-});
+    },
 
-/**
- * Mixin: JBrowse.View.Track.ExportMixin.
- */
-dojo.safeMixin( Wiggle.prototype, ExportMixin );
-
-/**
- * @lends JBrowse.View.Track.Wiggle.prototype
- */
-Wiggle.extend({
     _defaultConfig: function() {
         return { maxExportSpan: 500000 };
     },
@@ -376,5 +368,4 @@ Wiggle.extend({
         return ['bedGraph','Wiggle', 'GFF3' ];
     }
 });
-return Wiggle;
 });

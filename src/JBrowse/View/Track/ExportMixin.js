@@ -1,4 +1,5 @@
 define( [
+            'dojo/_base/declare',
             'dojo/_base/array',
             'dojo/aspect',
             'dojo/has',
@@ -9,13 +10,23 @@ define( [
             'dijit/form/RadioButton',
             'dijit/Dialog'
         ],
-        function( array, aspect, has, dojoWindow, dom, Util, dijitButton, dijitRadioButton, dijitDialog ) {
+        function(
+            declare,
+            array,
+            aspect,
+            has,
+            dojoWindow,
+            dom,
+            Util,
+            dijitButton,
+            dijitRadioButton,
+            dijitDialog
+        ) {
 /**
  * Mixin for a track that can export its data.
  * @lends JBrowse.View.Track.ExportMixin
  */
-
-return {
+return declare( null, {
 
     _canExport: function() {
         if( this.config.noExport )
@@ -264,5 +275,5 @@ return {
         return true;
     }
 
-};
+});
 });

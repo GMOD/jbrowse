@@ -5,7 +5,7 @@ define([
        ],
        function( declare, FixedImage, YScaleMixin ) {
 
-var Wiggle = declare( FixedImage,
+var Wiggle = declare( [ FixedImage, YScaleMixin ],
  /**
   * @lends JBrowse.View.Track.FixedImage.Wiggle.prototype
   */
@@ -47,11 +47,6 @@ var Wiggle = declare( FixedImage,
         });
     }
 });
-
-/**
- * Mixin: JBrowse.View.Track.YScaleMixin.
- */
-declare.safeMixin( Wiggle.prototype, YScaleMixin );
 
 return Wiggle;
 });
