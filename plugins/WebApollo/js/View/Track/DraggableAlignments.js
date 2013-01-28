@@ -12,6 +12,13 @@ define([
        ) {
 
 return declare([ DraggableTrack, AlignmentsTrack ], {
+
+    constructor: function( args )  {
+	// forcing store to create subfeatures, unless config.subfeatures explicitly set to false
+	//     default is set to true in _defaultConfig()
+	this.store.createSubfeatures = this.config.subfeatures;
+    }, 
+
     _defaultConfig: function()  {
         var thisConfig = Util.deepUpdate(
 //       return Util.deepUpdate(
@@ -20,12 +27,13 @@ return declare([ DraggableTrack, AlignmentsTrack ], {
                 layoutPitchY: 2, 
                 subfeatures: true,
                 style: {
-                    className: "bam", 
+                    className: "bam-read", 
                     renderClassName: null, 
                     arrowheadClass: "arrowhead", 
 	            centerChildrenVertically: false, 
 	            showSubfeatures: true, 
 	            showMismatches: false, 
+		    showLabels: false, 
                     subfeatureClasses: {
 	                M: "cigarM", 
 		        D: "cigarD",

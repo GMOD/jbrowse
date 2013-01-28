@@ -2,8 +2,11 @@ define( [ 'dojo/_base/declare',
           'dojo/_base/array',
           'dojo/_base/json',
           'JBrowse/Util',
-          'JBrowse/Digest/Crc32'
-        ], function( declare, array, json, Util, digest ) {
+          'JBrowse/Digest/Crc32',
+          'JBrowse/ConfigAdaptor/AdaptorUtil'
+        ], function( declare, array, json, Util, digest, AdaptorUtil ) {
+
+var dojof = Util.dojof;
 
 return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
@@ -86,16 +89,22 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             if( o.baseUrl.length && ! /\/$/.test( o.baseUrl ) )
                 o.baseUrl += "/";
 
-            // set a default baseUrl in each of the track confs if needed
+            // set a default baseUrl in each of the track and store confs, and the names conf, if needed
             if( o.sourceUrl ) {
-                dojo.forEach( o.tracks || [], function(t) {
+                var addBase =
+                    []
+                    .concat( o.tracks || [] )
+                    .concat( dojof.values(o.stores||{}) ) ;
 
-                                  if( ! t.baseUrl )
-                                      t.baseUrl = o.baseUrl || '/';
-                              },this);
+                if( o.names )
+                    addBase.push( o.names );
+                dojo.forEach( addBase, function(t) {
+                    if( ! t.baseUrl )
+                        t.baseUrl = o.baseUrl || '/';
+                },this);
             }
 
-            o = this._evalHooks( o );
+            o = AdaptorUtil.evalHooks( o );
 
             o = this._regularizeTrackConfigs( o );
 
@@ -186,34 +195,6 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 class_ = root+'/'+class_;
             class_ = class_.replace(/^\//);
             return class_;
-        },
-
-        _evalHooks: function( conf ) {
-            for( var x in conf ) {
-                if( typeof conf[x] == 'object' )
-                    // recur
-                    conf[x] = this._evalHooks( conf[x] );
-                else if( typeof conf[x] == 'string' ) {
-                    // compile
-                    var spec = conf[x];
-                    if( /^function\s*\(/.test(spec) && /\}[\s;]*$/.test(spec) ) {
-                        conf[x] = this._evalHook(spec);
-                    }
-                }
-            }
-            return conf;
-        },
-        _evalHook: function( hook ) {
-            // can't bind arguments because the closure compiler
-            // renames variables, and we need to assign in the eval
-            if ( "string" != typeof hook )
-                return hook;
-            try {
-                eval('arguments[0]='+hook+';');
-            } catch (e) {
-                console.error("error parsing parsing JavaScript callback: '"+hook+"': "+e);
-            }
-            return (function(h) { return h; }).apply( this, arguments );
         }
 });
 });

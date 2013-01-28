@@ -124,17 +124,19 @@ var BamFile = declare( null,
                 for (var b = 0; b < nbin; ++b) {
                     var bin = readInt(uncba, p);
                     var nchnk = readInt(uncba, p+4);
-                    p += 8 + (nchnk * 16);
+                    p += 8;
+                    for( var chunkNum = 0; chunkNum < nchnk; chunkNum++ ) {
+                        var vo = readVirtualOffset( uncba, p );
+                        this._findMinAlignment( vo );
+                        p += 16;
+                    }
                 }
                 var nintv = readInt(uncba, p); p += 4;
-                // as we're going through the index, figure out the smallest
-                // virtual offset in the indexes, which tells us where
-                // the BAM header ends
-                var firstVO = nintv ? readVirtualOffset(uncba,p) : null;
-                if( firstVO && ( ! this.minAlignmentVO || this.minAlignmentVO.cmp( firstVO ) < 0 ) )
-                    this.minAlignmentVO = firstVO;
+                // as we're going through the linear index, figure out
+                // the smallest virtual offset in the indexes, which
+                // tells us where the BAM header ends
+                this._findMinAlignment( nintv ? readVirtualOffset(uncba,p) : null );
 
-                //console.log( ref, ''+firstVO );
                 p += nintv * 8;
                 if( nbin > 0 || nintv > 0 ) {
                     this.indices[ref] = new Uint8Array(header, blockStart, p - blockStart);
@@ -147,7 +149,13 @@ var BamFile = declare( null,
         }), failCallback );
     },
 
+    _findMinAlignment: function( candidate ) {
+        if( candidate && ( ! this.minAlignmentVO || this.minAlignmentVO.cmp( candidate ) < 0 ) )
+            this.minAlignmentVO = candidate;
+    },
+
     _readBAMheader: function( successCallback, failCallback ) {
+        var thisB = this;
         // We have the virtual offset of the first alignment
         // in the file.  Cannot completely determine how
         // much of the first part of the file to fetch to get just
@@ -155,10 +163,10 @@ var BamFile = declare( null,
         // up to the start of the BGZF block that the first
         // alignment is in, plus 64KB, which should get us that whole
         // BGZF block, assuming BGZF blocks are no bigger than 64KB.
-        this.data.read(
+        thisB.data.read(
             0,
-            this.minAlignmentVO ? this.minAlignmentVO.block + 65535 : null,
-            dojo.hitch( this, function(r) {
+            thisB.minAlignmentVO ? thisB.minAlignmentVO.block + 65535 : null,
+            function(r) {
                 var unc = BAMUtil.unbgzf(r);
                 var uncba = new Uint8Array(unc);
 
@@ -174,35 +182,44 @@ var BamFile = declare( null,
                 //     header += String.fromCharCode(uncba[i + 8]);
                 // }
 
-                var nRef = readInt(uncba, headLen + 8);
-                var p = headLen + 12;
 
-                this.chrToIndex = {};
-                this.indexToChr = [];
-                for (var i = 0; i < nRef; ++i) {
-                    var lName = readInt(uncba, p);
-                    var name = '';
-                    for (var j = 0; j < lName-1; ++j) {
-                        name += String.fromCharCode(uncba[p + 4 + j]);
+                // have to do another request, because sometimes
+                // minAlignment VO is just flat wrong.
+                // if headLen is not too big, this will just be in the
+                // RemoteBinaryFile cache
+                thisB.data.read( 0, headLen+8+65536,
+                                 function(r) {
+                    var unc = BAMUtil.unbgzf(r);
+                    var uncba = new Uint8Array(unc);
+
+                    var nRef = readInt(uncba, headLen + 8);
+                    var p = headLen + 12;
+
+                    thisB.chrToIndex = {};
+                    thisB.indexToChr = [];
+                    for (var i = 0; i < nRef; ++i) {
+                        var lName = readInt(uncba, p);
+                        var name = '';
+                        for (var j = 0; j < lName-1; ++j) {
+                            name += String.fromCharCode(uncba[p + 4 + j]);
+                        }
+                        var lRef = readInt(uncba, p + lName + 4);
+                        // dlog(name + ': ' + lRef);
+                        thisB.chrToIndex[name] = i;
+                        if (name.indexOf('chr') == 0) {
+                            thisB.chrToIndex[name.substring(3)] = i;
+                        } else {
+                            thisB.chrToIndex['chr' + name] = i;
+                        }
+
+                        thisB.indexToChr.push({ name: name, length: lRef });
+
+                        p = p + 8 + lName;
                     }
-                    var lRef = readInt(uncba, p + lName + 4);
-                    // dlog(name + ': ' + lRef);
-                    this.chrToIndex[name] = i;
-                    if (name.indexOf('chr') == 0) {
-                        this.chrToIndex[name.substring(3)] = i;
-                    } else {
-                        this.chrToIndex['chr' + name] = i;
-                    }
 
-                    this.indexToChr.push({ name: name, length: lRef });
-
-                    p = p + 8 + lName;
-                }
-
-                successCallback();
-        }),
-        failCallback
-        );
+                    successCallback();
+            }, failCallback );
+        }, failCallback );
     },
 
     blocksForRange: function(refId, min, max) {

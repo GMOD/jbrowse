@@ -11,6 +11,10 @@ html, body {
     outline: none;
 }
 
+.ghosted {
+    color: #aaa;
+}
+
 fieldset {
     padding-left: 1em;
     margin: 0.7em 0.5em;
@@ -28,9 +32,27 @@ fieldset > legend {
     font-size: 14px;
 }
 
-.ghosted {
-    color: #aaa;
+/* styles for the autocomplete menu */
+.dijitComboBoxMenu .locString, .dijitComboBoxMenu .multipleLocations {
+    margin-left: 1em;
 }
+.dijitComboBoxMenu .multipleLocations {
+    color: #333;
+}
+
+/* location choice dialog */
+.locationChoiceDialog div.prompt {
+    margin: 0.3em 1em 1em 1em;
+}
+.locationChoiceDialog .dgrid-row .dijitButton {
+    margin: 0 0.5em;
+}
+.locationChoiceDialog .goButtonColumn,
+.locationChoiceDialog .showButtonColumn {
+    text-align: center;
+    white-space: nowrap;
+}
+
 
 .tundra .dijitDialogCloseIcon {
     height: 25px;
@@ -90,7 +112,8 @@ div.vertical_scrollbar {
     border-left: 1px solid #DDD9D9;
 }
 div.vertical_scrollbar .vertical_position_marker {
-    background: #666;
+    background: #555;
+    opacity: 0.8;
     border-radius: 5px;
     width: 100%;
     border-right: 1px solid #ccc;
@@ -108,10 +131,30 @@ div.vertical_scrollbar .vertical_position_marker {
     position: relative;
     text-align: center;
 }
+#navbox .dijitButton, #navbox .dijitTextBox, #navbox .dijitSelect {
+    height: 20px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
+#navbox .dijitSelectLabel {
+    padding: 0 2px;
+}
+
+#navbox .dijitTextBox .dijitInputField {
+    padding-left: 2px;
+}
+
+#navbox * {
+    font-size: 12px;
+    font-family: sans-serif;
+}
 
 .moreMatches {
     font-style: italic;
-    color: #ccc;
+    color: #aaa;
 }
 .moreMatches.dijitMenuItemSelected {
     background: none;
@@ -162,10 +205,6 @@ a.topLink {
     color: blue;
 }
 
-#location {
-    font-family: sans-serif;
-}
-
 div.overview {
     position: relative;
     width: 100%;
@@ -201,10 +240,16 @@ div.track {
     left: 0px;
     width: 100%;
     z-index: 5;
+    padding: 0;
+    margin: 0;
 }
 
 .track.dojoDndItemOver {
     cursor: inherit;
+    background: inherit;
+}
+.track.dojoDndItemAnchor {
+    background: inherit;
 }
 
 .track.dojoDndItemBefore {
@@ -290,8 +335,11 @@ div.sequence .base, div.sequence > div  {
     line-height: 14px;
 }
 div.sequence .base.big {
-    -moz-box-sizing: border-box;
     box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+
     border: 1px solid #ccc;
     border-right-color: #333;
     border-bottom-color: #333;
@@ -693,9 +741,11 @@ a.dialog-new-window {
 .feature-detail div.core {
     font-size: 110%;
 }
-.feature-detail div.additional {
+
+.feature-detail div.core h2.sectiontitle {
+    margin-top: 0;
 }
-.feature-detail div.additional > h2 {
+.feature-detail h2.sectiontitle {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     margin: 1em 0 0.7em 0;
 }

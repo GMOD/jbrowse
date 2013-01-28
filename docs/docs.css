@@ -22,6 +22,13 @@ td { border: 1px solid #777; padding: 0.3em }
 
 th { border: 1px solid #777; }
 
+p.done {
+    background: #57E065;
+    border-radius: 4px;
+    border: 1px solid rgb(48, 143, 57);
+    padding: 2em;
+    margin-top: 3em;
+}
 
 code, .code {
     font-family: monospace;
@@ -29,6 +36,7 @@ code, .code {
 }
 code, span.code {
     font-size: 115%;
+    white-space: nowrap;
 }
 
 a[href], a[href] .code, a[href] code {
@@ -38,9 +46,19 @@ a[href], a[href] .code, a[href] code {
 div.code {
     background: #eee;
     margin: 1em 1.5em 1em 1.5em;
-    padding: 0.5em;
+    padding: 1em 2em;
     overflow: auto;
     font-size: 110%;
+}
+dd > div.code {
+    margin-left: 0;
+}
+
+span.code {
+    background: #f8f8f8;
+    padding: 2px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
 div.code, div.system-specific, div.sidebar {

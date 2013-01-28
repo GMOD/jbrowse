@@ -1,13 +1,31 @@
 {{$NEXT}}
 
- * Greatly improved speed of layouts for large numbers of stacked
-   features.
+ * Added new "File -> Open" function that can display BAM, BigWig, and
+   GFF3 files located on the user's machine.  Everything is done
+   locally, no data is transferred to the server.
+
+ * Added a new "SNPCoverage" track type, designed for use with BAM
+   files, that shows a coverage plot, along with a graphical
+   representation of SNPs, and tables showing base frequencies for
+   each SNP.
 
  * Added a timeout to HTMLFeatures and Alignments tracks to prevent
    data-heavy tracks (like BAM tracks with very deep coverage) from
    freezing or crashing a user's browser.
 
+ * Added an all-new data backend for name indexing, which improves the
+   responsiveness of name autocompletion, and makes it possible to
+   format much bigger name indexes.
+
+ * Improved graphical look of canvas-based tracks during zoom
+   operations.
+
+ * Fixed a bug in which the Y-axis scale for feature density
+   histograms was sometimes drawn incorrectly.
+
  * Greatly improved speed and responsiveness of BAM data backend.
+
+ * Fixed yet another bug that prevented display of some types of BAM files.
 
  * Added support in HTMLFeatures and Alignments tracks for a
    `style.featureScale` configuration variable, which, if set,
@@ -15,6 +33,11 @@
    features.  If zoomed out more than this (i.e. fewer pixels per bp),
    either histograms or a "too many features" message will be
    displayed.
+
+1.7.6     2013-01-10 01:25:58 America/New_York
+
+ * Fixed a bug in the BAM direct-access backend that prevented some
+   BAM files from being displayed.
 
 1.7.5     2012-12-12 13:40:12 America/New_York
 

@@ -18,7 +18,7 @@ ctgA	example	remark	44705	47713	.	-	.	Name=f01
 ctgA	example	remark	46990	48410	.	-	.	Name=f11
 ctgA	example	remark	49758	50000	.	-	.	Name=f12
 
-ctgA	example	SNP	1000	1000	0.987	+	.	ID=FakeSNP1;Name=FakeSNP;Note=This is a fake SNP that should appear at 1000 with length 1	
+ctgA	example	SNP	1000	1000	0.987	.	.	ID=FakeSNP1;Name=FakeSNP;Note=This is a fake SNP that should appear at 1000 with length 1	
 ctgA	example	remark	1000	2000	.	.	.	Name=Remark:hga;Alias=hga
 ctgA	example	protein_coding_primary_transcript	1100	2000	.	+	.	Name=Gene:hga;Alias=hga
 ctgA	example	polypeptide	1200	1900	.	+	.	Name=Protein:HGA;Alias=hga

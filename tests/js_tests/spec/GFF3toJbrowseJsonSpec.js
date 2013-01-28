@@ -23,9 +23,6 @@ require(['JBrowse/Store/SeqFeature/GFF3/GFF3Parser','JBrowse/Store/SeqFeature/GF
 			gparser = new GFF3Parser();
 			parsedGFF3toJbrowseJsonInput = gparser.parse( makerGff3String );
 			actualJbrowseJsonOutput = store._gff3toJbrowseJson( parsedGFF3toJbrowseJsonInput );
-
-			parsedGFF3toJbrowseJsonInput2 = gparser.parse( makerGff3String2 );
-			actualJbrowseJsonOutput2 = store._gff3toJbrowseJson( parsedGFF3toJbrowseJsonInput2 );
 		    });
 		
 		it("should respond to _gff3toJbrowseJson", function() {
@@ -73,19 +70,36 @@ require(['JBrowse/Store/SeqFeature/GFF3/GFF3Parser','JBrowse/Store/SeqFeature/GF
 		it("should correctly set ['trackInfo']['intervals']['urlTemplate'] in jbrowse json", function() {
 			expect(actualJbrowseJsonOutput['trackInfo']["intervals"]["urlTemplate"]).toEqual("lf-{Chunk}.json");
 		    });
-		
-		it("should parse all features with multiple siblings (not just the first)", function() {
-			expect(actualJbrowseJsonOutput2['featArray'][0]).toEqual(
-						 [ 0, 245453, 247006, '+', 'maker', '.', 'mRNA', '.', 'mRNA_1', 'mRNA_1', 
-						   [ 
-						    [ 1, 245759, 245879, '+', 'maker', '0', 'CDS', '.', 'cds_1.1', null ], 
-						    [ 1, 246045, 246278, '+', 'maker', '0', 'CDS', '.', 'cds_1.2', null ], 
-						    [ 1, 246388, 246815, '+', 'maker', '1', 'CDS', '.', 'cds_1.3', null ] 
-						     ] 
-						   ]
-										 );
-			// expect(actualJbrowseJsonOutput2['featArray'][1]).toEqual(["foo"]);
-			expect(actualJbrowseJsonOutput2['featArray'].length).toEqual(2);
+
+		it("_getFeaturesAtGivenDepth should correctly retrieve two level features from parsed gene GFF3", function() {
+			var twoLevelFeat = store._getFeaturesAtGivenDepth( parsedGFF3toJbrowseJsonInput["parsedData"][0], 2 );
+			expect(twoLevelFeat).toNotEqual(null);
+			expect(twoLevelFeat).toEqual(
+						     [ { ID : '1:gnomon_566853_mRNA', data : [ { rawdata : [ 'Group1.33', 'maker', 'mRNA', '245454', '247006', '.', '+', '.', 'ID=1:gnomon_566853_mRNA;Parent=this_parent_id_12345;Name=gnomon_566853_mRNA;_AED=0.45;_eAED=0.45;_QI=138|1|1|1|1|1|4|191|259;' ], attributes : { ID : [ '1:gnomon_566853_mRNA' ], Parent : [ 'this_parent_id_12345' ], Name : [ 'gnomon_566853_mRNA' ], _AED : [ '0.45' ], _eAED : [ '0.45' ], _QI : [ '138|1|1|1|1|1|4|191|259' ] } } ], children : [ { ID : '1:gnomon_566853_mRNA:exon:5976', data : [ { rawdata : [ 'Group1.33', 'maker', 'exon', '245454', '245533', '.', '+', '.', 'ID=1:gnomon_566853_mRNA:exon:5976;Parent=1:gnomon_566853_mRNA;' ], attributes : { ID : [ '1:gnomon_566853_mRNA:exon:5976' ], Parent : [ '1:gnomon_566853_mRNA' ] } } ], children : [ ] }, { ID : '1:gnomon_566853_mRNA:exon:5977', data : [ { rawdata : [ 'Group1.33', 'maker', 'exon', '245702', '245879', '.', '+', '.', 'ID=1:gnomon_566853_mRNA:exon:5977;Parent=1:gnomon_566853_mRNA;' ], attributes : { ID : [ '1:gnomon_566853_mRNA:exon:5977' ], Parent : [ '1:gnomon_566853_mRNA' ] } } ], children : [ ] }, { ID : '1:gnomon_566853_mRNA:exon:5978', data : [ { rawdata : [ 'Group1.33', 'maker', 'exon', '246046', '246278', '.', '+', '.', 'ID=1:gnomon_566853_mRNA:exon:5978;Parent=1:gnomon_566853_mRNA;' ], attributes : { ID : [ '1:gnomon_566853_mRNA:exon:5978' ], Parent : [ '1:gnomon_566853_mRNA' ] } } ], children : [ ] }, { ID : '1:gnomon_566853_mRNA:exon:5979', data : [ { rawdata : [ 'Group1.33', 'maker', 'exon', '246389', '247006', '.', '+', '.', 'ID=1:gnomon_566853_mRNA:exon:5979;Parent=1:gnomon_566853_mRNA;' ], attributes : { ID : [ '1:gnomon_566853_mRNA:exon:5979' ], Parent : [ '1:gnomon_566853_mRNA' ] } } ], children : [ ] }, { ID : '1:gnomon_566853_mRNA:five_prime_utr', data : [ { rawdata : [ 'Group1.33', 'maker', 'five_prime_UTR', '245702', '245759', '.', '+', '.', 'ID=1:gnomon_566853_mRNA:five_prime_utr;Parent=1:gnomon_566853_mRNA;' ], attributes : { ID : [ '1:gnomon_566853_mRNA:five_prime_utr' ], Parent : [ '1:gnomon_566853_mRNA' ] } }, { rawdata : [ 'Group1.33', 'maker', 'five_prime_UTR', '245702', '245759', '.', '+', '.', 'ID=1:gnomon_566853_mRNA:five_prime_utr;Parent=1:gnomon_566853_mRNA;' ], attributes : { ID : [ '1:gnomon_566853_mRNA:five_prime_utr' ], Parent : [ '1:gnomon_566853_mRNA' ] } } ], children : [ ] }, { ID : '1:gnomon_566853_mRNA:cds', data : [ { rawdata : [ 'Group1.33', 'maker', 'CDS', '246389', '246815', '.', '+', '1', 'ID=1:gnomon_566853_mRNA:cds;Parent=1:gnomon_566853_mRNA;' ], attributes : { ID : [ '1:gnomon_566853_mRNA:cds' ], Parent : [ '1:gnomon_566853_mRNA' ] } }, { rawdata : [ 'Group1.33', 'maker', 'CDS', '246389', '246815', '.', '+', '1', 'ID=1:gnomon_566853_mRNA:cds;Parent=1:gnomon_566853_mRNA;' ], attributes : { ID : [ '1:gnomon_566853_mRNA:cds' ], Parent : [ '1:gnomon_566853_mRNA' ] } }, { rawdata : [ 'Group1.33', 'maker', 'CDS', '246389', '246815', '.', '+', '1', 'ID=1:gnomon_566853_mRNA:cds;Parent=1:gnomon_566853_mRNA;' ], attributes : { ID : [ '1:gnomon_566853_mRNA:cds' ], Parent : [ '1:gnomon_566853_mRNA' ] } }, { rawdata : [ 'Group1.33', 'maker', 'CDS', '246389', '246815', '.', '+', '1', 'ID=1:gnomon_566853_mRNA:cds;Parent=1:gnomon_566853_mRNA;' ], attributes : { ID : [ '1:gnomon_566853_mRNA:cds' ], Parent : [ '1:gnomon_566853_mRNA' ] } } ], children : [ ] }, { ID : '1:gnomon_566853_mRNA:three_prime_utr', data : [ { rawdata : [ 'Group1.33', 'maker', 'three_prime_UTR', '246816', '247006', '.', '+', '.', 'ID=1:gnomon_566853_mRNA:three_prime_utr;Parent=1:gnomon_566853_mRNA;' ], attributes : { ID : [ '1:gnomon_566853_mRNA:three_prime_utr' ], Parent : [ '1:gnomon_566853_mRNA' ] } } ], children : [ ] } ] } ]
+						     )
+			    });
+
+		it("_getFeaturesAtGivenDepth should correctly retrieve two level features from parsed gene GFF3 with two mRNAs", function() {
+			parsedGFF3toJbrowseJsonInput2 = gparser.parse( makerGff3String2 );
+			var twoLevelFeat = store._getFeaturesAtGivenDepth( parsedGFF3toJbrowseJsonInput2["parsedData"][0], 2 );
+			expect(twoLevelFeat).toNotEqual(null);
+			expect(twoLevelFeat).toEqual(
+						     [ 
+						      { ID : 'mRNA_1', data : [ { rawdata : [ 'Group1.33', 'maker', 'mRNA', '245454', '247006', '.', '+', '.', 'ID=mRNA_1;Parent=this_parent_id_12345;Name=mRNA_1;' ], attributes : { ID : [ 'mRNA_1' ], Parent : [ 'this_parent_id_12345' ], Name : [ 'mRNA_1' ] } } ], children : [ { ID : 'cds_1.1', data : [ { rawdata : [ 'Group1.33', 'maker', 'CDS', '245760', '245879', '.', '+', '0', 'ID=cds_1.1;Parent=mRNA_1;' ], attributes : { ID : [ 'cds_1.1' ], Parent : [ 'mRNA_1' ] } } ], children : [ ] }, { ID : 'cds_1.2', data : [ { rawdata : [ 'Group1.33', 'maker', 'CDS', '246046', '246278', '.', '+', '0', 'ID=cds_1.2;Parent=mRNA_1;' ], attributes : { ID : [ 'cds_1.2' ], Parent : [ 'mRNA_1' ] } } ], children : [ ] }, { ID : 'cds_1.3', data : [ { rawdata : [ 'Group1.33', 'maker', 'CDS', '246389', '246815', '.', '+', '1', 'ID=cds_1.3;Parent=mRNA_1;' ], attributes : { ID : [ 'cds_1.3' ], Parent : [ 'mRNA_1' ] } } ], children : [ ] } ] }, 
+						      { ID : 'mRNA_2', data : [ { rawdata : [ 'Group1.33', 'maker', 'mRNA', '245454', '247006', '.', '+', '.', 'ID=mRNA_2;Parent=this_parent_id_12345;Name=mRNA_2;' ], attributes : { ID : [ 'mRNA_2' ], Parent : [ 'this_parent_id_12345' ], Name : [ 'mRNA_2' ] } } ], children : [ { ID : 'cds_2.1', data : [ { rawdata : [ 'Group1.33', 'maker', 'CDS', '245760', '245879', '.', '+', '0', 'ID=cds_2.1;Parent=mRNA_2;' ], attributes : { ID : [ 'cds_2.1' ], Parent : [ 'mRNA_2' ] } } ], children : [ ] }, { ID : 'cds_2.2', data : [ { rawdata : [ 'Group1.33', 'maker', 'CDS', '246046', '246278', '.', '+', '0', 'ID=cds_2.2;Parent=mRNA_2;' ], attributes : { ID : [ 'cds_2.2' ], Parent : [ 'mRNA_2' ] } } ], children : [ ] }, { ID : 'cds_2.3', data : [ { rawdata : [ 'Group1.33', 'maker', 'CDS', '246389', '246815', '.', '+', '1', 'ID=cds_2.3;Parent=mRNA_2;' ], attributes : { ID : [ 'cds_2.3' ], Parent : [ 'mRNA_2' ] } } ], children : [ ] } ] }, 
+						       ] 
+						     )
+			    });
+
+		it("_gff3toJbrowseJson should correctly retrieve two level features from parsed gene GFF3 with two mRNAs", function() {
+			parsedGFF3toJbrowseJsonInput2 = gparser.parse( makerGff3String2 );
+			var twoLevelFeat = store._gff3toJbrowseJson( parsedGFF3toJbrowseJsonInput2 );
+			expect(twoLevelFeat["featArray"].length).toEqual(2);
+			expect(twoLevelFeat["featArray"]).toEqual(
+					  [ 
+					   [ 0, 245453, 247006, '+', 'maker', '.', 'mRNA', '.', 'mRNA_1', 'mRNA_1', [ [ 1, 245759, 245879, '+', 'maker', '0', 'CDS', '.', 'cds_1.1', null ], [ 1, 246045, 246278, '+', 'maker', '0', 'CDS', '.', 'cds_1.2', null ], [ 1, 246388, 246815, '+', 'maker', '1', 'CDS', '.', 'cds_1.3', null ] ] ], 
+					   [ 0, 245453, 247006, '+', 'maker', '.', 'mRNA', '.', 'mRNA_2', 'mRNA_2', [ [ 1, 245759, 245879, '+', 'maker', '0', 'CDS', '.', 'cds_2.1', null ], [ 1, 246045, 246278, '+', 'maker', '0', 'CDS', '.', 'cds_2.2', null ], [ 1, 246388, 246815, '+', 'maker', '1', 'CDS', '.', 'cds_2.3', null ] ] ] 
+					    ]);
 		    });
 		
 	    });

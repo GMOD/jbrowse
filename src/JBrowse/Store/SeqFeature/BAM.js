@@ -142,7 +142,10 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
                                 try {
                                     featCallback( feature );
                                 } catch(e) {
-                                    errorCallback( e );
+                                    if( errorCallback )
+                                        errorCallback( e );
+                                    else
+                                        console.error( e, e.stack );
                                     return;
                                 }
 

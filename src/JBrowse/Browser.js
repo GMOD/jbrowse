@@ -1,7 +1,8 @@
 var _gaq = _gaq || []; // global task queue for Google Analytics
 require( {
              packages: [ 'dijit', 'dojox', 'jszlib',
-                         { name: 'lazyload', main: 'lazyload' }
+                         { name: 'lazyload', main: 'lazyload' },
+                         'dgrid', 'xstyle', 'put-selector'
                        ]
          },
          [],
@@ -26,12 +27,15 @@ define( [
             'dijit/MenuItem',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
-            'JBrowse/Store/Autocomplete',
+            'JBrowse/Store/Names/LazyTrieDojoData',
+            'dojo/store/DataStore',
+            'JBrowse/Store/Names/Hash',
             'JBrowse/GenomeView',
             'JBrowse/TouchScreenSupport',
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
+            'JBrowse/View/LocationChoiceDialog',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
             'dojo/domReady!'
@@ -55,12 +59,15 @@ define( [
             dijitMenuItem,
             Util,
             LazyTrie,
-            AutocompleteStore,
+            NamesLazyTrieDojoDataStore,
+            DojoDataStore,
+            NamesHashStore,
             GenomeView,
             Touch,
             ConfigManager,
             InfoDialog,
             FileDialog,
+            LocationChoiceDialog,
             dijitFocus,
             LazyLoad
         ) {
@@ -349,14 +356,35 @@ Browser.prototype._loadCSS = function( css, successCallback, errorCallback ) {
  */
 Browser.prototype.loadNames = function() {
     return this._milestoneFunction( 'loadNames', function( deferred ) {
-        // load our name index
-        if (this.config.nameUrl)
-            this.names = new LazyTrie(this.config.nameUrl, "lazy-{Chunk}.json");
+        var conf = dojo.mixin( dojo.clone( this.config.names || {} ),
+                               this.config.autocomplete || {} );
+        if( ! conf.url )
+            conf.url = this.config.nameUrl || 'data/names/';
+
+        if( conf.baseUrl )
+            conf.url = Util.resolveUrl( conf.baseUrl, conf.url );
+
+        if( conf.type == 'Hash' )
+            this.nameStore = new NamesHashStore( dojo.mixin({ browser: this }, conf) );
+        else
+            // wrap the older LazyTrieDojoDataStore with
+            // dojo.store.DataStore to conform with the dojo/store API
+            this.nameStore = new DojoDataStore({
+                store: new NamesLazyTrieDojoDataStore({
+                    browser: this,
+                    namesTrie: new LazyTrie( conf.url, "lazy-{Chunk}.json"),
+                    stopPrefixes: conf.stopPrefixes,
+                    resultLimit:  conf.resultLimit || 15,
+                    tooManyMatchesMessage: conf.tooManyMatchesMessage
+                })
+            });
+
         deferred.resolve({success: true});
-     });
+    });
 };
 
 Browser.prototype.initView = function() {
+    var thisObj = this;
     return this._milestoneFunction('initView', function( deferred ) {
 
         //set up top nav/overview pane and main GenomeView pane
@@ -372,7 +400,7 @@ Browser.prototype.initView = function() {
                 className: this.config.show_nav ? 'menuBar' : 'topLink'
             }
             );
-
+        thisObj.menuBar = menuBar;
         ( this.config.show_nav ? topPane : this.container ).appendChild( menuBar );
 
         var overview = dojo.create( 'div', { className: 'overview', id: 'overview' }, topPane );
@@ -385,7 +413,7 @@ Browser.prototype.initView = function() {
             this.navbox = this.createNavBox( topPane );
 
         // make our little top-links box with links to help, etc.
-        dojo.create('a', {
+        this.poweredByLink = dojo.create('a', {
             className: 'powered_by',
             innerHTML: 'JBrowse',
             href: 'http://jbrowse.org',
@@ -533,6 +561,7 @@ Browser.prototype.getTrackTypes = function() {
             knownTrackTypes: [
                 'JBrowse/View/Track/Alignments',
                 'JBrowse/View/Track/FeatureCoverage',
+                'JBrowse/View/Track/SNPCoverage',
                 'JBrowse/View/Track/HTMLFeatures',
                 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/View/Track/Wiggle/Density',
@@ -787,6 +816,7 @@ Browser.prototype.clearStores = function() {
  * count, and if the store's reference count reaches zero, the store
  * object will be discarded, to be recreated again later if needed.
  */
+// not actually being used yet
 Browser.prototype.releaseStore = function( storeName ) {
     var storeRecord = this._storeCache[storeName];
     if( storeRecord && ! --storeRecord.refCount )
@@ -1250,6 +1280,26 @@ Browser.prototype.createTrackList = function() {
 Browser.prototype.onVisibleTracksChanged = function() {
 };
 
+
+/**
+ * Like <code>navigateToLocation()</code>, except it attempts to display the given
+ * location with a little bit of flanking sequence to each side, if
+ * possible.
+ */
+Browser.prototype.showRegion = function( location ) {
+    var flank   = Math.round( ( location.end - location.start ) * 0.2 );
+    //go to location, with some flanking region
+    this.navigateToLocation({ ref: location.ref,
+                               start: location.start - flank,
+                               end: location.end + flank
+                             });
+
+    // if the location has a track associated with it, show it
+    if( location.tracks ) {
+        this.showTracks( array.map( location.tracks, function( t ) { return t && (t.label || t.name) || t; } ));
+    }
+};
+
 /**
  * navigate to a given location
  * @example
@@ -1356,44 +1406,56 @@ Browser.prototype.navigateToLocation = function( location ) {
  * view location to any that match.
  */
 Browser.prototype.searchNames = function( /**String*/ loc ) {
-    var brwsr = this;
-    this.names.exactMatch( loc, function(nameMatches) {
-            var goingTo,
-                i;
+    var thisB = this;
+    this.nameStore.query({ name: loc })
+        .then( function( nameMatches ) {
 
-            var post1_4 = typeof nameMatches[0][0] == 'string';
+            // if we have no matches, pop up a dialog saying so, and
+            // do nothing more
+            if( ! nameMatches.length ) {
+                new InfoDialog(
+                    {
+                        title: 'Not found',
+                        content: 'Not found: <span class="locString">'+loc+'</span>',
+                        className: 'notfound-dialog'
+                    }).show();
+                return;
+            }
+
+            var goingTo;
 
             //first check for exact case match
-            for (i = 0; i < nameMatches.length; i++) {
-                if (nameMatches[i][ post1_4 ? 0 : 1 ] == loc)
+            for (var i = 0; i < nameMatches.length; i++) {
+                if( nameMatches[i].name  == loc )
                     goingTo = nameMatches[i];
             }
             //if no exact case match, try a case-insentitive match
-            if (!goingTo) {
-                for (i = 0; i < nameMatches.length; i++) {
-                    if (nameMatches[i][ post1_4 ? 0 : 1].toLowerCase() == loc.toLowerCase())
+            if( !goingTo ) {
+                for( i = 0; i < nameMatches.length; i++ ) {
+                    if( nameMatches[i].name.toLowerCase() == loc.toLowerCase() )
                         goingTo = nameMatches[i];
                 }
             }
             //else just pick a match
-            if (!goingTo) goingTo = nameMatches[0];
-            var startbp = parseInt( goingTo[ post1_4 ? 4 : 3 ]);
-            var endbp   = parseInt( goingTo[ post1_4 ? 5 : 4 ]);
-            var flank = Math.round((endbp - startbp) * .2);
-            //go to location, with some flanking region
-            brwsr.navigateTo( goingTo[ post1_4 ? 3 : 2]
-                             + ":" + (startbp - flank)
-                             + ".." + (endbp + flank));
-            brwsr.showTracks(brwsr.names.extra[nameMatches[0][ post1_4 ? 1 : 0 ]]);
-        },
-        // if no match for the name is found, show a popup dialog saying this.
-        function() {
-            new InfoDialog(
-                {
-                    title: 'Not found',
-                    content: 'Not found: <span class="locString">'+loc+'</span>',
-                    className: 'notfound-dialog'
-                }).show();
+            if( !goingTo ) goingTo = nameMatches[0];
+
+            // if it has one location, go to it
+            if( goingTo.location ) {
+
+                //go to location, with some flanking region
+                thisB.showRegion( goingTo.location );
+            }
+            // otherwise, pop up a dialog with a list of the locations to choose from
+            else if( goingTo.multipleLocations ) {
+                new LocationChoiceDialog(
+                    {
+                        browser: thisB,
+                        locationChoices: goingTo.multipleLocations,
+                        title: 'Choose '+goingTo.name+' location',
+                        prompt: '"'+goingTo.name+'" is found in multiple locations.  Please choose a location to view.'
+                    })
+                    .show();
+            }
         }
    );
 };
@@ -1910,7 +1972,8 @@ Browser.prototype.createNavBox = function( parent ) {
         },
         dojo.create('input', {}, navbox) );
     this.afterMilestone( 'loadNames', dojo.hitch(this, function() {
-        this.locationBox.set( 'store', this._makeLocationAutocompleteStore() );
+        if( this.nameStore )
+            this.locationBox.set( 'store', this.nameStore );
     }));
 
     this.locationBox.focusNode.spellcheck = false;
@@ -1940,11 +2003,11 @@ Browser.prototype.createNavBox = function( parent ) {
          };
 
          // prevent the "more matches" option from being clicked
-         var oldSetValue = dropDownProto._setValueAttr;
-         dropDownProto._setValueAttr = function( value ) {
-             if( value.target && value.target.item && value.target.item.hitLimit )
+         var oldOnClick = dropDownProto.onClick;
+         dropDownProto.onClick = function( node ) {
+             if( dojo.hasClass(node, 'moreMatches' ) )
                  return null;
-             return oldSetValue.apply( this, arguments );
+             return oldOnClick.apply( this, arguments );
          };
     }).call(this);
 
@@ -2011,14 +2074,6 @@ Browser.prototype.createNavBox = function( parent ) {
     return navbox;
 };
 
-Browser.prototype._makeLocationAutocompleteStore = function() {
-    var conf = this.config.autocomplete||{};
-    return new AutocompleteStore({
-        namesTrie: this.names,
-        stopPrefixes: conf.stopPrefixes,
-        resultLimit:  conf.resultLimit || 15
-    });
-};
 
 return Browser;
 

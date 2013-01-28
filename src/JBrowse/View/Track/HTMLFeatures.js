@@ -129,6 +129,8 @@ HTMLFeatures = declare( HTMLFeatures,
             blockDisplayTimeout: 5000,
 
             style: {
+                arrowheadClass: 'arrowhead',
+
                 className: "feature2",
 
                 // not configured by users
@@ -166,6 +168,7 @@ HTMLFeatures = declare( HTMLFeatures,
         var fmt = dojo.hitch( this, '_fmtDetailField' );
         container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name, innerHTML: '' } );
         var coreDetails = dojo.create('div', { className: 'core' }, container );
+        coreDetails.innerHTML += '<h2 class="sectiontitle">Primary Data</h2>';
         coreDetails.innerHTML += fmt( 'Name', f.get('name') );
         coreDetails.innerHTML += fmt( 'Type', f.get('type') );
         coreDetails.innerHTML += fmt( 'Description', f.get('note') );
@@ -182,7 +185,7 @@ HTMLFeatures = declare( HTMLFeatures,
         // render any additional tags as just key/value
         var additionalTags = array.filter( f.tags(), function(t) { return ! {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()]; });
         if( additionalTags.length ) {
-            var at_html = '<div class="additional"><h2>Attributes</h2>';
+            var at_html = '<div class="additional"><h2 class="sectiontitle">Attributes</h2>';
             dojo.forEach( additionalTags.sort(), function(t) {
                 at_html += fmt( t, f.get(t) );
             });
@@ -352,10 +355,10 @@ HTMLFeatures = declare( HTMLFeatures,
                 binDiv.style.cssText =
                     "left: " + ((bin / track.numBins) * 100) + "%; "
                     + "height: "
-                    + ((dims.pxPerCount * ( dims.logScale ? Math.log(hist[bin]) : hist[bin]))-2)
+                    + ( dims.pxPerCount * ( dims.logScale ? Math.log(hist[bin]) : hist[bin]) )
                     + "px;"
                     + "bottom: " + track.trackPadding + "px;"
-                    + "width: " + (((1 / track.numBins) * 100) - (100 / stripeWidth)) + "%;"
+                    + "width: " + ((100 / track.numBins) - (100 / stripeWidth)) + "%;"
                     + (track.config.style.histCss ?
                        track.config.style.histCss : "");
                 binDiv.setAttribute('value',hist[bin]);
@@ -543,7 +546,7 @@ HTMLFeatures = declare( HTMLFeatures,
             console.error("Log histogram scale axis labels not yet implemented.");
             return;
         }
-        var maxval = dims.stats ? dims.stats.max : this.height/dims.pxPerCount;
+        var maxval = this.height/dims.pxPerCount;
         maxval = dims.logScale ? log(maxval) : maxval;
 
         // if we have a scale, and it has the same characteristics
@@ -930,13 +933,13 @@ HTMLFeatures = declare( HTMLFeatures,
             case 1:
             case '+':
                 ah.className = "plus-" + this.config.style.arrowheadClass;
-                ah.style.cssText =  "left: 100%; top: 0px;";
+                ah.style.cssText =  "left: 100%;" 
                 featDiv.appendChild(ah);
                 break;
             case -1:
             case '-':
                 ah.className = "minus-" + this.config.style.arrowheadClass;
-                ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px; top: 0px;";
+                ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px;"
                 featDiv.appendChild(ah);
                 break;
             }
@@ -1021,12 +1024,16 @@ HTMLFeatures = declare( HTMLFeatures,
             var parentHeight = this._getHeight(featDiv);
             for( var i = 0; i< featDiv.childNodes.length; i++ ) {
                 var child = featDiv.childNodes[i];
-                // cache the height of elements, for speed.
-                var h = this._getHeight(child);
-                dojo.style( child, { marginTop: '0', top: ((parentHeight-h)/2) + 'px' });
-                // recursively center any descendants
-                if (child.childNodes.length > 0)  {
-                    this._centerChildrenVertically( child );
+                // only operate on child nodes that can be styled,
+                // i.e. HTML elements instead of text nodes or whatnot
+                if( child.style ) {
+                    // cache the height of elements, for speed.
+                    var h = this._getHeight(child);
+                    dojo.style( child, { marginTop: '0', top: ((parentHeight-h)/2) + 'px' });
+                    // recursively center any descendants
+                    if (child.childNodes.length > 0)  {
+                        this._centerChildrenVertically( child );
+                    }
                 }
             }
         }
@@ -1117,6 +1124,11 @@ HTMLFeatures = declare( HTMLFeatures,
             // if no config.style.subfeatureClasses to specify subfeature class mapping, default to subfeature.get('type')
             className = type;
         }
+
+        // a className of 'hidden' causes things to not even be rendered
+        if( className == 'hidden' )
+            return null;
+
         var subDiv = document.createElement("div");
         dojo.addClass(subDiv, "subfeature");
         // check for className to avoid adding "null", "plus-null", "minus-null" 
@@ -1141,7 +1153,6 @@ HTMLFeatures = declare( HTMLFeatures,
         if (Util.is_ie6) subDiv.appendChild(document.createComment());
 
         subDiv.style.cssText = "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
-            + "top: 0px;"
             + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
         featDiv.appendChild(subDiv);
 
@@ -1179,7 +1190,7 @@ HTMLFeatures = declare( HTMLFeatures,
     },
 
     _exportFormats: function() {
-        return [ 'GFF3', 'BED' ];
+        return [ 'GFF3', 'BED', { name: 'SequinTable', label: 'Sequin Table' } ];
     },
 
     _trackMenuOptions: function() {

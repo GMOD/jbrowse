@@ -30,8 +30,8 @@ trackInfo =
    {
       "url" : "tracks/{refseq}/Alignments/trackData.json",
       "type" : "FeatureTrack",
-      "label" : "Alignments",
-      "key" : "Example alignments"
+      "label" : "malformed_alignments",
+      "key" : "Example Features with Menus"
    },
    {
       "url" : "tracks/{refseq}/Genes/trackData.json",

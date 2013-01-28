@@ -1,4 +1,19 @@
-define(['dojo/_base/declare'],function(declare) {
+/**
+ * dojo.data.api.Read-compatible store object that reads data from an
+ * encapsulated JBrowse/Store/LazyTrie.
+ */
+
+define([
+           'dojo/_base/declare',
+           'dojo/_base/array',
+           'JBrowse/Util',
+           'JBrowse/Model/Location'
+       ],function(
+           declare,
+           array,
+           Util,
+           Location
+       ) {
 return declare( null,
 /**
  * @lends JBrowse.Store.Autocomplete.prototype
@@ -6,6 +21,10 @@ return declare( null,
 {
     /**
      * @constructs
+     * @param args.namesTrie
+     * @param args.stopPrefixes
+     * @param args.resultLimit
+     * @param args.tooManyMatchesMessage
      */
     constructor: function( /**Object*/ args ) {
         if( ! args.namesTrie )
@@ -50,11 +69,22 @@ return declare( null,
         };
     },
 
+    getFeatures: function() {
+        return {
+	    'dojo.data.api.Read': true,
+	    'dojo.data.api.Identity': true
+	};
+    },
+
+    getIdentity: function( node ) {
+        console.log( node );
+    },
+
     // dojo.data.api.Read support
 
     fetch: function( /**Object*/ request ) {
         var start = request.start || 0;
-        var matchLimit = Math.min( this.resultLimit, Math.max(0, request.count) );
+        var matchLimit = Math.min( this.resultLimit, Math.max(0, request.count || Infinity ) );
         var matchesRemaining = matchLimit;
 	var scope = request.scope || dojo.global;
         var aborted = false;
@@ -74,7 +104,7 @@ return declare( null,
         if( request.onBegin )
             request.onBegin.call( scope, 0, request );
 
-        var prefix = (request.query.name || '').replace(/\*$/,'');
+        var prefix = (request.query.name || '').toString().replace(/\*$/,'');
 
         if( ! this.stopPrefixes[ prefix ] ) {
             this.namesTrie.mappingsFromPrefix(
@@ -85,10 +115,26 @@ return declare( null,
                     if( aborted )
                         return;
 
+                    // are we working with a post-JBrowse 1.4 data structure?
+                    var post1_4 = tree[0] && tree[0][1] && tree[0][1][0] && typeof tree[0][1][0][0] == 'string';
+
                     // use dojo.some so that we can break out of the loop when we hit the limit
                     dojo.some( tree, function(node) {
                                    if( matchesRemaining-- ) {
-                                           matches.push({ name: this.nodeText(node) });
+                                       var name = this.nodeText(node);
+                                       array.forEach( node[1], function(n) {
+                                           var location = new Location({
+                                               ref: n[ post1_4 ? 3 : 2 ],
+                                               start: parseInt( n[ post1_4 ? 4 : 3 ]),
+                                               end: parseInt( n[ post1_4 ? 5 : 4 ]),
+                                               tracks: [ this.namesTrie.extra[ n[ post1_4 ? 1 : 0 ] ] ]
+                                           });
+
+                                           matches.push({
+                                                        name: name,
+                                                        location: location
+                                                    });
+                                       },this);
                                    }
                                    return matchesRemaining < 0;
                                },this);
@@ -125,7 +171,7 @@ return declare( null,
     },
 
     getAttributes: function(item)  {
-        return dojof.keys( item );
+        return Util.dojof.keys( item );
     },
 
     hasAttribute: function(item,attr) {
@@ -154,6 +200,11 @@ return declare( null,
     },
     getLabelAttributes: function(i) {
         return ['name'];
+    },
+
+    getIdentity: function(i) {
+        return this.getLabel(i);
     }
+
 });
 });

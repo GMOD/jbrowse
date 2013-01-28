@@ -20,8 +20,11 @@
 div.hist {
     position: absolute;
     z-index: 10;
-    border: 1px solid transparent;
-    border-width: 1px !important;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 
 .feature,
@@ -33,7 +36,7 @@ div.hist {
     cursor: pointer;
     min-width: 1px;
     z-index: 10;
-    background-color: gainsboro;
+    background-color: #eee;
 
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -48,10 +51,10 @@ div.hist {
 .plus-subfeature,
 .minus-subfeature {
     position:absolute;
-    background-color: slategray;
-    height: 9px;
+    background-color: #dadada;
+    height: 7px;
     min-width: 1px;
-    z-index: 10;
+    z-index: 12;
 
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -95,14 +98,14 @@ div.hist {
     height: 100%;
 }
 .alignment > .skip, .plus-alignment > .skip, .minus-alignment > .skip {
-    background: url('img/black_20x2.png') repeat-x 0 50% white;
+    background: url('img/dark_20x2.png') repeat-x 0 50% white;
     height: 100%;
     opacity: 0.7;
 }
 
 div.feature-hist {
     background-color: blue;
-    border-color: lightblue;
+    border-color: #5858C4;
 }
 
 .feature2, .plus-feature2, .minus-feature2 {
@@ -112,9 +115,8 @@ div.feature-hist {
     cursor: pointer;
     min-width: 1px;
     z-index: 10;
+    background-color: #62d335;
 }
-
-.feature2 { background-color: #62d335; }
 
 div.feature2-hist {
     background-color: #9f9;
@@ -128,11 +130,8 @@ div.feature2-hist {
     cursor: pointer;
     min-width: 1px;
     z-index: 10;
+    background-color: goldenrod;
 }
-
-.feature3 { background-color: goldenrod }
-.plus-feature3 { background-image: url('img/plus-chevron.png'); }
-.minus-feature3 { background-image: url('img/minus-chevron.png'); }
 
 div.feature3-hist {
     background-color: yellow;
@@ -146,11 +145,8 @@ div.feature3-hist {
     cursor: pointer;
     min-width: 1px;
     z-index: 10;
+    background: yellow;
 }
-
-.feature4 { background-color: yellow }
-.plus-feature4 { background-image: url('img/plus-pacman.png'); }
-.minus-feature4 { background-image: url('img/minus-pacman.png'); }
 
 div.feature4-hist {
     background-color: yellow;
@@ -164,11 +160,8 @@ div.feature4-hist {
     cursor: pointer;
     min-width: 1px;
     z-index: 10;
+    background-color: blue;
 }
-
-.feature5 { background-color: blue }
-.plus-feature5 { background-image: url('img/plus-chevron2.png'); }
-.minus-feature5 { background-image: url('img/minus-chevron2.png'); }
 
 div.feature5-hist {
     background-color: blue;
@@ -336,8 +329,8 @@ div.transcript-hist {
 .plus-transcript,
 .minus-transcript {
     position: absolute;
-    height: 5px;
-    background-color: #999;
+    height: 11px;
+    background: url('img/dark_20x2.png') repeat-x 0 4px white;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
@@ -361,27 +354,37 @@ div.transcript-hist {
     background-repeat: no-repeat;
 }
 
+/* introns are hidden by default */
+.plus-intron, .minus-intron {
+    display: none;
+}
+/* can also set a class of 'hidden' to hide something */
+.hidden, .plus-hidden, .minus-hidden {
+    display: none;
+}
+
+.plus-CDS,
 .plus-transcript-CDS,
+.minus-CDS,
 .minus-transcript-CDS {
     position: absolute;
     height: 11px;
-    background-image: url('img/cds.png');
-    background-repeat: repeat-x;
+    background: #F09A9A;
     cursor: pointer;
     z-index: 10;
     min-width: 1px;
 }
 
-.plus-transcript-exon,
-.minus-transcript-exon,
-.plus-transcript-UTR, 
-.minus-transcript-UTR,
-.plus-transcript-five_prime_UTR,
-.minus-transcript-five_prime_UTR,
-.plus-transcript-three_prime_UTR,
-.minus-transcript-three_prime_UTR {
+.plus-exon,
+.minus-exon,
+.plus-UTR,
+.minus-UTR,
+.plus-five_prime_UTR,
+.minus-five_prime_UTR,
+.plus-three_prime_UTR,
+.minus-three_prime_UTR {
     position: absolute;
-    height: 3px;
+    height: 7px;
     background-color: #B66;
     border-style: solid;
     border-color: #D88;
@@ -438,15 +441,33 @@ div.generic_parent-hist {
 
 /* floating score display for wiggle tracks */
 .wiggleValueDisplay {
-    background: rgba(255,255,255,0.9);
+    background: #FFFEF0;
     border: 1px solid #aaa;
     padding: 2px;
     font-family: Courier New, monospace;
     font-weight: bold;
     cursor: default;
+
+    -moz-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
+    -webkit-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
+    box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
 }
+.wiggleValueDisplay table {
+    border-spacing: 0;
+}
+.wiggleValueDisplay td {
+    padding: 0.2em 0.4em;
+}
+.wiggleValueDisplay td.count, .wiggleValueDisplay td.pct  {
+    text-align: right;
+}
+.wiggleValueDisplay tr.total > td {
+    border-top: 1px solid #aaa;
+    font-weight: bold;
+}
+
 .wigglePositionIndicator {
-    background: #555;
+    background: #777;
     border: none;
     width: 1px;
     cursor: default;

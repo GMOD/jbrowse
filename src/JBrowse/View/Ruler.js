@@ -42,10 +42,9 @@ Ruler.prototype.render_to = function( target_div ) {
             style: {
                    position: 'absolute',
                    left: "-9px",
-                   bottom: "-14px",
-                   width: (40+4*label_digits)+"px",
-                   height: (target_dims.h+27)+"px",
-                   overflow: 'hidden'
+                   bottom: "-9px",
+                   width: '10px',
+                   height: (target_dims.h+18)+"px"
             }
         },
         target_div );

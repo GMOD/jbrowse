@@ -10,6 +10,20 @@ done_message () {
     fi
 }
 
+echo > setup.log;
+
+# log information about this system
+(
+    echo '============== System information ====';
+    set -x;
+    lsb_release -a;
+    uname -a;
+    sw_vers;
+    system_profiler;
+    grep MemTotal /proc/meminfo;
+    echo; echo;
+) >>setup.log 2>&1;
+
 echo -n "Installing Perl prerequisites ..."
 if ! ( perl -MExtUtils::MakeMaker -e 1 >/dev/null 2>&1); then
     echo;
@@ -20,7 +34,7 @@ fi;
   bin/cpanm -v --notest -l extlib/ --installdeps . < /dev/null;
   set -e;
   bin/cpanm -v --notest -l extlib/ --installdeps . < /dev/null;
-) >setup.log 2>&1;
+) >>setup.log 2>&1;
 done_message "" "As a first troubleshooting step, make sure development libraries and header files for GD, Zlib, and libpng are installed and try again.";
 
 echo

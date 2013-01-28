@@ -1,11 +1,11 @@
 =head1 NAME
 
-ExternalSorter - efficiently sort arrayrefs with a given comparison function
+Bio::JBrowse::ExternalSorter - efficiently sort arrayrefs with a given comparison function
 
 =head1 SYNOPSIS
 
   # make a new sorter that sorts by column 4, then column 3
-  my $sorter = ExternalSorter->new(
+  my $sorter = Bio::JBrowse::ExternalSorter->new(
                 sub ($$) {
                         $_[0]->[4] <=> $_[1]->[4]
                         ||
@@ -29,7 +29,7 @@ ExternalSorter - efficiently sort arrayrefs with a given comparison function
 =cut
 
 
-package ExternalSorter;
+package Bio::JBrowse::ExternalSorter;
 
 use strict;
 use warnings;
@@ -128,12 +128,12 @@ sub flush {
 
     # each segment must have at least one element
     return if ($#sorted < 0);
-    croak "ExternalSorter is already finished"
+    croak "Bio::JBrowse::ExternalSorter is already finished"
         if $self->{finished};
 
-    my $fh = File::Temp->new($self->{tmpDir} ? (DIR => $self->{tmpDir}) : (),
-                             UNLINK => 0,
-                             TEMPLATE => 'sort-XXXXXXXXXX')
+    my $fh = File::Temp->new( $self->{tmpDir} ? (DIR => $self->{tmpDir}) : (),
+                              SUFFIX => '.sort',
+                              UNLINK => 0 )
         or croak "couldn't open temp file: $!\n";
     my $fn = $fh->filename;
     $fh->close()
@@ -173,8 +173,6 @@ sub get {
     }
 }
 
-
-
 # read one item from a file handle
 sub readOne {
     my ($fh) = @_;
@@ -185,6 +183,14 @@ sub readOne {
     my $item = fd_retrieve($fh)
         or croak "couldn't retrieve item: $!\n";
     return $item;
+}
+
+sub DESTROY {
+    shift->cleanup();
+}
+
+sub cleanup {
+    unlink $_ for @{shift->{segments}||[]}
 }
 
 1;

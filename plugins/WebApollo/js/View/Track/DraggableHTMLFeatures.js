@@ -45,19 +45,20 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 style: {
 		    // className: "{type}",   // feature classname gets set to feature.get('type')
                     className: "container-12px", 
-                    renderClassName: "center-line-large", 
+                    renderClassName: "gray-center-30pct", 
                     arrowheadClass: "webapollo-arrowhead", 
                     subfeatureClasses: {
                         UTR: "webapollo-UTR",   
                         CDS: "webapollo-CDS",   
-                        exon: "container-12px", 
+                        exon: "container-100pct", 
                         wholeCDS: null, 
-                        match_part: "est-alignment-part"
+                        match_part: "darkblue-80pct"
                     }, 
 
                     // renderClassName: 'DraggableFeatureTrack'  ???
 		    // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn, 
-		    minSubfeatureWidth: 1
+		    minSubfeatureWidth: 1, 
+	            centerChildrenVertically: false
                 },
                 events: {
 		    // need to map click to a null-op, to override default JBrowse click behavior for click on features 
@@ -324,7 +325,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
             if (rclass)  {
                 // console.log("in FeatureTrack.renderFeature, creating annot div");
                 var rendiv = document.createElement("div");
-                rendiv.className = rclass;
+                dojo.addClass(rendiv, "feature-render");
+                dojo.addClass(rendiv, rclass);
                 if (Util.is_ie6) rendiv.appendChild(document.createComment());
                 featdiv.appendChild(rendiv);
             }
@@ -609,7 +611,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((subStart - subStart) / subLength)) + "%;"
-                    + "top: 0px;"
                     + "width: " + (100 * ((subEnd - subStart) / subLength)) + "%;";
                 subDiv.appendChild(segDiv);
             }
@@ -651,7 +652,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((subStart - subStart) / subLength)) + "%;"
-                    + "top: 0px;"
                     + "width: " + (100 * ((subEnd - subStart) / subLength)) + "%;";
                 if (this.config.style.colorCdsFrame || this.webapollo.colorCdsByFrame) {
 		    dojo.addClass(segDiv, "cds-frame" + cdsFrame);
@@ -708,7 +708,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     if (Util.is_ie6) segDiv.appendChild(document.createComment());
                     segDiv.style.cssText =
                         "left: " + (100 * ((utrStart - subStart) / subLength)) + "%;"
-                        + "top: 0px;"
                         + "width: " + (100 * ((utrEnd - utrStart) / subLength)) + "%;";
                     subDiv.appendChild(segDiv);
                 }
@@ -722,7 +721,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((cdsSegStart - subStart) / subLength)) + "%;"
-                    + "top: 0px;"
                     + "width: " + (100 * ((cdsSegEnd - cdsSegStart) / subLength)) + "%;";
                 if (this.config.style.colorCdsFrame || this.webapollo.colorCdsByFrame) {
                     dojo.addClass(segDiv, "cds-frame" + cdsFrame);
@@ -743,7 +741,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     if (Util.is_ie6) segDiv.appendChild(document.createComment());
                     segDiv.style.cssText =
                         "left: " + (100 * ((utrStart - subStart) / subLength)) + "%;"
-                        + "top: 0px;"
                         + "width: " + (100 * ((utrEnd - utrStart) / subLength)) + "%;";
                     subDiv.appendChild(segDiv);
                 }

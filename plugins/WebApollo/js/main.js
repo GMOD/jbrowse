@@ -14,7 +14,7 @@ define(
            'dojo/_base/declare',
            'dijit/CheckedMenuItem',
            'JBrowse/Plugin',
-           './FeatureEdgeMatchManager', 
+           './FeatureEdgeMatchManager',
 	   './FeatureSelectionManager'
        ],
     function( declare, dijitCheckedMenuItem, JBPlugin, FeatureEdgeMatchManager, FeatureSelectionManager ) {
@@ -27,11 +27,10 @@ return declare( JBPlugin,
     constructor: function( args ) {
         var thisB = this;
         var browser = args.browser;
-        
 
         // hand the browser object to the feature edge match manager
         FeatureEdgeMatchManager.setBrowser( browser );
-	
+
 	this.featSelectionManager = new FeatureSelectionManager();
 	this.annotSelectionManager = new FeatureSelectionManager();
 
@@ -80,7 +79,10 @@ return declare( JBPlugin,
             label: 'WebApollo Sequence'
         });
 
-
+        // put the WebApollo logo in the powered_by place in the main JBrowse bar
+        browser.afterMilestone( 'initView', function() {
+            browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
+        });
 
     }
 });

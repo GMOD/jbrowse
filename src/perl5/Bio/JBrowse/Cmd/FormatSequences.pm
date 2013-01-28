@@ -43,9 +43,7 @@ sub option_definitions {(
 
 sub run {
     my ( $self ) = @_;
-    my $seqTrackName = "DNA";
 
-    my $refs = $self->opt('refs');
     my $compress = $self->opt('compress');
 
     $self->{storage} = JsonFileStorage->new( $self->opt('out'), $self->opt('compress'), { pretty => 0 } );
@@ -53,14 +51,16 @@ sub run {
     pod2usage( 'must provide either a --fasta, --gff, or --conf option' )
         unless defined $self->opt('gff') || $self->opt('conf') || $self->opt('fasta');
 
-    my $chunkSize = $self->opt('chunksize');
-    $chunkSize *= 4 if $compress;
+    {
+        my $chunkSize = $self->opt('chunksize');
+        $chunkSize *= 4 if $compress;
+        $self->{chunkSize} = $chunkSize;
+    }
 
-    my %refSeqs;
-    my $db;
+    my $refs = $self->opt('refs');
 
     if ( $self->opt('fasta') && @{$self->opt('fasta')} ) {
-        $db = FastaDatabase->from_fasta( @{$self->opt('fasta')});
+        my $db = FastaDatabase->from_fasta( @{$self->opt('fasta')});
 
         die "IDs not implemented for FASTA database" if defined $self->opt('refids');
 
@@ -69,10 +69,16 @@ sub run {
         }
 
         die "found no sequences in FASTA file" if "" eq $refs;
+
+        $self->exportDB( $db, $refs, {} );
+        $self->writeTrackEntry();
+        #$self->exportFASTAFiles( $refs, $self->opt('fasta') );
     }
     elsif ( $self->opt('gff') ) {
+        my $db;
         my $gff = $self->opt('gff');
         open my $fh, '<', $gff or die "$! reading GFF file $gff";
+        my %refSeqs;
         while ( <$fh> ) {
             if ( /^\#\#\s*sequence-region\s+(\S+)\s+(-?\d+)\s+(-?\d+)/i ) { # header line
                 $refSeqs{$1} = {
@@ -98,6 +104,10 @@ sub run {
         if ( $db && ! defined $refs && ! defined $self->opt('refids') ) {
             $refs = join (",", $db->seq_ids);
         }
+
+        $self->exportDB( $db, $refs, \%refSeqs );
+        $self->writeTrackEntry();
+
     } elsif ( $self->opt('conf') ) {
         my $config = decode_json( do {
             local $/;
@@ -107,7 +117,7 @@ sub run {
 
         eval "require $config->{db_adaptor}; 1" or die $@;
 
-        $db = eval {$config->{db_adaptor}->new(%{$config->{db_args}})}
+        my $db = eval {$config->{db_adaptor}->new(%{$config->{db_args}})}
                   or warn $@;
 
         die "Could not open database: $@" unless $db;
@@ -116,7 +126,17 @@ sub run {
             eval {$db->default_class($refclass)};
         }
         $db->strict_bounds_checking(1) if $db->can('strict_bounds_checking');
+
+        $self->exportDB( $db, $refs, {} );
+        $self->writeTrackEntry();
     }
+}
+
+sub exportDB {
+    my ( $self, $db, $refs, $refseqs ) = @_;
+
+    my $compress = $self->opt('compress');
+    my %refSeqs = %$refseqs;
 
     unless ( defined $self->opt('refids') || defined $refs ) {
         die "please specify which sequences to process using the --refs"
@@ -141,10 +161,10 @@ sub run {
                 };
 
             unless( $self->opt('noseq') ) {
-                $self->exportSeqChunks( $refInfo, $chunkSize, $db,
+                $self->exportSeqChunksFromDB( $refInfo, $self->{chunkSize}, $db,
                                        [-db_id => $refid],
                                        $seg->start, $seg->end);
-                $refInfo->{"seqChunkSize"} = $chunkSize;
+                $refInfo->{"seqChunkSize"} = $self->{chunkSize};
             }
 
             $refSeqs{ $refInfo->{name} } = $refInfo;
@@ -171,10 +191,10 @@ sub run {
             };
 
             unless ($self->opt('noseq')) {
-                $self->exportSeqChunks( $refInfo, $chunkSize, $db,
+                $self->exportSeqChunksFromDB( $refInfo, $self->{chunkSize}, $db,
                                        [-name => $ref],
                                        $seg->start, $seg->end);
-                $refInfo->{"seqChunkSize"} = $chunkSize;
+                $refInfo->{"seqChunkSize"} = $self->{chunkSize};
             }
 
             $refSeqs{ $refInfo->{name} } = $refInfo;
@@ -186,25 +206,30 @@ sub run {
         exit;
     }
 
+    $self->writeRefSeqsJSON( \%refSeqs );
+}
+
+sub writeRefSeqsJSON {
+    my ( $self, $refseqs ) = @_;
+
     $self->{storage}->modify( 'seq/refSeqs.json',
                                    sub {
                                        #add new ref seqs while keeping the order
                                        #of the existing ref seqs
                                        my $old = shift || [];
-                                       my %refs = %refSeqs;
+                                       my %refs = %$refseqs;
                                        for (my $i = 0; $i < @$old; $i++) {
                                            if( $refs{$old->[$i]->{name}} ) {
                                                $old->[$i] = delete $refs{$old->[$i]->{name}};
                                            }
                                        }
-                                       foreach my $newRef (values %refSeqs) {
-                                           if( $refs{$newRef->{name}} ) {
-                                               push @{$old}, $newRef;
-                                           }
+                                       foreach my $name (sort keys %refs) {
+                                           push @{$old}, $refs{$name};
                                        }
                                        return $old;
                                    });
-    if ( $compress ) {
+
+    if ( $self->opt('compress') ) {
         # if we are compressing the sequence files, drop a .htaccess file
         # in the seq/ dir that will automatically configure users with
         # Apache (and AllowOverride on) to serve the .txt.gz files
@@ -214,7 +239,14 @@ sub run {
         open my $hta_fh, '>', $hta or die "$! writing $hta";
         $hta_fh->print( GenomeDB->precompression_htaccess('.txtz','.jsonz') );
     }
+}
 
+sub writeTrackEntry {
+    my ( $self ) = @_;
+
+    my $compress = $self->opt('compress');
+
+    my $seqTrackName = "DNA";
     unless( $self->opt('noseq') ) {
         $self->{storage}->modify( 'trackList.json',
                                        sub {
@@ -238,7 +270,7 @@ sub run {
                                            'label' => $seqTrackName,
                                            'key' => $seqTrackName,
                                            'type' => "SequenceTrack",
-                                           'chunkSize' => $chunkSize,
+                                           'chunkSize' => $self->{chunkSize},
                                            'urlTemplate' => $self->seqUrlTemplate,
                                            ( $compress ? ( 'compress' => 1 ): () ),
                                        };
@@ -301,7 +333,8 @@ sub seqUrlTemplate {
         : "seq/{refseq_dirpath}/{refseq}-"; # new hashed structure
 }
 
-sub exportSeqChunks {
+
+sub exportSeqChunksFromDB {
     my ( $self, $refInfo, $chunkSize, $db, $segDef, $start, $end ) = @_;
 
     $start = 1 if $start < 1;

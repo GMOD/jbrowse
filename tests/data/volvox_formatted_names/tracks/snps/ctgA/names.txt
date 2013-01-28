@@ -1,0 +1,1 @@
+[["FakeSNP"],"snps","FakeSNP","ctgA",999,1000]

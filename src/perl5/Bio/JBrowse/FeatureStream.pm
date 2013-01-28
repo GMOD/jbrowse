@@ -79,12 +79,11 @@ sub flatten_to_name {
     my @namerec = (
         [ grep defined, @{$f}{@nameattrs} ],
         $self->{track_label},
-        $f->{name},
+        $f->{name} || $f->{id} || $f->{alias},
         $f->{seq_id} || die,
-        (map $_+0, @{$f}{'start','end'}),
-        $f->{id}
+        (map $_+0, @{$f}{'start','end'})
         );
-    $namerec[4]--; #< to one-based
+    $namerec[4]--; #< to zero-based
     return \@namerec;
 }
 sub arrayReprClasses {

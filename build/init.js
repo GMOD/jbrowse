@@ -7,7 +7,13 @@ require({
         'dijit',
         'dojox',
         'JBrowse',
-        'jszlib'
+        'jszlib',
+        'dgrid',
+        'xstyle',
+        'put-selector',
+        'json-schema',
+        'dbind',
+        { name: 'lazyload', main: 'lazyload' }
     ],
 
     tlmSiblingOfDojo: 0,

@@ -109,8 +109,20 @@ sub writeTrackEntry {
         return $trackData;
     };
 
-    $self->{rootStore}->modify($trackListPath, $setTrackEntry);
+    $self->modifyTrackList( $setTrackEntry );
 }
+
+=head2 modifyTrackList( sub {} )
+
+Modify the trackList.json file with the given subroutine.
+
+=cut
+
+sub modifyTrackList {
+    my ( $self, $sub ) = @_;
+    $self->{rootStore}->modify($trackListPath, $sub);
+}
+
 
 =head2 createFeatureTrack( $label, \%config, $key, $jsclass )
 
