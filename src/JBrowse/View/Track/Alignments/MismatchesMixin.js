@@ -125,7 +125,7 @@ return declare(null,{
            return colors;
         }.call(this);
 
-        return this._baseStyles[base];
+        return this._baseStyles[base] || 'black';
     }
 });
 });
