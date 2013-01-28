@@ -19,6 +19,7 @@ return declare( Store,
 
     constructor: function( args ) {
         this.globalStats = {};
+        this.config = args || {};
     },
 
     getGlobalStats: function( callback, errorCallback ) {
