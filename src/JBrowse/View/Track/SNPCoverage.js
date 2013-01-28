@@ -318,6 +318,7 @@ return declare( Wiggle,
                         subdistribution = '('+subdistribution+')';
                 }
 
+                category = { '*': 'del' }[category] || category;
                 scoreSummary += '<tr><td>'+category + '</td><td class="count">' + count + '</td><td class="pct">'
                                    +pctString(count)+'</td><td class="subdist">'+subdistribution + '</td></tr>';
             });
