@@ -173,8 +173,6 @@ sub get {
     }
 }
 
-
-
 # read one item from a file handle
 sub readOne {
     my ($fh) = @_;
@@ -188,6 +186,10 @@ sub readOne {
 }
 
 sub DESTROY {
+    shift->cleanup();
+}
+
+sub cleanup {
     unlink $_ for @{shift->{segments}||[]}
 }
 
