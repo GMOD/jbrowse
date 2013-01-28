@@ -130,7 +130,7 @@ return declare( null, {
 
         aspect.after( dialog, 'hide', dojo.hitch( this, function() {
                               dijitFocus.curNode && dijitFocus.curNode.blur();
-                              dialog.destroyRecursive();
+                              setTimeout( function() { dialog.destroyRecursive(); }, 500 );
                       }));
     },
 

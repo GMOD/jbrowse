@@ -882,7 +882,11 @@ return declare( null,
         }
 
         // destroy the dialog after it is hidden
-        aspect.after( dialog, 'hide', function() { dialog.destroyRecursive(); });
+        aspect.after( dialog, 'hide', function() {
+                          setTimeout(function() {
+                              dialog.destroyRecursive();
+                          }, 500 );
+        });
 
         // show the dialog
         dialog.show();

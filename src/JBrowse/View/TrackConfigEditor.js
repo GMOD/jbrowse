@@ -71,7 +71,9 @@ return declare( null, {
         dialog.show();
 
         aspect.after( dialog, 'hide', dojo.hitch( this, function() {
-                              dialog.destroyRecursive();
+                              setTimeout( function() {
+                                  dialog.destroyRecursive();
+                              }, 500 );
                       }));
     },
 

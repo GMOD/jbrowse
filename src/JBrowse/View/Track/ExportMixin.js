@@ -157,9 +157,12 @@ return declare( null, {
                                 }
 
                                 aspect.after( exportView, 'hide', function() {
-                                    text.parentNode.removeChild( text ); // manually unhook and free the (possibly huge) text area
+                                    // manually unhook and free the (possibly huge) text area
+                                    text.parentNode.removeChild( text );
                                     text = null;
-                                    exportView.destroyRecursive();
+                                    setTimeout( function() {
+                                        exportView.destroyRecursive();
+                                    }, 500 );
                                 });
                                 exportView.show();
                             });
