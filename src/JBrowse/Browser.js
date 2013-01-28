@@ -816,6 +816,7 @@ Browser.prototype.clearStores = function() {
  * count, and if the store's reference count reaches zero, the store
  * object will be discarded, to be recreated again later if needed.
  */
+// not actually being used yet
 Browser.prototype.releaseStore = function( storeName ) {
     var storeRecord = this._storeCache[storeName];
     if( storeRecord && ! --storeRecord.refCount )
