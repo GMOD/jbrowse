@@ -3,7 +3,7 @@ define( [
             'dojo/_base/array',
             'JBrowse/Util',
             'JBrowse/View/Track/CanvasFeatures',
-            'JBrowse/View/Track/Alignments/MismatchesMixin'
+            'JBrowse/View/Track/MismatchesMixin'
         ],
         function( declare, array, Util, CanvasFeatureTrack, MismatchesMixin ) {
 

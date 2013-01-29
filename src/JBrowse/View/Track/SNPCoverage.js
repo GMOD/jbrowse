@@ -3,7 +3,7 @@ define( ['dojo/_base/declare',
          'JBrowse/View/Track/Wiggle',
          'JBrowse/Util',
          'JBrowse/Model/NestedFrequencyTable',
-         'JBrowse/View/Track/Alignments/MismatchesMixin'
+         'JBrowse/View/Track/MismatchesMixin'
         ],
         function( declare, array, Wiggle, Util, NestedFrequencyTable, MismatchesMixin ) {
 

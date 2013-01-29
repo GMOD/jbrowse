@@ -2,7 +2,7 @@ define( ['dojo/_base/declare',
          'dojo/_base/array',
          'JBrowse/Util',
          'JBrowse/View/Track/HTMLFeatures',
-         'JBrowse/View/Track/Alignments/MismatchesMixin'
+         'JBrowse/View/Track/MismatchesMixin'
         ],
         function( declare, array, Util, HTMLFeatures, MismatchesMixin ) {
 
