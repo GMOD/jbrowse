@@ -9,6 +9,11 @@
    representation of SNPs, and tables showing base frequencies for
    each SNP.
 
+ * Added a new "Alignments2" track type, which is a much faster
+   implementation of the "Alignments" track type.  It is more suitable
+   for very deep BAM alignments, and has slightly different
+   configuration variables.
+
  * Added a timeout to HTMLFeatures and Alignments tracks to prevent
    data-heavy tracks (like BAM tracks with very deep coverage) from
    freezing or crashing a user's browser.
