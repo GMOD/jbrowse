@@ -24,7 +24,7 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                 layoutPitchY: 3,
                 style: {
                     bgcolor: this.colorForBase('reference'),
-                    fgcolor: '#888',
+                    fgcolor: 'rgba(0,0,0,0.2)',
                     height: 3,
                     marginBottom: 0,
                     showMismatches: true
