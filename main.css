@@ -763,6 +763,16 @@ a.dialog-new-window {
     vertical-align: top;
 }
 
+/*
+ force long sequences in feature and alignment detail dialogs to
+ wrap at 45em
+*/
+.detail .value.seq,
+ .detail .value.sequence {
+    word-wrap: break-word;
+    width: 45em;
+}
+
 .detail .field_container {
     padding: 0 4em 0 1em;
 }
