@@ -8,6 +8,14 @@ define( [
         function( declare, array, Util, CanvasFeatureTrack, MismatchesMixin ) {
 
 return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
+    constructor: function() {
+
+        // if showMismatches is false, stub out this object's
+        // _drawMismatches to be a no-op
+        if( ! this.config.style.showMismatches )
+            this._drawMismatches = function() {};
+    },
+
     _defaultConfig: function() {
         return Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
@@ -24,20 +32,12 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
         );
     },
 
-    renderFeatures: function( viewArgs, canvas, fRects ) {
-        this.inherited( arguments );
-
-        var scale = viewArgs.scale;
-
-        if( this.config.style.showMismatches )  {
-            array.forEach( fRects, function(rect) {
-                this._drawMismatches( viewArgs, canvas, rect );
-            }, this );
-        }
+    renderFeature: function( ctx, viewArgs, fRect ) {
+        this.inherited(arguments);
+        this._drawMismatches( ctx, viewArgs, fRect );
     },
 
-    _drawMismatches: function( viewArgs, canvas, fRect ) {
-        var context = canvas.getContext('2d');
+    _drawMismatches: function( context, viewArgs, fRect ) {
         var feature = fRect.f;
         var scale = viewArgs.scale;
         // recall: scale is pixels/basepair
