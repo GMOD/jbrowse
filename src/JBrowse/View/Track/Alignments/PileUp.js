@@ -52,10 +52,6 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
             context.fillRect( fRect.l, fRect.t, fRect.w, fRect.h );
         }
 
-        // draw mismatches if zoomed in far enough
-        if( viewArgs.scale > 0.3 )
-            this._drawMismatches( context, viewArgs, fRect );
-
         // foreground border
         var fgcolor = this.getStyle( fRect.f, 'fgcolor' );
         if( fgcolor ) {
@@ -73,6 +69,10 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                 context.fillRect( fRect.l, fRect.t+fRect.h-1, fRect.w, 1 );
             }
         }
+
+        // draw mismatches if zoomed in far enough
+        if( viewArgs.scale > 0.3 )
+            this._drawMismatches( context, viewArgs, fRect );
     },
 
     _drawMismatches: function( context, viewArgs, fRect ) {
@@ -113,6 +113,11 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                         context.fillStyle = 'black';
                         context.fillText( '('+mismatch.base+')', mRect.l+2, mRect.t+mRect.h-(mRect.h-charSize.h)/2-2 );
                     }
+                }
+                else if( mismatch.type == 'skip' ) {
+                    context.clearRect( mRect.l, mRect.t, mRect.w, mRect.h );
+                    context.fillStyle = '#333';
+                    context.fillRect( mRect.l, mRect.t+(mRect.h-2)/2, mRect.w, 2 );
                 }
             },this);
         }
