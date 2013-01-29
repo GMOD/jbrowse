@@ -91,11 +91,11 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
                 return;
             delete this.inactiveTrackNodes[ conf.label ];
 
-            this.trackDndWidget.delItem( oldNode.id );
+            this.trackListWidget.delItem( oldNode.id );
             if( oldNode.parentNode )
                 oldNode.parentNode.removeChild( oldNode );
 
-           // insert the new track config into the trackDndWidget after the 'before'
+           // insert the new track config into the trackListWidget after the 'before'
            this.trackListWidget.insertNodes( false, [conf], false, oldNode.previousSibling );
        },this);
     },
