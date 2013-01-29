@@ -180,7 +180,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                                               width:  block.offsetWidth+1,
                                               style: {
                                                   cursor: 'default',
-                                                  width: '101%'
+                                                  height: totalHeight+'px'
                                               },
                                               innerHTML: 'Your web browser cannot display this type of thisB.',
                                               className: 'canvas-track'
@@ -202,6 +202,26 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                                     finishCallback(e);
                                 })
                               );
+    },
+
+    startZoom: function() {
+        this.inherited( arguments );
+
+        array.forEach( this.blocks, function(b) {
+            try {
+                b.featureCanvas.style.width = '100%';
+            } catch(e) {};
+        });
+    },
+    endZoom: function() {
+
+        array.forEach( this.blocks, function(b) {
+            try {
+                delete b.featureCanvas.style.width;
+            } catch(e) {};
+        });
+
+        this.inherited( arguments );
     },
 
     // calculate the placement of the feature on the canvas for this
