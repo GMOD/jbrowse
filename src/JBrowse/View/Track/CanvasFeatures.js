@@ -86,7 +86,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
     getStyle: function( feature, name ) {
         var val = this.config.style[name];
         if( typeof val == 'function' )
-            return val( feature, name, null, null, this );
+            return val.call( this, feature, name, null, null, this );
         else
             return val;
     },

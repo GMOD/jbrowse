@@ -23,8 +23,18 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                 //maxFeatureScreenDensity: 400
                 layoutPitchY: 3,
                 style: {
-                    bgcolor: this.colorForBase('reference'),
-                    fgcolor: '#7a7a7a',
+                    bgcolor: function( feature ) {
+                        var missing_mate = feature.get('multi_segment_template') && !feature.get('multi_segment_all_aligned') || Math.random() < 0.2;
+                        var strand = feature.get('strand');
+                        return                  missing_mate ? this.getStyle( feature, 'bgcolor_missing_mate' ) :
+                               strand == 1  || strand == '+' ? this.getStyle( feature, 'bgcolor_fwd_strand' )   :
+                               strand == -1 || strand == '-' ? this.getStyle( feature, 'bgcolor_rev_strand' )   :
+                                                               this.colorForBase('reference');
+                    },
+                    bgcolor_fwd_strand: '#EC8B8B',
+                    bgcolor_rev_strand: '#898FD8',
+                    bgcolor_missing_mate: '#D11919',
+                    fgcolor: 'rgba(60,60,60,0.8)',
                     height: 3,
                     marginBottom: 0,
                     showMismatches: true,
