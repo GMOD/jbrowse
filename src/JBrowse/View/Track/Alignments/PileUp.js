@@ -99,7 +99,6 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                 context.fillStyle = this.colorForBase( mismatch.base );
                 context.fillRect( mRect.l, mRect.t, mRect.w, mRect.h );
 
-                console.log(charSize);
                 if( mRect.w >= charSize.w && mRect.h >= charSize.h ) {
                     context.font = this.config.style.font;
                     context.fillStyle = 'black';
