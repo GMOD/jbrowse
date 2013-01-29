@@ -37,7 +37,7 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                     height: 3,
                     marginBottom: 0,
                     showMismatches: true,
-                    font: '10px sans-serif'
+                    font: 'bold 10px Courier New,monospace'
                 }
             }
         );
@@ -95,13 +95,15 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                 };
                 mRect.w = fRect.toX( end ) - mRect.l;
 
-                context.fillStyle = this.colorForBase( mismatch.base );
-                context.fillRect( mRect.l, mRect.t, mRect.w, mRect.h );
+                if( mismatch.type == 'mismatch' || mismatch.type == 'deletion' ) {
+                    context.fillStyle = this.colorForBase( mismatch.base );
+                    context.fillRect( mRect.l, mRect.t, mRect.w, mRect.h );
 
-                if( mRect.w >= charSize.w && mRect.h >= charSize.h ) {
-                    context.font = this.config.style.font;
-                    context.fillStyle = 'black';
-                    context.fillText( mismatch.base, mRect.l+(mRect.w-charSize.w)/2+1, mRect.t+mRect.h-(mRect.h-charSize.h)/2-1 );
+                    if( mRect.w >= charSize.w && mRect.h >= charSize.h ) {
+                        context.font = this.config.style.font;
+                        context.fillStyle = mismatch.type == 'deletion' ? 'white' : 'black';
+                        context.fillText( mismatch.base, mRect.l+(mRect.w-charSize.w)/2+1, mRect.t+mRect.h-(mRect.h-charSize.h)/2-1 );
+                    }
                 }
             },this);
         }
