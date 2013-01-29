@@ -24,7 +24,7 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                 layoutPitchY: 3,
                 style: {
                     bgcolor: function( feature ) {
-                        var missing_mate = feature.get('multi_segment_template') && !feature.get('multi_segment_all_aligned') || Math.random() < 0.2;
+                        var missing_mate = feature.get('multi_segment_template') && !feature.get('multi_segment_all_aligned');
                         var strand = feature.get('strand');
                         return                  missing_mate ? this.getStyle( feature, 'bgcolor_missing_mate' ) :
                                strand == 1  || strand == '+' ? this.getStyle( feature, 'bgcolor_fwd_strand' )   :
