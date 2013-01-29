@@ -34,7 +34,8 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
 
     renderFeature: function( ctx, viewArgs, fRect ) {
         this.inherited(arguments);
-        this._drawMismatches( ctx, viewArgs, fRect );
+        if( viewArgs.scale > 0.3 )
+            this._drawMismatches( ctx, viewArgs, fRect );
     },
 
     _drawMismatches: function( context, viewArgs, fRect ) {
