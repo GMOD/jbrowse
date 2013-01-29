@@ -216,6 +216,12 @@ Wiggle.extend({
                 },
                 function(f) { features.push(f); },
                 dojo.hitch( this, function() {
+
+                    // if the block has been freed in the meantime,
+                    // don't try to render
+                    if( ! block.parentNode )
+                        return;
+
                     var featureRects = array.map( features, function(f) {
                         return this._featureRect( scale, leftBase, c, f, dataScale );
                     }, this );
