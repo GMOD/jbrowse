@@ -105,6 +105,15 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                         context.fillText( mismatch.base, mRect.l+(mRect.w-charSize.w)/2+1, mRect.t+mRect.h-(mRect.h-charSize.h)/2-1 );
                     }
                 }
+                else if( mismatch.type == 'insertion' ) {
+                    context.fillStyle = 'black';
+                    context.fillRect( mRect.l-1, mRect.t, 2, mRect.h );
+                    if( mRect.w >= charSize.w && mRect.h >= charSize.h ) {
+                        context.font = this.config.style.font;
+                        context.fillStyle = 'black';
+                        context.fillText( '('+mismatch.base+')', mRect.l+2, mRect.t+mRect.h-(mRect.h-charSize.h)/2-2 );
+                    }
+                }
             },this);
         }
     },
