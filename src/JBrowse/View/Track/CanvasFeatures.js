@@ -74,6 +74,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
             maxFeatureScreenDensity: 400,
             style: {
                 bgcolor: 'goldenrod',
+                mouseovercolor: 'rgba(0,0,0,0.3)',
                 fgcolor: null,
                 height: 3,
                 marginBottom: 1
@@ -303,7 +304,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                 if( ! fRect )
                     return;
 
-                context.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' );
                 context.fillRect( fRect.l, fRect.t, fRect.w, fRect.h );
             }
         }, this );
