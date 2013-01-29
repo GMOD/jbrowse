@@ -202,7 +202,7 @@ return declare(null,{
                 var classes = sheet.rules || sheet.cssRules;
                 if( ! classes ) return;
                 array.forEach( classes, function( c ) {
-                    var match = /^\.base_(\w)$/.exec( c.selectorText );
+                    var match = /^\.base_([^\s_]+)$/.exec( c.selectorText );
                     if( match && match[1] ) {
                         var base = match[1];
                         match = /\#[0-9a-f]{3,6}|(?:rgb|hsl)a?\([^\)]*\)/gi.exec( c.cssText );
@@ -213,8 +213,6 @@ return declare(null,{
                     }
                 });
            });
-
-           colors.reference = '#999';
 
            return colors;
         }.call(this);

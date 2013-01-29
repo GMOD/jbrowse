@@ -385,6 +385,9 @@ span.base {
     background-color: #d5bb04;
     background-color: rgba( 213, 187, 4, 0.9);
 }
+.base_reference {
+    background-color: #999;
+}
 
 div.sequence_blur {
     background: none;
