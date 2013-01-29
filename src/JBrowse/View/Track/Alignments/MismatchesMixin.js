@@ -20,7 +20,6 @@ return declare(null,{
      * Make a default feature detail page for the given feature.
      * @returns {HTMLElement} feature detail page HTML
      */
-
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
         var fmt = dojo.hitch( this, function( name, value ) {
             name = Util.ucFirst( name.replace(/_/g,' ') );
@@ -62,6 +61,8 @@ return declare(null,{
         return container;
     },
 
+    // takes a feature, returns an HTML representation of its 'seq'
+    // and 'qual', if it has at least a seq. empty string otherwise.
     _renderSeqQual: function( feature ) {
 
         var seq  = feature.get('seq'),
@@ -181,6 +182,8 @@ return declare(null,{
         return mismatchRecords;
     },
 
+    // recursively find all the stylesheets that are loaded in the
+    // current browsing session, traversing imports and such
     _getStyleSheets: function( inSheets ) {
         var outSheets = [];
         array.forEach( inSheets, function( sheet ) {
@@ -193,6 +196,8 @@ return declare(null,{
         return outSheets;
     },
 
+    // get the appropriate HTML color string to use for a given base
+    // letter.  case insensitive.  'reference' gives the color to draw matches with the reference.
     colorForBase: function( base ) {
         // get the base colors out of CSS
         this._baseStyles = this._baseStyles || function() {
