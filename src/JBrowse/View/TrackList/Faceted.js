@@ -385,38 +385,6 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
             }
             return origSelectRange.apply( this, arguments );
         };
-
-        // 3. monkey-patch the grid's scrolling handler to fix
-        // http://bugs.dojotoolkit.org/ticket/15343
-        // diff between this and its implementation in dojox.grid._View.js (1.6.1) is only:
-        // if(top !== this.lastTop)  --->  if( Math.abs( top - this.lastTop ) > 1 )
-        grid.views.views[0].doscroll = function(inEvent){
-                //var s = dojo.marginBox(this.headerContentNode.firstChild);
-                var isLtr = dojo._isBodyLtr();
-                if(this.firstScroll < 2){
-                        if((!isLtr && this.firstScroll == 1) || (isLtr && this.firstScroll === 0)){
-                                var s = dojo.marginBox(this.headerNodeContainer);
-                                if(dojo.isIE){
-                                        this.headerNodeContainer.style.width = s.w + this.getScrollbarWidth() + 'px';
-                                }else if(dojo.isMoz){
-                                        //TODO currently only for FF, not sure for safari and opera
-                                        this.headerNodeContainer.style.width = s.w - this.getScrollbarWidth() + 'px';
-                                        //this.headerNodeContainer.style.width = s.w + 'px';
-                                        //set scroll to right in FF
-                                        this.scrollboxNode.scrollLeft = isLtr ?
-                                                this.scrollboxNode.clientWidth - this.scrollboxNode.scrollWidth :
-                                                this.scrollboxNode.scrollWidth - this.scrollboxNode.clientWidth;
-                                }
-                        }
-                        this.firstScroll++;
-                }
-                this.headerNode.scrollLeft = this.scrollboxNode.scrollLeft;
-                // 'lastTop' is a semaphore to prevent feedback-loop with setScrollTop below
-                var top = this.scrollboxNode.scrollTop;
-                if(Math.abs( top - this.lastTop ) > 1 ){
-                        this.grid.scrollTo(top);
-                }
-        };
     },
 
     renderTextFilter: function( parent ) {
