@@ -24,10 +24,11 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                 layoutPitchY: 3,
                 style: {
                     bgcolor: this.colorForBase('reference'),
-                    fgcolor: 'rgba(0,0,0,0.2)',
+                    fgcolor: '#7a7a7a',
                     height: 3,
                     marginBottom: 0,
-                    showMismatches: true
+                    showMismatches: true,
+                    font: '10px sans-serif'
                 }
             }
         );
@@ -42,7 +43,11 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
             context.fillRect( fRect.l, fRect.t, fRect.w, fRect.h );
         }
 
-        // foreground
+        // draw mismatches if zoomed in far enough
+        if( viewArgs.scale > 0.3 )
+            this._drawMismatches( context, viewArgs, fRect );
+
+        // foreground border
         var fgcolor = this.getStyle( fRect.f, 'fgcolor' );
         if( fgcolor ) {
             if( fRect.h > 3 ) {
@@ -59,11 +64,6 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                 context.fillRect( fRect.l, fRect.t+fRect.h-1, fRect.w, 1 );
             }
         }
-
-        // draw mismatches if zoomed in far enough
-        if( viewArgs.scale > 0.3 )
-            this._drawMismatches( context, viewArgs, fRect );
-
     },
 
     _drawMismatches: function( context, viewArgs, fRect ) {
@@ -73,7 +73,7 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
 
         if ( fRect.w > 1 ) {
             var mismatches = this._getMismatches( feature );
-            var charSize = this.getCharacterMeasurements();
+            var charSize = this.getCharacterMeasurements( context );
             var drawChars = scale >= charSize.w && fRect.h >= charSize.h;
             array.forEach( mismatches, function( mismatch ) {
                 var start = feature.get('start') + mismatch.start;
@@ -88,12 +88,22 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
 
                 context.fillStyle = this.colorForBase( mismatch.base );
                 context.fillRect( mRect.l, mRect.t, mRect.w, mRect.h );
+
+                console.log(charSize);
+                if( mRect.w >= charSize.w && mRect.h >= charSize.h ) {
+                    context.font = this.config.style.font;
+                    context.fillStyle = 'black';
+                    context.fillText( mismatch.base, mRect.l+(mRect.w-charSize.w)/2+1, mRect.t+mRect.h-(mRect.h-charSize.h)/2-1 );
+                }
             },this);
         }
     },
 
-    getCharacterMeasurements: function() {
-        return { w: 10, h: 10 };
+    getCharacterMeasurements: function( context ) {
+        return this.charSize = this.charSize || function() {
+            var fpx = (this.config.style.font.match(/(\d+)px/i)||[])[1] || Infinity;
+            return { w: fpx, h: fpx };
+        }.call(this);
     }
 });
 });
