@@ -213,6 +213,9 @@ return declare(null,{
                     }
                 });
            });
+
+           colors.reference = '#999';
+
            return colors;
         }.call(this);
 

@@ -11,10 +11,6 @@ define([
 
 return declare(null,{
 
-    constructor: function() {
-        this._setupEventHandlers();
-    },
-
     _setupEventHandlers: function() {
         // make a default click event handler
         var eventConf = this.config.events || {};

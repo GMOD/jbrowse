@@ -23,8 +23,8 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                 //maxFeatureScreenDensity: 400
                 layoutPitchY: 3,
                 style: {
-                    bgcolor: '#aaa',
-                    fgcolor: '#909090',
+                    bgcolor: this.colorForBase('reference'),
+                    fgcolor: '#888',
                     height: 3,
                     marginBottom: 0,
                     showMismatches: true

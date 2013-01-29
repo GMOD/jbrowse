@@ -70,6 +70,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                // complete cassName of the feature
 
         this.showLabels = this.config.style.showLabels;
+
+        this._setupEventHandlers();
     },
 
     /**

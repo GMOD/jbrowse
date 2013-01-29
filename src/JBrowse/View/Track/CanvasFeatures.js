@@ -67,6 +67,7 @@ var FRectIndex = declare( null,  {
 return declare( [CanvasTrack,FeatureDetailMixin], {
 
     constructor: function( args ) {
+        this._setupEventHandlers();
     },
 
     _defaultConfig: function() {
