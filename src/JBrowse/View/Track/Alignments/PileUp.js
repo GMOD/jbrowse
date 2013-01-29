@@ -24,6 +24,7 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                 layoutPitchY: 3,
                 style: {
                     bgcolor: '#aaa',
+                    fgcolor: '#909090',
                     height: 3,
                     marginBottom: 0,
                     showMismatches: true
@@ -32,10 +33,37 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
         );
     },
 
-    renderFeature: function( ctx, viewArgs, fRect ) {
-        this.inherited(arguments);
+    // draw each feature
+    renderFeature: function( context, viewArgs, fRect ) {
+        // background
+        var bgcolor = this.getStyle( fRect.f, 'bgcolor' );
+        if( bgcolor ) {
+            context.fillStyle = bgcolor;
+            context.fillRect( fRect.l, fRect.t, fRect.w, fRect.h );
+        }
+
+        // foreground
+        var fgcolor = this.getStyle( fRect.f, 'fgcolor' );
+        if( fgcolor ) {
+            if( fRect.h > 3 ) {
+                context.lineWidth = 1;
+                context.strokeStyle = fgcolor;
+
+                // need to stroke a smaller rectangle to remain within
+                // the bounds of the feature's overall height and
+                // width, because of the way stroking is done in
+                // canvas.  thus the +0.5 and -1 business.
+                context.strokeRect( fRect.l+0.5, fRect.t+0.5, fRect.w-1, fRect.h-1 );
+            } else {
+                context.fillStyle = fgcolor;
+                context.fillRect( fRect.l, fRect.t+fRect.h-1, fRect.w, 1 );
+            }
+        }
+
+        // draw mismatches if zoomed in far enough
         if( viewArgs.scale > 0.3 )
-            this._drawMismatches( ctx, viewArgs, fRect );
+            this._drawMismatches( context, viewArgs, fRect );
+
     },
 
     _drawMismatches: function( context, viewArgs, fRect ) {
