@@ -188,7 +188,7 @@ return declare( [CanvasTrack,ExportMixin], {
                   width:  canvasWidth,
                   style: {
                       cursor: 'default',
-                      width: "100%",
+                      width: "101%",
                       height: canvasHeight + "px"
                   },
                   innerHTML: 'Your web browser cannot display this type of track.',

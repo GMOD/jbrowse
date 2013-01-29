@@ -178,7 +178,10 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                                             'canvas',
                                             { height: totalHeight,
                                               width:  block.offsetWidth+1,
-                                              style: { cursor: 'default' },
+                                              style: {
+                                                  cursor: 'default',
+                                                  width: '101%'
+                                              },
                                               innerHTML: 'Your web browser cannot display this type of thisB.',
                                               className: 'canvas-track'
                                             },
