@@ -76,8 +76,8 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
             style: {
                 bgcolor: 'goldenrod',
                 mouseovercolor: 'rgba(0,0,0,0.3)',
-                fgcolor: null,
-                height: 3,
+                fgcolor: 'rgba(60,60,60,0.8)',
+                height: 11,
                 marginBottom: 1
             }
         };

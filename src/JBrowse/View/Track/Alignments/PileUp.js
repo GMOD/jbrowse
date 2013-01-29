@@ -34,7 +34,6 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                     bgcolor_fwd_strand: '#EC8B8B',
                     bgcolor_rev_strand: '#898FD8',
                     bgcolor_missing_mate: '#D11919',
-                    fgcolor: 'rgba(60,60,60,0.8)',
                     height: 3,
                     marginBottom: 0,
                     showMismatches: true,
