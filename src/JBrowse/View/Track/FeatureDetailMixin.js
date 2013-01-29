@@ -17,9 +17,9 @@ return declare(null,{
 
     _setupEventHandlers: function() {
         // make a default click event handler
-        if( ! (this.config.events||{}).click ) {
-            this.config.events = this.config.events || {};
-            this.config.events.click = (this.config.style||{}).linkTemplate
+        var eventConf = this.config.events || {};
+        if( ! eventConf.click ) {
+            eventConf.click = (this.config.style||{}).linkTemplate
                     ? { action: "newWindow", url: this.config.style.linkTemplate }
                     : { action: "contentDialog",
                         title: '{type} {name}',
@@ -28,7 +28,7 @@ return declare(null,{
 
         // process the configuration to set up our event handlers
         this.eventHandlers = (function() {
-            var handlers = dojo.clone( this.config.events || {} );
+            var handlers = dojo.clone( eventConf );
             // find conf vars that set events, like `onClick`
             for( var key in this.config ) {
                 var handlerName = key.replace(/^on(?=[A-Z])/, '');
