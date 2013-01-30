@@ -63,7 +63,6 @@ sub open {
 
     $self->{bucket_cache} = $self->_make_cache( size => 30 );
     $self->{bucket_path_cache_by_key} = $self->_make_cache( size => 30 );
-    $self->{hex_hash_cache} = $self->_make_cache( size => 100 );
 
     return bless $self, $class;
 }
@@ -191,13 +190,25 @@ sub _sort_batch {
 
     $self->{sort_state} = $batch_size > -1 ? SORT_EOF : SORT_EOBATCH;
 
+    # sorted entries should have perfect cache locality, so use a
+    # 1-element cache for crc32 computations
+    my $hash_cache = $self->{tiny_hash_cache} ||= { key => '' };
     return sub {
         my $d = $sorter->get;
+        return unless $d;
+        my $key = $d->[0];
+        my $hash = $hash_cache->{key} eq $key
+            ? $hash_cache->{hash}
+            : do {
+                $hash_cache->{key} = $key;
+                $hash_cache->{hash} = $self->_hexHash( $key );
+            };
+
         return $d && Bio::JBrowse::HashStore::Entry->new(
             store    => $self,
-            key      => $d->[0],
+            key      => $key,
             data     => $d,
-            hex_hash => $self->_hexHash( $d->[0] )
+            hex_hash => $hash
         );
     };
 }
@@ -219,13 +230,11 @@ sub empty {
 
 sub _hexHash {
     my ( $self, $key ) = @_;
-    return $self->{hex_hash_cache}->compute( $key, sub {
-        my $crc = ( $self->{crc} ||= do { require Digest::Crc32; Digest::Crc32->new } )
+    my $crc = ( $self->{crc} ||= do { require Digest::Crc32; Digest::Crc32->new } )
                   ->strcrc32( $key );
-        my $hex = lc sprintf( '%08x', $crc );
-        $hex = substr( $hex, 8-$self->{hash_characters} );
-        return $hex;
-    });
+    my $hex = lc sprintf( '%08x', $crc );
+    $hex = substr( $hex, 8-$self->{hash_characters} );
+    return $hex;
 }
 
 sub _hexToPath {
@@ -283,7 +292,7 @@ sub DESTROY {
 
     return unless $self->{dirty} && %{$self->{data}};
 
-    File::Path::mkpath( $self->{dir} );
+    File::Path::mkpath( $self->{dir} ) unless -d $self->{dir};
     CORE::open my $out, '>', $self->{fullpath} or die "$! writing $self->{fullpath}";
     $out->print( JSON::to_json( $self->{data} ) ) or die "$! writing to $self->{fullpath}";
 }
