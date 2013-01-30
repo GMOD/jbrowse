@@ -236,8 +236,8 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
         var layoutStart = feature.get('start');
         var layoutEnd   = feature.get('end');
 
-        var fHeight = this.config.style.height;
-        var levelHeight = fHeight + this.config.style.marginBottom;
+        var fHeight = this.getStyle( feature, 'height' );
+        var levelHeight = fHeight + this.getStyle( feature, 'marginBottom' );
 
         var uniqueId = feature.id();
         var top = this._getLayout( scale )
