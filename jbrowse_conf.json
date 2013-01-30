@@ -11,8 +11,6 @@
     //   ]
     // },
 
-    suppressUsageStatistics: true,
-
     // the variable below does nothing
     placeholder: 1
 }
