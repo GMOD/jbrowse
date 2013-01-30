@@ -1,5 +1,11 @@
-define( ['JBrowse/View/Ruler'],
-        function( Ruler ) {
+define( [
+          'dojo/_base/declare',
+           'JBrowse/View/Ruler'
+        ],
+        function(
+            declare,
+            Ruler
+        ) {
 /**
  * Mixin for a track that has a Y-axis scale bar on its left side.
  * Puts the scale div in <code>this.yscale</code>, stores the 'left' CSS pixel
@@ -7,7 +13,7 @@ define( ['JBrowse/View/Ruler'],
  * @lends JBrowse.View.Track.YScaleMixin
  */
 
-return {
+return declare( null, {
     /**
      * @param {Number} [min] Optional minimum value for the scale.
      * Defaults to value of <code>this.minDisplayed</code>.
@@ -62,5 +68,5 @@ return {
                 this.yscale.style.left = (this.window_info.x + (this.window_info.width||0)/2) + "px";
         }
     }
-};
+});
 });

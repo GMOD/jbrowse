@@ -100,8 +100,7 @@ return declare( BlockBased,
             if( error.status == 404 ) {
                 // do nothing
             } else {
-                this.error = error;
-                this.fillError( blockIndex, block );
+                this.fillBlockError( blockIndex, block, error );
             }
             finishCallback();
         })

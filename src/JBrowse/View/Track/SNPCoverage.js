@@ -2,9 +2,10 @@ define( ['dojo/_base/declare',
          'dojo/_base/array',
          'JBrowse/View/Track/Wiggle',
          'JBrowse/Util',
-         'JBrowse/Model/NestedFrequencyTable'
+         'JBrowse/Model/NestedFrequencyTable',
+         'JBrowse/View/Track/MismatchesMixin'
         ],
-        function( declare, array, Wiggle, Util, NestedFrequencyTable ) {
+        function( declare, array, Wiggle, Util, NestedFrequencyTable, MismatchesMixin ) {
 
 var dojof = Util.dojof;
 
@@ -23,7 +24,7 @@ var CoverageFeature = Util.fastDeclare(
     });
 
 
-return declare( Wiggle,
+return declare( [Wiggle, MismatchesMixin],
 {
     constructor: function() {
         // force conf variables that are meaningless for this kind of track, and maybe harmful
@@ -154,6 +155,7 @@ return declare( Wiggle,
      * @private
      */
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale ) {
+        var thisB = this;
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
         var toY = dojo.hitch( this, function( val ) {
@@ -176,7 +178,6 @@ return declare( Wiggle,
                                  }, block);
         var snpContext = snpCanvas.getContext('2d');
 
-        var barColor  = {'reference':'#999', 'A':'#00BF00', 'T':'red', 'C':'#4747ff', 'G':'#d5bb04'}; // base colors from "main.css"
         var negColor  = this.config.style.neg_color;
         var clipColor = this.config.style.clip_marker_color;
         var bgColor   = this.config.style.bg_color;
@@ -190,7 +191,7 @@ return declare( Wiggle,
             }
 
             if( yPos <= canvasHeight ) { // if the rectangle is visible at all
-                context.fillStyle = barColor[ID] || 'black';
+                context.fillStyle = thisB.colorForBase(ID);
                 if( yPos <= originY ) {
                     // bar goes upward
                     context.fillRect( fRect.l, yPos, fRect.w, height);
@@ -203,7 +204,7 @@ return declare( Wiggle,
                     // bar goes downward
                     context.fillRect( fRect.l, originY, fRect.w, height );
                     if( !disableClipMarkers && yPos >= canvasHeight ) { // draw clip marker if necessary
-                        context.fillStyle = clipColor || barColor[ID];
+                        context.fillStyle = clipColor || thisB.colorForBase(ID);
                         context.fillRect( fRect.l, canvasHeight-3, fRect.w, 2 );
                     }
                 }
@@ -227,7 +228,7 @@ return declare( Wiggle,
                                     false);
                     snpContext.lineTo(fRect.l + 0.5*fRect.w, 0);
                     snpContext.closePath();
-                    snpContext.fillStyle = barColor[category] || 'black';
+                    snpContext.fillStyle = thisB.colorForBase(category);
                     snpContext.fill();
                     snpContext.lineWidth = 1;
                     snpContext.strokeStyle = 'black';

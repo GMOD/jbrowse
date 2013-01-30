@@ -8,21 +8,13 @@ define( [
             'JBrowse/Digest/Crc32'
         ],
         function( declare, array, on, CanvasTrack, ExportMixin, Util, Digest ) {
-var Wiggle = declare( CanvasTrack, {
+
+return declare( [CanvasTrack,ExportMixin], {
+
     constructor: function( args ) {
         this.store = args.store;
-    }
-});
+    },
 
-/**
- * Mixin: JBrowse.View.Track.ExportMixin.
- */
-dojo.safeMixin( Wiggle.prototype, ExportMixin );
-
-/**
- * @lends JBrowse.View.Track.Wiggle.prototype
- */
-Wiggle.extend({
     _defaultConfig: function() {
         return { maxExportSpan: 500000 };
     },
@@ -184,8 +176,8 @@ Wiggle.extend({
         try {
             dojo.create('canvas').getContext('2d').fillStyle = 'red';
         } catch( e ) {
-            this.error = 'This browser does not support HTML canvas elements.';
-            this.fillError( blockIndex, block );
+            this.fatalError = 'This browser does not support HTML canvas elements.';
+            this.fillBlockError( blockIndex, block, this.fatalError );
             return;
         }
 
@@ -196,7 +188,7 @@ Wiggle.extend({
                   width:  canvasWidth,
                   style: {
                       cursor: 'default',
-                      width: "100%",
+                      width: "101%",
                       height: canvasHeight + "px"
                   },
                   innerHTML: 'Your web browser cannot display this type of track.',
@@ -251,7 +243,7 @@ Wiggle.extend({
         }),
         dojo.hitch( this, function(e) {
                         this.error = e;
-                        this.fillError( blockIndex, block );
+                        this.fillBlockError( blockIndex, block );
                         finishCallback();
                     })
         );
@@ -335,7 +327,6 @@ Wiggle.extend({
                     zIndex: 15
                 }
         }, block);
-        var outTimeout;
         dojo.forEach( [canvas,verticalLine,scoreDisplay], function(element) {
             on( element, 'mousemove', dojo.hitch(this,function(evt) {
                     var cPos = dojo.position(canvas);
@@ -383,5 +374,4 @@ Wiggle.extend({
         return ['bedGraph','Wiggle', 'GFF3' ];
     }
 });
-return Wiggle;
 });

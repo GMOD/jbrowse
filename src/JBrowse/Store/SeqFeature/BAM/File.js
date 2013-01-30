@@ -218,8 +218,8 @@ var BamFile = declare( null,
                     }
 
                     successCallback();
-            });
-        });
+            }, failCallback );
+        }, failCallback );
     },
 
     blocksForRange: function(refId, min, max) {
@@ -319,9 +319,9 @@ var BamFile = declare( null,
 
     fetch: function(chr, min, max, callback) {
 
-        var chrId = this.chrToIndex[chr];
+        var chrId = this.chrToIndex && this.chrToIndex[chr];
         var chunks;
-        if (chrId === undefined) {
+        if( !( chrId >= 0 ) ) {
             chunks = [];
         } else {
             chunks = this.blocksForRange(chrId, min, max);

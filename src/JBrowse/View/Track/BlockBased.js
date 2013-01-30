@@ -12,6 +12,7 @@ define( [
             'dijit/CheckedMenuItem',
             'dijit/MenuSeparator',
             'JBrowse/Util',
+            'JBrowse/Errors',
             'JBrowse/View/TrackConfigEditor',
             'JBrowse/View/ConfirmDialog'
         ],
@@ -28,6 +29,7 @@ define( [
                   dijitCheckedMenuItem,
                   dijitMenuSeparator,
                   Util,
+                  Errors,
                   TrackConfigEditor,
                   ConfirmDialog
                 ) {
@@ -210,7 +212,14 @@ return declare( null,
 
     showRange: function(first, last, startBase, bpPerBlock, scale,
                         containerStart, containerEnd) {
-        if (this.blocks === undefined) return 0;
+
+        if( this.fatalError ) {
+            this.showFatalError( this.fatalError );
+            return;
+        }
+
+        if ( this.blocks === undefined || ! this.blocks.length )
+            return;
 
         // this might make more sense in setViewInfo, but the label element
         // isn't in the DOM tree yet at that point
@@ -262,8 +271,6 @@ return declare( null,
 
         this.heightUpdate(this.height);
         this.updateStaticElements( this.genomeView.getPosition() );
-
-        return 1;
     },
 
     cleanupBlock: function() {},
@@ -326,16 +333,51 @@ return declare( null,
         return msgDiv;
     },
 
-    fillError: function( blockIndex, block ) {
+    showFatalError: function( error ) {
+        dojo.query( '.block', this.div )
+            .concat( dojo.query( '.blank-block', this.div ) )
+            .concat( dojo.query( '.error', this.div ) )
+            .orphan();
+        this.blocks = [];
+        this.blockHeights = [];
+
+        this.fatalErrorMessageElement = this._renderErrorMessage( error || this.fatalError, this.div );
+        this.heightUpdate( domGeom.position( this.fatalErrorMessageElement ).h );
+        this.updateStaticElements( this.genomeView.getPosition() );
+    },
+
+    // generic handler for all types of errors
+    _handleError: function( error ) {
+        console.error( ''+error, error.stack, error );
+        var isObject = typeof error == 'object';
+
+        if( isObject && error instanceof Errors.TrackBlockTimeout )
+            this.fillBlockTimeout( error.blockIndex, error.block, error );
+        else if( isObject && error instanceof Errors.TrackBlockError )
+            this.fillBlockError( error.blockIndex, error.block, error );
+        else {
+            this.fatalError = error;
+            this.showFatalError( error );
+        }
+    },
+
+
+    fillBlockError: function( blockIndex, block, error ) {
+        error = error || this.fatalError || this.error;
+
         dom.empty(block);
-        var msgDiv = dojo.create(
+        var msgDiv = this._renderErrorMessage( error, block );
+        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+    },
+
+    _renderErrorMessage: function( message, parent ) {
+        return dom.create(
             'div', {
                 className: 'error',
-                innerHTML: '<h2>Error</h2><div class="text">This track could not be displayed, possibly because your browser does not support the necessary technology.</div>'
-                    +(this.error ? '<div class="codecaption">Diagnostic message</div><code>'+this.error+'</code>' : '' ),
+                innerHTML: '<h2>Error</h2><div class="text">An error was encountered when displaying this track.</div>'
+                    +( message ? '<div class="codecaption">Diagnostic message</div><code>'+message+'</code>' : '' ),
                 title: 'An error occurred'
-            }, block );
-        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+            }, parent );
     },
 
     fillTooManyFeaturesMessage: function( blockIndex, block, scale ) {
@@ -350,12 +392,13 @@ return declare( null,
 
     _showBlock: function(blockIndex, startBase, endBase, scale,
                          containerStart, containerEnd) {
-        if (this.blocks[blockIndex]) {
-            this.heightUpdate(this.blockHeights[blockIndex], blockIndex);
+        if ( this.empty || this.fatalError ) {
+            this.heightUpdate( this.labelHeight );
             return;
         }
-        if (this.empty) {
-            this.heightUpdate(this.labelHeight, blockIndex);
+
+        if (this.blocks[blockIndex]) {
+            this.heightUpdate(this.blockHeights[blockIndex], blockIndex);
             return;
         }
 
@@ -379,6 +422,10 @@ return declare( null,
                     containerStart,
                     containerEnd];
 
+        if( this.fatalError ) {
+            this.fillBlockError( blockIndex, blockDiv );
+            return;
+        }
 
         // loadMessage is an opaque mask div that we place over the
         // block until the fillBlock finishes
@@ -405,9 +452,8 @@ return declare( null,
                 finishCallback: finish
             });
         } catch( e ) {
-            this.error = e;
             console.error( e, e.stack );
-            this.fillError( blockIndex, blockDiv );
+            this.fillBlockError( blockIndex, blockDiv, e );
             finish();
         }
     },
@@ -486,7 +532,13 @@ return declare( null,
                 this.lastAttached = null;
             }
 
-            if (this.blocks.length != numBlocks) throw new Error("block number mismatch: should be " + numBlocks + "; blocks.length: " + this.blocks.length);
+            if( this.blocks.length != numBlocks )
+                throw new Error(
+                    "block number mismatch: should be "
+                        + numBlocks + "; blocks.length: "
+                        + this.blocks.length
+                );
+
             for (i = 0; i < numBlocks; i++) {
                 if (this.blocks[i]) {
                     //if (!this.blocks[i].style) console.log(this.blocks);
@@ -517,6 +569,11 @@ return declare( null,
      */
     updateStaticElements: function( /**Object*/ coords ) {
         this.window_info = dojo.mixin( this.window_info || {}, coords );
+        if( this.fatalErrorMessageElement )
+            dojo.style( this.fatalErrorMessageElement, {
+                            left: coords.x+this.window_info.width * 0.2 +'px',
+                            width: this.window_info.width * 0.6 + 'px'
+                        });
         if( this.label )
             this.label.style.left = coords.x+'px';
     },
@@ -825,7 +882,11 @@ return declare( null,
         }
 
         // destroy the dialog after it is hidden
-        aspect.after( dialog, 'hide', function() { dialog.destroyRecursive(); });
+        aspect.after( dialog, 'hide', function() {
+                          setTimeout(function() {
+                              dialog.destroyRecursive();
+                          }, 500 );
+        });
 
         // show the dialog
         dialog.show();
@@ -881,15 +942,15 @@ return declare( null,
 
 
     // display a rendering-timeout message
-    fillTimeout: function( blockIndex, block ) {
+    fillBlockTimeout: function( blockIndex, block ) {
         dom.empty( block );
         dojo.addClass( block, 'timed_out' );
         this.fillMessage( blockIndex, block,
-                          'This region took too long'
-                          + ' to display, possibly because'
-                          + ' it contains too much data.'
-                          + ' Try zooming in to show a smaller region.'
-                        );
+                           'This region took too long'
+                           + ' to display, possibly because'
+                           + ' it contains too much data.'
+                           + ' Try zooming in to show a smaller region.'
+                         );
     }
 
 });

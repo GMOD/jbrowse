@@ -29,7 +29,7 @@ return declare( null,
         var deferreds = this._deferred || {};
         for( var dname in deferreds ) {
             if( deferreds.hasOwnProperty( dname ) ) {
-                deferreds[dname].resolve({ success: false, error: error });
+                deferreds[dname].reject( error );
             }
         }
     }

@@ -24,8 +24,8 @@ return declare( BlockBased,
             dojo.create('canvas').getContext('2d').fillStyle = 'red';
             return true;
         } catch( e ) {
-            this.error = 'This browser does not support HTML canvas elements.';
-            this.fillError( blockIndex, block );
+            this.fatalError = 'This browser does not support HTML canvas elements.';
+            this.fillBlockError( blockIndex, block, this.fatalError );
             return false;
         }
     },
