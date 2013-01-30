@@ -114,7 +114,7 @@ return declare( null, {
                   innerHTML: '<div class="dijitIconDelete"></div>',
                   onclick: function(e) {
                       e.preventDefault && e.preventDefault();
-                      that.delete( res );
+                      that.deleteResource( res );
                   }
                 }, tr);
             }, this);
@@ -130,9 +130,9 @@ return declare( null, {
         dom.create( 'div', { className: 'connector', innerHTML: '&nbsp;'}, container );
     },
 
-    delete: function( deleteResource ) {
+    deleteResource: function( resource ) {
         this._resources = array.filter( this._resources || [], function(res) {
-            return res !== deleteResource;
+            return res !== resource;
         });
         this._updateView();
         this._notifyChange();
