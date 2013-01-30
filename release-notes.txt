@@ -14,6 +14,13 @@
    for very deep BAM alignments, and has slightly different
    configuration variables.
 
+ * Added a flexible plugin system whereby external code can be loaded
+   as part of JBrowse.  Plugin JavaScript has full access to
+   everything in JBrowse, and can customize nearly everything.  Many
+   hooks are available that plugins can use to safely modify JBrowse's
+   behavior.  See the JBrowse wiki for details on how to write your
+   own plugins.
+
  * "HTMLFeatures" tracks now accept a comma-separated list of field
    names in their `description` configuration variable, allowing users
    to customize which attribute(s) of a feature hold the description.
