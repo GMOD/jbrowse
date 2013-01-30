@@ -189,7 +189,7 @@ cd JBrowse-1.8.0
    "urlTemplate" : "../../raw/volvox/volvox-sorted.bam",
    "baiUrlTemplate" : "../../raw/volvox/volvox-sorted.bam.bai",
 
-   "type" : "JBrowse/View/Track/Alignments",
+   "type" : "JBrowse/View/Track/Alignments2",
    "label" : "volvox-sorted.bam",
    "key" : "BAM alignments from volvox-sorted.bam"
 }
@@ -199,16 +199,16 @@ cd JBrowse-1.8.0
         indexed (i.e. have a corresponding <span class="code">.bai</span> file).
       </p>
       <p>
-        JBrowse has two track types that are designed especially for use with BAM data:
+        JBrowse has two main track types that are designed especially for use with BAM data:
         <dl>
-          <dt class="code">Alignments</dt><dd>Shows individual alignments from the BAM file, as well as insertions, deletions, skipped regions, and SNPs encoded in the BAM's <span class="code">MD</span> or <span class="code">CIGAR</span> fields.</dd>
+          <dt class="code">Alignments2</dt><dd>Shows individual alignments from the BAM file, as well as insertions, deletions, skipped regions, and SNPs encoded in the BAM's <span class="code">MD</span> or <span class="code">CIGAR</span> fields.</dd>
           <dt class="code">SNPCoverage</dt><dd>Shows a coverage
           histogram plot, with colored bars showing the locations of
           base-level mismatches and possible SNPs in the reads.</dd>
         </dl>
 
         To use them, set <span class="code">"type":
-        "Alignments"</span> or <span class="code">"type":
+        "Alignments2"</span> or <span class="code">"type":
         "SNPCoverage"</span> in the track configuration.
       </p>
 
