@@ -261,6 +261,9 @@ sub find_names_files {
     return @files;
 }
 
+use constant OP_ADD_EXACT  => 1;
+use constant OP_ADD_PREFIX => 2;
+
 sub make_operations {
     my ( $record ) = @_;
 
@@ -278,8 +281,8 @@ sub make_operations {
     }
 
     return (
-        [ $lc_name, 'add_exact', $record ],
-        map [ $_, 'add_prefix', $record->[0] ], @prefixes
+        [ $lc_name, OP_ADD_EXACT, $record ],
+        map [ $_, OP_ADD_PREFIX, $record->[0] ], @prefixes
     );
 }
 
@@ -291,7 +294,7 @@ sub do_operation {
 
     my $r = $store_entry->get || { exact => [], prefix => [] };
 
-    if( $op_name eq 'add_exact' ) {
+    if( $op_name == OP_ADD_EXACT ) {
         if( $max_locations && @{ $r->{exact} } < $max_locations ) {
             push @{ $r->{exact} }, $record;
             $store_entry->set( $r );
@@ -300,7 +303,7 @@ sub do_operation {
         #     print STDERR "Warning: $name has more than --locationLimit ($max_locations) distinct locations, not all of them will be indexed.\n";
         # }
     }
-    elsif( $op_name eq 'add_prefix' ) {
+    elsif( $op_name == OP_ADD_PREFIX ) {
         my $name = $record;
 
         my $p = $r->{prefix};
