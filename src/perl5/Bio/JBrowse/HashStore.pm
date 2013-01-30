@@ -39,7 +39,7 @@ use Bio::JBrowse::ExternalSorter;
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
 
 
-=head2 open( dir => "/path/to/dir", hash_bits => 16 )
+=head2 open( dir => "/path/to/dir", hash_bits => 16, sort_mem => 1_000_000_000 )
 
 =cut
 
@@ -169,13 +169,13 @@ sub sort_stream {
 
 sub _sort_batch {
     my ( $self, $in_stream, $batch_size ) = @_;
-    $batch_size ||= 10_000_000;
 
+    $batch_size ||= 10_000_000;
 
     my $sorter = Bio::JBrowse::ExternalSorter->new(
         sub ($$) {
             $_[0]->[0] cmp $_[1]->[0]
-        }, 32_000_000 );
+        }, $self->{sort_mem} || 32_000_000 );
 
     local $SIG{INT} = sub {
         $sorter->cleanup;
