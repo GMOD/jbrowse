@@ -1,25 +1,43 @@
 {{$NEXT}}
 
- * Added new "File -> Open" function that can display BAM, BigWig, and
-   GFF3 files located on the user's machine.  Everything is done
-   locally, no data is transferred to the server.
+ * Added new "File -> Open" function that can display local BAM,
+   BigWig, and GFF3 files located on the user's machine.  Everything
+   is done locally, no data is transferred to the server.
 
  * Added a new "SNPCoverage" track type, designed for use with BAM
-   files, that shows a coverage plot, along with a graphical
-   representation of SNPs, and tables showing base frequencies for
-   each SNP.
+   files (but which works with any features that have MD fields), that
+   shows a coverage plot with a graphical representation of SNP
+   distribution, and tables showing frequencies for each SNP.
 
  * Added a new "Alignments2" track type, which is a much faster
    implementation of the "Alignments" track type.  It is more suitable
-   for very deep BAM alignments, and has slightly different
-   configuration variables.
+   for very deep BAM alignments, but has a slightly different
+   configuration scheme.
 
  * Added a flexible plugin system whereby external code can be loaded
    as part of JBrowse.  Plugin JavaScript has full access to
    everything in JBrowse, and can customize nearly everything.  Many
    hooks are available that plugins can use to safely modify JBrowse's
    behavior.  See the JBrowse wiki for details on how to write your
-   own plugins.
+   own plugins.  Thanks to Gregg Helt and the other members of the
+   WebApollo project for helping to drive development of the new
+   plugin system.
+
+ * JBrowse feature name indexing (`generate-names.pl`) now uses an
+   all-new hash-based filesystem backend.  Although
+   `generate-names.pl` now takes longer to run, it can handle much
+   larger numbers of names to index, and uses much less RAM to do it.
+   As a side benefit, the JBrowse location box's autocompletion
+   feature is now faster and more reliable.  Thanks to Steffi Geisen
+   and Volodymyr Zavidovych for pointing out the issues with name
+   indexing scalability and reliability.
+
+ * Added support in "HTMLFeatures", "Alignments", and "Alignments2"
+   tracks for a `style.featureScale` configuration variable, which, if
+   set, specifies a minimum zoom scale (pixels per basepair) for
+   displaying features.  If zoomed out more than this (i.e. fewer
+   pixels per bp), either histograms or a "too many features" message
+   will be displayed.
 
  * "HTMLFeatures" tracks now accept a comma-separated list of field
    names in their `description` configuration variable, allowing users
@@ -29,26 +47,15 @@
    data-heavy tracks (like BAM tracks with very deep coverage) from
    freezing or crashing a user's browser.
 
- * Added an all-new data backend for name indexing, which improves the
-   responsiveness of name autocompletion, and makes it possible to
-   format much bigger name indexes.
-
  * Improved graphical look of canvas-based tracks during zoom
-   operations.
+   operations.  Thanks to Mitch Skinner for implementing this!
 
  * Fixed a bug in which the Y-axis scale for feature density
-   histograms was sometimes drawn incorrectly.
+   histograms in HTMLFeatures tracks was sometimes drawn incorrectly.
 
  * Greatly improved speed and responsiveness of BAM data backend.
 
  * Fixed yet another bug that prevented display of some types of BAM files.
-
- * Added support in HTMLFeatures and Alignments tracks for a
-   `style.featureScale` configuration variable, which, if set,
-   specifies a minimum zoom scale (pixels per basepair) for displaying
-   features.  If zoomed out more than this (i.e. fewer pixels per bp),
-   either histograms or a "too many features" message will be
-   displayed.
 
 1.7.6     2013-01-10 01:25:58 America/New_York
 
