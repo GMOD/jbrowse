@@ -6,7 +6,7 @@ define( [
         ],
         function( declare, BlockBased, ExportMixin, Util ) {
 
-var SequenceTrack = declare( BlockBased,
+return declare( [BlockBased, ExportMixin],
  /**
   * @lends JBrowse.View.Track.Sequence.prototype
   */
@@ -18,16 +18,8 @@ var SequenceTrack = declare( BlockBased,
      * @constructs
      * @extends JBrowse.View.Track.BlockBased
      */
-    constructor: function( args ) {}
-});
+    constructor: function( args ) {},
 
-dojo.safeMixin( SequenceTrack.prototype, ExportMixin );
-
-SequenceTrack.extend(
-/**
- * @lends JBrowse.View.Track.Sequence.prototype
- */
-{
     _defaultConfig: function() {
         return {
             maxExportSpan: 500000,
@@ -183,7 +175,4 @@ SequenceTrack.extend(
   }
 
 });
-
-
-return SequenceTrack;
 });
