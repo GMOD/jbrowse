@@ -74,9 +74,9 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
         return {
             maxFeatureScreenDensity: 400,
             style: {
-                bgcolor: 'goldenrod',
+                color: 'goldenrod',
                 mouseovercolor: 'rgba(0,0,0,0.3)',
-                fgcolor: null,
+                border_color: null,
                 height: 11,
                 marginBottom: 1
             }
@@ -344,19 +344,19 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
     // draw each feature
     renderFeature: function( context, viewArgs, fRect ) {
         // background
-        var bgcolor = this.getStyle( fRect.f, 'bgcolor' );
-        if( bgcolor ) {
-            context.fillStyle = bgcolor;
+        var color = this.getStyle( fRect.f, 'color' );
+        if( color ) {
+            context.fillStyle = color;
             context.fillRect( fRect.l, fRect.t, fRect.w, fRect.h );
         }
 
         // foreground border
-        var fgcolor;
+        var border_color;
         if( fRect.h > 3 ) {
-            fgcolor = this.getStyle( fRect.f, 'fgcolor' );
-            if( fgcolor ) {
+            border_color = this.getStyle( fRect.f, 'border_color' );
+            if( border_color ) {
                 context.lineWidth = 1;
-                context.strokeStyle = fgcolor;
+                context.strokeStyle = border_color;
 
                 // need to stroke a smaller rectangle to remain within
                 // the bounds of the feature's overall height and
@@ -366,9 +366,9 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
             }
         }
         else if( fRect.h > 1 ) {
-            fgcolor = this.getStyle( fRect.f, 'fgcolor' );
-            if( fgcolor ) {
-                context.fillStyle = fgcolor;
+            border_color = this.getStyle( fRect.f, 'border_color' );
+            if( border_color ) {
+                context.fillStyle = border_color;
                 context.fillRect( fRect.l, fRect.t+fRect.h-1, fRect.w, 1 );
             }
         }

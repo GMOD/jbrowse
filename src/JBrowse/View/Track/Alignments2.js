@@ -22,21 +22,22 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
             {
                 //maxFeatureScreenDensity: 400
                 style: {
-                    bgcolor: function( feature ) {
+                    color: function( feature ) {
                         var missing_mate = feature.get('multi_segment_template') && !feature.get('multi_segment_all_aligned');
                         var strand = feature.get('strand');
-                        return                  missing_mate ? this.getStyle( feature, 'bgcolor_missing_mate' ) :
-                               strand == 1  || strand == '+' ? this.getStyle( feature, 'bgcolor_fwd_strand' )   :
-                               strand == -1 || strand == '-' ? this.getStyle( feature, 'bgcolor_rev_strand' )   :
+                        return                  missing_mate ? this.getStyle( feature, 'color_missing_mate' ) :
+                               strand == 1  || strand == '+' ? this.getStyle( feature, 'color_fwd_strand' )   :
+                               strand == -1 || strand == '-' ? this.getStyle( feature, 'color_rev_strand' )   :
                                                                this.colorForBase('reference');
                     },
-                    bgcolor_fwd_strand: '#EC8B8B',
-                    bgcolor_rev_strand: '#898FD8',
-                    bgcolor_missing_mate: '#D11919',
+                    color_fwd_strand: '#EC8B8B',
+                    color_rev_strand: '#898FD8',
+                    color_missing_mate: '#D11919',
+                    border_color: null,
                     height: 7,
                     marginBottom: 1,
                     showMismatches: true,
-                    font: 'bold 10px Courier New,monospace'
+                    mismatchFont: 'bold 10px Courier New,monospace'
                 }
             }
         );
@@ -75,7 +76,7 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                     context.fillRect( mRect.l, mRect.t, mRect.w, mRect.h );
 
                     if( mRect.w >= charSize.w && mRect.h >= charSize.h-3 ) {
-                        context.font = this.config.style.font;
+                        context.font = this.config.style.mismatchFont;
                         context.fillStyle = mismatch.type == 'deletion' ? 'white' : 'black';
                         context.fillText( mismatch.base, mRect.l+(mRect.w-charSize.w)/2+1, mRect.t+mRect.h-(mRect.h-charSize.h+4)/2 );
                     }
@@ -84,7 +85,7 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                     context.fillStyle = 'black';
                     context.fillRect( mRect.l-1, mRect.t, 2, mRect.h );
                     if( mRect.w >= charSize.w && mRect.h >= charSize.h-3 ) {
-                        context.font = this.config.style.font;
+                        context.font = this.config.style.mismatchFont;
                         context.fillStyle = 'black';
                         context.fillText( '('+mismatch.base+')', mRect.l+2, mRect.t+mRect.h-(mRect.h-charSize.h+4)/2 );
                     }
@@ -100,7 +101,13 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
 
     getCharacterMeasurements: function( context ) {
         return this.charSize = this.charSize || function() {
-            var fpx = (this.config.style.font.match(/(\d+)px/i)||[])[1] || Infinity;
+            var fpx;
+
+            try {
+                fpx = (this.config.style.mismatchFont.match(/(\d+)px/i)||[])[1];
+            } catch(e) {}
+
+            fpx = fpx || Infinity;
             return { w: fpx, h: fpx };
         }.call(this);
     }
