@@ -1,13 +1,4 @@
 var _gaq = _gaq || []; // global task queue for Google Analytics
-require( {
-             packages: [ 'dijit', 'dojox', 'jszlib',
-                         { name: 'lazyload', main: 'lazyload' },
-                         'dgrid', 'xstyle', 'put-selector'
-                       ]
-         },
-         [],
-         function() {
-
 define( [
             'dojo/_base/lang',
             'dojo/on',
@@ -149,7 +140,7 @@ Browser.prototype._initialLocation = function() {
 };
 
 Browser.prototype.version = function() {
-    var BUILD_SYSTEM_JBROWSE_VERSION;
+    var BUILD_SYSTEM_JBROWSE_VERSION = "1.8.0";
     return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
 }.call();
 
@@ -2078,7 +2069,7 @@ Browser.prototype.createNavBox = function( parent ) {
 
 return Browser;
 
-}); });
+});
 
 /*
 
