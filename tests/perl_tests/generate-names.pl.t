@@ -1,3 +1,4 @@
+
 use strict;
 use warnings;
 
@@ -18,7 +19,7 @@ system $^X, 'bin/generate-names.pl', (
     '--completionLimit' => 15
     );
 ok( ! $?, 'generate-names.pl also ran ok on volvox test data' );
-is_deeply( slurp_tree($tempdir), slurp_tree('tests/data/volvox_formatted_names') );
+is_deeply( read_names($tempdir), read_names('tests/data/volvox_formatted_names') );
 
 $tempdir = new_volvox_sandbox();
 system $^X, 'bin/generate-names.pl', (
@@ -30,6 +31,11 @@ cmp_ok( -s "$tempdir", '>', 1000, 'the dir has some stuff in it' );
 
 done_testing;
 
+sub read_names {
+    my $d = slurp_tree(shift);
+    delete $d->{'names/meta.json'}{last_changed_entry};
+    return $d;
+}
 
 sub new_volvox_sandbox {
     my $tempdir = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
