@@ -17,8 +17,9 @@ return declare( dijitDialog,
 {
     autofocus: false,
 
-    constructor: function() {
-        dojo.connect( this, 'onLoad', this, '_addActionBar' );
+    onLoad: function() {
+        this.inherited(arguments);
+        this._addActionBar();
     },
 
     _addActionBar: function() {
