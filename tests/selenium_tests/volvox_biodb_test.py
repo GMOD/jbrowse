@@ -65,7 +65,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.turn_on_track('volvox-sorted.bam');
         self.turn_on_track('volvox-sorted SNPs/Coverage');
 
-        self.assert_element('//div[contains(@class,"alignment")]/span[contains(@class,"mismatch") and contains(@class,"base_c")]');
+        self.assert_elements("//div[@id='track_volvox_sorted_bam']//canvas");
         self.assert_elements("//div[@id='track_volvox_sorted_bam_coverage']//canvas")
 
 
