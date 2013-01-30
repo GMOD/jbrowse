@@ -552,7 +552,7 @@ Browser.prototype.getTrackTypes = function() {
         this._knownTrackTypes = {
             // map of store type -> default track type to use for the store
             trackTypeDefaults: {
-                'JBrowse/Store/SeqFeature/BAM'        : 'JBrowse/View/Track/Alignments',
+                'JBrowse/Store/SeqFeature/BAM'        : 'JBrowse/View/Track/Alignments2',
                 'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/HTMLFeatures',
                 'JBrowse/Store/SeqFeature/BigWig'     : 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence'
@@ -560,6 +560,7 @@ Browser.prototype.getTrackTypes = function() {
 
             knownTrackTypes: [
                 'JBrowse/View/Track/Alignments',
+                'JBrowse/View/Track/Alignments2',
                 'JBrowse/View/Track/FeatureCoverage',
                 'JBrowse/View/Track/SNPCoverage',
                 'JBrowse/View/Track/HTMLFeatures',
