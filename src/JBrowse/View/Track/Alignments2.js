@@ -83,7 +83,6 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
         if ( fRect.w > 1 ) {
             var mismatches = this._getMismatches( feature );
             var charSize = this.getCharacterMeasurements( context );
-            var drawChars = scale >= charSize.w && fRect.h >= charSize.h;
             array.forEach( mismatches, function( mismatch ) {
                 var start = feature.get('start') + mismatch.start;
                 var end = start + mismatch.length;
@@ -99,19 +98,19 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                     context.fillStyle = this.colorForBase( mismatch.base );
                     context.fillRect( mRect.l, mRect.t, mRect.w, mRect.h );
 
-                    if( mRect.w >= charSize.w && mRect.h >= charSize.h ) {
+                    if( mRect.w >= charSize.w && mRect.h >= charSize.h-3 ) {
                         context.font = this.config.style.font;
                         context.fillStyle = mismatch.type == 'deletion' ? 'white' : 'black';
-                        context.fillText( mismatch.base, mRect.l+(mRect.w-charSize.w)/2+1, mRect.t+mRect.h-(mRect.h-charSize.h)/2-1 );
+                        context.fillText( mismatch.base, mRect.l+(mRect.w-charSize.w)/2+1, mRect.t+mRect.h-(mRect.h-charSize.h+4)/2 );
                     }
                 }
                 else if( mismatch.type == 'insertion' ) {
                     context.fillStyle = 'black';
                     context.fillRect( mRect.l-1, mRect.t, 2, mRect.h );
-                    if( mRect.w >= charSize.w && mRect.h >= charSize.h ) {
+                    if( mRect.w >= charSize.w && mRect.h >= charSize.h-3 ) {
                         context.font = this.config.style.font;
                         context.fillStyle = 'black';
-                        context.fillText( '('+mismatch.base+')', mRect.l+2, mRect.t+mRect.h-(mRect.h-charSize.h)/2-2 );
+                        context.fillText( '('+mismatch.base+')', mRect.l+2, mRect.t+mRect.h-(mRect.h-charSize.h+4)/2 );
                     }
                 }
                 else if( mismatch.type == 'skip' ) {
