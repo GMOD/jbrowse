@@ -14,6 +14,10 @@
    for very deep BAM alignments, and has slightly different
    configuration variables.
 
+ * "HTMLFeatures" tracks now accept a comma-separated list of field
+   names in their `description` configuration variable, allowing users
+   to customize which attribute(s) of a feature hold the description.
+
  * Added a timeout to HTMLFeatures and Alignments tracks to prevent
    data-heavy tracks (like BAM tracks with very deep coverage) from
    freezing or crashing a user's browser.

@@ -80,7 +80,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
      */
     _defaultConfig: function() {
         return {
-            description: true,
+            description: 'note, description',
 
             maxFeatureScreenDensity: 0.5,
             blockDisplayTimeout: 5000,
@@ -676,7 +676,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
         var name = feature.get('name') || feature.get('ID');
-        var description = this.config.description && scale > descriptionScale && ( feature.get('note') || feature.get('description') );
+        var description = this.config.description && scale > descriptionScale && this._getDescription(feature);
         if( description && description.length > this.config.style.maxDescriptionLength )
             description = description.substr(0, this.config.style.maxDescriptionLength+1 ).replace(/(\s+\S+|\s*)$/,'')+String.fromCharCode(8230);
 
@@ -820,6 +820,41 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         }
 
         return featDiv;
+    },
+
+
+    // get the description string for a feature, based on the setting
+    // of this.config.description
+    _getDescription: function( feature ) {
+
+        // parse our description varname conf if necessary
+        var fields = this.descriptionFields || function() {
+            var f = this.config.description;
+            if( f ) {
+                if( lang.isArray( f ) ) {
+                    f = f.join(',');
+                }
+                else if( typeof f != 'string' ) {
+                    console.warn( 'invalid `description` setting for "'+this.name+'" track, falling back to "note,description"' );
+                    f = 'note,description';
+                }
+                f = f.toLowerCase().split(/\s*\,\s*/);
+            }
+            else {
+                f = [];
+            }
+            this.descriptionFields = f;
+            return f;
+        }.call(this);
+
+
+        // return the value of the first field that contains something
+        for( var i=0; i<fields.length; i++ ) {
+            var d = feature.get( fields[i] );
+            if( d )
+                return d;
+        }
+        return null;
     },
 
     handleSubFeatures: function( feature, featDiv,
