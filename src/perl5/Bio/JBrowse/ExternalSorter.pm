@@ -148,7 +148,7 @@ sub flush {
         or croak "couldn't flush segment file: $!\n";
     $fh->close()
         or croak "couldn't close $fn: $!\n";
-    push @{$self->{segments}}, $fn;
+    push @{$self->{segments}}, "$fn";
     $self->{curList} = [];
     $self->{curSize} = 0;
 }

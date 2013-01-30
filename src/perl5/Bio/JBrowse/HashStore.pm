@@ -39,7 +39,7 @@ use Bio::JBrowse::ExternalSorter;
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
 
 
-=head2 open( dir => "/path/to/dir", hash_bits => 16, sort_mem => 1_000_000_000 )
+=head2 open( dir => "/path/to/dir", hash_bits => 16, sort_mem => 256 * 2**20 )
 
 =cut
 
@@ -148,8 +148,8 @@ sub sort_stream {
 
     $self->{sort_state} = 0;
 
-    # sort up to 10 million records at a time
-    my $batch_size = 10_000_000;
+    # sort up to 40 million records at a time
+    my $batch_size = 40_000_000;
 
     my $sorted_stream = $self->_sort_batch( $in_stream, $batch_size );
 
@@ -174,7 +174,7 @@ sub _sort_batch {
     my $sorter = Bio::JBrowse::ExternalSorter->new(
         sub ($$) {
             $_[0]->[0] cmp $_[1]->[0]
-        }, $self->{sort_mem} || 32_000_000 );
+        }, $self->{sort_mem} || 256*1024*1024 );
 
     local $SIG{INT} = sub {
         $sorter->cleanup;
