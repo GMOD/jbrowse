@@ -18,10 +18,13 @@ require([
             'JBrowse/View/Track/Wiggle/XYPlot',
             'JBrowse/View/Track/Wiggle/Density',
             'JBrowse/View/Track/Alignments',
+            'JBrowse/View/Track/Alignments2',
             'JBrowse/View/Track/FeatureCoverage',
+            'JBrowse/View/Track/SNPCoverage',
 
             'JBrowse/View/TrackList/Simple',
             'JBrowse/Store/TrackMetaData',
 
+            'xstyle/load-css',
             'dojox/gfx/svg'
         ]);

@@ -49,7 +49,23 @@ release-min: release-normal
 	for P in src docs/jsdoc tests tests_extended sample_data build; do \
 	    rm -rf $(RELEASE_MIN_DIR)$$P; \
 	done;
-	for P in src/wig2png src/dojo/dojo.js src/dojo/nls src/dojo/resources src/dojox/grid src/dijit/themes/tundra src/dijit/icons src/dijit/templates src/JBrowse src/perl5 src/dojox/gfx/vml.js src/dojox/gfx/vml_attach.js sample_data/test_snippet.html; do \
+	for P in 	src/wig2png \
+			src/dojo/dojo.js \
+			src/dojo/nls \
+			src/dojo/resources \
+			src/dojox/grid \
+			src/dojox/gfx/vml.js \
+			src/dojox/form/resources \
+			src/dojox/gfx/vml_attach.js \
+			src/dijit/themes/tundra \
+			src/dijit/form/templates \
+			src/dijit/icons \
+			src/dijit/templates \
+			src/JBrowse \
+			src/perl5 \
+			sample_data/test_snippet.html \
+			src/dgrid/css \
+	; do \
 	    mkdir -p `dirname $(RELEASE_MIN_DIR)$$P`; \
 	    cp -r $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
 	done
@@ -58,7 +74,7 @@ release-min: release-normal
 release-min-test: release-min
 	cp -r docs tests* sample_data $(RELEASE_MIN_DIR);
 	cd $(RELEASE_MIN_DIR) && ./setup.sh
-	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3
+	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
 bin/wig2png: src/wig2png/Makefile
 	$(MAKE) -C src/wig2png;
