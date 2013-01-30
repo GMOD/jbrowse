@@ -34,8 +34,6 @@ use JSON 2;
 use File::Spec ();
 use File::Path ();
 
-use Cache::Ref::FIFO ();
-
 use Bio::JBrowse::ExternalSorter;
 
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
@@ -63,12 +61,18 @@ sub open {
     $self->{hash_characters} = int( $self->{hash_bits}/4 );
     $self->{file_extension} = '.json';
 
-    $self->{bucket_cache} = Cache::Ref::FIFO->new( size => 30 );
-    $self->{bucket_path_cache_by_key} = Cache::Ref::FIFO->new( size => 30 );
-    $self->{bucket_path_cache_by_hash} = Cache::Ref::FIFO->new( size => 30 );
-    $self->{hex_hash_cache} = Cache::Ref::FIFO->new( size => 300 );
+    $self->{bucket_cache} = $self->_make_cache( size => 30 );
+    $self->{bucket_path_cache_by_key} = $self->_make_cache( size => 30 );
+    $self->{bucket_path_cache_by_hash} = $self->_make_cache( size => 30 );
+    $self->{hex_hash_cache} = $self->_make_cache( size => 100 );
 
     return bless $self, $class;
+}
+
+sub _make_cache {
+    my ( $self, @args ) = @_;
+    require Cache::Ref::FIFO;
+    return Cache::Ref::FIFO->new( @args );
 }
 
 # write out meta.json file when the store itself is destroyed
@@ -182,7 +186,7 @@ sub _sort_batch {
     my $data;
     while( $batch_size-- && ( $data = $in_stream->() ) ) {
         # hash each of the keys and values, spool them to a single log file
-        $sorter->add( [ $self->_hexHash( $data->[0] ), $data ] );
+        $sorter->add( $data );
     }
     $sorter->finish;
 
@@ -192,9 +196,9 @@ sub _sort_batch {
         my $d = $sorter->get;
         return $d && Bio::JBrowse::HashStore::Entry->new(
             store    => $self,
-            key      => $d->[1][0],
-            data     => $d->[1],
-            hex_hash => $d->[0]
+            key      => $d->[0],
+            data     => $d,
+            hex_hash => $self->_hexHash( $d->[0] )
         );
     };
 }
