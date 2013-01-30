@@ -345,17 +345,27 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
             context.fillRect( fRect.l, fRect.t, fRect.w, fRect.h );
         }
 
-        // foreground
-        var fgcolor = this.getStyle( fRect.f, 'fgcolor' );
-        if( fgcolor ) {
-            context.lineWidth = 1;
-            context.strokeStyle = fgcolor;
+        // foreground border
+        var fgcolor;
+        if( fRect.h > 3 ) {
+            fgcolor = this.getStyle( fRect.f, 'fgcolor' );
+            if( fgcolor ) {
+                context.lineWidth = 1;
+                context.strokeStyle = fgcolor;
 
-            // need to stroke a smaller rectangle to remain within
-            // the bounds of the feature's overall height and
-            // width, because of the way stroking is done in
-            // canvas.  thus the +0.5 and -1 business.
-            context.strokeRect( fRect.l+0.5, fRect.t+0.5, fRect.w-1, fRect.h-1 );
+                // need to stroke a smaller rectangle to remain within
+                // the bounds of the feature's overall height and
+                // width, because of the way stroking is done in
+                // canvas.  thus the +0.5 and -1 business.
+                context.strokeRect( fRect.l+0.5, fRect.t+0.5, fRect.w-1, fRect.h-1 );
+            }
+        }
+        else if( fRect.h > 1 ) {
+            fgcolor = this.getStyle( fRect.f, 'fgcolor' );
+            if( fgcolor ) {
+                context.fillStyle = fgcolor;
+                context.fillRect( fRect.l, fRect.t+fRect.h-1, fRect.w, 1 );
+            }
         }
     }
 });
