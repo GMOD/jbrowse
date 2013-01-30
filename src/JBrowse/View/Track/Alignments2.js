@@ -21,7 +21,6 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
             dojo.clone( this.inherited(arguments) ),
             {
                 //maxFeatureScreenDensity: 400
-                layoutPitchY: 3,
                 style: {
                     bgcolor: function( feature ) {
                         var missing_mate = feature.get('multi_segment_template') && !feature.get('multi_segment_all_aligned');
@@ -34,7 +33,7 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                     bgcolor_fwd_strand: '#EC8B8B',
                     bgcolor_rev_strand: '#898FD8',
                     bgcolor_missing_mate: '#D11919',
-                    height: 3,
+                    height: 7,
                     marginBottom: 0,
                     showMismatches: true,
                     font: 'bold 10px Courier New,monospace'
