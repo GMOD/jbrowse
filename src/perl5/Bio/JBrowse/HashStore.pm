@@ -63,7 +63,6 @@ sub open {
 
     $self->{bucket_cache} = $self->_make_cache( size => 30 );
     $self->{bucket_path_cache_by_key} = $self->_make_cache( size => 30 );
-    $self->{bucket_path_cache_by_hash} = $self->_make_cache( size => 30 );
     $self->{hex_hash_cache} = $self->_make_cache( size => 100 );
 
     return bless $self, $class;
@@ -323,9 +322,21 @@ sub store {
 
 sub _getBucket {
     my ( $self ) = @_;
-    my $store = $self->{store};
-    my $pathinfo = $store->{bucket_path_cache_by_hash}->compute( $self->{hex_hash}, sub { $store->_hexToPath( $self->{hex_hash} ); } );
-    return $store->{bucket_cache}->compute( $pathinfo->{fullpath}, sub { $store->_readBucket( $pathinfo ); } );
+
+    # use a one-element cache for this _getBucket, because Entrys
+    # come from sort_stream, and thus should have perfect cache locality
+    my $tinycache = $self->{store}{tiny_bucket_cache} ||= { hex_hash => '' };
+    if( $tinycache->{hex_hash} eq $self->{hex_hash} ) {
+        return $tinycache->{bucket};
+    }
+    else {
+        my $store = $self->{store};
+        my $pathinfo = $store->_hexToPath( $self->{hex_hash} );
+        my $bucket = $store->_readBucket( $pathinfo );
+        $tinycache->{hex_hash} = $self->{hex_hash};
+        $tinycache->{bucket} = $bucket;
+        return $bucket;
+    }
 }
 
 1;
