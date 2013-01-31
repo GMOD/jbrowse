@@ -27,6 +27,10 @@ not passed, all tracks are indexed.
 
 Maximum number of distinct locations to store for a single name.  Default 100.
 
+=item --sortMem <bytes>
+
+Number of bytes of RAM we are allowed to use for sorting memory.  Default 256 MB.
+
 =item --completionLimit <number>
 
 Maximum number of completions to store for a given prefix.  Default 20.
@@ -79,6 +83,7 @@ my $help;
 my $max_completions = 20;
 my $max_locations = 100;
 my $thresh;
+my $sort_mem = 256 * 2**20;
 my $est_total_name_records;
 my $hash_bits;
 GetOptions("dir|out=s" => \$outDir,
@@ -86,6 +91,7 @@ GetOptions("dir|out=s" => \$outDir,
            "locationLimit=i" => \$max_locations,
            "verbose+" => \$verbose,
            "thresh=i" => \$thresh,
+           "sortMem=i" => \$sort_mem,
            "totalNames=i" => \$est_total_name_records,
            'tracks=s' => \@includedTrackNames,
            'hashBits=i' => \$hash_bits,
@@ -142,6 +148,7 @@ if( $verbose ) {
 my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
     empty => 1,
+    sort_mem => $sort_mem,
 
     # set the hash size to try to get about 50KB per file, at an
     # average of about 500 bytes per name record, for about 100
