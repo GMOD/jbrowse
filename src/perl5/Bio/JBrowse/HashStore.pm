@@ -146,7 +146,7 @@ sub sort_stream {
 
     my $sorted_stream = Bio::JBrowse::PartialSorter
         ->new(
-            mem => $self->{sort_mem} || 265 * 2**20,
+            mem => $self->{sort_mem} || 256 * 2**20,
             compare => sub($$) {
                 $_[0][0] cmp $_[1][0]
                },
