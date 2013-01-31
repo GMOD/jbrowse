@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.8.0     2013-01-31 14:05:27 America/New_York
+
  * Added new "File -> Open" function that can display BAM, BigWig, and
    GFF3 files located on the user's machine, at remote URLs, or a
    mixture of both.  When opening local files, everything is done
