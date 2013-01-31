@@ -157,8 +157,9 @@ sub sort_stream {
     # 1-element cache for crc32 computations
     my $hash_cache = $self->{tiny_hash_cache} ||= { key => '' };
     return sub {
-        my $d = $sorted_stream->();
-        return unless $d;
+        my $d = $sorted_stream->()
+            or return;
+
         my $key = $d->[0];
         my $hash = $hash_cache->{key} eq $key
             ? $hash_cache->{hash}
@@ -167,7 +168,7 @@ sub sort_stream {
                 $hash_cache->{hash} = $self->_hexHash( $key );
             };
 
-        return $d && Bio::JBrowse::HashStore::Entry->new(
+        return Bio::JBrowse::HashStore::Entry->new(
             store    => $self,
             key      => $key,
             data     => $d,
