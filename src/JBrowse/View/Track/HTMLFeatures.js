@@ -362,9 +362,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 else {
                     // if we have transitioned to viewing features, delete the
                     // y-scale used for the histograms
-                    if( this.yscale ) {
-                        this._removeYScale();
-                    }
+                    this._removeYScale();
                     this.fillFeatures( dojo.mixin( {stats: stats}, args ) );
                 }
         }));
@@ -411,8 +409,10 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
      * @private
      */
     _removeYScale: function() {
-        if( !this.yscale )
+        if( !this.yscale ) {
+            dojo.query( '.ruler', this.div ).orphan();
             return;
+        }
         this.yscale.parentNode.removeChild( this.yscale );
         delete this.yscale_params;
         delete this.yscale;
