@@ -188,7 +188,7 @@ return declare(null,{
         var outSheets = [];
         array.forEach( inSheets, function( sheet ) {
             outSheets.push( sheet );
-            array.forEach( sheet.rules || sheet.cssRules, function( rule ) {
+            array.forEach( sheet.cssRules || sheet.rules, function( rule ) {
                 if( rule.styleSheet )
                     outSheets.push.apply( outSheets, this._getStyleSheets( [rule.styleSheet] ) );
             },this);
