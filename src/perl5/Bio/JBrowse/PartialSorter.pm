@@ -10,6 +10,9 @@ Bio::JBrowse::PartialSorter - partially sort a stream
 
 =head2 new( size => $num_items, mem => $mem_bytes, compare => sub($$) )
 
+All items optional.  Defaults to string comparison, 256MB of sort
+memory.
+
 =cut
 
 sub new {
