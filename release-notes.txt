@@ -1,8 +1,9 @@
 {{$NEXT}}
 
- * Added new "File -> Open" function that can display local BAM,
-   BigWig, and GFF3 files located on the user's machine.  Everything
-   is done locally, no data is transferred to the server.
+ * Added new "File -> Open" function that can display BAM, BigWig, and
+   GFF3 files located on the user's machine, at remote URLs, or a
+   mixture of both.  When opening local files, everything is done
+   locally, no data is transferred to the server.
 
  * Added a new "SNPCoverage" track type, designed for use with BAM
    files (but which works with any features that have MD fields), that
