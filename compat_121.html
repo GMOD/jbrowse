@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content = "text/html; charset=utf-8">
     <title>JBrowse</title>
     <link rel="stylesheet" type="text/css" href="genome.css"></link>
-    <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="isDebug: 0, async: 1"></script>
+    <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: 1"></script>
 
     <script type="text/javascript">
         window.onerror=function(msg){
@@ -12,7 +12,13 @@
         }
 
         var JBrowse;
-        require({ baseUrl: 'src', packages: ['JBrowse','dojo','dijit','dojox','jszlib'] },
+        require( { baseUrl: 'src',
+                   packages: [ 'dojo', 'dijit', 'dojox', 'jszlib',
+                               { name: 'lazyload', main: 'lazyload' },
+                               'dgrid', 'xstyle', 'put-selector',
+                               'JBrowse'
+                             ]
+                 },
             [ 'JBrowse/Browser', 'dojo/io-query' ],
             function (Browser,ioQuery) {
                    var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
