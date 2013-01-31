@@ -109,8 +109,7 @@ sub finish {
         }
         $self->{readSegments} = $readSegments;
     } else {
-        $self->{curList} =
-            [sort $compare @{$self->{curList}}];
+        @{$self->{curList}} = sort $compare @{$self->{curList}};
     }
     $self->{finished} = 1;
 }
