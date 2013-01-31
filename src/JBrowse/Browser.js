@@ -140,7 +140,7 @@ Browser.prototype._initialLocation = function() {
 };
 
 Browser.prototype.version = function() {
-    var BUILD_SYSTEM_JBROWSE_VERSION = "1.8.0";
+    var BUILD_SYSTEM_JBROWSE_VERSION;
     return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
 }.call();
 
