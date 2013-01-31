@@ -112,14 +112,14 @@ return declare( [Wiggle, MismatchesMixin],
                 }
 
 
+                // remember in each bin whether the SNPs are counted, and its bin width
+                for( var i = startBO.bin; i <= endBO.bin; i++ ) {
+                    coverageBins[i].snpsCounted = binWidth == 1;
+                    coverageBins[i].binWidth = binWidth;
+                }
+
                 // Calculate SNP coverage
                 if( binWidth == 1 ) {
-
-                    // mark each bin as having its snps counted
-                    for( var i = startBO.bin; i <= endBO.bin; i++ ) {
-                        coverageBins[i].snpsCounted = 1;
-                    }
-
                     // parse the MD
                     var mdTag = feature.get('MD');
                     if( mdTag ) {
@@ -368,7 +368,7 @@ return declare( [Wiggle, MismatchesMixin],
             scoreDisplay.innerHTML = scoreSummary+'</table>';
             return true;
         } else {
-            scoreDisplay.innerHTML = '<table><tr><td>Total</td><td class="count">'+fmtNum(score)+'</td></tr></table>';
+            scoreDisplay.innerHTML = '<table><tr><td>Total'+(score.binWidth==1 ? '' : ' (bin avg)')+'</td><td class="count">'+fmtNum(score)+'</td></tr></table>';
             return true;
         }
     }
