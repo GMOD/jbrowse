@@ -47,7 +47,7 @@ return declare( Wiggle,
 
         var coverageBins = new Array( Math.ceil( widthBp/binWidth ) );
         var binOverlap = function( bp, isRightEnd ) {
-            var binCoord  = (bp-leftBase) / binWidth;
+            var binCoord  = (bp-leftBase-1) / binWidth;
             var binNumber = Math.floor( binCoord );
             var overlap   = isRightEnd ? 1-(binCoord-binNumber) : binCoord - binNumber;
             return {
@@ -59,10 +59,8 @@ return declare( Wiggle,
         this.store.getFeatures(
             query,
             dojo.hitch( this, function( feature ) {
-                            var start = feature.get('start')-1;
-                            var end = feature.get('end')-1;
-                            var startBO = binOverlap( start, false );
-                            var endBO   = binOverlap( end,   true  );
+                            var startBO = binOverlap( feature.get('start'), false );
+                            var endBO   = binOverlap( feature.get('end'),   true  );
 
                             // increment start and end partial-overlap bins by proportion of overlap
                             if( startBO.bin == endBO.bin ) {

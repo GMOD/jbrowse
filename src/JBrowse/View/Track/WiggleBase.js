@@ -188,7 +188,7 @@ return declare( [CanvasTrack,ExportMixin], {
                   width:  canvasWidth,
                   style: {
                       cursor: 'default',
-                      width: "101%",
+                      width: "100%",
                       height: canvasHeight + "px"
                   },
                   innerHTML: 'Your web browser cannot display this type of track.',
@@ -257,8 +257,8 @@ return declare( [CanvasTrack,ExportMixin], {
      */
     _featureRect: function( scale, leftBase, canvas, feature, dataScale ) {
         var fRect = {
-            w: Math.ceil( ( feature.get('end')   - feature.get('start') ) * scale ),
-            l: Math.floor(( feature.get('start') - leftBase       ) * scale )
+            w: Math.ceil(( feature.get('end')   - feature.get('start') ) * scale ),
+            l: Math.round(( feature.get('start') - leftBase ) * scale )
         };
 
         // if fRect.l is negative (off the left
@@ -297,7 +297,7 @@ return declare( [CanvasTrack,ExportMixin], {
             var fRect = featureRects[i];
             var jEnd = fRect.r;
             var score = f.get('score');
-            for( var j = fRect.l; j < jEnd; j++ ) {
+            for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
                 pixelValues[j] = j in pixelValues ? Math.max( pixelValues[j], score ) : score;
             }
         },this);

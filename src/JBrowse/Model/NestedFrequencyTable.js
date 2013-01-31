@@ -28,25 +28,31 @@ var NestedFrequencyTable = Util.fastDeclare({
     },
 
     // decrement the count for the given category
-    decrement: function( slotName ) {
+    decrement: function( slotName, amount ) {
+        if( ! amount )
+            amount = 1;
+
         if( !slotName )
             slotName = 'default';
         else
             slotName = slotName.toString();
 
         if( this._categories[slotName] )
-            return --this._categories[slotName];
+            return this._categories[slotName] = Math.max( 0 , this._categories[slotName] - amount );
         else
             return 0;
     },
 
     // increment the count for the given category
-    increment: function( slotName ) {
+    increment: function( slotName, amount ) {
+        if( ! amount )
+            amount = 1;
+
         if( !slotName )
             slotName = 'default';
         else
             slotName = slotName.toString();
-        return ( this._categories[slotName] = (this._categories[slotName] || 0) + 1 );
+        return ( this._categories[slotName] = (this._categories[slotName] || 0) + amount );
     },
 
 
@@ -81,8 +87,9 @@ var NestedFrequencyTable = Util.fastDeclare({
     },
 
     toString: function() {
-        return this.total().toString();
+        return this.total().toPrecision(6).toString();
     },
+
     valueOf: function() {
         return this.total();
     },

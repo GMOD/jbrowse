@@ -57,50 +57,87 @@ return declare( [Wiggle, MismatchesMixin],
 
         var binWidth = Math.ceil( query.basesPerSpan ); // in bp
 
-        var coverageBins = [];
-        var bpToBin = function( bp ) {
+        var binNumber = function( bp ) {
             return Math.floor( (bp-leftBase) / binWidth );
         };
 
         // init coverage bins
-        var maxBin = bpToBin( rightBase );
+        var maxBin = binNumber( rightBase );
+        var coverageBins = new Array( maxBin+1 );
         for( var i = 0; i <= maxBin; i++ ) {
             coverageBins[i] = new NestedFrequencyTable();
         }
+        var binOverlap = function( bp, isRightEnd ) {
+            var binCoord  = (bp-leftBase) / binWidth;
+            var binNumber = Math.floor( binCoord );
+
+            // only calculate the overlap if this lies in this block
+            if( binNumber >= 0 && binNumber <= maxBin ) {
+                var overlap =
+                    isRightEnd ? 1 - ( binCoord - binNumber )
+                               : binCoord - binNumber;
+                return {
+                    bin: binNumber,
+                    overlap: overlap // between 0 and 1: proportion of this bin that the feature overlaps
+                };
+            }
+            // otherwise null, this feature goes outside the block
+            else {
+                return isRightEnd ? { bin: maxBin, overlap: 1 }
+                                  : { bin: 0,      overlap: 1 };
+            }
+        };
+
 
         thisB.store.getFeatures(
             query,
             function( feature ) {
 
                 // calculate total coverage
-                var startBin = bpToBin( feature.get('start') );
-                var endBin   = bpToBin( feature.get('end')-1 );
-                for( var i = startBin; i <= endBin; i++ ) {
-                    var bin = coverageBins[i];
-                    if( bin ) {
-                        bin.increment('reference');
-                        bin.snpsCalculated = binWidth == 1;
-                    }
+                var startBO = binOverlap( feature.get('start'), false );
+                var endBO   = binOverlap( feature.get('end')-1  , true  );
+
+                // increment start and end partial-overlap bins by proportion of overlap
+                if( startBO.bin == endBO.bin ) {
+                    coverageBins[startBO.bin].increment( 'reference', endBO.overlap + startBO.overlap - 1 );
                 }
+                else {
+                    coverageBins[startBO.bin].increment( 'reference', startBO.overlap );
+                    coverageBins[endBO.bin].increment(   'reference', endBO.overlap   );
+                }
+
+                // increment completely overlapped interior bins by 1
+                for( var i = startBO.bin+1; i <= endBO.bin-1; i++ ) {
+                    coverageBins[i].increment( 'reference', 1 );
+                }
+
 
                 // Calculate SNP coverage
                 if( binWidth == 1 ) {
+
+                    // mark each bin as having its snps counted
+                    for( var i = startBO.bin; i <= endBO.bin; i++ ) {
+                        coverageBins[i].snpsCounted = 1;
+                    }
+
+                    // parse the MD
                     var mdTag = feature.get('MD');
                     if( mdTag ) {
                         var SNPs = thisB._mdToMismatches(feature, mdTag);
                         // loops through mismatches and updates coverage variables accordingly.
                         for (var i = 0; i<SNPs.length; i++) {
-                            var pos = bpToBin( feature.get('start') + SNPs[i].start );
+                            var pos = binNumber( feature.get('start') + SNPs[i].start );
                             var bin = coverageBins[pos];
                             if( bin ) {
                                 var strand = { '-1': '-', '1': '+' }[ ''+feature.get('strand') ] || 'unstranded';
                                 // Note: we decrement 'reference' so that total of the score is the total coverage
-                                bin.decrement('reference');
+                                bin.decrement('reference', 1/binWidth );
                                 var base = SNPs[i].bases;
-                                bin.getNested(base).increment(strand);
+                                bin.getNested(base).increment(strand, 1/binWidth);
                             }
                         }
                     }
+
                 }
             },
             function () {
@@ -131,7 +168,7 @@ return declare( [Wiggle, MismatchesMixin],
                                                      function() {
                                                          if( sequence ) {
                                                              for( var base = leftBase; base <= rightBase; base++ ) {
-                                                                 var bin = bpToBin( base );
+                                                                 var bin = binNumber( base );
                                                                  coverageBins[bin].refBase = sequence[bin];
                                                              }
                                                          }
@@ -289,7 +326,11 @@ return declare( [Wiggle, MismatchesMixin],
         if( ! score )
             return false;
 
-        if( score.snpsCalculated ) {
+        function fmtNum( num ) {
+            return parseFloat( num ).toPrecision(6).replace(/0+$/,'').replace(/\.$/,'');
+        }
+
+        if( score.snpsCounted ) {
             var total = score.total();
             var scoreSummary = '<table>';
             function pctString( count ) {
@@ -299,7 +340,7 @@ return declare( [Wiggle, MismatchesMixin],
                   '<tr class="ref"><td>'
                 + (score.refBase ? score.refBase+'*' : 'Ref')
                 + '</td><td class="count">'
-                + score.get('reference')
+                + fmtNum( score.get('reference') )
                 + '</td><td class="pct">'
                 + pctString( score.get('reference') )
                 + '</td></tr>';
@@ -312,7 +353,7 @@ return declare( [Wiggle, MismatchesMixin],
                 if( count.forEach ) {
                     subdistribution = [];
                     count.forEach( function( count, category ) {
-                        subdistribution.push( count + ' '+category );
+                        subdistribution.push( fmtNum(count) + ' '+category );
                     });
                     subdistribution = subdistribution.join(', ');
                     if( subdistribution )
@@ -320,14 +361,14 @@ return declare( [Wiggle, MismatchesMixin],
                 }
 
                 category = { '*': 'del' }[category] || category;
-                scoreSummary += '<tr><td>'+category + '</td><td class="count">' + count + '</td><td class="pct">'
+                scoreSummary += '<tr><td>'+category + '</td><td class="count">' + fmtNum(count) + '</td><td class="pct">'
                                    +pctString(count)+'</td><td class="subdist">'+subdistribution + '</td></tr>';
             });
-            scoreSummary += '<tr class="total"><td>Total</td><td class="count">'+total+'</td><td class="pct">&nbsp;</td><td class="subdist">&nbsp;</td></tr>';
+            scoreSummary += '<tr class="total"><td>Total</td><td class="count">'+fmtNum(total)+'</td><td class="pct">&nbsp;</td><td class="subdist">&nbsp;</td></tr>';
             scoreDisplay.innerHTML = scoreSummary+'</table>';
             return true;
         } else {
-            scoreDisplay.innerHTML = '<table><tr><td>Total</td><td class="count">'+score+'</td></tr></table>';
+            scoreDisplay.innerHTML = '<table><tr><td>Total</td><td class="count">'+fmtNum(score)+'</td></tr></table>';
             return true;
         }
     }
