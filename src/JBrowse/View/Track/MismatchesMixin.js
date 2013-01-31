@@ -88,7 +88,7 @@ return declare(null,{
         };
         // insert newlines
         var rendered = '';
-        var lineFields = Math.round(60/fieldWidth);
+        var lineFields = Math.round(50/fieldWidth);
         while( paddedSeq.length ) {
             var line = paddedSeq.slice(0,Math.min( paddedSeq.length, lineFields ) );
             paddedSeq = paddedSeq.slice(lineFields);
