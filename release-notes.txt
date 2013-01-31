@@ -39,6 +39,10 @@
    pixels per bp), either histograms or a "too many features" message
    will be displayed.
 
+ * Changed binning algorithm of "FeatureCoverage" tracks when zoomed
+   out.  Now calculates the average base coverage in each bin, rather
+   than the absolute number of features that overlap each bin.
+
  * "HTMLFeatures" tracks now accept a comma-separated list of field
    names in their `description` configuration variable, allowing users
    to customize which attribute(s) of a feature hold the description.
