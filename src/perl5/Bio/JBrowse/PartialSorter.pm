@@ -14,7 +14,9 @@ Bio::JBrowse::PartialSorter - partially sort a stream
 
 sub new {
     my ( $class, @args ) = @_;
-    bless { @args }, $class;
+    my $self = bless { @args }, $class;
+    $self->{mem} ||= 256*1024*1024; #256 MB
+    return $self;
 }
 
 =head2 sort( $stream )
@@ -28,23 +30,30 @@ sub sort {
 
     my @buffer;
 
-    my $size = $self->{size} ||= do {
+    my $size = $self->{size};
+    if( ! $size ) { # if no explicit item size, sum the size of the first 100 items
         my $item_size = $self->_estimate_item_size( $in, 100, \@buffer );
-        sprintf('%.0f',($self->{mem} || 256*1024*1024) / $item_size )
-    };
+        $size = $self->{size} = sprintf('%.0f', $self->{mem} / $item_size );
+        $self->_fill_buffer( $in, \@buffer, $size );
+    }
 
-    my $compare = $self->{compare} || sub { $a cmp $b };
 
     return sub {
         unless( @buffer ) {
-            while( @buffer < $size && ( my $d = $in->() ) ) {
-                push @buffer, $d;
-            }
-            return unless @buffer; # stream ended
-            @buffer = sort $compare @buffer;
+            $self->_fill_buffer( $in, \@buffer, $size );
+            return unless @buffer; # stream must have ended
         }
         return shift @buffer;
     };
+}
+
+sub _fill_buffer {
+    my ( $self, $in, $buffer, $size ) = @_;
+    my $compare = $self->{compare} ||= sub { $a cmp $b };
+    while( @$buffer < $size && ( my $d = $in->() ) ) {
+        push @$buffer, $d;
+    }
+    @$buffer = sort $compare @$buffer;
 }
 
 sub _estimate_item_size {
@@ -59,7 +68,7 @@ sub _estimate_item_size {
 
     my $avg_size = List::Util::sum(
         map Devel::Size::total_size( $_ ), @$buffer
-    ) / $sample_size;
+    ) / @$buffer;
 
     return $avg_size;
 }
