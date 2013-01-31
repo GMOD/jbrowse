@@ -73,7 +73,7 @@ var NestedFrequencyTable = Util.fastDeclare({
         var slotName = path[0].toString();
         var slot = this._categories[slotName];
         if( ! slot || ! slot._categories )
-            slot = this._categories[slotName] = new NestedFrequencyTable( slot ? { default: slot+0 } : {} );
+            slot = this._categories[slotName] = new NestedFrequencyTable( slot ? { "default": slot+0 } : {} );
 
         if( path.length > 1 ) {
             return slot.getNested( path.slice(1) );
