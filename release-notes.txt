@@ -15,13 +15,13 @@
    configuration scheme.
 
  * Added a flexible plugin system whereby external code can be loaded
-   as part of JBrowse.  Plugin JavaScript has full access to
-   everything in JBrowse, and can customize nearly everything.  Many
-   hooks are available that plugins can use to safely modify JBrowse's
-   behavior.  See the JBrowse wiki for details on how to write your
-   own plugins.  Thanks to Gregg Helt and the other members of the
-   WebApollo project for helping to drive development of the new
-   plugin system.
+   as part of JBrowse.  Plugin JavaScript has full access to customize
+   nearly everything in JBrowse.  The plugin system is quite new, but
+   many hooks are available that plugins can use to safely modify
+   JBrowse's behavior, and more are on the way.  See the JBrowse wiki
+   for details on how to write your own plugins.  Thanks to Gregg Helt
+   and the other members of the WebApollo project for helping to drive
+   development of the new plugin system.
 
  * JBrowse feature name indexing (`generate-names.pl`) now uses an
    all-new hash-based filesystem backend.  Although
