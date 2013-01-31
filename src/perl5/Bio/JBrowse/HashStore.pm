@@ -34,7 +34,7 @@ use JSON 2;
 use File::Spec ();
 use File::Path ();
 
-use Bio::JBrowse::ExternalSorter;
+use Bio::JBrowse::PartialSorter;
 
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
 
@@ -141,60 +141,24 @@ reading them back in sorted order.
 
 =cut
 
-use constant SORT_EOF     => 1;
-use constant SORT_EOBATCH => 2;
 sub sort_stream {
     my ( $self, $in_stream ) = @_;
 
-    $self->{sort_state} = 0;
+    use Data::Dump;
+    my $sorted_stream = Bio::JBrowse::PartialSorter
+        ->new(
+            size    => 20_000_000,
+            compare => sub($$) {
+                $_[0][0] cmp $_[1][0]
+               },
+           )
+        ->sort( $in_stream );
 
-    # sort up to 40 million records at a time
-    my $batch_size = 40_000_000;
-
-    my $sorted_stream = $self->_sort_batch( $in_stream, $batch_size );
-
-    return sub {
-        my $d = $sorted_stream->();
-
-        if( !$d && $self->{sort_state} != SORT_EOF ) {
-            # sort another batch if we have not yet reached the end of the input stream
-            $sorted_stream = $self->_sort_batch( $in_stream, $batch_size );
-            $d = $sorted_stream->();
-        }
-
-        return $d;
-    };
-}
-
-sub _sort_batch {
-    my ( $self, $in_stream, $batch_size ) = @_;
-
-    $batch_size ||= 10_000_000;
-
-    my $sorter = Bio::JBrowse::ExternalSorter->new(
-        sub ($$) {
-            $_[0]->[0] cmp $_[1]->[0]
-        }, $self->{sort_mem} || 256*1024*1024 );
-
-    local $SIG{INT} = sub {
-        $sorter->cleanup;
-        exit -1;
-    };
-
-    my $data;
-    while( $batch_size-- && ( $data = $in_stream->() ) ) {
-        # hash each of the keys and values, spool them to a single log file
-        $sorter->add( $data );
-    }
-    $sorter->finish;
-
-    $self->{sort_state} = $batch_size > -1 ? SORT_EOF : SORT_EOBATCH;
-
-    # sorted entries should have perfect cache locality, so use a
+    # sorted entries should have nearly perfect cache locality, so use a
     # 1-element cache for crc32 computations
     my $hash_cache = $self->{tiny_hash_cache} ||= { key => '' };
     return sub {
-        my $d = $sorter->get;
+        my $d = $sorted_stream->();
         return unless $d;
         my $key = $d->[0];
         my $hash = $hash_cache->{key} eq $key
