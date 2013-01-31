@@ -129,6 +129,12 @@ return {
         for( var bainame in singletonBAIs ) {
             delete configs[bainame];
         }
+
+        // delete any remaining singleton BAMs, unless they are URLs
+        for( var bamname in singletonBAMs ) {
+            if( ! configs[bamname].urlTemplate )
+                delete configs[bamname];
+        }
     },
 
     _makeBlob: function( resource ) {
