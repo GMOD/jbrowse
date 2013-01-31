@@ -144,10 +144,9 @@ reading them back in sorted order.
 sub sort_stream {
     my ( $self, $in_stream ) = @_;
 
-    use Data::Dump;
     my $sorted_stream = Bio::JBrowse::PartialSorter
         ->new(
-            size    => 20_000_000,
+            mem => $self->{sort_mem} || 265 * 2**20,
             compare => sub($$) {
                 $_[0][0] cmp $_[1][0]
                },
@@ -176,6 +175,7 @@ sub sort_stream {
         );
     };
 }
+
 
 =head2 empty
 

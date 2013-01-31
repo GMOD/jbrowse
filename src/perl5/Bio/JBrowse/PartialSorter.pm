@@ -8,7 +8,7 @@ Bio::JBrowse::PartialSorter - partially sort a stream
 
 =head1 METHODS
 
-=head2 new( size => $num_items, compare => sub($$) )
+=head2 new( size => $num_items, mem => $mem_bytes, compare => sub($$) )
 
 =cut
 
@@ -26,21 +26,42 @@ Returns another stream, partially sorted with the comparison function.
 sub sort {
     my ( $self, $in ) = @_;
 
-    my $size = $self->{size} || 10_000_000;
-    my $compare = $self->{compare} || sub { $a cmp $b };
     my @buffer;
-    #$#buffer = $size;
+
+    my $size = $self->{size} ||= do {
+        my $item_size = $self->_estimate_item_size( $in, 100, \@buffer );
+        sprintf('%.0f',($self->{mem} || 256*1024*1024) / $item_size )
+    };
+
+    my $compare = $self->{compare} || sub { $a cmp $b };
 
     return sub {
         unless( @buffer ) {
             while( @buffer < $size && ( my $d = $in->() ) ) {
                 push @buffer, $d;
             }
+            return unless @buffer; # stream ended
             @buffer = sort $compare @buffer;
         }
-        return unless @buffer;
         return shift @buffer;
     };
+}
+
+sub _estimate_item_size {
+    require List::Util;
+    require Devel::Size;
+
+    my ( $self, $in_stream, $sample_size, $buffer ) = @_;
+
+    while( @$buffer < $sample_size && ( my $d = $in_stream->() ) ) {
+        push @$buffer, $d;
+    }
+
+    my $avg_size = List::Util::sum(
+        map Devel::Size::total_size( $_ ), @$buffer
+    ) / $sample_size;
+
+    return $avg_size;
 }
 
 1;
