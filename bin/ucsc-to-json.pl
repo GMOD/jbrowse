@@ -243,7 +243,7 @@ function(track, feat, elem) {
     var fType = feat.get("Type");
     if (fType) {
         elem.className = "basic";
-        switch (fType]) {
+        switch (fType) {
         case "CDS":
         case "thick":
             elem.style.height = "10px";
