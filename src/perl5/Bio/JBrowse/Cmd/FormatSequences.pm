@@ -24,7 +24,8 @@ use FastaDatabase;
 
 sub option_defaults {(
     out => 'data',
-    chunksize => 20_000
+    chunksize => 20_000,
+    trackLabel => 'DNA'
 )}
 
 sub option_definitions {(
@@ -37,6 +38,8 @@ sub option_definitions {(
     "refs=s",
     "refids=s",
     "compress",
+    "trackLabel=s",
+    "key=s",
     "help|h|?",
     "nohash"
 )}
@@ -246,7 +249,7 @@ sub writeTrackEntry {
 
     my $compress = $self->opt('compress');
 
-    my $seqTrackName = "DNA";
+    my $seqTrackName = $self->opt('trackLabel');
     unless( $self->opt('noseq') ) {
         $self->{storage}->modify( 'trackList.json',
                                        sub {
@@ -268,7 +271,7 @@ sub writeTrackEntry {
                                            $tracks->[$i] =
                                        {
                                            'label' => $seqTrackName,
-                                           'key' => $seqTrackName,
+                                           'key' => $self->opt('key') || $seqTrackName,
                                            'type' => "SequenceTrack",
                                            'chunkSize' => $self->{chunkSize},
                                            'urlTemplate' => $self->seqUrlTemplate,

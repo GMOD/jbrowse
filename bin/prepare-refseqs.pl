@@ -74,6 +74,15 @@ Store sequences in a flat seq/$seqname/$chunk.txt structure, instead
 of the new (more scalable) /seq/hash/hash/hash/$seqname-$chunk.txt
 structure.
 
+=item --trackLabel <label>
+
+The unique name of the sequence track, default 'DNA'.
+
+=item --key <string>
+
+The displayed name of the sequence track, defaults to the value of
+C<--trackLabel>.
+
 =back
 
 =head1 AUTHOR

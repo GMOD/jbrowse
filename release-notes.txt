@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Added support for `--trackLabel` and `--key` options to
+   `prepare-refseqs.pl`, allowing users to specify the sequence
+   track's label and title.
+
 1.8.0     2013-01-31 14:05:27 America/New_York
 
  * Added new "File -> Open" function that can display BAM, BigWig, and
