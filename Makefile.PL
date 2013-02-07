@@ -14,7 +14,8 @@ my %WriteMakefileArgs = (
   "BUILD_REQUIRES" => {
     "Test::More" => 0,
     "Test::Warn" => 0,
-    "Capture::Tiny" => 0
+    "Capture::Tiny" => 0,
+    "DBD::SQLite" => 0,
   },
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"
