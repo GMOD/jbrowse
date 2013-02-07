@@ -104,13 +104,15 @@ return declare(null,{
 
     _getMismatches: function( feature ) {
         var mismatches = [];
-        // parse the MD tag if it has one
-        if( feature.get('MD') ) {
-            mismatches.push.apply( mismatches, this._mdToMismatches( feature, feature.get('MD') ) );
-        }
+
         // parse the CIGAR tag if it has one
         if( feature.get('cigar') ) {
             mismatches.push.apply( mismatches, this._cigarToMismatches( feature, feature.get('cigar') ) );
+        }
+
+        // parse the MD tag if it has one
+        if( feature.get('md') ) {
+            mismatches.push.apply( mismatches, this._mdToMismatches( feature, feature.get('md') ) );
         }
 
         return mismatches;

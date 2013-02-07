@@ -121,7 +121,7 @@ return declare( [Wiggle, MismatchesMixin],
                     }
 
                     // parse the MD
-                    var mdTag = feature.get('MD');
+                    var mdTag = feature.get('md');
                     if( mdTag ) {
                         var SNPs = thisB._mdToMismatches(feature, mdTag);
                         // loops through mismatches and updates coverage variables accordingly.
