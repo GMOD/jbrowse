@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Fixed some bugs preventing `Alignments` and `Alignments2` tracks
+   from working with non-BAM data backends.
+
  * Added support for `--trackLabel` and `--key` options to
    `prepare-refseqs.pl`, allowing users to specify the sequence
    track's label and title.
