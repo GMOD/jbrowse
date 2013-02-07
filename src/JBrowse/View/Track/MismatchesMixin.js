@@ -222,7 +222,7 @@ return declare(null,{
            return colors;
         }.call(this);
 
-        return this._baseStyles[base] || 'black';
+        return this._baseStyles[base] || 'gray';
     }
 });
 });
