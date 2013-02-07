@@ -146,13 +146,16 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 // figure out what data store class to use with the track,
                 // applying some defaults if it is not explicit in the
                 // configuration
+                var urlTemplate = trackConfig.urlTemplate;
                 var storeClass = this._regularizeClass(
                     'JBrowse/Store',
-                    trackConfig.storeClass                       ? trackConfig.storeClass :
-                        /\/HTMLFeatures$/.test( trackClassName ) ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
-                        /\/FixedImage/.test( trackClassName )    ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
-                        /\/Sequence$/.test( trackClassName )     ? 'JBrowse/Store/Sequence/StaticChunked'                                              :
-                                                                    null
+                    trackConfig.storeClass                    ? trackConfig.storeClass :
+                        /\/FixedImage/.test( trackClassName ) ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
+                        /\.json$/i.test( urlTemplate )        ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
+                        /\.bam$/i.test( urlTemplate )         ? 'JBrowse/Store/SeqFeature/BAM'                                                      :
+                        /\.(bw|bigwig)$/i.test( urlTemplate ) ? 'JBrowse/Store/SeqFeature/BigWig'                                                   :
+                        /\/Sequence$/.test( trackClassName )  ? 'JBrowse/Store/Sequence/StaticChunked'                                              :
+                                                                 null
                 );
 
                 if( ! storeClass ) {
