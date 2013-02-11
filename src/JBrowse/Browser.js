@@ -1674,6 +1674,8 @@ Browser.prototype.makeShareLink = function () {
     // connect moving and track-changing events to update it
     var updateShareURL = function() {
         shareURL = browser.makeShareURL();
+        if( window.history && window.history.replaceState )
+            window.history.replaceState( {},"", shareURL );
     };
     dojo.connect( this, "onCoarseMove",                    updateShareURL );
     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', updateShareURL );
