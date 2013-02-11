@@ -139,6 +139,8 @@ Browser.prototype._initialLocation = function() {
 };
 
 Browser.prototype.version = function() {
+    // when a build is put together, the build system assigns a string
+    // to the variable below.
     var BUILD_SYSTEM_JBROWSE_VERSION;
     return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
 }.call();
