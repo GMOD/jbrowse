@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Added support for `cigarAttribute` and `mdAttributes` configuration
+   variables to Alignments and Alignments2 tracks, allowing users to
+   change which feature attribute is used for showing mismatches.
+
  * Fixed some bugs preventing `Alignments` and `Alignments2` tracks
    from working with non-BAM data backends.
 

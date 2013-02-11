@@ -16,6 +16,11 @@ define([
 
 return declare(null,{
 
+    constructor: function() {
+        this.cigarAttributeName = ( this.config.cigarAttribute || 'cigar' ).toLowerCase();
+        this.mdAttributeName    = ( this.config.mdAttribute    || 'md'    ).toLowerCase();
+    },
+
     /**
      * Make a default feature detail page for the given feature.
      * @returns {HTMLElement} feature detail page HTML
@@ -106,12 +111,12 @@ return declare(null,{
         var mismatches = [];
 
         // parse the CIGAR tag if it has one
-        if( feature.get('cigar') ) {
+        if( feature.get( this.cigarAttributeName ) ) {
             mismatches.push.apply( mismatches, this._cigarToMismatches( feature, feature.get('cigar') ) );
         }
 
         // parse the MD tag if it has one
-        if( feature.get('md') ) {
+        if( feature.get( this.mdAttributeName ) ) {
             mismatches.push.apply( mismatches, this._mdToMismatches( feature, feature.get('md') ) );
         }
 
