@@ -89,6 +89,7 @@ var Browser = function(params) {
     this.globalKeyboardShortcuts = {};
 
     this.config = params;
+
     if( ! this.config.baseUrl )
         this.config.baseUrl = Util.resolveUrl( window.location.href, '.' ) + '/data/';
 
@@ -98,9 +99,7 @@ var Browser = function(params) {
     this.container.onselectstart = function() { return false; };
     this.container.genomeBrowser = this;
 
-    // schedule the config load, the first step in the initialization
-    // process, to happen when the page is done loading
-
+    // start the initialization process
     var thisB = this;
     dojo.addOnLoad( function() {
         thisB.loadConfig().then( function() {
