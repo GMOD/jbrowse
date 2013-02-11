@@ -25,7 +25,7 @@ use FastaDatabase;
 sub option_defaults {(
     out => 'data',
     chunksize => 20_000,
-    trackLabel => 'DNA'
+    seqType => 'DNA'
 )}
 
 sub option_definitions {(
@@ -39,6 +39,7 @@ sub option_definitions {(
     "refids=s",
     "compress",
     "trackLabel=s",
+    "seqType=s",
     "key=s",
     "help|h|?",
     "nohash"
@@ -132,6 +133,23 @@ sub run {
 
         $self->exportDB( $db, $refs, {} );
         $self->writeTrackEntry();
+    }
+}
+
+sub trackLabel {
+    my ( $self ) = @_;
+
+    # use --trackLabel if given
+    return $self->opt('trackLabel') if $self->opt('trackLabel');
+
+    # otherwise construct from seqType.  uppercasing in case it is
+    # also used as the human-readable name
+    my $st = $self->opt('seqType');
+    if( $st =~ /^[dr]na$/i ) {
+        return uc $st;
+    }
+    else {
+        return ucfirst $st;
     }
 }
 
@@ -249,7 +267,7 @@ sub writeTrackEntry {
 
     my $compress = $self->opt('compress');
 
-    my $seqTrackName = $self->opt('trackLabel');
+    my $seqTrackName = $self->trackLabel;
     unless( $self->opt('noseq') ) {
         $self->{storage}->modify( 'trackList.json',
                                        sub {
