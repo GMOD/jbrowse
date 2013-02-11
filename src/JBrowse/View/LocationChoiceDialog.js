@@ -26,8 +26,9 @@ return declare( null, {
     /**
      * @param args.browser the Browser object
      * @param args.locationChoices [Array] array of Location objects
-     * to choose from.  The locations can optionally have 'label'
-     * attributes.
+     *   to choose from.  The locations can optionally have 'label',
+     *   'description', and/or 'score' attributes, which will be
+     *   displayed as columns.
      * @param args.title optional title of the dialog box.
      * @param args.prompt optional text prompt to show at the top of the dialog.
      * @param args.goCallback optional function to call for executing a 'Go' action. gets ( location, value, node, options )
