@@ -1670,28 +1670,42 @@ Browser.prototype.makeShareLink = function () {
         });
 
     // connect moving and track-changing events to update it
-    var updateShareURL = dojo.hitch(this,function() {
-                shareURL = "".concat(
-                    window.location.protocol,
-                    "//",
-                    window.location.host,
-                    window.location.pathname,
-                    "?",
-                    dojo.objectToQuery(
-                        {
-                            loc:    browser.view.visibleRegionLocString(),
-                            tracks: browser.view.visibleTrackNames().join(','),
-                            data:   browser.config.queryParams.data
-                        })
-                );
-    });
-    dojo.connect( this, "onCoarseMove",             updateShareURL );
+    var updateShareURL = function() {
+        shareURL = browser.makeShareURL();
+    };
+    dojo.connect( this, "onCoarseMove",                    updateShareURL );
     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', updateShareURL );
 
     return button.domNode;
 };
 
+Browser.prototype.makeShareURL = function() {
+    var t = typeof this.config.shareURL;
+
+    if( t == 'function' ) {
+        return this.config.shareURL.call( this, this );
+    }
+    else if( t == 'string' ) {
+        return this.config.shareURL;
+    }
+
+    return "".concat(
+        window.location.protocol,
+        "//",
+        window.location.host,
+        window.location.pathname,
+        "?",
+        dojo.objectToQuery(
+            {
+                loc:    this.view.visibleRegionLocString(),
+                tracks: this.view.visibleTrackNames().join(','),
+                data:   (this.config.queryParams||{}).data
+            })
+    );
+}
+
 Browser.prototype.makeFullViewLink = function () {
+    var thisB = this;
     // make the link
     var link = dojo.create('a', {
         className: 'topLink',
@@ -1702,20 +1716,9 @@ Browser.prototype.makeFullViewLink = function () {
     });
 
     // update it when the view is moved or tracks are changed
-    var update_link = dojo.hitch(this,function() {
-        link.href = "".concat(
-                   window.location.protocol,
-                   "//",
-                   window.location.host,
-                   window.location.pathname,
-                   "?",
-                   dojo.objectToQuery({
-                       loc:    this.view.visibleRegionLocString(),
-                       tracks: this.view.visibleTrackNames().join(','),
-                       data:   this.config.queryParams.data
-                   })
-               );
-    });
+    var update_link = function() {
+        link.href = thisB.makeShareURL();
+    };
     dojo.connect( this, "onCoarseMove",                    update_link );
     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', update_link );
 

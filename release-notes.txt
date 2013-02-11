@@ -10,6 +10,10 @@
    specify the type of sequences being formatted, usually either
    'dna', 'rna', or 'protein'.
 
+ * Added a `shareURL` configuration option that accepts a JS function
+   to assemble the URL that users will get when clicking the "Share"
+   button or the "Full view" link in embedded mode.
+
 1.8.0     2013-01-31 14:05:27 America/New_York
 
  * Added new "File -> Open" function that can display BAM, BigWig, and
