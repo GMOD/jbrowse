@@ -12,7 +12,9 @@
 
  * Added `--seqType` option to `prepare-refseqs.pl`, allowing users to
    specify the type of sequences being formatted, usually either
-   'dna', 'rna', or 'protein'.
+   'dna', 'rna', or 'protein'.  Additionally, if --seqType is
+   something over than DNA (case insensitive), "showReverseStrand" is
+   set to false on the reference sequence track.
 
  * Added a `shareURL` configuration option that accepts a JS function
    to assemble the URL that users will get when clicking the "Share"
