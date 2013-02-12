@@ -2,7 +2,8 @@
 
  * Added support for `cigarAttribute` and `mdAttributes` configuration
    variables to Alignments and Alignments2 tracks, allowing users to
-   change which feature attribute is used for showing mismatches.
+   change which feature attribute is used for showing mismatches
+   (issue #200).
 
  * Fixed some bugs preventing `Alignments` and `Alignments2` tracks
    from working with non-BAM data backends.
@@ -18,7 +19,7 @@
 
  * Added a `shareURL` configuration option that accepts a JS function
    to assemble the URL that users will get when clicking the "Share"
-   button or the "Full view" link in embedded mode.
+   button or the "Full view" link in embedded mode (issue #198).
 
  * Fixed annoying bug in which popup feature detail boxes are
    initially scrolled all the way to the bottom.
