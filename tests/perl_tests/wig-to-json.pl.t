@@ -35,7 +35,7 @@ is_deeply( $tracklist,
                    {
                        'chunkSize' => 20000,
                        'urlTemplate' => 'seq/{refseq}/',
-                       'key' => 'DNA',
+                       'key' => 'Reference sequence',
                        'label' => 'DNA',
                        'type' => 'SequenceTrack'
                    },

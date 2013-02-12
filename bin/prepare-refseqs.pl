@@ -81,8 +81,7 @@ The unique name of the sequence track, default 'DNA'.
 
 =item --key <string>
 
-The displayed name of the sequence track, defaults to the value of
-C<--trackLabel>.
+The displayed name of the sequence track, defaults to 'Reference sequence'.
 
 =item --seqType <string>
 

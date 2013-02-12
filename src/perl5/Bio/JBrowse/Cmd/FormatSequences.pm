@@ -148,9 +148,8 @@ sub trackLabel {
     if( $st =~ /^[dr]na$/i ) {
         return uc $st;
     }
-    else {
-        return ucfirst $st;
-    }
+
+    return lc $st;
 }
 
 sub exportDB {
@@ -289,7 +288,7 @@ sub writeTrackEntry {
                                            $tracks->[$i] =
                                        {
                                            'label' => $seqTrackName,
-                                           'key' => $self->opt('key') || $seqTrackName,
+                                           'key' => $self->opt('key') || 'Reference sequence',
                                            'type' => "SequenceTrack",
                                            'chunkSize' => $self->{chunkSize},
                                            'urlTemplate' => $self->seqUrlTemplate,
