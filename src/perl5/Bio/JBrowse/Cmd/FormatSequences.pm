@@ -293,6 +293,7 @@ sub writeTrackEntry {
                                            'chunkSize' => $self->{chunkSize},
                                            'urlTemplate' => $self->seqUrlTemplate,
                                            ( $compress ? ( 'compress' => 1 ): () ),
+                                           ( 'dna' eq lc $self->opt('seqType') ? () : ('showReverseStrand' => 0 ) )
                                        };
                                            return $trackList;
                                        });

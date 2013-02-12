@@ -1,11 +1,12 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/array',
            'dijit/focus',
            'dijit/Dialog',
            'dojo/on',
            'dijit/form/Button'
        ],
-       function( declare, focus, dijitDialog, on, dijitButton ) {
+       function( declare, array, focus, dijitDialog, on, dijitButton ) {
 
 return declare( dijitDialog,
 
@@ -15,6 +16,7 @@ return declare( dijitDialog,
      * @lends JBrowse.View.InfoDialog
      */
 {
+    refocus: false,
     autofocus: false,
 
     onLoad: function() {
@@ -25,7 +27,15 @@ return declare( dijitDialog,
     _addActionBar: function() {
         if( this.get('content') && ! this.actionBar ) {
             this.actionBar = dojo.create( 'div', { className: 'infoDialogActionBar dijitDialogPaneActionBar' });
-            new dijitButton({ className: 'OK', label: 'OK', onClick: dojo.hitch(this,'hide') }).placeAt( this.actionBar);
+
+            new dijitButton({
+                className: 'OK',
+                label: 'OK',
+                onClick: dojo.hitch(this,'hide'),
+                focus: false
+            })
+            .placeAt( this.actionBar);
+
             var c = this.get('content');
             var container = dojo.create( 'div', { className: 'infoDialogContent' });
             if( typeof c == 'string' )
@@ -45,31 +55,31 @@ return declare( dijitDialog,
     },
 
     show: function() {
-        this._addActionBar();
-
         this.inherited( arguments );
 
-        focus.focus( this.closeButtonNode );
+        var thisB = this;
 
-        var dialog = this;
-        var underlay = ((dijit||{})._underlay||{}).domNode;
-
+        // holds the handles for the extra events we are registering
+        // so we can clean them up in the hide() method
         this._extraEvents = [];
 
         // make it so that clicking outside the dialog (on the underlay) will close it
+        var underlay = ((dijit||{})._underlay||{}).domNode;
         if( underlay ) {
             this._extraEvents.push(
                 on( underlay, 'click', dojo.hitch( this, 'hideIfVisible' ))
             );
         }
 
-        // make ESCAPE or ENTER close the dialog box
+        // also make ESCAPE or ENTER close the dialog box
         this._extraEvents.push(
-            on( document.body, 'keydown', dojo.hitch( this, function( evt ) {
+            on( document.body, 'keydown', function( evt ) {
                     if( [ dojo.keys.ESCAPE, dojo.keys.ENTER ].indexOf( evt.keyCode ) >= 0 )
-                        this.hideIfVisible();
-                }))
+                        thisB.hideIfVisible();
+                })
         );
+
+        focus.focus( this.closeButtonNode );
     },
 
     hideIfVisible: function() {
@@ -80,7 +90,7 @@ return declare( dijitDialog,
     hide: function() {
         this.inherited(arguments);
 
-        dojo.forEach( this._extraEvents || [], function( e ) {
+        array.forEach( this._extraEvents, function( e ) {
                           e.remove();
                       });
     }
