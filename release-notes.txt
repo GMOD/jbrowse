@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.8.1     2013-02-12 12:56:24 EST5EDT
+
  * Added support for `cigarAttribute` and `mdAttributes` configuration
    variables to Alignments and Alignments2 tracks, allowing users to
    change which feature attribute is used for showing mismatches
