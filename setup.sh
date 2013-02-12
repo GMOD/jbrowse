@@ -80,7 +80,7 @@ echo -n "Building and installing wiggle format support ...";
 done_message "" "Make sure libpng development libraries and header files are installed.";
 
 echo
-echo -n "Building and installing BAM format support (samtools and Bio::DB::Sam) ...";
+echo -n "Building and installing legacy BAM support (bam-to-json.pl, samtools, and Bio::DB::Sam) ...";
 (
     set -e;
 
