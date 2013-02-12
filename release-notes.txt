@@ -18,6 +18,9 @@
    to assemble the URL that users will get when clicking the "Share"
    button or the "Full view" link in embedded mode.
 
+ * Fixed annoying bug in which popup feature detail boxes are
+   initially scrolled all the way to the bottom.
+
 1.8.0     2013-01-31 14:05:27 America/New_York
 
  * Added new "File -> Open" function that can display BAM, BigWig, and
