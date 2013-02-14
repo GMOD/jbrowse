@@ -1673,7 +1673,7 @@ Browser.prototype.makeShareLink = function () {
 
     // connect moving and track-changing events to update it
     var updateShareURL = function() {
-        shareURL = browser.makeShareURL();
+        shareURL = browser.makeCurrentViewURL();
         if( window.history && window.history.replaceState )
             window.history.replaceState( {},"", shareURL );
     };
@@ -1683,7 +1683,12 @@ Browser.prototype.makeShareLink = function () {
     return button.domNode;
 };
 
-Browser.prototype.makeShareURL = function() {
+/**
+ * Return a string URL that encodes the complete viewing state of the
+ * browser.  Currently just data dir, visible tracks, and visible
+ * region.
+ */
+Browser.prototype.makeCurrentViewURL = function() {
     var t = typeof this.config.shareURL;
 
     if( t == 'function' ) {
@@ -1721,7 +1726,7 @@ Browser.prototype.makeFullViewLink = function () {
 
     // update it when the view is moved or tracks are changed
     var update_link = function() {
-        link.href = thisB.makeShareURL();
+        link.href = thisB.makeCurrentViewURL();
     };
     dojo.connect( this, "onCoarseMove",                    update_link );
     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', update_link );
