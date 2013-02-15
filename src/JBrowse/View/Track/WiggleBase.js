@@ -1,13 +1,14 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/dom-construct',
             'dojo/on',
             'JBrowse/View/Track/Canvas',
             'JBrowse/View/Track/ExportMixin',
             'JBrowse/Util',
-            'JBrowse/Digest/Crc32'
+            './Wiggle/_Scale'
         ],
-        function( declare, array, on, CanvasTrack, ExportMixin, Util, Digest ) {
+        function( declare, array, dom, on, CanvasTrack, ExportMixin, Util, Scale ) {
 
 return declare( [CanvasTrack,ExportMixin], {
 
@@ -16,7 +17,9 @@ return declare( [CanvasTrack,ExportMixin], {
     },
 
     _defaultConfig: function() {
-        return { maxExportSpan: 500000 };
+        return {
+            maxExportSpan: 500000
+        };
     },
 
     _getScaling: function( successCallback, errorCallback ) {
@@ -24,10 +27,9 @@ return declare( [CanvasTrack,ExportMixin], {
         this.getRegionStats( this._getScalingRegion(), dojo.hitch(this, function( stats ) {
 
             //calculate the scaling if necessary
-            var statsFingerprint = Digest.objectFingerprint( stats );
-            if( ! this.lastScaling || this.lastScaling._statsFingerprint != statsFingerprint ) {
+            if( ! this.lastScaling || ! this.lastScaling.sameStats(stats) ) {
                 try {
-                    this.lastScaling = this._calculateScaling( stats );
+                    this.lastScaling = new Scale( this, stats );
                     successCallback( this.lastScaling );
                 } catch( e ) {
                     errorCallback(e);
@@ -42,110 +44,10 @@ return declare( [CanvasTrack,ExportMixin], {
     // TODO: implement more regions over which we can get the
     // stats.  currently over whole ref seq
     _getScalingRegion: function() {
-        return dojo.clone( this.browser.getCurrentRefSeq() );
-    },
-
-    _calculateScaling: function( s ) {
-
-        // if either autoscale or scale is set to z_score, the other one should default to z_score
-        if( this.config.autoscale == 'z_score' && ! this.config.scale
-            || this.config.scale == 'z_score'  && !this.config.autoscale
-          ) {
-              this.config.scale = 'z_score';
-              this.config.autoscale = 'z_score';
-          }
-
-        var z_score_bound = parseFloat( this.config.z_score_bound ) || 4;
-        var min = 'min_score' in this.config ? parseFloat( this.config.min_score ) :
-            (function() {
-                 switch( this.config.autoscale ) {
-                     case 'z_score':
-                         return Math.max( -z_score_bound, (s.scoreMin-s.scoreMean) / s.scoreStdDev );
-                     case 'global':
-                         return s.scoreMin;;
-                     case 'clipped_global':
-                     default:
-                         return Math.max( s.scoreMin, s.scoreMean - z_score_bound * s.scoreStdDev );
-                 }
-             }).call(this);
-        var max = 'max_score' in this.config ? parseFloat( this.config.max_score ) :
-            (function() {
-                 switch( this.config.autoscale ) {
-                     case 'z_score':
-                         return Math.min( z_score_bound, (s.scoreMax-s.scoreMean) / s.scoreStdDev );
-                     case 'global':
-                         return s.scoreMax;
-                     case 'clipped_global':
-                     default:
-                         return Math.min( s.scoreMax, s.scoreMean + z_score_bound * s.scoreStdDev );
-                 }
-             }).call(this);
-
-        if( typeof max != 'number' || isNaN(max) ) {
-            throw 'cannot display track '+this.name+', could not determine max_score.  Do you need to set max_score in its configuration?';
-        }
-        if( typeof min != 'number' || isNaN(min) ) {
-            throw 'cannot display track '+this.name+', could not determine min_score.  Do you need to set min_score in its configuration?';
-        }
-
-        // if we have a log scale, need to take the log of the min and max
-        if( this.config.scale == 'log' ) {
-            max = Math.log(max);
-            min = min ? Math.log(min) : 0;
-        }
-
-        var offset = parseFloat( this.config.data_offset ) || 0;
-        var origin = (function() {
-          if ( 'bicolor_pivot' in this.config ) {
-            if ( this.config.bicolor_pivot == 'mean' ) {
-              return s.scoreMean || 0;
-            } else if ( this.config.bicolor_pivot == 'zero' ) {
-              return 0;
-            } else {
-              return parseFloat( this.config.bicolor_pivot );
-            }
-          } else if ( this.config.scale == 'z_score' ) {
-            return s.scoreMean || 0;
-          } else if ( this.config.scale == 'log' ) {
-            return 1;
-          } else {
-            return 0;
-          }
-        }).call(this);
-
-        var scale = {
-            offset: offset,
-            min: min + offset,
-            max: max + offset,
-            range: max - min,
-            origin: origin,
-            _statsFingerprint: Digest.objectFingerprint( s )
-        };
-
-        // make a func that converts wiggle values to a range between
-        // 0 and 1, depending on what kind of scale we are using
-        scale.normalize = function() {
-            switch( this.config.scale ) {
-            case 'z_score':
-                return function( value ) {
-                    with(scale)
-                        return (value+offset-s.scoreMean) / s.scoreStdDev-min / range;
-                };
-            case 'log':
-                return function( value ) {
-                    with(scale)
-                        return ( Math.log(value+offset) - min )/range;
-                };
-            case 'linear':
-            default:
-                return function( value ) {
-                    with(scale)
-                        return ( value + offset - min ) / range;
-                };
-            }
-        }.call(this);
-
-        return scale;
+        return dojo.clone(
+            this.config.autoscale == 'local'  ? this.browser.view.visibleRegion() :
+                                                this.browser.getCurrentRefSeq()
+        );
     },
 
     getFeatures: function( query, callback, errorCallback ) {
@@ -160,28 +62,28 @@ return declare( [CanvasTrack,ExportMixin], {
         this.store.getRegionStats( region, successCallback, errorCallback );
     },
 
-    fillBlock: function( args ) {
-        var blockIndex = args.blockIndex;
-        var block = args.block;
-        var leftBase = args.leftBase;
-        var rightBase = args.rightBase;
-        var scale = args.scale;
-        var finishCallback = args.finishCallback || function() {};
+    _renderWithScale: function( args, dataScale ) {
+            var blockIndex = args.blockIndex;
+            var canvasHeight = parseInt(( this.config.style || {}).height) || 100;
+            var block = args.block;
+            var leftBase = args.leftBase;
+            var rightBase = args.rightBase;
+            var scale = args.scale;
+            var finishCallback = args.finishCallback || function() {};
 
-        var blockWidth = rightBase - leftBase;
-        var canvasWidth  = Math.ceil(( rightBase - leftBase ) * scale);
-        var canvasHeight = parseInt(( this.config.style || {}).height) || 100;
-        this.heightUpdate( canvasHeight, blockIndex );
+            var blockWidth = rightBase - leftBase;
+            var canvasWidth  = Math.ceil(( rightBase - leftBase ) * scale);
 
-        try {
-            dojo.create('canvas').getContext('2d').fillStyle = 'red';
-        } catch( e ) {
-            this.fatalError = 'This browser does not support HTML canvas elements.';
-            this.fillBlockError( blockIndex, block, this.fatalError );
-            return;
-        }
+            dom.empty( block );
 
-        this._getScaling( dojo.hitch( this, function( dataScale ) {
+            try {
+                dojo.create('canvas').getContext('2d').fillStyle = 'red';
+            } catch( e ) {
+                this.fatalError = 'This browser does not support HTML canvas elements.';
+                this.fillBlockError( blockIndex, block, this.fatalError );
+                return;
+            }
+
             var c = dojo.create(
                 'canvas',
                 { height: canvasHeight,
@@ -240,13 +142,27 @@ return declare( [CanvasTrack,ExportMixin], {
                     }
                     finishCallback();
                 }));
-        }),
-        dojo.hitch( this, function(e) {
-                        this.error = e;
-                        this.fillBlockError( blockIndex, block );
-                        finishCallback();
-                    })
-        );
+    },
+
+
+    fillBlock: function( args ) {
+        var thisB = this;
+        var canvasHeight = parseInt(( this.config.style || {}).height) || 100;
+        this.heightUpdate( canvasHeight, args.blockIndex );
+
+        this._getScaling( function( scaling ) {
+
+                              var block = args.block;
+                              if( scaling.compare( block.scaling ) ) {
+                                  args.block.scaling = scaling;
+                                  thisB._renderWithScale( args, scaling );
+                              }
+                          },
+                          function(e) {
+                              thisB.error = e;
+                              thisB.fillBlockError( args.blockIndex, args.block );
+                              args.finishCallback();
+                          });
     },
 
     /**

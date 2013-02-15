@@ -5,9 +5,9 @@ define( [
             'JBrowse/View/Track/WiggleBase',
             'JBrowse/View/Track/YScaleMixin',
             'JBrowse/Util',
-            'JBrowse/Digest/Crc32'
+            './_Scale'
         ],
-        function( declare, array, on, WiggleBase, YScaleMixin, Util, Digest ) {
+        function( declare, array, on, WiggleBase, YScaleMixin, Util, Scale ) {
 
 var XYPlot = declare( [WiggleBase, YScaleMixin],
 
@@ -32,13 +32,13 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
     },
 
     _getScaling: function( successCallback, errorCallback ) {
+
         this.getRegionStats( this._getScalingRegion(), dojo.hitch(this, function( stats ) {
 
             //calculate the scaling if necessary
-            var statsFingerprint = Digest.objectFingerprint( stats );
-            if( ! this.lastScaling || this.lastScaling._statsFingerprint != statsFingerprint ) {
+            if( ! this.lastScaling || ! this.lastScaling.sameStats( stats ) ) {
 
-                var scaling = this._calculateScaling( stats );
+                var scaling = new Scale( this, stats );
 
                 // bump minDisplayed to 0 if it is within 0.5% of it
                 if( Math.abs( scaling.min / scaling.max ) < 0.005 )
@@ -50,6 +50,8 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                     min: scaling.min,
                     max: scaling.max
                 });
+
+                // and finally adjust the scaling to match the ruler's scale rounding
                 scaling.min = this.ruler.scaler.bounds.lower;
                 scaling.max = this.ruler.scaler.bounds.upper;
                 scaling.range = scaling.max - scaling.min;
