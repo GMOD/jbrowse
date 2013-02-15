@@ -120,6 +120,9 @@ return declare( [CanvasTrack,ExportMixin], {
                         return this._featureRect( scale, leftBase, c, f, dataScale );
                     }, this );
 
+
+                    block.pixelScores = this._calculatePixelScores( c.width, features, featureRects );
+
                     this._preDraw(      scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
                     this._drawFeatures( scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
                     this._postDraw(     scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
@@ -151,7 +154,6 @@ return declare( [CanvasTrack,ExportMixin], {
         this.heightUpdate( canvasHeight, args.blockIndex );
 
         this._getScaling( function( scaling ) {
-
                               var block = args.block;
                               if( scaling.compare( block.scaling ) ) {
                                   args.block.scaling = scaling;
@@ -222,7 +224,7 @@ return declare( [CanvasTrack,ExportMixin], {
 
     _makeScoreDisplay: function( scale, leftBase, rightBase, block, canvas, features, featureRects ) {
 
-        var pixelValues = this._calculatePixelScores( canvas.width, features, featureRects );
+        var pixelValues = block.pixelScores;
 
         // make elements and events to display it
         var scoreDisplay = dojo.create(
