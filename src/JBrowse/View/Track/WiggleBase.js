@@ -18,7 +18,8 @@ return declare( [CanvasTrack,ExportMixin], {
 
     _defaultConfig: function() {
         return {
-            maxExportSpan: 500000
+            maxExportSpan: 500000,
+            autoscale: 'local'
         };
     },
 
@@ -62,43 +63,27 @@ return declare( [CanvasTrack,ExportMixin], {
         this.store.getRegionStats( region, successCallback, errorCallback );
     },
 
-    _renderWithScale: function( args, dataScale ) {
+    // the canvas width in pixels for a block
+    _canvasWidth: function( block ) {
+        return Math.ceil(( block.endBase - block.startBase ) * block.scale);
+    },
+
+    // the canvas height in pixels for a block
+    _canvasHeight: function() {
+        return parseInt(( this.config.style || {}).height) || 100;
+    },
+
+    _getBlockFeatures: function( args ) {
             var blockIndex = args.blockIndex;
-            var canvasHeight = parseInt(( this.config.style || {}).height) || 100;
             var block = args.block;
+
             var leftBase = args.leftBase;
             var rightBase = args.rightBase;
+
             var scale = args.scale;
             var finishCallback = args.finishCallback || function() {};
 
-            var blockWidth = rightBase - leftBase;
-            var canvasWidth  = Math.ceil(( rightBase - leftBase ) * scale);
-
-            dom.empty( block );
-
-            try {
-                dojo.create('canvas').getContext('2d').fillStyle = 'red';
-            } catch( e ) {
-                this.fatalError = 'This browser does not support HTML canvas elements.';
-                this.fillBlockError( blockIndex, block, this.fatalError );
-                return;
-            }
-
-            var c = dojo.create(
-                'canvas',
-                { height: canvasHeight,
-                  width:  canvasWidth,
-                  style: {
-                      cursor: 'default',
-                      width: "100%",
-                      height: canvasHeight + "px"
-                  },
-                  innerHTML: 'Your web browser cannot display this type of track.',
-                  className: 'canvas-track'
-                },
-                block
-            );
-            c.startBase = leftBase;
+            var canvasWidth = this._canvasWidth( args.block );
 
             var features = [];
             this.getFeatures(
@@ -117,54 +102,126 @@ return declare( [CanvasTrack,ExportMixin], {
                         return;
 
                     var featureRects = array.map( features, function(f) {
-                        return this._featureRect( scale, leftBase, c, f, dataScale );
+                        return this._featureRect( scale, leftBase, canvasWidth, f );
                     }, this );
 
+                    block.features = features;  //< TODO: remove this
+                    block.featureRects = featureRects;
+                    block.pixelScores = this._calculatePixelScores( this._canvasWidth(block), features, featureRects );
 
-                    block.pixelScores = this._calculatePixelScores( c.width, features, featureRects );
-
-                    this._preDraw(      scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
-                    this._drawFeatures( scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
-                    this._postDraw(     scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
-
-                    this._makeScoreDisplay( scale, leftBase, rightBase, block, c, features, featureRects );
-
-                    this.heightUpdate( c.height, blockIndex );
-                    if( !( c.parentNode && c.parentNode.parentNode )) {
-                            c.style.position = "absolute";
-                            c.style.left = (100 * ((c.startBase - leftBase) / blockWidth)) + "%";
-                            switch (this.config.align) {
-                            case "top":
-                                c.style.top = "0px";
-                                break;
-                            case "bottom":
-                            default:
-                                c.style.bottom = this.trackPadding + "px";
-                                break;
-                            }
-                    }
                     finishCallback();
                 }));
     },
 
+    // render the actual graph display for the block.  should be called only after a scaling
+    // has been decided upon and stored in this.scaling
+    renderBlock: function( args ) {
+        var block = args.block;
+
+        // don't render this block again if we have already rendered
+        // it with this scaling scheme
+        if( ! this.scaling.compare( block.scaling ) || ! block.pixelScores )
+           return;
+
+
+
+        block.scaling = this.scaling;
+
+        dom.empty( block );
+
+        try {
+            dojo.create('canvas').getContext('2d').fillStyle = 'red';
+        } catch( e ) {
+            this.fatalError = 'This browser does not support HTML canvas elements.';
+            this.fillBlockError( blockIndex, block, this.fatalError );
+            return;
+        }
+
+        var features = block.features;
+        var featureRects = block.featureRects;
+        var dataScale = this.scaling;
+        var canvasHeight = this._canvasHeight();
+
+        var c = dojo.create(
+            'canvas',
+            { height: canvasHeight,
+              width:  this._canvasWidth(block),
+              style: {
+                  cursor: 'default',
+                  width: "100%",
+                  height: canvasHeight + "px"
+              },
+              innerHTML: 'Your web browser cannot display this type of track.',
+              className: 'canvas-track'
+            },
+            block
+        );
+        c.startBase = block.startBase;
+
+        // schedule it to be rendered once we have all agreed on a scaling
+        this._preDraw(      null, block.startBase, block.endBase, block, c, features, featureRects, dataScale );
+        this._drawFeatures( null, block.startBase, block.endBase, block, c, features, featureRects, dataScale );
+        this._postDraw(     null, block.startBase, block.endBase, block, c, features, featureRects, dataScale );
+
+        this._makeScoreDisplay( null, block.startBase, block.endBase, block, c, features, featureRects );
+
+        this.heightUpdate( c.height, args.blockIndex );
+        if( !( c.parentNode && c.parentNode.parentNode )) {
+            var blockWidth = block.endBase - block.startBase;
+
+            c.style.position = "absolute";
+            c.style.left = (100 * ((c.startBase - block.startBase) / blockWidth)) + "%";
+            switch (this.config.align) {
+            case "top":
+                c.style.top = "0px";
+                break;
+            case "bottom":
+            default:
+                c.style.bottom = this.trackPadding + "px";
+                break;
+            }
+        }
+    },
 
     fillBlock: function( args ) {
         var thisB = this;
-        var canvasHeight = parseInt(( this.config.style || {}).height) || 100;
-        this.heightUpdate( canvasHeight, args.blockIndex );
+        this.heightUpdate( this._canvasHeight(), args.blockIndex );
 
+        // hook updateGraphs onto the end of the block feature fetch
+        var oldFinish = args.finishCallback || function() {};
+        args.finishCallback = function() {
+            thisB.updateGraphs();
+            oldFinish();
+        };
+
+        // get the features for this block, and then set in motion the
+        // updating of the graphs
+        this._getBlockFeatures( args );
+    },
+
+    updateGraphs: function() {
+        var thisB = this;
+
+        // update the global scaling
         this._getScaling( function( scaling ) {
-                              var block = args.block;
-                              if( scaling.compare( block.scaling ) ) {
-                                  args.block.scaling = scaling;
-                                  thisB._renderWithScale( args, scaling );
-                              }
+                              thisB.scaling = scaling;
+                              // render all of the blocks that need it
+                              array.forEach( thisB.blocks, function( block, blockIndex ) {
+                                  if( block && block.parentNode )
+                                      thisB.renderBlock({
+                                                            block: block,
+                                                            blockIndex: blockIndex
+                                                        });
+                              });
                           },
                           function(e) {
                               thisB.error = e;
-                              thisB.fillBlockError( args.blockIndex, args.block );
-                              args.finishCallback();
+                              array.forEach( thisB.blocks, function( block, blockIndex ) {
+                                  if( block && block.parentNode )
+                                      thisB.fillBlockError( blockIndex, block );
+                              });
                           });
+
     },
 
     /**
@@ -173,7 +230,7 @@ return declare( [CanvasTrack,ExportMixin], {
      * @private
      * @returns {Object} with l, r, and w
      */
-    _featureRect: function( scale, leftBase, canvas, feature, dataScale ) {
+    _featureRect: function( scale, leftBase, canvasWidth, feature ) {
         var fRect = {
             w: Math.ceil(( feature.get('end')   - feature.get('start') ) * scale ),
             l: Math.round(( feature.get('start') - leftBase ) * scale )
@@ -189,7 +246,7 @@ return declare( [CanvasTrack,ExportMixin], {
         }
 
         // also don't let fRect.w get overly big
-        fRect.w = Math.min( canvas.width-fRect.l, fRect.w );
+        fRect.w = Math.min( canvasWidth-fRect.l, fRect.w );
         fRect.r = fRect.w + fRect.l;
 
         return fRect;

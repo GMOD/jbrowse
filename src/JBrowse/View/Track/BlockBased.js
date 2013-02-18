@@ -408,6 +408,7 @@ return declare( null,
         blockDiv.style.width = this.widthPct + "%";
         blockDiv.startBase = startBase;
         blockDiv.endBase = endBase;
+        blockDiv.scale = scale;
         this.blocks[blockIndex] = blockDiv;
         this.div.appendChild(blockDiv);
 
