@@ -14,6 +14,14 @@ return Util.fastDeclare({
 
     constructor: function( track, stats ) {
 
+        if( stats.scoreMin == stats.scoreMax ) {
+            stats = dojo.clone( stats );
+            if( stats.scoreMin < 0 )
+                stats.scoreMax = 0;
+            else
+                stats.scoreMin = 0;
+        }
+
         // if either autoscale or scale is set to z_score, the other one should default to z_score
         if( track.config.autoscale == 'z_score' && ! track.config.scale
             || track.config.scale == 'z_score'  && !track.config.autoscale
@@ -27,10 +35,10 @@ return Util.fastDeclare({
             (function() {
                  switch( track.config.autoscale ) {
                      case 'z_score':
-                         return Math.max( -z_score_bound, (stats.scoreMin-s.scoreMean) / stats.scoreStdDev );
+                         return Math.max( -z_score_bound, (stats.scoreMin-stats.scoreMean) / stats.scoreStdDev );
                      case 'global':
                      case 'local':
-                         return stats.scoreMin;;
+                         return stats.scoreMin;
                      case 'clipped_global':
                      default:
                          return Math.max( stats.scoreMin, stats.scoreMean - z_score_bound * stats.scoreStdDev );
