@@ -251,6 +251,9 @@ div.track {
 .track.dojoDndItemAnchor {
     background: inherit;
 }
+.track.dojoDndItemSelected {
+    background: inherit;
+}
 
 .track.dojoDndItemBefore {
     border-top: 3px solid #999;

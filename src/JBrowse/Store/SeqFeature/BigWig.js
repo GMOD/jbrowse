@@ -50,7 +50,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     },
 
     _getGlobalStats: function( successCallback, errorCallback ) {
-        var s = this._stats || {};
+        var s = this._globalStats || {};
 
         // calc mean and standard deviation if necessary
         if( !( 'scoreMean' in s ))
@@ -59,14 +59,6 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             s.scoreStdDev = this._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.basesCovered );
 
         successCallback( s );
-    },
-
-    _calcStdFromSums: function( sum, sumSquares, n ) {
-        var variance = sumSquares - sum*sum/n;
-        if (n > 1) {
-	    variance /= n-1;
-        }
-        return variance < 0 ? 0 : Math.sqrt(variance);
     },
 
     _load: function() {
@@ -134,7 +126,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                             scoreSum: da[2],
                             scoreSumSquares: da[3]
                         };
-                        bwg._stats = s;
+                        bwg._globalStats = s;
                         // rest of these will be calculated on demand in getGlobalStats
                     }).call();
                 } else {

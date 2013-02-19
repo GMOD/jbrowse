@@ -2,12 +2,12 @@ define( ['dojo/_base/declare',
          'dojo/_base/array',
          'JBrowse/Util',
          'JBrowse/View/Track/HTMLFeatures',
-         'JBrowse/View/Track/MismatchesMixin'
+         'JBrowse/View/Track/_AlignmentsMixin'
         ],
-        function( declare, array, Util, HTMLFeatures, MismatchesMixin ) {
+        function( declare, array, Util, HTMLFeatures, AlignmentsMixin ) {
 
 // return declare( HTMLFeatures,
-return declare( [ HTMLFeatures, MismatchesMixin],
+return declare( [ HTMLFeatures, AlignmentsMixin],
 /**
  * @lends JBrowse.View.Track.Alignments
  */

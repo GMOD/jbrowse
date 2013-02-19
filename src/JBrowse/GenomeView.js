@@ -1064,7 +1064,7 @@ GenomeView.prototype.minVisible = function() {
     if( mv < this.pxToBp(1) )
         return 0;
     else
-        return mv;
+        return Math.round(mv);
 };
 
 /**
@@ -1078,7 +1078,7 @@ GenomeView.prototype.maxVisible = function() {
     if( mv > this.ref.end - this.pxToBp(1) )
         return this.ref.end;
     else
-        return mv;
+        return Math.round(mv);
 };
 
 GenomeView.prototype.showFine = function() {

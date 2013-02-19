@@ -43,7 +43,42 @@ return declare( Store,
     },
 
     _getRegionStats: function( query, successCallback, errorCallback ) {
-        return this.getGlobalStats( successCallback, errorCallback );
+        var thisB = this;
+        var s = {
+            scoreMax: -Infinity,
+            scoreMin: Infinity,
+            scoreSum: 0,
+            scoreSumSquares: 0,
+            basesCovered: query.end - query.start,
+            featureCount: 0
+        };
+        this.getFeatures( query,
+                          function( feature ) {
+                              var score = feature.get('score') || 0;
+                              s.scoreMax = Math.max( score, s.scoreMax );
+                              s.scoreMin = Math.min( score, s.scoreMin );
+                              s.scoreSum += score;
+                              s.scoreSumSquares += score*score;
+                              s.featureCount++;
+                          },
+                          function() {
+                              s.scoreMean = s.scoreSum / s.basesCovered;
+                              s.scoreStdDev = thisB._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.basesCovered );
+                              s.featureDensity = s.featureCount / s.basesCovered;
+                              //console.log( '_getRegionStats', query, s );
+                              successCallback(s);
+                          },
+                          errorCallback
+                        );
+    },
+
+    // utility method that calculates standard deviation from sum and sum of squares
+    _calcStdFromSums: function( sum, sumSquares, n ) {
+        var variance = sumSquares - sum*sum/n;
+        if (n > 1) {
+	    variance /= n-1;
+        }
+        return variance < 0 ? 0 : Math.sqrt(variance);
     },
 
     /**
