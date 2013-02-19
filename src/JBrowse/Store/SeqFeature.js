@@ -37,7 +37,8 @@ return declare( Store,
             scoreMin: Infinity,
             scoreSum: 0,
             scoreSumSquares: 0,
-            basesCovered: query.end - query.start
+            basesCovered: query.end - query.start,
+            featureCount: 0
         };
         this.getFeatures( query,
                           function( feature ) {
@@ -46,11 +47,13 @@ return declare( Store,
                               s.scoreMin = Math.min( score, s.scoreMin );
                               s.scoreSum += score;
                               s.scoreSumSquares += score*score;
+                              s.featureCount++;
                           },
                           function() {
                               s.scoreMean = s.scoreSum / s.basesCovered;
                               s.scoreStdDev = thisB._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.basesCovered );
-                              //console.log( 'BigWig getRegionStats', query, s );
+                              s.featureDensity = s.featureCount / s.basesCovered;
+                              //console.log( '_getRegionStats', query, s );
                               successCallback(s);
                           },
                           errorCallback
