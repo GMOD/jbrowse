@@ -19,7 +19,7 @@ return declare( [CanvasTrack,ExportMixin], {
     _defaultConfig: function() {
         return {
             maxExportSpan: 500000,
-            autoscale: 'local'
+            autoscale: 'global'
         };
     },
 
