@@ -7,6 +7,23 @@ html, body {
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
+/* styles for the about JBrowse dialog */
+.about-dialog .default_about {
+    text-align: center;
+}
+.about-dialog .default_about * {
+    margin: 0.5em 0;
+}
+.about-dialog .default_about h1 {
+    margin-top: 0;
+}
+.about-dialog div.powered_by {
+    margin-top: 0.5em;
+    text-align: center;
+}
+
+
+
 .tundra input {
     outline: none;
 }

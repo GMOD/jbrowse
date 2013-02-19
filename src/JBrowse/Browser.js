@@ -405,11 +405,19 @@ Browser.prototype.initView = function() {
             this.navbox = this.createNavBox( topPane );
 
         // make our little top-links box with links to help, etc.
+        var about = this.browserMeta();
         this.poweredByLink = dojo.create('a', {
             className: 'powered_by',
-            innerHTML: 'JBrowse',
-            href: 'http://jbrowse.org',
-            title: 'powered by JBrowse'
+            innerHTML: about.title,
+            onclick: function() {
+                new InfoDialog(
+                    {
+                        title: 'About '+about.title,
+                        content: about.description,
+                        className: 'about-dialog'
+                    }).show();
+            },
+            title: 'about this browser'
          }, menuBar );
 
         if( this.config.show_nav ) {
@@ -501,6 +509,35 @@ Browser.prototype.initView = function() {
     });
 };
 
+
+/**
+ * Get object like { title: "title", description: "description", ... }
+ * that contains metadata describing this browser.
+ */
+Browser.prototype.browserMeta = function() {
+    var about = this.config.aboutThisBrowser || {};
+    about.title = about.title || 'JBrowse';
+
+    var verstring = this.version && this.version.match(/^\d/)
+        ? this.version : '(development version)';
+
+    if( about.description ) {
+        about.description += '<div class="powered_by">'
+            + 'Powered by <a target="_blank" href="http://jbrowse.org">JBrowse '+verstring+'</a>.'
+            + '</div>';
+    }
+    else {
+        about.description = '<div class="default_about">'
+            + '  <img class="logo" src="img/JBrowseLogo_small.png">'
+            + '  <h1>JBrowse '+verstring+'</h1>'
+            + '  <div class="tagline">A modern JavaScript genome browser.</div>'
+            + '  <a class="mainsite" target="_blank" href="http://jbrowse.org">JBrowse website</a>'
+            + '  <div class="gmod">JBrowse is a <a target="_blank" href="http://gmod.org">GMOD</a> project.</div>'
+            + '  <div class="copyright">&copy; 2012 The Evolutionary Software Foundation</div>'
+            + '</div>';
+    }
+    return about;
+};
 
 /**
  * Track type registry, used by GUI elements that need to offer
