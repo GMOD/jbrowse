@@ -18,8 +18,8 @@ return declare( SeqFeatureStore, {
         this.store = args.store;
     },
 
-    getGlobalStats: function() {
-        return {};
+    getGlobalStats: function( callback, errorCallback ) {
+        callback( {} );
     },
 
     getFeatures: function( query, featureCallback, finishCallback, errorCallback ) {
