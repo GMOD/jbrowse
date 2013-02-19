@@ -25,7 +25,7 @@ return declare( [CanvasTrack,ExportMixin], {
 
     _getScaling: function( successCallback, errorCallback ) {
 
-        this.getRegionStats( this._getScalingRegion(), dojo.hitch(this, function( stats ) {
+        this._getScalingStats( dojo.hitch(this, function( stats ) {
 
             //calculate the scaling if necessary
             if( ! this.lastScaling || ! this.lastScaling.sameStats(stats) ) {
@@ -42,13 +42,16 @@ return declare( [CanvasTrack,ExportMixin], {
         }), errorCallback );
     },
 
-    // TODO: implement more regions over which we can get the
-    // stats.  currently over whole ref seq
-    _getScalingRegion: function() {
-        return dojo.clone(
-            this.config.autoscale == 'local'  ? this.browser.view.visibleRegion() :
-                                                this.browser.getCurrentRefSeq()
-        );
+    // get the statistics to use for scaling, either from the global
+    // stats for the store, or from the local region if
+    // config.autoscale is 'local'
+    _getScalingStats: function() {
+        if( this.config.autoscale == 'local' ) {
+            var argsArray = Array.prototype.slice.call( arguments );
+            return this.getRegionStats.apply( this, [ this.browser.view.visibleRegion() ].concat(argsArray) );
+        } else {
+            return this.getGlobalStats.apply( this, arguments );
+        }
     },
 
     getFeatures: function( query, callback, errorCallback ) {
