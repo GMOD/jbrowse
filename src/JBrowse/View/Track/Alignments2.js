@@ -3,11 +3,11 @@ define( [
             'dojo/_base/array',
             'JBrowse/Util',
             'JBrowse/View/Track/CanvasFeatures',
-            'JBrowse/View/Track/MismatchesMixin'
+            'JBrowse/View/Track/_AlignmentsMixin'
         ],
-        function( declare, array, Util, CanvasFeatureTrack, MismatchesMixin ) {
+        function( declare, array, Util, CanvasFeatureTrack, AlignmentsMixin ) {
 
-return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
+return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     constructor: function() {
 
         // if showMismatches is false, stub out this object's
