@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+ * Added support `autoscale: "local"` in Wiggle, FeatureCoverage, and
+   SNPCoverage tracks, which automatically sets the scale of the
+   y-axis based on the range of the data being displayed in the
+   current view.
+
  * Added an "About JBrowse" popup dialog, which supports an
    `aboutThisBrowser` configuration stanza containing a title for the
    main browser window, and a description to be shown in a pop-up
