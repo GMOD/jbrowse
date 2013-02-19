@@ -7,7 +7,7 @@ trackInfo =
       "url" : "seq/{refseq}/",
       "type" : "SequenceTrack",
       "label" : "DNA",
-      "key" : "DNA"
+      "key" : "Reference sequence"
    },
    {
       "url" : "tracks/{refseq}/ExampleFeatures/trackData.json",

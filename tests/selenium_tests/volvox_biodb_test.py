@@ -112,9 +112,9 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')]//*[contains(.,'%s')]"
         sequence_div_xpath_1 = sequence_div_xpath_templ % 'aacaACGG';
         self.assert_element( sequence_div_xpath_1)
-        self.turn_off_track( 'DNA' );
+        self.turn_off_track( 'Reference sequence' );
         self.assert_no_element( sequence_div_xpath_1 )
-        self.turn_on_track( 'DNA' );
+        self.turn_on_track( 'Reference sequence' );
         self.assert_element( sequence_div_xpath_1 )
         self.do_typed_query( '1..20000');
         self.assert_no_element( sequence_div_xpath_1 )
