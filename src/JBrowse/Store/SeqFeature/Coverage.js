@@ -7,23 +7,10 @@
 define([
            'dojo/_base/declare',
            'JBrowse/Store/SeqFeature',
-           'JBrowse/Util'
+           'JBrowse/Util',
+           'JBrowse/Model/CoverageFeature'
        ],
-       function( declare, SeqFeatureStore, Util ) {
-
-// feature class for the features we make for the calculated coverage
-// values
-var CoverageFeature = Util.fastDeclare(
-    {
-        get: function(f) { return this[f]; },
-        tags: function() { return [ 'start', 'end', 'score' ]; },
-        score: 0,
-        constructor: function( args ) {
-            this.start = args.start;
-            this.end = args.end;
-            this.score = args.score;
-        }
-    });
+       function( declare, SeqFeatureStore, Util, CoverageFeature ) {
 
 return declare( SeqFeatureStore, {
 
