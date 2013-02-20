@@ -149,7 +149,7 @@ return declare( MismatchesMixin ,{
            return colors;
         }.call(this);
 
-        return this._baseStyles[base] || 'gray';
+        return this._baseStyles[base] || '#888';
     }
 
 });
