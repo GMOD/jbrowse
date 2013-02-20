@@ -64,12 +64,6 @@ return declare( [WiggleXY, AlignmentsMixin],
         var disableClipMarkers = this.config.disable_clip_markers;
 
         var drawRectangle = function(ID, yPos, height, fRect) {
-            // draw the background color if we are configured to do so
-            if( bgColor && yPos >= 0 ) {
-                context.fillStyle = bgColor;
-                context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
-            }
-
             if( yPos <= canvasHeight ) { // if the rectangle is visible at all
                 context.fillStyle = thisB.colorForBase(ID);
                 if( yPos <= originY ) {
@@ -95,6 +89,13 @@ return declare( [WiggleXY, AlignmentsMixin],
         dojo.forEach( features, function(f,i) {
             var fRect = featureRects[i];
             var score = f.get('score');
+
+            // draw the background color if we are configured to do so
+            if( bgColor ) {
+                context.fillStyle = bgColor;
+                context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
+            }
+
             drawRectangle( 'reference', toY( score.total() ), originY-toY( score.get('reference'))+1, fRect);
         });
 
