@@ -37,7 +37,14 @@ return declare( SeqFeatureStore, {
         var widthBp = rightBase-leftBase;
         var widthPx = widthBp * scale;
 
-        var binWidth = Math.ceil( 1/scale ); // in bp
+        var binWidth = function() {
+            var bpPerPixel = 1/scale;
+            if( bpPerPixel <= 30 ) {
+                return 1;
+            } else {
+                return Math.ceil( bpPerPixel );
+            }
+        }();
 
         var binNumber = function( bp ) {
             return Math.floor( (bp-leftBase) / binWidth );

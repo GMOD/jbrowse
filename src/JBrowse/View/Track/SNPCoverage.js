@@ -91,6 +91,13 @@ return declare( [WiggleXY, AlignmentsMixin],
             }
         };
 
+        // Note: 'reference' is done first to ensure the grey part of the graph is on top
+        dojo.forEach( features, function(f,i) {
+            var fRect = featureRects[i];
+            var score = f.get('score');
+            drawRectangle( 'reference', toY( score.total() ), originY-toY( score.get('reference'))+1, fRect);
+        });
+
         dojo.forEach( features, function(f,i) {
             var fRect = featureRects[i];
             var score = f.get('score');
@@ -116,8 +123,6 @@ return declare( [WiggleXY, AlignmentsMixin],
                 }
             });
 
-            // Note: 'reference' is done first to ensure the grey part of the graph is on top
-            drawRectangle( 'reference', toY(totalHeight), originY-toY( score.get('reference'))+1, fRect);
             totalHeight -= score.get('reference');
 
             score.forEach( function( count, category ) {
