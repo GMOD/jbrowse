@@ -4,14 +4,12 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
-           'dojo/_base/Color',
            'JBrowse/Util',
            'JBrowse/Store/SeqFeature/_MismatchesMixin'
         ],
         function(
             declare,
             array,
-            Color,
             Util,
             MismatchesMixin
         ) {
