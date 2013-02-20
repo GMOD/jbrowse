@@ -1,7 +1,7 @@
 /**
  * Mixin for a store class that needs to load some remote stuff (or do
- * some other kind of asynchronous thing) before its global stats are
- * available through getGlobalStats.
+ * some other kind of asynchronous thing) before its stats are
+ * available through getGlobalStats or getRegionStats.
  */
 
 define([
