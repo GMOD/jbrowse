@@ -1,9 +1,13 @@
 {{$NEXT}}
 
+ * Wiggle/XYPlot tracks now accept an array for their `variance_band`
+   argument, allowing users to set the position of the variance bands
+   to show (issue #133).
+
  * Added support `autoscale: "local"` in Wiggle, FeatureCoverage, and
    SNPCoverage tracks, which automatically sets the scale of the
    y-axis based on the range of the data being displayed in the
-   current view.
+   current view (issue #203).
 
  * Added an "About JBrowse" popup dialog, which supports an
    `aboutThisBrowser` configuration stanza containing a title for the

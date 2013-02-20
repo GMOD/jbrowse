@@ -137,6 +137,10 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
 
         // draw the variance_band if requested
         if( this.config.variance_band ) {
+            var bandPositions =
+                typeof this.config.variance_band == 'object'
+                    ? array.map( this.config.variance_band, function(v) { return parseFloat(v); } ).sort().reverse()
+                    : [ 2, 1 ];
             this.getGlobalStats( dojo.hitch( this, function( stats ) {
                 if( ('scoreMean' in stats) && ('scoreStdDev' in stats) ) {
                     var drawVarianceBand = function( plusminus, fill, label ) {
@@ -154,8 +158,18 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                             context.fillText( label, 2, varTop );
                         }
                     };
-                    drawVarianceBand( 2*stats.scoreStdDev, 'rgba(0,0,0,0.12)', '2σ' );
-                    drawVarianceBand( stats.scoreStdDev, 'rgba(0,0,0,0.25)', '1σ' );
+
+                    var minOpacity = 0.12;
+                    var maxOpacity = 0.3;
+                    var bandOpacityStep = 0;
+                    if( bandPositions.length > 1 )
+                        bandOpacityStep = (maxOpacity-minOpacity)/(bandPositions.length-1);
+                    else
+                        minOpacity = maxOpacity;
+
+                    array.forEach( bandPositions, function( pos,i ) {
+                        drawVarianceBand( pos*stats.scoreStdDev, 'rgba(0,0,0,'+(minOpacity+bandOpacityStep*i)+')', pos+'σ');
+                    });
                     drawVarianceBand( 0, 'rgba(255,255,0,0.7)', 'mean' );
                 }
             }));
