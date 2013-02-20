@@ -4,6 +4,12 @@
    argument, allowing users to set the position of the variance bands
    to show (issue #133).
 
+ * Wiggle/XYPlot tracks now accept a `style->variance_band_color`
+   configuration variable, allowing users to set the colors of the
+   variance bands. The variance band color should usually be specified
+   with a partial opacity.  Default is 'rgba(0,0,0,0.3)', which is
+   black with 30% opacity (issue #133).
+
  * Added support `autoscale: "local"` in Wiggle, FeatureCoverage, and
    SNPCoverage tracks, which automatically sets the scale of the
    y-axis based on the range of the data being displayed in the

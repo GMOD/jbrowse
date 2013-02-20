@@ -1,13 +1,14 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/_base/Color',
             'dojo/on',
             'JBrowse/View/Track/WiggleBase',
             'JBrowse/View/Track/YScaleMixin',
             'JBrowse/Util',
             './_Scale'
         ],
-        function( declare, array, on, WiggleBase, YScaleMixin, Util, Scale ) {
+        function( declare, array, Color, on, WiggleBase, YScaleMixin, Util, Scale ) {
 
 var XYPlot = declare( [WiggleBase, YScaleMixin],
 
@@ -25,7 +26,8 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 style: {
                     pos_color: 'blue',
                     neg_color: 'red',
-                    origin_color: '#888'
+                    origin_color: '#888',
+                    variance_band_color: 'rgba(0,0,0,0.3)'
                 }
             }
         );
@@ -144,6 +146,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
             this.getGlobalStats( dojo.hitch( this, function( stats ) {
                 if( ('scoreMean' in stats) && ('scoreStdDev' in stats) ) {
                     var drawVarianceBand = function( plusminus, fill, label ) {
+                        console.log( fill );
                         context.fillStyle = fill;
                         var varTop = toY( stats.scoreMean + plusminus );
                         var varHeight = toY( stats.scoreMean - plusminus ) - varTop;
@@ -159,16 +162,17 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                         }
                     };
 
-                    var minOpacity = 0.12;
-                    var maxOpacity = 0.3;
-                    var bandOpacityStep = 0;
-                    if( bandPositions.length > 1 )
-                        bandOpacityStep = (maxOpacity-minOpacity)/(bandPositions.length-1);
-                    else
-                        minOpacity = maxOpacity;
+                    var maxColor = new Color( this.config.style.variance_band_color );
+                    var minColor = new Color( this.config.style.variance_band_color );
+                    minColor.a /= bandPositions.length;
+
+                    var bandOpacityStep = 1/bandPositions.length;
+                    var minOpacity = bandOpacityStep;
 
                     array.forEach( bandPositions, function( pos,i ) {
-                        drawVarianceBand( pos*stats.scoreStdDev, 'rgba(0,0,0,'+(minOpacity+bandOpacityStep*i)+')', pos+'σ');
+                        drawVarianceBand( pos*stats.scoreStdDev,
+                                          Color.blendColors( minColor, maxColor, (i+1)/bandPositions.length).toCss(true),
+                                          pos+'σ');
                     });
                     drawVarianceBand( 0, 'rgba(255,255,0,0.7)', 'mean' );
                 }
