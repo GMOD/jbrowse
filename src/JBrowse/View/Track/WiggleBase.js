@@ -30,7 +30,7 @@ return declare( [CanvasTrack,ExportMixin], {
             //calculate the scaling if necessary
             if( ! this.lastScaling || ! this.lastScaling.sameStats(stats) ) {
                 try {
-                    this.lastScaling = new Scale( this, stats );
+                    this.lastScaling = new Scale( this.config, stats );
                     successCallback( this.lastScaling );
                 } catch( e ) {
                     errorCallback(e);
@@ -42,14 +42,18 @@ return declare( [CanvasTrack,ExportMixin], {
         }), errorCallback );
     },
 
-    // get the statistics to use for scaling, either from the global
-    // stats for the store, or from the local region if
-    // config.autoscale is 'local'
-    _getScalingStats: function() {
-        if( this.config.autoscale == 'local' ) {
-            var argsArray = Array.prototype.slice.call( arguments );
-            return this.getRegionStats.apply( this, [ this.browser.view.visibleRegion() ].concat(argsArray) );
-        } else {
+    // get the statistics to use for scaling, if necessary, either
+    // from the global stats for the store, or from the local region
+    // if config.autoscale is 'local'
+    _getScalingStats: function( callback, errorCallback ) {
+        if( ! Scale.prototype.needStats( this.config ) ) {
+            callback( null );
+            return null;
+        }
+        else if( this.config.autoscale == 'local' ) {
+            return this.getRegionStats.call( this, this.browser.view.visibleRegion(), callback, errorCallback );
+        }
+        else {
             return this.getGlobalStats.apply( this, arguments );
         }
     },

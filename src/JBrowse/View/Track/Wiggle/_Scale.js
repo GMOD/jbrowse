@@ -12,9 +12,26 @@ define([
        function( Util, Digest ) {
 return Util.fastDeclare({
 
-    constructor: function( track, stats ) {
+    // Returns a boolean value saying whether a stats object is needed
+    // to calculate the scale for the given configuration.
+    //
+    // This is invokable either on the class (prototype) or on
+    // the object itself, so does not use `this` in its implementation.
+    needStats: function( config ) {
+        return !(
+                 ( 'min_score' in config )
+              && ( 'max_score' in config )
+              && ( config.bicolor_pivot != 'z_score' && config.bicolor_pivot != 'mean' )
+              && ( config.scale != 'z_score' )
+            );
+    },
 
-        if( stats.scoreMin == stats.scoreMax ) {
+    constructor: function( config, stats ) {
+        var needStats = this.needStats( config );
+        if( needStats && !stats )
+            throw 'No stats object provided, cannot calculate scale';
+
+        if( needStats && stats.scoreMin == stats.scoreMax ) {
             stats = dojo.clone( stats );
             if( stats.scoreMin < 0 )
                 stats.scoreMax = 0;
@@ -23,17 +40,17 @@ return Util.fastDeclare({
         }
 
         // if either autoscale or scale is set to z_score, the other one should default to z_score
-        if( track.config.autoscale == 'z_score' && ! track.config.scale
-            || track.config.scale == 'z_score'  && !track.config.autoscale
+        if( config.autoscale == 'z_score' && ! config.scale
+            || config.scale == 'z_score'  && !config.autoscale
           ) {
-              track.config.scale = 'z_score';
-              track.config.autoscale = 'z_score';
+              config.scale = 'z_score';
+              config.autoscale = 'z_score';
           }
 
-        var z_score_bound = parseFloat( track.config.z_score_bound ) || 4;
-        var min = 'min_score' in track.config ? parseFloat( track.config.min_score ) :
+        var z_score_bound = parseFloat( config.z_score_bound ) || 4;
+        var min = 'min_score' in config ? parseFloat( config.min_score ) :
             (function() {
-                 switch( track.config.autoscale ) {
+                 switch( config.autoscale ) {
                      case 'z_score':
                          return Math.max( -z_score_bound, (stats.scoreMin-stats.scoreMean) / stats.scoreStdDev );
                      case 'global':
@@ -44,9 +61,9 @@ return Util.fastDeclare({
                          return Math.max( stats.scoreMin, stats.scoreMean - z_score_bound * stats.scoreStdDev );
                  }
              })();
-        var max = 'max_score' in track.config ? parseFloat( track.config.max_score ) :
+        var max = 'max_score' in config ? parseFloat( config.max_score ) :
             (function() {
-                 switch( track.config.autoscale ) {
+                 switch( config.autoscale ) {
                      case 'z_score':
                          return Math.min( z_score_bound, (stats.scoreMax-stats.scoreMean) / stats.scoreStdDev );
                      case 'global':
@@ -66,24 +83,24 @@ return Util.fastDeclare({
         }
 
         // if we have a log scale, need to take the log of the min and max
-        if( track.config.scale == 'log' ) {
+        if( config.scale == 'log' ) {
             max = Math.log(max);
             min = min ? Math.log(min) : 0;
         }
 
-        var offset = parseFloat( track.config.data_offset ) || 0;
+        var offset = parseFloat( config.data_offset ) || 0;
         var origin = (function() {
-          if ( 'bicolor_pivot' in track.config ) {
-            if ( track.config.bicolor_pivot == 'mean' ) {
+          if ( 'bicolor_pivot' in config ) {
+            if ( config.bicolor_pivot == 'mean' ) {
               return stats.scoreMean || 0;
-            } else if ( track.config.bicolor_pivot == 'zero' ) {
+            } else if ( config.bicolor_pivot == 'zero' ) {
               return 0;
             } else {
-              return parseFloat( track.config.bicolor_pivot );
+              return parseFloat( config.bicolor_pivot );
             }
-          } else if ( track.config.scale == 'z_score' ) {
+          } else if ( config.scale == 'z_score' ) {
             return stats.scoreMean || 0;
-          } else if ( track.config.scale == 'log' ) {
+          } else if ( config.scale == 'log' ) {
             return 1;
           } else {
             return 0;
@@ -104,7 +121,7 @@ return Util.fastDeclare({
         // are using
         var thisB = this;
         this.normalize = (function() {
-            switch( track.config.scale ) {
+            switch( config.scale ) {
             case 'z_score':
                 return function( value ) {
                     with(thisB)

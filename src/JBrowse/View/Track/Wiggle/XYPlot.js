@@ -38,7 +38,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
             //calculate the scaling if necessary
             if( ! this.lastScaling || ! this.lastScaling.sameStats( stats ) ) {
 
-                var scaling = new Scale( this, stats );
+                var scaling = new Scale( this.config, stats );
 
                 // bump minDisplayed to 0 if it is within 0.5% of it
                 if( Math.abs( scaling.min / scaling.max ) < 0.005 )
