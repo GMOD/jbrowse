@@ -5,6 +5,15 @@
    set to a function callback that returns a string with the feature's
    label or long description, respectively (issue #9).
 
+ * Wiggle/XYPlot, Wiggle/Density, and FeatureCoverage tracks now
+   accept function callbacks in their `style->pos_color`,
+   `style->neg_color`, `style->bg_color`, and
+   `style->clip_marker_color` configuration variables.  Function
+   callbacks are passed two arguments: the feature object (with start
+   bp, end bp, and score of the quanititative region being shown, and
+   the track object (which can be used to access track configuration
+   data, along with many other things).  (issue #133).
+
  * Wiggle/XYPlot tracks now accept an array for their `variance_band`
    argument, allowing users to set the position of the variance bands
    to show (issue #133).
