@@ -93,9 +93,11 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
             fRect.t = toY( score );
             //console.log( score, fRect.t );
 
+            var confArgs = [f, this]; //< args passed to getConf calls
+
             // draw the background color if we are configured to do so
             if( fRect.t >= 0 ) {
-                var bgColor = this.getConf('style.bg_color',[f]);
+                var bgColor = this.getConf('style.bg_color', confArgs);
                 if( bgColor ) {
                     context.fillStyle = bgColor;
                     context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
@@ -103,22 +105,21 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
             }
 
             if( fRect.t <= canvasHeight ) { // if the rectangle is visible at all
-
                 if( fRect.t <= originY ) {
                     // bar goes upward
-                    context.fillStyle = this.getConf('style.pos_color',[f]);
+                    context.fillStyle = this.getConf('style.pos_color',confArgs);
                     context.fillRect( fRect.l, fRect.t, fRect.w, originY-fRect.t+1);
                     if( !disableClipMarkers && fRect.t < 0 ) { // draw clip marker if necessary
-                        context.fillStyle = this.getConf('style.clip_marker_color',[f]) || this.getConf('style.neg_color',[f]);
+                        context.fillStyle = this.getConf('style.clip_marker_color',confArgs) || this.getConf('style.neg_color',confArgs);
                         context.fillRect( fRect.l, 0, fRect.w, 2 );
                     }
                 }
                 else {
                     // bar goes downward
-                    context.fillStyle = this.getConf('style.neg_color',[f]);
+                    context.fillStyle = this.getConf('style.neg_color',confArgs);
                     context.fillRect( fRect.l, originY, fRect.w, fRect.t-originY+1 );
                     if( !disableClipMarkers && fRect.t >= canvasHeight ) { // draw clip marker if necessary
-                        context.fillStyle = this.getConf('style.clip_marker_color',[f]) || this.getConf('style.pos_color',[f]);
+                        context.fillStyle = this.getConf('style.clip_marker_color',confArgs) || this.getConf('style.pos_color',confArgs);
                         context.fillRect( fRect.l, canvasHeight-3, fRect.w, 2 );
                     }
                 }
