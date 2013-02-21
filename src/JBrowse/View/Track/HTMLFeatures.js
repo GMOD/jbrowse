@@ -325,8 +325,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         var region = { ref: this.refSeq.name, start: leftBase, end: rightBase };
 
-        this.store.getRegionStats(
-            region,
+        this.store.getGlobalStats(
             dojo.hitch( this, function( stats ) {
 
                 var density        = stats.featureDensity;
