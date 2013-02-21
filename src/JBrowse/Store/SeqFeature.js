@@ -50,7 +50,7 @@ return declare( Store,
             maxSize: 1000, // cache stats for up to 1000 different regions
             sizeFunction: function( stats ) { return 1; },
             fillCallback: function( query, callback ) {
-                console.log( '_getRegionStats', query );
+                //console.log( '_getRegionStats', query );
                 var s = {
                     scoreMax: -Infinity,
                     scoreMin: Infinity,
@@ -72,7 +72,7 @@ return declare( Store,
                                       s.scoreMean = s.scoreSum / s.basesCovered;
                                       s.scoreStdDev = thisB._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.basesCovered );
                                       s.featureDensity = s.featureCount / s.basesCovered;
-                                      console.log( '_getRegionStats done', s );
+                                      //console.log( '_getRegionStats done', s );
                                       callback( s );
                                   },
                                   function(error) {
