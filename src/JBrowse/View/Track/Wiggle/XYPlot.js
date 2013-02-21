@@ -146,7 +146,6 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
             this.getGlobalStats( dojo.hitch( this, function( stats ) {
                 if( ('scoreMean' in stats) && ('scoreStdDev' in stats) ) {
                     var drawVarianceBand = function( plusminus, fill, label ) {
-                        console.log( fill );
                         context.fillStyle = fill;
                         var varTop = toY( stats.scoreMean + plusminus );
                         var varHeight = toY( stats.scoreMean - plusminus ) - varTop;
