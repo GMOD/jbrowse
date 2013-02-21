@@ -23,35 +23,40 @@ return declare( WiggleBase,
             dojo.clone( this.inherited(arguments) ),
             {
                 maxExportSpan: 500000,
-                style: { height: 32 }
+                style: {
+                    height: 32,
+                    pos_color: '#00f',
+                    neg_color: '#f00',
+                    bg_color: 'rgba(230,230,230,0.6)'
+                }
             }
         );
     },
 
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale ) {
-
+        var thisB = this;
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
         var normalize = dataScale.normalize;
 
         var featureColor = typeof this.config.style.color == 'function' ? this.config.style.color :
-            function() { // default color function uses conf variables
-                var posColor  = new Color( this.config.style.pos_color || '#00f' );
-                var negColor  = new Color( this.config.style.neg_color || '#f00' );
+            (function() { // default color function uses conf variables
                 var white = new Color('white');
                 var black = new Color('black');
-                var backgroundColor = new Color( this.config.style.bg_color || 'rgba(230,230,230,0.6)' );
-                var clipColor = new Color( this.config.style.clip_marker_color );
-                var disableClipMarkers = this.config.disable_clip_markers;
+                var disableClipMarkers = thisB.config.disable_clip_markers;
                 var normOrigin = normalize( dataScale.origin );
                 return function( feature ) {
                     var score = feature.get('score');
                     var n = normalize( score );
                     return ( disableClipMarkers || n <= 1 && n >= 0 )
-                               ? Color.blendColors( backgroundColor, n >= normOrigin ? posColor : negColor, Math.abs(n-normOrigin) )
-                               : clipColor || ( n > 1 ? white : black );
+                               ? Color.blendColors(
+                                   new Color( thisB.getConf('style.bg_color', arguments ) ),
+                                   new Color( thisB.getConf( n >= normOrigin ? 'style.pos_color' : 'style.neg_color', arguments ) ),
+                                   Math.abs(n-normOrigin)
+                                 )
+                               : new Color( thisB.getConf('style.clip_marker_color', arguments ) ) || ( n > 1 ? white : black );
                 };
-            }.call(this);
+            })();
 
         dojo.forEach( features, function(f,i) {
             var fRect = featureRects[i];
