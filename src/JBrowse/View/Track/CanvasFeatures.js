@@ -78,7 +78,9 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                 mouseovercolor: 'rgba(0,0,0,0.3)',
                 border_color: null,
                 height: 11,
-                marginBottom: 1
+                marginBottom: 1,
+                label: function( feature ) { return feature.get('Name') || feature.get('ID'); },
+                description: 'note, description'
             }
         };
     },

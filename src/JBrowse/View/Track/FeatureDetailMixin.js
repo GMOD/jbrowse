@@ -50,9 +50,9 @@ return declare(null,{
         container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name, innerHTML: '' } );
         var coreDetails = dojo.create('div', { className: 'core' }, container );
         coreDetails.innerHTML += '<h2 class="sectiontitle">Primary Data</h2>';
-        coreDetails.innerHTML += fmt( 'Name', f.get('name') );
+        coreDetails.innerHTML += fmt( 'Name', this.getConf( 'style.label', [f] ) );
         coreDetails.innerHTML += fmt( 'Type', f.get('type') );
-        coreDetails.innerHTML += fmt( 'Description', f.get('note') );
+        coreDetails.innerHTML += fmt( 'Description', this._getDescription ? this._getDescription( f ) : (f.get('note') || f.get('description') ));
         coreDetails.innerHTML += fmt(
             'Position',
             Util.assembleLocString({ start: f.get('start'),

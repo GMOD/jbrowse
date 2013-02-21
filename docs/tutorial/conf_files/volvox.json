@@ -33,7 +33,11 @@
          "track" : "Motifs",
          "class" : "feature3",
          "description" : 1,
-         "key" : "Example motifs"
+         "key" : "Example motifs",
+         "style": {
+           "label": "function(feature) { return feature.get('Name')+' (via JS callback)' }",
+           "description": "function(feature) { return feature.get('Name')+': '+feature.get('Note'); }"
+         }
       },
       {
          "feature" : [
