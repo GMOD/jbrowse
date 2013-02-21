@@ -95,7 +95,7 @@ return declare( null,
         // and where we don't, making records for chunks to fetch
         var goldenPath = [];
         if( typeof end != 'number' ) { // if we don't have an end coordinate, we just have to fetch the whole file
-            goldenPath.push({ key: { url: url, start: 0, end: undefined, toString: chunkToString } } );
+            goldenPath.push({ key: { url: url, start: 0, end: undefined, toUniqueString: chunkToString, toString: chunkToString } } );
         }
         else {
             for( var currOffset = start; currOffset <= end; currOffset = goldenPath[goldenPath.length-1].key.end+1 ) {

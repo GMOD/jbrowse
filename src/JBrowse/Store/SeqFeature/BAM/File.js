@@ -50,8 +50,11 @@ var Chunk = Util.fastDeclare({
         this.maxv = maxv;
         this.bin = bin;
     },
-    toString: function() {
+    toUniqueString: function() {
         return this.minv+'..'+this.maxv+' (bin '+this.bin+')';
+    },
+    toString: function() {
+        return this.toUniqueString();
     }
 });
 

@@ -45,7 +45,7 @@ return declare( Store,
 
     _getRegionStats: function( query, successCallback, errorCallback ) {
         var thisB = this;
-        ( thisB._regionStatsCache = thisB._regionStatsCache|| new LRUCache({
+        var cache = thisB._regionStatsCache = thisB._regionStatsCache || new LRUCache({
             name: 'regionStatsCache',
             maxSize: 1000, // cache stats for up to 1000 different regions
             sizeFunction: function( stats ) { return 1; },
@@ -80,14 +80,15 @@ return declare( Store,
                                   }
                                 );
             }
-         })
-        ).get( query,
-               function( stats, error ) {
-                   if( error )
-                       errorCallback( error );
-                   else
-                       successCallback( stats );
-               });
+         });
+
+         cache.get( query,
+                    function( stats, error ) {
+                        if( error )
+                            errorCallback( error );
+                        else
+                            successCallback( stats );
+                    });
 
     },
 

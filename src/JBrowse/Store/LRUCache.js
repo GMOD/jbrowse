@@ -194,8 +194,8 @@ return declare( null,
 
     _keyString: function( inKey ) {
         var type = typeof inKey;
-        if( type == 'object' && typeof inKey.toString == 'function' ) {
-            return inKey.toString();
+        if( type == 'object' && typeof inKey.toUniqueString == 'function' ) {
+            return inKey.toUniqueString();
         }
         else {
             return digest.objectFingerprint( inKey );
