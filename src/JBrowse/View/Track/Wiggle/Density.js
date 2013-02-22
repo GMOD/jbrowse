@@ -46,16 +46,15 @@ return declare( WiggleBase,
                 var disableClipMarkers = thisB.config.disable_clip_markers;
                 var normOrigin = normalize( dataScale.origin );
                 return function( feature ) {
-                    var confArgs = [ feature, thisB ];
                     var score = feature.get('score');
                     var n = normalize( score );
                     return ( disableClipMarkers || n <= 1 && n >= 0 )
                                ? Color.blendColors(
-                                   new Color( thisB.getConf('style.bg_color', confArgs ) ),
-                                   new Color( thisB.getConf( n >= normOrigin ? 'style.pos_color' : 'style.neg_color', confArgs ) ),
+                                   new Color( thisB.getConfForFeature('style.bg_color', feature ) ),
+                                   new Color( thisB.getConfForFeature( n >= normOrigin ? 'style.pos_color' : 'style.neg_color', feature ) ),
                                    Math.abs(n-normOrigin)
                                  )
-                               : new Color( thisB.getConf('style.clip_marker_color', confArgs ) ) || ( n > 1 ? white : black );
+                               : new Color( thisB.getConfForFeature('style.clip_marker_color', feature ) ) || ( n > 1 ? white : black );
                 };
             })();
 

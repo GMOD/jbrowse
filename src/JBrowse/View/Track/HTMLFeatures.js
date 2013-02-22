@@ -676,7 +676,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
-        var name = this.getConf( 'style.label', [feature] );
+        var name = this.getConfForFeature( 'style.label', feature );
         var description = scale > descriptionScale && this._getDescription(feature);
         if( description && description.length > this.config.style.maxDescriptionLength )
             description = description.substr(0, this.config.style.maxDescriptionLength+1 ).replace(/(\s+\S+|\s*)$/,'')+String.fromCharCode(8230);

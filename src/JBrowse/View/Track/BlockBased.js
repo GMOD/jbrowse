@@ -844,6 +844,15 @@ return declare( null,
         return args ? func.apply( this, args ) : func;
     },
 
+    /**
+     * Like getConf, but get a conf value that explicitly can vary
+     * feature by feature.  Provides a uniform function signature for
+     * user-defined callbacks.
+     */
+    getConfForFeature: function( path, feature ) {
+        return this.getConf( path, [feature, path, null, null, this ] );
+    },
+
     _openDialog: function( spec, evt, context ) {
         context = context || {};
         var type = spec.action;

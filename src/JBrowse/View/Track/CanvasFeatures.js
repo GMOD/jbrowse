@@ -86,8 +86,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
     },
 
     getStyle: function( feature, name ) {
-        var args = [feature, name, null, null, this ];
-        return this.getConf( 'style.'+name, args );
+        return this.getConfForFeature( 'style.'+name, feature );
     },
 
     fillBlock: function( args ) {
