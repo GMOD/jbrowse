@@ -86,11 +86,8 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
     },
 
     getStyle: function( feature, name ) {
-        var val = this.config.style[name];
-        if( typeof val == 'function' )
-            return val.call( this, feature, name, null, null, this );
-        else
-            return val;
+        var args = [feature, name, null, null, this ];
+        return this.getConf( 'style.'+name, args );
     },
 
     fillBlock: function( args ) {
@@ -160,21 +157,25 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
 
         var fRects = [];
 
-        var toX = function(coord) { return (coord-leftBase)*scale; };
-
-        var featCallback = dojo.hitch(this,function( feature ) {
-            if( timedOut )
-                throw new Errors.TrackBlockTimeout({ track: this, blockIndex: blockIndex, block: block });
-
-            fRects.push( this.layoutFeature( args, feature, toX ) );
-        });
+        var toX = function(coord) {
+            return (coord-leftBase)*scale;
+        };
 
         this.store.getFeatures( { ref: this.refSeq.name,
                                   start: leftBase,
                                   end: rightBase
                                 },
 
-                                featCallback, // callback for each feature
+                                function( feature ) {
+                                    if( timedOut )
+                                        throw new Errors.TrackBlockTimeout({
+                                            track: thisB,
+                                            blockIndex: blockIndex,
+                                            block: block
+                                        });
+
+                                    fRects.push( thisB.layoutFeature( args, feature, toX ) );
+                                },
 
                                 // callback when all features sent
                                 function () {
@@ -220,6 +221,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
             } catch(e) {};
         });
     },
+
     endZoom: function() {
 
         array.forEach( this.blocks, function(b) {
