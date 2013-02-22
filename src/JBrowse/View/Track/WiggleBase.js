@@ -197,8 +197,7 @@ return declare( [CanvasTrack,ExportMixin], {
         // hook updateGraphs onto the end of the block feature fetch
         var oldFinish = args.finishCallback || function() {};
         args.finishCallback = function() {
-            thisB.updateGraphs();
-            oldFinish();
+            thisB.updateGraphs( oldFinish );
         };
 
         // get the features for this block, and then set in motion the
@@ -206,7 +205,7 @@ return declare( [CanvasTrack,ExportMixin], {
         this._getBlockFeatures( args );
     },
 
-    updateGraphs: function() {
+    updateGraphs: function( callback ) {
         var thisB = this;
 
         // update the global scaling
@@ -220,6 +219,7 @@ return declare( [CanvasTrack,ExportMixin], {
                                                             blockIndex: blockIndex
                                                         });
                               });
+                              callback();
                           },
                           function(e) {
                               thisB.error = e;
