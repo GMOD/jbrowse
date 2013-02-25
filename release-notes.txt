@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Fixed some missing dojo/dijit nls directories in the non-dev
+   release zipfile.
+
 1.8.1     2013-02-12 12:56:24 EST5EDT
 
  * Added support for `cigarAttribute` and `mdAttributes` configuration
