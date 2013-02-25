@@ -16,6 +16,7 @@ define( [
             'dijit/form/DropDownButton',
             'dijit/DropDownMenu',
             'dijit/MenuItem',
+            'dijit/CheckedMenuItem',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Names/LazyTrieDojoData',
@@ -49,6 +50,7 @@ define( [
             dijitDropDownButton,
             dijitDropDownMenu,
             dijitMenuItem,
+            dijitCheckedMenuItem,
             Util,
             LazyTrie,
             NamesLazyTrieDojoDataStore,
@@ -437,11 +439,33 @@ Browser.prototype.initView = function() {
                 var fileButton = new dijitDropDownButton(
                     { className: 'file',
                       innerHTML: 'File',
-                      //title: '',
                       dropDown: fileMenu
                     });
                 dojo.addClass( fileButton.domNode, 'menu' );
                 menuBar.appendChild( fileButton.domNode );
+            }
+
+            this._highlightClearButton = new dijitMenuItem(
+                {
+                    label: 'Clear highlight',
+                    onClick: dojo.hitch( this, function() {
+                                             this.clearHighlight();
+                                             this.view.redrawTracks();
+                                         }),
+                    disabled: ! this.getHighlight()
+                });
+
+            this.addGlobalMenuItem( 'view', this._highlightClearButton );
+
+            var viewMenu = this.makeGlobalMenu('view');
+            if( viewMenu ) {
+                var viewButton = new dijitDropDownButton(
+                    { className: 'view',
+                      innerHTML: 'View',
+                      dropDown: viewMenu
+                    });
+                dojo.addClass( viewButton.domNode, 'menu' );
+                menuBar.appendChild( viewButton.domNode );
             }
 
             var configMenu = this.makeGlobalMenu('options');
@@ -2117,20 +2141,36 @@ Browser.prototype.createNavBox = function( parent ) {
 };
 
 /**
- * Return the current
+ * Return the current highlight region, or null if none.
  */
 Browser.prototype.getHighlight = function() {
     return this._highlight || null;
 };
+
+/**
+ * Set a new highlight.  Returns the new highlight.
+ */
 Browser.prototype.setHighlight = function( newHighlight ) {
-    if( ! newHighlight )
-        delete this._highlight;
-    else if( newHighlight instanceof GlobalHighlight )
+    if( newHighlight && ( newHighlight instanceof GlobalHighlight ) )
         this._highlight = newHighlight;
-    else
+    else if( newHighlight )
         this._highlight = new GlobalHighlight( newHighlight );
 
+    if( this._highlightClearButton ) {
+        this._highlightClearButton.set( 'disabled', false );
+        this._highlightClearButton.set( 'label', 'Clear highlight (' + this._highlight +')' );
+    }
+
     return this.getHighlight();
+};
+Browser.prototype.clearHighlight = function() {
+
+    delete this._highlight;
+
+    if( this._highlightClearButton ) {
+        this._highlightClearButton.set( 'disabled',  true );
+        this._highlightClearButton.set( 'label', 'Clear highlight' );
+    }
 };
 
 return Browser;
