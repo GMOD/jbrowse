@@ -1566,6 +1566,15 @@ GenomeView.prototype.redrawTracks = function() {
     this.showVisibleBlocks( true );
 };
 
+GenomeView.prototype.hideRegion = function( location ) {
+    this.trackIterate( function(t) { t.hideRegion( location ); } );
+};
+
+GenomeView.prototype.redrawRegion = function( location ) {
+    this.hideRegion( location );
+    this.showVisibleBlocks( true );
+};
+
 GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
     if (this.animation) return;
     this._unsetPosBeforeZoom();

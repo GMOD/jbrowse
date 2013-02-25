@@ -449,8 +449,9 @@ Browser.prototype.initView = function() {
                 {
                     label: 'Clear highlight',
                     onClick: dojo.hitch( this, function() {
+                                             var h = this.getHighlight();
                                              this.clearHighlight();
-                                             this.view.redrawTracks();
+                                             this.view.redrawRegion(h);
                                          }),
                     disabled: ! this.getHighlight()
                 });
@@ -2154,6 +2155,7 @@ Browser.prototype.getHighlight = function() {
  * Set a new highlight.  Returns the new highlight.
  */
 Browser.prototype.setHighlight = function( newHighlight ) {
+
     if( newHighlight && ( newHighlight instanceof Location ) )
         this._highlight = newHighlight;
     else if( newHighlight )

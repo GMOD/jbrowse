@@ -70,6 +70,9 @@ return declare( null, {
                       className: 'show',
                       innerHTML: 'Show',
                       onClick: this.showCallback || function( location, name ) {
+                          var oldHighlight = browser.getHighlight();
+                          if( oldHighlight )
+                              browser.view.hideRegion( oldHighlight );
                           browser.setHighlight( location );
                           browser.showRegion( location );
                       }
@@ -79,6 +82,9 @@ return declare( null, {
                       innerHTML: 'Go',
                       onClick: this.goCallback   || function( location, name ) {
                           dialog.hide();
+                          var oldHighlight = browser.getHighlight();
+                          if( oldHighlight )
+                              browser.view.hideRegion( oldHighlight );
                           browser.setHighlight( location );
                           browser.showRegion( location );
                       }

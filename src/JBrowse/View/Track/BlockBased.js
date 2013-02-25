@@ -310,11 +310,21 @@ return declare( null,
         this.firstAttached = null;
         this.lastAttached = null;
         this._adjustBlanks();
-        //this.div.style.backgroundColor = "#eee";
+    },
+
+    // hides all blocks that overlap the given region/location
+    hideRegion: function( location ) {
+        if (null == this.firstAttached) return;
+        // hide all blocks that overlap the given region
+        for (var i = this.firstAttached; i <= this.lastAttached; i++)
+            if( !(  this.blocks[i].leftBase > location.end || this.blocks[i].rightBase < location.start ) )
+                this._hideBlock(i);
+
+        this._adjustBlanks();
     },
 
     /**
-     *   _changeCallback invoked here is passed in costructor, 
+     *   _changeCallback invoked here is passed in constructor,
      *         and typically is GenomeView.showVisibleBlocks()
      */
     changed: function() {
