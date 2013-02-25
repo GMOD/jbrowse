@@ -27,8 +27,8 @@ define( [
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
+            'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
-            'JBrowse/Model/GlobalHighlight',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
             'dojo/domReady!'
@@ -61,8 +61,8 @@ define( [
             ConfigManager,
             InfoDialog,
             FileDialog,
+            Location,
             LocationChoiceDialog,
-            GlobalHighlight,
             dijitFocus,
             LazyLoad
         ) {
@@ -1498,6 +1498,9 @@ Browser.prototype.searchNames = function( /**String*/ loc ) {
             // if it has one location, go to it
             if( goingTo.location ) {
 
+                // highlight the location
+                thisB.setHighlight( goingTo.location );
+
                 //go to location, with some flanking region
                 thisB.showRegion( goingTo.location );
             }
@@ -2151,10 +2154,10 @@ Browser.prototype.getHighlight = function() {
  * Set a new highlight.  Returns the new highlight.
  */
 Browser.prototype.setHighlight = function( newHighlight ) {
-    if( newHighlight && ( newHighlight instanceof GlobalHighlight ) )
+    if( newHighlight && ( newHighlight instanceof Location ) )
         this._highlight = newHighlight;
     else if( newHighlight )
-        this._highlight = new GlobalHighlight( newHighlight );
+        this._highlight = new Location( newHighlight );
 
     if( this._highlightClearButton ) {
         this._highlightClearButton.set( 'disabled', false );

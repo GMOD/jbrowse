@@ -35,7 +35,7 @@ return declare(null,{
         var locations = array.map( args.locations || [], function(l) {
             return { locstring: Util.assembleLocString( l ),
                      location: l,
-                     label: l.label,
+                     label: l.label || l.objectName,
                      description: l.description,
                      score: l.score,
                      tracks: array.map( array.filter( l.tracks || [], function(t) { return t; }), // remove nulls

@@ -54,7 +54,8 @@ return declare( HashStore,
                     ref: nameRecord[3],
                     start: parseInt( nameRecord[4] ),
                     end: parseInt( nameRecord[5] ),
-                    tracks: [ trackConfig  ]
+                    tracks: [ trackConfig  ],
+                    objectName: nameRecord[0]
                 });
             } else {
                 item.name = nameRecord;

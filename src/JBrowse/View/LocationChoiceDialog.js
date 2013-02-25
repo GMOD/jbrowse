@@ -69,12 +69,19 @@ return declare( null, {
                   {
                       className: 'show',
                       innerHTML: 'Show',
-                      onClick: this.showCallback || function( location ) { browser.showRegion( location ); }
+                      onClick: this.showCallback || function( location, name ) {
+                          browser.setHighlight( location );
+                          browser.showRegion( location );
+                      }
                   },
                   {
                       className: 'go',
                       innerHTML: 'Go',
-                      onClick: this.goCallback   || function( location ) { dialog.hide(); browser.showRegion( location ); }
+                      onClick: this.goCallback   || function( location, name ) {
+                          dialog.hide();
+                          browser.setHighlight( location );
+                          browser.showRegion( location );
+                      }
                   }
               ]
             },

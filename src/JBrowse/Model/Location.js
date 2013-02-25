@@ -9,15 +9,27 @@ return Util.fastDeclare(
 {
     constructor: function( args ) {
         if( args ) {
-            this.ref = args.ref;
-            this.start = args.start;
-            this.end = args.end;
-            this.strand = args.strand;
-            this.tracks = args.tracks;
+            if( args.location )
+                this._populate( args.location );
+
+            this._populate( args );
         }
     },
+    _populate: function( args ) {
+        this.ref = args.ref;
+        this.start = args.start;
+        this.end = args.end;
+        this.strand = args.strand;
+        this.tracks = args.tracks;
+        this.objectName = args.objectName;
+    },
+
     toString: function() {
-        return Util.assembleLocString(this);
+        var locstring =  Util.assembleLocString(this);
+        if( this.objectName )
+            return locstring + ' ('+this.objectName + ')';
+        else
+          return locstring;
     },
     localeCompare: function( b ) {
         var as = this.toString();

@@ -127,7 +127,8 @@ return declare( null,
                                                ref: n[ post1_4 ? 3 : 2 ],
                                                start: parseInt( n[ post1_4 ? 4 : 3 ]),
                                                end: parseInt( n[ post1_4 ? 5 : 4 ]),
-                                               tracks: [ this.namesTrie.extra[ n[ post1_4 ? 1 : 0 ] ] ]
+                                               tracks: [ this.namesTrie.extra[ n[ post1_4 ? 1 : 0 ] ] ],
+                                               objectName: name
                                            });
 
                                            matches.push({
