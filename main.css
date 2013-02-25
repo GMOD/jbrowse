@@ -22,6 +22,10 @@ html, body {
     text-align: center;
 }
 
+.track .global_highlight {
+    position: absolute;
+    background: rgba( 255, 255, 0, 0.7 );
+}
 
 
 .tundra input {

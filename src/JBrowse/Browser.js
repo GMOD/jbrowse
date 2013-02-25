@@ -27,6 +27,7 @@ define( [
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
             'JBrowse/View/LocationChoiceDialog',
+            'JBrowse/Model/GlobalHighlight',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
             'dojo/domReady!'
@@ -59,6 +60,7 @@ define( [
             InfoDialog,
             FileDialog,
             LocationChoiceDialog,
+            GlobalHighlight,
             dijitFocus,
             LazyLoad
         ) {
@@ -2114,6 +2116,22 @@ Browser.prototype.createNavBox = function( parent ) {
     return navbox;
 };
 
+/**
+ * Return the current
+ */
+Browser.prototype.getHighlight = function() {
+    return this._highlight || null;
+};
+Browser.prototype.setHighlight = function( newHighlight ) {
+    if( ! newHighlight )
+        delete this._highlight;
+    else if( newHighlight instanceof GlobalHighlight )
+        this._highlight = newHighlight;
+    else
+        this._highlight = new GlobalHighlight( newHighlight );
+
+    return this.getHighlight();
+};
 
 return Browser;
 

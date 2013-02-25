@@ -184,7 +184,9 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.staticTrack = new LocationScaleTrack({
         label: "static_track",
         labelClass: "pos-label",
-        posHeight: this.posHeight
+        posHeight: this.posHeight,
+        browser: this.browser,
+        refSeq: this.ref
     });
     this.staticTrack.setViewInfo( this, function(height) {}, this.stripeCount,
                                  this.scaleTrackDiv, undefined, this.stripePercent,
@@ -197,7 +199,10 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     gridTrackDiv.className = "track";
     gridTrackDiv.style.cssText = "top: 0px; height: 100%;";
     gridTrackDiv.id = "gridtrack";
-    var gridTrack = new GridLinesTrack();
+    var gridTrack = new GridLinesTrack({
+                                           browser: this.browser,
+                                           refSeq: this.ref
+                                       });
     gridTrack.setViewInfo( this, function(height) {}, this.stripeCount,
                           gridTrackDiv, undefined, this.stripePercent,
                           this.stripeWidth, this.pxPerBp,
@@ -261,7 +266,9 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.addOverviewTrack(new LocationScaleTrack({
         label: "overview_loc_track",
         labelClass: "overview-pos",
-        posHeight: this.overviewPosHeight
+        posHeight: this.overviewPosHeight,
+        browser: this.browser,
+        refSeq: this.ref
     }));
     this.showFine();
     this.showCoarse();
@@ -967,7 +974,9 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
     this.addOverviewTrack(new LocationScaleTrack({
             label: "overview_loc_track",
             labelClass: "overview-pos",
-            posHeight: this.overviewPosHeight
+            posHeight: this.overviewPosHeight,
+            browser: this.browser,
+            refSeq: this.ref
         }));
         this.sizeInit();
         this.setY(0);
