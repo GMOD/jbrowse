@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+ * By default, JBrowse now continuously updates the browser's URL bar
+   to contain a URL that will show the current JBrowse view directly.
+   This is enabled by default only if JBrowse is running from the
+   default index.html included in the JBrowse distribution.
+
  * HTMLFeatures tracks now accept `style->label` and
    `style->description` configuration variables variable that can be
    set to a function callback that returns a string with the feature's

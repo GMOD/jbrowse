@@ -1747,7 +1747,7 @@ Browser.prototype.makeShareLink = function () {
     // connect moving and track-changing events to update it
     var updateShareURL = function() {
         shareURL = browser.makeCurrentViewURL();
-        if( window.history && window.history.replaceState )
+        if( browser.config.updateBrowserURL && window.history && window.history.replaceState )
             window.history.replaceState( {},"", shareURL );
     };
     dojo.connect( this, "onCoarseMove",                     updateShareURL );
