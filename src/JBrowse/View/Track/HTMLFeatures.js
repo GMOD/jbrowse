@@ -15,7 +15,8 @@ define( [
             'JBrowse/View/Track/ExportMixin',
             'JBrowse/View/Track/FeatureDetailMixin',
             'JBrowse/Util',
-            'JBrowse/View/GranularRectLayout'
+            'JBrowse/View/GranularRectLayout',
+            'JBrowse/Model/Location'
         ],
       function( declare,
                 lang,
@@ -33,7 +34,8 @@ define( [
                 ExportMixin,
                 FeatureDetailMixin,
                 Util,
-                Layout
+                Layout,
+                Location
               ) {
 
 var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetailMixin ], {
@@ -114,6 +116,13 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                   action: 'contentDialog',
                   iconClass: 'dijitIconTask',
                   content: dojo.hitch( this, 'defaultFeatureDetail' )
+                },
+                { label: 'Highlight feature',
+                  action: function( feature ) {
+                     var loc = new Location({ feature: this.feature, tracks: [this.track] });
+                     this.track.browser.setHighlightAndRedraw(loc);
+                  },
+                  iconClass: 'dijitIconFilter'
                 }
             ]
         };

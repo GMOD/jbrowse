@@ -453,6 +453,7 @@ Browser.prototype.initView = function() {
             // make the menu item for clearing the current highlight
             this._highlightClearButton = new dijitMenuItem(
                 {
+                    label: 'Clear highlight',
                     onClick: dojo.hitch( this, function() {
                                              var h = this.getHighlight();
                                              if( h ) {
@@ -2179,7 +2180,7 @@ Browser.prototype.setHighlight = function( newHighlight ) {
 Browser.prototype._updateHighlightClearButton = function() {
     if( this._highlightClearButton ) {
         this._highlightClearButton.set( 'disabled', !!! this._highlight );
-        this._highlightClearButton.set( 'label', 'Clear highlight' + ( this._highlight ? ' ' + this._highlight : '' ));
+        this._highlightClearButton.set( 'label', 'Clear highlight' + ( this._highlight ? ' - ' + this._highlight : '' ));
     }
 };
 
@@ -2189,6 +2190,15 @@ Browser.prototype.clearHighlight = function() {
         delete this._highlight;
         this.publish( '/jbrowse/v1/n/globalHighlightChanged', [] );
     }
+};
+
+Browser.prototype.setHighlightAndRedraw = function( location ) {
+    var oldHighlight = this.getHighlight();
+    if( oldHighlight )
+        this.view.hideRegion( oldHighlight );
+    this.view.hideRegion( location );
+    this.setHighlight( location );
+    this.view.showVisibleBlocks( false );
 };
 
 /**

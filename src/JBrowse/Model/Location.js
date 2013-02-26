@@ -1,7 +1,9 @@
 define([
+           'dojo/_base/array',
            'JBrowse/Util'
        ],
        function(
+           array,
            Util
        ) {
 
@@ -15,18 +17,26 @@ return Util.fastDeclare(
 
             if( args.location )
                 this._populate( args.location );
+            if( args.feature ) {
+                var f = args.feature;
+                this._populate({ start: f.get('start'),
+                                 end: f.get('end'),
+                                 ref: f.get('seq_id'),
+                                 strand: f.get('strand'),
+                                 objectName: f.get('Name') || f.get('ID')
+                               });
+            }
 
             this._populate( args );
 
         }
     },
     _populate: function( args ) {
-        this.ref = args.ref;
-        this.start = args.start;
-        this.end = args.end;
-        this.strand = args.strand;
-        this.tracks = args.tracks;
-        this.objectName = args.objectName;
+        array.forEach( 'ref,start,end,strand,tracks,objectName'.split(','),
+                       function( p ) {
+                           if( p in args )
+                               this[p] = args[p];
+                       }, this);
     },
 
     toString: function() {
