@@ -2163,11 +2163,12 @@ Browser.prototype.setHighlight = function( newHighlight ) {
 
     if( this._highlightClearButton ) {
         this._highlightClearButton.set( 'disabled', false );
-        this._highlightClearButton.set( 'label', 'Clear highlight (' + this._highlight +')' );
+        this._highlightClearButton.set( 'label', 'Clear highlight - ' + this._highlight );
     }
 
     return this.getHighlight();
 };
+
 Browser.prototype.clearHighlight = function() {
 
     delete this._highlight;
