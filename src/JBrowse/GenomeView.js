@@ -148,7 +148,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.locationThumb = document.createElement("div");
     this.locationThumb.className = "locationThumb";
     this.overview.appendChild(this.locationThumb);
-    this.locationThumbMover = new locationThumbMover(this.locationThumb, {area: "margin", within: true});
+    this.locationThumbMover = new locationThumbMover(this.locationThumb, {area: "content", within: true});
 
     if ( dojo.isIE ) {
         // if using IE, we have to do scrolling with CSS
@@ -1450,7 +1450,7 @@ GenomeView.prototype.sizeInit = function() {
     // plus an arbitrary 20% padding so it's clear which grid line
     // a position label corresponds to.
     var minStripe = posSize.clientWidth * 1.2;
-    this.overviewPosHeight = posSize.clientHeight;
+    this.overviewPosHeight = posSize.clientHeight * 1.2;
     this.overview.removeChild(posSize);
     for (var n = 1; n < 30; n++) {
     //http://research.att.com/~njas/sequences/A051109
@@ -1567,6 +1567,7 @@ GenomeView.prototype.redrawTracks = function() {
 };
 
 GenomeView.prototype.hideRegion = function( location ) {
+    this.overviewTrackIterate( function(t) { t.hideRegion( location ); } );
     this.trackIterate( function(t) { t.hideRegion( location ); } );
 };
 
@@ -1848,6 +1849,12 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
         Math.round(this.pxToBp(this.offset
                                + (this.stripeCount * this.stripeWidth)));
 
+    this.overviewTrackIterate(function(track, view) {
+                                  track.showRange(0, view.overviewStripes - 1,
+                                                  -1, view.overviewStripeBases,
+                                                  view.overviewBox.w /
+                                                  (view.ref.end - view.ref.start));
+                      });
     this.trackIterate(function(track, view) {
                           track.showRange(leftVisible, rightVisible,
                                           startBase, bpPerBlock,

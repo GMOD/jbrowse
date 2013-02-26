@@ -242,7 +242,7 @@ a.topLink {
 div.overview {
     position: relative;
     width: 100%;
-    padding: 4px 0 0 0;
+    padding: 0;
     z-index: -5;
     display: block;
     height: 23px;
@@ -338,10 +338,12 @@ div.pos-label {
 div.overview-pos {
     position: absolute;
     left: 0px;
+    top: 0.27em;
     color: black;
     padding-left: 4px;
     font-family: sans-serif;
     border: 0;
+    z-index: 10;
 }
 div.overview-pos:first-child {
     margin-left: 1px;
@@ -658,7 +660,6 @@ a.feature-label {
 div.overview .rubber-highlight {
     font-size: 0;
     height: 100%;
-    margin-top: -4px; /* corresponds to padding on div.overview */
     border-top: none;
     border-bottom: none;
 }

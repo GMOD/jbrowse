@@ -1499,11 +1499,8 @@ Browser.prototype.searchNames = function( /**String*/ loc ) {
             // if it has one location, go to it
             if( goingTo.location ) {
 
-                // highlight the location
-                thisB.setHighlight( goingTo.location );
-
                 //go to location, with some flanking region
-                thisB.showRegion( goingTo.location );
+                thisB.showRegionWithHighlight( goingTo.location );
             }
             // otherwise, pop up a dialog with a list of the locations to choose from
             else if( goingTo.multipleLocations ) {
@@ -2178,6 +2175,20 @@ Browser.prototype.clearHighlight = function() {
         this._highlightClearButton.set( 'label', 'Clear highlight' );
     }
 };
+
+/**
+ * Clears the old highlight if necessary, sets the given new
+ * highlight, and updates the display to show the highlighted location.
+ */
+Browser.prototype.showRegionWithHighlight = function( location ) {
+    var oldHighlight = this.getHighlight();
+    if( oldHighlight )
+        this.view.hideRegion( oldHighlight );
+    this.view.hideRegion( location );
+    this.setHighlight( location );
+    this.showRegion( location );
+};
+
 
 return Browser;
 

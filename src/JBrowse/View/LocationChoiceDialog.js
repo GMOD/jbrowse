@@ -69,24 +69,16 @@ return declare( null, {
                   {
                       className: 'show',
                       innerHTML: 'Show',
-                      onClick: this.showCallback || function( location, name ) {
-                          var oldHighlight = browser.getHighlight();
-                          if( oldHighlight )
-                              browser.view.hideRegion( oldHighlight );
-                          browser.setHighlight( location );
-                          browser.showRegion( location );
+                      onClick: this.showCallback || function( location ) {
+                          browser.showRegionWithHighlight( location );
                       }
                   },
                   {
                       className: 'go',
                       innerHTML: 'Go',
-                      onClick: this.goCallback   || function( location, name ) {
+                      onClick: this.goCallback   || function( location ) {
                           dialog.hide();
-                          var oldHighlight = browser.getHighlight();
-                          if( oldHighlight )
-                              browser.view.hideRegion( oldHighlight );
-                          browser.setHighlight( location );
-                          browser.showRegion( location );
+                          browser.showRegionWithHighlight( location );
                       }
                   }
               ]
