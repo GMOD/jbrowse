@@ -106,7 +106,8 @@ return declare( null,
                                           url: url,
                                           start: currOffset,
                                           end: existingChunks[0] ? existingChunks[0].key.start-1 : end,
-                                          toString: chunkToString
+                                          toString: chunkToString,
+                                          toUniqueString: chunkToString
                                       }
                                     });
                 }
