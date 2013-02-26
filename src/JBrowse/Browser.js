@@ -107,6 +107,11 @@ var Browser = function(params) {
     var thisB = this;
     dojo.addOnLoad( function() {
         thisB.loadConfig().then( function() {
+
+            // initialize our highlight if one was set in the config
+            if( thisB.config.initialHighlight )
+                thisB.setHighlight( new Location( thisB.config.initialHighlight ) );
+
             thisB.loadNames();
             thisB.loadUserCSS().then( function() {
                 thisB.initPlugins().then( function() {
@@ -445,16 +450,20 @@ Browser.prototype.initView = function() {
                 menuBar.appendChild( fileButton.domNode );
             }
 
+            // make the menu item for clearing the current highlight
             this._highlightClearButton = new dijitMenuItem(
                 {
-                    label: 'Clear highlight',
                     onClick: dojo.hitch( this, function() {
                                              var h = this.getHighlight();
-                                             this.clearHighlight();
-                                             this.view.redrawRegion(h);
-                                         }),
-                    disabled: ! this.getHighlight()
+                                             if( h ) {
+                                                 this.clearHighlight();
+                                                 this.view.redrawRegion( h );
+                                             }
+                                         })
                 });
+            this._updateHighlightClearButton();  //< sets the label and disabled status
+            // update it every time the highlight changes
+            this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', dojo.hitch( this, '_updateHighlightClearButton' ) );
 
             this.addGlobalMenuItem( 'view', this._highlightClearButton );
 
@@ -1741,8 +1750,9 @@ Browser.prototype.makeShareLink = function () {
         if( window.history && window.history.replaceState )
             window.history.replaceState( {},"", shareURL );
     };
-    dojo.connect( this, "onCoarseMove",                    updateShareURL );
-    this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', updateShareURL );
+    dojo.connect( this, "onCoarseMove",                     updateShareURL );
+    this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateShareURL );
+    this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', updateShareURL );
 
     return button.domNode;
 };
@@ -1772,7 +1782,8 @@ Browser.prototype.makeCurrentViewURL = function() {
             {
                 loc:    this.view.visibleRegionLocString(),
                 tracks: this.view.visibleTrackNames().join(','),
-                data:   (this.config.queryParams||{}).data
+                data:   (this.config.queryParams||{}).data,
+                highlight: (this.getHighlight()||'').toString()
             })
     );
 }
@@ -1792,8 +1803,9 @@ Browser.prototype.makeFullViewLink = function () {
     var update_link = function() {
         link.href = thisB.makeCurrentViewURL();
     };
-    dojo.connect( this, "onCoarseMove",                    update_link );
-    this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', update_link );
+    dojo.connect( this, "onCoarseMove",                     update_link );
+    this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  update_link );
+    this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', update_link );
 
     return link;
 };
@@ -2158,21 +2170,24 @@ Browser.prototype.setHighlight = function( newHighlight ) {
     else if( newHighlight )
         this._highlight = new Location( newHighlight );
 
-    if( this._highlightClearButton ) {
-        this._highlightClearButton.set( 'disabled', false );
-        this._highlightClearButton.set( 'label', 'Clear highlight - ' + this._highlight );
-    }
+    this.publish( '/jbrowse/v1/n/globalHighlightChanged', [this._highlight] );
 
     return this.getHighlight();
 };
 
-Browser.prototype.clearHighlight = function() {
 
-    delete this._highlight;
-
+Browser.prototype._updateHighlightClearButton = function() {
     if( this._highlightClearButton ) {
-        this._highlightClearButton.set( 'disabled',  true );
-        this._highlightClearButton.set( 'label', 'Clear highlight' );
+        this._highlightClearButton.set( 'disabled', !!! this._highlight );
+        this._highlightClearButton.set( 'label', 'Clear highlight' + ( this._highlight ? ' ' + this._highlight : '' ));
+    }
+};
+
+
+Browser.prototype.clearHighlight = function() {
+    if( this._highlight ) {
+        delete this._highlight;
+        this.publish( '/jbrowse/v1/n/globalHighlightChanged', [] );
     }
 };
 

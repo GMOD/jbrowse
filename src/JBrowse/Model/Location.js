@@ -9,10 +9,15 @@ return Util.fastDeclare(
 {
     constructor: function( args ) {
         if( args ) {
+
+            if( typeof args == 'string' )
+                args = Util.parseLocString( args );
+
             if( args.location )
                 this._populate( args.location );
 
             this._populate( args );
+
         }
     },
     _populate: function( args ) {
@@ -31,6 +36,14 @@ return Util.fastDeclare(
         else
           return locstring;
     },
+
+    fromString: function( str ) {
+        var p = Util.parseLocString( str );
+        p.objectName = p.extra;
+        delete p.extra;
+        this._populate( p );
+    },
+
     localeCompare: function( b ) {
         var as = this.toString();
         var bs = b.toString();
