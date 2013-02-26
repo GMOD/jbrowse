@@ -1,5 +1,14 @@
-define(['dojo/_base/declare','JBrowse/View/Track/BlockBased', 'JBrowse/Util'],
-       function( declare, BlockBased, Util ) {
+define([
+           'dojo/_base/declare',
+           'dojo/dom-construct',
+           'JBrowse/View/Track/BlockBased',
+           'JBrowse/Util'],
+       function(
+           declare,
+           dom,
+           BlockBased,
+           Util
+       ) {
 return declare(BlockBased,
  /**
   * @lends JBrowse.View.Track.LocationScale.prototype
@@ -38,8 +47,14 @@ return declare(BlockBased,
 
         posLabel.appendChild( document.createTextNode( numtext ) );
         block.appendChild(posLabel);
+
+        var highlight = this.browser.getHighlight();
+        if( highlight && highlight.ref == this.refSeq.name )
+            this.renderRegionHighlight( args, highlight );
+
         this.heightUpdate( Math.round( this.posHeight*1.2 ), blockIndex);
         args.finishCallback();
     }
+
 });
 });

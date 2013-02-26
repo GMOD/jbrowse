@@ -1005,6 +1005,44 @@ return declare( null,
                            + ' it contains too much data.'
                            + ' Try zooming in to show a smaller region.'
                          );
+    },
+
+    renderRegionHighlight: function( args, highlight ) {
+        // do nothing if the highlight does not overlap this region
+        if( highlight.start > args.rightBase || highlight.end < args.leftBase )
+            return;
+
+        var block_span = args.rightBase - args.leftBase;
+
+        var left = highlight.start;
+        var right = highlight.end;
+
+        // trim left and right to avoid making a huge element that can cause problems
+        var trimLeft = args.leftBase - left;
+        if( trimLeft > 0 ) {
+            left += trimLeft;
+        }
+        var trimRight = right - args.rightBase;
+        if( trimRight > 0 ) {
+            right -= trimRight;
+        }
+
+        function toPct ( coord ) {
+            return (coord - args.leftBase) / block_span * 100;
+        }
+
+        left = toPct( left );
+        var width = toPct(right)-left;
+        var el = dom.create('div', {
+                                className: 'global_highlight'
+                                    + (trimLeft <= 0 ? ' left' : '')
+                                    + (trimRight <= 0 ? ' right' : '' ),
+                                style: {
+                                    left: left+'%',
+                                    width: width+'%',
+                                    height: '100%'
+                                }
+                            }, args.block );
     }
 
 });

@@ -1563,7 +1563,7 @@ GenomeView.prototype.trimVertical = function(y) {
 
 GenomeView.prototype.redrawTracks = function() {
     this.trackIterate( function(t) { t.hideAll(); } );
-    this.showVisibleBlocks( true );
+    this.showVisibleBlocks( false );
 };
 
 GenomeView.prototype.hideRegion = function( location ) {
@@ -1572,7 +1572,7 @@ GenomeView.prototype.hideRegion = function( location ) {
 
 GenomeView.prototype.redrawRegion = function( location ) {
     this.hideRegion( location );
-    this.showVisibleBlocks( true );
+    this.showVisibleBlocks( false );
 };
 
 GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
@@ -1854,6 +1854,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
                                           view.pxPerBp,
                                           containerStart, containerEnd);
                       });
+
     this.updateStaticElements({
                                   height: this.getHeight(),
                                   width: this.getWidth(),
