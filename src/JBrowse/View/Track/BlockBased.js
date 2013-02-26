@@ -317,7 +317,7 @@ return declare( null,
         if (null == this.firstAttached) return;
         // hide all blocks that overlap the given region
         for (var i = this.firstAttached; i <= this.lastAttached; i++)
-            if( !(  this.blocks[i].leftBase > location.end || this.blocks[i].rightBase < location.start ) )
+            if( this.blocks[i] && location.ref == this.refSeq.name && !(  this.blocks[i].leftBase > location.end || this.blocks[i].rightBase < location.start ) )
                 this._hideBlock(i);
 
         this._adjustBlanks();

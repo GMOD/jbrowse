@@ -754,6 +754,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             var highlight = this.browser.getHighlight();
             return highlight
                 && ( highlight.objectName == name )
+                && highlight.ref == this.refSeq.name
                 && !( feature.get('start') > highlight.end || feature.get('end') < highlight.start );
         }.call(this);
 
