@@ -618,7 +618,7 @@ div.tracklist-container {
     padding: 0px 0px 0px 0px;
     /* font-size: 80%; */
     white-space: nowrap;
-    z-index: 10;
+    z-index: 12;
     cursor: pointer;
 }
 a.feature-label {
@@ -627,6 +627,12 @@ a.feature-label {
 .feature-description {
     color: blue;
     margin-top: -0.2em;
+}
+.feature-label.highlighted {
+    background: rgba( 255, 255, 0, 0.7 );
+    font-weight: bold;
+    border: 1px solid red;
+    padding: 0 2px;
 }
 
 .rubber-highlight {

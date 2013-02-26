@@ -552,6 +552,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                  containerStart, containerEnd ) {
         var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                           containerStart, containerEnd );
+
         block.appendChild( featDiv );
         if( this.config.style.centerChildrenVertically )
             this._centerChildrenVertically( featDiv );
@@ -748,6 +749,20 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 //            featDiv.className = featDiv.className + " " + featDiv.className + "_phase" + phase;
             dojo.addClass(featDiv, className + "_phase" + phase);
 
+        // check if this feature is highlighted
+        var highlighted = function() {
+            var highlight = this.browser.getHighlight();
+            return highlight
+                && ( highlight.objectName == name )
+                && !( feature.get('start') > highlight.end || feature.get('end') < highlight.start );
+        }.call(this);
+
+        // add 'highlighted' to the feature's class if its name
+        // matches the objectName of the global highlight and it's
+        // within the highlighted region
+        if( highlighted )
+            dojo.addClass( featDiv, 'highlighted' );
+
         // Since some browsers don't deal well with the situation where
         // the feature goes way, way offscreen, we truncate the feature
         // to exist betwen containerStart and containerEnd.
@@ -786,7 +801,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         if (name && this.showLabels && scale >= labelScale) {
             var labelDiv = dojo.create( 'div', {
-                    className: "feature-label",
+                    className: "feature-label" + ( highlighted ? ' highlighted' : '' ),
                     innerHTML: '<div class="feature-name">'+name+'</div>'
                                +( description ? ' <div class="feature-description">'+description+'</div>' : '' ),
                     style: {
