@@ -2180,7 +2180,7 @@ Browser.prototype.setHighlight = function( newHighlight ) {
 Browser.prototype._updateHighlightClearButton = function() {
     if( this._highlightClearButton ) {
         this._highlightClearButton.set( 'disabled', !!! this._highlight );
-        this._highlightClearButton.set( 'label', 'Clear highlight' + ( this._highlight ? ' - ' + this._highlight : '' ));
+        //this._highlightClearButton.set( 'label', 'Clear highlight' + ( this._highlight ? ' - ' + this._highlight : '' ));
     }
 };
 
