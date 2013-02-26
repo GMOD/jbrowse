@@ -25,6 +25,19 @@ html, body {
 .track .global_highlight {
     position: absolute;
     background: rgba( 255, 255, 0, 0.7 );
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+
+    border: 1px solid rgb(255, 178, 13);
+    border-width: 0;
+}
+.track .global_highlight.left {
+    border-left-width: 1px;
+}
+.track .global_highlight.right {
+    border-right-width: 1px;
 }
 
 

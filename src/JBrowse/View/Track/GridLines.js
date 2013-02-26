@@ -92,7 +92,9 @@ return dojo.declare( BlockBased,
         left = toPct( left );
         var width = toPct(right)-left;
         var el = dom.create('div', {
-                                className: 'global_highlight',
+                                className: 'global_highlight'
+                                    + (trimLeft <= 0 ? ' left' : '')
+                                    + (trimRight <= 0 ? ' right' : '' ),
                                 style: {
                                     left: left+'%',
                                     width: width+'%',
