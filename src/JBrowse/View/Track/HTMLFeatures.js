@@ -117,8 +117,13 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                   iconClass: 'dijitIconTask',
                   content: dojo.hitch( this, 'defaultFeatureDetail' )
                 },
-                { label: 'Highlight feature',
-                  action: function( feature ) {
+                { label: function() {
+                      return 'Highlight '
+                          +( this.feature && this.feature.get('type') ? this.feature.get('type')
+                                                                      : 'feature'
+                           );
+                  },
+                  action: function() {
                      var loc = new Location({ feature: this.feature, tracks: [this.track] });
                      this.track.browser.setHighlightAndRedraw(loc);
                   },
