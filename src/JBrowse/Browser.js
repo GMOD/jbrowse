@@ -29,6 +29,7 @@ define( [
             'JBrowse/View/FileDialog',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
+            'JBrowse/View/Dialog/SetHighlight',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
             'dojo/domReady!'
@@ -63,6 +64,7 @@ define( [
             FileDialog,
             Location,
             LocationChoiceDialog,
+            SetHighlightDialog,
             dijitFocus,
             LazyLoad
         ) {
@@ -449,6 +451,17 @@ Browser.prototype.initView = function() {
                 dojo.addClass( fileButton.domNode, 'menu' );
                 menuBar.appendChild( fileButton.domNode );
             }
+
+
+            this.addGlobalMenuItem( 'view', new dijitMenuItem({
+                label: 'Set highlight',
+                onClick: function() {
+                    new SetHighlightDialog({
+                            browser: thisObj,
+                            setCallback: dojo.hitch( thisObj, 'setHighlightAndRedraw' )
+                        }).show();
+                }
+            }));
 
             // make the menu item for clearing the current highlight
             this._highlightClearButton = new dijitMenuItem(

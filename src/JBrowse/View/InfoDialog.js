@@ -30,6 +30,7 @@ return declare( ActionBarDialog,
     },
 
     show: function() {
+
         this.inherited( arguments );
 
         var thisB = this;

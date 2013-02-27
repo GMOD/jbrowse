@@ -22,6 +22,11 @@ html, body {
     text-align: center;
 }
 
+/* styles for the highlight-setting dialog */
+.setHighlightDialog label {
+    padding-right: 0.5em;
+}
+
 .track .global_highlight {
     position: absolute;
     background: rgba( 255, 255, 0, 0.7 );
@@ -105,15 +110,10 @@ fieldset > legend {
     outline: none;
 }
 
-
 .dijitDialogPaneActionBar {
     text-align: center;
     clear: both;
     padding-top: 1em;
-}
-
-.infoDialogContent {
-    padding: 1em;
 }
 
 .nav {
@@ -125,7 +125,6 @@ input.icon {
     display: -moz-inline-stack;
     display: inline-block;
     zoom: 1;
-    *display: inline;
 }
 
 div.container {
