@@ -485,11 +485,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                             if ( sourceSlot.booleanCovs.hasOwnProperty(key) ) {
                                 featDiv.appendChild( sourceSlot.booleanCovs[key] );
                             }}
-                            var color = window.getComputedStyle
-                                        ? window.getComputedStyle(featDiv).backgroundColor
-                                        : (function(){console.error('Browser does not support "getComputedStyle"'); return 'rgb(0,0,0)'});
-                            color = 'rgba('+ color.split('(')[1].split(')')[0].split(',') +', '+sourceSlot.booleanAlpha +')';
-                            featDiv.style['background-color'] = color;
+
+                            featDiv.className = 'HTML-boolean-transparent';
                             featDiv.booleanCovs = sourceSlot.booleanCovs;
                             featDiv.booleanAlpha = sourceSlot.booleanAlpha;
                          }
@@ -649,12 +646,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                     }
                 }}
 
-                // change the opacity. (in future, change class type, rather than the div's style attributes)
-                var color = window.getComputedStyle
-                            ? window.getComputedStyle(feat).backgroundColor
-                            : (function(){console.error('Browser does not support "getComputedStyle"'); return 'rgb(0,0,0)'});
-                color = 'rgba('+ color.split('(')[1].split(')')[0].split(',') +', '+alpha+')';
-                feat.style['background-color'] = color;
+                feat.className = 'HTML-boolean-transparent';
+                console.log(feat.className);
             }}
         }}
     },
