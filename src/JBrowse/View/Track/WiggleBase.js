@@ -112,10 +112,28 @@ return declare( [CanvasTrack,ExportMixin], {
                         return this._featureRect( scale, leftBase, canvasWidth, f );
                     }, this );
 
-                    block.features = features;  //< TODO: remove this
-                    block.featureRects = featureRects;
-                    block.pixelScores = this._calculatePixelScores( this._canvasWidth(block), features, featureRects );
+                    var pixels = this._calculatePixelScores( c.width, features, featureRects );
 
+                    this._preDraw(      scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
+                    this._drawFeatures( scale, leftBase, rightBase, block, c, pixels, dataScale );
+                    this._postDraw(     scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
+
+                    this._makeScoreDisplay( scale, leftBase, rightBase, block, c, features, featureRects, pixels );
+
+                    this.heightUpdate( c.height, blockIndex );
+                    if( !( c.parentNode && c.parentNode.parentNode )) {
+                            c.style.position = "absolute";
+                            c.style.left = (100 * ((c.startBase - leftBase) / blockWidth)) + "%";
+                            switch (this.config.align) {
+                            case "top":
+                                c.style.top = "0px";
+                                break;
+                            case "bottom":
+                            default:
+                                c.style.bottom = this.trackPadding + "px";
+                                break;
+                            }
+                    }
                     finishCallback();
                 }));
     },
@@ -276,19 +294,35 @@ return declare( [CanvasTrack,ExportMixin], {
         // make an array of the max score at each pixel on the canvas
         var pixelValues = new Array( canvasWidth );
         dojo.forEach( features, function( f, i ) {
+            var store = f.source;
             var fRect = featureRects[i];
             var jEnd = fRect.r;
             var score = f.get('score');
             for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
-                pixelValues[j] = j in pixelValues ? Math.max( pixelValues[j], score ) : score;
+                if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
+                    pixelValues[j]['score'] = Math.max( pixelValues[j]['score'], score );
+                }
+                else if ( pixelValues[j] ) {
+                    pixelValues[j]['score'] = pixelValues[j]['score'] + score;
+                    pixelValues[j]['lastUsedStore'] = store;
+                }
+                else {
+                    pixelValues[j] = { score: score, lastUsedStore: store }
+                }
             }
         },this);
+        // when done looping through features, forget the store information.
+        for (var i=0; i<pixelValues.length; i++) {
+            if ( pixelValues[i] ) {
+                pixelValues[i] = pixelValues[i]['score'];
+            }
+        }
         return pixelValues;
     },
 
-    _makeScoreDisplay: function( scale, leftBase, rightBase, block, canvas, features, featureRects ) {
+    _makeScoreDisplay: function( scale, leftBase, rightBase, block, canvas, features, featureRects, pixels ) {
 
-        var pixelValues = block.pixelScores;
+        var pixelValues = pixels;
 
         // make elements and events to display it
         var scoreDisplay = dojo.create(
