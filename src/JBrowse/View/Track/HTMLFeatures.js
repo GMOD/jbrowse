@@ -462,6 +462,20 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                          var featDiv = this.addFeatureToBlock( sourceSlot.feature, overlaps[i],
                                                          destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
                                                          containerStart, containerEnd );
+                         // if there are boolean coverage divs, modify feature accordingly.
+                         if ( sourceSlot.booleanCovs ) {
+                            for ( var key in sourceSlot.booleanCovs ) {
+                            if ( sourceSlot.booleanCovs.hasOwnProperty(key) ) {
+                                featDiv.appendChild( sourceSlot.booleanCovs[key] );
+                            }}
+                            var color = window.getComputedStyle
+                                        ? window.getComputedStyle(featDiv).backgroundColor
+                                        : (function(){console.error('Browser does not support "getComputedStyle"'); return 'rgb(0,0,0)'});
+                            color = 'rgba('+ color.split('(')[1].split(')')[0].split(',') +', '+sourceSlot.booleanAlpha +')';
+                            featDiv.style['background-color'] = color;
+                            featDiv.booleanCovs = sourceSlot.booleanCovs;
+                            featDiv.booleanAlpha = sourceSlot.booleanAlpha;
+                         }
                      }
             }
         }
@@ -526,9 +540,10 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                   end: rightBase
                                 },
                                 featCallback,
-                                function () {
+                                function ( spans ) {
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
+                                    if ( spans ) { curTrack.maskBySpans( spans, 0.2 ); }
                                     finishCallback();
                                 },
                                 function( error ) {
@@ -568,6 +583,62 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 return true;
         }
         return false;
+    },
+
+    /**
+     * If spans are passed to the track (i.e. if it is a boolean track), mask features accordingly.
+     */
+    maskBySpans: function ( spans, alpha ) {
+        var blocks = this.blocks;
+        for ( var i in blocks ) {
+        if ( blocks.hasOwnProperty(i) ) {
+            // loop through all blocks
+            if ( !blocks[i] ) {continue;}
+            var block = blocks[i]
+            var bs = block.startBase;
+            var be = block.endBase;
+
+            var overlaps = function ( featStart, featEnd, spanStart, spanEnd ) {
+                // outputs start and end points of overlap
+                var s = Math.max( featStart, spanStart );
+                var e = Math.min( featEnd, spanEnd );
+                if ( s < e ) { return {s:s, e:e}; }
+                return false;
+            }
+
+            for ( var key in block.featureNodes ) {
+            if (block.featureNodes.hasOwnProperty(key)) {
+                var feat = block.featureNodes[key];
+                if ( !feat.feature ) {continue;} // node also contains subfeatures. Ignore for now.
+                var s = feat.feature.get('start');
+                var e = feat.feature.get('end');
+                if ( !feat.booleanCovs ) { feat.booleanCovs = []; }
+                feat.booleanAlpha = alpha;
+                for ( var index in spans ) {
+                if ( spans.hasOwnProperty(index) ) {
+                    var ov = overlaps( s, e, spans[index].start, spans[index].end );
+                    if ( ov ) {
+                        var coverageNode = dojo.create('div');
+                        coverageNode.span = { s:ov.s, e:ov.e }; // might not be needed. Placed here to be used for a potential bug fix
+                        coverageNode.className = 'HTML-boolean-coverage';
+                        coverageNode.style.left = 100*(ov.s-s)/(e-s)+'%';
+                        coverageNode.style.top = '0px';
+                        coverageNode.style.width = 100*(ov.e-ov.s)/(e-s)+'%';
+
+                        // add the coverage div as a feature of the
+                        feat.booleanCovs.push(coverageNode);
+                        feat.appendChild(coverageNode);
+                    }
+                }}
+
+                // change the opacity. (in future, change class type, rather than the div's style attributes)
+                var color = window.getComputedStyle
+                            ? window.getComputedStyle(feat).backgroundColor
+                            : (function(){console.error('Browser does not support "getComputedStyle"'); return 'rgb(0,0,0)'});
+                color = 'rgba('+ color.split('(')[1].split(')')[0].split(',') +', '+alpha+')';
+                feat.style['background-color'] = color;
+            }}
+        }}
     },
 
     measureStyles: function() {
