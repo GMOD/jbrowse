@@ -157,7 +157,6 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
                 return; }
             if ( !Object.keys(featureArrays.invMask).length ) {
                 thisB.inverseMask( features, masks, featCallback, doneCallback );
-                console.log('called');
                 return; }
 
             switch (thisB.config.booleanOP) {
@@ -168,7 +167,7 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
                     thisB.inverseMask( features, thisB.andSpan( masks, invMasks ), featCallback, doneCallback );
                     break;
                 default :
-                    console.log("Invalid boolean operation: "+this.config.booleanOP);
+                    console.error("Invalid boolean operation: "+this.config.booleanOP);
                     break;
             }
         });
@@ -208,7 +207,7 @@ makeSpan: function( args ) {
 
 inSpan: function( feature, span ) {
     // given a feature or pseudo-feature, returns true if the feature overlaps the span. False otherwise.
-    if ( !feature || !span ) {console.log("invalide arguments");}
+    if ( !feature || !span ) {console.error("invalide arguments");}
     return feature.get ? !( feature.get('start') >= span.end || feature.get('end') <= span.start ) :
                          !( feature.start >= span.end || feature.end <= span.start );
     
@@ -228,7 +227,7 @@ addOverlap: function( args ) {
     // takes a simple feature and a span, adds the overlap of the two as a property of the feature.
     var feature = args.feature;
     var span = args.span;
-    if (!feature) {console.log("addOverlap must be passed a feature. Passed :" + feature); return;}
+    if (!feature) {console.error("addOverlap must be passed a feature. Passed :" + feature); return;}
     if (!feature.overlaps) { feature.overlaps = []; }
     feature.overlaps.push( { start: Math.max( feature.get('start'), span.start ),
                              end:   Math.min( feature.get('end'), span.end ) } );
