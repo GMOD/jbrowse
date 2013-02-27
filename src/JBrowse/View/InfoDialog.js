@@ -2,16 +2,16 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dijit/focus',
-           'dijit/Dialog',
+           'JBrowse/View/Dialog/WithActionBar',
            'dojo/on',
            'dijit/form/Button'
        ],
-       function( declare, array, focus, dijitDialog, on, dijitButton ) {
+       function( declare, array, focus, ActionBarDialog, on, dijitButton ) {
 
-return declare( dijitDialog,
+return declare( ActionBarDialog,
 
     /**
-     * Dijit Dialog subclass with a few customizations that make it
+     * JBrowse ActionDialog subclass with a few customizations that make it
      * more pleasant for use as an information popup.
      * @lends JBrowse.View.InfoDialog
      */
@@ -19,39 +19,14 @@ return declare( dijitDialog,
     refocus: false,
     autofocus: false,
 
-    onLoad: function() {
-        this.inherited(arguments);
-        this._addActionBar();
-    },
-
-    _addActionBar: function() {
-        if( this.get('content') && ! this.actionBar ) {
-            this.actionBar = dojo.create( 'div', { className: 'infoDialogActionBar dijitDialogPaneActionBar' });
-
+    _fillActionBar: function( actionBar ) {
             new dijitButton({
                 className: 'OK',
                 label: 'OK',
                 onClick: dojo.hitch(this,'hide'),
                 focus: false
             })
-            .placeAt( this.actionBar);
-
-            var c = this.get('content');
-            var container = dojo.create( 'div', { className: 'infoDialogContent' });
-            if( typeof c == 'string' )
-                container.innerHTML = c;
-            else {
-                if( c.parentNode )
-                        c.parentNode.removeChild( c );
-                container.addChild( c );
-            }
-            this.set( 'content',
-                      [
-                          container,
-                          this.actionBar
-                      ]
-                    );
-        }
+            .placeAt( actionBar);
     },
 
     show: function() {
