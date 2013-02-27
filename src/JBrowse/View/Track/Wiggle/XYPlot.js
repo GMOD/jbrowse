@@ -74,7 +74,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
      * Draw a set of features on the canvas.
      * @private
      */
-    _drawFeatures: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale ) {
+    _drawFeatures: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale ) {
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
         var toY = dojo.hitch( this, function( val ) {
@@ -84,41 +84,36 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
 
         var disableClipMarkers = this.config.disable_clip_markers;
 
-        dojo.forEach( features, function(f,i) {
-
-            var fRect = featureRects[i];
-
-            //console.log( f.get('start') +'-'+f.get('end')+':'+f.get('score') );
-            var score = f.get('score');
-            fRect.t = toY( score );
-            //console.log( score, fRect.t );
+        dojo.forEach( pixels, function(p,i) {
+            var score = toY(p);
+            var w = Math.ceil(scale);
 
             // draw the background color if we are configured to do so
-            if( fRect.t >= 0 ) {
+            if( score >= 0 ) {
                 var bgColor = this.getConfForFeature('style.bg_color', f );
                 if( bgColor ) {
                     context.fillStyle = bgColor;
-                    context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
+                    context.fillRect( i, 0, w, canvasHeight );
                 }
             }
 
-            if( fRect.t <= canvasHeight ) { // if the rectangle is visible at all
-                if( fRect.t <= originY ) {
+            if( score <= canvasHeight ) { // if the rectangle is visible at all
+                if( score <= originY ) {
                     // bar goes upward
                     context.fillStyle = this.getConfForFeature('style.pos_color',f);
-                    context.fillRect( fRect.l, fRect.t, fRect.w, originY-fRect.t+1);
+                    context.fillRect( i, score, w, originY-score+1);
                     if( !disableClipMarkers && fRect.t < 0 ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.neg_color',f);
-                        context.fillRect( fRect.l, 0, fRect.w, 2 );
+                        context.fillRect( i, 0, w, 2 );
                     }
                 }
                 else {
                     // bar goes downward
                     context.fillStyle = this.getConfForFeature('style.neg_color',f);
-                    context.fillRect( fRect.l, originY, fRect.w, fRect.t-originY+1 );
-                    if( !disableClipMarkers && fRect.t >= canvasHeight ) { // draw clip marker if necessary
+                    context.fillRect( i, originY, w, score-originY+1 );
+                    if( !disableClipMarkers && score >= canvasHeight ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.pos_color',f);
-                        context.fillRect( fRect.l, canvasHeight-3, fRect.w, 2 );
+                        context.fillRect( i, canvasHeight-3, w, 2 );
                     }
                 }
             }
