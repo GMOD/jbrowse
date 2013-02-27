@@ -46,6 +46,7 @@
          "track" : "malformed_alignments",
          "class" : "feature4",
          "key" : "Example Features with Menus",
+         "metadata": { "Description": "Features with extensively customized right-click menus, and with their colors set at random by a JavaScript callback." },
          "hooks": {
              "modify": "function( track, feature, div ) { div.style.backgroundColor = ['green','blue','red','orange','purple'][Math.round(Math.random()*5)];}"
          },
