@@ -40,6 +40,7 @@ describe( 'Util.parseLocString', function() {
              [
                  [ ['snark123'], null ],
                  [ ['ctgA:3000..4000'], { ref: 'ctgA', start: 2999, end: 4000 } ],
+                 [ ['ctgA:4000..3000'], { ref: 'ctgA', start: 2999, end: 4000 } ],
                  [ ['ctgA^:3,000..4,000.0'], { ref: 'ctgA^', start: 2999, end: 4000 } ],
                  [ ['ctgA^:3,000..4,000.0 (42 kb)'], { ref: 'ctgA^', start: 2999, end: 4000, extra: '42 kb'} ],
                  [ ['ziggy234.1:3,000..4,000.0 (42 kb)'], { ref: 'ziggy234.1', start: 2999, end: 4000, extra: '42 kb' } ],

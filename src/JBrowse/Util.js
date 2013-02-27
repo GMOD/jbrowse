@@ -253,6 +253,13 @@ Util = {
         if( tokens ) { // range of two numbers?
             location.start = parseCoord( tokens[1] )-1;
             location.end = parseCoord( tokens[2] );
+
+            // reverse the numbers if necessary
+            if( location.start > location.end ) {
+                var t = location.start+1;
+                location.start = location.end - 1;
+                location.end = t;
+            }
         }
         else { // one number?
             tokens = locstring.match( /^\s*([\d,]+)/ );
