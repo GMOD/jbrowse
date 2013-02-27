@@ -118,6 +118,16 @@ div.feature-hist {
     background-color: #62d335;
 }
 
+.HTML-boolean-coverage {
+    position:absolute;
+    height: 7px;
+    background-repeat: repeat-x;
+    cursor: pointer;
+    min-width: 1px;
+    z-index: 10;
+    background-color: #62d335;
+}
+
 div.feature2-hist {
     background-color: #9f9;
     border-color: #ada;
