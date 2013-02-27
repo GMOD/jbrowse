@@ -86,14 +86,13 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
 
         dojo.forEach( pixels, function(p,i) {
             var score = toY(p);
-            var w = Math.ceil(scale);
 
             // draw the background color if we are configured to do so
             if( score >= 0 ) {
                 var bgColor = this.getConfForFeature('style.bg_color', f );
                 if( bgColor ) {
                     context.fillStyle = bgColor;
-                    context.fillRect( i, 0, w, canvasHeight );
+                    context.fillRect( i, 0, 1, canvasHeight );
                 }
             }
 
@@ -101,19 +100,19 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 if( score <= originY ) {
                     // bar goes upward
                     context.fillStyle = this.getConfForFeature('style.pos_color',f);
-                    context.fillRect( i, score, w, originY-score+1);
+                    context.fillRect( i, score, 1, originY-score+1);
                     if( !disableClipMarkers && fRect.t < 0 ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.neg_color',f);
-                        context.fillRect( i, 0, w, 2 );
+                        context.fillRect( i, 0, 1, 2 );
                     }
                 }
                 else {
                     // bar goes downward
                     context.fillStyle = this.getConfForFeature('style.neg_color',f);
-                    context.fillRect( i, originY, w, score-originY+1 );
+                    context.fillRect( i, originY, 1, score-originY+1 );
                     if( !disableClipMarkers && score >= canvasHeight ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.pos_color',f);
-                        context.fillRect( i, canvasHeight-3, w, 2 );
+                        context.fillRect( i, canvasHeight-3, 1, 2 );
                     }
                 }
             }
