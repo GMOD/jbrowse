@@ -17,6 +17,8 @@ define( [
             'dijit/DropDownMenu',
             'dijit/MenuItem',
             'dijit/CheckedMenuItem',
+            'dijit/Menu',
+            'dijit/PopupMenuItem',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Names/LazyTrieDojoData',
@@ -28,6 +30,7 @@ define( [
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
             'JBrowse/Model/Location',
+            'JBrowse/View/BooleanDialog',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
             'dijit/focus',
@@ -52,6 +55,8 @@ define( [
             dijitDropDownMenu,
             dijitMenuItem,
             dijitCheckedMenuItem,
+            dijitMenu,
+            dijitPopupMenuItem,
             Util,
             LazyTrie,
             NamesLazyTrieDojoDataStore,
@@ -63,6 +68,7 @@ define( [
             InfoDialog,
             FileDialog,
             Location,
+            BooleanDialog,
             LocationChoiceDialog,
             SetHighlightDialog,
             dijitFocus,
@@ -452,6 +458,19 @@ Browser.prototype.initView = function() {
                 menuBar.appendChild( fileButton.domNode );
             }
 
+            var newSubmenu = new dijitMenu();
+            newSubmenu.addChild( new dijitMenuItem(
+                {
+                    label: 'Boolean Track',
+                    onClick: dojo.hitch(this, 'booleanTrackDialog')
+                })
+            );
+            fileMenu.addChild( new dijitPopupMenuItem(
+                {           
+                    label: 'New',
+                    popup: newSubmenu
+                })
+            );
 
             this.addGlobalMenuItem( 'view', new dijitMenuItem({
                 label: 'Set highlight',
@@ -646,7 +665,8 @@ Browser.prototype.getTrackTypes = function() {
                 'JBrowse/View/Track/HTMLFeatures',
                 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/View/Track/Wiggle/Density',
-                'JBrowse/View/Track/Sequence'
+                'JBrowse/View/Track/Sequence',
+                'JBrowse/View/Track/BooleanTrack'
             ],
 
             trackTypeLabels: {
@@ -686,6 +706,30 @@ Browser.prototype.openFileDialog = function() {
                 }
             })
         });
+};
+
+Browser.prototype.booleanTrackDialog = function() {
+    new BooleanDialog({ browser: this }).show( {
+        openCallback: dojo.hitch( this, function ( results ) {
+            // more or less the same as its openFile counterpart
+                var conf = results.trackConf;
+                // add this store configuration to the browser's store
+                // configuration, and replace it with its names.
+                var storeConf = conf.store;
+                    if( storeConf && typeof storeConf == 'object' ) {
+                        delete conf.store;
+                        var name = this._addStoreConfig( storeConf.name, storeConf );
+                        conf.store = name;
+                    }
+                // send out a message about how the user wants to create the new tracks
+                this.publish( '/jbrowse/v1/v/tracks/new', [conf] );
+
+                // if requested, send out another message that the user wants to show them
+                if( results.trackDisposition == 'openImmediately' ) {
+                    this.publish( '/jbrowse/v1/v/tracks/show', [conf] );
+                }
+            })
+    });
 };
 
 Browser.prototype.addTracks = function( confs ) {
@@ -1115,6 +1159,9 @@ Browser.prototype._addTrackConfigs = function( /**Array*/ configs ) {
         this.config.tracks = [];
     if( ! this.trackConfigsByName )
         this.trackConfigsByName = {};
+    if( ! configs instanceof Array ) {
+        console.error("_addTrackConfigs must be passed an array.");
+    }
 
     array.forEach( configs, function(conf){
 
