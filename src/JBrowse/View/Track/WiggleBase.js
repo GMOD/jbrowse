@@ -218,11 +218,13 @@ return declare( [CanvasTrack,ExportMixin], {
                         return this._featureRect( scale, leftBase, c, f, dataScale );
                     }, this );
 
+                    var pixels = this._calculatePixelScores( c.width, features, featureRects );
+
                     this._preDraw(      scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
-                    this._drawFeatures( scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
+                    this._drawFeatures( scale, leftBase, rightBase, block, c, pixels, dataScale );
                     this._postDraw(     scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
 
-                    this._makeScoreDisplay( scale, leftBase, rightBase, block, c, features, featureRects );
+                    this._makeScoreDisplay( scale, leftBase, rightBase, block, c, features, featureRects, pixels );
 
                     this.heightUpdate( c.height, blockIndex );
                     if( !( c.parentNode && c.parentNode.parentNode )) {
@@ -294,19 +296,35 @@ return declare( [CanvasTrack,ExportMixin], {
         // make an array of the max score at each pixel on the canvas
         var pixelValues = new Array( canvasWidth );
         dojo.forEach( features, function( f, i ) {
+            var store = f.source;
             var fRect = featureRects[i];
             var jEnd = fRect.r;
             var score = f.get('score');
             for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
-                pixelValues[j] = j in pixelValues ? Math.max( pixelValues[j], score ) : score;
+                if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
+                    pixelValues[j]['score'] = Math.max( pixelValues[j]['score'], score );
+                }
+                else if ( pixelValues[j] ) {
+                    pixelValues[j]['score'] = pixelValues[j]['score'] + score;
+                    pixelValues[j]['lastUsedStore'] = store;
+                }
+                else {
+                    pixelValues[j] = { score: score, lastUsedStore: store }
+                }
             }
         },this);
+        // when done looping through features, forget the store information.
+        for (var i=0; i<pixelValues.length; i++) {
+            if ( pixelValues[i] ) {
+                pixelValues[i] = pixelValues[i]['score'];
+            }
+        }
         return pixelValues;
     },
 
-    _makeScoreDisplay: function( scale, leftBase, rightBase, block, canvas, features, featureRects ) {
+    _makeScoreDisplay: function( scale, leftBase, rightBase, block, canvas, features, featureRects, pixels ) {
 
-        var pixelValues = this._calculatePixelScores( canvas.width, features, featureRects );
+        var pixelValues = pixels;
 
         // make elements and events to display it
         var scoreDisplay = dojo.create(
