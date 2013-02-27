@@ -335,6 +335,14 @@ return declare( [CanvasTrack,ExportMixin], {
                     verticalLine.style.display = 'none';
                 }
         });
+        on (this.browser.view.trackContainer, 'mousemove', dojo.hitch(this, function(evt) {
+                var cPos = dojo.position(canvas);
+                var y = evt.pageY - cPos.y;
+                if ( y < 0 || y > cPos.Height) {
+                    scoreDisplay.style.display = 'none';
+                    verticalLine.style.display = 'none';
+                }
+        }));
     },
 
     _showPixelValue: function( scoreDisplay, score ) {
