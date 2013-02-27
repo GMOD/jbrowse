@@ -29,6 +29,7 @@ div.menuBar a, .topLink a {
     font-family: 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
     font-weight: bold;
     line-height: 25px; /* note this line-height should be the same as the fixed height of the menuBar */
+    cursor: pointer;
 }
 
 .share .icon {
