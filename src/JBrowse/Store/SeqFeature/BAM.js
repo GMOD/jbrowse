@@ -72,6 +72,18 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
         });
     },
 
+    /**
+     * Fetch the list of reference sequences represented in the store.
+     */
+    getRefSeqs: function( seqCallback, finishCallback, errorCallback ) {
+        var thisB = this;
+        this._deferred.stats.then( function() {
+            array.forEach( thisB.bam.indexToChr || [], function( rec ) {
+                seqCallback({ name: rec.name, length: rec.length, start: 0, end: rec.length });
+            });
+            finishCallback();
+        }, errorCallback );
+    },
 
     /**
      * Fetch a region of the current reference sequence and use it to

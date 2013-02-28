@@ -9,7 +9,8 @@ define([
            'JBrowse/View/Track/GridLines',
            'JBrowse/BehaviorManager',
            'JBrowse/View/Animation/Zoomer',
-           'JBrowse/View/Animation/Slider'
+           'JBrowse/View/Animation/Slider',
+           'JBrowse/View/InfoDialog'
        ], function(
            declare,
            array,
@@ -21,7 +22,8 @@ define([
            GridLinesTrack,
            BehaviorManager,
            Zoomer,
-           Slider
+           Slider,
+           InfoDialog
        ) {
 
 var dojof = Util.dojof;
@@ -1983,6 +1985,7 @@ GenomeView.prototype._getTracks = function( /**Array[String]*/ trackNames ) {
  *                        rendering of this track
  */
 GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
+    var thisB = this;
 
     if( !trackConfig )
         return null;
@@ -2024,6 +2027,29 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
             });
         if( typeof store.setTrack == 'function' )
             store.setTrack( track );
+
+        // if we can, check that the current reference sequence is
+        // contained in the store
+        if( store.getRefSeqs ) {
+            var foundRef, curRefName = this.ref.name;
+            store.getRefSeqs(
+                function( ref ) {
+                    foundRef = foundRef || ref.name == curRefName;
+                },
+                function() {
+                    if( ! foundRef )
+                        new InfoDialog({
+                            title: 'Reference warning',
+                            content: 'WARNING: The data for track "'
+                              +(trackConfig.key||trackConfig.label)
+                              +'" contains no data for the current'
+                              +' reference sequence ('
+                              +thisB.ref.name
+                              +').'
+                        }).show();
+                }
+            );
+        }
 
         trackDiv.track = track;
 

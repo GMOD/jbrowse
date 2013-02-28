@@ -159,8 +159,8 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
      */
     _readChromTree: function(callback) {
         var thisB = this;
-        this.chromsToIDs = {};
-        this.idsToChroms = {};
+        this.refsByNumber = {};
+        this.refsByName = {};
 
         var udo = this.unzoomedDataOffset;
         while ((udo % 4) != 0) {
@@ -207,16 +207,18 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                                            key += String.fromCharCode(charCode);
                                        }
                                    }
-                                   var chromId = readInt( ba, offset );
-                                   var chromSize = readInt( ba, offset+4 );
+                                   var refId = readInt( ba, offset );
+                                   var refSize = readInt( ba, offset+4 );
                                    offset += 8;
 
-                                   //dlog(key + ':' + chromId + ',' + chromSize);
-                                   thisB.chromsToIDs[key] = chromId;
+                                   var refRec = { name: key, id: refId, length: refSize };
+
+                                   //dlog(key + ':' + refId + ',' + refSize);
+                                   thisB.refsByName[key] = refRec;
                                    if (key.indexOf('chr') == 0) {
-                                       thisB.chromsToIDs[key.substr(3)] = chromId;
+                                       thisB.refsByName[key.substr(3)] = refRec;
                                    }
-                                   thisB.idsToChroms[chromId] = key;
+                                   thisB.refsByNumber[refId] = refRec;
                                } else {
                                    // parse index node
                                    offset += keySize;
@@ -231,6 +233,18 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
                        callback.call( thisB, thisB );
             });
+    },
+
+    getRefSeqs: function( seqCallback, finishCallback, errorCallback ) {
+        var thisB = this;
+        this._deferred.features.then(function() {
+            var refs =  thisB.refsByName;
+            for( var name in refs ) {
+                if( refs.hasOwnProperty(name) )
+                    seqCallback( refs[name] );
+            }
+            finishCallback();
+        }, errorCallback );
     },
 
     _getFeatures: function( query, featureCallback, endCallback, errorCallback ) {

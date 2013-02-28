@@ -39,6 +39,10 @@
    main browser window, and a description to be shown in a pop-up
    dialog when the title is clicked (issue #206).
 
+ * Where possible (i.e. supported by the data store), JBrowse will now
+   pop up a warning if a local data file is opened that contains no
+   data for the current reference sequence (issue #178).
+
 1.8.1     2013-02-12 12:56:24 EST5EDT
 
  * Added support for `cigarAttribute` and `mdAttributes` configuration

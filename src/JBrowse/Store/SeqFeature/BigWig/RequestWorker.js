@@ -158,7 +158,7 @@ var RequestWorker = declare( null,
         }
 
         var f = new Feature();
-        f.segment = this.window.bwg.idsToChroms[this.chr];
+        f.segment = (this.window.bwg.refsByNumber[this.chr]||{}).name;
         f.min = fmin;
         f.max = fmax;
         f.type = 'remark';
