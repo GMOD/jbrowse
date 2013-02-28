@@ -130,11 +130,12 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
                 accept: ["track"], // accepts only tracks into left div
                 withHandles: false,
                 creator: dojo.hitch( this, function( trackConfig, hint ) {
+                    var key = trackConfig.key || trackConfig.name || trackConfig.label;
                     var node = dojo.create(
                         'div',
                         { className: 'tracklist-label',
-                          title: 'drag or double-click to activate',
-                          innerHTML: trackConfig.key || trackConfig.name || trackConfig.label
+                          title: key+' (drag or double-click to activate)',
+                          innerHTML: key
                         }
                     );
                     //in the list, wrap the list item in a container for

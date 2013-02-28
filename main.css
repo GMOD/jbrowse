@@ -458,6 +458,11 @@ div.track-label, div.tracklist-label {
     font-weight: bold;
 }
 
+div.tracklist-label {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
 /* NOTE: browsers that don't support rgba colors will fall back to all
    track labels being #bcbcbc */
 
