@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Added a text box at the top of the simple (i.e. the default) track
+   selector that finds tracks in the track list matching the typed
+   text (issue #210).
+
  * By default, JBrowse now continuously updates the browser's URL bar
    to contain a URL that will show the current JBrowse view directly.
    This is enabled by default only if JBrowse is running from the

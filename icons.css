@@ -1,8 +1,19 @@
 .jbrowseIconHelp,
 .jbrowseIconBusy,
-.jbrowseIconLink
+.jbrowseIconLink,
+.jbrowseIconCancel
 {
     background-image: url('img/commonIconsEnabled.png');
+    width: 16px;
+    height: 16px;
+}
+
+.dijitDisabled .jbrowseIconHelp,
+.dijitDisabled .jbrowseIconBusy,
+.dijitDisabled .jbrowseIconLink,
+.dijitDisabled .jbrowseIconCancel
+{
+    background-image: url('img/commonIconsDisabled.png');
     width: 16px;
     height: 16px;
 }
@@ -12,6 +23,9 @@
 }
 .jbrowseIconLink {
     background-position: -152px;
+}
+.jbrowseIconCancel {
+    background-position: -170px;
 }
 
 .jbrowseIconBusy {

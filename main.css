@@ -463,6 +463,16 @@ div.tracklist-label {
     overflow: hidden;
 }
 
+div.tracklist-label.collapsed {
+    height: 3px;
+    padding: 0;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
 /* NOTE: browsers that don't support rgba colors will fall back to all
    track labels being #bcbcbc */
 
@@ -593,8 +603,16 @@ div.tracklist-label:hover {
     background-position: right;
 }
 #trackPane h2 {
-    margin: 0.5em 0 1em 0.5em;
+    margin: 0.5em 0 0 0.5em;
 }
+#trackPane div.textfilter {
+    margin: 0.5em 0 1em 0.3em;
+}
+#trackPane div.textfilter input {
+    line-height: 16px;
+    padding: 2px 0;
+}
+
 #trackPane_splitter {
     background: #dcdcdc;
     width: 5px;
