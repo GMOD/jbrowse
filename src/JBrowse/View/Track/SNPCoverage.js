@@ -140,7 +140,7 @@ return declare( [Wiggle, MismatchesMixin],
 
                 }
             },
-            function () {
+            function (args) {
                 var makeFeatures = function() {
                     // make fake features from the coverage
                     for( var i = 0; i <= maxBin; i++ ) {
@@ -151,7 +151,7 @@ return declare( [Wiggle, MismatchesMixin],
                             score: coverageBins[i]
                          }));
                     }
-                    finishCallback();
+                    finishCallback(args);
                 };
 
                 // if we are zoomed to base level, try to fetch the
@@ -284,15 +284,39 @@ return declare( [Wiggle, MismatchesMixin],
                 }
             });
         }, this );
+        return context;
     },
 
-    _draw: function(scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale, pixels, spans) {
+    // Overwrites the method from WiggleBase
+    _draw: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale, pixels, spans ) {
+        // Note: pixels currently has no meaning, as the function that generates it is not yet defined for this track
         this._preDraw(      scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
-        this._drawFeatures( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
-        // Not yet written // if ( spans ) {
-        //     this._maskBySpans( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans );
-        // }
+        var context = this._drawFeatures( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale, spans );
+        if ( spans ) {
+            this._maskBySpans( scale, leftBase, canvas, context, spans );
+        }
         this._postDraw(     scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+    },
+
+    /* If it's a boolean track, mask accordingly */
+    _maskBySpans: function( scale, leftBase, canvas, context, spans ) {
+        var canvasHeight = canvas.height;
+        var booleanAlpha = this.config.style.masked_transparancy || 45;
+        this.config.style.masked_transparancy = booleanAlpha;
+
+        for ( var index in spans ) {
+        if (spans.hasOwnProperty(index)) {
+            var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
+            var l = Math.round(( spans[index].start - leftBase ) * scale );
+            var img = context.getImageData(l, 0, w, canvasHeight);
+            var pixels = img.data;
+            for ( var i = 0, n = pixels.length; i < n; i += 4 ) {
+                /* Note: the default calnvas values are transparent black,
+                 * so we don't want to change the opacity of transparent pixels */
+                if ( pixels[i+3] != 0 ) { pixels[i+3] = booleanAlpha;}
+            }
+            context.putImageData( img, l, 0 );
+        }}
     },
 
     /**
