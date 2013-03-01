@@ -208,7 +208,6 @@ return declare( [CanvasTrack,ExportMixin], {
                 },
                 function(f) { features.push(f); },
                 dojo.hitch( this, function( args ) {
-
                     // if the block has been freed in the meantime,
                     // don't try to render
                     if( ! block.parentNode )
@@ -225,7 +224,7 @@ return declare( [CanvasTrack,ExportMixin], {
                                 rightBase,      block,
                                 c,              features,
                                 featureRects,   dataScale,
-                                pixels,         args ? args.spans : undefined );
+                                pixels,         args && args.spans ? args.spans : false );
 
                     this._makeScoreDisplay( scale, leftBase, rightBase, block, c, features, featureRects, pixels );
 

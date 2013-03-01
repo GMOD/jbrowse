@@ -280,7 +280,6 @@ inverseMask: function( features, spans, featCallback, doneCallback ) {
     /* Features from the display set are shown if they are contained in the spans of the masking set.
      * Features partially contained in the spans are displayed.*/
      // change function description. The implementation has changed.
-    var thisB = this;
     for ( var key in features ) {
     if ( features.hasOwnProperty(key) ) {
         featCallback( features[key] )
