@@ -471,7 +471,6 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
                             featDiv.className = 'HTML-boolean-transparent';
                             featDiv.booleanCovs = sourceSlot.booleanCovs;
-                            featDiv.booleanAlpha = sourceSlot.booleanAlpha;
                          }
                      }
             }
@@ -537,10 +536,24 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                   end: rightBase
                                 },
                                 featCallback,
-                                function ( spans ) {
+                                function ( args ) {
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
-                                    if ( spans ) { curTrack.maskBySpans( spans, 0.2 ); }
+                                    if ( args && args.spans ) { 
+                                        //note: spans have to be inverted
+                                        var invSpan = [];
+                                        invSpan[0] = { start: leftBase };
+                                        var i = 0;
+                                        for ( var span in args.spans) {
+                                        if (args.spans.hasOwnProperty(span)) {
+                                            span = args.spans[span];
+                                            invSpan[i].end = span.start;
+                                            i++;
+                                            invSpan[i] = { start: span.end };
+                                        }}
+                                        invSpan[i].end = rightBase;
+                                        curTrack.maskBySpans( invSpan ); 
+                                    }
                                     finishCallback();
                                 },
                                 function( error ) {
@@ -585,7 +598,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     /**
      * If spans are passed to the track (i.e. if it is a boolean track), mask features accordingly.
      */
-    maskBySpans: function ( spans, alpha ) {
+    maskBySpans: function ( spans ) {
         var blocks = this.blocks;
         for ( var i in blocks ) {
         if ( blocks.hasOwnProperty(i) ) {
@@ -610,7 +623,6 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 var s = feat.feature.get('start');
                 var e = feat.feature.get('end');
                 if ( !feat.booleanCovs ) { feat.booleanCovs = []; }
-                feat.booleanAlpha = alpha;
                 for ( var index in spans ) {
                 if ( spans.hasOwnProperty(index) ) {
                     var ov = overlaps( s, e, spans[index].start, spans[index].end );
