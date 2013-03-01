@@ -128,7 +128,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         if (spans.hasOwnProperty(index)) {
             var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
             var l = Math.round(( spans[index].start - leftBase ) * scale );
-            context.clearRect( l, 0, w-1, canvasHeight );
+            context.clearRect( l, 0, w, canvasHeight );
         }}
         context.globalAlpha = this.config.style.masked_transparancy || 0.2;
         this.config.style.masked_transparancy = context.globalAlpha;
