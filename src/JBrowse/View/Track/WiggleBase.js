@@ -101,7 +101,7 @@ return declare( [CanvasTrack,ExportMixin], {
                   end: rightBase+1
                 },
                 function(f) { features.push(f); },
-                dojo.hitch( this, function() {
+                dojo.hitch( this, function( args ) {
 
                     // if the block has been freed in the meantime,
                     // don't try to render
@@ -116,6 +116,9 @@ return declare( [CanvasTrack,ExportMixin], {
 
                     this._preDraw(      scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
                     this._drawFeatures( scale, leftBase, rightBase, block, c, pixels, dataScale );
+                    if ( args && args.spans ) {
+                        this._maskBySpans( scale, leftBase, rightBase, block, c, pixels, dataScale, args.spans );
+                    }
                     this._postDraw(     scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
 
                     this._makeScoreDisplay( scale, leftBase, rightBase, block, c, features, featureRects, pixels );
@@ -287,6 +290,10 @@ return declare( [CanvasTrack,ExportMixin], {
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, features, featureRects ) {
     },
 
+    // If we are making a boolean track, this will be called. Overwrite.
+    _maskBySpans: function( scale, leftBase, canvas, spans, pixels ) {
+    },
+
     _postDraw: function() {
     },
 
@@ -300,6 +307,8 @@ return declare( [CanvasTrack,ExportMixin], {
             var score = f.get('score');
             for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
                 if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
+                    /* Note: if the feature is from a different store, the condition should fail,
+                     *       and we will add to the value, rather than adjusting for overlap */
                     pixelValues[j]['score'] = Math.max( pixelValues[j]['score'], score );
                 }
                 else if ( pixelValues[j] ) {
