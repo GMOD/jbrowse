@@ -133,16 +133,70 @@ return declare( [WiggleXY, AlignmentsMixin],
                 }
             });
         }, this );
+        return context;
     },
 
     // Overwrites the method from WiggleBase
-    _draw: function(scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale, pixels, spans) {
+    _draw: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale, pixels, spans ) {
+        // Note: pixels currently has no meaning, as the function that generates it is not yet defined for this track
         this._preDraw(      scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
-        this._drawFeatures( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
-        // Not yet written // if ( spans ) {
-        //     this._maskBySpans( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans );
-        // }
+        var context = this._drawFeatures( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale, spans );
+        if ( spans ) {
+            this._maskBySpans( scale, leftBase, canvas, context, spans );
+        }
         this._postDraw(     scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+    },
+
+    /* If it's a boolean track, mask accordingly */
+    _maskBySpans: function( scale, leftBase, canvas, context, spans ) {
+        var canvasHeight = canvas.height;
+        var booleanAlpha = this.config.style.masked_transparancy || 45;
+        this.config.style.masked_transparancy = booleanAlpha;
+
+        for ( var index in spans ) {
+        if (spans.hasOwnProperty(index)) {
+            var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
+            var l = Math.round(( spans[index].start - leftBase ) * scale );
+            var img = context.getImageData(l, 0, w, canvasHeight);
+            var pixels = img.data;
+            for ( var i = 0, n = pixels.length; i < n; i += 4 ) {
+                /* Note: the default calnvas values are transparent black,
+                 * so we don't want to change the opacity of transparent pixels */
+                if ( pixels[i+3] != 0 ) { pixels[i+3] = booleanAlpha;}
+            }
+            context.putImageData( img, l, 0 );
+        }}
+    },
+
+    /**
+     * parse a SAM MD tag to find mismatching bases of the template versus the reference
+     * @returns {Array[Object]} array of mismatches and their positions
+     */
+    _mdToMismatches: function( feature, mdstring ) {
+        var mismatchRecords = [];
+        var curr = { start: 0, bases: '' };
+        var seq = feature.get('seq');
+        var nextRecord = function() {
+              mismatchRecords.push( curr );
+              curr = { start: curr.start + curr.bases.length, bases: ''};
+        };
+        array.forEach( mdstring.match(/(\d+|\^[a-z]+|[a-z])/ig), function( token ) {
+          if( token.match(/^\d/) ) { // matching bases
+              curr.start += parseInt( token );
+          }
+          else if( token.match(/^\^/) ) { // insertion in the template
+              var i = token.length-1;
+              while( i-- ) {
+                  curr.bases = '*';
+                  nextRecord();
+              }
+          }
+          else if( token.match(/^[a-z]/i) ) { // mismatch
+              curr.bases = seq.substr( curr.start, token.length );
+              nextRecord();
+          }
+        });
+        return mismatchRecords;
     },
 
     /*
