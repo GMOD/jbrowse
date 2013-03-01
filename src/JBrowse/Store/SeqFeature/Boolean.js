@@ -285,7 +285,7 @@ inverseMask: function( features, spans, featCallback, doneCallback ) {
     if ( features.hasOwnProperty(key) ) {
         featCallback( features[key] )
     }}
-    doneCallback( spans );
+    doneCallback( {spans: spans} );
 },
 
 combineStats: function( key, currStats, newStats) {
@@ -319,9 +319,11 @@ combineStats: function( key, currStats, newStats) {
         case 'basesCovered':
             return currStat + newStat;
         case 'scoreMin':
-            return Math.min( currStat, newStat );
+            return currStat + newStat;
         case 'scoreMax':
-            return Math.max( currStat, newStat );
+            /* note: this might overestimate the maxmimu score.
+             * If the two maximums are in different regions, they will not add */
+            return currStat + newStat;
         case 'scoreSum':
             return currStat + newStat;
         case 'scoreSumSquares':
