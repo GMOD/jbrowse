@@ -113,11 +113,9 @@ sub run {
         $self->writeTrackEntry();
 
     } elsif ( $self->opt('conf') ) {
-        my $config = decode_json( do {
-            local $/;
-            open my $f, '<', $self->opt('conf') or die "$! reading ".$self->opt('conf');
-            scalar <$f>
-        });
+
+        -r $self->opt('conf') or die "conf file not found or not readable";
+        my $config = JSON->new->relaxed->decode( do{ local $/; open my $f, '<', $self->opt('conf'); scalar <$f> });
 
         eval "require $config->{db_adaptor}; 1" or die $@;
 

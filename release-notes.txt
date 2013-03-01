@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed a bug in which the `--conf` option to `prepare-refseqs.pl`
+   did not support comments in JSON conf files (issue #213).  Thanks
+   to Keiran Raine for pointing this out.
+
  * Fixed some missing dojo/dijit nls directories in the non-dev
    release zipfile.
 
