@@ -33,8 +33,8 @@ return declare( WiggleBase,
         );
     },
 
-    _drawFeatures: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale ) {
-        var thisB = this;
+    _drawFeatures: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale ) {
+)
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
         var normalize = dataScale.normalize;
@@ -45,9 +45,8 @@ return declare( WiggleBase,
                 var black = new Color('black');
                 var disableClipMarkers = thisB.config.disable_clip_markers;
                 var normOrigin = normalize( dataScale.origin );
-                return function( feature ) {
-                    var score = feature.get('score');
-                    var n = normalize( score );
+                return function( pixelHeight ) {
+                    var n = normalize( pixelHeight );
                     return ( disableClipMarkers || n <= 1 && n >= 0 )
                                ? Color.blendColors(
                                    new Color( thisB.getConfForFeature('style.bg_color', feature ) ),
@@ -58,10 +57,33 @@ return declare( WiggleBase,
                 };
             })();
 
-        dojo.forEach( features, function(f,i) {
-            var fRect = featureRects[i];
-            context.fillStyle = ''+featureColor( f );
-            context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
+        dojo.forEach( pixels, function(p,i) {
+            if (p) {
+                context.fillStyle = ''+featureColor( p );
+                context.fillRect( i, 0, 1, canvasHeight );
+            }
+        });
+    },
+
+    /* If boolean track, mask accordingly */
+    _maskBySpans: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans ) {
+        var context = canvas.getContext('2d');
+        var canvasHeight = canvas.height;
+        context.fillStyle = this.config.style.mask_color || 'rgba(128,128,128,0.6)';
+
+        for ( var index in spans ) {
+        if (spans.hasOwnProperty(index)) {
+            var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
+            var l = Math.round(( spans[index].start - leftBase ) * scale );
+            context.fillRect( l, 0, w-1, canvasHeight );
+            context.clearRect( l, 0, w-1, canvasHeight/3);
+            context.clearRect( l, (2/3)*canvasHeight, w-1, canvasHeight/3);
+        }}
+        dojo.forEach( pixels, function(p,i) {
+            if (!p) {
+                // if there is no data at a point, erase the mask.
+                context.clearRect( i, 0, 1, canvasHeight );
+            }
         });
     },
 
