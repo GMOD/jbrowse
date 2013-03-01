@@ -218,14 +218,14 @@ return declare( [CanvasTrack,ExportMixin], {
                         return this._featureRect( scale, leftBase, c, f, dataScale );
                     }, this );
 
+                    // Calculate the score for each pixel in the block
                     var pixels = this._calculatePixelScores( c.width, features, featureRects );
 
-                    this._preDraw(      scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
-                    this._drawFeatures( scale, leftBase, rightBase, block, c, pixels, dataScale );
-                    if ( args && args.spans ) {
-                        this._maskBySpans( scale, leftBase, rightBase, block, c, pixels, dataScale, args.spans );
-                    }
-                    this._postDraw(     scale, leftBase, rightBase, block, c, features, featureRects, dataScale );
+                    this._draw( scale,          leftBase,
+                                rightBase,      block,
+                                c,              features,
+                                featureRects,   dataScale,
+                                pixels,         args ? args.spans : undefined );
 
                     this._makeScoreDisplay( scale, leftBase, rightBase, block, c, features, featureRects, pixels );
 
@@ -252,6 +252,16 @@ return declare( [CanvasTrack,ExportMixin], {
                         finishCallback();
                     })
         );
+    },
+
+    // Draw features
+    _draw: function(scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale, pixels, spans) {
+        this._preDraw(      scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+        this._drawFeatures( scale, leftBase, rightBase, block, canvas, pixels, dataScale );
+        if ( spans ) {
+            this._maskBySpans( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans );
+        }
+        this._postDraw(     scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
     },
 
     /**

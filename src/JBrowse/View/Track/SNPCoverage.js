@@ -286,6 +286,15 @@ return declare( [Wiggle, MismatchesMixin],
         }, this );
     },
 
+    _draw: function(scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale, pixels, spans) {
+        this._preDraw(      scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+        this._drawFeatures( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+        // Not yet written // if ( spans ) {
+        //     this._maskBySpans( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans );
+        // }
+        this._postDraw(     scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+    },
+
     /**
      * parse a SAM MD tag to find mismatching bases of the template versus the reference
      * @returns {Array[Object]} array of mismatches and their positions

@@ -128,7 +128,8 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
             var l = Math.round(( spans[index].start - leftBase ) * scale );
             context.clearRect( l, 0, w-1, canvasHeight );
         }}
-        context.globalAlpha = 0.2;
+        context.globalAlpha = this.config.style.masked_transparancy || 0.2;
+        this.config.style.masked_transparancy = context.globalAlpha;
         this._drawFeatures( scale, leftBase, rightBase, block, canvas, pixels, dataScale );
     },
 
@@ -173,7 +174,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         if( typeof originColor == 'string' && !{'none':1,'off':1,'no':1,'zero':1}[originColor] ) {
             var originY = toY( dataScale.origin );
             context.fillStyle = originColor;
-            context.fillRect( 0, originY, canvas.width-1, 1 );
+            context.fillRect( 0, originY, canvas.width, 1 );
         }
 
     }
