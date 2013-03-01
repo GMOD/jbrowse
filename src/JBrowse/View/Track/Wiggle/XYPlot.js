@@ -117,6 +117,21 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         }, this );
     },
 
+    /* If it's a boolean track, mask accordingly */
+    _maskBySpans: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans ) {
+        var context = canvas.getContext('2d');
+        var canvasHeight = canvas.height;
+
+        for ( var index in spans ) {
+        if (spans.hasOwnProperty(index)) {
+            var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
+            var l = Math.round(( spans[index].start - leftBase ) * scale );
+            context.clearRect( l, 0, w-1, canvasHeight );
+        }}
+        context.globalAlpha = 0.2;
+        this._drawFeatures( scale, leftBase, rightBase, block, canvas, pixels, dataScale );
+    },
+
     /**
      * Draw anything needed after the features are drawn.
      */
