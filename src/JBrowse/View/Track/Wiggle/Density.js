@@ -70,6 +70,7 @@ return declare( WiggleBase,
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
         context.fillStyle = this.config.style.mask_color || 'rgba(128,128,128,0.6)';
+        this.config.style.mask_color = context.fillStyle;
 
         for ( var index in spans ) {
         if (spans.hasOwnProperty(index)) {

@@ -135,6 +135,16 @@ return declare( [WiggleXY, AlignmentsMixin],
         }, this );
     },
 
+    // Overwrites the method from WiggleBase
+    _draw: function(scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale, pixels, spans) {
+        this._preDraw(      scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+        this._drawFeatures( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+        // Not yet written // if ( spans ) {
+        //     this._maskBySpans( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans );
+        // }
+        this._postDraw(     scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+    },
+
     /*
      * The following method is required to override the equivalent method in "WiggleBase.js"
      * It displays more complete data.
