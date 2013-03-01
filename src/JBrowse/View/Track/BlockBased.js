@@ -12,6 +12,7 @@ define( [
             'dijit/CheckedMenuItem',
             'dijit/MenuSeparator',
             'JBrowse/Util',
+            'JBrowse/Component',
             'JBrowse/Errors',
             'JBrowse/View/TrackConfigEditor',
             'JBrowse/View/ConfirmDialog'
@@ -29,12 +30,13 @@ define( [
                   dijitCheckedMenuItem,
                   dijitMenuSeparator,
                   Util,
+                  Component,
                   Errors,
                   TrackConfigEditor,
                   ConfirmDialog
                 ) {
 
-return declare( null,
+return declare( Component,
 /**
  * @lends JBrowse.View.Track.BlockBased.prototype
  */
@@ -45,10 +47,6 @@ return declare( null,
      */
     constructor: function( args ) {
         args = args || {};
-
-        // merge our config with the config defaults
-        this.config = args.config || {};
-        this.config = Util.deepUpdate( dojo.clone( this._defaultConfig() ), this.config );
 
         this.refSeq = args.refSeq;
         this.name = args.label || this.config.label;
@@ -820,38 +818,6 @@ return declare( null,
         return typeof confVal == 'function' && !dontRunImmediately[confKey]
             ? confVal.apply( context, context.callbackArgs || [] )
             : confVal;
-    },
-
-    _compileConfigurationPath: function( path ) {
-        var confVal = this.config;
-
-        if( typeof path == 'string' )
-            path = path.split('.');
-        while( path.length && confVal )
-            confVal = confVal[ path.shift() ];
-
-        if( path.length )
-            return function() { return null; };
-
-        return typeof confVal == 'function'
-            ? confVal
-            : function() { return confVal; };
-    },
-
-    /**
-     * Given a dot-separated string configuration path into the config
-     * (e.g. "style.bg_color"), get the value of the configuration.
-     * If args are given, evaluate the configuration using them.
-     * Otherwise, return a function that returns the value of the
-     * configuration when called.
-     */
-    getConf: function( path, args ) {
-        var func = this.compiledConfig[path];
-        if( ! func ) {
-            func = this.compiledConfig[path] = this._compileConfigurationPath( path );
-        }
-
-        return args ? func.apply( this, args ) : func;
     },
 
     /**
