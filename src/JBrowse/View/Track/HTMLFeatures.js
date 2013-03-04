@@ -469,7 +469,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 featDiv.appendChild( sourceSlot.booleanCovs[key] );
                             }}
 
-                            featDiv.className = 'HTML-boolean-transparent';
+                            featDiv.className = 'basic';
                             featDiv.booleanCovs = sourceSlot.booleanCovs;
                          }
                      }
@@ -552,7 +552,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                             invSpan[i] = { start: span.end };
                                         }}
                                         invSpan[i].end = rightBase;
-                                        curTrack.maskBySpans( invSpan ); 
+                                        curTrack.maskBySpans( invSpan, args.spans ); 
                                     }
                                     finishCallback();
                                 },
@@ -598,7 +598,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     /**
      * If spans are passed to the track (i.e. if it is a boolean track), mask features accordingly.
      */
-    maskBySpans: function ( spans ) {
+    maskBySpans: function ( invSpans, spans ) {
         var blocks = this.blocks;
         for ( var i in blocks ) {
         if ( blocks.hasOwnProperty(i) ) {
@@ -616,32 +616,93 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 return false;
             }
 
+            var union = function ( start1, end1, start2, end2 ) {
+                // outputs the endpoints of the union
+                if ( overlaps( start1, end1, start2, end2 ) ) {
+                    return { s: Math.min( start1, start2 ),
+                             e: Math.max( end1, end2 ) };
+                }
+                else { return false; }
+            }
+
+            var makeDiv = function ( start, end, parentDiv, masked ) {
+                // make a coverage div
+                var coverageNode = dojo.create('div');
+                var s = parentDiv.feature.get('start');
+                var e = parentDiv.feature.get('end');
+                coverageNode.span = { s:start, e:end };
+                if ( masked ) {
+                    coverageNode.className = feat.className == 'basic'
+                                             ? feat.oldClassName + ' Boolean-transparent'
+                                             : feat.className +' Boolean-transparent';
+                } else {
+                    coverageNode.className = feat.className == 'basic'
+                                             ? feat.oldClassName
+                                             : feat.className;
+                }
+                coverageNode.booleanDiv = true;
+                coverageNode.style.left = 100*(start-s)/(e-s)+'%';
+                coverageNode.style.top = '0px';
+                coverageNode.style.width = 100*(end-start)/(e-s)+'%';
+                return coverageNode;
+            }
+
+            var addDiv = function ( start, end, parentDiv, masked, isAdded ) {
+                // Loop through coverage Nodes, combining existing nodes so they don't overlap, and add new divs.
+                var isAdded = isAdded || false; 
+                for ( var key in parentDiv.childNodes ) {
+                if ( parentDiv.childNodes[key] && parentDiv.childNodes[key].booleanDiv ) {
+                    var divStart = parentDiv.childNodes[key].span.s;
+                    var divEnd   = parentDiv.childNodes[key].span.e;
+                    if ( divStart <= start && divEnd >= end ) {isAdded = true; break;}
+                    var u = union (start, end, divStart, divEnd );
+                    if ( u ) {
+                        var coverageNode = makeDiv( u.s, u.e, parentDiv, masked );
+                        parentDiv.booleanCovs.splice(parentDiv.booleanCovs.indexOf(parentDiv[key]), 1);
+                        parentDiv.removeChild(parentDiv.childNodes[key]);
+                        parentDiv.appendChild(coverageNode);
+                        parentDiv.booleanCovs.push(coverageNode);
+                        isAdded = true;
+                        addDiv( u.s, u.e, parentDiv, masked, true );
+                        break;
+                    }
+                }}
+                if ( !isAdded ) {
+                    var coverageNode = makeDiv( start, end, parentDiv, masked );
+                    parentDiv.appendChild(coverageNode);
+                    parentDiv.booleanCovs.push(coverageNode);
+                }
+            }
+
             for ( var key in block.featureNodes ) {
             if (block.featureNodes.hasOwnProperty(key)) {
                 var feat = block.featureNodes[key];
-                if ( !feat.feature ) {continue;} // node also contains subfeatures. Ignore for now.
+                if ( !feat.feature ) { dojo.destroy(feat); continue;} // node also contains subfeatures. Remove for now.
                 var s = feat.feature.get('start');
                 var e = feat.feature.get('end');
                 if ( !feat.booleanCovs ) { feat.booleanCovs = []; }
+                // add opaque divs
+                for ( var index in invSpans ) {
+                if ( invSpans.hasOwnProperty(index) ) {
+                    var ov = overlaps( s, e, invSpans[index].start, invSpans[index].end );
+                    if ( ov ) {
+                        addDiv( ov.s, ov.e, feat, false );
+                    }
+                }}
+                // add masked divs
                 for ( var index in spans ) {
                 if ( spans.hasOwnProperty(index) ) {
                     var ov = overlaps( s, e, spans[index].start, spans[index].end );
                     if ( ov ) {
-                        var coverageNode = dojo.create('div');
-                        coverageNode.span = { s:ov.s, e:ov.e }; // might not be needed. Placed here to be used for a potential bug fix
-                        coverageNode.className = 'HTML-boolean-coverage';
-                        coverageNode.style.left = 100*(ov.s-s)/(e-s)+'%';
-                        coverageNode.style.top = '0px';
-                        coverageNode.style.width = 100*(ov.e-ov.s)/(e-s)+'%';
-
-                        // add the coverage div as a feature of the
-                        feat.booleanCovs.push(coverageNode);
-                        feat.appendChild(coverageNode);
+                        addDiv( ov.s, ov.e, feat, true );
                     }
                 }}
 
-                feat.className = 'HTML-boolean-transparent';
-                console.log(feat.className);
+                feat.oldClassName = feat.className == 'basic'
+                                    ? feat.oldClassName
+                                    : feat.className;
+                feat.className = 'basic';
+                console.log(feat.booleanCovs.length, feat.childNodes.length);
             }}
         }}
     },
