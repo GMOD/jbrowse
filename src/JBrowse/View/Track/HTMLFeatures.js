@@ -676,8 +676,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                     var u = union (start, end, divStart, divEnd );
                     if ( u ) {
                         var coverageNode = makeDiv( u.s, u.e, parentDiv, masked );
-                        parentDiv.booleanCovs.splice(parentDiv.booleanCovs.indexOf(parentDiv[key]), 1);
+                        var tempIndex = parentDiv.booleanCovs.indexOf(parentDiv.childNodes[key]);
                         parentDiv.removeChild(parentDiv.childNodes[key]);
+                        parentDiv.booleanCovs.splice(tempIndex, 1);
                         parentDiv.appendChild(coverageNode);
                         parentDiv.booleanCovs.push(coverageNode);
                         isAdded = true;
@@ -720,7 +721,6 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                     ? feat.oldClassName
                                     : feat.className;
                 feat.className = 'basic';
-                console.log(feat.booleanCovs.length, feat.childNodes.length);
             }}
         }}
     },
