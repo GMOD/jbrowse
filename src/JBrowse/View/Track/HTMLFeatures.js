@@ -464,12 +464,25 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                                          containerStart, containerEnd );
                          // if there are boolean coverage divs, modify feature accordingly.
                          if ( sourceSlot.booleanCovs ) {
+                            var subfeatures = [];
+                            //remove subfeatures
+                            while ( featDiv.firstChild ) {
+                                subfeatures.push( featDiv.firstChild );
+                                featDiv.removeChild( featDiv.firstChild );
+                            }
+                            var s = Math.max( featDiv.feature.get('start'), containerStart );
+                            var e = Math.min( featDiv.feature.get('end'), containerEnd );
                             for ( var key in sourceSlot.booleanCovs ) {
                             if ( sourceSlot.booleanCovs.hasOwnProperty(key) ) {
+                                // dynamically resize the coverage divs.
+                                var start = sourceSlot.booleanCovs[key].span.s;
+                                var end   = sourceSlot.booleanCovs[key].span.e;
+                                sourceSlot.booleanCovs[key].style.left = 100*(start-s)/(e-s)+'%';
+                                sourceSlot.booleanCovs[key].style.width = 100*(end-start)/(e-s)+'%';
                                 featDiv.appendChild( sourceSlot.booleanCovs[key] );
                             }}
-
                             featDiv.className = 'basic';
+                            featDiv.oldClassName = sourceSlot.oldClassName;
                             featDiv.booleanCovs = sourceSlot.booleanCovs;
                          }
                      }
@@ -552,7 +565,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                             invSpan[i] = { start: span.end };
                                         }}
                                         invSpan[i].end = rightBase;
-                                        curTrack.maskBySpans( invSpan, args.spans ); 
+                                        if (invSpan[i].end <= invSpan[i].start) {
+                                            invSpan.splice(i,1); }
+                                        if (invSpan[0].end <= invSpan[0].start) {
+                                            invSpan.splice(0,1); }
+                                        curTrack.maskBySpans( invSpan, args.spans, containerStart, containerEnd ); 
                                     }
                                     finishCallback();
                                 },
@@ -598,7 +615,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     /**
      * If spans are passed to the track (i.e. if it is a boolean track), mask features accordingly.
      */
-    maskBySpans: function ( invSpans, spans ) {
+    maskBySpans: function ( invSpans, spans, containerStart, containerEnd ) {
         var blocks = this.blocks;
         for ( var i in blocks ) {
         if ( blocks.hasOwnProperty(i) ) {
@@ -628,18 +645,15 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             var makeDiv = function ( start, end, parentDiv, masked ) {
                 // make a coverage div
                 var coverageNode = dojo.create('div');
-                var s = parentDiv.feature.get('start');
-                var e = parentDiv.feature.get('end');
+                var s = parentDiv.featureEdges.s;
+                var e = parentDiv.featureEdges.e;
                 coverageNode.span = { s:start, e:end };
-                if ( masked ) {
-                    coverageNode.className = feat.className == 'basic'
-                                             ? feat.oldClassName + ' Boolean-transparent'
-                                             : feat.className +' Boolean-transparent';
-                } else {
-                    coverageNode.className = feat.className == 'basic'
-                                             ? feat.oldClassName
-                                             : feat.className;
-                }
+                coverageNode.className = masked ?  (feat.className == 'basic'
+                                                    ? feat.oldClassName + ' Boolean-transparent'
+                                                    : feat.className +' Boolean-transparent')
+                                                :  (feat.className == 'basic'
+                                                    ? feat.oldClassName
+                                                    : feat.className);
                 coverageNode.booleanDiv = true;
                 coverageNode.style.left = 100*(start-s)/(e-s)+'%';
                 coverageNode.style.top = '0px';
@@ -842,6 +856,10 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         featDiv.track = this;
         featDiv.feature = feature;
         featDiv.layoutEnd = layoutEnd;
+
+        // border values used in positioning boolean subfeatures, if any.
+        featDiv.featureEdges = { s : Math.max( featDiv.feature.get('start'), containerStart ),
+                                 e : Math.min( featDiv.feature.get('end')  , containerEnd   ) };
 
         // (callbackArgs are the args that will be passed to callbacks
         // in this feature's context menu or left-click handlers)
