@@ -77,6 +77,7 @@ return declare( null, {
            end:   data.getInt32()
        };
        this.metaValue = data.getInt32();
+       this.metaChar = this.metaValue ? String.fromCharCode( this.metaValue ) : null;
        this.skipLines = data.getInt32();
 
        // read sequence dictionary
