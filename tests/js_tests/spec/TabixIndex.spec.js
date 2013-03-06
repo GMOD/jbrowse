@@ -4,7 +4,7 @@ require({
         [
             'JBrowse/Model/TabixIndex',
             'JBrowse/Model/XHRBlob',
-            'JBrowse/Model/BGZBlob'
+            'JBrowse/Model/BGZip/BGZBlob'
         ],function( TabixIndex, XHRBlob, BGZBlob ) {
 
 describe( "TabixIndex", function() {
@@ -20,7 +20,7 @@ describe( "TabixIndex", function() {
               it( 'loads', function() {
                       var loaded;
                       waitsFor( function() { return loaded; }, 1000 );
-                      ti._load().then( function() {
+                      ti.load().then( function() {
                           loaded = true;
                       });
                       runs( function() {
@@ -30,7 +30,8 @@ describe( "TabixIndex", function() {
                           console.log( ti );
                           var blocks = ti.blocksForRange( 'ctgA', 1, 4000 );
                           expect( blocks.length ).toEqual( 1 );
-                          expect( blocks[0].minv ).toEqual( 9031 );
+                          expect( blocks[0].minv.block ).toEqual( 0 );
+                          expect( blocks[0].minv.offset ).toEqual( 9031 );
                           console.log( blocks );
                       });
               });

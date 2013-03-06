@@ -18,7 +18,7 @@ var BGZBlob = declare( null,
         this.blob = blob;
     },
 
-    blocksize: 1<<16,
+    blockSize: 1<<16,
 
     slice: function(s, l) {
         return new BGZBlob( this.blob.slice( s, l ) );

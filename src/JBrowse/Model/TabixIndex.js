@@ -2,13 +2,15 @@ define([
            'dojo/_base/declare',
            'dojo/_base/Deferred',
            'jDataView',
-           'JBrowse/Util'
+           'JBrowse/Util',
+           'JBrowse/Model/BGZip/VirtualOffset'
        ],
        function(
            declare,
            Deferred,
            jDataView,
-           Util
+           Util,
+           VirtualOffset
        ) {
 
 // inner class representing a chunk
@@ -33,9 +35,10 @@ return declare( null, {
 
    constructor: function( blob ) {
        this.blob = blob;
+       this.load();
    },
 
-   _load: function() {
+   load: function() {
        var thisB = this;
        return this._loaded = this._loaded || function() {
            var d = new Deferred();
@@ -93,8 +96,8 @@ return declare( null, {
                var chunkCount = data.getInt32();
                var chunks = new Array( chunkCount );
                for (var k = 0; k < chunkCount; ++k) {
-                   var u = this._quasiGetInt64( data );
-                   var v = this._quasiGetInt64( data );
+                   var u = new VirtualOffset( data.getBytes(8) );
+                   var v = new VirtualOffset( data.getBytes(8) );
                    chunks[k] = new Chunk( u, v, bin );
                }
                idx.binIndex[bin] = chunks;
@@ -103,7 +106,7 @@ return declare( null, {
            var linearCount = data.getInt32();
            var linear = idx.linearIndex = new Array( linearCount );
            for (var k = 0; k < linearCount; ++k)
-               linear[k] = this._quasiGetInt64( data );
+               linear[k] = new VirtualOffset( data.getBytes(8) );
        }
    },
 
