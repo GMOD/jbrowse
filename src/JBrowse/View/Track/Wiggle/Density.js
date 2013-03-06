@@ -65,9 +65,9 @@ return declare( WiggleBase,
         if (spans.hasOwnProperty(index)) {
             var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
             var l = Math.round(( spans[index].start - leftBase ) * scale );
-            context.fillRect( l, 0, w-1, canvasHeight );
-            context.clearRect( l, 0, w-1, canvasHeight/3);
-            context.clearRect( l, (2/3)*canvasHeight, w-1, canvasHeight/3);
+            context.fillRect( l, 0, w, canvasHeight );
+            context.clearRect( l, 0, w, canvasHeight/3);
+            context.clearRect( l, (2/3)*canvasHeight, w, canvasHeight/3);
         }}
         dojo.forEach( pixels, function(p,i) {
             if (!p) {
