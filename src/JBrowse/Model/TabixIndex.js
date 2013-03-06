@@ -182,7 +182,7 @@ return declare( null, {
                      ?  linearIndex.length - 1
                      :  beg >> this.TAD_LIDX_SHIFT
                ]
-           : 0;
+           : new VirtualOffset( 0, 0 );
 
        var i, l, n_off = 0;
        for( i = 0; i < bins.length; ++i ) {
@@ -198,17 +198,17 @@ return declare( null, {
        for (i = n_off = 0; i < bins.length; ++i)
            if (( chunks = binIndex[ bins[i] ] ))
                for (var j = 0; j < chunks.length; ++j)
-                   if( min_off < chunks[j].maxv )
+                   if( min_off.compareTo( chunks[j].maxv ) < 0 )
                        off[n_off++] = new Chunk( chunks[j].minv, chunks[j].maxv, chunks[j].bin );
 
        if( ! off.length )
            return null;
 
-       off = off.sort( function(a,b) { return a.compare(b); } );
+       off = off.sort( function(a,b) { return a.compareTo(b); } );
 
        // resolve completely contained adjacent blocks
        for (i = 1, l = 0; i < n_off; ++i) {
-           if( off[l].maxv < off[i].maxv ) {
+           if( off[l].maxv.compareTo( off[i].maxv ) < 0 ) {
                ++l;
                off[l].minv = off[i].minv;
                off[l].maxv = off[i].maxv;
@@ -222,7 +222,7 @@ return declare( null, {
                off[i-1].maxv = off[i].minv;
        // merge adjacent blocks
        for (i = 1, l = 0; i < n_off; ++i) {
-           if( off[l].maxv >> 16 == off[i].minv >> 16 )
+           if( off[l].maxv.block == off[i].minv.block )
                off[l].maxv = off[i].maxv;
            else {
                ++l;

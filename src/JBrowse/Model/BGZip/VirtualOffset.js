@@ -40,10 +40,10 @@ var VirtualOffset = Util.fastDeclare({
         return '' + this.block + ':' + this.offset;
     },
     compareTo: function(b) {
-        return this.cmp( b );
+        return this.block - b.block || this.offset - b.offset;
     },
     cmp: function(b) {
-        return b.block - this.block || b.offset - this.offset;
+        return this.compareTo( b );
     }
 });
 
