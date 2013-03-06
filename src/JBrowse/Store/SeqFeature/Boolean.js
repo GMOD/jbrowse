@@ -136,12 +136,12 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
             // reduce the display, mask, and invMask objects into arrays
             var masks = [];
             for ( var feats in featureArrays.mask ) {
-                masks = thisB.orSpan( masks, thisB.toSpan( featureArrays.mask[feats] ) );
+                masks = thisB.orSpan( masks, thisB.toSpan( featureArrays.mask[feats], query ) );
             }
             masks = thisB.notSpan( masks, query );
             var invMasks = [];
             for ( var feats in featureArrays.invMask ) {
-                invMasks = thisB.orSpan( invMasks, thisB.toSpan( featureArrays.invMask[feats] ) );
+                invMasks = thisB.orSpan( invMasks, thisB.toSpan( featureArrays.invMask[feats], query ) );
             }
             var features = [];
             for ( var feats in featureArrays.display ) {
@@ -183,12 +183,12 @@ makeSpan: function( args ) {
     // given a list of pseudo-features, outputs a list of non-overlapping spans
     var features = args.features || [];
     var spans = args.spans || [];
-    if ( features.length == 0 ) { return spans; }
+    if ( features.length == 0 ) { return spans.sort(function(a,b){return a.start-b.start}); }
     // if the span is empty, the function does nothing
     if( spans.length == 0 ) {
         spans.push({ start: features[0].start, end: features[0].end });
         features.splice(0,1);
-        if ( features.length == 0 ) { return spans; }
+        if ( features.length == 0 ) { return spans.sort(function(a,b){return a.start-b.start}); }
     }
     for (var span in spans) {
     if (spans.hasOwnProperty(span)) {
@@ -213,12 +213,13 @@ inSpan: function( feature, span ) {
     
 },
 
-toSpan: function( features ) {
+toSpan: function( features, query ) {
     // given a set of features, makes a set of span objects with the same start and end points (a.k.a. pseudo-features)
     var spans = [];
     for (var feature in features) {
     if (features.hasOwnProperty(feature)) {
-        spans.push( { start: features[feature].get('start'), end: features[feature].get('end') } );
+        spans.push( { start: Math.max( features[feature].get('start'), query.start ), 
+                      end:   Math.min( features[feature].get('end'),   query.end   ) } );
     }}
     return spans;
 },
@@ -273,6 +274,10 @@ notSpan: function( spans, query ) {
         invSpan[i] = { start: span.end };
     }}
     invSpan[i].end = query.end;
+    if (invSpan[i].end <= invSpan[i].start) {
+        invSpan.splice(i,1); }
+    if (invSpan[0].end <= invSpan[0].start) {
+        invSpan.splice(0,1); }
     return invSpan;
 },
 
