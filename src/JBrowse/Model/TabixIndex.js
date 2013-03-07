@@ -143,6 +143,16 @@ return declare( null, {
        }
    },
 
+   getRefSeqs: function( refSeqCallback, finishCallback, errorCallback ) {
+       var thisB = this;
+       thisB.load().then( function() {
+           array.forEach( this.refIDToName || [], function( name ) {
+                refSeqCallback({ name: name });
+           });
+           finishCallback();
+       });
+   },
+
    getRefId: function( refName ) {
        return this._refNameToID[refName];
    },
