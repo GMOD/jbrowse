@@ -464,23 +464,36 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                                          containerStart, containerEnd );
                          // if there are boolean coverage divs, modify feature accordingly.
                          if ( sourceSlot.booleanCovs ) {
+                            console.log('called!');
                             var subfeatures = [];
-                            //remove subfeatures
+                            // remove subfeatures
                             while ( featDiv.firstChild ) {
                                 subfeatures.push( featDiv.firstChild );
                                 featDiv.removeChild( featDiv.firstChild );
                             }
-                            var s = Math.max( featDiv.feature.get('start'), containerStart );
-                            var e = Math.min( featDiv.feature.get('end'), containerEnd );
+                            var s = featDiv.featureEdges.s;
+                            var e = featDiv.featureEdges.e;
                             for ( var key in sourceSlot.booleanCovs ) {
                             if ( sourceSlot.booleanCovs.hasOwnProperty(key) ) {
                                 // dynamically resize the coverage divs.
                                 var start = sourceSlot.booleanCovs[key].span.s;
                                 var end   = sourceSlot.booleanCovs[key].span.e;
+                                if ( end < containerStart || start > containerEnd) continue; // note: we should also remove it from booleanCovs at some point.
                                 sourceSlot.booleanCovs[key].style.left = 100*(start-s)/(e-s)+'%';
                                 sourceSlot.booleanCovs[key].style.width = 100*(end-start)/(e-s)+'%';
                                 featDiv.appendChild( sourceSlot.booleanCovs[key] );
                             }}
+                            // add the processed subfeatures, if in frame.
+                            dojo.query( '.basicSubfeature', sourceSlot ).forEach( 
+                                function(node, idx, arr) {
+                                    var start = node.subfeatureEdges.s;
+                                    var end   = node.subfeatureEdges.e;
+                                    if ( end < containerStart || start > containerEnd ) return;
+                                    node.style.left = 100*(start-s)/(e-s)+'%';
+                                    node.style.width = 100*(end-start)/(e-s)+'%';
+                                    featDiv.appendChild(node);
+                                }
+                            )
                             featDiv.className = 'basic';
                             featDiv.oldClassName = sourceSlot.oldClassName;
                             featDiv.booleanCovs = sourceSlot.booleanCovs;
@@ -569,7 +582,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                             invSpan.splice(i,1); }
                                         if (invSpan[0].end <= invSpan[0].start) {
                                             invSpan.splice(0,1); }
-                                        curTrack.maskBySpans( invSpan, args.spans, containerStart, containerEnd ); 
+                                        curTrack.maskBySpans( invSpan, args.spans ); 
                                     }
                                     finishCallback();
                                 },
@@ -615,7 +628,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     /**
      * If spans are passed to the track (i.e. if it is a boolean track), mask features accordingly.
      */
-    maskBySpans: function ( invSpans, spans, containerStart, containerEnd ) {
+    maskBySpans: function ( invSpans, spans ) {
         var blocks = this.blocks;
         for ( var i in blocks ) {
         if ( blocks.hasOwnProperty(i) ) {
@@ -642,16 +655,20 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 else { return false; }
             }
 
-            var makeDiv = function ( start, end, parentDiv, masked ) {
+            var makeDiv = function ( start, end, parentDiv, masked, voidClass ) {
                 // make a coverage div
                 var coverageNode = dojo.create('div');
-                var s = parentDiv.featureEdges.s;
-                var e = parentDiv.featureEdges.e;
+                var s = parentDiv.featureEdges 
+                        ? parentDiv.featureEdges.s
+                        : parentDiv.subfeatureEdges.s;
+                var e = parentDiv.featureEdges
+                        ? parentDiv.featureEdges.e
+                        : parentDiv.subfeatureEdges.e;
                 coverageNode.span = { s:start, e:end };
-                coverageNode.className = masked ?  (feat.className == 'basic'
+                coverageNode.className = masked ?  (feat.className == voidClass
                                                     ? feat.oldClassName + ' Boolean-transparent'
                                                     : feat.className +' Boolean-transparent')
-                                                :  (feat.className == 'basic'
+                                                :  (feat.className == voidClass
                                                     ? feat.oldClassName
                                                     : feat.className);
                 coverageNode.booleanDiv = true;
@@ -661,7 +678,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 return coverageNode;
             }
 
-            var addDiv = function ( start, end, parentDiv, masked, isAdded ) {
+            var addDiv = function ( start, end, parentDiv, masked, voidClass, isAdded ) {
                 // Loop through coverage Nodes, combining existing nodes so they don't overlap, and add new divs.
                 var isAdded = isAdded || false; 
                 for ( var key in parentDiv.childNodes ) {
@@ -671,37 +688,32 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                     if ( divStart <= start && divEnd >= end ) {isAdded = true; break;}
                     var u = union (start, end, divStart, divEnd );
                     if ( u ) {
-                        var coverageNode = makeDiv( u.s, u.e, parentDiv, masked );
+                        var coverageNode = makeDiv( u.s, u.e, parentDiv, masked, voidClass );
                         var tempIndex = parentDiv.booleanCovs.indexOf(parentDiv.childNodes[key]);
                         parentDiv.removeChild(parentDiv.childNodes[key]);
                         parentDiv.booleanCovs.splice(tempIndex, 1);
                         parentDiv.appendChild(coverageNode);
                         parentDiv.booleanCovs.push(coverageNode);
                         isAdded = true;
-                        addDiv( u.s, u.e, parentDiv, masked, true );
+                        addDiv( u.s, u.e, parentDiv, masked, voidClass, true );
                         break;
                     }
                 }}
                 if ( !isAdded ) {
-                    var coverageNode = makeDiv( start, end, parentDiv, masked );
+                    var coverageNode = makeDiv( start, end, parentDiv, masked, voidClass );
                     parentDiv.appendChild(coverageNode);
                     parentDiv.booleanCovs.push(coverageNode);
                 }
             }
 
-            for ( var key in block.featureNodes ) {
-            if (block.featureNodes.hasOwnProperty(key)) {
-                var feat = block.featureNodes[key];
-                if ( !feat.feature ) { dojo.destroy(feat); continue;} // node also contains subfeatures. Remove for now.
-                var s = feat.feature.get('start');
-                var e = feat.feature.get('end');
+            var addOverlaps = function ( s, e, feat, spans, invSpans, voidClass ) {
                 if ( !feat.booleanCovs ) { feat.booleanCovs = []; }
                 // add opaque divs
                 for ( var index in invSpans ) {
                 if ( invSpans.hasOwnProperty(index) ) {
                     var ov = overlaps( s, e, invSpans[index].start, invSpans[index].end );
                     if ( ov ) {
-                        addDiv( ov.s, ov.e, feat, false );
+                        addDiv( ov.s, ov.e, feat, false, voidClass );
                     }
                 }}
                 // add masked divs
@@ -709,14 +721,29 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 if ( spans.hasOwnProperty(index) ) {
                     var ov = overlaps( s, e, spans[index].start, spans[index].end );
                     if ( ov ) {
-                        addDiv( ov.s, ov.e, feat, true );
+                        addDiv( ov.s, ov.e, feat, true, voidClass );
                     }
                 }}
 
-                feat.oldClassName = feat.className == 'basic'
+                feat.oldClassName = feat.className == voidClass
                                     ? feat.oldClassName
                                     : feat.className;
-                feat.className = 'basic';
+                feat.className = voidClass;
+            }
+
+            for ( var key in block.featureNodes ) {
+            if (block.featureNodes.hasOwnProperty(key)) {
+                var feat = block.featureNodes[key];
+                if ( !feat.feature ) {
+                    // If there is no feature property, than it is a subfeature
+                    var s = feat.subfeatureEdges.s;
+                    var e = feat.subfeatureEdges.e;
+                    addOverlaps( s, e, feat, spans, invSpans, 'basicSubfeature' );
+                    continue;
+                }
+                var s = feat.feature.get('start');
+                var e = feat.feature.get('end');
+                addOverlaps( s, e, feat, spans, invSpans, 'basic' );
             }}
         }}
     },
@@ -1157,6 +1184,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             return null;
 
         var subDiv = document.createElement("div");
+        // used by boolean tracks to do positionning
+        subDiv.subfeatureEdges = { s: subStart, e: subEnd };
+
         dojo.addClass(subDiv, "subfeature");
         // check for className to avoid adding "null", "plus-null", "minus-null" 
         if (className) {  
