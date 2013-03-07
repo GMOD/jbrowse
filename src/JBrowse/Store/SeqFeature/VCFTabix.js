@@ -65,7 +65,7 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
 
             thisB.indexedData.indexLoaded.then( function() {
                 var maxFetch = thisB.indexedData.index.firstDataLine
-                    ? thisB.indexedData.index.firstDataLine.block + thisB.indexedData.data.blockSize
+                    ? thisB.indexedData.index.firstDataLine.block + thisB.indexedData.data.blockSize - 1
                     : null;
 
                 thisB.indexedData.data.read(
@@ -73,8 +73,8 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
                     maxFetch,
                     function( bytes ) {
 
-                        var headerLines = String.fromCharCode( Array.prototype.slice.call( Array, bytes ) ).split("\n");
-                        thisB.header = thisB._parseHeader( headerLines );
+                        thisB.header = thisB._parseHeader( new Uint8Array( bytes ) );
+                        console.log( thisB.header );
 
                         d.resolve({ success:true});
                     },
@@ -86,16 +86,35 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
         }.call();
     },
 
-    _parseHeader: function( headerLines ) {
+    _newlineCode: "\n".charCodeAt(0),
+
+    _getlineFromBytes: function( parseState ) {
+        if( ! parseState.offset )
+            parseState.offset = 0;
+
+        var newlineIndex = array.indexOf( parseState.data, this._newlineCode, parseState.offset );
+
+        if( newlineIndex == -1 ) // no more lines
+            return null;
+
+        var line = String.fromCharCode.apply( String, Array.prototype.slice.call( parseState.data, parseState.offset, newlineIndex ));
+        parseState.offset = newlineIndex+1;
+        return line;
+    },
+
+    _parseHeader: function( headerBytes ) {
+
         // parse the header lines
         var headData = {};
-        array.forEach( headerLines, function( line ) {
+        var parseState = { data: headerBytes, offset: 0 };
+        var line;
+        while(( line = this._getlineFromBytes( parseState ))) {
             var match = /^##([^\s#=]+)=(.+)/.exec( line);
             if( ! match || !match[1] )
-                return;
+                continue;
 
             var metaField = match[1].toLowerCase();
-            var metaData = (match[2]||'').toLowerCase().trim();
+            var metaData = (match[2]||'');
 
             // TODO: do further parsing for some fields
 
@@ -103,7 +122,7 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
                 headData[metaField] = [];
 
             headData[metaField].push( metaData );
-        });
+        }
         return headData;
     },
 
