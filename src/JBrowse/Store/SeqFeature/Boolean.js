@@ -150,7 +150,7 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
             // tests to determine display behaviour
             // can this be made more succinct?
             if ( !(Object.keys(featureArrays.mask).length + Object.keys(featureArrays.invMask).length) ) {
-                thisB.inverseMask( features, [{ start: 0, end: Number.POSITIVE_INFINITY }] , featCallback, doneCallback );
+                thisB.inverseMask( features, null , featCallback, doneCallback );
                 return; }
             if ( !Object.keys(featureArrays.mask).length ) {
                 thisB.inverseMask( features, invMasks, featCallback, doneCallback );
