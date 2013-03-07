@@ -139,12 +139,12 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
             start:  line.start-1,
             end:    line.start-1+ref.length,
             seq_id: line.ref,
-            note:   ref+" -> "+alt,
+            description: SO_type+": "+ref+" -> "+alt,
             name:   fields[2],
             type:   SO_type,
             ref:    ref,
-            alt:    alt,
-            qual:   fields[5],
+            alternative_alleles:    alt,
+            score:   fields[5],
             filter: fields[6],
             info:   fields[7],
             format: fields[8],
@@ -175,7 +175,7 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
         });
 
         if( ref.length == 1 && minAltLen == 1 && maxAltLen == 1 )
-            return 'SNV'; // use SNV because definition of SNP is
+            return 'SNV'; // use SNV because SO definition of SNP says
                           // abundance must be at least 1% in
                           // population, and can't be sure we meet
                           // that
