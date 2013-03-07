@@ -698,16 +698,15 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         // add the label div (which includes the description) to the
         // calculated height of the feature if it will be displayed
-        if( this.showLabels && scale >= labelScale ) {
-            if (name) {
-                layoutEnd = Math.max(layoutEnd, layoutStart + (''+name).length * this.labelWidth / scale );
-                levelHeight += this.labelHeight + this.labelPad;
-            }
-            if( description ) {
-                layoutEnd = Math.max( layoutEnd, layoutStart + (''+description).length * this.labelWidth / scale );
-                levelHeight += this.labelHeight + this.labelPad;
-            }
+        if( this.showLabels && scale >= labelScale && name ) {
+            layoutEnd = Math.max(layoutEnd, layoutStart + (''+name).length * this.labelWidth / scale );
+            levelHeight += this.labelHeight + this.labelPad;
         }
+        if( description ) {
+            layoutEnd = Math.max( layoutEnd, layoutStart + (''+description).length * this.labelWidth / scale );
+            levelHeight += this.labelHeight + this.labelPad;
+        }
+
         layoutEnd += Math.max(1, this.padding / scale);
 
         var top = this._getLayout( scale )
@@ -814,10 +813,10 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             }
         }
 
-        if (name && this.showLabels && scale >= labelScale) {
+        if (name && this.showLabels && scale >= labelScale || description ) {
             var labelDiv = dojo.create( 'div', {
                     className: "feature-label" + ( highlighted ? ' highlighted' : '' ),
-                    innerHTML: '<div class="feature-name">'+name+'</div>'
+                    innerHTML:  ( name ? '<div class="feature-name">'+name+'</div>' : '' )
                                +( description ? ' <div class="feature-description">'+description+'</div>' : '' ),
                     style: {
                         top: (top + this.glyphHeight + 2) + "px",
