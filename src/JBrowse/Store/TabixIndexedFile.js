@@ -20,15 +20,17 @@ return declare( null, {
     constructor: function( args ) {
         this.index = new TabixIndex( new BGZBlob( args.tbi ) );
         this.data  = new BGZBlob( args.file );
+        this.indexLoaded = this.index.load();
     },
 
-    fetch: function() {
+    getLines: function() {
         var thisB = this;
         var args = Array.prototype.slice.call(arguments);
-        this.index.load().then(function() {
+        this.indexLoaded.then(function() {
             thisB._fetch.apply( thisB, args );
         });
     },
+
     _fetch: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
 
         errorCallback = errorCallback || dojo.hitch( console, 'error' );
@@ -143,7 +145,7 @@ return declare( null, {
             // later, avoiding blocking any UI stuff that needs to be done
             else {
                 window.setTimeout( function() {
-                    that.parseItems( parseState.data, parseState.offset, itemCallback, finishCallback );
+                    that.parseItems( data, parseState.offset, itemCallback, finishCallback );
                 }, 1);
                 return;
             }
@@ -162,12 +164,21 @@ return declare( null, {
         if( !line )
             return null;
 
-        var fields = line.split("\t");
+        // function extractColumn( colNum ) {
+        //     var skips = '';
+        //     while( colNum-- > 1 )
+        //         skips += '^[^\t]*\t';
+        //     var match = (new Regexp( skips+'([^\t]*)' )).exec( line );
+        //     if( ! match )
+        //         return null;
+        //     return match[1];
+        // }
+        var fields = line.split( "\t" );
         var item = { // note: index column numbers are 1-based
             ref:   fields[this.index.columnNumbers.ref-1],
             start: fields[this.index.columnNumbers.start-1],
             end:   fields[this.index.columnNumbers.end-1],
-            _fields: fields
+            fields: fields
         };
         return item;
     },

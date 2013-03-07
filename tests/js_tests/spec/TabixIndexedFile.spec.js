@@ -19,7 +19,7 @@ describe( "tabix-indexed file", function() {
 
     it( 'can read ctgA:1000..4000', function() {
             var items = [];
-            f.fetch( 'ctgA', 1000, 4000,
+            f.getLines( 'ctgA', 1000, 4000,
                      function(i) {
                          items.push(i);
                      },
