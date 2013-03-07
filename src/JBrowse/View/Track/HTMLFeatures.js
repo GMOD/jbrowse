@@ -464,7 +464,6 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                                          containerStart, containerEnd );
                          // if there are boolean coverage divs, modify feature accordingly.
                          if ( sourceSlot.booleanCovs ) {
-                            console.log('called!');
                             var subfeatures = [];
                             // remove subfeatures
                             while ( featDiv.firstChild ) {
@@ -494,6 +493,15 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                     featDiv.appendChild(node);
                                 }
                             )
+                            if ( this.config.style.arrowheadClass ) {
+                                // add arrowheads
+                                var a = this.config.style.arrowheadClass;
+                                dojo.query( '.minus-'+a+', .plus-'+a, sourceSlot ).forEach( 
+                                    function(node, idx, arr) {
+                                        featDiv.appendChild(node);
+                                    }
+                                )
+                            }
                             featDiv.className = 'basic';
                             featDiv.oldClassName = sourceSlot.oldClassName;
                             featDiv.booleanCovs = sourceSlot.booleanCovs;
