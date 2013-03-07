@@ -33,11 +33,12 @@ return declare( null, {
 
     _fetch: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
 
-        errorCallback = errorCallback || dojo.hitch( console, 'error' );
+        errorCallback = errorCallback || function(e) { console.error(e, e.stack); };
 
         var chunks = this.index.blocksForRange( ref, min, max);
-        if ( ! chunks || ! chunks.length) {
-            callback(null, 'Error in index fetch');
+        if ( ! chunks ) {
+            errorCallback('Error in index fetch ('+[ref,min,max].join(',')+')');
+            return;
         }
 
         // toString function is used by the cache for making cache keys
@@ -64,10 +65,7 @@ return declare( null, {
                 }
             });
         } catch( e ) {
-            if( errorCallback )
-                errorCallback( e );
-            else
-                console.error( e, e.stack );
+            errorCallback( e );
         }
     },
 

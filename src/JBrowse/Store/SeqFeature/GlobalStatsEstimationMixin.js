@@ -20,24 +20,26 @@ return declare( null, {
     _estimateGlobalStats: function( finishCallback ) {
 
         var statsFromInterval = function( refSeq, length, callback ) {
+            var thisB = this;
             var sampleCenter = refSeq.start*0.75 + refSeq.end*0.25;
             var start = Math.max( 0, Math.round( sampleCenter - length/2 ) );
             var end = Math.min( Math.round( sampleCenter + length/2 ), refSeq.end );
-            this.bam.fetch( refSeq.name, start, end, dojo.hitch( this, function( features, error) {
-                if ( error ) {
-                    console.error( error );
-                    callback.call( this, length,  null, error );
-                }
-                else if( features ) {
-                    features = array.filter( features, function(f) { return f.get('start') >= start && f.get('end') <= end; } );
-                    callback.call( this, length,
-                                   {
-                                       featureDensity: features.length / length,
-                                       _statsSampleFeatures: features.length,
-                                       _statsSampleInterval: { ref: refSeq.name, start: start, end: end, length: length }
-                                   });
-                }
-            }));
+            var features = [];
+            this._getFeatures({ ref: refSeq.name, start: start, end: end},
+                              function( f ) { features.push(f); },
+                              function( error ) {
+                                  features = array.filter( features, function(f) { return f.get('start') >= start && f.get('end') <= end; } );
+                                  callback.call( thisB, length,
+                                                 {
+                                                     featureDensity: features.length / length,
+                                                     _statsSampleFeatures: features.length,
+                                                     _statsSampleInterval: { ref: refSeq.name, start: start, end: end, length: length }
+                                                 });
+                              },
+                              function( error ) {
+                                      console.error( error );
+                                      callback.call( thisB, length,  null, error );
+                              });
         };
 
         var maybeRecordStats = function( interval, stats, error ) {

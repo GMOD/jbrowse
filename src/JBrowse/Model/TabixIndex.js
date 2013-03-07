@@ -1,5 +1,6 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/array',
            'dojo/_base/Deferred',
            'jDataView',
            'JBrowse/Util',
@@ -7,6 +8,7 @@ define([
        ],
        function(
            declare,
+           array,
            Deferred,
            jDataView,
            Util,
@@ -146,7 +148,7 @@ return declare( null, {
    getRefSeqs: function( refSeqCallback, finishCallback, errorCallback ) {
        var thisB = this;
        thisB.load().then( function() {
-           array.forEach( this.refIDToName || [], function( name ) {
+           array.forEach( thisB._refIDToName || [], function( name ) {
                 refSeqCallback({ name: name });
            });
            finishCallback();
@@ -160,6 +162,9 @@ return declare( null, {
    TAD_LIDX_SHIFT: 14,
 
    blocksForRange: function( refName, beg, end ) {
+       if( beg < 0 )
+           beg = 0;
+
        var tid = this.getRefId( refName );
        var indexes = this._indices[tid];
        if( ! indexes )
@@ -184,7 +189,7 @@ return declare( null, {
        }
 
        if( n_off == 0 )
-           return null;
+           return [];
 
        var off = [];
 
@@ -196,7 +201,7 @@ return declare( null, {
                        off[n_off++] = new Chunk( chunks[j].minv, chunks[j].maxv, chunks[j].bin );
 
        if( ! off.length )
-           return null;
+           return [];
 
        off = off.sort( function(a,b) { return a.compareTo(b); } );
 

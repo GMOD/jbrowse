@@ -58,8 +58,6 @@ return declare( Component,
         this.empty = false;
         this.browser = args.browser;
         this.store = args.store;
-
-        this.compiledConfig = {};
     },
 
     /**

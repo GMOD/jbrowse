@@ -853,11 +853,14 @@ Browser.prototype.getStore = function( storeName, callback ) {
     }
 
     require( [ storeClassName ], dojo.hitch( this, function( storeClass ) {
-                 var storeArgs = dojo.mixin( conf,
-                                             {
-                                                 browser: this,
-                                                 refSeq: this.refSeq
-                                             });
+                 var storeArgs = dojo.clone( conf );
+                 dojo.mixin( storeArgs,
+                             {
+                                 config: conf,
+                                 browser: this,
+                                 refSeq: this.refSeq
+                             });
+
                  var store = new storeClass( storeArgs );
                  this._storeCache[ storeName ] = { refCount: 1, store: store };
                  callback( store );

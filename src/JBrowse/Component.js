@@ -3,10 +3,12 @@
  */
 
 define([
-           'dojo/_base/declare'
+           'dojo/_base/declare',
+           'JBrowse/Util'
        ],
        function(
-           declare
+           declare,
+           Util
        ) {
 
 return declare( null, {
@@ -19,10 +21,25 @@ return declare( null, {
         this.config = this._mergeConfigs( dojo.clone( this._defaultConfig() ), this.config );
 
         this.browser = args.browser;
+
+        this.compiledConfig = {};
     },
 
     _defaultConfig: function() {
-        return {};
+        return {
+            baseUrl: '/'
+        };
+    },
+
+    resolveUrl: function( url, args ) {
+        args = args || {};
+        return Util.resolveUrl(
+            this.getConf('baseUrl',[]),
+            Util.fillTemplate( url,
+                               args
+                             )
+        );
+
     },
 
     _mergeConfigs: function(a, b) {

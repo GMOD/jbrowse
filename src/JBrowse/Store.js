@@ -1,7 +1,13 @@
-define( [ 'dojo/_base/declare'],
-        function( declare ) {
+define( [
+            'dojo/_base/declare',
+            'JBrowse/Component'
+        ],
+        function(
+            declare,
+            Component
+        ) {
 
-return declare( null,
+return declare( Component,
 
 /**
  * @lends JBrowse.Store.prototype
@@ -14,7 +20,6 @@ return declare( null,
     constructor: function( args ) {
         this.refSeq = dojo.clone( args.refSeq );
         this.changeCallback = args.changeCallback || function() {};
-        this.browser = args.browser;
     },
 
     notifyChanged: function( changeDescription ) {
