@@ -99,6 +99,7 @@ return declare( null, {
                for (var k = 0; k < chunkCount; ++k) {
                    var u = new VirtualOffset( data.getBytes(8) );
                    var v = new VirtualOffset( data.getBytes(8) );
+                   this._findFirstData( u );
                    chunks[k] = new Chunk( u, v, bin );
                }
                idx.binIndex[bin] = chunks;
@@ -106,35 +107,18 @@ return declare( null, {
            // the linear index
            var linearCount = data.getInt32();
            var linear = idx.linearIndex = new Array( linearCount );
-           for (var k = 0; k < linearCount; ++k)
+           for (var k = 0; k < linearCount; ++k) {
                linear[k] = new VirtualOffset( data.getBytes(8) );
+               this._findFirstData( linear[k] );
+           }
        }
    },
 
-   /**
-    * read a 64-bit integer, trying to represent it in the 53 bits we
-    * actually have available in JavaScript, and throwing if we
-    * can't.
-    */
-   _quasiGetInt64: function( jdataview ) {
-       var bytes = jdataview.getBytes( 8 );
-
-       if( bytes[1] & 0xf0 || bytes[0] & 0x7f ) {
-           console.error("64-bit integer value out of range", bytes);
-           throw "64-bit integer value out of range";
-       }
-
-       var sign = 1 - (2 * (bytes[0] >> 7));
-
-       var val = bytes[1] * 0x1000000000000
-               + bytes[2] * 0x10000000000
-               + bytes[3] * 0x100000000
-               + bytes[4] * 0x1000000
-               + bytes[5] * 0x10000
-               + bytes[6] * 0x100
-               + bytes[7];
-
-       return sign*val;
+   _findFirstData: function( virtualOffset ) {
+       var fdl = this.firstDataLine;
+       this.firstDataLine = fdl ? fdl.compareTo( virtualOffset ) > 0 ? virtualOffset
+                                                                     : fdl
+                                : virtualOffset;
    },
 
    _parseNameBytes: function( namesBytes ) {
