@@ -8,12 +8,26 @@ define( [
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Model/XHRBlob',
+            'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
             './BAM/Util',
             './BAM/File'
         ],
-        function( declare, array, Deferred, lang, Util, SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, XHRBlob, BAMUtil, BAMFile ) {
+        function(
+            declare,
+            array,
+            Deferred,
+            lang,
+            Util,
+            SeqFeatureStore,
+            DeferredStatsMixin,
+            DeferredFeaturesMixin,
+            XHRBlob,
+            GlobalStatsEstimationMixin,
+            BAMUtil,
+            BAMFile
+        ) {
 
-var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin ],
+var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ],
 
 /**
  * @lends JBrowse.Store.SeqFeature.BAM
@@ -59,10 +73,11 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
 
         this.bam.init({
             success: dojo.hitch( this, '_estimateGlobalStats',
-                                 dojo.hitch( this, function(error) {
+                                 dojo.hitch( this, function( stats, error ) {
                                      if( error )
                                          this._failAllDeferred( error );
                                      else {
+                                         this.globalStats = stats;
                                          this._deferred.stats.resolve({success:true});
                                          this._deferred.features.resolve({success:true});
                                      }
@@ -84,53 +99,6 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
             finishCallback();
         }, errorCallback );
     },
-
-    /**
-     * Fetch a region of the current reference sequence and use it to
-     * estimate the feature density in the BAM file.
-     * @private
-     */
-    _estimateGlobalStats: function( finishCallback ) {
-
-        var statsFromInterval = function( refSeq, length, callback ) {
-            var sampleCenter = refSeq.start*0.75 + refSeq.end*0.25;
-            var start = Math.max( 0, Math.round( sampleCenter - length/2 ) );
-            var end = Math.min( Math.round( sampleCenter + length/2 ), refSeq.end );
-            this.bam.fetch( refSeq.name, start, end, dojo.hitch( this, function( features, error) {
-                if ( error ) {
-                    console.error( error );
-                    callback.call( this, length,  null, error );
-                }
-                else if( features ) {
-                    features = array.filter( features, function(f) { return f.get('start') >= start && f.get('end') <= end; } );
-                    callback.call( this, length,
-                                   {
-                                       featureDensity: features.length / length,
-                                       _statsSampleFeatures: features.length,
-                                       _statsSampleInterval: { ref: refSeq.name, start: start, end: end, length: length }
-                                   });
-                }
-            }));
-        };
-
-        var maybeRecordStats = function( interval, stats, error ) {
-            if( error ) {
-                finishCallback( error );
-            } else {
-                var refLen = this.refSeq.end - this.refSeq.start;
-                 if( stats._statsSampleFeatures >= 300 || interval * 2 > refLen || error ) {
-                     this.globalStats = stats;
-                     console.log( 'BAM statistics: '+this.source, stats );
-                     finishCallback();
-                 } else {
-                     statsFromInterval.call( this, this.refSeq, interval * 2, maybeRecordStats );
-                 }
-            }
-        };
-
-        statsFromInterval.call( this, this.refSeq, 100, maybeRecordStats );
-    },
-
 
     // called by getFeatures from the DeferredFeaturesMixin
     _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
