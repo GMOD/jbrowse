@@ -108,7 +108,7 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
     /**
      *  helper method that parses the next line from a Uint8Array or similar.
      *  @param parseState.data the byte array
-     *  @param parseState.offset the offset to start parsing.  <THIS VALUE IS MODIFIED BY THIS METHOD.
+     *  @param parseState.offset the offset to start parsing.  <MODIFIED AS A SIDE EFFECT OF THI SMETHOD
      */
     _getlineFromBytes: function( parseState ) {
         if( ! parseState.offset )
@@ -152,13 +152,26 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
             else if( metaField == 'filter' ) {
                 metaData = this._parseFilterHeaderLine( metaData );
             }
+            else if( metaField == 'alt' ) {
+                metaData = this._parseAltHeaderLine( metaData );
+            }
 
             if( ! headData[metaField] )
                 headData[metaField] = [];
 
             headData[metaField].push( metaData );
         }
-        //console.log(headData);
+        console.log(headData);
+
+        // index the info fields by field ID
+        if( headData.info ) {
+            var i = {};
+            array.forEach( headData.info, function( irec ) {
+                i[irec.id]= irec;
+            });
+            headData.info = i;
+        }
+
         return headData;
     },
 
@@ -187,6 +200,80 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
         }
         return metaData;
     },
+    _parseAltHeaderLine: function( metaData ) {
+        // ##ALT has same format as ##FILTER
+        return this._parseFilterHeaderLine( metaData );
+    },
+
+
+    _vcfReservedInfoFields: {
+        // from the VCF4.1 spec, http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41
+        AA: "ancestral allele",
+        AC: "allele count in genotypes, for each ALT allele, in the same order as listed",
+        AF: "allele frequency for each ALT allele in the same order as listed: use this when estimated from primary data, not called genotypes",
+        AN: "total number of alleles in called genotypes",
+        BQ: "RMS base quality at this position",
+        CIGAR: "cigar string describing how to align an alternate allele to the reference allele",
+        DB: "dbSNP membership",
+        DP: "combined depth across samples, e.g. DP=154",
+        END: "end position of the variant described in this record (esp. for CNVs)",
+        H2: "membership in hapmap2",
+        MQ: "RMS mapping quality, e.g. MQ=52",
+        MQ0: "Number of MAPQ == 0 reads covering this record",
+        NS: "Number of samples with data",
+        SB: "strand bias at this position",
+        SOMATIC: "indicates that the record is a somatic mutation, for cancer genomics",
+        VALIDATED: "validated by follow-up experiment"
+    },
+
+    _vcfReservedGenotypeKeywords: {
+        // from the VCF4.1 spec, http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41
+        GT : "genotype, encoded as allele values separated by either of '/' or '|'. The allele values are 0 for the reference allele (what is in the REF field), 1 for the first allele listed in ALT, 2 for the second allele list in ALT and so on. For diploid calls examples could be 0/1, 1|0, or 1/2, etc. For haploid calls, e.g. on Y, male non-pseudoautosomal X, or mitochondrion, only one allele value should be given; a triploid call might look like 0/0/1. If a call cannot be made for a sample at a given locus, '.' should be specified for each missing allele in the GT field (for example './.' for a diploid genotype and '.' for haploid genotype). The meanings of the separators are as follows (see the PS field below for more details on incorporating phasing information into the genotypes): '/' meaning genotype unphased, '|' meaning genotype phased",
+        DP : "read depth at this position for this sample (Integer)",
+        FT : "sample genotype filter indicating if this genotype was “called” (similar in concept to the FILTER field). Again, use PASS to indicate that all filters have been passed, a semi-colon separated list of codes for filters that fail, or ”.” to indicate that filters have not been applied. These values should be described in the meta-information in the same way as FILTERs (String, no white-space or semi-colons permitted)",
+        GL : "genotype likelihoods comprised of comma separated floating point log10-scaled likelihoods for all possible genotypes given the set of alleles defined in the REF and ALT fields. In presence of the GT field the same ploidy is expected and the canonical order is used; without GT field, diploidy is assumed. If A is the allele in REF and B,C,... are the alleles as ordered in ALT, the ordering of genotypes for the likelihoods is given by: F(j/k) = (k*(k+1)/2)+j.  In other words, for biallelic sites the ordering is: AA,AB,BB; for triallelic sites the ordering is: AA,AB,BB,AC,BC,CC, etc.  For example: GT:GL 0/1:-323.03,-99.29,-802.53 (Floats)",
+        GLE : "genotype likelihoods of heterogeneous ploidy, used in presence of uncertain copy number. For example: GLE=0:-75.22,1:-223.42,0/0:-323.03,1/0:-99.29,1/1:-802.53 (String)",
+        PL : "the phred-scaled genotype likelihoods rounded to the closest integer (and otherwise defined precisely as the GL field) (Integers)",
+        GP : "the phred-scaled genotype posterior probabilities (and otherwise defined precisely as the GL field); intended to store imputed genotype probabilities (Floats)",
+        GQ : "conditional genotype quality, encoded as a phred quality -10log_10p(genotype call is wrong, conditioned on the site's being variant) (Integer)",
+        HQ : "haplotype qualities, two comma separated phred qualities (Integers)",
+        PS : "phase set.  A phase set is defined as a set of phased genotypes to which this genotype belongs.  Phased genotypes for an individual that are on the same chromosome and have the same PS value are in the same phased set.  A phase set specifies multi-marker haplotypes for the phased genotypes in the set.  All phased genotypes that do not contain a PS subfield are assumed to belong to the same phased set.  If the genotype in the GT field is unphased, the corresponding PS field is ignored.  The recommended convention is to use the position of the first variant in the set as the PS identifier (although this is not required). (Non-negative 32-bit Integer)",
+        PQ : "phasing quality, the phred-scaled probability that alleles are ordered incorrectly in a heterozygote (against all other members in the phase set).  We note that we have not yet included the specific measure for precisely defining \"phasing quality\"; our intention for now is simply to reserve the PQ tag for future use as a measure of phasing quality. (Integer)",
+        EC : "comma separated list of expected alternate allele counts for each alternate allele in the same order as listed in the ALT field (typically used in association analyses) (Integers)",
+        MQ : "RMS mapping quality, similar to the version in the INFO field. (Integer) "
+    },
+
+    /**
+     * parse a VCF line's INFO field.
+     */
+    _parseInfoField: function( featureData, fields ) {
+        if( !fields[7] || fields[7] == '.' )
+            return null;
+        var info = this._parseKeyValue( fields[7] );
+
+        // decorate the info records with references to their descriptions
+        var infoMeta = this.header.info || {};
+        array.forEach( info, function( i ) {
+            var meta = infoMeta[i.key] || ( this._vcfReservedInfoFields[i.key] && { description: this._vcfReservedInfoFields[i.key] } );
+            if( meta )
+                i.meta = meta;
+        },this);
+
+        return info;
+    },
+
+    /**
+     * Parse a VCF key-value string like DP=154;MQ=52;H2
+     */
+    _parseKeyValue: function( str ) {
+        return array.map( (str||'').split(';'), function(f) {
+            var match = /^([^=]+)=?(.*)/.exec( f );
+            var i = { key: match[1] };
+            if( match[2] )
+                i.values = match[2].split(',');
+            return i;
+        });
+    },
 
     _lineToFeature: function( line ) {
         var fields = line.fields;
@@ -196,26 +283,35 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
 
         var ref = fields[3];
         var alt = fields[4];
+        var ids = (fields[2]||'').split(';');
         var SO_type = this._so_type( ref, alt );
         var featureData = {
             start:  line.start,
             end:    line.start+ref.length,
             seq_id: line.ref,
             description: SO_type+": "+ref+" -> "+alt,
-            name:   fields[2],
+            name:   ids[0],
             type:   SO_type,
-            ref:    ref,
-            alternative_alleles:    alt,
+            reference_allele:    ref,
+            alternative_alleles: alt,
             score:   fields[5],
-            filter: fields[6],
-            info:   fields[7],
-            format: fields[8],
-            other:  fields.slice( 9 )
+            filter: fields[6]
         };
+
+        if( ids.length > 1 )
+            featureData.aliases = ids.slice(1).join(',');
+
+        featureData.info   = this._parseInfoField( featureData, fields );
+        featureData.format = fields[8];
+        featureData.other  = fields.slice( 9 );
+        console.log( featureData );
+
         var f = new SimpleFeature({
-            id: fields[2] || Digest.objectFingerprint( fields.slice( 0, 9 ) ),
+            id: ids[0] || Digest.objectFingerprint( fields.slice( 0, 9 ) ),
             data: featureData
         });
+
+
         return f;
     },
 
