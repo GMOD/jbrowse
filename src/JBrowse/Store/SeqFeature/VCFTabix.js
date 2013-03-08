@@ -24,6 +24,23 @@ define([
            XHRBlob,
            Digest
        ) {
+
+
+// subclass the TabixIndexedFile to modify the parsed items a little
+// bit so that the range filtering in TabixIndexedFile will work.  VCF
+// files don't actually have an end coordinate, so we have to make it
+// here.  also convert coordinates to interbase.
+var VCFIndexedFile = declare( TabixIndexedFile, {
+    parseItem: function() {
+        var i = this.inherited( arguments );
+        if( i ) {
+            i.start--;
+            i.end = i.start + i.fields[3].length;
+        }
+        return i;
+    }
+});
+
 return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,GlobalStatsEstimationMixin],
 {
 
@@ -43,7 +60,7 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
                            )
                        );
 
-        this.indexedData = new TabixIndexedFile({ tbi: tbiBlob, file: fileBlob });
+        this.indexedData = new VCFIndexedFile({ tbi: tbiBlob, file: fileBlob });
 
         this._loadHeader().then( function() {
             thisB._estimateGlobalStats( function( stats, error ) {
@@ -136,8 +153,8 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
         var alt = fields[4];
         var SO_type = this._so_type( ref, alt );
         var featureData = {
-            start:  line.start-1,
-            end:    line.start-1+ref.length,
+            start:  line.start,
+            end:    line.start+ref.length,
             seq_id: line.ref,
             description: SO_type+": "+ref+" -> "+alt,
             name:   fields[2],

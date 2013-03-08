@@ -174,8 +174,8 @@ return declare( null, {
         var fields = line.split( "\t" );
         var item = { // note: index column numbers are 1-based
             ref:   fields[this.index.columnNumbers.ref-1],
-            start: fields[this.index.columnNumbers.start-1],
-            end:   fields[this.index.columnNumbers.end-1],
+            start: parseInt(fields[this.index.columnNumbers.start-1]),
+            end:   parseInt(fields[this.index.columnNumbers.end-1]),
             fields: fields
         };
         return item;
