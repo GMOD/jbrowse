@@ -1,0 +1,77 @@
+@import url("src/dojox/form/resources/UploaderFileList.css");
+.booleanDialog {
+    color: #333;
+    height: 440px;
+}
+
+.booleanDialog .contentContainer {
+    height: 100%;
+    width: 100%;
+    padding: 5px;
+}
+
+.booleanDialog .instructions {
+    position: absolute;
+    top: 22px;
+    padding: 10px;
+}
+
+.booleanDialog .storeSelectors {
+    position: relative;
+    top: 62px;
+}
+
+.booleanDialog .storeSelector {
+    position: relative;
+    background-color: #8cb1dd;
+    height: 200px;
+    width: 200px;
+}
+
+.booleanDialog .and-or-selector {
+    position: relative;
+    top: 62px;
+    padding-top: 10px;
+}
+
+.booleanDialog .textFieldContainer {
+    position: relative;
+    top: 62px;
+    padding-top: 10px;
+}
+
+.booleanDialog .nameField {
+    width: 150px;
+    padding-left: 3px;
+}
+
+.booleanDialog .dijitDialogPaneActionBar {
+    position: absolute;
+    top: 343px;
+    left: 3px;
+    padding-top: 0px;
+    padding-left: 1px;
+}
+
+.booleanDialog .dijitDialogPaneActionBar .openImmediatelyButton {
+    position: relative;
+    text-align: left;
+    padding-top: 10px;
+    padding-left: 1px;
+}
+
+.booleanDialog .dijitDialogPaneActionBar .addToTrackListButton {
+    position: relative;
+    text-align: left;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 1px;
+}
+
+.booleanDialog .canvasContainer {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    height: 130px;
+    width: 400px;
+}
