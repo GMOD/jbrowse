@@ -135,33 +135,42 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
         var parseState = { data: headerBytes, offset: 0 };
         var line;
         while(( line = this._getlineFromBytes( parseState ))) {
-            var match = /^##([^\s#=]+)=(.+)/.exec( line);
-            if( ! match || !match[1] )
+            // only interested in meta and header lines
+            if( line[0] != '#' )
                 continue;
 
-            var metaField = match[1].toLowerCase();
-            var metaData = (match[2]||'');
+            var match = /^##([^\s#=]+)=(.+)/.exec( line);
+            // parse meta line
+            if( match && match[1] ) {
+                var metaField = match[1].toLowerCase();
+                var metaData = (match[2]||'');
 
-            // TODO: do further parsing for some fields
-            if( metaField == 'info' ) {
-                metaData = this._parseInfoHeaderLine( metaData );
-            }
-            else if( metaField == 'format' ) {
-                metaData = this._parseFormatHeaderLine( metaData );
-            }
-            else if( metaField == 'filter' ) {
-                metaData = this._parseFilterHeaderLine( metaData );
-            }
-            else if( metaField == 'alt' ) {
-                metaData = this._parseAltHeaderLine( metaData );
-            }
+                // TODO: do further parsing for some fields
+                if( metaField == 'info' ) {
+                    metaData = this._parseInfoHeaderLine( metaData );
+                }
+                else if( metaField == 'format' ) {
+                    metaData = this._parseFormatHeaderLine( metaData );
+                }
+                else if( metaField == 'filter' ) {
+                    metaData = this._parseFilterHeaderLine( metaData );
+                }
+                else if( metaField == 'alt' ) {
+                    metaData = this._parseAltHeaderLine( metaData );
+                }
 
-            if( ! headData[metaField] )
-                headData[metaField] = [];
+                if( ! headData[metaField] )
+                    headData[metaField] = [];
 
-            headData[metaField].push( metaData );
+                headData[metaField].push( metaData );
+            }
+            else if( /^#CHROM\t/.test( line ) ) {
+                var f = line.split("\t");
+                if( f[8] == 'FORMAT' && f.length > 9 )
+                    headData.samples = f.slice(9);
+            }
         }
-        console.log(headData);
+        //console.log(headData);
 
         // index the info fields by field ID
         if( headData.info ) {
@@ -301,10 +310,13 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
         if( ids.length > 1 )
             featureData.aliases = ids.slice(1).join(',');
 
-        featureData.info   = this._parseInfoField( featureData, fields );
-        featureData.format = fields[8];
-        featureData.other  = fields.slice( 9 );
-        console.log( featureData );
+        featureData.info = this._parseInfoField( featureData, fields );
+
+        var genotypes = this._parseGenotypes( featureData, fields );
+        if( genotypes )
+            featureData.genotypes = genotypes;
+
+        //console.log( featureData );
 
         var f = new SimpleFeature({
             id: ids[0] || Digest.objectFingerprint( fields.slice( 0, 9 ) ),
@@ -313,6 +325,34 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
 
 
         return f;
+    },
+
+    _parseGenotypes: function( featureData, fields ) {
+        if( fields.length < 10 )
+            return null;
+
+        // parse the genotype data fields
+        var genotypes = [];
+        var format = fields[8].split(':');
+        for( var i = 9; i < fields.length; ++i ) {
+            var g = (fields[i]||'').split(':');
+            var gdata = {};
+            for( var j = 0; j<format.length; ++j ) {
+                gdata[format[j]] = g[j];
+            }
+            genotypes.push( gdata );
+        }
+
+        // index the genotypes by sample ID
+        var bySample = {};
+        for( var i = 0; i<genotypes.length; i++ ) {
+            var sname = this.header.samples[i];
+            if( sname ) {
+                bySample[sname] = genotypes[i];
+            }
+        }
+
+        return bySample;
     },
 
     _so_type: function( ref, alt ) {
