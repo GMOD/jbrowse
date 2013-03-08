@@ -507,11 +507,14 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         var timedOut = false;
         var timeOutError = { toString: function() { return 'Timed out trying to display '+curTrack.name+' block '+blockIndex; } };
         if( this.config.blockDisplayTimeout )
-            window.setTimeout( function() { timedOut = true; }, this.config.blockDisplayTimeout );
+            window.setTimeout( function() {
+                timedOut = true;
+                curTrack.fillBlockTimeout( blockIndex, block );
+            }, this.config.blockDisplayTimeout );
 
         var featCallback = dojo.hitch(this,function( feature ) {
             if( timedOut )
-                throw timeOutError;
+                return;
 
             var uniqueId = feature.id();
             if( ! this._featureIsRendered( uniqueId ) ) {
