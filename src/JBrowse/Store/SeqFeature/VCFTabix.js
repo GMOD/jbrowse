@@ -75,6 +75,7 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
         });
     },
 
+    /** fetch and parse the VCF header lines */
     _loadHeader: function() {
         var thisB = this;
         return this._parsedHeader = this._parsedHeader || function() {
@@ -91,7 +92,6 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
                     function( bytes ) {
 
                         thisB.header = thisB._parseHeader( new Uint8Array( bytes ) );
-                        console.log( thisB.header );
 
                         d.resolve({ success:true});
                     },
@@ -105,6 +105,11 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
 
     _newlineCode: "\n".charCodeAt(0),
 
+    /**
+     *  helper method that parses the next line from a Uint8Array or similar.
+     *  @param parseState.data the byte array
+     *  @param parseState.offset the offset to start parsing.  <THIS VALUE IS MODIFIED BY THIS METHOD.
+     */
     _getlineFromBytes: function( parseState ) {
         if( ! parseState.offset )
             parseState.offset = 0;
@@ -119,6 +124,10 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
         return line;
     },
 
+    /**
+     * Parse the bytes that contain the VCF header, returning an
+     * object containing the parsed data.
+     */
     _parseHeader: function( headerBytes ) {
 
         // parse the header lines
@@ -134,13 +143,49 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
             var metaData = (match[2]||'');
 
             // TODO: do further parsing for some fields
+            if( metaField == 'info' ) {
+                metaData = this._parseInfoHeaderLine( metaData );
+            }
+            else if( metaField == 'format' ) {
+                metaData = this._parseFormatHeaderLine( metaData );
+            }
+            else if( metaField == 'filter' ) {
+                metaData = this._parseFilterHeaderLine( metaData );
+            }
 
             if( ! headData[metaField] )
                 headData[metaField] = [];
 
             headData[metaField].push( metaData );
         }
+        //console.log(headData);
         return headData;
+    },
+
+    _parseInfoHeaderLine: function( metaData ) {
+        var match = /^<\s*ID\s*=\s*([^,]*),\s*Number\s*=\s*([^,]*),\s*Type\s*=\s*([^,]*),\s*Description\s*=\s*"([^"]*)"/i.exec( metaData );
+        if( match ) {
+            return {
+                id: match[1],
+                number: match[2],
+                type: match[3],
+                description: match[4]
+            };
+        }
+        return metaData;
+    },
+    _parseFormatHeaderLine: function( metaData ) {
+        return this._parseInfoHeaderLine( metaData );
+    },
+    _parseFilterHeaderLine: function( metaData ) {
+        var match = /^<\s*ID\s*=\s*([^,]*),\s*Description\s*=\s*"([^"]*)"/i.exec( metaData );
+        if( match ) {
+            return {
+                id: match[1],
+                description: match[2]
+            };
+        }
+        return metaData;
     },
 
     _lineToFeature: function( line ) {
