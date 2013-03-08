@@ -261,6 +261,17 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
         MQ : "RMS mapping quality, similar to the version in the INFO field. (Integer) "
     },
 
+    _vcfReservedAltTypes: {
+        "DEL": "Deletion relative to the reference",
+        "INS": "Insertion of novel sequence relative to the reference",
+        "DUP": "Region of elevated copy number relative to the reference",
+        "INV": "Inversion of reference sequence",
+        "CNV": "Copy number variable region (may be both deletion and duplication)",
+        "DUP:TANDEM": "Tandem duplication",
+        "DEL:ME": "Deletion of mobile element relative to the reference",
+        "INS:ME": "Insertion of a mobile element relative to the reference"
+    },
+
     /**
      * parse a VCF line's INFO field.
      */
@@ -309,7 +320,10 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
             end:    line.start+ref.length,
             seq_id: line.ref,
             description: SO_type+": "+ref+" -> "+ alt
-                + (this.header.alt[alt] ? ' ('+this.header.alt[alt].description+')' : ''),
+                + ( this.header.alt[alt]           ? ' ('+this.header.alt[alt].description+')' :
+                    this._vcfReservedAltTypes[alt] ? ' ('+this._vcfReservedAltTypes[alt]+')'  :
+                                                     ''
+                  ),
             name:   ids[0],
             type:   SO_type,
             reference_allele:    ref,
