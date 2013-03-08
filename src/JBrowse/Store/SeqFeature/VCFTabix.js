@@ -181,6 +181,15 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
             headData.info = i;
         }
 
+        // index the alt fields by field ID
+        if( headData.alt ) {
+            var i = {};
+            array.forEach( headData.alt, function( irec ) {
+                i[irec.id]= irec;
+            });
+            headData.alt = i;
+        }
+
         return headData;
     },
 
@@ -292,13 +301,15 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
 
         var ref = fields[3];
         var alt = fields[4];
+
         var ids = (fields[2]||'').split(';');
         var SO_type = this._so_type( ref, alt );
         var featureData = {
             start:  line.start,
             end:    line.start+ref.length,
             seq_id: line.ref,
-            description: SO_type+": "+ref+" -> "+alt,
+            description: SO_type+": "+ref+" -> "+ alt
+                + (this.header.alt[alt] ? ' ('+this.header.alt[alt].description+')' : ''),
             name:   ids[0],
             type:   SO_type,
             reference_allele:    ref,
