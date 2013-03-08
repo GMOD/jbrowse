@@ -12,7 +12,9 @@ define( [
             'dojo/dom-style',
             'dojo/_base/window',
             'dojo/Deferred',
-            './BooleanDialog/TrackTypeDialog'
+            './BooleanDialog/TrackTypeDialog',
+            './BooleanDialog/settingViewer',
+            'dojo/on'
         ],
         function( declare,
                   array,
@@ -27,7 +29,9 @@ define( [
                   domStyle,
                   window,
                   Deferred,
-                  TrackTypeDialog ) {
+                  TrackTypeDialog,
+                  settingViewer,
+                  on ) {
 
 return declare( null, {
 
@@ -42,16 +46,16 @@ return declare( null, {
         var dialog = this.dialog = new Dialog(
             { title: "New boolean track", className: 'booleanDialog' }
             );
+        var contentContainer = dom.create( 'div', { className: 'contentContainer'});
+        dialog.containerNode.parentNode.appendChild(contentContainer);
+        dojo.destroy(dialog.containerNode)
 
         var actionBar         = this._makeActionBar( args.openCallback );
         var displaySelector   = this._makeStoreSelector();
         var maskSelector      = this._makeStoreSelector();
         var invMaskSelector   = this._makeStoreSelector();
-        /* some css */  domStyle.set( displaySelector.domNode, 'height', '15em' );
-                        domStyle.set( maskSelector.domNode, 'height', '15em' );
-                        domStyle.set( invMaskSelector.domNode, 'height', '15em' );
         var nameField         = this._makeNameField( "type desired track name here" );
-        var opSelector        = this._makeOPSelector()
+        var opSelector        = this._makeOPSelector();
 
         this.storeFetch = { data   : { display: displaySelector.sel,
                                        mask   : maskSelector.sel,
@@ -99,24 +103,47 @@ return declare( null, {
                                 })
                           };
 
+        var canvas = new settingViewer();
+        var c = canvas.can;
+        var canvasCont = dom.create( 'div', {className: 'canvasContainer'});
+        canvasCont.appendChild(c);
+        canvas.drawOR();
+        console.log(this.trackOperationChoice[0]);
+        on( this.trackOperationChoice[0], 'change', dojo.hitch(this, function ( e ) {
+            // change the preview when the OR-AND if changed
+            if ( this.trackOperationChoice[0].checked ) {
+                canvas.drawOR();
+            }
+            else {
+                canvas.drawAND();
+            }
+        }));
+
         var div = function( attr, children ) {
             var d = dom.create('div', attr );
             array.forEach( children, dojo.hitch( d, 'appendChild' ));
             return d;
         };
 
+        var textCont = dom.create( 'div', { className: 'textFieldContainer'});
+        textCont.appendChild(nameField.domNode);
+
         var content = [
                         dom.create( 'div', { className: 'instructions',
-                                             innerHTML: 'This is where the instructions will be' } ),
+                                             innerHTML: 'Select data to be displayed (right), data to mask (center), and data to make inverse masks (left). Masks will hide data contained in the covered regions. Inverse masks hide data not contained in the covered regions. Use "OR" and "AND" to choose how these two interact.' } ),
                             div( { className: 'storeSelectors' },
                              [ displaySelector.domNode, invMaskSelector.domNode, maskSelector.domNode ]
                             ),
                         opSelector.domNode,
-                        nameField.domNode,
-                        actionBar.domNode
+                        textCont,
+                        actionBar.domNode,
+                        canvasCont
                       ];
 
-        dialog.set( 'content', content );
+        for ( var node in content ) {
+        if ( content.hasOwnProperty ) {
+            contentContainer.appendChild(content[node]);
+        }}
         dialog.show()
 
         // destroy the dialogue after it has been hidden
@@ -142,11 +169,12 @@ return declare( null, {
                             })
         ];
 
-        var aux = dom.create( 'div', {className:'aux'}, actionBar );
-        disChoices[0].placeAt(aux);
-        dom.create('label', { for: 'openImmediately', innerHTML: 'Open immediately' }, aux ),
-        disChoices[1].placeAt(aux);
-        dom.create('label', { for: 'addToTrackList', innerHTML: 'Add to tracks' }, aux );
+        var aux1 = dom.create( 'div', {className:'openImmediatelyButton'}, actionBar );
+        disChoices[0].placeAt(aux1);
+        dom.create('label', { for: 'openImmediately', innerHTML: 'Open immediately' }, aux1 );
+        var aux2 = dom.create( 'div', {className:'addToTrackListButton'}, actionBar );
+        disChoices[1].placeAt(aux2);
+        dom.create('label', { for: 'addToTrackList', innerHTML: 'Add to tracks' }, aux2 );
 
 
         new Button({ iconClass: 'dijitIconDelete', label: 'Cancel',
@@ -163,7 +191,7 @@ return declare( null, {
                                 dojo.when(d, function( arg ){
                                 openCallback({
                                     trackConf: { label: thisB.storeFetch.getName(),
-                                                 type:  arg,//'JBrowse/View/Track/BooleanTrack',
+                                                 type:  arg,
                                                  store: { name: thisB.storeFetch.getName(),
                                                           booleanOP: thisB.trackOperationChoice[0].checked ? thisB.trackOperationChoice[0].value :
                                                                      thisB.trackOperationChoice[1].checked ? thisB.trackOperationChoice[1].value :
@@ -200,9 +228,9 @@ return declare( null, {
                             })
         ];
 
-        var aux = dom.create('div',{className:'aux'});
+        var aux = dom.create('div',{className:'and-or-selector'});
         OPChoices[0].placeAt(aux);
-        dom.create('label', { for: 'OR', innerHTML: 'OR' }, aux ),
+        dom.create('label', { for: 'OR', innerHTML: 'OR  ' }, aux ),
         OPChoices[1].placeAt(aux);
         dom.create('label', { for: 'AND', innerHTML: 'AND' }, aux );
 
@@ -211,6 +239,7 @@ return declare( null, {
 
     _makeStoreSelector: function() {
         var selector = new MultiSelect();
+        selector.containerNode.className = 'storeSelector';
         var tracks = this.browser.trackConfigsByName;
         for (var ID in tracks ) {
         if ( tracks.hasOwnProperty( ID ) ) {
@@ -227,6 +256,7 @@ return declare( null, {
         var name = new TextBox( { value: "",
                                   placeHolder: text
                                 } );
+        name.domNode.className = 'nameField';
         return name;
     }
 
