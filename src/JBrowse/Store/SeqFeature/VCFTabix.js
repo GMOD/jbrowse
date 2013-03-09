@@ -146,17 +146,8 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
                 var metaData = (match[2]||'');
 
                 // TODO: do further parsing for some fields
-                if( metaField == 'info' ) {
-                    metaData = this._parseInfoHeaderLine( metaData );
-                }
-                else if( metaField == 'format' ) {
-                    metaData = this._parseFormatHeaderLine( metaData );
-                }
-                else if( metaField == 'filter' ) {
-                    metaData = this._parseFilterHeaderLine( metaData );
-                }
-                else if( metaField == 'alt' ) {
-                    metaData = this._parseAltHeaderLine( metaData );
+                if( metaData.match(/^<.+>$/) ) {
+                    metaData = this._parseGenericHeaderLine( metaData );
                 }
 
                 if( ! headData[metaField] )
@@ -170,59 +161,21 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
                     headData.samples = f.slice(9);
             }
         }
-        //console.log(headData);
+        console.log(headData);
 
-        // index the info fields by field ID
-        if( headData.info ) {
-            var i = {};
-            array.forEach( headData.info, function( irec ) {
-                i[irec.id]= irec;
-            });
-            headData.info = i;
-        }
-
-        // index the alt fields by field ID
-        if( headData.alt ) {
-            var i = {};
-            array.forEach( headData.alt, function( irec ) {
-                i[irec.id]= irec;
-            });
-            headData.alt = i;
+        // index some of the headers by ID
+        for( var headerType in headData ) {
+            if( dojo.isArray( headData[headerType] ) && typeof headData[headerType][0] == 'object' && 'id' in headData[headerType][0] )
+                headData[headerType] = this._indexUniqObjects( headData[headerType], 'id' );
         }
 
         return headData;
     },
 
-    _parseInfoHeaderLine: function( metaData ) {
-        var match = /^<\s*ID\s*=\s*([^,]*),\s*Number\s*=\s*([^,]*),\s*Type\s*=\s*([^,]*),\s*Description\s*=\s*"([^"]*)"/i.exec( metaData );
-        if( match ) {
-            return {
-                id: match[1],
-                number: match[2],
-                type: match[3],
-                description: match[4]
-            };
-        }
-        return metaData;
+    _parseGenericHeaderLine: function( metaData ) {
+        metaData = metaData.replace(/^<|>$/g,'');
+        return this._flattenKeyValue( this._parseKeyValue( metaData, ',', ';' ), 'lowercase' );
     },
-    _parseFormatHeaderLine: function( metaData ) {
-        return this._parseInfoHeaderLine( metaData );
-    },
-    _parseFilterHeaderLine: function( metaData ) {
-        var match = /^<\s*ID\s*=\s*([^,]*),\s*Description\s*=\s*"([^"]*)"/i.exec( metaData );
-        if( match ) {
-            return {
-                id: match[1],
-                description: match[2]
-            };
-        }
-        return metaData;
-    },
-    _parseAltHeaderLine: function( metaData ) {
-        // ##ALT has same format as ##FILTER
-        return this._parseFilterHeaderLine( metaData );
-    },
-
 
     _vcfReservedInfoFields: {
         // from the VCF4.1 spec, http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41
@@ -341,16 +294,70 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
     },
 
     /**
-     * Parse a VCF key-value string like DP=154;MQ=52;H2
+     * Take an array of objects and make another object that indexes
+     * them into another object for easy lookup by the given field.
+     * WARNING: Values of the field must be unique.
      */
-    _parseKeyValue: function( str ) {
-        return array.map( (str||'').split(';'), function(f) {
+    _flattenKeyValue: function( entries, lowerCase, singleValue ) {
+        var d = {};
+        array.forEach( entries, function( e ) {
+            d[ lowerCase ? e.key.toLowerCase() : e.key ] = singleValue ? (e.values||[])[0] : e.values;
+        });
+        return d;
+    },
+
+    /**
+     * Take an array of objects and make another object that indexes
+     * them into another object for easy lookup by the given field.
+     * WARNING: Values of the field must be unique.
+     */
+    _indexUniqObjects: function( entries, indexField, lowerCase ) {
+        // index the info fields by field ID
+        var items = {};
+        array.forEach( entries, function( rec ) {
+            var k = rec[indexField];
+            if( dojo.isArray(k) )
+                k = k[0];
+            if( lowerCase )
+                k = k.toLowerCase();
+            items[ rec[indexField] ]= rec;
+        });
+        return items;
+    },
+
+    /**
+     * Parse a VCF key-value string like DP=154;MQ=52;H2 into an array
+     * like [{key: 'DP', values: [154]},...]
+     */
+    _parseKeyValue: function( str, pairSeparator, valueSeparator ) {
+        pairSeparator  = pairSeparator  || ';';
+        valueSeparator = valueSeparator || ',';
+        return array.map( (str||'').split( pairSeparator ), function(f) {
+            var i = {};
             var match = /^([^=]+)=?(.*)/.exec( f );
-            var i = { key: match[1] };
-            if( match[2] )
-                i.values = match[2].split(',');
+            if( match ) {
+                i.key = match[1];
+                if( match[2] )
+                    i.values = array.map( match[2].split( valueSeparator ), function( v ) {
+                                              return v.replace(/^"|"$/g,'');
+                                          });
+            }
             return i;
         });
+    },
+
+    /**
+     * Given an ALT string, return a string suitable for appending to
+     * the feature description, if available.
+     */
+    _getAltDescriptionString: function( alt ) {
+        if( alt[0] != '<' )
+            return '';
+        alt = alt.replace(/^<|>$/g,'');
+        var desc = this.header.alt[alt] || this._vcfReservedAltTypes[alt];
+        if( dojo.isArray( desc ) )
+            desc = desc.join(', ');
+        return desc ? ' ('+desc+')' : '';
     },
 
     _lineToFeature: function( line ) {
@@ -368,11 +375,7 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
             start:  line.start,
             end:    line.start+ref.length,
             seq_id: line.ref,
-            description: SO_type+": "+ref+" -> "+ alt
-                + ( this.header.alt[alt]           ? ' ('+this.header.alt[alt].description+')' :
-                    this._vcfReservedAltTypes[alt] ? ' ('+this._vcfReservedAltTypes[alt]+')'  :
-                                                     ''
-                  ),
+            description: SO_type+": "+ref+" -> "+ alt.replace(/^<|>$/g,'') + this._getAltDescriptionString( alt ),
             name:   ids[0],
             type:   SO_type,
             reference_allele:    ref,
