@@ -40,6 +40,10 @@ return declare( null, {
         this.browserSupports = {
             dnd: 'draggable' in document.createElement('span')
         };
+        this.supportedTracks = ['JBrowse/View/Track/HTMLFeatures',
+                                'JBrowse/View/Track/Wiggle/Density',
+                                'JBrowse/View/Track/Wiggle/XYPlot',
+                                'JBrowse/View/Track/SNPCoverage'];
     },
 
     show: function( args ) {
@@ -56,6 +60,31 @@ return declare( null, {
         var invMaskSelector   = this._makeStoreSelector();
         var nameField         = this._makeNameField( "type desired track name here" );
         var opSelector        = this._makeOPSelector();
+
+        on( displaySelector.domNode, 'change', dojo.hitch(this, function ( e ) {
+            // prevent users from selecting multiple track types for display.
+            var options = displaySelector.domNode.children;
+            var selectedType = null;
+            for ( var key in options ) {
+            if ( options.hasOwnProperty(key) && options[key].selected ) {
+                selectedType = options[key].type;
+                break;
+            }}
+            // If nothing is selected, enable all available options
+            if ( !selectedType ) {
+                for ( var key in options ) {
+                if ( options.hasOwnProperty(key) && (this.supportedTracks.indexOf(options[key].type ) > -1) ) {
+                    options[key].disabled = false;
+                }}
+                return;
+            }
+            // else, disable and deselect relevant options
+            for ( var key in options ) {
+            if ( options.hasOwnProperty(key) && options[key].type != selectedType ) {
+                options[key].disabled = 'disabled';
+                options[key].selected = false;
+            }}
+        }));
 
         this.storeFetch = { data   : { display: displaySelector.sel,
                                        mask   : maskSelector.sel,
@@ -104,11 +133,11 @@ return declare( null, {
                           };
 
         var canvas = new settingViewer();
+        // setup the preview canvas
         var c = canvas.can;
         var canvasCont = dom.create( 'div', {className: 'canvasContainer'});
         canvasCont.appendChild(c);
         canvas.drawOR();
-        console.log(this.trackOperationChoice[0]);
         on( this.trackOperationChoice[0], 'change', dojo.hitch(this, function ( e ) {
             // change the preview when the OR-AND if changed
             if ( this.trackOperationChoice[0].checked ) {
@@ -130,7 +159,7 @@ return declare( null, {
 
         var content = [
                         dom.create( 'div', { className: 'instructions',
-                                             innerHTML: 'Select data to be displayed (right), data to mask (center), and data to make inverse masks (left). Masks will hide data contained in the covered regions. Inverse masks hide data not contained in the covered regions. Use "OR" and "AND" to choose how these two interact.' } ),
+                                             innerHTML: 'Select data to be displayed (right), data to mask (center), and data to make inverse masks (left). Masks will hide data contained in the covered regions. Inverse masks hide data not contained in the covered regions. Use "OR" and "AND" to choose how these two interact. (See preview below.)' } ),
                             div( { className: 'storeSelectors' },
                              [ displaySelector.domNode, invMaskSelector.domNode, maskSelector.domNode ]
                             ),
@@ -244,9 +273,12 @@ return declare( null, {
         for (var ID in tracks ) {
         if ( tracks.hasOwnProperty( ID ) ) {
             var op = window.doc.createElement('option');
-            op.innerHTML = ID;
+            op.innerHTML = tracks[ID].key;
+            op.type = tracks[ID].type;
             op.value = tracks[ID].store+','+tracks[ID].type;
-            //op.disabled = 'disabled'; Note for future use: this will grey out a value
+            if ( ! ( this.supportedTracks.indexOf(tracks[ID].type ) > -1 ) ) { 
+                op.disabled = 'disabled'; // disable tracks that aren't supported
+            }
             selector.containerNode.appendChild(op);
         }}
         return { domNode: selector.containerNode, sel: selector };
