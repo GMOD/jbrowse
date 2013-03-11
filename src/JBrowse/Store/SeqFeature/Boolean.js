@@ -120,7 +120,20 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
                     store.getFeatures(
                     	query,
                         dojo.hitch( this, function( feature ) {
-                            featureArrays[s][store.name].push( feature );
+                            var feat = { f: feature };
+                            // features need new IDs, which are sometimes immutable. Add a wrapper.
+                            feat.get = function( arg ) { return feat.f.get(arg) };
+                            feat.id  = function() { return feature.id()+store.name; };
+                            if (feature.parent) { 
+                                feat.parent = function(){return feat.f.parent();}
+                            }
+                            if (feature.children) {
+                                feat.children = function(){return feat.f.children();}
+                            }
+                            if (feature.tags) {
+                                feat.tags = function(){return feat.f.tags();}
+                            }
+                            featureArrays[s][store.name].push( feat );
                         }),
                         function(){ d.resolve( featureArrays[s][store.name] );},
                         errorCallback
