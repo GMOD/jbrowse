@@ -264,14 +264,14 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
     },
 
     _vcfReservedAltTypes: {
-        "DEL": "Deletion relative to the reference",
-        "INS": "Insertion of novel sequence relative to the reference",
-        "DUP": "Region of elevated copy number relative to the reference",
-        "INV": "Inversion of reference sequence",
-        "CNV": "Copy number variable region (may be both deletion and duplication)",
-        "DUP:TANDEM": "Tandem duplication",
-        "DEL:ME": "Deletion of mobile element relative to the reference",
-        "INS:ME": "Insertion of a mobile element relative to the reference"
+        "DEL": { description: "Deletion relative to the reference", so_term: 'deletion' },
+        "INS": { description: "Insertion of novel sequence relative to the reference", so_term: 'insertion' },
+        "DUP": { description: "Region of elevated copy number relative to the reference", so_term: 'copy_number_gain' },
+        "INV": { description: "Inversion of reference sequence", so_term: 'inversion' },
+        "CNV": { description: "Copy number variable region (may be both deletion and duplication)", so_term: 'copy_number_variation' },
+        "DUP:TANDEM": { description: "Tandem duplication", so_term: 'copy_number_gain' },
+        "DEL:ME": { description: "Deletion of mobile element relative to the reference", so_term: 'deletion' },
+        "INS:ME": { description: "Insertion of a mobile element relative to the reference", so_term: 'insertion' }
     },
 
     /**
@@ -346,20 +346,6 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
         });
     },
 
-    /**
-     * Given an ALT string, return a string suitable for appending to
-     * the feature description, if available.
-     */
-    _getAltDescriptionString: function( alt ) {
-        if( alt[0] != '<' )
-            return '';
-        alt = alt.replace(/^<|>$/g,'');
-        var desc = this.header.alt[alt] || this._vcfReservedAltTypes[alt];
-        if( dojo.isArray( desc ) )
-            desc = desc.join(', ');
-        return desc ? ' ('+desc+')' : '';
-    },
-
     _lineToFeature: function( line ) {
         var fields = line.fields;
         for( var i=0; i<fields.length; i++ )
@@ -370,14 +356,14 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
         var alt = fields[4];
 
         var ids = (fields[2]||'').split(';');
-        var SO_type = this._so_type( ref, alt );
+        var SO_term = this._find_SO_term( ref, alt );
         var featureData = {
             start:  line.start,
             end:    line.start+ref.length,
             seq_id: line.ref,
-            description: SO_type+": "+ref+" -> "+ alt.replace(/^<|>$/g,'') + this._getAltDescriptionString( alt ),
+            description: SO_term+": "+ref+" -> "+ alt.replace(/^<|>$/g,'') + this._getAltDescriptionString( alt ),
             name:   ids[0],
-            type:   SO_type,
+            type:   SO_term,
             reference_allele:    ref,
             alternative_alleles: alt,
             score:   fields[5],
@@ -432,12 +418,52 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
         return bySample;
     },
 
-    _so_type: function( ref, alt ) {
+    _find_SO_term: function( ref, alt ) {
         // it's just a remark if there are no alternate alleles
-        if( alt == '.' )
+        if( ! alt || alt == '.' )
             return 'remark';
 
-        alt = (alt||'.').split(',');
+        var types = array.map( alt.split(','), function( alt ) {
+                        return this._find_SO_term_from_alt_definitions( alt )
+                               || this._find_SO_term_by_examination( ref, alt );
+                    }, this );
+        return types.join(',');
+    },
+
+    /**
+     * Given an ALT string, return a string suitable for appending to
+     * the feature description, if available.
+     */
+    _getAltDescriptionString: function( alt ) {
+        if( alt[0] != '<' )
+            return '';
+        alt = alt.replace(/^<|>$/g,'');
+        var def = this.header.alt[alt] || this._vcfReservedAltTypes[alt];
+        return def ? ' ('+def.description+')' : '';
+    },
+
+    _find_SO_term_from_alt_definitions: function( alt ) {
+        // not a symbolic ALT if doesn't begin with '<', so we'll have no definition
+        if( alt[0] != '<' )
+            return null;
+
+        alt = alt.replace(/^<|>$/g,''); // trim off < and >
+
+        // look for a definition with an SO type for this
+        var def = this.header.alt[alt] || this._vcfReservedAltTypes[alt];
+        if( def && def.so_term )
+            return def.so_term;
+
+        // try to look for a definition for a parent term if we can
+        alt = alt.split(':');
+        if( alt.length > 1 )
+            return this._find_SO_term_from_alt_definitions( alt.slice( 0, alt.length-1 ).join(':') );
+        else // no parent
+            return null;
+    },
+
+    _find_SO_term_by_examination: function( ref, alt ) {
+
         var minAltLen = Infinity;
         var maxAltLen = -Infinity;
         var altLen = array.map( alt, function(a) {
