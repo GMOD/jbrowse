@@ -270,8 +270,8 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
         "INV": { description: "Inversion of reference sequence", so_term: 'inversion' },
         "CNV": { description: "Copy number variable region (may be both deletion and duplication)", so_term: 'copy_number_variation' },
         "DUP:TANDEM": { description: "Tandem duplication", so_term: 'copy_number_gain' },
-        "DEL:ME": { description: "Deletion of mobile element relative to the reference", so_term: 'deletion' },
-        "INS:ME": { description: "Insertion of a mobile element relative to the reference", so_term: 'insertion' }
+        "DEL:ME": { description: "Deletion of mobile element relative to the reference" },
+        "INS:ME": { description: "Insertion of a mobile element relative to the reference" }
     },
 
     /**
@@ -457,7 +457,7 @@ return declare( [SeqFeatureStore,DeferredStatsMixin,DeferredFeaturesMixin,Global
         // try to look for a definition for a parent term if we can
         alt = alt.split(':');
         if( alt.length > 1 )
-            return this._find_SO_term_from_alt_definitions( alt.slice( 0, alt.length-1 ).join(':') );
+            return this._find_SO_term_from_alt_definitions( '<'+alt.slice( 0, alt.length-1 ).join(':')+'>' );
         else // no parent
             return null;
     },
