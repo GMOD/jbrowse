@@ -25,11 +25,11 @@ var featureWrapper = Util.fastDeclare(
 
         id: function() { return this.feature.id()+this.storeName; },
 
-        parent: function(){ return this.feature.parent ? this.feature.parent() : undefined },
+        parent: function(){ return this.feature.parent(); },
 
-        children: function(){ return this.feature.children ? this.feature.children() : undefined },
+        children: function(){ return this.feature.children(); },
 
-        tags: function(){ return this.feature.tags ? this.feature.tags() : undefined },
+        tags: function(){ return this.feature.tags(); },
 
         constructor: function( feat, storeName ) {
             this.feature = feat;
