@@ -5,7 +5,8 @@ define([
            'dojo/when',
            'dojo/promise/all',
            'JBrowse/Store/SeqFeature',
-           'JBrowse/Model/SimpleFeature'
+           'JBrowse/Model/SimpleFeature',
+           'JBrowse/Util'
        ],
        function(
            declare,
@@ -14,8 +15,30 @@ define([
            when,
            all,
            SeqFeatureStore,
-           SimpleFeature
+           SimpleFeature,
+           Util
        ) {
+
+var featureWrapper = Util.fastDeclare(
+    {
+        get: function( arg ) { return this.feature.get(arg); },
+
+        id: function() { return this.feature.id()+this.storeName; },
+
+        constructor: function( feat, storeName ) {
+            this.feature = feat;
+            this.storeName = storeName;
+            if (feat.parent) { 
+                this.parent = function(){return this.feature.parent();};
+            }
+            if (feat.children) {
+                this.children = function(){return this.feature.children();};
+            }
+            if (feat.tags) {
+                this.tags = function(){return this.feature.tags();};
+            }
+        }
+    });
 
 return declare([SeqFeatureStore], {
 
@@ -120,19 +143,7 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
                     store.getFeatures(
                     	query,
                         dojo.hitch( this, function( feature ) {
-                            var feat = { f: feature };
-                            // features need new IDs, which are sometimes immutable. Add a wrapper.
-                            feat.get = function( arg ) { return feat.f.get(arg) };
-                            feat.id  = function() { return feature.id()+store.name; };
-                            if (feature.parent) { 
-                                feat.parent = function(){return feat.f.parent();}
-                            }
-                            if (feature.children) {
-                                feat.children = function(){return feat.f.children();}
-                            }
-                            if (feature.tags) {
-                                feat.tags = function(){return feat.f.tags();}
-                            }
+                            var feat = new featureWrapper( feature, store.name );
                             featureArrays[s][store.name].push( feat );
                         }),
                         function(){ d.resolve( featureArrays[s][store.name] );},
