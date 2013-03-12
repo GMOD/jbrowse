@@ -43,7 +43,8 @@ return declare( null, {
         this.supportedTracks = ['JBrowse/View/Track/HTMLFeatures',
                                 'JBrowse/View/Track/Wiggle/Density',
                                 'JBrowse/View/Track/Wiggle/XYPlot',
-                                'JBrowse/View/Track/SNPCoverage'];
+                                'JBrowse/View/Track/SNPCoverage',
+                                'JBrowse/View/Track/Alignments2'];
     },
 
     show: function( args ) {

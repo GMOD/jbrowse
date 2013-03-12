@@ -25,11 +25,11 @@ var featureWrapper = Util.fastDeclare(
 
         id: function() { return this.feature.id()+this.storeName; },
 
-        parent: function(){ return this.feature.parent(); },
+        parent: function() { return this.feature.parent(); },
 
-        children: function(){ return this.feature.children(); },
+        children: function() { return this.feature.children(); },
 
-        tags: function(){ return this.feature.tags(); },
+        tags: function() { return this.feature.tags(); },
 
         constructor: function( feat, storeName ) {
             this.feature = feat;
@@ -303,9 +303,9 @@ notSpan: function( spans, query ) {
 },
 
 inverseMask: function( features, spans, featCallback, doneCallback ) {
-    /* Features from the display set are shown if they are contained in the spans of the masking set.
-     * Features partially contained in the spans are displayed.*/
-     // change function description. The implementation has changed.
+    /* Pass features to the tracks original featCallback, and pass spans to the doneCallback.
+     * If the track has boolean support, the DoneCallback will use the spans to mask the features.
+     */
     for ( var key in features ) {
     if ( features.hasOwnProperty(key) ) {
         featCallback( features[key] )
