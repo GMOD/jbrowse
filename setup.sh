@@ -48,7 +48,7 @@ echo -n "Formatting Volvox example data ...";
     bin/add-track-json.pl docs/tutorial/data_files/volvox_sine.bw.conf sample_data/json/volvox/trackList.json
     bin/add-track-json.pl docs/tutorial/data_files/volvox-sorted.bam.conf sample_data/json/volvox/trackList.json
     bin/add-track-json.pl docs/tutorial/data_files/volvox-sorted.bam.coverage.conf sample_data/json/volvox/trackList.json
-    bin/add-track-json.pl docs/tutorial/data_files/volvox.vcf.gz.conf sample_data/json/volvox/trackList.json
+    bin/add-track-json.pl docs/tutorial/data_files/volvox.test.vcf.gz.conf sample_data/json/volvox/trackList.json
     bin/generate-names.pl -v --out sample_data/json/volvox;
 
     # also recreate some symlinks used by tests and such
