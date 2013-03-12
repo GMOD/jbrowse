@@ -86,10 +86,12 @@ return declare( null, {
             name:   ids[0],
             type:   SO_term,
             reference_allele:    ref,
-            alternative_alleles: alt,
             score:   fields[5],
             filter: fields[6]
         };
+
+        if( alt && alt[0] != '<' )
+            featureData.alternative_alleles = alt;
 
         if( ids.length > 1 )
             featureData.aliases = ids.slice(1).join(',');
