@@ -247,7 +247,7 @@ return declare( null, {
         // decorate the info records with references to their descriptions
         for( var field in info ) {
             if( info.hasOwnProperty( field ) ) {
-                    var i = info[field];
+                    var i = info[field] = { values: info[field] };
                     var meta = this._getInfoMeta( field );
                     if( meta )
                         i.meta = meta;
