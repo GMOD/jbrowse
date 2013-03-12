@@ -138,7 +138,7 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
                         featureArrays[set][store.name] = [];
                     }
                     store.getFeatures(
-                    	query,
+                        query,
                         dojo.hitch( this, function( feature ) {
                             var feat = new featureWrapper( feature, store.name );
                             featureArrays[s][store.name].push( feat );
