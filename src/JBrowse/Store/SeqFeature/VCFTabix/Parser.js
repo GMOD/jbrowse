@@ -50,7 +50,7 @@ return declare( null, {
                     headData.samples = f.slice(9);
             }
         }
-        console.log(headData);
+        //console.log(headData);
 
         // index some of the headers by ID
         for( var headerType in headData ) {
@@ -342,11 +342,16 @@ return declare( null, {
         if( ! alt || alt == '.' )
             return 'remark';
 
-        var types = array.map( alt.split(','), function( alt ) {
-                        return this._find_SO_term_from_alt_definitions( alt )
-                               || this._find_SO_term_by_examination( ref, alt );
-                    }, this );
-        return types.join(',');
+        var types = array.filter( array.map( alt.split(','), function( alt ) {
+                                                 return this._find_SO_term_from_alt_definitions( alt );
+                                             }, this ),
+                                  function( t ) { return t; } );
+
+        if( types[0] )
+            return types.join(',');
+
+
+        return this._find_SO_term_by_examination( ref, alt );
     },
 
     /**
@@ -381,6 +386,7 @@ return declare( null, {
     },
 
     _find_SO_term_by_examination: function( ref, alt ) {
+        alt = alt.split(',');
 
         var minAltLen = Infinity;
         var maxAltLen = -Infinity;
@@ -405,10 +411,10 @@ return declare( null, {
             else
                 return 'substitution';
 
-        if( ref.length == minAltLen && ref.length < maxAltLen )
+        if( ref.length <= minAltLen && ref.length < maxAltLen )
             return 'insertion';
 
-        if( ref.length > minAltLen && ref.length == maxAltLen )
+        if( ref.length > minAltLen && ref.length >= maxAltLen )
             return 'deletion';
 
         return 'indel';
