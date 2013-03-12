@@ -68,6 +68,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                     thisB._deferred.features.resolve({success:true});
                 }
             });
+        },
+        function(error) {
+            thisB._failAllDeferred( error );
         });
     },
 
@@ -93,7 +96,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                     },
                     dojo.hitch( d, 'reject' )
                 );
-            });
+             },
+             dojo.hitch( d, 'reject' )
+            );
 
             return d;
         }.call();
@@ -115,7 +120,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 finishedCallback,
                 errorCallback
             );
-        });
+        }, errorCallback );
     },
 
     getRefSeqs: function( refSeqCallback, finishedCallback, errorCallback ) {

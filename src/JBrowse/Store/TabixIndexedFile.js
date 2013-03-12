@@ -23,12 +23,12 @@ return declare( null, {
         this.indexLoaded = this.index.load();
     },
 
-    getLines: function() {
+    getLines: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
         var thisB = this;
         var args = Array.prototype.slice.call(arguments);
         this.indexLoaded.then(function() {
             thisB._fetch.apply( thisB, args );
-        });
+        }, errorCallback);
     },
 
     _fetch: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
