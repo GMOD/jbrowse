@@ -28,8 +28,11 @@ var Chunk = Util.fastDeclare({
     toString: function() {
         return this.toUniqueString();
     },
-    compare: function( b ) {
+    compareTo: function( b ) {
         return this.minv - b.minv || this.maxv - b.maxv || this.bin - b.bin;
+    },
+    compare: function( b ) {
+        return this.compareTo( b );
     }
 });
 
@@ -203,7 +206,9 @@ return declare( null, {
        if( ! off.length )
            return [];
 
-       off = off.sort( function(a,b) { return a.compareTo(b); } );
+       off = off.sort( function(a,b) {
+                           return a.compareTo(b);
+                       });
 
        // resolve completely contained adjacent blocks
        for (i = 1, l = 0; i < n_off; ++i) {
