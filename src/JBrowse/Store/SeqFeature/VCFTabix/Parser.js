@@ -208,21 +208,21 @@ return declare( null, {
         "CICNADJ": {           "type": "Integer","description": "Confidence interval around copy number for the adjacency"}
     },
 
-    _vcfReservedGenotypeKeywords: {
+    _vcfStandardGenotypeFields: {
         // from the VCF4.1 spec, http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41
-        GT : "genotype, encoded as allele values separated by either of '/' or '|'. The allele values are 0 for the reference allele (what is in the REF field), 1 for the first allele listed in ALT, 2 for the second allele list in ALT and so on. For diploid calls examples could be 0/1, 1|0, or 1/2, etc. For haploid calls, e.g. on Y, male non-pseudoautosomal X, or mitochondrion, only one allele value should be given; a triploid call might look like 0/0/1. If a call cannot be made for a sample at a given locus, '.' should be specified for each missing allele in the GT field (for example './.' for a diploid genotype and '.' for haploid genotype). The meanings of the separators are as follows (see the PS field below for more details on incorporating phasing information into the genotypes): '/' meaning genotype unphased, '|' meaning genotype phased",
-        DP : "read depth at this position for this sample (Integer)",
-        FT : "sample genotype filter indicating if this genotype was \"called\" (similar in concept to the FILTER field). Again, use PASS to indicate that all filters have been passed, a semi-colon separated list of codes for filters that fail, or \".\" to indicate that filters have not been applied. These values should be described in the meta-information in the same way as FILTERs (String, no white-space or semi-colons permitted)",
-        GL : "genotype likelihoods comprised of comma separated floating point log10-scaled likelihoods for all possible genotypes given the set of alleles defined in the REF and ALT fields. In presence of the GT field the same ploidy is expected and the canonical order is used; without GT field, diploidy is assumed. If A is the allele in REF and B,C,... are the alleles as ordered in ALT, the ordering of genotypes for the likelihoods is given by: F(j/k) = (k*(k+1)/2)+j.  In other words, for biallelic sites the ordering is: AA,AB,BB; for triallelic sites the ordering is: AA,AB,BB,AC,BC,CC, etc.  For example: GT:GL 0/1:-323.03,-99.29,-802.53 (Floats)",
-        GLE : "genotype likelihoods of heterogeneous ploidy, used in presence of uncertain copy number. For example: GLE=0:-75.22,1:-223.42,0/0:-323.03,1/0:-99.29,1/1:-802.53 (String)",
-        PL : "the phred-scaled genotype likelihoods rounded to the closest integer (and otherwise defined precisely as the GL field) (Integers)",
-        GP : "the phred-scaled genotype posterior probabilities (and otherwise defined precisely as the GL field); intended to store imputed genotype probabilities (Floats)",
-        GQ : "conditional genotype quality, encoded as a phred quality -10log_10p(genotype call is wrong, conditioned on the site's being variant) (Integer)",
-        HQ : "haplotype qualities, two comma separated phred qualities (Integers)",
-        PS : "phase set.  A phase set is defined as a set of phased genotypes to which this genotype belongs.  Phased genotypes for an individual that are on the same chromosome and have the same PS value are in the same phased set.  A phase set specifies multi-marker haplotypes for the phased genotypes in the set.  All phased genotypes that do not contain a PS subfield are assumed to belong to the same phased set.  If the genotype in the GT field is unphased, the corresponding PS field is ignored.  The recommended convention is to use the position of the first variant in the set as the PS identifier (although this is not required). (Non-negative 32-bit Integer)",
-        PQ : "phasing quality, the phred-scaled probability that alleles are ordered incorrectly in a heterozygote (against all other members in the phase set).  We note that we have not yet included the specific measure for precisely defining \"phasing quality\"; our intention for now is simply to reserve the PQ tag for future use as a measure of phasing quality. (Integer)",
-        EC : "comma separated list of expected alternate allele counts for each alternate allele in the same order as listed in the ALT field (typically used in association analyses) (Integers)",
-        MQ : "RMS mapping quality, similar to the version in the INFO field. (Integer) "
+        GT : { description: "genotype, encoded as allele values separated by either of '/' or '|'. The allele values are 0 for the reference allele (what is in the REF field), 1 for the first allele listed in ALT, 2 for the second allele list in ALT and so on. For diploid calls examples could be 0/1, 1|0, or 1/2, etc. For haploid calls, e.g. on Y, male non-pseudoautosomal X, or mitochondrion, only one allele value should be given; a triploid call might look like 0/0/1. If a call cannot be made for a sample at a given locus, '.' should be specified for each missing allele in the GT field (for example './.' for a diploid genotype and '.' for haploid genotype). The meanings of the separators are as follows (see the PS field below for more details on incorporating phasing information into the genotypes): '/' meaning genotype unphased, '|' meaning genotype phased" },
+        DP : { description: "read depth at this position for this sample (Integer)" },
+        FT : { description: "sample genotype filter indicating if this genotype was \"called\" (similar in concept to the FILTER field). Again, use PASS to indicate that all filters have been passed, a semi-colon separated list of codes for filters that fail, or \".\" to indicate that filters have not been applied. These values should be described in the meta-information in the same way as FILTERs (String, no white-space or semi-colons permitted)" },
+        GL : { description: "genotype likelihoods comprised of comma separated floating point log10-scaled likelihoods for all possible genotypes given the set of alleles defined in the REF and ALT fields. In presence of the GT field the same ploidy is expected and the canonical order is used; without GT field, diploidy is assumed. If A is the allele in REF and B,C,... are the alleles as ordered in ALT, the ordering of genotypes for the likelihoods is given by: F(j/k) = (k*(k+1)/2)+j.  In other words, for biallelic sites the ordering is: AA,AB,BB; for triallelic sites the ordering is: AA,AB,BB,AC,BC,CC, etc.  For example: GT:GL 0/1:-323.03,-99.29,-802.53 (Floats)" },
+        GLE : { description: "genotype likelihoods of heterogeneous ploidy, used in presence of uncertain copy number. For example: GLE=0:-75.22,1:-223.42,0/0:-323.03,1/0:-99.29,1/1:-802.53 (String)" },
+        PL : { description: "the phred-scaled genotype likelihoods rounded to the closest integer (and otherwise defined precisely as the GL field) (Integers)" },
+        GP : { description: "the phred-scaled genotype posterior probabilities (and otherwise defined precisely as the GL field); intended to store imputed genotype probabilities (Floats)" },
+        GQ : { description: "conditional genotype quality, encoded as a phred quality -10log_10p(genotype call is wrong, conditioned on the site's being variant) (Integer)" },
+        HQ : { description: "haplotype qualities, two comma separated phred qualities (Integers)" },
+        PS : { description: "phase set.  A phase set is defined as a set of phased genotypes to which this genotype belongs.  Phased genotypes for an individual that are on the same chromosome and have the same PS value are in the same phased set.  A phase set specifies multi-marker haplotypes for the phased genotypes in the set.  All phased genotypes that do not contain a PS subfield are assumed to belong to the same phased set.  If the genotype in the GT field is unphased, the corresponding PS field is ignored.  The recommended convention is to use the position of the first variant in the set as the PS identifier (although this is not required). (Non-negative 32-bit Integer)" },
+        PQ : { description: "phasing quality, the phred-scaled probability that alleles are ordered incorrectly in a heterozygote (against all other members in the phase set).  We note that we have not yet included the specific measure for precisely defining \"phasing quality\"; our intention for now is simply to reserve the PQ tag for future use as a measure of phasing quality. (Integer)" },
+        EC : { description: "comma separated list of expected alternate allele counts for each alternate allele in the same order as listed in the ALT field (typically used in association analyses) (Integers)" },
+        MQ : { description: "RMS mapping quality, similar to the version in the INFO field. (Integer)" }
     },
 
     _vcfReservedAltTypes: {
@@ -245,14 +245,23 @@ return declare( null, {
         var info = this._parseKeyValue( fields[7] );
 
         // decorate the info records with references to their descriptions
-        var infoMeta = this.header.info || {};
         array.forEach( info, function( i ) {
-            var meta = infoMeta[i.key] || ( this._vcfReservedInfoFields[i.key] && { description: this._vcfReservedInfoFields[i.key] } );
+            var meta = this._getInfoMeta( i.key );
             if( meta )
                 i.meta = meta;
         },this);
 
         return info;
+    },
+
+    _getAltMeta: function( alt ) {
+        return (this.header.alt||{})[alt] || this._vcfReservedAltTypes[alt];
+    },
+    _getInfoMeta: function( id ) {
+        return (this.header.info||{})[id] || this._vcfReservedInfoFields[id];
+    },
+    _getFormatMeta: function( fieldname ) {
+        return (this.header.format||{})[fieldname] || this._vcfStandardGenotypeFields[fieldname];
     },
 
     /**
@@ -315,12 +324,14 @@ return declare( null, {
 
         // parse the genotype data fields
         var genotypes = [];
-        var format = fields[8].split(':');
+        var format = array.map( fields[8].split(':'), function( fieldID ) {
+                         return this._getFormatMeta( fieldID );
+                     }, this );
         for( var i = 9; i < fields.length; ++i ) {
             var g = (fields[i]||'').split(':');
             var gdata = {};
             for( var j = 0; j<format.length; ++j ) {
-                gdata[format[j]] = g[j];
+                gdata[format[j].id] = { value: g[j], meta: format[j] };
             }
             genotypes.push( gdata );
         }
@@ -361,7 +372,7 @@ return declare( null, {
     _makeDescriptionString: function( SO_term, ref, alt ) {
         alt = alt.replace(/^<|>$/g,'');
 
-        var def = (this.header.alt||{})[alt] || this._vcfReservedAltTypes[alt];
+        var def = this._getAltMeta( alt );
         return def && def.description ? alt+' - '+def.description : SO_term+" "+ref+" -> "+ alt;
     },
 
