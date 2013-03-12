@@ -12,6 +12,9 @@ define( [
 		function( declare, Dialog, MultiSelect, Button, dijitFocus, on, dom, window, aspect ) {
 
 return declare( null, {
+	// Note: A check performed in BooleanDialog should prevent this from ever being called.
+	// If the user finds a way to get around this check, this dialog can serve as a warning.
+	// Should probably be removed, though, as ordinarilly it will never be used.
 
 	constructor: function( args ){
 		this.d = args.deferred;

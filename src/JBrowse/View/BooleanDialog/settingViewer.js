@@ -4,6 +4,7 @@ define( [
 		function( declare ) {
 
 return declare( null, {
+	// Draws a preview to provide insight into track behaviour.
 
 	constructor: function (args) {
 		this.can = dojo.create('canvas', { height: 130, width: 400 } );
