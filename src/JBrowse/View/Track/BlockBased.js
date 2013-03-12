@@ -743,7 +743,16 @@ return declare( Component,
             return '';
 
         class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
-        return '<div class="field_container"><h2 class="field '+class_+'">'+title+'</h2>'+this._fmtDetailValue(val)+'</div>';
+        var valueHTML = this._fmtDetailValue(val, class_);
+        return  '<div class="field_container">'
+               + '<h2 class="field '+class_+'">'+title+'</h2>'
+               +' <div class="value_container '
+                              +class_
+                              +( valueHTML.length > 400 ? ' big' : '')
+                              +'">'
+               +     valueHTML
+               +' </div>'
+               +'</div>';
     },
     _fmtDetailValue: function( val, class_ ) {
         var valType = typeof val;

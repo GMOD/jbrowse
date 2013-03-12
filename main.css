@@ -819,8 +819,22 @@ a.dialog-new-window {
     margin: 1em 0 0.7em 0;
 }
 
-.detail .value {
+.detail .value_container {
+    display: inline-block;
     margin-left: 1em;
+    max-height: 20em;
+    overflow-y: auto;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+.detail .value_container.big {
+    border: 1px solid #eee;
+}
+
+.detail .value {
     display: inline-block;
     vertical-align: top;
     font-family: sans-serif;
