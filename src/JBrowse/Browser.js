@@ -853,7 +853,8 @@ Browser.prototype.getStore = function( storeName, callback ) {
     }
 
     require( [ storeClassName ], dojo.hitch( this, function( storeClass ) {
-                 var storeArgs = dojo.clone( conf );
+                 var storeArgs = {};
+                 dojo.mixin( storeArgs, conf );
                  dojo.mixin( storeArgs,
                              {
                                  config: conf,
