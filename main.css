@@ -838,6 +838,7 @@ a.dialog-new-window {
     display: inline-block;
     vertical-align: top;
     font-family: sans-serif;
+    padding: 0 0.3em;
 }
 .detail .field {
     margin: 0;

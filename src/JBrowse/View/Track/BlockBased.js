@@ -763,7 +763,7 @@ return declare( Component,
         else if( lang.isArray( val ) )
             return array.map( val, function(v) {
                        return this._fmtDetailValue( v, class_ );
-                   }, this ).join('<hr> ');
+                   }, this ).join(' ');
         else if( valType == 'object' && val.toString === Object.prototype.toString ) {
             var keys = Util.dojof.keys( val ).sort();
             return array.map( keys, function( k ) {
