@@ -380,7 +380,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                     this._removeYScale();
                     this.fillFeatures( dojo.mixin( {stats: stats}, args ) );
                 }
-        }));
+        }),
+        dojo.hitch( this, 'fillBlockError', blockIndex, block )
+        );
     },
 
     /**
