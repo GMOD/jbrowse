@@ -69,7 +69,6 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
                     var thisB = this;
                     array.forEach( viewArgs.block.maskingSpans, function( span ) {
                         if (span.start <= start && end <= span.end ) {
-                            console.log(thisB);
                             context.globalAlpha = thisB.config.style.masked_transparancy;
                         }
                     });
