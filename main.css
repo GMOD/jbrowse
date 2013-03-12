@@ -831,7 +831,7 @@ a.dialog-new-window {
     -ms-box-sizing: border-box;
 }
 .detail .value_container.big {
-    border: 1px solid #eee;
+    background: rgba(0,0,50,0.05);
 }
 
 .detail .value {
