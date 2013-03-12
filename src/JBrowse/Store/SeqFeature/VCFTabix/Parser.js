@@ -326,7 +326,7 @@ return declare( null, {
         // index the genotypes by sample ID
         var bySample = {};
         for( var i = 0; i<genotypes.length; i++ ) {
-            var sname = this.header.samples[i];
+            var sname = (this.header.samples||{})[i];
             if( sname ) {
                 bySample[sname] = genotypes[i];
             }
@@ -354,7 +354,7 @@ return declare( null, {
     _makeDescriptionString: function( SO_term, ref, alt ) {
         alt = alt.replace(/^<|>$/g,'');
 
-        var def = this.header.alt[alt] || this._vcfReservedAltTypes[alt];
+        var def = (this.header.alt||{})[alt] || this._vcfReservedAltTypes[alt];
         return def && def.description ? alt+' - '+def.description : SO_term+" "+ref+" -> "+ alt;
     },
 
@@ -366,7 +366,7 @@ return declare( null, {
         alt = alt.replace(/^<|>$/g,''); // trim off < and >
 
         // look for a definition with an SO type for this
-        var def = this.header.alt[alt] || this._vcfReservedAltTypes[alt];
+        var def = (this.header.alt||{})[alt] || this._vcfReservedAltTypes[alt];
         if( def && def.so_term )
             return def.so_term;
 
