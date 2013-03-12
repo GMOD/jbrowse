@@ -64,6 +64,17 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 var start = feature.get('start') + mismatch.start;
                 var end = start + mismatch.length;
 
+                // if bolean track, check if mismatch is in spans
+                if ( viewArgs.block.maskingSpans ) {
+                    var thisB = this;
+                    array.forEach( viewArgs.block.maskingSpans, function( span ) {
+                        if (span.start <= start && end <= span.end ) {
+                            console.log(thisB);
+                            context.globalAlpha = thisB.config.style.masked_transparancy;
+                        }
+                    });
+                }
+
                 var mRect = {
                     h: fRect.h,
                     l: fRect.toX( start ),
@@ -95,6 +106,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                     context.fillStyle = '#333';
                     context.fillRect( mRect.l, mRect.t+(mRect.h-2)/2, mRect.w, 2 );
                 }
+                context.globalAlpha = 1; // always return to full opacity
             },this);
         }
     },
