@@ -356,7 +356,10 @@ return declare( null, {
             var g = (fields[i]||'').split(':');
             var gdata = {};
             for( var j = 0; j<format.length; ++j ) {
-                gdata[format[j].id] = { value: g[j], meta: format[j].meta };
+                gdata[format[j].id] = {
+                    values: g[j][0] == '"' ? [g[j]] : g[j].split(','), // don't split on commas if it looks like a string
+                    meta: format[j].meta
+                };
             }
             genotypes.push( gdata );
         }
