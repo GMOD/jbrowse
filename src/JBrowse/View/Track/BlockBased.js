@@ -772,7 +772,7 @@ return declare( Component,
         }
 
 
-        return '<div class="value '+class_+'">'+String(val).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')+'</div>';
+        return '<div class="value '+class_+'">' + val + '</div>';
     },
 
 
