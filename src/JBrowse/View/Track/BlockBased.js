@@ -1,6 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
+            'dojo/_base/array',
             'dojo/aspect',
             'dojo/dom-construct',
             'dojo/dom-geometry',
@@ -19,6 +20,7 @@ define( [
         ],
         function( declare,
                   lang,
+                  array,
                   aspect,
                   dom,
                   domGeom,
@@ -737,15 +739,31 @@ return declare( Component,
     },
 
     _fmtDetailField: function( title, val, class_ ) {
+        if( val === null || val === undefined )
+            return '';
+
+        class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
+        return '<div class="field_container"><h2 class="field '+class_+'">'+title+'</h2>'+this._fmtDetailValue(val)+'</div>';
+    },
+    _fmtDetailValue: function( val, class_ ) {
         var valType = typeof val;
         if( valType == 'boolean' )
             val = val ? 'yes' : 'no';
         else if( valType == 'undefined' || val === null )
             return '';
         else if( lang.isArray( val ) )
-            val = val.join(' ');
-        class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
-        return '<div class="field_container"><h2 class="field '+class_+'">'+title+'</h2> <div class="value '+class_+'">'+val+'</div></div>';
+            return array.map( val, function(v) {
+                       return this._fmtDetailValue( v, class_ );
+                   }, this ).join('<hr> ');
+        else if( valType == 'object' && val.toString === Object.prototype.toString ) {
+            var keys = Util.dojof.keys( val ).sort();
+            return array.map( keys, function( k ) {
+                       return this._fmtDetailField( k, val[k], class_ );
+                   }, this ).join(' ');
+        }
+
+
+        return '<div class="value '+class_+'">'+String(val).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')+'</div>';
     },
 
 

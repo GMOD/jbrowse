@@ -845,6 +845,9 @@ a.dialog-new-window {
 .detail .field_container {
     padding: 0 4em 0 1em;
 }
+.detail hr {
+    margin: 0.8em 4em 0.5em 0.7em;
+}
 
 .sharePane input {
     padding: 1px 0 2px 1px;
