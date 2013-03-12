@@ -177,7 +177,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                                 },
 
                                 // callback when all features sent
-                                function () {
+                                function ( callbackArgs ) {
                                     var totalHeight = thisB._getLayout(scale)
                                                            .getTotalHeight();
                                     var c = block.featureCanvas =
@@ -198,6 +198,11 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
 
                                     thisB.renderClickMap( args, c, fRects );
 
+                                    if ( callbackArgs && callbackArgs.spans ) {
+                                        block.maskingSpans = callbackArgs.spans;
+                                        thisB.maskBySpans( args, c, fRects, callbackArgs.spans );
+                                    }
+
                                     thisB.layoutCanvases([c]);
                                     thisB.heightUpdate( totalHeight,
                                                         blockIndex );
@@ -209,6 +214,25 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                                     finishCallback(e);
                                 })
                               );
+    },
+
+    /* If it's a boolean track, mask accordingly */
+    maskBySpans: function( args, canvas, fRects, spans ) {
+        var context = canvas.getContext('2d');
+        var canvasHeight = canvas.height;
+        var scale = args.scale;
+        var leftBase = args.leftBase;
+
+        for ( var index in spans ) {
+        if (spans.hasOwnProperty(index)) {
+            var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
+            var l = Math.round(( spans[index].start - leftBase ) * scale );
+            context.clearRect( l, 0, w, canvasHeight );
+        }}
+        context.globalAlpha = this.config.style.masked_transparancy || 0.2;
+        this.config.style.masked_transparancy = context.globalAlpha;
+        this.renderFeatures( args, canvas, fRects );
+        context.globalAlpha = 1;
     },
 
     startZoom: function() {
@@ -327,6 +351,9 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
 
             if( this.lastHighlight ) {
                 var r = block.fRectIndex.getByID( this.lastHighlight.id() );
+                args.block = block; 
+                /* Note: some of the information in args will not pertain to the block of interest. 
+                 * args.block can be used to access block properties */
                 if( r )
                     this.renderFeature( context, args, r );
             }
@@ -346,34 +373,58 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
 
     // draw each feature
     renderFeature: function( context, viewArgs, fRect ) {
-        // background
-        var color = this.getStyle( fRect.f, 'color' );
-        if( color ) {
-            context.fillStyle = color;
-            context.fillRect( fRect.l, fRect.t, fRect.w, fRect.h );
-        }
-
-        // foreground border
-        var border_color;
-        if( fRect.h > 3 ) {
-            border_color = this.getStyle( fRect.f, 'border_color' );
-            if( border_color ) {
-                context.lineWidth = 1;
-                context.strokeStyle = border_color;
-
-                // need to stroke a smaller rectangle to remain within
-                // the bounds of the feature's overall height and
-                // width, because of the way stroking is done in
-                // canvas.  thus the +0.5 and -1 business.
-                context.strokeRect( fRect.l+0.5, fRect.t+0.5, fRect.w-1, fRect.h-1 );
+        var thisB = this;
+        var drawFeature = function( context, viewArgs, fRect ) {
+            // background
+            var color = thisB.getStyle( fRect.f, 'color' );
+            if( color ) {
+                context.fillStyle = color;
+                context.fillRect( fRect.l, fRect.t, fRect.w, fRect.h );
             }
-        }
-        else if( fRect.h > 1 ) {
-            border_color = this.getStyle( fRect.f, 'border_color' );
-            if( border_color ) {
-                context.fillStyle = border_color;
-                context.fillRect( fRect.l, fRect.t+fRect.h-1, fRect.w, 1 );
+
+            // foreground border
+            var border_color;
+            if( fRect.h > 3 ) {
+                border_color = thisB.getStyle( fRect.f, 'border_color' );
+                if( border_color ) {
+                    context.lineWidth = 1;
+                    context.strokeStyle = border_color;
+
+                    // need to stroke a smaller rectangle to remain within
+                    // the bounds of the feature's overall height and
+                    // width, because of the way stroking is done in
+                    // canvas.  thus the +0.5 and -1 business.
+                    context.strokeRect( fRect.l+0.5, fRect.t+0.5, fRect.w-1, fRect.h-1 );
+                }
             }
+            else if( fRect.h > 1 ) {
+                border_color = thisB.getStyle( fRect.f, 'border_color' );
+                if( border_color ) {
+                    context.fillStyle = border_color;
+                    context.fillRect( fRect.l, fRect.t+fRect.h-1, fRect.w, 1 );
+                }
+            }
+        };
+        drawFeature( context, viewArgs, fRect );
+
+        // boolean masking section
+        if ( viewArgs.block.maskingSpans ) {
+            var spans = viewArgs.block.maskingSpans;
+            var scale = viewArgs.scale;
+            var leftBase = viewArgs.block.startBase;
+
+            for ( var index in spans ) {
+            if ( spans.hasOwnProperty(index) ) {
+                if ( !( fRect.toX(spans[index].start) > fRect.l+fRect.w || fRect.toX(spans[index].end) < fRect.l ) ) {
+                    var l = Math.max( fRect.toX(spans[index].start), fRect.l );
+                    var r = Math.min( fRect.toX(spans[index].end), fRect.l+fRect.w );
+                    var w = r - l;
+                    context.clearRect( l, fRect.t, w, fRect.h );
+                }
+            }}
+            context.globalAlpha = this.config.style.masked_transparancy;
+            drawFeature( context, viewArgs, fRect );
+            context.globalAlpha = 1;
         }
     }
 });
