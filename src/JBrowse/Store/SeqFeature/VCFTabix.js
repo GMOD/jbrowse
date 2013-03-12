@@ -43,14 +43,14 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     constructor: function( args ) {
         var thisB = this;
 
-        var tbiBlob = args.tbiBlob ||
+        var tbiBlob = args.tbi ||
             new XHRBlob( this.resolveUrl(
                              this.getConf('tbiUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.tbi',
                              {'refseq': (this.refSeq||{}).name }
                          )
                        );
 
-        var fileBlob = args.fileBlob ||
+        var fileBlob = args.file ||
             new XHRBlob( this.resolveUrl( this.getConf('urlTemplate',[]),
                              {'refseq': (this.refSeq||{}).name }
                            )

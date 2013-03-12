@@ -634,7 +634,8 @@ Browser.prototype.getTrackTypes = function() {
                 'JBrowse/Store/SeqFeature/BAM'        : 'JBrowse/View/Track/Alignments2',
                 'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/HTMLFeatures',
                 'JBrowse/Store/SeqFeature/BigWig'     : 'JBrowse/View/Track/Wiggle/XYPlot',
-                'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence'
+                'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence',
+                'JBrowse/Store/SeqFeature/VCFTabix'   : 'JBrowse/View/Track/HTMLFeatures'
             },
 
             knownTrackTypes: [
