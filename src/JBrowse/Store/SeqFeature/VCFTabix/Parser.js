@@ -136,7 +136,7 @@ return declare( null, {
 
     _parseGenericHeaderLine: function( metaData ) {
         metaData = metaData.replace(/^<|>$/g,'');
-        return this._flattenKeyValue( this._parseKeyValue( metaData, ',', ';' ), 'lowercase' );
+        return this._parseKeyValue( metaData, ',', ';', 'lowercase' );
     },
 
     _vcfReservedInfoFields: {
@@ -245,11 +245,14 @@ return declare( null, {
         var info = this._parseKeyValue( fields[7] );
 
         // decorate the info records with references to their descriptions
-        array.forEach( info, function( i ) {
-            var meta = this._getInfoMeta( i.key );
-            if( meta )
-                i.meta = meta;
-        },this);
+        for( var field in info ) {
+            if( info.hasOwnProperty( field ) ) {
+                    var i = info[field];
+                    var meta = this._getInfoMeta( field );
+                    if( meta )
+                        i.meta = meta;
+            }
+        }
 
         return info;
     },
@@ -262,19 +265,6 @@ return declare( null, {
     },
     _getFormatMeta: function( fieldname ) {
         return (this.header.format||{})[fieldname] || this._vcfStandardGenotypeFields[fieldname];
-    },
-
-    /**
-     * Take an array of objects and make another object that indexes
-     * them into another object for easy lookup by the given field.
-     * WARNING: Values of the field must be unique.
-     */
-    _flattenKeyValue: function( entries, lowerCase, singleValue ) {
-        var d = {};
-        array.forEach( entries, function( e ) {
-            d[ lowerCase ? e.key.toLowerCase() : e.key ] = singleValue ? (e.values||[])[0] : e.values;
-        });
-        return d;
     },
 
     /**
@@ -297,26 +287,61 @@ return declare( null, {
     },
 
     /**
-     * Parse a VCF key-value string like DP=154;MQ=52;H2 into an array
-     * like [{key: 'DP', values: [154]},...]
+     * Parse a VCF key-value string like DP=154;Foo="Bar; baz";MQ=52;H2 into an object like
+     *  { DP: [154], Foo:['Bar',' baz'], ... }
+     *
+     * Done in a low-level style to properly support quoted values.  >:-{
      */
-    _parseKeyValue: function( str, pairSeparator, valueSeparator ) {
+    _parseKeyValue: function( str, pairSeparator, valueSeparator, lowercaseKeys ) {
         pairSeparator  = pairSeparator  || ';';
         valueSeparator = valueSeparator || ',';
-        return array.map( (str||'').split( pairSeparator ), function(f) {
-            var i = {};
-            var match = /^([^=]+)=?(.*)/.exec( f );
-            if( match ) {
-                i.key = match[1];
-                if( match[2] )
-                    i.values = array.map( match[2].split( valueSeparator ), function( v ) {
-                                              return v.replace(/^"|"$/g,'');
-                                          });
-            }
-            return i;
-        });
-    },
 
+        var data = {};
+        var currKey = '';
+        var currValue = '';
+        var state = 1;  // states: 1: read key to =, 2: read value to comma or sep, 3: read value to quote
+        for( var i = 0; i < str.length; i++ ) {
+            if( state == 1 ) { // read key
+                if( str[i] != '=' ) {
+                    currKey += str[i];
+                } else {
+                    if( lowercaseKeys )
+                        currKey = currKey.toLowerCase();
+                    data[currKey] = [];
+                    state = 2;
+                }
+            }
+            else if( state == 2 ) { // read value to value sep or pair sep
+                if( str[i] == valueSeparator ) {
+                    data[currKey].push( currValue );
+                    currValue = '';
+                }
+                else if( str[i] == pairSeparator ) {
+                    data[currKey].push( currValue );
+                    currKey = '';
+                    state = 1;
+                    currValue = '';
+                } else if( str[i] == '"' ) {
+                    state = 3;
+                    currValue = '';
+                }
+                else
+                    currValue += str[i];
+            }
+            else if( state == 3 ) { // read value to quote
+                if( str[i] != '"' )
+                    currValue += str[i];
+                else
+                    state = 2;
+            }
+        }
+
+        if( state == 2 || state == 3) {
+            data[currKey].push( currValue );
+        }
+
+        return data;
+    },
 
     _parseGenotypes: function( featureData, fields ) {
         if( fields.length < 10 )
@@ -325,13 +350,13 @@ return declare( null, {
         // parse the genotype data fields
         var genotypes = [];
         var format = array.map( fields[8].split(':'), function( fieldID ) {
-                         return this._getFormatMeta( fieldID );
+                         return { id: fieldID, meta: this._getFormatMeta( fieldID ) };
                      }, this );
         for( var i = 9; i < fields.length; ++i ) {
             var g = (fields[i]||'').split(':');
             var gdata = {};
             for( var j = 0; j<format.length; ++j ) {
-                gdata[format[j].id] = { value: g[j], meta: format[j] };
+                gdata[format[j].id] = { value: g[j], meta: format[j].meta };
             }
             genotypes.push( gdata );
         }
