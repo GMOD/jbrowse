@@ -773,6 +773,8 @@ return declare( Component,
     },
     _fmtDetailValue: function( val, class_ ) {
         var valType = typeof val;
+        if( typeof val.toHTML == 'function' )
+            val = val.toHTML();
         if( valType == 'boolean' )
             val = val ? 'yes' : 'no';
         else if( valType == 'undefined' || val === null )
@@ -781,7 +783,7 @@ return declare( Component,
             return array.map( val, function(v) {
                        return this._fmtDetailValue( v, class_ );
                    }, this ).join(' ');
-        else if( valType == 'object' && val.toString === Object.prototype.toString ) {
+        else if( valType == 'object' ) {
             var keys = Util.dojof.keys( val ).sort();
             return array.map( keys, function( k ) {
                        return this._fmtDetailField( k, val[k], class_ );
