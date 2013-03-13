@@ -55,6 +55,17 @@
    sequences can get messed up when ref.start != 0, or ref.end !=
    ref.length (issue #215).
 
+ * Fixed bug in which navigating via sequence dropdown selection
+   ignores previous location on selected sequence, whereas with
+   navigation text box entering just a sequence name navigates to
+   previous location on that sequence (if visited previously) (issue
+   #216).
+
+ * Fixed bug in which the initial default view of a previously
+   unviewed reference sequencestarts at 80% centered view, but any use
+   of reference sequence selection pulldown takes it to 100% (issue
+   #217).
+
 1.8.1     2013-02-12 12:56:24 EST5EDT
 
  * Added support for `cigarAttribute` and `mdAttributes` configuration

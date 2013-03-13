@@ -2137,7 +2137,9 @@ Browser.prototype.createNavBox = function( parent ) {
                     return { label: refseqName, value: refseqName };
                 }),
                 onChange: dojo.hitch(this, function( newRefName ) {
-                    this.navigateToLocation({ ref: newRefName });
+                    if (newRefName !== this.refSeq.name) {  //  only trigger navigation if actually switching sequences
+                        this.navigateTo(newRefName);
+                    }
                 })
             }).placeAt( refSeqSelectBoxPlaceHolder );
         }
