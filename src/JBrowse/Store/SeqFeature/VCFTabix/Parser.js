@@ -307,13 +307,21 @@ return declare( null, {
         var state = 1;  // states: 1: read key to =, 2: read value to comma or sep, 3: read value to quote
         for( var i = 0; i < str.length; i++ ) {
             if( state == 1 ) { // read key
-                if( str[i] != '=' ) {
-                    currKey += str[i];
-                } else {
+                if( str[i] == '=' ) {
                     if( lowercaseKeys )
                         currKey = currKey.toLowerCase();
                     data[currKey] = [];
                     state = 2;
+                }
+                else if( str[i] == pairSeparator ) {
+                    if( lowercaseKeys )
+                        currKey = currKey.toLowerCase();
+                    data[currKey] = [true];
+                    currKey = '';
+                    state = 1;
+                }
+                else {
+                    currKey += str[i];
                 }
             }
             else if( state == 2 ) { // read value to value sep or pair sep
