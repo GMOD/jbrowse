@@ -65,6 +65,7 @@ return declare(null,{
         coreDetails.innerHTML += '<h2 class="sectiontitle">Primary Data</h2>';
         coreDetails.innerHTML += fmt( 'Name', this.getConfForFeature( 'style.label', f ) );
         coreDetails.innerHTML += fmt( 'Type', f.get('type') );
+        coreDetails.innerHTML += fmt( 'Score', f.get('score') );
         coreDetails.innerHTML += fmt( 'Description', this._getDescription ? this._getDescription( f ) : (f.get('note') || f.get('description') ));
         coreDetails.innerHTML += fmt(
             'Position',
@@ -86,7 +87,7 @@ return declare(null,{
     },
 
     _isReservedTag: function( t ) {
-        return {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()];
+        return {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1,score:1}[t.toLowerCase()];
     },
 
     // render any additional tags as just key/value
