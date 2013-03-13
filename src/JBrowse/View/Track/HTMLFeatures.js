@@ -481,55 +481,59 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                                          containerStart, containerEnd );
                          // if there are boolean coverage divs, modify feature accordingly.
                          if ( sourceSlot.booleanCovs ) {
-                            var subfeatures = [];
-                            // remove subfeatures
-                            while ( featDiv.firstChild ) {
-                                subfeatures.push( featDiv.firstChild );
-                                featDiv.removeChild( featDiv.firstChild );
-                            }
-                            var s = featDiv.featureEdges.s;
-                            var e = featDiv.featureEdges.e;
-                            for ( var key in sourceSlot.booleanCovs ) {
-                                if ( sourceSlot.booleanCovs.hasOwnProperty(key) ) {
-                                    // dynamically resize the coverage divs.
-                                    var start = sourceSlot.booleanCovs[key].span.s;
-                                    var end   = sourceSlot.booleanCovs[key].span.e;
-                                    if ( end < containerStart || start > containerEnd) 
-                                        continue; 
-                                    // note: we should also remove it from booleanCovs at some point.
-                                    sourceSlot.booleanCovs[key].style.left = 100*(start-s)/(e-s)+'%';
-                                    sourceSlot.booleanCovs[key].style.width = 100*(end-start)/(e-s)+'%';
-                                    featDiv.appendChild( sourceSlot.booleanCovs[key] );
-                                }
-                            }
-                            // add the processed subfeatures, if in frame.
-                            dojo.query( '.basicSubfeature', sourceSlot ).forEach( 
-                                function(node, idx, arr) {
-                                    var start = node.subfeatureEdges.s;
-                                    var end   = node.subfeatureEdges.e;
-                                    if ( end < containerStart || start > containerEnd ) 
-                                        return;
-                                    node.style.left = 100*(start-s)/(e-s)+'%';
-                                    node.style.width = 100*(end-start)/(e-s)+'%';
-                                    featDiv.appendChild(node);
-                                }
-                            )
-                            if ( this.config.style.arrowheadClass ) {
-                                // add arrowheads
-                                var a = this.config.style.arrowheadClass;
-                                dojo.query( '.minus-'+a+', .plus-'+a, sourceSlot ).forEach( 
-                                    function(node, idx, arr) {
-                                        featDiv.appendChild(node);
-                                    }
-                                )
-                            }
-                            featDiv.className = 'basic';
-                            featDiv.oldClassName = sourceSlot.oldClassName;
-                            featDiv.booleanCovs = sourceSlot.booleanCovs;
+                            this._maskTransfer( featDiv, sourceSlot, containerStart, containerEnd );
                          }
                      }
             }
         }
+    },
+
+    _maskTransfer: function( featDiv, sourceSlot, containerStart, containerEnd ) {
+        var subfeatures = [];
+        // remove subfeatures
+        while ( featDiv.firstChild ) {
+            subfeatures.push( featDiv.firstChild );
+            featDiv.removeChild( featDiv.firstChild );
+        }
+        var s = featDiv.featureEdges.s;
+        var e = featDiv.featureEdges.e;
+        for ( var key in sourceSlot.booleanCovs ) {
+            if ( sourceSlot.booleanCovs.hasOwnProperty(key) ) {
+                // dynamically resize the coverage divs.
+                var start = sourceSlot.booleanCovs[key].span.s;
+                var end   = sourceSlot.booleanCovs[key].span.e;
+                if ( end < containerStart || start > containerEnd) 
+                    continue; 
+                // note: we should also remove it from booleanCovs at some point.
+                sourceSlot.booleanCovs[key].style.left = 100*(start-s)/(e-s)+'%';
+                sourceSlot.booleanCovs[key].style.width = 100*(end-start)/(e-s)+'%';
+                featDiv.appendChild( sourceSlot.booleanCovs[key] );
+            }
+        }
+        // add the processed subfeatures, if in frame.
+        dojo.query( '.basicSubfeature', sourceSlot ).forEach( 
+            function(node, idx, arr) {
+                var start = node.subfeatureEdges.s;
+                var end   = node.subfeatureEdges.e;
+                if ( end < containerStart || start > containerEnd ) 
+                    return;
+                node.style.left = 100*(start-s)/(e-s)+'%';
+                node.style.width = 100*(end-start)/(e-s)+'%';
+                featDiv.appendChild(node);
+            }
+        )
+        if ( this.config.style.arrowheadClass ) {
+            // add arrowheads
+            var a = this.config.style.arrowheadClass;
+            dojo.query( '.minus-'+a+', .plus-'+a, sourceSlot ).forEach( 
+                function(node, idx, arr) {
+                    featDiv.appendChild(node);
+                }
+            )
+        }
+        featDiv.className = 'basic';
+        featDiv.oldClassName = sourceSlot.oldClassName;
+        featDiv.booleanCovs = sourceSlot.booleanCovs;
     },
 
     /**
