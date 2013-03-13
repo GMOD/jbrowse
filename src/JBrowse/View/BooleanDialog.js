@@ -68,24 +68,27 @@ return declare( null, {
             var options = displaySelector.domNode.children;
             var selectedType = null;
             for ( var key in options ) {
-            if ( options.hasOwnProperty(key) && options[key].selected ) {
-                selectedType = options[key].type;
-                break;
-            }}
+                if ( options.hasOwnProperty(key) && options[key].selected ) {
+                    selectedType = options[key].type;
+                    break;
+                }
+            }
             // If nothing is selected, enable all available options
             if ( !selectedType ) {
                 for ( var key in options ) {
-                if ( options.hasOwnProperty(key) && (this.supportedTracks.indexOf(options[key].type ) > -1) ) {
-                    options[key].disabled = false;
-                }}
+                    if ( options.hasOwnProperty(key) && (this.supportedTracks.indexOf(options[key].type ) > -1) ) {
+                        options[key].disabled = false;
+                    }
+                }
                 return;
             }
             // else, disable and deselect relevant options
             for ( var key in options ) {
-            if ( options.hasOwnProperty(key) && options[key].type != selectedType ) {
-                options[key].disabled = 'disabled';
-                options[key].selected = false;
-            }}
+                if ( options.hasOwnProperty(key) && options[key].type != selectedType ) {
+                    options[key].disabled = 'disabled';
+                    options[key].selected = false;
+                }
+            }
         }));
 
         this.storeFetch = { data   : { display: displaySelector.sel,
@@ -180,9 +183,10 @@ return declare( null, {
                       ];
 
         for ( var node in content ) {
-        if ( content.hasOwnProperty ) {
-            contentContainer.appendChild(content[node]);
-        }}
+            if ( content.hasOwnProperty ) {
+                contentContainer.appendChild(content[node]);
+            }
+        }
         dialog.show()
 
         // destroy the dialogue after it has been hidden
@@ -282,17 +286,18 @@ return declare( null, {
         selector.containerNode.className = 'storeSelector';
         var tracks = this.browser.trackConfigsByName;
         for (var ID in tracks ) {
-        if ( tracks.hasOwnProperty( ID ) ) {
-            var op = window.doc.createElement('option');
-            op.innerHTML = tracks[ID].key || tracks[ID].label;
-            this.trackNames.push(tracks[ID].key || tracks[ID].label);
-            op.type = tracks[ID].type;
-            op.value = tracks[ID].store+','+tracks[ID].type;
-            if ( ! ( this.supportedTracks.indexOf(tracks[ID].type ) > -1 ) ) { 
-                op.disabled = 'disabled'; // disable tracks that aren't supported
+            if ( tracks.hasOwnProperty( ID ) ) {
+                var op = window.doc.createElement('option');
+                op.innerHTML = tracks[ID].key || tracks[ID].label;
+                this.trackNames.push(tracks[ID].key || tracks[ID].label);
+                op.type = tracks[ID].type;
+                op.value = tracks[ID].store+','+tracks[ID].type;
+                if ( ! ( this.supportedTracks.indexOf(tracks[ID].type ) > -1 ) ) { 
+                    op.disabled = 'disabled'; // disable tracks that aren't supported
+                }
+                selector.containerNode.appendChild(op);
             }
-            selector.containerNode.appendChild(op);
-        }}
+        }
         return { domNode: selector.containerNode, sel: selector };
     },
 

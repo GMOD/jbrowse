@@ -34,11 +34,13 @@ return declare( CanvasFeatures,
         var layoutEnd   = feature.get('end');
         var overlaps = [];
         if (feature.overlaps) {
-        for (var key in feature.overlaps) {
-        if (feature.overlaps.hasOwnProperty(key)) {
-            overlaps.push( { start: feature.overlaps[key].start,
-                             end:   feature.overlaps[key].end } );
-        }}}
+            for (var key in feature.overlaps) {
+                if (feature.overlaps.hasOwnProperty(key)) {
+                    overlaps.push( { start: feature.overlaps[key].start,
+                                     end:   feature.overlaps[key].end } );
+                }
+            }
+        }
         var fHeight = this.config.style.height;
         var levelHeight = fHeight + this.config.style.marginBottom;
 
@@ -60,10 +62,11 @@ return declare( CanvasFeatures,
         if (overlaps.length != 0) {
             fRect.overlaps = [];
             for (var key in overlaps) {
-            if (overlaps.hasOwnProperty(key)) {
-                fRect.overlaps.push( { w: (overlaps[key].end-overlaps[key].start)*scale,
-                                       l: toX(overlaps[key].start) } );
-            }}
+                if (overlaps.hasOwnProperty(key)) {
+                    fRect.overlaps.push( { w: (overlaps[key].end-overlaps[key].start)*scale,
+                                           l: toX(overlaps[key].start) } );
+                }
+            }
         }
         return fRect;
     },
@@ -82,9 +85,10 @@ return declare( CanvasFeatures,
             if (fRect.overlaps) {
                 context.globalAlpha = 1;
                 for (var key in fRect.overlaps) {
-                if (fRect.overlaps.hasOwnProperty(key)) {
-                    context.fillRect( fRect.overlaps[key].l, fRect.t, fRect.overlaps[key].w, fRect.h );
-                }}
+                    if (fRect.overlaps.hasOwnProperty(key)) {
+                        context.fillRect( fRect.overlaps[key].l, fRect.t, fRect.overlaps[key].w, fRect.h );
+                    }
+                }
             }
         });
         if( fgcolor ) {
@@ -98,12 +102,13 @@ return declare( CanvasFeatures,
                 context.globalAlpha = alpha;
                 context.strokeRect( fRect.l+0.5, fRect.t+0.5, fRect.w-1, fRect.h-1 );
                 if (fRect.overlaps) {
-                context.globalAlpha = 1;
-                for (var key in fRect.overlaps) {
-                if (fRect.overlaps.hasOwnProperty(key)) {
-                    context.strokeRect( fRect.overlaps[key].l+0.5, fRect.t+0.5, fRectoverlaps[key].w-1, fRect.h-1 );
-                }}
-            }
+                    context.globalAlpha = 1;
+                    for (var key in fRect.overlaps) {
+                        if (fRect.overlaps.hasOwnProperty(key)) {
+                            context.strokeRect( fRect.overlaps[key].l+0.5, fRect.t+0.5, fRectoverlaps[key].w-1, fRect.h-1 );
+                        }
+                    }
+                }
             });
         }
     }
