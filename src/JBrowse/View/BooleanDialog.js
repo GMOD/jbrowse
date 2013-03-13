@@ -97,13 +97,12 @@ return declare( null, {
                             name   : nameField,
                             getName: dojo.hitch(this, function() {
                                     var name = this.storeFetch.name.get('value');
-                                    if ( !(this.trackNames.indexOf(name) > -1) ) { return name }
+                                    if ( !(this.trackNames.indexOf(name) > -1) ) { return [name] }
                                     var counter = 0;
                                     while ( this.trackNames.indexOf(name+counter) > -1 ) {
                                         counter++;
                                     }
-                                    alert('Duplicate track name. Defaulting to '+name+counter);
-                                    return name+counter;
+                                    return [name,name+counter];
 
                                 }),
                             displayTypes: dojo.hitch(this.storeFetch, function(d) {
@@ -232,27 +231,29 @@ return declare( null, {
                                 d = new Deferred();
                                 thisB.storeFetch.displayTypes(d);
                                 dojo.when(d, function( arg ){
-                                var name = thisB.storeFetch.getName();
-                                openCallback({
-                                    trackConf: { label: name,
-                                                 type:  arg,
-                                                 store: { name: name,
-                                                          booleanOP: thisB.trackOperationChoice[0].checked ? thisB.trackOperationChoice[0].value :
-                                                                     thisB.trackOperationChoice[1].checked ? thisB.trackOperationChoice[1].value :
-                                                                     undefined,
-                                                          browser: thisB.browser,
-                                                          refSeq:  thisB.browser.refSeq,
-                                                          type: 'JBrowse/Store/SeqFeature/Boolean',
-                                                          storeNames: thisB.storeFetch.fetch()
-                                                        }
-                                                },
-                                    trackDisposition: thisB.trackDispositionChoice[0].checked ? thisB.trackDispositionChoice[0].value :
-                                                      thisB.trackDispositionChoice[1].checked ? thisB.trackDispositionChoice[1].value :
-                                                      undefined
+                                    var name = thisB.storeFetch.getName();
+                                    console.log(name);
+                                    openCallback({
+                                        trackConf: { key: name[0],
+                                                     label: name[1]||name[0],
+                                                     type:  arg,
+                                                     store: { name: name[1]||name[0],
+                                                              booleanOP: thisB.trackOperationChoice[0].checked ? thisB.trackOperationChoice[0].value :
+                                                                         thisB.trackOperationChoice[1].checked ? thisB.trackOperationChoice[1].value :
+                                                                         undefined,
+                                                              browser: thisB.browser,
+                                                              refSeq:  thisB.browser.refSeq,
+                                                              type: 'JBrowse/Store/SeqFeature/Boolean',
+                                                              storeNames: thisB.storeFetch.fetch()
+                                                            }
+                                                    },
+                                        trackDisposition: thisB.trackDispositionChoice[0].checked ? thisB.trackDispositionChoice[0].value :
+                                                          thisB.trackDispositionChoice[1].checked ? thisB.trackDispositionChoice[1].value :
+                                                          undefined
                                     });
-                                    thisB.dialog.hide();}
+                                    thisB.dialog.hide();
+                                })
                             })
-                        })
                     })
             .placeAt( actionBar );
 
@@ -289,7 +290,7 @@ return declare( null, {
             if ( tracks.hasOwnProperty( ID ) ) {
                 var op = window.doc.createElement('option');
                 op.innerHTML = tracks[ID].key || tracks[ID].label;
-                this.trackNames.push(tracks[ID].key || tracks[ID].label);
+                this.trackNames.push(tracks[ID].label);
                 op.type = tracks[ID].type;
                 op.value = tracks[ID].store+','+tracks[ID].type;
                 if ( ! ( this.supportedTracks.indexOf(tracks[ID].type ) > -1 ) ) { 
