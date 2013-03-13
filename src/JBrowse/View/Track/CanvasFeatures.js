@@ -227,7 +227,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
         if (spans.hasOwnProperty(index)) {
             var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
             var l = Math.round(( spans[index].start - leftBase ) * scale );
-            context.clearRect( l, 0, w, canvasHeight );
+            context.clearRect( l, 0, w+1, canvasHeight );
         }}
         context.globalAlpha = this.config.style.masked_transparancy || 0.2;
         this.config.style.masked_transparancy = context.globalAlpha;
@@ -419,7 +419,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                     var l = Math.max( fRect.toX(spans[index].start), fRect.l );
                     var r = Math.min( fRect.toX(spans[index].end), fRect.l+fRect.w );
                     var w = r - l;
-                    context.clearRect( l, fRect.t, w, fRect.h );
+                    context.clearRect( l, fRect.t, w+1, fRect.h );
                 }
             }}
             context.globalAlpha = this.config.style.masked_transparancy;
