@@ -634,7 +634,8 @@ Browser.prototype.getTrackTypes = function() {
                 'JBrowse/Store/SeqFeature/BAM'        : 'JBrowse/View/Track/Alignments2',
                 'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/HTMLFeatures',
                 'JBrowse/Store/SeqFeature/BigWig'     : 'JBrowse/View/Track/Wiggle/XYPlot',
-                'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence'
+                'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence',
+                'JBrowse/Store/SeqFeature/VCFTabix'   : 'JBrowse/View/Track/HTMLFeatures'
             },
 
             knownTrackTypes: [
@@ -853,11 +854,15 @@ Browser.prototype.getStore = function( storeName, callback ) {
     }
 
     require( [ storeClassName ], dojo.hitch( this, function( storeClass ) {
-                 var storeArgs = dojo.mixin( conf,
-                                             {
-                                                 browser: this,
-                                                 refSeq: this.refSeq
-                                             });
+                 var storeArgs = {};
+                 dojo.mixin( storeArgs, conf );
+                 dojo.mixin( storeArgs,
+                             {
+                                 config: conf,
+                                 browser: this,
+                                 refSeq: this.refSeq
+                             });
+
                  var store = new storeClass( storeArgs );
                  this._storeCache[ storeName ] = { refCount: 1, store: store };
                  callback( store );

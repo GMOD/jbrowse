@@ -31,3 +31,6 @@
 [submodule "src/json-schema"]
 	path = src/json-schema
 	url = git://github.com/kriszyp/json-schema.git
+[submodule "src/jDataView"]
+	path = src/jDataView
+	url = git@github.com:rbuels/jDataView.git

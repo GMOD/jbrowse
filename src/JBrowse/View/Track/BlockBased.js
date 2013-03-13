@@ -1,6 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
+            'dojo/_base/array',
             'dojo/aspect',
             'dojo/dom-construct',
             'dojo/dom-geometry',
@@ -12,12 +13,14 @@ define( [
             'dijit/CheckedMenuItem',
             'dijit/MenuSeparator',
             'JBrowse/Util',
+            'JBrowse/Component',
             'JBrowse/Errors',
             'JBrowse/View/TrackConfigEditor',
             'JBrowse/View/ConfirmDialog'
         ],
         function( declare,
                   lang,
+                  array,
                   aspect,
                   dom,
                   domGeom,
@@ -29,12 +32,13 @@ define( [
                   dijitCheckedMenuItem,
                   dijitMenuSeparator,
                   Util,
+                  Component,
                   Errors,
                   TrackConfigEditor,
                   ConfirmDialog
                 ) {
 
-return declare( null,
+return declare( Component,
 /**
  * @lends JBrowse.View.Track.BlockBased.prototype
  */
@@ -46,10 +50,6 @@ return declare( null,
     constructor: function( args ) {
         args = args || {};
 
-        // merge our config with the config defaults
-        this.config = args.config || {};
-        this.config = Util.deepUpdate( dojo.clone( this._defaultConfig() ), this.config );
-
         this.refSeq = args.refSeq;
         this.name = args.label || this.config.label;
         this.key = args.key || this.config.key || this.name;
@@ -60,8 +60,6 @@ return declare( null,
         this.empty = false;
         this.browser = args.browser;
         this.store = args.store;
-
-        this.compiledConfig = {};
     },
 
     /**
@@ -741,15 +739,59 @@ return declare( null,
     },
 
     _fmtDetailField: function( title, val, class_ ) {
+        if( val === null || val === undefined )
+            return '';
+
+        class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
+
+        // special case for values that include metadata about their
+        // meaning, which are formed like { values: [], meta:
+        // {description: }.  break it out, putting the meta description in a `title`
+        // attr on the field name so that it shows on mouseover, and
+        // using the values as the new field value.
+        var fieldMeta;
+        if( typeof val == 'object' && ('values' in val) ) {
+            fieldMeta = (val.meta||{}).description;
+            // join the description if it is an array
+            if( dojo.isArray( fieldMeta ) )
+                fieldMeta = fieldMeta.join(', ');
+
+            val = val.values;
+        }
+
+        var valueHTML = this._fmtDetailValue(val, class_);
+        var titleAttr = fieldMeta ? ' title="'+fieldMeta+'"' : '';
+        return  '<div class="field_container">'
+               + '<h2 class="field '+class_+'"'+titleAttr+'>'+title+'</h2>'
+               +' <div class="value_container '
+                              +class_
+                              +( valueHTML.length > 300 ? ' big' : '')
+                              +'">'
+               +     valueHTML
+               +' </div>'
+               +'</div>';
+    },
+    _fmtDetailValue: function( val, class_ ) {
         var valType = typeof val;
+        if( typeof val.toHTML == 'function' )
+            val = val.toHTML();
         if( valType == 'boolean' )
             val = val ? 'yes' : 'no';
         else if( valType == 'undefined' || val === null )
             return '';
         else if( lang.isArray( val ) )
-            val = val.join(' ');
-        class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
-        return '<div class="field_container"><h2 class="field '+class_+'">'+title+'</h2> <div class="value '+class_+'">'+val+'</div></div>';
+            return array.map( val, function(v) {
+                       return this._fmtDetailValue( v, class_ );
+                   }, this ).join(' ');
+        else if( valType == 'object' ) {
+            var keys = Util.dojof.keys( val ).sort();
+            return array.map( keys, function( k ) {
+                       return this._fmtDetailField( k, val[k], class_ );
+                   }, this ).join(' ');
+        }
+
+
+        return '<div class="value '+class_+'">' + val + '</div>';
     },
 
 
@@ -820,38 +862,6 @@ return declare( null,
         return typeof confVal == 'function' && !dontRunImmediately[confKey]
             ? confVal.apply( context, context.callbackArgs || [] )
             : confVal;
-    },
-
-    _compileConfigurationPath: function( path ) {
-        var confVal = this.config;
-
-        if( typeof path == 'string' )
-            path = path.split('.');
-        while( path.length && confVal )
-            confVal = confVal[ path.shift() ];
-
-        if( path.length )
-            return function() { return null; };
-
-        return typeof confVal == 'function'
-            ? confVal
-            : function() { return confVal; };
-    },
-
-    /**
-     * Given a dot-separated string configuration path into the config
-     * (e.g. "style.bg_color"), get the value of the configuration.
-     * If args are given, evaluate the configuration using them.
-     * Otherwise, return a function that returns the value of the
-     * configuration when called.
-     */
-    getConf: function( path, args ) {
-        var func = this.compiledConfig[path];
-        if( ! func ) {
-            func = this.compiledConfig[path] = this._compileConfigurationPath( path );
-        }
-
-        return args ? func.apply( this, args ) : func;
     },
 
     /**

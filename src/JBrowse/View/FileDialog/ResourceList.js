@@ -89,10 +89,12 @@ return declare( null, {
                var typeSelect = new Select({
                     options: [
                         { label: '<span class="ghosted">file type?</span>', value: null     },
-                        { label: "GFF3",   value: "gff3"   },
-                        { label: "BigWig", value: "bigwig" },
-                        { label: "BAM",    value: "bam"    },
-                        { label: "BAI",    value: "bai"    }
+                        { label: "GFF3",        value: "gff3"   },
+                        { label: "BigWig",      value: "bigwig" },
+                        { label: "BAM",         value: "bam"    },
+                        { label: "BAM index",   value: "bai"    },
+                        { label: "VCF+bgzip",   value: "vcf.gz" },
+                        { label: "Tabix index", value: "tbi"    }
                     ],
                     value: this.guessType( name ),
                     onChange: function() {
@@ -144,6 +146,8 @@ return declare( null, {
                 /\.bai$/i.test( name )          ? 'bai'    :
                 /\.gff3?$/i.test( name )        ? 'gff3'   :
                 /\.(bw|bigwig)$/i.test( name )  ? 'bigwig' :
+                /\.vcf\.gz$/i.test( name )      ? 'vcf.gz' :
+                /\.tbi$/i.test( name )          ? 'tbi'  :
                                                   null
         );
     }
