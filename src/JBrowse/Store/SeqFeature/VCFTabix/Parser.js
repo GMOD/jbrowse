@@ -71,6 +71,7 @@ return declare( null, {
      */
     lineToFeature: function( line ) {
         var fields = line.fields;
+        var ids = [];
         for( var i=0; i<fields.length; i++ )
             if( fields[i] == '.' )
                 fields[i] = null;
@@ -78,25 +79,30 @@ return declare( null, {
         var ref = fields[3];
         var alt = fields[4];
 
-        var ids = (fields[2]||'').split(';');
         var SO_term = this._find_SO_term( ref, alt );
         var featureData = {
             start:  line.start,
             end:    line.start+ref.length,
             seq_id: line.ref,
             description: this._makeDescriptionString( SO_term, ref, alt ),
-            name:   ids[0],
             type:   SO_term,
-            reference_allele:    ref,
-            score:   fields[5],
-            filter: fields[6]
+            reference_allele:    ref
         };
+
+        if( fields[2] !== null ) {
+            ids = (fields[2]||'').split(';');
+            featureData.name = ids[0];
+            if( ids.length > 1 )
+                featureData.aliases = ids.slice(1).join(',');
+        }
+
+        if( fields[5] !== null )
+            featureData.score = fields[5];
+        if( fields[6] !== null )
+            featureData.filter = fields[6];
 
         if( alt && alt[0] != '<' )
             featureData.alternative_alleles = alt;
-
-        if( ids.length > 1 )
-            featureData.aliases = ids.slice(1).join(',');
 
         // parse the info field and store its contents as attributes in featureData
         this._parseInfoField( featureData, fields );
