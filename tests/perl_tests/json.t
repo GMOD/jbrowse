@@ -9,7 +9,7 @@ use File::Temp ();
 use Bio::JBrowse::JSON;
 
 eval { Bio::JBrowse::JSON->new->decode("'honk") };
-like( $@, qr/^Error reading JSON/, 'wraps parse errors' );
+like( $@, qr/^Error parsing JSON/, 'wraps parse errors' );
 
 my $data;
 eval { $data = Bio::JBrowse::JSON->new->decode(<<EOF) };
