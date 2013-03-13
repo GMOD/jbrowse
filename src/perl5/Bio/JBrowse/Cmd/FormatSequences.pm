@@ -18,7 +18,7 @@ use File::Path 'mkpath';
 
 use POSIX;
 
-use JSON 2;
+use Bio::JBrowse::JSON;
 use JsonFileStorage;
 use FastaDatabase;
 
@@ -113,11 +113,7 @@ sub run {
         $self->writeTrackEntry();
 
     } elsif ( $self->opt('conf') ) {
-        my $config = decode_json( do {
-            local $/;
-            open my $f, '<', $self->opt('conf') or die "$! reading ".$self->opt('conf');
-            scalar <$f>
-        });
+        my $config = Bio::JBrowse::JSON->new->decode_file( $self->opt('conf') );
 
         eval "require $config->{db_adaptor}; 1" or die $@;
 

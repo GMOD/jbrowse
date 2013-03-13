@@ -93,8 +93,6 @@ use File::Basename;
 use Getopt::Long;
 use Pod::Usage;
 
-use JSON 2;
-
 use GenomeDB;
 
 my ($path, $trackLabel, $key, $cssClass);

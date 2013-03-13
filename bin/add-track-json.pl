@@ -8,12 +8,12 @@ use JBlibs;
 
 use Pod::Usage;
 
-use JSON 2;
+use Bio::JBrowse::JSON;
 
 @ARGV or pod2usage( -verbose => 2 );
 
 # read in the JSON
-my $j = JSON->new->relaxed->pretty;
+my $j = Bio::JBrowse::JSON->new->pretty;
 my $json_fh =
     @ARGV == 1 ? \*STDIN : do {
         my $file = shift @ARGV;
@@ -34,15 +34,7 @@ for my $def ( @$track_data ) {
 
 # read and parse the target file
 my $target_file = shift @ARGV or pod2usage();
-my $target_file_data = eval {
-    $j->decode( do {
-        open my $f, '<', $target_file or die "$! reading $target_file";
-        local $/;
-        scalar <$f>
-    });
-}; if( $@ ) {
-    die "error reading target file: $@\n";
-}
+my $target_file_data = $j->decode_file( $target_file );
 
 for my $def ( @$track_data ) {
     for( my $i = 0; $i < @{$target_file_data->{tracks}|| []}; $i++ ) {

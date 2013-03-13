@@ -17,7 +17,7 @@ use warnings;
 
 use base 'Bio::JBrowse::Cmd::NCFormatter';
 
-use JSON 2;
+use Bio::JBrowse::JSON;
 
 sub option_defaults {
     ( type => [],
@@ -77,7 +77,7 @@ sub run {
 
     for my $optname ( qw( clientConfig subfeatureClasses ) ) {
         if( my $o = $self->opt($optname) ) {
-            $self->opt( $optname => JSON::from_json( $o ));
+            $self->opt( $optname => Bio::JBrowse::JSON->new->decode( $o ));
         }
     }
 

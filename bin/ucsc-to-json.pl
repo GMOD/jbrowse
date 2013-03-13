@@ -112,7 +112,7 @@ use List::Util qw(min max);
 use List::MoreUtils 'distinct';
 
 use PerlIO::gzip;
-use JSON 2;
+use Bio::JBrowse::JSON;
 use GenomeDB;
 use NameHandler;
 use Bio::JBrowse::ExternalSorter;
@@ -223,15 +223,16 @@ foreach my $tableName (@$tracks) {
                 }
       };
 
+    my $json = Bio::JBrowse::JSON->new;
     $trackConfig->{style}->{subfeatureClasses} =
-       JSON::from_json($subfeatureClasses)
+       $json->decode( $subfeatureClasses )
        if defined($subfeatureClasses);
     $trackConfig->{style}->{arrowheadClass} = $arrowheadClass
       if defined($arrowheadClass);
     $trackConfig->{style} = {
                              %{$trackConfig->{style}},
                              # TODO: break out legacy combined config
-                             JSON::from_json($clientConfig)
+                             $json->decode($clientConfig)
                             }
         if defined($clientConfig);
 

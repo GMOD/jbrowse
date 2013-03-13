@@ -7,7 +7,7 @@ use GenomeDB;
 use base 'Bio::JBrowse::Cmd::NCFormatter';
 
 use Data::Dumper ();
-use JSON 2 ();
+use Bio::JBrowse::JSON;
 
 use Bio::JBrowse::FeatureStream::BioPerl;
 
@@ -62,7 +62,7 @@ sub run {
 
     # read our conf file
     -r $self->opt('conf') or die "conf file not found or not readable";
-    my $config = JSON->new->relaxed->decode( do{ local $/; open my $f, '<', $self->opt('conf'); scalar <$f> });
+    my $config = Bio::JBrowse::JSON->new->decode_file( $self->opt('conf') );
 
     # open and configure the db defined in the config file
     eval "require $config->{db_adaptor}; 1" or die $@;

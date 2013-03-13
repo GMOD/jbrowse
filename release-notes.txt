@@ -66,6 +66,9 @@
    of reference sequence selection pulldown takes it to 100% (issue
    #217).
 
+ * Improved JSON syntax error messages in server-side scripts (issue
+   #214).
+
 1.8.1     2013-02-12 12:56:24 EST5EDT
 
  * Added support for `cigarAttribute` and `mdAttributes` configuration

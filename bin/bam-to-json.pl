@@ -70,7 +70,7 @@ use JBlibs;
 use Pod::Usage;
 use Getopt::Long;
 
-use JSON 2;
+use Bio::JBrowse::JSON;
 use Bio::DB::Sam;
 
 use GenomeDB;
@@ -122,7 +122,7 @@ if( $cssClass eq $defaultClass ) {
     $config{style}->{histScale} = 2;
 }
 
-$config{style} = { %{ $config{style} || {} }, %{ JSON::from_json($clientConfig) || {} } }
+$config{style} = { %{ $config{style} || {} }, %{ Bio::JBrowse::JSON->new->decode($clientConfig) || {} } }
     if defined $clientConfig;
 
 my $bam = Bio::DB::Bam->open( $bamFile );

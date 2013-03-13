@@ -52,7 +52,7 @@ our @EXPORT_OK = qw (new render);
 use File::Spec ();
 use File::Path ();
 
-use JSON 2 ();
+use Bio::JBrowse::JSON;
 
 use GenomeDB;
 use TrackImage;
@@ -271,7 +271,7 @@ sub write_trackfile {
     my $trackfile = $self->trackfilepath( $seqName );
     open my $trackfile_fh, '>', $trackfile or die "$! writing $trackfile";
 
-    print $trackfile_fh JSON::to_json({
+    print $trackfile_fh Bio::JBrowse::JSON->new->pretty->encode({
             'tileWidth' => $self->tilewidth,
             'zoomLevels' => [
                 map {
