@@ -193,15 +193,16 @@ return declare( null, {
         // destroy the dialogue after it has been hidden
         aspect.after( dialog, 'hide', dojo.hitch( this, function() {
                               dijitFocus.curNode && dijitFocus.curNode.blur();
-                              dialog.destroyRecursive();
+                              setTimeout( function() { dialog.destroyRecursive(); }, 500 );
                       }));
     },
 
     _makeActionBar: function( openCallback ) {
+        var thisB = this;
         // Adapted from the file dialogue.
         var actionBar = dom.create( 'div', { className: 'dijitDialogPaneActionBar' });
 
-        var disChoices = this.trackDispositionChoice = [
+        var disChoices = thisB.trackDispositionChoice = [
             new RadioButton({ id: 'openImmediately',
                               value: 'openImmediately',
                               name: 'disposition',
@@ -222,19 +223,15 @@ return declare( null, {
 
 
         new Button({ iconClass: 'dijitIconDelete', label: 'Cancel',
-                     onClick: dojo.hitch( this, function() {
-                                          this.dialog.hide();
-                                        })
+                     onClick: function() { thisB.dialog.hide(); }
                    })
             .placeAt( actionBar );
         new Button({ label: 'Create track',
-                     onClick: dojo.hitch( this, function() {
-                                thisB = this;
+                     onClick: dojo.hitch( thisB, function() {
                                 d = new Deferred();
                                 thisB.storeFetch.displayTypes(d);
                                 dojo.when(d, function( arg ){
                                     var name = thisB.storeFetch.getName();
-                                    console.log(name);
                                     openCallback({
                                         trackConf: { key: name[0],
                                                      label: name[1]||name[0],
@@ -253,8 +250,8 @@ return declare( null, {
                                                           thisB.trackDispositionChoice[1].checked ? thisB.trackDispositionChoice[1].value :
                                                           undefined
                                     });
-                                    thisB.dialog.hide();
                                 })
+                                thisB.dialog.hide();
                             })
                     })
             .placeAt( actionBar );
