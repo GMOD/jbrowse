@@ -473,15 +473,17 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                             var s = featDiv.featureEdges.s;
                             var e = featDiv.featureEdges.e;
                             for ( var key in sourceSlot.booleanCovs ) {
-                            if ( sourceSlot.booleanCovs.hasOwnProperty(key) ) {
-                                // dynamically resize the coverage divs.
-                                var start = sourceSlot.booleanCovs[key].span.s;
-                                var end   = sourceSlot.booleanCovs[key].span.e;
-                                if ( end < containerStart || start > containerEnd) continue; // note: we should also remove it from booleanCovs at some point.
-                                sourceSlot.booleanCovs[key].style.left = 100*(start-s)/(e-s)+'%';
-                                sourceSlot.booleanCovs[key].style.width = 100*(end-start)/(e-s)+'%';
-                                featDiv.appendChild( sourceSlot.booleanCovs[key] );
-                            }}
+                                if ( sourceSlot.booleanCovs.hasOwnProperty(key) ) {
+                                    // dynamically resize the coverage divs.
+                                    var start = sourceSlot.booleanCovs[key].span.s;
+                                    var end   = sourceSlot.booleanCovs[key].span.e;
+                                    if ( end < containerStart || start > containerEnd) continue; 
+                                    // note: we should also remove it from booleanCovs at some point.
+                                    sourceSlot.booleanCovs[key].style.left = 100*(start-s)/(e-s)+'%';
+                                    sourceSlot.booleanCovs[key].style.width = 100*(end-start)/(e-s)+'%';
+                                    featDiv.appendChild( sourceSlot.booleanCovs[key] );
+                                }
+                            }
                             // add the processed subfeatures, if in frame.
                             dojo.query( '.basicSubfeature', sourceSlot ).forEach( 
                                 function(node, idx, arr) {
@@ -579,12 +581,13 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                         invSpan[0] = { start: leftBase };
                                         var i = 0;
                                         for ( var span in args.spans) {
-                                        if (args.spans.hasOwnProperty(span)) {
-                                            span = args.spans[span];
-                                            invSpan[i].end = span.start;
-                                            i++;
-                                            invSpan[i] = { start: span.end };
-                                        }}
+                                            if (args.spans.hasOwnProperty(span)) {
+                                                span = args.spans[span];
+                                                invSpan[i].end = span.start;
+                                                i++;
+                                                invSpan[i] = { start: span.end };
+                                            }
+                                        }
                                         invSpan[i].end = rightBase;
                                         if (invSpan[i].end <= invSpan[i].start) {
                                             invSpan.splice(i,1); }
@@ -639,121 +642,126 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     maskBySpans: function ( invSpans, spans ) {
         var blocks = this.blocks;
         for ( var i in blocks ) {
-        if ( blocks.hasOwnProperty(i) ) {
-            // loop through all blocks
-            if ( !blocks[i] ) {continue;}
-            var block = blocks[i]
-            var bs = block.startBase;
-            var be = block.endBase;
+            if ( blocks.hasOwnProperty(i) ) {
+                // loop through all blocks
+                if ( !blocks[i] ) {continue;}
+                var block = blocks[i]
+                var bs = block.startBase;
+                var be = block.endBase;
 
-            var overlaps = function ( featStart, featEnd, spanStart, spanEnd ) {
-                // outputs start and end points of overlap
-                var s = Math.max( featStart, spanStart );
-                var e = Math.min( featEnd, spanEnd );
-                if ( s < e ) { return {s:s, e:e}; }
-                return false;
-            }
-
-            var union = function ( start1, end1, start2, end2 ) {
-                // outputs the endpoints of the union
-                if ( overlaps( start1, end1, start2, end2 ) ) {
-                    return { s: Math.min( start1, start2 ),
-                             e: Math.max( end1, end2 ) };
+                var overlaps = function ( featStart, featEnd, spanStart, spanEnd ) {
+                    // outputs start and end points of overlap
+                    var s = Math.max( featStart, spanStart );
+                    var e = Math.min( featEnd, spanEnd );
+                    if ( s < e ) { return {s:s, e:e}; }
+                    return false;
                 }
-                else { return false; }
-            }
 
-            var makeDiv = function ( start, end, parentDiv, masked, voidClass ) {
-                // make a coverage div
-                var coverageNode = dojo.create('div');
-                var s = parentDiv.featureEdges 
-                        ? parentDiv.featureEdges.s
-                        : parentDiv.subfeatureEdges.s;
-                var e = parentDiv.featureEdges
-                        ? parentDiv.featureEdges.e
-                        : parentDiv.subfeatureEdges.e;
-                coverageNode.span = { s:start, e:end };
-                coverageNode.className = masked ?  (feat.className == voidClass
-                                                    ? feat.oldClassName + ' Boolean-transparent'
-                                                    : feat.className +' Boolean-transparent')
-                                                :  (feat.className == voidClass
-                                                    ? feat.oldClassName
-                                                    : feat.className);
-                coverageNode.booleanDiv = true;
-                coverageNode.style.left = 100*(start-s)/(e-s)+'%';
-                coverageNode.style.top = '0px';
-                coverageNode.style.width = 100*(end-start)/(e-s)+'%';
-                return coverageNode;
-            }
+                var union = function ( start1, end1, start2, end2 ) {
+                    // outputs the endpoints of the union
+                    if ( overlaps( start1, end1, start2, end2 ) ) {
+                        return { s: Math.min( start1, start2 ),
+                                 e: Math.max( end1, end2 ) };
+                    }
+                    else { return false; }
+                }
 
-            var addDiv = function ( start, end, parentDiv, masked, voidClass, isAdded ) {
-                // Loop through coverage Nodes, combining existing nodes so they don't overlap, and add new divs.
-                var isAdded = isAdded || false; 
-                for ( var key in parentDiv.childNodes ) {
-                if ( parentDiv.childNodes[key] && parentDiv.childNodes[key].booleanDiv ) {
-                    var divStart = parentDiv.childNodes[key].span.s;
-                    var divEnd   = parentDiv.childNodes[key].span.e;
-                    if ( divStart <= start && divEnd >= end ) {isAdded = true; break;}
-                    var u = union (start, end, divStart, divEnd );
-                    if ( u ) {
-                        var coverageNode = makeDiv( u.s, u.e, parentDiv, masked, voidClass );
-                        var tempIndex = parentDiv.booleanCovs.indexOf(parentDiv.childNodes[key]);
-                        parentDiv.removeChild(parentDiv.childNodes[key]);
-                        parentDiv.booleanCovs.splice(tempIndex, 1);
+                var makeDiv = function ( start, end, parentDiv, masked, voidClass ) {
+                    // make a coverage div
+                    var coverageNode = dojo.create('div');
+                    var s = parentDiv.featureEdges 
+                            ? parentDiv.featureEdges.s
+                            : parentDiv.subfeatureEdges.s;
+                    var e = parentDiv.featureEdges
+                            ? parentDiv.featureEdges.e
+                            : parentDiv.subfeatureEdges.e;
+                    coverageNode.span = { s:start, e:end };
+                    coverageNode.className = masked ?  (feat.className == voidClass
+                                                        ? feat.oldClassName + ' Boolean-transparent'
+                                                        : feat.className +' Boolean-transparent')
+                                                    :  (feat.className == voidClass
+                                                        ? feat.oldClassName
+                                                        : feat.className);
+                    coverageNode.booleanDiv = true;
+                    coverageNode.style.left = 100*(start-s)/(e-s)+'%';
+                    coverageNode.style.top = '0px';
+                    coverageNode.style.width = 100*(end-start)/(e-s)+'%';
+                    return coverageNode;
+                }
+
+                var addDiv = function ( start, end, parentDiv, masked, voidClass, isAdded ) {
+                    // Loop through coverage Nodes, combining existing nodes so they don't overlap, and add new divs.
+                    var isAdded = isAdded || false; 
+                    for ( var key in parentDiv.childNodes ) {
+                        if ( parentDiv.childNodes[key] && parentDiv.childNodes[key].booleanDiv ) {
+                            var divStart = parentDiv.childNodes[key].span.s;
+                            var divEnd   = parentDiv.childNodes[key].span.e;
+                            if ( divStart <= start && divEnd >= end ) {isAdded = true; break;}
+                            var u = union (start, end, divStart, divEnd );
+                            if ( u ) {
+                                var coverageNode = makeDiv( u.s, u.e, parentDiv, masked, voidClass );
+                                var tempIndex = parentDiv.booleanCovs.indexOf(parentDiv.childNodes[key]);
+                                parentDiv.removeChild(parentDiv.childNodes[key]);
+                                parentDiv.booleanCovs.splice(tempIndex, 1);
+                                parentDiv.appendChild(coverageNode);
+                                parentDiv.booleanCovs.push(coverageNode);
+                                isAdded = true;
+                                addDiv( u.s, u.e, parentDiv, masked, voidClass, true );
+                                break;
+                            }
+                        }
+                    }
+                    if ( !isAdded ) {
+                        var coverageNode = makeDiv( start, end, parentDiv, masked, voidClass );
                         parentDiv.appendChild(coverageNode);
                         parentDiv.booleanCovs.push(coverageNode);
-                        isAdded = true;
-                        addDiv( u.s, u.e, parentDiv, masked, voidClass, true );
-                        break;
                     }
-                }}
-                if ( !isAdded ) {
-                    var coverageNode = makeDiv( start, end, parentDiv, masked, voidClass );
-                    parentDiv.appendChild(coverageNode);
-                    parentDiv.booleanCovs.push(coverageNode);
+                }
+
+                var addOverlaps = function ( s, e, feat, spans, invSpans, voidClass ) {
+                    if ( !feat.booleanCovs ) { feat.booleanCovs = []; }
+                    // add opaque divs
+                    for ( var index in invSpans ) {
+                        if ( invSpans.hasOwnProperty(index) ) {
+                            var ov = overlaps( s, e, invSpans[index].start, invSpans[index].end );
+                            if ( ov ) {
+                                addDiv( ov.s, ov.e, feat, false, voidClass );
+                            }
+                        }
+                    }
+                    // add masked divs
+                    for ( var index in spans ) {
+                        if ( spans.hasOwnProperty(index) ) {
+                            var ov = overlaps( s, e, spans[index].start, spans[index].end );
+                            if ( ov ) {
+                                addDiv( ov.s, ov.e, feat, true, voidClass );
+                            }
+                        }
+                    }
+
+                    feat.oldClassName = feat.className == voidClass
+                                        ? feat.oldClassName
+                                        : feat.className;
+                    feat.className = voidClass;
+                }
+
+                for ( var key in block.featureNodes ) {
+                    if (block.featureNodes.hasOwnProperty(key)) {
+                        var feat = block.featureNodes[key];
+                        if ( !feat.feature ) {
+                            // If there is no feature property, than it is a subfeature
+                            var s = feat.subfeatureEdges.s;
+                            var e = feat.subfeatureEdges.e;
+                            addOverlaps( s, e, feat, spans, invSpans, 'basicSubfeature' );
+                            continue;
+                        }
+                        var s = feat.feature.get('start');
+                        var e = feat.feature.get('end');
+                        addOverlaps( s, e, feat, spans, invSpans, 'basic' );
+                    }
                 }
             }
-
-            var addOverlaps = function ( s, e, feat, spans, invSpans, voidClass ) {
-                if ( !feat.booleanCovs ) { feat.booleanCovs = []; }
-                // add opaque divs
-                for ( var index in invSpans ) {
-                if ( invSpans.hasOwnProperty(index) ) {
-                    var ov = overlaps( s, e, invSpans[index].start, invSpans[index].end );
-                    if ( ov ) {
-                        addDiv( ov.s, ov.e, feat, false, voidClass );
-                    }
-                }}
-                // add masked divs
-                for ( var index in spans ) {
-                if ( spans.hasOwnProperty(index) ) {
-                    var ov = overlaps( s, e, spans[index].start, spans[index].end );
-                    if ( ov ) {
-                        addDiv( ov.s, ov.e, feat, true, voidClass );
-                    }
-                }}
-
-                feat.oldClassName = feat.className == voidClass
-                                    ? feat.oldClassName
-                                    : feat.className;
-                feat.className = voidClass;
-            }
-
-            for ( var key in block.featureNodes ) {
-            if (block.featureNodes.hasOwnProperty(key)) {
-                var feat = block.featureNodes[key];
-                if ( !feat.feature ) {
-                    // If there is no feature property, than it is a subfeature
-                    var s = feat.subfeatureEdges.s;
-                    var e = feat.subfeatureEdges.e;
-                    addOverlaps( s, e, feat, spans, invSpans, 'basicSubfeature' );
-                    continue;
-                }
-                var s = feat.feature.get('start');
-                var e = feat.feature.get('end');
-                addOverlaps( s, e, feat, spans, invSpans, 'basic' );
-            }}
-        }}
+        }
     },
 
     measureStyles: function() {

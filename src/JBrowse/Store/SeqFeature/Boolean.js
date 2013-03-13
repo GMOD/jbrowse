@@ -79,34 +79,38 @@ getRegionStats: function( region, successCallback, errorCallback ) {
     thisB.gotAllStores.then( function() {
         var statObjects = [];
         for (var key in thisB.stores.display) {
-        if (thisB.stores.display.hasOwnProperty(key) ) {
-            // loop through the stores to be displayed and gather their regional stats
-            (function(){
-            var stats = thisB.stores.display[key];
-            var d = new Deferred();
-            statObjects.push(d);
-            stats.getRegionStats(region, function(s){d.resolve(s, true);}, errorCallback);
-            }());
-        }}
+            if (thisB.stores.display.hasOwnProperty(key) ) {
+                // loop through the stores to be displayed and gather their regional stats
+                (function(){
+                var stats = thisB.stores.display[key];
+                var d = new Deferred();
+                statObjects.push(d);
+                stats.getRegionStats(region, function(s){d.resolve(s, true);}, errorCallback);
+                }());
+            }
+        }
         all(statObjects).then( function( args ) {
             // do stat combining here.
             var stats = {};
             // some stats may be related. tempStats provides a buffer between calculations.
             var tempStat = {};
             for (var key in args) {
-            if (args.hasOwnProperty(key)) {
-                for (var stat in args[key]) {
-                if (args[key].hasOwnProperty(stat)) {
-                    if (!tempStat[stat]) { tempStat[stat] = args[key][stat]; }
-                    else {
-                        tempStat[stat] = thisB.combineStats( stat, stats, args[key] );
+                if (args.hasOwnProperty(key)) {
+                    for (var stat in args[key]) {
+                        if (args[key].hasOwnProperty(stat)) {
+                            if (!tempStat[stat]) { tempStat[stat] = args[key][stat]; }
+                            else {
+                                tempStat[stat] = thisB.combineStats( stat, stats, args[key] );
+                            }
+                        }
                     }
-                }}
-                for (var stat in tempStat) {
-                if (tempStat.hasOwnProperty(stat)) {
-                    stats[stat] = tempStat[stat];
-                }}
-            }}
+                    for (var stat in tempStat) {
+                        if (tempStat.hasOwnProperty(stat)) {
+                            stats[stat] = tempStat[stat];
+                        }
+                    }
+                }
+            }
             successCallback(stats);
         });
     });
@@ -129,30 +133,31 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
 
         var wrapperPromise = [];
         for (var set in featureArrays ) {
-        if ( featureArrays.hasOwnProperty(set) ) {
-            var fetchAllFeatures = args[set].map(
-                function (store) {
-                    var s = set;
-                    var d = new Deferred();
-                    if ( !featureArrays[set][store.name] ) {
-                        featureArrays[set][store.name] = [];
+            if ( featureArrays.hasOwnProperty(set) ) {
+                var fetchAllFeatures = args[set].map(
+                    function (store) {
+                        var s = set;
+                        var d = new Deferred();
+                        if ( !featureArrays[set][store.name] ) {
+                            featureArrays[set][store.name] = [];
+                        }
+                        store.getFeatures(
+                            query,
+                            dojo.hitch( this, function( feature ) {
+                                var feat = new featureWrapper( feature, store.name );
+                                featureArrays[s][store.name].push( feat );
+                            }),
+                            function(){ d.resolve( featureArrays[s][store.name] );},
+                            errorCallback
+                        )
+                        return d.promise;
                     }
-                    store.getFeatures(
-                        query,
-                        dojo.hitch( this, function( feature ) {
-                            var feat = new featureWrapper( feature, store.name );
-                            featureArrays[s][store.name].push( feat );
-                        }),
-                        function(){ d.resolve( featureArrays[s][store.name] );},
-                        errorCallback
-                    )
-                    return d.promise;
+                );
+                if ( fetchAllFeatures.length != 0 ) {
+                    wrapperPromise.push( all(fetchAllFeatures) );
                 }
-            );
-            if ( fetchAllFeatures.length != 0 ) {
-                wrapperPromise.push( all(fetchAllFeatures) );
             }
-        }}
+        }
         when( all( wrapperPromise ), function() {
             // reduce the display, mask, and invMask objects into arrays
             var masks = [];
@@ -212,15 +217,16 @@ makeSpan: function( args ) {
         if ( features.length == 0 ) { return spans.sort(function(a,b){return a.start-b.start}); }
     }
     for (var span in spans) {
-    if (spans.hasOwnProperty(span)) {
-        span = spans[span];
-        if ( this.inSpan( features[0], span ) ) {
-            features[0].start = Math.min( features[0].start, span.start );
-            features[0].end = Math.max( features[0].end, span.end );
-            spans.splice( spans.indexOf(span), 1 );
-            return this.makeSpan({features: features, spans: spans});
+        if (spans.hasOwnProperty(span)) {
+            span = spans[span];
+            if ( this.inSpan( features[0], span ) ) {
+                features[0].start = Math.min( features[0].start, span.start );
+                features[0].end = Math.max( features[0].end, span.end );
+                spans.splice( spans.indexOf(span), 1 );
+                return this.makeSpan({features: features, spans: spans});
+            }
         }
-    }}
+    }
     spans.push( { start: features[0].start, end: features[0].end } );
     features.splice(0,1);
     return this.makeSpan({features: features, spans: spans});
@@ -238,10 +244,11 @@ toSpan: function( features, query ) {
     // given a set of features, makes a set of span objects with the same start and end points (a.k.a. pseudo-features)
     var spans = [];
     for (var feature in features) {
-    if (features.hasOwnProperty(feature)) {
-        spans.push( { start: Math.max( features[feature].get('start'), query.start ), 
-                      end:   Math.min( features[feature].get('end'),   query.end   ) } );
-    }}
+        if (features.hasOwnProperty(feature)) {
+            spans.push( { start: Math.max( features[feature].get('start'), query.start ), 
+                          end:   Math.min( features[feature].get('end'),   query.end   ) } );
+        }
+    }
     return spans;
 },
 
@@ -266,19 +273,21 @@ andSpan: function( span1, span2 ) {
     var spans = span1.concat(span2);
     var arr = [];
     for ( key in spans ) {
-    if ( spans.hasOwnProperty(key) ) {
-        arr.push(['s', spans[key].start]);
-        arr.push(['e', spans[key].end]);
-    }}
+        if ( spans.hasOwnProperty(key) ) {
+            arr.push(['s', spans[key].start]);
+            arr.push(['e', spans[key].end]);
+        }
+    }
     arr.sort( function( a, b ) { return a[1]-b[1]; } );
     var newSpans = [];
     var startNumber = 0;
     for ( var i=0; i<arr.length-1; i++) {
-    if (arr[i][0] == 's') { startNumber++; }
-    if (arr[i][0] == 'e') { startNumber--; }
-    if ( startNumber == 2 ) {
-        newSpans.push({ start: arr[i][1], end: arr[i+1][1] });
-    }}
+        if (arr[i][0] == 's') { startNumber++; }
+        if (arr[i][0] == 'e') { startNumber--; }
+        if ( startNumber == 2 ) {
+            newSpans.push({ start: arr[i][1], end: arr[i+1][1] });
+        }
+    }
     return newSpans;
 },
 
@@ -288,12 +297,13 @@ notSpan: function( spans, query ) {
     invSpan[0] = { start: query.start };
     var i = 0;
     for (span in spans) {
-    if (spans.hasOwnProperty(span)) {
-        span = spans[span];
-        invSpan[i].end = span.start;
-        i++;
-        invSpan[i] = { start: span.end };
-    }}
+        if (spans.hasOwnProperty(span)) {
+            span = spans[span];
+            invSpan[i].end = span.start;
+            i++;
+            invSpan[i] = { start: span.end };
+        }
+    }
     invSpan[i].end = query.end;
     if (invSpan[i].end <= invSpan[i].start) {
         invSpan.splice(i,1); }
@@ -307,9 +317,10 @@ inverseMask: function( features, spans, featCallback, doneCallback ) {
      * If the track has boolean support, the DoneCallback will use the spans to mask the features.
      */
     for ( var key in features ) {
-    if ( features.hasOwnProperty(key) ) {
-        featCallback( features[key] )
-    }}
+        if ( features.hasOwnProperty(key) ) {
+            featCallback( features[key] )
+        }
+    }
     doneCallback( {spans: spans} );
 },
 

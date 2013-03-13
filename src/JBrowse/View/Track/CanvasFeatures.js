@@ -222,11 +222,12 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
         var leftBase = args.leftBase;
 
         for ( var index in spans ) {
-        if (spans.hasOwnProperty(index)) {
-            var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
-            var l = Math.round(( spans[index].start - leftBase ) * scale );
-            context.clearRect( l, 0, w+1, canvasHeight );
-        }}
+            if (spans.hasOwnProperty(index)) {
+                var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
+                var l = Math.round(( spans[index].start - leftBase ) * scale );
+                context.clearRect( l, 0, w+1, canvasHeight );
+            }
+        }
         context.globalAlpha = this.config.style.masked_transparancy || 0.2;
         this.config.style.masked_transparancy = context.globalAlpha;
         this.renderFeatures( args, canvas, fRects );
@@ -411,14 +412,15 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
             var leftBase = viewArgs.block.startBase;
 
             for ( var index in spans ) {
-            if ( spans.hasOwnProperty(index) ) {
-                if ( !( fRect.toX(spans[index].start) > fRect.l+fRect.w || fRect.toX(spans[index].end) < fRect.l ) ) {
-                    var l = Math.max( fRect.toX(spans[index].start), fRect.l );
-                    var r = Math.min( fRect.toX(spans[index].end), fRect.l+fRect.w );
-                    var w = r - l;
-                    context.clearRect( l, fRect.t, w+1, fRect.h );
+                if ( spans.hasOwnProperty(index) ) {
+                    if ( !( fRect.toX(spans[index].start) > fRect.l+fRect.w || fRect.toX(spans[index].end) < fRect.l ) ) {
+                        var l = Math.max( fRect.toX(spans[index].start), fRect.l );
+                        var r = Math.min( fRect.toX(spans[index].end), fRect.l+fRect.w );
+                        var w = r - l;
+                        context.clearRect( l, fRect.t, w+1, fRect.h );
+                    }
                 }
-            }}
+            }
             context.globalAlpha = this.config.style.masked_transparancy;
             drawFeature( context, viewArgs, fRect );
             context.globalAlpha = 1;

@@ -32,12 +32,13 @@ return declare( null, {
 
         var selector = new MultiSelect();
         for (var ID in this.tracks ) {
-        if ( this.tracks.hasOwnProperty( ID ) ) {
-            var op = window.doc.createElement('option');
-            op.innerHTML = this.tracks[ID];
-            op.value = this.tracks[ID];
-            selector.containerNode.appendChild(op);
-        }}
+            if ( this.tracks.hasOwnProperty( ID ) ) {
+                var op = window.doc.createElement('option');
+                op.innerHTML = this.tracks[ID];
+                op.value = this.tracks[ID];
+                selector.containerNode.appendChild(op);
+            }
+        }
         selector.containerNode.multiple = false;
 
         var bh = dom.create( 'div', { className: 'button holder'});

@@ -305,18 +305,19 @@ return declare( [Wiggle, MismatchesMixin],
         this.config.style.masked_transparancy = booleanAlpha;
 
         for ( var index in spans ) {
-        if (spans.hasOwnProperty(index)) {
-            var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
-            var l = Math.round(( spans[index].start - leftBase ) * scale );
-            var img = context.getImageData(l, 0, w, canvasHeight);
-            var pixels = img.data;
-            for ( var i = 0, n = pixels.length; i < n; i += 4 ) {
-                /* Note: the default canvas values are transparent black,
-                 * so we don't want to change the opacity of transparent pixels */
-                if ( pixels[i+3] != 0 ) { pixels[i+3] = booleanAlpha;}
+            if (spans.hasOwnProperty(index)) {
+                var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
+                var l = Math.round(( spans[index].start - leftBase ) * scale );
+                var img = context.getImageData(l, 0, w, canvasHeight);
+                var pixels = img.data;
+                for ( var i = 0, n = pixels.length; i < n; i += 4 ) {
+                    /* Note: the default canvas values are transparent black,
+                     * so we don't want to change the opacity of transparent pixels */
+                    if ( pixels[i+3] != 0 ) { pixels[i+3] = booleanAlpha;}
+                }
+                context.putImageData( img, l, 0 );
             }
-            context.putImageData( img, l, 0 );
-        }}
+        }
     },
 
     /**
