@@ -96,7 +96,8 @@ return declare( null, {
         if( ids.length > 1 )
             featureData.aliases = ids.slice(1).join(',');
 
-        featureData.info = this._parseInfoField( featureData, fields );
+        // parse the info field and store its contents as attributes in featureData
+        this._parseInfoField( featureData, fields );
 
         var genotypes = this._parseGenotypes( featureData, fields );
         if( genotypes )
@@ -237,24 +238,28 @@ return declare( null, {
     },
 
     /**
-     * parse a VCF line's INFO field.
+     * parse a VCF line's INFO field, storing the contents as
+     * attributes in featureData
      */
     _parseInfoField: function( featureData, fields ) {
         if( !fields[7] || fields[7] == '.' )
-            return null;
+            return;
         var info = this._parseKeyValue( fields[7] );
 
         // decorate the info records with references to their descriptions
         for( var field in info ) {
             if( info.hasOwnProperty( field ) ) {
-                    var i = info[field] = { values: info[field] };
+                    var i = info[field] = {
+                        values: info[field],
+                        toString: function() { return (this.values || []).join(','); }
+                    };
                     var meta = this._getInfoMeta( field );
                     if( meta )
                         i.meta = meta;
             }
         }
 
-        return info;
+        dojo.mixin( featureData, info );
     },
 
     _getAltMeta: function( alt ) {
