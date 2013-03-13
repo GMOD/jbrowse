@@ -28,7 +28,7 @@ define( [
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
-            'JBrowse/View/BooleanDialog',
+            'JBrowse/View/MaskDialog',
             'JBrowse/View/LocationChoiceDialog',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
@@ -63,7 +63,7 @@ define( [
             ConfigManager,
             InfoDialog,
             FileDialog,
-            BooleanDialog,
+            MaskDialog,
             LocationChoiceDialog,
             dijitFocus,
             LazyLoad
@@ -442,8 +442,8 @@ Browser.prototype.initView = function() {
             var newSubmenu = new dijitMenu();
             newSubmenu.addChild( new dijitMenuItem(
                 {
-                    label: 'Boolean Track',
-                    onClick: dojo.hitch(this, 'booleanTrackDialog')
+                    label: 'Masking Track',
+                    onClick: dojo.hitch(this, 'maskTrackDialog')
                 })
             );
             fileMenu.addChild( new dijitPopupMenuItem(
@@ -578,7 +578,7 @@ Browser.prototype.getTrackTypes = function() {
                 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/View/Track/Wiggle/Density',
                 'JBrowse/View/Track/Sequence',
-                'JBrowse/View/Track/BooleanTrack'
+                'JBrowse/View/Track/MaskTrack'
             ],
 
             trackTypeLabels: {
@@ -620,8 +620,8 @@ Browser.prototype.openFileDialog = function() {
         });
 };
 
-Browser.prototype.booleanTrackDialog = function() {
-    new BooleanDialog({ browser: this }).show( {
+Browser.prototype.maskTrackDialog = function() {
+    new MaskDialog({ browser: this }).show( {
         openCallback: dojo.hitch( this, function ( results ) {
             // more or less the same as its openFile counterpart
                 var conf = results.trackConf;
