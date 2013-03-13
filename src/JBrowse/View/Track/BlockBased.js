@@ -743,12 +743,29 @@ return declare( Component,
             return '';
 
         class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
+
+        // special case for values that include metadata about their
+        // meaning, which are formed like { values: [], meta:
+        // {description: }.  break it out, putting the meta description in a `title`
+        // attr on the field name so that it shows on mouseover, and
+        // using the values as the new field value.
+        var fieldMeta;
+        if( typeof val == 'object' && ('values' in val) ) {
+            fieldMeta = (val.meta||{}).description;
+            // join the description if it is an array
+            if( dojo.isArray( fieldMeta ) )
+                fieldMeta = fieldMeta.join(', ');
+
+            val = val.values;
+        }
+
         var valueHTML = this._fmtDetailValue(val, class_);
+        var titleAttr = fieldMeta ? ' title="'+fieldMeta+'"' : '';
         return  '<div class="field_container">'
-               + '<h2 class="field '+class_+'">'+title+'</h2>'
+               + '<h2 class="field '+class_+'"'+titleAttr+'>'+title+'</h2>'
                +' <div class="value_container '
                               +class_
-                              +( valueHTML.length > 400 ? ' big' : '')
+                              +( valueHTML.length > 300 ? ' big' : '')
                               +'">'
                +     valueHTML
                +' </div>'
