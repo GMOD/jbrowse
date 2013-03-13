@@ -46,8 +46,21 @@ return declare(null,{
      * @returns {HTMLElement} feature detail page HTML
      */
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement */ container ) {
-        var fmt = dojo.hitch( this, '_fmtDetailField' );
         container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name, innerHTML: '' } );
+
+        this._renderCoreDetails( track, f, featDiv, container );
+
+        this._renderAdditionalTagsDetail( track, f, featDiv, container );
+
+        this._renderUnderlyingReferenceSequence( track, f, featDiv, container );
+
+        this._renderSubfeaturesDetail( track, f, featDiv, container );
+
+        return container;
+    },
+
+    _renderCoreDetails: function( track, f, featDiv, container ) {
+        var fmt = dojo.hitch( this, '_fmtDetailField' );
         var coreDetails = dojo.create('div', { className: 'core' }, container );
         coreDetails.innerHTML += '<h2 class="sectiontitle">Primary Data</h2>';
         coreDetails.innerHTML += fmt( 'Name', this.getConfForFeature( 'style.label', f ) );
@@ -62,20 +75,38 @@ return declare(null,{
                                    })
         );
         coreDetails.innerHTML += fmt( 'Length', Util.addCommas(f.get('end')-f.get('start'))+' bp' );
+    },
 
-        // render any additional tags as just key/value
+    // render any subfeatures this feature has
+    _renderSubfeaturesDetail: function( track, f, featDiv, container ) {
+        var subfeatures = f.get('subfeatures');
+        if( subfeatures && subfeatures.length ) {
+            this._subfeaturesDetail( track, subfeatures, container );
+        }
+    },
+
+    _isReservedTag: function( t ) {
+        return {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()];
+    },
+
+    // render any additional tags as just key/value
+    _renderAdditionalTagsDetail: function( track, f, featDiv, container ) {
         var additionalTags = array.filter( f.tags(), function(t) {
-            return ! {name:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()];
-        });
+            return ! this._isReservedTag( t );
+        },this);
 
         if( additionalTags.length ) {
             var at_html = '<div class="additional"><h2 class="sectiontitle">Attributes</h2>';
-            dojo.forEach( additionalTags.sort(), function(t) {
-                at_html += fmt( t, f.get(t) );
-            });
+            array.forEach( additionalTags.sort(), function(t) {
+                at_html += this._fmtDetailField( t, f.get(t) );
+            }, this );
             at_html += '</div>';
             container.innerHTML += at_html;
         }
+
+    },
+
+    _renderUnderlyingReferenceSequence: function( track, f, featDiv, container ) {
 
         // render the sequence underlying this feature if possible
         var field_container = dojo.create('div', { className: 'field_container feature_sequence' }, container );
@@ -125,14 +156,6 @@ return declare(null,{
                 valueContainer.innerHTML = '<span class="ghosted">reference sequence not available</span>';
             }
         }));
-
-        // render any subfeatures this feature has
-        var subfeatures = f.get('subfeatures');
-        if( subfeatures && subfeatures.length ) {
-            this._subfeaturesDetail( track, subfeatures, container );
-        }
-
-        return container;
     },
 
     _uniqID: function() {
