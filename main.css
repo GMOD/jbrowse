@@ -830,6 +830,7 @@ a.dialog-new-window {
 }
 .detail .value_container.big {
     border: 1px solid rgba(0,0,50,0.1);
+    margin-left: 1em;
 }
 
 .detail .value {
