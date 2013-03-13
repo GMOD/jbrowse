@@ -55,7 +55,7 @@ constructor: function( args ) {
                 function( storeName ) {
                     var d = new Deferred();
                     thisB.browser.getStore( storeName, function( store ) {
-                        if( store ) {
+                        if ( store ) {
                             store.name = storeName;
                             thisB.stores[key].push( store );
                             d.resolve( store, true );
@@ -98,7 +98,9 @@ getRegionStats: function( region, successCallback, errorCallback ) {
                 if (args.hasOwnProperty(key)) {
                     for (var stat in args[key]) {
                         if (args[key].hasOwnProperty(stat)) {
-                            if (!tempStat[stat]) { tempStat[stat] = args[key][stat]; }
+                            if (!tempStat[stat]) { 
+                                tempStat[stat] = args[key][stat];
+                            }
                             else {
                                 tempStat[stat] = thisB.combineStats( stat, stats, args[key] );
                             }
@@ -125,7 +127,9 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
     thisB.gotAllStores.then( function( args ) {
 
         // check if there are stores
-        if (!Object.keys(args).length) {errorCallback}
+        if (!Object.keys(args).length) {
+            errorCallback
+        }
 
         var featureArrays = { display: {},
                               mask   : {},
@@ -209,12 +213,16 @@ makeSpan: function( args ) {
     // given a list of pseudo-features, outputs a list of non-overlapping spans
     var features = args.features || [];
     var spans = args.spans || [];
-    if ( features.length == 0 ) { return spans.sort(function(a,b){return a.start-b.start}); }
+    if ( features.length == 0 ) { 
+        return spans.sort( function( a, b ) { return a.start-b.start } );
+    }
     // if the span is empty, the function does nothing
     if( spans.length == 0 ) {
         spans.push({ start: features[0].start, end: features[0].end });
         features.splice(0,1);
-        if ( features.length == 0 ) { return spans.sort(function(a,b){return a.start-b.start}); }
+        if ( features.length == 0 ) {
+            return spans.sort ( function ( a, b ) { return a.start-b.start } );
+        }
     }
     for (var span in spans) {
         if (spans.hasOwnProperty(span)) {
@@ -234,7 +242,9 @@ makeSpan: function( args ) {
 
 inSpan: function( feature, span ) {
     // given a feature or pseudo-feature, returns true if the feature overlaps the span. False otherwise.
-    if ( !feature || !span ) {console.error("invalide arguments");}
+    if ( !feature || !span ) {
+        console.error("invalide arguments");
+    }
     return feature.get ? !( feature.get('start') >= span.end || feature.get('end') <= span.start ) :
                          !( feature.start >= span.end || feature.end <= span.start );
     
@@ -256,8 +266,13 @@ addOverlap: function( args ) {
     // takes a simple feature and a span, adds the overlap of the two as a property of the feature.
     var feature = args.feature;
     var span = args.span;
-    if (!feature) {console.error("addOverlap must be passed a feature. Passed :" + feature); return;}
-    if (!feature.overlaps) { feature.overlaps = []; }
+    if (!feature) {
+        console.error("addOverlap must be passed a feature. Passed :" + feature);
+        return;
+    }
+    if (!feature.overlaps) {
+        feature.overlaps = [];
+    }
     feature.overlaps.push( { start: Math.max( feature.get('start'), span.start ),
                              end:   Math.min( feature.get('end'), span.end ) } );
     return feature;
@@ -282,8 +297,12 @@ andSpan: function( span1, span2 ) {
     var newSpans = [];
     var startNumber = 0;
     for ( var i=0; i<arr.length-1; i++) {
-        if (arr[i][0] == 's') { startNumber++; }
-        if (arr[i][0] == 'e') { startNumber--; }
+        if (arr[i][0] == 's') {
+            startNumber++;
+        }
+        if (arr[i][0] == 'e') {
+            startNumber--;
+        }
         if ( startNumber == 2 ) {
             newSpans.push({ start: arr[i][1], end: arr[i+1][1] });
         }
@@ -306,9 +325,11 @@ notSpan: function( spans, query ) {
     }
     invSpan[i].end = query.end;
     if (invSpan[i].end <= invSpan[i].start) {
-        invSpan.splice(i,1); }
+        invSpan.splice(i,1);
+    }
     if (invSpan[0].end <= invSpan[0].start) {
-        invSpan.splice(0,1); }
+        invSpan.splice(0,1);
+    }
     return invSpan;
 },
 
@@ -373,7 +394,9 @@ combineStats: function( key, currStats, newStats) {
             var sumSquares = currStats['scoreSumSquares']+newStats['scoreSumSquares'];
             var squareSums = (currStats['scoreSum']+newStats['scoreSum'])*(currStats['scoreSum']+newStats['scoreSum']);
             var variance = sumSquares - squareSums/n;
-            if (n > 1) { variance /= n-1; }
+            if (n > 1) {
+                variance /= n-1;
+            }
             return variance < 0 ? 0 : Math.sqrt(variance);
         default:
             console.error("No stat combination behaviour defined for "+key);

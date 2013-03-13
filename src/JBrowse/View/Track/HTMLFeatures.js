@@ -477,7 +477,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                     // dynamically resize the coverage divs.
                                     var start = sourceSlot.booleanCovs[key].span.s;
                                     var end   = sourceSlot.booleanCovs[key].span.e;
-                                    if ( end < containerStart || start > containerEnd) continue; 
+                                    if ( end < containerStart || start > containerEnd) 
+                                        continue; 
                                     // note: we should also remove it from booleanCovs at some point.
                                     sourceSlot.booleanCovs[key].style.left = 100*(start-s)/(e-s)+'%';
                                     sourceSlot.booleanCovs[key].style.width = 100*(end-start)/(e-s)+'%';
@@ -489,7 +490,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 function(node, idx, arr) {
                                     var start = node.subfeatureEdges.s;
                                     var end   = node.subfeatureEdges.e;
-                                    if ( end < containerStart || start > containerEnd ) return;
+                                    if ( end < containerStart || start > containerEnd ) 
+                                        return;
                                     node.style.left = 100*(start-s)/(e-s)+'%';
                                     node.style.width = 100*(end-start)/(e-s)+'%';
                                     featDiv.appendChild(node);
@@ -644,7 +646,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         for ( var i in blocks ) {
             if ( blocks.hasOwnProperty(i) ) {
                 // loop through all blocks
-                if ( !blocks[i] ) {continue;}
+                if ( !blocks[i] ) 
+                    continue;
                 var block = blocks[i]
                 var bs = block.startBase;
                 var be = block.endBase;
@@ -696,7 +699,10 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                         if ( parentDiv.childNodes[key] && parentDiv.childNodes[key].booleanDiv ) {
                             var divStart = parentDiv.childNodes[key].span.s;
                             var divEnd   = parentDiv.childNodes[key].span.e;
-                            if ( divStart <= start && divEnd >= end ) {isAdded = true; break;}
+                            if ( divStart <= start && divEnd >= end ) {
+                                isAdded = true;
+                                break;
+                            }
                             var u = union (start, end, divStart, divEnd );
                             if ( u ) {
                                 var coverageNode = makeDiv( u.s, u.e, parentDiv, masked, voidClass );
@@ -719,7 +725,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 }
 
                 var addOverlaps = function ( s, e, feat, spans, invSpans, voidClass ) {
-                    if ( !feat.booleanCovs ) { feat.booleanCovs = []; }
+                    if ( !feat.booleanCovs ) {
+                        feat.booleanCovs = [];
+                    }
                     // add opaque divs
                     for ( var index in invSpans ) {
                         if ( invSpans.hasOwnProperty(index) ) {
