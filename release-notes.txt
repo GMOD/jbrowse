@@ -51,6 +51,10 @@
    pop up a warning if a local data file is opened that contains no
    data for the current reference sequence (issue #178).
 
+ * Fixed bug in which the navigation location for some reference
+   sequences can get messed up when ref.start != 0, or ref.end !=
+   ref.length (issue #215).
+
 1.8.1     2013-02-12 12:56:24 EST5EDT
 
  * Added support for `cigarAttribute` and `mdAttributes` configuration

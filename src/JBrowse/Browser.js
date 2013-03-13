@@ -1426,8 +1426,14 @@ Browser.prototype.navigateTo = function(loc) {
                     this.navigateToLocation( oldLoc );
                     return;
                 } else {
-                    // if we don't just go to the middle 80% of that refseq
-                    this.navigateToLocation({ref: ref.name, start: ref.end*0.1, end: ref.end*0.9 });
+                    // if we don't just go to the middle 80% of that refseq,
+                    // based on range that can be viewed (start to end)
+                    // rather than total length, in case start != 0 || end != length
+                    // this.navigateToLocation({ref: ref.name, start: ref.end*0.1, end: ref.end*0.9 });
+                    var visibleLength = ref.end - ref.start;
+                    this.navigateToLocation({ref:   ref.name,
+                                             start: ref.start + (visibleLength * 0.1),
+                                             end:   ref.start + (visibleLength * 0.9) } );
                     return;
                 }
             }
