@@ -42,6 +42,7 @@ my %WriteMakefileArgs = (
     "Bio::OntologyIO" => 0,
     "Bio::Root::Version" => "1.006000",
     "Bio::SeqFeature::Annotated" => 0,
+    "Bio::SeqFeature::Lite" => 0, #< for Bio::DB::BAM
     "Carp" => 0,
     "Cache::Ref::FIFO" => 0,
     "Cwd" => 0,
