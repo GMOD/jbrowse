@@ -1,12 +1,14 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/json',
            'JBrowse/Digest/Crc32',
            'JBrowse/Model/SimpleFeature'
        ],
        function(
            declare,
            array,
+           JSON,
            Digest,
            SimpleFeature
        ) {
@@ -385,6 +387,18 @@ return declare( null, {
                 bySample[sname] = genotypes[i];
             }
         }
+
+        // add a toString to it that serializes it to JSON without its metadata
+        bySample.toString = function() {
+            var ex = {};
+            for( var sample in this ) {
+                var srec = ex[sample] = {};
+                for( var field in this[sample] ) {
+                    srec[field] = this[sample][field].values;
+                }
+            }
+            return JSON.stringify( ex );
+        };
 
         return bySample;
     },
