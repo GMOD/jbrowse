@@ -97,7 +97,9 @@ return declare( null, {
                             name   : nameField,
                             getName: dojo.hitch(this, function() {
                                     var name = this.storeFetch.name.get('value');
-                                    if ( !(this.trackNames.indexOf(name) > -1) ) { return [name] }
+                                    if ( !(this.trackNames.indexOf(name) > -1) ) {
+                                        return [name]
+                                    }
                                     var counter = 0;
                                     while ( this.trackNames.indexOf(name+counter) > -1 ) {
                                         counter++;

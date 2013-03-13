@@ -162,7 +162,9 @@ return declare( [WiggleXY, AlignmentsMixin],
                 for ( var i = 0, n = pixels.length; i < n; i += 4 ) {
                     /* Note: the default canvas values are transparent black,
                      * so we don't want to change the opacity of transparent pixels */
-                    if ( pixels[i+3] != 0 ) { pixels[i+3] = booleanAlpha;}
+                    if ( pixels[i+3] != 0 ) { 
+                        pixels[i+3] = booleanAlpha;
+                    }
                 }
                 context.putImageData( img, l, 0 );
             }
