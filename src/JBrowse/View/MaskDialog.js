@@ -7,14 +7,15 @@ define( [
             'dijit/form/RadioButton',
             'dijit/form/MultiSelect',
             'dijit/form/TextBox',
+            'dijit/form/FilteringSelect',
             'dijit/Dialog',
             'dojo/dom-construct',
             'dojo/dom-style',
             'dojo/_base/window',
             'dojo/Deferred',
-            './MaskDialog/TrackTypeDialog',
             './MaskDialog/settingViewer',
-            'dojo/on'
+            'dojo/on',
+            'dojo/store/Memory'
         ],
         function( declare,
                   array,
@@ -24,14 +25,15 @@ define( [
                   RadioButton,
                   MultiSelect,
                   TextBox,
+                  FilteringSelect,
                   Dialog,
                   dom,
                   domStyle,
                   window,
                   Deferred,
-                  TrackTypeDialog,
                   settingViewer,
-                  on ) {
+                  on,
+                  memory ) {
 
 return declare( null, {
 
@@ -57,39 +59,39 @@ return declare( null, {
         dojo.destroy(dialog.containerNode)
 
         var actionBar         = this._makeActionBar( args.openCallback );
-        var displaySelector   = this._makeStoreSelector();
-        var maskSelector      = this._makeStoreSelector();
-        var invMaskSelector   = this._makeStoreSelector();
+        var displaySelector   = this._makeStoreSelector({ title: 'display'});
+        var maskSelector      = this._makeStoreSelector({ title: 'mask' });
+        var invMaskSelector   = this._makeStoreSelector({ title: 'inverse mask'});
         var nameField         = this._makeNameField( "type desired track name here" );
         var opSelector        = this._makeOPSelector();
 
-        on( displaySelector.domNode, 'change', dojo.hitch(this, function ( e ) {
-            // prevent users from selecting multiple track types for display.
-            var options = displaySelector.domNode.children;
-            var selectedType = null;
-            for ( var key in options ) {
-                if ( options.hasOwnProperty(key) && options[key].selected ) {
-                    selectedType = options[key].type;
-                    break;
-                }
-            }
-            // If nothing is selected, enable all available options
-            if ( !selectedType ) {
-                for ( var key in options ) {
-                    if ( options.hasOwnProperty(key) && (this.supportedTracks.indexOf(options[key].type ) > -1) ) {
-                        options[key].disabled = false;
-                    }
-                }
-                return;
-            }
-            // else, disable and deselect relevant options
-            for ( var key in options ) {
-                if ( options.hasOwnProperty(key) && options[key].type != selectedType ) {
-                    options[key].disabled = 'disabled';
-                    options[key].selected = false;
-                }
-            }
-        }));
+        // on( displaySelector.domNode, 'change', dojo.hitch(this, function ( e ) {
+        //     // prevent users from selecting multiple track types for display.
+        //     var options = displaySelector.domNode.children;
+        //     var selectedType = null;
+        //     for ( var key in options ) {
+        //         if ( options.hasOwnProperty(key) && options[key].selected ) {
+        //             selectedType = options[key].type;
+        //             break;
+        //         }
+        //     }
+        //     // If nothing is selected, enable all available options
+        //     if ( !selectedType ) {
+        //         for ( var key in options ) {
+        //             if ( options.hasOwnProperty(key) && (this.supportedTracks.indexOf(options[key].type ) > -1) ) {
+        //                 options[key].disabled = false;
+        //             }
+        //         }
+        //         return;
+        //     }
+        //     // else, disable and deselect relevant options
+        //     for ( var key in options ) {
+        //         if ( options.hasOwnProperty(key) && options[key].type != selectedType ) {
+        //             options[key].disabled = 'disabled';
+        //             options[key].selected = false;
+        //         }
+        //     }
+        // }));
 
         this.storeFetch = { data   : { display: displaySelector.sel,
                                        mask   : maskSelector.sel,
@@ -126,7 +128,7 @@ return declare( null, {
                                                 d.resolve(tracks[0], true);
                                             }
                                             else {
-                                                new TrackTypeDialog({ browser: this.browser, tracks: tracks, deferred: d }).show();
+                                                console.error('multiple track types selected for display data (should not be possible).');
                                             }
                                 }),
                             fetch  : dojo.hitch(this.storeFetch, function() {
@@ -228,6 +230,15 @@ return declare( null, {
             .placeAt( actionBar );
         new Button({ label: 'Create track',
                      onClick: dojo.hitch( thisB, function() {
+                                // first, select everything in the multiselects.
+                                for ( var key in thisB.storeFetch.data ) {
+                                    if ( thisB.storeFetch.data.hasOwnProperty(key) ) {
+                                        dojo.query('option', thisB.storeFetch.data[key].domNode)
+                                           .forEach(function(node, index, nodelist){
+                                                node.selected = true;
+                                            });
+                                    }
+                                }
                                 d = new Deferred();
                                 thisB.storeFetch.displayTypes(d);
                                 dojo.when(d, function( arg ){
@@ -281,24 +292,76 @@ return declare( null, {
         return { domNode: aux }
     },
 
-    _makeStoreSelector: function() {
+    _makeStoreSelector: function( args ) {
+        var selectorTitle = args.title;
+
+        var container = dom.create( 'div', { className: 'selectorContainer'})
+        var title = dom.create( 'div', { className: 'selectorTitle', innerHTML: title });
         var selector = new MultiSelect();
-        selector.containerNode.className = 'storeSelector';
-        var tracks = this.browser.trackConfigsByName;
-        for (var ID in tracks ) {
-            if ( tracks.hasOwnProperty( ID ) ) {
-                var op = window.doc.createElement('option');
-                op.innerHTML = tracks[ID].key || tracks[ID].label;
-                this.trackNames.push(tracks[ID].label);
-                op.type = tracks[ID].type;
-                op.value = tracks[ID].store+','+tracks[ID].type;
-                if ( ! ( this.supportedTracks.indexOf(tracks[ID].type ) > -1 ) ) { 
-                    op.disabled = 'disabled'; // disable tracks that aren't supported
-                }
-                selector.containerNode.appendChild(op);
+        selector.containerNode.className = 'storeSelections';
+        var tracks = {};
+        for ( var ID in this.browser.trackConfigsByName ) {
+            if ( this.browser.trackConfigsByName.hasOwnProperty(ID) ) {
+                var tmp = this.browser.trackConfigsByName;
+                tracks[ tmp[ID].key || tmp[ID].label ] = { type: tmp[ID].type,
+                                                           value: tmp[ID].store+','+tmp[ID].type,
+                                                           valid: ( this.supportedTracks.indexOf(tmp[ID].type ) > -1 ) ? true : false
+                                                         };
             }
         }
-        return { domNode: selector.containerNode, sel: selector };
+
+        var opBar = dom.create( 'div', { className: 'operationBar' } );
+
+        var trackStore = new memory( { data: [/* { name: '', id: ''} */] } );
+
+        var updateTrackStore = function() {
+            trackStore.data = [];
+            for ( var key in tracks ) {
+                if (tracks.hasOwnProperty(key) && tracks[key].valid ) {
+                    trackStore.put( { name: key, id: key } );
+                }
+            }
+        };
+        updateTrackStore();
+
+        var cBox = new FilteringSelect( { id: selectorTitle+'TrackFinder',
+                                          name: 'track',
+                                          value: '',
+                                          store: trackStore,
+                                          searchAttr: 'name'
+                                        }, 'trackFinder');
+
+        new Button({ iconClass: '', // add something here that looks like a minus sign
+                     multiselect: selector,
+                     onClick: function() {
+                        // query multiselect options for those selected
+                        // remove selected options
+                        // if a filtering track, update the trackStore
+                     }
+                   })
+            .placeAt( opBar );
+        new Button({ iconClass: '', // add something here that looks like a plus sign
+                     multiselect: selector,
+                     onClick: dojo.hitch(this, function() {
+                        var key = cBox.get('value');
+                        if ( !key )
+                            return;
+                        var op = window.doc.createElement('option');
+                        op.innerHTML = key;
+                        op.type = tracks[key].type;
+                        op.value = tracks[key].value;
+                        selector.containerNode.appendChild(op);
+                        // if a filtering track, update the trackStore
+                     })
+                   })
+            .placeAt( opBar );
+        cBox.placeAt( opBar );
+
+        container.appendChild(title);
+        container.appendChild(selector.domNode);
+        container.appendChild(opBar);
+
+        return { domNode: container, sel: selector };
     },
 
     _makeNameField: function( text ) {
