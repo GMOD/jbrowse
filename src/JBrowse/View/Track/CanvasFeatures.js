@@ -205,6 +205,8 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
             return (coord-leftBase)*scale;
         };
 
+        var layout = this._getLayout( scale );
+
         this.store.getFeatures( { ref: this.refSeq.name,
                                   start: leftBase,
                                   end: rightBase
@@ -225,7 +227,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                                          .then( function( glyph ) {
                                              var fRect = glyph.layoutFeature({
                                                              view: args,
-                                                             layout: thisB._getLayout( scale ),
+                                                             layout: layout,
                                                              toX: toX,
                                                              feature: feature
                                                          });
@@ -320,10 +322,10 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
         on( canvas, 'mousemove', function( evt ) {
                 domGeom.normalizeEvent( evt );
                 var fRect = index.getByCoord( evt.layerX, evt.layerY );
-                thisB.highlightFeature( args, fRect && fRect.f );
+                thisB.mouseoverFeature( args, fRect && fRect.f );
         });
         on( canvas, 'mouseout', function( evt ) {
-                thisB.highlightFeature( args, undefined );
+                thisB.mouseoverFeature( args, undefined );
         });
 
         // connect up the event handlers
@@ -334,11 +336,11 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                 var fRect = index.getByCoord( evt.layerX, evt.layerY );
                 if( fRect ) {
                     handler.call({
-                                     track: thisB,
-                                     feature: fRect.f,
-                                     fRect: fRect,
-                                     callbackArgs: [ thisB, fRect.f ]
-                                 });
+                        track: thisB,
+                        feature: fRect.f,
+                        fRect: fRect,
+                        callbackArgs: [ thisB, fRect.f ]
+                    });
                 }
             });
         }
@@ -353,7 +355,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
     // given viewargs and a feature object, highlight that feature in
     // all blocks.  if feature is undefined or null, unhighlight any currently
     // highlighted feature
-    highlightFeature: function( args, feature ) {
+    mouseoverFeature: function( args, feature ) {
 
         if( this.lastHighlight == feature )
             return;
@@ -374,7 +376,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                 if( ! fRect )
                     return;
 
-                fRect.glyph.highlightFeature( context, args, fRect );
+                fRect.glyph.mouseoverFeature( context, args, fRect );
             }
         }, this );
 

@@ -765,13 +765,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             dojo.addClass(featDiv, className + "_phase" + phase);
 
         // check if this feature is highlighted
-        var highlighted = function() {
-            var highlight = this.browser.getHighlight();
-            return highlight
-                && ( highlight.objectName == name )
-                && highlight.ref == this.refSeq.name
-                && !( feature.get('start') > highlight.end || feature.get('end') < highlight.start );
-        }.call(this);
+        var highlighted = this.isFeatureHighlighted( feature, name );
 
         // add 'highlighted' to the feature's class if its name
         // matches the objectName of the global highlight and it's

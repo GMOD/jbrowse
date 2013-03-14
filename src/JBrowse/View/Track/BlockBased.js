@@ -873,6 +873,14 @@ return declare( Component,
         return this.getConf( path, [feature, path, null, null, this ] );
     },
 
+    isFeatureHighlighted: function( feature, name ) {
+        var highlight = this.browser.getHighlight();
+        return highlight
+            && ( highlight.objectName == name )
+            && highlight.ref == this.refSeq.name
+            && !( feature.get('start') > highlight.end || feature.get('end') < highlight.start );
+    },
+
     _openDialog: function( spec, evt, context ) {
         context = context || {};
         var type = spec.action;
