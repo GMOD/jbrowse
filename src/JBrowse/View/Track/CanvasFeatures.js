@@ -7,17 +7,32 @@ define( [
             'dojo/dom-construct',
             'dojo/_base/array',
             'dojo/dom-geometry',
+            'dojo/Deferred',
             'dojo/on',
             'JBrowse/View/GranularRectLayout',
             'JBrowse/View/Track/Canvas',
             'JBrowse/Errors',
             'JBrowse/View/Track/FeatureDetailMixin'
         ],
-        function( declare, dom, array, domGeom, on, Layout, CanvasTrack, Errors, FeatureDetailMixin ) {
+        function(
+            declare,
+            dom,
+            array,
+            domGeom,
+            Deferred,
+            on,
+            Layout,
+            CanvasTrack,
+            Errors,
+            FeatureDetailMixin
+        ) {
 
-// indexes feature layout rectangles (fRects) (which include features)
-// by canvas pixel coordinate, and by unique ID.  one of these indexes
-// in each block.
+/**
+ *  inner class that indexes feature layout rectangles (fRects) (which
+ *  include features) by canvas pixel coordinate, and by unique ID.
+ *
+ *  We have one of these indexes in each block.
+ */
 var FRectIndex = declare( null,  {
     constructor: function(args) {
         var canvas = args.canvas;
@@ -68,11 +83,13 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
 
     constructor: function( args ) {
         this._setupEventHandlers();
+        this.glyphLoadingPromises = {};
     },
 
     _defaultConfig: function() {
         return {
             maxFeatureScreenDensity: 400,
+            glyph: 'JBrowse/View/FeatureGlyph/Rectangle',
             style: {
                 color: 'goldenrod',
                 mouseovercolor: 'rgba(0,0,0,0.3)',
@@ -140,6 +157,22 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
         return this.layout;
     },
 
+    /**
+     * Returns a promise for the appropriate glyph for the given
+     * feature and args.
+     */
+    getGlyph: function( viewArgs, feature ) {
+        var glyphClassName = this.getConfForFeature( 'glyph', feature );
+        var thisB = this;
+        return this.glyphLoadingPromises[glyphClassName] || function() {
+            var d = new Deferred();
+            require( [glyphClassName], function( GlyphClass ) {
+                d.resolve( new GlyphClass({ track: thisB }) );
+            });
+            return d;
+        }();
+    },
+
     fillFeatures: function( args ) {
         var thisB = this;
 
@@ -156,7 +189,19 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
 
         var fRects = [];
 
-        var toX = function(coord) {
+        // count of how many features are queued up to be laid out
+        var featuresInProgress = 0;
+        // promise that resolved when all the features have gotten laid out by their glyphs
+        var featuresLaidOut = new Deferred();
+        // flag that tells when all features have been read from the
+        // store (not necessarily laid out yet)
+        var allFeaturesRead = false;
+
+        var errorCallback = dojo.hitch( thisB, function(e) {
+                                            this._handleError(e);
+                                            finishCallback(e);
+                                        });
+        function toX(coord) {
             return (coord-leftBase)*scale;
         };
 
@@ -173,41 +218,64 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                                             block: block
                                         });
 
-                                    fRects.push( thisB.layoutFeature( args, feature, toX ) );
+                                    fRects.push( false ); // put a placeholder in the fRects array
+                                    featuresInProgress++;
+                                    var rectNumber = fRects.length-1;
+                                    thisB.getGlyph( args, feature )
+                                         .then( function( glyph ) {
+                                             var fRect = glyph.layoutFeature({
+                                                             view: args,
+                                                             layout: thisB._getLayout( scale ),
+                                                             toX: toX,
+                                                             feature: feature
+                                                         });
+                                             fRect.glyph = glyph;
+                                             fRects[rectNumber] = fRect;
+
+                                             // this might happen after all the features have been sent from the store
+                                             if( ! --featuresInProgress && allFeaturesRead ) {
+                                                 featuresLaidOut.resolve();
+                                             }
+
+                                          },
+                                          errorCallback
+                                          );
                                 },
 
                                 // callback when all features sent
                                 function () {
-                                    var totalHeight = thisB._getLayout(scale)
-                                                           .getTotalHeight();
-                                    var c = block.featureCanvas =
-                                        dojo.create(
-                                            'canvas',
-                                            { height: totalHeight,
-                                              width:  block.offsetWidth+1,
-                                              style: {
-                                                  cursor: 'default',
-                                                  height: totalHeight+'px'
-                                              },
-                                              innerHTML: 'Your web browser cannot display this type of thisB.',
-                                              className: 'canvas-track'
-                                            },
-                                            block
-                                        );
-                                    thisB.renderFeatures( args, c, fRects );
+                                    allFeaturesRead = true;
+                                    if( ! featuresInProgress && ! featuresLaidOut.isFulfilled() )
+                                        featuresLaidOut.resolve();
 
-                                    thisB.renderClickMap( args, c, fRects );
+                                    featuresLaidOut.then( function() {
+                                        var totalHeight = thisB._getLayout(scale)
+                                                               .getTotalHeight();
+                                        var c = block.featureCanvas =
+                                            dojo.create(
+                                                'canvas',
+                                                { height: totalHeight,
+                                                  width:  block.offsetWidth+1,
+                                                  style: {
+                                                      cursor: 'default',
+                                                      height: totalHeight+'px'
+                                                  },
+                                                  innerHTML: 'Your web browser cannot display this type of thisB.',
+                                                  className: 'canvas-track'
+                                                },
+                                                block
+                                            );
+                                        thisB.renderFeatures( args, c, fRects );
 
-                                    thisB.layoutCanvases([c]);
-                                    thisB.heightUpdate( totalHeight,
-                                                        blockIndex );
-                                    finishCallback();
+                                        thisB.renderClickMap( args, c, fRects );
+
+                                        thisB.layoutCanvases([c]);
+                                        thisB.heightUpdate( totalHeight,
+                                                            blockIndex );
+                                        finishCallback();
+                                    });
                                 },
-
-                                dojo.hitch( thisB, function(e) {
-                                    this._handleError(e);
-                                    finishCallback(e);
-                                })
+                                errorCallback
                               );
     },
 
@@ -230,36 +298,6 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
         });
 
         this.inherited( arguments );
-    },
-
-    // calculate the placement of the feature on the canvas for this
-    // block.
-    layoutFeature: function( viewArgs, feature, toX ) {
-        var scale = viewArgs.scale;
-        var layoutStart = feature.get('start');
-        var layoutEnd   = feature.get('end');
-
-        var fHeight = this.getStyle( feature, 'height' );
-        var levelHeight = fHeight + this.getStyle( feature, 'marginBottom' );
-
-        var uniqueId = feature.id();
-        var top = this._getLayout( scale )
-                      .addRect( uniqueId,
-                                layoutStart,
-                                layoutEnd,
-                                levelHeight);
-
-        var fRect = {
-            l: toX(layoutStart),
-            h: fHeight,
-            t: top,
-
-            f: feature,
-            toX: toX
-        };
-        fRect.w = toX(layoutEnd) - fRect.l;
-
-        return fRect;
     },
 
     renderClickMap: function( args, canvas, fRects ) {
@@ -336,8 +374,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                 if( ! fRect )
                     return;
 
-                context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' );
-                context.fillRect( fRect.l, fRect.t, fRect.w, fRect.h );
+                fRect.glyph.highlightFeature( context, args, fRect );
             }
         }, this );
 
@@ -346,35 +383,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
 
     // draw each feature
     renderFeature: function( context, viewArgs, fRect ) {
-        // background
-        var color = this.getStyle( fRect.f, 'color' );
-        if( color ) {
-            context.fillStyle = color;
-            context.fillRect( fRect.l, fRect.t, fRect.w, fRect.h );
-        }
-
-        // foreground border
-        var border_color;
-        if( fRect.h > 3 ) {
-            border_color = this.getStyle( fRect.f, 'border_color' );
-            if( border_color ) {
-                context.lineWidth = 1;
-                context.strokeStyle = border_color;
-
-                // need to stroke a smaller rectangle to remain within
-                // the bounds of the feature's overall height and
-                // width, because of the way stroking is done in
-                // canvas.  thus the +0.5 and -1 business.
-                context.strokeRect( fRect.l+0.5, fRect.t+0.5, fRect.w-1, fRect.h-1 );
-            }
-        }
-        else if( fRect.h > 1 ) {
-            border_color = this.getStyle( fRect.f, 'border_color' );
-            if( border_color ) {
-                context.fillStyle = border_color;
-                context.fillRect( fRect.l, fRect.t+fRect.h-1, fRect.w, 1 );
-            }
-        }
+        fRect.glyph.renderFeature( context, viewArgs, fRect );
     }
 });
 });
