@@ -1,7 +1,7 @@
 @import url("src/dojox/form/resources/UploaderFileList.css");
 .maskDialog {
     color: #333;
-    height: 440px;
+    height: 460px;
 }
 
 .maskDialog .contentContainer {
@@ -19,13 +19,23 @@
 .maskDialog .storeSelectors {
     position: relative;
     top: 62px;
+    height: 217px;
+    padding-bottom: 10px;
 }
 
-.maskDialog .storeSelector {
+.maskDialog .selectorContainer {
+    float: left;
+}
+
+.maskDialog .storeSelections {
     position: relative;
     background-color: #8cb1dd;
-    height: 200px;
+    height: 180px;
     width: 200px;
+}
+
+.maskDialog .dijitComboBox {
+    width: 160px;
 }
 
 .maskDialog .and-or-selector {
@@ -47,7 +57,7 @@
 
 .maskDialog .dijitDialogPaneActionBar {
     position: absolute;
-    top: 343px;
+    top: 363px;
     left: 3px;
     padding-top: 0px;
     padding-left: 1px;
