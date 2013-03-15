@@ -28,6 +28,11 @@
     padding-left: 3px;
 }
 
+.maskDialog .selectorContainer .selectorTitle {
+    border: 2px solid silver;
+    font-weight: bold;
+}
+
 .maskDialog .storeSelections {
     position: relative;
     background-color: #8cb1dd;

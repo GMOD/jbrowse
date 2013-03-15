@@ -59,9 +59,9 @@ return declare( null, {
         dojo.destroy(dialog.containerNode)
 
         var actionBar         = this._makeActionBar( args.openCallback );
-        var displaySelector   = this._makeStoreSelector({ title: 'display', filter: true });
-        var maskSelector      = this._makeStoreSelector({ title: 'mask' });
-        var invMaskSelector   = this._makeStoreSelector({ title: 'inverse mask'});
+        var displaySelector   = this._makeStoreSelector({ title: 'Display', filter: true });
+        var maskSelector      = this._makeStoreSelector({ title: 'Mask' });
+        var invMaskSelector   = this._makeStoreSelector({ title: 'Inverse Mask'});
         var nameField         = this._makeNameField( "type desired track name here" );
         var opSelector        = this._makeOPSelector();
 
