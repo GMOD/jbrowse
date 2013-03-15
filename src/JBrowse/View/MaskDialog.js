@@ -93,6 +93,12 @@ return declare( null, {
         //     }
         // }));
 
+        on( displaySelector.domNode, 'change', dojo.hitch(this, function ( e ) {
+            // disable the "create track" button if there is no display data available.
+            var disabled = !(dojo.query('option', displaySelector.domNode).length > 0);
+            actionBar.createTrackButton.set('disabled', disabled );
+        }));
+
         this.storeFetch = { data   : { display: displaySelector.sel,
                                        mask   : maskSelector.sel,
                                        invMask: invMaskSelector.sel },
@@ -228,7 +234,8 @@ return declare( null, {
                      onClick: function() { thisB.dialog.hide(); }
                    })
             .placeAt( actionBar );
-        new Button({ label: 'Create track',
+        var createTrack = new Button({ label: 'Create track',
+                     disabled: true,
                      onClick: dojo.hitch( thisB, function() {
                                 // first, select everything in the multiselects.
                                 for ( var key in thisB.storeFetch.data ) {
@@ -267,7 +274,7 @@ return declare( null, {
                     })
             .placeAt( actionBar );
 
-        return { domNode: actionBar };
+        return { domNode: actionBar, createTrackButton: createTrack };
     },
 
     _makeOPSelector: function() {
@@ -338,6 +345,11 @@ return declare( null, {
                         dojo.query('option', selector.domNode)
                             .filter(function(n){return n.selected;}).orphan();
                         // if a filtering track, update the trackStore (todo)
+                        // trigger selector event
+                        on.emit(selector.domNode, "change", {
+                            bubbles: true,
+                            cancelable: true
+                        });
                      }
                    })
             .placeAt( opBar );
@@ -353,6 +365,11 @@ return declare( null, {
                         op.value = tracks[key].value;
                         selector.containerNode.appendChild(op);
                         // if a filtering track, update the trackStore (todo)
+                        // trigger selector event
+                        on.emit(selector.domNode, "change", {
+                            bubbles: true,
+                            cancelable: true
+                        });
                      })
                    })
             .placeAt( opBar );
