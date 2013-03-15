@@ -25,6 +25,7 @@
 
 .maskDialog .selectorContainer {
     float: left;
+    padding-left: 3px;
 }
 
 .maskDialog .storeSelections {
@@ -34,24 +35,39 @@
     width: 200px;
 }
 
+.maskDialog .selectorContainer .dijitButton {
+    margin: 0px;
+    padding-right: 2px;
+    padding-top: 2px;
+}
+
+.maskDialog .selectorContainer .dijitButtonNode {
+    width: 13px;
+    height: 13px;
+    padding: 1px;
+    padding-top: 0px;
+}
+
 .maskDialog .dijitComboBox {
+    height: 14px;
     width: 160px;
+    margin-top: 2px;
 }
 
 .maskDialog .and-or-selector {
     position: relative;
-    top: 62px;
+    top: 57px;
     padding-top: 10px;
 }
 
 .maskDialog .textFieldContainer {
     position: relative;
-    top: 62px;
-    padding-top: 10px;
+    top: 66px;
 }
 
 .maskDialog .nameField {
     width: 150px;
+    top: 5px;
     padding-left: 3px;
 }
 
@@ -85,3 +101,19 @@
     height: 130px;
     width: 400px;
 }
+
+.plusIcon {
+   background-image: url('src/JBrowse/View/MaskDialog/icons/plus.png');
+   background-repeat: no-repeat;
+   width: 13px;
+   height: 13px;
+   text-align: center;
+} 
+
+.minusIcon {
+   background-image: url('src/JBrowse/View/MaskDialog/icons/minus.png');
+   background-repeat: no-repeat;
+   width: 13px;
+   height: 13px;
+   text-align: center;
+} 

@@ -295,8 +295,8 @@ return declare( null, {
     _makeStoreSelector: function( args ) {
         var selectorTitle = args.title;
 
-        var container = dom.create( 'div', { className: 'selectorContainer'})
-        var title = dom.create( 'div', { className: 'selectorTitle', innerHTML: title });
+        var container = dom.create( 'div', { className: 'selectorContainer'} )
+        var title = dom.create( 'div', { className: 'selectorTitle', innerHTML: selectorTitle } );
         var selector = new MultiSelect();
         selector.containerNode.className = 'storeSelections';
         var tracks = {};
@@ -314,33 +314,34 @@ return declare( null, {
 
         var trackStore = new memory( { data: [/* { name: '', id: ''} */] } );
 
-        var updateTrackStore = function() {
-            trackStore.data = [];
+        // populate the trackStore
+        (function() {
             for ( var key in tracks ) {
                 if (tracks.hasOwnProperty(key) && tracks[key].valid ) {
                     trackStore.put( { name: key, id: key } );
                 }
             }
-        };
-        updateTrackStore();
+        })();
 
         var cBox = new FilteringSelect( { id: selectorTitle+'TrackFinder',
                                           name: 'track',
                                           value: '',
                                           store: trackStore,
+                                          required: false,
                                           searchAttr: 'name'
                                         }, 'trackFinder');
 
-        new Button({ iconClass: '', // add something here that looks like a minus sign
+        new Button({ iconClass: 'minusIcon',
                      multiselect: selector,
                      onClick: function() {
-                        // query multiselect options for those selected
-                        // remove selected options
-                        // if a filtering track, update the trackStore
+                        // Orphan the selected children :D
+                        dojo.query('option', selector.domNode)
+                            .filter(function(n){return n.selected;}).orphan();
+                        // if a filtering track, update the trackStore (todo)
                      }
                    })
             .placeAt( opBar );
-        new Button({ iconClass: '', // add something here that looks like a plus sign
+        new Button({ iconClass: 'plusIcon',
                      multiselect: selector,
                      onClick: dojo.hitch(this, function() {
                         var key = cBox.get('value');
@@ -351,7 +352,7 @@ return declare( null, {
                         op.type = tracks[key].type;
                         op.value = tracks[key].value;
                         selector.containerNode.appendChild(op);
-                        // if a filtering track, update the trackStore
+                        // if a filtering track, update the trackStore (todo)
                      })
                    })
             .placeAt( opBar );
