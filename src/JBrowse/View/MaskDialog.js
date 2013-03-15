@@ -59,7 +59,7 @@ return declare( null, {
         dojo.destroy(dialog.containerNode)
 
         var actionBar         = this._makeActionBar( args.openCallback );
-        var displaySelector   = this._makeStoreSelector({ title: 'display'});
+        var displaySelector   = this._makeStoreSelector({ title: 'display', filter: true });
         var maskSelector      = this._makeStoreSelector({ title: 'mask' });
         var invMaskSelector   = this._makeStoreSelector({ title: 'inverse mask'});
         var nameField         = this._makeNameField( "type desired track name here" );
@@ -94,9 +94,8 @@ return declare( null, {
         // }));
 
         on( displaySelector.domNode, 'change', dojo.hitch(this, function ( e ) {
-            // disable the "create track" button if there is no display data available.
-            var disabled = !(dojo.query('option', displaySelector.domNode).length > 0);
-            actionBar.createTrackButton.set('disabled', disabled );
+            // disable the "create track" button if there is no display data available..
+            actionBar.createTrackButton.set('disabled', !(dojo.query('option', displaySelector.domNode).length > 0) );
         }));
 
         this.storeFetch = { data   : { display: displaySelector.sel,
@@ -330,6 +329,24 @@ return declare( null, {
             }
         })();
 
+        var updateStore = function( type ) {
+            if (type) {
+                for (var key in tracks ) {
+                    if (tracks.hasOwnProperty(key) && (tracks[key].type != type)) {
+                        trackStore.remove(key);
+                    }
+                }
+            }
+            else {
+                trackStore.data = [];
+                for (var key in tracks ) {
+                    if (tracks.hasOwnProperty(key)) {
+                        trackStore.put( { name: key, id: key } );
+                    }
+                }
+            }
+        }
+
         var cBox = new FilteringSelect( { id: selectorTitle+'TrackFinder',
                                           name: 'track',
                                           value: '',
@@ -344,7 +361,8 @@ return declare( null, {
                         // Orphan the selected children :D
                         dojo.query('option', selector.domNode)
                             .filter(function(n){return n.selected;}).orphan();
-                        // if a filtering track, update the trackStore (todo)
+                        if (args.filter)
+                            updateStore();
                         // trigger selector event
                         on.emit(selector.domNode, "change", {
                             bubbles: true,
@@ -359,12 +377,14 @@ return declare( null, {
                         var key = cBox.get('value');
                         if ( !key )
                             return;
+                        if (args.filter) {
+                            updateStore(tracks[key].type);
+                        }
                         var op = window.doc.createElement('option');
                         op.innerHTML = key;
                         op.type = tracks[key].type;
                         op.value = tracks[key].value;
                         selector.containerNode.appendChild(op);
-                        // if a filtering track, update the trackStore (todo)
                         // trigger selector event
                         on.emit(selector.domNode, "change", {
                             bubbles: true,
