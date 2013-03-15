@@ -84,6 +84,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
     constructor: function( args ) {
         this._setupEventHandlers();
         this.glyphLoadingPromises = {};
+        this.showLabels = this.config.style.showLabels;
     },
 
     _defaultConfig: function() {
@@ -91,12 +92,27 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
             maxFeatureScreenDensity: 400,
             glyph: 'JBrowse/View/FeatureGlyph/Rectangle',
             style: {
+
+                // not configured by users
+                _defaultHistScale: 4,
+                _defaultLabelScale: 30,
+                _defaultDescriptionScale: 170,
+
+                maxDescriptionLength: 70,
+                showLabels: true,
+
                 color: 'goldenrod',
                 mouseovercolor: 'rgba(0,0,0,0.3)',
                 border_color: null,
                 height: 11,
-                marginBottom: 1,
-                label: function( feature ) { return feature.get('Name') || feature.get('ID'); },
+                marginBottom: 2,
+
+                label: function( feature ) { return feature.get('name') || feature.get('id'); },
+                textFont: 'normal 12px Univers,Helvetica,Arial,sans-serif',
+                textColor:  'black',
+                text2Color: 'blue',
+                text2Font: 'normal 12px Univers,Helvetica,Arial,sans-serif',
+
                 description: 'note, description'
             }
         };
@@ -122,19 +138,29 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
             region,
             dojo.hitch( this, function( stats ) {
 
-                var density        = stats.featureDensity;
-                var featureScale   = this.config.style.featureScale || density / this.config.maxFeatureScreenDensity; // (feat/bp) / ( feat/px ) = px/bp )
+                // calculate some additional view parameters that
+                // might depend on the feature stats and add them to
+                // the view args we pass down
+                var renderHints = dojo.mixin(
+                    {
+                        stats: stats,
+                        showFeatures:     scale >= (this.config.style.featureScale     || stats.featureDensity / this.config.maxFeatureScreenDensity ),
+                        showLabels:       this.showLabels && scale >= ( this.config.style.labelScale || stats.featureDensity * this.config.style._defaultLabelScale ),
+                        showDescriptions: this.showLabels && scale >= ( this.config.style.descriptionScale || stats.featureDensity * this.config.style._defaultDescriptionScale)
+                    },
+                    args
+                );
 
-                if( scale < featureScale ) {
+                if( renderHints.showFeatures ) {
+                    this.fillFeatures( dojo.mixin( renderHints, args ) );
+                }
+                else {
                     this.fillTooManyFeaturesMessage(
                         blockIndex,
                         block,
                         scale
                     );
                     args.finishCallback();
-                }
-                else {
-                    this.fillFeatures( dojo.mixin( {stats: stats}, args ) );
                 }
             }),
             dojo.hitch( this, function(e) {
@@ -146,7 +172,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
 
     _getLayout: function( scale ) {
         // create the layout if we need to, and if we can
-        if( ( ! this.layout || this.layout.pitchX != 4/scale ) && scale  ) {
+        if( ! this.layout || this.layout.pitchX != 4/scale ) {
             // if no layoutPitchY configured, calculate it from the
             // height and marginBottom (parseInt in case one or both are functions), or default to 3 if the
             // calculation didn't result in anything sensible.
@@ -232,6 +258,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                                                              feature: feature
                                                          });
                                              fRect.glyph = glyph;
+                                             fRect.toX = toX;
                                              fRects[rectNumber] = fRect;
 
                                              // this might happen after all the features have been sent from the store
@@ -257,7 +284,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                                             dojo.create(
                                                 'canvas',
                                                 { height: totalHeight,
-                                                  width:  block.offsetWidth+1,
+                                                  width:  block.offsetWidth+1, // wider so labels can extend to the right
                                                   style: {
                                                       cursor: 'default',
                                                       height: totalHeight+'px'

@@ -14,33 +14,36 @@ return declare( null, {
         return this.track.getStyle( feature, keyName );
     },
 
+    /**
+     * Get the dimensions of the rendered feature in pixels.
+     */
+    _getFeatureRectangle: function( args ) {
+        var feature = args.feature;
+        var fRect = {
+            l: args.toX( feature.get('start') ),
+            h: this.getStyle( feature, 'height' )
+        };
+
+        fRect.w = args.toX( feature.get('end') ) - fRect.l;
+        return fRect;
+    },
 
     layoutFeature: function( args ) {
-        var toX = args.toX;
-
         var feature = args.feature;
-        var layoutStart = feature.get('start');
-        var layoutEnd   = feature.get('end');
+        var fRect = this._getFeatureRectangle( args );
 
-        var fHeight = this.getStyle( feature, 'height' );
-        var levelHeight = fHeight + this.getStyle( feature, 'marginBottom' );
-
-        var top = args.layout.addRect(
+        var scale = args.view.scale;
+        var leftBase = args.view.leftBase;
+        var startbp = fRect.l/scale + leftBase;
+        var endbp   = (fRect.l+fRect.w)/scale + leftBase;
+        fRect.t = args.layout.addRect(
             feature.id(),
-            layoutStart,
-            layoutEnd,
-            levelHeight
+            startbp,
+            endbp,
+            fRect.h
         );
 
-        var fRect = {
-            l: toX(layoutStart),
-            h: fHeight,
-            t: top,
-
-            f: feature,
-            toX: toX
-        };
-        fRect.w = toX(layoutEnd) - fRect.l;
+        fRect.f = feature;
 
         return fRect;
     }

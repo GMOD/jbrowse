@@ -34,7 +34,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                     color_rev_strand: '#898FD8',
                     color_missing_mate: '#D11919',
                     border_color: null,
-                    height: 7,
+                    height: 8,
                     marginBottom: 1,
                     showMismatches: true,
                     mismatchFont: 'bold 10px Courier New,monospace'
