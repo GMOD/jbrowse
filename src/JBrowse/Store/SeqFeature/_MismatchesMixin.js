@@ -12,17 +12,24 @@ define([
 
 return declare( null, {
 
+    constructor: function() {
+        this.cigarAttributeName = ( this.config.cigarAttribute || 'cigar' ).toLowerCase();
+        this.mdAttributeName    = ( this.config.mdAttribute    || 'md'    ).toLowerCase();
+    },
+
     _getMismatches: function( feature ) {
         var mismatches = [];
 
         // parse the CIGAR tag if it has one
-        if( feature.get( this.cigarAttributeName ) ) {
-            mismatches.push.apply( mismatches, this._cigarToMismatches( feature, feature.get('cigar') ) );
+        var cigarString = feature.get( this.cigarAttributeName );
+        if( cigarString ) {
+            mismatches.push.apply( mismatches, this._cigarToMismatches( feature, cigarString ) );
         }
 
         // parse the MD tag if it has one
-        if( feature.get( this.mdAttributeName ) ) {
-            mismatches.push.apply( mismatches, this._mdToMismatches( feature, feature.get('md') ) );
+        var mdString = feature.get( this.mdAttributeName );
+        if( mdString )  {
+            mismatches.push.apply( mismatches, this._mdToMismatches( feature, mdString ) );
         }
 
         return mismatches;
