@@ -21,6 +21,8 @@ return declare( null, {
         this.config = this._mergeConfigs( dojo.clone( this._defaultConfig() ), this.config );
 
         this.browser = args.browser;
+        if( ! this.browser )
+            throw "a reference to the main browser is required by this constructor";
 
         this.compiledConfig = {};
     },
