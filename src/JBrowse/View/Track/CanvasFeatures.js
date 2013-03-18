@@ -351,10 +351,10 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
         on( block, 'mousemove', function( evt ) {
                 domGeom.normalizeEvent( evt );
                 var fRect = index.getByCoord( evt.layerX, evt.layerY );
-                thisB.mouseoverFeature( args, fRect && fRect.f );
+                thisB.mouseoverFeature( fRect && fRect.f );
         });
         on( block, 'mouseout', function( evt ) {
-                thisB.mouseoverFeature( args, undefined );
+                thisB.mouseoverFeature( undefined );
         });
 
         // connect up the event handlers
@@ -378,13 +378,13 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
     // draw the features on the canvas
     renderFeatures: function( args, canvas, fRects ) {
         var context = canvas.getContext('2d');
-        array.forEach( fRects, dojo.hitch( this, 'renderFeature', context, args ) );
+        array.forEach( fRects, dojo.hitch( this, 'renderFeature', context, args.block ) );
     },
 
     // given viewargs and a feature object, highlight that feature in
     // all blocks.  if feature is undefined or null, unhighlight any currently
     // highlighted feature
-    mouseoverFeature: function( args, feature ) {
+    mouseoverFeature: function( feature ) {
 
         if( this.lastMouseover == feature )
             return;
@@ -397,7 +397,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
             if( this.lastMouseover ) {
                 var r = block.fRectIndex.getByID( this.lastMouseover.id() );
                 if( r )
-                    this.renderFeature( context, args, r );
+                    this.renderFeature( context, block, r );
             }
 
             if( feature ) {
@@ -405,7 +405,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                 if( ! fRect )
                     return;
 
-                fRect.glyph.mouseoverFeature( context, args, fRect );
+                fRect.glyph.mouseoverFeature( context, block, fRect );
             }
         }, this );
 
@@ -413,8 +413,8 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
     },
 
     // draw each feature
-    renderFeature: function( context, viewArgs, fRect ) {
-        fRect.glyph.renderFeature( context, viewArgs, fRect );
+    renderFeature: function( context, block, fRect ) {
+        fRect.glyph.renderFeature( context, block, fRect );
     }
 });
 });

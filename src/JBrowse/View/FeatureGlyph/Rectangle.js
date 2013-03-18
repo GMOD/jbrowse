@@ -12,8 +12,8 @@ return declare( FeatureGlyph, {
     constructor: function() {
     },
 
-    mouseoverFeature: function( context, args, fRect ) {
-        this._renderFeature( context, args, fRect, true );
+    mouseoverFeature: function( context, block, fRect ) {
+        this._renderFeature( context, block, fRect, true );
     },
 
     _getFeatureRectangle: function( args ) {
@@ -93,11 +93,11 @@ return declare( FeatureGlyph, {
         };
     },
 
-    renderFeature: function( context, viewArgs, fRect ) {
-        this._renderFeature( context, viewArgs, fRect, false );
+    renderFeature: function( context, block, fRect ) {
+        this._renderFeature( context, block, fRect, false );
     },
 
-    _renderFeature: function( context, viewArgs, fRect, mouseover ) {
+    _renderFeature: function( context, block, fRect, mouseover ) {
         var rectWidth = Math.max( fRect.rectSize.w, 1 );
         var rectHeight = fRect.rectSize.h;
 
@@ -139,15 +139,19 @@ return declare( FeatureGlyph, {
             context.fillRect( fRect.l, fRect.t, rectWidth, rectHeight );
         }
 
+        // draw the label and/or description only if the left end of
+        // the feature we're drawing is contained within this block
+        var leftEndInBlock = block.startBase <= fRect.f.get('start');
+
         // label
-        if( fRect.label ) {
+        if( leftEndInBlock && fRect.label ) {
             context.font = this.track.config.style.textFont;
             context.fillStyle = this.getStyle( fRect.f, 'textColor' );
             context.fillText( fRect.label, fRect.l, fRect.t + fRect.labelSize.yOffset );
         }
 
         // description
-        if( fRect.description ) {
+        if( leftEndInBlock && fRect.description ) {
             context.font = this.track.config.style.text2Font;
             context.fillStyle = this.getStyle( fRect.f, 'text2Color' );
             context.fillText( fRect.description, fRect.l, fRect.t + fRect.descriptionSize.yOffset);
