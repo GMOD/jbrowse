@@ -386,7 +386,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
     // highlighted feature
     mouseoverFeature: function( args, feature ) {
 
-        if( this.lastHighlight == feature )
+        if( this.lastMouseover == feature )
             return;
 
         array.forEach( this.blocks, function( block ) {
@@ -394,8 +394,8 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
             try      {  context = block.featureCanvas.getContext('2d'); }
             catch(e) {  return;                                         }
 
-            if( this.lastHighlight ) {
-                var r = block.fRectIndex.getByID( this.lastHighlight.id() );
+            if( this.lastMouseover ) {
+                var r = block.fRectIndex.getByID( this.lastMouseover.id() );
                 if( r )
                     this.renderFeature( context, args, r );
             }
@@ -409,7 +409,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
             }
         }, this );
 
-        this.lastHighlight = feature;
+        this.lastMouseover = feature;
     },
 
     // draw each feature
