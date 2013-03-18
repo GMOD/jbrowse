@@ -19,13 +19,11 @@ return declare( BlockBased,
         }
     },
 
-    testCanvasSupport: function( blockIndex, block ) {
+    browserHasCanvas: function( blockIndex, block ) {
         try {
-            dojo.create('canvas').getContext('2d').fillStyle = 'red';
+            document.createElement('canvas').getContext('2d').fillStyle = 'red';
             return true;
         } catch( e ) {
-            this.fatalError = 'This browser does not support HTML canvas elements.';
-            this.fillBlockError( blockIndex, block, this.fatalError );
             return false;
         }
     },
@@ -37,8 +35,11 @@ return declare( BlockBased,
         var rightBase = args.rightBase;
         var scale = args.scale;
 
-        if( ! this.testCanvasSupport( blockIndex, block ) )
+        if( ! this.browserHasCanvas( blockIndex, block ) ) {
+            this.fatalError = 'This browser does not support HTML canvas elements.';
+            this.fillBlockError( blockIndex, block, this.fatalError );
             return;
+        }
 
         var blockWidth = rightBase - leftBase;
         this.heightUpdate( this.height, blockIndex );

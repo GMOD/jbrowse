@@ -129,8 +129,11 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
         var rightBase = args.rightBase;
         var scale = args.scale;
 
-        if( ! this.testCanvasSupport( blockIndex, block ) )
+        if( ! this.browserHasCanvas( blockIndex, block ) ) {
+            this.fatalError = 'This browser does not support HTML canvas elements.';
+            this.fillBlockError( blockIndex, block, this.fatalError );
             return;
+        }
 
         var region = { ref: this.refSeq.name, start: leftBase, end: rightBase };
 
@@ -339,26 +342,25 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
         block.fRectIndex = index;
         index.addAll( fRects );
 
-        var context = canvas.getContext('2d');
-        if( ! context ) {
+        if( ! canvas.getContext('2d') ) {
             console.warn( "No 2d context available from canvas" );
             return;
         }
 
         // make features get highlighted on mouse move
-        on( canvas, 'mousemove', function( evt ) {
+        on( block, 'mousemove', function( evt ) {
                 domGeom.normalizeEvent( evt );
                 var fRect = index.getByCoord( evt.layerX, evt.layerY );
                 thisB.mouseoverFeature( args, fRect && fRect.f );
         });
-        on( canvas, 'mouseout', function( evt ) {
+        on( block, 'mouseout', function( evt ) {
                 thisB.mouseoverFeature( args, undefined );
         });
 
         // connect up the event handlers
         for( var event in this.eventHandlers ) {
             var handler = this.eventHandlers[event];
-            on( canvas, event, function( evt ) {
+            on( block, event, function( evt ) {
                 domGeom.normalizeEvent( evt );
                 var fRect = index.getByCoord( evt.layerX, evt.layerY );
                 if( fRect ) {

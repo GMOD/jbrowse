@@ -55,12 +55,20 @@ return declare( FeatureGlyph, {
         return fRect;
     },
 
+    /**
+     * Estimate the height and width, in pixels, of the given label
+     * text.
+     */
     estimateLabelSize: function( text ) {
         var dims = this._labelDims
             || ( this._labelDims = this._measureFont( this.track.config.style.textFont ) );
         return { w: dims.w * text.length, h: dims.h };
     },
 
+    /**
+     * Estimate the height and width, in pixels, of the given
+     * description text.
+     */
     estimateDescriptionSize: function( text ) {
         var dims = this._descriptionDims
             || ( this._descriptionDims =
@@ -71,9 +79,12 @@ return declare( FeatureGlyph, {
         return { w: dims.w * text.length, h: dims.h };
     },
 
+    /**
+     * Return an object with average `h` and `w` of characters in the
+     * font described by the given string.
+     */
     _measureFont: function( font ) {
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
+        var ctx = document.createElement('canvas').getContext('2d');
         ctx.font = font;
         var testString = "AaBbMmNn-..Zz1234567890";
         var m = ctx.measureText( testString );

@@ -1742,6 +1742,7 @@ GenomeView.prototype._unsetPosBeforeZoom = function() {
 GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {
     var eWidth = this.elem.clientWidth;
     var centerPx = this.bpToPx(fixedBp) - (zoomLoc * eWidth) + (eWidth / 2);
+    // stripeWidth: pixels per block
     this.stripeWidth = this.stripeWidthForZoom(this.curZoom);
     this.scrollContainer.style.width =
         (this.stripeCount * this.stripeWidth) + "px";
