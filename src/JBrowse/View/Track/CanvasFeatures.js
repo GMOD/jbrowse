@@ -96,7 +96,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                 // not configured by users
                 _defaultHistScale: 4,
                 _defaultLabelScale: 30,
-                _defaultDescriptionScale: 170,
+                _defaultDescriptionScale: 120,
 
                 maxDescriptionLength: 70,
                 showLabels: true,

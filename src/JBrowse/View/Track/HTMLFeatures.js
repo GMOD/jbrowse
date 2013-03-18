@@ -93,7 +93,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 // not configured by users
                 _defaultHistScale: 4,
                 _defaultLabelScale: 30,
-                _defaultDescriptionScale: 170,
+                _defaultDescriptionScale: 120,
 
                 minSubfeatureWidth: 6,
                 maxDescriptionLength: 70,
