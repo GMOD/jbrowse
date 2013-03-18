@@ -13,8 +13,7 @@ return declare( FeatureGlyph, {
     },
 
     mouseoverFeature: function( context, args, fRect ) {
-        context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' );
-        context.fillRect( fRect.l, fRect.t, fRect.w, fRect.h );
+        this._renderFeature( context, args, fRect, true );
     },
 
     _getFeatureRectangle: function( args ) {
@@ -95,6 +94,10 @@ return declare( FeatureGlyph, {
     },
 
     renderFeature: function( context, viewArgs, fRect ) {
+        this._renderFeature( context, viewArgs, fRect, false );
+    },
+
+    _renderFeature: function( context, viewArgs, fRect, mouseover ) {
         var rectWidth = Math.max( fRect.rectSize.w, 1 );
         var rectHeight = fRect.rectSize.h;
 
@@ -128,6 +131,12 @@ return declare( FeatureGlyph, {
                 context.fillStyle = border_color;
                 context.fillRect( fRect.l, fRect.t+fRect.h-1, rectWidth, 1 );
             }
+        }
+
+        // highlight the feature rectangle if we're moused over
+        if( mouseover ) {
+            context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' );
+            context.fillRect( fRect.l, fRect.t, rectWidth, rectHeight );
         }
 
         // label
