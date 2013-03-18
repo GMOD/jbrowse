@@ -287,7 +287,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                                             dojo.create(
                                                 'canvas',
                                                 { height: totalHeight,
-                                                  width:  block.offsetWidth+1, // wider so labels can extend to the right
+                                                  width:  block.offsetWidth*3, // wider so labels can extend to the right
                                                   style: {
                                                       cursor: 'default',
                                                       height: totalHeight+'px'
