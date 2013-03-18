@@ -97,7 +97,7 @@ return declare( null, {
         }
 
         if( fields[5] !== null )
-            featureData.score = fields[5];
+            featureData.score = parseFloat( fields[5] );
         if( fields[6] !== null )
             featureData.filter = fields[6];
 
