@@ -169,11 +169,11 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
             for ( var feats in featureArrays.mask ) {
                 masks = thisB.orSpan( masks, thisB.toSpan( featureArrays.mask[feats], query ) );
             }
-            masks = thisB.notSpan( masks, query );
             var invMasks = [];
             for ( var feats in featureArrays.invMask ) {
                 invMasks = thisB.orSpan( invMasks, thisB.toSpan( featureArrays.invMask[feats], query ) );
             }
+            invMasks = thisB.notSpan( invMasks, query );
             var features = [];
             for ( var feats in featureArrays.display ) {
                 features = features.concat( featureArrays.display[feats] );

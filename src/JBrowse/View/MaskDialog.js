@@ -60,8 +60,8 @@ return declare( null, {
 
         var actionBar         = this._makeActionBar( args.openCallback );
         var displaySelector   = this._makeStoreSelector({ title: 'Display', filter: true });
-        var maskSelector      = this._makeStoreSelector({ title: 'Mask' });
-        var invMaskSelector   = this._makeStoreSelector({ title: 'Inverse Mask'});
+        var invMaskSelector   = this._makeStoreSelector({ title: 'Inverse Mask' });
+        var maskSelector      = this._makeStoreSelector({ title: 'Mask'});
         var nameField         = this._makeNameField( "type desired track name here" );
         var opSelector        = this._makeOPSelector();
 
@@ -182,7 +182,7 @@ return declare( null, {
                         dom.create( 'div', { className: 'instructions',
                                              innerHTML: 'Select data to be displayed (right), data to mask (center), and data to make inverse masks (left). Masks will hide data contained in the covered regions. Inverse masks hide data not contained in the covered regions. Use "OR" and "AND" to choose how these two interact. (See preview below.)' } ),
                             div( { className: 'storeSelectors' },
-                             [ displaySelector.domNode, invMaskSelector.domNode, maskSelector.domNode ]
+                             [ displaySelector.domNode, maskSelector.domNode, invMaskSelector.domNode ]
                             ),
                         opSelector.domNode,
                         textCont,
