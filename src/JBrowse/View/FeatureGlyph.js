@@ -1,17 +1,28 @@
 define([
-           'dojo/_base/declare'
+           'dojo/_base/declare',
+           'JBrowse/Component'
        ],
        function(
-           declare
+           declare,
+           Component
        ) {
 
-return declare( null, {
+return declare( Component, {
     constructor: function( args ) {
         this.track = args.track;
     },
 
-    getStyle: function( feature, keyName ) {
-        return this.track.getStyle( feature, keyName );
+    getStyle: function( feature, name ) {
+        return this.getConfForFeature( 'style.'+name, feature );
+    },
+
+    /**
+     * Like getConf, but get a conf value that explicitly can vary
+     * feature by feature.  Provides a uniform function signature for
+     * user-defined callbacks.
+     */
+    getConfForFeature: function( path, feature ) {
+        return this.getConf( path, [feature, path, null, null, this, this.track ] );
     },
 
     /**
@@ -46,8 +57,11 @@ return declare( null, {
         fRect.f = feature;
 
         return fRect;
-    }
+    },
 
+    //stub
+    renderFeature: function( context, block, fRect ) {
+    }
 
 });
 });

@@ -12,6 +12,28 @@ return declare( FeatureGlyph, {
     constructor: function() {
     },
 
+    _defaultConfig: function() {
+        return {
+            style: {
+                maxDescriptionLength: 70,
+
+                color: 'goldenrod',
+                mouseovercolor: 'rgba(0,0,0,0.3)',
+                border_color: null,
+                height: 11,
+                marginBottom: 2,
+
+                label: function( feature ) { return feature.get('name') || feature.get('id'); },
+                textFont: 'normal 12px Univers,Helvetica,Arial,sans-serif',
+                textColor:  'black',
+                text2Color: 'blue',
+                text2Font: 'normal 12px Univers,Helvetica,Arial,sans-serif',
+
+                description: 'note, description'
+            }
+        };
+    },
+
     mouseoverFeature: function( context, block, fRect ) {
         this._renderFeature( context, block, fRect, true );
     },
@@ -60,7 +82,7 @@ return declare( FeatureGlyph, {
      */
     estimateLabelSize: function( text ) {
         var dims = this._labelDims
-            || ( this._labelDims = this._measureFont( this.track.config.style.textFont ) );
+            || ( this._labelDims = this._measureFont( this.config.style.textFont ) );
         return { w: dims.w * text.length, h: dims.h };
     },
 
@@ -71,8 +93,8 @@ return declare( FeatureGlyph, {
     estimateDescriptionSize: function( text ) {
         var dims = this._descriptionDims
             || ( this._descriptionDims =
-                    this._measureFont(    this.track.config.style.text2Font
-                                       || this.track.config.style.textFont
+                    this._measureFont(    this.config.style.text2Font
+                                       || this.config.style.textFont
                                      )
                );
         return { w: dims.w * text.length, h: dims.h };
@@ -145,14 +167,14 @@ return declare( FeatureGlyph, {
 
         // label
         if( leftEndInBlock && fRect.label ) {
-            context.font = this.track.config.style.textFont;
+            context.font = this.config.style.textFont;
             context.fillStyle = this.getStyle( fRect.f, 'textColor' );
             context.fillText( fRect.label, fRect.l, fRect.t + fRect.labelSize.yOffset );
         }
 
         // description
         if( leftEndInBlock && fRect.description ) {
-            context.font = this.track.config.style.text2Font;
+            context.font = this.config.style.text2Font;
             context.fillStyle = this.getStyle( fRect.f, 'text2Color' );
             context.fillText( fRect.description, fRect.l, fRect.t + fRect.descriptionSize.yOffset);
         }

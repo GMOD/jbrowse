@@ -98,28 +98,9 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                 _defaultLabelScale: 30,
                 _defaultDescriptionScale: 120,
 
-                maxDescriptionLength: 70,
-                showLabels: true,
-
-                color: 'goldenrod',
-                mouseovercolor: 'rgba(0,0,0,0.3)',
-                border_color: null,
-                height: 11,
-                marginBottom: 2,
-
-                label: function( feature ) { return feature.get('name') || feature.get('id'); },
-                textFont: 'normal 12px Univers,Helvetica,Arial,sans-serif',
-                textColor:  'black',
-                text2Color: 'blue',
-                text2Font: 'normal 12px Univers,Helvetica,Arial,sans-serif',
-
-                description: 'note, description'
+                showLabels: true
             }
         };
-    },
-
-    getStyle: function( feature, name ) {
-        return this.getConfForFeature( 'style.'+name, feature );
     },
 
     fillBlock: function( args ) {
@@ -179,7 +160,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
             // if no layoutPitchY configured, calculate it from the
             // height and marginBottom (parseInt in case one or both are functions), or default to 3 if the
             // calculation didn't result in anything sensible.
-            var pitchY = this.config.layoutPitchY || parseInt(this.config.style.height + this.config.style.marginBottom) || 3;
+            var pitchY = this.config.layoutPitchY || 4;
             this.layout = new Layout({ pitchX: 4/scale, pitchY: pitchY });
         }
 
@@ -196,7 +177,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
         return this.glyphLoadingPromises[glyphClassName] || function() {
             var d = new Deferred();
             require( [glyphClassName], function( GlyphClass ) {
-                d.resolve( new GlyphClass({ track: thisB }) );
+                d.resolve( new GlyphClass({ track: thisB, config: thisB.config, browser: thisB.browser }) );
             });
             return d;
         }();
