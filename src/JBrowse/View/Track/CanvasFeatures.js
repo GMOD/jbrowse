@@ -83,7 +83,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
 
     constructor: function( args ) {
         this._setupEventHandlers();
-        this.glyphLoadingPromises = {};
+        this.glyphsLoaded = {};
         this.showLabels = this.config.style.showLabels;
     },
 
@@ -171,16 +171,21 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
      * Returns a promise for the appropriate glyph for the given
      * feature and args.
      */
-    getGlyph: function( viewArgs, feature ) {
+    getGlyph: function( viewArgs, feature, callback ) {
         var glyphClassName = this.getConfForFeature( 'glyph', feature );
-        var thisB = this;
-        return this.glyphLoadingPromises[glyphClassName] || function() {
-            var d = new Deferred();
+        var glyph;
+        if(( glyph = this.glyphsLoaded[glyphClassName] )) {
+            callback( glyph );
+        }
+        else {
+            var thisB = this;
             require( [glyphClassName], function( GlyphClass ) {
-                d.resolve( new GlyphClass({ track: thisB, config: thisB.config, browser: thisB.browser }) );
+                glyph = thisB.glyphsLoaded[glyphClassName] =
+                    new GlyphClass({ track: thisB, config: thisB.config, browser: thisB.browser });
+
+                callback( glyph );
             });
-            return d;
-        }();
+        }
     },
 
     fillFeatures: function( args ) {
@@ -233,26 +238,26 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                                     fRects.push( false ); // put a placeholder in the fRects array
                                     featuresInProgress++;
                                     var rectNumber = fRects.length-1;
-                                    thisB.getGlyph( args, feature )
-                                         .then( function( glyph ) {
-                                             var fRect = glyph.layoutFeature({
-                                                             view: args,
-                                                             layout: layout,
-                                                             toX: toX,
-                                                             feature: feature
-                                                         });
-                                             fRect.glyph = glyph;
-                                             fRect.toX = toX;
-                                             fRects[rectNumber] = fRect;
+                                    thisB.getGlyph(
+                                        args, feature,
+                                        function( glyph ) {
+                                            var fRect = glyph.layoutFeature({
+                                                            view: args,
+                                                            layout: layout,
+                                                            toX: toX,
+                                                            feature: feature
+                                                        });
+                                            fRect.glyph = glyph;
+                                            fRect.toX = toX;
+                                            fRects[rectNumber] = fRect;
 
-                                             // this might happen after all the features have been sent from the store
-                                             if( ! --featuresInProgress && allFeaturesRead ) {
-                                                 featuresLaidOut.resolve();
-                                             }
-
-                                          },
-                                          errorCallback
-                                          );
+                                            // this might happen after all the features have been sent from the store
+                                            if( ! --featuresInProgress && allFeaturesRead ) {
+                                                featuresLaidOut.resolve();
+                                            }
+                                        },
+                                        errorCallback
+                                    );
                                 },
 
                                 // callback when all features sent
