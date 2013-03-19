@@ -161,19 +161,15 @@ return declare( FeatureGlyph, {
             context.fillRect( fRect.l, fRect.t, rectWidth, rectHeight );
         }
 
-        // draw the label and/or description only if the left end of
-        // the feature we're drawing is contained within this block
-        var leftEndInBlock = block.startBase <= fRect.f.get('start');
-
         // label
-        if( leftEndInBlock && fRect.label ) {
+        if( fRect.label ) {
             context.font = this.config.style.textFont;
             context.fillStyle = this.getStyle( fRect.f, 'textColor' );
             context.fillText( fRect.label, fRect.l, fRect.t + fRect.labelSize.yOffset );
         }
 
         // description
-        if( leftEndInBlock && fRect.description ) {
+        if( fRect.description ) {
             context.font = this.config.style.text2Font;
             context.fillStyle = this.getStyle( fRect.f, 'text2Color' );
             context.fillText( fRect.description, fRect.l, fRect.t + fRect.descriptionSize.yOffset);

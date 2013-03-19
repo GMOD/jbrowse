@@ -10,7 +10,7 @@ define( [
             'dojo/Deferred',
             'dojo/on',
             'JBrowse/View/GranularRectLayout',
-            'JBrowse/View/Track/Canvas',
+            'JBrowse/View/Track/BlockBased',
             'JBrowse/Errors',
             'JBrowse/View/Track/FeatureDetailMixin'
         ],
@@ -22,7 +22,7 @@ define( [
             Deferred,
             on,
             Layout,
-            CanvasTrack,
+            BlockBasedTrack,
             Errors,
             FeatureDetailMixin
         ) {
@@ -34,14 +34,15 @@ define( [
  *  We have one of these indexes in each block.
  */
 var FRectIndex = declare( null,  {
-    constructor: function(args) {
-        var canvas = args.canvas;
+    constructor: function( args ) {
+        var height = args.h;
+        var width  = args.w;
 
-        this.canvasDims = { h: canvas.height, w: canvas.width };
+        this.dims = { h: height, w: width };
 
-        this.byCoord = new Array( canvas.width );
-        for( var i = 0; i < canvas.width; i++ )
-            this.byCoord[i] = new Array( canvas.height );
+        this.byCoord = new Array( width );
+        for( var i = 0; i < width; i++ )
+            this.byCoord[i] = new Array( height );
 
         this.byID = {};
     },
@@ -61,8 +62,8 @@ var FRectIndex = declare( null,  {
     addAll: function( fRects ) {
         var byCoord = this.byCoord;
         var byID = this.byID;
-        var cW = this.canvasDims.w;
-        var cH = this.canvasDims.h;
+        var cW = this.dims.w;
+        var cH = this.dims.h;
         array.forEach( fRects, function( fRect ) {
             // by coord
             for( var i = 0; i < fRect.w; ++i ) {
@@ -79,12 +80,21 @@ var FRectIndex = declare( null,  {
     }
 });
 
-return declare( [CanvasTrack,FeatureDetailMixin], {
+return declare( [BlockBasedTrack,FeatureDetailMixin], {
 
     constructor: function( args ) {
         this._setupEventHandlers();
         this.glyphsLoaded = {};
         this.showLabels = this.config.style.showLabels;
+    },
+
+    browserHasCanvas: function( blockIndex, block ) {
+        try {
+            document.createElement('canvas').getContext('2d').fillStyle = 'red';
+            return true;
+        } catch( e ) {
+            return false;
+        }
     },
 
     _defaultConfig: function() {
@@ -273,7 +283,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                                             dojo.create(
                                                 'canvas',
                                                 { height: totalHeight,
-                                                  width:  block.offsetWidth*3, // wider so labels can extend to the right
+                                                  width:  block.offsetWidth+1,
                                                   style: {
                                                       cursor: 'default',
                                                       height: totalHeight+'px'
@@ -283,13 +293,13 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
                                                 },
                                                 block
                                             );
-                                        thisB.renderFeatures( args, c, fRects );
-
-                                        thisB.renderClickMap( args, c, fRects );
-
-                                        thisB.layoutCanvases([c]);
                                         thisB.heightUpdate( totalHeight,
                                                             blockIndex );
+
+                                        thisB.renderFeatures( args, fRects );
+
+                                        thisB.renderClickMap( args, fRects );
+
                                         finishCallback();
                                     });
                                 },
@@ -308,27 +318,27 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
     },
 
     endZoom: function() {
-
         array.forEach( this.blocks, function(b) {
             try {
                 delete b.featureCanvas.style.width;
             } catch(e) {};
         });
 
+        this.clear();
         this.inherited( arguments );
     },
 
-    renderClickMap: function( args, canvas, fRects ) {
+    renderClickMap: function( args, fRects ) {
         var thisB = this;
         var block = args.block;
 
         // make an index of the fRects by ID, and by coordinate, and
         // store it in the block
-        var index = new FRectIndex({ canvas: canvas });
+        var index = new FRectIndex({ h: block.featureCanvas.height, w: block.featureCanvas.width });
         block.fRectIndex = index;
         index.addAll( fRects );
 
-        if( ! canvas.getContext('2d') ) {
+        if( ! block.featureCanvas || ! block.featureCanvas.getContext('2d') ) {
             console.warn( "No 2d context available from canvas" );
             return;
         }
@@ -361,10 +371,25 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
         }
     },
 
+    getRenderingContext: function( viewArgs ) {
+        if( ! viewArgs.block || ! viewArgs.block.featureCanvas )
+            return null;
+        try {
+            var ctx = viewArgs.block.featureCanvas.getContext('2d');
+            // ctx.translate( viewArgs.block.offsetLeft - this.featureCanvas.offsetLeft, 0 );
+            // console.log( viewArgs.blockIndex, 'block offset', viewArgs.block.offsetLeft - this.featureCanvas.offsetLeft );
+            return ctx;
+        } catch(e) {
+            console.error(e, e.stack);
+            return null;
+        }
+    },
+
     // draw the features on the canvas
-    renderFeatures: function( args, canvas, fRects ) {
-        var context = canvas.getContext('2d');
-        array.forEach( fRects, dojo.hitch( this, 'renderFeature', context, args.block ) );
+    renderFeatures: function( args, fRects ) {
+        var context = this.getRenderingContext( args );
+        if( context )
+            array.forEach( fRects, dojo.hitch( this, 'renderFeature', context, args.block ) );
     },
 
     // given viewargs and a feature object, highlight that feature in
@@ -375,10 +400,12 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
         if( this.lastMouseover == feature )
             return;
 
-        array.forEach( this.blocks, function( block ) {
-            var context;
-            try      {  context = block.featureCanvas.getContext('2d'); }
-            catch(e) {  return;                                         }
+        array.forEach( this.blocks, function( block, i ) {
+            if( ! block )
+                return;
+            var context = this.getRenderingContext({ block: block, leftBase: block.startBase, scale: block.scale });
+            if( ! context )
+                return;
 
             if( this.lastMouseover ) {
                 var r = block.fRectIndex.getByID( this.lastMouseover.id() );
