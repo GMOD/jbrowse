@@ -224,7 +224,7 @@ return declare( null, {
                                     openCallback({
                                         trackConf: { key: name[0],
                                                      label: name[1]||name[0],
-                                                     type:  arg,
+                                                     type:  'JBrowse/View/Track/Statistics',//arg,
                                                      store: { name: name[1]||name[0],
                                                               booleanOP: thisB.trackOperationChoice[0].checked ? thisB.trackOperationChoice[0].value :
                                                                          thisB.trackOperationChoice[1].checked ? thisB.trackOperationChoice[1].value :
