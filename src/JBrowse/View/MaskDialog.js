@@ -65,34 +65,6 @@ return declare( null, {
         var nameField         = this._makeNameField( "type desired track name here" );
         var opSelector        = this._makeOPSelector();
 
-        // on( displaySelector.domNode, 'change', dojo.hitch(this, function ( e ) {
-        //     // prevent users from selecting multiple track types for display.
-        //     var options = displaySelector.domNode.children;
-        //     var selectedType = null;
-        //     for ( var key in options ) {
-        //         if ( options.hasOwnProperty(key) && options[key].selected ) {
-        //             selectedType = options[key].type;
-        //             break;
-        //         }
-        //     }
-        //     // If nothing is selected, enable all available options
-        //     if ( !selectedType ) {
-        //         for ( var key in options ) {
-        //             if ( options.hasOwnProperty(key) && (this.supportedTracks.indexOf(options[key].type ) > -1) ) {
-        //                 options[key].disabled = false;
-        //             }
-        //         }
-        //         return;
-        //     }
-        //     // else, disable and deselect relevant options
-        //     for ( var key in options ) {
-        //         if ( options.hasOwnProperty(key) && options[key].type != selectedType ) {
-        //             options[key].disabled = 'disabled';
-        //             options[key].selected = false;
-        //         }
-        //     }
-        // }));
-
         on( displaySelector.domNode, 'change', dojo.hitch(this, function ( e ) {
             // disable the "create track" button if there is no display data available..
             actionBar.createTrackButton.set('disabled', !(dojo.query('option', displaySelector.domNode).length > 0) );
@@ -361,7 +333,7 @@ return declare( null, {
                         // Orphan the selected children :D
                         dojo.query('option', selector.domNode)
                             .filter(function(n){return n.selected;}).orphan();
-                        if (args.filter)
+                        if (args.filter && dojo.query('option', selector.domNode).length <= 0)
                             updateStore();
                         // trigger selector event
                         on.emit(selector.domNode, "change", {
