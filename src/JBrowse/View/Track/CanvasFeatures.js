@@ -65,6 +65,9 @@ var FRectIndex = declare( null,  {
         var cW = this.dims.w;
         var cH = this.dims.h;
         array.forEach( fRects, function( fRect ) {
+            if( ! fRect )
+                return;
+
             // by coord
             for( var i = 0; i < fRect.w; ++i ) {
                 for( var j = 0; j < fRect.h; ++j ) {
@@ -85,6 +88,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     constructor: function( args ) {
         this._setupEventHandlers();
         this.glyphsLoaded = {};
+        this.regionStats = {};
         this.showLabels = this.config.style.showLabels;
     },
 
@@ -100,7 +104,15 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     _defaultConfig: function() {
         return {
             maxFeatureScreenDensity: 400,
+
+            // default glyph class to use
             glyph: 'JBrowse/View/FeatureGlyph/Rectangle',
+
+            // maximum number of pixels on each side of a
+            // feature's bounding coordinates that a glyph is
+            // allowed to use
+            maxFeatureGlyphExpansion: 500,
+
             style: {
 
                 // not configured by users
@@ -126,11 +138,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             return;
         }
 
-        var region = { ref: this.refSeq.name, start: leftBase, end: rightBase };
-
-        this.store.getRegionStats(
-            region,
-            dojo.hitch( this, function( stats ) {
+        var fill = dojo.hitch( this, function( stats ) {
 
                 // calculate some additional view parameters that
                 // might depend on the feature stats and add them to
@@ -138,9 +146,14 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                 var renderHints = dojo.mixin(
                     {
                         stats: stats,
-                        showFeatures:     scale >= (this.config.style.featureScale     || stats.featureDensity / this.config.maxFeatureScreenDensity ),
-                        showLabels:       this.showLabels && scale >= ( this.config.style.labelScale || stats.featureDensity * this.config.style._defaultLabelScale ),
-                        showDescriptions: this.showLabels && scale >= ( this.config.style.descriptionScale || stats.featureDensity * this.config.style._defaultDescriptionScale)
+                        showFeatures: scale >= ( this.config.style.featureScale
+                                                 || stats.featureDensity / this.config.maxFeatureScreenDensity ),
+                        showLabels: this.showLabels
+                            && scale >= ( this.config.style.labelScale
+                                          || stats.featureDensity * this.config.style._defaultLabelScale ),
+                        showDescriptions: this.showLabels
+                            && scale >= ( this.config.style.descriptionScale
+                                          || stats.featureDensity * this.config.style._defaultDescriptionScale)
                     },
                     args
                 );
@@ -156,11 +169,14 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                     );
                     args.finishCallback();
                 }
-            }),
+            });
+
+        this.store.getGlobalStats(
+            fill,
             dojo.hitch( this, function(e) {
-                this._handleError(e);
-                args.finishCallback(e);
-            })
+                            this._handleError(e);
+                            args.finishCallback(e);
+                        })
         );
     },
 
@@ -232,9 +248,16 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
 
         var layout = this._getLayout( scale );
 
+        // query for a slightly larger region than the block, so that
+        // we can draw any pieces of glyphs that overlap this block,
+        // but the feature of which does not actually lie in the block
+        // (long labels that extend outside the feature's bounds, for
+        // example)
+        var bpExpansion = Math.round( this.config.maxFeatureGlyphExpansion / scale );
+
         this.store.getFeatures( { ref: this.refSeq.name,
-                                  start: leftBase,
-                                  end: rightBase
+                                  start: Math.max( 0, leftBase - bpExpansion ),
+                                  end: rightBase + bpExpansion
                                 },
 
                                 function( feature ) {
@@ -245,7 +268,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                             block: block
                                         });
 
-                                    fRects.push( false ); // put a placeholder in the fRects array
+                                    fRects.push( null ); // put a placeholder in the fRects array
                                     featuresInProgress++;
                                     var rectNumber = fRects.length-1;
                                     thisB.getGlyph(
@@ -259,7 +282,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                                         });
                                             fRect.glyph = glyph;
                                             fRect.toX = toX;
-                                            fRects[rectNumber] = fRect;
+                                            if( !( fRect.l >= block.offsetWidth || fRect.l+fRect.w < 0 ) )
+                                                fRects[rectNumber] = fRect;
 
                                             // this might happen after all the features have been sent from the store
                                             if( ! --featuresInProgress && allFeaturesRead ) {
@@ -277,8 +301,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                         featuresLaidOut.resolve();
 
                                     featuresLaidOut.then( function() {
-                                        var totalHeight = thisB._getLayout(scale)
-                                                               .getTotalHeight();
+                                        var totalHeight = layout.getTotalHeight();
                                         var c = block.featureCanvas =
                                             dojo.create(
                                                 'canvas',
@@ -388,8 +411,13 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     // draw the features on the canvas
     renderFeatures: function( args, fRects ) {
         var context = this.getRenderingContext( args );
-        if( context )
-            array.forEach( fRects, dojo.hitch( this, 'renderFeature', context, args.block ) );
+        if( context ) {
+            var thisB = this;
+            array.forEach( fRects, function( fRect ) {
+                if( fRect )
+                    thisB.renderFeature( context, args.block, fRect );
+            });
+        }
     },
 
     // given viewargs and a feature object, highlight that feature in
