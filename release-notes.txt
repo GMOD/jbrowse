@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Added a `new-plugin.pl` helper script that makes the skeleton of a
+   new JBrowse plugin.
+
  * Fixed a bug in which the `--conf` option to `prepare-refseqs.pl`
    did not support comments in JSON conf files (issue #213).  Thanks
    to Keiran Raine for pointing this out.
