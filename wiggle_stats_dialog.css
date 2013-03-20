@@ -1,0 +1,111 @@
+@import url("src/dojox/form/resources/UploaderFileList.css");
+.wiggleStatsDialog {
+    color: #333;
+    height: 430px;
+}
+
+.wiggleStatsDialog .contentContainer {
+    height: 100%;
+    width: 100%;
+    padding: 5px;
+}
+
+.wiggleStatsDialog .instructions {
+    position: absolute;
+    top: 22px;
+    padding: 10px;
+}
+
+.wiggleStatsDialog .storeSelectors {
+    position: relative;
+    top: 62px;
+    height: 217px;
+    padding-bottom: 10px;
+}
+
+.wiggleStatsDialog .selectorContainer {
+    float: left;
+    padding-left: 3px;
+}
+
+.wiggleStatsDialog .selectorContainer .selectorTitle {
+    border: 2px solid silver;
+    font-weight: bold;
+}
+
+.wiggleStatsDialog .storeSelections {
+    position: relative;
+    background-color: #8cb1dd;
+    height: 180px;
+    width: 350px;
+}
+
+.wiggleStatsDialog .selectorContainer .dijitButton {
+    margin: 0px;
+    padding-right: 2px;
+    padding-top: 2px;
+}
+
+.wiggleStatsDialog .selectorContainer .dijitButtonNode {
+    width: 13px;
+    height: 13px;
+    padding: 1px;
+    padding-top: 0px;
+}
+
+.wiggleStatsDialog .dijitComboBox {
+    height: 14px;
+    width: 160px;
+    margin-top: 2px;
+}
+
+.wiggleStatsDialog .textFieldContainer {
+    position: relative;
+    top: 66px;
+    padding-left: 3px;
+    margin: 0px;
+}
+
+.wiggleStatsDialog .nameField {
+    width: 150px;
+    padding-left: 3px;
+}
+
+.wiggleStatsDialog .dijitDialogPaneActionBar {
+    position: absolute;
+    bottom: 5px;
+    left: 3px;
+    padding-top: 0px;
+    padding-left: 1px;
+}
+
+.wiggleStatsDialog .dijitDialogPaneActionBar .openImmediatelyButton {
+    position: relative;
+    text-align: left;
+    padding-top: 10px;
+    padding-left: 1px;
+}
+
+.wiggleStatsDialog .dijitDialogPaneActionBar .addToTrackListButton {
+    position: relative;
+    text-align: left;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 1px;
+}
+
+.plusIcon {
+   background-image: url('src/JBrowse/View/MaskDialog/icons/plus.png');
+   background-repeat: no-repeat;
+   width: 13px;
+   height: 13px;
+   text-align: center;
+} 
+
+.minusIcon {
+   background-image: url('src/JBrowse/View/MaskDialog/icons/minus.png');
+   background-repeat: no-repeat;
+   width: 13px;
+   height: 13px;
+   text-align: center;
+} 

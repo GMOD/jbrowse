@@ -10,10 +10,7 @@ define( [
             'dijit/form/FilteringSelect',
             'dijit/Dialog',
             'dojo/dom-construct',
-            'dojo/dom-style',
             'dojo/_base/window',
-            'dojo/Deferred',
-            './MaskDialog/settingViewer',
             'dojo/on',
             'dojo/store/Memory'
         ],
@@ -28,10 +25,7 @@ define( [
                   FilteringSelect,
                   Dialog,
                   dom,
-                  domStyle,
                   window,
-                  Deferred,
-                  settingViewer,
                   on,
                   memory ) {
 
@@ -57,14 +51,14 @@ return declare( null, {
 
     show: function( args ) {
         var dialog = this.dialog = new Dialog(
-            { title: "New masking track", className: 'maskDialog' }
+            { title: "New wiggle statistics track", className: 'wiggleStatsDialog' }
             );
         var contentContainer = dom.create( 'div', { className: 'contentContainer'});
         dialog.containerNode.parentNode.appendChild(contentContainer);
         dojo.destroy(dialog.containerNode)
 
         var actionBar         = this._makeActionBar( args.openCallback );
-        var displaySelector   = this._makeStoreSelector({ title: 'Display', filter: true });
+        var displaySelector   = this._makeStoreSelector({ title: 'Display' });
         var nameField         = this._makeNameField( "type desired track name here" );
 
         on( displaySelector.domNode, 'change', dojo.hitch(this, function ( e ) {
@@ -85,28 +79,6 @@ return declare( null, {
                                     }
                                     return [name,name+counter];
 
-                                }),
-                            displayTypes: dojo.hitch(this.storeFetch, function(d) {
-                                            var tracks = this.data.display.get('value')[0]
-                                            ? this.data.display.get('value').map(
-                                            function(arg){return arg.split(',');})
-                                            : undefined;
-                                            if ( !tracks ) {
-                                                console.error('No display data chosen');
-                                                thisB.dialog.hide();
-                                                return;
-                                            }
-                                            tracks = tracks.reduce( function(a,b){ 
-                                                                        if (!(a.indexOf(b[1]) > -1)) {
-                                                                            a.push(b[1]);}
-                                                                        return a
-                                                                        }, [] );
-                                            if ( tracks.length == 1 ) {
-                                                d.resolve(tracks[0], true);
-                                            }
-                                            else {
-                                                console.error('multiple track types selected for display data (should not be possible).');
-                                            }
                                 }),
                             fetch  : dojo.hitch(this.storeFetch, function() {
                                     var storeLists = { display: this.data.display.get('value')[0]
@@ -192,26 +164,22 @@ return declare( null, {
                                             });
                                     }
                                 }
-                                d = new Deferred();
-                                thisB.storeFetch.displayTypes(d);
-                                dojo.when(d, function( arg ){
-                                    var name = thisB.storeFetch.getName();
-                                    openCallback({
-                                        trackConf: { key: name[0],
-                                                     label: name[1]||name[0],
-                                                     type:  'JBrowse/View/Track/Statistics',
-                                                     store: { name: name[1]||name[0],
-                                                              browser: thisB.browser,
-                                                              refSeq:  thisB.browser.refSeq,
-                                                              type: 'JBrowse/Store/SeqFeature/WiggleStatistics',
-                                                              storeNames: thisB.storeFetch.fetch()
-                                                            }
-                                                    },
-                                        trackDisposition: thisB.trackDispositionChoice[0].checked ? thisB.trackDispositionChoice[0].value :
-                                                          thisB.trackDispositionChoice[1].checked ? thisB.trackDispositionChoice[1].value :
-                                                          undefined
-                                    });
-                                })
+                                var name = thisB.storeFetch.getName();
+                                openCallback({
+                                    trackConf: { key: name[0],
+                                                 label: name[1]||name[0],
+                                                 type:  'JBrowse/View/Track/Statistics',
+                                                 store: { name: name[1]||name[0],
+                                                          browser: thisB.browser,
+                                                          refSeq:  thisB.browser.refSeq,
+                                                          type: 'JBrowse/Store/SeqFeature/WiggleStatistics',
+                                                          storeNames: thisB.storeFetch.fetch()
+                                                        }
+                                                },
+                                    trackDisposition: thisB.trackDispositionChoice[0].checked ? thisB.trackDispositionChoice[0].value :
+                                                      thisB.trackDispositionChoice[1].checked ? thisB.trackDispositionChoice[1].value :
+                                                      undefined
+                                });
                                 thisB.dialog.hide();
                             })
                     })
@@ -251,24 +219,6 @@ return declare( null, {
             }
         })();
 
-        var updateStore = function( type ) {
-            if (type) {
-                for (var key in tracks ) {
-                    if (tracks.hasOwnProperty(key) && (tracks[key].type != type)) {
-                        trackStore.remove(key);
-                    }
-                }
-            }
-            else {
-                trackStore.data = [];
-                for (var key in tracks ) {
-                    if (tracks.hasOwnProperty(key)) {
-                        trackStore.put( { name: key, id: key } );
-                    }
-                }
-            }
-        }
-
         var cBox = new FilteringSelect( { id: selectorTitle+'TrackFinder',
                                           name: 'track',
                                           value: '',
@@ -283,8 +233,6 @@ return declare( null, {
                         // Orphan the selected children :D
                         dojo.query('option', selector.domNode)
                             .filter(function(n){return n.selected;}).orphan();
-                        if (args.filter && dojo.query('option', selector.domNode).length <= 0)
-                            updateStore();
                         // trigger selector event
                         on.emit(selector.domNode, "change", {
                             bubbles: true,
@@ -299,9 +247,6 @@ return declare( null, {
                         var key = cBox.get('value');
                         if ( !key )
                             return;
-                        if (args.filter) {
-                            updateStore(tracks[key].type);
-                        }
                         var op = window.doc.createElement('option');
                         op.innerHTML = key;
                         op.type = tracks[key].type;
