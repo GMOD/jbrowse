@@ -9,7 +9,7 @@ var Statistics = declare( XYFunction, {
 
 /**
  * Wiggle track that shows statistical data using an x-y plot.
- * It takes multiple stores (combined in a wrapper store) and 
+ * It takes multiple stores (combined in "WiggleStatistics", a wrapper store) and 
  * computes the agerage, standard deviaiton, max and min of the
  * data.
  *
@@ -53,13 +53,13 @@ var Statistics = declare( XYFunction, {
                 }
                 else if ( pixelValues[j] ) {
                     pixelValues[j]['score'][store] = score;
-                    pixelValues[j]['lastUsecStore'] = store;
+                    pixelValues[j]['lastUsedStore'] = store;
                 }
                 else {
                     pixelValues[j] = {};
                     pixelValues[j]['score'] = {};
                     pixelValues[j]['score'][store] = score;
-                    pixelValues[j]['lastUsecStore'] = store;
+                    pixelValues[j]['lastUsedStore'] = store;
                 }
             }
         },this);

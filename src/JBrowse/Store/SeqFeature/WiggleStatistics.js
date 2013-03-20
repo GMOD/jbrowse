@@ -110,7 +110,7 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
 
 executeCallbacks: function( features, featCallback, doneCallback ) {
     /* Pass features to the tracks original featCallback, and let the track methods
-     * display the festures.
+     * display the features.
      */
     for ( var key in features ) {
         if ( features.hasOwnProperty(key) ) {
@@ -182,31 +182,21 @@ combineStats: function( key, currStats, newStats) {
         case 'featureCount':
             return currStat + newStat;
         /*
-            BAM type tracks
-        */
-        case '_statsSampleFeatures':
-            return currStat + newStat;
-        case '_statsSampleInterval':
-            // no combination should be necessary
-            return newStat;
-        /*
             wiggle type tracks 
         */
         case 'basesCovered':
             return currStat + newStat;
         case 'scoreMin':
-            return currStat + newStat;
+            return Math.floor(Math.min(currStat, newStat));
         case 'scoreMax':
-            /* note: this might overestimate the maxmimu score.
-             * If the two maximums are in different regions, they will not add */
-            return currStat + newStat;
+            return Math.ceil(Math.max(currStat, newStat));
         case 'scoreSum':
             return currStat + newStat;
         case 'scoreSumSquares':
             return currStat + newStat;
         case 'scoreMean':
             // note: assumes other properties will be available
-            return ((currStats['basesCovered'])*currStat + (newStats['basesCovered']*newStat))/currStats['basesCovered'];
+            return ((currStats['basesCovered'])*currStat + (newStats['basesCovered']*newStat))/(currStats['basesCovered']+newStats['basesCovered']);
         case 'scoreStdDev':
             // note: assumes other properties will be available
             var n = currStats['basesCovered']+newStats['basesCovered'];

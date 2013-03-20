@@ -2,8 +2,9 @@ define( [
           'dojo/_base/declare',
           'JBrowse/View/Track/Wiggle/XYPlot',
           'JBrowse/Util',
+          'JBrowse/Digest/Crc32'
         ],
-        function( declare, XYPlot, Util ) {
+        function( declare, XYPlot, Util, Digest ) {
 
 var XYFunction = declare( XYPlot, {
 
@@ -21,6 +22,32 @@ var XYFunction = declare( XYPlot, {
                       origin_color: '#888' }
             }
         );
+    },
+
+    _getScaling: function( successCallback, errorCallback ) {
+        this.getRegionStats( this._getScalingRegion(), dojo.hitch(this, function( stats ) {
+
+            //calculate the scaling if necessary
+            var statsFingerprint = Digest.objectFingerprint( stats );
+            if( ! this.lastScaling || this.lastScaling._statsFingerprint != statsFingerprint ) {
+
+                var scaling = this._calculateScaling( stats );
+
+                // update our track y-scale to reflect it
+                this.makeYScale({
+                    fixBounds: true,
+                    min: scaling.min,
+                    max: scaling.max
+                });
+                scaling.min = this.ruler.scaler.bounds.lower;
+                scaling.max = this.ruler.scaler.bounds.upper;
+                scaling.range = scaling.max - scaling.min;
+
+                this.lastScaling = scaling;
+            }
+
+            successCallback( this.lastScaling );
+        }), errorCallback );
     },
     
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale ) {
@@ -106,6 +133,7 @@ var XYFunction = declare( XYPlot, {
             currentHeight = score;
         }, this );
         context.stroke();
+        context.beginPath();
     }
 
 });
