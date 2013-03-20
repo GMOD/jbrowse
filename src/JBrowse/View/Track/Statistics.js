@@ -45,7 +45,7 @@ var Statistics = declare( XYFunction, {
             var fRect = featureRects[i];
             var jEnd = fRect.r;
             var score = f.get('score');
-            for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
+            for( var j = Math.round(fRect.l); j < ((fRect.w == 1) ? jEnd : jEnd+1); j++ ) {
                 if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
                     /* Note: if the feature is from a different store, the condition should fail,
                      *       and we will add a new value, rather than adjusting the current one */
