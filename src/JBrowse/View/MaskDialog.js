@@ -48,6 +48,11 @@ return declare( null, {
                                 'JBrowse/View/Track/SNPCoverage',
                                 'JBrowse/View/Track/Alignments2'];
         this.trackNames = [];
+        for (var ID in args.browser.trackConfigsByName ) {
+            if ( args.browser.trackConfigsByName.hasOwnProperty( ID ) ) {
+                this.trackNames.push(args.browser.trackConfigsByName[ID].label);;
+            }
+        }
     },
 
     show: function( args ) {
