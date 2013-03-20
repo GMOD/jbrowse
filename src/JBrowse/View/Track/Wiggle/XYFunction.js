@@ -56,6 +56,7 @@ var XYFunction = declare( XYPlot, {
         var originY = toY( dataScale.origin );
 
         var lastPointHadValue = false;
+        var currentHeight = 0
         context.strokeStyle = color;
         dojo.forEach( pixels, function(p,i) {
             var score = pixelKey ? toY(p[pixelKey]) : toY(p) ; // in general, the pixel array may contain a score, or an array of scores
@@ -77,6 +78,8 @@ var XYFunction = declare( XYPlot, {
                 if( score <= canvasHeight ) { // if the point is visible at all
                     if( score <= originY ) {
                         // bar goes upward
+                        if (currentHeight) // move one pixel to the right. Helps draw vertical lines.
+                            context.lineTo( i, currentHeight);
                         context.lineTo( i, score );
                         if( !disableClipMarkers && score < 0 ) { // draw clip marker if necessary
                             context.fillStyle = clipColor || 'red';
@@ -85,6 +88,8 @@ var XYFunction = declare( XYPlot, {
                     }
                     else {
                         // bar goes downward
+                        if (currentHeight)
+                            context.lineTo( i, currentHeight);
                         context.lineTo( i, score );
                         if( !disableClipMarkers && score >= canvasHeight ) { // draw clip marker if necessary
                             context.fillStyle = clipColor || 'red';
@@ -98,6 +103,7 @@ var XYFunction = declare( XYPlot, {
                 // therefore, we save the position and value, and draw a rect when "score" becomes undefined
                 // if adjacent pixels have scores, "lastPointHadValue" will become true, and lines will be drawn.
             }
+            currentHeight = score;
         }, this );
         context.stroke();
     }
