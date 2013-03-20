@@ -447,7 +447,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             //if the feature overlaps destBlock,
             //move to destBlock & re-position
             sourceSlot = sourceBlock.featureNodes[ overlaps[i] ];
-            if (sourceSlot && ("label" in sourceSlot)) {
+            if ( sourceSlot && sourceSlot.label && sourceSlot.label.parentNode ) {
                 sourceSlot.label.parentNode.removeChild(sourceSlot.label);
             }
             if (sourceSlot && sourceSlot.feature) {
