@@ -7,6 +7,16 @@ define( [
 
 var Statistics = declare( XYFunction, {
 
+/**
+ * Wiggle track that shows statistical data using an x-y plot.
+ * It takes multiple stores (combined in a wrapper store) and 
+ * computes the agerage, standard deviaiton, max and min of the
+ * data.
+ *
+ * @lends JBrowse.View.Track.Statistics
+ * @extends JBrowse.View.Track.Wiggle.XYFunction
+ */
+
     _defaultConfig: function() {
         return Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),

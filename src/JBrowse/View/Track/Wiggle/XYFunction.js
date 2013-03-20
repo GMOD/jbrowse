@@ -1,17 +1,25 @@
 define( [
           'dojo/_base/declare',
           'JBrowse/View/Track/Wiggle/XYPlot',
-          'JBrowse/View/Track/WiggleBase',
           'JBrowse/Util',
         ],
-        function( declare, XYPlot, WiggleBase, Util ) {
+        function( declare, XYPlot, Util ) {
 
-var XYFunction = declare( [WiggleBase,XYPlot], {
+var XYFunction = declare( XYPlot, {
+
+/**
+ * Wiggle track that shows data using an x-y plot.
+ *
+ * @lends JBrowse.View.Track.Wiggle.XYFunction
+ * @extends JBrowse.View.Track.Wiggle.XYPlot
+ */
 
     _defaultConfig: function() {
         return Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
-            {style: { defaultColor: 'blue' }}
+            {style: { defaultColor: 'blue',
+                      origin_color: '#888' }
+            }
         );
     },
     
