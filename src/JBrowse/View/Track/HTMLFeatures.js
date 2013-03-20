@@ -83,7 +83,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             description: 'note, description',
 
             maxFeatureScreenDensity: 0.5,
-            blockDisplayTimeout: 5000,
+            blockDisplayTimeout: 20000,
 
             style: {
                 arrowheadClass: 'arrowhead',

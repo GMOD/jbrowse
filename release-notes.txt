@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Increased the default display timeout (`blockDisplayTimeout`) on
+   HTML-based features tracks from 5 seconds to 20 seconds.
+
  * Added a `new-plugin.pl` helper script that makes the skeleton of a
    new JBrowse plugin.
 
