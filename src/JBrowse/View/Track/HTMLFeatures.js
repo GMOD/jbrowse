@@ -560,6 +560,13 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         return featDiv;
     },
 
+
+    fillBlockTimeout: function( blockIndex, block ) {
+        this.inherited( arguments );
+        block.featureNodes = {};
+    },
+
+
     /**
      * Returns true if a feature is visible and rendered someplace in the blocks of this track.
      * @private
