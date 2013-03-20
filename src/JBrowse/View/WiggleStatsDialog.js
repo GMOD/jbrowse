@@ -58,7 +58,7 @@ return declare( null, {
         dojo.destroy(dialog.containerNode)
 
         var actionBar         = this._makeActionBar( args.openCallback );
-        var displaySelector   = this._makeStoreSelector({ title: 'Display' });
+        var displaySelector   = this._makeStoreSelector({ title: 'Tracks For Analysis' });
         var nameField         = this._makeNameField( "type desired track name here" );
 
         on( displaySelector.domNode, 'change', dojo.hitch(this, function ( e ) {
@@ -101,7 +101,7 @@ return declare( null, {
 
         var content = [
                         dom.create( 'div', { className: 'instructions',
-                                             innerHTML: 'instructions will go here!' } ),
+                                             innerHTML: 'Select tracks for statistical analysis. A new track will be created to show the average value, standard deviation and max/min values.' } ),
                             div( { className: 'storeSelectors' },
                              [ displaySelector.domNode ]
                             ),
