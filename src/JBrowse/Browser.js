@@ -29,6 +29,7 @@ define( [
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
             'JBrowse/View/MaskDialog',
+            'JBrowse/View/WiggleStatsDialog',
             'JBrowse/View/LocationChoiceDialog',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
@@ -64,6 +65,7 @@ define( [
             InfoDialog,
             FileDialog,
             MaskDialog,
+            WiggleStatsDialog,
             LocationChoiceDialog,
             dijitFocus,
             LazyLoad
@@ -446,6 +448,12 @@ Browser.prototype.initView = function() {
                     onClick: dojo.hitch(this, 'maskTrackDialog')
                 })
             );
+            newSubmenu.addChild( new dijitMenuItem(
+                {
+                    label: 'Wiggle Statistics Track',
+                    onClick: dojo.hitch(this, 'wiggleStatsTrackDialog')
+                })
+            );
             fileMenu.addChild( new dijitPopupMenuItem(
                 {           
                     label: 'New',
@@ -622,6 +630,30 @@ Browser.prototype.openFileDialog = function() {
 
 Browser.prototype.maskTrackDialog = function() {
     new MaskDialog({ browser: this }).show( {
+        openCallback: dojo.hitch( this, function ( results ) {
+            // more or less the same as its openFile counterpart
+                var conf = results.trackConf;
+                // add this store configuration to the browser's store
+                // configuration, and replace it with its names.
+                var storeConf = conf.store;
+                    if( storeConf && typeof storeConf == 'object' ) {
+                        delete conf.store;
+                        var name = this._addStoreConfig( storeConf.name, storeConf );
+                        conf.store = name;
+                    }
+                // send out a message about how the user wants to create the new tracks
+                this.publish( '/jbrowse/v1/v/tracks/new', [conf] );
+
+                // if requested, send out another message that the user wants to show them
+                if( results.trackDisposition == 'openImmediately' ) {
+                    this.publish( '/jbrowse/v1/v/tracks/show', [conf] );
+                }
+            })
+    });
+};
+
+Browser.prototype.wiggleStatsTrackDialog = function() {
+    new WiggleStatsDialog({ browser: this }).show( {
         openCallback: dojo.hitch( this, function ( results ) {
             // more or less the same as its openFile counterpart
                 var conf = results.trackConf;
