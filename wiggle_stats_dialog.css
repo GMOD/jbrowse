@@ -108,4 +108,25 @@
    width: 13px;
    height: 13px;
    text-align: center;
-} 
+}
+
+.wiggleStatsLegendBox {
+    height: 16px;
+    width: 16px;
+    margin-left: 3px;
+    margin-bottom: 15px;
+    z-index: 20;
+    font-weight: bold;
+    font-size: 16px;
+    color: #8cb1dd;
+    text-align: center;
+    border: 1px solid silver;
+    border-radius: 5px;
+    background-color: rgba(255,255,255,0.7);
+}
+
+.wiggleStatsLegendBox .legend {
+    position: absolute;
+    bottom: 100%;
+    left: 100%;
+}
