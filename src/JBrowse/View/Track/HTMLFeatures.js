@@ -217,7 +217,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                        track.config.style.histCss : "");
                 binDiv.setAttribute('value',hist[bin]);
                 if (Util.is_ie6) binDiv.appendChild(document.createComment());
-                block.appendChild(binDiv);
+                block.domNode.appendChild(binDiv);
             }
 
             track.heightUpdate( dims.pxPerCount * ( dims.logScale ? Math.log(maxBin) : maxBin ),
@@ -290,42 +290,43 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         if( ! 'x' in coords )
             return;
 
-        dojo.query( '.block', this.div )
-            .forEach( function(block) {
-                          // calculate the view left coord relative to the
-                          // block left coord in units of pct of the block
-                          // width
-                          if( ! this.label )
-                              return;
-                          var viewLeft = 100 * ( (this.label.offsetLeft+this.label.offsetWidth) - block.offsetLeft ) / block.offsetWidth + 2;
+        array.forEach( this.blocks, function( block, blockIndex ) {
 
-                          // if the view start is unknown, or is to the
-                          // left of this block, we don't have to worry
-                          // about adjusting the feature labels
-                          if( ! viewLeft )
-                              return;
 
-                          var blockWidth = block.endBase - block.startBase;
+            // calculate the view left coord relative to the
+            // block left coord in units of pct of the block
+            // width
+            if( ! block || ! this.label )
+                return;
+            var viewLeft = 100 * ( (this.label.offsetLeft+this.label.offsetWidth) - block.domNode.offsetLeft ) / block.domNode.offsetWidth + 2;
 
-                          dojo.query('.feature',block)
-                              .forEach( function(featDiv) {
-                                            if( ! featDiv.label ) return;
-                                            var labelDiv = featDiv.label;
-                                            var feature = featDiv.feature;
+            // if the view start is unknown, or is to the
+            // left of this block, we don't have to worry
+            // about adjusting the feature labels
+            if( ! viewLeft )
+                return;
 
-                                            // get the feature start and end in terms of block width pct
-                                            var minLeft = parseInt( feature.get('start') );
-                                            minLeft = 100 * (minLeft - block.startBase) / blockWidth;
-                                            var maxLeft = parseInt( feature.get('end') );
-                                            maxLeft = 100 * ( (maxLeft - block.startBase) / blockWidth
-                                                              - labelDiv.offsetWidth / block.offsetWidth
-                                                            );
+            var blockWidth = block.endBase - block.startBase;
 
-                                            // move our label div to the view start if the start is between the feature start and end
-                                            labelDiv.style.left = Math.max( minLeft, Math.min( viewLeft, maxLeft ) ) + '%';
+            dojo.query( '.feature', block.domNode )
+                .forEach( function(featDiv) {
+                              if( ! featDiv.label ) return;
+                              var labelDiv = featDiv.label;
+                              var feature = featDiv.feature;
 
-                                        },this);
-                      },this);
+                              // get the feature start and end in terms of block width pct
+                              var minLeft = parseInt( feature.get('start') );
+                              minLeft = 100 * (minLeft - block.startBase) / blockWidth;
+                              var maxLeft = parseInt( feature.get('end') );
+                              maxLeft = 100 * ( (maxLeft - block.startBase) / blockWidth
+                                                - labelDiv.offsetWidth / block.domNode.offsetWidth
+                                              );
+
+                              // move our label div to the view start if the start is between the feature start and end
+                              labelDiv.style.left = Math.max( minLeft, Math.min( viewLeft, maxLeft ) ) + '%';
+
+                          },this);
+        },this);
     },
 
     fillBlock: function( args ) {
@@ -436,9 +437,23 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     },
 
     cleanupBlock: function(block) {
-        // garbage collect the layout
-        if ( block && this.layout )
-            this.layout.discardRange( block.startBase, block.endBase );
+        if( block ) {
+            // discard the layout for this range
+            if ( this.layout )
+                this.layout.discardRange( block.startBase, block.endBase );
+
+            if( block.featureNodes )
+                for( var name in block.featureNodes ) {
+                    var featDiv = block.featureNodes[name];
+                    delete featDiv.track;
+                    delete featDiv.feature;
+                    delete featDiv.callbackArgs;
+                    delete featDiv._labelScale;
+                    delete featDiv._descriptionScale;
+                }
+        }
+
+        this.inherited( arguments );
     },
 
     /**
@@ -572,7 +587,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                           containerStart, containerEnd );
 
-        block.appendChild( featDiv );
+        block.domNode.appendChild( featDiv );
         if( this.config.style.centerChildrenVertically )
             this._centerChildrenVertically( featDiv );
         return featDiv;
@@ -729,6 +744,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         var featDiv = this.config.hooks.create(this, feature );
         this._connectFeatDivHandlers( featDiv );
+        // NOTE ANY DATA SET ON THE FEATDIV DOM NODE NEEDS TO BE
+        // MANUALLY DELETED IN THE cleanupBlock METHOD BELOW
         featDiv.track = this;
         featDiv.feature = feature;
         featDiv.layoutEnd = layoutEnd;
@@ -828,7 +845,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                         top: (top + this.glyphHeight + 2) + "px",
                         left: (100 * (layoutStart - block.startBase) / blockWidth)+'%'
                     }
-                }, block );
+                }, block.domNode );
 
             this._connectFeatDivHandlers( labelDiv );
 
@@ -918,7 +935,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
      */
     _connectFeatDivHandlers: function( /** HTMLElement */ div  ) {
         for( var event in this.eventHandlers ) {
-            on( div, event, this.eventHandlers[event] );
+            this.own( on( div, event, this.eventHandlers[event] ) );
         }
         // if our click handler has a label, set that as a tooltip
         if( this.eventHandlers.click && this.eventHandlers.click.label )
@@ -930,9 +947,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         // moused-over.  pre-generating menus for lots and lots of
         // features at load time is way too slow.
         var refreshMenu = lang.hitch( this, '_refreshMenu', featDiv );
-        on( featDiv,  'mouseover', refreshMenu );
+        this.own( on( featDiv,  'mouseover', refreshMenu ) );
         if( featDiv.labelDiv )
-            on( featDiv.labelDiv,  'mouseover', refreshMenu );
+            this.own( on( featDiv.labelDiv,  'mouseover', refreshMenu ) );
     },
 
     _refreshMenu: function( featDiv ) {
