@@ -242,9 +242,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                             this._handleError(e);
                                             finishCallback(e);
                                         });
-        function toX(coord) {
-            return (coord-leftBase)*scale;
-        };
 
         var layout = this._getLayout( scale );
 
@@ -255,10 +252,11 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         // example)
         var bpExpansion = Math.round( this.config.maxFeatureGlyphExpansion / scale );
 
-        this.store.getFeatures( { ref: this.refSeq.name,
-                                  start: Math.max( 0, leftBase - bpExpansion ),
-                                  end: rightBase + bpExpansion
-                                },
+        var region = { ref: this.refSeq.name,
+                       start: Math.max( 0, leftBase - bpExpansion ),
+                       end: rightBase + bpExpansion
+                     };
+        this.store.getFeatures( region,
 
                                 function( feature ) {
                                     if( timedOut )
@@ -277,12 +275,10 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                             var fRect = glyph.layoutFeature({
                                                             view: args,
                                                             layout: layout,
-                                                            toX: toX,
                                                             feature: feature
                                                         });
                                             fRect.glyph = glyph;
-                                            fRect.toX = toX;
-                                            if( !( fRect.l >= block.offsetWidth || fRect.l+fRect.w < 0 ) )
+                                            if( !( fRect.l >= block.domNode.offsetWidth || fRect.l+fRect.w < 0 ) )
                                                 fRects[rectNumber] = fRect;
 
                                             // this might happen after all the features have been sent from the store
@@ -297,24 +293,26 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                 // callback when all features sent
                                 function () {
                                     allFeaturesRead = true;
-                                    if( ! featuresInProgress && ! featuresLaidOut.isFulfilled() )
+                                    if( ! featuresInProgress && ! featuresLaidOut.isFulfilled() ) {
                                         featuresLaidOut.resolve();
+                                    }
 
                                     featuresLaidOut.then( function() {
+
                                         var totalHeight = layout.getTotalHeight();
                                         var c = block.featureCanvas =
                                             dojo.create(
                                                 'canvas',
                                                 { height: totalHeight,
-                                                  width:  block.offsetWidth+1,
+                                                  width:  block.domNode.offsetWidth+1,
                                                   style: {
                                                       cursor: 'default',
                                                       height: totalHeight+'px'
                                                   },
-                                                  innerHTML: 'Your web browser cannot display this type of thisB.',
+                                                  innerHTML: 'Your web browser cannot display this type of track.',
                                                   className: 'canvas-track'
                                                 },
-                                                block
+                                                block.domNode
                                             );
                                         thisB.heightUpdate( totalHeight,
                                                             blockIndex );
@@ -367,30 +365,34 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         }
 
         // make features get highlighted on mouse move
-        on( block, 'mousemove', function( evt ) {
+        block.own(
+            on( block.featureCanvas, 'mousemove', function( evt ) {
                 domGeom.normalizeEvent( evt );
                 var fRect = index.getByCoord( evt.layerX, evt.layerY );
                 thisB.mouseoverFeature( fRect && fRect.f );
-        });
-        on( block, 'mouseout', function( evt ) {
-                thisB.mouseoverFeature( undefined );
-        });
+            }),
+            on( block.featureCanvas, 'mouseout', function( evt ) {
+                    thisB.mouseoverFeature( undefined );
+                })
+        );
 
         // connect up the event handlers
         for( var event in this.eventHandlers ) {
             var handler = this.eventHandlers[event];
-            on( block, event, function( evt ) {
-                domGeom.normalizeEvent( evt );
-                var fRect = index.getByCoord( evt.layerX, evt.layerY );
-                if( fRect ) {
-                    handler.call({
-                        track: thisB,
-                        feature: fRect.f,
-                        fRect: fRect,
-                        callbackArgs: [ thisB, fRect.f ]
-                    });
-                }
-            });
+            block.own(
+                on( block.featureCanvas, event, function( evt ) {
+                    domGeom.normalizeEvent( evt );
+                    var fRect = index.getByCoord( evt.layerX, evt.layerY );
+                    if( fRect ) {
+                        handler.call({
+                            track: thisB,
+                            feature: fRect.f,
+                            fRect: fRect,
+                            callbackArgs: [ thisB, fRect.f ]
+                        });
+                    }
+                })
+            );
         }
     },
 

@@ -30,12 +30,13 @@ return declare( Component, {
      */
     _getFeatureRectangle: function( args ) {
         var feature = args.feature;
+        var block = args.view.block;
         var fRect = {
-            l: args.toX( feature.get('start') ),
+            l: block.bpToX( feature.get('start') ),
             h: this.getStyle( feature, 'height' )
         };
 
-        fRect.w = args.toX( feature.get('end') ) - fRect.l;
+        fRect.w = block.bpToX( feature.get('end') ) - fRect.l;
         return fRect;
     },
 

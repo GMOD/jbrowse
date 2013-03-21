@@ -70,10 +70,10 @@ return declare( [RectangleGlyph,MismatchesMixin], {
 
                 var mRect = {
                     h: (fRect.rectSize||{}).h || fRect.h,
-                    l: fRect.toX( start ),
+                    l: block.bpToX( start ),
                     t: fRect.t
                 };
-                mRect.w = Math.max( fRect.toX( end ) - mRect.l, 1 );
+                mRect.w = Math.max( block.bpToX( end ) - mRect.l, 1 );
 
                 if( mismatch.type == 'mismatch' || mismatch.type == 'deletion' ) {
                     context.fillStyle = this.track.colorForBase( mismatch.base );

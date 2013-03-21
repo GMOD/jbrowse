@@ -5,6 +5,7 @@ define( [
             'dojo/aspect',
             'dojo/dom-construct',
             'dojo/dom-geometry',
+            'dijit/Destroyable',
             'JBrowse/View/InfoDialog',
             'dijit/Dialog',
             'dijit/Menu',
@@ -16,7 +17,8 @@ define( [
             'JBrowse/Component',
             'JBrowse/Errors',
             'JBrowse/View/TrackConfigEditor',
-            'JBrowse/View/ConfirmDialog'
+            'JBrowse/View/ConfirmDialog',
+            'JBrowse/View/Track/BlockBased/Block'
         ],
         function( declare,
                   lang,
@@ -24,6 +26,7 @@ define( [
                   aspect,
                   dom,
                   domGeom,
+                  Destroyable,
                   InfoDialog,
                   Dialog,
                   dijitMenu,
@@ -35,10 +38,14 @@ define( [
                   Component,
                   Errors,
                   TrackConfigEditor,
-                  ConfirmDialog
+                  ConfirmDialog,
+                  Block
                 ) {
 
-return declare( Component,
+
+// we get `own` and `destroy` from Destroyable, see dijit/Destroyable docs
+
+return declare( [Component,Destroyable],
 /**
  * @lends JBrowse.View.Track.BlockBased.prototype
  */
@@ -273,11 +280,13 @@ return declare( Component,
         this.updateStaticElements( this.genomeView.getPosition() );
     },
 
-    cleanupBlock: function() {},
+    cleanupBlock: function( block ) {
+        block.destroy();
+    },
 
     _hideBlock: function(blockIndex) {
         if (this.blocks[blockIndex]) {
-            this.div.removeChild(this.blocks[blockIndex]);
+            this.div.removeChild( this.blocks[blockIndex].domNode );
             this.blocks[blockIndex] = undefined;
             this.blockHeights[blockIndex] = 0;
         }
@@ -375,7 +384,7 @@ return declare( Component,
     fillBlockError: function( blockIndex, block, error ) {
         error = error || this.fatalError || this.error;
 
-        dom.empty(block);
+        dom.empty( block.domNode );
         var msgDiv = this._renderErrorMessage( error, block );
         this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
     },
@@ -412,18 +421,23 @@ return declare( Component,
             return;
         }
 
-        var blockDiv = document.createElement("div");
-        blockDiv.className = "block";
-        blockDiv.style.left = (blockIndex * this.widthPct) + "%";
-        blockDiv.style.width = this.widthPct + "%";
-        blockDiv.startBase = startBase;
-        blockDiv.endBase = endBase;
-        blockDiv.scale = scale;
-        this.blocks[blockIndex] = blockDiv;
-        this.div.appendChild(blockDiv);
+        var block = new Block({
+            startBase: startBase,
+            endBase: endBase,
+            scale: scale,
+            node: {
+                className: 'block',
+                style: {
+                    left:  (blockIndex * this.widthPct) + "%",
+                    width: this.widthPct + "%"
+                }
+            }
+        });
+        this.blocks[blockIndex] = block;
+        this.div.appendChild( block.domNode );
 
         var args = [blockIndex,
-                    blockDiv,
+                    block,
                     this.blocks[blockIndex - 1],
                     this.blocks[blockIndex + 1],
                     startBase,
@@ -434,24 +448,24 @@ return declare( Component,
                     containerEnd];
 
         if( this.fatalError ) {
-            this.fillBlockError( blockIndex, blockDiv );
+            this.fillBlockError( blockIndex, block );
             return;
         }
 
         // loadMessage is an opaque mask div that we place over the
         // block until the fillBlock finishes
         var loadMessage = this._makeLoadingMessage();
-        blockDiv.appendChild( loadMessage );
+        block.domNode.appendChild( loadMessage );
 
         var finish = function() {
-            if( blockDiv && loadMessage.parentNode )
-                blockDiv.removeChild( loadMessage );
+            if( block && loadMessage.parentNode )
+                block.domNode.removeChild( loadMessage );
         };
 
         try {
             this.fillBlock({
                 blockIndex: blockIndex,
-                block:      blockDiv,
+                block:      block,
                 leftBlock:  this.blocks[blockIndex - 1],
                 rightBlock: this.blocks[blockIndex + 1],
                 leftBase:   startBase,
@@ -464,7 +478,7 @@ return declare( Component,
             });
         } catch( e ) {
             console.error( e, e.stack );
-            this.fillBlockError( blockIndex, blockDiv, e );
+            this.fillBlockError( blockIndex, block, e );
             finish();
         }
     },
@@ -504,7 +518,7 @@ return declare( Component,
                 //move block
                 newBlocks[newIndex] = this.blocks[i];
                 if (newBlocks[newIndex])
-                    newBlocks[newIndex].style.left =
+                    newBlocks[newIndex].domNode.style.left =
                     ((newIndex) * this.widthPct) + "%";
 
                 newHeights[newIndex] = this.blockHeights[i];
@@ -553,8 +567,8 @@ return declare( Component,
             for (i = 0; i < numBlocks; i++) {
                 if (this.blocks[i]) {
                     //if (!this.blocks[i].style) console.log(this.blocks);
-                    this.blocks[i].style.left = (i * widthPct) + "%";
-                    this.blocks[i].style.width = widthPct + "%";
+                    this.blocks[i].domNode.style.left = (i * widthPct) + "%";
+                    this.blocks[i].domNode.style.width = widthPct + "%";
                 }
             }
         } else {
@@ -569,7 +583,7 @@ return declare( Component,
             'div', {
                 className: class_ || 'message',
                 innerHTML: message
-            }, block );
+            }, block.domNode );
         this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
     },
 
@@ -600,8 +614,10 @@ return declare( Component,
      * @param parent {dijit.Menu|...} parent menu, if this is a submenu
      */
     _renderContextMenu: function( /**Object*/ menuStructure, /** Object */ context, /** dijit.Menu */ parent ) {
-       if ( !parent )
+        if ( !parent ) {
             parent = new dijitMenu();
+            this.own( parent );
+        }
 
         for ( key in menuStructure ) {
             var spec = menuStructure [ key ];
@@ -1015,8 +1031,8 @@ return declare( Component,
 
     // display a rendering-timeout message
     fillBlockTimeout: function( blockIndex, block ) {
-        dom.empty( block );
-        dojo.addClass( block, 'timed_out' );
+        dom.empty( block.domNode );
+        dojo.addClass( block.domNode, 'timed_out' );
         this.fillMessage( blockIndex, block,
                            'This region took too long'
                            + ' to display, possibly because'
@@ -1060,7 +1076,7 @@ return declare( Component,
                                     width: width+'%',
                                     height: '100%'
                                 }
-                            }, args.block );
+                            }, args.block.domNode );
     }
 
 });
