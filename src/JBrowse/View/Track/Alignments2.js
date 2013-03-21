@@ -57,6 +57,9 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
         var scale = viewArgs.scale;
         // recall: scale is pixels/basepair
 
+        var leftBase = viewArgs.leftBase;
+        var toX = function(coord) { return (coord-leftBase)*scale; };
+
         if ( fRect.w > 1 ) {
             var mismatches = this._getMismatches( feature );
             var charSize = this.getCharacterMeasurements( context );
@@ -66,10 +69,10 @@ return declare( [ CanvasFeatureTrack, MismatchesMixin ], {
 
                 var mRect = {
                     h: fRect.h,
-                    l: fRect.toX( start ),
+                    l: toX( start ),
                     t: fRect.t
                 };
-                mRect.w = fRect.toX( end ) - mRect.l;
+                mRect.w = toX( end ) - mRect.l;
 
                 if( mismatch.type == 'mismatch' || mismatch.type == 'deletion' ) {
                     context.fillStyle = this.colorForBase( mismatch.base );

@@ -250,9 +250,7 @@ return declare( [CanvasTrack,FeatureDetailMixin], {
             l: toX(layoutStart),
             h: fHeight,
             t: top,
-
-            f: feature,
-            toX: toX
+            f: feature
         };
         fRect.w = toX(layoutEnd) - fRect.l;
 
