@@ -2,9 +2,12 @@ define( [
           'dojo/_base/declare',
           'JBrowse/View/Track/Wiggle/XYPlot',
           'JBrowse/Util',
-          'JBrowse/Digest/Crc32'
+          'JBrowse/Digest/Crc32',
+          'dojo/dom-construct',
+          'dojo/on',
+          './XYFunction/Legend'
         ],
-        function( declare, XYPlot, Util, Digest ) {
+        function( declare, XYPlot, Util, Digest, dom, on, Legend ) {
 
 var XYFunction = declare( XYPlot, {
 
@@ -67,6 +70,7 @@ var XYFunction = declare( XYPlot, {
                                    canvasHeight, dataScale );
                 }
             }
+            this.drawLegend(this.config);
         }
         else {
             // else, draw single graph in the default color
@@ -75,6 +79,34 @@ var XYFunction = declare( XYPlot, {
                            context,      toY,
                            canvasHeight, dataScale );
         }
+    },
+
+    drawLegend: function( config ) {
+        if (dojo.query('.wiggleStatsLegendBox', this.div).length > 0)
+            return // make only one legend
+        var legendBox = dom.create( 'div', { className: 'wiggleStatsLegendBox',
+                                             id: 'legend_' + this.name,
+                                             style: { position: 'absolute',
+                                                      bottom: 0
+                                                    },
+                                             innerHTML: '?'
+                                            } );
+        this.legend = legendBox; // the css for this is currently in 'wiggle_stats_dialog.css'. It should probably be moved.
+        on(legendBox, 'mouseover', dojo.hitch(this, function ( e ) {
+            var L = new Legend().show(this.config);
+            legendBox.appendChild(L);
+        }));
+        on(legendBox, 'mouseout', dojo.hitch(this, function ( e ) {
+            dojo.query('.legend', legendBox).orphan()
+        }));
+        this.div.appendChild(legendBox);
+    },
+
+    updateStaticElements: function( /**Object*/ coords ) {
+        this.inherited(arguments);
+        // add to inherited method to update the legend position.
+        if( this.legend )
+            this.legend.style.left = coords.x+'px';
     },
 
     drawLine: function( pixels, pixelKey, color, context, toY, canvasHeight, dataScale ) {
