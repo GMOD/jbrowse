@@ -46,11 +46,19 @@
     padding-top: 2px;
 }
 
-.wiggleStatsDialog .selectorContainer .dijitButtonNode {
+.wiggleStatsDialog .selectorContainer .button1 {
     width: 13px;
     height: 13px;
     padding: 1px;
     padding-top: 0px;
+}
+
+.wiggleStatsDialog .selectorContainer .button2 {
+    width: 26px;
+    height: 13px;
+    padding: 1px;
+    padding-top: 0px;
+    margin-left: 2px;
 }
 
 .wiggleStatsDialog .dijitComboBox {
@@ -100,6 +108,14 @@
    width: 13px;
    height: 13px;
    text-align: center;
+}
+
+.plusIcon2 {
+   background-image: url('src/JBrowse/View/MaskDialog/icons/plus.png');
+   background-repeat: repeat-x;
+   width: 26px;
+   height: 13px;
+   text-align: center;
 } 
 
 .minusIcon {
@@ -129,4 +145,15 @@
     position: absolute;
     bottom: 100%;
     left: 100%;
+}
+
+.addManyTracksDialog .trackSelector {
+    position: relative;
+    background-color: #8cb1dd;
+    height: 180px;
+    width: 350px;
+}
+
+.addManyTracksDialog .instructions {
+    padding-bottom: 10px;
 }
