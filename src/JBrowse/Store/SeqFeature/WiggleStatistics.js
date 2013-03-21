@@ -36,8 +36,6 @@ var featureWrapper = Util.fastDeclare(
         }
     });
 
-// DOES NOT WORK YET!... probably.
-
 return declare([SeqFeatureStore], {
 
 constructor: function( args ) {

@@ -12,7 +12,8 @@ define( [
             'dojo/dom-construct',
             'dojo/_base/window',
             'dojo/on',
-            'dojo/store/Memory'
+            'dojo/store/Memory',
+            './WiggleStatsDialog/AddMultipleTracks'
         ],
         function( declare,
                   array,
@@ -27,11 +28,10 @@ define( [
                   dom,
                   window,
                   on,
-                  memory ) {
+                  memory,
+                  AddMultipleTracks ) {
 
 return declare( null, {
-
-    // DOES NOT WORK YET!... probably.
 
     constructor: function( args ) {
         this.browser = args.browser;
@@ -227,7 +227,7 @@ return declare( null, {
                                           searchAttr: 'name'
                                         }, 'trackFinder');
 
-        new Button({ iconClass: 'minusIcon',
+        var button = new Button({ iconClass: 'minusIcon',
                      multiselect: selector,
                      onClick: function() {
                         // Orphan the selected children :D
@@ -241,26 +241,36 @@ return declare( null, {
                      }
                    })
             .placeAt( opBar );
-        new Button({ iconClass: 'plusIcon',
-                     multiselect: selector,
-                     onClick: dojo.hitch(this, function() {
-                        var key = cBox.get('value');
-                        if ( !key )
-                            return;
-                        var op = window.doc.createElement('option');
-                        op.innerHTML = key;
-                        op.type = tracks[key].type;
-                        op.value = tracks[key].value;
-                        selector.containerNode.appendChild(op);
-                        // trigger selector event
-                        on.emit(selector.domNode, "change", {
-                            bubbles: true,
-                            cancelable: true
-                        });
-                     })
+        dojo.query('.dijitButtonNode', button.domNode)[0].className += ' button1'; // add to the class name so we can differentiate buttons in css
+        button = new Button({ iconClass: 'plusIcon',
+                              multiselect: selector,
+                              onClick: dojo.hitch(this, function() {
+                                var key = cBox.get('value');
+                                if ( !key )
+                                    return;
+                                var op = window.doc.createElement('option');
+                                op.innerHTML = key;
+                                op.type = tracks[key].type;
+                                op.value = tracks[key].value;
+                                selector.containerNode.appendChild(op);
+                                // trigger selector event
+                                on.emit(selector.domNode, "change", {
+                                    bubbles: true,
+                                    cancelable: true
+                                });
+                             })
                    })
             .placeAt( opBar );
+        dojo.query('.dijitButtonNode', button.domNode)[0].className += ' button1'; // add to the class name so we can differentiate buttons in css
         cBox.placeAt( opBar );
+
+        var selectMany = new Button({ iconClass: 'plusIcon2',
+                                      onClick: function() {
+                                          new AddMultipleTracks({multiselect: selector, tracks: tracks}).show({store: trackStore});
+                                      }
+                                    });
+        opBar.appendChild(selectMany.domNode);
+        dojo.query('.dijitButtonNode', selectMany.domNode)[0].className += ' button2'; // add to the class name so we can differentiate buttons in css
 
         container.appendChild(title);
         container.appendChild(selector.domNode);
