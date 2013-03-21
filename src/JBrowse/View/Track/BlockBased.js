@@ -281,7 +281,22 @@ return declare( [Component,Destroyable],
     },
 
     cleanupBlock: function( block ) {
-        block.destroy();
+        if( block )
+            block.destroy();
+    },
+
+    /**
+     * Called when this track object is destroyed.  Cleans up things
+     * to avoid memory leaks.
+     */
+    destroy: function() {
+        array.forEach( this.blocks || [], function( block ) {
+            if( block ) {
+                this.cleanupBlock( block );
+            }
+        }, this);
+
+        this.inherited( arguments );
     },
 
     _hideBlock: function(blockIndex) {

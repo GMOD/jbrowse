@@ -2115,8 +2115,11 @@ GenomeView.prototype.updateTrackList = function() {
     var containerChild = this.trackContainer.firstChild;
     do {
         // this test excludes UI tracks, whose divs don't have a track property
-        if (containerChild.track) tracks.push(containerChild.track);
+        if (containerChild.track)
+            tracks.push(containerChild.track);
     } while ((containerChild = containerChild.nextSibling));
+
+    var oldTracks = this.tracks;
     this.tracks = tracks;
 
     var newIndices = {};
@@ -2132,6 +2135,13 @@ GenomeView.prototype.updateTrackList = function() {
         totalHeight += newHeights[i];
         this.trackIndices[tracks[i].name] = i;
     }
+
+    // call destroy on any tracks that are being thrown out
+    array.forEach( oldTracks || [], function( track ) {
+        if( ! ( track.name in newIndices ) )
+            track.destroy();
+    }, this );
+
     this.trackIndices = newIndices;
     this.trackHeights = newHeights;
     var nextTop = this.topSpace;
