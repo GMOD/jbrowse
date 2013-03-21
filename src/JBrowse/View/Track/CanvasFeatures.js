@@ -453,6 +453,12 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         this.lastMouseover = feature;
     },
 
+    cleanupBlock: function(block) {
+        // garbage collect the layout
+        if ( block && this.layout )
+            this.layout.discardRange( block.startBase, block.endBase );
+    },
+
     // draw each feature
     renderFeature: function( context, block, fRect ) {
         fRect.glyph.renderFeature( context, block, fRect );

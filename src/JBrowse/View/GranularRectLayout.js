@@ -97,7 +97,7 @@ return declare( null,
             // infinitely.  this will cause weird layout if a user
             // scrolls manually for a very, very long time along the
             // genome at the same zoom level.  but most users will not
-            // do that.
+            // do that.  hopefully.
             for( var y = rect.top; y < yEnd; y++ ) {
                 av(bitmap,y).allFilled = true;
             }
@@ -115,6 +115,17 @@ return declare( null,
      *  Given a basepair range, deletes all data dealing with the features
      */
     discardRange: function( left, right ) {
+        //console.log( 'discard', left, right );
+        var pLeft   = Math.floor( left   / this.pitchX );
+        var pRight  = Math.floor( right  / this.pitchX );
+        var bitmap = this.bitmap;
+        for( var y = 0; y < bitmap.length; ++y ) {
+            var row = bitmap[y];
+            if( row )
+                for( var x = pLeft; x <= pRight; ++x ) {
+                    delete row[x];
+                }
+        }
     },
 
     hasSeen: function( id ) {

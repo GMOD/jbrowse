@@ -69,6 +69,22 @@
  * Improved JSON syntax error messages in server-side scripts (issue
    #214).
 
+ * Increased the default display timeout (`blockDisplayTimeout`) on
+   HTML-based features tracks from 5 seconds to 20 seconds.
+
+ * Added a `new-plugin.pl` helper script that makes the skeleton of a
+   new JBrowse plugin.
+
+ * Fixed a bug in which the `--conf` option to `prepare-refseqs.pl`
+   did not support comments in JSON conf files (issue #213).  Thanks
+   to Keiran Raine for pointing this out.
+
+ * Fixed some missing dojo/dijit nls directories in the non-dev
+   release zipfile.
+
+ * Fixed a bug with handling of timeout events in HTMLFeatures tracks.
+   Thanks to Matt Henderson of KBase for pointing this out.
+
 1.8.1     2013-02-12 12:56:24 EST5EDT
 
  * Added support for `cigarAttribute` and `mdAttributes` configuration

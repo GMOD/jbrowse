@@ -83,7 +83,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     _defaultConfig: function() {
         return {
             maxFeatureScreenDensity: 0.5,
-            blockDisplayTimeout: 5000,
+            blockDisplayTimeout: 20000,
 
             style: {
                 arrowheadClass: 'arrowhead',
@@ -464,7 +464,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             //if the feature overlaps destBlock,
             //move to destBlock & re-position
             sourceSlot = sourceBlock.featureNodes[ overlaps[i] ];
-            if (sourceSlot && ("label" in sourceSlot)) {
+            if ( sourceSlot && sourceSlot.label && sourceSlot.label.parentNode ) {
                 sourceSlot.label.parentNode.removeChild(sourceSlot.label);
             }
             if (sourceSlot && sourceSlot.feature) {
@@ -524,11 +524,14 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         var timedOut = false;
         var timeOutError = { toString: function() { return 'Timed out trying to display '+curTrack.name+' block '+blockIndex; } };
         if( this.config.blockDisplayTimeout )
-            window.setTimeout( function() { timedOut = true; }, this.config.blockDisplayTimeout );
+            window.setTimeout( function() {
+                timedOut = true;
+                curTrack.fillBlockTimeout( blockIndex, block );
+            }, this.config.blockDisplayTimeout );
 
         var featCallback = dojo.hitch(this,function( feature ) {
             if( timedOut )
-                throw timeOutError;
+                return;
 
             var uniqueId = feature.id();
             if( ! this._featureIsRendered( uniqueId ) ) {
@@ -574,6 +577,13 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             this._centerChildrenVertically( featDiv );
         return featDiv;
     },
+
+
+    fillBlockTimeout: function( blockIndex, block ) {
+        this.inherited( arguments );
+        block.featureNodes = {};
+    },
+
 
     /**
      * Returns true if a feature is visible and rendered someplace in the blocks of this track.
