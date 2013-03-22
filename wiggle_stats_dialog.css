@@ -33,48 +33,71 @@
     font-weight: bold;
 }
 
+.wiggleStatsDialog .operationBar {
+    position: absolute;
+}
+
 .wiggleStatsDialog .storeSelections {
     position: relative;
     background-color: #8cb1dd;
     height: 180px;
     width: 350px;
+    border: 1px;
 }
 
 .wiggleStatsDialog .selectorContainer .dijitButton {
     margin: 0px;
     padding-right: 2px;
-    padding-top: 2px;
+    height: 16px;
+    margin-top: 2px;
+    vertical-align: middle;
+}
+
+.wiggleStatsDialog .selectorContainer .dijitButtonContents {
+    height: 15px;
+}
+
+.wiggleStatsDialog .selectorContainer .dijitButtonNode {
+    padding: 0px;
+}
+
+.wiggleStatsDialog .selectorContainer .dijitButtonNode * {
+    vertical-align: top;
 }
 
 .wiggleStatsDialog .selectorContainer .button1 {
     width: 13px;
     height: 13px;
     padding: 1px;
-    padding-top: 0px;
 }
 
 .wiggleStatsDialog .selectorContainer .button2 {
     width: 26px;
     height: 13px;
     padding: 1px;
-    padding-top: 0px;
     margin-left: 2px;
 }
 
 .wiggleStatsDialog .dijitComboBox {
-    height: 14px;
+    height: 15px;
     width: 160px;
-    margin-top: 2px;
+    margin-top: 3px;
+}
+
+.wiggleStatsDialog .dijitComboBox .dijitDownArrowButton {
+    height: 15px;
 }
 
 .wiggleStatsDialog .textFieldContainer {
     position: relative;
+    height: 16px;
     top: 66px;
     padding-left: 3px;
     margin: 0px;
 }
 
-.wiggleStatsDialog .nameField {
+.wiggleStatsDialog .textFieldContainer .nameField {
+    height: 14px;
     width: 150px;
     padding-left: 3px;
 }
@@ -92,6 +115,7 @@
     text-align: left;
     padding-top: 10px;
     padding-left: 1px;
+    height: 16px;
 }
 
 .wiggleStatsDialog .dijitDialogPaneActionBar .addToTrackListButton {
@@ -100,6 +124,12 @@
     padding-top: 10px;
     padding-bottom: 10px;
     padding-left: 1px;
+    height: 16px;
+}
+
+.wiggleStatsDialog .dijitDialogPaneActionBar .dijitButtonNode {
+    padding-top: 1px;
+    padding-bottom: 1px;
 }
 
 .plusIcon {
@@ -107,7 +137,6 @@
    background-repeat: no-repeat;
    width: 13px;
    height: 13px;
-   text-align: center;
 }
 
 .plusIcon2 {
@@ -115,7 +144,6 @@
    background-repeat: repeat-x;
    width: 26px;
    height: 13px;
-   text-align: center;
 } 
 
 .minusIcon {
@@ -123,7 +151,7 @@
    background-repeat: no-repeat;
    width: 13px;
    height: 13px;
-   text-align: center;
+   text-align: top;
 }
 
 .wiggleStatsLegendBox {
