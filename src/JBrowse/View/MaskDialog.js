@@ -14,6 +14,7 @@ define( [
             'dojo/_base/window',
             'dojo/Deferred',
             './MaskDialog/settingViewer',
+            './MaskDialog/AddMultipleTracks',
             'dojo/on',
             'dojo/store/Memory'
         ],
@@ -32,6 +33,7 @@ define( [
                   window,
                   Deferred,
                   settingViewer,
+                  AddMultipleTracks,
                   on,
                   memory ) {
 
@@ -306,7 +308,7 @@ return declare( null, {
             }
         })();
 
-        var updateStore = function( type ) {
+        var updateStore = trackStore.updateStore = function( type ) {
             if (type) {
                 for (var key in tracks ) {
                     if (tracks.hasOwnProperty(key) && (tracks[key].type != type)) {
@@ -332,7 +334,7 @@ return declare( null, {
                                           searchAttr: 'name'
                                         }, 'trackFinder');
 
-        new Button({ iconClass: 'minusIcon',
+        var button = new Button({ iconClass: 'minusIcon',
                      multiselect: selector,
                      onClick: function() {
                         // Orphan the selected children :D
@@ -348,7 +350,8 @@ return declare( null, {
                      }
                    })
             .placeAt( opBar );
-        new Button({ iconClass: 'plusIcon',
+        dojo.query('.dijitButtonNode', button.domNode)[0].className += ' button1'; // add to the class name so we can differentiate buttons in css
+        button = new Button({ iconClass: 'plusIcon',
                      multiselect: selector,
                      onClick: dojo.hitch(this, function() {
                         var key = cBox.get('value');
@@ -370,7 +373,16 @@ return declare( null, {
                      })
                    })
             .placeAt( opBar );
+        dojo.query('.dijitButtonNode', button.domNode)[0].className += ' button1'; // add to the class name so we can differentiate buttons in css
         cBox.placeAt( opBar );
+
+        var selectMany = new Button({ iconClass: 'plusIcon2',
+                                      onClick: function() {
+                                          new AddMultipleTracks({multiselect: selector, tracks: tracks}).show({store: trackStore, filtering: args.filter});
+                                      }
+                                    });
+        opBar.appendChild(selectMany.domNode);
+        dojo.query('.dijitButtonNode', selectMany.domNode)[0].className += ' button2'; // add to the class name so we can differentiate buttons in css
 
         container.appendChild(title);
         container.appendChild(selector.domNode);
