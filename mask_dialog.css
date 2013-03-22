@@ -38,25 +38,50 @@
     background-color: #8cb1dd;
     height: 180px;
     width: 200px;
+    border: 1px;
 }
 
 .maskDialog .selectorContainer .dijitButton {
     margin: 0px;
     padding-right: 2px;
-    padding-top: 2px;
+    height: 16px;
+    margin-top: 2px;
+    vertical-align: middle;
+}
+
+.maskDialog .selectorContainer .dijitButtonContents {
+    height: 15px;
 }
 
 .maskDialog .selectorContainer .dijitButtonNode {
+    padding: 0px;
+}
+
+.maskDialog .selectorContainer .dijitButtonNode * {
+    vertical-align: top;
+}
+
+.maskDialog .selectorContainer .button1 {
     width: 13px;
     height: 13px;
     padding: 1px;
-    padding-top: 0px;
+}
+
+.maskDialog .selectorContainer .button2 {
+    width: 26px;
+    height: 13px;
+    padding: 1px;
+    margin-left: 2px;
 }
 
 .maskDialog .dijitComboBox {
-    height: 14px;
-    width: 160px;
-    margin-top: 2px;
+    height: 15px;
+    width: 128px;
+    margin-top: 3px;
+}
+
+.maskDialog .dijitComboBox .dijitDownArrowButton {
+    height: 15px;
 }
 
 .maskDialog .and-or-selector {
@@ -67,18 +92,21 @@
 
 .maskDialog .textFieldContainer {
     position: relative;
+    height: 16px;
     top: 66px;
+    padding-left: 3px;
+    margin: 0px;
 }
 
-.maskDialog .nameField {
+.maskDialog .textFieldContainer .nameField {
+    height: 14px;
     width: 150px;
-    top: 5px;
     padding-left: 3px;
 }
 
 .maskDialog .dijitDialogPaneActionBar {
     position: absolute;
-    top: 363px;
+    bottom: 5px;
     left: 3px;
     padding-top: 0px;
     padding-left: 1px;
@@ -89,6 +117,7 @@
     text-align: left;
     padding-top: 10px;
     padding-left: 1px;
+    height: 16px;
 }
 
 .maskDialog .dijitDialogPaneActionBar .addToTrackListButton {
@@ -97,6 +126,12 @@
     padding-top: 10px;
     padding-bottom: 10px;
     padding-left: 1px;
+    height: 16px;
+}
+
+.maskDialog .dijitDialogPaneActionBar .dijitButtonNode {
+    padding-top: 1px;
+    padding-bottom: 1px;
 }
 
 .maskDialog .canvasContainer {
@@ -112,7 +147,13 @@
    background-repeat: no-repeat;
    width: 13px;
    height: 13px;
-   text-align: center;
+}
+
+.plusIcon2 {
+   background-image: url('src/JBrowse/View/MaskDialog/icons/plus.png');
+   background-repeat: repeat-x;
+   width: 26px;
+   height: 13px;
 } 
 
 .minusIcon {
@@ -120,5 +161,16 @@
    background-repeat: no-repeat;
    width: 13px;
    height: 13px;
-   text-align: center;
-} 
+}
+
+.addManyTracksDialog .trackSelector {
+    position: relative;
+    background-color: #8cb1dd;
+    height: 180px;
+    width: 350px;
+}
+
+.addManyTracksDialog .instructions {
+    padding-bottom: 10px;
+    width: 350px;
+}
