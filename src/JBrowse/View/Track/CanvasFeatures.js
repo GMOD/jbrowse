@@ -40,10 +40,6 @@ var FRectIndex = declare( null,  {
 
         this.dims = { h: height, w: width };
 
-        this.byCoord = new Array( width );
-        for( var i = 0; i < width; i++ )
-            this.byCoord[i] = new Array( height );
-
         this.byID = {};
     },
 
@@ -51,31 +47,13 @@ var FRectIndex = declare( null,  {
         return this.byID[id];
     },
 
-    getByCoord: function( x, y ) {
-        return (this.byCoord[x]||[])[y];
-    },
-
-    _clampCoord: function( val, lBound, uBound ) {
-        return Math.round( Math.max( lBound, Math.min( val, uBound ) ) );
-    },
-
     addAll: function( fRects ) {
-        var byCoord = this.byCoord;
         var byID = this.byID;
         var cW = this.dims.w;
         var cH = this.dims.h;
         array.forEach( fRects, function( fRect ) {
             if( ! fRect )
                 return;
-
-            // by coord
-            for( var i = 0; i < fRect.w; ++i ) {
-                for( var j = 0; j < fRect.h; ++j ) {
-                    var x = this._clampCoord( fRect.l + i, 0, cW-1 );
-                    var y = this._clampCoord( fRect.t + j, 0, cH-1 );
-                    byCoord[x][y] = fRect;
-                }
-            }
 
             // by ID
             byID[ fRect.f.id() ] = fRect;
@@ -368,12 +346,13 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         block.own(
             on( block.featureCanvas, 'mousemove', function( evt ) {
                 domGeom.normalizeEvent( evt );
-                var fRect = index.getByCoord( evt.layerX, evt.layerY );
-                thisB.mouseoverFeature( fRect && fRect.f );
+                var bpX = evt.layerX / block.scale + block.startBase;
+                var feature = thisB.layout.getByCoord( bpX, evt.layerY );
+                thisB.mouseoverFeature( feature );
             }),
             on( block.featureCanvas, 'mouseout', function( evt ) {
                     thisB.mouseoverFeature( undefined );
-                })
+            })
         );
 
         // connect up the event handlers
@@ -382,13 +361,13 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             block.own(
                 on( block.featureCanvas, event, function( evt ) {
                     domGeom.normalizeEvent( evt );
-                    var fRect = index.getByCoord( evt.layerX, evt.layerY );
-                    if( fRect ) {
+                    var bpX = evt.layerX / block.scale + block.startBase;
+                    var feature = thisB.layout.getByCoord( bpX, evt.layerY );
+                    if( feature ) {
                         handler.call({
                             track: thisB,
-                            feature: fRect.f,
-                            fRect: fRect,
-                            callbackArgs: [ thisB, fRect.f ]
+                            feature: feature,
+                            callbackArgs: [ thisB, feature ]
                         });
                     }
                 })

@@ -52,7 +52,8 @@ return declare( Component, {
             feature.id(),
             startbp,
             endbp,
-            fRect.h
+            fRect.h,
+            feature
         );
 
         fRect.f = feature;
