@@ -1,9 +1,9 @@
 /**
  * Rectangle-layout manager that lays out rectangles using bitmaps at
- * resolution that may be somewhat lower than that of the coordinate
- * system for the rectangles being laid out.  `pitchX` and `pitchY`
- * are the ratios of input scale resolution to internal bitmap
- * resolution.
+ * resolution that, for efficiency, may be somewhat lower than that of
+ * the coordinate system for the rectangles being laid out.  `pitchX`
+ * and `pitchY` are the ratios of input scale resolution to internal
+ * bitmap resolution.
  */
 
 define(
@@ -23,7 +23,7 @@ return declare( null,
     /**
      * @returns {Number} top position for the rect
      */
-    addRect: function(id, left, right, height) {
+    addRect: function( id, left, right, height, data ) {
         // assumptions:
         //  - most of the rectangles being laid out will be
         //    nearly the same size
@@ -36,6 +36,8 @@ return declare( null,
 
         var midX = Math.floor((pLeft+pRight)/2);
         var rectangle = { id: id, l: pLeft, r: pRight, mX: midX, h: pHeight };
+        if( data )
+            rectangle.data = data;
 
         for(var top = 0; top <= this.pTotalHeight; top++ ){
             if( ! this._collides(rectangle,top) )
@@ -43,7 +45,7 @@ return declare( null,
         }
         rectangle.top = top;
 
-        this._addRectToBitmap( rectangle );
+        this._addRectToBitmap( rectangle, data );
         this.rectangles[id] = rectangle;
         //delete rectangle.mX; // don't need to store the midpoint
 
@@ -87,7 +89,8 @@ return declare( null,
             (function() { var a = []; array[subscript] = a; return a; })();
     },
 
-    _addRectToBitmap: function( rect ) {
+    _addRectToBitmap: function( rect, data ) {
+        data = data || true;
         var bitmap = this.bitmap;
         var av = this._autovivify;
         var yEnd = rect.top+rect.h;
@@ -99,20 +102,21 @@ return declare( null,
             // genome at the same zoom level.  but most users will not
             // do that.  hopefully.
             for( var y = rect.top; y < yEnd; y++ ) {
-                av(bitmap,y).allFilled = true;
+                av(bitmap,y).allFilled = data;
             }
         }
         else {
             for( var y = rect.top; y < yEnd; y++ ) {
                 var row = av(bitmap,y);
                 for( var x = rect.l; x <= rect.r; x++ )
-                    row[x]=true;
+                    row[x] = data;
             }
         }
     },
 
     /**
-     *  Given a basepair range, deletes all data dealing with the features
+     *  Given a range of X coordinates, deletes all data dealing with
+     *  the features.
      */
     discardRange: function( left, right ) {
         //console.log( 'discard', left, right );
@@ -130,6 +134,20 @@ return declare( null,
 
     hasSeen: function( id ) {
         return !! this.rectangles[id];
+    },
+
+    getByCoord: function( x, y ) {
+        var pX   = Math.floor( x / this.pitchX );
+        var pY   = Math.floor( y / this.pitchY );
+        return (this.bitmap[pY]||[])[pX];
+    },
+
+    getByID: function( id ) {
+        var r = this.rectangles[id];
+        if( r ) {
+            return r.data || true;
+        }
+        return undefined;
     },
 
     cleanup: function() {
