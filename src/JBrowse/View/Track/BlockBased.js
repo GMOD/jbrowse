@@ -5,6 +5,7 @@ define( [
             'dojo/aspect',
             'dojo/dom-construct',
             'dojo/dom-geometry',
+            'dojo/on',
             'dijit/Destroyable',
             'JBrowse/View/InfoDialog',
             'dijit/Dialog',
@@ -26,6 +27,7 @@ define( [
                   aspect,
                   dom,
                   domGeom,
+                  on,
                   Destroyable,
                   InfoDialog,
                   Dialog,
@@ -139,13 +141,14 @@ return declare( [Component,Destroyable],
         }
 
         var closeButton = dojo.create('div',{
-            className: 'track-close-button',
-            onclick: dojo.hitch(this,function(evt){
+            className: 'track-close-button'
+        },labelDiv);
+        this.own( on( closeButton, 'click', dojo.hitch(this,function(evt){
                 this.browser.view.suppressDoubleClick( 100 );
                 this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.config]);
                 evt.stopPropagation();
-            })
-        },labelDiv);
+        })));
+
         var labelText = dojo.create('span', { className: 'track-label-text' }, labelDiv );
         var menuButton = dojo.create('div',{
             className: 'track-menu-button'
@@ -291,10 +294,9 @@ return declare( [Component,Destroyable],
      */
     destroy: function() {
         array.forEach( this.blocks || [], function( block ) {
-            if( block ) {
-                this.cleanupBlock( block );
-            }
+            this.cleanupBlock( block );
         }, this);
+        delete this.blocks;
 
         this.inherited( arguments );
     },
@@ -302,6 +304,7 @@ return declare( [Component,Destroyable],
     _hideBlock: function(blockIndex) {
         if (this.blocks[blockIndex]) {
             this.div.removeChild( this.blocks[blockIndex].domNode );
+            this.cleanupBlock( this.blocks[blockIndex] );
             this.blocks[blockIndex] = undefined;
             this.blockHeights[blockIndex] = 0;
         }
@@ -1040,6 +1043,7 @@ return declare( [Component,Destroyable],
             menu.set('leftClickToOpen',  false);
             menu.bindDomNode( this.label );
             this.trackMenu = menu;
+            this.own( this.trackMenu );
         }
     },
 

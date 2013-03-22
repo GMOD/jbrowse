@@ -6,7 +6,7 @@
 
 define([
            'dojo/_base/declare',
-           'dojo/_base/Deferred',
+           'dojo/Deferred',
            'JBrowse/Util'
        ],
        function( declare, Deferred, Util ) {

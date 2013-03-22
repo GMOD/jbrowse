@@ -2138,8 +2138,10 @@ GenomeView.prototype.updateTrackList = function() {
 
     // call destroy on any tracks that are being thrown out
     array.forEach( oldTracks || [], function( track ) {
-        if( ! ( track.name in newIndices ) )
+        if( ! ( track.name in newIndices ) ) {
+            delete track.div.track; //< because this file put it there
             track.destroy();
+        }
     }, this );
 
     this.trackIndices = newIndices;

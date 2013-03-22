@@ -436,6 +436,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         delete this.yscale;
     },
 
+    destroy: function() {
+        this._clearLayout();
+        this.inherited(arguments);
+    },
+
     cleanupBlock: function(block) {
         if( block ) {
             // discard the layout for this range
@@ -450,6 +455,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                     delete featDiv.callbackArgs;
                     delete featDiv._labelScale;
                     delete featDiv._descriptionScale;
+                    if( featDiv.label ) {
+                        delete featDiv.label.track;
+                        delete featDiv.label.feature;
+                        delete featDiv.label.callbackArgs;
+                    }
                 }
         }
 
@@ -850,8 +860,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             this._connectFeatDivHandlers( labelDiv );
 
             featDiv.label = labelDiv;
-            featDiv.labelDiv = labelDiv;
 
+            // NOTE: ANY DATA ADDED TO THE labelDiv MUST HAVE A
+            // CORRESPONDING DELETE STATMENT IN cleanupBlock BELOW
             labelDiv.feature = feature;
             labelDiv.track = this;
             // (callbackArgs are the args that will be passed to callbacks
@@ -948,8 +959,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         // features at load time is way too slow.
         var refreshMenu = lang.hitch( this, '_refreshMenu', featDiv );
         this.own( on( featDiv,  'mouseover', refreshMenu ) );
-        if( featDiv.labelDiv )
-            this.own( on( featDiv.labelDiv,  'mouseover', refreshMenu ) );
+        if( featDiv.label )
+            this.own( on( featDiv.label,  'mouseover', refreshMenu ) );
     },
 
     _refreshMenu: function( featDiv ) {

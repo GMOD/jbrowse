@@ -5,6 +5,7 @@ define([
             'dojo/_base/declare',
             'dojo/_base/array',
             'dojo/_base/lang',
+            'dojo/aspect',
             'JBrowse/Util',
             'JBrowse/View/FASTA'
         ],
@@ -12,15 +13,26 @@ define([
             declare,
             array,
             lang,
+            aspect,
             Util,
             FASTAView
         ) {
 
 return declare(null,{
 
+    constructor: function() {
+
+        // clean up the eventHandlers at destruction time if possible
+        if( typeof this.destroy == 'function' ) {
+            aspect.before( this, 'destroy', function() {
+                delete this.eventHandlers;
+            });
+        }
+    },
+
     _setupEventHandlers: function() {
         // make a default click event handler
-        var eventConf = this.config.events || {};
+        var eventConf = dojo.clone( this.config.events || {} );
         if( ! eventConf.click ) {
             eventConf.click = (this.config.style||{}).linkTemplate
                     ? { action: "newWindow", url: this.config.style.linkTemplate }

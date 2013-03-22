@@ -464,6 +464,12 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     // draw each feature
     renderFeature: function( context, block, fRect ) {
         fRect.glyph.renderFeature( context, block, fRect );
+    },
+
+    destroy: function() {
+        delete this.layout;
+        delete this.glyphsLoaded;
+        this.inherited( arguments );
     }
 });
 });
