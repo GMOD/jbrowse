@@ -49,7 +49,7 @@ return declare( [RectangleGlyph,MismatchesMixin], {
         );
     },
 
-    _renderFeature: function( context, block, fRect ) {
+    renderFeature: function( context, block, fRect ) {
 
         this.inherited( arguments );
 
