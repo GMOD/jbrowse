@@ -39,7 +39,11 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     },
 
     mouseoverFeature: function( context, block, fRect ) {
-        this._renderFeature( context, block, fRect, true );
+        this.renderFeature( context, block, fRect );
+
+        // highlight the feature rectangle if we're moused over
+        context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' );
+        context.fillRect( fRect.l, fRect.t, fRect.rectSize.w, fRect.rectSize.h );
     },
 
     _getFeatureRectangle: function( args ) {
@@ -48,7 +52,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
         // save the original rect in `rectSize` as the dimensions
         // we'll use for the rectangle itself
-        fRect.rectSize = { h: fRect.h, w: fRect.w };
+        fRect.rectSize = { h: fRect.h, w: Math.max( fRect.w, 1 ) };
         fRect.h += this.getStyle( feature, 'marginBottom' ) || 0;
 
         var viewArgs = args.view;
@@ -84,8 +88,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         this._renderFeature( context, block, fRect, false );
     },
 
-    _renderFeature: function( context, block, fRect, mouseover ) {
-        var rectWidth = Math.max( fRect.rectSize.w, 1 );
+    _renderFeature: function( context, block, fRect ) {
+        var rectWidth = fRect.rectSize.w;
         var rectHeight = fRect.rectSize.h;
 
         context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
@@ -118,12 +122,6 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                 context.fillStyle = border_color;
                 context.fillRect( fRect.l, fRect.t+fRect.h-1, rectWidth, 1 );
             }
-        }
-
-        // highlight the feature rectangle if we're moused over
-        if( mouseover ) {
-            context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' );
-            context.fillRect( fRect.l, fRect.t, rectWidth, rectHeight );
         }
 
         // label
