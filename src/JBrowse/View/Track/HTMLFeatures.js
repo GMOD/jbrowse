@@ -86,7 +86,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             blockDisplayTimeout: 20000,
 
             // maximum height of the track, in pixels
-            maxHeight: 600,
+            maxHeight: 1000,
 
             style: {
                 arrowheadClass: 'arrowhead',
