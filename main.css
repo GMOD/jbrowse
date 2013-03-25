@@ -263,6 +263,21 @@ div.block {
     top: 0px;
     height: 100%;
 }
+div.block.height_overflow .height_overflow_message {
+    position: absolute;
+    color: rgb(77,77,77);
+    border-bottom: 2px solid rgb(77,77,77);
+    text-shadow: white 0px 0px 1px;
+    white-space: nowrap;
+    width: 100%;
+    font-weight: bold;
+    text-align: center;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
 div.block.timed_out {
     background: #ddd;
     background: rgba( 0,0,0, 0.1 );

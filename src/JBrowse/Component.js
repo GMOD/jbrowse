@@ -86,7 +86,7 @@ return declare( null, {
             func = this.compiledConfig[path] = this._compileConfigurationPath( path );
         }
 
-        return args ? func.apply( this, args ) : func;
+        return args ? func.apply( this, args ) : func.call( this );
     }
 });
 });

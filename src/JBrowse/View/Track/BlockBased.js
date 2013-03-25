@@ -5,6 +5,8 @@ define( [
             'dojo/aspect',
             'dojo/dom-construct',
             'dojo/dom-geometry',
+            'dojo/dom-class',
+            'dojo/query',
             'dojo/on',
             'dijit/Destroyable',
             'JBrowse/View/InfoDialog',
@@ -25,8 +27,10 @@ define( [
                   lang,
                   array,
                   aspect,
-                  dom,
+                  domConstruct,
                   domGeom,
+                  domClass,
+                  query,
                   on,
                   Destroyable,
                   InfoDialog,
@@ -94,6 +98,10 @@ return declare( [Component,Destroyable],
 
         if ( ! this.inShowRange ) {
             this.heightUpdateCallback( Math.max( this.labelHeight, this.height ) );
+
+            // reposition any height-overflow markers in our blocks
+            query( '.height_overflow_message', this.div )
+                .style( 'top', this.height - 16 + 'px' );
         }
     },
 
@@ -402,13 +410,13 @@ return declare( [Component,Destroyable],
     fillBlockError: function( blockIndex, block, error ) {
         error = error || this.fatalError || this.error;
 
-        dom.empty( block.domNode );
+        domConstruct.empty( block.domNode );
         var msgDiv = this._renderErrorMessage( error, block );
         this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
     },
 
     _renderErrorMessage: function( message, parent ) {
-        return dom.create(
+        return domConstruct.create(
             'div', {
                 className: 'error',
                 innerHTML: '<h2>Error</h2><div class="text">An error was encountered when displaying this track.</div>'
@@ -425,6 +433,22 @@ return declare( [Component,Destroyable],
                 + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
                 + '.'
         );
+    },
+
+    markBlockHeightOverflow: function( block ) {
+        if( block.heightOverflowed )
+            return;
+
+        block.heightOverflowed  = true;
+        domClass.add( block.domNode, 'height_overflow' );
+        domConstruct.create( 'div', {
+                                 className: 'height_overflow_message',
+                                 innerHTML: 'Max height reached',
+                                 style: {
+                                     top: (this.height-16) + 'px',
+                                     height: '16px'
+                                 }
+                             }, block.domNode );
     },
 
     _showBlock: function(blockIndex, startBase, endBase, scale,
@@ -1050,7 +1074,7 @@ return declare( [Component,Destroyable],
 
     // display a rendering-timeout message
     fillBlockTimeout: function( blockIndex, block ) {
-        dom.empty( block.domNode );
+        domConstruct.empty( block.domNode );
         dojo.addClass( block.domNode, 'timed_out' );
         this.fillMessage( blockIndex, block,
                            'This region took too long'
@@ -1086,7 +1110,7 @@ return declare( [Component,Destroyable],
 
         left = toPct( left );
         var width = toPct(right)-left;
-        var el = dom.create('div', {
+        var el = domConstruct.create('div', {
                                 className: 'global_highlight'
                                     + (trimLeft <= 0 ? ' left' : '')
                                     + (trimRight <= 0 ? ' right' : '' ),

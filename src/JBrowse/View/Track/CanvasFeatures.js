@@ -4,8 +4,8 @@
 
 define( [
             'dojo/_base/declare',
-            'dojo/dom-construct',
             'dojo/_base/array',
+            'dojo/dom-construct',
             'dojo/dom-geometry',
             'dojo/Deferred',
             'dojo/on',
@@ -16,8 +16,8 @@ define( [
         ],
         function(
             declare,
-            dom,
             array,
+            domConstruct,
             domGeom,
             Deferred,
             on,
@@ -90,6 +90,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             // feature's bounding coordinates that a glyph is
             // allowed to use
             maxFeatureGlyphExpansion: 500,
+
+            // maximum height of the track, in pixels
+            maxHeight: 600,
 
             style: {
 
@@ -165,7 +168,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             // height and marginBottom (parseInt in case one or both are functions), or default to 3 if the
             // calculation didn't result in anything sensible.
             var pitchY = this.config.layoutPitchY || 4;
-            this.layout = new Layout({ pitchX: 4/scale, pitchY: pitchY });
+            this.layout = new Layout({ pitchX: 4/scale, pitchY: pitchY, maxHeight: this.getConf('maxHeight') });
         }
 
         return this.layout;
@@ -247,17 +250,32 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                     fRects.push( null ); // put a placeholder in the fRects array
                                     featuresInProgress++;
                                     var rectNumber = fRects.length-1;
+
+                                    // get the appropriate glyph object to render this feature
                                     thisB.getGlyph(
-                                        args, feature,
+                                        args,
+                                        feature,
                                         function( glyph ) {
+                                            // have the glyph attempt
+                                            // to add a rendering of
+                                            // this feature to the
+                                            // layout
                                             var fRect = glyph.layoutFeature({
                                                             view: args,
                                                             layout: layout,
                                                             feature: feature
                                                         });
-                                            fRect.glyph = glyph;
-                                            if( !( fRect.l >= block.domNode.offsetWidth || fRect.l+fRect.w < 0 ) )
-                                                fRects[rectNumber] = fRect;
+                                            if( fRect === null ) {
+                                                // could not lay out, would exceed our configured maxHeight
+                                                // mark the block as exceeding the max height
+                                                block.maxHeightExceeded = true;
+                                            }
+                                            else {
+                                                // laid out successfully
+                                                fRect.glyph = glyph;
+                                                if( !( fRect.l >= block.domNode.offsetWidth || fRect.l+fRect.w < 0 ) )
+                                                    fRects[rectNumber] = fRect;
+                                            }
 
                                             // this might happen after all the features have been sent from the store
                                             if( ! --featuresInProgress && allFeaturesRead ) {
@@ -279,7 +297,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
 
                                         var totalHeight = layout.getTotalHeight();
                                         var c = block.featureCanvas =
-                                            dojo.create(
+                                            domConstruct.create(
                                                 'canvas',
                                                 { height: totalHeight,
                                                   width:  block.domNode.offsetWidth+1,
@@ -292,8 +310,13 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                                 },
                                                 block.domNode
                                             );
+
+                                        if( block.maxHeightExceeded )
+                                            thisB.markBlockHeightOverflow( block );
+
                                         thisB.heightUpdate( totalHeight,
                                                             blockIndex );
+
 
                                         thisB.renderFeatures( args, fRects );
 

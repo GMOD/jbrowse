@@ -11,24 +11,34 @@ define(
     function( declare ) {
 return declare( null,
 {
+
+
+    /**
+     * @param args.pitchX  layout grid pitch in the X direction
+     * @param args.pitchY  layout grid pitch in the Y direction
+     * @param args.maxHeight  maximum layout height, default Infinity (no max)
+     */
     constructor: function( args ) {
         this.pitchX = args.pitchX || 10;
         this.pitchY = args.pitchY || 10;
         this.bitmap = [];
         this.rectangles = {};
-        this.maxTop = 0;
+        this.maxHeight = Math.ceil( ( args.maxHeight || Infinity ) / this.pitchY );
         this.pTotalHeight = 0; // total height, in units of bitmap squares (px/pitchY)
     },
 
     /**
-     * @returns {Number} top position for the rect
+     * @returns {Number} top position for the rect, or Null if laying out the rect would exceed maxHeight
      */
     addRect: function( id, left, right, height, data ) {
-        // assumptions:
-        //  - most of the rectangles being laid out will be
-        //    nearly the same size
-        if( this.rectangles[id] )
-            return this.rectangles[id].top * this.pitchY;
+
+        // if we have already laid it out, return its layout
+        var storedRec;
+        if(( storedRec = this.rectangles[id] )) {
+            if( storedRec.top === null )
+                return null;
+            return storedRec.top * this.pitchY;
+        }
 
         var pLeft   = Math.floor( left   / this.pitchX );
         var pRight  = Math.floor( right  / this.pitchX );
@@ -39,19 +49,25 @@ return declare( null,
         if( data )
             rectangle.data = data;
 
-        for(var top = 0; top <= this.pTotalHeight; top++ ){
-            if( ! this._collides(rectangle,top) )
+        var maxTop = this.maxHeight - pHeight;
+        for(var top = 0; top <= maxTop; top++ ){
+            if( ! this._collides( rectangle, top ) )
                 break;
         }
-        rectangle.top = top;
 
-        this._addRectToBitmap( rectangle, data );
-        this.rectangles[id] = rectangle;
-        //delete rectangle.mX; // don't need to store the midpoint
-
-        this.pTotalHeight = Math.max( this.pTotalHeight||0, top+pHeight );
-
-        return top * this.pitchY;
+        if( top > maxTop ) {
+            rectangle.top = top = null;
+            this.rectangles[id] = rectangle;
+            this.pTotalHeight = Math.max( this.pTotalHeight||0, top+pHeight );
+            return null;
+        }
+        else {
+            rectangle.top = top;
+            this._addRectToBitmap( rectangle, data );
+            this.rectangles[id] = rectangle;
+            this.pTotalHeight = Math.max( this.pTotalHeight||0, top+pHeight );
+            return top * this.pitchY;
+        }
     },
 
     _collides: function( rect, top ) {
@@ -90,6 +106,9 @@ return declare( null,
     },
 
     _addRectToBitmap: function( rect, data ) {
+        if( rect.top === null )
+            return;
+
         data = data || true;
         var bitmap = this.bitmap;
         var av = this._autovivify;

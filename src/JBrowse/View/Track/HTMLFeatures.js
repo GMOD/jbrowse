@@ -85,6 +85,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             maxFeatureScreenDensity: 0.5,
             blockDisplayTimeout: 20000,
 
+            // maximum height of the track, in pixels
+            maxHeight: 600,
+
             style: {
                 arrowheadClass: 'arrowhead',
 
@@ -501,9 +504,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                          delete sourceBlock.featureNodes[ overlaps[i] ];
 
                          /* feature render, adding to block, centering refactored into addFeatureToBlock() */
-                         var featDiv = this.addFeatureToBlock( sourceSlot.feature, overlaps[i],
-                                                         destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
-                                                         containerStart, containerEnd );
+                         this.addFeatureToBlock( sourceSlot.feature, overlaps[i],
+                                                 destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
+                                                 containerStart, containerEnd );
                      }
             }
         }
@@ -562,8 +565,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             var uniqueId = feature.id();
             if( ! this._featureIsRendered( uniqueId ) ) {
                 /* feature render, adding to block, centering refactored into addFeatureToBlock() */
-                var featDiv = this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale,
-                                                      containerStart, containerEnd );
+                this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                                        containerStart, containerEnd );
             }
         });
 
@@ -600,6 +603,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                  containerStart, containerEnd ) {
         var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                           containerStart, containerEnd );
+        if( ! featDiv )
+            return null;
 
         block.domNode.appendChild( featDiv );
         if( this.config.style.centerChildrenVertically )
@@ -755,6 +760,13 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 layoutStart,
                                 layoutEnd,
                                 levelHeight);
+
+        if( top === null ) {
+            // could not lay out, would exceed our configured maxHeight
+            // mark the block as exceeding the max height
+            this.markBlockHeightOverflow( block );
+            return null;
+        }
 
         var featDiv = this.config.hooks.create(this, feature );
         this._connectFeatDivHandlers( featDiv );
@@ -1076,7 +1088,12 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         // create the layout if we need to, and we can
         if( ( ! this.layout || this.layout.pitchX != 4/scale ) && scale  )
-            this.layout = new Layout({pitchX: 4/scale, pitchY: this.config.layoutPitchY || (this.glyphHeight + this.glyphHeightPad) });
+            this.layout = new Layout({
+                                         pitchX: 4/scale,
+                                         pitchY: this.config.layoutPitchY || (this.glyphHeight + this.glyphHeightPad),
+                                         maxHeight: this.getConf('maxHeight')
+                                     });
+
 
         return this.layout;
     },

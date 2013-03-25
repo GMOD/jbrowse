@@ -55,6 +55,8 @@ return declare( Component, {
             fRect.h,
             feature
         );
+        if( fRect.t === null )
+            return null;
 
         fRect.f = feature;
 
