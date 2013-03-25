@@ -69,8 +69,8 @@ return declare( Store,
                                       s.featureCount++;
                                   },
                                   function() {
-                                      s.scoreMean = s.scoreSum / s.basesCovered;
-                                      s.scoreStdDev = thisB._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.basesCovered );
+                                      s.scoreMean = s.scoreSum / s.featureCount;
+                                      s.scoreStdDev = thisB._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.featureCount );
                                       s.featureDensity = s.featureCount / s.basesCovered;
                                       //console.log( '_getRegionStats done', s );
                                       callback( s );
