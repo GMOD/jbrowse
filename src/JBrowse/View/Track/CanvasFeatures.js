@@ -29,7 +29,7 @@ define( [
 
 /**
  *  inner class that indexes feature layout rectangles (fRects) (which
- *  include features) by canvas pixel coordinate, and by unique ID.
+ *  include features) by unique ID.
  *
  *  We have one of these indexes in each block.
  */
