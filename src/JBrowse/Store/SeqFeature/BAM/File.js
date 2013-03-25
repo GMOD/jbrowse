@@ -372,7 +372,7 @@ var BamFile = declare( null,
             sizeFunction: function( features ) {
                 return features.length;
             },
-            maxSize: 100000 // cache up to 100,000 BAM features
+            maxSize: 300000 // cache up to 300,000 BAM features
         });
 
         var error;
