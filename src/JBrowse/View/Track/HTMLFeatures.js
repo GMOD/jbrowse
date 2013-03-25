@@ -548,8 +548,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         var timedOut = false;
         var timeOutError = { toString: function() { return 'Timed out trying to display '+curTrack.name+' block '+blockIndex; } };
+        var timeout;
         if( this.config.blockDisplayTimeout )
-            window.setTimeout( function() {
+            timeout = window.setTimeout( function() {
                 timedOut = true;
                 curTrack.fillBlockTimeout( blockIndex, block );
             }, this.config.blockDisplayTimeout );
@@ -572,6 +573,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 },
                                 featCallback,
                                 function () {
+                                    if( timeout )
+                                        window.clearTimeout( timeout );
+
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
                                     finishCallback();
