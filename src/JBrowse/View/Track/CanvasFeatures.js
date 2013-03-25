@@ -66,6 +66,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     constructor: function( args ) {
         this._setupEventHandlers();
         this.glyphsLoaded = {};
+        this.glyphsBeingLoaded = {};
         this.regionStats = {};
         this.showLabels = this.config.style.showLabels;
     },
@@ -180,17 +181,24 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
      */
     getGlyph: function( viewArgs, feature, callback ) {
         var glyphClassName = this.getConfForFeature( 'glyph', feature );
-        var glyph;
+        var glyph, interestedParties;
         if(( glyph = this.glyphsLoaded[glyphClassName] )) {
             callback( glyph );
         }
+        else if(( interestedParties = this.glyphsBeingLoaded[glyphClassName] )) {
+            interestedParties.push( callback );
+        }
         else {
             var thisB = this;
+            this.glyphsBeingLoaded[glyphClassName] = [callback];
             require( [glyphClassName], function( GlyphClass ) {
+                console.log('loaded',glyphClassName);
                 glyph = thisB.glyphsLoaded[glyphClassName] =
                     new GlyphClass({ track: thisB, config: thisB.config, browser: thisB.browser });
-
-                callback( glyph );
+                array.forEach( thisB.glyphsBeingLoaded[glyphClassName], function( cb ) {
+                    cb( glyph );
+                });
+                delete thisB.glyphsBeingLoaded[glyphClassName];
             });
         }
     },
