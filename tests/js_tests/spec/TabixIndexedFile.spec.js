@@ -12,8 +12,8 @@ describe( "tabix-indexed file", function() {
     var f;
     beforeEach( function() {
         f = new TabixIndexedFile({
-                tbi:  new XHRBlob( '../../sample_data/raw/volvox/volvox.vcf.gz.tbi' ),
-                file: new XHRBlob( '../../sample_data/raw/volvox/volvox.vcf.gz' )
+                tbi:  new XHRBlob( '../../sample_data/raw/volvox/volvox.test.vcf.gz.tbi' ),
+                file: new XHRBlob( '../../sample_data/raw/volvox/volvox.test.vcf.gz' )
             });
     });
 
