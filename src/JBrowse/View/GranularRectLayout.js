@@ -37,6 +37,9 @@ return declare( null,
         if(( storedRec = this.rectangles[id] )) {
             if( storedRec.top === null )
                 return null;
+
+            // add it to the bitmap again, since that bitmap range may have been discarded
+            this._addRectToBitmap( storedRec, data );
             return storedRec.top * this.pitchY;
         }
 
