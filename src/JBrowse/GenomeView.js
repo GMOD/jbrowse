@@ -1106,7 +1106,9 @@ GenomeView.prototype.onFineMove = function( startbp, endbp ) {};
 /**
  * Hook for other components to dojo.connect to.
  */
-GenomeView.prototype.onCoarseMove = function( startbp, endbp ) {};
+GenomeView.prototype.onCoarseMove = function( startbp, endbp ) {
+    this.updateLocationThumb();
+};
 
 /**
  * Hook to be called on a window resize.
@@ -1265,6 +1267,27 @@ GenomeView.prototype.thumbMoved = function(mover) {
     var pxWidth = parseInt(this.locationThumb.style.width);
     var pxCenter = pxLeft + (pxWidth / 2);
     this.centerAtBase(((pxCenter / this.overviewBox.w) * (this.ref.end - this.ref.start)) + this.ref.start);
+};
+
+/**
+ * Updates the position of the red box in the overview that indicates
+ * the region being shown by the detail pane.
+ */
+GenomeView.prototype.updateLocationThumb = function() {
+    var startbp = this.minVisible();
+    var endbp = this.maxVisible();
+
+    var length = this.ref.end - this.ref.start;
+    var trapLeft = Math.round((((startbp - this.ref.start) / length)
+                               * this.overviewBox.w) + this.overviewBox.l);
+    var trapRight = Math.round((((endbp - this.ref.start) / length)
+                                * this.overviewBox.w) + this.overviewBox.l);
+
+    this.locationThumb.style.cssText =
+    "height: " + (this.overviewBox.h - 4) + "px; "
+    + "left: " + trapLeft + "px; "
+    + "width: " + (trapRight - trapLeft) + "px;"
+    + "z-index: 20";
 };
 
 GenomeView.prototype.checkY = function(y) {
