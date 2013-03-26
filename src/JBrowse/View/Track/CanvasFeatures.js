@@ -192,13 +192,16 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             var thisB = this;
             this.glyphsBeingLoaded[glyphClassName] = [callback];
             require( [glyphClassName], function( GlyphClass ) {
-                console.log('loaded',glyphClassName);
+
                 glyph = thisB.glyphsLoaded[glyphClassName] =
                     new GlyphClass({ track: thisB, config: thisB.config, browser: thisB.browser });
+
                 array.forEach( thisB.glyphsBeingLoaded[glyphClassName], function( cb ) {
                     cb( glyph );
                 });
+
                 delete thisB.glyphsBeingLoaded[glyphClassName];
+
             });
         }
     },
