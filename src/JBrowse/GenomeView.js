@@ -1102,7 +1102,10 @@ GenomeView.prototype.showCoarse = function() {
 /**
  * Hook for other components to dojo.connect to.
  */
-GenomeView.prototype.onFineMove = function( startbp, endbp ) {};
+GenomeView.prototype.onFineMove = function( startbp, endbp ) {
+    this.updateLocationThumb();
+};
+
 /**
  * Hook for other components to dojo.connect to.
  */
