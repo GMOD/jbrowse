@@ -75,7 +75,7 @@ class AbstractYeastBiodbTest ( JBrowseTest ):
     def search_yal024c( self ):
 
         # check that a YAL024C feature label is not yet in the DOM
-        yal024_label_xpath = "//div[@class='feature-label']//*[contains(.,'YAL024C')]"
+        yal024_label_xpath = "//div[contains(@class,'feature-label')]//*[contains(.,'YAL024C')]"
         self.assert_no_element( yal024_label_xpath )
 
         # Find the query box and put YAL024C into it and hit enter
