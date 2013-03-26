@@ -171,7 +171,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
     def search_f15( self ):
 
         # check that a f15 feature label is not yet in the DOM
-        xpath = "//div[@class='feature-label']//*[contains(.,'f15')]"
+        xpath = "//div[contains(@class,'feature-label')]//*[contains(.,'f15')]"
         # check that f15 is not already in the DOM at load time
         self.assert_no_element( xpath )
 
