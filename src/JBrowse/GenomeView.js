@@ -922,9 +922,11 @@ GenomeView.prototype.dragMove = function(event) {
 // Similar to "dragMove". Consider merging.
 GenomeView.prototype.verticalDragMove = function(event) {
     this.dragging = true;
+    var containerHeight = parseInt(this.verticalScrollBar.container.style.height,10);
+    var trackContainerHeight = this.trackContainer.clientHeight;
      this.setPosition({
          x: this.winStartPos.x,
-         y: this.winStartPos.y + (event.clientY - this.dragStartPos.y)
+         y: this.winStartPos.y + (event.clientY - this.dragStartPos.y)*(trackContainerHeight/containerHeight)
          });
     dojo.stopEvent(event);
 };
