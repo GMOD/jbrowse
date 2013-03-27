@@ -63,7 +63,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         this.labelPad = 1;
 
         // if calculated feature % width would be less than minFeatWidth, then set width to minFeatWidth instead
-        this.minFeatWidth = 0.1;
+        this.minFeatWidth = 1;
 
         this.trackPadding = args.trackPadding;
 

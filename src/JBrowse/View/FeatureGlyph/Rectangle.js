@@ -52,7 +52,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
         // save the original rect in `rectSize` as the dimensions
         // we'll use for the rectangle itself
-        fRect.rectSize = { h: fRect.h, w: Math.max( fRect.w, 1 ) };
+        fRect.rectSize = { h: fRect.h, w: Math.max( fRect.w, 2 ) };
+        fRect.w = fRect.rectSize.w; // in case it was increased
         fRect.h += this.getStyle( feature, 'marginBottom' ) || 0;
 
         var viewArgs = args.view;
