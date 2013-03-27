@@ -28,9 +28,8 @@ return declare( Component, {
     /**
      * Get the dimensions of the rendered feature in pixels.
      */
-    _getFeatureRectangle: function( args ) {
-        var feature = args.feature;
-        var block = args.view.block;
+    _getFeatureRectangle: function( viewArgs, feature ) {
+        var block = viewArgs.block;
         var fRect = {
             l: block.bpToX( feature.get('start') ),
             h: this.getStyle( feature, 'height' )
@@ -40,15 +39,14 @@ return declare( Component, {
         return fRect;
     },
 
-    layoutFeature: function( args ) {
-        var feature = args.feature;
-        var fRect = this._getFeatureRectangle( args );
+    layoutFeature: function( viewArgs, layout, feature ) {
+        var fRect = this._getFeatureRectangle( viewArgs, feature );
 
-        var scale = args.view.scale;
-        var leftBase = args.view.leftBase;
+        var scale = viewArgs.scale;
+        var leftBase = viewArgs.leftBase;
         var startbp = fRect.l/scale + leftBase;
         var endbp   = (fRect.l+fRect.w)/scale + leftBase;
-        fRect.t = args.layout.addRect(
+        fRect.t = layout.addRect(
             feature.id(),
             startbp,
             endbp,

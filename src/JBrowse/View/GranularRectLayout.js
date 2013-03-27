@@ -33,8 +33,8 @@ return declare( null,
     addRect: function( id, left, right, height, data ) {
 
         // if we have already laid it out, return its layout
-        var storedRec;
-        if(( storedRec = this.rectangles[id] )) {
+        if( id in this.rectangles ) {
+            var storedRec = this.rectangles[id];
             if( storedRec.top === null )
                 return null;
 

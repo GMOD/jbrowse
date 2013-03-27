@@ -46,9 +46,14 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         context.fillRect( fRect.l, fRect.t, fRect.rectSize.w, fRect.rectSize.h );
     },
 
-    _getFeatureRectangle: function( args ) {
-        var fRect = this.inherited( arguments );
-        var feature = args.feature;
+    _getFeatureRectangle: function( viewArgs, feature ) {
+        var block = viewArgs.block;
+        var fRect = {
+            l: block.bpToX( feature.get('start') ),
+            h: this.getStyle( feature, 'height' )
+        };
+
+        fRect.w = block.bpToX( feature.get('end') ) - fRect.l;
 
         // save the original rect in `rectSize` as the dimensions
         // we'll use for the rectangle itself
@@ -56,12 +61,10 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         fRect.w = fRect.rectSize.w; // in case it was increased
         fRect.h += this.getStyle( feature, 'marginBottom' ) || 0;
 
-        var viewArgs = args.view;
-
         // maybe get the feature's name, and update the layout box
         // accordingly
         if( viewArgs.showLabels ) {
-            var label = this.makeLabel( args.feature, fRect );
+            var label = this.makeLabel( feature, fRect );
             if( label ) {
                 fRect.h += label.h;
                 fRect.w = Math.max( label.w, fRect.w );
@@ -73,7 +76,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         // maybe get the feature's description if available, and
         // update the layout box accordingly
         if( viewArgs.showDescriptions ) {
-            var description = this.makeDescription( args.feature, fRect );
+            var description = this.makeDescription( feature, fRect );
             if( description ) {
                 fRect.description = description;
                 fRect.h += description.h;

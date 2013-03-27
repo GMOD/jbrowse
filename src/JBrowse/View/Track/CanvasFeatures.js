@@ -211,6 +211,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
 
         var blockIndex = args.blockIndex;
         var block = args.block;
+        var blockWidthPx = block.domNode.offsetWidth;
         var scale = args.scale;
         var leftBase = args.leftBase;
         var rightBase = args.rightBase;
@@ -271,11 +272,11 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                             // to add a rendering of
                                             // this feature to the
                                             // layout
-                                            var fRect = glyph.layoutFeature({
-                                                            view: args,
-                                                            layout: layout,
-                                                            feature: feature
-                                                        });
+                                            var fRect = glyph.layoutFeature(
+                                                args,
+                                                layout,
+                                                feature
+                                            );
                                             if( fRect === null ) {
                                                 // could not lay out, would exceed our configured maxHeight
                                                 // mark the block as exceeding the max height
@@ -284,7 +285,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                             else {
                                                 // laid out successfully
                                                 fRect.glyph = glyph;
-                                                if( !( fRect.l >= block.domNode.offsetWidth || fRect.l+fRect.w < 0 ) )
+                                                if( !( fRect.l >= blockWidthPx || fRect.l+fRect.w < 0 ) )
                                                     fRects[rectNumber] = fRect;
                                             }
 
