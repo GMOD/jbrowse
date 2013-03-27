@@ -51,6 +51,10 @@
    pop up a warning if a local data file is opened that contains no
    data for the current reference sequence (issue #178).
 
+ * Fixed bug in which dragging the vertical scroll bar marker on the
+   right side of the track pane did not behave correctly. (Julien
+   Smith-Roberge, issue #223).
+
  * Fixed bug in which the navigation location for some reference
    sequences can get messed up when ref.start != 0, or ref.end !=
    ref.length (issue #215).
