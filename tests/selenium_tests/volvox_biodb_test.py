@@ -66,8 +66,8 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
     def vcf( self ):
         self.do_typed_query('ctgA:18918..19070');
-        self.turn_on_track('volvox-sorted VCF');
-        self.turn_on_track('VCF test 2');
+        self.turn_on_track('VCF - volvox-sorted');
+        self.turn_on_track('VCF - additional');
 
         self.assert_elements("//div[@id='track_volvox_sorted_vcf']//canvas");
         self.assert_elements("//div[@id='track_volvox_vcf_test']//canvas")
