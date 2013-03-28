@@ -87,10 +87,28 @@ a.topLink, a.topLink * {
 }
 
 
-.menuBar > .menu {
+.menuBar > .menu, .menuBar > .dataset_select {
     float: left;
     font-size: 120%;
+    color: white;
 }
+.menuBar > .dataset_select {
+    margin: 1px 0 0 1px;
+    font-weight: bold;
+    height: 100%;
+    background: transparent;
+    border: none;
+}
+.menuBar > .dataset_select .dijitSelectLabel {
+    padding: 0 0.5em;
+}
+.menuBar > .dataset_select.dijitSelectHover td {
+    color: white;
+}
+.menuBar > .dataset_select .dijitButtonContents {
+    background: transparent;
+}
+
 .tundra .globalMenu .dijitMenuItem td {
     padding: 0.5em 2px 0.5em 5px;
 }

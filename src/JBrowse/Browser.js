@@ -396,6 +396,15 @@ Browser.prototype.initView = function() {
 
         var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, this.container );
 
+        var about = this.browserMeta();
+        var aboutDialog = new InfoDialog(
+            {
+                title: 'About '+about.title,
+                content: about.description,
+                className: 'about-dialog'
+            });
+
+
         // make our top menu bar
         var menuBar = dojo.create(
             'div',
@@ -416,13 +425,16 @@ Browser.prototype.initView = function() {
             this.navbox = this.createNavBox( topPane );
 
         // make our little top-links box with links to help, etc.
-        this.poweredByLink = dojo.create('a', {
-            className: 'powered_by',
-            innerHTML: 'JBrowse',
-            onclick: function() {
-                return false;
-            }
-         }, menuBar );
+        if( this.config.datasets ) {
+            this.renderDatasetSelect( menuBar );
+        } else {
+            dojo.create('a', {
+                            className: 'powered_by',
+                            innerHTML: 'JBrowse',
+                            onclick: dojo.hitch( aboutDialog, 'show' ),
+                            title: 'powered by JBrowse'
+                        }, menuBar );
+        }
 
         if( this.config.show_nav ) {
 
@@ -479,20 +491,12 @@ Browser.prototype.initView = function() {
 
         if( this.config.show_nav ) {
             // make the help menu
-            var about = this.browserMeta();
             this.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
                                             label: 'About',
                                             //iconClass: 'dijitIconFolderOpen',
-                                            onClick: function() {
-                                                new InfoDialog(
-                                                    {
-                                                        title: 'About '+about.title,
-                                                        content: about.description,
-                                                        className: 'about-dialog'
-                                                    }).show();
-                                            }
+                                            onClick: dojo.hitch( aboutDialog, 'show' )
                                         })
                                   );
 
@@ -558,6 +562,32 @@ Browser.prototype.initView = function() {
     });
 };
 
+
+Browser.prototype.renderDatasetSelect = function( parent ) {
+    var dsconfig = this.config.datasets || {};
+    var datasetChoices = [];
+    for( var id in dsconfig ) {
+        datasetChoices.push( dojo.mixin({ id: id }, dsconfig[id] ) );
+    }
+
+    new dijitSelectBox(
+        {
+            name: 'dataset',
+            className: 'dataset_select',
+            value: this.config.current_dataset || (datasetChoices[0] || {}).id,
+            options: array.map(
+                datasetChoices,
+                function( dataset ) {
+                    return { label: dataset.name, value: dataset.id };
+                }),
+            onChange: dojo.hitch(this, function( dsID ) {
+                                     var ds = (this.config.datasets||{})[dsID];
+                                     if( ds )
+                                         window.location = '?data='+ds.url;
+                                     return false;
+                                 })
+        }).placeAt( parent );
+};
 
 /**
  * Get object like { title: "title", description: "description", ... }
