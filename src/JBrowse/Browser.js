@@ -441,17 +441,7 @@ Browser.prototype.initView = function() {
                                             onClick: dojo.hitch( this, 'openFileDialog' )
                                         })
                                   );
-            var fileMenu = this.makeGlobalMenu('file');
-            if( fileMenu ) {
-                var fileButton = new dijitDropDownButton(
-                    { className: 'file',
-                      innerHTML: 'File',
-                      dropDown: fileMenu
-                    });
-                dojo.addClass( fileButton.domNode, 'menu' );
-                menuBar.appendChild( fileButton.domNode );
-            }
-
+            this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
 
             this.addGlobalMenuItem( 'view', new dijitMenuItem({
                 label: 'Set highlight',
@@ -481,27 +471,8 @@ Browser.prototype.initView = function() {
 
             this.addGlobalMenuItem( 'view', this._highlightClearButton );
 
-            var viewMenu = this.makeGlobalMenu('view');
-            if( viewMenu ) {
-                var viewButton = new dijitDropDownButton(
-                    { className: 'view',
-                      innerHTML: 'View',
-                      dropDown: viewMenu
-                    });
-                dojo.addClass( viewButton.domNode, 'menu' );
-                menuBar.appendChild( viewButton.domNode );
-            }
-
-            var configMenu = this.makeGlobalMenu('options');
-            if( configMenu ) {
-                var configLink = new dijitDropDownButton(
-                    { className: 'config',
-                      innerHTML: '<span class="icon"></span> Options',
-                      title: 'configure JBrowse',
-                      dropDown: configMenu
-                    });
-                menuBar.appendChild( configLink.domNode );
-           }
+            this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
+            this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
         }
 
         if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview )
@@ -701,6 +672,23 @@ Browser.prototype.deleteTracks = function( confs ) {
     this._deleteTrackConfigs( confs );
 };
 
+Browser.prototype.renderGlobalMenu = function( menuName, args, parent ) {
+    var menu = this.makeGlobalMenu( menuName );
+    if( menu ) {
+        args = dojo.mixin(
+            {
+                className: menuName,
+                innerHTML: '<span class="icon"></span> '+ ( args.text || Util.ucFirst(menuName)),
+                dropDown: menu
+            },
+            args || {}
+        );
+
+        var menuButton = new dijitDropDownButton( args );
+        dojo.addClass( menuButton.domNode, 'menu' );
+        parent.appendChild( menuButton.domNode );
+    }
+};
 
 Browser.prototype.makeGlobalMenu = function( menuName ) {
     var items = ( this._globalMenuItems || {} )[menuName] || [];
