@@ -416,23 +416,17 @@ Browser.prototype.initView = function() {
             this.navbox = this.createNavBox( topPane );
 
         // make our little top-links box with links to help, etc.
-        var about = this.browserMeta();
         this.poweredByLink = dojo.create('a', {
             className: 'powered_by',
-            innerHTML: about.title,
+            innerHTML: 'JBrowse',
             onclick: function() {
-                new InfoDialog(
-                    {
-                        title: 'About '+about.title,
-                        content: about.description,
-                        className: 'about-dialog'
-                    }).show();
-            },
-            title: 'about this browser'
+                return false;
+            }
          }, menuBar );
 
         if( this.config.show_nav ) {
 
+            // make the file menu
             this.addGlobalMenuItem( 'file',
                                     new dijitMenuItem(
                                         {
@@ -443,6 +437,8 @@ Browser.prototype.initView = function() {
                                   );
             this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
 
+
+            // make the view menu
             this.addGlobalMenuItem( 'view', new dijitMenuItem({
                 label: 'Set highlight',
                 onClick: function() {
@@ -452,7 +448,6 @@ Browser.prototype.initView = function() {
                         }).show();
                 }
             }));
-
             // make the menu item for clearing the current highlight
             this._highlightClearButton = new dijitMenuItem(
                 {
@@ -470,8 +465,10 @@ Browser.prototype.initView = function() {
             this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', dojo.hitch( this, '_updateHighlightClearButton' ) );
 
             this.addGlobalMenuItem( 'view', this._highlightClearButton );
-
             this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
+
+
+            // make the options menu
             this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
         }
 
@@ -480,8 +477,39 @@ Browser.prototype.initView = function() {
         else
             menuBar.appendChild( this.makeFullViewLink() );
 
-        if( this.config.show_nav )
-            menuBar.appendChild( this.makeHelpDialog()   );
+        if( this.config.show_nav ) {
+            // make the help menu
+            var about = this.browserMeta();
+            this.addGlobalMenuItem( 'help',
+                                    new dijitMenuItem(
+                                        {
+                                            label: 'About',
+                                            //iconClass: 'dijitIconFolderOpen',
+                                            onClick: function() {
+                                                new InfoDialog(
+                                                    {
+                                                        title: 'About '+about.title,
+                                                        content: about.description,
+                                                        className: 'about-dialog'
+                                                    }).show();
+                                            }
+                                        })
+                                  );
+
+            var helpDialog = this.makeHelpDialog();
+            this.setGlobalKeyboardShortcut( '?', helpDialog, 'show' );
+
+            this.addGlobalMenuItem( 'help',
+                                    new dijitMenuItem(
+                                        {
+                                            label: 'General',
+                                            iconClass: 'jbrowseIconHelp',
+                                            onClick: function() { helpDialog.show(); }
+                                        })
+                                  );
+
+            this.renderGlobalMenu( 'help', {}, menuBar );
+        }
 
         this.viewElem = document.createElement("div");
         this.viewElem.className = "dragWindow";
@@ -1572,7 +1600,6 @@ Browser.prototype.showTracks = function( trackNames ) {
 };
 
 Browser.prototype.makeHelpDialog = function () {
-
     // make a div containing our help text
     var browserRoot = this.config.browserRoot || "";
     var helpdiv = document.createElement('div');
@@ -1635,23 +1662,7 @@ Browser.prototype.makeHelpDialog = function () {
         draggable: false,
         title: "JBrowse Help"
     }, helpdiv );
-
-    // make a Help link that will show the dialog and set a handler on it
-    var helpButton = new dijitButton(
-        {
-            className: 'help',
-            title: 'Help',
-            innerHTML: '<span class="icon"></span> Help',
-            onClick: function() { dialog.show(); }
-        });
-
-    this.setGlobalKeyboardShortcut( '?', dialog, 'show' );
-    dojo.connect( document.body, 'onkeydown', function(evt) {
-        if( evt.keyCode != dojo.keys.SHIFT && evt.keyCode != dojo.keys.CTRL && evt.keyCode != dojo.keys.ALT )
-            dialog.hide();
-    });
-
-    return helpButton.domNode;
+    return dialog;
 };
 
 /**
