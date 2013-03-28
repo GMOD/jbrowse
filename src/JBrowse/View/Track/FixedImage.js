@@ -80,7 +80,7 @@ return declare( BlockBased,
                                           im.style.bottom = this.trackPadding + "px";
                                           break;
                                       }
-                                      block.appendChild(im);
+                                      block.domNode.appendChild(im);
                                   }
 
                                   // make an onload handler for when the image is fetched that
@@ -123,7 +123,7 @@ return declare( BlockBased,
                        containerStart, containerEnd) {
         if (!(sourceBlock && destBlock)) return;
 
-        var children = sourceBlock.childNodes;
+        var children = sourceBlock.domNode.childNodes;
         var destLeft = destBlock.startBase;
         var destRight = destBlock.endBase;
         var im;
@@ -135,7 +135,7 @@ return declare( BlockBased,
                     && ((im.startBase + im.baseWidth) > destLeft)) {
                     //move image from sourceBlock to destBlock
                     im.style.left = (100 * ((im.startBase - destLeft) / (destRight - destLeft))) + "%";
-                    destBlock.appendChild(im);
+                    destBlock.domNode.appendChild(im);
                 }
             }
         }

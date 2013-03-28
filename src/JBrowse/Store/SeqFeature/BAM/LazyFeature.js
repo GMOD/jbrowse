@@ -38,13 +38,13 @@ var Feature = Util.fastDeclare(
     // internally to save lots of calls to field.toLowerCase()
     _get: function( field ) {
         return field in this.data ? this.data[field] : // have we already parsed it out?
-            function() {
+            function(field) {
                 var v = this.data[field] =
                     this[field]            ? this[field]()            : // maybe we have a special parser for it
                     this._flagMasks[field] ? this._parseFlag( field ) : // or is it a flag?
                                              this._parseTag( field );   // otherwise, look for it in the tags
                 return v;
-            }.call(this);
+            }.call(this,field);
     },
 
     tags: function() {

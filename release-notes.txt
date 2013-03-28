@@ -13,6 +13,11 @@
    This is enabled by default only if JBrowse is running from the
    default index.html included in the JBrowse distribution.
 
+ * HTMLFeatures, Alignments, and Alignments2 tracks now accept a
+   `maxHeight` configuration variable specifying the maximum displayed
+   height of a track in pixels.  Features that would cause the track
+   to grow beyond its maximum height will not be drawn (issue #222).
+
  * HTMLFeatures tracks now accept `style->label` and
    `style->description` configuration variables variable that can be
    set to a function callback that returns a string with the feature's
@@ -72,6 +77,22 @@
 
  * Improved JSON syntax error messages in server-side scripts (issue
    #214).
+
+ * Increased the default display timeout (`blockDisplayTimeout`) on
+   HTML-based features tracks from 5 seconds to 20 seconds.
+
+ * Added a `new-plugin.pl` helper script that makes the skeleton of a
+   new JBrowse plugin.
+
+ * Fixed a bug in which the `--conf` option to `prepare-refseqs.pl`
+   did not support comments in JSON conf files (issue #213).  Thanks
+   to Keiran Raine for pointing this out.
+
+ * Fixed some missing dojo/dijit nls directories in the non-dev
+   release zipfile.
+
+ * Fixed a bug with handling of timeout events in HTMLFeatures tracks.
+   Thanks to Matt Henderson of KBase for pointing this out.
 
 1.8.1     2013-02-12 12:56:24 EST5EDT
 

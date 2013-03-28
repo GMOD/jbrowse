@@ -2,6 +2,7 @@ require(['JBrowse/Store/BigWig','JBrowse/Model/XHRBlob'], function( BigWig, XHRB
 
     describe( 'BigWig with volvox_microarray.bw', function() {
         var b = new BigWig({
+            browser: {},
             blob: new XHRBlob('../../sample_data/raw/volvox/volvox_microarray.bw')
         });
         it('constructs', function(){ expect(b).toBeTruthy(); });
@@ -95,6 +96,7 @@ require(['JBrowse/Store/BigWig','JBrowse/Model/XHRBlob'], function( BigWig, XHRB
 
         describe( 'BigWig with tomato RNAseq coverage', function() {
                       var b = new BigWig({
+                                             browser: {},
                                              blob: new XHRBlob('../data/SL2.40_all_rna_seq.v1.bigwig')
                                          });
 

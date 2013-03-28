@@ -73,7 +73,7 @@ return declare( [BlockBased, ExportMixin],
             var blur = dojo.create( 'div', {
                              className: 'sequence_blur',
                              style: { borderStyle: 'solid', borderTopWidth: borderWidth+'px', borderBottomWidth: borderWidth+'px' }
-                         }, block );
+                         }, block.domNode );
             this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
         }
 
@@ -105,7 +105,7 @@ return declare( [BlockBased, ExportMixin],
         var seqNode = document.createElement("div");
         seqNode.className = "sequence";
         seqNode.style.width = "100%";
-        block.appendChild(seqNode);
+        block.domNode.appendChild(seqNode);
 
         // add a div for the forward strand
         seqNode.appendChild( this._renderSeqDiv( start, end, seq, scale ));

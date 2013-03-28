@@ -16,11 +16,6 @@ define([
 
 return declare( MismatchesMixin ,{
 
-    constructor: function() {
-        this.cigarAttributeName = ( this.config.cigarAttribute || 'cigar' ).toLowerCase();
-        this.mdAttributeName    = ( this.config.mdAttribute    || 'md'    ).toLowerCase();
-    },
-
     /**
      * Make a default feature detail page for the given feature.
      * @returns {HTMLElement} feature detail page HTML

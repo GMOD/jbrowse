@@ -46,7 +46,7 @@ return declare(BlockBased,
         posLabel.style.left = "-" + Number(numtext.length)/1.7 + "ex";
 
         posLabel.appendChild( document.createTextNode( numtext ) );
-        block.appendChild(posLabel);
+        block.domNode.appendChild(posLabel);
 
         var highlight = this.browser.getHighlight();
         if( highlight && highlight.ref == this.refSeq.name )

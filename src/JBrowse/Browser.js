@@ -1841,8 +1841,6 @@ Browser.prototype.makeFullViewLink = function () {
 
 Browser.prototype.onCoarseMove = function(startbp, endbp) {
 
-    this._updateLocationThumb();
-
     var currRegion = { start: startbp, end: endbp, ref: this.refSeq.name };
 
     // update the location box with our current location
@@ -1867,22 +1865,6 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     this.publish( '/jbrowse/v1/n/navigate', currRegion );
 };
 
-Browser.prototype._updateLocationThumb = function() {
-    var startbp = this.view.minVisible();
-    var endbp = this.view.maxVisible();
-
-    var length = this.view.ref.end - this.view.ref.start;
-    var trapLeft = Math.round((((startbp - this.view.ref.start) / length)
-                               * this.view.overviewBox.w) + this.view.overviewBox.l);
-    var trapRight = Math.round((((endbp - this.view.ref.start) / length)
-                                * this.view.overviewBox.w) + this.view.overviewBox.l);
-
-    this.view.locationThumb.style.cssText =
-    "height: " + (this.view.overviewBox.h - 4) + "px; "
-    + "left: " + trapLeft + "px; "
-    + "width: " + (trapRight - trapLeft) + "px;"
-    + "z-index: 20";
-};
 
 /**
  * update the location and refseq cookies

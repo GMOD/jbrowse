@@ -17,6 +17,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         call( "bin/add-track-json.pl sample_data/raw/volvox/volvox_microarray.bw.conf sample_data/json/volvox/trackList.json", shell=True )
         call( "bin/add-track-json.pl sample_data/raw/volvox/volvox-sorted.bam.conf sample_data/json/volvox/trackList.json", shell=True )
         call( "bin/add-track-json.pl sample_data/raw/volvox/volvox-sorted.bam.coverage.conf sample_data/json/volvox/trackList.json", shell=True )
+        call( "bin/add-track-json.pl docs/tutorial/data_files/volvox.vcf.conf sample_data/json/volvox/trackList.json", shell=True )
         call( "bin/generate-names.pl --dir sample_data/json/volvox/", shell=True )
         super( AbstractVolvoxBiodbTest, self ).setUp()
 
@@ -58,7 +59,19 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # test bam
         self.bam()
 
+        # test vcf
+        self.vcf()
+
         self.browser.close()
+
+    def vcf( self ):
+        self.do_typed_query('ctgA:18918..19070');
+        self.turn_on_track('VCF - volvox-sorted');
+        self.turn_on_track('VCF - additional');
+
+        self.assert_elements("//div[@id='track_volvox_sorted_vcf']//canvas");
+        self.assert_elements("//div[@id='track_volvox_vcf_test']//canvas")
+
 
     def bam( self ):
         self.do_typed_query('ctgA:18918..19070');

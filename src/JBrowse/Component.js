@@ -21,6 +21,8 @@ return declare( null, {
         this.config = this._mergeConfigs( dojo.clone( this._defaultConfig() ), this.config );
 
         this.browser = args.browser;
+        if( ! this.browser )
+            throw "a reference to the main browser is required by this constructor";
 
         this.compiledConfig = {};
     },
@@ -84,7 +86,7 @@ return declare( null, {
             func = this.compiledConfig[path] = this._compileConfigurationPath( path );
         }
 
-        return args ? func.apply( this, args ) : func;
+        return args ? func.apply( this, args ) : func.call( this );
     }
 });
 });

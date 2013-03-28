@@ -11,7 +11,7 @@ return declare( WiggleXYPlot,
 {
 
     constructor: function( args ) {
-        this.store = new CoverageStore( { store: this.store });
+        this.store = new CoverageStore( { store: this.store, browser: this.browser });
     },
 
     _defaultConfig: function() {
