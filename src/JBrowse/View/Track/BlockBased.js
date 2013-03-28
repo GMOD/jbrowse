@@ -934,7 +934,7 @@ return declare( [Component,Destroyable],
     isFeatureHighlighted: function( feature, name ) {
         var highlight = this.browser.getHighlight();
         return highlight
-            && ( highlight.objectName == name )
+            && ( highlight.objectName && highlight.objectName == name )
             && highlight.ref == this.refSeq.name
             && !( feature.get('start') > highlight.end || feature.get('end') < highlight.start );
     },
