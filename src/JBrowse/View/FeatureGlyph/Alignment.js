@@ -40,6 +40,9 @@ return declare( [RectangleGlyph,MismatchesMixin], {
                     color_rev_strand: '#898FD8',
                     color_missing_mate: '#D11919',
                     border_color: null,
+
+                    strand_arrow: false,
+
                     height: 7,
                     marginBottom: 1,
                     showMismatches: true,

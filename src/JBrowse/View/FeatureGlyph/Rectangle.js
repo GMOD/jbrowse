@@ -1,17 +1,21 @@
 define([
            'dojo/_base/declare',
+           'JBrowse/Util/FastPromise',
            'JBrowse/View/FeatureGlyph',
            './_FeatureLabelMixin'
        ],
        function(
            declare,
+           FastPromise,
            FeatureGlyph,
            FeatureLabelMixin
        ) {
 
+
 return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
     constructor: function() {
+        this._embeddedImagePromises = {};
     },
 
     _defaultConfig: function() {
@@ -26,6 +30,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                     border_color: null,
                     height: 11,
                     marginBottom: 2,
+
+                    strand_arrow: true,
 
                     label: function( feature ) { return feature.get('name') || feature.get('id'); },
                     textFont: 'normal 12px Univers,Helvetica,Arial,sans-serif',
@@ -43,7 +49,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
         // highlight the feature rectangle if we're moused over
         context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' );
-        context.fillRect( fRect.l, fRect.t, fRect.rectSize.w, fRect.rectSize.h );
+        context.fillRect( fRect.rect.l, fRect.t, fRect.rect.w, fRect.rect.h );
     },
 
     _getFeatureRectangle: function( viewArgs, feature ) {
@@ -55,10 +61,10 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
         fRect.w = block.bpToX( feature.get('end') ) - fRect.l;
 
-        // save the original rect in `rectSize` as the dimensions
+        // save the original rect in `rect` as the dimensions
         // we'll use for the rectangle itself
-        fRect.rectSize = { h: fRect.h, w: Math.max( fRect.w, 2 ) };
-        fRect.w = fRect.rectSize.w; // in case it was increased
+        fRect.rect = { l: fRect.l, h: fRect.h, w: Math.max( fRect.w, 2 ) };
+        fRect.w = fRect.rect.w; // in case it was increased
         fRect.h += this.getStyle( feature, 'marginBottom' ) || 0;
 
         // maybe get the feature's name, and update the layout box
@@ -69,7 +75,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                 fRect.h += label.h;
                 fRect.w = Math.max( label.w, fRect.w );
                 fRect.label = label;
-                label.yOffset = fRect.rectSize.h + label.h;
+                label.yOffset = fRect.rect.h + label.h;
             }
         }
 
@@ -85,12 +91,50 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             }
         }
 
+        // if we are showing strand arrowheads, expand the frect a little
+        if( this.getStyle( feature, 'strand_arrow') ) {
+            var strand = fRect.strandArrow = feature.get('strand');
+
+            fRect.w += 9;
+            if( strand == -1 )
+                fRect.l -= 9;
+        }
+
         return fRect;
     },
 
+    _imgData: {
+         plus_arrow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAATUlEQVQIW2NkwATGQKFYIG4A4g8gacb///+7AWlBmNq+vj6V4uLiJiD/FRBXA/F8xu7u7kcVFRWyMEVATQz//v0Dcf9CxaYRZxIxbgIARiAhmifVe8UAAAAASUVORK5CYII=",
+         minus_arrow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAASklEQVQIW2NkQAABILMBiBcD8VkkcQZGIAeEE4G4FYjFent764qKiu4gKXoPUjAJiLOggsxMTEwMjIwgYQjo6Oh4TLRJME043QQA+W8UD/sdk9IAAAAASUVORK5CYII="
+    },
+
+    /**
+     * Returns a promise for an Image object for the image with the
+     * given name.  Image data comes from a data URL embedded in this
+     * source code.
+     */
+    getEmbeddedImage: function( name ) {
+        return (this._embeddedImagePromises[name] || function() {
+                    var p = new FastPromise();
+                    var data = this._imgData[ name ];
+                    if( ! data ) {
+                        p.resolve( null );
+                    }
+                    else {
+                        var i = new Image();
+                        var thisB = this;
+                        i.onload = function() {
+                            p.resolve( this );
+                        };
+                        i.src = data;
+                    }
+                    return this._embeddedImagePromises[name] = p;
+                }.call(this));
+    },
+
     renderFeature: function( context, block, fRect ) {
-        var rectWidth = fRect.rectSize.w;
-        var rectHeight = fRect.rectSize.h;
+        var rectWidth = fRect.rect.w;
+        var rectHeight = fRect.rect.h;
 
         context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
 
@@ -98,7 +142,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         var color = this.getStyle( fRect.f, 'color' );
         if( color ) {
             context.fillStyle = color;
-            context.fillRect( fRect.l, fRect.t, rectWidth, rectHeight );
+            context.fillRect( fRect.rect.l, fRect.t, rectWidth, rectHeight );
         }
 
         // foreground border
@@ -136,6 +180,22 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             context.font = this.config.style.text2Font;
             context.fillStyle = this.getStyle( fRect.f, 'text2Color' );
             context.fillText( fRect.description.text, fRect.l, fRect.t + fRect.description.yOffset);
+        }
+
+        // strand arrowhead
+        if( fRect.strandArrow ) {
+            if( fRect.strandArrow == 1 ) {
+                this.getEmbeddedImage( 'plus_arrow' )
+                    .then( function( img ) {
+                               context.drawImage( img, fRect.l + rectWidth, fRect.t + (rectHeight-img.height)/2 );
+                           });
+            }
+            else if( fRect.strandArrow == -1 ) {
+                this.getEmbeddedImage( 'minus_arrow' )
+                    .then( function( img ) {
+                               context.drawImage( img, fRect.l, fRect.t + (rectHeight-img.height)/2 );
+                           });
+            }
         }
     }
 
