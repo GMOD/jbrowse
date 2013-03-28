@@ -85,7 +85,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             maxFeatureScreenDensity: 400,
 
             // default glyph class to use
-            glyph: 'JBrowse/View/FeatureGlyph/Rectangle',
+            glyph: 'JBrowse/View/FeatureGlyph/Box',
 
             // maximum number of pixels on each side of a
             // feature's bounding coordinates that a glyph is

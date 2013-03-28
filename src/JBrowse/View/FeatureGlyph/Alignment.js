@@ -1,17 +1,17 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
-           'JBrowse/View/FeatureGlyph/Rectangle',
+           'JBrowse/View/FeatureGlyph/Box',
            'JBrowse/Store/SeqFeature/_MismatchesMixin'
        ],
        function(
            declare,
            array,
-           RectangleGlyph,
+           BoxGlyph,
            MismatchesMixin
        ) {
 
-return declare( [RectangleGlyph,MismatchesMixin], {
+return declare( [BoxGlyph,MismatchesMixin], {
 
     constructor: function() {
 
