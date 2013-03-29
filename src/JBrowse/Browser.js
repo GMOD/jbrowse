@@ -2,7 +2,7 @@ var _gaq = _gaq || []; // global task queue for Google Analytics
 define( [
             'dojo/_base/lang',
             'dojo/on',
-            'dojo/_base/Deferred',
+            'dojo/Deferred',
             'dojo/DeferredList',
             'dojo/topic',
             'dojo/aspect',
