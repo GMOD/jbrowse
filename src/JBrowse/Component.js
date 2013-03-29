@@ -17,14 +17,17 @@ return declare( null, {
         args = args || {};
 
         // merge our config with the config defaults
-        this.config = args.config || {};
-        this.config = this._mergeConfigs( dojo.clone( this._defaultConfig() ), this.config );
+        this._finalizeConfig( args.config );
 
         this.browser = args.browser;
         if( ! this.browser )
             throw "a reference to the main browser is required by this constructor";
 
         this.compiledConfig = {};
+    },
+
+    _finalizeConfig: function( config ) {
+        this.config = this._mergeConfigs( dojo.clone( this._defaultConfig() ), config || {} );
     },
 
     _defaultConfig: function() {

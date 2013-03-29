@@ -218,7 +218,7 @@ Browser.prototype.initPlugins = function() {
                                  // conf under its plugin name
                                  var args = dojo.mixin(
                                      dojo.clone( plugins[i] ),
-                                     this.config[pluginName]||{});
+                                     { config: this.config[pluginName]||{} });
                                  args.browser = this;
                                  args = dojo.mixin( args, { browser: this } );
 
