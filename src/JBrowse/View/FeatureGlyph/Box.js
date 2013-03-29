@@ -187,12 +187,14 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             if( fRect.strandArrow == 1 ) {
                 this.getEmbeddedImage( 'plus_arrow' )
                     .then( function( img ) {
+                               context.imageSmoothingEnabled = false;
                                context.drawImage( img, fRect.l + rectWidth, fRect.t + (rectHeight-img.height)/2 );
                            });
             }
             else if( fRect.strandArrow == -1 ) {
                 this.getEmbeddedImage( 'minus_arrow' )
                     .then( function( img ) {
+                               context.imageSmoothingEnabled = false;
                                context.drawImage( img, fRect.l, fRect.t + (rectHeight-img.height)/2 );
                            });
             }
