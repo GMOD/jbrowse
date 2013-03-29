@@ -223,16 +223,17 @@ Browser.prototype.initPlugins = function() {
                                  args = dojo.mixin( args, { browser: this } );
 
                                  // load its css
-                                 this._loadCSS(
-                                     {url: 'plugins/'+pluginName+'/css/main.css'},
-                                     function() {
-                                         thisPluginDone.resolve({success:true});
-                                     },
-                                     function() {
-                                         // succeed loading even if the css load failed.  not all plugins necessarily have css
-                                         thisPluginDone.resolve({success:true});
-                                     }
+                                 var cssLoaded = this._loadCSS(
+                                     {url: 'plugins/'+pluginName+'/css/main.css'}
                                  );
+                                 cssLoaded.then( function() {
+                                     thisPluginDone.resolve({success:true});
+                                 });
+
+                                 // give the plugin access to the CSS
+                                 // promise so it can know when its
+                                 // CSS is ready
+                                 args.cssLoaded = cssLoaded;
 
                                  // instantiate the plugin
                                  var plugin = new pluginClass( args );
@@ -323,13 +324,7 @@ Browser.prototype.loadUserCSS = function() {
 
         var that = this;
         var cssDeferreds = array.map( css, function( css ) {
-            var d = new Deferred();
-            that._loadCSS(
-                css,
-                function() { d.resolve({success:true}); },
-                function() { d.resolve({success:false}); }
-            );
-            return d;
+            return that._loadCSS( css );
         });
 
         new DeferredList(cssDeferreds)
@@ -337,21 +332,23 @@ Browser.prototype.loadUserCSS = function() {
    });
 };
 
-Browser.prototype._loadCSS = function( css, successCallback, errorCallback ) {
-        if( typeof css == 'string' ) {
-            // if it has '{' in it, it probably is not a URL, but is a string of CSS statements
-            if( css.indexOf('{') > -1 ) {
-                    dojo.create('style', { "data-from": 'JBrowse Config', type: 'text/css', innerHTML: css }, document.head );
-                    successCallback && successCallback();
-            }
-            // otherwise, it must be a URL
-            else {
-                css = { url: css };
-            }
+Browser.prototype._loadCSS = function( css ) {
+    var deferred = new Deferred();
+    if( typeof css == 'string' ) {
+        // if it has '{' in it, it probably is not a URL, but is a string of CSS statements
+        if( css.indexOf('{') > -1 ) {
+            dojo.create('style', { "data-from": 'JBrowse Config', type: 'text/css', innerHTML: css }, document.head );
+            deferred.resolve(true);
         }
-        if( typeof css == 'object' ) {
-            LazyLoad.css( css.url, successCallback );
+        // otherwise, it must be a URL
+        else {
+            css = { url: css };
         }
+    }
+    if( typeof css == 'object' ) {
+        LazyLoad.css( css.url, function() { deferred.resolve(true); } );
+    }
+    return deferred;
 };
 
 /**

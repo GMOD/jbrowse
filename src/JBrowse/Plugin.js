@@ -7,6 +7,7 @@ return declare( Component,
 {
     constructor: function( args ) {
         this.name = args.name;
+        this.cssLoaded = args.cssLoaded;
         this._finalizeConfig( args.config );
     },
 
