@@ -573,7 +573,7 @@ div.track-label .feature-density {
     position: absolute;
     left: 8px;
     top: 7px;
-    background: url("src/dijit/themes/tundra/images/spriteArrows.png") no-repeat -28px 0;
+    background: url("img/spriteArrows.png") no-repeat -28px 0;
 }
 
 .tundra div.track-label:hover .track-menu-button:hover {

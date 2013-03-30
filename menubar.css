@@ -87,6 +87,7 @@ a.topLink, a.topLink * {
 }
 
 
+/* dataset selector */
 .menuBar > .menu, .menuBar > .dataset_select {
     float: left;
     font-size: 120%;
@@ -107,6 +108,10 @@ a.topLink, a.topLink * {
 }
 .menuBar > .dataset_select .dijitButtonContents {
     background: transparent;
+    border-color: transparent;
+}
+.menuBar > .dataset_select .dijitArrowButtonInner {
+    background: url("img/spriteArrows.png") no-repeat scroll -56px center;
 }
 
 .tundra .globalMenu .dijitMenuItem td {
