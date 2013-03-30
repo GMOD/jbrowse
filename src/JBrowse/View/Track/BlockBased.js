@@ -411,7 +411,7 @@ return declare( [Component,Destroyable],
         error = error || this.fatalError || this.error;
 
         domConstruct.empty( block.domNode );
-        var msgDiv = this._renderErrorMessage( error, block );
+        var msgDiv = this._renderErrorMessage( error, block.domNode );
         this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
     },
 
