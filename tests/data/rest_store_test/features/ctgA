@@ -1,0 +1,8 @@
+[
+  { "start": 1, "end": 30, "score": 42 },
+  { "start": 300, "end": 400, "score": 43 },
+  { "start": 350, "end": 500, "score": 44 },
+  { "start": 123, "end": 456, "score": 45 },
+  { "start": 0, "end": 0, "score": 46 },
+  { "start": 1, "end": 1, "score": 47 }
+]
