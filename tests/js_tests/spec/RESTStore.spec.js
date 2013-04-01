@@ -28,7 +28,10 @@ describe( 'REST store', function() {
                       waitsFor( function() { return done; }, 2000 );
                       runs( function() {
                                 expect(features.length).toEqual(6);
+                                console.log( features );
                                 expect( features[0].get('start') ).toEqual( 1 );
+                                expect( features[4].children().length ).toEqual( 2 );
+                                expect( features[4].children()[1].children()[0].get('type') ).toEqual( 'SNV' );
                             });
                   });
 
