@@ -533,6 +533,16 @@ Browser.prototype.initView = function() {
         dojo.connect( this.browserWidget, "resize", this,      'onResize' );
         dojo.connect( this.browserWidget, "resize", this.view, 'onResize' );
 
+        //connect events to update the URL in the location bar
+        function updateLocationBar() {
+            var shareURL = thisObj.makeCurrentViewURL();
+            if( thisObj.config.updateBrowserURL && window.history && window.history.replaceState )
+                window.history.replaceState( {},"", shareURL );
+        };
+        dojo.connect( this, "onCoarseMove",                     updateLocationBar );
+        this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateLocationBar );
+        this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', updateLocationBar );
+
         //set initial location
         this.afterMilestone( 'loadRefSeqs', dojo.hitch( this, function() {
             this.afterMilestone( 'initTrackMetadata', dojo.hitch( this, function() {
@@ -1795,8 +1805,6 @@ Browser.prototype.makeShareLink = function () {
     // connect moving and track-changing events to update it
     var updateShareURL = function() {
         shareURL = browser.makeCurrentViewURL();
-        if( browser.config.updateBrowserURL && window.history && window.history.replaceState )
-            window.history.replaceState( {},"", shareURL );
     };
     dojo.connect( this, "onCoarseMove",                     updateShareURL );
     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateShareURL );
