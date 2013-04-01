@@ -5,7 +5,8 @@ define([
            'JBrowse/Store/SeqFeature',
            'JBrowse/Store/DeferredFeaturesMixin',
            'JBrowse/Store/DeferredStatsMixin',
-           'JBrowse/Util'
+           'JBrowse/Util',
+           'JBrowse/Model/SimpleFeature'
        ],
        function(
            declare,
@@ -14,7 +15,8 @@ define([
            SeqFeatureStore,
            DeferredFeaturesMixin,
            DeferredStatsMixin,
-           Util
+           Util,
+           SimpleFeature
        ) {
 
 return declare( SeqFeatureStore,
@@ -65,6 +67,7 @@ return declare( SeqFeatureStore,
 
     _errorHandler: function( handler ) {
         handler = handler || function(e) {
+            console.error( e, e.stack );
             throw e;
         };
         return dojo.hitch( this, function( error ) {
@@ -104,7 +107,7 @@ return declare( SeqFeatureStore,
     },
 
     _makeFeature: function( data, parent ) {
-        return new SimpleFeature( { data: featureData[i], parent: parent } );
+        return new SimpleFeature( { data: data, parent: parent } );
     }
 });
 });
