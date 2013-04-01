@@ -56,6 +56,9 @@
    pop up a warning if a local data file is opened that contains no
    data for the current reference sequence (issue #178).
 
+ * Fixed bug in which hard- and soft-clipped regions were erroneously
+   counted toward the overall length of a BAM alignment (issue #229).
+
  * Fixed bug in which dragging the vertical scroll bar marker on the
    right side of the track pane did not behave correctly. (Julien
    Smith-Roberge, issue #223).
