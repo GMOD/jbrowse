@@ -418,22 +418,19 @@ Browser.prototype.initView = function() {
         if( ! this.config.show_overview )
             overview.style.cssText = "display: none";
 
-        if( this.config.show_nav )
+        if( this.config.show_nav ) {
             this.navbox = this.createNavBox( topPane );
 
-        // make our little top-links box with links to help, etc.
-        if( this.config.datasets ) {
-            this.renderDatasetSelect( menuBar );
-        } else {
-            dojo.create('a', {
-                            className: 'powered_by',
-                            innerHTML: 'JBrowse',
-                            onclick: dojo.hitch( aboutDialog, 'show' ),
-                            title: 'powered by JBrowse'
-                        }, menuBar );
-        }
-
-        if( this.config.show_nav ) {
+            if( this.config.datasets ) {
+                this.renderDatasetSelect( menuBar );
+            } else {
+                dojo.create('a', {
+                                className: 'powered_by',
+                                innerHTML: 'JBrowse',
+                                onclick: dojo.hitch( aboutDialog, 'show' ),
+                                title: 'powered by JBrowse'
+                            }, menuBar );
+            }
 
             // make the file menu
             this.addGlobalMenuItem( 'file',
