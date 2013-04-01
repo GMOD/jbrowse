@@ -41,6 +41,8 @@ echo
 echo -n "Formatting Volvox example data ...";
 (   set -e;
     set -x;
+
+    # format volvox
     rm -rf sample_data/json/volvox;
     bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa --out sample_data/json/volvox;
     bin/biodb-to-json.pl -v --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox;
@@ -49,6 +51,7 @@ echo -n "Formatting Volvox example data ...";
     bin/add-track-json.pl docs/tutorial/data_files/volvox-sorted.bam.conf sample_data/json/volvox/trackList.json
     bin/add-track-json.pl docs/tutorial/data_files/volvox-sorted.bam.coverage.conf sample_data/json/volvox/trackList.json
     bin/add-track-json.pl docs/tutorial/data_files/volvox.vcf.conf sample_data/json/volvox/trackList.json
+    bin/add-json.pl '{ "dataset_id": "volvox" }' sample_data/json/volvox/trackList.json
     bin/generate-names.pl -v --out sample_data/json/volvox;
 
     # also recreate some symlinks used by tests and such
@@ -63,7 +66,21 @@ echo -n "Formatting Volvox example data ...";
     ln -sf ../../docs/tutorial/conf_files/volvox.json sample_data/raw/;
 
 ) >>setup.log 2>&1
-done_message "To see the example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/volvox.";
+done_message "To see the volvox example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/volvox.";
+
+echo
+echo -n "Formatting Yeast example data ...";
+(   set -e;
+    set -x;
+
+    # format volvox
+    rm -rf sample_data/json/yeast/;
+    bin/prepare-refseqs.pl --fasta sample_data/raw/yeast_scaffolds/chr1.fa.gz --fasta sample_data/raw/yeast_scaffolds/chr2.fa.gzip  --out sample_data/json/yeast/;
+    bin/biodb-to-json.pl --conf sample_data/raw/yeast.json --out sample_data/json/yeast/;
+    bin/add-json.pl '{ "dataset_id": "yeast" }' sample_data/json/yeast/trackList.json
+    bin/generate-names.pl --dir sample_data/json/yeast/;
+) >>setup.log 2>&1
+done_message "To see the yeast example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/yeast.";
 
 echo
 echo -n "Building and installing wiggle format support ...";
