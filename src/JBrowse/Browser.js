@@ -1830,12 +1830,15 @@ Browser.prototype.makeCurrentViewURL = function() {
         window.location.pathname,
         "?",
         dojo.objectToQuery(
-            {
-                loc:    this.view.visibleRegionLocString(),
-                tracks: this.view.visibleTrackNames().join(','),
-                data:   (this.config.queryParams||{}).data,
-                highlight: (this.getHighlight()||'').toString()
-            })
+            dojo.mixin(
+                dojo.mixin( {}, (this.config.queryParams||{}) ),
+                {
+                    loc:    this.view.visibleRegionLocString(),
+                    tracks: this.view.visibleTrackNames().join(','),
+                    highlight: (this.getHighlight()||'').toString()
+                }
+            )
+        )
     );
 }
 
