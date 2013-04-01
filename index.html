@@ -42,6 +42,15 @@
                                            show_nav: queryParams.nav,
                                            show_tracklist: queryParams.tracklist,
                                            show_overview: queryParams.overview,
+                                           makeFullViewURL: function( browser ) {
+
+                                               // the URL for the 'Full view' link
+                                               // in embedded mode should be the current
+                                               // view URL, except with 'nav', 'tracklist',
+                                               // and 'overview' parameters forced to 1.
+
+                                               return browser.makeCurrentViewURL({ nav: 1, tracklist: 1, overview: 1 });
+                                           },
                                            updateBrowserURL: true
                                        });
         });

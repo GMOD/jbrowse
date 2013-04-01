@@ -1817,8 +1817,10 @@ Browser.prototype.makeShareLink = function () {
  * Return a string URL that encodes the complete viewing state of the
  * browser.  Currently just data dir, visible tracks, and visible
  * region.
+ * @param {Object} overrides optional key-value object containing
+ *                           components of the query string to override
  */
-Browser.prototype.makeCurrentViewURL = function() {
+Browser.prototype.makeCurrentViewURL = function( overrides ) {
     var t = typeof this.config.shareURL;
 
     if( t == 'function' ) {
@@ -1837,11 +1839,14 @@ Browser.prototype.makeCurrentViewURL = function() {
         dojo.objectToQuery(
             dojo.mixin(
                 dojo.mixin( {}, (this.config.queryParams||{}) ),
-                {
-                    loc:    this.view.visibleRegionLocString(),
-                    tracks: this.view.visibleTrackNames().join(','),
-                    highlight: (this.getHighlight()||'').toString()
-                }
+                dojo.mixin(
+                    {
+                        loc:    this.view.visibleRegionLocString(),
+                        tracks: this.view.visibleTrackNames().join(','),
+                        highlight: (this.getHighlight()||'').toString()
+                    },
+                    overrides || {}
+                )
             )
         )
     );
@@ -1858,9 +1863,11 @@ Browser.prototype.makeFullViewLink = function () {
         innerHTML: 'Full view'
     });
 
+    var makeURL = this.config.makeFullViewURL || this.makeCurrentViewURL;
+
     // update it when the view is moved or tracks are changed
     var update_link = function() {
-        link.href = thisB.makeCurrentViewURL();
+        link.href = makeURL.call( thisB, thisB );
     };
     dojo.connect( this, "onCoarseMove",                     update_link );
     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  update_link );
