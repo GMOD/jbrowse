@@ -22,8 +22,8 @@
     // plugins: [ 'MyPlugin', 'MyOtherPlugin' ],
 
     datasets: {
-        volvox:    { url: 'sample_data/json/volvox', name: 'Volvox Test Data' },
-        modencode: { url: 'sample_data/json/modencode', name: 'MODEncode Test' },
-        yeast:     { url: 'sample_data/json/yeast', name: 'Yeast Test' },
+        volvox:    { url: '?data=sample_data/json/volvox', name: 'Volvox Example' },
+        modencode: { url: '?data=sample_data/json/modencode', name: 'MODEncode Example' },
+        yeast:     { url: '?data=sample_data/json/yeast',     name: 'Yeast Example' },
     }
 }

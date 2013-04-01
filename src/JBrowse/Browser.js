@@ -571,7 +571,7 @@ Browser.prototype.renderDatasetSelect = function( parent ) {
         {
             name: 'dataset',
             className: 'dataset_select',
-            value: this.config.current_dataset || (datasetChoices[0] || {}).id,
+            value: this.config.dataset_id || (datasetChoices[0] || {}).id,
             options: array.map(
                 datasetChoices,
                 function( dataset ) {
@@ -580,7 +580,7 @@ Browser.prototype.renderDatasetSelect = function( parent ) {
             onChange: dojo.hitch(this, function( dsID ) {
                                      var ds = (this.config.datasets||{})[dsID];
                                      if( ds )
-                                         window.location = '?data='+ds.url;
+                                         window.location = ds.url;
                                      return false;
                                  })
         }).placeAt( parent );
