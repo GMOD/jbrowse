@@ -186,7 +186,12 @@ var Feature = Util.fastDeclare(
             var lop = cigop >> 4;
             var op = CIGAR_DECODER[cigop & 0xf];
             cigar = cigar + lop + op;
-            lref += lop;
+
+            // hard and soft clipping do not count toward the length
+            // of the alignment on the reference sequence
+            if( op != 'H' && op != 'S' )
+                lref += lop;
+
             p += 4;
         }
         this.data.length_on_ref = lref;
