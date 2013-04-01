@@ -59,6 +59,10 @@ return declare( SeqFeatureStore,
         );
     },
 
+
+    // HELPER METHODS
+
+
     _errorHandler: function( handler ) {
         handler = handler || function(e) {
             throw e;
@@ -76,8 +80,16 @@ return declare( SeqFeatureStore,
 
     _makeURL: function( subpath, query ) {
         var url = this.config.baseUrl + subpath;
-        if( query )
-            url += '?' + ioquery.objectToQuery( query );
+        if( query ) {
+            query = dojo.mixin( {}, query );
+            if( this.config.query )
+                query = dojo.mixin( dojo.mixin( {}, this.config.query ),
+                                    query
+                                  );
+            var ref = query.ref || (this.refSeq||{}).name;
+            delete query.ref;
+            url += (ref ? '/' + ref : '' ) + '?' + ioquery.objectToQuery( query );
+        }
         return url;
     },
 
