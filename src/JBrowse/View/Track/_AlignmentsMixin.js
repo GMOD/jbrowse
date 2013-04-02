@@ -123,7 +123,7 @@ return declare( MismatchesMixin ,{
            return colors;
         }.call(this);
 
-        return this._baseStyles[base] || '#888';
+        return this._baseStyles[base] || '#999';
     }
 
 });
