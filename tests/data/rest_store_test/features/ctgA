@@ -1,0 +1,17 @@
+[
+  { "start": 1, "end": 30, "score": 42 },
+  { "start": 300, "end": 400, "score": 43 },
+  { "start": 350, "end": 500, "score": 44 },
+  { "start": 123, "end": 456, "score": 45 },
+  { "start": 300, "end": 3000, "score": 46,
+    "subfeatures": [
+        { "start": 300, "end": 400, "score": 20, "name": "Mickey" },
+        { "start": 440, "end": 640, "score": 480, "name": "Minnie",
+          "subfeatures": [
+             { "start": 440, "end": 450, "type": "SNV" }
+          ]
+        }
+     ]
+  },
+  { "start": 1, "end": 1, "score": 47 }
+]

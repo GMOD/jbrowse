@@ -5,13 +5,28 @@ define([
 
 var counter = 0;
 
-return Util.fastDeclare({
+var SimpleFeature = Util.fastDeclare({
 
     constructor: function( args ) {
         args = args || {};
         this.data = args.data || {};
-        this._uniqueID = args.id || 'SimpleFeature_'+(counter++);
         this._parent = args.parent;
+        this._uniqueID = args.id || this.data.uniqueID || (
+            this._parent ? this._parent.id()+'_'+(counter++) : 'SimpleFeature_'+(counter++)
+        );
+
+        // inflate any subfeatures that are not already feature objects
+        var subfeatures;
+        if(( subfeatures = this.data.subfeatures )) {
+            for( var i = 0; i < subfeatures.length; i++ ) {
+                if( typeof subfeatures[i].get != 'function' ) {
+                    subfeatures[i] = new SimpleFeature(
+                        { data: subfeatures[i],
+                          parent: this
+                        });
+                }
+            }
+        }
     },
 
     get: function(name) {
@@ -48,4 +63,5 @@ return Util.fastDeclare({
 
 });
 
+return SimpleFeature;
 });
