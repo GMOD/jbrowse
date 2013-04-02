@@ -72,14 +72,14 @@ return declare( [BoxGlyph,MismatchesMixin], {
                 var end = start + mismatch.length;
 
                 var mRect = {
-                    h: (fRect.rectSize||{}).h || fRect.h,
+                    h: (fRect.rect||{}).h || fRect.h,
                     l: block.bpToX( start ),
                     t: fRect.t
                 };
                 mRect.w = Math.max( block.bpToX( end ) - mRect.l, 1 );
 
                 if( mismatch.type == 'mismatch' || mismatch.type == 'deletion' ) {
-                    context.fillStyle = this.track.colorForBase( mismatch.base );
+                    context.fillStyle = this.track.colorForBase( mismatch.type == 'deletion' ? 'deletion' : mismatch.base );
                     context.fillRect( mRect.l, mRect.t, mRect.w, mRect.h );
 
                     if( mRect.w >= charSize.w && mRect.h >= charSize.h-3 ) {
@@ -89,11 +89,12 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     }
                 }
                 else if( mismatch.type == 'insertion' ) {
-                    context.fillStyle = 'black';
-                    context.fillRect( mRect.l-1, mRect.t, 2, mRect.h );
+                    context.fillStyle = 'purple';
+                    context.fillRect( mRect.l-1, mRect.t+1, 2, mRect.h-2 );
+                    context.fillRect( mRect.l-2, mRect.t, 4, 1 );
+                    context.fillRect( mRect.l-2, mRect.t+mRect.h-1, 4, 1 );
                     if( mRect.w >= charSize.w && mRect.h >= charSize.h-3 ) {
                         context.font = this.config.style.mismatchFont;
-                        context.fillStyle = 'black';
                         context.fillText( '('+mismatch.base+')', mRect.l+2, mRect.t+mRect.h-(mRect.h-charSize.h+4)/2 );
                     }
                 }

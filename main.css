@@ -441,6 +441,10 @@ span.base {
 .base_reference {
     background-color: #bbb;
 }
+.base_deletion {
+    background-color: black;
+    background-color: #000;
+}
 
 div.sequence_blur {
     background: none;
