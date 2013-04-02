@@ -62,7 +62,8 @@ return declare( null, {
            else if( op == 'X' )
                mismatches.push( { start: currOffset, type: 'mismatch',  base: 'X', length: len  });
 
-           currOffset += len;
+           if( op != 'I' && op != 'S' && op != 'H' )
+               currOffset += len;
         });
         return mismatches;
     },
