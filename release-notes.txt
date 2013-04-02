@@ -8,6 +8,13 @@
    selector that finds tracks in the track list matching the typed
    text (issue #210).
 
+ * Added an optional ropdown selector in the menu bar that allows
+   switching between multiple datasets.  To enable it, add a
+   `datasets` array in your JBrowse configuration, and set a
+   `dataset_id` in each of the `trackList.json` (or other) files that
+   are optionally loaded by the dataset selector.  See the JBrowse
+   Configuration Guide on the GMOD wiki for details (issue #134).
+
  * By default, JBrowse now continuously updates the browser's URL bar
    to contain a URL that will show the current JBrowse view directly.
    This is enabled by default only if JBrowse is running from the
