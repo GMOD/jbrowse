@@ -21,15 +21,17 @@ return declare( null, {
         var mismatches = [];
 
         // parse the CIGAR tag if it has one
-        var cigarString = feature.get( this.cigarAttributeName );
+        var cigarString = feature.get( this.cigarAttributeName ),
+            cigarOps;
         if( cigarString ) {
-            mismatches.push.apply( mismatches, this._cigarToMismatches( feature, cigarString ) );
+            cigarOps = this._parseCigar( cigarString );
+            mismatches.push.apply( mismatches, this._cigarToMismatches( feature, cigarOps ) );
         }
 
         // parse the MD tag if it has one
         var mdString = feature.get( this.mdAttributeName );
         if( mdString )  {
-            mismatches.push.apply( mismatches, this._mdToMismatches( feature, mdString ) );
+            mismatches.push.apply( mismatches, this._mdToMismatches( feature, mdString, cigarOps, mismatches ) );
         }
 
         return mismatches;
@@ -41,8 +43,7 @@ return declare( null, {
         });
     },
 
-    _cigarToMismatches: function( feature, cigarstring ) {
-        var ops = this._parseCigar( cigarstring );
+    _cigarToMismatches: function( feature, ops ) {
         var currOffset = 0;
         var mismatches = [];
         array.forEach( ops, function( oprec ) {
@@ -73,14 +74,52 @@ return declare( null, {
      * @returns {Array[Object]} array of mismatches and their positions
      * @private
      */
-    _mdToMismatches: function( feature, mdstring ) {
+    _mdToMismatches: function( feature, mdstring, cigarOps, cigarMismatches ) {
         var mismatchRecords = [];
         var curr = { start: 0, base: '', length: 0, type: 'mismatch' };
-        var seq = feature.get('seq');
-        var nextRecord = function() {
-              mismatchRecords.push( curr );
-              curr = { start: curr.start + curr.length, length: 0, base: '', type: 'mismatch'};
+
+        // number of bases soft-clipped off the beginning of the template seq
+
+        function getTemplateCoord( refCoord, cigarOps ) {
+            var templateOffset = 0;
+            var refOffset = 0;
+            for( var i = 0; i < cigarOps.length && refOffset <= refCoord ; i++ ) {
+                var op  = cigarOps[i][0];
+                var len = cigarOps[i][1];
+                if( op == 'H' || op == 'S' || op == 'I' ) {
+                    templateOffset += len;
+                }
+                else if( op == 'D' || op == 'N' || op == 'P' ) {
+                    refOffset += len;
+                }
+                else {
+                    templateOffset += len;
+                    refOffset += len;
+                }
+            }
+            return templateOffset - ( refOffset - refCoord );
+        }
+
+
+        function nextRecord() {
+            // correct the start of the current mismatch if it comes after a cigar skip
+            var skipOffset = 0;
+            array.forEach( cigarMismatches || [], function( mismatch ) {
+                if( mismatch.type == 'skip' && curr.start >= mismatch.start ) {
+                    curr.start += mismatch.len;
+                }
+            });
+
+            // record it
+            mismatchRecords.push( curr );
+
+            // get a new mismatch record ready
+            curr = { start: curr.start + curr.length, length: 0, base: '', type: 'mismatch'};
         };
+
+        var seq = feature.get('seq');
+
+        // now actually parse the MD string
         array.forEach( mdstring.match(/(\d+|\^[a-z]+|[a-z])/ig), function( token ) {
           if( token.match(/^\d/) ) { // matching bases
               curr.start += parseInt( token );
@@ -94,7 +133,7 @@ return declare( null, {
           else if( token.match(/^[a-z]/i) ) { // mismatch
               for( var i = 0; i<token.length; i++ ) {
                   curr.length = 1;
-                  curr.base = seq ? seq.substr( curr.start, 1 ) : 'X';
+                  curr.base = seq ? seq.substr( getTemplateCoord( curr.start, cigarOps), 1 ) : 'X';
                   nextRecord();
               }
           }
