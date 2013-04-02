@@ -421,7 +421,10 @@ Browser.prototype.initView = function() {
         if( this.config.show_nav ) {
             this.navbox = this.createNavBox( topPane );
 
-            if( this.config.datasets ) {
+            if( this.config.datasets && ! this.config.dataset_id ) {
+                console.warn("in JBrowse configuration, datasets specified, but dataset_id not set");
+            }
+            if( this.config.datasets && this.config.dataset_id ) {
                 this.renderDatasetSelect( menuBar );
             } else {
                 dojo.create('a', {
@@ -578,7 +581,7 @@ Browser.prototype.renderDatasetSelect = function( parent ) {
         {
             name: 'dataset',
             className: 'dataset_select',
-            value: this.config.dataset_id || (datasetChoices[0] || {}).id,
+            value: this.config.dataset_id,
             options: array.map(
                 datasetChoices,
                 function( dataset ) {
