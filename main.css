@@ -945,8 +945,20 @@ table.baseQuality td {
     line-height: 0.95;
     text-align: center;
 }
-table.baseQuality tr.seq td {
-    padding-top: 0.8em;
+.baseQuality .basePosition {
+    display: inline-block;
+    padding: 0 0.3em 0.4em 0.3em;
+}
+.baseQuality .basePosition:hover {
+    background: #ccc;
+}
+.baseQuality span.seq {
+    display: block;
+    text-align: center;
     font-weight: bold;
+}
+.baseQuality span.qual {
+    display: block;
+    text-align: center;
 }
 
