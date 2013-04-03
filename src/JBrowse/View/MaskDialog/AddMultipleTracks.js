@@ -33,17 +33,19 @@ return declare(null, {
         var dialog = this.dialog = new Dialog(
             { className: 'addManyTracksDialog' }
         );
+
         var store = args.store;
 
         var multi = new MultiSelect ({ name: 'multi' });
         multi.containerNode.className = 'trackSelector';
         // populate the multiselect
-        for ( var key in store.data ) {
-            if ( store.data.hasOwnProperty(key) ) {
+        for ( var key in this.tracks ) {
+            if ( this.tracks.hasOwnProperty(key) ) {
                 var op = window.doc.createElement('option');
-                op.innerHTML = store.data[key].name;
-                op.type = this.tracks[store.data[key].name].type;
-                op.value = this.tracks[store.data[key].name].value;
+                op.innerHTML = key;
+                op.type = this.tracks[key].type;
+                op.value = this.tracks[key].value;
+                op.disabled = this.tracks[key].disabled || !this.tracks[key].valid;
                 multi.domNode.appendChild(op);
             }
         }
@@ -63,7 +65,7 @@ return declare(null, {
             // If nothing is selected, enable all available options
             if ( !selectedType ) {
                 for ( var key in options ) {
-                    if ( options.hasOwnProperty(key) ) {
+                    if ( options.hasOwnProperty(key) && this.tracks[options[key].value].valid && !this.tracks[options[key].value].disabled ) {
                         options[key].disabled = false;
                     }
                 }
@@ -108,8 +110,12 @@ return declare(null, {
 
         var instructions = dom.create( 'div', { className: 'instructions',
                                              innerHTML: 'Multiple tracks can be selected using ctrl+click and shift+click.' });
-        if (args.filtering)
-            instructions.innerHTML += ' Note: Multiple track types are not allowed. Some tracks may be missing from this list.';
+        if (args.filtering) {
+            instructions.innerHTML += ' Note: not all track types or track combinations are compatible with this tool. Availble track choices will be updated as you use this selector.';
+        }
+        else {
+            instructions.innerHTML += ' Note: not all track types or track combinations are compatible with this tool. As such, some tracks may not be selectable.'
+        }
 
         var content = [
                         instructions,

@@ -82,7 +82,7 @@ return declare( null, {
                                        invMask: invMaskSelector.sel },
                             name   : nameField,
                             getName: dojo.hitch(this, function() {
-                                    var name = this.storeFetch.name.get('value') || ' ';
+                                    var name = this.storeFetch.name.get('value') || 'masked track ';
                                     if ( !(this.trackNames.indexOf(name) > -1) ) {
                                         return [name]
                                     }
@@ -159,14 +159,14 @@ return declare( null, {
 
         var content = [
                         dom.create( 'div', { className: 'instructions',
-                                             innerHTML: 'Select data to be displayed (right), data to mask (center), and data to make inverse masks (left). Masks will hide data contained in the covered regions. Inverse masks hide data not contained in the covered regions. Use "OR" and "AND" to choose how these two interact. (See preview below.)' } ),
+                                             innerHTML: 'Select data to be displayed (right), data to mask (center), and data to make inverse masks (left). Add tracks either by finding them in the searchable drop-down menu and pressing the + icon, or by using the multiple track selection button to the right of the drop-down menu. Tracks may be removed from the list using the - icon. Masks will hide data contained in the covered regions. Inverse masks hide data not contained in the covered regions. Use "OR" and "AND" to choose how these two interact. (See preview below.) Note: not all track types or track combinations are compatible with this tool. Availble track choices will be updated as you use this selector.'} ),
                             div( { className: 'storeSelectors' },
                              [ displaySelector.domNode, maskSelector.domNode, invMaskSelector.domNode ]
                             ),
+                        canvasCont,
                         opSelector.domNode,
                         textCont,
-                        actionBar.domNode,
-                        canvasCont
+                        actionBar.domNode
                       ];
 
         for ( var node in content ) {
@@ -281,15 +281,35 @@ return declare( null, {
         var selectorTitle = args.title;
 
         var container = dom.create( 'div', { className: 'selectorContainer'} )
+
+
         var title = dom.create( 'div', { className: 'selectorTitle', innerHTML: selectorTitle } );
+
+        // a multiselect to hold the track list
         var selector = new MultiSelect();
         selector.containerNode.className = 'storeSelections';
+
+        // add default text for when the track selector is empty
+        var defaultText = dom.create( 'div', { className: 'selectorDefaultText',
+                                       innerHTML: 'Add tracks using the controls below'
+                                     } )
+        container.appendChild(defaultText);
+
+        on(selector.domNode, 'change', dojo.hitch(this, function(){
+            // hide the default text if the selector contains tracks.
+            if (selector.domNode.firstChild)
+                defaultText.style.visibility = 'hidden';
+            else
+                defaultText.style.visibility = 'visible';
+        }));
+
         var tracks = {};
         for ( var ID in this.browser.trackConfigsByName ) {
             if ( this.browser.trackConfigsByName.hasOwnProperty(ID) ) {
                 var tmp = this.browser.trackConfigsByName;
                 tracks[ tmp[ID].key || tmp[ID].label ] = { type: tmp[ID].type,
                                                            value: tmp[ID].store+','+tmp[ID].type,
+                                                           disabled: false,
                                                            valid: ( this.supportedTracks.indexOf(tmp[ID].type ) > -1 ) ? true : false
                                                          };
             }
@@ -302,7 +322,7 @@ return declare( null, {
         // populate the trackStore
         (function() {
             for ( var key in tracks ) {
-                if (tracks.hasOwnProperty(key) && tracks[key].valid ) {
+                if ( tracks.hasOwnProperty(key) && tracks[key].valid ) {
                     trackStore.put( { name: key, id: key } );
                 }
             }
@@ -313,6 +333,7 @@ return declare( null, {
                 for (var key in tracks ) {
                     if (tracks.hasOwnProperty(key) && (tracks[key].type != type)) {
                         trackStore.remove(key);
+                        tracks[key].disabled = true;
                     }
                 }
             }
@@ -321,6 +342,7 @@ return declare( null, {
                 for (var key in tracks ) {
                     if (tracks.hasOwnProperty(key)) {
                         trackStore.put( { name: key, id: key } );
+                        tracks[key].disabled = false;
                     }
                 }
             }
@@ -331,58 +353,80 @@ return declare( null, {
                                           value: '',
                                           store: trackStore,
                                           required: false,
-                                          searchAttr: 'name'
+                                          searchAttr: 'name',
+                                          invalidMessage: 'Not a valid track.'
                                         }, 'trackFinder');
 
-        var button = new Button({ iconClass: 'minusIcon',
-                     multiselect: selector,
-                     onClick: function() {
-                        // Orphan the selected children :D
-                        dojo.query('option', selector.domNode)
-                            .filter(function(n){return n.selected;}).orphan();
-                        if (args.filter && dojo.query('option', selector.domNode).length <= 0)
-                            updateStore();
-                        // trigger selector event
-                        on.emit(selector.domNode, "change", {
-                            bubbles: true,
-                            cancelable: true
-                        });
-                     }
-                   })
-            .placeAt( opBar );
-        dojo.query('.dijitButtonNode', button.domNode)[0].className += ' button1'; // add to the class name so we can differentiate buttons in css
-        button = new Button({ iconClass: 'plusIcon',
-                     multiselect: selector,
-                     onClick: dojo.hitch(this, function() {
-                        var key = cBox.get('value');
-                        if ( !key )
-                            return;
-                        if (args.filter) {
-                            updateStore(tracks[key].type);
-                        }
-                        var op = window.doc.createElement('option');
-                        op.innerHTML = key;
-                        op.type = tracks[key].type;
-                        op.value = tracks[key].value;
-                        selector.containerNode.appendChild(op);
-                        // trigger selector event
-                        on.emit(selector.domNode, "change", {
-                            bubbles: true,
-                            cancelable: true
-                        });
-                     })
-                   })
-            .placeAt( opBar );
-        dojo.query('.dijitButtonNode', button.domNode)[0].className += ' button1'; // add to the class name so we can differentiate buttons in css
-        cBox.placeAt( opBar );
+        // note to self: fix the icons. They're ugly.
 
-        var selectMany = new Button({ iconClass: 'plusIcon2',
-                                      onClick: function() {
-                                          new AddMultipleTracks({multiselect: selector, tracks: tracks}).show({store: trackStore, filtering: args.filter});
-                                      }
-                                    });
-        opBar.appendChild(selectMany.domNode);
-        dojo.query('.dijitButtonNode', selectMany.domNode)[0].className += ' button2'; // add to the class name so we can differentiate buttons in css
+        opBar.appendChild( dom.create( 'div', { className: 'button1 jbrowseIconMinus',
+                                                multiselect: selector,
+                                                onclick: function() {
+                                                    // Orphan the selected children :D
+                                                    dojo.query('option', selector.domNode)
+                                                        .filter(function(n){return n.selected;}).orphan();
+                                                    if (args.filter && dojo.query('option', selector.domNode).length <= 0)
+                                                        updateStore();
+                                                    // trigger selector event
+                                                    on.emit(selector.domNode, "change", {
+                                                        bubbles: true,
+                                                        cancelable: true
+                                                    });
+                                                },
+                                                // make the border change color when the "button" is clicked
+                                                onmousedown: function() {
+                                                    this.style.border = '1px dotted grey';
+                                                },
+                                                onmouseup: function() {
+                                                    this.style.border = '1px solid transparent';
+                                                },
+                                                onmouseleave: function() {
+                                                    this.style.border = '1px solid transparent';
+                                                }
+                                        })
+                         );
+
+        opBar.appendChild( dom.create( 'div', { className: 'button1 jbrowseIconPlus',
+                                                multiselect: selector,
+                                                onclick: dojo.hitch(this, function() {
+                                                    var key = cBox.get('value');
+                                                    if ( !key )
+                                                        return;
+                                                    if (args.filter) {
+                                                        updateStore(tracks[key].type);
+                                                    }
+                                                    var op = window.doc.createElement('option');
+                                                    op.innerHTML = key;
+                                                    op.type = tracks[key].type;
+                                                    op.value = tracks[key].value;
+                                                    selector.containerNode.appendChild(op);
+                                                    // trigger selector event
+                                                    on.emit(selector.domNode, "change", {
+                                                        bubbles: true,
+                                                        cancelable: true
+                                                    });
+                                                }),
+                                                // make the border change color when the "button" is clicked
+                                                onmousedown: function() {
+                                                    this.style.border = '1px dotted grey';
+                                                },
+                                                onmouseup: function() {
+                                                    this.style.border = '1px solid transparent';
+                                                },
+                                                onmouseleave: function() {
+                                                    this.style.border = '1px solid transparent';
+                                                }
+                                        })
+                         );
+
+        opBar.appendChild( dom.create( 'div', { className: 'button2 jbrowseIconBars',
+                                                onclick: function() {
+                                                   new AddMultipleTracks({multiselect: selector, tracks: tracks}).show({store: trackStore, filtering: args.filter});
+                                                }
+                                               })
+                         );
+
+        cBox.placeAt( opBar );
 
         container.appendChild(title);
         container.appendChild(selector.domNode);
