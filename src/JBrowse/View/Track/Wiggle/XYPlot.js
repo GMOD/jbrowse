@@ -85,7 +85,10 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         var disableClipMarkers = this.config.disable_clip_markers;
 
         dojo.forEach( pixels, function(p,i) {
-            var score = toY(p);
+            if (!p)
+                return
+            var score = toY(p['score']);
+            var f = p['feat'];
 
             // draw the background color if we are configured to do so
             if( score >= 0 ) {
@@ -101,7 +104,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                     // bar goes upward
                     context.fillStyle = this.getConfForFeature('style.pos_color',f);
                     context.fillRect( i, score, 1, originY-score+1);
-                    if( !disableClipMarkers && fRect.t < 0 ) { // draw clip marker if necessary
+                    if( !disableClipMarkers && score < 0 ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.neg_color',f);
                         context.fillRect( i, 0, 1, 2 );
                     }
@@ -117,6 +120,39 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 }
             }
         }, this );
+    },
+
+    _calculatePixelScores: function( canvasWidth, features, featureRects ) {
+        /* A variant of calculatePixelScores that stores the feature used at each pixel. 
+         * If there are multiple features, use the first one */
+        var pixelValues = new Array( canvasWidth );
+        dojo.forEach( features, function( f, i ) {
+            var store = f.source;
+            var fRect = featureRects[i];
+            var jEnd = fRect.r;
+            var score = f.get('score');
+            for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
+                if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
+                    /* Note: if the feature is from a different store, the condition should fail,
+                     *       and we will add to the value, rather than adjusting for overlap */
+                    pixelValues[j]['score'] = Math.max( pixelValues[j]['score'], score );
+                }
+                else if ( pixelValues[j] ) {
+                    pixelValues[j]['score'] = pixelValues[j]['score'] + score;
+                    pixelValues[j]['lastUsedStore'] = store;
+                }
+                else {
+                    pixelValues[j] = { score: score, lastUsedStore: store, feat: f }
+                }
+            }
+        },this);
+        // when done looping through features, forget the store information.
+        for (var i=0; i<pixelValues.length; i++) {
+            if ( pixelValues[i] ) {
+                pixelValues[i] = { score: pixelValues[i]['score'], feat: pixelValues[i]['feat'] };
+            }
+        }
+        return pixelValues;
     },
 
     /* If it's a boolean track, mask accordingly */
