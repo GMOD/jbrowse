@@ -34,7 +34,7 @@ return declare( WiggleBase,
     },
 
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale ) {
-)
+        var thisB = this;
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
         var normalize = dataScale.normalize;
@@ -45,8 +45,8 @@ return declare( WiggleBase,
                 var black = new Color('black');
                 var disableClipMarkers = thisB.config.disable_clip_markers;
                 var normOrigin = normalize( dataScale.origin );
-                return function( pixelHeight ) {
-                    var n = normalize( pixelHeight );
+                return function( feature ) {
+                    var n = normalize( feature );
                     return ( disableClipMarkers || n <= 1 && n >= 0 )
                                ? Color.blendColors(
                                    new Color( thisB.getConfForFeature('style.bg_color', feature ) ),
