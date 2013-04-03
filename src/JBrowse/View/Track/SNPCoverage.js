@@ -150,23 +150,25 @@ return declare( [WiggleXY, AlignmentsMixin],
     _maskBySpans: function( scale, leftBase, canvas, spans ) {
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
-        var booleanAlpha = this.config.style.masked_transparancy || 45;
+        var booleanAlpha = this.config.style.masked_transparancy || 0.17;
         this.config.style.masked_transparancy = booleanAlpha;
+
+        // make a temporary canvas to store image data
+        var tempCan = dojo.create( 'canvas', {height: canvasHeight, width: canvas.width} );
+        var ctx2 = tempCan.getContext('2d');
 
         for ( var index in spans ) {
             if (spans.hasOwnProperty(index)) {
-                var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
+                var w = Math.round(( spans[index].end   - spans[index].start ) * scale );
                 var l = Math.round(( spans[index].start - leftBase ) * scale );
-                var img = context.getImageData(l, 0, w, canvasHeight);
-                var pixels = img.data;
-                for ( var i = 0, n = pixels.length; i < n; i += 4 ) {
-                    /* Note: the default canvas values are transparent black,
-                     * so we don't want to change the opacity of transparent pixels */
-                    if ( pixels[i+3] != 0 ) { 
-                        pixels[i+3] = booleanAlpha;
-                    }
-                }
-                context.putImageData( img, l, 0 );
+                if (l+w >= canvas.width)
+                    w = canvas.width-l // correct possible rounding errors
+                ctx2.drawImage(canvas, l, 0, w, canvasHeight, l, 0, w, canvasHeight);
+                context.globalAlpha = booleanAlpha;
+                // clear masked region and redraw at lower opacity.
+                context.clearRect(l, 0, w, canvasHeight);
+                context.drawImage(tempCan, l, 0, w, canvasHeight, l, 0, w, canvasHeight);
+                context.globalAlpha = 1;
             }
         }
     },
@@ -209,6 +211,9 @@ return declare( [WiggleXY, AlignmentsMixin],
     _showPixelValue: function( scoreDisplay, score ) {
         if( ! score )
             return false;
+        
+        if (score.feat.score.refBase)
+            score = score.feat.score; // more accurate score information may be stored in the relevant features
 
         function fmtNum( num ) {
             return parseFloat( num ).toPrecision(6).replace(/0+$/,'').replace(/\.$/,'');
@@ -252,7 +257,7 @@ return declare( [WiggleXY, AlignmentsMixin],
             scoreDisplay.innerHTML = scoreSummary+'</table>';
             return true;
         } else {
-            scoreDisplay.innerHTML = '<table><tr><td>Total</td><td class="count">'+fmtNum(score)+'</td></tr></table>';
+            scoreDisplay.innerHTML = '<table><tr><td>Total</td><td class="count">'+fmtNum(score['score'])+'</td></tr></table>';
             return true;
         }
     }
