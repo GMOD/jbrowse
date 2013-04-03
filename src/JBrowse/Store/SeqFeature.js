@@ -7,9 +7,8 @@ define( [
 
 /**
  * Base class for JBrowse data backends that hold sequences and
- * features.  Some aspects reminiscent of Lincoln Stein's
- * Bio::DB::SeqFeature::Store.
-  *
+ * features.
+ *
  * @class JBrowse.SeqFeatureStore
  * @extends JBrowse.Store
  * @constructor
@@ -24,20 +23,31 @@ return declare( Store,
     },
 
     /**
-     * Get global statistics about the feature store.  Calls its
-     * callback with an object containing whatever statistics are
-     * available about the features in the store.
+     * Fetch global statistics the features in this store.
+     *
+     * @param {Function} successCallback(stats) callback to receive the
+     *   statistics.  called with one argument, an object containing
+     *   attributes with various statistics.
+     * @param {Function} errorCallback(error) in the event of an error, this
+     *   callback will be called with one argument, which is anything
+     *   that can stringify to an error message.
      */
     getGlobalStats: function( callback, errorCallback ) {
         callback( this.globalStats || {} );
     },
 
     /**
-     * Get statistics about the features in a certain sequence region,
-     * specified by `query`, which is an object having at least `ref
-     * (string)`, `start (number)`, and `end (number)` attributes.
-     * Calls its callback with an object containing whatever
-     * statistics are available about the features in that region.
+     * Fetch statistics about the features in a specific region.
+     *
+     * @param {String} query.ref    the name of the reference sequence
+     * @param {Number} query.start  start of the region in interbase coordinates
+     * @param {Number} query.end    end of the region in interbase coordinates
+     * @param {Function} successCallback(stats) callback to receive the
+     *   statistics.  called with one argument, an object containing
+     *   attributes with various statistics.
+     * @param {Function} errorCallback(error) in the event of an error, this
+     *   callback will be called with one argument, which is anything
+     *   that can stringify to an error message.
      */
     getRegionStats: function( query, successCallback, errorCallback ) {
         return this._getRegionStats.apply( this, arguments );
@@ -102,11 +112,20 @@ return declare( Store,
     },
 
     /**
-     * Get the features in a certain sequence region, specified by
-     * `query`, which is an object having at least `ref (string)`,
-     * `start (number)`, and `end (number)` attributes.  Calls the
-     * featureCallback once for each feature, and calls endCallback
-     * when all features have been processed.
+     * Fetch feature data from this store.
+     *
+     * @param {String} query.ref    the name of the reference sequence
+     * @param {Number} query.start  start of the region in interbase coordinates
+     * @param {Number} query.end    end of the region in interbase coordinates
+     * @param {Function} featureCallback(feature) callback that is called once
+     *   for each feature in the region of interest, with a single
+     *   argument; the feature.
+     * @param {Function} endCallback() callback that is called once
+     *   for each feature in the region of interest, with a single
+     *   argument; the feature.
+     * @param {Function} errorCallback(error) in the event of an error, this
+     *   callback will be called with one argument, which is anything
+     *   that can stringify to an error message.
      */
     getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
         endCallback();
