@@ -357,8 +357,6 @@ return declare( null, {
                                           invalidMessage: 'Not a valid track.'
                                         }, 'trackFinder');
 
-        // note to self: fix the icons. They're ugly.
-
         opBar.appendChild( dom.create( 'div', { className: 'button1 jbrowseIconMinus',
                                                 multiselect: selector,
                                                 onclick: function() {
