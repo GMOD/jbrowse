@@ -129,7 +129,7 @@ return declare( SeqFeatureStore, {
 
                 }
             },
-            function () {
+            function ( args ) {
                 var makeFeatures = function() {
                     // make fake features from the coverage
                     for( var i = 0; i <= maxBin; i++ ) {
@@ -140,7 +140,7 @@ return declare( SeqFeatureStore, {
                             score: coverageBins[i]
                          }));
                     }
-                    finishCallback();
+                    finishCallback( args ); // optional arguments may change callback behaviour (e.g. add masking)
                 };
 
                 // if we are zoomed to base level, try to fetch the
