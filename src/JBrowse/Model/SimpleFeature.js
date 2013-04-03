@@ -1,3 +1,6 @@
+/**
+ * Simple implementation of a feature object.
+ */
 define([
         'JBrowse/Util'
        ],
@@ -7,6 +10,14 @@ var counter = 0;
 
 var SimpleFeature = Util.fastDeclare({
 
+    /**
+     * @param args.data {Object} key-value data, must include 'start' and 'end'
+     * @param args.parent {Feature} optional parent feature
+     * @param args.id {String} optional unique identifier.  can also be in data.uniqueID.
+     *
+     * Note: args.data.subfeatures can be an array of these same args,
+     * which will be inflated to more instances of this class.
+     */
     constructor: function( args ) {
         args = args || {};
         this.data = args.data || {};
@@ -29,14 +40,24 @@ var SimpleFeature = Util.fastDeclare({
         }
     },
 
+    /**
+     * Get a piece of data about the feature.  All features must have
+     * 'start' and 'end', but everything else is optional.
+     */
     get: function(name) {
         return this.data[ name ];
     },
 
+    /**
+     * Set an item of data.
+     */
     set: function( name, val ) {
         this.data[ name ] = val;
     },
 
+    /**
+     * Get an array listing which data keys are present in this feature.
+     */
     tags: function() {
         var t = [];
         var d = this.data;
@@ -47,16 +68,25 @@ var SimpleFeature = Util.fastDeclare({
         return t;
     },
 
+    /**
+     * Get the unique ID of this feature.
+     */
     id: function( newid ) {
         if( newid )
             this._uniqueID = newid;
         return this._uniqueID;
     },
 
+    /**
+     * Get this feature's parent feature, or undefined if none.
+     */
     parent: function() {
         return this._parent;
     },
 
+    /**
+     * Get an array of child features, or undefined if none.
+     */
     children: function() {
         return this.get('subfeatures');
     }
