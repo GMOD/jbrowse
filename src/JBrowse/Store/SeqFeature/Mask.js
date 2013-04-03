@@ -75,7 +75,7 @@ constructor: function( args ) {
     this.gotAllStores = all( allStorePromises );
 },
 
-getRegionStats: function( region, successCallback, errorCallback ) {
+getGlobalStats: function( successCallback, errorCallback ) {
     thisB = this;
     thisB.gotAllStores.then( function() {
         var statObjects = [];
@@ -85,8 +85,8 @@ getRegionStats: function( region, successCallback, errorCallback ) {
                 (function(){
                 var stats = thisB.stores.display[key];
                 var d = new Deferred();
-                statObjects.push(d);
-                stats.getRegionStats(region, function(s){d.resolve(s, true);}, errorCallback);
+                statObjects.push(d.promise);
+                stats.getGlobalStats(function(s){d.resolve(s, true);}, errorCallback);
                 }());
             }
         }
@@ -117,6 +117,10 @@ getRegionStats: function( region, successCallback, errorCallback ) {
             successCallback(stats);
         });
     });
+},
+
+getRegionalStats: function( region, successCallback, errorCallback ) {
+    this.getGlobalStats( successCallbback, errorCallback );
 },
 
 getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
