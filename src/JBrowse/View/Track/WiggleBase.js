@@ -111,31 +111,13 @@ return declare( [CanvasTrack,ExportMixin], {
                         return this._featureRect( scale, leftBase, canvasWidth, f );
                     }, this );
 
-                    // Calculate the score for each pixel in the block
-                    var pixels = this._calculatePixelScores( c.width, features, featureRects );
+                    block.features = features; //< TODO: remove this
+                    block.featureRects = featureRects;
+                    block.pixelScores = this._calculatePixelScores( this._canvasWidth(block), features, featureRects );
 
-                    this._draw( scale,          leftBase,
-                                rightBase,      block,
-                                c,              features,
-                                featureRects,   dataScale,
-                                pixels,         args && args.spans ? args.spans : false );
+                    if (args && args.spans)
+                        block.spans = args.spans; // used for masking
 
-                    this._makeScoreDisplay( scale, leftBase, rightBase, block, c, features, featureRects, pixels );
-
-                    this.heightUpdate( c.height, blockIndex );
-                    if( !( c.parentNode && c.parentNode.parentNode )) {
-                            c.style.position = "absolute";
-                            c.style.left = (100 * ((c.startBase - leftBase) / blockWidth)) + "%";
-                            switch (this.config.align) {
-                            case "top":
-                                c.style.top = "0px";
-                                break;
-                            case "bottom":
-                            default:
-                                c.style.bottom = this.trackPadding + "px";
-                                break;
-                            }
-                    }
                     finishCallback();
                 }));
     },
@@ -185,12 +167,16 @@ return declare( [CanvasTrack,ExportMixin], {
         );
         c.startBase = block.startBase;
 
-        // schedule it to be rendered once we have all agreed on a scaling
-        this._preDraw(      null, block.startBase, block.endBase, block, c, features, featureRects, dataScale );
-        this._drawFeatures( null, block.startBase, block.endBase, block, c, features, featureRects, dataScale );
-        this._postDraw(     null, block.startBase, block.endBase, block, c, features, featureRects, dataScale );
+        //Calculate the score for each pixel in the block
+        var pixels = this._calculatePixelScores( c.width, features, featureRects );
 
-        this._makeScoreDisplay( null, block.startBase, block.endBase, block, c, features, featureRects );
+        this._draw( block.scale,    block.startBase,
+                    block.endBase,  block,
+                    c,              features,
+                    featureRects,   dataScale,
+                    pixels,         block.spans ); // note: spans may be undefined.
+
+        this._makeScoreDisplay( args.scale, args.leftBase, args.rightBase, block, c, features, featureRects, pixels );
 
         this.heightUpdate( c.height, args.blockIndex );
         if( !( c.parentNode && c.parentNode.parentNode )) {
@@ -244,8 +230,9 @@ return declare( [CanvasTrack,ExportMixin], {
                           function(e) {
                               thisB.error = e;
                               array.forEach( thisB.blocks, function( block, blockIndex ) {
-                                  if( block && block.parentNode )
+                                  if( block && block.parentNode ) {
                                       thisB.fillBlockError( blockIndex, block );
+                                  }
                               });
                           });
 
@@ -325,7 +312,7 @@ return declare( [CanvasTrack,ExportMixin], {
                     pixelValues[j]['lastUsedStore'] = store;
                 }
                 else {
-                    pixelValues[j] = { score: score, lastUsedStore: store }
+                    pixelValues[j] = { score: score, lastUsedStore: store, feat: f }
                 }
             }
         },this);
@@ -398,6 +385,8 @@ return declare( [CanvasTrack,ExportMixin], {
     },
 
     _showPixelValue: function( scoreDisplay, score ) {
+        if (!score)
+            return false // score may not be defined
         if( typeof score == 'number' ) {
             // display the score with only 6
             // significant digits, avoiding
@@ -407,7 +396,13 @@ return declare( [CanvasTrack,ExportMixin], {
             // parsed out of BigWig files
             scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
             return true;
-        } else {
+        }
+        if( score['score'] && typeof score['score'] == 'number' ) {
+            // "score" may be an object.
+            scoreDisplay.innerHTML = parseFloat( score['score'].toPrecision(6) );
+            return true;
+        }
+        else {
             return false;
         }
     },
