@@ -976,19 +976,23 @@ return declare( [Component,Destroyable],
         }
         // open the link in a dialog with an iframe
         else if( type == 'iframe' ) {
-            dojo.safeMixin( dialogOpts.style, {width: '90%', height: '90%'});
-            dialogOpts.draggable = false;
+            var iframeDims = function() {
+                var d = domGeom.position( this.browser.container );
+                return { h: Math.round(d.h * 0.8), w: Math.round( d.w * 0.8 ) };
+            }.call(this);
 
-            var container = dojo.create('div', {}, document.body);
+            dialog = new Dialog( dialogOpts );
+
             var iframe = dojo.create(
                 'iframe', {
-                    width: '100%', height: '100%',
                     tabindex: "0",
+                    width: iframeDims.w,
+                    height: iframeDims.h,
                     style: { border: 'none' },
                     src: spec.url
-                }, container
-            );
-            dialog = new Dialog( dialogOpts, container );
+                });
+
+            dialog.set( 'content', iframe );
             dojo.create( 'a', {
                              href: spec.url,
                              target: '_blank',
@@ -1003,9 +1007,11 @@ return declare( [Component,Destroyable],
                 // initial display, and when the window
                 // is resized, to keep the iframe
                 // sized to fit exactly in it.
-                var cDims = domGeom.getMarginBox( dialog.domNode );
-                iframe.width  = cDims.w;
-                iframe.height = cDims.h - domGeom.getMarginBox(dialog.titleBar).h - 2;
+                var cDims = domGeom.position( dialog.containerNode );
+                var width  = cDims.w;
+                var height = cDims.h - domGeom.position(dialog.titleBar).h;
+                iframe.width = width;
+                iframe.height = height;
             };
             aspect.after( dialog, 'layout', updateIframeSize );
             aspect.after( dialog, 'show', updateIframeSize );
