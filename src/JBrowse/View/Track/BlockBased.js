@@ -5,6 +5,10 @@ define( [
             'dojo/aspect',
             'dojo/dom-construct',
             'dojo/dom-geometry',
+            'dojo/dom-class',
+            'dojo/query',
+            'dojo/on',
+            'dijit/Destroyable',
             'JBrowse/View/InfoDialog',
             'dijit/Dialog',
             'dijit/Menu',
@@ -16,14 +20,19 @@ define( [
             'JBrowse/Component',
             'JBrowse/Errors',
             'JBrowse/View/TrackConfigEditor',
-            'JBrowse/View/ConfirmDialog'
+            'JBrowse/View/ConfirmDialog',
+            'JBrowse/View/Track/BlockBased/Block'
         ],
         function( declare,
                   lang,
                   array,
                   aspect,
-                  dom,
+                  domConstruct,
                   domGeom,
+                  domClass,
+                  query,
+                  on,
+                  Destroyable,
                   InfoDialog,
                   Dialog,
                   dijitMenu,
@@ -35,10 +44,14 @@ define( [
                   Component,
                   Errors,
                   TrackConfigEditor,
-                  ConfirmDialog
+                  ConfirmDialog,
+                  Block
                 ) {
 
-return declare( Component,
+
+// we get `own` and `destroy` from Destroyable, see dijit/Destroyable docs
+
+return declare( [Component,Destroyable],
 /**
  * @lends JBrowse.View.Track.BlockBased.prototype
  */
@@ -85,6 +98,10 @@ return declare( Component,
 
         if ( ! this.inShowRange ) {
             this.heightUpdateCallback( Math.max( this.labelHeight, this.height ) );
+
+            // reposition any height-overflow markers in our blocks
+            query( '.height_overflow_message', this.div )
+                .style( 'top', this.height - 16 + 'px' );
         }
     },
 
@@ -132,13 +149,14 @@ return declare( Component,
         }
 
         var closeButton = dojo.create('div',{
-            className: 'track-close-button',
-            onclick: dojo.hitch(this,function(evt){
+            className: 'track-close-button'
+        },labelDiv);
+        this.own( on( closeButton, 'click', dojo.hitch(this,function(evt){
                 this.browser.view.suppressDoubleClick( 100 );
                 this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.config]);
                 evt.stopPropagation();
-            })
-        },labelDiv);
+        })));
+
         var labelText = dojo.create('span', { className: 'track-label-text' }, labelDiv );
         var menuButton = dojo.create('div',{
             className: 'track-menu-button'
@@ -273,11 +291,28 @@ return declare( Component,
         this.updateStaticElements( this.genomeView.getPosition() );
     },
 
-    cleanupBlock: function() {},
+    cleanupBlock: function( block ) {
+        if( block )
+            block.destroy();
+    },
+
+    /**
+     * Called when this track object is destroyed.  Cleans up things
+     * to avoid memory leaks.
+     */
+    destroy: function() {
+        array.forEach( this.blocks || [], function( block ) {
+            this.cleanupBlock( block );
+        }, this);
+        delete this.blocks;
+
+        this.inherited( arguments );
+    },
 
     _hideBlock: function(blockIndex) {
         if (this.blocks[blockIndex]) {
-            this.div.removeChild(this.blocks[blockIndex]);
+            this.div.removeChild( this.blocks[blockIndex].domNode );
+            this.cleanupBlock( this.blocks[blockIndex] );
             this.blocks[blockIndex] = undefined;
             this.blockHeights[blockIndex] = 0;
         }
@@ -375,13 +410,13 @@ return declare( Component,
     fillBlockError: function( blockIndex, block, error ) {
         error = error || this.fatalError || this.error;
 
-        dom.empty(block);
-        var msgDiv = this._renderErrorMessage( error, block );
+        domConstruct.empty( block.domNode );
+        var msgDiv = this._renderErrorMessage( error, block.domNode );
         this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
     },
 
     _renderErrorMessage: function( message, parent ) {
-        return dom.create(
+        return domConstruct.create(
             'div', {
                 className: 'error',
                 innerHTML: '<h2>Error</h2><div class="text">An error was encountered when displaying this track.</div>'
@@ -400,6 +435,22 @@ return declare( Component,
         );
     },
 
+    markBlockHeightOverflow: function( block ) {
+        if( block.heightOverflowed )
+            return;
+
+        block.heightOverflowed  = true;
+        domClass.add( block.domNode, 'height_overflow' );
+        domConstruct.create( 'div', {
+                                 className: 'height_overflow_message',
+                                 innerHTML: 'Max height reached',
+                                 style: {
+                                     top: (this.height-16) + 'px',
+                                     height: '16px'
+                                 }
+                             }, block.domNode );
+    },
+
     _showBlock: function(blockIndex, startBase, endBase, scale,
                          containerStart, containerEnd) {
         if ( this.empty || this.fatalError ) {
@@ -412,18 +463,23 @@ return declare( Component,
             return;
         }
 
-        var blockDiv = document.createElement("div");
-        blockDiv.className = "block";
-        blockDiv.style.left = (blockIndex * this.widthPct) + "%";
-        blockDiv.style.width = this.widthPct + "%";
-        blockDiv.startBase = startBase;
-        blockDiv.endBase = endBase;
-        blockDiv.scale = scale;
-        this.blocks[blockIndex] = blockDiv;
-        this.div.appendChild(blockDiv);
+        var block = new Block({
+            startBase: startBase,
+            endBase: endBase,
+            scale: scale,
+            node: {
+                className: 'block',
+                style: {
+                    left:  (blockIndex * this.widthPct) + "%",
+                    width: this.widthPct + "%"
+                }
+            }
+        });
+        this.blocks[blockIndex] = block;
+        this.div.appendChild( block.domNode );
 
         var args = [blockIndex,
-                    blockDiv,
+                    block,
                     this.blocks[blockIndex - 1],
                     this.blocks[blockIndex + 1],
                     startBase,
@@ -434,24 +490,24 @@ return declare( Component,
                     containerEnd];
 
         if( this.fatalError ) {
-            this.fillBlockError( blockIndex, blockDiv );
+            this.fillBlockError( blockIndex, block );
             return;
         }
 
         // loadMessage is an opaque mask div that we place over the
         // block until the fillBlock finishes
         var loadMessage = this._makeLoadingMessage();
-        blockDiv.appendChild( loadMessage );
+        block.domNode.appendChild( loadMessage );
 
         var finish = function() {
-            if( blockDiv && loadMessage.parentNode )
-                blockDiv.removeChild( loadMessage );
+            if( block && loadMessage.parentNode )
+                block.domNode.removeChild( loadMessage );
         };
 
         try {
             this.fillBlock({
                 blockIndex: blockIndex,
-                block:      blockDiv,
+                block:      block,
                 leftBlock:  this.blocks[blockIndex - 1],
                 rightBlock: this.blocks[blockIndex + 1],
                 leftBase:   startBase,
@@ -464,7 +520,7 @@ return declare( Component,
             });
         } catch( e ) {
             console.error( e, e.stack );
-            this.fillBlockError( blockIndex, blockDiv, e );
+            this.fillBlockError( blockIndex, block, e );
             finish();
         }
     },
@@ -504,7 +560,7 @@ return declare( Component,
                 //move block
                 newBlocks[newIndex] = this.blocks[i];
                 if (newBlocks[newIndex])
-                    newBlocks[newIndex].style.left =
+                    newBlocks[newIndex].domNode.style.left =
                     ((newIndex) * this.widthPct) + "%";
 
                 newHeights[newIndex] = this.blockHeights[i];
@@ -553,8 +609,8 @@ return declare( Component,
             for (i = 0; i < numBlocks; i++) {
                 if (this.blocks[i]) {
                     //if (!this.blocks[i].style) console.log(this.blocks);
-                    this.blocks[i].style.left = (i * widthPct) + "%";
-                    this.blocks[i].style.width = widthPct + "%";
+                    this.blocks[i].domNode.style.left = (i * widthPct) + "%";
+                    this.blocks[i].domNode.style.width = widthPct + "%";
                 }
             }
         } else {
@@ -569,7 +625,7 @@ return declare( Component,
             'div', {
                 className: class_ || 'message',
                 innerHTML: message
-            }, block );
+            }, block.domNode );
         this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
     },
 
@@ -600,8 +656,10 @@ return declare( Component,
      * @param parent {dijit.Menu|...} parent menu, if this is a submenu
      */
     _renderContextMenu: function( /**Object*/ menuStructure, /** Object */ context, /** dijit.Menu */ parent ) {
-       if ( !parent )
+        if ( !parent ) {
             parent = new dijitMenu();
+            this.own( parent );
+        }
 
         for ( key in menuStructure ) {
             var spec = menuStructure [ key ];
@@ -873,6 +931,14 @@ return declare( Component,
         return this.getConf( path, [feature, path, null, null, this ] );
     },
 
+    isFeatureHighlighted: function( feature, name ) {
+        var highlight = this.browser.getHighlight();
+        return highlight
+            && ( highlight.objectName && highlight.objectName == name )
+            && highlight.ref == this.refSeq.name
+            && !( feature.get('start') > highlight.end || feature.get('end') < highlight.start );
+    },
+
     _openDialog: function( spec, evt, context ) {
         context = context || {};
         var type = spec.action;
@@ -1001,14 +1067,15 @@ return declare( Component,
             menu.set('leftClickToOpen',  false);
             menu.bindDomNode( this.label );
             this.trackMenu = menu;
+            this.own( this.trackMenu );
         }
     },
 
 
     // display a rendering-timeout message
     fillBlockTimeout: function( blockIndex, block ) {
-        dom.empty( block );
-        dojo.addClass( block, 'timed_out' );
+        domConstruct.empty( block.domNode );
+        dojo.addClass( block.domNode, 'timed_out' );
         this.fillMessage( blockIndex, block,
                            'This region took too long'
                            + ' to display, possibly because'
@@ -1043,7 +1110,7 @@ return declare( Component,
 
         left = toPct( left );
         var width = toPct(right)-left;
-        var el = dom.create('div', {
+        var el = domConstruct.create('div', {
                                 className: 'global_highlight'
                                     + (trimLeft <= 0 ? ' left' : '')
                                     + (trimRight <= 0 ? ' right' : '' ),
@@ -1052,7 +1119,7 @@ return declare( Component,
                                     width: width+'%',
                                     height: '100%'
                                 }
-                            }, args.block );
+                            }, args.block.domNode );
     }
 
 });

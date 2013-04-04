@@ -2,7 +2,7 @@ var _gaq = _gaq || []; // global task queue for Google Analytics
 define( [
             'dojo/_base/lang',
             'dojo/on',
-            'dojo/_base/Deferred',
+            'dojo/Deferred',
             'dojo/DeferredList',
             'dojo/topic',
             'dojo/aspect',
@@ -224,21 +224,22 @@ Browser.prototype.initPlugins = function() {
                                  // conf under its plugin name
                                  var args = dojo.mixin(
                                      dojo.clone( plugins[i] ),
-                                     this.config[pluginName]||{});
+                                     { config: this.config[pluginName]||{} });
                                  args.browser = this;
                                  args = dojo.mixin( args, { browser: this } );
 
                                  // load its css
-                                 this._loadCSS(
-                                     {url: 'plugins/'+pluginName+'/css/main.css'},
-                                     function() {
-                                         thisPluginDone.resolve({success:true});
-                                     },
-                                     function() {
-                                         // succeed loading even if the css load failed.  not all plugins necessarily have css
-                                         thisPluginDone.resolve({success:true});
-                                     }
+                                 var cssLoaded = this._loadCSS(
+                                     {url: 'plugins/'+pluginName+'/css/main.css'}
                                  );
+                                 cssLoaded.then( function() {
+                                     thisPluginDone.resolve({success:true});
+                                 });
+
+                                 // give the plugin access to the CSS
+                                 // promise so it can know when its
+                                 // CSS is ready
+                                 args.cssLoaded = cssLoaded;
 
                                  // instantiate the plugin
                                  var plugin = new pluginClass( args );
@@ -329,13 +330,7 @@ Browser.prototype.loadUserCSS = function() {
 
         var that = this;
         var cssDeferreds = array.map( css, function( css ) {
-            var d = new Deferred();
-            that._loadCSS(
-                css,
-                function() { d.resolve({success:true}); },
-                function() { d.resolve({success:false}); }
-            );
-            return d;
+            return that._loadCSS( css );
         });
 
         new DeferredList(cssDeferreds)
@@ -343,21 +338,23 @@ Browser.prototype.loadUserCSS = function() {
    });
 };
 
-Browser.prototype._loadCSS = function( css, successCallback, errorCallback ) {
-        if( typeof css == 'string' ) {
-            // if it has '{' in it, it probably is not a URL, but is a string of CSS statements
-            if( css.indexOf('{') > -1 ) {
-                    dojo.create('style', { "data-from": 'JBrowse Config', type: 'text/css', innerHTML: css }, document.head );
-                    successCallback && successCallback();
-            }
-            // otherwise, it must be a URL
-            else {
-                css = { url: css };
-            }
+Browser.prototype._loadCSS = function( css ) {
+    var deferred = new Deferred();
+    if( typeof css == 'string' ) {
+        // if it has '{' in it, it probably is not a URL, but is a string of CSS statements
+        if( css.indexOf('{') > -1 ) {
+            dojo.create('style', { "data-from": 'JBrowse Config', type: 'text/css', innerHTML: css }, document.head );
+            deferred.resolve(true);
         }
-        if( typeof css == 'object' ) {
-            LazyLoad.css( css.url, successCallback );
+        // otherwise, it must be a URL
+        else {
+            css = { url: css };
         }
+    }
+    if( typeof css == 'object' ) {
+        LazyLoad.css( css.url, function() { deferred.resolve(true); } );
+    }
+    return deferred;
 };
 
 /**
@@ -402,6 +399,15 @@ Browser.prototype.initView = function() {
 
         var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, this.container );
 
+        var about = this.browserMeta();
+        var aboutDialog = new InfoDialog(
+            {
+                title: 'About '+about.title,
+                content: about.description,
+                className: 'about-dialog'
+            });
+
+
         // make our top menu bar
         var menuBar = dojo.create(
             'div',
@@ -418,27 +424,24 @@ Browser.prototype.initView = function() {
         if( ! this.config.show_overview )
             overview.style.cssText = "display: none";
 
-        if( this.config.show_nav )
+        if( this.config.show_nav ) {
             this.navbox = this.createNavBox( topPane );
 
-        // make our little top-links box with links to help, etc.
-        var about = this.browserMeta();
-        this.poweredByLink = dojo.create('a', {
-            className: 'powered_by',
-            innerHTML: about.title,
-            onclick: function() {
-                new InfoDialog(
-                    {
-                        title: 'About '+about.title,
-                        content: about.description,
-                        className: 'about-dialog'
-                    }).show();
-            },
-            title: 'about this browser'
-         }, menuBar );
+            if( this.config.datasets && ! this.config.dataset_id ) {
+                console.warn("in JBrowse configuration, datasets specified, but dataset_id not set");
+            }
+            if( this.config.datasets && this.config.dataset_id ) {
+                this.renderDatasetSelect( menuBar );
+            } else {
+                dojo.create('a', {
+                                className: 'powered_by',
+                                innerHTML: 'JBrowse',
+                                onclick: dojo.hitch( aboutDialog, 'show' ),
+                                title: 'powered by JBrowse'
+                            }, menuBar );
+            }
 
-        if( this.config.show_nav ) {
-
+            // make the file menu
             this.addGlobalMenuItem( 'file',
                                     new dijitMenuItem(
                                         {
@@ -447,16 +450,7 @@ Browser.prototype.initView = function() {
                                             onClick: dojo.hitch( this, 'openFileDialog' )
                                         })
                                   );
-            var fileMenu = this.makeGlobalMenu('file');
-            if( fileMenu ) {
-                var fileButton = new dijitDropDownButton(
-                    { className: 'file',
-                      innerHTML: 'File',
-                      dropDown: fileMenu
-                    });
-                dojo.addClass( fileButton.domNode, 'menu' );
-                menuBar.appendChild( fileButton.domNode );
-            }
+            this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
 
             var newSubmenu = new dijitMenu();
             newSubmenu.addChild( new dijitMenuItem(
@@ -472,6 +466,7 @@ Browser.prototype.initView = function() {
                 })
             );
 
+            // make the view menu
             this.addGlobalMenuItem( 'view', new dijitMenuItem({
                 label: 'Set highlight',
                 onClick: function() {
@@ -481,7 +476,6 @@ Browser.prototype.initView = function() {
                         }).show();
                 }
             }));
-
             // make the menu item for clearing the current highlight
             this._highlightClearButton = new dijitMenuItem(
                 {
@@ -499,28 +493,11 @@ Browser.prototype.initView = function() {
             this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', dojo.hitch( this, '_updateHighlightClearButton' ) );
 
             this.addGlobalMenuItem( 'view', this._highlightClearButton );
+            this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
 
-            var viewMenu = this.makeGlobalMenu('view');
-            if( viewMenu ) {
-                var viewButton = new dijitDropDownButton(
-                    { className: 'view',
-                      innerHTML: 'View',
-                      dropDown: viewMenu
-                    });
-                dojo.addClass( viewButton.domNode, 'menu' );
-                menuBar.appendChild( viewButton.domNode );
-            }
 
-            var configMenu = this.makeGlobalMenu('options');
-            if( configMenu ) {
-                var configLink = new dijitDropDownButton(
-                    { className: 'config',
-                      innerHTML: '<span class="icon"></span> Options',
-                      title: 'configure JBrowse',
-                      dropDown: configMenu
-                    });
-                menuBar.appendChild( configLink.domNode );
-           }
+            // make the options menu
+            this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
         }
 
         if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview )
@@ -528,8 +505,31 @@ Browser.prototype.initView = function() {
         else
             menuBar.appendChild( this.makeFullViewLink() );
 
-        if( this.config.show_nav )
-            menuBar.appendChild( this.makeHelpDialog()   );
+        if( this.config.show_nav ) {
+            // make the help menu
+            this.addGlobalMenuItem( 'help',
+                                    new dijitMenuItem(
+                                        {
+                                            label: 'About',
+                                            //iconClass: 'dijitIconFolderOpen',
+                                            onClick: dojo.hitch( aboutDialog, 'show' )
+                                        })
+                                  );
+
+            var helpDialog = this.makeHelpDialog();
+            this.setGlobalKeyboardShortcut( '?', helpDialog, 'show' );
+
+            this.addGlobalMenuItem( 'help',
+                                    new dijitMenuItem(
+                                        {
+                                            label: 'General',
+                                            iconClass: 'jbrowseIconHelp',
+                                            onClick: function() { helpDialog.show(); }
+                                        })
+                                  );
+
+            this.renderGlobalMenu( 'help', {}, menuBar );
+        }
 
         this.viewElem = document.createElement("div");
         this.viewElem.className = "dragWindow";
@@ -555,6 +555,16 @@ Browser.prototype.initView = function() {
         dojo.connect( this.browserWidget, "resize", this,      'onResize' );
         dojo.connect( this.browserWidget, "resize", this.view, 'onResize' );
 
+        //connect events to update the URL in the location bar
+        function updateLocationBar() {
+            var shareURL = thisObj.makeCurrentViewURL();
+            if( thisObj.config.updateBrowserURL && window.history && window.history.replaceState )
+                window.history.replaceState( {},"", shareURL );
+        };
+        dojo.connect( this, "onCoarseMove",                     updateLocationBar );
+        this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateLocationBar );
+        this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', updateLocationBar );
+
         //set initial location
         this.afterMilestone( 'loadRefSeqs', dojo.hitch( this, function() {
             this.afterMilestone( 'initTrackMetadata', dojo.hitch( this, function() {
@@ -578,6 +588,32 @@ Browser.prototype.initView = function() {
     });
 };
 
+
+Browser.prototype.renderDatasetSelect = function( parent ) {
+    var dsconfig = this.config.datasets || {};
+    var datasetChoices = [];
+    for( var id in dsconfig ) {
+        datasetChoices.push( dojo.mixin({ id: id }, dsconfig[id] ) );
+    }
+
+    new dijitSelectBox(
+        {
+            name: 'dataset',
+            className: 'dataset_select',
+            value: this.config.dataset_id,
+            options: array.map(
+                datasetChoices,
+                function( dataset ) {
+                    return { label: dataset.name, value: dataset.id };
+                }),
+            onChange: dojo.hitch(this, function( dsID ) {
+                                     var ds = (this.config.datasets||{})[dsID];
+                                     if( ds )
+                                         window.location = ds.url;
+                                     return false;
+                                 })
+        }).placeAt( parent );
+};
 
 /**
  * Get object like { title: "title", description: "description", ... }
@@ -745,6 +781,23 @@ Browser.prototype.deleteTracks = function( confs ) {
     this._deleteTrackConfigs( confs );
 };
 
+Browser.prototype.renderGlobalMenu = function( menuName, args, parent ) {
+    var menu = this.makeGlobalMenu( menuName );
+    if( menu ) {
+        args = dojo.mixin(
+            {
+                className: menuName,
+                innerHTML: '<span class="icon"></span> '+ ( args.text || Util.ucFirst(menuName)),
+                dropDown: menu
+            },
+            args || {}
+        );
+
+        var menuButton = new dijitDropDownButton( args );
+        dojo.addClass( menuButton.domNode, 'menu' );
+        parent.appendChild( menuButton.domNode );
+    }
+};
 
 Browser.prototype.makeGlobalMenu = function( menuName ) {
     var items = ( this._globalMenuItems || {} )[menuName] || [];
@@ -1631,7 +1684,6 @@ Browser.prototype.showTracks = function( trackNames ) {
 };
 
 Browser.prototype.makeHelpDialog = function () {
-
     // make a div containing our help text
     var browserRoot = this.config.browserRoot || "";
     var helpdiv = document.createElement('div');
@@ -1694,23 +1746,7 @@ Browser.prototype.makeHelpDialog = function () {
         draggable: false,
         title: "JBrowse Help"
     }, helpdiv );
-
-    // make a Help link that will show the dialog and set a handler on it
-    var helpButton = new dijitButton(
-        {
-            className: 'help',
-            title: 'Help',
-            innerHTML: '<span class="icon"></span> Help',
-            onClick: function() { dialog.show(); }
-        });
-
-    this.setGlobalKeyboardShortcut( '?', dialog, 'show' );
-    dojo.connect( document.body, 'onkeydown', function(evt) {
-        if( evt.keyCode != dojo.keys.SHIFT && evt.keyCode != dojo.keys.CTRL && evt.keyCode != dojo.keys.ALT )
-            dialog.hide();
-    });
-
-    return helpButton.domNode;
+    return dialog;
 };
 
 /**
@@ -1819,8 +1855,6 @@ Browser.prototype.makeShareLink = function () {
     // connect moving and track-changing events to update it
     var updateShareURL = function() {
         shareURL = browser.makeCurrentViewURL();
-        if( browser.config.updateBrowserURL && window.history && window.history.replaceState )
-            window.history.replaceState( {},"", shareURL );
     };
     dojo.connect( this, "onCoarseMove",                     updateShareURL );
     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateShareURL );
@@ -1833,8 +1867,10 @@ Browser.prototype.makeShareLink = function () {
  * Return a string URL that encodes the complete viewing state of the
  * browser.  Currently just data dir, visible tracks, and visible
  * region.
+ * @param {Object} overrides optional key-value object containing
+ *                           components of the query string to override
  */
-Browser.prototype.makeCurrentViewURL = function() {
+Browser.prototype.makeCurrentViewURL = function( overrides ) {
     var t = typeof this.config.shareURL;
 
     if( t == 'function' ) {
@@ -1851,12 +1887,18 @@ Browser.prototype.makeCurrentViewURL = function() {
         window.location.pathname,
         "?",
         dojo.objectToQuery(
-            {
-                loc:    this.view.visibleRegionLocString(),
-                tracks: this.view.visibleTrackNames().join(','),
-                data:   (this.config.queryParams||{}).data,
-                highlight: (this.getHighlight()||'').toString()
-            })
+            dojo.mixin(
+                dojo.mixin( {}, (this.config.queryParams||{}) ),
+                dojo.mixin(
+                    {
+                        loc:    this.view.visibleRegionLocString(),
+                        tracks: this.view.visibleTrackNames().join(','),
+                        highlight: (this.getHighlight()||'').toString()
+                    },
+                    overrides || {}
+                )
+            )
+        )
     );
 }
 
@@ -1871,9 +1913,11 @@ Browser.prototype.makeFullViewLink = function () {
         innerHTML: 'Full view'
     });
 
+    var makeURL = this.config.makeFullViewURL || this.makeCurrentViewURL;
+
     // update it when the view is moved or tracks are changed
     var update_link = function() {
-        link.href = thisB.makeCurrentViewURL();
+        link.href = makeURL.call( thisB, thisB );
     };
     dojo.connect( this, "onCoarseMove",                     update_link );
     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  update_link );
@@ -1887,8 +1931,6 @@ Browser.prototype.makeFullViewLink = function () {
  */
 
 Browser.prototype.onCoarseMove = function(startbp, endbp) {
-
-    this._updateLocationThumb();
 
     var currRegion = { start: startbp, end: endbp, ref: this.refSeq.name };
 
@@ -1914,22 +1956,6 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     this.publish( '/jbrowse/v1/n/navigate', currRegion );
 };
 
-Browser.prototype._updateLocationThumb = function() {
-    var startbp = this.view.minVisible();
-    var endbp = this.view.maxVisible();
-
-    var length = this.view.ref.end - this.view.ref.start;
-    var trapLeft = Math.round((((startbp - this.view.ref.start) / length)
-                               * this.view.overviewBox.w) + this.view.overviewBox.l);
-    var trapRight = Math.round((((endbp - this.view.ref.start) / length)
-                                * this.view.overviewBox.w) + this.view.overviewBox.l);
-
-    this.view.locationThumb.style.cssText =
-    "height: " + (this.view.overviewBox.h - 4) + "px; "
-    + "left: " + trapLeft + "px; "
-    + "width: " + (trapRight - trapLeft) + "px;"
-    + "z-index: 20";
-};
 
 /**
  * update the location and refseq cookies

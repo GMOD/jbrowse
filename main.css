@@ -263,6 +263,21 @@ div.block {
     top: 0px;
     height: 100%;
 }
+div.block.height_overflow .height_overflow_message {
+    position: absolute;
+    color: rgb(77,77,77);
+    border-bottom: 2px solid rgb(77,77,77);
+    text-shadow: white 0px 0px 1px;
+    white-space: nowrap;
+    width: 100%;
+    font-weight: bold;
+    text-align: center;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
 div.block.timed_out {
     background: #ddd;
     background: rgba( 0,0,0, 0.1 );
@@ -426,6 +441,10 @@ span.base {
 .base_reference {
     background-color: #bbb;
 }
+.base_deletion {
+    background-color: black;
+    background-color: #000;
+}
 
 div.sequence_blur {
     background: none;
@@ -558,7 +577,7 @@ div.track-label .feature-density {
     position: absolute;
     left: 8px;
     top: 7px;
-    background: url("src/dijit/themes/tundra/images/spriteArrows.png") no-repeat -28px 0;
+    background: url("img/spriteArrows.png") no-repeat -28px 0;
 }
 
 .tundra div.track-label:hover .track-menu-button:hover {
@@ -930,8 +949,20 @@ table.baseQuality td {
     line-height: 0.95;
     text-align: center;
 }
-table.baseQuality tr.seq td {
-    padding-top: 0.8em;
+.baseQuality .basePosition {
+    display: inline-block;
+    padding: 0 0.3em 0.4em 0.3em;
+}
+.baseQuality .basePosition:hover {
+    background: #ccc;
+}
+.baseQuality span.seq {
+    display: block;
+    text-align: center;
     font-weight: bold;
+}
+.baseQuality span.qual {
+    display: block;
+    text-align: center;
 }
 

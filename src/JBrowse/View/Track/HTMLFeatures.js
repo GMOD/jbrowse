@@ -63,7 +63,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         this.labelPad = 1;
 
         // if calculated feature % width would be less than minFeatWidth, then set width to minFeatWidth instead
-        this.minFeatWidth = 0.1;
+        this.minFeatWidth = 1;
 
         this.trackPadding = args.trackPadding;
 
@@ -83,7 +83,10 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     _defaultConfig: function() {
         return {
             maxFeatureScreenDensity: 0.5,
-            blockDisplayTimeout: 5000,
+            blockDisplayTimeout: 20000,
+
+            // maximum height of the track, in pixels
+            maxHeight: 1000,
 
             style: {
                 arrowheadClass: 'arrowhead',
@@ -93,13 +96,13 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 // not configured by users
                 _defaultHistScale: 4,
                 _defaultLabelScale: 30,
-                _defaultDescriptionScale: 170,
+                _defaultDescriptionScale: 120,
 
                 minSubfeatureWidth: 6,
                 maxDescriptionLength: 70,
-                showLabels: true,
-
-                label: function( feature ) { return feature.get('name') || feature.get('ID'); },
+                showLabels: true
+,
+                label: function( feature ) { return feature.get('name') || feature.get('id'); },
                 description: 'note, description',
 
                 centerChildrenVertically: true  // by default use feature child centering
@@ -217,7 +220,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                        track.config.style.histCss : "");
                 binDiv.setAttribute('value',hist[bin]);
                 if (Util.is_ie6) binDiv.appendChild(document.createComment());
-                block.appendChild(binDiv);
+                block.domNode.appendChild(binDiv);
             }
 
             track.heightUpdate( dims.pxPerCount * ( dims.logScale ? Math.log(maxBin) : maxBin ),
@@ -290,42 +293,43 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         if( ! 'x' in coords )
             return;
 
-        dojo.query( '.block', this.div )
-            .forEach( function(block) {
-                          // calculate the view left coord relative to the
-                          // block left coord in units of pct of the block
-                          // width
-                          if( ! this.label )
-                              return;
-                          var viewLeft = 100 * ( (this.label.offsetLeft+this.label.offsetWidth) - block.offsetLeft ) / block.offsetWidth + 2;
+        array.forEach( this.blocks, function( block, blockIndex ) {
 
-                          // if the view start is unknown, or is to the
-                          // left of this block, we don't have to worry
-                          // about adjusting the feature labels
-                          if( ! viewLeft )
-                              return;
 
-                          var blockWidth = block.endBase - block.startBase;
+            // calculate the view left coord relative to the
+            // block left coord in units of pct of the block
+            // width
+            if( ! block || ! this.label )
+                return;
+            var viewLeft = 100 * ( (this.label.offsetLeft+this.label.offsetWidth) - block.domNode.offsetLeft ) / block.domNode.offsetWidth + 2;
 
-                          dojo.query('.feature',block)
-                              .forEach( function(featDiv) {
-                                            if( ! featDiv.label ) return;
-                                            var labelDiv = featDiv.label;
-                                            var feature = featDiv.feature;
+            // if the view start is unknown, or is to the
+            // left of this block, we don't have to worry
+            // about adjusting the feature labels
+            if( ! viewLeft )
+                return;
 
-                                            // get the feature start and end in terms of block width pct
-                                            var minLeft = parseInt( feature.get('start') );
-                                            minLeft = 100 * (minLeft - block.startBase) / blockWidth;
-                                            var maxLeft = parseInt( feature.get('end') );
-                                            maxLeft = 100 * ( (maxLeft - block.startBase) / blockWidth
-                                                              - labelDiv.offsetWidth / block.offsetWidth
-                                                            );
+            var blockWidth = block.endBase - block.startBase;
 
-                                            // move our label div to the view start if the start is between the feature start and end
-                                            labelDiv.style.left = Math.max( minLeft, Math.min( viewLeft, maxLeft ) ) + '%';
+            dojo.query( '.feature', block.domNode )
+                .forEach( function(featDiv) {
+                              if( ! featDiv.label ) return;
+                              var labelDiv = featDiv.label;
+                              var feature = featDiv.feature;
 
-                                        },this);
-                      },this);
+                              // get the feature start and end in terms of block width pct
+                              var minLeft = parseInt( feature.get('start') );
+                              minLeft = 100 * (minLeft - block.startBase) / blockWidth;
+                              var maxLeft = parseInt( feature.get('end') );
+                              maxLeft = 100 * ( (maxLeft - block.startBase) / blockWidth
+                                                - labelDiv.offsetWidth / block.domNode.offsetWidth
+                                              );
+
+                              // move our label div to the view start if the start is between the feature start and end
+                              labelDiv.style.left = Math.max( minLeft, Math.min( viewLeft, maxLeft ) ) + '%';
+
+                          },this);
+        },this);
     },
 
     fillBlock: function( args ) {
@@ -435,10 +439,34 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         delete this.yscale;
     },
 
+    destroy: function() {
+        this._clearLayout();
+        this.inherited(arguments);
+    },
+
     cleanupBlock: function(block) {
-        // garbage collect the layout
-        if ( block && this.layout )
-            this.layout.discardRange( block.startBase, block.endBase );
+        if( block ) {
+            // discard the layout for this range
+            if ( this.layout )
+                this.layout.discardRange( block.startBase, block.endBase );
+
+            if( block.featureNodes )
+                for( var name in block.featureNodes ) {
+                    var featDiv = block.featureNodes[name];
+                    delete featDiv.track;
+                    delete featDiv.feature;
+                    delete featDiv.callbackArgs;
+                    delete featDiv._labelScale;
+                    delete featDiv._descriptionScale;
+                    if( featDiv.label ) {
+                        delete featDiv.label.track;
+                        delete featDiv.label.feature;
+                        delete featDiv.label.callbackArgs;
+                    }
+                }
+        }
+
+        this.inherited( arguments );
     },
 
     /**
@@ -464,7 +492,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             //if the feature overlaps destBlock,
             //move to destBlock & re-position
             sourceSlot = sourceBlock.featureNodes[ overlaps[i] ];
-            if (sourceSlot && ("label" in sourceSlot)) {
+            if ( sourceSlot && sourceSlot.label && sourceSlot.label.parentNode ) {
                 sourceSlot.label.parentNode.removeChild(sourceSlot.label);
             }
             if (sourceSlot && sourceSlot.feature) {
@@ -575,18 +603,22 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         var timedOut = false;
         var timeOutError = { toString: function() { return 'Timed out trying to display '+curTrack.name+' block '+blockIndex; } };
+        var timeout;
         if( this.config.blockDisplayTimeout )
-            window.setTimeout( function() { timedOut = true; }, this.config.blockDisplayTimeout );
+            timeout = window.setTimeout( function() {
+                timedOut = true;
+                curTrack.fillBlockTimeout( blockIndex, block );
+            }, this.config.blockDisplayTimeout );
 
         var featCallback = dojo.hitch(this,function( feature ) {
             if( timedOut )
-                throw timeOutError;
+                return;
 
             var uniqueId = feature.id();
             if( ! this._featureIsRendered( uniqueId ) ) {
                 /* feature render, adding to block, centering refactored into addFeatureToBlock() */
-                var featDiv = this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale,
-                                                      containerStart, containerEnd );
+                this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                                        containerStart, containerEnd );
             }
         });
 
@@ -596,6 +628,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 },
                                 featCallback,
                                 function ( args ) {
+                                    if( timeout )
+                                        window.clearTimeout( timeout );
+
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
                                     if ( args && args.spans ) { 
@@ -640,12 +675,21 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                  containerStart, containerEnd ) {
         var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                           containerStart, containerEnd );
+        if( ! featDiv )
+            return null;
 
-        block.appendChild( featDiv );
+        block.domNode.appendChild( featDiv );
         if( this.config.style.centerChildrenVertically )
             this._centerChildrenVertically( featDiv );
         return featDiv;
     },
+
+
+    fillBlockTimeout: function( blockIndex, block ) {
+        this.inherited( arguments );
+        block.featureNodes = {};
+    },
+
 
     /**
      * Returns true if a feature is visible and rendered someplace in the blocks of this track.
@@ -900,7 +944,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
         var name = this.getConfForFeature( 'style.label', feature );
-        var description = scale > descriptionScale && this._getDescription(feature);
+        var description = scale > descriptionScale && this.getFeatureDescription(feature);
         if( description && description.length > this.config.style.maxDescriptionLength )
             description = description.substr(0, this.config.style.maxDescriptionLength+1 ).replace(/(\s+\S+|\s*)$/,'')+String.fromCharCode(8230);
 
@@ -923,8 +967,17 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 layoutEnd,
                                 levelHeight);
 
+        if( top === null ) {
+            // could not lay out, would exceed our configured maxHeight
+            // mark the block as exceeding the max height
+            this.markBlockHeightOverflow( block );
+            return null;
+        }
+
         var featDiv = this.config.hooks.create(this, feature );
         this._connectFeatDivHandlers( featDiv );
+        // NOTE ANY DATA SET ON THE FEATDIV DOM NODE NEEDS TO BE
+        // MANUALLY DELETED IN THE cleanupBlock METHOD BELOW
         featDiv.track = this;
         featDiv.feature = feature;
         featDiv.layoutEnd = layoutEnd;
@@ -975,13 +1028,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             dojo.addClass(featDiv, className + "_phase" + phase);
 
         // check if this feature is highlighted
-        var highlighted = function() {
-            var highlight = this.browser.getHighlight();
-            return highlight
-                && ( highlight.objectName == name )
-                && highlight.ref == this.refSeq.name
-                && !( feature.get('start') > highlight.end || feature.get('end') < highlight.start );
-        }.call(this);
+        var highlighted = this.isFeatureHighlighted( feature, name );
 
         // add 'highlighted' to the feature's class if its name
         // matches the objectName of the global highlight and it's
@@ -1034,13 +1081,14 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                         top: (top + this.glyphHeight + 2) + "px",
                         left: (100 * (layoutStart - block.startBase) / blockWidth)+'%'
                     }
-                }, block );
+                }, block.domNode );
 
             this._connectFeatDivHandlers( labelDiv );
 
             featDiv.label = labelDiv;
-            featDiv.labelDiv = labelDiv;
 
+            // NOTE: ANY DATA ADDED TO THE labelDiv MUST HAVE A
+            // CORRESPONDING DELETE STATMENT IN cleanupBlock BELOW
             labelDiv.feature = feature;
             labelDiv.track = this;
             // (callbackArgs are the args that will be passed to callbacks
@@ -1062,52 +1110,6 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         }
 
         return featDiv;
-    },
-
-
-    // get the description string for a feature, based on the setting
-    // of this.config.description
-    _getDescription: function( feature ) {
-        var dConf = this.config.style.description || this.config.description;
-
-        if( ! dConf )
-            return null;
-
-        // if the description is a function, just call it
-        if( typeof dConf == 'function' ) {
-            return dConf.call( this, feature );
-        }
-        // otherwise try to parse it as a field list
-        else {
-
-            // parse our description varname conf if necessary
-            var fields = this.descriptionFields || function() {
-                var f = dConf;
-                if( f ) {
-                    if( lang.isArray( f ) ) {
-                        f = f.join(',');
-                    }
-                    else if( typeof f != 'string' ) {
-                        console.warn( 'invalid `description` setting ('+f+') for "'+this.name+'" track, falling back to "note,description"' );
-                        f = 'note,description';
-                    }
-                    f = f.toLowerCase().split(/\s*\,\s*/);
-                }
-                else {
-                    f = [];
-                }
-                this.descriptionFields = f;
-                return f;
-            }.call(this);
-
-            // return the value of the first field that contains something
-            for( var i=0; i<fields.length; i++ ) {
-                var d = feature.get( fields[i] );
-                if( d )
-                    return d;
-            }
-            return null;
-        }
     },
 
     handleSubFeatures: function( feature, featDiv,
@@ -1170,7 +1172,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
      */
     _connectFeatDivHandlers: function( /** HTMLElement */ div  ) {
         for( var event in this.eventHandlers ) {
-            on( div, event, this.eventHandlers[event] );
+            this.own( on( div, event, this.eventHandlers[event] ) );
         }
         // if our click handler has a label, set that as a tooltip
         if( this.eventHandlers.click && this.eventHandlers.click.label )
@@ -1182,9 +1184,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         // moused-over.  pre-generating menus for lots and lots of
         // features at load time is way too slow.
         var refreshMenu = lang.hitch( this, '_refreshMenu', featDiv );
-        on( featDiv,  'mouseover', refreshMenu );
-        if( featDiv.labelDiv )
-            on( featDiv.labelDiv,  'mouseover', refreshMenu );
+        this.own( on( featDiv,  'mouseover', refreshMenu ) );
+        if( featDiv.label )
+            this.own( on( featDiv.label,  'mouseover', refreshMenu ) );
     },
 
     _refreshMenu: function( featDiv ) {
@@ -1299,7 +1301,12 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         // create the layout if we need to, and we can
         if( ( ! this.layout || this.layout.pitchX != 4/scale ) && scale  )
-            this.layout = new Layout({pitchX: 4/scale, pitchY: this.config.layoutPitchY || (this.glyphHeight + this.glyphHeightPad) });
+            this.layout = new Layout({
+                                         pitchX: 4/scale,
+                                         pitchY: this.config.layoutPitchY || (this.glyphHeight + this.glyphHeightPad),
+                                         maxHeight: this.getConf('maxHeight')
+                                     });
+
 
         return this.layout;
     },

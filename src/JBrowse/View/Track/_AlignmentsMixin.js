@@ -16,11 +16,6 @@ define([
 
 return declare( MismatchesMixin ,{
 
-    constructor: function() {
-        this.cigarAttributeName = ( this.config.cigarAttribute || 'cigar' ).toLowerCase();
-        this.mdAttributeName    = ( this.config.mdAttribute    || 'md'    ).toLowerCase();
-    },
-
     /**
      * Make a default feature detail page for the given feature.
      * @returns {HTMLElement} feature detail page HTML
@@ -76,35 +71,16 @@ return declare( MismatchesMixin ,{
             return '';
 
         qual = qual.split(/\s+/);
-        var fieldWidth = (''+Math.max.apply( Math, qual )).length;
 
-        // pad the sequence with spaces
-        var seqPadding = ' ';
-        while( seqPadding.length < fieldWidth-1 ) {
-            seqPadding += ' ';
+        var html = '';
+        for( var i = 0; i < seq.length; i++ ) {
+            html += '<div class="basePosition" title="position '+(i+1)+'"><span class="seq">'
+                    + seq[i]+'</span>';
+            if( qual[i] )
+                html += '<span class="qual">'+qual[i]+'</span>';
+            html += '</div>';
         }
-        var paddedSeq = array.map( seq, function(s) {
-            return s + seqPadding;
-        });
-
-        var tableRowHTML = function(fields, class_) {
-            class_ = class_ ? ' class="'+class_+'"' : '';
-            return '<tr'+class_+'>'+array.map( fields, function(f) { return '<td>'+f+'</td>'; }).join('')+'</tr>';
-        };
-        // insert newlines
-        var rendered = '';
-        var lineFields = Math.round(50/fieldWidth);
-        while( paddedSeq.length ) {
-            var line = paddedSeq.slice(0,Math.min( paddedSeq.length, lineFields ) );
-            paddedSeq = paddedSeq.slice(lineFields);
-            rendered += tableRowHTML( line, 'seq' );
-            if( qual.length ) {
-                line = qual.slice(0, Math.min( qual.length, lineFields ));
-                qual = qual.slice(lineFields);
-                rendered += tableRowHTML( line, 'qual' );
-            }
-        }
-        return '<table class="baseQuality">'+rendered+'</table>';
+        return '<div class="baseQuality">'+html+'</div>';
     },
 
     // recursively find all the stylesheets that are loaded in the
@@ -147,7 +123,7 @@ return declare( MismatchesMixin ,{
            return colors;
         }.call(this);
 
-        return this._baseStyles[base] || '#888';
+        return this._baseStyles[base] || '#999';
     }
 
 });

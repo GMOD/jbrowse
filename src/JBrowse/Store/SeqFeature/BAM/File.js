@@ -363,7 +363,6 @@ var BamFile = declare( null,
             return;
         }
 
-        var features = [];
         var chunksProcessed = 0;
 
         var cache = this.featureCache = this.featureCache || new LRUCache({
@@ -372,16 +371,18 @@ var BamFile = declare( null,
             sizeFunction: function( features ) {
                 return features.length;
             },
-            maxSize: 100000 // cache up to 100,000 BAM features
+            maxSize: 300000 // cache up to 300,000 BAM features
         });
 
         var error;
+        var chunkFeatures = [];
         array.forEach( chunks, function( c ) {
             cache.get( c, function( f, e ) {
                 error = error || e;
-                features.push.apply( features, f );
-                if( ++chunksProcessed == chunks.length )
-                    callback( features, error );
+                chunkFeatures.push( f );
+                if( ++chunksProcessed == chunks.length ) {
+                    callback( chunkFeatures[0].concat.apply( chunkFeatures[0], chunkFeatures.slice(1)), error );
+                }
             });
         });
 

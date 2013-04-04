@@ -8,10 +8,22 @@
    selector that finds tracks in the track list matching the typed
    text (issue #210).
 
+ * Added an optional ropdown selector in the menu bar that allows
+   switching between multiple datasets.  To enable it, add a
+   `datasets` array in your JBrowse configuration, and set a
+   `dataset_id` in each of the `trackList.json` (or other) files that
+   are optionally loaded by the dataset selector.  See the JBrowse
+   Configuration Guide on the GMOD wiki for details (issue #134).
+
  * By default, JBrowse now continuously updates the browser's URL bar
    to contain a URL that will show the current JBrowse view directly.
    This is enabled by default only if JBrowse is running from the
    default index.html included in the JBrowse distribution.
+
+ * HTMLFeatures, Alignments, and Alignments2 tracks now accept a
+   `maxHeight` configuration variable specifying the maximum displayed
+   height of a track in pixels.  Features that would cause the track
+   to grow beyond its maximum height will not be drawn (issue #222).
 
  * HTMLFeatures tracks now accept `style->label` and
    `style->description` configuration variables variable that can be
@@ -51,6 +63,13 @@
    pop up a warning if a local data file is opened that contains no
    data for the current reference sequence (issue #178).
 
+ * Fixed bug in which hard- and soft-clipped regions were erroneously
+   counted toward the overall length of a BAM alignment (issue #229).
+
+ * Fixed bug in which dragging the vertical scroll bar marker on the
+   right side of the track pane did not behave correctly. (Julien
+   Smith-Roberge, issue #223).
+
  * Fixed bug in which the navigation location for some reference
    sequences can get messed up when ref.start != 0, or ref.end !=
    ref.length (issue #215).
@@ -68,6 +87,25 @@
 
  * Improved JSON syntax error messages in server-side scripts (issue
    #214).
+
+ * Increased the default display timeout (`blockDisplayTimeout`) on
+   HTML-based features tracks from 5 seconds to 20 seconds.
+
+ * Added a `new-plugin.pl` helper script that makes the skeleton of a
+   new JBrowse plugin.
+
+ * Added an `add-json.pl` helper script that advanced users can use to
+   set arbitrary value in JSON files from the command line.
+
+ * Fixed a bug in which the `--conf` option to `prepare-refseqs.pl`
+   did not support comments in JSON conf files (issue #213).  Thanks
+   to Keiran Raine for pointing this out.
+
+ * Fixed some missing dojo/dijit nls directories in the non-dev
+   release zipfile.
+
+ * Fixed a bug with handling of timeout events in HTMLFeatures tracks.
+   Thanks to Matt Henderson of KBase for pointing this out.
 
 1.8.1     2013-02-12 12:56:24 EST5EDT
 

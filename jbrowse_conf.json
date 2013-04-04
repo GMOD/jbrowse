@@ -16,6 +16,14 @@
     //   ]
     // },
 
-    // the variable below does nothing
-    placeholder: 1
+    // uncomment and edit the example below to enable one or more
+    // JBrowse plugins
+
+    // plugins: [ 'MyPlugin', 'MyOtherPlugin' ],
+
+    datasets: {
+        volvox:    { url: '?data=sample_data/json/volvox', name: 'Volvox Example' },
+        modencode: { url: '?data=sample_data/json/modencode', name: 'MODEncode Example' },
+        yeast:     { url: '?data=sample_data/json/yeast',     name: 'Yeast Example' },
+    }
 }

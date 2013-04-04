@@ -44,7 +44,7 @@ return declare( [WiggleXY, AlignmentsMixin],
         var originY = toY( dataScale.origin );
 
         // a canvas element below the histogram that will contain indicators of likely SNPs
-        var snpCanvasHeight = parseInt( block.parentNode.style.height ) - canvas.height;
+        var snpCanvasHeight = parseInt( block.domNode.parentNode.style.height ) - canvas.height;
         var snpCanvas = dojo.create('canvas',
                                     {height: snpCanvasHeight,
                                      width: canvas.width,
@@ -55,7 +55,7 @@ return declare( [WiggleXY, AlignmentsMixin],
                                      },
                                      innerHTML: 'Your web browser cannot display this type of track.',
                                      className: 'SNP-indicator-track'
-                                 }, block);
+                                 }, block.domNode);
         var snpContext = snpCanvas.getContext('2d');
 
         var negColor  = this.config.style.neg_color;

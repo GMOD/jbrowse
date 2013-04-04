@@ -14,6 +14,8 @@ class AbstractModEncodeFacetedTest ( JBrowseTest ):
 
         self.turn_on_track( 'fly/Dm_CAGE_HYB' );
 
+        assert self.is_track_on( '5-prime-UTR;Y cn bw sp;Mixed Embryos 0-24 hr;CAGE'  ), 'track should be on now'
+
         self.browser.close();
 
 class ModEncodeFacetedTest ( AbstractModEncodeFacetedTest, unittest.TestCase  ):

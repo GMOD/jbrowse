@@ -132,7 +132,7 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
                             if( i && !( i % maxFeaturesWithoutYielding ) ) {
                                 window.setTimeout( readFeatures, 1 );
                                 i++;
-                                break;
+                                return;
                             }
                         }
                         if( i >= features.length )

@@ -1,6 +1,10 @@
 require(['JBrowse/View/GranularRectLayout'],function(Layout) {
 describe( "JBrowse.View.Layout", function() {
-    var l = new Layout( -1, 249999 );
+    var l;
+    beforeEach( function() {
+                    l = new Layout({ pitchX: 10, pitchY: 4 });
+                });
+
     it( 'constructs', function() {
            expect(l).toBeTruthy();
     });
@@ -46,6 +50,21 @@ describe( "JBrowse.View.Layout", function() {
             var top = l.addRect.apply( l, test_rects[i] );
             expect(top).toEqual(0);
         }
+   });
+
+    it( 'stacks up overlapping features', function() {
+            var test_rects = [];
+            var uniq = 0;
+            for( var i = 1; i <= 20; i++) {
+                test_rects.push( [ (uniq++).toString(), 100*i-60, 100*i+60, 1 ] );
+            }
+
+            //console.log( test_rects );
+
+            for( i=0; i < test_rects.length; i++ ) {
+                var top = l.addRect.apply( l, test_rects[i] );
+                expect(top).toEqual( i%2 * 4 );
+            }
    });
 });
 });

@@ -1,4 +1,6 @@
 {
+   "dataset_id": "modencode",
+
    "tracks" : [
       {
          "chunkSize" : 20000,

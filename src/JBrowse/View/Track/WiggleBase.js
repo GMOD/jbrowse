@@ -3,16 +3,22 @@ define( [
             'dojo/_base/array',
             'dojo/dom-construct',
             'dojo/on',
-            'JBrowse/View/Track/Canvas',
+            'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/ExportMixin',
             'JBrowse/Util',
             './Wiggle/_Scale'
         ],
-        function( declare, array, dom, on, CanvasTrack, ExportMixin, Util, Scale ) {
+        function( declare, array, dom, on, BlockBasedTrack, ExportMixin, Util, Scale ) {
 
-return declare( [CanvasTrack,ExportMixin], {
+return declare( [BlockBasedTrack,ExportMixin], {
 
     constructor: function( args ) {
+        this.trackPadding = args.trackPadding || 0;
+
+        if( ! ('style' in this.config ) ) {
+            this.config.style = {};
+        }
+
         this.store = args.store;
     },
 
@@ -104,7 +110,7 @@ return declare( [CanvasTrack,ExportMixin], {
                 dojo.hitch( this, function( args ) {
                     // if the block has been freed in the meantime,
                     // don't try to render
-                    if( ! block.parentNode )
+                    if( ! (block.domNode && block.domNode.parentNode ))
                         return;
 
                     var featureRects = array.map( features, function(f) {
@@ -136,7 +142,7 @@ return declare( [CanvasTrack,ExportMixin], {
 
         block.scaling = this.scaling;
 
-        dom.empty( block );
+        dom.empty( block.domNode );
 
         try {
             dojo.create('canvas').getContext('2d').fillStyle = 'red';
@@ -163,7 +169,7 @@ return declare( [CanvasTrack,ExportMixin], {
               innerHTML: 'Your web browser cannot display this type of track.',
               className: 'canvas-track'
             },
-            block
+            block.domNode
         );
         c.startBase = block.startBase;
 
@@ -219,7 +225,7 @@ return declare( [CanvasTrack,ExportMixin], {
                               thisB.scaling = scaling;
                               // render all of the blocks that need it
                               array.forEach( thisB.blocks, function( block, blockIndex ) {
-                                  if( block && block.parentNode )
+                                  if( block && block.domNode.parentNode )
                                       thisB.renderBlock({
                                                             block: block,
                                                             blockIndex: blockIndex
@@ -230,7 +236,7 @@ return declare( [CanvasTrack,ExportMixin], {
                           function(e) {
                               thisB.error = e;
                               array.forEach( thisB.blocks, function( block, blockIndex ) {
-                                  if( block && block.parentNode ) {
+                                  if( block && block.domNode.parentNode )
                                       thisB.fillBlockError( blockIndex, block );
                                   }
                               });
@@ -246,6 +252,13 @@ return declare( [CanvasTrack,ExportMixin], {
             this._maskBySpans( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans );
         }
         this._postDraw(     scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+    },
+
+    startZoom: function(destScale, destStart, destEnd) {
+    },
+
+    endZoom: function(destScale, destBlockBases) {
+        this.clear();
     },
 
     /**
@@ -338,7 +351,7 @@ return declare( [CanvasTrack,ExportMixin], {
                     display: 'none',
                     zIndex: 15
                 }
-            }, block );
+            }, block.domNode );
         var verticalLine = dojo.create( 'div', {
                 className: 'wigglePositionIndicator',
                 style: {
@@ -347,9 +360,9 @@ return declare( [CanvasTrack,ExportMixin], {
                     height: canvas.height+'px',
                     zIndex: 15
                 }
-        }, block);
+        }, block.domNode );
         dojo.forEach( [canvas,verticalLine,scoreDisplay], function(element) {
-            on( element, 'mousemove', dojo.hitch(this,function(evt) {
+            this.own( on( element, 'mousemove', dojo.hitch(this,function(evt) {
                     var cPos = dojo.position(canvas);
                     var x = evt.pageX;
                     var cx = evt.pageX - cPos.x;
@@ -364,17 +377,17 @@ return declare( [CanvasTrack,ExportMixin], {
                     } else {
                         scoreDisplay.style.display = 'none';
                     }
-            }));
+            })));
         },this);
-        on( block, 'mouseout', function(evt) {
+        this.own( on( block.domNode, 'mouseout', function(evt) {
                 var target = evt.srcElement || evt.target;
                 var evtParent = evt.relatedTarget || evt.toElement;
                 if( !target || !evtParent || target.parentNode != evtParent.parentNode) {
                     scoreDisplay.style.display = 'none';
                     verticalLine.style.display = 'none';
                 }
-        });
-        on (this.browser.view.trackContainer, 'mousemove', dojo.hitch(this, function(evt) {
+        }));
+        this.own( on(this.browser.view.trackContainer, 'mousemove', function(evt) {
                 var cPos = dojo.position(canvas);
                 var y = evt.pageY - cPos.y;
                 if ( y < 0 || y > cPos.Height) {
