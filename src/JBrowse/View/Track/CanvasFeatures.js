@@ -1,6 +1,6 @@
 /**
- * Feature track that draws features using HTML5 canvas elements.
- */
+* Feature track that draws features using HTML5 canvas elements.
+*/
 
 define( [
             'dojo/_base/declare',
@@ -28,15 +28,15 @@ define( [
         ) {
 
 /**
- *  inner class that indexes feature layout rectangles (fRects) (which
- *  include features) by unique ID.
- *
- *  We have one of these indexes in each block.
- */
-var FRectIndex = declare( null,  {
+* inner class that indexes feature layout rectangles (fRects) (which
+* include features) by unique ID.
+*
+* We have one of these indexes in each block.
+*/
+var FRectIndex = declare( null, {
     constructor: function( args ) {
         var height = args.h;
-        var width  = args.w;
+        var width = args.w;
 
         this.dims = { h: height, w: width };
 
@@ -176,9 +176,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     },
 
     /**
-     * Returns a promise for the appropriate glyph for the given
-     * feature and args.
-     */
+* Returns a promise for the appropriate glyph for the given
+* feature and args.
+*/
     getGlyph: function( viewArgs, feature, callback ) {
         var glyphClassName = this.getConfForFeature( 'glyph', feature );
         var glyph, interestedParties;
@@ -299,7 +299,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                 },
 
                                 // callback when all features sent
-                                function ( callbackArgs ) {
+                                function () {
                                     allFeaturesRead = true;
                                     if( ! featuresInProgress && ! featuresLaidOut.isFulfilled() ) {
                                         featuresLaidOut.resolve();
@@ -312,7 +312,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                             domConstruct.create(
                                                 'canvas',
                                                 { height: totalHeight,
-                                                  width:  block.domNode.offsetWidth+1,
+                                                  width: block.domNode.offsetWidth+1,
                                                   style: {
                                                       cursor: 'default',
                                                       height: totalHeight+'px'
@@ -334,36 +334,11 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
 
                                         thisB.renderClickMap( args, fRects );
 
-                                        if ( callbackArgs && callbackArgs.spans ) {
-                                            block.maskingSpans = callbackArgs.spans;
-                                            thisB.maskBySpans( args, c, fRects, callbackArgs.spans );
-                                        }
-
                                         finishCallback();
                                     });
                                 },
                                 errorCallback
                               );
-    },
-
-    /* If it's a boolean track, mask accordingly */
-    maskBySpans: function( args, canvas, fRects, spans ) {
-        var context = canvas.getContext('2d');
-        var canvasHeight = canvas.height;
-        var scale = args.scale;
-        var leftBase = args.leftBase;
-
-        for ( var index in spans ) {
-            if (spans.hasOwnProperty(index)) {
-                var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
-                var l = Math.round(( spans[index].start - leftBase ) * scale );
-                context.clearRect( l, 0, w+1, canvasHeight );
-            }
-        }
-        context.globalAlpha = this.config.style.masked_transparancy || 0.2;
-        this.config.style.masked_transparancy = context.globalAlpha;
-        this.renderFeatures( args, canvas, fRects );
-        context.globalAlpha = 1;
     },
 
     startZoom: function() {
@@ -462,7 +437,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     },
 
     // given viewargs and a feature object, highlight that feature in
-    // all blocks.  if feature is undefined or null, unhighlight any currently
+    // all blocks. if feature is undefined or null, unhighlight any currently
     // highlighted feature
     mouseoverFeature: function( feature ) {
 
@@ -500,65 +475,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             this.layout.discardRange( block.startBase, block.endBase );
     },
 
-// Current version of renderFeature doesn't support masking.
     // draw each feature
-// <<<<<<< HEAD
-//     renderFeature: function( context, viewArgs, fRect ) {
-//         var thisB = this;
-//         var drawFeature = function( context, viewArgs, fRect ) {
-//             // background
-//             var color = thisB.getStyle( fRect.f, 'color' );
-//             if( color ) {
-//                 context.fillStyle = color;
-//                 context.fillRect( fRect.l, fRect.t, fRect.w, fRect.h );
-//             }
-
-//             // foreground border
-//             var border_color;
-//             if( fRect.h > 3 ) {
-//                 border_color = thisB.getStyle( fRect.f, 'border_color' );
-//                 if( border_color ) {
-//                     context.lineWidth = 1;
-//                     context.strokeStyle = border_color;
-
-//                     // need to stroke a smaller rectangle to remain within
-//                     // the bounds of the feature's overall height and
-//                     // width, because of the way stroking is done in
-//                     // canvas.  thus the +0.5 and -1 business.
-//                     context.strokeRect( fRect.l+0.5, fRect.t+0.5, fRect.w-1, fRect.h-1 );
-//                 }
-//             }
-//             else if( fRect.h > 1 ) {
-//                 border_color = thisB.getStyle( fRect.f, 'border_color' );
-//                 if( border_color ) {
-//                     context.fillStyle = border_color;
-//                     context.fillRect( fRect.l, fRect.t+fRect.h-1, fRect.w, 1 );
-//                 }
-//             }
-//         };
-//         drawFeature( context, viewArgs, fRect );
-
-//         // boolean masking section
-//         if ( viewArgs.block.maskingSpans ) {
-//             var spans = viewArgs.block.maskingSpans;
-//             var scale = viewArgs.scale;
-//             var leftBase = viewArgs.block.startBase;
-
-//             for ( var index in spans ) {
-//                 if ( spans.hasOwnProperty(index) ) {
-//                     if ( !( fRect.toX(spans[index].start) > fRect.l+fRect.w || fRect.toX(spans[index].end) < fRect.l ) ) {
-//                         var l = Math.max( fRect.toX(spans[index].start), fRect.l );
-//                         var r = Math.min( fRect.toX(spans[index].end), fRect.l+fRect.w );
-//                         var w = r - l;
-//                         context.clearRect( l, fRect.t, w+1, fRect.h );
-//                     }
-//                 }
-//             }
-//             context.globalAlpha = this.config.style.masked_transparancy;
-//             drawFeature( context, viewArgs, fRect );
-//             context.globalAlpha = 1;
-//         }
-// =======
     renderFeature: function( context, block, fRect ) {
         fRect.glyph.renderFeature( context, block, fRect );
     },
@@ -570,3 +487,4 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     }
 });
 });
+
