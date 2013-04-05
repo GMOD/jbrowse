@@ -52,7 +52,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
         );
     },
 
-    renderFeature: function( context, block, fRect ) {
+    _renderFeature: function( context, block, fRect ) {
 
         this.inherited( arguments );
 
