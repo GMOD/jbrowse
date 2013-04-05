@@ -341,9 +341,17 @@ notSpan: function( spans, query ) {
 inverseMask: function( features, spans, featCallback, doneCallback ) {
     /* Pass features to the tracks original featCallback, and pass spans to the doneCallback.
      * If the track has boolean support, the DoneCallback will use the spans to mask the features.
+     * For glyph based tracks, the masks passed to each feature will be used to do masking.
      */
     for ( var key in features ) {
         if ( features.hasOwnProperty(key) ) {
+            var feat = features[key];
+            for (var span in spans ) {
+                if ( spans.hasOwnProperty(span) && this.inSpan( feat, spans[span] ) ) {
+                    // add masks to the feature. Used by Glyphs to do masking.
+                    feat.masks = feat.masks ? feat.masks.concat([spans[span]]) : [spans[span]];
+                }
+            }
             featCallback( features[key] )
         }
     }
