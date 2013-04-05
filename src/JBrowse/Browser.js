@@ -450,7 +450,6 @@ Browser.prototype.initView = function() {
                                             onClick: dojo.hitch( this, 'openFileDialog' )
                                         })
                                   );
-            this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
 
             var newSubmenu = new dijitMenu();
             newSubmenu.addChild( new dijitMenuItem(
@@ -459,12 +458,14 @@ Browser.prototype.initView = function() {
                     onClick: dojo.hitch(this, 'maskTrackDialog')
                 })
             );
-            fileMenu.addChild( new dijitPopupMenuItem(
+            var newPopup = new dijitPopupMenuItem(
                 {           
                     label: 'New',
                     popup: newSubmenu
-                })
+                }
             );
+            this.addGlobalMenuItem( 'file', newPopup );
+            this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
 
             // make the view menu
             this.addGlobalMenuItem( 'view', new dijitMenuItem({
