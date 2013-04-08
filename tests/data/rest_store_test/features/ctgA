@@ -1,4 +1,4 @@
-[
+{ "features": [
   { "start": 1, "end": 30, "score": 42 },
   { "start": 300, "end": 400, "score": 43 },
   { "start": 350, "end": 500, "score": 44 },
@@ -14,4 +14,4 @@
      ]
   },
   { "start": 1, "end": 1, "score": 47 }
-]
+]}

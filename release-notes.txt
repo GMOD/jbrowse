@@ -85,6 +85,9 @@
    of reference sequence selection pulldown takes it to 100% (issue
    #217).
 
+ * Fixed bug in which iframe popups did not display correctly in
+   Internet Explorer 9 (issue #233).
+
  * Improved JSON syntax error messages in server-side scripts (issue
    #214).
 

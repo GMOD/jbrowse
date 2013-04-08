@@ -97,9 +97,10 @@ return declare( SeqFeatureStore,
     },
 
     _makeFeatures: function( featureCallback, endCallback, errorCallback, featureData ) {
-        if( featureData ) {
-            for( var i = 0; i < featureData.length; i++ ) {
-                featureCallback( this._makeFeature( featureData[i] ) );
+        var features;
+        if( featureData && ( features = featureData.features ) ) {
+            for( var i = 0; i < features.length; i++ ) {
+                featureCallback( this._makeFeature( features[i] ) );
             }
         }
 
