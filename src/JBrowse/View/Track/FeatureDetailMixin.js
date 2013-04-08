@@ -65,7 +65,7 @@ return declare(null,{
      * @returns {HTMLElement} feature detail page HTML
      */
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement */ container ) {
-        container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name, innerHTML: '' } );
+        container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(), innerHTML: '' } );
 
         this._renderCoreDetails( track, f, featDiv, container );
 

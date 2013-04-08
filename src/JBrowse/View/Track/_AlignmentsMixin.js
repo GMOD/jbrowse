@@ -26,7 +26,7 @@ return declare( MismatchesMixin ,{
             return this._fmtDetailField(name, value);
         });
         var container = dojo.create('div', {
-            className: 'detail feature-detail feature-detail-'+track.name,
+            className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(),
             innerHTML: ''
         });
         container.innerHTML += fmt( 'Name', f.get('name') );
