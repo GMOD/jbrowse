@@ -230,9 +230,11 @@ return declare( null, {
                                     var name = thisB.storeFetch.getName();
                                     openCallback({
                                         trackConf: { key: name[0],
-                                                     label: name[1]||name[0],
+                                                     label: name[1] ? name[1].replace(/\s+/g,'_').toLowerCase() 
+                                                                    : name[0].replace(/\s+/g,'_').toLowerCase(),
                                                      type:  arg,
-                                                     store: { name: name[1]||name[0],
+                                                     store: { name: name[1] ? name[1].replace(/\s+/g,'_').toLowerCase() 
+                                                                            : name[0].replace(/\s+/g,'_').toLowerCase(),
                                                               booleanOP: thisB.trackOperationChoice[0].checked ? thisB.trackOperationChoice[0].value :
                                                                          thisB.trackOperationChoice[1].checked ? thisB.trackOperationChoice[1].value :
                                                                          undefined,
