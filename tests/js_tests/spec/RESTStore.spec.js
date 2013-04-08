@@ -3,10 +3,13 @@ require([
             'JBrowse/Store/SeqFeature/REST'
         ], function( aspect, RESTStore ) {
 describe( 'REST store', function() {
-              var store = new RESTStore({
-                  browser: {},
-                  baseUrl: '../data/rest_store_test/',
-                  refSeq: { name: 'ctgA', start: 1, end: 500001 }
+              var store;
+              beforeEach( function() {
+                  store = new RESTStore({
+                      browser: {},
+                      baseUrl: '../data/rest_store_test/',
+                      refSeq: { name: 'ctgA', start: 1, end: 500001 }
+                  });
               });
 
 
