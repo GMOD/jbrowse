@@ -144,7 +144,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                 }.call(this));
     },
 
-    _renderFeature: function( context, block, fRect ) {
+    renderFeature: function( context, block, fRect ) {
         var rectWidth = fRect.rect.w;
         var rectHeight = fRect.rect.h;
 

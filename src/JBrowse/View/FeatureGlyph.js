@@ -1,17 +1,26 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/aspect',
            'JBrowse/Component'
        ],
        function(
            declare,
            array,
+           aspect,
            Component
        ) {
 
 return declare( Component, {
     constructor: function( args ) {
         this.track = args.track;
+        // after rendering the features, do masking if required
+        aspect.after(this, 'renderFeature', 
+                     function( context, block, fRect ) { 
+                        if (fRect.m) {
+                            this.maskBySpans( context, block, fRect );
+                        }
+                    }, true);
     },
 
     getStyle: function( feature, name ) {
@@ -74,16 +83,7 @@ return declare( Component, {
         return fRect;
     },
 
-    // wrapper
     renderFeature: function( context, block, fRect ) {
-        this._renderFeature( context, block, fRect );
-        if (fRect.m) {
-            this.maskBySpans( context, block, fRect );
-        }
-    },
-
-    // stub
-    _renderFeature: function( context, block, fRect ) {
     },
 
     /* If it's a boolean track, mask accordingly */
