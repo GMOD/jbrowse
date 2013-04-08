@@ -95,7 +95,10 @@ return declare( Component, {
         var tempCan = dojo.create( 'canvas', {height: canvasHeight, width: context.canvas.width} );
         var ctx2 = tempCan.getContext('2d');
         var l = Math.floor(fRect.l);
-        var w = Math.ceil(fRect.w);
+        var w = Math.ceil(fRect.w + (((fRect.l%1)+1)%1)); 
+        /* note on the above: the rightmost pixel is determined by l+w. If either of these is a float, then canvas methods will
+         * not behave properly (i.e. clear and draw will not treat borders in the same way). To fix this, we add the modulus of
+         * the length to the width and round up. The double remainder handles the case where l is negative.*/
         array.forEach( fRect.m, function(m) { try {
             if ( m.l < l ) {
                 m.w += m.l-l;
@@ -114,7 +117,7 @@ return declare( Component, {
             ctx2.drawImage(context.canvas, m.l, fRect.t, m.w, fRect.h, m.l, fRect.t, m.w, fRect.h);
             context.globalAlpha = booleanAlpha;
             // clear masked region and redraw at lower opacity.
-            context.clearRect(m.l, fRect.t, m.w+1, fRect.h);
+            context.clearRect(m.l, fRect.t, m.w, fRect.h);
             context.drawImage(tempCan, m.l, fRect.t, m.w, fRect.h, m.l, fRect.t, m.w, fRect.h);
             context.globalAlpha = 1;
         } catch(e) {};
