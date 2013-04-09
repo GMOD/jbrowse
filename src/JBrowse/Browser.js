@@ -27,6 +27,7 @@ define( [
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
+            'JBrowse/View/ExampleOverlay',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
@@ -62,6 +63,7 @@ define( [
             ConfigManager,
             InfoDialog,
             FileDialog,
+            ExampleOverlay,
             Location,
             LocationChoiceDialog,
             SetHighlightDialog,
@@ -462,7 +464,6 @@ Browser.prototype.initView = function() {
                         }).show();
                 }
             }));
-
             // make the menu item for clearing the current highlight
             this._highlightClearButton = new dijitMenuItem(
                 {
@@ -480,6 +481,12 @@ Browser.prototype.initView = function() {
             this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', dojo.hitch( this, '_updateHighlightClearButton' ) );
 
             this.addGlobalMenuItem( 'view', this._highlightClearButton );
+            
+            this.addGlobalMenuItem( 'view', new dijitMenuItem( {
+                label: 'Test Overlay',
+                onClick: dojo.hitch( this, 'exampleOverlay' )
+                })
+            );
 
             var viewMenu = this.makeGlobalMenu('view');
             if( viewMenu ) {
@@ -686,6 +693,10 @@ Browser.prototype.openFileDialog = function() {
                 }
             })
         });
+};
+
+Browser.prototype.exampleOverlay = function() {
+    new ExampleOverlay({ browser: this }).show();
 };
 
 Browser.prototype.addTracks = function( confs ) {
