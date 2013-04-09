@@ -1264,19 +1264,32 @@ Browser.prototype._coerceBoolean = function(val) {
  * @param refSeqs {Array} array of refseq records to add to the browser
  */
 Browser.prototype.addRefseqs = function( refSeqs ) {
-    this.allRefs = this.allRefs || {};
-    this.refSeqOrder = this.refSeqOrder || [];
+    var allrefs = this.allRefs = this.allRefs || {};
     var refCookie = this.cookie('refseq');
     dojo.forEach( refSeqs, function(r) {
-        if( ! this.allRefs[r.name] )
-            this.refSeqOrder.push(r.name);
         this.allRefs[r.name] = r;
         if( refCookie && r.name.toLowerCase() == refCookie.toLowerCase() ) {
             this.refSeq = r;
         }
     },this);
-    this.refSeqOrder = this.refSeqOrder.sort();
-    this.refSeq  = this.refSeq || refSeqs[0];
+
+    // regenerate refSeqOrder
+    var order = [];
+    for( var name in allrefs ) {
+        var ref = allrefs[name];
+        order.push( ref );
+    }
+    order = order.sort(
+        this.config.refSeqOrder == 'length'            ? function( a, b ) { return a.length - b.length;  }  :
+        this.config.refSeqOrder == 'length descending' ? function( a, b ) { return b.length - a.length;  }  :
+        this.config.refSeqOrder == 'name descending'   ? function( a, b ) { return b.name.localeCompare( a.name ); } :
+                                                         function( a, b ) { return a.name.localeCompare( b.name ); }
+    );
+    this.refSeqOrder = array.map( order, function( ref ) {
+        return ref.name;
+    });
+
+    this.refSeq  = this.refSeq || order[0];
 };
 
 
