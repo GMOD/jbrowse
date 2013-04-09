@@ -89,7 +89,7 @@ return declare( FeatureDetailMixin, {
                 var value = genotypes[k];
                 var item = { id: k };
                 for( var field in value ) {
-                    item[ {'GT': 'Genotype'}[field] || field ] = thisB._genotypeValToString( value[field], field, alt );
+                    item[ field ] = thisB._genotypeValToString( value[field], field, alt );
                 }
                 return item;
             },
@@ -117,7 +117,7 @@ return declare( FeatureDetailMixin, {
         var splitter = value.match(/\D/g)[0];
         return array.map( value.split( splitter ), function( gtIndex ) {
             gtIndex = parseInt( gtIndex );
-            return gtIndex ? alt[gtIndex-1] : 'ref';
+            return gtIndex ? alt ? alt[gtIndex-1] : gtIndex : 'ref';
         }).join( ' '+splitter+' ' );
     },
 
