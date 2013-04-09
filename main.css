@@ -850,6 +850,7 @@ a.dialog-new-window {
 .detail .value_container.big, .detail .value_container.dgrid {
     border: 1px solid rgba(0,0,50,0.1);
     margin-left: 1em;
+    margin-top: 0.3em;
 }
 
 .detail .value {
@@ -857,14 +858,17 @@ a.dialog-new-window {
     vertical-align: top;
     font-family: sans-serif;
     padding: 0 0.7em;
+    line-height: 1.8;
 }
 .detail .field {
     margin: 0;
     display: inline-block;
     min-width: 90px;
     vertical-align: top;
-    padding: 2px 0.2em 2px 0.5em;
+    padding: 2px 0.5em;
     background: rgba( 50, 85, 255,0.1 );
+    border-bottom: 1px solid #D2D4E4;
+    font-size: 1.1667em;
 }
 /* field names that have tooltips */
 .detail .field[title], .detail .dgrid-cell[title] {
@@ -885,6 +889,7 @@ a.dialog-new-window {
 
 .detail .field_container {
     margin-left: 1em;
+    margin-bottom: 2px;
 }
 .detail hr {
     margin: 0.8em 4em 0.5em 0.7em;
