@@ -48,7 +48,7 @@ return declare( FeatureDetailMixin, {
         var g_html = '<div class="genotypes"><h2 class="sectiontitle">Genotypes</h2>';
         array.forEach( samples, function( sampleName ) {
 
-            g_html += this._fmtDetailField( sampleName, genotypes[sampleName], 'genotype_'+sampleName.replace(/[^w]/g,'_') );
+            g_html += this.renderDetailField( sampleName, genotypes[sampleName], 'genotype_'+sampleName.replace(/[^w]/g,'_') );
 
         }, this);
         g_html += '</div>';

@@ -82,7 +82,7 @@ return declare(null,{
 
     _renderCoreDetails: function( track, f, featDiv, container ) {
         var coreDetails = dojo.create('div', { className: 'core' }, container );
-        var fmt = dojo.hitch( this, '_fmtDetailField', coreDetails );
+        var fmt = dojo.hitch( this, 'renderDetailField', coreDetails );
         coreDetails.innerHTML += '<h2 class="sectiontitle">Primary Data</h2>';
 
         fmt( 'Name', this.getConfForFeature( 'style.label', f ) );
@@ -126,7 +126,7 @@ return declare(null,{
                 },
                 container );
             array.forEach( additionalTags.sort(), function(t) {
-                this._fmtDetailField( container, t, f.get(t) );
+                this.renderDetailField( container, t, f.get(t) );
             }, this );
         }
     },
@@ -180,7 +180,7 @@ return declare(null,{
 
         // render the sequence underlying this feature if possible
         var field_container = dojo.create('div', { className: 'field_container feature_sequence' }, container );
-        dojo.create( 'h2', { className: 'field feature_sequence', innerHTML: 'Region sequence', title: 'reference sequence underlying this feature' }, field_container );
+        dojo.create( 'h2', { className: 'field feature_sequence', innerHTML: 'Region sequence', title: 'reference sequence underlying this '+(f.get('type') || 'feature') }, field_container );
         var valueContainerID = 'feature_sequence'+this._uniqID();
         var valueContainer = dojo.create(
             'div', {
