@@ -6,12 +6,14 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/dom-construct',
            'JBrowse/Util',
            'JBrowse/View/Track/FeatureDetailMixin'
        ],
        function(
            declare,
            array,
+           domConstruct,
            Util,
            FeatureDetailMixin
        ) {
@@ -27,7 +29,7 @@ return declare( FeatureDetailMixin, {
         this._renderAdditionalTagsDetail( track, f, featDiv, container );
 
         // genotypes in a separate section
-        this._renderGenotypes( track, f, featDiv, container );
+        this._renderGenotypes( container, track, f, featDiv, container );
 
         return container;
     },
@@ -36,25 +38,31 @@ return declare( FeatureDetailMixin, {
         return this.inherited(arguments) || {genotypes:1}[t.toLowerCase()];
     },
 
-    _renderGenotypes: function( track, f, featDiv, container ) {
+    _renderGenotypes: function( parentElement, track, f, featDiv, container ) {
         var genotypes = f.get('genotypes');
         if( ! genotypes )
             return;
 
-        var samples = Util.dojof.keys( genotypes ).sort();
-        if( ! samples.length )
-            return;
+        var gCount = Util.dojof.keys(genotypes).length;
+        var gContainer = domConstruct.create(
+            'div',
+            { className: 'genotypes',
+              innerHTML: '<h2 class="sectiontitle">Genotypes ('
+                         + gCount + ')</h2>'
+            },
+            parentElement );
 
-        var g_html = '<div class="genotypes"><h2 class="sectiontitle">Genotypes</h2>';
-        array.forEach( samples, function( sampleName ) {
+        var valueContainer = domConstruct.create(
+            'div',
+            {
+                className: 'value_container genotypes'
+            }, gContainer );
 
-            g_html += this.renderDetailField( sampleName, genotypes[sampleName], 'genotype_'+sampleName.replace(/[^w]/g,'_') );
-
-        }, this);
-        g_html += '</div>';
-
-        container.innerHTML += g_html;
+        this.renderDetailValue(
+            valueContainer,
+            'Genotypes',
+            genotypes
+        );
     }
-
 });
 });
