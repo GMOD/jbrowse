@@ -35,7 +35,7 @@ return declare( FeatureDetailMixin, {
         this._renderAdditionalTagsDetail( track, f, featDiv, container );
 
         // genotypes in a separate section
-        this._renderGenotypes( container, track, f, featDiv, container );
+        this._renderGenotypes( container, track, f, featDiv );
 
         return container;
     },
@@ -44,17 +44,23 @@ return declare( FeatureDetailMixin, {
         return this.inherited(arguments) || {genotypes:1}[t.toLowerCase()];
     },
 
-    // _renderAlleles: function( parentElement, track, f, featDiv ) {
-    // },
-
     _renderGenotypes: function( parentElement, track, f, featDiv  ) {
+        var thisB = this;
         var genotypes = f.get('genotypes');
         if( ! genotypes )
             return;
 
-        var gCount = Util.dojof.keys(genotypes).length;
+        var keys = Util.dojof.keys( genotypes ).sort();
+        var gCount = keys.length;
         if( ! gCount )
             return;
+
+        // get variants and coerce to an array
+        var alt = f.get('alternative_alleles');
+        if( alt &&  typeof alt == 'object' && 'values' in alt )
+            alt = alt.values;
+        if( alt && ! lang.isArray( alt ) )
+            alt = [alt];
 
         var gContainer = domConstruct.create(
             'div',
@@ -64,7 +70,7 @@ return declare( FeatureDetailMixin, {
             },
             parentElement );
 
-        var summaryElement = this._renderGenotypeSummary( gContainer, genotypes, f );
+        var summaryElement = this._renderGenotypeSummary( gContainer, genotypes, alt );
 
         var valueContainer = domConstruct.create(
             'div',
@@ -72,23 +78,52 @@ return declare( FeatureDetailMixin, {
                 className: 'value_container genotypes'
             }, gContainer );
 
-        this.renderDetailValue(
+        this.renderDetailValueGrid(
             valueContainer,
             'Genotypes',
-            genotypes
+            // iterator
+            function() {
+                if( ! keys.length )
+                    return null;
+                var k = keys.shift();
+                var value = genotypes[k];
+                var item = { id: k };
+                for( var field in value ) {
+                    item[ {'GT': 'Genotype'}[field] || field ] = thisB._genotypeValToString( value[field], field, alt );
+                }
+                return item;
+            },
+            // descriptions object
+            (function() {
+                 if( ! keys.length )
+                     return {};
+
+                 var subValue = genotypes[keys[0]];
+                 var descriptions = {};
+                 for( var k in subValue ) {
+                     descriptions[k] = subValue[k].meta && subValue[k].meta.description || null;
+                 }
+                 return descriptions;
+             })()
         );
     },
 
-    _renderGenotypeSummary: function( parentElement, genotypes, feature ) {
+    _genotypeValToString: function( value, fieldname, alt ) {
+        value = this._valToString( value );
+        if( fieldname != 'GT' )
+            return value;
+
+        // handle the GT field specially, translating the genotype indexes into the actual ALT strings
+        var splitter = value.match(/\D/g)[0];
+        return array.map( value.split( splitter ), function( gtIndex ) {
+            gtIndex = parseInt( gtIndex );
+            return gtIndex ? alt[gtIndex-1] : 'ref';
+        }).join( ' '+splitter+' ' );
+    },
+
+    _renderGenotypeSummary: function( parentElement, genotypes, alt ) {
         if( ! genotypes )
             return;
-
-        // get variants and coerce to an array
-        var alt = feature.get('alternative_alleles');
-        if( alt &&  typeof alt == 'object' && 'values' in alt )
-            alt = alt.values;
-        if( alt && ! lang.isArray( alt ) )
-            alt = [alt];
 
         var counts = new NestedFrequencyTable();
         for( var gname in genotypes ) {
@@ -139,11 +174,11 @@ return declare( FeatureDetailMixin, {
                                if( typeof count == 'object' ) {
                                    var thisTotal = count.total();
                                    domConstruct.create('td', { className: 'count level_'+level, innerHTML: thisTotal }, tr );
-                                   domConstruct.create('td', { className: 'pct level_'+level, innerHTML: (thisTotal/total*100).toPrecision(3)+ '%' }, tr );
+                                   domConstruct.create('td', { className: 'pct level_'+level, innerHTML: Math.round(thisTotal/total*10000)/100 + '%' }, tr );
                                    renderFreqTable( count, level+1 );
                                } else {
                                    domConstruct.create('td', { className: 'count level_'+level, innerHTML: count }, tr );
-                                   domConstruct.create('td', { className: 'pct level_'+level, innerHTML:(count/total*100).toPrecision(3)+'%' }, tr );
+                                   domConstruct.create('td', { className: 'pct level_'+level, innerHTML: Math.round(count/total*10000)/100+'%' }, tr );
                                }
                            });
         }
