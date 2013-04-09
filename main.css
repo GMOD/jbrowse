@@ -868,6 +868,7 @@ a.dialog-new-window {
     padding: 2px 0.5em;
     background: rgba( 50, 85, 255,0.1 );
     border-bottom: 1px solid #D2D4E4;
+    border-bottom-color: rgba( 0, 0, 0, 0.1 );
     font-size: 1.1667em;
 }
 /* field names that have tooltips */
