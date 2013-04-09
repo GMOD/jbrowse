@@ -121,7 +121,8 @@ return declare( FeatureDetailMixin, {
             }
         }
 
-        if( ! counts.total() )
+        var total = counts.total();
+        if( ! total )
             return;
 
         var valueContainer = domConstruct.create(
@@ -129,22 +130,24 @@ return declare( FeatureDetailMixin, {
             parentElement );
         //domConstruct.create('h3', { innerHTML: 'Summary' }, valueContainer);
 
-        function renderFreqTable( table, parentElement ) {
+        function renderFreqTable( table, parentElement, overallTotal) {
             var dl = domConstruct.create('dl', {}, parentElement );
             table.forEach( function( count, categoryName ) {
                                var dt = domConstruct.create( 'dt', { innerHTML: categoryName }, dl );
                                if( typeof count == 'object' ) {
-                                   dt.innerHTML += ' ('+count.total()+')';
+                                   var total = count.total();
+                                   dt.innerHTML += ' ('+total+', '+(total/overallTotal*100).toPrecision(3)+ '%)';
                                    domClass.add( dt, 'nested' );
-                                   renderFreqTable( count, domConstruct.create( 'dd', { className: 'nested' }, dl ) );
+                                   renderFreqTable( count, domConstruct.create( 'dd', { className: 'nested' }, dl ), overallTotal );
                                } else {
                                    domClass.add( dt, 'count' );
+                                   dt.innerHTML += ' ('+(count/overallTotal*100).toPrecision(3)+'%)';
                                    domConstruct.create( 'dd', { className: 'count', innerHTML: count }, dl );
                                }
                            });
         }
 
-        renderFreqTable( counts, valueContainer );
+        renderFreqTable( counts, valueContainer, total );
     }
 });
 });
