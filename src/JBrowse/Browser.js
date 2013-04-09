@@ -2160,8 +2160,8 @@ Browser.prototype.createNavBox = function( parent ) {
 
 
     this.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
-        if( this.refSeqOrder.length && this.refSeqOrder.length < 30 || this.config.refSeqDropdown || true ) {
-            this.numberOfRefSeqs = this.refSeqOrder.length < 30 ? this.refSeqOrder.length : 30;
+        if( this.refSeqOrder.length || this.config.refSeqDropdown ) {
+            this.config.numberOfRefSeqs = this.config.numberOfRefSeqs || Math.min( 30, this.refSeqOrder.length);
             var refSeqStore = new Memory({ data: []});
             var objStore = new ObjectStore( { objectStore: refSeqStore } ); // wrapper required for compatibility
             this.refSeqSelectBox = new dijitSelectBox({
@@ -2176,31 +2176,12 @@ Browser.prototype.createNavBox = function( parent ) {
                 })
             }).placeAt( refSeqSelectBoxPlaceHolder );
             // Store update method. Will be called by button click.
-            var thisB = this;
-            var updateStore = function(){
-                thisB.refSeqSelectBox.store.objectStore.data = [];
-                if ( thisB.refSeqOrder ) {
-                    for (var i=0; i<thisB.numberOfRefSeqs; i++) {
-                        thisB.refSeqSelectBox.store.objectStore.put( { label: thisB.refSeqOrder[i], id: thisB.refSeqOrder[i] } );
-                    }
+            if ( this.refSeqOrder ) {
+                for (var i=0; i<this.config.numberOfRefSeqs; i++) {
+                    this.refSeqSelectBox.store.objectStore.put( { label: this.refSeqOrder[i], id: this.refSeqOrder[i] } );
                 }
-                thisB.refSeqSelectBox.setStore(thisB.refSeqSelectBox.store);
-                console.log(thisB.numberOfRefSeqs);
-            };
-            updateStore();
-            // number field to select the refSeq count
-            var props = {
-                name: 'refSeqCount',
-                placeHolder: '# of reference sequences',
-                constraints: { min: 1, max: this.refSeqOrder.length, places: 0 }
-                };
-            var textbox = new NumberTextBox(props, 'refSeqCount').placeAt( refSeqSelectBoxPlaceHolder );
-            // button to update store
-            new dijitButton({innerHTML: 'update refseq list',
-                            onClick: function(){
-                                thisB.numberOfRefSeqs = textbox.get("value") || thisB.numberOfRefSeqs;
-                                updateStore();
-                            }}).placeAt( refSeqSelectBoxPlaceHolder );
+            }
+            this.refSeqSelectBox.setStore(this.refSeqSelectBox.store);
         }
         // calculate how big to make the location box:  make it big enough to hold the
         var locLength = this.config.locationBoxLength || function() {
