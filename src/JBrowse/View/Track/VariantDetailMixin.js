@@ -110,7 +110,7 @@ return declare( FeatureDetailMixin, {
                     }
                     else if( array.every( gt, function( g ) { return g == gt[0]; } ) ) {
                         if( alt )
-                            counts.getNested('variant/homozygous').increment( alt[ parseInt(gt[0])-1 ] );
+                            counts.getNested('variant/homozygous').increment( alt[ parseInt(gt[0])-1 ] + ' variant' );
                         else
                             counts.getNested('variant').increment( 'homozygous' );
                     }
@@ -130,24 +130,30 @@ return declare( FeatureDetailMixin, {
             parentElement );
         //domConstruct.create('h3', { innerHTML: 'Summary' }, valueContainer);
 
-        function renderFreqTable( table, parentElement, overallTotal) {
-            var dl = domConstruct.create('dl', {}, parentElement );
+        var tableElement = domConstruct.create('table', {}, valueContainer );
+
+        function renderFreqTable( table, level ) {
             table.forEach( function( count, categoryName ) {
-                               var dt = domConstruct.create( 'dt', { innerHTML: categoryName }, dl );
+                               var tr = domConstruct.create( 'tr', {}, tableElement );
+                               domConstruct.create('td', { className: 'category level_'+level, innerHTML: categoryName }, tr );
                                if( typeof count == 'object' ) {
-                                   var total = count.total();
-                                   dt.innerHTML += ' ('+total+', '+(total/overallTotal*100).toPrecision(3)+ '%)';
-                                   domClass.add( dt, 'nested' );
-                                   renderFreqTable( count, domConstruct.create( 'dd', { className: 'nested' }, dl ), overallTotal );
+                                   var thisTotal = count.total();
+                                   domConstruct.create('td', { className: 'count level_'+level, innerHTML: thisTotal }, tr );
+                                   domConstruct.create('td', { className: 'pct level_'+level, innerHTML: (thisTotal/total*100).toPrecision(3)+ '%' }, tr );
+                                   renderFreqTable( count, level+1 );
                                } else {
-                                   domClass.add( dt, 'count' );
-                                   dt.innerHTML += ' ('+(count/overallTotal*100).toPrecision(3)+'%)';
-                                   domConstruct.create( 'dd', { className: 'count', innerHTML: count }, dl );
+                                   domConstruct.create('td', { className: 'count level_'+level, innerHTML: count }, tr );
+                                   domConstruct.create('td', { className: 'pct level_'+level, innerHTML:(count/total*100).toPrecision(3)+'%' }, tr );
                                }
                            });
         }
 
-        renderFreqTable( counts, valueContainer, total );
+        renderFreqTable( counts, 0 );
+
+        var totalTR = domConstruct.create('tr',{},tableElement );
+        domConstruct.create('td', { className: 'category total', innerHTML: 'Total' }, totalTR );
+        domConstruct.create('td', { className: 'count total', innerHTML: total }, totalTR );
+        domConstruct.create('td', { className: 'pct total', innerHTML: '100%' }, totalTR );
     }
 });
 });

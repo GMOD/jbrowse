@@ -816,22 +816,32 @@ a.dialog-new-window {
 .feature-detail .genotype_summary {
     padding: 1em;
 }
-.feature-detail .genotype_summary dt.nested,
-.feature-detail .genotype_summary dd.nested {
-    display: block;
+.feature-detail .genotype_summary table {
+    border-collapse: collapse;
 }
-.feature-detail .genotype_summary dd.count,
-.feature-detail .genotype_summary dt.count {
-    display: inline;
+.feature-detail .genotype_summary td {
+    padding: 0 1em;
 }
-
-
-.feature-detail dt {
+.feature-detail .genotype_summary td.total {
     font-weight: bold;
+    border-top: 1px solid #444;
 }
-.feature-detail dd {
-    margin-left: 2em;
+.feature-detail .genotype_summary td.count, .feature-detail .genotype_summary td.pct {
+    text-align: right;
 }
+.feature-detail .genotype_summary td.category.level_1 {
+    padding-left: 2em;
+}
+.feature-detail .genotype_summary td.category.level_2 {
+    padding-left: 3em;
+}
+.feature-detail .genotype_summary td.category.level_3 {
+    padding-left: 4em;
+}
+.feature-detail .genotype_summary td.category.level_4 {
+    padding-left: 5em;
+}
+
 .feature-detail .subfeature-detail {
     background: #fafafa;
     background: rgba( 0, 0, 0, 0.1 );
