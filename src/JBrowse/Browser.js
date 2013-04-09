@@ -21,6 +21,9 @@ define( [
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Names/LazyTrieDojoData',
             'dojo/store/DataStore',
+            'dojo/data/ObjectStore',
+            'dojo/store/Memory',
+            'dijit/form/NumberTextBox',
             'JBrowse/Store/Names/Hash',
             'JBrowse/GenomeView',
             'JBrowse/TouchScreenSupport',
@@ -56,6 +59,9 @@ define( [
             LazyTrie,
             NamesLazyTrieDojoDataStore,
             DojoDataStore,
+            ObjectStore,
+            Memory,
+            NumberTextBox,
             NamesHashStore,
             GenomeView,
             Touch,
@@ -2154,22 +2160,48 @@ Browser.prototype.createNavBox = function( parent ) {
 
 
     this.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
-        if( this.refSeqOrder.length && this.refSeqOrder.length < 30 || this.config.refSeqDropdown ) {
+        if( this.refSeqOrder.length && this.refSeqOrder.length < 30 || this.config.refSeqDropdown || true ) {
+            this.numberOfRefSeqs = this.refSeqOrder.length < 30 ? this.refSeqOrder.length : 30;
+            var refSeqStore = new Memory({ data: []});
+            var objStore = new ObjectStore( { objectStore: refSeqStore } ); // wrapper required for compatibility
             this.refSeqSelectBox = new dijitSelectBox({
                 name: 'refseq',
                 value: this.refSeq ? this.refSeq.name : null,
-                options: array.map( this.refSeqOrder || [],
-                                    function( refseqName ) {
-                    return { label: refseqName, value: refseqName };
-                }),
+                store: objStore,
+                style: { overflow: 'auto'},
                 onChange: dojo.hitch(this, function( newRefName ) {
                     if (newRefName !== this.refSeq.name) {  //  only trigger navigation if actually switching sequences
                         this.navigateTo(newRefName);
                     }
                 })
             }).placeAt( refSeqSelectBoxPlaceHolder );
+            // Store update method. Will be called by button click.
+            var thisB = this;
+            var updateStore = function(){
+                thisB.refSeqSelectBox.store.objectStore.data = [];
+                if ( thisB.refSeqOrder ) {
+                    for (var i=0; i<thisB.numberOfRefSeqs; i++) {
+                        thisB.refSeqSelectBox.store.objectStore.put( { label: thisB.refSeqOrder[i], id: thisB.refSeqOrder[i] } );
+                    }
+                }
+                thisB.refSeqSelectBox.setStore(thisB.refSeqSelectBox.store);
+                console.log(thisB.numberOfRefSeqs);
+            };
+            updateStore();
+            // number field to select the refSeq count
+            var props = {
+                name: 'refSeqCount',
+                placeHolder: '# of reference sequences',
+                constraints: { min: 1, max: this.refSeqOrder.length, places: 0 }
+                };
+            var textbox = new NumberTextBox(props, 'refSeqCount').placeAt( refSeqSelectBoxPlaceHolder );
+            // button to update store
+            new dijitButton({innerHTML: 'update refseq list',
+                            onClick: function(){
+                                thisB.numberOfRefSeqs = textbox.get("value") || thisB.numberOfRefSeqs;
+                                updateStore();
+                            }}).placeAt( refSeqSelectBoxPlaceHolder );
         }
-
         // calculate how big to make the location box:  make it big enough to hold the
         var locLength = this.config.locationBoxLength || function() {
 
