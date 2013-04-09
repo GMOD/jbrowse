@@ -2162,26 +2162,22 @@ Browser.prototype.createNavBox = function( parent ) {
     this.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
         if( this.refSeqOrder.length || this.config.refSeqDropdown ) {
             this.config.numberOfRefSeqs = this.config.numberOfRefSeqs || Math.min( 30, this.refSeqOrder.length);
-            var refSeqStore = new Memory({ data: []});
-            var objStore = new ObjectStore( { objectStore: refSeqStore } ); // wrapper required for compatibility
+            var options = [];
+            if ( this.refSeqOrder ) {
+                for (var i=0; i<this.config.numberOfRefSeqs; i++) {
+                    options.push( { label: this.refSeqOrder[i], value: this.refSeqOrder[i] } );
+                }
+            }
             this.refSeqSelectBox = new dijitSelectBox({
                 name: 'refseq',
                 value: this.refSeq ? this.refSeq.name : null,
-                store: objStore,
-                style: { overflow: 'auto'},
+                options: options,
                 onChange: dojo.hitch(this, function( newRefName ) {
-                    if (newRefName !== this.refSeq.name) {  //  only trigger navigation if actually switching sequences
+                    if (newRefName !== this.refSeq.name) { // only trigger navigation if actually switching sequences
                         this.navigateTo(newRefName);
                     }
                 })
             }).placeAt( refSeqSelectBoxPlaceHolder );
-            // Store update method. Will be called by button click.
-            if ( this.refSeqOrder ) {
-                for (var i=0; i<this.config.numberOfRefSeqs; i++) {
-                    this.refSeqSelectBox.store.objectStore.put( { label: this.refSeqOrder[i], id: this.refSeqOrder[i] } );
-                }
-            }
-            this.refSeqSelectBox.setStore(this.refSeqSelectBox.store);
         }
         // calculate how big to make the location box:  make it big enough to hold the
         var locLength = this.config.locationBoxLength || function() {
