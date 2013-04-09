@@ -101,7 +101,7 @@ return declare( null, {
                        return this.renderDetailValue( parent, title, v, class_ );
                    }, this );
             if( vals.length > 10 )
-                domClass.addClass( parent, 'big' );
+                domClass.add( parent, 'big' );
             return vals.length;
         } else if( valType == 'object' ) {
             var keys = Util.dojof.keys( val ).sort();

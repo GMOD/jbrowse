@@ -1027,7 +1027,7 @@ return declare( [Component,DetailsMixin,Destroyable],
     // display a rendering-timeout message
     fillBlockTimeout: function( blockIndex, block ) {
         domConstruct.empty( block.domNode );
-        domClass.addClass( block.domNode, 'timed_out' );
+        domClass.add( block.domNode, 'timed_out' );
         this.fillMessage( blockIndex, block,
                            'This region took too long'
                            + ' to display, possibly because'
