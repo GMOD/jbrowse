@@ -813,6 +813,25 @@ a.dialog-new-window {
     width: 50em;
     color: #333;
 }
+.feature-detail .genotype_summary {
+    padding: 1em;
+}
+.feature-detail .genotype_summary dt.nested,
+.feature-detail .genotype_summary dd.nested {
+    display: block;
+}
+.feature-detail .genotype_summary dd.count,
+.feature-detail .genotype_summary dt.count {
+    display: inline;
+}
+
+
+.feature-detail dt {
+    font-weight: bold;
+}
+.feature-detail dd {
+    margin-left: 2em;
+}
 .feature-detail .subfeature-detail {
     background: #fafafa;
     background: rgba( 0, 0, 0, 0.1 );
