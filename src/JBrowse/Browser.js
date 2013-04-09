@@ -2154,13 +2154,14 @@ Browser.prototype.createNavBox = function( parent ) {
 
 
     this.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
-        if( this.refSeqOrder.length || this.config.refSeqDropdown ) {
-            this.config.numberOfRefSeqs = this.config.numberOfRefSeqs || Math.min( 30, this.refSeqOrder.length);
+
+        // make the refseq selection dropdown
+        if( this.refSeqOrder && this.refSeqOrder.length ) {
+            var max = this.config.refSeqSelectorMaxSize || 30;
+            var numrefs = Math.min( max, this.refSeqOrder.length);
             var options = [];
-            if ( this.refSeqOrder ) {
-                for (var i=0; i<this.config.numberOfRefSeqs; i++) {
-                    options.push( { label: this.refSeqOrder[i], value: this.refSeqOrder[i] } );
-                }
+            for ( var i = 0; i < numrefs; i++ ) {
+                options.push( { label: this.refSeqOrder[i], value: this.refSeqOrder[i] } );
             }
             this.refSeqSelectBox = new dijitSelectBox({
                 name: 'refseq',
@@ -2173,6 +2174,7 @@ Browser.prototype.createNavBox = function( parent ) {
                 })
             }).placeAt( refSeqSelectBoxPlaceHolder );
         }
+
         // calculate how big to make the location box:  make it big enough to hold the
         var locLength = this.config.locationBoxLength || function() {
 
