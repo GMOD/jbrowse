@@ -847,7 +847,7 @@ a.dialog-new-window {
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
 }
-.detail .value_container.big {
+.detail .value_container.big, .detail .value_container.dgrid {
     border: 1px solid rgba(0,0,50,0.1);
     margin-left: 1em;
 }
@@ -863,14 +863,14 @@ a.dialog-new-window {
     display: inline-block;
     min-width: 90px;
     vertical-align: top;
-    padding: 2px 0.2em 2px 1em;
+    padding: 2px 0.2em 2px 0.5em;
     background: rgba( 50, 85, 255,0.1 );
 }
 /* field names that have tooltips */
-.detail .field[title] {
-    background: rgba( 255,255,50,0.3 );
+.detail .field[title], .detail .dgrid-cell[title] {
+    background: rgba( 255,245,50,0.3 );
 }
-.detail .field[title]:hover {
+.detail .field[title]:hover, .detail .dgrid-cell[title]:hover {
     background: rgba( 255,255,50,0.7 );
 }
 /*
@@ -884,6 +884,7 @@ a.dialog-new-window {
 }
 
 .detail .field_container {
+    margin-left: 1em;
 }
 .detail hr {
     margin: 0.8em 4em 0.5em 0.7em;

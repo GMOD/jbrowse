@@ -2,6 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
+            'dojo/json',
             'dojo/aspect',
             'dojo/dom-construct',
             'dojo/dom-geometry',
@@ -21,11 +22,15 @@ define( [
             'JBrowse/Errors',
             'JBrowse/View/TrackConfigEditor',
             'JBrowse/View/ConfirmDialog',
-            'JBrowse/View/Track/BlockBased/Block'
+            'JBrowse/View/Track/BlockBased/Block',
+            'dojo/store/Memory',
+            'dgrid/OnDemandGrid',
+            'dgrid/extensions/DijitRegistry'
         ],
         function( declare,
                   lang,
                   array,
+                  JSON,
                   aspect,
                   domConstruct,
                   domGeom,
@@ -45,9 +50,14 @@ define( [
                   Errors,
                   TrackConfigEditor,
                   ConfirmDialog,
-                  Block
+                  Block,
+                  MemoryStore,
+                  DGrid,
+                  DGridDijitRegistry
                 ) {
 
+// make a DGrid that registers itself as a dijit widget
+var Grid = declare([DGrid,DGridDijitRegistry]);
 
 // we get `own` and `destroy` from Destroyable, see dijit/Destroyable docs
 
@@ -767,12 +777,13 @@ return declare( [Component,Destroyable],
     },
 
     /**
-     * @returns {String} string of HTML that prints the detailed metadata about this track
+     * @returns {Object} DOM element containing a rendering of the
+     *                   detailed metadata about this track
      */
     _trackDetailsContent: function() {
-        var details = '<div class="detail">';
-        var fmt = dojo.hitch(this, '_fmtDetailField');
-        details += fmt( 'Name', this.key || this.name );
+        var details = domConstruct.create('div', { className: 'detail' });
+        var fmt = dojo.hitch(this, '_fmtDetailField', details );
+        fmt( 'Name', this.key || this.name );
         var metadata = dojo.clone( this.getMetadata() );
         delete metadata.key;
         delete metadata.label;
@@ -784,9 +795,8 @@ return declare( [Component,Destroyable],
             md_keys.push(k);
         // TODO: maybe do some intelligent sorting of the keys here?
         dojo.forEach( md_keys, function(key) {
-                          details += fmt( Util.ucFirst(key), metadata[key] );
+                          fmt( Util.ucFirst(key), metadata[key] );
                       });
-        details += "</div>";
         return details;
     },
 
@@ -796,9 +806,16 @@ return declare( [Component,Destroyable],
                                                                  {};
     },
 
-    _fmtDetailField: function( title, val, class_ ) {
+    _fmtDetailField: function( parent, title, val, class_ ) {
         if( val === null || val === undefined )
             return '';
+
+        // if this object has a 'fmtDetailFooField' function, delegate to that
+        var fieldSpecificFormatter;
+        if(( fieldSpecificFormatter = this['fmtDetail'+Util.ucFirst(title)+'Field'] ))
+            return fieldSpecificFormatter.apply( this, arguments );
+
+        // otherwise, use default formatting
 
         class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
 
@@ -817,19 +834,33 @@ return declare( [Component,Destroyable],
             val = val.values;
         }
 
-        var valueHTML = this._fmtDetailValue(val, class_);
         var titleAttr = fieldMeta ? ' title="'+fieldMeta+'"' : '';
-        return  '<div class="field_container">'
-               + '<h2 class="field '+class_+'"'+titleAttr+'>'+title+'</h2>'
-               +' <div class="value_container '
-                              +class_
-                              +( valueHTML.length > 300 ? ' big' : '')
-                              +'">'
-               +     valueHTML
-               +' </div>'
-               +'</div>';
+        var fieldContainer = domConstruct.create(
+            'div',
+            { className: 'field_container',
+              innerHTML: '<h2 class="field '+class_+'"'+titleAttr+'>'+title+'</h2>'
+            }, parent );
+        var valueContainer = domConstruct.create(
+            'div',
+            { className: 'value_container '
+                         + class_
+            }, fieldContainer );
+
+        this._fmtDetailValue( valueContainer, title, val, class_);
+
+        return fieldContainer;
     },
-    _fmtDetailValue: function( val, class_ ) {
+
+    _fmtDetailValue: function( parent, title, val, class_ ) {
+        var thisB = this;
+
+        // if this object has a 'fmtDetailFooValue' function, delegate to that
+        var fieldSpecificFormatter;
+        if(( fieldSpecificFormatter = this['fmtDetail'+Util.ucFirst(title)+'Value'] ))
+            return fieldSpecificFormatter.apply( this, arguments );
+
+        // otherwise, use default formatting
+
         var valType = typeof val;
         if( typeof val.toHTML == 'function' )
             val = val.toHTML();
@@ -837,21 +868,118 @@ return declare( [Component,Destroyable],
             val = val ? 'yes' : 'no';
         else if( valType == 'undefined' || val === null )
             return '';
-        else if( lang.isArray( val ) )
-            return array.map( val, function(v) {
-                       return this._fmtDetailValue( v, class_ );
-                   }, this ).join(' ');
-        else if( valType == 'object' ) {
+        else if( lang.isArray( val ) ) {
+            var vals = array.map( val, function(v) {
+                       return this._fmtDetailValue( parent, title, v, class_ );
+                   }, this );
+            if( vals.length > 10 )
+                domClass.addClass( parent, 'big' );
+            return vals;
+        } else if( valType == 'object' ) {
             var keys = Util.dojof.keys( val ).sort();
-            return array.map( keys, function( k ) {
-                       return this._fmtDetailField( k, val[k], class_ );
-                   }, this ).join(' ');
+            if( keys.length > 5 ) {
+                return this._fmtDetailValueGrid(
+                    parent,
+                    title,
+                    // iterator
+                    function() {
+                        if( ! keys.length )
+                            return null;
+                        var k = keys.shift();
+                        var value = val[k];
+                        var item = { id: k };
+                        for( var field in value ) {
+                            item[field] = thisB._valToString( value[field] );
+                        }
+                        return item;
+                    },
+                    // descriptions object
+                    (function() {
+                         if( ! keys.length )
+                             return {};
+
+                         var subValue = val[keys[0]];
+                         var descriptions = {};
+                         for( var k in subValue ) {
+                             descriptions[k] = subValue[k].meta && subValue[k].meta.description || null;
+                         }
+                         return descriptions;
+                     })()
+                );
+            }
+            else {
+                return array.map( keys, function( k ) {
+                                      return this._fmtDetailField( parent, k, val[k], class_ );
+                                  }, this );
+            }
         }
 
-
-        return '<div class="value '+class_+'">' + val + '</div>';
+        return domConstruct.create('div', { className: 'value '+class_, innerHTML: val }, parent );
     },
 
+    _valToString: function( val ) {
+        if( dojo.isArray( val ) ) {
+            return array.map( val, dojo.hitch( this,'_valToString') ).join(' ');
+        }
+        else if( typeof val == 'object' ) {
+            if( 'values' in val )
+                return this._valToString( val.values );
+            else
+                return JSON.stringify( val );
+        }
+        return ''+val;
+    },
+
+    _valuesWithDescription: function( val ) {
+        var fieldMeta;
+        if( typeof val == 'object' && ('values' in val) ) {
+            fieldMeta = (val.meta||{}).description;
+            // join the description if it is an array
+            if( dojo.isArray( fieldMeta ) )
+                fieldMeta = fieldMeta.join(', ');
+
+            val = val.values;
+        }
+        return { values: val, description: fieldMeta };
+    },
+
+    _fmtDetailValueGrid: function( parent, title, iterator, descriptions ) {
+        var thisB = this;
+        console.log( descriptions );
+        var rows = [];
+        var item;
+        while(( item = iterator() ))
+            rows.push( item );
+
+        if( ! rows.length )
+            return document.createElement('span');
+
+        var columns = [];
+        for( var field in rows[0] ) {
+            (function(field) {
+                var column = {
+                    label: { id: 'Name'}[field] || Util.ucFirst( field ),
+                    field: field
+                };
+                column.renderHeaderCell = function( contentNode ) {
+                    if( descriptions[field] )
+                        contentNode.title = descriptions[field];
+                    contentNode.appendChild( document.createTextNode( column.label || column.field));
+                };
+                columns.push( column );
+            })(field);
+        }
+
+        // create the grid
+        parent.style.overflow = 'hidden';
+        parent.style.width = '90%';
+        var grid = new Grid({
+            columns: columns,
+            store: new MemoryStore({ data: rows })
+        }, parent );
+
+        return container;
+    },
 
     /**
      * @returns {Array} menu options for this track's menu (usually contains save as, etc)
@@ -1081,7 +1209,7 @@ return declare( [Component,Destroyable],
     // display a rendering-timeout message
     fillBlockTimeout: function( blockIndex, block ) {
         domConstruct.empty( block.domNode );
-        dojo.addClass( block.domNode, 'timed_out' );
+        domClass.addClass( block.domNode, 'timed_out' );
         this.fillMessage( blockIndex, block,
                            'This region took too long'
                            + ' to display, possibly because'
