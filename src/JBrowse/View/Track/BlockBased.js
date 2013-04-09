@@ -216,7 +216,7 @@ return declare( [Component,Destroyable],
             return;
 
         this.labelHTML = newHTML;
-        dojo.query('.track-label-text',this.label)
+        query('.track-label-text',this.label)
             .forEach(function(n){ n.innerHTML = newHTML; });
         this.labelHeight = this.label.offsetHeight;
     },
@@ -389,9 +389,9 @@ return declare( [Component,Destroyable],
     },
 
     showFatalError: function( error ) {
-        dojo.query( '.block', this.div )
-            .concat( dojo.query( '.blank-block', this.div ) )
-            .concat( dojo.query( '.error', this.div ) )
+        query( '.block', this.div )
+            .concat( query( '.blank-block', this.div ) )
+            .concat( query( '.error', this.div ) )
             .orphan();
         this.blocks = [];
         this.blockHeights = [];
@@ -846,7 +846,10 @@ return declare( [Component,Destroyable],
                          + class_
             }, fieldContainer );
 
-        this._fmtDetailValue( valueContainer, title, val, class_);
+        var count = this._fmtDetailValue( valueContainer, title, val, class_);
+        if( typeof count == 'number' && count > 4 ) {
+            query( 'h2', fieldContainer )[0].innerHTML = title + ' ('+count+')';
+        }
 
         return fieldContainer;
     },
@@ -867,18 +870,19 @@ return declare( [Component,Destroyable],
         if( valType == 'boolean' )
             val = val ? 'yes' : 'no';
         else if( valType == 'undefined' || val === null )
-            return '';
+            return 0;
         else if( lang.isArray( val ) ) {
             var vals = array.map( val, function(v) {
                        return this._fmtDetailValue( parent, title, v, class_ );
                    }, this );
             if( vals.length > 10 )
                 domClass.addClass( parent, 'big' );
-            return vals;
+            return vals.length;
         } else if( valType == 'object' ) {
             var keys = Util.dojof.keys( val ).sort();
-            if( keys.length > 5 ) {
-                return this._fmtDetailValueGrid(
+            var count = keys.length;
+            if( count > 5 ) {
+                this._fmtDetailValueGrid(
                     parent,
                     title,
                     // iterator
@@ -906,15 +910,18 @@ return declare( [Component,Destroyable],
                          return descriptions;
                      })()
                 );
+                return count;
             }
             else {
-                return array.map( keys, function( k ) {
-                                      return this._fmtDetailField( parent, k, val[k], class_ );
-                                  }, this );
+                array.forEach( keys, function( k ) {
+                                   return this._fmtDetailField( parent, k, val[k], class_ );
+                               }, this );
+                return keys.length;
             }
         }
 
-        return domConstruct.create('div', { className: 'value '+class_, innerHTML: val }, parent );
+        domConstruct.create('div', { className: 'value '+class_, innerHTML: val }, parent );
+        return 1;
     },
 
     _valToString: function( val ) {
