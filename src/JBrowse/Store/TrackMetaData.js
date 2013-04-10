@@ -230,6 +230,10 @@ var Meta = declare( null,
                               //convert the item into a uniform data format of plain objects
                               var newitem = {};
                               dojo.forEach( itemattrs, function(attr) {
+                                                // stores sometimes emit undef attributes  >:-{
+                                                if( ! attr )
+                                                    return;
+
                                                 var lcattr = attr.toLowerCase();
                                                 storeAttributes[lcattr] = true;
                                                 newitem[lcattr] = store.getValue(item,attr);
