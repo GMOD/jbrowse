@@ -2176,12 +2176,23 @@ Browser.prototype.createNavBox = function( parent ) {
             for ( var i = 0; i < numrefs; i++ ) {
                 options.push( { label: this.refSeqOrder[i], value: this.refSeqOrder[i] } );
             }
+            var tooManyMessage = 'displaying only first '+numrefs+' ref seqs';
+            if( this.refSeqOrder.length > max ) {
+                options.push( { label: tooManyMessage , value: tooManyMessage, disabled: true } );
+            }
             this.refSeqSelectBox = new dijitSelectBox({
                 name: 'refseq',
                 value: this.refSeq ? this.refSeq.name : null,
                 options: options,
                 onChange: dojo.hitch(this, function( newRefName ) {
-                    if (newRefName !== this.refSeq.name) { // only trigger navigation if actually switching sequences
+                    // don't trigger nav if it's the too-many message
+                    if( newRefName == tooManyMessage ) {
+                        this.refSeqSelectBox.set('value', this.refSeq.name );
+                        return;
+                    }
+
+                    // only trigger navigation if actually switching sequences
+                    if( newRefName != this.refSeq.name ) {
                         this.navigateTo(newRefName);
                     }
                 })
