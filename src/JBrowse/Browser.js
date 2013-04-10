@@ -1909,9 +1909,9 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
         );
         this.goButton.set( 'disabled', true ) ;
     }
+
     // also update the refseq selection dropdown if present
-    if( this.refSeqSelectBox )
-        this.refSeqSelectBox.set( 'value', this.refSeq.name, false );
+    this._updateRefSeqSelectBox();
 
     if( this.reachedMilestone('completely initialized') ) {
         this._updateLocationCookies( currRegion );
@@ -1922,6 +1922,25 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     this.publish( '/jbrowse/v1/n/navigate', currRegion );
 };
 
+Browser.prototype._updateRefSeqSelectBox = function() {
+    if( this.refSeqSelectBox ) {
+
+        // if none of the options in the select box match this
+        // reference sequence, add another one to the end for it
+        if( ! array.some( this.refSeqSelectBox.getOptions(), function( option ) {
+                              return option.value == this.refSeq.name;
+                        }, this)
+          ) {
+              this.refSeqSelectBox.set( 'options',
+                                     this.refSeqSelectBox.getOptions()
+                                     .concat({ label: this.refSeq.name, value: this.refSeq.name })
+                                   );
+        }
+
+        // set its value to the current ref seq
+        this.refSeqSelectBox.set( 'value', this.refSeq.name, false );
+    }
+};
 
 /**
  * update the location and refseq cookies
@@ -2176,7 +2195,7 @@ Browser.prototype.createNavBox = function( parent ) {
             for ( var i = 0; i < numrefs; i++ ) {
                 options.push( { label: this.refSeqOrder[i], value: this.refSeqOrder[i] } );
             }
-            var tooManyMessage = 'displaying only first '+numrefs+' ref seqs';
+            var tooManyMessage = '(first '+numrefs+' ref seqs)';
             if( this.refSeqOrder.length > max ) {
                 options.push( { label: tooManyMessage , value: tooManyMessage, disabled: true } );
             }
