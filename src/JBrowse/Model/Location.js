@@ -21,9 +21,9 @@ return Util.fastDeclare(
                 var f = args.feature;
                 this._populate({ start: f.get('start'),
                                  end: f.get('end'),
-                                 ref: f.get('seq_id'),
+                                 ref: f.get('seq_id') || (args.tracks ? args.tracks[0].browser.refSeq.name : undefined ),
                                  strand: f.get('strand'),
-                                 objectName: f.get('Name') || f.get('ID')
+                                 objectName: f.get('name') || f.get('id')
                                });
             }
 
