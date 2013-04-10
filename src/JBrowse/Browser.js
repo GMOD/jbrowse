@@ -1264,19 +1264,32 @@ Browser.prototype._coerceBoolean = function(val) {
  * @param refSeqs {Array} array of refseq records to add to the browser
  */
 Browser.prototype.addRefseqs = function( refSeqs ) {
-    this.allRefs = this.allRefs || {};
-    this.refSeqOrder = this.refSeqOrder || [];
+    var allrefs = this.allRefs = this.allRefs || {};
     var refCookie = this.cookie('refseq');
     dojo.forEach( refSeqs, function(r) {
-        if( ! this.allRefs[r.name] )
-            this.refSeqOrder.push(r.name);
         this.allRefs[r.name] = r;
         if( refCookie && r.name.toLowerCase() == refCookie.toLowerCase() ) {
             this.refSeq = r;
         }
     },this);
-    this.refSeqOrder = this.refSeqOrder.sort();
-    this.refSeq  = this.refSeq || refSeqs[0];
+
+    // regenerate refSeqOrder
+    var order = [];
+    for( var name in allrefs ) {
+        var ref = allrefs[name];
+        order.push( ref );
+    }
+    order = order.sort(
+        this.config.refSeqOrder == 'length'            ? function( a, b ) { return a.length - b.length;  }  :
+        this.config.refSeqOrder == 'length descending' ? function( a, b ) { return b.length - a.length;  }  :
+        this.config.refSeqOrder == 'name descending'   ? function( a, b ) { return b.name.localeCompare( a.name ); } :
+                                                         function( a, b ) { return a.name.localeCompare( b.name ); }
+    );
+    this.refSeqOrder = array.map( order, function( ref ) {
+        return ref.name;
+    });
+
+    this.refSeq  = this.refSeq || order[0];
 };
 
 
@@ -1896,9 +1909,9 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
         );
         this.goButton.set( 'disabled', true ) ;
     }
+
     // also update the refseq selection dropdown if present
-    if( this.refSeqSelectBox )
-        this.refSeqSelectBox.set( 'value', this.refSeq.name, false );
+    this._updateRefSeqSelectBox();
 
     if( this.reachedMilestone('completely initialized') ) {
         this._updateLocationCookies( currRegion );
@@ -1909,6 +1922,25 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
     this.publish( '/jbrowse/v1/n/navigate', currRegion );
 };
 
+Browser.prototype._updateRefSeqSelectBox = function() {
+    if( this.refSeqSelectBox ) {
+
+        // if none of the options in the select box match this
+        // reference sequence, add another one to the end for it
+        if( ! array.some( this.refSeqSelectBox.getOptions(), function( option ) {
+                              return option.value == this.refSeq.name;
+                        }, this)
+          ) {
+              this.refSeqSelectBox.set( 'options',
+                                     this.refSeqSelectBox.getOptions()
+                                     .concat({ label: this.refSeq.name, value: this.refSeq.name })
+                                   );
+        }
+
+        // set its value to the current ref seq
+        this.refSeqSelectBox.set( 'value', this.refSeq.name, false );
+    }
+};
 
 /**
  * update the location and refseq cookies
@@ -2154,16 +2186,32 @@ Browser.prototype.createNavBox = function( parent ) {
 
 
     this.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
-        if( this.refSeqOrder.length && this.refSeqOrder.length < 30 || this.config.refSeqDropdown ) {
+
+        // make the refseq selection dropdown
+        if( this.refSeqOrder && this.refSeqOrder.length ) {
+            var max = this.config.refSeqSelectorMaxSize || 30;
+            var numrefs = Math.min( max, this.refSeqOrder.length);
+            var options = [];
+            for ( var i = 0; i < numrefs; i++ ) {
+                options.push( { label: this.refSeqOrder[i], value: this.refSeqOrder[i] } );
+            }
+            var tooManyMessage = '(first '+numrefs+' ref seqs)';
+            if( this.refSeqOrder.length > max ) {
+                options.push( { label: tooManyMessage , value: tooManyMessage, disabled: true } );
+            }
             this.refSeqSelectBox = new dijitSelectBox({
                 name: 'refseq',
                 value: this.refSeq ? this.refSeq.name : null,
-                options: array.map( this.refSeqOrder || [],
-                                    function( refseqName ) {
-                    return { label: refseqName, value: refseqName };
-                }),
+                options: options,
                 onChange: dojo.hitch(this, function( newRefName ) {
-                    if (newRefName !== this.refSeq.name) {  //  only trigger navigation if actually switching sequences
+                    // don't trigger nav if it's the too-many message
+                    if( newRefName == tooManyMessage ) {
+                        this.refSeqSelectBox.set('value', this.refSeq.name );
+                        return;
+                    }
+
+                    // only trigger navigation if actually switching sequences
+                    if( newRefName != this.refSeq.name ) {
                         this.navigateTo(newRefName);
                     }
                 })

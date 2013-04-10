@@ -8,7 +8,7 @@
    selector that finds tracks in the track list matching the typed
    text (issue #210).
 
- * Added an optional ropdown selector in the menu bar that allows
+ * Added an optional dropdown selector in the menu bar that allows
    switching between multiple datasets.  To enable it, add a
    `datasets` array in your JBrowse configuration, and set a
    `dataset_id` in each of the `trackList.json` (or other) files that
@@ -24,6 +24,12 @@
    `maxHeight` configuration variable specifying the maximum displayed
    height of a track in pixels.  Features that would cause the track
    to grow beyond its maximum height will not be drawn (issue #222).
+
+ * Added support for optional `refSeqSelectorMaxSize` and
+   `refSeqOrder` global configuration variables that set the maximum
+   length of the reference sequence dropdown selector, and specify the
+   sort order of the reference sequences in that selector,
+   respectively (issues #234 and #235).
 
  * HTMLFeatures tracks now accept `style->label` and
    `style->description` configuration variables variable that can be
