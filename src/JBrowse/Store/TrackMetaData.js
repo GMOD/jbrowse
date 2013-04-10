@@ -101,7 +101,7 @@ var Meta = declare( null,
                         storeFetchFinished();
                     }),
                     onError: function(e) {
-                        console.error(''+e);
+                        console.error(e, e.stack);
                         storeFetchFinished();
                     }
                 });
