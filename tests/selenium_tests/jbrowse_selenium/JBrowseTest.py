@@ -98,6 +98,7 @@ class JBrowseTest (object):
         time.sleep( 0.05 )
         for i in range( len(text) ):
             qbox.send_keys( text[i] )
+            time.sleep( 0.2 )
         qbox.send_keys( Keys.RETURN );
         time.sleep( 0.3 )
 
