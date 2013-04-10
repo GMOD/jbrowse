@@ -177,7 +177,7 @@ var RequestWorker = declare( null,
     },
     tramp: function() {
         if (this.blocksToFetch.length == 0) {
-            //var afterBWG = Date.now();
+            //var afterBWG = new Date();
             // dlog('BWG fetch took ' + (afterBWG - beforeBWG) + 'ms');
             this.callback( this.features );
             return;  // just in case...
@@ -372,9 +372,9 @@ var RequestWorker = declare( null,
 
                                                 var data;
                                                 if (this.window.bwg.uncompressBufSize > 0) {
-                                                    // var beforeInf = Date.now();
+                                                    // var beforeInf = new Date();
                                                     data = inflate(result, offset + 2, fb.size - 2);
-                                                    // var afterInf = Date.now();
+                                                    // var afterInf = new Date();
                                                     // dlog('inflate: ' + (afterInf - beforeInf) + 'ms');
                                                 } else {
                                                     var tmp = new Uint8Array(fb.size);    // FIXME is this really the best we can do?

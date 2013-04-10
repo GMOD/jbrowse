@@ -99,7 +99,7 @@ var Browser = function(params) {
     if( ! this.config.baseUrl )
         this.config.baseUrl = Util.resolveUrl( window.location.href, '.' ) + '/data/';
 
-    this.startTime = Date.now();
+    this.startTime = new Date();
 
     this.container = dojo.byId(this.config.containerID);
     this.container.onselectstart = function() { return false; };
