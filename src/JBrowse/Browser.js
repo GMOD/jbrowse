@@ -541,6 +541,7 @@ Browser.prototype.initView = function() {
             var shareURL = thisObj.makeCurrentViewURL();
             if( thisObj.config.updateBrowserURL && window.history && window.history.replaceState )
                 window.history.replaceState( {},"", shareURL );
+            document.title = thisObj.view.visibleRegionLocString()+' JBrowse';
         };
         dojo.connect( this, "onCoarseMove",                     updateLocationBar );
         this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateLocationBar );
@@ -1915,7 +1916,6 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
 
     if( this.reachedMilestone('completely initialized') ) {
         this._updateLocationCookies( currRegion );
-        document.title = Util.assembleLocString( currRegion );
     }
 
     // send out a message notifying of the move
