@@ -1,7 +1,10 @@
 .jbrowseIconHelp,
 .jbrowseIconBusy,
 .jbrowseIconLink,
-.jbrowseIconCancel
+.jbrowseIconCancel,
+.jbrowseIconPlus,
+.jbrowseIconMinus,
+.jbrowseIconBars
 {
     background-image: url('img/commonIconsEnabled.png');
     width: 16px;
@@ -26,6 +29,16 @@
 }
 .jbrowseIconCancel {
     background-position: -170px;
+}
+
+.jbrowseIconPlus {
+    background-position: -185px;
+}
+.jbrowseIconMinus {
+    background-position: -202px;
+}
+.jbrowseIconBars {
+    background-position: -219px
 }
 
 .jbrowseIconBusy {
