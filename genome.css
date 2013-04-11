@@ -6,7 +6,8 @@
 @import url("menubar.css");
 @import url("icons.css");
 @import url("file_dialog.css");
-@import url("src/JBrowse/View/Overlay/region_clustering_overlay.css");
+@import url("overlay.css");
+@import url("region_clustering_dialog.css");
 
 /* CSS styles for the various types of feature glyphs */
 @import url("track_styles.css");

@@ -1,0 +1,52 @@
+/* css for the overlay created by the region clustering dialog */
+
+.overlay {
+    position: absolute;
+    height: 99%;
+    width: 99%;
+    top: 0.5%;
+    left: 0.5%;
+    background-color: rgba(255,255,255,0.95);
+    border: 1px solid black;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.overlay .exitButton {
+    position: absolute;
+    height: 16px;
+    width: 14px;
+    top: 1em;
+    right: 1em;
+}
+
+.overlay .title {
+    position: relative;
+    font-size: 16px;
+    margin: 10px 30px;
+}
+
+.overlay .content {
+    position: absolute;
+    top: 3em;
+    left: 1em;
+    bottom: 1em;
+    right: 1em;
+    overflow: auto;
+}
+
+.overlay .buttons {
+    position: absolute;
+    bottom: 0px;
+    padding: 0px 20px 15px 20px;
+}
+
+.overlay .buttons .overlay-button {
+    float: left;
+    padding: 3px;
+    background-color: #DDDDDD;
+    border: 1px solid black;
+    border-radius: 3px;
+    height: 1.5em;
+    line-height: 1.5em;
+}

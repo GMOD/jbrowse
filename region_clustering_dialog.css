@@ -1,0 +1,122 @@
+/* css for the mask track creation dialog. */
+
+.regionClusteringDialog {
+    color: #333;
+}
+
+.regionClusteringDialog .contentContainer {
+    height: 100%;
+    width: 100%;
+}
+
+.regionClusteringDialog .instructions {
+    position: relative;
+    text-align: center;
+    margin: 2em auto;
+}
+
+.regionClusteringDialog .storeSelectors {
+    position: relative;
+    height: 217px;
+    padding: 0 10px 30px 10px;
+}
+
+.regionClusteringDialog .selectorContainer {
+    float: left;
+    padding: 0 5px 0 5px;
+}
+
+.regionClusteringDialog .selectorContainer .selectorTitle {
+    font-weight: bold;
+}
+
+.regionClusteringDialog .storeSelections {
+    position: relative;
+    background-color: #8cb1dd;
+    height: 180px;
+    width: 200px;
+    border: 1px;
+}
+
+.regionClusteringDialog .selectorContainer .selectorDefaultText {
+    position: absolute;
+    top: 1.5em;
+    padding-left: 3px;
+    width: 180px;
+    color: grey;
+    font-style: italic;
+    z-index: 99999;
+}
+
+.regionClusteringDialog .selectorContainer .operationBar {
+    margin: 2px 0;
+    position: relative;
+    text-align: center;
+    height: 18px;
+    width: 100%;
+}
+
+.regionClusteringDialog .selectorContainer .button1 {
+    border: 1px solid transparent;
+    border-radius: 3px;
+    background-repeat: no-repeat;
+    float: left;
+    width: 16px;
+    height: 16px;
+}
+
+.regionClusteringDialog .selectorContainer .button2 {
+    margin: 1px 0;
+    float: right;
+    width: 16px;
+    height: 16px;
+}
+
+.regionClusteringDialog .dijitComboBox {
+    margin: 0 auto;
+    height: 16px;
+    width: 140px;
+}
+
+.regionClusteringDialog .dijitComboBox * {
+    height: 16px;
+}
+
+.regionClusteringDialog .textFieldContainer {
+    position: relative;
+    top: 10px;
+    height: 16px;
+    padding: 10px;
+}
+
+.regionClusteringDialog .textFieldContainer .nameField {
+    height: 14px;
+    width: 150px;
+    padding-left: 3px;
+}
+
+.regionClusteringDialog .dijitDialogPaneActionBar {
+    display: inline;
+    text-align: left;
+    padding-top: 10px;
+}
+
+.regionClusteringDialog .dijitDialogPaneActionBar .dijitButton {
+    padding-left: 10px;
+}
+
+.regionClusteringDialog .dijitDialogPaneActionBar .dijitButtonNode {
+    height: 16px;
+}
+
+.addManyTracksDialog .trackSelector {
+    position: relative;
+    background-color: #8cb1dd;
+    height: 180px;
+    width: 350px;
+}
+
+.addManyTracksDialog .instructions {
+    padding-bottom: 10px;
+    width: 350px;
+}
