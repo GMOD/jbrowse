@@ -27,7 +27,7 @@ define( [
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
-            'JBrowse/View/ExampleOverlay',
+            'JBrowse/View/RegionClusteringDialog',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
@@ -63,7 +63,7 @@ define( [
             ConfigManager,
             InfoDialog,
             FileDialog,
-            ExampleOverlay,
+            RegionClusteringDialog,
             Location,
             LocationChoiceDialog,
             SetHighlightDialog,
@@ -483,8 +483,8 @@ Browser.prototype.initView = function() {
             this.addGlobalMenuItem( 'view', this._highlightClearButton );
             
             this.addGlobalMenuItem( 'view', new dijitMenuItem( {
-                label: 'Test Overlay',
-                onClick: dojo.hitch( this, 'exampleOverlay' )
+                label: 'Region clustering',
+                onClick: dojo.hitch( this, 'regionClusteringDialog' )
                 })
             );
 
@@ -695,8 +695,8 @@ Browser.prototype.openFileDialog = function() {
         });
 };
 
-Browser.prototype.exampleOverlay = function() {
-    new ExampleOverlay({ browser: this }).show();
+Browser.prototype.regionClusteringDialog = function() {
+    new RegionClusteringDialog({ browser: this }).show();
 };
 
 Browser.prototype.addTracks = function( confs ) {
