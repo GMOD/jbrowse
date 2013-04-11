@@ -37,7 +37,6 @@ return declare( null, {
 
 
     constructor: function( args ) {
-        this.browser = args.browser,
         this.overlay = dom.create( 'div', { className: 'overlay' } ),
         this.title = '',
         this.buttons = dom.create( 'div', { className: 'buttons' } ),
@@ -45,7 +44,7 @@ return declare( null, {
     },
 
     show: function( args ) {
-        if (args.title)
+        if (args && args.title)
             this.addTitle(args.title);
         var title = dom.create( 'div', { className: 'title', innerHTML: this.title } );
         this.overlay.appendChild(title);
@@ -72,7 +71,18 @@ return declare( null, {
         this.buttons.appendChild(
             dom.create( 'div', { className: 'overlay-button',
                                  onclick: onclick,
-                                 innerHTML: name })
+                                 innerHTML: name,
+                                 onmousedown: function() {
+                                    this.style.border = '1px dotted black';
+                                 },
+                                 onmouseup: function() {
+                                    this.style.border = '1px solid black';
+                                 },
+                                 onmouseleave: function() {
+                                    this.style.border = '1px solid black';
+                                 }
+                               }
+                       )
         );
         return this;
     },
