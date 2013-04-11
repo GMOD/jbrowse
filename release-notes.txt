@@ -4,6 +4,9 @@
    directly from VCF files that have been compressed with `bgzip` and
    indexed with `tabix` (issue #211).
 
+ * Added a new `HTMLVariants` track type based on HTMLFeatures with a
+   feature-details popup optimized for displaying variant details.
+
  * Added a text box at the top of the simple (i.e. the default) track
    selector that finds tracks in the track list matching the typed
    text (issue #210).
