@@ -15,7 +15,9 @@ describe( 'centralized ref seq name regularization', function() {
         [ 'SCAFFOLD0231', 'scaffold231' ],
         [ 'contig47', 'ctg47' ],
         [ 'ctg47', 'ctg47' ],
-        [ 'Oryza_sativa_1234.01', 'oryza_sativa_1234.01' ]
+        [ 'Oryza_sativa_1234.01', 'oryza_sativa_1234.01' ],
+        [ '01', 'chr1' ],
+        [ '1', 'chr1' ]
     ];
     array.forEach( testCases, function( testCase ) {
         it( 'works for '+testCase[0], function() {

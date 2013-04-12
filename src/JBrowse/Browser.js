@@ -409,7 +409,7 @@ Browser.prototype.regularizeReferenceName = function( refname ) {
                      .replace(/^chro?m?(osome)?/,'chr')
                      .replace(/^co?n?ti?g/,'ctg')
                      .replace(/^scaff?o?l?d?/,'scaffold')
-                     .replace(/^([a-z]+)0+/,'$1')
+                     .replace(/^([a-z]*)0+/,'$1')
                      .replace(/^(\d+)$/, 'chr$1' );
 
     return refname;
