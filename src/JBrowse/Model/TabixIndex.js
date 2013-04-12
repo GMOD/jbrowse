@@ -55,7 +55,6 @@ return declare( null, {
            else
                this.blob.fetch( function( data) {
                                     thisB._parseIndex( data, d );
-                                    d.resolve({ success: true });
                                 }, dojo.hitch( d, 'reject' ) );
            return d;
        }.call(this);
@@ -123,6 +122,7 @@ return declare( null, {
                this._findFirstData( linear[k] );
            }
        }
+       deferred.resolve({ success: true });
    },
 
    _findFirstData: function( virtualOffset ) {
