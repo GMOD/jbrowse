@@ -2,7 +2,9 @@
 
  * Added a direct-access data backend for reading variation data
    directly from VCF files that have been compressed with `bgzip` and
-   indexed with `tabix` (issue #211).
+   indexed with `tabix`.  See the JBrowse Configuration Guide on the
+   GMOD wiki for details about how to add directly-displayed VCF files
+   (issue #211).
 
  * Added a new `HTMLVariants` track type based on HTMLFeatures with a
    feature-details popup optimized for displaying variant details.
@@ -115,7 +117,8 @@
    #217).
 
  * Fixed bug in which iframe popups did not display correctly in
-   Internet Explorer 9 (issue #233).
+   Internet Explorer 9.  Thanks to Steffi Geisen for pointing this out
+   (issue #233).
 
  * Improved JSON syntax error messages in server-side scripts (issue
    #214).
