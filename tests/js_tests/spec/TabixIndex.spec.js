@@ -2,16 +2,20 @@ require({
             packages: [{ name: 'jDataView', main: 'jdataview', location: '../jDataView/src' }]
         },
         [
+            'JBrowse/Browser',
             'JBrowse/Model/TabixIndex',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Model/BGZip/BGZBlob'
-        ],function( TabixIndex, XHRBlob, BGZBlob ) {
+        ],function( Browser, TabixIndex, XHRBlob, BGZBlob ) {
 
 describe( "TabixIndex", function() {
 
               var ti;
               beforeEach(function() {
-                  ti = new TabixIndex( new BGZBlob( new XHRBlob( '../../sample_data/raw/volvox/volvox.test.vcf.gz.tbi' ) ) );
+                  ti = new TabixIndex({
+                                          blob: new BGZBlob( new XHRBlob( '../../sample_data/raw/volvox/volvox.test.vcf.gz.tbi' ) ),
+                                          browser: new Browser({ unitTestMode: true })
+                                     });
               });
 
               it('constructs', function() {
