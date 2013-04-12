@@ -1,7 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
-            'dojo/has',
+            'JBrowse/has',
             'JBrowse/Util',
             'JBrowse/Store/LRUCache',
             './Util',

@@ -2,7 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/_base/Deferred',
-           'dojo/has',
+           'JBrowse/has',
            'jDataView',
            'JBrowse/Util',
            'JBrowse/Model/BGZip/VirtualOffset'

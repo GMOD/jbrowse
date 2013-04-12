@@ -3,7 +3,7 @@ define( [
             'dojo/_base/lang',
             'dojo/_base/array',
             'dojo/_base/url',
-            'dojo/has',
+            'JBrowse/has',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',

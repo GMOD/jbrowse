@@ -5,7 +5,7 @@ define( [
             'dojo/dom-construct',
             'dojo/dom-geometry',
             'dojo/on',
-            'dojo/has',
+            'JBrowse/has',
             'dijit/Dialog',
             'dijit/form/Select',
             'dijit/form/RadioButton',
