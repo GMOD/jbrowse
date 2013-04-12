@@ -3,6 +3,7 @@ define( [
             'dojo/_base/lang',
             'dojo/_base/array',
             'dojo/_base/url',
+            'dojo/has',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',
@@ -10,7 +11,7 @@ define( [
             'JBrowse/Util',
             'JBrowse/Model/XHRBlob'
         ],
-        function( declare, lang, array, urlObj, SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin, Window, Util, XHRBlob ) {
+        function( declare, lang, array, urlObj, has, SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin, Window, Util, XHRBlob ) {
 return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
  /**
@@ -168,9 +169,8 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
         this.data.slice( this.chromTreeOffset, udo - this.chromTreeOffset )
             .fetch(function(bpt) {
-                       if( !( Uint8Array && Int16Array && Int32Array ) ) {
-                           var msg = 'Browser does not support typed arrays';
-                           thisB._loading.resolve({success: false, error: msg});
+                       if( ! has('typed-arrays') ) {
+                           thisB._loading.reject('Browser does not support typed arrays');
                            return;
                        }
                        var ba = new Uint8Array(bpt);

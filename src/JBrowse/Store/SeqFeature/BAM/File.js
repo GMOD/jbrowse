@@ -1,12 +1,13 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/has',
             'JBrowse/Util',
             'JBrowse/Store/LRUCache',
             './Util',
             './LazyFeature'
         ],
-        function( declare, array, Util, LRUCache, BAMUtil, BAMFeature ) {
+        function( declare, array, has, Util, LRUCache, BAMUtil, BAMFeature ) {
 
 var BAM_MAGIC = 21840194;
 var BAI_MAGIC = 21578050;
@@ -103,7 +104,7 @@ var BamFile = declare( null,
                 return;
             }
 
-            if( ! Uint8Array ) {
+            if( has('typed-arrays') ) {
                 dlog('Browser does not support typed arrays');
                 failCallback('Browser does not support typed arrays');
                 return;

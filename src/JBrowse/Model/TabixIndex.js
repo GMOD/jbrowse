@@ -2,6 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/_base/Deferred',
+           'dojo/has',
            'jDataView',
            'JBrowse/Util',
            'JBrowse/Model/BGZip/VirtualOffset'
@@ -10,6 +11,7 @@ define([
            declare,
            array,
            Deferred,
+           has,
            jDataView,
            Util,
            VirtualOffset
@@ -48,10 +50,13 @@ return declare( null, {
        var thisB = this;
        return this._loaded = this._loaded || function() {
            var d = new Deferred();
-           this.blob.fetch( function( data) {
-               thisB._parseIndex( data, d );
-               d.resolve({ success: true });
-           }, dojo.hitch( d, 'reject' ) );
+           if( ! has('typed-arrays') )
+               d.reject( 'This web browser does not support JavaScript typed arrays.' );
+           else
+               this.blob.fetch( function( data) {
+                                    thisB._parseIndex( data, d );
+                                    d.resolve({ success: true });
+                                }, dojo.hitch( d, 'reject' ) );
            return d;
        }.call(this);
    },
