@@ -123,7 +123,9 @@ return declare( [BlockBasedTrack,ExportMixin], {
                     block.pixelScores = this._calculatePixelScores( this._canvasWidth(block), features, featureRects );
 
                     finishCallback();
-                }));
+                }),
+                dojo.hitch( this, 'fillBlockError', blockIndex, block )
+            );
     },
 
     // render the actual graph display for the block.  should be called only after a scaling

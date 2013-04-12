@@ -170,7 +170,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         this.data.slice( this.chromTreeOffset, udo - this.chromTreeOffset )
             .fetch(function(bpt) {
                        if( ! has('typed-arrays') ) {
-                           thisB._loading.reject('Browser does not support typed arrays');
+                           thisB._failAllDeferred( 'Browser does not support typed arrays' );
                            return;
                        }
                        var ba = new Uint8Array(bpt);

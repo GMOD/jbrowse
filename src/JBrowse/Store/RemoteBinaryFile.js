@@ -334,7 +334,7 @@ return declare( null,
 
         var returnBuffer;
 
-        if( ! Uint8Array ) {
+        if( ! has('typed-arrays') ) {
             failureCallback( 'Browser does not support typed arrays');
             return;
         }

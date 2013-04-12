@@ -3,6 +3,7 @@ define( [
             'dojo/_base/array',
             'dojo/_base/Deferred',
             'dojo/_base/lang',
+            'dojo/has',
             'JBrowse/Util',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredStatsMixin',
@@ -17,6 +18,7 @@ define( [
             array,
             Deferred,
             lang,
+            has,
             Util,
             SeqFeatureStore,
             DeferredStatsMixin,
@@ -63,6 +65,11 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
 
         this.source = ( bamBlob.url  ? bamBlob.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] :
                         bamBlob.blob ? bamBlob.blob.name : undefined ) || undefined;
+
+        if( ! has( 'typed-arrays' ) ) {
+            this._failAllDeferred( 'Browser does not support typed arrays');
+            return;
+        }
 
         this.bam.init({
             success: dojo.hitch( this, '_estimateGlobalStats',
