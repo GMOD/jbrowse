@@ -13,6 +13,12 @@
    selector that finds tracks in the track list matching the typed
    text (issue #210).
 
+ * Added support `autoscale: "local"` in Wiggle, FeatureCoverage, and
+   SNPCoverage tracks, which automatically sets the scale of the
+   y-axis based on the range of the data being displayed in the
+   current view.  Thanks to Gregor Rot and Raymond Wan for championing
+   the need for this (issue #203).
+
  * JBrowse now attempts to smooth over mismatches in the naming of
    reference sequences between various datasets.  For instance, if a
    BAM file contains reference sequences named like "chrom1", and the
@@ -28,6 +34,13 @@
    `dataset_id` in each of the `trackList.json` (or other) files that
    are optionally loaded by the dataset selector.  See the JBrowse
    Configuration Guide on the GMOD wiki for details (issue #134).
+
+ * Added a new datastore class, `JBrowse/Store/SeqFeature/REST` that
+   fetches data from any back end system that implements the simple
+   REST API it uses.  See the JBrowse Configuration Guide for details
+   on how to implement its REST API.  Thanks to Brett Thomas, Daniel
+   Troesser, and Brad Chapman for pointing out the need for this
+   (issue #227).
 
  * By default, JBrowse now continuously updates the browser's URL bar
    to contain a URL that will show the current JBrowse view directly.
@@ -56,6 +69,10 @@
    to Ignazio Carbone for pointing out the need for this. (issues #234
    and #235).
 
+ * Fixed some bugs causing memory leaks when scrolling and zooming,
+   especially on tracks with a lot of data like BAM tracks.  Thanks to
+   Gustavo Cerquiera for pointing this out (issue #220).
+
  * HTMLFeatures tracks now accept `style->label` and
    `style->description` configuration variables variable that can be
    set to a function callback that returns a string with the feature's
@@ -80,10 +97,6 @@
    with a partial opacity.  Default is 'rgba(0,0,0,0.3)', which is
    black with 30% opacity (issue #133).
 
- * Added support `autoscale: "local"` in Wiggle, FeatureCoverage, and
-   SNPCoverage tracks, which automatically sets the scale of the
-   y-axis based on the range of the data being displayed in the
-   current view (issue #203).
 
  * Added an "About JBrowse" popup dialog, which supports an
    `aboutThisBrowser` configuration stanza containing a title for the
@@ -108,13 +121,13 @@
  * Fixed bug in which navigating via sequence dropdown selection
    ignores previous location on selected sequence, whereas with
    navigation text box entering just a sequence name navigates to
-   previous location on that sequence (if visited previously) (issue
-   #216).
+   previous location on that sequence (if visited previously).  Thanks
+   to Gregg Helt for implementing this fix (issue #216).
 
  * Fixed bug in which the initial default view of a previously
    unviewed reference sequencestarts at 80% centered view, but any use
-   of reference sequence selection pulldown takes it to 100% (issue
-   #217).
+   of reference sequence selection pulldown takes it to 100%.  Big
+   thanks to Gregg Helt for implementing this fix (issue #217).
 
  * Fixed bug in which iframe popups did not display correctly in
    Internet Explorer 9.  Thanks to Steffi Geisen for pointing this out
