@@ -44,17 +44,16 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         var thisB = this;
 
         var tbiBlob = args.tbi ||
-            new XHRBlob( this.resolveUrl(
-                             this.getConf('tbiUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.tbi',
-                             {'refseq': (this.refSeq||{}).name }
-                         )
-                       );
+            new XHRBlob(
+                this.resolveUrl(
+                    this.getConf('tbiUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.tbi'
+                )
+            );
 
         var fileBlob = args.file ||
-            new XHRBlob( this.resolveUrl( this.getConf('urlTemplate',[]),
-                             {'refseq': (this.refSeq||{}).name }
-                           )
-                       );
+            new XHRBlob(
+                this.resolveUrl( this.getConf('urlTemplate',[]) )
+            );
 
         this.indexedData = new VCFIndexedFile({ tbi: tbiBlob, file: fileBlob });
 

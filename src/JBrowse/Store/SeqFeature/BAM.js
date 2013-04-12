@@ -43,24 +43,17 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
 
         this.createSubfeatures = args.subfeatures;
 
-        var bamBlob = args.bam || (function() {
-                                       var url = Util.resolveUrl(
-                                           args.baseUrl || '/',
-                                           Util.fillTemplate( args.urlTemplate || 'data.bam',
-                                           {'refseq': (this.refSeq||{}).name }
-                                                            )
-                                       );
-                                       return new XHRBlob( url );
-                                   }).call(this);
-        var baiBlob = args.bai || (function() {
-                                      var url = Util.resolveUrl(
-                                          args.baseUrl || '/',
-                                          Util.fillTemplate( args.baiUrlTemplate || args.urlTemplate+'.bai' || 'data.bam.bai',
-                                                             {'refseq': (this.refSeq||{}).name }
-                                                           )
-                                      );
-                                      return new XHRBlob( url );
-                                  }).call(this);
+        var bamBlob = args.bam ||
+            new XHRBlob( this.resolveUrl(
+                             args.urlTemplate || 'data.bam'
+                         )
+                       );
+
+        var baiBlob = args.bai ||
+            new XHRBlob( this.resolveUrl(
+                             args.baiUrlTemplate || ( args.urlTemplate ? args.urlTemplate+'.bai' : 'data.bam.bai' )
+                         )
+                       );
 
         this.bam = new BAMFile({
                 store: this,

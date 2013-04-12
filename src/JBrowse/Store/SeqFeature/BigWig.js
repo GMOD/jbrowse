@@ -34,15 +34,11 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
      */
     constructor: function( args ) {
 
-        this.data = args.blob || (function() {
-            var url = Util.resolveUrl(
-                args.baseUrl || '/',
-                Util.fillTemplate( args.urlTemplate || 'data.bigwig',
-                                   {'refseq': (this.refSeq||{}).name }
-                                 )
-            );
-            return new XHRBlob( url );
-        }).call(this);
+        this.data = args.blob ||
+            new XHRBlob( this.resolveUrl(
+                             args.urlTemplate || 'data.bigwig'
+                         )
+                       );
 
         this.name = args.name || ( this.data.url && new urlObj( this.data.url ).path.replace(/^.+\//,'') ) || 'anonymous';
 
