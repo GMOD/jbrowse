@@ -31,7 +31,7 @@ describe( "TabixIndex", function() {
                           var blocks = ti.blocksForRange( 'ctgA', 1, 4000 );
                           expect( blocks.length ).toEqual( 1 );
                           expect( blocks[0].minv.block ).toEqual( 0 );
-                          expect( blocks[0].minv.offset ).toEqual( 10501 );
+                          expect( blocks[0].minv.offset ).toEqual( 10431 );
                           console.log( blocks );
                       });
               });
