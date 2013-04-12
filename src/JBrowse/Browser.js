@@ -1,4 +1,5 @@
 var _gaq = _gaq || []; // global task queue for Google Analytics
+
 define( [
             'dojo/_base/lang',
             'dojo/on',
@@ -96,14 +97,17 @@ var Browser = function(params) {
 
     this.config = params;
 
+    // if we're in the unit tests, stop here and don't do any more initialization
+    if( this.config.unitTestMode )
+        return;
+
     if( ! this.config.baseUrl )
         this.config.baseUrl = Util.resolveUrl( window.location.href, '.' ) + '/data/';
 
     this.startTime = new Date();
 
-    this.container = dojo.byId(this.config.containerID);
+    this.container = dojo.byId( this.config.containerID );
     this.container.onselectstart = function() { return false; };
-    this.container.genomeBrowser = this;
 
     // start the initialization process
     var thisB = this;
@@ -381,6 +385,31 @@ Browser.prototype.loadNames = function() {
 
         deferred.resolve({success: true});
     });
+};
+
+/**
+ * Compare two reference sequence names, returning -1, 0, or 1
+ * depending on the result.  Case insensitive, insensitive to the
+ * presence or absence of prefixes like 'chr', 'chrom', 'ctg',
+ * 'contig', 'scaffold', etc
+ */
+Browser.prototype.compareReferenceNames = function( a, b ) {
+    return this.regularizeReferenceName(a).localeCompare( this.regularizeReferenceName( b ) );
+};
+
+Browser.prototype.regularizeReferenceName = function( refname ) {
+
+    if( this.config.exactReferenceSequenceNames )
+        return refname;
+
+    refname = refname.toLowerCase()
+                     .replace(/^chro?m?(osome)?/,'chr')
+                     .replace(/^co?n?ti?g/,'ctg')
+                     .replace(/^scaff?o?l?d?/,'scaffold')
+                     .replace(/^([a-z]+)0+/,'$1')
+                     .replace(/^(\d+)$/, 'chr$1' );
+
+    return refname;
 };
 
 Browser.prototype.initView = function() {
@@ -2318,6 +2347,7 @@ Browser.prototype.showRegionWithHighlight = function( location ) {
 return Browser;
 
 });
+
 
 /*
 

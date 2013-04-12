@@ -55,7 +55,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 this.resolveUrl( this.getConf('urlTemplate',[]) )
             );
 
-        this.indexedData = new VCFIndexedFile({ tbi: tbiBlob, file: fileBlob });
+        this.indexedData = new VCFIndexedFile({ tbi: tbiBlob, file: fileBlob, browser: this.browser });
 
         this._loadHeader().then( function() {
             thisB._estimateGlobalStats( function( stats, error ) {
@@ -122,8 +122,16 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         }, errorCallback );
     },
 
-    getRefSeqs: function( refSeqCallback, finishedCallback, errorCallback ) {
-        return this.indexedData.index.getRefSeqs.apply( this.indexedData.index, arguments );
+    /**
+     * Interrogate whether a store has data for a given reference
+     * sequence.  Calls the given callback with either true or false.
+     *
+     * Implemented as a binary interrogation because some stores are
+     * smart enough to regularize reference sequence names, while
+     * others are not.
+     */
+    hasRefSeq: function( seqName, callback, errorCallback ) {
+        return this.indexedData.index.hasRefSeq( seqName, callback, errorCallback );
     }
 
 });

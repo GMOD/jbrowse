@@ -206,15 +206,10 @@ var BamFile = declare( null,
                         for (var j = 0; j < lName-1; ++j) {
                             name += String.fromCharCode(uncba[p + 4 + j]);
                         }
+
                         var lRef = readInt(uncba, p + lName + 4);
                         // dlog(name + ': ' + lRef);
-                        thisB.chrToIndex[name] = i;
-                        if (name.indexOf('chr') == 0) {
-                            thisB.chrToIndex[name.substring(3)] = i;
-                        } else {
-                            thisB.chrToIndex['chr' + name] = i;
-                        }
-
+                        thisB.chrToIndex[ thisB.store.browser.regularizeReferenceName( name ) ] = i;
                         thisB.indexToChr.push({ name: name, length: lRef });
 
                         p = p + 8 + lName;
@@ -321,6 +316,8 @@ var BamFile = declare( null,
     },
 
     fetch: function(chr, min, max, callback) {
+
+        chr = this.store.browser.regularizeReferenceName( chr );
 
         var chrId = this.chrToIndex && this.chrToIndex[chr];
         var chunks;

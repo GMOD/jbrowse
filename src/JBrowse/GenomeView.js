@@ -2059,17 +2059,14 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
 
         // if we can, check that the current reference sequence is
         // contained in the store
-        if( store.getRefSeqs ) {
-            var foundRef, curRefName = this.ref.name;
-            store.getRefSeqs(
-                function( ref ) {
-                    foundRef = foundRef || ref.name == curRefName;
-                },
-                function() {
+        if( store.hasRefSeq ) {
+            store.hasRefSeq(
+                this.ref.name,
+                function( foundRef ) {
                     if( ! foundRef )
                         new InfoDialog({
                             title: 'Reference warning',
-                            content: 'WARNING: The data for track "'
+                            content: 'WARNING: The data store for track "'
                               +(trackConfig.key||trackConfig.label)
                               +'" contains no data for the current'
                               +' reference sequence ('

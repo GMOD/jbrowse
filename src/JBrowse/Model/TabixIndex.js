@@ -38,8 +38,9 @@ var Chunk = Util.fastDeclare({
 
 return declare( null, {
 
-   constructor: function( blob ) {
-       this.blob = blob;
+   constructor: function( args ) {
+       this.browser = args.browser;
+       this.blob = args.blob;
        this.load();
    },
 
@@ -144,21 +145,32 @@ return declare( null, {
        var refName, refID = 0;
        for( ; refName = getString(); refID++ ) {
            this._refIDToName[refID] = refName;
-           this._refNameToID[refName] = refID;
+           this._refNameToID[ this.browser.regularizeReferenceName( refName ) ] = refID;
        }
    },
 
-   getRefSeqs: function( refSeqCallback, finishCallback, errorCallback ) {
+    /**
+     * Interrogate whether a store has data for a given reference
+     * sequence.  Calls the given callback with either true or false.
+     *
+     * Implemented as a binary interrogation because some stores are
+     * smart enough to regularize reference sequence names, while
+     * others are not.
+     */
+    hasRefSeq: function( seqName, callback, errorCallback ) {
        var thisB = this;
+       seqName = thisB.browser.regularizeReferenceName( seqName );
        thisB.load().then( function() {
-           array.forEach( thisB._refIDToName || [], function( name ) {
-                refSeqCallback({ name: name });
-           });
-           finishCallback();
+           if( seqName in thisB._refNameToID ) {
+               callback(true);
+               return;
+           }
+           callback( false );
        });
    },
 
    getRefId: function( refName ) {
+       refName = this.browser.regularizeReferenceName( refName );
        return this._refNameToID[refName];
    },
 

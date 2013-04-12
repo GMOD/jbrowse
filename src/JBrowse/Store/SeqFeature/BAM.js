@@ -81,15 +81,18 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
     },
 
     /**
-     * Fetch the list of reference sequences represented in the store.
+     * Interrogate whether a store has data for a given reference
+     * sequence.  Calls the given callback with either true or false.
+     *
+     * Implemented as a binary interrogation because some stores are
+     * smart enough to regularize reference sequence names, while
+     * others are not.
      */
-    getRefSeqs: function( seqCallback, finishCallback, errorCallback ) {
+    hasRefSeq: function( seqName, callback, errorCallback ) {
         var thisB = this;
+        seqName = thisB.browser.regularizeReferenceName( seqName );
         this._deferred.stats.then( function() {
-            array.forEach( thisB.bam.indexToChr || [], function( rec ) {
-                seqCallback({ name: rec.name, length: rec.length, start: 0, end: rec.length });
-            });
-            finishCallback();
+            callback( seqName in thisB.bam.chrToIndex );
         }, errorCallback );
     },
 

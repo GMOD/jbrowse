@@ -210,10 +210,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                                    var refRec = { name: key, id: refId, length: refSize };
 
                                    //dlog(key + ':' + refId + ',' + refSize);
-                                   thisB.refsByName[key] = refRec;
-                                   if (key.indexOf('chr') == 0) {
-                                       thisB.refsByName[key.substr(3)] = refRec;
-                                   }
+                                   thisB.refsByName[ thisB.browser.regularizeReferenceName(key) ] = refRec;
                                    thisB.refsByNumber[refId] = refRec;
                                } else {
                                    // parse index node
@@ -231,21 +228,25 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             });
     },
 
-    getRefSeqs: function( seqCallback, finishCallback, errorCallback ) {
+    /**
+     * Interrogate whether a store has data for a given reference
+     * sequence.  Calls the given callback with either true or false.
+     *
+     * Implemented as a binary interrogation because some stores are
+     * smart enough to regularize reference sequence names, while
+     * others are not.
+     */
+    hasRefSeq: function( seqName, callback, errorCallback ) {
         var thisB = this;
+        seqName = thisB.browser.regularizeReferenceName( seqName );
         this._deferred.features.then(function() {
-            var refs =  thisB.refsByName;
-            for( var name in refs ) {
-                if( refs.hasOwnProperty(name) )
-                    seqCallback( refs[name] );
-            }
-            finishCallback();
+            callback( seqName in thisB.refsByName );
         }, errorCallback );
     },
 
     _getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
 
-        var chrName = query.ref;
+        var chrName = this.browser.regularizeReferenceName( query.ref );
         var min = query.start;
         var max = query.end;
 
