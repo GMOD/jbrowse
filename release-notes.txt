@@ -124,8 +124,8 @@
    Internet Explorer 9.  Thanks to Steffi Geisen for pointing this out
    (issue #233).
 
- * Improved JSON syntax error messages in server-side scripts (issue
-   #214).
+ * Improved JSON syntax error messages in server-side scripts
+   (issue #214).
 
  * Increased the default display timeout (`blockDisplayTimeout`) on
    HTML-based features tracks from 5 seconds to 20 seconds.
