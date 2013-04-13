@@ -13,8 +13,8 @@
    selector that finds tracks in the track list matching the typed
    text (issue #210).
 
- * Added support `autoscale: "local"` in Wiggle, FeatureCoverage, and
-   SNPCoverage tracks, which automatically sets the scale of the
+ * Added support for `autoscale: "local"` in Wiggle, FeatureCoverage,
+   and SNPCoverage tracks, which automatically sets the scale of the
    y-axis based on the range of the data being displayed in the
    current view.  Thanks to Gregor Rot and Raymond Wan for championing
    the need for this (issue #203).
