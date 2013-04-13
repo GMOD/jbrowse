@@ -43,10 +43,10 @@
    height of a track in pixels.  Features that would cause the track
    to grow beyond its maximum height will not be drawn (issue #222).
 
- * The `refSeqDropdown` configuration variable; the reference sequence
-   selector is now shown for any number of reference sequences, with
-   its length limited by the `refSeqSelectorMaxSize` variable (see
-   next item).
+ * Removed the `refSeqDropdown` configuration variable; the reference
+   sequence selector is now shown for any number of reference
+   sequences, with its length limited by the `refSeqSelectorMaxSize`
+   variable (see next item).
 
  * Added support for optional `refSeqSelectorMaxSize` and
    `refSeqOrder` global configuration variables that set the maximum
@@ -87,7 +87,6 @@
    variance bands. The variance band color should usually be specified
    with a partial opacity.  Default is 'rgba(0,0,0,0.3)', which is
    black with 30% opacity (issue #133).
-
 
  * Added an "About JBrowse" popup dialog, which supports an
    `aboutThisBrowser` configuration stanza containing a title for the
