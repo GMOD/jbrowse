@@ -18681,13 +18681,13 @@
       },
       {
          "storeClass" : "JBrowse/Store/SeqFeature/BAM",
-         "urlTemplate" : "../sample_data/raw/volvox/volvox-sorted.bam",
+         "urlTemplate" : "../../../sample_data/raw/volvox/volvox-sorted.bam",
          "style" : {
             "className" : "alignment",
             "arrowheadClass" : "arrowhead",
             "labelScale" : 100
          },
-         "type" : "JBrowse/View/Track/Alignments",
+         "type" : "JBrowse/View/Track/Alignments2",
          "label" : "volvox-sorted.bam",
          "key" : "volvox-sorted.bam"
       }
