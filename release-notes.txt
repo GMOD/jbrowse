@@ -19,15 +19,6 @@
    current view.  Thanks to Gregor Rot and Raymond Wan for championing
    the need for this (issue #203).
 
- * JBrowse now attempts to smooth over mismatches in the naming of
-   reference sequences between various datasets.  For instance, if a
-   BAM file contains reference sequences named like "chrom1", and the
-   canonical reference sequences used in a JBrowse installation are
-   named like "chr1", JBrowse will recognize these two names as
-   equivalent for the purposes of displaying the BAM data.  This
-   behavior can be displayed by setting the global configuration
-   variable `exactReferenceSequenceNames` to `true`. (issue #239).
-
  * Added an optional dropdown selector in the menu bar that allows
    switching between multiple datasets.  To enable it, add a
    `datasets` array in your JBrowse configuration, and set a
