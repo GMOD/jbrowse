@@ -649,7 +649,7 @@ Browser.prototype.browserMeta = function() {
         about.description = '<div class="default_about">'
             + '  <img class="logo" src="img/JBrowseLogo_small.png">'
             + '  <h1>JBrowse '+verstring+'</h1>'
-            + '  <div class="tagline">A modern JavaScript genome browser.</div>'
+            + '  <div class="tagline">A next-generation genome browser<br> built with JavaScript and HTML5.</div>'
             + '  <a class="mainsite" target="_blank" href="http://jbrowse.org">JBrowse website</a>'
             + '  <div class="gmod">JBrowse is a <a target="_blank" href="http://gmod.org">GMOD</a> project.</div>'
             + '  <div class="copyright">&copy; 2013 The Evolutionary Software Foundation</div>'
