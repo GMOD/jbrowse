@@ -15,6 +15,7 @@ ZIP=zip -q --symlinks -r
 all: docs bin/wig2png
 
 release: release-normal release-min release-normal-test release-min-test release-notes.html
+	sha1sum *.zip
 
 release-notes.html: release-notes.txt
 	markdown release-notes.txt > $@
