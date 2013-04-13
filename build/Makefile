@@ -60,6 +60,7 @@ release-min: release-normal
 			src/JBrowse/ \
 			src/perl5 \
 			sample_data/test_snippet.html \
+			sample_data/raw/yeast* \
 			src/dgrid/css \
 	; do \
 	    mkdir -p `dirname $(RELEASE_MIN_DIR)$$P`; \
