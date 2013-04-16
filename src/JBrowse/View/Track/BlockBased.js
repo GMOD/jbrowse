@@ -839,7 +839,7 @@ return declare( [Component,DetailsMixin,Destroyable],
 
 
     _processMenuSpec: function( spec, context ) {
-        for( var x in spec ) {
+        for( var x = 0; x < spec.length; x++ ) {
             if( typeof spec[x] == 'object' )
                 spec[x] = this._processMenuSpec( spec[x], context );
             else

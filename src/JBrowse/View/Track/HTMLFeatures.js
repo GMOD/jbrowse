@@ -453,15 +453,16 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             if( block.featureNodes )
                 for( var name in block.featureNodes ) {
                     var featDiv = block.featureNodes[name];
-                    delete featDiv.track;
-                    delete featDiv.feature;
-                    delete featDiv.callbackArgs;
-                    delete featDiv._labelScale;
-                    delete featDiv._descriptionScale;
-                    if( featDiv.label ) {
-                        delete featDiv.label.track;
-                        delete featDiv.label.feature;
-                        delete featDiv.label.callbackArgs;
+                    array.forEach( 'track,feature,callbackArgs,_labelScale,_descriptionScale'.split(','), function(a) {
+                                       if( a in featDiv )
+                                           delete featDiv[a];
+                                   });
+                    if( 'label' in featDiv ) {
+                        array.forEach( 'track,feature,callbackArgs'.split(','), function(a) {
+                                       if( a in featDiv )
+                                           delete featDiv.label[a];
+                                       });
+                        delete featDiv.label;
                     }
                 }
         }
