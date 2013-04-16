@@ -341,7 +341,7 @@ return declare( null,
         var returnBuffer;
 
         if( ! has('typed-arrays') ) {
-            failureCallback( 'Browser does not support typed arrays');
+            failureCallback( 'Web browser does not support typed arrays');
             return;
         }
 

@@ -105,8 +105,8 @@ var BamFile = declare( null,
             }
 
             if( ! has('typed-arrays') ) {
-                dlog('Browser does not support typed arrays');
-                failCallback('Browser does not support typed arrays');
+                dlog('Web browser does not support typed arrays');
+                failCallback('Web browser does not support typed arrays');
                 return;
             }
 
