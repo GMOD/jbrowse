@@ -292,6 +292,12 @@ return declare( null,
      * @param args.failure {Function} failure callback
      */
     get: function( args ) {
+        if( ! has('typed-arrays') ) {
+            (args.failure || function(m) { console.error(m); })('Web browser does not support typed arrays.');
+            return;
+        }
+
+
         this._log( 'get', args.url, args.start, args.end );
 
         var start = args.start || 0;

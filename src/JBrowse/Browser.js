@@ -1115,7 +1115,7 @@ Browser.prototype._milestoneFunction = function( /**String*/ name, func ) {
     try {
         func.apply( thisB, args ) ;
     } catch(e) {
-        console.error(''+e, e.stack);
+        console.error( e, e.stack );
         d.resolve({ success:false, error: e });
     }
 

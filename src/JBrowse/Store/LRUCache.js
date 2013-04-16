@@ -204,7 +204,7 @@ return declare( null,
 
     _size: function( value ) {
         var type = typeof value;
-        if( type == 'object' ) {
+        if( type == 'object' && type !== null ) {
             var sizeType = typeof value.size;
             if( sizeType == 'number' ) {
                 return sizeType;
