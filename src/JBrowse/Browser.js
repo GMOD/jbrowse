@@ -513,11 +513,6 @@ Browser.prototype.initView = function() {
             this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
         }
 
-        if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview )
-            menuBar.appendChild( this.makeShareLink() );
-        else
-            menuBar.appendChild( this.makeFullViewLink() );
-
         if( this.config.show_nav ) {
             // make the help menu
             this.addGlobalMenuItem( 'help',
@@ -543,6 +538,12 @@ Browser.prototype.initView = function() {
 
             this.renderGlobalMenu( 'help', {}, menuBar );
         }
+
+        if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview )
+            menuBar.appendChild( this.makeShareLink() );
+        else
+            menuBar.appendChild( this.makeFullViewLink() );
+
 
         this.viewElem = document.createElement("div");
         this.viewElem.className = "dragWindow";
