@@ -1598,55 +1598,64 @@ Browser.prototype.navigateToLocation = function( location ) {
 Browser.prototype.searchNames = function( /**String*/ loc ) {
     var thisB = this;
     this.nameStore.query({ name: loc })
-        .then( function( nameMatches ) {
+        .then(
+            function( nameMatches ) {
+                // if we have no matches, pop up a dialog saying so, and
+                // do nothing more
+                if( ! nameMatches.length ) {
+                    new InfoDialog(
+                        {
+                            title: 'Not found',
+                            content: 'Not found: <span class="locString">'+loc+'</span>',
+                            className: 'notfound-dialog'
+                        }).show();
+                    return;
+                }
 
-            // if we have no matches, pop up a dialog saying so, and
-            // do nothing more
-            if( ! nameMatches.length ) {
+                var goingTo;
+
+                //first check for exact case match
+                for (var i = 0; i < nameMatches.length; i++) {
+                    if( nameMatches[i].name  == loc )
+                        goingTo = nameMatches[i];
+                }
+                //if no exact case match, try a case-insentitive match
+                if( !goingTo ) {
+                    for( i = 0; i < nameMatches.length; i++ ) {
+                        if( nameMatches[i].name.toLowerCase() == loc.toLowerCase() )
+                            goingTo = nameMatches[i];
+                    }
+                }
+                //else just pick a match
+                if( !goingTo ) goingTo = nameMatches[0];
+
+                // if it has one location, go to it
+                if( goingTo.location ) {
+
+                    //go to location, with some flanking region
+                    thisB.showRegionWithHighlight( goingTo.location );
+                }
+                // otherwise, pop up a dialog with a list of the locations to choose from
+                else if( goingTo.multipleLocations ) {
+                    new LocationChoiceDialog(
+                        {
+                            browser: thisB,
+                            locationChoices: goingTo.multipleLocations,
+                            title: 'Choose '+goingTo.name+' location',
+                            prompt: '"'+goingTo.name+'" is found in multiple locations.  Please choose a location to view.'
+                        })
+                        .show();
+                }
+            },
+            function(e) {
+                console.error( e );
                 new InfoDialog(
                     {
-                        title: 'Not found',
-                        content: 'Not found: <span class="locString">'+loc+'</span>',
-                        className: 'notfound-dialog'
+                        title: 'Error',
+                        content: 'Error reading from name store.'
                     }).show();
                 return;
             }
-
-            var goingTo;
-
-            //first check for exact case match
-            for (var i = 0; i < nameMatches.length; i++) {
-                if( nameMatches[i].name  == loc )
-                    goingTo = nameMatches[i];
-            }
-            //if no exact case match, try a case-insentitive match
-            if( !goingTo ) {
-                for( i = 0; i < nameMatches.length; i++ ) {
-                    if( nameMatches[i].name.toLowerCase() == loc.toLowerCase() )
-                        goingTo = nameMatches[i];
-                }
-            }
-            //else just pick a match
-            if( !goingTo ) goingTo = nameMatches[0];
-
-            // if it has one location, go to it
-            if( goingTo.location ) {
-
-                //go to location, with some flanking region
-                thisB.showRegionWithHighlight( goingTo.location );
-            }
-            // otherwise, pop up a dialog with a list of the locations to choose from
-            else if( goingTo.multipleLocations ) {
-                new LocationChoiceDialog(
-                    {
-                        browser: thisB,
-                        locationChoices: goingTo.multipleLocations,
-                        title: 'Choose '+goingTo.name+' location',
-                        prompt: '"'+goingTo.name+'" is found in multiple locations.  Please choose a location to view.'
-                    })
-                    .show();
-            }
-        }
    );
 };
 
