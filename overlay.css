@@ -35,6 +35,10 @@
     overflow: auto;
 }
 
+.overlay .content * {
+    /* something should be put here to make the divs stack vertically. perhaps. */
+}
+
 .overlay .buttons {
     position: absolute;
     bottom: 0px;
