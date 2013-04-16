@@ -639,12 +639,13 @@ return declare( [Component,DetailsMixin,Destroyable],
      */
     updateStaticElements: function( /**Object*/ coords ) {
         this.window_info = dojo.mixin( this.window_info || {}, coords );
-        if( this.fatalErrorMessageElement )
-            dojo.style( this.fatalErrorMessageElement, {
-                            left: coords.x+this.window_info.width * 0.2 +'px',
-                            width: this.window_info.width * 0.6 + 'px'
-                        });
-        if( this.label )
+        if( this.fatalErrorMessageElement ) {
+            this.fatalErrorMessageElement.style.width = this.window_info.width * 0.6 + 'px';
+            if( 'x' in coords )
+                this.fatalErrorMessageElement.style.left = coords.x+this.window_info.width * 0.2 +'px';
+        }
+
+        if( this.label && 'x' in coords )
             this.label.style.left = coords.x+'px';
     },
 

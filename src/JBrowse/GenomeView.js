@@ -193,7 +193,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
         refSeq: this.ref
     });
     this.staticTrack.setViewInfo( this, function(height) {}, this.stripeCount,
-                                 this.scaleTrackDiv, undefined, this.stripePercent,
+                                 this.scaleTrackDiv, this.stripePercent,
                                  this.stripeWidth, this.pxPerBp,
                                  this.trackPadding);
     this.zoomContainer.appendChild(this.scaleTrackDiv);
@@ -208,7 +208,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
                                            refSeq: this.ref
                                        });
     gridTrack.setViewInfo( this, function(height) {}, this.stripeCount,
-                          gridTrackDiv, undefined, this.stripePercent,
+                          gridTrackDiv, this.stripePercent,
                           this.stripeWidth, this.pxPerBp,
                           this.trackPadding);
     this.trackContainer.appendChild(gridTrackDiv);
@@ -1569,12 +1569,16 @@ GenomeView.prototype.addOverviewTrack = function(track) {
     var heightUpdate = function(height) {
         view.updateOverviewHeight();
     };
-    track.setViewInfo( this, heightUpdate, this.overviewStripes, trackDiv,
-              undefined,
-              overviewStripePct,
-              this.overviewStripeBases,
-                      this.pxPerBp,
-                      this.trackPadding);
+    track.setViewInfo(
+        this,
+        heightUpdate,
+        this.overviewStripes,
+        trackDiv,
+        overviewStripePct,
+        this.overviewStripeBases,
+        this.pxPerBp,
+        this.trackPadding
+    );
     this.overview.appendChild(trackDiv);
     this.updateOverviewHeight();
 
