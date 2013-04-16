@@ -2,6 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'JBrowse/Util',
+           'JBrowse/has',
            'dojo/dnd/move',
            'dojo/dnd/Source',
            'dijit/focus',
@@ -15,6 +16,7 @@ define([
            declare,
            array,
            Util,
+           has,
            dndMove,
            dndSource,
            dijitFocus,
@@ -991,6 +993,10 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
 
     this.pxPerBp = Math.min(this.getWidth() / (endbp - startbp), this.maxPxPerBp );
     this.curZoom = Util.findNearest(this.zoomLevels, this.pxPerBp);
+
+    if( has('inaccurate-html-layout') )
+        this.pxPerBp = this.zoomLevels[ this.curZoom ];
+
     if (Math.abs(this.pxPerBp - this.zoomLevels[this.zoomLevels.length - 1]) < 0.2) {
         //the cookie-saved location is in round bases, so if the saved
         //location was at the highest zoom level, the new zoom level probably

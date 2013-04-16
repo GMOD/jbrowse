@@ -108,6 +108,11 @@
    sequences can get messed up when ref.start != 0, or ref.end !=
    ref.length (issue #215).
 
+ * Fixed bug in which, when using the dynamic zooming tool
+   (rubber-band zooming), some browsers (particularly Safari) would
+   inaccurately display the locations of HTML-based features and
+   per-basepair colored bars in sequence tracks.
+
  * Fixed bug in which navigating via sequence dropdown selection
    ignores previous location on selected sequence, whereas with
    navigation text box entering just a sequence name navigates to
