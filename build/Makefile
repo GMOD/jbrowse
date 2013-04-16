@@ -43,7 +43,7 @@ release-normal-test: release-normal
 
 release-min: release-normal
 	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
-	for P in src docs/jsdoc tests tests_extended sample_data build; do \
+	for P in src docs/jsdoc tests tests_extended build; do \
 	    rm -rf $(RELEASE_MIN_DIR)$$P; \
 	done;
 	for P in 	src/wig2png/ \
@@ -60,8 +60,6 @@ release-min: release-normal
 			src/dijit/templates/ \
 			src/JBrowse/ \
 			src/perl5 \
-			sample_data/test_snippet.html \
-			sample_data/raw/yeast* \
 			src/dgrid/css \
 	; do \
 	    mkdir -p `dirname $(RELEASE_MIN_DIR)$$P`; \
