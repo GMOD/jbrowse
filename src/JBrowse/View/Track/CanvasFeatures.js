@@ -9,6 +9,7 @@ define( [
             'dojo/dom-geometry',
             'dojo/Deferred',
             'dojo/on',
+            'JBrowse/has',
             'JBrowse/View/GranularRectLayout',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/Errors',
@@ -21,6 +22,7 @@ define( [
             domGeom,
             Deferred,
             on,
+            has,
             Layout,
             BlockBasedTrack,
             Errors,
@@ -71,15 +73,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         this.showLabels = this.config.style.showLabels;
     },
 
-    browserHasCanvas: function( blockIndex, block ) {
-        try {
-            document.createElement('canvas').getContext('2d').fillStyle = 'red';
-            return true;
-        } catch( e ) {
-            return false;
-        }
-    },
-
     _defaultConfig: function() {
         return {
             maxFeatureScreenDensity: 400,
@@ -114,7 +107,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         var rightBase = args.rightBase;
         var scale = args.scale;
 
-        if( ! this.browserHasCanvas( blockIndex, block ) ) {
+        if( ! has('canvas') ) {
             this.fatalError = 'This browser does not support HTML canvas elements.';
             this.fillBlockError( blockIndex, block, this.fatalError );
             return;
