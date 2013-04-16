@@ -3,7 +3,6 @@ define([ 'dojo/has' ],
 
            // add some detection routines to dojo/has for typed arrays and canvas
            has.add( 'typed-arrays', function() {
-                        return true;
                         try {
                             return !! Uint8Array;
                         } catch(e) {};
