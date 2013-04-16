@@ -43,7 +43,7 @@ constructor: function( args ) {
     var thisB = this;
     // get objects for any store names provided in the config
     var storeFetchPromises = array.map(
-        args.storeNames.display || [],
+        args.storeNames || [],
         function( storeName ) {
             var d = new Deferred();
             thisB.browser.getStore( storeName, function( store ) {
