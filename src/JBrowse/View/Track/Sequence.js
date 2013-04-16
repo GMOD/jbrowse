@@ -133,12 +133,12 @@ return declare( [BlockBased, ExportMixin],
         var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('span');
-            base.className = 'base base_'+seq[i].toLowerCase();
+            base.className = 'base base_'+seq.charAt([i]).toLowerCase();
             base.style.width = charWidth;
             if( drawChars ) {
                 if( bigTiles )
                     base.className = base.className + ' big';
-                base.innerHTML = seq[i];
+                base.innerHTML = seq.charAt(i);
             }
             container.appendChild(base);
         }

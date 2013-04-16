@@ -431,6 +431,17 @@ Util = {
                           seen[norm] = true;
                       });
         return result;
+    },
+
+    // back-compatible way to remove properties/attributes from DOM
+    // nodes.  IE 7 and older do not support the `delete` operator on
+    // DOM nodes.
+    removeAttribute: function( domNode, attrName ) {
+        try { delete domNode[attrName]; }
+        catch(e) {
+            if( domNode.removeAttribute )
+                domNode.removeAttribute( attrName );
+        }
     }
 };
 

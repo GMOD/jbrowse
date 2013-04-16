@@ -453,16 +453,16 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             if( block.featureNodes )
                 for( var name in block.featureNodes ) {
                     var featDiv = block.featureNodes[name];
-                    array.forEach( 'track,feature,callbackArgs,_labelScale,_descriptionScale'.split(','), function(a) {
-                                       if( a in featDiv )
-                                           delete featDiv[a];
-                                   });
+                    array.forEach(
+                        'track,feature,callbackArgs,_labelScale,_descriptionScale'.split(','),
+                        function(a) { Util.removeAttribute( featDiv, a ); }
+                    );
                     if( 'label' in featDiv ) {
-                        array.forEach( 'track,feature,callbackArgs'.split(','), function(a) {
-                                       if( a in featDiv )
-                                           delete featDiv.label[a];
-                                       });
-                        delete featDiv.label;
+                        array.forEach(
+                            'track,feature,callbackArgs'.split(','),
+                            function(a) { Util.removeAttribute( featDiv.label, a ); }
+                        );
+                        Util.removeAttribute( featDiv, 'label' );
                     }
                 }
         }
@@ -995,9 +995,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         featDiv.contextMenuTimeout = window.setTimeout( function() {
             if( featDiv.contextMenu ) {
                 featDiv.contextMenu.destroyRecursive();
-                delete featDiv.contextMenu;
+                Util.removeAttribute( featDiv, 'contextMenu' );
             }
-            delete featDiv.contextMenuTimeout;
+            Util.removeAttribute( featDiv, 'contextMenuTimeout' );
         }, timeToLive );
     },
 
