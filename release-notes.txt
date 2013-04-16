@@ -128,6 +128,9 @@
    Internet Explorer 9.  Thanks to Steffi Geisen for pointing this out
    (issue #233).
 
+ * Fixed a number of bugs that prevented JBrowse from running in
+   Internet Explorer 7 and 8 (issue #236).
+
  * Improved JSON syntax error messages in server-side scripts
    (issue #214).
 
