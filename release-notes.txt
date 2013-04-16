@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.9.0     2013-04-16 18:59:19 EST5EDT
+
  * Added a direct-access data backend for reading variation data
    directly from VCF files that have been compressed with `bgzip` and
    indexed with `tabix`.  See the JBrowse Configuration Guide on the
