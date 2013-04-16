@@ -42,9 +42,10 @@ return declare( null, {
         this.browserSupports = {
             dnd: 'draggable' in document.createElement('span')
         };
-        this.supportedTracks = ['JBrowse/View/Track/Wiggle/XYFunction',
-                                'JBrowse/View/Track/Wiggle/Density',
-                                'JBrowse/View/Track/Wiggle/XYPlot'];
+        this.supportedWiggleTracks = ['JBrowse/View/Track/Wiggle/XYFunction',
+                                      'JBrowse/View/Track/Wiggle/Density',
+                                      'JBrowse/View/Track/Wiggle/XYPlot'];
+        this.supportedHTMLTracks = ['JBrowse/View/Track/HTMLFeatures'];
         this.trackNames = [];
         for (var ID in args.browser.trackConfigsByName ) {
             if ( args.browser.trackConfigsByName.hasOwnProperty( ID ) ) {
@@ -62,7 +63,10 @@ return declare( null, {
         dojo.destroy(dialog.containerNode)
 
         var actionBar = this._makeActionBar();
-        var displaySelector = this._makeStoreSelector({ title: 'Tracks For Analysis' });
+        var displaySelector = this._makeStoreSelector({ title: 'Tracks For Analysis',
+                                                        supportedTracks: this.supportedWiggleTracks });
+        var regionSelector = this._makeStoreSelector({ title: 'Region sources',
+                                                        supportedTracks: this.supportedHTMLTracks });
         var nameField = this._makeNameField( "type desired track name here" );
 
         on( displaySelector.domNode, 'change', dojo.hitch(this, function ( e ) {
@@ -70,16 +74,27 @@ return declare( null, {
             actionBar.createTrackButton.set('disabled', !(dojo.query('option', displaySelector.domNode).length > 0) );
         }));
 
-        this.storeFetch = { data : { display: displaySelector.sel },
+        this.storeFetch = { data : { display: displaySelector.sel, regions: regionSelector.sel },
                             fetch : dojo.hitch(this.storeFetch, function() {
                                     var storeLists = { display: this.data.display.get('value')[0]
                                                                 ? this.data.display.get('value').map(
                                                                     function(arg){return arg.split(',')[0];})
+                                                                : undefined,
+                                                       regions: this.data.regions.get('value')[0]
+                                                                ? this.data.regions.get('value').map(
+                                                                    function(arg){return arg.split(',')[0];})
                                                                 : undefined };
                                     // remove duplicates. Multiple tracks may have the same store.
-                                    storeLists.display = storeLists.display.filter(function(elem, pos) {
-                                        return storeLists.display.indexOf(elem) == pos;
-                                    });
+                                    storeLists.display = storeLists.display
+                                                         ?  storeLists.display.filter(function(elem, pos) {
+                                                                return storeLists.display.indexOf(elem) == pos;
+                                                            })
+                                                         : undefined;
+                                    storeLists.regions = storeLists.regions
+                                                         ?  storeLists.regions.filter(function(elem, pos) {
+                                                                return storeLists.regions.indexOf(elem) == pos;
+                                                            })
+                                                         : undefined;
                                     return storeLists;
                                 })
                           };
@@ -95,7 +110,7 @@ return declare( null, {
                         dom.create( 'div', { className: 'instructions',
                                              innerHTML: 'Select tracks for clustering.' } ),
                             div( { className: 'storeSelectors' },
-                             [ displaySelector.domNode ]
+                             [ displaySelector.domNode, regionSelector.domNode ]
                             ),
                         actionBar.domNode
                       ];
@@ -144,8 +159,9 @@ return declare( null, {
         return { domNode: actionBar, createTrackButton: createTrack };
     },
 
-    _makeStoreSelector: function( args ) {
+    _makeStoreSelector: function( args ) { // consider making this a new class. It's big and resonably well encapsulated.
         var selectorTitle = args.title;
+        var supportedTracks = args.supportedTracks;
 
         var container = dom.create( 'div', { className: 'selectorContainer'} )
 
@@ -177,7 +193,7 @@ return declare( null, {
                 tracks[ tmp[ID].key || tmp[ID].label ] = { type: tmp[ID].type,
                                                            value: tmp[ID].store+','+tmp[ID].type,
                                                            disabled: false,
-                                                           valid: ( this.supportedTracks.indexOf(tmp[ID].type ) > -1 ) ? true : false
+                                                           valid: ( supportedTracks.indexOf(tmp[ID].type ) > -1 ) ? true : false
                                                          };
             }
         }
