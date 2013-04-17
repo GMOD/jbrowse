@@ -121,8 +121,8 @@ return declare( [BlockBasedTrack,ExportMixin], {
                     block.featureRects = featureRects;
                     block.pixelScores = this._calculatePixelScores( this._canvasWidth(block), features, featureRects );
 
-                    if (args && args.spans)
-                        block.spans = args.spans; // used for masking
+                    if (args && args.maskingSpans)
+                        block.maskingSpans = args.maskingSpans; // used for masking
 
                     finishCallback();
                 }));
@@ -180,7 +180,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
                     block.endBase,  block,
                     c,              features,
                     featureRects,   dataScale,
-                    pixels,         block.spans ); // note: spans may be undefined.
+                    pixels,         block.maskingSpans ); // note: spans may be undefined.
 
         this._makeScoreDisplay( args.scale, args.leftBase, args.rightBase, block, c, features, featureRects, pixels );
 
@@ -238,7 +238,6 @@ return declare( [BlockBasedTrack,ExportMixin], {
                               array.forEach( thisB.blocks, function( block, blockIndex ) {
                                   if( block && block.domNode.parentNode )
                                       thisB.fillBlockError( blockIndex, block );
-                                  }
                               });
                           });
 

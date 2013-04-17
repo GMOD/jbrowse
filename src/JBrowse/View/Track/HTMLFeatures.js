@@ -516,6 +516,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         }
     },
 
+     /**
+     * Called by "tranfer" when sourceBlock gets deleted.  Ensures that any child features of
+     * sourceBlock that extend onto destBlock will remain masked when moved onto
+     * destBlock.
+     */
     _maskTransfer: function( featDiv, sourceSlot, containerStart, containerEnd ) {
         var subfeatures = [];
         // remove subfeatures
@@ -633,14 +638,14 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
-                                    if ( args && args.spans ) { 
+                                    if ( args && args.maskingSpans ) { 
                                         //note: spans have to be inverted
                                         var invSpan = [];
                                         invSpan[0] = { start: leftBase };
                                         var i = 0;
-                                        for ( var span in args.spans) {
-                                            if (args.spans.hasOwnProperty(span)) {
-                                                span = args.spans[span];
+                                        for ( var span in args.maskingSpans) {
+                                            if (args.maskingSpans.hasOwnProperty(span)) {
+                                                span = args.maskingSpans[span];
                                                 invSpan[i].end = span.start;
                                                 i++;
                                                 invSpan[i] = { start: span.end };
@@ -651,7 +656,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                             invSpan.splice(i,1); }
                                         if (invSpan[0].end <= invSpan[0].start) {
                                             invSpan.splice(0,1); }
-                                        curTrack.maskBySpans( invSpan, args.spans ); 
+                                        curTrack.maskBySpans( invSpan, args.maskingSpans ); 
                                     }
                                     finishCallback();
                                 },
