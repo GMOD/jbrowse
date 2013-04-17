@@ -1213,7 +1213,7 @@ Browser.prototype._addTrackConfigs = function( /**Array*/ configs ) {
         this.config.tracks = [];
     if( ! this.trackConfigsByName )
         this.trackConfigsByName = {};
-    if( ! configs instanceof Array ) {
+    if( !lang.isArray(configs) ) {
         console.error("_addTrackConfigs must be passed an array.");
     }
 
