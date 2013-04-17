@@ -915,13 +915,13 @@ return declare( [Component,DetailsMixin,Destroyable],
             if( type == 'content' )
                 dialog.set( 'content', this._evalConf( context, spec.content, null ) );
 
-            delete context.dialog;
+            Util.removeAttribute( context, 'dialog' );
         }
         else if( type == 'bare' ) {
             dialog = new Dialog( dialogOpts );
             context.dialog = dialog;
             dialog.set( 'content', this._evalConf( context, spec.content, null ) );
-            delete context.dialog;
+            Util.removeAttribute( context, 'dialog' );
         }
         // open the link in a dialog with an iframe
         else if( type == 'iframe' ) {
