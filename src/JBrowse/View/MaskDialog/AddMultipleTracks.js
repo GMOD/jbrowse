@@ -65,7 +65,7 @@ return declare(null, {
             // If nothing is selected, enable all available options
             if ( !selectedType ) {
                 for ( var key in options ) {
-                    if ( options.hasOwnProperty(key) && this.tracks[options[key].value].valid && !this.tracks[options[key].value].disabled ) {
+                    if ( options.hasOwnProperty(key) && options[key].innerHTML && this.tracks[options[key].innerHTML].valid && !this.tracks[options[key].innerHTML].disabled ) {
                         options[key].disabled = false;
                     }
                 }
