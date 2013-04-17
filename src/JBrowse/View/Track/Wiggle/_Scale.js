@@ -82,13 +82,17 @@ return Util.fastDeclare({
             throw 'cannot display track '+track.name+', could not determine min_score.  Do you need to set min_score in its configuration?';
         }
 
-        // if we have a log scale, need to take the log of the min and max
+        var offset = parseFloat( config.data_offset ) || 0;
+
         if( config.scale == 'log' ) {
-            max = Math.log(max);
-            min = min ? Math.log(min) : 0;
+            max = this.log( max + offset );
+            min = this.log( min + offset );
+        }
+        else {
+            max += offset;
+            min += offset;
         }
 
-        var offset = parseFloat( config.data_offset ) || 0;
         var origin = (function() {
           if ( 'bicolor_pivot' in config ) {
             if ( config.bicolor_pivot == 'mean' ) {
@@ -109,8 +113,8 @@ return Util.fastDeclare({
 
         dojo.mixin( this, {
             offset: offset,
-            min: min + offset,
-            max: max + offset,
+            min: min,
+            max: max,
             range: max - min,
             origin: origin,
             _statsFingerprint: Digest.objectFingerprint( stats )
@@ -130,7 +134,7 @@ return Util.fastDeclare({
             case 'log':
                 return function( value ) {
                     with(thisB)
-                        return ( Math.log(value+offset) - min )/range;
+                        return ( thisB.log(value+offset) - min )/range;
                 };
             case 'linear':
             default:
@@ -140,6 +144,11 @@ return Util.fastDeclare({
                 };
             }
         })();
+    },
+
+    log: function( value ) {
+        return value ? Math.log( Math.abs( value ) ) * ( value < 0 ? -1 : 1 )
+                     : 0;
     },
 
     /**

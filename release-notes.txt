@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed incorrect display of negative values in log-scale wiggle
+   tracks.  Thanks to GitHub user drusch for pointing this out (issue
+   #244).
+
 1.9.0     2013-04-16 18:59:19 EST5EDT
 
  * Added a direct-access data backend for reading variation data
