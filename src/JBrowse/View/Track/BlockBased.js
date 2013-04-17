@@ -839,11 +839,13 @@ return declare( [Component,DetailsMixin,Destroyable],
 
 
     _processMenuSpec: function( spec, context ) {
-        for( var x = 0; x < spec.length; x++ ) {
-            if( typeof spec[x] == 'object' )
-                spec[x] = this._processMenuSpec( spec[x], context );
-            else
-                spec[x] = this.template( context.feature, this._evalConf( context, spec[x], x ) );
+        for( var x in spec ) {
+            if( spec.hasOwnProperty(x) ) {
+                if( typeof spec[x] == 'object' )
+                    spec[x] = this._processMenuSpec( spec[x], context );
+                else
+                    spec[x] = this.template( context.feature, this._evalConf( context, spec[x], x ) );
+            }
         }
         return spec;
     },

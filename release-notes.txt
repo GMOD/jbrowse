@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Fixed a regression in which callbacks and interpolations were not
+   evaluated in right-click menu configurations.
+
  * Fixed incorrect display of negative values in log-scale wiggle
    tracks.  Thanks to GitHub user drusch for pointing this out (issue
    #244).
