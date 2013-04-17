@@ -37,7 +37,9 @@ return declare( null, {
               basesPerSpan: 1/this.browser.view.pxPerBp,
               start: this.refSeq.start, end: this.refSeq.end }, 
             // query the whole genome (alternately, allow the user to set regions?)
+
             function(feat){thisB.makeQuery( feat, regions );},
+
             dojo.hitch(this, function() {
                 // once the query regions have been built, execute the following.
                 var testDiv = dom.create( 'div', { innerHTML: "You're testing things. Hurray. The overlay shows test clustering data and heatmaps generated from the regions dictated by whatever HTMLFeatures takcs you selected." } );
@@ -48,14 +50,15 @@ return declare( null, {
                     }
                 }
                 all(heatmapDeferred).then( dojo.hitch( thisB, function( heatmaps ) {
+                    this.heatmaps = heatmaps;
                     var d = this.getStoreStats();
                     d.then(dojo.hitch(this, function(){
                         var overlay = new Overlay().addTitle('test').addToDisplay(testDiv);
-                        for ( var key in heatmaps ) {
-                            if (heatmaps.hasOwnProperty(key)) {
-                                overlay.addToDisplay(this.drawHeatmap(heatmaps[key]));
-                            }
-                        }
+                        // for ( var key in heatmaps ) {
+                        //     if (heatmaps.hasOwnProperty(key)) {
+                        //         overlay.addToDisplay(this.drawHeatmap(heatmaps[key]));
+                        //     }
+                        // }
                         var means = this.testKmeans(heatmaps);
                         overlay.addToDisplay(dom.create('div',{innerHTML: 'break! clusters come next.'}));
                         for ( var key in means ) {
@@ -117,13 +120,11 @@ return declare( null, {
                                 dojo.hitch( this,
                                     function(feat){
                                         var BPperBin = (query.end - query.start)/this.numOfBins;
-                                        var s = feat.get('start');
-                                        var e = feat.get('end');
                                         for ( var i=0; i<this.numOfBins; i++) {
-                                            if (e < query.start+i*BPperBin || s > query.start+(i+1)*BPperBin)
+                                            if (feat.get('end') < query.start+i*BPperBin || feat.get('start') > query.start+(i+1)*BPperBin)
                                                 continue;
-                                            var overlapStart = Math.max(s, query.start+i*BPperBin);
-                                            var overlapEnd = Math.min(e, query.start+(i+1)*BPperBin);
+                                            var overlapStart = Math.max(feat.get('start'), query.start+i*BPperBin);
+                                            var overlapEnd = Math.min(feat.get('end'), query.start+(i+1)*BPperBin);
                                             var overlappingBP = overlapEnd - overlapStart;
                                             heatmap[feat.storeName][i] = heatmap[feat.storeName][i] 
                                                                          ? heatmap[feat.storeName][i] + feat.get('score')*overlappingBP
@@ -188,7 +189,7 @@ return declare( null, {
         }
         var numRows = this.storeNames.length;
         var numCols = this.numOfBins;
-        var can = dom.create( 'canvas', { height: 20*numRows, width: 20*numCols } );
+        var can = dom.create( 'canvas', { className: 'heatmap', height: 20*numRows, width: 20*numCols } );
         var c = can.getContext('2d');
         var j = 0;
         for (var name in this.storeNames ) {
@@ -244,8 +245,53 @@ return declare( null, {
         var thisB = this;
         var data = data.map(function(a){return thisB.HMtoArray(a);});
         var kmeans = new Kmeans().kMeans({data: data, numClusters: 3});
-        var means = kmeans.means.map(function(a){return thisB.drawHeatmap(thisB.ArrayToHM(a, {}))});;
+        var means = [];
+        for ( var key in kmeans.means ) {
+            if ( kmeans.means.hasOwnProperty(key) ) {
+                means.push(thisB.makeClusterDisplay( { heatmap: thisB.ArrayToHM(kmeans.means[key], {}),
+                                                       clusters: kmeans.clusters[key] } ) );
+            }
+        }
         return means;
+    },
+
+    makeClusterDisplay: function( args ) {
+        var thisB = this;
+        var heatmap = args.heatmap;
+        var clusters = args.clusters;
+        var can = this.drawHeatmap(heatmap);
+        can.sourceHeatmaps = [];
+        for (var index in clusters ) {
+            if ( clusters.hasOwnProperty(index) ) {
+                can.sourceHeatmaps.push(this.heatmaps[index]);
+            }
+        }
+        var container = dom.create( 'div', { className: 'heatmap-container' } );
+        container.appendChild(can);
+        var sourceMapContainer = dom.create( 'div', { className: 'source-map-container', style: { display: 'none' } } );
+        var button = dom.create( 'div', { className: 'heatmap-button',
+                                          innerHTML: '?',
+                                          onclick: function() {
+                                            if ( sourceMapContainer.style.display == 'none' ) {
+                                                // if it was hidden, add source heatmaps and toggle visibility
+                                                for (var key in can.sourceHeatmaps ) {
+                                                    if (can.sourceHeatmaps.hasOwnProperty(key)) {
+                                                        sourceMapContainer.appendChild(thisB.drawHeatmap(can.sourceHeatmaps[key]));
+                                                    }
+                                                }
+                                                sourceMapContainer.style.display = 'block';
+                                            }
+                                            else {
+                                                // if it was visible, remove all children and toggle visibility
+                                                while (sourceMapContainer.firstChild) {
+                                                    sourceMapContainer.removeChild(sourceMapContainer.firstChild);
+                                                }
+                                                sourceMapContainer.style.display = 'none';
+                                            }    
+                                        } } );
+        container.appendChild(button);
+        container.appendChild(sourceMapContainer);
+        return container;
     }
 
 });

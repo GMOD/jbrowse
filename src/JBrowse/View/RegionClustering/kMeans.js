@@ -9,7 +9,6 @@ define([
 return declare( null, {
 
     constructor: function( args ) {
-        this.errorGraph = {/*number of clusters: error*/};
     },
 
     kMeans: function( args ) {
@@ -20,13 +19,18 @@ return declare( null, {
         var error = Number.POSITIVE_INFINITY; // the error of the best itteration
         var returnData;
 
-        for (var itteration=0; itteration<numClusters; itteration++) {
-            // run the clustering as many times as there are clusters. Pick the convergence with the loswest error.
+        if ( numClusters > data.length ) {
+            console.warn('more clusters than datapoints. Defaulting to sqrt(n/2) clusters.');
+            numClusters = Math.ceil(Math.sqrt(data.length/2));
+        }
+
+        for (var itteration=0; itteration<20; itteration++) {
+            // run the clustering several times. Pick the convergence with the loswest error.
             var means = this.kplusplus( data, dataNames, numClusters ); // initialize the dataset
             var currError = Number.POSITIVE_INFINITY; // the error of the current itteration.
             while(true) {
                 var clustersAndError = this.createClusters( data, means );
-                if ( Math.abs(currError - clustersAndError.error) < 0.0000001*Math.max(currError, clustersAndError.error) )
+                if ( Math.abs(currError - clustersAndError.error) < 0.0000001*Math.max(currError, clustersAndError.error) || currError == 0 )
                     break; // when we reach a minimum, escape.
                 means = [];
                 currError = clustersAndError.error;
@@ -35,11 +39,12 @@ return declare( null, {
                 }
             }
             if (currError < error) {
-                returnData = { means: means, clustersAndError: clustersAndError };
+                returnData = { means: means, clusters: clustersAndError.clusters };
                 error = currError;
             }
             console.log("finished itteration ",itteration,' with error ',currError);
         }
+        console.log('final error: ',error);
         return returnData;
     },
 
