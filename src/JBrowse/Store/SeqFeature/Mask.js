@@ -21,15 +21,25 @@ define([
 
 var featureWrapper = Util.fastDeclare(
     {
-        get: function( arg ) { return this.feature.get(arg); },
+        get: function( arg ) { 
+            return this.feature.get(arg);
+        },
 
-        id: function() { return this.feature.id()+this.storeName; },
+        id: function() { 
+            return this.feature.id()+this.storeName;
+        },
 
-        parent: function() { return this.feature.parent(); },
+        parent: function() { 
+            return this.feature.parent();
+        },
 
-        children: function() { return this.feature.children(); },
+        children: function() { 
+            return this.feature.children();
+        },
 
-        tags: function() { return this.feature.tags(); },
+        tags: function() { 
+            return this.feature.tags();
+        },
 
         constructor: function( feat, storeName ) {
             this.feature = feat;
@@ -355,7 +365,7 @@ inverseMask: function( features, spans, featCallback, doneCallback ) {
             featCallback( features[key] )
         }
     }
-    doneCallback( {spans: spans} );
+    doneCallback( { maskingSpans: spans} );
 },
 
 combineStats: function( key, currStats, newStats) {
