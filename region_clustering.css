@@ -1,0 +1,17 @@
+/* css for the various elements in a region clustering overlay */
+
+.heatmap-container .source-map-container {
+    overflow: auto;
+    white-space: nowrap;
+}
+
+.heatmap-container .heatmap-button {
+    height: 20px;
+    width: 20px;
+    border: 1px solid black;
+    border-radius: 3px;
+}
+
+.heatmap {
+    padding: 10px;
+}

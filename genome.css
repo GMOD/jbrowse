@@ -8,6 +8,7 @@
 @import url("file_dialog.css");
 @import url("overlay.css");
 @import url("region_clustering_dialog.css");
+@import url("region_clustering.css");
 
 /* CSS styles for the various types of feature glyphs */
 @import url("track_styles.css");
