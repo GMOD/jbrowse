@@ -176,9 +176,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     },
 
     /**
-* Returns a promise for the appropriate glyph for the given
-* feature and args.
-*/
+     * Returns a promise for the appropriate glyph for the given
+     * feature and args.
+     */
     getGlyph: function( viewArgs, feature, callback ) {
         var glyphClassName = this.getConfForFeature( 'glyph', feature );
         var glyph, interestedParties;
@@ -415,8 +415,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             return null;
         try {
             var ctx = viewArgs.block.featureCanvas.getContext('2d');
-            // ctx.translate( viewArgs.block.offsetLeft - this.featureCanvas.offsetLeft, 0 );
-            // console.log( viewArgs.blockIndex, 'block offset', viewArgs.block.offsetLeft - this.featureCanvas.offsetLeft );
             return ctx;
         } catch(e) {
             console.error(e, e.stack);
