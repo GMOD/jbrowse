@@ -21,7 +21,8 @@ define( [
    
 return declare(null, {
 
-    /* a dialog that lets us select more than one track at once. A nice alternative to the filtering selector */
+    /* A dialog that lets us select more than one track at once. 
+       An alternative to the filtering selector */
 
     constructor: function(args) {
         this.multiselect = args.multiselect;

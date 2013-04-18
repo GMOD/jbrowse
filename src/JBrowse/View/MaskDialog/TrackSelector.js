@@ -25,6 +25,8 @@ return declare( null, {
         this.supportedTracks = args.supportedTracks;
     },
 
+    /* Returns a series of tools that can be used to select
+     * existing tracks.*/
     makeStoreSelector: function( args ) {
         var selectorTitle = args.title;
 

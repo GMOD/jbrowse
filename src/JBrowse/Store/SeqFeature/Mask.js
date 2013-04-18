@@ -257,7 +257,8 @@ makeSpan: function( args ) {
 },
 
 inSpan: function( feature, span ) {
-    // given a feature or pseudo-feature, returns true if the feature overlaps the span. False otherwise.
+    // given a feature or pseudo-feature, returns true if the feature
+    // overlaps the span. False otherwise.
     if ( !feature || !span ) {
         console.error("invalide arguments");
     }
@@ -267,7 +268,8 @@ inSpan: function( feature, span ) {
 },
 
 toSpan: function( features, query ) {
-    // given a set of features, makes a set of span objects with the same start and end points (a.k.a. pseudo-features)
+    // given a set of features, makes a set of span objects with the
+    // same start and end points (a.k.a. pseudo-features)
     var spans = [];
     for (var feature in features) {
         if (features.hasOwnProperty(feature)) {
@@ -279,7 +281,8 @@ toSpan: function( features, query ) {
 },
 
 addOverlap: function( args ) {
-    // takes a simple feature and a span, adds the overlap of the two as a property of the feature.
+    // takes a simple feature and a span, adds the overlap of the two
+    // as a property of the feature.
     var feature = args.feature;
     var span = args.span;
     if (!feature) {
@@ -370,15 +373,18 @@ inverseMask: function( features, spans, featCallback, doneCallback ) {
 },
 
 combineStats: function( key, currStats, newStats) {
-    /* This block, called by getRegionStats, decides how to combine region statistics from different stores.
-       currStats is an object containing the combined stats of stores processed thusfar.
-       newStats is an object containing the new stats from a store in the process of being merged.
-       The two variables defined below - currStat and newStat - are the individual fields under
-       consideration, as specified by "key".
-       Depending on the field, other statistics may be required to compute the combination
+    /* This block, called by getRegionStats, decides how to combine region
+       statistics from different stores. CurrStats is an object containing 
+       the combined stats of stores processed thusfar.
+       newStats is an object containing the new stats from a store in the 
+       process of being merged. The two variables defined below - currStat
+       and newStat - are the individual fields under consideration, as 
+       specified by "key". Depending on the field, other statistics may be
+       required to compute the combination
 
-       If you've encountered the default case, this means that the track you constructed does not 
-       know how to handle the track statistics. Please add cases as required.
+       If you've encountered the default case, this means that the track 
+       you constructed does not know how to handle the track statistics. 
+       Please add cases as required.
     */
     var currStat = currStats[key];
     var newStat = newStats[key];

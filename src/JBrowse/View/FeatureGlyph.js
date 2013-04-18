@@ -96,8 +96,10 @@ return declare( Component, {
         var ctx2 = tempCan.getContext('2d');
         var l = Math.floor(fRect.l);
         var w = Math.ceil(fRect.w + fRect.l) - l; 
-        /* note on the above: the rightmost pixel is determined by l+w. If either of these is a float, then canvas methods will
-         * not behave as desired (i.e. clear and draw will not treat borders in the same way).*/
+        /* note on the above: the rightmost pixel is determined 
+           by l+w. If either of these is a float, then canvas 
+           methods will not behave as desired (i.e. clear and 
+           draw will not treat borders in the same way).*/
         array.forEach( fRect.m, function(m) { try {
             if ( m.l < l ) {
                 m.w += m.l-l;
