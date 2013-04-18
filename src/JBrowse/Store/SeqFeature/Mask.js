@@ -221,7 +221,8 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
 
 /* notes for this section: 
         -A span object contains a "start" and "end". 
-        -The variables "features" and "feature" are often pseudo-features (span objects with endpoints that match real features)
+        -The variables "features" and "feature" are often
+         pseudo-features (span objects with endpoints that match real features)
 */
 
 makeSpan: function( args ) {
@@ -372,11 +373,12 @@ combineStats: function( key, currStats, newStats) {
     /* This block, called by getRegionStats, decides how to combine region statistics from different stores.
        currStats is an object containing the combined stats of stores processed thusfar.
        newStats is an object containing the new stats from a store in the process of being merged.
-       the two variables defined below - currStat and newStat - are the individual fields under consideration, as specified by "key"
+       The two variables defined below - currStat and newStat - are the individual fields under
+       consideration, as specified by "key".
        Depending on the field, other statistics may be required to compute the combination
 
-       If you've encountered the default case, this means that the track you constructed does not know how to handle the
-       track statistics. Please add cases as required.
+       If you've encountered the default case, this means that the track you constructed does not 
+       know how to handle the track statistics. Please add cases as required.
     */
     var currStat = currStats[key];
     var newStat = newStats[key];
