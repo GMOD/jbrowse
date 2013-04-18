@@ -450,22 +450,16 @@ Browser.prototype.initView = function() {
                                             onClick: dojo.hitch( this, 'openFileDialog' )
                                         })
                                   );
-
-            var newSubmenu = new dijitMenu();
-            newSubmenu.addChild( new dijitMenuItem(
-                {
-                    label: 'Masking Track',
-                    onClick: dojo.hitch(this, 'maskTrackDialog')
-                })
-            );
-            var newPopup = new dijitPopupMenuItem(
-                {           
-                    label: 'New',
-                    popup: newSubmenu
-                }
-            );
-            this.addGlobalMenuItem( 'file', newPopup );
             this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
+
+            this.addGlobalMenuItem( 'tools',
+                                    new dijitMenuItem(
+                                        {
+                                            label: 'New Masking Track',
+                                            onClick: dojo.hitch(this, 'maskTrackDialog')
+                                        })
+                                   );
+            this.renderGlobalMenu( 'tools', { text: 'Tools'}, menuBar );
 
             // make the view menu
             this.addGlobalMenuItem( 'view', new dijitMenuItem({
