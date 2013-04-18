@@ -73,7 +73,7 @@ return declare( null, {
         this.storeFetch = { data   : { display: displaySelector.sel,
                                        mask   : maskSelector.sel,
                                        invMask: invMaskSelector.sel },
-                            name   : nameField.name,
+                            name   : nameField.trackName,
                             getName: dojo.hitch(this, function() {
                                     var name = this.storeFetch.name.get('value') || 'masked track';
                                     var nameParsed = name.replace(/\s+/g,'_').toLowerCase();
