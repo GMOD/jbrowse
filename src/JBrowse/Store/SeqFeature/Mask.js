@@ -1,7 +1,6 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
-           'dojo/keys',
            'dojo/Deferred',
            'dojo/when',
            'dojo/promise/all',
@@ -12,7 +11,6 @@ define([
        function(
            declare,
            array,
-           Keys,
            Deferred,
            when,
            all,
@@ -48,7 +46,18 @@ var featureWrapper = Util.fastDeclare(
             this.storeName = storeName;
             this.source = feat.source || undefined;
         }
-    });
+    }
+);
+
+var Keys = function(array) {
+    var keys = []
+    for (var key in array) {
+        if (array.hasOwnProperty(key)) {
+            keys.push(key);
+        }
+    }
+    return keys;
+};
 
 return declare([SeqFeatureStore], {
 
