@@ -287,6 +287,54 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         this.inherited( arguments );
         this.updateYScaleFromViewDimensions( coords );
         this.updateFeatureLabelPositions( coords );
+        this.updateFeatureArrowPositions( coords );
+    },
+
+    updateFeatureArrowPositions: function( coords ) {
+        if( ! 'x' in coords )
+            return;
+
+	var viewmin = this.browser.view.minVisible();
+	var viewmax = this.browser.view.maxVisible();
+
+        array.forEach( this.blocks, function( block ) {
+            if( ! block )
+                return;
+
+            dojo.query('> .feature', block.domNode )
+                .forEach(
+                    function(featDiv) {
+                        var feature = featDiv.feature;
+                        var strand  = feature.get('strand');
+                        if( ! strand )
+                            return;
+
+                        var fmin    = feature.get('start');
+                        var fmax    = feature.get('end');
+                        var arrowhead;
+
+                        // minus strand
+                        if( strand < 0 && fmax > viewmin ) {
+                            dojo.query( '> .minus-'+this.config.style.arrowheadClass, featDiv )
+                                .forEach( function( arrowhead ) {
+                                              arrowhead.style.left =
+                                                  ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( fmin )
+                                                                   : -this.minusArrowWidth
+                                                  ) + 'px';
+                                          }, this );
+                        }
+                        // plus strand
+                        else if( strand > 0 && fmin < viewmax ) {
+                            dojo.query( '> .plus-'+this.config.style.arrowheadClass, featDiv )
+                                .forEach( function( arrowhead ) {
+                                              arrowhead.style.right =
+                                                  ( fmax > viewmax ? block.bpToX( fmax ) - block.bpToX( viewmax )
+                                                                   : -this.plusArrowWidth
+                                                  ) + 'px';
+                                          }, this );
+                        }
+                    },this);
+        },this);
     },
 
     updateFeatureLabelPositions: function( coords ) {
@@ -851,13 +899,13 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             case 1:
             case '+':
                 ah.className = "plus-" + this.config.style.arrowheadClass;
-                ah.style.cssText =  "left: 100%;";
+                ah.style.cssText =  "right: "+(-this.plusArrowWidth) + "px";
                 featDiv.appendChild(ah);
                 break;
             case -1:
             case '-':
                 ah.className = "minus-" + this.config.style.arrowheadClass;
-                ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px;";
+                ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px";
                 featDiv.appendChild(ah);
                 break;
             }
@@ -1049,8 +1097,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         var subDiv = document.createElement("div");
         dojo.addClass(subDiv, "subfeature");
-        // check for className to avoid adding "null", "plus-null", "minus-null" 
-        if (className) {  
+        // check for className to avoid adding "null", "plus-null", "minus-null"
+        if (className) {
             switch ( subfeature.get('strand') ) {
             case 1:
             case '+':
@@ -1058,7 +1106,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             case -1:
             case '-':
                 dojo.addClass(subDiv, "minus-" + className); break;
-            default: 
+            default:
                 dojo.addClass(subDiv, className);
             }
         }
