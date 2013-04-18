@@ -25,7 +25,7 @@ return declare( null,
         this.chunkCache = new LRUCache({
             name: args.name + ' chunk cache',
             fillCallback: dojo.hitch( this, '_fetch' ),
-            maxSize: args.maxSize || 20000000 // 20MB max cache size
+            maxSize: args.maxSize || 10000000 // 10MB max cache size
         });
 
         this.totalSizes = {};
