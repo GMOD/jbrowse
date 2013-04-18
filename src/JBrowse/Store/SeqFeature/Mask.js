@@ -1,6 +1,7 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/keys',
            'dojo/Deferred',
            'dojo/when',
            'dojo/promise/all',
@@ -11,6 +12,7 @@ define([
        function(
            declare,
            array,
+           Keys,
            Deferred,
            when,
            all,
@@ -142,7 +144,7 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
     thisB.gotAllStores.then( function( args ) {
 
         // check if there are stores
-        if (!Object.keys(args).length) {
+        if (!Keys(args).length) {
             errorCallback
         }
 
@@ -194,13 +196,13 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
             }
             // tests to determine display behaviour
             // can this be made more succinct?
-            if ( !(Object.keys(featureArrays.mask).length + Object.keys(featureArrays.invMask).length) ) {
+            if ( !(Keys(featureArrays.mask).length + Keys(featureArrays.invMask).length) ) {
                 thisB.inverseMask( features, null , featCallback, doneCallback );
                 return; }
-            if ( !Object.keys(featureArrays.mask).length ) {
+            if ( !Keys(featureArrays.mask).length ) {
                 thisB.inverseMask( features, invMasks, featCallback, doneCallback );
                 return; }
-            if ( !Object.keys(featureArrays.invMask).length ) {
+            if ( !Keys(featureArrays.invMask).length ) {
                 thisB.inverseMask( features, masks, featCallback, doneCallback );
                 return; }
 
