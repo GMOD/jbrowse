@@ -96,9 +96,20 @@
     padding: 10px;
 }
 
+.maskDialog .textFieldContainer .title-container {
+    padding-left: 3px;
+}
+
+.maskDialog .textFieldContainer .title-container-text {
+    display: inline;
+    float: left;
+    padding-right: 5px;
+}
+
 .maskDialog .textFieldContainer .nameField {
+    float: left;
     height: 14px;
-    width: 150px;
+    width: 100px;
     padding-left: 3px;
 }
 
@@ -130,7 +141,13 @@
     height: 16px;
 }
 
+.maskDialog .canvasContainer .title {
+    font-weight: bold;
+}
+
 .maskDialog .canvasContainer {
+    position: relative;
+    top: -1em;
     float: right;
     padding: 10px;
     height: 130px;
