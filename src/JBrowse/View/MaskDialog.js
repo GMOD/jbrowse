@@ -59,10 +59,10 @@ return declare( null, {
         var displaySelector   = new TrackSelector({ browser: this.browser, supportedTracks: this.supportedTracks }).
                                     makeStoreSelector({ title: 'Display', filter: true });
         var invMaskSelector   = new TrackSelector({ browser: this.browser, supportedTracks: this.supportedTracks }).
-                                    makeStoreSelector({ title: 'Inverse Mask' });
+                                    makeStoreSelector({ title: 'Screen' });
         var maskSelector      = new TrackSelector({ browser: this.browser, supportedTracks: this.supportedTracks }).
                                     makeStoreSelector({ title: 'Mask'});
-        var nameField         = this._makeNameField( "type desired track name here" );
+        var nameField         = this._makeNameField();
         var opSelector        = this._makeOPSelector();
 
         on( displaySelector.domNode, 'change', dojo.hitch(this, function ( e ) {
@@ -73,18 +73,18 @@ return declare( null, {
         this.storeFetch = { data   : { display: displaySelector.sel,
                                        mask   : maskSelector.sel,
                                        invMask: invMaskSelector.sel },
-                            name   : nameField,
+                            name   : nameField.name,
                             getName: dojo.hitch(this, function() {
-                                    var name = this.storeFetch.name.get('value') || 'masked track ';
-                                    name = name.replace(/\s+/g,'_').toLowerCase();
-                                    if ( !(this.trackNames.indexOf(name) > -1) ) {
+                                    var name = this.storeFetch.name.get('value') || 'masked track';
+                                    var nameParsed = name.replace(/\s+/g,'_').toLowerCase();
+                                    if ( !(this.trackNames.indexOf(nameParsed) > -1) ) {
                                         return [name]
                                     }
                                     var counter = 0;
-                                    while ( this.trackNames.indexOf(name+counter) > -1 ) {
+                                    while ( this.trackNames.indexOf(nameParsed+counter) > -1 ) {
                                         counter++;
                                     }
-                                    return [name,name+counter];
+                                    return [name,nameParsed+counter];
 
                                 }),
                             displayTypes: dojo.hitch(this.storeFetch, function(d) {
@@ -130,6 +130,7 @@ return declare( null, {
         // setup the preview canvas
         var c = canvas.can;
         var canvasCont = dom.create( 'div', {className: 'canvasContainer'});
+        canvasCont.appendChild(dom.create('div', { className: 'title', innerHTML: 'Example' }));
         canvasCont.appendChild(c);
         canvas.drawOR();
         on( this.trackOperationChoice[0], 'change', dojo.hitch(this, function ( e ) {
@@ -149,11 +150,29 @@ return declare( null, {
         };
 
         var textCont = dom.create( 'div', { className: 'textFieldContainer'});
-        textCont.appendChild(nameField.domNode);
+        textCont.appendChild(nameField);
 
         var content = [
                         dom.create( 'div', { className: 'instructions',
-                                             innerHTML: 'Select data to be displayed (right), data to mask (center), and data to make inverse masks (left). Add tracks either by finding them in the searchable drop-down menu and pressing the + icon, or by using the multiple track selection button to the right of the drop-down menu. Tracks may be removed from the list using the - icon. Masks will hide data contained in the covered regions. Inverse masks hide data not contained in the covered regions. Use "OR" and "AND" to choose how these two interact. (See preview below.) Note: not all track types or track combinations are compatible with this tool. Availble track choices will be updated as you use this selector.'} ),
+                                             innerHTML: '<p>Select data to be displayed (left), \
+                                                         data to mask (center), and data to \
+                                                         screen (right). Add tracks either by \
+                                                         finding them in the searchable \
+                                                         drop-down menu and pressing the \
+                                                         + icon, or by using the multiple \
+                                                         track selection button to the \
+                                                         right of the drop-down menu. \
+                                                         Tracks may be removed from the \
+                                                         list using the - icon.</p><p>"Mask" \
+                                                         and "Screen" will respectively \
+                                                         fade data inside or outside regions \
+                                                         of interest. Use "OR" and "AND" to \
+                                                         choose how these two interact. \
+                                                         (See preview below.)</p><p>Note: not \
+                                                         all track types or track combinations \
+                                                         are compatible with this tool. \
+                                                         Availble track choices will be \
+                                                         updated as you use this selector.'} ),
                             div( { className: 'storeSelectors' },
                              [ displaySelector.domNode, maskSelector.domNode, invMaskSelector.domNode ]
                             ),
@@ -273,12 +292,15 @@ return declare( null, {
         return { domNode: aux }
     },
 
-    _makeNameField: function( text ) {
-        var name = new TextBox( { value: "",
-                                  placeHolder: text
-                                } );
+    _makeNameField: function() {
+        var container = dom.create('div', {className: 'title-container'});
+        container.appendChild(dom.create('div', { className: 'title-container-text',
+                                                  innerHTML: 'Track title: ' }));
+        var name = new TextBox( { value: "masked track" } );
         name.domNode.className = 'nameField';
-        return name;
+        container.appendChild(name.domNode);
+        container.trackName = name;
+        return container;
     }
 
 });
