@@ -43,7 +43,7 @@ class JBrowseTest (object):
 
     def baseURL( self ):
         if not self.base_url:
-            self.base_url = os.environ['JBROWSE_URL'] if 'JBROWSE_URL' in os.environ else "file://"+os.getcwd()+"/index.html"
+            self.base_url = os.environ['JBROWSE_URL'] if 'JBROWSE_URL' in os.environ else "http://localhost/jbrowse/index.html"
         return self.base_url
 
 
