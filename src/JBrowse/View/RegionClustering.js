@@ -45,7 +45,7 @@ return declare( null, {
                 var testDiv = dom.create( 'div', { innerHTML: "You're testing things. Hurray. The overlay shows test clustering data and heatmaps generated from the regions dictated by whatever HTMLFeatures takcs you selected." } );
                 var heatmapDeferred = [];
                 for ( var key in regions ) {
-                    if (regions.hasOwnProperty(key)) {
+                    if (regions.hasOwnProperty(key) && regions[key]) {
                         heatmapDeferred.push(this.buildHeatmap(regions[key]));
                     }
                 }
@@ -54,11 +54,6 @@ return declare( null, {
                     var d = this.getStoreStats();
                     d.then(dojo.hitch(this, function(){
                         var overlay = new Overlay().addTitle('test').addToDisplay(testDiv);
-                        // for ( var key in heatmaps ) {
-                        //     if (heatmaps.hasOwnProperty(key)) {
-                        //         overlay.addToDisplay(this.drawHeatmap(heatmaps[key]));
-                        //     }
-                        // }
                         var means = this.testKmeans(heatmaps);
                         overlay.addToDisplay(dom.create('div',{innerHTML: 'break! clusters come next.'}));
                         for ( var key in means ) {
@@ -93,6 +88,8 @@ return declare( null, {
             case '-':
                 { reg.directionality = 'left-to-right';
                   break; };
+            default:
+                return false;
             }
         // If the region overlaps with the end of the refSeq, shift it.
         if ( reg.start < 0 ) {
@@ -108,6 +105,8 @@ return declare( null, {
     },
 
     buildHeatmap: function( query ) {
+        // queries a region of the genome to build a heatmap
+        // based on the values of the wiggle tracks in that region.
         var heatmap = { region: query };
         for ( var name in this.storeNames ) {
             if ( this.storeNames.hasOwnProperty(name) ) {
@@ -205,7 +204,17 @@ return declare( null, {
             }
         }
         c.strokeRect(0.5,0.5,can.width-0.5,can.height-0.5);
-        return can;
+        var container = dom.create('div', { className: 'heatmap-wrapper' });
+        var summaryText = dom.create('div', { className: 'heatmap-source',
+                                              innerHTML: (heatmap.region && heatmap.region.directionality)
+                                                         ? (heatmap.region.directionality == 'left-to-right')
+                                                             ? 'start: '+heatmap.region.end+', end: '+heatmap.region.start
+                                                             : 'start: '+heatmap.region.start+', end: '+heatmap.region.end 
+                                                         : null,
+                                              style: { width: 20*numCols } } );
+        container.appendChild(summaryText);
+        container.appendChild(can);
+        return container;
     },
 
     HMtoArray: function( heatmap ) {
@@ -255,6 +264,7 @@ return declare( null, {
         return means;
     },
 
+    // Creates a set of DOM nodes that show information relating to a cluster.
     makeClusterDisplay: function( args ) {
         var thisB = this;
         var heatmap = args.heatmap;
@@ -270,7 +280,7 @@ return declare( null, {
         container.appendChild(can);
         var sourceMapContainer = dom.create( 'div', { className: 'source-map-container', style: { display: 'none' } } );
         var button = dom.create( 'div', { className: 'heatmap-button',
-                                          innerHTML: '?',
+                                          innerHTML: 'see cluster members',
                                           onclick: function() {
                                             if ( sourceMapContainer.style.display == 'none' ) {
                                                 // if it was hidden, add source heatmaps and toggle visibility

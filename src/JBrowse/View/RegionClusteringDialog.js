@@ -4,17 +4,11 @@ define( [
             'dojo/aspect',
             'dijit/focus',
             'dijit/form/Button',
-            'dijit/form/RadioButton',
-            'dijit/form/MultiSelect',
-            'dijit/form/TextBox',
-            'dijit/form/FilteringSelect',
+            'dijit/form/NumberTextBox',
             'dijit/Dialog',
             'dojo/dom-construct',
-            'dojo/_base/window',
             'dojo/on',
-            'dojo/store/Memory',
-            './RegionClusteringDialog/AddMultipleTracks',
-            './Overlay',
+            './RegionClusteringDialog/TrackSelector',
             './RegionClustering'
         ],
         function( declare,
@@ -22,17 +16,11 @@ define( [
                   aspect,
                   dijitFocus,
                   Button,
-                  RadioButton,
-                  MultiSelect,
-                  TextBox,
-                  FilteringSelect,
+                  NumberTextBox,
                   Dialog,
                   dom,
-                  window,
                   on,
-                  memory,
-                  AddMultipleTracks,
-                  Overlay,
+                  TrackSelector,
                   RegionClustering ) {
 
 return declare( null, {
@@ -63,18 +51,29 @@ return declare( null, {
         dojo.destroy(dialog.containerNode)
 
         var actionBar = this._makeActionBar();
-        var displaySelector = this._makeStoreSelector({ title: 'Tracks For Analysis',
-                                                        supportedTracks: this.supportedWiggleTracks });
-        var regionSelector = this._makeStoreSelector({ title: 'Region sources',
-                                                        supportedTracks: this.supportedHTMLTracks });
-        var nameField = this._makeNameField( "type desired track name here" );
+        var displaySelector = new TrackSelector({browser: this.browser, supportedTracks: this.supportedWiggleTracks})
+                                .makeStoreSelector({ title: 'Tracks For Analysis', supportedTracks: this.supportedWiggleTracks });
+        var regionSelector = new TrackSelector({browser: this.browser, supportedTracks: this.supportedHTMLTracks})
+                                .makeStoreSelector({ title: 'Region sources', supportedTracks: this.supportedHTMLTracks });
+        var bin = this._makeNumField( 6, 'Number of bins: ' );
+        var HMlen = this._makeNumField( 1000, 'Length of queried regions (bp): ');
 
+        // Clustering requires tracks form bothe selectors. Disable button otherwise.
         on( displaySelector.domNode, 'change', dojo.hitch(this, function ( e ) {
-            // disable the "create track" button if there is no display data available..
-            actionBar.createTrackButton.set('disabled', !(dojo.query('option', displaySelector.domNode).length > 0) );
+            // disable the "create track" button if there is no display/region data available.
+            actionBar.makeClustersButton.set('disabled',
+                !(dojo.query('option', displaySelector.domNode).length > 0 &&
+                  dojo.query('option', regionSelector.domNode).length > 0 ) );
+        }));
+        on( regionSelector.domNode, 'change', dojo.hitch(this, function ( e ) {
+            // disable the "create track" button if there is no display/region data available.
+            actionBar.makeClustersButton.set('disabled',
+                !(dojo.query('option', displaySelector.domNode).length > 0 &&
+                  dojo.query('option', regionSelector.domNode).length > 0 ) );
         }));
 
         this.storeFetch = { data : { display: displaySelector.sel, regions: regionSelector.sel },
+                            numbers: { bin: bin, HMlen: HMlen },
                             fetch : dojo.hitch(this.storeFetch, function() {
                                     var storeLists = { display: this.data.display.get('value')[0]
                                                                 ? this.data.display.get('value').map(
@@ -109,9 +108,11 @@ return declare( null, {
         var content = [
                         dom.create( 'div', { className: 'instructions',
                                              innerHTML: 'Select tracks for clustering.' } ),
-                            div( { className: 'storeSelectors' },
-                             [ displaySelector.domNode, regionSelector.domNode ]
-                            ),
+                        div( { className: 'storeSelectors' },
+                         [ displaySelector.domNode, regionSelector.domNode ]
+                        ),
+                        bin,
+                        HMlen,
                         actionBar.domNode
                       ];
 
@@ -138,9 +139,15 @@ return declare( null, {
                      onClick: function() { thisB.dialog.hide(); }
                    })
             .placeAt( actionBar );
-        var createTrack = new Button({ label: 'Create track',
+        var makeClusters = new Button({ label: 'Perform clustering',
                      disabled: true,
                      onClick: dojo.hitch( thisB, function() {
+                                if ( thisB.storeFetch.numbers.bin.number.get('value') 
+                                     > thisB.storeFetch.numbers.HMlen.number.get('value') ) {
+                                    alert('Number of bins must be smaller than heatmap length');
+                                    return; // prevent meaningless bin/length assignments.
+                                }
+
                                 // first, select everything in the multiselects.
                                 for ( var key in thisB.storeFetch.data ) {
                                     if ( thisB.storeFetch.data.hasOwnProperty(key) ) {
@@ -150,178 +157,29 @@ return declare( null, {
                                             });
                                     }
                                 }
-                                new RegionClustering({ browser: thisB.browser, storeNames: thisB.storeFetch.fetch(), numOfBins: 20 }).show()
                                 thisB.dialog.hide();
+                                new RegionClustering({ browser: thisB.browser,
+                                                       storeNames: thisB.storeFetch.fetch(),
+                                                       numOfBins: thisB.storeFetch.numbers.bin.number.get('value'),
+                                                       queryLength: thisB.storeFetch.numbers.HMlen.number.get('value'),
+                                                    }).show()
                             })
                     })
             .placeAt( actionBar );
 
-        return { domNode: actionBar, createTrackButton: createTrack };
+        return { domNode: actionBar, makeClustersButton: makeClusters };
     },
 
-    _makeStoreSelector: function( args ) { // consider making this a new class. It's big and resonably well encapsulated.
-        var selectorTitle = args.title;
-        var supportedTracks = args.supportedTracks;
-
-        var container = dom.create( 'div', { className: 'selectorContainer'} )
-
-
-        var title = dom.create( 'div', { className: 'selectorTitle', innerHTML: selectorTitle } );
-
-        // a multiselect to hold the track list
-        var selector = new MultiSelect();
-        selector.containerNode.className = 'storeSelections';
-
-        // add default text for when the track selector is empty
-        var defaultText = dom.create( 'div', { className: 'selectorDefaultText',
-                                       innerHTML: 'Add tracks using the controls below'
-                                     } )
-        container.appendChild(defaultText);
-
-        on(selector.domNode, 'change', dojo.hitch(this, function(){
-            // hide the default text if the selector contains tracks.
-            if (selector.domNode.firstChild)
-                defaultText.style.visibility = 'hidden';
-            else
-                defaultText.style.visibility = 'visible';
-        }));
-
-        var tracks = {};
-        for ( var ID in this.browser.trackConfigsByName ) {
-            if ( this.browser.trackConfigsByName.hasOwnProperty(ID) ) {
-                var tmp = this.browser.trackConfigsByName;
-                tracks[ tmp[ID].key || tmp[ID].label ] = { type: tmp[ID].type,
-                                                           value: tmp[ID].store+','+tmp[ID].type,
-                                                           disabled: false,
-                                                           valid: ( supportedTracks.indexOf(tmp[ID].type ) > -1 ) ? true : false
-                                                         };
-            }
-        }
-
-        var opBar = dom.create( 'div', { className: 'operationBar' } );
-
-        var trackStore = new memory( { data: [/* { name: '', id: ''} */] } );
-
-        // populate the trackStore
-        (function() {
-            for ( var key in tracks ) {
-                if ( tracks.hasOwnProperty(key) && tracks[key].valid ) {
-                    trackStore.put( { name: key, id: key } );
-                }
-            }
-        })();
-
-        var updateStore = trackStore.updateStore = function( type ) {
-            if (type) {
-                for (var key in tracks ) {
-                    if (tracks.hasOwnProperty(key) && (tracks[key].type != type)) {
-                        trackStore.remove(key);
-                        tracks[key].disabled = true;
-                    }
-                }
-            }
-            else {
-                trackStore.data = [];
-                for (var key in tracks ) {
-                    if (tracks.hasOwnProperty(key)) {
-                        trackStore.put( { name: key, id: key } );
-                        tracks[key].disabled = false;
-                    }
-                }
-            }
-        }
-
-        var cBox = new FilteringSelect( { id: selectorTitle+'TrackFinder',
-                                          name: 'track',
-                                          value: '',
-                                          store: trackStore,
-                                          required: false,
-                                          searchAttr: 'name',
-                                          invalidMessage: 'Not a valid track.'
-                                        }, 'trackFinder');
-
-        opBar.appendChild( dom.create( 'div', { className: 'button1 jbrowseIconMinus',
-                                                multiselect: selector,
-                                                onclick: function() {
-                                                    // Orphan the selected children :D
-                                                    dojo.query('option', selector.domNode)
-                                                        .filter(function(n){return n.selected;}).orphan();
-                                                    if (args.filter && dojo.query('option', selector.domNode).length <= 0)
-                                                        updateStore();
-                                                    // trigger selector event
-                                                    on.emit(selector.domNode, "change", {
-                                                        bubbles: true,
-                                                        cancelable: true
-                                                    });
-                                                },
-                                                // make the border change color when the "button" is clicked
-                                                onmousedown: function() {
-                                                    this.style.border = '1px dotted grey';
-                                                },
-                                                onmouseup: function() {
-                                                    this.style.border = '1px solid transparent';
-                                                },
-                                                onmouseleave: function() {
-                                                    this.style.border = '1px solid transparent';
-                                                }
-                                        })
-                         );
-
-        opBar.appendChild( dom.create( 'div', { className: 'button1 jbrowseIconPlus',
-                                                multiselect: selector,
-                                                onclick: dojo.hitch(this, function() {
-                                                    var key = cBox.get('value');
-                                                    if ( !key )
-                                                        return;
-                                                    if (args.filter) {
-                                                        updateStore(tracks[key].type);
-                                                    }
-                                                    var op = window.doc.createElement('option');
-                                                    op.innerHTML = key;
-                                                    op.type = tracks[key].type;
-                                                    op.value = tracks[key].value;
-                                                    selector.containerNode.appendChild(op);
-                                                    // trigger selector event
-                                                    on.emit(selector.domNode, "change", {
-                                                        bubbles: true,
-                                                        cancelable: true
-                                                    });
-                                                }),
-                                                // make the border change color when the "button" is clicked
-                                                onmousedown: function() {
-                                                    this.style.border = '1px dotted grey';
-                                                },
-                                                onmouseup: function() {
-                                                    this.style.border = '1px solid transparent';
-                                                },
-                                                onmouseleave: function() {
-                                                    this.style.border = '1px solid transparent';
-                                                }
-                                        })
-                         );
-
-        opBar.appendChild( dom.create( 'div', { className: 'button2 jbrowseIconBars',
-                                                onclick: function() {
-                                                   new AddMultipleTracks({multiselect: selector, tracks: tracks}).show({store: trackStore, filtering: args.filter});
-                                                }
-                                               })
-                         );
-
-        cBox.placeAt( opBar );
-
-        container.appendChild(title);
-        container.appendChild(selector.domNode);
-        container.appendChild(opBar);
-
-        return { domNode: container, sel: selector };
-    },
-
-    _makeNameField: function( text ) {
-        var name = new TextBox( { value: "",
-                                  placeHolder: text
-                                } );
-        name.domNode.className = 'nameField';
-        return name;
+    _makeNumField: function( defaultNum, text ) {
+        var container = dom.create('div', {className: 'numFieldContainer' });
+        dom.create('div', {className: 'numField-text', innerHTML: text }, container);
+        var num = new NumberTextBox( { value: defaultNum,
+                                       constraints: { min: 1, places: 0 }
+                                      } );
+        num.domNode.className += ' numField';
+        container.number = num;
+        container.appendChild(num.domNode);
+        return container;
     }
 
 });
