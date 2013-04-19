@@ -953,6 +953,9 @@ Browser.prototype.getStore = function( storeName, callback ) {
                  var store = new storeClass( storeArgs );
                  this._storeCache[ storeName ] = { refCount: 1, store: store };
                  callback( store );
+                 // release the callback because apparently require
+                 // doesn't release this function
+                 callback = undefined;
              }));
 };
 

@@ -308,6 +308,7 @@ return declare( [Component,DetailsMixin,Destroyable],
             this.cleanupBlock( block );
         }, this);
         delete this.blocks;
+        delete this.div;
 
         this.inherited( arguments );
     },
