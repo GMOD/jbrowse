@@ -21,11 +21,14 @@ return declare( null,
      * @param args.sizeFunction
      * @param args.keyFunction
      * @param args.name
+     * @param args.verbose
      * @constructs
      */
     constructor: function( args ) {
         this.fill = args.fillCallback;
         this.maxSize = args.maxSize || 1000000;
+
+        this.verbose = args.verbose;
 
         this.name = args.name || 'cache';
 
@@ -264,7 +267,8 @@ return declare( null,
     },
 
     _log: function() {
-        //console.log.apply( console, this._logf.apply(this,arguments) );
+        if( this.verbose )
+            console.log.apply( console, this._logf.apply(this,arguments) );
     },
     _warn: function() {
         console.warn.apply( console, this._logf.apply(this,arguments) );
