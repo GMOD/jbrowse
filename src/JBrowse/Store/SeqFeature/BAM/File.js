@@ -384,11 +384,13 @@ var BamFile = declare( null,
 
                 for( var i = 0; i<f.length; i++ ) {
                     var feature = f[i];
-                    if( !( feature._refID != chrId || (pastStart = feature.get('start') > max ) || feature.get('end') < min ) ) {
-                        featCallback( feature );
+                    if( feature._refID == chrId ) {
+                        // on the right ref seq
+                        if( feature.get('start') > max ) // past end of range, can stop iterating
+                            break;
+                        else if( feature.get('end') >= min ) // must be in range
+                            featCallback( feature );
                     }
-                    else if( pastStart )
-                        break;
                 }
                 if( ++chunksProcessed == chunks.length ) {
                     endCallback();
