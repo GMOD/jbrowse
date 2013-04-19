@@ -5,7 +5,7 @@ define( [ 'dojo/_base/declare',
         function( declare, FileBlob, RemoteBinaryFileCache ) {
 var globalCache = new RemoteBinaryFileCache({
     name: 'XHRBlob',
-    maxSize: 5000000
+    maxSize: 100000000 // 100MB of file cache
 });
 
 var XHRBlob = declare( FileBlob,
