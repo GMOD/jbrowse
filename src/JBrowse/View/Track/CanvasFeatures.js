@@ -172,30 +172,34 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
      * Returns a promise for the appropriate glyph for the given
      * feature and args.
      */
-    getGlyph: function( viewArgs, feature, callback ) {
+    getGlyph: function( viewArgs, feature, callback, errorCallback ) {
         var glyphClassName = this.getConfForFeature( 'glyph', feature );
         var glyph, interestedParties;
-        if(( glyph = this.glyphsLoaded[glyphClassName] )) {
-            callback( glyph );
-        }
-        else if(( interestedParties = this.glyphsBeingLoaded[glyphClassName] )) {
-            interestedParties.push( callback );
-        }
-        else {
-            var thisB = this;
-            this.glyphsBeingLoaded[glyphClassName] = [callback];
-            require( [glyphClassName], function( GlyphClass ) {
+        try {
+            if(( glyph = this.glyphsLoaded[glyphClassName] )) {
+                callback( glyph );
+            }
+            else if(( interestedParties = this.glyphsBeingLoaded[glyphClassName] )) {
+                interestedParties.push( callback );
+            }
+            else {
+                var thisB = this;
+                this.glyphsBeingLoaded[glyphClassName] = [callback];
+                require( [glyphClassName], function( GlyphClass ) {
 
-                glyph = thisB.glyphsLoaded[glyphClassName] =
-                    new GlyphClass({ track: thisB, config: thisB.config, browser: thisB.browser });
+                             glyph = thisB.glyphsLoaded[glyphClassName] =
+                                 new GlyphClass({ track: thisB, config: thisB.config, browser: thisB.browser });
 
-                array.forEach( thisB.glyphsBeingLoaded[glyphClassName], function( cb ) {
-                    cb( glyph );
-                });
+                             array.forEach( thisB.glyphsBeingLoaded[glyphClassName], function( cb ) {
+                                                cb( glyph );
+                                            });
 
-                delete thisB.glyphsBeingLoaded[glyphClassName];
+                             delete thisB.glyphsBeingLoaded[glyphClassName];
 
-            });
+                         });
+            }
+        } catch( e ) {
+            errorCallback( e );
         }
     },
 
