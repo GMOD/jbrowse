@@ -1,17 +1,31 @@
 /* css for the various elements in a region clustering overlay */
 
+.heatmap-container {
+    padding: 5px;
+    padding-bottom: 10px;
+    margin: 5px 0px;
+    border: 1px solid silver;
+}
+
 .heatmap-container .source-map-container {
     overflow: auto;
     white-space: nowrap;
+    margin-top: 5px;
+}
+
+.heatmap-container .source-map-container .heatmap-wrapper {
+    display: inline-block;
 }
 
 .heatmap-container .heatmap-button {
-    height: 20px;
-    width: 20px;
+    display: inline;
+    padding: 2px 5px;
+    width: auto;
     border: 1px solid black;
     border-radius: 3px;
 }
 
 .heatmap {
-    padding: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
 }
