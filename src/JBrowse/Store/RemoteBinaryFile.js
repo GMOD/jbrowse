@@ -1,11 +1,25 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/lang',
            'dojo/_base/array',
            'JBrowse/has',
+           'JBrowse/Util',
            'JBrowse/Store/LRUCache',
            'jszlib/arrayCopy'
        ],
-       function( declare, array, has, LRUCache, arrayCopy ) {
+       function( declare, lang, array, has, Util, LRUCache, arrayCopy ) {
+
+var Chunk = Util.fastDeclare({
+    constructor: function( values ) {
+        lang.mixin( this, values );
+    },
+    toString: function() {
+        return this.url+" (bytes "+this.start+".."+this.end+")";
+    },
+    toUniqueString: function() {
+        return this.url+" (bytes "+this.start+".."+this.end+")";
+    }
+});
 
 // contains chunks of files, stitches them together if necessary, wraps, and returns them
 // to satisfy requests
@@ -86,29 +100,23 @@ return declare( null,
         var existingChunks = this._relevantExistingChunks( url, start, end );
         this._log( 'existing', existingChunks );
 
-        var chunkToString = function() {
-            return this.url+" (bytes "+this.start+".."+this.end+")";
-        };
-
         // assemble a 'golden path' of chunks to use to fulfill this
         // request, using existing chunks where we have them cached,
         // and where we don't, making records for chunks to fetch
         var goldenPath = [];
         if( typeof end != 'number' ) { // if we don't have an end coordinate, we just have to fetch the whole file
-            goldenPath.push({ key: { url: url, start: 0, end: undefined, toUniqueString: chunkToString, toString: chunkToString } } );
+            goldenPath.push({ key: new Chunk( { url: url, start: 0, end: undefined } ) });
         }
         else {
             for( var currOffset = start; currOffset <= end; currOffset = goldenPath[goldenPath.length-1].key.end+1 ) {
                 if( existingChunks[0] && existingChunks[0].key.start <= currOffset ) {
                     goldenPath.push( existingChunks.shift() );
                 } else {
-                    goldenPath.push({ key: {
+                    goldenPath.push({ key: new Chunk({
                                           url: url,
                                           start: currOffset,
-                                          end: existingChunks[0] ? existingChunks[0].key.start-1 : end,
-                                          toString: chunkToString,
-                                          toUniqueString: chunkToString
-                                      }
+                                          end: existingChunks[0] ? existingChunks[0].key.start-1 : end
+                                      })
                                     });
                 }
             }
@@ -116,7 +124,7 @@ return declare( null,
 
         // filter the blocks in the golden path that
         // have not already been fetched to try to align them to chunk boundaries: multiples of minChunkSize
-        array.forEach( goldenPath, function(c) {
+        array.forEach( goldenPath, function( c ) {
                            if( c.value )
                                return;
                            var k = c.key;
