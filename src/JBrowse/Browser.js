@@ -928,7 +928,7 @@ Browser.prototype.getStore = function( storeName, callback ) {
 
     var conf = this.config.stores[storeName];
     if( ! conf ) {
-        console.error( "store "+storeName+" not defined" );
+        console.warn( "store '"+storeName+"' not found" );
         callback( null );
         return;
     }
