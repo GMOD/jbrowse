@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Significant speed and memory optimizations in BAM data backend
+   (issue #242).
+
  * Fixed a regression in which callbacks and interpolations were not
    evaluated in left-click and right-click menu configurations.
 

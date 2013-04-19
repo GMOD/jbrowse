@@ -105,47 +105,7 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
 
     // called by getFeatures from the DeferredFeaturesMixin
     _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
-        var start = query.start;
-        var end   = query.end;
-
-        var maxFeaturesWithoutYielding = 300;
-        this.bam.fetch( this.refSeq.name, start, end, function( features, error) {
-                if ( error ) {
-                    console.error( 'error fetching BAM data: ' + error );
-                    if( errorCallback ) errorCallback( error );
-                    return;
-                }
-                if( features ) {
-                    var i = 0;
-                    var readFeatures = function() {
-                        for( ; i < features.length; i++ ) {
-                            var feature = features[i];
-                            // skip if this alignment is unmapped, or if it does not actually overlap this range
-                            if (! (feature.get('unmapped') || feature.get('end') <= start || feature.get('start') >= end) )
-                                try {
-                                    featCallback( feature );
-                                } catch(e) {
-                                    if( errorCallback )
-                                        errorCallback( e );
-                                    else
-                                        console.error( e, e.stack );
-                                    return;
-                                }
-
-                            if( i && !( i % maxFeaturesWithoutYielding ) ) {
-                                window.setTimeout( readFeatures, 1 );
-                                i++;
-                                return;
-                            }
-                        }
-                        if( i >= features.length )
-                            endCallback();
-                    };
-
-                    readFeatures();
-
-                }
-            });
+        this.bam.fetch( this.refSeq.name, query.start, query.end, featCallback, endCallback, errorCallback );
     }
 
 });

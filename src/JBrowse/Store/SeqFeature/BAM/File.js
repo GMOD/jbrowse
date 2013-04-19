@@ -316,7 +316,7 @@ var BamFile = declare( null,
         return mergedChunks;
     },
 
-    fetch: function(chr, min, max, callback) {
+    fetch: function(chr, min, max, featCallback, endCallback, errorCallback ) {
 
         chr = this.store.browser.regularizeReferenceName( chr );
 
@@ -336,28 +336,28 @@ var BamFile = declare( null,
             return this.join(', ');
         };
 
+        //console.log( chr, min, max, chunks.toString() );
+
         try {
-            this._fetchChunkFeatures( chunks, function( features, error ) {
-                if( error ) {
-                    callback( null, error );
-                } else {
-                    features = array.filter( features, function( feature ) {
-                        return ( !( feature.get('end') < min || feature.get('start') > max )
-                                 && ( chrId === undefined || feature._refID == chrId ) );
-                    });
-                    callback( features );
-                }
-            });
+            this._fetchChunkFeatures(
+                chunks,
+                chrId,
+                min,
+                max,
+                featCallback,
+                endCallback,
+                errorCallback
+            );
         } catch( e ) {
-            callback( null, e );
+            errorCallback( e );
         }
     },
 
-    _fetchChunkFeatures: function( chunks, callback ) {
+    _fetchChunkFeatures: function( chunks, chrId, min, max, featCallback, endCallback, errorCallback ) {
         var thisB = this;
 
         if( ! chunks.length ) {
-            callback([]);
+            endCallback();
             return;
         }
 
@@ -372,14 +372,26 @@ var BamFile = declare( null,
             maxSize: 100000 // cache up to 100,000 BAM features
         });
 
-        var error;
-        var chunkFeatures = [];
+        var haveError;
+        var pastStart;
         array.forEach( chunks, function( c ) {
             cache.get( c, function( f, e ) {
-                error = error || e;
-                chunkFeatures.push( f );
+                if( e && !haveError )
+                    errorCallback(e);
+                if(( haveError = haveError || e )) {
+                    return;
+                }
+
+                for( var i = 0; i<f.length; i++ ) {
+                    var feature = f[i];
+                    if( !( feature._refID != chrId || (pastStart = feature.get('start') > max ) || feature.get('end') < min ) ) {
+                        featCallback( feature );
+                    }
+                    else if( pastStart )
+                        break;
+                }
                 if( ++chunksProcessed == chunks.length ) {
-                    callback( chunkFeatures[0].concat.apply( chunkFeatures[0], chunkFeatures.slice(1)), error );
+                    endCallback();
                 }
             });
         });
