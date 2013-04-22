@@ -35,7 +35,9 @@ return declare( null, {
                 means = [];
                 currError = clustersAndError.error;
                 for ( var i=0; i<clustersAndError.clusters.length; i++ ) {
-                    means.push(this.average(clustersAndError.clusters[i]));
+                    var tempAvg = this.average(clustersAndError.clusters[i]);
+                    if (tempAvg)
+                        means.push(tempAvg);
                 }
             }
             if (currError < error) {
@@ -123,9 +125,12 @@ return declare( null, {
     },
 
     average: function( datapoints ) {
+        if (!datapoints) { // if the cluster is empty, ignore it.
+            return null;
+        }
         // given a set of data, returns the average
         for(var i=0;true;i++){
-            // find firt non-empty element
+            // find first non-empty element
             if (!datapoints[i])
                 continue;
             var mean = new Array(datapoints[i].length);
