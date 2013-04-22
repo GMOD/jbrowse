@@ -115,6 +115,9 @@ return declare( null, {
             } catch( e ) {
                 callback( null, e );
             }
+        },
+        function(e) {
+            callback( null, e );
         });
     },
 

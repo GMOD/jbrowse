@@ -86,7 +86,7 @@ var RequestWorker = declare( null,
                                              }
                                          }
                                      }
-                                 }));
+                                 }), this.errorCallback );
     },
 
     cirFobRecur2: function(cirBlockData, offset, level) {
@@ -388,7 +388,7 @@ var RequestWorker = declare( null,
                                                 ++bi;
                                             }
                                             this.tramp();
-                                        }));
+                                        }), this.errorCallback );
             }
         }
     }

@@ -8,12 +8,15 @@ require([
             XHRBlob
         ) {
 
+    var errorFunc = function(e) { console.error(e); };
+
     describe( 'BigWig with volvox_microarray.bw', function() {
         var browser = new Browser({ unitTestMode: true });
         var b = new BigWig({
             browser: browser,
             blob: new XHRBlob('../../sample_data/raw/volvox/volvox_microarray.bw')
         });
+
         it('constructs', function(){ expect(b).toBeTruthy(); });
 
         it('returns empty array of features for a nonexistent chrom', function() {
@@ -21,19 +24,18 @@ require([
             var wigData;
             v.readWigData( 'nonexistent', 1, 10000, function(features) {
                 wigData = features;
-            });
+            }, errorFunc );
             waitsFor(function() { return wigData; });
             runs(function() {
                 expect(wigData.length).toEqual(0);
             });
         });
-
         it('reads some good data unzoomed', function() {
             var v = b.getUnzoomedView();
             var wigData;
             v.readWigData( browser.regularizeReferenceName('ctgA'), 0, 10000, function(features) {
                 wigData = features;
-            });
+            }, errorFunc );
             waitsFor(function() { return wigData; },1000);
             runs(function() {
                 expect(wigData.length).toBeGreaterThan(100);
@@ -50,7 +52,7 @@ require([
             var wigData;
             v.readWigData( browser.regularizeReferenceName('ctgA'), 100, 20000, function(features) {
                 wigData = features;
-            });
+            }, errorFunc );
             waitsFor(function() { return wigData; },500);
             runs(function() {
                 expect(wigData.length).toEqual(2);
@@ -85,7 +87,7 @@ require([
             var wigData;
             v.readWigData( browser.regularizeReferenceName('ctgA'), 19999, 24999, function(features) {
                 wigData = features;
-            });
+            }, errorFunc );
             waitsFor(function() { return wigData; },1000);
             runs(function() {
                 expect(wigData.length).toBeGreaterThan(19);
