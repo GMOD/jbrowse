@@ -14,37 +14,6 @@ var BAI_MAGIC = 21578050;
 
 var dlog = function(){ console.error.apply(console, arguments); };
 
-//
-// Binning (transliterated from SAM1.3 spec)
-//
-
-/* calculate bin given an alignment covering [beg,end) (zero-based, half-close-half-open) */
-function reg2bin(beg, end)
-{
-    --end;
-    if (beg>>14 == end>>14) return ((1<<15)-1)/7 + (beg>>14);
-    if (beg>>17 == end>>17) return ((1<<12)-1)/7 + (beg>>17);
-    if (beg>>20 == end>>20) return ((1<<9)-1)/7 + (beg>>20);
-    if (beg>>23 == end>>23) return ((1<<6)-1)/7 + (beg>>23);
-    if (beg>>26 == end>>26) return ((1<<3)-1)/7 + (beg>>26);
-    return 0;
-}
-
-/* calculate the list of bins that may overlap with region [beg,end) (zero-based) */
-var MAX_BIN = (((1<<18)-1)/7);
-function reg2bins(beg, end)
-{
-    var k, list = [];
-    --end;
-    list.push(0);
-    for (k = 1 + (beg>>26); k <= 1 + (end>>26); ++k) list.push(k);
-    for (k = 9 + (beg>>23); k <= 9 + (end>>23); ++k) list.push(k);
-    for (k = 73 + (beg>>20); k <= 73 + (end>>20); ++k) list.push(k);
-    for (k = 585 + (beg>>17); k <= 585 + (end>>17); ++k) list.push(k);
-    for (k = 4681 + (beg>>14); k <= 4681 + (end>>14); ++k) list.push(k);
-    return list;
-}
-
 var Chunk = Util.fastDeclare({
     constructor: function(minv,maxv,bin) {
         this.minv = minv;
@@ -227,8 +196,8 @@ var BamFile = declare( null,
             return [];
         }
 
-        var intBinsL = reg2bins(min, max);
-        var intBins = [];
+        var intBinsL = this._reg2bins(min, max);
+        var intBins = {};
         for (var i = 0; i < intBinsL.length; ++i) {
             intBins[intBinsL[i]] = true;
         }
@@ -458,7 +427,35 @@ var BamFile = declare( null,
                 return;
             }
         }
+    },
+    //
+    // Binning (transliterated from SAM1.3 spec)
+    //
+
+    /* calculate bin given an alignment covering [beg,end) (zero-based, half-close-half-open) */
+    _reg2bin: function( beg, end ) {
+        --end;
+        if (beg>>14 == end>>14) return ((1<<15)-1)/7 + (beg>>14);
+        if (beg>>17 == end>>17) return ((1<<12)-1)/7 + (beg>>17);
+        if (beg>>20 == end>>20) return ((1<<9)-1)/7 + (beg>>20);
+        if (beg>>23 == end>>23) return ((1<<6)-1)/7 + (beg>>23);
+        if (beg>>26 == end>>26) return ((1<<3)-1)/7 + (beg>>26);
+        return 0;
+    },
+
+    /* calculate the list of bins that may overlap with region [beg,end) (zero-based) */
+    MAX_BIN: (((1<<18)-1)/7),
+    _reg2bins: function( beg, end ) {
+        var k, list = [ 0 ];
+        --end;
+        for (k = 1    + (beg>>26); k <= 1    + (end>>26); ++k) list.push(k);
+        for (k = 9    + (beg>>23); k <= 9    + (end>>23); ++k) list.push(k);
+        for (k = 73   + (beg>>20); k <= 73   + (end>>20); ++k) list.push(k);
+        for (k = 585  + (beg>>17); k <= 585  + (end>>17); ++k) list.push(k);
+        for (k = 4681 + (beg>>14); k <= 4681 + (end>>14); ++k) list.push(k);
+        return list;
     }
+
 });
 
 return BamFile;
