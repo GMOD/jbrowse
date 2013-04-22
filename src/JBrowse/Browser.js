@@ -454,7 +454,7 @@ Browser.prototype.initView = function() {
             this.navbox = this.createNavBox( topPane );
 
             if( this.config.datasets && ! this.config.dataset_id ) {
-                console.warn("in JBrowse configuration, datasets specified, but dataset_id not set");
+                console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Dataset selector will not be shown.");
             }
             if( this.config.datasets && this.config.dataset_id ) {
                 this.renderDatasetSelect( menuBar );
