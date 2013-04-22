@@ -361,7 +361,8 @@ return declare( [BlockBasedTrack,ExportMixin], {
     },
 
     _showPixelValue: function( scoreDisplay, score ) {
-        if( typeof score == 'number' ) {
+        var scoreType = typeof score;
+        if( scoreType == 'number' ) {
             // display the score with only 6
             // significant digits, avoiding
             // most confusion about the
@@ -370,7 +371,12 @@ return declare( [BlockBasedTrack,ExportMixin], {
             // parsed out of BigWig files
             scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
             return true;
-        } else {
+        }
+        else if( scoreType == 'string' ) {
+            scoreDisplay.innerHTML = score;
+            return true;
+        }
+        else {
             return false;
         }
     },
