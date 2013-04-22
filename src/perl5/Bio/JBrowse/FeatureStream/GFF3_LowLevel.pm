@@ -26,6 +26,8 @@ sub _to_hashref {
     #     Carp::confess( dump $f );
     # }
     $f = { %$f };
+    $f->{score} += 0 if exists $f->{score};
+
     my $a = delete $f->{attributes};
     my %h;
     for my $key ( keys %$f) {

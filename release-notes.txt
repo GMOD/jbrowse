@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed bug preventing display of quantitative data from files loaded
+   with flatfile-to-json.pl.  Thanks to Gwendoline Andres for pointing
+   this out.
+
  * Instead of quantitative (wiggle) tracks throwing an error when they
    cannot choose a min and max for the display scale, they now just
    make a guess.  While probably wrong, this at least has the track
