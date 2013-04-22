@@ -75,11 +75,11 @@ return Util.fastDeclare({
                  }
              })();
 
-        if( typeof max != 'number' || isNaN(max) ) {
-            throw 'cannot display track '+track.name+', could not determine max_score.  Do you need to set max_score in its configuration?';
-        }
         if( typeof min != 'number' || isNaN(min) ) {
-            throw 'cannot display track '+track.name+', could not determine min_score.  Do you need to set min_score in its configuration?';
+            min = 0;
+        }
+        if( typeof max != 'number' || isNaN(max) ) {
+            max = min + 10;
         }
 
         var offset = parseFloat( config.data_offset ) || 0;

@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+ * Instead of quantitative (wiggle) tracks throwing an error when they
+   cannot choose a min and max for the display scale, they now just
+   make a guess.  While probably wrong, this at least has the track
+   displaying something, and users can then look up how to fix the
+   display scale.
+
  * Significant speed and memory optimizations in BAM data backend
    (issue #242).
 
