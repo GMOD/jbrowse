@@ -1,19 +1,26 @@
 .jbrowseIconHelp,
 .jbrowseIconBusy,
-.jbrowseIconLink
-{
-    background-image: url('img/commonIconsEnabled.png');
-    width: 16px;
-    height: 16px;
+.jbrowseIconLink,
+.jbrowseIconCancel,
+.jbrowseIconPlus,
+.jbrowseIconMinus,
+.jbrowseIconBars
+ {
+     background-image: url('img/commonIconsEnabled.png');
+     width: 16px;
+     background-position: -170px;
+ }
+ 
+.jbrowseIconPlus {
+    background-position: -185px;
+}
+.jbrowseIconMinus {
+    background-position: -202px;
+}
+.jbrowseIconBars {
+    background-position: -219px
 }
 
-.jbrowseIconHelp {
-    background-position: 0;
-}
-.jbrowseIconLink {
-    background-position: -152px;
-}
-
-.jbrowseIconBusy {
-    background-image: url('img/spinner.gif');
-}
+ .jbrowseIconBusy {
+     background-image: url('img/spinner.gif');
+ } 

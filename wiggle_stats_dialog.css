@@ -1,178 +1,157 @@
-@import url("src/dojox/form/resources/UploaderFileList.css");
+/* css for the wiggle stats creation dialog. */
+
 .wiggleStatsDialog {
     color: #333;
-    height: 430px;
 }
 
 .wiggleStatsDialog .contentContainer {
     height: 100%;
     width: 100%;
-    padding: 5px;
 }
 
 .wiggleStatsDialog .instructions {
-    position: absolute;
-    top: 22px;
-    padding: 10px;
+    position: relative;
+    margin: 2em auto 2em auto;
+    width: 250px;
+    text-align: center;
 }
 
 .wiggleStatsDialog .storeSelectors {
     position: relative;
-    top: 62px;
     height: 217px;
-    padding-bottom: 10px;
+    padding: 0 10px 30px 10px;
 }
 
 .wiggleStatsDialog .selectorContainer {
     float: left;
-    padding-left: 3px;
+    padding: 0 5px 0 5px;
 }
 
 .wiggleStatsDialog .selectorContainer .selectorTitle {
-    border: 2px solid silver;
     font-weight: bold;
-}
-
-.wiggleStatsDialog .operationBar {
-    position: absolute;
 }
 
 .wiggleStatsDialog .storeSelections {
     position: relative;
     background-color: #8cb1dd;
     height: 180px;
-    width: 350px;
+    width: 200px;
     border: 1px;
 }
 
-.wiggleStatsDialog .selectorContainer .dijitButton {
-    margin: 0px;
-    padding-right: 2px;
-    height: 16px;
-    margin-top: 2px;
-    vertical-align: middle;
+.wiggleStatsDialog .selectorContainer .selectorDefaultText {
+    position: absolute;
+    top: 1.5em;
+    padding-left: 3px;
+    width: 180px;
+    color: grey;
+    font-style: italic;
+    z-index: 99999;
 }
 
-.wiggleStatsDialog .selectorContainer .dijitButtonContents {
-    height: 15px;
-}
-
-.wiggleStatsDialog .selectorContainer .dijitButtonNode {
-    padding: 0px;
-}
-
-.wiggleStatsDialog .selectorContainer .dijitButtonNode * {
-    vertical-align: top;
+.wiggleStatsDialog .selectorContainer .operationBar {
+    margin: 2px 0;
+    position: relative;
+    text-align: center;
+    height: 18px;
+    width: 100%;
 }
 
 .wiggleStatsDialog .selectorContainer .button1 {
-    width: 13px;
-    height: 13px;
-    padding: 1px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    background-repeat: no-repeat;
+    float: left;
+    width: 16px;
+    height: 16px;
 }
 
 .wiggleStatsDialog .selectorContainer .button2 {
-    width: 26px;
-    height: 13px;
-    padding: 1px;
-    margin-left: 2px;
+    margin: 1px 0;
+    float: right;
+    width: 16px;
+    height: 16px;
 }
 
 .wiggleStatsDialog .dijitComboBox {
-    height: 15px;
-    width: 160px;
-    margin-top: 3px;
+    margin: 0 auto;
+    height: 16px;
+    width: 140px;
 }
 
-.wiggleStatsDialog .dijitComboBox .dijitDownArrowButton {
-    height: 15px;
+.wiggleStatsDialog .dijitComboBox * {
+    height: 16px;
+}
+
+.wiggleStatsDialog .and-or-selector {
+    display: inline;
+    position: relative;
+    top: 10px;
+    padding: 10px;
 }
 
 .wiggleStatsDialog .textFieldContainer {
     position: relative;
+    top: 10px;
     height: 16px;
-    top: 66px;
+    padding: 10px;
+}
+
+.wiggleStatsDialog .textFieldContainer .title-container {
     padding-left: 3px;
-    margin: 0px;
+}
+
+.wiggleStatsDialog .textFieldContainer .title-container-text {
+    display: inline;
+    float: left;
+    padding-right: 5px;
 }
 
 .wiggleStatsDialog .textFieldContainer .nameField {
+    float: left;
     height: 14px;
-    width: 150px;
+    width: 100px;
     padding-left: 3px;
 }
 
 .wiggleStatsDialog .dijitDialogPaneActionBar {
-    position: absolute;
-    bottom: 5px;
-    left: 3px;
-    padding-top: 0px;
-    padding-left: 1px;
+    display: inline;
+    text-align: left;
+    padding-top: 10px;
 }
 
 .wiggleStatsDialog .dijitDialogPaneActionBar .openImmediatelyButton {
     position: relative;
     text-align: left;
-    padding-top: 10px;
-    padding-left: 1px;
+    padding: 10px 10px 0 10px;
     height: 16px;
 }
 
 .wiggleStatsDialog .dijitDialogPaneActionBar .addToTrackListButton {
     position: relative;
     text-align: left;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 1px;
+    padding: 10px;
     height: 16px;
+}
+
+.wiggleStatsDialog .dijitDialogPaneActionBar .dijitButton {
+    padding-left: 10px;
 }
 
 .wiggleStatsDialog .dijitDialogPaneActionBar .dijitButtonNode {
-    padding-top: 1px;
-    padding-bottom: 1px;
-}
-
-.plusIcon {
-   background-image: url('src/JBrowse/View/MaskDialog/icons/plus.png');
-   background-repeat: no-repeat;
-   width: 13px;
-   height: 13px;
-}
-
-.plusIcon2 {
-   background-image: url('src/JBrowse/View/MaskDialog/icons/plus.png');
-   background-repeat: repeat-x;
-   width: 26px;
-   height: 13px;
-} 
-
-.minusIcon {
-   background-image: url('src/JBrowse/View/MaskDialog/icons/minus.png');
-   background-repeat: no-repeat;
-   width: 13px;
-   height: 13px;
-   text-align: top;
-}
-
-.wiggleStatsLegendBox {
     height: 16px;
-    width: 16px;
-    margin-left: 3px;
-    margin-bottom: 15px;
-    z-index: 20;
-    font-weight: bold;
-    font-size: 16px;
-    color: #8cb1dd;
-    text-align: center;
-    border: 1px solid silver;
-    border-radius: 5px;
-    background-color: rgba(255,255,255,0.7);
 }
 
-.wiggleStatsLegendBox .legend {
-    position: absolute;
-    bottom: 100%;
-    left: 100%;
+.wiggleStatsDialog .canvasContainer .title {
+    font-weight: bold;
+}
+
+.wiggleStatsDialog .canvasContainer {
+    position: relative;
+    top: -1em;
+    float: right;
+    padding: 10px;
+    height: 130px;
 }
 
 .addManyTracksDialog .trackSelector {
@@ -184,4 +163,5 @@
 
 .addManyTracksDialog .instructions {
     padding-bottom: 10px;
+    width: 350px;
 }
