@@ -10,7 +10,6 @@ define( [
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
-            './BAM/Util',
             './BAM/File'
         ],
         function(
@@ -25,7 +24,6 @@ define( [
             DeferredFeaturesMixin,
             XHRBlob,
             GlobalStatsEstimationMixin,
-            BAMUtil,
             BAMFile
         ) {
 
