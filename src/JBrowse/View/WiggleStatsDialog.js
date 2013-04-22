@@ -5,15 +5,11 @@ define( [
             'dijit/focus',
             'dijit/form/Button',
             'dijit/form/RadioButton',
-            'dijit/form/MultiSelect',
             'dijit/form/TextBox',
-            'dijit/form/FilteringSelect',
             'dijit/Dialog',
             'dojo/dom-construct',
-            'dojo/_base/window',
             'dojo/on',
-            'dojo/store/Memory',
-            './WiggleStatsDialog/AddMultipleTracks'
+            './WiggleStatsDialog/TrackSelector'
         ],
         function( declare,
                   array,
@@ -21,15 +17,11 @@ define( [
                   dijitFocus,
                   Button,
                   RadioButton,
-                  MultiSelect,
                   TextBox,
-                  FilteringSelect,
                   Dialog,
                   dom,
-                  window,
                   on,
-                  memory,
-                  AddMultipleTracks ) {
+                  TrackSelector ) {
 
 return declare( null, {
 
@@ -58,7 +50,8 @@ return declare( null, {
         dojo.destroy(dialog.containerNode)
 
         var actionBar         = this._makeActionBar( args.openCallback );
-        var displaySelector   = this._makeStoreSelector({ title: 'Tracks For Analysis' });
+        var displaySelector   = new TrackSelector({ browser: this.browser, supportedTracks: this.supportedTracks })
+                                    .makeStoreSelector({ title: 'Tracks For Analysis' }); 
         var nameField         = this._makeNameField( "type desired track name here" );
 
         on( displaySelector.domNode, 'change', dojo.hitch(this, function ( e ) {
@@ -97,11 +90,15 @@ return declare( null, {
         };
 
         var textCont = dom.create( 'div', { className: 'textFieldContainer'});
-        textCont.appendChild(nameField.domNode);
+        nameField.placeAt(textCont);
 
         var content = [
                         dom.create( 'div', { className: 'instructions',
-                                             innerHTML: 'Select tracks for statistical analysis. A new track will be created to show the average value, standard deviation and max/min values.' } ),
+                                             innerHTML: 'Select tracks for statistical \
+                                                         analysis. A new track will be \
+                                                         created to show the average \
+                                                         value, standard deviation and \
+                                                         max/min values.' } ),
                             div( { className: 'storeSelectors' },
                              [ displaySelector.domNode ]
                             ),
@@ -186,97 +183,6 @@ return declare( null, {
             .placeAt( actionBar );
 
         return { domNode: actionBar, createTrackButton: createTrack };
-    },
-
-    _makeStoreSelector: function( args ) {
-        var selectorTitle = args.title;
-
-        var container = dom.create( 'div', { className: 'selectorContainer'} )
-        var title = dom.create( 'div', { className: 'selectorTitle', innerHTML: selectorTitle } );
-        var selector = new MultiSelect();
-        selector.containerNode.className = 'storeSelections';
-        var tracks = {};
-        for ( var ID in this.browser.trackConfigsByName ) {
-            if ( this.browser.trackConfigsByName.hasOwnProperty(ID) ) {
-                var tmp = this.browser.trackConfigsByName;
-                tracks[ tmp[ID].key || tmp[ID].label ] = { type: tmp[ID].type,
-                                                           value: tmp[ID].store+','+tmp[ID].type,
-                                                           valid: ( this.supportedTracks.indexOf(tmp[ID].type ) > -1 ) ? true : false
-                                                         };
-            }
-        }
-
-        var opBar = dom.create( 'div', { className: 'operationBar' } );
-
-        var trackStore = new memory( { data: [/* { name: '', id: ''} */] } );
-
-        // populate the trackStore
-        (function() {
-            for ( var key in tracks ) {
-                if (tracks.hasOwnProperty(key) && tracks[key].valid ) {
-                    trackStore.put( { name: key, id: key } );
-                }
-            }
-        })();
-
-        var cBox = new FilteringSelect( { id: selectorTitle+'TrackFinder',
-                                          name: 'track',
-                                          value: '',
-                                          store: trackStore,
-                                          required: false,
-                                          searchAttr: 'name'
-                                        }, 'trackFinder');
-
-        var button = new Button({ iconClass: 'minusIcon',
-                     multiselect: selector,
-                     onClick: function() {
-                        // Orphan the selected children :D
-                        dojo.query('option', selector.domNode)
-                            .filter(function(n){return n.selected;}).orphan();
-                        // trigger selector event
-                        on.emit(selector.domNode, "change", {
-                            bubbles: true,
-                            cancelable: true
-                        });
-                     }
-                   })
-            .placeAt( opBar );
-        dojo.query('.dijitButtonNode', button.domNode)[0].className += ' button1'; // add to the class name so we can differentiate buttons in css
-        button = new Button({ iconClass: 'plusIcon',
-                              multiselect: selector,
-                              onClick: dojo.hitch(this, function() {
-                                var key = cBox.get('value');
-                                if ( !key )
-                                    return;
-                                var op = window.doc.createElement('option');
-                                op.innerHTML = key;
-                                op.type = tracks[key].type;
-                                op.value = tracks[key].value;
-                                selector.containerNode.appendChild(op);
-                                // trigger selector event
-                                on.emit(selector.domNode, "change", {
-                                    bubbles: true,
-                                    cancelable: true
-                                });
-                             })
-                   })
-            .placeAt( opBar );
-        dojo.query('.dijitButtonNode', button.domNode)[0].className += ' button1'; // add to the class name so we can differentiate buttons in css
-        cBox.placeAt( opBar );
-
-        var selectMany = new Button({ iconClass: 'plusIcon2',
-                                      onClick: function() {
-                                          new AddMultipleTracks({multiselect: selector, tracks: tracks}).show({store: trackStore});
-                                      }
-                                    });
-        opBar.appendChild(selectMany.domNode);
-        dojo.query('.dijitButtonNode', selectMany.domNode)[0].className += ' button2'; // add to the class name so we can differentiate buttons in css
-
-        container.appendChild(title);
-        container.appendChild(selector.domNode);
-        container.appendChild(opBar);
-
-        return { domNode: container, sel: selector };
     },
 
     _makeNameField: function( text ) {
