@@ -172,7 +172,8 @@ return declare( SeqFeatureStore, {
                 } else {
                     makeFeatures();
                 }
-            }
+            },
+            errorCallback
         );
     },
 

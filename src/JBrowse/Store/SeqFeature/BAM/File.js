@@ -86,7 +86,7 @@ var BamFile = declare( null,
     init: function( args ) {
         var bam = this;
         var successCallback = args.success || function() {};
-        var failCallback = args.failure || function() {};
+        var failCallback = args.failure || function(e) { console.error(e, e.stack); };
 
         this._readBAI( dojo.hitch( this, function() {
             this._readBAMheader( function() {
@@ -400,7 +400,7 @@ var BamFile = declare( null,
 
     },
 
-    _readChunk: function( chunk, callback ) {
+    _readChunk: function( chunk, callback, failCallback ) {
         var thisB = this;
         var features = [];
         var fetchMin = chunk.minv.block;
@@ -413,6 +413,8 @@ var BamFile = declare( null,
             } catch( e ) {
                 callback( null, e );
             }
+        }, function( e ) {
+            callback( null, e );
         });
     },
 

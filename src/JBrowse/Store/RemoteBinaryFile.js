@@ -313,6 +313,11 @@ return declare( null,
         if( start && !end )
             throw "cannot specify a fetch start without a fetch end";
 
+        if( ! args.success )
+            throw new Error('success callback required');
+        if( ! args.failure )
+            throw new Error('failure callback required');
+
         this._fetchChunks(
             args.url,
             start,
