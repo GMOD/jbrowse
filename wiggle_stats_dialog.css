@@ -1,4 +1,4 @@
-/* css for the wiggle stats creation dialog. */
+/* css for the mask track creation dialog. */
 
 .wiggleStatsDialog {
     color: #333;
@@ -11,20 +11,19 @@
 
 .wiggleStatsDialog .instructions {
     position: relative;
-    margin: 2em auto 2em auto;
+    margin: 2em auto;
     width: 250px;
-    text-align: center;
 }
 
 .wiggleStatsDialog .storeSelectors {
-    position: relative;
     height: 217px;
-    padding: 0 10px 30px 10px;
+    padding: 0 10px;
 }
 
 .wiggleStatsDialog .selectorContainer {
-    float: left;
-    padding: 0 5px 0 5px;
+    margin: 0 3em;
+    position: relative;
+    display: inline-block;
 }
 
 .wiggleStatsDialog .selectorContainer .selectorTitle {
@@ -83,13 +82,6 @@
     height: 16px;
 }
 
-.wiggleStatsDialog .and-or-selector {
-    display: inline;
-    position: relative;
-    top: 10px;
-    padding: 10px;
-}
-
 .wiggleStatsDialog .textFieldContainer {
     position: relative;
     top: 10px;
@@ -110,48 +102,40 @@
 .wiggleStatsDialog .textFieldContainer .nameField {
     float: left;
     height: 14px;
-    width: 100px;
     padding-left: 3px;
 }
 
-.wiggleStatsDialog .dijitDialogPaneActionBar {
+.wiggleStatsDialog .actionBar {
     display: inline;
     text-align: left;
-    padding-top: 10px;
+    padding: 10px auto;
+    height: 100%;
 }
 
-.wiggleStatsDialog .dijitDialogPaneActionBar .openImmediatelyButton {
+.wiggleStatsDialog .actionBar .openImmediatelyButton {
     position: relative;
     text-align: left;
     padding: 10px 10px 0 10px;
     height: 16px;
 }
 
-.wiggleStatsDialog .dijitDialogPaneActionBar .addToTrackListButton {
+.wiggleStatsDialog .actionBar .addToTrackListButton {
     position: relative;
     text-align: left;
-    padding: 10px;
+    padding: 10px 10px 0 10px;
     height: 16px;
 }
 
-.wiggleStatsDialog .dijitDialogPaneActionBar .dijitButton {
-    padding-left: 10px;
+.wiggleStatsDialog .actionBar .buttonContainer {
+    text-align: center;
 }
 
-.wiggleStatsDialog .dijitDialogPaneActionBar .dijitButtonNode {
+.wiggleStatsDialog .actionBar .dijitButton {
+    padding: 10px 2px;
+}
+
+.wiggleStatsDialog .actionBar .dijitButtonNode {
     height: 16px;
-}
-
-.wiggleStatsDialog .canvasContainer .title {
-    font-weight: bold;
-}
-
-.wiggleStatsDialog .canvasContainer {
-    position: relative;
-    top: -1em;
-    float: right;
-    padding: 10px;
-    height: 130px;
 }
 
 .addManyTracksDialog .trackSelector {
@@ -164,4 +148,25 @@
 .addManyTracksDialog .instructions {
     padding-bottom: 10px;
     width: 350px;
+}
+
+.wiggleStatsLegendBox {
+    height: 16px;
+    width: 16px;
+    margin-left: 3px;
+    margin-bottom: 15px;
+    z-index: 20;
+    font-weight: bold;
+    font-size: 16px;
+    color: #8cb1dd;
+    text-align: center;
+    border: 1px solid silver;
+    border-radius: 5px;
+    background-color: rgba(255,255,255,0.7);
+}
+
+.wiggleStatsLegendBox .legend {
+    position: absolute;
+    bottom: 100%;
+    left: 100%;
 }
