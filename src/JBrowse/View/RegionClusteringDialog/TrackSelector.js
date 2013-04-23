@@ -59,7 +59,7 @@ return declare( null, {
             if ( this.browser.trackConfigsByName.hasOwnProperty(ID) ) {
                 var tmp = this.browser.trackConfigsByName;
                 tracks[ tmp[ID].key || tmp[ID].label ] = { type: tmp[ID].type,
-                                                           value: tmp[ID].store+','+tmp[ID].type,
+                                                           value: tmp[ID].store+','+(tmp[ID].key || tmp[ID].label),
                                                            disabled: false,
                                                            valid: ( supportedTracks.indexOf(tmp[ID].type ) > -1 ) ? true : false
                                                          };
