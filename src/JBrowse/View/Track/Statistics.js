@@ -106,9 +106,31 @@ var Statistics = declare( XYFunction, {
         return pixelValues;
     },
 
-    _makeScoreDisplay: function( scale, leftBase, rightBase, block, canvas, features, featureRects, pixels ) {
-        // TODO: define this
-    }
+    _showPixelValue: function( scoreDisplay, score ) {
+        var scoreType = typeof score;
+        if( scoreType == 'number' ) {
+            // display the score with only 6
+            // significant digits, avoiding
+            // most confusion about the
+            // approximative properties of
+            // IEEE floating point numbers
+            // parsed out of BigWig files
+            scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
+            return true;
+        }
+        else if( scoreType == 'string' ) {
+            scoreDisplay.innerHTML = score;
+            return true;
+        }
+        else if( score['score'] && typeof score['score'] == 'number' ) {
+            // "score" may be an object.
+            scoreDisplay.innerHTML = parseFloat( score['score'].toPrecision(6) );
+            return true;
+        }
+        else {
+            return false;
+        }
+    },
 
 });
 return Statistics;

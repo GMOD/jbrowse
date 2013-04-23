@@ -5,9 +5,10 @@ define( [
           'JBrowse/Digest/Crc32',
           'dojo/dom-construct',
           'dojo/on',
-          './XYFunction/Legend'
+          './XYFunction/Legend',
+          './_Scale'
         ],
-        function( declare, XYPlot, Util, Digest, dom, on, Legend ) {
+        function( declare, XYPlot, Util, Digest, dom, on, Legend, Scale ) {
 
 var XYFunction = declare( XYPlot, {
 

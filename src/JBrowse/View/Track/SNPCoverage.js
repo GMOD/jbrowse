@@ -31,9 +31,9 @@ return declare( [WiggleXY, AlignmentsMixin],
     },
 
     /*
-* Draw a set of features on the canvas.
-* @private
-*/
+     * Draw a set of features on the canvas.
+     * @private
+     */
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale ) {
         var thisB = this;
         var context = canvas.getContext('2d');
@@ -135,13 +135,55 @@ return declare( [WiggleXY, AlignmentsMixin],
         }, this );
     },
 
+    // Overwrites the method from WiggleBase
+    _draw: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale, pixels ) {
+        // Note: pixels currently has no meaning, as the function that generates it is not yet defined for this track
+        this._preDraw( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+        this._drawFeatures( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+        this._postDraw( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+    },
+
+    /**
+     * parse a SAM MD tag to find mismatching bases of the template versus the reference
+     * @returns {Array[Object]} array of mismatches and their positions
+     */
+    _mdToMismatches: function( feature, mdstring ) {
+        var mismatchRecords = [];
+        var curr = { start: 0, bases: '' };
+        var seq = feature.get('seq');
+        var nextRecord = function() {
+              mismatchRecords.push( curr );
+              curr = { start: curr.start + curr.bases.length, bases: ''};
+        };
+        array.forEach( mdstring.match(/(\d+|\^[a-z]+|[a-z])/ig), function( token ) {
+          if( token.match(/^\d/) ) { // matching bases
+              curr.start += parseInt( token );
+          }
+          else if( token.match(/^\^/) ) { // insertion in the template
+              var i = token.length-1;
+              while( i-- ) {
+                  curr.bases = '*';
+                  nextRecord();
+              }
+          }
+          else if( token.match(/^[a-z]/i) ) { // mismatch
+              curr.bases = seq.substr( curr.start, token.length );
+              nextRecord();
+          }
+        });
+        return mismatchRecords;
+    },
+
     /*
-* The following method is required to override the equivalent method in "WiggleBase.js"
-* It displays more complete data.
-*/
+     * The following method is required to override the equivalent method in "WiggleBase.js"
+     * It displays more complete data.
+     */
     _showPixelValue: function( scoreDisplay, score ) {
         if( ! score )
             return false;
+        
+        if (score.feat.score.refBase)
+            score = score.feat.score; // more accurate score information may be stored in the relevant features
 
         function fmtNum( num ) {
             return parseFloat( num ).toPrecision(6).replace(/0+$/,'').replace(/\.$/,'');
@@ -185,7 +227,7 @@ return declare( [WiggleXY, AlignmentsMixin],
             scoreDisplay.innerHTML = scoreSummary+'</table>';
             return true;
         } else {
-            scoreDisplay.innerHTML = '<table><tr><td>Total</td><td class="count">'+fmtNum(score)+'</td></tr></table>';
+            scoreDisplay.innerHTML = '<table><tr><td>Total</td><td class="count">'+fmtNum(score['score'])+'</td></tr></table>';
             return true;
         }
     }
