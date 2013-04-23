@@ -107,25 +107,22 @@ var Statistics = declare( XYFunction, {
     },
 
     _showPixelValue: function( scoreDisplay, score ) {
-        var scoreType = typeof score;
-        if( scoreType == 'number' ) {
+        if( score ) {
             // display the score with only 6
             // significant digits, avoiding
             // most confusion about the
             // approximative properties of
             // IEEE floating point numbers
             // parsed out of BigWig files
-            scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
-            return true;
-        }
-        else if( scoreType == 'string' ) {
-            scoreDisplay.innerHTML = score;
-            return true;
-        }
-        else if( score['score'] && typeof score['score'] == 'number' ) {
-            // "score" may be an object.
-            scoreDisplay.innerHTML = parseFloat( score['score'].toPrecision(6) );
-            return true;
+            scoreDisplay.innerHTML = '';
+            for ( var key in score ) {
+                if (score.hasOwnProperty(key) && (typeof score[key] == 'number')) {
+                    scoreDisplay.innerHTML += key+': '+parseFloat( score[key].toPrecision(6) )+'<br>';
+                }
+            }
+            if (scoreDisplay.innerHTML.length > 0)
+                return true;
+            return false;
         }
         else {
             return false;
