@@ -280,7 +280,7 @@ var BamFile = declare( null,
             for (var i = 1; i < allChunks.length; ++i) {
                 var nc = allChunks[i];
                 if (nc.minv.block == cur.maxv.block /* && nc.minv.offset == cur.maxv.offset */) { // no point splitting mid-block
-                    cur = new Chunk(cur.minv, nc.maxv, 'linear');
+                    cur = new Chunk(cur.minv, nc.maxv, 'merged');
                 } else {
                     mergedChunks.push(cur);
                     cur = nc;

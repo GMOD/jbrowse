@@ -235,28 +235,33 @@ var Feature = Util.fastDeclare(
         return ( this.file.indexToChr[ this._refID ] || {} ).name;
     },
 
+    _bin_mq_nl: function() {
+        return readInt( this.bytes.byteArray, this.bytes.start + 12  );
+    },
+    _flag_nc: function() {
+        return readInt( this.bytes.byteArray, this.bytes.start + 16 );
+    },
+    seq_length: function() {
+        return readInt( this.bytes.byteArray, this.bytes.start + 20 );
+    },
+    _next_refid: function() {
+        return readInt( this.bytes.byteArray, this.bytes.start + 24 );
+    },
+    _next_pos: function() {
+        return readInt( this.bytes.byteArray, this.bytes.start + 28 );
+    },
+    template_length: function() {
+        return readInt( this.bytes.byteArray, this.bytes.start + 32 );
+    },
+
     /**
      * parse the core data: start, end, strand, etc
      */
     _coreParse: function() {
-        var byteArray = this.bytes.byteArray;
-        var dataStart = this.bytes.start+4;
-
-        var tempBytes = new Uint8Array( 32 );
-        for( var i = 0; i<32; i++ ) {
-            tempBytes[i] = byteArray[i+dataStart];
+        with( this.bytes ) {
+            this._refID      = readInt( byteArray, start + 4 );
+            this.data.start  = readInt( byteArray, start + 8 );
         }
-        var ints = new Int32Array( tempBytes.buffer );
-
-        var d = this.data;
-        this._refID        = ints[0];
-        d.start            = ints[1];
-        d._bin_mq_nl       = ints[2];
-        d._flag_nc         = ints[3];
-        d.seq_length       = ints[4];
-        d._next_refid      = ints[5];
-        d._next_pos        = ints[6];
-        d.template_length  = ints[7];
     },
 
     /**
