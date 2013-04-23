@@ -190,87 +190,95 @@ var BamFile = declare( null,
         }, failCallback );
     },
 
+    /**
+     * Get an array of Chunk objects for the given ref seq id and range.
+     */
     blocksForRange: function(refId, min, max) {
         var index = this.indices[refId];
         if (!index) {
             return [];
         }
 
-        var intBinsL = this._reg2bins(min, max);
-        var intBins = {};
-        for (var i = 0; i < intBinsL.length; ++i) {
-            intBins[intBinsL[i]] = true;
-        }
-        var leafChunks = [], otherChunks = [];
+        // object as { <binNum>: true, ... } containing the bin numbers
+        // that overlap this range
+        var overlappingBins = function() {
+            var intBins = {};
+            var intBinsL = this._reg2bins(min, max);
+            for (var i = 0; i < intBinsL.length; ++i) {
+                intBins[intBinsL[i]] = true;
+            }
+            return intBins;
+        }.call(this);
 
+        // parse the chunks for the overlapping bins out of the index
+        // for this ref seq, keeping a distinction between chunks from
+        // leaf (lowest-level, smallest) bins, and chunks from other,
+        // larger bins
+        var leafChunks  = [];
+        var otherChunks = [];
         var nbin = readInt(index, 0);
         var p = 4;
         for (var b = 0; b < nbin; ++b) {
-            var bin = readInt(index, p);
+            var bin   = readInt(index, p  );
             var nchnk = readInt(index, p+4);
-    //        dlog('bin=' + bin + '; nchnk=' + nchnk);
             p += 8;
-            if (intBins[bin]) {
+            if( overlappingBins[bin] ) {
                 for (var c = 0; c < nchnk; ++c) {
-                    var cs = readVirtualOffset(index, p);
-                    var ce = readVirtualOffset(index, p + 8);
-                    (bin < 4681 ? otherChunks : leafChunks).push(new Chunk(cs, ce, bin));
+                    var cs = readVirtualOffset( index, p     );
+                    var ce = readVirtualOffset( index, p + 8 );
+                    ( bin < 4681 ? otherChunks : leafChunks ).push( new Chunk(cs, ce, bin) );
                     p += 16;
                 }
             } else {
-                p +=  (nchnk * 16);
+                p += nchnk * 16;
             }
         }
-    //    dlog('leafChunks = ' + miniJSONify(leafChunks));
-    //    dlog('otherChunks = ' + miniJSONify(otherChunks));
 
-        var nintv = readInt(index, p);
-        var lowest = null;
-        var minLin = Math.min(min>>14, nintv - 1), maxLin = Math.min(max>>14, nintv - 1);
-        for (var i = minLin; i <= maxLin; ++i) {
-            var lb =  readVirtualOffset(index, p + 4 + (i * 8));
-            if (!lb) {
-                continue;
-            }
-            if (!lowest || lb.block < lowest.block || lb.offset < lowest.offset) {
-                lowest = lb;
-            }
-        }
-        // dlog('Lowest LB = ' + lowest);
+        // parse the linear index to find the lowest virtual offset
+        var lowest = function() {
+            var lowest = null;
+            var nintv  = readInt(index, p);
+            var minLin = Math.min(min>>14, nintv - 1);
+            var maxLin = Math.min(max>>14, nintv - 1);
+            for (var i = minLin; i <= maxLin; ++i) {
+                var lb =  readVirtualOffset(index, p + 4 + (i * 8));
+                if( !lb )
+                    continue;
 
-        var prunedOtherChunks = [];
-        if (lowest != null) {
-            for (var i = 0; i < otherChunks.length; ++i) {
-                var chnk = otherChunks[i];
-                if (chnk.maxv.block >= lowest.block && chnk.maxv.offset >= lowest.offset) {
-                    prunedOtherChunks.push(chnk);
+                if ( ! lowest || lb.cmp( lowest ) < 0  )
+                    lowest = lb;
+            }
+            return lowest;
+        }();
+
+        // discard any chunks that come before the lowest
+        // virtualOffset that we got from the linear index
+        otherChunks = function( otherChunks ) {
+            var relevantOtherChunks = [];
+            if (lowest != null) {
+                for (var i = 0; i < otherChunks.length; ++i) {
+                    var chnk = otherChunks[i];
+                    if (chnk.maxv.block >= lowest.block && chnk.maxv.offset >= lowest.offset) {
+                        relevantOtherChunks.push(chnk);
+                    }
                 }
             }
-        }
-        // dlog('prunedOtherChunks = ' + miniJSONify(prunedOtherChunks));
-        otherChunks = prunedOtherChunks;
+            return relevantOtherChunks;
+        }(otherChunks);
 
-        var intChunks = [];
-        for (var i = 0; i < otherChunks.length; ++i) {
-            intChunks.push(otherChunks[i]);
-        }
-        for (var i = 0; i < leafChunks.length; ++i) {
-            intChunks.push(leafChunks[i]);
-        }
+        // add the leaf chunks in, and sort the chunks ascending by virtual offset
+        var allChunks = otherChunks
+            .concat( leafChunks )
+            .sort( function(c0, c1) {
+                      return c0.minv.block - c1.minv.block || c0.minv.offset - c1.minv.offset;
+                   });
 
-        intChunks.sort(function(c0, c1) {
-            var dif = c0.minv.block - c1.minv.block;
-            if (dif != 0) {
-                return dif;
-            } else {
-                return c0.minv.offset - c1.minv.offset;
-            }
-        });
+        // merge chunks from the same block together
         var mergedChunks = [];
-        if (intChunks.length > 0) {
-            var cur = intChunks[0];
-            for (var i = 1; i < intChunks.length; ++i) {
-                var nc = intChunks[i];
+        if( allChunks.length ) {
+            var cur = allChunks[0];
+            for (var i = 1; i < allChunks.length; ++i) {
+                var nc = allChunks[i];
                 if (nc.minv.block == cur.maxv.block /* && nc.minv.offset == cur.maxv.offset */) { // no point splitting mid-block
                     cur = new Chunk(cur.minv, nc.maxv, 'linear');
                 } else {
@@ -280,7 +288,6 @@ var BamFile = declare( null,
             }
             mergedChunks.push(cur);
         }
-    //    dlog('mergedChunks = ' + miniJSONify(mergedChunks));
 
         return mergedChunks;
     },
