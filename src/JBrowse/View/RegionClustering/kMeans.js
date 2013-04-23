@@ -44,9 +44,9 @@ return declare( null, {
                 returnData = { means: means, clusters: clustersAndError.clusters };
                 error = currError;
             }
-            console.log("finished itteration ",itteration,' with error ',currError);
+            //console.log("finished itteration ",itteration,' with error ',currError);
         }
-        console.log('final error: ',error);
+        //console.log('final error: ',error);
         return returnData;
     },
 
