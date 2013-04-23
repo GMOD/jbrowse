@@ -120,7 +120,21 @@ return declare( null, {
 
         var content = [
                         dom.create( 'div', { className: 'instructions',
-                                             innerHTML: 'Select tracks for clustering.' } ),
+                                             innerHTML: '<p>Select data to be analyzed (left), \
+                                                         and region sources (right). Add \
+                                                         tracks either by finding them in \
+                                                         the searchable drop-down menu and \
+                                                         pressing the + icon, or by using the \
+                                                         multiple track selection button to \
+                                                         the right of the drop-down menu. \
+                                                         Tracks may be removed from the \
+                                                         list using the - icon.</p><p>See the \
+                                                         help button (?) for additional \
+                                                         information</p><p>Note: not all \
+                                                         track types are compatible with \
+                                                         this tool. Availble track choices \
+                                                         will be updated as you use \
+                                                         this selector.' } ),
                         div( { className: 'storeSelectors' },
                          [ displaySelector.domNode, regionSelector.domNode ]
                         ),
@@ -147,7 +161,7 @@ return declare( null, {
     _makeActionBar: function() {
         var thisB = this;
         // Adapted from the file dialogue.
-        var actionBar = dom.create( 'div', { className: 'dijitDialogPaneActionBar' });
+        var actionBar = dom.create( 'div', { className: 'actionBar' });
 
         new Button({ iconClass: 'dijitIconDelete', label: 'Cancel',
                      onClick: function() { thisB.dialog.hide(); }
@@ -171,13 +185,14 @@ return declare( null, {
                                             });
                                     }
                                 }
+                                // create wait message
+                                // Note, appending it to the body places it above the dijit dialog underlay
+                                var clusterWaitMessage = document.createElement('div')
+                                clusterWaitMessage.className = 'cluster-wait';
+                                clusterWaitMessage.innerHTML = 'Performing clustering.<br> Please wait...';
+                                document.body.appendChild(clusterWaitMessage);
                                 // hide without destroying
                                 this.fade(); // defined earlier.
-                                // create wait div
-                                var spinner = document.createElement('div')
-                                spinner.className = 'cluster-wait';
-                                spinner.innerHTML = 'Performing clustering.<br> Please wait...';
-                                this.browser.container.appendChild(spinner);
                                 setTimeout(function(){
                                     new RegionClustering({ browser: thisB.browser,
                                                            storeNames: thisB.storeFetch.fetch(),
@@ -185,7 +200,7 @@ return declare( null, {
                                                            queryLength: thisB.storeFetch.numbers.HMlen.number.get('value'),
                                                            numClusters: thisB.storeFetch.numbers.numClust.number.get('value'),
                                                         }).show(
-                                                        (function(){thisB.browser.container.removeChild(spinner);
+                                                        (function(){document.body.removeChild(clusterWaitMessage);
                                                                     thisB.dialog.hide()}));
                                     }, 200);
                             })
