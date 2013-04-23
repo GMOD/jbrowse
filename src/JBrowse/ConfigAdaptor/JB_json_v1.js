@@ -1,10 +1,11 @@
 define( [ 'dojo/_base/declare',
+          'dojo/_base/lang',
           'dojo/_base/array',
           'dojo/_base/json',
           'JBrowse/Util',
           'JBrowse/Digest/Crc32',
           'JBrowse/ConfigAdaptor/AdaptorUtil'
-        ], function( declare, array, json, Util, digest, AdaptorUtil ) {
+        ], function( declare, lang, array, json, Util, digest, AdaptorUtil ) {
 
 var dojof = Util.dojof;
 
@@ -98,7 +99,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
                 if( o.names )
                     addBase.push( o.names );
-                dojo.forEach( addBase, function(t) {
+                array.forEach( addBase, function(t) {
                     if( ! t.baseUrl )
                         t.baseUrl = o.baseUrl || '/';
                 },this);
@@ -166,13 +167,10 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 }
 
                 // synthesize a separate store conf
-                var storeConf = {
-                    urlTemplate: trackConfig.urlTemplate,
-                    compress: trackConfig.compress,
-                    baseUrl: trackConfig.baseUrl,
-                    type: storeClass,
-                    subfeatures: trackConfig.subfeatures
-                };
+                var storeConf = lang.mixin( {}, trackConfig );
+                lang.mixin( storeConf, {
+                    type: storeClass
+                });
 
                 // if this is the first sequence store we see, and we
                 // have no refseqs store defined explicitly, make this the refseqs store.
