@@ -26,6 +26,11 @@ var Chunk = Util.fastDeclare({
     },
     toString: function() {
         return this.toUniqueString();
+    },
+    fetchedSize: function() {
+        var fetchMin = this.minv.block;
+        var fetchMax = this.maxv.block + (1<<16);
+        return fetchMax - fetchMin + 1;
     }
 });
 
@@ -351,6 +356,14 @@ var BamFile = declare( null,
             maxSize: 100000 // cache up to 100,000 BAM features
         });
 
+        for( var i = 0; i<chunks.length; i++ ) {
+            var size = chunks[i].fetchedSize();
+            if( size > this.chunkSizeLimit ) {
+                errorCallback( new Errors.DataOverflow('BAM chunk size '+size+' exceeds chunkSizeLimit of '+this.chunkSizeLimit ) );
+                return;
+            }
+        }
+
         var haveError;
         var pastStart;
         array.forEach( chunks, function( c ) {
@@ -382,18 +395,9 @@ var BamFile = declare( null,
     _readChunk: function( chunk, callback ) {
         var thisB = this;
         var features = [];
-        var fetchMin = chunk.minv.block;
-        var fetchMax = chunk.maxv.block + (1<<16); // *sigh*
-        var size = fetchMax - fetchMin + 1;
-
-        if( size > this.chunkSizeLimit ) {
-            callback( null, new Errors.DataOverflow('BAM chunk size '+size+' exceeds chunkSizeLimit of '+this.chunkSizeLimit ) );
-            return;
-        }
-
         // console.log('chunk '+chunk+' size ',Util.humanReadableNumber(size));
 
-        thisB.data.read(fetchMin, size, function(r) {
+        thisB.data.read( chunk.minv.block, chunk.fetchedSize(), function(r) {
             try {
                 var data = BAMUtil.unbgzf(r, chunk.maxv.block - chunk.minv.block + 1);
                 thisB.readBamFeatures( new Uint8Array(data), chunk.minv.offset, features, callback );
