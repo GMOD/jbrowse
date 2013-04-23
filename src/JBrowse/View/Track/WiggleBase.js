@@ -124,7 +124,9 @@ return declare( [BlockBasedTrack,ExportMixin], {
 
                     finishCallback();
                 }),
-                dojo.hitch( this, 'fillBlockError', blockIndex, block )
+                dojo.hitch( this, function(e) {
+                    this._handleError( e, args );
+                })
             );
     },
 
@@ -145,10 +147,10 @@ return declare( [BlockBasedTrack,ExportMixin], {
         dom.empty( block.domNode );
 
         try {
-            dojo.create('canvas').getContext('2d').fillStyle = 'red';
+            document.createElement('canvas').getContext('2d').fillStyle = 'red';
         } catch( e ) {
             this.fatalError = 'This browser does not support HTML canvas elements.';
-            this.fillBlockError( blockIndex, block, this.fatalError );
+            this.showFatalError( this.fatalError );
             return;
         }
 
@@ -231,10 +233,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
                           },
                           function(e) {
                               thisB.error = e;
-                              array.forEach( thisB.blocks, function( block, blockIndex ) {
-                                  if( block && block.domNode.parentNode )
-                                      thisB.fillBlockError( blockIndex, block );
-                              });
+                              thisB._handleError( e );
                           });
 
     },

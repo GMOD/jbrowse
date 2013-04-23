@@ -406,8 +406,15 @@ return declare( [Component,DetailsMixin,Destroyable],
 
         if( isObject && error instanceof Errors.TimeOut && errorContext.block )
             this.fillBlockTimeout( errorContext.blockIndex, errorContext.block, error );
-        else if( isObject && error instanceof Errors.DataOverflow && errorContext.block )
-            this.fillTooManyFeaturesMessage( errorContext.blockIndex, errorContext.block, error );
+        else if( isObject && error instanceof Errors.DataOverflow ) {
+            if( errorContext.block )
+                this.fillTooManyFeaturesMessage( errorContext.blockIndex, errorContext.block, error );
+            else
+                array.forEach( this.blocks, function( block, blockIndex ) {
+                    if( block )
+                        this.fillTooManyFeaturesMessage( blockIndex, block, error );
+                },this);
+        }
         else {
             this.fatalError = error;
             this.showFatalError( error );
@@ -629,6 +636,7 @@ return declare( [Component,DetailsMixin,Destroyable],
     },
 
     fillMessage: function( blockIndex, block, message, class_ ) {
+        domConstruct.empty( block.domNode );
         var msgDiv = dojo.create(
             'div', {
                 className: class_ || 'message',

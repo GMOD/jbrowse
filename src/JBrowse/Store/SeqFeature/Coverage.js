@@ -74,7 +74,8 @@ return declare( SeqFeatureStore, {
                      }));
                 }
                 finishCallback();
-            }
+            },
+            errorCallback
         );
     }
 });
