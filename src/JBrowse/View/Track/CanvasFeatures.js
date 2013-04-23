@@ -175,31 +175,27 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     getGlyph: function( viewArgs, feature, callback, errorCallback ) {
         var glyphClassName = this.getConfForFeature( 'glyph', feature );
         var glyph, interestedParties;
-        try {
-            if(( glyph = this.glyphsLoaded[glyphClassName] )) {
-                callback( glyph );
-            }
-            else if(( interestedParties = this.glyphsBeingLoaded[glyphClassName] )) {
-                interestedParties.push( callback );
-            }
-            else {
-                var thisB = this;
-                this.glyphsBeingLoaded[glyphClassName] = [callback];
-                require( [glyphClassName], function( GlyphClass ) {
+        if(( glyph = this.glyphsLoaded[glyphClassName] )) {
+            callback( glyph );
+        }
+        else if(( interestedParties = this.glyphsBeingLoaded[glyphClassName] )) {
+            interestedParties.push( callback );
+        }
+        else {
+            var thisB = this;
+            this.glyphsBeingLoaded[glyphClassName] = [callback];
+            require( [glyphClassName], function( GlyphClass ) {
 
-                             glyph = thisB.glyphsLoaded[glyphClassName] =
-                                 new GlyphClass({ track: thisB, config: thisB.config, browser: thisB.browser });
+                         glyph = thisB.glyphsLoaded[glyphClassName] =
+                             new GlyphClass({ track: thisB, config: thisB.config, browser: thisB.browser });
 
-                             array.forEach( thisB.glyphsBeingLoaded[glyphClassName], function( cb ) {
-                                                cb( glyph );
-                                            });
+                         array.forEach( thisB.glyphsBeingLoaded[glyphClassName], function( cb ) {
+                                            cb( glyph );
+                                        });
 
-                             delete thisB.glyphsBeingLoaded[glyphClassName];
+                         delete thisB.glyphsBeingLoaded[glyphClassName];
 
-                         });
-            }
-        } catch( e ) {
-            errorCallback( e );
+                     });
         }
     },
 
@@ -249,6 +245,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         this.store.getFeatures( region,
 
                                 function( feature ) {
+                                    if( thisB.destroyed )
+                                        return;
+
                                     if( timedOut )
                                         throw new Errors.TrackBlockTimeout({
                                             track: thisB,
@@ -297,6 +296,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
 
                                 // callback when all features sent
                                 function () {
+                                    if( thisB.destroyed )
+                                        return;
+
                                     allFeaturesRead = true;
                                     if( ! featuresInProgress && ! featuresLaidOut.isFulfilled() ) {
                                         featuresLaidOut.resolve();
@@ -476,6 +478,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     },
 
     destroy: function() {
+        this.destroyed = true;
         delete this.layout;
         delete this.glyphsLoaded;
         this.inherited( arguments );
