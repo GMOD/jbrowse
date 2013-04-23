@@ -7,18 +7,22 @@ define( [
             Component
         ) {
 
+var uniqCounter = 0;
 return declare( Component,
 
 /**
  * @lends JBrowse.Store.prototype
  */
 {
+    namePrefix: 'store-',
+
     /**
      * Base class for all JBrowse data stores.
      * @constructs
      */
     constructor: function( args ) {
         this.refSeq = dojo.clone( args.refSeq );
+        this.name = args.name || this.namePrefix+(++uniqCounter);
         this.changeCallback = args.changeCallback || function() {};
     },
 
