@@ -10,6 +10,7 @@
 }
 
 .regionClusteringDialog .instructions {
+    width: 400px;
     position: relative;
     text-align: center;
     margin: 2em auto;
@@ -18,12 +19,12 @@
 .regionClusteringDialog .storeSelectors {
     position: relative;
     height: 217px;
-    padding: 0 10px 30px 10px;
+    padding: 0 15px;
 }
 
 .regionClusteringDialog .selectorContainer {
     float: left;
-    padding: 0 5px 0 5px;
+    padding: 0 5px;
 }
 
 .regionClusteringDialog .selectorContainer .selectorTitle {
@@ -82,30 +83,20 @@
     height: 16px;
 }
 
-.regionClusteringDialog .textFieldContainer {
-    position: relative;
-    top: 10px;
-    height: 16px;
-    padding: 10px;
+.regionClusteringDialog .numFieldContainer {
+    margin: 10px 20px;
 }
 
-.regionClusteringDialog .textFieldContainer .nameField {
-    height: 14px;
-    width: 150px;
-    padding-left: 3px;
+.regionClusteringDialog .actionBar {
+    padding-bottom: 10px;
+    text-align: center;
 }
 
-.regionClusteringDialog .dijitDialogPaneActionBar {
-    display: inline;
-    text-align: left;
-    padding-top: 10px;
-}
-
-.regionClusteringDialog .dijitDialogPaneActionBar .dijitButton {
+.regionClusteringDialog .actionBar .dijitButton {
     padding-left: 10px;
 }
 
-.regionClusteringDialog .dijitDialogPaneActionBar .dijitButtonNode {
+.regionClusteringDialog .actionBar .dijitButtonNode {
     height: 16px;
 }
 
@@ -119,4 +110,10 @@
 .addManyTracksDialog .instructions {
     padding-bottom: 10px;
     width: 350px;
+}
+
+.cluster-wait {
+    border: 1px solid black;
+    background-color: white;
+    padding: 1em;
 }
