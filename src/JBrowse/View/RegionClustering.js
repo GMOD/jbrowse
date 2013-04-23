@@ -41,8 +41,10 @@ return declare( null, {
               basesPerSpan: 1/this.browser.view.pxPerBp,
               start: this.refSeq.start, end: this.refSeq.end }, 
 
+            // featCallback
             function(feat){thisB.makeQuery( feat, regions );},
 
+            // DoneCallback
             dojo.hitch(this, function() {
                 // once the query regions have been built, execute the following.
                 var explanationDiv = dom.create( 'div', 
@@ -72,7 +74,16 @@ return declare( null, {
                         callback();
                     }));
                 }));
-            }));
+            }),
+
+            // error callback
+            function(e){
+                console.error('Callback error from the first getFeatures call in RegionClustering.');
+                if (e) {
+                    console.error(e);
+                }
+            }
+        );
     },
 
     makeQuery: function( feat, regions ) {
@@ -124,6 +135,7 @@ return declare( null, {
         }
         var d = new Deferred();
         this.store.getFeatures( query,
+                                // featCallback
                                 dojo.hitch( this,
                                     function(feat){
                                         var BPperBin = (query.end - query.start)/this.numOfBins;
@@ -139,6 +151,7 @@ return declare( null, {
                                         }
                                     }
                                 ),
+                                // doneCallback
                                 dojo.hitch( this,
                                     function(){
                                         for ( var name in this.storeNames ) {
@@ -156,7 +169,14 @@ return declare( null, {
                                         }
                                         d.resolve(heatmap, true);
                                     }
-                                )
+                                ),
+                                // error callback
+                                function(e){
+                                    console.error('Callback error from the second getFeatures call in RegionClustering.');
+                                    if (e) {
+                                        console.error(e);
+                                    }
+                                }
         );
         return d;
     },
