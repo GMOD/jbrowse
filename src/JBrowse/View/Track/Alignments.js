@@ -33,6 +33,8 @@ return declare( [ HTMLFeatures, AlignmentsMixin],
     renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale,
                              containerStart, containerEnd  ) {
         var featDiv = this.inherited( arguments );
+        if( ! featDiv )
+            return null;
 
         var displayStart = Math.max( feature.get('start'), containerStart );
         var displayEnd = Math.min( feature.get('end'), containerEnd );

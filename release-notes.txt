@@ -3,6 +3,11 @@
  * Reduced the default value of `maxHeight` for canvas-based feature
    tracks (like Alignments2) from 1000 to 600.
 
+ * Fixed a bug in the `Alignments` track type where BAM features with
+   missing mate pairs that are not drawn due to their position above
+   the track's `maxHeight` caused the track rendering to crash.
+   Thanks to Tristan Lubinski for reporting this.
+
  * Fixed bug preventing display of quantitative data from files loaded
    with flatfile-to-json.pl.  Thanks to Gwendoline Andres for pointing
    this out.
