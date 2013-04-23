@@ -18,6 +18,7 @@ define([
 return declare( null, {
 
     constructor: function( args ) {
+        this.browser = args.browser;
         this.index = new TabixIndex({ blob: new BGZBlob( args.tbi ), browser: args.browser } );
         this.data  = new BGZBlob( args.file );
         this.indexLoaded = this.index.load();
@@ -32,6 +33,7 @@ return declare( null, {
     },
 
     _fetch: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
+        var regRef = this.browser.regularizeReferenceName( ref );
 
         errorCallback = errorCallback || function(e) { console.error(e, e.stack); };
 
@@ -57,7 +59,7 @@ return declare( null, {
                 } else {
                     array.forEach( items, function(item) {
                         if( !( item.end < min || item.start > max )
-                            && ( ref === undefined || item.ref == ref ) ) {
+                            && ( ref === undefined || item._regularizedRef == regRef ) ) {
                                 itemCallback( item );
                             }
                     });
@@ -177,6 +179,7 @@ return declare( null, {
         var fields = line.split( "\t" );
         var item = { // note: index column numbers are 1-based
             ref:   fields[this.index.columnNumbers.ref-1],
+            _regularizedRef: this.browser.regularizeReferenceName( fields[this.index.columnNumbers.ref-1] ),
             start: parseInt(fields[this.index.columnNumbers.start-1]),
             end:   parseInt(fields[this.index.columnNumbers.end-1]),
             fields: fields
