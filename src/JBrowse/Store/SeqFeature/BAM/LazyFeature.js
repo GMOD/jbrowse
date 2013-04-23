@@ -236,26 +236,32 @@ var Feature = Util.fastDeclare(
     },
 
     _bin_mq_nl: function() {
-        return readInt( this.bytes.byteArray, this.bytes.start + 12  );
+        with( this.bytes )
+            return readInt( byteArray, start + 12  );
     },
     _flag_nc: function() {
-        return readInt( this.bytes.byteArray, this.bytes.start + 16 );
+        with( this.bytes )
+            return readInt( byteArray, start + 16 );
     },
     seq_length: function() {
-        return readInt( this.bytes.byteArray, this.bytes.start + 20 );
+        with( this.bytes )
+            return readInt( byteArray, start + 20 );
     },
     _next_refid: function() {
-        return readInt( this.bytes.byteArray, this.bytes.start + 24 );
+        with( this.bytes )
+            return readInt( byteArray, start + 24 );
     },
     _next_pos: function() {
-        return readInt( this.bytes.byteArray, this.bytes.start + 28 );
+        with( this.bytes )
+            return readInt( byteArray, start + 28 );
     },
     template_length: function() {
-        return readInt( this.bytes.byteArray, this.bytes.start + 32 );
+        with( this.bytes )
+            return readInt( byteArray, start + 32 );
     },
 
     /**
-     * parse the core data: start, end, strand, etc
+     * parse the core data: ref ID and start
      */
     _coreParse: function() {
         with( this.bytes ) {
