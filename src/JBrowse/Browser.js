@@ -454,6 +454,14 @@ Browser.prototype.initView = function() {
                 menuBar.appendChild( fileButton.domNode );
             }
 
+            this.addGlobalMenuItem( 'tools',
+                                    new dijitMenuItem(
+                                        {
+                                            label: 'Region clustering',
+                                            onClick: dojo.hitch( this, 'regionClusteringDialog' )
+                                        })
+                                   );
+            this.renderGlobalMenu( 'tools', { text: 'Tools'}, menuBar );
 
             this.addGlobalMenuItem( 'view', new dijitMenuItem({
                 label: 'Set highlight',
@@ -481,12 +489,6 @@ Browser.prototype.initView = function() {
             this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', dojo.hitch( this, '_updateHighlightClearButton' ) );
 
             this.addGlobalMenuItem( 'view', this._highlightClearButton );
-            
-            this.addGlobalMenuItem( 'view', new dijitMenuItem( {
-                label: 'Region clustering',
-                onClick: dojo.hitch( this, 'regionClusteringDialog' )
-                })
-            );
 
             var viewMenu = this.makeGlobalMenu('view');
             if( viewMenu ) {
