@@ -3,11 +3,12 @@ define( [
             'dojo/_base/array',
             'JBrowse/has',
             'JBrowse/Util',
+            'JBrowse/Errors',
             'JBrowse/Store/LRUCache',
             './Util',
             './LazyFeature'
         ],
-        function( declare, array, has, Util, LRUCache, BAMUtil, BAMFeature ) {
+        function( declare, array, has, Util, Errors, LRUCache, BAMUtil, BAMFeature ) {
 
 var BAM_MAGIC = 21840194;
 var BAI_MAGIC = 21578050;
@@ -50,6 +51,8 @@ var BamFile = declare( null,
         this.store = args.store;
         this.data  = args.data;
         this.bai   = args.bai;
+
+        this.chunkSizeLimit = args.chunkSizeLimit || 5000000;
     },
 
     init: function( args ) {
@@ -303,7 +306,7 @@ var BamFile = declare( null,
         } else {
             chunks = this.blocksForRange(chrId, min, max);
             if (!chunks) {
-                callback(null, 'Error in index fetch');
+                callback(null, new Errors.Fatal('Error in index fetch') );
             }
         }
 
@@ -376,21 +379,29 @@ var BamFile = declare( null,
 
     },
 
-    _readChunk: function( chunk, callback, failCallback ) {
+    _readChunk: function( chunk, callback ) {
         var thisB = this;
         var features = [];
         var fetchMin = chunk.minv.block;
         var fetchMax = chunk.maxv.block + (1<<16); // *sigh*
+        var size = fetchMax - fetchMin + 1;
 
-        thisB.data.read(fetchMin, fetchMax - fetchMin + 1, function(r) {
+        if( size > this.chunkSizeLimit ) {
+            callback( null, new Errors.DataOverflow('BAM chunk size '+size+' exceeds chunkSizeLimit of '+this.chunkSizeLimit ) );
+            return;
+        }
+
+        // console.log('chunk '+chunk+' size ',Util.humanReadableNumber(size));
+
+        thisB.data.read(fetchMin, size, function(r) {
             try {
                 var data = BAMUtil.unbgzf(r, chunk.maxv.block - chunk.minv.block + 1);
                 thisB.readBamFeatures( new Uint8Array(data), chunk.minv.offset, features, callback );
             } catch( e ) {
-                callback( null, e );
+                callback( null, new Errors.Fatal(e) );
             }
         }, function( e ) {
-            callback( null, e );
+            callback( null, new Errors.Fatal(e) );
         });
     },
 

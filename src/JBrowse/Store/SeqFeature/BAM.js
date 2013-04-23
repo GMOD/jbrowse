@@ -58,7 +58,8 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
         this.bam = new BAMFile({
                 store: this,
                 data: bamBlob,
-                bai: baiBlob
+                bai: baiBlob,
+                chunkSizeLimit: args.chunkSizeLimit
         });
 
         this.source = ( bamBlob.url  ? bamBlob.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] :
