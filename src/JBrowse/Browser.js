@@ -32,6 +32,7 @@ define( [
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
+            'JBrowse/View/Dialog/QuickHelp',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
             'dojo/domReady!'
@@ -68,6 +69,7 @@ define( [
             Location,
             LocationChoiceDialog,
             SetHighlightDialog,
+            HelpDialog,
             dijitFocus,
             LazyLoad
         ) {
@@ -524,15 +526,16 @@ Browser.prototype.initView = function() {
                                         })
                                   );
 
-            var helpDialog = this.makeHelpDialog();
-            this.setGlobalKeyboardShortcut( '?', helpDialog, 'show' );
-
+            function showHelp() {
+                new HelpDialog({ browser: thisObj }).show();
+            }
+            this.setGlobalKeyboardShortcut( '?', showHelp );
             this.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
                                             label: 'General',
                                             iconClass: 'jbrowseIconHelp',
-                                            onClick: function() { helpDialog.show(); }
+                                            onClick: showHelp
                                         })
                                   );
 
@@ -1693,72 +1696,6 @@ Browser.prototype.showTracks = function( trackNames ) {
         this.publish( '/jbrowse/v1/c/tracks/show', trackConfs );
         this.publish( '/jbrowse/v1/n/tracks/visibleChanged' );
     }));
-};
-
-Browser.prototype.makeHelpDialog = function () {
-    // make a div containing our help text
-    var browserRoot = this.config.browserRoot || "";
-    var helpdiv = document.createElement('div');
-    helpdiv.style.display = 'none';
-    helpdiv.className = "helpDialog";
-    helpdiv.innerHTML = ''
-        + '<div class="main" style="float: left; width: 49%;">'
-
-        + '<dl>'
-        + '<dt>Moving</dt>'
-        + '<dd><ul>'
-        + '    <li>Move the view by clicking and dragging in the track area, or by clicking <img height="20px" src="'+browserRoot+'img/slide-left.png"> or <img height="20px"  src="'+browserRoot+'img/slide-right.png"> in the navigation bar.</li>'
-        + '    <li>Center the view at a point by clicking on either the track scale bar or overview bar, or by shift-clicking in the track area.</li>'
-        + '</ul></dd>'
-        + '<dt>Zooming</dt>'
-        + '<dd><ul>'
-        + '    <li>Zoom in and out by clicking <img height="20px" src="'+browserRoot+'img/zoom-in-1.png"> or <img height="20px"  src="'+browserRoot+'img/zoom-out-1.png"> in the navigation bar.</li>'
-        + '    <li>Select a region and zoom to it ("rubber-band" zoom) by clicking and dragging in the overview or track scale bar, or shift-clicking and dragging in the track area.</li>'
-        + '    </ul>'
-        + '</dd>'
-        + '<dt>Selecting Tracks</dt>'
-        + '<dd><ul><li>Turn a track on by dragging its track label from the "Available Tracks" area into the genome area.</li>'
-        + '        <li>Turn a track off by dragging its track label from the genome area back into the "Available Tracks" area.</li>'
-        + '    </ul>'
-        + '</dd>'
-        + '</dl>'
-        + '</div>'
-
-        + '<div class="main" style="float: right; width: 49%;">'
-        + '<dl>'
-        + '<dt>Searching</dt>'
-        + '<dd><ul>'
-        + '    <li>Jump to a feature or reference sequence by typing its name in the search box and pressing Enter.</li>'
-        + '    <li>Jump to a specific region by typing the region into the search box as: <span class="example">ref:start..end</span>.</li>'
-        + '    </ul>'
-        + '</dd>'
-        + '<dt>Example Searches</dt>'
-        + '<dd>'
-        + '    <dl class="searchexample">'
-        + '        <dt>uc0031k.2</dt><dd>jumps to the feature named <span class="example">uc0031k.2</span>.</dd>'
-        + '        <dt>chr4</dt><dd>jumps to chromosome 4</dd>'
-        + '        <dt>chr4:79,500,000..80,000,000</dt><dd>jumps the region on chromosome 4 between 79.5Mb and 80Mb.</dd>'
-        + '    </dl>'
-        + '</dd>'
-        + '<dt>JBrowse Configuration</dt>'
-        + '<dd><ul><li><a target="_blank" href="docs/tutorial/">Quick-start tutorial</a></li>'
-        + '        <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse wiki</a></li>'
-        + '        <li><a target="_blank" href="docs/config.html">Configuration reference</a></li>'
-        + '        <li><a target="_blank" href="docs/featureglyphs.html">Feature glyph reference</a></li>'
-        + '    </ul>'
-        + '</dd>'
-        + '</dl>'
-        + '</div>'
-        ;
-    this.container.appendChild( helpdiv );
-
-    var dialog = new InfoDialog({
-        "class": 'help_dialog',
-        refocus: false,
-        draggable: false,
-        title: "JBrowse Help"
-    }, helpdiv );
-    return dialog;
 };
 
 /**

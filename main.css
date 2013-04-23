@@ -716,12 +716,6 @@ input.nav {
     font-size: 9px !important;
 }
 
-.help_dialog {
-    font-size: 12px;
-    width: 70%;
-    overflow: auto;
-    z-index: 2000;
-}
 .help_dialog ul {
     padding-left: 0;
 }
