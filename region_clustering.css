@@ -38,3 +38,17 @@
     font-style: black;
     z-index: 950;
 }
+
+.tracks-per-row {
+    margin: 1em 0;
+    border-collapse: collapse;
+}
+
+.tracks-per-row td {
+    padding: 5px;
+    border: 1px solid black;
+}
+
+.tracks-per-row tr {
+    border: 1px solid black;
+}
