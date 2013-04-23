@@ -170,7 +170,7 @@ _validateConfig: function( c ) {
         this._fatalError( 'Must provide a <code>baseUrl</code> in configuration' );
     }
     if( this.hasFatalErrors )
-        throw "Errors in configuration, aborting";
+        throw "Errors in configuration, cannot start.";
 },
 
 /**

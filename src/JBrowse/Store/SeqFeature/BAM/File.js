@@ -1,48 +1,18 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'JBrowse/has',
             'JBrowse/Util',
             'JBrowse/Store/LRUCache',
             './Util',
             './LazyFeature'
         ],
-        function( declare, array, Util, LRUCache, BAMUtil, BAMFeature ) {
+        function( declare, array, has, Util, LRUCache, BAMUtil, BAMFeature ) {
 
 var BAM_MAGIC = 21840194;
 var BAI_MAGIC = 21578050;
 
 var dlog = function(){ console.error.apply(console, arguments); };
-
-//
-// Binning (transliterated from SAM1.3 spec)
-//
-
-/* calculate bin given an alignment covering [beg,end) (zero-based, half-close-half-open) */
-function reg2bin(beg, end)
-{
-    --end;
-    if (beg>>14 == end>>14) return ((1<<15)-1)/7 + (beg>>14);
-    if (beg>>17 == end>>17) return ((1<<12)-1)/7 + (beg>>17);
-    if (beg>>20 == end>>20) return ((1<<9)-1)/7 + (beg>>20);
-    if (beg>>23 == end>>23) return ((1<<6)-1)/7 + (beg>>23);
-    if (beg>>26 == end>>26) return ((1<<3)-1)/7 + (beg>>26);
-    return 0;
-}
-
-/* calculate the list of bins that may overlap with region [beg,end) (zero-based) */
-var MAX_BIN = (((1<<18)-1)/7);
-function reg2bins(beg, end)
-{
-    var k, list = [];
-    --end;
-    list.push(0);
-    for (k = 1 + (beg>>26); k <= 1 + (end>>26); ++k) list.push(k);
-    for (k = 9 + (beg>>23); k <= 9 + (end>>23); ++k) list.push(k);
-    for (k = 73 + (beg>>20); k <= 73 + (end>>20); ++k) list.push(k);
-    for (k = 585 + (beg>>17); k <= 585 + (end>>17); ++k) list.push(k);
-    for (k = 4681 + (beg>>14); k <= 4681 + (end>>14); ++k) list.push(k);
-    return list;
-}
 
 var Chunk = Util.fastDeclare({
     constructor: function(minv,maxv,bin) {
@@ -85,7 +55,7 @@ var BamFile = declare( null,
     init: function( args ) {
         var bam = this;
         var successCallback = args.success || function() {};
-        var failCallback = args.failure || function() {};
+        var failCallback = args.failure || function(e) { console.error(e, e.stack); };
 
         this._readBAI( dojo.hitch( this, function() {
             this._readBAMheader( function() {
@@ -103,9 +73,9 @@ var BamFile = declare( null,
                 return;
             }
 
-            if( ! Uint8Array ) {
-                dlog('Browser does not support typed arrays');
-                failCallback('Browser does not support typed arrays');
+            if( ! has('typed-arrays') ) {
+                dlog('Web browser does not support typed arrays');
+                failCallback('Web browser does not support typed arrays');
                 return;
             }
 
@@ -206,15 +176,10 @@ var BamFile = declare( null,
                         for (var j = 0; j < lName-1; ++j) {
                             name += String.fromCharCode(uncba[p + 4 + j]);
                         }
+
                         var lRef = readInt(uncba, p + lName + 4);
                         // dlog(name + ': ' + lRef);
-                        thisB.chrToIndex[name] = i;
-                        if (name.indexOf('chr') == 0) {
-                            thisB.chrToIndex[name.substring(3)] = i;
-                        } else {
-                            thisB.chrToIndex['chr' + name] = i;
-                        }
-
+                        thisB.chrToIndex[ thisB.store.browser.regularizeReferenceName( name ) ] = i;
                         thisB.indexToChr.push({ name: name, length: lRef });
 
                         p = p + 8 + lName;
@@ -225,87 +190,95 @@ var BamFile = declare( null,
         }, failCallback );
     },
 
+    /**
+     * Get an array of Chunk objects for the given ref seq id and range.
+     */
     blocksForRange: function(refId, min, max) {
         var index = this.indices[refId];
         if (!index) {
             return [];
         }
 
-        var intBinsL = reg2bins(min, max);
-        var intBins = [];
-        for (var i = 0; i < intBinsL.length; ++i) {
-            intBins[intBinsL[i]] = true;
-        }
-        var leafChunks = [], otherChunks = [];
+        // object as { <binNum>: true, ... } containing the bin numbers
+        // that overlap this range
+        var overlappingBins = function() {
+            var intBins = {};
+            var intBinsL = this._reg2bins(min, max);
+            for (var i = 0; i < intBinsL.length; ++i) {
+                intBins[intBinsL[i]] = true;
+            }
+            return intBins;
+        }.call(this);
 
+        // parse the chunks for the overlapping bins out of the index
+        // for this ref seq, keeping a distinction between chunks from
+        // leaf (lowest-level, smallest) bins, and chunks from other,
+        // larger bins
+        var leafChunks  = [];
+        var otherChunks = [];
         var nbin = readInt(index, 0);
         var p = 4;
         for (var b = 0; b < nbin; ++b) {
-            var bin = readInt(index, p);
+            var bin   = readInt(index, p  );
             var nchnk = readInt(index, p+4);
-    //        dlog('bin=' + bin + '; nchnk=' + nchnk);
             p += 8;
-            if (intBins[bin]) {
+            if( overlappingBins[bin] ) {
                 for (var c = 0; c < nchnk; ++c) {
-                    var cs = readVirtualOffset(index, p);
-                    var ce = readVirtualOffset(index, p + 8);
-                    (bin < 4681 ? otherChunks : leafChunks).push(new Chunk(cs, ce, bin));
+                    var cs = readVirtualOffset( index, p     );
+                    var ce = readVirtualOffset( index, p + 8 );
+                    ( bin < 4681 ? otherChunks : leafChunks ).push( new Chunk(cs, ce, bin) );
                     p += 16;
                 }
             } else {
-                p +=  (nchnk * 16);
+                p += nchnk * 16;
             }
         }
-    //    dlog('leafChunks = ' + miniJSONify(leafChunks));
-    //    dlog('otherChunks = ' + miniJSONify(otherChunks));
 
-        var nintv = readInt(index, p);
-        var lowest = null;
-        var minLin = Math.min(min>>14, nintv - 1), maxLin = Math.min(max>>14, nintv - 1);
-        for (var i = minLin; i <= maxLin; ++i) {
-            var lb =  readVirtualOffset(index, p + 4 + (i * 8));
-            if (!lb) {
-                continue;
-            }
-            if (!lowest || lb.block < lowest.block || lb.offset < lowest.offset) {
-                lowest = lb;
-            }
-        }
-        // dlog('Lowest LB = ' + lowest);
+        // parse the linear index to find the lowest virtual offset
+        var lowest = function() {
+            var lowest = null;
+            var nintv  = readInt(index, p);
+            var minLin = Math.min(min>>14, nintv - 1);
+            var maxLin = Math.min(max>>14, nintv - 1);
+            for (var i = minLin; i <= maxLin; ++i) {
+                var lb =  readVirtualOffset(index, p + 4 + (i * 8));
+                if( !lb )
+                    continue;
 
-        var prunedOtherChunks = [];
-        if (lowest != null) {
-            for (var i = 0; i < otherChunks.length; ++i) {
-                var chnk = otherChunks[i];
-                if (chnk.maxv.block >= lowest.block && chnk.maxv.offset >= lowest.offset) {
-                    prunedOtherChunks.push(chnk);
+                if ( ! lowest || lb.cmp( lowest ) < 0  )
+                    lowest = lb;
+            }
+            return lowest;
+        }();
+
+        // discard any chunks that come before the lowest
+        // virtualOffset that we got from the linear index
+        otherChunks = function( otherChunks ) {
+            var relevantOtherChunks = [];
+            if (lowest != null) {
+                for (var i = 0; i < otherChunks.length; ++i) {
+                    var chnk = otherChunks[i];
+                    if (chnk.maxv.block >= lowest.block && chnk.maxv.offset >= lowest.offset) {
+                        relevantOtherChunks.push(chnk);
+                    }
                 }
             }
-        }
-        // dlog('prunedOtherChunks = ' + miniJSONify(prunedOtherChunks));
-        otherChunks = prunedOtherChunks;
+            return relevantOtherChunks;
+        }(otherChunks);
 
-        var intChunks = [];
-        for (var i = 0; i < otherChunks.length; ++i) {
-            intChunks.push(otherChunks[i]);
-        }
-        for (var i = 0; i < leafChunks.length; ++i) {
-            intChunks.push(leafChunks[i]);
-        }
+        // add the leaf chunks in, and sort the chunks ascending by virtual offset
+        var allChunks = otherChunks
+            .concat( leafChunks )
+            .sort( function(c0, c1) {
+                      return c0.minv.block - c1.minv.block || c0.minv.offset - c1.minv.offset;
+                   });
 
-        intChunks.sort(function(c0, c1) {
-            var dif = c0.minv.block - c1.minv.block;
-            if (dif != 0) {
-                return dif;
-            } else {
-                return c0.minv.offset - c1.minv.offset;
-            }
-        });
+        // merge chunks from the same block together
         var mergedChunks = [];
-        if (intChunks.length > 0) {
-            var cur = intChunks[0];
-            for (var i = 1; i < intChunks.length; ++i) {
-                var nc = intChunks[i];
+        if( allChunks.length ) {
+            var cur = allChunks[0];
+            for (var i = 1; i < allChunks.length; ++i) {
+                var nc = allChunks[i];
                 if (nc.minv.block == cur.maxv.block /* && nc.minv.offset == cur.maxv.offset */) { // no point splitting mid-block
                     cur = new Chunk(cur.minv, nc.maxv, 'linear');
                 } else {
@@ -315,12 +288,13 @@ var BamFile = declare( null,
             }
             mergedChunks.push(cur);
         }
-    //    dlog('mergedChunks = ' + miniJSONify(mergedChunks));
 
         return mergedChunks;
     },
 
-    fetch: function(chr, min, max, callback) {
+    fetch: function(chr, min, max, featCallback, endCallback, errorCallback ) {
+
+        chr = this.store.browser.regularizeReferenceName( chr );
 
         var chrId = this.chrToIndex && this.chrToIndex[chr];
         var chunks;
@@ -338,32 +312,31 @@ var BamFile = declare( null,
             return this.join(', ');
         };
 
+        //console.log( chr, min, max, chunks.toString() );
+
         try {
-            this._fetchChunkFeatures( chunks, function( features, error ) {
-                if( error ) {
-                    callback( null, error );
-                } else {
-                    features = array.filter( features, function( feature ) {
-                        return ( !( feature.get('end') < min || feature.get('start') > max )
-                                 && ( chrId === undefined || feature._refID == chrId ) );
-                    });
-                    callback( features );
-                }
-            });
+            this._fetchChunkFeatures(
+                chunks,
+                chrId,
+                min,
+                max,
+                featCallback,
+                endCallback,
+                errorCallback
+            );
         } catch( e ) {
-            callback( null, e );
+            errorCallback( e );
         }
     },
 
-    _fetchChunkFeatures: function( chunks, callback ) {
+    _fetchChunkFeatures: function( chunks, chrId, min, max, featCallback, endCallback, errorCallback ) {
         var thisB = this;
 
         if( ! chunks.length ) {
-            callback([]);
+            endCallback();
             return;
         }
 
-        var features = [];
         var chunksProcessed = 0;
 
         var cache = this.featureCache = this.featureCache || new LRUCache({
@@ -375,19 +348,35 @@ var BamFile = declare( null,
             maxSize: 100000 // cache up to 100,000 BAM features
         });
 
-        var error;
+        var haveError;
+        var pastStart;
         array.forEach( chunks, function( c ) {
             cache.get( c, function( f, e ) {
-                error = error || e;
-                features.push.apply( features, f );
-                if( ++chunksProcessed == chunks.length )
-                    callback( features, error );
+                if( e && !haveError )
+                    errorCallback(e);
+                if(( haveError = haveError || e )) {
+                    return;
+                }
+
+                for( var i = 0; i<f.length; i++ ) {
+                    var feature = f[i];
+                    if( feature._refID == chrId ) {
+                        // on the right ref seq
+                        if( feature.get('start') > max ) // past end of range, can stop iterating
+                            break;
+                        else if( feature.get('end') >= min ) // must be in range
+                            featCallback( feature );
+                    }
+                }
+                if( ++chunksProcessed == chunks.length ) {
+                    endCallback();
+                }
             });
         });
 
     },
 
-    _readChunk: function( chunk, callback ) {
+    _readChunk: function( chunk, callback, failCallback ) {
         var thisB = this;
         var features = [];
         var fetchMin = chunk.minv.block;
@@ -400,6 +389,8 @@ var BamFile = declare( null,
             } catch( e ) {
                 callback( null, e );
             }
+        }, function( e ) {
+            callback( null, e );
         });
     },
 
@@ -443,7 +434,35 @@ var BamFile = declare( null,
                 return;
             }
         }
+    },
+    //
+    // Binning (transliterated from SAM1.3 spec)
+    //
+
+    /* calculate bin given an alignment covering [beg,end) (zero-based, half-close-half-open) */
+    _reg2bin: function( beg, end ) {
+        --end;
+        if (beg>>14 == end>>14) return ((1<<15)-1)/7 + (beg>>14);
+        if (beg>>17 == end>>17) return ((1<<12)-1)/7 + (beg>>17);
+        if (beg>>20 == end>>20) return ((1<<9)-1)/7 + (beg>>20);
+        if (beg>>23 == end>>23) return ((1<<6)-1)/7 + (beg>>23);
+        if (beg>>26 == end>>26) return ((1<<3)-1)/7 + (beg>>26);
+        return 0;
+    },
+
+    /* calculate the list of bins that may overlap with region [beg,end) (zero-based) */
+    MAX_BIN: (((1<<18)-1)/7),
+    _reg2bins: function( beg, end ) {
+        var k, list = [ 0 ];
+        --end;
+        for (k = 1    + (beg>>26); k <= 1    + (end>>26); ++k) list.push(k);
+        for (k = 9    + (beg>>23); k <= 9    + (end>>23); ++k) list.push(k);
+        for (k = 73   + (beg>>20); k <= 73   + (end>>20); ++k) list.push(k);
+        for (k = 585  + (beg>>17); k <= 585  + (end>>17); ++k) list.push(k);
+        for (k = 4681 + (beg>>14); k <= 4681 + (end>>14); ++k) list.push(k);
+        return list;
     }
+
 });
 
 return BamFile;

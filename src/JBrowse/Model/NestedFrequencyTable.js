@@ -87,7 +87,7 @@ var NestedFrequencyTable = Util.fastDeclare({
     },
 
     toString: function() {
-        return this.total().toPrecision(6).toString();
+        return this.total().toPrecision(6).toString().replace(/\.?0+$/,'');
     },
 
     valueOf: function() {

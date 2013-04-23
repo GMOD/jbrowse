@@ -6,6 +6,7 @@ use FindBin qw($RealBin);
 use lib "$RealBin/../src/perl5";
 use JBlibs;
 
+use IO::Handle;
 use Pod::Usage;
 
 use Bio::JBrowse::JSON;

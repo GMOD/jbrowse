@@ -3,6 +3,7 @@ define( [
             'dojo/_base/lang',
             'dojo/_base/array',
             'dojo/_base/url',
+            'JBrowse/has',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',
@@ -10,7 +11,7 @@ define( [
             'JBrowse/Util',
             'JBrowse/Model/XHRBlob'
         ],
-        function( declare, lang, array, urlObj, SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin, Window, Util, XHRBlob ) {
+        function( declare, lang, array, urlObj, has, SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin, Window, Util, XHRBlob ) {
 return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
  /**
@@ -34,15 +35,11 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
      */
     constructor: function( args ) {
 
-        this.data = args.blob || (function() {
-            var url = Util.resolveUrl(
-                args.baseUrl || '/',
-                Util.fillTemplate( args.urlTemplate || 'data.bigwig',
-                                   {'refseq': (this.refSeq||{}).name }
-                                 )
-            );
-            return new XHRBlob( url );
-        }).call(this);
+        this.data = args.blob ||
+            new XHRBlob( this.resolveUrl(
+                             args.urlTemplate || 'data.bigwig'
+                         )
+                       );
 
         this.name = args.name || ( this.data.url && new urlObj( this.data.url ).path.replace(/^.+\//,'') ) || 'anonymous';
 
@@ -136,10 +133,13 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                     console.warn("BigWig "+bwg.data.url+ " has no total summary data.");
             }
 
-            bwg._readChromTree(function() {
-                bwg._deferred.features.resolve({success: true});
-                bwg._deferred.stats.resolve({success: true});
-            });
+            bwg._readChromTree(
+                function() {
+                    bwg._deferred.features.resolve({success: true});
+                    bwg._deferred.stats.resolve({success: true});
+                },
+                dojo.hitch( bwg, '_failAllDeferred' )
+            );
         },
         dojo.hitch( this, '_failAllDeferred' )
        );
@@ -157,7 +157,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     /**
      * @private
      */
-    _readChromTree: function(callback) {
+    _readChromTree: function( callback, errorCallback ) {
         var thisB = this;
         this.refsByNumber = {};
         this.refsByName = {};
@@ -172,9 +172,8 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
         this.data.slice( this.chromTreeOffset, udo - this.chromTreeOffset )
             .fetch(function(bpt) {
-                       if( !( Uint8Array && Int16Array && Int32Array ) ) {
-                           var msg = 'Browser does not support typed arrays';
-                           thisB._loading.resolve({success: false, error: msg});
+                       if( ! has('typed-arrays') ) {
+                           thisB._failAllDeferred( 'Web browser does not support typed arrays' );
                            return;
                        }
                        var ba = new Uint8Array(bpt);
@@ -214,10 +213,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                                    var refRec = { name: key, id: refId, length: refSize };
 
                                    //dlog(key + ':' + refId + ',' + refSize);
-                                   thisB.refsByName[key] = refRec;
-                                   if (key.indexOf('chr') == 0) {
-                                       thisB.refsByName[key.substr(3)] = refRec;
-                                   }
+                                   thisB.refsByName[ thisB.browser.regularizeReferenceName(key) ] = refRec;
                                    thisB.refsByNumber[refId] = refRec;
                                } else {
                                    // parse index node
@@ -232,24 +228,28 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                        bptReadNode(rootNodeOffset);
 
                        callback.call( thisB, thisB );
-            });
+            }, errorCallback );
     },
 
-    getRefSeqs: function( seqCallback, finishCallback, errorCallback ) {
+    /**
+     * Interrogate whether a store has data for a given reference
+     * sequence.  Calls the given callback with either true or false.
+     *
+     * Implemented as a binary interrogation because some stores are
+     * smart enough to regularize reference sequence names, while
+     * others are not.
+     */
+    hasRefSeq: function( seqName, callback, errorCallback ) {
         var thisB = this;
+        seqName = thisB.browser.regularizeReferenceName( seqName );
         this._deferred.features.then(function() {
-            var refs =  thisB.refsByName;
-            for( var name in refs ) {
-                if( refs.hasOwnProperty(name) )
-                    seqCallback( refs[name] );
-            }
-            finishCallback();
+            callback( seqName in thisB.refsByName );
         }, errorCallback );
     },
 
     _getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
 
-        var chrName = query.ref;
+        var chrName = this.browser.regularizeReferenceName( query.ref );
         var min = query.start;
         var max = query.end;
 

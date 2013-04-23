@@ -73,7 +73,7 @@ return declare( [BlockBased, ExportMixin],
             var blur = dojo.create( 'div', {
                              className: 'sequence_blur',
                              style: { borderStyle: 'solid', borderTopWidth: borderWidth+'px', borderBottomWidth: borderWidth+'px' }
-                         }, block );
+                         }, block.domNode );
             this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
         }
 
@@ -105,7 +105,7 @@ return declare( [BlockBased, ExportMixin],
         var seqNode = document.createElement("div");
         seqNode.className = "sequence";
         seqNode.style.width = "100%";
-        block.appendChild(seqNode);
+        block.domNode.appendChild(seqNode);
 
         // add a div for the forward strand
         seqNode.appendChild( this._renderSeqDiv( start, end, seq, scale ));
@@ -133,12 +133,12 @@ return declare( [BlockBased, ExportMixin],
         var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('span');
-            base.className = 'base base_'+seq[i].toLowerCase();
+            base.className = 'base base_'+seq.charAt([i]).toLowerCase();
             base.style.width = charWidth;
             if( drawChars ) {
                 if( bigTiles )
                     base.className = base.className + ' big';
-                base.innerHTML = seq[i];
+                base.innerHTML = seq.charAt(i);
             }
             container.appendChild(base);
         }

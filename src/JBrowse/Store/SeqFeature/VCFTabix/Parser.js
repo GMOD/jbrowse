@@ -102,7 +102,12 @@ return declare( null, {
             featureData.filter = fields[6];
 
         if( alt && alt[0] != '<' )
-            featureData.alternative_alleles = alt;
+            featureData.alternative_alleles = {
+                meta: {
+                    description: 'VCF ALT field, list of alternate non-reference alleles called on at least one of the samples'
+                },
+                values: alt
+            };
 
         // parse the info field and store its contents as attributes in featureData
         this._parseInfoField( featureData, fields );

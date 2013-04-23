@@ -59,7 +59,7 @@ return declare( ActionBarDialog,
         });
 
         this.set('content', [
-                     dom.create('label', { for: 'newhighlight_locstring', innerHTML: 'Location' } ),
+                     dom.create('label', { "for": 'newhighlight_locstring', innerHTML: 'Location' } ),
                      this.highlightInput.domNode
                  ] );
 

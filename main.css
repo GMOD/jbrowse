@@ -263,6 +263,21 @@ div.block {
     top: 0px;
     height: 100%;
 }
+div.block.height_overflow .height_overflow_message {
+    position: absolute;
+    color: rgb(77,77,77);
+    border-bottom: 2px solid rgb(77,77,77);
+    text-shadow: white 0px 0px 1px;
+    white-space: nowrap;
+    width: 100%;
+    font-weight: bold;
+    text-align: center;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
 div.block.timed_out {
     background: #ddd;
     background: rgba( 0,0,0, 0.1 );
@@ -426,6 +441,10 @@ span.base {
 .base_reference {
     background-color: #bbb;
 }
+.base_deletion {
+    background-color: black;
+    background-color: #000;
+}
 
 div.sequence_blur {
     background: none;
@@ -558,7 +577,7 @@ div.track-label .feature-density {
     position: absolute;
     left: 8px;
     top: 7px;
-    background: url("src/dijit/themes/tundra/images/spriteArrows.png") no-repeat -28px 0;
+    background: url("img/spriteArrows.png") no-repeat -28px 0;
 }
 
 .tundra div.track-label:hover .track-menu-button:hover {
@@ -794,6 +813,35 @@ a.dialog-new-window {
     width: 50em;
     color: #333;
 }
+.feature-detail .genotype_summary {
+    padding: 1em;
+}
+.feature-detail .genotype_summary table {
+    border-collapse: collapse;
+}
+.feature-detail .genotype_summary td {
+    padding: 0 1em;
+}
+.feature-detail .genotype_summary td.total {
+    font-weight: bold;
+    border-top: 1px solid #444;
+}
+.feature-detail .genotype_summary td.count, .feature-detail .genotype_summary td.pct {
+    text-align: right;
+}
+.feature-detail .genotype_summary td.category.level_1 {
+    padding-left: 2em;
+}
+.feature-detail .genotype_summary td.category.level_2 {
+    padding-left: 3em;
+}
+.feature-detail .genotype_summary td.category.level_3 {
+    padding-left: 4em;
+}
+.feature-detail .genotype_summary td.category.level_4 {
+    padding-left: 5em;
+}
+
 .feature-detail .subfeature-detail {
     background: #fafafa;
     background: rgba( 0, 0, 0, 0.1 );
@@ -828,9 +876,10 @@ a.dialog-new-window {
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
 }
-.detail .value_container.big {
+.detail .value_container.big, .detail .value_container.dgrid {
     border: 1px solid rgba(0,0,50,0.1);
     margin-left: 1em;
+    margin-top: 0.3em;
 }
 
 .detail .value {
@@ -838,20 +887,24 @@ a.dialog-new-window {
     vertical-align: top;
     font-family: sans-serif;
     padding: 0 0.7em;
+    line-height: 1.8;
 }
 .detail .field {
     margin: 0;
     display: inline-block;
     min-width: 90px;
     vertical-align: top;
-    padding: 2px 0.2em 2px 1em;
+    padding: 2px 0.5em;
     background: rgba( 50, 85, 255,0.1 );
+    border-bottom: 1px solid #D2D4E4;
+    border-bottom-color: rgba( 0, 0, 0, 0.1 );
+    font-size: 1.1667em;
 }
 /* field names that have tooltips */
-.detail .field[title] {
-    background: rgba( 255,255,50,0.3 );
+.detail .field[title], .detail .dgrid-cell[title] {
+    background: rgba( 255,245,50,0.3 );
 }
-.detail .field[title]:hover {
+.detail .field[title]:hover, .detail .dgrid-cell[title]:hover {
     background: rgba( 255,255,50,0.7 );
 }
 /*
@@ -865,6 +918,8 @@ a.dialog-new-window {
 }
 
 .detail .field_container {
+    margin-left: 1em;
+    margin-bottom: 2px;
 }
 .detail hr {
     margin: 0.8em 4em 0.5em 0.7em;
@@ -930,8 +985,20 @@ table.baseQuality td {
     line-height: 0.95;
     text-align: center;
 }
-table.baseQuality tr.seq td {
-    padding-top: 0.8em;
+.baseQuality .basePosition {
+    display: inline-block;
+    padding: 0 0.3em 0.4em 0.3em;
+}
+.baseQuality .basePosition:hover {
+    background: #ccc;
+}
+.baseQuality span.seq {
+    display: block;
+    text-align: center;
     font-weight: bold;
+}
+.baseQuality span.qual {
+    display: block;
+    text-align: center;
 }
 

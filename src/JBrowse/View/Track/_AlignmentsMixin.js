@@ -16,29 +16,24 @@ define([
 
 return declare( MismatchesMixin ,{
 
-    constructor: function() {
-        this.cigarAttributeName = ( this.config.cigarAttribute || 'cigar' ).toLowerCase();
-        this.mdAttributeName    = ( this.config.mdAttribute    || 'md'    ).toLowerCase();
-    },
-
     /**
      * Make a default feature detail page for the given feature.
      * @returns {HTMLElement} feature detail page HTML
      */
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
-        var fmt = dojo.hitch( this, function( name, value ) {
-            name = Util.ucFirst( name.replace(/_/g,' ') );
-            return this._fmtDetailField(name, value);
-        });
         var container = dojo.create('div', {
-            className: 'detail feature-detail feature-detail-'+track.name,
+            className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(),
             innerHTML: ''
         });
-        container.innerHTML += fmt( 'Name', f.get('name') );
-        container.innerHTML += fmt( 'Type', f.get('type') );
-        container.innerHTML += fmt( 'Score', f.get('score') );
-        container.innerHTML += fmt( 'Description', f.get('note') );
-        container.innerHTML += fmt(
+        var fmt = dojo.hitch( this, function( name, value ) {
+            name = Util.ucFirst( name.replace(/_/g,' ') );
+            return this.renderDetailField(container, name, value);
+        });
+        fmt( 'Name', f.get('name') );
+        fmt( 'Type', f.get('type') );
+        fmt( 'Score', f.get('score') );
+        fmt( 'Description', f.get('note') );
+        fmt(
             'Position',
             Util.assembleLocString({ start: f.get('start'),
                                      end: f.get('end'),
@@ -47,11 +42,9 @@ return declare( MismatchesMixin ,{
         );
 
 
-        var alignment = '<div class="alignment sequence">'+f.get('seq')+'</div>';
         if( f.get('seq') ) {
-            container.innerHTML += fmt('Sequence and Quality', this._renderSeqQual( f ) );
+            fmt('Sequence and Quality', this._renderSeqQual( f ) );
         }
-
 
         var additionalTags = array.filter(
             f.tags(), function(t) {
@@ -60,7 +53,7 @@ return declare( MismatchesMixin ,{
         ).sort();
 
         dojo.forEach( additionalTags, function(t) {
-            container.innerHTML += fmt( t, f.get(t) );
+                          fmt( t, f.get(t) );
         });
 
         return container;
@@ -76,35 +69,16 @@ return declare( MismatchesMixin ,{
             return '';
 
         qual = qual.split(/\s+/);
-        var fieldWidth = (''+Math.max.apply( Math, qual )).length;
 
-        // pad the sequence with spaces
-        var seqPadding = ' ';
-        while( seqPadding.length < fieldWidth-1 ) {
-            seqPadding += ' ';
+        var html = '';
+        for( var i = 0; i < seq.length; i++ ) {
+            html += '<div class="basePosition" title="position '+(i+1)+'"><span class="seq">'
+                    + seq[i]+'</span>';
+            if( qual[i] )
+                html += '<span class="qual">'+qual[i]+'</span>';
+            html += '</div>';
         }
-        var paddedSeq = array.map( seq, function(s) {
-            return s + seqPadding;
-        });
-
-        var tableRowHTML = function(fields, class_) {
-            class_ = class_ ? ' class="'+class_+'"' : '';
-            return '<tr'+class_+'>'+array.map( fields, function(f) { return '<td>'+f+'</td>'; }).join('')+'</tr>';
-        };
-        // insert newlines
-        var rendered = '';
-        var lineFields = Math.round(50/fieldWidth);
-        while( paddedSeq.length ) {
-            var line = paddedSeq.slice(0,Math.min( paddedSeq.length, lineFields ) );
-            paddedSeq = paddedSeq.slice(lineFields);
-            rendered += tableRowHTML( line, 'seq' );
-            if( qual.length ) {
-                line = qual.slice(0, Math.min( qual.length, lineFields ));
-                qual = qual.slice(lineFields);
-                rendered += tableRowHTML( line, 'qual' );
-            }
-        }
-        return '<table class="baseQuality">'+rendered+'</table>';
+        return '<div class="baseQuality">'+html+'</div>';
     },
 
     // recursively find all the stylesheets that are loaded in the
@@ -147,7 +121,7 @@ return declare( MismatchesMixin ,{
            return colors;
         }.call(this);
 
-        return this._baseStyles[base] || '#888';
+        return this._baseStyles[base] || '#999';
     }
 
 });

@@ -60,7 +60,7 @@ return dojo.declare( BlockBased,
                 ? "gridline_major"
                 : "gridline_minor";
 
-            block.appendChild( new_gridline( cls, pos) );
+            block.domNode.appendChild( new_gridline( cls, pos) );
         }
 
     }

@@ -22,8 +22,10 @@ return declare( Component,
         this.changeCallback = args.changeCallback || function() {};
     },
 
+    // not really utilized.  ignore for now
     notifyChanged: function( changeDescription ) {
-        this.changeCallback( changeDescription );
+        if( this.changeCallback )
+            this.changeCallback( changeDescription );
     },
 
     /**

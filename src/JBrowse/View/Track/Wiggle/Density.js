@@ -24,7 +24,7 @@ return declare( WiggleBase,
             {
                 maxExportSpan: 500000,
                 style: {
-                    height: 32,
+                    height: 31,
                     pos_color: '#00f',
                     neg_color: '#f00',
                     bg_color: 'rgba(230,230,230,0.6)'

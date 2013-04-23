@@ -30,9 +30,20 @@
   <script type="text/javascript" src="spec/NestedFrequencyTable.spec.js"></script>
   <script type="text/javascript" src="spec/TabixIndex.spec.js"></script>
   <script type="text/javascript" src="spec/TabixIndexedFile.spec.js"></script>
+  <script type="text/javascript" src="spec/RESTStore.spec.js"></script>
+  <script type="text/javascript" src="spec/RegularizeRefSeqs.spec.js"></script>
 
   <script type="text/javascript">
-    (function() {
+    require( { baseUrl: '../../src',
+               packages: [ 'dojo', 'dijit', 'dojox', 'jszlib',
+                            { name: 'lazyload', main: 'lazyload' },
+                            'dgrid', 'xstyle', 'put-selector',
+                            { name: 'jDataView', location: 'jDataView/src', main: 'jdataview' },
+                            'JBrowse'
+                         ]
+              },
+              [],
+              function() {
       var jasmineEnv = jasmine.getEnv();
       jasmineEnv.updateInterval = 1000;
 
@@ -56,8 +67,7 @@
       function execJasmine() {
         jasmineEnv.execute();
       }
-
-    })();
+    });
   </script>
 
 </head>

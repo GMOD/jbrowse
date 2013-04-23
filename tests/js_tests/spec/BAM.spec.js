@@ -1,10 +1,12 @@
 require([
             'dojo/aspect',
+            'JBrowse/Browser',
             'JBrowse/Store/SeqFeature/BAM',
             'JBrowse/Model/XHRBlob'
-        ], function( aspect, BAMStore, XHRBlob ) {
+        ], function( aspect, Browser, BAMStore, XHRBlob ) {
 describe( 'BAM with volvox-sorted.bam', function() {
               var b = new BAMStore({
+                  browser: new Browser({ unitTestMode: true }),
                   bam: new XHRBlob('../../sample_data/raw/volvox/volvox-sorted.bam'),
                   bai: new XHRBlob('../../sample_data/raw/volvox/volvox-sorted.bam.bai'),
                   refSeq: { name: 'ctgA', start: 1, end: 500001 }
@@ -38,6 +40,7 @@ describe( 'BAM with volvox-sorted.bam', function() {
 
 describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', function() {
               var b = new BAMStore({
+                  browser: new Browser({ unitTestMode: true }),
                   bam: new XHRBlob('../data/test_deletion_2_0.snps.bwa_align.sorted.grouped.bam'),
                   bai: new XHRBlob('../data/test_deletion_2_0.snps.bwa_align.sorted.grouped.bam.bai'),
                   refSeq: { name: 'Chromosome', start: 1, end: 20000 }
@@ -72,6 +75,7 @@ describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', functi
 
 describe( 'empty BAM', function() {
               var b = new BAMStore({
+                  browser: new Browser({ unitTestMode: true }),
                   bam: new XHRBlob('../data/empty.bam'),
                   bai: new XHRBlob('../data/empty.bam.bai'),
                   refSeq: { name: 'Chromosome', start: 1, end: 20000 }
@@ -105,6 +109,7 @@ describe( 'empty BAM', function() {
 
 describe( 'BAM with tests/data/final.merged.sorted.rgid.mkdup.realign.recal.bam', function() {
               var b = new BAMStore({
+                  browser: new Browser({ unitTestMode: true }),
                   bam: new XHRBlob('../data/final.merged.sorted.rgid.mkdup.realign.recal.bam'),
                   bai: new XHRBlob('../data/final.merged.sorted.rgid.mkdup.realign.recal.bam.bai'),
                   refSeq: { end: 27682,

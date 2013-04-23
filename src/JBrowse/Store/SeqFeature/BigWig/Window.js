@@ -29,7 +29,7 @@ return declare( null,
 
     BED_COLOR_REGEXP: /^[0-9]+,[0-9]+,[0-9]+/,
 
-    readWigData: function(chrName, min, max, callback) {
+    readWigData: function(chrName, min, max, callback, errorCallback ) {
         // console.log( 'reading wig data from '+chrName+':'+min+'..'+max);
         var chr = this.bwg.refsByName[chrName];
         if ( ! chr ) {
@@ -39,11 +39,11 @@ return declare( null,
             // dlog('Chroms=' + miniJSONify(this.bwg.refsByName));
             callback([]);
         } else {
-            this.readWigDataById( chr.id, min, max, callback);
+            this.readWigDataById( chr.id, min, max, callback, errorCallback );
         }
     },
 
-    readWigDataById: function(chr, min, max, callback) {
+    readWigDataById: function(chr, min, max, callback, errorCallback ) {
         if( !this.cirHeader ) {
             var readCallback = lang.hitch( this, 'readWigDataById', chr, min, max, callback );
             if( this.cirHeaderLoading ) {
@@ -60,14 +60,14 @@ return declare( null,
                                 this.cirBlockSize = la[1];
                                 dojo.forEach( this.cirHeaderLoading, function(c) { c(); });
                                 delete this.cirHeaderLoading;
-                            }));
+                            }), errorCallback );
             }
             return;
         }
 
         //dlog('_readWigDataById', chr, min, max, callback);
 
-        var worker = new RequestWorker( this, chr, min, max, callback );
+        var worker = new RequestWorker( this, chr, min, max, callback, errorCallback );
         worker.cirFobRecur([this.cirTreeOffset + 48], 1);
     }
 });
