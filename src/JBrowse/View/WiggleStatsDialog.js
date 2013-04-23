@@ -52,7 +52,7 @@ return declare( null, {
         var actionBar         = this._makeActionBar( args.openCallback );
         var displaySelector   = new TrackSelector({ browser: this.browser, supportedTracks: this.supportedTracks })
                                     .makeStoreSelector({ title: 'Tracks For Analysis' }); 
-        var nameField         = this._makeNameField( "type desired track name here" );
+        var nameField         = this._makeNameField();
 
         on( displaySelector.domNode, 'change', dojo.hitch(this, function ( e ) {
             // disable the "create track" button if there is no display data available..
@@ -60,17 +60,18 @@ return declare( null, {
         }));
 
         this.storeFetch = { data   : { display: displaySelector.sel },
-                            name   : nameField,
+                            name   : nameField.trackName,
                             getName: dojo.hitch(this, function() {
-                                    var name = this.storeFetch.name.get('value') || ' ';
-                                    if ( !(this.trackNames.indexOf(name) > -1) ) {
+                                    var name = this.storeFetch.name.get('value') || 'masked track';
+                                    var nameParsed = name.replace(/\s+/g,'_').toLowerCase();
+                                    if ( !(this.trackNames.indexOf(nameParsed) > -1) ) {
                                         return [name]
                                     }
                                     var counter = 0;
-                                    while ( this.trackNames.indexOf(name+counter) > -1 ) {
+                                    while ( this.trackNames.indexOf(nameParsed+counter) > -1 ) {
                                         counter++;
                                     }
-                                    return [name,name+counter];
+                                    return [name,nameParsed+counter];
 
                                 }),
                             fetch  : dojo.hitch(this.storeFetch, function() {
@@ -90,15 +91,16 @@ return declare( null, {
         };
 
         var textCont = dom.create( 'div', { className: 'textFieldContainer'});
-        nameField.placeAt(textCont);
+        textCont.appendChild(nameField);
 
         var content = [
                         dom.create( 'div', { className: 'instructions',
-                                             innerHTML: 'Select tracks for statistical \
-                                                         analysis. A new track will be \
+                                             innerHTML: 'Select tracks for analysis. \
+                                                         A new track will be \
                                                          created to show the average \
                                                          value, standard deviation and \
-                                                         max/min values.' } ),
+                                                         max/min values of the \
+                                                         selected tracks.' } ),
                             div( { className: 'storeSelectors' },
                              [ displaySelector.domNode ]
                             ),
@@ -123,7 +125,7 @@ return declare( null, {
     _makeActionBar: function( openCallback ) {
         var thisB = this;
         // Adapted from the file dialogue.
-        var actionBar = dom.create( 'div', { className: 'dijitDialogPaneActionBar' });
+        var actionBar = dom.create( 'div', { className: 'actionBar' });
 
         var disChoices = thisB.trackDispositionChoice = [
             new RadioButton({ id: 'openImmediately',
@@ -144,11 +146,11 @@ return declare( null, {
         disChoices[1].placeAt(aux2);
         dom.create('label', { for: 'addToTrackList', innerHTML: 'Add to tracks' }, aux2 );
 
-
+        var buttonContainer = dom.create('div', {className: 'buttonContainer'}, actionBar);
         new Button({ iconClass: 'dijitIconDelete', label: 'Cancel',
                      onClick: function() { thisB.dialog.hide(); }
                    })
-            .placeAt( actionBar );
+            .placeAt( buttonContainer );
         var createTrack = new Button({ label: 'Create track',
                      disabled: true,
                      onClick: dojo.hitch( thisB, function() {
@@ -164,9 +166,11 @@ return declare( null, {
                                 var name = thisB.storeFetch.getName();
                                 openCallback({
                                     trackConf: { key: name[0],
-                                                 label: name[1]||name[0],
+                                                 label: name[1] ? name[1].replace(/\s+/g,'_').toLowerCase()
+                                                                : name[0].replace(/\s+/g,'_').toLowerCase(),
                                                  type:  'JBrowse/View/Track/Statistics',
-                                                 store: { name: name[1]||name[0],
+                                                 store: { name: name[1] ? name[1].replace(/\s+/g,'_').toLowerCase()
+                                                                        : name[0].replace(/\s+/g,'_').toLowerCase(),
                                                           browser: thisB.browser,
                                                           refSeq:  thisB.browser.refSeq,
                                                           type: 'JBrowse/Store/SeqFeature/WiggleStatistics',
@@ -180,17 +184,20 @@ return declare( null, {
                                 thisB.dialog.hide();
                             })
                     })
-            .placeAt( actionBar );
+            .placeAt( buttonContainer );
 
         return { domNode: actionBar, createTrackButton: createTrack };
     },
 
-    _makeNameField: function( text ) {
-        var name = new TextBox( { value: "",
-                                  placeHolder: text
-                                } );
+    _makeNameField: function() {
+        var container = dom.create('div', {className: 'title-container'});
+        container.appendChild(dom.create('div', { className: 'title-container-text',
+                                                  innerHTML: 'Track title: ' }));
+        var name = new TextBox( { value: "wiggle track statistics" } );
         name.domNode.className = 'nameField';
-        return name;
+        name.placeAt(container);
+        container.trackName = name;
+        return container;
     }
 
 });
