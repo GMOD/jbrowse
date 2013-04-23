@@ -15,7 +15,6 @@ return declare( null, {
         var colors = [];
         for ( var key in values ) {
             if (values.hasOwnProperty(key)) {
-                console.log(config.style[ values[key] ]);
                 colors.push( [ values[key],
                                config.style[ values[key] ] ] );
             }
