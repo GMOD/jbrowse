@@ -222,7 +222,7 @@ var Feature = Util.fastDeclare(
         return this.data.length_on_ref;
     },
     _flags: function() {
-        return (this.data._flag_nc & 0xffff0000) >> 16;
+        return (this.get('_flag_nc') & 0xffff0000) >> 16;
     },
     end: function() {
         return this._get('start') + ( this._get('length_on_ref') || this._get('seq_length') || undefined );
