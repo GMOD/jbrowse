@@ -27,14 +27,14 @@ var XYFunction = declare( XYPlot, {
         );
     },
 
-    _getScaling: function( successCallback, errorCallback ) {
-        this.getRegionStats( this._getScalingRegion(), dojo.hitch(this, function( stats ) {
+   _getScaling: function( successCallback, errorCallback ) {
+
+        this._getScalingStats( dojo.hitch(this, function( stats ) {
 
             //calculate the scaling if necessary
-            var statsFingerprint = Digest.objectFingerprint( stats );
-            if( ! this.lastScaling || this.lastScaling._statsFingerprint != statsFingerprint ) {
+            if( ! this.lastScaling || ! this.lastScaling.sameStats( stats ) ) {
 
-                var scaling = this._calculateScaling( stats );
+                var scaling = new Scale( this.config, stats );
 
                 // update our track y-scale to reflect it
                 this.makeYScale({
@@ -42,6 +42,8 @@ var XYFunction = declare( XYPlot, {
                     min: scaling.min,
                     max: scaling.max
                 });
+
+                // and finally adjust the scaling to match the ruler's scale rounding
                 scaling.min = this.ruler.scaler.bounds.lower;
                 scaling.max = this.ruler.scaler.bounds.upper;
                 scaling.range = scaling.max - scaling.min;
