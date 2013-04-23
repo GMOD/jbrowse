@@ -12,7 +12,6 @@ package Bio::JBrowse::Cmd::RemoveTrack;
 use strict;
 use warnings;
 
-use JSON 2 ();
 use File::Path ();
 use File::Spec;
 

@@ -1,11 +1,12 @@
 define([
+           'dojo/_base/declare',
            'JBrowse/Util',
            'JBrowse/Model/FileBlob',
            'JBrowse/Model/XHRBlob'
        ],
-       function( Util, FileBlob, XHRBlob ) {
+       function( declare, Util, FileBlob, XHRBlob ) {
 var uniqCounter = 0;
-return {
+return declare( null, {
 
     storeType: 'JBrowse/Store/SeqFeature/BigWig',
 
@@ -48,5 +49,5 @@ return {
     confIsValid: function( conf ) {
         return conf.blob || conf.urlTemplate;
     }
-};
+});
 });

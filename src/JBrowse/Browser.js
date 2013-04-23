@@ -2,7 +2,7 @@ var _gaq = _gaq || []; // global task queue for Google Analytics
 define( [
             'dojo/_base/lang',
             'dojo/on',
-            'dojo/_base/Deferred',
+            'dojo/Deferred',
             'dojo/DeferredList',
             'dojo/topic',
             'dojo/aspect',
@@ -18,6 +18,7 @@ define( [
             'dijit/MenuItem',
             'dijit/Menu',
             'dijit/PopupMenuItem',
+            'dijit/CheckedMenuItem',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Names/LazyTrieDojoData',
@@ -29,7 +30,9 @@ define( [
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
             'JBrowse/View/WiggleStatsDialog',
+            'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
+            'JBrowse/View/Dialog/SetHighlight',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
             'dojo/domReady!'
@@ -53,6 +56,7 @@ define( [
             dijitMenuItem,
             dijitMenu,
             dijitPopupMenuItem,
+            dijitCheckedMenuItem,
             Util,
             LazyTrie,
             NamesLazyTrieDojoDataStore,
@@ -64,7 +68,9 @@ define( [
             InfoDialog,
             FileDialog,
             WiggleStatsDialog,
+            Location,
             LocationChoiceDialog,
+            SetHighlightDialog,
             dijitFocus,
             LazyLoad
         ) {
@@ -95,6 +101,7 @@ var Browser = function(params) {
     this.globalKeyboardShortcuts = {};
 
     this.config = params;
+
     if( ! this.config.baseUrl )
         this.config.baseUrl = Util.resolveUrl( window.location.href, '.' ) + '/data/';
 
@@ -104,12 +111,15 @@ var Browser = function(params) {
     this.container.onselectstart = function() { return false; };
     this.container.genomeBrowser = this;
 
-    // schedule the config load, the first step in the initialization
-    // process, to happen when the page is done loading
-
+    // start the initialization process
     var thisB = this;
     dojo.addOnLoad( function() {
         thisB.loadConfig().then( function() {
+
+            // initialize our highlight if one was set in the config
+            if( thisB.config.initialHighlight )
+                thisB.setHighlight( new Location( thisB.config.initialHighlight ) );
+
             thisB.loadNames();
             thisB.loadUserCSS().then( function() {
                 thisB.initPlugins().then( function() {
@@ -146,6 +156,8 @@ Browser.prototype._initialLocation = function() {
 };
 
 Browser.prototype.version = function() {
+    // when a build is put together, the build system assigns a string
+    // to the variable below.
     var BUILD_SYSTEM_JBROWSE_VERSION;
     return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
 }.call();
@@ -212,21 +224,22 @@ Browser.prototype.initPlugins = function() {
                                  // conf under its plugin name
                                  var args = dojo.mixin(
                                      dojo.clone( plugins[i] ),
-                                     this.config[pluginName]||{});
+                                     { config: this.config[pluginName]||{} });
                                  args.browser = this;
                                  args = dojo.mixin( args, { browser: this } );
 
                                  // load its css
-                                 this._loadCSS(
-                                     {url: 'plugins/'+pluginName+'/css/main.css'},
-                                     function() {
-                                         thisPluginDone.resolve({success:true});
-                                     },
-                                     function() {
-                                         // succeed loading even if the css load failed.  not all plugins necessarily have css
-                                         thisPluginDone.resolve({success:true});
-                                     }
+                                 var cssLoaded = this._loadCSS(
+                                     {url: 'plugins/'+pluginName+'/css/main.css'}
                                  );
+                                 cssLoaded.then( function() {
+                                     thisPluginDone.resolve({success:true});
+                                 });
+
+                                 // give the plugin access to the CSS
+                                 // promise so it can know when its
+                                 // CSS is ready
+                                 args.cssLoaded = cssLoaded;
 
                                  // instantiate the plugin
                                  var plugin = new pluginClass( args );
@@ -317,13 +330,7 @@ Browser.prototype.loadUserCSS = function() {
 
         var that = this;
         var cssDeferreds = array.map( css, function( css ) {
-            var d = new Deferred();
-            that._loadCSS(
-                css,
-                function() { d.resolve({success:true}); },
-                function() { d.resolve({success:false}); }
-            );
-            return d;
+            return that._loadCSS( css );
         });
 
         new DeferredList(cssDeferreds)
@@ -331,21 +338,23 @@ Browser.prototype.loadUserCSS = function() {
    });
 };
 
-Browser.prototype._loadCSS = function( css, successCallback, errorCallback ) {
-        if( typeof css == 'string' ) {
-            // if it has '{' in it, it probably is not a URL, but is a string of CSS statements
-            if( css.indexOf('{') > -1 ) {
-                    dojo.create('style', { "data-from": 'JBrowse Config', type: 'text/css', innerHTML: css }, document.head );
-                    successCallback && successCallback();
-            }
-            // otherwise, it must be a URL
-            else {
-                css = { url: css };
-            }
+Browser.prototype._loadCSS = function( css ) {
+    var deferred = new Deferred();
+    if( typeof css == 'string' ) {
+        // if it has '{' in it, it probably is not a URL, but is a string of CSS statements
+        if( css.indexOf('{') > -1 ) {
+            dojo.create('style', { "data-from": 'JBrowse Config', type: 'text/css', innerHTML: css }, document.head );
+            deferred.resolve(true);
         }
-        if( typeof css == 'object' ) {
-            LazyLoad.css( css.url, successCallback );
+        // otherwise, it must be a URL
+        else {
+            css = { url: css };
         }
+    }
+    if( typeof css == 'object' ) {
+        LazyLoad.css( css.url, function() { deferred.resolve(true); } );
+    }
+    return deferred;
 };
 
 /**
@@ -390,6 +399,15 @@ Browser.prototype.initView = function() {
 
         var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, this.container );
 
+        var about = this.browserMeta();
+        var aboutDialog = new InfoDialog(
+            {
+                title: 'About '+about.title,
+                content: about.description,
+                className: 'about-dialog'
+            });
+
+
         // make our top menu bar
         var menuBar = dojo.create(
             'div',
@@ -406,19 +424,24 @@ Browser.prototype.initView = function() {
         if( ! this.config.show_overview )
             overview.style.cssText = "display: none";
 
-        if( this.config.show_nav )
+        if( this.config.show_nav ) {
             this.navbox = this.createNavBox( topPane );
 
-        // make our little top-links box with links to help, etc.
-        this.poweredByLink = dojo.create('a', {
-            className: 'powered_by',
-            innerHTML: 'JBrowse',
-            href: 'http://jbrowse.org',
-            title: 'powered by JBrowse'
-         }, menuBar );
+            if( this.config.datasets && ! this.config.dataset_id ) {
+                console.warn("in JBrowse configuration, datasets specified, but dataset_id not set");
+            }
+            if( this.config.datasets && this.config.dataset_id ) {
+                this.renderDatasetSelect( menuBar );
+            } else {
+                dojo.create('a', {
+                                className: 'powered_by',
+                                innerHTML: 'JBrowse',
+                                onclick: dojo.hitch( aboutDialog, 'show' ),
+                                title: 'powered by JBrowse'
+                            }, menuBar );
+            }
 
-        if( this.config.show_nav ) {
-
+            // make the file menu
             this.addGlobalMenuItem( 'file',
                                     new dijitMenuItem(
                                         {
@@ -427,42 +450,49 @@ Browser.prototype.initView = function() {
                                             onClick: dojo.hitch( this, 'openFileDialog' )
                                         })
                                   );
-            var fileMenu = this.makeGlobalMenu('file');
-            if( fileMenu ) {
-                var fileButton = new dijitDropDownButton(
-                    { className: 'file',
-                      innerHTML: 'File',
-                      //title: '',
-                      dropDown: fileMenu
-                    });
-                dojo.addClass( fileButton.domNode, 'menu' );
-                menuBar.appendChild( fileButton.domNode );
-            }
+            this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
 
-            var newSubmenu = new dijitMenu();
-            newSubmenu.addChild( new dijitMenuItem(
+            this.addGlobalMenuItem( 'tools',
+                                    new dijitMenuItem(
+                                        {
+                                            label: 'Wiggle Statistics Track',
+                                            onClick: dojo.hitch(this, 'wiggleStatsTrackDialog')
+                                        })
+                                   );
+            this.renderGlobalMenu( 'tools', { text: 'Tools'}, menuBar );
+
+            // make the view menu
+            this.addGlobalMenuItem( 'view', new dijitMenuItem({
+                label: 'Set highlight',
+                onClick: function() {
+                    new SetHighlightDialog({
+                            browser: thisObj,
+                            setCallback: dojo.hitch( thisObj, 'setHighlightAndRedraw' )
+                        }).show();
+                }
+            }));
+            // make the menu item for clearing the current highlight
+            this._highlightClearButton = new dijitMenuItem(
                 {
-                    label: 'Wiggle Statistics Track',
-                    onClick: dojo.hitch(this, 'wiggleStatsTrackDialog')
-                })
-            );
-            fileMenu.addChild( new dijitPopupMenuItem(
-                {           
-                    label: 'New',
-                    popup: newSubmenu
-                })
-            );
+                    label: 'Clear highlight',
+                    onClick: dojo.hitch( this, function() {
+                                             var h = this.getHighlight();
+                                             if( h ) {
+                                                 this.clearHighlight();
+                                                 this.view.redrawRegion( h );
+                                             }
+                                         })
+                });
+            this._updateHighlightClearButton();  //< sets the label and disabled status
+            // update it every time the highlight changes
+            this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', dojo.hitch( this, '_updateHighlightClearButton' ) );
 
-            var configMenu = this.makeGlobalMenu('options');
-            if( configMenu ) {
-                var configLink = new dijitDropDownButton(
-                    { className: 'config',
-                      innerHTML: '<span class="icon"></span> Options',
-                      title: 'configure JBrowse',
-                      dropDown: configMenu
-                    });
-                menuBar.appendChild( configLink.domNode );
-           }
+            this.addGlobalMenuItem( 'view', this._highlightClearButton );
+            this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
+
+
+            // make the options menu
+            this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
         }
 
         if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview )
@@ -470,8 +500,31 @@ Browser.prototype.initView = function() {
         else
             menuBar.appendChild( this.makeFullViewLink() );
 
-        if( this.config.show_nav )
-            menuBar.appendChild( this.makeHelpDialog()   );
+        if( this.config.show_nav ) {
+            // make the help menu
+            this.addGlobalMenuItem( 'help',
+                                    new dijitMenuItem(
+                                        {
+                                            label: 'About',
+                                            //iconClass: 'dijitIconFolderOpen',
+                                            onClick: dojo.hitch( aboutDialog, 'show' )
+                                        })
+                                  );
+
+            var helpDialog = this.makeHelpDialog();
+            this.setGlobalKeyboardShortcut( '?', helpDialog, 'show' );
+
+            this.addGlobalMenuItem( 'help',
+                                    new dijitMenuItem(
+                                        {
+                                            label: 'General',
+                                            iconClass: 'jbrowseIconHelp',
+                                            onClick: function() { helpDialog.show(); }
+                                        })
+                                  );
+
+            this.renderGlobalMenu( 'help', {}, menuBar );
+        }
 
         this.viewElem = document.createElement("div");
         this.viewElem.className = "dragWindow";
@@ -497,6 +550,17 @@ Browser.prototype.initView = function() {
         dojo.connect( this.browserWidget, "resize", this,      'onResize' );
         dojo.connect( this.browserWidget, "resize", this.view, 'onResize' );
 
+        //connect events to update the URL in the location bar
+        function updateLocationBar() {
+            var shareURL = thisObj.makeCurrentViewURL();
+            if( thisObj.config.updateBrowserURL && window.history && window.history.replaceState )
+                window.history.replaceState( {},"", shareURL );
+            document.title = thisObj.view.visibleRegionLocString()+' JBrowse';
+        };
+        dojo.connect( this, "onCoarseMove",                     updateLocationBar );
+        this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateLocationBar );
+        this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', updateLocationBar );
+
         //set initial location
         this.afterMilestone( 'loadRefSeqs', dojo.hitch( this, function() {
             this.afterMilestone( 'initTrackMetadata', dojo.hitch( this, function() {
@@ -520,6 +584,61 @@ Browser.prototype.initView = function() {
     });
 };
 
+
+Browser.prototype.renderDatasetSelect = function( parent ) {
+    var dsconfig = this.config.datasets || {};
+    var datasetChoices = [];
+    for( var id in dsconfig ) {
+        datasetChoices.push( dojo.mixin({ id: id }, dsconfig[id] ) );
+    }
+
+    new dijitSelectBox(
+        {
+            name: 'dataset',
+            className: 'dataset_select',
+            value: this.config.dataset_id,
+            options: array.map(
+                datasetChoices,
+                function( dataset ) {
+                    return { label: dataset.name, value: dataset.id };
+                }),
+            onChange: dojo.hitch(this, function( dsID ) {
+                                     var ds = (this.config.datasets||{})[dsID];
+                                     if( ds )
+                                         window.location = ds.url;
+                                     return false;
+                                 })
+        }).placeAt( parent );
+};
+
+/**
+ * Get object like { title: "title", description: "description", ... }
+ * that contains metadata describing this browser.
+ */
+Browser.prototype.browserMeta = function() {
+    var about = this.config.aboutThisBrowser || {};
+    about.title = about.title || 'JBrowse';
+
+    var verstring = this.version && this.version.match(/^\d/)
+        ? this.version : '(development version)';
+
+    if( about.description ) {
+        about.description += '<div class="powered_by">'
+            + 'Powered by <a target="_blank" href="http://jbrowse.org">JBrowse '+verstring+'</a>.'
+            + '</div>';
+    }
+    else {
+        about.description = '<div class="default_about">'
+            + '  <img class="logo" src="img/JBrowseLogo_small.png">'
+            + '  <h1>JBrowse '+verstring+'</h1>'
+            + '  <div class="tagline">A modern JavaScript genome browser.</div>'
+            + '  <a class="mainsite" target="_blank" href="http://jbrowse.org">JBrowse website</a>'
+            + '  <div class="gmod">JBrowse is a <a target="_blank" href="http://gmod.org">GMOD</a> project.</div>'
+            + '  <div class="copyright">&copy; 2013 The Evolutionary Software Foundation</div>'
+            + '</div>';
+    }
+    return about;
+};
 
 /**
  * Track type registry, used by GUI elements that need to offer
@@ -566,7 +685,8 @@ Browser.prototype.getTrackTypes = function() {
                 'JBrowse/Store/SeqFeature/BAM'        : 'JBrowse/View/Track/Alignments2',
                 'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/HTMLFeatures',
                 'JBrowse/Store/SeqFeature/BigWig'     : 'JBrowse/View/Track/Wiggle/XYPlot',
-                'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence'
+                'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence',
+                'JBrowse/Store/SeqFeature/VCFTabix'   : 'JBrowse/View/Track/HTMLFeatures'
             },
 
             knownTrackTypes: [
@@ -656,6 +776,23 @@ Browser.prototype.deleteTracks = function( confs ) {
     this._deleteTrackConfigs( confs );
 };
 
+Browser.prototype.renderGlobalMenu = function( menuName, args, parent ) {
+    var menu = this.makeGlobalMenu( menuName );
+    if( menu ) {
+        args = dojo.mixin(
+            {
+                className: menuName,
+                innerHTML: '<span class="icon"></span> '+ ( args.text || Util.ucFirst(menuName)),
+                dropDown: menu
+            },
+            args || {}
+        );
+
+        var menuButton = new dijitDropDownButton( args );
+        dojo.addClass( menuButton.domNode, 'menu' );
+        parent.appendChild( menuButton.domNode );
+    }
+};
 
 Browser.prototype.makeGlobalMenu = function( menuName ) {
     var items = ( this._globalMenuItems || {} )[menuName] || [];
@@ -809,11 +946,15 @@ Browser.prototype.getStore = function( storeName, callback ) {
     }
 
     require( [ storeClassName ], dojo.hitch( this, function( storeClass ) {
-                 var storeArgs = dojo.mixin( conf,
-                                             {
-                                                 browser: this,
-                                                 refSeq: this.refSeq
-                                             });
+                 var storeArgs = {};
+                 dojo.mixin( storeArgs, conf );
+                 dojo.mixin( storeArgs,
+                             {
+                                 config: conf,
+                                 browser: this,
+                                 refSeq: this.refSeq
+                             });
+
                  var store = new storeClass( storeArgs );
                  this._storeCache[ storeName ] = { refCount: 1, store: store };
                  callback( store );
@@ -1165,19 +1306,32 @@ Browser.prototype._coerceBoolean = function(val) {
  * @param refSeqs {Array} array of refseq records to add to the browser
  */
 Browser.prototype.addRefseqs = function( refSeqs ) {
-    this.allRefs = this.allRefs || {};
-    this.refSeqOrder = this.refSeqOrder || [];
+    var allrefs = this.allRefs = this.allRefs || {};
     var refCookie = this.cookie('refseq');
     dojo.forEach( refSeqs, function(r) {
-        if( ! this.allRefs[r.name] )
-            this.refSeqOrder.push(r.name);
         this.allRefs[r.name] = r;
         if( refCookie && r.name.toLowerCase() == refCookie.toLowerCase() ) {
             this.refSeq = r;
         }
     },this);
-    this.refSeqOrder = this.refSeqOrder.sort();
-    this.refSeq  = this.refSeq || refSeqs[0];
+
+    // regenerate refSeqOrder
+    var order = [];
+    for( var name in allrefs ) {
+        var ref = allrefs[name];
+        order.push( ref );
+    }
+    order = order.sort(
+        this.config.refSeqOrder == 'length'            ? function( a, b ) { return a.length - b.length;  }  :
+        this.config.refSeqOrder == 'length descending' ? function( a, b ) { return b.length - a.length;  }  :
+        this.config.refSeqOrder == 'name descending'   ? function( a, b ) { return b.name.localeCompare( a.name ); } :
+                                                         function( a, b ) { return a.name.localeCompare( b.name ); }
+    );
+    this.refSeqOrder = array.map( order, function( ref ) {
+        return ref.name;
+    });
+
+    this.refSeq  = this.refSeq || order[0];
 };
 
 
@@ -1380,8 +1534,14 @@ Browser.prototype.navigateTo = function(loc) {
                     this.navigateToLocation( oldLoc );
                     return;
                 } else {
-                    // if we don't just go to the middle 80% of that refseq
-                    this.navigateToLocation({ref: ref.name, start: ref.end*0.1, end: ref.end*0.9 });
+                    // if we don't just go to the middle 80% of that refseq,
+                    // based on range that can be viewed (start to end)
+                    // rather than total length, in case start != 0 || end != length
+                    // this.navigateToLocation({ref: ref.name, start: ref.end*0.1, end: ref.end*0.9 });
+                    var visibleLength = ref.end - ref.start;
+                    this.navigateToLocation({ref:   ref.name,
+                                             start: ref.start + (visibleLength * 0.1),
+                                             end:   ref.start + (visibleLength * 0.9) } );
                     return;
                 }
             }
@@ -1482,7 +1642,7 @@ Browser.prototype.searchNames = function( /**String*/ loc ) {
             if( goingTo.location ) {
 
                 //go to location, with some flanking region
-                thisB.showRegion( goingTo.location );
+                thisB.showRegionWithHighlight( goingTo.location );
             }
             // otherwise, pop up a dialog with a list of the locations to choose from
             else if( goingTo.multipleLocations ) {
@@ -1532,7 +1692,6 @@ Browser.prototype.showTracks = function( trackNames ) {
 };
 
 Browser.prototype.makeHelpDialog = function () {
-
     // make a div containing our help text
     var browserRoot = this.config.browserRoot || "";
     var helpdiv = document.createElement('div');
@@ -1595,23 +1754,7 @@ Browser.prototype.makeHelpDialog = function () {
         draggable: false,
         title: "JBrowse Help"
     }, helpdiv );
-
-    // make a Help link that will show the dialog and set a handler on it
-    var helpButton = new dijitButton(
-        {
-            className: 'help',
-            title: 'Help',
-            innerHTML: '<span class="icon"></span> Help',
-            onClick: function() { dialog.show(); }
-        });
-
-    this.setGlobalKeyboardShortcut( '?', dialog, 'show' );
-    dojo.connect( document.body, 'onkeydown', function(evt) {
-        if( evt.keyCode != dojo.keys.SHIFT && evt.keyCode != dojo.keys.CTRL && evt.keyCode != dojo.keys.ALT )
-            dialog.hide();
-    });
-
-    return helpButton.domNode;
+    return dialog;
 };
 
 /**
@@ -1718,28 +1861,57 @@ Browser.prototype.makeShareLink = function () {
         });
 
     // connect moving and track-changing events to update it
-    var updateShareURL = dojo.hitch(this,function() {
-                shareURL = "".concat(
-                    window.location.protocol,
-                    "//",
-                    window.location.host,
-                    window.location.pathname,
-                    "?",
-                    dojo.objectToQuery(
-                        {
-                            loc:    browser.view.visibleRegionLocString(),
-                            tracks: browser.view.visibleTrackNames().join(','),
-                            data:   browser.config.queryParams.data
-                        })
-                );
-    });
-    dojo.connect( this, "onCoarseMove",             updateShareURL );
-    this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', updateShareURL );
+    var updateShareURL = function() {
+        shareURL = browser.makeCurrentViewURL();
+    };
+    dojo.connect( this, "onCoarseMove",                     updateShareURL );
+    this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateShareURL );
+    this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', updateShareURL );
 
     return button.domNode;
 };
 
+/**
+ * Return a string URL that encodes the complete viewing state of the
+ * browser.  Currently just data dir, visible tracks, and visible
+ * region.
+ * @param {Object} overrides optional key-value object containing
+ *                           components of the query string to override
+ */
+Browser.prototype.makeCurrentViewURL = function( overrides ) {
+    var t = typeof this.config.shareURL;
+
+    if( t == 'function' ) {
+        return this.config.shareURL.call( this, this );
+    }
+    else if( t == 'string' ) {
+        return this.config.shareURL;
+    }
+
+    return "".concat(
+        window.location.protocol,
+        "//",
+        window.location.host,
+        window.location.pathname,
+        "?",
+        dojo.objectToQuery(
+            dojo.mixin(
+                dojo.mixin( {}, (this.config.queryParams||{}) ),
+                dojo.mixin(
+                    {
+                        loc:    this.view.visibleRegionLocString(),
+                        tracks: this.view.visibleTrackNames().join(','),
+                        highlight: (this.getHighlight()||'').toString()
+                    },
+                    overrides || {}
+                )
+            )
+        )
+    );
+}
+
 Browser.prototype.makeFullViewLink = function () {
+    var thisB = this;
     // make the link
     var link = dojo.create('a', {
         className: 'topLink',
@@ -1749,23 +1921,15 @@ Browser.prototype.makeFullViewLink = function () {
         innerHTML: 'Full view'
     });
 
+    var makeURL = this.config.makeFullViewURL || this.makeCurrentViewURL;
+
     // update it when the view is moved or tracks are changed
-    var update_link = dojo.hitch(this,function() {
-        link.href = "".concat(
-                   window.location.protocol,
-                   "//",
-                   window.location.host,
-                   window.location.pathname,
-                   "?",
-                   dojo.objectToQuery({
-                       loc:    this.view.visibleRegionLocString(),
-                       tracks: this.view.visibleTrackNames().join(','),
-                       data:   this.config.queryParams.data
-                   })
-               );
-    });
-    dojo.connect( this, "onCoarseMove",                    update_link );
-    this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', update_link );
+    var update_link = function() {
+        link.href = makeURL.call( thisB, thisB );
+    };
+    dojo.connect( this, "onCoarseMove",                     update_link );
+    this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  update_link );
+    this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', update_link );
 
     return link;
 };
@@ -1775,8 +1939,6 @@ Browser.prototype.makeFullViewLink = function () {
  */
 
 Browser.prototype.onCoarseMove = function(startbp, endbp) {
-
-    this._updateLocationThumb();
 
     var currRegion = { start: startbp, end: endbp, ref: this.refSeq.name };
 
@@ -1789,34 +1951,36 @@ Browser.prototype.onCoarseMove = function(startbp, endbp) {
         );
         this.goButton.set( 'disabled', true ) ;
     }
+
     // also update the refseq selection dropdown if present
-    if( this.refSeqSelectBox )
-        this.refSeqSelectBox.set( 'value', this.refSeq.name, false );
+    this._updateRefSeqSelectBox();
 
     if( this.reachedMilestone('completely initialized') ) {
         this._updateLocationCookies( currRegion );
-        document.title = Util.assembleLocString( currRegion );
     }
 
     // send out a message notifying of the move
     this.publish( '/jbrowse/v1/n/navigate', currRegion );
 };
 
-Browser.prototype._updateLocationThumb = function() {
-    var startbp = this.view.minVisible();
-    var endbp = this.view.maxVisible();
+Browser.prototype._updateRefSeqSelectBox = function() {
+    if( this.refSeqSelectBox ) {
 
-    var length = this.view.ref.end - this.view.ref.start;
-    var trapLeft = Math.round((((startbp - this.view.ref.start) / length)
-                               * this.view.overviewBox.w) + this.view.overviewBox.l);
-    var trapRight = Math.round((((endbp - this.view.ref.start) / length)
-                                * this.view.overviewBox.w) + this.view.overviewBox.l);
+        // if none of the options in the select box match this
+        // reference sequence, add another one to the end for it
+        if( ! array.some( this.refSeqSelectBox.getOptions(), function( option ) {
+                              return option.value == this.refSeq.name;
+                        }, this)
+          ) {
+              this.refSeqSelectBox.set( 'options',
+                                     this.refSeqSelectBox.getOptions()
+                                     .concat({ label: this.refSeq.name, value: this.refSeq.name })
+                                   );
+        }
 
-    this.view.locationThumb.style.cssText =
-    "height: " + (this.view.overviewBox.h - 4) + "px; "
-    + "left: " + trapLeft + "px; "
-    + "width: " + (trapRight - trapLeft) + "px;"
-    + "z-index: 20";
+        // set its value to the current ref seq
+        this.refSeqSelectBox.set( 'value', this.refSeq.name, false );
+    }
 };
 
 /**
@@ -2063,16 +2227,34 @@ Browser.prototype.createNavBox = function( parent ) {
 
 
     this.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
-        if( this.refSeqOrder.length && this.refSeqOrder.length < 30 || this.config.refSeqDropdown ) {
+
+        // make the refseq selection dropdown
+        if( this.refSeqOrder && this.refSeqOrder.length ) {
+            var max = this.config.refSeqSelectorMaxSize || 30;
+            var numrefs = Math.min( max, this.refSeqOrder.length);
+            var options = [];
+            for ( var i = 0; i < numrefs; i++ ) {
+                options.push( { label: this.refSeqOrder[i], value: this.refSeqOrder[i] } );
+            }
+            var tooManyMessage = '(first '+numrefs+' ref seqs)';
+            if( this.refSeqOrder.length > max ) {
+                options.push( { label: tooManyMessage , value: tooManyMessage, disabled: true } );
+            }
             this.refSeqSelectBox = new dijitSelectBox({
                 name: 'refseq',
                 value: this.refSeq ? this.refSeq.name : null,
-                options: array.map( this.refSeqOrder || [],
-                                    function( refseqName ) {
-                    return { label: refseqName, value: refseqName };
-                }),
+                options: options,
                 onChange: dojo.hitch(this, function( newRefName ) {
-                    this.navigateToLocation({ ref: newRefName });
+                    // don't trigger nav if it's the too-many message
+                    if( newRefName == tooManyMessage ) {
+                        this.refSeqSelectBox.set('value', this.refSeq.name );
+                        return;
+                    }
+
+                    // only trigger navigation if actually switching sequences
+                    if( newRefName != this.refSeq.name ) {
+                        this.navigateTo(newRefName);
+                    }
                 })
             }).placeAt( refSeqSelectBoxPlaceHolder );
         }
@@ -2111,6 +2293,66 @@ Browser.prototype.createNavBox = function( parent ) {
     }));
 
     return navbox;
+};
+
+/**
+ * Return the current highlight region, or null if none.
+ */
+Browser.prototype.getHighlight = function() {
+    return this._highlight || null;
+};
+
+/**
+ * Set a new highlight.  Returns the new highlight.
+ */
+Browser.prototype.setHighlight = function( newHighlight ) {
+
+    if( newHighlight && ( newHighlight instanceof Location ) )
+        this._highlight = newHighlight;
+    else if( newHighlight )
+        this._highlight = new Location( newHighlight );
+
+    this.publish( '/jbrowse/v1/n/globalHighlightChanged', [this._highlight] );
+
+    return this.getHighlight();
+};
+
+
+Browser.prototype._updateHighlightClearButton = function() {
+    if( this._highlightClearButton ) {
+        this._highlightClearButton.set( 'disabled', !!! this._highlight );
+        //this._highlightClearButton.set( 'label', 'Clear highlight' + ( this._highlight ? ' - ' + this._highlight : '' ));
+    }
+};
+
+
+Browser.prototype.clearHighlight = function() {
+    if( this._highlight ) {
+        delete this._highlight;
+        this.publish( '/jbrowse/v1/n/globalHighlightChanged', [] );
+    }
+};
+
+Browser.prototype.setHighlightAndRedraw = function( location ) {
+    var oldHighlight = this.getHighlight();
+    if( oldHighlight )
+        this.view.hideRegion( oldHighlight );
+    this.view.hideRegion( location );
+    this.setHighlight( location );
+    this.view.showVisibleBlocks( false );
+};
+
+/**
+ * Clears the old highlight if necessary, sets the given new
+ * highlight, and updates the display to show the highlighted location.
+ */
+Browser.prototype.showRegionWithHighlight = function( location ) {
+    var oldHighlight = this.getHighlight();
+    if( oldHighlight )
+        this.view.hideRegion( oldHighlight );
+    this.view.hideRegion( location );
+    this.setHighlight( location );
+    this.showRegion( location );
 };
 
 

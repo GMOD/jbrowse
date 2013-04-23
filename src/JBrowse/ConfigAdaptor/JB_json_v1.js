@@ -151,7 +151,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                     'JBrowse/Store',
                     trackConfig.storeClass                    ? trackConfig.storeClass :
                         /\/FixedImage/.test( trackClassName ) ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
-                        /\.json$/i.test( urlTemplate )        ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
+                        /\.jsonz?$/i.test( urlTemplate )        ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
                         /\.bam$/i.test( urlTemplate )         ? 'JBrowse/Store/SeqFeature/BAM'                                                      :
                         /\.(bw|bigwig)$/i.test( urlTemplate ) ? 'JBrowse/Store/SeqFeature/BigWig'                                                   :
                         /\/Sequence$/.test( trackClassName )  ? 'JBrowse/Store/Sequence/StaticChunked'                                              :
@@ -159,8 +159,8 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 );
 
                 if( ! storeClass ) {
-                    console.error( "Unable to determine an appropriate data store to use with a "
-                                   + trackClassName + " track, please explicitly specify a "
+                    console.error( "Unable to determine an appropriate data store to use with track '"
+                                   + trackConfig.label + "', please explicitly specify a "
                                    + "storeClass in the configuration." );
                     return;
                 }
@@ -193,6 +193,9 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
         },
 
         _regularizeClass: function( root, class_ ) {
+            if( ! class_ )
+                return null;
+
             // prefix the class names with JBrowse/* if they contain no slashes
             if( ! /\//.test( class_ ) )
                 class_ = root+'/'+class_;

@@ -93,6 +93,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
        });
 
        this.trackDataStore.onReady( this, '_updateFacetCounts' ); // just once at start
+       this.trackDataStore.onReady( this, '_updateMatchCount' ); // just once at start
 
        dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateGridSelections' );
        dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateMatchCount' );
@@ -285,6 +286,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
         this.mainContainer.startup();
     },
 
+    /** do something in a timeout to avoid blocking the UI */
     _async: function( func, scope ) {
         var that = this;
         return function() {
@@ -404,12 +406,16 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
               size: 40,
               disabled: true, // disabled until shown
               onkeypress: dojo.hitch( this, function(evt) {
+                  // don't pay attention to modifier keys
                   if( evt.keyCode == dojo.keys.SHIFT || evt.keyCode == dojo.keys.CTRL || evt.keyCode == dojo.keys.ALT )
                       return;
+
+                  // use a timeout to avoid updating the display too fast
                   if( this.textFilterTimeout )
                       window.clearTimeout( this.textFilterTimeout );
                   this.textFilterTimeout = window.setTimeout(
                       dojo.hitch( this, function() {
+                                      // do a new search and update the display
                                       this._updateTextFilterControl();
                                       this._async( function() {
                                           this.updateQuery();
@@ -738,8 +744,12 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
         var count = this.dataGrid.store.getCount();
         dojo.query( '.matching_record_count', this.containerElem )
             .forEach( function(n) {
-                          n.innerHTML = Util.addCommas(count) + ' matching track' + ( count == 1 ? '' : 's' );
-                      }
+                          n.innerHTML =
+                              Util.addCommas(count)
+                              + ' '+( dojof.keys(this.query||{}).length ? 'matching ' : '' )
+                              +'track' + ( count == 1 ? '' : 's' );
+                      },
+                      this
                     );
     },
 

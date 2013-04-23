@@ -95,7 +95,7 @@ return declare( null,
         // and where we don't, making records for chunks to fetch
         var goldenPath = [];
         if( typeof end != 'number' ) { // if we don't have an end coordinate, we just have to fetch the whole file
-            goldenPath.push({ key: { url: url, start: 0, end: undefined, toString: chunkToString } } );
+            goldenPath.push({ key: { url: url, start: 0, end: undefined, toUniqueString: chunkToString, toString: chunkToString } } );
         }
         else {
             for( var currOffset = start; currOffset <= end; currOffset = goldenPath[goldenPath.length-1].key.end+1 ) {
@@ -106,7 +106,8 @@ return declare( null,
                                           url: url,
                                           start: currOffset,
                                           end: existingChunks[0] ? existingChunks[0].key.start-1 : end,
-                                          toString: chunkToString
+                                          toString: chunkToString,
+                                          toUniqueString: chunkToString
                                       }
                                     });
                 }
@@ -240,7 +241,7 @@ return declare( null,
                             var r = req.responseText;
                             if (length && length != r.length && (!truncatedLength || r.length != truncatedLength)) {
                                 if( attempt == 3 ) {
-                                    callback( null, req.status+' ('+req.statusText+') when attempting to fetch '+url );
+                                    callback( null, this._errorString( req, url ) );
                                 } else {
                                     this._fetch( request, callback, attempt + 1, r.length );
                                 }
@@ -262,7 +263,7 @@ return declare( null,
                         callback( response );
                     }
                 } else if( attempt == 3 ) {
-                    callback( null, req.status+' ('+req.statusText+') when attempting to fetch '+url );
+                    callback( null, this._errorString( req, url ) );
                     return null;
                 } else {
                     return this._fetch( request, callback, attempt + 1);
@@ -274,6 +275,13 @@ return declare( null,
         //     req.withCredentials = true;
         //  }
         req.send('');
+    },
+
+    _errorString: function( req, url ) {
+        if( req.status )
+            return req.status+' ('+req.statusText+') when attempting to fetch '+url;
+        else
+            return 'Unable to fetch '+url;
     },
 
     /**

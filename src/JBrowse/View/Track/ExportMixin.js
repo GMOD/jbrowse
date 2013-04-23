@@ -125,8 +125,9 @@ return declare( null, {
                                 dialog.hide();
                                 var text = dom.create('textarea', {
                                                            rows: Math.round( dojoWindow.getBox().h / 12 * 0.5 ),
-                                                           wrap: 'soft',
+                                                           wrap: 'off',
                                                            cols: 80,
+                                                           style: "maxWidth: 90em; overflow: scroll; overflow-y: scroll; overflow-x: scroll; overflow:-moz-scrollbars-vertical;",
                                                            readonly: true
                                                        });
                                 text.value = output;

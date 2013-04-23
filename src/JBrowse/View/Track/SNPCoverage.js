@@ -1,196 +1,39 @@
 define( ['dojo/_base/declare',
          'dojo/_base/array',
-         'JBrowse/View/Track/Wiggle',
+         'JBrowse/View/Track/Wiggle/XYPlot',
          'JBrowse/Util',
-         'JBrowse/Model/NestedFrequencyTable',
-         'JBrowse/View/Track/MismatchesMixin'
+         'JBrowse/View/Track/_AlignmentsMixin',
+         'JBrowse/Store/SeqFeature/SNPCoverage'
         ],
-        function( declare, array, Wiggle, Util, NestedFrequencyTable, MismatchesMixin ) {
+        function( declare, array, WiggleXY, Util, AlignmentsMixin, SNPCoverageStore ) {
 
 var dojof = Util.dojof;
 
-// feature class for the features we make for the calculated coverage
-// values
-var CoverageFeature = Util.fastDeclare(
-    {
-        get: function(f) { return this[f]; },
-        tags: function() { return [ 'start', 'end', 'score' ]; },
-        score: 0,
-        constructor: function( args ) {
-            this.start = args.start;
-            this.end = args.end;
-            this.score = args.score;
-        }
-    });
-
-
-return declare( [Wiggle, MismatchesMixin],
+return declare( [WiggleXY, AlignmentsMixin],
 {
     constructor: function() {
         // force conf variables that are meaningless for this kind of track, and maybe harmful
         delete this.config.bicolor_pivot;
         delete this.config.scale;
         delete this.config.align;
+
+        this.store = new SNPCoverageStore({ store: this.store, browser: this.browser });
     },
 
     _defaultConfig: function() {
         return Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
             {
-                min_score: 0,
-                max_score: 100
-            }
-        );
-    },
-
-    getGlobalStats: function() {
-        return {};
-    },
-
-    getFeatures: function( query, featureCallback, finishCallback, errorCallback ) {
-        var thisB = this;
-        var leftBase  = query.start;
-        var rightBase = query.end;
-        var scale = query.scale; // px/bp
-        var widthBp = rightBase-leftBase;
-        var widthPx = widthBp * ( query.scale || 1/query.basesPerSpan);
-
-        var binWidth = Math.ceil( query.basesPerSpan ); // in bp
-
-        var binNumber = function( bp ) {
-            return Math.floor( (bp-leftBase) / binWidth );
-        };
-
-        // init coverage bins
-        var maxBin = binNumber( rightBase );
-        var coverageBins = new Array( maxBin+1 );
-        for( var i = 0; i <= maxBin; i++ ) {
-            coverageBins[i] = new NestedFrequencyTable();
-        }
-        var binOverlap = function( bp, isRightEnd ) {
-            var binCoord  = (bp-leftBase) / binWidth;
-            var binNumber = Math.floor( binCoord );
-
-            // only calculate the overlap if this lies in this block
-            if( binNumber >= 0 && binNumber <= maxBin ) {
-                var overlap =
-                    isRightEnd ? 1 - ( binCoord - binNumber )
-                               : binCoord - binNumber;
-                return {
-                    bin: binNumber,
-                    overlap: overlap // between 0 and 1: proportion of this bin that the feature overlaps
-                };
-            }
-            // otherwise null, this feature goes outside the block
-            else {
-                return isRightEnd ? { bin: maxBin, overlap: 1 }
-                                  : { bin: 0,      overlap: 1 };
-            }
-        };
-
-
-        thisB.store.getFeatures(
-            query,
-            function( feature ) {
-
-                // calculate total coverage
-                var startBO = binOverlap( feature.get('start'), false );
-                var endBO   = binOverlap( feature.get('end')-1  , true  );
-
-                // increment start and end partial-overlap bins by proportion of overlap
-                if( startBO.bin == endBO.bin ) {
-                    coverageBins[startBO.bin].increment( 'reference', endBO.overlap + startBO.overlap - 1 );
-                }
-                else {
-                    coverageBins[startBO.bin].increment( 'reference', startBO.overlap );
-                    coverageBins[endBO.bin].increment(   'reference', endBO.overlap   );
-                }
-
-                // increment completely overlapped interior bins by 1
-                for( var i = startBO.bin+1; i <= endBO.bin-1; i++ ) {
-                    coverageBins[i].increment( 'reference', 1 );
-                }
-
-
-                // Calculate SNP coverage
-                if( binWidth == 1 ) {
-
-                    // mark each bin as having its snps counted
-                    for( var i = startBO.bin; i <= endBO.bin; i++ ) {
-                        coverageBins[i].snpsCounted = 1;
-                    }
-
-                    // parse the MD
-                    var mdTag = feature.get('md');
-                    if( mdTag ) {
-                        var SNPs = thisB._mdToMismatches(feature, mdTag);
-                        // loops through mismatches and updates coverage variables accordingly.
-                        for (var i = 0; i<SNPs.length; i++) {
-                            var pos = binNumber( feature.get('start') + SNPs[i].start );
-                            var bin = coverageBins[pos];
-                            if( bin ) {
-                                var strand = { '-1': '-', '1': '+' }[ ''+feature.get('strand') ] || 'unstranded';
-                                // Note: we decrement 'reference' so that total of the score is the total coverage
-                                bin.decrement('reference', 1/binWidth );
-                                var base = SNPs[i].bases;
-                                bin.getNested(base).increment(strand, 1/binWidth);
-                            }
-                        }
-                    }
-
-                }
-            },
-            function (args) {
-                var makeFeatures = function() {
-                    // make fake features from the coverage
-                    for( var i = 0; i <= maxBin; i++ ) {
-                        var bpOffset = leftBase+binWidth*i;
-                        featureCallback( new CoverageFeature({
-                            start: bpOffset,
-                            end:   bpOffset+binWidth,
-                            score: coverageBins[i]
-                         }));
-                    }
-                    finishCallback(args);
-                };
-
-                // if we are zoomed to base level, try to fetch the
-                // reference sequence for this region and record each
-                // of the bases in the coverage bins
-                if( binWidth == 1 ) {
-                    var sequence;
-                    thisB.browser.getStore( 'refseqs', function( refSeqStore ) {
-                        if( refSeqStore ) {
-                            refSeqStore.getFeatures( query,
-                                                     function(f) {
-                                                         sequence = f.get('seq');
-                                                     },
-                                                     function() {
-                                                         if( sequence ) {
-                                                             for( var base = leftBase; base <= rightBase; base++ ) {
-                                                                 var bin = binNumber( base );
-                                                                 coverageBins[bin].refBase = sequence[bin];
-                                                             }
-                                                         }
-                                                         makeFeatures();
-                                                     },
-                                                     makeFeatures
-                                                   );
-                        } else {
-                            makeFeatures();
-                        }
-                    });
-                } else {
-                    makeFeatures();
-                }
+                autoscale: 'local',
+                min_score: 0
             }
         );
     },
 
     /*
-     * Draw a set of features on the canvas.
-     * @private
-     */
+* Draw a set of features on the canvas.
+* @private
+*/
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale ) {
         var thisB = this;
         var context = canvas.getContext('2d');
@@ -201,7 +44,7 @@ return declare( [Wiggle, MismatchesMixin],
         var originY = toY( dataScale.origin );
 
         // a canvas element below the histogram that will contain indicators of likely SNPs
-        var snpCanvasHeight = parseInt( block.parentNode.style.height ) - canvas.height;
+        var snpCanvasHeight = parseInt( block.domNode.parentNode.style.height ) - canvas.height;
         var snpCanvas = dojo.create('canvas',
                                     {height: snpCanvasHeight,
                                      width: canvas.width,
@@ -212,21 +55,15 @@ return declare( [Wiggle, MismatchesMixin],
                                      },
                                      innerHTML: 'Your web browser cannot display this type of track.',
                                      className: 'SNP-indicator-track'
-                                 }, block);
+                                 }, block.domNode);
         var snpContext = snpCanvas.getContext('2d');
 
-        var negColor  = this.config.style.neg_color;
+        var negColor = this.config.style.neg_color;
         var clipColor = this.config.style.clip_marker_color;
-        var bgColor   = this.config.style.bg_color;
+        var bgColor = this.config.style.bg_color;
         var disableClipMarkers = this.config.disable_clip_markers;
 
         var drawRectangle = function(ID, yPos, height, fRect) {
-            // draw the background color if we are configured to do so
-            if( bgColor && yPos >= 0 ) {
-                context.fillStyle = bgColor;
-                context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
-            }
-
             if( yPos <= canvasHeight ) { // if the rectangle is visible at all
                 context.fillStyle = thisB.colorForBase(ID);
                 if( yPos <= originY ) {
@@ -247,6 +84,20 @@ return declare( [Wiggle, MismatchesMixin],
                 }
             }
         };
+
+        // Note: 'reference' is done first to ensure the grey part of the graph is on top
+        dojo.forEach( features, function(f,i) {
+            var fRect = featureRects[i];
+            var score = f.get('score');
+
+            // draw the background color if we are configured to do so
+            if( bgColor ) {
+                context.fillStyle = bgColor;
+                context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
+            }
+
+            drawRectangle( 'reference', toY( score.total() ), originY-toY( score.get('reference'))+1, fRect);
+        });
 
         dojo.forEach( features, function(f,i) {
             var fRect = featureRects[i];
@@ -273,8 +124,6 @@ return declare( [Wiggle, MismatchesMixin],
                 }
             });
 
-            // Note: 'reference' is done first to ensure the grey part of the graph is on top
-            drawRectangle( 'reference', toY(totalHeight), originY-toY( score.get('reference'))+1, fRect);
             totalHeight -= score.get('reference');
 
             score.forEach( function( count, category ) {
@@ -286,78 +135,10 @@ return declare( [Wiggle, MismatchesMixin],
         }, this );
     },
 
-    // Overwrites the method from WiggleBase
-    _draw: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale, pixels, spans ) {
-        // Note: pixels currently has no meaning, as the function that generates it is not yet defined for this track
-        this._preDraw(      scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
-        this._drawFeatures( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
-        if ( spans ) {
-            this._maskBySpans( scale, leftBase, canvas, spans );
-        }
-        this._postDraw(     scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
-    },
-
-    /* If it's a boolean track, mask accordingly */
-    _maskBySpans: function( scale, leftBase, canvas, spans ) {
-        var context = canvas.getContext('2d');
-        var canvasHeight = canvas.height;
-        var booleanAlpha = this.config.style.masked_transparancy || 45;
-        this.config.style.masked_transparancy = booleanAlpha;
-
-        for ( var index in spans ) {
-            if (spans.hasOwnProperty(index)) {
-                var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
-                var l = Math.round(( spans[index].start - leftBase ) * scale );
-                var img = context.getImageData(l, 0, w, canvasHeight);
-                var pixels = img.data;
-                for ( var i = 0, n = pixels.length; i < n; i += 4 ) {
-                    /* Note: the default canvas values are transparent black,
-                     * so we don't want to change the opacity of transparent pixels */
-                    if ( pixels[i+3] != 0 ) { 
-                        pixels[i+3] = booleanAlpha;
-                    }
-                }
-                context.putImageData( img, l, 0 );
-            }
-        }
-    },
-
-    /**
-     * parse a SAM MD tag to find mismatching bases of the template versus the reference
-     * @returns {Array[Object]} array of mismatches and their positions
-     */
-    _mdToMismatches: function( feature, mdstring ) {
-        var mismatchRecords = [];
-        var curr = { start: 0, bases: '' };
-        var seq = feature.get('seq');
-        var nextRecord = function() {
-              mismatchRecords.push( curr );
-              curr = { start: curr.start + curr.bases.length, bases: ''};
-        };
-        array.forEach( mdstring.match(/(\d+|\^[a-z]+|[a-z])/ig), function( token ) {
-          if( token.match(/^\d/) ) { // matching bases
-              curr.start += parseInt( token );
-          }
-          else if( token.match(/^\^/) ) { // insertion in the template
-              var i = token.length-1;
-              while( i-- ) {
-                  curr.bases = '*';
-                  nextRecord();
-              }
-          }
-          else if( token.match(/^[a-z]/i) ) { // mismatch
-              curr.bases = seq.substr( curr.start, token.length );
-              nextRecord();
-          }
-        });
-        return mismatchRecords;
-    },
-
-
     /*
-     * The following method is required to override the equivalent method in "WiggleBase.js"
-     * It displays more complete data.
-     */
+* The following method is required to override the equivalent method in "WiggleBase.js"
+* It displays more complete data.
+*/
     _showPixelValue: function( scoreDisplay, score ) {
         if( ! score )
             return false;

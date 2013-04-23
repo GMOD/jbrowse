@@ -50,7 +50,8 @@ Optional directory to write to.  Defaults to data/.
 
 =item --noseq
 
-Do not write out the actual sequence bases, just the sequence metadata.
+Do not store the actual sequence bases, just the sequence metadata
+(name, length, and so forth).
 
 =item --refs <list of refseq names> | --refids <list of refseq IDs>
 
@@ -80,8 +81,12 @@ The unique name of the sequence track, default 'DNA'.
 
 =item --key <string>
 
-The displayed name of the sequence track, defaults to the value of
-C<--trackLabel>.
+The displayed name of the sequence track, defaults to 'Reference sequence'.
+
+=item --seqType <string>
+
+The Name of the alphabet used for these reference sequences, usually
+either 'dna', 'rna', or 'protein'.
 
 =back
 

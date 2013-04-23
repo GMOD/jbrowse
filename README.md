@@ -4,14 +4,19 @@ To install JBrowse, see the main JBrowse wiki at http://gmod.org/wiki/JBrowse.
 
 The rest of this file is aimed primarily at developers.
 
+# About running from a `git` repository
+
+Unless you are actively working or collaborating on the JBrowse code, you
+should not run JBrowse from a git repository.  For one reason, it has a much, much slower initial load
+time than the built release zipfiles.  Also, since the master branch code is ''in development'' for the next JBrowse release, it has a lot more bugs than the official releases.  Be warned.
+
 # Setting up a development environment
 
 Make sure you have a web server installed on your development machine.  Any web server will do.
 
     cd /my/dev/webserver/root;
-    git clone git@github.com:YOURACCOUNT/jbrowse.git
+    git clone --recursive git@github.com:YOURACCOUNT/jbrowse.git
     cd jbrowse
-    git submodule update --init
     ./setup.sh
     # and now point your browser to
     #   http://localhost/jbrowse/index.html?data=sample_data/json/volvox

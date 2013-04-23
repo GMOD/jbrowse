@@ -91,7 +91,7 @@ sub _read_meta {
     return {} unless -r $meta_path;
     CORE::open my $meta, '<', $meta_path or die "$! reading $meta_path";
     local $/;
-    my $d = eval { JSON::from_json( scalar <$meta> ) };
+    my $d = eval { JSON->new->relaxed->decode( scalar <$meta> ) };
     warn $@ if $@;
     return $d || {};
 }

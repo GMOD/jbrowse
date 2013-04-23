@@ -50,7 +50,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     },
 
     _getGlobalStats: function( successCallback, errorCallback ) {
-        var s = this._stats || {};
+        var s = this._globalStats || {};
 
         // calc mean and standard deviation if necessary
         if( !( 'scoreMean' in s ))
@@ -59,14 +59,6 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             s.scoreStdDev = this._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.basesCovered );
 
         successCallback( s );
-    },
-
-    _calcStdFromSums: function( sum, sumSquares, n ) {
-        var variance = sumSquares - sum*sum/n;
-        if (n > 1) {
-	    variance /= n-1;
-        }
-        return variance < 0 ? 0 : Math.sqrt(variance);
     },
 
     _load: function() {
@@ -134,7 +126,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                             scoreSum: da[2],
                             scoreSumSquares: da[3]
                         };
-                        bwg._stats = s;
+                        bwg._globalStats = s;
                         // rest of these will be calculated on demand in getGlobalStats
                     }).call();
                 } else {
@@ -167,8 +159,8 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
      */
     _readChromTree: function(callback) {
         var thisB = this;
-        this.chromsToIDs = {};
-        this.idsToChroms = {};
+        this.refsByNumber = {};
+        this.refsByName = {};
 
         var udo = this.unzoomedDataOffset;
         while ((udo % 4) != 0) {
@@ -215,16 +207,18 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                                            key += String.fromCharCode(charCode);
                                        }
                                    }
-                                   var chromId = readInt( ba, offset );
-                                   var chromSize = readInt( ba, offset+4 );
+                                   var refId = readInt( ba, offset );
+                                   var refSize = readInt( ba, offset+4 );
                                    offset += 8;
 
-                                   //dlog(key + ':' + chromId + ',' + chromSize);
-                                   thisB.chromsToIDs[key] = chromId;
+                                   var refRec = { name: key, id: refId, length: refSize };
+
+                                   //dlog(key + ':' + refId + ',' + refSize);
+                                   thisB.refsByName[key] = refRec;
                                    if (key.indexOf('chr') == 0) {
-                                       thisB.chromsToIDs[key.substr(3)] = chromId;
+                                       thisB.refsByName[key.substr(3)] = refRec;
                                    }
-                                   thisB.idsToChroms[chromId] = key;
+                                   thisB.refsByNumber[refId] = refRec;
                                } else {
                                    // parse index node
                                    offset += keySize;
@@ -239,6 +233,18 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
                        callback.call( thisB, thisB );
             });
+    },
+
+    getRefSeqs: function( seqCallback, finishCallback, errorCallback ) {
+        var thisB = this;
+        this._deferred.features.then(function() {
+            var refs =  thisB.refsByName;
+            for( var name in refs ) {
+                if( refs.hasOwnProperty(name) )
+                    seqCallback( refs[name] );
+            }
+            finishCallback();
+        }, errorCallback );
     },
 
     _getFeatures: function( query, featureCallback, endCallback, errorCallback ) {

@@ -1,11 +1,149 @@
 {{$NEXT}}
 
+ * Added a direct-access data backend for reading variation data
+   directly from VCF files that have been compressed with `bgzip` and
+   indexed with `tabix` (issue #211).
+
+ * Added a text box at the top of the simple (i.e. the default) track
+   selector that finds tracks in the track list matching the typed
+   text (issue #210).
+
+ * Added an optional dropdown selector in the menu bar that allows
+   switching between multiple datasets.  To enable it, add a
+   `datasets` array in your JBrowse configuration, and set a
+   `dataset_id` in each of the `trackList.json` (or other) files that
+   are optionally loaded by the dataset selector.  See the JBrowse
+   Configuration Guide on the GMOD wiki for details (issue #134).
+
+ * By default, JBrowse now continuously updates the browser's URL bar
+   to contain a URL that will show the current JBrowse view directly.
+   This is enabled by default only if JBrowse is running from the
+   default index.html included in the JBrowse distribution.
+
+ * HTMLFeatures, Alignments, and Alignments2 tracks now accept a
+   `maxHeight` configuration variable specifying the maximum displayed
+   height of a track in pixels.  Features that would cause the track
+   to grow beyond its maximum height will not be drawn (issue #222).
+
+ * Added support for optional `refSeqSelectorMaxSize` and
+   `refSeqOrder` global configuration variables that set the maximum
+   length of the reference sequence dropdown selector, and specify the
+   sort order of the reference sequences in that selector,
+   respectively (issues #234 and #235).
+
+ * HTMLFeatures tracks now accept `style->label` and
+   `style->description` configuration variables variable that can be
+   set to a function callback that returns a string with the feature's
+   label or long description, respectively (issue #9).
+
+ * Wiggle/XYPlot, Wiggle/Density, and FeatureCoverage tracks now
+   accept function callbacks in their `style->pos_color`,
+   `style->neg_color`, `style->bg_color`, and
+   `style->clip_marker_color` configuration variables.  Function
+   callbacks are passed two arguments: the feature object (with start
+   bp, end bp, and score of the quanititative region being shown, and
+   the track object (which can be used to access track configuration
+   data, along with many other things).  (issue #133).
+
+ * Wiggle/XYPlot tracks now accept an array for their `variance_band`
+   argument, allowing users to set the position of the variance bands
+   to show (issue #133).
+
+ * Wiggle/XYPlot tracks now accept a `style->variance_band_color`
+   configuration variable, allowing users to set the colors of the
+   variance bands. The variance band color should usually be specified
+   with a partial opacity.  Default is 'rgba(0,0,0,0.3)', which is
+   black with 30% opacity (issue #133).
+
+ * Added support `autoscale: "local"` in Wiggle, FeatureCoverage, and
+   SNPCoverage tracks, which automatically sets the scale of the
+   y-axis based on the range of the data being displayed in the
+   current view (issue #203).
+
+ * Added an "About JBrowse" popup dialog, which supports an
+   `aboutThisBrowser` configuration stanza containing a title for the
+   main browser window, and a description to be shown in a pop-up
+   dialog when the title is clicked (issue #206).
+
+ * Where possible (i.e. supported by the data store), JBrowse will now
+   pop up a warning if a local data file is opened that contains no
+   data for the current reference sequence (issue #178).
+
+ * Fixed bug in which hard- and soft-clipped regions were erroneously
+   counted toward the overall length of a BAM alignment (issue #229).
+
+ * Fixed bug in which dragging the vertical scroll bar marker on the
+   right side of the track pane did not behave correctly. (Julien
+   Smith-Roberge, issue #223).
+
+ * Fixed bug in which the navigation location for some reference
+   sequences can get messed up when ref.start != 0, or ref.end !=
+   ref.length (issue #215).
+
+ * Fixed bug in which navigating via sequence dropdown selection
+   ignores previous location on selected sequence, whereas with
+   navigation text box entering just a sequence name navigates to
+   previous location on that sequence (if visited previously) (issue
+   #216).
+
+ * Fixed bug in which the initial default view of a previously
+   unviewed reference sequencestarts at 80% centered view, but any use
+   of reference sequence selection pulldown takes it to 100% (issue
+   #217).
+
+ * Fixed bug in which iframe popups did not display correctly in
+   Internet Explorer 9 (issue #233).
+
+ * Improved JSON syntax error messages in server-side scripts (issue
+   #214).
+
+ * Increased the default display timeout (`blockDisplayTimeout`) on
+   HTML-based features tracks from 5 seconds to 20 seconds.
+
+ * Added a `new-plugin.pl` helper script that makes the skeleton of a
+   new JBrowse plugin.
+
+ * Added an `add-json.pl` helper script that advanced users can use to
+   set arbitrary value in JSON files from the command line.
+
+ * Fixed a bug in which the `--conf` option to `prepare-refseqs.pl`
+   did not support comments in JSON conf files (issue #213).  Thanks
+   to Keiran Raine for pointing this out.
+
+ * Fixed some missing dojo/dijit nls directories in the non-dev
+   release zipfile.
+
+ * Fixed a bug with handling of timeout events in HTMLFeatures tracks.
+   Thanks to Matt Henderson of KBase for pointing this out.
+
+1.8.1     2013-02-12 12:56:24 EST5EDT
+
+ * Added support for `cigarAttribute` and `mdAttributes` configuration
+   variables to Alignments and Alignments2 tracks, allowing users to
+   change which feature attribute is used for showing mismatches
+   (issue #200).
+
  * Fixed some bugs preventing `Alignments` and `Alignments2` tracks
    from working with non-BAM data backends.
 
- * Added support for `--trackLabel` and `--key` options to
-   `prepare-refseqs.pl`, allowing users to specify the sequence
-   track's label and title.
+ * Added `--trackLabel` and `--key` options to `prepare-refseqs.pl`,
+   allowing users to specify the sequence track's label and title.
+
+ * Added `--seqType` option to `prepare-refseqs.pl`, allowing users to
+   specify the type of sequences being formatted, usually either
+   'dna', 'rna', or 'protein'.  Additionally, if --seqType is
+   something over than DNA (case insensitive), "showReverseStrand" is
+   set to false on the reference sequence track.
+
+ * `prepare-refseqs.pl` now calls the track showing the reference
+   sequence "Reference sequence" instead of "DNA".
+
+ * Added a `shareURL` configuration option that accepts a JS function
+   to assemble the URL that users will get when clicking the "Share"
+   button or the "Full view" link in embedded mode (issue #198).
+
+ * Fixed annoying bug in which popup feature detail boxes are
+   initially scrolled all the way to the bottom.
 
 1.8.0     2013-01-31 14:05:27 America/New_York
 

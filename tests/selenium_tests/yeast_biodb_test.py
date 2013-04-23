@@ -58,14 +58,14 @@ class AbstractYeastBiodbTest ( JBrowseTest ):
 
     def sequence( self ):
         self.do_typed_query( 'chrII:296318..296400' );
-        if not self.is_track_on('DNA'):
-            self.turn_on_track( 'DNA' );
+        if not self.is_track_on('Reference sequence'):
+            self.turn_on_track( 'Reference sequence' );
         sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')][contains(.,'%s')]"
         sequence_div_xpath_1 = sequence_div_xpath_templ % 'TATATGGTCTT';
         self.assert_element( sequence_div_xpath_1)
-        self.turn_off_track( 'DNA' );
+        self.turn_off_track( 'Reference sequence' );
         self.assert_no_element( sequence_div_xpath_1 )
-        self.turn_on_track( 'DNA' );
+        self.turn_on_track( 'Reference sequence' );
         self.assert_element( sequence_div_xpath_1 )
         self.do_typed_query( '1..20000');
         self.assert_no_element( sequence_div_xpath_1 )
@@ -75,7 +75,7 @@ class AbstractYeastBiodbTest ( JBrowseTest ):
     def search_yal024c( self ):
 
         # check that a YAL024C feature label is not yet in the DOM
-        yal024_label_xpath = "//div[@class='feature-label']//*[contains(.,'YAL024C')]"
+        yal024_label_xpath = "//div[contains(@class,'feature-label')]//*[contains(.,'YAL024C')]"
         self.assert_no_element( yal024_label_xpath )
 
         # Find the query box and put YAL024C into it and hit enter

@@ -29,6 +29,7 @@ div.menuBar a, .topLink a {
     font-family: 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
     font-weight: bold;
     line-height: 25px; /* note this line-height should be the same as the fixed height of the menuBar */
+    cursor: pointer;
 }
 
 .share .icon {
@@ -47,14 +48,6 @@ a.topLink, a.topLink * {
     padding: 0 0.5em;
     color: black;
     text-decoration: none;
-}
-.help .icon {
-    height: 14px;
-    width: 8px;
-    display: inline-block;
-    margin-top: -4px;
-    margin-right: 1px;
-    background: url("img/glyphs_white.png") no-repeat -174px -3px;
 }
 .menuBar * {
     outline: none;
@@ -94,10 +87,33 @@ a.topLink, a.topLink * {
 }
 
 
-.menuBar > .menu {
+/* dataset selector */
+.menuBar > .menu, .menuBar > .dataset_select {
     float: left;
     font-size: 120%;
+    color: white;
 }
+.menuBar > .dataset_select {
+    margin: 1px 0 0 1px;
+    font-weight: bold;
+    height: 100%;
+    background: transparent;
+    border: none;
+}
+.menuBar > .dataset_select .dijitSelectLabel {
+    padding: 0 0.5em;
+}
+.menuBar > .dataset_select.dijitSelectHover td {
+    color: white;
+}
+.menuBar > .dataset_select .dijitButtonContents {
+    background: transparent;
+    border-color: transparent;
+}
+.menuBar > .dataset_select .dijitArrowButtonInner {
+    background: url("img/spriteArrows.png") no-repeat scroll -56px center;
+}
+
 .tundra .globalMenu .dijitMenuItem td {
     padding: 0.5em 2px 0.5em 5px;
 }

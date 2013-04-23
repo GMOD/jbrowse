@@ -8,7 +8,9 @@ define([
            'dojo/_base/array',
            'dojo/dom-construct',
            'dijit/form/Button',
-           'dgrid/Grid',
+           'JBrowse/Util',
+           'dojo/store/Memory',
+           'dgrid/OnDemandGrid',
            'dgrid/extensions/DijitRegistry'
        ],
        function(
@@ -16,6 +18,8 @@ define([
            array,
            dom,
            dijitButton,
+           Util,
+           MemoryStore,
            DGrid,
            DGridDijitRegistry
        ) {
@@ -26,29 +30,33 @@ return declare(null,{
     constructor: function( args, parent ) {
         var thisB = this;
         this.browser = args.browser;
-        var columns = [
-                    { label: 'Reference', field: 'ref' },
-                    { label: 'Start', field: 'start' },
-                    { label: 'End', field: 'end' }
-        ];
 
-        if( args.locations && args.locations.length && args.locations[0].tracks )
-            columns.push({
-                             label: 'Track',
-                             field: 'tracks',
-                             formatter: function(tracks) {
-                                 return array.map( array.filter( tracks, function(t) { return t; }), // remove nulls
-                                                   function(t) {
-                                                       return t.key || t.name || t.label || t;
-                                                   })
-                                             .join(', ');
-                             }
-                         });
+        // transform our data first, so that it's sortable.
+        var locations = array.map( args.locations || [], function(l) {
+            return { locstring: Util.assembleLocString( l ),
+                     location: l,
+                     label: l.label || l.objectName,
+                     description: l.description,
+                     score: l.score,
+                     tracks: array.map( array.filter( l.tracks || [], function(t) { return t; }), // remove nulls
+                                        function(t) {
+                                            return t.key || t.name || t.label || t;
+                                        })
+                             .join(', ')
+                   };
+        });
 
-        if( array.some( args.locations || [], function(l) { return l.label; }) ) {
+        // build the column list
+        var columns = [];
+        if( array.some( locations, function(l) { return l.label; }) )
             columns.unshift( { label: 'Name', field: 'label' } );
-        }
-
+        if( array.some( locations, function(l) { return l.description; }) )
+            columns.unshift( { label: 'Description', field: 'description' } );
+        if( array.some( locations, function(l) { return l.score; }) )
+            columns.unshift( { label: 'Score', field: 'score' } );
+        columns.push({ label: 'Location', field: 'locstring' });
+        if( locations.length && locations[0].tracks )
+            columns.push({ label: 'Track', field: 'tracks' });
         if( args.buttons ) {
             columns.push({
                              label: '',
@@ -57,7 +65,7 @@ return declare(null,{
                                  var container = dom.create('div');
                                  array.forEach( args.buttons, function( button ) {
                                      var buttonArgs = dojo.mixin( {}, button );
-                                     buttonArgs.onClick = function() { button.onClick( object, value, node, options ); };
+                                     buttonArgs.onClick = function() { button.onClick( object.location, value, node, options ); };
                                      new dijitButton( buttonArgs ).placeAt( container );
                                  });
                                  return container;
@@ -65,8 +73,12 @@ return declare(null,{
                          });
         }
 
-        this.grid = new Grid({ columns: columns }, parent );
-        this.grid.renderArray( args.locations );
+
+        // create the grid
+        this.grid = new Grid({
+            columns: columns,
+            store: new MemoryStore({ data: locations } )
+        }, parent );
     }
 });
 });

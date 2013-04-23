@@ -101,7 +101,7 @@ var Meta = declare( null,
                         storeFetchFinished();
                     }),
                     onError: function(e) {
-                        console.error(''+e);
+                        console.error(e, e.stack);
                         storeFetchFinished();
                     }
                 });
@@ -230,6 +230,10 @@ var Meta = declare( null,
                               //convert the item into a uniform data format of plain objects
                               var newitem = {};
                               dojo.forEach( itemattrs, function(attr) {
+                                                // stores sometimes emit undef attributes  >:-{
+                                                if( ! attr )
+                                                    return;
+
                                                 var lcattr = attr.toLowerCase();
                                                 storeAttributes[lcattr] = true;
                                                 newitem[lcattr] = store.getValue(item,attr);

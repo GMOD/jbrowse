@@ -26,8 +26,9 @@ return declare( null, {
     /**
      * @param args.browser the Browser object
      * @param args.locationChoices [Array] array of Location objects
-     * to choose from.  The locations can optionally have 'label'
-     * attributes.
+     *   to choose from.  The locations can optionally have 'label',
+     *   'description', and/or 'score' attributes, which will be
+     *   displayed as columns.
      * @param args.title optional title of the dialog box.
      * @param args.prompt optional text prompt to show at the top of the dialog.
      * @param args.goCallback optional function to call for executing a 'Go' action. gets ( location, value, node, options )
@@ -68,12 +69,17 @@ return declare( null, {
                   {
                       className: 'show',
                       innerHTML: 'Show',
-                      onClick: this.showCallback || function( location ) { browser.showRegion( location ); }
+                      onClick: this.showCallback || function( location ) {
+                          browser.showRegionWithHighlight( location );
+                      }
                   },
                   {
                       className: 'go',
                       innerHTML: 'Go',
-                      onClick: this.goCallback   || function( location ) { dialog.hide(); browser.showRegion( location ); }
+                      onClick: this.goCallback   || function( location ) {
+                          dialog.hide();
+                          browser.showRegionWithHighlight( location );
+                      }
                   }
               ]
             },

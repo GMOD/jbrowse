@@ -167,7 +167,7 @@ use FileSlurping 'slurp';
   'tracks' => [
     {
       'chunkSize' => 20000,
-      'key' => 'DNA',
+      'key' => 'Reference sequence',
       'label' => 'DNA',
       'type' => 'SequenceTrack',
       'urlTemplate' => 'seq/{refseq_dirpath}/{refseq}-'

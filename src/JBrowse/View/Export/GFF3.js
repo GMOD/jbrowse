@@ -174,6 +174,9 @@ return declare( ExportBase,
         return attrs;
     },
 
+    // ensure that an attribute name is not reserved.  currently does
+    // this by adding a leading underscore to attribute names that
+    // have initial capital letters.
     _ensure_non_reserved: function( str ) {
         return str.replace(/^[A-Z]/,function() { return '_'+str[0]; });
     },

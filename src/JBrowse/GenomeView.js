@@ -9,7 +9,8 @@ define([
            'JBrowse/View/Track/GridLines',
            'JBrowse/BehaviorManager',
            'JBrowse/View/Animation/Zoomer',
-           'JBrowse/View/Animation/Slider'
+           'JBrowse/View/Animation/Slider',
+           'JBrowse/View/InfoDialog'
        ], function(
            declare,
            array,
@@ -21,7 +22,8 @@ define([
            GridLinesTrack,
            BehaviorManager,
            Zoomer,
-           Slider
+           Slider,
+           InfoDialog
        ) {
 
 var dojof = Util.dojof;
@@ -148,7 +150,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.locationThumb = document.createElement("div");
     this.locationThumb.className = "locationThumb";
     this.overview.appendChild(this.locationThumb);
-    this.locationThumbMover = new locationThumbMover(this.locationThumb, {area: "margin", within: true});
+    this.locationThumbMover = new locationThumbMover(this.locationThumb, {area: "content", within: true});
 
     if ( dojo.isIE ) {
         // if using IE, we have to do scrolling with CSS
@@ -184,7 +186,9 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.staticTrack = new LocationScaleTrack({
         label: "static_track",
         labelClass: "pos-label",
-        posHeight: this.posHeight
+        posHeight: this.posHeight,
+        browser: this.browser,
+        refSeq: this.ref
     });
     this.staticTrack.setViewInfo( this, function(height) {}, this.stripeCount,
                                  this.scaleTrackDiv, undefined, this.stripePercent,
@@ -197,7 +201,10 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     gridTrackDiv.className = "track";
     gridTrackDiv.style.cssText = "top: 0px; height: 100%;";
     gridTrackDiv.id = "gridtrack";
-    var gridTrack = new GridLinesTrack();
+    var gridTrack = new GridLinesTrack({
+                                           browser: this.browser,
+                                           refSeq: this.ref
+                                       });
     gridTrack.setViewInfo( this, function(height) {}, this.stripeCount,
                           gridTrackDiv, undefined, this.stripePercent,
                           this.stripeWidth, this.pxPerBp,
@@ -261,7 +268,9 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.addOverviewTrack(new LocationScaleTrack({
         label: "overview_loc_track",
         labelClass: "overview-pos",
-        posHeight: this.overviewPosHeight
+        posHeight: this.overviewPosHeight,
+        browser: this.browser,
+        refSeq: this.ref
     }));
     this.showFine();
     this.showCoarse();
@@ -913,9 +922,11 @@ GenomeView.prototype.dragMove = function(event) {
 // Similar to "dragMove". Consider merging.
 GenomeView.prototype.verticalDragMove = function(event) {
     this.dragging = true;
+    var containerHeight = parseInt(this.verticalScrollBar.container.style.height,10);
+    var trackContainerHeight = this.trackContainer.clientHeight;
      this.setPosition({
          x: this.winStartPos.x,
-         y: this.winStartPos.y + (event.clientY - this.dragStartPos.y)
+         y: this.winStartPos.y + (event.clientY - this.dragStartPos.y)*(trackContainerHeight/containerHeight)
          });
     dojo.stopEvent(event);
 };
@@ -967,7 +978,9 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
     this.addOverviewTrack(new LocationScaleTrack({
             label: "overview_loc_track",
             labelClass: "overview-pos",
-            posHeight: this.overviewPosHeight
+            posHeight: this.overviewPosHeight,
+            browser: this.browser,
+            refSeq: this.ref
         }));
         this.sizeInit();
         this.setY(0);
@@ -1064,7 +1077,7 @@ GenomeView.prototype.minVisible = function() {
     if( mv < this.pxToBp(1) )
         return 0;
     else
-        return mv;
+        return Math.round(mv);
 };
 
 /**
@@ -1078,7 +1091,7 @@ GenomeView.prototype.maxVisible = function() {
     if( mv > this.ref.end - this.pxToBp(1) )
         return this.ref.end;
     else
-        return mv;
+        return Math.round(mv);
 };
 
 GenomeView.prototype.showFine = function() {
@@ -1091,11 +1104,16 @@ GenomeView.prototype.showCoarse = function() {
 /**
  * Hook for other components to dojo.connect to.
  */
-GenomeView.prototype.onFineMove = function( startbp, endbp ) {};
+GenomeView.prototype.onFineMove = function( startbp, endbp ) {
+    this.updateLocationThumb();
+};
+
 /**
  * Hook for other components to dojo.connect to.
  */
-GenomeView.prototype.onCoarseMove = function( startbp, endbp ) {};
+GenomeView.prototype.onCoarseMove = function( startbp, endbp ) {
+    this.updateLocationThumb();
+};
 
 /**
  * Hook to be called on a window resize.
@@ -1254,6 +1272,27 @@ GenomeView.prototype.thumbMoved = function(mover) {
     var pxWidth = parseInt(this.locationThumb.style.width);
     var pxCenter = pxLeft + (pxWidth / 2);
     this.centerAtBase(((pxCenter / this.overviewBox.w) * (this.ref.end - this.ref.start)) + this.ref.start);
+};
+
+/**
+ * Updates the position of the red box in the overview that indicates
+ * the region being shown by the detail pane.
+ */
+GenomeView.prototype.updateLocationThumb = function() {
+    var startbp = this.minVisible();
+    var endbp = this.maxVisible();
+
+    var length = this.ref.end - this.ref.start;
+    var trapLeft = Math.round((((startbp - this.ref.start) / length)
+                               * this.overviewBox.w) + this.overviewBox.l);
+    var trapRight = Math.round((((endbp - this.ref.start) / length)
+                                * this.overviewBox.w) + this.overviewBox.l);
+
+    this.locationThumb.style.cssText =
+    "height: " + (this.overviewBox.h - 4) + "px; "
+    + "left: " + trapLeft + "px; "
+    + "width: " + (trapRight - trapLeft) + "px;"
+    + "z-index: 20";
 };
 
 GenomeView.prototype.checkY = function(y) {
@@ -1441,7 +1480,7 @@ GenomeView.prototype.sizeInit = function() {
     // plus an arbitrary 20% padding so it's clear which grid line
     // a position label corresponds to.
     var minStripe = posSize.clientWidth * 1.2;
-    this.overviewPosHeight = posSize.clientHeight;
+    this.overviewPosHeight = posSize.clientHeight * 1.2;
     this.overview.removeChild(posSize);
     for (var n = 1; n < 30; n++) {
     //http://research.att.com/~njas/sequences/A051109
@@ -1554,7 +1593,17 @@ GenomeView.prototype.trimVertical = function(y) {
 
 GenomeView.prototype.redrawTracks = function() {
     this.trackIterate( function(t) { t.hideAll(); } );
-    this.showVisibleBlocks( true );
+    this.showVisibleBlocks( false );
+};
+
+GenomeView.prototype.hideRegion = function( location ) {
+    this.overviewTrackIterate( function(t) { t.hideRegion( location ); } );
+    this.trackIterate( function(t) { t.hideRegion( location ); } );
+};
+
+GenomeView.prototype.redrawRegion = function( location ) {
+    this.hideRegion( location );
+    this.showVisibleBlocks( false );
 };
 
 GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
@@ -1721,6 +1770,7 @@ GenomeView.prototype._unsetPosBeforeZoom = function() {
 GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {
     var eWidth = this.elem.clientWidth;
     var centerPx = this.bpToPx(fixedBp) - (zoomLoc * eWidth) + (eWidth / 2);
+    // stripeWidth: pixels per block
     this.stripeWidth = this.stripeWidthForZoom(this.curZoom);
     this.scrollContainer.style.width =
         (this.stripeCount * this.stripeWidth) + "px";
@@ -1830,12 +1880,19 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
         Math.round(this.pxToBp(this.offset
                                + (this.stripeCount * this.stripeWidth)));
 
+    this.overviewTrackIterate(function(track, view) {
+                                  track.showRange(0, view.overviewStripes - 1,
+                                                  -1, view.overviewStripeBases,
+                                                  view.overviewBox.w /
+                                                  (view.ref.end - view.ref.start));
+                      });
     this.trackIterate(function(track, view) {
                           track.showRange(leftVisible, rightVisible,
                                           startBase, bpPerBlock,
                                           view.pxPerBp,
                                           containerStart, containerEnd);
                       });
+
     this.updateStaticElements({
                                   height: this.getHeight(),
                                   width: this.getWidth(),
@@ -1957,6 +2014,7 @@ GenomeView.prototype._getTracks = function( /**Array[String]*/ trackNames ) {
  *                        rendering of this track
  */
 GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
+    var thisB = this;
 
     if( !trackConfig )
         return null;
@@ -1998,6 +2056,29 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
             });
         if( typeof store.setTrack == 'function' )
             store.setTrack( track );
+
+        // if we can, check that the current reference sequence is
+        // contained in the store
+        if( store.getRefSeqs ) {
+            var foundRef, curRefName = this.ref.name;
+            store.getRefSeqs(
+                function( ref ) {
+                    foundRef = foundRef || ref.name == curRefName;
+                },
+                function() {
+                    if( ! foundRef )
+                        new InfoDialog({
+                            title: 'Reference warning',
+                            content: 'WARNING: The data for track "'
+                              +(trackConfig.key||trackConfig.label)
+                              +'" contains no data for the current'
+                              +' reference sequence ('
+                              +thisB.ref.name
+                              +').'
+                        }).show();
+                }
+            );
+        }
 
         trackDiv.track = track;
 
@@ -2062,8 +2143,11 @@ GenomeView.prototype.updateTrackList = function() {
     var containerChild = this.trackContainer.firstChild;
     do {
         // this test excludes UI tracks, whose divs don't have a track property
-        if (containerChild.track) tracks.push(containerChild.track);
+        if (containerChild.track)
+            tracks.push(containerChild.track);
     } while ((containerChild = containerChild.nextSibling));
+
+    var oldTracks = this.tracks;
     this.tracks = tracks;
 
     var newIndices = {};
@@ -2079,6 +2163,15 @@ GenomeView.prototype.updateTrackList = function() {
         totalHeight += newHeights[i];
         this.trackIndices[tracks[i].name] = i;
     }
+
+    // call destroy on any tracks that are being thrown out
+    array.forEach( oldTracks || [], function( track ) {
+        if( ! ( track.name in newIndices ) ) {
+            delete track.div.track; //< because this file put it there
+            track.destroy();
+        }
+    }, this );
+
     this.trackIndices = newIndices;
     this.trackHeights = newHeights;
     var nextTop = this.topSpace;

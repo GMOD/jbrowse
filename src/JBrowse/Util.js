@@ -229,6 +229,9 @@ Util = {
 
         locstring = dojo.trim( locstring );
 
+        // any extra stuff in parens?
+        var extra = (locstring.match(/\(([^\)]+)\)$/)||[])[1];
+
         // parses a number from a locstring that's a coordinate, and
         // converts it from 1-based to interbase coordinates
         var parseCoord = function( coord ) {
@@ -250,6 +253,13 @@ Util = {
         if( tokens ) { // range of two numbers?
             location.start = parseCoord( tokens[1] )-1;
             location.end = parseCoord( tokens[2] );
+
+            // reverse the numbers if necessary
+            if( location.start > location.end ) {
+                var t = location.start+1;
+                location.start = location.end - 1;
+                location.end = t;
+            }
         }
         else { // one number?
             tokens = locstring.match( /^\s*([\d,]+)/ );
@@ -259,6 +269,9 @@ Util = {
             else // got nothin
                 return null;
         }
+
+        if( extra )
+            location.extra = extra;
 
         return location;
     },

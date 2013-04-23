@@ -1,5 +1,9 @@
-define(['dojo/_base/declare','JBrowse/View/Track/BlockBased'],
-       function( declare, BlockBased ) {
+define([
+           'dojo/_base/declare',
+           'dojo/dom-construct',
+           'JBrowse/View/Track/BlockBased'
+       ],
+       function( declare, dom, BlockBased ) {
 return dojo.declare( BlockBased,
  /**
   * @lends JBrowse.View.Track.GridLines.prototype
@@ -23,6 +27,11 @@ return dojo.declare( BlockBased,
 
     fillBlock: function( args ) {
         this.renderGridlines( args.block, args.leftBase, args.rightBase );
+
+        var highlight = this.browser.getHighlight();
+        if( highlight && highlight.ref == this.refSeq.name )
+            this.renderRegionHighlight( args, highlight );
+
         args.finishCallback();
         this.heightUpdate(100, args.blockIndex);
     },
@@ -35,7 +44,7 @@ return dojo.declare( BlockBased,
             !( base_span % 10 ) ? 10 :
             !( base_span % 5  ) ? 5  :
             !( base_span % 2  ) ? 2  :
-            0;
+                                  0;
         var major_count = base_span == 20 ? 2 : base_span > 0 ? 1 : 0;
 
         var new_gridline = function( glclass, position ) {
@@ -51,7 +60,7 @@ return dojo.declare( BlockBased,
                 ? "gridline_major"
                 : "gridline_minor";
 
-            block.appendChild( new_gridline( cls, pos) );
+            block.domNode.appendChild( new_gridline( cls, pos) );
         }
 
     }

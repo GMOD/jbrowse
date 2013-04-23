@@ -1,6 +1,11 @@
 // JBrowse JSON-format configuration file
 {
 
+    // aboutThisBrowser: {
+    //     title: '<i>Oryza sativa</i>',
+    //     description: 'Browser for O. sativa transcripts and RNA-seq data, produced by the Smith laboratory at Example State University.'
+    // },
+
     // // uncomment and edit the example below to configure a faceted track selector
     // trackSelector: {
     //     type: 'Faceted',
@@ -11,6 +16,17 @@
     //   ]
     // },
 
-    // the variable below does nothing
-    placeholder: 1
+    // uncomment and edit the example below to enable one or more
+    // JBrowse plugins
+
+    // plugins: [ 'MyPlugin', 'MyOtherPlugin' ],
+
+    datasets: {
+        volvox:    { url: '?data=sample_data/json/volvox', name: 'Volvox Example' },
+        modencode: { url: '?data=sample_data/json/modencode', name: 'MODEncode Example' },
+        yeast:     { url: '?data=sample_data/json/yeast',     name: 'Yeast Example' },
+    },
+
+    // uncomment to change the default sort order of the reference sequence dropdown
+    // refSeqOrder: 'length descending'
 }

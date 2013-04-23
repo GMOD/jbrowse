@@ -33,7 +33,11 @@
          "track" : "Motifs",
          "class" : "feature3",
          "description" : 1,
-         "key" : "Example motifs"
+         "key" : "Example motifs",
+         "style": {
+           "label": "function(feature) { return feature.get('Name')+' (via JS callback)' }",
+           "description": "function(feature) { return feature.get('Name')+': '+feature.get('Note'); }"
+         }
       },
       {
          "feature" : [
@@ -42,6 +46,7 @@
          "track" : "malformed_alignments",
          "class" : "feature4",
          "key" : "Example Features with Menus",
+         "metadata": { "Description": "Features with extensively customized right-click menus, and with their colors set at random by a JavaScript callback." },
          "hooks": {
              "modify": "function( track, feature, div ) { div.style.backgroundColor = ['green','blue','red','orange','purple'][Math.round(Math.random()*5)];}"
          },

@@ -5,7 +5,7 @@
          "urlTemplate" : "seq/{refseq}/",
          "type" : "SequenceTrack",
          "label" : "DNA",
-         "key" : "DNA"
+         "key" : "Reference sequence"
       }
    ],
    "formatVersion" : 1

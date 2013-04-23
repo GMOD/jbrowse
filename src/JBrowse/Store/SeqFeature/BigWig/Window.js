@@ -31,15 +31,15 @@ return declare( null,
 
     readWigData: function(chrName, min, max, callback) {
         // console.log( 'reading wig data from '+chrName+':'+min+'..'+max);
-        var chr = this.bwg.chromsToIDs[chrName];
-        if (chr === undefined) {
+        var chr = this.bwg.refsByName[chrName];
+        if ( ! chr ) {
             // Not an error because some .bwgs won't have data for all chromosomes.
 
             // dlog("Couldn't find chr " + chrName);
-            // dlog('Chroms=' + miniJSONify(this.bwg.chromsToIDs));
+            // dlog('Chroms=' + miniJSONify(this.bwg.refsByName));
             callback([]);
         } else {
-            this.readWigDataById(chr, min, max, callback);
+            this.readWigDataById( chr.id, min, max, callback);
         }
     },
 

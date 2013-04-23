@@ -98,6 +98,7 @@ class JBrowseTest (object):
         time.sleep( 0.05 )
         for i in range( len(text) ):
             qbox.send_keys( text[i] )
+            time.sleep( 0.2 )
         qbox.send_keys( Keys.RETURN );
         time.sleep( 0.3 )
 
@@ -174,7 +175,7 @@ class JBrowseTest (object):
 
     def is_track_on( self, tracktext ):
         # find the track label in the track pane
-        return not self.maybe_find_element_by_xpath( "//div[contains(@class,'dragWindow')]//div[@class='track-label'][contains(.,'%s')]" % tracktext )
+        return not not self.maybe_find_element_by_xpath( "//div[contains(@class,'track-label')]/span[contains(@class,'track-label-text')][contains(.,'%s')]" % tracktext )
 
     def turn_on_track( self, tracktext ):
         return self.track_selector.turn_on_track( tracktext )
@@ -186,7 +187,7 @@ class JBrowseTest (object):
         return ActionChains( self.browser )
 
     def get_track_labels_containing( self, string ):
-        return self.assert_elements( "//div[contains(@class,'track-label')][contains(.,'%s')]" % string )
+        return self.assert_elements( "//span[contains(@class,'track-label-text')][contains(.,'%s')]" % string )
 
     def select_refseq( self, name ):
         self.do_typed_query( name );

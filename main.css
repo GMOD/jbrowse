@@ -7,6 +7,45 @@ html, body {
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
+/* styles for the about JBrowse dialog */
+.about-dialog .default_about {
+    text-align: center;
+}
+.about-dialog .default_about * {
+    margin: 0.5em 0;
+}
+.about-dialog .default_about h1 {
+    margin-top: 0;
+}
+.about-dialog div.powered_by {
+    margin-top: 0.5em;
+    text-align: center;
+}
+
+/* styles for the highlight-setting dialog */
+.setHighlightDialog label {
+    padding-right: 0.5em;
+}
+
+.track .global_highlight {
+    position: absolute;
+    background: rgba( 255, 255, 0, 0.7 );
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+
+    border: 1px solid rgb(255, 178, 13);
+    border-width: 0;
+}
+.track .global_highlight.left {
+    border-left-width: 1px;
+}
+.track .global_highlight.right {
+    border-right-width: 1px;
+}
+
+
 .tundra input {
     outline: none;
 }
@@ -71,15 +110,10 @@ fieldset > legend {
     outline: none;
 }
 
-
 .dijitDialogPaneActionBar {
     text-align: center;
     clear: both;
     padding-top: 1em;
-}
-
-.infoDialogContent {
-    padding: 1em;
 }
 
 .nav {
@@ -91,7 +125,6 @@ input.icon {
     display: -moz-inline-stack;
     display: inline-block;
     zoom: 1;
-    *display: inline;
 }
 
 div.container {
@@ -208,7 +241,7 @@ a.topLink {
 div.overview {
     position: relative;
     width: 100%;
-    padding: 4px 0 0 0;
+    padding: 0;
     z-index: -5;
     display: block;
     height: 23px;
@@ -230,6 +263,21 @@ div.block {
     top: 0px;
     height: 100%;
 }
+div.block.height_overflow .height_overflow_message {
+    position: absolute;
+    color: rgb(77,77,77);
+    border-bottom: 2px solid rgb(77,77,77);
+    text-shadow: white 0px 0px 1px;
+    white-space: nowrap;
+    width: 100%;
+    font-weight: bold;
+    text-align: center;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
 div.block.timed_out {
     background: #ddd;
     background: rgba( 0,0,0, 0.1 );
@@ -249,6 +297,9 @@ div.track {
     background: inherit;
 }
 .track.dojoDndItemAnchor {
+    background: inherit;
+}
+.track.dojoDndItemSelected {
     background: inherit;
 }
 
@@ -301,10 +352,12 @@ div.pos-label {
 div.overview-pos {
     position: absolute;
     left: 0px;
+    top: 0.27em;
     color: black;
     padding-left: 4px;
     font-family: sans-serif;
     border: 0;
+    z-index: 10;
 }
 div.overview-pos:first-child {
     margin-left: 1px;
@@ -386,7 +439,11 @@ span.base {
     background-color: rgba( 213, 187, 4, 0.9);
 }
 .base_reference {
-    background-color: #999;
+    background-color: #bbb;
+}
+.base_deletion {
+    background-color: black;
+    background-color: #000;
 }
 
 div.sequence_blur {
@@ -418,6 +475,21 @@ div.track-label, div.tracklist-label {
 
     color: #111;
     font-weight: bold;
+}
+
+div.tracklist-label {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+div.tracklist-label.collapsed {
+    height: 3px;
+    padding: 0;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 
 /* NOTE: browsers that don't support rgba colors will fall back to all
@@ -505,7 +577,7 @@ div.track-label .feature-density {
     position: absolute;
     left: 8px;
     top: 7px;
-    background: url("src/dijit/themes/tundra/images/spriteArrows.png") no-repeat -28px 0;
+    background: url("img/spriteArrows.png") no-repeat -28px 0;
 }
 
 .tundra div.track-label:hover .track-menu-button:hover {
@@ -550,8 +622,16 @@ div.tracklist-label:hover {
     background-position: right;
 }
 #trackPane h2 {
-    margin: 0.5em 0 1em 0.5em;
+    margin: 0.5em 0 0 0.5em;
 }
+#trackPane div.textfilter {
+    margin: 0.5em 0 1em 0.3em;
+}
+#trackPane div.textfilter input {
+    line-height: 16px;
+    padding: 2px 0;
+}
+
 #trackPane_splitter {
     background: #dcdcdc;
     width: 5px;
@@ -581,7 +661,7 @@ div.tracklist-container {
     padding: 0px 0px 0px 0px;
     /* font-size: 80%; */
     white-space: nowrap;
-    z-index: 10;
+    z-index: 12;
     cursor: pointer;
 }
 a.feature-label {
@@ -590,6 +670,12 @@ a.feature-label {
 .feature-description {
     color: blue;
     margin-top: -0.2em;
+}
+.feature-label.highlighted {
+    background: rgba( 255, 255, 0, 0.7 );
+    font-weight: bold;
+    border: 1px solid red;
+    padding: 0 2px;
 }
 
 .rubber-highlight {
@@ -615,7 +701,6 @@ a.feature-label {
 div.overview .rubber-highlight {
     font-size: 0;
     height: 100%;
-    margin-top: -4px; /* corresponds to padding on div.overview */
     border-top: none;
     border-bottom: none;
 }
@@ -728,6 +813,35 @@ a.dialog-new-window {
     width: 50em;
     color: #333;
 }
+.feature-detail .genotype_summary {
+    padding: 1em;
+}
+.feature-detail .genotype_summary table {
+    border-collapse: collapse;
+}
+.feature-detail .genotype_summary td {
+    padding: 0 1em;
+}
+.feature-detail .genotype_summary td.total {
+    font-weight: bold;
+    border-top: 1px solid #444;
+}
+.feature-detail .genotype_summary td.count, .feature-detail .genotype_summary td.pct {
+    text-align: right;
+}
+.feature-detail .genotype_summary td.category.level_1 {
+    padding-left: 2em;
+}
+.feature-detail .genotype_summary td.category.level_2 {
+    padding-left: 3em;
+}
+.feature-detail .genotype_summary td.category.level_3 {
+    padding-left: 4em;
+}
+.feature-detail .genotype_summary td.category.level_4 {
+    padding-left: 5em;
+}
+
 .feature-detail .subfeature-detail {
     background: #fafafa;
     background: rgba( 0, 0, 0, 0.1 );
@@ -753,19 +867,46 @@ a.dialog-new-window {
     margin: 1em 0 0.7em 0;
 }
 
-.detail .value {
+.detail .value_container {
+    display: inline-block;
+    max-height: 20em;
+    overflow-y: auto;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+.detail .value_container.big, .detail .value_container.dgrid {
+    border: 1px solid rgba(0,0,50,0.1);
     margin-left: 1em;
+    margin-top: 0.3em;
+}
+
+.detail .value {
     display: inline-block;
     vertical-align: top;
     font-family: sans-serif;
+    padding: 0 0.7em;
+    line-height: 1.8;
 }
 .detail .field {
     margin: 0;
     display: inline-block;
     min-width: 90px;
     vertical-align: top;
+    padding: 2px 0.5em;
+    background: rgba( 50, 85, 255,0.1 );
+    border-bottom: 1px solid #D2D4E4;
+    border-bottom-color: rgba( 0, 0, 0, 0.1 );
+    font-size: 1.1667em;
 }
-
+/* field names that have tooltips */
+.detail .field[title], .detail .dgrid-cell[title] {
+    background: rgba( 255,245,50,0.3 );
+}
+.detail .field[title]:hover, .detail .dgrid-cell[title]:hover {
+    background: rgba( 255,255,50,0.7 );
+}
 /*
  force long sequences in feature and alignment detail dialogs to
  wrap at 45em
@@ -777,7 +918,11 @@ a.dialog-new-window {
 }
 
 .detail .field_container {
-    padding: 0 4em 0 1em;
+    margin-left: 1em;
+    margin-bottom: 2px;
+}
+.detail hr {
+    margin: 0.8em 4em 0.5em 0.7em;
 }
 
 .sharePane input {
@@ -840,8 +985,20 @@ table.baseQuality td {
     line-height: 0.95;
     text-align: center;
 }
-table.baseQuality tr.seq td {
-    padding-top: 0.8em;
+.baseQuality .basePosition {
+    display: inline-block;
+    padding: 0 0.3em 0.4em 0.3em;
+}
+.baseQuality .basePosition:hover {
+    background: #ccc;
+}
+.baseQuality span.seq {
+    display: block;
+    text-align: center;
     font-weight: bold;
+}
+.baseQuality span.qual {
+    display: block;
+    text-align: center;
 }
 
