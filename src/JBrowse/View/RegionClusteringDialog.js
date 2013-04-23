@@ -96,6 +96,10 @@ return declare( null, {
                                                                 ? this.data.regions.get('value').map(
                                                                     function(arg){return arg.split(',')[0];})
                                                                 : undefined };
+                                    var trackNameList = this.data.display.get('value')[0]
+                                                        ? this.data.display.get('value').map(
+                                                            function(arg){return arg.split(',');})
+                                                        : undefined;
                                     // remove duplicates. Multiple tracks may have the same store.
                                     storeLists.display = storeLists.display
                                                          ?  storeLists.display.filter(function(elem, pos) {
@@ -107,7 +111,7 @@ return declare( null, {
                                                                 return storeLists.regions.indexOf(elem) == pos;
                                                             })
                                                          : undefined;
-                                    return storeLists;
+                                    return { storeLists: storeLists, trackNameList: trackNameList };
                                 })
                           };
 
@@ -170,6 +174,26 @@ return declare( null, {
         var makeClusters = new Button({ label: 'Perform clustering',
                      disabled: true,
                      onClick: dojo.hitch( thisB, function() {
+                                // checks and balances
+                                if ( (thisB.storeFetch.numbers.bin.number.get('value') == 0)||
+                                     (thisB.storeFetch.numbers.HMlen.number.get('value') == 0)||
+                                     (thisB.storeFetch.numbers.numClust.number.get('value') == 0)) {
+                                    alert('Please enter a non-zero value');
+                                    return;
+                                }
+                                if ( typeof thisB.storeFetch.numbers.bin.number.get('value') != 'number' ) {
+                                    alert('Number of bins must be a number.');
+                                    return;
+                                }
+                                if ( typeof thisB.storeFetch.numbers.HMlen.number.get('value') != 'number' ) {
+                                    alert('Region length must be a number.');
+                                    return;
+                                }
+                                if ( (typeof thisB.storeFetch.numbers.numClust.number.get('value') != 'number')&&
+                                        !thisB.storeFetch.numbers.numClust.number.get('value') ) {
+                                    alert('Invalid number of clusters.');
+                                    return;
+                                }
                                 if ( thisB.storeFetch.numbers.bin.number.get('value') 
                                      > thisB.storeFetch.numbers.HMlen.number.get('value') ) {
                                     alert('Number of bins must be smaller than heatmap length');
@@ -195,7 +219,8 @@ return declare( null, {
                                 this.fade(); // defined earlier.
                                 setTimeout(function(){
                                     new RegionClustering({ browser: thisB.browser,
-                                                           storeNames: thisB.storeFetch.fetch(),
+                                                           storeNames: thisB.storeFetch.fetch().storeLists,
+                                                           trackNames: thisB.storeFetch.fetch().trackNameList,
                                                            numOfBins: thisB.storeFetch.numbers.bin.number.get('value'),
                                                            queryLength: thisB.storeFetch.numbers.HMlen.number.get('value'),
                                                            numClusters: thisB.storeFetch.numbers.numClust.number.get('value'),
