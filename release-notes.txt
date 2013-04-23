@@ -28,8 +28,8 @@
    evaluated in left-click and right-click menu configurations.
 
  * Fixed incorrect display of negative values in log-scale wiggle
-   tracks.  Thanks to GitHub user drusch for pointing this out (issue
-   #244).
+   tracks.  Thanks to GitHub user drusch for pointing this out
+   (issue #244).
 
  * Fixed more more minor errors when running under IE 7.
 
