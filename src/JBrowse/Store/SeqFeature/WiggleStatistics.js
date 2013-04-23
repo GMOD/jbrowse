@@ -36,6 +36,16 @@ var featureWrapper = Util.fastDeclare(
         }
     });
 
+    var Keys = function(array) {
+        var keys = []
+        for (var key in array) {
+            if (array.hasOwnProperty(key)) {
+                keys.push(key);
+            }
+        }
+        return keys;
+    };
+
 return declare([SeqFeatureStore], {
 
 constructor: function( args ) {
@@ -118,7 +128,7 @@ executeCallbacks: function( features, featCallback, doneCallback ) {
     doneCallback();
 },
 
-getRegionStats: function( region, successCallback, errorCallback ) {
+getGlobalStats: function( successCallback, errorCallback ) {
     thisB = this;
     thisB.gotAllStores.then( function() {
         var statObjects = [];
@@ -128,8 +138,8 @@ getRegionStats: function( region, successCallback, errorCallback ) {
                 (function(){
                 var stats = thisB.stores.display[key];
                 var d = new Deferred();
-                statObjects.push(d);
-                stats.getRegionStats(region, function(s){d.resolve(s, true);}, errorCallback);
+                statObjects.push(d.promise);
+                stats.getGlobalStats(function(s){d.resolve(s, true);}, errorCallback);
                 }());
             }
         }
@@ -142,7 +152,7 @@ getRegionStats: function( region, successCallback, errorCallback ) {
                 if (args.hasOwnProperty(key)) {
                     for (var stat in args[key]) {
                         if (args[key].hasOwnProperty(stat)) {
-                            if (!tempStat[stat]) { 
+                            if (!tempStat[stat]) {
                                 tempStat[stat] = args[key][stat];
                             }
                             else {
@@ -162,6 +172,10 @@ getRegionStats: function( region, successCallback, errorCallback ) {
     });
 },
 
+getRegionalStats: function( region, successCallback, errorCallback ) {
+    this.getGlobalStats( successCallbback, errorCallback );
+},
+
 combineStats: function( key, currStats, newStats) {
     /* This block, called by getRegionStats, decides how to combine region statistics from different stores.
        currStats is an object containing the combined stats of stores processed thusfar.
@@ -172,29 +186,28 @@ combineStats: function( key, currStats, newStats) {
        If you've encountered the default case, this means that the track you constructed does not know how to handle the
        track statistics. Please add cases as required.
     */
-    var currStat = currStats[key];
-    var newStat = newStats[key];
+        var currStat = currStats[key];
+        var newStat = newStats[key];
     switch (key) {
         case 'featureDensity':
             return currStat + newStat;
         case 'featureCount':
             return currStat + newStat;
-        /*
-            wiggle type tracks 
-        */
         case 'basesCovered':
             return currStat + newStat;
         case 'scoreMin':
-            return Math.floor(Math.min(currStat, newStat));
+            return currStat + newStat;
         case 'scoreMax':
-            return Math.ceil(Math.max(currStat, newStat));
+            /* note: this might overestimate the maxmimu score.
+            * If the two maximums are in different regions, they will not add */
+            return currStat + newStat;
         case 'scoreSum':
             return currStat + newStat;
         case 'scoreSumSquares':
             return currStat + newStat;
         case 'scoreMean':
             // note: assumes other properties will be available
-            return ((currStats['basesCovered'])*currStat + (newStats['basesCovered']*newStat))/(currStats['basesCovered']+newStats['basesCovered']);
+            return ((currStats['basesCovered'])*currStat + (newStats['basesCovered']*newStat))/currStats['basesCovered'];
         case 'scoreStdDev':
             // note: assumes other properties will be available
             var n = currStats['basesCovered']+newStats['basesCovered'];
