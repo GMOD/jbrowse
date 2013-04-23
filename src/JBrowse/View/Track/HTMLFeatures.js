@@ -294,8 +294,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         if( ! 'x' in coords )
             return;
 
-var viewmin = this.browser.view.minVisible();
-var viewmax = this.browser.view.maxVisible();
+        var viewmin = this.browser.view.minVisible();
+        var viewmax = this.browser.view.maxVisible();
 
         array.forEach( this.blocks, function( block ) {
             if( ! block )
@@ -305,12 +305,12 @@ var viewmax = this.browser.view.maxVisible();
                 .forEach(
                     function(featDiv) {
                         var feature = featDiv.feature;
-                        var strand = feature.get('strand');
+                        var strand  = feature.get('strand');
                         if( ! strand )
                             return;
 
-                        var fmin = feature.get('start');
-                        var fmax = feature.get('end');
+                        var fmin    = feature.get('start');
+                        var fmax    = feature.get('end');
                         var arrowhead;
 
                         // minus strand
@@ -899,7 +899,7 @@ var viewmax = this.browser.view.maxVisible();
             case 1:
             case '+':
                 ah.className = "plus-" + this.config.style.arrowheadClass;
-                ah.style.cssText = "right: "+(-this.plusArrowWidth) + "px";
+                ah.style.cssText =  "right: "+(-this.plusArrowWidth) + "px";
                 featDiv.appendChild(ah);
                 break;
             case -1:

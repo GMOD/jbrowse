@@ -11,7 +11,7 @@ require(['JBrowse/Store/RemoteBinaryFile','dojo/aspect'], function( RemoteBinary
         it( 'appears to fetch data correctly', function() {
                 var get = function( start, end, callback ) {
                     var data;
-                    b.get({ url: testURL, start: start, end: end, success: function(d) { data = d; } });
+                    b.get({ url: testURL, start: start, end: end, success: function(d) { data = d; }, failure: console.error });
                     waitsFor( function() { return data; } );
                     runs( function() { callback(data); } );
                 };

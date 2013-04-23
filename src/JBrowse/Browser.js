@@ -1,4 +1,5 @@
 var _gaq = _gaq || []; // global task queue for Google Analytics
+
 define( [
             'dojo/_base/lang',
             'dojo/on',
@@ -6,6 +7,7 @@ define( [
             'dojo/DeferredList',
             'dojo/topic',
             'dojo/aspect',
+            'JBrowse/has',
             'dojo/_base/array',
             'dijit/layout/ContentPane',
             'dijit/layout/BorderContainer',
@@ -44,6 +46,7 @@ define( [
             DeferredList,
             topic,
             aspect,
+            has,
             array,
             dijitContentPane,
             dijitBorderContainer,
@@ -75,6 +78,7 @@ define( [
             LazyLoad
         ) {
 
+
 var dojof = Util.dojof;
 
 /**
@@ -102,14 +106,17 @@ var Browser = function(params) {
 
     this.config = params;
 
+    // if we're in the unit tests, stop here and don't do any more initialization
+    if( this.config.unitTestMode )
+        return;
+
     if( ! this.config.baseUrl )
         this.config.baseUrl = Util.resolveUrl( window.location.href, '.' ) + '/data/';
 
-    this.startTime = Date.now();
+    this.startTime = new Date();
 
-    this.container = dojo.byId(this.config.containerID);
+    this.container = dojo.byId( this.config.containerID );
     this.container.onselectstart = function() { return false; };
-    this.container.genomeBrowser = this;
 
     // start the initialization process
     var thisB = this;
@@ -389,6 +396,31 @@ Browser.prototype.loadNames = function() {
     });
 };
 
+/**
+ * Compare two reference sequence names, returning -1, 0, or 1
+ * depending on the result.  Case insensitive, insensitive to the
+ * presence or absence of prefixes like 'chr', 'chrom', 'ctg',
+ * 'contig', 'scaffold', etc
+ */
+Browser.prototype.compareReferenceNames = function( a, b ) {
+    return this.regularizeReferenceName(a).localeCompare( this.regularizeReferenceName( b ) );
+};
+
+Browser.prototype.regularizeReferenceName = function( refname ) {
+
+    if( this.config.exactReferenceSequenceNames )
+        return refname;
+
+    refname = refname.toLowerCase()
+                     .replace(/^chro?m?(osome)?/,'chr')
+                     .replace(/^co?n?ti?g/,'ctg')
+                     .replace(/^scaff?o?l?d?/,'scaffold')
+                     .replace(/^([a-z]*)0+/,'$1')
+                     .replace(/^(\d+)$/, 'chr$1' );
+
+    return refname;
+};
+
 Browser.prototype.initView = function() {
     var thisObj = this;
     return this._milestoneFunction('initView', function( deferred ) {
@@ -428,7 +460,7 @@ Browser.prototype.initView = function() {
             this.navbox = this.createNavBox( topPane );
 
             if( this.config.datasets && ! this.config.dataset_id ) {
-                console.warn("in JBrowse configuration, datasets specified, but dataset_id not set");
+                console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Dataset selector will not be shown.");
             }
             if( this.config.datasets && this.config.dataset_id ) {
                 this.renderDatasetSelect( menuBar );
@@ -495,11 +527,6 @@ Browser.prototype.initView = function() {
             this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
         }
 
-        if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview )
-            menuBar.appendChild( this.makeShareLink() );
-        else
-            menuBar.appendChild( this.makeFullViewLink() );
-
         if( this.config.show_nav ) {
             // make the help menu
             this.addGlobalMenuItem( 'help',
@@ -525,6 +552,12 @@ Browser.prototype.initView = function() {
 
             this.renderGlobalMenu( 'help', {}, menuBar );
         }
+
+        if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview )
+            menuBar.appendChild( this.makeShareLink() );
+        else
+            menuBar.appendChild( this.makeFullViewLink() );
+
 
         this.viewElem = document.createElement("div");
         this.viewElem.className = "dragWindow";
@@ -631,7 +664,7 @@ Browser.prototype.browserMeta = function() {
         about.description = '<div class="default_about">'
             + '  <img class="logo" src="img/JBrowseLogo_small.png">'
             + '  <h1>JBrowse '+verstring+'</h1>'
-            + '  <div class="tagline">A modern JavaScript genome browser.</div>'
+            + '  <div class="tagline">A next-generation genome browser<br> built with JavaScript and HTML5.</div>'
             + '  <a class="mainsite" target="_blank" href="http://jbrowse.org">JBrowse website</a>'
             + '  <div class="gmod">JBrowse is a <a target="_blank" href="http://gmod.org">GMOD</a> project.</div>'
             + '  <div class="copyright">&copy; 2013 The Evolutionary Software Foundation</div>'
@@ -686,7 +719,7 @@ Browser.prototype.getTrackTypes = function() {
                 'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/HTMLFeatures',
                 'JBrowse/Store/SeqFeature/BigWig'     : 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence',
-                'JBrowse/Store/SeqFeature/VCFTabix'   : 'JBrowse/View/Track/HTMLFeatures'
+                'JBrowse/Store/SeqFeature/VCFTabix'   : 'JBrowse/View/Track/HTMLVariants'
             },
 
             knownTrackTypes: [
@@ -933,7 +966,7 @@ Browser.prototype.getStore = function( storeName, callback ) {
 
     var conf = this.config.stores[storeName];
     if( ! conf ) {
-        console.error( "store "+storeName+" not defined" );
+        console.warn( "store '"+storeName+"' not found" );
         callback( null );
         return;
     }
@@ -958,6 +991,9 @@ Browser.prototype.getStore = function( storeName, callback ) {
                  var store = new storeClass( storeArgs );
                  this._storeCache[ storeName ] = { refCount: 1, store: store };
                  callback( store );
+                 // release the callback because apparently require
+                 // doesn't release this function
+                 callback = undefined;
              }));
 };
 
@@ -1121,7 +1157,7 @@ Browser.prototype._milestoneFunction = function( /**String*/ name, func ) {
     try {
         func.apply( thisB, args ) ;
     } catch(e) {
-        console.error(''+e, e.stack);
+        console.error( e, e.stack );
         d.resolve({ success:false, error: e });
     }
 
@@ -1607,55 +1643,64 @@ Browser.prototype.navigateToLocation = function( location ) {
 Browser.prototype.searchNames = function( /**String*/ loc ) {
     var thisB = this;
     this.nameStore.query({ name: loc })
-        .then( function( nameMatches ) {
+        .then(
+            function( nameMatches ) {
+                // if we have no matches, pop up a dialog saying so, and
+                // do nothing more
+                if( ! nameMatches.length ) {
+                    new InfoDialog(
+                        {
+                            title: 'Not found',
+                            content: 'Not found: <span class="locString">'+loc+'</span>',
+                            className: 'notfound-dialog'
+                        }).show();
+                    return;
+                }
 
-            // if we have no matches, pop up a dialog saying so, and
-            // do nothing more
-            if( ! nameMatches.length ) {
+                var goingTo;
+
+                //first check for exact case match
+                for (var i = 0; i < nameMatches.length; i++) {
+                    if( nameMatches[i].name  == loc )
+                        goingTo = nameMatches[i];
+                }
+                //if no exact case match, try a case-insentitive match
+                if( !goingTo ) {
+                    for( i = 0; i < nameMatches.length; i++ ) {
+                        if( nameMatches[i].name.toLowerCase() == loc.toLowerCase() )
+                            goingTo = nameMatches[i];
+                    }
+                }
+                //else just pick a match
+                if( !goingTo ) goingTo = nameMatches[0];
+
+                // if it has one location, go to it
+                if( goingTo.location ) {
+
+                    //go to location, with some flanking region
+                    thisB.showRegionWithHighlight( goingTo.location );
+                }
+                // otherwise, pop up a dialog with a list of the locations to choose from
+                else if( goingTo.multipleLocations ) {
+                    new LocationChoiceDialog(
+                        {
+                            browser: thisB,
+                            locationChoices: goingTo.multipleLocations,
+                            title: 'Choose '+goingTo.name+' location',
+                            prompt: '"'+goingTo.name+'" is found in multiple locations.  Please choose a location to view.'
+                        })
+                        .show();
+                }
+            },
+            function(e) {
+                console.error( e );
                 new InfoDialog(
                     {
-                        title: 'Not found',
-                        content: 'Not found: <span class="locString">'+loc+'</span>',
-                        className: 'notfound-dialog'
+                        title: 'Error',
+                        content: 'Error reading from name store.'
                     }).show();
                 return;
             }
-
-            var goingTo;
-
-            //first check for exact case match
-            for (var i = 0; i < nameMatches.length; i++) {
-                if( nameMatches[i].name  == loc )
-                    goingTo = nameMatches[i];
-            }
-            //if no exact case match, try a case-insentitive match
-            if( !goingTo ) {
-                for( i = 0; i < nameMatches.length; i++ ) {
-                    if( nameMatches[i].name.toLowerCase() == loc.toLowerCase() )
-                        goingTo = nameMatches[i];
-                }
-            }
-            //else just pick a match
-            if( !goingTo ) goingTo = nameMatches[0];
-
-            // if it has one location, go to it
-            if( goingTo.location ) {
-
-                //go to location, with some flanking region
-                thisB.showRegionWithHighlight( goingTo.location );
-            }
-            // otherwise, pop up a dialog with a list of the locations to choose from
-            else if( goingTo.multipleLocations ) {
-                new LocationChoiceDialog(
-                    {
-                        browser: thisB,
-                        locationChoices: goingTo.multipleLocations,
-                        title: 'Choose '+goingTo.name+' location',
-                        prompt: '"'+goingTo.name+'" is found in multiple locations.  Please choose a location to view.'
-                    })
-                    .show();
-            }
-        }
    );
 };
 
@@ -2359,6 +2404,7 @@ Browser.prototype.showRegionWithHighlight = function( location ) {
 return Browser;
 
 });
+
 
 /*
 

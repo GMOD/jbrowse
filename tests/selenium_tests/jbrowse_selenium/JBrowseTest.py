@@ -43,7 +43,7 @@ class JBrowseTest (object):
 
     def baseURL( self ):
         if not self.base_url:
-            self.base_url = os.environ['JBROWSE_URL'] if 'JBROWSE_URL' in os.environ else "file://"+os.getcwd()+"/index.html"
+            self.base_url = os.environ['JBROWSE_URL'] if 'JBROWSE_URL' in os.environ else "http://localhost/jbrowse/index.html"
         return self.base_url
 
 
@@ -98,7 +98,6 @@ class JBrowseTest (object):
         time.sleep( 0.05 )
         for i in range( len(text) ):
             qbox.send_keys( text[i] )
-            time.sleep( 0.2 )
         qbox.send_keys( Keys.RETURN );
         time.sleep( 0.3 )
 

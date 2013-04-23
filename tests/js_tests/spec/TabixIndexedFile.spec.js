@@ -3,15 +3,17 @@ require({
         },
         [
             'dojo/_base/array',
+            'JBrowse/Browser',
             'JBrowse/Store/TabixIndexedFile',
             'JBrowse/Model/XHRBlob'
-        ],function( array, TabixIndexedFile, XHRBlob ) {
+        ],function( array, Browser, TabixIndexedFile, XHRBlob ) {
 
 describe( "tabix-indexed file", function() {
 
     var f;
     beforeEach( function() {
         f = new TabixIndexedFile({
+                browser: new Browser({ unitTestMode: true }),
                 tbi:  new XHRBlob( '../../sample_data/raw/volvox/volvox.test.vcf.gz.tbi' ),
                 file: new XHRBlob( '../../sample_data/raw/volvox/volvox.test.vcf.gz' )
             });

@@ -1057,67 +1057,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             }
             return this.seqTrack;
         }
-    }, 
-
-    updateStaticElements: function( coords ) {
-        this.inherited( arguments );
-	//        this.updateFeatureArrowPositions( coords );
     },
-
-
-    updateFeatureArrowPositions: function( coords ) {
-	var track = this;
-        if( ! 'x' in coords )
-            return;
-
-	var viewmin = this.gview.minVisible();
-	var viewmax = this.gview.maxVisible();
-
-        dojo.query( '.block', this.div )
-            .forEach( function(block) {
-
-                var blockWidth = block.endBase - block.startBase;
-
-                dojo.query('.feature',block)
-                    .forEach( function(featDiv) {
-                        var feature = featDiv.feature;
-			var fmin = feature.get('start');
-			var fmax = feature.get('end');
-
-			// feature within view bounds, do nothing?  
-			// or probably have to make sure to move back to normal if shifted previously
-			if (fmin > viewmin && fmax < viewmax)  {   }
-			// feature entirely outside view bounds
-			else if (fmax < viewmin || fmin > viewmax)  {   }
-			else { 
-			    var strand = feature.get('strand');	
-			    if (strand > 0) {  // forward strand
-				if (fmin < viewmax && fmax > viewmax)  { 
-				    // extends past visible right, so move arrow leftward so still visible
-				    // calculate percent not showing of feature:
-				    var remainder = ((fmax - viewmax) / (fmax - fmin)) * 100;
-				    var ah = dojo.query(".plus-" + track.config.style.arrowheadClass, featDiv);
-				    ah.style({ "right": remainder + "%", 
-					       "left": null, 
-					       "z-index": 30 });
-				}
-			    }
-			    else if (strand < 0)  { // reverse strand
-				if (fmin < viewmin && fmax > viewmin)  {  
-				    // extends past visible left, so move arrow rightward so still visible
-				    // calculate percent not showing of feature:
-				    var remainder = ((viewmin - fmin) / (fmax - fmin)) * 100;
-				    var ah = dojo.query(".minus-" + track.config.style.arrowheadClass, featDiv);
-				    ah.style({ "left":  remainder + "%", 
-					       "right": null, 
-					       "z-index": 30 } );
-				}
-			    }
-			}
-                    },this);
-            },this);
-    },
-
 
 /*
  *  for the input mouse event, returns genome position under mouse IN 1-BASED INTERBASE COORDINATES

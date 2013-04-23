@@ -65,8 +65,13 @@ var profile = {
             exclude: ['JBrowse']
         },
 
-        'JBrowse/Store/BigWig': {
-            include: [ 'JBrowse/Store/BigWig' ],
+        'JBrowse/Store/SeqFeature/BigWig': {
+            include: [ 'JBrowse/Store/SeqFeature/BigWig' ],
+            exclude: ['JBrowse']
+        },
+
+        'JBrowse/Store/SeqFeature/VCFTabix': {
+            include: [ 'JBrowse/Store/SeqFeature/VCFTabix' ],
             exclude: ['JBrowse']
         },
 

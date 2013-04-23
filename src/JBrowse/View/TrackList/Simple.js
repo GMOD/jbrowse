@@ -158,7 +158,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
                   evt.stopPropagation();
               })
             },
-            dom.create('div',{ style: { overflow: 'show'} },this.textFilterDiv)
+            dom.create('div',{ style: 'overflow: show;' }, this.textFilterDiv )
         );
 
         // make a "clear" button for the text filtering input

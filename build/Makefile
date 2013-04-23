@@ -15,13 +15,13 @@ ZIP=zip -q --symlinks -r
 all: docs bin/wig2png
 
 release: release-normal release-min release-normal-test release-min-test release-notes.html
+	sha1sum *.zip
 
 release-notes.html: release-notes.txt
 	markdown release-notes.txt > $@
 
 release-normal: superclean $(JS_SRCFILES)
-	mkdir $(RELEASE_FULL_DIR);
-	-cp -r * $(RELEASE_FULL_DIR);
+	mkdir $(RELEASE_FULL_DIR);  cp -r `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
 	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/build;
 
         # version-stamp Browser.js
@@ -43,28 +43,31 @@ release-normal-test: release-normal
 
 release-min: release-normal
 	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
-	for P in src docs/jsdoc tests tests_extended sample_data build; do \
+	for P in src docs/jsdoc tests tests_extended build; do \
 	    rm -rf $(RELEASE_MIN_DIR)$$P; \
 	done;
-	for P in 	src/wig2png \
+	for P in 	src/wig2png/ \
 			src/dojo/dojo.js \
 			`find src/ -name nls -and -type d -and -not -wholename '*_editor/*' -and -not -wholename '*/tests/*'` \
-			src/dojo/resources \
-			src/dojox/grid \
+			src/dojo/resources/ \
+			src/dojox/grid/ \
 			src/dojox/gfx/vml.js \
-			src/dojox/form/resources \
+			src/dojox/form/resources/ \
 			src/dojox/gfx/vml_attach.js \
-			src/dijit/themes/tundra \
-			src/dijit/form/templates \
-			src/dijit/icons \
-			src/dijit/templates \
-			src/JBrowse \
+			src/dijit/themes/tundra/ \
+			src/dijit/form/templates/ \
+			src/dijit/icons/ \
+			src/dijit/templates/ \
+			src/JBrowse/ \
 			src/perl5 \
-			sample_data/test_snippet.html \
 			src/dgrid/css \
 	; do \
 	    mkdir -p `dirname $(RELEASE_MIN_DIR)$$P`; \
-	    cp -r $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
+	    if [ -d $$P ]; then \
+		    cp -r $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)`dirname $$P`; \
+	    else \
+		    cp -r $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
+	    fi;\
 	done
 	$(ZIP) $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 

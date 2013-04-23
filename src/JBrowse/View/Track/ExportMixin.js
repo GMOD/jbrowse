@@ -2,7 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/array',
             'dojo/aspect',
-            'dojo/has',
+            'JBrowse/has',
             'dojo/window',
             'dojo/dom-construct',
             'JBrowse/Util',

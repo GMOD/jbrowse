@@ -169,9 +169,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     },
 
     /**
-* Returns a promise for the appropriate glyph for the given
-* feature and args.
-*/
+     * Returns a promise for the appropriate glyph for the given
+     * feature and args.
+     */
     getGlyph: function( viewArgs, feature, callback, errorCallback ) {
         var glyphClassName = this.getConfForFeature( 'glyph', feature );
         var glyph, interestedParties;

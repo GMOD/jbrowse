@@ -18,7 +18,7 @@ define([
 return declare( null, {
 
     constructor: function( args ) {
-        this.index = new TabixIndex( new BGZBlob( args.tbi ) );
+        this.index = new TabixIndex({ blob: new BGZBlob( args.tbi ), browser: args.browser } );
         this.data  = new BGZBlob( args.file );
         this.indexLoaded = this.index.load();
     },
@@ -115,6 +115,9 @@ return declare( null, {
             } catch( e ) {
                 callback( null, e );
             }
+        },
+        function(e) {
+            callback( null, e );
         });
     },
 

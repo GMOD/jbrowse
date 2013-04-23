@@ -122,7 +122,9 @@ return declare( [BlockBasedTrack,ExportMixin], {
                     block.pixelScores = this._calculatePixelScores( this._canvasWidth(block), features, featureRects );
 
                     finishCallback();
-                }));
+                }),
+                dojo.hitch( this, 'fillBlockError', blockIndex, block )
+            );
     },
 
     // render the actual graph display for the block. should be called only after a scaling
@@ -255,11 +257,11 @@ return declare( [BlockBasedTrack,ExportMixin], {
     },
 
     /**
-* Calculate the left and width, in pixels, of where this feature
-* will be drawn on the canvas.
-* @private
-* @returns {Object} with l, r, and w
-*/
+    * Calculate the left and width, in pixels, of where this feature
+    * will be drawn on the canvas.
+    * @private
+    * @returns {Object} with l, r, and w
+    */
     _featureRect: function( scale, leftBase, canvasWidth, feature ) {
         var fRect = {
             w: Math.ceil(( feature.get('end') - feature.get('start') ) * scale ),
@@ -286,9 +288,9 @@ return declare( [BlockBasedTrack,ExportMixin], {
     },
 
     /**
-* Draw a set of features on the canvas.
-* @private
-*/
+    * Draw a set of features on the canvas.
+    * @private
+    */
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, features, featureRects ) {
     },
 
@@ -306,7 +308,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
             for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
                 if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
                     /* Note: if the feature is from a different store, the condition should fail,
-* and we will add to the value, rather than adjusting for overlap */
+                    * and we will add to the value, rather than adjusting for overlap */
                     pixelValues[j]['score'] = Math.max( pixelValues[j]['score'], score );
                 }
                 else if ( pixelValues[j] ) {
@@ -328,7 +330,6 @@ return declare( [BlockBasedTrack,ExportMixin], {
     },
 
     _makeScoreDisplay: function( scale, leftBase, rightBase, block, canvas, features, featureRects, pixels ) {
-
         var pixelValues = pixels;
 
         // make elements and events to display it
@@ -387,9 +388,8 @@ return declare( [BlockBasedTrack,ExportMixin], {
     },
 
     _showPixelValue: function( scoreDisplay, score ) {
-        if (!score)
-            return false // score may not be defined
-        if( typeof score == 'number' ) {
+        var scoreType = typeof score;
+        if( scoreType == 'number' ) {
             // display the score with only 6
             // significant digits, avoiding
             // most confusion about the
@@ -399,7 +399,11 @@ return declare( [BlockBasedTrack,ExportMixin], {
             scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
             return true;
         }
-        if( score['score'] && typeof score['score'] == 'number' ) {
+        else if( scoreType == 'string' ) {
+            scoreDisplay.innerHTML = score;
+            return true;
+        }
+        else if( score['score'] && typeof score['score'] == 'number' ) {
             // "score" may be an object.
             scoreDisplay.innerHTML = parseFloat( score['score'].toPrecision(6) );
             return true;

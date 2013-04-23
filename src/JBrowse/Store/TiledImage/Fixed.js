@@ -25,11 +25,7 @@ return declare( [ Store, DeferredStatsMixin ],
 
         this.baseUrl = args.baseUrl;
 
-        this.url = Util.resolveUrl(
-            this.baseUrl,
-            Util.fillTemplate( args.urlTemplate,
-                               {'refseq': this.refSeq.name } )
-        );
+        this.url = this.resolveUrl( args.urlTemplate );
 
         this._deferred.images = new Deferred();
 

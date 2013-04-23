@@ -41,12 +41,10 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     },
 
     _load: function() {
-        var url = Util.resolveUrl(
-                       this.baseUrl,
-                       Util.fillTemplate( this.urlTemplates.tracklist,
-                                          {'refseq': this.refSeq.name}
-                                        )
-                   );
+        var url = this.resolveUrl(
+            this.urlTemplates.tracklist
+        );
+
         // fetch the trackdata
         dojo.xhrGet({ url: url,
                       handleAs: "json",

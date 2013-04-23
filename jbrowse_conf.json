@@ -21,12 +21,12 @@
 
     // plugins: [ 'MyPlugin', 'MyOtherPlugin' ],
 
+    // uncomment to change the default sort order of the reference sequence dropdown
+    // refSeqOrder: 'length descending',
+
     datasets: {
         volvox:    { url: '?data=sample_data/json/volvox', name: 'Volvox Example' },
         modencode: { url: '?data=sample_data/json/modencode', name: 'MODEncode Example' },
-        yeast:     { url: '?data=sample_data/json/yeast',     name: 'Yeast Example' },
-    },
-
-    // uncomment to change the default sort order of the reference sequence dropdown
-    // refSeqOrder: 'length descending'
+        yeast:     { url: '?data=sample_data/json/yeast',     name: 'Yeast Example' }
+    }
 }
