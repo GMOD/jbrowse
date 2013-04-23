@@ -29,6 +29,14 @@ return declare( null, {
         this.storeNames = args.storeNames.display;
         this.regionStore = new regionClusteringStore({ storeNames: args.storeNames.regions, browser: args.browser });
         this.store = new regionClusteringStore({ storeNames: args.storeNames.display, browser: args.browser });
+        this.tracksPerStore = {};
+        for ( var key in args.trackNames ) {
+            if (args.trackNames.hasOwnProperty(key)) {
+                this.tracksPerStore[args.trackNames[key][0]] = this.tracksPerStore[args.trackNames[key][0]]
+                    ? this.tracksPerStore[args.trackNames[key][0]]+', '+args.trackNames[key][1]
+                    : args.trackNames[key][1];
+            }
+        }
     },
 
     show: function(callback) {
@@ -46,6 +54,23 @@ return declare( null, {
 
             // DoneCallback
             dojo.hitch(this, function() {
+                var tablexplanationDiv = dom.create( 'div', 
+                    { innerHTML: 'The rows in the table below show which tracks are \
+                                  represented by each row of a given heatmap. Note: \
+                                  multiple tracks can represent the same data, so \
+                                  some rows may correspond to more than one track.' }
+                );
+                var tracksTable = document.createElement('table');
+                tracksTable.className = 'tracks-per-row';
+                var i = 0;
+                for (var key in this.tracksPerStore) {
+                    if (this.tracksPerStore.hasOwnProperty(key)) {
+                        var row = tracksTable.insertRow(i);
+                        var cell = row.insertCell(0);
+                        cell.innerHTML = this.tracksPerStore[key];
+                        i++;
+                    }
+                }
                 // once the query regions have been built, execute the following.
                 var explanationDiv = dom.create( 'div', 
                     { innerHTML: 'The heatmaps below correspond to the agerage of each cluster. \
@@ -63,7 +88,10 @@ return declare( null, {
                     this.heatmaps = heatmaps;
                     var d = this.getStoreStats();
                     d.then(dojo.hitch(this, function(){
-                        var overlay = new Overlay().addTitle('Clustered heatmaps').addToDisplay(explanationDiv);
+                        var overlay = new Overlay().addTitle('Clustered heatmaps')
+                                                    .addToDisplay(tablexplanationDiv)
+                                                    .addToDisplay(tracksTable)
+                                                    .addToDisplay(explanationDiv);
                         var means = this.performKmeans(heatmaps);
                         for ( var key in means ) {
                             if (means.hasOwnProperty(key)) {
