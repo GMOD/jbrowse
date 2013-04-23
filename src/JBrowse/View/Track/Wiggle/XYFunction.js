@@ -121,7 +121,14 @@ var XYFunction = declare( XYPlot, {
         var currentHeight = 0
         context.strokeStyle = color;
         dojo.forEach( pixels, function(p,i) {
-            var score = pixelKey ? toY(p[pixelKey]) : toY(p) ; // in general, the pixel array may contain a score, or an array of scores
+            // in general, the pixel array may contain a score, or an array of scores
+            var score = pixelKey ? toY(p[pixelKey]) : toY(p) ; 
+            // adjust to draw scores out of frame.
+            if ( score < 0 )
+                score = 0;
+            if ( score > canvasHeight )
+                score = canvasHeight;
+
             if ( !score && score != 0 ) {
                 if (lastPointHadValue.length) {
                     context.fillStyle = color;
