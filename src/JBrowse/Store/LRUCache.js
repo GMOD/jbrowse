@@ -30,7 +30,7 @@ return declare( null,
 
         this.verbose = args.verbose;
 
-        this.name = args.name || 'cache';
+        this.name = args.name || 'LRUcache';
 
         this._size = args.sizeFunction || this._size;
         this._keyString = args.keyFunction || this._keyString;
@@ -126,8 +126,12 @@ return declare( null,
 
     _attemptFill: function( inKey, keyString, callback ) {
         if( this.fill ) {
-            var fillRecord = this._inProgressFills[ keyString ] || { callbacks: [], running: false };
+
+            var fillRecord = this._inProgressFills[ keyString ] =
+                this._inProgressFills[ keyString ] || { callbacks: [], running: false };
+
             fillRecord.callbacks.push( callback );
+
             if( ! fillRecord.running ) {
                 fillRecord.running = true;
                 this.fill( inKey, dojo.hitch( this, function( keyString, inKey, fillRecord, value, error ) {
@@ -147,7 +151,6 @@ return declare( null,
                                    }, this );
                 }, keyString, inKey, fillRecord ));
             }
-            this._inProgressFills[ keyString ] = fillRecord;
         }
         else {
             try {
