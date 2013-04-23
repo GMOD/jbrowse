@@ -86,7 +86,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             maxFeatureGlyphExpansion: 500,
 
             // maximum height of the track, in pixels
-            maxHeight: 1000,
+            maxHeight: 600,
 
             style: {
 
