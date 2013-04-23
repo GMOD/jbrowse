@@ -396,14 +396,18 @@ return declare( [Component,DetailsMixin,Destroyable],
     },
 
     // generic handler for all types of errors
-    _handleError: function( error ) {
+    _handleError: function( error, viewArgs ) {
         console.error( ''+error, error.stack, error );
+
+        var errorContext = dojo.mixin( {}, error );
+        dojo.mixin( errorContext, viewArgs );
+
         var isObject = typeof error == 'object';
 
-        if( isObject && error instanceof Errors.TrackBlockTimeout )
-            this.fillBlockTimeout( error.blockIndex, error.block, error );
-        else if( isObject && error instanceof Errors.TrackBlockError )
-            this.fillBlockError( error.blockIndex, error.block, error );
+        if( isObject && error instanceof Errors.TimeOut && errorContext.block )
+            this.fillBlockTimeout( errorContext.blockIndex, errorContext.block, error );
+        else if( isObject && error instanceof Errors.DataOverflow && errorContext.block )
+            this.fillTooManyFeaturesMessage( errorContext.blockIndex, errorContext.block, error );
         else {
             this.fatalError = error;
             this.showFatalError( error );

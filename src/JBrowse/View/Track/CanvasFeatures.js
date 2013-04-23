@@ -149,7 +149,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         this.store.getGlobalStats(
             fill,
             dojo.hitch( this, function(e) {
-                            this._handleError(e);
+                            this._handleError( e, args );
                             args.finishCallback(e);
                         })
         );
@@ -224,10 +224,10 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         // store (not necessarily laid out yet)
         var allFeaturesRead = false;
 
-        var errorCallback = dojo.hitch( thisB, function(e) {
-                                            this._handleError(e);
-                                            finishCallback(e);
-                                        });
+        var errorCallback = dojo.hitch( thisB, function( e ) {
+            this._handleError( e, args );
+            finishCallback(e);
+        });
 
         var layout = this._getLayout( scale );
 
@@ -243,13 +243,12 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                        end: rightBase + bpExpansion
                      };
         this.store.getFeatures( region,
-
                                 function( feature ) {
                                     if( thisB.destroyed )
                                         return;
 
                                     if( timedOut )
-                                        throw new Errors.TrackBlockTimeout({
+                                        throw new Errors.TimeOut({
                                             track: thisB,
                                             blockIndex: blockIndex,
                                             block: block

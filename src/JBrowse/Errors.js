@@ -12,36 +12,42 @@ define( [
 
 var Base = declare( Error, {
     constructor: function( args ) {
-        dojo.mixin( this, args );
+        if( typeof args == 'object' ) {
+            if( args instanceof Error ) {
+                this._originalError = args;
+                this.message = ''+args;
+                this.stack = args.stack;
+            }
+            else
+                dojo.mixin( this, args );
+        } else if( typeof args == 'string' )
+            this.message = args;
+
+        if( ! this.message )
+            this.message = this._defaultMessage;
     }
 });
 
 var Errors = {};
 
-/**
- *  Generic Error regarding a track.  Needs a `track` in the constructor.
- */
-Errors.TrackError = declare( Base, {
-    toString: function() {
-	return 'Error displaying '+this.track.name+' track' + this.message ? ' '+this.message : '.';
-    }
+Errors.Fatal = declare( Base, {
+    _defaultMessage: 'Unknown fatal error.'
 });
 
 /**
- * Error regarding a specific block in a track.
- * Needs `track`, `block`, `blockIndex`.
+ * Took too long to handle data.
  */
-Errors.TrackBlockError = declare( Errors.TrackError, {} );
+Errors.TimeOut = declare( Base, {
+    _defaultMessage: 'Data took too long to fetch.'
+});
 
 /**
- * Timed out when trying to display a certain block in a track.
- * Needs `track`, `block`, `blockIndex`.
+ * Too much data to handle.
  */
-Errors.TrackBlockTimeout = declare( Errors.TrackBlockError, {
-        constructor: function( args ) {
-            this.message = args.message || 'Timed out';
-        }
+Errors.DataOverflow = declare( Base, {
+    _defaultMessage: 'Too much data to show.'
 });
+
 
 return Errors;
 });
