@@ -1,7 +1,9 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'JBrowse/Util',
            'JBrowse/Store/LRUCache',
+           'JBrowse/Errors',
            'JBrowse/Model/XHRBlob',
            'JBrowse/Model/BGZip/BGZBlob',
            'JBrowse/Model/TabixIndex'
@@ -9,7 +11,9 @@ define([
        function(
            declare,
            array,
+           Util,
            LRUCache,
+           Errors,
            XHRBlob,
            BGZBlob,
            TabixIndex
@@ -22,6 +26,8 @@ return declare( null, {
         this.index = new TabixIndex({ blob: new BGZBlob( args.tbi ), browser: args.browser } );
         this.data  = new BGZBlob( args.file );
         this.indexLoaded = this.index.load();
+
+        this.chunkSizeLimit = args.chunkSizeLimit || 15000000;
     },
 
     getLines: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
@@ -45,6 +51,16 @@ return declare( null, {
         chunks.toString = chunks.toUniqueString = function() {
             return this.join(', ');
         };
+
+        // check the chunks for any that are over the size limit.  if
+        // any are, don't fetch any of them
+        for( var i = 0; i<chunks.length; i++ ) {
+            var size = chunks[i].fetchedSize();
+            if( size > this.chunkSizeLimit ) {
+                errorCallback( new Errors.DataOverflow('Too much data. Chunk size '+Util.commifyNumber(size)+' bytes exceeds chunkSizeLimit of '+Util.commifyNumber(this.chunkSizeLimit)+'.' ) );
+                return;
+            }
+        }
 
         var fetchError;
         try {

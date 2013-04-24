@@ -28,9 +28,7 @@ var Chunk = Util.fastDeclare({
         return this.toUniqueString();
     },
     fetchedSize: function() {
-        var fetchMin = this.minv.block;
-        var fetchMax = this.maxv.block + (1<<16);
-        return fetchMax - fetchMin + 1;
+        return this.maxv.block + (1<<16) - this.minv.block + 1;
     }
 });
 
@@ -356,6 +354,8 @@ var BamFile = declare( null,
             maxSize: 100000 // cache up to 100,000 BAM features
         });
 
+        // check the chunks for any that are over the size limit.  if
+        // any are, don't fetch any of them
         for( var i = 0; i<chunks.length; i++ ) {
             var size = chunks[i].fetchedSize();
             if( size > this.chunkSizeLimit ) {

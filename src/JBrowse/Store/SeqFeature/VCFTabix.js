@@ -55,7 +55,13 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 this.resolveUrl( this.getConf('urlTemplate',[]) )
             );
 
-        this.indexedData = new VCFIndexedFile({ tbi: tbiBlob, file: fileBlob, browser: this.browser });
+        this.indexedData = new VCFIndexedFile(
+            {
+                tbi: tbiBlob,
+                file: fileBlob,
+                browser: this.browser,
+                chunkSizeLimit: args.chunkSizeLimit
+            });
 
         this._loadHeader().then( function() {
             thisB._estimateGlobalStats( function( stats, error ) {

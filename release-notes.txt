@@ -39,13 +39,14 @@
  * Significant speed and memory optimizations in BAM data backend
    (issue #242).
 
- * Added support for a `chunkSizeLimit` configuration variable for
-   BAM-based tracks, which defaults to 5MB.  When fetching BAM data,
-   if a given region requires fetching a chunk of a BAM file that is
-   larger than this limit, a 'Too much data' message is displayed.
-   This helps prevent speed and memory problems when displaying
-   deep-coverage BAM tracks (issue #242).  Thanks to Gustavo Cerquiera
-   (GitHub user cerca11) for pushing for progress on this.
+ * Added support for a `chunkSizeLimit` configuration variable for BAM
+   and VCF-based tracks, which defaults to 5MB for BAM and 15MB for
+   VCF.  When fetching data, if a given region requires fetching a
+   file chunk that is larger than this limit, a 'Too much data'
+   message is displayed.  This helps prevent speed and memory problems
+   when displaying deep-coverage BAM tracks and large VCF tracks
+   (issue #242).  Thanks to Gustavo Cerquiera (GitHub user cerca11)
+   for pushing for progress on this.
 
  * Fixed a regression in which callbacks and interpolations were not
    evaluated in left-click and right-click menu configurations.

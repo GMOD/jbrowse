@@ -35,6 +35,9 @@ var Chunk = Util.fastDeclare({
     },
     compare: function( b ) {
         return this.compareTo( b );
+    },
+    fetchedSize: function() {
+        return this.maxv.block + (1<<16) - this.minv.block + 1;
     }
 });
 
