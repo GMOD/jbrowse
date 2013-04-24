@@ -20,6 +20,10 @@ Util = {
 	return x1 + x2;
     },
 
+    commifyNumber: function() {
+        return this.addCommas.apply( this, arguments );
+    },
+
 
     /**
      * Fast, simple class-maker, used for classes that need speed more
