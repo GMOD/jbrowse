@@ -1308,28 +1308,33 @@ Browser.prototype.addRefseqs = function( refSeqs ) {
     var refCookie = this.cookie('refseq');
     dojo.forEach( refSeqs, function(r) {
         this.allRefs[r.name] = r;
-        if( refCookie && r.name.toLowerCase() == refCookie.toLowerCase() ) {
+        if( ! this.refSeq && refCookie && r.name.toLowerCase() == refCookie.toLowerCase() ) {
             this.refSeq = r;
         }
     },this);
 
-    // regenerate refSeqOrder
-    var order = [];
-    for( var name in allrefs ) {
-        var ref = allrefs[name];
-        order.push( ref );
-    }
-    order = order.sort(
-        this.config.refSeqOrder == 'length'            ? function( a, b ) { return a.length - b.length;  }  :
-        this.config.refSeqOrder == 'length descending' ? function( a, b ) { return b.length - a.length;  }  :
-        this.config.refSeqOrder == 'name descending'   ? function( a, b ) { return b.name.localeCompare( a.name ); } :
-                                                         function( a, b ) { return a.name.localeCompare( b.name ); }
-    );
-    this.refSeqOrder = array.map( order, function( ref ) {
-        return ref.name;
-    });
+    // generate refSeqOrder
+    this.refSeqOrder =
+        function() {
+            var order;
+            if( ! this.config.refSeqOrder ) {
+                order = refSeqs;
+            }
+            else {
+                order = refSeqs.slice(0);
+                order.sort(
+                    this.config.refSeqOrder == 'length'            ? function( a, b ) { return a.length - b.length;  }  :
+                    this.config.refSeqOrder == 'length descending' ? function( a, b ) { return b.length - a.length;  }  :
+                    this.config.refSeqOrder == 'name descending'   ? function( a, b ) { return b.name.localeCompare( a.name ); } :
+                                                                     function( a, b ) { return a.name.localeCompare( b.name ); }
+                );
+            }
+            return array.map( order, function( r ) {
+                                  return r.name;
+                              });
+        }.call(this);
 
-    this.refSeq  = this.refSeq || order[0];
+    this.refSeq = this.refSeq || order[0];
 };
 
 
