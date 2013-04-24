@@ -1150,6 +1150,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         delete this.layout;
     },
 
+    clear: function() {
+        delete this.layout;
+        this.inherited( arguments );
+    },
+
     /**
      *   indicates a change to this track has happened that may require a re-layout
      *   clearing layout here, and relying on superclass BlockBased.changed() call and
