@@ -272,6 +272,7 @@ div.block.height_overflow .height_overflow_message {
     width: 100%;
     font-weight: bold;
     text-align: center;
+    z-index: 2000;
 
     box-sizing: border-box;
     -moz-box-sizing: border-box;

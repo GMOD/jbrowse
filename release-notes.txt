@@ -45,7 +45,10 @@
    tracks.  Thanks to GitHub user drusch for pointing this out
    (issue #244).
 
- * Fixed more more minor errors when running under IE 7.
+ * Fixed more minor errors when running under IE 7.
+
+ * Fixed "Max height reached" message sometimes being drawn under
+   instead of over HTML-based features.
 
 1.9.0     2013-04-16 18:59:19 EST5EDT
 
