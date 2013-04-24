@@ -195,6 +195,16 @@ div.vertical_scrollbar .vertical_position_marker {
     cursor: default;
 }
 
+div.locationTrapContainer {
+    position: absolute;
+    z-index: -11;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    background-color: white;
+}
+
 div.locationTrap {
     position: absolute;
     z-index: -10;

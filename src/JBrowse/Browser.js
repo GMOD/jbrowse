@@ -2017,7 +2017,10 @@ Browser.prototype.createNavBox = function( parent ) {
 
     var navbox = dojo.create( 'div', { id: 'navbox', style: { 'text-align': 'center' } }, parent );
 
-    this.locationTrap = dojo.create('div', {className: 'locationTrap'}, navbox );
+    // container adds a white backdrop to the locationTrap.
+    var locationTrapContainer = dojo.create('div', {className: 'locationTrapContainer'}, navbox );
+
+    this.locationTrap = dojo.create('div', {className: 'locationTrap'}, locationTrapContainer );
 
     var four_nbsp = String.fromCharCode(160); four_nbsp = four_nbsp + four_nbsp + four_nbsp + four_nbsp;
     navbox.appendChild(document.createTextNode( four_nbsp ));
