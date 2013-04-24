@@ -323,6 +323,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
                     zIndex: 15
                 }
         }, block.domNode );
+        var hideTimeout;
         dojo.forEach( [canvas,verticalLine,scoreDisplay], function(element) {
             this.own( on( element, 'mousemove', dojo.hitch(this,function(evt) {
                     var cPos = dojo.position(canvas);
@@ -342,20 +343,12 @@ return declare( [BlockBasedTrack,ExportMixin], {
             })));
         },this);
         this.own( on( block.domNode, 'mouseout', function(evt) {
-                var target = evt.srcElement || evt.target;
-                var evtParent = evt.relatedTarget || evt.toElement;
-                if( !target || !evtParent || target.parentNode != evtParent.parentNode) {
-                    scoreDisplay.style.display = 'none';
-                    verticalLine.style.display = 'none';
-                }
-        }));
-        this.own( on(this.browser.view.trackContainer, 'mousemove', function(evt) {
-                var cPos = dojo.position(canvas);
-                var y = evt.pageY - cPos.y;
-                if ( y < 0 || y > cPos.Height) {
-                    scoreDisplay.style.display = 'none';
-                    verticalLine.style.display = 'none';
-                }
+                          if( hideTimeout )
+                              window.clearTimeout( hideTimeout );
+                          hideTimeout = window.setTimeout( function() {
+                                                 scoreDisplay.style.display = 'none';
+                                                 verticalLine.style.display = 'none';
+                                             }, 50 );
         }));
     },
 
