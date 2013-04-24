@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+ * Removed support for track `blockDisplayTimeout` configuration
+   variable.  It never worked very well, and the problem it was meant
+   to address (delays caused by large data) are better mitigated by
+   `maxHeight` and the faster rendering offered by canvas-based track
+   types.
+
  * Fixed a bug that prevented displaying some VCF files.  Thanks to
    Steffi Geisen for pointing this out.
 

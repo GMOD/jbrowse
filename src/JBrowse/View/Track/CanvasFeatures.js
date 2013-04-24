@@ -210,10 +210,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         var rightBase = args.rightBase;
         var finishCallback = args.finishCallback;
 
-        var timedOut = false;
-        if( this.config.blockDisplayTimeout )
-            window.setTimeout( function() { timedOut = true; }, this.config.blockDisplayTimeout );
-
         var fRects = [];
 
         // count of how many features are queued up to be laid out
@@ -246,13 +242,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                 function( feature ) {
                                     if( thisB.destroyed )
                                         return;
-
-                                    if( timedOut )
-                                        throw new Errors.TimeOut({
-                                            track: thisB,
-                                            blockIndex: blockIndex,
-                                            block: block
-                                        });
 
                                     fRects.push( null ); // put a placeholder in the fRects array
                                     featuresInProgress++;

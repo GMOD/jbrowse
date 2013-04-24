@@ -83,7 +83,6 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     _defaultConfig: function() {
         return {
             maxFeatureScreenDensity: 0.5,
-            blockDisplayTimeout: 20000,
 
             // maximum height of the track, in pixels
             maxHeight: 1000,
@@ -598,19 +597,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         var curTrack = this;
 
-        var timedOut = false;
-        var timeOutError = { toString: function() { return 'Timed out trying to display '+curTrack.name+' block '+blockIndex; } };
-        var timeout;
-        if( this.config.blockDisplayTimeout )
-            timeout = window.setTimeout( function() {
-                timedOut = true;
-                curTrack.fillBlockTimeout( blockIndex, block );
-            }, this.config.blockDisplayTimeout );
-
         var featCallback = dojo.hitch(this,function( feature ) {
-            if( timedOut )
-                return;
-
             var uniqueId = feature.id();
             if( ! this._featureIsRendered( uniqueId ) ) {
                 /* feature render, adding to block, centering refactored into addFeatureToBlock() */
@@ -625,20 +612,13 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 },
                                 featCallback,
                                 function () {
-                                    if( timeout )
-                                        window.clearTimeout( timeout );
-
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
                                     finishCallback();
                                 },
                                 function( error ) {
-                                    if( error === timeOutError ) {
-                                        curTrack.fillBlockTimeout( blockIndex, block, error );
-                                    } else {
-                                        console.error( error, error.stack );
-                                        curTrack.fillBlockError( blockIndex, block, error );
-                                    }
+                                    console.error( error, error.stack );
+                                    curTrack.fillBlockError( blockIndex, block, error );
                                     finishCallback();
                                 }
                               );
