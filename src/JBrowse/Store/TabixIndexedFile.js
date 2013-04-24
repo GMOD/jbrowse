@@ -195,12 +195,15 @@ return declare( null, {
     _newlineCode: "\n".charCodeAt(0),
 
     _getline: function( parseState ) {
-        var newlineIndex = array.indexOf( parseState.data, this._newlineCode, parseState.offset );
+        var data = parseState.data;
+        var newlineIndex = array.indexOf( data, this._newlineCode, parseState.offset );
 
         if( newlineIndex == -1 ) // no more lines
             return null;
 
-        var line = String.fromCharCode.apply( String, Array.prototype.slice.call( parseState.data, parseState.offset, newlineIndex ));
+        var line = '';
+        for( var i = parseState.offset; i < newlineIndex; i++ )
+            line += String.fromCharCode( data[i] );
         parseState.offset = newlineIndex+1;
         return line;
     }
