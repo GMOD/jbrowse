@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Fixed a bug that prevented displaying some VCF files.  Thanks to
+   Steffi Geisen for pointing this out.
+
  * Reduced the default value of `maxHeight` for canvas-based feature
    tracks (like Alignments2) from 1000 to 600.
 
