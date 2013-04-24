@@ -33,8 +33,6 @@ return declare( null, {
     },
 
     _fetch: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
-        var regRef = this.browser.regularizeReferenceName( ref );
-
         errorCallback = errorCallback || function(e) { console.error(e, e.stack); };
 
         var chunks = this.index.blocksForRange( ref, min, max);
@@ -50,32 +48,25 @@ return declare( null, {
 
         var fetchError;
         try {
-            this._fetchChunkData( chunks, function( items, error ) {
-                if( fetchError )
-                    return;
-
-                if( error ) {
-                    errorCallback( error );
-                } else {
-                    array.forEach( items, function(item) {
-                        if( !( item.end < min || item.start > max )
-                            && ( ref === undefined || item._regularizedRef == regRef ) ) {
-                                itemCallback( item );
-                            }
-                    });
-                    finishCallback();
-                }
-            });
+            this._fetchChunkData(
+                chunks,
+                ref,
+                min,
+                max,
+                itemCallback,
+                finishCallback,
+                errorCallback
+            );
         } catch( e ) {
             errorCallback( e );
         }
     },
 
-    _fetchChunkData: function( chunks, callback ) {
+    _fetchChunkData: function( chunks, ref, min, max, itemCallback, endCallback, errorCallback ) {
         var thisB = this;
 
         if( ! chunks.length ) {
-            callback([]);
+            endCallback();
             return;
         }
 
@@ -91,13 +82,30 @@ return declare( null, {
             maxSize: 100000 // cache up to 100,000 items
         });
 
-        var error;
+        var regRef = this.browser.regularizeReferenceName( ref );
+
+        var haveError;
         array.forEach( chunks, function( c ) {
             cache.get( c, function( chunkItems, e ) {
-                error = error || e;
-                allItems.push.apply( allItems, chunkItems );
-                if( ++chunksProcessed == chunks.length )
-                    callback( allItems, error );
+                if( e && !haveError )
+                    errorCallback( e );
+                if(( haveError = haveError || e )) {
+                    return;
+                }
+
+                for( var i = 0; i< chunkItems.length; i++ ) {
+                    var item = chunkItems[i];
+                    if( item._regularizedRef == regRef ) {
+                        // on the right ref seq
+                        if( item.start > max ) // past end of range, can stop iterating
+                            break;
+                        else if( item.end >= min ) // must be in range
+                            itemCallback( item );
+                    }
+                }
+                if( ++chunksProcessed == chunks.length ) {
+                    endCallback();
+                }
             });
         });
     },
