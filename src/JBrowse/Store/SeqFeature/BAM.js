@@ -81,7 +81,9 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
                                          this._deferred.features.resolve({success:true});
                                      }
 
-                                 })),
+                                 }),
+                                 dojo.hitch( this, '_failAllDeferred' )
+                               ),
             failure: dojo.hitch( this, '_failAllDeferred' )
         });
     },

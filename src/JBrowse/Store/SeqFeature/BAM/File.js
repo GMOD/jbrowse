@@ -359,7 +359,7 @@ var BamFile = declare( null,
         for( var i = 0; i<chunks.length; i++ ) {
             var size = chunks[i].fetchedSize();
             if( size > this.chunkSizeLimit ) {
-                errorCallback( new Errors.DataOverflow('BAM chunk size '+size+' exceeds chunkSizeLimit of '+this.chunkSizeLimit ) );
+                errorCallback( new Errors.DataOverflow('Too many BAM features. BAM chunk size '+Util.commifyNumber(size)+' bytes exceeds chunkSizeLimit of '+Util.commifyNumber(this.chunkSizeLimit)+'.' ) );
                 return;
             }
         }

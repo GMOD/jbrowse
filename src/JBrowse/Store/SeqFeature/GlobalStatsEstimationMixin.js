@@ -17,7 +17,7 @@ return declare( null, {
      * estimate the feature density of the store.
      * @private
      */
-    _estimateGlobalStats: function( finishCallback ) {
+    _estimateGlobalStats: function( finishCallback, errorCallback ) {
 
         var statsFromInterval = function( refSeq, length, callback ) {
             var thisB = this;
