@@ -1334,7 +1334,7 @@ Browser.prototype.addRefseqs = function( refSeqs ) {
                               });
         }.call(this);
 
-    this.refSeq = this.refSeq || this.refSeqOrder[0];
+    this.refSeq = this.refSeq || this.allRefs[ this.refSeqOrder[0] ];
 };
 
 
