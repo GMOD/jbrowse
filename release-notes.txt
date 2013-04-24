@@ -6,6 +6,15 @@
    `maxHeight` and the faster rendering offered by canvas-based track
    types.
 
+ * JBrowse now attempts to smooth over mismatches in the naming of
+   reference sequences between various datasets.  For instance, if a
+   BAM file contains reference sequences named like "chrom1", and the
+   canonical reference sequences used in a JBrowse installation are
+   named like "chr1", JBrowse will recognize these two names as
+   equivalent for the purposes of displaying the BAM data.  This
+   behavior can be displayed by setting the global configuration
+   variable `exactReferenceSequenceNames` to `true`. (issue #239).
+
  * Fixed a bug that prevented displaying some VCF files.  Thanks to
    Steffi Geisen for pointing this out.
 
