@@ -107,10 +107,15 @@ return declare( null, {
         var items = [];
 
         thisB.data.read(chunk.minv.block, chunk.maxv.block - chunk.minv.block + 1, function( data ) {
+            data = new Uint8Array(data);
+
+            // throw away the first (probably incomplete) line
+            var parseStart = array.indexOf( data, thisB._newlineCode, 0 ) + 1;
+
             try {
                 thisB.parseItems(
                     data,
-                    0,
+                    parseStart,
                     function(i) { items.push(i); },
                     function() { callback(items); }
                 );
@@ -128,7 +133,7 @@ return declare( null, {
         var itemCount = 0;
 
         var maxItemsWithoutYielding = 300;
-        var parseState = { data: new Uint8Array(data), offset: blockStart };
+        var parseState = { data: data, offset: blockStart };
 
         while ( true ) {
             // if we've read no more than a certain number of items this cycle, read another one
