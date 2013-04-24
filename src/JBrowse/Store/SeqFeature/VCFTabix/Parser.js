@@ -3,14 +3,14 @@ define([
            'dojo/_base/array',
            'dojo/json',
            'JBrowse/Digest/Crc32',
-           'JBrowse/Model/SimpleFeature'
+           './LazyFeature'
        ],
        function(
            declare,
            array,
            JSON,
            Digest,
-           SimpleFeature
+           LazyFeature
        ) {
 
 return declare( null, {
@@ -112,15 +112,11 @@ return declare( null, {
         // parse the info field and store its contents as attributes in featureData
         this._parseInfoField( featureData, fields );
 
-        var genotypes = this._parseGenotypes( featureData, fields );
-        if( genotypes )
-            featureData.genotypes = genotypes;
-
-        //console.log( featureData );
-
-        var f = new SimpleFeature({
-            id: ids[0] || Digest.objectFingerprint( fields.slice( 0, 9 ) ),
-            data: featureData
+        var f = new LazyFeature({
+            id: ids[0] || fields.slice( 0, 9 ).join('/'),
+            data: featureData,
+            fields: fields,
+            parser: this
         });
 
         return f;
@@ -367,51 +363,6 @@ return declare( null, {
         }
 
         return data;
-    },
-
-    _parseGenotypes: function( featureData, fields ) {
-        if( fields.length < 10 )
-            return null;
-
-        // parse the genotype data fields
-        var genotypes = [];
-        var format = array.map( fields[8].split(':'), function( fieldID ) {
-                         return { id: fieldID, meta: this._getFormatMeta( fieldID ) };
-                     }, this );
-        for( var i = 9; i < fields.length; ++i ) {
-            var g = (fields[i]||'').split(':');
-            var gdata = {};
-            for( var j = 0; j<format.length; ++j ) {
-                gdata[format[j].id] = {
-                    values: g[j][0] == '"' ? [g[j]] : g[j].split(','), // don't split on commas if it looks like a string
-                    meta: format[j].meta
-                };
-            }
-            genotypes.push( gdata );
-        }
-
-        // index the genotypes by sample ID
-        var bySample = {};
-        for( var i = 0; i<genotypes.length; i++ ) {
-            var sname = (this.header.samples||{})[i];
-            if( sname ) {
-                bySample[sname] = genotypes[i];
-            }
-        }
-
-        // add a toString to it that serializes it to JSON without its metadata
-        bySample.toString = function() {
-            var ex = {};
-            for( var sample in this ) {
-                var srec = ex[sample] = {};
-                for( var field in this[sample] ) {
-                    srec[field] = this[sample][field].values;
-                }
-            }
-            return JSON.stringify( ex );
-        };
-
-        return bySample;
     },
 
     _find_SO_term: function( ref, alt ) {
