@@ -151,8 +151,9 @@
 }
 
 .wiggleStatsLegendBox {
-    height: 16px;
-    width: 16px;
+    height: 1em;
+    width: 1em;
+    padding: 3px;
     margin-left: 3px;
     margin-bottom: 15px;
     z-index: 20;
@@ -160,6 +161,7 @@
     font-size: 16px;
     color: #8cb1dd;
     text-align: center;
+    line-height: 1em;
     border: 1px solid silver;
     border-radius: 5px;
     background-color: rgba(255,255,255,0.7);
