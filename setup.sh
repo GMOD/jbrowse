@@ -83,7 +83,7 @@ echo -n "Formatting Yeast example data ...";
 done_message "To see the yeast example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/yeast.";
 
 echo
-echo -n "Building and installing wiggle format support ...";
+echo -n "Building and installing legacy wiggle format support (superseded by BigWig tracks) ...";
 (
     set -e;
     if( [ ! -f bin/wig2png ] ); then
