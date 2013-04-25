@@ -3,6 +3,8 @@
  * Significant speed and memory optimizations in BAM data backend
    (issue #242).
 
+ * Significant speed and memory optimizations in VCF data backend.
+
  * JBrowse now attempts to smooth over mismatches in the naming of
    reference sequences between various datasets.  For instance, if a
    BAM file contains reference sequences named like "chrom1", and the
