@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.9.1     2013-04-25 12:02:25 EST5EDT
+
  * Significant speed and memory optimizations in BAM data backend
    (issue #242).
 
