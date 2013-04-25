@@ -120,7 +120,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                   content: dojo.hitch( this, 'defaultFeatureDetail' )
                 },
                 { label: function() {
-                      return 'Highlight '
+                      return 'Highlight this '
                           +( this.feature && this.feature.get('type') ? this.feature.get('type')
                                                                       : 'feature'
                            );
