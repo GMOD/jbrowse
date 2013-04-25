@@ -8,7 +8,8 @@ define([ 'dojo/has' ],
            // does the browser support typed arrays?
            has.add( 'typed-arrays', function() {
                         try {
-                            return !! Uint8Array;
+                            var a = new Uint8Array(1);
+                            return !!a;
                         } catch(e) {};
                         return false;
                     });
