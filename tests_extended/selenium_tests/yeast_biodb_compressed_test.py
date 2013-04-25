@@ -15,8 +15,3 @@ class CompressedYeastBiodbTest( AbstractYeastBiodbTest, unittest.TestCase ):
         call( "bin/generate-names.pl --dir sample_data/json/yeast/", shell=True )
         super( AbstractYeastBiodbTest, self ).setUp()
 
-    def test_yeast( self ):
-        if not 'JBROWSE_URL' in os.environ:
-            raise Exception('must set JBROWSE_URL environment variable to run this test')
-
-        super( CompressedYeastBiodbTest, self ).test_yeast()
