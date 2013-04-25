@@ -26,7 +26,8 @@ sub _to_hashref {
     #     Carp::confess( dump $f );
     # }
     $f = { %$f };
-    $f->{score} += 0 if exists $f->{score};
+    $f->{score} += 0 if defined $f->{score};
+    $f->{phase} += 0 if defined $f->{phase};
 
     my $a = delete $f->{attributes};
     my %h;
