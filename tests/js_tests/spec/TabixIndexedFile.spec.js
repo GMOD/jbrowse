@@ -2,17 +2,29 @@ require({
             packages: [{ name: 'jDataView', main: 'jdataview', location: '../jDataView/src' }]
         },
         [
+            'dojo/_base/declare',
             'dojo/_base/array',
             'JBrowse/Browser',
             'JBrowse/Store/TabixIndexedFile',
             'JBrowse/Model/XHRBlob'
-        ],function( array, Browser, TabixIndexedFile, XHRBlob ) {
+        ],function( declare, array, Browser, TabixIndexedFile, XHRBlob ) {
 
 describe( "tabix-indexed file", function() {
 
+var VCFIndexedFile = declare( TabixIndexedFile, {
+    parseItem: function() {
+        var i = this.inherited( arguments );
+        if( i ) {
+            i.start--;
+            i.end = i.start + i.fields[3].length;
+        }
+        return i;
+    }
+});
+
     var f;
     beforeEach( function() {
-        f = new TabixIndexedFile({
+        f = new VCFIndexedFile({
                 browser: new Browser({ unitTestMode: true }),
                 tbi:  new XHRBlob( '../../sample_data/raw/volvox/volvox.test.vcf.gz.tbi' ),
                 file: new XHRBlob( '../../sample_data/raw/volvox/volvox.test.vcf.gz' )
@@ -34,7 +46,7 @@ describe( "tabix-indexed file", function() {
             runs(function() {
                      expect( items.length ).toEqual( 8 );
                      array.forEach( items, function( item,i ) {
-                       expect( item.ref ).toEqual('ctgA');
+                       expect( item.ref ).toEqual('contigA');
                        expect( item.start ).toBeGreaterThan( 999 );
                        expect( item.start ).toBeLessThan( 4001 );
                      });
