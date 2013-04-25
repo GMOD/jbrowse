@@ -297,7 +297,7 @@ return declare( null, {
         container.appendChild(dom.create('div', { className: 'title-container-text',
                                                   innerHTML: 'Track title: ' }));
         var name = new TextBox( { value: "masked track" } );
-        name.domNode.className = 'nameField';
+        name.domNode.className += ' nameField';
         container.appendChild(name.domNode);
         container.trackName = name;
         return container;
