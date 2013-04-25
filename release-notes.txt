@@ -13,7 +13,7 @@
    canonical reference sequences used in a JBrowse installation are
    named like "chr1", JBrowse will recognize these two names as
    equivalent for the purposes of displaying the BAM data.  This
-   behavior can be displayed by setting the global configuration
+   behavior can be disabled by setting the global configuration
    variable `exactReferenceSequenceNames` to `true`. (issue #239).
 
  * Removed support for track `blockDisplayTimeout` configuration
