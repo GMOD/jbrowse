@@ -1,10 +1,7 @@
 {{$NEXT}}
 
- * Removed support for track `blockDisplayTimeout` configuration
-   variable.  It never worked very well, and the problem it was meant
-   to address (delays caused by large data) are better mitigated by
-   `maxHeight` and the faster rendering offered by canvas-based track
-   types.
+ * Significant speed and memory optimizations in BAM data backend
+   (issue #242).
 
  * JBrowse now attempts to smooth over mismatches in the naming of
    reference sequences between various datasets.  For instance, if a
@@ -14,6 +11,12 @@
    equivalent for the purposes of displaying the BAM data.  This
    behavior can be displayed by setting the global configuration
    variable `exactReferenceSequenceNames` to `true`. (issue #239).
+
+ * Removed support for track `blockDisplayTimeout` configuration
+   variable.  It never worked very well, and the problem it was meant
+   to address (delays caused by large data) are better mitigated by
+   `maxHeight` and the faster rendering offered by canvas-based track
+   types.
 
  * Fixed a bug that prevented displaying some VCF files.  Thanks to
    Steffi Geisen for pointing this out.
@@ -44,9 +47,6 @@
    make a guess.  While probably wrong, this at least has the track
    displaying something, and users can then look up how to fix the
    display scale.
-
- * Significant speed and memory optimizations in BAM data backend
-   (issue #242).
 
  * Added support for a `chunkSizeLimit` configuration variable for BAM
    and VCF-based tracks, which defaults to 5MB for BAM and 15MB for
