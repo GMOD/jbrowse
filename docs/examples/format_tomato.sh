@@ -22,6 +22,8 @@ for f in ITAG2.3_assembly.gff3        \
     fi
 done
 
+set -x;
+
 # format the reference sequences
 bin/prepare-refseqs.pl --compress --fasta $IN/ITAG2.3_genomic.fasta --out $OUT;
 
@@ -35,7 +37,7 @@ bin/flatfile-to-json.pl --compress \
     --key 'Gene models' \
     --getSubfeatures    \
     --className transcript \
-    --subfeatureClasses '{"CDS": "transcript-CDS", "exon": "transcript-exon"}' \
+    --subfeatureClasses '{"CDS": "transcript-CDS", "exon": "hidden"}' \
     --arrowheadClass arrowhead \
     --urltemplate "http://solgenomics.net/search/quick?term={name}" \
     ;
