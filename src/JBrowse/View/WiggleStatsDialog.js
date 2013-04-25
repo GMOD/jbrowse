@@ -194,7 +194,7 @@ return declare( null, {
         container.appendChild(dom.create('div', { className: 'title-container-text',
                                                   innerHTML: 'Track title: ' }));
         var name = new TextBox( { value: "wiggle track statistics" } );
-        name.domNode.className = 'nameField';
+        name.domNode.className += ' nameField';
         name.placeAt(container);
         container.trackName = name;
         return container;
