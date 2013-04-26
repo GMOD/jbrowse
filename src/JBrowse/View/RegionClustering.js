@@ -131,11 +131,11 @@ return declare( null, {
                 { reg.directionality = 'right-to-left';
                   if (this.startOrEn == 'useStart') {
                     reg.start = feat.get('end') - this.queryLength/2;
-                    reg.end   = end: feat.get('end') + this.queryLength/2;
+                    reg.end   = feat.get('end') + this.queryLength/2;
                   }
                   else {
                     reg.start = feat.get('start') - this.queryLength/2;
-                    reg.end   = end: feat.get('start') + this.queryLength/2;
+                    reg.end   = feat.get('start') + this.queryLength/2;
                   }
                   break; };
             case -1:
@@ -143,11 +143,11 @@ return declare( null, {
                 { reg.directionality = 'left-to-right';
                   if (this.startOrEn == 'useEnd') {
                     reg.start = feat.get('end') - this.queryLength/2;
-                    reg.end   = end: feat.get('end') + this.queryLength/2;
+                    reg.end   = feat.get('end') + this.queryLength/2;
                   }
                   else {
                     reg.start = feat.get('start') - this.queryLength/2;
-                    reg.end   = end: feat.get('start') + this.queryLength/2;
+                    reg.end   = feat.get('start') + this.queryLength/2;
                   }
                   break; };
             default:
