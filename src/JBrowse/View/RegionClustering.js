@@ -27,6 +27,7 @@ return declare( null, {
         this.queryLength = args.queryLength || 1000;
         this.numClusters = args.numClusters; 
         this.storeNames = args.storeNames.display;
+        this.startOrEnd = args.startOrEnd;
         this.regionStore = new regionClusteringStore({ storeNames: args.storeNames.regions, browser: args.browser });
         this.store = new regionClusteringStore({ storeNames: args.storeNames.display, browser: args.browser });
         this.tracksPerStore = {};
@@ -123,17 +124,31 @@ return declare( null, {
         }
         var reg = { ref: this.refSeq.name,
                     scale: this.browser.view.pxPerBp,
-                    basesPerSpan: 1/this.browser.view.pxPerBp,
-                    start: feat.get('end') - this.queryLength/2,
-                    end: feat.get('end') + this.queryLength/2 };
+                    basesPerSpan: 1/this.browser.view.pxPerBp };
         switch (feat.get('strand')) {
             case 1:
             case '+':
                 { reg.directionality = 'right-to-left';
+                  if (this.startOrEn == 'useStart') {
+                    reg.start = feat.get('end') - this.queryLength/2;
+                    reg.end   = end: feat.get('end') + this.queryLength/2;
+                  }
+                  else {
+                    reg.start = feat.get('start') - this.queryLength/2;
+                    reg.end   = end: feat.get('start') + this.queryLength/2;
+                  }
                   break; };
             case -1:
             case '-':
                 { reg.directionality = 'left-to-right';
+                  if (this.startOrEn == 'useEnd') {
+                    reg.start = feat.get('end') - this.queryLength/2;
+                    reg.end   = end: feat.get('end') + this.queryLength/2;
+                  }
+                  else {
+                    reg.start = feat.get('start') - this.queryLength/2;
+                    reg.end   = end: feat.get('start') + this.queryLength/2;
+                  }
                   break; };
             default:
                 return false;

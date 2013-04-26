@@ -10,7 +10,8 @@ define( [
             'dojo/dom-construct',
             'dojo/on',
             './RegionClusteringDialog/TrackSelector',
-            './RegionClustering'
+            './RegionClustering',
+            'dijit/form/RadioButton'
         ],
         function( declare,
                   array,
@@ -23,7 +24,8 @@ define( [
                   dom,
                   on,
                   TrackSelector,
-                  RegionClustering ) {
+                  RegionClustering,
+                  RadioButton ) {
 
 return declare( null, {
 
@@ -122,7 +124,20 @@ return declare( null, {
             return d;
         };
 
+        var help = dom.create('div', {className: 'help', innerHTML: '?'});
+        on( help, 'mouseover', dojo.hitch(this, function(){
+            var d = this._makeHelpBox();
+            help.appendChild(d);
+        }));
+        on( help, 'mouseout', dojo.hitch(this, function(){
+            while (help.firstChild) {
+                help.removeChild(help.firstChild);
+            }
+            help.innerHTML = '?';
+        }));
+
         var content = [
+                        help,
                         dom.create( 'div', { className: 'instructions',
                                              innerHTML: '<p>Select data to be analyzed (left), \
                                                          and region sources (right). Add \
@@ -167,10 +182,31 @@ return declare( null, {
         // Adapted from the file dialogue.
         var actionBar = dom.create( 'div', { className: 'actionBar' });
 
+        var container = dom.create('div', {className: 'radioButtonContainer'}, actionBar);
+        var disChoices = thisB.trackDispositionChoice = [
+            new RadioButton({ id: 'useStart',
+                              value: 'useStart',
+                              name: 'disposition',
+                              checked: true
+                            }),
+            new RadioButton({ id: 'useEnd',
+                              value: 'useEnd',
+                              name: 'disposition'
+                            })
+        ];
+
+        var aux1 = dom.create( 'div', {className:'radio'}, container );
+        disChoices[0].placeAt(aux1);
+        dom.create('label', { for: 'useStart', innerHTML: 'use 5\' end' }, aux1 );
+        var aux2 = dom.create( 'div', {className:'radio'}, container );
+        disChoices[1].placeAt(aux2);
+        dom.create('label', { for: 'useEnd', innerHTML: 'use 3\' end' }, aux2 );
+
+        var buttonContainer = dom.create('div', {className: 'buttonContainer'}, actionBar);
         new Button({ iconClass: 'dijitIconDelete', label: 'Cancel',
                      onClick: function() { thisB.dialog.hide(); }
                    })
-            .placeAt( actionBar );
+            .placeAt( buttonContainer );
         var makeClusters = new Button({ label: 'Perform clustering',
                      disabled: true,
                      onClick: dojo.hitch( thisB, function() {
@@ -224,13 +260,16 @@ return declare( null, {
                                                            numOfBins: thisB.storeFetch.numbers.bin.number.get('value'),
                                                            queryLength: thisB.storeFetch.numbers.HMlen.number.get('value'),
                                                            numClusters: thisB.storeFetch.numbers.numClust.number.get('value'),
+                                                           startOrEnd: thisB.trackDispositionChoice[0].checked ? thisB.trackDispositionChoice[0].value :
+                                                                       thisB.trackDispositionChoice[1].checked ? thisB.trackDispositionChoice[1].value :
+                                                                       undefined
                                                         }).show(
                                                         (function(){document.body.removeChild(clusterWaitMessage);
                                                                     thisB.dialog.hide()}));
                                     }, 200);
                             })
                     })
-            .placeAt( actionBar );
+            .placeAt( buttonContainer );
 
         return { domNode: actionBar, makeClustersButton: makeClusters };
     },
@@ -245,6 +284,28 @@ return declare( null, {
         container.number = num;
         container.appendChild(num.domNode);
         return container;
+    },
+
+    _makeHelpBox: function() {
+        var helpDiv = dom.create('div', {className: 'clusterHelpBox' });
+        dom.create('div', {className: 'clusterHelpBoxExplanation1',
+                           innerHTML: 'Using the region sources, this tool will \
+                                       create windows centered at the 3\' or \
+                                       5\' end of each feature (diagram below \
+                                       uses the 5\' end). Data will be extracted from \
+                                       the analysis tracks and used to create \
+                                       heatmaps, which are then reversed according \
+                                       to the source\'s "strand" property.'},
+                    helpDiv);
+        dom.create('div', {className: 'clusterHelpBoxImage'}, helpDiv);
+        dom.create('div', {className: 'clusterHelpBoxExplanation2',
+                           innerHTML: 'Heatmaps are then clustered using \
+                                       k-means clustering. When the clustering \
+                                       is complete, an overlay will be oppened \
+                                       to display the average of each cluster, \
+                                       as well as the individual cluster members.'},
+                    helpDiv);
+        return helpDiv;
     }
 
 });

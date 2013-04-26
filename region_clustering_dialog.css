@@ -89,7 +89,24 @@
 
 .regionClusteringDialog .actionBar {
     padding-bottom: 10px;
+    float: none;
     text-align: center;
+}
+
+.regionClusteringDialog .actionBar .radioButtonContainer {
+    padding: 10px;
+    width: 100%;
+}
+
+.regionClusteringDialog .actionBar .radio {
+    float: left;
+    padding-left: 10px;
+    padding-bottom: 10px;
+}
+
+.regionClusteringDialog .buttonContainer {
+    display: inline-block;
+    width: 100%;
 }
 
 .regionClusteringDialog .actionBar .dijitButton {
@@ -116,4 +133,36 @@
     border: 1px solid black;
     background-color: white;
     padding: 1em;
+}
+
+.regionClusteringDialog .help {
+    float: right;
+    height: 1em;
+    width: 1em;
+    margin: 10px;
+    margin-top: 0;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    background-color: white;
+    border: 1px solid silver;
+    border-radius: 3px;
+}
+
+.regionClusteringDialog .help .clusterHelpBox {
+    font-size: 12px;
+    padding: 10px;
+    font-weight: normal;
+    width: 380px;
+    position: relative;
+    right: 400px;
+    background-color: white;
+    border: 1px solid black;
+    z-index: 100000;
+}
+
+.regionClusteringDialog .help .clusterHelpBoxImage {
+    background-image: url('img/clusterExampleStart.png');
+    height: 301px;
+    width: 369px;
 }
