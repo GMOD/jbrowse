@@ -4,6 +4,10 @@
    BAM files with reference sequence name sections bigger than 64KB.
    Thanks to GitHub user lfgu for pointing this out (issue #245).
 
+ * Made REST feature store backend less sensitive more tolerant of
+   stringification of `start`, `end`, `strand`, and `score` in feature
+   JSON.  Thanks to Matt Bomhoff for pointing this out.
+
 1.9.1     2013-04-25 12:02:25 EST5EDT
 
  * Significant speed and memory optimizations in BAM data backend
