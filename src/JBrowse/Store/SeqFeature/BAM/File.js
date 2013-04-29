@@ -156,43 +156,55 @@ var BamFile = declare( null,
                 }
 
                 var headLen = readInt(uncba, 4);
-                // var header = '';
-                // for (var i = 0; i < headLen; ++i) {
-                //     header += String.fromCharCode(uncba[i + 8]);
-                // }
 
+                thisB._readRefSeqs( headLen+8, 65536*4, successCallback, failCallback );
+            },
+            failCallback
+        );
+    },
 
-                // have to do another request, because sometimes
-                // minAlignment VO is just flat wrong.
-                // if headLen is not too big, this will just be in the
-                // RemoteBinaryFile cache
-                thisB.data.read( 0, headLen+8+65536,
-                                 function(r) {
-                    var unc = BAMUtil.unbgzf(r);
-                    var uncba = new Uint8Array(unc);
+    _readRefSeqs: function( start, refSeqBytes, successCallback, failCallback ) {
+        var thisB = this;
+        // have to do another request, because sometimes
+        // minAlignment VO is just flat wrong.
+        // if headLen is not too big, this will just be in the
+        // RemoteBinaryFile cache
+        thisB.data.read( 0, start+refSeqBytes,
+                         function(r) {
+            var unc = BAMUtil.unbgzf(r);
+            var uncba = new Uint8Array(unc);
 
-                    var nRef = readInt(uncba, headLen + 8);
-                    var p = headLen + 12;
+            var nRef = readInt(uncba, start );
+            var p = start + 4;
 
-                    thisB.chrToIndex = {};
-                    thisB.indexToChr = [];
-                    for (var i = 0; i < nRef; ++i) {
-                        var lName = readInt(uncba, p);
-                        var name = '';
-                        for (var j = 0; j < lName-1; ++j) {
-                            name += String.fromCharCode(uncba[p + 4 + j]);
-                        }
+            thisB.chrToIndex = {};
+            thisB.indexToChr = [];
+            for (var i = 0; i < nRef; ++i) {
+                var lName = readInt(uncba, p);
+                var name = '';
+                for (var j = 0; j < lName-1; ++j) {
+                    name += String.fromCharCode(uncba[p + 4 + j]);
+                }
 
-                        var lRef = readInt(uncba, p + lName + 4);
-                        // dlog(name + ': ' + lRef);
-                        thisB.chrToIndex[ thisB.store.browser.regularizeReferenceName( name ) ] = i;
-                        thisB.indexToChr.push({ name: name, length: lRef });
+                var lRef = readInt(uncba, p + lName + 4);
+                //console.log(name + ': ' + lRef);
+                thisB.chrToIndex[ thisB.store.browser.regularizeReferenceName( name ) ] = i;
+                thisB.indexToChr.push({ name: name, length: lRef });
 
-                        p = p + 8 + lName;
-                    }
+                p = p + 8 + lName;
+                if( p > uncba.length ) {
+                    // we've gotten to the end of the data without
+                    // finishing reading the ref seqs, need to fetch a
+                    // bigger chunk and try again.  :-(
+                    refSeqBytes *= 2;
+                    console.warn( 'BAM header is very big.  Re-fetching '+refSeqBytes+' bytes.' );
+                    thisB._readRefSeqs( start, refSeqBytes, successCallback, failCallback );
+                    return;
+                }
+            }
 
-                    successCallback();
-            }, failCallback );
+            successCallback();
+
         }, failCallback );
     },
 
