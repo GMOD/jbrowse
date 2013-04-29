@@ -1,5 +1,6 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/array',
            'dojo/io-query',
            'dojo/request/xhr',
            'JBrowse/Store/SeqFeature',
@@ -10,6 +11,7 @@ define([
        ],
        function(
            declare,
+           array,
            ioquery,
            xhr,
            SeqFeatureStore,
@@ -108,6 +110,12 @@ return declare( SeqFeatureStore,
     },
 
     _makeFeature: function( data, parent ) {
+        array.forEach(['start','end','strand'], function( field ) {
+            if( field in data )
+                data[field] = parseInt( data[field] );
+        });
+        if( 'score' in data )
+            data.score = parseFloat( data.score );
         return new SimpleFeature( { data: data, parent: parent } );
     }
 });
