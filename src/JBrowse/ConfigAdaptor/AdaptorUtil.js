@@ -28,10 +28,10 @@ define( [ 'dojox/lang/functional/object',
             try {
                 eval("arguments[0]="+arguments[0]+";");
             } catch (e) {
-                console.error("eval failed for callback '"+arguments[0]+"': "+e);
+                console.error(e+" parsing config callback '"+arguments[0]+"'");
             }
             return arguments[0];
         }
-    }
+    };
     return AdaptorUtil;
 });
