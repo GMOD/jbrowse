@@ -8,6 +8,10 @@
    stringification of `start`, `end`, `strand`, and `score` in feature
    JSON.  Thanks to Matt Bomhoff for pointing this out.
 
+ * The `trackSelector.type` global config variable can now contain
+   fully-qualified class names, so plugins can contain their own
+   tracklist classes.
+
  * Moved the "Select tracks" tab used to open the faceted track
    selector downward, so that it does not block access to the left
    side of the reference sequence overview.

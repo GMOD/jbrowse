@@ -1427,8 +1427,11 @@ Browser.prototype.createTrackList = function() {
         var tl_class = !this.config.show_tracklist           ? 'Null'                         :
                        (this.config.trackSelector||{}).type  ? this.config.trackSelector.type :
                                                                'Simple';
+        if( ! /\//.test( tl_class ) )
+            tl_class = 'JBrowse/View/TrackList/'+tl_class;
+
         // load all the classes we need
-        require( ['JBrowse/View/TrackList/'+tl_class],
+        require( [ tl_class ],
                  dojo.hitch( this, function( trackListClass ) {
                      // instantiate the tracklist and the track metadata object
                      this.trackListView = new trackListClass(
