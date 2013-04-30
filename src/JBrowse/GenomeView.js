@@ -2075,10 +2075,10 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
                 function( foundRef ) {
                     if( ! foundRef )
                         new InfoDialog({
-                            title: 'Reference warning',
-                            content: 'WARNING: The data store for track "'
+                            title: 'No data',
+                            content: '<b>'
                               +(trackConfig.key||trackConfig.label)
-                              +'" contains no data for the current'
+                              +'</b> contains no data on this'
                               +' reference sequence ('
                               +thisB.ref.name
                               +').'
