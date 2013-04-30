@@ -8,6 +8,10 @@
    stringification of `start`, `end`, `strand`, and `score` in feature
    JSON.  Thanks to Matt Bomhoff for pointing this out.
 
+ * Moved the "Select tracks" tab used to open the faceted track
+   selector downward, so that it does not block access to the left
+   side of the reference sequence overview.
+
 1.9.1     2013-04-25 12:02:25 EST5EDT
 
  * Significant speed and memory optimizations in BAM data backend
