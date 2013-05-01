@@ -16,7 +16,6 @@ return declare( InfoDialog, {
 
     show: function() {
         // make a div containing our help text
-        var browserRoot = this.browser.config.browserRoot || "";
         var html = ''
             + '<div class="help_dialog">'
             + '<div class="main" style="float: left; width: 49%;">'
@@ -24,12 +23,12 @@ return declare( InfoDialog, {
             + '<dl>'
             + '<dt>Moving</dt>'
             + '<dd><ul>'
-            + '    <li>Move the view by clicking and dragging in the track area, or by clicking <img height="20px" src="'+browserRoot+'img/slide-left.png"> or <img height="20px"  src="'+browserRoot+'img/slide-right.png"> in the navigation bar, or by pressing the left and right arrow keys.</li>'
+            + '    <li>Move the view by clicking and dragging in the track area, or by clicking <img height="20px" src="'+this.browser.resolveUrl('img/slide-left.png')+'"> or <img height="20px"  src="'+this.browser.resolveUrl('img/slide-right.png')+'"> in the navigation bar, or by pressing the left and right arrow keys.</li>'
             + '    <li>Center the view at a point by clicking on either the track scale bar or overview bar, or by shift-clicking in the track area.</li>'
             + '</ul></dd>'
             + '<dt>Zooming</dt>'
             + '<dd><ul>'
-            + '    <li>Zoom in and out by clicking <img height="20px" src="'+browserRoot+'img/zoom-in-1.png"> or <img height="20px"  src="'+browserRoot+'img/zoom-out-1.png"> in the navigation bar, or by pressing the up and down arrow keys while holding down "shift".</li>'
+            + '    <li>Zoom in and out by clicking <img height="20px" src="'+this.browser.resolveUrl('img/zoom-in-1.png')+'"> or <img height="20px"  src="'+this.browser.resolveUrl('img/zoom-out-1.png')+'"> in the navigation bar, or by pressing the up and down arrow keys while holding down "shift".</li>'
             + '    <li>Select a region and zoom to it ("rubber-band" zoom) by clicking and dragging in the overview or track scale bar, or shift-clicking and dragging in the track area.</li>'
             + '    </ul>'
             + '</dd>'
