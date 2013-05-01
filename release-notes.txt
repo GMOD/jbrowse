@@ -10,7 +10,7 @@
 
  * The `trackSelector.type` global config variable can now contain
    fully-qualified class names, so plugins can contain their own
-   tracklist classes.
+   tracklist classes.  Thanks to Matt Bomhoff for pointing this out.
 
  * Moved the "Select tracks" tab used to open the faceted track
    selector downward, so that it does not block access to the left
