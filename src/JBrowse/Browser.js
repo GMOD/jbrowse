@@ -211,8 +211,9 @@ Browser.prototype.initPlugins = function() {
             .then( function() { deferred.resolve({success: true}); });
 
         require( {
+                     baseUrl: this.config.browserRoot || '.',
                      packages: array.map( pluginNames, function(c) {
-                                              return { name: c, location: this.resolveUrl( "../plugins/"+c+"/js" ) };
+                                              return { name: c, location: "plugins/"+c+"/js" };
                                           }, this )
                  },
                  pluginNames,
