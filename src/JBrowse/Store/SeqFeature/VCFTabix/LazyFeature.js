@@ -74,13 +74,12 @@ var Feature = Util.fastDeclare(
             var g = (fields[i]||'').split(':');
             var gdata = {};
             for( var j = 0; j<format.length; ++j ) {
-                if( g[j] && typeof g[j] == 'string' ) {
-                    gdata[format[j].id] = {
-                        // don't split on commas if it looks like a string
-                        values: g[j].charAt(0) == '"' ? [g[j]] : g[j].split(','),
-                        meta: format[j].meta
-                    };
-                }
+                var gData = g[j] || '';
+                gdata[ format[j].id ] = {
+                    // don't split on commas if it looks like a string
+                    values: gData.charAt(0) == '"' ? [ gData ] : gData.split(','),
+                    meta: format[j].meta
+                };
             }
             genotypes.push( gdata );
         }
