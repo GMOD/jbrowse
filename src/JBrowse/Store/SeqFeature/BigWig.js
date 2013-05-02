@@ -51,7 +51,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
         // calc mean and standard deviation if necessary
         if( !( 'scoreMean' in s ))
-            s.scoreMean = s.scoreSum / s.basesCovered;
+            s.scoreMean = s.basesCovered ? s.scoreSum / s.basesCovered : 0;
         if( !( 'scoreStdDev' in s ))
             s.scoreStdDev = this._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.basesCovered );
 
