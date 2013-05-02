@@ -12,6 +12,10 @@
    relative to the `browserRoot` config variable.  Thanks to Matt
    Bomhoff for pointing this out.
 
+ * Fixed bug in which missing fields in a VCF variant's genotype
+   prevented display of a variant's details.  Thanks to Jillian Rowe
+   for pointing this out.
+
  * Fixed some minor issues related to the handling of empty BigWig
    files.  Thanks to Nathan Boley for pointing this out (issue #252).
 
