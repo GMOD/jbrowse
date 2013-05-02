@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.9.2     2013-05-02 13:30:12 EST5EDT
+
  * Fixed bug in which JBrowse could not properly display all data in
    BAM files with reference sequence name sections bigger than 64KB.
    Thanks to GitHub user lfgu for pointing this out (issue #245).
