@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Fixed issue with HTMLVariants track type not being available for
+   selection from the File->Open dialog.
+
 1.9.2     2013-05-02 13:30:12 EST5EDT
 
  * Fixed bug in which JBrowse could not properly display all data in

@@ -730,6 +730,7 @@ Browser.prototype.getTrackTypes = function() {
                 'JBrowse/View/Track/FeatureCoverage',
                 'JBrowse/View/Track/SNPCoverage',
                 'JBrowse/View/Track/HTMLFeatures',
+                'JBrowse/View/Track/HTMLVariants',
                 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/View/Track/Wiggle/Density',
                 'JBrowse/View/Track/Sequence'
