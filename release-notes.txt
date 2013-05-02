@@ -12,6 +12,9 @@
    relative to the `browserRoot` config variable.  Thanks to Matt
    Bomhoff for pointing this out.
 
+ * Fixed some minor issues related to the handling of empty BigWig
+   files.  Thanks to Nathan Boley for pointing this out (issue #252).
+
  * The `trackSelector.type` global config variable can now contain
    fully-qualified class names, so plugins can contain their own
    tracklist classes.  Thanks to Matt Bomhoff for pointing this out.
