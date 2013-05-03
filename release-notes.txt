@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed a display bug in faceted track selector in which selected
+   facets that have no available matches were squashed to the left
+   side.
+
  * Fixed issue with HTMLVariants track type not being available for
    selection from the File->Open dialog.
 
