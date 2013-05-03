@@ -230,6 +230,7 @@
     background: white;
 }
 #faceted_tracksel .dijitOpen .facetTitle {
+    font-weight: bold;
     color: black;
 }
 
@@ -251,6 +252,10 @@
 #faceted_tracksel .activeFacet a.clearFacet {
     visibility: visible;
     padding: 1px 6px;
+}
+
+#faceted_tracksel .dijitTitlePaneContentInner {
+    padding: 0px;
 }
 
 
