@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+ * Fixed a display bug in faceted track selector in which selected
+   facets that have no available matches were squashed to the left
+   side.
+
+ * Fixed issue with HTMLVariants track type not being available for
+   selection from the File->Open dialog.
+
+1.9.2     2013-05-02 13:30:12 EST5EDT
+
  * Fixed bug in which JBrowse could not properly display all data in
    BAM files with reference sequence name sections bigger than 64KB.
    Thanks to GitHub user lfgu for pointing this out (issue #245).
@@ -7,6 +16,25 @@
  * Made REST feature store backend less sensitive more tolerant of
    stringification of `start`, `end`, `strand`, and `score` in feature
    JSON.  Thanks to Matt Bomhoff for pointing this out.
+
+ * Fixed bug in which URLs for plugin resources were not assembled
+   relative to the `browserRoot` config variable.  Thanks to Matt
+   Bomhoff for pointing this out.
+
+ * Fixed bug in which missing fields in a VCF variant's genotype
+   prevented display of a variant's details.  Thanks to Jillian Rowe
+   for pointing this out.
+
+ * Fixed some minor issues related to the handling of empty BigWig
+   files.  Thanks to Nathan Boley for pointing this out (issue #252).
+
+ * The `trackSelector.type` global config variable can now contain
+   fully-qualified class names, so plugins can contain their own
+   tracklist classes.  Thanks to Matt Bomhoff for pointing this out.
+
+ * Moved the "Select tracks" tab used to open the faceted track
+   selector downward, so that it does not block access to the left
+   side of the reference sequence overview.
 
 1.9.1     2013-04-25 12:02:25 EST5EDT
 

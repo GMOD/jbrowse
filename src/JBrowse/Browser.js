@@ -211,7 +211,9 @@ Browser.prototype.initPlugins = function() {
             .then( function() { deferred.resolve({success: true}); });
 
         require( {
-                     packages: array.map( pluginNames, function(c) { return { name: c, location: "../plugins/"+c+"/js" }; })
+                     packages: array.map( pluginNames, function(c) {
+                                              return { name: c, location: "../plugins/"+c+"/js" };
+                                          }, this )
                  },
                  pluginNames,
                  dojo.hitch( this, function() {
@@ -233,7 +235,7 @@ Browser.prototype.initPlugins = function() {
 
                                  // load its css
                                  var cssLoaded = this._loadCSS(
-                                     {url: 'plugins/'+pluginName+'/css/main.css'}
+                                     {url: this.resolveUrl( 'plugins/'+pluginName+'/css/main.css' ) }
                                  );
                                  cssLoaded.then( function() {
                                      thisPluginDone.resolve({success:true});
@@ -252,6 +254,17 @@ Browser.prototype.initPlugins = function() {
                   }));
     });
 
+};
+
+/**
+ * Resolve a URL relative to the browserRoot.
+ */
+Browser.prototype.resolveUrl = function( url ) {
+    var browserRoot = this.config.browserRoot || "";
+    if( browserRoot && browserRoot.charAt( browserRoot.length - 1 ) != '/' )
+        browserRoot += '/';
+
+    return Util.resolveUrl( browserRoot, url );
 };
 
 /**
@@ -717,6 +730,7 @@ Browser.prototype.getTrackTypes = function() {
                 'JBrowse/View/Track/FeatureCoverage',
                 'JBrowse/View/Track/SNPCoverage',
                 'JBrowse/View/Track/HTMLFeatures',
+                'JBrowse/View/Track/HTMLVariants',
                 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/View/Track/Wiggle/Density',
                 'JBrowse/View/Track/Sequence'
@@ -1427,8 +1441,11 @@ Browser.prototype.createTrackList = function() {
         var tl_class = !this.config.show_tracklist           ? 'Null'                         :
                        (this.config.trackSelector||{}).type  ? this.config.trackSelector.type :
                                                                'Simple';
+        if( ! /\//.test( tl_class ) )
+            tl_class = 'JBrowse/View/TrackList/'+tl_class;
+
         // load all the classes we need
-        require( ['JBrowse/View/TrackList/'+tl_class],
+        require( [ tl_class ],
                  dojo.hitch( this, function( trackListClass ) {
                      // instantiate the tracklist and the track metadata object
                      this.trackListView = new trackListClass(
@@ -2013,7 +2030,6 @@ Browser.prototype.cookie = function() {
  */
 
 Browser.prototype.createNavBox = function( parent ) {
-    var browserRoot = this.config.browserRoot ? this.config.browserRoot : "";
 
     var navbox = dojo.create( 'div', { id: 'navbox', style: { 'text-align': 'center' } }, parent );
 
@@ -2027,7 +2043,7 @@ Browser.prototype.createNavBox = function( parent ) {
 
     var moveLeft = document.createElement("input");
     moveLeft.type = "image";
-    moveLeft.src = browserRoot + "img/slide-left.png";
+    moveLeft.src = this.resolveUrl( "img/slide-left.png" );
     moveLeft.id = "moveLeft";
     moveLeft.className = "icon nav";
     moveLeft.style.height = "40px";
@@ -2040,7 +2056,7 @@ Browser.prototype.createNavBox = function( parent ) {
 
     var moveRight = document.createElement("input");
     moveRight.type = "image";
-    moveRight.src = browserRoot + "img/slide-right.png";
+    moveRight.src = this.resolveUrl( "img/slide-right.png" );
     moveRight.id="moveRight";
     moveRight.className = "icon nav";
     moveRight.style.height = "40px";
@@ -2055,7 +2071,7 @@ Browser.prototype.createNavBox = function( parent ) {
 
     var bigZoomOut = document.createElement("input");
     bigZoomOut.type = "image";
-    bigZoomOut.src = browserRoot + "img/zoom-out-2.png";
+    bigZoomOut.src = this.resolveUrl( "img/zoom-out-2.png" );
     bigZoomOut.id = "bigZoomOut";
     bigZoomOut.className = "icon nav";
     bigZoomOut.style.height = "40px";
@@ -2069,7 +2085,7 @@ Browser.prototype.createNavBox = function( parent ) {
 
     var zoomOut = document.createElement("input");
     zoomOut.type = "image";
-    zoomOut.src = browserRoot + "img/zoom-out-1.png";
+    zoomOut.src = this.resolveUrl("img/zoom-out-1.png");
     zoomOut.id = "zoomOut";
     zoomOut.className = "icon nav";
     zoomOut.style.height = "40px";
@@ -2082,7 +2098,7 @@ Browser.prototype.createNavBox = function( parent ) {
 
     var zoomIn = document.createElement("input");
     zoomIn.type = "image";
-    zoomIn.src = browserRoot + "img/zoom-in-1.png";
+    zoomIn.src = this.resolveUrl( "img/zoom-in-1.png" );
     zoomIn.id = "zoomIn";
     zoomIn.className = "icon nav";
     zoomIn.style.height = "40px";
@@ -2095,7 +2111,7 @@ Browser.prototype.createNavBox = function( parent ) {
 
     var bigZoomIn = document.createElement("input");
     bigZoomIn.type = "image";
-    bigZoomIn.src = browserRoot + "img/zoom-in-2.png";
+    bigZoomIn.src = this.resolveUrl( "img/zoom-in-2.png" );
     bigZoomIn.id = "bigZoomIn";
     bigZoomIn.className = "icon nav";
     bigZoomIn.style.height = "40px";

@@ -79,7 +79,7 @@ return declare( Store,
                                       s.featureCount++;
                                   },
                                   function() {
-                                      s.scoreMean = s.scoreSum / s.featureCount;
+                                      s.scoreMean = s.featureCount ? s.scoreSum / s.featureCount : 0;
                                       s.scoreStdDev = thisB._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.featureCount );
                                       s.featureDensity = s.featureCount / s.basesCovered;
                                       //console.log( '_getRegionStats done', s );
@@ -104,6 +104,9 @@ return declare( Store,
 
     // utility method that calculates standard deviation from sum and sum of squares
     _calcStdFromSums: function( sum, sumSquares, n ) {
+        if( n == 0 )
+            return 0;
+
         var variance = sumSquares - sum*sum/n;
         if (n > 1) {
 	    variance /= n-1;
