@@ -72,6 +72,8 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     //width, in pixels, of the vertical stripes
     this.stripeWidth = stripeWidth;
 
+    //MOD The maximum percentage of the screen allowed to not overlap with a sequence
+    this.maxPercentOffSeq = 0.2;
 
     // the scrollContainer is the element that changes position
     // when the user scrolls
@@ -128,10 +130,10 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.offset = 0;
     //largest value for the sum of this.offset and this.getX()
     //this prevents us from scrolling off the right end of the ref seq
-    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth();
+    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth()*(1-this.maxPercentOffSeq); //MOD
     //smallest value for the sum of this.offset and this.getX()
     //this prevents us from scrolling off the left end of the ref seq
-    this.minLeft = this.bpToPx(this.ref.start);
+    this.minLeft = this.bpToPx(this.ref.start) - this.getWidth()*this.maxPercentOffSeq; //MOD
     //distance, in pixels, between each track
     this.trackPadding = 20;
     //extra margin to draw around the visible area, in multiples of the visible area
@@ -1031,8 +1033,8 @@ GenomeView.prototype.instantZoomUpdate = function() {
         (this.stripeCount * this.stripeWidth) + "px";
     this.maxOffset =
         this.bpToPx(this.ref.end) - this.stripeCount * this.stripeWidth;
-    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth();
-    this.minLeft = this.bpToPx(this.ref.start);
+    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth()*(1-this.maxPercentOffSeq); //MOD
+    this.minLeft = this.bpToPx(this.ref.start) - this.getWidth()*this.maxPercentOffSeq; //MOD
 };
 
 GenomeView.prototype.centerAtBase = function(base, instantly) {
@@ -1404,7 +1406,7 @@ GenomeView.prototype.sizeInit = function() {
     this.curZoom = 0;
     while (this.pxPerBp > this.zoomLevels[this.curZoom])
         this.curZoom++;
-    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth();
+    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth()*(1-this.maxPercentOffSeq); //MOD
 
     delete this.stripePercent;
     //25, 50, 100 don't work as well due to the way scrollUpdate works
@@ -1633,7 +1635,7 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
     var fixedBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.getWidth()));
     this.curZoom += steps;
     this.pxPerBp = this.zoomLevels[this.curZoom];
-    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth();
+    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth()*(1-this.maxPercentOffSeq); //MOD
 
     for (var track = 0; track < this.tracks.length; track++)
     this.tracks[track].startZoom(this.pxPerBp,
@@ -1670,7 +1672,7 @@ GenomeView.prototype.zoomToBaseLevel = function(e, pos) {
     this.curZoom = baseZoomIndex;
     this.pxPerBp = this.zoomLevels[baseZoomIndex];
 
-    this.maxLeft = (this.pxPerBp * this.ref.end) - this.getWidth();
+    this.maxLeft = (this.pxPerBp * this.ref.end) - this.getWidth()*(1-this.maxPercentOffSeq); //MOD
 
     for (var track = 0; track < this.tracks.length; track++)
 	this.tracks[track].startZoom(this.pxPerBp,
@@ -1697,12 +1699,15 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
     this.trimVertical(pos.y);
     if (zoomLoc === undefined) zoomLoc = 0.5;
     var scale = this.zoomLevels[this.curZoom - steps] / this.pxPerBp;
-    var edgeDist = this.bpToPx(this.ref.end) - (this.offset + pos.x + this.getWidth());
+    var edgeDist = this.bpToPx(this.ref.end) - (this.offset + pos.x);
         //zoomLoc is a number on [0,1] that indicates
         //the fixed point of the zoom
-    zoomLoc = Math.max(zoomLoc, 1 - (((edgeDist * scale) / (1 - scale)) / this.getWidth()));
-    edgeDist = pos.x + this.offset - this.bpToPx(this.ref.start);
-    zoomLoc = Math.min(zoomLoc, ((edgeDist * scale) / (1 - scale)) / this.getWidth());
+    var zoomLoc1 = zoomLoc; //M
+    zoomLoc = Math.max(zoomLoc, (1- this.maxPercentOffSeq - scale*edgeDist/this.getWidth())/(1-scale));
+    var zoomLoc2 = zoomLoc; //M
+    edgeDist = this.bpToPx(this.ref.start) - (pos.x + this.offset);
+//    zoomLoc = Math.min(zoomLoc, ((edgeDist * scale) / (1 - scale)) / this.getWidth());
+    zoomLoc = Math.min(zoomLoc, (this.maxPercentOffSeq - scale*edgeDist/this.getWidth())/(1-scale));
     var fixedBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.getWidth()));
     this.curZoom -= steps;
     this.pxPerBp = this.zoomLevels[this.curZoom];
@@ -1715,7 +1720,7 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
                                                 / this.pxPerBp));
 
     //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
-    this.minLeft = this.pxPerBp * this.ref.start;
+    this.minLeft = this.pxPerBp * this.ref.start - this.getWidth()*this.maxPercentOffSeq; //MOD
 
     // Zooms take an arbitrary 700 milliseconds, which feels about right
     // to me, although if the zooms were smoother they could probably
@@ -1752,7 +1757,7 @@ GenomeView.prototype.zoomBackOut = function(e) {
     							/ this.pxPerBp));
 	}
     
-    this.minLeft = this.pxPerBp * this.ref.start;
+    this.minLeft = this.pxPerBp * this.ref.start - this.getWidth()*this.maxPercentOffSeq; //MOD
     var thisObj = this;
     // Zooms take an arbitrary 700 milliseconds, which feels about right
     // to me, although if the zooms were smoother they could probably
@@ -1790,8 +1795,8 @@ GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {
     var firstStripe = (centerStripe - ((this.stripeCount) / 2)) | 0;
     this.offset = firstStripe * this.stripeWidth;
     this.maxOffset = this.bpToPx(this.ref.end+1) - this.stripeCount * this.stripeWidth;
-    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth();
-    this.minLeft = this.bpToPx(this.ref.start);
+    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth()*(1-this.maxPercentOffSeq); //MOD
+    this.minLeft = this.bpToPx(this.ref.start) - this.getWidth()*this.maxPercentOffSeq; //MOD
     this.zoomContainer.style.left = "0px";
     this.setX((centerPx - this.offset) - (eWidth / 2));
 
