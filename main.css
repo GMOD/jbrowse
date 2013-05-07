@@ -45,7 +45,6 @@ html, body {
     border-right-width: 1px;
 }
 
-
 .tundra input {
     outline: none;
 }
@@ -415,6 +414,7 @@ div.sequence > div {
     border-bottom: 1px solid black;
     background: #C6C6C6;
 }
+
 div.sequence > div:first-child {
     border-bottom-color: #4d4d4d;
 }
@@ -430,6 +430,7 @@ span.base {
     font-weight: bold;
     text-shadow: white 0px 0px 1px;
 }
+
 .base_n {
     background-color: #C6C6C6;
 }

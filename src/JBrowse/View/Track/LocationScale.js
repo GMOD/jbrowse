@@ -44,10 +44,10 @@ return declare(BlockBased,
         // give the position label a negative left offset in ex's to
         // more-or-less center it over the left boundary of the block
         posLabel.style.left = "-" + Number(numtext.length)/1.7 + "ex";
-
-        posLabel.appendChild( document.createTextNode( numtext ) );
+        if(leftBase >= this.refSeq.start-1 && leftBase <= this.refSeq.end)
+          posLabel.appendChild( document.createTextNode( numtext ) );
+        
         block.domNode.appendChild(posLabel);
-
         var highlight = this.browser.getHighlight();
         if( highlight && highlight.ref == this.refSeq.name )
             this.renderRegionHighlight( args, highlight );

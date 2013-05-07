@@ -37,7 +37,6 @@ return dojo.declare( BlockBased,
     },
 
     renderGridlines: function(block,leftBase,rightBase) {
-
         var base_span = rightBase-leftBase;
         var minor_count =
             !( base_span % 20 ) ? 20 :
@@ -47,14 +46,18 @@ return dojo.declare( BlockBased,
                                   0;
         var major_count = base_span == 20 ? 2 : base_span > 0 ? 1 : 0;
 
+       // alert("lb:"+leftBase + "rb:"+rightBase + "\nmajor:"+major_count + "\nminor:" + minor_count);
         var new_gridline = function( glclass, position ) {
             var gridline = document.createElement("div");
             gridline.style.cssText = "left: " + position + "%; width: 0px";
             gridline.className = "gridline "+glclass;
             return gridline;
         };
-
         for( var i=0; i<minor_count; i++ ) {
+                  /* Added this next section to ensure no gridlines render when we're out of bounds.
+            */
+            var currentBp = leftBase + base_span*i/minor_count;
+            if(currentBp < this.refSeq.start-1 || currentBp > this.refSeq.end) continue;
             var pos = 100/minor_count*i;
             var cls = pos == 0 || (minor_count == 20 && i == 10)
                 ? "gridline_major"

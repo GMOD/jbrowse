@@ -69,10 +69,13 @@ return declare( [BlockBased, ExportMixin],
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
         else {
+            var percentFull = Math.min(1, (this.refSeq.end-leftBase)/(rightBase-leftBase), (rightBase-this.refSeq.start)/(rightBase-leftBase));
+            percentFull = Math.max(0, percentFull);
+            var startOffset = Math.max(0, this.refSeq.start - leftBase);
             var borderWidth = Math.max(1,Math.round(4*scale/charSize.w));
             var blur = dojo.create( 'div', {
                              className: 'sequence_blur',
-                             style: { borderStyle: 'solid', borderTopWidth: borderWidth+'px', borderBottomWidth: borderWidth+'px' }
+                             style: { borderStyle: 'solid', borderTopWidth: borderWidth+'px', borderBottomWidth: borderWidth+'px', left:  startOffset*100/(rightBase-leftBase) + "%", width: percentFull*100 + "%" }
                          }, block.domNode );
             this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
         }
@@ -89,10 +92,13 @@ return declare( [BlockBased, ExportMixin],
         // sequence does not extend all the way
         // pad with blanks if the sequence does not extend all the way
         // across our range
+        var percentFull = seq.length/(end-start);
+        startOffset = 0;
         if( start < this.refSeq.start )
             while( seq.length < (end-start) ) {
                 //nbsp is an "&nbsp;" entity
                 seq = this.nbsp+seq;
+                startOffset++;
             }
         else if( end > this.refSeq.end )
             while( seq.length < (end-start) ) {
@@ -104,15 +110,18 @@ return declare( [BlockBased, ExportMixin],
         // make a div to contain the sequences
         var seqNode = document.createElement("div");
         seqNode.className = "sequence";
-        seqNode.style.width = "100%";
+        seqNode.style.width = percentFull*100 +"%";
+        seqNode.style.left = startOffset*100/(end-start) + "%";
+
+
         block.domNode.appendChild(seqNode);
 
         // add a div for the forward strand
-        seqNode.appendChild( this._renderSeqDiv( start, end, seq, scale ));
+        seqNode.appendChild( this._renderSeqDiv( start, end, seq, scale, percentFull ));
 
         // and one for the reverse strand
         if( this.config.showReverseStrand ) {
-            var comp = this._renderSeqDiv( start, end, Util.complement(seq), scale );
+            var comp = this._renderSeqDiv( start, end, Util.complement(seq), scale, percentFull );
             comp.className = 'revcom';
             seqNode.appendChild( comp );
         }
@@ -123,12 +132,12 @@ return declare( [BlockBased, ExportMixin],
      * makes a div containing the sequence.
      * @private
      */
-    _renderSeqDiv: function ( start, end, seq, scale ) {
+    _renderSeqDiv: function ( start, end, seq, scale, percentFull ) {
 
         var charSize = this.getCharacterMeasurements();
 
         var container  = document.createElement('div');
-        var charWidth = 100/(end-start)+"%";
+        var charWidth = 100/(end-start)/percentFull +"%";
         var drawChars = scale >= charSize.w;
         var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
         for( var i=0; i<seq.length; i++ ) {
@@ -140,7 +149,7 @@ return declare( [BlockBased, ExportMixin],
                     base.className = base.className + ' big';
                 base.innerHTML = seq.charAt(i);
             }
-            container.appendChild(base);
+            if(seq.charAt(i)!=this.nbsp) container.appendChild(base);
         }
         return container;
     },

@@ -214,6 +214,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
                           this.stripeWidth, this.pxPerBp,
                           this.trackPadding);
     this.trackContainer.appendChild(gridTrackDiv);
+
     this.uiTracks = [this.staticTrack, gridTrack];
 
     // accept tracks being dragged into this
@@ -956,13 +957,16 @@ GenomeView.prototype.slide = function(distance) {
 };
 
 GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
+    var maxEnd = (refseq.end - this.maxPercentOffSeq*startbp)/(1-this.maxPercentOffSeq);
+    var minStart = (refseq.start - this.maxPercentOffSeq*endbp)/(1-this.maxPercentOffSeq);
     if (startbp === undefined) startbp = this.minVisible();
     if (endbp === undefined) endbp = this.maxVisible();
-    if ((startbp < refseq.start) || (startbp > refseq.end))
-        startbp = refseq.start;
-    if ((endbp < refseq.start) || (endbp > refseq.end))
-        endbp = refseq.end;
-
+    if ((startbp > maxEnd) || (endbp < minStart))
+        return;
+    if (startbp < minStart)
+        startbp = minStart;
+    if (endbp > maxEnd)
+        endbp = maxEnd;
     if (this.ref != refseq) {
     this.ref = refseq;
     var removeTrack = function(track) {
