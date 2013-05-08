@@ -388,7 +388,7 @@ return declare( null, {
      */
     _makeDescriptionString: function( SO_term, ref, alt ) {
         if( ! alt )
-            return 'no variant';
+            return 'no alternative alleles';
 
         alt = alt.replace(/^<|>$/g,'');
 
