@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed a bug in VCF backend that prevented display of VCF features
+   containing lines in which the ALT column was '.' or not provided.
+   Thanks to Ignazio Carbone for pointing this out.
+
  * Fixed a display bug in faceted track selector in which selected
    facets that have no available matches were squashed to the left
    side.
