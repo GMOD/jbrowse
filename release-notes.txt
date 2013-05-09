@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.9.3     2013-05-09 12:42:39 EST5EDT
+
  * Fixed a bug in VCF backend that prevented display of VCF features
    containing lines in which the ALT column was '.' or not provided.
    Thanks to Ignazio Carbone for pointing this out.
