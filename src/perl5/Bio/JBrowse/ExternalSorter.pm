@@ -1,10 +1,10 @@
 =head1 NAME
 
-Bio::JBrowse::ExternalSorter - efficiently sort arrayrefs with a given comparison function
+Bio::JBrowse::ExternalSorter - efficiently sort serializable items with a given comparison function
 
 =head1 SYNOPSIS
 
-  # make a new sorter that sorts by column 4, then column 3
+  # make a new sorter that sorts arrayrefs by column 4, then column 3
   my $sorter = Bio::JBrowse::ExternalSorter->new(
                 sub ($$) {
                         $_[0]->[4] <=> $_[1]->[4]
