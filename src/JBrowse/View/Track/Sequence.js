@@ -51,7 +51,6 @@ return declare( [BlockBased, ExportMixin],
         var scale = args.scale;
 
         var charSize = this.getCharacterMeasurements();
-
         // if we are zoomed in far enough to draw bases, then draw them
         if ( scale >= 1 ) {
             this.store.getFeatures(
@@ -110,7 +109,7 @@ return declare( [BlockBased, ExportMixin],
         // make a div to contain the sequences
         var seqNode = document.createElement("div");
         seqNode.className = "sequence";
-        seqNode.style.width = percentFull*100 +"%";
+        seqNode.style.width = 100 - startOffset*100/(end-start) + "%";
         seqNode.style.left = startOffset*100/(end-start) + "%";
 
 

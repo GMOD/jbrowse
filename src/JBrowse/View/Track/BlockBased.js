@@ -189,7 +189,9 @@ return declare( [Component,DetailsMixin,Destroyable],
     initBlocks: function() {
         this.blocks = new Array(this.numBlocks);
         this.blockHeights = new Array(this.numBlocks);
-        for (var i = 0; i < this.numBlocks; i++) this.blockHeights[i] = 0;
+        for (var i = 0; i < this.numBlocks; i++) {
+            this.blockHeights[i] = 0;
+        }
         this.firstAttached = null;
         this.lastAttached = null;
         this._adjustBlanks();
@@ -255,17 +257,42 @@ return declare( [Component,DetailsMixin,Destroyable],
 
         var i, leftBase;
         var maxHeight = 0;
+
         //fill left, including existing blocks (to get their heights)
-        for (i = lastAttached; i >= first; i--) {
-            leftBase = startBase + (bpPerBlock * (i - first));
-            this._showBlock(i, leftBase, leftBase + bpPerBlock, scale,
-                            containerStart, containerEnd);
+
+        leftBase = startBase + (bpPerBlock * (lastAttached - first));
+        if(this.refSeq.circular) {
+            var rightOfLastBlock = this.refSeq.end + bpPerBlock - (this.refSeq.end % bpPerBlock);
+            leftBase -= Math.floor((leftBase+1)/(rightOfLastBlock))*rightOfLastBlock;         
         }
-        //fill right
-        for (i = lastAttached + 1; i <= last; i++) {
-            leftBase = startBase + (bpPerBlock * (i - first));
-            this._showBlock(i, leftBase, leftBase + bpPerBlock, scale,
+        for (i = lastAttached; i >= first; i--) {
+        //    leftBase = startBase + (bpPerBlock * (i - first));
+            if(this.refSeq.circular && leftBase < this.refSeq.start - 1) leftBase = this.refSeq.end - this.refSeq.end % bpPerBlock - 1;
+            var rightBase = leftBase + bpPerBlock;
+            this._showBlock(i, leftBase, rightBase, scale, false,
                             containerStart, containerEnd);
+            leftBase -= bpPerBlock;
+        }
+
+        leftBase = startBase + (bpPerBlock * (lastAttached + 1 - first));
+        if(this.refSeq.circular) {
+            var rightOfLastBlock = this.refSeq.end + bpPerBlock - (this.refSeq.end % bpPerBlock);
+            leftBase -= Math.floor((leftBase+1)/(rightOfLastBlock))*rightOfLastBlock;        
+        }
+
+        // Fix a glitch that  occurs if the first block rendered of a circular refseq is the last (shortened) block
+        this.leftOffset = this.refSeq.circular && lastAttached + 1 == first && leftBase + bpPerBlock > this.refSeq.end;
+
+        //fill right
+        for (i = lastAttached+ 1; i <= last; i++) {
+            if(this.refSeq.circular && leftBase > this.refSeq.end) leftBase = this.refSeq.start - 1;
+        //    leftBase = startBase + (bpPerBlock * (i - first));
+            var rightBase = leftBase + bpPerBlock;
+        // if(this.refSeq.circular && rightBase > this.refSeq.end) rightBase = this.refSeq.end;
+            this._showBlock(i, leftBase, rightBase, scale, true,
+                            containerStart, containerEnd);
+            leftBase += bpPerBlock;
+
         }
 
         //detach left blocks
@@ -424,10 +451,9 @@ return declare( [Component,DetailsMixin,Destroyable],
 
     fillBlockError: function( blockIndex, block, error ) {
         error = error || this.fatalError || this.error;
-
         domConstruct.empty( block.domNode );
         var msgDiv = this._renderErrorMessage( error, block.domNode );
-        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+        this.heightalUpdate( dojo.position(msgDiv).h, blockIndex );
     },
 
     _renderErrorMessage: function( message, parent ) {
@@ -466,8 +492,10 @@ return declare( [Component,DetailsMixin,Destroyable],
                              }, block.domNode );
     },
 
-    _showBlock: function(blockIndex, startBase, endBase, scale,
+    _showBlock: function(blockIndex, startBase, endBase, scale, leftToRight,
                          containerStart, containerEnd) {
+
+
         if ( this.empty || this.fatalError ) {
             this.heightUpdate( this.labelHeight );
             return;
@@ -478,15 +506,27 @@ return declare( [Component,DetailsMixin,Destroyable],
             return;
         }
 
+        var percentFull = Math.min(1, (this.refSeq.end-startBase)/(endBase-startBase));
+
+        var prevBlockModifier = leftToRight ? -1 : 1;
+        var prevBlock = this.blocks[blockIndex + prevBlockModifier];
+        var relWidth = leftToRight && prevBlock ? prevBlock.width : -1*this.widthPct*percentFull;
+        var thisLeft = prevBlock ? prevBlock.left + relWidth : blockIndex*this.widthPct;
+        thisLeft = this.leftOffset ? thisLeft + this.widthPct*(1 - percentFull) : thisLeft;
+        this.leftOffset = false;
+
+
         var block = new Block({
             startBase: startBase,
             endBase: endBase,
             scale: scale,
+            left: thisLeft,
+            width: this.widthPct*percentFull,
             node: {
                 className: 'block',
                 style: {
-                    left:  (blockIndex * this.widthPct) + "%",
-                    width: this.widthPct + "%"
+                    left:  thisLeft + "%",
+                    width: this.widthPct*percentFull + "%"
                 }
             }
         });
@@ -543,10 +583,11 @@ return declare( [Component,DetailsMixin,Destroyable],
     moveBlocks: function(delta) {
         var newBlocks = new Array(this.numBlocks);
         var newHeights = new Array(this.numBlocks);
-        var i;
-        for (i = 0; i < this.numBlocks; i++)
-            newHeights[i] = 0;
 
+        var i;
+        for (i = 0; i < this.numBlocks; i++) {
+            newHeights[i] = 0;
+        }
         var destBlock;
         if ((this.lastAttached + delta < 0)
             || (this.firstAttached + delta >= this.numBlocks)) {
@@ -562,9 +603,9 @@ return declare( [Component,DetailsMixin,Destroyable],
             else
                 destBlock = this.blocks[this.lastAttached - delta];
         }
-
         for (i = 0; i < this.blocks.length; i++) {
             var newIndex = i + delta;
+
             if ((newIndex < 0) || (newIndex >= this.numBlocks)) {
                 //We're not keeping this block around, so delete
                 //the old one.
@@ -573,18 +614,27 @@ return declare( [Component,DetailsMixin,Destroyable],
                 this._hideBlock(i);
             } else {
                 //move block
-                newBlocks[newIndex] = this.blocks[i];
-                if (newBlocks[newIndex])
-                    newBlocks[newIndex].domNode.style.left =
-                    ((newIndex) * this.widthPct) + "%";
 
+                newBlocks[newIndex] = this.blocks[i];
+                if (newBlocks[newIndex]) {
+
+                    var prevBlock = newBlocks[newIndex - 1];
+                    var leftOffset =  this.refSeq.circular && newBlocks[newIndex].endBase > this.refSeq.end ?
+                        this.widthPct - newBlocks[newIndex].width : 0;
+                    newBlocks[newIndex].left = prevBlock ? prevBlock.left + prevBlock.width : 
+                        newBlocks[newIndex].left + delta*this.widthPct;
+                    newBlocks[newIndex].domNode.style.left = newBlocks[newIndex].left + "%";
+                    
+                }
                 newHeights[newIndex] = this.blockHeights[i];
             }
         }
         this.blocks = newBlocks;
         this.blockHeights = newHeights;
         this._adjustBlanks();
+        
     },
+
 
     sizeInit: function(numBlocks, widthPct, blockDelta) {
         var i, oldLast;

@@ -1584,12 +1584,17 @@ Browser.prototype.navigateToLocation = function( location ) {
     if( !ref )
         return;
     location.ref = ref.name;
-
     // clamp the start and end to the size of the ref seq
-    location.start = Math.max( 0, location.start || 0 );
-    location.end   = Math.max( location.start,
+
+    if(ref.circular) {
+        location.start = this.view.wrapBp(location.start || 0,1);
+        location.end = this.view.wrapBp(location.end || ref.end, 1);
+    } else {
+        location.start = Math.max( 0, location.start || 0 );
+        location.end   = Math.max( location.start,
                                Math.min( ref.end, location.end || ref.end )
                              );
+    }
 
     // if it's the same sequence, just go there
     if( location.ref == this.refSeq.name) {

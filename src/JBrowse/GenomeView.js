@@ -154,6 +154,11 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.locationThumb = document.createElement("div");
     this.locationThumb.className = "locationThumb";
     this.overview.appendChild(this.locationThumb);
+
+    this.extraLocationThumb = document.createElement("div");
+    this.extraLocationThumb.className = "locationThumb";
+    this.overview.appendChild(this.extraLocationThumb);
+
     this.locationThumbMover = new locationThumbMover(this.locationThumb, {area: "content", within: true});
 
     if ( dojo.isIE ) {
@@ -290,6 +295,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
  * @returns {Object} containing ref, start, and end members for the currently displayed location
  */
 GenomeView.prototype.visibleRegion = function() {
+    //alert(this.x + "\n" + this.offset + "\n" + this.pxPerBp + "\n" + this.minVisible());
     return {
                ref:   this.ref.name,
                start: this.minVisible(),
@@ -625,7 +631,7 @@ GenomeView.prototype.getWidth = function() {
 };
 
 GenomeView.prototype.clampX = function(x) {
-    return Math.round( Math.max( Math.min( this.maxLeft - this.offset, x || 0),
+    return this.ref.circular ? x || 0 : Math.round( Math.max( Math.min( this.maxLeft - this.offset, x || 0),
                                  this.minLeft - this.offset
                                )
                      );
@@ -1083,7 +1089,7 @@ GenomeView.prototype.centerAtBase = function(base, instantly) {
  */
 GenomeView.prototype.minVisible = function() {
     var mv = this.pxToBp(this.x + this.offset);
-
+    if(this.ref.circular) mv = this.wrapBp(Math.round(mv),1);
     // if we are less than one pixel from the beginning of the ref
     // seq, just say we are at the beginning.
     if( mv < this.pxToBp(1) )
@@ -1098,6 +1104,7 @@ GenomeView.prototype.minVisible = function() {
  */
 GenomeView.prototype.maxVisible = function() {
     var mv = this.pxToBp(this.x + this.offset + this.getWidth());
+    if(this.ref.circular) mv = this.wrapBp(Math.round(mv),1);
     // if we are less than one pixel from the end of the ref
     // seq, just say we are at the end.
     if( mv > this.ref.end - this.pxToBp(1) )
@@ -1283,6 +1290,11 @@ GenomeView.prototype.thumbMoved = function(mover) {
     var pxLeft = parseInt(this.locationThumb.style.left);
     var pxWidth = parseInt(this.locationThumb.style.width);
     var pxCenter = pxLeft + (pxWidth / 2);
+
+    if(this.ref.circular && this.minVisible() > this.maxVisible()) {
+      var pxRight = parseInt(this.extraLocationThumb.style.left + this.extraLocationThumb.style.width);
+      pxCenter = (pxLeft + pxRight)/2;
+    }
     this.centerAtBase(((pxCenter / this.overviewBox.w) * (this.ref.end - this.ref.start)) + this.ref.start);
 };
 
@@ -1291,6 +1303,7 @@ GenomeView.prototype.thumbMoved = function(mover) {
  * the region being shown by the detail pane.
  */
 GenomeView.prototype.updateLocationThumb = function() {
+  
     var startbp = this.minVisible();
     var endbp = this.maxVisible();
 
@@ -1299,6 +1312,20 @@ GenomeView.prototype.updateLocationThumb = function() {
                                * this.overviewBox.w) + this.overviewBox.l);
     var trapRight = Math.round((((endbp - this.ref.start) / length)
                                 * this.overviewBox.w) + this.overviewBox.l);
+    
+    if(this.ref.circular && startbp > endbp) {
+      this.extraLocationThumb.style.cssText =
+      "height: " + (this.overviewBox.h - 4) + "px; "
+      + "left: 0px; "
+      + "width: " + trapRight + "px;"
+      + "z-index: 20;"
+      + "visibility: visible;";
+
+      trapRight = 99999;
+
+    } else {
+      this.extraLocationThumb.style.visibility = "hidden";
+    }
 
     this.locationThumb.style.cssText =
     "height: " + (this.overviewBox.h - 4) + "px; "
@@ -1367,8 +1394,14 @@ GenomeView.prototype.pxToBp = function(pixels) {
  * @returns {Number}
  */
 GenomeView.prototype.absXtoBp = function( /**Number*/ pixels) {
-    return this.pxToBp( this.getPosition().x + this.offset - dojo.position(this.elem, true).x + pixels );
+    var returnValue = this.pxToBp( this.getPosition().x + this.offset - dojo.position(this.elem, true).x + pixels );
+    return this.ref.circular ? this.wrapBp(returnValue, 1) : returnValue;
 };
+
+GenomeView.prototype.wrapBp = function(bp, offset) {
+    var dist = this.ref.end - this.ref.start;
+    return ((bp - offset) % dist + dist) % dist + offset;
+}
 
 GenomeView.prototype.bpToPx = function(bp) {
     return bp * this.pxPerBp;
@@ -1835,10 +1868,12 @@ GenomeView.prototype.scrollUpdate = function() {
 
     var newOffset = this.offset - (dStripes * this.stripeWidth);
 
+    this.trackIterate(function(track) { track.moveBlocks(dStripes); });
+
     if (this.offset == newOffset) return;
     this.offset = newOffset;
 
-    this.trackIterate(function(track) { track.moveBlocks(dStripes); });
+
 
     var newX = x + (dStripes * this.stripeWidth);
     this.updateStaticElements( { x: newX } );
@@ -1898,7 +1933,6 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
     var containerEnd =
         Math.round(this.pxToBp(this.offset
                                + (this.stripeCount * this.stripeWidth)));
-
     this.overviewTrackIterate(function(track, view) {
                                   track.showRange(0, view.overviewStripes - 1,
                                                   -1, view.overviewStripeBases,
