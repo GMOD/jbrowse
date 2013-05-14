@@ -37,6 +37,8 @@ var locationThumbMover = declare( dndMove.constrainedMoveable, {
                 this.constraints = function(){
                         var n = this.node.parentNode,
                         mb = dojo.marginBox(n);
+                        mb.l -= mb.w;
+                        mb.w *= 3;
                         mb.t = 0;
                         return mb;
                  };
@@ -160,6 +162,9 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.overview.appendChild(this.extraLocationThumb);
 
     this.locationThumbMover = new locationThumbMover(this.locationThumb, {area: "content", within: true});
+    this.extralocationThumbMover = new locationThumbMover(this.extraLocationThumb, {area: "content", within: true});
+
+    this.noOverviewClick = false;
 
     if ( dojo.isIE ) {
         // if using IE, we have to do scrolling with CSS
@@ -418,6 +423,11 @@ GenomeView.prototype._behaviors = function() { return {
                 dojo.connect( this.outerTrackContainer, "dblclick",       this, 'doubleClickZoom'    ),
 
                 dojo.connect( this.locationThumbMover,  "onMoveStop",     this, 'thumbMoved'         ),
+
+                dojo.connect( this.locationThumbMover, "onMoved",         this, 'mainThumbMoving'    ),
+                dojo.connect( this.extralocationThumbMover, "onMoved",    this, 'extraThumbMoving'   ),
+
+                dojo.connect( this.extralocationThumbMover, "onMoveStop", this, 'thumbMoved'         ),
 
                 dojo.connect( this.overview,            "onclick",        this, 'overviewClicked'    ),
 
@@ -967,12 +977,15 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
     var minStart = (refseq.start - this.maxPercentOffSeq*endbp)/(1-this.maxPercentOffSeq);
     if (startbp === undefined) startbp = this.minVisible();
     if (endbp === undefined) endbp = this.maxVisible();
-    if ((startbp > maxEnd) || (endbp < minStart))
-        return;
-    if (startbp < minStart)
-        startbp = minStart;
-    if (endbp > maxEnd)
-        endbp = maxEnd;
+    if(!(this.ref.circular)) {
+        if ((startbp > maxEnd) || (endbp < minStart))
+            return;
+        if (startbp < minStart)
+            startbp = minStart;
+        if (endbp > maxEnd)
+            endbp = maxEnd;      
+    }
+
     if (this.ref != refseq) {
     this.ref = refseq;
     var removeTrack = function(track) {
@@ -1022,7 +1035,7 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
     }
     this.stripeWidth = (this.stripeWidthForZoom(this.curZoom) / this.zoomLevels[this.curZoom]) * this.pxPerBp;
     this.instantZoomUpdate();
-
+    //alert("setLoc called centerAtBase\n" + (startbp+endbp)/2);
     this.centerAtBase((startbp + endbp) / 2, true);
 };
 
@@ -1048,38 +1061,39 @@ GenomeView.prototype.instantZoomUpdate = function() {
 };
 
 GenomeView.prototype.centerAtBase = function(base, instantly) {
-    base = Math.min(Math.max(base, this.ref.start), this.ref.end);
+    if(!(this.ref.circular)) base = Math.min(Math.max(base, this.ref.start), this.ref.end);
     if (instantly) {
-    var pxDist = this.bpToPx(base);
-    var containerWidth = this.stripeCount * this.stripeWidth;
-    var stripesLeft = Math.floor((pxDist - (containerWidth / 2)) / this.stripeWidth);
-    this.offset = stripesLeft * this.stripeWidth;
-    this.setX(pxDist - this.offset - (this.getWidth() / 2));
-    this.trackIterate(function(track) { track.clear(); });
-    this.showVisibleBlocks(true);
+        var pxDist = this.bpToPx(base);
+        var containerWidth = this.stripeCount * this.stripeWidth;
+        var stripesLeft = Math.floor((pxDist - (containerWidth / 2)) / this.stripeWidth);
+        this.offset = stripesLeft * this.stripeWidth;
+        this.setX(pxDist - this.offset - (this.getWidth() / 2));
+        this.trackIterate(function(track) { track.clear(); });
+        this.showVisibleBlocks(true);
         this.showCoarse();
     } else {
-    var startbp = this.pxToBp(this.x + this.offset);
-    var halfWidth = (this.getWidth() / this.pxPerBp) / 2;
-    var endbp = startbp + halfWidth + halfWidth;
-    var center = startbp + halfWidth;
-    if ((base >= (startbp  - halfWidth))
-        && (base <= (endbp + halfWidth))) {
-        //we're moving somewhere nearby, so move smoothly
-            if (this.animation) this.animation.stop();
-            var distance = (center - base) * this.pxPerBp;
-        this.trimVertical();
-            // slide for an amount of time that's a function of the
-            // distance being traveled plus an arbitrary extra 200
-            // milliseconds so that short slides aren't too fast
-            // (200 chosen by experimentation)
-            new Slider(this, this.afterSlide,
-                       Math.abs(distance) * this.slideTimeMultiple + 200,
-               distance);
-    } else {
-        //we're moving far away, move instantly
-        this.centerAtBase(base, true);
-    }
+        var startbp = this.pxToBp(this.x + this.offset);
+        var halfWidth = (this.getWidth() / this.pxPerBp) / 2;
+        var endbp = startbp + halfWidth + halfWidth;
+        var center = startbp + halfWidth;
+        if ((base >= (startbp  - halfWidth))
+            && (base <= (endbp + halfWidth))) {
+            //we're moving somewhere nearby, so move smoothly
+                if (this.animation) this.animation.stop();
+                var distance = (center - base) * this.pxPerBp;
+            this.trimVertical();
+                // slide for an amount of time that's a function of the
+                // distance being traveled plus an arbitrary extra 200
+                // milliseconds so that short slides aren't too fast
+                // (200 chosen by experimentation)
+                new Slider(this, this.afterSlide,
+                           Math.abs(distance) * this.slideTimeMultiple + 200,
+                   distance);
+        } else {
+            //we're moving far away, move instantly
+            //alert("centerAtBase called itself recursively\n" + base);
+            this.centerAtBase(base, true);
+        }
     }
 };
 
@@ -1148,6 +1162,10 @@ GenomeView.prototype.onResize = function() {
  * Event handler fired when the overview bar is single-clicked.
  */
 GenomeView.prototype.overviewClicked = function( evt ) {
+    if(this.noOverviewClick) {
+        this.noOverviewClick = false;
+        return;
+    }
     this.centerAtBase( this.overview_absXtoBp( evt.clientX ) );
 };
 
@@ -1276,6 +1294,7 @@ GenomeView.prototype.overview_absXtoBp = function(x) {
  */
 GenomeView.prototype.scaleClicked = function( evt ) {
     var bp = this.absXtoBp(evt.clientX);
+    //alert("scaleClicked called cab\n" + bp);
 
     this.scaleClickedTimeout = window.setTimeout( dojo.hitch( this, function() {
         this.centerAtBase( bp );
@@ -1287,16 +1306,37 @@ GenomeView.prototype.scaleClicked = function( evt ) {
  * is dragged.
  */
 GenomeView.prototype.thumbMoved = function(mover) {
+
     var pxLeft = parseInt(this.locationThumb.style.left);
     var pxWidth = parseInt(this.locationThumb.style.width);
     var pxCenter = pxLeft + (pxWidth / 2);
-
-    if(this.ref.circular && this.minVisible() > this.maxVisible()) {
-      var pxRight = parseInt(this.extraLocationThumb.style.left + this.extraLocationThumb.style.width);
-      pxCenter = (pxLeft + pxRight)/2;
-    }
+    if(this.ref.circular && pxCenter > this.overviewBox.w) pxCenter -= this.overviewBox.w;
+    //alert("thumbMoved called cab\n" + this.overviewBox.w + "\n" + pxLeft + " " + pxWidth + "\n" + ((pxCenter / this.overviewBox.w) * (this.ref.end - this.ref.start)) + this.ref.start);
     this.centerAtBase(((pxCenter / this.overviewBox.w) * (this.ref.end - this.ref.start)) + this.ref.start);
+    this.noOverviewClick = true;
 };
+
+GenomeView.prototype.extraThumbMoving = function(mover) {
+        var pxLeft = parseInt(this.extraLocationThumb.style.left);
+        var pxWidth = parseInt(this.extraLocationThumb.style.width);
+        
+        this.locationThumb.style.left = this.overviewBox.w  + pxLeft + "px";
+        this.locationThumb.style.width = pxWidth + "px";
+        if(this.ref.circular) this.locationThumb.style.visibility = "visible";
+        if(pxLeft+pxWidth > this.overviewBox.w) this.locationThumb.style.left = pxLeft - this.overviewBox.w + "px";
+        else if(pxLeft >= 0) this.locationThumb.style.visibility ="hidden";
+}
+
+GenomeView.prototype.mainThumbMoving = function(mover) {
+        var pxLeft = parseInt(this.locationThumb.style.left);
+        var pxWidth = parseInt(this.locationThumb.style.width);
+
+        this.extraLocationThumb.style.width = pxWidth + "px";
+        if(this.ref.circular) this.extraLocationThumb.style.visibility = "visible";
+        if(pxLeft < 0) this.extraLocationThumb.style.left = this.overviewBox.w  + pxLeft + "px";
+        else if(pxLeft+pxWidth > this.overviewBox.w) this.extraLocationThumb.style.left = pxLeft - this.overviewBox.w + "px";
+        else this.extraLocationThumb.style.visibility ="hidden";
+}
 
 /**
  * Updates the position of the red box in the overview that indicates
@@ -1313,15 +1353,16 @@ GenomeView.prototype.updateLocationThumb = function() {
     var trapRight = Math.round((((endbp - this.ref.start) / length)
                                 * this.overviewBox.w) + this.overviewBox.l);
     
-    if(this.ref.circular && startbp > endbp) {
+    if(this.ref.circular && startbp >= endbp) {
+
+      trapRight += this.overviewBox.w;
+
       this.extraLocationThumb.style.cssText =
       "height: " + (this.overviewBox.h - 4) + "px; "
-      + "left: 0px; "
-      + "width: " + trapRight + "px;"
+      + "left: " + (trapLeft - this.overviewBox.w) + "px; "
+      + "width: " + (trapRight - trapLeft) + "px;"
       + "z-index: 20;"
       + "visibility: visible;";
-
-      trapRight = 99999;
 
     } else {
       this.extraLocationThumb.style.visibility = "hidden";
@@ -1332,6 +1373,7 @@ GenomeView.prototype.updateLocationThumb = function() {
     + "left: " + trapLeft + "px; "
     + "width: " + (trapRight - trapLeft) + "px;"
     + "z-index: 20";
+
 };
 
 GenomeView.prototype.checkY = function(y) {
@@ -1739,12 +1781,11 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
     var edgeDist = this.bpToPx(this.ref.end) - (this.offset + pos.x);
         //zoomLoc is a number on [0,1] that indicates
         //the fixed point of the zoom
-    var zoomLoc1 = zoomLoc; //M
-    zoomLoc = Math.max(zoomLoc, (1- this.maxPercentOffSeq - scale*edgeDist/this.getWidth())/(1-scale));
-    var zoomLoc2 = zoomLoc; //M
-    edgeDist = this.bpToPx(this.ref.start) - (pos.x + this.offset);
-//    zoomLoc = Math.min(zoomLoc, ((edgeDist * scale) / (1 - scale)) / this.getWidth());
-    zoomLoc = Math.min(zoomLoc, (this.maxPercentOffSeq - scale*edgeDist/this.getWidth())/(1-scale));
+    if(!(this.ref.circular)) {
+        zoomLoc = Math.max(zoomLoc, (1- this.maxPercentOffSeq - scale*edgeDist/this.getWidth())/(1-scale));
+        edgeDist = this.bpToPx(this.ref.start) - (pos.x + this.offset);
+        zoomLoc = Math.min(zoomLoc, (this.maxPercentOffSeq - scale*edgeDist/this.getWidth())/(1-scale));
+    }
     var fixedBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.getWidth()));
     this.curZoom -= steps;
     this.pxPerBp = this.zoomLevels[this.curZoom];

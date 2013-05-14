@@ -1383,6 +1383,25 @@ Browser.prototype.onFineMove = function(startbp, endbp) {
                         borderRightWidth: (this.view.overviewBox.w - trapRight) + "px"
         });
     }
+    if(this.extraLocationTrap ) {
+        var trapLeft = Math.round((((startbp - this.view.ref.start) / length)
+                                   * this.view.overviewBox.w) + this.view.overviewBox.l);
+        var trapRight = Math.round((((endbp - this.view.ref.start) / length)
+                                    * this.view.overviewBox.w) + this.view.overviewBox.l);
+        if(trapLeft > trapRight) {
+            dojo.style( this.extraLocationTrap, {
+                            width: "0px",
+                            borderTopWidth: this.view.locationTrapHeight + "px",
+                            borderLeftWidth: "0px",
+                            borderRightWidth: trapRight + "px",
+                            visibility: "visible"
+            });
+        } else {
+            dojo.style( this.extraLocationTrap, {
+                            visibility: "hidden"
+            })
+        }
+    }
 };
 
 /**
@@ -2042,6 +2061,10 @@ Browser.prototype.createNavBox = function( parent ) {
     var locationTrapContainer = dojo.create('div', {className: 'locationTrapContainer'}, navbox );
 
     this.locationTrap = dojo.create('div', {className: 'locationTrap'}, locationTrapContainer );
+
+    if(this.refSeq.circular) {
+        this.extraLocationTrap = dojo.create('div', {className: 'extraLocationTrap'}, locationTrapContainer )
+    }
 
     var four_nbsp = String.fromCharCode(160); four_nbsp = four_nbsp + four_nbsp + four_nbsp + four_nbsp;
     navbox.appendChild(document.createTextNode( four_nbsp ));

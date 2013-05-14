@@ -62,6 +62,7 @@ return dojo.declare( BlockBased,
             var cls = pos == 0 || (minor_count == 20 && i == 10)
                 ? "gridline_major"
                 : "gridline_minor";
+            if(currentBp == this.refSeq.start - 1) cls = "gridline_origin";
 
             block.domNode.appendChild( new_gridline( cls, pos) );
         }

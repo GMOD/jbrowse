@@ -44,7 +44,8 @@ return declare(BlockBased,
         // give the position label a negative left offset in ex's to
         // more-or-less center it over the left boundary of the block
         posLabel.style.left = "-" + Number(numtext.length)/1.7 + "ex";
-        if(leftBase >= this.refSeq.start-1 && leftBase <= this.refSeq.end)
+        if(this.refSeq.circular && leftBase == this.refSeq.start-1);
+        else if(leftBase >= this.refSeq.start-1 && leftBase <= this.refSeq.end)
           posLabel.appendChild( document.createTextNode( numtext ) );
         
         block.domNode.appendChild(posLabel);

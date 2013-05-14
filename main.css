@@ -216,6 +216,18 @@ div.locationTrap {
     border-top: 0px dotted transparent;
 }
 
+div.extraLocationTrap {
+    position: absolute;
+    z-index: -10;
+    height: 0;
+    top: 0;
+    left: 0;
+    border-color: transparent;
+    border-style: solid;
+    border-top-color: #A9C6EB;
+    border-bottom: 0px dotted transparent;
+}
+
 div.locationThumb {
     position: absolute;
     top: 0px;
@@ -348,6 +360,10 @@ div.gridline_major {
 }
 div.gridline_minor {
     border-color: #eee;
+}
+
+div.gridline_origin {
+    border-color: #000;
 }
 
 div.pos-label {
