@@ -54,11 +54,18 @@ return dojo.declare( BlockBased,
             return gridline;
         };
         for( var i=0; i<minor_count; i++ ) {
-                  /* Added this next section to ensure no gridlines render when we're out of bounds.
-            */
+
             var currentBp = leftBase + base_span*i/minor_count;
             if(currentBp < this.refSeq.start-1 || currentBp > this.refSeq.end) continue;
-            var pos = 100/minor_count*i;
+            
+            // This next bit allows for the gridlines to match the base pairs even in circular DNA mode
+            var pos;
+            if(this.refSeq.circular) {
+                var pos = i*base_span/minor_count - this.startOffset;
+                pos = pos/(base_span - this.startOffset);
+                pos = 100*Math.max(pos,0);
+            } else pos = 100/minor_count*i;
+
             var cls = pos == 0 || (minor_count == 20 && i == 10)
                 ? "gridline_major"
                 : "gridline_minor";

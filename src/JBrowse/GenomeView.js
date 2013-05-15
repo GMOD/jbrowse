@@ -1961,6 +1961,7 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
     if (pos === undefined) pos = this.getPosition();
     if (startX === undefined) startX = pos.x - (this.drawMargin * this.getWidth());
     if (endX === undefined) endX = pos.x + ((1 + this.drawMargin) * this.getWidth());
+
     var leftVisible = Math.max(0, (startX / this.stripeWidth) | 0);
     var rightVisible = Math.min(this.stripeCount - 1,
                                (endX / this.stripeWidth) | 0);
@@ -1969,7 +1970,10 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 
     var startBase = Math.round(this.pxToBp((leftVisible * this.stripeWidth)
                                            + this.offset));
+
     startBase -= 1;
+    
+
     var containerStart = Math.round(this.pxToBp(this.offset));
     var containerEnd =
         Math.round(this.pxToBp(this.offset

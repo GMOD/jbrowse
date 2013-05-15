@@ -68,13 +68,10 @@ return declare( [BlockBased, ExportMixin],
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
         else {
-            var percentFull = Math.min(1, (this.refSeq.end-leftBase)/(rightBase-leftBase), (rightBase-this.refSeq.start)/(rightBase-leftBase));
-            percentFull = Math.max(0, percentFull);
-            var startOffset = Math.max(0, this.refSeq.start - leftBase);
             var borderWidth = Math.max(1,Math.round(4*scale/charSize.w));
             var blur = dojo.create( 'div', {
                              className: 'sequence_blur',
-                             style: { borderStyle: 'solid', borderTopWidth: borderWidth+'px', borderBottomWidth: borderWidth+'px', left:  startOffset*100/(rightBase-leftBase) + "%", width: percentFull*100 + "%" }
+                             style: { borderStyle: 'solid', borderTopWidth: borderWidth+'px', borderBottomWidth: borderWidth+'px', left:  this.startOffset*100/(rightBase-leftBase) + "%", width: this.percentFull*100 + "%" }
                          }, block.domNode );
             this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
         }
@@ -91,13 +88,12 @@ return declare( [BlockBased, ExportMixin],
         // sequence does not extend all the way
         // pad with blanks if the sequence does not extend all the way
         // across our range
-        var percentFull = seq.length/(end-start);
-        startOffset = 0;
+        //var startOffset = 0;
         if( start < this.refSeq.start )
             while( seq.length < (end-start) ) {
                 //nbsp is an "&nbsp;" entity
                 seq = this.nbsp+seq;
-                startOffset++;
+                //startOffset++;
             }
         else if( end > this.refSeq.end )
             while( seq.length < (end-start) ) {
@@ -109,18 +105,17 @@ return declare( [BlockBased, ExportMixin],
         // make a div to contain the sequences
         var seqNode = document.createElement("div");
         seqNode.className = "sequence";
-        seqNode.style.width = 100 - startOffset*100/(end-start) + "%";
-        seqNode.style.left = startOffset*100/(end-start) + "%";
-
+        seqNode.style.width = this.refSeq.circular ? "100%" : 100 - this.startOffset*100/(end-start) + "%";
+        seqNode.style.left = this.refSeq.circular ? "0%" : this.startOffset*100/(end-start) + "%";
 
         block.domNode.appendChild(seqNode);
 
         // add a div for the forward strand
-        seqNode.appendChild( this._renderSeqDiv( start, end, seq, scale, percentFull ));
+        seqNode.appendChild( this._renderSeqDiv( start, end, seq, scale ));
 
         // and one for the reverse strand
         if( this.config.showReverseStrand ) {
-            var comp = this._renderSeqDiv( start, end, Util.complement(seq), scale, percentFull );
+            var comp = this._renderSeqDiv( start, end, Util.complement(seq), scale );
             comp.className = 'revcom';
             seqNode.appendChild( comp );
         }
@@ -131,15 +126,16 @@ return declare( [BlockBased, ExportMixin],
      * makes a div containing the sequence.
      * @private
      */
-    _renderSeqDiv: function ( start, end, seq, scale, percentFull ) {
-
+    _renderSeqDiv: function ( start, end, seq, scale ) {
+        var modifiedPercentFull = this.percentFull;
+        if(!(this.refSeq.circular)) modifiedPercentFull -= this.startOffset/(end-start);
         var charSize = this.getCharacterMeasurements();
 
         var container  = document.createElement('div');
-        var charWidth = 100/(end-start)/percentFull +"%";
+        var charWidth = 100/(end-start)/modifiedPercentFull +"%";
         var drawChars = scale >= charSize.w;
         var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
-        for( var i=0; i<seq.length; i++ ) {
+        for( var i=this.startOffset; i<seq.length; i++ ) {
             var base = document.createElement('span');
             base.className = 'base base_'+seq.charAt([i]).toLowerCase();
             base.style.width = charWidth;

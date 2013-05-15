@@ -506,13 +506,21 @@ return declare( [Component,DetailsMixin,Destroyable],
             return;
         }
 
-        var percentFull = Math.min(1, (this.refSeq.end-startBase)/(endBase-startBase));
+        this.percentFull = Math.min(1, (this.refSeq.end-startBase)/(endBase-startBase));
+        this.startOffset = 0;
+
+        // If using circular DNA, there should be no space between the origin and the first base pair, ie first block should be slightly smaller.
+
+        this.startOffset = Math.max(0, (this.refSeq.start - startBase));
+        if(this.refSeq.circular) {
+            this.percentFull -= this.startOffset/(endBase - startBase);
+        }
 
         var prevBlockModifier = leftToRight ? -1 : 1;
         var prevBlock = this.blocks[blockIndex + prevBlockModifier];
-        var relWidth = leftToRight && prevBlock ? prevBlock.width : -1*this.widthPct*percentFull;
+        var relWidth = leftToRight && prevBlock ? prevBlock.width : -1*this.widthPct*this.percentFull;
         var thisLeft = prevBlock ? prevBlock.left + relWidth : blockIndex*this.widthPct;
-        thisLeft = this.leftOffset ? thisLeft + this.widthPct*(1 - percentFull) : thisLeft;
+        thisLeft = this.leftOffset ? thisLeft + this.widthPct*(1 - this.percentFull) : thisLeft;
         this.leftOffset = false;
 
 
@@ -521,12 +529,12 @@ return declare( [Component,DetailsMixin,Destroyable],
             endBase: endBase,
             scale: scale,
             left: thisLeft,
-            width: this.widthPct*percentFull,
+            width: this.widthPct*this.percentFull,
             node: {
                 className: 'block',
                 style: {
                     left:  thisLeft + "%",
-                    width: this.widthPct*percentFull + "%"
+                    width: this.widthPct*this.percentFull + "%"
                 }
             }
         });
