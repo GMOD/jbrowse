@@ -54,7 +54,7 @@ return declare( null, {
        return this._loaded = this._loaded || function() {
            var d = new Deferred();
            if( ! has('typed-arrays') )
-               d.reject( 'This web browser does not support JavaScript typed arrays.' );
+               d.reject( 'This web browser lacks support for JavaScript typed arrays.' );
            else
                this.blob.fetch( function( data) {
                                     thisB._parseIndex( data, d );

@@ -66,7 +66,7 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
                         bamBlob.blob ? bamBlob.blob.name : undefined ) || undefined;
 
         if( ! has( 'typed-arrays' ) ) {
-            this._failAllDeferred( 'Web browser does not support typed arrays');
+            this._failAllDeferred( 'This web browser lacks support for JavaScript typed arrays.' );
             return;
         }
 
