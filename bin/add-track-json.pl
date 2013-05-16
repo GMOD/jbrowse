@@ -4,7 +4,7 @@ use warnings;
 
 use FindBin qw($RealBin);
 use lib "$RealBin/../src/perl5";
-use JBlibs;
+use Bio::JBrowse::local_libs;
 
 use IO::Handle;
 use Pod::Usage;

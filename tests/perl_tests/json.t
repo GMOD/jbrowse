@@ -1,5 +1,5 @@
 use strict;
-use JBlibs;
+use Bio::JBrowse::local_libs;
 
 use Test::More;
 

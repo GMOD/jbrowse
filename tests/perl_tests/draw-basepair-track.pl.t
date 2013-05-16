@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use JBlibs;
+use Bio::JBrowse::local_libs;
 
 use File::Spec::Functions 'catfile';
 use File::Temp;

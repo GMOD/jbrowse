@@ -3,7 +3,7 @@ use warnings;
 
 use Test::More;
 
-use JBlibs;
+use Bio::JBrowse::local_libs;
 
 use Bio::JBrowse::PartialSorter;
 

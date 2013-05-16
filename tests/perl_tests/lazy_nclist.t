@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use JBlibs;
+use Bio::JBrowse::local_libs;
 
 use Test::More;
 use List::Util 'sum';

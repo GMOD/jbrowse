@@ -59,7 +59,7 @@ use warnings;
 
 use FindBin qw($Bin);
 use lib "$Bin/../src/perl5";
-use JBlibs;
+use Bio::JBrowse::local_libs;
 
 use Fcntl ":flock";
 use File::Spec::Functions;

@@ -1,15 +1,15 @@
 =head1 NAME
 
-JBlibs - when included, sets JBrowse Perl module paths
+Bio::JBrowse::local_libs - when included, sets JBrowse Perl module paths
 
 =cut
 
-package JBlibs;
+package Bio::JBrowse::local_libs;
 
 #find the jbrowse root dir
 use File::Basename 'dirname';
 use File::Spec::Functions qw( catfile catdir updir );
-my $dir = dirname($INC{'JBlibs.pm'}) or die;
+my $dir = catdir( dirname($INC{'Bio/JBrowse/local_libs.pm'}), updir(), updir() ) or die;
 my $extlib;
 for my $d ( $dir, catdir( $dir, updir() ), catdir( $dir, updir(), updir() )) {
     $extlib = catfile( $d, 'extlib' );

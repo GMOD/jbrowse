@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use JBlibs;
+use Bio::JBrowse::local_libs;
 
 use Test::More;
 

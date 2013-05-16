@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 use lib 'tests/perl_tests/lib';
-use JBlibs;
+use Bio::JBrowse::local_libs;
 
 use Test::More;
 use File::Spec;

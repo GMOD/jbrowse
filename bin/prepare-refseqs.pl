@@ -2,7 +2,7 @@
 use strict;
 use FindBin qw($RealBin);
 use lib "$RealBin/../src/perl5";
-use JBlibs;
+use Bio::JBrowse::local_libs;
 
 use Bio::JBrowse::Cmd::FormatSequences;
 
