@@ -4,6 +4,10 @@
    caused it to crash instead of producing help output.  Thanks to
    GitHub user sreyesch for pointing this out (issue #257).
 
+ * Fixed a bug in which some browsers report that
+   src/dijit/_editor/nls/commands.js is missing.  Thanks to Steffi
+   Geisen for pointing this out.
+
 1.9.3     2013-05-09 12:42:39 EST5EDT
 
  * Fixed a bug in VCF backend that prevented display of VCF features
