@@ -18,6 +18,9 @@ for my $d ( $dir, catdir( $dir, updir() ), catdir( $dir, updir(), updir() )) {
 
 require lib;
 
+#TODO: remove this after perl refactoring is done
+lib->import( 'src/newperl' );
+
 if( -e $extlib ) {
     lib->import( 'extlib/lib/perl5' );
     require local::lib;
