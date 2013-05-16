@@ -1,0 +1,5 @@
+#!/usr/bin/env perl
+use lib 'src/perl5';
+use Bio::JBrowse::local_libs;
+use Bio::JBrowse;
+Bio::JBrowse->run;
