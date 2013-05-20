@@ -96,33 +96,3 @@ echo -n "Building and installing legacy wiggle format support (superseded by Big
     bin/wig-to-json.pl --key 'Image - volvox_microarray.wig' --wig docs/tutorial/data_files/volvox_microarray.wig --out sample_data/json/volvox;
 ) >>setup.log 2>&1
 done_message "" "Make sure libpng development libraries and header files are installed.";
-
-echo
-echo -n "Building and installing legacy BAM support (bam-to-json.pl, samtools, and Bio::DB::Sam) ...";
-(
-    set -e;
-
-    # try to install Bio::DB::Sam if necessary
-    if( perl -Iextlib/lib/perl5 -Mlocal::lib=extlib -MBio::DB::Sam -e 1 ); then
-        echo Bio::DB::Sam already installed.
-    else
-        if( [ "x$SAMTOOLS" == "x" ] ); then
-            set -x;
-
-            if [ ! -e samtools ]; then
-                svn export https://samtools.svn.sourceforge.net/svnroot/samtools/trunk/samtools;
-                perl -i -pe 's/^CFLAGS=\s*/CFLAGS=-fPIC / unless /\b-fPIC\b/' samtools/Makefile;
-            fi;
-            make -C samtools -j3 lib;
-            export SAMTOOLS="$PWD/samtools";
-        fi
-        echo "samtools in env at '$SAMTOOLS'";
-        set +e;
-        bin/cpanm -v -l extlib Bio::DB::Sam;
-        set -e;
-        bin/cpanm -v -l extlib Bio::DB::Sam;
-    fi
-
-    bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Legacy BAM - volvox-sorted.bam" --cssClass basic --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}' --out sample_data/json/volvox;
-) >>setup.log 2>&1;
-done_message "" "Try reading the Bio-SamTools troubleshooting guide at https://metacpan.org/source/LDS/Bio-SamTools-1.33/README for help getting Bio::DB::Sam installed.";
