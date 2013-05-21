@@ -357,11 +357,9 @@ return declare( [Component,DetailsMixin,Destroyable],
             this.rightBlank.style.left = "50%";
             this.rightBlank.style.width = "50%";
         } else {
-            this.leftBlank.style.width = (this.firstAttached * this.widthPct) + "%";
-            this.rightBlank.style.left = ((this.lastAttached + 1)
-                                          * this.widthPct) + "%";
-            this.rightBlank.style.width = ((this.numBlocks - this.lastAttached - 1)
-                                           * this.widthPct) + "%";
+            this.leftBlank.style.width = this.blocks[this.firstAttached].left + "%";
+            this.rightBlank.style.left = this.blocks[this.lastAttached].left + this.blocks[this.lastAttached].width + "%";
+            this.rightBlank.style.width = 100 - (this.blocks[this.lastAttached].left + this.blocks[this.lastAttached].width) + "%";
         }
     },
 

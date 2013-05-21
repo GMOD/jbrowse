@@ -1957,22 +1957,76 @@ GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
     this.updateStaticElements({ height: this.getHeight() });
 };
 
+
+// Maps a base pair to the current index of the block containing it.
+GenomeView.prototype.bpToBlockIndex = function(bp) {
+  return this._toBlockIndex(bp) - this._toBlockIndex(this.pxToBp(this.offset));
+}
+
+// Helper function that returns the block index of the given base pair, not considering this.offset
+GenomeView.prototype._toBlockIndex = function(bp) {
+  var endBlock = Math.ceil(this.ref.end/this._bpPerBlock());
+  return Math.floor(this.wrapBp(bp,1)/this._bpPerBlock()) + this.numWraps(bp)*endBlock;
+}
+
+// Calculates the current number of base pairs per block.
+GenomeView.prototype._bpPerBlock = function() {
+  return Math.round(this.stripeWidth/this.pxPerBp);
+}
+
+// Maps an x-value (in pixels) to the current index of the block containing it.
+// considerOffset should be true if we're measuring a distance that doesn't already include this.offset built-in
+// e.g. a value of this.getPosition.x() or a distance between two points, in pixels.
+// it should be false if we're measuring an absolute distance from bp 0 to a given point, ie this.bpToPx(some bp)
+GenomeView.prototype.pxToBlockIndex = function(px, considerOffset) {
+  if(considerOffset === undefined) considerOffset = true;
+  var offset = considerOffset ? this.offset : 0;
+  return this.bpToBlockIndex(this.pxToBp(px+offset));
+}
+
+// Returns the start base pair of the block at blockIndex.
+GenomeView.prototype.blockIndexToBp = function(blockIndex) {
+  blockIndex += this._toBlockIndex(this.pxToBp(this.offset));
+  var endBlock = Math.ceil(this.ref.end/this._bpPerBlock());
+  var numWraps = Math.floor(blockIndex/endBlock);
+  return numWraps*this.ref.end + this._bpPerBlock()*(blockIndex - numWraps*endBlock);
+}
+
+// Returns the pixel start coordinate of the block at blockIndex.
+// If considerOffset is true, returns a relative position (an x-value that can be used for setX, for example).
+// If it is false, returns an absolute position in terms of the first bp (necessary, e.g., when setting this.offset)
+GenomeView.prototype.blockIndexToPx = function(blockIndex, considerOffset) {
+  if(considerOffset === undefined) considerOffset = true;
+  var offset = considerOffset ? this.offset : 0;
+  return this.bpToPx(this.blockIndexToBp(blockIndex))-offset;
+}
+
+// Returns the number of times the given bp coordinate is "wrapped around" the end coordinate (0 if between ref.start and ref.end)
+GenomeView.prototype.numWraps = function(bp, offset) {
+  if(offset === undefined) offset = 1;
+  return Math.round((bp - this.wrapBp(bp,offset))/(this.ref.end-this.ref.start));
+}
+
 GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, endX) {
     if (pos === undefined) pos = this.getPosition();
     if (startX === undefined) startX = pos.x - (this.drawMargin * this.getWidth());
     if (endX === undefined) endX = pos.x + ((1 + this.drawMargin) * this.getWidth());
 
-    var leftVisible = Math.max(0, (startX / this.stripeWidth) | 0);
-    var rightVisible = Math.min(this.stripeCount - 1,
-                               (endX / this.stripeWidth) | 0);
-
     var bpPerBlock = Math.round(this.stripeWidth / this.pxPerBp);
+    var renderOffsetPerWrap = 1 - (this.ref.end % bpPerBlock + 1)/(bpPerBlock);
+    var numWraps = this.numWraps(this.pxToBp(pos.x + this.offset));
 
+    var leftVisible = Math.max(0, (startX / this.stripeWidth + Math.floor(numWraps*renderOffsetPerWrap)) | 0);
+    var rightVisible = Math.min(this.stripeCount - 1,
+                               (endX / this.stripeWidth + Math.ceil(numWraps*renderOffsetPerWrap)) | 0);
+
+
+    if(rightVisible >= this.stripeCount-1) alert((endX / this.stripeWidth + Math.ceil(numWraps*renderOffsetPerWrap)) + " " + (this.stripeCount - 1));
     var startBase = Math.round(this.pxToBp((leftVisible * this.stripeWidth)
                                            + this.offset));
 
     startBase -= 1;
-    
+    alert(startBase);
 
     var containerStart = Math.round(this.pxToBp(this.offset));
     var containerEnd =
