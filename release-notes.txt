@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+ * Fixed a bug in which facet renaming specified in the
+   `trackSelector.renameFacets` configuration variable was not
+   properly applied to facet titles in the accordion widget on the
+   left side of the faceted track selector (issue #251).  Thanks to
+   Jason Gao for pointing this out.
+
  * Fixed a bug with GFF3 and Sequin Table export of GFF3
    alternate_allele attributes.  Thanks to Jillian Rowe for pointing
    this out (issue #256).

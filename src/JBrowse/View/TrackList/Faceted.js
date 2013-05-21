@@ -354,14 +354,19 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
      * @private
      */
     _facetDisplayName: function( facetName ) {
-        // make renameFacets if needed
+        // make renameFacets if needed, and lowercase all the keys to
+        // make it case-insensitive
         this.renameFacets = this.renameFacets || function(){
-            var rename = this.config.renameFacets || {};
-            rename.key = rename.key || 'Name';
-            return rename;
+            var renameFacets = this.config.renameFacets;
+            var lc = {};
+            for( var k in renameFacets ) {
+                lc[ k.toLowerCase() ] = renameFacets[k];
+            }
+            lc.key = lc.key || 'Name';
+            return lc;
         }.call(this);
 
-        return this.renameFacets[facetName] || Util.ucFirst( facetName.replace('_',' ') );
+        return this.renameFacets[facetName.toLowerCase()] || Util.ucFirst( facetName.replace('_',' ') );
     },
 
     /**
