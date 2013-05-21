@@ -664,7 +664,7 @@ Browser.prototype.browserMeta = function() {
     }
     else {
         about.description = '<div class="default_about">'
-            + '  <img class="logo" src="img/JBrowseLogo_small.png">'
+            + '  <img class="logo" src="'+this.resolveUrl('img/JBrowseLogo_small.png')+'">'
             + '  <h1>JBrowse '+verstring+'</h1>'
             + '  <div class="tagline">A next-generation genome browser<br> built with JavaScript and HTML5.</div>'
             + '  <a class="mainsite" target="_blank" href="http://jbrowse.org">JBrowse website</a>'

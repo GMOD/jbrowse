@@ -178,7 +178,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
         dojo.create('div',
                     {
                         className: 'faceted_tracksel_on_off tab',
-                        innerHTML: '<img src="img/left_arrow.png"><div>Select<br>tracks</div>'
+                        innerHTML: '<img src="'+this.browser.resolveUrl('img/left_arrow.png')+'"><div>Select<br>tracks</div>'
                     },
                     this.containerElem
                    );
@@ -233,7 +233,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
 
         this.busyIndicator = dojo.create(
             'div', {
-                innerHTML: '<img src="img/spinner.gif">',
+                innerHTML: '<img src="'+this.browser.resolveUrl('img/spinner.gif')+'">',
                 className: 'busy_indicator'
             }, this.containerElem );
 
@@ -244,13 +244,13 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
                   content: [
                       dojo.create( 'button', {
                                        className: 'faceted_tracksel_on_off',
-                                       innerHTML: '<img src="img/left_arrow.png"> <div>Back to browser</div>',
+                                       innerHTML: '<img src="'+this.browser.resolveUrl('img/left_arrow.png')+'"> <div>Back to browser</div>',
                                        onclick: lang.hitch( this, 'hide' )
                                    }
                                  ),
                       dojo.create( 'button', {
                                        className: 'clear_filters',
-                                       innerHTML:'<img src="img/red_x.png">'
+                                       innerHTML:'<img src="'+this.browser.resolveUrl('img/red_x.png')+'">'
                                                  + '<div>Clear All Filters</div>',
                                        onclick: lang.hitch( this, function(evt) {
                                            this._clearTextFilterControl();
@@ -441,7 +441,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
         );
         // make a "clear" button for the text filtering input
         this.textFilterClearButton = dojo.create('img', {
-            src: 'img/red_x.png',
+            src: this.browser.resolveUrl('img/red_x.png'),
             className: 'text_filter_clear',
             onclick: lang.hitch( this, function() {
                 this._clearTextFilterControl();
@@ -535,7 +535,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
                 title: '<span id="facet_title_' + facetName +'" '
                     + 'class="facetTitle">'
                     + this._facetDisplayName(facetName)
-                    + ' <a class="clearFacet"><img src="img/red_x.png" /></a>'
+                    + ' <a class="clearFacet"><img src="'+this.browser.resolveUrl('img/red_x.png')+'" /></a>'
                     + '</span>'
             });
 

@@ -10,6 +10,10 @@
    alternate_allele attributes.  Thanks to Jillian Rowe for pointing
    this out (issue #256).
 
+ * Fixed some hard-coded image paths that were not respecting the
+   setting of the `browserRoot` configuration variable.  Thanks to
+   Harry Yoo for pointing this out (issue #258).
+
  * Fixed a bug in which running `biodb-to-json.pl` with no arguments
    caused it to crash instead of producing help output.  Thanks to
    GitHub user sreyesch for pointing this out (issue #257).
