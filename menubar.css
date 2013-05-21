@@ -1,10 +1,9 @@
 /* styles for the top menu bar */
 div.menuBar {
-    padding: 1px 0;
     height: 25px;
 }
 .tundra .menuBar {
-    background: #396494;
+    background: #333333;
     text-align: right;
 }
 .tundra .menuBar a {
@@ -26,8 +25,7 @@ div.menuBar a, .topLink a {
 .menuBar .powered_by {
     float: left;
     font-size: 125%;
-    font-family: 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
-    font-weight: bold;
+    font-family: 'Open Sans', 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
     line-height: 25px; /* note this line-height should be the same as the fixed height of the menuBar */
     cursor: pointer;
 }
@@ -57,7 +55,7 @@ a.topLink, a.topLink * {
 }
 
 .tundra .menuBar .dijitButtonNode {
-    border: 2px outset rgba( 120, 120, 120, 0.2 );
+    border: none; 
 }
 .tundra .menuBar .dijitButtonHover .dijitButtonNode,
 .tundra .menuBar .dijitDropDownButtonHover .dijitButtonNode {

@@ -795,6 +795,7 @@ GenomeView.prototype.startRubberZoom = function( absToBp, container, scaleDiv, e
     this.winStartPos = this.getPosition();
     this.clearVerticalPositionLine();
     this.clearBasePairLabels();
+    dijit.byId('zoomSlider').set('value',(this.curZoom/this.zoomLevels.length)*100);
 };
 
 GenomeView.prototype._rubberStop = function(event) {
@@ -851,7 +852,7 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
         text.appendChild( document.createTextNode("Zoom to region") );
         main.appendChild(text);
         text.style.position = 'relative';
-        text.style.top = (50-container_coords.y) + "px";
+        text.style.top = (70-container_coords.y) + "px";
 
         container.appendChild( main );
         return main;
@@ -1215,9 +1216,12 @@ GenomeView.prototype.drawBasePairLabel = function ( args ){
 
     label.style.display = 'block';      //make label visible
     var absfunc = args.xToBp || dojo.hitch(this,'absXtoBp');
-    label.innerHTML = Util.addCommas( Math.floor( absfunc(numX) )); //set text to BP location
+    var value = Math.floor( absfunc(numX) );
+    label.innerHTML = Util.addCommas(value >= 0 ? value : 0 ); // set text to BP location
+                                                               // say 0 if it is a negative number,
+                                                               // ie. if it's in th track menu .: off
+                                                               // the scale
 
-    //label.style.top = args.top + 'px';
 
     // 15 pixels on either side of the label
     if( window.innerWidth - numX > 8 + label.offsetWidth ) {
@@ -1616,7 +1620,13 @@ GenomeView.prototype.redrawRegion = function( location ) {
     this.showVisibleBlocks( false );
 };
 
-GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
+GenomeView.prototype.zoomTo = function(value) {
+    var desiredZoomLevel = Math.round(value/100 * this.zoomLevels.length);
+    var steps = desiredZoomLevel - this.curZoom;
+    this.zoomIn(undefined,undefined,steps);
+}
+
+ GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
     if (this.animation) return;
     this._unsetPosBeforeZoom();
     if (zoomLoc === undefined) zoomLoc = 0.5;
@@ -1643,12 +1653,12 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
                                                 / this.pxPerBp));
     //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
 
-    // Zooms take an arbitrary 700 milliseconds, which feels about right
+    // Zooms take an arbitrary 300 milliseconds, which feels about right
     // to me, although if the zooms were smoother they could probably
     // get faster without becoming off-putting. -MS
     new Zoomer(scale, this,
                function() {this.zoomUpdate(zoomLoc, fixedBp);},
-               700, zoomLoc);
+               300, zoomLoc);
 };
 
 /** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
@@ -1681,7 +1691,7 @@ GenomeView.prototype.zoomToBaseLevel = function(e, pos) {
     //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
     new Zoomer(relativeScale, this,
                function() {this.zoomUpdate(zoomLoc, fixedBp);},
-               700, zoomLoc);
+               300, zoomLoc);
 };
 
 
@@ -1717,12 +1727,12 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
     //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
     this.minLeft = this.pxPerBp * this.ref.start;
 
-    // Zooms take an arbitrary 700 milliseconds, which feels about right
+    // Zooms take an arbitrary 300 milliseconds, which feels about right
     // to me, although if the zooms were smoother they could probably
     // get faster without becoming off-putting. -MS
     new Zoomer(scale, this,
                function() {this.zoomUpdate(zoomLoc, fixedBp);},
-               700, zoomLoc);
+               300, zoomLoc);
 };
 
 
@@ -1754,12 +1764,12 @@ GenomeView.prototype.zoomBackOut = function(e) {
     
     this.minLeft = this.pxPerBp * this.ref.start;
     var thisObj = this;
-    // Zooms take an arbitrary 700 milliseconds, which feels about right
+    // Zooms take an arbitrary 300 milliseconds, which feels about right
     // to me, although if the zooms were smoother they could probably
     // get faster without becoming off-putting. -MS
     new Zoomer(scale, this,
 	       function() {thisObj.setLocation(thisObj.ref, min, max); thisObj.zoomUpdate(zoomLoc, fixedBp); },
-	       700, zoomLoc);
+	       300, zoomLoc);
 };
 
 /** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
@@ -1804,6 +1814,7 @@ GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {
     this.showVisibleBlocks(true);
     this.showDone();
     this.showCoarse();
+    dijit.byId('zoomSlider').set('value',(this.curZoom/this.zoomLevels.length)*100);
 };
 
 GenomeView.prototype.scrollUpdate = function() {

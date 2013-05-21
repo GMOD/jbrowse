@@ -4,7 +4,13 @@ html, body {
     padding: 0;
     border: 0;
     font-size: 12px;
-    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
+    font-family: Open Sans,Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
+}
+
+trackHeader {
+    font-family: Open Sans, Verdana, Geneva, Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    padding: 0 0 0 7px;
 }
 
 /* styles for the about JBrowse dialog */
@@ -61,6 +67,12 @@ fieldset {
 fieldset > legend {
     font-weight: bold;
     margin-left: -1em;
+}
+
+button {
+    background: #CCCCCC;
+    color: black;
+    border: none;
 }
 
 .locString {
@@ -162,6 +174,7 @@ div.vertical_scrollbar .vertical_position_marker {
 #navbox {
     padding-top: 3px;
     position: relative;
+    height: 40px;
     text-align: center;
 }
 #navbox .dijitButton, #navbox .dijitTextBox, #navbox .dijitSelect {
@@ -221,11 +234,11 @@ div.locationThumb {
     position: absolute;
     top: 0px;
     /* if you change this border from 2px, change GenomeView.showTrap */
-    border: 2px solid red;
+    border: 2px solid #0E53A7;
     margin: 0px -2px 0px -2px;
     height: 23px;
     cursor: move;
-    background: rgba(0, 121, 245, 0.1);
+    background: rgba(0, 121, 245, 0.2);
 }
 
 div.locationThumb.dojoMoveItem {
@@ -248,6 +261,10 @@ a.topLink {
     color: blue;
 }
 
+#location {
+    font-family: Open Sans,sans-serif;
+}
+
 div.overview {
     position: relative;
     width: 100%;
@@ -256,14 +273,11 @@ div.overview {
     display: block;
     height: 23px;
 
-    background: #FAFAFA url(src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
-
-    border-style: solid;
-    border-width: 1px 0px 1px 0px;
-    border-color: #555;
+    background: #CCCCCC;
 
     color:#aaa;
     text-align: center;
+    font-size: 1.2em;
     cursor: crosshair;
 }
 
@@ -327,10 +341,9 @@ div.track {
 div#static_track {
     top: 0px;
     position: absolute;
-    background: #FAFAFA url(src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
-    border-top: 1px solid #999;
-    border-bottom: 1px solid #444;
+    background: #4284D3;
     z-index: 20;
+    color: white;
 }
 
 div.gridline {
@@ -357,7 +370,7 @@ div.pos-label {
     top: 0px;
     z-index: 100;
     margin: 1px;
-    font-family: sans-serif;
+    font-family: Open Sans,sans-serif;
 }
 
 div.overview-pos {
@@ -366,7 +379,7 @@ div.overview-pos {
     top: 0.27em;
     color: black;
     padding-left: 4px;
-    font-family: sans-serif;
+    font-family: Open Sans,sans-serif;
     border: 0;
     z-index: 10;
 }
@@ -375,7 +388,7 @@ div.overview-pos:first-child {
 }
 
 div.blank-block {
-    font-family: sans-serif;
+    font-family: Open Sans,sans-serif;
     position: absolute;
     overflow: visible;
     top: 0px;
@@ -474,18 +487,8 @@ div.track-label, div.tracklist-label {
     overflow: hidden;
     cursor: pointer;
 
-    border-width: 1px;
-    border-style: solid;
-
-    border-top-color: #999;
-    border-left-color: #999;
-    border-bottom-color: #555
-    border-right-color: #555;
-
-    border-radius: 6px;
-
-    color: #111;
-    font-weight: bold;
+    background-color: #CCCCCC;
+    color: #000;
 }
 
 div.tracklist-label {
@@ -605,7 +608,7 @@ div.track-label .feature-density {
     background-position-x: 0px;
 }
 div.track-label:hover {
-    background: #FAFAFA url(src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
+    background: #CCCCCC;
 
     border-width: 1px;
     border-color: #666;
@@ -617,20 +620,16 @@ div.track-label:hover {
 
 div.tracklist-label {
     padding: 3px;
-    background-color: #ddd;
-    background-color: rgba( 220, 220, 220, 0.9 );
+    background-color: #CCCCCC;
+    background-color: rgba( 204, 204, 204, 0.9 );
 }
 div.tracklist-label:hover {
-    background-color:  #396494;
+    background-color:  #0E53A7;
     color: #fefefe;
-    border: 1px solid black;
 }
 
 #trackPane {
-    background: #f2f2f2;
-    background-image: url('img/tracklist_bg.png');
-    background-repeat: repeat-y;
-    background-position: right;
+    background: #E6E6E6;
 }
 #trackPane h2 {
     margin: 0.5em 0 0 0.5em;
@@ -644,9 +643,8 @@ div.tracklist-label:hover {
 }
 
 #trackPane_splitter {
-    background: #dcdcdc;
+    background: #CCCCCC;
     width: 5px;
-    border-right: 1px solid #555;
 }
 
 div.tracklist-container {
@@ -720,7 +718,19 @@ div.overview .rubber-highlight * {
 }
 
 .icon.nav {
-    height: 30px !important;
+    height: 25px !important;
+    outline-style: none;
+    display: inline-block;
+}
+
+.miniTrap{
+    position: absolute;
+    bottom: 0;
+    border-bottom: 22px solid #4284D3;
+    border-left: 0px solid transparent;
+    border-right: 24px solid transparent;
+    height: 0;
+    width: auto;
 }
 
 input.nav {
@@ -890,9 +900,9 @@ a.dialog-new-window {
 .detail .value {
     display: inline-block;
     vertical-align: top;
-    font-family: sans-serif;
     padding: 0 0.7em;
     line-height: 1.8;
+    font-family: Open Sans,sans-serif;
 }
 .detail .field {
     margin: 0;
@@ -934,7 +944,7 @@ a.dialog-new-window {
     padding: 1px 0 2px 1px;
 }
 .sharePane .copyReminder {
-    background-color:  #396494;
+    background-color:  #0E53A7;
     text-align: center;
     width: 50%;
     margin: 0 auto;
@@ -974,8 +984,8 @@ a.dialog-new-window {
     height: 100%;
     width: 1px;
     background-color: #FF0000;
-    z-index: 15;
-    top: 0;
+    z-index: 5;
+    top: 25;
 }
 
 /* styles for per-base quality table in alignment detail pages */

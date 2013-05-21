@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -12,11 +13,11 @@
    height="40"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.46"
+   inkscape:version="0.48.3.1 r9886"
    version="1.0"
    sodipodi:docname="slide-right.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/mitch/sw/jbrowse/img/slide-right.png"
+   inkscape:export-filename="/home/ederohanian/JBrowse/jbrowse/img/slide-right.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -52,16 +53,18 @@
      objecttolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.78"
-     inkscape:cx="4.6336574"
-     inkscape:cy="21.51317"
+     inkscape:zoom="4.9263108"
+     inkscape:cx="39.513807"
+     inkscape:cy="23.080333"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:window-width="1440"
      inkscape:window-height="820"
      inkscape:window-x="0"
-     inkscape:window-y="27">
+     inkscape:window-y="54"
+     inkscape:window-maximized="0"
+     inkscape:snap-global="false">
     <inkscape:grid
        type="xygrid"
        id="grid2460"
@@ -76,6 +79,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -94,6 +98,11 @@
        d="M 21.306818,13.806818 A 7.9545455,7.9545455 0 1 1 5.3977275,13.806818 A 7.9545455,7.9545455 0 1 1 21.306818,13.806818 z"
        transform="matrix(1.4146307,0,0,1.4146307,-62.682375,-14.039517)" />
     <path
+       style="fill:none;fill-rule:evenodd;stroke:#a04d4d;stroke-width:10;stroke-linecap:round;stroke-linejoin:miter;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 98,33 L 79,20 L 98,7"
+       id="path3157"
+       sodipodi:nodetypes="ccc" />
+    <path
        style="fill:none;fill-rule:evenodd;stroke:#a04d4d;stroke-width:2.8292613;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M -50.246365,5.0539042 L -37.300806,5.0539042"
        id="path3159" />
@@ -101,24 +110,19 @@
        style="fill:none;fill-rule:evenodd;stroke:#a04d4d;stroke-width:2.8292613;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M -43.679778,11.714299 L -43.679778,-1.2312583"
        id="path3161" />
-    <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:#796657;stroke-width:2;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect8631"
-       width="46"
-       height="26"
-       x="7"
-       y="7"
-       ry="13"
-       rx="15" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#796657;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 31,27 L 46,20 L 31,13"
-       id="path9154"
-       sodipodi:nodetypes="ccc" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#796657;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 45,20 L 14,20"
-       id="path9156"
+       style="fill:none;fill-rule:evenodd;stroke:#a04d4d;stroke-width:10;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 80,20 L 115,20"
+       id="path6064"
        sodipodi:nodetypes="cc" />
+    <path
+       style="fill:#333333;fill-opacity:1;stroke:none;display:inline"
+       d="m 29.323815,8.8500385 7.52623,0 L 48,20 36.850045,31.14996 l -7.52623,0 8.362466,-8.362472 -25.512421,0 0,-5.574982 25.512421,0 z"
+       id="path3110"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccccc"
+       inkscape:export-filename="/home/ederohanian/JBrowse/jbrowse/img/slide-left.png"
+       inkscape:export-xdpi="32.807175"
+       inkscape:export-ydpi="32.807175" />
   </g>
 </svg>
