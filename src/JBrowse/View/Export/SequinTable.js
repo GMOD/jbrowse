@@ -35,6 +35,7 @@ return declare( ExportBase,
      * @returns {String} BED string representation of the feature
      */
     formatFeature: function( feature ) {
+        var thisB = this;
         if( ! this.headerPrinted )
             this.headerPrinted = this._printHeader( feature );
 
@@ -54,10 +55,24 @@ return declare( ExportBase,
                               return ! { start: 1, end: 1, type: 1, strand: 1, seq_id: 1 }[ t.toLowerCase() ];
                           }),
             function( tag ) {
-                return [ tag.toLowerCase(), feature.get(tag) ];
+                return [ tag.toLowerCase(), thisB.stringifyAttributeValue( feature.get(tag) ) ];
             });
 
         return featLine.join("\t")+"\n" + array.map( qualifiers, function( q ) { return "\t\t\t"+q.join("\t")+"\n"; } ).join('');
+    },
+
+    stringifyAttributeValue: function( val ) {
+        return val.hasOwnProperty( 'toString' )
+                   ? val.toString() :
+               val.values
+                   ? function(val) {
+                       return val instanceof Array
+                           ? val.join(',')
+                           : val;
+                   }.call(this,val.values) :
+               val instanceof Array
+                   ? val.join(',')
+                   : val;
     }
 });
 });

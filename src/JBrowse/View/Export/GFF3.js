@@ -1,8 +1,9 @@
 define([ 'dojo/_base/declare',
+         'dojo/_base/lang',
          'dojo/_base/array',
          'JBrowse/View/Export'
        ],
-       function( declare, array, ExportBase ) {
+       function( declare, lang, array, ExportBase ) {
 
 return declare( ExportBase,
  /**
@@ -188,7 +189,19 @@ return declare( ExportBase,
     _gff3_format_attributes: function( attrs ) {
         var attrOrder = [];
         for( var tag in attrs ) {
-            attrOrder.push( this._gff3_escape( tag )+'='+this._gff3_escape( attrs[tag] ) );
+            var val = attrs[tag];
+            var valstring = val.hasOwnProperty( 'toString' )
+                                ? this._gff3_escape( val.toString() ) :
+                            val.values
+                                ? function(val) {
+                                    return val instanceof Array
+                                        ? array.map( val, lang.hitch(this,'_gff3_escape') ).join(',')
+                                        : this._gff3_escape( val );
+                                  }.call(this,val.values) :
+                            val instanceof Array
+                                ? array.map( val, lang.hitch(this,'_gff3_escape') ).join(',')
+                                : this._gff3_escape( val );
+            attrOrder.push( this._gff3_escape( tag )+'='+valstring);
         }
         return attrOrder.join(';');
     },

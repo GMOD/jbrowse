@@ -46,7 +46,6 @@ return declare( null,
     writeFeature: function(feature) {
         this.print( this.formatFeature(feature) );
     }
-
 }
 );
 });
