@@ -2,13 +2,14 @@ define(
     [
         'dojo/_base/declare',
         'dojo/_base/array',
+        'dojo/_base/lang',
         'dijit/layout/AccordionContainer',
         'dijit/layout/ContentPane',
         'JBrowse/Util',
         'dojox/grid/EnhancedGrid',
         'dojox/grid/enhanced/plugins/IndirectSelection'
     ],
-    function ( declare, dArray, AccordionContainer, ContentPane, Util, EnhancedGrid ){
+    function ( declare, array, lang, AccordionContainer, ContentPane, Util, EnhancedGrid ){
 
 var dojof = Util.dojof;
 return declare( 'JBrowse.View.TrackList.Faceted', null,
@@ -37,7 +38,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
                        store.getFacetStats( facetName ).avgBucketSize > 1
                     &&
                        // and not an ident or label attribute
-                       ! dojo.some( store.getLabelAttributes()
+                       ! array.some( store.getLabelAttributes()
                                     .concat( store.getIdentityAttributes() ),
                                     function(l) {return l == facetName;}
                                   )
@@ -56,12 +57,12 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
 
        // subscribe to commands coming from the the controller
        this.browser.subscribe( '/jbrowse/v1/c/tracks/show',
-                       dojo.hitch( this, 'setTracksActive' ));
+                       lang.hitch( this, 'setTracksActive' ));
        // subscribe to commands coming from the the controller
        this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',
-                       dojo.hitch( this, 'setTracksInactive' ));
+                       lang.hitch( this, 'setTracksInactive' ));
        this.browser.subscribe( '/jbrowse/v1/c/tracks/delete',
-                       dojo.hitch( this, 'setTracksInactive' ));
+                       lang.hitch( this, 'setTracksInactive' ));
 
        this.renderInitial();
 
@@ -114,7 +115,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
             filter = [filter];
         if( dojo.isArray( filter ) ) {
             filter = function( store, facetName) {
-                return dojo.some( filter, function(fn) {
+                return array.some( filter, function(fn) {
                                       return facetName == fn;
                                   });
             };
@@ -131,7 +132,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
             suppressFlags = [suppressFlags];
         if( !this.suppress)
             this.suppress = {};
-        if( dojo.some( suppressFlags, function(f) {return this.suppress[f];}, this) )
+        if( array.some( suppressFlags, function(f) {return this.suppress[f];}, this) )
             return undefined;
         return callback.call(this);
     },
@@ -224,7 +225,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
 
         // make both buttons toggle this track selector
         dojo.query( '.faceted_tracksel_on_off' )
-            .onclick( dojo.hitch( this, 'toggle' ));
+            .onclick( lang.hitch( this, 'toggle' ));
 
         this.centerPane = new dijit.layout.BorderContainer({region: 'center', "class": 'gridPane', gutters: false});
         this.mainContainer.addChild( this.centerPane );
@@ -244,14 +245,14 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
                       dojo.create( 'button', {
                                        className: 'faceted_tracksel_on_off',
                                        innerHTML: '<img src="img/left_arrow.png"> <div>Back to browser</div>',
-                                       onclick: dojo.hitch( this, 'hide' )
+                                       onclick: lang.hitch( this, 'hide' )
                                    }
                                  ),
                       dojo.create( 'button', {
                                        className: 'clear_filters',
                                        innerHTML:'<img src="img/red_x.png">'
                                                  + '<div>Clear All Filters</div>',
-                                       onclick: dojo.hitch( this, function(evt) {
+                                       onclick: lang.hitch( this, function(evt) {
                                            this._clearTextFilterControl();
                                            this._clearAllFacetControls();
                                            this._async( function() {
@@ -315,7 +316,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
 
         var displayColumns = dojo.filter(
             this.displayColumns || this.trackDataStore.getFacetNames(),
-            dojo.hitch(this, '_isDisplayableColumn')
+            lang.hitch(this, '_isDisplayableColumn')
         );
         var colWidth = 90/displayColumns.length;
 
@@ -405,7 +406,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
             { type: 'text',
               size: 40,
               disabled: true, // disabled until shown
-              onkeypress: dojo.hitch( this, function(evt) {
+              onkeypress: lang.hitch( this, function(evt) {
                   // don't pay attention to modifier keys
                   if( evt.keyCode == dojo.keys.SHIFT || evt.keyCode == dojo.keys.CTRL || evt.keyCode == dojo.keys.ALT )
                       return;
@@ -414,7 +415,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
                   if( this.textFilterTimeout )
                       window.clearTimeout( this.textFilterTimeout );
                   this.textFilterTimeout = window.setTimeout(
-                      dojo.hitch( this, function() {
+                      lang.hitch( this, function() {
                                       // do a new search and update the display
                                       this._updateTextFilterControl();
                                       this._async( function() {
@@ -437,7 +438,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
         this.textFilterClearButton = dojo.create('img', {
             src: 'img/red_x.png',
             className: 'text_filter_clear',
-            onclick: dojo.hitch( this, function() {
+            onclick: lang.hitch( this, function() {
                 this._clearTextFilterControl();
                 this._async( function() {
                     this.updateQuery();
@@ -619,7 +620,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
 
         // if all our values are disabled, add 'disabled' to our
         // title's CSS classes
-        if( dArray.every( this.facetSelectors[facetName] ||[], function(sel) {
+        if( array.every( this.facetSelectors[facetName] ||[], function(sel) {
                             return dojo.hasClass( sel, 'disabled' );
                         },this)
           ) {
@@ -628,10 +629,10 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
 
         // if we have some selected values, make a "clear" button, and
         // add 'selected' to our title's CSS classes
-        if( dojo.some( this.facetSelectors[facetName] || [], function(sel) {
+        if( array.some( this.facetSelectors[facetName] || [], function(sel) {
                 return dojo.hasClass( sel, 'selected' );
             }, this ) ) {
-                var clearFunc = dojo.hitch( this, function(evt) {
+                var clearFunc = lang.hitch( this, function(evt) {
                     this._clearFacetControl( facetName );
                     this._async( function() {
                         this.updateQuery();
@@ -705,7 +706,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
              // track label value that will never match, because the
              // query engine ignores empty arrayrefs.
              if( ( ! newQuery.label || ! newQuery.label.length )
-                 && dojo.some( mytracks_options, is_selected )
+                 && array.some( mytracks_options, is_selected )
                ) {
                    newQuery.label = ['FAKE LABEL THAT IS HIGHLY UNLIKELY TO EVER MATCH ANYTHING'];
              }
@@ -806,7 +807,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
      * Make the track selector visible.
      */
     show: function() {
-        window.setTimeout( dojo.hitch( this, function() {
+        window.setTimeout( lang.hitch( this, function() {
             this.textFilterInput.disabled = false;
             this.textFilterInput.focus();
         }), 300);
