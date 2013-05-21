@@ -13,7 +13,7 @@ sub opt_spec {
         [ "format=s",  "Format of (all) input data.  If not specified, will guess at format of each source." ],
         [ "out|o=s",   "Output location.  Will make a new directory." ],
         [ "presorted", "Input is already sorted by reference sequence and start coordinate." ],
-        [ "type=s@", "Format only features of the given type.  For multiple types, may be specified multiple times, or with comma-separated types" ],
+        [ "features=s@", "Format only features of the given type and/or type:source.  For multiple types, may be specified multiple times, or with comma-separated types" ],
         [ "force|f", "Overwrite any existing output." ],
         );
 }
@@ -40,16 +40,16 @@ sub execute {
 
     my $stream = $self->_open_all( @$args );
 
-    if( $opt->{type} ) {
+    if( $opt->{features} ) {
         require Bio::JBrowse::FeatureStream::Filter;
-        my @types = map {split /,/, $_ } @{ $opt->{type} || [] };
+        my @features = map { [ split /:/, $_ ] } map {split /,/, $_ } @{ $opt->{features} || [] };
         $stream = Bio::JBrowse::FeatureStream::Filter->new(
             $stream,
             sub {
                 no warnings 'uninitialized';
                 my ($f) = @_;
-                for my $t (@types) {
-                    return 1 if $f->{type} eq $t;
+                for my $d (@features) {
+                    return 1 if $f->{type} eq $d->[0] && ( ! $d->[1] || $f->{source} eq $d->[1] );
                 }
                 return 0;
             });

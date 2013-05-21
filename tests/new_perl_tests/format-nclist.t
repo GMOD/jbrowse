@@ -17,7 +17,7 @@ my $tempdir = tempdir( CLEANUP => 1 );
 my $result = test_app( 'Bio::JBrowse' => [qw(
     format-nclist
     --force
-    --type mRNA
+    --features mRNA
     tests/data/au9_scaffold_subset.gff3
     --out ), $tempdir
  ]);
