@@ -48,11 +48,16 @@ return declare( null, {
     },
 
     _mergeConfigs: function(a, b) {
+        if( b === null )
+            return null;
+        if( a === null )
+            a = {};
+
         for (var prop in b) {
             if ((prop in a)
                 && ("object" == typeof b[prop])
                 && ("object" == typeof a[prop]) ) {
-                this._mergeConfigs( a[prop], b[prop] );
+                a[prop] = this._mergeConfigs( a[prop], b[prop] );
             } else if( typeof a[prop] == 'undefined' || typeof b[prop] != 'undefined' ){
                 a[prop] = b[prop];
             }

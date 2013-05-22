@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+ * Fixed a bug with configuration handling that preventing disabling
+   right-click feature menus, and probably had other undesirable
+   effects.  Thanks to Daniel Troesser for pointing this out (issue
+   #260).
+
  * Fixed a bug in which facet renaming specified in the
    `trackSelector.renameFacets` configuration variable was not
    properly applied to facet titles in the accordion widget on the

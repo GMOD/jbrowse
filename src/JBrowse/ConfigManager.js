@@ -32,8 +32,7 @@ getFinalConfig: function( callback ) {
 
         // merge the root config *into* the included config last, so
         // that values in the root config override the others
-        this._mergeConfigs( includedConfig, this.config );
-        this.config = includedConfig;
+        this.config = this._mergeConfigs( includedConfig, this.config );
 
         // now validate the final merged config, and finally give it
         // to the callback
@@ -188,14 +187,20 @@ _fatalError: function( error ) {
  * @private
  */
 _mergeConfigs: function( a, b, spaces ) {
+    if( b === null )
+        return null;
+
+    if( a === null )
+        a = {};
+
     for (var prop in b) {
         if( prop == 'tracks' && (prop in a) ) {
-            this._mergeTrackConfigs( a[prop], b[prop] );
+            a[prop] = this._mergeTrackConfigs( a[prop], b[prop] );
         }
         else if ( (prop in a)
               && ("object" == typeof b[prop])
               && ("object" == typeof a[prop]) ) {
-            this._mergeConfigs(a[prop], b[prop]);
+            a[prop] = this._mergeConfigs(a[prop], b[prop]);
         } else if( typeof a[prop] == 'undefined' || typeof b[prop] != 'undefined' ){
             a[prop] = b[prop];
         }
@@ -226,6 +231,8 @@ _mergeTrackConfigs: function( a, b ) {
             a.push( bT );
         }
     },this);
+
+    return a;
 }
 
 });
