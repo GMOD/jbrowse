@@ -1,9 +1,11 @@
 {{$NEXT}}
 
+1.9.4     2013-05-22 14:03:32 EST5EDT
+
  * Fixed a bug with configuration handling that preventing disabling
    right-click feature menus, and probably had other undesirable
-   effects.  Thanks to Daniel Troesser for pointing this out (issue
-   #260).
+   effects.  Thanks to Daniel Troesser for pointing this out
+   (issue #260).
 
  * Fixed a bug in which facet renaming specified in the
    `trackSelector.renameFacets` configuration variable was not
