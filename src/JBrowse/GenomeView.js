@@ -2007,6 +2007,21 @@ GenomeView.prototype.numWraps = function(bp, offset) {
   return Math.round((bp - this.wrapBp(bp,offset))/(this.ref.end-this.ref.start));
 }
 
+GenomeView.prototype.seqWidth = function() {
+  return this.bpToPx(this.ref.end - this.ref.start);
+}
+
+GenomeView.prototype.wrapPx = function(px) {
+  var dist = this.seqWidth();
+  return px - Math.floor(px/dist)*dist;
+  //return ((px % dist) + dist) % dist;
+}
+
+GenomeView.prototype.correctView = function() {
+  var x = this.getX();
+  this.offset = this.wrapPx(x + this.offset) - x;
+}
+
 GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, endX) {
     if (pos === undefined) pos = this.getPosition();
     if (startX === undefined) startX = pos.x - (this.drawMargin * this.getWidth());
@@ -2014,19 +2029,16 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
 
     var bpPerBlock = Math.round(this.stripeWidth / this.pxPerBp);
     var renderOffsetPerWrap = 1 - (this.ref.end % bpPerBlock + 1)/(bpPerBlock);
-    var numWraps = this.numWraps(this.pxToBp(pos.x + this.offset));
+    var numWraps = /*this.ref.circular ? this.numWraps(this.pxToBp(pos.x + this.offset)) :*/ 0;
 
     var leftVisible = Math.max(0, (startX / this.stripeWidth + Math.floor(numWraps*renderOffsetPerWrap)) | 0);
     var rightVisible = Math.min(this.stripeCount - 1,
                                (endX / this.stripeWidth + Math.ceil(numWraps*renderOffsetPerWrap)) | 0);
-
-
-    if(rightVisible >= this.stripeCount-1) alert((endX / this.stripeWidth + Math.ceil(numWraps*renderOffsetPerWrap)) + " " + (this.stripeCount - 1));
     var startBase = Math.round(this.pxToBp((leftVisible * this.stripeWidth)
                                            + this.offset));
-
     startBase -= 1;
-    alert(startBase);
+    
+    this.correctView();
 
     var containerStart = Math.round(this.pxToBp(this.offset));
     var containerEnd =

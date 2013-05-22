@@ -500,6 +500,7 @@ return declare( [Component,DetailsMixin,Destroyable],
         }
 
         if (this.blocks[blockIndex]) {
+            //if(Math.abs(this.blocks[blockIndex].startBase - startBase) > 2) alert(this.blocks[blockIndex].startBase + " " + startBase);
             this.heightUpdate(this.blockHeights[blockIndex], blockIndex);
             return;
         }
