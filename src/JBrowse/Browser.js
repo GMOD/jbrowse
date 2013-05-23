@@ -328,11 +328,6 @@ Browser.prototype.loadRefSeqs = function() {
     });
 };
 
-/**
- * Event that fires when the reference sequences have been loaded.
- */
-Browser.prototype.onRefSeqsLoaded = function() {};
-
 Browser.prototype.loadUserCSS = function() {
     return this._milestoneFunction( 'loadUserCSS', function( deferred ) {
         if( this.config.css && ! dojo.isArray( this.config.css ) )
