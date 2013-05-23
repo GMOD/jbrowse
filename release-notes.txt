@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Added a workaround for problems with some types of nonstandard Perl
+   installations.  Thanks to Rebecca Boes for pointing this out.
+
 1.9.4     2013-05-22 14:03:32 EST5EDT
 
  * Fixed a bug with configuration handling that preventing disabling
